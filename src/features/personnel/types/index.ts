@@ -12,7 +12,12 @@ import type { Timestamp } from '../../../shared/services/firebase';
 
 // ─── Re-exports ──────────────────────────────────────────────────────────────
 
-export type { CompetenciaTecnica, CompetenciaTecnicaInput, CategoriaCompetencia, NivelCompetencia } from './CompetenciaMatriz';
+export type {
+  CompetenciaTecnica,
+  CompetenciaTecnicaInput,
+  CategoriaCompetencia,
+  NivelCompetencia,
+} from './CompetenciaMatriz';
 export { NIVEL_LABEL, NIVEL_ORDER, CATEGORIA_LABEL } from './CompetenciaMatriz';
 export type { EscalaDiaria, EscalaDiariaInput, EscalaColaborador, Turno } from './Escala';
 export { TURNO_LABEL } from './Escala';

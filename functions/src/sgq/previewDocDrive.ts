@@ -35,10 +35,7 @@ export interface PreviewDocDriveOutput {
 export const previewDocDrive = onCall<PreviewDocDriveInput, Promise<PreviewDocDriveOutput>>(
   async (request: CallableRequest<PreviewDocDriveInput>) => {
     if (!request.auth) {
-      throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated',
-      );
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
     }
 
     const { labId, driveFileId, mimeType } = request.data;

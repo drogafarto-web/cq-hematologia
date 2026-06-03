@@ -11,9 +11,9 @@
  * Represents a single field change
  */
 export interface DiffEntry {
-  path: string;          // dot-notation: "status", "tratamento.inicio", "evidencias[0]"
-  before: unknown;       // Value before
-  after: unknown;        // Value after
+  path: string; // dot-notation: "status", "tratamento.inicio", "evidencias[0]"
+  before: unknown; // Value before
+  after: unknown; // Value after
   type: 'add' | 'remove' | 'update' | 'array-item';
 }
 
@@ -80,12 +80,7 @@ export function buildDiff(before: unknown, after: unknown): DiffEntry[] {
  * Recursive walk through objects/arrays
  * Accumulates diffs with dot-notation paths
  */
-function walkDiff(
-  before: unknown,
-  after: unknown,
-  pathPrefix: string,
-  diffs: DiffEntry[]
-): void {
+function walkDiff(before: unknown, after: unknown, pathPrefix: string, diffs: DiffEntry[]): void {
   const beforeType = Array.isArray(before) ? 'array' : typeof before;
   const afterType = Array.isArray(after) ? 'array' : typeof after;
 
@@ -148,10 +143,7 @@ function walkDiff(
     const afterObj = after as Record<string, unknown>;
 
     // Find keys in before and after
-    const allKeys = new Set([
-      ...Object.keys(beforeObj),
-      ...Object.keys(afterObj),
-    ]);
+    const allKeys = new Set([...Object.keys(beforeObj), ...Object.keys(afterObj)]);
 
     for (const key of allKeys) {
       const valBefore = beforeObj[key];
@@ -228,12 +220,7 @@ function deepEqual(a: unknown, b: unknown): boolean {
     const keysB = Object.keys(b as Record<string, unknown>);
     if (keysA.length !== keysB.length) return false;
     for (const key of keysA) {
-      if (
-        !deepEqual(
-          (a as Record<string, unknown>)[key],
-          (b as Record<string, unknown>)[key]
-        )
-      ) {
+      if (!deepEqual((a as Record<string, unknown>)[key], (b as Record<string, unknown>)[key])) {
         return false;
       }
     }

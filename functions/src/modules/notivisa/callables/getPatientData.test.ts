@@ -124,10 +124,7 @@ describe('getPatientData', () => {
         get: jest.fn().mockResolvedValue(laudoDocMock),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where = jest.fn().mockReturnValue(mockQuery);
+      mockDb.collection().doc().collection().where = jest.fn().mockReturnValue(mockQuery);
 
       // WHEN: Calling getPatientData
       const result = await getPatientData(request as CallableRequest<any>);

@@ -17,6 +17,7 @@ v1.4 Phase 4 includes **Patient Portal Phase 1** (read-only patient access to la
 3. **Syncing with LIS** (not available until v1.4.1; Phase 4 uses manual patient seeding).
 
 Regulatory constraints:
+
 - **LGPD Art. 38** (patient consent): patient must explicitly consent to HC Quality processing results; no implicit OAuth delegation.
 - **RDC 978 Arts. 166–180** (result communication): lab certifies it delivered result to patient; email link is defensible proof.
 
@@ -75,7 +76,7 @@ const payload = {
   labId: 'lab-123',
   patientId: 'patient-456',
   iat: Math.floor(Date.now() / 1000),
-  exp: Math.floor(Date.now() / 1000) + (7 * 86400), // 7 days
+  exp: Math.floor(Date.now() / 1000) + 7 * 86400, // 7 days
 };
 
 const tokenBody = JSON.stringify(payload);
@@ -116,6 +117,7 @@ const customToken = admin.auth().createCustomToken(payload.patientId, {
 ### Cloud Function Callables
 
 #### 1. **`generatePatientAuthLink(labId, patientIdentifier)` (callable)**
+
 - Input: `patientIdentifier` = CPF or email.
 - Validates: patient exists in `/labs/{labId}/patients`.
 - Lookup: `patients[?cpf === patientIdentifier || email === patientIdentifier]`.
@@ -126,6 +128,7 @@ const customToken = admin.auth().createCustomToken(payload.patientId, {
 - Returns: `{ success: true, messageSent: true }`.
 
 #### 2. **`verifyPatientAuthToken(labId, token)` (callable, unauthenticated)**
+
 - Input: `token` (from URL query param or header).
 - Parses token (validates format, checks expiry).
 - Computes HMAC, compares with token signature.
@@ -134,6 +137,7 @@ const customToken = admin.auth().createCustomToken(payload.patientId, {
 - **Rate limiting:** max 5 verification attempts per token per minute (brute-force protection).
 
 #### 3. **`downloadPatientLaudo(labId, laudoId)` (callable, authenticated with custom token)**
+
 - Validates: `request.auth.uid === laudo.patientId` (Firestore rules also enforce).
 - Generates or retrieves PDF from Cloud Storage.
 - Logs download: `{ patientId, laudoId, ts, acao: 'laudo-baixado' }`.
@@ -148,21 +152,21 @@ service cloud.firestore {
   match /databases/{database}/documents {
     // Patient portal read-only access
     match /labs/{labId}/laudos/{laudoId} {
-      allow read: if request.auth.token.portal == true 
+      allow read: if request.auth.token.portal == true
                   && request.auth.uid == resource.data.patientId;
       allow write: never; // read-only for patients
     }
 
     // Patient data (only RT can read; patients cannot list)
     match /labs/{labId}/patients/{patientId} {
-      allow read: if request.auth.uid == patientId 
+      allow read: if request.auth.uid == patientId
                   && request.auth.token.portal == true;
       allow create, update, delete: never; // RT-only via admin SDK
     }
 
     // NPS feedback form (append-only)
     match /labs/{labId}/patient-nps-feedback/{feedbackId} {
-      allow create: if request.auth.token.portal == true 
+      allow create: if request.auth.token.portal == true
                     && request.auth.uid == request.resource.data.patientId;
       allow read, update, delete: never;
     }
@@ -194,21 +198,21 @@ service cloud.firestore {
 interface Patient {
   id: string;
   labId: string;
-  
+
   // PII (encrypted at rest)
   name: string;
   dateOfBirth: Timestamp;
   cpf: string; // hashed (bcrypt or SHA-256)
   email: string; // encrypted
-  
+
   // v1.4.1 LIS integration (future)
   lisId?: string;
   lisVendor?: string;
   syncedAt?: Timestamp;
-  
+
   // Patient status
   status: 'ativo' | 'inativo';
-  
+
   // Audit
   criadoEm: Timestamp;
   atualizadoEm: Timestamp;
@@ -220,11 +224,11 @@ interface PatientNPSFeedback {
   labId: string;
   patientId: string; // link to patient
   laudoId: string; // which laudo was this feedback about?
-  
+
   // NPS question
   npsScore: number; // 0-10
   comment?: string;
-  
+
   // Metadata
   criadoEm: Timestamp;
   // NO operator editing (append-only)
@@ -235,12 +239,17 @@ interface PatientNPSFeedback {
 interface AuditPatientPortal {
   id: string;
   labId: string;
-  
+
   ts: Timestamp;
-  acao: 'auth-link-gerado' | 'token-verificado' | 'token-verificacao-falhou' | 'laudo-baixado' | 'feedback-submetido';
+  acao:
+    | 'auth-link-gerado'
+    | 'token-verificado'
+    | 'token-verificacao-falhou'
+    | 'laudo-baixado'
+    | 'feedback-submetido';
   patientId?: string; // hashed or omitted for privacy
   laudoId?: string;
-  
+
   details?: {
     ipAddress?: string; // optional client IP
     userAgent?: string; // browser info for fraud detection
@@ -263,21 +272,25 @@ interface AuditPatientPortal {
 ## Alternatives Considered
 
 ### A. Password-based login (username/email + password)
+
 **Pros:** familiar auth pattern; persistent login.  
 **Cons:** LGPD-unfriendly (password storage = PII breach risk); patient burden (remember password).  
 **Rejected:** Violates "minimize PII" principle.
 
 ### B. SMS OTP (one-time PIN sent via SMS)
+
 **Pros:** no password; familiar (banking apps use SMS OTP).  
 **Cons:** SMS delivery unreliable (especially in rural areas of Brazil); requires phone number (more PII); cost (SMS charges).  
 **Rejected:** Email is more reliable + no additional PII.
 
 ### C. OAuth (Google/GitHub)
+
 **Pros:** no password; familiar.  
 **Cons:** LGPD issue — patient credentials managed by 3P; Google/GitHub can infer lab patient base.  
 **Rejected:** LGPD Art. 8 restricts delegation to 3P without explicit consent (hard to obtain at scale).
 
 ### D. Persistent email-link tokens (stored in DB)
+
 **Pros:** can track token usage, invalidate tokens on demand.  
 **Cons:** requires token store (Redis or Firestore); added operational complexity; potential token leaks.  
 **Rejected:** Stateless tokens are simpler + sufficient for 7-day link lifetime.

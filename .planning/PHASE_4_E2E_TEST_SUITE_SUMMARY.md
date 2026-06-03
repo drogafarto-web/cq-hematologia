@@ -5,18 +5,20 @@
 **Files Created:** 4  
 **Lines of Code:** 2,481 LOC  
 **Test Scenarios:** 22 critical flows  
-**Coverage:** 100% of Phase 4 critical user journeys  
+**Coverage:** 100% of Phase 4 critical user journeys
 
 ---
 
 ## What Was Delivered
 
 ### 1. Main Test File
+
 **File:** `src/__tests__/e2e/phase-4-critical-flows.cy.ts` (1,049 LOC)
 
 Comprehensive Vitest E2E suite covering 5 critical flows with 22 scenarios:
 
 #### Flow 1: Patient Portal Auth (5 scenarios)
+
 - ✓ Email link auth → dashboard redirect
 - ✓ Expired link rejection (>7 days old)
 - ✓ Token reuse prevention
@@ -24,6 +26,7 @@ Comprehensive Vitest E2E suite covering 5 critical flows with 22 scenarios:
 - ✓ Rate limiting (6th request blocked)
 
 #### Flow 2: Patient Views Laudos (5 scenarios)
+
 - ✓ List load with 10 test laudos
 - ✓ Pagination (20 items/page, "Load more")
 - ✓ Date filtering (last 30 days)
@@ -31,11 +34,13 @@ Comprehensive Vitest E2E suite covering 5 critical flows with 22 scenarios:
 - ✓ Click to view detail modal
 
 #### Flow 3: Patient Downloads PDF (3 scenarios)
+
 - ✓ PDF generation success + filename
 - ✓ Large file handling (>5 MB, <10s)
 - ✓ Network error recovery with retry button
 
 #### Flow 4: RT NOTIVISA Submit + Queue (5 scenarios)
+
 - ✓ Draft creation (UUID, audit log)
 - ✓ Auditor approval (signature, status transition)
 - ✓ Queue submission (API call, response storage)
@@ -43,12 +48,14 @@ Comprehensive Vitest E2E suite covering 5 critical flows with 22 scenarios:
 - ✓ Webhook ACK handling (signature validation, logs)
 
 #### Flow 5: Session Management (4 scenarios)
+
 - ✓ Countdown warning (10 min remaining)
 - ✓ Session refresh (token reset, 30-min extend)
 - ✓ Auto-logout on expiry
 - ✓ Logout button (clear storage, redirect)
 
 **Test Infrastructure:**
+
 - ~500 mock helper functions
 - DOM interaction helpers (navigateTo, clickElement, fillInput)
 - Async helpers (waitForElement, waitForDownload)
@@ -58,47 +65,56 @@ Comprehensive Vitest E2E suite covering 5 critical flows with 22 scenarios:
 ---
 
 ### 2. Test Fixtures & Mock Data
+
 **File:** `src/__tests__/fixtures/phase-4-test-data.ts` (654 LOC)
 
 Production-ready test data covering all test scenarios:
 
 **Test Patients (3):**
+
 - Alice Silva (F, 1990-05-15, São Paulo)
 - Roberto Oliveira (M, 1985-03-20, Rio de Janeiro)
 - Carolina Mendes (F, 1988-12-10, Belo Horizonte)
 
 **Test Users (3):**
+
 - RT: Dr. RT Silva (CRM 123456/SP)
 - Auditor: Dra. Auditora Santos (CRM 654321/SP)
 - Admin: Lab administrator
 
 **Test Laudos (3 complete):**
+
 - Hemograma (normal results, 4 analytes)
 - Bioquímica (with critical values — hypoglycemia 42 mg/dL)
 - Coagulação (normal coagulation, 3 analytes)
 
 **NOTIVISA Payloads (4):**
+
 - Valid: Malaria (B54, ICD-10)
 - Valid: Acute lymphoid leukemia (C91.0)
 - Invalid: Missing disease code
 - Invalid: Bad CPF format
 
 **NOTIVISA Drafts (2):**
+
 - Draft state (created)
 - Approved state (with auditor signature)
 
 **NOTIVISA Queue (3):**
+
 - Pending (0 attempts)
 - Submitted (1 attempt, API response stored)
 - Acknowledged (webhook ACK received)
 
 **Generators:**
+
 - `generateTestLaudos(patientId, count)` — Bulk test data
 - `generateNotivisaPayloads(count)` — Bulk NOTIVISA payloads
 
 ---
 
 ### 3. Smoke Test Automation — PowerShell
+
 **File:** `.planning/scripts/phase-4-e2e-smoke.ps1` (280 LOC)
 
 Windows automation script with 8 steps:
@@ -113,6 +129,7 @@ Windows automation script with 8 steps:
 8. **Cleanup** — Kill dev server, clear temp files
 
 **Features:**
+
 - Color-coded output (Green/Red/Yellow/Cyan)
 - Error handling with stack traces
 - Job tracking for cleanup
@@ -122,6 +139,7 @@ Windows automation script with 8 steps:
 ---
 
 ### 4. Smoke Test Automation — Bash
+
 **File:** `.planning/scripts/phase-4-e2e-smoke.sh` (250 LOC)
 
 Unix automation script (macOS/Linux) — same 8 steps as PowerShell:
@@ -136,6 +154,7 @@ Unix automation script (macOS/Linux) — same 8 steps as PowerShell:
 8. Cleanup
 
 **Features:**
+
 - ANSI color output
 - Bash strict mode (set -eu)
 - Trap cleanup on exit
@@ -147,6 +166,7 @@ Unix automation script (macOS/Linux) — same 8 steps as PowerShell:
 ## Test Execution
 
 ### Local Development
+
 ```bash
 # Watch mode (re-run on file change)
 npm run test:unit:watch -- phase-4-critical-flows
@@ -159,6 +179,7 @@ npm test -- "Flow 1: Patient Portal Auth" --run
 ```
 
 ### Automated (Full Setup)
+
 ```bash
 # Windows
 pwsh .planning/scripts/phase-4-e2e-smoke.ps1
@@ -168,6 +189,7 @@ bash .planning/scripts/phase-4-e2e-smoke.sh --skip-build
 ```
 
 ### With Options
+
 ```bash
 # Skip emulator check (assume running separately)
 pwsh .planning/scripts/phase-4-e2e-smoke.ps1 -SkipEmulator
@@ -180,9 +202,11 @@ pwsh .planning/scripts/phase-4-e2e-smoke.ps1 -TimeoutSeconds 900
 ```
 
 ### Reports
+
 Generated to: `.planning/reports/phase-4-e2e-report-YYYYMMDD-HHMMSS.json`
 
 Format:
+
 ```json
 {
   "timestamp": "2026-05-07T17:30:00Z",
@@ -209,35 +233,41 @@ Format:
 ## Integration Points
 
 ### Firebase Emulator
+
 Tests assume Firestore emulator running on `localhost:9999`:
+
 ```bash
 firebase emulators:start --project hmatologia2 --only firestore,auth
 ```
 
 ### Vite Dev Server
+
 Tests require dev server on `localhost:5173`:
+
 ```bash
 npm run dev
 ```
 
 ### Test Data Seeding
+
 Smoke script auto-seeds via Node script that uses `firebase-admin` SDK.
 
 ### Cloud Logs Validation
+
 Tests validate `getCloudLogs()` mock for webhook ACK timestamps.
 
 ---
 
 ## Test Coverage Matrix
 
-| Flow | Scenarios | Coverage | Status |
-|------|-----------|----------|--------|
-| 1. Patient Auth | 5 | Email link, expiry, reuse, tampering, rate limit | ✓ |
-| 2. View Laudos | 5 | List, pagination, filter, sort, detail | ✓ |
-| 3. Download PDF | 3 | Generate, large file, network error | ✓ |
-| 4. NOTIVISA | 5 | Draft, approval, queue, processor, webhook | ✓ |
-| 5. Session | 4 | Countdown, refresh, expiry, logout | ✓ |
-| **TOTAL** | **22** | **100% of critical flows** | **✓** |
+| Flow            | Scenarios | Coverage                                         | Status |
+| --------------- | --------- | ------------------------------------------------ | ------ |
+| 1. Patient Auth | 5         | Email link, expiry, reuse, tampering, rate limit | ✓      |
+| 2. View Laudos  | 5         | List, pagination, filter, sort, detail           | ✓      |
+| 3. Download PDF | 3         | Generate, large file, network error              | ✓      |
+| 4. NOTIVISA     | 5         | Draft, approval, queue, processor, webhook       | ✓      |
+| 5. Session      | 4         | Countdown, refresh, expiry, logout               | ✓      |
+| **TOTAL**       | **22**    | **100% of critical flows**                       | **✓**  |
 
 ---
 
@@ -254,6 +284,7 @@ Before Phase 4 launch (2026-05-20):
 - [ ] **Clean logs:** No errors/warnings in test output
 
 ### Gate Criteria
+
 - **PASS:** 22/22 scenarios green, exit code 0
 - **FAIL:** Any scenario red or error, exit code 1
 - **Blocker:** Test execution timeout (>600s)
@@ -262,14 +293,14 @@ Before Phase 4 launch (2026-05-20):
 
 ## Files & Locations
 
-| File | Purpose | LOC | Status |
-|------|---------|-----|--------|
-| `src/__tests__/e2e/phase-4-critical-flows.cy.ts` | Main test suite | 1,049 | ✓ |
-| `src/__tests__/fixtures/phase-4-test-data.ts` | Test fixtures | 654 | ✓ |
-| `.planning/scripts/phase-4-e2e-smoke.ps1` | Windows automation | 280 | ✓ |
-| `.planning/scripts/phase-4-e2e-smoke.sh` | Unix automation | 250 | ✓ |
-| `src/__tests__/e2e/README.md` | Documentation | 248 | ✓ |
-| **TOTAL** | — | **2,481** | **✓** |
+| File                                             | Purpose            | LOC       | Status |
+| ------------------------------------------------ | ------------------ | --------- | ------ |
+| `src/__tests__/e2e/phase-4-critical-flows.cy.ts` | Main test suite    | 1,049     | ✓      |
+| `src/__tests__/fixtures/phase-4-test-data.ts`    | Test fixtures      | 654       | ✓      |
+| `.planning/scripts/phase-4-e2e-smoke.ps1`        | Windows automation | 280       | ✓      |
+| `.planning/scripts/phase-4-e2e-smoke.sh`         | Unix automation    | 250       | ✓      |
+| `src/__tests__/e2e/README.md`                    | Documentation      | 248       | ✓      |
+| **TOTAL**                                        | —                  | **2,481** | **✓**  |
 
 ---
 
@@ -282,19 +313,21 @@ Before Phase 4 launch (2026-05-20):
 ✓ **Fixtures** — Production-ready test data  
 ✓ **Automation** — PowerShell + Bash scripts  
 ✓ **Reports** — JSON output with metadata  
-✓ **Documentation** — README + inline comments  
+✓ **Documentation** — README + inline comments
 
 ---
 
 ## Known Limitations & Future Work
 
 **Current Limitations:**
+
 - Mock-based (not end-to-end HTTP/Firestore)
 - Localhost-only (requires local dev server)
 - No visual regression testing
 - No mobile/responsive testing
 
 **Phase 4.2 Enhancements:**
+
 - [ ] Add API integration tests (real NOTIVISA SOAP calls)
 - [ ] Add Lighthouse CI for performance gates
 - [ ] Add visual regression (Playwright screenshots)
@@ -325,17 +358,20 @@ test(phase-4): E2E test suite — 22 critical scenarios, 100% flow coverage
 ## Quick Start (for new engineers)
 
 1. **Clone & setup:**
+
    ```bash
    cd /hc-quality
    npm install
    ```
 
 2. **Start emulator in one terminal:**
+
    ```bash
    firebase emulators:start --project hmatologia2 --only firestore,auth
    ```
 
 3. **Run tests in another:**
+
    ```bash
    # Option A: Manual
    npm run test:unit:watch -- phase-4-critical-flows

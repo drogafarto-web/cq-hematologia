@@ -78,7 +78,10 @@ describe('aiPatternMatcher — Phase 7 Wave 1 (SA-07)', () => {
     expect(result.patterns).toEqual(['unusual_time_of_day', 'operation_rarity']);
     expect(result.riskLevel).toBe('high');
     expect(result.summary).toBe('Export operation at 3 AM with rare action type');
-    expect(createAIClient).toHaveBeenCalledWith({ apiKey: 'test-api-key', model: 'gemini-2.5-flash' });
+    expect(createAIClient).toHaveBeenCalledWith({
+      apiKey: 'test-api-key',
+      model: 'gemini-2.5-flash',
+    });
     expect(mockGenerateJSON).toHaveBeenCalledTimes(1);
   });
 

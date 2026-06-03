@@ -17,37 +17,37 @@
 
 ### Core Audit Documents (this repo)
 
-| Document | Purpose | Audience | Size | Status |
-|----------|---------|----------|------|--------|
-| **PHASE_3_COMPLIANCE_SUMMARY.md** | Executive briefing (1-page) | CTO, QM, auditors | 3 KB | ✅ Current |
-| **PHASE_3_COMPLIANCE_AUDIT.md** | Comprehensive audit (detailed) | Auditors, QA team | 25 KB | ✅ Current |
-| **AUDITOR_EVIDENCE_CHECKLIST.md** | Verification template with queries | DICQ auditors | 15 KB | ✅ Current |
-| **COMPLIANCE_ROADMAP_Phase4to9.md** | Delivery plan (Phases 1–9) | PM, tech leads | 12 KB | ✅ Current |
-| **COMPLIANCE_AUDIT_INDEX.md** | This navigation document | All | 2 KB | ✅ Current |
+| Document                            | Purpose                            | Audience          | Size  | Status     |
+| ----------------------------------- | ---------------------------------- | ----------------- | ----- | ---------- |
+| **PHASE_3_COMPLIANCE_SUMMARY.md**   | Executive briefing (1-page)        | CTO, QM, auditors | 3 KB  | ✅ Current |
+| **PHASE_3_COMPLIANCE_AUDIT.md**     | Comprehensive audit (detailed)     | Auditors, QA team | 25 KB | ✅ Current |
+| **AUDITOR_EVIDENCE_CHECKLIST.md**   | Verification template with queries | DICQ auditors     | 15 KB | ✅ Current |
+| **COMPLIANCE_ROADMAP_Phase4to9.md** | Delivery plan (Phases 1–9)         | PM, tech leads    | 12 KB | ✅ Current |
+| **COMPLIANCE_AUDIT_INDEX.md**       | This navigation document           | All               | 2 KB  | ✅ Current |
 
 ### Supporting Obsidian Documents (second brain)
 
-| Document | Purpose | Scope | Updated |
-|----------|---------|-------|---------|
-| HC_Quality_Compliance_DICQ.md | DICQ block-by-block map (Blocks A–J) | DICQ 8ª Ed (ISO 15189) | 2026-05-07 |
-| HC_Quality_RDC_978_2025_Resumo.md | RDC 978 article summary (28 articles) | RDC 978 ANVISA | 2026-05-07 |
-| HC_Quality_Checklist_Auditoria.md | Granular checklist (~115 items) | DICQ + RDC 978 | 2026-05-07 |
-| HC_Quality_Visao.md | North star & strategy | Long-term vision | — |
-| HC_Quality_Roadmap.md | Phase timeline & dependencies | All phases (0–14) | — |
-| HC_Quality_Decisoes_Abertas.md | Open architectural decisions | Tech decisions | — |
+| Document                          | Purpose                               | Scope                  | Updated    |
+| --------------------------------- | ------------------------------------- | ---------------------- | ---------- |
+| HC_Quality_Compliance_DICQ.md     | DICQ block-by-block map (Blocks A–J)  | DICQ 8ª Ed (ISO 15189) | 2026-05-07 |
+| HC_Quality_RDC_978_2025_Resumo.md | RDC 978 article summary (28 articles) | RDC 978 ANVISA         | 2026-05-07 |
+| HC_Quality_Checklist_Auditoria.md | Granular checklist (~115 items)       | DICQ + RDC 978         | 2026-05-07 |
+| HC_Quality_Visao.md               | North star & strategy                 | Long-term vision       | —          |
+| HC_Quality_Roadmap.md             | Phase timeline & dependencies         | All phases (0–14)      | —          |
+| HC_Quality_Decisoes_Abertas.md    | Open architectural decisions          | Tech decisions         | —          |
 
 **Access:** `C:\Users\labcl\Obsidian_Brain\01_Projetos\`
 
 ### Architecture & Implementation (codebase)
 
-| Location | Content | Scope |
-|----------|---------|-------|
-| `C:\hc quality\CLAUDE.md` | Project conventions & module list | Stack, rules, modules |
-| `C:\hc quality\.claude\rules\firestore-security.md` | Firestore rules conventions | RBAC, soft-delete, audit trail |
-| `C:\hc quality\.claude\rules\deploy-protocol.md` | Deploy gates & procedures | Pre-deploy checks, deploy order |
-| `C:\hc quality\docs\adr\ADR-0017-*.md` | HMAC baseline reset incident | Signature security |
-| `C:\hc quality\docs\adr\ADR-0018-*.md` | Secret-status pre-deploy gate | Preventive control |
-| `C:\hc quality\scripts\preflight-secrets-check.sh` | Deploy gate implementation | Executable script |
+| Location                                            | Content                           | Scope                           |
+| --------------------------------------------------- | --------------------------------- | ------------------------------- |
+| `C:\hc quality\CLAUDE.md`                           | Project conventions & module list | Stack, rules, modules           |
+| `C:\hc quality\.claude\rules\firestore-security.md` | Firestore rules conventions       | RBAC, soft-delete, audit trail  |
+| `C:\hc quality\.claude\rules\deploy-protocol.md`    | Deploy gates & procedures         | Pre-deploy checks, deploy order |
+| `C:\hc quality\docs\adr\ADR-0017-*.md`              | HMAC baseline reset incident      | Signature security              |
+| `C:\hc quality\docs\adr\ADR-0018-*.md`              | Secret-status pre-deploy gate     | Preventive control              |
+| `C:\hc quality\scripts\preflight-secrets-check.sh`  | Deploy gate implementation        | Executable script               |
 
 ---
 
@@ -57,16 +57,16 @@
 
 **Status:** 22/28 articles fully/substantially covered (78.6%)
 
-| Article | Topic | Phase 3 Status | Phase 0 Target | Gap |
-|---------|-------|---|---|---|
-| Art. 5 | Quality mgmt definitions | ✅ Covered | ✅ Covered | None |
-| Art. 75 | Performance SLAs | ✅ Covered | ✅ Covered | None |
-| Art. 115 | 5-year retention | ✅ Covered | ✅ Covered | Archive to cold storage (deferred Phase 9) |
-| **Art. 122** | **Supervisor presence** | 🔴 Missing | 🟡 Phase 0 | Shift registry + callable deployed Phase 0 |
-| **Art. 167** | **Laudo 14 fields** | ✅ 9/14 fields | 🟡 9/14 fields | Fields 10–12 pending Phase 9 |
-| Art. 179 | CIQ mandatory | ✅ Covered | ✅ Covered | None |
-| Art. 183 | Critical values | ✅ Covered | ✅ Covered | Threshold config per lab (Phase 0) |
-| **Art. 195** | **NOTIVISA reporting** | 🔴 Schema stub | 🔴 Schema stub | Integration Phase 5 |
+| Article      | Topic                    | Phase 3 Status | Phase 0 Target | Gap                                        |
+| ------------ | ------------------------ | -------------- | -------------- | ------------------------------------------ |
+| Art. 5       | Quality mgmt definitions | ✅ Covered     | ✅ Covered     | None                                       |
+| Art. 75      | Performance SLAs         | ✅ Covered     | ✅ Covered     | None                                       |
+| Art. 115     | 5-year retention         | ✅ Covered     | ✅ Covered     | Archive to cold storage (deferred Phase 9) |
+| **Art. 122** | **Supervisor presence**  | 🔴 Missing     | 🟡 Phase 0     | Shift registry + callable deployed Phase 0 |
+| **Art. 167** | **Laudo 14 fields**      | ✅ 9/14 fields | 🟡 9/14 fields | Fields 10–12 pending Phase 9               |
+| Art. 179     | CIQ mandatory            | ✅ Covered     | ✅ Covered     | None                                       |
+| Art. 183     | Critical values          | ✅ Covered     | ✅ Covered     | Threshold config per lab (Phase 0)         |
+| **Art. 195** | **NOTIVISA reporting**   | 🔴 Schema stub | 🔴 Schema stub | Integration Phase 5                        |
 
 **RDC 978 Sign-Off Readiness:** DICQ pre-audit 2026-08-15, external audit 2026-10-15+
 
@@ -76,18 +76,18 @@
 
 **Status:** 78.5% (v1.3) → 82% (Phase 0) → 88%+ (Phase 4–9)
 
-| Block | v1.3 % | Phase 0 | v1.4 Target | Gap |
-|-------|--------|---------|-------------|-----|
-| A (Governance) | 78% | 82% | 92% | Norteadores, designações, Política Qualidade |
-| B (SGD) | 65% | 80% | 92% | Manual da Qualidade, distribution tracking |
-| C (Personnel) | 80% | 85% | 92% | Supervisor presencial (field only), dossiê unification |
-| D (Quality/Compliance) | 60% | 70% | 85% | Auditoria checklist, CAPA trending, risk register |
-| E (Pre-analytic) | 64% | 66% | 75% | Coleta/transporte (deferred v1.5) |
-| F (Analytic) | 92% | 93% | 95% | CEQ annual reporting, validation uncertainty |
-| G (Post-analytic) | 70% | 75% | 92% | Laudo fields 10–12, lab-apoio linkage |
-| H (Resources) | 75% | 80% | 88% | Lab apoio formal contracts |
-| I (Environment) | 64% | 65% | 80% | Environmental monitoring expansion |
-| J (Confidentiality) | 70% | 72% | 78% | LGPD formal policy, consent workflow |
+| Block                  | v1.3 % | Phase 0 | v1.4 Target | Gap                                                    |
+| ---------------------- | ------ | ------- | ----------- | ------------------------------------------------------ |
+| A (Governance)         | 78%    | 82%     | 92%         | Norteadores, designações, Política Qualidade           |
+| B (SGD)                | 65%    | 80%     | 92%         | Manual da Qualidade, distribution tracking             |
+| C (Personnel)          | 80%    | 85%     | 92%         | Supervisor presencial (field only), dossiê unification |
+| D (Quality/Compliance) | 60%    | 70%     | 85%         | Auditoria checklist, CAPA trending, risk register      |
+| E (Pre-analytic)       | 64%    | 66%     | 75%         | Coleta/transporte (deferred v1.5)                      |
+| F (Analytic)           | 92%    | 93%     | 95%         | CEQ annual reporting, validation uncertainty           |
+| G (Post-analytic)      | 70%    | 75%     | 92%         | Laudo fields 10–12, lab-apoio linkage                  |
+| H (Resources)          | 75%    | 80%     | 88%         | Lab apoio formal contracts                             |
+| I (Environment)        | 64%    | 65%     | 80%         | Environmental monitoring expansion                     |
+| J (Confidentiality)    | 70%    | 72%     | 78%         | LGPD formal policy, consent workflow                   |
 
 **DICQ Pre-Audit Readiness:** Target 2026-08-15 (88% threshold)
 
@@ -97,11 +97,11 @@
 
 **Status:** 70% (v1.3) → 72% (Phase 0) → 78% (Phase 1–4)
 
-| Article | Requirement | Status | Completion |
-|---------|-------------|--------|-----------|
-| Art. 12 | Privacy notice | ✅ POL-LGPD-001 v1.0 deployed | — |
-| Art. 18 | Data subject rights | 🟡 Skeleton Phase 1 | 2026-05-22 |
-| Art. 34 | DPIA | ✅ IT-LGPD-DPIA-001 v1.1 deployed | — |
+| Article | Requirement         | Status                            | Completion |
+| ------- | ------------------- | --------------------------------- | ---------- |
+| Art. 12 | Privacy notice      | ✅ POL-LGPD-001 v1.0 deployed     | —          |
+| Art. 18 | Data subject rights | 🟡 Skeleton Phase 1               | 2026-05-22 |
+| Art. 34 | DPIA                | ✅ IT-LGPD-DPIA-001 v1.1 deployed | —          |
 
 ---
 
@@ -117,7 +117,8 @@
 
 **Remediation:** New key rotated; ~25 functions redeployed; validator operational
 
-**For auditors:** 
+**For auditors:**
+
 - Read: `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (canonical source)
 - Include in DICQ pre-audit briefing
 - Pre-rotation signatures marked as baseline reset in `audit-violations` collection (immutable)
@@ -130,7 +131,8 @@
 
 **Prevents:** Recurrence of ADR-0017 class bugs
 
-**For auditors:** 
+**For auditors:**
+
 - Run gate locally: `bash scripts/preflight-secrets-check.sh hmatologia2`
 - Gate integrated into `.claude/rules/deploy-protocol.md` (mandatory before functions deploy)
 
@@ -207,14 +209,14 @@
 
 ## Key Contacts & Ownership
 
-| Role | Name/Team | Responsibility | Contact |
-|------|-----------|---|---|
-| **CTO** | drogafarto | Compliance decision-maker, ADR author | — |
-| **QM** | — | Quality policy, personnel management | — |
-| **QA Lead** | — | Test coverage, smoke test execution | — |
-| **DevOps** | — | Deploy gates, Firebase secrets, monitoring | — |
-| **Auditor (internal)** | — | Pre-audit checklist verification | — |
-| **SBAC (DICQ)** | — | External audit scheduling | sbac@sbac.org.br (typical) |
+| Role                   | Name/Team  | Responsibility                             | Contact                    |
+| ---------------------- | ---------- | ------------------------------------------ | -------------------------- |
+| **CTO**                | drogafarto | Compliance decision-maker, ADR author      | —                          |
+| **QM**                 | —          | Quality policy, personnel management       | —                          |
+| **QA Lead**            | —          | Test coverage, smoke test execution        | —                          |
+| **DevOps**             | —          | Deploy gates, Firebase secrets, monitoring | —                          |
+| **Auditor (internal)** | —          | Pre-audit checklist verification           | —                          |
+| **SBAC (DICQ)**        | —          | External audit scheduling                  | sbac@sbac.org.br (typical) |
 
 ---
 
@@ -302,13 +304,13 @@ A: See risk mitigation section in `COMPLIANCE_ROADMAP_Phase4to9.md`. No indefini
 
 ## Document History
 
-| Date | Version | Status | Changes |
-|------|---------|--------|---------|
-| 2026-05-07 | 1.0 | ✅ Current | Initial audit completion (Phase 3) |
-| 2026-05-22 | — | Planned | Phase 1 checkpoint update |
-| 2026-07-15 | — | Planned | Phase 4 checkpoint update |
-| 2026-08-15 | — | Planned | DICQ pre-audit readiness sign-off |
-| 2026-10-15 | — | Planned | External audit completion |
+| Date       | Version | Status     | Changes                            |
+| ---------- | ------- | ---------- | ---------------------------------- |
+| 2026-05-07 | 1.0     | ✅ Current | Initial audit completion (Phase 3) |
+| 2026-05-22 | —       | Planned    | Phase 1 checkpoint update          |
+| 2026-07-15 | —       | Planned    | Phase 4 checkpoint update          |
+| 2026-08-15 | —       | Planned    | DICQ pre-audit readiness sign-off  |
+| 2026-10-15 | —       | Planned    | External audit completion          |
 
 ---
 

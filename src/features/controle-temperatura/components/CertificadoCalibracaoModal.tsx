@@ -117,11 +117,14 @@ export function CertificadoCalibracaoModal({
         title="Histórico de calibrações"
         subtitle={`${termometro.numeroSerie} — ${termometro.modelo}`}
         maxWidthClass="max-w-2xl"
-        footer={<Button onClick={onClose} className="flex-1">Fechar</Button>}
+        footer={
+          <Button onClick={onClose} className="flex-1">
+            Fechar
+          </Button>
+        }
       >
         <p className="mb-4 text-sm text-slate-500">
-          Histórico imutável — requisito ISO 15189:2022 cl. 5.3.1. Nenhuma
-          versão pode ser deletada.
+          Histórico imutável — requisito ISO 15189:2022 cl. 5.3.1. Nenhuma versão pode ser deletada.
         </p>
         <div className="overflow-hidden rounded-lg border border-slate-200">
           <table className="w-full text-sm">
@@ -141,7 +144,9 @@ export function CertificadoCalibracaoModal({
                   <td className="px-3 py-2 text-slate-600">
                     {formatDate(v.dataEmissao)} → {formatDate(v.dataValidade)}
                     {v.arquivadoEm ? (
-                      <span className="ml-1 text-xs text-slate-400">(arquivada {formatDate(v.arquivadoEm)})</span>
+                      <span className="ml-1 text-xs text-slate-400">
+                        (arquivada {formatDate(v.arquivadoEm)})
+                      </span>
                     ) : null}
                   </td>
                   <td className="px-3 py-2 text-slate-600">{v.numeroCertificado}</td>
@@ -193,10 +198,9 @@ export function CertificadoCalibracaoModal({
     >
       <div className="space-y-4">
         <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-          <strong>Versão atual:</strong> v{termometro.calibracaoAtual.versao} •
-          válida até {formatDate(termometro.calibracaoAtual.dataValidade)} •
-          certificado {termometro.calibracaoAtual.numeroCertificado}. Será arquivada
-          automaticamente ao salvar.
+          <strong>Versão atual:</strong> v{termometro.calibracaoAtual.versao} • válida até{' '}
+          {formatDate(termometro.calibracaoAtual.dataValidade)} • certificado{' '}
+          {termometro.calibracaoAtual.numeroCertificado}. Será arquivada automaticamente ao salvar.
         </div>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Data de emissão">

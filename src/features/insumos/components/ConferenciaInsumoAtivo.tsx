@@ -67,7 +67,9 @@ function StatusBadge({
     neutral: 'bg-slate-500/10 border-slate-500/30 text-slate-600 dark:text-white/40',
   }[tone];
   return (
-    <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}>
+    <span
+      className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${cls}`}
+    >
       {children}
     </span>
   );
@@ -82,7 +84,9 @@ function insumoBadge(insumo: Insumo | null): React.ReactNode {
   }
   const v = validadeStatus(insumo.validadeReal.toDate());
   if (v === 'warning') {
-    return <StatusBadge tone="warn">vence em {diasAteVencer(insumo.validadeReal.toDate())}d</StatusBadge>;
+    return (
+      <StatusBadge tone="warn">vence em {diasAteVencer(insumo.validadeReal.toDate())}d</StatusBadge>
+    );
   }
   return <StatusBadge tone="ok">OK</StatusBadge>;
 }
@@ -165,7 +169,10 @@ function SlotLine({
           </button>
           <button
             type="button"
-            onClick={() => { setSwapping(false); setSelId(''); }}
+            onClick={() => {
+              setSwapping(false);
+              setSelId('');
+            }}
             className="px-2 py-1 rounded text-[10px] text-slate-500 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/60"
           >
             ✕
@@ -240,7 +247,8 @@ function QuickSetupInline({
   );
 
   const needsReagente = requiredSlots.reagente && !reagente && reagentesDisponiveis.length > 0;
-  const needsReagenteTtpa = requiredSlots.reagenteTtpa && !reagenteTtpa && reagentesDisponiveis.length > 0;
+  const needsReagenteTtpa =
+    requiredSlots.reagenteTtpa && !reagenteTtpa && reagentesDisponiveis.length > 0;
   const needsControle = requiredSlots.controle && !controle && controlesDisponiveis.length > 0;
   const needsTira = requiredSlots.tira && !tira && tirasDisponiveis.length > 0;
 
@@ -414,9 +422,7 @@ function QuickSetupInline({
           </div>
         )}
       </div>
-      {error && (
-        <p className="text-[11px] text-red-600 dark:text-red-400 mt-1.5">{error}</p>
-      )}
+      {error && <p className="text-[11px] text-red-600 dark:text-red-400 mt-1.5">{error}</p>}
       <button
         type="button"
         onClick={handleQuickSetup}
@@ -456,26 +462,40 @@ export function ConferenciaInsumoAtivo({
     : allFechados;
 
   const byId = new Map(insumos.map((i) => [i.id, i]));
-  const reagente = setup?.activeReagenteId ? byId.get(setup.activeReagenteId) ?? null : null;
-  const reagenteTtpa = setup?.activeReagenteTtpaId ? byId.get(setup.activeReagenteTtpaId) ?? null : null;
-  const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
-  const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
+  const reagente = setup?.activeReagenteId ? (byId.get(setup.activeReagenteId) ?? null) : null;
+  const reagenteTtpa = setup?.activeReagenteTtpaId
+    ? (byId.get(setup.activeReagenteTtpaId) ?? null)
+    : null;
+  const controle = setup?.activeControleId ? (byId.get(setup.activeControleId) ?? null) : null;
+  const tira = setup?.activeTiraUroId ? (byId.get(setup.activeTiraUroId) ?? null) : null;
 
   // Alternativas para troca inline — insumos ativos do mesmo tipo excluindo o atual
   const alternativasReagente = useMemo(
-    () => allAtivos.filter((i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteId),
+    () =>
+      allAtivos.filter(
+        (i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteId,
+      ),
     [allAtivos, module, setup?.activeReagenteId],
   );
   const alternativasReagenteTtpa = useMemo(
-    () => allAtivos.filter((i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteTtpaId),
+    () =>
+      allAtivos.filter(
+        (i) => i.tipo === 'reagente' && i.modulo === module && i.id !== setup?.activeReagenteTtpaId,
+      ),
     [allAtivos, module, setup?.activeReagenteTtpaId],
   );
   const alternativasControle = useMemo(
-    () => allAtivos.filter((i) => i.tipo === 'controle' && i.modulo === module && i.id !== setup?.activeControleId),
+    () =>
+      allAtivos.filter(
+        (i) => i.tipo === 'controle' && i.modulo === module && i.id !== setup?.activeControleId,
+      ),
     [allAtivos, module, setup?.activeControleId],
   );
   const alternativasTira = useMemo(
-    () => allAtivos.filter((i) => i.tipo === 'tira-uro' && i.modulo === module && i.id !== setup?.activeTiraUroId),
+    () =>
+      allAtivos.filter(
+        (i) => i.tipo === 'tira-uro' && i.modulo === module && i.id !== setup?.activeTiraUroId,
+      ),
     [allAtivos, module, setup?.activeTiraUroId],
   );
 
@@ -536,7 +556,7 @@ export function ConferenciaInsumoAtivo({
       <ul className="space-y-1.5 mb-3">
         {requiredSlots.reagente !== undefined && (
           <SlotLine
-            label={module === 'coagulacao' ? "Reagente TP" : "Reagente"}
+            label={module === 'coagulacao' ? 'Reagente TP' : 'Reagente'}
             insumo={reagente}
             required={!!requiredSlots.reagente}
             alternativas={alternativasReagente}
@@ -575,7 +595,8 @@ export function ConferenciaInsumoAtivo({
       {slotsFaltando && (
         <div className="mb-3 p-2.5 rounded-lg bg-red-500/10 border border-red-500/30">
           <p className="text-[12px] text-red-700 dark:text-red-300">
-            Há insumo obrigatório não configurado. Configure no Setup do equipamento antes de salvar.
+            Há insumo obrigatório não configurado. Configure no Setup do equipamento antes de
+            salvar.
           </p>
         </div>
       )}

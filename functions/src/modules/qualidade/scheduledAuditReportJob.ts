@@ -76,7 +76,7 @@ Provide actionable insight suitable for lab RT/admin review.
       contents: [{ role: 'user', parts: [{ text: prompt }] }],
     });
 
-    const textContent = (response.candidates?.[0]?.content?.parts?.[0] as any);
+    const textContent = response.candidates?.[0]?.content?.parts?.[0] as any;
     return textContent && 'text' in textContent ? textContent.text : '';
   } catch (error) {
     logger.warn(`NLP summarizer failed: ${error}. Falling back to empty summary.`);
@@ -97,7 +97,7 @@ async function fetchRecentAlerts(labId: string, hoursBack: number = 24): Promise
       .where('status', 'in', ['active', 'dismissed'])
       .get();
 
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as AuditAlert));
+    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }) as AuditAlert);
   } catch (error) {
     logger.warn(`Failed to fetch alerts for lab ${labId}: ${error}`);
     return [];
@@ -207,7 +207,9 @@ export const scheduledAuditReportJob = onSchedule(
         }
       }
 
-      logger.info(`Scheduled audit report job completed: ${processedCount} reports created, ${errorCount} errors`);
+      logger.info(
+        `Scheduled audit report job completed: ${processedCount} reports created, ${errorCount} errors`,
+      );
     } catch (error) {
       logger.error(`Scheduled audit report job failed: ${error}`);
       throw error;

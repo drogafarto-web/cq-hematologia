@@ -64,7 +64,11 @@ async function navigateToExistingAudit(page: Page): Promise<void> {
   await navigateToAuditoria(page);
 
   // Check if any audit exists in list
-  const auditExists = await page.locator('[aria-label*="Auditoria"]').first().isVisible({ timeout: 2000 }).catch(() => false);
+  const auditExists = await page
+    .locator('[aria-label*="Auditoria"]')
+    .first()
+    .isVisible({ timeout: 2000 })
+    .catch(() => false);
 
   if (!auditExists) {
     // Create one via button
@@ -83,7 +87,9 @@ async function navigateToExistingAudit(page: Page): Promise<void> {
 
   // Click on first audit to open
   await page.click('[aria-label*="Auditoria"]');
-  await page.waitForSelector('[aria-label="AuditoriaDetail"], [aria-label="SessaoDetail"]', { timeout: 3000 });
+  await page.waitForSelector('[aria-label="AuditoriaDetail"], [aria-label="SessaoDetail"]', {
+    timeout: 3000,
+  });
 }
 
 // ─── Test Suite ───────────────────────────────────────────────────────────
@@ -98,19 +104,19 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
    * Then: Toast shows "4 registrados"
    * And: Presence list persists
    */
-  test('Scenario 1: should register presença na reunião de abertura', async ({
-    page,
-  }) => {
+  test('Scenario 1: should register presença na reunião de abertura', async ({ page }) => {
     test.skip(
       !process.env.AUDIT_DB_SEED,
-      'Audit DB seed not configured; skipping until infra ready'
+      'Audit DB seed not configured; skipping until infra ready',
     );
 
     await loginAsAuditor(page);
     await navigateToExistingAudit(page);
 
     // Navigate to "Reunião de Abertura" tab
-    const reuniaoTab = page.locator('button, tab:has-text("Reunião de Abertura"), [aria-label="Reunião de Abertura"]');
+    const reuniaoTab = page.locator(
+      'button, tab:has-text("Reunião de Abertura"), [aria-label="Reunião de Abertura"]',
+    );
     await reuniaoTab.click({ timeout: 3000 });
     await page.waitForSelector('[aria-label="ReuniaoPauta"], text=Pauta');
 
@@ -151,10 +157,14 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     await page.click('button:has-text("Adicionar"), button[type="submit"]');
 
     // Verify toast: "4 registrados"
-    await expect(page.locator('text=4 registrados, text=Participantes registrados')).toBeVisible({ timeout: 2000 });
+    await expect(page.locator('text=4 registrados, text=Participantes registrados')).toBeVisible({
+      timeout: 2000,
+    });
 
     // Verify presence list shows 4 items
-    await expect(page.locator('[aria-label="ParticipanteList"] li, [aria-label="ParticipanteList"] tr')).toHaveCount(4, { timeout: 2000 });
+    await expect(
+      page.locator('[aria-label="ParticipanteList"] li, [aria-label="ParticipanteList"] tr'),
+    ).toHaveCount(4, { timeout: 2000 });
   });
 
   /**
@@ -166,12 +176,10 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
    * Then: Plano created with status "não_iniciado"
    * And: Appears in action plan list
    */
-  test('Scenario 2: should create plano de ação para achado', async ({
-    page,
-  }) => {
+  test('Scenario 2: should create plano de ação para achado', async ({ page }) => {
     test.skip(
       !process.env.AUDIT_DB_SEED,
-      'Audit DB seed not configured; skipping until infra ready'
+      'Audit DB seed not configured; skipping until infra ready',
     );
 
     await loginAsAuditor(page);
@@ -186,7 +194,9 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     await firstFinding.waitFor({ state: 'visible', timeout: 2000 });
 
     // Click "Criar Plano" on first finding
-    const criarPlanoBtn = firstFinding.locator('button:has-text("Criar Plano"), button:has-text("Plano de Ação")');
+    const criarPlanoBtn = firstFinding.locator(
+      'button:has-text("Criar Plano"), button:has-text("Plano de Ação")',
+    );
     await criarPlanoBtn.click({ timeout: 2000 });
 
     // Expect plano form modal
@@ -195,7 +205,10 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     // Fill form
     await page.selectOption('[aria-label="Responsável"]', AUDITOR_EMAIL);
     await page.fill('[aria-label="Data Prazo"]', '2026-06-30');
-    await page.fill('[aria-label="Descrição da Ação"]', 'Implementar controle de calibração conforme DICQ 4.8 com verificação semanal.');
+    await page.fill(
+      '[aria-label="Descrição da Ação"]',
+      'Implementar controle de calibração conforme DICQ 4.8 com verificação semanal.',
+    );
 
     // Submit
     await page.click('button:has-text("Criar Plano"), button:has-text("Salvar Plano")');
@@ -204,7 +217,9 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     await expect(page.locator('text=Plano de ação criado')).toBeVisible({ timeout: 2000 });
 
     // Verify plano appears in list with status "não_iniciado"
-    await expect(page.locator('text=não_iniciado, text=Não Iniciado')).toBeVisible({ timeout: 2000 });
+    await expect(page.locator('text=não_iniciado, text=Não Iniciado')).toBeVisible({
+      timeout: 2000,
+    });
   });
 
   /**
@@ -222,7 +237,7 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
   }) => {
     test.skip(
       !process.env.AUDIT_DB_SEED || !process.env.AUDIT_FINALIZED_ID,
-      'Finalized audit seed not configured; skipping until infra ready'
+      'Finalized audit seed not configured; skipping until infra ready',
     );
 
     await loginAsAuditor(page);
@@ -236,21 +251,28 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     await expect(page.locator('text=Finalizada')).toBeVisible({ timeout: 2000 });
 
     // Click "Re-Auditoria" button
-    const reAuditoriaBtn = page.locator('button:has-text("Re-Auditoria"), button:has-text("Criar Re-Auditoria")');
+    const reAuditoriaBtn = page.locator(
+      'button:has-text("Re-Auditoria"), button:has-text("Criar Re-Auditoria")',
+    );
     await reAuditoriaBtn.click({ timeout: 2000 });
 
     // Expect re-audit form
     await page.waitForSelector('[aria-label="ReAuditoriaForm"]', { timeout: 2000 });
 
     // Fill form
-    await page.fill('[aria-label="Motivação"]', 'Verificação de efetividade das ações corretivas implementadas após auditoria anterior.');
+    await page.fill(
+      '[aria-label="Motivação"]',
+      'Verificação de efetividade das ações corretivas implementadas após auditoria anterior.',
+    );
     await page.fill('[aria-label="Data Prazo"]', '2026-07-15');
 
     // Submit
     await page.click('button:has-text("Criar Re-Auditoria"), button[type="submit"]');
 
     // Verify toast: "ReAuditoria criada"
-    await expect(page.locator('text=Re-auditoria criada, text=ReAuditoria criada')).toBeVisible({ timeout: 2000 });
+    await expect(page.locator('text=Re-auditoria criada, text=ReAuditoria criada')).toBeVisible({
+      timeout: 2000,
+    });
 
     // Verify redirect to new re-audit
     await page.waitForURL(`${LAB_URL}/auditoria/**`, { timeout: 3000 });
@@ -271,7 +293,7 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
   }) => {
     test.skip(
       !process.env.AUDIT_CHAIN_ID,
-      'Re-audit chain seed not configured; skipping until infra ready'
+      'Re-audit chain seed not configured; skipping until infra ready',
     );
 
     await loginAsAuditor(page);
@@ -279,26 +301,36 @@ test.describe('Auditoria Interna — Phase 11 Audit Workflow', () => {
     // Navigate to re-audit with parent (from env)
     const reAuditChainId = process.env.AUDIT_CHAIN_ID || 'audit-reaud-001';
     await page.goto(`${LAB_URL}/auditoria/${reAuditChainId}`);
-    await page.waitForSelector('[aria-label="ReAuditoriaChain"], [aria-label="AuditoriaDetail"]', { timeout: 3000 });
+    await page.waitForSelector('[aria-label="ReAuditoriaChain"], [aria-label="AuditoriaDetail"]', {
+      timeout: 3000,
+    });
 
     // Verify chain visualization is visible
     const chainContainer = page.locator('[aria-label="ReAuditoriaChain"]');
     await expect(chainContainer).toBeVisible({ timeout: 2000 });
 
     // Verify original audit card (first card in chain)
-    const originalCard = chainContainer.locator('[aria-label="OriginalAuditCard"], text=Auditoria Original').first();
+    const originalCard = chainContainer
+      .locator('[aria-label="OriginalAuditCard"], text=Auditoria Original')
+      .first();
     await expect(originalCard).toBeVisible({ timeout: 2000 });
 
     // Verify re-audit card (second card in chain)
-    const reAuditCard = chainContainer.locator('[aria-label="ReAuditCard"], text=Re-Auditoria').first();
+    const reAuditCard = chainContainer
+      .locator('[aria-label="ReAuditCard"], text=Re-Auditoria')
+      .first();
     await expect(reAuditCard).toBeVisible({ timeout: 2000 });
 
     // Verify connection visual (arrow or line)
-    const connection = chainContainer.locator('[aria-label="ChainConnection"], svg, .chain-arrow, .chain-connector');
-    await expect(connection).toBeVisible({ timeout: 2000 }).catch(() => {
-      // Connection may be rendered as SVG or CSS, fallback to just checking card proximity
-      console.log('Chain connection SVG not found, but cards visible — may be CSS-based');
-    });
+    const connection = chainContainer.locator(
+      '[aria-label="ChainConnection"], svg, .chain-arrow, .chain-connector',
+    );
+    await expect(connection)
+      .toBeVisible({ timeout: 2000 })
+      .catch(() => {
+        // Connection may be rendered as SVG or CSS, fallback to just checking card proximity
+        console.log('Chain connection SVG not found, but cards visible — may be CSS-based');
+      });
 
     // Verify both cards contain expected text
     await expect(page.locator('text=Auditoria Original')).toBeVisible({ timeout: 2000 });

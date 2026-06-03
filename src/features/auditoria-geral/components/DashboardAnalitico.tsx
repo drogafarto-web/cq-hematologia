@@ -35,7 +35,9 @@ export function DashboardAnalitico() {
     return [...finalizadas]
       .sort((a, b) => a.dataInicio.toMillis() - b.dataInicio.toMillis())
       .map((a) => ({
-        date: a.dataInicio.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
+        date: a.dataInicio
+          .toDate()
+          .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }),
         score: a.scoreTotal,
         titulo: a.titulo,
       }));
@@ -43,7 +45,9 @@ export function DashboardAnalitico() {
 
   const ncDistribution = useMemo(() => {
     const counts: Record<string, number> = {};
-    BLOCOS.forEach((b) => { counts[b.id] = 0; });
+    BLOCOS.forEach((b) => {
+      counts[b.id] = 0;
+    });
     finalizadas.forEach((a) => {
       Object.entries(a.scoresPorBloco).forEach(([bloco, score]) => {
         if (score <= 40) counts[bloco] = (counts[bloco] ?? 0) + 1;
@@ -71,7 +75,9 @@ export function DashboardAnalitico() {
   const blocoHeatmap = useMemo(() => {
     if (finalizadas.length === 0) return [];
     const sums: Record<string, { total: number; count: number }> = {};
-    BLOCOS.forEach((b) => { sums[b.id] = { total: 0, count: 0 }; });
+    BLOCOS.forEach((b) => {
+      sums[b.id] = { total: 0, count: 0 };
+    });
     finalizadas.forEach((a) => {
       Object.entries(a.scoresPorBloco).forEach(([bloco, score]) => {
         if (sums[bloco]) {
@@ -89,7 +95,7 @@ export function DashboardAnalitico() {
 
   const sortedByDate = useMemo(() => {
     return [...finalizadas].sort((a, b) =>
-      a.dataFim && b.dataFim ? a.dataFim.toMillis() - b.dataFim.toMillis() : 0
+      a.dataFim && b.dataFim ? a.dataFim.toMillis() - b.dataFim.toMillis() : 0,
     );
   }, [finalizadas]);
 
@@ -122,9 +128,10 @@ export function DashboardAnalitico() {
   const previous = sortedByDate.length > 1 ? sortedByDate[sortedByDate.length - 2] : null;
   const trend = latest && previous ? latest.scoreTotal - previous.scoreTotal : 0;
 
-  const avgScore = finalizadas.length > 0
-    ? Math.round(finalizadas.reduce((sum, a) => sum + a.scoreTotal, 0) / finalizadas.length)
-    : 0;
+  const avgScore =
+    finalizadas.length > 0
+      ? Math.round(finalizadas.reduce((sum, a) => sum + a.scoreTotal, 0) / finalizadas.length)
+      : 0;
 
   const lastAuditDate = latest?.dataFim?.toDate();
   const daysSinceLastAudit = lastAuditDate
@@ -134,7 +141,9 @@ export function DashboardAnalitico() {
   if (finalizadas.length === 0) {
     return (
       <div className="text-center py-20">
-        <p className="text-slate-500 dark:text-white/40 text-sm">Nenhuma auditoria finalizada para exibir indicadores.</p>
+        <p className="text-slate-500 dark:text-white/40 text-sm">
+          Nenhuma auditoria finalizada para exibir indicadores.
+        </p>
       </div>
     );
   }
@@ -184,7 +193,11 @@ export function DashboardAnalitico() {
                 <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-white/[0.04] overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      (score as number) >= 70 ? 'bg-emerald-400' : (score as number) >= 50 ? 'bg-amber-400' : 'bg-red-400'
+                      (score as number) >= 70
+                        ? 'bg-emerald-400'
+                        : (score as number) >= 50
+                          ? 'bg-amber-400'
+                          : 'bg-red-400'
                     }`}
                     style={{ width: `${score}%` }}
                   />
@@ -222,32 +235,50 @@ export function DashboardAnalitico() {
 
       {/* Score Evolution */}
       <section className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg p-6">
-        <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">Evolucao do Score</h2>
+        <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">
+          Evolucao do Score
+        </h2>
         <ResponsiveContainer width="100%" height={240}>
           <LineChart data={evolutionData}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
             <XAxis dataKey="date" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} />
             <YAxis domain={[0, 100]} tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} />
             <Tooltip
-              contentStyle={{ background: '#1a1a1f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}
+              contentStyle={{
+                background: '#1a1a1f',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 8,
+              }}
               labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
               itemStyle={{ color: '#a78bfa' }}
             />
-            <Line type="monotone" dataKey="score" stroke="#a78bfa" strokeWidth={2} dot={{ fill: '#a78bfa', r: 4 }} />
+            <Line
+              type="monotone"
+              dataKey="score"
+              stroke="#a78bfa"
+              strokeWidth={2}
+              dot={{ fill: '#a78bfa', r: 4 }}
+            />
           </LineChart>
         </ResponsiveContainer>
       </section>
 
       {/* NC Distribution */}
       <section className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg p-6">
-        <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">Distribuicao de NCs por Bloco</h2>
+        <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">
+          Distribuicao de NCs por Bloco
+        </h2>
         <ResponsiveContainer width="100%" height={200}>
           <BarChart data={ncDistribution}>
             <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
             <XAxis dataKey="bloco" tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} />
             <YAxis tick={{ fill: 'rgba(255,255,255,0.4)', fontSize: 12 }} allowDecimals={false} />
             <Tooltip
-              contentStyle={{ background: '#1a1a1f', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 8 }}
+              contentStyle={{
+                background: '#1a1a1f',
+                border: '1px solid rgba(255,255,255,0.08)',
+                borderRadius: 8,
+              }}
               labelStyle={{ color: 'rgba(255,255,255,0.6)' }}
             />
             <Bar dataKey="count" radius={[4, 4, 0, 0]}>
@@ -262,14 +293,23 @@ export function DashboardAnalitico() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Auditor Performance */}
         <section className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg p-6">
-          <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">Performance dos Auditores</h2>
+          <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">
+            Performance dos Auditores
+          </h2>
           <div className="space-y-2">
             {auditorPerformance.map((a) => (
-              <div key={a.uid} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/[0.04] last:border-0">
+              <div
+                key={a.uid}
+                className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-white/[0.04] last:border-0"
+              >
                 <span className="text-sm text-slate-800 dark:text-white/80">{a.nome}</span>
                 <div className="flex items-center gap-4">
-                  <span className="text-xs text-slate-500 dark:text-white/40 font-mono">{a.count} auditorias</span>
-                  <span className={`text-sm font-mono font-medium ${a.media >= 70 ? 'text-emerald-400' : a.media >= 50 ? 'text-amber-400' : 'text-red-400'}`}>
+                  <span className="text-xs text-slate-500 dark:text-white/40 font-mono">
+                    {a.count} auditorias
+                  </span>
+                  <span
+                    className={`text-sm font-mono font-medium ${a.media >= 70 ? 'text-emerald-400' : a.media >= 50 ? 'text-amber-400' : 'text-red-400'}`}
+                  >
                     {a.media}%
                   </span>
                 </div>
@@ -280,7 +320,9 @@ export function DashboardAnalitico() {
 
         {/* Bloco Heatmap */}
         <section className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg p-6">
-          <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">Heatmap por Bloco</h2>
+          <h2 className="text-sm font-medium text-slate-600 dark:text-white/60 mb-4">
+            Heatmap por Bloco
+          </h2>
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {blocoHeatmap.map((b) => (
               <div

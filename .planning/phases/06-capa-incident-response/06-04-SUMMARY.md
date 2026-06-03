@@ -1,13 +1,13 @@
 ---
-phase: "06-capa-incident-response"
-plan: "04"
-title: "Phase 6 Plan 04 — CAPA Testing & Compliance"
-date: "2026-05-09"
-executed_by: "Claude Haiku 4.5"
-status: "complete"
+phase: '06-capa-incident-response'
+plan: '04'
+title: 'Phase 6 Plan 04 — CAPA Testing & Compliance'
+date: '2026-05-09'
+executed_by: 'Claude Haiku 4.5'
+status: 'complete'
 dependencies:
-  - "06-02-A4 UI complete"
-  - "06-01 backend complete"
+  - '06-02-A4 UI complete'
+  - '06-01 backend complete'
 ---
 
 # Phase 6 Plan 04: CAPA Testing & Compliance Summary
@@ -85,35 +85,36 @@ All tests execute cleanly with proper mock data factories and no external depend
 
 ### RDC 978 Art. 99 — CAPA Management
 
-| Requirement | Test Coverage | Status |
-|---|---|---|
-| Finding identification | Create CAPA stores encontroId/encontroTipo | ✅ |
-| Action assignment | Assign corrective/preventive action to responsible party | ✅ |
-| Responsibility tracking | criadoPor, responsavel, verificadoPor tracked | ✅ |
-| Effectiveness verification | Verification.resultado (efetiva/nao-efetiva/parcialmente-efetiva) | ✅ |
-| Audit trail | All operations generate audit entries | ✅ |
-| Record retention | Soft-delete only, no hard-delete | ✅ |
+| Requirement                | Test Coverage                                                     | Status |
+| -------------------------- | ----------------------------------------------------------------- | ------ |
+| Finding identification     | Create CAPA stores encontroId/encontroTipo                        | ✅     |
+| Action assignment          | Assign corrective/preventive action to responsible party          | ✅     |
+| Responsibility tracking    | criadoPor, responsavel, verificadoPor tracked                     | ✅     |
+| Effectiveness verification | Verification.resultado (efetiva/nao-efetiva/parcialmente-efetiva) | ✅     |
+| Audit trail                | All operations generate audit entries                             | ✅     |
+| Record retention           | Soft-delete only, no hard-delete                                  | ✅     |
 
 **Coverage:** 100% of critical Art. 99 requirements
 
 ### DICQ 4.14.2 — Nonconformity & Corrective/Preventive Action
 
-| Block | Coverage | Status |
-|---|---|---|
-| 4.14.2.1 Identification | CAPA.encontroId links to source finding | ✅ |
-| 4.14.2.2 Root cause | CAPA.descricao documents investigation | ✅ |
-| 4.14.2.3 Corrective action | CAParecao.tipo=corretiva, descricao, responsavel | ✅ |
-| 4.14.2.4 Preventive action | CAParecao.tipo=preventiva (same structure) | ✅ |
-| 4.14.2.5 Assignment + deadline | responsavel, dataVencimento tracked | ✅ |
-| 4.14.2.6 Verification | Verificacao.resultado captures effectiveness | ✅ |
-| 4.14.2.7 Status tracking | CAPA.status transitions enforced | ✅ |
-| 4.14.2.8 Follow-up | Audit trail tracks all changes | ✅ |
+| Block                          | Coverage                                         | Status |
+| ------------------------------ | ------------------------------------------------ | ------ |
+| 4.14.2.1 Identification        | CAPA.encontroId links to source finding          | ✅     |
+| 4.14.2.2 Root cause            | CAPA.descricao documents investigation           | ✅     |
+| 4.14.2.3 Corrective action     | CAParecao.tipo=corretiva, descricao, responsavel | ✅     |
+| 4.14.2.4 Preventive action     | CAParecao.tipo=preventiva (same structure)       | ✅     |
+| 4.14.2.5 Assignment + deadline | responsavel, dataVencimento tracked              | ✅     |
+| 4.14.2.6 Verification          | Verificacao.resultado captures effectiveness     | ✅     |
+| 4.14.2.7 Status tracking       | CAPA.status transitions enforced                 | ✅     |
+| 4.14.2.8 Follow-up             | Audit trail tracks all changes                   | ✅     |
 
 **Coverage:** 100% of DICQ 4.14.2 requirements
 
 ### Firestore Schema Validation
 
 All tests verify:
+
 - Multi-tenant paths: `/labs/{labId}/capa/{capaId}` ✅
 - Subcollections: `/labs/{labId}/capa/{capaId}/acoes/{acaoId}` ✅
 - Subcollections: `/labs/{labId}/capa/{capaId}/verificacoes/{verificationId}` ✅
@@ -126,6 +127,7 @@ All tests verify:
 ### Service Layer (`capaService.ts`)
 
 Tests validate expected service layer contracts:
+
 - `createCAPA(labId, input): Promise<string>` ✅
 - `getCAPA(labId, capaId): Promise<CAPA | null>` ✅
 - `getAcoes(labId, capaId): Promise<CAParecao[]>` ✅
@@ -139,6 +141,7 @@ Tests validate expected service layer contracts:
 ### Cloud Functions (`functions/src/modules/capa.ts`)
 
 Cloud Function tests in `functions/src/modules/capa.test.ts` (separate test suite) verify:
+
 - Authentication gates (request.auth required) ✅
 - Lab membership validation (isActiveMemberOfLab) ✅
 - Authorization (RT/admin roles for sensitive operations) ✅
@@ -159,18 +162,19 @@ Integration tests focus on service layer behavior; Cloud Function tests use Fire
 
 ## Deviations from Plan
 
-**None identified.** 
+**None identified.**
 
 All planned test scenarios implemented. Integration test adapted to Vitest framework (web test environment) while Cloud Function tests use Firebase Emulator separately. This separation of concerns aligns with project architecture:
+
 - Service layer + types tested in web test environment (this suite)
 - Cloud Functions + Rules tested in Emulator environment (functions/src/modules/capa.test.ts)
 
 ## Files Modified
 
-| File | Changes | LOC | Status |
-|---|---|---|---|
+| File                                                  | Changes                              | LOC | Status |
+| ----------------------------------------------------- | ------------------------------------ | --- | ------ |
 | `src/features/sgq/capa/__tests__/integration.test.ts` | Created comprehensive E2E test suite | 451 | ✅ NEW |
-| `src/features/sgq/capa/__tests__/` | Created new test directory | — | ✅ NEW |
+| `src/features/sgq/capa/__tests__/`                    | Created new test directory           | —   | ✅ NEW |
 
 ## Commit Hash
 
@@ -195,7 +199,7 @@ Phase 6 CAPA module achieves:
 ✅ DICQ 4.4 — Audit trail capture verified  
 ✅ Firestore Rules enforcement — tested separately in emulator  
 ✅ Soft-delete semantics — no data loss on closure  
-✅ Multi-tenant isolation — labId validated in all operations  
+✅ Multi-tenant isolation — labId validated in all operations
 
 **Status: PRODUCTION READY**
 
@@ -204,5 +208,4 @@ Phase 6 CAPA module achieves:
 **Execution Time:** 2026-05-09 07:37 UTC  
 **Test Duration:** 3.54 seconds  
 **All Tests:** 7 PASSED  
-**TypeCheck:** PASSED  
-
+**TypeCheck:** PASSED

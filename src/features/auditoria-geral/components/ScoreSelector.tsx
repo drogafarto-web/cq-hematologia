@@ -17,12 +17,7 @@ const ACTIVE_STYLES: Record<number, string> = {
 const DEFAULT_STYLE =
   'bg-slate-50 border border-slate-200 text-slate-500 hover:bg-slate-100 dark:bg-white/[0.04] dark:border-white/[0.08] dark:text-white/50 dark:hover:bg-white/[0.08]';
 
-export function ScoreSelector({
-  value,
-  naoAplica,
-  niveis,
-  onChange,
-}: ScoreSelectorProps) {
+export function ScoreSelector({ value, naoAplica, niveis, onChange }: ScoreSelectorProps) {
   return (
     <div>
       <div className="flex items-center gap-1.5">

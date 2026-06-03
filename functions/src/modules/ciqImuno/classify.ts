@@ -88,7 +88,9 @@ async function downloadImageAsBase64(imageUrl: string): Promise<string> {
 
       const request = https.get(imageUrl, (response: any) => {
         if (response.statusCode !== 200) {
-          reject(new HttpsError('failed-precondition', `HTTP ${response.statusCode}: Invalid image URL`));
+          reject(
+            new HttpsError('failed-precondition', `HTTP ${response.statusCode}: Invalid image URL`),
+          );
           return;
         }
 
@@ -140,7 +142,7 @@ async function createClassificationLog(
   stripId: string,
   classification: Classification,
   confidence: number,
-  operatorId: string
+  operatorId: string,
 ): Promise<void> {
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
@@ -199,12 +201,15 @@ export const classifyStripImage = onCall(async (request) => {
   // Parse and validate input
   let payload: ClassifyStripImagePayload;
   try {
-    const validated = ClassifyStripImagePayloadSchema.parse(request.data) as ClassifyStripImagePayload;
+    const validated = ClassifyStripImagePayloadSchema.parse(
+      request.data,
+    ) as ClassifyStripImagePayload;
     payload = validated;
   } catch (error) {
-    const validationError = error instanceof z.ZodError
-      ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
-      : 'Unknown validation error';
+    const validationError =
+      error instanceof z.ZodError
+        ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+        : 'Unknown validation error';
     throw new HttpsError('invalid-argument', validationError);
   }
 
@@ -278,7 +283,7 @@ Respond with ONLY valid JSON (no markdown, no code blocks):
     if (geminiResult.confidence < CONFIDENCE_THRESHOLD) {
       throw new HttpsError(
         'failed-precondition',
-        `Confidence ${(geminiResult.confidence * 100).toFixed(1)}% below threshold ${(CONFIDENCE_THRESHOLD * 100).toFixed(0)}%`
+        `Confidence ${(geminiResult.confidence * 100).toFixed(1)}% below threshold ${(CONFIDENCE_THRESHOLD * 100).toFixed(0)}%`,
       );
     }
 
@@ -307,7 +312,7 @@ Respond with ONLY valid JSON (no markdown, no code blocks):
       payload.stripId,
       geminiResult.classification,
       geminiResult.confidence,
-      request.auth.uid
+      request.auth.uid,
     );
 
     return {
@@ -323,7 +328,7 @@ Respond with ONLY valid JSON (no markdown, no code blocks):
     console.error('Classification error:', error);
     throw new HttpsError(
       'internal',
-      `Classification failed: ${error instanceof Error ? error.message : 'unknown error'}`
+      `Classification failed: ${error instanceof Error ? error.message : 'unknown error'}`,
     );
   }
 });
@@ -366,9 +371,10 @@ export const collectIADataset = onCall(async (request) => {
     const validated = CollectIADatasetPayloadSchema.parse(request.data) as CollectIADatasetPayload;
     payload = validated;
   } catch (error) {
-    const validationError = error instanceof z.ZodError
-      ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
-      : 'Unknown validation error';
+    const validationError =
+      error instanceof z.ZodError
+        ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+        : 'Unknown validation error';
     throw new HttpsError('invalid-argument', validationError);
   }
 
@@ -464,7 +470,7 @@ export const collectIADataset = onCall(async (request) => {
     console.error('Dataset collection error:', error);
     throw new HttpsError(
       'internal',
-      `Dataset recording failed: ${error instanceof Error ? error.message : 'unknown error'}`
+      `Dataset recording failed: ${error instanceof Error ? error.message : 'unknown error'}`,
     );
   }
 });

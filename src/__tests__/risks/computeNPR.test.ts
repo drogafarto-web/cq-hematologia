@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import { computeNPR, deriveNivel, DEFAULT_NPR_THRESHOLDS } from '../../features/risks/services/risksService';
+import {
+  computeNPR,
+  deriveNivel,
+  DEFAULT_NPR_THRESHOLDS,
+} from '../../features/risks/services/risksService';
 
 describe('computeNPR', () => {
   it('computes 1×1×1 = 1', () => {

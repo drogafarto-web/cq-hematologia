@@ -39,19 +39,14 @@ const MIN_REASON_LENGTH = 20;
 
 if (apply) {
   if (!reason || reason.trim().length < MIN_REASON_LENGTH) {
-    console.error(
-      `\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`,
-    );
+    console.error(`\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`);
     process.exit(2);
   }
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-const projectId =
-  process.env.GOOGLE_CLOUD_PROJECT ??
-  process.env.GCLOUD_PROJECT ??
-  'hmatologia2';
+const projectId = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? 'hmatologia2';
 
 admin.initializeApp({ projectId });
 const auth = admin.auth();
@@ -92,14 +87,11 @@ const FULL_ACCESS = {
 const ALL_MODULES = Object.keys(FULL_ACCESS);
 
 // If --module specified, filter to that module only
-const TARGET_MODULES = moduleArg
-  ? [moduleArg]
-  : ALL_MODULES;
+const TARGET_MODULES = moduleArg ? [moduleArg] : ALL_MODULES;
 
 if (moduleArg && !FULL_ACCESS[moduleArg]) {
   console.error(
-    `\n❌ módulo desconhecido: ${moduleArg}\n` +
-    `   módulos válidos: ${ALL_MODULES.join(', ')}\n`,
+    `\n❌ módulo desconhecido: ${moduleArg}\n` + `   módulos válidos: ${ALL_MODULES.join(', ')}\n`,
   );
   process.exit(1);
 }
@@ -139,17 +131,14 @@ for (const chunk of chunks) {
   const refs = chunk.map((u) => db.doc(`users/${u.uid}`));
   const snaps = await db.getAll(...refs);
   for (const snap of snaps) {
-    firestoreStates.set(
-      snap.id,
-      snap.exists ? (snap.data() ?? null) : null,
-    );
+    firestoreStates.set(snap.id, snap.exists ? (snap.data() ?? null) : null);
   }
 }
 
 // Diffs
 const diffs = users.map((u) => {
   const claims = u.customClaims ?? {};
-  const beforeModules = (claims.modules ?? null);
+  const beforeModules = claims.modules ?? null;
   const fs = firestoreStates.get(u.uid);
   const labIds = Array.isArray(fs?.labIds) ? fs.labIds : [];
   const hasLabs = labIds.length > 0;
@@ -161,8 +150,7 @@ const diffs = users.map((u) => {
   }
 
   const needsUpdate =
-    hasLabs &&
-    (beforeModules === null || !modulesEqual(beforeModules, FULL_ACCESS));
+    hasLabs && (beforeModules === null || !modulesEqual(beforeModules, FULL_ACCESS));
 
   return {
     uid: u.uid,
@@ -214,10 +202,7 @@ let failed = 0;
 for (const d of toUpdate) {
   try {
     // Firestore `/users/{uid}.modules` espelha o claim (consistente com callable)
-    await db.doc(`users/${d.uid}`).set(
-      { modules: FULL_ACCESS },
-      { merge: true },
-    );
+    await db.doc(`users/${d.uid}`).set({ modules: FULL_ACCESS }, { merge: true });
 
     // Custom claim (merge preservando demais claims como isSuperAdmin)
     const user = await auth.getUser(d.uid);

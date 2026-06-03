@@ -34,7 +34,9 @@ export function IASummaryPanel({ auditoriaId }: Props) {
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-slate-600 dark:text-white/60">Resumo Executivo (IA)</h3>
+        <h3 className="text-sm font-medium text-slate-600 dark:text-white/60">
+          Resumo Executivo (IA)
+        </h3>
         <button
           onClick={handleGenerate}
           disabled={loading}
@@ -64,7 +66,10 @@ export function IASummaryPanel({ auditoriaId }: Props) {
         <div className="bg-violet-50 border border-violet-200 dark:bg-violet-500/5 dark:border-violet-500/10 rounded-lg p-5">
           <div className="prose prose-sm max-w-none">
             {summary.split('\n').map((line, i) => (
-              <p key={i} className="text-sm text-slate-700 dark:text-white/70 leading-relaxed mb-2 last:mb-0">
+              <p
+                key={i}
+                className="text-sm text-slate-700 dark:text-white/70 leading-relaxed mb-2 last:mb-0"
+              >
                 {line}
               </p>
             ))}

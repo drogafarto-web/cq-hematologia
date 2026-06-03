@@ -11,7 +11,10 @@
  */
 
 import { describe, it, expect, beforeEach, jest } from '@jest/globals';
-import { detectCriticoEm, detectAllCriticos } from '../../../src/features/criticos/utils/criticoDetector';
+import {
+  detectCriticoEm,
+  detectAllCriticos,
+} from '../../../src/features/criticos/utils/criticoDetector';
 import { generateChainHash } from '../../../shared/signature';
 import type { CriticoThreshold } from '../../../src/features/criticos/utils/criticoDetector';
 
@@ -134,9 +137,7 @@ describe('Critical Values Detection', () => {
       const exames = [
         {
           id: 'exame-glicose',
-          resultados: [
-            { value: 450, unidade: 'mg/dL' },
-          ],
+          resultados: [{ value: 450, unidade: 'mg/dL' }],
         },
       ];
 

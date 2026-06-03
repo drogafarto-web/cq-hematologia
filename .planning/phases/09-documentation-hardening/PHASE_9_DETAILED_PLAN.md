@@ -1,4 +1,5 @@
 # Phase 9 — Documentation Hardening (Wave 3)
+
 ## Manual da Qualidade + Quality Policy + Environment Procedures
 
 **Phase:** 9 (Wave 3 of 3)  
@@ -27,6 +28,7 @@ Phase 9 — Documentation Hardening delivers the **Quality Management System (QM
 12. **Risk Register** — scope creep, completeness, approval delays
 
 **Target Metrics:**
+
 - 1 Manual da Qualidade template (8-12 KB gzipped)
 - 1 Quality Policy doc + 20 environment/laboratorial procedures
 - Governance checklist module ≤ 45 KB gzipped
@@ -36,6 +38,7 @@ Phase 9 — Documentation Hardening delivers the **Quality Management System (QM
 - Zero outstanding compliance gaps post-Wave 3
 
 **Compliance Drivers:**
+
 - RDC 978/2025 Arts. 4–8 (Quality Management System)
 - ISO 15189:2015 § 4.3 (Documentation + Control)
 - DICQ § 4.1.2.3–4.1.2.7 (Quality Manual, Procedures, Records, Responsibilities)
@@ -48,6 +51,7 @@ Phase 9 — Documentation Hardening delivers the **Quality Management System (QM
 ### 1.1 Document Structure (ISO 15189 + DICQ 4.1.2.3)
 
 The **Manual da Qualidade** is a living document that establishes:
+
 - Lab identity, mission, scope, and regulatory commitments
 - Quality policy and organization chart
 - Roles, responsibilities, and competencies (links to `treinamentos` module)
@@ -392,12 +396,14 @@ export const publishManualQualidade = functions
 ### 2.1 Document Purpose
 
 The **Quality Policy** (POL-QUALIDADE-001) is a standalone, downloadable document that declares the lab's commitment to:
+
 - Regulatory compliance (RDC 978, ISO 15189)
 - Patient safety and data protection
 - Continuous quality improvement
 - Employee competency and engagement
 
 **Use Cases:**
+
 - Distributed to all staff during onboarding (`treinamentos` module → training checklist)
 - Displayed in reception (printed + signed by Director)
 - Referenced in management review (`management-review` module)
@@ -553,6 +559,7 @@ The Quality Policy is stored in `sgq-documentos` as:
 ```
 
 **PDF Export:** Policy generated as downloadable PDF via Cloud Function `generatePolicyPDF`:
+
 ```
 GET /project/hmatologia2/us-central1/generatePolicyPDF?labId={labId}&policyId={policyId}
 → Response: PDF stream (POL-QUALIDADE-001-v1.pdf)
@@ -566,15 +573,15 @@ GET /project/hmatologia2/us-central1/generatePolicyPDF?labId={labId}&policyId={p
 
 **All mandatory per DICQ § 5.3.1–5.3.3:**
 
-| Procedure | Code | Compliance Driver | Integration |
-|-----------|------|------------------|-------------|
-| Sample Collection (Venous Blood) | POP-COL-001 | RDC 978 Art. 179 + DICQ 5.3.1 | `sgq/pops` + training in `treinamentos` |
-| Sample Transport & Storage | POP-TRS-001 | DICQ 5.3.2 | `controle-temperatura` FR-11 monitor |
-| Specimen Labeling & Chain of Custody | POP-LAB-001 | RDC 978 Art. 181 | `sgd` document tracking |
-| Reception & Specimen Evaluation | POP-REC-001 | DICQ 5.3.3 | `analyzer` OCR integration |
-| Sample Rejection Criteria | POP-REJ-001 | DICQ 5.3.3 + RDC 978 Art. 167 | NC tracking in `sgq` |
-| Environmental Monitoring | POP-ENV-001 | ISO 14644 + `biosseguranca` | Calibration module |
-| Equipment Maintenance & Calibration | POP-EQP-001 | RDC 978 Art. 179 | `calibracao` + `equipamentos` |
+| Procedure                            | Code        | Compliance Driver             | Integration                             |
+| ------------------------------------ | ----------- | ----------------------------- | --------------------------------------- |
+| Sample Collection (Venous Blood)     | POP-COL-001 | RDC 978 Art. 179 + DICQ 5.3.1 | `sgq/pops` + training in `treinamentos` |
+| Sample Transport & Storage           | POP-TRS-001 | DICQ 5.3.2                    | `controle-temperatura` FR-11 monitor    |
+| Specimen Labeling & Chain of Custody | POP-LAB-001 | RDC 978 Art. 181              | `sgd` document tracking                 |
+| Reception & Specimen Evaluation      | POP-REC-001 | DICQ 5.3.3                    | `analyzer` OCR integration              |
+| Sample Rejection Criteria            | POP-REJ-001 | DICQ 5.3.3 + RDC 978 Art. 167 | NC tracking in `sgq`                    |
+| Environmental Monitoring             | POP-ENV-001 | ISO 14644 + `biosseguranca`   | Calibration module                      |
+| Equipment Maintenance & Calibration  | POP-EQP-001 | RDC 978 Art. 179              | `calibracao` + `equipamentos`           |
 
 ### 3.2 Sample Collection Procedure Template (POP-COL-001)
 
@@ -776,28 +783,28 @@ if (temperatura < 2 || temperatura > 8) {
 
 **20 Mandatory Procedures** per DICQ for quantitative analysis (`bioquimica` module):
 
-| ID | Procedure | Code | DICQ Ref | Integration |
-|----|-----------|------|----------|-------------|
-| 1 | Technique Validation (new method) | IT-BIQ-VAL-001 | 5.5.3.1 | `bioquimica` service layer |
-| 2 | Internal Quality Control (CIQ) | IT-BIQ-CIQ-001 | 5.5.3.2 | `bioquimica` Westgard engine |
-| 3 | External Quality Control (CEQ) | IT-BIQ-CEQ-001 | 5.5.3.3 | `ceq` module |
-| 4 | Levey-Jennings Chart Interpretation | IT-BIQ-LJ-001 | 5.5.3.4 | `bioquimica` chart component |
-| 5 | Equipment Operation & Maintenance | IT-EQP-ANALYZER-001 | 5.5.3.5 | `equipamentos` + `calibracao` |
-| 6 | Calibration & Linearity | IT-BIQ-CAL-001 | 5.5.3.6 | `calibracao` module |
-| 7 | Reagent Preparation & Control | IT-BIQ-REA-001 | 5.5.3.7 | `insumos` module |
-| 8 | Sample Dilution Protocol | IT-BIQ-DIL-001 | 5.5.3.8 | `bioquimica` runs |
-| 9 | Delta Check (result vs. previous) | IT-BIQ-DLT-001 | 5.5.3.9 | `bioquimica` logic |
-| 10 | Panic/Critical Value Alert | IT-BIQ-CVL-001 | 5.5.3.10 | `escalacao` module |
-| 11 | Result Release Authorization | IT-BIQ-REL-001 | 5.5.3.11 | `liberacao` module |
-| 12 | Calculation & Unit Conversion | IT-BIQ-CALC-001 | 5.5.3.12 | `bioquimica` types |
-| 13 | Uncertainty of Measurement (MU) | IT-BIQ-UNC-001 | 5.5.3.13 | `bioquimica` metadata |
-| 14 | Interference Testing (hemolysis, lipemia) | IT-BIQ-INT-001 | 5.5.3.14 | `analyzer` OCR pre-check |
-| 15 | Method Comparison Studies | IT-BIQ-CMP-001 | 5.5.3.15 | Cross-equipment analytics |
-| 16 | Equipment QC Troubleshooting | IT-BIQ-TSH-001 | 5.5.3.16 | Support procedures |
-| 17 | Reagent Stability Verification | IT-BIQ-STB-001 | 5.5.3.17 | `insumos` tracking |
-| 18 | Preventive Maintenance Schedule | IT-BIQ-PMT-001 | 5.5.3.18 | `calibracao` calendar |
-| 19 | Accident/Incident Reporting | IT-BIQ-INC-001 | 5.5.3.19 | `sgq` NC workflow |
-| 20 | Documentation & Archival | IT-BIQ-DOC-001 | 5.5.3.20 | `sgd` + audit trail |
+| ID  | Procedure                                 | Code                | DICQ Ref | Integration                   |
+| --- | ----------------------------------------- | ------------------- | -------- | ----------------------------- |
+| 1   | Technique Validation (new method)         | IT-BIQ-VAL-001      | 5.5.3.1  | `bioquimica` service layer    |
+| 2   | Internal Quality Control (CIQ)            | IT-BIQ-CIQ-001      | 5.5.3.2  | `bioquimica` Westgard engine  |
+| 3   | External Quality Control (CEQ)            | IT-BIQ-CEQ-001      | 5.5.3.3  | `ceq` module                  |
+| 4   | Levey-Jennings Chart Interpretation       | IT-BIQ-LJ-001       | 5.5.3.4  | `bioquimica` chart component  |
+| 5   | Equipment Operation & Maintenance         | IT-EQP-ANALYZER-001 | 5.5.3.5  | `equipamentos` + `calibracao` |
+| 6   | Calibration & Linearity                   | IT-BIQ-CAL-001      | 5.5.3.6  | `calibracao` module           |
+| 7   | Reagent Preparation & Control             | IT-BIQ-REA-001      | 5.5.3.7  | `insumos` module              |
+| 8   | Sample Dilution Protocol                  | IT-BIQ-DIL-001      | 5.5.3.8  | `bioquimica` runs             |
+| 9   | Delta Check (result vs. previous)         | IT-BIQ-DLT-001      | 5.5.3.9  | `bioquimica` logic            |
+| 10  | Panic/Critical Value Alert                | IT-BIQ-CVL-001      | 5.5.3.10 | `escalacao` module            |
+| 11  | Result Release Authorization              | IT-BIQ-REL-001      | 5.5.3.11 | `liberacao` module            |
+| 12  | Calculation & Unit Conversion             | IT-BIQ-CALC-001     | 5.5.3.12 | `bioquimica` types            |
+| 13  | Uncertainty of Measurement (MU)           | IT-BIQ-UNC-001      | 5.5.3.13 | `bioquimica` metadata         |
+| 14  | Interference Testing (hemolysis, lipemia) | IT-BIQ-INT-001      | 5.5.3.14 | `analyzer` OCR pre-check      |
+| 15  | Method Comparison Studies                 | IT-BIQ-CMP-001      | 5.5.3.15 | Cross-equipment analytics     |
+| 16  | Equipment QC Troubleshooting              | IT-BIQ-TSH-001      | 5.5.3.16 | Support procedures            |
+| 17  | Reagent Stability Verification            | IT-BIQ-STB-001      | 5.5.3.17 | `insumos` tracking            |
+| 18  | Preventive Maintenance Schedule           | IT-BIQ-PMT-001      | 5.5.3.18 | `calibracao` calendar         |
+| 19  | Accident/Incident Reporting               | IT-BIQ-INC-001      | 5.5.3.19 | `sgq` NC workflow             |
+| 20  | Documentation & Archival                  | IT-BIQ-DOC-001      | 5.5.3.20 | `sgd` + audit trail           |
 
 ### 4.2 Instruction of Work: IT-BIQ-CIQ-001 (Example)
 
@@ -944,6 +951,7 @@ Controle Interno de Qualidade (CIQ) — Bioquímica
 ### 5.1 Purpose & Use Cases
 
 The **Governance Checklist** is an admin dashboard that tracks compliance with governance procedures:
+
 - Document publishing status (Manual, Policies, POPs, ITs, FRs)
 - Training completion %
 - Management review completion
@@ -951,6 +959,7 @@ The **Governance Checklist** is an admin dashboard that tracks compliance with g
 - NC closure rate
 
 **Use Case:** Director opens `sgq/governance-checklist` → sees:
+
 - "Manual da Qualidade: PENDING (Due 2026-05-31)"
 - "Policy Reviews: 95% complete (4/4 staff, 1 pending)"
 - "Internal Audits: 2/4 scheduled Q1 2026 completed"
@@ -1191,7 +1200,7 @@ The **Governance Checklist** is an admin dashboard that tracks compliance with g
 
 export const triggerGovernanceReview = functions
   .region('southamerica-east1')
-  .pubsub.schedule('0 9 1 * *')  // Monthly on 1st at 9am BR time
+  .pubsub.schedule('0 9 1 * *') // Monthly on 1st at 9am BR time
   .timeZone('America/Sao_Paulo')
   .onRun(async () => {
     const allLabs = await db.collection('labs').listDocuments();
@@ -1219,9 +1228,7 @@ export const triggerGovernanceReview = functions
         const compliance = (training.concluido / training.totalStaff) * 100;
         overallCompliance += compliance;
       }
-      completionPercentual = trainings.size > 0
-        ? overallCompliance / trainings.size
-        : 0;
+      completionPercentual = trainings.size > 0 ? overallCompliance / trainings.size : 0;
 
       // 3. Count open NCs
       const ncsSnapshot = await db
@@ -1241,7 +1248,7 @@ export const triggerGovernanceReview = functions
 
       // 5. Create/update governance checklist
       const checklistRef = db.doc(
-        `labs/${labId}/sgq-governance/trimestral-${new Date().getFullYear()}-${Math.ceil(new Date().getMonth() / 3)}`
+        `labs/${labId}/sgq-governance/trimestral-${new Date().getFullYear()}-${Math.ceil(new Date().getMonth() / 3)}`,
       );
 
       await checklistRef.set(
@@ -1258,19 +1265,20 @@ export const triggerGovernanceReview = functions
           atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
           chainHash: await computeChainHash(labId, 'governance'),
         },
-        { merge: true }
+        { merge: true },
       );
 
       // 6. Send summary email to Director of Quality
-      const directorRef = await db
-        .doc(`labs/${labId}/roles/director-quality`)
-        .get();
+      const directorRef = await db.doc(`labs/${labId}/roles/director-quality`).get();
       if (directorRef.exists) {
         const director = directorRef.data() as any;
-        await admin.auth().getUser(director.uid).then((user) => {
-          // Send email via sendGrid / resend
-          console.log(`Monthly governance summary sent to ${user.email}`);
-        });
+        await admin
+          .auth()
+          .getUser(director.uid)
+          .then((user) => {
+            // Send email via sendGrid / resend
+            console.log(`Monthly governance summary sent to ${user.email}`);
+          });
       }
     }
   });
@@ -1395,19 +1403,19 @@ match /labs/{labId}/sgq-documentos-audit/{auditId} {
 
 export enum DocumentoTipo {
   // Core QMS
-  'manual_qualidade' = 'manual_qualidade',      // MQ-001, etc
-  'politica' = 'politica',                      // POL-*
-  'procedimento' = 'pop',                       // POP-*
-  'instrucao_trabalho' = 'it',                  // IT-*
-  'formulario' = 'formulario',                  // FR-*
+  'manual_qualidade' = 'manual_qualidade', // MQ-001, etc
+  'politica' = 'politica', // POL-*
+  'procedimento' = 'pop', // POP-*
+  'instrucao_trabalho' = 'it', // IT-*
+  'formulario' = 'formulario', // FR-*
 
   // Regulatory policies
-  'politica_lgpd' = 'politica_lgpd',           // POL-LGPD-*
-  'dpia' = 'dpia',                             // IT-LGPD-DPIA-*
+  'politica_lgpd' = 'politica_lgpd', // POL-LGPD-*
+  'dpia' = 'dpia', // IT-LGPD-DPIA-*
 
   // Future modules
-  'matriz_risco' = 'matriz_risco',             // risks module
-  'plano_auditoria' = 'plano_auditoria',       // audit plan
+  'matriz_risco' = 'matriz_risco', // risks module
+  'plano_auditoria' = 'plano_auditoria', // audit plan
 }
 ```
 
@@ -1427,7 +1435,7 @@ interface GenerateProcedureTemplateRequest {
   tipo: 'pop' | 'it' | 'formulario';
   areaOperacional: 'pre_analytical' | 'analytical' | 'post_analytical' | 'administrative';
   titulo: string;
-  modulo?: string;  // e.g., 'bioquimica', 'analyzer', etc.
+  modulo?: string; // e.g., 'bioquimica', 'analyzer', etc.
 }
 
 export const generateProcedureTemplate = functions
@@ -1445,9 +1453,9 @@ export const generateProcedureTemplate = functions
 
     // Generate HTML template based on tipo
     const templates = {
-      'pop': popTemplate,
-      'it': itTemplate,
-      'formulario': formularioTemplate,
+      pop: popTemplate,
+      it: itTemplate,
+      formulario: formularioTemplate,
     };
 
     const conteudoHTML = templates[tipo]({
@@ -1471,7 +1479,7 @@ export const generateProcedureTemplate = functions
       areaOperacional,
       modulo: modulo || null,
       conteudoHTML,
-      certificadoHash: null,  // Not signed until published
+      certificadoHash: null, // Not signed until published
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       criadoPor: context.auth.uid,
       ultimaRevisaoEm: null,
@@ -1502,9 +1510,7 @@ export const recordGovernanceApproval = functions
     if (!context.auth?.uid) throw new Error('Unauthenticated');
 
     // Verify approver is admin
-    const approver = await db
-      .doc(`labs/${labId}/members/${context.auth.uid}`)
-      .get();
+    const approver = await db.doc(`labs/${labId}/members/${context.auth.uid}`).get();
     if (!approver.exists || !approver.data()?.isAdminOrOwner) {
       throw new Error('Admin role required for approval');
     }
@@ -1520,20 +1526,16 @@ export const recordGovernanceApproval = functions
       dataEfetiva: admin.firestore.FieldValue.serverTimestamp(),
       ultimaRevisaoEm: admin.firestore.FieldValue.serverTimestamp(),
       ultimaRevisaoPor: context.auth.uid,
-      proximaRevisaoAgendadaEm: new Date(
-        Date.now() + 12 * 30 * 24 * 60 * 60 * 1000
-      ),
+      proximaRevisaoAgendadaEm: new Date(Date.now() + 12 * 30 * 24 * 60 * 60 * 1000),
       assinatura: {
-        hash: carimbo.hash,  // computed by client
+        hash: carimbo.hash, // computed by client
         operadorId: context.auth.uid,
         ts: admin.firestore.FieldValue.serverTimestamp(),
       },
     });
 
     // 2. Create audit entry
-    const auditRef = db
-      .collection(`labs/${labId}/sgq-documentos-audit`)
-      .doc();
+    const auditRef = db.collection(`labs/${labId}/sgq-documentos-audit`).doc();
     batch.set(auditRef, {
       labId,
       documentoId,
@@ -1596,16 +1598,14 @@ describe('Governance E2E: Manual da Qualidade', () => {
           diretorQualidade: 'John Doe',
         },
       },
-      { auth: { uid: adminUid } }
+      { auth: { uid: adminUid } },
     );
 
     // 3. Assert: manual created, vigente, audit logged
     expect(response.success).toBe(true);
     expect(response.versao).toBe(1);
 
-    const manualSnapshot = await db
-      .doc(`labs/${labId}/sgq-documentos/${response.manualId}`)
-      .get();
+    const manualSnapshot = await db.doc(`labs/${labId}/sgq-documentos/${response.manualId}`).get();
     expect(manualSnapshot.data().status).toBe('vigente');
     expect(manualSnapshot.data().dataEfetiva).toBeDefined();
 
@@ -1619,9 +1619,7 @@ describe('Governance E2E: Manual da Qualidade', () => {
     expect(auditSnapshot.docs[0].data().operadorId).toBe(adminUid);
 
     // 5. Assert: snapshot created (immutable)
-    const snapshots = await manualSnapshot.ref
-      .collection('snapshots')
-      .get();
+    const snapshots = await manualSnapshot.ref.collection('snapshots').get();
     expect(snapshots.size).toBeGreaterThan(0);
     expect(snapshots.docs[0].data().operacaoTipo).toBe('criacao');
   });
@@ -1635,7 +1633,7 @@ describe('Governance E2E: Checklist Auto-Update', () => {
   it('should trigger monthly governance review and compute compliance %', async () => {
     // 1. Setup: lab with docs, trainings, NCs
     const labId = 'test-lab-002';
-    
+
     // Create 5 vigente docs
     for (let i = 0; i < 5; i++) {
       await db.collection(`labs/${labId}/sgq-documentos`).doc().set({
@@ -1688,14 +1686,17 @@ describe('Governance E2E: Document Approval & Audit Trail', () => {
     const adminUid = 'admin-uid';
 
     // 1. Create procedure in em_revisao
-    const docId = await db.collection(`labs/${labId}/sgq-documentos`).add({
-      status: 'em_revisao',
-      tipo: 'pop',
-      codigo: 'POP-TEST-001',
-      versao: 1,
-      conteudoHTML: '<h1>Original</h1>',
-      labId,
-    }).then(r => r.id);
+    const docId = await db
+      .collection(`labs/${labId}/sgq-documentos`)
+      .add({
+        status: 'em_revisao',
+        tipo: 'pop',
+        codigo: 'POP-TEST-001',
+        versao: 1,
+        conteudoHTML: '<h1>Original</h1>',
+        labId,
+      })
+      .then((r) => r.id);
 
     // 2. Approve via recordGovernanceApproval
     const carimbo = {
@@ -1704,15 +1705,13 @@ describe('Governance E2E: Document Approval & Audit Trail', () => {
     const approvalResponse = await runWithContext(
       recordGovernanceApproval,
       { labId, documentoId: docId, assinadorId: adminUid, carimbo },
-      { auth: { uid: adminUid } }
+      { auth: { uid: adminUid } },
     );
 
     expect(approvalResponse.success).toBe(true);
 
     // 3. Assert: document is now vigente
-    const docAfterApproval = await db
-      .doc(`labs/${labId}/sgq-documentos/${docId}`)
-      .get();
+    const docAfterApproval = await db.doc(`labs/${labId}/sgq-documentos/${docId}`).get();
     expect(docAfterApproval.data().status).toBe('vigente');
     expect(docAfterApproval.data().assinatura.operadorId).toBe(adminUid);
 
@@ -1763,16 +1762,14 @@ describe('Governance E2E: Training Compliance Tracking', () => {
         status: 'obrigatorio',
         dataProximaRevalidacao: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000),
       })
-      .then(r => r.id);
+      .then((r) => r.id);
 
     // 2. Complete training for 3 more staff
     const staffUids = ['staff-1', 'staff-2', 'staff-3'];
     const batch = db.batch();
     for (const staffUid of staffUids) {
       const completionRef = db
-        .collection(
-          `labs/${labId}/treinamentos/${trainingId}/completions`
-        )
+        .collection(`labs/${labId}/treinamentos/${trainingId}/completions`)
         .doc(staffUid);
       batch.set(completionRef, {
         staffUid,
@@ -1788,7 +1785,7 @@ describe('Governance E2E: Training Compliance Tracking', () => {
     // 4. Assert: checklist updated to 13/15 (86%)
     const checklistSnapshot = await db
       .doc(
-        `labs/${labId}/sgq-governance/trimestral-${new Date().getFullYear()}-${Math.ceil((new Date().getMonth() + 1) / 3)}`
+        `labs/${labId}/sgq-governance/trimestral-${new Date().getFullYear()}-${Math.ceil((new Date().getMonth() + 1) / 3)}`,
       )
       .get();
     expect(checklistSnapshot.data().treinamentos.compliancePercentual).toBe(86);
@@ -1802,16 +1799,16 @@ describe('Governance E2E: Training Compliance Tracking', () => {
 
 ### 10.1 Blocks A, D, E Coverage
 
-| DICQ Block | Requisito | Artigo | Descrição | Módulo / Documento | Status | Wave 3 |
-|---|---|---|---|---|---|---|
-| **A** | 4.1.2.3 | Art. 179 | Manual da Qualidade | MQ-001 + sgq-documentos | ✅ | ✅ |
-| **A** | 4.1.2.4 | Art. 179 | Política da Qualidade | POL-QUALIDADE-001 | ✅ | ✅ |
-| **A** | 4.1.2.5 | Art. 179 | Responsabilidades & Autoridade | Organograma + RACI matrix | ✅ | ✅ |
-| **D** | 4.1.2.4 | Art. 179 | Procedimentos Operacionais | POPs (20 templates) | ✅ | ✅ |
-| **D** | 4.14 | Art. 179 | Gestão de Fornecedores | `fornecedores` + `lab-apoio` modules | ✅ | ✅ |
-| **E** | 5.4.4 | Art. 183 | Rastreabilidade de Amostras | POP-LAB-001 + `sgd` + audit trail | ✅ | ✅ |
-| **E** | 5.4.5 | Art. 183 | Gestão de Registros | `sgd` + retention policies | ✅ | ✅ |
-| **E** | 5.5.3 | Art. 179 | Procedimentos Analíticos | 20 ITs (bioquimica focus) | ✅ | ✅ |
+| DICQ Block | Requisito | Artigo   | Descrição                      | Módulo / Documento                   | Status | Wave 3 |
+| ---------- | --------- | -------- | ------------------------------ | ------------------------------------ | ------ | ------ |
+| **A**      | 4.1.2.3   | Art. 179 | Manual da Qualidade            | MQ-001 + sgq-documentos              | ✅     | ✅     |
+| **A**      | 4.1.2.4   | Art. 179 | Política da Qualidade          | POL-QUALIDADE-001                    | ✅     | ✅     |
+| **A**      | 4.1.2.5   | Art. 179 | Responsabilidades & Autoridade | Organograma + RACI matrix            | ✅     | ✅     |
+| **D**      | 4.1.2.4   | Art. 179 | Procedimentos Operacionais     | POPs (20 templates)                  | ✅     | ✅     |
+| **D**      | 4.14      | Art. 179 | Gestão de Fornecedores         | `fornecedores` + `lab-apoio` modules | ✅     | ✅     |
+| **E**      | 5.4.4     | Art. 183 | Rastreabilidade de Amostras    | POP-LAB-001 + `sgd` + audit trail    | ✅     | ✅     |
+| **E**      | 5.4.5     | Art. 183 | Gestão de Registros            | `sgd` + retention policies           | ✅     | ✅     |
+| **E**      | 5.5.3     | Art. 179 | Procedimentos Analíticos       | 20 ITs (bioquimica focus)            | ✅     | ✅     |
 
 ### 10.2 Non-Covered DICQ Blocks (Future Phases)
 
@@ -1834,9 +1831,7 @@ export const generateManualPDF = functions
     const { labId, documentoId } = req.query;
 
     // Fetch document
-    const docSnapshot = await db
-      .doc(`labs/${labId}/sgq-documentos/${documentoId}`)
-      .get();
+    const docSnapshot = await db.doc(`labs/${labId}/sgq-documentos/${documentoId}`).get();
     const doc = docSnapshot.data() as any;
 
     // Fetch lab branding
@@ -1883,10 +1878,7 @@ export const generateManualPDF = functions
             <h2>Índice</h2>
             <ul>
               ${Object.keys(doc.secoes)
-                .map(
-                  (key) =>
-                    `<li><a href="#${key}">${doc.secoes[key].titulo}</a></li>`
-                )
+                .map((key) => `<li><a href="#${key}">${doc.secoes[key].titulo}</a></li>`)
                 .join('')}
             </ul>
           </div>
@@ -1899,7 +1891,7 @@ export const generateManualPDF = functions
                   <h2>${doc.secoes[key].titulo}</h2>
                   ${doc.secoes[key].conteudo}
                 </div>
-              `
+              `,
             )
             .join('')}
 
@@ -1925,10 +1917,7 @@ export const generateManualPDF = functions
 
     // Return as downloadable
     res.contentType('application/pdf');
-    res.setHeader(
-      'Content-Disposition',
-      `attachment; filename="${doc.codigo}-v${doc.versao}.pdf"`
-    );
+    res.setHeader('Content-Disposition', `attachment; filename="${doc.codigo}-v${doc.versao}.pdf"`);
     res.send(pdfBuffer);
   });
 ```
@@ -1944,9 +1933,7 @@ export const generateDocumentoPDF = functions
     if (!context.auth?.uid) throw new Error('Unauthenticated');
 
     // Verify member
-    const member = await db
-      .doc(`labs/${labId}/members/${context.auth.uid}`)
-      .get();
+    const member = await db.doc(`labs/${labId}/members/${context.auth.uid}`).get();
     if (!member.exists) throw new Error('Not a member of this lab');
 
     // Generate PDF via HTTP request to generateManualPDF
@@ -1966,30 +1953,30 @@ export const generateDocumentoPDF = functions
 
 ### 12.1 Scope Creep Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Procedure templates exceed 50 pages each | Medium | High | Limit to 5–7 core sections per template; link to detailed appendices |
-| DICQ coverage expectations > 85% | Medium | Medium | Clearly document Wave 3 covers Blocks A, D, E only (78.5%); Phases 4+ handle B, C, F expansion |
-| Integration with 15+ existing modules | High | High | Use simple OneToMany refs in Firestore; avoid deep cross-module dependencies |
-| Governance checklist auto-updates slow down database | Low | Medium | Trigger monthly (not daily); use indexed queries on status field |
+| Risk                                                 | Probability | Impact | Mitigation                                                                                     |
+| ---------------------------------------------------- | ----------- | ------ | ---------------------------------------------------------------------------------------------- |
+| Procedure templates exceed 50 pages each             | Medium      | High   | Limit to 5–7 core sections per template; link to detailed appendices                           |
+| DICQ coverage expectations > 85%                     | Medium      | Medium | Clearly document Wave 3 covers Blocks A, D, E only (78.5%); Phases 4+ handle B, C, F expansion |
+| Integration with 15+ existing modules                | High        | High   | Use simple OneToMany refs in Firestore; avoid deep cross-module dependencies                   |
+| Governance checklist auto-updates slow down database | Low         | Medium | Trigger monthly (not daily); use indexed queries on status field                               |
 
 ### 12.2 Document Completeness Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Manual da Qualidade missing sections | Medium | High | Use template checklist; QA validates against DICQ 4.1.2.3 before publish |
-| Procedure content outdated within 6 months | High | Medium | Auto-trigger review 60 days before expiry; send director reminder |
-| Training matrix incomplete (missing staff) | High | Medium | Monthly compliance report auto-generated; missing staff flagged in checklist |
-| Regulatory changes (new RDC articles) not reflected | Low | High | Quarterly audit of current RDC versions; governance checklist flags drift |
+| Risk                                                | Probability | Impact | Mitigation                                                                   |
+| --------------------------------------------------- | ----------- | ------ | ---------------------------------------------------------------------------- |
+| Manual da Qualidade missing sections                | Medium      | High   | Use template checklist; QA validates against DICQ 4.1.2.3 before publish     |
+| Procedure content outdated within 6 months          | High        | Medium | Auto-trigger review 60 days before expiry; send director reminder            |
+| Training matrix incomplete (missing staff)          | High        | Medium | Monthly compliance report auto-generated; missing staff flagged in checklist |
+| Regulatory changes (new RDC articles) not reflected | Low         | High   | Quarterly audit of current RDC versions; governance checklist flags drift    |
 
 ### 12.3 Approval Delays Risks
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Manual da Qualidade approval bottleneck (director unavailable) | Medium | High | Allow delegated approval via roles (Director + Assistant); email escalation after 14 days |
-| Training completion slower than schedule | High | Medium | Auto-notify staff 7 days before due; escalation after 30 days |
-| Internal audit rescheduled mid-quarter | Medium | Medium | Flexible scheduling UI; audit can slide 30 days with documented justification |
-| CAPA closure delayed (>60 days) | High | Medium | Dashboard shows aging; escalation to Director if > 60 days open |
+| Risk                                                           | Probability | Impact | Mitigation                                                                                |
+| -------------------------------------------------------------- | ----------- | ------ | ----------------------------------------------------------------------------------------- |
+| Manual da Qualidade approval bottleneck (director unavailable) | Medium      | High   | Allow delegated approval via roles (Director + Assistant); email escalation after 14 days |
+| Training completion slower than schedule                       | High        | Medium | Auto-notify staff 7 days before due; escalation after 30 days                             |
+| Internal audit rescheduled mid-quarter                         | Medium      | Medium | Flexible scheduling UI; audit can slide 30 days with documented justification             |
+| CAPA closure delayed (>60 days)                                | High        | Medium | Dashboard shows aging; escalation to Director if > 60 days open                           |
 
 ---
 

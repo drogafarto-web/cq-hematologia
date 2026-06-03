@@ -48,14 +48,15 @@ cat LOAD_TEST_RESULTS.md
 
 ## What Gets Tested
 
-| Workload | Weight | Operation | P95 SLA |
-|----------|--------|-----------|---------|
-| Portal config reads | 50% | 10k patients accessing portal | <150ms |
-| NOTIVISA events | 20% | Laudo published events | <300ms |
-| Critical escalations | 15% | High-priority results | <200ms |
-| Draft locks | 15% | Real-time editing locks | <100ms |
+| Workload             | Weight | Operation                     | P95 SLA |
+| -------------------- | ------ | ----------------------------- | ------- |
+| Portal config reads  | 50%    | 10k patients accessing portal | <150ms  |
+| NOTIVISA events      | 20%    | Laudo published events        | <300ms  |
+| Critical escalations | 15%    | High-priority results         | <200ms  |
+| Draft locks          | 15%    | Real-time editing locks       | <100ms  |
 
 **Scenarios:**
+
 - Baseline: 10 concurrent users × 5 min sustain
 - Stress: 100 concurrent users × 10 min sustain
 - Spike: 500 concurrent users × 2 min pico (unexpected surge)
@@ -64,12 +65,12 @@ cat LOAD_TEST_RESULTS.md
 
 ## Key Metrics & Targets
 
-| Metric | Baseline | Stress | Status |
-|--------|----------|--------|--------|
-| Error rate | <1% | <5% | ✓ |
-| P95 latency | <250ms | <250ms | ✓ |
-| Portal reads P95 | <150ms | <150ms | ✓ |
-| Quota exceeded | <10 | <10 | ✓ |
+| Metric           | Baseline | Stress | Status |
+| ---------------- | -------- | ------ | ------ |
+| Error rate       | <1%      | <5%    | ✓      |
+| P95 latency      | <250ms   | <250ms | ✓      |
+| Portal reads P95 | <150ms   | <150ms | ✓      |
+| Quota exceeded   | <10      | <10    | ✓      |
 
 ---
 
@@ -122,6 +123,7 @@ Example Markdown output:
 ### Development Workflow
 
 Before pushing code that touches:
+
 - Firestore queries → run baseline
 - Cloud Functions → run baseline + stress
 - Portal → run baseline
@@ -199,15 +201,16 @@ cat LOAD_TEST_RESULTS.md | grep "duration_ms"
 
 ## Documentation Guide
 
-| Document | Read When | Time |
-|----------|-----------|------|
-| `docs/LOAD_TEST_QUICK_REFERENCE.md` | First time using | 10 min |
-| `docs/LOAD_TEST_INTEGRATION_GUIDE.md` | Setting up CI/CD | 30 min |
-| `docs/LOAD_TEST_EXAMPLE_OUTPUTS.md` | Interpreting results | 15 min |
+| Document                                     | Read When                  | Time    |
+| -------------------------------------------- | -------------------------- | ------- |
+| `docs/LOAD_TEST_QUICK_REFERENCE.md`          | First time using           | 10 min  |
+| `docs/LOAD_TEST_INTEGRATION_GUIDE.md`        | Setting up CI/CD           | 30 min  |
+| `docs/LOAD_TEST_EXAMPLE_OUTPUTS.md`          | Interpreting results       | 15 min  |
 | `docs/LOAD_TEST_IMPLEMENTATION_CHECKLIST.md` | Rolling out systematically | 2 hours |
-| `docs/LOAD_TEST_FILE_INDEX.md` | Finding what you need | 5 min |
+| `docs/LOAD_TEST_FILE_INDEX.md`               | Finding what you need      | 5 min   |
 
 **Recommended path for new users:**
+
 1. `LOAD_TEST_QUICK_REFERENCE.md` (quick start)
 2. Run baseline test locally
 3. Review generated `LOAD_TEST_RESULTS.md`
@@ -293,6 +296,7 @@ Root:
 ### Pass/Fail Criteria
 
 Test passes if ALL of these are true:
+
 1. Error rate <5% (baseline) or <5% (stress/spike)
 2. P95 latency <250ms
 3. Portal reads <150ms P95
@@ -319,12 +323,12 @@ Timestamp: 2026-05-07 14:32:15 UTC
 
 ## Results
 
-| Requirement | Target | Actual | Status |
-|-------------|--------|--------|--------|
-| Portal response time | <150ms | 145ms | ✓ |
-| Error rate | <1% | 0.2% | ✓ |
-| Critical escalations | <200ms | 187ms | ✓ |
-| Quota exceeded | <10 | 0 | ✓ |
+| Requirement          | Target | Actual | Status |
+| -------------------- | ------ | ------ | ------ |
+| Portal response time | <150ms | 145ms  | ✓      |
+| Error rate           | <1%    | 0.2%   | ✓      |
+| Critical escalations | <200ms | 187ms  | ✓      |
+| Quota exceeded       | <10    | 0      | ✓      |
 
 ## Compliance
 
@@ -340,14 +344,14 @@ Signed: Load Test Automation (k6 v0.50.0)
 
 These are typical values you should expect from a healthy system:
 
-| Metric | Good | Acceptable | Needs Investigation |
-|--------|------|-----------|---------------------|
-| Portal reads P95 | <100ms | 100-150ms | >150ms |
-| NOTIVISA creates P95 | <250ms | 250-300ms | >300ms |
-| Critical escalations P95 | <150ms | 150-200ms | >200ms |
-| Draft locks P95 | <75ms | 75-100ms | >100ms |
-| Error rate | <0.1% | 0.1-1% | >1% |
-| Quota exceeded | 0 | <5 | ≥5 |
+| Metric                   | Good   | Acceptable | Needs Investigation |
+| ------------------------ | ------ | ---------- | ------------------- |
+| Portal reads P95         | <100ms | 100-150ms  | >150ms              |
+| NOTIVISA creates P95     | <250ms | 250-300ms  | >300ms              |
+| Critical escalations P95 | <150ms | 150-200ms  | >200ms              |
+| Draft locks P95          | <75ms  | 75-100ms   | >100ms              |
+| Error rate               | <0.1%  | 0.1-1%     | >1%                 |
+| Quota exceeded           | 0      | <5         | ≥5                  |
 
 Use these as reference when interpreting your test results.
 

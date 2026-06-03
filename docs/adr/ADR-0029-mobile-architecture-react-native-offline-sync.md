@@ -27,14 +27,17 @@ Current v1.3 web architecture is **React 19 + TypeScript 5.8 + Zustand 5 + Fireb
 **Two viable paths:**
 
 **(A) React Native (current)**
+
 - Pros: Code sharing with web (shared `hooks/`, `types/`, `services/`), team expertise, proven TypeScript stack
 - Cons: Bridge overhead (React Native → native), performance lag vs. Flutter, offline sync more complex (requires custom queue)
 
 **(B) Flutter (alternative)**
+
 - Pros: Superior performance (Dart native VM), built-in offline sync (Hive + local caching), cleaner async/await, single language for all layers
 - Cons: Team ramp-up time, no code sharing with React web, new testing infrastructure (Flutter test + Detox alternative), DICQ compliance validation needed
 
 **Constraints:**
+
 - Phase 7 launch: July 2026 (8 weeks from now)
 - Team size: 3 engineers (web-focused, limited mobile experience)
 - DICQ compliance mandatory: audit trail, data integrity, encryption for PII
@@ -67,7 +70,10 @@ export const useLoadResult = (resultId: string) => {
         setResult(doc.data());
         setLoading(false);
       },
-      (err) => { setError(err); setLoading(false); }
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
     );
     return unsub;
   }, [resultId, labId]);
@@ -80,6 +86,7 @@ export const useLoadResult = (resultId: string) => {
 ```
 
 **Momentum:** Phase 3.3 already has:
+
 - Biometric auth (fingerprint + Face ID via `react-native-biometrics`)
 - Dark theme (NativeWind)
 - Detox E2E (5 critical flows tested)
@@ -90,6 +97,7 @@ export const useLoadResult = (resultId: string) => {
 ### 2. Offline Sync Architecture
 
 **Problem with naive Firebase:** Firestore Offline Persistence (on-device SQLite cache) works, but:
+
 - Limited to Firestore's automatic persistence (no custom conflict resolution)
 - Writes queued locally are blindly replayed online (can fail if data changed server-side)
 - No audit trail of offline-written documents (DICQ 4.4 requirement)
@@ -120,7 +128,7 @@ export const useOfflineSync = () => {
   const queueWrite = async (
     docPath: string,
     operation: 'create' | 'update' | 'softDelete',
-    payload: any
+    payload: any,
   ) => {
     const op: OfflineOp = {
       id: uuidv4(),
@@ -150,7 +158,7 @@ export const useOfflineSync = () => {
   const performSync = async () => {
     setSyncStatus('syncing');
 
-    for (const op of syncQueue.current.filter(o => o.syncStatus === 'pending')) {
+    for (const op of syncQueue.current.filter((o) => o.syncStatus === 'pending')) {
       try {
         // Call Cloud Function (server-side conflict resolution)
         const result = await syncOfflineOpCallable({
@@ -189,7 +197,7 @@ export const useOfflineSync = () => {
 
   // 3. Resolve conflict (user chooses: keep local or accept server version)
   const resolveConflict = async (opId: string, resolution: 'local' | 'server') => {
-    const op = syncQueue.current.find(o => o.id === opId);
+    const op = syncQueue.current.find((o) => o.id === opId);
     if (!op) return;
 
     if (resolution === 'local') {
@@ -205,7 +213,7 @@ export const useOfflineSync = () => {
       await AsyncStorage.setItem('offlineQueue', JSON.stringify(syncQueue.current));
     }
 
-    setConflicts(conflicts.filter(c => c.id !== opId));
+    setConflicts(conflicts.filter((c) => c.id !== opId));
   };
 
   return {
@@ -224,10 +232,13 @@ export const useOfflineSync = () => {
 // functions/src/modules/mobile/syncOfflineOpCallable.ts
 
 export const syncOfflineOpCallable = onCall(
-  async (data: {
-    op: OfflineOp;
-    baselineServerTimestamp?: number;
-  }, context) => {
+  async (
+    data: {
+      op: OfflineOp;
+      baselineServerTimestamp?: number;
+    },
+    context,
+  ) => {
     const { op, baselineServerTimestamp } = data;
     const docRef = doc(db, op.docPath);
 
@@ -285,7 +296,7 @@ export const syncOfflineOpCallable = onCall(
       logger.error(`Sync failed for ${op.docPath}:`, error);
       throw new HttpsError('internal', `Sync error: ${error.message}`);
     }
-  }
+  },
 );
 ```
 
@@ -391,7 +402,7 @@ export const decryptPII = async (ciphertext: string, privateKey: string): Promis
 // Firebase rule-level encryption (fields are encrypted in Firestore)
 export const getPIIFieldsFromResult = (result: any): string[] => {
   const encryptedFields = ['patientName', 'patientCpf', 'patientPhone'];
-  return encryptedFields.filter(field => result[field]);
+  return encryptedFields.filter((field) => result[field]);
 };
 ```
 
@@ -404,16 +415,16 @@ match /labs/{labId}/laudos/{docId} {
               (request.auth.token.role == 'analyst' ||
                request.auth.token.role == 'RT' ||
                request.auth.token.role == 'admin');
-  
+
   // Create: client callable (via offline sync)
   allow create: if isActiveMemberOfLab(labId) &&
                    request.resource.data.labId == labId &&
                    request.resource.data.operatorId == request.auth.uid;
-  
+
   // Update: client callable (via offline sync)
   allow update: if isActiveMemberOfLab(labId) &&
                    resource.data.labId == labId;
-  
+
   // Soft-delete only
   allow delete: if false;
 }
@@ -421,32 +432,36 @@ match /labs/{labId}/laudos/{docId} {
 
 ### 5. Performance Targets (React Native on Android/iOS)
 
-| Metric | Target | Mechanism |
-|---|---|---|
-| **App launch** | <2s | Code splitting, lazy module loading |
-| **Result list load** | <1s (10 results) | Firestore offline cache, pagination |
-| **Sync latency** | <5s (online), instant (offline) | Optimistic updates + background sync |
-| **Memory** | <150 MB (at-rest) | Efficient state management (Zustand) |
-| **Battery drain** | <5% per hour (idle) | Disable logging, optimize Firebase SDK usage |
+| Metric               | Target                          | Mechanism                                    |
+| -------------------- | ------------------------------- | -------------------------------------------- |
+| **App launch**       | <2s                             | Code splitting, lazy module loading          |
+| **Result list load** | <1s (10 results)                | Firestore offline cache, pagination          |
+| **Sync latency**     | <5s (online), instant (offline) | Optimistic updates + background sync         |
+| **Memory**           | <150 MB (at-rest)               | Efficient state management (Zustand)         |
+| **Battery drain**    | <5% per hour (idle)             | Disable logging, optimize Firebase SDK usage |
 
 ---
 
 ## Alternatives Considered
 
 **(A) Continue React Native (what this ADR chooses)**
+
 - **Pros:** Code sharing with web, team expertise, proven TypeScript
 - **Cons:** Performance lag, custom offline sync (dev effort)
 - **Selected because:** Timeline (Phase 7 July 2026), team constraints, early momentum
 
 **(B) Pivot to Flutter**
+
 - **Pros:** Better performance, built-in offline sync, cleaner state management
 - **Cons:** Team ramp-up (4–6 weeks), code-sharing loss, compliance validation needed
 - **Rejected because:** Phase 7 timeline (8 weeks), team has zero Flutter experience
 
 **(C) Hybrid (React Native + native modules for sync)**
+
 - **Rejected as redundant.** We're already using native modules (biometrics). Custom Firestore sync queue provides same effect.
 
 **(D) Web PWA only (no native app)**
+
 - **Rejected.** Biometric auth and offline sync require native capabilities (not available in web PWA on Android/iOS).
 
 ---
@@ -456,12 +471,14 @@ match /labs/{labId}/laudos/{docId} {
 ### Phase 3.3 → Phase 7 Continuity
 
 **Carry forward from Phase 3.3:**
+
 - React Native + Expo setup
 - NativeWind dark theme
 - Biometric auth integration (fingerprint + Face ID)
 - Detox E2E test suite (5 critical flows)
 
 **Phase 7 New Work (July 2026):**
+
 - [ ] Custom offline sync queue (AsyncStorage + Firestore Persistence)
 - [ ] Server-side sync callable (conflict detection + audit trail)
 - [ ] Conflict resolution UI (user chooses: keep local or sync server version)

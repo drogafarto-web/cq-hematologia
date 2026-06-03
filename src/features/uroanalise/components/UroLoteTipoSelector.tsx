@@ -15,9 +15,7 @@ export const UroLoteTipoSelector: FC<UroLoteTipoSelectorProps> = ({
 }) => {
   return (
     <fieldset className="flex gap-3" disabled={disabled}>
-      <legend className="text-sm font-medium text-slate-300 mb-2">
-        Tipo de insumo
-      </legend>
+      <legend className="text-sm font-medium text-slate-300 mb-2">Tipo de insumo</legend>
       {(['tira', 'controle'] as const).map((t) => (
         <label
           key={t}
@@ -43,9 +41,7 @@ export const UroLoteTipoSelector: FC<UroLoteTipoSelectorProps> = ({
             {t === 'tira' ? 'Tira reagente' : 'Material de controle'}
           </span>
           <span className="block text-xs text-slate-500 mt-1">
-            {t === 'tira'
-              ? 'Combur, Multistix, etc.'
-              : 'Bio-Rad, Randox, etc.'}
+            {t === 'tira' ? 'Combur, Multistix, etc.' : 'Bio-Rad, Randox, etc.'}
           </span>
         </label>
       ))}

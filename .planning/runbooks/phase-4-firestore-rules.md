@@ -10,6 +10,7 @@
 ## What This Alert Means
 
 Firestore is rejecting read/write operations from authenticated users. >10 permission denials in 5 minutes indicates either:
+
 1. A rule syntax bug (allows rejecting valid users)
 2. Client passing corrupted session tokens
 3. Multi-tenant isolation breach attempt (security incident)
@@ -41,6 +42,7 @@ gcloud logging read \
 ```
 
 **Look for:**
+
 - **Single user, multiple paths** → User token corrupted or revoked
 - **Multiple users, same path** → Rule syntax bug
 - **Portal tokens + patient paths** → Multi-tenant isolation check needed
@@ -72,6 +74,7 @@ gcloud logging read \
 ```
 
 **Get user details:**
+
 ```bash
 # What is this user's role?
 gcloud firestore documents get \
@@ -80,6 +83,7 @@ gcloud firestore documents get \
 ```
 
 **Expected for patient access:**
+
 ```json
 {
   "role": "patient",
@@ -88,10 +92,12 @@ gcloud firestore documents get \
 ```
 
 **If role is not "patient":**
+
 - This is expected rejection (rule is working)
 - Not a bug — inform user they don't have access to that lab
 
 **If role is "patient" but still rejected:**
+
 - Go to **Step 2** (Rule syntax check)
 
 ### Step 2: Check Firestore Rules Syntax
@@ -102,6 +108,7 @@ grep -A20 "match /labs/{labId}/patients" firestore.rules
 ```
 
 **Look for:**
+
 ```firestore
 match /labs/{labId}/patients/{patientId} {
   allow read: if isActiveMemberOfLab(labId) &&
@@ -111,12 +118,14 @@ match /labs/{labId}/patients/{patientId} {
 ```
 
 **Common bugs:**
+
 - Missing `request.auth.token.role` check
 - Typo in role name (e.g., `'Patient'` vs `'patient'`)
 - Missing `isActiveMemberOfLab()` call
 - Incorrect `uid` comparison (should use `patientId`, not request.auth.uid)
 
 **If bug found:**
+
 1. Fix syntax in `firestore.rules`
 2. Validate:
    ```bash
@@ -148,6 +157,7 @@ console.log({
 ```
 
 **Expected:**
+
 ```json
 {
   "uid": "{patientId}",
@@ -157,11 +167,13 @@ console.log({
 ```
 
 **If `labId` is wrong:**
+
 - Patient logged into wrong lab account
 - Fix: Patient logout + re-login to correct lab
 - Not a bug
 
 **If `role` is wrong:**
+
 - Token generation bug (should not happen)
 - Page CTO immediately
 - Soft-delete patient session + force re-auth
@@ -177,7 +189,7 @@ gcloud logging read \
    textPayload=~".*Permission.*denied.*" AND \
    labels.documentPath=~".*/patients/.*"' \
   --limit=50 --project=hmatologia2 --format=json | \
-  jq '.[] | 
+  jq '.[] |
     select(.labels.documentPath | test("labs/[^/]+/patients")) |
     {uid: .labels.uid, path: .labels.documentPath} |
     split("/") as $parts |
@@ -186,6 +198,7 @@ gcloud logging read \
 ```
 
 **If any patients are trying to access other patients' data:**
+
 - 🚨 **SECURITY INCIDENT** — Page CTO immediately
 - Possible account compromise or privilege escalation
 - Investigate login history + session tokens
@@ -208,6 +221,7 @@ gcloud logging read \
 ```
 
 **Check user membership:**
+
 ```bash
 gcloud firestore documents get \
   labs/{labId}/members/{uid} \
@@ -216,12 +230,12 @@ gcloud firestore documents get \
 
 **Common scenarios:**
 
-| User Role | Rejected Path | Expected? | Action |
-|-----------|---------------|-----------|--------|
-| RT | `/labs/{labId}/runs/*` | No | Rule bug → Fix rules |
-| RT | `/labs/{labId}/admin/*` | Yes | User doesn't have permission — OK |
-| Admin | `/labs/{labId}/runs/*` | No | Rule bug → Fix rules |
-| Viewer | `/labs/{labId}/results/*` | Yes | User can only read → OK |
+| User Role | Rejected Path             | Expected? | Action                            |
+| --------- | ------------------------- | --------- | --------------------------------- |
+| RT        | `/labs/{labId}/runs/*`    | No        | Rule bug → Fix rules              |
+| RT        | `/labs/{labId}/admin/*`   | Yes       | User doesn't have permission — OK |
+| Admin     | `/labs/{labId}/runs/*`    | No        | Rule bug → Fix rules              |
+| Viewer    | `/labs/{labId}/results/*` | Yes       | User can only read → OK           |
 
 ### Step 2: If Rejection is Unexpected
 
@@ -231,6 +245,7 @@ grep -B5 -A10 "match /labs/{labId}/runs" firestore.rules | head -20
 ```
 
 **Expected rule block:**
+
 ```firestore
 match /labs/{labId}/runs/{runId} {
   allow read: if isActiveMemberOfLab(labId);
@@ -240,12 +255,14 @@ match /labs/{labId}/runs/{runId} {
 ```
 
 **Common bugs:**
+
 - Missing `isActiveMemberOfLab()` check
 - Role comparison typo (e.g., `'rt'` vs `'RT'`)
 - Overly restrictive role check (missing allowed roles)
 - Collection guard blocking valid operations
 
 **If bug found:**
+
 1. Fix in `firestore.rules`
 2. Test in emulator
 3. Deploy: `firebase deploy --only firestore:rules`
@@ -260,6 +277,7 @@ gcloud firestore documents get \
 ```
 
 **If status is not "active":**
+
 - User was soft-deleted or deactivated
 - This is expected rejection
 - Reactivate user if needed:
@@ -284,6 +302,7 @@ firebase auth:export users.json --project=hmatologia2 | \
 ```
 
 **Expected custom claims:**
+
 ```json
 {
   "labId": "{expectedLabId}",
@@ -293,6 +312,7 @@ firebase auth:export users.json --project=hmatologia2 | \
 ```
 
 **If claims don't match member doc:**
+
 - Token may be stale (user was updated but token not refreshed)
 - User: Logout + re-login
 - Or: Force token refresh: `await auth.currentUser.getIdToken(true)`
@@ -310,6 +330,7 @@ watch -n 10 'gcloud logging read \
 ```
 
 **Success criteria:**
+
 - Rejection count <2 per 5 minutes (normal background noise)
 - Affected users can access data again
 - No new rejections for same user/path pair

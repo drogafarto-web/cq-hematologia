@@ -1,8 +1,4 @@
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Timestamp } from 'firebase/firestore';
 
 import { storage } from '../../../shared/services/firebase';
@@ -14,7 +10,7 @@ export async function uploadAudio(
   indicadorId: string,
   blob: Blob,
   uid: string,
-  duration: number
+  duration: number,
 ): Promise<AudioEvidencia> {
   const uuid = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
   const path = `auditoria-geral/${labId}/${auditoriaId}/${indicadorId}/audio-${uuid}.webm`;

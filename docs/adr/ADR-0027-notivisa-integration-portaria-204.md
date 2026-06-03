@@ -3,7 +3,7 @@
 **Status:** Accepted  
 **Date:** 2026-05-08  
 **Decided by:** CTO (drogafarto)  
-**Related:** ADR-0021 (queue-retry pattern), ADR-0014 (audit-trail-extensibility), ADR-0018 (deploy-gate-secret-status-check)  
+**Related:** ADR-0021 (queue-retry pattern), ADR-0014 (audit-trail-extensibility), ADR-0018 (deploy-gate-secret-status-check)
 
 ---
 
@@ -30,6 +30,7 @@ The question is: **how to design the sandbox-to-production workflow, queue proce
 Client writes result → Cloud Function trigger immediately calls ANVISA SOAP API → result creation blocked while waiting for ANVISA response.
 
 **Issues:**
+
 - If ANVISA is down (maintenance, DDoS, network failure), result creation fails and user sees error.
 - Result integrity depends on external government service availability — unacceptable.
 - No audit trail of submission attempts.
@@ -97,7 +98,7 @@ export const notivisaWorker = onMessagePublished('notivisa-queue', async (messag
   const { queueDocId, labId } = message.json;
   const queueRef = db.doc(`labs/${labId}/notivisa-outbox/events/${queueDocId}`);
   const queueDoc = await queueRef.get();
-  
+
   // 1. Determine environment: sandbox or production
   let config = null;
   try {
@@ -115,11 +116,7 @@ export const notivisaWorker = onMessagePublished('notivisa-queue', async (messag
 
   try {
     // 2. Call ANVISA API (SOAP wrapper)
-    const response = await submitToAnvisaAPI(
-      queueDoc.data().payload,
-      endpoint,
-      certPath
-    );
+    const response = await submitToAnvisaAPI(queueDoc.data().payload, endpoint, certPath);
 
     // 3. Idempotent check: did submission succeed before?
     if (response.protocolId && response.protocolId === queueDoc.data().anvisa_protocol_id) {
@@ -141,7 +138,6 @@ export const notivisaWorker = onMessagePublished('notivisa-queue', async (messag
       protocolId: response.protocolId,
       mode: config.data().mode,
     });
-
   } catch (error) {
     // 5. Classify error: transient vs. permanent
     const isTransient = isTransientError(error);
@@ -165,7 +161,6 @@ export const notivisaWorker = onMessagePublished('notivisa-queue', async (messag
         nextRetryIn: backoffMs,
         errorType: 'transient',
       });
-
     } else {
       // Permanent failure: invalid payload, auth error, or max attempts
       await queueRef.update({
@@ -195,39 +190,41 @@ export const notivisaWorker = onMessagePublished('notivisa-queue', async (messag
 ```typescript
 // functions/src/modules/notivisa/processNotivisaQueueScheduled.ts
 
-export const processNotivisaQueueScheduled = onSchedule(
-  'every 5 minutes',
-  async (context) => {
-    const now = new Date();
+export const processNotivisaQueueScheduled = onSchedule('every 5 minutes', async (context) => {
+  const now = new Date();
 
-    // 1. Query all labs' pending submissions due for retry
-    const allPending = await db.collectionGroup('notivisa-outbox')
-      .where('status', 'in', ['PENDING', 'FAILED_TEMP'])
-      .where('nextRetry', '<=', now)
-      .get();
+  // 1. Query all labs' pending submissions due for retry
+  const allPending = await db
+    .collectionGroup('notivisa-outbox')
+    .where('status', 'in', ['PENDING', 'FAILED_TEMP'])
+    .where('nextRetry', '<=', now)
+    .get();
 
-    logger.info(`Found ${allPending.docs.length} submissions ready to retry`);
+  logger.info(`Found ${allPending.docs.length} submissions ready to retry`);
 
-    // 2. Enqueue each to Pub/Sub
-    for (const doc of allPending.docs) {
-      const queuePath = doc.ref.path;
-      const [, labId] = queuePath.match(/labs\/([^/]+)/);
+  // 2. Enqueue each to Pub/Sub
+  for (const doc of allPending.docs) {
+    const queuePath = doc.ref.path;
+    const [, labId] = queuePath.match(/labs\/([^/]+)/);
 
-      await pubsub.topic('notivisa-queue').publish(Buffer.from(JSON.stringify({
-        queueDocId: doc.id,
-        labId: labId,
-        attempt: doc.data().attempts + 1,
-      })));
+    await pubsub.topic('notivisa-queue').publish(
+      Buffer.from(
+        JSON.stringify({
+          queueDocId: doc.id,
+          labId: labId,
+          attempt: doc.data().attempts + 1,
+        }),
+      ),
+    );
 
-      // Log enqueue event
-      await auditLog('notivisa_enqueued_for_submission', {
-        queueDocId: doc.id,
-        labId: labId,
-        attempt: doc.data().attempts + 1,
-      });
-    }
+    // Log enqueue event
+    await auditLog('notivisa_enqueued_for_submission', {
+      queueDocId: doc.id,
+      labId: labId,
+      attempt: doc.data().attempts + 1,
+    });
   }
-);
+});
 ```
 
 **Pub/Sub Subscription:**
@@ -267,15 +264,15 @@ function isTransientError(error: any): boolean {
   // Reference data
   laudoId: string;
   patientCpf: string; // Masked
-  
+
   // NOTIVISA API payload
   payload: {
     tipoNotificacao: 'SUSPEITA' | 'CONFIRMADA';
     doencaNotificavel: string; // e.g., 'HEPATITE_C'
     descricao: string;
     resultadoTeste: string;
-  };
-  
+  }
+
   // Status & retry tracking
   status: 'PENDING' | 'SENT' | 'DELIVERED' | 'FAILED_PERMANENT' | 'FAILED_TEMP';
   attempts: number;
@@ -283,12 +280,12 @@ function isTransientError(error: any): boolean {
   nextRetry: timestamp;
   lastError: string;
   lastErrorType: 'transient' | 'permanent';
-  
+
   // Audit trail
   createdAt: timestamp;
   firstAttemptAt: timestamp;
   sentAt: timestamp; // When ANVISA returned 200 OK
-  
+
   // ANVISA response
   anvisaProtocolId: string; // NOTIVISA ticket ID
   anvisaSoapEnvelope: string; // Full XML response
@@ -351,7 +348,7 @@ export const manuallyRetryNotivisaCallable = onCall(
     });
 
     return { success: true, message: 'Retry scheduled for next cycle (5 min)' };
-  }
+  },
 );
 ```
 
@@ -360,15 +357,19 @@ export const manuallyRetryNotivisaCallable = onCall(
 ## Alternatives Considered
 
 **(a) Synchronous submission on result write**
+
 - **Rejected.** Blocks result creation on external service health. RDC 978 Art. 5 requires immutable result audit trail, not blocking on ANVISA.
 
 **(b) Fire-and-forget Pub/Sub without tracking**
+
 - **Rejected.** No audit trail, no visibility into failures. Portaria 204 § 5 requires proof of submission attempts.
 
 **(c) Dedicated NOTIVISA microservice**
+
 - **Rejected.** Overkill for <100 notifications/day. Cloud Functions + Pub/Sub + Firestore tracking sufficient.
 
 **(d) Queue-and-Retry with audit trail (what this ADR chooses)**
+
 - **Accepted.** Resilient, auditable, operationally safe, compliant with Portaria 204 § 5 + RDC 978 Art. 5.3.
 
 ---
@@ -415,11 +416,11 @@ export const manuallyRetryNotivisaCallable = onCall(
 
 ### Compliance
 
-| Regulation | Requirement | Mitigation |
-|---|---|---|
+| Regulation                | Requirement                                 | Mitigation                                                                                           |
+| ------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
 | **Portaria 204/2016 § 5** | NOTIVISA submission within 24h of diagnosis | Queue + scheduler + manual retry ensures submission attempts within 24h; audit trail proves attempts |
-| **RDC 978 Art. 5.3** | Audit trail of all result actions | `auditLog` captures each queue, retry, delivery, failure event with timestamp |
-| **DICQ 4.4** | Record integrity + immutability | Notification events immutable after creation (Firestore rules prevent updates) |
+| **RDC 978 Art. 5.3**      | Audit trail of all result actions           | `auditLog` captures each queue, retry, delivery, failure event with timestamp                        |
+| **DICQ 4.4**              | Record integrity + immutability             | Notification events immutable after creation (Firestore rules prevent updates)                       |
 
 ---
 

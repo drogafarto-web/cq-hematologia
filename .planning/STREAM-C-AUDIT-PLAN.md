@@ -15,19 +15,20 @@ created: 2026-05-05
 
 ## Module Inventory (Live)
 
-| Module | Status | Last Commit | Type |
-|--------|--------|-------------|------|
-| POPs (sgq) | Live | 2026-05-03 | Quality system |
-| NC+CAPA (sgq) | Live | 2026-05-03 | Quality system |
-| Auditoria (sgq) | Live | 2026-05-03 | Quality system |
-| Treinamentos | Live | 2026-05-04 | HR |
-| Biosseguranca | Live | 2026-05-04 | Infrastructure |
+| Module          | Status | Last Commit | Type           |
+| --------------- | ------ | ----------- | -------------- |
+| POPs (sgq)      | Live   | 2026-05-03  | Quality system |
+| NC+CAPA (sgq)   | Live   | 2026-05-03  | Quality system |
+| Auditoria (sgq) | Live   | 2026-05-03  | Quality system |
+| Treinamentos    | Live   | 2026-05-04  | HR             |
+| Biosseguranca   | Live   | 2026-05-04  | Infrastructure |
 
 ---
 
 ## Phase 1: Bundle & Build Analysis (Week 1)
 
 ### 1.1 Current Metrics
+
 - [ ] Measure main bundle size (current: 1,043 KB gzip)
 - [ ] Identify largest dependencies:
   - `xlsx`: used in educacao-continuada + controle-temperatura (dynamic + static conflict)
@@ -37,6 +38,7 @@ created: 2026-05-05
 - [ ] Measure build time (baseline)
 
 ### 1.2 Identify High-Impact Fixes
+
 - [ ] **xlsx conflict:** Replace dynamic import in one module, verify both work
 - [ ] **pdf.worker:** Lazy-load only when PDF viewer opened
 - [ ] **Chunk splitting:** Separate vendor, UI, services into proper chunks
@@ -51,6 +53,7 @@ created: 2026-05-05
 ### 2.1 Web Vitals Baseline
 
 Run on production (hmatologia2.web.app):
+
 - [ ] **LCP (Largest Contentful Paint):** Target <2.5s
   - Measure on each module landing page
   - Check if Firestore auth blocking initial load
@@ -106,15 +109,16 @@ firebase firestore:indexes --project hmatologia2
 
 ### 3.2 Required Indexes (Create if missing)
 
-| Collection | Query | Composite Index |
-|------------|-------|-----------------|
-| pops | `labId + deletadoEm + criadoEm DESC` | Yes |
-| naoConformidades | `labId + status + criadoEm DESC` | Yes |
-| auditorias | `labId + criadoEm DESC` | Yes |
-| treinamentos | `labId + operadorId + data DESC` | Yes |
-| biosseguranca-inspecoes | `areaId + data DESC` | Yes |
+| Collection              | Query                                | Composite Index |
+| ----------------------- | ------------------------------------ | --------------- |
+| pops                    | `labId + deletadoEm + criadoEm DESC` | Yes             |
+| naoConformidades        | `labId + status + criadoEm DESC`     | Yes             |
+| auditorias              | `labId + criadoEm DESC`              | Yes             |
+| treinamentos            | `labId + operadorId + data DESC`     | Yes             |
+| biosseguranca-inspecoes | `areaId + data DESC`                 | Yes             |
 
 Create indexes:
+
 ```bash
 firebase firestore:indexes --indexes=<FILE> --project hmatologia2
 ```
@@ -161,6 +165,7 @@ docs/PERFORMANCE_PATTERNS.md
 ```
 
 Document:
+
 - Which queries need indexes and why
 - Common bottlenecks (Firestore delays, React re-renders, bundle size)
 - Optimization recipes for common patterns
@@ -207,17 +212,16 @@ Document:
 
 ## Weekly Checkpoints
 
-| Week | Deliverable | Gate |
-|------|-------------|------|
-| W1 | Bundle analysis + fixes | <800 KB gzip |
-| W2 | Web Vitals baseline + profile | LCP <3s |
-| W3 | Firebase indexing complete | P95 queries <500ms |
-| W4 | Monitoring live + dashboards | Alerts configured |
-| W5-6 | Patterns doc + regression tests | All gates passing |
+| Week | Deliverable                     | Gate               |
+| ---- | ------------------------------- | ------------------ |
+| W1   | Bundle analysis + fixes         | <800 KB gzip       |
+| W2   | Web Vitals baseline + profile   | LCP <3s            |
+| W3   | Firebase indexing complete      | P95 queries <500ms |
+| W4   | Monitoring live + dashboards    | Alerts configured  |
+| W5-6 | Patterns doc + regression tests | All gates passing  |
 
 ---
 
 **Owner:** Stream C Agent  
 **Start Date:** 2026-05-05  
 **Target Completion:** 2026-06-14 (6 weeks)
-

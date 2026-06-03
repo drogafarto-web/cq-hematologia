@@ -64,10 +64,7 @@ export const turnos_createTurno = onCall<unknown, Promise<CreateTurnoResult>>(
 
     // RN-TURNO-02: supervisor ativo
     if (colaboradorData['ativo'] !== true) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Supervisor não está ativo (RN-TURNO-02).',
-      );
+      throw new HttpsError('failed-precondition', 'Supervisor não está ativo (RN-TURNO-02).');
     }
 
     // RN-TURNO-03: snapshot certificatesActive (habilitações ativas)

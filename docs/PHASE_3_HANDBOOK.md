@@ -1,4 +1,5 @@
 # Phase 3 Handbook — Schema Extensions & Cross-Cutting Infrastructure
+
 ## Firestore v1.4, Rules, and Shared Utilities
 
 **Version:** 1.0  
@@ -13,6 +14,7 @@
 Phase 3 extends the HC Quality Firestore schema with **5 new collections** to support Phases 4–12 features: patient portals, NOTIVISA regulatory notifications, critical value escalation, IA training datasets, and laudo draft management. This phase also establishes **Firestore Rules v1.4** with role-based access control and introduces **4 shared helper modules** for deterministic formatting and validation.
 
 **Key Metrics:**
+
 - 5 new collections, 5 composite indexes
 - ~185 lines of Firestore rules (2 helper functions + 5 match blocks)
 - 4 shared helper modules (18 unit tests)
@@ -49,25 +51,27 @@ Phase 3 extends the HC Quality Firestore schema with **5 new collections** to su
 ### Collection Specifications
 
 #### 1. Portal Branding & Configuration
+
 **Path:** `/labs/{labId}/portal-configuracao/{docId}`
 
 Portal branding and localization per lab. Patients and lab members read this for UI theming; admins/RT write to update lab branding.
 
-| Field | Type | Required | Validation | Notes |
-|-------|------|----------|-----------|-------|
-| `logoCdnUrl` | string | ✓ | URL | CDN URL to lab logo (SVG/PNG) |
-| `primaryColor` | string | ✓ | Hex #RRGGBB | Primary UI color |
-| `secondaryColor` | string | ✓ | Hex #RRGGBB | Secondary accent color |
-| `labelLaudo` | string | — | Max 50 chars | Custom result label (default: "Resultado") |
-| `labelPaciente` | string | — | Max 50 chars | Custom patient label (default: "Paciente") |
-| `termsHTML` | string | — | Valid HTML | Terms of service (rich text) |
-| `privacyHTML` | string | — | Valid HTML | Privacy policy (rich text) |
-| `updatedAt` | timestamp | ✓ | Server-side | Last update timestamp |
-| `updatedBy` | string | ✓ | Valid uid | User ID who updated |
+| Field            | Type      | Required | Validation   | Notes                                      |
+| ---------------- | --------- | -------- | ------------ | ------------------------------------------ |
+| `logoCdnUrl`     | string    | ✓        | URL          | CDN URL to lab logo (SVG/PNG)              |
+| `primaryColor`   | string    | ✓        | Hex #RRGGBB  | Primary UI color                           |
+| `secondaryColor` | string    | ✓        | Hex #RRGGBB  | Secondary accent color                     |
+| `labelLaudo`     | string    | —        | Max 50 chars | Custom result label (default: "Resultado") |
+| `labelPaciente`  | string    | —        | Max 50 chars | Custom patient label (default: "Paciente") |
+| `termsHTML`      | string    | —        | Valid HTML   | Terms of service (rich text)               |
+| `privacyHTML`    | string    | —        | Valid HTML   | Privacy policy (rich text)                 |
+| `updatedAt`      | timestamp | ✓        | Server-side  | Last update timestamp                      |
+| `updatedBy`      | string    | ✓        | Valid uid    | User ID who updated                        |
 
 **Indexes:** None required (labId indexed at root).
 
 **Example:**
+
 ```json
 {
   "logoCdnUrl": "https://cdn.example.com/labs/LAB001/logo.png",
@@ -85,27 +89,30 @@ Portal branding and localization per lab. Patients and lab members read this for
 ---
 
 #### 2. NOTIVISA Regulatory Queue
+
 **Path:** `/labs/{labId}/notivisa-outbox/events/{docId}`
 
 NOTIVISA event queue for regulatory notifications (RDC 978 Art. 6º §1). Events are created by RT/admin, polled by Cloud Functions, and status is updated server-side only.
 
-| Field | Type | Required | Validation | Notes |
-|-------|------|----------|-----------|-------|
-| `laudo_id` | string | ✓ | Ref to `laudos` | Result reference |
-| `patient_cpf` | string | ✓ | 11 digits, masked | Masked before transmission |
-| `payload` | object | ✓ | Art. 6º §1 schema | NOTIVISA JSON structure |
-| `status` | string | ✓ | Enum | `PENDING` \| `SENT` \| `FAILED` \| `DELIVERED` |
-| `attempts` | number | ✓ | 0–5 | Retry count |
-| `nextRetry` | timestamp | — | Server-side | Scheduled retry time |
-| `createdAt` | timestamp | ✓ | Server-side | Event creation |
-| `sentAt` | timestamp | — | Server-side | Successful send time |
-| `error` | string | — | Max 500 chars | Error message if failed |
+| Field         | Type      | Required | Validation        | Notes                                          |
+| ------------- | --------- | -------- | ----------------- | ---------------------------------------------- |
+| `laudo_id`    | string    | ✓        | Ref to `laudos`   | Result reference                               |
+| `patient_cpf` | string    | ✓        | 11 digits, masked | Masked before transmission                     |
+| `payload`     | object    | ✓        | Art. 6º §1 schema | NOTIVISA JSON structure                        |
+| `status`      | string    | ✓        | Enum              | `PENDING` \| `SENT` \| `FAILED` \| `DELIVERED` |
+| `attempts`    | number    | ✓        | 0–5               | Retry count                                    |
+| `nextRetry`   | timestamp | —        | Server-side       | Scheduled retry time                           |
+| `createdAt`   | timestamp | ✓        | Server-side       | Event creation                                 |
+| `sentAt`      | timestamp | —        | Server-side       | Successful send time                           |
+| `error`       | string    | —        | Max 500 chars     | Error message if failed                        |
 
 **Composite Indexes:**
+
 - `(labId, status, createdAt)` — ASC, ASC, DESC — Poll pending events
 - `createdAt` — DESC — Audit trail ordering
 
 **Example:**
+
 ```json
 {
   "laudo_id": "LAU-2026-05-001",
@@ -128,30 +135,33 @@ NOTIVISA event queue for regulatory notifications (RDC 978 Art. 6º §1). Events
 ---
 
 #### 3. Critical Value Escalation Log
+
 **Path:** `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}`
 
 Critical value escalation tracking with SMS/email audit trail and SLA monitoring. Created by RT/admin when a critical threshold is breached; tracked for resolution and compliance.
 
-| Field | Type | Required | Validation | Notes |
-|-------|------|----------|-----------|-------|
-| `resultado_id` | string | ✓ | Ref to `runs.resultados` | Result reference |
-| `threshold_config_id` | string | ✓ | Ref to `criticos` config | Which threshold violated |
-| `analito` | string | ✓ | Max 50 chars | Analyte name |
-| `valor` | number | ✓ | — | Actual value |
-| `limite_inferior` | number | — | — | Lower bound |
-| `limite_superior` | number | — | — | Upper bound |
-| `sms_sent_to` | array<string> | — | E.164 format | Phone numbers notified |
-| `email_sent_to` | array<string> | — | Valid email | Emails notified |
-| `sla_minutes` | number | ✓ | Positive int | Target resolution time |
-| `resolved_at` | timestamp | — | Server-side | Resolution timestamp |
-| `resolution_notes` | string | — | Max 500 chars | Outcome notes |
-| `createdAt` | timestamp | ✓ | Server-side | Creation timestamp |
+| Field                 | Type          | Required | Validation               | Notes                    |
+| --------------------- | ------------- | -------- | ------------------------ | ------------------------ |
+| `resultado_id`        | string        | ✓        | Ref to `runs.resultados` | Result reference         |
+| `threshold_config_id` | string        | ✓        | Ref to `criticos` config | Which threshold violated |
+| `analito`             | string        | ✓        | Max 50 chars             | Analyte name             |
+| `valor`               | number        | ✓        | —                        | Actual value             |
+| `limite_inferior`     | number        | —        | —                        | Lower bound              |
+| `limite_superior`     | number        | —        | —                        | Upper bound              |
+| `sms_sent_to`         | array<string> | —        | E.164 format             | Phone numbers notified   |
+| `email_sent_to`       | array<string> | —        | Valid email              | Emails notified          |
+| `sla_minutes`         | number        | ✓        | Positive int             | Target resolution time   |
+| `resolved_at`         | timestamp     | —        | Server-side              | Resolution timestamp     |
+| `resolution_notes`    | string        | —        | Max 500 chars            | Outcome notes            |
+| `createdAt`           | timestamp     | ✓        | Server-side              | Creation timestamp       |
 
 **Composite Indexes:**
+
 - `(labId, createdAt)` — ASC, DESC — Trending dashboard
 - `resolved_at` — ASC — SLA tracking + cleanup
 
 **Example:**
+
 ```json
 {
   "resultado_id": "RES-2026-05-0042",
@@ -172,31 +182,34 @@ Critical value escalation tracking with SMS/email audit trail and SLA monitoring
 ---
 
 #### 4. IA Training Dataset (Immunology Strips)
+
 **Path:** `/labs/{labId}/imuno-ias-dev/images/{docId}`
 
 Strip image metadata for immunology IA OCR training pipeline (Phase 9 research). Server and admin access only; no patient PII stored (privacy-by-design).
 
-| Field | Type | Required | Validation | Notes |
-|-------|------|----------|-----------|-------|
-| `imageUrl` | string | ✓ | CDN URL | Cloud Storage or CDN URL |
-| `imageDim` | object | ✓ | — | Image dimensions |
-| `imageDim.width` | number | ✓ | Positive int | Width in pixels |
-| `imageDim.height` | number | ✓ | Positive int | Height in pixels |
-| `classesDetected` | array<string> | ✓ | Enum | Auto-detected classes |
-| `confidence` | number | ✓ | 0.0–1.0 | Model confidence |
-| `model_version` | string | ✓ | Semantic version | Model ID (e.g., "1.0-base") |
-| `feedback` | object | — | — | Human feedback (optional) |
-| `feedback.classes` | array<string> | — | Enum | Corrected classes |
-| `feedback.correctedBy` | string | — | Valid uid | User who corrected |
-| `feedback.correctedAt` | timestamp | — | Server-side | Correction timestamp |
-| `createdAt` | timestamp | ✓ | Server-side | Upload timestamp |
-| `batch_id` | string | — | — | Training batch ID |
+| Field                  | Type          | Required | Validation       | Notes                       |
+| ---------------------- | ------------- | -------- | ---------------- | --------------------------- |
+| `imageUrl`             | string        | ✓        | CDN URL          | Cloud Storage or CDN URL    |
+| `imageDim`             | object        | ✓        | —                | Image dimensions            |
+| `imageDim.width`       | number        | ✓        | Positive int     | Width in pixels             |
+| `imageDim.height`      | number        | ✓        | Positive int     | Height in pixels            |
+| `classesDetected`      | array<string> | ✓        | Enum             | Auto-detected classes       |
+| `confidence`           | number        | ✓        | 0.0–1.0          | Model confidence            |
+| `model_version`        | string        | ✓        | Semantic version | Model ID (e.g., "1.0-base") |
+| `feedback`             | object        | —        | —                | Human feedback (optional)   |
+| `feedback.classes`     | array<string> | —        | Enum             | Corrected classes           |
+| `feedback.correctedBy` | string        | —        | Valid uid        | User who corrected          |
+| `feedback.correctedAt` | timestamp     | —        | Server-side      | Correction timestamp        |
+| `createdAt`            | timestamp     | ✓        | Server-side      | Upload timestamp            |
+| `batch_id`             | string        | —        | —                | Training batch ID           |
 
 **Composite Indexes:**
+
 - `(labId, model_version, createdAt)` — ASC, ASC, DESC — IA research pipeline
 - `batch_id` — ASC — Training batch queries
 
 **Example:**
+
 ```json
 {
   "imageUrl": "https://storage.googleapis.com/hmatologia2/labs/LAB001/strips/IMG-001.jpg",
@@ -217,27 +230,30 @@ Strip image metadata for immunology IA OCR training pipeline (Phase 9 research).
 ---
 
 #### 5. Laudo Draft State Machine
+
 **Path:** `/labs/{labId}/laudos-draft/rascunhos/{docId}`
 
 Laudo edit state machine for RT portal with pessimistic concurrency locking (Phase 5). Prevents concurrent edits; tracks version and operator for audit trail.
 
-| Field | Type | Required | Validation | Notes |
-|-------|------|----------|-----------|-------|
-| `laudo_id` | string | ✓ | Ref to `laudos` | Result reference |
-| `edited_by` | string | ✓ | Valid uid | RT user currently editing |
-| `content_json` | object | ✓ | — | Laudo snapshot (mutable during edit) |
-| `locked_until_ts` | timestamp | ✓ | Server-side | Pessimistic lock expiry |
-| `version` | number | ✓ | Positive int | Conflict detection counter |
-| `status` | string | ✓ | Enum | `EDITING` \| `LOCKED` \| `PUBLISHED` |
-| `updatedAt` | timestamp | ✓ | Server-side | Last edit timestamp |
-| `publishedAt` | timestamp | — | Server-side | Publish timestamp |
-| `draft_notes` | string | — | Max 1000 chars | Internal RT notes (not visible to patient) |
+| Field             | Type      | Required | Validation      | Notes                                      |
+| ----------------- | --------- | -------- | --------------- | ------------------------------------------ |
+| `laudo_id`        | string    | ✓        | Ref to `laudos` | Result reference                           |
+| `edited_by`       | string    | ✓        | Valid uid       | RT user currently editing                  |
+| `content_json`    | object    | ✓        | —               | Laudo snapshot (mutable during edit)       |
+| `locked_until_ts` | timestamp | ✓        | Server-side     | Pessimistic lock expiry                    |
+| `version`         | number    | ✓        | Positive int    | Conflict detection counter                 |
+| `status`          | string    | ✓        | Enum            | `EDITING` \| `LOCKED` \| `PUBLISHED`       |
+| `updatedAt`       | timestamp | ✓        | Server-side     | Last edit timestamp                        |
+| `publishedAt`     | timestamp | —        | Server-side     | Publish timestamp                          |
+| `draft_notes`     | string    | —        | Max 1000 chars  | Internal RT notes (not visible to patient) |
 
 **Composite Indexes:**
+
 - `(labId, laudo_id)` — ASC, ASC — Draft lookup per result
 - `(labId, locked_until_ts)` — ASC, ASC — Cleanup cron (expired locks)
 
 **Example:**
+
 ```json
 {
   "laudo_id": "LAU-2026-05-001",
@@ -268,16 +284,16 @@ Laudo edit state machine for RT portal with pessimistic concurrency locking (Pha
 
 Deploy all 5 composite indexes via Firebase Console or `firebase deploy`:
 
-| Collection | Fields | Order | Status |
-|------------|--------|-------|--------|
-| `notivisa-outbox` | `(labId, status, createdAt)` | ASC, ASC, DESC | Create |
-| `notivisa-outbox` | `createdAt` | DESC | Create |
-| `criticos-escalacoes` | `(labId, createdAt)` | ASC, DESC | Create |
-| `criticos-escalacoes` | `resolved_at` | ASC | Create |
-| `imuno-ias-dev` | `(labId, model_version, createdAt)` | ASC, ASC, DESC | Create |
-| `imuno-ias-dev` | `batch_id` | ASC | Create |
-| `laudos-draft` | `(labId, laudo_id)` | ASC, ASC | Create |
-| `laudos-draft` | `(labId, locked_until_ts)` | ASC, ASC | Create |
+| Collection            | Fields                              | Order          | Status |
+| --------------------- | ----------------------------------- | -------------- | ------ |
+| `notivisa-outbox`     | `(labId, status, createdAt)`        | ASC, ASC, DESC | Create |
+| `notivisa-outbox`     | `createdAt`                         | DESC           | Create |
+| `criticos-escalacoes` | `(labId, createdAt)`                | ASC, DESC      | Create |
+| `criticos-escalacoes` | `resolved_at`                       | ASC            | Create |
+| `imuno-ias-dev`       | `(labId, model_version, createdAt)` | ASC, ASC, DESC | Create |
+| `imuno-ias-dev`       | `batch_id`                          | ASC            | Create |
+| `laudos-draft`        | `(labId, laudo_id)`                 | ASC, ASC       | Create |
+| `laudos-draft`        | `(labId, locked_until_ts)`          | ASC, ASC       | Create |
 
 **Expected build time:** <5 minutes per index (typically instant).
 
@@ -340,13 +356,14 @@ function validateDraftLock(d) {
 match /portal-configuracao/{docId} {
   // Patient and lab members can read portal config (for UI branding)
   allow read: if isPatient(labId) || isActiveMemberOfLab(labId);
-  
+
   // Admin/RT can update config (branding rebranding)
   allow write: if isAdminOrRT(labId) && request.resource.data.updatedBy == request.auth.uid;
 }
 ```
 
 **Rules:**
+
 - Patient reads portal branding for patient portal UI
 - Lab members read config for dashboard theming
 - Admin/RT updates config with signature validation (`updatedBy == uid`)
@@ -362,19 +379,20 @@ match /portal-configuracao/{docId} {
 match /notivisa-outbox/events/{docId} {
   // Admin/RT creates events (with payload validation per RDC 978 Art. 6º §1)
   allow create: if isAdminOrRT(labId) && validateNotivisaPayload(request.resource.data);
-  
+
   // Server (Cloud Functions) reads for polling + retry logic
   allow read: if isServer() || isActiveMemberOfLab(labId);
-  
+
   // Server updates status (polling, retry)
   allow update: if isServer();
-  
+
   // Immutable audit trail (no client deletes)
   allow delete: if false;
 }
 ```
 
 **Rules:**
+
 - Admin/RT creates events with payload validation
 - Server reads + updates status (retry queue processor)
 - Lab members can read for audit trail review
@@ -392,19 +410,20 @@ match /notivisa-outbox/events/{docId} {
 match /criticos-escalacoes/escalacoes/{docId} {
   // Admin/RT creates escalation events
   allow create: if isAdminOrRT(labId);
-  
+
   // All lab members can read (for trending dashboard)
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // Admin/RT updates resolution (only if resolved_at set)
   allow update: if isAdminOrRT(labId) && request.resource.data.resolved_at != null;
-  
+
   // Immutable escalation history
   allow delete: if false;
 }
 ```
 
 **Rules:**
+
 - Admin/RT creates escalations for critical results
 - Lab members read for SLA dashboard
 - Admin/RT records resolution with validation
@@ -423,13 +442,14 @@ match /imuno-ias-dev/images/{docId} {
   // Server (Cloud Functions) has full access for IA training pipeline
   // Admin can also access for manual curation (future)
   allow read, write: if isServer() || isAdminOrRT(labId);
-  
+
   // No deletes (training data immutable)
   allow delete: if false;
 }
 ```
 
 **Rules:**
+
 - Server has full access (IA pipeline integration)
 - Admin/RT can access (manual curation, future)
 - No patient/member access (development dataset isolation)
@@ -447,16 +467,17 @@ match /imuno-ias-dev/images/{docId} {
 match /laudos-draft/rascunhos/{docId} {
   // Admin/RT creates/edits drafts with pessimistic lock validation
   allow create, write: if isAdminOrRT(labId) && validateDraftLock(request.resource.data);
-  
+
   // Lab members and patients can read draft status
   allow read: if isActiveMemberOfLab(labId) || isPatient(labId);
-  
+
   // No hard deletes (status-based lifecycle)
   allow delete: if false;
 }
 ```
 
 **Rules:**
+
 - Admin/RT creates/edits with lock validation (prevents concurrent edits)
 - Lab members + patients read draft status
 - No hard deletes (status lifecycle managed by app)
@@ -527,6 +548,7 @@ export interface NotivisaPayload {
 ```
 
 **Tests (3):**
+
 - ✅ Valid laudo → valid NOTIVISA payload
 - ✅ Missing CPF → ValidationError
 - ✅ Sensitive data masked correctly
@@ -543,10 +565,11 @@ export const smsTemplate = (critico: Critico, lab: Lab, paciente: Paciente): str
   // Art. 17 signature format, friendly + professional tone
   // Max 160 chars for SMS compatibility
   return `ALERTA: Resultado crítico para ${paciente.nome?.substring(0, 20)}. ${critico.analito.toUpperCase()} = ${critico.valor} (ref: ${critico.referencia}). Lab ${lab.nomeAbreviado}. Contato: ${lab.telefone}.`;
-}
+};
 ```
 
 **Tests (4):**
+
 - ✅ Basic message ≤160 chars
 - ✅ Name truncation for long names
 - ✅ Analito formatting (uppercase)
@@ -566,7 +589,11 @@ export class LaudoDraftManager {
   // EDITING | LOCKED → PUBLISHED (RT publishes)
   // PUBLISHED → ARCHIVED (cron cleans up)
 
-  async acquireLock(laudoId: string, rtUid: string, lockDuration: number = 3600000): Promise<DraftLock> {
+  async acquireLock(
+    laudoId: string,
+    rtUid: string,
+    lockDuration: number = 3600000,
+  ): Promise<DraftLock> {
     // Check if locked_until_ts > now
     // If locked && locked_by != rtUid, throw ConflictError
     // Otherwise, create rascunho doc + set locked_until_ts
@@ -595,6 +622,7 @@ export interface DraftLock {
 ```
 
 **Tests (5):**
+
 - ✅ Acquire lock successfully
 - ✅ Conflict when another RT has lock
 - ✅ Release lock
@@ -637,6 +665,7 @@ export const validateStripImage = (data: unknown): StripImage => {
 ```
 
 **Tests (6):**
+
 - ✅ Valid image payload passes
 - ✅ Invalid URL rejected
 - ✅ Missing imageDim rejected
@@ -663,6 +692,7 @@ src/shared/
 ```
 
 **Centralized exports** (`src/shared/index.ts`):
+
 ```typescript
 export { notivisaFormatter, type NotivisaPayload } from './notivisa';
 export { smsTemplate } from './sms';
@@ -695,6 +725,7 @@ functions/src/modules/notivisa/
 ```
 
 **Skeleton (`index.ts`):**
+
 ```typescript
 import * as functions from 'firebase-functions/v2/https';
 import { notivisaFormatter } from '../../shared/notivisa';
@@ -704,7 +735,7 @@ export const notivisaQueueProcessor = functions.onCall(async (request) => {
   // For now: return placeholder
   return {
     status: 'PLACEHOLDER',
-    message: 'NOTIVISA queue processor (Phase 4)'
+    message: 'NOTIVISA queue processor (Phase 4)',
   };
 });
 ```
@@ -722,6 +753,7 @@ functions/src/modules/portals/
 ```
 
 **Skeleton (`index.ts`):**
+
 ```typescript
 import * as functions from 'firebase-functions/v2/https';
 
@@ -729,7 +761,7 @@ export const getPortalConfig = functions.onCall(async (request) => {
   // Phase 5: Fetch portal-configuracao for patient UI branding
   return {
     status: 'PLACEHOLDER',
-    message: 'Portal config (Phase 5)'
+    message: 'Portal config (Phase 5)',
   };
 });
 
@@ -737,7 +769,7 @@ export const downloadLaudoPDF = functions.onCall(async (request) => {
   // Phase 6: Generate + download laudo as PDF
   return {
     status: 'PLACEHOLDER',
-    message: 'Laudo PDF export (Phase 6)'
+    message: 'Laudo PDF export (Phase 6)',
   };
 });
 ```
@@ -755,6 +787,7 @@ functions/src/modules/criticos/
 ```
 
 **Skeleton (`index.ts`):**
+
 ```typescript
 import * as functions from 'firebase-functions/v2/https';
 import { smsTemplate } from '../../shared/sms';
@@ -764,7 +797,7 @@ export const escalateCriticalValue = functions.onCall(async (request) => {
   // Use smsTemplate helper
   return {
     status: 'PLACEHOLDER',
-    message: 'Critical value escalation (Phase 7)'
+    message: 'Critical value escalation (Phase 7)',
   };
 });
 ```
@@ -782,6 +815,7 @@ functions/src/modules/ia-strip/
 ```
 
 **Skeleton (`index.ts`):**
+
 ```typescript
 import * as functions from 'firebase-functions/v2/https';
 import { validateStripImage } from '../../shared/ia';
@@ -792,7 +826,7 @@ export const uploadStripImage = functions.onCall(async (request) => {
   return {
     status: 'PLACEHOLDER',
     imageUrl: 'https://placeholder.com/image.jpg',
-    message: 'Strip image upload (Phase 9)'
+    message: 'Strip image upload (Phase 9)',
   };
 });
 
@@ -801,7 +835,7 @@ export const classifyStrip = functions.onCall(async (request) => {
   return {
     status: 'PLACEHOLDER',
     classes: ['IgG', 'IgM'],
-    confidence: 0.95
+    confidence: 0.95,
   };
 });
 ```
@@ -813,6 +847,7 @@ export const classifyStrip = functions.onCall(async (request) => {
 Create reusable test data in `functions/src/__tests__/fixtures/`:
 
 **`notivisa-payloads.ts`:**
+
 ```typescript
 export const mockNotivisaEvent = {
   laudo_id: 'laudo-test-001',
@@ -825,23 +860,25 @@ export const mockNotivisaEvent = {
 ```
 
 **`portal-users.ts`:**
+
 ```typescript
 export const mockPatient = {
   uid: 'patient-123',
   email: 'patient@example.com',
   role: 'PATIENT',
-  labId: 'test-lab-001'
+  labId: 'test-lab-001',
 };
 ```
 
 **`critico-thresholds.ts`:**
+
 ```typescript
 export const mockCriticoConfig = {
   analito: 'potassium',
   limite_inferior: 3.5,
   limite_superior: 5.5,
   sms_escalation: true,
-  email_escalation: true
+  email_escalation: true,
 };
 ```
 
@@ -889,27 +926,27 @@ export const mockCriticoConfig = {
 
 ### RDC 978/2025 Coverage
 
-| Article | Requirement | Phase 3 Implementation | Status |
-|---|---|---|---|
-| **Art. 6º §1** | Notification of notifiable diseases | `notivisa-outbox` queue + `notivisaFormatter` helper | ✅ **Covered** |
-| **Art. 17** | Critical results communication | `criticos-escalacoes` + `smsTemplate` helper | ✅ **Covered** |
-| **Art. 115** | 5-year retention | Soft-delete pattern + `createdAt` audit fields | ✅ **Covered** |
-| **Art. 122** | Supervisor presence + signature | Draft locking + `edited_by` + `updatedBy` audit | ✅ **Preparatory** |
-| **Art. 167** | Laudo 14 mandatory fields | Draft versioning + `content_json` flex schema | ✅ **Preparatory** |
-| **RDC 986 Art. 5, XL** | Non-repudiation (immutable audit trail) | All collections `allow delete: if false` | ✅ **Covered** |
+| Article                | Requirement                             | Phase 3 Implementation                               | Status             |
+| ---------------------- | --------------------------------------- | ---------------------------------------------------- | ------------------ |
+| **Art. 6º §1**         | Notification of notifiable diseases     | `notivisa-outbox` queue + `notivisaFormatter` helper | ✅ **Covered**     |
+| **Art. 17**            | Critical results communication          | `criticos-escalacoes` + `smsTemplate` helper         | ✅ **Covered**     |
+| **Art. 115**           | 5-year retention                        | Soft-delete pattern + `createdAt` audit fields       | ✅ **Covered**     |
+| **Art. 122**           | Supervisor presence + signature         | Draft locking + `edited_by` + `updatedBy` audit      | ✅ **Preparatory** |
+| **Art. 167**           | Laudo 14 mandatory fields               | Draft versioning + `content_json` flex schema        | ✅ **Preparatory** |
+| **RDC 986 Art. 5, XL** | Non-repudiation (immutable audit trail) | All collections `allow delete: if false`             | ✅ **Covered**     |
 
 ---
 
 ### DICQ 8ª Edição Coverage
 
-| Block | DICQ Item | Phase 3 Implementation | Status |
-|---|---|---|---|
-| **Block D** — Quality | 4.14.5 Audit trail | Escalation + NOTIVISA immutable records | ✅ **Supports** |
-| **Block G** — Post-Analytical | 5.7.2 Critical values | `criticos-escalacoes` + SLA tracking | ✅ **Covers** |
-| **Block G** — Post-Analytical | 5.7.3 NOTIVISA notification | `notivisa-outbox` queue + RDC Art. 6º §1 | ✅ **Covers** |
-| **Block G** — Post-Analytical | 5.8 Laudo emission | Draft versioning + approval gate | ✅ **Preparatory** |
-| **Block G** — Post-Analytical | 5.9.1 Release + traceability | Draft lock + version control + portal rules | ✅ **Preparatory** |
-| **Block J** — Continuity | 5.10.1 Confidentiality | Rules-based access + patient portal isolation | ✅ **Covers** |
+| Block                         | DICQ Item                    | Phase 3 Implementation                        | Status             |
+| ----------------------------- | ---------------------------- | --------------------------------------------- | ------------------ |
+| **Block D** — Quality         | 4.14.5 Audit trail           | Escalation + NOTIVISA immutable records       | ✅ **Supports**    |
+| **Block G** — Post-Analytical | 5.7.2 Critical values        | `criticos-escalacoes` + SLA tracking          | ✅ **Covers**      |
+| **Block G** — Post-Analytical | 5.7.3 NOTIVISA notification  | `notivisa-outbox` queue + RDC Art. 6º §1      | ✅ **Covers**      |
+| **Block G** — Post-Analytical | 5.8 Laudo emission           | Draft versioning + approval gate              | ✅ **Preparatory** |
+| **Block G** — Post-Analytical | 5.9.1 Release + traceability | Draft lock + version control + portal rules   | ✅ **Preparatory** |
+| **Block J** — Continuity      | 5.10.1 Confidentiality       | Rules-based access + patient portal isolation | ✅ **Covers**      |
 
 **Phase 3 → v1.4 Impact:** +18 DICQ sub-requisitos (3–4% coverage gain toward 88% v1.4 target)
 
@@ -982,6 +1019,7 @@ export const mockCriticoConfig = {
 **Symptom:** Index creation says "Building" for >10 minutes
 
 **Solution:**
+
 1. Check Firebase Console → Firestore → Indexes for status
 2. If stuck, try deleting and recreating via console
 3. Alternatively, use `firebase deploy --only firestore:indexes`
@@ -993,6 +1031,7 @@ export const mockCriticoConfig = {
 **Symptom:** `Error: [firebase-tools] The following rules files have syntax errors.`
 
 **Solution:**
+
 1. Run `firebase rules:test` (emulator) for detailed error message
 2. Check for missing colons, braces, or function signatures
 3. Verify helper function names match invocations exactly
@@ -1004,6 +1043,7 @@ export const mockCriticoConfig = {
 **Symptom:** `Cannot find module '@hc-quality/shared/notivisa'`
 
 **Solution:**
+
 1. Ensure `src/shared/index.ts` exports all 4 modules
 2. Update module imports to use barrel export: `import { notivisaFormatter } from '@/shared'`
 3. Check `tsconfig.json` for path aliases
@@ -1015,6 +1055,7 @@ export const mockCriticoConfig = {
 **Symptom:** `Error: Cannot find fixture file 'notivisa-payloads.ts'`
 
 **Solution:**
+
 1. Verify fixtures are in `functions/src/__tests__/fixtures/`
 2. Check import path: `import { mockNotivisaEvent } from '../fixtures/notivisa-payloads'`
 3. Ensure `tsconfig.json` includes test directories
@@ -1026,6 +1067,7 @@ export const mockCriticoConfig = {
 **Symptom:** User from Lab A can read Lab B's data
 
 **Troubleshooting:**
+
 1. Verify rules match block includes correct path: `/labs/{labId}/...`
 2. Check role helper functions: `isActiveMemberOfLab(labId)` must validate path param
 3. Review test cases: ensure cross-lab read attempts fail
@@ -1037,6 +1079,7 @@ export const mockCriticoConfig = {
 **Symptom:** Queries run slow despite index creation
 
 **Solution:**
+
 1. Verify index query matches index definition exactly (field order matters)
 2. Check composite index fields: `(labId, status, createdAt)` vs `(labId, createdAt, status)` are different
 3. Use Firebase Console → Firestore → Query Insights to verify index hit
@@ -1048,6 +1091,7 @@ export const mockCriticoConfig = {
 **Symptom:** Auditor says "NOTIVISA queue missing fields"
 
 **Solution:**
+
 1. Verify `payload` field structure matches `NotivisaPayload` interface
 2. Check `notivisaFormatter` helper includes all required fields (laudo_id, patient_cpf, data_resultado, etc.)
 3. Review SCHEMA_v1.4.md section 2 (NOTIVISA Outbox) for complete field list
@@ -1057,21 +1101,25 @@ export const mockCriticoConfig = {
 ## Appendix: Files & Locations
 
 ### Core Documentation
+
 - **Schema:** `docs/SCHEMA_v1.4.md`
 - **Rules Diff:** `docs/RULES_v1.4_DIFF.md`
 - **Compliance:** `.planning/phases/03-schema-extensions/COMPLIANCE_AUDIT.md`
 
 ### Implementation Plans
+
 - **Task 03-01 (Schema):** `.planning/phases/03-schema-extensions/03-01-PLAN.md`
 - **Task 03-02 (Rules):** `.planning/phases/03-schema-extensions/03-02-PLAN.md`
 - **Task 03-03 (Helpers):** `.planning/phases/03-schema-extensions/03-03-PLAN.md`
 - **Task 03-04 (Functions):** `.planning/phases/03-schema-extensions/03-04-PLAN.md`
 
 ### Firestore Configuration
+
 - **Rules file:** `firestore.rules` (lines 59–92 [helpers], 1935–1987 [blocks])
 - **Indexes:** `firestore.indexes.json` (5 composite indexes)
 
 ### Source Code
+
 - **Shared helpers:** `src/shared/{notivisa,sms,laudo,ia}.ts`
 - **Helper tests:** `src/shared/__tests__/{notivisa,sms,laudo,ia}.test.ts`
 - **Functions skeletons:** `functions/src/modules/{notivisa,portals,criticos,ia-strip}/`
@@ -1081,13 +1129,12 @@ export const mockCriticoConfig = {
 
 ## Revision History
 
-| Date | Version | Changes |
-|------|---------|---------|
-| 2026-05-07 | 1.0 | Initial handbook — all Phase 3 tasks consolidated |
+| Date       | Version | Changes                                           |
+| ---------- | ------- | ------------------------------------------------- |
+| 2026-05-07 | 1.0     | Initial handbook — all Phase 3 tasks consolidated |
 
 ---
 
 **Document Status:** ✅ READY FOR PRODUCTION  
 **Compliance:** ✅ HIGH (85–90% confidence)  
 **Next Audit Point:** Phase 4 (Functions) completion
-

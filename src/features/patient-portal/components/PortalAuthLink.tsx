@@ -125,12 +125,8 @@ export const PortalAuthLink: React.FC = () => {
                 />
               </svg>
             </div>
-            <h1 className="text-xl font-semibold text-white">
-              Authentication Successful
-            </h1>
-            <p className="text-white/60 text-sm">
-              Redirecting to your dashboard...
-            </p>
+            <h1 className="text-xl font-semibold text-white">Authentication Successful</h1>
+            <p className="text-white/60 text-sm">Redirecting to your dashboard...</p>
           </div>
         </div>
       </div>
@@ -157,9 +153,7 @@ export const PortalAuthLink: React.FC = () => {
               />
             </svg>
           </div>
-          <h1 className="text-xl font-semibold text-white">
-            Authentication Failed
-          </h1>
+          <h1 className="text-xl font-semibold text-white">Authentication Failed</h1>
           <p className="text-white/60 text-sm">
             {errorMessage || 'Your authentication link is invalid or has expired.'}
           </p>
@@ -168,7 +162,9 @@ export const PortalAuthLink: React.FC = () => {
         {/* Action Buttons */}
         <div className="space-y-3">
           <button
-            onClick={() => { window.location.href = '/portal/auth'; }}
+            onClick={() => {
+              window.location.href = '/portal/auth';
+            }}
             className="w-full px-4 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500"
           >
             Request New Link

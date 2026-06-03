@@ -14,11 +14,13 @@
 **When:** Every Friday 10:00 BRT (São Paulo time, UTC-3)  
 **Duration:** 30 minutes  
 **Participants:**
+
 - Auditor (Ernani, llabclin3@gmail.com)
 - CTO (drogafarto@gmail.com)
 - Compliance/Audit Lead (TBD, escalation owner)
 
 **Calendar invite template:**
+
 ```
 Title: HC Quality Weekly Auditor Alignment — Week X Phase Y
 Time: Friday 10:00–10:30 BRT
@@ -45,11 +47,11 @@ Agenda (10 min strict per item):
 
 ## Compliance Trend
 
-| Standard | Last Week | This Week | Δ | Target |
-|---|---|---|---|---|
-| DICQ | 78.5% | 79.2% | +0.7% | 88% (by Week 14) |
-| RDC 978 | 85% | 86% | +1% | 100% (by Week 8) |
-| LGPD | 62% | 63% | +1% | 85% (by Week 16) |
+| Standard | Last Week | This Week | Δ     | Target           |
+| -------- | --------- | --------- | ----- | ---------------- |
+| DICQ     | 78.5%     | 79.2%     | +0.7% | 88% (by Week 14) |
+| RDC 978  | 85%       | 86%       | +1%   | 100% (by Week 8) |
+| LGPD     | 62%       | 63%       | +1%   | 85% (by Week 16) |
 
 ## Critical Path Status
 
@@ -59,10 +61,10 @@ Agenda (10 min strict per item):
 
 ## RFI Tracking
 
-| ID | Topic | Status | Owner | Due |
-|---|---|---|---|---|
-| RFI-001 | CAPA closure 5-state | Answered | CTO | 2026-05-22 |
-| RFI-002 | Critical thresholds | In progress | Eng-A | 2026-05-29 |
+| ID      | Topic                | Status      | Owner | Due        |
+| ------- | -------------------- | ----------- | ----- | ---------- |
+| RFI-001 | CAPA closure 5-state | Answered    | CTO   | 2026-05-22 |
+| RFI-002 | Critical thresholds  | In progress | Eng-A | 2026-05-29 |
 
 ## Blockers Flagged
 
@@ -110,11 +112,11 @@ Agenda (10 min strict per item):
 
 ### Action Items
 
-| Item | Owner | Due | Status |
-|---|---|---|---|
-| Send ADR-0020 + ADR-0024 | CTO | 2026-05-18 | Done |
-| Schedule Phase 4 weekly syncs | Audit Lead | 2026-05-20 | Done |
-| Confirm May 20 Phase 4 kickoff | CTO | 2026-05-19 | Pending |
+| Item                           | Owner      | Due        | Status  |
+| ------------------------------ | ---------- | ---------- | ------- |
+| Send ADR-0020 + ADR-0024       | CTO        | 2026-05-18 | Done    |
+| Schedule Phase 4 weekly syncs  | Audit Lead | 2026-05-20 | Done    |
+| Confirm May 20 Phase 4 kickoff | CTO        | 2026-05-19 | Pending |
 
 ### Auditor Sign-Off
 
@@ -146,44 +148,44 @@ Agenda (10 min strict per item):
 
 ## Headline Metrics
 
-| Metric | Value | Target | Status |
-|---|---|---|---|
-| DICQ % | 78.5% | 88% (Aug 4) | 🟡 On track (+0.7%/week) |
-| RDC 978 critical articles | 17/17 | 20/20 by Week 8 | 🟡 On track |
-| LGPD audit trail entries | 1,247 | >100/day | ✅ Healthy |
-| Test pass rate | 738/738 | 100% | ✅ Pass |
-| Cloud Logs errors | 0 | 0 | ✅ Clean |
+| Metric                    | Value   | Target          | Status                   |
+| ------------------------- | ------- | --------------- | ------------------------ |
+| DICQ %                    | 78.5%   | 88% (Aug 4)     | 🟡 On track (+0.7%/week) |
+| RDC 978 critical articles | 17/17   | 20/20 by Week 8 | 🟡 On track              |
+| LGPD audit trail entries  | 1,247   | >100/day        | ✅ Healthy               |
+| Test pass rate            | 738/738 | 100%            | ✅ Pass                  |
+| Cloud Logs errors         | 0       | 0               | ✅ Clean                 |
 
 ## Phase Status (Week X)
 
-| Phase | Task | Status | Owner | Risk |
-|---|---|---|---|---|
-| 4 | Portal auth | 45% | Agent-1 | Low |
-| 4 | NOTIVISA queue | 20% | Agent-3 | Low |
-| 5 | Critical escalation | Planned | TBD | TBD |
+| Phase | Task                | Status  | Owner   | Risk |
+| ----- | ------------------- | ------- | ------- | ---- |
+| 4     | Portal auth         | 45%     | Agent-1 | Low  |
+| 4     | NOTIVISA queue      | 20%     | Agent-3 | Low  |
+| 5     | Critical escalation | Planned | TBD     | TBD  |
 
 ## Known Issues
 
 | Issue | Severity | Discovered | Root Cause | Remediation | ETA |
-|---|---|---|---|---|---|
-| None | — | — | — | — | — |
+| ----- | -------- | ---------- | ---------- | ----------- | --- |
+| None  | —        | —          | —          | —           | —   |
 
 ## Regulatory Gaps (RDC 978)
 
-| Article | Requirement | Coverage | Gap | Remediation | Phase |
-|---|---|---|---|---|---|
-| 5.3 | Management review | ✅ 100% | None | — | — |
-| 115 | Critical value escalation | 🟡 0% (Phase 5) | SMS/email | PENDING | 5 |
-| 204 | Audit trail + signature | ✅ 100% | None | — | — |
+| Article | Requirement               | Coverage        | Gap       | Remediation | Phase |
+| ------- | ------------------------- | --------------- | --------- | ----------- | ----- |
+| 5.3     | Management review         | ✅ 100%         | None      | —           | —     |
+| 115     | Critical value escalation | 🟡 0% (Phase 5) | SMS/email | PENDING     | 5     |
+| 204     | Audit trail + signature   | ✅ 100%         | None      | —           | —     |
 
 ## DICQ Block Progress
 
-| Block | Name | Coverage | Target | Δ | Phase |
-|---|---|---|---|---|---|
-| A | Governance | 85% | 90% | +0% | 6 |
-| B | Documentation | 92% | 95% | +0% | 6 |
-| F | Analytical | 90% | 95% | +0% | — |
-| I | Laudos/Release | 75% | 95% | +0% | 4–6 |
+| Block | Name           | Coverage | Target | Δ   | Phase |
+| ----- | -------------- | -------- | ------ | --- | ----- |
+| A     | Governance     | 85%      | 90%    | +0% | 6     |
+| B     | Documentation  | 92%      | 95%    | +0% | 6     |
+| F     | Analytical     | 90%      | 95%    | +0% | —     |
+| I     | Laudos/Release | 75%      | 95%    | +0% | 4–6   |
 
 ## Traffic Light Summary
 
@@ -194,8 +196,9 @@ Agenda (10 min strict per item):
 ---
 
 **Next update:** 2026-05-DD 09:00 BRT  
-**Escalation contacts:**  
-- CTO (critical blockers): drogafarto@gmail.com  
+**Escalation contacts:**
+
+- CTO (critical blockers): drogafarto@gmail.com
 - Audit Lead (RFI response): TBD
 ```
 
@@ -224,18 +227,18 @@ Agenda (10 min strict per item):
 
 ## 1. DICQ Conformance By Block
 
-| Block | Week N-1 | Week N | Target | Gap | Phase closure |
-|---|---|---|---|---|---|
-| A — Governance | 85% | 85% | 90% | -5% | Phase 6 |
-| B — Documentation | 92% | 92% | 95% | -3% | Phase 6 |
-| C — Personnel | 88% | 88% | 92% | -4% | Phase 7 |
-| D — Equipment | 90% | 90% | 93% | -3% | — |
-| E — Facility | 82% | 83% | 88% | -5% | Phase 9 |
-| F — Analytical | 90% | 90% | 95% | -5% | — |
-| G — QA | 95% | 95% | 97% | -2% | Phase 6–7 |
-| H — Post-analytic | 75% | 76% | 92% | -16% | Phase 6 |
-| I — Laudo Release | 75% | 75% | 95% | -20% | Phase 6 |
-| J — Continuity | 85% | 85% | 90% | -5% | Phase 9 |
+| Block             | Week N-1 | Week N | Target | Gap  | Phase closure |
+| ----------------- | -------- | ------ | ------ | ---- | ------------- |
+| A — Governance    | 85%      | 85%    | 90%    | -5%  | Phase 6       |
+| B — Documentation | 92%      | 92%    | 95%    | -3%  | Phase 6       |
+| C — Personnel     | 88%      | 88%    | 92%    | -4%  | Phase 7       |
+| D — Equipment     | 90%      | 90%    | 93%    | -3%  | —             |
+| E — Facility      | 82%      | 83%    | 88%    | -5%  | Phase 9       |
+| F — Analytical    | 90%      | 90%    | 95%    | -5%  | —             |
+| G — QA            | 95%      | 95%    | 97%    | -2%  | Phase 6–7     |
+| H — Post-analytic | 75%      | 76%    | 92%    | -16% | Phase 6       |
+| I — Laudo Release | 75%      | 75%    | 95%    | -20% | Phase 6       |
+| J — Continuity    | 85%      | 85%    | 90%    | -5%  | Phase 9       |
 
 **Overall DICQ:** 82% → 82% (stable, trend +1-2%/week post Phase 4)
 
@@ -243,15 +246,15 @@ Agenda (10 min strict per item):
 
 ## 2. RDC 978 Article Coverage
 
-| Article | Requirement | Status | Evidence | Owner |
-|---|---|---|---|---|
-| 5.3 | Management review | ✅ 100% | Phase 0 (turnos+risks+DPIA) | CTO |
-| 86 | Risk management | ✅ 100% | Phase 0 (FMEA-lite) | CTO |
-| 99 | Management responsibility | 🟡 80% | ADR-0021 (NOTIVISA) ready | Agent-3 |
-| 115 | Critical value escalation | 🟡 0% | Phase 5 (Twilio SMS) | Agent-2 |
-| 117 | SLA escalation | 🟡 0% | Phase 5 (SLA tracking) | Agent-2 |
-| 167 | Laudos signed RT | ✅ 100% | Phase 3.2 (liberacao) | — |
-| 204 | Audit trail immutable | ✅ 100% | LogicalSignature (ADR-0012) | — |
+| Article | Requirement               | Status  | Evidence                    | Owner   |
+| ------- | ------------------------- | ------- | --------------------------- | ------- |
+| 5.3     | Management review         | ✅ 100% | Phase 0 (turnos+risks+DPIA) | CTO     |
+| 86      | Risk management           | ✅ 100% | Phase 0 (FMEA-lite)         | CTO     |
+| 99      | Management responsibility | 🟡 80%  | ADR-0021 (NOTIVISA) ready   | Agent-3 |
+| 115     | Critical value escalation | 🟡 0%   | Phase 5 (Twilio SMS)        | Agent-2 |
+| 117     | SLA escalation            | 🟡 0%   | Phase 5 (SLA tracking)      | Agent-2 |
+| 167     | Laudos signed RT          | ✅ 100% | Phase 3.2 (liberacao)       | —       |
+| 204     | Audit trail immutable     | ✅ 100% | LogicalSignature (ADR-0012) | —       |
 
 **RDC 978 closure target:** 100% by Week 8 (2026-07-01) ✅
 
@@ -259,14 +262,14 @@ Agenda (10 min strict per item):
 
 ## 3. LGPD Compliance Checklist
 
-| Requirement | Article | Status | Notes | Phase closure |
-|---|---|---|---|---|
-| Consent capture | Art. 7 | ✅ Done | Portal email link + checkbox | Phase 5 |
-| Data minimization | Art. 6 | 🟡 Partial | NPS stores min; full policy in Phase 7 | Phase 7 |
-| Right to access | Art. 18 | 🔴 Pending | 15-day export endpoint Phase 13 | Phase 13 |
-| Right to correction | Art. 19 | 🔴 Pending | Patient portal Phase 7 (partial) | Phase 7 |
-| Right to deletion | Art. 17 | 🟡 Partial | Anonymization cron 90-day TTL | Phase 11 |
-| Breach notification | Art. 34 | 🟡 Partial | Cloud Logs in place; SOP TBD Phase 11 | Phase 11 |
+| Requirement         | Article | Status     | Notes                                  | Phase closure |
+| ------------------- | ------- | ---------- | -------------------------------------- | ------------- |
+| Consent capture     | Art. 7  | ✅ Done    | Portal email link + checkbox           | Phase 5       |
+| Data minimization   | Art. 6  | 🟡 Partial | NPS stores min; full policy in Phase 7 | Phase 7       |
+| Right to access     | Art. 18 | 🔴 Pending | 15-day export endpoint Phase 13        | Phase 13      |
+| Right to correction | Art. 19 | 🔴 Pending | Patient portal Phase 7 (partial)       | Phase 7       |
+| Right to deletion   | Art. 17 | 🟡 Partial | Anonymization cron 90-day TTL          | Phase 11      |
+| Breach notification | Art. 34 | 🟡 Partial | Cloud Logs in place; SOP TBD Phase 11  | Phase 11      |
 
 **LGPD closure target:** 85% by Phase 11 (2026-08-04) ✅
 
@@ -274,35 +277,38 @@ Agenda (10 min strict per item):
 
 ## 4. Known Issues & Remediation
 
-| ID | Issue | Severity | Discovered | Root Cause | Remediation | ETA | Owner |
-|---|---|---|---|---|---|---|---|
-| ISSUE-001 | Resend email PENDING_SET | Medium | 2026-05-07 | Migration incomplete (6 files) | Switch to SMTP (done), verify Week 2 | 2026-05-24 | CTO |
-| ISSUE-002 | Críticos thresholds config | Medium | Design phase | RDC 183 requirement | Implement Phase 5 callable `setCriticalThreshold` | 2026-06-30 | Agent-2 |
-| ISSUE-003 | LGPD anonymization verify | Low | v1.3 deploy | Manual test not run | Cron job verification script Phase 11 | 2026-08-04 | QA |
+| ID        | Issue                      | Severity | Discovered   | Root Cause                     | Remediation                                       | ETA        | Owner   |
+| --------- | -------------------------- | -------- | ------------ | ------------------------------ | ------------------------------------------------- | ---------- | ------- |
+| ISSUE-001 | Resend email PENDING_SET   | Medium   | 2026-05-07   | Migration incomplete (6 files) | Switch to SMTP (done), verify Week 2              | 2026-05-24 | CTO     |
+| ISSUE-002 | Críticos thresholds config | Medium   | Design phase | RDC 183 requirement            | Implement Phase 5 callable `setCriticalThreshold` | 2026-06-30 | Agent-2 |
+| ISSUE-003 | LGPD anonymization verify  | Low      | v1.3 deploy  | Manual test not run            | Cron job verification script Phase 11             | 2026-08-04 | QA      |
 
 ---
 
 ## 5. Auditor Feedback Summary (Weekly)
 
-| Week | Date | Call Status | Key Feedback | RFIs | Next review |
-|---|---|---|---|---|---|
-| 1 | 2026-05-17 | ✅ Complete | Portal design approved | 2 (ADRs 0020, 0024) | 2026-05-24 |
-| 2 | 2026-05-24 | Scheduled | — | TBD | 2026-05-31 |
+| Week | Date       | Call Status | Key Feedback           | RFIs                | Next review |
+| ---- | ---------- | ----------- | ---------------------- | ------------------- | ----------- |
+| 1    | 2026-05-17 | ✅ Complete | Portal design approved | 2 (ADRs 0020, 0024) | 2026-05-24  |
+| 2    | 2026-05-24 | Scheduled   | —                      | TBD                 | 2026-05-31  |
 
 ---
 
 ## 6. Risk Flags (Red, Yellow, Green)
 
 ### 🟢 Green (No action)
+
 - Unit tests: 738/738 passing (baseline locked)
 - Cloud Logs: Clean (0 errors)
 - Web Vitals: Maintained (LCP <2s, CLS <0.05)
 
 ### 🟡 Yellow (Monitor)
+
 - DICQ trend: +0.7%/week (need +1-2%/week to hit 88% by Aug 4) → accelerate Phase 5+ execution
 - RDC 115/117: 0% coverage (Phase 5 critical path) → Agent-2 on schedule, watch May 28 delivery
 
 ### 🔴 Red (Escalate)
+
 - None this week
 
 ---
@@ -311,12 +317,12 @@ Agenda (10 min strict per item):
 
 **Phase 4 (Portal + NOTIVISA) — Week 1 (May 20–26)**
 
-| Task | Planned | Actual | % | Status | Risk |
-|---|---|---|---|---|---|
-| 04-01 Portal auth | 3 callables | 1.5 | 50% | On track | Low |
-| 04-02 Portal UI | 5 components | 2 | 40% | On track | Low |
+| Task                 | Planned         | Actual      | %   | Status   | Risk                      |
+| -------------------- | --------------- | ----------- | --- | -------- | ------------------------- |
+| 04-01 Portal auth    | 3 callables     | 1.5         | 50% | On track | Low                       |
+| 04-02 Portal UI      | 5 components    | 2           | 40% | On track | Low                       |
 | 04-03 NOTIVISA queue | Async scheduler | Design done | 30% | On track | Medium (Gemini API quota) |
-| 04-04 E2E testing | 8 flows | 2 | 25% | On track | Low |
+| 04-04 E2E testing    | 8 flows         | 2           | 25% | On track | Low                       |
 
 **Week 1 RAG:** 🟡 At pace, no blockers. Gemini quota flagged for Week 2 monitoring.
 
@@ -324,12 +330,12 @@ Agenda (10 min strict per item):
 
 ## 8. Monthly Projection
 
-| Metric | Week 1 | Week 4 | Week 8 | Week 14 | Week 22 (Final) |
-|---|---|---|---|---|---|
-| DICQ % | 78.5% | 79.5% | 82% | 88% | 92% |
-| RDC 978 critical | 17/17 | 18/20 | 20/20 | 20/20 | 20/20 |
-| LGPD % | 62% | 65% | 70% | 80% | 85% |
-| Test pass % | 100% | 100% | 100% | 100% | 100% |
+| Metric           | Week 1 | Week 4 | Week 8 | Week 14 | Week 22 (Final) |
+| ---------------- | ------ | ------ | ------ | ------- | --------------- |
+| DICQ %           | 78.5%  | 79.5%  | 82%    | 88%     | 92%             |
+| RDC 978 critical | 17/17  | 18/20  | 20/20  | 20/20   | 20/20           |
+| LGPD %           | 62%    | 65%    | 70%    | 80%     | 85%             |
+| Test pass %      | 100%   | 100%   | 100%   | 100%    | 100%            |
 
 **Projection status:** 🟡 On track if Phase 5 unblocks by Jun 9 (baseline Week 4). If delayed 1 week, DICQ target becomes 86% (still acceptable).
 
@@ -337,11 +343,11 @@ Agenda (10 min strict per item):
 
 ## 9. Escalation & Contacts
 
-| Role | Name | Email | Escalation trigger |
-|---|---|---|---|---|
-| CTO | drogafarto | drogafarto@gmail.com | Blocking RFI, Phase timeline slip >3 days |
-| Auditor | Ernani | llabclin3@gmail.com | Any compliance gap discovered (weekly briefing) |
-| Audit Lead | TBD | TBD | Daily scoreboard, RFI tracking, weekly report |
+| Role       | Name       | Email                | Escalation trigger                              |
+| ---------- | ---------- | -------------------- | ----------------------------------------------- |
+| CTO        | drogafarto | drogafarto@gmail.com | Blocking RFI, Phase timeline slip >3 days       |
+| Auditor    | Ernani     | llabclin3@gmail.com  | Any compliance gap discovered (weekly briefing) |
+| Audit Lead | TBD        | TBD                  | Daily scoreboard, RFI tracking, weekly report   |
 
 ---
 
@@ -367,23 +373,23 @@ Agenda (10 min strict per item):
 
 ## Active RFIs
 
-| ID | Topic | Date Opened | Auditor Q | Response | Owner | ETA | Status |
-|---|---|---|---|---|---|---|---|
-| RFI-001 | Draft laudo locking mechanism | 2026-05-17 | How prevent concurrent RT edits? | ADR-0020 pessimistic locking via callable + DB-level read intent | CTO | 2026-05-18 | ✅ Answered (2026-05-18) |
-| RFI-002 | LGPD consent flow portal | 2026-05-17 | Portal paciente: consent capture + audit? | ADR-0024 email link + explicit checkbox + audit log + 90-day anonymization | CTO | 2026-05-18 | ✅ Answered (2026-05-18) |
+| ID      | Topic                             | Date Opened                 | Auditor Q                                          | Response                                                                                                      | Owner   | ETA        | Status                    |
+| ------- | --------------------------------- | --------------------------- | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------- | ---------- | ------------------------- |
+| RFI-001 | Draft laudo locking mechanism     | 2026-05-17                  | How prevent concurrent RT edits?                   | ADR-0020 pessimistic locking via callable + DB-level read intent                                              | CTO     | 2026-05-18 | ✅ Answered (2026-05-18)  |
+| RFI-002 | LGPD consent flow portal          | 2026-05-17                  | Portal paciente: consent capture + audit?          | ADR-0024 email link + explicit checkbox + audit log + 90-day anonymization                                    | CTO     | 2026-05-18 | ✅ Answered (2026-05-18)  |
 | RFI-003 | Critical thresholds configuration | TBD (Phase 5 kickoff Jun 9) | RDC 183: how lab sets critical values per analyte? | Callable `setCriticalThreshold(labId, analyte, lowerBound, upperBound)` + Rules enforce read-only post-config | Agent-2 | 2026-06-15 | ⏳ Pending (design phase) |
 
 ## Closed RFIs (Archive)
 
-| ID | Topic | Opened | Closed | Response | Outcome |
-|---|---|---|---|---|---|
-| None yet | — | — | — | — | — |
+| ID       | Topic | Opened | Closed | Response | Outcome |
+| -------- | ----- | ------ | ------ | -------- | ------- |
+| None yet | —     | —      | —      | —        | —       |
 
 ## Response Template
 
 When responding to Ernani via email:
-
 ```
+
 Prezado Ernani,
 
 Re: RFI-XXX — [Topic]
@@ -398,6 +404,7 @@ Próximo passo: [action, if needed]
 
 Um abraço,
 CTO
+
 ```
 
 ---
@@ -418,12 +425,14 @@ Before sending response to auditor, verify:
 ## 4. Pre-Alignment Ceremony (2026-05-15 proposed)
 
 ### Goals
+
 - Present Phase 4 architecture + CAPA closure strategy
 - Get auditor buy-in on Phase 8 state machine + signature requirements
 - Discuss external audit timeline + expectations
 - Lock resource allocation approval
 
 ### Attendees
+
 - Ernani (auditor)
 - CTO (drogafarto)
 - Audit Lead (to be assigned)
@@ -465,11 +474,11 @@ Before sending response to auditor, verify:
 
 ## Headline Numbers
 
-| Metric | Start of month | End of month | Target | Δ | Status |
-|---|---|---|---|---|---|
-| DICQ % | 78.5% (v1.3) | 79.2% | 88% | +0.7% | 🟡 On track |
-| RDC 978 critical articles | 17/17 | 17/17 | 20/20 | +0 | 🟡 Phase 5 pending |
-| LGPD % | 62% | 63% | 85% | +1% | 🟡 On track |
+| Metric                    | Start of month | End of month | Target | Δ     | Status             |
+| ------------------------- | -------------- | ------------ | ------ | ----- | ------------------ |
+| DICQ %                    | 78.5% (v1.3)   | 79.2%        | 88%    | +0.7% | 🟡 On track        |
+| RDC 978 critical articles | 17/17          | 17/17        | 20/20  | +0    | 🟡 Phase 5 pending |
+| LGPD %                    | 62%            | 63%          | 85%    | +1%   | 🟡 On track        |
 
 ## Phases Completed
 
@@ -486,10 +495,10 @@ Before sending response to auditor, verify:
 
 ## Known Issues
 
-| Issue | Severity | Status |
-|---|---|---|
-| Resend email migration | Medium | Resolved (SMTP switch done) |
-| Críticos thresholds | Medium | Design in Phase 5 (Jun 9 kickoff) |
+| Issue                  | Severity | Status                            |
+| ---------------------- | -------- | --------------------------------- |
+| Resend email migration | Medium   | Resolved (SMTP switch done)       |
+| Críticos thresholds    | Medium   | Design in Phase 5 (Jun 9 kickoff) |
 
 ## Auditor Feedback (Monthly Summary)
 
@@ -516,35 +525,35 @@ Before sending response to auditor, verify:
 
 ### Trigger Points
 
-| Scenario | Severity | Action | Owner | Timeline |
-|---|---|---|---|---|
-| **Phase X delivery >3 days late** | 🔴 Red | Email CTO + Ernani + meeting to replan | Audit Lead | Within 4h of miss |
-| **DICQ trend <+0.5%/week (2-week avg)** | 🟡 Yellow | Flag in weekly brief, propose acceleration plan | Audit Lead | By Friday weekly call |
-| **RFI response >5 business days outstanding** | 🟡 Yellow | Email escalation to CTO + Ernani with ETA update | Audit Lead | By EOD 5th day |
-| **Critical security finding in Cloud Logs** | 🔴 Red | P0 incident, notify auditor within 1h, remediation plan in 4h | CTO | Immediate |
-| **LGPD breach detected** | 🔴 Red | Incident commander activates; notify auditor + legal within 2h | CTO | Immediate |
+| Scenario                                      | Severity  | Action                                                         | Owner      | Timeline              |
+| --------------------------------------------- | --------- | -------------------------------------------------------------- | ---------- | --------------------- |
+| **Phase X delivery >3 days late**             | 🔴 Red    | Email CTO + Ernani + meeting to replan                         | Audit Lead | Within 4h of miss     |
+| **DICQ trend <+0.5%/week (2-week avg)**       | 🟡 Yellow | Flag in weekly brief, propose acceleration plan                | Audit Lead | By Friday weekly call |
+| **RFI response >5 business days outstanding** | 🟡 Yellow | Email escalation to CTO + Ernani with ETA update               | Audit Lead | By EOD 5th day        |
+| **Critical security finding in Cloud Logs**   | 🔴 Red    | P0 incident, notify auditor within 1h, remediation plan in 4h  | CTO        | Immediate             |
+| **LGPD breach detected**                      | 🔴 Red    | Incident commander activates; notify auditor + legal within 2h | CTO        | Immediate             |
 
 ### Escalation Contacts
 
-| Role | Name | Email | Phone | Escalation conditions |
-|---|---|---|---|---|
-| **CTO** | drogafarto | drogafarto@gmail.com | — | Phase slip, P0 security, LGPD breach |
-| **Auditor** | Ernani | llabclin3@gmail.com | — | Any compliance gap, blocking RFI |
-| **Audit Lead** | TBD | TBD | TBD | Daily ops, RFI tracking, weekly reports |
+| Role           | Name       | Email                | Phone | Escalation conditions                   |
+| -------------- | ---------- | -------------------- | ----- | --------------------------------------- |
+| **CTO**        | drogafarto | drogafarto@gmail.com | —     | Phase slip, P0 security, LGPD breach    |
+| **Auditor**    | Ernani     | llabclin3@gmail.com  | —     | Any compliance gap, blocking RFI        |
+| **Audit Lead** | TBD        | TBD                  | TBD   | Daily ops, RFI tracking, weekly reports |
 
 ---
 
 ## 7. Success Criteria (v1.4 Audit-Ready)
 
-| Criterion | Target | Evidence | Owner |
-|---|---|---|---|
-| **Weekly auditor calls** | 100% completion (13 weeks × 1 call) | Call log with attendance | Audit Lead |
-| **RFI response SLA** | 5 business days, 100% compliance | RFI tracker + response docs | CTO |
-| **DICQ compliance** | ≥88% by Aug 4 | Daily scorecard trending | CTO |
-| **RDC 978 mandatory** | 100% Arts. 6, 115, 117, 167, 204 | Auditor sign-off | CTO |
-| **Monthly reports** | Delivered to auditor by last Friday of month | Report archive | Audit Lead |
-| **Pre-alignment ceremony** | May 15, auditor buy-in on Phase 4 | Meeting notes + go/no-go decision | CTO |
-| **CAPA ceremony** | Aug 5, auditor sign-off on 12 findings | Ceremony minutes + ADR-0022 closeout | CTO |
+| Criterion                  | Target                                       | Evidence                             | Owner      |
+| -------------------------- | -------------------------------------------- | ------------------------------------ | ---------- |
+| **Weekly auditor calls**   | 100% completion (13 weeks × 1 call)          | Call log with attendance             | Audit Lead |
+| **RFI response SLA**       | 5 business days, 100% compliance             | RFI tracker + response docs          | CTO        |
+| **DICQ compliance**        | ≥88% by Aug 4                                | Daily scorecard trending             | CTO        |
+| **RDC 978 mandatory**      | 100% Arts. 6, 115, 117, 167, 204             | Auditor sign-off                     | CTO        |
+| **Monthly reports**        | Delivered to auditor by last Friday of month | Report archive                       | Audit Lead |
+| **Pre-alignment ceremony** | May 15, auditor buy-in on Phase 4            | Meeting notes + go/no-go decision    | CTO        |
+| **CAPA ceremony**          | Aug 5, auditor sign-off on 12 findings       | Ceremony minutes + ADR-0022 closeout | CTO        |
 
 ---
 

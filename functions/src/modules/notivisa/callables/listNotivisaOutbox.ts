@@ -15,7 +15,10 @@ const filtersSchema = z.object({
   operatorId: z.string().optional(),
   dateRangeStart: z.number().int().optional(),
   dateRangeEnd: z.number().int().optional(),
-  pacienteCpf: z.string().regex(/^\d{11}$/).optional(),
+  pacienteCpf: z
+    .string()
+    .regex(/^\d{11}$/)
+    .optional(),
 });
 
 const listNotivisaOutboxInputSchema = z.object({
@@ -57,15 +60,13 @@ type ListNotivisaOutboxError = z.infer<typeof listNotivisaOutboxErrorSchema>;
 
 const RATE_LIMIT_PER_HOUR = 10;
 
-export const listNotivisaOutbox = functions.region('southamerica-east1').onCall(
-  async (request): Promise<ListNotivisaOutboxOutput | ListNotivisaOutboxError> => {
+export const listNotivisaOutbox = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<ListNotivisaOutboxOutput | ListNotivisaOutboxError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = listNotivisaOutboxInputSchema.parse(request.data);
@@ -75,12 +76,7 @@ export const listNotivisaOutbox = functions.region('southamerica-east1').onCall(
       const db = admin.firestore();
 
       // ========== 2. Authorization check (AUDITOR only) ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         return {
@@ -243,5 +239,4 @@ export const listNotivisaOutbox = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error listing outbox',
       };
     }
-  }
-);
+  });

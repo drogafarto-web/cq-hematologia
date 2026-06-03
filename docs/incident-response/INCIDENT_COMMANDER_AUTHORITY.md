@@ -11,6 +11,7 @@
 ### IC CAN (without additional approval):
 
 **Yellow Incident:**
+
 - Classify incident severity
 - Activate on-call team (notify Slack #incidents)
 - Request Backup IC assistance
@@ -21,6 +22,7 @@
 - Document timeline in incident log
 
 **Red Incident:**
+
 - All Yellow authority PLUS:
 - Declare Red severity (notify CTO + team)
 - Hot-fix deployment (skip normal PR review)
@@ -32,6 +34,7 @@
 - Contact Backup IC / escalate to CTO if stuck ≥30min
 
 **Black Incident:**
+
 - All Red authority PLUS:
 - Declare Black severity (notify all stakeholders)
 - Execute full system restore (from clean backup)
@@ -54,12 +57,14 @@
 ### Yellow: "Should We Escalate to Red?"
 
 **Escalate if:**
+
 - Problem not localized (affects >10% of users)
 - Workaround insufficient
 - Time to resolution >30 min
 - Unknown root cause
 
 **Remain Yellow if:**
+
 - Isolated issue (affects <5 users)
 - Workaround available
 - Time to resolution <15 min
@@ -68,12 +73,14 @@
 ### Red: "Should We Escalate to Black?"
 
 **Escalate if:**
+
 - Data loss confirmed
 - Corruption detected
 - Unable to restore
 - Patient safety at risk (>30 min)
 
 **Remain Red if:**
+
 - Degradation only (slow, data intact)
 - Partial outage (10–50% affected)
 - Restore in progress (ETA <30 min)
@@ -85,11 +92,13 @@
 ### Who Decides What We Tell Customers?
 
 **Yellow/Red:**
+
 - **IC decides internal (team) communication** — Slack #incidents updates every 30 min
 - **CTO decides customer communication** — IF and WHEN to notify
 - **Legal decides regulatory communication** — IF compliance breach suspected
 
 **Black:**
+
 - **CTO decides immediate customer notification** (usually yes, within 1h)
 - **Legal handles regulatory notification** (within 24h if required)
 - **IC documents timeline for post-mortem**
@@ -126,6 +135,7 @@ T+20min: Rollback executed, feature works
 ## Post-Incident Review
 
 After incident resolves:
+
 - IC leads post-mortem (blameless, within 24h)
 - IC documents decision timeline
 - IC identifies improvements

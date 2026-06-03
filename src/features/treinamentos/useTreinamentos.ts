@@ -37,7 +37,12 @@ export function useTreinamentos(filters?: TreinamentoFilters) {
   }, [labId, filters?.status, filters?.tipo, filters?.popId, filters?.instrutorId, filters?.busca]);
 
   const registrarPresencaHandler = useCallback(
-    async (treinamentoId: string, participanteId: string, presente: boolean, assinatura?: string) => {
+    async (
+      treinamentoId: string,
+      participanteId: string,
+      presente: boolean,
+      assinatura?: string,
+    ) => {
       if (!labId) throw new Error('No labId');
       await registrarPresenca(labId, treinamentoId, participanteId, presente, assinatura);
     },

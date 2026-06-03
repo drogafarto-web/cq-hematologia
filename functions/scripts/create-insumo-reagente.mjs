@@ -59,12 +59,7 @@ const validadeReal = validadeDate < validadeAbertura ? validadeDate : validadeAb
 insumo.validadeReal = admin.firestore.Timestamp.fromDate(validadeReal);
 
 try {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('insumos')
-    .doc(insumoId)
-    .set(insumo);
+  await db.collection('labs').doc(labId).collection('insumos').doc(insumoId).set(insumo);
 
   console.log('✅ Insumo criado com sucesso!\n');
   console.log(`   ID: ${insumoId}`);
@@ -74,7 +69,6 @@ try {
   console.log(`   Status: ${insumo.status}`);
   console.log(`   Aberto em: 08/05/2026`);
   console.log(`   Validade: 01/07/2027 (ou antes se atingir estabilidade)\n`);
-
 } catch (err) {
   console.error('❌ Erro ao criar insumo:');
   console.error('   Código:', err.code);

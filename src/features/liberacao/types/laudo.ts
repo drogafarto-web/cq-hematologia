@@ -32,7 +32,11 @@ export interface DuplaVerificacaoMetadata {
   dataHoraLeitura2?: Timestamp;
 
   divergente: boolean;
-  statusVerificacao: 'aguardando_segunda_leitura' | 'liberado_coincidente' | 'divergente_bloqueado' | 'revisado_e_liberado';
+  statusVerificacao:
+    | 'aguardando_segunda_leitura'
+    | 'liberado_coincidente'
+    | 'divergente_bloqueado'
+    | 'revisado_e_liberado';
 
   usuarioRevisao?: UserId;
   nomeUsuarioRevisao?: string;
@@ -90,9 +94,7 @@ export interface Laudo {
   };
 
   // 6: Idade ou data de nascimento
-  pacienteIdade:
-    | { value: number; unit: 'anos' | 'meses' | 'dias' }
-    | { dataNascimento: Timestamp };
+  pacienteIdade: { value: number; unit: 'anos' | 'meses' | 'dias' } | { dataNascimento: Timestamp };
 
   // 7: Data/hora coleta
   coletaEm: Timestamp;
@@ -134,7 +136,4 @@ export interface Laudo {
 /**
  * Input DTO — omit audit/identity fields that only service should set
  */
-export type LaudoInput = Omit<
-  Laudo,
-  'id' | 'labId' | 'currentVersion' | 'criadoEm' | 'deletadoEm'
->;
+export type LaudoInput = Omit<Laudo, 'id' | 'labId' | 'currentVersion' | 'criadoEm' | 'deletadoEm'>;

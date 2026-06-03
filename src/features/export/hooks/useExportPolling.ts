@@ -72,9 +72,13 @@ export function useExportPolling({
           startDate: data.startDate ? new Date(data.startDate as unknown as string) : new Date(),
           endDate: data.endDate ? new Date(data.endDate as unknown as string) : new Date(),
           expiresAt: data.expiresAt ? new Date(data.expiresAt as unknown as string) : undefined,
-          generatedAt: data.generatedAt ? new Date(data.generatedAt as unknown as string) : undefined,
+          generatedAt: data.generatedAt
+            ? new Date(data.generatedAt as unknown as string)
+            : undefined,
           startedAt: data.startedAt ? new Date(data.startedAt as unknown as string) : undefined,
-          completedAt: data.completedAt ? new Date(data.completedAt as unknown as string) : undefined,
+          completedAt: data.completedAt
+            ? new Date(data.completedAt as unknown as string)
+            : undefined,
         };
         setJob(coerced);
         setError(null);

@@ -36,11 +36,11 @@ npm run dev
 
 ## Telas
 
-| Rota | Nome | Função |
-|------|------|--------|
-| `/qc` | Controle | Tela principal: grid 2 controles × 3 parâmetros + formulário de registro + histórico |
-| `/controles` | Hub | CRUD de controles com ranges configuráveis por parâmetro |
-| `/login` | Login | Autenticação com credentials |
+| Rota         | Nome     | Função                                                                               |
+| ------------ | -------- | ------------------------------------------------------------------------------------ |
+| `/qc`        | Controle | Tela principal: grid 2 controles × 3 parâmetros + formulário de registro + histórico |
+| `/controles` | Hub      | CRUD de controles com ranges configuráveis por parâmetro                             |
+| `/login`     | Login    | Autenticação com credentials                                                         |
 
 ## Schema (Prisma)
 

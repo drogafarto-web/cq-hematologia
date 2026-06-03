@@ -215,9 +215,8 @@ export function TesteForm({
     );
   }
 
-  const progressoPct = questoes.length > 0
-    ? Math.round((respondidasCount / questoes.length) * 100)
-    : 0;
+  const progressoPct =
+    questoes.length > 0 ? Math.round((respondidasCount / questoes.length) * 100) : 0;
   const temDraft = Object.keys(state.respostas).length > 0;
 
   return (
@@ -228,9 +227,7 @@ export function TesteForm({
             <h2 className="text-lg font-semibold text-slate-100">Teste de avaliação</h2>
             <p className="text-sm text-slate-400">Colaborador: {colaboradorNome}</p>
           </div>
-          {tempoRestanteMs !== null && (
-            <TimerBadge msRestantes={tempoRestanteMs} />
-          )}
+          {tempoRestanteMs !== null && <TimerBadge msRestantes={tempoRestanteMs} />}
         </div>
 
         {temDraft && !isSaving && (
@@ -267,7 +264,10 @@ export function TesteForm({
       </ol>
 
       {err && (
-        <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+        <p
+          role="alert"
+          className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+        >
           {err}
         </p>
       )}
@@ -313,8 +313,8 @@ function TimerBadge({ msRestantes }: { msRestantes: number }) {
   const cls = critico
     ? 'border-red-500/40 bg-red-500/10 text-red-300 animate-pulse'
     : atencao
-    ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
-    : 'border-slate-700 bg-slate-900 text-slate-300';
+      ? 'border-amber-500/40 bg-amber-500/10 text-amber-300'
+      : 'border-slate-700 bg-slate-900 text-slate-300';
   return (
     <span
       role="timer"

@@ -49,20 +49,16 @@ export function CTIndicadores() {
   const { dispositivos } = useDispositivosIoT();
   const { proximosAVencer } = useTermometros();
 
-  const {
-    indicadores,
-    totalNCsAbertas,
-    totalPendentesHoje,
-    percentualConformidadeGlobal,
-  } = useCTIndicadores({
-    equipamentos,
-    leituras,
-    previstas,
-    ncs,
-    dispositivos,
-    inicioPeriodo: inicio,
-    fimPeriodo: fim,
-  });
+  const { indicadores, totalNCsAbertas, totalPendentesHoje, percentualConformidadeGlobal } =
+    useCTIndicadores({
+      equipamentos,
+      leituras,
+      previstas,
+      ncs,
+      dispositivos,
+      inicioPeriodo: inicio,
+      fimPeriodo: fim,
+    });
 
   const dadosGrafico = indicadores.map((i) => ({
     nome: i.nomeEquipamento.length > 18 ? `${i.nomeEquipamento.slice(0, 16)}…` : i.nomeEquipamento,
@@ -79,11 +75,7 @@ export function CTIndicadores() {
         />
         <KpiCard label="NCs abertas" value={String(totalNCsAbertas)} tone="rose" />
         <KpiCard label="Pendentes hoje" value={String(totalPendentesHoje)} tone="amber" />
-        <KpiCard
-          label="Calibrações vencendo"
-          value={String(proximosAVencer.length)}
-          tone="slate"
-        />
+        <KpiCard label="Calibrações vencendo" value={String(proximosAVencer.length)} tone="slate" />
       </div>
 
       <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
@@ -104,11 +96,7 @@ export function CTIndicadores() {
                 interval={0}
                 height={60}
               />
-              <YAxis
-                domain={[0, 100]}
-                tick={{ fill: '#64748b', fontSize: 11 }}
-                unit="%"
-              />
+              <YAxis domain={[0, 100]} tick={{ fill: '#64748b', fontSize: 11 }} unit="%" />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#0f172a',
@@ -165,7 +153,16 @@ function KpiCard({
         <p className={`text-3xl font-bold ${valueCls}`}>{value}</p>
       </div>
       <div className={`flex h-12 w-12 items-center justify-center rounded-full ${iconBg}`}>
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round">
+        <svg
+          width="24"
+          height="24"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.75"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
           <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
         </svg>
       </div>

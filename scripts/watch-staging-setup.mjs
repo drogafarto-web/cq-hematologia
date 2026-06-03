@@ -105,7 +105,11 @@ async function runSmokeTests() {
     }
 
     // Execute the test runner
-    await runCommand('bash', [testScript, `--lab-id=${TEST_LAB_ID}`, '--project=hmatologia2-staging']);
+    await runCommand('bash', [
+      testScript,
+      `--lab-id=${TEST_LAB_ID}`,
+      '--project=hmatologia2-staging',
+    ]);
 
     logSection('SMOKE TESTS COMPLETED SUCCESSFULLY');
     log('✓ Staging tests passed — environment ready for manual QA');

@@ -13,6 +13,7 @@ status: planning
 **Objective:** Enforce Web Vitals targets across all critical user journeys, optimize bundle size for v1.4 launch, and establish runtime performance baselines for tablet deployment.
 
 **Success Criteria:**
+
 - All critical routes meet Web Vitals targets (LCP <2.0s, INP <200ms, CLS <0.05)
 - Bundle size stays ≤400 KB gzip (main shell), per-module chunks ≤150 KB
 - Critical TTI targets met (laudo form <1.5s, CIQ run <1.2s, PDF export <10s)
@@ -27,23 +28,23 @@ status: planning
 
 ### 1.1 Current Baseline (v1.3)
 
-| Route | LCP | INP | CLS | FCP | Performance Score |
-|-------|-----|-----|-----|-----|-------------------|
-| `/hub` | 1.8s ✓ | 85ms ✓ | 0.05 ✓ | 1.2s | 92/100 |
-| `/features/analytics` | 2.1s ✓ | 150ms ✓ | 0.03 ✓ | 1.5s | 88/100 |
-| `/features/export` | 1.9s ✓ | 95ms ✓ | 0.04 ✓ | 1.1s | 94/100 |
+| Route                 | LCP    | INP     | CLS    | FCP  | Performance Score |
+| --------------------- | ------ | ------- | ------ | ---- | ----------------- |
+| `/hub`                | 1.8s ✓ | 85ms ✓  | 0.05 ✓ | 1.2s | 92/100            |
+| `/features/analytics` | 2.1s ✓ | 150ms ✓ | 0.03 ✓ | 1.5s | 88/100            |
+| `/features/export`    | 1.9s ✓ | 95ms ✓  | 0.04 ✓ | 1.1s | 94/100            |
 
 **Status:** All routes pass. Baseline stable for regression detection.
 
 ### 1.2 Phase 12 Targets
 
-| Metric | Target | Hard Limit | Rationale |
-|--------|--------|-----------|-----------|
-| **LCP** | <2.0s | 2.5s | Largest element render (first hub tile or form) |
-| **INP** | <200ms | — | Input latency (<100ms ideal for form interactions) |
-| **CLS** | <0.05 | 0.1 | No layout shift post-skeleton (strict for medical UI) |
-| **TBT** | <200ms | 300ms | Total blocking time (chunked JS execution) |
-| **FCP** | <1.5s | — | First paint (shell + auth + nav) |
+| Metric  | Target | Hard Limit | Rationale                                             |
+| ------- | ------ | ---------- | ----------------------------------------------------- |
+| **LCP** | <2.0s  | 2.5s       | Largest element render (first hub tile or form)       |
+| **INP** | <200ms | —          | Input latency (<100ms ideal for form interactions)    |
+| **CLS** | <0.05  | 0.1        | No layout shift post-skeleton (strict for medical UI) |
+| **TBT** | <200ms | 300ms      | Total blocking time (chunked JS execution)            |
+| **FCP** | <1.5s  | —          | First paint (shell + auth + nav)                      |
 
 ### 1.3 Testing Procedure
 
@@ -66,6 +67,7 @@ npx lighthouse https://hmatologia2.web.app/hub \
 ```
 
 **Routes to audit (critical paths):**
+
 - `/hub` — entry point (24 tiles, Firestore auth redirect)
 - `/features/analytics` — heavy charting + 30s polling
 - `/features/export` — form wizard (4 steps, batch export)
@@ -81,21 +83,21 @@ npx lighthouse https://hmatologia2.web.app/hub \
 
 ### 2.1 Current Bundle Breakdown (v1.3)
 
-| Chunk | Size (gzip) | Type | Load | Notes |
-|-------|-----------|------|------|-------|
-| `vendor-react` | ~50 KB | Eager | Critical | React + React DOM |
-| `vendor-firebase` | ~200 KB | Eager | Critical | Firebase SDK (auth, Firestore, functions, storage) |
-| `vendor-charts` | ~90 KB | Lazy | Route | Recharts (only loaded by analytics/bioquimica) |
-| `vendor-pdf` | ~500 KB | Lazy | User action | pdf.js-dist (lazy via ControlTemperaturaView) |
-| `vendor-zod` | ~30 KB | Eager | Shared | Validation (AI payloads, forms) |
-| `vendor-xlsx` | ~220 KB | Dynamic | User action | SheetJS (import/export, via dynamic import) |
-| `module-educacao` | ~80 KB | Lazy | Route | XLSX importer + training registry |
-| `module-ct` | ~60 KB | Lazy | Route | Temperature control + PDF export |
-| `module-sgq` | ~50 KB | Lazy | Route | Quality docs (MQ/PQ/IT/FR/POL) |
-| `module-bioquimica` | ~65 KB | Lazy | Route | Westgard + Levey-Jennings (new v1.4) |
-| `module-liberacao` | ~55 KB | Lazy | Route | Laudo release workflow (Phase 4, new) |
-| `shared` | ~40 KB | Eager | Shared | Services, store, utils |
-| App shell | ~120 KB | Eager | Critical | AppRouter, auth, shared components, main UI |
+| Chunk               | Size (gzip) | Type    | Load        | Notes                                              |
+| ------------------- | ----------- | ------- | ----------- | -------------------------------------------------- |
+| `vendor-react`      | ~50 KB      | Eager   | Critical    | React + React DOM                                  |
+| `vendor-firebase`   | ~200 KB     | Eager   | Critical    | Firebase SDK (auth, Firestore, functions, storage) |
+| `vendor-charts`     | ~90 KB      | Lazy    | Route       | Recharts (only loaded by analytics/bioquimica)     |
+| `vendor-pdf`        | ~500 KB     | Lazy    | User action | pdf.js-dist (lazy via ControlTemperaturaView)      |
+| `vendor-zod`        | ~30 KB      | Eager   | Shared      | Validation (AI payloads, forms)                    |
+| `vendor-xlsx`       | ~220 KB     | Dynamic | User action | SheetJS (import/export, via dynamic import)        |
+| `module-educacao`   | ~80 KB      | Lazy    | Route       | XLSX importer + training registry                  |
+| `module-ct`         | ~60 KB      | Lazy    | Route       | Temperature control + PDF export                   |
+| `module-sgq`        | ~50 KB      | Lazy    | Route       | Quality docs (MQ/PQ/IT/FR/POL)                     |
+| `module-bioquimica` | ~65 KB      | Lazy    | Route       | Westgard + Levey-Jennings (new v1.4)               |
+| `module-liberacao`  | ~55 KB      | Lazy    | Route       | Laudo release workflow (Phase 4, new)              |
+| `shared`            | ~40 KB      | Eager   | Shared      | Services, store, utils                             |
+| App shell           | ~120 KB     | Eager   | Critical    | AppRouter, auth, shared components, main UI        |
 
 **Total:** ~1,400 KB raw / ~850 KB gzip (main: ~362 KB, chunks: ~488 KB)
 
@@ -106,6 +108,7 @@ npx lighthouse https://hmatologia2.web.app/hub \
 **Target:** Keep ≤400 KB gzip
 
 **Checklist:**
+
 - [ ] No eager imports of >50 KB libraries outside manualChunks
 - [ ] All new routes use `React.lazy` + `Suspense`
 - [ ] Duplicate dependencies audit (e.g., two versions of zod, lodash variants)
@@ -113,6 +116,7 @@ npx lighthouse https://hmatologia2.web.app/hub \
 - [ ] No inline base64 images (use lazy loading + blur-up placeholders)
 
 **Testing:**
+
 ```bash
 npm run build && npm run analyze
 # Open dist/stats.html, filter by "Main", check gzip size
@@ -123,6 +127,7 @@ npm run build && npm run analyze
 **Target:** Each ≤150 KB gzip
 
 **Modules to audit (Phase 12):**
+
 - `module-bioquimica` (NEW) — target <70 KB
   - Westgard CLSI rules (~8 KB logic)
   - Levey-Jennings chart (~30 KB, includes recharts subset)
@@ -137,6 +142,7 @@ npm run build && npm run analyze
   - SMS/email integration stubs (~15 KB)
 
 **Testing per module:**
+
 ```bash
 npm run build && npm run analyze
 # In dist/stats.html, search module name, verify gzip ≤ target
@@ -145,12 +151,14 @@ npm run build && npm run analyze
 #### 2.2.3 Dependency Audit
 
 **Items to check:**
+
 1. No duplicate versions of the same package
 2. No unused dependencies in `package.json`
 3. Heavy libs (>100 KB gzip) properly lazy-loaded or verified as critical
 4. Tree-shake report from build (Vite log)
 
 **Commands:**
+
 ```bash
 npm ls | grep -E "^├──|dedup"
 npm ls | grep "UNMET"
@@ -161,9 +169,10 @@ npm ls | grep "UNMET"
 **Trigger on:** Any new feature, new route, or >50 KB import
 
 **Rule 1: New routes must be lazy**
+
 ```typescript
 // ✅ CORRECT
-const BiochemistryModule = React.lazy(() => 
+const BiochemistryModule = React.lazy(() =>
   import('src/features/bioquimica/BiochemistryRoot')
 );
 
@@ -186,11 +195,13 @@ export const routes = [{ path: '/features/bioquimica', element: <BiochemistryMod
 **Rule 2: Dependencies >50 KB must justify or be excluded**
 
 Every PR adding a large dependency must include:
+
 - Actual gzip size (from build)
 - Justification (why lighter alternative doesn't work)
 - Which chunk it lands in
 
 Example PR comment:
+
 ```
 + Added `heavy-lib@1.2.3` (78 KB gzip)
 Rationale: Only WCAG-compliant library for medical form validation
@@ -215,13 +226,13 @@ Keeps chunk names consistent across rebuilds → better caching (users don't re-
 
 ### 3.1 Critical Journeys & TTI Targets
 
-| Journey | Component | Current | Target | Blocker |
-|---------|-----------|---------|--------|---------|
-| **Laudo Review** | LaudoPanel (RT portal, Phase 4) | TBD | <1.5s | Form parse + Firestore fetch |
-| **CIQ Run** | RunForm (any CIQ module, analytics) | TBD | <1.2s | Validation + chart init |
-| **Levey-Jennings** | ChartView (100+ points) | TBD | <500ms | Recharts render + zoom |
-| **PDF Export** | ExportWizard (50 pages) | TBD | <10s | Cloud Function execution |
-| **Analytics Load** | AnalyticsHub (filters + charts) | 2.1s LCP | <2.0s LCP | Firebase query + recharts |
+| Journey            | Component                           | Current  | Target    | Blocker                      |
+| ------------------ | ----------------------------------- | -------- | --------- | ---------------------------- |
+| **Laudo Review**   | LaudoPanel (RT portal, Phase 4)     | TBD      | <1.5s     | Form parse + Firestore fetch |
+| **CIQ Run**        | RunForm (any CIQ module, analytics) | TBD      | <1.2s     | Validation + chart init      |
+| **Levey-Jennings** | ChartView (100+ points)             | TBD      | <500ms    | Recharts render + zoom       |
+| **PDF Export**     | ExportWizard (50 pages)             | TBD      | <10s      | Cloud Function execution     |
+| **Analytics Load** | AnalyticsHub (filters + charts)     | 2.1s LCP | <2.0s LCP | Firebase query + recharts    |
 
 ### 3.2 Optimization Strategies
 
@@ -230,28 +241,33 @@ Keeps chunk names consistent across rebuilds → better caching (users don't re-
 **Problem:** LaudoPanel mounts → fetches full laudo doc → Firestore round-trip (400-600ms) → renders form → user can interact.
 
 **Optimization A: Skeleton loading**
+
 - Show form skeleton immediately (100ms render)
 - Fetch laudo in background (parallel)
 - Swap skeleton for real form when ready
 - **Expected gain:** -200ms perceived TTI (skeleton appears instant)
 
 **Optimization B: Prefetch on parent route**
+
 ```typescript
 // In RT portal list page, on hover of laudo row:
 const prefetchLaudo = (laudoId: string) => {
-  getDoc(doc(db, 'laudos', laudoId)).then(snap => {
+  getDoc(doc(db, 'laudos', laudoId)).then((snap) => {
     // Stash in zustand store — ready when detail opens
   });
 };
 ```
+
 - **Expected gain:** -150ms (parallel fetch, not on-route)
 
 **Optimization C: Code-split form components**
+
 - If LaudoPanel is >50 KB, split signature widget separately
 - Load sig component only on scroll-to-sig or user focus
 - **Expected gain:** -50ms (smaller component parse)
 
 **Testing:**
+
 ```bash
 # Measure TTI with DevTools Performance tab
 # 1. Hard reload (cache clear)
@@ -265,6 +281,7 @@ const prefetchLaudo = (laudoId: string) => {
 **Problem:** RunForm mounts → validations schema load + Firestore query for equipment → render.
 
 **Optimization A: Lazy-load schema validation**
+
 ```typescript
 // Before: Zod schema parsed on module load
 import { createRunSchema } from 'src/features/ciq/validation/schemas';
@@ -272,27 +289,32 @@ import { createRunSchema } from 'src/features/ciq/validation/schemas';
 // After: Lazy parse only when form mounts
 const useRunSchema = () => {
   const schema = useMemo(() => {
-    import('src/features/ciq/validation/schemas').then(m => m.createRunSchema())
+    import('src/features/ciq/validation/schemas').then((m) => m.createRunSchema());
   }, []);
   return schema;
 };
 ```
+
 - **Expected gain:** -80ms (defer schema parsing)
 
 **Optimization B: Equipment list from Zustand cache**
+
 - Pre-load equipment list on hub load (low-priority, can idle)
 - Form mounts → immediate dropdown population (no Firestore call)
 - **Expected gain:** -200ms (eliminate Firestore round-trip)
 
 **Optimization C: Memoize form handlers**
+
 ```typescript
 const handleSubmit = useCallback(async (data) => { ... }, []);
 const handleChange = useCallback((field, value) => { ... }, []);
 ```
+
 - Prevents re-renders on each keystroke
 - **Expected gain:** -100ms (fewer render cycles)
 
 **Testing:**
+
 ```bash
 # Use Lighthouse "Trace" tab
 # 1. Record user interaction (click RunForm route, fill first field)
@@ -305,25 +327,30 @@ const handleChange = useCallback((field, value) => { ... }, []);
 **Problem:** 100 data points → recharts calculates scales, domains, positions → renders SVG.
 
 **Optimization A: Virtual scrolling (if zoomed to subset)**
+
 - If user zoomed to 10-point window, render only visible + 5px padding
 - Library: `recharts` + custom `<ResponsiveContainer>` with `viewBox` clipping
 - **Expected gain:** -250ms (render 10 points instead of 100)
 
 **Optimization B: Canvas fallback for large datasets**
+
 - If >150 points, render chart as canvas instead of SVG
 - Library: `visx` (Airbnb, smaller, canvas-optimized) or recharts canvas renderer
 - **Expected gain:** -300ms (canvas paint faster than SVG DOM)
 
 **Optimization C: Memoize chart components**
+
 ```typescript
 const MemoizedLineChart = React.memo(LineChart, (prev, next) => {
   // Only re-render if data OR domain changed, not on every hover
   return prev.data === next.data && prev.domain === next.domain;
 });
 ```
+
 - **Expected gain:** -150ms (skip unnecessary re-renders on filter/zoom)
 
 **Testing:**
+
 ```bash
 # Measure Levey-Jennings load time with 100 points
 # 1. Generate test data (100 runs, 5 CIQ modules)
@@ -337,17 +364,20 @@ const MemoizedLineChart = React.memo(LineChart, (prev, next) => {
 **Problem:** ExportWizard step 4 calls Cloud Function → generates PDF with 50 pages → uploads to Storage → returns signed URL.
 
 **Bottleneck breakdown:**
+
 - Cloud Function cold start: ~3-5s
 - PDF generation (puppeteer): ~3-5s
 - Upload to Storage: ~1-2s
 - Return signed URL: <100ms
 
 **Optimization A: Keep Cloud Function warm**
+
 - Add pub/sub trigger that pings every 60s (cost: ~$0.01/day)
 - Cold start → warm start (3-5s → <500ms)
 - **Expected gain:** -3-4s
 
 **Optimization B: Stream PDF instead of buffering**
+
 ```typescript
 // Before: Generate full PDF in memory, then upload
 const pdf = await generatePDF(data); // 50 pages buffered
@@ -357,20 +387,24 @@ await uploadPDF(pdf);
 const writeStream = bucket.file(...).createWriteStream();
 pdfGenerator.pipe(writeStream);
 ```
+
 - **Expected gain:** -1-2s (parallel generation + upload)
 
 **Optimization C: Pregenerate common templates**
+
 - If PDF template is static (letterhead, signatures), generate once
 - On export, only fill in dynamic data (results, timestamps)
 - Library: `pdfkit` or `jsPDF` (smaller than puppeteer)
 - **Expected gain:** -2-3s (template caching vs. full generation)
 
 **Optimization D: Lazy load PDF library**
+
 - Current: `pdfjs-dist` eager in vendor-pdf chunk
 - Change: Import only on first export action
 - **Expected gain:** -50-100ms client-side (already lazy, low gain)
 
 **Testing:**
+
 ```bash
 # Time Cloud Function execution
 # 1. Call exportPDF({ labId, pages: 50 })
@@ -387,6 +421,7 @@ pdfGenerator.pipe(writeStream);
 **Problem:** Hook fetches docs, then for each doc fetches subcollections or references → N+1 query explosion.
 
 **Example (anti-pattern):**
+
 ```typescript
 // ❌ WRONG: N+1 queries
 useEffect(() => {
@@ -401,6 +436,7 @@ useEffect(() => {
 ```
 
 **Corrected version:**
+
 ```typescript
 // ✅ CORRECT: Single query + denormalization
 useEffect(() => {
@@ -411,21 +447,23 @@ useEffect(() => {
       snap.forEach((doc) => {
         const laudo = doc.data();
         // Signature already in doc (denormalized) — 0 additional queries
-        setLaudos(prev => [...prev, { ...laudo, id: doc.id }]);
+        setLaudos((prev) => [...prev, { ...laudo, id: doc.id }]);
       });
-    }
+    },
   );
   return () => unsubscribe();
 }, []);
 ```
 
 **Audit checklist:**
+
 - [ ] No `getDoc` loops inside `onSnapshot` callbacks
 - [ ] No `getDocs` for every item in a list
 - [ ] Signature stored in laudo doc (not separate fetch)
 - [ ] Equipment, analyte, reagent refs denormalized or lazy-loaded on detail-view only
 
 **Tool:** Enable Firebase Emulator debug logging
+
 ```bash
 firebase emulators:start --import=./seed --export-on-exit
 # In browser console: firebase.firestore().enableLogging(true);
@@ -435,11 +473,13 @@ firebase emulators:start --import=./seed --export-on-exit
 #### 3.3.2 p99 Latency Target: <500ms
 
 **Measurement:**
+
 - Use Firebase console → Firestore → Performance → Read Latency percentiles
 - Track p99 (99th percentile) latency per collection
 - Baseline: TBD (capture from production logs post-v1.4 Phase 3)
 
 **Optimization levers:**
+
 1. **Index effectiveness** — if query needs index, Firestore rounds up latency
    - Action: Run Cloud Logs parser to detect "slow queries"
    - Run `firebase firestore:indexes` to verify all indexes deployed
@@ -451,6 +491,7 @@ firebase emulators:start --import=./seed --export-on-exit
    - Action: Add pagination checks to hooks
 
 **Testing:**
+
 ```bash
 # Capture baseline post-Phase 3 deploy
 # 1. Open production app
@@ -469,6 +510,7 @@ firebase emulators:start --import=./seed --export-on-exit
 **File:** `lighthouserc.js`
 
 **Current assertion thresholds:**
+
 - Performance score ≥0.75 (warn only, not hard fail — PWA penalty)
 - Accessibility ≥0.9 (hard fail)
 - Best Practices ≥0.9 (hard fail)
@@ -476,6 +518,7 @@ firebase emulators:start --import=./seed --export-on-exit
 - PWA ≥0.9 (hard fail)
 
 **Current metric thresholds:**
+
 - FCP ≤2000ms (first contentful paint)
 - LCP ≤2500ms (largest contentful paint)
 - TBT ≤300ms (total blocking time)
@@ -490,6 +533,7 @@ firebase emulators:start --import=./seed --export-on-exit
 **Rationale:** v1.3 is stable at 88-92/100. v1.4 should not regress below 0.85.
 
 **Updated config:**
+
 ```javascript
 // lighthouserc.js
 'categories:performance': ['error', { minScore: 0.85 }], // was 0.75
@@ -498,6 +542,7 @@ firebase emulators:start --import=./seed --export-on-exit
 #### 4.2.2 Add Metric Thresholds (Web Vitals targets)
 
 **New assertions:**
+
 ```javascript
 'largest-contentful-paint': ['error', { maxNumericValue: 2000 }], // was 2500
 'cumulative-layout-shift': ['error', { maxNumericValue: 0.05 }],  // was 0.1
@@ -559,6 +604,7 @@ npm run test:smoke
 
 ```markdown
 ## Performance Checklist
+
 - [x] Web Vitals targets met (LCP <2.0s, INP <200ms, CLS <0.05)
 - [x] Bundle size verified (main <400 KB gzip)
 - [x] No lazy-load regressions (new routes use React.lazy)
@@ -574,6 +620,7 @@ npm run test:smoke
 **Current:** Runs on push to main + weekly Monday 08:00 UTC.
 
 **Change for Phase 12:**
+
 ```yaml
 # .github/workflows/lighthouse-ci.yml
 - name: Run Lighthouse CI
@@ -606,6 +653,7 @@ npm run test:smoke
 **Standard:** 48×48 CSS pixels for all interactive elements.
 
 **Affected areas:**
+
 - Form buttons (submit, cancel, clear)
 - Checkboxes, radio buttons, select dropdowns
 - Filter pills (analytics, reports)
@@ -613,6 +661,7 @@ npm run test:smoke
 - Laudo action buttons (sign, send, archive)
 
 **Audit checklist:**
+
 ```bash
 # Use Chrome DevTools → Device Mode → Inspect element
 # For each interactive element, check computed size:
@@ -622,6 +671,7 @@ npm run test:smoke
 ```
 
 **Example fix:**
+
 ```typescript
 // Before: 32×32 icon button
 <button className="p-2">
@@ -640,12 +690,14 @@ npm run test:smoke
 **Problem:** Forms, charts, and modal dialogs can break on landscape (iPad in landscape = 1024px width, but app designed for portrait-first).
 
 **Audit checklist:**
+
 - [ ] Form layouts reflow to 2 columns on landscape
 - [ ] Chart responsive (width: 100%, not fixed px)
 - [ ] Modals have max-height for landscape (leave header + footer visible)
 - [ ] Keyboard doesn't hide bottom action buttons
 
 **Implementation:**
+
 ```typescript
 // Use responsive Tailwind classes
 <form className="grid grid-cols-1 lg:grid-cols-2 gap-4 max-h-[calc(100vh-120px)] overflow-y-auto">
@@ -664,8 +716,12 @@ npm run test:smoke
 ### 5.3 Viewport & Zoom
 
 **Ensure in `index.html`:**
+
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes">
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0, maximum-scale=5, user-scalable=yes"
+/>
 ```
 
 - Don't disable pinch zoom (medical users may need magnification)
@@ -677,11 +733,13 @@ npm run test:smoke
 **Scenario:** iPad on WiFi, but WiFi is clinic-wide (shared, slow).
 
 **Optimization:**
+
 - Reduce image sizes (lazy loading already enabled)
 - Minify chart bundles (recharts already tree-shaken)
 - Prefetch critical data on route transition (not initial load)
 
 **Testing:**
+
 ```bash
 # Chrome DevTools → Network → set to "Slow 4G"
 # Simulate: 400 Kbps down, 400 Kbps up, 400ms latency
@@ -697,15 +755,16 @@ npm run test:smoke
 
 **High-risk modules (to audit Phase 12):**
 
-| Module | Risk | Audit Action |
-|--------|------|--------------|
-| `bioquimica` | HIGH | Check if CIQ run fetch loads all analytes separately |
-| `liberacao` | HIGH | Check if laudo fetch resolves signatures, audit trail |
-| `criticos` | HIGH | Check if critical value fetch loads rules per value |
-| `analytics` | MEDIUM | Check if polling refetches equipment, reagent every tick |
-| `export` | MEDIUM | Check if PDF generation loops docs |
+| Module       | Risk   | Audit Action                                             |
+| ------------ | ------ | -------------------------------------------------------- |
+| `bioquimica` | HIGH   | Check if CIQ run fetch loads all analytes separately     |
+| `liberacao`  | HIGH   | Check if laudo fetch resolves signatures, audit trail    |
+| `criticos`   | HIGH   | Check if critical value fetch loads rules per value      |
+| `analytics`  | MEDIUM | Check if polling refetches equipment, reagent every tick |
+| `export`     | MEDIUM | Check if PDF generation loops docs                       |
 
 **Audit process:**
+
 1. Enable Firestore debug logging in browser
 2. Navigate to module
 3. Open DevTools Console
@@ -713,6 +772,7 @@ npm run test:smoke
 5. If found, denormalize or lazy-load on detail-view only
 
 **Tool: Firestore Query Profiler**
+
 ```bash
 # functions/lib/queryProfiler.ts (new utility)
 export const logQueryMetrics = (operation: string, startTime: number) => {
@@ -727,6 +787,7 @@ export const logQueryMetrics = (operation: string, startTime: number) => {
 **Goal:** All queries using an index (0 documents scanned > index size).
 
 **Audit:**
+
 ```bash
 # In Cloud Logs → Firestore Analytics
 # Filter: "docCount" field
@@ -755,6 +816,7 @@ node scripts/parse-firestore-latency.js firestore-logs-24h.json
 ```
 
 **Expected baseline (from Phase 0-3 operations):**
+
 - Read (single doc): p50 <50ms, p99 <200ms
 - Query (collection): p50 <100ms, p99 <500ms
 - Write (callable): p50 <300ms, p99 <1000ms
@@ -769,17 +831,17 @@ node scripts/parse-firestore-latency.js firestore-logs-24h.json
 
 **Every Monday 08:00 UTC (automated via GitHub Actions):**
 
-| Metric | Source | Target | Gate |
-|--------|--------|--------|------|
-| Lighthouse Performance | `lighthouserc.js` | ≥0.85 | Hard fail if <0.85 |
-| LCP (desktop) | Lighthouse | <2.0s | Hard fail if >2500ms |
-| LCP (mobile) | Lighthouse | <2.5s | Hard fail if >2500ms |
-| INP | Lighthouse | <200ms | Warn if >200ms |
-| CLS | Lighthouse | <0.05 | Hard fail if >0.1 |
-| Bundle size (main) | `npm run analyze` | <400 KB | Warn if >420 KB |
-| Bundle size (vendors) | `npm run analyze` | <800 KB | Warn if >850 KB |
-| Firestore p99 read | Cloud Logs | <500ms | Warn if >600ms |
-| Cloud Function p99 | Cloud Logs | <2000ms | Warn if >3000ms |
+| Metric                 | Source            | Target  | Gate                 |
+| ---------------------- | ----------------- | ------- | -------------------- |
+| Lighthouse Performance | `lighthouserc.js` | ≥0.85   | Hard fail if <0.85   |
+| LCP (desktop)          | Lighthouse        | <2.0s   | Hard fail if >2500ms |
+| LCP (mobile)           | Lighthouse        | <2.5s   | Hard fail if >2500ms |
+| INP                    | Lighthouse        | <200ms  | Warn if >200ms       |
+| CLS                    | Lighthouse        | <0.05   | Hard fail if >0.1    |
+| Bundle size (main)     | `npm run analyze` | <400 KB | Warn if >420 KB      |
+| Bundle size (vendors)  | `npm run analyze` | <800 KB | Warn if >850 KB      |
+| Firestore p99 read     | Cloud Logs        | <500ms  | Warn if >600ms       |
+| Cloud Function p99     | Cloud Logs        | <2000ms | Warn if >3000ms      |
 
 ### 7.2 Dashboard Setup (Google Sheets or Grafana)
 
@@ -812,6 +874,7 @@ jobs:
 ```
 
 **Dashboard columns:**
+
 - Date
 - Lighthouse Performance score
 - LCP (desktop) / (mobile)
@@ -824,6 +887,7 @@ jobs:
 ### 7.3 Regression Detection
 
 **Alert if:**
+
 - Performance score drops >0.05 points
 - LCP increases >200ms
 - Bundle size increases >50 KB
@@ -837,16 +901,16 @@ jobs:
 
 ### 7.1 Gating Criteria
 
-| Criterion | Status | Verification |
-|-----------|--------|--------------|
-| All routes pass Web Vitals targets | TODO | Lighthouse local audit |
-| Bundle size <400 KB (main), <800 KB (vendors) | TODO | `npm run analyze` |
-| Lighthouse CI gates active (pre-merge + post-merge) | TODO | GitHub Actions workflow |
-| N+1 query audit clean | TODO | Firestore logs review |
-| Firestore p99 <500ms baseline established | TODO | Cloud Logs capture + chart |
-| Mobile/tablet optimization complete | TODO | DevTools responsive test |
-| Weekly baseline monitoring chart live | TODO | Google Sheets + script |
-| 0 regressions from v1.3 (738/738 tests) | TODO | CI run |
+| Criterion                                           | Status | Verification               |
+| --------------------------------------------------- | ------ | -------------------------- |
+| All routes pass Web Vitals targets                  | TODO   | Lighthouse local audit     |
+| Bundle size <400 KB (main), <800 KB (vendors)       | TODO   | `npm run analyze`          |
+| Lighthouse CI gates active (pre-merge + post-merge) | TODO   | GitHub Actions workflow    |
+| N+1 query audit clean                               | TODO   | Firestore logs review      |
+| Firestore p99 <500ms baseline established           | TODO   | Cloud Logs capture + chart |
+| Mobile/tablet optimization complete                 | TODO   | DevTools responsive test   |
+| Weekly baseline monitoring chart live               | TODO   | Google Sheets + script     |
+| 0 regressions from v1.3 (738/738 tests)             | TODO   | CI run                     |
 
 ### 7.2 Pre-Phase 4 Sign-Off
 
@@ -864,6 +928,7 @@ jobs:
 ## Phase 12 Task Breakdown
 
 ### Parallel Track 1: Bundle & Lighthouse (Agent 1)
+
 - [ ] 12-01-01 Audit bundle sizes (main, vendors, modules)
 - [ ] 12-01-02 Enforce manual chunks (vite.config.ts review)
 - [ ] 12-01-03 Update lighthouserc.js (new thresholds)
@@ -872,6 +937,7 @@ jobs:
 - **Deliverable:** Bundle report + Lighthouse config ready
 
 ### Parallel Track 2: Runtime Optimization (Agent 2)
+
 - [ ] 12-02-01 Profile laudo form (skeleton loading + prefetch)
 - [ ] 12-02-02 Profile CIQ run form (schema lazy-load, equipment cache)
 - [ ] 12-02-03 Profile Levey-Jennings (memoization, virtual scrolling)
@@ -880,6 +946,7 @@ jobs:
 - **Deliverable:** Runtime optimization matrix + code changes
 
 ### Parallel Track 3: Database & Mobile (Agent 3)
+
 - [ ] 12-03-01 N+1 query audit (bioquimica, liberacao, criticos)
 - [ ] 12-03-02 Firestore p99 baseline capture (24h logs)
 - [ ] 12-03-03 Touch target audit (48×48px)
@@ -888,6 +955,7 @@ jobs:
 - **Deliverable:** Optimization recommendations + baseline chart
 
 ### Parallel Track 4: Monitoring & Gates (Agent 4)
+
 - [ ] 12-04-01 Set up weekly baseline monitoring script
 - [ ] 12-04-02 Create Google Sheets dashboard
 - [ ] 12-04-03 Regression detection alerts (email on fail)
@@ -899,14 +967,14 @@ jobs:
 
 ## Risks & Mitigations
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| New v1.4 modules (bioquimica, liberacao) exceed bundle targets | Medium | High | Pre-audit on Phase 3 branches, code-split aggressively |
-| Firestore p99 regression from v1.3 | Low | High | N+1 audit + index verification before deploy |
-| Lighthouse CI flakiness (network variance) | Medium | Medium | Run 3 times per audit, use mean ± 1σ for gates |
-| PDF export still >10s after optimization | Low | Medium | Fallback to async email (user polls for result) |
-| Mobile testing reveals untested interaction patterns | Medium | Medium | E2E test suite on tablets (Detox, Phase 3.3) |
-| Monitoring script fails silently (chart never updates) | Low | Medium | Test manually in Phase 12, add alerts to GitHub Actions |
+| Risk                                                           | Probability | Impact | Mitigation                                              |
+| -------------------------------------------------------------- | ----------- | ------ | ------------------------------------------------------- |
+| New v1.4 modules (bioquimica, liberacao) exceed bundle targets | Medium      | High   | Pre-audit on Phase 3 branches, code-split aggressively  |
+| Firestore p99 regression from v1.3                             | Low         | High   | N+1 audit + index verification before deploy            |
+| Lighthouse CI flakiness (network variance)                     | Medium      | Medium | Run 3 times per audit, use mean ± 1σ for gates          |
+| PDF export still >10s after optimization                       | Low         | Medium | Fallback to async email (user polls for result)         |
+| Mobile testing reveals untested interaction patterns           | Medium      | Medium | E2E test suite on tablets (Detox, Phase 3.3)            |
+| Monitoring script fails silently (chart never updates)         | Low         | Medium | Test manually in Phase 12, add alerts to GitHub Actions |
 
 ---
 

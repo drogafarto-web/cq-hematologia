@@ -33,8 +33,7 @@ describe('queryCIQCompliance aggregation logic', () => {
       { status: 'invalid', deletadoEm: null },
     ];
 
-    const validCount = mockDocs
-      .filter((d) => d.deletadoEm === null && d.status === 'valid').length;
+    const validCount = mockDocs.filter((d) => d.deletadoEm === null && d.status === 'valid').length;
     assert.strictEqual(validCount, 1, 'Should count 1 valid run after filtering deleted');
   });
 
@@ -77,8 +76,10 @@ describe('queryCIQCompliance aggregation logic', () => {
     const totalRuns = 100;
     const compliancePercent = Math.round((validRuns / totalRuns) * 100);
 
-    assert.ok(compliancePercent >= 0 && compliancePercent <= 100,
-      'Compliance percent should be between 0-100');
+    assert.ok(
+      compliancePercent >= 0 && compliancePercent <= 100,
+      'Compliance percent should be between 0-100',
+    );
   });
 
   it('computes compliance percent correctly', () => {
@@ -103,8 +104,10 @@ describe('queryCIQCompliance aggregation logic', () => {
     const total = openNCs + closedNCs;
     const ncResolutionRate = total > 0 ? Math.round((closedNCs / total) * 100) : 0;
 
-    assert.ok(ncResolutionRate >= 0 && ncResolutionRate <= 100,
-      'NC resolution rate should be between 0-100');
+    assert.ok(
+      ncResolutionRate >= 0 && ncResolutionRate <= 100,
+      'NC resolution rate should be between 0-100',
+    );
   });
 
   it('handles zero NCs', () => {

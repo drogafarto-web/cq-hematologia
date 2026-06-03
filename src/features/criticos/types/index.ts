@@ -363,10 +363,7 @@ export interface ResolveCriticoResponse {
   escalacaoId: string;
   tempoSlaMs: number;
   slaStatus: 'em_prazo' | 'vencido';
-  outcome:
-    | 'reconhecido_tier1'
-    | 'reconhecido_tier2'
-    | 'reconhecido_tier3';
+  outcome: 'reconhecido_tier1' | 'reconhecido_tier2' | 'reconhecido_tier3';
 }
 
 /** Cron trigger response */

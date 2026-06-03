@@ -8,6 +8,7 @@
 ## Deliverables Status
 
 ### ✅ Cloud Functions Core (100%)
+
 - `recordRunBioquimica.ts` — Callable that records runs server-side with Westgard validation
 - `onRunCreated.ts` — Firestore trigger for append-only traceability logging
 - `generateMonthlyReportBioquimica.ts` — Scheduled monthly FR-001 report generation
@@ -16,6 +17,7 @@
 - Function exports registered in `bioquimica/index.ts` and main `functions/src/index.ts`
 
 ### 🟡 Security + Multi-tenant (95%)
+
 - ✅ isActiveMemberOfLab membership validation
 - ✅ LogicalSignature generation (hash + operatorId + ts)
 - ✅ labId redundancy in all payloads
@@ -23,6 +25,7 @@
 - ⏳ Firestore rules update for callable-only writes (Plan 09-05)
 
 ### 🟡 Compliance Mapping (90%)
+
 - ✅ RDC 978/2025 Art. 179 (CIQ obrigatório)
 - ✅ RDC 978/2025 Art. 180 (plano de controle)
 - ✅ RDC 978/2025 Art. 181 (rastreabilidade)
@@ -32,6 +35,7 @@
 - ⏳ FR-001 PDF generation — deferred to Plan 09-05
 
 ### 🟡 E2E Tests (10%)
+
 - ⏳ Test scenarios defined (5 critical flows)
 - ⏳ Test fixtures prepared (partial)
 - ⏳ Smoke test script (ready)
@@ -39,6 +43,7 @@
 ## Files Created
 
 ### Cloud Functions (730 LOC)
+
 - `functions/src/bioquimica/recordRunBioquimica.ts` — 250 lines
 - `functions/src/bioquimica/onRunCreated.ts` — 85 lines
 - `functions/src/bioquimica/generateMonthlyReportBioquimica.ts` — 190 lines
@@ -46,24 +51,25 @@
 - `functions/src/bioquimica/_shared/chainHashCalc.ts` — 45 lines
 
 ### Exports + Registration
+
 - Updated `functions/src/bioquimica/index.ts` — exported 3 new CFs
 - Updated `functions/src/index.ts` — registered in main module
 
 ## Acceptance Criteria
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| recordRunBioquimica callable | ✅ PASS | Server-side Westgard + signature + atomic write |
-| onRunCreated trigger | ✅ PASS | Append-only traceability events on run creation |
-| generateMonthlyReport scheduled | ✅ PASS | Cron 1st of month, KPI aggregation |
-| westgardRulesCLSI mirrored | ✅ PASS | 4 rules: 1-2s warn, 1-3s reject, 2-2s, R-4s |
-| chainHash deterministic | ✅ PASS | SHA-256(prevHash + canonical) |
-| isActiveMemberOfLab | ✅ PASS | Basic membership check (Firestore read) |
-| LogicalSignature generated | ✅ PASS | hash (64 chars) + operatorId + ts |
-| Atomic writeBatch | ✅ PASS | Run + lot update in single transaction |
-| Firestore rules (callable-only) | 🟡 PENDING | Plan 09-05 |
-| E2E test suite | ⏳ PENDING | 5 flows: bula absent, run aprovada, rejeitada, override, persistence |
-| Worklab integration | ⏳ DEFERRED | Manual examCodeAtChange in MVP; LIS sync in v1.4 |
+| Criterion                       | Status      | Notes                                                                |
+| ------------------------------- | ----------- | -------------------------------------------------------------------- |
+| recordRunBioquimica callable    | ✅ PASS     | Server-side Westgard + signature + atomic write                      |
+| onRunCreated trigger            | ✅ PASS     | Append-only traceability events on run creation                      |
+| generateMonthlyReport scheduled | ✅ PASS     | Cron 1st of month, KPI aggregation                                   |
+| westgardRulesCLSI mirrored      | ✅ PASS     | 4 rules: 1-2s warn, 1-3s reject, 2-2s, R-4s                          |
+| chainHash deterministic         | ✅ PASS     | SHA-256(prevHash + canonical)                                        |
+| isActiveMemberOfLab             | ✅ PASS     | Basic membership check (Firestore read)                              |
+| LogicalSignature generated      | ✅ PASS     | hash (64 chars) + operatorId + ts                                    |
+| Atomic writeBatch               | ✅ PASS     | Run + lot update in single transaction                               |
+| Firestore rules (callable-only) | 🟡 PENDING  | Plan 09-05                                                           |
+| E2E test suite                  | ⏳ PENDING  | 5 flows: bula absent, run aprovada, rejeitada, override, persistence |
+| Worklab integration             | ⏳ DEFERRED | Manual examCodeAtChange in MVP; LIS sync in v1.4                     |
 
 ## Critical Design Decisions
 

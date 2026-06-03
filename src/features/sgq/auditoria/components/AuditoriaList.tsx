@@ -1,6 +1,10 @@
 import { memo, useState } from 'react';
 import type { Auditoria, AuditoriaFilters } from '../../types/Auditoria';
-import { temAchadosGraves, contaAchadosPorSeveridade, diasAteVencimento } from '../../types/Auditoria';
+import {
+  temAchadosGraves,
+  contaAchadosPorSeveridade,
+  diasAteVencimento,
+} from '../../types/Auditoria';
 import { useAuditorias } from '../useAuditorias';
 
 interface AuditoriaListProps {
@@ -70,11 +74,7 @@ export default function AuditoriaList({ onSelectAuditoria }: AuditoriaListProps)
           </div>
         ) : (
           auditorias.map((auditoria) => (
-            <AuditoriaCard
-              key={auditoria.id}
-              auditoria={auditoria}
-              onSelect={onSelectAuditoria}
-            />
+            <AuditoriaCard key={auditoria.id} auditoria={auditoria} onSelect={onSelectAuditoria} />
           ))
         )}
       </div>
@@ -106,7 +106,9 @@ const AuditoriaCard = memo(function AuditoriaCard({
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-white">{auditoria.codigo}</h3>
             {temGraves && (
-              <span className="text-amber-400" title="Achados graves">⚠</span>
+              <span className="text-amber-400" title="Achados graves">
+                ⚠
+              </span>
             )}
           </div>
           <p className="text-sm text-white/60 mt-1">{auditoria.titulo}</p>

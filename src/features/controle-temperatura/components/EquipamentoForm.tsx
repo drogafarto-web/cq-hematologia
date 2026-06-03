@@ -182,7 +182,11 @@ export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: Equipa
           </Field>
           <Field
             label="Termômetro vinculado"
-            hint={termometros.length === 0 ? 'Cadastre um termômetro em Configurações primeiro.' : undefined}
+            hint={
+              termometros.length === 0
+                ? 'Cadastre um termômetro em Configurações primeiro.'
+                : undefined
+            }
           >
             <Select
               value={termometroId}
@@ -200,10 +204,7 @@ export function EquipamentoForm({ open, onClose, equipamento, onSubmit }: Equipa
             </Select>
           </Field>
           <Field label="Status">
-            <Select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as StatusEquipamento)}
-            >
+            <Select value={status} onChange={(e) => setStatus(e.target.value as StatusEquipamento)}>
               {STATUS.map((s) => (
                 <option key={s.value} value={s.value}>
                   {s.label}

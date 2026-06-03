@@ -18,6 +18,7 @@
 **Requirements coberto:** LGPD-01, LGPD-02, LGPD-03, DR-01, DR-02
 
 **Deliverables:**
+
 - DPIA preenchida em `/labs/{labId}/lgpd/dpia` com versionamento; UI admin renderiza
 - Fluxo `/exclusao-titular` E2E: CPF → OTP/email → CF `deleteTitularData` (zera PII, mantém audit chain-hash)
 - Página `/privacidade` com versionamento + registro de aceite por usuário
@@ -25,6 +26,7 @@
 - `docs/DR_RESTORE_TEST_2026-05.md` documentando restore real em staging com verificação de integridade
 
 **Success criteria:**
+
 1. Admin pode imprimir DPIA como PDF (auditor pede)
 2. Titular consegue solicitar exclusão; CF zera PII e mantém chain-hash íntegro (teste E2E verde)
 3. Política de privacidade tem registro de aceite armazenado por usuário
@@ -32,10 +34,12 @@
 5. Restore real comprovado: snapshot prod restaurado em staging, integridade verificada
 
 **Plans:**
+
 - [ ] `06-01-PLAN.md` — LGPD: DPIA form, /exclusao-titular flow, /privacidade page, deleteTitularData CF, E2E tests (Wave 1, depends on none) ✅ PLAN CREATED
 - [ ] `06-02-PLAN.md` — DR: Plan document, runbooks, backup/restore scripts, restore test execution + validation (Wave 1, depends on none) ✅ PLAN CREATED
 
 **Execution notes:**
+
 - Both plans run in parallel (Wave 1). No file conflicts or dependencies.
 - Plan 06-01 has 1 checkpoint (human verification of LGPD flows + data integrity).
 - Plan 06-02 has 1 checkpoint (human verification of DR test results + sign-off).
@@ -43,10 +47,12 @@
 - Critical path: Phase 4 → Phase 6-02 restore test.
 
 **Dependencies:**
+
 - Pode rodar em paralelo com Phase 5 (independências)
 - Phase 4 (CLEAN-01 rules tightening) deve estar terminado antes de DR test (não restaurar dados em staging com rules abertas)
 
 **Skills GSD:**
+
 - `/gsd-discuss-phase 6` — clarificar fluxo OTP exclusão, janela de manutenção do restore
 - `/gsd-plan-phase 6` ✅ COMPLETE — 2 plans created (06-01-PLAN.md, 06-02-PLAN.md)
 - `/gsd-execute-phase 6` (pending)
@@ -55,6 +61,7 @@
 ---
 
 **Plans are located:**
+
 - `.planning/phases/06-compliance/06-01-PLAN.md` — LGPD implementation
 - `.planning/phases/06-compliance/06-02-PLAN.md` — Disaster Recovery planning + test
 

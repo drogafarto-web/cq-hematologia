@@ -20,15 +20,15 @@ O módulo já existe com lifecycle completo. Este spec estende sem reescrever.
 
 ## Já existe (não tocar sem necessidade)
 
-| Artefato | Path | Notas |
-|---|---|---|
-| `Equipamento` type completo | `src/features/equipamentos/types/Equipamento.ts` | Apenas estender com campos novos |
-| `EquipamentoAuditEvent` | `src/features/equipamentos/types/Equipamento.ts` | Intocável |
-| CF chain-hash trigger | `functions/src/modules/equipamentos/` | Funcional |
-| Firestore `/labs/{labId}/equipamentos` | `firestore.rules` | Estender regras |
-| Callables existentes de equipamentos | `functions/src/callables/calibracao/` | Reutilizar padrão |
-| Componentes de listagem e detalhe | `src/features/equipamentos/components/` | Não reescrever — estender |
-| `controle-temperatura` | módulo existente | Equipamentos de temperatura já integrados |
+| Artefato                               | Path                                             | Notas                                     |
+| -------------------------------------- | ------------------------------------------------ | ----------------------------------------- |
+| `Equipamento` type completo            | `src/features/equipamentos/types/Equipamento.ts` | Apenas estender com campos novos          |
+| `EquipamentoAuditEvent`                | `src/features/equipamentos/types/Equipamento.ts` | Intocável                                 |
+| CF chain-hash trigger                  | `functions/src/modules/equipamentos/`            | Funcional                                 |
+| Firestore `/labs/{labId}/equipamentos` | `firestore.rules`                                | Estender regras                           |
+| Callables existentes de equipamentos   | `functions/src/callables/calibracao/`            | Reutilizar padrão                         |
+| Componentes de listagem e detalhe      | `src/features/equipamentos/components/`          | Não reescrever — estender                 |
+| `controle-temperatura`                 | módulo existente                                 | Equipamentos de temperatura já integrados |
 
 ---
 
@@ -47,54 +47,55 @@ O módulo já existe com lifecycle completo. Este spec estende sem reescrever.
 
 ### Grupo A — Calibração aprimorada
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| Extensão de `Equipamento` | Type change | Adicionar `certificadoCalibracaoUrl?`, `proximaCalibracao?: Timestamp`, `calibracaoStatus?: 'em_dia' | 'vencida' | 'proxima'` |
-| `registrarCalibracao` callable | CF callable | Já existe em `callables/calibracao/` — verificar e estender com `proximaCalibracao` |
-| `useCalibracaoStatus` hook | React hook | Deriva `calibracaoStatus` client-side por data |
-| Badge de calibração | Componente | Badge por status na ficha do equipamento |
+| Artefato                       | Tipo        | Descrição                                                                                            |
+| ------------------------------ | ----------- | ---------------------------------------------------------------------------------------------------- | --------- | ---------- |
+| Extensão de `Equipamento`      | Type change | Adicionar `certificadoCalibracaoUrl?`, `proximaCalibracao?: Timestamp`, `calibracaoStatus?: 'em_dia' | 'vencida' | 'proxima'` |
+| `registrarCalibracao` callable | CF callable | Já existe em `callables/calibracao/` — verificar e estender com `proximaCalibracao`                  |
+| `useCalibracaoStatus` hook     | React hook  | Deriva `calibracaoStatus` client-side por data                                                       |
+| Badge de calibração            | Componente  | Badge por status na ficha do equipamento                                                             |
 
 ### Grupo B — Manutenção preventiva
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `ManutencaoPreventiva` interface | Tipo TS | Nova subcoleção `/labs/{labId}/equipamentos/{id}/manutencoes` |
-| `ManutencaoStatus` enum | Enum TS | `agendada`, `realizada`, `cancelada` |
-| Regras Firestore | `firestore.rules` | `manutencoes` subcoleção |
-| `agendarManutencao` callable | CF callable | Cria doc de manutenção preventiva |
-| `registrarManutencaoRealizada` callable | CF callable | Transição `agendada` → `realizada` com `logicalSignature` |
-| CF cron `alertManutencaoVencida` | Cloud Function | Diária; cria `KPIAlert` para manutenções vencidas |
-| `useManutencoes` hook | React hook | Listagem de manutenções de um equipamento |
-| UI de agenda de manutenção | Componente | Lista + modal de agendamento |
+| Artefato                                | Tipo              | Descrição                                                     |
+| --------------------------------------- | ----------------- | ------------------------------------------------------------- |
+| `ManutencaoPreventiva` interface        | Tipo TS           | Nova subcoleção `/labs/{labId}/equipamentos/{id}/manutencoes` |
+| `ManutencaoStatus` enum                 | Enum TS           | `agendada`, `realizada`, `cancelada`                          |
+| Regras Firestore                        | `firestore.rules` | `manutencoes` subcoleção                                      |
+| `agendarManutencao` callable            | CF callable       | Cria doc de manutenção preventiva                             |
+| `registrarManutencaoRealizada` callable | CF callable       | Transição `agendada` → `realizada` com `logicalSignature`     |
+| CF cron `alertManutencaoVencida`        | Cloud Function    | Diária; cria `KPIAlert` para manutenções vencidas             |
+| `useManutencoes` hook                   | React hook        | Listagem de manutenções de um equipamento                     |
+| UI de agenda de manutenção              | Componente        | Lista + modal de agendamento                                  |
 
 ### Grupo C — Histórico de uso / operadores
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `EquipamentoUso` interface | Tipo TS | Nova subcoleção `usos` em equipamentos |
+| Artefato                           | Tipo        | Descrição                               |
+| ---------------------------------- | ----------- | --------------------------------------- |
+| `EquipamentoUso` interface         | Tipo TS     | Nova subcoleção `usos` em equipamentos  |
 | `registrarUsoEquipamento` callable | CF callable | Registra início/fim de uso por operador |
-| `useEquipamentoUso` hook | React hook | Histórico de uso do equipamento |
-| Timeline de uso | Componente | Similar ao `AmostraTimeline` |
+| `useEquipamentoUso` hook           | React hook  | Histórico de uso do equipamento         |
+| Timeline de uso                    | Componente  | Similar ao `AmostraTimeline`            |
 
 ### Grupo D — Integração com riscos
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| Extensão de `Risk` | Type change | Adicionar `equipamentoId?` (já pode existir — verificar antes) |
-| Link na ficha de equipamento | Componente | Seção "Riscos associados" com link para módulo risks |
+| Artefato                     | Tipo        | Descrição                                                      |
+| ---------------------------- | ----------- | -------------------------------------------------------------- |
+| Extensão de `Risk`           | Type change | Adicionar `equipamentoId?` (já pode existir — verificar antes) |
+| Link na ficha de equipamento | Componente  | Seção "Riscos associados" com link para módulo risks           |
 
 ### Grupo E — Exportação de relatório técnico
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
+| Artefato                                | Tipo           | Descrição                                                          |
+| --------------------------------------- | -------------- | ------------------------------------------------------------------ |
 | CF callable `generateEquipamentoReport` | Cloud Function | PDF com ficha completa, histórico de calibrações, manutenções, uso |
-| Botão export | Componente | Na view de detalhe do equipamento |
+| Botão export                            | Componente     | Na view de detalhe do equipamento                                  |
 
 ---
 
 ## Dados / Entidades
 
 ### `Equipamento` — extensão (campos adicionados)
+
 ```typescript
 certificadoCalibracaoUrl?: string;     // URL Storage do PDF do certificado
 proximaCalibracao?: Timestamp;          // data calculada ou informada
@@ -102,11 +103,13 @@ calibracaoStatus?: 'em_dia' | 'vencida' | 'proxima';  // derivado client-side
 ```
 
 ### `ManutencaoStatus`
+
 ```typescript
 type ManutencaoStatus = 'agendada' | 'realizada' | 'cancelada';
 ```
 
 ### `ManutencaoPreventiva`
+
 ```typescript
 interface ManutencaoPreventiva {
   id: string;
@@ -120,13 +123,14 @@ interface ManutencaoPreventiva {
   dataRealizada?: Timestamp;
   status: ManutencaoStatus;
   observacoes?: string;
-  logicalSignature?: LogicalSignature;  // ao registrar realizada
+  logicalSignature?: LogicalSignature; // ao registrar realizada
   criadoEm: Timestamp;
   updatedAt: Timestamp;
 }
 ```
 
 ### `EquipamentoUso`
+
 ```typescript
 interface EquipamentoUso {
   id: string;

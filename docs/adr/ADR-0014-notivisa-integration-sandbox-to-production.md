@@ -13,6 +13,7 @@
 RDC 978 Art. 66 exige notificação de eventos adversos ao Ministério da Saúde (MS) via NOTIVISA (Sistema de Notificação de Eventos Adversos). Portaria 204/2016 (MS) define lista de 99 doenças notificáveis (ex: sífilis, dengue em gestante, HIV, tuberculose).
 
 Em laboratório clínico, resultado positivo em analito notificável dispara obrigação de report a autoridade sanitária dentro de 24h. v1.4 necessita:
+
 - Detecção automática (resultado positivo em doença notificável).
 - Draft NOTIVISA form geração.
 - RT approval + submission.
@@ -21,6 +22,7 @@ Em laboratório clínico, resultado positivo em analito notificável dispara obr
 **Questão arquitetural:** v1.4 implementa NOTIVISA com API real (Anvisa) ou sandbox/mock apenas?
 
 **Contexto regulatório:**
+
 - NOTIVISA API publicada: Dec 2021 (Anvisa).
 - Documentação: Limitada (não oficial em português; SOAP service, status unclear em 2026).
 - Sandbox disponível: Sim (Anvisa fornece test endpoint).
@@ -53,6 +55,7 @@ Pressão conflitante:
 ### 1. v1.4 Phase 8 — NOTIVISA Integration (Sandbox)
 
 **Scope:**
+
 - Art. 6º schema (Zod validation): 15 mandatory fields (disease code, patient anonymized, result, date, etc.).
 - Notifiable disease list seed (99 MS diseases, configurable per lab).
 - Draft form generation (XML or JSON matching Anvisa schema).
@@ -60,11 +63,13 @@ Pressão conflitante:
 - Audit trail (who approved, when, response if any).
 
 **Not in scope:**
+
 - Live API submission to Anvisa.
 - Digital certificate validation.
 - Receipt acknowledgment from Anvisa.
 
 **Implementation:**
+
 ```
 Critical result detected → notivisaDraftGenerator CF → XML form created in Firestore
 RT sees draft in UI → reviews (patient details, disease, test result)
@@ -82,6 +87,7 @@ Awaiting: v1.5 API integration to actually submit
 **When certificate is ready** (legal/fiscal process completes):
 
 **v1.5 refactor (minimal):**
+
 - Replace mock `submitNotivisaToAnvisa()` with real HTTP call to NOTIVISA API endpoint.
 - Unbox certificate from Secret Manager.
 - Handle SOAP/REST protocol (Anvisa endpoint specifics).
@@ -89,17 +95,23 @@ Awaiting: v1.5 API integration to actually submit
 - Tracking: receipt code from Anvisa stored in `notivisa-outbox` doc.
 
 **Code changes (localized):**
+
 ```typescript
 // v1.4: mock submission
-async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{status: 'mocked'}> {
-  return {status: 'mocked', reason: 'v1.5 will integrate with real Anvisa API'};
+async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{ status: 'mocked' }> {
+  return { status: 'mocked', reason: 'v1.5 will integrate with real Anvisa API' };
 }
 
 // v1.5: real submission
-async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{status: 'success' | 'error', receiptCode?: string}> {
+async function submitNotivisaToAnvisa(
+  form: NotivisaForm,
+): Promise<{ status: 'success' | 'error'; receiptCode?: string }> {
   const cert = await secretManager.getSecret('NOTIVISA_CERTIFICATE');
-  const response = await soapClient.call('Anvisa.NOTIVISA.submit', {form, cert});
-  return {status: response.status === 200 ? 'success' : 'error', receiptCode: response.transactionId};
+  const response = await soapClient.call('Anvisa.NOTIVISA.submit', { form, cert });
+  return {
+    status: response.status === 200 ? 'success' : 'error',
+    receiptCode: response.transactionId,
+  };
 }
 ```
 
@@ -127,6 +139,7 @@ async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{status: 'suc
 **Claim to auditor:** "HC Quality generates NOTIVISA forms for all notifiable results, sealed with RT approval. v1.5 will integrate with Anvisa API for direct submission (certificate provisioning in progress)."
 
 **Risk mitigation:** If auditor says "you must submit now", escalation path is:
+
 1. Manually export PDF from HC Quality.
 2. Import manually into Anvisa portal (labor-intensive but compliant).
 3. Commit to v1.5 automation (timeline + responsibility assigned).
@@ -134,12 +147,14 @@ async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{status: 'suc
 ### 5. Staging & Testing (v1.4)
 
 **What's tested:**
+
 - Draft form generation (XML schema validation against Anvisa spec).
 - RT approval workflow (sealing + audit).
 - Export to PDF (inspector-ready).
 - Error handling (disease code lookup, missing fields).
 
 **What's NOT tested:**
+
 - Live Anvisa API (endpoint not called).
 - Receipt handling (no response processing).
 - Retry logic under SOAP protocol (no soap client).
@@ -164,11 +179,13 @@ async function submitNotivisaToAnvisa(form: NotivisaForm): Promise<{status: 'suc
 Integrate real API, provision certificate, submit to Anvisa from Day 1.
 
 **Pros:**
+
 - Full Art. 66 compliance (submissions happening in real-time).
 - Auditor has zero questions.
 - Market positioning ("first mover with NOTIVISA automation").
 
 **Cons:**
+
 - Certificate provisioning blocks v1.4 (4+ weeks legal/fiscal work). Timeline risk too high.
 - API stability unknown; if Anvisa API has issues, we're responsible for triage.
 - If API changes in v1.5, refactor burden falls on v1.5 team.
@@ -180,9 +197,11 @@ Integrate real API, provision certificate, submit to Anvisa from Day 1.
 v1.4 ignores Art. 66; implement in v2 as premium feature.
 
 **Pros:**
+
 - Zero timeline risk; v1.4 focused on DICQ core.
 
 **Cons:**
+
 - Auditor asks "where's NOTIVISA?" → no credible answer. Major compliance gap.
 - v1.5 can't launch without it (Art. 66 is mandatory RDC).
 - Competitive disadvantage (no competitor has NOTIVISA either, but first-mover wins).

@@ -156,7 +156,12 @@ export function useConsentBackfillPhases(labId: string | null) {
 
       try {
         const callable = httpsCallable<
-          { labId: string; defaultConsentVersion: string; defaultScope: string[]; entries: BatchEntry[] },
+          {
+            labId: string;
+            defaultConsentVersion: string;
+            defaultScope: string[];
+            entries: BatchEntry[];
+          },
           BatchRecordConsentResponse
         >(functions, 'consents_batchRecordConsent');
 

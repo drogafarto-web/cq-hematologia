@@ -22,10 +22,7 @@ type Phase =
   | { kind: 'done'; imported: number; failed: number; errors: string[] }
   | { kind: 'error'; message: string };
 
-export function ImportColaboradoresModal({
-  onClose,
-  onImported,
-}: ImportColaboradoresModalProps) {
+export function ImportColaboradoresModal({ onClose, onImported }: ImportColaboradoresModalProps) {
   const { create } = useColaboradores();
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -111,11 +108,7 @@ export function ImportColaboradoresModal({
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {phase.kind === 'idle' && (
-            <IdleState
-              fileInputRef={fileInputRef}
-              onDrop={handleDrop}
-              onPick={handleFilePick}
-            />
+            <IdleState fileInputRef={fileInputRef} onDrop={handleDrop} onPick={handleFilePick} />
           )}
 
           {phase.kind === 'parsing' && (
@@ -126,9 +119,7 @@ export function ImportColaboradoresModal({
             <PreviewState result={phase.result} fileName={phase.fileName} />
           )}
 
-          {phase.kind === 'importing' && (
-            <ImportingState done={phase.done} total={phase.total} />
-          )}
+          {phase.kind === 'importing' && <ImportingState done={phase.done} total={phase.total} />}
 
           {phase.kind === 'done' && <DoneState state={phase} />}
 
@@ -232,8 +223,8 @@ function IdleState({ fileInputRef, onDrop, onPick }: IdleStateProps) {
       <div className="rounded-md border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-400">
         <p className="mb-1 font-medium text-slate-300">Formato esperado:</p>
         <p>
-          4 colunas — Nome, Cargo, Setor, Ativo. A aba "Instruções" do modelo
-          lista os valores aceitos.
+          4 colunas — Nome, Cargo, Setor, Ativo. A aba "Instruções" do modelo lista os valores
+          aceitos.
         </p>
       </div>
     </div>
@@ -277,7 +268,8 @@ function PreviewState({
             ))}
           </ul>
           <p className="text-xs text-slate-400">
-            Corrija o arquivo e envie novamente, ou importe apenas as linhas válidas (os erros serão ignorados).
+            Corrija o arquivo e envie novamente, ou importe apenas as linhas válidas (os erros serão
+            ignorados).
           </p>
         </div>
       )}
@@ -333,7 +325,9 @@ function DoneState({ state }: { state: Extract<Phase, { kind: 'done' }> }) {
       {state.errors.length > 0 && (
         <ul className="max-h-40 overflow-y-auto rounded-md border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-200">
           {state.errors.map((e, i) => (
-            <li key={i} className="py-0.5">{e}</li>
+            <li key={i} className="py-0.5">
+              {e}
+            </li>
           ))}
         </ul>
       )}
@@ -351,9 +345,7 @@ function Stat({
   tone: 'slate' | 'emerald' | 'red';
 }) {
   const text =
-    tone === 'emerald' ? 'text-emerald-300'
-      : tone === 'red' ? 'text-red-300'
-      : 'text-slate-200';
+    tone === 'emerald' ? 'text-emerald-300' : tone === 'red' ? 'text-red-300' : 'text-slate-200';
   return (
     <div className="flex flex-col gap-1 rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2">
       <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">

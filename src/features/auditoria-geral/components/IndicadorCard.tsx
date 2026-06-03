@@ -46,7 +46,12 @@ export function IndicadorCard({
   const [showObs, setShowObs] = useState(Boolean(resposta?.observacoes));
   const [uploading, setUploading] = useState(false);
   const [webcamOpen, setWebcamOpen] = useState(false);
-  const [iaResult, setIaResult] = useState<{ veredito: string; justificativa: string; confianca: number; sugestao: string | null } | null>(null);
+  const [iaResult, setIaResult] = useState<{
+    veredito: string;
+    justificativa: string;
+    confianca: number;
+    sugestao: string | null;
+  } | null>(null);
   const [validating, setValidating] = useState(false);
   const [showIaDetail, setShowIaDetail] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -59,31 +64,37 @@ export function IndicadorCard({
     }
   }, [resposta?.critica]);
 
-  const handleTranscription = useCallback(async (text: string) => {
-    const updated = obs ? `${obs}\n${text}` : text;
-    setObs(updated);
-    setShowObs(true);
-    try {
-      await saveResposta(labId, auditoriaId, indicador.id, {
-        observacoes: updated,
-        respondidoPor: user?.uid ?? null,
-      });
-    } catch {
-      toast.error('Erro ao salvar observação');
-    }
-  }, [obs, labId, auditoriaId, indicador.id, user?.uid]);
+  const handleTranscription = useCallback(
+    async (text: string) => {
+      const updated = obs ? `${obs}\n${text}` : text;
+      setObs(updated);
+      setShowObs(true);
+      try {
+        await saveResposta(labId, auditoriaId, indicador.id, {
+          observacoes: updated,
+          respondidoPor: user?.uid ?? null,
+        });
+      } catch {
+        toast.error('Erro ao salvar observação');
+      }
+    },
+    [obs, labId, auditoriaId, indicador.id, user?.uid],
+  );
 
-  const handleAudioSaved = useCallback(async (audio: AudioEvidencia) => {
-    const updatedAudios = [...(resposta?.audios ?? []), audio];
-    try {
-      await saveResposta(labId, auditoriaId, indicador.id, {
-        audios: updatedAudios,
-        respondidoPor: user?.uid ?? null,
-      });
-    } catch {
-      toast.error('Erro ao salvar áudio');
-    }
-  }, [resposta?.audios, labId, auditoriaId, indicador.id, user?.uid]);
+  const handleAudioSaved = useCallback(
+    async (audio: AudioEvidencia) => {
+      const updatedAudios = [...(resposta?.audios ?? []), audio];
+      try {
+        await saveResposta(labId, auditoriaId, indicador.id, {
+          audios: updatedAudios,
+          respondidoPor: user?.uid ?? null,
+        });
+      } catch {
+        toast.error('Erro ao salvar áudio');
+      }
+    },
+    [resposta?.audios, labId, auditoriaId, indicador.id, user?.uid],
+  );
 
   const handleScoreChange = async (score: number | null, naoAplica: boolean) => {
     if (readonly) return;
@@ -158,7 +169,7 @@ export function IndicadorCard({
         file,
         user.uid,
         resposta?.fotos ?? [],
-        { numero: indicador.numero, indicador: indicador.indicador, bloco: indicador.bloco }
+        { numero: indicador.numero, indicador: indicador.indicador, bloco: indicador.bloco },
       );
     } catch {
       toast.error('Erro ao enviar arquivo');
@@ -180,7 +191,7 @@ export function IndicadorCard({
         file,
         user.uid,
         resposta?.fotos ?? [],
-        { numero: indicador.numero, indicador: indicador.indicador, bloco: indicador.bloco }
+        { numero: indicador.numero, indicador: indicador.indicador, bloco: indicador.bloco },
       );
     } catch {
       toast.error('Erro ao enviar foto');
@@ -194,10 +205,10 @@ export function IndicadorCard({
     setValidating(true);
     setIaResult(null);
     try {
-      const fn = httpsCallable<any, { veredito: string; justificativa: string; confianca: number; sugestao: string | null }>(
-        functions,
-        'validateEvidenciaIA',
-      );
+      const fn = httpsCallable<
+        any,
+        { veredito: string; justificativa: string; confianca: number; sugestao: string | null }
+      >(functions, 'validateEvidenciaIA');
       const result = await fn({
         labId,
         auditoriaId,
@@ -220,11 +231,22 @@ export function IndicadorCard({
   const canUpload = fotos.length < MAX_ANEXOS;
 
   return (
-    <div className={`bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-5 space-y-4 ${readonly ? 'opacity-75' : ''}`}>
+    <div
+      className={`bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-5 space-y-4 ${readonly ? 'opacity-75' : ''}`}
+    >
       {readonly && (
         <div className="text-[10px] text-slate-500 dark:text-white/40 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded px-2 py-1 inline-flex items-center gap-1">
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-slate-400">
-            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+          <svg
+            width="12"
+            height="12"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className="text-slate-400"
+          >
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0110 0v4" />
           </svg>
           Auditoria finalizada — somente leitura
         </div>
@@ -274,7 +296,11 @@ export function IndicadorCard({
       {showObs ? (
         <div>
           <textarea
-            placeholder={resposta?.critica === 'NÃO CONFORME' ? 'Justifique a não conformidade (obrigatório)' : 'Observações (opcional)'}
+            placeholder={
+              resposta?.critica === 'NÃO CONFORME'
+                ? 'Justifique a não conformidade (obrigatório)'
+                : 'Observações (opcional)'
+            }
             rows={2}
             value={obs}
             onChange={(e) => setObs(e.target.value)}
@@ -283,7 +309,9 @@ export function IndicadorCard({
             className="w-full bg-slate-50 border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.06] rounded-lg px-3 py-2 text-sm text-slate-700 dark:text-white/70 placeholder:text-slate-400 dark:placeholder:text-white/20 resize-none focus:outline-none focus:border-violet-500/40"
           />
           {resposta?.critica === 'NÃO CONFORME' && !obs.trim() && (
-            <p className="text-xs text-red-500 dark:text-red-400 mt-1">Justifique a não conformidade</p>
+            <p className="text-xs text-red-500 dark:text-red-400 mt-1">
+              Justifique a não conformidade
+            </p>
           )}
         </div>
       ) : (
@@ -329,20 +357,59 @@ export function IndicadorCard({
               {isImage ? (
                 <img src={foto.url} alt={foto.nome} className="w-full h-full object-cover" />
               ) : isPdf ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-red-400">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M9 15h6M9 11h6" />
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-red-400"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M9 15h6M9 11h6" />
                 </svg>
               ) : isDoc ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-blue-400">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M9 13h6M9 17h4" />
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-blue-400"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M9 13h6M9 17h4" />
                 </svg>
               ) : isXls ? (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-emerald-400">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /><path d="M9 13l6 6M15 13l-6 6" />
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-emerald-400"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <path d="M14 2v6h6" />
+                  <path d="M9 13l6 6M15 13l-6 6" />
                 </svg>
               ) : (
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-400">
-                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" />
+                <svg
+                  width="20"
+                  height="20"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-slate-400"
+                >
+                  <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                  <path d="M14 2v6h6" />
                 </svg>
               )}
             </a>
@@ -357,7 +424,15 @@ export function IndicadorCard({
               {uploading ? (
                 <div className="w-4 h-4 border-2 border-slate-200 dark:border-white/20 border-t-violet-400 rounded-full animate-spin" />
               ) : (
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-400 dark:text-white/40">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-slate-400 dark:text-white/40"
+                >
                   <path d="M8 3v10M3 8h10" />
                 </svg>
               )}
@@ -374,7 +449,15 @@ export function IndicadorCard({
                 className={`w-12 h-12 rounded-md border border-dashed border-slate-300 dark:border-white/[0.12] flex items-center justify-center cursor-pointer hover:border-emerald-500/40 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                 title="Tirar foto"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-400 dark:text-white/40">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-slate-400 dark:text-white/40"
+                >
                   <rect x="2" y="4" width="12" height="9" rx="2" />
                   <circle cx="8" cy="8.5" r="2.5" />
                   <path d="M5.5 4L6.5 2h3l1 2" />
@@ -394,7 +477,15 @@ export function IndicadorCard({
                 className={`w-12 h-12 rounded-md border border-dashed border-slate-300 dark:border-white/[0.12] flex items-center justify-center hover:border-emerald-500/40 transition-colors ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
                 title="Tirar foto (webcam)"
               >
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-400 dark:text-white/40">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  className="text-slate-400 dark:text-white/40"
+                >
                   <rect x="2" y="4" width="12" height="9" rx="2" />
                   <circle cx="8" cy="8.5" r="2.5" />
                   <path d="M5.5 4L6.5 2h3l1 2" />
@@ -414,7 +505,15 @@ export function IndicadorCard({
             disabled={validating}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-violet-50 hover:bg-violet-100 text-violet-700 border border-violet-200 dark:bg-violet-500/10 dark:hover:bg-violet-500/15 dark:text-violet-400 dark:border-violet-500/20 transition-colors disabled:opacity-50"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              className="shrink-0"
+            >
               <path d="M12 2l2.4 7.4H22l-6 4.6 2.3 7L12 16.4 5.7 21l2.3-7L2 9.4h7.6z" />
             </svg>
             {validating ? 'Validando...' : iaResult ? 'Revalidar IA' : 'Validar com IA'}
@@ -427,16 +526,29 @@ export function IndicadorCard({
                 onClick={() => setShowIaDetail((v) => !v)}
                 className="inline-flex items-center gap-1.5"
               >
-                <span className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
-                  iaResult.veredito === 'adequada' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400' :
-                  iaResult.veredito === 'parcial' ? 'bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400' :
-                  iaResult.veredito === 'inadequada' ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400' :
-                  'bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-white/60'
-                }`}>
+                <span
+                  className={`text-[11px] font-medium px-2 py-0.5 rounded-full ${
+                    iaResult.veredito === 'adequada'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400'
+                      : iaResult.veredito === 'parcial'
+                        ? 'bg-amber-100 text-amber-700 dark:bg-amber-400/10 dark:text-amber-400'
+                        : iaResult.veredito === 'inadequada'
+                          ? 'bg-red-100 text-red-700 dark:bg-red-500/10 dark:text-red-400'
+                          : 'bg-slate-100 text-slate-600 dark:bg-white/[0.06] dark:text-white/60'
+                  }`}
+                >
                   IA: {iaResult.veredito.charAt(0).toUpperCase() + iaResult.veredito.slice(1)}
                   {iaResult.confianca < 0.7 && ' (baixa confiança)'}
                 </span>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className={`text-slate-400 transition-transform ${showIaDetail ? 'rotate-180' : ''}`}>
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  className={`text-slate-400 transition-transform ${showIaDetail ? 'rotate-180' : ''}`}
+                >
                   <polyline points="6 9 12 15 18 9" />
                 </svg>
               </button>
@@ -445,7 +557,9 @@ export function IndicadorCard({
                 <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-lg px-3 py-2 text-xs text-slate-600 dark:text-white/60 space-y-1">
                   <p>{iaResult.justificativa}</p>
                   {iaResult.sugestao && (
-                    <p className="text-violet-600 dark:text-violet-400">Sugestão: {iaResult.sugestao}</p>
+                    <p className="text-violet-600 dark:text-violet-400">
+                      Sugestão: {iaResult.sugestao}
+                    </p>
                   )}
                 </div>
               )}

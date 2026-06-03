@@ -79,17 +79,12 @@ export const useAnalyticsStore = create<AnalyticsStoreState>((set) => ({
 
 // ─── Atomic selectors (avoid new object references on every render) ───────────
 
-export const useAnalyticsAggregate = () =>
-  useAnalyticsStore((s) => s.aggregate);
+export const useAnalyticsAggregate = () => useAnalyticsStore((s) => s.aggregate);
 
-export const useAnalyticsMetadata = () =>
-  useAnalyticsStore((s) => s.metadata);
+export const useAnalyticsMetadata = () => useAnalyticsStore((s) => s.metadata);
 
-export const useAnalyticsLoading = () =>
-  useAnalyticsStore((s) => s.loading);
+export const useAnalyticsLoading = () => useAnalyticsStore((s) => s.loading);
 
-export const useAnalyticsRefreshing = () =>
-  useAnalyticsStore((s) => s.refreshing);
+export const useAnalyticsRefreshing = () => useAnalyticsStore((s) => s.refreshing);
 
-export const useAnalyticsError = () =>
-  useAnalyticsStore((s) => s.error);
+export const useAnalyticsError = () => useAnalyticsStore((s) => s.error);

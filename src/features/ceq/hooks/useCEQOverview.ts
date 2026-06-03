@@ -51,9 +51,16 @@ export interface CEQOverviewData {
 export function useCEQOverview(): CEQOverviewData {
   const activeLab = useActiveLab();
   const [data, setData] = useState<CEQOverviewData>({
-    totalResultados: 0, satisfatorios: 0, questionaveis: 0, insatisfatorios: 0,
-    pctConformidade: 100, monthlyTrend: [], especialidades: [],
-    insatisfatoriosPendentes: 0, naoConformes: [], loading: true,
+    totalResultados: 0,
+    satisfatorios: 0,
+    questionaveis: 0,
+    insatisfatorios: 0,
+    pctConformidade: 100,
+    monthlyTrend: [],
+    especialidades: [],
+    insatisfatoriosPendentes: 0,
+    naoConformes: [],
+    loading: true,
   });
 
   useEffect(() => {
@@ -62,27 +69,52 @@ export function useCEQOverview(): CEQOverviewData {
 
     async function load() {
       const [resultSnap, participSnap, amostraSnap, ncSnap] = await Promise.all([
-        getDocs(query(collection(db, 'labs', labId, 'ceq-resultados'), where('deletadoEm', '==', null))),
-        getDocs(query(collection(db, 'labs', labId, 'ceq-participacoes'), where('deletadoEm', '==', null))),
-        getDocs(query(collection(db, 'labs', labId, 'ceq-amostras'), where('deletadoEm', '==', null))),
-        getDocs(query(collection(db, 'labs', labId, 'naoConformidades'), where('moduloOrigem', '==', 'ceq'))),
+        getDocs(
+          query(collection(db, 'labs', labId, 'ceq-resultados'), where('deletadoEm', '==', null)),
+        ),
+        getDocs(
+          query(
+            collection(db, 'labs', labId, 'ceq-participacoes'),
+            where('deletadoEm', '==', null),
+          ),
+        ),
+        getDocs(
+          query(collection(db, 'labs', labId, 'ceq-amostras'), where('deletadoEm', '==', null)),
+        ),
+        getDocs(
+          query(
+            collection(db, 'labs', labId, 'naoConformidades'),
+            where('moduloOrigem', '==', 'ceq'),
+          ),
+        ),
       ]);
 
-      const resultados = resultSnap.docs.map(d => ({ id: d.id, ...d.data() } as Record<string, any>));
-      const participacoes = participSnap.docs.map(d => ({ id: d.id, ...d.data() } as Record<string, any>));
-      const amostras = amostraSnap.docs.map(d => ({ id: d.id, ...d.data() } as Record<string, any>));
+      const resultados = resultSnap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as Record<string, any>,
+      );
+      const participacoes = participSnap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as Record<string, any>,
+      );
+      const amostras = amostraSnap.docs.map(
+        (d) => ({ id: d.id, ...d.data() }) as Record<string, any>,
+      );
 
       // NC lookup: ncId → status
       const ncMap = new Map<string, { status: string }>();
-      ncSnap.docs.forEach(d => ncMap.set(d.id, { status: d.data().status }));
+      ncSnap.docs.forEach((d) => ncMap.set(d.id, { status: d.data().status }));
 
       const total = resultados.length;
-      const sat = resultados.filter(r => r.interpretacao === 'satisfatoria').length;
-      const quest = resultados.filter(r => r.interpretacao === 'questionavel').length;
-      const insat = resultados.filter(r => r.interpretacao === 'insatisfatoria').length;
-      const pendentes = resultados.filter(r => r.interpretacao === 'insatisfatoria' && !r.ncAutomaticaCriadaId).length;
+      const sat = resultados.filter((r) => r.interpretacao === 'satisfatoria').length;
+      const quest = resultados.filter((r) => r.interpretacao === 'questionavel').length;
+      const insat = resultados.filter((r) => r.interpretacao === 'insatisfatoria').length;
+      const pendentes = resultados.filter(
+        (r) => r.interpretacao === 'insatisfatoria' && !r.ncAutomaticaCriadaId,
+      ).length;
 
-      const byMonth = new Map<string, { total: number; sat: number; quest: number; insat: number; zSum: number }>();
+      const byMonth = new Map<
+        string,
+        { total: number; sat: number; quest: number; insat: number; zSum: number }
+      >();
       for (const r of resultados) {
         const ts = r.criadoEm?.toDate?.() ?? new Date((r.criadoEm?.seconds ?? 0) * 1000);
         const key = ts.getFullYear() + '-' + String(ts.getMonth() + 1).padStart(2, '0');
@@ -98,8 +130,11 @@ export function useCEQOverview(): CEQOverviewData {
       const monthlyTrend: CEQMonthSummary[] = [...byMonth.entries()]
         .sort(([a], [b]) => a.localeCompare(b))
         .map(([month, m]) => ({
-          month, total: m.total, satisfatorios: m.sat,
-          questionaveis: m.quest, insatisfatorios: m.insat,
+          month,
+          total: m.total,
+          satisfatorios: m.sat,
+          questionaveis: m.quest,
+          insatisfatorios: m.insat,
           avgZScore: m.total > 0 ? Math.round((m.zSum / m.total) * 100) / 100 : 0,
         }));
 
@@ -110,10 +145,14 @@ export function useCEQOverview(): CEQOverviewData {
       const amostraMap = new Map<string, { rodada: number; ano: number }>();
       for (const a of amostras) amostraMap.set(a.id, { rodada: a.rodada, ano: a.ano });
 
-      const byEsp = new Map<string, { rodadas: Set<string>; total: number; sat: number; worstZ: number }>();
+      const byEsp = new Map<
+        string,
+        { rodadas: Set<string>; total: number; sat: number; worstZ: number }
+      >();
       for (const r of resultados) {
         const esquema = pidToEsquema.get(r.ceqParticipacaoId) || 'desconhecido';
-        if (!byEsp.has(esquema)) byEsp.set(esquema, { rodadas: new Set(), total: 0, sat: 0, worstZ: 0 });
+        if (!byEsp.has(esquema))
+          byEsp.set(esquema, { rodadas: new Set(), total: 0, sat: 0, worstZ: 0 });
         const e = byEsp.get(esquema)!;
         e.total++;
         e.rodadas.add(r.ceqAmostraId);
@@ -122,19 +161,22 @@ export function useCEQOverview(): CEQOverviewData {
         if (absZ > e.worstZ) e.worstZ = absZ;
       }
 
-      const especialidades: CEQEspecialidadeSummary[] = [...byEsp.entries()].map(([esquema, e]) => ({
-        esquema,
-        rodadas: e.rodadas.size,
-        resultados: e.total,
-        pctConformidade: e.total > 0 ? Math.round((e.sat / e.total) * 100) : 100,
-        worstZ: Math.round(e.worstZ * 100) / 100,
-        conceitoGeral: e.worstZ >= 3 ? 'I' as const : e.worstZ >= 2 ? 'A' as const : 'B' as const,
-      }));
+      const especialidades: CEQEspecialidadeSummary[] = [...byEsp.entries()].map(
+        ([esquema, e]) => ({
+          esquema,
+          rodadas: e.rodadas.size,
+          resultados: e.total,
+          pctConformidade: e.total > 0 ? Math.round((e.sat / e.total) * 100) : 100,
+          worstZ: Math.round(e.worstZ * 100) / 100,
+          conceitoGeral:
+            e.worstZ >= 3 ? ('I' as const) : e.worstZ >= 2 ? ('A' as const) : ('B' as const),
+        }),
+      );
 
       // Build naoConformes list (only truly non-conforming: |Z| >= 2)
       const naoConformes: CEQNaoConformeItem[] = resultados
-        .filter(r => Math.abs(r.zScore ?? 0) >= 2)
-        .map(r => {
+        .filter((r) => Math.abs(r.zScore ?? 0) >= 2)
+        .map((r) => {
           const ncId = r.ncAutomaticaCriadaId || null;
           const ncInfo = ncId ? ncMap.get(ncId) : null;
           const amostraInfo = amostraMap.get(r.ceqAmostraId);
@@ -156,14 +198,20 @@ export function useCEQOverview(): CEQOverviewData {
         .sort((a, b) => b.criadoEm.getTime() - a.criadoEm.getTime());
 
       setData({
-        totalResultados: total, satisfatorios: sat, questionaveis: quest, insatisfatorios: insat,
+        totalResultados: total,
+        satisfatorios: sat,
+        questionaveis: quest,
+        insatisfatorios: insat,
         pctConformidade: total > 0 ? Math.round((sat / total) * 100) : 100,
-        monthlyTrend, especialidades, insatisfatoriosPendentes: pendentes,
-        naoConformes, loading: false,
+        monthlyTrend,
+        especialidades,
+        insatisfatoriosPendentes: pendentes,
+        naoConformes,
+        loading: false,
       });
     }
 
-    load().catch(() => setData(prev => ({ ...prev, loading: false })));
+    load().catch(() => setData((prev) => ({ ...prev, loading: false })));
   }, [activeLab]);
 
   return data;

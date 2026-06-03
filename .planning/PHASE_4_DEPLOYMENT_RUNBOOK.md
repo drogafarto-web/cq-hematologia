@@ -106,7 +106,7 @@ Before proceeding, verify:
   ✓ All Firebase infrastructure ready (rules, indexes, secrets)
   ✓ All performance metrics within target
   ✓ Team available and on-call rotation active
-  
+
 If ANY item is not ✓, STOP and fix before proceeding.
 ```
 
@@ -133,6 +133,7 @@ curl -s https://hmatologia2.web.app/portal/auth | grep -o '<title>.*</title>'
 ```
 
 **If hosting deploy fails:**
+
 - Check build output for errors
 - Run `npm run build` locally to reproduce
 - Do NOT retry deploy until error is fixed
@@ -172,6 +173,7 @@ gcloud firestore indexes list --project hmatologia2 | grep notivisa
 ```
 
 **If rule deploy fails:**
+
 - Check syntax: `firebase emulator:start --only firestore` then `npm run test:firestore-rules`
 - If syntax error: fix in code, redeploy
 - Do NOT proceed to functions until rules are valid
@@ -204,6 +206,7 @@ gcloud functions list --project hmatologia2 --region southamerica-east1 | grep n
 ```
 
 **If function deploy fails:**
+
 - Check Cloud Logs for errors: `gcloud functions log list --project hmatologia2 --region southamerica-east1`
 - If TypeScript error: fix in code, rebuild, redeploy
 - If runtime error: check function logs, fix code, redeploy
@@ -282,6 +285,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **If any smoke test fails:**
+
 1. **STOP all further deployment**
 2. Investigate specific failure
 3. Fix in code or infrastructure
@@ -290,6 +294,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 6. Do NOT proceed to monitoring until all 10 pass
 
 **If 8/10 pass (non-critical failures):**
+
 - If failures are in non-critical items (e.g., "Anvisa credentials WARN"), you may proceed
 - Document which items are expected to WARN in Phase 4
 - Re-check those items in Phase 12 (real gov API)
@@ -301,22 +306,26 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ### Hour 1: Immediate Health Check (08:45–09:45 UTC-3)
 
 **Dashboard 1: Portal Auth Health**
+
 - [ ] Auth success rate >99% (check: token generation rate, email delivery)
 - [ ] Login latency <500ms p95
 - [ ] No spike in failed login attempts (baseline: <1% errors)
 - [ ] Session duration stable (no unexpected timeouts)
 
 **Dashboard 2: NOTIVISA Queue Health**
+
 - [ ] Queue entries: 0 pending >15 minutes (expected 0 in Phase 4 since rollout=0%)
 - [ ] Processor function healthy (no errors in Cloud Logs)
 - [ ] Draft submission form loads <2s
 
 **Dashboard 3: Firestore Access**
+
 - [ ] Patient read latency <500ms p95
 - [ ] Laudo query latency <1s p95
 - [ ] Index usage: confirm new indexes hit (no collection scans)
 
 **Dashboard 4: System Health**
+
 - [ ] Error rate <0.1% (baseline)
 - [ ] Function execution time p90 <2s
 - [ ] No unhandled exceptions in Cloud Logs
@@ -328,6 +337,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ### Hour 2–3: Detailed Scenario Validation (09:45–11:45 UTC-3)
 
 **Scenario 1: Portal Auth Flow**
+
 ```
 1. Navigate to https://hmatologia2.web.app/portal/auth
 2. Enter test patient email
@@ -339,6 +349,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **Scenario 2: Create NOTIVISA Draft (0% rollout)**
+
 ```
 1. Login as Auditor
 2. Navigate to /portal/notivisa
@@ -348,6 +359,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **Scenario 3: NOTIVISA Queue Processor Healthcheck**
+
 ```
 1. Check Cloud Logs: gcloud logging read "functionName=notivisaQueueProcessor" \
      --project hmatologia2 --limit 10
@@ -357,6 +369,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **Scenario 4: Laudo Read Access Performance**
+
 ```
 1. Login as Auditor
 2. Navigate to /portal/dashboard
@@ -367,6 +380,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **Scenario 5: Portal UI Responsiveness**
+
 ```
 1. Test on desktop: 1920×1080
 2. Test on tablet: 768×1024
@@ -376,6 +390,7 @@ bash .planning/scripts/phase-4-smoke-test.sh
 ```
 
 **Scenario 6: Error Handling**
+
 ```
 1. Stop internet connection (or DevTools throttle)
 2. Try to load /portal/dashboard
@@ -423,17 +438,17 @@ gcloud logging read "resource.type=firestore AND textPayload=~'.*Permission.*den
 
 **Sign off on deployment SUCCESS only if ALL criteria met:**
 
-| Criterion | Target | Status | Evidence |
-|-----------|--------|--------|----------|
-| P0 alerts fired | 0 | [ ] | Cloud Logs review |
-| Unhandled exceptions | 0 | [ ] | Error logs search |
-| Auth success rate | >99% | [ ] | Dashboard 1 |
-| Portal laudo load | <2s LCP | [ ] | Browser DevTools |
-| NOTIVISA queue healthy | No errors | [ ] | Cloud Logs check |
-| Firestore latency p95 | <500ms | [ ] | Dashboard 3 |
-| System error rate | <0.1% | [ ] | Dashboard 4 |
-| Bundle size | <365 KB | [ ] | Build artifact |
-| Smoke test | 10/10 pass | [ ] | Automated test log |
+| Criterion              | Target     | Status | Evidence           |
+| ---------------------- | ---------- | ------ | ------------------ |
+| P0 alerts fired        | 0          | [ ]    | Cloud Logs review  |
+| Unhandled exceptions   | 0          | [ ]    | Error logs search  |
+| Auth success rate      | >99%       | [ ]    | Dashboard 1        |
+| Portal laudo load      | <2s LCP    | [ ]    | Browser DevTools   |
+| NOTIVISA queue healthy | No errors  | [ ]    | Cloud Logs check   |
+| Firestore latency p95  | <500ms     | [ ]    | Dashboard 3        |
+| System error rate      | <0.1%      | [ ]    | Dashboard 4        |
+| Bundle size            | <365 KB    | [ ]    | Build artifact     |
+| Smoke test             | 10/10 pass | [ ]    | Automated test log |
 
 ---
 
@@ -480,12 +495,12 @@ Signed: [Name] | [Date/Time UTC-3]
 
 ## Emergency Contacts
 
-| Role | Name | Phone | Slack |
-|------|------|-------|-------|
-| Incident Commander | CTO | +55 11 99999-9999 | @cto |
-| On-Call Engineer #1 | [Name] | +55 11 99999-9999 | @oncall-1 |
-| On-Call Engineer #2 | [Name] | +55 11 99999-9999 | @oncall-2 |
-| Tech Lead | [Name] | +55 11 99999-9999 | @tech-lead |
+| Role                | Name   | Phone             | Slack      |
+| ------------------- | ------ | ----------------- | ---------- |
+| Incident Commander  | CTO    | +55 11 99999-9999 | @cto       |
+| On-Call Engineer #1 | [Name] | +55 11 99999-9999 | @oncall-1  |
+| On-Call Engineer #2 | [Name] | +55 11 99999-9999 | @oncall-2  |
+| Tech Lead           | [Name] | +55 11 99999-9999 | @tech-lead |
 
 ---
 
@@ -496,6 +511,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** `firebase deploy --only hosting` returns error
 
 **Steps:**
+
 1. Check build: `npm run build` (should complete without errors)
 2. Check bundle size: `du -h dist/index.js` (should be <365 KB)
 3. Try again: `firebase deploy --only hosting --project hmatologia2`
@@ -505,6 +521,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** `firebase deploy --only functions` times out or errors
 
 **Steps:**
+
 1. Check functions build: `cd functions && npm run build`
 2. Verify secrets: `bash scripts/preflight-secrets-check.sh`
 3. Try deploying one function at a time:
@@ -523,6 +540,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** Indexes still "Building" after 10 minutes
 
 **Steps:**
+
 1. This is normal — index creation can take 5–15 minutes
 2. Monitor: `gcloud firestore indexes list --project hmatologia2`
 3. Do NOT rollback — wait for indexes to finish
@@ -533,6 +551,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** Smoke test script returns failures
 
 **Steps:**
+
 1. Run each test manually to identify the failure
 2. Check specific error: `bash .planning/scripts/phase-4-smoke-test.sh 2>&1 | grep FAIL`
 3. Fix the underlying issue (code, config, or infrastructure)

@@ -16,6 +16,7 @@ contact: Testing Orchestrator
 **Scope:** 96 E2E scenarios across 4 waves (Wave 2–4), 22 weeks (2026-05-20 → 2026-08-31)
 
 **Quality Commitment:**
+
 - ✅ **32/32 E2E PASS per wave** (100% required, 0% tolerance for P0 regressions)
 - ✅ **0 test/deployment conflicts** (scheduled non-overlapping)
 - ✅ **<2% flaky rate** (flag & mitigate immediately)
@@ -26,12 +27,12 @@ contact: Testing Orchestrator
 
 ## Deliverables Completed (2026-05-07)
 
-| Deliverable | Location | Status | Owner |
-|---|---|---|---|
-| **E2E Test Master Matrix** | `.planning/testing/E2E_TEST_MASTER_MATRIX.md` | ✅ | Testing Orchestrator |
-| **Execution Schedule** | `.planning/testing/E2E_EXECUTION_SCHEDULE.md` | ✅ | Testing Orchestrator |
-| **Infrastructure Setup** | `.planning/testing/TEST_INFRASTRUCTURE_SETUP.md` | ✅ | DevOps + QA Lead |
-| **This Summary** | `.planning/testing/TESTING_ORCHESTRATION_SUMMARY.md` | ✅ | Testing Orchestrator |
+| Deliverable                | Location                                             | Status | Owner                |
+| -------------------------- | ---------------------------------------------------- | ------ | -------------------- |
+| **E2E Test Master Matrix** | `.planning/testing/E2E_TEST_MASTER_MATRIX.md`        | ✅     | Testing Orchestrator |
+| **Execution Schedule**     | `.planning/testing/E2E_EXECUTION_SCHEDULE.md`        | ✅     | Testing Orchestrator |
+| **Infrastructure Setup**   | `.planning/testing/TEST_INFRASTRUCTURE_SETUP.md`     | ✅     | DevOps + QA Lead     |
+| **This Summary**           | `.planning/testing/TESTING_ORCHESTRATION_SUMMARY.md` | ✅     | Testing Orchestrator |
 
 ---
 
@@ -41,13 +42,13 @@ contact: Testing Orchestrator
 
 **Timeline:** 2026-05-20 → 2026-06-16 (28 days)
 
-| Phase | Name | E2E Count | Start Date | Deploy Date | Status |
-|-------|------|-----------|-----------|------------|--------|
-| 4 | CAPA Closure & Process | 8 | 2026-05-20 | 2026-05-27 | 📋 |
-| 5 | Patient Portal Phase 1 | 8 | 2026-05-20 *(parallel)* | 2026-06-02 | 📋 |
-| 6 | Critical Values Escalation | 8 | 2026-06-03 | 2026-06-09 | 📋 |
-| 7 | Satisfaction/Feedback Portal | 8 | 2026-06-10 | 2026-06-16 | 📋 |
-| **Wave 2 Gate** | — | **32** | — | **2026-06-16** | **Pre-Phase-8 gate** |
+| Phase           | Name                         | E2E Count | Start Date              | Deploy Date    | Status               |
+| --------------- | ---------------------------- | --------- | ----------------------- | -------------- | -------------------- |
+| 4               | CAPA Closure & Process       | 8         | 2026-05-20              | 2026-05-27     | 📋                   |
+| 5               | Patient Portal Phase 1       | 8         | 2026-05-20 _(parallel)_ | 2026-06-02     | 📋                   |
+| 6               | Critical Values Escalation   | 8         | 2026-06-03              | 2026-06-09     | 📋                   |
+| 7               | Satisfaction/Feedback Portal | 8         | 2026-06-10              | 2026-06-16     | 📋                   |
+| **Wave 2 Gate** | —                            | **32**    | —                       | **2026-06-16** | **Pre-Phase-8 gate** |
 
 **Quality Gate:** All 32 E2E PASS before Phase 8 unblocks (2026-06-17 start)
 
@@ -55,13 +56,13 @@ contact: Testing Orchestrator
 
 **Timeline:** 2026-06-17 → 2026-07-28 (42 days)
 
-| Phase | Name | E2E Count | Start Date | Deploy Date | Status |
-|-------|------|-----------|-----------|------------|--------|
-| 8 | NOTIVISA Integration | 8 | 2026-06-17 | 2026-06-30 | 📋 |
-| 9 | Documentation Hardening | 8 | 2026-06-17 *(parallel)* | 2026-07-07 | 📋 |
-| 10 | Multi-Equipment CIQ | 8 | 2026-07-08 | 2026-07-21 | 📋 |
-| 11 | IA Foundation — Strip OCR | 8 | 2026-07-21 *(parallel)* | 2026-07-28 | 📋 |
-| **Wave 3 Gate** | — | **32** | — | **2026-07-28** | **Pre-Phase-12 gate** |
+| Phase           | Name                      | E2E Count | Start Date              | Deploy Date    | Status                |
+| --------------- | ------------------------- | --------- | ----------------------- | -------------- | --------------------- |
+| 8               | NOTIVISA Integration      | 8         | 2026-06-17              | 2026-06-30     | 📋                    |
+| 9               | Documentation Hardening   | 8         | 2026-06-17 _(parallel)_ | 2026-07-07     | 📋                    |
+| 10              | Multi-Equipment CIQ       | 8         | 2026-07-08              | 2026-07-21     | 📋                    |
+| 11              | IA Foundation — Strip OCR | 8         | 2026-07-21 _(parallel)_ | 2026-07-28     | 📋                    |
+| **Wave 3 Gate** | —                         | **32**    | —                       | **2026-07-28** | **Pre-Phase-12 gate** |
 
 **Quality Gate:** All 32 E2E PASS before Phase 12 unblocks (2026-07-29 start)
 
@@ -69,13 +70,13 @@ contact: Testing Orchestrator
 
 **Timeline:** 2026-07-29 → 2026-08-31 (34 days)
 
-| Phase | Name | E2E Count | Start Date | Deploy Date | Status |
-|-------|------|-----------|-----------|------------|--------|
-| 12 | Performance Audit | 8 | 2026-07-29 | 2026-08-10 | 📋 |
-| 13 | DICQ Final Audit | 8 *(manual)* | 2026-08-11 | 2026-08-20 | 📋 |
-| 14 | Security & Stability | 8 | 2026-08-21 | 2026-08-25 | 📋 |
-| 15 | Launch & Post-Deploy | 8 | 2026-08-26 | 2026-08-31 | 📋 |
-| **Wave 4 Gate** | — | **32** | — | **2026-08-31** | **Ready for external audit** |
+| Phase           | Name                 | E2E Count    | Start Date | Deploy Date    | Status                       |
+| --------------- | -------------------- | ------------ | ---------- | -------------- | ---------------------------- |
+| 12              | Performance Audit    | 8            | 2026-07-29 | 2026-08-10     | 📋                           |
+| 13              | DICQ Final Audit     | 8 _(manual)_ | 2026-08-11 | 2026-08-20     | 📋                           |
+| 14              | Security & Stability | 8            | 2026-08-21 | 2026-08-25     | 📋                           |
+| 15              | Launch & Post-Deploy | 8            | 2026-08-26 | 2026-08-31     | 📋                           |
+| **Wave 4 Gate** | —                    | **32**       | —          | **2026-08-31** | **Ready for external audit** |
 
 **Quality Gate:** All 32 E2E PASS + 19 smoke tests + 0 P0 security findings + external audit readiness
 
@@ -120,6 +121,7 @@ Mon 05-27             → Re-run failed scenarios (<30m)
 - Slack notifications: Pass/fail alerts + weekly summary
 
 **Deploy Gates:**
+
 - Pre-merge: `hcq-deploy-gates` (typecheck + lint + 274 tests + build + smoke-5 flows)
 - Pre-deploy: 8 E2E scenarios per phase (must be 100% pass)
 - Performance gate (Phase 12+): LCP <2.5s, INP <200ms, CLS <0.1
@@ -129,12 +131,15 @@ Mon 05-27             → Re-run failed scenarios (<30m)
 **Wave 1:** ✅ Complete (10 users, 1 lab, 1 equipment, 50 CIQ)
 
 **Wave 2:** 📋 By 2026-05-20
+
 - Auditor account, 10 patient portals, CAPA templates, 12 findings
 
 **Wave 3:** 📋 By 2026-06-17
+
 - NOTIVISA credentials, 50 CIQ records, 80 doc templates, 20 strip images, Analyzer B
 
 **Wave 4:** 📋 By 2026-07-28
+
 - 500 CIQ records (load test), 100 patient accounts, 10 analyzers, historical KPI data
 
 ### 3. Quality Gate Automation
@@ -153,14 +158,17 @@ Dev Complete → Code Freeze → Pre-Merge Gate (hcq-deploy-gates) ✓
 ### 4. Monitoring & Dashboards
 
 **Slack Channels:**
+
 - `#hc-quality-testing` — Real-time E2E alerts + weekly summary
 - `#incidents` — P0/P1 escalations
 
 **Cloud Logging:**
+
 - 24h tail on Cloud Functions (post-deploy Phase 15)
 - Exported to `gs://hmatologia2-test-reports/v1.4-testing/`
 
 **Firestore Metrics Collection:**
+
 - `test-metrics` — Per-scenario results (timestamp, status, duration, errors)
 - Weekly aggregation dashboard (pass rate, flaky tests, timeouts)
 
@@ -170,13 +178,13 @@ Dev Complete → Code Freeze → Pre-Merge Gate (hcq-deploy-gates) ✓
 
 **Threshold:** If any test fails >2 times per scenario across all waves, investigate immediately.
 
-| Root Cause | Mitigation | Owner |
-|---|---|---|
-| Timing (waitFor timeout) | Increase tolerance 50% (5000ms → 7500ms) | QA-Lead |
-| Stale Firestore data | Meta-diff guard before state check | QA-Lead |
-| Modal/UI rendering | Explicit visibility check + conditional wait | QA-Lead |
-| Network flakiness | Retry callable on 5xx; circuit-breaker | Eng |
-| Test isolation | Reset emulator between batches; unique IDs | QA-Lead |
+| Root Cause               | Mitigation                                   | Owner   |
+| ------------------------ | -------------------------------------------- | ------- |
+| Timing (waitFor timeout) | Increase tolerance 50% (5000ms → 7500ms)     | QA-Lead |
+| Stale Firestore data     | Meta-diff guard before state check           | QA-Lead |
+| Modal/UI rendering       | Explicit visibility check + conditional wait | QA-Lead |
+| Network flakiness        | Retry callable on 5xx; circuit-breaker       | Eng     |
+| Test isolation           | Reset emulator between batches; unique IDs   | QA-Lead |
 
 ---
 
@@ -184,12 +192,12 @@ Dev Complete → Code Freeze → Pre-Merge Gate (hcq-deploy-gates) ✓
 
 ### Severity Thresholds
 
-| Risk | Indicator | Threshold | Action |
-|---|---|---|---|
-| **Blocker (P0)** | Any E2E fails after 2 retries | 1 occurrence | Pause wave immediately |
-| **High (P1)** | >2 E2E timeouts in one phase | 1 occurrence | <4h root cause analysis |
-| **Medium (P2)** | 1 flaky E2E (2 failures total) | 2+ per wave | Document + mitigate by phase end |
-| **Low (P3)** | Cloud Logs warning (non-error) | 5+ per wave | Weekly review; may be informational |
+| Risk             | Indicator                      | Threshold    | Action                              |
+| ---------------- | ------------------------------ | ------------ | ----------------------------------- |
+| **Blocker (P0)** | Any E2E fails after 2 retries  | 1 occurrence | Pause wave immediately              |
+| **High (P1)**    | >2 E2E timeouts in one phase   | 1 occurrence | <4h root cause analysis             |
+| **Medium (P2)**  | 1 flaky E2E (2 failures total) | 2+ per wave  | Document + mitigate by phase end    |
+| **Low (P3)**     | Cloud Logs warning (non-error) | 5+ per wave  | Weekly review; may be informational |
 
 ### Escalation Path
 
@@ -198,6 +206,7 @@ E2E Failure → QA-Lead (immediate) → Wave Coordinator (if P0) → CTO (if blo
 ```
 
 **Target Response Times:**
+
 - P0: <30min (pause wave or fix + re-run)
 - P1: <4h (root cause analysis + mitigation)
 - P2: <24h (documentation + plan)
@@ -263,22 +272,23 @@ Wave 4 (Phases 12–15): 2026-08-31
 
 ### By Stream (Eng Teams)
 
-| Stream | Lead | Phases | Channels |
-|--------|------|--------|----------|
-| **Stream A (CAPA)** | Eng-W2-A | 4, 8, 12 | `#stream-a-capa` |
-| **Stream B (Portal)** | Eng-W2-B | 5, 9, 13, 14 | `#stream-b-portal` |
-| **Stream C (Escalation)** | Eng-W2-C | 6, 10 | `#stream-c-escalation` |
-| **Stream D (Satisfaction/IA)** | Eng-W2-D | 7, 11 | `#stream-d-satisfaction-ia` |
-| **QA Lead** | QA-Lead | All | `#hc-quality-testing` |
-| **Security** | SecOps | 4, 8, 14 | `#security` |
-| **DevOps** | DevOps | All deploys | `#devops` |
-| **Auditor** | Auditor | 13 (DICQ) | `#auditor-alignment` |
+| Stream                         | Lead     | Phases       | Channels                    |
+| ------------------------------ | -------- | ------------ | --------------------------- |
+| **Stream A (CAPA)**            | Eng-W2-A | 4, 8, 12     | `#stream-a-capa`            |
+| **Stream B (Portal)**          | Eng-W2-B | 5, 9, 13, 14 | `#stream-b-portal`          |
+| **Stream C (Escalation)**      | Eng-W2-C | 6, 10        | `#stream-c-escalation`      |
+| **Stream D (Satisfaction/IA)** | Eng-W2-D | 7, 11        | `#stream-d-satisfaction-ia` |
+| **QA Lead**                    | QA-Lead  | All          | `#hc-quality-testing`       |
+| **Security**                   | SecOps   | 4, 8, 14     | `#security`                 |
+| **DevOps**                     | DevOps   | All deploys  | `#devops`                   |
+| **Auditor**                    | Auditor  | 13 (DICQ)    | `#auditor-alignment`        |
 
 ### Weekly Standup (Mondays, 10am UTC)
 
 **Attendees:** Wave Coordinator, stream leads, QA-Lead, DevOps
 
 **Agenda (30min):**
+
 1. Last week's wave status (E2E pass rate, flakies, escalations)
 2. This week's execution plan (phase dates, test data readiness)
 3. Any P0/P1 risks or blockers
@@ -288,40 +298,42 @@ Wave 4 (Phases 12–15): 2026-08-31
 
 ## Documentation Index
 
-| Document | Purpose | Updated | Owner |
-|----------|---------|---------|-------|
-| `E2E_TEST_MASTER_MATRIX.md` | All 96 E2E scenarios per phase + quality gates | 2026-05-07 | Testing Orchestrator |
-| `E2E_EXECUTION_SCHEDULE.md` | Weekly execution calendar, no conflicts | 2026-05-07 | Testing Orchestrator |
-| `TEST_INFRASTRUCTURE_SETUP.md` | CI/CD, test data, gates, monitoring | 2026-05-07 | DevOps + QA-Lead |
-| `TESTING_ORCHESTRATION_SUMMARY.md` | This document | 2026-05-07 | Testing Orchestrator |
+| Document                           | Purpose                                        | Updated    | Owner                |
+| ---------------------------------- | ---------------------------------------------- | ---------- | -------------------- |
+| `E2E_TEST_MASTER_MATRIX.md`        | All 96 E2E scenarios per phase + quality gates | 2026-05-07 | Testing Orchestrator |
+| `E2E_EXECUTION_SCHEDULE.md`        | Weekly execution calendar, no conflicts        | 2026-05-07 | Testing Orchestrator |
+| `TEST_INFRASTRUCTURE_SETUP.md`     | CI/CD, test data, gates, monitoring            | 2026-05-07 | DevOps + QA-Lead     |
+| `TESTING_ORCHESTRATION_SUMMARY.md` | This document                                  | 2026-05-07 | Testing Orchestrator |
 
 ---
 
 ## Success Metrics (Target: 2026-08-31)
 
-| Metric | Target | Owner | Verification |
-|--------|--------|-------|--------------|
-| **E2E Pass Rate** | 100% (96/96 PASS) | QA-Lead | Firestore test-metrics dashboard |
-| **Flaky Rate** | <2% | QA-Lead | Weekly flaky test report |
-| **Timeout Rate** | <1% | Eng | E2E metrics aggregation |
-| **Deployment Conflicts** | 0 | DevOps | Schedule audit (no overlaps) |
-| **P0 Escalations** | 0 | Wave Coordinator | Escalation log |
-| **DICQ Coverage** | ≥88% | Auditor | Phase 13 audit memo |
-| **RDC 978 Coverage** | 100% | Auditor | Phase 13 RDC checklist |
-| **Web Vitals** | LCP <2.5s, INP <200ms, CLS <0.1 | Eng-W4-B | Firebase Analytics + Lighthouse |
-| **Smoke Tests (Prod)** | 19/19 PASS | QA-Lead | Phase 15 sign-off |
+| Metric                   | Target                          | Owner            | Verification                     |
+| ------------------------ | ------------------------------- | ---------------- | -------------------------------- |
+| **E2E Pass Rate**        | 100% (96/96 PASS)               | QA-Lead          | Firestore test-metrics dashboard |
+| **Flaky Rate**           | <2%                             | QA-Lead          | Weekly flaky test report         |
+| **Timeout Rate**         | <1%                             | Eng              | E2E metrics aggregation          |
+| **Deployment Conflicts** | 0                               | DevOps           | Schedule audit (no overlaps)     |
+| **P0 Escalations**       | 0                               | Wave Coordinator | Escalation log                   |
+| **DICQ Coverage**        | ≥88%                            | Auditor          | Phase 13 audit memo              |
+| **RDC 978 Coverage**     | 100%                            | Auditor          | Phase 13 RDC checklist           |
+| **Web Vitals**           | LCP <2.5s, INP <200ms, CLS <0.1 | Eng-W4-B         | Firebase Analytics + Lighthouse  |
+| **Smoke Tests (Prod)**   | 19/19 PASS                      | QA-Lead          | Phase 15 sign-off                |
 
 ---
 
 ## Key Dates & Deadlines
 
 ### Phase 4 (CAPA Closure)
+
 - **Code Freeze:** 2026-05-19
 - **E2E Window:** 2026-05-24 → 2026-05-27
 - **Deploy:** 2026-05-27
 - **Unblocks:** Phase 8 (2026-06-17)
 
 ### Phase 8 (NOTIVISA)
+
 - **Code Freeze:** 2026-06-22
 - **E2E Window:** 2026-06-24 → 2026-06-30
 - **NOTIVISA Credentials:** 2026-06-17 (gov provisioning 3–5 days)
@@ -329,6 +341,7 @@ Wave 4 (Phases 12–15): 2026-08-31
 - **Unblocks:** Phase 12 (2026-07-29)
 
 ### Phase 12 (Performance)
+
 - **Code Freeze:** 2026-08-02
 - **E2E Window:** 2026-08-04 → 2026-08-10
 - **Baseline Capture:** 2026-08-04
@@ -336,6 +349,7 @@ Wave 4 (Phases 12–15): 2026-08-31
 - **Unblocks:** Phase 15 (2026-08-26)
 
 ### Phase 15 (Launch)
+
 - **Deployment:** 2026-08-26 → 2026-08-27
 - **24h Cloud Logs Tail:** 2026-08-26 → 2026-08-27
 - **Smoke Tests on Prod:** 2026-08-27
@@ -438,18 +452,13 @@ npm run test:notify -- --phase=4 --status=pass
 db.collection('test-metrics')
   .where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
   .where('status', '==', 'pass')
-  .get()
+  .get();
 
 // Flaky tests (2+ failures)
-db.collection('test-metrics')
-  .where('flaky', '==', true)
-  .get()
+db.collection('test-metrics').where('flaky', '==', true).get();
 
 // By phase summary
-db.collection('test-metrics')
-  .where('phase', '==', 4)
-  .orderBy('timestamp', 'desc')
-  .get()
+db.collection('test-metrics').where('phase', '==', 4).orderBy('timestamp', 'desc').get();
 ```
 
 ### Slack Channels
@@ -461,4 +470,3 @@ db.collection('test-metrics')
 - `#stream-d-satisfaction-ia` — Stream D (NPS + IA)
 - `#incidents` — P0/P1 escalations
 - `#auditor-alignment` — DICQ/RDC compliance reviews
-

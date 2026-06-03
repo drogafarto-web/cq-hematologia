@@ -11,6 +11,7 @@
 Wave 2–10 built the test-mode NOTIVISA lifecycle (draft → approve → submit → queue). Wave 3.3 replaces the synthetic responder with a real HTTP client that communicates with the Brazilian government's NOTIVISA API.
 
 **Key changes**:
+
 1. Create `NotivisaHTTPClient` (fetch-based, exponential backoff, audit logging)
 2. Implement payload builder (laudo → NOTIVISA schema)
 3. Add `submitNotivisaDraftHTTP` callable (real HTTP submission)
@@ -27,6 +28,7 @@ Wave 2–10 built the test-mode NOTIVISA lifecycle (draft → approve → submit
 **Class**: `NotivisaHTTPClient`
 
 **Methods**:
+
 ```typescript
 async submitDraft(draftId, payload): { statusId, submittedAt } | { status: 'error', reason }
 async checkStatus(statusId): { status, reason? } | { status: 'error', reason }
@@ -34,6 +36,7 @@ async retrieveApproval(statusId): { approvalId, approvedAt, certificateUrl } | {
 ```
 
 **Key properties**:
+
 - Timeout: 30 seconds per request
 - Retries: Up to 5 attempts with exponential backoff (2^n seconds: 1, 2, 4, 8, 16)
 - Error handling: Returns error objects, never throws on HTTP failures
@@ -41,6 +44,7 @@ async retrieveApproval(statusId): { approvalId, approvedAt, certificateUrl } | {
 - Headers: `Authorization: Bearer {apiKey}`, `Content-Type: application/json`
 
 **Retry logic**:
+
 - Retryable: 5xx errors, 429 (rate limit), timeouts, network errors
 - Non-retryable: 4xx errors (except 429), validation failures
 - Backoff: 1s → 2s → 4s → 8s → 16s
@@ -50,12 +54,14 @@ async retrieveApproval(statusId): { approvalId, approvedAt, certificateUrl } | {
 **Function**: `buildNotivisaPayload(laudo: LaudoDoc, lab: LabDoc): Promise<NotivisaPayload>`
 
 **Responsibilities**:
+
 - Validate laudo + lab data (CPF format, result count, signature)
 - Map laudo fields → NOTIVISA schema (versao, laudo_id, paciente_cpf, data_resultado, resultados, assinador)
 - Zod validation (strict, no unknowns)
 - Audit log on success: `NOTIVISA_PAYLOAD_CREATED`
 
 **Validations**:
+
 - pacienteCpf: 11 digits, matches `^\d{11}$`
 - operatorCpf: 11 digits, matches `^\d{11}$`
 - resultados: at least 1 result
@@ -64,11 +70,13 @@ async retrieveApproval(statusId): { approvalId, approvedAt, certificateUrl } | {
 ### 3. Callable: Submit via HTTP (`functions/src/modules/notivisa/callables/submitNotivisaDraftHTTP.ts`)
 
 **Signature**:
+
 ```typescript
 submitNotivisaDraftHTTP({ labId, draftId }): { ok: true, statusId, submittedAt } | { ok: false, error, code }
 ```
 
 **Flow**:
+
 1. Validate authorization (RT or admin, must be member of lab)
 2. Fetch draft from Firestore (status must be 'approved')
 3. Fetch laudo from Firestore
@@ -78,6 +86,7 @@ submitNotivisaDraftHTTP({ labId, draftId }): { ok: true, statusId, submittedAt }
 7. Audit log: `NOTIVISA_DRAFT_SUBMITTED_HTTP`
 
 **Error codes**:
+
 - `DRAFT_NOT_FOUND`: Draft doesn't exist or is deleted
 - `LAUDO_NOT_FOUND`: Associated laudo missing
 - `INVALID_PAYLOAD`: Payload validation failed
@@ -85,6 +94,7 @@ submitNotivisaDraftHTTP({ labId, draftId }): { ok: true, statusId, submittedAt }
 - `INTERNAL_ERROR`: Unexpected server error
 
 **Secrets**:
+
 - `NOTIVISA_SANDBOX_KEY`: Sandbox API key
 - `NOTIVISA_SANDBOX_URL`: Sandbox API base URL
 - `NOTIVISA_PROD_KEY`: Production API key
@@ -99,6 +109,7 @@ For now, all labs use sandbox. Phase 8 will add per-lab routing based on `labs/{
 **Timezone**: `America/Sao_Paulo`
 
 **Flow**:
+
 1. Query all drafts with `status: 'submitted-http'` (across all labs via `collectionGroup`)
 2. For each draft (max 100 per cycle):
    - Call `checkStatus(statusId)`
@@ -108,6 +119,7 @@ For now, all labs use sandbox. Phase 8 will add per-lab routing based on `labs/{
 3. Log cycle summary (approved, rejected, pending, errors)
 
 **Fields updated on draft**:
+
 - `status`: 'submitted-http' → 'approved-http' | 'rejected-http' | 'poll-timeout'
 - `notivisaPollCount`: incremented each cycle
 - `notivisaApprovedAt`: timestamp when approved
@@ -123,6 +135,7 @@ For now, all labs use sandbox. Phase 8 will add per-lab routing based on `labs/{
 ### Draft Collection (`notivisa-drafts/{labId}/drafts/{draftId}`)
 
 **New fields** (after HTTP submission):
+
 ```typescript
 status: 'submitted-http' | 'approved-http' | 'rejected-http' | 'poll-timeout'
 notivisaStatusId: string // ID for polling government status
@@ -172,23 +185,28 @@ If secrets are not set, functions use placeholder strings like `PENDING_SET_NOTI
 ## Deployment Order
 
 1. **Type-check + build**
+
    ```bash
    npx tsc --noEmit && npm run build
    ```
 
 2. **Provision secrets** (BEFORE deploying functions)
+
    ```bash
    firebase functions:secrets:set NOTIVISA_SANDBOX_KEY --project hmatologia2
    firebase functions:secrets:set NOTIVISA_SANDBOX_URL --project hmatologia2
    ```
 
 3. **Pre-deploy gate**
+
    ```bash
    bash scripts/preflight-secrets-check.sh
    ```
+
    Must exit 0. If not, provide the missing secrets from step 2.
 
 4. **Deploy functions**
+
    ```bash
    firebase deploy --only functions:submitNotivisaDraftHTTP,functions:pollNotivisaStatus --project hmatologia2
    ```
@@ -212,6 +230,7 @@ If secrets are not set, functions use placeholder strings like `PENDING_SET_NOTI
 If the HTTP client fails in production:
 
 1. **Immediate**: Set `NOTIVISA_MODE=test` environment variable (reverts to test-mode synthetic responder)
+
    ```bash
    firebase functions:config:set notivisa.mode=test --project hmatologia2
    # Or redeploy with env var in functions/lib/index.js
@@ -230,6 +249,7 @@ If the HTTP client fails in production:
 ### Unit Tests (`functions/src/modules/notivisa/http/client.test.ts`)
 
 12 tests covering:
+
 1. Happy path: submitDraft succeeds
 2. Retry on 5xx
 3. No retry on 4xx
@@ -254,10 +274,12 @@ Manual smoke test (see Deployment Order, step 5).
 ## Compliance + Audit Trail
 
 Every HTTP call is logged:
+
 - Success: Implicit in audit log `NOTIVISA_DRAFT_SUBMITTED_HTTP` (includes statusId)
 - Failure: `NOTIVISA_SUBMIT_FAILED`, `NOTIVISA_CHECK_STATUS_FAILED`, `NOTIVISA_POLL_CYCLE_COMPLETE`
 
 Audit logs include:
+
 - `action`: Operation type (e.g., 'NOTIVISA_DRAFT_SUBMITTED_HTTP')
 - `callerUid`: User who triggered submission
 - `labId`: Lab context
@@ -290,6 +312,7 @@ Audit logs include:
 ## Files Created / Modified
 
 **Created**:
+
 - `functions/src/modules/notivisa/http/client.ts` (NotivisaHTTPClient)
 - `functions/src/modules/notivisa/http/payloadBuilder.ts` (buildNotivisaPayload)
 - `functions/src/modules/notivisa/callables/submitNotivisaDraftHTTP.ts` (callable)
@@ -298,9 +321,11 @@ Audit logs include:
 - `proposed-changes/wave3-3-notivisa-http-client.md` (this doc)
 
 **Modified**:
+
 - `functions/src/modules/notivisa/types.ts` (added NotivisaDraftPayload, NotivisaStatusResponse, NotivisaApprovalResponse)
 
 **Not modified** (yet):
+
 - Firestore rules (no new rules needed; existing draft collection rules already support HTTP submission flow)
 - Cloud function index in `functions/src/index.ts` (will be auto-linked by deployment)
 

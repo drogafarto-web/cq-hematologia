@@ -67,22 +67,14 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       }
 
       // 2. Parse payload
-      const {
-        base64,
-        mimeType,
-        testType,
-        labId,
-        captureId,
-        operatorId,
-        patientId,
-        promptVariant,
-      } = request.data as ClassifyStripPayload;
+      const { base64, mimeType, testType, labId, captureId, operatorId, patientId, promptVariant } =
+        request.data as ClassifyStripPayload;
 
       // 3. Validate required fields
       if (!base64 || !mimeType || !testType || !labId || !captureId || !operatorId || !patientId) {
         throw new HttpsError(
           'invalid-argument',
-          'Missing required: base64, mimeType, testType, labId, captureId, operatorId, patientId'
+          'Missing required: base64, mimeType, testType, labId, captureId, operatorId, patientId',
         );
       }
 
@@ -99,7 +91,10 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       // 6. Verify lab membership
       const memberDoc = await admin.firestore().doc(`labs/${labId}/members/${operatorId}`).get();
       if (!memberDoc.exists) {
-        throw new HttpsError('permission-denied', `Operator ${operatorId} not member of lab ${labId}`);
+        throw new HttpsError(
+          'permission-denied',
+          `Operator ${operatorId} not member of lab ${labId}`,
+        );
       }
 
       const memberData = memberDoc.data();
@@ -152,7 +147,7 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
         stripped.base64,
         mimeType,
         testType,
-        selectedVariant
+        selectedVariant,
       );
       const geminiLatencyMs = Date.now() - startTime;
 
@@ -231,7 +226,7 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       // 17. Non-blocking cost tracking write
       const costEstimate = estimateGeminiCost(
         geminiResult.tokensUsed?.input || 0,
-        geminiResult.tokensUsed?.output || 0
+        geminiResult.tokensUsed?.output || 0,
       );
       const todayKey = getTodayKey();
 
@@ -245,14 +240,17 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
         })
         .catch(() => {
           // Create if not exists
-          admin.firestore().doc(`imuno-ia-cost/${labId}/daily/${todayKey}`).set({
-            labId,
-            dateKey: todayKey,
-            callCount: 1,
-            estimatedCost: costEstimate,
-            tokensUsed: geminiResult.tokensUsed || { input: 0, output: 0 },
-            lastUpdated: admin.firestore.Timestamp.now(),
-          });
+          admin
+            .firestore()
+            .doc(`imuno-ia-cost/${labId}/daily/${todayKey}`)
+            .set({
+              labId,
+              dateKey: todayKey,
+              callCount: 1,
+              estimatedCost: costEstimate,
+              tokensUsed: geminiResult.tokensUsed || { input: 0, output: 0 },
+              lastUpdated: admin.firestore.Timestamp.now(),
+            });
         });
 
       // 18. Return result
@@ -266,7 +264,7 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
 
       throw new HttpsError('internal', `Classification failed: ${(error as Error).message}`);
     }
-  }
+  },
 );
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -281,7 +279,7 @@ async function callGeminiVisionAPI(
   base64: string,
   mimeType: string,
   testType: TestType,
-  variant: 'v1' | 'v2' | 'v3'
+  variant: 'v1' | 'v2' | 'v3',
 ): Promise<GeminiClassificationResult> {
   const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY || '');
 
@@ -385,11 +383,9 @@ function parseGeminiResponse(content: string): GeminiClassificationResult {
  * Select prompt variant based on lab config allocation
  * Default: random 33/33/33 allocation
  */
-function selectPromptVariant(
-  labConfig: {
-    promptVariantAllocation?: { v1?: number; v2?: number; v3?: number };
-  }
-): 'v1' | 'v2' | 'v3' {
+function selectPromptVariant(labConfig: {
+  promptVariantAllocation?: { v1?: number; v2?: number; v3?: number };
+}): 'v1' | 'v2' | 'v3' {
   const allocation = labConfig.promptVariantAllocation || { v1: 0.33, v2: 0.33, v3: 0.34 };
   const rand = Math.random();
 

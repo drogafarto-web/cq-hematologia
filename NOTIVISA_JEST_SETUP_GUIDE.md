@@ -80,7 +80,7 @@ functions/
 /**
  * Jest Configuration for Cloud Functions
  * Phase 4 NOTIVISA test suite
- * 
+ *
  * Run: npm test
  * Run unit only: npm test -- modules/notivisa/callables
  * Run integration: npm test -- __tests__/integration
@@ -93,10 +93,10 @@ module.exports = {
   testEnvironment: 'node',
   rootDir: 'src',
   testMatch: ['**/__tests__/**/*.test.ts'],
-  
+
   // ========== Setup ==========
   setupFilesAfterEnv: ['<rootDir>/../jest.setup.js'],
-  
+
   // ========== TypeScript Transform ==========
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
@@ -122,7 +122,7 @@ module.exports = {
     '!modules/**/__mocks__/**',
     '!**/*.d.ts',
   ],
-  
+
   // Global thresholds
   coverageThreshold: {
     global: {
@@ -142,17 +142,13 @@ module.exports = {
 
   coverageDirectory: '../coverage/functions',
   coverageReporters: ['text', 'text-summary', 'lcov', 'html', 'json'],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/__tests__/',
-    '/__mocks__/',
-  ],
+  coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/', '/__mocks__/'],
 
   // ========== Performance ==========
-  testTimeout: 15000,     // 15s per test (emulator calls)
-  maxWorkers: 4,          // Parallel workers
+  testTimeout: 15000, // 15s per test (emulator calls)
+  maxWorkers: 4, // Parallel workers
   verbose: true,
-  bail: false,            // Don't stop on first failure
+  bail: false, // Don't stop on first failure
 
   // ========== Path Aliases (if using tsconfig paths) ==========
   moduleNameMapper: {
@@ -212,7 +208,7 @@ module.exports = {
 ```javascript
 /**
  * Jest Global Setup — runs ONCE before ALL tests
- * 
+ *
  * Responsibilities:
  * - Mock Firebase Admin SDK
  * - Mock Cloud Logging
@@ -353,7 +349,7 @@ Object.defineProperty(global, 'gc', {
 ```typescript
 /**
  * Firestore Mock — common mocks for all tests
- * 
+ *
  * Usage:
  *   import * as mockFirestore from '../__mocks__/firestore';
  *   const mockDb = mockFirestore.createMockDb();
@@ -448,7 +444,7 @@ export function createMockQuery() {
 ```typescript
 /**
  * NOTIVISA Portal API Mock — simulates government API responses
- * 
+ *
  * Usage:
  *   import * as mockPortal from '../__mocks__/notivisaPortal';
  *   jest.mock('../path/to/portalSubmit', () => mockPortal);
@@ -531,7 +527,7 @@ export function generateStatusProgression(steps: number) {
 ```typescript
 /**
  * NOTIVISA Mock Responses Library — comprehensive portal simulations
- * 
+ *
  * Used by: integration tests, mock portal calls
  */
 
@@ -539,11 +535,11 @@ export const ValidTestData = {
   labId: 'test-lab-001',
   userId: 'test-user-rt-001',
   auditorId: 'test-auditor-001',
-  
+
   pacienteCpf: '12345678900',
   operadorCpf: '98765432100',
   operadorNome: 'Dr. João Silva',
-  
+
   laudoId: 'laudo-syphilis-001',
 };
 
@@ -638,17 +634,14 @@ export const MockPortalResponses = {
 ```typescript
 /**
  * Test Data Seeding — Firestore setup for integration tests
- * 
+ *
  * Usage:
  *   await seedTestData(adminDb, labId);
  */
 
 import * as admin from 'firebase-admin';
 
-export async function seedTestLab(
-  db: admin.firestore.Firestore,
-  labId: string
-): Promise<void> {
+export async function seedTestLab(db: admin.firestore.Firestore, labId: string): Promise<void> {
   // Create lab document
   await db.collection('labs').doc(labId).set({
     name: 'Test Laboratory',
@@ -661,46 +654,37 @@ export async function seedTestMember(
   db: admin.firestore.Firestore,
   labId: string,
   userId: string,
-  role: 'RT' | 'AUDITOR' | 'ADMIN' = 'RT'
+  role: 'RT' | 'AUDITOR' | 'ADMIN' = 'RT',
 ): Promise<void> {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('members')
-    .doc(userId)
-    .set({
-      uid: userId,
-      role,
-      status: 'active',
-      createdAt: Date.now(),
-    });
+  await db.collection('labs').doc(labId).collection('members').doc(userId).set({
+    uid: userId,
+    role,
+    status: 'active',
+    createdAt: Date.now(),
+  });
 }
 
 export async function seedTestPatient(
   db: admin.firestore.Firestore,
   labId: string,
   cpf: string,
-  name: string = 'Test Patient'
+  name: string = 'Test Patient',
 ): Promise<void> {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('pacientes')
-    .add({
-      cpf,
-      nome: name,
-      dataNascimento: 631152000000, // 1990-01-01
-      sexo: 'M',
-      mae: 'Maria Test',
-      createdAt: Date.now(),
-    });
+  await db.collection('labs').doc(labId).collection('pacientes').add({
+    cpf,
+    nome: name,
+    dataNascimento: 631152000000, // 1990-01-01
+    sexo: 'M',
+    mae: 'Maria Test',
+    createdAt: Date.now(),
+  });
 }
 
 export async function seedTestLaudo(
   db: admin.firestore.Firestore,
   labId: string,
   cpf: string,
-  laudoId: string = `laudo-${Date.now()}`
+  laudoId: string = `laudo-${Date.now()}`,
 ): Promise<void> {
   await db
     .collection('labs')
@@ -730,19 +714,14 @@ export async function seedTestLaudo(
 
 export async function seedTestPortalConfig(
   db: admin.firestore.Firestore,
-  labId: string
+  labId: string,
 ): Promise<void> {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('notivisa-config')
-    .doc('portal')
-    .set({
-      portalUrl: 'https://notivisa.inca.gov.br',
-      requiresMfa: false,
-      enabled: true,
-      rtApprovalRequired: true,
-    });
+  await db.collection('labs').doc(labId).collection('notivisa-config').doc('portal').set({
+    portalUrl: 'https://notivisa.inca.gov.br',
+    requiresMfa: false,
+    enabled: true,
+    rtApprovalRequired: true,
+  });
 }
 
 /**
@@ -753,7 +732,7 @@ export async function seedCompleteTestEnvironment(
   labId: string,
   userId: string,
   auditorId: string,
-  patientCpf: string
+  patientCpf: string,
 ): Promise<void> {
   await seedTestLab(db, labId);
   await seedTestMember(db, labId, userId, 'RT');
@@ -865,7 +844,7 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
+
     services:
       firestore-emulator:
         image: node:22
@@ -874,28 +853,28 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-    
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '22'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: cd functions && npm ci
-      
+
       - name: Start Firebase Emulator
         run: |
           cd functions
           npx firebase-tools emulators:start --only firestore,functions &
           sleep 5
-      
+
       - name: Run NOTIVISA tests
         run: cd functions && npm test -- modules/notivisa __tests__/integration/notivisa
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:

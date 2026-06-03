@@ -21,11 +21,7 @@ import assert from 'node:assert/strict';
 const scenarios = [
   {
     name: 'Scenario 1: Biossegurança',
-    collections: [
-      'biosseguranca-areas',
-      'biosseguranca-epe',
-      'biosseguranca-inspecoes',
-    ],
+    collections: ['biosseguranca-areas', 'biosseguranca-epe', 'biosseguranca-inspecoes'],
     expectedRules: {
       'biosseguranca-areas': {
         read: 'member + claim',
@@ -85,12 +81,7 @@ const scenarios = [
   },
   {
     name: 'Scenario 4: LGPD (Privacy & Data Rights)',
-    collections: [
-      'lgpd-solicitacoes',
-      'lgpd-dpia',
-      'lgpd-consentimento',
-      'lgpd-exclusao',
-    ],
+    collections: ['lgpd-solicitacoes', 'lgpd-dpia', 'lgpd-consentimento', 'lgpd-exclusao'],
     expectedRules: {
       'lgpd-solicitacoes': {
         read: 'member + claim',
@@ -127,10 +118,7 @@ test('Phase 2 Batch 2 — Firestore Rules Coverage', async (t) => {
       assert.ok(Object.keys(scenario.expectedRules).length > 0, 'has rules');
 
       for (const collection of scenario.collections) {
-        assert.ok(
-          scenario.expectedRules[collection],
-          `${collection} has rule definition`
-        );
+        assert.ok(scenario.expectedRules[collection], `${collection} has rule definition`);
       }
     });
   }
@@ -153,10 +141,7 @@ test('Rule Pattern: Multi-tenant enforcement', async (t) => {
     ];
 
     for (const path of paths) {
-      assert.ok(
-        path,
-        `${path} follows /labs/{labId}/{collection} pattern`
-      );
+      assert.ok(path, `${path} follows /labs/{labId}/{collection} pattern`);
     }
   });
 });
@@ -171,10 +156,7 @@ test('Rule Pattern: Module Access Control', async (t) => {
     };
 
     for (const [pattern, moduleName] of Object.entries(moduleMap)) {
-      assert.ok(
-        moduleName,
-        `${pattern} requires hasModuleAccess('${moduleName}')`
-      );
+      assert.ok(moduleName, `${pattern} requires hasModuleAccess('${moduleName}')`);
     }
   });
 });
@@ -193,27 +175,17 @@ test('Rule Pattern: Soft-Delete Enforcement', async (t) => {
     ];
 
     for (const collection of collections) {
-      assert.ok(
-        collection,
-        `${collection} has allow delete: if false`
-      );
+      assert.ok(collection, `${collection} has allow delete: if false`);
     }
   });
 });
 
 test('Rule Pattern: Cloud-Function-Only Collections', async (t) => {
   await t.test('KPI metrics and alerts are read-only', () => {
-    const readOnlyCollections = [
-      'kpi-metrics',
-      'kpi-alerts',
-      'lgpd-exclusao',
-    ];
+    const readOnlyCollections = ['kpi-metrics', 'kpi-alerts', 'lgpd-exclusao'];
 
     for (const collection of readOnlyCollections) {
-      assert.ok(
-        collection,
-        `${collection} forbids client-side create/update`
-      );
+      assert.ok(collection, `${collection} forbids client-side create/update`);
     }
   });
 });
@@ -233,28 +205,19 @@ test('Rule Pattern: Admin vs Member Access', async (t) => {
 });
 
 test('Cross-Module Integration', async (t) => {
-  await t.test(
-    'Module claims are independent (no cross-talk)',
-    () => {
-      const modules = ['biosseguranca', 'pgrss', 'kpis', 'lgpd'];
-      assert.ok(modules.length === 4, 'four new modules');
+  await t.test('Module claims are independent (no cross-talk)', () => {
+    const modules = ['biosseguranca', 'pgrss', 'kpis', 'lgpd'];
+    assert.ok(modules.length === 4, 'four new modules');
 
-      for (const mod of modules) {
-        assert.ok(
-          mod,
-          `${mod} has independent hasModuleAccess() guard`
-        );
-      }
+    for (const mod of modules) {
+      assert.ok(mod, `${mod} has independent hasModuleAccess() guard`);
     }
-  );
+  });
 
-  await t.test(
-    'Unauthorized users cannot read any collection',
-    () => {
-      // Verification: all rules start with isSuperAdmin() || (isActiveMemberOfLab && hasModuleAccess)
-      assert.ok(true, 'all rules gate by membership + claim');
-    }
-  );
+  await t.test('Unauthorized users cannot read any collection', () => {
+    // Verification: all rules start with isSuperAdmin() || (isActiveMemberOfLab && hasModuleAccess)
+    assert.ok(true, 'all rules gate by membership + claim');
+  });
 });
 
 test('Auth Scenarios', async (t) => {
@@ -263,23 +226,15 @@ test('Auth Scenarios', async (t) => {
   });
 
   await t.test('Inactive member cannot read any collection', () => {
-    assert.ok(
-      true,
-      'isActiveMemberOfLab(labId) validates active=true'
-    );
+    assert.ok(true, 'isActiveMemberOfLab(labId) validates active=true');
   });
 
   await t.test('Data subject can request LGPD access', () => {
-    assert.ok(
-      true,
-      'request.auth.uid == labId check for solicitacoes create'
-    );
+    assert.ok(true, 'request.auth.uid == labId check for solicitacoes create');
   });
 });
 
-console.log(
-  '✓ Phase 2 Batch 2 Firestore Rules — Structure validation passed'
-);
+console.log('✓ Phase 2 Batch 2 Firestore Rules — Structure validation passed');
 console.log('\nNOTE: For full integration testing with Firestore Emulator:');
 console.log('  1. Start emulator: firebase emulators:start');
 console.log('  2. Run emulator tests: npm run test:integration');

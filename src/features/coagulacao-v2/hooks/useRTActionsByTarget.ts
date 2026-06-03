@@ -34,7 +34,7 @@ export function useRTActionsByTarget(
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setActions(snap.docs.map((d) => ({ id: d.id, ...d.data() } as RTAction)));
+        setActions(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as RTAction));
         setIsLoading(false);
       },
       (err) => {

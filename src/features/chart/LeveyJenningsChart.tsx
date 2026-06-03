@@ -188,7 +188,9 @@ export function LeveyJenningsChart({ chartData, analyte }: LeveyJenningsChartPro
               {analyte.name}
             </span>
             {analyte.unit && (
-              <span className="text-xs text-slate-400 dark:text-white/30 ml-1.5">{analyte.unit}</span>
+              <span className="text-xs text-slate-400 dark:text-white/30 ml-1.5">
+                {analyte.unit}
+              </span>
             )}
           </div>
           <div className="text-right">

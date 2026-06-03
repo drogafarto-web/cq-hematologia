@@ -31,7 +31,10 @@ jest.mock('firebase-admin', () => {
     })),
   };
   return {
-    firestore: Object.assign(jest.fn(() => fakeDb), { FieldValue }),
+    firestore: Object.assign(
+      jest.fn(() => fakeDb),
+      { FieldValue },
+    ),
   };
 });
 
@@ -42,10 +45,7 @@ jest.mock('../../../modules/audit/cryptoAudit', () => ({
 }));
 
 import { signAuditEntry as _signAuditEntry } from '../../../modules/audit/cryptoAudit';
-import {
-  writeChainedAudit,
-  failureMarkerCollectionPath,
-} from '../writeChainedAudit';
+import { writeChainedAudit, failureMarkerCollectionPath } from '../writeChainedAudit';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 const signAuditEntry = _signAuditEntry as unknown as jest.MockedFunction<
@@ -91,9 +91,7 @@ describe('failureMarkerCollectionPath', () => {
   });
 
   it('handles deeply nested chain paths', () => {
-    expect(failureMarkerCollectionPath('/labs/x/y/audit')).toBe(
-      'labs/x/y/audit-auditFailures',
-    );
+    expect(failureMarkerCollectionPath('/labs/x/y/audit')).toBe('labs/x/y/audit-auditFailures');
   });
 
   it('handles single-segment chain paths', () => {
@@ -218,12 +216,8 @@ describe('writeChainedAudit', () => {
     expect(signAuditEntry).toHaveBeenCalledTimes(3);
 
     // Marker landed in the SIBLING collection — never in the chain target.
-    expect(fakeDb.collection).toHaveBeenCalledWith(
-      'labs/lab-42/notas-fiscais-auditFailures',
-    );
-    expect(fakeDb.collection).not.toHaveBeenCalledWith(
-      '/labs/lab-42/notas-fiscais',
-    );
+    expect(fakeDb.collection).toHaveBeenCalledWith('labs/lab-42/notas-fiscais-auditFailures');
+    expect(fakeDb.collection).not.toHaveBeenCalledWith('/labs/lab-42/notas-fiscais');
     expect(markerCalls).toHaveLength(1);
     expect(markerCalls[0].path).toBe('labs/lab-42/notas-fiscais-auditFailures');
     expect(markerCalls[0].data).toMatchObject({

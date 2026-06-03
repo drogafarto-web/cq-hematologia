@@ -31,22 +31,20 @@ export function ExportStep2({
   const today = todayIso();
   const defaultStart = ninetyDaysAgoIso();
 
-  const hasError =
-    startDate && endDate && startDate > endDate;
+  const hasError = startDate && endDate && startDate > endDate;
 
   const daysDiff =
     startDate && endDate
       ? Math.ceil(
-          (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-            (1000 * 60 * 60 * 24),
+          (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24),
         ) + 1
       : null;
 
   return (
     <div className="flex flex-col gap-4">
       <p className="text-sm text-white/50 leading-relaxed">
-        Defina o período de dados a incluir na exportação. Recomendamos períodos
-        de até 90 dias para exportações mais ágeis.
+        Defina o período de dados a incluir na exportação. Recomendamos períodos de até 90 dias para
+        exportações mais ágeis.
       </p>
 
       {/* Quick presets */}
@@ -131,7 +129,12 @@ export function ExportStep2({
       {/* Validation feedback */}
       {hasError && (
         <p className="flex items-center gap-1.5 text-xs text-red-400" role="alert">
-          <svg className="h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+          <svg
+            className="h-3.5 w-3.5 shrink-0"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            aria-hidden="true"
+          >
             <path
               fillRule="evenodd"
               d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zm-1.72 6.97a.75.75 0 10-1.06 1.06L10.94 12l-1.72 1.72a.75.75 0 101.06 1.06L12 13.06l1.72 1.72a.75.75 0 101.06-1.06L13.06 12l1.72-1.72a.75.75 0 10-1.06-1.06L12 10.94l-1.72-1.72z"

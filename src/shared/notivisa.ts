@@ -58,10 +58,7 @@ class ValidationError extends Error {
  *
  * @throws ValidationError if required fields are missing
  */
-export const notivisaFormatter = (
-  laudo: LaudoData,
-  paciente: PacienteData
-): NotivisaPayload => {
+export const notivisaFormatter = (laudo: LaudoData, paciente: PacienteData): NotivisaPayload => {
   // Validate required fields
   if (!paciente.cpf) {
     throw new ValidationError('Paciente CPF is required for NOTIVISA payload');

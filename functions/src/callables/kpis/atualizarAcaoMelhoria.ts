@@ -88,10 +88,7 @@ export const atualizarAcaoMelhoria = onCall<unknown, Promise<{ ok: true }>>(
 
     const data = snap.data() as Record<string, unknown> | undefined;
     if (!hasPrazoField(data)) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Documento da ação sem campo prazo válido.',
-      );
+      throw new HttpsError('failed-precondition', 'Documento da ação sem campo prazo válido.');
     }
 
     const update: Record<string, unknown> = {

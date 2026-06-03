@@ -45,9 +45,7 @@ export const onContratoEventCreated = onDocumentCreated(
 
     // Query for previous event (by timestamp DESC, skip current)
     const eventsCol = db.collection(`labs/${labId}/lab-apoio/${contratoId}/events`);
-    const prevQuery = eventsCol
-      .orderBy('timestamp', 'desc')
-      .limit(2); // Get 2 to skip the one we just created
+    const prevQuery = eventsCol.orderBy('timestamp', 'desc').limit(2); // Get 2 to skip the one we just created
 
     const prevSnaps = await prevQuery.get();
     let prevChainHash: string | null = null;
@@ -70,9 +68,7 @@ export const onContratoEventCreated = onDocumentCreated(
     const eventPayloadHash = sha256Hex(canonicalStr);
 
     // Compute chainHash: hash of (prevChainHash || eventPayloadHash)
-    const chainInput = prevChainHash
-      ? `${prevChainHash}::${eventPayloadHash}`
-      : eventPayloadHash;
+    const chainInput = prevChainHash ? `${prevChainHash}::${eventPayloadHash}` : eventPayloadHash;
     const chainHash = sha256Hex(chainInput);
 
     // Update the event doc with chainHash
@@ -81,6 +77,8 @@ export const onContratoEventCreated = onDocumentCreated(
       chainHashAnterior: prevChainHash,
     });
 
-    console.log(`[LABAPOIO_EVENT] chainHash computed: ${eventId} -> ${chainHash.substring(0, 8)}...`);
+    console.log(
+      `[LABAPOIO_EVENT] chainHash computed: ${eventId} -> ${chainHash.substring(0, 8)}...`,
+    );
   },
 );

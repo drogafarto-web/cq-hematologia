@@ -276,9 +276,7 @@ export function getAllSandboxPayloads(): NotivisaDraftPayload[] {
   return Object.values(sandboxTestPayloads) as NotivisaDraftPayload[];
 }
 
-export function getSandboxPayloadByDisease(
-  diseaseCode: string,
-): NotivisaDraftPayload | undefined {
+export function getSandboxPayloadByDisease(diseaseCode: string): NotivisaDraftPayload | undefined {
   const payloadNames = Object.entries(sandboxPayloadMetadata)
     .filter(([_, meta]) => meta.disease_code === diseaseCode)
     .map(([name]) => name);

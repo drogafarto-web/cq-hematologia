@@ -32,10 +32,10 @@ interface Transition {
 }
 
 const VALID_TRANSITIONS: Record<StatusVigencia, StatusVigencia[]> = {
-  'draft': ['em-revisao'],
+  draft: ['em-revisao'],
   'em-revisao': ['vigente', 'draft'],
-  'vigente': ['obsoleto', 'em-revisao'],
-  'obsoleto': ['vigente'],
+  vigente: ['obsoleto', 'em-revisao'],
+  obsoleto: ['vigente'],
 };
 
 /**
@@ -116,7 +116,7 @@ export const transitarVigencia = onCall<TransitionPayload>(
     if (!validateTransition(currentStatus, data.novoStatus)) {
       throw new HttpsError(
         'invalid-argument',
-        `Transição inválida: ${currentStatus} → ${data.novoStatus}`
+        `Transição inválida: ${currentStatus} → ${data.novoStatus}`,
       );
     }
 

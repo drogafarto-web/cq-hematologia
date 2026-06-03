@@ -16,15 +16,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FUNCTIONS_DIR = path.resolve(__dirname, '..', '..');
 
 const { writeCIQAuditEvent } = await import(
-  pathToFileURL(
-    path.join(FUNCTIONS_DIR, 'lib/modules/ciqAudit/writer.js'),
-  ).href
+  pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/ciqAudit/writer.js')).href
 );
 
 const { genesisHash } = await import(
-  pathToFileURL(
-    path.join(FUNCTIONS_DIR, 'lib/modules/ciqAudit/genesis.js'),
-  ).href
+  pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/ciqAudit/genesis.js')).href
 );
 
 // ─── Firestore stub ──────────────────────────────────────────────────────────
@@ -104,10 +100,7 @@ test('primeiro evento usa genesisHash(labId) como previousHash', async () => {
 test('segundo evento usa chainHash do primeiro como previousHash', async () => {
   const db = makeStubDb();
   const e1 = await writeCIQAuditEvent(db, baseInput({ eventId: 'e1' }));
-  const e2 = await writeCIQAuditEvent(
-    db,
-    baseInput({ eventId: 'e2', action: 'APPROVE_RUN' }),
-  );
+  const e2 = await writeCIQAuditEvent(db, baseInput({ eventId: 'e2', action: 'APPROVE_RUN' }));
   assert.strictEqual(e2.previousHash, e1.chainHash);
 });
 
@@ -138,9 +131,7 @@ test('idempotência: reescrever mesmo eventId retorna evento sem mutar cadeia', 
   const e2 = await writeCIQAuditEvent(db, baseInput({ eventId: 'dup' }));
   assert.strictEqual(e1.chainHash, e2.chainHash);
   // Apenas UM doc criado
-  const paths = Array.from(db._store.keys()).filter((p) =>
-    p.includes('/ciq-audit/'),
-  );
+  const paths = Array.from(db._store.keys()).filter((p) => p.includes('/ciq-audit/'));
   assert.strictEqual(paths.length, 1);
 });
 

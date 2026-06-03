@@ -21,22 +21,22 @@ interface CAPAStatusTransitionModalProps {
  * Defines which status transitions are allowed.
  */
 const VALID_TRANSITIONS: Record<CapaStateLegacy, CapaStateLegacy[]> = {
-  'aberto': ['em-andamento'],
+  aberto: ['em-andamento'],
   'em-andamento': ['evidencia-submetida'],
   'evidencia-submetida': ['auditor-revisando', 'em-andamento'],
   'auditor-revisando': ['fechado', 'evidencia-submetida'],
-  'fechado': [], // Terminal state
+  fechado: [], // Terminal state
 };
 
 /**
  * Status labels for display.
  */
 const STATUS_LABEL: Record<CapaStateLegacy, string> = {
-  'aberto': 'Aberto',
+  aberto: 'Aberto',
   'em-andamento': 'Em Andamento',
   'evidencia-submetida': 'Evidência Submetida',
   'auditor-revisando': 'Auditor Revisando',
-  'fechado': 'Fechado',
+  fechado: 'Fechado',
 };
 
 export function CAPAStatusTransitionModal({
@@ -96,15 +96,16 @@ export function CAPAStatusTransitionModal({
         <form onSubmit={handleSubmit} className="px-6 py-4 space-y-4">
           {!canTransition ? (
             <div className="text-center py-4 text-white/60">
-              <p className="text-sm">
-                Status final — nenhuma transição permitida
-              </p>
+              <p className="text-sm">Status final — nenhuma transição permitida</p>
             </div>
           ) : (
             <>
               {/* Status selector */}
               <div>
-                <label htmlFor={`status-${capaId}`} className="block text-xs font-medium text-white/70 mb-2">
+                <label
+                  htmlFor={`status-${capaId}`}
+                  className="block text-xs font-medium text-white/70 mb-2"
+                >
                   Novo Status
                 </label>
                 <select
@@ -126,7 +127,10 @@ export function CAPAStatusTransitionModal({
 
               {/* Notes */}
               <div>
-                <label htmlFor={`notes-${capaId}`} className="block text-xs font-medium text-white/70 mb-2">
+                <label
+                  htmlFor={`notes-${capaId}`}
+                  className="block text-xs font-medium text-white/70 mb-2"
+                >
                   Observações (opcional)
                 </label>
                 <textarea

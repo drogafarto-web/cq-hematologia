@@ -10,12 +10,13 @@
 
 The NOTIVISA module has **two fully functional, parallel codepaths** writing to the same `notivisa-drafts/` collection:
 
-| Codepath | Pattern | Callables | Status | Risk |
-|----------|---------|-----------|--------|------|
-| **Legacy** (Batch 1) | Verb-noun | `notivisaDraftCreate`, `approveNotivisaDraft`, `submitNotivisaDraft`, `rejectNotivisaDraft` | Implemented, tests passing | Race conditions if both paths used in same lab/minute |
-| **Wave 2** (Agent 10) | camelCase | `notivisaCreateDraft`, `notivisaApproveDraft`, `notivisaSubmitDraft` | Implemented, test-mode only | Signature ceremony incomplete; audit log structure differs |
+| Codepath              | Pattern   | Callables                                                                                   | Status                      | Risk                                                       |
+| --------------------- | --------- | ------------------------------------------------------------------------------------------- | --------------------------- | ---------------------------------------------------------- |
+| **Legacy** (Batch 1)  | Verb-noun | `notivisaDraftCreate`, `approveNotivisaDraft`, `submitNotivisaDraft`, `rejectNotivisaDraft` | Implemented, tests passing  | Race conditions if both paths used in same lab/minute      |
+| **Wave 2** (Agent 10) | camelCase | `notivisaCreateDraft`, `notivisaApproveDraft`, `notivisaSubmitDraft`                        | Implemented, test-mode only | Signature ceremony incomplete; audit log structure differs |
 
 **Critical Issue:** Both write to `notivisa-drafts/{labId}/drafts/{draftId}` with different:
+
 - Status enum values (`draft` vs `pending`)
 - Signature strategies (cryptographic HMAC vs minimal audit log)
 - Audit log structure (`CREATED` vs `DRAFT_CREATED`)
@@ -29,6 +30,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ### Callables Overview
 
 #### 1. `notivisaDraftCreate` — Draft Creation
+
 - **File:** `functions/src/modules/notivisa/notivisaDraftCreate.ts`
 - **Exported from:** `modules/notivisa/index.ts` (line 17) — **NOT** re-exported in `functions/src/index.ts`
 - **Region:** Default (`us-central1` inherited from global options, then southamerica-east1 via setGlobalOptions)
@@ -80,6 +82,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ---
 
 #### 2. `approveNotivisaDraft` — RT/Admin Approval
+
 - **File:** `functions/src/modules/notivisa/approveNotivisaDraft.ts`
 - **Exported from:** `modules/notivisa/index.ts` (line 18) — **NOT** re-exported in main index.ts
 - **Input Schema:**
@@ -134,6 +137,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ---
 
 #### 3. `submitNotivisaDraft` — Move to Queue
+
 - **File:** `functions/src/modules/notivisa/submitNotivisaDraft.ts`
 - **Exported from:** `modules/notivisa/index.ts` (line 19) — **NOT** re-exported in main index.ts
 - **Input Schema:**
@@ -173,6 +177,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ---
 
 #### 4. `rejectNotivisaDraft` — Auditor Rejection
+
 - **File:** `functions/src/modules/notivisa/rejectNotivisaDraft.ts`
 - **Exported from:** `modules/notivisa/index.ts` (line 20) — **NOT** re-exported in main index.ts
 - **Input Schema:**
@@ -213,6 +218,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 **File:** `functions/src/modules/notivisa/__tests__/notivisa.test.ts`
 
 **Test Coverage:**
+
 - ✅ Draft creation with idempotency
 - ✅ Rate limiting (max 10/min)
 - ✅ Signature generation & verification
@@ -229,6 +235,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ### Callables Overview
 
 #### 1. `createDraft` (exported as `notivisaCreateDraft`) — Draft Creation
+
 - **File:** `functions/src/modules/notivisa/createDraft.ts`
 - **Exported:** Line 2189 in `functions/src/index.ts` as `notivisaCreateDraft`
 - **Region:** `southamerica-east1`
@@ -278,6 +285,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ---
 
 #### 2. `approveDraft` (exported as `notivisaApproveDraft`) — RT/Admin Approval
+
 - **File:** `functions/src/modules/notivisa/approveDraft.ts`
 - **Exported:** Line 2190 in `functions/src/index.ts` as `notivisaApproveDraft`
 - **Region:** `southamerica-east1`
@@ -311,6 +319,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ---
 
 #### 3. `submitDraft` (exported as `notivisaSubmitDraft`) — Move to Queue
+
 - **File:** `functions/src/modules/notivisa/submitDraft.ts`
 - **Exported:** Line 2191 in `functions/src/index.ts` as `notivisaSubmitDraft`
 - **Region:** `southamerica-east1`
@@ -371,6 +380,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 **File:** `functions/src/modules/notivisa/__tests__/wave2-10-lifecycle.test.ts`
 
 **Test Coverage:**
+
 - ✅ Test-mode draft creation
 - ✅ Idempotency (non-rejected drafts return existing draftId)
 - ✅ Approval workflow (pending → approved)
@@ -388,10 +398,10 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 
 **Problem:** Both codepaths write `status` field, but with different enums:
 
-| Codepath | Values | Meaning |
-|----------|--------|---------|
-| Legacy | `['draft', 'approved', 'submitted', 'rejected']` | Draft states before government submission |
-| Wave 2 | `['pending', 'approved', 'submitted']` | Skeleton for lifecycle |
+| Codepath | Values                                           | Meaning                                   |
+| -------- | ------------------------------------------------ | ----------------------------------------- |
+| Legacy   | `['draft', 'approved', 'submitted', 'rejected']` | Draft states before government submission |
+| Wave 2   | `['pending', 'approved', 'submitted']`           | Skeleton for lifecycle                    |
 
 **Consequence:** A query `where('status', '==', 'draft')` in cron won't find Wave 2 drafts (which use `'pending'`). A mixed-mode lab sees only half its drafts in admin dashboards.
 
@@ -400,6 +410,7 @@ This creates **audit confusion** and potential **race-condition submissi** if a 
 ### 2. Signature Structure Divergence
 
 **Legacy Signature:**
+
 ```typescript
 assinatura: {
   hash: string; // SHA-256 of {operatorId, ts, payload}
@@ -416,11 +427,11 @@ assinatura: {
 
 ### 3. Audit Log Action Names
 
-| Callable | Legacy Action | Wave 2 Action |
-|----------|---------------|---------------|
-| Create | `CREATED` | `DRAFT_CREATED` |
-| Approve | `APPROVED` | `DRAFT_APPROVED` |
-| Submit | `SUBMITTED` | `DRAFT_SUBMITTED` |
+| Callable | Legacy Action | Wave 2 Action     |
+| -------- | ------------- | ----------------- |
+| Create   | `CREATED`     | `DRAFT_CREATED`   |
+| Approve  | `APPROVED`    | `DRAFT_APPROVED`  |
+| Submit   | `SUBMITTED`   | `DRAFT_SUBMITTED` |
 
 **Consequence:** Audit log queries like `where('action', '==', 'CREATED')` are fragmented. Same operation has two names.
 
@@ -429,11 +440,13 @@ assinatura: {
 ### 4. Race Condition: Dual Submission
 
 **Scenario:**
+
 1. Lab admin calls `notivisaDraftCreate` (legacy) → draft in `notivisa-drafts/{labId}/drafts/ABC` with status=`'draft'`
 2. RT calls `notivisaApproveDraft` (legacy) → status→ `'approved'`
 3. **Different** operator calls `notivisaSubmitDraft` (Wave 2, expecting status=`'pending'`) → **fails** with `failed-precondition`
 
 **Reverse scenario (worse):**
+
 1. Lab calls `notivisaCreateDraft` (Wave 2) → draft ABC with status=`'pending'`
 2. Legacy cron or hook tries to process it with old logic expecting status=`'draft'` → **silently skips**
 
@@ -444,6 +457,7 @@ assinatura: {
 ### 5. Cloud Logs Audit Trail Fragmentation
 
 **Invocation patterns differ:**
+
 - Legacy: `notivisaDraftCreate(labId, laudoId, payload)`
 - Wave 2: `notivisaCreateDraft(labId, laudoId, payload)` ← Different function name in logs
 
@@ -456,6 +470,7 @@ assinatura: {
 ### Grep for Legacy Calls in Cloud Logs
 
 **Command to check (for Phase 5):**
+
 ```bash
 gcloud functions logs read notivisaDraftCreate \
   --project hmatologia2 \
@@ -474,6 +489,7 @@ gcloud functions logs read notivisaDraftCreate \
 ### Re-exports
 
 **Current state:**
+
 - `functions/src/modules/notivisa/index.ts` — exports legacy `notivisaDraftCreate`, `approveNotivisaDraft`, `submitNotivisaDraft`, `rejectNotivisaDraft`
 - `functions/src/index.ts` — exports Wave 2 callables as `notivisaCreateDraft`, `notivisaApproveDraft`, `notivisaSubmitDraft`
 
@@ -488,6 +504,7 @@ gcloud functions logs read notivisaDraftCreate \
 1. **Do NOT delete legacy callables yet.** Both codepaths are production-grade; only the confusion is the problem.
 
 2. **Add deprecation markers** (JSDoc only, no code deletion):
+
    ```typescript
    /**
     * @deprecated Use notivisaCreateDraft instead (Wave 2-10).
@@ -498,10 +515,10 @@ gcloud functions logs read notivisaDraftCreate \
    ```
 
 3. **Enable feature flag** (Phase 4):
+
    ```typescript
-   const FEATURE_LEGACY_NOTIVISA_ENABLED = 
-     process.env.FEATURE_LEGACY_NOTIVISA_ENABLED !== 'false';
-   
+   const FEATURE_LEGACY_NOTIVISA_ENABLED = process.env.FEATURE_LEGACY_NOTIVISA_ENABLED !== 'false';
+
    if (FEATURE_LEGACY_NOTIVISA_ENABLED) {
      export { notivisaDraftCreate } from './notivisaDraftCreate';
      // ...
@@ -525,7 +542,7 @@ gcloud functions logs read notivisaDraftCreate \
 
 ## Sign-Off
 
-| Role | Name | Date |
-|------|------|------|
-| Wave 3-6 Engineer | TBD | 2026-05-08 |
-| CTO Review | TBD | TBD |
+| Role              | Name | Date       |
+| ----------------- | ---- | ---------- |
+| Wave 3-6 Engineer | TBD  | 2026-05-08 |
+| CTO Review        | TBD  | TBD        |

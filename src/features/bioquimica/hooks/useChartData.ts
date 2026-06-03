@@ -36,7 +36,7 @@ export function useChartData(
   analitoId: string,
   nivelId: string,
   manufacturerStats: { mean: number; sd: number } | null,
-  statsSource: StatsSource = 'manufacturer'
+  statsSource: StatsSource = 'manufacturer',
 ): ChartDataResult {
   const { runs } = useRuns(labId, { equipmentId });
   const internalStatsResult = useInternalStats(labId, equipmentId, analitoId, nivelId);
@@ -45,9 +45,7 @@ export function useChartData(
     // Determine which stats to use
     const useInternal = statsSource === 'internal' && internalStatsResult.available;
     const activeStats =
-      useInternal && internalStatsResult.stats
-        ? internalStatsResult.stats
-        : manufacturerStats;
+      useInternal && internalStatsResult.stats ? internalStatsResult.stats : manufacturerStats;
 
     if (!activeStats || !Number.isFinite(activeStats.mean) || activeStats.sd <= 0) {
       return {
@@ -63,8 +61,7 @@ export function useChartData(
     // Filter runs for this analito × nível × equipamento
     const relevantRuns = runs.filter(
       (run) =>
-        run.equipmentId === equipmentId &&
-        run.resultados?.[analitoId]?.[nivelId] !== undefined
+        run.equipmentId === equipmentId && run.resultados?.[analitoId]?.[nivelId] !== undefined,
     );
 
     // Convert to chart points
@@ -122,13 +119,5 @@ export function useChartData(
       isInternalReady: internalStatsResult.available,
       statsSource: useInternal ? 'internal' : 'manufacturer',
     };
-  }, [
-    runs,
-    equipmentId,
-    analitoId,
-    nivelId,
-    manufacturerStats,
-    statsSource,
-    internalStatsResult,
-  ]);
+  }, [runs, equipmentId, analitoId, nivelId, manufacturerStats, statsSource, internalStatsResult]);
 }

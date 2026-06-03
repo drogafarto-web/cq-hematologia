@@ -79,10 +79,7 @@ function indexByName(fields: OCRField[]): Map<string, OCRField> {
  * Compute the field-level diff between an OCR snapshot and the RT-validated
  * final snapshot. Pure: no clocks, no network.
  */
-export function diffFields(
-  ocr: OCRResultSnapshot,
-  finalR: FinalResultSnapshot,
-): DiffSummary {
+export function diffFields(ocr: OCRResultSnapshot, finalR: FinalResultSnapshot): DiffSummary {
   const ocrMap = indexByName(ocr.fields ?? []);
   const finalMap = indexByName(finalR.fields ?? []);
 

@@ -26,9 +26,7 @@ export function WizardGuidedMode({
   isFirstBloco,
   readonly = false,
 }: WizardGuidedModeProps) {
-  const indicadoresDoBloco = INDICADORES.filter((ind) =>
-    bloco.indicadores.includes(ind.numero)
-  );
+  const indicadoresDoBloco = INDICADORES.filter((ind) => bloco.indicadores.includes(ind.numero));
 
   const [currentIndex, setCurrentIndex] = useState(0);
 
@@ -66,23 +64,22 @@ export function WizardGuidedMode({
   if (!indicadorAtual) return null;
 
   const currentResposta = respostas.find((r) => r.numero === indicadorAtual.numero);
-  const ncSemObs = currentResposta?.critica === 'NÃO CONFORME' && !currentResposta?.observacoes?.trim();
+  const ncSemObs =
+    currentResposta?.critica === 'NÃO CONFORME' && !currentResposta?.observacoes?.trim();
 
   const respondido = respostas.some(
-    (r) => r.numero === indicadorAtual.numero && (r.score !== null || r.naoAplica)
+    (r) => r.numero === indicadorAtual.numero && (r.score !== null || r.naoAplica),
   );
 
   return (
     <div ref={swipeRef} className="space-y-4">
       {/* Item position indicator */}
       <div className="flex items-center justify-between">
-        <h2 className="text-sm font-medium text-slate-700 dark:text-white/70">
-          {bloco.nome}
-        </h2>
+        <h2 className="text-sm font-medium text-slate-700 dark:text-white/70">{bloco.nome}</h2>
         <div className="flex items-center gap-2">
           {indicadoresDoBloco.map((ind, i) => {
             const isAnswered = respostas.some(
-              (r) => r.numero === ind.numero && (r.score !== null || r.naoAplica)
+              (r) => r.numero === ind.numero && (r.score !== null || r.naoAplica),
             );
             const isCurrent = i === currentIndex;
             return (
@@ -138,7 +135,13 @@ export function WizardGuidedMode({
               ? 'bg-violet-500/50 text-white/60 cursor-not-allowed'
               : 'bg-violet-500 hover:bg-violet-400 text-white'
           }`}
-          aria-label={ncSemObs ? 'Preencha a justificativa da não conformidade para avançar' : isLastInBloco ? 'Próximo bloco' : 'Próximo indicador'}
+          aria-label={
+            ncSemObs
+              ? 'Preencha a justificativa da não conformidade para avançar'
+              : isLastInBloco
+                ? 'Próximo bloco'
+                : 'Próximo indicador'
+          }
         >
           {isLastInBloco ? 'Próximo Bloco →' : 'Próximo →'}
         </button>

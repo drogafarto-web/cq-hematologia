@@ -131,9 +131,9 @@ describe('03.1 Export Smoke Tests', () => {
         }),
       };
 
-      await expect(
-        mockPubSub.publish('export-jobs', { jobId: 'job-001' })
-      ).rejects.toThrow('Pub/Sub unavailable');
+      await expect(mockPubSub.publish('export-jobs', { jobId: 'job-001' })).rejects.toThrow(
+        'Pub/Sub unavailable',
+      );
     });
   });
 
@@ -184,7 +184,8 @@ describe('03.1 Export Smoke Tests', () => {
 
   describe('Signed URL Generation', () => {
     it('should generate signed URL for download', () => {
-      const mockSignedUrl = 'https://storage.googleapis.com/hmatologia2.appspot.com/exports/job-001.xlsx?token=abc123';
+      const mockSignedUrl =
+        'https://storage.googleapis.com/hmatologia2.appspot.com/exports/job-001.xlsx?token=abc123';
 
       expect(mockSignedUrl).toMatch(/^https:\/\//);
       expect(mockSignedUrl).toContain('token=');
@@ -321,7 +322,7 @@ describe('03.1 Export Smoke Tests', () => {
 
       const job = createSampleExportJob({
         createdAt,
-        processingTimeMs: (completedAt.getTime() - createdAt.getTime()),
+        processingTimeMs: completedAt.getTime() - createdAt.getTime(),
       });
 
       expect(job.processingTimeMs).toBe(9000);

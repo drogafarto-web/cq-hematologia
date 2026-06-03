@@ -59,7 +59,14 @@ export function AudioRecorder({
 
         setState('uploading');
         try {
-          const audio = await uploadAudio(labId, auditoriaId, indicadorId, blob, uid, finalDuration);
+          const audio = await uploadAudio(
+            labId,
+            auditoriaId,
+            indicadorId,
+            blob,
+            uid,
+            finalDuration,
+          );
           onAudioSaved(audio);
 
           setState('transcribing');
@@ -68,7 +75,12 @@ export function AudioRecorder({
               { labId: string; auditoriaId: string; indicadorId: string; audioPath: string },
               { transcription: string }
             >(functions, 'transcribeAuditoriaAudio');
-            const result = await transcribe({ labId, auditoriaId, indicadorId, audioPath: audio.path });
+            const result = await transcribe({
+              labId,
+              auditoriaId,
+              indicadorId,
+              audioPath: audio.path,
+            });
             onTranscription(result.data.transcription);
             setState('done');
             setTimeout(() => setState('idle'), 2000);
@@ -77,9 +89,10 @@ export function AudioRecorder({
             setTimeout(() => setState('idle'), 2000);
           }
         } catch (err: any) {
-          const msg = err?.code === 'storage/unauthorized'
-            ? 'Sem permissão para upload'
-            : 'Falha ao enviar áudio';
+          const msg =
+            err?.code === 'storage/unauthorized'
+              ? 'Sem permissão para upload'
+              : 'Falha ao enviar áudio';
           setError(msg);
           setState('error');
           setTimeout(() => setState('idle'), 3000);
@@ -120,7 +133,9 @@ export function AudioRecorder({
             >
               <span className="w-2.5 h-2.5 rounded-full bg-red-400 animate-pulse" />
             </button>
-            <span className="text-[11px] text-red-400 font-mono tabular-nums">{formatTime(duration)}</span>
+            <span className="text-[11px] text-red-400 font-mono tabular-nums">
+              {formatTime(duration)}
+            </span>
           </>
         ) : state === 'uploading' ? (
           <span className="inline-flex items-center gap-1.5 text-[11px] text-white/50">
@@ -134,7 +149,14 @@ export function AudioRecorder({
           </span>
         ) : state === 'done' ? (
           <span className="inline-flex items-center gap-1 text-[11px] text-emerald-400">
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+            >
               <path d="M3 8.5l3.5 3.5 6.5-7" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
             Salvo
@@ -147,7 +169,15 @@ export function AudioRecorder({
             aria-label="Gravar áudio"
             title="Gravar nota de voz"
           >
-            <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-slate-500 dark:text-white/50">
+            <svg
+              width="12"
+              height="12"
+              viewBox="0 0 16 16"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              className="text-slate-500 dark:text-white/50"
+            >
               <rect x="5" y="1" width="6" height="9" rx="3" />
               <path d="M3 7v1a5 5 0 0010 0V7M8 13v2" strokeLinecap="round" />
             </svg>
@@ -160,8 +190,19 @@ export function AudioRecorder({
       {existingAudios.length > 0 && (
         <div className="space-y-1">
           {existingAudios.map((audio, i) => (
-            <div key={audio.path} className="flex items-center gap-2 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-md px-2 py-1">
-              <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-violet-400 shrink-0">
+            <div
+              key={audio.path}
+              className="flex items-center gap-2 bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.06] rounded-md px-2 py-1"
+            >
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                className="text-violet-400 shrink-0"
+              >
                 <rect x="5" y="1" width="6" height="9" rx="3" />
                 <path d="M3 7v1a5 5 0 0010 0V7M8 13v2" strokeLinecap="round" />
               </svg>
@@ -170,7 +211,9 @@ export function AudioRecorder({
                 {formatTime(audio.duration)}
               </span>
               {audio.transcription && (
-                <span className="text-[10px] text-emerald-500 shrink-0" title="Transcrito">✓</span>
+                <span className="text-[10px] text-emerald-500 shrink-0" title="Transcrito">
+                  ✓
+                </span>
               )}
             </div>
           ))}

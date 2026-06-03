@@ -11,14 +11,14 @@
 
 ## Where credentials live now
 
-| Field | Location |
-|-------|----------|
-| Portal URL | `notivisa-config` Firestore doc (lab-scoped) |
-| Portal email (gestor) | Firebase Secret Manager: `NOTIVISA_PORTAL_EMAIL` |
-| Portal password | Firebase Secret Manager: `NOTIVISA_PORTAL_PASSWORD` |
-| API Client ID | Firebase Secret Manager: `NOTIVISA_CLIENT_ID` |
-| API Client Secret | Firebase Secret Manager: `NOTIVISA_CLIENT_SECRET` |
-| Webhook signing secret | Firebase Secret Manager: `NOTIVISA_WEBHOOK_SECRET` |
+| Field                  | Location                                            |
+| ---------------------- | --------------------------------------------------- |
+| Portal URL             | `notivisa-config` Firestore doc (lab-scoped)        |
+| Portal email (gestor)  | Firebase Secret Manager: `NOTIVISA_PORTAL_EMAIL`    |
+| Portal password        | Firebase Secret Manager: `NOTIVISA_PORTAL_PASSWORD` |
+| API Client ID          | Firebase Secret Manager: `NOTIVISA_CLIENT_ID`       |
+| API Client Secret      | Firebase Secret Manager: `NOTIVISA_CLIENT_SECRET`   |
+| Webhook signing secret | Firebase Secret Manager: `NOTIVISA_WEBHOOK_SECRET`  |
 
 Provisioning command:
 

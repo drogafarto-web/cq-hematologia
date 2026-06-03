@@ -41,8 +41,7 @@ function mapMetaDoc(labId: string, doc: QueryDocumentSnapshot): KPIMeta | null {
   }
 
   const vigenciaFim = raw.vigenciaFim;
-  const vigenciaFimNorm =
-    vigenciaFim instanceof Timestamp ? vigenciaFim : undefined;
+  const vigenciaFimNorm = vigenciaFim instanceof Timestamp ? vigenciaFim : undefined;
 
   const docLabId = typeof raw.labId === 'string' && raw.labId.length > 0 ? raw.labId : labId;
 

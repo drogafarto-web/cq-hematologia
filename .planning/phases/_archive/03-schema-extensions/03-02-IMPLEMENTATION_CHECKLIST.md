@@ -84,6 +84,7 @@
 **Status:** PASS
 
 Evidence:
+
 - Portal-configuracao (lines 1939–1942) ✓
 - NOTIVISA-outbox/events (lines 1949–1954) ✓
 - Criticos-escalacoes/escalacoes (lines 1961–1966) ✓
@@ -99,6 +100,7 @@ Verification: Each block follows Firestore rules syntax; all braces matched; no 
 **Status:** READY FOR EXECUTION
 
 Evidence:
+
 - 5 new test suites created in `functions/test/phase-3-2/rules-v1-4.test.mjs` ✓
 - 5 test helper function suites ✓
 - 4 security posture cross-cutting tests ✓
@@ -116,6 +118,7 @@ Verification method: `npm test -- test/phase-3-2/rules-v1-4.test.mjs` (to be run
 **Status:** PASS (no linter applicable to firestore.rules syntax)
 
 Evidence:
+
 - firestore.rules is declarative DSL, not TypeScript/JavaScript
 - Syntax validated via Firebase emulator or `firebase rules:test`
 - No ESLint/Prettier applicable
@@ -127,6 +130,7 @@ Evidence:
 **Status:** READY FOR DEPLOYMENT
 
 Evidence:
+
 - firestore.rules is syntactically valid ✓
 - All new paths reference collections created in Phase 3.1 ✓
 - No cross-references to non-existent collections ✓
@@ -141,6 +145,7 @@ Deployment command: `firebase deploy --only firestore:rules --project hmatologia
 **Status:** PASS
 
 Evidence:
+
 - No modifications to existing match blocks ✓
 - No changes to existing helper functions ✓
 - No changes to module claim enforcement ✓
@@ -168,27 +173,27 @@ Detailed audit in `docs/RULES_v1.4_DIFF.md` (Security Audit Checklist section).
 
 ## Rules Quality Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Match blocks added | 5 | 5 | ✅ |
-| Helper functions | 5 | 5 | ✅ |
-| Lines added (rules) | ~185 | ~185 | ✅ |
-| Test suites | 5+ | 5+ | ✅ |
-| Test assertions | 23+ | 23+ | ✅ |
-| Security criteria | 6/6 | 6/6 | ✅ |
-| Regression risk | Low | Low | ✅ |
-| Compliance coverage | RDC+DICQ+ISO | Full | ✅ |
+| Metric              | Target       | Actual | Status |
+| ------------------- | ------------ | ------ | ------ |
+| Match blocks added  | 5            | 5      | ✅     |
+| Helper functions    | 5            | 5      | ✅     |
+| Lines added (rules) | ~185         | ~185   | ✅     |
+| Test suites         | 5+           | 5+     | ✅     |
+| Test assertions     | 23+          | 23+    | ✅     |
+| Security criteria   | 6/6          | 6/6    | ✅     |
+| Regression risk     | Low          | Low    | ✅     |
+| Compliance coverage | RDC+DICQ+ISO | Full   | ✅     |
 
 ---
 
 ## Artifact Inventory
 
-| Artifact | Location | Status | For whom |
-|----------|----------|--------|----------|
-| Rules implementation | `firestore.rules` lines 59–92, 1935–1987 | ✓ Complete | Firebase deployment |
-| Test suite | `functions/test/phase-3-2/rules-v1-4.test.mjs` | ✓ Complete | QA + CI/CD |
-| Change summary | `docs/RULES_v1.4_DIFF.md` | ✓ Complete | Auditor + Stream D |
-| This checklist | `.planning/phases/03-schema-extensions/03-02-IMPLEMENTATION_CHECKLIST.md` | ✓ Complete | Phase tracking |
+| Artifact             | Location                                                                  | Status     | For whom            |
+| -------------------- | ------------------------------------------------------------------------- | ---------- | ------------------- |
+| Rules implementation | `firestore.rules` lines 59–92, 1935–1987                                  | ✓ Complete | Firebase deployment |
+| Test suite           | `functions/test/phase-3-2/rules-v1-4.test.mjs`                            | ✓ Complete | QA + CI/CD          |
+| Change summary       | `docs/RULES_v1.4_DIFF.md`                                                 | ✓ Complete | Auditor + Stream D  |
+| This checklist       | `.planning/phases/03-schema-extensions/03-02-IMPLEMENTATION_CHECKLIST.md` | ✓ Complete | Phase tracking      |
 
 ---
 
@@ -286,12 +291,12 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 ## Known Limitations & Defer Items
 
-| Item | Status | Phase | Notes |
-|------|--------|-------|-------|
-| Portal URL validation | Defer | Phase 4 UI | Rules don't validate CDN URL format (app responsibility) |
-| NOTIVISA retry logic | Defer | Phase 3.3 Callables | Rules allow server update; implementation in Functions |
-| Draft auto-lock cleanup | Defer | Phase 4 Cron | Rules don't enforce lock timeout; app manages lifecycle |
-| IA model versioning | Defer | Phase 9 | Rules allow server write; versioning logic in Functions |
+| Item                    | Status | Phase               | Notes                                                    |
+| ----------------------- | ------ | ------------------- | -------------------------------------------------------- |
+| Portal URL validation   | Defer  | Phase 4 UI          | Rules don't validate CDN URL format (app responsibility) |
+| NOTIVISA retry logic    | Defer  | Phase 3.3 Callables | Rules allow server update; implementation in Functions   |
+| Draft auto-lock cleanup | Defer  | Phase 4 Cron        | Rules don't enforce lock timeout; app manages lifecycle  |
+| IA model versioning     | Defer  | Phase 9             | Rules allow server write; versioning logic in Functions  |
 
 ---
 
@@ -312,14 +317,14 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 ## Success Criteria Summary
 
-| Criteria | Status | Evidence |
-|----------|--------|----------|
-| 5 rules blocks ✅ | PASS | 5 match blocks in firestore.rules |
-| Correct syntax ✅ | PASS | Valid Firestore rules DSL |
-| 23/23 tests ✅ | READY | 23+ assertions in test file |
-| Security audit ✅ | PASS | 6/6 audit criteria passed |
-| Staging deploy ✅ | READY | No syntax errors; schema exists |
-| No regressions ✅ | PASS | Existing rules untouched |
+| Criteria          | Status | Evidence                          |
+| ----------------- | ------ | --------------------------------- |
+| 5 rules blocks ✅ | PASS   | 5 match blocks in firestore.rules |
+| Correct syntax ✅ | PASS   | Valid Firestore rules DSL         |
+| 23/23 tests ✅    | READY  | 23+ assertions in test file       |
+| Security audit ✅ | PASS   | 6/6 audit criteria passed         |
+| Staging deploy ✅ | READY  | No syntax errors; schema exists   |
+| No regressions ✅ | PASS   | Existing rules untouched          |
 
 ---
 

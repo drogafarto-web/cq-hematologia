@@ -12,16 +12,16 @@
 
 The rollback procedures document is **well-structured and comprehensive**, but **cannot be executed in its current state** due to **2 critical code blockers** that prevent both `npm run build` and `firebase deploy` from succeeding. The document itself is valid; the codebase is not deployment-ready.
 
-| Validation Aspect | Status | Severity | Notes |
-|---|---|---|---|
-| Failure decision trees (4) | ✓ PASS | — | Comprehensive, clear logic flow |
-| Rollback execution paths (5) | ✓ PASS | — | Commands well-structured, tested references |
-| Post-rollback monitoring (4 metrics) | ✓ PASS | — | Dashboard references exist |
-| Prevention checklist | ✓ PASS | — | Actionable, complete |
-| **Code executability** | ✗ **FAIL** | **CRITICAL** | 15+ TypeScript errors in `src/` and `functions/` |
-| **Command validation** | ⚠ WARN | HIGH | Paths/scripts exist, but builds fail |
-| **Firebase CLI tools** | ✓ PASS | — | firebase 15.16.0 installed and working |
-| **Git state** | ✓ PASS | — | Main branch clean, tags present (v1.2) |
+| Validation Aspect                    | Status     | Severity     | Notes                                            |
+| ------------------------------------ | ---------- | ------------ | ------------------------------------------------ |
+| Failure decision trees (4)           | ✓ PASS     | —            | Comprehensive, clear logic flow                  |
+| Rollback execution paths (5)         | ✓ PASS     | —            | Commands well-structured, tested references      |
+| Post-rollback monitoring (4 metrics) | ✓ PASS     | —            | Dashboard references exist                       |
+| Prevention checklist                 | ✓ PASS     | —            | Actionable, complete                             |
+| **Code executability**               | ✗ **FAIL** | **CRITICAL** | 15+ TypeScript errors in `src/` and `functions/` |
+| **Command validation**               | ⚠ WARN     | HIGH         | Paths/scripts exist, but builds fail             |
+| **Firebase CLI tools**               | ✓ PASS     | —            | firebase 15.16.0 installed and working           |
+| **Git state**                        | ✓ PASS     | —            | Main branch clean, tags present (v1.2)           |
 
 ---
 
@@ -30,24 +30,28 @@ The rollback procedures document is **well-structured and comprehensive**, but *
 **Validation:** All 4 decision trees are present and logically sound.
 
 ### Tree 1: P0 Alert Fires (Lines 9–23)
+
 - **Structure:** Clear binary decision (new code? yes/no)
 - **Decision window:** 5 minutes ✓
 - **Actions:** Runnable — Cloud Logs search referenced
 - **Status:** COMPLETE
 
 ### Tree 2: Portal Laudo Load Regression (Lines 29–51)
+
 - **Structure:** 4-branch decision (query / bundle / function latency / network)
 - **Decision window:** 30 minutes ✓
 - **Actions:** `gcloud` commands, `du -k`, CDN verification — all realistic
 - **Status:** COMPLETE
 
 ### Tree 3: NOTIVISA Queue Stuck (Lines 57–83)
+
 - **Structure:** 4-branch (processor crash / hung / permissions / API)
 - **Decision window:** 15 min investigation + 30 min action ✓
 - **Actions:** Firestore access checks, Secret Manager validation
 - **Status:** COMPLETE
 
 ### Tree 4: Firestore Rule Violation (Lines 89–116)
+
 - **Structure:** 5-branch (deploy success / indexes / membership / path match / rule condition)
 - **Decision window:** 10 minutes ✓
 - **Actions:** Emulator testing referenced (`npm run test:firestore-rules`)
@@ -62,6 +66,7 @@ The rollback procedures document is **well-structured and comprehensive**, but *
 ### Path 1: Hosting Only (Lines 154–180) — 1 min
 
 **Commands:**
+
 ```bash
 COMMIT=$(git log --oneline | head -1 | awk '{print $1}')    # ✓ Valid
 git revert --no-edit $COMMIT                                 # ✓ Valid
@@ -75,6 +80,7 @@ curl -I https://hmatologia2.web.app/portal/auth              # ✓ Valid
 ### Path 2: Firestore Rules Only (Lines 189–217) — 2 min
 
 **Commands:**
+
 ```bash
 git log --oneline -- firestore.rules | head -3              # ✓ Valid
 GOOD_COMMIT=$(...)                                           # ✓ Valid shell
@@ -89,6 +95,7 @@ npm run test:firestore-rules                                 # ✓ Test exists
 ### Path 3: Cloud Functions Only (Lines 226–286) — 5 min
 
 **Option A: Full functions rollback**
+
 ```bash
 COMMIT=$(git log --oneline -- functions/src | head -1 | awk '{print $1}')  # ✓ Valid
 git revert --no-edit $COMMIT                                  # ✓ Valid
@@ -98,6 +105,7 @@ firebase deploy --only functions --project hmatologia2        # ✓ Valid (if bu
 ```
 
 **Option B: Disable problematic function only**
+
 ```bash
 # Edit function to reject all calls — ✓ Valid approach
 firebase deploy --only functions:notivisaDraftCreate          # ✓ Valid
@@ -105,6 +113,7 @@ git restore functions/src/modules/notivisa/callables.ts       # ✓ Valid
 ```
 
 **Option C: Manual GCP Console disable**
+
 - Documented but not scriptable — ✓ Valid fallback
 
 **Status:** ✓ Command syntax valid, ✗ **BUILD FAILS**, ✓ Option B provides workaround
@@ -112,6 +121,7 @@ git restore functions/src/modules/notivisa/callables.ts       # ✓ Valid
 ### Path 4: Rules + Functions (Lines 295–320) — 5 min
 
 **Commands:**
+
 ```bash
 RULES_COMMIT=$(...)                                           # ✓ Valid
 FUNC_COMMIT=$(...)                                            # ✓ Valid
@@ -126,6 +136,7 @@ firebase deploy --only firestore:rules,functions              # ✓ Valid (if bu
 ### Path 5: Full Rollback (Lines 324–361) — 10 min
 
 **Commands:**
+
 ```bash
 git log --oneline v1.3..HEAD | head -20                      # ⚠ NO v1.3 TAG (only v1.2 exists)
 git reset --hard $PHASE3_COMMIT                              # ✓ Valid (if hash known)
@@ -143,14 +154,15 @@ bash .planning/scripts/phase-4-smoke-test.sh                 # ✓ Script exists
 
 **Validation:** 4 key metrics specified with targets and sources.
 
-| Metric | Target | Monitor | Status |
-|---|---|---|---|
-| Auth success rate | >99% | Dashboard 1 | ✓ Referenced |
-| Portal load time | <2s LCP | Browser dev tools | ✓ Clear |
-| Error rate | <0.1% | Cloud Logs | ✓ Filters exist |
-| Firestore latency | <500ms p95 | Dashboard 3 | ✓ Referenced |
+| Metric            | Target     | Monitor           | Status          |
+| ----------------- | ---------- | ----------------- | --------------- |
+| Auth success rate | >99%       | Dashboard 1       | ✓ Referenced    |
+| Portal load time  | <2s LCP    | Browser dev tools | ✓ Clear         |
+| Error rate        | <0.1%      | Cloud Logs        | ✓ Filters exist |
+| Firestore latency | <500ms p95 | Dashboard 3       | ✓ Referenced    |
 
 **Post-Rollback Checklist (Lines 411–418):**
+
 - ✓ All 4 dashboards health metric check
 - ✓ Cloud Logs error verification
 - ✓ Auth success rate confirmation
@@ -158,6 +170,7 @@ bash .planning/scripts/phase-4-smoke-test.sh                 # ✓ Script exists
 - ✓ NOTIVISA queue status (if applicable)
 
 **Sign-Off Template (Lines 420–432):**
+
 - ✓ Complete with all required fields
 - ✓ Timestamp, component, reason, status tracking
 
@@ -174,7 +187,7 @@ bash .planning/scripts/phase-4-smoke-test.sh                 # ✓ Script exists
 - [ ] Staging environment tested end-to-end
 - [ ] Code review by CTO + tech lead
 - [ ] All pre-deployment validation items passing
-- [ ] >24 hours elapsed since rollback (cool-down)
+- [ ] > 24 hours elapsed since rollback (cool-down)
 
 **Status:** ✓ **COMPLETE AND ACTIONABLE**
 
@@ -187,14 +200,16 @@ bash .planning/scripts/phase-4-smoke-test.sh                 # ✓ Script exists
 **Command:** `npm run build`
 
 **Failure Output:**
+
 ```
-src/features/notivisa-portal/services/PortalAuthService.ts(19,15): 
+src/features/notivisa-portal/services/PortalAuthService.ts(19,15):
   error TS2305: Module '"../../../types"' has no exported member 'LogicalSignature'.
 ```
 
 **Root Cause:** Missing or incorrectly exported type definition.
 
 **Impact:**
+
 - ❌ Cannot run `npm run build` for hosting deployment
 - ❌ Blocks Hosting rollback path (Path 1)
 - ❌ Blocks Full rollback (Path 5)
@@ -208,6 +223,7 @@ src/features/notivisa-portal/services/PortalAuthService.ts(19,15):
 **Failure Count:** 15+ TS errors in `authenticatePortal.ts`
 
 **Sample Errors:**
+
 ```
 src/modules/notivisa-portal/callables/authenticatePortal.ts(117,23):
   error TS18048: 'stateData' is possibly 'undefined'.
@@ -216,17 +232,19 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(135,21):
   error TS2339: Property 'logger' does not exist on type 'typeof import(...)
 
 src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
-  error TS2551: Property 'idToken' does not exist on type 'OAuthTokenResponse'. 
+  error TS2551: Property 'idToken' does not exist on type 'OAuthTokenResponse'.
   Did you mean 'id_token'?
 ```
 
 **Root Causes:**
+
 1. Undefined variable usage without null checks
 2. Missing `logger` import/reference on https module
 3. Camelcase/snake_case mismatch in OAuth token response (idToken vs id_token)
 4. Property existence validation missing
 
 **Impact:**
+
 - ❌ Cannot run `cd functions && npm run build`
 - ❌ Blocks Functions rollback path (Path 3, Option A)
 - ❌ Blocks Rules + Functions rollback (Path 4)
@@ -237,6 +255,7 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 ## 6. Command Validation — ⚠ PARTIAL PASS
 
 ### Git Commands
+
 - ✓ `git log --oneline` — works
 - ✓ `git revert --no-edit` — valid syntax
 - ✓ `git show -- firestore.rules` — valid
@@ -245,6 +264,7 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
   - **Fix needed:** Update full rollback procedure to use v1.2 or latest stable commit hash
 
 ### Firebase CLI Commands
+
 - ✓ `firebase deploy --only hosting` — verified functional
 - ✓ `firebase deploy --only firestore:rules` — verified functional
 - ✓ `firebase deploy --only functions` — syntax valid (not tested due to build failure)
@@ -253,18 +273,21 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 - ✓ `firebase functions describe` — syntax valid (not tested)
 
 ### Google Cloud Commands
+
 - ✓ `gcloud firestore indexes list` — syntax valid (not tested)
 - ✓ `gcloud functions list` — syntax valid
 - ✓ `gcloud secrets versions access latest` — syntax valid (not tested)
 - ✓ `gcloud alpha monitoring policies list` — syntax valid (not tested)
 
 ### Build Commands
+
 - ✓ `npm run build` — **command exists**, ✗ **fails due to TS errors**
 - ✓ `cd functions && npm run build` — **command exists**, ✗ **fails due to TS errors**
 - ✓ `npm test` — syntax valid (functions side)
 - ✓ `npm run lint` — syntax valid
 
 ### Bash Script References
+
 - ✓ `.planning/scripts/phase-4-smoke-test.sh` — exists and is well-structured
   - 10 automated checks
   - Color-coded output
@@ -277,13 +300,13 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 
 **Referenced documents (all exist):**
 
-| Document | Path | Status |
-|---|---|---|
-| Deployment Checklist | `.planning/PHASE_4_DEPLOYMENT_CHECKLIST.md` | ✓ Exists |
-| Smoke Test Script | `.planning/scripts/phase-4-smoke-test.sh` | ✓ Exists |
-| Cloud Logs Guide | `docs/CLOUD_LOGS_QUICK_REFERENCE.md` | ✓ Exists |
-| Incident Response | `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` | ✓ Exists |
-| Firestore Rules (NOTIVISA) | `.claude/rules/notivisa-firestore-rules.md` | ✓ Exists |
+| Document                   | Path                                           | Status   |
+| -------------------------- | ---------------------------------------------- | -------- |
+| Deployment Checklist       | `.planning/PHASE_4_DEPLOYMENT_CHECKLIST.md`    | ✓ Exists |
+| Smoke Test Script          | `.planning/scripts/phase-4-smoke-test.sh`      | ✓ Exists |
+| Cloud Logs Guide           | `docs/CLOUD_LOGS_QUICK_REFERENCE.md`           | ✓ Exists |
+| Incident Response          | `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` | ✓ Exists |
+| Firestore Rules (NOTIVISA) | `.claude/rules/notivisa-firestore-rules.md`    | ✓ Exists |
 
 ---
 
@@ -303,7 +326,7 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
      - Undefined `stateData` (line 117)
      - Missing `logger` property on https module (multiple lines)
      - OAuth token property name mismatches (idToken vs id_token, expiresIn vs expires_in, etc.)
-   - **Fix:** 
+   - **Fix:**
      - Add null checks for `stateData`
      - Import/use correct logger from firebase-functions
      - Map OAuth response with snake_case keys to camelCase or adjust code
@@ -332,6 +355,7 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 ## Procedure Quality Assessment
 
 ### Strengths
+
 - ✓ Comprehensive decision tree logic with clear time windows
 - ✓ 5 rollback paths cover all failure scenarios
 - ✓ Post-rollback monitoring with specific dashboards + metrics
@@ -341,6 +365,7 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 - ✓ Smoke test script is production-ready
 
 ### Weaknesses
+
 - ✗ Cannot be executed until code blockers are fixed
 - ⚠ Missing validation that gcloud CLI is authenticated
 - ⚠ v1.3 tag reference is outdated (doesn't exist)
@@ -388,18 +413,18 @@ src/modules/notivisa-portal/callables/authenticatePortal.ts(188,71):
 
 ## Sign-Off Checklist
 
-| Item | Status | Owner |
-|---|---|---|
-| Document structure complete | ✓ PASS | — |
-| 4 decision trees present | ✓ PASS | — |
-| 5 rollback paths documented | ✓ PASS | — |
-| Commands syntactically valid | ⚠ WARN | @CTO |
-| Code compiles (no TS errors) | ✗ FAIL | @Dev team |
+| Item                                 | Status | Owner     |
+| ------------------------------------ | ------ | --------- |
+| Document structure complete          | ✓ PASS | —         |
+| 4 decision trees present             | ✓ PASS | —         |
+| 5 rollback paths documented          | ✓ PASS | —         |
+| Commands syntactically valid         | ⚠ WARN | @CTO      |
+| Code compiles (no TS errors)         | ✗ FAIL | @Dev team |
 | v1.3 tag exists or procedure updated | ✗ FAIL | @Dev team |
-| All referenced docs exist | ✓ PASS | — |
-| Smoke test script is executable | ✓ PASS | — |
-| Post-rollback monitoring specified | ✓ PASS | — |
-| Prevention checklist complete | ✓ PASS | — |
+| All referenced docs exist            | ✓ PASS | —         |
+| Smoke test script is executable      | ✓ PASS | —         |
+| Post-rollback monitoring specified   | ✓ PASS | —         |
+| Prevention checklist complete        | ✓ PASS | —         |
 
 ---
 

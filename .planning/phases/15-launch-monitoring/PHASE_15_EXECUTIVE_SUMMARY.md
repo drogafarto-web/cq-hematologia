@@ -1,6 +1,6 @@
 ---
 phase: 15
-title: "Phase 15 Executive Summary — v1.4 Launch & Post-Deploy Monitoring"
+title: 'Phase 15 Executive Summary — v1.4 Launch & Post-Deploy Monitoring'
 date: 2026-05-07
 status: ready-for-execution
 ---
@@ -27,6 +27,7 @@ This is the **final operational gate** before v1.4 is declared "live" and Phase 
 ## The 4-Step Deployment Sequence
 
 ### Step 1: Firestore Rules + Indexes (30 min)
+
 **Owner:** DevOps Lead + QA Lead
 
 - Pre-deploy: type-check + rules validation (`firebase deploy --dry-run`)
@@ -39,6 +40,7 @@ This is the **final operational gate** before v1.4 is declared "live" and Phase 
 **Mitigation:** Rules reviewed + emulator smoke tested; revert on error within 3 min
 
 ### Step 2: Cloud Functions (50+ new callables) (40 min)
+
 **Owner:** DevOps Lead + on-call engineer
 
 - Pre-deploy security gate: `bash scripts/preflight-secrets-check.sh` (must be 0/green)
@@ -51,6 +53,7 @@ This is the **final operational gate** before v1.4 is declared "live" and Phase 
 **Mitigation:** Preflight gate blocks deploy if secrets undefined; fallback: `--allow-pending-secrets` (emergency only, logged)
 
 ### Step 3: Hosting (30 min)
+
 **Owner:** DevOps Lead
 
 - Pre-deploy: Type-check, build, bundle size sanity
@@ -63,6 +66,7 @@ This is the **final operational gate** before v1.4 is declared "live" and Phase 
 **Mitigation:** `registerType: 'autoUpdate'` handles this; users need Ctrl+Shift+R (documented in deploy-protocol)
 
 ### Step 4: Production Smoke Tests (45 min)
+
 **Owner:** QA Lead + on-call engineer
 
 **8 test cases covering critical paths:**
@@ -90,25 +94,26 @@ This is the **final operational gate** before v1.4 is declared "live" and Phase 
 
 ### What We Monitor
 
-| Layer | Filter | Red Flags | Expected |
-|-------|--------|-----------|----------|
-| Cloud Functions | `resource.type="cloud_function" AND severity >= ERROR` | `Timeout`, `undefined is not a function`, `out of memory` | <5 errors per 50K invocations |
-| Firestore | `resource.type="cloud_firestore"` | `Permission denied`, `Rate exceeded`, `Document too large` | 0 permission; 0–2 rate warnings |
-| Hosting | `resource.type="cloud_run"` OR `resource.labels.service="hmatologia2"` | `5xx` status, latency >5s | 0 errors; LCP <2.5s |
-| NOTIVISA | `function_name="notivisa-send" AND severity >= ERROR` | Any error (P0) | 0 errors |
-| Gemini API | `text:"gemini" AND severity >= ERROR` | Timeout, API limit, bad input | <10 errors per 48h (acceptable for IA foundation) |
+| Layer           | Filter                                                                 | Red Flags                                                  | Expected                                          |
+| --------------- | ---------------------------------------------------------------------- | ---------------------------------------------------------- | ------------------------------------------------- |
+| Cloud Functions | `resource.type="cloud_function" AND severity >= ERROR`                 | `Timeout`, `undefined is not a function`, `out of memory`  | <5 errors per 50K invocations                     |
+| Firestore       | `resource.type="cloud_firestore"`                                      | `Permission denied`, `Rate exceeded`, `Document too large` | 0 permission; 0–2 rate warnings                   |
+| Hosting         | `resource.type="cloud_run"` OR `resource.labels.service="hmatologia2"` | `5xx` status, latency >5s                                  | 0 errors; LCP <2.5s                               |
+| NOTIVISA        | `function_name="notivisa-send" AND severity >= ERROR`                  | Any error (P0)                                             | 0 errors                                          |
+| Gemini API      | `text:"gemini" AND severity >= ERROR`                                  | Timeout, API limit, bad input                              | <10 errors per 48h (acceptable for IA foundation) |
 
 ### Incident Escalation
 
-| Severity | Examples | SLA | Action |
-|----------|----------|-----|--------|
-| **P0** | NOTIVISA down, Firestore rules blocking, auth unavailable | <5 min acknowledge | Escalate → immediate investigation → potential rollback |
-| **P1** | Function taking >10s, module 10% error rate, rate-limited | <2h resolve | Escalate → log for v1.4.1 post-launch patch |
-| **P2** | Single timeout, transient OAuth, slow module | <24h address | Document → plan for v1.4.1 |
+| Severity | Examples                                                  | SLA                | Action                                                  |
+| -------- | --------------------------------------------------------- | ------------------ | ------------------------------------------------------- |
+| **P0**   | NOTIVISA down, Firestore rules blocking, auth unavailable | <5 min acknowledge | Escalate → immediate investigation → potential rollback |
+| **P1**   | Function taking >10s, module 10% error rate, rate-limited | <2h resolve        | Escalate → log for v1.4.1 post-launch patch             |
+| **P2**   | Single timeout, transient OAuth, slow module              | <24h address       | Document → plan for v1.4.1                              |
 
 ### Rollback Trigger
 
 If P0 incident **cannot be fixed in 15 minutes**, execute rollback:
+
 - Revert to pre-deploy commit
 - Re-deploy in sequence (Rules → Functions → Hosting)
 - Smoke test (5 min)
@@ -194,6 +199,7 @@ Post-48h monitoring, QA lead compiles `METRICS_BASELINE_v1.4.json`:
 ### v1.5 Kickoff (2026-05-10 09:00 UTC)
 
 30-min meeting to align on:
+
 - Phase 4 readiness (CAPA closure sequence, auditor timeline)
 - Phase 5–7 planning (portal expansion, RDC Part 2, DICQ → 88%)
 - Resource allocation (4 parallel streams)
@@ -203,16 +209,16 @@ Post-48h monitoring, QA lead compiles `METRICS_BASELINE_v1.4.json`:
 
 ## Key Success Criteria
 
-| Criterion | Target | Status |
-|-----------|--------|--------|
-| All 4 deploy steps execute | ✓ No blockers | TBD (2026-05-07 20:00) |
-| 0 P0 incidents during 48h | ✓ None | TBD (2026-05-09 22:30) |
-| Smoke tests 8/8 passing | ✓ All green | TBD (2026-05-07 22:30) |
-| DICQ baseline captured | ✓ 78–82% | TBD |
-| RDC 978 Arts. 117, 167, 179-191 | ✓ 90%+ | TBD |
-| Real-world RT validation | ✓ <2 min critical response | TBD |
-| Auditor sign-off | ✓ Complete | TBD |
-| v1.5 Phase 4 readiness | ✓ Documented | TBD |
+| Criterion                       | Target                     | Status                 |
+| ------------------------------- | -------------------------- | ---------------------- |
+| All 4 deploy steps execute      | ✓ No blockers              | TBD (2026-05-07 20:00) |
+| 0 P0 incidents during 48h       | ✓ None                     | TBD (2026-05-09 22:30) |
+| Smoke tests 8/8 passing         | ✓ All green                | TBD (2026-05-07 22:30) |
+| DICQ baseline captured          | ✓ 78–82%                   | TBD                    |
+| RDC 978 Arts. 117, 167, 179-191 | ✓ 90%+                     | TBD                    |
+| Real-world RT validation        | ✓ <2 min critical response | TBD                    |
+| Auditor sign-off                | ✓ Complete                 | TBD                    |
+| v1.5 Phase 4 readiness          | ✓ Documented               | TBD                    |
 
 ---
 
@@ -222,7 +228,7 @@ Post-48h monitoring, QA lead compiles `METRICS_BASELINE_v1.4.json`:
 
 1. **Phase 14 complete & merged** — All code reviewed, tested, no outstanding merge conflicts
 2. **CTO authorization email** — Explicit "proceed with Phase 15" before Step 1
-3. **Secrets provisioned** — All `defineSecret()` calls resolve to actual values (not PENDING_*)
+3. **Secrets provisioned** — All `defineSecret()` calls resolve to actual values (not PENDING\_\*)
 4. **On-call engineer assigned** — Named person + phone number for 48h window
 5. **GCP credentials live** — `gcloud auth` + `firebase projects:list` working
 
@@ -262,13 +268,13 @@ Post-48h monitoring, QA lead compiles `METRICS_BASELINE_v1.4.json`:
 
 ## Owner & Escalation
 
-| Role | Name | Email | Phone | Shift |
-|------|------|-------|-------|-------|
-| CTO | [Name] | [email] | [phone] | Approval gate only |
-| DevOps Lead | [Name] | [email] | [phone] | 2026-05-07 all day |
-| QA Lead | [Name] | [email] | [phone] | 2026-05-07 all day + 2026-05-08/09 spot-checks |
+| Role             | Name   | Email   | Phone   | Shift                                               |
+| ---------------- | ------ | ------- | ------- | --------------------------------------------------- |
+| CTO              | [Name] | [email] | [phone] | Approval gate only                                  |
+| DevOps Lead      | [Name] | [email] | [phone] | 2026-05-07 all day                                  |
+| QA Lead          | [Name] | [email] | [phone] | 2026-05-07 all day + 2026-05-08/09 spot-checks      |
 | On-Call Engineer | [Name] | [email] | [phone] | 2026-05-07 22:30 → 2026-05-09 22:30 (12h rotations) |
-| Auditor | [Name] | [email] | [phone] | 2026-05-08 09:00–17:00 (real-world tests) |
+| Auditor          | [Name] | [email] | [phone] | 2026-05-08 09:00–17:00 (real-world tests)           |
 
 ---
 

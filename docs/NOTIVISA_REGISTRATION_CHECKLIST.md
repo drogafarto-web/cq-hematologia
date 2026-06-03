@@ -1,20 +1,20 @@
 ---
-title: "NOTIVISA Government Registration Checklist"
-date_created: "2026-05-07"
-date_updated: "2026-05-07"
-version: "1.0"
-status: "Active — Phase 4–12 Execution Path"
-audience: "Lab Director + RT (Responsável Técnico) + CTO + Ops"
+title: 'NOTIVISA Government Registration Checklist'
+date_created: '2026-05-07'
+date_updated: '2026-05-07'
+version: '1.0'
+status: 'Active — Phase 4–12 Execution Path'
+audience: 'Lab Director + RT (Responsável Técnico) + CTO + Ops'
 compliance_refs:
-  - "RDC 978 Art. 66 (NOTIVISA notification of adverse events)"
-  - "RDC 978 Art. 6º §1 (notification requirements)"
-  - "Portaria 204/2016 MS (99 mandatory diseases list)"
-  - "Lei 14.063/2020 (electronic signature framework)"
-  - "RDC 30/2015 (digital signature requirements for lab reports)"
+  - 'RDC 978 Art. 66 (NOTIVISA notification of adverse events)'
+  - 'RDC 978 Art. 6º §1 (notification requirements)'
+  - 'Portaria 204/2016 MS (99 mandatory diseases list)'
+  - 'Lei 14.063/2020 (electronic signature framework)'
+  - 'RDC 30/2015 (digital signature requirements for lab reports)'
 related_docs:
-  - "ADR-0014 (sandbox-to-production pathway)"
-  - "v1.4_NOTIVISA_SANDBOX_SETUP.md"
-  - "NOTIVISA_INTEGRATION_SETUP_CHECKLIST.md"
+  - 'ADR-0014 (sandbox-to-production pathway)'
+  - 'v1.4_NOTIVISA_SANDBOX_SETUP.md'
+  - 'NOTIVISA_INTEGRATION_SETUP_CHECKLIST.md'
 ---
 
 # NOTIVISA Government Registration Checklist
@@ -45,19 +45,19 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
   - **Note:** Office structure may vary; ask for department name + direct contact email.
 
 - [ ] **Document contact information:**
-  - Office name: ___________________
-  - Contact person: _________________
-  - Direct email: ___________________
-  - Phone extension: ___________________
-  - Business hours: ___________________
-  - Escalation contact (if primary unavailable): ___________________
+  - Office name: ********\_\_\_********
+  - Contact person: ********\_********
+  - Direct email: ********\_\_\_********
+  - Phone extension: ********\_\_\_********
+  - Business hours: ********\_\_\_********
+  - Escalation contact (if primary unavailable): ********\_\_\_********
 
 - [ ] **Confirm registration requirements** during call (do not assume):
   - Are we registering as a clinical lab or as a third-party notifier?
   - Do we need a separate account per lab location or one account per CNPJ?
   - Is there a formal registration form or online portal?
 
-**Owner signature:** _________________ (Lab Director) **Date:** _______
+**Owner signature:** ********\_******** (Lab Director) **Date:** **\_\_\_**
 
 ---
 
@@ -68,24 +68,24 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
 **Action Items:**
 
 - [ ] **Confirm RT appointment**
-  - Full name: ___________________
+  - Full name: ********\_\_\_********
   - Professional ID: Farmacêutico | Médico | Biomédico
-  - CREA/CFF/CFBM registration number: ___________________
+  - CREA/CFF/CFBM registration number: ********\_\_\_********
   - CREA/CFF/CFBM registration status: Active ✓ | Inactive ✗
 
 - [ ] **Verify RT has active Anvisa portal account**
   - Go to: https://portalanvisa.gov.br/
   - Log in with RT's CPF + password
   - If account does not exist, RT must register at Anvisa portal (takes 2–3 days)
-  - Document: Account activation date: ___________________
+  - Document: Account activation date: ********\_\_\_********
 
 - [ ] **Create RT credential backup contact**
-  - Backup RT name: ___________________
-  - Backup RT email: ___________________
-  - Backup RT phone: ___________________
-  - *Reason:* If primary RT is unavailable (vacation, illness), Anvisa can reach secondary contact for urgent issues.
+  - Backup RT name: ********\_\_\_********
+  - Backup RT email: ********\_\_\_********
+  - Backup RT phone: ********\_\_\_********
+  - _Reason:_ If primary RT is unavailable (vacation, illness), Anvisa can reach secondary contact for urgent issues.
 
-**Owner signature:** _________________ (RT) **Date:** _______
+**Owner signature:** ********\_******** (RT) **Date:** **\_\_\_**
 
 ---
 
@@ -96,11 +96,11 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
 **Action Items:**
 
 - [ ] **Confirm lab director appointment**
-  - Full name: ___________________
+  - Full name: ********\_\_\_********
   - Professional ID: Médico | Farmacêutico | Biomédico
-  - Professional registration number: ___________________
-  - Contact email: ___________________
-  - Contact phone: ___________________
+  - Professional registration number: ********\_\_\_********
+  - Contact email: ********\_\_\_********
+  - Contact phone: ********\_\_\_********
 
 - [ ] **Brief director on NOTIVISA obligations**
   - Responsibility: Lab director is legally liable for NOTIVISA submission compliance (RDC 978 Art. 66).
@@ -110,9 +110,9 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
 
 - [ ] **Obtain director's written consent**
   - [ ] Director acknowledges NOTIVISA obligations (email or signed document)
-  - Document attachment: _________________________
+  - Document attachment: ************\_************
 
-**Owner signature:** _________________ (Lab Director) **Date:** _______
+**Owner signature:** ********\_******** (Lab Director) **Date:** **\_\_\_**
 
 ---
 
@@ -128,7 +128,7 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
 
 - [ ] **Check CNPJ status online**
   - Go to: https://www.cnpj.net/ (or use Receita Federal's official portal)
-  - Enter lab CNPJ: ____-____-____-____
+  - Enter lab CNPJ: \_**\_-\_\_**-\_**\_-\_\_**
   - Verify status: "Ativa" ✓ | "Inativa" ✗ | "Suspensa" ✗
   - If not "Ativa," contact accounting department to reactivate before proceeding.
   - **Screenshot:** Attach CNPJ query result to registration folder.
@@ -142,10 +142,10 @@ This checklist maps government registration requirements for NOTIVISA (Anvisa's 
 - [ ] **Verify lab's CNES registration (if applicable)**
   - CNES (Cadastro Nacional de Estabelecimentos de Saúde) is mandatory for some labs.
   - Go to: https://www.cnes.datasus.gov.br/
-  - If registered, document CNES number: ___________________
+  - If registered, document CNES number: ********\_\_\_********
   - If not registered, check if required for your state/municipality (contact health authority).
 
-**Owner signature:** _________________ (Finance/Legal) **Date:** _______
+**Owner signature:** ********\_******** (Finance/Legal) **Date:** **\_\_\_**
 
 ---
 
@@ -237,7 +237,7 @@ _________________________________           Data: ___/___/______
 
 - [ ] **Attachment:** Store original or certified copy in registration folder
 
-**Owner signature:** _________________ (Lab Director) **Date:** _______
+**Owner signature:** ********\_******** (Lab Director) **Date:** **\_\_\_**
 
 ---
 
@@ -252,7 +252,7 @@ _________________________________           Data: ___/___/______
   - [ ] RG or passport copy (valid ID)
   - [ ] Professional registration certificate (CFF/CREA/CFBM)
   - [ ] Professional registration status: Active ✓ | Lapsed ✗
-  - *Note:* Lapsed credentials may delay registration; renew if needed.
+  - _Note:_ Lapsed credentials may delay registration; renew if needed.
 
 - [ ] **RT digital signature credential (if using ICP-Brasil):**
   - [ ] RT has valid ICP-Brasil certificate (e-CPF or equivalent)
@@ -264,7 +264,7 @@ _________________________________           Data: ___/___/______
   - [ ] Account shows RT's name + CPF correctly
   - [ ] Account status: "Ativo" (not suspended or pending)
 
-**Owner signature:** _________________ (RT) **Date:** _______
+**Owner signature:** ********\_******** (RT) **Date:** **\_\_\_**
 
 ---
 
@@ -294,6 +294,7 @@ _________________________________           Data: ___/___/______
   - [ ] Webhook callback specification (if applicable)
 
 - [ ] **Confirm schema includes Portaria 204/2016 Art. 6º fields:**
+
   ```
   Required fields (15 mandatory per MS):
   - resultId or exameId
@@ -317,7 +318,7 @@ _________________________________           Data: ___/___/______
   - File path: `functions/src/types/notivisa.ts` (Zod schema)
   - All 15 fields mapped to HC Quality data model
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -347,7 +348,7 @@ _________________________________           Data: ___/___/______
   - File: `docs/NOTIVISA_LAB_DISEASE_CONFIG.md`
   - For auditor reference
 
-**Owner signature:** _________________ (CTO / Ops) **Date:** _______
+**Owner signature:** ********\_******** (CTO / Ops) **Date:** **\_\_\_**
 
 ---
 
@@ -371,7 +372,7 @@ _________________________________           Data: ___/___/______
 
 - [ ] **Document credential rotation schedule**
   - Rotation frequency: 90 days
-  - Next rotation: ___________________
+  - Next rotation: ********\_\_\_********
   - Owner: CTO / Ops
 
 - [ ] **Create fallback/backup credentials**
@@ -379,7 +380,7 @@ _________________________________           Data: ___/___/______
   - [ ] Store backup in separate secrets manager entry: `notivisa_sandbox_api_key_backup`
   - [ ] Test backup key periodically (monthly)
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -399,6 +400,7 @@ _________________________________           Data: ___/___/______
   - NOTIVISA is one notification channel (to Anvisa/health authority); professional notification is separate.
 
 - [ ] **Document HC Quality compliance approach**
+
   ```
   Phase 4 (v1.4, Sandbox):
   - Auto-detect critical results in lab analyzer feeds
@@ -406,7 +408,7 @@ _________________________________           Data: ___/___/______
   - RT approves draft (manual review gate)
   - System records approval in audit trail
   - Export to PDF for manual submission to Anvisa portal
-  
+
   Phase 12+ (v1.5+, Production):
   - Same as above + auto-submit to Anvisa NOTIVISA API
   - Receive receipt code from Anvisa
@@ -416,7 +418,7 @@ _________________________________           Data: ___/___/______
 - [ ] **File:** Attach compliance map to registration folder
   - Path: `docs/RDC_978_ART66_COMPLIANCE_MAP.md`
 
-**Owner signature:** _________________ (Compliance Officer / CTO) **Date:** _______
+**Owner signature:** ********\_******** (Compliance Officer / CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -455,7 +457,7 @@ _________________________________           Data: ___/___/______
   - Path: `docs/NOTIVISA_RISK_REGISTER.md`
   - Format: Risk | Likelihood | Impact | Mitigation | Owner | Status
 
-**Owner signature:** _________________ (CTO / Compliance Officer) **Date:** _______
+**Owner signature:** ********\_******** (CTO / Compliance Officer) **Date:** **\_\_\_**
 
 ---
 
@@ -511,7 +513,7 @@ _________________________________           Data: ___/___/______
   - [ ] RT signature on NOTIVISA forms has same legal weight as handwritten signature
   - [ ] Evidence: Signature timestamp + certificate details stored immutably in audit trail
 
-**Owner signature:** _________________ (Lab Director / CTO) **Date:** _______
+**Owner signature:** ********\_******** (Lab Director / CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -538,7 +540,7 @@ _________________________________           Data: ___/___/______
   - [ ] Every signed form includes: Certificate issuer, certificate serial number, signature timestamp
   - [ ] For auditor: Proof of RT authority to sign
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -548,7 +550,7 @@ _________________________________           Data: ___/___/______
 
 **Action Items:**
 
-- [ ] **Certificate expiry date:** ____/____/______
+- [ ] **Certificate expiry date:** \_**\_/\_\_**/**\_\_**
   - [ ] Add calendar reminder: 90 days before expiry
   - [ ] Add calendar reminder: 30 days before expiry (final warning)
 
@@ -564,7 +566,7 @@ _________________________________           Data: ___/___/______
   - Backup: Ops team lead
   - Escalation: Lab Director
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -664,12 +666,12 @@ _________________________________
   - Success criterion: Receive sandbox API key + endpoint URL
 
 - [ ] **Document submission:**
-  - [ ] Email sent to Anvisa on: ____/____/______ at ____:____ (include Sent timestamp)
-  - [ ] Email subject: ___________________________________
-  - [ ] Recipient(s): ___________________________________
+  - [ ] Email sent to Anvisa on: \_**\_/\_\_**/**\_\_** at \_**\_:\_\_** (include Sent timestamp)
+  - [ ] Email subject: ****************\_\_\_****************
+  - [ ] Recipient(s): ****************\_\_\_****************
   - [ ] Confirmation receipt from Anvisa: ✓ Received | ⏳ Pending
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -680,15 +682,15 @@ _________________________________
 **Action Items:**
 
 - [ ] **Upon receipt from Anvisa, verify credentials include:**
-  - [ ] API endpoint URL (sandbox): ___________________
-  - [ ] API key or Bearer token: ___________________
-  - [ ] Certificate file (if mTLS required): ___________________
-  - [ ] Authentication method (OAuth 2.0 | API Key | mTLS | other): ___________________
-  - [ ] Rate limits (requests/minute, requests/day): ___________________
-  - [ ] Webhook callback URL (if NOTIVISA pushes notifications): ___________________
-  - [ ] Webhook signing key (for validating callback signatures): ___________________
-  - [ ] Expiry date of sandbox credentials: ____/____/______
-  - [ ] Contact for sandbox support: ___________________
+  - [ ] API endpoint URL (sandbox): ********\_\_\_********
+  - [ ] API key or Bearer token: ********\_\_\_********
+  - [ ] Certificate file (if mTLS required): ********\_\_\_********
+  - [ ] Authentication method (OAuth 2.0 | API Key | mTLS | other): ********\_\_\_********
+  - [ ] Rate limits (requests/minute, requests/day): ********\_\_\_********
+  - [ ] Webhook callback URL (if NOTIVISA pushes notifications): ********\_\_\_********
+  - [ ] Webhook signing key (for validating callback signatures): ********\_\_\_********
+  - [ ] Expiry date of sandbox credentials: \_**\_/\_\_**/**\_\_**
+  - [ ] Contact for sandbox support: ********\_\_\_********
 
 - [ ] **Validate credentials with manual test**
   - [ ] Test API connectivity with cURL or Postman
@@ -714,7 +716,7 @@ _________________________________
   - [ ] Include: Endpoint URL, auth method, expiry date, support contact
   - [ ] Restriction: Only CTO/Ops can read this file
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -756,7 +758,7 @@ _________________________________
   - [ ] File: `docs/NOTIVISA_SANDBOX_TEST_RESULTS.md`
   - [ ] Document: Test date, results (pass/fail), latency, error handling
 
-**Owner signature:** _________________ (CTO / Engineering) **Date:** _______
+**Owner signature:** ********\_******** (CTO / Engineering) **Date:** **\_\_\_**
 
 ---
 
@@ -776,7 +778,14 @@ _________________________________
     ```typescript
     interface NotivisaAuditEvent {
       id: string;
-      type: 'draft_created' | 'draft_approved' | 'draft_rejected' | 'submitted' | 'acknowledged' | 'failed' | 'retried';
+      type:
+        | 'draft_created'
+        | 'draft_approved'
+        | 'draft_rejected'
+        | 'submitted'
+        | 'acknowledged'
+        | 'failed'
+        | 'retried';
       timestamp: Timestamp;
       operatorId: string; // RT ID
       operatorEmail?: string; // For context (masked in logs)
@@ -807,7 +816,7 @@ _________________________________
   - [ ] Verify immutability (try to delete event → should fail)
   - [ ] Verify no PII in logs (scan for CPF, names, patient IDs)
 
-**Owner signature:** _________________ (Compliance Officer) **Date:** _______
+**Owner signature:** ********\_******** (Compliance Officer) **Date:** **\_\_\_**
 
 ---
 
@@ -838,7 +847,7 @@ _________________________________
   - [ ] Cloud Function: `functions/src/callables/generateNotivisaDailyReport.ts`
   - [ ] Scheduler config: `firebase.json` (cloudScheduler section)
 
-**Owner signature:** _________________ (Ops / Compliance Officer) **Date:** _______
+**Owner signature:** ********\_******** (Ops / Compliance Officer) **Date:** **\_\_\_**
 
 ---
 
@@ -867,7 +876,7 @@ _________________________________
   - [ ] If PII found: Immediately redact logs + alert compliance officer
   - [ ] File report: `docs/NOTIVISA_QUARTERLY_AUDIT_REVIEW_Q[1-4].md`
 
-**Owner signature:** _________________ (Compliance Officer / CTO) **Date:** _______
+**Owner signature:** ********\_******** (Compliance Officer / CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -902,12 +911,12 @@ _________________________________
   - Level 3 (Lab Director): Activate fallback (manual submission to Anvisa portal)
 
 - [ ] **Escalation triggers:**
-  - [ ] >50% submission failure rate in 1 hour
+  - [ ] > 50% submission failure rate in 1 hour
   - [ ] Queue depth >100 pending events
   - [ ] Anvisa API not responding (3+ consecutive failures)
   - [ ] RT account suspended or credentials expired
 
-**Owner signature:** _________________ (Ops Lead) **Date:** _______
+**Owner signature:** ********\_******** (Ops Lead) **Date:** **\_\_\_**
 
 ---
 
@@ -940,7 +949,7 @@ _________________________________
   - [ ] Email alerts to ops@lab.com (daily summary)
   - [ ] PagerDuty integration (if on-call rotation active)
 
-**Owner signature:** _________________ (Ops / DevOps) **Date:** _______
+**Owner signature:** ********\_******** (Ops / DevOps) **Date:** **\_\_\_**
 
 ---
 
@@ -961,18 +970,18 @@ _________________________________
   - [ ] No blocking bugs or warnings (tsc check, lint): ✓ Yes | ✗ No
 
 - [ ] **Stakeholder sign-offs:**
-  - [ ] Lab Director: _________________ Date: _______
-  - [ ] RT: _________________ Date: _______
-  - [ ] CTO: _________________ Date: _______
-  - [ ] Compliance Officer: _________________ Date: _______
-  - [ ] Ops Lead: _________________ Date: _______
+  - [ ] Lab Director: ********\_******** Date: **\_\_\_**
+  - [ ] RT: ********\_******** Date: **\_\_\_**
+  - [ ] CTO: ********\_******** Date: **\_\_\_**
+  - [ ] Compliance Officer: ********\_******** Date: **\_\_\_**
+  - [ ] Ops Lead: ********\_******** Date: **\_\_\_**
 
 - [ ] **Gate decision:**
   - [ ] ✓ APPROVED — Proceed with Phase 4 deployment
-  - [ ] ⏳ DEFERRED — Items pending; target completion date: ____/____/______
+  - [ ] ⏳ DEFERRED — Items pending; target completion date: \_**\_/\_\_**/**\_\_**
   - [ ] ✗ BLOCKED — Critical issues; escalate to CTO
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -1007,7 +1016,7 @@ _________________________________
   - [ ] If certificate ready: Allocate 1–2 weeks for API integration + testing
   - [ ] If certificate delayed: Document reason + revised timeline
 
-**Owner signature:** _________________ (CTO) **Date:** _______
+**Owner signature:** ********\_******** (CTO) **Date:** **\_\_\_**
 
 ---
 
@@ -1064,23 +1073,23 @@ Anvisa Support (general):
 
 ## Appendix B: Timeline Summary
 
-| Milestone | Owner | Target Date | Status |
-|-----------|-------|-------------|--------|
-| Item 1: Identify Anvisa office | Lab Director | 2026-05-08 | ⏳ |
-| Item 2–3: RT + Director designation | Lab Director | 2026-05-08 | ⏳ |
-| Item 4–6: Documentation prep | Finance/Legal | 2026-05-10 | ⏳ |
-| Item 7–9: Technical setup | CTO | 2026-05-10 | ⏳ |
-| Item 5: Authorization letter signed | Lab Director | 2026-05-10 | ⏳ |
-| Item 15: Sandbox registration submitted | CTO | 2026-05-10 | ⏳ |
-| Item 16: Sandbox credentials received | CTO | 2026-05-15 (est.) | ⏳ |
-| Item 17: Sandbox testing complete | Engineering | 2026-05-17 | ⏳ |
-| Item 10–14: Compliance & certificate plan | CTO | 2026-05-12 | ⏳ |
-| Item 18–20: Audit trail + compliance | Compliance Officer | 2026-05-17 | ⏳ |
-| Item 21–23: Ops readiness + gate | Ops Lead | 2026-05-19 | ⏳ |
-| **Phase 4 Kickoff** | — | **2026-05-20** | — |
-| Item 12–14: Certificate acquisition | Lab Director | 2026-08-31 | ⏳ |
-| **Phase 12 Readiness Gate** | CTO | **2026-11-01** | — |
-| Production API integration (v1.5) | Engineering | 2026-11-15 (est.) | ⏳ |
+| Milestone                                 | Owner              | Target Date       | Status |
+| ----------------------------------------- | ------------------ | ----------------- | ------ |
+| Item 1: Identify Anvisa office            | Lab Director       | 2026-05-08        | ⏳     |
+| Item 2–3: RT + Director designation       | Lab Director       | 2026-05-08        | ⏳     |
+| Item 4–6: Documentation prep              | Finance/Legal      | 2026-05-10        | ⏳     |
+| Item 7–9: Technical setup                 | CTO                | 2026-05-10        | ⏳     |
+| Item 5: Authorization letter signed       | Lab Director       | 2026-05-10        | ⏳     |
+| Item 15: Sandbox registration submitted   | CTO                | 2026-05-10        | ⏳     |
+| Item 16: Sandbox credentials received     | CTO                | 2026-05-15 (est.) | ⏳     |
+| Item 17: Sandbox testing complete         | Engineering        | 2026-05-17        | ⏳     |
+| Item 10–14: Compliance & certificate plan | CTO                | 2026-05-12        | ⏳     |
+| Item 18–20: Audit trail + compliance      | Compliance Officer | 2026-05-17        | ⏳     |
+| Item 21–23: Ops readiness + gate          | Ops Lead           | 2026-05-19        | ⏳     |
+| **Phase 4 Kickoff**                       | —                  | **2026-05-20**    | —      |
+| Item 12–14: Certificate acquisition       | Lab Director       | 2026-08-31        | ⏳     |
+| **Phase 12 Readiness Gate**               | CTO                | **2026-11-01**    | —      |
+| Production API integration (v1.5)         | Engineering        | 2026-11-15 (est.) | ⏳     |
 
 ---
 
@@ -1098,32 +1107,32 @@ Anvisa Support (general):
 
 ## Appendix D: File Paths & Documentation
 
-| File | Owner | Purpose |
-|------|-------|---------|
-| `docs/NOTIVISA_REGISTRATION_CHECKLIST.md` | Compliance Officer | This file |
-| `docs/NOTIVISA_INTEGRATION_SETUP_CHECKLIST.md` | CTO | Sandbox integration tasks |
-| `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md` | Ops | Sandbox provisioning guide |
-| `docs/RDC_978_ART66_COMPLIANCE_MAP.md` | Compliance Officer | Art. 66 compliance mapping |
-| `docs/NOTIVISA_RISK_REGISTER.md` | CTO | Risk tracking |
-| `docs/NOTIVISA_OPS_RUNBOOK.md` | Ops | Operational procedures |
-| `docs/NOTIVISA_SANDBOX_CREDENTIALS_REFERENCE.md` | CTO | Sandbox API details (restricted) |
-| `docs/NOTIVISA_SANDBOX_TEST_RESULTS.md` | Engineering | Test execution results |
-| `docs/NOTIVISA_QUARTERLY_AUDIT_REVIEW_Q[1-4].md` | Compliance Officer | Quarterly audit reports |
-| `functions/src/types/notivisa.ts` | Engineering | Zod schema + types |
-| `functions/src/services/notivisaService.ts` | Engineering | API integration logic |
-| `firestore.rules` | CTO | Security rules for collections |
+| File                                             | Owner              | Purpose                          |
+| ------------------------------------------------ | ------------------ | -------------------------------- |
+| `docs/NOTIVISA_REGISTRATION_CHECKLIST.md`        | Compliance Officer | This file                        |
+| `docs/NOTIVISA_INTEGRATION_SETUP_CHECKLIST.md`   | CTO                | Sandbox integration tasks        |
+| `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md`            | Ops                | Sandbox provisioning guide       |
+| `docs/RDC_978_ART66_COMPLIANCE_MAP.md`           | Compliance Officer | Art. 66 compliance mapping       |
+| `docs/NOTIVISA_RISK_REGISTER.md`                 | CTO                | Risk tracking                    |
+| `docs/NOTIVISA_OPS_RUNBOOK.md`                   | Ops                | Operational procedures           |
+| `docs/NOTIVISA_SANDBOX_CREDENTIALS_REFERENCE.md` | CTO                | Sandbox API details (restricted) |
+| `docs/NOTIVISA_SANDBOX_TEST_RESULTS.md`          | Engineering        | Test execution results           |
+| `docs/NOTIVISA_QUARTERLY_AUDIT_REVIEW_Q[1-4].md` | Compliance Officer | Quarterly audit reports          |
+| `functions/src/types/notivisa.ts`                | Engineering        | Zod schema + types               |
+| `functions/src/services/notivisaService.ts`      | Engineering        | API integration logic            |
+| `firestore.rules`                                | CTO                | Security rules for collections   |
 
 ---
 
 ## Final Sign-Off
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Lab Director | ___________________ | ___________________ | _______ |
-| Responsável Técnico | ___________________ | ___________________ | _______ |
-| CTO | ___________________ | ___________________ | _______ |
-| Compliance Officer | ___________________ | ___________________ | _______ |
-| Ops Lead | ___________________ | ___________________ | _______ |
+| Role                | Name                   | Signature              | Date       |
+| ------------------- | ---------------------- | ---------------------- | ---------- |
+| Lab Director        | ********\_\_\_******** | ********\_\_\_******** | **\_\_\_** |
+| Responsável Técnico | ********\_\_\_******** | ********\_\_\_******** | **\_\_\_** |
+| CTO                 | ********\_\_\_******** | ********\_\_\_******** | **\_\_\_** |
+| Compliance Officer  | ********\_\_\_******** | ********\_\_\_******** | **\_\_\_** |
+| Ops Lead            | ********\_\_\_******** | ********\_\_\_******** | **\_\_\_** |
 
 ---
 

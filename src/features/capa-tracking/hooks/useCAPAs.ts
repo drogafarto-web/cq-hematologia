@@ -22,9 +22,10 @@ import type { CapaDocument, CAPAWithDeadlineStatus, DeadlineStatus } from '../ty
  */
 function computeDeadlineStatus(capa: CapaDocument): DeadlineStatus {
   const now = new Date();
-  const deadlineMs = typeof capa.deadlineDate === 'number'
-    ? capa.deadlineDate
-    : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+  const deadlineMs =
+    typeof capa.deadlineDate === 'number'
+      ? capa.deadlineDate
+      : ((capa.deadlineDate as any)?.toMillis?.() ?? 0);
   const nowMs = now.getTime();
   const daysRemaining = Math.ceil((deadlineMs - nowMs) / (1000 * 60 * 60 * 24));
 
@@ -85,14 +86,23 @@ export function useCAPAs(): UseCAPAsResult {
           // Legacy field aliases for backward compatibility with components
           priority: capa.finding.severity,
           dicqRef: capa.finding.dicqBlocks?.[0] || '',
-          deadline: typeof capa.deadlineDate === 'number' ? capa.deadlineDate : capa.deadlineDate?.toMillis?.() ?? 0,
+          deadline:
+            typeof capa.deadlineDate === 'number'
+              ? capa.deadlineDate
+              : (capa.deadlineDate?.toMillis?.() ?? 0),
           status: capa.state,
         }));
 
         // Ordena por deadline (próximas primeiro)
         withStatus.sort((a, b) => {
-          const aTime = typeof a.deadlineDate === 'number' ? a.deadlineDate : a.deadlineDate?.toMillis?.() ?? 0;
-          const bTime = typeof b.deadlineDate === 'number' ? b.deadlineDate : b.deadlineDate?.toMillis?.() ?? 0;
+          const aTime =
+            typeof a.deadlineDate === 'number'
+              ? a.deadlineDate
+              : (a.deadlineDate?.toMillis?.() ?? 0);
+          const bTime =
+            typeof b.deadlineDate === 'number'
+              ? b.deadlineDate
+              : (b.deadlineDate?.toMillis?.() ?? 0);
           return aTime - bTime;
         });
 

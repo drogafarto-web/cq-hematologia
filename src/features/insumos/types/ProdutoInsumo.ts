@@ -119,7 +119,10 @@ export interface ProdutoInsumo {
  * Sem leitura de Firestore — função pura, segura para chamar em render.
  */
 export function resolveQualificacaoMode(
-  produto: Pick<ProdutoInsumo, 'qualificacaoMode' | 'manual' | 'modulos' | 'equipamentosCompativeis' | 'tipo'>,
+  produto: Pick<
+    ProdutoInsumo,
+    'qualificacaoMode' | 'manual' | 'modulos' | 'equipamentosCompativeis' | 'tipo'
+  >,
 ): QualificacaoMode {
   if (produto.qualificacaoMode) return produto.qualificacaoMode;
 

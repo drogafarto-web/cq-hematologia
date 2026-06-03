@@ -99,7 +99,10 @@ export function ECCronograma({
   const matrix = useMemo(() => {
     const m = new Map<string, Execucao[][]>();
     for (const t of treinamentos) {
-      m.set(t.id, Array.from({ length: 12 }, () => []));
+      m.set(
+        t.id,
+        Array.from({ length: 12 }, () => []),
+      );
     }
     for (const e of execucoes) {
       const ts = e.dataPlanejada.toMillis();
@@ -138,7 +141,8 @@ export function ECCronograma({
       <section className="flex flex-col gap-3">
         <Header ano={ano} subtitle="Sem treinamentos cadastrados" />
         <p className="rounded-lg border border-dashed border-slate-800 py-8 text-center text-sm text-slate-400">
-          Cadastre o primeiro treinamento abaixo — o cronograma aparece aqui assim que você planejar execuções.
+          Cadastre o primeiro treinamento abaixo — o cronograma aparece aqui assim que você planejar
+          execuções.
         </p>
       </section>
     );
@@ -188,10 +192,13 @@ export function ECCronograma({
                           >
                             {TIPO_BADGE[t.tipo].label}
                           </span>
-                          <span className="truncate text-sm font-medium text-slate-100">{t.titulo}</span>
+                          <span className="truncate text-sm font-medium text-slate-100">
+                            {t.titulo}
+                          </span>
                         </div>
                         <span className="text-[11px] text-slate-500">
-                          {t.periodicidade ? `${t.periodicidade} · ` : ''}{t.cargaHoraria}h
+                          {t.periodicidade ? `${t.periodicidade} · ` : ''}
+                          {t.cargaHoraria}h
                         </span>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
@@ -280,11 +287,7 @@ function CellDots({ execucoes }: { execucoes: Execucao[] }) {
   return (
     <div className="flex items-center justify-center gap-0.5" title={tooltip(execucoes)}>
       {execucoes.slice(0, 3).map((e) => (
-        <span
-          key={e.id}
-          className={`h-2 w-2 rounded-full ${STATUS_DOT[e.status]}`}
-          aria-hidden
-        />
+        <span key={e.id} className={`h-2 w-2 rounded-full ${STATUS_DOT[e.status]}`} aria-hidden />
       ))}
       {execucoes.length > 3 && (
         <span className="ml-0.5 text-[10px] font-medium text-slate-400">

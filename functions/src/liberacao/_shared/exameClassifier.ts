@@ -47,14 +47,16 @@ export function detectAllCriticos(
 
   for (const exame of exames) {
     for (const resultado of exame.resultados || []) {
-      const valor = typeof resultado.value === 'string' ? parseFloat(resultado.value) : resultado.value;
+      const valor =
+        typeof resultado.value === 'string' ? parseFloat(resultado.value) : resultado.value;
       if (typeof valor !== 'number' || isNaN(valor)) continue;
 
       for (const t of thresholds) {
         if (t.ativo === false) continue;
         if (t.analitoId && t.analitoId !== exame.id) continue;
         if (t.unidade && resultado.unidade && t.unidade !== resultado.unidade) continue;
-        if (t.sexo && t.sexo !== 'NI' && paciente.sexo !== 'NI' && t.sexo !== paciente.sexo) continue;
+        if (t.sexo && t.sexo !== 'NI' && paciente.sexo !== 'NI' && t.sexo !== paciente.sexo)
+          continue;
         if (t.faixaIdade?.minAnos != null && paciente.idade < t.faixaIdade.minAnos) continue;
         if (t.faixaIdade?.maxAnos != null && paciente.idade > t.faixaIdade.maxAnos) continue;
 
@@ -121,7 +123,7 @@ interface AutoReleaseDecision {
  */
 export function shouldAutoRelease(
   config: ExameConfig,
-  context: AutoReleaseContext
+  context: AutoReleaseContext,
 ): AutoReleaseDecision {
   // 1. Auto-release desativado pelo lab?
   if (!config.autoReleaseEnabled) {

@@ -59,10 +59,7 @@ export function generateEcSignatureServer(
  * recebem assinaturas pré-computadas (não é o caso da Fase 0b — todas as
  * callables geram a assinatura internamente — mas mantido para auditoria).
  */
-export function verifyEcSignatureServer(
-  signature: LogicalSignature,
-  payload: EcPayload,
-): boolean {
+export function verifyEcSignatureServer(signature: LogicalSignature, payload: EcPayload): boolean {
   const dataString = JSON.stringify({
     operatorId: signature.operatorId,
     ts: signature.ts.toMillis(),

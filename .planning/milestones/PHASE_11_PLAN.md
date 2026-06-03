@@ -13,18 +13,18 @@
 
 **Success Criteria (binários, não-ambíguos)**:
 
-| # | Critério | Verificação programática |
-|---|----------|-------------------------|
-| SC-1 | `createPlanoAcao` callable não é mais TODO | `grep -L "TODO" functions/src/modules/auditoria/auditoria.ts` retorna 0 matches em `createPlanoAcao` |
-| SC-2 | Schema `Presenca` (FR-045) existe + persiste | `grep -l "interface Presenca" src/features/sgq/auditoria/types.ts` retorna 1 |
-| SC-3 | `Auditoria.tipoExecucao` + `auditoriaOriginalId` existem | TSC valida; novo callable `createReAuditoria` deployado |
-| SC-4 | FR-043 mapping documentado em `generatePDF.ts` | Comentários inline com cada uma das 4 tabelas oficiais |
-| SC-5 | `Sessao.auditorLider` + `auditoresAuxiliares[]` existem | TSC valida |
-| SC-6 | `npx tsc --noEmit` passa em `web/` e `functions/` | Exit code 0 |
-| SC-7 | Todos os testes unit + E2E novos passam | Jest + Playwright exit 0 |
-| SC-8 | Firestore rules cobrem novos paths com `validSignature` | `firebase emulators:exec --only firestore "npm test"` exit 0 |
-| SC-9 | ADR-0035 + ADR-0036 commitados em `docs/adr/` | Files exist |
-| SC-10 | CLAUDE.md raiz atualizado com linha de Phase 11 | `grep -q "Phase 11" CLAUDE.md` |
+| #     | Critério                                                 | Verificação programática                                                                             |
+| ----- | -------------------------------------------------------- | ---------------------------------------------------------------------------------------------------- |
+| SC-1  | `createPlanoAcao` callable não é mais TODO               | `grep -L "TODO" functions/src/modules/auditoria/auditoria.ts` retorna 0 matches em `createPlanoAcao` |
+| SC-2  | Schema `Presenca` (FR-045) existe + persiste             | `grep -l "interface Presenca" src/features/sgq/auditoria/types.ts` retorna 1                         |
+| SC-3  | `Auditoria.tipoExecucao` + `auditoriaOriginalId` existem | TSC valida; novo callable `createReAuditoria` deployado                                              |
+| SC-4  | FR-043 mapping documentado em `generatePDF.ts`           | Comentários inline com cada uma das 4 tabelas oficiais                                               |
+| SC-5  | `Sessao.auditorLider` + `auditoresAuxiliares[]` existem  | TSC valida                                                                                           |
+| SC-6  | `npx tsc --noEmit` passa em `web/` e `functions/`        | Exit code 0                                                                                          |
+| SC-7  | Todos os testes unit + E2E novos passam                  | Jest + Playwright exit 0                                                                             |
+| SC-8  | Firestore rules cobrem novos paths com `validSignature`  | `firebase emulators:exec --only firestore "npm test"` exit 0                                         |
+| SC-9  | ADR-0035 + ADR-0036 commitados em `docs/adr/`            | Files exist                                                                                          |
+| SC-10 | CLAUDE.md raiz atualizado com linha de Phase 11          | `grep -q "Phase 11" CLAUDE.md`                                                                       |
 
 **Quality bar**: Se qualquer SC-N falha, a wave falha e nenhuma wave subsequente inicia. Sem retry loops.
 
@@ -72,13 +72,13 @@
 
 ### 2.3 Modelo por agente
 
-| Wave | Agentes | Modelo | Paralelo? | Justificativa |
-|------|---------|--------|-----------|---------------|
-| 1 | A1–A4 | Haiku 4.5 | ✅ Sim | Files distintos, 0 race conditions |
-| 2 | B1–B4 | Haiku 4.5 | ✅ Sim | Cada um edita callable distinto |
-| 3 | C1–C3 | Haiku 4.5 | ✅ Sim | Components distintos |
-| 4 | D1–D2 | Haiku 4.5 | ✅ Sim | Tests independentes |
-| 5 | E1–E2 | Sonnet 4.6 | ❌ Sequencial | Deploy + docs requer judgment + ack do user |
+| Wave | Agentes | Modelo     | Paralelo?     | Justificativa                               |
+| ---- | ------- | ---------- | ------------- | ------------------------------------------- |
+| 1    | A1–A4   | Haiku 4.5  | ✅ Sim        | Files distintos, 0 race conditions          |
+| 2    | B1–B4   | Haiku 4.5  | ✅ Sim        | Cada um edita callable distinto             |
+| 3    | C1–C3   | Haiku 4.5  | ✅ Sim        | Components distintos                        |
+| 4    | D1–D2   | Haiku 4.5  | ✅ Sim        | Tests independentes                         |
+| 5    | E1–E2   | Sonnet 4.6 | ❌ Sequencial | Deploy + docs requer judgment + ack do user |
 
 **E1 (deploy)** sobe para Sonnet por safety: deploy é hard-to-reverse e CLAUDE.md exige ack explícito. Apenas E1 e E2 quebram a regra "no human-in-the-loop" — se preferir 100% autônomo, marcar `--auto-deploy` (default: human ack).
 
@@ -126,7 +126,7 @@ description: Extend audit types schema
 
 **Prompt** (auto-contained):
 
-```
+````
 Você está editando o arquivo C:/hc quality/src/features/sgq/auditoria/types.ts no projeto HC Quality (Sistema CQ Labclin multi-tenant).
 
 CONTEXTO:
@@ -140,9 +140,10 @@ TAREFA: adicione/estenda os seguintes types em types.ts (no final do arquivo, ma
    ```ts
    auditorLider?: string;        // operatorId do auditor líder (FR42)
    auditoresAuxiliares?: string[]; // operatorIds adicionais
-   ```
+````
 
 2. Estenda `Auditoria` adicionando campos opcionais:
+
    ```ts
    tipoExecucao?: 'inicial' | 'reAuditoria';
    auditoriaOriginalId?: string;  // FK quando tipoExecucao === 'reAuditoria'
@@ -152,16 +153,23 @@ TAREFA: adicione/estenda os seguintes types em types.ts (no final do arquivo, ma
    ```
 
 3. Crie novo type `Presenca` (FR-045):
+
    ```ts
-   export type PapelPresenca = 'auditor' | 'auditado' | 'observador' | 'rt' | 'gerente_qc' | 'direcao';
-   
+   export type PapelPresenca =
+     | 'auditor'
+     | 'auditado'
+     | 'observador'
+     | 'rt'
+     | 'gerente_qc'
+     | 'direcao';
+
    export interface Presenca {
      readonly id: string;
      readonly sessaoId: string;
      readonly labId: string;
      readonly auditoriaId: string;
-     userId: string;          // operatorId
-     nome: string;            // snapshot at time of signing
+     userId: string; // operatorId
+     nome: string; // snapshot at time of signing
      papel: PapelPresenca;
      reuniao: 'abertura' | 'encerramento';
      assinatura: LogicalSignature;
@@ -169,11 +177,15 @@ TAREFA: adicione/estenda os seguintes types em types.ts (no final do arquivo, ma
      readonly criadoPor: string;
      deletadoEm: Timestamp | null;
    }
-   
-   export type PresencaInput = Omit<Presenca, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'assinatura'>;
+
+   export type PresencaInput = Omit<
+     Presenca,
+     'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'assinatura'
+   >;
    ```
 
 4. Crie novo type `ReuniaoAuditoria`:
+
    ```ts
    export interface ReuniaoAuditoria {
      readonly id: string;
@@ -182,7 +194,7 @@ TAREFA: adicione/estenda os seguintes types em types.ts (no final do arquivo, ma
      readonly auditoriaId: string;
      tipo: 'abertura' | 'encerramento';
      dataHora: Timestamp;
-     pauta: string;          // min 10 chars
+     pauta: string; // min 10 chars
      concluidaEm: Timestamp | null;
      totalPresentes: number;
      readonly criadoEm: Timestamp;
@@ -201,17 +213,20 @@ TAREFA: adicione/estenda os seguintes types em types.ts (no final do arquivo, ma
    ```
 
 ACEITAÇÃO:
+
 - `npx tsc --noEmit` na raiz `C:/hc quality` passa (exit 0)
 - Arquivo final tem todos os 5 itens acima
 - Não removeu nenhum type/interface existente
 
 ENTREGÁVEL:
+
 1. Edite o arquivo
 2. Faça `git add src/features/sgq/auditoria/types.ts && git commit -m "feat(phase-11/A1): extend audit types — Presenca + ReAuditoria + PlanoAcao + multi-auditor"`
 3. Retorne: SHA do commit + lista dos 5 itens adicionados.
 
 FALHA: se TSC falhar, NÃO commit. Reporte o erro de TSC textualmente e pare.
-```
+
+````
 
 ---
 
@@ -221,7 +236,7 @@ FALHA: se TSC falhar, NÃO commit. Reporte o erro de TSC textualmente e pare.
 subagent_type: general-purpose
 model: haiku
 description: Update firestore rules
-```
+````
 
 **Prompt**:
 
@@ -237,35 +252,41 @@ TAREFA: Adicione blocos de rules para 3 novas subcoleções da auditoria. Insira
 
 1. Presença (FR-045):
 ```
+
 match /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/presenca/{presencaId} {
-  allow read: if isActiveMemberOfLab(labId);
-  allow create: if false;  // callable only
-  allow update: if false;
-  allow delete: if false;
+allow read: if isActiveMemberOfLab(labId);
+allow create: if false; // callable only
+allow update: if false;
+allow delete: if false;
 }
+
 ```
 
 2. Reuniões:
 ```
+
 match /labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/reunioes/{reuniaoId} {
-  allow read: if isActiveMemberOfLab(labId);
-  allow create: if false;
-  allow update: if false;
-  allow delete: if false;
+allow read: if isActiveMemberOfLab(labId);
+allow create: if false;
+allow update: if false;
+allow delete: if false;
 }
+
 ```
 
 3. Planos de Ação (estender se já existir; criar se não):
 ```
+
 match /labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao/{planoId} {
-  allow read: if isActiveMemberOfLab(labId);
-  allow create: if false;
-  allow update: if isActiveMemberOfLab(labId)
-                && request.resource.data.labId == labId
-                && request.resource.data.diff(resource.data).affectedKeys()
-                   .hasOnly(['status', 'evidenciaUrl', 'assinatura', 'concluídoEm']);
-  allow delete: if false;
+allow read: if isActiveMemberOfLab(labId);
+allow create: if false;
+allow update: if isActiveMemberOfLab(labId)
+&& request.resource.data.labId == labId
+&& request.resource.data.diff(resource.data).affectedKeys()
+.hasOnly(['status', 'evidenciaUrl', 'assinatura', 'concluídoEm']);
+allow delete: if false;
 }
+
 ```
 
 ACEITAÇÃO:
@@ -301,51 +322,59 @@ TAREFA: Adicione 4 índices compostos no array `indexes`:
 
 1. Presença por sessão (queries: list por sessão):
 ```
+
 {
-  "collectionGroup": "presenca",
-  "queryScope": "COLLECTION",
-  "fields": [
-    { "fieldPath": "sessaoId", "order": "ASCENDING" },
-    { "fieldPath": "criadoEm", "order": "DESCENDING" }
-  ]
+"collectionGroup": "presenca",
+"queryScope": "COLLECTION",
+"fields": [
+{ "fieldPath": "sessaoId", "order": "ASCENDING" },
+{ "fieldPath": "criadoEm", "order": "DESCENDING" }
+]
 }
+
 ```
 
 2. Reuniões por auditoria + tipo:
 ```
+
 {
-  "collectionGroup": "reunioes",
-  "queryScope": "COLLECTION",
-  "fields": [
-    { "fieldPath": "auditoriaId", "order": "ASCENDING" },
-    { "fieldPath": "tipo", "order": "ASCENDING" },
-    { "fieldPath": "dataHora", "order": "DESCENDING" }
-  ]
+"collectionGroup": "reunioes",
+"queryScope": "COLLECTION",
+"fields": [
+{ "fieldPath": "auditoriaId", "order": "ASCENDING" },
+{ "fieldPath": "tipo", "order": "ASCENDING" },
+{ "fieldPath": "dataHora", "order": "DESCENDING" }
+]
 }
+
 ```
 
 3. Planos de ação por status + prazo:
 ```
+
 {
-  "collectionGroup": "planos-acao",
-  "queryScope": "COLLECTION",
-  "fields": [
-    { "fieldPath": "status", "order": "ASCENDING" },
-    { "fieldPath": "prazo", "order": "ASCENDING" }
-  ]
+"collectionGroup": "planos-acao",
+"queryScope": "COLLECTION",
+"fields": [
+{ "fieldPath": "status", "order": "ASCENDING" },
+{ "fieldPath": "prazo", "order": "ASCENDING" }
+]
 }
+
 ```
 
 4. Auditorias por tipoExecucao + ano:
 ```
+
 {
-  "collectionGroup": "auditorias-internas",
-  "queryScope": "COLLECTION",
-  "fields": [
-    { "fieldPath": "tipoExecucao", "order": "ASCENDING" },
-    { "fieldPath": "ano", "order": "DESCENDING" }
-  ]
+"collectionGroup": "auditorias-internas",
+"queryScope": "COLLECTION",
+"fields": [
+{ "fieldPath": "tipoExecucao", "order": "ASCENDING" },
+{ "fieldPath": "ano", "order": "DESCENDING" }
+]
 }
+
 ```
 
 ACEITAÇÃO:
@@ -368,7 +397,7 @@ description: Create FR-045 seed template
 
 **Prompt**:
 
-```
+````
 Você está criando um novo arquivo: C:/hc quality/functions/src/seeds/presencaTemplate.json
 
 TAREFA: Crie um JSON com o template padrão de papéis esperados em uma auditoria, conforme PQ-24 §6.3 e FR-045.
@@ -434,12 +463,13 @@ Conteúdo (copiar exato):
     }
   ]
 }
-```
+````
 
 ACEITAÇÃO: arquivo criado, JSON válido.
 
 ENTREGÁVEL: criar + `git add functions/src/seeds/presencaTemplate.json && git commit -m "feat(phase-11/A4): seed template for FR-045 presença papéis"` + SHA.
-```
+
+````
 
 ---
 
@@ -458,7 +488,7 @@ node -e "JSON.parse(require('fs').readFileSync('firestore.indexes.json'))" || { 
 node -e "JSON.parse(require('fs').readFileSync('functions/src/seeds/presencaTemplate.json'))" || { echo "GATE-1 FAIL: presença JSON"; exit 1; }
 
 echo "GATE-1 PASS"
-```
+````
 
 **Falha**: `git reset --hard phase-11-baseline && exit 1`. Phase 11 abortada.
 
@@ -478,7 +508,7 @@ description: Implement createPlanoAcao callable
 
 **Prompt**:
 
-```
+````
 Você está editando C:/hc quality/functions/src/modules/auditoria/auditoria.ts.
 
 CONTEXTO:
@@ -499,9 +529,10 @@ const CreatePlanoAcaoInput = z.object({
   responsavel: z.string().min(1),
   prazo: z.string().refine((s) => !isNaN(Date.parse(s)), 'prazo inválido (ISO 8601)'),
 });
-```
+````
 
 LÓGICA:
+
 1. Validar auth (HttpsError 'unauthenticated' se !request.auth).
 2. Parse input com zod, throw 'invalid-argument' em fail.
 3. isActiveMemberOfLab(labId, uid) — 'permission-denied' se false.
@@ -515,6 +546,7 @@ LÓGICA:
 8. Retornar `{ success: true, planoId: planoRef.id, status: 'nao_iniciado' }`.
 
 ACEITAÇÃO:
+
 - TSC functions limpo
 - Sem strings "TODO" no método
 - Mantém pattern dos outros callables (estilo `registerAchado`)
@@ -522,7 +554,8 @@ ACEITAÇÃO:
 ENTREGÁVEL: edit + commit "feat(phase-11/B1): implement createPlanoAcao real (replaces TODO stub)" + SHA.
 
 FALHA: TSC error → NÃO commit, reporte stderr.
-```
+
+````
 
 ---
 
@@ -532,11 +565,11 @@ FALHA: TSC error → NÃO commit, reporte stderr.
 subagent_type: general-purpose
 model: haiku
 description: Create registerPresenca callable
-```
+````
 
 **Prompt**:
 
-```
+````
 Você está editando C:/hc quality/functions/src/modules/auditoria/auditoria.ts.
 
 CONTEXTO: arquivo já tem N callables (createAuditoria, registerAchado, etc). Adicione 1 callable novo no final do arquivo (antes de qualquer linha que pareça `// END OF FILE` se houver, OU no final mesmo).
@@ -556,9 +589,10 @@ const RegisterPresencaInput = z.object({
     papel: z.enum(['auditor', 'auditado', 'observador', 'rt', 'gerente_qc', 'direcao']),
   })).min(1).max(50),
 });
-```
+````
 
 LÓGICA:
+
 1. Auth check + member check (igual outros callables).
 2. Para cada participante, gerar LogicalSignature (canonical: auditoriaId, sessaoId, reuniao, userId, papel).
 3. Em batch (`db.batch()`), criar 1 doc por participante em:
@@ -569,7 +603,8 @@ LÓGICA:
 ACEITAÇÃO: TSC limpo, padrão consistente com createAuditoria.
 
 ENTREGÁVEL: edit + commit "feat(phase-11/B2): registerPresenca callable (FR-045)" + SHA.
-```
+
+````
 
 ---
 
@@ -579,11 +614,11 @@ ENTREGÁVEL: edit + commit "feat(phase-11/B2): registerPresenca callable (FR-045
 subagent_type: general-purpose
 model: haiku
 description: Create reAuditoria callable
-```
+````
 
 **Prompt**:
 
-```
+````
 Você está editando C:/hc quality/functions/src/modules/auditoria/auditoria.ts.
 
 TAREFA: adicionar callable `createReAuditoria` que cria nova auditoria do tipo `reAuditoria` linkada a uma original (PQ-24 §6.6 — verificação de eficácia).
@@ -597,9 +632,10 @@ const CreateReAuditoriaInput = z.object({
   responsavelTecnico: z.string().min(1),
   motivacao: z.string().min(20).max(500), // por que está reauditando
 });
-```
+````
 
 LÓGICA:
+
 1. Auth + member.
 2. Buscar auditoriaOriginal: `labs/{labId}/auditorias-internas/{auditoriaOriginalId}`. Se !exists OR deletadoEm: throw 'not-found'.
 3. Validar que original tem status 'finalizada' (não pode reauditar uma em execução): se não, 'failed-precondition'.
@@ -617,7 +653,8 @@ LÓGICA:
 ACEITAÇÃO: TSC limpo, lógica de pré-condições explícita.
 
 ENTREGÁVEL: edit + commit "feat(phase-11/B3): createReAuditoria callable (PQ-24 §6.6)" + SHA.
-```
+
+````
 
 ---
 
@@ -627,11 +664,11 @@ ENTREGÁVEL: edit + commit "feat(phase-11/B3): createReAuditoria callable (PQ-24
 subagent_type: general-purpose
 model: haiku
 description: Map FR-043 4 tables to PDF
-```
+````
 
 **Prompt**:
 
-```
+````
 Você está editando C:/hc quality/functions/src/modules/auditoria/generatePDF.ts.
 
 CONTEXTO: documento oficial FR-043 (Relatório de Auditoria) extraído tem 4 tabelas estruturadas. Mapping necessário entre dados HC Quality e essas 4 tabelas.
@@ -663,17 +700,19 @@ DOCUMENTAÇÃO obrigatória inline (no início do arquivo, após imports):
  *
  * Última revisão: 2026-05-09 (Phase 11)
  */
-```
+````
 
 E garantir que o gerador real popula as 4 tabelas (se não popular alguma, criar TODO com numeração explícita).
 
 ACEITAÇÃO:
+
 - Comment block presente
 - Se a função geradora já popula as 4 tabelas: OK
 - Se falta alguma, marcar `// FR-043-T<n>: populate from <source>` e logar console.warn.
 
 ENTREGÁVEL: edit + commit "feat(phase-11/B4): document FR-043 4-table mapping in generatePDF" + SHA.
-```
+
+````
 
 ---
 
@@ -697,7 +736,7 @@ grep -q "createReAuditoria = onCall" functions/src/modules/auditoria/auditoria.t
 grep -q "FR-043.*4 tabelas oficiais" functions/src/modules/auditoria/generatePDF.ts || { echo "GATE-2 FAIL: FR-043 mapping doc missing"; exit 1; }
 
 echo "GATE-2 PASS"
-```
+````
 
 **Falha**: `git reset --hard phase-11-baseline`. Abortar.
 
@@ -768,7 +807,7 @@ description: Build PresencaPanel
 
 **Prompt**:
 
-```
+````
 Crie C:/hc quality/src/features/auditoria-interna/components/PresencaPanel.tsx.
 
 CONTEXTO: idêntico a C1 (mesmo diretório, mesmos padrões dark-first, mesmo estilo).
@@ -783,9 +822,10 @@ interface PresencaPanelProps {
   reuniao: 'abertura' | 'encerramento';
   onSuccess?: (totalRegistrados: number) => void;
 }
-```
+````
 
 Layout:
+
 - Header: "Lista de Presença — {Reunião de Abertura | Encerramento}" com data/hora.
 - Lista dinâmica de participantes (add/remove rows).
 - Cada row: nome (text), papel (select com 6 opções: auditor, auditado, observador, rt, gerente_qc, direcao).
@@ -794,6 +834,7 @@ Layout:
 - Estilo: card dark, typography editorial, espaçamento grid 4px.
 
 Pseudo-código:
+
 ```tsx
 const callable = httpsCallable(functions, 'registerPresenca');
 const result = await callable({ labId, auditoriaId, sessaoId, reuniao, participantes });
@@ -802,7 +843,8 @@ const result = await callable({ labId, auditoriaId, sessaoId, reuniao, participa
 ACEITAÇÃO: TSC limpo, validação client funcional, mensagens de erro inline.
 
 ENTREGÁVEL: 1 arquivo + commit "feat(phase-11/C2): PresencaPanel (FR-045 capture)" + SHA.
-```
+
+````
 
 ---
 
@@ -812,7 +854,7 @@ ENTREGÁVEL: 1 arquivo + commit "feat(phase-11/C2): PresencaPanel (FR-045 captur
 subagent_type: general-purpose
 model: haiku
 description: Build ReAuditoria UI
-```
+````
 
 **Prompt**:
 
@@ -922,10 +964,10 @@ CONTEXTO: padrão Playwright já em web/e2e/. Use config existente `playwright.c
 
 TAREFA: 1 spec com 4 scenarios cobrindo:
 
-1. "should register presença na reunião de abertura" 
+1. "should register presença na reunião de abertura"
    - login → navega para auditoria existente → clica "Reunião abertura" → adiciona 4 participantes (auditor, RT, gerente_qc, auditado) → confirma → vê toast "4 registrados".
 
-2. "should create plano de ação para achado" 
+2. "should create plano de ação para achado"
    - navega para achado existente → clica "Criar plano" → preenche → submit → vê plano na lista com status nao_iniciado.
 
 3. "should create reauditoria de auditoria finalizada com NC fechada"
@@ -994,7 +1036,7 @@ ORDEM OBRIGATÓRIA (não pular nenhum):
 
 ACEITAÇÃO: 3 deploys sucedidos + cloud logs sem error rate > 1%.
 
-ENTREGÁVEL: 
+ENTREGÁVEL:
 - commit "deploy(phase-11/E1): rules + functions + hosting"
 - summary com SHAs e cloud log report.
 
@@ -1019,26 +1061,28 @@ Atualize 5 arquivos com Phase 11 documentação:
 1. C:/hc quality/CLAUDE.md (raiz):
    Na seção "Módulos em produção", localize linha do módulo `auditoria` e atualize última coluna para `2026-05-09`.
    Após o bloco "**Phase 9 — COMPLETE...**", adicionar bloco novo:
-   ```
-   **Phase 11 — COMPLETE (2026-05-09):** PQ-24 + FR42 compliance remediation. createPlanoAcao implementado (substitui TODO de Phase 7). FR-045 (Presença) callable + UI. createReAuditoria callable + ReAuditoriaChain UI. FR-043 4-table mapping documentado. ADRs 0035 + 0036 registrados. Score PQ-24 cobertura: 55% → 90%+.
-   ```
+```
+
+**Phase 11 — COMPLETE (2026-05-09):** PQ-24 + FR42 compliance remediation. createPlanoAcao implementado (substitui TODO de Phase 7). FR-045 (Presença) callable + UI. createReAuditoria callable + ReAuditoriaChain UI. FR-043 4-table mapping documentado. ADRs 0035 + 0036 registrados. Score PQ-24 cobertura: 55% → 90%+.
+
+```
 
 2. Crie C:/hc quality/docs/adr/ADR-0035-audit-schema-extensions.md:
-   Frontmatter com title, date 2026-05-09, status accepted, context (gap analysis HC_Quality_vs_PQ24_FR42), decision (estender Auditoria + criar Presenca + Reuniao + estender PlanoAcao), consequences (3-4 bullets).
+Frontmatter com title, date 2026-05-09, status accepted, context (gap analysis HC_Quality_vs_PQ24_FR42), decision (estender Auditoria + criar Presenca + Reuniao + estender PlanoAcao), consequences (3-4 bullets).
 
 3. Crie C:/hc quality/docs/adr/ADR-0036-plano-acao-callable-implementation.md:
-   Documentar substituição do TODO stub por implementação real, validação cross-collection (achado pertence à auditoria), trigger automático de update achado.planoAcaoId em transaction.
+Documentar substituição do TODO stub por implementação real, validação cross-collection (achado pertence à auditoria), trigger automático de update achado.planoAcaoId em transaction.
 
 4. Crie C:/hc quality/docs/PHASE_11_COMPLETION_SUMMARY.md:
-   Executive summary (~100 linhas): 4 GAPs críticos endereçados, 5 callables novos/atualizados, 5 componentes UI, 8 testes, deploy SHAs, cloud logs status.
+Executive summary (~100 linhas): 4 GAPs críticos endereçados, 5 callables novos/atualizados, 5 componentes UI, 8 testes, deploy SHAs, cloud logs status.
 
 5. Atualize C:/hc quality/.planning/milestones/PHASE_11_PLAN.md:
-   No final do arquivo, adicionar seção `## Execution Log` com:
-   - Pre-phase SHA
-   - Post-phase SHA
-   - Wave 1-5 commits SHAs
-   - Cloud Logs report path
-   - Final score (target: 90%+)
+No final do arquivo, adicionar seção `## Execution Log` com:
+- Pre-phase SHA
+- Post-phase SHA
+- Wave 1-5 commits SHAs
+- Cloud Logs report path
+- Final score (target: 90%+)
 
 ACEITAÇÃO: 5 arquivos OK, ADRs com formato consistente com docs/adr/ADR-0034*.md.
 
@@ -1104,14 +1148,14 @@ claude --model sonnet-4-6 \
 
 ## 11. Estimativas
 
-| Wave | Agentes | Modo | Tempo (haiku) | Tempo (humano review) |
-|------|---------|------|---------------|----------------------|
-| 1 | 4 | // | ~10 min | 5 min |
-| 2 | 4 | // | ~25 min | 10 min |
-| 3 | 3 | // | ~25 min | 10 min |
-| 4 | 2 | // | ~15 min | 5 min |
-| 5 | 2 | seq | ~15 min | 10 min (deploy ack) |
-| **Total** | **15** | | **~90 min** | **~40 min** |
+| Wave      | Agentes | Modo | Tempo (haiku) | Tempo (humano review) |
+| --------- | ------- | ---- | ------------- | --------------------- |
+| 1         | 4       | //   | ~10 min       | 5 min                 |
+| 2         | 4       | //   | ~25 min       | 10 min                |
+| 3         | 3       | //   | ~25 min       | 10 min                |
+| 4         | 2       | //   | ~15 min       | 5 min                 |
+| 5         | 2       | seq  | ~15 min       | 10 min (deploy ack)   |
+| **Total** | **15**  |      | **~90 min**   | **~40 min**           |
 
 **Custo estimado**: ~$3-5 (Haiku 4.5 input + output médios) + ~$1 (Sonnet para E1+E2).
 
@@ -1119,7 +1163,7 @@ claude --model sonnet-4-6 \
 
 ## 12. Execution Log
 
-*(Preenchido pelo Agent E2 ao final)*
+_(Preenchido pelo Agent E2 ao final)_
 
 - Pre-phase SHA: `_TBD_`
 - Post-phase SHA: `_TBD_`

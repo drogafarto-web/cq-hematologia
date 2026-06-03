@@ -17,6 +17,7 @@
 **Purpose:** Unified authentication layer for healthcare professionals
 
 **Features:**
+
 - OAuth 2.0 session management (create, retrieve, revoke)
 - Automatic token refresh with expiry detection
 - Multi-session support (one user, multiple labs)
@@ -27,22 +28,24 @@
 - Cleanup utilities (expire old sessions)
 
 **Key Functions:**
+
 ```typescript
-createPortalSession()           // Create after OAuth exchange
-getPortalSession()              // Retrieve active session
-updatePortalSessionToken()      // Refresh token
-recordPortalSessionActivity()   // Track engagement
-revokePortalSession()           // Logout
-markPortalSessionExpired()      // Auto-expiry
-isPortalSessionValid()          // Check if >5 min remaining
-needsPortalTokenRefresh()       // Detect refresh needed (<5 min)
-logPortalAudit()                // Audit trail
-getPortalSessionAudit()         // Retrieve audit events
-generateOAuthState()            // CSRF protection
-generateOAuthAuthorizeUrl()     // Build IDP authorization URL
+createPortalSession(); // Create after OAuth exchange
+getPortalSession(); // Retrieve active session
+updatePortalSessionToken(); // Refresh token
+recordPortalSessionActivity(); // Track engagement
+revokePortalSession(); // Logout
+markPortalSessionExpired(); // Auto-expiry
+isPortalSessionValid(); // Check if >5 min remaining
+needsPortalTokenRefresh(); // Detect refresh needed (<5 min)
+logPortalAudit(); // Audit trail
+getPortalSessionAudit(); // Retrieve audit events
+generateOAuthState(); // CSRF protection
+generateOAuthAuthorizeUrl(); // Build IDP authorization URL
 ```
 
 **Type Definitions Included:**
+
 - `PortalOAuthToken` — OAuth token from IDP
 - `PortalSession` — Firestore session document
 - `PortalClientSession` — Client-side token wrapper
@@ -59,6 +62,7 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 **Purpose:** OAuth 2.0 code-to-token exchange + session creation
 
 **Process Flow:**
+
 1. ✅ Validates request (labId, code, redirectUri, state)
 2. ✅ Verifies CSRF state parameter (prevents CSRF attacks)
 3. ✅ Confirms lab exists & is configured for NOTIVISA
@@ -71,6 +75,7 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 10. ✅ Returns session ID + custom token to client
 
 **Error Handling:**
+
 - `INVALID_INPUT` — Request validation failed
 - `STATE_MISMATCH` — CSRF state invalid/expired
 - `INVALID_CODE` — Authorization code invalid/expired
@@ -81,6 +86,7 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 - `INTERNAL_ERROR` — Unexpected server error
 
 **Security Features:**
+
 - State parameter validation (10-min TTL)
 - One-time state consumption (prevents replay)
 - IP address & user agent logging
@@ -95,6 +101,7 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 **File:** `firestore.rules.notivisa-portal.txt`
 
 **Collections Protected:**
+
 ```
 /notivisa-portal-sessions/{labId}/sessions/{sessionId}
 /notivisa-portal-audit/{labId}/events/{eventId}
@@ -102,12 +109,14 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 ```
 
 **Access Control:**
+
 - **Read:** Lab members + auditors (scoped to labId)
 - **Create/Update:** Cloud Function only (not client)
 - **Delete:** Never (soft-delete via update)
 - **Multi-tenant:** labId in path prevents cross-tenant access
 
 **Indexes Created:**
+
 ```
 1. sessions: (userId, status)
 2. sessions: (status, lastActivityAt)
@@ -116,6 +125,7 @@ generateOAuthAuthorizeUrl()     // Build IDP authorization URL
 ```
 
 **Helper Functions:**
+
 ```firestore
 isActiveMemberOfLab(labId)        // User is active lab member
 isAdminOrOwner(labId)             // User is admin or owner
@@ -128,6 +138,7 @@ isAdminOrOwner(labId)             // User is admin or owner
 **File:** `docs/NOTIVISA_PORTAL_AUTH_SPEC.md`
 
 **Sections (14 total):**
+
 1. Overview & architecture
 2. Component relationships & data flow
 3. API reference (service + function)
@@ -144,12 +155,14 @@ isAdminOrOwner(labId)             // User is admin or owner
 14. Appendices (glossary, references, file locations)
 
 **Key Diagrams:**
+
 - OAuth 2.0 flow diagram (4 steps)
 - Session token lifecycle
 - Token refresh flow
 - Session expiry handling
 
 **Compliance Mappings:**
+
 - RDC 978 Art. 41 → Audit trail requirements
 - DICQ 4.4 → Authentication & session security
 - LGPD Art. 32 → Information security measures
@@ -161,6 +174,7 @@ isAdminOrOwner(labId)             // User is admin or owner
 **File:** `docs/NOTIVISA_PORTAL_AUTH_IMPLEMENTATION_GUIDE.md`
 
 **Sections:**
+
 - Executive summary (8–12 hour estimate)
 - Files provided (with line counts)
 - Step-by-step implementation checklist (7 phases)
@@ -170,6 +184,7 @@ isAdminOrOwner(labId)             // User is admin or owner
 - Support & escalation paths
 
 **Phases:**
+
 1. Setup & configuration (2 hrs)
 2. Create supporting files (2 hrs)
 3. Update Firestore rules (1.5 hrs)
@@ -207,6 +222,7 @@ NOTIVISA API Gateway
 ### Data Flow
 
 **Authentication:**
+
 ```
 1. Frontend: generateOAuthState() → sessionStorage
 2. Frontend: Redirect to NOTIVISA IDP
@@ -219,6 +235,7 @@ NOTIVISA API Gateway
 ```
 
 **Token Refresh:**
+
 ```
 1. Frontend: Detect token expiry <5 min
 2. Frontend: Call refreshPortalToken()
@@ -229,6 +246,7 @@ NOTIVISA API Gateway
 ```
 
 **Session Expiry:**
+
 ```
 1. Cloud Scheduler: Cron runs daily
 2. Cron: Query sessions with expiresAt < now
@@ -270,14 +288,14 @@ AuthenticatePortalErrorSchema = z.object({
 
 ### Compliance
 
-| Standard | Requirement | Implementation |
-|---|---|---|
-| **RDC 978 Art. 41** | Timely adverse event reporting + audit trail | ✅ Session creation logged + all API calls audited |
-| **RDC 978 Art. 42** | Access control & authentication | ✅ OAuth 2.0 + Firestore rules + custom tokens |
-| **DICQ 4.4** | Information security | ✅ Token encryption + rate limiting + CSRF protection |
-| **LGPD Art. 8** | Consent delegation | ✅ OAuth delegation with explicit user consent |
-| **LGPD Art. 32** | Security measures | ✅ Encryption at rest + in transit + audit logging |
-| **OAuth 2.0 RFC 6749** | Authorization code flow | ✅ Full specification compliance |
+| Standard               | Requirement                                  | Implementation                                        |
+| ---------------------- | -------------------------------------------- | ----------------------------------------------------- |
+| **RDC 978 Art. 41**    | Timely adverse event reporting + audit trail | ✅ Session creation logged + all API calls audited    |
+| **RDC 978 Art. 42**    | Access control & authentication              | ✅ OAuth 2.0 + Firestore rules + custom tokens        |
+| **DICQ 4.4**           | Information security                         | ✅ Token encryption + rate limiting + CSRF protection |
+| **LGPD Art. 8**        | Consent delegation                           | ✅ OAuth delegation with explicit user consent        |
+| **LGPD Art. 32**       | Security measures                            | ✅ Encryption at rest + in transit + audit logging    |
+| **OAuth 2.0 RFC 6749** | Authorization code flow                      | ✅ Full specification compliance                      |
 
 ---
 
@@ -318,6 +336,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 ## Key Features Implemented
 
 ### Session Management
+
 - ✅ Create session after OAuth exchange
 - ✅ Retrieve active sessions (by lab, by user)
 - ✅ Update token on refresh
@@ -327,6 +346,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - ✅ Record errors (failed refresh, etc)
 
 ### Token Lifecycle
+
 - ✅ OAuth token storage (encrypted at rest)
 - ✅ Custom Firebase token issuance
 - ✅ Token expiry detection (<5 min buffer)
@@ -335,6 +355,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - ✅ Refresh token rotation (if IDP supports)
 
 ### Security
+
 - ✅ Multi-tenant isolation (labId in path)
 - ✅ Role-based access (RT, MEDICO, DIRETOR, AUDITOR)
 - ✅ CSRF protection (state parameter)
@@ -344,6 +365,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - ✅ One-time state consumption (prevents replay)
 
 ### Audit Trail
+
 - ✅ Session creation logged
 - ✅ Token refresh logged
 - ✅ Session revocation logged
@@ -353,6 +375,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - ✅ Immutable audit trail (never updated/deleted)
 
 ### Multi-Tenant Support
+
 - ✅ Sessions scoped to labId
 - ✅ One user, multiple labs allowed
 - ✅ Independent sessions per lab
@@ -360,6 +383,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - ✅ Custom token claims include labId
 
 ### Error Handling
+
 - ✅ 8 specific error codes (not generic)
 - ✅ User-facing error messages
 - ✅ Retry-able vs non-retry-able distinction
@@ -372,12 +396,14 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 ## Testing Coverage
 
 ### Unit Tests (to be implemented)
+
 - OAuth state generation (cryptographic randomness)
 - Token validation (format, expiry, claims)
 - Session status checks (valid, needs refresh, expired)
 - OAuth URL building (parameter encoding)
 
 ### Integration Tests (to be implemented)
+
 - OAuth code exchange with NOTIVISA IDP
 - State parameter validation (CSRF protection)
 - idToken parsing & claim extraction
@@ -386,6 +412,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - Rate limiting enforcement
 
 ### E2E Tests (to be implemented)
+
 - Full login flow (IDP → code → session → dashboard)
 - Token refresh before expiry
 - Session logout & revocation
@@ -399,14 +426,14 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 
 ## Performance Specifications
 
-| Metric | Target | Notes |
-|---|---|---|
-| OAuth code exchange | <2 sec | Time from callback to Firebase token |
-| Token refresh | <1 sec | Time from callable to new token |
-| Session lookup | <100 ms | Firestore document read |
-| Token validation | <50 ms | JWT parsing + claim validation |
-| Audit logging | <200 ms | Async write to audit collection |
-| IDP timeout | 10 sec | Prevents hanging requests |
+| Metric              | Target  | Notes                                |
+| ------------------- | ------- | ------------------------------------ |
+| OAuth code exchange | <2 sec  | Time from callback to Firebase token |
+| Token refresh       | <1 sec  | Time from callable to new token      |
+| Session lookup      | <100 ms | Firestore document read              |
+| Token validation    | <50 ms  | JWT parsing + claim validation       |
+| Audit logging       | <200 ms | Async write to audit collection      |
+| IDP timeout         | 10 sec  | Prevents hanging requests            |
 
 **Monitoring Included:** Cloud Logging queries + alert thresholds
 
@@ -415,6 +442,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 ## Deployment Readiness
 
 ✅ **All components production-ready:**
+
 - Code follows HC Quality conventions
 - Types fully specified (no `any`)
 - Error handling complete (8 error codes)
@@ -427,6 +455,7 @@ firestore.indexes.json                                 (add NOTIVISA indexes)
 - Implementation checklist step-by-step
 
 ✅ **Pre-deployment checklist:**
+
 - [ ] Type check passes (`npx tsc --noEmit`)
 - [ ] Builds succeed (`npm run build`, `firebase build`)
 - [ ] Tests pass (unit + integration + E2E)
@@ -476,12 +505,14 @@ This module integrates with:
 ## Support & Escalation
 
 **Questions?** Refer to:
+
 1. `docs/NOTIVISA_PORTAL_AUTH_SPEC.md` — Complete specification
 2. `docs/NOTIVISA_PORTAL_AUTH_IMPLEMENTATION_GUIDE.md` — Step-by-step setup
 3. Code comments in `PortalAuthService.ts` + `authenticatePortal.ts`
 4. `.planning/runbooks/notivisa-portal-auth-issues.md` (to be created)
 
 **Errors?** Check:
+
 1. Cloud Logs (function invocation errors)
 2. Firestore Console (session/audit documents)
 3. Secret Manager (OAuth credentials provisioned)
@@ -492,6 +523,7 @@ This module integrates with:
 ## Success Criteria
 
 ✅ **Task Complete when:**
+
 1. All 4 files deployed to production
 2. OAuth login flow works end-to-end (sandbox IDP)
 3. Session created in Firestore with audit log

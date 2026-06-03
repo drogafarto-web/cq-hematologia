@@ -196,11 +196,7 @@ export function ManageUserModal({
     (async () => {
       try {
         let labs = await fetchAllLabs();
-        if (
-          !cancelled &&
-          labs.length === 0 &&
-          (user.labIds?.length ?? 0) > 0
-        ) {
+        if (!cancelled && labs.length === 0 && (user.labIds?.length ?? 0) > 0) {
           labs = await fetchLabsByIds(user.labIds ?? []);
         }
         if (!cancelled) setAllLabs(labs);

@@ -3,7 +3,7 @@
 **Status:** IN PROGRESS  
 **Date Started:** 2026-05-08  
 **Wave:** 4 / Wave (Days TBD)  
-**Owner:** Claude Code Agent 11  
+**Owner:** Claude Code Agent 11
 
 ---
 
@@ -64,13 +64,13 @@ Consolidate all Firestore rules proposals from Wave 2–7, validate syntax, depl
 
 ### Test Coverage Plan (16 tests)
 
-| Category | Tests | Coverage |
-|----------|-------|----------|
-| RT read gate | 4 | RT can read thresholds, non-RT blocked, supervisor read, admin override |
-| RT write gate + supervisor | 4 | RT + supervisor=allowed, RT without supervisor=denied, admin bypass |
-| Audit collection immutability | 3 | Create allowed, update denied, delete denied |
-| PII redaction rules | 3 | Patient reads restricted, RT sees full, audit redaction |
-| Soft-delete enforcement | 2 | Hard delete blocked, soft delete via flag allowed |
+| Category                      | Tests | Coverage                                                                |
+| ----------------------------- | ----- | ----------------------------------------------------------------------- |
+| RT read gate                  | 4     | RT can read thresholds, non-RT blocked, supervisor read, admin override |
+| RT write gate + supervisor    | 4     | RT + supervisor=allowed, RT without supervisor=denied, admin bypass     |
+| Audit collection immutability | 3     | Create allowed, update denied, delete denied                            |
+| PII redaction rules           | 3     | Patient reads restricted, RT sees full, audit redaction                 |
+| Soft-delete enforcement       | 2     | Hard delete blocked, soft delete via flag allowed                       |
 
 ### Test File Location
 
@@ -153,6 +153,7 @@ Consolidate all Firestore rules proposals from Wave 2–7, validate syntax, depl
 File: `proposed-changes/wave4-11-firestore-rules-deployment.md`
 
 Contents:
+
 - Summary of all rules consolidated
 - Test results (16/16 passing)
 - Staging validation results
@@ -180,7 +181,7 @@ Contents:
 ✅ Staging smoke tests pass  
 ✅ Rules file zero conflicts  
 ✅ Dry-run succeeds on prod  
-✅ No regressions in existing tests (347+ existing tests)  
+✅ No regressions in existing tests (347+ existing tests)
 
 ---
 
@@ -192,4 +193,3 @@ Contents:
 4. Deploy to prod (Phase C script)
 5. Monitor 24h on prod
 6. Archive this phase + document lessons learned
-

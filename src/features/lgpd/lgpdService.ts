@@ -23,7 +23,8 @@ import type {
 
 const solicitacoesCollection = (labId: string) => collection(db, `labs/${labId}/lgpd-solicitacoes`);
 const dpiaCollection = (labId: string) => collection(db, `labs/${labId}/lgpd-dpia`);
-const consentimentoCollection = (labId: string) => collection(db, `labs/${labId}/lgpd-consentimento`);
+const consentimentoCollection = (labId: string) =>
+  collection(db, `labs/${labId}/lgpd-consentimento`);
 const exclusaoCollection = (labId: string) => collection(db, `labs/${labId}/lgpd-exclusao`);
 
 export function subscribeSolicitacoes(
@@ -142,9 +143,7 @@ export async function createDPIA(
   input: Omit<DPIA, 'id' | 'labId' | 'criadoEm'>,
   uid?: string,
 ): Promise<string> {
-  console.warn(
-    '[lgpdService] createDPIA is deprecated — use the gerarDPIA callable instead.',
-  );
+  console.warn('[lgpdService] createDPIA is deprecated — use the gerarDPIA callable instead.');
   const newDocRef = doc(dpiaCollection(labId));
 
   const data: DPIA = {

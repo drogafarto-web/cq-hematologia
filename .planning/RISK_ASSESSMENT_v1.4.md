@@ -27,6 +27,7 @@ User scenario: Lab receives critical result at 14:22 → CF is slow → notifica
 **Trigger:** If Cloud Functions are under load (parallel results processing), cold starts pile up. Probability increases during peak hours (morning, afternoon shift changes).
 
 **Impact if occurs:**
+
 - SLA breach (notify within 15 min, actually 20+ min due to CF queue).
 - Auditor notices: "Your critical result response is slow."
 - Mitigates compliance posture (RDC 978 Art. 184 intent is "clinician reacts immediately").
@@ -36,6 +37,7 @@ User scenario: Lab receives critical result at 14:22 → CF is slow → notifica
 **Risk Severity:** **MEDIUM**
 
 **Mitigation:**
+
 - M1.1: Cloud Functions memory allocation set to 2GB (faster cold starts, higher cost ~$5/day).
 - M1.2: Pre-warm function via Cloud Scheduler (invoke dummy trigger every 10 min during work hours).
 - M1.3: Monitor function execution time (Cloud Logs + Pub/Sub alert if >1s).
@@ -52,7 +54,8 @@ User scenario: Lab receives critical result at 14:22 → CF is slow → notifica
 **Description:**  
 ADR-0014 (Audit Trail Extensibility) chooses decentralized pattern: audit logs live in each module (criticos.transitions, nao-conformidades.transitions, notivisa.submissionAttempts, etc.).
 
-Auditor scenario: "Show me all events related to patient X's critical result." 
+Auditor scenario: "Show me all events related to patient X's critical result."
+
 - Decentralized requires: query criticos, query liberacao, query notivisa, merge + sort.
 - Easy to miss a module (auditor asks "why isn't the training event here?" → training module wasn't queried).
 - Risk: Incomplete audit export → auditor sees incomplete timeline → compliance gap → penalty.
@@ -60,6 +63,7 @@ Auditor scenario: "Show me all events related to patient X's critical result."
 **Trigger:** New module added in Phase 9–10 (e.g., mobile patient app logs). Audit export CF not updated → new module events are invisible.
 
 **Impact if occurs:**
+
 - Auditor finds incomplete audit trail (missing events).
 - RDC 978 Art. 5.3 / LGPD compliance questioned.
 - Remediation: Manual audit of all modules, time-consuming.
@@ -69,6 +73,7 @@ Auditor scenario: "Show me all events related to patient X's critical result."
 **Risk Severity:** **MEDIUM**
 
 **Mitigation:**
+
 - M2.1: Create `AUDIT_TRAIL_MODULES_REGISTRY.ts` (list of all modules that generate audit events). Audit export CF iterates registry (not hardcoded module list).
 - M2.2: Module CLAUDE.md must declare: "This module generates audit events in [field]." Template enforces.
 - M2.3: Pre-launch gate: audit export CF tested against all 25+ modules (integration test).
@@ -84,6 +89,7 @@ Auditor scenario: "Show me all events related to patient X's critical result."
 
 **Description:**  
 ADR-0015 (CAPA vs Risk vs NCQ Integration) introduces bidirectional references:
+
 - Risk.tratamento.capaIds points to CAPA(s)
 - CAPA.linkage.riskIds points back to Risk(s)
 - NCQ also references CAPA and/or Risk
@@ -97,6 +103,7 @@ Risk: If developer closes Risk without verifying CAPA, audit trail shows "risk c
 **Trigger:** New developer on Phase 8, doesn't read ADR-0015 carefully, creates CF that closes Risk directly.
 
 **Impact if occurs:**
+
 - Audit trail broken (Risk closed without CAPA verification).
 - RDC 978 Art. 86 component 3 (verification of treatment) not documented.
 - Remediation: Manually re-open Risk + re-verify CAPA + re-document.
@@ -106,6 +113,7 @@ Risk: If developer closes Risk without verifying CAPA, audit trail shows "risk c
 **Risk Severity:** **LOW-MEDIUM**
 
 **Mitigation:**
+
 - M3.1: Document state machine policy in `.claude/docs/CAPA_ARCHITECTURE.md` (explicitly state cascading rule).
 - M3.2: Firestore Rules enforce: Risk.status update is only allowed via CF (client cannot update directly).
 - M3.3: CF `closeRisk` validates: "if closing, check that linked CAPAs are all verified." Throws error otherwise.
@@ -127,6 +135,7 @@ Scenario: Migration script copies nested NCQ.capa → /capas, but misses some fi
 **Trigger:** Migration script is not fully tested before production run. Edge cases (CAPAs with no transitions, double-nested objects) cause silent data loss.
 
 **Impact if occurs:**
+
 - v1.3 CAPA data is incomplete in v1.4.
 - Audit trail missing history (transitions array lost).
 - Remediation: Restore from backup, re-migrate, time-consuming.
@@ -137,6 +146,7 @@ Scenario: Migration script copies nested NCQ.capa → /capas, but misses some fi
 **Risk Severity:** **MEDIUM**
 
 **Mitigation:**
+
 - M4.1: Migration script is thoroughly tested on staging replica (with v1.3 production data snapshot).
 - M4.2: Pre-migration backup: full Firestore backup (Cloud Console → automated GCS export).
 - M4.3: Dry-run: run migration script in dryRun mode (logs what would be migrated, no actual writes).
@@ -163,6 +173,7 @@ Auditor verifies chain: "Is HMAC chain intact?" Answer: "No, there's a gap betwe
 **Trigger:** Phase 5 launches (May 21–June 4) without HMAC. Phase 6 launches (June 5–July 16) with HMAC. In between, production has criticos without signatures.
 
 **Impact if occurs:**
+
 - HMAC chain integrity is broken → can't certify "no tampering" for early events.
 - RDC 978 Art. 5.3 (audit trail integrity) is questionable for Phase 5 events.
 - Remediation: Manually verify Phase 5 criticos (labor-intensive), or accept gap in compliance.
@@ -172,6 +183,7 @@ Auditor verifies chain: "Is HMAC chain intact?" Answer: "No, there's a gap betwe
 **Risk Severity:** **MEDIUM**
 
 **Mitigation:**
+
 - M5.1: ADR-0013 states: "Phase 5 criticos.transitions include LogicalSignature from day 1 (anticipate Phase 6)." Signature is computed + stored immediately.
 - M5.2: If Phase 5 launches without signatures, Phase 6.1 (immediate post-launch) retrofits signatures to existing Phase 5 criticos (batch job).
 - M5.3: Firestore Rules enforce: all transitions[] entries must have signature field (nullable initially, but populated by CF).
@@ -196,6 +208,7 @@ Low Prob.    [None]              [None]              [None]
 ```
 
 **Risk Color Coding:**
+
 - 🔴 RED (High impact + Medium/High prob): Unacceptable, requires resolution before v1.4 launch.
 - 🟡 YELLOW (Medium impact + Medium prob): Acceptable with mitigation; monitor during execution.
 - 🟢 GREEN (Low/Medium impact + Low prob): Low risk, standard engineering practices apply.
@@ -206,13 +219,13 @@ Low Prob.    [None]              [None]              [None]
 
 ## Summary Table
 
-| Risk | Phase | Probability | Impact | Severity | Owner | Mitigation Count |
-|---|---|---|---|---|---|---|
-| RISK-1 (CF Latency) | 5 | 30% | Medium | **MEDIUM** | DevOps | 5 mitigations |
-| RISK-2 (Audit Query) | 6 | 40% | Medium | **MEDIUM** | Architecture | 5 mitigations |
-| RISK-3 (CAPA-Risk Link) | 8 | 25% | Medium | **LOW-MED** | Architecture | 5 mitigations |
-| RISK-4 (Migration) | 8 | 15% | High | **MEDIUM** | DevOps | 6 mitigations |
-| RISK-5 (HMAC Chain) | 5–6 | 35% | Medium | **MEDIUM** | Architecture | 4 mitigations |
+| Risk                    | Phase | Probability | Impact | Severity    | Owner        | Mitigation Count |
+| ----------------------- | ----- | ----------- | ------ | ----------- | ------------ | ---------------- |
+| RISK-1 (CF Latency)     | 5     | 30%         | Medium | **MEDIUM**  | DevOps       | 5 mitigations    |
+| RISK-2 (Audit Query)    | 6     | 40%         | Medium | **MEDIUM**  | Architecture | 5 mitigations    |
+| RISK-3 (CAPA-Risk Link) | 8     | 25%         | Medium | **LOW-MED** | Architecture | 5 mitigations    |
+| RISK-4 (Migration)      | 8     | 15%         | High   | **MEDIUM**  | DevOps       | 6 mitigations    |
+| RISK-5 (HMAC Chain)     | 5–6   | 35%         | Medium | **MEDIUM**  | Architecture | 4 mitigations    |
 
 ---
 
@@ -244,26 +257,26 @@ Low Prob.    [None]              [None]              [None]
 
 ## Monthly Checkpoint Schedule
 
-| Date | Phase | Check | Owner |
-|---|---|---|---|
-| **2026-05-21** | 5 kickoff | Is CF infrastructure provisioned? Scaling plan confirmed? | DevOps |
-| **2026-06-04** | 5 complete | CF latency SLA met? HMAC signatures retroactive applied if needed? | Tech Lead |
-| **2026-06-18** | 6 kickoff | Audit module registry built? CF signature ready? | Architecture |
-| **2026-07-16** | 6 complete | Audit export tested 100% modules? Documentation complete? | QA |
-| **2026-05-21** | 8 kickoff | Migration script staging test passed? Backup ready? | DevOps |
-| **2026-06-11** | 8 complete | Migration run successful? CAPA linkage validated? | Tech Lead |
+| Date           | Phase      | Check                                                              | Owner        |
+| -------------- | ---------- | ------------------------------------------------------------------ | ------------ |
+| **2026-05-21** | 5 kickoff  | Is CF infrastructure provisioned? Scaling plan confirmed?          | DevOps       |
+| **2026-06-04** | 5 complete | CF latency SLA met? HMAC signatures retroactive applied if needed? | Tech Lead    |
+| **2026-06-18** | 6 kickoff  | Audit module registry built? CF signature ready?                   | Architecture |
+| **2026-07-16** | 6 complete | Audit export tested 100% modules? Documentation complete?          | QA           |
+| **2026-05-21** | 8 kickoff  | Migration script staging test passed? Backup ready?                | DevOps       |
+| **2026-06-11** | 8 complete | Migration run successful? CAPA linkage validated?                  | Tech Lead    |
 
 ---
 
 ## Escalation Contacts
 
-| Risk | Escalation to | Condition |
-|---|---|---|
-| RISK-1 (CF latency) | CTO | 95th percentile latency >2s for 2+ consecutive days |
-| RISK-2 (Audit query) | CTO | Auditor feedback says "decentralized is impractical" |
-| RISK-3 (CAPA-Risk link) | Tech Lead | Code review finds Risk closed without CAPA verification |
-| RISK-4 (Migration) | CTO | Migration fails; rollback needed |
-| RISK-5 (HMAC chain) | CTO | HMAC chain integrity verified as broken |
+| Risk                    | Escalation to | Condition                                               |
+| ----------------------- | ------------- | ------------------------------------------------------- |
+| RISK-1 (CF latency)     | CTO           | 95th percentile latency >2s for 2+ consecutive days     |
+| RISK-2 (Audit query)    | CTO           | Auditor feedback says "decentralized is impractical"    |
+| RISK-3 (CAPA-Risk link) | Tech Lead     | Code review finds Risk closed without CAPA verification |
+| RISK-4 (Migration)      | CTO           | Migration fails; rollback needed                        |
+| RISK-5 (HMAC chain)     | CTO           | HMAC chain integrity verified as broken                 |
 
 ---
 

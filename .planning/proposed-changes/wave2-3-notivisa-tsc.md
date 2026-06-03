@@ -24,6 +24,7 @@ These are not 1-pass fixable. The right scope is a dedicated NOTIVISA Phase 8 cl
 ## Recommended next step
 
 Open a follow-up phase plan:
+
 - Rewrite all `src/modules/notivisa/callables/*.ts` to firebase-functions v2 API.
 - Run `npx tsc --noEmit` with notivisa included after each file fixed.
 - When TSC=0 with notivisa included, remove `src/modules/notivisa/**` from `tsconfig.json` exclude in the same commit.

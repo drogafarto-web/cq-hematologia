@@ -35,7 +35,7 @@ export const transitarSugestao = onCall<TransitarSugestaoInput>(
       if (!isMember) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          'Usuário não é membro do laboratório'
+          'Usuário não é membro do laboratório',
         );
       }
 
@@ -45,7 +45,7 @@ export const transitarSugestao = onCall<TransitarSugestaoInput>(
       if (!userRoles.includes('qualidade') && !userRoles.includes('admin')) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          'Usuário não tem permissão para aprovar sugestões'
+          'Usuário não tem permissão para aprovar sugestões',
         );
       }
 
@@ -64,7 +64,7 @@ export const transitarSugestao = onCall<TransitarSugestaoInput>(
       if (!validTransicoes.includes(input.novoStatus)) {
         throw new functions.https.HttpsError(
           'invalid-argument',
-          `Transição inválida de ${sugestao.status} para ${input.novoStatus}`
+          `Transição inválida de ${sugestao.status} para ${input.novoStatus}`,
         );
       }
 
@@ -128,5 +128,5 @@ export const transitarSugestao = onCall<TransitarSugestaoInput>(
 
       throw new functions.https.HttpsError('internal', 'Erro ao transitar sugestão');
     }
-  }
+  },
 );

@@ -16,11 +16,11 @@ import type { QualidadeAuditEntry } from '../modules/qualidade/types';
  * Captures: operation frequency, module preference, hourly patterns, diversity
  */
 export interface BaselineStats {
-  operationCounts: Record<string, number>;  // "create": 145, "update": 89, "delete": 12
-  moduleFrequency: Record<string, number>;  // "capa": 0.62, "analise": 0.38
-  hourlyPattern: number[];                  // [0.01, 0.02, ..., 0.15] sum=1, length 24
+  operationCounts: Record<string, number>; // "create": 145, "update": 89, "delete": 12
+  moduleFrequency: Record<string, number>; // "capa": 0.62, "analise": 0.38
+  hourlyPattern: number[]; // [0.01, 0.02, ..., 0.15] sum=1, length 24
   totalEntries: number;
-  entropyScore: number;                     // 0-1, measure of diversity
+  entropyScore: number; // 0-1, measure of diversity
 }
 
 /**
@@ -35,9 +35,9 @@ export function computeBaseline(entries: QualidadeAuditEntry[]): BaselineStats {
     return {
       operationCounts: {},
       moduleFrequency: {},
-      hourlyPattern: Array(24).fill(1 / 24),  // Uniform distribution
+      hourlyPattern: Array(24).fill(1 / 24), // Uniform distribution
       totalEntries: 0,
-      entropyScore: 1.0,  // Max entropy for uniform distribution
+      entropyScore: 1.0, // Max entropy for uniform distribution
     };
   }
 
@@ -100,7 +100,7 @@ export function computeBaseline(entries: QualidadeAuditEntry[]): BaselineStats {
  */
 export function normalizeBaseline(baseline: BaselineStats, newEntry: QualidadeAuditEntry): number {
   if (baseline.totalEntries === 0) {
-    return 0;  // No baseline yet, assume normal
+    return 0; // No baseline yet, assume normal
   }
 
   let anomalyScore = 0;
@@ -109,7 +109,7 @@ export function normalizeBaseline(baseline: BaselineStats, newEntry: QualidadeAu
   // 1. Score operation rarity
   const opCount = baseline.operationCounts[newEntry.operation] || 0;
   const opFreq = opCount / baseline.totalEntries;
-  const opRarity = opFreq === 0 ? 1.0 : Math.min(1.0, 1.0 - opFreq);  // Rare operations score high
+  const opRarity = opFreq === 0 ? 1.0 : Math.min(1.0, 1.0 - opFreq); // Rare operations score high
   anomalyScore += opRarity;
   dimensionCount++;
 
@@ -124,15 +124,16 @@ export function normalizeBaseline(baseline: BaselineStats, newEntry: QualidadeAu
 
     // Normalize deviation
     if (maxProb === minProb) {
-      hourlyAnomaly = 0;  // Uniform pattern, no anomaly
+      hourlyAnomaly = 0; // Uniform pattern, no anomaly
     } else {
       // z-score: how many standard deviations from the mean?
       const mean = 1 / 24;
-      const variance = baseline.hourlyPattern.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / 24;
+      const variance =
+        baseline.hourlyPattern.reduce((sum, p) => sum + Math.pow(p - mean, 2), 0) / 24;
       const stddev = Math.sqrt(variance);
       if (stddev > 0) {
         const zScore = Math.abs((expectedProb - mean) / stddev);
-        hourlyAnomaly = Math.min(1.0, zScore / 3);  // Cap at 1.0 (3 sigma)
+        hourlyAnomaly = Math.min(1.0, zScore / 3); // Cap at 1.0 (3 sigma)
       }
     }
     anomalyScore += hourlyAnomaly;
@@ -159,7 +160,7 @@ export function normalizeBaseline(baseline: BaselineStats, newEntry: QualidadeAu
  */
 function computeEntropy(probabilities: number[]): number {
   let entropy = 0;
-  const maxEntropy = Math.log2(probabilities.length);  // log2(24) ≈ 4.58
+  const maxEntropy = Math.log2(probabilities.length); // log2(24) ≈ 4.58
 
   for (const p of probabilities) {
     if (p > 0) {

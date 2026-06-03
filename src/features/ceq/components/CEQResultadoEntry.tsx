@@ -101,11 +101,17 @@ export function CEQResultadoEntry({ amostra, onSubmit, loading }: CEQResultadoEn
   };
 
   const isCritical = zScoreResult && Math.abs(zScoreResult.zScore) >= 3;
-  const isWarning = zScoreResult && Math.abs(zScoreResult.zScore) >= 2 && Math.abs(zScoreResult.zScore) < 3;
+  const isWarning =
+    zScoreResult && Math.abs(zScoreResult.zScore) >= 2 && Math.abs(zScoreResult.zScore) < 3;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4 bg-white/5 p-4 rounded border border-white/10">
-      <h4 className="font-medium">Rodada {amostra.rodada}/{amostra.ano}</h4>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-4 bg-white/5 p-4 rounded border border-white/10"
+    >
+      <h4 className="font-medium">
+        Rodada {amostra.rodada}/{amostra.ano}
+      </h4>
 
       {/* Analyte */}
       <div>
@@ -177,7 +183,9 @@ export function CEQResultadoEntry({ amostra, onSubmit, loading }: CEQResultadoEn
             placeholder="0.00"
             className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-sm"
           />
-          {errors.valorReferencia && <p className="text-red-400 text-xs mt-1">{errors.valorReferencia}</p>}
+          {errors.valorReferencia && (
+            <p className="text-red-400 text-xs mt-1">{errors.valorReferencia}</p>
+          )}
         </div>
 
         {/* Desvio Estimado */}
@@ -191,7 +199,9 @@ export function CEQResultadoEntry({ amostra, onSubmit, loading }: CEQResultadoEn
             placeholder="0.00"
             className="w-full px-2 py-1 bg-white/5 border border-white/10 rounded text-white text-sm"
           />
-          {errors.desvioEstimado && <p className="text-red-400 text-xs mt-1">{errors.desvioEstimado}</p>}
+          {errors.desvioEstimado && (
+            <p className="text-red-400 text-xs mt-1">{errors.desvioEstimado}</p>
+          )}
         </div>
       </div>
 

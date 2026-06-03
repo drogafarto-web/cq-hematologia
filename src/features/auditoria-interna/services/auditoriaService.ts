@@ -23,12 +23,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 
 import { db, functions } from '../../../shared/services/firebase';
-import type {
-  Achado,
-  Auditoria,
-  ChecklistItem,
-  Sessao,
-} from '../types';
+import type { Achado, Auditoria, ChecklistItem, Sessao } from '../types';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Path helpers
@@ -43,30 +38,24 @@ function auditoriaDoc(labId: string, auditoriaId: string) {
 }
 
 function sessaoCol(labId: string, auditoriaId: string) {
-  return collection(
-    db,
-    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes`
-  );
+  return collection(db, `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes`);
 }
 
 function sessaoDoc(labId: string, auditoriaId: string, sessaoId: string) {
-  return doc(
-    db,
-    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}`
-  );
+  return doc(db, `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}`);
 }
 
 function checklistCol(labId: string, auditoriaId: string, sessaoId: string) {
   return collection(
     db,
-    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/checklist-items`
+    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/checklist-items`,
   );
 }
 
 function achadoCol(labId: string, auditoriaId: string, sessaoId: string) {
   return collection(
     db,
-    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/achados`
+    `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/achados`,
   );
 }
 
@@ -170,12 +159,9 @@ async function ensureLabRoot(labId: string): Promise<void> {
 export function subscribeAuditorias(
   labId: string,
   callback: (auditorias: Auditoria[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(
-    auditoriaCol(labId),
-    where('deletadoEm', '==', null)
-  );
+  const q = query(auditoriaCol(labId), where('deletadoEm', '==', null));
 
   return onSnapshot(
     q,
@@ -185,7 +171,7 @@ export function subscribeAuditorias(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -196,12 +182,9 @@ export function subscribeSessoes(
   labId: string,
   auditoriaId: string,
   callback: (sessoes: Sessao[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(
-    sessaoCol(labId, auditoriaId),
-    where('deletadoEm', '==', null)
-  );
+  const q = query(sessaoCol(labId, auditoriaId), where('deletadoEm', '==', null));
 
   return onSnapshot(
     q,
@@ -211,7 +194,7 @@ export function subscribeSessoes(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -225,7 +208,7 @@ export function subscribeChecklistItems(
   auditoriaId: string,
   sessaoId: string,
   callback: (items: ChecklistItem[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const col = checklistCol(labId, auditoriaId, sessaoId);
 
@@ -239,7 +222,7 @@ export function subscribeChecklistItems(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -251,12 +234,9 @@ export function subscribeAchados(
   auditoriaId: string,
   sessaoId: string,
   callback: (achados: Achado[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(
-    achadoCol(labId, auditoriaId, sessaoId),
-    where('deletadoEm', '==', null)
-  );
+  const q = query(achadoCol(labId, auditoriaId, sessaoId), where('deletadoEm', '==', null));
 
   return onSnapshot(
     q,
@@ -266,7 +246,7 @@ export function subscribeAchados(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -282,7 +262,7 @@ export function subscribeAchados(
 export async function softDeleteAuditoria(
   labId: string,
   auditoriaId: string,
-  motivo?: string
+  motivo?: string,
 ): Promise<void> {
   await ensureLabRoot(labId);
   const callable = httpsCallable(functions, 'deleteAuditoria');
@@ -295,7 +275,7 @@ export async function softDeleteAuditoria(
 export async function softDeleteSessao(
   labId: string,
   sessaoId: string,
-  motivo?: string
+  motivo?: string,
 ): Promise<void> {
   await ensureLabRoot(labId);
   const callable = httpsCallable(functions, 'deleteSessao');
@@ -308,7 +288,7 @@ export async function softDeleteSessao(
 export async function softDeleteAchado(
   labId: string,
   achadoId: string,
-  motivo?: string
+  motivo?: string,
 ): Promise<void> {
   await ensureLabRoot(labId);
   const callable = httpsCallable(functions, 'deleteAchado');
@@ -338,7 +318,7 @@ export async function createPlanoAcao(
   achadoId?: string,
   descricao?: string,
   responsavel?: string,
-  prazo?: Date | number
+  prazo?: Date | number,
 ): Promise<string> {
   let input: {
     labId: string;
@@ -357,20 +337,14 @@ export async function createPlanoAcao(
       achadoId: achadoId!,
       descricao: descricao!,
       responsavel: responsavel!,
-      prazo:
-        prazo instanceof Date
-          ? prazo.getTime()
-          : (prazo as number),
+      prazo: prazo instanceof Date ? prazo.getTime() : (prazo as number),
     };
   } else {
     // Object form
     input = labIdOrInput;
   }
 
-  const callable = httpsCallable<typeof input, { planoId: string }>(
-    functions,
-    'createPlanoAcao'
-  );
+  const callable = httpsCallable<typeof input, { planoId: string }>(functions, 'createPlanoAcao');
   const result = await callable(input);
   return result.data.planoId;
 }
@@ -387,7 +361,7 @@ export async function registerPresenca(input: {
 }): Promise<{ reuniaoId: string }> {
   const callable = httpsCallable<typeof input, { reuniaoId: string }>(
     functions,
-    'registerPresenca'
+    'registerPresenca',
   );
   const result = await callable(input);
   return result.data;
@@ -405,7 +379,7 @@ export async function createReAuditoria(input: {
 }): Promise<{ auditoriaId: string }> {
   const callable = httpsCallable<typeof input, { auditoriaId: string }>(
     functions,
-    'createReAuditoria'
+    'createReAuditoria',
   );
   const result = await callable(input);
   return result.data;

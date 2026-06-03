@@ -75,7 +75,7 @@ export function NCDetailScreen({ route, navigation }: NCDetailScreenProps): Reac
     if (newStatus === 'resolved' && !justification.trim()) {
       Alert.alert(
         'Justificativa obrigatória',
-        'Para marcar como resolvida, informe a ação corretiva aplicada.'
+        'Para marcar como resolvida, informe a ação corretiva aplicada.',
       );
       return;
     }
@@ -101,14 +101,13 @@ export function NCDetailScreen({ route, navigation }: NCDetailScreenProps): Reac
                 { text: 'OK', onPress: () => navigation.goBack() },
               ]);
             } catch (err: any) {
-              const isNetworkError =
-                err.code === 'unavailable' || err.message?.includes('network');
+              const isNetworkError = err.code === 'unavailable' || err.message?.includes('network');
 
               if (isNetworkError) {
                 Alert.alert(
                   'Salvo offline',
                   'Sem conexão no momento. A atualização será sincronizada ao reconectar.',
-                  [{ text: 'OK', onPress: () => navigation.goBack() }]
+                  [{ text: 'OK', onPress: () => navigation.goBack() }],
                 );
               } else {
                 Alert.alert('Erro', err.message || 'Falha ao atualizar NC.');
@@ -118,7 +117,7 @@ export function NCDetailScreen({ route, navigation }: NCDetailScreenProps): Reac
             }
           },
         },
-      ]
+      ],
     );
   };
 

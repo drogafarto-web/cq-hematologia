@@ -40,7 +40,7 @@ interface AutoReleaseDecision {
 export function shouldAutoRelease(
   laudo: Laudo,
   config: ExameConfig,
-  context: AutoReleaseContext
+  context: AutoReleaseContext,
 ): AutoReleaseDecision {
   // 1. Auto-release desativado pelo lab?
   if (!config.autoReleaseEnabled) {

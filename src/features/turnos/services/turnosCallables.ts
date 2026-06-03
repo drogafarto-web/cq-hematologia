@@ -156,18 +156,12 @@ export interface SupervisorCheckoutPayload {
 
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
 
-let _callCreateTurno: HttpsCallable<CreateTurnoPayload, CallCreateTurnoResult> | null =
+let _callCreateTurno: HttpsCallable<CreateTurnoPayload, CallCreateTurnoResult> | null = null;
+let _callUpdateTurno: HttpsCallable<UpdateTurnoPayload, CallUpdateTurnoResult> | null = null;
+let _callSoftDeleteTurno: HttpsCallable<SoftDeleteTurnoPayload, CallSoftDeleteTurnoResult> | null =
   null;
-let _callUpdateTurno: HttpsCallable<UpdateTurnoPayload, CallUpdateTurnoResult> | null =
+let _callBackfill90Days: HttpsCallable<Backfill90DaysPayload, CallBackfill90DaysResult> | null =
   null;
-let _callSoftDeleteTurno: HttpsCallable<
-  SoftDeleteTurnoPayload,
-  CallSoftDeleteTurnoResult
-> | null = null;
-let _callBackfill90Days: HttpsCallable<
-  Backfill90DaysPayload,
-  CallBackfill90DaysResult
-> | null = null;
 let _callSupervisorCheckin: HttpsCallable<
   SupervisorCheckinPayload,
   CallSupervisorCheckinResult
@@ -201,10 +195,7 @@ function getCallSoftDeleteTurno(): HttpsCallable<
   return _callSoftDeleteTurno;
 }
 
-function getCallBackfill90Days(): HttpsCallable<
-  Backfill90DaysPayload,
-  CallBackfill90DaysResult
-> {
+function getCallBackfill90Days(): HttpsCallable<Backfill90DaysPayload, CallBackfill90DaysResult> {
   if (!_callBackfill90Days) {
     _callBackfill90Days = httpsCallable(functions, 'turnos_backfill90Days');
   }
@@ -237,9 +228,7 @@ function getCallSupervisorCheckout(): HttpsCallable<
  * Create a new turno via Cloud Function.
  * Throws Error if validation fails or labId is not active.
  */
-export async function callCreateTurno(
-  payload: CreateTurnoPayload,
-): Promise<CallCreateTurnoResult> {
+export async function callCreateTurno(payload: CreateTurnoPayload): Promise<CallCreateTurnoResult> {
   try {
     const result = await getCallCreateTurno()(payload);
     return result.data;
@@ -252,9 +241,7 @@ export async function callCreateTurno(
  * Update an existing turno via Cloud Function.
  * Only observacoes and supervisorName (post-backfill) are editable.
  */
-export async function callUpdateTurno(
-  payload: UpdateTurnoPayload,
-): Promise<CallUpdateTurnoResult> {
+export async function callUpdateTurno(payload: UpdateTurnoPayload): Promise<CallUpdateTurnoResult> {
   try {
     const result = await getCallUpdateTurno()(payload);
     return result.data;
@@ -329,9 +316,18 @@ export async function callSupervisorCheckout(
 
 let _callCreateEscala: HttpsCallable<CreateEscalaPayload, CallCreateEscalaResult> | null = null;
 let _callUpdateEscala: HttpsCallable<UpdateEscalaPayload, CallUpdateEscalaResult> | null = null;
-let _callSoftDeleteEscala: HttpsCallable<SoftDeleteEscalaPayload, CallSoftDeleteEscalaResult> | null = null;
-let _callSaveEscalaPadrao: HttpsCallable<SaveEscalaPadraoPayload, CallSaveEscalaPadraoResult> | null = null;
-let _callApplyEscalaPadrao: HttpsCallable<ApplyEscalaPadraoPayload, CallApplyEscalaPadraoResult> | null = null;
+let _callSoftDeleteEscala: HttpsCallable<
+  SoftDeleteEscalaPayload,
+  CallSoftDeleteEscalaResult
+> | null = null;
+let _callSaveEscalaPadrao: HttpsCallable<
+  SaveEscalaPadraoPayload,
+  CallSaveEscalaPadraoResult
+> | null = null;
+let _callApplyEscalaPadrao: HttpsCallable<
+  ApplyEscalaPadraoPayload,
+  CallApplyEscalaPadraoResult
+> | null = null;
 
 function getCallCreateEscala() {
   if (!_callCreateEscala) _callCreateEscala = httpsCallable(functions, 'turnos_createEscala');
@@ -342,19 +338,24 @@ function getCallUpdateEscala() {
   return _callUpdateEscala;
 }
 function getCallSoftDeleteEscala() {
-  if (!_callSoftDeleteEscala) _callSoftDeleteEscala = httpsCallable(functions, 'turnos_softDeleteEscala');
+  if (!_callSoftDeleteEscala)
+    _callSoftDeleteEscala = httpsCallable(functions, 'turnos_softDeleteEscala');
   return _callSoftDeleteEscala;
 }
 function getCallSaveEscalaPadrao() {
-  if (!_callSaveEscalaPadrao) _callSaveEscalaPadrao = httpsCallable(functions, 'turnos_saveEscalaPadrao');
+  if (!_callSaveEscalaPadrao)
+    _callSaveEscalaPadrao = httpsCallable(functions, 'turnos_saveEscalaPadrao');
   return _callSaveEscalaPadrao;
 }
 function getCallApplyEscalaPadrao() {
-  if (!_callApplyEscalaPadrao) _callApplyEscalaPadrao = httpsCallable(functions, 'turnos_applyEscalaPadrao');
+  if (!_callApplyEscalaPadrao)
+    _callApplyEscalaPadrao = httpsCallable(functions, 'turnos_applyEscalaPadrao');
   return _callApplyEscalaPadrao;
 }
 
-export async function callCreateEscala(payload: CreateEscalaPayload): Promise<CallCreateEscalaResult> {
+export async function callCreateEscala(
+  payload: CreateEscalaPayload,
+): Promise<CallCreateEscalaResult> {
   try {
     const result = await getCallCreateEscala()(payload);
     return result.data;
@@ -363,7 +364,9 @@ export async function callCreateEscala(payload: CreateEscalaPayload): Promise<Ca
   }
 }
 
-export async function callUpdateEscala(payload: UpdateEscalaPayload): Promise<CallUpdateEscalaResult> {
+export async function callUpdateEscala(
+  payload: UpdateEscalaPayload,
+): Promise<CallUpdateEscalaResult> {
   try {
     const result = await getCallUpdateEscala()(payload);
     return result.data;
@@ -372,7 +375,9 @@ export async function callUpdateEscala(payload: UpdateEscalaPayload): Promise<Ca
   }
 }
 
-export async function callSoftDeleteEscala(payload: SoftDeleteEscalaPayload): Promise<CallSoftDeleteEscalaResult> {
+export async function callSoftDeleteEscala(
+  payload: SoftDeleteEscalaPayload,
+): Promise<CallSoftDeleteEscalaResult> {
   try {
     const result = await getCallSoftDeleteEscala()(payload);
     return result.data;
@@ -381,7 +386,9 @@ export async function callSoftDeleteEscala(payload: SoftDeleteEscalaPayload): Pr
   }
 }
 
-export async function callSaveEscalaPadrao(payload: SaveEscalaPadraoPayload): Promise<CallSaveEscalaPadraoResult> {
+export async function callSaveEscalaPadrao(
+  payload: SaveEscalaPadraoPayload,
+): Promise<CallSaveEscalaPadraoResult> {
   try {
     const result = await getCallSaveEscalaPadrao()(payload);
     return result.data;
@@ -390,7 +397,9 @@ export async function callSaveEscalaPadrao(payload: SaveEscalaPadraoPayload): Pr
   }
 }
 
-export async function callApplyEscalaPadrao(payload: ApplyEscalaPadraoPayload): Promise<CallApplyEscalaPadraoResult> {
+export async function callApplyEscalaPadrao(
+  payload: ApplyEscalaPadraoPayload,
+): Promise<CallApplyEscalaPadraoResult> {
   try {
     const result = await getCallApplyEscalaPadrao()(payload);
     return result.data;

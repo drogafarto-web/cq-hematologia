@@ -25,9 +25,21 @@ const createMockAnomalyScore = (overallScore: number): AnomalyScore => ({
   operatorId: OPERATOR_ID,
   overallScore,
   dimensions: [
-    { dimension: 'operation_rarity', score: Math.min(overallScore * 0.8, 100), evidence: 'Operator rarely performs this action' } as DimensionScore,
-    { dimension: 'time_anomaly', score: Math.min(overallScore * 0.9, 100), evidence: 'Operation outside normal hours' } as DimensionScore,
-    { dimension: 'velocity', score: Math.min(overallScore * 0.7, 100), evidence: 'High burst rate' } as DimensionScore,
+    {
+      dimension: 'operation_rarity',
+      score: Math.min(overallScore * 0.8, 100),
+      evidence: 'Operator rarely performs this action',
+    } as DimensionScore,
+    {
+      dimension: 'time_anomaly',
+      score: Math.min(overallScore * 0.9, 100),
+      evidence: 'Operation outside normal hours',
+    } as DimensionScore,
+    {
+      dimension: 'velocity',
+      score: Math.min(overallScore * 0.7, 100),
+      evidence: 'High burst rate',
+    } as DimensionScore,
   ],
   computedAt: Date.now(),
   aiInsight: 'Test anomaly detected',
@@ -163,7 +175,8 @@ describe('Advanced Auditoria E2E (Phase 7 Wave 5)', () => {
     const reportMetrics = {
       entryCount: reportAlerts.length,
       alertCount: reportAlerts.length,
-      activeDismissedRatio: reportAlerts.filter((a) => a.status === 'active').length / reportAlerts.length,
+      activeDismissedRatio:
+        reportAlerts.filter((a) => a.status === 'active').length / reportAlerts.length,
     };
 
     expect(reportMetrics.activeDismissedRatio).toBeLessThan(1);

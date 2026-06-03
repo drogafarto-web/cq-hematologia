@@ -87,7 +87,7 @@ npm run lighthouse -- https://hmatologia2.web.app/portal/dashboard
 # 4.1 Verify Phase 5 secrets are provisioned
 bash scripts/preflight-secrets-check.sh
 # Expected: Exit code 0 (all secrets GREEN)
-# 
+#
 # Phase 5 secrets to verify:
 #  - HCQ_SIGNATURE_HMAC_KEY (existing, Phase 4)
 #  - GEMINI_API_KEY (Laudo OCR + Strip classification)
@@ -128,7 +128,7 @@ Before proceeding, verify:
   ✓ Performance metrics within target (bundle <365 KB, LCP <2.0s)
   ✓ Team available and on-call rotation active
   ✓ Customer UAT pre-sign-off completed
-  
+
 If ANY item is not ✓, STOP and fix before proceeding.
 ```
 
@@ -167,6 +167,7 @@ gcloud firestore indexes list --project hmatologia2 | grep criticos
 ```
 
 **If rule deploy fails:**
+
 - Check syntax: `firebase emulator:start --only firestore` then `npm run test:firestore-rules`
 - Review `.rules` files in `src/features/criticos/` for multi-tenant validation
 - Do NOT proceed to functions until rules are valid
@@ -208,6 +209,7 @@ gcloud functions list --project hmatologia2 --region southamerica-east1 | grep -
 ```
 
 **If function deploy fails:**
+
 - Check Cloud Logs: `gcloud functions log list --project hmatologia2 --region southamerica-east1 | tail -50`
 - If TypeScript error: fix in code, rebuild, redeploy
 - If runtime error: check function logs for specific failure
@@ -238,6 +240,7 @@ curl -s https://hmatologia2.web.app/hub | grep -o '<title>.*</title>'
 ```
 
 **If hosting deploy fails:**
+
 - Check build output: `npm run build` (should show 0 errors)
 - Verify bundle size: `ls -lh dist/assets/*.js`
 - Do NOT retry until build issue is fixed
@@ -275,6 +278,7 @@ bash .planning/scripts/phase-5-smoke-test.sh
 **Manual Smoke Tests (if automation incomplete):**
 
 #### Scenario 1: Detect Crítico Workflow
+
 ```
 1. Login as RT user
 2. Navigate to Críticos module (/hub/criticos)
@@ -288,6 +292,7 @@ bash .planning/scripts/phase-5-smoke-test.sh
 ```
 
 #### Scenario 2: Upload Strip + Gemini Classification
+
 ```
 1. Login as Imuno analyst
 2. Navigate to CIQ Imunologia module
@@ -302,6 +307,7 @@ bash .planning/scripts/phase-5-smoke-test.sh
 ```
 
 #### Scenario 3: RT Acknowledge Escalation
+
 ```
 1. Trigger a crítico escalation (Scenario 1)
 2. Check SMS inbox (Twilio test) or email inbox
@@ -315,6 +321,7 @@ bash .planning/scripts/phase-5-smoke-test.sh
 ```
 
 **If any smoke test fails:**
+
 1. **STOP all further deployment**
 2. Investigate specific failure in detail
 3. Check Cloud Logs for error stack traces
@@ -330,24 +337,28 @@ bash .planning/scripts/phase-5-smoke-test.sh
 ### Hour 1: Immediate Health Check (08:50–09:50 UTC-3)
 
 **Dashboard 1: Portal Health**
+
 - [ ] Hub loads <2s (LCP)
 - [ ] All module tiles render (no 404s)
 - [ ] No unhandled exceptions in console
 - [ ] Auth success rate >99%
 
 **Dashboard 2: Críticos Detection**
+
 - [ ] Detection engine ingesting values from all modules
 - [ ] SMS escalation delivering <30s latency
 - [ ] SLA countdown accurate (deadline calculation correct)
 - [ ] No missed critical values (query detection results)
 
 **Dashboard 3: Gemini Vision API**
+
 - [ ] Strip classification working (test upload)
 - [ ] Vision API quota not exceeded
 - [ ] Confidence filtering working (threshold 0.90)
 - [ ] Fallback to manual classification if Vision fails
 
 **Dashboard 4: System Health**
+
 - [ ] Error rate <0.1% (baseline)
 - [ ] Function execution time p90 <3s
 - [ ] Firestore query latency p95 <500ms
@@ -369,6 +380,7 @@ bash .planning/scripts/phase-5-smoke-test.sh
 - [ ] Performance acceptable (no lag during peak testing)
 
 **Compliance Verification:**
+
 ```bash
 # 1. Verify audit trail for all criticos operations
 gcloud logging read "logName=~'criticos-escalacao' AND severity='INFO'" \
@@ -435,20 +447,20 @@ gcloud logging read "textPayload=~'.*Permission.*denied' AND resource.type=fires
 
 **Sign off on deployment SUCCESS only if ALL criteria met:**
 
-| Criterion | Target | Status | Evidence |
-|-----------|--------|--------|----------|
-| P0 alerts fired | 0 | [ ] | Cloud Logs review |
-| Unhandled exceptions | 0 | [ ] | Error logs search |
-| Auth success rate | >99% | [ ] | Portal health check |
-| Hosting latency (LCP) | <2.0s | [ ] | Lighthouse audit |
-| Críticos detection working | Yes | [ ] | Scenario 1 test pass |
-| SMS delivery latency | <30s | [ ] | Cloud Logs SMS review |
-| Gemini Vision quota OK | Yes | [ ] | Quota logs check |
-| Firestore latency p95 | <500ms | [ ] | Query performance logs |
-| System error rate | <0.1% | [ ] | Error rate dashboard |
-| Bundle size | <365 KB | [ ] | Build artifact |
-| Smoke test | 12/12 pass | [ ] | Automated test log |
-| Customer UAT sign-off | Approved | [ ] | Lab Director sign-off |
+| Criterion                  | Target     | Status | Evidence               |
+| -------------------------- | ---------- | ------ | ---------------------- |
+| P0 alerts fired            | 0          | [ ]    | Cloud Logs review      |
+| Unhandled exceptions       | 0          | [ ]    | Error logs search      |
+| Auth success rate          | >99%       | [ ]    | Portal health check    |
+| Hosting latency (LCP)      | <2.0s      | [ ]    | Lighthouse audit       |
+| Críticos detection working | Yes        | [ ]    | Scenario 1 test pass   |
+| SMS delivery latency       | <30s       | [ ]    | Cloud Logs SMS review  |
+| Gemini Vision quota OK     | Yes        | [ ]    | Quota logs check       |
+| Firestore latency p95      | <500ms     | [ ]    | Query performance logs |
+| System error rate          | <0.1%      | [ ]    | Error rate dashboard   |
+| Bundle size                | <365 KB    | [ ]    | Build artifact         |
+| Smoke test                 | 12/12 pass | [ ]    | Automated test log     |
+| Customer UAT sign-off      | Approved   | [ ]    | Lab Director sign-off  |
 
 ---
 
@@ -459,6 +471,7 @@ gcloud logging read "textPayload=~'.*Permission.*denied' AND resource.type=fires
 **Scenario:** Critical bug found post-deploy (e.g., SMS escalation not delivering, Gemini Vision failing).
 
 **Steps:**
+
 ```bash
 # 1. Identify last known-good commit (Phase 4 baseline)
 git log --oneline | grep "Phase 4" | head -1
@@ -476,6 +489,7 @@ bash scripts/monitor-cloud-logs.sh 30 5
 ```
 
 **Validation:**
+
 - [ ] Críticos module unavailable (tile grayed out)
 - [ ] Strip classification unavailable
 - [ ] Cloud Functions: Phase 4 version running (check timestamps)
@@ -562,14 +576,14 @@ gcloud logging read 'resource.type=firestore AND textPayload=~"quota"' \
 
 ### Red Flags & Escalation
 
-| Red Flag | Action |
-|----------|--------|
-| Error rate >0.5% | Page on-call engineer immediately |
-| SMS escalation failing (>10% failure rate) | Fallback to email escalation, investigate Twilio quota |
-| Gemini Vision API quota exceeded | Scale back strip classification confidence threshold, request quota increase |
-| Firestore rule rejection >100/hour | Check rule syntax, review recent rule changes |
-| Function latency p95 >10s | Check Firestore index usage, review query patterns |
-| No criticos escalations (but should be >5/day) | Check detection logic, verify thresholds loaded correctly |
+| Red Flag                                       | Action                                                                       |
+| ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| Error rate >0.5%                               | Page on-call engineer immediately                                            |
+| SMS escalation failing (>10% failure rate)     | Fallback to email escalation, investigate Twilio quota                       |
+| Gemini Vision API quota exceeded               | Scale back strip classification confidence threshold, request quota increase |
+| Firestore rule rejection >100/hour             | Check rule syntax, review recent rule changes                                |
+| Function latency p95 >10s                      | Check Firestore index usage, review query patterns                           |
+| No criticos escalations (but should be >5/day) | Check detection logic, verify thresholds loaded correctly                    |
 
 ---
 
@@ -619,13 +633,13 @@ Signed: [Name] | [Date/Time UTC-3]
 
 ## Emergency Contacts
 
-| Role | Name | Phone | Slack |
-|------|------|-------|-------|
-| Incident Commander (CTO) | [Name] | +55 11 99999-9999 | @cto |
-| On-Call Engineer #1 | [Name] | +55 11 99999-9999 | @oncall-1 |
-| On-Call Engineer #2 | [Name] | +55 11 99999-9999 | @oncall-2 |
-| Infrastructure Lead | [Name] | +55 11 99999-9999 | @infra-lead |
-| Lab Director (UAT Lead) | [Name] | +55 11 99999-9999 | @lab-director |
+| Role                     | Name   | Phone             | Slack         |
+| ------------------------ | ------ | ----------------- | ------------- |
+| Incident Commander (CTO) | [Name] | +55 11 99999-9999 | @cto          |
+| On-Call Engineer #1      | [Name] | +55 11 99999-9999 | @oncall-1     |
+| On-Call Engineer #2      | [Name] | +55 11 99999-9999 | @oncall-2     |
+| Infrastructure Lead      | [Name] | +55 11 99999-9999 | @infra-lead   |
+| Lab Director (UAT Lead)  | [Name] | +55 11 99999-9999 | @lab-director |
 
 ---
 
@@ -636,6 +650,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** Error in `detectCriticalValue` function
 
 **Steps:**
+
 1. Check threshold configuration: verify lab-specific thresholds loaded
 2. Check Cloud Logs: `gcloud functions log list --project hmatologia2 --region southamerica-east1 | grep detectCritical`
 3. Verify Firestore rules allow criticos collection read/write
@@ -646,6 +661,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** Crítico detected but SMS not received
 
 **Steps:**
+
 1. Check SMS credentials: `bash scripts/preflight-secrets-check.sh | grep SMS`
 2. Check Twilio quota: https://www.twilio.com/console/sms/logs
 3. Review Cloud Logs: `gcloud logging read "functionName=escalarCriticoViaSmS AND severity=ERROR"`
@@ -657,6 +673,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** Strip classification fails with "quota exceeded" error
 
 **Steps:**
+
 1. Check Vertex AI Vision API quota: https://console.cloud.google.com/iam-admin/quotas?project=hmatologia2
 2. Request quota increase (Google Cloud support): ~2–4 hour SLA
 3. Temporary mitigation: Increase classification confidence threshold to 0.95 (stricter filtering)
@@ -667,6 +684,7 @@ Signed: [Name] | [Date/Time UTC-3]
 **Symptom:** `firebase deploy --only hosting` returns error
 
 **Steps:**
+
 1. Check build: `npm run build` (should complete without errors)
 2. Check bundle size: `du -h dist/index.js` (should be <365 KB)
 3. Try again: `firebase deploy --only hosting --project hmatologia2`

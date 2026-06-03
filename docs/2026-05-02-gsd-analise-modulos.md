@@ -9,18 +9,18 @@
 
 ### Módulos em Produção ✅
 
-| Módulo | Status | Coleção/Caminho | Notas |
-|--------|--------|-----------------|-------|
-| **CIQ Hematologia** | ✅ deployed | `/lots`, `/runs` | Quantitativo |
-| **CIQ Imunologia** | ✅ deployed | `/ciq-imuno` | Qualitativo R/NR |
-| **CIQ Coagulação** | ✅ deployed | `/ciq-coagulacao` | - |
-| **CIQ Uroanálise** | ✅ deployed | `/ciq-uroanalise` | Híbrido |
-| **Controle de Temperatura** | ✅ deployed | FR-11 | Monitoramento ambiental (2026-04-24) |
-| **Insumos/Lotes** | ✅ deployed | `/insumos` | Chain-hash vivo |
-| **Movimentação Insumos** | ✅ deployed | `/insumo-movimentacoes` | Assinada, rastreável |
-| **Catálogo Produtos** | ✅ deployed | `/produtos-insumos` | Fase C |
-| **Audit Log** | ✅ deployed | `/ciq-audit`, `/auditLogs` | Assinado, LGPD |
-| **Firestore Backup** | ✅ deployed | `/firestore-backup-logs` | Lifecycle 5y, retention 1825d |
+| Módulo                      | Status      | Coleção/Caminho            | Notas                                |
+| --------------------------- | ----------- | -------------------------- | ------------------------------------ |
+| **CIQ Hematologia**         | ✅ deployed | `/lots`, `/runs`           | Quantitativo                         |
+| **CIQ Imunologia**          | ✅ deployed | `/ciq-imuno`               | Qualitativo R/NR                     |
+| **CIQ Coagulação**          | ✅ deployed | `/ciq-coagulacao`          | -                                    |
+| **CIQ Uroanálise**          | ✅ deployed | `/ciq-uroanalise`          | Híbrido                              |
+| **Controle de Temperatura** | ✅ deployed | FR-11                      | Monitoramento ambiental (2026-04-24) |
+| **Insumos/Lotes**           | ✅ deployed | `/insumos`                 | Chain-hash vivo                      |
+| **Movimentação Insumos**    | ✅ deployed | `/insumo-movimentacoes`    | Assinada, rastreável                 |
+| **Catálogo Produtos**       | ✅ deployed | `/produtos-insumos`        | Fase C                               |
+| **Audit Log**               | ✅ deployed | `/ciq-audit`, `/auditLogs` | Assinado, LGPD                       |
+| **Firestore Backup**        | ✅ deployed | `/firestore-backup-logs`   | Lifecycle 5y, retention 1825d        |
 
 ---
 
@@ -31,10 +31,12 @@
 **Status:** Fragmentado  
 **Coleções:** `/users` + `/labs/{labId}/members`  
 **O que existe:**
-- `User` com uid, email, nome, role  
+
+- `User` com uid, email, nome, role
 - `Member` com active, role
 
 **O que falta:**
+
 - ❌ `/qualificacoes` coleção nova (treinamento, capacitação, reciclagem)
 - ❌ `cpfHash` (LGPD) — mencionado mas não uniformizado
 - ❌ `cargo` estruturado ("Biomédica RT", "Técnica em análises")
@@ -53,17 +55,19 @@
 
 **Status:** Parcial  
 **O que existe:**
-- `cpfHash` mencionado no schema  
-- Audit log existente  
-- Backup estruturado  
+
+- `cpfHash` mencionado no schema
+- Audit log existente
+- Backup estruturado
 
 **O que falta:**
-- ❌ Política de privacidade exposta (termos)  
-- ❌ Processo de exclusão por solicitação de titular  
-- ❌ Mapa de tratamento de dados pessoais  
-- ❌ Consentimento estruturado  
 
-**Impacto:** Audit compliance 2026, requisito legal  
+- ❌ Política de privacidade exposta (termos)
+- ❌ Processo de exclusão por solicitação de titular
+- ❌ Mapa de tratamento de dados pessoais
+- ❌ Consentimento estruturado
+
+**Impacto:** Audit compliance 2026, requisito legal
 
 ---
 
@@ -74,6 +78,7 @@
 **Fase:** D  
 **Coleções:** `/labs/{labId}/equipamentos`, `/equipamentos-audit` (reservadas)  
 **Escopo:**
+
 - ✓ Registro: ativo → manutenção → aposentado
 - ✓ Retenção 5 anos
 - ✓ Qualificação inicial (não é calibração)
@@ -91,6 +96,7 @@
 **Status:** Depende de 4.1  
 **Consumidores:** Equipamento (próprio), Fornecedor (provedor serviço), NC (reprovado)  
 **Escopo:**
+
 - ✓ Agenda de calibração periódica
 - ✓ Certificado anexado
 - ✓ Gate quando atrasada (bloqueia uso)
@@ -102,6 +108,7 @@
 **Fase:** E  
 **Coleções:** `/labs/{labId}/fornecedores`, `/labs/{labId}/notas-fiscais` (reservadas)  
 **Escopo:**
+
 - ✓ Qualificação com evidências
 - ✓ Requalificação anual
 - ✓ Cadastro de Nota Fiscal
@@ -122,6 +129,7 @@
 ### Sistema de Qualidade (Núcleo regulatório)
 
 #### 1.1 Gestão de Documentos (POPs, ITPs, manuais)
+
 - **Spines:** Dono de **POP**
 - **Dependências:** Pessoas (quem aprova)
 - **Escopo mínimo:**
@@ -134,6 +142,7 @@
 - **Por que importa cedo:** Sem POP versionado referenciável, módulos técnicos não conseguem congelar "qual procedimento foi usado" no laudo
 
 #### 1.2 Não-conformidades (NC) + CAPA
+
 - **Spines:** Dono de **NC**
 - **Dependências:** Pessoas, audit log
 - **Escopo:**
@@ -145,6 +154,7 @@
 - **Violações spine:** V-001 (NC fragmentada — CT tem própria)
 
 #### 1.3 Auditoria Interna
+
 - **Spines:** Consome NC, POP, Pessoas
 - **Escopo:**
   - Checklist por área
@@ -153,6 +163,7 @@
   - Registros históricos (5 anos)
 
 #### 1.4 Indicadores de Qualidade (KPI Dashboard)
+
 - **Spines:** Consome dados de todos os módulos técnicos + NC
 - **Escopo:**
   - % retrabalho por módulo CIQ
@@ -167,6 +178,7 @@
 ### Recursos Humanos (Continuação)
 
 #### 2.2 Treinamentos + Reciclagem
+
 - **Spines:** Consome Pessoa, POP
 - **Escopo:**
   - Registro de treinamento por versão do POP
@@ -180,6 +192,7 @@
 ### Infraestrutura
 
 #### 3.1 Mapeamento de Áreas + Biossegurança
+
 - **Status:** CT já cobre monitoramento ambiental ✅
 - **Falta:**
   - Registro físico das áreas (sala, setor, fluxo)
@@ -189,6 +202,7 @@
 - **Decisão pendente:** Módulo separado ou dentro de Qualidade?
 
 #### 3.2 PGRSS (Gerenciamento de Resíduos)
+
 - **Spines:** Consome Equipamento (descarte RSS), Pessoa, NC
 - **Escopo:**
   - Registro de geração (soro, resíduo, material perfurocortante)
@@ -201,9 +215,11 @@
 ### Equipamentos (Continuação)
 
 #### 4.1 Equipamentos — Cadastro + Ciclo de Vida
+
 **→ Ver seção "Planejados" acima (🔵)**
 
 #### 4.2 Equipamentos — Calibração + Manutenção
+
 **→ Ver seção "Planejados" acima (🔵)**
 
 ---
@@ -211,11 +227,13 @@
 ### Pré-analítico
 
 #### 6.1 Cadastro Paciente / Requisição
+
 - **Status:** Fora de escopo do CIQ atual
 - **Decisão:** HC Quality vai cobrir ou só consumir referência externa (ex: LIS terceiro)?
 - **Impacto:** Define se tem coleção própria ou integração API
 
 #### 6.2 Coleta + Transporte
+
 - **Spines:** Consome Pessoa, POP, Equipamento (centrífuga, geladeira transporte)
 - **Escopo:**
   - Protocolo de coleta por tipo amostra
@@ -227,11 +245,13 @@
 ### Analítico — Expansão CIQ
 
 #### 7.5 CIQ Bioquímica
+
 - **Status:** ⚪ não iniciado
 - **Padrão:** Seguir Hematologia (quantitativo)
 - **Dependências:** Equipamento ativo, Lote + validade, POP vigente, Operador qualificado
 
 #### 7.6 CEQ (Controle Externo / Ensaio de Proficiência)
+
 - **Spines:** Consome Lote, Equipamento, POP, Pessoa
 - **Escopo:**
   - Cadastro de programa externo (ControlLab, Qualitrol, etc)
@@ -242,6 +262,7 @@
   - Rastreamento de participação obrigatória
 
 #### 7.7 Validação de Métodos / Verificação de Desempenho
+
 - **Escopo:**
   - Linearidade, precisão, exatidão
   - Comparação com método referência
@@ -253,6 +274,7 @@
 ### Pós-analítico
 
 #### 8.1 Liberação de Laudos
+
 - **Spines:** Consome Pessoa (liberador habilitado), Equipamento, Lote, POP
 - **Escopo:**
   - Dupla checagem para resultados críticos
@@ -261,6 +283,7 @@
   - Retenção 5 anos (Firestore)
 
 #### 8.2 Comunicação de Resultados Críticos
+
 - **Spines:** Consome Pessoa
 - **Escopo:**
   - Lista de testes/limites críticos por módulo CIQ
@@ -268,6 +291,7 @@
   - Rastreamento compulsório para RDC
 
 #### 8.3 Arquivo + Biorrepositório
+
 - **Escopo:**
   - Retenção de amostras (soro, plasma, células)
   - Retenção de controles e reagentes
@@ -280,6 +304,7 @@
 ### Atendimento ao Cliente
 
 #### 9.1 Reclamações + Satisfação
+
 - **Spines:** Abre NC quando aplicável
 - **Escopo:**
   - Canal de reclamação (email, telefone, form)
@@ -293,6 +318,7 @@
 ### Continuidade e Segurança da Informação
 
 #### 10.1 Backup + DR
+
 - **Status:** `/firestore-backup-logs` + `/backup-logs` existem (Lifecycle 5y, retention 1825d)
 - **Falta:**
   - Plano formal de DR documentado
@@ -301,6 +327,7 @@
   - Validação de integridade (checksum)
 
 #### 10.2 LGPD
+
 **→ Ver seção "Parciais" acima (🟡)**
 
 ---
@@ -310,44 +337,39 @@
 **13 violações identificadas no audit 2026-04-25**  
 **Precisam de 7 ADRs para fechar gaps**
 
-| # | Sev | Spine | Descrição | ADR alvo | Status |
-|---|-----|-------|-----------|----------|--------|
-| **V-001** | 🔴 | NC | Fragmentada — CT tem própria | 0003 | ⬜ Open |
-| **V-002** | 🔴 | Pessoa | Sem qualificacoes[], cpfHash, cargo estruturado | 0006 | ⬜ Open |
-| **V-003** | 🔴 | Lote | notaFiscalId, fornecedorId opcionais | 0002 | ⬜ Open |
-| **V-004** | 🟠 | POP | Não gravado em runs CIQ | 0004 | ⬜ Open |
-| **V-005** | 🟠 | Pessoa | Sem cpfHash, conselhoProfissional, cargo | 0006 | ⬜ Open |
-| **V-006** | 🟠 | NF | Sem itens[], conferenciaOk, desviosObservados | 0002 | ⬜ Open |
-| **V-007** | 🟠 | Fornecedor | Sem status qualificação, evidencias[], proximaRequalificacao | 0002 | ⬜ Open |
-| **V-008** | 🟡 | Equipamento | Falta qualificacaoInicial, proximaCalibracao | 0007 | ⬜ Open |
-| **V-009** | 🟡 | Audit | HMAC + chainHash duplicado em 2 arquivos | 0005 | ⬜ Open |
-| **V-010** | 🟡 | Equipamento | CIQ-Imuno usa string, não FK equipamentoId | 0007 | ⬜ Open |
-| **V-011** | 🟡 | POP | Coagulação não grava popId | 0004 | ⬜ Open |
-| **V-012** | 🟡 | NF | Sem NFItem[] estruturado | 0002 | ⬜ Open |
-| **V-013** | ⚪ | Naming | Inconsistência operatorId vs createdBy | — | ⬜ Open |
+| #         | Sev | Spine       | Descrição                                                    | ADR alvo | Status  |
+| --------- | --- | ----------- | ------------------------------------------------------------ | -------- | ------- |
+| **V-001** | 🔴  | NC          | Fragmentada — CT tem própria                                 | 0003     | ⬜ Open |
+| **V-002** | 🔴  | Pessoa      | Sem qualificacoes[], cpfHash, cargo estruturado              | 0006     | ⬜ Open |
+| **V-003** | 🔴  | Lote        | notaFiscalId, fornecedorId opcionais                         | 0002     | ⬜ Open |
+| **V-004** | 🟠  | POP         | Não gravado em runs CIQ                                      | 0004     | ⬜ Open |
+| **V-005** | 🟠  | Pessoa      | Sem cpfHash, conselhoProfissional, cargo                     | 0006     | ⬜ Open |
+| **V-006** | 🟠  | NF          | Sem itens[], conferenciaOk, desviosObservados                | 0002     | ⬜ Open |
+| **V-007** | 🟠  | Fornecedor  | Sem status qualificação, evidencias[], proximaRequalificacao | 0002     | ⬜ Open |
+| **V-008** | 🟡  | Equipamento | Falta qualificacaoInicial, proximaCalibracao                 | 0007     | ⬜ Open |
+| **V-009** | 🟡  | Audit       | HMAC + chainHash duplicado em 2 arquivos                     | 0005     | ⬜ Open |
+| **V-010** | 🟡  | Equipamento | CIQ-Imuno usa string, não FK equipamentoId                   | 0007     | ⬜ Open |
+| **V-011** | 🟡  | POP         | Coagulação não grava popId                                   | 0004     | ⬜ Open |
+| **V-012** | 🟡  | NF          | Sem NFItem[] estruturado                                     | 0002     | ⬜ Open |
+| **V-013** | ⚪  | Naming      | Inconsistência operatorId vs createdBy                       | —        | ⬜ Open |
 
 ### ADRs Pendentes (Ordem sugerida)
 
 1. **ADR 0005** — Helper `cryptoAudit` compartilhado (V-009)
    - Objetivo: Eliminar duplicação HMAC + chainHash
    - Risco: Baixíssimo
-   
 2. **ADR 0002** — Lote ↔ NF obrigatório + backfill (V-003, V-006, V-007, V-012)
    - Objetivo: Rastreabilidade fiscal
    - Escopo: Schema + dados legados
-   
 3. **ADR 0003** — Spine NC global (V-001)
    - Objetivo: Unificar NC entre módulos
    - Escopo: Refatoração do `NaoConformidadeTemp` em CT
-   
 4. **ADR 0006** — Pessoa completa (V-002, V-005)
    - Objetivo: Qualificações + LGPD
    - Escopo: Schema novo + migrações
-   
 5. **ADR 0004** — POP / documento vigente (V-004, V-011)
    - Objetivo: POP versionado referenciável
    - Escopo: Integração ampla (todos módulos CIQ)
-   
 6. **ADR 0007** — Equipamento completo (V-008, V-010)
    - Objetivo: Qualificação + calibração + audit chain
    - Escopo: Refatoração calibração (CT → Equipamento)
@@ -398,18 +420,18 @@ Para cada módulo (ex: POPs):
 
 ## Métricas de Completude
 
-| Área | Módulos | Em Prod | Parcial | Planejado | A Construir | % Completo |
-|------|---------|---------|---------|-----------|-------------|-----------|
-| **Núcleo CIQ** | 4 | 4 | — | — | 1 | 80% |
-| **RH/Pessoas** | 2 | — | 1 | — | 1 | 25% |
-| **Infraestrutura** | 5 | 2 | 1 | — | 2 | 50% |
-| **Qualidade** | 4 | — | — | — | 4 | 0% |
-| **Compras** | 2 | — | — | 1 | 1 | 25% |
-| **Equipamentos** | 2 | — | — | 2 | — | 0% |
-| **Pós-analítico** | 3 | — | — | — | 3 | 0% |
-| **Pré-analítico** | 2 | — | — | — | 2 | 0% |
-| **Continuidade** | 2 | 1 | 1 | — | — | 75% |
-| **TOTAL** | 26 | 7 | 3 | 3 | 13 | **42%** |
+| Área               | Módulos | Em Prod | Parcial | Planejado | A Construir | % Completo |
+| ------------------ | ------- | ------- | ------- | --------- | ----------- | ---------- |
+| **Núcleo CIQ**     | 4       | 4       | —       | —         | 1           | 80%        |
+| **RH/Pessoas**     | 2       | —       | 1       | —         | 1           | 25%        |
+| **Infraestrutura** | 5       | 2       | 1       | —         | 2           | 50%        |
+| **Qualidade**      | 4       | —       | —       | —         | 4           | 0%         |
+| **Compras**        | 2       | —       | —       | 1         | 1           | 25%        |
+| **Equipamentos**   | 2       | —       | —       | 2         | —           | 0%         |
+| **Pós-analítico**  | 3       | —       | —       | —         | 3           | 0%         |
+| **Pré-analítico**  | 2       | —       | —       | —         | 2           | 0%         |
+| **Continuidade**   | 2       | 1       | 1       | —         | —           | 75%        |
+| **TOTAL**          | 26      | 7       | 3       | 3         | 13          | **42%**    |
 
 ---
 

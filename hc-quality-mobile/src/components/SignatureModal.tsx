@@ -77,9 +77,7 @@ export function SignatureModal({
 
             <Text style={styles.title}>Assinatura Eletrônica</Text>
 
-            {context ? (
-              <Text style={styles.context}>{context}</Text>
-            ) : null}
+            {context ? <Text style={styles.context}>{context}</Text> : null}
 
             <Text style={styles.hint}>
               Digite seu PIN ({MIN_PIN_LENGTH}–{MAX_PIN_LENGTH} dígitos)
@@ -87,10 +85,7 @@ export function SignatureModal({
 
             <View style={styles.pinRow}>
               {Array.from({ length: MAX_PIN_LENGTH }, (_, i) => (
-                <View
-                  key={i}
-                  style={[styles.pinDot, i < pin.length && styles.pinDotFilled]}
-                />
+                <View key={i} style={[styles.pinDot, i < pin.length && styles.pinDotFilled]} />
               ))}
             </View>
 

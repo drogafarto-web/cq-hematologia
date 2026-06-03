@@ -76,11 +76,7 @@ describe('TwilioSMSClient', () => {
           dateCreated: new Date(),
         });
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Test message',
-          'lab-001',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Test message', 'lab-001');
 
         expect(result.sid).toBe(mockSid);
         expect(result.status).toBe('queued');
@@ -113,44 +109,28 @@ describe('TwilioSMSClient', () => {
           status: 'sent',
         });
 
-        const result = await client.sendSMS(
-          '+5511999999999',
-          'Valid format',
-          'lab-001',
-        );
+        const result = await client.sendSMS('+5511999999999', 'Valid format', 'lab-001');
 
         expect(result.status).not.toBe('failed');
         expect(result.errorCode).not.toBe('VALIDATION_ERROR');
       });
 
       it('should reject phone without + prefix', async () => {
-        const result = await client.sendSMS(
-          '5511999999999',
-          'No plus',
-          'lab-001',
-        );
+        const result = await client.sendSMS('5511999999999', 'No plus', 'lab-001');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('VALIDATION_ERROR');
       });
 
       it('should reject phone with non-digit characters', async () => {
-        const result = await client.sendSMS(
-          '+55 (11) 99999-9999',
-          'Formatted',
-          'lab-001',
-        );
+        const result = await client.sendSMS('+55 (11) 99999-9999', 'Formatted', 'lab-001');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('VALIDATION_ERROR');
       });
 
       it('should reject phone exceeding E.164 max length (15 digits)', async () => {
-        const result = await client.sendSMS(
-          '+555511999999999999',
-          'Too long',
-          'lab-001',
-        );
+        const result = await client.sendSMS('+555511999999999999', 'Too long', 'lab-001');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('VALIDATION_ERROR');
@@ -166,11 +146,7 @@ describe('TwilioSMSClient', () => {
       });
 
       it('should reject whitespace-only SMS body', async () => {
-        const result = await client.sendSMS(
-          '+5511999999999',
-          '   ',
-          'lab-001',
-        );
+        const result = await client.sendSMS('+5511999999999', '   ', 'lab-001');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('VALIDATION_ERROR');
@@ -184,11 +160,7 @@ describe('TwilioSMSClient', () => {
       });
 
       it('should reject whitespace-only labId', async () => {
-        const result = await client.sendSMS(
-          '+5511999999999',
-          'Message',
-          '   ',
-        );
+        const result = await client.sendSMS('+5511999999999', 'Message', '   ');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('VALIDATION_ERROR');
@@ -198,22 +170,14 @@ describe('TwilioSMSClient', () => {
     describe('Retry Logic — Network Errors', () => {
       it('should retry on network error (ECONNREFUSED) and eventually succeed', async () => {
         mockTwilioClient.messages.create
-          .mockRejectedValueOnce(
-            new Error('Network error: ECONNREFUSED'),
-          )
-          .mockRejectedValueOnce(
-            new Error('Network error: ECONNREFUSED'),
-          )
+          .mockRejectedValueOnce(new Error('Network error: ECONNREFUSED'))
+          .mockRejectedValueOnce(new Error('Network error: ECONNREFUSED'))
           .mockResolvedValueOnce({
             sid: 'SM_success_after_retries',
             status: 'sent',
           });
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Retry test',
-          'lab-retry',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Retry test', 'lab-retry');
 
         expect(result.sid).toBe('SM_success_after_retries');
         expect(result.status).toBe('sent');
@@ -226,11 +190,7 @@ describe('TwilioSMSClient', () => {
           .mockRejectedValueOnce(new Error('Request timeout'))
           .mockRejectedValueOnce(new Error('Request timeout'));
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Timeout',
-          'lab-timeout',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Timeout', 'lab-timeout');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toContain('Request timeout');
@@ -241,18 +201,12 @@ describe('TwilioSMSClient', () => {
         const quotaError = new Error('Rate limit exceeded');
         (quotaError as any).code = 20009;
 
-        mockTwilioClient.messages.create
-          .mockRejectedValueOnce(quotaError)
-          .mockResolvedValueOnce({
-            sid: 'SM_quota_recovered',
-            status: 'sent',
-          });
+        mockTwilioClient.messages.create.mockRejectedValueOnce(quotaError).mockResolvedValueOnce({
+          sid: 'SM_quota_recovered',
+          status: 'sent',
+        });
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Quota test',
-          'lab-quota',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Quota test', 'lab-quota');
 
         expect(result.sid).toBe('SM_quota_recovered');
         expect(mockTwilioClient.messages.create).toHaveBeenCalledTimes(2);
@@ -264,15 +218,9 @@ describe('TwilioSMSClient', () => {
         const validationError = new Error('Invalid To Parameter');
         (validationError as any).code = 20107;
 
-        mockTwilioClient.messages.create.mockRejectedValueOnce(
-          validationError,
-        );
+        mockTwilioClient.messages.create.mockRejectedValueOnce(validationError);
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Validation fail',
-          'lab-val',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Validation fail', 'lab-val');
 
         expect(result.status).toBe('failed');
         expect(mockTwilioClient.messages.create).toHaveBeenCalledTimes(1); // no retries
@@ -284,11 +232,7 @@ describe('TwilioSMSClient', () => {
 
         mockTwilioClient.messages.create.mockRejectedValueOnce(unknownError);
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Unknown',
-          'lab-unknown',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Unknown', 'lab-unknown');
 
         expect(result.status).toBe('failed');
         expect(mockTwilioClient.messages.create).toHaveBeenCalledTimes(1); // no retries
@@ -302,11 +246,7 @@ describe('TwilioSMSClient', () => {
 
         mockTwilioClient.messages.create.mockRejectedValue(testError);
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Error capture',
-          'lab-err',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Error capture', 'lab-err');
 
         expect(result.status).toBe('failed');
         expect(result.errorCode).toBe('TEST_CODE');
@@ -314,15 +254,9 @@ describe('TwilioSMSClient', () => {
       });
 
       it('should use UNKNOWN_ERROR when error code not present', async () => {
-        mockTwilioClient.messages.create.mockRejectedValue(
-          new Error('Unclassified error'),
-        );
+        mockTwilioClient.messages.create.mockRejectedValue(new Error('Unclassified error'));
 
-        const result = await client.sendSMS(
-          '+5511987654321',
-          'Unclassified',
-          'lab-unc',
-        );
+        const result = await client.sendSMS('+5511987654321', 'Unclassified', 'lab-unc');
 
         expect(result.errorCode).toBe('UNKNOWN_ERROR');
       });
@@ -347,11 +281,7 @@ describe('TwilioSMSClient', () => {
           });
         });
 
-        const results = await client.sendBulkSMS(
-          recipients,
-          'Bulk message',
-          'lab-bulk',
-        );
+        const results = await client.sendBulkSMS(recipients, 'Bulk message', 'lab-bulk');
 
         expect(results).toHaveLength(3);
         expect(results[0].sid).toBe('SM_1');
@@ -412,11 +342,7 @@ describe('TwilioSMSClient', () => {
           status: 'sent',
         });
 
-        const results = await client.sendBulkSMS(
-          ['+5511999999999'],
-          'Single',
-          'lab-single',
-        );
+        const results = await client.sendBulkSMS(['+5511999999999'], 'Single', 'lab-single');
 
         expect(results).toHaveLength(1);
         expect(results[0].sid).toBe('SM_single');
@@ -437,11 +363,7 @@ describe('TwilioSMSClient', () => {
           });
         });
 
-        const results = await client.sendBulkSMS(
-          recipients,
-          'Large batch',
-          'lab-large',
-        );
+        const results = await client.sendBulkSMS(recipients, 'Large batch', 'lab-large');
 
         expect(results).toHaveLength(5);
         expect(mockTwilioClient.messages.create).toHaveBeenCalledTimes(5);
@@ -680,11 +602,7 @@ describe('TwilioSMSClient', () => {
     it('should handle very long SMS body (edge case)', async () => {
       const longBody = 'A'.repeat(500); // Much longer than typical SMS
 
-      const result = await client.sendSMS(
-        '+5511999999999',
-        longBody,
-        'lab-long',
-      );
+      const result = await client.sendSMS('+5511999999999', longBody, 'lab-long');
 
       // Should fail because mock isn't set up, but body validation passes
       expect(result.status).toBe('failed');
@@ -698,16 +616,8 @@ describe('TwilioSMSClient', () => {
         dateCreated: new Date(),
       });
 
-      const promise1 = client.sendBulkSMS(
-        ['+5511111111111'],
-        'Batch 1',
-        'lab-1',
-      );
-      const promise2 = client.sendBulkSMS(
-        ['+5522222222222'],
-        'Batch 2',
-        'lab-2',
-      );
+      const promise1 = client.sendBulkSMS(['+5511111111111'], 'Batch 1', 'lab-1');
+      const promise2 = client.sendBulkSMS(['+5522222222222'], 'Batch 2', 'lab-2');
 
       const [results1, results2] = await Promise.all([promise1, promise2]);
 
@@ -725,11 +635,7 @@ describe('TwilioSMSClient', () => {
       });
 
       const before = Date.now();
-      const result = await client.sendSMS(
-        '+5511999999999',
-        'Timestamp test',
-        'lab-ts',
-      );
+      const result = await client.sendSMS('+5511999999999', 'Timestamp test', 'lab-ts');
       const after = Date.now();
 
       expect(result.sentAt).toBeGreaterThanOrEqual(before);

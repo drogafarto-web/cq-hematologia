@@ -13,20 +13,21 @@ Cobrir as etapas anteriores e posteriores à análise laboratorial, demonstrando
 
 ## Já existe no HC Quality
 
-| Componente | Path | Status |
-|---|---|---|
-| `Laudo` com 14 campos RDC 978 Art. 167 (pós-analítico) | `src/features/liberacao/types/laudo.ts` | ✅ Em prod |
-| FSM de liberação de laudos (auto-libera / RT revisa críticos) | `src/features/liberacao/` | ✅ Em prod |
-| Histórico de versões de laudo (imutável) | `laudos/{id}/laudo-versions/` | ✅ Em prod |
-| Comunicação de críticos (email + log auditável) | `src/features/liberacao/`, `src/features/criticos/` | ✅ Em prod |
-| Portal Paciente (acesso a resultados via email + LGPD) | `src/features/portal-paciente/` | ✅ Em prod |
-| Portal RT (escalação de críticos, presença RT) | `src/features/portal-rt/` | ✅ Em prod |
-| `tipoMaterial` e `metodoAnalitico` em `ExameLaudo` | `src/features/liberacao/types/laudo.ts` | ✅ Em prod |
-| Classificação de exames (rotina/urgência/crítico) | `src/features/liberacao/types/exameConfig.ts` | ✅ Em prod |
-| Críticos FSM (NORMAL → CRITICO → ALERTADO → RESOLVIDO) | `src/features/criticos-fsm/` | ✅ Em prod |
-| OCR de laudos via Gemini + gate de consentimento | `src/features/laudo-ocr/` | ✅ Em prod |
+| Componente                                                    | Path                                                | Status     |
+| ------------------------------------------------------------- | --------------------------------------------------- | ---------- |
+| `Laudo` com 14 campos RDC 978 Art. 167 (pós-analítico)        | `src/features/liberacao/types/laudo.ts`             | ✅ Em prod |
+| FSM de liberação de laudos (auto-libera / RT revisa críticos) | `src/features/liberacao/`                           | ✅ Em prod |
+| Histórico de versões de laudo (imutável)                      | `laudos/{id}/laudo-versions/`                       | ✅ Em prod |
+| Comunicação de críticos (email + log auditável)               | `src/features/liberacao/`, `src/features/criticos/` | ✅ Em prod |
+| Portal Paciente (acesso a resultados via email + LGPD)        | `src/features/portal-paciente/`                     | ✅ Em prod |
+| Portal RT (escalação de críticos, presença RT)                | `src/features/portal-rt/`                           | ✅ Em prod |
+| `tipoMaterial` e `metodoAnalitico` em `ExameLaudo`            | `src/features/liberacao/types/laudo.ts`             | ✅ Em prod |
+| Classificação de exames (rotina/urgência/crítico)             | `src/features/liberacao/types/exameConfig.ts`       | ✅ Em prod |
+| Críticos FSM (NORMAL → CRITICO → ALERTADO → RESOLVIDO)        | `src/features/criticos-fsm/`                        | ✅ Em prod |
+| OCR de laudos via Gemini + gate de consentimento              | `src/features/laudo-ocr/`                           | ✅ Em prod |
 
 **O que existe parcialmente (não consolidado como módulo pré-analítico):**
+
 - Campo `dataHoraColeta` e `tipoMaterial` no `Laudo` — informação de coleta chega via laudo, sem rastreabilidade própria.
 - Campos de rejeição de amostra: inexistentes no schema atual.
 - TAT (Turnaround Time) coleta→recebimento: calculável com dados existentes se `dataHoraColeta` estiver preenchida, mas sem indicador formal.
@@ -36,32 +37,32 @@ Cobrir as etapas anteriores e posteriores à análise laboratorial, demonstrando
 
 ## O que é comum com outros módulos
 
-| Padrão | Onde aparece | Notas |
-|---|---|---|
-| `logicalSignature` (RT assina coleta e liberação) | liberacao, educacao-continuada, equipamentos | Mesmo shape `LogicalSignature` |
-| Chain-hash audit trail | liberacao (`laudo-versions`), risks, equipamentos | CF trigger append-only |
-| Soft-delete | liberacao, risks, lab-apoio | `deletadoEm` obrigatório |
-| `labId` multi-tenancy | universal | Toda coleção |
-| Callable obrigatório para escritas regulatórias | liberacao, risks, lab-apoio | Não escrever direto do client |
-| Classificação de exames | liberacao (`exameConfig`), criticos (thresholds) | Config por exame já existe |
-| TAT como KPI | kpis (`turnaround_media_horas`) | Já calculado pelo aggregateDaily |
-| Comunicação de resultado | liberacao (email RT), criticos (cascade), portal-paciente | Múltiplos canais existentes |
+| Padrão                                            | Onde aparece                                              | Notas                            |
+| ------------------------------------------------- | --------------------------------------------------------- | -------------------------------- |
+| `logicalSignature` (RT assina coleta e liberação) | liberacao, educacao-continuada, equipamentos              | Mesmo shape `LogicalSignature`   |
+| Chain-hash audit trail                            | liberacao (`laudo-versions`), risks, equipamentos         | CF trigger append-only           |
+| Soft-delete                                       | liberacao, risks, lab-apoio                               | `deletadoEm` obrigatório         |
+| `labId` multi-tenancy                             | universal                                                 | Toda coleção                     |
+| Callable obrigatório para escritas regulatórias   | liberacao, risks, lab-apoio                               | Não escrever direto do client    |
+| Classificação de exames                           | liberacao (`exameConfig`), criticos (thresholds)          | Config por exame já existe       |
+| TAT como KPI                                      | kpis (`turnaround_media_horas`)                           | Já calculado pelo aggregateDaily |
+| Comunicação de resultado                          | liberacao (email RT), criticos (cascade), portal-paciente | Múltiplos canais existentes      |
 
 ---
 
 ## Lacunas (DICQ Gap)
 
-| Gap | DICQ Req | Prioridade | Observação |
-|---|---|---|---|
-| Registro de recebimento de amostra (com identificação e conferência) | E.5.4.1, E.5.4.2 | Alta | Nenhuma entidade `Amostra` com campos de recepção. |
-| Critérios de aceitação e rejeição de amostras (configuráveis por exame) | E.5.4.3 | Alta | `exameConfig` existe mas sem `criteriosAceitacao`. |
-| Registro formal de rejeição com motivo e comunicação ao solicitante | E.5.4.3 | Alta | Campo `rejeitadaEm` + `motivoRejeicao` + callable ausentes. |
-| TAT pré-analítico (coleta→recebimento, recebimento→análise) | E.5.4.x, 4.14.7 | Alta | `dataHoraColeta` existe no laudo; `dataHoraRecebimento` não. |
-| Instrução ao paciente e preparo (documentada por exame) | E.5.4.1 | Média | Sem tela ou entidade de instrução de preparo. |
-| Rastreabilidade de transporte de amostras (cadeia de custódia) | E.5.4.2 | Média | Nenhum registro de transporte (courier, temperatura, tempo). |
-| Retificação de laudo com justificativa auditável | G.5.7.3 | Média | `laudo-versions` existe; tela de retificação (motivo + RT sig) pendente. |
-| Relatório de amostras rejeitadas por período (indicador DICQ) | 4.14.7 | Média | Sem agregação de rejeições. |
-| Controle de laudos entregues fora do prazo (TAT pós-analítico) | G.5.7.x | Baixa | TAT de liberação calculável; alerta de SLA faltando. |
+| Gap                                                                     | DICQ Req         | Prioridade | Observação                                                               |
+| ----------------------------------------------------------------------- | ---------------- | ---------- | ------------------------------------------------------------------------ |
+| Registro de recebimento de amostra (com identificação e conferência)    | E.5.4.1, E.5.4.2 | Alta       | Nenhuma entidade `Amostra` com campos de recepção.                       |
+| Critérios de aceitação e rejeição de amostras (configuráveis por exame) | E.5.4.3          | Alta       | `exameConfig` existe mas sem `criteriosAceitacao`.                       |
+| Registro formal de rejeição com motivo e comunicação ao solicitante     | E.5.4.3          | Alta       | Campo `rejeitadaEm` + `motivoRejeicao` + callable ausentes.              |
+| TAT pré-analítico (coleta→recebimento, recebimento→análise)             | E.5.4.x, 4.14.7  | Alta       | `dataHoraColeta` existe no laudo; `dataHoraRecebimento` não.             |
+| Instrução ao paciente e preparo (documentada por exame)                 | E.5.4.1          | Média      | Sem tela ou entidade de instrução de preparo.                            |
+| Rastreabilidade de transporte de amostras (cadeia de custódia)          | E.5.4.2          | Média      | Nenhum registro de transporte (courier, temperatura, tempo).             |
+| Retificação de laudo com justificativa auditável                        | G.5.7.3          | Média      | `laudo-versions` existe; tela de retificação (motivo + RT sig) pendente. |
+| Relatório de amostras rejeitadas por período (indicador DICQ)           | 4.14.7           | Média      | Sem agregação de rejeições.                                              |
+| Controle de laudos entregues fora do prazo (TAT pós-analítico)          | G.5.7.x          | Baixa      | TAT de liberação calculável; alerta de SLA faltando.                     |
 
 ---
 
@@ -96,6 +97,7 @@ UI (src/features/pre-pos-analitico/)
 ## Dados / Entidades
 
 ### `Amostra` (nova coleção `/labs/{labId}/amostras`)
+
 ```
 id: string
 labId: string
@@ -121,6 +123,7 @@ deletadoEm: Timestamp?
 ```
 
 ### `CriterioAceitacao` (campo em `exameConfig`)
+
 ```
 material: string
 volumeMinimo: number?
@@ -136,27 +139,27 @@ outrosCriterios: string?
 
 ## Ações principais
 
-| Ação | Quem | Como |
-|---|---|---|
-| Registrar recebimento de amostra | Operador | Callable + logicalSignature |
-| Rejeitar amostra com motivo | Operador | Callable + comunicar solicitante |
-| Configurar critérios de aceitação por exame | RT / Admin | Callable (atualiza `exameConfig`) |
-| Calcular TAT pré-analítico | Sistema | Derivado de `dataHoraColeta` vs `dataHoraRecebimento` |
-| Retificar laudo (pós-analítico) | RT | Callable + logicalSignature + versão imutável |
-| Exportar relatório de amostras rejeitadas | RT | Cloud Function `generateRejectionReport` |
-| Alertar SLA de liberação (TAT pós) | Sistema | CF cron / KPIAlert |
+| Ação                                        | Quem       | Como                                                  |
+| ------------------------------------------- | ---------- | ----------------------------------------------------- |
+| Registrar recebimento de amostra            | Operador   | Callable + logicalSignature                           |
+| Rejeitar amostra com motivo                 | Operador   | Callable + comunicar solicitante                      |
+| Configurar critérios de aceitação por exame | RT / Admin | Callable (atualiza `exameConfig`)                     |
+| Calcular TAT pré-analítico                  | Sistema    | Derivado de `dataHoraColeta` vs `dataHoraRecebimento` |
+| Retificar laudo (pós-analítico)             | RT         | Callable + logicalSignature + versão imutável         |
+| Exportar relatório de amostras rejeitadas   | RT         | Cloud Function `generateRejectionReport`              |
+| Alertar SLA de liberação (TAT pós)          | Sistema    | CF cron / KPIAlert                                    |
 
 ---
 
 ## Integrações
 
-| Módulo | Integração |
-|---|---|
-| `liberacao` | `Amostra.id` referenciado no `Laudo`; `dataHoraColeta` e `tipoMaterial` puxados da amostra |
-| `kpis` / `indicadores-melhoria` | TAT coleta→liberação alimenta `turnaround_media_horas`; taxa de rejeição como novo indicador |
-| `criticos` | Amostra com resultado crítico aciona FSM `criticos-fsm` |
-| `risks` | Rejeições frequentes podem gerar risco categorizado como `processual` / `pre_analitico` |
-| `bioquimica` / `coagulacao` / `uroanalise` | Exames analíticos recebem `amostraId` como referência de rastreabilidade |
+| Módulo                                     | Integração                                                                                   |
+| ------------------------------------------ | -------------------------------------------------------------------------------------------- |
+| `liberacao`                                | `Amostra.id` referenciado no `Laudo`; `dataHoraColeta` e `tipoMaterial` puxados da amostra   |
+| `kpis` / `indicadores-melhoria`            | TAT coleta→liberação alimenta `turnaround_media_horas`; taxa de rejeição como novo indicador |
+| `criticos`                                 | Amostra com resultado crítico aciona FSM `criticos-fsm`                                      |
+| `risks`                                    | Rejeições frequentes podem gerar risco categorizado como `processual` / `pre_analitico`      |
+| `bioquimica` / `coagulacao` / `uroanalise` | Exames analíticos recebem `amostraId` como referência de rastreabilidade                     |
 
 ---
 

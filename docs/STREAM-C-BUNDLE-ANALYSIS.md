@@ -7,20 +7,20 @@
 
 ## Current Bundle Breakdown (estimated from dependencies)
 
-| Chunk | Libraries | Estimated gzip |
-|---|---|---|
-| `vendor-react` | react, react-dom | ~50 KB |
-| `vendor-firebase` | firebase/app, auth, firestore, functions | ~200 KB |
-| `vendor-charts` | recharts | ~90 KB |
-| `vendor-pdf` | pdfjs-dist | ~500 KB (lazy) |
-| `vendor-zod` | zod | ~30 KB |
-| `module-educacao` | educacao-continuada | ~80 KB |
-| `module-ct` | controle-temperatura | ~60 KB |
-| `module-sgq` | sgq | ~50 KB |
-| `module-bulaparser` | bulaparser | ~30 KB |
-| `shared` | shared services, store, utils | ~40 KB |
-| app shell | everything else | ~120 KB |
-| **Total (estimated)** | | **~1,250 KB raw / ~850 KB gzip** |
+| Chunk                 | Libraries                                | Estimated gzip                   |
+| --------------------- | ---------------------------------------- | -------------------------------- |
+| `vendor-react`        | react, react-dom                         | ~50 KB                           |
+| `vendor-firebase`     | firebase/app, auth, firestore, functions | ~200 KB                          |
+| `vendor-charts`       | recharts                                 | ~90 KB                           |
+| `vendor-pdf`          | pdfjs-dist                               | ~500 KB (lazy)                   |
+| `vendor-zod`          | zod                                      | ~30 KB                           |
+| `module-educacao`     | educacao-continuada                      | ~80 KB                           |
+| `module-ct`           | controle-temperatura                     | ~60 KB                           |
+| `module-sgq`          | sgq                                      | ~50 KB                           |
+| `module-bulaparser`   | bulaparser                               | ~30 KB                           |
+| `shared`              | shared services, store, utils            | ~40 KB                           |
+| app shell             | everything else                          | ~120 KB                          |
+| **Total (estimated)** |                                          | **~1,250 KB raw / ~850 KB gzip** |
 
 > Run `npm run analyze` to generate the interactive treemap at `dist/stats.html`
 > for exact sizes from the last build.
@@ -128,13 +128,13 @@ the temporary-public-storage link printed at the end of the run.
 
 ## Stream C Targets
 
-| Metric | Target | Status |
-|---|---|---|
-| Main bundle (gzip) | < 800 KB | ~850 KB (Week 2 baseline) |
-| LCP | < 2.5 s | Measuring |
-| INP | < 200 ms | Measuring |
-| CLS | < 0.1 | Measuring |
-| Lighthouse Performance | ≥ 85 | Measuring |
+| Metric                 | Target   | Status                    |
+| ---------------------- | -------- | ------------------------- |
+| Main bundle (gzip)     | < 800 KB | ~850 KB (Week 2 baseline) |
+| LCP                    | < 2.5 s  | Measuring                 |
+| INP                    | < 200 ms | Measuring                 |
+| CLS                    | < 0.1    | Measuring                 |
+| Lighthouse Performance | ≥ 85     | Measuring                 |
 
 ---
 

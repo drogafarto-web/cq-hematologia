@@ -26,12 +26,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type {
-  Turno,
-  TurnoFilters,
-  TurnoAuditEvent,
-  TurnoPresenca,
-} from '../types/Turno';
+import type { Turno, TurnoFilters, TurnoAuditEvent, TurnoPresenca } from '../types/Turno';
 import type { LabId } from '../types/shared_refs';
 
 // ─── Raiz e caminhos ──────────────────────────────────────────────────────────
@@ -239,4 +234,3 @@ export function unwrapCallableError(error: unknown): Error {
   }
   return new Error('Erro desconhecido ao chamar função');
 }
-

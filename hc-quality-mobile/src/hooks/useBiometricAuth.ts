@@ -118,7 +118,7 @@ export function useBiometricAuth(): BiometricAuthState & BiometricAuthActions {
         };
       }
     },
-    [isBiometricAvailable, isBiometricEnabled]
+    [isBiometricAvailable, isBiometricEnabled],
   );
 
   const enableBiometric = useCallback(async () => {

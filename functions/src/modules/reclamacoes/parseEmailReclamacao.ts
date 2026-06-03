@@ -48,11 +48,7 @@ const logger = functions.logger;
 // Resend Signature Verification
 // ─────────────────────────────────────────────────────────────────────────────
 
-function verifyResendSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
+function verifyResendSignature(payload: string, signature: string, secret: string): boolean {
   const expectedSignature = createHmac('sha256', secret).update(payload).digest('hex');
   return signature === expectedSignature;
 }
@@ -128,9 +124,7 @@ export const parseEmailReclamacao = functions.https.onRequest(
 
       // 1b. Rate limit per IP (SECURITY_AUDIT.md #18) — webhook spec: 100/hour
       const clientIp =
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-        req.ip ||
-        'unknown';
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
       const rl = await enforcePublicRateLimit({
         bucketKey: `parseEmailReclamacao:${clientIp}`,
         maxRequests: 100,
@@ -236,33 +230,31 @@ export const parseEmailReclamacao = functions.https.onRequest(
       }
 
       // 10. Create complaint via task queue (async)
-      const taskId = await db
-        .collection('_functions-queue')
-        .add({
-          function: 'criarReclamacao',
-          labId,
-          canalEntrada: 'email',
-          descricao: body,
-          reclamante: {
-            nome,
-            cpf,
-            email: from,
+      const taskId = await db.collection('_functions-queue').add({
+        function: 'criarReclamacao',
+        labId,
+        canalEntrada: 'email',
+        descricao: body,
+        reclamante: {
+          nome,
+          cpf,
+          email: from,
+        },
+        consentimentoLgpd: {
+          aceito: true, // Email implies consent (assumption)
+          ipAddress: req.ip ?? '0.0.0.0',
+          userAgent: req.headers['user-agent'] ?? 'email-parser',
+        },
+        origemDados: {
+          source: 'email-inbound',
+          metadata: {
+            emailHash,
+            messageId,
+            subject,
+            receivedAt: new Date().toISOString(),
           },
-          consentimentoLgpd: {
-            aceito: true, // Email implies consent (assumption)
-            ipAddress: req.ip ?? '0.0.0.0',
-            userAgent: req.headers['user-agent'] ?? 'email-parser',
-          },
-          origemDados: {
-            source: 'email-inbound',
-            metadata: {
-              emailHash,
-              messageId,
-              subject,
-              receivedAt: new Date().toISOString(),
-            },
-          },
-        });
+        },
+      });
 
       logger.info('Email queued for complaint creation', {
         from,
@@ -273,16 +265,14 @@ export const parseEmailReclamacao = functions.https.onRequest(
       // 11. Send auto-reply (fire and forget)
       try {
         // Queue for Resend email sending
-        await db
-          .collection('_mail-queue')
-          .add({
-            to: from,
-            template: 'email-reclamacao-recebida',
-            data: {
-              reclamanteName: nome,
-              subject,
-            },
-          });
+        await db.collection('_mail-queue').add({
+          to: from,
+          template: 'email-reclamacao-recebida',
+          data: {
+            reclamanteName: nome,
+            subject,
+          },
+        });
       } catch (err) {
         logger.warn('Failed to queue auto-reply', { error: err, from });
       }
@@ -299,5 +289,5 @@ export const parseEmailReclamacao = functions.https.onRequest(
         details: String(err),
       });
     }
-  }
+  },
 );

@@ -70,12 +70,7 @@ export interface TreinamentoPOP {
 
 export type POPInput = Omit<
   POP,
-  | 'id'
-  | 'labId'
-  | 'versoes'
-  | 'criadoEm'
-  | 'criadoPor'
-  | 'deletadoEm'
+  'id' | 'labId' | 'versoes' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
 >;
 
 export interface POPCreationRequest {
@@ -146,9 +141,6 @@ export function isProximoVencimento(
   return diasAteVencer >= 0 && diasAteVencer <= diasLimite;
 }
 
-export function isTreinamentoValido(
-  treino: TreinamentoPOP,
-  now: Date = new Date(),
-): boolean {
+export function isTreinamentoValido(treino: TreinamentoPOP, now: Date = new Date()): boolean {
   return treino.validoAte.toDate().getTime() > now.getTime();
 }

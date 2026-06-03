@@ -8,12 +8,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-} from 'firebase/firestore';
+import { collection, query, where, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 
 interface NCIndicadoresProps {
@@ -101,29 +96,53 @@ export function NCIndicadores({ labId }: NCIndicadoresProps) {
         prazoMedio = Math.round(totalDias / fechadas.length);
       }
 
-      setStats({ abertas, fechadasMes, prazoMedio, vencidas, reincidencias, total: allItems.length });
+      setStats({
+        abertas,
+        fechadasMes,
+        prazoMedio,
+        vencidas,
+        reincidencias,
+        total: allItems.length,
+      });
       setLoading(false);
     }
 
     // Subscribe to naoConformidades (legacy)
     const ncRef = collection(db, 'labs', labId, 'naoConformidades');
     const ncQuery = query(ncRef, where('deletadoEm', '==', null));
-    const unsubNC = onSnapshot(ncQuery, (snap) => {
-      ncData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      ncLoaded = true;
-      recalculate();
-    }, () => { ncLoaded = true; recalculate(); });
+    const unsubNC = onSnapshot(
+      ncQuery,
+      (snap) => {
+        ncData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        ncLoaded = true;
+        recalculate();
+      },
+      () => {
+        ncLoaded = true;
+        recalculate();
+      },
+    );
 
     // Subscribe to capa (new)
     const capaRef = collection(db, 'labs', labId, 'capa');
     const capaQuery = query(capaRef, where('deletadoEm', '==', null));
-    const unsubCAPA = onSnapshot(capaQuery, (snap) => {
-      capaData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-      capaLoaded = true;
-      recalculate();
-    }, () => { capaLoaded = true; recalculate(); });
+    const unsubCAPA = onSnapshot(
+      capaQuery,
+      (snap) => {
+        capaData = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+        capaLoaded = true;
+        recalculate();
+      },
+      () => {
+        capaLoaded = true;
+        recalculate();
+      },
+    );
 
-    return () => { unsubNC(); unsubCAPA(); };
+    return () => {
+      unsubNC();
+      unsubCAPA();
+    };
   }, [labId]);
 
   if (loading) {
@@ -170,25 +189,19 @@ export function NCIndicadores({ labId }: NCIndicadoresProps) {
     },
   ];
 
-  const taxaConformidade = stats.total > 0
-    ? Math.round(((stats.total - stats.abertas) / stats.total) * 100)
-    : 100;
+  const taxaConformidade =
+    stats.total > 0 ? Math.round(((stats.total - stats.abertas) / stats.total) * 100) : 100;
 
   return (
     <div className="space-y-6">
       {/* Cards */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         {cards.map((card) => (
-          <div
-            key={card.label}
-            className="bg-[#141417] rounded-xl border border-white/[0.08] p-4"
-          >
+          <div key={card.label} className="bg-[#141417] rounded-xl border border-white/[0.08] p-4">
             <p className="text-xs font-medium text-white/50 uppercase tracking-wide">
               {card.label}
             </p>
-            <p className={`text-2xl font-bold mt-2 ${card.color}`}>
-              {card.value}
-            </p>
+            <p className={`text-2xl font-bold mt-2 ${card.color}`}>{card.value}</p>
             <p className="text-[10px] text-white/30 mt-1">{card.sublabel}</p>
           </div>
         ))}
@@ -201,18 +214,26 @@ export function NCIndicadores({ labId }: NCIndicadoresProps) {
             <h3 className="text-sm font-semibold text-white">Taxa de Conformidade</h3>
             <p className="text-xs text-white/40 mt-0.5">NCs resolvidas / total</p>
           </div>
-          <p className={`text-3xl font-bold ${
-            taxaConformidade >= 80 ? 'text-emerald-400' :
-            taxaConformidade >= 60 ? 'text-amber-400' : 'text-red-400'
-          }`}>
+          <p
+            className={`text-3xl font-bold ${
+              taxaConformidade >= 80
+                ? 'text-emerald-400'
+                : taxaConformidade >= 60
+                  ? 'text-amber-400'
+                  : 'text-red-400'
+            }`}
+          >
             {taxaConformidade}%
           </p>
         </div>
         <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden">
           <div
             className={`h-full rounded-full transition-all ${
-              taxaConformidade >= 80 ? 'bg-emerald-500' :
-              taxaConformidade >= 60 ? 'bg-amber-500' : 'bg-red-500'
+              taxaConformidade >= 80
+                ? 'bg-emerald-500'
+                : taxaConformidade >= 60
+                  ? 'bg-amber-500'
+                  : 'bg-red-500'
             }`}
             style={{ width: `${taxaConformidade}%` }}
           />

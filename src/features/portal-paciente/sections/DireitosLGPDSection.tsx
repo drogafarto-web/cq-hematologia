@@ -43,9 +43,7 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
   const [auditLog, setAuditLog] = useState<AuditLogEntry[]>([]);
   const [isLoadingAudit, setIsLoadingAudit] = useState(true);
   const [loading, setLoading] = useState<Record<string, boolean>>({});
-  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(
-    null
-  );
+  const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [expandedAction, setExpandedAction] = useState<string | null>(null);
 
   // Real-time audit log listener
@@ -56,10 +54,7 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
     }
 
     const db = getFirestore();
-    const auditRef = collection(
-      db,
-      `lgpd-audit/${labId}/patient-operations/${patientId}/log`
-    );
+    const auditRef = collection(db, `lgpd-audit/${labId}/patient-operations/${patientId}/log`);
     const q = query(auditRef, orderBy('timestamp', 'desc'));
 
     const unsubscribe = onSnapshot(
@@ -75,16 +70,13 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
       (error) => {
         console.error('Error fetching audit log:', error);
         setIsLoadingAudit(false);
-      }
+      },
     );
 
     return () => unsubscribe();
   }, [labId, patientId]);
 
-  const handleAction = async (
-    action: string,
-    callback?: () => Promise<void>
-  ) => {
+  const handleAction = async (action: string, callback?: () => Promise<void>) => {
     setLoading((prev) => ({ ...prev, [action]: true }));
     setMessage(null);
 
@@ -118,8 +110,8 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
         <div className="border border-white/8 rounded-lg p-4 bg-white/2 hover:bg-white/3 transition-colors">
           <h3 className="text-sm font-medium text-white/95">Direito de Acesso</h3>
           <p className="text-xs text-white/60 mt-1">
-            Solicitar cópia de todos os seus dados pessoais. Você receberá um arquivo
-            com todas as informações processadas.
+            Solicitar cópia de todos os seus dados pessoais. Você receberá um arquivo com todas as
+            informações processadas.
           </p>
           <button
             onClick={() => handleAction('acesso', onRequestAccess)}
@@ -134,8 +126,8 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
         <div className="border border-white/8 rounded-lg p-4 bg-white/2 hover:bg-white/3 transition-colors">
           <h3 className="text-sm font-medium text-white/95">Direito de Portabilidade</h3>
           <p className="text-xs text-white/60 mt-1">
-            Exportar seus dados em formato estruturado (XLSX, CSV). Ideal para
-            portabilidade entre laboratórios.
+            Exportar seus dados em formato estruturado (XLSX, CSV). Ideal para portabilidade entre
+            laboratórios.
           </p>
           <button
             onClick={() => handleAction('portabilidade', onRequestExport)}
@@ -150,8 +142,8 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
         <div className="border border-white/8 rounded-lg p-4 bg-white/2 hover:bg-white/3 transition-colors">
           <h3 className="text-sm font-medium text-white/95">Direito ao Esquecimento</h3>
           <p className="text-xs text-white/60 mt-1">
-            Solicitar a exclusão de seus dados pessoais (soft-delete conforme legislação
-            de retenção).
+            Solicitar a exclusão de seus dados pessoais (soft-delete conforme legislação de
+            retenção).
           </p>
           <button
             onClick={() => handleAction('esquecimento', onRequestDeletion)}
@@ -174,9 +166,7 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
         >
           <p
             className={`text-sm ${
-              message.type === 'success'
-                ? 'text-emerald-300'
-                : 'text-red-300'
+              message.type === 'success' ? 'text-emerald-300' : 'text-red-300'
             }`}
           >
             {message.text}
@@ -199,16 +189,12 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
             {auditLog.slice(0, 10).map((entry) => (
               <button
                 key={entry.id}
-                onClick={() =>
-                  setExpandedAction(expandedAction === entry.id ? null : entry.id)
-                }
+                onClick={() => setExpandedAction(expandedAction === entry.id ? null : entry.id)}
                 className="w-full text-left p-3 border border-white/8 rounded-lg bg-white/2 hover:bg-white/3 transition-colors"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-white/95 truncate">
-                      {entry.action}
-                    </p>
+                    <p className="text-sm font-medium text-white/95 truncate">{entry.action}</p>
                     <p className="text-xs text-white/50 mt-0.5">
                       {new Date(entry.timestamp.toDate()).toLocaleString('pt-BR')}
                     </p>
@@ -223,9 +209,7 @@ export const DireitosLGPDSection: React.FC<DireitosLGPDSectionProps> = ({
                   <div className="mt-3 pt-3 border-t border-white/5 space-y-2">
                     <div>
                       <p className="text-xs font-medium text-white/70">Recurso:</p>
-                      <p className="text-xs text-white/60 font-mono break-all">
-                        {entry.resource}
-                      </p>
+                      <p className="text-xs text-white/60 font-mono break-all">{entry.resource}</p>
                     </div>
                     {entry.details && (
                       <div>

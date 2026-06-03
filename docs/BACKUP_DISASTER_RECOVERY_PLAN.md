@@ -25,22 +25,23 @@ HC Quality implements a multi-layered backup and disaster recovery strategy to e
 
 ### 1.1 Data Classification & Retention
 
-| Data Category | Retention Period | Soft Delete Grace | Archive | Legal Basis |
-|---|---|---|---|---|
-| **Laudos** (patient results) | 5 years (+ 6mo grace) | Yes (soft_delete flag) | GCS Nearline after 1y | RDC 978 Art. 115 + ISO 15189 |
-| **NOTIVISA Events** (adverse events) | 10 years | No (immutable log) | GCS Coldline after 3y | RDC 1377/2013 + ANVISA |
-| **Audit Trail** (write intent + read consent) | 5 years | No (append-only) | GCS Nearline after 2y | RDC 978 Art. 119 + LGPD Art. 12 |
-| **CIQ Runs** (control quality) | 5 years | Yes | Nearline after 1y | ISO 15189 + CLSI |
-| **DICQ Documents** (MQ/PQ/IT/FR/POL) | Duration + 5 years | No (versionable) | Nearline after 2y | DICQ 4.3 |
-| **POPs** (Standard Procedures) | Current + 5 years | No (versionable) | Nearline after 2y | DICQ 4.3 + RDC 979 |
-| **Treinamento Records** | 5 years (after employee departure) | No (audit trail) | Nearline after 3y | RDC 978 Art. 122 + NR-1 |
-| **Draft / Incomplete docs** | 30 days | Yes (auto-cleanup) | — | Operational |
-| **Login / Session Logs** | 1 year | No (audit) | Coldline after 6mo | Security + LGPD Art. 12 |
-| **Error / System Logs** | 90 days | No | — | Operational diagnostics |
+| Data Category                                 | Retention Period                   | Soft Delete Grace      | Archive               | Legal Basis                     |
+| --------------------------------------------- | ---------------------------------- | ---------------------- | --------------------- | ------------------------------- |
+| **Laudos** (patient results)                  | 5 years (+ 6mo grace)              | Yes (soft_delete flag) | GCS Nearline after 1y | RDC 978 Art. 115 + ISO 15189    |
+| **NOTIVISA Events** (adverse events)          | 10 years                           | No (immutable log)     | GCS Coldline after 3y | RDC 1377/2013 + ANVISA          |
+| **Audit Trail** (write intent + read consent) | 5 years                            | No (append-only)       | GCS Nearline after 2y | RDC 978 Art. 119 + LGPD Art. 12 |
+| **CIQ Runs** (control quality)                | 5 years                            | Yes                    | Nearline after 1y     | ISO 15189 + CLSI                |
+| **DICQ Documents** (MQ/PQ/IT/FR/POL)          | Duration + 5 years                 | No (versionable)       | Nearline after 2y     | DICQ 4.3                        |
+| **POPs** (Standard Procedures)                | Current + 5 years                  | No (versionable)       | Nearline after 2y     | DICQ 4.3 + RDC 979              |
+| **Treinamento Records**                       | 5 years (after employee departure) | No (audit trail)       | Nearline after 3y     | RDC 978 Art. 122 + NR-1         |
+| **Draft / Incomplete docs**                   | 30 days                            | Yes (auto-cleanup)     | —                     | Operational                     |
+| **Login / Session Logs**                      | 1 year                             | No (audit)             | Coldline after 6mo    | Security + LGPD Art. 12         |
+| **Error / System Logs**                       | 90 days                            | No                     | —                     | Operational diagnostics         |
 
 **Immutable collections:** `auditLogs`, `notivisaEvents`, `treinamentos` — never soft-delete; archive via export only.
 
 **Soft-delete process (RN-06 — HC Quality standard):**
+
 ```typescript
 // Service layer always uses softDelete* methods
 softDeleteLaudo(labId, laudoId) {
@@ -56,13 +57,13 @@ softDeleteLaudo(labId, laudoId) {
 
 ### 1.2 Cleanup Schedule
 
-| Task | Frequency | Action | Owner |
-|---|---|---|---|
-| **Auto-delete drafts** | Daily (3 AM UTC) | Delete docs with `status: draft` AND `criadoEm < 30 days ago` | Cloud Function `cleanup-drafts` |
-| **Archive soft-deleted (1y)** | Weekly (Sunday 2 AM UTC) | Export soft-deleted laudos/runs to GCS Nearline | Cloud Function `archive-soft-deleted` |
-| **Purge expired (5y+6mo)** | Monthly (1st day 1 AM UTC) | Hard-delete laudos with `deletadoEm < 5.5 years ago` | Cloud Function `purge-expired` |
-| **Audit log archival (2y)** | Quarterly (1st day) | Export auditLogs older than 2y to GCS Coldline | Cloud Function `archive-audit-logs` |
-| **Backup rotation** | Weekly | Delete GCS backups older than 7 years | `backup-rotate.sh` script |
+| Task                          | Frequency                  | Action                                                        | Owner                                 |
+| ----------------------------- | -------------------------- | ------------------------------------------------------------- | ------------------------------------- |
+| **Auto-delete drafts**        | Daily (3 AM UTC)           | Delete docs with `status: draft` AND `criadoEm < 30 days ago` | Cloud Function `cleanup-drafts`       |
+| **Archive soft-deleted (1y)** | Weekly (Sunday 2 AM UTC)   | Export soft-deleted laudos/runs to GCS Nearline               | Cloud Function `archive-soft-deleted` |
+| **Purge expired (5y+6mo)**    | Monthly (1st day 1 AM UTC) | Hard-delete laudos with `deletadoEm < 5.5 years ago`          | Cloud Function `purge-expired`        |
+| **Audit log archival (2y)**   | Quarterly (1st day)        | Export auditLogs older than 2y to GCS Coldline                | Cloud Function `archive-audit-logs`   |
+| **Backup rotation**           | Weekly                     | Delete GCS backups older than 7 years                         | `backup-rotate.sh` script             |
 
 ---
 
@@ -110,6 +111,7 @@ softDeleteLaudo(labId, laudoId) {
 ### 2.2 Backup Tiers
 
 #### Tier 1: Daily Full Backup (24h)
+
 - **Frequency:** Daily at 00:00 UTC (off-peak)
 - **Type:** Full Firestore export
 - **Storage:** `gs://hc-quality-backups/daily/`
@@ -127,6 +129,7 @@ gcloud scheduler jobs update backup-daily \
 ```
 
 #### Tier 2: Weekly Incremental Backup (7 days)
+
 - **Frequency:** Every Sunday at 02:00 UTC
 - **Type:** Delta from previous daily backup
 - **Storage:** `gs://hc-quality-backups/weekly/`
@@ -137,6 +140,7 @@ gcloud scheduler jobs update backup-daily \
 **Trigger:** Cloud Scheduler → Cloud Function `backup-weekly`
 
 #### Tier 3: Monthly Snapshot (Cold Storage)
+
 - **Frequency:** 1st of month at 03:00 UTC
 - **Type:** Full snapshot → GCS Coldline (frozen)
 - **Storage:** `gs://hc-quality-archives/monthly/`
@@ -151,6 +155,7 @@ gcloud scheduler jobs update backup-daily \
 **Window:** 35 days (GCP Firestore managed backups)
 
 **Recovery options:**
+
 - **Within 24h:** Use daily backup (fastest, < 30 min)
 - **Within 7d:** Use daily + weekly delta (30-60 min)
 - **Within 35d:** Use GCP managed backup (automated, 1-2h)
@@ -247,17 +252,18 @@ gcloud scheduler jobs create app-engine backup-monthly \
 Deploy to `functions/src/backups/`:
 
 #### `backup-daily.ts`
-```typescript
-import * as functions from "firebase-functions";
-import * as admin from "firebase-admin";
-import { Storage } from "@google-cloud/storage";
 
-const storage = new Storage({ projectId: "hmatologia2" });
+```typescript
+import * as functions from 'firebase-functions';
+import * as admin from 'firebase-admin';
+import { Storage } from '@google-cloud/storage';
+
+const storage = new Storage({ projectId: 'hmatologia2' });
 const firestore = admin.firestore();
 
 export const backupDaily = functions.https.onRequest(async (req, res) => {
   try {
-    const timestamp = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const timestamp = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
     const outputUri = `gs://hc-quality-backups/daily/firestore-${timestamp}`;
 
     // Trigger Firestore export
@@ -266,26 +272,27 @@ export const backupDaily = functions.https.onRequest(async (req, res) => {
 
     functions.logger.info(`Backup started: ${outputUri}`, { operation: operation.name });
 
-    res.json({ status: "initiated", uri: outputUri, operation: operation.name });
+    res.json({ status: 'initiated', uri: outputUri, operation: operation.name });
   } catch (error) {
-    functions.logger.error("Backup failed", error);
+    functions.logger.error('Backup failed', error);
     res.status(500).json({ error: error.message });
   }
 });
 ```
 
 #### `backup-weekly.ts`
+
 ```typescript
 export const backupWeekly = functions.https.onRequest(async (req, res) => {
   try {
-    const timestamp = new Date().toISOString().split("T")[0];
+    const timestamp = new Date().toISOString().split('T')[0];
     const outputUri = `gs://hc-quality-backups/weekly/firestore-${timestamp}`;
 
     // Same as daily, but stored in different path
     const [operation] = await admin.firestore().makeBackupOperation(outputUri);
     functions.logger.info(`Weekly backup: ${outputUri}`);
 
-    res.json({ status: "initiated", uri: outputUri });
+    res.json({ status: 'initiated', uri: outputUri });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -293,22 +300,23 @@ export const backupWeekly = functions.https.onRequest(async (req, res) => {
 ```
 
 #### `backup-monthly.ts`
+
 ```typescript
 export const backupMonthly = functions.https.onRequest(async (req, res) => {
   try {
     const date = new Date();
-    const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-01`;
+    const timestamp = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-01`;
     const outputUri = `gs://hc-quality-archives/monthly/firestore-${timestamp}`;
 
     // Export to coldline (archive tier)
     const [operation] = await admin.firestore().makeBackupOperation(outputUri);
-    
+
     // Transition to coldline after upload completes
-    const bucket = storage.bucket("hc-quality-archives");
-    await bucket.setStorageClass("COLDLINE");
+    const bucket = storage.bucket('hc-quality-archives');
+    await bucket.setStorageClass('COLDLINE');
 
     functions.logger.info(`Monthly archive: ${outputUri}`);
-    res.json({ status: "initiated", uri: outputUri, tier: "COLDLINE" });
+    res.json({ status: 'initiated', uri: outputUri, tier: 'COLDLINE' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
@@ -316,11 +324,12 @@ export const backupMonthly = functions.https.onRequest(async (req, res) => {
 ```
 
 #### `backup-verify.ts` (post-backup validation)
+
 ```typescript
 export const backupVerify = functions.https.onRequest(async (req, res) => {
   try {
     const backupUri = req.body.uri; // gs://bucket/path
-    const bucket = new Storage().bucket(backupUri.split("/")[2]);
+    const bucket = new Storage().bucket(backupUri.split('/')[2]);
     const files = await bucket.getFiles();
 
     const stats = {
@@ -328,10 +337,10 @@ export const backupVerify = functions.https.onRequest(async (req, res) => {
       fileCount: files[0].length,
       totalSize: files[0].reduce((sum, f) => sum + (f.metadata.size || 0), 0),
       timestamp: new Date().toISOString(),
-      status: files[0].length > 0 ? "verified" : "failed",
+      status: files[0].length > 0 ? 'verified' : 'failed',
     };
 
-    functions.logger.info("Backup verified", stats);
+    functions.logger.info('Backup verified', stats);
     res.json(stats);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -827,12 +836,12 @@ echo "  gcloud firestore operations list --project=hmatologia2 --filter='operati
 
 ## 9. Disaster Scenarios & Recovery Reference
 
-| Scenario | RTO | RPO | Procedure | Runbook |
-|---|---|---|---|---|
-| **Data Corruption** | 2 hours | < 1 hour | Restore from daily backup | `restore-from-daily.sh` + chain-hash verify |
-| **Region Outage** | 4 hours | < 1 hour | Failover to secondary region | `docs/DR_PLAN.md` Scenario 2 |
-| **Compromised Credential** | 1 hour | < 30 min | Rotate key + check audit logs | `docs/DR_RUNBOOKS.md` Runbook 3 |
-| **Ransomware Attack** | 24 hours | < 1 hour | Isolate → forensics → restore | `docs/DR_RUNBOOKS.md` Runbook 4 |
+| Scenario                   | RTO      | RPO      | Procedure                     | Runbook                                     |
+| -------------------------- | -------- | -------- | ----------------------------- | ------------------------------------------- |
+| **Data Corruption**        | 2 hours  | < 1 hour | Restore from daily backup     | `restore-from-daily.sh` + chain-hash verify |
+| **Region Outage**          | 4 hours  | < 1 hour | Failover to secondary region  | `docs/DR_PLAN.md` Scenario 2                |
+| **Compromised Credential** | 1 hour   | < 30 min | Rotate key + check audit logs | `docs/DR_RUNBOOKS.md` Runbook 3             |
+| **Ransomware Attack**      | 24 hours | < 1 hour | Isolate → forensics → restore | `docs/DR_RUNBOOKS.md` Runbook 4             |
 
 **Full procedures:** See `docs/DR_PLAN.md` (4 scenarios) + `docs/DR_RUNBOOKS.md` (4 executable runbooks).
 
@@ -840,24 +849,24 @@ echo "  gcloud firestore operations list --project=hmatologia2 --filter='operati
 
 ## 10. Compliance Mapping
 
-| Requirement | Implementation | Evidence |
-|---|---|---|
+| Requirement                              | Implementation                                                             | Evidence                                                |
+| ---------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------- |
 | **RDC 978 Art. 115** (Backup & Retenção) | Daily full + weekly differential + monthly cold storage (7-year retention) | `gs://hc-quality-backups/`, `gs://hc-quality-archives/` |
-| **RDC 978 Art. 119** (Audit Trail) | Immutable append-only collection + 5-year retention | `auditLogs` collection (no soft-delete) |
-| **DICQ 4.2** (Data Management) | Backup policy + retention schedule + testing | This document + annual DR test |
-| **DICQ 4.2.3** (Backup Testing) | Monthly restore test + quarterly DR drill | `docs/DR_RESTORE_TEST_*.md` |
-| **LGPD Art. 12** (Data Subject Rights) | Data export on-demand + soft-delete + archival | Service layer + scheduled cleanup functions |
-| **ISO 15189** (Data Retention) | 5 years post-soft-delete (clinical lab data) | Retention policy § 1.2 |
+| **RDC 978 Art. 119** (Audit Trail)       | Immutable append-only collection + 5-year retention                        | `auditLogs` collection (no soft-delete)                 |
+| **DICQ 4.2** (Data Management)           | Backup policy + retention schedule + testing                               | This document + annual DR test                          |
+| **DICQ 4.2.3** (Backup Testing)          | Monthly restore test + quarterly DR drill                                  | `docs/DR_RESTORE_TEST_*.md`                             |
+| **LGPD Art. 12** (Data Subject Rights)   | Data export on-demand + soft-delete + archival                             | Service layer + scheduled cleanup functions             |
+| **ISO 15189** (Data Retention)           | 5 years post-soft-delete (clinical lab data)                               | Retention policy § 1.2                                  |
 
 ---
 
 ## 11. Sign-Off & Approval
 
-| Role | Name | Date | Signature |
-|---|---|---|---|
-| **CTO** | — | 2026-05-07 | — |
-| **Tech Lead** | — | 2026-05-07 | — |
-| **Security Officer** | — | 2026-05-07 | — |
+| Role                 | Name | Date       | Signature |
+| -------------------- | ---- | ---------- | --------- |
+| **CTO**              | —    | 2026-05-07 | —         |
+| **Tech Lead**        | —    | 2026-05-07 | —         |
+| **Security Officer** | —    | 2026-05-07 | —         |
 
 ---
 

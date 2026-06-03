@@ -175,9 +175,7 @@ export const ReclamacaoDashboard: React.FC = () => {
       {/* Detail view modal */}
       {selectedReclamacaoId && (
         <div className="fixed inset-0 z-40 bg-black/40 overflow-y-auto">
-          <ReclamacaoDetail
-            id={selectedReclamacaoId}
-          />
+          <ReclamacaoDetail id={selectedReclamacaoId} />
         </div>
       )}
     </div>

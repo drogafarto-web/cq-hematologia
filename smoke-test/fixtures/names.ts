@@ -7,6 +7,6 @@ export function generateSmokeNames() {
     loteRG: `SMOKE-RG-${ts}`,
     loteCP: `SMOKE-CP-${ts}`,
     loteCN: `SMOKE-CN-${ts}`,
-    ts
+    ts,
   };
 }

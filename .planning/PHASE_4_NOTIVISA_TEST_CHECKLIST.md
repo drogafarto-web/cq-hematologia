@@ -34,6 +34,7 @@
 ### Batch 1 — Callables (28 tests)
 
 #### notivisaDraftCreate (12 tests)
+
 - [x] Schema validation (8 tests)
   - [x] Accepts valid payload with all required fields
   - [x] Rejects invalid CPF (not 11 digits)
@@ -52,6 +53,7 @@
   - [x] Hash changes when timestamp differs
 
 #### approveNotivisaDraft (8 tests)
+
 - [x] Schema validation (7 tests)
   - [x] Accepts valid approval with correct signature format
   - [x] Rejects invalid hash (not exactly 64 chars)
@@ -69,6 +71,7 @@
   - [x] Token timestamp exceeding 5 minutes is considered expired
 
 #### submitNotivisaDraft (8 tests)
+
 - [x] Schema validation (5 tests)
   - [x] Accepts submission with labId and draftId
   - [x] Accepts submission with optional signature
@@ -90,6 +93,7 @@
   - [x] Concurrent submissions use same draft ID
 
 #### rejectNotivisaDraft (6 tests)
+
 - [x] Schema validation (6 tests)
   - [x] Accepts valid rejection with motivo and signature
   - [x] Rejects motivo shorter than 10 characters
@@ -103,6 +107,7 @@
 ### Batch 2 — Queue/Webhook/Export/Delete (24 tests)
 
 #### notivisaQueueProcessor (10 tests)
+
 - [x] Pending entry detection (2 tests)
   - [x] Identifies pending entries from queue
   - [x] Processes entries in creation order
@@ -129,6 +134,7 @@
   - [x] Escalates to supervisor at 24h without ACK
 
 #### notivisaWebhookHandler (8 tests)
+
 - [x] Signature verification (5 tests)
   - [x] Verifies valid HMAC-SHA256 signature
   - [x] Rejects invalid signature
@@ -149,6 +155,7 @@
   - [x] Missing x-anvisa-signature header returns 401
 
 #### notivisaExportArchive (6 tests)
+
 - [x] Export permissions (4 tests)
   - [x] Auditor can export
   - [x] Non-auditor cannot export
@@ -173,6 +180,7 @@
   - [x] Large export (1000+ entries) completes within 5 seconds
 
 #### notivisaSoftDelete (6 tests)
+
 - [x] Soft delete permissions (3 tests)
   - [x] Admin can soft delete
   - [x] Non-admin cannot soft delete
@@ -302,6 +310,7 @@ Execution Time: ~2s total
 ## Smoke Test Sequence (May 20, 2026)
 
 ### Step 1: Seeding (5 min)
+
 ```bash
 bash scripts/seed-notivisa-test-labs.sh              # Creates 10 labs
 bash scripts/seed-notivisa-drafts.sh                 # Creates 50 drafts
@@ -309,17 +318,20 @@ firebase emulators:exec --only firestore npm test    # Verify seeding
 ```
 
 ### Step 2: Run Unit Tests (1 min)
+
 ```bash
 npm test -- notivisa/__tests__/batch1-expanded.test.ts
 npm test -- notivisa/__tests__/batch2-comprehensive.test.ts
 ```
 
 ### Step 3: Run Integration Tests (2 min)
+
 ```bash
 npm test -- notivisa/__tests__/integration.test.ts
 ```
 
 ### Step 4: Verify Cloud Logs (5 min)
+
 ```bash
 # Monitor Cloud Logs for 50+ audit entries
 gcloud functions logs read notivisaQueueProcessor --limit 100 --region southamerica-east1
@@ -327,12 +339,14 @@ gcloud functions logs read notivisaWebhookHandler --limit 100 --region southamer
 ```
 
 ### Step 5: Performance Check (2 min)
+
 - [ ] All tests complete in <2 seconds
 - [ ] No timeout errors
 - [ ] Queue processor batch (50 entries) completes in <5s
 - [ ] Webhook processing <100ms per request
 
 ### Step 6: Manual Workflow Test (10 min)
+
 1. [ ] Create draft via console (draft-test-001)
 2. [ ] Approve draft as RT user
 3. [ ] Submit draft as admin
@@ -357,12 +371,12 @@ gcloud functions logs read notivisaWebhookHandler --limit 100 --region southamer
 
 ## Test Infrastructure Files
 
-| File | Purpose | Tests |
-|------|---------|-------|
-| `batch1-expanded.test.ts` | Draft CRUD + approval + submit + reject | 28 |
-| `batch2-comprehensive.test.ts` | Queue + webhook + export + soft-delete | 24 |
-| `integration.test.ts` | E2E workflows, concurrency, rollback | 14 |
-| `__mocks__/soapClient.ts` | Mock NOTIVISA SOAP API (Phase 4) | — |
+| File                           | Purpose                                 | Tests |
+| ------------------------------ | --------------------------------------- | ----- |
+| `batch1-expanded.test.ts`      | Draft CRUD + approval + submit + reject | 28    |
+| `batch2-comprehensive.test.ts` | Queue + webhook + export + soft-delete  | 24    |
+| `integration.test.ts`          | E2E workflows, concurrency, rollback    | 14    |
+| `__mocks__/soapClient.ts`      | Mock NOTIVISA SOAP API (Phase 4)        | —     |
 
 ---
 

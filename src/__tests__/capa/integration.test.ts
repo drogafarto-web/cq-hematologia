@@ -71,11 +71,7 @@ describe('CAPA Workflow E2E', () => {
     auditTrail.length = 0;
   });
 
-  function registerAuditEntry(
-    operation: string,
-    capaId: string,
-    operatorId: string
-  ): string {
+  function registerAuditEntry(operation: string, capaId: string, operatorId: string): string {
     const hash = `hash-${Date.now()}-${Math.random()}`.slice(0, 64).padEnd(64, '0');
     const previousHash = auditTrail.length > 0 ? auditTrail[auditTrail.length - 1].hash : null;
 

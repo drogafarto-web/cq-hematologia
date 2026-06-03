@@ -22,14 +22,17 @@ import {
   Timestamp,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type { CompetenciaTecnica, CompetenciaTecnicaInput, CategoriaCompetencia } from '../types/CompetenciaMatriz';
+import type {
+  CompetenciaTecnica,
+  CompetenciaTecnicaInput,
+  CategoriaCompetencia,
+} from '../types/CompetenciaMatriz';
 
 type LabId = string;
 
 // ─── Paths ──────────────────────────────────────────────────────────────────
 
-const competenciasCol = (labId: LabId) =>
-  collection(db, 'personnel', labId, 'competencias');
+const competenciasCol = (labId: LabId) => collection(db, 'personnel', labId, 'competencias');
 
 const competenciaDoc = (labId: LabId, id: string) =>
   doc(db, 'personnel', labId, 'competencias', id);
@@ -47,10 +50,7 @@ export function watchCompetencias(
   onError?: (err: Error) => void,
   options?: WatchCompetenciasOptions,
 ): Unsubscribe {
-  const constraints = [
-    where('deletadoEm', '==', null),
-    orderBy('colaboradorNome', 'asc'),
-  ];
+  const constraints = [where('deletadoEm', '==', null), orderBy('colaboradorNome', 'asc')];
 
   if (options?.categoria) {
     constraints.unshift(where('categoria', '==', options.categoria));
@@ -64,7 +64,7 @@ export function watchCompetencias(
   return onSnapshot(
     q,
     (snap) => {
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as CompetenciaTecnica));
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as CompetenciaTecnica);
       callback(items);
     },
     (err) => {

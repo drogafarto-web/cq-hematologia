@@ -28,7 +28,10 @@ const createCapaInputSchema = z.object({
   finding: findingSchema,
   rootCause: z.string().min(50, 'rootCause must be at least 50 characters'),
   correctiveAction: z.string().min(50, 'correctiveAction must be at least 50 characters'),
-  deadlineDate: z.number().int().refine((d) => d > Date.now(), 'deadlineDate must be in the future'),
+  deadlineDate: z
+    .number()
+    .int()
+    .refine((d) => d > Date.now(), 'deadlineDate must be in the future'),
 });
 
 const createCapaOutputSchema = z.object({
@@ -53,12 +56,7 @@ export const createCapa = onCall<CreateCapaInput, Promise<CreateCapaOutput>>(
     const db = admin.firestore();
 
     // ========== 2. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
@@ -68,7 +66,10 @@ export const createCapa = onCall<CreateCapaInput, Promise<CreateCapaOutput>>(
     const memberStatus = memberDoc.data()?.status;
 
     if (memberStatus !== 'active' || !['RT', 'AUDITOR', 'admin', 'owner'].includes(memberRole)) {
-      throw new HttpsError('permission-denied', 'User must be RT, AUDITOR, or admin to create CAPA');
+      throw new HttpsError(
+        'permission-denied',
+        'User must be RT, AUDITOR, or admin to create CAPA',
+      );
     }
 
     // ========== 3. Create CAPA document ==========
@@ -99,11 +100,7 @@ export const createCapa = onCall<CreateCapaInput, Promise<CreateCapaOutput>>(
     };
 
     // ========== 4. Write to Firestore ==========
-    const capaRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('capa-tracking')
-      .doc(capaId);
+    const capaRef = db.collection('labs').doc(labId).collection('capa-tracking').doc(capaId);
 
     await capaRef.set(capaPayload);
 
@@ -120,5 +117,5 @@ export const createCapa = onCall<CreateCapaInput, Promise<CreateCapaOutput>>(
     );
 
     return { capaId };
-  }
+  },
 );

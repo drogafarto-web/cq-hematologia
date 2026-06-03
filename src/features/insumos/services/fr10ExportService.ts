@@ -179,7 +179,9 @@ async function fetchReagentesByModulo(
   const snap = await getDocs(
     query(col, where('tipo', '==', 'reagente'), where('modulo', '==', modulo)),
   );
-  return snap.docs.map((d) => ({ id: d.id, ...(d.data() as Omit<Insumo, 'id'>) }) as InsumoReagente);
+  return snap.docs.map(
+    (d) => ({ id: d.id, ...(d.data() as Omit<Insumo, 'id'>) }) as InsumoReagente,
+  );
 }
 
 async function fetchMovimentacoesForInsumos(
@@ -219,10 +221,27 @@ function collectNotaIds(reagentes: InsumoReagente[]): Set<string> {
 async function fetchNotasFiscaisByIds(
   labId: string,
   notaIds: Set<string>,
-): Promise<Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>> {
+): Promise<
+  Map<
+    string,
+    {
+      fornecedorId: string;
+      numero: string;
+      serie?: string;
+      chaveAcesso?: string;
+      dataEmissao?: Timestamp;
+    }
+  >
+> {
   const result = new Map<
     string,
-    { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }
+    {
+      fornecedorId: string;
+      numero: string;
+      serie?: string;
+      chaveAcesso?: string;
+      dataEmissao?: Timestamp;
+    }
   >();
   if (notaIds.size === 0) return result;
 
@@ -255,7 +274,10 @@ async function fetchNotasFiscaisByIds(
 async function fetchFornecedoresMap(
   labId: string,
 ): Promise<Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>> {
-  const result = new Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>();
+  const result = new Map<
+    string,
+    { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }
+  >();
   const col = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.FORNECEDORES);
   const snap = await getDocs(col);
   for (const d of snap.docs) {
@@ -284,7 +306,16 @@ function buildRowsFromMovimentacoes(
   movs: InsumoMovimentacao[],
   from: Date,
   to: Date,
-  notasById: Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>,
+  notasById: Map<
+    string,
+    {
+      fornecedorId: string;
+      numero: string;
+      serie?: string;
+      chaveAcesso?: string;
+      dataEmissao?: Timestamp;
+    }
+  >,
   fornecedoresById: Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>,
 ): FR10Row[] {
   const byId = new Map(reagentes.map((r) => [r.id, r]));
@@ -316,10 +347,7 @@ function buildRowsFromMovimentacoes(
     // abertura sem término intermediário, a primeira entra como órfã.
     let pendingAbertura: InsumoMovimentacao | null = null;
 
-    const pushRow = (
-      abertura: InsumoMovimentacao,
-      termino: InsumoMovimentacao | null,
-    ): void => {
+    const pushRow = (abertura: InsumoMovimentacao, termino: InsumoMovimentacao | null): void => {
       const aMs = abertura.timestamp.toMillis();
       const tMs = termino?.timestamp.toMillis();
       const touchesPeriod =
@@ -394,7 +422,16 @@ function canonicalRowOrder(a: FR10Row, b: FR10Row): number {
  */
 function resolveRastreabilidadeFiscal(
   insumo: InsumoReagente,
-  notasById: Map<string, { fornecedorId: string; numero: string; serie?: string; chaveAcesso?: string; dataEmissao?: Timestamp }>,
+  notasById: Map<
+    string,
+    {
+      fornecedorId: string;
+      numero: string;
+      serie?: string;
+      chaveAcesso?: string;
+      dataEmissao?: Timestamp;
+    }
+  >,
   fornecedoresById: Map<string, { razaoSocial: string; cnpj: string; inscricaoEstadual?: string }>,
 ): { fornecedor?: FR10Fornecedor; notaFiscal?: FR10NotaFiscal } {
   if (insumo.notaFiscalId) {
@@ -554,10 +591,7 @@ function emissionRef(labId: string, hash: string) {
  * `lastPrintedAt`. Rules obrigam presença dos campos e que `hash` (no path)
  * bata com `hash` (no doc) — evita colisão forçada por cliente adversarial.
  */
-export async function saveFR10Emission(
-  payload: FR10Payload,
-  hash: string,
-): Promise<void> {
+export async function saveFR10Emission(payload: FR10Payload, hash: string): Promise<void> {
   try {
     const periodoInicio = Timestamp.fromDate(payload.periodoInicio);
     const periodoFim = Timestamp.fromDate(payload.periodoFim);

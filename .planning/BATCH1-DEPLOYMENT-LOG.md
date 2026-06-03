@@ -6,6 +6,7 @@
 ## Deployment Timeline
 
 **14:32 UTC** — Firestore Rules Deploy
+
 ```
 ✓ Rules compiled successfully
 ✓ Indexes deployed
@@ -13,6 +14,7 @@
 ```
 
 **14:33 UTC** — Hosting Deploy
+
 ```
 ✓ 20 files in dist/
 ✓ Upload complete
@@ -29,4 +31,3 @@
 ## Next: Batch 2 Execution
 
 Starting Phase 2 Batch 2: RH + Infraestrutura (5 modules)
-

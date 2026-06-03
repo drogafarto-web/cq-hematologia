@@ -1,16 +1,16 @@
 ---
 milestone: v1.4
 phase: 10
-phase_name: "Multi-Equipment CIQ Expansion"
+phase_name: 'Multi-Equipment CIQ Expansion'
 status: planning
 kickoff_date: 2026-05-20
-estimated_duration: "2.5 weeks (Wave 3)"
+estimated_duration: '2.5 weeks (Wave 3)'
 target_deploy: 2026-06-02
 risk_level: 4.5/10
 dependencies:
-  - "Phase 9 Complete (bioquimica foundation)"
-  - "DICQ Bloco F (5.5.2, 5.5.3, 5.6.2) mapped"
-  - "Westgard engine baseline + Levey-Jennings UI shipped"
+  - 'Phase 9 Complete (bioquimica foundation)'
+  - 'DICQ Bloco F (5.5.2, 5.5.3, 5.6.2) mapped'
+  - 'Westgard engine baseline + Levey-Jennings UI shipped'
 ---
 
 # Phase 10 — Multi-Equipment CIQ Expansion (Detailed Plan)
@@ -18,12 +18,14 @@ dependencies:
 **Objective:** Extend bioquimica (quantitative CIQ) to coagulation, immunology, and urinalysis analytes while establishing multi-instrument validation architecture, reagent/QC lot versioning, and Westgard compliance gates.
 
 **Strategic impact:**
+
 - Coag/Imuno/Uro are 60% of clinical volume in typical labs (Riopomba data 2025)
 - Multi-equipment support unlocks lab equipment partnerships (Mindray, Sysmex, etc.) → retention + upsell
 - Reagent lot expiry auto-lockout prevents compliance violations (RDC 978 Art. 183)
 - DICQ compliance → +8–12% (78.5% → 86–90%)
 
 **Success criteria:**
+
 - 30+ analytes (Coag 5 + Imuno 10 + Uro 10 + Other 5) seeded and functional
 - Multi-instrument registry per lab + per-analyte calibration data
 - Lot expiry validation blocks laudo generation (callable gate)
@@ -97,7 +99,7 @@ Dados de validação incluem:
 
 ```firestore
 /labs/{labId}/coagulacao/
-  root/                                     
+  root/
   root/analitos/{analitoId}                (PT, INR, aPTT, TT, Fib)
   root/lotes/{lotId}                       (QC material: lote, data fab, data exp, supplier, estatística)
   root/runs/{runId}                        (1 run = N analitos × 1 nível × 1 equipamento)
@@ -162,7 +164,7 @@ Cada QC lot de coagulação carrega:
   dataValidade: Date;          // 2026-07-15
   dataAberto: Date | null;     // lab opened it
   equipmentIds: string[];      // Sysmex CA-7000, ACL TOP
-  
+
   bulaParsed: {
     url?: string;
     metodologia: string;
@@ -170,7 +172,7 @@ Cada QC lot de coagulação carrega:
     cvAlvo: Map<string, number>;
     estatisticaFabricante: Map<string, { mean, stdev }>;
   };
-  
+
   ativo: boolean;              // false = expired or replaced
   criadoEm: Timestamp;
   deletadoEm: Timestamp | null;
@@ -493,12 +495,12 @@ Rastreabilidade:
     fabricante: string;
     dataInstalacao: Date;
     dataProximaManutencao: Date;
-    
+
     modulos: Array<{
       tipo: "coagulacao" | "bioquimica" | "ciq-imuno" | "uroanalise";
       analitoIds: string[];               // [PT, INR, aPTT, ...]
       metodologia: string;
-      
+
       // Per-analyte calibration records
       calibracoes: Array<{
         analitoId: string;
@@ -512,7 +514,7 @@ Rastreabilidade:
         };
       }>;
     }>;
-    
+
     manutencoes: Array<{
       data: Date;
       tipo: "preventiva" | "corretiva";
@@ -521,7 +523,7 @@ Rastreabilidade:
       horas: number;
       certificado?: string;               // link a documento sgd
     }>;
-    
+
     ativo: boolean;
     criadoEm: Timestamp;
     deletadoEm: Timestamp | null;
@@ -553,7 +555,7 @@ Exemplo: PT Neisler (Sysmex CA-7000) vs PT Quick (novo Mindray BC):
         equipNome: "Mindray BC-7000 #1";
         metodologia: "Quick";
       };
-      
+
       dados: Array<{
         numero: 1;
         valorRef: 12.5;
@@ -561,7 +563,7 @@ Exemplo: PT Neisler (Sysmex CA-7000) vs PT Quick (novo Mindray BC):
         diferencaAbs: 0.2;
         diferenca%: 1.6;
       }>;
-      
+
       estatistica: {
         n: 20;
         correlacao: 0.9967;
@@ -571,12 +573,12 @@ Exemplo: PT Neisler (Sysmex CA-7000) vs PT Quick (novo Mindray BC):
         aprovado: true;
         criterioAceite: "CLSI EP9: r ≥ 0.99";
       };
-      
+
       dataComparacao: Date;
       operadorId: string;
       supervisorId: string;
       assinatura: LogicalSignature;
-      
+
       criadoEm: Timestamp;
       deletadoEm: Timestamp | null;
     }
@@ -597,23 +599,23 @@ Per-equipment calibration logged separately:
     equipmentId: string;
     analitoId: string;
     dataCalibração: Date;
-    
+
     tipo: "fabricante" | "laboratório";
-    
+
     // Fabricante = padrão NIST rastreável
     // Laboratório = comparação com padrão interno
-    
+
     fatorCorrecao: number;
-    
+
     certificado?: {
       url: string;                        // sgd link
       rastreabilidadeNIST: boolean;
       dataValidade: Date;
     };
-    
+
     operadorId: string;
     supervisorId?: string;                // para calibrações críticas
-    
+
     chainHash: string;
     criadoEm: Timestamp;
   }
@@ -637,34 +639,34 @@ Validação RDC 978 Art. 181:
   {
     id: string;
     labId: LabId;
-    
+
     // Identificação
     supplier: "Neoplastine" | "Abbott" | "Roche" | "Sysmex";
     produtoNome: "QC Coagulation Level 1" | "HCG Painel Imuno";
     lotNumber: "QC-2026-001";
-    
+
     modulos: ["coagulacao", "ciq-imuno"];  // quais módulos usam
     analitoIds: ["PT", "INR", "aPTT"];
-    
+
     // Datas críticas
     dataFabricacao: Date;
     dataValidade: Date;
     dataAberto: Date | null;
     dataUltimoUso: Date | null;
-    
+
     // Equipamentos compatíveis
     equipmentIds: ["sysmex-ca7000-1", "acl-top-1"];
-    
+
     // Bula parsed (Cloud Function `parseBulaLot` — Phase 9-03)
     bulaUrl?: string;                     // storage bucket ref
     bulaParsed?: {
       dataExtracaoGemini: Date;
-      
+
       // Estadística do fabricante
       meios: Map<string, number>;        // { "PT": 12.5, "INR": 0.98 }
       desvios: Map<string, number>;      // { "PT": 0.4, "INR": 0.05 }
       cv%: Map<string, number>;          // { "PT": 3.2, "INR": 5.1 }
-      
+
       // Range de aceitação por nível
       niveis: Array<{
         numero: 1 | 2 | 3;
@@ -673,16 +675,16 @@ Validação RDC 978 Art. 181:
         desvioEsperado: number;
         rangeAceite: { min: number; max: number };
       }>;
-      
+
       // Método + rastreabilidade
       metodologia: string;
       rastreabilidadeNIST?: boolean;
     };
-    
+
     // Status uso
     ativo: boolean;                       // false = vencido ou descartado
     motorivoInativacao?: "expiry" | "discard" | "recall";
-    
+
     // Auditoria
     criadoEm: Timestamp;
     criadoPor: string;
@@ -819,26 +821,26 @@ match /labs/{labId}/coagulacao/root/comparacao-metodos/{compId} {
 
 interface RunPayload {
   labId: string;
-  modulo: "bioquimica" | "coagulacao" | "ciq-imuno" | "uroanalise";
+  modulo: 'bioquimica' | 'coagulacao' | 'ciq-imuno' | 'uroanalise';
   equipmentId: string;
   lotId: string;
-  operadorId: string;  // from auth context
-  
+  operadorId: string; // from auth context
+
   // Analyte results grouped by level
   resultados: Array<{
     analitoId: string;
-    nivelId: "1" | "2" | "3";  // QC level
-    valor: number;             // para quant. ou código enum para qualit.
+    nivelId: '1' | '2' | '3'; // QC level
+    valor: number; // para quant. ou código enum para qualit.
     unidade: string;
   }>;
-  
+
   // Optional: serie dilution data
   diluicaoSerializacao?: {
     amostra: string;
     fatorDiluicao: number;
     resultadoBase: number;
   };
-  
+
   // Optional: dipstick image for uroanalise
   dipstickImageUrl?: string;
 }
@@ -846,40 +848,38 @@ interface RunPayload {
 async function recordAnalyteRun(payload: RunPayload, context: CallableContext) {
   // 1. Verify auth + operador active
   const uid = context.auth?.uid;
-  if (!uid) throw new Error("Unauthorized");
-  
+  if (!uid) throw new Error('Unauthorized');
+
   const labId = payload.labId;
-  const staffDoc = await admin.firestore()
-    .doc(`/labs/${labId}/staff/${uid}`)
-    .get();
-  if (!staffDoc.exists) throw new Error("Not a lab member");
-  
+  const staffDoc = await admin.firestore().doc(`/labs/${labId}/staff/${uid}`).get();
+  if (!staffDoc.exists) throw new Error('Not a lab member');
+
   // 2. Pre-flight validation
-  const loteDoc = await admin.firestore()
+  const loteDoc = await admin
+    .firestore()
     .doc(`/labs/${labId}/${payload.modulo}/root/lotes/${payload.lotId}`)
     .get();
-  
-  if (!loteDoc.exists) throw new Error("Lot not found");
+
+  if (!loteDoc.exists) throw new Error('Lot not found');
   const lote = loteDoc.data() as LoteData;
-  
+
   if (new Date() > lote.dataValidade) {
     throw new Error(`Lot expired: ${lote.lotNumber}`);
   }
-  
-  const equipDoc = await admin.firestore()
+
+  const equipDoc = await admin
+    .firestore()
     .doc(`/labs/${labId}/equipamentos/${payload.equipmentId}`)
     .get();
-  
+
   if (!equipDoc.exists || !equipDoc.data().ativo) {
-    throw new Error("Equipment not found or inactive");
+    throw new Error('Equipment not found or inactive');
   }
-  
+
   // 3. Calculate Westgard rules + stats
-  const runId = admin.firestore().collection("dummy").doc().id;
-  const chainHash = calculateChainHash(
-    JSON.stringify(payload) + runId + Date.now()
-  );
-  
+  const runId = admin.firestore().collection('dummy').doc().id;
+  const chainHash = calculateChainHash(JSON.stringify(payload) + runId + Date.now());
+
   const westgardStatus = evaluateWestgardRules({
     modulo: payload.modulo,
     analitos: payload.resultados,
@@ -887,39 +887,34 @@ async function recordAnalyteRun(payload: RunPayload, context: CallableContext) {
     equipmentId: payload.equipmentId,
     lote,
   });
-  
+
   // 4. Atomic write: run + events + audit
   const batch = admin.firestore().batch();
-  
-  batch.create(
-    admin.firestore()
-      .doc(`/labs/${labId}/${payload.modulo}/root/runs/${runId}`),
-    {
-      id: runId,
-      labId,
-      equipmentId: payload.equipmentId,
-      lotId: payload.lotId,
-      operadorId: uid,
-      resultados: payload.resultados,
-      westgardStatus,
-      assinatura: {
-        hash: chainHash,
-        operatorId: uid,
-        ts: admin.firestore.Timestamp.now(),
-      },
-      criadoEm: admin.firestore.Timestamp.now(),
-      deletadoEm: null,
-    }
-  );
-  
+
+  batch.create(admin.firestore().doc(`/labs/${labId}/${payload.modulo}/root/runs/${runId}`), {
+    id: runId,
+    labId,
+    equipmentId: payload.equipmentId,
+    lotId: payload.lotId,
+    operadorId: uid,
+    resultados: payload.resultados,
+    westgardStatus,
+    assinatura: {
+      hash: chainHash,
+      operatorId: uid,
+      ts: admin.firestore.Timestamp.now(),
+    },
+    criadoEm: admin.firestore.Timestamp.now(),
+    deletadoEm: null,
+  });
+
   // Traceability event
   batch.create(
-    admin.firestore()
-      .doc(`/labs/${labId}/${payload.modulo}/root/traceability-events/${runId}`),
+    admin.firestore().doc(`/labs/${labId}/${payload.modulo}/root/traceability-events/${runId}`),
     {
       id: runId,
       labId,
-      tipo: "run-recorded",
+      tipo: 'run-recorded',
       runId,
       operadorId: uid,
       ts: admin.firestore.Timestamp.now(),
@@ -928,34 +923,29 @@ async function recordAnalyteRun(payload: RunPayload, context: CallableContext) {
         lotId: payload.lotId,
         analitoCount: payload.resultados.length,
       },
-    }
+    },
   );
-  
+
   // Audit log
-  batch.create(
-    admin.firestore()
-      .doc(`/labs/${labId}/${payload.modulo}/root/audit/${runId}`),
-    {
-      id: runId,
-      labId,
-      acao: "run-recorded",
-      runId,
-      operadorId: uid,
-      chainHash,
-      ts: admin.firestore.Timestamp.now(),
-    }
-  );
-  
+  batch.create(admin.firestore().doc(`/labs/${labId}/${payload.modulo}/root/audit/${runId}`), {
+    id: runId,
+    labId,
+    acao: 'run-recorded',
+    runId,
+    operadorId: uid,
+    chainHash,
+    ts: admin.firestore.Timestamp.now(),
+  });
+
   // 5. Critical value escalation
-  if (westgardStatus.some(s => s.isCritical)) {
-    const criticos = payload.resultados
-      .filter(r => westgardStatus
-        .find(s => s.analitoId === r.analitoId)?.isCritical);
-    
+  if (westgardStatus.some((s) => s.isCritical)) {
+    const criticos = payload.resultados.filter(
+      (r) => westgardStatus.find((s) => s.analitoId === r.analitoId)?.isCritical,
+    );
+
     for (const crit of criticos) {
       batch.create(
-        admin.firestore()
-          .doc(`/labs/${labId}/criticos-escalacoes/${runId}-${crit.analitoId}`),
+        admin.firestore().doc(`/labs/${labId}/criticos-escalacoes/${runId}-${crit.analitoId}`),
         {
           labId,
           analitoId: crit.analitoId,
@@ -966,25 +956,24 @@ async function recordAnalyteRun(payload: RunPayload, context: CallableContext) {
           notivisaPending: true,
           notivisaSentAt: null,
           ts: admin.firestore.Timestamp.now(),
-        }
+        },
       );
     }
   }
-  
+
   await batch.commit();
-  
+
   return {
     runId,
     success: true,
     westgardStatus,
-    criticalValuesCount: westgardStatus.filter(s => s.isCritical).length,
+    criticalValuesCount: westgardStatus.filter((s) => s.isCritical).length,
   };
 }
 
 export const recordAnalyteRunCallable = functions
-  .region("southamerica-east1")
-  .https
-  .onCall(recordAnalyteRun);
+  .region('southamerica-east1')
+  .https.onCall(recordAnalyteRun);
 ```
 
 ### 7.2 validateLotExpiry (Pre-Flight Check)
@@ -999,20 +988,21 @@ export const recordAnalyteRunCallable = functions
  * - Equipment suportado?
  */
 
-async function validateLotExpiry(payload: { labId: string; lotId: string; modulo: string }, context) {
+async function validateLotExpiry(
+  payload: { labId: string; lotId: string; modulo: string },
+  context,
+) {
   const { labId, lotId, modulo } = payload;
-  
-  const loteDoc = await admin.firestore()
-    .doc(`/labs/${labId}/${modulo}/root/lotes/${lotId}`)
-    .get();
-  
+
+  const loteDoc = await admin.firestore().doc(`/labs/${labId}/${modulo}/root/lotes/${lotId}`).get();
+
   if (!loteDoc.exists) {
-    return { valid: false, reason: "Lot not found" };
+    return { valid: false, reason: 'Lot not found' };
   }
-  
+
   const lote = loteDoc.data() as LoteData;
   const now = new Date();
-  
+
   if (now > lote.dataValidade) {
     return {
       valid: false,
@@ -1020,15 +1010,15 @@ async function validateLotExpiry(payload: { labId: string; lotId: string; modulo
       daysOverdue: Math.floor((now.getTime() - lote.dataValidade.getTime()) / (1000 * 86400)),
     };
   }
-  
+
   if (!lote.ativo) {
-    return { valid: false, reason: "Lot is inactive" };
+    return { valid: false, reason: 'Lot is inactive' };
   }
-  
+
   const daysUntilExpiry = Math.floor(
-    (lote.dataValidade.getTime() - now.getTime()) / (1000 * 86400)
+    (lote.dataValidade.getTime() - now.getTime()) / (1000 * 86400),
   );
-  
+
   return {
     valid: true,
     daysUntilExpiry,
@@ -1037,9 +1027,8 @@ async function validateLotExpiry(payload: { labId: string; lotId: string; modulo
 }
 
 export const validateLotExpiryCallable = functions
-  .region("southamerica-east1")
-  .https
-  .onCall(validateLotExpiry);
+  .region('southamerica-east1')
+  .https.onCall(validateLotExpiry);
 ```
 
 ### 7.3 compareMultiInstrument (Method Comparison Orchestrator)
@@ -1056,7 +1045,7 @@ interface MethodComparisonPayload {
   labId: string;
   analitoId: string;
   modulo: "coagulacao" | "bioquimica";
-  
+
   equipReference: {
     equipId: string;
     name: string;
@@ -1067,36 +1056,36 @@ interface MethodComparisonPayload {
     name: string;
     metodologia: string;
   };
-  
+
   // Pares lado-a-lado (n=20+)
   pares: Array<{
     valorRef: number;
     valorNew: number;
   }>;
-  
+
   operadorId: string;
   supervisorId: string;
 }
 
 async function compareMultiInstrument(payload: MethodComparisonPayload, context) {
   const { labId, analitoId, modulo } = payload;
-  
+
   // 1. Validação de entrada
   if (payload.pares.length < 20) {
     throw new Error("Minimum 20 data pairs required for method comparison");
   }
-  
+
   // 2. Regressão linear (Y = slope*X + intercept)
   const stats = calculateLinearRegression(payload.pares);
-  
+
   // { slope: 0.98, intercept: 0.25, r: 0.9967, rSE: 0.35 }
-  
+
   // 3. Criterio CLSI EP9 para aceitacao
   const aprovado = stats.r >= 0.99 && Math.abs(1.0 - stats.slope) < 0.02;
-  
+
   // 4. Salvar resultado
   const compId = admin.firestore().collection("dummy").doc().id;
-  
+
   await admin.firestore()
     .doc(`/labs/${labId}/${modulo}/root/comparacao-metodos/${compId}`)
     .set({
@@ -1104,10 +1093,10 @@ async function compareMultiInstrument(payload: MethodComparisonPayload, context)
       labId,
       analitoId,
       modulo,
-      
+
       metodoReferencia: payload.equipReference,
       metodoNovo: payload.equipNew,
-      
+
       dados: payload.pares.map((p, i) => ({
         numero: i + 1,
         valorRef: p.valorRef,
@@ -1115,28 +1104,28 @@ async function compareMultiInstrument(payload: MethodComparisonPayload, context)
         diferencaAbs: Math.abs(p.valorNew - p.valorRef),
         diferenca%: ((p.valorNew - p.valorRef) / p.valorRef * 100),
       })),
-      
+
       estatistica: {
         n: payload.pares.length,
         ...stats,
         aprovado,
         criterioAceite: "CLSI EP9: r >= 0.99 && |slope-1| < 0.02",
       },
-      
+
       dataComparacao: admin.firestore.Timestamp.now(),
       operadorId: payload.operadorId,
       supervisorId: payload.supervisorId,
-      
+
       assinatura: {
         hash: calculateChainHash(JSON.stringify(stats) + compId),
         operatorId: payload.supervisorId,
         ts: admin.firestore.Timestamp.now(),
       },
-      
+
       criadoEm: admin.firestore.Timestamp.now(),
       deletadoEm: null,
     });
-  
+
   return {
     compId,
     aprovado,
@@ -1461,7 +1450,15 @@ export const compareMultiInstrumentCallable = functions
       "modulos": [
         {
           "tipo": "uroanalise",
-          "analitoIds": ["uro-leucocitos", "uro-nitritos", "uro-proteinas", "uro-sangue", "uro-glicose", "uro-ph", "uro-densidade"]
+          "analitoIds": [
+            "uro-leucocitos",
+            "uro-nitritos",
+            "uro-proteinas",
+            "uro-sangue",
+            "uro-glicose",
+            "uro-ph",
+            "uro-densidade"
+          ]
         }
       ]
     }
@@ -1586,203 +1583,212 @@ Scenario 12: Monthly Report Generation (All Modules)
 ```typescript
 // functions/test/phase10-ciq-expansion.test.ts
 
-describe("Phase 10 — Multi-Equipment CIQ Expansion", () => {
-  
-  describe("recordAnalyteRun — Unified Callable", () => {
-    it("should accept valid coagulation run with all analytes", async () => {
+describe('Phase 10 — Multi-Equipment CIQ Expansion', () => {
+  describe('recordAnalyteRun — Unified Callable', () => {
+    it('should accept valid coagulation run with all analytes', async () => {
       // Setup
-      const labId = "test-lab-1";
+      const labId = 'test-lab-1';
       const lotId = seedCoagulationLot(labId);
-      const equipmentId = seedEquipment(labId, "coagulacao");
-      
+      const equipmentId = seedEquipment(labId, 'coagulacao');
+
       // Execute
       const result = await callRecordAnalyteRun({
         labId,
-        modulo: "coagulacao",
+        modulo: 'coagulacao',
         equipmentId,
         lotId,
         operadorId: testUserId,
         resultados: [
-          { analitoId: "coag-pt", nivelId: "1", valor: 12.5, unidade: "s" },
-          { analitoId: "coag-inr", nivelId: "1", valor: 0.98, unidade: "razão" },
-          { analitoId: "coag-aptt", nivelId: "1", valor: 30.2, unidade: "s" },
+          { analitoId: 'coag-pt', nivelId: '1', valor: 12.5, unidade: 's' },
+          { analitoId: 'coag-inr', nivelId: '1', valor: 0.98, unidade: 'razão' },
+          { analitoId: 'coag-aptt', nivelId: '1', valor: 30.2, unidade: 's' },
         ],
       });
-      
+
       // Assert
       expect(result.success).toBe(true);
       expect(result.runId).toBeDefined();
       expect(result.westgardStatus).toHaveLength(3);
-      expect(result.westgardStatus.every(s => !s.rejected)).toBe(true);
+      expect(result.westgardStatus.every((s) => !s.rejected)).toBe(true);
     });
-    
-    it("should reject run with expired lot", async () => {
-      const labId = "test-lab-1";
+
+    it('should reject run with expired lot', async () => {
+      const labId = 'test-lab-1';
       const lotId = seedExpiredLot(labId);
-      
-      await expect(callRecordAnalyteRun({
-        labId,
-        modulo: "coagulacao",
-        lotId,
-        resultados: [{ analitoId: "coag-pt", nivelId: "1", valor: 12.5, unidade: "s" }],
-      })).rejects.toThrow(/expired/i);
+
+      await expect(
+        callRecordAnalyteRun({
+          labId,
+          modulo: 'coagulacao',
+          lotId,
+          resultados: [{ analitoId: 'coag-pt', nivelId: '1', valor: 12.5, unidade: 's' }],
+        }),
+      ).rejects.toThrow(/expired/i);
     });
-    
-    it("should flag critical value (INR > 4.0)", async () => {
-      const labId = "test-lab-1";
+
+    it('should flag critical value (INR > 4.0)', async () => {
+      const labId = 'test-lab-1';
       const result = await callRecordAnalyteRun({
         labId,
-        modulo: "coagulacao",
-        resultados: [
-          { analitoId: "coag-inr", nivelId: "1", valor: 4.5, unidade: "razão" },
-        ],
+        modulo: 'coagulacao',
+        resultados: [{ analitoId: 'coag-inr', nivelId: '1', valor: 4.5, unidade: 'razão' }],
       });
-      
+
       expect(result.criticalValuesCount).toBeGreaterThan(0);
-      const criticosSnap = await admin.firestore()
+      const criticosSnap = await admin
+        .firestore()
         .collection(`/labs/${labId}/criticos-escalacoes`)
         .get();
       expect(criticosSnap.size).toBeGreaterThan(0);
     });
   });
-  
-  describe("compareMultiInstrument — Method Validation", () => {
-    it("should approve method comparison with r >= 0.99", async () => {
+
+  describe('compareMultiInstrument — Method Validation', () => {
+    it('should approve method comparison with r >= 0.99', async () => {
       const result = await callCompareMultiInstrument({
-        labId: "test-lab-1",
-        analitoId: "coag-pt",
-        modulo: "coagulacao",
-        equipReference: { equipId: "ref-1", name: "Sysmex CA-7000", metodologia: "Neisler" },
-        equipNew: { equipId: "new-1", name: "Mindray BC-7000", metodologia: "Quick" },
-        pares: generateLinearData(20, slope=0.98, intercept=0.25, noise=0.3),
+        labId: 'test-lab-1',
+        analitoId: 'coag-pt',
+        modulo: 'coagulacao',
+        equipReference: { equipId: 'ref-1', name: 'Sysmex CA-7000', metodologia: 'Neisler' },
+        equipNew: { equipId: 'new-1', name: 'Mindray BC-7000', metodologia: 'Quick' },
+        pares: generateLinearData(20, (slope = 0.98), (intercept = 0.25), (noise = 0.3)),
       });
-      
+
       expect(result.aprovado).toBe(true);
       expect(result.stats.r).toBeGreaterThanOrEqual(0.99);
     });
-    
-    it("should reject comparison with r < 0.99", async () => {
+
+    it('should reject comparison with r < 0.99', async () => {
       const result = await callCompareMultiInstrument({
-        pares: generateLinearData(20, slope=1.5, noise=2.0),
+        pares: generateLinearData(20, (slope = 1.5), (noise = 2.0)),
       });
-      
+
       expect(result.aprovado).toBe(false);
     });
   });
-  
-  describe("validateLotExpiry — Pre-Flight Check", () => {
-    it("should return valid for active, non-expired lot", async () => {
+
+  describe('validateLotExpiry — Pre-Flight Check', () => {
+    it('should return valid for active, non-expired lot', async () => {
       const result = await callValidateLotExpiry({
-        labId: "test-lab-1",
+        labId: 'test-lab-1',
         lotId: seedFreshLot(),
-        modulo: "coagulacao",
+        modulo: 'coagulacao',
       });
-      
+
       expect(result.valid).toBe(true);
       expect(result.daysUntilExpiry).toBeGreaterThan(0);
     });
-    
-    it("should warn when lot expires < 7 days", async () => {
+
+    it('should warn when lot expires < 7 days', async () => {
       const result = await callValidateLotExpiry({
-        labId: "test-lab-1",
+        labId: 'test-lab-1',
         lotId: seedLotExpiringIn(5),
       });
-      
+
       expect(result.valid).toBe(true);
-      expect(result.warning).toContain("expires in 5 days");
+      expect(result.warning).toContain('expires in 5 days');
     });
   });
-  
-  describe("Westgard Rules — Coagulation Specific", () => {
-    it("should detect 1-2s violation (1 point > 2σ)", async () => {
+
+  describe('Westgard Rules — Coagulation Specific', () => {
+    it('should detect 1-2s violation (1 point > 2σ)', async () => {
       const rules = evaluateWestgardRules({
         analitos: [
-          { analitoId: "coag-pt", valor: 15.0 },  // mean=12.5, stdev=0.4 → >2σ
+          { analitoId: 'coag-pt', valor: 15.0 }, // mean=12.5, stdev=0.4 → >2σ
         ],
         mean: 12.5,
         stdev: 0.4,
       });
-      
+
       expect(rules[0].violated).toBe(true);
-      expect(rules[0].rule).toContain("1-2s");
-      expect(rules[0].severity).toBe("warning");
+      expect(rules[0].rule).toContain('1-2s');
+      expect(rules[0].severity).toBe('warning');
     });
-    
-    it("should detect 1-3s rejection (1 point > 3σ)", async () => {
+
+    it('should detect 1-3s rejection (1 point > 3σ)', async () => {
       const rules = evaluateWestgardRules({
         analitos: [
-          { analitoId: "coag-pt", valor: 13.7 },  // mean=12.5, stdev=0.4 → >3σ
+          { analitoId: 'coag-pt', valor: 13.7 }, // mean=12.5, stdev=0.4 → >3σ
         ],
         mean: 12.5,
         stdev: 0.4,
       });
-      
+
       expect(rules[0].rejected).toBe(true);
-      expect(rules[0].rule).toContain("1-3s");
+      expect(rules[0].rule).toContain('1-3s');
     });
   });
-  
-  describe("Firestore Rules Validation", () => {
-    it("should allow read analitos for active lab member", async () => {
-      const db = initializeTestDb({ uid: testUserId, labId: "test-lab-1" });
+
+  describe('Firestore Rules Validation', () => {
+    it('should allow read analitos for active lab member', async () => {
+      const db = initializeTestDb({ uid: testUserId, labId: 'test-lab-1' });
       const analitoRef = db.collection(`/labs/test-lab-1/coagulacao/root/analitos`);
-      
+
       expect(await analitoRef.get()).not.toThrow();
     });
-    
-    it("should block write to runs collection via client", async () => {
-      const db = initializeTestDb({ uid: testUserId, labId: "test-lab-1" });
-      const runRef = db.collection(`/labs/test-lab-1/coagulacao/root/runs`).doc("test-run");
-      
-      expect(await runRef.set({ data: "test" })).toThrow(/Permission denied/);
+
+    it('should block write to runs collection via client', async () => {
+      const db = initializeTestDb({ uid: testUserId, labId: 'test-lab-1' });
+      const runRef = db.collection(`/labs/test-lab-1/coagulacao/root/runs`).doc('test-run');
+
+      expect(await runRef.set({ data: 'test' })).toThrow(/Permission denied/);
     });
-    
-    it("should append-only audit events", async () => {
-      const db = initializeTestDb({ uid: "callable-context", custom: { isCallableContext: true } });
-      const auditRef = db.collection(`/labs/test-lab-1/coagulacao/root/audit`).doc("test-audit");
-      
+
+    it('should append-only audit events', async () => {
+      const db = initializeTestDb({ uid: 'callable-context', custom: { isCallableContext: true } });
+      const auditRef = db.collection(`/labs/test-lab-1/coagulacao/root/audit`).doc('test-audit');
+
       // Create — OK
-      expect(await auditRef.set({ data: "test", chainHash: "a".repeat(64), ts: FieldValue.serverTimestamp() })).not.toThrow();
-      
+      expect(
+        await auditRef.set({
+          data: 'test',
+          chainHash: 'a'.repeat(64),
+          ts: FieldValue.serverTimestamp(),
+        }),
+      ).not.toThrow();
+
       // Update — should fail
-      expect(await auditRef.update({ data: "modified" })).toThrow();
+      expect(await auditRef.update({ data: 'modified' })).toThrow();
     });
   });
-  
-  describe("E2E: Coagulation Workflow", () => {
-    it("should complete end-to-end PT entry → chart → report", async () => {
+
+  describe('E2E: Coagulation Workflow', () => {
+    it('should complete end-to-end PT entry → chart → report', async () => {
       // 1. Setup
-      const labId = "e2e-lab-1";
-      const equipId = seedEquipment(labId, "coagulacao");
+      const labId = 'e2e-lab-1';
+      const equipId = seedEquipment(labId, 'coagulacao');
       const lotId = seedCoagulationLot(labId);
-      
+
       // 2. Create 5 consecutive PT runs (all within limits)
       const runIds = [];
       for (let i = 0; i < 5; i++) {
         const result = await callRecordAnalyteRun({
-          labId, equipmentId: equipId, lotId,
+          labId,
+          equipmentId: equipId,
+          lotId,
           operadorId: testUserId,
-          resultados: [
-            { analitoId: "coag-pt", nivelId: "1", valor: 12.5 + (i * 0.1), unidade: "s" },
-          ],
+          resultados: [{ analitoId: 'coag-pt', nivelId: '1', valor: 12.5 + i * 0.1, unidade: 's' }],
         });
         runIds.push(result.runId);
       }
-      
+
       // 3. Verify runs created
-      const runsSnap = await admin.firestore()
+      const runsSnap = await admin
+        .firestore()
         .collection(`/labs/${labId}/coagulacao/root/runs`)
         .get();
       expect(runsSnap.size).toBe(5);
-      
+
       // 4. Verify Levey-Jennings data available
-      const leveyDataSnap = await admin.firestore()
+      const leveyDataSnap = await admin
+        .firestore()
         .collection(`/labs/${labId}/coagulacao/root/runs`)
         .get();
       expect(leveyDataSnap.docs.length).toBe(5);
-      
+
       // 5. Verify no critical values
-      const criticosSnap = await admin.firestore()
+      const criticosSnap = await admin
+        .firestore()
         .collection(`/labs/${labId}/criticos-escalacoes`)
         .get();
       expect(criticosSnap.size).toBe(0);
@@ -1801,21 +1807,21 @@ describe("Phase 10 — Multi-Equipment CIQ Expansion", () => {
 /labs/{labId}/coagulacao/config/singleton:
   {
     labId: LabId;
-    
+
     westgardRules: {
       // Enabled by default
       "1-2s": { enabled: true, severity: "warning" };
       "1-3s": { enabled: true, severity: "reject" };
       "2-2s": { enabled: true, severity: "reject" };
       "R-4s": { enabled: true, severity: "reject" };
-      
+
       // Extended (disabled by default, enabled per analyte in v1.4)
       "4-1s": { enabled: false, severity: "reject" };
       "10x": { enabled: false, severity: "reject" };
       "6T": { enabled: false, severity: "warning" };
       "6X": { enabled: false, severity: "warning" };
     };
-    
+
     // Per-analyte overrides
     analitoRules: {
       "coag-pt": {
@@ -1823,7 +1829,7 @@ describe("Phase 10 — Multi-Equipment CIQ Expansion", () => {
         "4-1s": { enabled: true };  // PT especialmente sensível a drift
       };
     };
-    
+
     // Statsource selection per analyte
     statsSource: {
       "coag-pt": {
@@ -1836,7 +1842,7 @@ describe("Phase 10 — Multi-Equipment CIQ Expansion", () => {
         nRunsQualificar: 20;
       };
     };
-    
+
     criadoEm: Timestamp;
     modificadoEm: Timestamp;
   }
@@ -1852,22 +1858,21 @@ describe("Phase 10 — Multi-Equipment CIQ Expansion", () => {
  */
 
 async function initializeWestgardConfig(labId: string) {
-  const configRef = admin.firestore()
-    .doc(`/labs/${labId}/coagulacao/config/singleton`);
-  
+  const configRef = admin.firestore().doc(`/labs/${labId}/coagulacao/config/singleton`);
+
   await configRef.set({
     labId,
     westgardRules: {
-      "1-2s": { enabled: true, severity: "warning" },
-      "1-3s": { enabled: true, severity: "reject" },
-      "2-2s": { enabled: true, severity: "reject" },
-      "R-4s": { enabled: true, severity: "reject" },
-      "4-1s": { enabled: false, severity: "reject" },
-      "10x": { enabled: false, severity: "reject" },
-      "6T": { enabled: false, severity: "warning" },
-      "6X": { enabled: false, severity: "warning" },
+      '1-2s': { enabled: true, severity: 'warning' },
+      '1-3s': { enabled: true, severity: 'reject' },
+      '2-2s': { enabled: true, severity: 'reject' },
+      'R-4s': { enabled: true, severity: 'reject' },
+      '4-1s': { enabled: false, severity: 'reject' },
+      '10x': { enabled: false, severity: 'reject' },
+      '6T': { enabled: false, severity: 'warning' },
+      '6X': { enabled: false, severity: 'warning' },
     },
-    statsSource: {},  // defaults populated per-run
+    statsSource: {}, // defaults populated per-run
     criadoEm: admin.firestore.Timestamp.now(),
     modificadoEm: admin.firestore.Timestamp.now(),
   });
@@ -1951,17 +1956,18 @@ DICQ 4.3 — Blocos adicionais (Cross-reference)
 **Phase 10 Target:** +8–10% → 86–88%
 **Phase 10 Delivered:** TBD (post-deploy)
 
-| Bloco | Artigo | Requisito | Status | Evidência |
-|-------|--------|-----------|--------|-----------|
-| F | 5.5.1.1 | Método descrito | ✅ | `analito.metodo` + bula parsed |
-| F | 5.5.1.3 | Validação método alternativo | ✅ | `compareMultiInstrument` CLSI EP9 |
-| F | 5.5.2 | CIQ procedimento | ✅ | Westgard engine + rules config |
-| F | 5.5.3 | Aceitabilidade critério | ✅ | CV% alvo + Westgard 1-2s/1-3s |
-| F | 5.6.2 | Rastreabilidade QC | ✅ | `lotes-ciq` + traceability-events |
-| F | 5.6.3.1 | Validade reagentes | ✅ | `validateLotExpiry` callable + scheduler |
-| F | 5.6.4 | Registros CIQ | ✅ | `runs` + `audit` (append-only, chainHash) |
+| Bloco | Artigo  | Requisito                    | Status | Evidência                                 |
+| ----- | ------- | ---------------------------- | ------ | ----------------------------------------- |
+| F     | 5.5.1.1 | Método descrito              | ✅     | `analito.metodo` + bula parsed            |
+| F     | 5.5.1.3 | Validação método alternativo | ✅     | `compareMultiInstrument` CLSI EP9         |
+| F     | 5.5.2   | CIQ procedimento             | ✅     | Westgard engine + rules config            |
+| F     | 5.5.3   | Aceitabilidade critério      | ✅     | CV% alvo + Westgard 1-2s/1-3s             |
+| F     | 5.6.2   | Rastreabilidade QC           | ✅     | `lotes-ciq` + traceability-events         |
+| F     | 5.6.3.1 | Validade reagentes           | ✅     | `validateLotExpiry` callable + scheduler  |
+| F     | 5.6.4   | Registros CIQ                | ✅     | `runs` + `audit` (append-only, chainHash) |
 
 **Remaining gaps (Phase 11–15):**
+
 - 4.7 (IA training dataset) → Phase 5
 - Interlaboratorial comparison → Phase 14 CEQ
 - Performance metrics baseline → Phase 10-02 monitoring
@@ -1973,18 +1979,18 @@ DICQ 4.3 — Blocos adicionais (Cross-reference)
 
 ### 12.1 Top Risks Identified
 
-| # | Risco | Impacto | Prob | Mitigação | Dono |
-|---|-------|---------|------|-----------|------|
-| 1 | Bula parser (Gemini Vision) interpreta errado estatística | Westgard rules inválidas | 3 | Phase 10-03: validação manual + OCR fallback; QA teste 50+ bulas reais | Agent-2 |
-| 2 | Equipment compatibility matriz incompleta | Labs usam equipamento não testado | 2 | Phase 10-01: compatibilidade matrix doc + Phase 5 partnership validation | Agent-1 |
-| 3 | Lot expiry auto-enforcement prematura | Lab perde dados válidos | 2 | Pre-flight check (soft warn) antes block; supervisor override com approval log | Agent-4 |
-| 4 | Westgard rules threshold parameters (sigma levels) diferem entre labs | False rejections/acceptances | 2 | Config per-lab + Phase 10-02 calibração de thresholds via running median | Agent-3 |
-| 5 | NOTIVISA outbox volume spike (100+ eventos/dia) | Cloud Function timeout | 2 | Phase 5: async queue + exponential backoff; batch enqueue max 50 eventos/callable | Agent-3 |
-| 6 | Dipstick image quality (angle, lighting) afeta OCR | Resultado incorreto | 3 | Phase 10-03: Gemini Vision + confidence threshold (reject <80%); manual review gate | Agent-2 |
-| 7 | Method comparison (n=20) statistically weak | Novo equipamento não validado | 2 | Phase 10-02: aumentar n minimum para 30; bootstrap CI | Agent-1 |
-| 8 | Cross-module analyte ID collision (custom lab vs seed) | Run referencia ID errado | 2 | Phase 10-01: unique namespace per modulo + deterministic hashing | Agent-1 |
-| 9 | Calibration factor not applied to past runs | Histórico impreciso | 2 | Calibration only affects forward runs; reprocessamento manual callable (Phase 11) | Agent-4 |
-| 10 | Equipment downtime não registrado → Westgard rules enganadas | False trend detection | 1 | Phase 10-04: equipamentos.ativo flag + run rejeição if equipment inactive | Agent-3 |
+| #   | Risco                                                                 | Impacto                           | Prob | Mitigação                                                                           | Dono    |
+| --- | --------------------------------------------------------------------- | --------------------------------- | ---- | ----------------------------------------------------------------------------------- | ------- |
+| 1   | Bula parser (Gemini Vision) interpreta errado estatística             | Westgard rules inválidas          | 3    | Phase 10-03: validação manual + OCR fallback; QA teste 50+ bulas reais              | Agent-2 |
+| 2   | Equipment compatibility matriz incompleta                             | Labs usam equipamento não testado | 2    | Phase 10-01: compatibilidade matrix doc + Phase 5 partnership validation            | Agent-1 |
+| 3   | Lot expiry auto-enforcement prematura                                 | Lab perde dados válidos           | 2    | Pre-flight check (soft warn) antes block; supervisor override com approval log      | Agent-4 |
+| 4   | Westgard rules threshold parameters (sigma levels) diferem entre labs | False rejections/acceptances      | 2    | Config per-lab + Phase 10-02 calibração de thresholds via running median            | Agent-3 |
+| 5   | NOTIVISA outbox volume spike (100+ eventos/dia)                       | Cloud Function timeout            | 2    | Phase 5: async queue + exponential backoff; batch enqueue max 50 eventos/callable   | Agent-3 |
+| 6   | Dipstick image quality (angle, lighting) afeta OCR                    | Resultado incorreto               | 3    | Phase 10-03: Gemini Vision + confidence threshold (reject <80%); manual review gate | Agent-2 |
+| 7   | Method comparison (n=20) statistically weak                           | Novo equipamento não validado     | 2    | Phase 10-02: aumentar n minimum para 30; bootstrap CI                               | Agent-1 |
+| 8   | Cross-module analyte ID collision (custom lab vs seed)                | Run referencia ID errado          | 2    | Phase 10-01: unique namespace per modulo + deterministic hashing                    | Agent-1 |
+| 9   | Calibration factor not applied to past runs                           | Histórico impreciso               | 2    | Calibration only affects forward runs; reprocessamento manual callable (Phase 11)   | Agent-4 |
+| 10  | Equipment downtime não registrado → Westgard rules enganadas          | False trend detection             | 1    | Phase 10-04: equipamentos.ativo flag + run rejeição if equipment inactive           | Agent-3 |
 
 ### 12.2 Mitigation Execution Timeline
 
@@ -2114,18 +2120,18 @@ firebase deploy --only hosting,functions \
 
 ### 14.1 Key Performance Indicators (KPIs)
 
-| KPI | Target | Method | Owner |
-|-----|--------|--------|-------|
-| **Functional Completeness** | 30+ analytes seeded + functional | Seed count + run recording test | Agent-1 |
-| **Multi-Equipment Support** | 4+ equipment models validated (Sysmex, Mindray, ACL, Roche) | Method comparison CLSI EP9 approved | Agent-2 |
-| **Lot Expiry Enforcement** | 0 expired lots used in runs (100% block rate) | Pre-flight + post-deploy audit | Agent-3 |
-| **Westgard Rule Coverage** | 5 CLSI rules enabled (1-2s, 1-3s, 2-2s, R-4s, 4-1s optional) | Config validation + rule trigger tests | Agent-2 |
-| **Critical Value Escalation** | <2min from result → escalacoes-criticos created | E2E test + production logs | Agent-4 |
-| **DICQ Compliance Gain** | +8–10% (78.5% → 86–88%) | Compliance mapper audit | CTO |
-| **Test Coverage** | 120+ unit + 12 E2E scenarios PASS | Jest suite + Playwright E2E | Agent-1 |
-| **Cloud Logs Health** | 0 errors, <5% warning rate (24h post-deploy) | Automated monitor-cloud-logs.ps1 | Agent-4 |
-| **Zero Regressions** | 738/738 baseline tests + 42 Phase 9 tests PASS | npm test --coverage | Agent-1 |
-| **Bundle Size** | ≤ 362 KB gzip main, ≤ 60 KB module chunk | webpack-bundle-analyzer | Agent-3 |
+| KPI                           | Target                                                       | Method                                 | Owner   |
+| ----------------------------- | ------------------------------------------------------------ | -------------------------------------- | ------- |
+| **Functional Completeness**   | 30+ analytes seeded + functional                             | Seed count + run recording test        | Agent-1 |
+| **Multi-Equipment Support**   | 4+ equipment models validated (Sysmex, Mindray, ACL, Roche)  | Method comparison CLSI EP9 approved    | Agent-2 |
+| **Lot Expiry Enforcement**    | 0 expired lots used in runs (100% block rate)                | Pre-flight + post-deploy audit         | Agent-3 |
+| **Westgard Rule Coverage**    | 5 CLSI rules enabled (1-2s, 1-3s, 2-2s, R-4s, 4-1s optional) | Config validation + rule trigger tests | Agent-2 |
+| **Critical Value Escalation** | <2min from result → escalacoes-criticos created              | E2E test + production logs             | Agent-4 |
+| **DICQ Compliance Gain**      | +8–10% (78.5% → 86–88%)                                      | Compliance mapper audit                | CTO     |
+| **Test Coverage**             | 120+ unit + 12 E2E scenarios PASS                            | Jest suite + Playwright E2E            | Agent-1 |
+| **Cloud Logs Health**         | 0 errors, <5% warning rate (24h post-deploy)                 | Automated monitor-cloud-logs.ps1       | Agent-4 |
+| **Zero Regressions**          | 738/738 baseline tests + 42 Phase 9 tests PASS               | npm test --coverage                    | Agent-1 |
+| **Bundle Size**               | ≤ 362 KB gzip main, ≤ 60 KB module chunk                     | webpack-bundle-analyzer                | Agent-3 |
 
 ### 14.2 Verification Loop (Post-Deploy)
 
@@ -2135,54 +2141,63 @@ firebase deploy --only hosting,functions \
 **24 Hours After Deploy:**
 
 ✅ Smoke Tests (15 min)
-  - [ ] Coagulation: PT run recorded → Levey-Jennings chart loads
-  - [ ] Coagulation: INR critical (>4.0) → escalacoes-criticos created
-  - [ ] Immunology: HIV Positivo → NOTIVISA pending (Phase 5 pending if not yet live)
-  - [ ] Urinalysis: Dipstick photo uploaded → Gemini Vision result in run
-  - [ ] Multi-Equipment: Method comparison PT (n=20) → r≥0.99 approved
+
+- [ ] Coagulation: PT run recorded → Levey-Jennings chart loads
+- [ ] Coagulation: INR critical (>4.0) → escalacoes-criticos created
+- [ ] Immunology: HIV Positivo → NOTIVISA pending (Phase 5 pending if not yet live)
+- [ ] Urinalysis: Dipstick photo uploaded → Gemini Vision result in run
+- [ ] Multi-Equipment: Method comparison PT (n=20) → r≥0.99 approved
 
 ✅ Cloud Logs (automated via monitor-cloud-logs.ps1)
-  - [ ] Error count: 0
-  - [ ] Warning count: <5% of total logs
-  - [ ] Top warnings: ["Deprecated API call", "deprecated service"] (benign)
-  - [ ] Function cold-starts: <100ms duration
-  - [ ] Firestore query latency: <50ms p99
+
+- [ ] Error count: 0
+- [ ] Warning count: <5% of total logs
+- [ ] Top warnings: ["Deprecated API call", "deprecated service"] (benign)
+- [ ] Function cold-starts: <100ms duration
+- [ ] Firestore query latency: <50ms p99
 
 ✅ Firestore Schema
-  - [ ] /labs/*/coagulacao/root/analitos: 5 docs seeded
-  - [ ] /labs/*/ciq-imuno/root/analitos: 10 docs seeded
-  - [ ] /labs/*/uroanalise/root/analitos: 7 docs seeded
-  - [ ] /labs/*/equipamentos: 2–4 docs (per-lab installed base)
-  - [ ] /labs/*/calibracoes: insertion log shows activity
+
+- [ ] /labs/\*/coagulacao/root/analitos: 5 docs seeded
+- [ ] /labs/\*/ciq-imuno/root/analitos: 10 docs seeded
+- [ ] /labs/\*/uroanalise/root/analitos: 7 docs seeded
+- [ ] /labs/\*/equipamentos: 2–4 docs (per-lab installed base)
+- [ ] /labs/\*/calibracoes: insertion log shows activity
 
 ✅ Unit Tests
-  - [ ] npm test: 738 + 42 + 120 = 900 tests PASS
-  - [ ] Coverage thresholds: statements ≥90%, branches ≥85%
-  - [ ] 0 test regressions vs Phase 9
+
+- [ ] npm test: 738 + 42 + 120 = 900 tests PASS
+- [ ] Coverage thresholds: statements ≥90%, branches ≥85%
+- [ ] 0 test regressions vs Phase 9
 
 ✅ Integration Tests
-  - [ ] recordAnalyteRun callable (all 4 modules): PASS
-  - [ ] validateLotExpiry (expired + valid): PASS
-  - [ ] compareMultiInstrument (approved + rejected): PASS
-  - [ ] Westgard rules evaluation: 1-2s, 1-3s, 2-2s, R-4s triggers correct
+
+- [ ] recordAnalyteRun callable (all 4 modules): PASS
+- [ ] validateLotExpiry (expired + valid): PASS
+- [ ] compareMultiInstrument (approved + rejected): PASS
+- [ ] Westgard rules evaluation: 1-2s, 1-3s, 2-2s, R-4s triggers correct
 
 ✅ E2E Scenarios (Playwright)
-  - [ ] Scenario 1–12 all PASS
-  - [ ] Load time <3s per page
-  - [ ] No console errors or warnings
+
+- [ ] Scenario 1–12 all PASS
+- [ ] Load time <3s per page
+- [ ] No console errors or warnings
 
 ✅ DICQ Compliance
-  - [ ] Mapping document signed off (CTO)
-  - [ ] DICQ blocks 5.5.1–5.6.4 all "complete" status
-  - [ ] Compliance score: ≥86%
+
+- [ ] Mapping document signed off (CTO)
+- [ ] DICQ blocks 5.5.1–5.6.4 all "complete" status
+- [ ] Compliance score: ≥86%
 
 ✅ User Acceptance (Lab Admin, Technician)
-  - [ ] UI + terminology understood
-  - [ ] Workflow (add run → chart → report) intuitive
-  - [ ] Admin can manage analites, equipment, thresholds
-  - [ ] No unexpected errors during 30-min walkthrough
+
+- [ ] UI + terminology understood
+- [ ] Workflow (add run → chart → report) intuitive
+- [ ] Admin can manage analites, equipment, thresholds
+- [ ] No unexpected errors during 30-min walkthrough
 
 **Sign-Off Gate:**
+
 - [ ] All checkboxes ticked
 - [ ] CTO review approved
 - [ ] Production stable (24h monitoring clean)

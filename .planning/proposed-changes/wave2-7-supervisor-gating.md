@@ -12,7 +12,7 @@
 
 Wave 1 Agent 5 added a lab-wide cache `/labs/{labId}/supervisor-status/current` carrying the boolean `hasActiveSupervisor`. This cache is updated atomically by `turnos_supervisorCheckin` / `turnos_supervisorCheckout` callables. **It is not yet wired into any consumer rule.**
 
-This proposal wires the cache into `firestore.rules` for **client-direct CIQ run writes**. Laudo emission is already callable-only (Admin SDK bypasses rules), so laudo gating must happen inside `liberarLaudo` callable code — *out of scope for this rules-only proposal*, but documented in §6 as a follow-up.
+This proposal wires the cache into `firestore.rules` for **client-direct CIQ run writes**. Laudo emission is already callable-only (Admin SDK bypasses rules), so laudo gating must happen inside `liberarLaudo` callable code — _out of scope for this rules-only proposal_, but documented in §6 as a follow-up.
 
 **Net effect after deploy:** if no supervisor is checked in, no operator can `create`/`update` a CIQ run on hematologia, imunologia, or uroanálise client-direct paths. CIQ writes block until a supervisor checks in (or a substitute is designated).
 
@@ -49,6 +49,7 @@ All four targets are **client-direct CIQ runs** under `/labs/{labId}/...`. Each 
 ### 3.1 Hematologia — `/labs/{labId}/lots/{lotId}/runs/{runId}` (line 145–150)
 
 **Existing (lines 145–150):**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -59,6 +60,7 @@ match /runs/{runId} {
 ```
 
 **Proposed:**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -73,6 +75,7 @@ match /runs/{runId} {
 ### 3.2 Imunologia — `/labs/{labId}/ciq-imuno/{lotId}/runs/{runId}` (line 172–178)
 
 **Existing (lines 172–178):**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -84,6 +87,7 @@ match /runs/{runId} {
 ```
 
 **Proposed:**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -99,6 +103,7 @@ match /runs/{runId} {
 ### 3.3 Uroanálise — `/labs/{labId}/ciq-uroanalise/{lotId}/runs/{runId}` (line 265–271)
 
 **Existing (lines 265–271):**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -110,6 +115,7 @@ match /runs/{runId} {
 ```
 
 **Proposed:**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() ||
@@ -125,6 +131,7 @@ match /runs/{runId} {
 ### 3.4 Insumos sub-runs — `/labs/{labId}/insumos/{insumoId}/runs/{runId}` (line 385–390)
 
 **Existing (lines 385–390):**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
@@ -135,6 +142,7 @@ match /runs/{runId} {
 ```
 
 **Proposed:**
+
 ```firestore
 match /runs/{runId} {
   allow read: if isSuperAdmin() || isActiveMemberOfLab(labId);
@@ -150,17 +158,17 @@ match /runs/{runId} {
 
 ## 4. Rules NOT modified (and why)
 
-| Path | Lines | Reason not gated |
-|---|---|---|
-| `/labs/{labId}/laudos/{id}` | 1752–1757 | Already `allow create, update: if false` — callable-only (`liberarLaudo`). Rules cannot gate Admin SDK; gating must move into the callable. See §6. |
-| `/laudos/{laudoId}` (global) | 1981–1989 | Same — callable-only. |
-| `/labs/{labId}/bioquimica/root/runs/{runId}` | 1612–1616 | Already callable-only (`recordRunBioquimica`). Gate inside the callable (§6). |
-| `/labs/{labId}/ciq-coagulacao/{lotId}/runs/{runId}` | 231–235 | MVP open-access (`allow ... if true`). Gating CIQ-coag would change the open-access promise without addressing the broader `if true` problem. Recommend a separate hardening RFC. |
-| `/labs/{labId}/laudos-draft/{id}` | 1924–1928 | Drafts are explicitly excluded from the gate (per task brief: "NOT draft saves"). |
-| `runs` `read` everywhere | — | Audit/read access stays unrestricted to active members; gating reads would block auditor work during a supervisor gap. |
-| `runs` `delete` everywhere | — | Already admin-only and soft-delete. |
-| `/turnos/**` | 1810+ | Self-referential: gating turnos by hasActiveSupervisor would deadlock (cannot bootstrap presence without writing a turno first). Already callable-only via DL-1. |
-| `ciq-imuno-meta`, `ciq-uroanalise-meta`, `ciq-imuno-config`, etc. | 188+, 281+ | Configuration / aggregation docs, not result entries. Not "critical" per task brief. |
+| Path                                                              | Lines      | Reason not gated                                                                                                                                                                  |
+| ----------------------------------------------------------------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `/labs/{labId}/laudos/{id}`                                       | 1752–1757  | Already `allow create, update: if false` — callable-only (`liberarLaudo`). Rules cannot gate Admin SDK; gating must move into the callable. See §6.                               |
+| `/laudos/{laudoId}` (global)                                      | 1981–1989  | Same — callable-only.                                                                                                                                                             |
+| `/labs/{labId}/bioquimica/root/runs/{runId}`                      | 1612–1616  | Already callable-only (`recordRunBioquimica`). Gate inside the callable (§6).                                                                                                     |
+| `/labs/{labId}/ciq-coagulacao/{lotId}/runs/{runId}`               | 231–235    | MVP open-access (`allow ... if true`). Gating CIQ-coag would change the open-access promise without addressing the broader `if true` problem. Recommend a separate hardening RFC. |
+| `/labs/{labId}/laudos-draft/{id}`                                 | 1924–1928  | Drafts are explicitly excluded from the gate (per task brief: "NOT draft saves").                                                                                                 |
+| `runs` `read` everywhere                                          | —          | Audit/read access stays unrestricted to active members; gating reads would block auditor work during a supervisor gap.                                                            |
+| `runs` `delete` everywhere                                        | —          | Already admin-only and soft-delete.                                                                                                                                               |
+| `/turnos/**`                                                      | 1810+      | Self-referential: gating turnos by hasActiveSupervisor would deadlock (cannot bootstrap presence without writing a turno first). Already callable-only via DL-1.                  |
+| `ciq-imuno-meta`, `ciq-uroanalise-meta`, `ciq-imuno-config`, etc. | 188+, 281+ | Configuration / aggregation docs, not result entries. Not "critical" per task brief.                                                                                              |
 
 ---
 
@@ -239,9 +247,9 @@ Run via Firestore emulator: `firebase emulators:exec --only firestore "npm run t
 
 ## 9. Compliance traceability
 
-| Requirement | Mapping |
-|---|---|
+| Requirement           | Mapping                                                            |
+| --------------------- | ------------------------------------------------------------------ |
 | RDC 978/2025 Art. 122 | "supervisão presencial" → `hasActiveSupervisor` gate on CIQ writes |
-| DICQ 4.1.2.7 | "responsável técnico presente" → same gate |
-| RDC 786/2023 | covered transitively (RT designation + presence) |
-| Audit trail | already covered by `presenca-events` chainHash (Wave 1) |
+| DICQ 4.1.2.7          | "responsável técnico presente" → same gate                         |
+| RDC 786/2023          | covered transitively (RT designation + presence)                   |
+| Audit trail           | already covered by `presenca-events` chainHash (Wave 1)            |

@@ -88,9 +88,7 @@ function createTwilioClient() {
   const authToken = AUTH_TOKEN.value();
 
   if (!accountSid || !authToken) {
-    throw new ValidationError(
-      'TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN must be set',
-    );
+    throw new ValidationError('TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN must be set');
   }
 
   cachedClient = twilio(accountSid, authToken);
@@ -114,11 +112,7 @@ export class TwilioSMSClient {
   /**
    * Sends a single SMS with retry logic and audit logging
    */
-  async sendSMS(
-    to: string,
-    body: string,
-    labId: string,
-  ): Promise<SmsResult> {
+  async sendSMS(to: string, body: string, labId: string): Promise<SmsResult> {
     // Validate input
     this.validatePhoneNumber(to);
 
@@ -198,11 +192,7 @@ export class TwilioSMSClient {
   /**
    * Sends SMS to multiple recipients sequentially
    */
-  async sendBulkSMS(
-    recipients: string[],
-    body: string,
-    labId: string,
-  ): Promise<SmsResult[]> {
+  async sendBulkSMS(recipients: string[], body: string, labId: string): Promise<SmsResult[]> {
     if (!recipients || recipients.length === 0) {
       throw new ValidationError('Recipients list cannot be empty');
     }
@@ -234,10 +224,7 @@ export class TwilioSMSClient {
 
       if (message.status === 'delivered') {
         status = 'delivered';
-      } else if (
-        message.status === 'failed' ||
-        message.status === 'undelivered'
-      ) {
+      } else if (message.status === 'failed' || message.status === 'undelivered') {
         status = 'failed';
       } else if (
         message.status === 'queued' ||
@@ -342,11 +329,5 @@ export async function getSMSTemplate(
   unidade: string,
   laudoId: string,
 ): Promise<string> {
-  return generateCriticalValueSMSTemplate(
-    analitoNome,
-    pacienteNome,
-    valor,
-    unidade,
-    laudoId,
-  );
+  return generateCriticalValueSMSTemplate(analitoNome, pacienteNome, valor, unidade, laudoId);
 }

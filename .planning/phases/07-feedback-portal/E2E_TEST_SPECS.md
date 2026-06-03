@@ -3,14 +3,14 @@
 **Framework:** Detox v20+  
 **Platforms:** iOS + Android emulator  
 **Test Count:** 8 critical flows  
-**Coverage:** NPS submission, suggestions, trending analytics, email triggers, anonimização  
+**Coverage:** NPS submission, suggestions, trending analytics, email triggers, anonimização
 
 ---
 
 ## Test 1: Public NPS Submission via Token Link
 
 **File:** `e2e/satisfacao/01-npsPortalPublic.e2e.ts`  
-**Duration:** ~45 seconds  
+**Duration:** ~45 seconds
 
 ```typescript
 describe('NPS Portal — Public (No Auth)', () => {
@@ -64,10 +64,9 @@ describe('NPS Portal — Public (No Auth)', () => {
       .withTimeout(4000);
 
     // 8. Verify Firestore write (via test helper)
-    const npsResposta = await getFirestoreDoc(
-      `labs/test-lab-789/satisfacao-respostas`,
-      { pacienteId: 'test-paciente-456' }
-    );
+    const npsResposta = await getFirestoreDoc(`labs/test-lab-789/satisfacao-respostas`, {
+      pacienteId: 'test-paciente-456',
+    });
     expect(npsResposta).toBeDefined();
     expect(npsResposta.nota).toBe(9);
     expect(npsResposta.categoria).toBe('promotor');
@@ -79,7 +78,7 @@ describe('NPS Portal — Public (No Auth)', () => {
   it('should reject token that is expired', async () => {
     const expiredToken = generateTestToken(
       { lauroId: 'test', pacienteId: 'test', labId: 'test-lab-789' },
-      { expiresIn: '-1h' } // expired
+      { expiresIn: '-1h' }, // expired
     );
 
     await device.openURL({
@@ -125,7 +124,7 @@ describe('NPS Portal — Public (No Auth)', () => {
 ## Test 2: Authenticated Patient NPS (Post-Complaint Closure)
 
 **File:** `e2e/satisfacao/02-npsPortalAuth.e2e.ts`  
-**Duration:** ~60 seconds  
+**Duration:** ~60 seconds
 
 ```typescript
 describe('NPS Portal — Authenticated (Post-Complaint Closure)', () => {
@@ -205,9 +204,7 @@ describe('NPS Portal — Authenticated (Post-Complaint Closure)', () => {
       .toBeVisible()
       .withTimeout(3000);
 
-    const updatedComplaint = await getFirestoreDoc(
-      `labs/test-lab-789/reclamacoes/complaint-0`
-    );
+    const updatedComplaint = await getFirestoreDoc(`labs/test-lab-789/reclamacoes/complaint-0`);
     expect(updatedComplaint.status).toBe('Fechada');
     expect(updatedComplaint.npsRespostaId).toBeDefined();
   });
@@ -219,7 +216,7 @@ describe('NPS Portal — Authenticated (Post-Complaint Closure)', () => {
 ## Test 3: Staff Suggestion Submission (Mobile PWA)
 
 **File:** `e2e/sugestoes/03-suggestionsIntakeMobile.e2e.ts`  
-**Duration:** ~50 seconds  
+**Duration:** ~50 seconds
 
 ```typescript
 describe('Suggestions Intake — Mobile PWA', () => {
@@ -241,7 +238,9 @@ describe('Suggestions Intake — Mobile PWA', () => {
     await element(by.id('login-button')).multiTap();
 
     // 2. Navigate to suggestions
-    await waitFor(element(by.id('hub-screen'))).toBeVisible().withTimeout(3000);
+    await waitFor(element(by.id('hub-screen')))
+      .toBeVisible()
+      .withTimeout(3000);
     await element(by.id('suggestions-tile')).multiTap();
 
     // 3. Tap "Nova Sugestão"
@@ -287,10 +286,9 @@ describe('Suggestions Intake — Mobile PWA', () => {
     await expect(element(by.id('titulo-input'))).toHaveText('');
 
     // 13. Verify Firestore entry
-    const sugestao = await getFirestoreDoc(
-      `labs/test-lab-789/sugestoes`,
-      { autorId: testTech.uid }
-    );
+    const sugestao = await getFirestoreDoc(`labs/test-lab-789/sugestoes`, {
+      autorId: testTech.uid,
+    });
     expect(sugestao).toBeDefined();
     expect(sugestao.titulo).toBe('Upgrade reagente X para versão 2.0');
     expect(sugestao.categoria).toBe('produto');
@@ -314,7 +312,7 @@ describe('Suggestions Intake — Mobile PWA', () => {
 ## Test 4: Suggestion Upvoting (Dedup)
 
 **File:** `e2e/sugestoes/04-upvoteSuggestion.e2e.ts`  
-**Duration:** ~40 seconds  
+**Duration:** ~40 seconds
 
 ```typescript
 describe('Suggestions — Upvote Deduplication', () => {
@@ -350,23 +348,20 @@ describe('Suggestions — Upvote Deduplication', () => {
       .withTimeout(2000);
 
     // 4. Upvote button shows "👍 0"
-    await expect(element(by.id('upvote-button-sugestao-0')))
-      .toHaveText('👍 0');
+    await expect(element(by.id('upvote-button-sugestao-0'))).toHaveText('👍 0');
 
     // 5. Tap upvote
     await element(by.id('upvote-button-sugestao-0')).multiTap();
 
     // 6. Button updates to "👍 1" + highlights
-    await expect(element(by.id('upvote-button-sugestao-0')))
-      .toHaveText('👍 1');
+    await expect(element(by.id('upvote-button-sugestao-0'))).toHaveText('👍 1');
 
     const upvoteAttrs = await element(by.id('upvote-button-sugestao-0')).getAttributes();
     expect(upvoteAttrs.backgroundColor).toContain('emerald'); // emerald-500
 
     // 7. Try to upvote again (should be no-op)
     await element(by.id('upvote-button-sugestao-0')).multiTap();
-    await expect(element(by.id('upvote-button-sugestao-0')))
-      .toHaveText('👍 1'); // still 1, not 2
+    await expect(element(by.id('upvote-button-sugestao-0'))).toHaveText('👍 1'); // still 1, not 2
 
     // 8. Login as tech2, verify they can upvote independently
     await element(by.id('profile-menu')).multiTap();
@@ -385,20 +380,16 @@ describe('Suggestions — Upvote Deduplication', () => {
       .withTimeout(2000);
 
     // 9. tech2 sees "👍 1" (tech1's vote)
-    await expect(element(by.id('upvote-button-sugestao-0')))
-      .toHaveText('👍 1');
+    await expect(element(by.id('upvote-button-sugestao-0'))).toHaveText('👍 1');
 
     // 10. tech2 upvotes
     await element(by.id('upvote-button-sugestao-0')).multiTap();
 
     // 11. Button updates to "👍 2"
-    await expect(element(by.id('upvote-button-sugestao-0')))
-      .toHaveText('👍 2');
+    await expect(element(by.id('upvote-button-sugestao-0'))).toHaveText('👍 2');
 
     // 12. Verify votaraisPor in Firestore
-    const sugestao = await getFirestoreDoc(
-      `labs/test-lab-789/sugestoes/sugestao-0`
-    );
+    const sugestao = await getFirestoreDoc(`labs/test-lab-789/sugestoes/sugestao-0`);
     expect(sugestao.votos).toBe(2);
     expect(sugestao.votaraisPor).toContain(tech1.uid);
     expect(sugestao.votaraisPor).toContain(tech2.uid);
@@ -412,7 +403,7 @@ describe('Suggestions — Upvote Deduplication', () => {
 ## Test 5: Trending Dashboard — NPS Chart
 
 **File:** `e2e/satisfacao/05-trendingDashboard.e2e.ts`  
-**Duration:** ~55 seconds  
+**Duration:** ~55 seconds
 
 ```typescript
 describe('Trending Dashboard — NPS Line Chart', () => {
@@ -465,8 +456,7 @@ describe('Trending Dashboard — NPS Line Chart', () => {
       .withTimeout(2000);
 
     // 5. Verify 3 data points rendered (Recharts canvas)
-    const chartPoints = await element(by.id('nps-trend-chart'))
-      .getAttributes();
+    const chartPoints = await element(by.id('nps-trend-chart')).getAttributes();
     expect(chartPoints.childrenCount).toBe(3); // Mar, Apr, May
 
     // 6. Hover over May 2026 point
@@ -503,7 +493,7 @@ describe('Trending Dashboard — NPS Line Chart', () => {
 ## Test 6: RCA Word Cloud (Phase 7.2+)
 
 **File:** `e2e/satisfacao/06-rcaWordcloud.e2e.ts`  
-**Duration:** ~50 seconds  
+**Duration:** ~50 seconds
 
 ```typescript
 describe('Trending Dashboard — RCA Word Cloud', () => {
@@ -550,11 +540,9 @@ describe('Trending Dashboard — RCA Word Cloud', () => {
     const temperAttrs = await element(by.text('Temperatura')).getAttributes();
 
     expect(parseFloat(calibracaoAttrs.fontSize)).toBeGreaterThan(
-      parseFloat(reagenteAttrs.fontSize)
+      parseFloat(reagenteAttrs.fontSize),
     );
-    expect(parseFloat(reagenteAttrs.fontSize)).toBeGreaterThan(
-      parseFloat(temperAttrs.fontSize)
-    );
+    expect(parseFloat(reagenteAttrs.fontSize)).toBeGreaterThan(parseFloat(temperAttrs.fontSize));
 
     // 6. Click "Calibração" to filter complaints
     await element(by.text('Calibração')).multiTap();
@@ -576,7 +564,7 @@ describe('Trending Dashboard — RCA Word Cloud', () => {
 ## Test 7: Anonimização Cron (Server-side Unit Test)
 
 **File:** `functions/__tests__/scheduled-tasks/07-anonimizarRespostas.test.ts`  
-**Duration:** ~30 seconds (unit test, not E2E)  
+**Duration:** ~30 seconds (unit test, not E2E)
 
 ```typescript
 import { initializeAdminApp, clearFirestore } from '../../test-utils';
@@ -595,9 +583,7 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
 
   it('should anonymize NPSRespostas >90 days old', async () => {
     const labId = 'test-lab-789';
-    const ninetyFiveDaysAgo = Timestamp.fromMillis(
-      Date.now() - 95 * 24 * 60 * 60 * 1000
-    );
+    const ninetyFiveDaysAgo = Timestamp.fromMillis(Date.now() - 95 * 24 * 60 * 60 * 1000);
 
     // Create old NPS response
     const oldResposta = {
@@ -621,18 +607,13 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
       deletadoEm: null,
     };
 
-    await setDoc(
-      doc(db, 'labs', labId, 'satisfacao-respostas', 'old-resposta'),
-      oldResposta
-    );
+    await setDoc(doc(db, 'labs', labId, 'satisfacao-respostas', 'old-resposta'), oldResposta);
 
     // Run cron
     await anonimizarRespostas(mockContext);
 
     // Verify: pacienteId nulled, PII filtered
-    const updated = await getDoc(
-      doc(db, 'labs', labId, 'satisfacao-respostas', 'old-resposta')
-    );
+    const updated = await getDoc(doc(db, 'labs', labId, 'satisfacao-respostas', 'old-resposta'));
     const data = updated.data() as any;
 
     expect(data.pacienteId).toBeNull();
@@ -646,9 +627,7 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
 
   it('should NOT anonymize NPSRespostas <90 days old', async () => {
     const labId = 'test-lab-789';
-    const thirtyDaysAgo = Timestamp.fromMillis(
-      Date.now() - 30 * 24 * 60 * 60 * 1000
-    );
+    const thirtyDaysAgo = Timestamp.fromMillis(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
     const recentResposta = {
       id: 'recent-resposta',
@@ -671,17 +650,14 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
       deletadoEm: null,
     };
 
-    await setDoc(
-      doc(db, 'labs', labId, 'satisfacao-respostas', 'recent-resposta'),
-      recentResposta
-    );
+    await setDoc(doc(db, 'labs', labId, 'satisfacao-respostas', 'recent-resposta'), recentResposta);
 
     // Run cron
     await anonimizarRespostas(mockContext);
 
     // Verify: unchanged
     const noChange = await getDoc(
-      doc(db, 'labs', labId, 'satisfacao-respostas', 'recent-resposta')
+      doc(db, 'labs', labId, 'satisfacao-respostas', 'recent-resposta'),
     );
     const data = noChange.data() as any;
 
@@ -693,9 +669,7 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
 
   it('should create audit log entry for anonymization batch', async () => {
     const labId = 'test-lab-789';
-    const ninetyFiveDaysAgo = Timestamp.fromMillis(
-      Date.now() - 95 * 24 * 60 * 60 * 1000
-    );
+    const ninetyFiveDaysAgo = Timestamp.fromMillis(Date.now() - 95 * 24 * 60 * 60 * 1000);
 
     // Create 3 old responses
     for (let i = 0; i < 3; i++) {
@@ -716,10 +690,7 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
         deletadoEm: null,
       };
 
-      await setDoc(
-        doc(db, 'labs', labId, 'satisfacao-respostas', `old-resposta-${i}`),
-        resposta
-      );
+      await setDoc(doc(db, 'labs', labId, 'satisfacao-respostas', `old-resposta-${i}`), resposta);
     }
 
     // Run cron
@@ -729,8 +700,8 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
     const auditLogs = await getDocs(
       query(
         collection(db, 'labs', labId, 'anonimizacao-audit'),
-        where('tipo', '==', 'nps-anonymization')
-      )
+        where('tipo', '==', 'nps-anonymization'),
+      ),
     );
 
     expect(auditLogs.docs.length).toBeGreaterThan(0);
@@ -746,7 +717,7 @@ describe('anonimizarRespostas — Scheduled Cron (03:00 BRT)', () => {
 ## Test 8: Complaint Closure → NPS Email Trigger
 
 **File:** `e2e/reclamacoes/08-closureNPSTrigger.e2e.ts`  
-**Duration:** ~60 seconds  
+**Duration:** ~60 seconds
 
 ```typescript
 describe('Complaint Closure — NPS Email Trigger', () => {
@@ -847,9 +818,7 @@ describe('Complaint Closure — NPS Email Trigger', () => {
     await element(by.id('submit-button')).multiTap();
 
     // 15. Verify complaint status updated to "Fechada"
-    const complaint = await getFirestoreDoc(
-      `labs/test-lab-789/reclamacoes/complaint-closure-test`
-    );
+    const complaint = await getFirestoreDoc(`labs/test-lab-789/reclamacoes/complaint-closure-test`);
     expect(complaint.status).toBe('Fechada');
     expect(complaint.npsRespostaId).toBeDefined();
     expect(complaint.npsResponseReceivedAt).toBeDefined();
@@ -858,8 +827,8 @@ describe('Complaint Closure — NPS Email Trigger', () => {
     const auditEntries = await getDocs(
       query(
         collection(db, 'labs', 'test-lab-789', 'feedback-audit'),
-        where('tipo', '==', 'nps-dispatch-post-laudo')
-      )
+        where('tipo', '==', 'nps-dispatch-post-laudo'),
+      ),
     );
     expect(auditEntries.docs.length).toBeGreaterThan(0);
   });
@@ -904,7 +873,7 @@ export function generateTestToken(
     reclamacaoId?: string;
     trimestre?: string;
   },
-  options?: { expiresIn?: string }
+  options?: { expiresIn?: string },
 ): string {
   const expiresIn = options?.expiresIn || '7d';
   return jwt.sign(
@@ -913,7 +882,7 @@ export function generateTestToken(
       iat: Math.floor(Date.now() / 1000),
     },
     process.env.NPS_TOKEN_SECRET,
-    { expiresIn }
+    { expiresIn },
   );
 }
 
@@ -925,15 +894,14 @@ export async function createTestSuggestion(data: Partial<Sugestao>) {
   });
 }
 
-export async function expectEmailSent(
-  criteria: { to: string; subject?: string }
-): Promise<boolean> {
+export async function expectEmailSent(criteria: {
+  to: string;
+  subject?: string;
+}): Promise<boolean> {
   // Mock email service (Resend) stores sent emails
   const sent = await getResendMockStore().getEmails();
   return sent.some(
-    (e) =>
-      e.to === criteria.to &&
-      (!criteria.subject || e.subject.includes(criteria.subject))
+    (e) => e.to === criteria.to && (!criteria.subject || e.subject.includes(criteria.subject)),
   );
 }
 ```
@@ -941,6 +909,7 @@ export async function expectEmailSent(
 ---
 
 **Test Coverage Summary:**
+
 - ✅ Public NPS submission (token-based)
 - ✅ Authenticated NPS (post-complaint)
 - ✅ Staff suggestion intake (mobile PWA)

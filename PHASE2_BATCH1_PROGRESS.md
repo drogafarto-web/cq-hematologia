@@ -6,6 +6,7 @@
 ## ✅ Completed
 
 ### Task 1 — Export Missing Cloud Functions
+
 - ✅ Added `recordarTreinamentoPOP` export to `functions/src/index.ts` (procedimentos/pop module)
 - ✅ Added `addAcao` export to `functions/src/index.ts` (qualidade/naoConformidade module)
 - ✅ Build green: `cd functions && npm run build` passes
@@ -22,22 +23,26 @@
 **Schema divergence found:**
 
 Frontend (canonical): `src/features/sgq/types/NaoConformidade.ts`
+
 - `severidade: 'critica' | 'grave' | 'moderada' | 'leve'`
 - `capaStatus: CAPAStatus` (strict enum: nao_iniciada | investigacao | acao | eficacia | fechada | reaberta)
 - `criadoEm: Timestamp`, `deletadoEm: Timestamp | null`
 
 Backend (diverges): `functions/src/modules/qualidade/types.ts`
+
 - `NCSeveridade` enum: `leve | media | critica` (no `grave`; has `media` not `moderada`)
 - `status: string` (loose typing, not enum)
 - `createdAt/updatedAt` (EN instead of PT-BR)
 
 **Fix needed:**
+
 1. `functions/src/modules/qualidade/types.ts` — update `NCSeveridade` enum + `status` typing
 2. `functions/src/modules/qualidade/naoConformidade.ts` — update field refs in callables
 3. `functions/src/modules/qualidade/capaWorkflow.ts` — update state machine references
 4. Firestore rules: verify `severidade` enum validation matches
 
 **Files to edit:**
+
 ```
 functions/src/modules/qualidade/
   ├── types.ts (priority)
@@ -47,6 +52,7 @@ firestore.rules (search for NC validation)
 ```
 
 **Commands for next session:**
+
 ```bash
 # Read divergences
 grep -A 20 "interface NaoConformidade" src/features/sgq/types/NaoConformidade.ts
@@ -64,6 +70,7 @@ npx tsc --noEmit  # root level
 **Status**: Ready to start. Code exists, needs wiring.
 
 **Key files:**
+
 - `src/features/sgq/SGQView.tsx` — add `Procedimentos` tab alongside `Documentos`
 - `src/features/sgq/pops/components/POPsList.tsx` — finalize list view
 - `src/features/sgq/pops/components/CreatePOPModal.tsx` — wire `createPOP` callable
@@ -71,6 +78,7 @@ npx tsc --noEmit  # root level
 - `src/features/sgq/pops/usePOPs.ts` — verify hook subscribes correctly
 
 **UX pattern to follow:**
+
 - Dark-first, consistent with SGQ Document list
 - Status chips: `ativa` (green), `em_revisao` (yellow), `obsoleta` (gray)
 - Version rows collapsible (expand/collapse to show training assignments)
@@ -84,6 +92,7 @@ npx tsc --noEmit  # root level
 **Status**: Ready to start. Code exists, needs wiring.
 
 **Key files:**
+
 - `src/features/sgq/SGQView.tsx` — add `Auditorias` tab
 - `src/features/sgq/auditoria/components/AuditoriaList.tsx`
 - `src/features/sgq/auditoria/components/FindingsForm.tsx` — add achado creation + `temAchadosGraves()` trigger
@@ -91,6 +100,7 @@ npx tsc --noEmit  # root level
 - `src/features/sgq/naoConformidade/useNCs.ts` — verify `openNaoConformidade` callable accessible
 
 **Critical UX flow:**
+
 1. Create audit (client write allowed by rules)
 2. Add achado with severidade selection (critica=red, grave=orange)
 3. On save, if `temAchadosGraves()` → show dialog: "X critical findings detected. Create NCs now?"
@@ -106,10 +116,12 @@ npx tsc --noEmit  # root level
 **Status**: Ready to start. Implementation exists, needs documentation.
 
 **Files to create/update:**
+
 - `docs/adr/ADR-0007-equipamento-gate.md` (new file)
 - `functions/src/modules/equipamentos/types.ts` (add TODO comment about schema divergence)
 
 **ADR should document:**
+
 - Equipment calibration + maintenance gate decision
 - Functions: `validarCalibracaoEquipamento`, `validarManutencaoEquipamento`
 - Status enum definition (and note divergence with client schema)
@@ -122,6 +134,7 @@ npx tsc --noEmit  # root level
 ## Deployment Checklist (for next session)
 
 **After Tasks 1-2 (functions changes):**
+
 ```bash
 cd functions && npm run build              # verify clean
 firebase deploy --only functions --project hmatologia2
@@ -129,6 +142,7 @@ firebase deploy --only functions --project hmatologia2
 ```
 
 **After Tasks 3-5 (hosting changes):**
+
 ```bash
 npx tsc --noEmit                           # type-check root
 npm run build                              # build Vite

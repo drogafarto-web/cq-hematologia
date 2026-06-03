@@ -118,9 +118,7 @@ export function isValidCnpj(input: string): boolean {
   if (/^(\d)\1+$/.test(cnpj)) return false;
 
   const calcDigit = (slice: string, weights: number[]): number => {
-    const sum = slice
-      .split('')
-      .reduce((acc, ch, i) => acc + Number(ch) * weights[i], 0);
+    const sum = slice.split('').reduce((acc, ch, i) => acc + Number(ch) * weights[i], 0);
     const mod = sum % 11;
     return mod < 2 ? 0 : 11 - mod;
   };

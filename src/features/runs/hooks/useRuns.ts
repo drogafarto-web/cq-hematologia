@@ -340,8 +340,7 @@ export function useRuns() {
         // Estado derivado do lote, sem override manual — semântica fica clara:
         // se o sangue é de outro lote sem bula, o operador deve cadastrar via
         // "⏳ Cadastrar sem bula" no LotManager antes de rodar a corrida.
-        const semBula =
-          activeLot.bulaPendente === true || activeLot.manufacturerStats == null;
+        const semBula = activeLot.bulaPendente === true || activeLot.manufacturerStats == null;
 
         // Build results with Westgard violations (informational — operator decides status).
         // Quando `semBula`, buildAnalyteResults já retorna violations vazias porque
@@ -540,9 +539,7 @@ export function useRuns() {
     ): Promise<void> => {
       if (!labId) throw new Error('Nenhum laboratório ativo.');
       if (!user?.uid) {
-        throw new Error(
-          'Sessão expirou — faça login novamente antes de alterar registros.',
-        );
+        throw new Error('Sessão expirou — faça login novamente antes de alterar registros.');
       }
 
       const lot = lots.find((l) => l.id === lotId);

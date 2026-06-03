@@ -13,7 +13,7 @@ export function useAcceptanceEngine(
   run: Partial<Run>,
   previousRuns: Run[],
   analitos: Analito[],
-  statsMap: Map<string, Map<string, { mean: number; sd: number }>>
+  statsMap: Map<string, Map<string, { mean: number; sd: number }>>,
 ): AcceptanceResult {
   return useMemo(() => {
     const violations = new Map<string, Map<string, WestgardViolation[]>>();
@@ -45,7 +45,7 @@ export function useAcceptanceEngine(
           .filter(
             (r) =>
               r.equipmentId === run.equipmentId &&
-              r.resultados?.[analito.id]?.[nível] !== undefined
+              r.resultados?.[analito.id]?.[nível] !== undefined,
           )
           .sort((a, b) => b.criadoEm.toMillis() - a.criadoEm.toMillis())
           .slice(0, 10)

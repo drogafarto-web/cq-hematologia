@@ -130,9 +130,7 @@ function LotsMigrationSection() {
   const [error, setError] = useState<string | null>(null);
 
   async function run() {
-    const scope = labId.trim()
-      ? `apenas o lab ${labId.trim()}`
-      : 'TODOS os labs do sistema';
+    const scope = labId.trim() ? `apenas o lab ${labId.trim()}` : 'TODOS os labs do sistema';
     const ok = window.confirm(
       `Migrar /lots → /insumos com tipo='controle' em ${scope}?\n\n` +
         `Cada lote em /lots será replicado em /insumos preservando o ID.\n` +
@@ -168,9 +166,8 @@ function LotsMigrationSection() {
         </h3>
         <p className="text-xs text-white/55 mt-1 leading-relaxed max-w-2xl">
           Replica cada ControlLot em /labs/{`{lab}`}/insumos com tipo=&apos;controle&apos;,
-          preservando ID original e sub-coleção runs. /lots permanece intacto
-          como backup. Idempotente. Resolve a duplicação de modelo identificada
-          na auditoria 2026-04-27.
+          preservando ID original e sub-coleção runs. /lots permanece intacto como backup.
+          Idempotente. Resolve a duplicação de modelo identificada na auditoria 2026-04-27.
         </p>
       </header>
 
@@ -236,10 +233,10 @@ function FaseDMigrationSection() {
     setError(null);
     setResult(null);
     try {
-      const fn = httpsCallable<
-        { labIds?: string[]; dryRun?: boolean },
-        MigrationSummary
-      >(functions, 'triggerMigrateSetupsToEquipamentos');
+      const fn = httpsCallable<{ labIds?: string[]; dryRun?: boolean }, MigrationSummary>(
+        functions,
+        'triggerMigrateSetupsToEquipamentos',
+      );
       const res = await fn({ dryRun });
       setResult(res.data);
     } catch (err) {
@@ -259,10 +256,10 @@ function FaseDMigrationSection() {
           Setups legados → Equipamentos
         </h3>
         <p className="text-xs text-white/55 mt-1 leading-relaxed max-w-2xl">
-          Para cada setup pré-Fase D (docId = módulo), cria um Equipamento correspondente
-          usando o catálogo default (Yumizen H550, Clotimer Duo, etc) e reescreve o setup
-          com docId = equipamentoId. Idempotente — rerun safe. Recomendado: rodar{' '}
-          <strong>dry-run</strong> primeiro para conferir volume.
+          Para cada setup pré-Fase D (docId = módulo), cria um Equipamento correspondente usando o
+          catálogo default (Yumizen H550, Clotimer Duo, etc) e reescreve o setup com docId =
+          equipamentoId. Idempotente — rerun safe. Recomendado: rodar <strong>dry-run</strong>{' '}
+          primeiro para conferir volume.
         </p>
       </header>
 
@@ -332,9 +329,8 @@ function CleanupSection() {
           Remover equipamentos aposentados &gt; 5 anos
         </h3>
         <p className="text-xs text-white/55 mt-1 leading-relaxed max-w-2xl">
-          Normalmente roda automaticamente (03:45 BRT diariamente). Trigger manual
-          disponível se precisar forçar. Audit trail em /equipamentos-audit é preservado
-          pós-cleanup.
+          Normalmente roda automaticamente (03:45 BRT diariamente). Trigger manual disponível se
+          precisar forçar. Audit trail em /equipamentos-audit é preservado pós-cleanup.
         </p>
       </header>
 
@@ -347,7 +343,11 @@ function CleanupSection() {
         {loading ? 'Limpando…' : 'Executar cleanup agora'}
       </button>
 
-      {error && <div className="mt-3"><ErrorBox message={error} /></div>}
+      {error && (
+        <div className="mt-3">
+          <ErrorBox message={error} />
+        </div>
+      )}
 
       {result && (
         <div className="mt-3 p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-300">
@@ -425,8 +425,8 @@ function ProvisionClaimsSection() {
         </h3>
         <p className="text-xs text-white/55 mt-1 leading-relaxed max-w-2xl">
           Varre todos os usuários e grava <code className="text-sky-300">modules</code> no custom
-          claim baseado nas memberships de lab. Idempotente — reexecuções só atualizam quem
-          mudou de estado. Pré-requisito obrigatório para aplicar{' '}
+          claim baseado nas memberships de lab. Idempotente — reexecuções só atualizam quem mudou de
+          estado. Pré-requisito obrigatório para aplicar{' '}
           <code className="text-sky-300">firestore.rules.post-onda2</code> (strict mode).
         </p>
       </header>
@@ -492,8 +492,7 @@ function TemporarySuperAdminSection() {
         { dryRun: boolean; confirmationToken?: string; reason?: string },
         GrantReport
       >(functions, 'grantTemporarySuperAdminToAll');
-      const payload: { dryRun: boolean; confirmationToken?: string; reason?: string } =
-        { dryRun };
+      const payload: { dryRun: boolean; confirmationToken?: string; reason?: string } = { dryRun };
       if (!dryRun) {
         payload.confirmationToken = GRANT_TOKEN;
         payload.reason = reason.trim();
@@ -524,10 +523,10 @@ function TemporarySuperAdminSection() {
     setRevokeError(null);
     setRevokeResult(null);
     try {
-      const fn = httpsCallable<
-        { dryRun: boolean; confirmationToken?: string },
-        RevokeReport
-      >(functions, 'revokeTemporarySuperAdmin');
+      const fn = httpsCallable<{ dryRun: boolean; confirmationToken?: string }, RevokeReport>(
+        functions,
+        'revokeTemporarySuperAdmin',
+      );
       const payload: { dryRun: boolean; confirmationToken?: string } = { dryRun };
       if (!dryRun) payload.confirmationToken = REVOKE_TOKEN;
       const res = await fn(payload);
@@ -551,8 +550,7 @@ function TemporarySuperAdminSection() {
         <p className="text-xs text-white/60 mt-1 leading-relaxed max-w-2xl">
           Promove todos os usuários cadastrados a SuperAdmin mantendo snapshot reversível em{' '}
           <code className="text-red-300">temp/superadmin-grant/snapshots</code>. O revoke usa o
-          snapshot como fonte da verdade — SuperAdmins legítimos preexistentes não são
-          rebaixados.{' '}
+          snapshot como fonte da verdade — SuperAdmins legítimos preexistentes não são rebaixados.{' '}
           <strong className="text-red-300">
             Use apenas durante o período de testes declarado.
           </strong>{' '}
@@ -650,8 +648,7 @@ function TemporarySuperAdminSection() {
 // ─── Resultados ──────────────────────────────────────────────────────────────
 
 function MigrationResult({ summary }: { summary: MigrationSummary }) {
-  const isDryRun =
-    summary.totalEquipamentosCriados === 0 && summary.totalSetupsReescritos === 0;
+  const isDryRun = summary.totalEquipamentosCriados === 0 && summary.totalSetupsReescritos === 0;
   return (
     <div
       className={`p-4 rounded-xl border ${
@@ -739,11 +736,7 @@ function ProvisionResult({ report }: { report: ProvisionReport }) {
           accent="text-sky-300"
         />
         <Metric label="Sem mudança" value={report.unchanged} accent="text-white/50" />
-        <Metric
-          label="Pulados (sem lab)"
-          value={report.skipped}
-          accent="text-white/40"
-        />
+        <Metric label="Pulados (sem lab)" value={report.skipped} accent="text-white/40" />
       </div>
 
       {changedDiffs.length > 0 && (
@@ -784,9 +777,7 @@ function ProvisionResult({ report }: { report: ProvisionReport }) {
       )}
 
       {report.auditLogId && (
-        <p className="text-[10px] text-white/40 mt-2 font-mono">
-          auditLogId: {report.auditLogId}
-        </p>
+        <p className="text-[10px] text-white/40 mt-2 font-mono">auditLogId: {report.auditLogId}</p>
       )}
     </div>
   );
@@ -796,9 +787,7 @@ function GrantResultCard({ report }: { report: GrantReport }) {
   return (
     <div
       className={`p-4 rounded-xl border ${
-        report.dryRun
-          ? 'bg-white/[0.04] border-white/[0.1]'
-          : 'bg-red-500/10 border-red-500/40'
+        report.dryRun ? 'bg-white/[0.04] border-white/[0.1]' : 'bg-red-500/10 border-red-500/40'
       }`}
     >
       <p className="text-sm font-semibold text-white/95">
@@ -812,11 +801,7 @@ function GrantResultCard({ report }: { report: GrantReport }) {
           value={report.toPromote}
           accent="text-red-300"
         />
-        <Metric
-          label="Já SuperAdmin"
-          value={report.alreadySuperAdmin}
-          accent="text-white/50"
-        />
+        <Metric label="Já SuperAdmin" value={report.alreadySuperAdmin} accent="text-white/50" />
         <div>
           <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">
             Grant ID
@@ -879,17 +864,11 @@ function RevokeResultCard({ report }: { report: RevokeReport }) {
           value={report.reverted}
           accent="text-emerald-300"
         />
-        <Metric
-          label="Mantidos (legítimos)"
-          value={report.keptSuperAdmin}
-          accent="text-white/50"
-        />
+        <Metric label="Mantidos (legítimos)" value={report.keptSuperAdmin} accent="text-white/50" />
       </div>
 
       {report.appliedAt && (
-        <p className="text-[11px] text-emerald-300/80 mt-2">
-          Revogado em {report.appliedAt}.
-        </p>
+        <p className="text-[11px] text-emerald-300/80 mt-2">Revogado em {report.appliedAt}.</p>
       )}
 
       {report.revokedUids.length > 0 && (
@@ -918,15 +897,7 @@ function ErrorBox({ message }: { message: string }) {
   );
 }
 
-function Metric({
-  label,
-  value,
-  accent,
-}: {
-  label: string;
-  value: number;
-  accent?: string;
-}) {
+function Metric({ label, value, accent }: { label: string; value: number; accent?: string }) {
   return (
     <div>
       <p className="text-[10px] uppercase tracking-wider text-white/40 font-semibold">{label}</p>

@@ -1,73 +1,82 @@
-'use client'
+'use client';
 
-import { useState, useMemo, useCallback } from 'react'
-import { useSearchParams } from 'next/navigation'
-import { Button } from '@/components/ui/button'
-import { CATable } from './components/ca-table'
-import { CADetailPanel } from './components/ca-detail-panel'
-import { CANewModal } from './components/ca-new-modal'
+import { useState, useMemo, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { CATable } from './components/ca-table';
+import { CADetailPanel } from './components/ca-detail-panel';
+import { CANewModal } from './components/ca-new-modal';
 
 interface User {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
-interface CAOperator { id: string; name: string }
-interface CAInvestigator { id: string; name: string }
-interface CAVerifiedBy { id: string; name: string }
+interface CAOperator {
+  id: string;
+  name: string;
+}
+interface CAInvestigator {
+  id: string;
+  name: string;
+}
+interface CAVerifiedBy {
+  id: string;
+  name: string;
+}
 interface CALot {
-  lotNumber: string
-  analyte: string
-  reagentName: string
-  analyzer: { analyzerId: string }
+  lotNumber: string;
+  analyte: string;
+  reagentName: string;
+  analyzer: { analyzerId: string };
 }
 
 export interface CorrectiveAction {
-  id: string
-  caNumber: string
-  openedAt: string
-  analyte: string
-  lotId: string | null
-  equipmentId: string | null
-  ruleViolated: string | null
-  status: string
-  operatorId: string
-  investigatorId: string | null
-  rootCause: string | null
-  supportingEvidence: string | null
-  actionTaken: string | null
-  preventiveMeasure: string | null
-  targetCompletionAt: string | null
-  effectivenessCheck: string | null
-  verifiedById: string | null
-  verificationAt: string | null
-  closedAt: string | null
-  createdAt: string
-  updatedAt: string
-  operator: CAOperator
-  investigator: CAInvestigator | null
-  verifiedBy: CAVerifiedBy | null
-  lot: CALot | null
+  id: string;
+  caNumber: string;
+  openedAt: string;
+  analyte: string;
+  lotId: string | null;
+  equipmentId: string | null;
+  ruleViolated: string | null;
+  status: string;
+  operatorId: string;
+  investigatorId: string | null;
+  rootCause: string | null;
+  supportingEvidence: string | null;
+  actionTaken: string | null;
+  preventiveMeasure: string | null;
+  targetCompletionAt: string | null;
+  effectivenessCheck: string | null;
+  verifiedById: string | null;
+  verificationAt: string | null;
+  closedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  operator: CAOperator;
+  investigator: CAInvestigator | null;
+  verifiedBy: CAVerifiedBy | null;
+  lot: CALot | null;
 }
 
-const TABS = ['OPEN', 'IN_PROGRESS', 'UNDER_VERIFICATION', 'CLOSED', 'ALL'] as const
-type Tab = (typeof TABS)[number]
+const TABS = ['OPEN', 'IN_PROGRESS', 'UNDER_VERIFICATION', 'CLOSED', 'ALL'] as const;
+type Tab = (typeof TABS)[number];
 
 export default function CAClient({
   actions: initialActions,
   users,
   currentUserId,
 }: {
-  actions: CorrectiveAction[]
-  users: User[]
-  currentUserId: string
+  actions: CorrectiveAction[];
+  users: User[];
+  currentUserId: string;
 }) {
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
-  const [actions, setActions] = useState(initialActions)
-  const [selectedTab, setSelectedTab] = useState<Tab>('OPEN')
-  const [selectedCA, setSelectedCA] = useState<CorrectiveAction | null>(null)
-  const [showNewModal, setShowNewModal] = useState(false)
+  const [actions, setActions] = useState(initialActions);
+  const [selectedTab, setSelectedTab] = useState<Tab>('OPEN');
+  const [selectedCA, setSelectedCA] = useState<CorrectiveAction | null>(null);
+  const [showNewModal, setShowNewModal] = useState(false);
 
   const counts = useMemo(
     () => ({
@@ -78,27 +87,27 @@ export default function CAClient({
       ALL: actions.length,
     }),
     [actions],
-  )
+  );
 
   const filtered = useMemo(
     () => (selectedTab === 'ALL' ? actions : actions.filter((a) => a.status === selectedTab)),
     [actions, selectedTab],
-  )
+  );
 
   const handleUpdate = useCallback((updated: CorrectiveAction) => {
-    setActions((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
-    setSelectedCA(updated)
-  }, [])
+    setActions((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+    setSelectedCA(updated);
+  }, []);
 
   const handleStatusChange = useCallback((updated: CorrectiveAction) => {
-    setActions((prev) => prev.map((a) => (a.id === updated.id ? updated : a)))
-    setSelectedCA(updated)
-  }, [])
+    setActions((prev) => prev.map((a) => (a.id === updated.id ? updated : a)));
+    setSelectedCA(updated);
+  }, []);
 
   const handleCreated = useCallback((newAction: CorrectiveAction) => {
-    setActions((prev) => [newAction, ...prev])
-    setShowNewModal(false)
-  }, [])
+    setActions((prev) => [newAction, ...prev]);
+    setShowNewModal(false);
+  }, []);
 
   return (
     <div className="max-w-7xl mx-auto px-6 py-8 flex flex-col gap-6">
@@ -113,9 +122,7 @@ export default function CAClient({
             key={tab}
             onClick={() => setSelectedTab(tab)}
             className={`px-4 py-3 text-sm font-semibold transition-colors relative ${
-              selectedTab === tab
-                ? 'text-primary'
-                : 'text-on-surface-variant hover:text-on-surface'
+              selectedTab === tab ? 'text-primary' : 'text-on-surface-variant hover:text-on-surface'
             }`}
           >
             {tab === 'ALL' ? 'All' : tab.replace(/_/g, ' ')}
@@ -151,5 +158,5 @@ export default function CAClient({
         />
       )}
     </div>
-  )
+  );
 }

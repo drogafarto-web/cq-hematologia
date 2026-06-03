@@ -206,6 +206,45 @@ describe('VHS Service', () => {
       expect(callArgs.liberadoPor).toBeUndefined();
       expect(result).toBe('exam-003');
     });
+
+    it('cria exame com dupla checagem ativa (isValidationActive) → status liberado com 4 leituras persistidas', async () => {
+      vi.mocked(firestore.addDoc).mockResolvedValueOnce({ id: 'exam-004' } as any);
+
+      const input: VHSExamInput = {
+        amostraId: 'AMS-004',
+        leitura1: makeLeituraInput(15),
+        leitura2: makeLeituraInput(16, 'João'),
+        metodo: 'westergren',
+        isValidationActive: true,
+        validacaoLeitura1: makeLeituraInput(14, 'Carlos'),
+        validacaoLeitura2: makeLeituraInput(15, 'Ana'),
+      };
+      const uid = 'uid-001';
+
+      const result = await saveVHSExam(
+        labId,
+        input,
+        makeSig(),
+        uid,
+        makeSig(),
+        makeSig(),
+        makeSig(),
+      );
+
+      const callArgs = vi.mocked(firestore.addDoc).mock.calls[0][1] as unknown as Record<
+        string,
+        unknown
+      >;
+      expect(callArgs.isValidationActive).toBe(true);
+      expect(callArgs.status).toBe('liberado');
+      expect((callArgs.leitura1 as VHSLeitura).valor).toBe(15);
+      expect((callArgs.leitura2 as VHSLeitura).valor).toBe(16);
+      expect((callArgs.validacaoLeitura1 as VHSLeitura).valor).toBe(14);
+      expect((callArgs.validacaoLeitura2 as VHSLeitura).valor).toBe(15);
+      expect(callArgs.liberadoEm).toBe('server-timestamp');
+      expect(callArgs.liberadoPor).toBe(uid);
+      expect(result).toBe('exam-004');
+    });
   });
 
   // ── addLeitura2 ───────────────────────────────────────────────────────────

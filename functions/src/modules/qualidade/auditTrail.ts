@@ -1,11 +1,7 @@
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import type { QualidadeAuditEntry, ComplianceReport, AuditTrailFilters } from './types';
-import {
-  signAuditEntry,
-  validateChainIntegrity,
-  verifyAuditEntry,
-} from '../audit/cryptoAudit';
+import { signAuditEntry, validateChainIntegrity, verifyAuditEntry } from '../audit/cryptoAudit';
 import { HCQ_SIGNATURE_HMAC_KEY } from '../signatures/verifier';
 import { captureContext, type AuditContext } from '../../shared/contextCapture';
 import { buildDiff, type DiffEntry } from '../../shared/auditDiffDetector';
@@ -41,7 +37,7 @@ export async function createAuditEntry(
   moduleId: string,
   recordId: string,
   before?: unknown,
-  after?: unknown
+  after?: unknown,
 ): Promise<ExtendedAuditEntry> {
   if (!req.auth?.uid) {
     throw new HttpsError('unauthenticated', 'Auth required');
@@ -79,7 +75,7 @@ export async function createAuditEntry(
       context.operatorId,
       context.action,
       entryData,
-      secret
+      secret,
     );
     (entryData as any).hmac = sig.hmac;
     (entryData as any).hash = sig.hash;
@@ -105,7 +101,7 @@ export async function writeAuditEntry(
   modulo: string,
   payload: Record<string, any>,
   resultado: 'sucesso' | 'falha' | 'aviso' = 'sucesso',
-  acao?: string
+  acao?: string,
 ): Promise<{ entryId: string; timestamp: admin.firestore.Timestamp }> {
   const secret = HCQ_SIGNATURE_HMAC_KEY.value();
   const entry: Partial<QualidadeAuditEntry> = {
@@ -129,7 +125,7 @@ export async function writeAuditEntry(
       operatorId,
       operation,
       entry,
-      secret
+      secret,
     );
     (entry as any).hmac = sig.hmac;
     (entry as any).hash = sig.hash;
@@ -191,7 +187,7 @@ export const getAuditTrail = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', `Failed to fetch audit trail: ${error.message}`);
     }
-  }
+  },
 );
 
 export const validateChain = onCall(
@@ -222,7 +218,7 @@ export const validateChain = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', `Chain validation failed: ${error.message}`);
     }
-  }
+  },
 );
 
 export const generateComplianceReport = onCall(
@@ -336,5 +332,5 @@ export const generateComplianceReport = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', `Failed to generate compliance report: ${error.message}`);
     }
-  }
+  },
 );

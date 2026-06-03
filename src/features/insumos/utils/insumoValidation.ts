@@ -86,14 +86,17 @@ export interface ValidateReagentesInput {
  * - `qc_pendente` / `lote_nao_aprovado` → warn (a corrida de CQ é que valida)
  * - mínimo de reagentes não atingido → block
  */
-export function validateReagentesForRun(
-  input: ValidateReagentesInput,
-): ValidateReagentesResult {
+export function validateReagentesForRun(input: ValidateReagentesInput): ValidateReagentesResult {
   const now = input.now ?? new Date();
   const issues: ReagenteIssue[] = [];
 
   for (const r of input.reagentes) {
-    const slim = { id: r.id, nomeComercial: r.nomeComercial, fabricante: r.fabricante, lote: r.lote };
+    const slim = {
+      id: r.id,
+      nomeComercial: r.nomeComercial,
+      fabricante: r.fabricante,
+      lote: r.lote,
+    };
 
     // 1. Validade — hard block
     const validadeDate = r.validadeReal.toDate();
@@ -167,7 +170,11 @@ export function validateReagentesForRun(
   const minExpected = config?.minReagentes ?? 0;
   const minimoFaltando =
     minExpected > 0 && input.reagentes.length < minExpected
-      ? { expected: minExpected, got: input.reagentes.length, modulo: config?.label ?? input.modulo }
+      ? {
+          expected: minExpected,
+          got: input.reagentes.length,
+          modulo: config?.label ?? input.modulo,
+        }
       : null;
 
   const canProceed = blockers.length === 0 && minimoFaltando === null;
@@ -201,9 +208,10 @@ export function isOverridable(_kind: ReagenteIssueKind): boolean {
  * Caller só deve chamar isto APÓS o operador confirmar override — antes disso
  * a corrida ainda pode ser cancelada.
  */
-export function resolveAproveitamento(
-  result: ValidateReagentesResult,
-): { aproveitamento: 'oficial' | 'informativa'; motivo: string | null } {
+export function resolveAproveitamento(result: ValidateReagentesResult): {
+  aproveitamento: 'oficial' | 'informativa';
+  motivo: string | null;
+} {
   const informationalIssues = result.issues.filter((i) => i.marksRunAsInformational);
   if (informationalIssues.length === 0) {
     return { aproveitamento: 'oficial', motivo: null };

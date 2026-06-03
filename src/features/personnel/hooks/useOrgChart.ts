@@ -21,8 +21,18 @@ export function useOrgChart(): UseOrgChartState {
 
   const tree = useMemo(() => {
     if (cargoState.loading || designacaoState.loading) return [];
-    return buildOrgChartTree(cargoState.cargos, cargoState.hierarchy, designacaoState.currentByRole);
-  }, [cargoState.cargos, cargoState.hierarchy, designacaoState.currentByRole, cargoState.loading, designacaoState.loading]);
+    return buildOrgChartTree(
+      cargoState.cargos,
+      cargoState.hierarchy,
+      designacaoState.currentByRole,
+    );
+  }, [
+    cargoState.cargos,
+    cargoState.hierarchy,
+    designacaoState.currentByRole,
+    cargoState.loading,
+    designacaoState.loading,
+  ]);
 
   const loading = cargoState.loading || designacaoState.loading;
   const error = cargoState.error || designacaoState.error;

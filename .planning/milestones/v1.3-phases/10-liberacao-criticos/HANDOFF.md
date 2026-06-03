@@ -38,15 +38,15 @@ Phase 10 é a próxima na fila e completa o pacote inicial do v1.3.
 
 ## Decisões CTO travadas no discuss-phase (2026-05-06)
 
-| Decisão | Valor | Fonte |
-|---------|-------|-------|
-| Assinatura RT | LogicalSignature SHA-256 (ADR 0001) — não ICP-Brasil no MVP | AskUserQuestion |
-| State machine | Híbrido por tipo de exame (rotina/revisao-rt/bloqueio-critico) | AskUserQuestion |
-| Comunicação críticos | Email apenas no MVP (Resend) — sem SMS | AskUserQuestion |
-| Saída do laudo | PDF + email anexo + Portal médico + QR validação | AskUserQuestion |
-| Histórico versões | Retificação cria v2/v3 imutáveis (RDC 978 Art. 167 mandatório) | Locked por compliance |
-| Médico solicitante | Read-only do Worklab LIS (cache nightly) | Locked (single source of truth) |
-| Defer v1.4 | ICP-Brasil, SMS/WhatsApp, Worklab reverso, portal paciente | Backlog |
+| Decisão              | Valor                                                          | Fonte                           |
+| -------------------- | -------------------------------------------------------------- | ------------------------------- |
+| Assinatura RT        | LogicalSignature SHA-256 (ADR 0001) — não ICP-Brasil no MVP    | AskUserQuestion                 |
+| State machine        | Híbrido por tipo de exame (rotina/revisao-rt/bloqueio-critico) | AskUserQuestion                 |
+| Comunicação críticos | Email apenas no MVP (Resend) — sem SMS                         | AskUserQuestion                 |
+| Saída do laudo       | PDF + email anexo + Portal médico + QR validação               | AskUserQuestion                 |
+| Histórico versões    | Retificação cria v2/v3 imutáveis (RDC 978 Art. 167 mandatório) | Locked por compliance           |
+| Médico solicitante   | Read-only do Worklab LIS (cache nightly)                       | Locked (single source of truth) |
+| Defer v1.4           | ICP-Brasil, SMS/WhatsApp, Worklab reverso, portal paciente     | Backlog                         |
 
 ---
 
@@ -63,6 +63,7 @@ Phase 10 é a próxima na fila e completa o pacote inicial do v1.3.
 - **Worklab integração** é unidirecional (read-only); Phase 10 não escreve "Liberado" back (defer v1.4)
 
 Arquivos Obsidian consumidos:
+
 - `HC_Quality_Compliance_DICQ.md` (Bloco G + I)
 - `HC_Quality_RDC_978_2025_Resumo.md`
 - `HC_Quality_RDC_978_vs_786_vs_DICQ.md`
@@ -124,6 +125,7 @@ Mesma estrutura recomendada para Phase 9 (ver `09-bioquimica/HANDOFF.md`).
 ## Notas de qualidade
 
 Padrão world-class aplicado em todo o planning:
+
 - 4 perguntas críticas via AskUserQuestion antes de planejar (não inventei requirements)
 - Síntese Obsidian estruturada (compliance, lacuna mercado, padrão de outros módulos)
 - 7 PLAN.md com `must_haves`, `key_links`, `deviation_protocol`, `post_plan_gates`
@@ -141,16 +143,16 @@ Não shipei nada de mediano. Cada PLAN.md está executável com `gsd-executor` s
 
 ## Phase 10 vs Phase 9 (comparação rápida)
 
-| Aspecto | Phase 9 (Bioquímica) | Phase 10 (Liberação+Críticos) |
-|---------|---------------------|-------------------------------|
-| Tipo | CIQ analítico (Bloco F) | Pós-analítico + Laudos (Bloco G + I) |
-| Replicação | 90% replicação de Hematologia | 0% replicação (criar do zero) |
-| Surfaces | 1 (`/bioquimica`) | 3 (`/liberacao`, `/criticos`, `/portal-medico`) |
-| Integrações externas | Worklab unidirecional | Resend (email) + Worklab unidirecional + Firebase Auth externo |
-| Compliance crítico | RDC 978 Arts. 179-180 | RDC 978 Arts. 167, 184-191 (mais alto risco) |
-| Plans | 5 | 7 |
-| Duração | 8 sem | 12.5 sem |
-| Risk profile | Médio (replicação minimiza) | Alto (auth externa + compliance + first-of-its-kind) |
-| Time | Eng A+B (Stream B) | Eng C+D (Stream B) — separado de Bioquímica |
+| Aspecto              | Phase 9 (Bioquímica)          | Phase 10 (Liberação+Críticos)                                  |
+| -------------------- | ----------------------------- | -------------------------------------------------------------- |
+| Tipo                 | CIQ analítico (Bloco F)       | Pós-analítico + Laudos (Bloco G + I)                           |
+| Replicação           | 90% replicação de Hematologia | 0% replicação (criar do zero)                                  |
+| Surfaces             | 1 (`/bioquimica`)             | 3 (`/liberacao`, `/criticos`, `/portal-medico`)                |
+| Integrações externas | Worklab unidirecional         | Resend (email) + Worklab unidirecional + Firebase Auth externo |
+| Compliance crítico   | RDC 978 Arts. 179-180         | RDC 978 Arts. 167, 184-191 (mais alto risco)                   |
+| Plans                | 5                             | 7                                                              |
+| Duração              | 8 sem                         | 12.5 sem                                                       |
+| Risk profile         | Médio (replicação minimiza)   | Alto (auth externa + compliance + first-of-its-kind)           |
+| Time                 | Eng A+B (Stream B)            | Eng C+D (Stream B) — separado de Bioquímica                    |
 
 Phase 10 é maior, mais arriscada, e mais transformadora estrategicamente. CTO deve priorizar Phase 8 + Phase 9 antes; Phase 10 vai bem em paralelo após dia 30 do milestone.

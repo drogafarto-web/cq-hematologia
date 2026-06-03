@@ -3,7 +3,7 @@ gsd_state_version: 1.0
 milestone: v1.4
 milestone_name: Milestone Summary
 status: verifying
-last_updated: "2026-05-09T18:38:18.457Z"
+last_updated: '2026-05-09T18:38:18.457Z'
 progress:
   total_phases: 18
   completed_phases: 8
@@ -91,12 +91,12 @@ progress:
 
 **Timeline:** 2026-05-07
 
-| Step | Status | Task | Time | Owner |
-|------|--------|------|------|-------|
-| Step 1 (Rules+Indexes) | ✅ LIVE | Firestore Rules deployment + index creation | 00:05 UTC | Firebase Console |
-| Step 2 (Functions) | ✅ LIVE | 78 callable functions + 20 triggers | 00:15 UTC | Cloud Functions (southamerica-east1) |
-| Step 3 (Hosting) | ✅ LIVE | React 19 app + PWA (362 KB gzip main) | 00:25 UTC | Firebase Hosting |
-| Step 4 (Smoke Tests) | ✅ COMPLETE | Cloud Logs monitoring + manual test suite | 2026-05-07 | QA / Operations |
+| Step                   | Status      | Task                                        | Time       | Owner                                |
+| ---------------------- | ----------- | ------------------------------------------- | ---------- | ------------------------------------ |
+| Step 1 (Rules+Indexes) | ✅ LIVE     | Firestore Rules deployment + index creation | 00:05 UTC  | Firebase Console                     |
+| Step 2 (Functions)     | ✅ LIVE     | 78 callable functions + 20 triggers         | 00:15 UTC  | Cloud Functions (southamerica-east1) |
+| Step 3 (Hosting)       | ✅ LIVE     | React 19 app + PWA (362 KB gzip main)       | 00:25 UTC  | Firebase Hosting                     |
+| Step 4 (Smoke Tests)   | ✅ COMPLETE | Cloud Logs monitoring + manual test suite   | 2026-05-07 | QA / Operations                      |
 
 **All Blockers Resolved:**
 
@@ -139,16 +139,16 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 
 ## v1.4 Milestone Progress
 
-| Phase | Status | Delivery | Completion |
-|-------|--------|----------|-----------|
-| **Phase 0** | ✅ COMPLETE | 2026-05-07 | 4/4 RDC blockers deployed |
-| **Phase 1** | ✅ COMPLETE | 2026-05-07 | Smoke tests + baseline verification |
-| **Phase 2** | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts) |
-| **Phase 3** | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding |
-| **Phase 4** | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅ |
-| **Phase 5** | ✅ COMPLETE | 2026-05-09 | Criticos + CIQ-Imuno IA — 8 waves + 27 subagents, all acceptance criteria met |
-| **Phase 6** | ✅ COMPLETE | 2026-05-09 | CAPA + Incident Response — 10 agents, 3 waves, 53+ tests, RDC/DICQ/WCAG AA verified |
-| **Phase 7+** | 📋 READY | 2026-05-22 | Advanced Auditoria — auto-trigger scheduled; manual execution available |
+| Phase        | Status      | Delivery   | Completion                                                                          |
+| ------------ | ----------- | ---------- | ----------------------------------------------------------------------------------- |
+| **Phase 0**  | ✅ COMPLETE | 2026-05-07 | 4/4 RDC blockers deployed                                                           |
+| **Phase 1**  | ✅ COMPLETE | 2026-05-07 | Smoke tests + baseline verification                                                 |
+| **Phase 2**  | ✅ COMPLETE | 2026-05-07 | Planning deep-dive (9 artifacts)                                                    |
+| **Phase 3**  | ✅ COMPLETE | 2026-05-07 | Schema + Rules + Functions scaffolding                                              |
+| **Phase 4**  | ✅ COMPLETE | 2026-05-08 | Portal auth + NOTIVISA integration — 4 plans + E2E tests ✅                         |
+| **Phase 5**  | ✅ COMPLETE | 2026-05-09 | Criticos + CIQ-Imuno IA — 8 waves + 27 subagents, all acceptance criteria met       |
+| **Phase 6**  | ✅ COMPLETE | 2026-05-09 | CAPA + Incident Response — 10 agents, 3 waves, 53+ tests, RDC/DICQ/WCAG AA verified |
+| **Phase 7+** | 📋 READY    | 2026-05-22 | Advanced Auditoria — auto-trigger scheduled; manual execution available             |
 
 **Overall v1.4 Progress:** Phase 0–5 (100%) + Phase 6–15 (0%) = **~54% complete**
 
@@ -171,17 +171,17 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 **Firebase Project:** hmatologia2 (southamerica-east1)  
 **Hosting:** https://hmatologia2.web.app  
 **Last Deploy:** 2026-05-07 00:25 UTC (v1.3)  
-**Status:** ✅ LIVE · Cloud Logs monitoring 24h active  
+**Status:** ✅ LIVE · Cloud Logs monitoring 24h active
 
 ### Modules in Production
 
 **35 active modules (v1.3 + Phase 0):**
 
 1. analyzer, 2. coagulacao, 3. ciq-imuno, 4. insumos, 5. controle-temperatura, 6. uroanalise
-7. equipamentos, 8. fornecedores, 9. lots, 10. runs, 11. chart, 12. reports, 13. labSettings, 14. hub
-15. bulaparser, 16. auth, 17. admin, 18. educacao-continuada, 19. sgq, 20. pops, 21. auditoria, 22. sgd
-23. treinamentos, 24. biosseguranca, 25. pgrss, 26. kpis, 27. lgpd, 28. analytics, 29. export, 30. mobile
-31. ceq, 32. bioquimica, 33. turnos (Phase 0), 34. risks (Phase 0), 35. lab-apoio (Phase 0)
+2. equipamentos, 8. fornecedores, 9. lots, 10. runs, 11. chart, 12. reports, 13. labSettings, 14. hub
+3. bulaparser, 16. auth, 17. admin, 18. educacao-continuada, 19. sgq, 20. pops, 21. auditoria, 22. sgd
+4. treinamentos, 24. biosseguranca, 25. pgrss, 26. kpis, 27. lgpd, 28. analytics, 29. export, 30. mobile
+5. ceq, 32. bioquimica, 33. turnos (Phase 0), 34. risks (Phase 0), 35. lab-apoio (Phase 0)
 
 ---
 
@@ -193,19 +193,19 @@ See `.planning/milestones/v1.4-KICKOFF-SUMMARY.md` for full phase breakdown and 
 
 Closure session running on branch `v1.4-final-closure` (off `main`). 8 macro-phases planned (MP-0..MP-8); 6 complete in this session.
 
-| MP | Scope | SAs | Status |
-|----|-------|-----|--------|
-| MP-0 | Foundation & cleanup (archive, baseline, tokens) | 4 | ✅ COMPLETE |
-| MP-1 | Phase 11 PQ-24 closure (planos de ação, presença, re-auditoria) | 6 | ✅ COMPLETE |
-| MP-2 | Phase 7 advanced auditoria W4-W6 (alerts UI, PDF, archive cron, email) | 14 | ✅ COMPLETE |
-| MP-3 | Phase 5 críticos + IA strip OCR (thresholds, escalation, Gemini, dataset) | 12 | ✅ COMPLETE |
-| MP-4 | Phase 10 críticos FSM (4-state, SLA cron, immutable history) | 6 | ✅ COMPLETE |
-| MP-5a | Bioquímica Phase 9b (CLSI Westgard 8 + interlab z-score + Gemini OCR) | 22 | ✅ COMPLETE |
-| MP-5b | CEQ deepening | — | ⏸ DEFERRED (next branch) |
-| MP-5c | Analytics consent integration | — | ⏸ DEFERRED (next branch) |
-| MP-6 | Reclamações / portal-paciente extension | TBD | 🚧 IN PROGRESS (parallel session) |
-| MP-7 | DICQ formal audit pass | — | ⏭ SKIPPED (defer to v1.4-FINAL follow-up) |
-| MP-8 | Pre-deploy gate sweep + tag | TBD | ⏳ PENDING (after MP-6) |
+| MP    | Scope                                                                     | SAs | Status                                     |
+| ----- | ------------------------------------------------------------------------- | --- | ------------------------------------------ |
+| MP-0  | Foundation & cleanup (archive, baseline, tokens)                          | 4   | ✅ COMPLETE                                |
+| MP-1  | Phase 11 PQ-24 closure (planos de ação, presença, re-auditoria)           | 6   | ✅ COMPLETE                                |
+| MP-2  | Phase 7 advanced auditoria W4-W6 (alerts UI, PDF, archive cron, email)    | 14  | ✅ COMPLETE                                |
+| MP-3  | Phase 5 críticos + IA strip OCR (thresholds, escalation, Gemini, dataset) | 12  | ✅ COMPLETE                                |
+| MP-4  | Phase 10 críticos FSM (4-state, SLA cron, immutable history)              | 6   | ✅ COMPLETE                                |
+| MP-5a | Bioquímica Phase 9b (CLSI Westgard 8 + interlab z-score + Gemini OCR)     | 22  | ✅ COMPLETE                                |
+| MP-5b | CEQ deepening                                                             | —   | ⏸ DEFERRED (next branch)                   |
+| MP-5c | Analytics consent integration                                             | —   | ⏸ DEFERRED (next branch)                   |
+| MP-6  | Reclamações / portal-paciente extension                                   | TBD | 🚧 IN PROGRESS (parallel session)          |
+| MP-7  | DICQ formal audit pass                                                    | —   | ⏭ SKIPPED (defer to v1.4-FINAL follow-up) |
+| MP-8  | Pre-deploy gate sweep + tag                                               | TBD | ⏳ PENDING (after MP-6)                    |
 
 **Aggregate (MP-0..MP-5a):** 60 SAs · 48 commits · ~131 new tests · TSC 0 errors web + functions · main chunk 378 KB gzip.
 **Tag plan:** `v1.4-PARTIAL` after MP-6+MP-8 close. NOT `v1.4-FINAL` until MP-7 lands separately.

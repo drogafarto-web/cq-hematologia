@@ -10,14 +10,14 @@
 
 Four documents + two scripts for monitoring Cloud Logs after deployment:
 
-| File | Type | Lines | Purpose |
-|------|------|-------|---------|
-| `CLOUD_LOGS_MONITORING_GUIDE.md` | MD Guide | 450+ | Full reference: setup, filters, issues, methods, escalation |
-| `CLOUD_LOGS_QUICK_REFERENCE.md` | Quick Ref | 150+ | TL;DR: commands, red flags, cheat sheet |
-| `CLOUD_LOGS_INTEGRATION_CHECKLIST.md` | Checklist | 400+ | Deploy workflow integration: pre/during/post tasks |
-| `scripts/monitor-cloud-logs.sh` | Bash Script | 250+ | Automated 24h monitoring (macOS/Linux) |
-| `scripts/monitor-cloud-logs.ps1` | PowerShell Script | 280+ | Automated 24h monitoring (Windows) |
-| This file | Summary | — | You are here |
+| File                                  | Type              | Lines | Purpose                                                     |
+| ------------------------------------- | ----------------- | ----- | ----------------------------------------------------------- |
+| `CLOUD_LOGS_MONITORING_GUIDE.md`      | MD Guide          | 450+  | Full reference: setup, filters, issues, methods, escalation |
+| `CLOUD_LOGS_QUICK_REFERENCE.md`       | Quick Ref         | 150+  | TL;DR: commands, red flags, cheat sheet                     |
+| `CLOUD_LOGS_INTEGRATION_CHECKLIST.md` | Checklist         | 400+  | Deploy workflow integration: pre/during/post tasks          |
+| `scripts/monitor-cloud-logs.sh`       | Bash Script       | 250+  | Automated 24h monitoring (macOS/Linux)                      |
+| `scripts/monitor-cloud-logs.ps1`      | PowerShell Script | 280+  | Automated 24h monitoring (Windows)                          |
+| This file                             | Summary           | —     | You are here                                                |
 
 ---
 
@@ -26,53 +26,62 @@ Four documents + two scripts for monitoring Cloud Logs after deployment:
 ### Three Monitoring Options
 
 **Option A: Automated (Recommended)**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # or
 .\scripts\monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30
 ```
+
 ✅ Runs unattended for 24h  
 ✅ Auto-generates report + JSON export  
-✅ No manual intervention needed  
+✅ No manual intervention needed
 
 **Option B: Cloud Console (Visual)**
+
 1. Open [Cloud Logs Explorer](https://console.cloud.google.com/logs/query)
 2. Paste filter: `severity >= ERROR`
 3. Set time range: Last 24h
 4. Refresh every 15–30 min manually
 
 ✅ Visual context  
-❌ Requires manual refresh  
+❌ Requires manual refresh
 
 **Option C: CLI Spot-Checks**
+
 ```bash
 gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=20
 ```
+
 Run every 2 hours (12 checks total).
 
 ✅ Quick  
-❌ Non-continuous  
+❌ Non-continuous
 
 ---
 
 ## Key Filters (Copy + Paste)
 
 **All Errors (Last 1h):**
+
 ```
 severity >= ERROR AND timestamp > now - 60m
 ```
 
 **Functions Only:**
+
 ```
 resource.type="cloud_function" AND severity >= ERROR
 ```
 
 **Firestore Permissions:**
+
 ```
 resource.type="cloud_firestore" AND textPayload=~".*Permission.*"
 ```
 
 **Hosting 5xx:**
+
 ```
 resource.type="cloud_run" AND httpRequest.status >= 500
 ```
@@ -81,13 +90,13 @@ resource.type="cloud_run" AND httpRequest.status >= 500
 
 ## Red Flags (Escalate Immediately)
 
-| Error | Action |
-|-------|--------|
-| `"Exceeded timeout of X seconds"` | Check async handlers; may need to increase timeout |
+| Error                                             | Action                                                 |
+| ------------------------------------------------- | ------------------------------------------------------ |
+| `"Exceeded timeout of X seconds"`                 | Check async handlers; may need to increase timeout     |
 | `"Permission denied"` on `/labs/{labId}/*` writes | Rules regression; compare to git HEAD; rollback or fix |
-| HTTP 502/503 sustained >5 min | Hosting failure; consider rollback |
-| `"undefined is not a function"` | Missing dependency; check `functions/package.json` |
-| `"Document too large"` on laudo/declaracao | Data model exceeds 1 MB; refactor to subcollection |
+| HTTP 502/503 sustained >5 min                     | Hosting failure; consider rollback                     |
+| `"undefined is not a function"`                   | Missing dependency; check `functions/package.json`     |
+| `"Document too large"` on laudo/declaracao        | Data model exceeds 1 MB; refactor to subcollection     |
 
 **Any red flag:** Screenshot + timestamp + notify CTO (@drogafarto).
 
@@ -96,20 +105,24 @@ resource.type="cloud_run" AND httpRequest.status >= 500
 ## Deployment Workflow Integration
 
 ### Before Deploy (Step 1: Type-check)
+
 - [ ] Read `CLOUD_LOGS_QUICK_REFERENCE.md` (2 min)
 - [ ] Verify `gcloud config get-value project` is `hmatologia2`
 
 ### During Deploy (Step 2: Functions)
+
 - [ ] Run: `npm run build && firebase deploy --only functions ...`
 - [ ] **In parallel, Terminal 2:** Start monitoring (auto script or passive)
 
 ### After Deploy (Step 3: Hosting)
+
 - [ ] Hosting deploy completes
 - [ ] Review auto-generated report (if script) or manually check Cloud Console
 - [ ] Fill `docs/SIGN_OFF_CLOUD_LOGS_<date>.md` (template in guide)
 - [ ] Commit reports to git
 
 ### Total Time
+
 - **Deploy:** ~15 min (Steps 1–3)
 - **Monitoring:** 24h (runs in parallel, non-blocking)
 - **Sign-off:** 15 min (after 24h or on-demand)
@@ -121,6 +134,7 @@ resource.type="cloud_run" AND httpRequest.status >= 500
 ### Automated Script Generates
 
 **File 1:** `docs/MONITORING_REPORT_<timestamp>.md`
+
 ```
 ## Summary
 | Metric | Count |
@@ -135,24 +149,26 @@ resource.type="cloud_run" AND httpRequest.status >= 500
 ```
 
 **File 2:** `scripts/cloud-logs-export-<timestamp>.json`
+
 ```json
 [
   {
     "timestamp": "2026-05-07T14:32:15Z",
     "severity": "ERROR",
     "textPayload": "Function execution timed out"
-  },
+  }
   // ... (one entry per error found)
 ]
 ```
 
 **Console Output:**
+
 ```
 [2026-05-07 14:00:00] Check #1 (24h 0m remaining)
   [Functions] ✅ No function errors
   [Firestore] ✅ No Firestore errors
   [Hosting] ✅ No hosting 5xx errors
-  
+
 Aggregated: +0 errors (total so far: 0)
 Waiting 30m until next check...
 ```
@@ -191,7 +207,7 @@ Step 1: Type-check (5 min)
 
 Step 2: Functions deploy (5 min) [+ MONITORING STARTS PARALLEL]
   └─ firebase deploy --only functions --project hmatologia2
-  
+
 Step 3: Hosting deploy (2 min) [+ MONITORING CONTINUES]
   └─ firebase deploy --only hosting --project hmatologia2
 
@@ -241,7 +257,7 @@ C:\hc quality\
 ❌ Real-time alerting (SNS/PagerDuty integration)  
 ❌ Automated rollback on errors (manual escalation only)  
 ❌ Long-term metrics dashboard (Looker/DataStudio setup separate)  
-❌ Custom anomaly detection (error spikes vs baselines)  
+❌ Custom anomaly detection (error spikes vs baselines)
 
 These can be added post-v1.3 as needed.
 
@@ -271,12 +287,14 @@ Done. System is live.
 ## Support + Escalation
 
 **Issue Found?**
+
 1. Check `CLOUD_LOGS_QUICK_REFERENCE.md` red flags table
 2. Screenshot error from Cloud Console
 3. Note timestamp + error type
 4. Message CTO with: `🔴 BLOCK [error] at [timestamp] — escalating`
 
 **Questions?**
+
 - Read `CLOUD_LOGS_MONITORING_GUIDE.md` sections 2–5 (comprehensive)
 - Or ask: "monitoring issue X, what do I do?"
 

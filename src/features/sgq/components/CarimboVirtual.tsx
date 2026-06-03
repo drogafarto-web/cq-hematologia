@@ -58,13 +58,9 @@ export const CarimboVirtual = memo(function CarimboVirtual({
             <span className="font-mono text-sm text-white/90 font-semibold">
               {documento.codigo}
             </span>
-            <span className="text-xs text-white/50">
-              {TIPO_LABEL[documento.tipo]}
-            </span>
+            <span className="text-xs text-white/50">{TIPO_LABEL[documento.tipo]}</span>
           </div>
-          <p className="text-sm text-white/80 mt-0.5 truncate">
-            {documento.titulo}
-          </p>
+          <p className="text-sm text-white/80 mt-0.5 truncate">{documento.titulo}</p>
         </div>
 
         <div className="flex flex-col items-end gap-1 shrink-0">
@@ -109,10 +105,7 @@ export const CarimboVirtual = memo(function CarimboVirtual({
           </p>
           <div className="space-y-0.5 max-h-28 overflow-y-auto">
             {versoes.map((v) => (
-              <div
-                key={v.id}
-                className="flex items-center gap-2 text-[11px] text-white/60"
-              >
+              <div key={v.id} className="flex items-center gap-2 text-[11px] text-white/60">
                 <span className="font-mono text-white/50 w-10 shrink-0">
                   {formatVersao(v.versao)}
                 </span>
@@ -121,9 +114,7 @@ export const CarimboVirtual = memo(function CarimboVirtual({
                 >
                   {v.tipoAlteracao === 'major' ? 'REV' : 'COR'}
                 </span>
-                <span className="text-white/40 shrink-0">
-                  {formatDate(v.data)}
-                </span>
+                <span className="text-white/40 shrink-0">{formatDate(v.data)}</span>
                 <span className="truncate flex-1">{v.alteracao}</span>
                 <span className="text-white/30 shrink-0 text-[10px]">
                   {v.elaboradoPor} → {v.aprovadoPor}

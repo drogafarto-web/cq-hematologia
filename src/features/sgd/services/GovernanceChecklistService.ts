@@ -39,10 +39,7 @@ export class GovernanceChecklistService {
    */
   static async loadChecklist(labId: string): Promise<GovernanceChecklist | null> {
     try {
-      const checklistRef = doc(
-        db,
-        `labs/${labId}/${GOVERNANCE_COLLECTION}/config`
-      );
+      const checklistRef = doc(db, `labs/${labId}/${GOVERNANCE_COLLECTION}/config`);
       const snapshot = await getDoc(checklistRef);
       return snapshot.data() as GovernanceChecklist | null;
     } catch (error) {
@@ -56,13 +53,10 @@ export class GovernanceChecklistService {
    */
   static async initializeChecklist(
     labId: string,
-    templateData: GovernanceChecklist
+    templateData: GovernanceChecklist,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const checklistRef = doc(
-        db,
-        `labs/${labId}/${GOVERNANCE_COLLECTION}/config`
-      );
+      const checklistRef = doc(db, `labs/${labId}/${GOVERNANCE_COLLECTION}/config`);
 
       // Timestamp metadata
       const updatedTemplate = {
@@ -93,7 +87,7 @@ export class GovernanceChecklistService {
    */
   static async getItemsByBlock(
     labId: string,
-    blockId: 'A' | 'D' | 'E' | 'G'
+    blockId: 'A' | 'D' | 'E' | 'G',
   ): Promise<GovernanceItem[]> {
     try {
       const checklist = await this.loadChecklist(labId);
@@ -119,13 +113,10 @@ export class GovernanceChecklistService {
   static async updateItem(
     labId: string,
     itemId: string,
-    updates: Partial<GovernanceItem>
+    updates: Partial<GovernanceItem>,
   ): Promise<{ success: boolean; message: string }> {
     try {
-      const itemRef = doc(
-        db,
-        `labs/${labId}/${GOVERNANCE_COLLECTION}/items/${itemId}`
-      );
+      const itemRef = doc(db, `labs/${labId}/${GOVERNANCE_COLLECTION}/items/${itemId}`);
 
       const auditEntry = {
         itemId,
@@ -145,7 +136,7 @@ export class GovernanceChecklistService {
       // Audit trail entry
       const auditRef = doc(
         db,
-        `labs/${labId}/${GOVERNANCE_COLLECTION}/audit/${`${itemId}-${Date.now()}`}`
+        `labs/${labId}/${GOVERNANCE_COLLECTION}/audit/${`${itemId}-${Date.now()}`}`,
       );
       batch.set(auditRef, auditEntry);
 
@@ -181,7 +172,10 @@ export class GovernanceChecklistService {
   /**
    * Detect overdue items (due_date < today - cutoff_days)
    */
-  static detectOverdueItems(items: GovernanceItem[], cutoffDays = OVERDUE_THRESHOLD_DAYS): GovernanceItem[] {
+  static detectOverdueItems(
+    items: GovernanceItem[],
+    cutoffDays = OVERDUE_THRESHOLD_DAYS,
+  ): GovernanceItem[] {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - cutoffDays);
 
@@ -194,7 +188,10 @@ export class GovernanceChecklistService {
   /**
    * Detect items at risk (due within 7 days)
    */
-  static detectAtRiskItems(items: GovernanceItem[], warningDays = AT_RISK_THRESHOLD_DAYS): GovernanceItem[] {
+  static detectAtRiskItems(
+    items: GovernanceItem[],
+    warningDays = AT_RISK_THRESHOLD_DAYS,
+  ): GovernanceItem[] {
     const today = new Date();
     const warningDate = new Date();
     warningDate.setDate(warningDate.getDate() + warningDays);
@@ -282,9 +279,7 @@ export class GovernanceChecklistService {
    * Check if Phase 9 gate criteria are met
    * A-001..A-007, D-001..D-010, E-001..E-005 must be ≥80% complete
    */
-  static async checkPhase9GateCriteria(
-    labId: string
-  ): Promise<{
+  static async checkPhase9GateCriteria(labId: string): Promise<{
     gateMet: boolean;
     blockACompletion: number;
     blockDCompletion: number;

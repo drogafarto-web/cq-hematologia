@@ -7,12 +7,12 @@
 
 ## Blocker Status
 
-| Item | Status | Owner | ETA | Action |
-|------|--------|-------|-----|--------|
-| **Anvisa Credentials** | 🔴 CRITICAL | Government | 2026-05-15 | Await provisioning. Set calendar reminder. |
-| **Firestore Rules** | ✅ LIVE | Deployed | ✓ 2026-05-07 | Rules active. Tested in emulator. |
-| **Cloud Functions** | ✅ LIVE | Deployed | ✓ 2026-05-07 | All 4 functions active + tested. |
-| **Firestore Indexes** | ✅ LIVE | Deployed | ✓ 2026-05-07 | 3 indexes created + enabled. |
+| Item                   | Status      | Owner      | ETA          | Action                                     |
+| ---------------------- | ----------- | ---------- | ------------ | ------------------------------------------ |
+| **Anvisa Credentials** | 🔴 CRITICAL | Government | 2026-05-15   | Await provisioning. Set calendar reminder. |
+| **Firestore Rules**    | ✅ LIVE     | Deployed   | ✓ 2026-05-07 | Rules active. Tested in emulator.          |
+| **Cloud Functions**    | ✅ LIVE     | Deployed   | ✓ 2026-05-07 | All 4 functions active + tested.           |
+| **Firestore Indexes**  | ✅ LIVE     | Deployed   | ✓ 2026-05-07 | 3 indexes created + enabled.               |
 
 ---
 
@@ -114,28 +114,28 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Implementation Maturity
 
-| Layer | Status | Details |
-|-------|--------|---------|
-| **Firestore Rules** | ✅ PRODUCTION | Client-side writes blocked. Server callable only. Audit logs immutable. |
-| **Cloud Functions** | ✅ PRODUCTION | 4 functions deployed: draft create + queue processor + webhook handler + failure reporter. |
-| **Database Schema** | ✅ PRODUCTION | Collections (notivisa-outbox, notivisa-drafts) + audit subcollection. Indexes created. |
-| **Error Handling** | ✅ PRODUCTION | Exponential backoff, circuit breaker, timeout recovery, retry strategy. |
-| **Audit Trail** | ✅ PRODUCTION | Immutable logs (append-only) + signature validation. 5-year retention. |
-| **Rate Limiting** | ✅ PRODUCTION | Firestore counter (10/min per lab). Queue processor batching (10 at a time). |
-| **Testing** | 🟡 READY | Unit tests pass. Integration harness ready. E2E blocked on credentials. |
-| **Compliance** | ✅ AUDIT READY | RDC 978 + DICQ + LGPD mapped + verified. |
+| Layer               | Status         | Details                                                                                    |
+| ------------------- | -------------- | ------------------------------------------------------------------------------------------ |
+| **Firestore Rules** | ✅ PRODUCTION  | Client-side writes blocked. Server callable only. Audit logs immutable.                    |
+| **Cloud Functions** | ✅ PRODUCTION  | 4 functions deployed: draft create + queue processor + webhook handler + failure reporter. |
+| **Database Schema** | ✅ PRODUCTION  | Collections (notivisa-outbox, notivisa-drafts) + audit subcollection. Indexes created.     |
+| **Error Handling**  | ✅ PRODUCTION  | Exponential backoff, circuit breaker, timeout recovery, retry strategy.                    |
+| **Audit Trail**     | ✅ PRODUCTION  | Immutable logs (append-only) + signature validation. 5-year retention.                     |
+| **Rate Limiting**   | ✅ PRODUCTION  | Firestore counter (10/min per lab). Queue processor batching (10 at a time).               |
+| **Testing**         | 🟡 READY       | Unit tests pass. Integration harness ready. E2E blocked on credentials.                    |
+| **Compliance**      | ✅ AUDIT READY | RDC 978 + DICQ + LGPD mapped + verified.                                                   |
 
 ---
 
 ## Key Contacts & Escalation
 
-| Role | Name | Phone | Email | On-Call |
-|------|------|-------|-------|---------|
-| **CTO** | — | — | — | Yes (final approval) |
-| **Engineering Lead** | — | — | — | Yes (resources) |
-| **Agent 3 (Phase 4-03)** | — | — | — | Yes (implementation) |
-| **Anvisa Support** | — | +55-XX-XXXX-XXXX | support@notivisa.gov.br | Business hours BRT |
-| **Ops On-Call** | — | — | — | Yes (incident response) |
+| Role                     | Name | Phone            | Email                   | On-Call                 |
+| ------------------------ | ---- | ---------------- | ----------------------- | ----------------------- |
+| **CTO**                  | —    | —                | —                       | Yes (final approval)    |
+| **Engineering Lead**     | —    | —                | —                       | Yes (resources)         |
+| **Agent 3 (Phase 4-03)** | —    | —                | —                       | Yes (implementation)    |
+| **Anvisa Support**       | —    | +55-XX-XXXX-XXXX | support@notivisa.gov.br | Business hours BRT      |
+| **Ops On-Call**          | —    | —                | —                       | Yes (incident response) |
 
 ---
 
@@ -153,7 +153,7 @@ firebase deploy --only hosting --project hmatologia2
    - All data persists (soft-delete only)
    - Client requests fail gracefully (cached previous state)
 
-3. ✅ **Communication** 
+3. ✅ **Communication**
    - Notify stakeholders by 2026-05-17 (48h notice)
    - Post-mortem on credential delay + process improvement
 
@@ -176,14 +176,14 @@ firebase deploy --only hosting --project hmatologia2
 
 **First 48 hours live (2026-05-20 to 2026-05-22):**
 
-| Metric | Target | Current | Status |
-|--------|--------|---------|--------|
-| Queue processor success rate | >95% | — | To measure |
-| Webhook delivery rate | >99% | — | To measure |
-| Average latency (queue → NOTIVISA send) | <30s | — | To measure |
-| Error rate (failures / submissions) | <5% | — | To measure |
-| Audit trail completeness | 100% | — | To measure |
-| Cloud Function uptime | >99.9% | — | To measure |
+| Metric                                  | Target | Current | Status     |
+| --------------------------------------- | ------ | ------- | ---------- |
+| Queue processor success rate            | >95%   | —       | To measure |
+| Webhook delivery rate                   | >99%   | —       | To measure |
+| Average latency (queue → NOTIVISA send) | <30s   | —       | To measure |
+| Error rate (failures / submissions)     | <5%    | —       | To measure |
+| Audit trail completeness                | 100%   | —       | To measure |
+| Cloud Function uptime                   | >99.9% | —       | To measure |
 
 ---
 
@@ -231,6 +231,7 @@ STEP 9: Monitor
 **Status:** Ready for Anvisa credentials (2026-05-15)
 
 **Checklist:**
+
 - [x] Firestore rules deployed + tested
 - [x] Cloud Functions deployed + tested
 - [x] Firestore indexes created + enabled
@@ -239,6 +240,7 @@ STEP 9: Monitor
 - [ ] Smoke tests (awaiting credentials)
 
 **Files Changed:**
+
 - `firestore.rules` — NOTIVISA collections rules
 - `functions/src/modules/notivisa/**` — All 4 functions
 - `functions/src/types/notivisa.ts` — Schema definitions
@@ -246,6 +248,7 @@ STEP 9: Monitor
 - `.planning/NOTIVISA_*.md` — Pre-deploy documentation
 
 **Deployment Order:**
+
 1. Rules (already live)
 2. Functions (already live)
 3. Indexes (already live)
@@ -253,6 +256,7 @@ STEP 9: Monitor
 5. Phase 4 Go (2026-05-20)
 
 **Sign-Off:**
+
 - Agent 3: Implementation ✅
 - Engineering Lead: (pending)
 - CTO: (pending)

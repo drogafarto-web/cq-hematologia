@@ -3,7 +3,7 @@
 **Status:** READY FOR EXECUTION  
 **Date:** 2026-05-07  
 **Effort Estimate:** 2 weeks (100 dev hours + 20 ops hours)  
-**Dependencies:** Twilio contract confirmation  
+**Dependencies:** Twilio contract confirmation
 
 ---
 
@@ -12,17 +12,18 @@
 ### For CTO (Approval + Architectural Decisions)
 
 Start here:
+
 1. **PHASE_6_EXECUTIVE_SUMMARY.md** — 1-page summary, approval checklist, timeline
 2. **docs/adr/ADR-0019-critical-values-escalation.md** — Architecture decision rationale + alternatives
 
-Then review:
-3. **PHASE_6_DETAILED_PLAN.md** (Section 1-2: Architecture + Schema) — Verify Firestore design
+Then review: 3. **PHASE_6_DETAILED_PLAN.md** (Section 1-2: Architecture + Schema) — Verify Firestore design
 
 ---
 
 ### For Dev Team (Implementation)
 
 Start here:
+
 1. **PHASE_6_DETAILED_PLAN.md** — Complete technical specification (1,543 lines)
    - Section 1: Architecture overview
    - Section 2: Firestore schema (3 new collections + indexes)
@@ -33,14 +34,14 @@ Start here:
    - Section 7: E2E test scenarios (5+ specs)
    - Section 8-14: Data migration, runbook, references, approval checklist
 
-Then build:
-2. **Check Section 15: Approval Checklist** — Gate your work against success criteria
+Then build: 2. **Check Section 15: Approval Checklist** — Gate your work against success criteria
 
 ---
 
 ### For RT / Operations Team
 
 Start here:
+
 1. **PHASE_6_RT_OPERATIONAL_GUIDE.md** — Operational runbook in Português + English (503 lines)
    - Section 2: Dashboard access & navigation
    - Section 3: Understanding SLA colors & status
@@ -56,6 +57,7 @@ Print Section 13 for your desk.
 ### For Compliance / Auditors
 
 Cross-reference:
+
 1. **ADR-0019** (Section: Consequences Positive) — RDC 978 Art. 128 coverage
 2. **PHASE_6_DETAILED_PLAN.md** (Section 14: Documentation References) — RDC 978 + DICQ 4.3 mapping
 3. **PHASE_6_EXECUTIVE_SUMMARY.md** (Compliance Value section) — RDC 978 + DICQ coverage matrix
@@ -65,30 +67,31 @@ Cross-reference:
 ### For QA / Testing
 
 Reference:
+
 1. **PHASE_6_DETAILED_PLAN.md** (Sections 6-7) — Unit test specs (20+) + E2E test scenarios (5+)
 2. **PHASE_6_DETAILED_PLAN.md** (Section 11: Success Criteria) — Acceptance tests, load testing
 
-Then execute:
-3. Create test files at:
-   - `functions/src/__tests__/criticos.test.ts` (unit tests)
-   - `smoke-test-openclaw/criticos.e2e.spec.ts` (E2E tests)
+Then execute: 3. Create test files at:
+
+- `functions/src/__tests__/criticos.test.ts` (unit tests)
+- `smoke-test-openclaw/criticos.e2e.spec.ts` (E2E tests)
 
 ---
 
 ## Key Deliverables
 
-| Deliverable | Location | Status | Lines |
-|---|---|---|---|
-| Executive Summary | PHASE_6_EXECUTIVE_SUMMARY.md | ✓ COMPLETE | 220 |
-| Detailed Plan | PHASE_6_DETAILED_PLAN.md | ✓ COMPLETE | 1,543 |
-| RT Operational Guide | PHASE_6_RT_OPERATIONAL_GUIDE.md | ✓ COMPLETE | 503 |
-| Architecture Decision Record | docs/adr/ADR-0019-critical-values-escalation.md | ✓ COMPLETE | 235 |
-| Firestore Schema | Spec in PHASE_6_DETAILED_PLAN.md Section 2 | READY FOR BUILD | — |
-| Cloud Functions (7 callables + 1 cron) | Spec in PHASE_6_DETAILED_PLAN.md Section 3 | READY FOR BUILD | — |
-| SMS/Email Templates | PHASE_6_DETAILED_PLAN.md Section 4 | ✓ COMPLETE | — |
-| Twilio Integration | PHASE_6_DETAILED_PLAN.md Section 5 | ✓ COMPLETE | — |
-| Unit Tests (20+) | PHASE_6_DETAILED_PLAN.md Section 6 | ✓ SPEC | — |
-| E2E Tests (5+ scenarios) | PHASE_6_DETAILED_PLAN.md Section 7 | ✓ SPEC | — |
+| Deliverable                            | Location                                        | Status          | Lines |
+| -------------------------------------- | ----------------------------------------------- | --------------- | ----- |
+| Executive Summary                      | PHASE_6_EXECUTIVE_SUMMARY.md                    | ✓ COMPLETE      | 220   |
+| Detailed Plan                          | PHASE_6_DETAILED_PLAN.md                        | ✓ COMPLETE      | 1,543 |
+| RT Operational Guide                   | PHASE_6_RT_OPERATIONAL_GUIDE.md                 | ✓ COMPLETE      | 503   |
+| Architecture Decision Record           | docs/adr/ADR-0019-critical-values-escalation.md | ✓ COMPLETE      | 235   |
+| Firestore Schema                       | Spec in PHASE_6_DETAILED_PLAN.md Section 2      | READY FOR BUILD | —     |
+| Cloud Functions (7 callables + 1 cron) | Spec in PHASE_6_DETAILED_PLAN.md Section 3      | READY FOR BUILD | —     |
+| SMS/Email Templates                    | PHASE_6_DETAILED_PLAN.md Section 4              | ✓ COMPLETE      | —     |
+| Twilio Integration                     | PHASE_6_DETAILED_PLAN.md Section 5              | ✓ COMPLETE      | —     |
+| Unit Tests (20+)                       | PHASE_6_DETAILED_PLAN.md Section 6              | ✓ SPEC          | —     |
+| E2E Tests (5+ scenarios)               | PHASE_6_DETAILED_PLAN.md Section 7              | ✓ SPEC          | —     |
 
 ---
 
@@ -157,6 +160,7 @@ Week 2:
 ### RDC 978/2025 Art. 128 (Ações Corretivas)
 
 Phase 6 delivers:
+
 - ✓ Immediate notification to physician (SMS <30s)
 - ✓ Audit trail of all escalation attempts (immutable logs)
 - ✓ Operator attribution (request.auth.uid)
@@ -165,6 +169,7 @@ Phase 6 delivers:
 ### DICQ 4.3 (Documentação de Qualidade)
 
 Phase 6 delivers:
+
 - ✓ Technical documentation (PHASE_6_DETAILED_PLAN.md)
 - ✓ Operational documentation (PHASE_6_RT_OPERATIONAL_GUIDE.md)
 - ✓ Audit trail (criticos-log-eventos with LogicalSignature chain)
@@ -175,18 +180,23 @@ Phase 6 delivers:
 ## Risk Mitigation Strategies
 
 ### Risk 1: Twilio SMS Delivery Failure
+
 → **Mitigation:** Multi-channel fallback (SMS → email), 5-min SLA polling cron for safety net
 
 ### Risk 2: Invalid Physician Phone Number
+
 → **Mitigation:** E.164 validation before send, immediate fallback to email, log failure
 
 ### Risk 3: SLA Cron Doesn't Run
+
 → **Mitigation:** Manual RT override button, email fallback, Cloud Logs monitoring + alerts
 
 ### Risk 4: False Positives (Threshold Too Low)
+
 → **Mitigation:** RT can adjust thresholds per lab, defaults based on clinical references
 
 ### Risk 5: Duplicate Escalations
+
 → **Mitigation:** Dedup check (one escalacao per laudoId + exameId + analitoId + value)
 
 ---
@@ -247,25 +257,25 @@ c:/hc quality/
 
 ## Success Metrics (30 Days Post-Launch)
 
-| Metric | Target | How to Track |
-|---|---|---|
-| SMS delivery success rate | ≥99% | Twilio dashboard |
-| SMS latency | <2 min | escalacao.escalacoes[0].timestamp vs entregue_em |
-| RT acknowledgment rate | ≥95% | COUNT(status='reconhecido') / COUNT(total) |
-| False positive rate | <10%/day | COUNT(status='cancelado') / COUNT(total) |
-| NOTIVISA accuracy | 100% | Manual audit of 10 reportable cases |
+| Metric                    | Target   | How to Track                                     |
+| ------------------------- | -------- | ------------------------------------------------ |
+| SMS delivery success rate | ≥99%     | Twilio dashboard                                 |
+| SMS latency               | <2 min   | escalacao.escalacoes[0].timestamp vs entregue_em |
+| RT acknowledgment rate    | ≥95%     | COUNT(status='reconhecido') / COUNT(total)       |
+| False positive rate       | <10%/day | COUNT(status='cancelado') / COUNT(total)         |
+| NOTIVISA accuracy         | 100%     | Manual audit of 10 reportable cases              |
 
 ---
 
 ## Support & Escalation
 
-| Question | Ask | How |
-|---|---|---|
-| "How do I configure thresholds?" | RT Supervisor or Tech Writer | PHASE_6_RT_OPERATIONAL_GUIDE.md Section 6 |
-| "Why is SLA vencido?" | CTO | Check time calculation in Section 3.2 |
-| "SMS not working?" | CTO | Check TWILIO_ACCOUNT_SID secret (preflight-check.sh) |
-| "NOTIVISA draft generation?" | Tech Writer | Section 2.7 of PHASE_6_DETAILED_PLAN.md |
-| "Scaling to 100+ críticos/day?" | CTO | Firestore limits + Twilio batch quotas |
+| Question                         | Ask                          | How                                                  |
+| -------------------------------- | ---------------------------- | ---------------------------------------------------- |
+| "How do I configure thresholds?" | RT Supervisor or Tech Writer | PHASE_6_RT_OPERATIONAL_GUIDE.md Section 6            |
+| "Why is SLA vencido?"            | CTO                          | Check time calculation in Section 3.2                |
+| "SMS not working?"               | CTO                          | Check TWILIO_ACCOUNT_SID secret (preflight-check.sh) |
+| "NOTIVISA draft generation?"     | Tech Writer                  | Section 2.7 of PHASE_6_DETAILED_PLAN.md              |
+| "Scaling to 100+ críticos/day?"  | CTO                          | Firestore limits + Twilio batch quotas               |
 
 ---
 

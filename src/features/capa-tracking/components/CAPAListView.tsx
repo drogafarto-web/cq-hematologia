@@ -27,11 +27,11 @@ const STATUS_FILTERS: FilterStatus[] = [
 
 const STATUS_LABELS: Record<FilterStatus, string> = {
   all: 'Todos',
-  'aberto': 'Aberto',
+  aberto: 'Aberto',
   'em-andamento': 'Em andamento',
   'evidencia-submetida': 'Evidência submetida',
   'auditor-revisando': 'Auditor revisando',
-  'fechado': 'Fechado',
+  fechado: 'Fechado',
 };
 
 function getDeadlineColor(daysRemaining: number | null): string {
@@ -157,7 +157,9 @@ export function CAPAListView({ onSelect }: CAPAListViewProps) {
                   <td className="px-4 py-3">
                     <CAPAStatusBadge status={capa.state as CapaStateLegacy} />
                   </td>
-                  <td className={`px-4 py-3 font-mono text-xs font-medium ${getDeadlineColor(capa.deadlineStatus.daysRemaining)}`}>
+                  <td
+                    className={`px-4 py-3 font-mono text-xs font-medium ${getDeadlineColor(capa.deadlineStatus.daysRemaining)}`}
+                  >
                     {capa.deadlineStatus.daysRemaining === null
                       ? '—'
                       : capa.deadlineStatus.daysRemaining < 0
@@ -165,8 +167,14 @@ export function CAPAListView({ onSelect }: CAPAListViewProps) {
                         : `${capa.deadlineStatus.daysRemaining}d`}
                   </td>
                   <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(capa.finding.severity)}`}>
-                      {capa.finding.severity === 'critical' || capa.finding.severity === 'critica' ? 'Crítica' : capa.finding.severity === 'major' || capa.finding.severity === 'alta' ? 'Maior' : 'Menor'}
+                    <span
+                      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${getSeverityColor(capa.finding.severity)}`}
+                    >
+                      {capa.finding.severity === 'critical' || capa.finding.severity === 'critica'
+                        ? 'Crítica'
+                        : capa.finding.severity === 'major' || capa.finding.severity === 'alta'
+                          ? 'Maior'
+                          : 'Menor'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center">

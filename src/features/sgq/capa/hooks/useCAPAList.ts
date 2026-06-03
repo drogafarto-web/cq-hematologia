@@ -30,10 +30,7 @@ export interface UseCAPAListResult {
  * @param options - Filter options (status, assigneeId, etc)
  * @returns { capas, isLoading, error }
  */
-export function useCAPAList(
-  labId: string,
-  options?: UseCAPAListOptions
-): UseCAPAListResult {
+export function useCAPAList(labId: string, options?: UseCAPAListOptions): UseCAPAListResult {
   const [capas, setCapas] = useState<CAPA[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -70,7 +67,7 @@ export function useCAPAList(
         (err) => {
           setError(err.message || 'Erro ao carregar CAPAs');
           setIsLoading(false);
-        }
+        },
       );
     } catch (err: any) {
       setError(err.message || 'Erro ao configurar subscription');
@@ -83,7 +80,14 @@ export function useCAPAList(
         unsubscribe();
       }
     };
-  }, [labId, options?.status, options?.prioridade, options?.encontroId, options?.assigneeId, options?.searchTerm]);
+  }, [
+    labId,
+    options?.status,
+    options?.prioridade,
+    options?.encontroId,
+    options?.assigneeId,
+    options?.searchTerm,
+  ]);
 
   return { capas, isLoading, error };
 }

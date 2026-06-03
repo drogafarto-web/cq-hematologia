@@ -53,4 +53,7 @@ export interface AuditorImpediment {
   tipo: 'responsabilidade-direta' | 'conflito-interesse' | 'qualificacao-insuficiente';
 }
 
-export type AuditorQualificationInput = Omit<AuditorQualification, 'id' | 'criadoEm' | 'atualizadoEm'>;
+export type AuditorQualificationInput = Omit<
+  AuditorQualification,
+  'id' | 'criadoEm' | 'atualizadoEm'
+>;

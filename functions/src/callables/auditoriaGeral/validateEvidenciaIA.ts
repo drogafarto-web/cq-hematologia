@@ -44,7 +44,8 @@ export const validateEvidenciaIA = onCall(
       throw new HttpsError('invalid-argument', 'Dados invalidos: ' + parsed.error.message);
     }
 
-    const { labId, evidenciaUrl, indicadorNome, marcoRegulatorio, niveis, scoreAtual } = parsed.data;
+    const { labId, evidenciaUrl, indicadorNome, marcoRegulatorio, niveis, scoreAtual } =
+      parsed.data;
     const uid = request.auth.uid;
 
     const memberSnap = await db.doc(`labs/${labId}/members/${uid}`).get();

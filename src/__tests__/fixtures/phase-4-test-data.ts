@@ -441,9 +441,7 @@ export function generateTestLaudos(patientId: string, count: number) {
       nome: ['Hemograma', 'Bioquímica', 'Coagulação', 'Uroanálise'][i % 4],
       codigo: `EXAM-${String(i).padStart(3, '0')}`,
     },
-    data: Timestamp.fromDate(
-      new Date(Date.now() - i * 24 * 60 * 60 * 1000)
-    ),
+    data: Timestamp.fromDate(new Date(Date.now() - i * 24 * 60 * 60 * 1000)),
     status: ['finalizado', 'revisão', 'bloqueado'][i % 3],
     publicado: true,
     resultados: [],

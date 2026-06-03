@@ -29,6 +29,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 **Root cause examples:** Bug in Cloud Function, accidental batch write, index misconfiguration, third-party library bug.
 
 **Recovery steps:**
+
 1. **Detection (0-5 min):** Monitoring alerts OR manual report. Engineer investigates Firestore audit logs. Confirm corruption scope.
 2. **Decision (5-15 min):** CTO + Tech Lead decide: rollback vs. patch in-place. If corruption > 1 collection, rollback is faster.
 3. **Preparation (15-30 min):**
@@ -39,6 +40,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 5. **Verification (90-120 min):** Smoke tests (hub loads, CIQ run can be viewed, audit trail readable), chain-hash verification (100 samples), re-enable writes.
 
 **Communication:**
+
 - Internal: Slack #incident + email CTO/Tech Lead/PM
 - Customer: Maintenance window notice (1h estimated)
 - Evidence: Timestamp + snapshot ID + validation results → archived in `docs/DR_TEST_*.md`
@@ -55,6 +57,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 **Root cause examples:** GCP zone-wide outage, network partition, DDoS mitigation in region.
 
 **Recovery steps:**
+
 1. **Detection (0-10 min):** Cloud monitoring alerts (function invocations fail, API latency spikes). Status page check (GCP Cloud Status Dashboard).
 2. **Communication (10-15 min):** Public status update, customer notification, internal incident channel.
 3. **Escalation (15-20 min):** Contact GCP support (SLA 1h for critical). Prepare secondary-region deployment plan.
@@ -68,6 +71,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 6. **Verification (2-4h):** Smoke tests on secondary region, audit trail accessible, users can log in.
 
 **Communication:**
+
 - Status page: "Investigating regional outage, ETA recovery [time]"
 - Post-recovery: "Service restored from backup to secondary region"
 - Evidence: GCP Cloud Status screenshot + deploy log + validation report
@@ -84,6 +88,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 **Root cause examples:** Accidental commit of .env file, CI/CD secret rotation failure, phishing attack on dev, npm package supply chain attack.
 
 **Recovery steps:**
+
 1. **Detection (0-5 min):** Audit log anomaly (unusual IP, service account writes from unexpected location), or manual discovery in git history.
 2. **Incident response (5-15 min):**
    - Immediately rotate compromised credential in GCP Console (Firebase Console → Project Settings → Service Accounts).
@@ -97,6 +102,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
 5. **Verification (60 min):** Smoke tests, audit logs clean, new credential working.
 
 **Communication:**
+
 - Internal: Slack #security, CTO, IT Lead
 - If data exfiltration suspected: Privacy officer + compliance alert
 - Customer: Only if unauthorized access to their lab data occurred
@@ -116,7 +122,8 @@ HC Quality operates a production SaaS system for internal quality control in cli
 **Root cause examples:** Unpatched CF vulnerability, SQL injection equivalent in Firestore query (unlikely but possible), mass-assignment in service layer, insider threat.
 
 **Recovery steps:**
-1. **Detection (0-15 min):** 
+
+1. **Detection (0-15 min):**
    - Alert: Firestore disk usage spikes or suddenly decreases (mass deletion).
    - Alert: Unusual write volume from single Cloud Function.
    - Alert: Chain-hash verification fails on 10+ documents (data tampering).
@@ -127,7 +134,7 @@ HC Quality operates a production SaaS system for internal quality control in cli
    - Preserve evidence: snapshot the compromised DB (for analysis), note timestamp.
    - Change all service account credentials.
 3. **Forensics (30-120 min):** Review audit logs, identify attack vector (which function? which credential?). Determine scope of corruption.
-4. **Restore (120-240 min):** 
+4. **Restore (120-240 min):**
    - Restore production from clean snapshot (pre-attack, ideally < 1h old).
    - Re-enable Cloud Functions (patched/reviewed).
    - Re-enable API.
@@ -138,9 +145,10 @@ HC Quality operates a production SaaS system for internal quality control in cli
    - Review: backup rotation policy (ensure oldest backup also not compromised).
 
 **Communication:**
+
 - **Internal (immediately):** Incident channel, CTO, Tech Lead, Security Officer, PM
 - **Legal/Compliance (immediately):** Data breach? LGPD Art. 34 requires notification within 48h if patient data exposed.
-- **Customer:** 
+- **Customer:**
   - Immediate: "Service offline, investigating incident, ETA restoration [time]"
   - Post-restore: "Service restored from backup. No unauthorized data access detected. Full incident report: [url]"
 - **Public:** Statement on status page (transparency). Avoid admitting breach unless confirmed.
@@ -162,13 +170,13 @@ Scenario 4 (ransomware):  Alert system → isolation → forensics → snapshot 
 
 ## Roles & Escalation
 
-| Role | Responsibility | Availability |
-|------|--------------|--|
-| **CTO** | Declare incident, approve recovery plan, customer comms | On-call 24/7 (pager) |
-| **Tech Lead** | Execute recovery steps, coordinate team, validation | Business hours + on-call |
-| **Security Officer** | Forensics, breach determination, LGPD notification | On-call for Scenarios 3-4 |
-| **PM** | Customer comms, status page updates, post-incident review | Business hours |
-| **DevOps** | gcloud CLI commands, deployment, infrastructure changes | On-call 24/7 |
+| Role                 | Responsibility                                            | Availability              |
+| -------------------- | --------------------------------------------------------- | ------------------------- |
+| **CTO**              | Declare incident, approve recovery plan, customer comms   | On-call 24/7 (pager)      |
+| **Tech Lead**        | Execute recovery steps, coordinate team, validation       | Business hours + on-call  |
+| **Security Officer** | Forensics, breach determination, LGPD notification        | On-call for Scenarios 3-4 |
+| **PM**               | Customer comms, status page updates, post-incident review | Business hours            |
+| **DevOps**           | gcloud CLI commands, deployment, infrastructure changes   | On-call 24/7              |
 
 **On-call rotation:** CTO is primary on-call. Tech Lead is secondary. Escalation: CTO calls Sec Officer + PM if incident severity is high (customer data impact).
 
@@ -189,6 +197,7 @@ Scenario 4 (ransomware):  Alert system → isolation → forensics → snapshot 
 **Annual DR test required:** This plan must be tested at least once per year (RDC 978 5.6).
 
 **Test checklist:**
+
 - [ ] Snapshot production successfully
 - [ ] Restore to staging successfully
 - [ ] Validate chain-hash on 100+ samples
@@ -204,13 +213,14 @@ Scenario 4 (ransomware):  Alert system → isolation → forensics → snapshot 
 
 ## Approval & Sign-off
 
-| Name | Role | Date | Signature |
-|------|------|------|-----------|
-| [CTO] | Owner | 2026-05-06 | _____ |
-| [Tech Lead] | Executor | 2026-05-06 | _____ |
-| [Responsible Tech — RT] | Approver | 2026-05-06 | _____ |
+| Name                    | Role     | Date       | Signature |
+| ----------------------- | -------- | ---------- | --------- |
+| [CTO]                   | Owner    | 2026-05-06 | **\_**    |
+| [Tech Lead]             | Executor | 2026-05-06 | **\_**    |
+| [Responsible Tech — RT] | Approver | 2026-05-06 | **\_**    |
 
 ---
 
 **Document history:**
+
 - v1.0 (2026-05-06): Initial version, 4 scenarios documented, annual test scheduled.

@@ -207,9 +207,7 @@ const Row = React.memo(function Row({ item, selected, onSelect, onTogglePin }: R
           <span
             className={[
               'truncate text-sm font-medium',
-              selected
-                ? 'text-slate-900 dark:text-white/95'
-                : 'text-slate-800 dark:text-white/85',
+              selected ? 'text-slate-900 dark:text-white/95' : 'text-slate-800 dark:text-white/85',
             ].join(' ')}
           >
             {item.loteControle}
@@ -358,8 +356,7 @@ export function UroLotSidebar({
         return;
       }
       // Toggle pin: F (no modifiers) or Cmd/Ctrl+D
-      const isToggle =
-        (e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey && !e.altKey;
+      const isToggle = (e.key === 'f' || e.key === 'F') && !e.metaKey && !e.ctrlKey && !e.altKey;
       const isCmdD = (e.key === 'd' || e.key === 'D') && (e.metaKey || e.ctrlKey);
       if ((isToggle || isCmdD) && currentIdx >= 0) {
         e.preventDefault();
@@ -367,7 +364,7 @@ export function UroLotSidebar({
         if (target) onTogglePin(target.id, !target.pinned);
       }
     },
-    [flatOrder, selectedId, onSelect, onTogglePin, items]
+    [flatOrder, selectedId, onSelect, onTogglePin, items],
   );
 
   // Scroll selected into view when it changes
@@ -391,9 +388,7 @@ export function UroLotSidebar({
       {/* Header */}
       <div className="px-3 pt-4 pb-3 border-b border-slate-100 dark:border-white/[0.05]">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-white/90">
-            Lotes CIQ
-          </h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-white/90">Lotes CIQ</h2>
           {onCreateLot && (
             <button
               type="button"

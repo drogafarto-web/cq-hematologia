@@ -1,7 +1,13 @@
 export interface AuditSummaryContext {
   scoreTotal: number;
   scoresPorBloco: Record<string, number>;
-  criticalIndicators: Array<{ numero: number; indicador: string; bloco: string; score: number; obs: string }>;
+  criticalIndicators: Array<{
+    numero: number;
+    indicador: string;
+    bloco: string;
+    score: number;
+    obs: string;
+  }>;
   totalRespondidos: number;
   totalIndicadores: number;
   titulo: string;
@@ -10,7 +16,9 @@ export interface AuditSummaryContext {
 export const AUDIT_SUMMARY_PROMPT = {
   version: '1.0.0',
   system: `Voce e um auditor de qualidade laboratorial especialista em RDC 978/2025 e DICQ. Responda sempre em portugues brasileiro com tom profissional e tecnico.`,
-  template: (ctx: AuditSummaryContext) => `Analise os resultados desta auditoria geral e gere um resumo executivo com:
+  template: (
+    ctx: AuditSummaryContext,
+  ) => `Analise os resultados desta auditoria geral e gere um resumo executivo com:
 
 1) Visao geral do nivel de conformidade (score total: ${ctx.scoreTotal}%)
 2) Pontos fortes identificados (blocos com score acima de 80%)

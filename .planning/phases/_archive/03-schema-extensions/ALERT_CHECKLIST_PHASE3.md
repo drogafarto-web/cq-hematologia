@@ -14,38 +14,38 @@
 
 **Triggers:** Any of the following require immediate STOP and rollback assessment.
 
-| Alert | Condition | Log Signature | Immediate Action |
-|-------|-----------|---|---|
-| **ERROR Rate Spike** | >10 errors in 30m window | `severity=ERROR` count >10 | 1. Note timestamp<br>2. Stop deployment waves<br>3. Export logs: `gcloud logging read ... --format=json > alert.json`<br>4. Notify CTO<br>5. Assess rollback |
-| **CRITICAL Severity** | 1+ CRITICAL event | `severity=CRITICAL` | 1. Stop immediately<br>2. Export stack trace<br>3. Page CTO<br>4. Investigate before continuing |
-| **Rules Compile Fail** | Rules deployment fails or won't save | No deploy success log | 1. Check syntax errors<br>2. Revert to last known good<br>3. Review Rules diff<br>4. Notify CTO |
-| **Index FAILED State** | Composite index enters FAILED | `status=FAILED` in `firestore indexes composite list` | 1. Note index name + creation time<br>2. Contact GCP support<br>3. Pause all queries using that index<br>4. Do NOT continue deployment |
-| **Hosting Service Down** | HTTP 5xx >5 in 1m | `httpRequest.status >= 500` count >5 | 1. Check Cloud Run logs<br>2. Restart service if applicable<br>3. Notify CTO<br>4. Rollback if unrecoverable |
+| Alert                    | Condition                            | Log Signature                                         | Immediate Action                                                                                                                                             |
+| ------------------------ | ------------------------------------ | ----------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **ERROR Rate Spike**     | >10 errors in 30m window             | `severity=ERROR` count >10                            | 1. Note timestamp<br>2. Stop deployment waves<br>3. Export logs: `gcloud logging read ... --format=json > alert.json`<br>4. Notify CTO<br>5. Assess rollback |
+| **CRITICAL Severity**    | 1+ CRITICAL event                    | `severity=CRITICAL`                                   | 1. Stop immediately<br>2. Export stack trace<br>3. Page CTO<br>4. Investigate before continuing                                                              |
+| **Rules Compile Fail**   | Rules deployment fails or won't save | No deploy success log                                 | 1. Check syntax errors<br>2. Revert to last known good<br>3. Review Rules diff<br>4. Notify CTO                                                              |
+| **Index FAILED State**   | Composite index enters FAILED        | `status=FAILED` in `firestore indexes composite list` | 1. Note index name + creation time<br>2. Contact GCP support<br>3. Pause all queries using that index<br>4. Do NOT continue deployment                       |
+| **Hosting Service Down** | HTTP 5xx >5 in 1m                    | `httpRequest.status >= 500` count >5                  | 1. Check Cloud Run logs<br>2. Restart service if applicable<br>3. Notify CTO<br>4. Rollback if unrecoverable                                                 |
 
 ### 🟡 P1 (HIGH — Escalate & Investigate)
 
 **Triggers:** Alert team; investigate in parallel with deployment.
 
-| Alert | Condition | Log Signature | Recommended Action |
-|---|---|---|---|
-| **Permission Denied Spike** | >5 in 1h for authorized users | `textPayload contains "Permission denied"` | 1. Check rules logic for new deployment<br>2. Verify test data has correct `labId`, `uid`<br>3. Review portal access rules syntax<br>4. May pause portal testing until resolved |
-| **Rules Warnings Jump** | Warning count jumps >50% (baseline 15 → >22) | `gcloud firestore:rules-validate` warnings | 1. Export rules diff<br>2. Identify new warnings<br>3. Prioritize critical warnings (unused variables, incomplete conditions)<br>4. Remediate low-priority warnings in next sprint |
-| **Function Timeout** | Any callable takes >10s | `textPayload contains "Timeout"` or `executionTime > 10000ms` | 1. Identify which callable timed out<br>2. Check Firestore query complexity (index missing?)<br>3. Profile function execution<br>4. May be index creation delay → retry when index READY |
-| **Malformed NOTIVISA Payloads** | >10 rejected in 1h | `textPayload contains "validateNotivisaPayload"` rejection | 1. Check NOTIVISA payload schema vs. Art. 6º §1 format<br>2. Review test data creation<br>3. May be schema mismatch<br>4. Do NOT send real NOTIVISA until resolved |
-| **Latency p95 Spike** | p95 latency >500ms for warm invocations | Function logs + execution time | 1. Check Firestore quota consumed<br>2. Look for missing indexes (slow query logs)<br>3. Profile function code<br>4. If index creation in progress, latency expected; monitor until index READY |
-| **Cold-Start Latency High** | New functions cold-start >300ms | `executionTime > 300ms` for first invocation | 1. Expected for cold-start; baseline <300ms target<br>2. If >500ms repeatedly, investigate bundle size<br>3. Monitor warm invocations (should be <100ms) |
-| **High Memory Usage** | Function heap >500MB | `memoryUsed > 500` in function logs | 1. Check for memory leak in shared helper initialization<br>2. Profile function with large payload<br>3. May need to split large operations |
+| Alert                           | Condition                                    | Log Signature                                                 | Recommended Action                                                                                                                                                                              |
+| ------------------------------- | -------------------------------------------- | ------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Permission Denied Spike**     | >5 in 1h for authorized users                | `textPayload contains "Permission denied"`                    | 1. Check rules logic for new deployment<br>2. Verify test data has correct `labId`, `uid`<br>3. Review portal access rules syntax<br>4. May pause portal testing until resolved                 |
+| **Rules Warnings Jump**         | Warning count jumps >50% (baseline 15 → >22) | `gcloud firestore:rules-validate` warnings                    | 1. Export rules diff<br>2. Identify new warnings<br>3. Prioritize critical warnings (unused variables, incomplete conditions)<br>4. Remediate low-priority warnings in next sprint              |
+| **Function Timeout**            | Any callable takes >10s                      | `textPayload contains "Timeout"` or `executionTime > 10000ms` | 1. Identify which callable timed out<br>2. Check Firestore query complexity (index missing?)<br>3. Profile function execution<br>4. May be index creation delay → retry when index READY        |
+| **Malformed NOTIVISA Payloads** | >10 rejected in 1h                           | `textPayload contains "validateNotivisaPayload"` rejection    | 1. Check NOTIVISA payload schema vs. Art. 6º §1 format<br>2. Review test data creation<br>3. May be schema mismatch<br>4. Do NOT send real NOTIVISA until resolved                              |
+| **Latency p95 Spike**           | p95 latency >500ms for warm invocations      | Function logs + execution time                                | 1. Check Firestore quota consumed<br>2. Look for missing indexes (slow query logs)<br>3. Profile function code<br>4. If index creation in progress, latency expected; monitor until index READY |
+| **Cold-Start Latency High**     | New functions cold-start >300ms              | `executionTime > 300ms` for first invocation                  | 1. Expected for cold-start; baseline <300ms target<br>2. If >500ms repeatedly, investigate bundle size<br>3. Monitor warm invocations (should be <100ms)                                        |
+| **High Memory Usage**           | Function heap >500MB                         | `memoryUsed > 500` in function logs                           | 1. Check for memory leak in shared helper initialization<br>2. Profile function with large payload<br>3. May need to split large operations                                                     |
 
 ### 🟠 P2 (MEDIUM — Monitor & Log)
 
 **Triggers:** Track and mention in post-deployment report.
 
-| Alert | Condition | Log Signature | Action |
-|---|---|---|---|
-| **Index Creation Delay** | Composite index in CREATING >10m | `status=CREATING` >10 min | This is normal; Firestore creates indexes async. Monitor until READY (target <5min). Do NOT block deployment. |
-| **Network Latency** | HTTP request latency >2s | `latency > 2000ms` | Investigate network path, CDN cache; likely transient. If sustained >30m, escalate to P1. |
-| **Debug Logs Accumulating** | INFO/DEBUG severity logs >1000/min | Log volume spikes | May indicate verbose logging in new code. If spikes high enough to affect quota, review log levels. Low priority unless affecting quota. |
-| **Transient Quota Warnings** | `QUOTA_EXCEEDED` but recovers <60s | `textPayload contains "QUOTA_EXCEEDED"` | Normal during load spike; Firestore auto-backs off. If quota_exceeded PERSISTS >5 min, escalate to P1. |
+| Alert                        | Condition                          | Log Signature                           | Action                                                                                                                                   |
+| ---------------------------- | ---------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **Index Creation Delay**     | Composite index in CREATING >10m   | `status=CREATING` >10 min               | This is normal; Firestore creates indexes async. Monitor until READY (target <5min). Do NOT block deployment.                            |
+| **Network Latency**          | HTTP request latency >2s           | `latency > 2000ms`                      | Investigate network path, CDN cache; likely transient. If sustained >30m, escalate to P1.                                                |
+| **Debug Logs Accumulating**  | INFO/DEBUG severity logs >1000/min | Log volume spikes                       | May indicate verbose logging in new code. If spikes high enough to affect quota, review log levels. Low priority unless affecting quota. |
+| **Transient Quota Warnings** | `QUOTA_EXCEEDED` but recovers <60s | `textPayload contains "QUOTA_EXCEEDED"` | Normal during load spike; Firestore auto-backs off. If quota_exceeded PERSISTS >5 min, escalate to P1.                                   |
 
 ---
 
@@ -56,12 +56,14 @@
 **Monitoring Focus:** Collection creation, index creation start
 
 **Alert Watch List:**
+
 - ❌ New collection creation fails → P0 STOP
 - ⚠️ Composite indexes not starting creation → P0 STOP
 - 🟡 Indexes slow to transition to CREATING → P2 LOG
 - ⚠️ Unexpected permission errors on new collections → P1 INVESTIGATE
 
 **Expected Behavior:**
+
 - ✅ 5 new collections visible in Console
 - ✅ 3 new composite indexes status = CREATING
 - ✅ 0 error logs for schema operations
@@ -73,12 +75,14 @@
 **Monitoring Focus:** Rules compilation, warning count, permission tests
 
 **Alert Watch List:**
+
 - ❌ Rules deploy fails (compilation error) → P0 STOP
 - ⚠️ Rules warnings jump >22 → P1 INVESTIGATE
 - ⚠️ Unexpected permission denies on non-portal operations → P1 INVESTIGATE
 - 🟡 Portal access rules not enforcing (unauthorized users can read) → P1 INVESTIGATE
 
 **Expected Behavior:**
+
 - ✅ Rules deploy succeeds with ≤20 warnings
 - ✅ 0 permission denied for authorized users
 - ✅ NOTIVISA outbox accepts valid payloads, rejects invalid ones
@@ -91,6 +95,7 @@
 **Monitoring Focus:** Function deployment, cold-start latency, initialization errors
 
 **Alert Watch List:**
+
 - ❌ Any function fails to deploy → P0 STOP
 - ⚠️ Cold-start latency >500ms repeatedly → P1 INVESTIGATE
 - 🟡 Cold-start latency 300–500ms → P2 LOG
@@ -98,6 +103,7 @@
 - 🟡 SMS gateway or laudo finalizer unresponsive → P1 INVESTIGATE
 
 **Expected Behavior:**
+
 - ✅ 4 shared helper functions deployed (notivisa-sender, sms-gateway, laudo-finalizer, ia-strip-processor)
 - ✅ Cold-start latency <300ms (target), <500ms (acceptable)
 - ✅ Warm latency <100ms
@@ -110,11 +116,13 @@
 **Monitoring Focus:** Portal callable stubs, NOTIVISA processor, critical escalation trigger
 
 **Alert Watch List:**
+
 - ❌ Portal callable fails to deploy → P0 STOP
 - ⚠️ NOTIVISA event processor hangs on test → P1 INVESTIGATE
 - 🟡 Critical escalation trigger latency high → P2 LOG
 
 **Expected Behavior:**
+
 - ✅ Portal getter/setter callables respond <100ms
 - ✅ NOTIVISA processor listens to outbox changes
 - ✅ Critical escalation trigger fires on threshold match
@@ -124,11 +132,13 @@
 ### **Stage 5: Smoke Tests (T+25m → T+30m)**
 
 **Alert Watch List:**
+
 - ❌ Any smoke test fails → P0 STOP & ROLLBACK ASSESSMENT
 - ⚠️ Test takes >5s to complete → P1 INVESTIGATE (index creation delay expected)
 - 🟡 Test succeeds but slow → P2 LOG
 
 **Smoke Tests:**
+
 1. **NOTIVISA Outbox Create:** Create valid doc; rules allow + store success
 2. **Portal Access Deny:** Attempt unauthorized read; rules deny + return 0 docs
 3. **Critical Escalation Create:** Create escalation doc; SMS trigger fires
@@ -219,6 +229,7 @@ T+5m: Action complete, team notified
 ```
 
 **Rollback Command (if needed):**
+
 ```powershell
 # Revert Rules
 git checkout HEAD~1 firestore.rules
@@ -265,15 +276,15 @@ T+24h: Analyze trend, schedule remediation if needed
 
 ## Summary
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Total Errors | [N] | 0 | [✅/⚠️/❌] |
-| P0 Alerts | [N] | 0 | [✅/⚠️/❌] |
-| P1 Alerts | [N] | <5 | [✅/⚠️/❌] |
-| Rules Warnings | [N] | ≤20 | [✅/⚠️/❌] |
-| All Indexes READY | [Y/N] | Yes | [✅/❌] |
+| Metric               | Value  | Target | Status     |
+| -------------------- | ------ | ------ | ---------- |
+| Total Errors         | [N]    | 0      | [✅/⚠️/❌] |
+| P0 Alerts            | [N]    | 0      | [✅/⚠️/❌] |
+| P1 Alerts            | [N]    | <5     | [✅/⚠️/❌] |
+| Rules Warnings       | [N]    | ≤20    | [✅/⚠️/❌] |
+| All Indexes READY    | [Y/N]  | Yes    | [✅/❌]    |
 | Function p95 Latency | [X ms] | <300ms | [✅/⚠️/❌] |
-| Smoke Tests | [N/4] | 4/4 | [✅/⚠️/❌] |
+| Smoke Tests          | [N/4]  | 4/4    | [✅/⚠️/❌] |
 
 ## Critical Incidents
 
@@ -291,7 +302,7 @@ T+24h: Analyze trend, schedule remediation if needed
 
 ---
 
-**CTO Sign-Off:** ______________________  
+**CTO Sign-Off:** **********\_\_**********  
 **Date:** 2026-05-09
 ```
 

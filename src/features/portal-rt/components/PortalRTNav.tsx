@@ -13,7 +13,16 @@ import { PortalRTTokens } from './_ui';
 
 function IconDashboard() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <rect x="2" y="3" width="8" height="8" />
       <rect x="10" y="3" width="8" height="8" />
       <rect x="2" y="11" width="8" height="8" />
@@ -24,7 +33,16 @@ function IconDashboard() {
 
 function IconAlertCircle() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="10" cy="10" r="9" />
       <line x1="10" y1="6" x2="10" y2="10" />
       <line x1="10" y1="14" x2="10.01" y2="14" />
@@ -34,7 +52,16 @@ function IconAlertCircle() {
 
 function IconFileText() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M14 2H6c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z" />
       <line x1="6" y1="6" x2="14" y2="6" />
       <line x1="6" y1="9" x2="14" y2="9" />
@@ -45,7 +72,16 @@ function IconFileText() {
 
 function IconShieldCheck() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <path d="M10 2l7 3v5c0 5-7 7-7 7s-7-2-7-7V5l7-3z" />
       <polyline points="7 10 9 12 13 8" />
     </svg>
@@ -54,7 +90,16 @@ function IconShieldCheck() {
 
 function IconSettings() {
   return (
-    <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+    <svg
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    >
       <circle cx="10" cy="10" r="3" />
       <path d="M10 2v2M10 14v2M18 10h-2M4 10H2M15.66 4.34l-1.41 1.41M5.75 14.25l-1.41 1.41M15.66 15.66l-1.41-1.41M5.75 5.75L4.34 4.34" />
     </svg>
@@ -88,7 +133,9 @@ function NavItem({ section, label, icon, isActive, badge, onClick }: PortalRTNav
         }
       `}
     >
-      <span className={`flex-shrink-0 ${isActive ? 'text-violet-400' : PortalRTTokens.text.secondary}`}>
+      <span
+        className={`flex-shrink-0 ${isActive ? 'text-violet-400' : PortalRTTokens.text.secondary}`}
+      >
         {icon}
       </span>
       <span className="flex-1 text-left text-sm font-medium">{label}</span>
@@ -97,9 +144,7 @@ function NavItem({ section, label, icon, isActive, badge, onClick }: PortalRTNav
           {badge}
         </span>
       )}
-      {isActive && (
-        <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-violet-400" />
-      )}
+      {isActive && <div className="absolute bottom-0 left-4 right-4 h-0.5 bg-violet-400" />}
     </button>
   );
 }
@@ -148,16 +193,24 @@ export function PortalRTNav({
         icon: <IconSettings />,
       },
     ],
-    [escalationCount]
+    [escalationCount],
   );
 
   return (
-    <nav className={`flex flex-col ${PortalRTTokens.bg.base} border-r ${PortalRTTokens.border.default} h-screen sticky top-0`}>
+    <nav
+      className={`flex flex-col ${PortalRTTokens.bg.base} border-r ${PortalRTTokens.border.default} h-screen sticky top-0`}
+    >
       {/* Logo / Lab name */}
       <div className="px-4 py-6 border-b border-white/8">
         <div className="flex items-center gap-2">
           <div className="w-10 h-10 rounded-lg bg-violet-500/20 flex items-center justify-center">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="currentColor" className="text-violet-400">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+              className="text-violet-400"
+            >
               <path d="M10 2c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 14c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" />
             </svg>
           </div>

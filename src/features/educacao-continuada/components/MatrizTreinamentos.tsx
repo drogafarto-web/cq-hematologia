@@ -48,9 +48,7 @@ function tooltipFor(c: Colaborador, t: Treinamento, cell: MatrizCelula): string 
   const venc = cell.proximoVencimento ? formatDate(cell.proximoVencimento) : '—';
   const dias = cell.diasAteVencimento ?? 0;
   const sufixo =
-    cell.status === 'vencido'
-      ? `${Math.abs(dias)} dia(s) vencido`
-      : `${dias} dia(s) restante(s)`;
+    cell.status === 'vencido' ? `${Math.abs(dias)} dia(s) vencido` : `${dias} dia(s) restante(s)`;
   return `${linha1}\nÚltima aprovação: ${ultima}\nPróximo vencimento: ${venc}\n${sufixo}`;
 }
 
@@ -115,8 +113,8 @@ export function MatrizTreinamentos() {
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold text-slate-100">Matriz de treinamentos</h2>
           <p className="text-sm text-slate-400">
-            Cruzamento colaboradores × treinamentos. Status derivado da última
-            avaliação de competência aprovada e da periodicidade. Janela de aviso:{' '}
+            Cruzamento colaboradores × treinamentos. Status derivado da última avaliação de
+            competência aprovada e da periodicidade. Janela de aviso:{' '}
             <strong className="text-slate-200">{diasAviso} dias</strong>.
           </p>
         </div>
@@ -146,8 +144,8 @@ export function MatrizTreinamentos() {
           Matriz de Treinamentos — {new Date().toLocaleDateString('pt-BR')}
         </h2>
         <p className="text-xs">
-          OK: {contadores.ok} · Vencendo: {contadores.vencendo} · Vencido:{' '}
-          {contadores.vencido} · Pendente: {contadores.pendente}
+          OK: {contadores.ok} · Vencendo: {contadores.vencendo} · Vencido: {contadores.vencido} ·
+          Pendente: {contadores.pendente}
         </p>
       </div>
 

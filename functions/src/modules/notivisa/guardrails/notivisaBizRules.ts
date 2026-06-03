@@ -30,7 +30,7 @@ export function hashNotivisaPayload(payload: NotivisaPayload): string {
 export async function checkDuplicatePayload(
   db: admin.firestore.Firestore,
   labId: string,
-  payloadHash: string
+  payloadHash: string,
 ): Promise<{
   isDuplicate: boolean;
   previousDraftId?: string;
@@ -47,7 +47,7 @@ export async function checkDuplicatePayload(
 
     if (snapshot.empty) {
       return {
-        isDuplicate: false
+        isDuplicate: false,
       };
     }
 
@@ -55,13 +55,13 @@ export async function checkDuplicatePayload(
     return {
       isDuplicate: true,
       previousDraftId: snapshot.docs[0].id,
-      previousSubmittedAt: existingDraft.submittedAt
+      previousSubmittedAt: existingDraft.submittedAt,
     };
   } catch (err) {
     console.warn('[NOTIVISA_BIZRULES] Duplicate check failed:', err);
     // On error, allow submission but log warning
     return {
-      isDuplicate: false
+      isDuplicate: false,
     };
   }
 }
@@ -79,7 +79,7 @@ const SUBMISSION_WINDOW_MS = 24 * 60 * 60 * 1000; // 24 hours
 export async function checkSubmissionGap(
   db: admin.firestore.Firestore,
   labId: string,
-  draftId: string
+  draftId: string,
 ): Promise<{
   gapExceeded: boolean;
   approvalTimestamp?: number;
@@ -89,15 +89,12 @@ export async function checkSubmissionGap(
 }> {
   try {
     // Get draft approval timestamp
-    const draftDoc = await db
-      .collection(`notivisa-drafts/${labId}/drafts`)
-      .doc(draftId)
-      .get();
+    const draftDoc = await db.collection(`notivisa-drafts/${labId}/drafts`).doc(draftId).get();
 
     if (!draftDoc.exists) {
       return {
         gapExceeded: false,
-        error: 'Draft not found'
+        error: 'Draft not found',
       };
     }
 
@@ -107,7 +104,7 @@ export async function checkSubmissionGap(
     if (!approvedAt) {
       return {
         gapExceeded: false,
-        error: 'Draft has not been approved yet'
+        error: 'Draft has not been approved yet',
       };
     }
 
@@ -121,12 +118,14 @@ export async function checkSubmissionGap(
       approvalTimestamp: approvedAt,
       suggestedBy: approvedAt + SUBMISSION_WINDOW_MS,
       hoursElapsed,
-      error: gapExceeded ? `Submission window exceeded: ${hoursElapsed}h since approval (max 24h)` : undefined
+      error: gapExceeded
+        ? `Submission window exceeded: ${hoursElapsed}h since approval (max 24h)`
+        : undefined,
     };
   } catch (err) {
     return {
       gapExceeded: false,
-      error: `Database error: ${err instanceof Error ? err.message : 'Unknown'}`
+      error: `Database error: ${err instanceof Error ? err.message : 'Unknown'}`,
     };
   }
 }
@@ -155,13 +154,11 @@ export async function logGapOverride(
   draftId: string,
   operatorId: string,
   hoursElapsed: number,
-  reason?: string
+  reason?: string,
 ): Promise<{
   overrideId: string;
 }> {
-  const overrideRef = db
-    .collection('notivisa-gap-overrides')
-    .doc();
+  const overrideRef = db.collection('notivisa-gap-overrides').doc();
 
   const override: NotivisaGapOverride = {
     draftId,
@@ -171,7 +168,7 @@ export async function logGapOverride(
     submittedAt: Date.now(),
     hoursElapsed,
     reason,
-    createdAt: admin.firestore.Timestamp.now()
+    createdAt: admin.firestore.Timestamp.now(),
   };
 
   await overrideRef.set(override);
@@ -181,11 +178,11 @@ export async function logGapOverride(
     labId,
     operatorId,
     hoursElapsed,
-    reason
+    reason,
   });
 
   return {
-    overrideId: overrideRef.id
+    overrideId: overrideRef.id,
   };
 }
 
@@ -216,7 +213,7 @@ export async function validateNotivisaBizRules(
   payload: NotivisaPayload,
   options: {
     force?: boolean; // Override all checks
-  } = {}
+  } = {},
 ): Promise<NotivisaBizRuleCheckResult> {
   const errors: NotivisaBizRuleCheckResult['errors'] = [];
   const warnings: NotivisaBizRuleCheckResult['warnings'] = [];
@@ -226,7 +223,7 @@ export async function validateNotivisaBizRules(
       valid: true,
       errors,
       warnings,
-      overrideRequired: false
+      overrideRequired: false,
     };
   }
 
@@ -237,7 +234,7 @@ export async function validateNotivisaBizRules(
   if (duplicateCheck.isDuplicate) {
     errors.push({
       code: 'DUPLICATE_PAYLOAD',
-      message: `Identical payload already submitted (draft: ${duplicateCheck.previousDraftId}, submitted: ${new Date(duplicateCheck.previousSubmittedAt || 0).toISOString()}). Use force=true to override.`
+      message: `Identical payload already submitted (draft: ${duplicateCheck.previousDraftId}, submitted: ${new Date(duplicateCheck.previousSubmittedAt || 0).toISOString()}). Use force=true to override.`,
     });
   }
 
@@ -247,7 +244,7 @@ export async function validateNotivisaBizRules(
   if (gapCheck.gapExceeded) {
     warnings.push({
       code: 'SUBMISSION_GAP_EXCEEDED',
-      message: `${gapCheck.hoursElapsed}h since approval (max 24h per RDC 978 Art. 167). Use force=true to override with reason.`
+      message: `${gapCheck.hoursElapsed}h since approval (max 24h per RDC 978 Art. 167). Use force=true to override with reason.`,
     });
   }
 
@@ -255,7 +252,7 @@ export async function validateNotivisaBizRules(
     valid: errors.length === 0,
     errors,
     warnings,
-    overrideRequired: warnings.length > 0
+    overrideRequired: warnings.length > 0,
   };
 }
 
@@ -263,9 +260,7 @@ export async function validateNotivisaBizRules(
 // Summary Report
 // ─────────────────────────────────────────────────────────────────────────────
 
-export function summarizeNotivisaBizRules(
-  result: NotivisaBizRuleCheckResult
-): string {
+export function summarizeNotivisaBizRules(result: NotivisaBizRuleCheckResult): string {
   if (result.valid && result.warnings.length === 0) {
     return 'All business rules passed ✓';
   }

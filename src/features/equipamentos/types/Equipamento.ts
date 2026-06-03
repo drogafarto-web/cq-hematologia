@@ -42,11 +42,11 @@ export type EquipamentoStatus = 'ativo' | 'manutencao' | 'aposentado';
  * tem eletrônicos + biomateriais residuais).
  */
 export type EquipamentoDestinoFinal =
-  | 'venda'              // transferência a terceiro com nota fiscal
-  | 'devolucao'          // retorno ao fabricante/locadora
-  | 'sucateamento'       // descarte como sucata eletrônica (WEEE)
+  | 'venda' // transferência a terceiro com nota fiscal
+  | 'devolucao' // retorno ao fabricante/locadora
+  | 'sucateamento' // descarte como sucata eletrônica (WEEE)
   | 'descarte-ambiental' // coleta especializada (com resíduo biológico)
-  | 'doacao';            // transferência sem contrapartida (ex: ensino)
+  | 'doacao'; // transferência sem contrapartida (ex: ensino)
 
 // ─── Retenção ─────────────────────────────────────────────────────────────────
 
@@ -219,7 +219,7 @@ export interface Equipamento {
  */
 export type EquipamentoAuditEventType =
   | 'created'
-  | 'updated'              // edição de campos (nome, modelo, obs, nº série)
+  | 'updated' // edição de campos (nome, modelo, obs, nº série)
   | 'manutencao-iniciada'
   | 'manutencao-concluida'
   | 'aposentado';
@@ -228,7 +228,7 @@ export interface EquipamentoAuditEvent {
   id: string;
   labId: string;
   equipamentoId: string;
-  equipamentoNameSnapshot: string;   // congelado — sobrevive a delete do mestre
+  equipamentoNameSnapshot: string; // congelado — sobrevive a delete do mestre
   equipamentoModeloSnapshot: string;
 
   type: EquipamentoAuditEventType;

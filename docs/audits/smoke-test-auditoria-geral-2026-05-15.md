@@ -1,109 +1,114 @@
-# Smoke Test Report — Módulo Auditoria Geral
+# Smoke Test Report ï¿½ Mï¿½dulo Auditoria Geral
 
 **Data:** 15/05/2026  
 **Sistema:** HMATologia / HC Quality  
 **URL:** https://hmatologia2.web.app  
-**Módulo:** Auditoria Geral (57 indicadores · RDC 978/2025)  
+**Mï¿½dulo:** Auditoria Geral (57 indicadores ï¿½ RDC 978/2025)  
 **Testador:** Agente de QA Automatizado (Playwright)  
-**Tipo:** Smoke Test / Validação Operacional  
+**Tipo:** Smoke Test / Validaï¿½ï¿½o Operacional
 
 ---
 
 ## Resumo Executivo
 
-| Item | Resultado |
-|---|---|
-| **Aprovação Geral** | ? **APROVADO** |
-| Estabilidade | ? Estável |
-| Persistência | ? Integral |
-| Performance | ? Responsivo |
-| Erros de Console | 0 erros · 2 warnings (esperados) |
-| Erros HTTP | 0 |
-| Confiança Operacional | ? Alta |
+| Item                  | Resultado                        |
+| --------------------- | -------------------------------- |
+| **Aprovaï¿½ï¿½o Geral**   | ? **APROVADO**                   |
+| Estabilidade          | ? Estï¿½vel                        |
+| Persistï¿½ncia          | ? Integral                       |
+| Performance           | ? Responsivo                     |
+| Erros de Console      | 0 erros ï¿½ 2 warnings (esperados) |
+| Erros HTTP            | 0                                |
+| Confianï¿½a Operacional | ? Alta                           |
 
 ---
 
 ## Cobertura Executada
 
-### Fluxo 1: Login — ? OK (5s)
-### Fluxo 2: Navegação — ? OK (2s)
-### Fluxo 3: Cadastro Completo — ? 57/57 indicadores
+### Fluxo 1: Login ï¿½ ? OK (5s)
 
-| Bloco | Indicadores | Status |
-|---|---|---|
-| A - Documentação Legal e Governança | 5/5 | ? |
-| B - Contratos e Terceirização | 4/4 | ? |
-| C - Tecnologias e Equipamentos | 5/5 | ? |
-| D - Risco e Documentos | 2/2 | ? |
-| E - Pessoal e Educação | 3/3 | ? |
-| F - Infraestrutura e Ambiente | 9/9 | ? |
-| G - Sistemas e Biossegurança | 4/4 | ? |
-| H - Procedimentos e Rastreabilidade | 3/3 | ? |
-| I - Fase Pré-Analítica | 7/7 | ? |
-| J - Fase Analítica | 6/6 | ? |
-| K - Fase Pós-Analítica e Laudos | 3/3 | ? |
-| L - Controle da Qualidade (CIQ/CEQ) | 6/6 | ? |
+### Fluxo 2: Navegaï¿½ï¿½o ï¿½ ? OK (2s)
 
-**Score médio: 80%**
+### Fluxo 3: Cadastro Completo ï¿½ ? 57/57 indicadores
 
-### Fluxo 4: Salvamento — ? OK (automático)
-### Fluxo 5: Reabertura e Persistência — ? OK (100% íntegro)
-### Fluxo 6: Edição — ? OK (score alterado e mantido)
-### Fluxo 7: Encerramento — ? Não implementado na UI
+| Bloco                               | Indicadores | Status |
+| ----------------------------------- | ----------- | ------ |
+| A - Documentaï¿½ï¿½o Legal e Governanï¿½a | 5/5         | ?      |
+| B - Contratos e Terceirizaï¿½ï¿½o       | 4/4         | ?      |
+| C - Tecnologias e Equipamentos      | 5/5         | ?      |
+| D - Risco e Documentos              | 2/2         | ?      |
+| E - Pessoal e Educaï¿½ï¿½o              | 3/3         | ?      |
+| F - Infraestrutura e Ambiente       | 9/9         | ?      |
+| G - Sistemas e Biosseguranï¿½a        | 4/4         | ?      |
+| H - Procedimentos e Rastreabilidade | 3/3         | ?      |
+| I - Fase Prï¿½-Analï¿½tica              | 7/7         | ?      |
+| J - Fase Analï¿½tica                  | 6/6         | ?      |
+| K - Fase Pï¿½s-Analï¿½tica e Laudos     | 3/3         | ?      |
+| L - Controle da Qualidade (CIQ/CEQ) | 6/6         | ?      |
+
+**Score mï¿½dio: 80%**
+
+### Fluxo 4: Salvamento ï¿½ ? OK (automï¿½tico)
+
+### Fluxo 5: Reabertura e Persistï¿½ncia ï¿½ ? OK (100% ï¿½ntegro)
+
+### Fluxo 6: Ediï¿½ï¿½o ï¿½ ? OK (score alterado e mantido)
+
+### Fluxo 7: Encerramento ï¿½ ? Nï¿½o implementado na UI
 
 ---
 
 ## Problemas Encontrados
 
-| # | Severidade | Descrição |
-|---|---|---|
-| 01 | ?? Baixo | Modo Guiado: alguns blocos não renderizam conteúdo ao navegar via sidebar |
-| 02 | ? Info | Sem botão "Salvar" explícito no Expert mode |
-| 03 | ? Info | Sem fluxo de "Finalizar/Concluir" auditoria |
+| #   | Severidade | Descriï¿½ï¿½o                                                                 |
+| --- | ---------- | ------------------------------------------------------------------------- |
+| 01  | ?? Baixo   | Modo Guiado: alguns blocos nï¿½o renderizam conteï¿½do ao navegar via sidebar |
+| 02  | ? Info     | Sem botï¿½o "Salvar" explï¿½cito no Expert mode                               |
+| 03  | ? Info     | Sem fluxo de "Finalizar/Concluir" auditoria                               |
 
 ---
 
-## Análise Técnica
+## Anï¿½lise Tï¿½cnica
 
-- **UX:** Navegação intuitiva, feedback visual claro, progresso em tempo real
-- **Performance:** Sem lentidão, sem timeouts, carregamento rápido
+- **UX:** Navegaï¿½ï¿½o intuitiva, feedback visual claro, progresso em tempo real
+- **Performance:** Sem lentidï¿½o, sem timeouts, carregamento rï¿½pido
 - **Estabilidade:** 0 erros JS, 0 falhas HTTP
-- **Consistência:** Dados íntegros após reabertura e edição
+- **Consistï¿½ncia:** Dados ï¿½ntegros apï¿½s reabertura e ediï¿½ï¿½o
 - **Confiabilidade:** 57/57 indicadores funcionais e persistentes
 
 ---
 
 ## Parecer Final
 
-? **MÓDULO APROVADO PARA USO EM PRODUÇÃO**
+? **Mï¿½DULO APROVADO PARA USO EM PRODUï¿½ï¿½O**
 
-Estabilidade: Alta | Confiança: Alta | Performance: Excelente
+Estabilidade: Alta | Confianï¿½a: Alta | Performance: Excelente
 
-Recomendações: Adicionar salvamento explícito, corrigir navegação Guiada em blocos específicos, implementar fluxo de conclusão.
+Recomendaï¿½ï¿½es: Adicionar salvamento explï¿½cito, corrigir navegaï¿½ï¿½o Guiada em blocos especï¿½ficos, implementar fluxo de conclusï¿½o.
 
-## Rodada 2 — 15/05/2026 (Complementar)
+## Rodada 2 ï¿½ 15/05/2026 (Complementar)
 
 ### Resultados
 
-| Teste | Status | Observação |
-|---|---|---|
-| Aba Analytics | ?? **Vazia** | Mensagem: "Nenhuma auditoria finalizada para exibir analytics." |
-| Aba Análise Crítica | ?? **Vazia** | Mensagem: "Nenhuma auditoria finalizada para análise crítica." |
-| Upload de arquivo (PDF) | ? **Falhou** | Frontend aceita (file chooser abre), Firebase Storage retorna 403 |
-| Observação/Audio | ? **Não testado** | Botão "+ Adicionar observação" e "Gravar áudio" existem mas não foram testados |
+| Teste                   | Status            | Observaï¿½ï¿½o                                                                     |
+| ----------------------- | ----------------- | ------------------------------------------------------------------------------ |
+| Aba Analytics           | ?? **Vazia**      | Mensagem: "Nenhuma auditoria finalizada para exibir analytics."                |
+| Aba Anï¿½lise Crï¿½tica     | ?? **Vazia**      | Mensagem: "Nenhuma auditoria finalizada para anï¿½lise crï¿½tica."                 |
+| Upload de arquivo (PDF) | ? **Falhou**      | Frontend aceita (file chooser abre), Firebase Storage retorna 403              |
+| Observaï¿½ï¿½o/Audio        | ? **Nï¿½o testado** | Botï¿½o "+ Adicionar observaï¿½ï¿½o" e "Gravar ï¿½udio" existem mas nï¿½o foram testados |
 
 ### Novos Problemas
 
-| ID | Severidade | Descrição |
-|---|---|---|
-| #04 | ?? **Alta** | Firebase Storage retorna 403 ao tentar upload de evidência em `auditoria-geral/{labId}/...`. Regras de storage não permitem escrita. |
-| #05 | ? Info | Analytics depende de auditorias finalizadas — funcionalidade gated |
-| #06 | ? Info | Análise Crítica depende de auditorias finalizadas — funcionalidade gated |
+| ID  | Severidade  | Descriï¿½ï¿½o                                                                                                                            |
+| --- | ----------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| #04 | ?? **Alta** | Firebase Storage retorna 403 ao tentar upload de evidï¿½ncia em `auditoria-geral/{labId}/...`. Regras de storage nï¿½o permitem escrita. |
+| #05 | ? Info      | Analytics depende de auditorias finalizadas ï¿½ funcionalidade gated                                                                   |
+| #06 | ? Info      | Anï¿½lise Crï¿½tica depende de auditorias finalizadas ï¿½ funcionalidade gated                                                             |
 
 ### Causa Raiz do Score 80% vs 57/57
 
-Confirmado: **57/57 indicadores foram preenchidos (100% de progresso).** O score de 80% é a **média aritmética** das notas atribuídas (predominantemente notas 4 numa escala 0-5). Não é um problema — o progresso e o score são métricas diferentes.
+Confirmado: **57/57 indicadores foram preenchidos (100% de progresso).** O score de 80% ï¿½ a **mï¿½dia aritmï¿½tica** das notas atribuï¿½das (predominantemente notas 4 numa escala 0-5). Nï¿½o ï¿½ um problema ï¿½ o progresso e o score sï¿½o mï¿½tricas diferentes.
 
 - **Progresso:** 57/57 = 100% (todos respondidos)
-- **Score:** 80% (média dos valores selecionados: 4/5 = 80%)
-- **Status:** "Em andamento" (não há fluxo de finalização)
+- **Score:** 80% (mï¿½dia dos valores selecionados: 4/5 = 80%)
+- **Status:** "Em andamento" (nï¿½o hï¿½ fluxo de finalizaï¿½ï¿½o)

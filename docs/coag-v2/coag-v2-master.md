@@ -19,28 +19,28 @@ Qualquer proposta de redesign que viole este princípio é rejeitada automaticam
 
 ### 1.1 O operador NÃO pensa em
 
-| ❌ Operador NÃO pensa em | ✅ Em vez disso |
-|--------------------------|-----------------|
-| Lotes | Usa "controle" (saco físico, nome interno) |
-| Workflow / estados (pendente, em validação, aprovado) | Status é invisível; só RT vê |
-| Nível I vs Nível II | Escolhe "controle" e o sistema sabe o nível por trás |
-| Calibração de bula (mean/SD) | RT configura no `ControlOperacional` antes |
-| Calibração INR (ISI/MNPT) | Configuração do equipamento (uma vez) |
-| NOTIVISA | RTAction (RT decide se aplicar) |
-| Regras Westgard | Avaliação estatística fica invisível; só RT vê violações |
-| Conformidade A/R | Badge sutil — não bloqueia save |
+| ❌ Operador NÃO pensa em                              | ✅ Em vez disso                                          |
+| ----------------------------------------------------- | -------------------------------------------------------- |
+| Lotes                                                 | Usa "controle" (saco físico, nome interno)               |
+| Workflow / estados (pendente, em validação, aprovado) | Status é invisível; só RT vê                             |
+| Nível I vs Nível II                                   | Escolhe "controle" e o sistema sabe o nível por trás     |
+| Calibração de bula (mean/SD)                          | RT configura no `ControlOperacional` antes               |
+| Calibração INR (ISI/MNPT)                             | Configuração do equipamento (uma vez)                    |
+| NOTIVISA                                              | RTAction (RT decide se aplicar)                          |
+| Regras Westgard                                       | Avaliação estatística fica invisível; só RT vê violações |
+| Conformidade A/R                                      | Badge sutil — não bloqueia save                          |
 
 ### 1.2 O operador SÓ pensa em
 
-| ✅ Operador pensa em |
-|---------------------|
+| ✅ Operador pensa em                                           |
+| -------------------------------------------------------------- |
 | "Qual controle eu tô usando?" (seleciona controle de dropdown) |
-| "Qual equipamento?" (seleciona equipamento) |
-| "Resultado AP = X" |
-| "Resultado RNI = Y" |
-| "Resultado TTPA = Z" |
-| "Tem ação corretiva?" (só se houver violação — RT vê também) |
-| Salvar |
+| "Qual equipamento?" (seleciona equipamento)                    |
+| "Resultado AP = X"                                             |
+| "Resultado RNI = Y"                                            |
+| "Resultado TTPA = Z"                                           |
+| "Tem ação corretiva?" (só se houver violação — RT vê também)   |
+| Salvar                                                         |
 
 **Resultado:** ~6 campos operacionais. Todo o resto é contexto.
 
@@ -61,21 +61,21 @@ ControlOperacional = {
   labId: string
   nome: string                    // "Controle Normal" / "Controle Patológico"
   nivel: 'I' | 'II'                // Propriedade — operador não vê
-  
+
   // Vínculo com insumo (slot do EquipmentSetup)
   insumoId: string                // Referência ao documento do insumo
   equipamentoId: string           // Clotimer Duo, etc.
-  
+
   // Configuração prévia (RT faz)
   mean: Record<CoagAnalyteId, number>   // Bula do lote
   sd: Record<CoagAnalyteId, number>     // Bula do lote
   validadeControle: string
   fabricanteControle: string
   loteControle: string                  // Campo interno — operador não vê
-  
+
   // Status operacional (invisível para operador)
   status: 'ativo' | 'pausado' | 'aposentado'
-  
+
   // Timeline
   criadoEm: Timestamp
   criadoPor: string
@@ -95,20 +95,20 @@ Attempt = {
   id: string                        // UUID
   labId: string
   controlOperacionalId: string      // Referência ao controle
-  
+
   // Dados operacionais (visíveis para operador)
   equipamentoId: string             // Selecionado em UI
   resultados: Record<CoagAnalyteId, number>  // Inputs
   dataRealizacao: string            // auto
-  
+
   // Avaliação estatística (invisível para operador, visível para RT)
   conformidade?: 'A' | 'R'          // derivado de Westgard
   violacoes?: WestgardViolation[]
   analitosComViolacao?: CoagAnalyteId[]
-  
+
   // Ação corretiva (opcional — aparece só se não conforme)
   acaoCorretiva?: string
-  
+
   // Snapshots imutáveis (preservação regulatória)
   snapshot: {
     insumo: InsumoSnapshot
@@ -116,19 +116,19 @@ Attempt = {
     reagenteTtpa?: InsumoSnapshot
     equipamento: EquipamentoSnapshot
   }
-  
+
   // Overrides auditados (gate regulatório)
   overrides?: {
     insumoVencido?: boolean
     qcNaoValidado?: boolean
     motivo?: string                  // obrigatório se há override
   }
-  
+
   // Assinatura (preservação lógica)
   logicalSignature: string
   signedBy: string
   signedAt: Timestamp
-  
+
   // Timeline
   criadoEm: Timestamp
   criadoPor: string
@@ -136,6 +136,7 @@ Attempt = {
 ```
 
 **Por que apenas ~6 campos operacionais:**
+
 - `controlOperacionalId` — dropdown
 - `equipamentoId` — dropdown
 - `resultados.{AP, RNI, TTPA}` — 3 inputs
@@ -152,28 +153,28 @@ RTAction = {
   id: string
   labId: string
   tipo: 'aprovar_controle' | 'rejeitar_controle' | 'notificar_notivisa'
-  
+
   // Vínculo (polimórfico por tipo)
   targetRef: {
     type: 'ControlOperacional' | 'Attempt'
     id: string
   }
-  
+
   // Payload específico por tipo
   payload: {
     // aprovar_controle / rejeitar_controle
     decisao?: 'A' | 'NA' | 'Rejeitado'
-    
+
     // notificar_notivisa
     notivisaTipo?: 'queixa_tecnica' | 'evento_adverso'
     notivisaProtocolo?: string
     notivisaDataEnvio?: string
     notivisaJustificativa?: string
-    
+
     // Motivo (obrigatório)
     motivo: string
   }
-  
+
   // Timeline
   criadoEm: Timestamp
   criadoPor: string                 // UID do RT
@@ -195,11 +196,13 @@ O sistema emite 3 tipos de eventos operacionais, não mais:
 ```
 
 **NÃO há:**
+
 - ❌ Status: "pendente", "em validação", "aprovado" (workflow states)
 - ❌ Eventos: "criou lote", "vinculou equipamento", "configurou bula"
 - ❌ Timeline técnica: "snapshot foi gerado", "assinatura foi calculada"
 
 **A UI mostra:**
+
 - Operador vê: "Tentativa X · AP 98% · RNI 1.02 · TTPA 33s · ✓"
 - RT vê: "Tentativa X · conformidade A · violações: 0 · aprovar/rejeitar"
 
@@ -367,11 +370,13 @@ Todo o "ruído técnico" (snapshots, assinaturas, cálculos) acontece em segundo
 ### 6.1 Abstração Exposta
 
 **❌ Proibido:** Entidade técnica com nome técnico em UI operacional
+
 - ❌ "CoagulacaoLot" — operador não deve saber que é um "lote"
 - ❌ "CoagulacaoRun" — operador não conhece "run" do inglês técnico
 - ❌ "EquipmentSetup" em UI — operador vê equipamento, não setup
 
 **✅ Permitido:** Nome conceitual ou descritivo
+
 - ✅ "Controle Normal" (ControlOperacional)
 - ✅ "Tentativa" (Attempt)
 - ✅ "Clotimer Duo" (nome comercial)
@@ -379,89 +384,107 @@ Todo o "ruído técnico" (snapshots, assinaturas, cálculos) acontece em segundo
 ### 6.2 Estado Múltiplo
 
 **❌ Proibido:** Entidade com múltiplos status ortogonais
+
 - ❌ `lotStatus` + `coagDecision` + `setupType` (legado)
 - ❌ `pendente` / `em validação` / `aprovado` / `em revisão` / `rejeitado`
 
 **✅ Permitido:** 1 ou 2 estados, mutuamente excludentes
+
 - ✅ `ControlOperacional.status`: `'ativo' | 'pausado' | 'aposentado'`
 - ✅ `Attempt.conformidade`: `'A' | 'R'` (calculado, não setado)
 
 ### 6.3 Campo Obrigatório com Heurística
 
 **❌ Proibido:** Campo que depende de lógica complexa pra "descobrir" se deve aparecer
+
 - ❌ Bloco "Calibração Bula" que aparece via `isNewLot` heurístico
 - ❌ Seção NOTIVISA que aparece via `outOfRange.length > 0`
 
 **✅ Permitido:** Campo que aparece via regra simples e previsível
+
 - ✅ Textarea "ação corretiva" aparece se `violacoes.length > 0` (regra objetiva)
 - ✅ Campo de motivo aparece sempre (em RTAction)
 
 ### 6.4 Workflow Exposto
 
 **❌ Proibido:** Interface que expõe o ciclo de vida técnico internamente
+
 - ❌ "Status: pendente" → "Status: em validação" → "Status: aprovado"
 - ❌ Stepper no topo: "1. Insumos → 2. Resultados → 3. Validação"
 
 **✅ Permitido:** Timeline narrativa (histórico do que aconteceu, não do que precisa acontecer)
+
 - ✅ "Tentativa criada · 09:14"
 - ✅ "Aprovada pelo RT · 09:27"
 
 ### 6.5 Input Manual de Campo Derivado
 
 **❌ Proibido:** Campo que o sistema pode preencher automaticamente mas o operador digita
+
 - ❌ Lote do controle (vem do insumo selecionado)
 - ❌ Fabricante do controle (vem do insumo selecionado)
 - ❌ Abertura/validade do controle (vem do insumo selecionado)
 
 **✅ Permitido:** Campo que só faz sentido o operador conhecer
+
 - ✅ Resultado da medição (única informação operacional real)
 - ✅ Ação corretiva (descrição textual — subjetiva)
 
 ### 6.6 Acoplamento Temporal no Cliente
 
 **❌ Proibido:** Lógica crítica que depende de subscription em tempo real
+
 - ❌ `isNewLot` checa `existingLots.some(...)` no cliente durante typing
 - ❌ Heurística de "controle em uso" que depende de subscription
 
 **✅ Permitido:** Regra derivada de `ControlOperacional` já persistido
+
 - ✅ Controle existe → usa mean/sd dele
 - ✅ Controle não existe → bloqueia save, exige configuração
 
 ### 6.7 Entidade Raiz por Atributo
 
 **❌ Proibido:** Entidade cuja chave principal é um atributo técnico
+
 - ❌ "Lote" é entidade raiz porque "lote químico precisa de múltiplas runs"
 - ❌ Nível I / Nível II são entidades separadas
 
 **✅ Permitido:** Entidade cujo conceito é operacional
+
 - ✅ "Controle Operacional" (unifica nível + lote + bula)
 - ✅ "Tentativa" (unifica run + resultados + avaliação)
 
 ### 6.8 Exposição de Estatística ao Operador
 
 **❌ Proibido:** Mostrar regras Westgard na UI do operador
+
 - ❌ "Violação: 1-3s" em tooltip da run
 - ❌ Badge "⚠ Westgard R-4s violada"
 
 **✅ Permitido:** Badge simples de conformidade + detalhe pra RT
+
 - ✅ "✕ Fora dos limites" (operador — sem estatística)
 - ✅ "1-3s violada" (RT — detalhe técnico)
 
 ### 6.9 Over-engineering no Save
 
 **❌ Proibido:** Múltiplos serviços, múltiplas operações explícitas
+
 - ❌ `findCoagLot` → `createCoagLot` → `findCoagRuns` → `computeWestgard` → `generateRunCode` → `sign` → `saveRun` → `updateLot` → `writeAudit` (9 passos no legado)
 
 **✅ Permitido:** 1 método público com orquestração interna
+
 - ✅ `Attempt.save(data, options)` — orquestração invisível
 
 ### 6.10 Multi-Agente com Estado Compartilhado
 
 **❌ Proibido:** Dois agentes escrevendo no mesmo documento sem coordenação explícita
+
 - ❌ Hook A + Hook B atualizam `lotStatus` em parallel
 - ❌ Form + Subscription competindo por `form.nivel`
 
 **✅ Permitido:** Cada agente opera em uma entidade
+
 - ✅ Agente A escreve em `Attempt`
 - ✅ Agente B lê `Attempt` + grava `RTAction`
 
@@ -473,28 +496,28 @@ Todo o "ruído técnico" (snapshots, assinaturas, cálculos) acontece em segundo
 
 ### 7.1 Preservar 100%
 
-| Componente | Onde fica | Quem vê |
-|------------|-----------|---------|
-| Regras Westgard (6) | `Attempt.violacoes` (calculado em save) | RT |
-| Snapshots (insumo, reagente, equipamento) | `Attempt.snapshot` | RT + auditor |
-| LogicalSignature (SHA-256) | `Attempt.logicalSignature` | RT + auditor + rules Firestore |
-| Audit Records imutáveis | `/labs/{labId}/ciq-coagulacao-audit/{auditId}` | Auditoria |
-| `ConferenciaInsumoAtivo` (gate) | Tentativa — antes de salvar | Operador (sem entender "gate") |
-| `OverrideModal` (gate) | Tentativa — antes de salvar | Operador (justificativa textual) |
-| `EQUIP_ANALYTES` dicionário | Configuração interna | Sistema |
-| `COAG_ANALYTES` baselines | Configuração interna | Sistema + RT |
+| Componente                                | Onde fica                                      | Quem vê                          |
+| ----------------------------------------- | ---------------------------------------------- | -------------------------------- |
+| Regras Westgard (6)                       | `Attempt.violacoes` (calculado em save)        | RT                               |
+| Snapshots (insumo, reagente, equipamento) | `Attempt.snapshot`                             | RT + auditor                     |
+| LogicalSignature (SHA-256)                | `Attempt.logicalSignature`                     | RT + auditor + rules Firestore   |
+| Audit Records imutáveis                   | `/labs/{labId}/ciq-coagulacao-audit/{auditId}` | Auditoria                        |
+| `ConferenciaInsumoAtivo` (gate)           | Tentativa — antes de salvar                    | Operador (sem entender "gate")   |
+| `OverrideModal` (gate)                    | Tentativa — antes de salvar                    | Operador (justificativa textual) |
+| `EQUIP_ANALYTES` dicionário               | Configuração interna                           | Sistema                          |
+| `COAG_ANALYTES` baselines                 | Configuração interna                           | Sistema + RT                     |
 
 ### 7.2 Esconder do Operador (invisível)
 
-| Componente | Onde fica | Por quê |
-|------------|-----------|---------|
-| Lote químico | Campo em `ControlOperacional` | Operador não pensa em lote |
-| Nível I/II | Campo em `ControlOperacional` | Operador vê "Normal"/"Patológico" |
-| Conformidade A/R | Badge sutil `✓` / `✕` | Decisão estatística, não operacional |
-| Mean/SD do fabricante | `ControlOperacional` | Configurado previamente pelo RT |
-| Status do lote | Inexistente | Substituído por timeline narrativa |
-| NOTIVISA | `RTAction` específica | Pertence ao RT, não ao operador |
-| Calibração bula | `RTAction` pré-tentativa | RT faz configuração antes |
+| Componente            | Onde fica                     | Por quê                              |
+| --------------------- | ----------------------------- | ------------------------------------ |
+| Lote químico          | Campo em `ControlOperacional` | Operador não pensa em lote           |
+| Nível I/II            | Campo em `ControlOperacional` | Operador vê "Normal"/"Patológico"    |
+| Conformidade A/R      | Badge sutil `✓` / `✕`         | Decisão estatística, não operacional |
+| Mean/SD do fabricante | `ControlOperacional`          | Configurado previamente pelo RT      |
+| Status do lote        | Inexistente                   | Substituído por timeline narrativa   |
+| NOTIVISA              | `RTAction` específica         | Pertence ao RT, não ao operador      |
+| Calibração bula       | `RTAction` pré-tentativa      | RT faz configuração antes            |
 
 ---
 
@@ -582,13 +605,13 @@ O redesign está completo quando, e somente quando:
 
 ### 10.1 Alvos
 
-| Aspecto | Alvo |
-|---------|------|
-| Público | Laboratório pequeno (1-5 operadores, 1 equipamento) |
-| Implementação | DeepSeek Flash V4 gratuito (sem dependência de modelo grande) |
-| Agentes | Múltiplos agentes trabalhando em paralelo em entidades isoladas |
-| Carga cognitiva | Baixa — qualquer pessoa consegue operar em 5 minutos |
-| Previsibilidade | Alta — 3 estados, 3 eventos, regras claras |
+| Aspecto         | Alvo                                                            |
+| --------------- | --------------------------------------------------------------- |
+| Público         | Laboratório pequeno (1-5 operadores, 1 equipamento)             |
+| Implementação   | DeepSeek Flash V4 gratuito (sem dependência de modelo grande)   |
+| Agentes         | Múltiplos agentes trabalhando em paralelo em entidades isoladas |
+| Carga cognitiva | Baixa — qualquer pessoa consegue operar em 5 minutos            |
+| Previsibilidade | Alta — 3 estados, 3 eventos, regras claras                      |
 
 ### 10.2 Regras de Design
 
@@ -628,18 +651,18 @@ O redesign está completo quando, e somente quando:
 
 ## 12. Referência Rápida
 
-| Pergunta | Resposta |
-|----------|----------|
-| O que o operador vê? | "Qual controle + 3 resultados + ação corretiva se houver" |
-| O que o RT vê? | KPIs, tentativas, violações, opções de aprovar/rejeitar/NOTIVISA |
-| Quantas entidades? | 3: ControlOperacional, Attempt, RTAction |
-| Quantos eventos? | 3: attempt.criado, controle.aprovado, controle.rejeitado |
-| Quantos campos operacionais? | ≤ 6 no pior caso |
-| Quantos estados por entidade? | 1-2 (ex: status + conformidade) |
-| Regras Westgard preservadas? | 100% (6 regras CLSI) |
-| Snapshots preservados? | 100% (insumo + reagente + equipamento) |
-| Signature preservada? | 100% (SHA-256 + canonical results) |
-| Auditoria preservada? | 100% (subcoleção imutável) |
+| Pergunta                      | Resposta                                                         |
+| ----------------------------- | ---------------------------------------------------------------- |
+| O que o operador vê?          | "Qual controle + 3 resultados + ação corretiva se houver"        |
+| O que o RT vê?                | KPIs, tentativas, violações, opções de aprovar/rejeitar/NOTIVISA |
+| Quantas entidades?            | 3: ControlOperacional, Attempt, RTAction                         |
+| Quantos eventos?              | 3: attempt.criado, controle.aprovado, controle.rejeitado         |
+| Quantos campos operacionais?  | ≤ 6 no pior caso                                                 |
+| Quantos estados por entidade? | 1-2 (ex: status + conformidade)                                  |
+| Regras Westgard preservadas?  | 100% (6 regras CLSI)                                             |
+| Snapshots preservados?        | 100% (insumo + reagente + equipamento)                           |
+| Signature preservada?         | 100% (SHA-256 + canonical results)                               |
+| Auditoria preservada?         | 100% (subcoleção imutável)                                       |
 
 ---
 

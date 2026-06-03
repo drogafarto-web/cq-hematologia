@@ -12,6 +12,7 @@
 This ADR documents the decision to implement an **accuracy metrics calculator** and **monthly dataset export pipeline** for training data feedback. The system measures how well Gemini Vision classifications match manually-verified verdicts, producing aggregated metrics for ML team fine-tuning and compliance auditing.
 
 **Key Components:**
+
 - `accuracyCalculator.ts` — calculates overall + per-confidence-bin + per-test-kit metrics
 - `collectIADataset.ts` — Cloud Function callable exporting monthly datasets to Cloud Storage
 - `handleMLTeamFeedback.ts` — placeholder for Phase 11+ fine-tuning feedback integration
@@ -30,6 +31,7 @@ Phase 4 delivered IA image classification (Gemini Vision). Phase 5 needs:
 4. **Compliance audit trail** — RDC 978 Art. 167 (laudo accuracy), DICQ 4.14.7 (supplier evaluation)
 
 Without these, the IA pipeline lacks:
+
 - Quality control visibility (no metrics)
 - ML iteration cycle (no structured feedback)
 - Regulatory traceability (no export audit trail)
@@ -55,6 +57,7 @@ export function calculateAccuracy(images: VerifiedImage[]): AccuracyMetrics {
 ```
 
 **Rationale:**
+
 - Stateless calculation = testable, deterministic, repeatable
 - Binning by confidence reveals calibration issues (e.g., 0.9-1.0 has lower accuracy → threshold too high)
 - Per-test-kit breakdown enables targeted retraining (if HIV accuracy lags)
@@ -77,6 +80,7 @@ collectIADataset({labId, exportMonth: "2026-05"})
 ```
 
 **Export JSON Schema:**
+
 ```json
 {
   "export_metadata": {
@@ -115,6 +119,7 @@ collectIADataset({labId, exportMonth: "2026-05"})
 **Idempotency:** Same `exportMonth` → overwrites previous export. Cloud Storage is immutable by nature (re-upload replaces the file).
 
 **Audit Trail:** Every export recorded in `/labs/{labId}/imuno-ia-exports/{exportId}` with:
+
 - `exportedBy: operatorId`
 - `exportedAt: timestamp`
 - `stats: { totalImages, verifiedImages, accuracy }`
@@ -139,6 +144,7 @@ Stores in /labs/{labId}/imuno-ia-feedback/{feedbackId} with status: "PENDING_IMP
 **Phase 5 Scope:** Placeholder only. Records feedback for audit trail.
 
 **Phase 11+ Implementation Will:**
+
 1. Validate ML team signature (TBD: auth scheme)
 2. Update `/labs/{labId}/imuno-ia-config` with new `modelVersion`
 3. Set new `confidenceThreshold` if provided
@@ -149,12 +155,13 @@ Stores in /labs/{labId}/imuno-ia-feedback/{feedbackId} with status: "PENDING_IMP
 
 **Collections:**
 
-| Collection | Path | Write | Read | Notes |
-|---|---|---|---|---|
-| `imuno-ia-exports` | `/labs/{labId}/imuno-ia-exports/{id}` | Cloud Function only | Admin/RT | Immutable export records |
-| `imuno-ia-feedback` | `/labs/{labId}/imuno-ia-feedback/{id}` | Cloud Function only | Admin/RT | Immutable feedback log |
+| Collection          | Path                                   | Write               | Read     | Notes                    |
+| ------------------- | -------------------------------------- | ------------------- | -------- | ------------------------ |
+| `imuno-ia-exports`  | `/labs/{labId}/imuno-ia-exports/{id}`  | Cloud Function only | Admin/RT | Immutable export records |
+| `imuno-ia-feedback` | `/labs/{labId}/imuno-ia-feedback/{id}` | Cloud Function only | Admin/RT | Immutable feedback log   |
 
 **Rules:**
+
 ```firestore
 match /imuno-ia-exports/{exportId} {
   allow read: if isAdminOrRT(labId);
@@ -190,16 +197,19 @@ match /imuno-ia-feedback/{feedbackId} {
 ## Alternatives Considered
 
 ### A. Real-time metrics calculation (rejected)
+
 - **Pro:** Always current
 - **Con:** Expensive on every image verify; blocks UI
 - **Decision:** Batch calculation via monthly export is sufficient for ML iteration cycles
 
 ### B. Store metrics in Firestore directly (rejected)
+
 - **Pro:** Real-time query
 - **Con:** Recalculation is expensive; immutability harder to enforce
 - **Decision:** Export to Cloud Storage (immutable, queryable via JSON) + audit log in Firestore
 
 ### C. No feedback mechanism (rejected)
+
 - **Pro:** Simpler Phase 5
 - **Con:** No integration path for improved models; labs stuck with baseline
 - **Decision:** Placeholder callable in Phase 5, functional in Phase 11+
@@ -229,16 +239,16 @@ match /imuno-ia-feedback/{feedbackId} {
 
 ### Code Artifacts
 
-| File | Lines | Purpose |
-|---|---|---|
-| `functions/src/modules/ciqImuno/accuracyCalculator.ts` | 196 | Pure calculation library |
-| `functions/src/modules/ciqImuno/collectIADataset.ts` | 417 | Monthly export callable |
-| `functions/src/modules/ciqImuno/handleMLTeamFeedback.ts` | 112 | Feedback placeholder callable |
-| `functions/test/ciqImuno/accuracyCalculator.test.mjs` | 362 | 7 unit tests (100% coverage) |
-| `functions/test/ciqImuno/collectIADataset.test.mjs` | 273 | 8 unit tests (schema + diversity) |
-| `firestore.rules` | +30 lines | Rules for export + feedback collections |
-| `firestore.indexes.json` | +5 indexes | Composite indexes for queries |
-| `functions/src/index.ts` | exports | Register callables |
+| File                                                     | Lines      | Purpose                                 |
+| -------------------------------------------------------- | ---------- | --------------------------------------- |
+| `functions/src/modules/ciqImuno/accuracyCalculator.ts`   | 196        | Pure calculation library                |
+| `functions/src/modules/ciqImuno/collectIADataset.ts`     | 417        | Monthly export callable                 |
+| `functions/src/modules/ciqImuno/handleMLTeamFeedback.ts` | 112        | Feedback placeholder callable           |
+| `functions/test/ciqImuno/accuracyCalculator.test.mjs`    | 362        | 7 unit tests (100% coverage)            |
+| `functions/test/ciqImuno/collectIADataset.test.mjs`      | 273        | 8 unit tests (schema + diversity)       |
+| `firestore.rules`                                        | +30 lines  | Rules for export + feedback collections |
+| `firestore.indexes.json`                                 | +5 indexes | Composite indexes for queries           |
+| `functions/src/index.ts`                                 | exports    | Register callables                      |
 
 ### Tests
 
@@ -278,13 +288,13 @@ match /imuno-ia-feedback/{feedbackId} {
 
 ## Compliance
 
-| Requirement | Coverage | Notes |
-|---|---|---|
-| RDC 978 Art. 167 | ✅ Full | Supplier (Gemini) accuracy evaluation; export = evidence |
-| DICQ 4.14.7 | ✅ Full | Supplier evaluation on metrics; annual review via dashboard |
-| LGPD Art. 9 | ✅ Full | Image data only shared with ML team via auth-gated export (admin-only) |
-| Audit trail | ✅ Full | Every export logged in Firestore + immutable in Cloud Storage |
-| Non-repudiation | ✅ Full | Export signed by operatorId + timestamp |
+| Requirement      | Coverage | Notes                                                                  |
+| ---------------- | -------- | ---------------------------------------------------------------------- |
+| RDC 978 Art. 167 | ✅ Full  | Supplier (Gemini) accuracy evaluation; export = evidence               |
+| DICQ 4.14.7      | ✅ Full  | Supplier evaluation on metrics; annual review via dashboard            |
+| LGPD Art. 9      | ✅ Full  | Image data only shared with ML team via auth-gated export (admin-only) |
+| Audit trail      | ✅ Full  | Every export logged in Firestore + immutable in Cloud Storage          |
+| Non-repudiation  | ✅ Full  | Export signed by operatorId + timestamp                                |
 
 ---
 

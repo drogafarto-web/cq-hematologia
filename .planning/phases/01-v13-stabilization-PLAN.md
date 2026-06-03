@@ -1,9 +1,9 @@
 ---
 phase: 01-v13-stabilization
-title: "v1.3 Stabilization & Deployment Wrap-Up — Execution Plan"
+title: 'v1.3 Stabilization & Deployment Wrap-Up — Execution Plan'
 duration_days: 4
 estimated_effort_points: 24
-parallelizable_streams: "A + DevOps (independent paths)"
+parallelizable_streams: 'A + DevOps (independent paths)'
 owner: CTO
 status: READY
 ---
@@ -88,28 +88,29 @@ Email from DevOps Lead to CTO + QA: "Cloud Logs reviewed. 0 errors blocking prod
    - **CTO sign-off:** Architectural decisions locked, v1.4 roadmap approved
 
 2. **Draft memo structure:**
+
    ```
    v1.3 DEPLOYMENT CLOSURE MEMO
    ----
    Date: [Day 3]
    Phase: v1.3 (complete)
    Status: CLOSED (production ready)
-   
+
    ## Deployment summary
    - Timeline: [dates of phase 9 + deployment]
    - Modules: 25 live + auditable
    - Tests: 738/738 passing
    - DICQ baseline: 78.5% (locked)
-   
+
    ## Sign-offs
    - CTO (architecture): [signature + date]
    - RT (medical): [signature + date]
    - DevOps (infra): [signature + date]
    - QA (testing): [signature + date]
-   
+
    ## Known issues resolved (if any)
    - [List any TEMP-IMPLANTACAO flags or Phase 0 blockers that are closed]
-   
+
    ## Next steps
    - Production monitoring: 48h post-deploy window
    - v1.4 Phase 1 kickoff: 2026-05-08 (pending memo)
@@ -162,6 +163,7 @@ CTO posts in Slack #v1.4-phase-1: "v1.3 closure memo signed by RT, DevOps, QA. P
    - Note: Some phases may be in `00-rdc-blockers`, `02-construction`, etc. (v1.3 retro)
 
 2. **Create archive directory structure:**
+
    ```
    .planning/milestones/v1.3-ARCHIVE/
      ├── phases/
@@ -184,14 +186,15 @@ CTO posts in Slack #v1.4-phase-1: "v1.3 closure memo signed by RT, DevOps, QA. P
    - Update `.planning/phases/README.md` to point to archive
 
 4. **Create archive index (v1.3-ARCHIVE-INDEX.md):**
+
    ```
    # v1.3 Archive Index
-   
+
    **Period:** 2026-03-15 → 2026-05-07
    **Total phases:** 12 (phases 00–07)
    **Modules delivered:** 25
    **Tests passing:** 738/738
-   
+
    | Phase | Title | Dates | Owner | Modules | Status |
    |-------|-------|-------|-------|---------|--------|
    | 00 | RDC Blockers | 2026-03-15–2026-04-01 | CTO | 5 | Complete |
@@ -203,7 +206,7 @@ CTO posts in Slack #v1.4-phase-1: "v1.3 closure memo signed by RT, DevOps, QA. P
    | 05 | Auditoria Interna | 2026-05-05–2026-05-06 | QA | — | Complete |
    | 06 | Compliance | 2026-05-06–2026-05-07 | Compliance | — | Complete |
    | 07 | Dry Run | 2026-05-07–2026-05-07 | DevOps | — | Complete |
-   
+
    **Key artifacts:**
    - Phase execution summaries (1 per phase)
    - Test results + coverage reports
@@ -406,11 +409,12 @@ CTO posts: "v1.4 ROADMAP approved by all 4 stream leads. 22-week timeline locked
    - Flag any out-of-order assignments
 
 2. **Create v1.4-REQ-PHASE-MATRIX.md:**
+
    ```
    # v1.4 Requirements ↔ Phase Matrix
-   
+
    **Purpose:** Resolves RISK-401 (REQ↔Phase inconsistency). Single source of truth for execution.
-   
+
    | REQ ID | Title | DICQ Block | RDC Article | Phase | Owner | Effort (pts) | Status |
    |--------|-------|-----------|-------------|-------|-------|--------------|--------|
    | REQ-401 | Advanced KPI Dashboarding | 4.12.1, 4.14.7 | Art. 86 | 1 | Stream D | 16–20 | Planned |
@@ -419,7 +423,7 @@ CTO posts: "v1.4 ROADMAP approved by all 4 stream leads. 22-week timeline locked
    | REQ-404 | Coleta + Transporte | 5.4 | Arts. 128–131 | 2 | Stream B | 18–22 | Planned |
    | … | … | … | … | … | … | … | … |
    | REQ-415 | Laudo Reconciliation | 4.13 | Art. 115 | 3 | Stream A | 13–16 | Planned |
-   
+
    **Summary:**
    - Total REQs: 15 main
    - Total effort: ~160–190 pts
@@ -439,7 +443,7 @@ CTO posts: "v1.4 ROADMAP approved by all 4 stream leads. 22-week timeline locked
 
 5. **Mark scope boundaries:**
    - REQ-501–507: Out-of-scope v1.4 (parking lot for v2)
-   - TD-401–405: Technical debt (must-have, parallelizable with REQ-*)
+   - TD-401–405: Technical debt (must-have, parallelizable with REQ-\*)
 
 6. **CTO sign-off:**
    - Review matrix for ambiguities + conflicts
@@ -590,7 +594,7 @@ QA Lead posts: "v1.4 Risk Register approved. 19 risks tracked. Weekly reviews st
   - Phase 2 objective + scope
   - 8 tasks (Phase 2 sub-phases)
   - Timeline + effort
-  
+
 functions/src/v1.4-base/
   - Skeleton directory structure (no implementation yet)
   - README with callable list + ownership
@@ -604,17 +608,17 @@ Tech Lead posts: "Phase 2 planning complete. Schema whiteboarded. Rules audit sc
 
 ## Effort & Timeline Summary
 
-| Task | Hours | Days | Effort Pts | Parallelizable | Owner |
-|------|-------|------|-----------|----------------|-------|
-| T1: Cloud Logs | 4h | 1 | 2 | Yes (parallel w/ T2) | DevOps |
-| T2: Closure memo | 2–3h | 1–3 | 2 | Yes (parallel w/ T1) | CTO |
-| T3: Archive | 3–4h | 2 | 2 | Solo | CTO |
-| T4: Smoke tests | 3–4h | 2 | 3 | Solo | QA |
-| T5: ROADMAP review | 4–5h | 1–3 | 4 | Sync needed (all leads) | CTO + Streams |
-| T6: REQUIREMENTS | 3–4h | 2 | 3 | Solo | CTO + Compliance |
-| T7: Risk register | 2–3h | 3 | 2 | Solo | QA |
-| T8: Phase 2 prep | 4–5h | 2–3 | 4 | Solo | Tech Lead + Stream A |
-| **TOTAL** | **28–35h** | **4 days** | **24 pts** | — | — |
+| Task               | Hours      | Days       | Effort Pts | Parallelizable          | Owner                |
+| ------------------ | ---------- | ---------- | ---------- | ----------------------- | -------------------- |
+| T1: Cloud Logs     | 4h         | 1          | 2          | Yes (parallel w/ T2)    | DevOps               |
+| T2: Closure memo   | 2–3h       | 1–3        | 2          | Yes (parallel w/ T1)    | CTO                  |
+| T3: Archive        | 3–4h       | 2          | 2          | Solo                    | CTO                  |
+| T4: Smoke tests    | 3–4h       | 2          | 3          | Solo                    | QA                   |
+| T5: ROADMAP review | 4–5h       | 1–3        | 4          | Sync needed (all leads) | CTO + Streams        |
+| T6: REQUIREMENTS   | 3–4h       | 2          | 3          | Solo                    | CTO + Compliance     |
+| T7: Risk register  | 2–3h       | 3          | 2          | Solo                    | QA                   |
+| T8: Phase 2 prep   | 4–5h       | 2–3        | 4          | Solo                    | Tech Lead + Stream A |
+| **TOTAL**          | **28–35h** | **4 days** | **24 pts** | —                       | —                    |
 
 **Estimated work capacity:** 3–4 days elapsed time (with parallelization of T1/T2 + sync gates)
 
@@ -647,6 +651,7 @@ Day 4:
 ```
 
 **Critical-path items:**
+
 - T5 (ROADMAP approval) — must finish Day 3 for Phase 2 kickoff
 - T6 (REQ phase-assignment) — resolves RISK-401 (blocker)
 - T1 (Logs) + T2 (Memo) — prerequisite for deployment sign-off

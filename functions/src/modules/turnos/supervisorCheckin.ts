@@ -111,10 +111,7 @@ export const turnos_supervisorCheckin = onCall<unknown, Promise<CheckinResult>>(
     }
     const colab = colabSnap.data()!;
     if (colab['ativo'] !== true) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Colaborador não está ativo (RN-TURNO-02).',
-      );
+      throw new HttpsError('failed-precondition', 'Colaborador não está ativo (RN-TURNO-02).');
     }
 
     const supervisorNome = colab['nome'] as string;
@@ -143,10 +140,7 @@ export const turnos_supervisorCheckin = onCall<unknown, Promise<CheckinResult>>(
       );
     }
     if (nowMs > fimMs) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Turno já encerrado — checkin não permitido.',
-      );
+      throw new HttpsError('failed-precondition', 'Turno já encerrado — checkin não permitido.');
     }
 
     if (existingPresenca?.['status'] === 'closed') {
@@ -188,9 +182,7 @@ export const turnos_supervisorCheckin = onCall<unknown, Promise<CheckinResult>>(
     // Compute chainHash from prior presenca-event (if any)
     const eventsCol = presencaEventsCol(db, input.labId, input.turnoId);
     const lastEventQ = await eventsCol.orderBy('timestamp', 'desc').limit(1).get();
-    const prevHash = lastEventQ.empty
-      ? null
-      : (lastEventQ.docs[0].data()['chainHash'] as string);
+    const prevHash = lastEventQ.empty ? null : (lastEventQ.docs[0].data()['chainHash'] as string);
 
     const eventCanon = JSON.stringify({
       tipo: 'checkin',

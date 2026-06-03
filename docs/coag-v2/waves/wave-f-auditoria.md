@@ -47,12 +47,12 @@ Validar integração entre todas as waves. Smoke test E2E completo. Firestore ru
 
 ## Métricas Alvo (final)
 
-| Métrica | Alvo |
-|---------|------|
-| Entidades | 3 |
-| Eventos | 3 |
-| Campos operacionais | ≤ 6 |
-| Arquivos totais (src) | ≤ 15 |
-| Linhas totais | ≤ 3000 |
-| Maior hook | ≤ 200 |
-| Maior componente | ≤ 300 |
+| Métrica               | Alvo   |
+| --------------------- | ------ |
+| Entidades             | 3      |
+| Eventos               | 3      |
+| Campos operacionais   | ≤ 6    |
+| Arquivos totais (src) | ≤ 15   |
+| Linhas totais         | ≤ 3000 |
+| Maior hook            | ≤ 200  |
+| Maior componente      | ≤ 300  |

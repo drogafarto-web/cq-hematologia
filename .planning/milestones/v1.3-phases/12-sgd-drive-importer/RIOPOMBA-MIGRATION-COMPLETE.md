@@ -3,7 +3,7 @@
 **Migration Period**: 2026-05-06 (staging) → 2026-05-06 (production)  
 **Duration**: 1 day (pilot + production completed same day)  
 **Status**: ✅ COMPLETE  
-**Sign-off**: RT Bruno + CTO  
+**Sign-off**: RT Bruno + CTO
 
 ---
 
@@ -15,6 +15,7 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01 Googl
 ### Before Riopomba's Drive-Based QMS
 
 **Reality**:
+
 - Docs: ~80 em Drive (MQ, PQ, IT, FR, etc.) — various formats (Docs, Sheets, PDFs)
 - Master list: Google Sheets "LM-01" (manual maintenance)
 - Document control: Folder structure only (no versioning system)
@@ -24,6 +25,7 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01 Googl
 - Compliance baseline: 71.3% DICQ (Block B — Gestão Documental was 0%)
 
 **Pain points**:
+
 - No single source of truth for document versions
 - Approval decisions not auditable
 - Distribution lists manually synced
@@ -34,6 +36,7 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01 Googl
 ### After Phase 12 Migration
 
 **Reality**:
+
 - Docs: 82 in `/labs/labclin-riopomba/sgd-documentos` Firestore collection (80 operational + 2 reference)
 - Master list: `/sgq/lista-mestra` UI (dynamic, real-time updated)
 - Document control: Type enum (15 tipos), versioning field, parent-child hierarchy
@@ -43,6 +46,7 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01 Googl
 - Compliance baseline: 78.5% DICQ (+7.2 points; Block B now 78.5%)
 
 **Gains**:
+
 - Single system of record (no Drive editing after migration)
 - Every approval decision auditable + timestamped + signed
 - Distribution lists sync automatically when personnel changes sectors
@@ -56,33 +60,34 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01 Googl
 
 ### Block B — Gestão Documental (before/after)
 
-| Requirement | Item | Before | After | Δ | Evidence |
-|---|---|---|---|---|---|
-| 4.2.2.2 | Lista Mestra | ❌ 0% | ✅ 100% | +25pts | `/sgq/lista-mestra` UI shows all 82 docs |
-| 4.3 | Hierarquia | ❌ 0% | ✅ 100% | +10pts | Tree view: MQ→PQ→IT→FR relationships |
-| 4.3 | Versionamento | 50%* | ✅ 100% | +25pts | All docs have `versao` field + `substitui/substituidoPor` |
-| 4.3 | Distribuição | ❌ 0% | ✅ 100% | +10pts | Matrix: docs × setores, dynamic sync |
-| 4.13 | Audit Trail | ❌ 0% | ✅ 100% | +15pts | sgq-documentos-audit, chainHash, timestamps |
-| **Block B Summary** | | **71.3%** | **78.5%** | **+7.2** | 80 docs operational, all vigente |
+| Requirement         | Item          | Before    | After     | Δ        | Evidence                                                  |
+| ------------------- | ------------- | --------- | --------- | -------- | --------------------------------------------------------- |
+| 4.2.2.2             | Lista Mestra  | ❌ 0%     | ✅ 100%   | +25pts   | `/sgq/lista-mestra` UI shows all 82 docs                  |
+| 4.3                 | Hierarquia    | ❌ 0%     | ✅ 100%   | +10pts   | Tree view: MQ→PQ→IT→FR relationships                      |
+| 4.3                 | Versionamento | 50%\*     | ✅ 100%   | +25pts   | All docs have `versao` field + `substitui/substituidoPor` |
+| 4.3                 | Distribuição  | ❌ 0%     | ✅ 100%   | +10pts   | Matrix: docs × setores, dynamic sync                      |
+| 4.13                | Audit Trail   | ❌ 0%     | ✅ 100%   | +15pts   | sgq-documentos-audit, chainHash, timestamps               |
+| **Block B Summary** |               | **71.3%** | **78.5%** | **+7.2** | 80 docs operational, all vigente                          |
 
-*Previous 50% (Phase 11 improvement): Basic versioning on existing docs.
+\*Previous 50% (Phase 11 improvement): Basic versioning on existing docs.
 
 ### Other DICQ Blocks (unchanged, still in progress)
 
-| Block | Status | Phase Targeting |
-|---|---|---|
-| A (Organização) | ~80% | Complete (Phase 8) |
-| B (Docs) | **78.5%** | **Phase 12 ✅** |
-| C (Recursos humanos) | ~75% | Phase 8 complete |
-| D (Gestão de risco) | ~70% | Phase 10 (Feedback) |
-| E (Compras) | ~65% | Phase 11 (Feedback) |
-| F (Atendimento) | ~60% | Future |
-| G (Lab ops) | ~75% | Phases 2-11 coverage |
-| H (Informação) | ~50% | Phase 10-11 |
-| I (Não conformidade) | ~80% | Phase 6-7 |
-| J (Melhoria contínua) | ~70% | Phases 2-11 |
+| Block                 | Status    | Phase Targeting      |
+| --------------------- | --------- | -------------------- |
+| A (Organização)       | ~80%      | Complete (Phase 8)   |
+| B (Docs)              | **78.5%** | **Phase 12 ✅**      |
+| C (Recursos humanos)  | ~75%      | Phase 8 complete     |
+| D (Gestão de risco)   | ~70%      | Phase 10 (Feedback)  |
+| E (Compras)           | ~65%      | Phase 11 (Feedback)  |
+| F (Atendimento)       | ~60%      | Future               |
+| G (Lab ops)           | ~75%      | Phases 2-11 coverage |
+| H (Informação)        | ~50%      | Phase 10-11          |
+| I (Não conformidade)  | ~80%      | Phase 6-7            |
+| J (Melhoria contínua) | ~70%      | Phases 2-11          |
 
 **Overall DICQ Compliance Trajectory**:
+
 - Start (2026-04): ~65%
 - Phase 12 (now): ~73-74% (estimated, final audit pending)
 - Target (v2.0): ≥90%
@@ -98,7 +103,7 @@ Riopomba Drive Inventory → SGD Firestore
 MQ — Manual da Qualidade
 ├── MQ-001 (v2.1) — Manual da Qualidade operacional  [1 doc]
 
-PQ — Procedimentos da Qualidade  
+PQ — Procedimentos da Qualidade
 ├── PQ-01 through PQ-25 (v1.0 each)               [25 docs]
 ├── Setores: All 17 represented
 └── Status: All vigente (RT approved)
@@ -216,15 +221,15 @@ All docs:
 
 ## Risk Mitigation During Migration
 
-| Risk | Mitigation Applied | Outcome |
-|---|---|---|
-| **Data loss** | Drive URL preserved in `urlDriveOriginal` field; backup maintained | ✅ Zero data loss; rollback possible via Drive |
-| **Duplicate imports** | SHA256 idempotency hash on `driveFileId + labId`; re-run test executed | ✅ No duplicates in re-run test |
-| **Approval bottleneck** | Batch approval workflow; RT approves 80 docs in <2h | ✅ Completed in 1h 45m |
-| **Multi-tenant contamination** | labId enforced in all Cloud Functions + Firestore rules | ✅ No cross-lab data leakage |
-| **Audit trail gaps** | Every operation logged to sgq-documentos-audit; chainHash sequential | ✅ Complete audit trail |
-| **Permission errors** | OAuth scopes: drive.readonly only (no write access) | ✅ Drive protected from accidental modification |
-| **Large file timeouts** | Fallback to Drive link for >10MB previews | ✅ FR-027, FR-088 use Drive preview link |
+| Risk                           | Mitigation Applied                                                     | Outcome                                         |
+| ------------------------------ | ---------------------------------------------------------------------- | ----------------------------------------------- |
+| **Data loss**                  | Drive URL preserved in `urlDriveOriginal` field; backup maintained     | ✅ Zero data loss; rollback possible via Drive  |
+| **Duplicate imports**          | SHA256 idempotency hash on `driveFileId + labId`; re-run test executed | ✅ No duplicates in re-run test                 |
+| **Approval bottleneck**        | Batch approval workflow; RT approves 80 docs in <2h                    | ✅ Completed in 1h 45m                          |
+| **Multi-tenant contamination** | labId enforced in all Cloud Functions + Firestore rules                | ✅ No cross-lab data leakage                    |
+| **Audit trail gaps**           | Every operation logged to sgq-documentos-audit; chainHash sequential   | ✅ Complete audit trail                         |
+| **Permission errors**          | OAuth scopes: drive.readonly only (no write access)                    | ✅ Drive protected from accidental modification |
+| **Large file timeouts**        | Fallback to Drive link for >10MB previews                              | ✅ FR-027, FR-088 use Drive preview link        |
 
 ---
 
@@ -291,10 +296,11 @@ Index 3: (labId, criadoEm) — sort by creation date
 9. `verificarMigracaoCompleta` — Verification callable (used in Plan 12-06)
 
 **All functions**:
+
 - Region: `southamerica-east1`
 - Runtime: Node 22
 - Auth: Custom claims validation (RT only for Drive ops)
-- Logging: All operations logged to sgq-*-logs collections
+- Logging: All operations logged to sgq-\*-logs collections
 
 ---
 
@@ -302,11 +308,11 @@ Index 3: (labId, criadoEm) — sort by creation date
 
 ### Training Completed
 
-| User | Role | Training | Status |
-|---|---|---|---|
-| Bruno | RT (Riopomba) | `/sgq/lista-mestra` nav + transitarVigencia workflow + MappingEditor | ✅ Complete |
-| CTO | Technical | OAuth setup + Cloud Functions deploy + Firestore rules | ✅ Complete |
-| IT Admin | Support | Firestore backup/restore + Drive read-only maintenance | ✅ Complete |
+| User     | Role          | Training                                                             | Status      |
+| -------- | ------------- | -------------------------------------------------------------------- | ----------- |
+| Bruno    | RT (Riopomba) | `/sgq/lista-mestra` nav + transitarVigencia workflow + MappingEditor | ✅ Complete |
+| CTO      | Technical     | OAuth setup + Cloud Functions deploy + Firestore rules               | ✅ Complete |
+| IT Admin | Support       | Firestore backup/restore + Drive read-only maintenance               | ✅ Complete |
 
 ### Support Playbooks Created
 
@@ -349,19 +355,19 @@ Index 3: (labId, criadoEm) — sort by creation date
 
 ## Key Statistics
 
-| Metric | Value | Context |
-|---|---|---|
-| **Docs migrated** | 82 (80 operational + 2 ref) | From Drive LM-01 inventory |
-| **Migration time** | 1 day | Pilot (staging) + production |
-| **Execution time** | 2h 18m | Import + smoke test + approval |
-| **Approval time** | 1h 45m | RT batch approval (80 docs) |
-| **Classification confidence avg** | 94.2% | ≥0.9 confidence: 97% of docs |
-| **LD coverage** | 100% | All 17 setores represented |
-| **DICQ improvement** | +7.2pts | 71.3% → 78.5% |
-| **Audit trail completeness** | 100% | 162 events logged (create + approve) |
-| **Idempotency** | ✓ | Re-run test: 0 duplicates |
-| **Data loss risk** | 0 | Drive URLs preserved |
-| **Support escalations** | 0 | No critical issues encountered |
+| Metric                            | Value                       | Context                              |
+| --------------------------------- | --------------------------- | ------------------------------------ |
+| **Docs migrated**                 | 82 (80 operational + 2 ref) | From Drive LM-01 inventory           |
+| **Migration time**                | 1 day                       | Pilot (staging) + production         |
+| **Execution time**                | 2h 18m                      | Import + smoke test + approval       |
+| **Approval time**                 | 1h 45m                      | RT batch approval (80 docs)          |
+| **Classification confidence avg** | 94.2%                       | ≥0.9 confidence: 97% of docs         |
+| **LD coverage**                   | 100%                        | All 17 setores represented           |
+| **DICQ improvement**              | +7.2pts                     | 71.3% → 78.5%                        |
+| **Audit trail completeness**      | 100%                        | 162 events logged (create + approve) |
+| **Idempotency**                   | ✓                           | Re-run test: 0 duplicates            |
+| **Data loss risk**                | 0                           | Drive URLs preserved                 |
+| **Support escalations**           | 0                           | No critical issues encountered       |
 
 ---
 
@@ -373,11 +379,11 @@ Index 3: (labId, criadoEm) — sort by creation date
 
 ✅ **APPROVED**
 
-> *"Os 80 documentos foram migrados com sucesso de Drive para SGD. Todos estão acessíveis, corretamente classificados, e distribuídos entre os setores. O fluxo de aprovação funcionou perfeitamente. Sistema pronto para operação. Nenhum problema foi encontrado."*
+> _"Os 80 documentos foram migrados com sucesso de Drive para SGD. Todos estão acessíveis, corretamente classificados, e distribuídos entre os setores. O fluxo de aprovação funcionou perfeitamente. Sistema pronto para operação. Nenhum problema foi encontrado."_
 
 **Signature**: ✓ Bruno Riopomba  
 **Date**: May 6, 2026 — 17:30  
-**Role**: Responsable Técnico  
+**Role**: Responsable Técnico
 
 ---
 
@@ -387,11 +393,11 @@ Index 3: (labId, criadoEm) — sort by creation date
 
 ✅ **APPROVED**
 
-> *"Production migration successfully completed. 80 docs imported with zero data loss. Idempotency verified. ChainHash integrity validated. DICQ baseline improved by 7.2 points. Firestore rules, Cloud Functions, and audit trail all operational. Riopomba SGD production-ready. Proceeding to Plan 12-06."*
+> _"Production migration successfully completed. 80 docs imported with zero data loss. Idempotency verified. ChainHash integrity validated. DICQ baseline improved by 7.2 points. Firestore rules, Cloud Functions, and audit trail all operational. Riopomba SGD production-ready. Proceeding to Plan 12-06."_
 
 **Signature**: ✓ CTO  
 **Date**: May 6, 2026 — 17:45  
-**Role**: CTO  
+**Role**: CTO
 
 ---
 
@@ -400,6 +406,7 @@ Index 3: (labId, criadoEm) — sort by creation date
 **Riopomba's transition from Drive-based document management to HC Quality SGD (Sistema de Gestão Documental) is COMPLETE.**
 
 The migration:
+
 - ✅ Transferred 80 operational documents with zero data loss
 - ✅ Established full audit trail (RDC 978 + DICQ 4.13 compliant)
 - ✅ Improved DICQ compliance baseline by +7.2 points
@@ -413,5 +420,4 @@ The migration:
 **Migration Period**: May 2026  
 **Status**: ✅ COMPLETE  
 **Prepared by**: Claude (Haiku 4.5)  
-**Final approval**: CTO + RT Bruno  
-
+**Final approval**: CTO + RT Bruno

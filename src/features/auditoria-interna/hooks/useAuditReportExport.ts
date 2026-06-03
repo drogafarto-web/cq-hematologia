@@ -12,7 +12,10 @@ import { useActiveLabId } from '../../../store/useAuthStore';
 
 export interface UseAuditReportExportResult {
   /** Export audit session to PDF */
-  exportPDF: (auditoriaId: string, sessaoId: string) => Promise<{ pdfUrl: string; filename: string }>;
+  exportPDF: (
+    auditoriaId: string,
+    sessaoId: string,
+  ) => Promise<{ pdfUrl: string; filename: string }>;
   /** Download PDF from signed URL */
   downloadPDF: (pdfUrl: string, filename: string) => void;
   /** Loading state */
@@ -38,7 +41,7 @@ export function useAuditReportExport(): UseAuditReportExportResult {
   const exportPDF = useCallback(
     async (
       auditoriaId: string,
-      sessaoId: string
+      sessaoId: string,
     ): Promise<{ pdfUrl: string; filename: string }> => {
       if (!labId) {
         throw new Error('Lab not active');
@@ -77,7 +80,7 @@ export function useAuditReportExport(): UseAuditReportExportResult {
         setIsLoading(false);
       }
     },
-    [labId]
+    [labId],
   );
 
   const downloadPDF = useCallback((pdfUrl: string, filename: string) => {

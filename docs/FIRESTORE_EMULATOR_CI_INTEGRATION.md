@@ -170,8 +170,8 @@ stages:
   - deploy
 
 variables:
-  NODE_VERSION: "18"
-  FIREBASE_PROJECT_ID: "hmatologia2"
+  NODE_VERSION: '18'
+  FIREBASE_PROJECT_ID: 'hmatologia2'
 
 firestore-rules:test:
   stage: test
@@ -338,8 +338,8 @@ services:
       context: .
       dockerfile: Dockerfile.emulator
     ports:
-      - "8080:8080"
-      - "4000:4000"
+      - '8080:8080'
+      - '4000:4000'
     environment:
       FIRESTORE_EMULATOR_PORT: 8080
       FIREBASE_EMULATOR_UI_PORT: 4000
@@ -353,11 +353,12 @@ services:
     depends_on:
       - firestore-emulator
     environment:
-      FIRESTORE_EMULATOR_HOST: "firestore-emulator:8080"
+      FIRESTORE_EMULATOR_HOST: 'firestore-emulator:8080'
     command: npm run test:rules
 ```
 
 Run:
+
 ```bash
 docker-compose up --abort-on-container-exit
 ```
@@ -373,7 +374,7 @@ name: Nightly Firestore Validation
 
 on:
   schedule:
-    - cron: '0 2 * * *'  # 2 AM UTC daily
+    - cron: '0 2 * * *' # 2 AM UTC daily
 
 jobs:
   validate:

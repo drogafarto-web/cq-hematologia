@@ -6,21 +6,22 @@
 
 ## Email Summary
 
-| Field | Value |
-|-------|-------|
-| **To** | Ernani (llabclin3@gmail.com) |
-| **From** | drogafarto@gmail.com |
-| **Subject** | HC Quality v1.4 — Pre-Audit Alignment Call (May 13–17) |
-| **Date Prepared** | 2026-05-07 |
-| **Language** | Portuguese (pt-BR) |
-| **Tone** | Professional, partnership-oriented |
-| **Length** | ~800 words |
+| Field             | Value                                                  |
+| ----------------- | ------------------------------------------------------ |
+| **To**            | Ernani (llabclin3@gmail.com)                           |
+| **From**          | drogafarto@gmail.com                                   |
+| **Subject**       | HC Quality v1.4 — Pre-Audit Alignment Call (May 13–17) |
+| **Date Prepared** | 2026-05-07                                             |
+| **Language**      | Portuguese (pt-BR)                                     |
+| **Tone**          | Professional, partnership-oriented                     |
+| **Length**        | ~800 words                                             |
 
 ---
 
 ## Email Package Contents
 
 ### Part 1: Email Body ✅
+
 - Opening: HC Quality v1.4 planning complete
 - Section 1: v1.3 completion summary (25 modules, 78.5% DICQ, 100% RDC 978)
 - Section 2: v1.4 roadmap (9 execution plans, 5 ADRs, compliance trajectory)
@@ -31,6 +32,7 @@
 - Closing: Contact info + CTA for availability confirmation
 
 ### Part 2: Attachments
+
 1. **v1.4_AUDITOR_BRIEFING.pdf**
    - File: `C:\hc quality\docs\v1.4_AUDITOR_BRIEFING.md` (24.14 KB)
    - Contents: 14-page complete roadmap + compliance matrix + RFI responses
@@ -96,44 +98,47 @@
 
 ### Expected Timeline
 
-| Date | Event | Target | Owner |
-|------|-------|--------|-------|
-| 2026-05-07 | Email sent | EOD | CTO |
-| 2026-05-09 | Auditor response | 48h SLA | Ernani |
-| 2026-05-10–12 | Call scheduling | EOD 5/12 | CTO + Ernani |
-| **2026-05-13–17** | **Call execution** | **Any weekday** | **Both** |
-| 2026-05-17 EOD | Post-call actions | EOD | Both |
-| 2026-05-20 | Phase 4 kickoff | Hard gate | CTO |
+| Date              | Event              | Target          | Owner        |
+| ----------------- | ------------------ | --------------- | ------------ |
+| 2026-05-07        | Email sent         | EOD             | CTO          |
+| 2026-05-09        | Auditor response   | 48h SLA         | Ernani       |
+| 2026-05-10–12     | Call scheduling    | EOD 5/12        | CTO + Ernani |
+| **2026-05-13–17** | **Call execution** | **Any weekday** | **Both**     |
+| 2026-05-17 EOD    | Post-call actions  | EOD             | Both         |
+| 2026-05-20        | Phase 4 kickoff    | Hard gate       | CTO          |
 
 ### Response Log Template
 
 **Record in:** `C:\hc quality\.planning\AUDITOR_EMAIL_SENT_LOG.md`
 
 ```markdown
-| Date | Event | Details | Status |
-|------|-------|---------|--------|
-| 2026-05-07 | Email sent | Timestamp: _____ | ✅ COMPLETE |
-| TBD | Auditor ACK | Response received | ⏳ AWAITING |
-| TBD | Availability | Days/times offered | ⏳ AWAITING |
-| TBD | Call confirmed | Zoom link + date | ⏳ AWAITING |
-| TBD | Call executed | Notes attached | ⏳ AWAITING |
-| TBD | Post-call email | Action items doc | ⏳ AWAITING |
+| Date       | Event           | Details            | Status      |
+| ---------- | --------------- | ------------------ | ----------- |
+| 2026-05-07 | Email sent      | Timestamp: **\_**  | ✅ COMPLETE |
+| TBD        | Auditor ACK     | Response received  | ⏳ AWAITING |
+| TBD        | Availability    | Days/times offered | ⏳ AWAITING |
+| TBD        | Call confirmed  | Zoom link + date   | ⏳ AWAITING |
+| TBD        | Call executed   | Notes attached     | ⏳ AWAITING |
+| TBD        | Post-call email | Action items doc   | ⏳ AWAITING |
 ```
 
 ### Escalation Procedures
 
 **If no response by May 9 (48h):**
+
 1. Check spam/bounce from llabclin3@gmail.com
 2. Resend email with subject: `[FOLLOW-UP] HC Quality v1.4 Alignment Call`
 3. Add note: "Confirming receipt + checking availability for May 13–17"
 
 **If no response by May 12 (72h before call window):**
+
 1. Attempt phone contact (if number available)
 2. Email lab compliance officer (escalation backup)
 3. Document in risk register as "Auditor communication breakdown"
 4. Activate written RFI fallback (briefing + matrices for email review)
 
 **If auditor cannot meet May 13–17:**
+
 1. Offer 3 alternative dates in May or early June
 2. If all unavailable, send comprehensive written RFI package
 3. Auditor responds within 7 business days with:
@@ -148,16 +153,16 @@
 
 All backing documents are ready and cross-referenced:
 
-| Document | Location | Purpose | For Email |
-|----------|----------|---------|-----------|
-| AUDITOR_ALIGNMENT_QUICK_REFERENCE.md | `.planning/` | Copy-paste templates | Included |
-| AUDITOR_RFI_PREPARATION.md | `.planning/` | 15 Q&A pairs | Reference |
-| v1.4_AUDITOR_BRIEFING.md | `docs/` | 14-page roadmap | **ATTACHMENT** |
-| v1.4-RISK-REGISTER.md | `docs/` | 19 active risks | Reference |
-| AUDITOR_COMMUNICATION_TEMPLATES.md | `.planning/` | Escalation scripts | Backup |
-| AUDITOR_ALIGNMENT_CALL_AGENDA.md | `docs/` | Detailed call agenda | Reference |
-| RFI_RESPONSES_AUDITOR_FAQS.md | `docs/` | FAQ responses | Reference |
-| ADR-0022-0026 | `docs/adr/` | 5 formal decisions | **ATTACHMENT** |
+| Document                             | Location     | Purpose              | For Email      |
+| ------------------------------------ | ------------ | -------------------- | -------------- |
+| AUDITOR_ALIGNMENT_QUICK_REFERENCE.md | `.planning/` | Copy-paste templates | Included       |
+| AUDITOR_RFI_PREPARATION.md           | `.planning/` | 15 Q&A pairs         | Reference      |
+| v1.4_AUDITOR_BRIEFING.md             | `docs/`      | 14-page roadmap      | **ATTACHMENT** |
+| v1.4-RISK-REGISTER.md                | `docs/`      | 19 active risks      | Reference      |
+| AUDITOR_COMMUNICATION_TEMPLATES.md   | `.planning/` | Escalation scripts   | Backup         |
+| AUDITOR_ALIGNMENT_CALL_AGENDA.md     | `docs/`      | Detailed call agenda | Reference      |
+| RFI_RESPONSES_AUDITOR_FAQS.md        | `docs/`      | FAQ responses        | Reference      |
+| ADR-0022-0026                        | `docs/adr/`  | 5 formal decisions   | **ATTACHMENT** |
 
 ---
 
@@ -179,6 +184,7 @@ All backing documents are ready and cross-referenced:
 ### Method 2: Gmail Desktop/Outlook
 
 Same steps, but use client interface:
+
 - New Message
 - To: llabclin3@gmail.com
 - Subject: (see above)
@@ -260,6 +266,7 @@ Before marking email as "sent," verify all items:
 **This package is complete and ready for CTO to send immediately.**
 
 All components verified:
+
 - Email body finalized ✅
 - Auditor contact confirmed ✅
 - Attachments ready ✅
@@ -276,4 +283,3 @@ All components verified:
 **Owner:** CTO (drogafarto@gmail.com)  
 **Status:** ✅ READY FOR SEND  
 **Deadline:** EOB 2026-05-07
-

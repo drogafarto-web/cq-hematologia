@@ -56,9 +56,7 @@ export default function POPsList({ onSelectPOP }: POPsListProps) {
             <p>Nenhum POP encontrado</p>
           </div>
         ) : (
-          pops.map((pop) => (
-            <POPCard key={pop.id} pop={pop} onSelect={onSelectPOP} />
-          ))
+          pops.map((pop) => <POPCard key={pop.id} pop={pop} onSelect={onSelectPOP} />)
         )}
       </div>
 
@@ -97,7 +95,9 @@ const POPCard = memo(function POPCard({
           <div className="flex items-center gap-2">
             <h3 className="font-medium text-white">{pop.codigo}</h3>
             {isExpirada && (
-              <span className="text-red-400 font-bold" title="POP expirado">⚠</span>
+              <span className="text-red-400 font-bold" title="POP expirado">
+                ⚠
+              </span>
             )}
           </div>
           <p className="text-sm text-white/60 mt-1">{pop.nome}</p>

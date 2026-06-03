@@ -18,7 +18,7 @@ This document provides a structured decision flow for diagnosing and responding 
 ```
 INCIDENT DETECTED
     ↓
-    [Is system completely down?] 
+    [Is system completely down?]
     ├─ YES → P1 (Critical) — Go to Section 2.1
     ├─ NO → [Are >100 users affected?]
     │       ├─ YES → P2 (High) — Go to Section 2.2
@@ -44,6 +44,7 @@ INCIDENT DETECTED
 ```
 
 **Document immediately:**
+
 - [ ] Exact error message (screenshot or log line)
 - [ ] Affected module (e.g., analyzer, laudo, portal)
 - [ ] Time of first report
@@ -59,6 +60,7 @@ INCIDENT DETECTED
 **Definition:** System unavailable for >5 minutes OR data loss risk active.
 
 **Immediate actions:**
+
 1. **Page on-call engineer** (if not already responding)
 2. **Notify stakeholders** (lab directors, CTO) — use #incident Slack channel
 3. **Start incident log** — timestamp all actions
@@ -69,6 +71,7 @@ INCIDENT DETECTED
 **SLA:** Response <5 min, resolution <30 min
 
 **Examples:**
+
 - Firestore completely down (Firebase issue)
 - All Cloud Functions returning 500 for >5 min
 - Data corruption detected (e.g., wrong patient data served)
@@ -81,6 +84,7 @@ INCIDENT DETECTED
 **Definition:** Feature unavailable for >15 min OR >100 users affected OR workaround doesn't exist.
 
 **Immediate actions:**
+
 1. **Alert on-call** (normal priority)
 2. **Notify feature owner** (team lead)
 3. **Start triage** — identify root cause
@@ -92,6 +96,7 @@ INCIDENT DETECTED
 **SLA:** Response <15 min, resolution <1 hour
 
 **Examples:**
+
 - Laudo generation failing 100% (either all fail or all succeed)
 - Portal login broken for all patient users
 - NOTIVISA submissions all queued, processor hung
@@ -104,6 +109,7 @@ INCIDENT DETECTED
 **Definition:** Feature partially broken (<50% success) OR performance degraded >50% OR <100 users affected.
 
 **Immediate actions:**
+
 1. **Log incident** (for audit trail)
 2. **Monitor trend** — is error rate increasing or stable?
 3. **Notify team** (no page required)
@@ -114,6 +120,7 @@ INCIDENT DETECTED
 **SLA:** Response <1 hour, resolution <24 hours
 
 **Examples:**
+
 - Slow PDF generation (5s→15s, but working)
 - Audit trail writes occasionally missing timestamps
 - Portal search filtering inconsistent
@@ -126,11 +133,13 @@ INCIDENT DETECTED
 **Definition:** Cosmetic issue, workaround exists, no user-facing impact.
 
 **Immediate actions:**
+
 1. **Document** in backlog
 2. **Schedule for next sprint**
 3. **No urgent response required**
 
 **Examples:**
+
 - Typo in UI label
 - Icon not rendering (but button still functional)
 - Chart colors slightly off
@@ -151,7 +160,7 @@ PermissionDenied in Cloud Logs
     ↓
     [Check the path that was denied]
     ├─ Path looks wrong (e.g., /labs/wrong-lab/...)?
-    │  └─ Check: Is user in correct lab? 
+    │  └─ Check: Is user in correct lab?
     │     ├─ NO → User not provisioned for this lab (auth issue, not rules)
     │     └─ YES → Bug in app logic (sending wrong labId)
     │
@@ -174,13 +183,13 @@ PermissionDenied in Cloud Logs
 
 **Common causes & fixes:**
 
-| Root Cause | Indicator | Fix |
-|-----------|-----------|-----|
-| User not active in lab | User recently added, not in members doc | Re-provision in admin panel |
-| Module claims not provisioned | Error appears for all users in lab | Run `provisionModulesClaims` callable |
-| Rules version mismatch | Rules changed but not deployed | `firebase deploy --only firestore:rules` |
-| Buggy rule expression | Only specific operation fails (e.g., create works, update fails) | Review rules file, test locally with emulator |
-| Cross-lab access attempt | Error for user accessing different lab | Check app logic — ensure labId param correct |
+| Root Cause                    | Indicator                                                        | Fix                                           |
+| ----------------------------- | ---------------------------------------------------------------- | --------------------------------------------- |
+| User not active in lab        | User recently added, not in members doc                          | Re-provision in admin panel                   |
+| Module claims not provisioned | Error appears for all users in lab                               | Run `provisionModulesClaims` callable         |
+| Rules version mismatch        | Rules changed but not deployed                                   | `firebase deploy --only firestore:rules`      |
+| Buggy rule expression         | Only specific operation fails (e.g., create works, update fails) | Review rules file, test locally with emulator |
+| Cross-lab access attempt      | Error for user accessing different lab                           | Check app logic — ensure labId param correct  |
 
 **Recovery:**
 
@@ -232,12 +241,12 @@ UNAUTHENTICATED in Cloud Logs
 
 **Common causes & fixes:**
 
-| Cause | Fix |
-|-------|-----|
-| PWA cached old auth config | Hard reload (Ctrl+Shift+R) |
-| Firebase SDK mismatch | Ensure firebase package.json version is ^10.14.1 |
-| Multiple tabs with different sessions | Logout everywhere, login once |
-| Token expired (idle >1h) | Logout + login |
+| Cause                                 | Fix                                              |
+| ------------------------------------- | ------------------------------------------------ |
+| PWA cached old auth config            | Hard reload (Ctrl+Shift+R)                       |
+| Firebase SDK mismatch                 | Ensure firebase package.json version is ^10.14.1 |
+| Multiple tabs with different sessions | Logout everywhere, login once                    |
+| Token expired (idle >1h)              | Logout + login                                   |
 
 **Recovery:**
 
@@ -291,12 +300,12 @@ UNAUTHENTICATED in Cloud Logs
 
 **Common causes & fixes:**
 
-| Cause | Indicator | Fix |
-|-------|-----------|-----|
-| Firestore read quota exceeded | Error: "too many concurrent requests" | Upgrade billing tier, optimize queries |
-| Load testing on production | Spike from 10 req/s to 1000 req/s | Stop test, wait 1-2 min for quota reset |
-| Gemini Vision quota maxed | PDF generation all failing | Check Gemini API quota, switch to cheaper model or implement rate limit |
-| NOTIVISA queue explosion | 10,000+ docs in notivisa-outbox | Pause processor, implement backoff, fix root cause |
+| Cause                         | Indicator                             | Fix                                                                     |
+| ----------------------------- | ------------------------------------- | ----------------------------------------------------------------------- |
+| Firestore read quota exceeded | Error: "too many concurrent requests" | Upgrade billing tier, optimize queries                                  |
+| Load testing on production    | Spike from 10 req/s to 1000 req/s     | Stop test, wait 1-2 min for quota reset                                 |
+| Gemini Vision quota maxed     | PDF generation all failing            | Check Gemini API quota, switch to cheaper model or implement rate limit |
+| NOTIVISA queue explosion      | 10,000+ docs in notivisa-outbox       | Pause processor, implement backoff, fix root cause                      |
 
 **Recovery:**
 
@@ -345,12 +354,12 @@ Timeout Error (>30s for callable, >540s for background function)
 
 **Common causes & fixes:**
 
-| Function | Typical Cause | Fix |
-|----------|---------------|-----|
-| `generateLaudo` | Large PDF with 100+ images | Reduce image quality, compress PDFs |
-| `submitToNotivisa` | NOTIVISA API slow (>10s per call) | Implement timeout + queue retry |
-| `analyzeCIQImage` | Gemini Vision taking >30s | Batch smaller images, use cheaper model |
-| Scheduled backup | 500,000+ documents to backup | Implement pagination + parallel workers |
+| Function           | Typical Cause                     | Fix                                     |
+| ------------------ | --------------------------------- | --------------------------------------- |
+| `generateLaudo`    | Large PDF with 100+ images        | Reduce image quality, compress PDFs     |
+| `submitToNotivisa` | NOTIVISA API slow (>10s per call) | Implement timeout + queue retry         |
+| `analyzeCIQImage`  | Gemini Vision taking >30s         | Batch smaller images, use cheaper model |
+| Scheduled backup   | 500,000+ documents to backup      | Implement pagination + parallel workers |
 
 **Recovery:**
 
@@ -789,6 +798,7 @@ Lab Directors + Legal (if data loss / compliance breach)
 **On-call rotation:** [Configure in PagerDuty / Opsgenie / similar]
 
 **Escalation triggers:**
+
 - P1 incident >10 min → page CTO
 - Data loss suspected → page CTO + Legal
 - Third-party outage >1h → contact support
@@ -799,15 +809,18 @@ Lab Directors + Legal (if data loss / compliance breach)
 ## Post-Launch Support
 
 **First week (2026-08-23 to 2026-08-30):**
+
 - 24/7 on-call coverage
 - CTO available for escalations
 - New issues prioritized immediately
 
 **Weeks 2-4 (August 30 → September 30):**
+
 - 24/5 on-call (business hours + emergency)
 - CTO availability 9-17 UTC
 
 **Month 2+ (October 1 onwards):**
+
 - Standard on-call rotation
 - CTO available 9-17 UTC weekdays
 

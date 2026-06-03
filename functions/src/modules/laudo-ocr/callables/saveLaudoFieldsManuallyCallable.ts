@@ -44,10 +44,7 @@ export const saveLaudoFieldsManuallyCallable = onCall(
       try {
         input = SaveLaudoFieldsManuallyInputSchema.parse(request.data);
       } catch (err) {
-        throw new HttpsError(
-          'invalid-argument',
-          `Invalid input: ${(err as Error).message}`
-        );
+        throw new HttpsError('invalid-argument', `Invalid input: ${(err as Error).message}`);
       }
 
       const {
@@ -67,10 +64,7 @@ export const saveLaudoFieldsManuallyCallable = onCall(
       const memberDoc = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
 
       if (!memberDoc.exists) {
-        throw new HttpsError(
-          'permission-denied',
-          `User not member of lab ${labId}`
-        );
+        throw new HttpsError('permission-denied', `User not member of lab ${labId}`);
       }
 
       const memberData = memberDoc.data();
@@ -80,7 +74,7 @@ export const saveLaudoFieldsManuallyCallable = onCall(
       if (!['RT', 'admin', 'owner'].includes(userRole)) {
         throw new HttpsError(
           'permission-denied',
-          `Role ${userRole} not authorized for manual field entry`
+          `Role ${userRole} not authorized for manual field entry`,
         );
       }
 
@@ -189,10 +183,7 @@ export const saveLaudoFieldsManuallyCallable = onCall(
         throw error;
       }
 
-      throw new HttpsError(
-        'internal',
-        `Save failed: ${(error as Error).message}`
-      );
+      throw new HttpsError('internal', `Save failed: ${(error as Error).message}`);
     }
-  }
+  },
 );

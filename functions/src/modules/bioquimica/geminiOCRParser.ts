@@ -11,7 +11,11 @@
 
 import { onCall } from 'firebase-functions/v2/https';
 import { defineSecret } from 'firebase-functions/params';
-import type { AcceptanceOutput, OCRValidationReport, WestgardViolationCLSI8 } from './bioquimica.types';
+import type {
+  AcceptanceOutput,
+  OCRValidationReport,
+  WestgardViolationCLSI8,
+} from './bioquimica.types';
 
 const geminiApiKey = defineSecret('GEMINI_API_KEY');
 
@@ -25,7 +29,9 @@ export const submitBioquimicaRunWithOCR = onCall(
     memory: '1GiB',
     timeoutSeconds: 180,
   },
-  async (request): Promise<{
+  async (
+    request,
+  ): Promise<{
     acceptance: AcceptanceOutput;
     ocrReport: OCRValidationReport;
     westgardViolations: WestgardViolationCLSI8[];
@@ -91,7 +97,7 @@ export const submitBioquimicaRunWithOCR = onCall(
         labId,
         runId,
         decision: 'accept',
-      })
+      }),
     );
 
     return {
@@ -111,5 +117,5 @@ export const submitBioquimicaRunWithOCR = onCall(
       westgardViolations: [],
       runDocPath: `labs/${labId}/bioquimica/root/runs/${runId}`,
     };
-  }
+  },
 );

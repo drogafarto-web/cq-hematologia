@@ -26,7 +26,7 @@ CUTOFF=$(date -u -d '15 minutes ago' '+%Y-%m-%dT%H:%M:%SZ')
 gcloud firestore documents list \
   --collection-ids=notivisa-queue \
   --project=hmatologia2 | \
-  jq --arg cutoff "$CUTOFF" '.[] | 
+  jq --arg cutoff "$CUTOFF" '.[] |
     select(.createdAt < $cutoff and .status == "pending")'
 ```
 
@@ -45,14 +45,17 @@ gcloud logging read \
 ```
 
 **Look for:**
+
 - Timestamp of last execution (should be <5 minutes ago)
 - Any ERROR or WARNING messages
 - Function duration (should be <30 seconds normally)
 
 **If last execution was >15 min ago:**
+
 - Cron job didn't run or failed → Go to **Section 2A**
 
 **If cron ran recently but queue still has pending entries:**
+
 - Cron executed but processor hit error → Go to **Section 2B**
 
 ---
@@ -71,6 +74,7 @@ gcloud scheduler jobs list --project=hmatologia2
 ```
 
 **If job does not exist:**
+
 1. Job was deleted (accidental or via Terraform destroy)
 2. Recreate via Firebase CLI or Terraform:
    ```bash
@@ -105,12 +109,12 @@ gcloud logging read \
 
 **Possible outcomes:**
 
-| Outcome | Cause | Action |
-|---------|-------|--------|
-| Function runs successfully, pending entries processed | Cron just slow | Monitor queue — should recover in 5 minutes |
-| Function fails with SOAP error | Gov API unreachable | Go to **Section 2B** |
-| Function fails with message format error | Payload validation failed | Go to **Section 2C** |
-| Function times out (>60s) | Large queue or slow network | Go to **Section 2D** |
+| Outcome                                               | Cause                       | Action                                      |
+| ----------------------------------------------------- | --------------------------- | ------------------------------------------- |
+| Function runs successfully, pending entries processed | Cron just slow              | Monitor queue — should recover in 5 minutes |
+| Function fails with SOAP error                        | Gov API unreachable         | Go to **Section 2B**                        |
+| Function fails with message format error              | Payload validation failed   | Go to **Section 2C**                        |
+| Function times out (>60s)                             | Large queue or slow network | Go to **Section 2D**                        |
 
 ---
 
@@ -137,10 +141,12 @@ curl -v -X POST \
 ```
 
 **Expected:**
+
 - HTTP 200 OK + SOAP response, OR
 - HTTP 500 SOAP Fault (API is reachable but request malformed)
 
 **If connection timeout or refused:**
+
 - ANVISA API is down
 - Check status page: https://www.anvisa.gov.br/
 - Notify CTO + Compliance Officer (ETA for recovery)
@@ -159,6 +165,7 @@ gcloud secrets list --project=hmatologia2 | grep -i notivisa
 ```
 
 **If secrets missing:**
+
 1. Provision them:
    ```bash
    firebase functions:secrets:set NOTIVISA_CLIENT_CERT --project=hmatologia2
@@ -170,6 +177,7 @@ gcloud secrets list --project=hmatologia2 | grep -i notivisa
    ```
 
 **If secrets exist:**
+
 1. Verify values are not empty/placeholder:
    ```bash
    gcloud secrets versions access latest --secret=NOTIVISA_API_KEY --project=hmatologia2 | head -c 20
@@ -179,6 +187,7 @@ gcloud secrets list --project=hmatologia2 | grep -i notivisa
 ### Step 3: Contact ANVISA Support
 
 If API is reachable but rejects authentication:
+
 1. Open support ticket at https://www.anvisa.gov.br/support
 2. Provide:
    - Sandbox account ID
@@ -188,6 +197,7 @@ If API is reachable but rejects authentication:
 4. Update credentials once ANVISA confirms
 
 **In the meantime:**
+
 - Keep queue entries in `pending` state
 - Monitor API status hourly
 - Do NOT soft-delete entries (they represent real adverse events)
@@ -210,6 +220,7 @@ gcloud firestore documents get \
 ```
 
 **Compare against NOTIVISA SOAP schema:**
+
 - File: `docs/Phase4_NOTIVISA_SCHEMA.md` (or similar)
 - Required fields per RDC 978 Art. 41:
   - Event type (e.g., "adverse-event")
@@ -227,12 +238,15 @@ git log -p --all -S "{eventId}" -- "*notivisa*" | head -50
 ```
 
 **Determine root cause:**
+
 - Client submitted invalid payload (bug in Phase 4 feature)
 - Server converted payload incorrectly (bug in callable)
 - Data was corrupted after insertion (rare)
 
 **Actions:**
+
 1. Soft-delete malformed entry:
+
    ```bash
    # Via Firestore Console or CLI:
    gcloud firestore documents update \
@@ -257,12 +271,14 @@ grep -E "<element name=|<xs:element name=" functions/src/modules/notivisa/wsdl/n
 ```
 
 **Common issues:**
+
 - Field name typo (e.g., `eventType` vs `eventtype`)
 - Missing required field (WSDL minOccurs=1)
 - Wrong data type (string vs integer)
 - Incorrect XML namespace
 
 **Actions:**
+
 1. Compare entry fields against WSDL
 2. Update processor code to match WSDL exactly
 3. Test with sample payload:
@@ -288,10 +304,12 @@ gcloud firestore documents list \
 ```
 
 **If >100 pending entries:**
+
 - Processor is slow due to large queue
 - Each entry takes ~1 second to process (batch limit?)
 
 **Actions:**
+
 1. Increase function memory + timeout:
    ```bash
    gcloud functions deploy notivisaQueueProcessor \
@@ -302,7 +320,7 @@ gcloud firestore documents list \
    ```
 2. Increase batch size in processor code (if applicable):
    ```typescript
-   const BATCH_SIZE = 25;  // Process 25 entries per cron
+   const BATCH_SIZE = 25; // Process 25 entries per cron
    ```
 
 ### Step 2: Check Network / API Latency
@@ -319,6 +337,7 @@ time curl -X POST \
 **Expected:** <2 seconds per request
 
 **If >5 seconds:**
+
 - ANVISA API is slow or overloaded
 - Adjust processor logic to handle slow responses:
   ```typescript
@@ -334,11 +353,13 @@ cat functions/src/modules/notivisa/crons/notivisaQueueProcessor.ts | \
 ```
 
 **Look for:**
+
 - Infinite loops (no break condition)
 - Recursive calls (stack overflow)
 - Deadlock on database write
 
 **If bug found:**
+
 1. Fix code
 2. Deploy: `firebase deploy --only functions:notivisaQueueProcessor`
 3. Test timeout improves
@@ -356,11 +377,13 @@ watch -n 10 'gcloud firestore documents list \
 ```
 
 **Success criteria:**
+
 - All pending entries processed within 10 minutes
 - No new entries stuck in pending
 - Processor cron executing on schedule (every 5 min)
 
 **If still stuck after 30 min:**
+
 1. Page CTO immediately
 2. Consider soft-deleting oldest entry to unblock queue
 3. Escalate to ANVISA support if API issue suspected
@@ -382,6 +405,7 @@ watch -n 10 'gcloud firestore documents list \
 ## Monitoring Tips
 
 **Daily health check:**
+
 ```bash
 # Check queue status once per day
 gcloud firestore documents list \
@@ -393,6 +417,7 @@ gcloud firestore documents list \
 ```
 
 **Weekly audit:**
+
 - Review for any entries with status "failed" (may need manual investigation)
 - Check processor cron execution history (should be zero errors)
 - Verify webhook ACKs are being received (see Dashboard 2)

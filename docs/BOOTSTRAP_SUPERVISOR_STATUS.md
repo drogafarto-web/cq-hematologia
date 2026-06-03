@@ -21,6 +21,7 @@ This script creates the doc for all labs in one operation.
 ## Prerequisites
 
 1. **gcloud CLI installed and authenticated:**
+
    ```bash
    gcloud auth application-default login
    ```
@@ -40,6 +41,7 @@ node scripts/bootstrap-supervisor-status.mjs --dry-run
 ```
 
 **Output:**
+
 ```
 📋 Fetching labs...
 ✅ Found 5 lab(s)
@@ -121,12 +123,14 @@ Each created doc has this shape:
 ### Firebase auth fails
 
 If you see:
+
 ```
 ❌ Failed to initialize Firebase: ...
   Run: gcloud auth application-default login
 ```
 
 Then:
+
 ```bash
 gcloud auth application-default login
 # Log in with your Google account in the browser

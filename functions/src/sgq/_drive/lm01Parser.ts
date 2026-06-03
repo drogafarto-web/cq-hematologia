@@ -81,9 +81,7 @@ export type ParsedLM01 = z.infer<typeof LM01EntrySchema>;
  * Parse Google Sheets LM-01 values into structured entries
  * Expects: each row = [código, tipo, título, versão, setores (pipe-separated), parent, observações]
  */
-export async function parseLM01Sheet(
-  sheetValues: string[][],
-): Promise<LM01Entry[]> {
+export async function parseLM01Sheet(sheetValues: string[][]): Promise<LM01Entry[]> {
   const entries: LM01Entry[] = [];
   const errors: string[] = [];
 
@@ -96,8 +94,7 @@ export async function parseLM01Sheet(
       continue;
     }
 
-    const [codigo, tipoStr, titulo, versaoStr, setoresStr, parent, observacoes] =
-      row;
+    const [codigo, tipoStr, titulo, versaoStr, setoresStr, parent, observacoes] = row;
 
     try {
       // Parse and validate

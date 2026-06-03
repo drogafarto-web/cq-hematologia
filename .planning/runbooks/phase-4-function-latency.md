@@ -12,6 +12,7 @@
 Portal auth or laudo read functions are slow. p95 latency (95th percentile) >2 seconds means 5% of requests are taking >2 seconds. This degrades user experience but doesn't block access.
 
 **Typical causes:**
+
 - Missing Firestore indexes (slow queries)
 - Function cold start (first invocation after deploy)
 - Firestore quota throttling
@@ -38,6 +39,7 @@ gcloud logging read \
 ```
 
 **Expected output:**
+
 ```json
 [
   { "name": "verifyPatientAuthToken", "p50": 450, "p95": 950, "p99": 1200, "count": 150 },
@@ -69,6 +71,7 @@ gcloud logging read \
 ```
 
 **Analysis:**
+
 - **If all slow invocations have high initializationTime:** Cold starts (normal for fresh deploys)
 - **If warm execution is slow:** Actual performance issue → Continue to Step 3
 
@@ -85,6 +88,7 @@ gcloud logging read \
 ```
 
 **Expected:**
+
 ```json
 [
   { "type": "cold", "count": 5, "avg_duration": 2500 },    # Cold starts OK
@@ -110,6 +114,7 @@ gcloud trace list \
 ```
 
 **Analyze slowest trace:**
+
 ```bash
 gcloud trace describe <trace-id> \
   --project=hmatologia2 | \
@@ -117,6 +122,7 @@ gcloud trace describe <trace-id> \
 ```
 
 **Look for:**
+
 - Which span is slowest?
 - Is it Firestore query? JS execution? Network?
 
@@ -127,43 +133,43 @@ If Cloud Trace is not available, add timing logs to function:
 ```typescript
 // functions/src/modules/auth/getPatientLaudos.ts
 
-export const getPatientLaudos = onCall(
-  { region: 'southamerica-east1' },
-  async (request) => {
-    const startTotal = Date.now();
-    
-    console.log(`[PERF] getPatientLaudos START`);
-    
-    // Firestore query
-    const startFS = Date.now();
-    const laudosSnap = await db
-      .collection('labs').doc(labId)
-      .collection('laudos')
-      .where('patientId', '==', patientId)
-      .get();
-    const fsTime = Date.now() - startFS;
-    console.log(`[PERF] Firestore query: ${fsTime}ms (docs: ${laudosSnap.size})`);
-    
-    // Processing
-    const startProc = Date.now();
-    const laudos = laudosSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-    const procTime = Date.now() - startProc;
-    console.log(`[PERF] Processing: ${procTime}ms`);
-    
-    const totalTime = Date.now() - startTotal;
-    console.log(`[PERF] Total: ${totalTime}ms`);
-    
-    return { data: laudos };
-  }
-);
+export const getPatientLaudos = onCall({ region: 'southamerica-east1' }, async (request) => {
+  const startTotal = Date.now();
+
+  console.log(`[PERF] getPatientLaudos START`);
+
+  // Firestore query
+  const startFS = Date.now();
+  const laudosSnap = await db
+    .collection('labs')
+    .doc(labId)
+    .collection('laudos')
+    .where('patientId', '==', patientId)
+    .get();
+  const fsTime = Date.now() - startFS;
+  console.log(`[PERF] Firestore query: ${fsTime}ms (docs: ${laudosSnap.size})`);
+
+  // Processing
+  const startProc = Date.now();
+  const laudos = laudosSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+  const procTime = Date.now() - startProc;
+  console.log(`[PERF] Processing: ${procTime}ms`);
+
+  const totalTime = Date.now() - startTotal;
+  console.log(`[PERF] Total: ${totalTime}ms`);
+
+  return { data: laudos };
+});
 ```
 
 **Deploy with logging:**
+
 ```bash
 firebase deploy --only functions:getPatientLaudos --project=hmatologia2
 ```
 
 **Re-run slow scenario + check logs:**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function" AND \
@@ -192,12 +198,13 @@ gcloud logging read \
 ```
 
 **If index is missing:**
+
 1. Create composite index via Firebase Console:
    - Collection: `laudos`
    - Fields: `patientId` (ASC), `criadoEm` (DESC)
    - Index name: auto-generated
-   
 2. Or create via CLI:
+
    ```bash
    # Add to firestore.indexes.json:
    {
@@ -208,7 +215,7 @@ gcloud logging read \
        { "fieldPath": "criadoEm", "order": "DESCENDING" }
      ]
    }
-   
+
    # Deploy indexes
    firebase firestore:indexes create --path=firestore.indexes.json --project=hmatologia2
    ```
@@ -216,6 +223,7 @@ gcloud logging read \
 3. Wait for index to build (usually <5 minutes)
 
 4. Test query performance (should improve significantly):
+
    ```bash
    firebase emulators:start --only firestore
    npm run test:performance
@@ -227,7 +235,9 @@ gcloud logging read \
    ```
 
 **If index exists but query still slow:**
+
 1. Check Firestore quota usage:
+
    ```bash
    gcloud monitoring read \
      'metric.type="firestore.googleapis.com/document_reads"' \
@@ -239,17 +249,17 @@ gcloud logging read \
    - Or optimize query (fewer documents, more specific filter)
 
 **Optimize query:**
+
 ```typescript
 // Bad: Reads all laudos for patient
-const laudos = await db.collection('laudos')
-  .where('patientId', '==', patientId)
-  .get();  // May read thousands of docs
+const laudos = await db.collection('laudos').where('patientId', '==', patientId).get(); // May read thousands of docs
 
 // Better: Limit results + pagination
-const laudos = await db.collection('laudos')
+const laudos = await db
+  .collection('laudos')
   .where('patientId', '==', patientId)
   .orderBy('criadoEm', 'desc')
-  .limit(50)  // Only recent 50
+  .limit(50) // Only recent 50
   .get();
 ```
 
@@ -266,12 +276,15 @@ gcloud functions describe getPatientLaudos \
 ```
 
 **Expected:**
+
 ```
 availableMemory: 256MB (default)
 ```
 
 **If memory is low:**
+
 1. Increase allocation:
+
    ```bash
    gcloud functions deploy getPatientLaudos \
      --memory=512MB \
@@ -284,15 +297,16 @@ availableMemory: 256MB (default)
 3. If still slow: Optimize code (see below)
 
 **Optimize CPU-intensive operations:**
+
 ```typescript
 // Slow: Full JSON stringification for large result set
-const jsonString = JSON.stringify(largeLaudoArray);  // Could be 10MB+
+const jsonString = JSON.stringify(largeLaudoArray); // Could be 10MB+
 
 // Better: Only serialize needed fields
-const optimized = largeLaudoArray.map(l => ({
+const optimized = largeLaudoArray.map((l) => ({
   id: l.id,
   resultado: l.resultado,
-  dataLaudo: l.dataLaudo
+  dataLaudo: l.dataLaudo,
   // Exclude large nested objects
 }));
 
@@ -311,10 +325,12 @@ response.end();
 **This is normal — no action needed.**
 
 Cold starts happen for:
+
 - First invocation after fresh deploy
 - Function not invoked for >15 minutes (Auto-scaling down)
 
 **Mitigation (optional):**
+
 - Keep-alive pings (call function every 10 min to keep warm)
 - Or: Accept 2–3s latency for first request (user experience tradeoff)
 
@@ -336,6 +352,7 @@ watch -n 30 'gcloud logging read \
 ```
 
 **Success criteria:**
+
 - p95 latency < 1500ms (below alert threshold)
 - Sustained for 30 minutes
 - No cold-start latency in measurements (exclude first 2 min after deploy)

@@ -38,10 +38,7 @@ import type {
   TermometroInput,
   TipoEquipamento,
 } from '../types/ControlTemperatura';
-import type {
-  ImportItemEquipamento,
-  ImportItemTermometro,
-} from './ctFirebaseService';
+import type { ImportItemEquipamento, ImportItemTermometro } from './ctFirebaseService';
 
 // ─── Schemas ─────────────────────────────────────────────────────────────────
 
@@ -207,8 +204,26 @@ export async function generateCtTemplate(): Promise<ArrayBuffer> {
     COL_TERMO.labCalibrador,
   ];
   const termoExemplos: Array<Array<string | number>> = [
-    ['TM-0012', 'Incoterm Digital', 'Incoterm', 0.5, '15/01/2026', '15/01/2027', 'CERT-2026-TM0012', 'LabMetro SP'],
-    ['TM-0013', 'Testo 174', 'Testo', 0.3, '20/03/2026', '20/03/2027', 'CERT-2026-TM0013', 'LabMetro SP'],
+    [
+      'TM-0012',
+      'Incoterm Digital',
+      'Incoterm',
+      0.5,
+      '15/01/2026',
+      '15/01/2027',
+      'CERT-2026-TM0012',
+      'LabMetro SP',
+    ],
+    [
+      'TM-0013',
+      'Testo 174',
+      'Testo',
+      0.3,
+      '20/03/2026',
+      '20/03/2027',
+      'CERT-2026-TM0013',
+      'LabMetro SP',
+    ],
   ];
   const wsTermo = XLSX.utils.aoa_to_sheet([termoHeader, ...termoExemplos]);
   XLSX.utils.book_append_sheet(wb, wsTermo, 'Termômetros');
@@ -224,7 +239,9 @@ export async function generateCtTemplate(): Promise<ArrayBuffer> {
     ['  • Cada equipamento aponta para um "Nº Série Termômetro" que DEVE existir na Aba 2.'],
     [''],
     ['Colunas da aba "Equipamentos":'],
-    ['  Tipo:               geladeira | freezer | freezer_ultrabaixo | sala | banho_maria | estufa | incubadora | outro'],
+    [
+      '  Tipo:               geladeira | freezer | freezer_ultrabaixo | sala | banho_maria | estufa | incubadora | outro',
+    ],
     ['  Temp. Mín/Máx:      números em °C. Temp. Mín DEVE ser menor que Temp. Máx.'],
     ['  Umidade Mín/Máx:    opcionais. Se preenchidos, 0-100.'],
     ['  Leituras por dia:   1, 2 ou 3. Deve bater com a quantidade de horários preenchidos.'],
@@ -371,7 +388,11 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
       return;
     }
     if (seriesVistas.has(numeroSerie)) {
-      erros.push({ aba: 'Termômetros', linha, mensagem: `Nº Série "${numeroSerie}" duplicado na planilha.` });
+      erros.push({
+        aba: 'Termômetros',
+        linha,
+        mensagem: `Nº Série "${numeroSerie}" duplicado na planilha.`,
+      });
       return;
     }
     seriesVistas.add(numeroSerie);
@@ -389,12 +410,25 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
     if (incerteza === null || incerteza <= 0)
       erros.push({ aba: 'Termômetros', linha, mensagem: 'Incerteza inválida.' });
     if (!dataEmissao)
-      erros.push({ aba: 'Termômetros', linha, mensagem: 'Data de última calibração inválida (use DD/MM/AAAA).' });
+      erros.push({
+        aba: 'Termômetros',
+        linha,
+        mensagem: 'Data de última calibração inválida (use DD/MM/AAAA).',
+      });
     if (!dataValidade)
-      erros.push({ aba: 'Termômetros', linha, mensagem: 'Validade do certificado inválida (use DD/MM/AAAA).' });
+      erros.push({
+        aba: 'Termômetros',
+        linha,
+        mensagem: 'Validade do certificado inválida (use DD/MM/AAAA).',
+      });
     if (dataEmissao && dataValidade && dataValidade.toMillis() <= dataEmissao.toMillis())
-      erros.push({ aba: 'Termômetros', linha, mensagem: 'Validade deve ser posterior à última calibração.' });
-    if (!numeroCertificado) erros.push({ aba: 'Termômetros', linha, mensagem: 'Nº do Certificado obrigatório.' });
+      erros.push({
+        aba: 'Termômetros',
+        linha,
+        mensagem: 'Validade deve ser posterior à última calibração.',
+      });
+    if (!numeroCertificado)
+      erros.push({ aba: 'Termômetros', linha, mensagem: 'Nº do Certificado obrigatório.' });
     if (!lab) erros.push({ aba: 'Termômetros', linha, mensagem: 'Lab. Calibrador obrigatório.' });
 
     if (
@@ -437,7 +471,9 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
       return;
     }
 
-    const tipoRaw = String(row[COL_EQUIP.tipo] ?? '').trim().toLowerCase();
+    const tipoRaw = String(row[COL_EQUIP.tipo] ?? '')
+      .trim()
+      .toLowerCase();
     const tipo = TIPO_NORMALIZADO[tipoRaw];
     if (!tipo) {
       erros.push({
@@ -449,7 +485,8 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
     }
 
     const localizacao = String(row[COL_EQUIP.localizacao] ?? '').trim();
-    if (!localizacao) erros.push({ aba: 'Equipamentos', linha, mensagem: 'Localização obrigatória.' });
+    if (!localizacao)
+      erros.push({ aba: 'Equipamentos', linha, mensagem: 'Localização obrigatória.' });
 
     const termometroSerie = String(row[COL_EQUIP.termometroSerie] ?? '').trim();
     if (!termometroSerie) {
@@ -514,7 +551,11 @@ export async function parseImportXlsx(file: File): Promise<ImportParseResult> {
     const domingo = parseSimNao(row[COL_EQUIP.domingo]);
     const feriados = parseSimNao(row[COL_EQUIP.feriados]);
     if (diasUteis === null || sabado === null || domingo === null || feriados === null) {
-      erros.push({ aba: 'Equipamentos', linha, mensagem: 'Dias úteis/Sábado/Domingo/Feriados: use Sim ou Não.' });
+      erros.push({
+        aba: 'Equipamentos',
+        linha,
+        mensagem: 'Dias úteis/Sábado/Domingo/Feriados: use Sim ou Não.',
+      });
       return;
     }
     if (!diasUteis && !sabado && !domingo && !feriados) {

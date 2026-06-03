@@ -72,7 +72,7 @@ export function useAuditorias(): UseAuditoriasResult {
       (err) => {
         setError(err);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => {
@@ -99,9 +99,7 @@ export interface UseChecklistTemplateResult {
  * Templates are loaded from static JSON.
  * Used when initializing a new sessao with DICQ template.
  */
-export function useChecklistTemplate(
-  templateId: string
-): UseChecklistTemplateResult {
+export function useChecklistTemplate(templateId: string): UseChecklistTemplateResult {
   const [template, setTemplate] = useState<TemplateChecklist | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -134,10 +132,7 @@ export interface UseSessaoResult {
  * Real-time binding for audit execution view.
  * Combines three subscriptions (sessao + checklist + achados).
  */
-export function useSessao(
-  auditoriaId: string,
-  sessaoId: string
-): UseSessaoResult {
+export function useSessao(auditoriaId: string, sessaoId: string): UseSessaoResult {
   const labId = useActiveLabId();
   const [sessao, setSessao] = useState<Sessao | null>(null);
   const [checklistItems, setChecklistItems] = useState<ChecklistItem[]>([]);
@@ -170,7 +165,7 @@ export function useSessao(
       (err) => {
         setError(err);
         setIsLoading(false);
-      }
+      },
     );
 
     // Subscribe to checklist items
@@ -183,7 +178,7 @@ export function useSessao(
       },
       (err) => {
         setError(err);
-      }
+      },
     );
 
     // Subscribe to achados
@@ -196,7 +191,7 @@ export function useSessao(
       },
       (err) => {
         setError(err);
-      }
+      },
     );
 
     return () => {
@@ -220,11 +215,13 @@ export function useSessao(
 // ──────────────────────────────────────────────────────────────────────────
 
 export interface UseAchadoMutationResult {
-  registerAchado: (input: AchadoInput & {
-    labId: string;
-    auditoriaId: string;
-    sessaoId: string;
-  }) => Promise<string>;
+  registerAchado: (
+    input: AchadoInput & {
+      labId: string;
+      auditoriaId: string;
+      sessaoId: string;
+    },
+  ) => Promise<string>;
   softDelete: (achadoId: string) => Promise<void>;
   isLoading: boolean;
   error: Error | null;
@@ -245,11 +242,13 @@ export function useAchadoMutation(): UseAchadoMutationResult {
   const [error, setError] = useState<Error | null>(null);
 
   const registerAchado = useCallback(
-    async (input: AchadoInput & {
-      labId: string;
-      auditoriaId: string;
-      sessaoId: string;
-    }): Promise<string> => {
+    async (
+      input: AchadoInput & {
+        labId: string;
+        auditoriaId: string;
+        sessaoId: string;
+      },
+    ): Promise<string> => {
       if (!activeLabId) {
         throw new Error('Lab not active');
       }
@@ -278,7 +277,7 @@ export function useAchadoMutation(): UseAchadoMutationResult {
         setIsLoading(false);
       }
     },
-    [activeLabId, user]
+    [activeLabId, user],
   );
 
   const handleSoftDelete = useCallback(
@@ -300,7 +299,7 @@ export function useAchadoMutation(): UseAchadoMutationResult {
         setIsLoading(false);
       }
     },
-    [activeLabId]
+    [activeLabId],
   );
 
   return {

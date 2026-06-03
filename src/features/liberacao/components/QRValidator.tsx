@@ -76,8 +76,7 @@ export function QRValidator({ initialUrl = '', apiBase = '' }: QRValidatorProps)
         if (res.status === 429) {
           setState({
             status: 'error',
-            message:
-              'Muitas tentativas. Tente novamente em alguns minutos.',
+            message: 'Muitas tentativas. Tente novamente em alguns minutos.',
           });
           return;
         }
@@ -108,8 +107,8 @@ export function QRValidator({ initialUrl = '', apiBase = '' }: QRValidatorProps)
       <header className="mb-4">
         <h2 className="text-lg font-semibold tracking-tight">Validar laudo</h2>
         <p className="mt-1 text-sm text-white/60">
-          Cole a URL do QR para confirmar a autenticidade do laudo.
-          Nenhum dado clínico do paciente é exibido.
+          Cole a URL do QR para confirmar a autenticidade do laudo. Nenhum dado clínico do paciente
+          é exibido.
         </p>
       </header>
 
@@ -161,9 +160,7 @@ function ValidationResult({ data }: { data: ValidationResponse }) {
   return (
     <div className="rounded-md border border-emerald-500/20 bg-emerald-500/5 p-4">
       <div className="mb-3 flex items-center justify-between">
-        <span className="text-sm font-semibold text-emerald-200">
-          Laudo válido
-        </span>
+        <span className="text-sm font-semibold text-emerald-200">Laudo válido</span>
         {badge}
       </div>
 

@@ -18,22 +18,23 @@ compliance: RDC 978 (Art. 5.3, 86, 117, 122-127, 167) + DICQ 4.4/4.15
 
 ## Wave Summary
 
-| Wave | Focus | Subagents | Status | Commits |
-|------|-------|-----------|--------|---------|
-| **W0** | Type System | 5 | ✅ Complete | 6 |
-| **W1** | Services + Rules + Indexes | 8 | ✅ Complete | 9 |
-| **W2** | React Hooks | 6 | ✅ Complete | 5 |
-| **W3** | Cloud Functions (Callables) | 7 | ✅ Complete | 9 |
-| **W4** | UI Components | 9 | ✅ Complete | 2 |
-| **W5** | Pages + Routes + Hub | 5 | ✅ Complete | 3 |
-| **W6** | Unit Tests | 4 | ✅ Complete | 5 |
-| **W7** | Verification Gate | 1 | ✅ Complete | 6 |
+| Wave   | Focus                       | Subagents | Status      | Commits |
+| ------ | --------------------------- | --------- | ----------- | ------- |
+| **W0** | Type System                 | 5         | ✅ Complete | 6       |
+| **W1** | Services + Rules + Indexes  | 8         | ✅ Complete | 9       |
+| **W2** | React Hooks                 | 6         | ✅ Complete | 5       |
+| **W3** | Cloud Functions (Callables) | 7         | ✅ Complete | 9       |
+| **W4** | UI Components               | 9         | ✅ Complete | 2       |
+| **W5** | Pages + Routes + Hub        | 5         | ✅ Complete | 3       |
+| **W6** | Unit Tests                  | 4         | ✅ Complete | 5       |
+| **W7** | Verification Gate           | 1         | ✅ Complete | 6       |
 
 ---
 
 ## Modules Delivered
 
 ### CAPA Tracking (`src/features/capa-tracking/`)
+
 - Type system: CapaState (5 states), CapaSeverity, AuditorRFI, Evidence, CapaDocument
 - State machine: open → in-progress → evidence-submitted → auditor-reviewing → closed
 - 5 callables: createCapa, updateCapaState, submitCapaRFI, uploadCapaEvidence, submitAuditorSignOff
@@ -42,30 +43,35 @@ compliance: RDC 978 (Art. 5.3, 86, 117, 122-127, 167) + DICQ 4.4/4.15
 - Hooks: useCAPAs, useAuditorRFI
 
 ### Calibração (`src/features/calibracao/`)
+
 - Type system: CalibracaoStatus (in-date/warning-30d/warning-7d/overdue), CalibracaoRecord
 - Callable: uploadCalibracaoCertificate
 - Component: CalibracaoList (status badges)
 - Hook: useCalibracoes
 
 ### Personnel — Cargos (`src/features/personnel/cargos/`)
+
 - Type system: Cargo, CargoPermissions, CargoAuthorityMatrix, SecaoLab, DEFAULT_CARGO_IDS
 - Service: cargosService (CRUD + hierarchy)
 - Component: CargosOrgChart (hierarchical tree)
 - Hook: useCargos
 
 ### Personnel — Designações (`src/features/personnel/designacoes/`)
+
 - Type system: Designacao, DesignacaoType
 - Service: designacoesService (with LogicalSignature)
 - Component: DesignacoesList (3-card layout, expiration tracking)
 - Hook: useDesignacoes (subscribeToDesignacoes)
 
 ### Management Review (`src/features/management-review/`)
+
 - Type system: ManagementReview, ReviewEntry (15 DICQ 4.15 entries)
 - Callable: aggregateManagementReviewData (15 data sources)
 - Component: ManagementReviewMeeting (annual review form)
 - Hook: useManagementReview
 
 ### Risk Matrix (`src/features/risk-management/`)
+
 - Component: RiskMatrixHeatmap (5×5 NPR visualization)
 - Service: riskMatrixService
 
@@ -75,26 +81,26 @@ compliance: RDC 978 (Art. 5.3, 86, 117, 122-127, 167) + DICQ 4.4/4.15
 
 **Total: 122 tests across 5 suites — 100% pass rate**
 
-| Suite | Tests | Coverage |
-|-------|-------|----------|
-| capa-state-machine | 31 | 100% (helpers) |
-| capa-service | 26 | 100% (CRUD) |
-| calibracao | 32 | 100% (helpers) |
-| management-review | 35 | 100% (DICQ 4.15) |
+| Suite              | Tests | Coverage         |
+| ------------------ | ----- | ---------------- |
+| capa-state-machine | 31    | 100% (helpers)   |
+| capa-service       | 26    | 100% (CRUD)      |
+| calibracao         | 32    | 100% (helpers)   |
+| management-review  | 35    | 100% (DICQ 4.15) |
 
 ---
 
 ## Compliance Mapping
 
-| Requirement | Implementation | Wave |
-|-------------|----------------|------|
-| RDC 978 Art. 5.3 — CAPA management | State machine + callables | W0–W4 |
-| RDC 978 Art. 86 — Gestão de riscos | RiskMatrixHeatmap + FMEA-Lite | W4 |
-| RDC 978 Art. 117 — Audit trail | stateHistory + rfiLog + signatures | W1/W3 |
-| RDC 978 Art. 122–127 — Personnel | Cargos + Designações | W0/W1/W4 |
-| RDC 978 Art. 167 — Document custody | Evidence upload + hash | W3/W4 |
-| DICQ 4.4 — CAPA + trilha | Full module | W0–W3 |
-| DICQ 4.15 — Management review | 15 mandatory entries | W0/W1/W4 |
+| Requirement                         | Implementation                     | Wave     |
+| ----------------------------------- | ---------------------------------- | -------- |
+| RDC 978 Art. 5.3 — CAPA management  | State machine + callables          | W0–W4    |
+| RDC 978 Art. 86 — Gestão de riscos  | RiskMatrixHeatmap + FMEA-Lite      | W4       |
+| RDC 978 Art. 117 — Audit trail      | stateHistory + rfiLog + signatures | W1/W3    |
+| RDC 978 Art. 122–127 — Personnel    | Cargos + Designações               | W0/W1/W4 |
+| RDC 978 Art. 167 — Document custody | Evidence upload + hash             | W3/W4    |
+| DICQ 4.4 — CAPA + trilha            | Full module                        | W0–W3    |
+| DICQ 4.15 — Management review       | 15 mandatory entries               | W0/W1/W4 |
 
 ---
 

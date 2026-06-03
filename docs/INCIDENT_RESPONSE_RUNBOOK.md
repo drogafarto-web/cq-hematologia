@@ -31,6 +31,7 @@
 This runbook provides step-by-step procedures for responding to production incidents. It complements the **Cloud Logs Monitoring Report** and is referenced by the **Cloud Monitoring alert policies**.
 
 **Key principles:**
+
 - **Triage first:** Determine severity (🟢/🟡/🔴/⚫) before acting
 - **Contained fixes first:** Try targeted fixes before rollback
 - **Documentation during:** Log every action in incident ticket
@@ -41,12 +42,12 @@ This runbook provides step-by-step procedures for responding to production incid
 
 ## Severity Classification
 
-| Level | Alert Threshold | User Impact | Response Time | Owner |
-|---|---|---|---|---|
-| 🟢 **Green** | No alerts; error rate <0.1% | None | Monitor | On-call engineer |
-| 🟡 **Yellow** | Warning alert; error rate 0.1%–1%; P99 latency 3–5s | Minimal; some operations slow | 15–30 min investigation | On-call engineer |
-| 🔴 **Red** | Critical alert; error rate >1%; P99 >5s; OOM; permission denied | Significant; some flows broken | <5 min page CTO; act within 15 min | On-call + CTO |
-| ⚫ **Black** | Multiple critical alerts; 5xx sustained >10 min; all write failures | Total service degradation | Immediate page all; prepare rollback | Entire DevOps team |
+| Level         | Alert Threshold                                                     | User Impact                    | Response Time                        | Owner              |
+| ------------- | ------------------------------------------------------------------- | ------------------------------ | ------------------------------------ | ------------------ |
+| 🟢 **Green**  | No alerts; error rate <0.1%                                         | None                           | Monitor                              | On-call engineer   |
+| 🟡 **Yellow** | Warning alert; error rate 0.1%–1%; P99 latency 3–5s                 | Minimal; some operations slow  | 15–30 min investigation              | On-call engineer   |
+| 🔴 **Red**    | Critical alert; error rate >1%; P99 >5s; OOM; permission denied     | Significant; some flows broken | <5 min page CTO; act within 15 min   | On-call + CTO      |
+| ⚫ **Black**  | Multiple critical alerts; 5xx sustained >10 min; all write failures | Total service degradation      | Immediate page all; prepare rollback | Entire DevOps team |
 
 ---
 
@@ -73,6 +74,7 @@ This runbook provides step-by-step procedures for responding to production incid
 ```
 
 **On-call acknowledgment template (Slack):**
+
 ```
 @here INCIDENT ACKNOWLEDGED — [HH:MM UTC]
 Type: [Error Rate | P99 Latency | OOM | etc.]
@@ -221,6 +223,7 @@ gcloud logging read "severity >= ERROR" \
 ```
 
 **Expected output pattern:**
+
 ```
 2026-05-10T14:32:15Z | FAILED_PRECONDITION: The query requires an index | onInsumoMovimentacaoCreate
 2026-05-10T14:32:16Z | FAILED_PRECONDITION: The query requires an index | onInsumoMovimentacaoCreate
@@ -228,17 +231,18 @@ gcloud logging read "severity >= ERROR" \
 
 #### Step 2: Classify Root Cause
 
-| Error Message | Root Cause | Severity | Fix |
-|---|---|---|---|
-| `FAILED_PRECONDITION: query requires index` | Missing Firestore index | 🟡 YELLOW | Deploy index (5 min) |
-| `Permission denied on /labs/{labId}/...` | Firestore rules regression | 🔴 RED | Rollback functions (15 min) |
-| `out of memory` | Memory limit exceeded | 🟡 YELLOW | Increase memory + redeploy (15 min) |
-| `undefined is not a function` | Missing dependency | 🔴 RED | Code fix + redeploy (20 min) |
-| `Exceeded timeout of X seconds` | Async handler too slow | 🟡 YELLOW | Increase timeout or fix code (20 min) |
+| Error Message                               | Root Cause                 | Severity  | Fix                                   |
+| ------------------------------------------- | -------------------------- | --------- | ------------------------------------- |
+| `FAILED_PRECONDITION: query requires index` | Missing Firestore index    | 🟡 YELLOW | Deploy index (5 min)                  |
+| `Permission denied on /labs/{labId}/...`    | Firestore rules regression | 🔴 RED    | Rollback functions (15 min)           |
+| `out of memory`                             | Memory limit exceeded      | 🟡 YELLOW | Increase memory + redeploy (15 min)   |
+| `undefined is not a function`               | Missing dependency         | 🔴 RED    | Code fix + redeploy (20 min)          |
+| `Exceeded timeout of X seconds`             | Async handler too slow     | 🟡 YELLOW | Increase timeout or fix code (20 min) |
 
 #### Step 3: Apply Fix
 
 **If Missing Index:**
+
 ```bash
 # 1. Edit firestore.indexes.json
 vi firestore.indexes.json  # Add missing index definition
@@ -252,6 +256,7 @@ gcloud logging read "severity >= ERROR" \
 ```
 
 **If Permission Denied (Rules Regression):**
+
 ```bash
 # 1. Check diff vs previous commit
 git diff HEAD~1 firestore.rules
@@ -267,6 +272,7 @@ gcloud logging read \
 ```
 
 **If OOM (Out of Memory):**
+
 ```bash
 # 1. Identify function
 FUNC=$(gcloud logging read 'textPayload=~".*out of memory.*"' \
@@ -312,11 +318,12 @@ gcloud monitoring read \
 ```bash
 gcloud logging read 'resource.type="cloud_function"' \
   --project=hmatologia2 --limit=50 --format=json | \
-  jq '[.[] | select(.jsonPayload.latency > 5000) | 
+  jq '[.[] | select(.jsonPayload.latency > 5000) |
        {function: .resource.labels.function_name, latency_ms: .jsonPayload.latency}]'
 ```
 
 **Output:**
+
 ```json
 [
   { "function": "sgq_documentPublish", "latency_ms": 7200 },
@@ -327,22 +334,27 @@ gcloud logging read 'resource.type="cloud_function"' \
 #### Step 2: Root Cause Analysis
 
 **Check 1: Is it a Firestore query problem?**
+
 ```bash
 gcloud logging read \
   'jsonPayload.operation=~".*Firestore.*" AND severity="WARNING"' \
   --project=hmatologia2 --limit=10
 ```
+
 Look for: `"slow query"`, `"range scan"`, `"missing index"`
 
 **Check 2: Is it a cold-start latency?**
+
 ```bash
 gcloud logging read \
   'jsonPayload.event_type="STARTUP"' \
   --project=hmatologia2 --limit=5
 ```
+
 Cold starts expected 2–3s on first invocation (not an error).
 
 **Check 3: Is it heavy computation?**
+
 ```bash
 gcloud logging read \
   'resource.labels.function_name="sgq_documentPublish"' \
@@ -352,15 +364,16 @@ gcloud logging read \
 
 #### Step 3: Fix Path
 
-| Root Cause | Fix | Time |
-|---|---|---|
-| Missing index on query | Add to firestore.indexes.json + deploy | 10 min |
-| Large document (>100KB) | Refactor to subcollection | 1+ hour |
-| Expensive computation (crypto, PDF) | Move to background queue | 30 min |
-| Cold start | Not an issue; expected on first invocation | N/A |
-| External API call (Drive, Gemini) | Check external service health; add timeout | 10 min |
+| Root Cause                          | Fix                                        | Time    |
+| ----------------------------------- | ------------------------------------------ | ------- |
+| Missing index on query              | Add to firestore.indexes.json + deploy     | 10 min  |
+| Large document (>100KB)             | Refactor to subcollection                  | 1+ hour |
+| Expensive computation (crypto, PDF) | Move to background queue                   | 30 min  |
+| Cold start                          | Not an issue; expected on first invocation | N/A     |
+| External API call (Drive, Gemini)   | Check external service health; add timeout | 10 min  |
 
 **If missing index:**
+
 ```bash
 # Extract index spec from error message
 gcloud logging read \
@@ -376,6 +389,7 @@ firebase deploy --only firestore:indexes --project hmatologia2
 ```
 
 **If heavy computation:**
+
 ```bash
 # Move to background queue (Cloud Tasks)
 # Example: PDF generation for laudo
@@ -592,6 +606,7 @@ firebase emulators:start --only=auth  # For testing
 #### Step 4: User Communication
 
 If outage >5 minutes:
+
 ```
 TO: lab-managers@clientname.com
 SUBJECT: Authentication Service Alert — HC Quality
@@ -626,6 +641,7 @@ gcloud logging read 'httpRequest.status>=500' \
 ```
 
 **Common error patterns:**
+
 - `502 Bad Gateway` → Upstream service down (Cloud Functions)
 - `503 Service Unavailable` → Server overloaded or deployment in progress
 - `504 Gateway Timeout` → Slow backend (Firestore query timeout)
@@ -633,6 +649,7 @@ gcloud logging read 'httpRequest.status>=500' \
 #### Step 2: Fix by Error Type
 
 **If 502 (Cloud Functions down):**
+
 ```bash
 # Check function status
 firebase functions:list
@@ -646,6 +663,7 @@ firebase deploy --only functions --project hmatologia2
 ```
 
 **If 503 (Server overloaded):**
+
 ```bash
 # Usually temporary; no action needed
 # If sustained >5 min: Scale up Cloud Run instances
@@ -656,6 +674,7 @@ gcloud run services update default \
 ```
 
 **If 504 (Slow backend):**
+
 ```bash
 # Check Firestore query latency
 gcloud logging read 'jsonPayload.latency > 30000' \
@@ -761,18 +780,21 @@ WAITING FOR:
 #### Step 4: Remediation (CTO Decision)
 
 **If code bug:**
+
 1. Fix code (hash computation)
 2. Rebuild + deploy
 3. Backfill: Recompute hashes for affected event range
 4. Reverify: Run integrity script again
 
 **If secret rotation incomplete:**
+
 1. Revert to previous HMAC secret temporarily
 2. Re-sign all events with old key
 3. Complete secret rotation process
 4. Reverify
 
 **If external tampering suspected:**
+
 1. Preserve all evidence
 2. Escalate to security team + legal
 3. File incident report
@@ -883,6 +905,7 @@ Conduct post-mortem **within 24 hours** of incident resolution.
 # Post-Incident Review — [Date] [HH:MM UTC]
 
 ## Incident Summary
+
 - **Start time:** [ISO timestamp]
 - **End time:** [ISO timestamp]
 - **Duration:** X minutes
@@ -891,39 +914,46 @@ Conduct post-mortem **within 24 hours** of incident resolution.
 - **Affected flows:** [list of broken features]
 
 ## Root Cause
+
 [What actually happened? Why did the system fail?]
 
 ## Timeline
-| Time | Event | Owner |
-|------|-------|-------|
-| 14:32 | Alert fired | Cloud Monitoring |
-| 14:33 | On-call acknowledged | [Name] |
-| 14:38 | Root cause identified | [Name] |
-| 14:45 | Fix deployed / Rollback executed | [Name] |
-| 14:52 | System stable | [Name] |
+
+| Time  | Event                            | Owner            |
+| ----- | -------------------------------- | ---------------- |
+| 14:32 | Alert fired                      | Cloud Monitoring |
+| 14:33 | On-call acknowledged             | [Name]           |
+| 14:38 | Root cause identified            | [Name]           |
+| 14:45 | Fix deployed / Rollback executed | [Name]           |
+| 14:52 | System stable                    | [Name]           |
 
 ## Actions Taken
+
 - [ ] [Action 1 — what was done to fix it]
 - [ ] [Action 2]
 - [ ] [Action 3]
 
 ## Contributing Factors
+
 - [Factor 1: Why wasn't this caught earlier?]
 - [Factor 2: Why did the system not degrade gracefully?]
 - [Factor 3: Were there any monitoring blind spots?]
 
 ## Preventive Actions (Going Forward)
+
 1. [Add new test case — specific code line]
 2. [Add monitoring alert — specific metric]
 3. [Refactor code for resilience — estimate 4 hours]
 4. [Document edge case in CLAUDE.md]
 
 ## Owner + ETA
+
 - [Action 1] — [Engineer name] — ETA [date]
 - [Action 2] — [Engineer name] — ETA [date]
 - [Action 3] — [Engineer name] — ETA [date]
 
 ## Approval
+
 - [ ] CTO approves preventive actions
 - [ ] Timeline reviewed (realistic?)
 ```
@@ -969,25 +999,25 @@ gcloud logging read "severity >= ERROR" \
 
 ### Quick Decisions
 
-| Question | Command | Interpretation |
-|---|---|---|
-| "Are functions deployed?" | `firebase functions:list --project hmatologia2` | Should list 32+ active functions |
-| "What's the error rate?" | Count ERROR logs / total invocations | <0.1% is healthy |
-| "Is Firestore quota exceeded?" | `gcloud firestore databases describe` | Check writes/sec vs quota |
-| "Did something change in last hour?" | `git log --oneline -10` | Review recent commits |
-| "Should we rollback?" | Check if error rate >1% AND fix time >10 min | If both true: YES |
+| Question                             | Command                                         | Interpretation                   |
+| ------------------------------------ | ----------------------------------------------- | -------------------------------- |
+| "Are functions deployed?"            | `firebase functions:list --project hmatologia2` | Should list 32+ active functions |
+| "What's the error rate?"             | Count ERROR logs / total invocations            | <0.1% is healthy                 |
+| "Is Firestore quota exceeded?"       | `gcloud firestore databases describe`           | Check writes/sec vs quota        |
+| "Did something change in last hour?" | `git log --oneline -10`                         | Review recent commits            |
+| "Should we rollback?"                | Check if error rate >1% AND fix time >10 min    | If both true: YES                |
 
 ---
 
 ## Escalation Contact Matrix
 
-| Situation | Contact | Method | SLA |
-|---|---|---|---|
-| 🟡 Yellow alert (error 0.1–1%) | On-call engineer | Slack | 15 min |
-| 🔴 Red alert (error >1% OR latency >5s) | @drogafarto (CTO) | Slack + page | <5 min |
-| ⚫ Critical (multiple failures, 5xx sustained) | Entire DevOps team | Slack + page all | Immediate |
-| Questions during incident | @drogafarto | Slack DM | <10 min |
-| Post-mortem scheduling | CTO | Email | Within 24h |
+| Situation                                      | Contact            | Method           | SLA        |
+| ---------------------------------------------- | ------------------ | ---------------- | ---------- |
+| 🟡 Yellow alert (error 0.1–1%)                 | On-call engineer   | Slack            | 15 min     |
+| 🔴 Red alert (error >1% OR latency >5s)        | @drogafarto (CTO)  | Slack + page     | <5 min     |
+| ⚫ Critical (multiple failures, 5xx sustained) | Entire DevOps team | Slack + page all | Immediate  |
+| Questions during incident                      | @drogafarto        | Slack DM         | <10 min    |
+| Post-mortem scheduling                         | CTO                | Email            | Within 24h |
 
 ---
 
@@ -996,4 +1026,3 @@ gcloud logging read "severity >= ERROR" \
 **Status:** Active — use for all production incidents
 
 **Questions?** Contact @drogafarto or refer to `CLOUD_LOGS_MONITORING_REPORT_v1.3.md` executive summary.
-

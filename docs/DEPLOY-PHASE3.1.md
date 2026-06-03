@@ -8,12 +8,12 @@
 
 ## What is being deployed
 
-| Artifact | Change |
-| --- | --- |
-| `firestore.indexes.json` | 3 new composite indexes: `entries (status+deletadoEm)`, `entries (deletadoEm+criadoEm)`, `records (status+deletadoEm)` |
-| `firestore.rules` | 2 new rule blocks: `export-jobs` (client read-only) and `analytics/cache` (client read-only) |
+| Artifact                 | Change                                                                                                                      |
+| ------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| `firestore.indexes.json` | 3 new composite indexes: `entries (status+deletadoEm)`, `entries (deletadoEm+criadoEm)`, `records (status+deletadoEm)`      |
+| `firestore.rules`        | 2 new rule blocks: `export-jobs` (client read-only) and `analytics/cache` (client read-only)                                |
 | `functions/src/index.ts` | 3 new functions registered: `aggregateAnalytics` (scheduled), `initiateExport` (callable), `exportWorker` (Pub/Sub trigger) |
-| Pub/Sub infrastructure | Topic `exports` must exist before `exportWorker` subscription is created |
+| Pub/Sub infrastructure   | Topic `exports` must exist before `exportWorker` subscription is created                                                    |
 
 **Functions NOT touched in this deploy:** all other functions remain unchanged. Deploying only the 3 new functions avoids cold-starting or disrupting existing callables.
 
@@ -196,11 +196,11 @@ In practice, the 3 new indexes are additive and do not break any existing query.
 
 ## Risk register
 
-| Risk | Severity | Mitigation |
-| --- | --- | --- |
-| Pub/Sub topic `exports` missing at function deploy | HIGH | Step 2 explicitly creates and verifies topic before Step 5 |
-| Index build window (5-15 min) causes query errors | MEDIUM | Deploy indexes first (Step 3); production traffic uses existing indexes; new queries gated by feature flag |
-| `exportWorker` subscription not created if topic missing | HIGH | Verified by post-deploy Pub/Sub check |
-| Deploying 3 functions touches function deploy quota | LOW | Only 3 functions targeted; no global `firebase deploy --only functions` |
-| Rules change breaks existing module access | LOW | New blocks are additive; no existing `match` block modified |
-| `aggregateAnalytics` scheduled job duplicate if redeployed | LOW | Firebase CLI is idempotent — Cloud Scheduler job is updated, not duplicated |
+| Risk                                                       | Severity | Mitigation                                                                                                 |
+| ---------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------------------- |
+| Pub/Sub topic `exports` missing at function deploy         | HIGH     | Step 2 explicitly creates and verifies topic before Step 5                                                 |
+| Index build window (5-15 min) causes query errors          | MEDIUM   | Deploy indexes first (Step 3); production traffic uses existing indexes; new queries gated by feature flag |
+| `exportWorker` subscription not created if topic missing   | HIGH     | Verified by post-deploy Pub/Sub check                                                                      |
+| Deploying 3 functions touches function deploy quota        | LOW      | Only 3 functions targeted; no global `firebase deploy --only functions`                                    |
+| Rules change breaks existing module access                 | LOW      | New blocks are additive; no existing `match` block modified                                                |
+| `aggregateAnalytics` scheduled job duplicate if redeployed | LOW      | Firebase CLI is idempotent — Cloud Scheduler job is updated, not duplicated                                |

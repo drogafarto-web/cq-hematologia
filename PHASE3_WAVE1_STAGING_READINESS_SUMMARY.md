@@ -12,16 +12,16 @@
 
 Phase 3 Wave 1 has successfully completed pre-flight verification. All critical artifacts (Firestore schema, helper utilities, Cloud Functions, rules) are ready for staging deployment. One minor remediation was applied to isolate Wave 2 modules from the build.
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| **TypeScript Compilation** | ✅ PASS | 0 errors (after tsconfig.json fix) |
-| **Web Build** | ✅ PASS | 31.93s, all chunks OK |
-| **Functions Build** | ✅ PASS | 78+ functions compile cleanly |
-| **Production Tests** | ✅ PASS | 1130/1130 passing (100%) |
-| **E2E Schema Tests** | ⚠️ PARTIAL | 4 test failures (non-blocking) |
-| **Firestore Rules** | ✅ PASS | 100+ collections, no regressions |
-| **Security Audit** | ✅ PASS | No hardcoded secrets, rules verified |
-| **Compliance** | ✅ PASS | RDC 978 + DICQ 4.3 requirements met |
+| Component                  | Status     | Notes                                |
+| -------------------------- | ---------- | ------------------------------------ |
+| **TypeScript Compilation** | ✅ PASS    | 0 errors (after tsconfig.json fix)   |
+| **Web Build**              | ✅ PASS    | 31.93s, all chunks OK                |
+| **Functions Build**        | ✅ PASS    | 78+ functions compile cleanly        |
+| **Production Tests**       | ✅ PASS    | 1130/1130 passing (100%)             |
+| **E2E Schema Tests**       | ⚠️ PARTIAL | 4 test failures (non-blocking)       |
+| **Firestore Rules**        | ✅ PASS    | 100+ collections, no regressions     |
+| **Security Audit**         | ✅ PASS    | No hardcoded secrets, rules verified |
+| **Compliance**             | ✅ PASS    | RDC 978 + DICQ 4.3 requirements met  |
 
 **Decision:** ✅ **GO FOR STAGING DEPLOY**
 
@@ -30,6 +30,7 @@ Phase 3 Wave 1 has successfully completed pre-flight verification. All critical 
 ## Key Accomplishments
 
 ### Task 03-01: Firestore Schema v1.4 Extensions ✅
+
 - **5 new collections** designed and documented
   - `portal-configuracao/{labId}` — Portal branding configuration
   - `notivisa-outbox/{labId}/events/` — Regulatory notification queue
@@ -44,6 +45,7 @@ Phase 3 Wave 1 has successfully completed pre-flight verification. All critical 
 - **Full documentation** in `docs/SCHEMA_v1.4.md` (1500+ lines)
 
 ### Task 03-03: Shared Helpers ✅
+
 - **4 utility modules** implemented in `src/shared/` and `functions/src/shared/`
   - `notivisa.ts` — NOTIVISA event payload formatter (Art. 6º §1)
   - `sms.ts` — SMS template generator for escalations
@@ -54,6 +56,7 @@ Phase 3 Wave 1 has successfully completed pre-flight verification. All critical 
 - **1130 unit + integration tests** passing
 
 ### Pre-Deployment Verification ✅
+
 - TypeScript type-checking: **0 errors**
 - Build verification: **Success**
 - Security audit: **No regressions or vulnerabilities**
@@ -65,13 +68,13 @@ Phase 3 Wave 1 has successfully completed pre-flight verification. All critical 
 
 ### Deliverables
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `firestore.indexes.json` | 5 new composite indexes | ✅ Ready to deploy |
-| `src/shared/{notivisa,sms,ia,laudo}.ts` | Helper utilities | ✅ Compiled, tested |
-| `functions/src/shared/{notivisa,sms,ia,laudo}.ts` | Server-side helpers | ✅ Compiled |
-| `docs/SCHEMA_v1.4.md` | Full schema documentation | ✅ Complete |
-| `firestore.rules` | Rules audit passed | ✅ No changes needed (03-02 will extend) |
+| File                                              | Purpose                   | Status                                   |
+| ------------------------------------------------- | ------------------------- | ---------------------------------------- |
+| `firestore.indexes.json`                          | 5 new composite indexes   | ✅ Ready to deploy                       |
+| `src/shared/{notivisa,sms,ia,laudo}.ts`           | Helper utilities          | ✅ Compiled, tested                      |
+| `functions/src/shared/{notivisa,sms,ia,laudo}.ts` | Server-side helpers       | ✅ Compiled                              |
+| `docs/SCHEMA_v1.4.md`                             | Full schema documentation | ✅ Complete                              |
+| `firestore.rules`                                 | Rules audit passed        | ✅ No changes needed (03-02 will extend) |
 
 ### Build Artifacts
 
@@ -86,6 +89,7 @@ Phase 3 Wave 1 has successfully completed pre-flight verification. All critical 
 ### Immediate (Day of Deploy)
 
 **1. Verify secrets are provisioned** ⚠️ **REQUIRED**
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 # Exit code 0 = safe to proceed
@@ -93,6 +97,7 @@ bash scripts/preflight-secrets-check.sh
 ```
 
 **2. Type-check locally**
+
 ```bash
 npx tsc --noEmit
 cd functions && npm run build
@@ -100,6 +105,7 @@ cd functions && npm run build
 ```
 
 **3. Run production tests** (optional; already passed)
+
 ```bash
 npm run test:unit
 # Expected: 1130 production tests passing
@@ -134,6 +140,7 @@ firebase deploy --only hosting --project hmatologia2-staging
 ### Immediate (5 minutes after deploy)
 
 1. **Verify indexes created:**
+
    ```bash
    firebase firestore:indexes --project hmatologia2-staging
    # Should list all 5 new indexes as "Enabled"
@@ -150,11 +157,13 @@ firebase deploy --only hosting --project hmatologia2-staging
 ### 24 Hours (Monitoring)
 
 Run automated monitoring:
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 Watch for:
+
 - ❌ Functions timing out
 - ❌ Rules denying legitimate reads
 - ❌ Index build failures
@@ -173,6 +182,7 @@ Watch for:
 **Impact:** ❌ **ZERO** — tests are infrastructure code, not production code
 
 **Why it doesn't block deployment:**
+
 - Test files don't run in production
 - Production code (1130 tests) all passing
 - Schema itself is correct; test implementation needs correction
@@ -187,6 +197,7 @@ Watch for:
 **Solution:** Excluded from `functions/tsconfig.json` to prevent build errors
 
 **Justification:**
+
 - These are not part of Wave 1 deliverables
 - Not exported from `functions/src/index.ts` yet
 - Will be re-included after 03-04 implementation
@@ -201,6 +212,7 @@ Watch for:
 ### RDC 978/2025 (Art. 5.3 — Audit Trail)
 
 ✅ **Verified:**
+
 - All writes logged via `auditLogs` subcollection
 - Chain hash validation enforced server-side
 - Immutable audit records (`allow update, delete: if false`)
@@ -209,19 +221,20 @@ Watch for:
 ### DICQ 4.3 (Data Quality)
 
 ✅ **Verified:**
+
 - Multi-tenant isolation enforced (labId in all paths)
 - Soft delete only (RN-06)
 - Signatures present (HMAC-SHA256)
 
 ### Phase 3.1 Schema Support
 
-| Requirement | Collection | Status |
-|-------------|-----------|--------|
-| NOTIVISA queueing (Art. 6º §1) | notivisa-outbox | ✅ Schema ready |
-| Critical escalation tracking | criticos-escalacoes | ✅ Schema ready |
-| Portal branding | portal-configuracao | ✅ Schema ready |
-| IA strip training data | imuno-ias-dev | ✅ Schema ready |
-| Laudo versioning (Art. 167) | laudos-draft | ✅ Schema ready |
+| Requirement                    | Collection          | Status          |
+| ------------------------------ | ------------------- | --------------- |
+| NOTIVISA queueing (Art. 6º §1) | notivisa-outbox     | ✅ Schema ready |
+| Critical escalation tracking   | criticos-escalacoes | ✅ Schema ready |
+| Portal branding                | portal-configuracao | ✅ Schema ready |
+| IA strip training data         | imuno-ias-dev       | ✅ Schema ready |
+| Laudo versioning (Art. 167)    | laudos-draft        | ✅ Schema ready |
 
 ---
 
@@ -234,6 +247,7 @@ Watch for:
 **Why:** Wave 2 modules have incomplete Cloud Functions signatures that caused TypeScript errors
 
 **How:**
+
 ```json
 "exclude": [
   "src/modules/criticos/**",
@@ -252,6 +266,7 @@ Watch for:
 ### Production Tests: 1130/1130 ✅
 
 All critical tests passing:
+
 - Unit tests: ✅ All pass
 - Integration tests: ✅ All pass
 - Existing regressions: ❌ None detected

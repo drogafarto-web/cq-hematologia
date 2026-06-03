@@ -16,10 +16,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
 import { generateTurnosSignatureServer } from './signatureCanonical';
-import {
-  turnosCollection,
-  Backfill90DaysInputSchema,
-} from './validators';
+import { turnosCollection, Backfill90DaysInputSchema } from './validators';
 
 interface Backfill90DaysResult {
   ok: true;
@@ -72,10 +69,7 @@ export const turnos_backfill90Days = onCall<unknown, Promise<Backfill90DaysResul
       .get();
 
     if (colaboradoresSnap.empty) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Nenhum supervisor ativo encontrado no lab.',
-      );
+      throw new HttpsError('failed-precondition', 'Nenhum supervisor ativo encontrado no lab.');
     }
 
     const supervisorDoc = colaboradoresSnap.docs[0];

@@ -119,7 +119,10 @@ export function CoberturaReport({ onSelectTurno }: CoberturaReportProps) {
       </div>
 
       {/* Legend + Details */}
-      <div className="flex flex-col gap-4 rounded-lg border border-slate-700 bg-slate-800 p-4" style={{minWidth: '300px'}}>
+      <div
+        className="flex flex-col gap-4 rounded-lg border border-slate-700 bg-slate-800 p-4"
+        style={{ minWidth: '300px' }}
+      >
         <div>
           <h3 className="mb-3 font-semibold text-slate-100">Legenda</h3>
           <div className="flex flex-col gap-2 text-xs">
@@ -154,10 +157,7 @@ export function CoberturaReport({ onSelectTurno }: CoberturaReportProps) {
             ) : (
               <div className="flex flex-col gap-2">
                 {selectedCellData.turnos.map((turno) => (
-                  <div
-                    key={turno.id}
-                    className="flex flex-col gap-1 rounded bg-slate-700 p-2"
-                  >
+                  <div key={turno.id} className="flex flex-col gap-1 rounded bg-slate-700 p-2">
                     <p className="text-xs font-medium text-slate-100">{turno.supervisorName}</p>
                     <p className="text-xs text-slate-400">{turno.supervisorCRBM || 'sem CRBM'}</p>
                     {turno.inferred && (

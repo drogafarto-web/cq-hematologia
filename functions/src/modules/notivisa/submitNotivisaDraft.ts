@@ -78,10 +78,7 @@ export const submitNotivisaDraft = onCall<unknown, Promise<SubmitNotivisaDraftRe
     // Extract patient CPF for masking
     const pacienteCpf = draftData?.['payload']?.['paciente_cpf'] as string | undefined;
     if (!pacienteCpf) {
-      throw new HttpsError(
-        'failed-precondition',
-        'CPF do paciente não encontrado no rascunho.',
-      );
+      throw new HttpsError('failed-precondition', 'CPF do paciente não encontrado no rascunho.');
     }
 
     // 2. Create queue event (status='pending', ready for async processor)

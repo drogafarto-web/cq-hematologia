@@ -130,7 +130,7 @@ function computeEventHash(payload: Omit<AuditEventRecord, 'hash'>): string {
  */
 async function getLastAuditEvent(
   db: admin.firestore.Firestore,
-  labId: string
+  labId: string,
 ): Promise<AuditEventRecord | null> {
   const snap = await db
     .collection(AUDIT_LOG_COLLECTION)
@@ -153,7 +153,7 @@ async function getLastAuditEvent(
 async function verifyChainIntegrity(
   db: admin.firestore.Firestore,
   labId: string,
-  currentPreviousHash?: string
+  currentPreviousHash?: string,
 ): Promise<{
   valid: boolean;
   message?: string;
@@ -193,15 +193,13 @@ async function verifyChainIntegrity(
 
 // ─── Main Callable ──────────────────────────────────────────────────────────
 
-export const logAuditTrail = functions.region('southamerica-east1').onCall(
-  async (request): Promise<LogAuditTrailOutput | LogAuditTrailError> => {
+export const logAuditTrail = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<LogAuditTrailOutput | LogAuditTrailError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = LogAuditTrailInputSchema.parse(request.data);
@@ -279,11 +277,7 @@ export const logAuditTrail = functions.region('southamerica-east1').onCall(
       };
 
       // ========== 8. Verify chain integrity (optional, for data quality) ==========
-      const chainVerification = await verifyChainIntegrity(
-        db,
-        labId,
-        previousEvent?.hash
-      );
+      const chainVerification = await verifyChainIntegrity(db, labId, previousEvent?.hash);
 
       if (!chainVerification.valid) {
         functions.logger.warn('[logAuditTrail] Chain verification failed', {
@@ -309,7 +303,7 @@ export const logAuditTrail = functions.region('southamerica-east1').onCall(
         if (existing.exists) {
           throw new functions.https.HttpsError(
             'internal',
-            'Event already logged (idempotency check)'
+            'Event already logged (idempotency check)',
           );
         }
 
@@ -378,5 +372,4 @@ export const logAuditTrail = functions.region('southamerica-east1').onCall(
         message: error.message || 'Error logging audit trail',
       };
     }
-  }
-);
+  });

@@ -57,7 +57,11 @@ function insumoBadge(insumo: Insumo | null): React.ReactNode {
   if (qcStatus === 'aprovado') {
     const v = validadeStatus(insumo.validadeReal.toDate());
     if (v === 'warning') {
-      return <StatusBadge tone="warn">vence em {diasAteVencer(insumo.validadeReal.toDate())}d</StatusBadge>;
+      return (
+        <StatusBadge tone="warn">
+          vence em {diasAteVencer(insumo.validadeReal.toDate())}d
+        </StatusBadge>
+      );
     }
     return <StatusBadge tone="ok">QUALIFICADO</StatusBadge>;
   }
@@ -104,9 +108,7 @@ function SlotPicker({
       </div>
 
       {options.length === 0 ? (
-        <p className="text-sm text-slate-400 dark:text-white/30 italic">
-          {emptyMessage}
-        </p>
+        <p className="text-sm text-slate-400 dark:text-white/30 italic">{emptyMessage}</p>
       ) : (
         <>
           <select
@@ -186,9 +188,7 @@ export function ManualKitPicker({
           <p className="text-[10px] uppercase tracking-widest text-violet-500 dark:text-violet-300/80 font-semibold">
             Teste manual · sem equipamento
           </p>
-          <p className="text-sm font-semibold text-slate-900 dark:text-white/90 mt-0.5">
-            {title}
-          </p>
+          <p className="text-sm font-semibold text-slate-900 dark:text-white/90 mt-0.5">{title}</p>
           {subtitle && (
             <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5">{subtitle}</p>
           )}

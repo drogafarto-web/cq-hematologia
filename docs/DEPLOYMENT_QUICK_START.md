@@ -24,15 +24,15 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 ## Timeline
 
-| Step | Terminal | Time | Status |
-|------|----------|------|--------|
-| 1. Type-check | 1 | 5 min | `npm run tsc --noEmit` |
-| 2. Functions | 2 | 5 min | `firebase deploy --only functions` |
-| **→ Start monitoring** | **3** | **parallel** | **`bash scripts/monitor-cloud-logs.sh 24 30`** |
-| 3. Hosting | 2 | 2 min | `firebase deploy --only hosting` |
-| 4. Verify | 1 | 5 min | Watch Terminals 2 + 3 for errors |
-| 5. Monitor | 3 | 24h | Running in background |
-| 6. Sign-off | 1 | 15 min | Review report + commit to git |
+| Step                   | Terminal | Time         | Status                                         |
+| ---------------------- | -------- | ------------ | ---------------------------------------------- |
+| 1. Type-check          | 1        | 5 min        | `npm run tsc --noEmit`                         |
+| 2. Functions           | 2        | 5 min        | `firebase deploy --only functions`             |
+| **→ Start monitoring** | **3**    | **parallel** | **`bash scripts/monitor-cloud-logs.sh 24 30`** |
+| 3. Hosting             | 2        | 2 min        | `firebase deploy --only hosting`               |
+| 4. Verify              | 1        | 5 min        | Watch Terminals 2 + 3 for errors               |
+| 5. Monitor             | 3        | 24h          | Running in background                          |
+| 6. Sign-off            | 1        | 15 min       | Review report + commit to git                  |
 
 **Active time:** ~17 min (deploy) + 15 min (sign-off) = 32 min  
 **Clock time:** 24h+ (monitoring in background)
@@ -44,18 +44,18 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 Terminal 1                Terminal 2 (Main Deploy)    Terminal 3 (Monitoring)
 ———————————————————————————————————————————————————————————————————————————————
-tsc --noEmit                          
-npm run build                         
+tsc --noEmit
+npm run build
                           deploy functions     START HERE ───→ poll Cloud Logs
                           ✓ Done (5 min)           every 30 min
-                          
+
                           deploy hosting
                           ✓ Done (2 min)           monitoring continues...
                                                     (24h total)
-                                                    
+
 [after 24h or on-demand]  ← Continue normally       Report auto-generated
 Create sign-off report    ← Document findings       JSON export created
-Commit to git             ← Archive                 
+Commit to git             ← Archive
 Mark deployment complete
 ```
 
@@ -66,19 +66,25 @@ Mark deployment complete
 After 24 hours (or when you stop it):
 
 **File 1: Auto-generated report**
+
 ```bash
 cat docs/MONITORING_REPORT_*.md
 ```
+
 Shows:
+
 - Total errors found
 - Function/Firestore/Hosting breakdown
 - Recommendation: ✅ APPROVE or ⚠️ ESCALATE
 
 **File 2: Error export**
+
 ```bash
 cat scripts/cloud-logs-export-*.json | jq . | head -30
 ```
+
 Shows:
+
 - Every error logged during monitoring
 - Timestamp, severity, details
 
@@ -150,17 +156,20 @@ git add docs/MONITORING_REPORT_* && git commit -m "docs: v1.3 monitoring complet
 ## Troubleshooting
 
 **"gcloud not found"**
+
 ```bash
 gcloud config set project hmatologia2
 # If error, install Google Cloud SDK
 ```
 
 **"Script hangs"**
+
 - Ctrl+C to stop
 - Check: `gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=5`
 - Re-run script if needed
 
 **"Monitoring disappeared"**
+
 - It's in background. Check file outputs: `ls -la docs/MONITORING_REPORT_*.md`
 - Reports auto-generate after 24h
 

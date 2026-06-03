@@ -51,7 +51,8 @@ export const nc_equipamentosVencidos = onSchedule(
 
         // Verificar calibração vencida
         if (equip.proximaCalibracao) {
-          const calMs = equip.proximaCalibracao.toMillis?.() ?? new Date(equip.proximaCalibracao).getTime();
+          const calMs =
+            equip.proximaCalibracao.toMillis?.() ?? new Date(equip.proximaCalibracao).getTime();
           if (calMs < nowMs) {
             const jaExiste = await ncJaExisteParaOrigem(labId, 'equipamentos', `cal_${equipId}`);
             if (!jaExiste) {
@@ -79,7 +80,9 @@ export const nc_equipamentosVencidos = onSchedule(
 
         for (const manDoc of manSnap.docs) {
           const man = manDoc.data();
-          const dpMs = man.dataPrevista?.toMillis?.() ?? (man.dataPrevista ? new Date(man.dataPrevista).getTime() : null);
+          const dpMs =
+            man.dataPrevista?.toMillis?.() ??
+            (man.dataPrevista ? new Date(man.dataPrevista).getTime() : null);
           if (!dpMs || dpMs >= nowMs) continue;
 
           const jaExiste = await ncJaExisteParaOrigem(labId, 'equipamentos', `man_${manDoc.id}`);
@@ -188,7 +191,8 @@ export const nc_insumoVencido = onSchedule(
 
       for (const insDoc of insumosSnap.docs) {
         const ins = insDoc.data();
-        const validadeMs = ins.validade?.toMillis?.() ?? (ins.validade ? new Date(ins.validade).getTime() : null);
+        const validadeMs =
+          ins.validade?.toMillis?.() ?? (ins.validade ? new Date(ins.validade).getTime() : null);
         if (!validadeMs || validadeMs >= nowMs) continue;
 
         const jaExiste = await ncJaExisteParaOrigem(labId, 'insumos', insDoc.id);
@@ -317,7 +321,8 @@ export const nc_treinamentoVencido = onSchedule(
 
       for (const treinDoc of treinSnap.docs) {
         const trein = treinDoc.data();
-        const vencidoEm = trein.vencidoEm?.toMillis?.() ?? trein.dataVencimento?.toMillis?.() ?? null;
+        const vencidoEm =
+          trein.vencidoEm?.toMillis?.() ?? trein.dataVencimento?.toMillis?.() ?? null;
         if (!vencidoEm) continue;
 
         // Só gera NC se vencido há mais de 30 dias

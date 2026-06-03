@@ -9,33 +9,33 @@
 
 ## Decisões de Design
 
-| Decisão | Escolha |
-|---------|---------|
-| Escopo MVP (Onda 1) | Checklist + Score + PDF + Dashboard básico |
-| Navegação | Wizard step-by-step por blocos |
-| Escala | 0-5 com descrições por nível (original FR-044) |
-| PDF | Server-side via Cloud Function (premium, arquivável) |
-| Persistência | Coleção nova: `/auditoria-geral/{labId}/auditorias/{id}` |
-| Independência | Zero dependência do módulo auditoria-interna |
+| Decisão             | Escolha                                                  |
+| ------------------- | -------------------------------------------------------- |
+| Escopo MVP (Onda 1) | Checklist + Score + PDF + Dashboard básico               |
+| Navegação           | Wizard step-by-step por blocos                           |
+| Escala              | 0-5 com descrições por nível (original FR-044)           |
+| PDF                 | Server-side via Cloud Function (premium, arquivável)     |
+| Persistência        | Coleção nova: `/auditoria-geral/{labId}/auditorias/{id}` |
+| Independência       | Zero dependência do módulo auditoria-interna             |
 
 ---
 
 ## Blocos do Wizard (agrupamento dos 57 indicadores)
 
-| Bloco | Nome | Indicadores | Qtd |
-|-------|------|-------------|-----|
-| A | Documentação Legal e Governança | 1-5 | 5 |
-| B | Contratos e Terceirização | 6-9 | 4 |
-| C | Tecnologias e Equipamentos | 10-14 | 5 |
-| D | Risco e Documentos | 15-16 | 2 |
-| E | Pessoal e Educação | 17-19 | 3 |
-| F | Infraestrutura e Ambiente | 20-28 | 9 |
-| G | Sistemas e Biossegurança | 29-32 | 4 |
-| H | Procedimentos e Rastreabilidade | 33-35 | 3 |
-| I | Fase Pré-Analítica | 36-42 | 7 |
-| J | Fase Analítica | 43-48 | 6 |
-| K | Fase Pós-Analítica e Laudos | 49-51 | 3 |
-| L | Controle da Qualidade (CIQ/CEQ) | 52-57 | 6 |
+| Bloco | Nome                            | Indicadores | Qtd |
+| ----- | ------------------------------- | ----------- | --- |
+| A     | Documentação Legal e Governança | 1-5         | 5   |
+| B     | Contratos e Terceirização       | 6-9         | 4   |
+| C     | Tecnologias e Equipamentos      | 10-14       | 5   |
+| D     | Risco e Documentos              | 15-16       | 2   |
+| E     | Pessoal e Educação              | 17-19       | 3   |
+| F     | Infraestrutura e Ambiente       | 20-28       | 9   |
+| G     | Sistemas e Biossegurança        | 29-32       | 4   |
+| H     | Procedimentos e Rastreabilidade | 33-35       | 3   |
+| I     | Fase Pré-Analítica              | 36-42       | 7   |
+| J     | Fase Analítica                  | 43-48       | 6   |
+| K     | Fase Pós-Analítica e Laudos     | 49-51       | 3   |
+| L     | Controle da Qualidade (CIQ/CEQ) | 52-57       | 6   |
 
 ---
 
@@ -104,6 +104,7 @@ functions/src/callables/auditoriaGeral/
 ## Ondas de Implementação
 
 ### Onda 1 — MVP Funcional (ESTA SPEC)
+
 1. Types + data estática dos 57 indicadores
 2. Service CRUD (criar, salvar respostas, finalizar)
 3. Hooks (listener, score calculator)
@@ -114,6 +115,7 @@ functions/src/callables/auditoriaGeral/
 8. Deploy completo
 
 ### Onda 1b — Link com Não Conformidades (pós-validação Onda 1)
+
 - Botão "Abrir NC" em indicadores com score ≤ 2
 - Cria NC no módulo existente (`/labs/{labId}/naoConformidades/`) com:
   - `origem: 'auditoria'`
@@ -124,16 +126,19 @@ functions/src/callables/auditoriaGeral/
 - No dashboard: contador de NCs abertas por auditoria
 
 ### Onda 2 — Enriquecimento
+
 - Anexar foto (Firebase Storage)
 - Timestamps detalhados
 - PDF com fotos anexadas
 
 ### Onda 3 — Inteligência
+
 - Links de comprovação com módulos HC Quality
 - Gravação de áudio + transcrição Gemini
 - Comparativo entre auditorias (evolução)
 
 ### Onda 4 — Avançado
+
 - Dashboard completo (NCs, evolução, auditores)
 - Plano de ação (CAPA)
 - IA summary (Gemini)
@@ -146,17 +151,20 @@ functions/src/callables/auditoriaGeral/
 ### Fase 1: Foundation (Types + Data + Service + Rules)
 
 **Agente 1A — Types e Data**
+
 - `src/features/auditoria-geral/types/index.ts`
 - `src/features/auditoria-geral/data/indicadores.ts` (57 indicadores, 6 níveis cada)
 - `src/features/auditoria-geral/utils/scoreUtils.ts`
 - `src/features/auditoria-geral/index.ts`
 
 **Agente 1B — Service**
+
 - `src/features/auditoria-geral/services/auditoriaGeralService.ts`
 - CRUD: createAuditoria, getAuditoria, saveResposta, finalizarAuditoria, listAuditorias
 - Multi-tenant: todas as ops scoped a labId
 
 **Agente 1C — Firestore Rules**
+
 - Adicionar rules para `/auditoria-geral/{labId}/auditorias/{auditoriaId}`
 - Subcoleção `respostas`
 - Validações: isActiveMemberOfLab, soft-delete only
@@ -166,6 +174,7 @@ functions/src/callables/auditoriaGeral/
 ### Fase 2: Hooks
 
 **Agente 2A — Hooks**
+
 - `useAuditoriaGeral.ts` — listener single doc
 - `useAuditoriasGeral.ts` — listener lista (filtro status)
 - `useScoreCalculator.ts` — scores por bloco e total
@@ -175,16 +184,19 @@ functions/src/callables/auditoriaGeral/
 ### Fase 3: UI Components
 
 **Agente 3A — Shell e Dashboard**
+
 - `AuditoriaGeralPage.tsx` — page wrapper
 - `AuditoriasDashboard.tsx` — lista + stats + botão criar
 - `NovaAuditoriaDialog.tsx`
 
 **Agente 3B — Wizard**
+
 - `WizardAuditoria.tsx` — container com state (bloco atual)
 - `WizardBlocoStep.tsx` — renderiza indicadores do bloco
 - `ProgressBar.tsx`
 
 **Agente 3C — Indicador e Score**
+
 - `IndicadorCard.tsx`
 - `ScoreSelector.tsx` — seletor visual 0-5 com descrições
 - `ResumoAuditoria.tsx` — tela final
@@ -195,6 +207,7 @@ functions/src/callables/auditoriaGeral/
 ### Fase 4: Routing e Integration
 
 **Agente 4A — Routing**
+
 - Rota `/auditoria-geral` no AppRouter
 - Tile no Hub
 - Barrel exports
@@ -204,6 +217,7 @@ functions/src/callables/auditoriaGeral/
 ### Fase 5: Cloud Function PDF
 
 **Agente 5A — PDF Generator**
+
 - `functions/src/callables/auditoriaGeral/generateAuditoriaGeralPDF.ts`
 - Layout premium: header, scores, tabela, gráfico, assinaturas
 - Registrar no `functions/src/index.ts`

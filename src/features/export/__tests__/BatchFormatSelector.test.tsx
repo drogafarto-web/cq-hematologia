@@ -26,9 +26,7 @@ describe('BatchFormatSelector', () => {
 
   describe('rendering', () => {
     it('renders all 4 format option labels', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       expect(screen.getByText(/XLSX — Corridas CIQ/i)).toBeDefined();
       expect(screen.getByText(/XLSX — Registro de NCs/i)).toBeDefined();
@@ -37,18 +35,14 @@ describe('BatchFormatSelector', () => {
     });
 
     it('renders 4 checkboxes', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox');
       expect(checkboxes).toHaveLength(4);
     });
 
     it('renders extension badges for each format', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       // Two .xlsx extensions (CIQ + NC) + one .pdf + one .csv
       const xlsxBadges = screen.getAllByText('.xlsx');
@@ -58,13 +52,9 @@ describe('BatchFormatSelector', () => {
     });
 
     it('renders the fieldset with accessible legend', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
-      expect(
-        screen.getByText(/selecione os formatos para exportação em lote/i),
-      ).toBeDefined();
+      expect(screen.getByText(/selecione os formatos para exportação em lote/i)).toBeDefined();
     });
   });
 
@@ -72,9 +62,7 @@ describe('BatchFormatSelector', () => {
 
   describe('checkbox checked state reflects selectedFormats', () => {
     it('all checkboxes are unchecked when selectedFormats is empty', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       checkboxes.forEach((cb) => {
@@ -85,9 +73,7 @@ describe('BatchFormatSelector', () => {
     it('only the selected format checkbox is checked', () => {
       const selected: Set<BatchExportFormat> = new Set(['xlsx-ciq']);
 
-      render(
-        <BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       const checkedBoxes = checkboxes.filter((cb) => cb.checked);
@@ -95,15 +81,9 @@ describe('BatchFormatSelector', () => {
     });
 
     it('multiple selected formats have multiple checkboxes checked', () => {
-      const selected: Set<BatchExportFormat> = new Set([
-        'xlsx-ciq',
-        'pdf-compliance',
-        'csv-audit',
-      ]);
+      const selected: Set<BatchExportFormat> = new Set(['xlsx-ciq', 'pdf-compliance', 'csv-audit']);
 
-      render(
-        <BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       const checkedBoxes = checkboxes.filter((cb) => cb.checked);
@@ -115,9 +95,7 @@ describe('BatchFormatSelector', () => {
 
   describe('click interaction', () => {
     it('clicking a format label calls onToggle with the correct format id', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       // Click the checkbox directly
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
@@ -128,9 +106,7 @@ describe('BatchFormatSelector', () => {
     });
 
     it('clicking CSV format calls onToggle with csv-audit', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       // csv-audit is the 4th option (index 3)
@@ -140,9 +116,7 @@ describe('BatchFormatSelector', () => {
     });
 
     it('clicking xlsx-nc format calls onToggle with xlsx-nc', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       fireEvent.click(checkboxes[1]);
@@ -151,9 +125,7 @@ describe('BatchFormatSelector', () => {
     });
 
     it('clicking pdf format calls onToggle with pdf-compliance', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
       const checkboxes = screen.getAllByRole('checkbox') as HTMLInputElement[];
       fireEvent.click(checkboxes[2]);
@@ -166,16 +138,10 @@ describe('BatchFormatSelector', () => {
 
   describe('summary bar', () => {
     it('shows validation alert when no format is selected', () => {
-      render(
-        <BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={new Set()} onToggle={onToggle} />);
 
-      expect(
-        screen.getByRole('alert'),
-      ).toBeDefined();
-      expect(
-        screen.getByText(/selecione pelo menos 1 formato/i),
-      ).toBeDefined();
+      expect(screen.getByRole('alert')).toBeDefined();
+      expect(screen.getByText(/selecione pelo menos 1 formato/i)).toBeDefined();
     });
 
     it('shows "1 arquivo será gerado" when exactly 1 format is selected', () => {
@@ -191,15 +157,9 @@ describe('BatchFormatSelector', () => {
     });
 
     it('shows "3 arquivos serão gerados" when 3 formats are selected', () => {
-      const selected: Set<BatchExportFormat> = new Set([
-        'xlsx-ciq',
-        'xlsx-nc',
-        'pdf-compliance',
-      ]);
+      const selected: Set<BatchExportFormat> = new Set(['xlsx-ciq', 'xlsx-nc', 'pdf-compliance']);
 
-      render(
-        <BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />,
-      );
+      render(<BatchFormatSelector selectedFormats={selected} onToggle={onToggle} />);
 
       expect(screen.getByText(/3/)).toBeDefined();
       expect(screen.getByText(/arquivos serão gerados/i)).toBeDefined();

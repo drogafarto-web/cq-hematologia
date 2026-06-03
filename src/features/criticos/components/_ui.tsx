@@ -7,8 +7,7 @@
 
 import React from 'react';
 
-const REDUCE_MOTION_CLASS =
-  'motion-reduce:transition-none motion-reduce:transform-none';
+const REDUCE_MOTION_CLASS = 'motion-reduce:transition-none motion-reduce:transform-none';
 
 // ─── Buttons ────────────────────────────────────────────────────────────────
 
@@ -17,46 +16,43 @@ type ButtonProps = React.ButtonHTMLAttributes<HTMLButtonElement> & {
   size?: 'sm' | 'md';
 };
 
-export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  function Button(
-    { variant = 'primary', size = 'md', className = '', children, type, ...rest },
-    ref,
-  ) {
-    const base =
-      'inline-flex items-center gap-2 rounded-md font-medium ' +
-      'transition-[background-color,color,border-color,transform,box-shadow] duration-150 ease-out ' +
-      'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141417] ' +
-      'disabled:opacity-40 disabled:cursor-not-allowed ' +
-      REDUCE_MOTION_CLASS;
-    const sizes: Record<string, string> = {
-      sm: 'px-3 py-1.5 text-xs',
-      md: 'px-4 py-2 text-sm',
-    };
-    const variants: Record<string, string> = {
-      primary:
-        'bg-violet-500 text-white hover:bg-violet-400 active:bg-violet-600 ' +
-        'shadow-[0_0_0_1px_rgba(139,92,246,0.25),0_8px_24px_-12px_rgba(139,92,246,0.6)] ' +
-        'hover:shadow-[0_0_0_1px_rgba(139,92,246,0.45),0_12px_28px_-10px_rgba(139,92,246,0.8)]',
-      ghost:
-        'bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white border border-white/[0.08]',
-      subtle:
-        'bg-white/[0.04] text-white/80 hover:bg-white/[0.08] hover:text-white',
-      danger:
-        'bg-red-500/90 text-white hover:bg-red-500 active:bg-red-600 ' +
-        'shadow-[0_0_0_1px_rgba(239,68,68,0.3),0_8px_24px_-12px_rgba(239,68,68,0.6)]',
-    };
-    return (
-      <button
-        ref={ref}
-        type={type ?? 'button'}
-        className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
-        {...rest}
-      >
-        {children}
-      </button>
-    );
-  },
-);
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'primary', size = 'md', className = '', children, type, ...rest },
+  ref,
+) {
+  const base =
+    'inline-flex items-center gap-2 rounded-md font-medium ' +
+    'transition-[background-color,color,border-color,transform,box-shadow] duration-150 ease-out ' +
+    'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-violet-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141417] ' +
+    'disabled:opacity-40 disabled:cursor-not-allowed ' +
+    REDUCE_MOTION_CLASS;
+  const sizes: Record<string, string> = {
+    sm: 'px-3 py-1.5 text-xs',
+    md: 'px-4 py-2 text-sm',
+  };
+  const variants: Record<string, string> = {
+    primary:
+      'bg-violet-500 text-white hover:bg-violet-400 active:bg-violet-600 ' +
+      'shadow-[0_0_0_1px_rgba(139,92,246,0.25),0_8px_24px_-12px_rgba(139,92,246,0.6)] ' +
+      'hover:shadow-[0_0_0_1px_rgba(139,92,246,0.45),0_12px_28px_-10px_rgba(139,92,246,0.8)]',
+    ghost:
+      'bg-transparent text-white/80 hover:bg-white/[0.06] hover:text-white border border-white/[0.08]',
+    subtle: 'bg-white/[0.04] text-white/80 hover:bg-white/[0.08] hover:text-white',
+    danger:
+      'bg-red-500/90 text-white hover:bg-red-500 active:bg-red-600 ' +
+      'shadow-[0_0_0_1px_rgba(239,68,68,0.3),0_8px_24px_-12px_rgba(239,68,68,0.6)]',
+  };
+  return (
+    <button
+      ref={ref}
+      type={type ?? 'button'}
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`}
+      {...rest}
+    >
+      {children}
+    </button>
+  );
+});
 
 // ─── Inputs ─────────────────────────────────────────────────────────────────
 
@@ -96,9 +92,7 @@ export function Field({ label, hint, error, htmlFor, children }: FieldProps) {
             { 'aria-describedby': errId } as Record<string, unknown>,
           )
         : children}
-      {hint && !error && (
-        <p className="text-[11px] text-white/40">{hint}</p>
-      )}
+      {hint && !error && <p className="text-[11px] text-white/40">{hint}</p>}
       {error && (
         <p id={errId} className="text-[11px] text-red-300/90" role="alert">
           {error}
@@ -120,8 +114,7 @@ export function Card({ className = '', children, onClick }: CardProps) {
   return (
     <div
       className={
-        'rounded-xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm ' +
-        className
+        'rounded-xl border border-white/[0.06] bg-white/[0.02] backdrop-blur-sm ' + className
       }
       onClick={onClick}
     >
@@ -135,10 +128,7 @@ export function Card({ className = '', children, onClick }: CardProps) {
 export function Skeleton({ className = '' }: { className?: string }) {
   return (
     <div
-      className={
-        'animate-pulse rounded-md bg-white/[0.04] motion-reduce:animate-none ' +
-        className
-      }
+      className={'animate-pulse rounded-md bg-white/[0.04] motion-reduce:animate-none ' + className}
       aria-hidden="true"
     />
   );
@@ -155,12 +145,7 @@ export function IconAlert({ className = 'h-4 w-4' }: { className?: string }) {
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path
-        d="M10 8v3.5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
+      <path d="M10 8v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="10" cy="13.5" r="0.85" fill="currentColor" />
     </svg>
   );

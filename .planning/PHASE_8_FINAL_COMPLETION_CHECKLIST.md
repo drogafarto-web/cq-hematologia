@@ -1,4 +1,5 @@
 # Phase 8 Final Completion Checklist
+
 ## NOTIVISA Integration — Compliance Sign-Off Sequence
 
 **Document Date:** 2026-05-07  
@@ -14,13 +15,13 @@
 Phase 8 is the final external compliance validation phase before v1.4 stabilization. It consists of three sequential gates:
 
 1. **Gate A: Auditor Engagement** (2026-06-02 → 2026-06-16)  
-   *Establish formal audit contact, validate readiness, confirm artifacts*
+   _Establish formal audit contact, validate readiness, confirm artifacts_
 
 2. **Gate B: Artifact Validation** (2026-06-16 → 2026-07-20)  
-   *Auditor reviews compliance matrix, RDC 978 mapping, DICQ alignment*
+   _Auditor reviews compliance matrix, RDC 978 mapping, DICQ alignment_
 
 3. **Gate C: Sign-Off Ceremony** (2026-07-20 → 2026-08-05)  
-   *Auditor call, final sign-off, official documentation release*
+   _Auditor call, final sign-off, official documentation release_
 
 ---
 
@@ -44,15 +45,18 @@ Phase 8 is the final external compliance validation phase before v1.4 stabilizat
   - [ ] Attachment: `PHASE_8_NOTIVISA_CALLABLES.md` (technical overview)
 
 **Confirmation Actions:**
-- [ ] Email sent (timestamp: ______)
-- [ ] Auditor replied (timestamp: ______)
-- [ ] Auditor confirmed availability window (date range: ______ to ______)
-- [ ] Call date tentatively scheduled (date: ______, time: ______ UTC)
+
+- [ ] Email sent (timestamp: **\_\_**)
+- [ ] Auditor replied (timestamp: **\_\_**)
+- [ ] Auditor confirmed availability window (date range: **\_\_** to **\_\_**)
+- [ ] Call date tentatively scheduled (date: **\_\_**, time: **\_\_** UTC)
 - [ ] Auditor received artifact list (acknowledged: yes/no)
 
 **Document in Project.md:**
+
 ```markdown
 **Phase 8 Auditor Engagement:**
+
 - Email sent: 2026-05-20
 - Auditor replied: [date]
 - Call scheduled: [date], [time] UTC
@@ -151,13 +155,13 @@ Before auditor call, ensure internal alignment.
 - [ ] **Lab Director Briefing**
   - [ ] Email sent to lab director (cc: CTO, auditor)
   - [ ] Agenda: Phase 8 scope, auditor role, timeline
-  - [ ] Response: "Approved to proceed" (signature/timestamp: ______)
+  - [ ] Response: "Approved to proceed" (signature/timestamp: **\_\_**)
 
 - [ ] **RT (Responsável Técnico) Confirmation**
   - [ ] RT understands audit scope + role
   - [ ] RT available for auditor call (2026-06-09 or 2026-06-16)
   - [ ] RT confirms NCs (NC-2026-001, NC-2026-002) are remedial pathway
-  - [ ] RT sign-off email received (timestamp: ______)
+  - [ ] RT sign-off email received (timestamp: **\_\_**)
 
 - [ ] **Internal QA Team Briefing**
   - [ ] All outstanding issues (Phase 0 blockers, NC remedials) documented
@@ -176,13 +180,13 @@ External auditor reviews compliance package asynchronously (expect 2–4 week tu
 
 - [ ] **Compliance Matrix Sent**
   - [ ] File: `PHASE_8_COMPLIANCE_MATRIX.md`
-  - [ ] Sent date: ______
-  - [ ] Auditor acknowledged: yes/no (date: ______)
+  - [ ] Sent date: **\_\_**
+  - [ ] Auditor acknowledged: yes/no (date: **\_\_**)
   - [ ] Comments/questions received: [list pending items]
 
 - [ ] **RDC 978 Mapping Sent**
   - [ ] File: `PHASE_8_RDC_978_MAPPING.md`
-  - [ ] Sent date: ______
+  - [ ] Sent date: **\_\_**
   - [ ] Auditor reviewed: pending/in-progress/complete
   - [ ] Gap findings (if any): [list]
 
@@ -223,9 +227,9 @@ Auditor confirms compliance gains from v1.3 → v1.4 Phase 8.
   - [ ] **Target v1.4 DICQ: 83–85%** (auditor confirms acceptance)
 
 - [ ] **External Auditor Concurrence**
-  - [ ] Auditor email: "Compliance path aligns with DICQ requirements" (date: ______)
+  - [ ] Auditor email: "Compliance path aligns with DICQ requirements" (date: **\_\_**)
   - [ ] Auditor flag any gaps: [none/list if found]
-  - [ ] Remedial NC timeline agreed: NC-2026-001 by ______, NC-2026-002 by ______
+  - [ ] Remedial NC timeline agreed: NC-2026-001 by **\_\_**, NC-2026-002 by **\_\_**
 
 ---
 
@@ -301,7 +305,8 @@ External auditor validates security posture.
 - [ ] Evidence immutable (soft-delete only, never hard-delete) ✓
 
 **Auditor Sign-Off:**
-- [ ] Email: "Security audit complete, no P0/P1 findings" (date: ______)
+
+- [ ] Email: "Security audit complete, no P0/P1 findings" (date: **\_\_**)
 - [ ] Notes: [if any flagged items, list remediation plan]
 
 ---
@@ -315,9 +320,9 @@ Formal call with external auditor to present Phase 8 completion.
 **Call Details:**
 
 - [ ] **Date & Time Confirmed**
-  - [ ] Date: ______ (target: 2026-07-27 or 2026-08-02)
-  - [ ] Time: ______ UTC (30–60 min slot)
-  - [ ] Platform: Zoom/Teams (link: ______)
+  - [ ] Date: **\_\_** (target: 2026-07-27 or 2026-08-02)
+  - [ ] Time: **\_\_** UTC (30–60 min slot)
+  - [ ] Platform: Zoom/Teams (link: **\_\_**)
   - [ ] Attendees:
     - [ ] CTO (drogafarto@gmail.com) — presenter
     - [ ] Lab Director — stakeholder
@@ -382,8 +387,8 @@ Prepare for sign-off call (1 week prior).
   - [ ] Multi-tenant isolation (labId path + member check)
 
 - [ ] **Live Demo Environment Setup**
-  - [ ] Staging server accessible (URL: ______)
-  - [ ] Test credentials ready (auditor login: ______)
+  - [ ] Staging server accessible (URL: **\_\_**)
+  - [ ] Test credentials ready (auditor login: **\_\_**)
   - [ ] NOTIVISA draft sample prepared (notifiable disease example)
   - [ ] RT approval workflow walkable
   - [ ] PDF export functional (audit report generation)
@@ -474,6 +479,7 @@ All of the following must be true by **2026-06-02**:
 7. ✅ Internal stakeholders briefed (lab director, RT, QA team)
 
 **Gate A Sign-Off:**
+
 ```
 [CTO] Reviewed auditor engagement checklist ✓
 [Lab Director] Confirmed participation in Phase 8 ✓
@@ -496,6 +502,7 @@ All of the following must be true by **2026-07-20**:
 7. ✅ DICQ compliance path confirmed (83–85% target achievable)
 
 **Gate B Sign-Off:**
+
 ```
 [Auditor] "Artifact review complete, no blocking findings"
 [Auditor] "DICQ 83–85% path realistic"
@@ -509,7 +516,7 @@ Date: ______ Status: APPROVED / ON TRACK / AT RISK
 
 All of the following must be true by **2026-08-05**:
 
-1. ✅ Auditor call completed (date: ______, call duration: 30–60 min)
+1. ✅ Auditor call completed (date: **\_\_**, call duration: 30–60 min)
 2. ✅ Compliance matrix presented + discussed
 3. ✅ NOTIVISA workflow walkthrough completed
 4. ✅ Security architecture reviewed (no P0/P1 findings)
@@ -520,6 +527,7 @@ All of the following must be true by **2026-08-05**:
 9. ✅ Project.md updated (v1.4 compliance status, next phase)
 
 **Gate C Sign-Off:**
+
 ```
 [Auditor] "Phase 8 compliance validated — approved for v1.4 production"
 [Auditor] "RDC 978 + DICQ alignment confirmed"
@@ -531,18 +539,18 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 
 ## Timeline & Critical Dates
 
-| Date | Event | Owner | Status |
-|------|-------|-------|--------|
-| 2026-05-20 | Auditor email sent + acknowledged | CTO | ☐ PENDING |
-| 2026-05-28 | Deployment readiness verified | QA Lead | ☐ PENDING |
-| 2026-06-02 | Phase 8 technical execution begins | Dev Team | ☐ PENDING |
-| 2026-06-02 | Gate A: Auditor engagement complete | CTO | ☐ PENDING |
-| 2026-06-09 or 2026-06-16 | First auditor call (optional technical Q&A) | Auditor | ☐ PENDING |
-| 2026-06-16 | Phase 8 callables deployed (production) | Dev Team | ☐ PENDING |
-| 2026-07-20 | Gate B: Artifact validation complete | Auditor | ☐ PENDING |
-| 2026-07-27 or 2026-08-02 | Gate C: Sign-off ceremony call | CTO + Auditor | ☐ PENDING |
-| 2026-08-05 | **Phase 8 Complete** — Sign-off email received | Auditor | ☐ PENDING |
-| 2026-08-31 | External audit readiness (accreditation body) | Lab Director | ☐ PENDING |
+| Date                     | Event                                          | Owner         | Status    |
+| ------------------------ | ---------------------------------------------- | ------------- | --------- |
+| 2026-05-20               | Auditor email sent + acknowledged              | CTO           | ☐ PENDING |
+| 2026-05-28               | Deployment readiness verified                  | QA Lead       | ☐ PENDING |
+| 2026-06-02               | Phase 8 technical execution begins             | Dev Team      | ☐ PENDING |
+| 2026-06-02               | Gate A: Auditor engagement complete            | CTO           | ☐ PENDING |
+| 2026-06-09 or 2026-06-16 | First auditor call (optional technical Q&A)    | Auditor       | ☐ PENDING |
+| 2026-06-16               | Phase 8 callables deployed (production)        | Dev Team      | ☐ PENDING |
+| 2026-07-20               | Gate B: Artifact validation complete           | Auditor       | ☐ PENDING |
+| 2026-07-27 or 2026-08-02 | Gate C: Sign-off ceremony call                 | CTO + Auditor | ☐ PENDING |
+| 2026-08-05               | **Phase 8 Complete** — Sign-off email received | Auditor       | ☐ PENDING |
+| 2026-08-31               | External audit readiness (accreditation body)  | Lab Director  | ☐ PENDING |
 
 ---
 
@@ -552,6 +560,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 
 **Trigger:** No auditor reply by 2026-06-05  
 **Action:**
+
 1. Send follow-up email (cc: lab director)
 2. Offer alternate contact channels (phone, meeting)
 3. Check for email delivery issues (spam filter, domain blocks)
@@ -565,6 +574,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 
 **Trigger:** ANVISA credentials not received by 2026-06-05  
 **Action:**
+
 1. Contact ANVISA support (escalation letter from lab director)
 2. Proceed with Phase 8 callables using sandbox mock (delay gate C only)
 3. If credentials received after 2026-06-10, resume normal timeline
@@ -578,6 +588,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 
 **Trigger:** Auditor identifies non-conformance in NOTIVISA rules (>1 week to fix)  
 **Action:**
+
 1. Document finding in PHASE_8_AUDIT_FEEDBACK.md
 2. Assign to dev team (3–5 day fix SLA)
 3. Deploy fix + re-test (2 days)
@@ -592,6 +603,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 
 **Trigger:** Auditor identifies security gap in multi-tenant isolation or audit trail  
 **Action:**
+
 1. Declare Phase 8 status: "AT RISK — Critical Finding"
 2. Assemble security task force (CTO + dev lead + auditor if available)
 3. Root cause analysis + fix plan (24h turnaround)
@@ -606,15 +618,18 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 ## Sign-Off Authority & Approval Chain
 
 **Gate A Approval:**
+
 - [ ] CTO (drogafarto@gmail.com) — Technical readiness
 - [ ] Lab Director — Stakeholder confirmation
 - [ ] Auditor — Engagement acknowledgment
 
 **Gate B Approval:**
+
 - [ ] External Auditor — Artifact review + compliance validation
 - [ ] CTO — Internal artifact quality
 
 **Gate C Approval:**
+
 - [ ] External Auditor — Formal sign-off + certification
 - [ ] CTO — Phase completion + next phase kickoff
 
@@ -623,12 +638,14 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 ## Documentation References
 
 **Gate A (Auditor Engagement):**
+
 - `.planning/PHASE_8_FINAL_COMPLETION_CHECKLIST.md` (this file)
 - `docs/PHASE_8_DEPLOYMENT_CHECKLIST.md` (pre-deployment verification)
 - `docs/PHASE_8_NOTIVISA_CALLABLES.md` (technical specs)
 - `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md` (government onboarding)
 
 **Gate B (Artifact Validation):**
+
 - `PHASE_8_COMPLIANCE_MATRIX.md` (new file — to create)
 - `PHASE_8_RDC_978_MAPPING.md` (new file — to create)
 - `.planning/PHASE_7_SIGN_OFF.md` (Phase 7 completion reference)
@@ -636,6 +653,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 - `docs/COMPLIANCE_SUMMARY_v1.3.md` (v1.3 baseline)
 
 **Gate C (Sign-Off Ceremony):**
+
 - `.planning/PHASE_8_SIGN_OFF.md` (to create post-call)
 - `PROJECT.md` (v1.4 milestone update)
 - Auditor email (formal approval) + optional report/certificate
@@ -654,6 +672,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 ---
 
 **Revision History:**
+
 - **v1.0** — 2026-05-07: Initial Gate A–C structure + timeline + sign-off criteria (CTO approval)
 
 ---
@@ -686,6 +705,7 @@ Date: ______ Status: APPROVED / APPROVED WITH CONDITIONS / DEFERRED
 ---
 
 **Next Actions (Immediate — by 2026-05-20):**
+
 1. Identify external auditor contact (DICQ/SBPC/ML CAP)
 2. Draft Gate A1 auditor email (copy template above)
 3. Send email + request reply

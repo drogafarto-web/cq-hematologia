@@ -45,10 +45,7 @@ export async function assertQualificacaoAccess(
     const maxAge = opts?.maxReauthAgeSec ?? 600;
     const nowSec = Math.floor(Date.now() / 1000);
     if (!authTime || nowSec - authTime > maxAge) {
-      throw new HttpsError(
-        'failed-precondition',
-        'reauth-required',
-      );
+      throw new HttpsError('failed-precondition', 'reauth-required');
     }
   }
 
@@ -96,7 +93,7 @@ export async function loadOperadorInfo(
   fallbackRole: string,
 ): Promise<{ nome: string; cargo: string }> {
   const userSnap = await admin.firestore().doc(`users/${uid}`).get();
-  const data = userSnap.exists ? userSnap.data() ?? {} : {};
+  const data = userSnap.exists ? (userSnap.data() ?? {}) : {};
   const nome = String(data['displayName'] ?? data['email'] ?? uid);
   const cargo = String(data['cargo'] ?? fallbackRole);
   return { nome, cargo };

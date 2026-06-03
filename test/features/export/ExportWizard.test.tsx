@@ -53,9 +53,7 @@ describe('ExportWizard', () => {
   });
 
   it('renders nothing when isOpen is false', () => {
-    const { container } = render(
-      <ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />,
-    );
+    const { container } = render(<ExportWizard labId={LAB_ID} operatorId={OPERATOR_ID} />);
     expect(container.firstChild).toBeNull();
   });
 

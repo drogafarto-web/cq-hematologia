@@ -12,18 +12,30 @@ async function run() {
     const labId = labDoc.id;
     const name = labDoc.data().name || labDoc.data().razaoSocial || '';
     console.log(`\n=== LAB: ${labId} (${name}) ===`);
-    
-    const insumosSnap = await db.collection('labs').doc(labId).collection('insumos').where('status', '==', 'ativo').get();
+
+    const insumosSnap = await db
+      .collection('labs')
+      .doc(labId)
+      .collection('insumos')
+      .where('status', '==', 'ativo')
+      .get();
     if (insumosSnap.empty) {
       console.log('No active insumos.');
       continue;
     }
-    
-    insumosSnap.forEach(doc => {
+
+    insumosSnap.forEach((doc) => {
       const data = doc.data();
-      console.log(`  - [${doc.id}] Lote: ${data.lote} | Nome: ${data.nomeComercial} | Tipo: ${data.tipo} | Nível: ${data.nivel} | Modulo: ${data.modulo || (data.modulos ? data.modulos.join(',') : '')} | TestTypesCompativeis: ${data.testTypesCompativeis ? data.testTypesCompativeis.join(',') : 'none'}`);
+      console.log(
+        `  - [${doc.id}] Lote: ${data.lote} | Nome: ${data.nomeComercial} | Tipo: ${data.tipo} | Nível: ${data.nivel} | Modulo: ${data.modulo || (data.modulos ? data.modulos.join(',') : '')} | TestTypesCompativeis: ${data.testTypesCompativeis ? data.testTypesCompativeis.join(',') : 'none'}`,
+      );
     });
   }
 }
 
-run().then(() => process.exit(0)).catch(e => { console.error(e); process.exit(1); });
+run()
+  .then(() => process.exit(0))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  });

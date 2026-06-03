@@ -47,20 +47,20 @@ jobs:
     strategy:
       matrix:
         phase: [1, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15]
-      max-parallel: 1  # Sequential per phase (no conflicts)
-    
+      max-parallel: 1 # Sequential per phase (no conflicts)
+
     steps:
       - uses: actions/checkout@v3
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '20'
           cache: 'npm'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Load test environment
         run: |
           echo "PHASE=${{ matrix.phase }}" >> $GITHUB_ENV
@@ -69,22 +69,22 @@ jobs:
           echo "FIREBASE_ADMIN_SDK=${{ secrets.FIREBASE_ADMIN_SDK }}" >> smoke-test/.env.test
           echo "NOTIVISA_SANDBOX_TOKEN=${{ secrets.NOTIVISA_SANDBOX_TOKEN }}" >> smoke-test/.env.test
           echo "TWILIO_AUTH_TOKEN=${{ secrets.TWILIO_AUTH_TOKEN }}" >> smoke-test/.env.test
-      
+
       - name: Run Playwright E2E (Phase ${{ matrix.phase }})
         run: |
           cd smoke-test
           npx playwright test \
             --grep "^P${{ matrix.phase }}-S[1-8]" \
             --config=playwright.config.ts
-        continue-on-error: true  # Don't fail job immediately
-      
+        continue-on-error: true # Don't fail job immediately
+
       - name: Collect test metrics
         if: always()
         run: |
           npm run test:metrics -- \
             --phase=${{ matrix.phase }} \
             --output=test-results-phase-${{ matrix.phase }}.json
-      
+
       - name: Upload test report
         if: always()
         uses: actions/upload-artifact@v3
@@ -94,7 +94,7 @@ jobs:
             smoke-test/playwright-report/
             test-results-phase-${{ matrix.phase }}.json
           retention-days: 30
-      
+
       - name: Upload videos on failure
         if: failure()
         uses: actions/upload-artifact@v3
@@ -102,7 +102,7 @@ jobs:
           name: e2e-videos-phase-${{ matrix.phase }}
           path: smoke-test/test-results/
           retention-days: 7
-      
+
       - name: Post Slack notification (pass)
         if: success()
         uses: slackapi/slack-github-action@v1.24.0
@@ -120,7 +120,7 @@ jobs:
                 }
               ]
             }
-      
+
       - name: Post Slack notification (failure)
         if: failure()
         uses: slackapi/slack-github-action@v1.24.0
@@ -138,7 +138,7 @@ jobs:
                 }
               ]
             }
-      
+
       - name: Check pass rate and fail job if needed
         run: |
           PASS_COUNT=$(cat test-results-phase-${{ matrix.phase }}.json | jq '.summary.passed // 0')
@@ -199,6 +199,7 @@ npm run gate -- \
 ```
 
 **E2E Smoke Gate (5 critical flows only, <10min):**
+
 1. ✅ Login → Hub → Dashboard
 2. ✅ CIQ Module load (Imuno)
 3. ✅ Create CIQ record
@@ -213,13 +214,13 @@ npm run gate -- \
 
 **Location:** `smoke-test/fixtures/`
 
-| Fixture | Count | Owner | Status |
-|---------|-------|-------|--------|
-| Test users (auth) | 10 | QA-Lead | ✅ |
-| Labs + settings | 2 | DevOps | ✅ |
-| Equipment (Analyzer A) | 1 | QA-Lead | ✅ |
-| Analytes (glucose, creatinine, etc.) | 15 | QA-Lead | ✅ |
-| CIQ records (baseline) | 50 | QA-Lead | ✅ |
+| Fixture                              | Count | Owner   | Status |
+| ------------------------------------ | ----- | ------- | ------ |
+| Test users (auth)                    | 10    | QA-Lead | ✅     |
+| Labs + settings                      | 2     | DevOps  | ✅     |
+| Equipment (Analyzer A)               | 1     | QA-Lead | ✅     |
+| Analytes (glucose, creatinine, etc.) | 15    | QA-Lead | ✅     |
+| CIQ records (baseline)               | 50    | QA-Lead | ✅     |
 
 **Setup Script:** `smoke-test/fixtures/seed-wave-1.ts`
 
@@ -245,8 +246,8 @@ async function seedWave1() {
     labId: 'test-lab-01',
     name: 'Riopomba Test Lab',
     cnpj: '12345678000190',
-    notivisaEnabled: false,  // Phase 8 onward
-    portalEnabled: false,     // Phase 5 onward
+    notivisaEnabled: false, // Phase 8 onward
+    portalEnabled: false, // Phase 5 onward
   };
 
   // 3. Equipment
@@ -259,7 +260,7 @@ async function seedWave1() {
   };
 
   // 4. Seed to Firestore
-  testUsers.forEach(user => {
+  testUsers.forEach((user) => {
     batch.set(doc(db, 'members', user.uid), user);
   });
 
@@ -281,12 +282,12 @@ export { seedWave1 };
 
 **Added Fixtures:**
 
-| Fixture | Count | Owner | Deployed |
-|---------|-------|-------|----------|
-| Auditor test account | 1 | QA-Lead | 2026-05-19 |
-| Patient portal accounts | 10 | QA-Lead | 2026-05-28 |
-| Test CAPA templates | 3 | QA-Lead | 2026-05-20 |
-| Pre-populated findings | 12 | Auditor | 2026-05-20 |
+| Fixture                 | Count | Owner   | Deployed   |
+| ----------------------- | ----- | ------- | ---------- |
+| Auditor test account    | 1     | QA-Lead | 2026-05-19 |
+| Patient portal accounts | 10    | QA-Lead | 2026-05-28 |
+| Test CAPA templates     | 3     | QA-Lead | 2026-05-20 |
+| Pre-populated findings  | 12    | Auditor | 2026-05-20 |
 
 **Setup Script:** `smoke-test/fixtures/seed-wave-2.ts`
 
@@ -343,13 +344,13 @@ async function seedWave2() {
 
   // 5. Batch commit
   batch.set(doc(db, 'members', auditor.uid), auditor);
-  patients.forEach(patient => {
+  patients.forEach((patient) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'pacientes', patient.patientId), patient);
   });
-  capaTemplates.forEach(template => {
+  capaTemplates.forEach((template) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'capaTemplates', template.templateId), template);
   });
-  findings.forEach(finding => {
+  findings.forEach((finding) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'achados', finding.findingId), finding);
   });
 
@@ -366,13 +367,13 @@ async function seedWave2() {
 
 **Added Fixtures:**
 
-| Fixture | Count | Owner | Deployed |
-|---------|-------|-------|----------|
-| NOTIVISA credentials | 1 | Procurement | 2026-06-17 |
-| CIQ records for NOTIVISA | 50 | QA-Lead | 2026-06-20 |
-| Document templates (SGD) | 80 | QA-Lead | 2026-06-20 |
-| Strip images (IA) | 20 | QA-Lead | 2026-06-22 |
-| Analyzer B equipment | 1 | QA-Lead | 2026-06-20 |
+| Fixture                  | Count | Owner       | Deployed   |
+| ------------------------ | ----- | ----------- | ---------- |
+| NOTIVISA credentials     | 1     | Procurement | 2026-06-17 |
+| CIQ records for NOTIVISA | 50    | QA-Lead     | 2026-06-20 |
+| Document templates (SGD) | 80    | QA-Lead     | 2026-06-20 |
+| Strip images (IA)        | 20    | QA-Lead     | 2026-06-22 |
+| Analyzer B equipment     | 1     | QA-Lead     | 2026-06-20 |
 
 **Setup Script:** `smoke-test/fixtures/seed-wave-3.ts`
 
@@ -387,14 +388,18 @@ async function seedWave3() {
     enabled: true,
     sandboxMode: true,
     apiUrl: 'https://api.notivisa-sandbox.saude.gov.br',
-    credentialHash: crypto.subtle.digest('SHA-256', new TextEncoder().encode(process.env.NOTIVISA_TOKEN!)),
+    credentialHash: crypto.subtle.digest(
+      'SHA-256',
+      new TextEncoder().encode(process.env.NOTIVISA_TOKEN!),
+    ),
     retryPolicy: { maxRetries: 3, delayMs: 5000 },
   };
 
   // 2. CIQ records for NOTIVISA test
   const ciqRecords = Array.from({ length: 50 }, (_, i) => ({
     ciqId: `ciq-notivisa-${String(i + 1).padStart(3, '0')}`,
-    analyte: i % 4 === 0 ? 'glucose' : i % 4 === 1 ? 'creatinine' : i % 4 === 2 ? 'ALT' : 'hemoglobin',
+    analyte:
+      i % 4 === 0 ? 'glucose' : i % 4 === 1 ? 'creatinine' : i % 4 === 2 ? 'ALT' : 'hemoglobin',
     result: Math.floor(Math.random() * 500),
     status: i % 5 === 0 ? 'critical' : 'normal',
     createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000),
@@ -426,13 +431,13 @@ async function seedWave3() {
 
   // Batch commit
   batch.set(doc(db, 'labs', 'test-lab-01', 'notivisaConfig', 'config'), notivisaConfig);
-  ciqRecords.forEach(ciq => {
+  ciqRecords.forEach((ciq) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'ciq', ciq.ciqId), ciq);
   });
   docTemplates.forEach((doc, idx) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'sgd-docs', `doc-${idx}`), doc);
   });
-  stripImages.forEach(img => {
+  stripImages.forEach((img) => {
     batch.set(doc(db, 'labs', 'test-lab-01', 'imuno-ias-dev', img.imageId), img);
   });
   batch.set(doc(db, 'labs', 'test-lab-01', 'equipamentos', 'analyzer-b-001'), analyzerB);
@@ -448,12 +453,12 @@ async function seedWave3() {
 
 **Added Fixtures:**
 
-| Fixture | Count | Owner | Deployed |
-|---------|-------|-------|----------|
-| CIQ records (load test) | 500 | QA-Lead | 2026-07-29 |
-| Patient accounts | 100 | QA-Lead | 2026-07-30 |
-| Historical KPI data | 1000+ rows | QA-Lead | 2026-07-31 |
-| Equipment registry (10 analyzers) | 10 | QA-Lead | 2026-07-31 |
+| Fixture                           | Count      | Owner   | Deployed   |
+| --------------------------------- | ---------- | ------- | ---------- |
+| CIQ records (load test)           | 500        | QA-Lead | 2026-07-29 |
+| Patient accounts                  | 100        | QA-Lead | 2026-07-30 |
+| Historical KPI data               | 1000+ rows | QA-Lead | 2026-07-31 |
+| Equipment registry (10 analyzers) | 10         | QA-Lead | 2026-07-31 |
 
 ---
 
@@ -569,6 +574,7 @@ cd ..
 **Message Templates:**
 
 **Pass Notification:**
+
 ```json
 {
   "blocks": [
@@ -616,6 +622,7 @@ cd ..
 ```
 
 **Failure Notification:**
+
 ```json
 {
   "blocks": [
@@ -677,7 +684,8 @@ async function sendWeeklySummary() {
   const firestore = new Firestore();
 
   // Fetch metrics from past 7 days
-  const metrics = await firestore.collection('test-metrics')
+  const metrics = await firestore
+    .collection('test-metrics')
     .where('timestamp', '>=', new Date(Date.now() - 7 * 24 * 60 * 60 * 1000))
     .orderBy('timestamp', 'desc')
     .get();
@@ -691,7 +699,7 @@ async function sendWeeklySummary() {
 
   // Calculate pass rate
   let totalPass = 0;
-  metrics.forEach(doc => {
+  metrics.forEach((doc) => {
     const data = doc.data();
     if (data.status === 'pass') totalPass++;
     if (data.flaky) summary.flakyTests.push(data.scenario);
@@ -847,7 +855,7 @@ exit 0
 interface TestMetric {
   timestamp: Date;
   phase: number;
-  scenario: string;  // "P4-S1"
+  scenario: string; // "P4-S1"
   status: 'pass' | 'fail' | 'timeout' | 'flaky';
   duration_ms: number;
   error_message?: string;
@@ -863,7 +871,8 @@ interface TestMetric {
 
 ```typescript
 async function aggregateMetrics(startDate: Date, endDate: Date) {
-  const metrics = await firestore.collection('test-metrics')
+  const metrics = await firestore
+    .collection('test-metrics')
     .where('timestamp', '>=', startDate)
     .where('timestamp', '<=', endDate)
     .get();
@@ -881,7 +890,7 @@ async function aggregateMetrics(startDate: Date, endDate: Date) {
 
   let totalDuration = 0;
 
-  metrics.forEach(doc => {
+  metrics.forEach((doc) => {
     const data = doc.data();
     summary.byPhase[data.phase] = summary.byPhase[data.phase] || {
       tests: 0,
@@ -973,4 +982,3 @@ async function aggregateMetrics(startDate: Date, endDate: Date) {
 **Document Status:** APPROVED  
 **Last Updated:** 2026-05-07  
 **Next Review:** 2026-05-20 (Phase 4 E2E start)
-

@@ -13,6 +13,7 @@
 **File:** `.github/workflows/performance-baseline.yml`
 
 **What it does:**
+
 - Runs every Monday 08:00 UTC
 - Builds the project (`npm run build`)
 - Analyzes bundle size (`npm run analyze`)
@@ -102,7 +103,7 @@ jobs:
         with:
           script: |
             const fs = require('fs');
-            
+
             // Parse bundle stats
             let bundleStats = {};
             try {
@@ -114,7 +115,7 @@ jobs:
             // Check for regressions vs. baseline
             const mainChunkTarget = 400; // KB gzip
             const totalTarget = 850;     // KB gzip
-            
+
             let regressions = [];
             if (bundleStats.main_chunk_gzip_kb > mainChunkTarget) {
               regressions.push(`⚠️ Main chunk: ${bundleStats.main_chunk_gzip_kb} KB (target: <${mainChunkTarget} KB)`);
@@ -219,10 +220,10 @@ cat >> .github/workflows/performance-baseline.yml << 'EOF'
             });
 
             const sheets = google.sheets({ version: 'v4', auth });
-            
+
             // Parse metrics
             const bundleStats = JSON.parse(fs.readFileSync('/tmp/bundle-stats.json', 'utf-8'));
-            
+
             // Append row to spreadsheet
             const sheetId = process.env.GOOGLE_SHEETS_ID;
             const values = [[
@@ -312,30 +313,30 @@ cat lighthouse-metrics.json | jq '.[].performance'
 Add to `.github/workflows/performance-baseline.yml`:
 
 ```yaml
-      - name: Send regression alert
-        if: failure()
-        uses: actions/github-script@v6
-        with:
-          script: |
-            // Parse metrics and send email if regression detected
-            const nodemailer = require('nodemailer');
-            const transporter = nodemailer.createTransport({
-              service: 'gmail',
-              auth: {
-                user: process.env.EMAIL_USER,
-                pass: process.env.EMAIL_PASS,
-              },
-            });
+- name: Send regression alert
+  if: failure()
+  uses: actions/github-script@v6
+  with:
+    script: |
+      // Parse metrics and send email if regression detected
+      const nodemailer = require('nodemailer');
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: process.env.EMAIL_USER,
+          pass: process.env.EMAIL_PASS,
+        },
+      });
 
-            await transporter.sendMail({
-              from: process.env.EMAIL_USER,
-              to: 'team@example.com',
-              subject: '⚠️ HC Quality v1.4 — Performance Regression Detected',
-              html: '<p>Bundle size or Lighthouse metrics exceeded targets. See artifacts for details.</p>',
-            });
-        env:
-          EMAIL_USER: ${{ secrets.EMAIL_USER }}
-          EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
+      await transporter.sendMail({
+        from: process.env.EMAIL_USER,
+        to: 'team@example.com',
+        subject: '⚠️ HC Quality v1.4 — Performance Regression Detected',
+        html: '<p>Bundle size or Lighthouse metrics exceeded targets. See artifacts for details.</p>',
+      });
+  env:
+    EMAIL_USER: ${{ secrets.EMAIL_USER }}
+    EMAIL_PASS: ${{ secrets.EMAIL_PASS }}
 ```
 
 **Simpler alternative:** Use IFTTT or Slack integration:
@@ -362,6 +363,7 @@ Add to `.github/workflows/performance-baseline.yml`:
 **Cause:** GitHub Actions workflows need at least one push to the branch in the last 60 days.
 
 **Fix:**
+
 ```bash
 # Manually trigger workflow
 gh workflow run performance-baseline.yml --ref main
@@ -378,6 +380,7 @@ git push
 **Cause:** Visualizer plugin not in vite.config.ts or ANALYZE env var not set.
 
 **Fix:**
+
 ```bash
 # Verify vite.config.ts has visualizer plugin:
 grep -A5 "visualizer" vite.config.ts
@@ -394,6 +397,7 @@ ls -la dist/stats.json
 **Cause:** Missing or invalid LHCI_GITHUB_APP_TOKEN.
 
 **Fix:**
+
 ```bash
 # Create token in Lighthouse CI dashboard:
 # https://github.com/apps/lighthouse-ci/installations
@@ -411,6 +415,7 @@ gh secret set LHCI_GITHUB_APP_TOKEN --body "$(cat ~/.lighthouserc.json | jq -r .
 **Cause:** Not authenticated to Google Cloud or missing permissions.
 
 **Fix:**
+
 ```bash
 # Authenticate
 gcloud auth login
@@ -445,39 +450,42 @@ start dist/stats.html  # Windows
 
 ### 5.1 Bundle Size Targets
 
-| Metric | Target | Acceptable Range | Action if >Range |
-|--------|--------|------------------|------------------|
-| Main chunk (gzip) | 362 KB | 340–420 KB | Investigate dependency bloat |
-| Total bundle (gzip) | 850 KB | 800–920 KB | Review new module sizes |
-| Per-module chunk (gzip) | 150 KB | 100–180 KB | Consider code-splitting |
+| Metric                  | Target | Acceptable Range | Action if >Range             |
+| ----------------------- | ------ | ---------------- | ---------------------------- |
+| Main chunk (gzip)       | 362 KB | 340–420 KB       | Investigate dependency bloat |
+| Total bundle (gzip)     | 850 KB | 800–920 KB       | Review new module sizes      |
+| Per-module chunk (gzip) | 150 KB | 100–180 KB       | Consider code-splitting      |
 
 **Example interpretation:**
+
 - Main chunk = 375 KB → ✓ Within range (340–420)
 - Main chunk = 430 KB → ⚠️ Regression (review recent PRs for eager imports)
 
 ### 5.2 Lighthouse Metrics
 
-| Metric | Target | Range | Interpretation |
-|--------|--------|-------|---|
-| Performance score | 0.85+ | 0.75–1.0 | Overall performance grade |
-| LCP | <2.0s | — | How fast user sees content |
-| INP | <200ms | — | Responsiveness of interactions |
-| CLS | <0.05 | — | Visual stability (layout shifts) |
-| TBT | <200ms | — | Main thread blockage time |
+| Metric            | Target | Range    | Interpretation                   |
+| ----------------- | ------ | -------- | -------------------------------- |
+| Performance score | 0.85+  | 0.75–1.0 | Overall performance grade        |
+| LCP               | <2.0s  | —        | How fast user sees content       |
+| INP               | <200ms | —        | Responsiveness of interactions   |
+| CLS               | <0.05  | —        | Visual stability (layout shifts) |
+| TBT               | <200ms | —        | Main thread blockage time        |
 
 **Example interpretation:**
+
 - LCP = 1.9s, CLS = 0.04 → ✓ Both within targets
 - LCP = 2.6s → ✗ Hard fail (>2500ms limit in lighthouserc.js)
 
 ### 5.3 Firestore Latency Percentiles
 
-| Percentile | Interpretation |
-|-----------|---|
-| p50 | Median latency (50% of requests are faster) |
-| p95 | 95th percentile (1 in 20 requests is slower) |
-| p99 | 99th percentile (1 in 100 requests is slower) |
+| Percentile | Interpretation                                |
+| ---------- | --------------------------------------------- |
+| p50        | Median latency (50% of requests are faster)   |
+| p95        | 95th percentile (1 in 20 requests is slower)  |
+| p99        | 99th percentile (1 in 100 requests is slower) |
 
 **Baseline targets (post-v1.3 Phase 3):**
+
 - Read operations: p50 <50ms, p99 <300ms
 - Query operations: p50 <150ms, p99 <500ms
 - Write operations: p50 <400ms, p99 <1000ms
@@ -524,12 +532,12 @@ node scripts/extract-bundle-stats.js --output=json
 
 **Common regressions & fixes:**
 
-| Regression | Cause | Fix |
-|---|---|---|
-| Main chunk +30 KB | New eager import of route | Change to `React.lazy` |
-| Main chunk +50 KB | New library added | Move to dynamic import or separate chunk in manualChunks |
-| LCP increases 400ms | Firestore query on mount | Add skeleton loader, prefetch on parent route |
-| CLS increases | Image reflow without dimensions | Add `width`/`height` to images |
+| Regression          | Cause                           | Fix                                                      |
+| ------------------- | ------------------------------- | -------------------------------------------------------- |
+| Main chunk +30 KB   | New eager import of route       | Change to `React.lazy`                                   |
+| Main chunk +50 KB   | New library added               | Move to dynamic import or separate chunk in manualChunks |
+| LCP increases 400ms | Firestore query on mount        | Add skeleton loader, prefetch on parent route            |
+| CLS increases       | Image reflow without dimensions | Add `width`/`height` to images                           |
 
 **Step 4: Deploy fix**
 

@@ -23,6 +23,7 @@ status: BLOCKING_ERRORS
 **Result:** ❌ **FAILED — 48 errors remaining**
 
 #### Errors by Module:
+
 - **capa-tracking:** 4 errors (mostly resolved through Rule 1 fixes)
 - **calibracao:** 1 error (unresolved db import)
 - **personnel/designacoes:** 20 errors
@@ -33,6 +34,7 @@ status: BLOCKING_ERRORS
 #### Critical Issues Found (Rule 1 - Auto-Fixed):
 
 **Wave 4 Component Type Mismatches** — Components created with incorrect type assumptions:
+
 - ✅ Status type unions (Portuguese vs English state names) — **FIXED**
 - ✅ Property access errors (missing nested field names) — **FIXED**
 - ✅ Timestamp handling (mixed number/Timestamp types) — **FIXED**
@@ -40,18 +42,19 @@ status: BLOCKING_ERRORS
 - ✅ Removed broken function imports — **FIXED**
 
 **Remaining Blocking Errors** — Require separate fix phase:
+
 - Personnel module (designacoes/cargos): Type mismatch in Record type definitions
 - Management review: Missing service implementation
 - Firestore db export: Path/import resolution issue
 
 #### Error Categories:
 
-| Category | Count | Status |
-|----------|-------|--------|
-| Type mismatches | 25 | Partially fixed |
-| Missing imports/functions | 12 | Blocked |
-| Property access errors | 8 | Fixed |
-| Record type violations | 3 | Pending |
+| Category                  | Count | Status          |
+| ------------------------- | ----- | --------------- |
+| Type mismatches           | 25    | Partially fixed |
+| Missing imports/functions | 12    | Blocked         |
+| Property access errors    | 8     | Fixed           |
+| Record type violations    | 3     | Pending         |
 
 ---
 
@@ -140,6 +143,7 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 ### Personnel Module Type System (20+ errors)
 
 **Files Affected:**
+
 - `src/features/personnel/designacoes/services/designacoesService.ts`
 - `src/features/personnel/designacoes/components/DesignacoesList.tsx`
 - `src/features/personnel/cargos/services/cargosService.ts`
@@ -152,6 +156,7 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 ### Management Review Service (2 errors)
 
 **Files Affected:**
+
 - `src/features/management-review/services/managementReviewService.ts`
 - `src/features/management-review/components/ReviewHistory.tsx`
 
@@ -162,6 +167,7 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 ### Firestore DB Import (2 errors)
 
 **Files Affected:**
+
 - `src/features/capa-tracking/services/capaService.ts`
 - `src/features/calibracao/services/calibracaoService.ts`
 
@@ -173,14 +179,14 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 
 ## Compliance Audit Results
 
-| Requirement | Status | Evidence |
-|-------------|--------|----------|
-| RDC 978 Art. 5.3 — CAPA management | ⏠️ Partial | State machine defined; components blocked by TypeScript |
-| RDC 978 Art. 86 — Risk management | ⏠️ Partial | Risk matrix type defined; component blocked by TypeScript |
-| RDC 978 Art. 117 — Audit trail | ✅ Complete | State history + RFI log in CapaDocument type |
-| RDC 978 Art. 122–127 — Personnel | ❌ Blocked | Cargos/designacoes modules have TypeScript errors |
-| DICQ 4.4 — CAPA + trilha | ⏠️ Partial | Types complete; implementation blocked |
-| DICQ 4.15 — Management review | ⏠️ Partial | Type structure defined; service incomplete |
+| Requirement                        | Status      | Evidence                                                  |
+| ---------------------------------- | ----------- | --------------------------------------------------------- |
+| RDC 978 Art. 5.3 — CAPA management | ⏠️ Partial   | State machine defined; components blocked by TypeScript   |
+| RDC 978 Art. 86 — Risk management  | ⏠️ Partial   | Risk matrix type defined; component blocked by TypeScript |
+| RDC 978 Art. 117 — Audit trail     | ✅ Complete | State history + RFI log in CapaDocument type              |
+| RDC 978 Art. 122–127 — Personnel   | ❌ Blocked  | Cargos/designacoes modules have TypeScript errors         |
+| DICQ 4.4 — CAPA + trilha           | ⏠️ Partial   | Types complete; implementation blocked                    |
+| DICQ 4.15 — Management review      | ⏠️ Partial   | Type structure defined; service incomplete                |
 
 ---
 
@@ -188,15 +194,15 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 
 ### Deliverables Summary
 
-| Wave | Expected | Created | Type Correct | Compiles |
-|------|----------|---------|-------------|----------|
-| W0 — Types | 5 | 5 | ✅ 5 | ✅ 5 |
-| W1 — Services + Rules | 8 | 8 | ⚠️ 6 | ⏠️ 6 |
-| W2 — Hooks | 6 | 6 | ✅ 6 | ✅ 6 |
-| W3 — Cloud Functions | 7 | 7 | ✅ 7 | ⏠️ 7 |
-| W4 — UI Components | 9 | 9 | ⚠️ 7 | ⚠️ 7 |
-| W5 — Pages + Routes | 5 | 5 | ✅ 4 | ⏠️ 4 |
-| W6 — Tests | 4 | 4 | ✅ 4 | ⏠️ 4 |
+| Wave                  | Expected | Created | Type Correct | Compiles |
+| --------------------- | -------- | ------- | ------------ | -------- |
+| W0 — Types            | 5        | 5       | ✅ 5         | ✅ 5     |
+| W1 — Services + Rules | 8        | 8       | ⚠️ 6         | ⏠️ 6      |
+| W2 — Hooks            | 6        | 6       | ✅ 6         | ✅ 6     |
+| W3 — Cloud Functions  | 7        | 7       | ✅ 7         | ⏠️ 7      |
+| W4 — UI Components    | 9        | 9       | ⚠️ 7         | ⚠️ 7     |
+| W5 — Pages + Routes   | 5        | 5       | ✅ 4         | ⏠️ 4      |
+| W6 — Tests            | 4        | 4       | ✅ 4         | ⏠️ 4      |
 
 **Total:** 44/45 files created; 35/44 verified without TypeScript errors
 
@@ -205,6 +211,7 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 ## Phase 8 Readiness Assessment
 
 ### What's Ready:
+
 - ✅ Type system for CAPA, calibration, personnel (W0)
 - ✅ Core business logic in services (W1, W2, W3)
 - ✅ Test infrastructure (W6: 113 tests defined)
@@ -212,12 +219,14 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 - ✅ React hooks with real-time subscription (W2)
 
 ### What's Blocked:
+
 - ❌ TypeScript compilation (48 errors)
 - ❌ Application build
 - ❌ Test suite execution
 - ❌ Production deployment
 
 ### What's Pending:
+
 - Personnel module type alignment (separate fix phase)
 - Management review service completion
 - Full integration test execution
@@ -241,12 +250,14 @@ Fixed 45+ TypeScript errors in Wave 4 components caused by type system misalignm
 ## Next Steps
 
 ### For Orchestrator:
+
 1. Surface this verification failure to project lead
 2. Do NOT mark Phase 8 as complete
 3. Schedule separate fix phase for personnel module types
 4. Re-run verification gate after fixes
 
 ### For Developer:
+
 1. Address personnel module Record type definitions
 2. Complete management-review service implementation
 3. Verify Firestore db export path

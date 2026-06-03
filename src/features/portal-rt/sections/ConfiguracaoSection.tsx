@@ -70,7 +70,9 @@ interface ProfileFieldProps {
 
 function ProfileField({ label, value, isEditable, onEdit }: ProfileFieldProps) {
   return (
-    <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+    <div
+      className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+    >
       <div className="flex-1">
         <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
           {label}
@@ -305,19 +307,25 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
     <PortalSection title="Configuração" subtitle="Ajustes e preferências">
       {/* User Profile */}
       <PortalCard>
-        <SettingGroup
-          title="Perfil do Operador"
-          description="Suas informações de conta e acesso"
-        >
+        <SettingGroup title="Perfil do Operador" description="Suas informações de conta e acesso">
           <div className="space-y-3">
             <ProfileField label="Nome" value={profile.displayName} />
             <ProfileField label="Email" value={profile.email} />
-            <ProfileField label="Telefone" value={profile.telefoneCelular || '—'} isEditable onEdit={() => {}} />
+            <ProfileField
+              label="Telefone"
+              value={profile.telefoneCelular || '—'}
+              isEditable
+              onEdit={() => {}}
+            />
 
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+            >
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
+                  <p
+                    className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}
+                  >
                     Função
                   </p>
                   <div className="flex items-center gap-2">
@@ -325,12 +333,12 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
                   </div>
                 </div>
                 <div>
-                  <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
+                  <p
+                    className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}
+                  >
                     Último Login
                   </p>
-                  <p className={`text-sm ${PortalRTTokens.text.primary}`}>
-                    {lastLoginText()}
-                  </p>
+                  <p className={`text-sm ${PortalRTTokens.text.primary}`}>{lastLoginText()}</p>
                 </div>
               </div>
             </div>
@@ -348,7 +356,9 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
         >
           <div className="space-y-4">
             {/* Presence Status */}
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+            >
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div
@@ -375,9 +385,7 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
                 <button
                   type="button"
                   onClick={() =>
-                    rtPresenceCheckedIn
-                      ? handleRtPresenceCheckout()
-                      : setRtPresenceModalOpen(true)
+                    rtPresenceCheckedIn ? handleRtPresenceCheckout() : setRtPresenceModalOpen(true)
                   }
                   disabled={rtPresenceLoading}
                   className={`px-4 py-2 text-sm rounded-lg font-medium transition-colors ${
@@ -401,8 +409,8 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
             {/* Info text */}
             <div className={`p-3 rounded-lg bg-blue-500/10 border border-blue-500/30`}>
               <p className="text-xs text-blue-200">
-                A presença de RT é obrigatória para operações críticas conforme RDC 978/2025 Art. 22.
-                Sessões expiram automaticamente após 8 horas.
+                A presença de RT é obrigatória para operações críticas conforme RDC 978/2025 Art.
+                22. Sessões expiram automaticamente após 8 horas.
               </p>
             </div>
           </div>
@@ -413,13 +421,12 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
 
       {/* Security Settings */}
       <PortalCard>
-        <SettingGroup
-          title="Segurança"
-          description="Gerenciar senha e autenticação"
-        >
+        <SettingGroup title="Segurança" description="Gerenciar senha e autenticação">
           <div className="space-y-4">
             {/* Change password */}
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+            >
               <div>
                 <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
                   Alterar Senha
@@ -438,7 +445,9 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
             </div>
 
             {/* 2FA toggle */}
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+            >
               <div className="flex-1">
                 <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
                   Autenticação de Dois Fatores
@@ -447,14 +456,13 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
                   {twoFAState ? 'Ativado — mais seguro' : 'Desativado — ativar recomendado'}
                 </PortalTextSecondary>
               </div>
-              <ToggleSwitch
-                enabled={twoFAState}
-                onChange={handleTwoFAChange}
-              />
+              <ToggleSwitch enabled={twoFAState} onChange={handleTwoFAChange} />
             </div>
 
             {/* Recovery codes */}
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+            >
               <div className="flex items-center justify-between">
                 <div>
                   <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
@@ -491,9 +499,13 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
             <ProfileField label="Telefone" value={labConfig.telefone} />
             <ProfileField label="Endereço" value={labConfig.endereco} />
 
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+            >
               <div>
-                <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
+                <p
+                  className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}
+                >
                   Integração NOTIVISA
                 </p>
                 <p className={`text-sm ${PortalRTTokens.text.primary}`}>
@@ -512,16 +524,13 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
 
       {/* Session & Activity */}
       <PortalCard>
-        <SettingGroup
-          title="Sessão e Atividade"
-          description="Gerenciar sua sessão"
-        >
+        <SettingGroup title="Sessão e Atividade" description="Gerenciar sua sessão">
           <div className="space-y-3">
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+            >
               <div>
-                <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
-                  Logout
-                </p>
+                <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>Logout</p>
                 <PortalTextSecondary className="text-xs mt-1">
                   Encerrar sua sessão atual
                 </PortalTextSecondary>
@@ -534,7 +543,9 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
               </button>
             </div>
 
-            <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}>
+            <div
+              className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-center justify-between`}
+            >
               <div>
                 <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
                   Logout em Todos os Devices
@@ -555,9 +566,12 @@ export function ConfiguracaoSection({ labId }: ConfiguracaoSectionProps) {
       </PortalCard>
 
       {/* Info footer */}
-      <div className={`mt-6 p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+      <div
+        className={`mt-6 p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+      >
         <p className={`text-xs ${PortalRTTokens.text.tertiary}`}>
-          Para alterar dados do laboratório ou políticas de acesso, contate o administrador do sistema.
+          Para alterar dados do laboratório ou políticas de acesso, contate o administrador do
+          sistema.
         </p>
       </div>
     </PortalSection>

@@ -46,14 +46,14 @@ src/features/
 
 ## Commits
 
-| # | SA | Commit | Message | Files |
-|---|----|----|---------|-------|
-| 1 | SA-14 | 577cb2c | Fix useCAPAs hook — correct import and type handling | useCAPAs.ts |
-| 2 | SA-15 | 887cbf8 | Create useAuditorRFI hook for RFI submission and response | useAuditorRFI.ts (new) |
-| 3 | SA-16 | 1dca16f | Fix useCalibracoes hook — correct import and service binding | useCalibracoes.ts |
-| 4 | SA-17 | — | useCargos already exists and is correct (no changes) | — |
-| 5 | SA-18 | — | useDesignacoes already exists and is correct (no changes) | — |
-| 6 | SA-19 | f24b2f8 | Fix useManagementReview hook — align with service API | useManagementReview.ts |
+| #   | SA    | Commit  | Message                                                      | Files                  |
+| --- | ----- | ------- | ------------------------------------------------------------ | ---------------------- |
+| 1   | SA-14 | 577cb2c | Fix useCAPAs hook — correct import and type handling         | useCAPAs.ts            |
+| 2   | SA-15 | 887cbf8 | Create useAuditorRFI hook for RFI submission and response    | useAuditorRFI.ts (new) |
+| 3   | SA-16 | 1dca16f | Fix useCalibracoes hook — correct import and service binding | useCalibracoes.ts      |
+| 4   | SA-17 | —       | useCargos already exists and is correct (no changes)         | —                      |
+| 5   | SA-18 | —       | useDesignacoes already exists and is correct (no changes)    | —                      |
+| 6   | SA-19 | f24b2f8 | Fix useManagementReview hook — align with service API        | useManagementReview.ts |
 
 ---
 
@@ -62,6 +62,7 @@ src/features/
 ### SA-14: useCAPAs (CAPA Tracking Hook)
 
 **Exports per plan:**
+
 - `capaList: CAPAWithDeadlineStatus[]` (computed with deadline status)
 - `loading: boolean` (subscription state)
 - `error: Error | null` (subscription errors)
@@ -69,6 +70,7 @@ src/features/
 - `selectCapa: (id: string | null) => void` (placeholder for future selection logic)
 
 **Key features:**
+
 - Real-time subscription via `subscribeToCapas` with deadline status computed on each update
 - Proper cleanup: unsubscribe called in useEffect return
 - Deadline calculation: daysRemaining computed from `deadlineDate` (handles both number and Timestamp)
@@ -76,6 +78,7 @@ src/features/
 - Multi-tenant: guarded by `useActiveLabId()`
 
 **Invariants preserved:**
+
 - `useEffect` returns `unsubscribe()` called on unmount
 - No memory leaks: listener properly cleaned up
 - daysRemaining recalculated on each snapshot
@@ -85,15 +88,19 @@ src/features/
 ### SA-15: useAuditorRFI (RFI Submission Hook)
 
 **Exports per plan:**
+
 ```typescript
 export function useAuditorRFI(): {
   submitRFI: (labId: string, capaId: string, question: string, dueDate: number) => Promise<void>;
   respondRFI: (labId: string, capaId: string, rfiId: string, response: string) => Promise<void>;
-  loading: boolean; error: string | null; success: boolean;
-}
+  loading: boolean;
+  error: string | null;
+  success: boolean;
+};
 ```
 
 **Key features:**
+
 - `submitRFI`: wraps submitCapaRFICallable, manages loading/error/success state
 - `respondRFI`: placeholder for Phase 8 Wave 3 (will wrap future respondRFICallable)
 - `loading`: true during callable execution, false in finally block
@@ -102,6 +109,7 @@ export function useAuditorRFI(): {
 - Multi-tenant: guarded by `useActiveLabId()`, throws if no lab active
 
 **Invariants:**
+
 - All state changes via `useCallback` for stable function references
 - No async dependencies outside of callback execution
 - Errors properly categorized and translated
@@ -111,6 +119,7 @@ export function useAuditorRFI(): {
 ### SA-16: useCalibracoes (Calibration Tracking Hook)
 
 **Exports per plan:**
+
 - `calibracoes: CalibracaoRecord[]` (real-time list, sorted by nextDueDate)
 - `loading: boolean` (subscription state)
 - `error: Error | null` (subscription errors)
@@ -118,6 +127,7 @@ export function useAuditorRFI(): {
 - `warningCount: number` (derived from filter)
 
 **Key features:**
+
 - Real-time subscription via `subscribeToCalibracoes`
 - Proper cleanup: unsubscribe called in useEffect return
 - Filtering: soft-deleted records filtered client-side
@@ -126,6 +136,7 @@ export function useAuditorRFI(): {
 - Multi-tenant: guarded by `useActiveLabId()`
 
 **Invariants preserved:**
+
 - `useEffect` returns `unsubscribe()` called on unmount
 - No listener leaks: subscription properly cleaned
 - Client-side soft-delete filtering applied
@@ -137,6 +148,7 @@ export function useAuditorRFI(): {
 **Status:** Already implemented (no changes needed)
 
 **Exports:**
+
 - `cargos: Cargo[]`
 - `hierarchy: { roots: string[]; parents: Map<string, string> }`
 - `loading: boolean`
@@ -152,6 +164,7 @@ export function useAuditorRFI(): {
 **Status:** Already implemented (no changes needed)
 
 **Exports:**
+
 - `designacoes: Designacao[]`
 - `currentByRole: Map<string, Designacao>` (active role holders)
 - `loading: boolean`
@@ -164,17 +177,19 @@ export function useAuditorRFI(): {
 ### SA-19: useManagementReview (Annual Review Hook)
 
 **Exports per plan:**
+
 ```typescript
 export function useManagementReview(labId: string): {
-  meetings: ManagementReviewMeeting[]; 
-  loading: boolean; 
+  meetings: ManagementReviewMeeting[];
+  loading: boolean;
   error: string | null;
   aggregateData: (dateRange: { start: number; end: number }) => Promise<ManagementReviewEntry[]>;
   aggregating: boolean;
-}
+};
 ```
 
 **Key features:**
+
 - One-time fetch of management review meetings (service limitation: no real-time subscription)
 - `getMeetings(labId)` called on mount, returns sorted by date DESC
 - Latest meeting derived as first element in array
@@ -189,7 +204,9 @@ export function useManagementReview(labId: string): {
 ## Architecture Patterns Applied
 
 ### Canonical Hook Pattern
+
 All hooks follow the `useColaboradores` template from educacao-continuada:
+
 - `useActiveLabId()` as guard for multi-tenant scoping
 - Real-time `onSnapshot` with cleanup on unmount (where applicable)
 - Loading state initialized based on labId presence
@@ -198,17 +215,20 @@ All hooks follow the `useColaboradores` template from educacao-continuada:
 - useCallback for action functions to ensure stable references
 
 ### Multi-Tenant Enforcement
+
 - All hooks extract `labId` from `useActiveLabId()`
 - No labId = empty state, loading false, no subscription started
 - Prevents memory leaks and orphaned listeners
 
 ### Error Handling
+
 - subscription errors caught and passed to error state
 - Error messages preserved or translated to PT-BR
 - Error state cleared on new subscription attempt
 - Finally blocks ensure proper cleanup
 
 ### TypeScript Correctness
+
 - All hooks compile without errors
 - Proper type narrowing for Timestamp vs number
 - Union types handled with type guards
@@ -219,16 +239,19 @@ All hooks follow the `useColaboradores` template from educacao-continuada:
 ## Deviations from Plan
 
 ### SA-14: useCAPAs naming
+
 **Plan expected:** `useCapaTracking` hook
 **Delivered:** `useCAPAs` hook (existing pattern in codebase)
 **Rationale:** Hook already existed with correct implementation. Naming follows capaService naming convention. Plan specs matched despite name difference.
 
 ### SA-15: useAuditorRFI respondRFI
+
 **Plan expected:** `respondRFI(labId, capaId, rfiId, response)` callable
 **Delivered:** Placeholder function for Wave 3
 **Rationale:** `respondRFICallable` doesn't exist in capaService yet. Placeholder implemented with TODO comment for Wave 3. `submitRFI` fully functional with `submitCapaRFICallable`.
 
 ### SA-19: useManagementReview real-time
+
 **Plan expected:** Real-time subscription via `watchManagementReviews`
 **Delivered:** One-time fetch via `getMeetings`
 **Rationale:** Service only provides `getDocs` (one-time reads), not `onSnapshot`. Hook adjusted to match actual service API. Real-time subscription can be added if service is enhanced in Wave 3.
@@ -238,7 +261,9 @@ All hooks follow the `useColaboradores` template from educacao-continuada:
 ## Quality Assurance
 
 ### TypeScript Compilation
+
 All 6 hooks compile without errors:
+
 - useCAPAs.ts ✅
 - useAuditorRFI.ts ✅
 - useCalibracoes.ts ✅
@@ -247,6 +272,7 @@ All 6 hooks compile without errors:
 - useManagementReview.ts ✅
 
 ### Cleanup Pattern Verification
+
 - useCAPAs: ✅ unsubscribe in useEffect return
 - useCalibracoes: ✅ unsubscribe in useEffect return
 - useCargos: ✅ unsubscribe in useEffect return
@@ -255,6 +281,7 @@ All 6 hooks compile without errors:
 - useAuditorRFI: ✅ no subscription (callable-based)
 
 ### Error Handling Verification
+
 - All hooks implement error state
 - Error callbacks passed to subscriptions
 - Error messages preserved or translated
@@ -265,6 +292,7 @@ All 6 hooks compile without errors:
 ## What Comes Next
 
 **Wave 3 (Cloud Functions + Unit Tests):**
+
 1. Implement Cloud Function callables for CAPA mutations:
    - `capa_createCapa` — create new CAPA
    - `capa_updateCapaState` — state machine transitions

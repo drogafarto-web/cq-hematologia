@@ -12,11 +12,7 @@
 
 import React, { useState } from 'react';
 import { useActiveLab, useUser } from '../../../store/useAuthStore';
-import {
-  buildFR10Payload,
-  computeFR10Hash,
-  saveFR10Emission,
-} from '../services/fr10ExportService';
+import { buildFR10Payload, computeFR10Hash, saveFR10Emission } from '../services/fr10ExportService';
 import { FR10Print } from './FR10Print';
 import type { FR10Payload } from '../services/fr10ExportService';
 import type { InsumoModulo } from '../types/Insumo';

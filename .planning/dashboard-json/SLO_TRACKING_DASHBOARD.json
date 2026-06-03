@@ -67,9 +67,7 @@
                       "alignmentPeriod": "300s",
                       "perSeriesAligner": "ALIGN_PERCENTILE_95",
                       "crossSeriesReducer": "REDUCE_PERCENTILE_95",
-                      "groupByFields": [
-                        "resource.labels.function_name"
-                      ]
+                      "groupByFields": ["resource.labels.function_name"]
                     }
                   }
                 },
@@ -244,9 +242,7 @@
                       "alignmentPeriod": "3600s",
                       "perSeriesAligner": "ALIGN_RATE",
                       "crossSeriesReducer": "REDUCE_SUM",
-                      "groupByFields": [
-                        "resource.labels.function_name"
-                      ]
+                      "groupByFields": ["resource.labels.function_name"]
                     }
                   }
                 },

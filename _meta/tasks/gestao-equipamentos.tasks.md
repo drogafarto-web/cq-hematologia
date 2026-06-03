@@ -11,17 +11,20 @@
 ## T-GE-01 — Estender tipo `Equipamento` com campos de calibração
 
 **Arquivos:**
+
 - `src/features/equipamentos/types/Equipamento.ts` (estender)
 
 **Depende de:** —
 
 **Instrução:**
 Adicionar ao final da interface `Equipamento` os campos:
+
 ```typescript
 certificadoCalibracaoUrl?: string;
 proximaCalibracao?: Timestamp;
 calibracaoStatus?: 'em_dia' | 'vencida' | 'proxima';
 ```
+
 Não alterar campos existentes. Não alterar `EquipamentoAuditEvent`.
 
 **Gate:** `npx tsc --noEmit`
@@ -31,6 +34,7 @@ Não alterar campos existentes. Não alterar `EquipamentoAuditEvent`.
 ## T-GE-02 — Criar interface `ManutencaoPreventiva` e enum `ManutencaoStatus`
 
 **Arquivos:**
+
 - `src/features/equipamentos/types/ManutencaoPreventiva.ts` (criar)
 - `src/features/equipamentos/types/index.ts` (estender barrel)
 
@@ -38,6 +42,7 @@ Não alterar campos existentes. Não alterar `EquipamentoAuditEvent`.
 
 **Instrução:**
 Criar arquivo com:
+
 ```typescript
 export type ManutencaoStatus = 'agendada' | 'realizada' | 'cancelada';
 
@@ -58,6 +63,7 @@ export interface ManutencaoPreventiva {
   updatedAt: Timestamp;
 }
 ```
+
 Exportar via barrel.
 
 **Gate:** `npx tsc --noEmit`
@@ -67,6 +73,7 @@ Exportar via barrel.
 ## T-GE-03 — Criar interface `EquipamentoUso`
 
 **Arquivos:**
+
 - `src/features/equipamentos/types/EquipamentoUso.ts` (criar)
 - `src/features/equipamentos/types/index.ts` (estender barrel)
 
@@ -74,6 +81,7 @@ Exportar via barrel.
 
 **Instrução:**
 Criar arquivo com:
+
 ```typescript
 export interface EquipamentoUso {
   id: string;
@@ -87,6 +95,7 @@ export interface EquipamentoUso {
   criadoEm: Timestamp;
 }
 ```
+
 Exportar via barrel.
 
 **Gate:** `npx tsc --noEmit`
@@ -96,12 +105,14 @@ Exportar via barrel.
 ## T-GE-04 — Adicionar regras Firestore para subcoleção `manutencoes`
 
 **Arquivos:**
+
 - `firestore.rules`
 
 **Depende de:** T-GE-02
 
 **Instrução:**
 Dentro do match de `/labs/{labId}/equipamentos/{equipamentoId}`, adicionar subcoleção:
+
 ```
 match /manutencoes/{manutencaoId} {
   allow read: if isActiveMemberOfLab(labId);
@@ -114,6 +125,7 @@ match /manutencoes/{manutencaoId} {
   allow delete: if false;  // append-only para manutencoes realizadas
 }
 ```
+
 Não tocar em outras regras de equipamentos.
 
 **Gate:** `npx tsc --noEmit` (regras não são TS, validar sintaxe manualmente)
@@ -123,6 +135,7 @@ Não tocar em outras regras de equipamentos.
 ## T-GE-05 — Criar CF callable `agendarManutencao`
 
 **Arquivos:**
+
 - `functions/src/callables/manutencao/agendarManutencao.ts` (criar)
 - `functions/src/callables/manutencao/index.ts` (criar ou atualizar)
 - `functions/src/index.ts` (exportar novo módulo)
@@ -131,6 +144,7 @@ Não tocar em outras regras de equipamentos.
 
 **Instrução:**
 Criar callable `agendarManutencao` com schema Zod:
+
 ```typescript
 const schema = z.object({
   labId: z.string(),
@@ -143,6 +157,7 @@ const schema = z.object({
   observacoes: z.string().optional(),
 });
 ```
+
 Callable grava em `/labs/{labId}/equipamentos/{equipamentoId}/manutencoes/{id}` com `status: 'agendada'`.
 Seguir padrão de `functions/src/callables/calibracao/`.
 
@@ -153,6 +168,7 @@ Seguir padrão de `functions/src/callables/calibracao/`.
 ## T-GE-06 — Criar CF callable `registrarManutencaoRealizada`
 
 **Arquivos:**
+
 - `functions/src/callables/manutencao/registrarManutencaoRealizada.ts` (criar)
 - `functions/src/callables/manutencao/index.ts` (atualizar)
 
@@ -160,6 +176,7 @@ Seguir padrão de `functions/src/callables/calibracao/`.
 
 **Instrução:**
 Criar callable `registrarManutencaoRealizada` com schema Zod:
+
 ```typescript
 const schema = z.object({
   labId: z.string(),
@@ -170,6 +187,7 @@ const schema = z.object({
   logicalSignature: LogicalSignatureSchema,
 });
 ```
+
 Callable faz `update` no doc de manutenção: `status: 'realizada'`, `dataRealizada`, `logicalSignature`.
 Verificar que o doc existe e que `status === 'agendada'` antes de atualizar.
 
@@ -180,6 +198,7 @@ Verificar que o doc existe e que `status === 'agendada'` antes de atualizar.
 ## [x] T-GE-07 — Criar CF cron `alertManutencaoVencida`
 
 **Arquivos:**
+
 - `functions/src/modules/equipamentos/alertManutencaoVencida.ts` (criar)
 - `functions/src/modules/equipamentos/index.ts` (exportar)
 
@@ -188,10 +207,12 @@ Verificar que o doc existe e que `status === 'agendada'` antes de atualizar.
 **Instrução:**
 CF agendada diária (`onSchedule('every 24 hours')`).
 Consulta todas as manutencoes de todos os labs onde:
+
 - `status === 'agendada'`
 - `dataPrevista < now() - 1 day`
 
 Para cada resultado, cria `KPIAlert` em `/labs/{labId}/kpiAlerts/{id}`:
+
 ```typescript
 {
   labId,
@@ -203,6 +224,7 @@ Para cada resultado, cria `KPIAlert` em `/labs/{labId}/kpiAlerts/{id}`:
   resolvido: false,
 }
 ```
+
 Reutilizar padrão de alertas de `criticos` ou `risks`.
 
 **Gate:** `cd functions && npx tsc --noEmit`
@@ -212,6 +234,7 @@ Reutilizar padrão de alertas de `criticos` ou `risks`.
 ## T-GE-08 — Criar hook `useManutencoes`
 
 **Arquivos:**
+
 - `src/features/equipamentos/hooks/useManutencoes.ts` (criar)
 
 **Depende de:** T-GE-02
@@ -228,6 +251,7 @@ Limite de 50 registros. Unsubscribe no cleanup.
 ## T-GE-09 — Criar hook `useCalibracaoStatus`
 
 **Arquivos:**
+
 - `src/features/equipamentos/hooks/useCalibracaoStatus.ts` (criar)
 
 **Depende de:** T-GE-01
@@ -235,6 +259,7 @@ Limite de 50 registros. Unsubscribe no cleanup.
 **Instrução:**
 Hook puro (sem Firebase) que recebe `proximaCalibracao: Timestamp | undefined` e retorna
 `calibracaoStatus: 'em_dia' | 'vencida' | 'proxima' | 'sem_data'`.
+
 - `'vencida'` se `proximaCalibracao < now()`
 - `'proxima'` se `proximaCalibracao` entre `now()` e `now() + 30 dias`
 - `'em_dia'` se `proximaCalibracao > now() + 30 dias`
@@ -247,6 +272,7 @@ Hook puro (sem Firebase) que recebe `proximaCalibracao: Timestamp | undefined` e
 ## T-GE-10 — Criar hook `useEquipamentoUso`
 
 **Arquivos:**
+
 - `src/features/equipamentos/hooks/useEquipamentoUso.ts` (criar)
 
 **Depende de:** T-GE-03
@@ -263,6 +289,7 @@ Limite 30. Unsubscribe no cleanup.
 ## T-GE-11 — UI: badge de calibração e seção de manutenções na ficha
 
 **Arquivos:**
+
 - `src/features/equipamentos/components/CalibracaoBadge.tsx` (criar)
 - `src/features/equipamentos/components/ManutencaoList.tsx` (criar)
 - `src/features/equipamentos/components/EquipamentoDetail.tsx` (estender com os novos componentes)
@@ -270,6 +297,7 @@ Limite 30. Unsubscribe no cleanup.
 **Depende de:** T-GE-08, T-GE-09
 
 **Instrução:**
+
 1. `CalibracaoBadge`: recebe `calibracaoStatus` e renderiza badge colorido (`vencida`=vermelho, `proxima`=amarelo, `em_dia`=verde, `sem_data`=cinza).
 2. `ManutencaoList`: usa `useManutencoes`, exibe lista de manutenções com data, tipo, status, responsável. Botão "Agendar" abre modal de formulário (modal simples, não implementar ainda se complexo — marcar como T-GE-12).
 3. Inserir `CalibracaoBadge` e `ManutencaoList` no `EquipamentoDetail` existente.
@@ -281,6 +309,7 @@ Limite 30. Unsubscribe no cleanup.
 ## T-GE-12 — CF callable `generateEquipamentoReport` + botão export
 
 **Arquivos:**
+
 - `functions/src/callables/equipamentos/generateEquipamentoReport.ts` (criar)
 - `functions/src/callables/equipamentos/index.ts` (criar ou atualizar)
 - `src/features/equipamentos/components/EquipamentoDetail.tsx` (adicionar botão)
@@ -289,6 +318,7 @@ Limite 30. Unsubscribe no cleanup.
 
 **Instrução:**
 CF callable que recebe `{ labId, equipamentoId }` e gera PDF com:
+
 - Dados cadastrais do equipamento
 - Última calibração (com URL do certificado se disponível)
 - Próximas manutenções (`status: 'agendada'`)
@@ -318,17 +348,17 @@ T-GE-01 → T-GE-02 → T-GE-03 → T-GE-04
 
 ## Status geral
 
-| Task | Status | Notas |
-|---|---|---|
-| T-GE-01 | [x] | |
-| T-GE-02 | [x] | |
-| T-GE-03 | [x] | |
-| T-GE-04 | [x] | |
-| T-GE-05 | [x] | |
-| T-GE-06 | [x] | |
-| T-GE-07 | [x] | |
-| T-GE-08 | [x] | |
-| T-GE-09 | [x] | |
-| T-GE-10 | [x] | |
-| T-GE-11 | [x] | UI: `CalibracaoBadge`, `ManutencaoList`, `EquipamentoDetail` (ficha na área expandida do `EquipamentoCard`). |
-| T-GE-12 | [x] | CF `generateEquipamentoReport` + botão em `EquipamentoDetail`; export em `functions/src/index.ts`. |
+| Task    | Status | Notas                                                                                                        |
+| ------- | ------ | ------------------------------------------------------------------------------------------------------------ |
+| T-GE-01 | [x]    |                                                                                                              |
+| T-GE-02 | [x]    |                                                                                                              |
+| T-GE-03 | [x]    |                                                                                                              |
+| T-GE-04 | [x]    |                                                                                                              |
+| T-GE-05 | [x]    |                                                                                                              |
+| T-GE-06 | [x]    |                                                                                                              |
+| T-GE-07 | [x]    |                                                                                                              |
+| T-GE-08 | [x]    |                                                                                                              |
+| T-GE-09 | [x]    |                                                                                                              |
+| T-GE-10 | [x]    |                                                                                                              |
+| T-GE-11 | [x]    | UI: `CalibracaoBadge`, `ManutencaoList`, `EquipamentoDetail` (ficha na área expandida do `EquipamentoCard`). |
+| T-GE-12 | [x]    | CF `generateEquipamentoReport` + botão em `EquipamentoDetail`; export em `functions/src/index.ts`.           |

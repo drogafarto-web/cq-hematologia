@@ -168,12 +168,7 @@ async function runMigration(opts: MigrationOpts): Promise<LotsMigrationSummary> 
         try {
           // 2a) Replica metadata em /insumos/{lotId}
           const insumoData = buildInsumoControleFromLot(labId, lotId, lotData);
-          await db
-            .collection('labs')
-            .doc(labId)
-            .collection('insumos')
-            .doc(lotId)
-            .set(insumoData);
+          await db.collection('labs').doc(labId).collection('insumos').doc(lotId).set(insumoData);
           migratedLots += 1;
 
           // 2b) Copia sub-coleção runs

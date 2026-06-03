@@ -44,6 +44,7 @@ W0 output **drives** W1 SA spec generation. The W1 SA list is dynamic (computed 
    - Latest `docs/COMPLIANCE_v1.4_*.md` if exists
 
 2. **Identify gaps** by block (A through J):
+
    ```
    Block A — Governança:        73% → target 80%   (+7pp)
    Block B — Gestão Documental: 72% → target 85%   (+13pp)
@@ -69,6 +70,7 @@ W0 output **drives** W1 SA spec generation. The W1 SA list is dynamic (computed 
    - Cross-block dependencies (e.g., Block A governança might require Block B docs first)
 
 5. **Write SA specs** in same format as MP-1..MP-6 PLANs:
+
    ```
    ### SA-83 — <file path>
    **Worker:** Haiku
@@ -118,6 +120,7 @@ Each SA follows MP-1..MP-6 contract pattern.
 **File:** `docs/COMPLIANCE_v1.4_FINAL.md` (new) + update `.planning/milestones/v1.4-DICQ-COVERAGE-MATRIX.md`
 
 **Task:** Recalculate DICQ coverage post-W1. For each block (A-J):
+
 1. Walk through DICQ requirements list
 2. Map to module/file in current codebase
 3. Mark COVERED / PARTIAL / MISSING
@@ -125,14 +128,16 @@ Each SA follows MP-1..MP-6 contract pattern.
 5. Compute overall %
 
 **Output structure:**
+
 ```markdown
 # DICQ Compliance Final — v1.4 (2026-05-09)
 
 ## Overall: <X>% (target ≥85% — <PASSED|FAIL>)
 
 | Block | Pre-W1 | Post-W1 | Delta | Target | Status |
-|-------|--------|---------|-------|--------|--------|
+| ----- | ------ | ------- | ----- | ------ | ------ |
 | A     | 73%    | <X>%    | +<Y>  | 80%    | ✓/✗    |
+
 ...
 ```
 
@@ -146,6 +151,7 @@ Each SA follows MP-1..MP-6 contract pattern.
 **File:** `docs/AUDITOR_SIGNOFF_PACKAGE_v1.4.md`
 
 **Task:** Generate auditor-ready package:
+
 1. Executive summary (DICQ %, RDC 978 articles, LGPD coverage)
 2. Module → DICQ requirement traceability table
 3. Test coverage summary
@@ -154,6 +160,7 @@ Each SA follows MP-1..MP-6 contract pattern.
 6. Outstanding items (any DICQ gaps still open after W1)
 
 **Read first:**
+
 - `docs/COMPLIANCE_v1.4_FINAL.md` (just created)
 - `.planning/phases/v1.4-final-closure/BASELINE-2026-05-09.md`
 - `.planning/milestones/v1.4-RISK-REGISTER.md`
@@ -168,6 +175,7 @@ Each SA follows MP-1..MP-6 contract pattern.
 **File:** `.planning/phases/13-dicq-audit/13-VERIFICATION.md`
 
 **Task:** Verify MP-7 success criteria:
+
 - [ ] DICQ overall ≥85%
 - [ ] All W1 SAs committed
 - [ ] No regression in pre-existing block %
@@ -207,11 +215,13 @@ All checks pass → advance to MP-8 (final deploy).
 ## Failure handling
 
 If SA-82 (Opus auditor) reports gaps too large for 6 SAs in W1:
+
 - Cut scope to top-priority blocks (e.g., A, C, H, I — most cited by external auditors)
 - Document remaining gaps in `13-GAPS-DEFERRED-v1.5.md`
 - Proceed with reduced W1 scope as long as projected DICQ ≥85%
 
 If projected DICQ < 85% even with all 6 SAs:
+
 - Report blocker to orchestrator
 - Orchestrator escalates: skip MP-7 W1+W2, log to INCIDENTS.md, proceed to MP-8 with current DICQ %
 - Tag will be `v1.4-FINAL-no-dicq` instead of `v1.4-FINAL`

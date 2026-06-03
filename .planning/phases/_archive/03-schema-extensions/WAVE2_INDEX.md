@@ -41,35 +41,35 @@
 
 ### For CTO (Decision Maker)
 
-| Document | Purpose | Time |
-|-----------|---------|------|
-| **WAVE2_EXECUTIVE_SUMMARY.md** | Should I approve this? | 5 min |
-| **WAVE2_FINDINGS.md** > Risk Summary | What can go wrong? | 5 min |
-| **INTEGRATION_CHECKLIST_WAVE2.md** > Sign-Off Template | Do I sign here? | 2 min |
+| Document                                               | Purpose                | Time  |
+| ------------------------------------------------------ | ---------------------- | ----- |
+| **WAVE2_EXECUTIVE_SUMMARY.md**                         | Should I approve this? | 5 min |
+| **WAVE2_FINDINGS.md** > Risk Summary                   | What can go wrong?     | 5 min |
+| **INTEGRATION_CHECKLIST_WAVE2.md** > Sign-Off Template | Do I sign here?        | 2 min |
 
 ### For Stream A (Rules Executor)
 
-| Document | Purpose | Time |
-|-----------|---------|------|
-| **WAVE2_PREFLIGHT_SUMMARY.md** > Deploy Rules section | How do I deploy rules? | 10 min |
-| **WAVE2_RULES_INSERTION_GUIDE.md** | What lines do I change? | 15 min |
+| Document                                                     | Purpose                 | Time   |
+| ------------------------------------------------------------ | ----------------------- | ------ |
+| **WAVE2_PREFLIGHT_SUMMARY.md** > Deploy Rules section        | How do I deploy rules?  | 10 min |
+| **WAVE2_RULES_INSERTION_GUIDE.md**                           | What lines do I change? | 15 min |
 | **INTEGRATION_CHECKLIST_WAVE2.md** > Firestore Rules section | Did I check everything? | 20 min |
 
 ### For Stream D (Functions Executor)
 
-| Document | Purpose | Time |
-|-----------|---------|------|
-| **WAVE2_PREFLIGHT_SUMMARY.md** > Deploy Functions section | How do I deploy helpers? | 10 min |
-| **03-03-PLAN.md** | What do I implement? | 20 min (from parent task) |
-| **INTEGRATION_CHECKLIST_WAVE2.md** > Cloud Functions section | Did I check everything? | 20 min |
+| Document                                                     | Purpose                  | Time                      |
+| ------------------------------------------------------------ | ------------------------ | ------------------------- |
+| **WAVE2_PREFLIGHT_SUMMARY.md** > Deploy Functions section    | How do I deploy helpers? | 10 min                    |
+| **03-03-PLAN.md**                                            | What do I implement?     | 20 min (from parent task) |
+| **INTEGRATION_CHECKLIST_WAVE2.md** > Cloud Functions section | Did I check everything?  | 20 min                    |
 
 ### For QA / Auditor
 
-| Document | Purpose | Time |
-|-----------|---------|------|
-| **WAVE2_FINDINGS.md** > Security Posture Verified | Are the rules secure? | 5 min |
-| **INTEGRATION_CHECKLIST_WAVE2.md** > Risk Register | What are the risks? | 10 min |
-| **WAVE2_PREFLIGHT_SUMMARY.md** > Post-Deploy Validation | What do I test? | 15 min |
+| Document                                                | Purpose               | Time   |
+| ------------------------------------------------------- | --------------------- | ------ |
+| **WAVE2_FINDINGS.md** > Security Posture Verified       | Are the rules secure? | 5 min  |
+| **INTEGRATION_CHECKLIST_WAVE2.md** > Risk Register      | What are the risks?   | 10 min |
+| **WAVE2_PREFLIGHT_SUMMARY.md** > Post-Deploy Validation | What do I test?       | 15 min |
 
 ---
 
@@ -84,25 +84,25 @@ Task 03-02: Firestore Rules
   LOC added: ~185 lines (5 match blocks)
   New helpers: 0 (both already defined)
   Status: ✅ Ready
-  
+
 Task 03-03: Cloud Functions Helpers
   Duration: 4 hours preparation + 30 min deploy
   LOC added: ~450 lines (4 modules + 18 tests)
   New NPM deps: 0 (all present)
   Status: ✅ Ready
-  
+
 Integration Validation
   Blockers: 0 ✅
   Dependencies: 0 (parallel execution possible)
   Risk level: 🟢 LOW
   Security audit: ✅ Approved
-  
+
 Timeline
   Start: Friday 2026-05-07 09:00
   End: Saturday 2026-05-08 17:00
   Critical path: Rules first (1h), Functions second (30m)
   Monitoring: 24h post-Rules deploy
-  
+
 Deployment Order
   1. Rules (firestore.rules) ← Deploy first
   2. Monitor for 24h
@@ -117,31 +117,31 @@ Deployment Order
 
 ### Pre-Flight Phase (This Phase)
 
-| Document | Purpose | Size | Read Time |
-|----------|---------|------|-----------|
-| **WAVE2_INDEX.md** | You are here | 2 KB | 5 min |
-| **WAVE2_EXECUTIVE_SUMMARY.md** | Overview + sign-off | 8 KB | 10 min |
-| **WAVE2_FINDINGS.md** | Pre-flight findings | 8 KB | 10 min |
-| **INTEGRATION_CHECKLIST_WAVE2.md** | 60+ verification checks | 13 KB | 30 min |
-| **WAVE2_RULES_INSERTION_GUIDE.md** | Line-by-line mapping | 6 KB | 10 min |
-| **WAVE2_PREFLIGHT_SUMMARY.md** | Timeline + playbook | 9 KB | 20 min |
+| Document                           | Purpose                 | Size  | Read Time |
+| ---------------------------------- | ----------------------- | ----- | --------- |
+| **WAVE2_INDEX.md**                 | You are here            | 2 KB  | 5 min     |
+| **WAVE2_EXECUTIVE_SUMMARY.md**     | Overview + sign-off     | 8 KB  | 10 min    |
+| **WAVE2_FINDINGS.md**              | Pre-flight findings     | 8 KB  | 10 min    |
+| **INTEGRATION_CHECKLIST_WAVE2.md** | 60+ verification checks | 13 KB | 30 min    |
+| **WAVE2_RULES_INSERTION_GUIDE.md** | Line-by-line mapping    | 6 KB  | 10 min    |
+| **WAVE2_PREFLIGHT_SUMMARY.md**     | Timeline + playbook     | 9 KB  | 20 min    |
 
 ### Parent Phase Documents (Reference)
 
-| Document | Purpose | Location |
-|----------|---------|----------|
-| **03-01-COMPLETION_REPORT.md** | Schema design complete | Same folder |
-| **03-02-PLAN.md** | Rules implementation plan | Same folder |
-| **03-03-PLAN.md** | Functions implementation plan | Same folder |
-| **03-PLAN.md** | Phase 3 master plan | Same folder |
+| Document                       | Purpose                       | Location    |
+| ------------------------------ | ----------------------------- | ----------- |
+| **03-01-COMPLETION_REPORT.md** | Schema design complete        | Same folder |
+| **03-02-PLAN.md**              | Rules implementation plan     | Same folder |
+| **03-03-PLAN.md**              | Functions implementation plan | Same folder |
+| **03-PLAN.md**                 | Phase 3 master plan           | Same folder |
 
 ### Operational Documents (Post-Deploy)
 
-| Document | Purpose | When |
-|----------|---------|------|
-| **CORRECTIONS.md** | Deployment incident log | If needed |
-| **Cloud Logs Monitoring Guide** | 24h monitoring setup | Post-deploy |
-| **Rollback Instructions** | Emergency recovery | If needed |
+| Document                        | Purpose                 | When        |
+| ------------------------------- | ----------------------- | ----------- |
+| **CORRECTIONS.md**              | Deployment incident log | If needed   |
+| **Cloud Logs Monitoring Guide** | 24h monitoring setup    | Post-deploy |
+| **Rollback Instructions**       | Emergency recovery      | If needed   |
 
 ---
 
@@ -226,6 +226,7 @@ Sign-Off (Owner: CTO)
 **✅ Recommendation:** YES, proceed with deployment.
 
 **Rationale:**
+
 - 0 blockers identified
 - Low risk (additive changes, no breaking modifications)
 - High value (unblocks Phase 4 Portal + NOTIVISA + Critical Value)
@@ -238,6 +239,7 @@ Sign-Off (Owner: CTO)
 **✅ Recommendation:** NO, deploy sequentially (Rules first, Functions 24h later).
 
 **Rationale:**
+
 - Rules are prerequisite for Functions to be useful
 - If Rules break → easy rollback without affecting Functions
 - If Functions helpers break → falls back to client service (safe)
@@ -250,6 +252,7 @@ Sign-Off (Owner: CTO)
 **✅ Recommendation:** YES, mandatory (documented in checklist).
 
 **Smoke tests:**
+
 1. Portal page loads (tests /portal-configuracao read)
 2. Admin can create CQ lot (existing functionality unchanged)
 3. RT can sign laudo (existing functionality unchanged)
@@ -259,13 +262,13 @@ Sign-Off (Owner: CTO)
 
 ## 📞 Escalation Matrix
 
-| Issue | Escalate To | Action | Response Time |
-|-------|---|---|---|
-| Rules deployment fails | CTO | Check Firebase logs, consider rollback | 15 min |
-| Functions build fails | Stream D | Debug imports, run `npm ls --depth=10` | 30 min |
-| Test coverage <80% | Stream D | Add tests or improve code | 1 hour |
-| Security question | CTO | Review WAVE2_FINDINGS.md (Security Posture) | 10 min |
-| Timeline issue | CTO | Adjust schedule or reduce scope | 30 min |
+| Issue                  | Escalate To | Action                                      | Response Time |
+| ---------------------- | ----------- | ------------------------------------------- | ------------- |
+| Rules deployment fails | CTO         | Check Firebase logs, consider rollback      | 15 min        |
+| Functions build fails  | Stream D    | Debug imports, run `npm ls --depth=10`      | 30 min        |
+| Test coverage <80%     | Stream D    | Add tests or improve code                   | 1 hour        |
+| Security question      | CTO         | Review WAVE2_FINDINGS.md (Security Posture) | 10 min        |
+| Timeline issue         | CTO         | Adjust schedule or reduce scope             | 30 min        |
 
 ---
 
@@ -273,12 +276,12 @@ Sign-Off (Owner: CTO)
 
 If unfamiliar with the topics:
 
-| Topic | Document | Time |
-|-------|----------|------|
-| **Firestore Rules** | `.claude/rules/firestore-security.md` | 10 min |
-| **Multi-tenant patterns** | `CLAUDE.md` (root) | 10 min |
-| **Cloud Functions** | `.claude/rules/deploy-protocol.md` | 10 min |
-| **DICQ Compliance** | Project CLAUDE.md | 15 min |
+| Topic                     | Document                              | Time   |
+| ------------------------- | ------------------------------------- | ------ |
+| **Firestore Rules**       | `.claude/rules/firestore-security.md` | 10 min |
+| **Multi-tenant patterns** | `CLAUDE.md` (root)                    | 10 min |
+| **Cloud Functions**       | `.claude/rules/deploy-protocol.md`    | 10 min |
+| **DICQ Compliance**       | Project CLAUDE.md                     | 15 min |
 
 ---
 
@@ -396,11 +399,10 @@ Next Step: CTO Review → Approve → Execute Wave 2
 
 ## Quick Links
 
-| Link | Document |
-|------|----------|
-| 📊 **Summary** | [WAVE2_EXECUTIVE_SUMMARY.md](WAVE2_EXECUTIVE_SUMMARY.md) |
-| 🔍 **Findings** | [WAVE2_FINDINGS.md](WAVE2_FINDINGS.md) |
-| ✅ **Checklist** | [INTEGRATION_CHECKLIST_WAVE2.md](INTEGRATION_CHECKLIST_WAVE2.md) |
+| Link               | Document                                                         |
+| ------------------ | ---------------------------------------------------------------- |
+| 📊 **Summary**     | [WAVE2_EXECUTIVE_SUMMARY.md](WAVE2_EXECUTIVE_SUMMARY.md)         |
+| 🔍 **Findings**    | [WAVE2_FINDINGS.md](WAVE2_FINDINGS.md)                           |
+| ✅ **Checklist**   | [INTEGRATION_CHECKLIST_WAVE2.md](INTEGRATION_CHECKLIST_WAVE2.md) |
 | 📝 **Rules Guide** | [WAVE2_RULES_INSERTION_GUIDE.md](WAVE2_RULES_INSERTION_GUIDE.md) |
-| 🚀 **Playbook** | [WAVE2_PREFLIGHT_SUMMARY.md](WAVE2_PREFLIGHT_SUMMARY.md) |
-
+| 🚀 **Playbook**    | [WAVE2_PREFLIGHT_SUMMARY.md](WAVE2_PREFLIGHT_SUMMARY.md)         |

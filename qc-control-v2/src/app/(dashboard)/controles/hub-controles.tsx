@@ -1,32 +1,32 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Pill } from '@/components/ui/pill'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Pill } from '@/components/ui/pill';
 
 interface Controle {
-  id: string
-  nome: string
-  lote: string
-  ativo: boolean
-  protrombinaMin: number
-  protrombinaMax: number
-  rniMin: number
-  rniMax: number
-  ttppaMin: number
-  ttppaMax: number
-  _count: { registros: number }
+  id: string;
+  nome: string;
+  lote: string;
+  ativo: boolean;
+  protrombinaMin: number;
+  protrombinaMax: number;
+  rniMin: number;
+  rniMax: number;
+  ttppaMin: number;
+  ttppaMax: number;
+  _count: { registros: number };
 }
 
 interface Props {
-  controles: Controle[]
+  controles: Controle[];
 }
 
 export function HubControles({ controles }: Props) {
-  const router = useRouter()
-  const [mostrarForm, setMostrarForm] = useState(false)
+  const router = useRouter();
+  const [mostrarForm, setMostrarForm] = useState(false);
   const [novo, setNovo] = useState({
     nome: '',
     lote: '',
@@ -36,23 +36,23 @@ export function HubControles({ controles }: Props) {
     rniMax: 1.11,
     ttppaMin: 27,
     ttppaMax: 39,
-  })
+  });
 
   async function criarControle(e: React.FormEvent) {
-    e.preventDefault()
+    e.preventDefault();
     try {
       const res = await fetch('/api/controles', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...novo, ativo: true }),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (!json.success) {
-        toast.error(json.error?.message ?? 'Falha ao criar')
-        return
+        toast.error(json.error?.message ?? 'Falha ao criar');
+        return;
       }
-      toast.success('Controle criado')
-      setMostrarForm(false)
+      toast.success('Controle criado');
+      setMostrarForm(false);
       setNovo({
         nome: '',
         lote: '',
@@ -62,10 +62,10 @@ export function HubControles({ controles }: Props) {
         rniMax: 1.11,
         ttppaMin: 27,
         ttppaMax: 39,
-      })
-      router.refresh()
+      });
+      router.refresh();
     } catch {
-      toast.error('Falha ao criar')
+      toast.error('Falha ao criar');
     }
   }
 
@@ -75,16 +75,16 @@ export function HubControles({ controles }: Props) {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ativo: !ativo }),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (!json.success) {
-        toast.error(json.error?.message ?? 'Falha')
-        return
+        toast.error(json.error?.message ?? 'Falha');
+        return;
       }
-      toast.success(ativo ? 'Controle desativado' : 'Controle ativado')
-      router.refresh()
+      toast.success(ativo ? 'Controle desativado' : 'Controle ativado');
+      router.refresh();
     } catch {
-      toast.error('Falha')
+      toast.error('Falha');
     }
   }
 
@@ -98,10 +98,15 @@ export function HubControles({ controles }: Props) {
       </div>
 
       {mostrarForm && (
-        <form onSubmit={criarControle} className="bg-surface border border-border p-6 flex flex-col gap-4">
+        <form
+          onSubmit={criarControle}
+          className="bg-surface border border-border p-6 flex flex-col gap-4"
+        >
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Nome</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                Nome
+              </label>
               <input
                 type="text"
                 value={novo.nome}
@@ -111,7 +116,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Lote</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                Lote
+              </label>
               <input
                 type="text"
                 value={novo.lote}
@@ -124,7 +131,9 @@ export function HubControles({ controles }: Props) {
 
           <div className="grid grid-cols-3 gap-4">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Protrombina min</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                Protrombina min
+              </label>
               <input
                 type="number"
                 step="any"
@@ -134,7 +143,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Protrombina max</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                Protrombina max
+              </label>
               <input
                 type="number"
                 step="any"
@@ -144,7 +155,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">RNI min</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                RNI min
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -154,7 +167,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">RNI max</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                RNI max
+              </label>
               <input
                 type="number"
                 step="0.01"
@@ -164,7 +179,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">TTPA min</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                TTPA min
+              </label>
               <input
                 type="number"
                 step="any"
@@ -174,7 +191,9 @@ export function HubControles({ controles }: Props) {
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">TTPA max</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                TTPA max
+              </label>
               <input
                 type="number"
                 step="any"
@@ -203,7 +222,8 @@ export function HubControles({ controles }: Props) {
                 Lote {c.lote} · {c._count.registros} registros
               </div>
               <div className="text-xs text-on-surface-variant">
-                Prot: {c.protrombinaMin}–{c.protrombinaMax}% · RNI: {c.rniMin}–{c.rniMax} · TTPA: {c.ttppaMin}–{c.ttppaMax}s
+                Prot: {c.protrombinaMin}–{c.protrombinaMax}% · RNI: {c.rniMin}–{c.rniMax} · TTPA:{' '}
+                {c.ttppaMin}–{c.ttppaMax}s
               </div>
             </div>
             <Button
@@ -221,5 +241,5 @@ export function HubControles({ controles }: Props) {
         )}
       </div>
     </div>
-  )
+  );
 }

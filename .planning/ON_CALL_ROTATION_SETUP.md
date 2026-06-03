@@ -13,6 +13,7 @@ audience: Team leads, SRE/DevOps, on-call rotation members
 **Purpose:** Detailed, copy-paste-ready setup playbook for team lead to establish 24/7 on-call rotation for HC Quality v1.4 production launch (2026-05-20).
 
 **Deliverables Checklist:**
+
 - ✅ 4-week rotating schedule (Primary + Secondary pairs)
 - ✅ Severity classification matrix (Green/Yellow/Red/Black)
 - ✅ Slack channels creation guide
@@ -32,12 +33,12 @@ audience: Team leads, SRE/DevOps, on-call rotation members
 
 Use this matrix to classify incidents in **<30 seconds**. If unsure, escalate up.
 
-| Severity | Definition | Users Affected | SLA Impact | Paging | ETA | Page Frequency |
-|----------|-----------|---|---|---|---|---|
-| **🟢 GREEN** | Feature degraded, slow, non-critical | <1% | <15 min | Primary only | 1h to start investigation | 15 min initial |
-| **🟡 YELLOW** | Feature down or cascading degradation | 1–10% | 15m–1h | Primary + Secondary + notify CTO | 15 min to mitigation | Every 5 min |
-| **🔴 RED** | Core service down or audit trail affected | >10% or audit trail down | >1h or data integrity risk | **All hands:** Primary + Secondary + CTO + IC | 5 min to acknowledge, declare IC | Every 5 min |
-| **⚫ BLACK** | Data loss, security breach, legal hold | Any scale | Compliance risk | **All hands + Legal:** CTO + CEO + auditor + legal | 2 min to declare | Every 2–5 min |
+| Severity      | Definition                                | Users Affected           | SLA Impact                 | Paging                                             | ETA                              | Page Frequency |
+| ------------- | ----------------------------------------- | ------------------------ | -------------------------- | -------------------------------------------------- | -------------------------------- | -------------- |
+| **🟢 GREEN**  | Feature degraded, slow, non-critical      | <1%                      | <15 min                    | Primary only                                       | 1h to start investigation        | 15 min initial |
+| **🟡 YELLOW** | Feature down or cascading degradation     | 1–10%                    | 15m–1h                     | Primary + Secondary + notify CTO                   | 15 min to mitigation             | Every 5 min    |
+| **🔴 RED**    | Core service down or audit trail affected | >10% or audit trail down | >1h or data integrity risk | **All hands:** Primary + Secondary + CTO + IC      | 5 min to acknowledge, declare IC | Every 5 min    |
+| **⚫ BLACK**  | Data loss, security breach, legal hold    | Any scale                | Compliance risk            | **All hands + Legal:** CTO + CEO + auditor + legal | 2 min to declare                 | Every 2–5 min  |
 
 ### 1.2 Decision Tree (Laminate & Post at Desk)
 
@@ -79,13 +80,13 @@ Use this matrix to classify incidents in **<30 seconds**. If unsure, escalate up
 
 Gather 4 Primary engineers + 4 Secondary engineers (8 people total minimum).
 
-| Week | Primary | Phone | Email | Secondary | Phone | Email |
-|------|---------|-------|-------|-----------|-------|-------|
+| Week                         | Primary  | Phone | Email | Secondary | Phone | Email |
+| ---------------------------- | -------- | ----- | ----- | --------- | ----- | ----- |
 | W1 (2026-05-20 – 2026-05-26) | [Name A] | [TBD] | [TBD] | [Name A2] | [TBD] | [TBD] |
 | W2 (2026-05-27 – 2026-06-02) | [Name B] | [TBD] | [TBD] | [Name B2] | [TBD] | [TBD] |
 | W3 (2026-06-03 – 2026-06-09) | [Name C] | [TBD] | [TBD] | [Name C2] | [TBD] | [TBD] |
 | W4 (2026-06-10 – 2026-06-16) | [Name D] | [TBD] | [TBD] | [Name D2] | [TBD] | [TBD] |
-| W5+ (Repeat 4-week cycle) | — | — | — | — | — | — |
+| W5+ (Repeat 4-week cycle)    | —        | —     | —     | —         | —     | —     |
 
 **Step 2: Fill in phone & email**
 
@@ -100,6 +101,7 @@ See **Part 2.3** below for iCal template. Edit names and dates, save as `.ics` f
 **Step 4: Handoff schedule**
 
 Every Friday 18:00 BRT, outgoing on-call meets incoming:
+
 - Friday 18:00–19:00: Handoff meeting (Zoom)
 - Friday 19:00–20:00: Wrap-up (answers questions, document open incidents)
 
@@ -234,12 +236,12 @@ END:VCALENDAR
 
 ### 3.2 Channel Purpose & Rules
 
-| Channel | Purpose | Who Joins | Message Rules |
-|---------|---------|-----------|---|
-| `#on-call-paging` | Incident pages only (no chatter) | Primary, Secondary, CTO | ONLY paging notifications + ACK. No comments, no unrelated chatter. Bot auto-archives old incidents weekly. |
-| `#production-alerts` | Status updates, metrics, resolved incidents | Eng team + CTO + CEO + auditor | Incident summaries (Green not posted, Yellow+ posted automatically). Daily metrics digest. Alert rule changes. |
-| `#production-emergency` | Real-time updates for Red/Black incidents | Eng team + CTO + CEO + legal | Minute-by-minute updates during Red/Black. Customer notifications. Escalation decisions. |
-| `#incident-command` | IC weekly handoff + RCA tracking | IC rotation + CTO + team lead | Weekly handoff notes, open RCA actions, post-mortem links. Closed to on-call members (read-only). |
+| Channel                 | Purpose                                     | Who Joins                      | Message Rules                                                                                                  |
+| ----------------------- | ------------------------------------------- | ------------------------------ | -------------------------------------------------------------------------------------------------------------- |
+| `#on-call-paging`       | Incident pages only (no chatter)            | Primary, Secondary, CTO        | ONLY paging notifications + ACK. No comments, no unrelated chatter. Bot auto-archives old incidents weekly.    |
+| `#production-alerts`    | Status updates, metrics, resolved incidents | Eng team + CTO + CEO + auditor | Incident summaries (Green not posted, Yellow+ posted automatically). Daily metrics digest. Alert rule changes. |
+| `#production-emergency` | Real-time updates for Red/Black incidents   | Eng team + CTO + CEO + legal   | Minute-by-minute updates during Red/Black. Customer notifications. Escalation decisions.                       |
+| `#incident-command`     | IC weekly handoff + RCA tracking            | IC rotation + CTO + team lead  | Weekly handoff notes, open RCA actions, post-mortem links. Closed to on-call members (read-only).              |
 
 ### 3.3 Slack Workflow: Incident Page Template
 
@@ -273,36 +275,36 @@ Set up Slack Workflow (Slack Workflow Builder):
 
 **Status:** [ ] INCOMPLETE (awaiting names & phone numbers)
 
-| Week | Period | Primary Name | Phone | Email | Slack Handle |
-|------|--------|------|-------|-------|---|
-| W1 | 2026-05-20 – 2026-05-26 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W2 | 2026-05-27 – 2026-06-02 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W3 | 2026-06-03 – 2026-06-09 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W4 | 2026-06-10 – 2026-06-16 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
+| Week | Period                  | Primary Name | Phone   | Email   | Slack Handle |
+| ---- | ----------------------- | ------------ | ------- | ------- | ------------ |
+| W1   | 2026-05-20 – 2026-05-26 | [NAME]       | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W2   | 2026-05-27 – 2026-06-02 | [NAME]       | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W3   | 2026-06-03 – 2026-06-09 | [NAME]       | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W4   | 2026-06-10 – 2026-06-16 | [NAME]       | [PHONE] | [EMAIL] | @[HANDLE]    |
 
 ### 4.2 On-Call Secondary Rotation
 
 **Status:** [ ] INCOMPLETE (awaiting names & phone numbers)
 
-| Week | Period | Secondary Name | Phone | Email | Slack Handle |
-|------|--------|------|-------|-------|---|
-| W1 | 2026-05-20 – 2026-05-26 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W2 | 2026-05-27 – 2026-06-02 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W3 | 2026-06-03 – 2026-06-09 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
-| W4 | 2026-06-10 – 2026-06-16 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] |
+| Week | Period                  | Secondary Name | Phone   | Email   | Slack Handle |
+| ---- | ----------------------- | -------------- | ------- | ------- | ------------ |
+| W1   | 2026-05-20 – 2026-05-26 | [NAME]         | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W2   | 2026-05-27 – 2026-06-02 | [NAME]         | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W3   | 2026-06-03 – 2026-06-09 | [NAME]         | [PHONE] | [EMAIL] | @[HANDLE]    |
+| W4   | 2026-06-10 – 2026-06-16 | [NAME]         | [PHONE] | [EMAIL] | @[HANDLE]    |
 
 ### 4.3 Leadership & Escalation Contacts
 
 **Status:** [ ] INCOMPLETE (awaiting approval & contact info)
 
-| Role | Name | Phone | Email | Slack | Availability |
-|------|------|-------|-------|-------|---|
-| **CTO** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (emergency); office Mon–Fri 9–18 BRT |
-| **CEO** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (Red/Black only); office Mon–Fri 9–18 BRT |
-| **Clinical Supervisor** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | Office Mon–Fri 7–17 BRT (critical values) |
-| **External Auditor** | [NAME] | [PHONE] | [EMAIL] | — | Office Mon–Fri 9–17 BRT (compliance alerts) |
-| **Infra/DevOps Lead** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (secondary escalation) |
-| **Product Lead** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | Office Mon–Fri 9–18 BRT (customer impact decisions) |
+| Role                    | Name   | Phone   | Email   | Slack     | Availability                                        |
+| ----------------------- | ------ | ------- | ------- | --------- | --------------------------------------------------- |
+| **CTO**                 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (emergency); office Mon–Fri 9–18 BRT           |
+| **CEO**                 | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (Red/Black only); office Mon–Fri 9–18 BRT      |
+| **Clinical Supervisor** | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | Office Mon–Fri 7–17 BRT (critical values)           |
+| **External Auditor**    | [NAME] | [PHONE] | [EMAIL] | —         | Office Mon–Fri 9–17 BRT (compliance alerts)         |
+| **Infra/DevOps Lead**   | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | 24/7 (secondary escalation)                         |
+| **Product Lead**        | [NAME] | [PHONE] | [EMAIL] | @[HANDLE] | Office Mon–Fri 9–18 BRT (customer impact decisions) |
 
 ### 4.4 Escalation Flowchart (Laminate & Post)
 
@@ -341,31 +343,31 @@ Black Severity?
 
 **Team lead action:** For each runbook below, copy `docs/runbooks/RUNBOOK_TEMPLATE.md`, fill in details, and link here.
 
-| Incident Type | Runbook File | Owner (TBD) | Decision Point | Status |
-|---|---|---|---|---|
-| **Error Rate Spike (>1%)** | `error-rate-spike.md` | @[TBD] | Single module or platform-wide? | [ ] PENDING |
-| **P99 Latency (>5s)** | `p99-latency-investigation.md` | @[TBD] | Query, function, or frontend? | [ ] PENDING |
-| **Firestore Quota >80%** | `firestore-quota-breach.md` | @[TBD] | Scale or cleanup? | [ ] PENDING |
-| **Memory/CPU OOM** | `function-memory-leak.md` | @[TBD] | Specific function or general? | [ ] PENDING |
-| **Auth Degradation** | `auth-degradation.md` | @[TBD] | Firebase status red or local? | [ ] PENDING |
-| **Hosting/CDN Down (5xx)** | `hosting-outage.md` | @[TBD] | GCP down or local config? | [ ] PENDING |
-| **Audit Trail Not Recording** | `audit-trail-corruption.md` | @[TBD] | Functions invoked but no events? | [ ] PENDING |
-| **Data Loss / Signature Corruption** | `data-loss-recovery.md` | @[TBD] | 1 doc, 100, or 1000+? | [ ] PENDING |
-| **Security Incident** | `security-breach-response.md` | @[TBD] | Ongoing or past breach? | [ ] PENDING |
-| **Regulatory/Audit Alert** | `regulatory-alert-escalation.md` | @[TBD] | ANVISA, auditor, or customer? | [ ] PENDING |
+| Incident Type                        | Runbook File                     | Owner (TBD) | Decision Point                   | Status      |
+| ------------------------------------ | -------------------------------- | ----------- | -------------------------------- | ----------- |
+| **Error Rate Spike (>1%)**           | `error-rate-spike.md`            | @[TBD]      | Single module or platform-wide?  | [ ] PENDING |
+| **P99 Latency (>5s)**                | `p99-latency-investigation.md`   | @[TBD]      | Query, function, or frontend?    | [ ] PENDING |
+| **Firestore Quota >80%**             | `firestore-quota-breach.md`      | @[TBD]      | Scale or cleanup?                | [ ] PENDING |
+| **Memory/CPU OOM**                   | `function-memory-leak.md`        | @[TBD]      | Specific function or general?    | [ ] PENDING |
+| **Auth Degradation**                 | `auth-degradation.md`            | @[TBD]      | Firebase status red or local?    | [ ] PENDING |
+| **Hosting/CDN Down (5xx)**           | `hosting-outage.md`              | @[TBD]      | GCP down or local config?        | [ ] PENDING |
+| **Audit Trail Not Recording**        | `audit-trail-corruption.md`      | @[TBD]      | Functions invoked but no events? | [ ] PENDING |
+| **Data Loss / Signature Corruption** | `data-loss-recovery.md`          | @[TBD]      | 1 doc, 100, or 1000+?            | [ ] PENDING |
+| **Security Incident**                | `security-breach-response.md`    | @[TBD]      | Ongoing or past breach?          | [ ] PENDING |
+| **Regulatory/Audit Alert**           | `regulatory-alert-escalation.md` | @[TBD]      | ANVISA, auditor, or customer?    | [ ] PENDING |
 
 ### 5.2 Runbook Template (Copy & Fill For Each Incident Type)
 
 **File:** `docs/runbooks/RUNBOOK_TEMPLATE.md`
 
-```markdown
+````markdown
 # Runbook: [Incident Type]
 
 ## Quick Decision Tree
 
-START → Is [condition]? 
-  YES → [Severity Level] → [Primary Action] → Go to "Action Steps"
-  NO → [Alternative Path]
+START → Is [condition]?
+YES → [Severity Level] → [Primary Action] → Go to "Action Steps"
+NO → [Alternative Path]
 
 ## Severity Assessment (30 seconds)
 
@@ -389,6 +391,7 @@ git revert -m 1 <commit-hash>
 firebase deploy --only functions --project hmatologia2
 firebase deploy --only hosting --project hmatologia2
 ```
+````
 
 ## Post-Incident Checklist
 
@@ -396,6 +399,7 @@ firebase deploy --only hosting --project hmatologia2
 - [ ] Tag incident in Slack with #incident-[number]
 - [ ] Notify auditor if compliance-related (Yellow+)
 - [ ] Update this runbook if gaps found
+
 ```
 
 ### 5.3 Runbook Quick Reference (Bookmark & Print)
@@ -403,21 +407,23 @@ firebase deploy --only hosting --project hmatologia2
 **Quick links for on-call:**
 
 ```
-Error Rate Spike:          docs/runbooks/error-rate-spike.md
+
+Error Rate Spike: docs/runbooks/error-rate-spike.md
 P99 Latency Investigation: docs/runbooks/p99-latency-investigation.md
-Firestore Quota Breach:    docs/runbooks/firestore-quota-breach.md
-Function Memory Leak:      docs/runbooks/function-memory-leak.md
-Auth Degradation:          docs/runbooks/auth-degradation.md
-Hosting Outage:            docs/runbooks/hosting-outage.md
-Audit Trail Corruption:    docs/runbooks/audit-trail-corruption.md
-Data Loss Recovery:        docs/runbooks/data-loss-recovery.md
-Security Incident:         docs/runbooks/security-breach-response.md
-Regulatory Alert:          docs/runbooks/regulatory-alert-escalation.md
+Firestore Quota Breach: docs/runbooks/firestore-quota-breach.md
+Function Memory Leak: docs/runbooks/function-memory-leak.md
+Auth Degradation: docs/runbooks/auth-degradation.md
+Hosting Outage: docs/runbooks/hosting-outage.md
+Audit Trail Corruption: docs/runbooks/audit-trail-corruption.md
+Data Loss Recovery: docs/runbooks/data-loss-recovery.md
+Security Incident: docs/runbooks/security-breach-response.md
+Regulatory Alert: docs/runbooks/regulatory-alert-escalation.md
 
 Cloud Logs Console: https://console.cloud.google.com/logs/query
-GCP Project:        hmatologia2
-Region:             southamerica-east1
-Firebase Console:   https://console.firebase.google.com/project/hmatologia2
+GCP Project: hmatologia2
+Region: southamerica-east1
+Firebase Console: https://console.firebase.google.com/project/hmatologia2
+
 ```
 
 ---
@@ -426,54 +432,56 @@ Firebase Console:   https://console.firebase.google.com/project/hmatologia2
 
 ### 6.1 Handoff Meeting Format
 
-**Duration:** 1 hour (Friday 18:00–19:00 BRT)  
-**Attendees:** Outgoing Primary + Secondary, Incoming Primary + Secondary, CTO (optional)  
-**Location:** Zoom [INSERT LINK]  
+**Duration:** 1 hour (Friday 18:00–19:00 BRT)
+**Attendees:** Outgoing Primary + Secondary, Incoming Primary + Secondary, CTO (optional)
+**Location:** Zoom [INSERT LINK]
 **Notes:** Posted in Slack thread (#on-call-paging) within 5 min of meeting end
 
 ### 6.2 Agenda (Copy-Paste & Timebox)
 
 ```
+
 6.1 Handoff Meeting — Friday 18:00–19:00 BRT
 ═══════════════════════════════════════════════════════════
 
 ⏱️ OPEN INCIDENTS (10 min)
-  □ List all open incidents (if any)
-  □ Current state, ETA, action owner
-  □ Incoming on-call reviews mitigation plan
+□ List all open incidents (if any)
+□ Current state, ETA, action owner
+□ Incoming on-call reviews mitigation plan
 
 ⏱️ CRITICAL ALERTS & THRESHOLDS (5 min)
-  □ Firestore quota utilization (alert at >60%)
-  □ Function error rate trend
-  □ Any deploy or config change affecting alerts
+□ Firestore quota utilization (alert at >60%)
+□ Function error rate trend
+□ Any deploy or config change affecting alerts
 
 ⏱️ BASELINE METRICS & LAST 7 DAYS (5 min)
-  □ Uptime % (target >99.5%)
-  □ Incident count split (Green/Yellow/Red/Black)
-  □ MTTR for Yellow+ incidents
-  □ Any patterns or concerns
+□ Uptime % (target >99.5%)
+□ Incident count split (Green/Yellow/Red/Black)
+□ MTTR for Yellow+ incidents
+□ Any patterns or concerns
 
 ⏱️ CONTACT TREE VALIDATION (5 min)
-  □ Verify phone numbers are current
-  □ CTO availability for incoming week
-  □ Escalation contact changes
+□ Verify phone numbers are current
+□ CTO availability for incoming week
+□ Escalation contact changes
 
 ⏱️ RUNBOOK REVIEW & QUESTIONS (10 min)
-  □ Incoming asks questions about runbooks
-  □ Outgoing reviews recent incidents learned from
+□ Incoming asks questions about runbooks
+□ Outgoing reviews recent incidents learned from
 
 ⏱️ SLACK CHANNEL SETUP (5 min)
-  □ Verify #on-call-paging is in incoming workspace
-  □ Test paging: "@incoming-primary, testing 1-2-3"
-  □ Incoming ACKs with ✅
+□ Verify #on-call-paging is in incoming workspace
+□ Test paging: "@incoming-primary, testing 1-2-3"
+□ Incoming ACKs with ✅
 
 ⏱️ CLOSE & DOCUMENT (5 min)
-  □ Outgoing posts in #on-call-paging:
-    "Handoff to [Name] complete. Open incidents: [list]. 
-     CTO this week: [Name]. —[Outgoing Primary]"
-  □ Incoming posts:
-    "Incoming. Briefed on [count] incidents. Ready. 
-     —[Incoming Primary]"
+□ Outgoing posts in #on-call-paging:
+"Handoff to [Name] complete. Open incidents: [list].
+CTO this week: [Name]. —[Outgoing Primary]"
+□ Incoming posts:
+"Incoming. Briefed on [count] incidents. Ready.
+—[Incoming Primary]"
+
 ```
 
 ### 6.3 Open Incident Document Template
@@ -481,43 +489,47 @@ Firebase Console:   https://console.firebase.google.com/project/hmatologia2
 **Create a Slack post in #on-call-paging on Friday 18:00 BRT:**
 
 ```
+
 📋 HANDOFF DOCUMENT — [Outgoing Primary] → [Incoming Primary]
 Date: Friday [DATE] 18:00 BRT
 ═══════════════════════════════════════════════════════════
 
 OPEN INCIDENTS (if any):
-  1. [Incident Title] — Status: [mitigating/monitoring], ETA: [time], Owner: [name]
-  2. [Incident Title] — Status: [resolved/closed], RCA due: [date]
+
+1. [Incident Title] — Status: [mitigating/monitoring], ETA: [time], Owner: [name]
+2. [Incident Title] — Status: [resolved/closed], RCA due: [date]
 
 METRICS (Last 7 Days):
-  • Uptime: [%]
-  • Incidents: Green [#] | Yellow [#] | Red [#] | Black [#]
-  • MTTR (Yellow+): [minutes]
-  • Spike events: [if any]
+• Uptime: [%]
+• Incidents: Green [#] | Yellow [#] | Red [#] | Black [#]
+• MTTR (Yellow+): [minutes]
+• Spike events: [if any]
 
 CRITICAL ALERTS TO MONITOR THIS WEEK:
-  • Firestore quota at [%] (alert if >80%)
-  • Function error rate at [%]
-  • [Any other critical metric]
+• Firestore quota at [%] (alert if >80%)
+• Function error rate at [%]
+• [Any other critical metric]
 
 CTO AVAILABILITY (Next Week):
-  • Available: [days/times]
-  • Blocked: [dates — vacation, meetings]
+• Available: [days/times]
+• Blocked: [dates — vacation, meetings]
 
 LESSONS FROM THIS WEEK:
-  • [Incident + learned rule]
-  • [Incident + learned rule]
+• [Incident + learned rule]
+• [Incident + learned rule]
 
 RUNBOOK UPDATES NEEDED:
-  • [Runbook title] — reason: [...]
+• [Runbook title] — reason: [...]
 
 QUESTIONS FOR INCOMING:
-  • [Ask here if anything unclear]
+• [Ask here if anything unclear]
 
 ---
+
 Signed: [Outgoing Primary]
 Acknowledged: [Incoming Primary] — ✅ Ready to take over
-```
+
+````
 
 ---
 
@@ -539,11 +551,11 @@ Acknowledged: [Incoming Primary] — ✅ Ready to take over
 ```markdown
 # Post-Mortem: [Incident Title]
 
-**Incident ID:** IC-[0001]  
-**Date:** [DATE]  
-**Resolved:** [DATE TIME]  
-**Duration:** [X min Y sec]  
-**Severity:** 🟢/🟡/🔴/⚫  
+**Incident ID:** IC-[0001]
+**Date:** [DATE]
+**Resolved:** [DATE TIME]
+**Duration:** [X min Y sec]
+**Severity:** 🟢/🟡/🔴/⚫
 
 ---
 
@@ -581,28 +593,28 @@ Acknowledged: [Incoming Primary] — ✅ Ready to take over
 2. [Action taken]
 3. [Action taken]
 
-**Data Loss:** [0/N documents affected]  
-**Customer Impact:** [Impact duration]  
+**Data Loss:** [0/N documents affected]
+**Customer Impact:** [Impact duration]
 
 ---
 
 ## 5. Short-Term Fix (Deploy Within 1 Week)
 
-**Action:** [What to fix]  
-**Owner:** @[name]  
-**PR:** [LINK]  
-**Testing:** [Test approach]  
-**Deploy:** [Date]  
+**Action:** [What to fix]
+**Owner:** @[name]
+**PR:** [LINK]
+**Testing:** [Test approach]
+**Deploy:** [Date]
 **Success Criteria:** [Measurable outcome]
 
 ---
 
 ## 6. Long-Term Prevention (Architectural Fix)
 
-**Action:** [What to change in the system]  
-**Owner:** @[name]  
-**Change Details:** [Implementation notes]  
-**Deploy Window:** [Date]  
+**Action:** [What to change in the system]
+**Owner:** @[name]
+**Change Details:** [Implementation notes]
+**Deploy Window:** [Date]
 **Success Criteria:** [Measurable prevention]
 
 ---
@@ -639,11 +651,12 @@ Acknowledged: [Incoming Primary] — ✅ Ready to take over
 - [ ] Date Approved: [DATE]
 
 **Status:** Draft / Approved
-```
+````
 
 ### 7.3 RCA Scheduling (Team Lead Responsibility)
 
 **Within 24 hours of Red incident:**
+
 1. Open `incidents/` directory
 2. Create new file: `incidents/[INCIDENT-ID]-postmortem.md` (copy template above)
 3. Schedule meeting: Incident Commander + Primary Engineer + CTO + relevant on-call
@@ -826,16 +839,17 @@ Slack #prod-*:    [Workspace name]
 - [ ] **Verify Cloud Logs access** for on-call members (test query)
 - [ ] **Verify Firebase Console access** for on-call members
 - [ ] **Post "Go Live" message** in `#on-call-paging`:
+
   ```
   🚀 HC QUALITY V1.4 LAUNCH — ON-CALL ACTIVE
-  
+
   W1 (2026-05-20 – 2026-05-26)
   Primary: [Name A] — @[handle]
   Secondary: [Name A2] — @[handle]
-  
+
   Status: 🟢 All systems nominal. Monitoring active.
   Handoff: Friday 2026-05-24 18:00 BRT
-  
+
   If incident: Use /incident-page shortcut or post format:
   🔔 @on-call-primary — INCIDENT PAGE
   [SEVERITY]: [SERVICE]
@@ -885,16 +899,17 @@ Slack #prod-*:    [Workspace name]
 
 **Track these metrics weekly; review in `#incident-command`:**
 
-| Metric | Target | Yellow Alert | Red Alert |
-|--------|--------|--------------|-----------|
-| Uptime | >99.5% | <99.5% | <99% |
-| Incident Count (Yellow+/week) | <2 | ≥2 | ≥5 |
-| MTTR (Yellow+, minutes) | <45 | >60 | >120 |
-| Primary ACK Time (minutes) | <5 | >10 | >15 |
-| Post-mortem Delay (hours) | <48 | >48 | >72 |
-| Team Sentiment (1–5) | ≥4 | 3 | <3 |
+| Metric                        | Target | Yellow Alert | Red Alert |
+| ----------------------------- | ------ | ------------ | --------- |
+| Uptime                        | >99.5% | <99.5%       | <99%      |
+| Incident Count (Yellow+/week) | <2     | ≥2           | ≥5        |
+| MTTR (Yellow+, minutes)       | <45    | >60          | >120      |
+| Primary ACK Time (minutes)    | <5     | >10          | >15       |
+| Post-mortem Delay (hours)     | <48    | >48          | >72       |
+| Team Sentiment (1–5)          | ≥4     | 3            | <3        |
 
 **Actions if metric misses:**
+
 - Yellow: Discuss in next handoff; plan improvement
 - Red: Escalate to CTO; adjust rotation or process
 
@@ -1012,9 +1027,9 @@ CTO Approval: _______________________ Date: __________
 
 ## Document Revision History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-05-07 | CTO | Initial creation — ready for team lead execution |
+| Version | Date       | Author | Changes                                          |
+| ------- | ---------- | ------ | ------------------------------------------------ |
+| 1.0     | 2026-05-07 | CTO    | Initial creation — ready for team lead execution |
 
 **Next Review:** 2026-06-30 (post-stabilization, Phase 1 complete)
 

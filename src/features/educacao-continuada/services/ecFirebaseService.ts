@@ -80,8 +80,7 @@ const EC_ROOT = 'educacaoContinuada';
  * apenas como âncora de subcoleções. Rules impedem leitura/escrita fora do
  * próprio labId.
  */
-const labRootDoc = (labId: LabId): DocumentReference =>
-  doc(db, EC_ROOT, labId);
+const labRootDoc = (labId: LabId): DocumentReference => doc(db, EC_ROOT, labId);
 
 export const colaboradoresCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'colaboradores');
@@ -123,10 +122,7 @@ function mapColaborador(snap: QueryDocumentSnapshot): Colaborador {
  * `criadoEm` e `deletadoEm` — o caller envia apenas campos de negócio via
  * `ColaboradorInput`. Retorna o ID gerado pelo Firestore.
  */
-export async function createColaborador(
-  labId: LabId,
-  input: ColaboradorInput,
-): Promise<string> {
+export async function createColaborador(labId: LabId, input: ColaboradorInput): Promise<string> {
   await ensureLabRoot(labId);
   const ref = doc(colaboradoresCol(labId));
   await setDoc(ref, {
@@ -171,10 +167,7 @@ export async function updateColaborador(
  * Deleção lógica (RN-06). Marca `deletadoEm` com timestamp do servidor.
  * Nunca remove o documento — mantém guarda de 5 anos (RDC 978/2025).
  */
-export async function softDeleteColaborador(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteColaborador(labId: LabId, id: string): Promise<void> {
   await updateDoc(colaboradorDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
@@ -182,10 +175,7 @@ export async function softDeleteColaborador(
 }
 
 /** Reverte deleção lógica. */
-export async function restoreColaborador(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function restoreColaborador(labId: LabId, id: string): Promise<void> {
   await updateDoc(colaboradorDoc(labId, id), { deletadoEm: null });
   void logAuditEvent({ action: 'RESTORE_COLABORADOR', labId, targetId: id });
 }
@@ -221,9 +211,7 @@ export function subscribeColaboradores(
     q,
     (snap) => {
       const all = snap.docs.map(mapColaborador);
-      const filtered = options.includeDeleted
-        ? all
-        : all.filter((c) => c.deletadoEm === null);
+      const filtered = options.includeDeleted ? all : all.filter((c) => c.deletadoEm === null);
       callback(filtered);
     },
     (err) => onError?.(err),
@@ -267,10 +255,7 @@ function mapTreinamento(snap: QueryDocumentSnapshot): Treinamento {
   };
 }
 
-export async function createTreinamento(
-  labId: LabId,
-  input: TreinamentoInput,
-): Promise<string> {
+export async function createTreinamento(labId: LabId, input: TreinamentoInput): Promise<string> {
   await ensureLabRoot(labId);
   const ref = doc(treinamentosCol(labId));
   // `ignoreUndefinedProperties: true` está setado em firebase.config.ts — campos
@@ -323,20 +308,14 @@ export async function updateTreinamento(
   });
 }
 
-export async function softDeleteTreinamento(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteTreinamento(labId: LabId, id: string): Promise<void> {
   await updateDoc(treinamentoDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
   void logAuditEvent({ action: 'SOFT_DELETE_TREINAMENTO', labId, targetId: id });
 }
 
-export async function restoreTreinamento(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function restoreTreinamento(labId: LabId, id: string): Promise<void> {
   await updateDoc(treinamentoDoc(labId, id), { deletadoEm: null });
   void logAuditEvent({ action: 'RESTORE_TREINAMENTO', labId, targetId: id });
 }
@@ -370,9 +349,7 @@ export function subscribeTreinamentos(
     q,
     (snap) => {
       const all = snap.docs.map(mapTreinamento);
-      let filtered = options.includeDeleted
-        ? all
-        : all.filter((t) => t.deletadoEm === null);
+      let filtered = options.includeDeleted ? all : all.filter((t) => t.deletadoEm === null);
       if (options.tipo) filtered = filtered.filter((t) => t.tipo === options.tipo);
       callback(filtered);
     },
@@ -385,8 +362,7 @@ export function subscribeTreinamentos(
 export const execucoesCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'execucoes');
 
-const execucaoDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(execucoesCol(labId), id);
+const execucaoDoc = (labId: LabId, id: string): DocumentReference => doc(execucoesCol(labId), id);
 
 function mapExecucao(snap: QueryDocumentSnapshot): Execucao {
   const d = snap.data();
@@ -427,10 +403,7 @@ function execucaoPayload(input: ExecucaoInput): Record<string, unknown> {
   return base;
 }
 
-export async function createExecucao(
-  labId: LabId,
-  input: ExecucaoInput,
-): Promise<string> {
+export async function createExecucao(labId: LabId, input: ExecucaoInput): Promise<string> {
   await ensureLabRoot(labId);
   const ref = doc(execucoesCol(labId));
   await setDoc(ref, {
@@ -450,19 +423,13 @@ export async function updateExecucao(
   await updateDoc(execucaoDoc(labId, id), { ...patch });
 }
 
-export async function softDeleteExecucao(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteExecucao(labId: LabId, id: string): Promise<void> {
   await updateDoc(execucaoDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
 }
 
-export async function restoreExecucao(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function restoreExecucao(labId: LabId, id: string): Promise<void> {
   await updateDoc(execucaoDoc(labId, id), { deletadoEm: null });
 }
 
@@ -529,10 +496,7 @@ function mapParticipante(snap: QueryDocumentSnapshot): Participante {
   };
 }
 
-export async function softDeleteParticipante(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteParticipante(labId: LabId, id: string): Promise<void> {
   await updateDoc(participanteDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
@@ -612,19 +576,13 @@ function mapAvaliacaoEficacia(snap: QueryDocumentSnapshot): AvaliacaoEficacia {
 // Criação via `ec_registrarAvaliacaoEficacia`, transição de fechamento via
 // `ec_fecharAvaliacaoEficacia`. Soft-delete/restore seguem abaixo.
 
-export async function softDeleteAvaliacaoEficacia(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteAvaliacaoEficacia(labId: LabId, id: string): Promise<void> {
   await updateDoc(avaliacaoEficaciaDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
 }
 
-export async function restoreAvaliacaoEficacia(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function restoreAvaliacaoEficacia(labId: LabId, id: string): Promise<void> {
   await updateDoc(avaliacaoEficaciaDoc(labId, id), { deletadoEm: null });
 }
 
@@ -684,19 +642,13 @@ function mapAvaliacaoCompetencia(snap: QueryDocumentSnapshot): AvaliacaoCompeten
 // Criação via `ec_registrarAvaliacaoCompetencia` (server auto-injeta
 // avaliadorId, valida FK Participante.presente). Soft-delete/restore abaixo.
 
-export async function softDeleteAvaliacaoCompetencia(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteAvaliacaoCompetencia(labId: LabId, id: string): Promise<void> {
   await updateDoc(avaliacaoCompetenciaDoc(labId, id), {
     deletadoEm: serverTimestamp(),
   });
 }
 
-export async function restoreAvaliacaoCompetencia(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function restoreAvaliacaoCompetencia(labId: LabId, id: string): Promise<void> {
   await updateDoc(avaliacaoCompetenciaDoc(labId, id), { deletadoEm: null });
 }
 
@@ -720,7 +672,8 @@ export function subscribeAvaliacoesCompetencia(
       let list = snap.docs.map(mapAvaliacaoCompetencia);
       if (!options.includeDeleted) list = list.filter((a) => a.deletadoEm === null);
       if (options.execucaoId) list = list.filter((a) => a.execucaoId === options.execucaoId);
-      if (options.colaboradorId) list = list.filter((a) => a.colaboradorId === options.colaboradorId);
+      if (options.colaboradorId)
+        list = list.filter((a) => a.colaboradorId === options.colaboradorId);
       list.sort((a, b) => b.dataAvaliacao.toMillis() - a.dataAvaliacao.toMillis());
       callback(list);
     },
@@ -777,7 +730,8 @@ export function subscribeAlertasVencimento(
     (snap) => {
       let list = snap.docs.map(mapAlertaVencimento);
       if (options.status) list = list.filter((a) => a.status === options.status);
-      if (options.treinamentoId) list = list.filter((a) => a.treinamentoId === options.treinamentoId);
+      if (options.treinamentoId)
+        list = list.filter((a) => a.treinamentoId === options.treinamentoId);
       callback(list);
     },
     (err) => onError?.(err),
@@ -789,8 +743,7 @@ export function subscribeAlertasVencimento(
 export const templatesCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'templates');
 
-const templateDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(templatesCol(labId), id);
+const templateDoc = (labId: LabId, id: string): DocumentReference => doc(templatesCol(labId), id);
 
 function mapTemplate(snap: QueryDocumentSnapshot): TemplateTreinamento {
   const d = snap.data();
@@ -903,8 +856,7 @@ export function subscribeTemplates(
 export const kitsCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'kitsIntegracao');
 
-const kitDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(kitsCol(labId), id);
+const kitDoc = (labId: LabId, id: string): DocumentReference => doc(kitsCol(labId), id);
 
 function mapKit(snap: QueryDocumentSnapshot): KitIntegracao {
   const d = snap.data();
@@ -1052,8 +1004,7 @@ export async function deleteMaterialFromStorage(storagePath: string): Promise<vo
 export const trilhasCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'trilhas');
 
-const trilhaDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(trilhasCol(labId), id);
+const trilhaDoc = (labId: LabId, id: string): DocumentReference => doc(trilhasCol(labId), id);
 
 function mapTrilha(snap: QueryDocumentSnapshot): TrilhaAprendizado {
   const d = snap.data();
@@ -1070,10 +1021,7 @@ function mapTrilha(snap: QueryDocumentSnapshot): TrilhaAprendizado {
   };
 }
 
-export async function createTrilha(
-  labId: LabId,
-  input: TrilhaAprendizadoInput,
-): Promise<string> {
+export async function createTrilha(labId: LabId, input: TrilhaAprendizadoInput): Promise<string> {
   await ensureLabRoot(labId);
   const ref = doc(trilhasCol(labId));
   await setDoc(ref, {
@@ -1177,10 +1125,7 @@ export async function updateProgressoTrilha(
   await updateDoc(progressoTrilhaDoc(labId, id), { ...patch });
 }
 
-export async function softDeleteProgressoTrilha(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteProgressoTrilha(labId: LabId, id: string): Promise<void> {
   await updateDoc(progressoTrilhaDoc(labId, id), { deletadoEm: serverTimestamp() });
 }
 
@@ -1203,7 +1148,8 @@ export function subscribeProgressos(
     (snap) => {
       let list = snap.docs.map(mapProgresso);
       if (!options.includeDeleted) list = list.filter((p) => p.deletadoEm === null);
-      if (options.colaboradorId) list = list.filter((p) => p.colaboradorId === options.colaboradorId);
+      if (options.colaboradorId)
+        list = list.filter((p) => p.colaboradorId === options.colaboradorId);
       if (options.trilhaId) list = list.filter((p) => p.trilhaId === options.trilhaId);
       if (options.status) list = list.filter((p) => p.status === options.status);
       list.sort((a, b) => b.dataInicio.toMillis() - a.dataInicio.toMillis());
@@ -1303,7 +1249,8 @@ export function subscribeAvaliacoesTeste(
     (snap) => {
       let list = snap.docs.map(mapAvaliacaoTeste);
       if (options.execucaoId) list = list.filter((a) => a.execucaoId === options.execucaoId);
-      if (options.colaboradorId) list = list.filter((a) => a.colaboradorId === options.colaboradorId);
+      if (options.colaboradorId)
+        list = list.filter((a) => a.colaboradorId === options.colaboradorId);
       list.sort((a, b) => b.iniciadoEm.toMillis() - a.iniciadoEm.toMillis());
       callback(list);
     },
@@ -1389,8 +1336,10 @@ export function subscribeCertificados(
     q,
     (snap) => {
       let list = snap.docs.map(mapCertificado);
-      if (options.colaboradorId) list = list.filter((c) => c.colaboradorId === options.colaboradorId);
-      if (options.treinamentoId) list = list.filter((c) => c.treinamentoId === options.treinamentoId);
+      if (options.colaboradorId)
+        list = list.filter((c) => c.colaboradorId === options.colaboradorId);
+      if (options.treinamentoId)
+        list = list.filter((c) => c.treinamentoId === options.treinamentoId);
       list.sort((a, b) => b.emitidoEm.toMillis() - a.emitidoEm.toMillis());
       callback(list);
     },

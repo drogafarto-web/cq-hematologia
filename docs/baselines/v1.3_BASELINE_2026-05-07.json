@@ -3,7 +3,7 @@
   "capturedAt": "2026-05-07T00:00:00Z",
   "purpose": "v1.3 Baseline metrics for Phase 12 optimization comparison (pre-v1.4 optimizations)",
   "phase": "3-complete-v1.3-live",
-  
+
   "web_vitals": {
     "summary": {
       "lcp_target_ms": 2500,

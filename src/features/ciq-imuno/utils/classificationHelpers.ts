@@ -1,4 +1,8 @@
-import { ImunoResult, ImunoIAClassification, ImunoIADatasetRecord } from '../strip-classifier/types';
+import {
+  ImunoResult,
+  ImunoIAClassification,
+  ImunoIADatasetRecord,
+} from '../strip-classifier/types';
 
 /**
  * Parses confidence score from Gemini response, normalizing to 0–1 range.

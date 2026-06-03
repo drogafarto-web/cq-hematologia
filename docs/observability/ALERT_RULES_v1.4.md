@@ -20,14 +20,14 @@ Without alerts, these are silent. This file is the canonical source-of-truth for
 
 ## Alert Inventory (summary)
 
-| ID | Name | Severity | Trigger | Page |
-|----|------|----------|---------|------|
-| **A1** | Audit log fallback engaged | WARNING | `[writeAuditLog] FAILED after retries` > 3 in 1h | On-call eng |
-| **A2** | Críticos SLA breach (RDC 978 Art. 5.7.1) | ERROR | `criticos-escalacao` SLA > 60min | RT + on-call |
-| **A3** | IA-strip consent gate violation | ERROR | `consent-not-captured` `HttpsError` | DPO + RT |
-| **A4** | HMAC chain break (ADR-0017) | CRITICAL | `[generateChainHash] previous hash mismatch` | CTO + RT (immediate) |
-| **A5** | Twilio SMS failure rate >10% | WARNING | SMS errors / SMS attempts > 0.1 in 5min | On-call eng |
-| **A6** | LGPD Art. 9 — Gemini call without consent (belt-and-suspenders) | CRITICAL | Gemini outbound without prior `imuno-ia-guardrails` event | DPO + CTO |
+| ID     | Name                                                            | Severity | Trigger                                                   | Page                 |
+| ------ | --------------------------------------------------------------- | -------- | --------------------------------------------------------- | -------------------- |
+| **A1** | Audit log fallback engaged                                      | WARNING  | `[writeAuditLog] FAILED after retries` > 3 in 1h          | On-call eng          |
+| **A2** | Críticos SLA breach (RDC 978 Art. 5.7.1)                        | ERROR    | `criticos-escalacao` SLA > 60min                          | RT + on-call         |
+| **A3** | IA-strip consent gate violation                                 | ERROR    | `consent-not-captured` `HttpsError`                       | DPO + RT             |
+| **A4** | HMAC chain break (ADR-0017)                                     | CRITICAL | `[generateChainHash] previous hash mismatch`              | CTO + RT (immediate) |
+| **A5** | Twilio SMS failure rate >10%                                    | WARNING  | SMS errors / SMS attempts > 0.1 in 5min                   | On-call eng          |
+| **A6** | LGPD Art. 9 — Gemini call without consent (belt-and-suspenders) | CRITICAL | Gemini outbound without prior `imuno-ia-guardrails` event | DPO + CTO            |
 
 **Notification channels (must exist in Cloud Console before policies bind):**
 
@@ -276,6 +276,7 @@ gcloud alpha monitoring policies create \
 **This requires a custom metric + cross-correlation.** Two implementation options:
 
 **Option A — Egress audit (preferred):** A scheduled function `geminiEgressAudit` (runs every 15 min) that:
+
 1. Reads recent (last 30 min) Gemini-related egress logs from VPC Service Controls / Cloud Functions invoking `generativelanguage.googleapis.com`.
 2. For each Gemini call, checks that an `imuno-ia-guardrails/{labId}/events/{captureId}` event exists with `event == 'guardrail-check-passed'` within 60s prior.
 3. If a Gemini call has no matching guardrail event → emits `[geminiEgressAudit] CONSENT_BYPASS` and increments custom metric `custom.googleapis.com/lgpd/gemini_bypass_count`.
@@ -322,14 +323,14 @@ gcloud alpha monitoring policies create \
 
 ## Custom-metric / new-function dependencies (recap)
 
-| Alert | Custom metric | New function needed | Status |
-|-------|---------------|---------------------|--------|
-| A1 | none (log-based) | none | READY |
-| A2 | `custom.googleapis.com/criticos/sla_breach_count` | `criticosSlaProbe` (5-min cron) | DRAFT — Wave 3 |
-| A3 | none (log-based) | none | READY |
-| A4 | none (log-based) | none | READY |
-| A5 | log-based ratio (`gcloud logging metrics create`) | none | DRAFT — define metric first |
-| A6 | `custom.googleapis.com/lgpd/gemini_bypass_count` | `geminiEgressAudit` (15-min cron) | DRAFT — Wave 3 |
+| Alert | Custom metric                                     | New function needed               | Status                      |
+| ----- | ------------------------------------------------- | --------------------------------- | --------------------------- |
+| A1    | none (log-based)                                  | none                              | READY                       |
+| A2    | `custom.googleapis.com/criticos/sla_breach_count` | `criticosSlaProbe` (5-min cron)   | DRAFT — Wave 3              |
+| A3    | none (log-based)                                  | none                              | READY                       |
+| A4    | none (log-based)                                  | none                              | READY                       |
+| A5    | log-based ratio (`gcloud logging metrics create`) | none                              | DRAFT — define metric first |
+| A6    | `custom.googleapis.com/lgpd/gemini_bypass_count`  | `geminiEgressAudit` (15-min cron) | DRAFT — Wave 3              |
 
 **3 of 6 alerts (A1, A3, A4) are READY to provision today.** A2, A5, A6 require a small follow-up before binding.
 

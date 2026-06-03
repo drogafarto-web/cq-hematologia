@@ -89,36 +89,21 @@ export const NotivisaPayloadValidationSchema = z.object({
     .number()
     .int()
     .positive('Timestamp must be positive')
-    .refine(
-      (ts) => ts <= Date.now(),
-      'Result date cannot be in future'
-    )
+    .refine((ts) => ts <= Date.now(), 'Result date cannot be in future')
     .describe('Result date (Unix timestamp, ms)'),
   resultados: z
     .array(
       z.object({
-        analito: z
-          .string()
-          .min(1)
-          .max(256)
-          .describe('Test name / analyte'),
+        analito: z.string().min(1).max(256).describe('Test name / analyte'),
         valor: z
           .union([
             z.number().describe('Numeric result'),
-            z.string().describe('Coded result (e.g., positive/negative)')
+            z.string().describe('Coded result (e.g., positive/negative)'),
           ])
           .describe('Test result value'),
-        unidade: z
-          .string()
-          .min(1)
-          .max(32)
-          .describe('Unit of measurement'),
-        referencia: z
-          .string()
-          .max(256)
-          .optional()
-          .describe('Reference range')
-      })
+        unidade: z.string().min(1).max(32).describe('Unit of measurement'),
+        referencia: z.string().max(256).optional().describe('Reference range'),
+      }),
     )
     .min(1, 'At least one result required')
     .describe('Array of test results'),
@@ -128,21 +113,14 @@ export const NotivisaPayloadValidationSchema = z.object({
       .regex(/^\d{11}$/, 'Operator CPF must be 11 digits')
       .refine((cpf) => isValidCPF(cpf), 'Operator CPF checksum invalid')
       .describe('Responsible operator CPF'),
-    nome: z
-      .string()
-      .min(1)
-      .max(256)
-      .describe('Operator full name'),
+    nome: z.string().min(1).max(256).describe('Operator full name'),
     data_assinatura: z
       .number()
       .int()
       .positive('Signature timestamp must be positive')
-      .refine(
-        (ts) => ts <= Date.now(),
-        'Signature date cannot be in future'
-      )
-      .describe('Signature timestamp (Unix ms)')
-  })
+      .refine((ts) => ts <= Date.now(), 'Signature date cannot be in future')
+      .describe('Signature timestamp (Unix ms)'),
+  }),
 });
 
 export type NotivisaPayloadValidation = z.infer<typeof NotivisaPayloadValidationSchema>;
@@ -179,7 +157,7 @@ export async function validateNotivisaPayload(
     forceExamCode?: boolean;
     labId?: string;
     db?: admin.firestore.Firestore;
-  } = {}
+  } = {},
 ): Promise<PayloadValidationResult> {
   const errors: PayloadValidationResult['errors'] = [];
   const warnings: PayloadValidationResult['warnings'] = [];
@@ -193,14 +171,14 @@ export async function validateNotivisaPayload(
         errors.push({
           field: issue.path.join('.') || 'payload',
           code: issue.code,
-          message: issue.message
+          message: issue.message,
         });
       });
     }
     return {
       valid: false,
       errors,
-      warnings
+      warnings,
     };
   }
 
@@ -218,13 +196,13 @@ export async function validateNotivisaPayload(
           warnings.push({
             field: 'resultados[0].analito',
             code: 'UNREGISTERED_EXAM',
-            message: `Exam '${analito}' not in current ANVISA registry. Override with force=true if this is new/experimental.`
+            message: `Exam '${analito}' not in current ANVISA registry. Override with force=true if this is new/experimental.`,
           });
         } else {
           errors.push({
             field: 'resultados[0].analito',
             code: 'INVALID_EXAM_CODE',
-            message: `Exam '${analito}' not recognized. Use force=true to override.`
+            message: `Exam '${analito}' not recognized. Use force=true to override.`,
           });
         }
       }
@@ -241,7 +219,7 @@ export async function validateNotivisaPayload(
         errors.push({
           field: 'labId',
           code: 'LAB_NOT_FOUND',
-          message: `Lab '${options.labId}' not found in database`
+          message: `Lab '${options.labId}' not found in database`,
         });
       }
     } catch (err) {
@@ -256,17 +234,18 @@ export async function validateNotivisaPayload(
       errors.push({
         field: 'assinador.data_assinatura',
         code: 'SIGNATURE_DATE_BEFORE_RESULT',
-        message: 'Signature date cannot be before result date'
+        message: 'Signature date cannot be before result date',
       });
     }
 
     // Warning: signature far in past (>7 days)
-    const daysSinceSignature = (Date.now() - data.assinador.data_assinatura) / (24 * 60 * 60 * 1000);
+    const daysSinceSignature =
+      (Date.now() - data.assinador.data_assinatura) / (24 * 60 * 60 * 1000);
     if (daysSinceSignature > 7) {
       warnings.push({
         field: 'assinador.data_assinatura',
         code: 'STALE_SIGNATURE',
-        message: `Signature is ${Math.round(daysSinceSignature)} days old. RT re-approval recommended.`
+        message: `Signature is ${Math.round(daysSinceSignature)} days old. RT re-approval recommended.`,
       });
     }
   }
@@ -276,7 +255,7 @@ export async function validateNotivisaPayload(
     errors.push({
       field: 'resultados',
       code: 'NO_RESULTS',
-      message: 'Laudo must contain at least one result'
+      message: 'Laudo must contain at least one result',
     });
   }
 
@@ -289,7 +268,7 @@ export async function validateNotivisaPayload(
         warnings.push({
           field: `resultados[${idx}].valor`,
           code: 'UNUSUAL_CODED_VALUE',
-          message: `Coded value '${result.valor}' not in standard list. Government may not recognize it.`
+          message: `Coded value '${result.valor}' not in standard list. Government may not recognize it.`,
         });
       }
     }
@@ -298,7 +277,7 @@ export async function validateNotivisaPayload(
   return {
     valid: errors.length === 0,
     errors,
-    warnings
+    warnings,
   };
 }
 
@@ -308,12 +287,12 @@ export async function validateNotivisaPayload(
 
 export async function validateNotivisaPayloadBatch(
   payloads: unknown[],
-  options: Parameters<typeof validateNotivisaPayload>[1] = {}
+  options: Parameters<typeof validateNotivisaPayload>[1] = {},
 ): Promise<Array<{ index: number; result: PayloadValidationResult }>> {
   return Promise.all(
     payloads.map(async (payload, index) => ({
       index,
-      result: await validateNotivisaPayload(payload, options)
-    }))
+      result: await validateNotivisaPayload(payload, options),
+    })),
   );
 }

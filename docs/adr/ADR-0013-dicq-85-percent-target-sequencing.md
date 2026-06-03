@@ -13,6 +13,7 @@
 v1.3 alcançou ~78–82% de conformidade DICQ (Diretrizes Integradas de Conformidade da Qualidade, SBAC), equivalente a ~456/570 requisitos. Meta é alcançar 85%+ (que alinha com RDC 978 threshold de 80% + margem de compliance premium) até v1.4 EOL (2026-09-30).
 
 DICQ tem 10 blocos (A–J, ~570 requisitos totais):
+
 - **Block A (Governança):** 78% (v1.3) → target 90% (v1.4)
 - **Block B (SGD / Documentos):** 65% → target 92%
 - **Block C (Pessoal):** 80% → target 92%
@@ -43,6 +44,7 @@ Dois riscos conflitantes:
 ### 1. Wave 1 (Weeks 1–3): Foundation (RDC 978 Art. 117 bloqueadores)
 
 **Phase 1–3 (sequencial; critical path):**
+
 - Phase 1: v1.3 stabilization + baseline DICQ audit (what's at 78–82%?).
 - Phase 2: v1.4 requirements + roadmap deep-dive (which gaps block DICQ 85%?).
 - Phase 3: Schema extensions + Firestore Rules v1.4 (infra ready).
@@ -59,19 +61,23 @@ Dois riscos conflitantes:
 **Parallel phases (Streams B+C execute simultaneously):**
 
 **Phase 4 — CAPA Closure (Stream A)** [sequential, depends on auditor]
+
 - Close 12 CAPAs from Phase 7 audit (v1.3 Finding backlog).
 - Blocks: Blocks A, C jump significantly (management review evidence + personnel qualifications).
 - Target: **Blocks A, C → 86%** (from 78%, 80%).
 
 **Phase 5 — Patient Portal Phase 1 (Stream B)** [parallel to Phase 4]
+
 - Laudo download + NPS feedback form.
 - Blocks: Block G (pós-analítico) → 85% (from 70%).
 
 **Phase 6 — Critical Values Escalation (Stream B)** [parallel to Phase 4]
+
 - SMS/email notification + SLA tracking.
 - Blocks: Block G → 88% (from 70%), Block I → 65% (from 50%).
 
 **Phase 7 — Satisfação/Feedback Portal (Stream B)** [sequential to Phase 5-6; no new DICQ impact]
+
 - Integration with satisfacao/sugestoes.
 - Blocks: Block H → 82% (from 75%).
 
@@ -86,18 +92,22 @@ Dois riscos conflitantes:
 **Parallel phases (all 4 streams active):**
 
 **Phase 8 — NOTIVISA Integration (Stream A)**
+
 - Portaria 204 compliance.
 - Blocks: Block G → 92% (from 88%), Block I → 80% (from 65%).
 
 **Phase 9 — Documentation Hardening (Stream A)**
+
 - Manual da Qualidade, Policy documents, governance checklist.
 - Blocks: Blocks A, B, D, E → 86%, 92%, 80%, 75% respectively.
 
 **Phase 10 — Multi-Equipment CIQ + Analyte Expansion (Stream B)**
+
 - Coagulação, Imunologia, Uroanálise analytes.
 - Blocks: Block F → 98% (from 92%), Block E → 85% (from 75%).
 
 **Phase 11 — IA Foundation (Strip OCR) (Stream C)**
+
 - Gemini Vision integration + dataset collection.
 - Blocks: Block F → 99% (IA-enhanced analytics).
 
@@ -112,18 +122,22 @@ Dois riscos conflitantes:
 **Sequential phases (not parallel; depends on Wave 3):**
 
 **Phase 12 — Performance Audit (Stream D)**
+
 - Web Vitals compliance, bundle size, runtime optimization.
 - Blocks: No DICQ impact; quality assurance.
 
 **Phase 13 — DICQ Final Audit (Stream A + external reviewer)**
+
 - Formal gap closure on all DICQ blocks A–J.
 - Target: **85%+** (should be achieved by Week 15; Phase 13 is confirmation + documentation).
 
 **Phase 14 — Pre-Launch Security & Stability (Stream D)**
+
 - Firestore Rules re-audit, dependency scan, smoke tests on staging.
 - Blocks: No DICQ impact; release readiness.
 
 **Phase 15 — v1.4 Launch & Monitoring (all streams)**
+
 - Production deployment + 48h cloud logs tail.
 - Blocks: No DICQ impact; operational handoff.
 
@@ -133,19 +147,19 @@ Dois riscos conflitantes:
 
 ### 5. Sequencing Decision Matrix
 
-| Block | Wave 2 Target | Wave 3 Refinement | Wave 4 Lock | Phase(s) |
-|---|---|---|---|---|
-| A (Governança) | 86% | +4% (Phase 9) | 90% | 4, 9 |
-| B (SGD) | 65% | +27% (Phase 9) | 92% | 9 |
-| C (Pessoal) | 90% | 0% | 90% | 4 |
-| D (Qualidade/Riscos) | 60% | +20% (Phase 9) | 80% | 9 |
-| E (Pré-analítico) | 64% | +21% (Phase 10) | 85% | 10 |
-| F (Analítico) | 92% | +7% (Phase 10-11) | 99% | 10, 11 |
-| G (Pós-analítico) | 88% | +4% (Phase 8) | 92% | 6, 8 |
-| H (Recursos) | 82% | +6% (Phase 7, 10) | 88% | 7, 10 |
-| I (Laudos) | 65% | +15% (Phase 8) | 80% | 6, 8 |
-| J (Continuidade) | 70% | 0% | 75% | — (Phase 14 stability) |
-| **Overall** | **79–82%** | **84–87%** | **≥85%** | — |
+| Block                | Wave 2 Target | Wave 3 Refinement | Wave 4 Lock | Phase(s)               |
+| -------------------- | ------------- | ----------------- | ----------- | ---------------------- |
+| A (Governança)       | 86%           | +4% (Phase 9)     | 90%         | 4, 9                   |
+| B (SGD)              | 65%           | +27% (Phase 9)    | 92%         | 9                      |
+| C (Pessoal)          | 90%           | 0%                | 90%         | 4                      |
+| D (Qualidade/Riscos) | 60%           | +20% (Phase 9)    | 80%         | 9                      |
+| E (Pré-analítico)    | 64%           | +21% (Phase 10)   | 85%         | 10                     |
+| F (Analítico)        | 92%           | +7% (Phase 10-11) | 99%         | 10, 11                 |
+| G (Pós-analítico)    | 88%           | +4% (Phase 8)     | 92%         | 6, 8                   |
+| H (Recursos)         | 82%           | +6% (Phase 7, 10) | 88%         | 7, 10                  |
+| I (Laudos)           | 65%           | +15% (Phase 8)    | 80%         | 6, 8                   |
+| J (Continuidade)     | 70%           | 0%                | 75%         | — (Phase 14 stability) |
+| **Overall**          | **79–82%**    | **84–87%**        | **≥85%**    | —                      |
 
 ---
 
@@ -157,6 +171,7 @@ Fases 4–7 executam simultaneamente (zero sequencing).
 
 **Pros:** Shorter timeline (parallel speedup).
 **Cons:**
+
 - DICQ gaps may not resolve coherently (Phase 5 depends on Phase 6 data; deadlock possible).
 - QA overhead explodes (4 streams need constant sync).
 - Risk of "false-parallel" (threads wait on shared resources anyway).
@@ -169,6 +184,7 @@ Each phase finishes before next starts.
 
 **Pros:** Zero coordination overhead; clear causality.
 **Cons:**
+
 - v1.4 timeline = sum of all phases ≈ 22 weeks exactly. Any slip cascades.
 - Phases 5–7 could parallelize (they don't block each other); artificial serialization wastes 2–3 weeks.
 
@@ -180,6 +196,7 @@ Overlapping releases (Phases 4–7 are staggered starts, not hard gates).
 
 **Pros:** Smoother integration; fewer bottlenecks.
 **Cons:**
+
 - Hard to track dependencies (which commit unblocks which downstream phase?).
 - Code review + integration testing becomes continuous burden.
 

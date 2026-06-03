@@ -57,8 +57,8 @@ export function ExportStep1({ selectedFormat, onSelect }: ExportStep1Props) {
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm text-white/50 leading-relaxed">
-        Selecione o formato do arquivo a ser gerado. O arquivo ficará disponível
-        para download por 7 dias após a conclusão.
+        Selecione o formato do arquivo a ser gerado. O arquivo ficará disponível para download por 7
+        dias após a conclusão.
       </p>
 
       <div className="grid grid-cols-1 gap-3 mt-1">
@@ -74,10 +74,8 @@ export function ExportStep1({ selectedFormat, onSelect }: ExportStep1Props) {
             accent === 'violet'
               ? 'bg-violet-500/20 text-violet-400 ring-1 ring-violet-500/30'
               : 'bg-emerald-500/20 text-emerald-400 ring-1 ring-emerald-500/30';
-          const iconBg =
-            accent === 'violet' ? 'bg-violet-500/20' : 'bg-emerald-500/20';
-          const iconColor =
-            accent === 'violet' ? 'text-violet-400' : 'text-emerald-400';
+          const iconBg = accent === 'violet' ? 'bg-violet-500/20' : 'bg-emerald-500/20';
+          const iconColor = accent === 'violet' ? 'text-violet-400' : 'text-emerald-400';
 
           return (
             <button
@@ -118,9 +116,7 @@ export function ExportStep1({ selectedFormat, onSelect }: ExportStep1Props) {
               {/* Label + desc */}
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="text-sm font-medium text-white leading-snug">
-                    {title}
-                  </span>
+                  <span className="text-sm font-medium text-white leading-snug">{title}</span>
                   <span
                     className={[
                       'inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-medium tracking-wide',

@@ -13,8 +13,7 @@ import { z } from 'zod';
 // ─── Mensagem padronizada ────────────────────────────────────────────────────
 // UI exibe esta string sem alteração — não vazar detalhes técnicos
 // (uid/labId/path) ao cliente, apenas para Cloud Logging.
-export const EC_ACCESS_DENIED_MSG =
-  'Sem permissão para este módulo — contate o administrador.';
+export const EC_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
 
 // ─── Auth/access guard ───────────────────────────────────────────────────────
 
@@ -32,10 +31,7 @@ interface AuthDataLite {
  * Falhas viram `permission-denied` com `EC_ACCESS_DENIED_MSG`. Sempre logam
  * via console.error com prefixo `[EC_ACCESS_DENIED]` para Cloud Logging.
  */
-export async function assertEcAccess(
-  auth: AuthDataLite | undefined,
-  labId: string,
-): Promise<void> {
+export async function assertEcAccess(auth: AuthDataLite | undefined, labId: string): Promise<void> {
   if (!auth) {
     throw new HttpsError('unauthenticated', 'Autenticação necessária.');
   }
@@ -56,10 +52,7 @@ export async function assertEcAccess(
   }
 
   // 2. Membership ativa no lab solicitado
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[EC_ACCESS_DENIED]', {
       uid,
@@ -100,9 +93,7 @@ export const CommitExecucaoRealizadaInputSchema = z.object({
   presencas: z.array(PresencaSchema).min(1),
   diasAntecedenciaAlerta: z.number().int().min(0).max(365),
 });
-export type CommitExecucaoRealizadaInput = z.infer<
-  typeof CommitExecucaoRealizadaInputSchema
->;
+export type CommitExecucaoRealizadaInput = z.infer<typeof CommitExecucaoRealizadaInputSchema>;
 
 export const CommitExecucaoAdiadaInputSchema = z.object({
   labId: z.string().min(1),
@@ -111,9 +102,7 @@ export const CommitExecucaoAdiadaInputSchema = z.object({
   novaDataPlanejada: z.number().int().nonnegative(),
   motivo: z.string().trim().min(1),
 });
-export type CommitExecucaoAdiadaInput = z.infer<
-  typeof CommitExecucaoAdiadaInputSchema
->;
+export type CommitExecucaoAdiadaInput = z.infer<typeof CommitExecucaoAdiadaInputSchema>;
 
 export const RegistrarEficaciaInputSchema = z.object({
   labId: z.string().min(1),
@@ -140,12 +129,7 @@ export const RegistrarCompetenciaInputSchema = z.object({
   labId: z.string().min(1),
   execucaoId: z.string().min(1),
   colaboradorId: z.string().min(1),
-  metodo: z.enum([
-    'observacao_direta',
-    'teste_escrito',
-    'simulacao_pratica',
-    'revisao_registro',
-  ]),
+  metodo: z.enum(['observacao_direta', 'teste_escrito', 'simulacao_pratica', 'revisao_registro']),
   resultado: z.enum(['aprovado', 'reprovado', 'requer_retreinamento']),
   evidencia: z.string().trim().min(1),
   /** millis epoch. */
@@ -154,9 +138,7 @@ export const RegistrarCompetenciaInputSchema = z.object({
   proximaAvaliacaoEm: z.number().int().nonnegative().optional(),
   // avaliadorId NUNCA vem do input — server injeta auth.uid
 });
-export type RegistrarCompetenciaInput = z.infer<
-  typeof RegistrarCompetenciaInputSchema
->;
+export type RegistrarCompetenciaInput = z.infer<typeof RegistrarCompetenciaInputSchema>;
 
 // ─── Helpers de path ─────────────────────────────────────────────────────────
 
@@ -193,10 +175,7 @@ export function ecCollection(
  * Garante que o doc raiz `educacaoContinuada/{labId}` existe — espelha o
  * `ensureLabRoot` do service web. Idempotente.
  */
-export async function ensureEcLabRoot(
-  db: admin.firestore.Firestore,
-  labId: string,
-): Promise<void> {
+export async function ensureEcLabRoot(db: admin.firestore.Firestore, labId: string): Promise<void> {
   const ref = ecLabRoot(db, labId);
   const snap = await ref.get();
   if (!snap.exists) {
@@ -220,10 +199,7 @@ export function calcularDataVencimento(
 ): admin.firestore.Timestamp {
   const meses = MESES_POR_PERIODICIDADE[periodicidade];
   if (typeof meses !== 'number') {
-    throw new HttpsError(
-      'failed-precondition',
-      `Periodicidade desconhecida: ${periodicidade}`,
-    );
+    throw new HttpsError('failed-precondition', `Periodicidade desconhecida: ${periodicidade}`);
   }
   const d = dataAplicacao.toDate();
   d.setMonth(d.getMonth() + meses);

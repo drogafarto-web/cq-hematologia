@@ -11,6 +11,7 @@
 ## 1. Credentials & Authentication
 
 ### 1.1 Sandbox Account Access
+
 - [ ] **Receive sandbox credentials** from NOTIVISA provider
   - Username/email
   - API key or OAuth token (note format: Bearer/Basic/Custom)
@@ -28,6 +29,7 @@
   - Establish backup credentials or alternative contact
 
 ### 1.2 Test Credentials Validation
+
 - [ ] **Test connectivity** with credentials (manual cURL test)
   ```bash
   curl -X POST https://sandbox.notivisa.gov.br/api/v3/authenticate \
@@ -42,6 +44,7 @@
 ## 2. API Documentation & Schema Validation
 
 ### 2.1 Portaria 204 Compliance
+
 - [ ] **Obtain official NOTIVISA v3.0 API documentation** from provider
   - File path: `/docs/NOTIVISA_API_v3.0_Official.pdf` (store in shared drive)
   - Confirm document date (must be current 2026 version)
@@ -59,6 +62,7 @@
   - Date/time formats: ISO 8601 with UTC timezone
 
 ### 2.2 Data Mapping to Firestore Models
+
 - [ ] **Review `notivisa-outbox` collection schema** (designed in Phase 3)
   ```typescript
   interface NotivisaOutboxEvent {
@@ -86,6 +90,7 @@
 - [ ] **Document field transformations** (e.g., `resultId` → NOTIVISA `exameId`, timezone conversions)
 
 ### 2.3 Webhook Receiver Specification
+
 - [ ] **Confirm webhook schema** from NOTIVISA provider
   - Callback event types: `notification_delivered`, `notification_failed`, `notification_expired`
   - Signature validation method (HMAC-SHA256? Custom?)
@@ -98,17 +103,19 @@
 ## 3. Rate Limits & Throttling Strategy
 
 ### 3.1 NOTIVISA API Limits
+
 - [ ] **Request rate limit** from documentation
-  - Requests per minute (RPM): ___
-  - Requests per day (RPD): ___
-  - Burst allowance: ___
-  - Throttling error code: ___
+  - Requests per minute (RPM): \_\_\_
+  - Requests per day (RPD): \_\_\_
+  - Burst allowance: \_\_\_
+  - Throttling error code: \_\_\_
 - [ ] **Payload size limits**
-  - Max bytes per notification: ___
-  - Max concurrent requests: ___
+  - Max bytes per notification: \_\_\_
+  - Max concurrent requests: \_\_\_
 - [ ] **Document limits** in `/docs/NOTIVISA_RATE_LIMITS.md`
 
 ### 3.2 Client-Side Throttling Implementation
+
 - [ ] **Implement exponential backoff** in `notivisaService.ts`
   - Start delay: 2 seconds
   - Max delay: 5 minutes
@@ -125,6 +132,7 @@
   - Avg latency from event creation to NOTIVISA send
 
 ### 3.3 Firestore Write Throttling
+
 - [ ] **Verify Firestore write quota** is sufficient
   - Baseline daily writes: 50K (estimated for 50 labs, 10 results/day each)
   - Spike capacity: 1M writes/day (burst tolerance)
@@ -138,6 +146,7 @@
 ## 4. Error Handling & Failure Scenarios
 
 ### 4.1 NOTIVISA Service Unavailability
+
 - [ ] **Define retry strategy** when NOTIVISA API is down
   - HTTP 5xx errors: exponential backoff (max 5 retries)
   - Connection timeout (>10s): retry after 30s, max 3 times
@@ -149,6 +158,7 @@
   - Log circuit state changes to Cloud Logs
 
 ### 4.2 Invalid Payload Errors
+
 - [ ] **Handle schema validation failures** (4xx errors from NOTIVISA)
   - HTTP 400 (Bad Request): validate payload schema, log error, mark as `failed` (no retry)
   - HTTP 401/403 (Auth): log error, escalate to ops (check credentials)
@@ -159,6 +169,7 @@
   - Test with non-ASCII lab names (e.g., "Laboratório de Análises")
 
 ### 4.3 Network & Timeout Errors
+
 - [ ] **Define timeout thresholds**
   - Connection timeout: 5 seconds
   - Read timeout: 10 seconds (for large payloads)
@@ -170,6 +181,7 @@
 - [ ] **Test timeout behavior** in emulator with artificial latency
 
 ### 4.4 Audit Trail for Failed Events
+
 - [ ] **Log all failures to `events` subcollection** under `notivisa-outbox/{eventId}/events`
   ```typescript
   interface NotivisaEvent {
@@ -196,6 +208,7 @@
 ## 5. Webhook Receiver Setup (Receiving Notifications)
 
 ### 5.1 Cloud Function Webhook Endpoint
+
 - [ ] **Create Cloud Function** `notivisaWebhookReceiver`
   - HTTP trigger (public endpoint)
   - Region: southamerica-east1
@@ -213,6 +226,7 @@
   - Log response status
 
 ### 5.2 Webhook Event Processing
+
 - [ ] **Parse webhook payload** and validate schema
   - Expected events: `delivered`, `failed`, `expired`
   - Update corresponding `notivisa-outbox/{eventId}` document
@@ -227,10 +241,11 @@
   - Alert ops if >5 consecutive failures
 
 ### 5.3 Webhook Retry Tolerance
+
 - [ ] **Document NOTIVISA webhook retry policy**
-  - Retry interval: ___ (e.g., 5, 10, 30 minutes)
-  - Max retries: ___ (e.g., 5 times)
-  - Total retry window: ___ (e.g., 24 hours)
+  - Retry interval: \_\_\_ (e.g., 5, 10, 30 minutes)
+  - Max retries: \_\_\_ (e.g., 5 times)
+  - Total retry window: \_\_\_ (e.g., 24 hours)
 - [ ] **Test webhook receiver availability**
   - Monitor Cloud Function uptime (target: 99.9%)
   - Set up Cloud Monitoring alert if function errors >1% in 5-min window
@@ -241,6 +256,7 @@
 ## 6. Firestore Indexes & Performance
 
 ### 6.1 Collection Indexes
+
 - [ ] **Verify `notivisa-outbox` indexes** are created
   ```
   Collection: notivisa-outbox
@@ -255,6 +271,7 @@
   - Typically not required if queries filter by parent + timestamp only
 
 ### 6.2 Query Performance Baseline
+
 - [ ] **Benchmark baseline queries**
   - Query: `notivisa-outbox` where `status = pending` and `labId = X` (limit 100)
   - Target latency: <100ms
@@ -270,6 +287,7 @@
 ## 7. Testing & Validation
 
 ### 7.1 Sandbox Integration Tests
+
 - [ ] **Unit tests** (in `/functions/src/__tests__/notivisaService.test.ts`)
   - [ ] Payload schema validation
   - [ ] HMAC signature generation/validation
@@ -288,6 +306,7 @@
   - [ ] Verify audit trail is complete
 
 ### 7.2 Error Scenario Testing
+
 - [ ] **Test invalid credentials** (use expired/fake key)
   - Expected: HTTP 401, circuit breaker trips
 - [ ] **Test network timeout** (artificial latency via mocked HTTP client)
@@ -300,6 +319,7 @@
   - Expected: NOTIVISA retries webhook per its policy
 
 ### 7.3 Load Testing (Pre-Production)
+
 - [ ] **Simulate daily load**
   - 50 labs × 10 results/day = 500 NOTIVISA submissions/day
   - Spread over business hours (8am–6pm BRT, 10 hours)
@@ -312,9 +332,10 @@
   - Verify Firestore quota not exceeded
 
 ### 7.4 Test Reporting
+
 - [ ] **Document test results** in `/docs/NOTIVISA_TEST_REPORT.md`
-  - Test date: ___
-  - Sandboxgel API version tested: ___
+  - Test date: \_\_\_
+  - Sandboxgel API version tested: \_\_\_
   - Test scenarios: Scenario | Pass/Fail | Notes
   - Error scenarios: All scenarios | Pass
   - Load test: Peak load | Latency | Errors
@@ -324,6 +345,7 @@
 ## 8. Audit Trail & Compliance
 
 ### 8.1 Audit Log Requirements (RDC 978 Art. 5.3)
+
 - [ ] **Log all NOTIVISA interactions**
   - Submission timestamp + request body (sanitized)
   - Response status + response body
@@ -337,6 +359,7 @@
   - Archive to Cloud Storage after 1 year (cost optimization)
 
 ### 8.2 Data Privacy (LGPD Arts. 9, 18, 38)
+
 - [ ] **PII in logs**
   - Never log RT email/phone in error messages (mask if necessary)
   - Never log patient name/ID if visible in result payload
@@ -349,6 +372,7 @@
   - Purge from queue after 7 days if status is `failed`
 
 ### 8.3 Compliance Checklist
+
 - [ ] **RDC 978 Art. 6º §1** — Result notification requirements
   - Confirm NOTIVISA payload includes: result value, interpretation, reference range
   - Confirm timestamp is recorded and audited
@@ -364,6 +388,7 @@
 ## 9. Deployment Checklist (Pre-Phase 4 Deployment)
 
 ### 9.1 Pre-Deployment Validation
+
 - [ ] **All tests passing** (unit + integration + E2E)
   - Run: `npm run test -- notivisaService`
   - Expected: 100% pass rate
@@ -382,6 +407,7 @@
   - Run test: `gcloud secrets versions access latest --secret="notivisa_sandbox_key"`
 
 ### 9.2 Deployment Order (Dependency Chain)
+
 1. Deploy Firestore Rules (includes notivisa-outbox collection rules)
 2. Deploy Cloud Functions (`notivisaQueueProcessor`, `notivisaWebhookReceiver`)
 3. Update Firestore Indexes (if not auto-created)
@@ -390,6 +416,7 @@
 6. Validate with smoke tests (Phase 4-04)
 
 ### 9.3 Go/No-Go Gate
+
 - [ ] **All items in sections 1–8 are complete** ✓
 - [ ] **No blocking risks** (see Risk Register below)
 - [ ] **Stakeholder sign-off** from RT lead + CTO
@@ -400,21 +427,24 @@
 ## 10. Support & Escalation
 
 ### 10.1 NOTIVISA Provider Contact
+
 - **Provider:** NOTIVISA
-- **Account Manager:** ___ (Name, email, phone)
+- **Account Manager:** \_\_\_ (Name, email, phone)
 - **Technical Support:** support@notivisa.gov.br | +55-XX-XXXX-XXXX
 - **Support Hours:** Business days, 8am–6pm BRT
-- **SLA:** ___ (expected response time for critical issues)
+- **SLA:** \_\_\_ (expected response time for critical issues)
 
 ### 10.2 Internal Escalation Path
+
 - **L1 (Agent):** Agent 3 (Phase 4-03 owner) — notivisaService + queue processor
 - **L2 (Team Lead):** Engineering manager — resource allocation, urgent decisions
 - **L3 (CTO):** Compliance + architecture decisions + vendor coordination
 
 ### 10.3 Known Issues & Workarounds
-| Issue | Status | Workaround | Owner |
-|-------|--------|-----------|-------|
-| (To be populated after sandbox testing) | — | — | — |
+
+| Issue                                   | Status | Workaround | Owner |
+| --------------------------------------- | ------ | ---------- | ----- |
+| (To be populated after sandbox testing) | —      | —          | —     |
 
 ---
 
@@ -434,12 +464,13 @@
 ## Appendix B: Sign-Off Template
 
 **Integration Validation Complete:** `[ ] Yes [ ] No`  
-**Date:** ___________  
-**Validated By:** _________________ (Agent 3, Phase 4-03)  
-**Reviewed By:** _________________ (Engineering Manager)  
-**Approved By:** _________________ (CTO)  
+**Date:** ****\_\_\_****  
+**Validated By:** ********\_******** (Agent 3, Phase 4-03)  
+**Reviewed By:** ********\_******** (Engineering Manager)  
+**Approved By:** ********\_******** (CTO)
 
 **Notes / Open Items:**
+
 ```
 (Use this section to document any blockers or deferred items)
 ```

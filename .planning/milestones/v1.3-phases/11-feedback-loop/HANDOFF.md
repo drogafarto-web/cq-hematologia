@@ -37,17 +37,17 @@ Phase 8 está em execução em outra janela. Phases 9, 10 e 11 já têm planning
 
 ## Decisões CTO travadas no discuss-phase (2026-05-06)
 
-| Decisão | Valor | Fonte |
-|---------|-------|-------|
-| Canais entrada | Multi-canal completo (web interno + público + email + telefone + QR laudo + Worklab deep link) | AskUserQuestion |
-| RCA método | 5 Whys + NC auto severity alta | AskUserQuestion |
-| NPS timing | Pós-resolução + recurring trimestral; anonimização 90d | AskUserQuestion |
-| Funcionalidades extras | TODAS: portal cliente, IA Gemini, sugestões separado, trending Pareto, deep link Worklab | AskUserQuestion (multi-select) |
-| Identificação | Reclamação anônima NÃO permitida (impede LGPD + comunicação) | Locked |
-| Worklab embed | Deep link parametrizado com token (não iframe) | Locked técnico |
-| LGPD base legal | Obrigação legal RDC 978 + consentimento explícito | Locked compliance |
-| Retenção | 5a com PII; após anonimização (RDC + LGPD compliance) | Locked compliance |
-| Defer v1.4 | Ishikawa visual, WhatsApp Business, ouvidoria/PROCON, CFM API | Backlog |
+| Decisão                | Valor                                                                                          | Fonte                          |
+| ---------------------- | ---------------------------------------------------------------------------------------------- | ------------------------------ |
+| Canais entrada         | Multi-canal completo (web interno + público + email + telefone + QR laudo + Worklab deep link) | AskUserQuestion                |
+| RCA método             | 5 Whys + NC auto severity alta                                                                 | AskUserQuestion                |
+| NPS timing             | Pós-resolução + recurring trimestral; anonimização 90d                                         | AskUserQuestion                |
+| Funcionalidades extras | TODAS: portal cliente, IA Gemini, sugestões separado, trending Pareto, deep link Worklab       | AskUserQuestion (multi-select) |
+| Identificação          | Reclamação anônima NÃO permitida (impede LGPD + comunicação)                                   | Locked                         |
+| Worklab embed          | Deep link parametrizado com token (não iframe)                                                 | Locked técnico                 |
+| LGPD base legal        | Obrigação legal RDC 978 + consentimento explícito                                              | Locked compliance              |
+| Retenção               | 5a com PII; após anonimização (RDC + LGPD compliance)                                          | Locked compliance              |
+| Defer v1.4             | Ishikawa visual, WhatsApp Business, ouvidoria/PROCON, CFM API                                  | Backlog                        |
 
 ---
 
@@ -60,6 +60,7 @@ Phase 8 está em execução em outra janela. Phases 9, 10 e 11 já têm planning
 - **Casos reais ANVISA:** "comunicação oral sem registro" = não-comunicado; "pesquisa formal sem ação" = não-conformidade.
 
 Arquivos consumidos:
+
 - `HC_Quality_Compliance_DICQ.md` (4.8, 4.14.3, 4.14.4, 4.14.6, 4.15)
 - `HC_Quality_RDC_978_2025_Resumo.md` (Arts. 86, 115, 117)
 - `HC_Quality_Checklist_Auditoria.md`
@@ -120,6 +121,7 @@ Mesma estratégia das Phases 9 e 10 (ver `09-bioquimica/HANDOFF.md`).
 ## Notas de qualidade
 
 Padrão world-class aplicado:
+
 - 4 perguntas críticas via AskUserQuestion antes de planejar
 - Síntese Obsidian estruturada (compliance + lacuna mercado + LGPD impact + casos reais)
 - 8 PLAN.md com `must_haves`, `key_links`, `deviation_protocol`, `post_plan_gates`
@@ -139,19 +141,19 @@ Não shipei nada de mediano. Cada PLAN.md está executável.
 
 ## Phase 11 vs Phases 9/10 (comparação)
 
-| Aspecto | Phase 9 (Bioquímica) | Phase 10 (Liberação+Críticos) | Phase 11 (Feedback Loop) |
-|---------|----------------------|-------------------------------|--------------------------|
-| Tipo | CIQ analítico (Bloco F) | Pós-analítico + Laudos (Blocos G+I) | Feedback Loop (DICQ 4.8 + 4.14.x) |
-| Surfaces | 1 | 3 | 4 (3 internas + 1 portal externo) |
-| Auth externa | Não | Sim (médico) | Sim (paciente) |
-| LGPD impact | Médio | Médio | **Alto** (PII intensivo) |
-| IA integration | Gemini bula PDF | Não | **Gemini classificação** |
-| Plans | 5 | 7 | **8** |
-| Duração | 8 sem | 12.5 sem | **12.5 sem** |
-| Risk profile | Médio | Alto | **Alto** (LGPD + IA + portal) |
-| Compliance crítico | RDC 978 Arts. 179-180 | RDC 978 Arts. 167, 184-191 | DICQ 4.8/4.14.3/4.14.4 + LGPD + 4.15 |
-| Time | Eng A+B | Eng C+D | Eng E+F |
-| Replicação de outras phases | 90% (hema) | 0% (greenfield) | ~30% (auth externa do Plan 10-05; pattern PDF Plan 10-04) |
-| Diferenciação mercado | Médio | Alto | **Muito alto** (lacuna real) |
+| Aspecto                     | Phase 9 (Bioquímica)    | Phase 10 (Liberação+Críticos)       | Phase 11 (Feedback Loop)                                  |
+| --------------------------- | ----------------------- | ----------------------------------- | --------------------------------------------------------- |
+| Tipo                        | CIQ analítico (Bloco F) | Pós-analítico + Laudos (Blocos G+I) | Feedback Loop (DICQ 4.8 + 4.14.x)                         |
+| Surfaces                    | 1                       | 3                                   | 4 (3 internas + 1 portal externo)                         |
+| Auth externa                | Não                     | Sim (médico)                        | Sim (paciente)                                            |
+| LGPD impact                 | Médio                   | Médio                               | **Alto** (PII intensivo)                                  |
+| IA integration              | Gemini bula PDF         | Não                                 | **Gemini classificação**                                  |
+| Plans                       | 5                       | 7                                   | **8**                                                     |
+| Duração                     | 8 sem                   | 12.5 sem                            | **12.5 sem**                                              |
+| Risk profile                | Médio                   | Alto                                | **Alto** (LGPD + IA + portal)                             |
+| Compliance crítico          | RDC 978 Arts. 179-180   | RDC 978 Arts. 167, 184-191          | DICQ 4.8/4.14.3/4.14.4 + LGPD + 4.15                      |
+| Time                        | Eng A+B                 | Eng C+D                             | Eng E+F                                                   |
+| Replicação de outras phases | 90% (hema)              | 0% (greenfield)                     | ~30% (auth externa do Plan 10-05; pattern PDF Plan 10-04) |
+| Diferenciação mercado       | Médio                   | Alto                                | **Muito alto** (lacuna real)                              |
 
 Phase 11 é a mais completa e estratégica. Cobre 3 itens DICQ + alimenta 4.15 + cria portal paciente + IA + LGPD framework. Pode virar selling point principal do produto.

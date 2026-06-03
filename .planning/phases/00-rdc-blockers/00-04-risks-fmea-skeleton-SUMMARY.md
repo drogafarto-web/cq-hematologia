@@ -4,12 +4,18 @@ plan: 00-04
 slug: risks-fmea-skeleton
 subsystem: risks
 tags: [risk-management, fmea, callable, dl-1, dicq-4.14.6, rdc-978-art-86, iso-15189-8.5]
-requires: ["00-01 (callable+audit-chain pattern)", "00-02 (SGQ revisão flow)"]
-provides: ["risks module + ADR-0016 + DPIA v1.1 patch"]
-affects: ["DICQ 4.14.6 → green", "v1.4 Phase 4 (CAPA linkedCAPAs[])", "v1.4 Phase 13 (Final DICQ Audit evidence)"]
+requires: ['00-01 (callable+audit-chain pattern)', '00-02 (SGQ revisão flow)']
+provides: ['risks module + ADR-0016 + DPIA v1.1 patch']
+affects:
+  [
+    'DICQ 4.14.6 → green',
+    'v1.4 Phase 4 (CAPA linkedCAPAs[])',
+    'v1.4 Phase 13 (Final DICQ Audit evidence)',
+  ]
 tech-stack:
   added: []
-  patterns: ["DL-1 callable-only writes", "5×5 FMEA matrix SVG", "monthly cron auto-review for top NPR"]
+  patterns:
+    ['DL-1 callable-only writes', '5×5 FMEA matrix SVG', 'monthly cron auto-review for top NPR']
 key-files:
   created:
     - docs/adr/0016-fmea-lite-methodology.md
@@ -48,13 +54,13 @@ key-files:
     - CLAUDE.md
     - docs/adr/README.md
 decisions:
-  - "DL-1 callable-only from day 1 — no client-side writes to /risks/**"
-  - "ADR-0016 FMEA-lite (P×S×D, NPR 1–125, escape hatch ISO 31000 v1.5)"
-  - "Hardcoded NPR thresholds (24/61/100) — labSettings UI deferred to v1.4 Phase 1"
-  - "risks_seedFromCsv stretch dropped to v1.4.1 per P0-R4 budget guard"
+  - 'DL-1 callable-only from day 1 — no client-side writes to /risks/**'
+  - 'ADR-0016 FMEA-lite (P×S×D, NPR 1–125, escape hatch ISO 31000 v1.5)'
+  - 'Hardcoded NPR thresholds (24/61/100) — labSettings UI deferred to v1.4 Phase 1'
+  - 'risks_seedFromCsv stretch dropped to v1.4.1 per P0-R4 budget guard'
 metrics:
   completed: 2026-05-07
-  duration: "3 days (T1–T11 across multiple sessions)"
+  duration: '3 days (T1–T11 across multiple sessions)'
   tasks_completed: 11
   files_created: 24
   files_modified: 10
@@ -82,20 +88,20 @@ Living risk register operational in production with FMEA-lite scoring (P × S ×
 
 ## Definition of done — gate by gate
 
-| Acceptance criterion | Status |
-| --- | --- |
-| Manager can register risk with FMEA scoring | GREEN (form + 4-step UI live) |
-| NPR auto-calculated server-side; nivel derived; badge color-coded | GREEN (server overwrites client value; 14 unit tests prove the math) |
-| Heat map (5×5) shows distribution; click cell to filter | GREEN (SVG + click handler in RiskMatrix.tsx) |
-| Top 5 critical risks (NPR ≥ 100) flagged for monthly review | GREEN (`scheduledReview` monthly branch) |
-| Treatment status tracked (ações + prazos + owner + status) | GREEN (RiskForm step 3, append-only on server) |
-| Periodic review form captures resultado + NPR transition | GREEN (RiskReviewModal with reclassificado branch) |
-| Annual review reminder fires automatically (idempotent) | GREEN (cron daily 07:00 BRT, per-risk-per-period idempotency keys) |
-| Auditor demonstrates active register + treatment + review history | GREEN (tabs + reviewHistory rendering; demo script in module CLAUDE.md) |
-| Logical signature + audit trail validate (`verifyChain`) | GREEN (chainHash trigger live; verify script reusable from Plan 00-01) |
-| **DL-1 observable:** rules deny client-direct write; client-supplied NPR overwritten | GREEN (rules emulator green; server explicitly recomputes NPR from P/S/D) |
-| **ADR-0016 published** with methodology + escape hatch | GREEN (`docs/adr/0016-fmea-lite-methodology.md`) |
-| **DPIA v1.1 published** in SGQ cross-linking ADR-0016 | YELLOW — v1.1 markdown authored; SGQ revisão upload pending RT login (not blocking) |
+| Acceptance criterion                                                                 | Status                                                                              |
+| ------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Manager can register risk with FMEA scoring                                          | GREEN (form + 4-step UI live)                                                       |
+| NPR auto-calculated server-side; nivel derived; badge color-coded                    | GREEN (server overwrites client value; 14 unit tests prove the math)                |
+| Heat map (5×5) shows distribution; click cell to filter                              | GREEN (SVG + click handler in RiskMatrix.tsx)                                       |
+| Top 5 critical risks (NPR ≥ 100) flagged for monthly review                          | GREEN (`scheduledReview` monthly branch)                                            |
+| Treatment status tracked (ações + prazos + owner + status)                           | GREEN (RiskForm step 3, append-only on server)                                      |
+| Periodic review form captures resultado + NPR transition                             | GREEN (RiskReviewModal with reclassificado branch)                                  |
+| Annual review reminder fires automatically (idempotent)                              | GREEN (cron daily 07:00 BRT, per-risk-per-period idempotency keys)                  |
+| Auditor demonstrates active register + treatment + review history                    | GREEN (tabs + reviewHistory rendering; demo script in module CLAUDE.md)             |
+| Logical signature + audit trail validate (`verifyChain`)                             | GREEN (chainHash trigger live; verify script reusable from Plan 00-01)              |
+| **DL-1 observable:** rules deny client-direct write; client-supplied NPR overwritten | GREEN (rules emulator green; server explicitly recomputes NPR from P/S/D)           |
+| **ADR-0016 published** with methodology + escape hatch                               | GREEN (`docs/adr/0016-fmea-lite-methodology.md`)                                    |
+| **DPIA v1.1 published** in SGQ cross-linking ADR-0016                                | YELLOW — v1.1 markdown authored; SGQ revisão upload pending RT login (not blocking) |
 
 ## Verification gates (post-execute)
 
@@ -111,17 +117,17 @@ Living risk register operational in production with FMEA-lite scoring (P × S ×
 
 ## Deployment record (2026-05-07)
 
-| Step | Command | Result |
-| --- | --- | --- |
-| 1 | `npx tsc --noEmit` (web) | clean |
-| 2 | `cd functions && npx tsc --noEmit` | clean |
-| 3 | `npm run build` | clean — 32.10s, source maps to Sentry, `module-risks-BcWiE7jX.js` chunk emitted |
-| 4 | `firebase deploy --only firestore:rules,firestore:indexes` | DEPLOYED (15 pre-existing warnings on unrelated blocks; rules compile success) |
-| 5 | `firebase deploy --only "functions:risks_*,functions:provisionModulesClaims"` | DEPLOYED (4 callables + provisionModulesClaims; seedFromCsv N/A — stretch dropped) |
-| 6 | `firebase deploy --only hosting` | DEPLOYED (36 files, PWA SW autoUpdate) |
-| 7 | Hard reload smoke | PENDING (RT login) |
-| 8 | `monitor-cloud-logs.sh 24 30` | PENDING (operator dispatch) |
-| 9 | Day-1 archive | DONE — `.planning/phases/00-rdc-blockers/00-04-cloud-logs-day1.md` |
+| Step | Command                                                                       | Result                                                                             |
+| ---- | ----------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+| 1    | `npx tsc --noEmit` (web)                                                      | clean                                                                              |
+| 2    | `cd functions && npx tsc --noEmit`                                            | clean                                                                              |
+| 3    | `npm run build`                                                               | clean — 32.10s, source maps to Sentry, `module-risks-BcWiE7jX.js` chunk emitted    |
+| 4    | `firebase deploy --only firestore:rules,firestore:indexes`                    | DEPLOYED (15 pre-existing warnings on unrelated blocks; rules compile success)     |
+| 5    | `firebase deploy --only "functions:risks_*,functions:provisionModulesClaims"` | DEPLOYED (4 callables + provisionModulesClaims; seedFromCsv N/A — stretch dropped) |
+| 6    | `firebase deploy --only hosting`                                              | DEPLOYED (36 files, PWA SW autoUpdate)                                             |
+| 7    | Hard reload smoke                                                             | PENDING (RT login)                                                                 |
+| 8    | `monitor-cloud-logs.sh 24 30`                                                 | PENDING (operator dispatch)                                                        |
+| 9    | Day-1 archive                                                                 | DONE — `.planning/phases/00-rdc-blockers/00-04-cloud-logs-day1.md`                 |
 
 ## Deviations from Plan
 
@@ -161,12 +167,12 @@ None during deployment. Firebase CLI was authenticated to `hmatologia2` via prio
 
 ## Known stubs / OPEN items
 
-| Item | Owner | Disposition |
-| --- | --- | --- |
-| `labSettings.nprThresholds` per-lab tuning | v1.4 Phase 1 | Hardcoded thresholds in `risksService.ts` (24/61/100). UI in next milestone. |
-| `risks_seedFromCsv` admin callable | v1.4.1 | Stretch dropped. Empty register acceptable for MVP. |
-| `Top5RisksWidget` embed in `/hub` | optional follow-up | Component built; not yet wired into `ModuleHub`. |
-| Auditor PDF export of register | v1.4 Phase 4 (CAPA prep) | Out of scope for Phase 0. |
+| Item                                       | Owner                    | Disposition                                                                  |
+| ------------------------------------------ | ------------------------ | ---------------------------------------------------------------------------- |
+| `labSettings.nprThresholds` per-lab tuning | v1.4 Phase 1             | Hardcoded thresholds in `risksService.ts` (24/61/100). UI in next milestone. |
+| `risks_seedFromCsv` admin callable         | v1.4.1                   | Stretch dropped. Empty register acceptable for MVP.                          |
+| `Top5RisksWidget` embed in `/hub`          | optional follow-up       | Component built; not yet wired into `ModuleHub`.                             |
+| Auditor PDF export of register             | v1.4 Phase 4 (CAPA prep) | Out of scope for Phase 0.                                                    |
 
 ## Phase 0 closure handshake
 

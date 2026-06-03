@@ -41,10 +41,7 @@ export const ec_commitExecucaoAdiada = onCall<unknown, Promise<CommitAdiadaResul
     }
     const original = originalSnap.data()!;
     if (original['status'] !== 'planejado') {
-      throw new HttpsError(
-        'failed-precondition',
-        'Apenas execuções planejadas podem ser adiadas.',
-      );
+      throw new HttpsError('failed-precondition', 'Apenas execuções planejadas podem ser adiadas.');
     }
 
     const dataPlanejadaOriginal = original['dataPlanejada'] as admin.firestore.Timestamp;

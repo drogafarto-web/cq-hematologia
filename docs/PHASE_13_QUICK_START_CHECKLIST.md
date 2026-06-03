@@ -467,24 +467,31 @@
 ## Anticipated Auditor Questions + Talking Points
 
 ### Question 1: "How do you know you're at 88%?"
+
 **Talking Point:** Block-by-block audit (40+ requirements audited). Evidence artifacts per block (PDFs, JSON, screenshots). Weighted average: (Block A 92% + Block B 92% + ... + Block J 78%) / 10 blocks = 88.5%.
 
 ### Question 2: "Gap [X] — why deferred to v1.4.1?"
+
 **Talking Point:** Assessment of criticality + timeline. [Example: Well-being surveys (5.1.11) deferred because not patient-safety critical; covered by quarterly staff feedback mechanism; v1.4.1 committed for formal questionnaire.] Compensating control documented.
 
 ### Question 3: "Management review — first cycle is Phase 14. How do I verify 4.15?"
+
 **Talking Point:** Template live + 15-point checklist configured + auto-aggregation logic tested. First ata will be scheduled Q3 2026 (post-launch). Pre-audit coverage by template validation + auditor can observe first review if timing aligns.
 
 ### Question 4: "Personnel dossiè data migration — how complete?"
+
 **Talking Point:** Phase 1 backfill job migrated records from v1.3 (EC module, auth system, turnos, biosseguranca). Phase 9 completeness audit flagged <10% gaps (minor fields). Non-critical records (well-being assessments) noted in P1 log.
 
 ### Question 5: "Lab apoio contracts — when did you finalize?"
+
 **Talking Point:** Phase 0 (RDC Art. 36–39 blocker). All 6 mandatory clauses present. [# active support labs] monitored. On-site audits scheduled [date]. Participation records available.
 
 ### Question 6: "NOTIVISA — production or test?"
+
 **Talking Point:** Phase 8 integration [current status]. Gov API endpoint: [test/prod]. Submission workflow: [draft → RT approval → auto-submit → status tracking]. Fallback: manual API if rate-limit hits (contingency SOP in SGD).
 
 ### Question 7: "What's your compliance target drift — why 88% not 90%?"
+
 **Talking Point:** Risk-based scope. 88% covers all RDC 978 mandatory articles + DICQ critical path. 90%+ requires patient portal phase 2 (v1.5) + full staff well-being program (v1.5) + internal audit multi-year trend (available post-2027). Defensible conservative estimate.
 
 ---
@@ -511,6 +518,7 @@
 ## Team Communication Template
 
 **Daily Standup (5 min, EOD)**
+
 ```
 Block(s) audited today: [A–B / C–D / E–F / G–H / I–J]
 Evidence artifacts collected: [#/40]
@@ -520,6 +528,7 @@ EOD status: ✓ On track / 🟡 Minor delay / 🔴 Blocked
 ```
 
 **Weekly Summary (Friday EOD)**
+
 ```
 Week 1 Completion: Blocks A–H audited, evidence 100%
 Week 1 Gaps: [P0 list] / [P1 list]
@@ -533,33 +542,39 @@ CTO awareness: [Any escalations?]
 ## Success Criteria — Phase 13 Complete
 
 ✅ **Audit checklist 100% complete**
-   - All 10 blocks audited (A–J)
-   - Block-level scores recorded (conformance %)
-   - All evidence artifacts exported (PDFs, JSON, CSV, screenshots)
+
+- All 10 blocks audited (A–J)
+- Block-level scores recorded (conformance %)
+- All evidence artifacts exported (PDFs, JSON, CSV, screenshots)
 
 ✅ **Compliance target met or at-risk documented**
-   - ≥88% conformance verified (or confidence interval 86–92% explained)
-   - Block scores justify target claim
-   - Remediation plan (if gaps) credible + approved
+
+- ≥88% conformance verified (or confidence interval 86–92% explained)
+- Block scores justify target claim
+- Remediation plan (if gaps) credible + approved
 
 ✅ **RDC 978 mapped 100%**
-   - All 15 applicable articles assigned to modules
-   - Evidence per article in evidence package
-   - Critical-path articles (36–39, 77, 122) signed off as complete
+
+- All 15 applicable articles assigned to modules
+- Evidence per article in evidence package
+- Critical-path articles (36–39, 77, 122) signed off as complete
 
 ✅ **Remediation finalized**
-   - P0 items: fixed + re-verified + RT approved
-   - P1 items: documented + v1.4.1 timeline committed + tracked in project management
+
+- P0 items: fixed + re-verified + RT approved
+- P1 items: documented + v1.4.1 timeline committed + tracked in project management
 
 ✅ **Auditor materials ready**
-   - Briefing PDF (module map + decision framework + known gaps)
-   - Evidence package (organized, spot-checked, PII reviewed)
-   - Pre-call agenda + talking points
+
+- Briefing PDF (module map + decision framework + known gaps)
+- Evidence package (organized, spot-checked, PII reviewed)
+- Pre-call agenda + talking points
 
 ✅ **Internal sign-off**
-   - CTO: "Audit-ready yes/no/conditional"
-   - RT: "Compliance snapshot approved, sign-off on record"
-   - Compliance Lead: "Phase 13 execution complete, evidence integrity certified"
+
+- CTO: "Audit-ready yes/no/conditional"
+- RT: "Compliance snapshot approved, sign-off on record"
+- Compliance Lead: "Phase 13 execution complete, evidence integrity certified"
 
 ---
 

@@ -14,7 +14,12 @@ export interface UseCertificateUploadResult {
   file: File | null;
   progress: number; // 0-100
   error: Error | null;
-  upload: (file: File, labId: string, equipId: string, operatorId: string) => Promise<CertificateUpload>;
+  upload: (
+    file: File,
+    labId: string,
+    equipId: string,
+    operatorId: string,
+  ) => Promise<CertificateUpload>;
   clear: () => void;
 }
 
@@ -34,12 +39,8 @@ export function useCertificateUpload(): UseCertificateUploadResult {
       setProgress(0);
       setFile(selectedFile);
 
-      const cert = await uploadCertificate(
-        selectedFile,
-        labId,
-        equipId,
-        operatorId,
-        (pct) => setProgress(pct),
+      const cert = await uploadCertificate(selectedFile, labId, equipId, operatorId, (pct) =>
+        setProgress(pct),
       );
 
       setProgress(100);

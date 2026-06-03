@@ -162,6 +162,7 @@ Combines cargos + designacoes to build full org chart tree ready for rendering.
 **Callable:** `signDesignacao({ labId, cargoId, pessoaId, pessoaNome, dataInicio, ... })`
 
 **What it does:**
+
 1. Authenticates caller (uid required)
 2. Checks permission (member of labId + module claim 'personnel')
 3. Validates payload schema (Zod)
@@ -170,6 +171,7 @@ Combines cargos + designacoes to build full org chart tree ready for rendering.
 6. Returns: `{ designacaoId, signature, success }`
 
 **Security:**
+
 - Chain-hash is server-computed; client cannot forge
 - `operatorId` auto-set to `request.auth.uid` (cannot sign for someone else)
 - Firestore rules deny direct writes to `designacoes` collection (callable-only)

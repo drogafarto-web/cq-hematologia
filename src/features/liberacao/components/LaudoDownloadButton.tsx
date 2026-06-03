@@ -63,13 +63,7 @@ export function LaudoDownloadButton({
           </>
         ) : (
           <>
-            <svg
-              width="14"
-              height="14"
-              viewBox="0 0 16 16"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden="true">
               <path
                 d="M8 2v8m0 0l-3-3m3 3l3-3M3 13h10"
                 stroke="currentColor"
@@ -82,9 +76,7 @@ export function LaudoDownloadButton({
           </>
         )}
       </button>
-      {status === 'error' && error && (
-        <span className="text-xs text-red-300">{error}</span>
-      )}
+      {status === 'error' && error && <span className="text-xs text-red-300">{error}</span>}
     </div>
   );
 }

@@ -16,19 +16,19 @@ import {
   validateNotivisaPayload,
   isValidCPF,
   isValidExamCode,
-  PayloadValidationResult
+  PayloadValidationResult,
 } from './notivisaPayloadValidator';
 import {
   checkDuplicatePayload,
   checkSubmissionGap,
   hashNotivisaPayload,
-  validateNotivisaBizRules
+  validateNotivisaBizRules,
 } from './notivisaBizRules';
 import {
   validateNotivisaAuditTrail,
   validateRevocationReason,
   writeNotivisaAuditLog,
-  generateNotivisaAuditSummary
+  generateNotivisaAuditSummary,
 } from './notivisaAuditGuardrails';
 import type { NotivisaPayload } from '../../../shared/notivisa';
 
@@ -46,14 +46,14 @@ const VALID_PAYLOAD: NotivisaPayload = {
       analito: 'Hemoglobin',
       valor: 14.5,
       unidade: 'g/dL',
-      referencia: '12.0-16.0'
-    }
+      referencia: '12.0-16.0',
+    },
   ],
   assinador: {
     cpf: '12345678901',
     nome: 'Dr. João da Silva',
-    data_assinatura: Date.now() - 500
-  }
+    data_assinatura: Date.now() - 500,
+  },
 };
 
 // Valid CPF numbers for testing (these pass Mod-11)
@@ -101,8 +101,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: VALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -113,7 +113,7 @@ describe('NOTIVISA Validation Guardrails', () => {
     it('should reject payload with invalid CPF', async () => {
       const payload: NotivisaPayload = {
         ...VALID_PAYLOAD,
-        paciente_cpf: INVALID_CPF
+        paciente_cpf: INVALID_CPF,
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -128,8 +128,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         data_resultado: Date.now() + 86400000, // Tomorrow
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -144,8 +144,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         resultados: [],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -159,8 +159,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: VALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: INVALID_CHECKSUM
-        }
+          cpf: INVALID_CHECKSUM,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -177,8 +177,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         assinador: {
           ...VALID_PAYLOAD.assinador,
           cpf: VALID_CPF,
-          data_assinatura: Date.now() // Today
-        }
+          data_assinatura: Date.now(), // Today
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -195,8 +195,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         assinador: {
           ...VALID_PAYLOAD.assinador,
           cpf: VALID_CPF,
-          data_assinatura: eightDaysAgo
-        }
+          data_assinatura: eightDaysAgo,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -213,13 +213,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: 'HIV Test',
             valor: 'maybe-positive', // Non-standard code
             unidade: 'Qualitative',
-            referencia: 'Negative'
-          }
+            referencia: 'Negative',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -250,24 +250,24 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: 'UNKNOWN-999', // Not registered
             valor: 123,
             unidade: 'mg/dL',
-            referencia: '0-100'
-          }
+            referencia: '0-100',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       // Without force: should warn
       const resultWithoutForce = await validateNotivisaPayload(payload, {
-        forceExamCode: false
+        forceExamCode: false,
       });
       expect(resultWithoutForce.warnings.length).toBeGreaterThan(0);
 
       // With force: warnings/errors should not block submission
       const resultWithForce = await validateNotivisaPayload(payload, {
-        forceExamCode: true
+        forceExamCode: true,
       });
       expect(resultWithForce.valid).toBe(true);
     });
@@ -282,8 +282,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: VALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const hash1 = hashNotivisaPayload(payload);
@@ -299,13 +299,13 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: VALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const payload2: NotivisaPayload = {
         ...payload1,
-        laudo_id: 'DIFFERENT-ID'
+        laudo_id: 'DIFFERENT-ID',
       };
 
       const hash1 = hashNotivisaPayload(payload1);
@@ -326,8 +326,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: VALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       // With force flag, should pass all checks
@@ -337,7 +337,7 @@ describe('NOTIVISA Validation Guardrails', () => {
         'lab-123',
         'draft-123',
         payload,
-        { force: true }
+        { force: true },
       );
 
       expect(result.valid).toBe(true);
@@ -357,7 +357,7 @@ describe('NOTIVISA Validation Guardrails', () => {
         valid: true,
         chainIntact: true,
         entryCount: 3,
-        errors: [] as string[]
+        errors: [] as string[],
       };
 
       expect(mockAuditResult.valid).toBe(true);
@@ -371,9 +371,7 @@ describe('NOTIVISA Validation Guardrails', () => {
         valid: false,
         chainIntact: false,
         entryCount: 2,
-        errors: [
-          'DRAFT_SUBMITTED found without prior DRAFT_APPROVED'
-        ] as string[]
+        errors: ['DRAFT_SUBMITTED found without prior DRAFT_APPROVED'] as string[],
       };
 
       expect(mockAuditResult.valid).toBe(false);
@@ -408,13 +406,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: 'Large Number Test',
             valor: 999999999,
             unidade: 'unit',
-            referencia: '0-100'
-          }
+            referencia: '0-100',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -431,13 +429,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: longName,
             valor: 1,
             unidade: 'u',
-            referencia: '0-2'
-          }
+            referencia: '0-2',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -454,13 +452,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: tooLongName,
             valor: 1,
             unidade: 'u',
-            referencia: '0-2'
-          }
+            referencia: '0-2',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -476,13 +474,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: 'Glucose',
             valor: 100,
             unidade: 'mg/dL',
-            referencia: '70-100'
-          }
+            referencia: '70-100',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const codedPayload: NotivisaPayload = {
@@ -493,13 +491,13 @@ describe('NOTIVISA Validation Guardrails', () => {
             analito: 'HIV',
             valor: 'negative',
             unidade: 'Qualitative',
-            referencia: 'Negative'
-          }
+            referencia: 'Negative',
+          },
         ],
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: VALID_CPF
-        }
+          cpf: VALID_CPF,
+        },
       };
 
       const resultNumeric = await validateNotivisaPayload(numericPayload);
@@ -519,8 +517,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         paciente_cpf: INVALID_CPF,
         assinador: {
           ...VALID_PAYLOAD.assinador,
-          cpf: INVALID_CPF
-        }
+          cpf: INVALID_CPF,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);
@@ -540,8 +538,8 @@ describe('NOTIVISA Validation Guardrails', () => {
         assinador: {
           ...VALID_PAYLOAD.assinador,
           cpf: VALID_CPF,
-          data_assinatura: eightDaysAgo
-        }
+          data_assinatura: eightDaysAgo,
+        },
       };
 
       const result = await validateNotivisaPayload(payload);

@@ -49,13 +49,10 @@ export const iaStripValidator = z.object({
       errorMap: () => ({
         message: `Class must be one of: ${ALLOWED_CLASSES.join(', ')}`,
       }),
-    })
+    }),
   ),
 
-  confidence: z
-    .number()
-    .min(0, 'Confidence must be >= 0')
-    .max(1, 'Confidence must be <= 1'),
+  confidence: z.number().min(0, 'Confidence must be >= 0').max(1, 'Confidence must be <= 1'),
 
   model_version: z
     .string()
@@ -98,7 +95,7 @@ export const validateStripImage = (data: unknown): StripImage => {
  * @returns Validation result with status and data/errors
  */
 export const validateStripImageSafe = (
-  data: unknown
+  data: unknown,
 ): { success: boolean; data?: StripImage; errors?: Record<string, string[]> } => {
   const result = iaStripValidator.safeParse(data);
 

@@ -113,24 +113,21 @@ describe('ADR 0003 Wave 3 — NC Blocking Gates', () => {
       // Create multiple critical NCs
       const batch = db.batch();
       for (let i = 0; i < 3; i++) {
-        batch.set(
-          db.collection(`labs/${testLabId}/naoConformidades`).doc(),
-          {
-            labId: testLabId,
-            codigo: `NC-TEST-MULTI-${i}`,
-            titulo: `Critical NC ${i}`,
-            descricao: `Testing multiple critical NCs`,
-            severidade: 'critica',
-            moduloOrigemId: 'procedimentos',
-            bloqueiaOperacoes: true,
-            capaStatus: 'nao_iniciada',
-            capaHistorico: [],
-            origem: 'modulo',
-            abertaPor: 'test-user',
-            criadoEm: admin.firestore.FieldValue.serverTimestamp(),
-            atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
-          }
-        );
+        batch.set(db.collection(`labs/${testLabId}/naoConformidades`).doc(), {
+          labId: testLabId,
+          codigo: `NC-TEST-MULTI-${i}`,
+          titulo: `Critical NC ${i}`,
+          descricao: `Testing multiple critical NCs`,
+          severidade: 'critica',
+          moduloOrigemId: 'procedimentos',
+          bloqueiaOperacoes: true,
+          capaStatus: 'nao_iniciada',
+          capaHistorico: [],
+          origem: 'modulo',
+          abertaPor: 'test-user',
+          criadoEm: admin.firestore.FieldValue.serverTimestamp(),
+          atualizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        });
       }
       await batch.commit();
 

@@ -167,19 +167,13 @@ export interface OperatorActivityReport {
 
 export type AuditEntryInput = Omit<
   AuditEntry,
-  | 'id'
-  | 'labId'
-  | 'hmac'
-  | 'hash'
-  | 'previousHash'
-  | 'timestamp'
-  | 'deletadoEm'
+  'id' | 'labId' | 'hmac' | 'hash' | 'previousHash' | 'timestamp' | 'deletadoEm'
 >;
 
 // ─── Logical Signature (RDC 978 Art. 128 + DICQ 4.4) ────────────────────────
 
 export interface LogicalSignature {
-  hash: string;     // 64-char hex (SHA-256)
+  hash: string; // 64-char hex (SHA-256)
   operatorId: string;
   ts: Timestamp;
 }
@@ -191,12 +185,12 @@ export interface Sessao {
   readonly labId: string;
   readonly auditoriaId: string;
 
-  numero: string;           // e.g., 'SESS-2026-001'
+  numero: string; // e.g., 'SESS-2026-001'
   dataInicio: Timestamp;
   dataFim: Timestamp | null;
 
   // ─── Multi-auditor support (FR-42)
-  auditorLider?: string;        // operatorId do auditor líder
+  auditorLider?: string; // operatorId do auditor líder
   auditoresAuxiliares?: string[]; // operatorIds adicionais
 
   status: 'aberta' | 'encerrada' | 'cancelada';
@@ -207,10 +201,7 @@ export interface Sessao {
   deletadoEm: Timestamp | null;
 }
 
-export type SessaoInput = Omit<
-  Sessao,
-  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
->;
+export type SessaoInput = Omit<Sessao, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>;
 
 // ─── Auditoria (audit plan + execution) ────────────────────────────────────
 
@@ -218,14 +209,14 @@ export interface Auditoria {
   readonly id: string;
   readonly labId: string;
 
-  numero: string;           // e.g., 'AUD-2026-001'
+  numero: string; // e.g., 'AUD-2026-001'
   titulo: string;
   descricao?: string;
 
   // ─── Scope + Re-audit support (FR-42)
   tipoExecucao?: 'inicial' | 'reAuditoria';
-  auditoriaOriginalId?: string;  // FK quando tipoExecucao === 'reAuditoria'
-  escopoSetores?: string[];      // ['Bioquímica', 'Imuno', ...]
+  auditoriaOriginalId?: string; // FK quando tipoExecucao === 'reAuditoria'
+  escopoSetores?: string[]; // ['Bioquímica', 'Imuno', ...]
   escopoEspecialidades?: string[];
 
   dataPlanehadaPara: Timestamp;
@@ -236,7 +227,7 @@ export interface Auditoria {
   // ─── Approval chain
   aprovacoes?: LogicalSignature[]; // múltiplas: Direção + QC
 
-  responsavel: string;      // operatorId
+  responsavel: string; // operatorId
   observacoes?: string;
 
   readonly criadoEm: Timestamp;
@@ -259,8 +250,8 @@ export interface Presenca {
   readonly labId: string;
   readonly auditoriaId: string;
 
-  userId: string;          // operatorId
-  nome: string;            // snapshot at time of signing
+  userId: string; // operatorId
+  nome: string; // snapshot at time of signing
   papel: PapelPresenca;
   reuniao: 'abertura' | 'encerramento';
   assinatura: LogicalSignature;
@@ -285,7 +276,7 @@ export interface ReuniaoAuditoria {
 
   tipo: 'abertura' | 'encerramento';
   dataHora: Timestamp;
-  pauta: string;          // min 10 chars
+  pauta: string; // min 10 chars
   concluidaEm: Timestamp | null;
   totalPresentes: number;
 
@@ -306,16 +297,16 @@ export interface PlanoAcao {
   readonly labId: string;
   readonly auditoriaId: string;
 
-  numero: string;           // e.g., 'PA-2026-001'
+  numero: string; // e.g., 'PA-2026-001'
   descricao: string;
-  responsavel: string;      // operatorId
+  responsavel: string; // operatorId
   dataLimite: Timestamp;
   prioridade: 'baixa' | 'media' | 'alta' | 'critica';
 
   status: 'aberto' | 'em_execucao' | 'concluido' | 'cancelado';
 
   // ─── Execution tracking
-  evidenciaUrl?: string;      // link para evidência de execução
+  evidenciaUrl?: string; // link para evidência de execução
   assinatura?: LogicalSignature; // assinatura ao concluir
 
   observacoes?: string;

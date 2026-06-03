@@ -80,11 +80,7 @@ export const PatientLaudoViewer: React.FC<PatientLaudoViewerProps> = ({ laudoId:
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#141417] via-[#1a1a1f] to-[#0c0c0f] flex items-center justify-center">
-        <svg
-          className="w-8 h-8 animate-spin text-emerald-500"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-8 h-8 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
           <circle
             cx="12"
             cy="12"
@@ -109,9 +105,13 @@ export const PatientLaudoViewer: React.FC<PatientLaudoViewerProps> = ({ laudoId:
       <div className="min-h-screen bg-gradient-to-b from-[#141417] via-[#1a1a1f] to-[#0c0c0f] flex items-center justify-center px-4">
         <div className="text-center max-w-md">
           <h1 className="text-xl font-semibold text-white mb-2">Laudo Not Found</h1>
-          <p className="text-white/60 mb-4">This laudo does not exist or you dont have access to it.</p>
+          <p className="text-white/60 mb-4">
+            This laudo does not exist or you dont have access to it.
+          </p>
           <button
-            onClick={() => { window.location.href = '/portal/dashboard'; }}
+            onClick={() => {
+              window.location.href = '/portal/dashboard';
+            }}
             className="px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-medium rounded-lg"
           >
             Back to Dashboard
@@ -126,7 +126,9 @@ export const PatientLaudoViewer: React.FC<PatientLaudoViewerProps> = ({ laudoId:
       <header className="bg-white/5 border-b border-white/10 backdrop-blur-md sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-4 flex items-center justify-between">
           <button
-            onClick={() => { window.location.href = '/portal/dashboard'; }}
+            onClick={() => {
+              window.location.href = '/portal/dashboard';
+            }}
             className="text-white/60 hover:text-white transition-colors"
             aria-label="Back to dashboard"
           >
@@ -185,7 +187,9 @@ export const PatientLaudoViewer: React.FC<PatientLaudoViewerProps> = ({ laudoId:
 
           <div className="space-y-4">
             <h2 className="text-lg font-semibold text-white">Results</h2>
-            <p className="text-white/60">Detailed results would be displayed here (PDF embedded or HTML table)</p>
+            <p className="text-white/60">
+              Detailed results would be displayed here (PDF embedded or HTML table)
+            </p>
           </div>
 
           {laudo.signatureHash && (

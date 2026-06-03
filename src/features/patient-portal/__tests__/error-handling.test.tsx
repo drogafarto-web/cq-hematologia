@@ -179,12 +179,7 @@ describe('ErrorAlert Component', () => {
     it('should call onAction when action button clicked', async () => {
       const handleAction = vi.fn();
       render(
-        <ErrorAlert
-          message="Test error"
-          type="auth"
-          actionLabel="Retry"
-          onAction={handleAction}
-        />,
+        <ErrorAlert message="Test error" type="auth" actionLabel="Retry" onAction={handleAction} />,
       );
 
       await userEvent.click(screen.getByRole('button', { name: /retry/i }));

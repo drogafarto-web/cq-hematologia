@@ -34,10 +34,7 @@ import { Timestamp } from 'firebase/firestore';
 import { useUser } from '../../../store/useAuthStore';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { bulkCreateDocumentos } from '../services/documentoService';
-import type {
-  DocumentoInput,
-  TipoDocumento,
-} from '../types/Documento';
+import type { DocumentoInput, TipoDocumento } from '../types/Documento';
 
 interface Props {
   onClose: () => void;
@@ -254,9 +251,8 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
             Importar Lista Mestra → SGQ (TSV)
           </h2>
           <p className="text-[11px] text-slate-500 dark:text-white/45 mt-0.5">
-            LM-01 (docs próprios) + LM-02 (docs externos · RDC/ABNT/FISPQ).
-            Status inicial será "em revisão" — RT promove para vigente após
-            validar.
+            LM-01 (docs próprios) + LM-02 (docs externos · RDC/ABNT/FISPQ). Status inicial será "em
+            revisão" — RT promove para vigente após validar.
           </p>
         </div>
 
@@ -293,7 +289,11 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
                   disabled={submitting}
                 />
                 <p className="text-[10px] text-slate-400 dark:text-white/35 mt-1">
-                  Formato: <code>código → título → url → versão → dataEmissão (YYYY-MM-DD ou DD/MM/YYYY) → próximaRevisão → autoridadeEmitente</code>
+                  Formato:{' '}
+                  <code>
+                    código → título → url → versão → dataEmissão (YYYY-MM-DD ou DD/MM/YYYY) →
+                    próximaRevisão → autoridadeEmitente
+                  </code>
                 </p>
               </div>
 
@@ -309,9 +309,7 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
                       <div
                         key={i}
                         className={`px-3 py-2 text-[11px] ${
-                          r.errors.length > 0
-                            ? 'bg-red-500/[0.04]'
-                            : 'bg-emerald-500/[0.02]'
+                          r.errors.length > 0 ? 'bg-red-500/[0.04]' : 'bg-emerald-500/[0.02]'
                         }`}
                       >
                         <div className="flex items-center gap-2">
@@ -372,9 +370,7 @@ export function ImportarLM01Modal({ onClose, onDone }: Props) {
               onClick={handleConfirm}
               disabled={submitting || validRows.length === 0}
             >
-              {submitting
-                ? 'Importando…'
-                : `Importar ${validRows.length} documento(s)`}
+              {submitting ? 'Importando…' : `Importar ${validRows.length} documento(s)`}
             </button>
           )}
         </div>

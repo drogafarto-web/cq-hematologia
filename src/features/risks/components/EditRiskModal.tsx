@@ -49,7 +49,12 @@ interface EditRiskModalProps {
   onCancel: () => void;
 }
 
-export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuccess, onCancel }) => {
+export const EditRiskModal: React.FC<EditRiskModalProps> = ({
+  risk,
+  labId,
+  onSuccess,
+  onCancel,
+}) => {
   const [form, setForm] = useState({
     descricao: risk.descricao,
     processo: risk.processo,
@@ -69,55 +74,72 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = useCallback((field: string, value: any) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+    setForm((prev) => ({ ...prev, [field]: value }));
   }, []);
 
-  const handleSubmit = useCallback(async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError(null);
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      setIsSubmitting(true);
+      setError(null);
 
-    try {
-      const payload: Record<string, any> = {};
+      try {
+        const payload: Record<string, any> = {};
 
-      // Only send changed fields
-      if (form.descricao !== risk.descricao) payload.descricao = form.descricao.trim();
-      if (form.processo !== risk.processo) payload.processo = form.processo;
-      if (form.categoria !== risk.categoria) payload.categoria = form.categoria;
-      if (form.probabilidade !== risk.probabilidade) payload.probabilidade = form.probabilidade;
-      if (form.severidade !== risk.severidade) payload.severidade = form.severidade;
-      if (form.deteccao !== risk.deteccao) payload.deteccao = form.deteccao;
-      if (form.status !== risk.status) payload.status = form.status;
-      if (form.causaPotencial !== ((risk as any).causaPotencial || '')) payload.causaPotencial = form.causaPotencial.trim();
-      if (form.efeitoPotencial !== ((risk as any).efeitoPotencial || '')) payload.efeitoPotencial = form.efeitoPotencial.trim();
-      if (form.responsavel !== ((risk as any).responsavel || '')) payload.responsavel = form.responsavel.trim();
-      if (form.eficacia !== ((risk as any).eficacia || 'pendente')) payload.eficacia = form.eficacia;
-      if (form.observacoes !== (risk.tratamento?.observacoes || '')) {
-        payload.tratamento = { ...risk.tratamento, observacoes: form.observacoes.trim() };
-      }
+        // Only send changed fields
+        if (form.descricao !== risk.descricao) payload.descricao = form.descricao.trim();
+        if (form.processo !== risk.processo) payload.processo = form.processo;
+        if (form.categoria !== risk.categoria) payload.categoria = form.categoria;
+        if (form.probabilidade !== risk.probabilidade) payload.probabilidade = form.probabilidade;
+        if (form.severidade !== risk.severidade) payload.severidade = form.severidade;
+        if (form.deteccao !== risk.deteccao) payload.deteccao = form.deteccao;
+        if (form.status !== risk.status) payload.status = form.status;
+        if (form.causaPotencial !== ((risk as any).causaPotencial || ''))
+          payload.causaPotencial = form.causaPotencial.trim();
+        if (form.efeitoPotencial !== ((risk as any).efeitoPotencial || ''))
+          payload.efeitoPotencial = form.efeitoPotencial.trim();
+        if (form.responsavel !== ((risk as any).responsavel || ''))
+          payload.responsavel = form.responsavel.trim();
+        if (form.eficacia !== ((risk as any).eficacia || 'pendente'))
+          payload.eficacia = form.eficacia;
+        if (form.observacoes !== (risk.tratamento?.observacoes || '')) {
+          payload.tratamento = { ...risk.tratamento, observacoes: form.observacoes.trim() };
+        }
 
-      if (Object.keys(payload).length === 0) {
-        setError('Nenhuma alteracao detectada.');
+        if (Object.keys(payload).length === 0) {
+          setError('Nenhuma alteracao detectada.');
+          setIsSubmitting(false);
+          return;
+        }
+
+        await callUpdateRisk(labId, risk.id, payload as any);
+        onSuccess?.();
+        onCancel();
+      } catch (err: any) {
+        setError(err.message || 'Erro ao atualizar risco.');
+      } finally {
         setIsSubmitting(false);
-        return;
       }
-
-      await callUpdateRisk(labId, risk.id, payload as any);
-      onSuccess?.();
-      onCancel();
-    } catch (err: any) {
-      setError(err.message || 'Erro ao atualizar risco.');
-    } finally {
-      setIsSubmitting(false);
-    }
-  }, [form, risk, labId, onSuccess, onCancel]);
+    },
+    [form, risk, labId, onSuccess, onCancel],
+  );
 
   const npr = form.probabilidade * form.severidade * form.deteccao;
   const nivelLabel = npr >= 100 ? 'Critico' : npr >= 61 ? 'Alto' : npr >= 25 ? 'Medio' : 'Baixo';
-  const nivelColor = npr >= 100 ? 'text-red-400' : npr >= 61 ? 'text-orange-400' : npr >= 25 ? 'text-yellow-400' : 'text-emerald-400';
+  const nivelColor =
+    npr >= 100
+      ? 'text-red-400'
+      : npr >= 61
+        ? 'text-orange-400'
+        : npr >= 25
+          ? 'text-yellow-400'
+          : 'text-emerald-400';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onCancel}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onCancel}
+    >
       <div
         className="w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-white/10 bg-[#1a1a1f] p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
@@ -155,7 +177,9 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
           {/* Causa + Efeito */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1">Causa Potencial</label>
+              <label className="block text-sm font-medium text-white/70 mb-1">
+                Causa Potencial
+              </label>
               <textarea
                 value={form.causaPotencial}
                 onChange={(e) => handleChange('causaPotencial', e.target.value)}
@@ -165,7 +189,9 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1">Efeito Potencial</label>
+              <label className="block text-sm font-medium text-white/70 mb-1">
+                Efeito Potencial
+              </label>
               <textarea
                 value={form.efeitoPotencial}
                 onChange={(e) => handleChange('efeitoPotencial', e.target.value)}
@@ -186,7 +212,11 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 disabled={isSubmitting}
                 className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50"
               >
-                {PROCESSO_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {PROCESSO_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -197,7 +227,11 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 disabled={isSubmitting}
                 className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50"
               >
-                {CATEGORIA_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {CATEGORIA_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </select>
             </div>
             <div>
@@ -208,7 +242,11 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 disabled={isSubmitting}
                 className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50"
               >
-                {STATUS_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {STATUS_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
@@ -220,14 +258,18 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 Probabilidade: <span className="text-white font-bold">{form.probabilidade}</span>
               </label>
               <input
-                type="range" min={1} max={5} step={1}
+                type="range"
+                min={1}
+                max={5}
+                step={1}
                 value={form.probabilidade}
                 onChange={(e) => handleChange('probabilidade', Number(e.target.value))}
                 disabled={isSubmitting}
                 className="w-full accent-violet-500"
               />
               <div className="flex justify-between text-[9px] text-white/30">
-                <span>Rara</span><span>Quase certa</span>
+                <span>Rara</span>
+                <span>Quase certa</span>
               </div>
             </div>
             <div>
@@ -235,14 +277,18 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 Severidade: <span className="text-white font-bold">{form.severidade}</span>
               </label>
               <input
-                type="range" min={1} max={5} step={1}
+                type="range"
+                min={1}
+                max={5}
+                step={1}
                 value={form.severidade}
                 onChange={(e) => handleChange('severidade', Number(e.target.value))}
                 disabled={isSubmitting}
                 className="w-full accent-violet-500"
               />
               <div className="flex justify-between text-[9px] text-white/30">
-                <span>Insignificante</span><span>Catastrofica</span>
+                <span>Insignificante</span>
+                <span>Catastrofica</span>
               </div>
             </div>
             <div>
@@ -250,14 +296,18 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
                 Deteccao: <span className="text-white font-bold">{form.deteccao}</span>
               </label>
               <input
-                type="range" min={1} max={5} step={1}
+                type="range"
+                min={1}
+                max={5}
+                step={1}
                 value={form.deteccao}
                 onChange={(e) => handleChange('deteccao', Number(e.target.value))}
                 disabled={isSubmitting}
                 className="w-full accent-violet-500"
               />
               <div className="flex justify-between text-[9px] text-white/30">
-                <span>Muito alta</span><span>Muito baixa</span>
+                <span>Muito alta</span>
+                <span>Muito baixa</span>
               </div>
             </div>
           </div>
@@ -276,21 +326,29 @@ export const EditRiskModal: React.FC<EditRiskModalProps> = ({ risk, labId, onSuc
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-white/70 mb-1">Eficacia do Tratamento</label>
+              <label className="block text-sm font-medium text-white/70 mb-1">
+                Eficacia do Tratamento
+              </label>
               <select
                 value={form.eficacia}
                 onChange={(e) => handleChange('eficacia', e.target.value)}
                 disabled={isSubmitting}
                 className="w-full px-3 py-2 bg-white/[0.05] border border-white/10 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-violet-500/50 disabled:opacity-50"
               >
-                {EFICACIA_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                {EFICACIA_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>
+                    {o.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
           {/* Observacoes */}
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1">Observacoes do Tratamento</label>
+            <label className="block text-sm font-medium text-white/70 mb-1">
+              Observacoes do Tratamento
+            </label>
             <textarea
               value={form.observacoes}
               onChange={(e) => handleChange('observacoes', e.target.value)}

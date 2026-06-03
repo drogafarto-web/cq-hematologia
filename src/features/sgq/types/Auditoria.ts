@@ -158,10 +158,7 @@ export function statusProgressoPlanoAcao(auditoria: Auditoria): {
   };
 }
 
-export function diasAteVencimento(
-  auditoria: Auditoria,
-  now: Date = new Date(),
-): number | null {
+export function diasAteVencimento(auditoria: Auditoria, now: Date = new Date()): number | null {
   if (!auditoria.prazoClosure) return null;
   const diff = auditoria.prazoClosure.toDate().getTime() - now.getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));

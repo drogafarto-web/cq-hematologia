@@ -44,10 +44,7 @@ function classificaFromCodigo(codigo: string): {
 } {
   const prefix = codigo.split('-')[0];
 
-  const classifications: Record<
-    string,
-    { tipo: TipoDocumentoType; confidence: number }
-  > = {
+  const classifications: Record<string, { tipo: TipoDocumentoType; confidence: number }> = {
     MQ: { tipo: 'MQ', confidence: 1.0 },
     PQ: { tipo: 'PQ', confidence: 1.0 },
     IT: { tipo: 'IT', confidence: 0.8 }, // Could be ITA/ITE/CCE, refine later
@@ -79,7 +76,10 @@ function classificaFromCodigo(codigo: string): {
 /**
  * Refine IT classification based on content keywords
  */
-function refineITClassification(titulo: string, preview?: string): {
+function refineITClassification(
+  titulo: string,
+  preview?: string,
+): {
   tipo: TipoDocumentoType;
   confidence: number;
 } {
@@ -108,55 +108,53 @@ function refineITClassification(titulo: string, preview?: string): {
   return { tipo: 'IT', confidence: 0.7 };
 }
 
-export const classificarDocAuto = onCall<ClassificarDocAutoInput, Promise<ClassificarDocAutoOutput>>(
-  async (request: CallableRequest<ClassificarDocAutoInput>) => {
-    if (!request.auth) {
-      throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated',
-      );
+export const classificarDocAuto = onCall<
+  ClassificarDocAutoInput,
+  Promise<ClassificarDocAutoOutput>
+>(async (request: CallableRequest<ClassificarDocAutoInput>) => {
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
+
+  const { labId, codigo, titulo, preview, lm01SetoresLD } = request.data;
+  const userId = request.auth.uid;
+
+  try {
+    let classification = classificaFromCodigo(codigo);
+
+    // Refine IT classification if preview available
+    if (classification.tipo === 'IT' && preview) {
+      const refined = refineITClassification(titulo, preview);
+      classification = { ...classification, ...refined };
     }
 
-    const { labId, codigo, titulo, preview, lm01SetoresLD } = request.data;
-    const userId = request.auth.uid;
-
-    try {
-      let classification = classificaFromCodigo(codigo);
-
-      // Refine IT classification if preview available
-      if (classification.tipo === 'IT' && preview) {
-        const refined = refineITClassification(titulo, preview);
-        classification = { ...classification, ...refined };
-      }
-
-      // Log operation
-      await admin
-        .firestore()
-        .collection('labs')
-        .doc(labId)
-        .collection('sgq-classificacao-logs')
-        .doc()
-        .set({
-          userId,
-          codigo,
-          titulo,
-          classificacao: classification.tipo,
-          confidence: classification.confidence,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        });
-
-      return {
-        tipo: classification.tipo,
+    // Log operation
+    await admin
+      .firestore()
+      .collection('labs')
+      .doc(labId)
+      .collection('sgq-classificacao-logs')
+      .doc()
+      .set({
+        userId,
+        codigo,
+        titulo,
+        classificacao: classification.tipo,
         confidence: classification.confidence,
-        sugerirSetoresLD: lm01SetoresLD,
-        reasoning: classification.reasoning,
-      } as ClassificarDocAutoOutput;
-    } catch (error) {
-      console.error('[classificarDocAuto] error:', error);
-      throw new HttpsError(
-        'internal',
-        error instanceof Error ? error.message : 'Classification failed',
-      );
-    }
-  },
-);
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+
+    return {
+      tipo: classification.tipo,
+      confidence: classification.confidence,
+      sugerirSetoresLD: lm01SetoresLD,
+      reasoning: classification.reasoning,
+    } as ClassificarDocAutoOutput;
+  } catch (error) {
+    console.error('[classificarDocAuto] error:', error);
+    throw new HttpsError(
+      'internal',
+      error instanceof Error ? error.message : 'Classification failed',
+    );
+  }
+});

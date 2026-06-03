@@ -43,7 +43,7 @@ export interface AggregatedSLA {
  */
 export async function getSLAMetrics(
   labId: string,
-  range: { from: number; to: number }
+  range: { from: number; to: number },
 ): Promise<SLAMetric[]> {
   try {
     const fromTs = Timestamp.fromMillis(range.from);
@@ -53,7 +53,7 @@ export async function getSLAMetrics(
       collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.CRITICOS_ESCALACOES),
       where('criadoEm', '>=', fromTs),
       where('criadoEm', '<=', toTs),
-      orderBy('criadoEm', 'desc')
+      orderBy('criadoEm', 'desc'),
     );
 
     const snap = await getDocs(q);

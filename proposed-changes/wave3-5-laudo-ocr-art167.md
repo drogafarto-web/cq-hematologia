@@ -127,6 +127,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 ### 1. `extractLaudoFieldsCallable`
 
 **Input:**
+
 ```typescript
 {
   labId: string;
@@ -137,6 +138,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 ```
 
 **Flow:**
+
 1. Auth check (user must be authenticated)
 2. Verify lab membership (RT/admin role required)
 3. Fetch laudo doc from Firestore
@@ -149,6 +151,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 7. Audit log with action='laudo-ocr-extraction-complete'
 
 **Output (success):**
+
 ```typescript
 {
   ok: true;
@@ -158,12 +161,13 @@ RETORNE JSON VÁLIDO (sem markdown):
 ```
 
 **Output (failure):**
+
 ```typescript
 {
   ok: false;
   error: string;
   code: 'vision_failed' | 'consent_failed' | 'validation_failed' | 'not_found' | 'unauthorized';
-  allowManualEntry: true;          // Always true — RT can enter manually
+  allowManualEntry: true; // Always true — RT can enter manually
 }
 ```
 
@@ -172,6 +176,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 ### 2. `saveLaudoFieldsManuallyCallable`
 
 **Input:**
+
 ```typescript
 {
   labId: string;
@@ -186,6 +191,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 ```
 
 **Flow:**
+
 1. Auth check
 2. Verify lab membership (RT/admin role required)
 3. Fetch laudo doc
@@ -196,6 +202,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 8. Audit log with action='laudo-fields-manual-entry'
 
 **Output (success):**
+
 ```typescript
 {
   ok: true;
@@ -205,6 +212,7 @@ RETORNE JSON VÁLIDO (sem markdown):
 ```
 
 **Output (failure):**
+
 ```typescript
 {
   ok: false;
@@ -223,13 +231,13 @@ match /laudos/{labId}/extractions/{laudoId} {
   // Read: RT, auditor, director
   allow read: if isActiveMemberOfLab(labId) &&
               (request.auth.token.role in ['RT', 'AUDITOR', 'director']);
-  
+
   // Create: Cloud Function only
   allow create: if false;
-  
+
   // Update: Cloud Function only
   allow update: if false;
-  
+
   // Delete: never (soft-delete only)
   allow delete: if false;
 }
@@ -347,20 +355,20 @@ Ensures patient explicitly opted into AI processing of their clinical data.
 
 ## Tests (Minimum 12)
 
-| Test | Coverage |
-|------|----------|
-| Happy path: extract field10/11/12 | Gemini integration |
-| Field10 required; field11/12 advisory | Validation rules |
-| Consent gate passes (patient has consent) | LGPD compliance |
-| Consent gate fails (no consent) | Error handling |
-| Signature detection with bounding box | Field11 detection |
-| Director signature + date extraction | Field12 detection |
-| Manual field entry from RT | Fallback path |
-| Validator: field10 empty → fail | Validation |
-| Validator: signatures not detected → warning | Validation |
-| Review level: auto vs manual-review | Review logic |
-| Audit log on extraction | Audit trail |
-| Audit log on manual entry | Audit trail |
+| Test                                         | Coverage           |
+| -------------------------------------------- | ------------------ |
+| Happy path: extract field10/11/12            | Gemini integration |
+| Field10 required; field11/12 advisory        | Validation rules   |
+| Consent gate passes (patient has consent)    | LGPD compliance    |
+| Consent gate fails (no consent)              | Error handling     |
+| Signature detection with bounding box        | Field11 detection  |
+| Director signature + date extraction         | Field12 detection  |
+| Manual field entry from RT                   | Fallback path      |
+| Validator: field10 empty → fail              | Validation         |
+| Validator: signatures not detected → warning | Validation         |
+| Review level: auto vs manual-review          | Review logic       |
+| Audit log on extraction                      | Audit trail        |
+| Audit log on manual entry                    | Audit trail        |
 
 ---
 
@@ -384,11 +392,9 @@ firebase deploy --only functions:saveLaudoFieldsManuallyCallable --project hmato
 ### Phase 6 Step 3: Update Function Index
 
 Add to `functions/src/index.ts`:
+
 ```typescript
-export {
-  extractLaudoFieldsCallable,
-  saveLaudoFieldsManuallyCallable,
-} from './modules/laudo-ocr';
+export { extractLaudoFieldsCallable, saveLaudoFieldsManuallyCallable } from './modules/laudo-ocr';
 ```
 
 ### Phase 6 Step 4: Hosting
@@ -402,13 +408,13 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Compliance Mapping
 
-| Requirement | Implementation |
-|---|---|
-| **RDC 978 Art. 167** — Laudo field integrity | Field extraction + audit trail |
-| **RDC 978 Art. 167** — Signatory verification | Signature detection (field11/12) |
-| **LGPD Art. 9** — PII in AI processing | Consent gate before Gemini call |
-| **DICQ 4.3** — Versioned, signed, traceable | Extraction logged in auditLogs |
-| **DICQ 4.4** — Audit trail | action='laudo-ocr-extracted' + manual fallback log |
+| Requirement                                   | Implementation                                     |
+| --------------------------------------------- | -------------------------------------------------- |
+| **RDC 978 Art. 167** — Laudo field integrity  | Field extraction + audit trail                     |
+| **RDC 978 Art. 167** — Signatory verification | Signature detection (field11/12)                   |
+| **LGPD Art. 9** — PII in AI processing        | Consent gate before Gemini call                    |
+| **DICQ 4.3** — Versioned, signed, traceable   | Extraction logged in auditLogs                     |
+| **DICQ 4.4** — Audit trail                    | action='laudo-ocr-extracted' + manual fallback log |
 
 ---
 
@@ -438,11 +444,13 @@ firebase deploy --only hosting --project hmatologia2
 ## Gemini API Costs
 
 **Per extraction:**
+
 - Input tokens: ~500–800 (image + prompt)
 - Output tokens: ~100–200 (JSON response)
 - Estimated cost: ~$0.001–0.003 USD per call
 
 **Scaling (1,000 laudos/month):**
+
 - Estimated monthly cost: $1–3 USD (negligible)
 - Cost tracking: recorded in auditLogs with `geminiLatencyMs` for analysis
 

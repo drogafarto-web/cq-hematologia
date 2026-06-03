@@ -10,29 +10,29 @@
 
 ### Critical Articles (100% Coverage)
 
-| Article | Requirement | Phase | Implementation | Status |
-|---------|-------------|-------|-----------------|--------|
-| **Art. 6** | Regulatory notification (adverse events) | Phase 4 | NOTIVISA module: draft + queue submission | ✅ Complete |
-| **Art. 22** | Daily RT supervision of lab operations | Phase 4 | RT presence enforcement: `hasActiveSupervisor()` gate on runs | ✅ Complete |
-| **Art. 36–39** | Lab partnership contracts (CNPJ, terms, audit) | Phase 3 | `lab-apoio` module: contract storage, annual review tracking | ✅ Complete |
-| **Art. 86** | Risk management (FMEA-based) | Phase 3 | `risks` module: FMEA-Lite (P×S×D), NPR 1–125, periodic review | ✅ Complete |
-| **Art. 122** | Supervisor on-site during operations (turnos) | Phase 3 | `turnos` module: shift supervision records + RDC 786 Art. 48 compliance | ✅ Complete |
-| **Art. 128** | RT responsibility for result review + validation | Phase 4 | Portal-RT module: dedicated dashboard, escalation workflow, audit trail | ✅ Complete |
-| **Art. 167** | Patient information delivery (timely, accurate) | Phase 4 | Portal-Paciente + Laudo-OCR: patient access within 24h, OCR accuracy >95% | ✅ Complete |
+| Article        | Requirement                                      | Phase   | Implementation                                                            | Status      |
+| -------------- | ------------------------------------------------ | ------- | ------------------------------------------------------------------------- | ----------- |
+| **Art. 6**     | Regulatory notification (adverse events)         | Phase 4 | NOTIVISA module: draft + queue submission                                 | ✅ Complete |
+| **Art. 22**    | Daily RT supervision of lab operations           | Phase 4 | RT presence enforcement: `hasActiveSupervisor()` gate on runs             | ✅ Complete |
+| **Art. 36–39** | Lab partnership contracts (CNPJ, terms, audit)   | Phase 3 | `lab-apoio` module: contract storage, annual review tracking              | ✅ Complete |
+| **Art. 86**    | Risk management (FMEA-based)                     | Phase 3 | `risks` module: FMEA-Lite (P×S×D), NPR 1–125, periodic review             | ✅ Complete |
+| **Art. 122**   | Supervisor on-site during operations (turnos)    | Phase 3 | `turnos` module: shift supervision records + RDC 786 Art. 48 compliance   | ✅ Complete |
+| **Art. 128**   | RT responsibility for result review + validation | Phase 4 | Portal-RT module: dedicated dashboard, escalation workflow, audit trail   | ✅ Complete |
+| **Art. 167**   | Patient information delivery (timely, accurate)  | Phase 4 | Portal-Paciente + Laudo-OCR: patient access within 24h, OCR accuracy >95% | ✅ Complete |
 
 **Coverage:** 7/7 critical articles (100%)
 
 ### Supporting Articles (Complete)
 
-| Article | Requirement | Module | Status |
-|---------|-------------|--------|--------|
-| Art. 2 | Regulatory definitions | All modules | ✅ |
-| Art. 36 | Outsourced services validation | lab-apoio | ✅ |
-| Art. 39 | Periodic partner review (annual) | lab-apoio | ✅ |
-| Art. 48 | PT equipment maintenance + calibration | controle-temperatura | ✅ |
-| Art. 52 | External QC participation (CEQ) | ceq | ✅ |
-| Art. 96 | Complaint resolution (NC workflow) | nao-conformidade | ✅ |
-| Art. 122 | Turnos documentation | turnos | ✅ |
+| Article  | Requirement                            | Module               | Status |
+| -------- | -------------------------------------- | -------------------- | ------ |
+| Art. 2   | Regulatory definitions                 | All modules          | ✅     |
+| Art. 36  | Outsourced services validation         | lab-apoio            | ✅     |
+| Art. 39  | Periodic partner review (annual)       | lab-apoio            | ✅     |
+| Art. 48  | PT equipment maintenance + calibration | controle-temperatura | ✅     |
+| Art. 52  | External QC participation (CEQ)        | ceq                  | ✅     |
+| Art. 96  | Complaint resolution (NC workflow)     | nao-conformidade     | ✅     |
+| Art. 122 | Turnos documentation                   | turnos               | ✅     |
 
 ---
 
@@ -40,24 +40,24 @@
 
 ### Patient Rights (100% Coverage)
 
-| Article | Right | Phase | Implementation | Status |
-|---------|-------|-------|-----------------|--------|
-| **Art. 9** | Explicit consent for sensitive data | Phase 4 | Portal-Paciente: checkbox consent before export; Laudo-OCR: consent gate before Gemini | ✅ Complete |
-| **Art. 11** | Portability (download own data) | Phase 4 | Portal-Paciente: `exportPatientData()` callable → XLSX/PDF email delivery | ✅ Complete |
-| **Art. 13** | Access to own data | Phase 4 | Portal-Paciente: email-link auth → view all results | ✅ Complete |
+| Article     | Right                               | Phase   | Implementation                                                                                                 | Status      |
+| ----------- | ----------------------------------- | ------- | -------------------------------------------------------------------------------------------------------------- | ----------- |
+| **Art. 9**  | Explicit consent for sensitive data | Phase 4 | Portal-Paciente: checkbox consent before export; Laudo-OCR: consent gate before Gemini                         | ✅ Complete |
+| **Art. 11** | Portability (download own data)     | Phase 4 | Portal-Paciente: `exportPatientData()` callable → XLSX/PDF email delivery                                      | ✅ Complete |
+| **Art. 13** | Access to own data                  | Phase 4 | Portal-Paciente: email-link auth → view all results                                                            | ✅ Complete |
 | **Art. 17** | Right to deletion (with exceptions) | Phase 4 | Portal-Paciente: `revokePatientConsent()` blocks future access; historical data retained (RDC 978 5-year rule) | ✅ Complete |
 
 **Coverage:** 4/4 patient rights (100%)
 
 ### Data Processing Requirements
 
-| Requirement | Phase | Implementation | Status |
-|-------------|-------|-----------------|--------|
-| Consent audit trail | Phase 4 | `patient-consents/{patientId}/records`: immutable, HMAC-signed | ✅ |
-| Data Retention Policy | Phase 3 | POL-LGPD-001 v1.0 + IT-LGPD-DPIA-001 v1.1 (draft) | ✅ Signed |
-| DPIA (Data Impact Assessment) | Phase 3 | IT-LGPD-DPIA-001 v1.1: signed, covers Gemini Vision processing | ⚠️ Draft (v2.0 Phase 5) |
-| Third-party Processors | Phase 4 | Google (Gemini), Resend (email) — both covered in DPIA annex | ✅ |
-| Data Breach Response | Phase 3 | Incident response runbook in `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` | ✅ |
+| Requirement                   | Phase   | Implementation                                                              | Status                  |
+| ----------------------------- | ------- | --------------------------------------------------------------------------- | ----------------------- |
+| Consent audit trail           | Phase 4 | `patient-consents/{patientId}/records`: immutable, HMAC-signed              | ✅                      |
+| Data Retention Policy         | Phase 3 | POL-LGPD-001 v1.0 + IT-LGPD-DPIA-001 v1.1 (draft)                           | ✅ Signed               |
+| DPIA (Data Impact Assessment) | Phase 3 | IT-LGPD-DPIA-001 v1.1: signed, covers Gemini Vision processing              | ⚠️ Draft (v2.0 Phase 5) |
+| Third-party Processors        | Phase 4 | Google (Gemini), Resend (email) — both covered in DPIA annex                | ✅                      |
+| Data Breach Response          | Phase 3 | Incident response runbook in `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` | ✅                      |
 
 ---
 
@@ -69,37 +69,37 @@
 
 #### Block 4.1 — Regulatory Requirements
 
-| Item | Requirement | Modules | Status |
-|------|-------------|---------|--------|
+| Item    | Requirement                              | Modules             | Status     |
+| ------- | ---------------------------------------- | ------------------- | ---------- |
 | 4.1.2.7 | Turnos supervisor presence documentation | turnos, rt-presence | ✅ Phase 4 |
-| 4.1.3 | Quality policy defined | sgq | ✅ Phase 3 |
-| 4.1.4 | Organizational structure documented | sgq, auth | ✅ Phase 3 |
+| 4.1.3   | Quality policy defined                   | sgq                 | ✅ Phase 3 |
+| 4.1.4   | Organizational structure documented      | sgq, auth           | ✅ Phase 3 |
 
 #### Block 4.3 — Quality Documentation
 
-| Item | Requirement | Modules | Status |
-|------|-------------|---------|--------|
-| 4.3.1 | Document control (versioning) | sgq, sgd | ✅ Phase 3 |
-| 4.3.2 | POP (SOP) management | pops | ✅ Phase 3 |
-| 4.3.3 | Record management | sgd | ✅ Phase 3 |
-| 4.3.4 | Training records | treinamentos | ✅ Phase 3 |
-| 4.3.5 | Equipment maintenance | controle-temperatura | ✅ Phase 3 |
+| Item  | Requirement                   | Modules              | Status     |
+| ----- | ----------------------------- | -------------------- | ---------- |
+| 4.3.1 | Document control (versioning) | sgq, sgd             | ✅ Phase 3 |
+| 4.3.2 | POP (SOP) management          | pops                 | ✅ Phase 3 |
+| 4.3.3 | Record management             | sgd                  | ✅ Phase 3 |
+| 4.3.4 | Training records              | treinamentos         | ✅ Phase 3 |
+| 4.3.5 | Equipment maintenance         | controle-temperatura | ✅ Phase 3 |
 
 #### Block 4.4 — Audit & Monitoring
 
-| Item | Requirement | Modules | Status |
-|------|-------------|---------|--------|
-| 4.4.1 | Audit trail (immutable) | auditoria | ✅ Phase 3 |
-| 4.4.2 | Complaint review | nao-conformidade | ✅ Phase 2 |
-| 4.4.3 | NC investigation | nao-conformidade | ✅ Phase 2 |
-| 4.4.4 | CAPA closure | nao-conformidade | ✅ Phase 2 |
-| 4.4.5 | Cloud Logs monitoring | cloud-logs | ✅ Phase 4 |
+| Item  | Requirement             | Modules          | Status     |
+| ----- | ----------------------- | ---------------- | ---------- |
+| 4.4.1 | Audit trail (immutable) | auditoria        | ✅ Phase 3 |
+| 4.4.2 | Complaint review        | nao-conformidade | ✅ Phase 2 |
+| 4.4.3 | NC investigation        | nao-conformidade | ✅ Phase 2 |
+| 4.4.4 | CAPA closure            | nao-conformidade | ✅ Phase 2 |
+| 4.4.5 | Cloud Logs monitoring   | cloud-logs       | ✅ Phase 4 |
 
 #### Block 4.14 — Advanced Compliance
 
-| Item | Requirement | Modules | Status |
-|------|-------------|---------|--------|
-| 4.14.6 | Risk management (FMEA) | risks | ✅ Phase 3 |
+| Item   | Requirement               | Modules   | Status     |
+| ------ | ------------------------- | --------- | ---------- |
+| 4.14.6 | Risk management (FMEA)    | risks     | ✅ Phase 3 |
 | 4.14.8 | Third-party partner audit | lab-apoio | ✅ Phase 3 |
 
 #### Phase 5 Pending (7 items, 18% remaining)
@@ -187,6 +187,7 @@
 **Requirement:** Laboratory must report adverse events to ANVISA (Portaria 204/2017).
 
 **Implementation:**
+
 - Module: `notivisa` (NOTIVISA v1.4)
 - Workflow: Laudo → Create draft → RT review → Submit to queue → Archive after confirmation
 - Collections: `notivisa-drafts`, `notivisa-queue`, `notivisa-outbox`
@@ -202,6 +203,7 @@
 **Requirement:** RT (Técnico Responsável) is legally responsible for result review, validation, and patient notification.
 
 **Implementation:**
+
 - Module: `portal-rt`
 - Dashboard: Real-time escalation feed (critical values, pending reviews, QC flags)
 - Presence: `hasActiveSupervisor()` gate ensures RT visible on shift
@@ -217,6 +219,7 @@
 **Requirement:** Patient must receive results within 24h of completion; method documented.
 
 **Implementation - Portal-Paciente:**
+
 - Module: `portal-paciente`
 - Auth: Email-link (24h expiry), HMAC-signed token
 - Delivery: Patient receives email with link to portal
@@ -225,6 +228,7 @@
 - Status: ✅ Live (Phase 4)
 
 **Implementation - Laudo-OCR:**
+
 - Module: `laudo-ocr`
 - Purpose: Speed up result capture (manual entry 5 min → OCR 30 sec)
 - Method: Gemini Vision API (consent-gated)
@@ -241,6 +245,7 @@
 **Sensitive Data:** Patient health results (laudo values), strip images.
 
 **Consent Points:**
+
 1. **Result Access** (Portal-Paciente):
    - Checkpoint: Patient clicks "view results" → if no consent → show consent form
    - Scope: 'result-access'
@@ -265,6 +270,7 @@
 **Requirement:** Patient can download own data in interoperable format.
 
 **Implementation:**
+
 - Feature: `exportPatientData()` Cloud Function callable
 - Format: XLSX (Excel) + PDF (human-readable)
 - Delivery: Email with 7-day download link
@@ -278,13 +284,13 @@
 
 **Modules:** sgq, sgd, pops, treinamentos, educacao-continuada
 
-| Document Type | Module | Versioning | Training | Audit | Status |
-|----------------|--------|-----------|----------|-------|--------|
-| Quality Manual (MQ) | sgq | ✅ v1.0 | ✅ Mandatory | ✅ | ✅ |
-| Procedures (POP) | pops | ✅ v1.0–v3.2 | ✅ Operator certified | ✅ | ✅ |
-| Instructions (IT) | sgq | ✅ v1.0–v2.1 | ✅ Per role | ✅ | ✅ |
-| Forms (FR) | sgq, sgd | ✅ v1.0–v4.3 | N/A | ✅ | ✅ |
-| Policies (POL) | sgq | ✅ v1.0 (POL-LGPD-001) | ✅ All staff | ✅ | ✅ |
+| Document Type       | Module   | Versioning             | Training              | Audit | Status |
+| ------------------- | -------- | ---------------------- | --------------------- | ----- | ------ |
+| Quality Manual (MQ) | sgq      | ✅ v1.0                | ✅ Mandatory          | ✅    | ✅     |
+| Procedures (POP)    | pops     | ✅ v1.0–v3.2           | ✅ Operator certified | ✅    | ✅     |
+| Instructions (IT)   | sgq      | ✅ v1.0–v2.1           | ✅ Per role           | ✅    | ✅     |
+| Forms (FR)          | sgq, sgd | ✅ v1.0–v4.3           | N/A                   | ✅    | ✅     |
+| Policies (POL)      | sgq      | ✅ v1.0 (POL-LGPD-001) | ✅ All staff          | ✅    | ✅     |
 
 **Coverage:** 5/5 document types (100%)
 
@@ -292,13 +298,13 @@
 
 ## Compliance Maintenance Schedule
 
-| Frequency | Task | Owner | Due |
-|-----------|------|-------|-----|
-| Daily | Cloud Logs monitoring (error rate, latency) | DevOps | Ongoing |
-| Weekly | Audit log review (rule rejections, anomalies) | Security | Every Monday |
-| Monthly | Compliance checklist update (DICQ blocks) | Compliance Lead | 1st of month |
-| Quarterly | External audit + RDC 978 verification | Compliance Lead | Q2, Q3, Q4 |
-| Yearly | DPIA review + LGPD impact assessment | Legal + CTO | Annual |
+| Frequency | Task                                          | Owner           | Due          |
+| --------- | --------------------------------------------- | --------------- | ------------ |
+| Daily     | Cloud Logs monitoring (error rate, latency)   | DevOps          | Ongoing      |
+| Weekly    | Audit log review (rule rejections, anomalies) | Security        | Every Monday |
+| Monthly   | Compliance checklist update (DICQ blocks)     | Compliance Lead | 1st of month |
+| Quarterly | External audit + RDC 978 verification         | Compliance Lead | Q2, Q3, Q4   |
+| Yearly    | DPIA review + LGPD impact assessment          | Legal + CTO     | Annual       |
 
 ---
 

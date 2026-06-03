@@ -30,7 +30,9 @@ const CreateCAPAInput = z.object({
     .enum(['auditoria', 'laudo', 'reclamacao', 'risco', 'nao-conformidade'])
     .nullable()
     .optional(),
-  status: z.enum(['aberta', 'em-tratamento', 'verificada', 'fechada', 'cancelada']).default('aberta'),
+  status: z
+    .enum(['aberta', 'em-tratamento', 'verificada', 'fechada', 'cancelada'])
+    .default('aberta'),
   prioridade: z.number().int().min(1).max(5).default(3),
   dataPrazo: z.any(), // Timestamp
 });
@@ -164,7 +166,7 @@ export const createCAPA = onCall(
           encontroId: input.encontroId || null,
           prioridade: input.prioridade,
         },
-        auditSecret
+        auditSecret,
       );
 
       return {
@@ -173,12 +175,9 @@ export const createCAPA = onCall(
       };
     } catch (error: any) {
       console.error('createCAPA error:', error);
-      throw new HttpsError(
-        'internal',
-        'Erro ao criar CAPA. Por favor, tente novamente.'
-      );
+      throw new HttpsError('internal', 'Erro ao criar CAPA. Por favor, tente novamente.');
     }
-  }
+  },
 );
 
 // ─── updateCAPA Callable ───────────────────────────────────────────────────
@@ -196,16 +195,12 @@ export const updateCAPA = onCall(
     if (!isAuthorized) {
       throw new HttpsError(
         'permission-denied',
-        'Apenas RT ou admin podem atualizar status de CAPA'
+        'Apenas RT ou admin podem atualizar status de CAPA',
       );
     }
 
     try {
-      const capaRef = db
-        .collection('labs')
-        .doc(input.labId)
-        .collection('capa')
-        .doc(input.capaId);
+      const capaRef = db.collection('labs').doc(input.labId).collection('capa').doc(input.capaId);
 
       const snap = await capaRef.get();
       if (!snap.exists) {
@@ -221,7 +216,7 @@ export const updateCAPA = onCall(
       if (!isValidTransition(currentStatus, input.newStatus)) {
         throw new HttpsError(
           'failed-precondition',
-          `Transição inválida: ${currentStatus} → ${input.newStatus}`
+          `Transição inválida: ${currentStatus} → ${input.newStatus}`,
         );
       }
 
@@ -243,19 +238,16 @@ export const updateCAPA = onCall(
           newStatus: input.newStatus,
           notes: input.notes || '',
         },
-        auditSecret
+        auditSecret,
       );
 
       return { success: true };
     } catch (error: any) {
       console.error('updateCAPA error:', error);
       if (error instanceof HttpsError) throw error;
-      throw new HttpsError(
-        'internal',
-        'Erro ao atualizar CAPA. Por favor, tente novamente.'
-      );
+      throw new HttpsError('internal', 'Erro ao atualizar CAPA. Por favor, tente novamente.');
     }
-  }
+  },
 );
 
 // ─── assignCAPA Callable ───────────────────────────────────────────────────
@@ -271,18 +263,11 @@ export const assignCAPA = onCall(
     const isAuthorized = await isAdminOrRT(input.labId, request.auth.uid);
 
     if (!isAuthorized) {
-      throw new HttpsError(
-        'permission-denied',
-        'Apenas RT ou admin podem atribuir ações'
-      );
+      throw new HttpsError('permission-denied', 'Apenas RT ou admin podem atribuir ações');
     }
 
     try {
-      const capaRef = db
-        .collection('labs')
-        .doc(input.labId)
-        .collection('capa')
-        .doc(input.capaId);
+      const capaRef = db.collection('labs').doc(input.labId).collection('capa').doc(input.capaId);
 
       const snap = await capaRef.get();
       if (!snap.exists) {
@@ -297,7 +282,7 @@ export const assignCAPA = onCall(
       if (capa.status === 'fechada' || capa.status === 'cancelada') {
         throw new HttpsError(
           'failed-precondition',
-          'Não é possível atribuir ações a CAPA fechada ou cancelada'
+          'Não é possível atribuir ações a CAPA fechada ou cancelada',
         );
       }
 
@@ -340,19 +325,16 @@ export const assignCAPA = onCall(
           tipo: input.tipo,
           responsavel: input.responsavel,
         },
-        auditSecret
+        auditSecret,
       );
 
       return { success: true, acaoId: acaoRef.id };
     } catch (error: any) {
       console.error('assignCAPA error:', error);
       if (error instanceof HttpsError) throw error;
-      throw new HttpsError(
-        'internal',
-        'Erro ao atribuir ação. Por favor, tente novamente.'
-      );
+      throw new HttpsError('internal', 'Erro ao atribuir ação. Por favor, tente novamente.');
     }
-  }
+  },
 );
 
 // ─── verifyCAPA Callable ───────────────────────────────────────────────────
@@ -368,18 +350,11 @@ export const verifyCAPA = onCall(
     const isAuthorized = await isAdminOrRT(input.labId, request.auth.uid);
 
     if (!isAuthorized) {
-      throw new HttpsError(
-        'permission-denied',
-        'Apenas RT ou admin podem verificar CAPAs'
-      );
+      throw new HttpsError('permission-denied', 'Apenas RT ou admin podem verificar CAPAs');
     }
 
     try {
-      const capaRef = db
-        .collection('labs')
-        .doc(input.labId)
-        .collection('capa')
-        .doc(input.capaId);
+      const capaRef = db.collection('labs').doc(input.labId).collection('capa').doc(input.capaId);
 
       const snap = await capaRef.get();
       if (!snap.exists) {
@@ -394,7 +369,7 @@ export const verifyCAPA = onCall(
       if (capa.status !== 'em-tratamento') {
         throw new HttpsError(
           'failed-precondition',
-          'Verificação só é possível em CAPAs em-tratamento'
+          'Verificação só é possível em CAPAs em-tratamento',
         );
       }
 
@@ -440,7 +415,7 @@ export const verifyCAPA = onCall(
           resultado: input.resultado,
           horasInvestidas: input.horasInvestidas,
         },
-        auditSecret
+        auditSecret,
       );
 
       return { success: true };
@@ -449,10 +424,10 @@ export const verifyCAPA = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError(
         'internal',
-        'Erro ao registrar verificação. Por favor, tente novamente.'
+        'Erro ao registrar verificação. Por favor, tente novamente.',
       );
     }
-  }
+  },
 );
 
 // ─── softDeleteCAPA Callable ───────────────────────────────────────────────
@@ -468,18 +443,11 @@ export const softDeleteCAPA = onCall(
     const isAuthorized = await isAdminOrRT(input.labId, request.auth.uid);
 
     if (!isAuthorized) {
-      throw new HttpsError(
-        'permission-denied',
-        'Apenas RT ou admin podem deletar CAPAs'
-      );
+      throw new HttpsError('permission-denied', 'Apenas RT ou admin podem deletar CAPAs');
     }
 
     try {
-      const capaRef = db
-        .collection('labs')
-        .doc(input.labId)
-        .collection('capa')
-        .doc(input.capaId);
+      const capaRef = db.collection('labs').doc(input.labId).collection('capa').doc(input.capaId);
 
       const snap = await capaRef.get();
       if (!snap.exists) {
@@ -502,17 +470,14 @@ export const softDeleteCAPA = onCall(
           capaId: input.capaId,
           deletadoPor: input.deletadoPor,
         },
-        auditSecret
+        auditSecret,
       );
 
       return { success: true };
     } catch (error: any) {
       console.error('softDeleteCAPA error:', error);
       if (error instanceof HttpsError) throw error;
-      throw new HttpsError(
-        'internal',
-        'Erro ao deletar CAPA. Por favor, tente novamente.'
-      );
+      throw new HttpsError('internal', 'Erro ao deletar CAPA. Por favor, tente novamente.');
     }
-  }
+  },
 );

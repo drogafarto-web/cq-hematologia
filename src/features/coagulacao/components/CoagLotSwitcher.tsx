@@ -21,10 +21,7 @@ export function CoagLotSwitcher({ lots, activeLot, onSelect }: CoagLotSwitcherPr
   const [open, setOpen] = useState(false);
 
   const currentLots = useMemo(
-    () =>
-      [...selectCurrentCompetenceLots(lots)].sort((a, b) =>
-        a.nivel.localeCompare(b.nivel),
-      ),
+    () => [...selectCurrentCompetenceLots(lots)].sort((a, b) => a.nivel.localeCompare(b.nivel)),
     [lots],
   );
 

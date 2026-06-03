@@ -11,11 +11,7 @@
 
 import { describe, expect, it, jest, afterEach } from '@jest/globals';
 
-import {
-  getNotivisaMode,
-  submitToGovTestMode,
-  dispatchSubmission,
-} from '../testMode';
+import { getNotivisaMode, submitToGovTestMode, dispatchSubmission } from '../testMode';
 
 describe('wave2-10 testMode resolver', () => {
   const original = process.env['NOTIVISA_MODE'];
@@ -192,9 +188,7 @@ describe('wave2-10 createDraft input schema', () => {
         laudo_id: 'laudo-1',
         paciente_cpf: '12345678901',
         data_resultado: 1700000000,
-        resultados: [
-          { analito: 'glicose', valor: 100, unidade: 'mg/dL', referencia: '70-99' },
-        ],
+        resultados: [{ analito: 'glicose', valor: 100, unidade: 'mg/dL', referencia: '70-99' }],
       },
     });
     expect(good.success).toBe(true);
@@ -207,9 +201,7 @@ describe('wave2-10 createDraft input schema', () => {
         laudo_id: 'laudo-1',
         paciente_cpf: '123',
         data_resultado: 1700000000,
-        resultados: [
-          { analito: 'glicose', valor: 100, unidade: 'mg/dL', referencia: '70-99' },
-        ],
+        resultados: [{ analito: 'glicose', valor: 100, unidade: 'mg/dL', referencia: '70-99' }],
       },
     });
     expect(bad.success).toBe(false);

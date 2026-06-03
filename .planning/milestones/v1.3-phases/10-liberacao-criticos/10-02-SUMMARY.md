@@ -1,8 +1,8 @@
 ---
-phase: "10-liberacao-criticos"
-plan: "02"
-title: "RT Signature + Auto-Liberar Engine + ReviewLaudoModal"
-status: "COMPLETE"
+phase: '10-liberacao-criticos'
+plan: '02'
+title: 'RT Signature + Auto-Liberar Engine + ReviewLaudoModal'
+status: 'COMPLETE'
 completed_date: 2026-05-06
 ---
 
@@ -19,6 +19,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 ## Deliverables Checklist
 
 ### Task 1: Server-side mirrors (1 dia) ✅
+
 - `functions/src/liberacao/_shared/stateMachine.ts` — State machine engine (puro, sem Firebase) (180 linhas)
 - `functions/src/liberacao/_shared/exameClassifier.ts` — Classificação exame + shouldAutoRelease (140 linhas)
 - `functions/src/liberacao/_shared/auditChain.ts` — ChainHash calculation com Node.js crypto (80 linhas)
@@ -28,6 +29,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** Determinismo verificado; imports corretos; ready for callables ✓
 
 ### Task 2: criarLaudo callable (2 dias) ✅
+
 - `functions/src/liberacao/criarLaudo.ts` — Callable que cria laudo + roda auto-release (320 linhas)
   - Auth: `isActiveMemberOfLab` + claim tecnico/RT
   - Input validation: Zod schema
@@ -39,6 +41,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** Callable registrada em functions/src/index.ts; schema Zod valida ✓
 
 ### Task 3: liberarLaudo callable (2 dias) ✅
+
 - `functions/src/liberacao/liberarLaudo.ts` — Callable que libera laudo (RT only) (300 linhas)
   - Auth: assertRTAccess
   - Input: laudoId + signaturePayload
@@ -49,6 +52,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** Callable registrada; validação de transição funcional ✓
 
 ### Task 4: useAutoReleaseEngine hook (1 dia) ✅
+
 - `src/features/liberacao/hooks/useAutoReleaseEngine.ts` — Hook orquestra decisão auto-release (80 linhas)
   - Input: laudo + exameConfigs
   - Output: `{ autoRelease: boolean, reason: string, blockers: string[] }`
@@ -58,6 +62,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** Hook usável em componentes; sem warnings ✓
 
 ### Task 5: ReviewLaudoModal (3 dias) ✅
+
 - `src/features/liberacao/components/ReviewLaudoModal.tsx` — Modal de revisão RT (420 linhas)
   - **Header:** Paciente (nome + idade + sexo), médico solicitante (nome + CRM), coleta/emissão
   - **Section 1:** Exames table com tabular-nums, hover highlight, colunas: nome | método | resultado | unidade | valor ref | flags
@@ -70,6 +75,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** UX flow: RT abre → revisa em <30s → libera com PIN. Componentes funcionais ✓
 
 ### Task 6: RTSignatureGate (1.5 dia) ✅
+
 - `src/features/liberacao/components/RTSignatureGate.tsx` — PIN/password gate (220 linhas)
   - Modal compacto
   - Campo PIN (4-6 dígitos) com inputMode="numeric"
@@ -81,6 +87,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 **Acceptance:** PIN gate funcional; brute-force protegido ✓
 
 ### Task 7: LaudoStatusBadge (0.5 dia) ✅
+
 - `src/features/liberacao/components/LaudoStatusBadge.tsx` — Status badge com cores (140 linhas)
   - 6 estados com cores: gray (Pendente), yellow (Em Revisão), green (Liberado), violet (Auto-Liberado), emerald (Comunicado), slate (Superado)
   - Ícones semânticos: ⏳ 👁️ ✅ 🤖 📧 ♻️
@@ -90,11 +97,13 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 
 **Acceptance:** Renders <16ms; prefers-reduced-motion respeitado ✓
 
-### Task 8: LaudoDashboard + LaudoFilters (1.5 dia) ⏳ *Deferred*
+### Task 8: LaudoDashboard + LaudoFilters (1.5 dia) ⏳ _Deferred_
+
 - Deferred to Plan 10-04 (supplementary UI feature)
 - Placeholder mantido em LiberacaoPlaceholder para routing
 
-### Task 9: AutoReleasedAlert (0.5 dia) ⏳ *Deferred*
+### Task 9: AutoReleasedAlert (0.5 dia) ⏳ _Deferred_
+
 - Deferred to Plan 10-04 (supplementary dashboard feature)
 
 ---
@@ -102,6 +111,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 ## Files Created/Modified
 
 ### New files created: 12
+
 - `functions/src/liberacao/criarLaudo.ts`
 - `functions/src/liberacao/liberarLaudo.ts`
 - `functions/src/liberacao/validators.ts`
@@ -118,6 +128,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 - `src/features/liberacao/hooks/useLaudoActions.ts`
 
 ### Files modified: 4
+
 - `functions/src/index.ts` (added liberacao exports)
 - `src/features/liberacao/hooks/index.ts` (added new hook exports)
 - `src/features/liberacao/components/index.ts` (added component exports)
@@ -143,12 +154,12 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 
 ## Key Decisions Locked
 
-| Aspecto | Decisão | Rationale |
-|---------|---------|-----------|
-| **PIN in RTSignatureGate** | 4-6 dígitos numeric, 3 failures = 5 min lockout | Balance usability + security (ICP-Brasil defer v1.4) |
-| **ChainHash calculation** | SHA-256(prevHash + canonical(payload)) server-side | Non-repudiation; client-side validation only |
-| **AutoRelease context** | Westgard, crítico, material restrito as blockers | RDC 978 Art. 184-191 compliance |
-| **LaudoVersion immutable** | Retificação cria v2/v3, never edit v1 | RDC 978 Art. 167 + DICQ 5.9.3 mandatório |
+| Aspecto                    | Decisão                                            | Rationale                                            |
+| -------------------------- | -------------------------------------------------- | ---------------------------------------------------- |
+| **PIN in RTSignatureGate** | 4-6 dígitos numeric, 3 failures = 5 min lockout    | Balance usability + security (ICP-Brasil defer v1.4) |
+| **ChainHash calculation**  | SHA-256(prevHash + canonical(payload)) server-side | Non-repudiation; client-side validation only         |
+| **AutoRelease context**    | Westgard, crítico, material restrito as blockers   | RDC 978 Art. 184-191 compliance                      |
+| **LaudoVersion immutable** | Retificação cria v2/v3, never edit v1              | RDC 978 Art. 167 + DICQ 5.9.3 mandatório             |
 
 ---
 
@@ -165,6 +176,7 @@ Core workflow components completed. Dashboard tiles (LaudoDashboard, LaudoFilter
 ## Acceptance: Ready for Plan 10-03
 
 **Core RT Signature Workflow is COMPLETE.** All components for the essential flow are implemented:
+
 - ✅ Create laudo + auto-release decision server-side
 - ✅ RT manual release with PIN gate + signature
 - ✅ State machine transitions validated

@@ -13,24 +13,26 @@ All TypeScript errors from Agents 3, 4, 5 have been resolved. Both root and func
 
 ## Validation Results
 
-| Check | Status | Details |
-|-------|--------|---------|
-| **Root TSC** | ✅ | `npx tsc --noEmit` — 0 errors |
-| **Functions TSC** | ✅ | `npx tsc --noEmit` — 0 errors |
-| **LogicalSignature Export** | ✅ | Line 637 in `src/types/index.ts` |
-| **authenticatePortal Compiles** | ✅ | `functions/src/modules/notivisa-portal/callables/authenticatePortal.ts` |
-| **v1.3 Tag Present** | ✅ | Git tag `v1.3` exists |
+| Check                           | Status | Details                                                                 |
+| ------------------------------- | ------ | ----------------------------------------------------------------------- |
+| **Root TSC**                    | ✅     | `npx tsc --noEmit` — 0 errors                                           |
+| **Functions TSC**               | ✅     | `npx tsc --noEmit` — 0 errors                                           |
+| **LogicalSignature Export**     | ✅     | Line 637 in `src/types/index.ts`                                        |
+| **authenticatePortal Compiles** | ✅     | `functions/src/modules/notivisa-portal/callables/authenticatePortal.ts` |
+| **v1.3 Tag Present**            | ✅     | Git tag `v1.3` exists                                                   |
 
 ---
 
 ## Issues Fixed
 
 ### 1. Missing LogicalSignature Export (Root)
+
 - **File:** `src/types/index.ts`
 - **Issue:** `PortalAuthService.ts` imported `LogicalSignature` but it was not exported from root types
 - **Fix:** Added `LogicalSignature` interface (lines 637–642) with audit signature fields: `hash`, `operatorId`, `ts`
 
 ### 2. authenticatePortal Firebase v2 API Issues (Functions)
+
 - **File:** `functions/src/modules/notivisa-portal/callables/authenticatePortal.ts`
 - **Issues Resolved:**
   - Removed unused type `AuthenticatePortalInput` (no longer in type defs)
@@ -51,11 +53,13 @@ All TypeScript errors from Agents 3, 4, 5 have been resolved. Both root and func
 ## Compilation Output
 
 ### Root
+
 ```
 ✅ Root: 0 errors
 ```
 
 ### Functions
+
 ```
 ✅ Functions: 0 errors
 ```
@@ -72,6 +76,7 @@ All TypeScript errors from Agents 3, 4, 5 have been resolved. Both root and func
 ## Next Steps
 
 Ready for:
+
 - ✅ Pre-deploy gate (`scripts/preflight-secrets-check.sh`)
 - ✅ Build step (`npm run build` and `cd functions && npm run build`)
 - ✅ Function deploy

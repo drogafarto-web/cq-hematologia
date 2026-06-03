@@ -50,7 +50,7 @@ class SatisfacaoService {
       dataInicio?: Date;
       dataFim?: Date;
       limit?: number;
-    }
+    },
   ): Promise<NPSResposta[]> {
     const constraints: QueryConstraint[] = [
       where('labId', '==', labId),
@@ -68,10 +68,13 @@ class SatisfacaoService {
     const q = query(collection(db, `labs/${labId}/satisfacao-respostas`), ...constraints);
     const snap = await getDocs(q);
 
-    return snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as NPSResposta));
+    return snap.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as NPSResposta,
+    );
   }
 
   /**
@@ -108,14 +111,17 @@ class SatisfacaoService {
     const q = query(
       collection(db, `labs/${labId}/satisfacao-campanhas`),
       where('deletadoEm', '==', null),
-      orderBy('dataInicio', 'desc')
+      orderBy('dataInicio', 'desc'),
     );
 
     const snap = await getDocs(q);
-    return snap.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as CampanhaSatisfacao));
+    return snap.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as CampanhaSatisfacao,
+    );
   }
 }
 

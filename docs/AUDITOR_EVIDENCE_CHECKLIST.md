@@ -43,6 +43,7 @@
 - [ ] **Collections to spot-check:** `/labs/{labId}/auditoria`, `/runs`, `/liberacao`, `/lotes`
 
 **Sample Firestore rules check:**
+
 ```
 grep -n "allow delete" firestore.rules
 # Expected: 0 matches (delete is forbidden; soft-delete only)
@@ -62,6 +63,7 @@ grep -n "allow delete" firestore.rules
 - [ ] **Sample:** Query a test lab's turnos (e.g., labId = 'test-lab-001')
 
 **Sample Firestore query:**
+
 ```
 db.collection('labs/test-lab-001/turnos')
   .where('dataInicio', '>=', new Date('2026-05-01'))
@@ -72,6 +74,7 @@ db.collection('labs/test-lab-001/turnos')
 **Evidence found:** ☐ Yes ☐ No ☐ Partial
 
 **Fields verified:**
+
 - [ ] supervisorId present
 - [ ] supervisorNome present
 - [ ] supervisorRegistro present
@@ -91,22 +94,22 @@ db.collection('labs/test-lab-001/turnos')
 
 **Field checklist:**
 
-| # | Field | RDC 978 Ref | Status | Present? |
-|---|-------|---|---|---|
-| 1 | Lab name + CNES | 167, I | ✅ Done | ☐ Yes ☐ No |
-| 2 | Address + phone | 167, II | ✅ Done | ☐ Yes ☐ No |
-| 3 | RT name + license | 167, III | ✅ Done | ☐ Yes ☐ No |
-| 4 | Signatory name + license | 167, IV | ✅ Done | ☐ Yes ☐ No |
-| 5 | Patient name + ID | 167, V | ✅ Done | ☐ Yes ☐ No |
-| 6 | Age or DOB | 167, VI | ✅ Done | ☐ Yes ☐ No |
-| 7 | Collection date | 167, VII | ✅ Done | ☐ Yes ☐ No |
-| 8 | Exam + material + method | 167, VIII | ✅ Done | ☐ Yes ☐ No |
-| 9 | Result + unit | 167, IX | ✅ Done | ☐ Yes ☐ No |
-| 10 | Reference + limitations | 167, X | 🟡 Phase 9 | ☐ Yes ☐ No |
-| 11 | In-house methodology spec | 167, XI | 🟡 Phase 9 | ☐ Yes ☐ No |
-| 12 | Restricted material note | 167, XII | 🟡 Phase 9 | ☐ Yes ☐ No |
-| 13 | Emission date | 167, XIII | ✅ Done | ☐ Yes ☐ No |
-| 14 | Signature (legal) | 167, XIV | ✅ Done | ☐ Yes ☐ No |
+| #   | Field                     | RDC 978 Ref | Status     | Present?   |
+| --- | ------------------------- | ----------- | ---------- | ---------- |
+| 1   | Lab name + CNES           | 167, I      | ✅ Done    | ☐ Yes ☐ No |
+| 2   | Address + phone           | 167, II     | ✅ Done    | ☐ Yes ☐ No |
+| 3   | RT name + license         | 167, III    | ✅ Done    | ☐ Yes ☐ No |
+| 4   | Signatory name + license  | 167, IV     | ✅ Done    | ☐ Yes ☐ No |
+| 5   | Patient name + ID         | 167, V      | ✅ Done    | ☐ Yes ☐ No |
+| 6   | Age or DOB                | 167, VI     | ✅ Done    | ☐ Yes ☐ No |
+| 7   | Collection date           | 167, VII    | ✅ Done    | ☐ Yes ☐ No |
+| 8   | Exam + material + method  | 167, VIII   | ✅ Done    | ☐ Yes ☐ No |
+| 9   | Result + unit             | 167, IX     | ✅ Done    | ☐ Yes ☐ No |
+| 10  | Reference + limitations   | 167, X      | 🟡 Phase 9 | ☐ Yes ☐ No |
+| 11  | In-house methodology spec | 167, XI     | 🟡 Phase 9 | ☐ Yes ☐ No |
+| 12  | Restricted material note  | 167, XII    | 🟡 Phase 9 | ☐ Yes ☐ No |
+| 13  | Emission date             | 167, XIII   | ✅ Done    | ☐ Yes ☐ No |
+| 14  | Signature (legal)         | 167, XIV    | ✅ Done    | ☐ Yes ☐ No |
 
 **Evidence found:** ☐ 9/14 ☐ 12/14 ☐ 14/14
 
@@ -121,6 +124,7 @@ db.collection('labs/test-lab-001/turnos')
 - [ ] **Check:** Spot-sample each module; verify run records + Westgard rules applied
 
 **Sample query (Bioquimica):**
+
 ```
 db.collection('labs/test-lab-001/bioquimica')
   .where('createdAt', '>=', new Date('2026-04-22'))  // post-Phase 3 deploy
@@ -130,6 +134,7 @@ db.collection('labs/test-lab-001/bioquimica')
 ```
 
 **Equipment/Analyte pairs verified:**
+
 - [ ] Bioquimica: glucose, protein, electrolytes (3+ analytes)
 - [ ] Coagulacao: PT, aPTT, fibrinogen (3+ analytes)
 - [ ] CIQ-Imuno: HCV, HBsAg, syphilis (3+ analytes)
@@ -149,6 +154,7 @@ db.collection('labs/test-lab-001/bioquimica')
 - [ ] **Check:** Sample laudo with result ≥ threshold has `criticoFlag: true`; observe RT override required
 
 **Configuration check:**
+
 ```
 db.doc('labs/test-lab-001/configuracoes/criticos').get()
   .then(d => console.log(d.data()));
@@ -156,6 +162,7 @@ db.doc('labs/test-lab-001/configuracoes/criticos').get()
 ```
 
 **Sample laudo check:**
+
 ```
 db.collection('labs/test-lab-001/liberacao')
   .where('criticoFlag', '==', true)
@@ -167,7 +174,7 @@ db.collection('labs/test-lab-001/liberacao')
 
 **Evidence found:** ☐ Yes ☐ No ☐ Partial
 
-**Critical threshold count:** _____ analytes configured
+**Critical threshold count:** **\_** analytes configured
 
 **Auditor notes:**
 
@@ -180,6 +187,7 @@ db.collection('labs/test-lab-001/liberacao')
 - [ ] **Check:** Sample NC linked to CAPA with root cause + effectiveness verification
 
 **Sample query:**
+
 ```
 db.collection('labs/test-lab-001/naoConformidades')
   .where('createdAt', '>=', new Date('2026-04-22'))
@@ -193,7 +201,7 @@ db.collection('labs/test-lab-001/naoConformidades')
 
 **Evidence found:** ☐ Yes ☐ No ☐ Partial
 
-**NC samples reviewed:** _____ (recommend ≥3)
+**NC samples reviewed:** **\_** (recommend ≥3)
 
 **CAPA linkage verified:** ☐ Yes ☐ No ☐ Partial
 
@@ -209,7 +217,7 @@ db.collection('labs/test-lab-001/naoConformidades')
 
 **Evidence found:** ☐ Schema deployed ☐ Integration Phase 5 ☐ Not yet started
 
-**Note:** *Full integration deferred Phase 5 (2026-07-15). Current status is acceptable for RDC 978 compliance pre-audit if roadmap documented.*
+**Note:** _Full integration deferred Phase 5 (2026-07-15). Current status is acceptable for RDC 978 compliance pre-audit if roadmap documented._
 
 **Auditor notes:**
 
@@ -217,15 +225,15 @@ db.collection('labs/test-lab-001/naoConformidades')
 
 ### RDC 978 Summary
 
-**Total Articles Verified:** _____ / 28
+**Total Articles Verified:** **\_** / 28
 
-**Fully Compliant:** _____ articles
+**Fully Compliant:** **\_** articles
 
-**Substantially Compliant:** _____ articles
+**Substantially Compliant:** **\_** articles
 
-**Deferred (Documented):** _____ articles
+**Deferred (Documented):** **\_** articles
 
-**Non-Compliant:** _____ articles
+**Non-Compliant:** **\_** articles
 
 **Auditor conclusion:** ☐ PASS ☐ CONDITIONAL PASS (document Phase X completion) ☐ FAIL
 
@@ -255,6 +263,7 @@ db.collection('labs/test-lab-001/naoConformidades')
 - [ ] **4.3 — Riopomba migration:** 80+ docs migrated from legacy system (verify 3–5 samples)
 
 **Sample query:**
+
 ```
 db.collection('labs/test-lab-001/sgd/documentos')
   .where('tipo', '==', 'PQ')  // Procedimento da Qualidade
@@ -268,7 +277,7 @@ db.collection('labs/test-lab-001/sgd/documentos')
 
 **Evidence found:** ☐ 4/4 ☐ 2–3/4 ☐ <2/4
 
-**Total SGD documents:** _____ (target: 80+)
+**Total SGD documents:** **\_** (target: 80+)
 
 **Auditor notes:**
 
@@ -282,6 +291,7 @@ db.collection('labs/test-lab-001/sgd/documentos')
 - [ ] **5.1.8 — EC program:** Annual plan + effectiveness metrics
 
 **Personnel sample:**
+
 ```
 db.collection('labs/test-lab-001/personnel/dossiê')
   .limit(3)
@@ -308,7 +318,7 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 
 **Evidence found:** ☐ 5/5 ☐ 3–4/5 ☐ <3/5
 
-**Risk register entries:** _____ (Phase 0 baseline: ≥5 sample risks)
+**Risk register entries:** **\_** (Phase 0 baseline: ≥5 sample risks)
 
 **Auditor notes:**
 
@@ -328,15 +338,15 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 
 ### DICQ Summary
 
-**Total blocks verified:** _____ / 10
+**Total blocks verified:** **\_** / 10
 
-**Compliant blocks:** _____ 
+**Compliant blocks:** **\_**
 
-**Partially compliant blocks:** _____
+**Partially compliant blocks:** **\_**
 
-**Non-compliant blocks:** _____
+**Non-compliant blocks:** **\_**
 
-**Overall DICQ score estimate:** _____ % (v1.3 baseline 78.5%, Phase 0 target 82%)
+**Overall DICQ score estimate:** **\_** % (v1.3 baseline 78.5%, Phase 0 target 82%)
 
 **Auditor conclusion:** ☐ ON TRACK for 88%+ target ☐ BELOW TARGET (document catch-up plan)
 
@@ -364,7 +374,7 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 
 **Evidence found:** ☐ Yes ☐ No ☐ Partial
 
-**Test request filed:** ☐ Yes (date: _____) ☐ No
+**Test request filed:** ☐ Yes (date: **\_**) ☐ No
 
 **Response received within 15d:** ☐ Yes ☐ No ☐ Pending
 
@@ -380,6 +390,7 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 - [ ] **Verify:** Mitigations in place (e.g., encryption, access controls)
 
 **DPIA risk assessment:**
+
 - [ ] OCR processing risk analyzed
 - [ ] Biometric auth risk analyzed
 - [ ] Data retention risk analyzed
@@ -393,13 +404,13 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 
 ### LGPD Summary
 
-**Total LGPD articles verified:** _____ / 3
+**Total LGPD articles verified:** **\_** / 3
 
-**Compliant:** _____
+**Compliant:** **\_**
 
-**Partially compliant:** _____
+**Partially compliant:** **\_**
 
-**Non-compliant:** _____
+**Non-compliant:** **\_**
 
 **Auditor conclusion:** ☐ PASS ☐ CONDITIONAL PASS ☐ FAIL
 
@@ -416,6 +427,7 @@ db.collection('labs/test-lab-001/personnel/dossiê')
 - [ ] **Check:** Post-rotation HMAC validator operational (scheduled job next 12h success)
 
 **Query to verify synthetic event:**
+
 ```
 db.collection('labs/test-lab-001/audit-violations')
   .where('type', '==', 'chain-baseline-reset')
@@ -440,6 +452,7 @@ db.collection('labs/test-lab-001/audit-violations')
 - [ ] **Run test:** Execute script against hmatologia2 project
 
 **Test command:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh hmatologia2
 # Expected: "✓ All 8 secrets provisioned" (or list of unprovisioned)
@@ -462,12 +475,13 @@ bash scripts/preflight-secrets-check.sh hmatologia2
 - [ ] **Check:** All modules represented
 
 **Test summary:**
+
 ```
 npm run test 2>&1 | tail -20
 # Look for "738 passed" or similar count
 ```
 
-**Result:** _____ tests passed / _____ failed
+**Result:** **\_** tests passed / **\_** failed
 
 **Evidence found:** ☐ All passing ☐ Minor failures (<5) ☐ Major failures
 
@@ -494,13 +508,14 @@ npm run test 2>&1 | tail -20
 - [ ] **Check:** Error rate <5%, no critical exceptions since 2026-05-07
 
 **Sample query:**
+
 ```bash
 gcloud logging read "severity=ERROR" --project hmatologia2 --limit 100 \
   --format="table(timestamp, labels.function_name, jsonPayload.message)" \
   --filter='timestamp>="2026-05-07T00:00:00Z"'
 ```
 
-**Error count (24h post-deploy):** _____
+**Error count (24h post-deploy):** **\_**
 
 **Critical errors:** ☐ None ☐ <5 ☐ ≥5 (document root causes)
 
@@ -512,19 +527,20 @@ gcloud logging read "severity=ERROR" --project hmatologia2 --limit 100 \
 
 ### Audit Findings Summary
 
-**Total items verified:** _____ / 115 (approx. 60% of DICQ 4.3 granular checklist)
+**Total items verified:** **\_** / 115 (approx. 60% of DICQ 4.3 granular checklist)
 
-**Compliant items:** _____
+**Compliant items:** **\_**
 
-**Partially compliant items:** _____
+**Partially compliant items:** **\_**
 
-**Non-compliant items:** _____
+**Non-compliant items:** **\_**
 
-**Compliance percentage:** _____ % (benchmark: ≥80% for DICQ pre-audit, ≥100% for RDC 978 mandatory)
+**Compliance percentage:** **\_** % (benchmark: ≥80% for DICQ pre-audit, ≥100% for RDC 978 mandatory)
 
 ### Audit Conclusion
 
 **Overall assessment:**
+
 - ☐ **PASS** — Ready for DICQ pre-audit (2026-08-15)
 - ☐ **CONDITIONAL PASS** — Pass with documented Phase X completion plan
 - ☐ **FAIL** — Recommend rework before audit scheduling
@@ -532,15 +548,15 @@ gcloud logging read "severity=ERROR" --project hmatologia2 --limit 100 \
 ### Corrective Actions Required (if any)
 
 | Finding # | Standard | Description | Owner | Due Date | Evidence |
-|---|---|---|---|---|---|
-| — | — | — | — | — | — |
+| --------- | -------- | ----------- | ----- | -------- | -------- |
+| —         | —        | —           | —     | —        | —        |
 
 ### Auditor Sign-Off
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| **Lead Auditor** | _________________ | _________________ | _________ |
-| **QMS Representative** | _________________ | _________________ | _________ |
+| Role                   | Name               | Signature          | Date       |
+| ---------------------- | ------------------ | ------------------ | ---------- |
+| **Lead Auditor**       | ********\_******** | ********\_******** | ****\_**** |
+| **QMS Representative** | ********\_******** | ********\_******** | ****\_**** |
 
 ---
 
@@ -548,47 +564,38 @@ gcloud logging read "severity=ERROR" --project hmatologia2 --limit 100 \
 
 ### A. Key File Locations Reference
 
-| Item | Path | Version |
-|------|------|---------|
-| Project CLAUDE.md | `c:/hc quality/CLAUDE.md` | Current |
-| Full compliance audit | `docs/PHASE_3_COMPLIANCE_AUDIT.md` | 2026-05-07 |
-| Executive summary | `docs/PHASE_3_COMPLIANCE_SUMMARY.md` | 2026-05-07 |
-| RDC 978 map | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md` | Current |
-| DICQ map | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md` | 2026-05-07 |
-| Checklist | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Checklist_Auditoria.md` | Current |
-| ADR-0017 | `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` | 2026-05-07 |
-| ADR-0018 | `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` | 2026-05-07 |
-| Deploy gate script | `scripts/preflight-secrets-check.sh` | Current |
-| LGPD Policy | `docs/policies/POL-LGPD-001-v1.0.md` | 2026-05-04 |
-| LGPD DPIA | `docs/policies/IT-LGPD-DPIA-001-v1.1.md` | 2026-05-07 |
+| Item                  | Path                                                                          | Version    |
+| --------------------- | ----------------------------------------------------------------------------- | ---------- |
+| Project CLAUDE.md     | `c:/hc quality/CLAUDE.md`                                                     | Current    |
+| Full compliance audit | `docs/PHASE_3_COMPLIANCE_AUDIT.md`                                            | 2026-05-07 |
+| Executive summary     | `docs/PHASE_3_COMPLIANCE_SUMMARY.md`                                          | 2026-05-07 |
+| RDC 978 map           | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md` | Current    |
+| DICQ map              | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md`     | 2026-05-07 |
+| Checklist             | `c:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Checklist_Auditoria.md` | Current    |
+| ADR-0017              | `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`                         | 2026-05-07 |
+| ADR-0018              | `docs/adr/ADR-0018-deploy-gate-secret-status-check.md`                        | 2026-05-07 |
+| Deploy gate script    | `scripts/preflight-secrets-check.sh`                                          | Current    |
+| LGPD Policy           | `docs/policies/POL-LGPD-001-v1.0.md`                                          | 2026-05-04 |
+| LGPD DPIA             | `docs/policies/IT-LGPD-DPIA-001-v1.1.md`                                      | 2026-05-07 |
 
 ### B. Firestore Query Templates
 
 ```javascript
 // List all CIQ runs (bioquimica)
-db.collectionGroup('bioquimica')
-  .where('createdAt', '>=', new Date('2026-05-01'))
-  .limit(10)
-  .get()
+db.collectionGroup('bioquimica').where('createdAt', '>=', new Date('2026-05-01')).limit(10).get();
 
 // Find non-conformances with linked CAPAs
-db.collectionGroup('naoConformidades')
-  .where('capaId', '!=', null)
-  .limit(10)
-  .get()
+db.collectionGroup('naoConformidades').where('capaId', '!=', null).limit(10).get();
 
 // Verify soft-delete (deleted records are hidden)
 db.collectionGroup('documentos')
   .where('deletedAt', '!=', null)
   .limit(10)
   .get()
-  .then(qs => console.log(`Soft-deleted docs: ${qs.size}`))
+  .then((qs) => console.log(`Soft-deleted docs: ${qs.size}`));
 
 // Check shift supervisor presence
-db.collectionGroup('turnos')
-  .where('supervisorId', '!=', null)
-  .limit(10)
-  .get()
+db.collectionGroup('turnos').where('supervisorId', '!=', null).limit(10).get();
 ```
 
 ### C. Cloud Logs Commands
@@ -609,6 +616,6 @@ gcloud logging read "jsonPayload.message=~'HMAC validation failed'" \
 
 ---
 
-**Audit conducted:** ___________ (date)  
-**Auditor:** ___________ (name/org)  
-**Report finalized:** ___________ (date)
+**Audit conducted:** ****\_\_\_**** (date)  
+**Auditor:** ****\_\_\_**** (name/org)  
+**Report finalized:** ****\_\_\_**** (date)

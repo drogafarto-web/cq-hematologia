@@ -57,11 +57,11 @@ Document at `labs/{labId}/{leaf}-auditFailures/{autoId}`:
 
 ```ts
 {
-  chainCollectionPath: string;          // e.g. "/labs/abc/notas-fiscais"
-  operation: string;                    // e.g. "notaFiscal.criada"
-  operadorId: string;                   // request.auth.uid
+  chainCollectionPath: string; // e.g. "/labs/abc/notas-fiscais"
+  operation: string; // e.g. "notaFiscal.criada"
+  operadorId: string; // request.auth.uid
   intendedPayload: Record<string, unknown>;
-  error: string;                        // truncated to 2000 chars
+  error: string; // truncated to 2000 chars
   attempts: 3;
   recordedAt: serverTimestamp;
 }

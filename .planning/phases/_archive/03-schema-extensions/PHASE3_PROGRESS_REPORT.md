@@ -13,6 +13,7 @@
 **Phase 3 execution is live as of 2026-05-07 20:45 UTC with 12 agents running in parallel.**
 
 Wave 1 (Schema + Helpers) completed same-day with all artifacts delivered:
+
 - 5 Firestore collections fully designed and documented (SCHEMA_v1.4.md, 1,500+ lines)
 - 5 composite indexes configured and deployment-ready
 - 13 sample test documents covering all edge cases
@@ -20,6 +21,7 @@ Wave 1 (Schema + Helpers) completed same-day with all artifacts delivered:
 - 50+ callable function signatures ready for Wave 2 implementation
 
 Wave 2 (Rules, Functions, Integration Tests) is in active progress:
+
 - Agent 2 (Rules) on track for 2026-05-10 completion
 - Agent 4 (Functions) staged and ready, starts after Rules ✅
 - 8 support agents (5-12) running in parallel on validation, compliance, performance, and Phase 4/5 planning
@@ -32,13 +34,13 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### Collections Under Design (Wave 1 ✅)
 
-| Collection | Purpose | Status | Lines | Compliance |
-|------------|---------|--------|-------|-----------|
-| `portal-configuracao` | Patient portal branding | ✅ Designed | 150 | DICQ 4.3.1 |
-| `notivisa-outbox/events` | Regulatory event queue (NOTIVISA Art. 6º §1) | ✅ Designed | 200 | RDC Art. 6º |
-| `criticos-escalacoes/escalacoes` | Critical value escalations (SMS/email) | ✅ Designed | 180 | RDC Art. 122 |
-| `imuno-ias-dev/images` | IA training dataset (immunology) | ✅ Designed | 160 | DICQ 4.3 |
-| `laudos-draft/rascunhos` | RT portal draft editing + locking | ✅ Designed | 170 | RDC Art. 167 |
+| Collection                       | Purpose                                      | Status      | Lines | Compliance   |
+| -------------------------------- | -------------------------------------------- | ----------- | ----- | ------------ |
+| `portal-configuracao`            | Patient portal branding                      | ✅ Designed | 150   | DICQ 4.3.1   |
+| `notivisa-outbox/events`         | Regulatory event queue (NOTIVISA Art. 6º §1) | ✅ Designed | 200   | RDC Art. 6º  |
+| `criticos-escalacoes/escalacoes` | Critical value escalations (SMS/email)       | ✅ Designed | 180   | RDC Art. 122 |
+| `imuno-ias-dev/images`           | IA training dataset (immunology)             | ✅ Designed | 160   | DICQ 4.3     |
+| `laudos-draft/rascunhos`         | RT portal draft editing + locking            | ✅ Designed | 170   | RDC Art. 167 |
 
 **Composite Indexes:** 5 total, all configured, deployment ETA <5 minutes.
 
@@ -81,16 +83,16 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ## Wave 1 Completion Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| Collections designed | 5 | 5 | ✅ |
-| Composite indexes | 5 | 5 | ✅ |
-| Test documents | 10+ | 13 | ✅ |
-| Schema documentation | 1,000+ lines | 1,500+ lines | ✅ |
-| Helper functions | 30+ stubs | 50+ stubs | ✅ |
-| Compliance blocks mapped | 5+ | 8+ | ✅ |
-| Regressions | 0 | 0 | ✅ |
-| TypeScript errors | 0 | 0 | ✅ |
+| Metric                   | Target       | Actual       | Status |
+| ------------------------ | ------------ | ------------ | ------ |
+| Collections designed     | 5            | 5            | ✅     |
+| Composite indexes        | 5            | 5            | ✅     |
+| Test documents           | 10+          | 13           | ✅     |
+| Schema documentation     | 1,000+ lines | 1,500+ lines | ✅     |
+| Helper functions         | 30+ stubs    | 50+ stubs    | ✅     |
+| Compliance blocks mapped | 5+           | 8+           | ✅     |
+| Regressions              | 0            | 0            | ✅     |
+| TypeScript errors        | 0            | 0            | ✅     |
 
 ---
 
@@ -98,17 +100,17 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### Timeline & Milestones
 
-| Date | Task | Owner | Status | Dependencies |
-|------|------|-------|--------|--------------|
-| 2026-05-07 | Wave 1 delivery | Agents 1, 3 | ✅ DONE | None |
-| 2026-05-10 | Rules (03-02) | Agent 2 | 🔄 IN PROGRESS | Schema ✅ |
-| 2026-05-11 | Functions (03-04) | Agent 4 | ⏳ READY | Rules |
-| 2026-05-11 | Integration tests (03-05) | Agent 5 | ⏳ QUEUED | Functions |
-| 2026-05-12 | Compliance audit (03-06) | Agent 6 | ⏳ QUEUED | Rules + Functions |
-| 2026-05-12 | Performance tests (03-07) | Agent 7 | ⏳ QUEUED | Functions + Indexes deployed |
-| 2026-05-12 | E2E suite (03-08) | Agent 8 | ⏳ QUEUED | All above |
-| 2026-05-13 | Staging deploy readiness (03-11) | Agent 11 | ⏳ PARALLEL | All above |
-| 2026-05-14 | Phase 3 sign-off | Agent 1 | ⏳ QUEUED | All above |
+| Date       | Task                             | Owner       | Status         | Dependencies                 |
+| ---------- | -------------------------------- | ----------- | -------------- | ---------------------------- |
+| 2026-05-07 | Wave 1 delivery                  | Agents 1, 3 | ✅ DONE        | None                         |
+| 2026-05-10 | Rules (03-02)                    | Agent 2     | 🔄 IN PROGRESS | Schema ✅                    |
+| 2026-05-11 | Functions (03-04)                | Agent 4     | ⏳ READY       | Rules                        |
+| 2026-05-11 | Integration tests (03-05)        | Agent 5     | ⏳ QUEUED      | Functions                    |
+| 2026-05-12 | Compliance audit (03-06)         | Agent 6     | ⏳ QUEUED      | Rules + Functions            |
+| 2026-05-12 | Performance tests (03-07)        | Agent 7     | ⏳ QUEUED      | Functions + Indexes deployed |
+| 2026-05-12 | E2E suite (03-08)                | Agent 8     | ⏳ QUEUED      | All above                    |
+| 2026-05-13 | Staging deploy readiness (03-11) | Agent 11    | ⏳ PARALLEL    | All above                    |
+| 2026-05-14 | Phase 3 sign-off                 | Agent 1     | ⏳ QUEUED      | All above                    |
 
 ### Wave 2 Tasks in Detail
 
@@ -119,6 +121,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** SCHEMA_v1.4.md, test data, existing rules as reference (all 20 modules).
 
 **Deliverables:**
+
 - 5 collection rules blocks (all 5 collections)
 - 5 subcollection rules blocks (events, escalacoes, images, rascunhos)
 - Multi-tenant isolation enforcement (labId matching on all paths)
@@ -136,6 +139,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** Schema, test data, rules (once ✅), helper stubs.
 
 **Deliverables:**
+
 - publishNOTIVISAEvent (retry logic, Art. 6º §1 compliance)
 - escalateCriticalValue (SMS/email, SLA tracking)
 - publishDraft, lockDraft, unlockDraft (RT portal, pessimistic locking)
@@ -153,6 +157,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** Functions, test data, validation scripts.
 
 **Deliverables:**
+
 - 25+ integration tests (5 tests × 5 collections)
 - Multi-tenant isolation tests
 - Concurrency tests (draft locks, escalation retries)
@@ -169,6 +174,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** Rules, Functions, schema, compliance matrices (v1.4-RDC-COVERAGE-MATRIX.md).
 
 **Deliverables:**
+
 - RDC 978 article checklist (30+ articles, all ✅ or blocked by later phase)
 - DICQ 4.3 block coverage (blocks A–J)
 - DICQ 4.4 audit trail validation (write intent, read consent)
@@ -184,6 +190,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** Indexed schema (deployed), Functions, test data.
 
 **Deliverables:**
+
 - Bundle impact analysis (new collections, new routes)
 - Firestore query latency baseline (composite indexes in place)
 - Function cold start metrics (regional: southamerica-east1)
@@ -200,6 +207,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **Input:** UI stubs for Phase 4+, Functions, test data.
 
 **Deliverables:**
+
 - 5 critical flows documented (portal config, RT draft edit, critical escalation, etc.)
 - Test suite scaffold (ready for Phase 4 UI implementation)
 - Regression baseline for Phase 4+
@@ -214,6 +222,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **In Parallel:** While Wave 2 executes, Agent 9 prepares Phase 4 specification.
 
 **Deliverables (by 2026-05-13):**
+
 - 04-LLM-INTEGRATION-PLAN.md (Gemini 2.5 Flash, streaming, RAG)
 - 04-EXTERNAL-API-CALLABLES-PLAN.md (NOTIVISA, SMS/email providers)
 - 04-REQUIREMENTS.md (5 REQs, dependency chain)
@@ -225,6 +234,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **In Parallel:** Portal architecture (RT + Patient), SSO, Analytics.
 
 **Deliverables (by 2026-05-13):**
+
 - 05-PORTAL-ARCHITECTURE-PLAN.md (component hierarchy, state mgmt)
 - 05-IDENTITY-INTEGRATION-PLAN.md (SSO, JWT, OIDC)
 - 05-REQUIREMENTS.md (8 REQs)
@@ -236,6 +246,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **In Parallel:** Prepare staging environment for Phase 3 deployment.
 
 **Deliverables (by 2026-05-13):**
+
 - Deploy checklist (Rules, Indexes, sample data)
 - Smoke test plan (all 5 collections)
 - Cloud Logs monitoring setup (24h post-deploy)
@@ -247,6 +258,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 **In Parallel:** Consolidate all Phase 3 artifacts for Phase 4 handoff.
 
 **Deliverables (by 2026-05-14):**
+
 - PHASE3_HANDOFF.md (for Phase 4 agents)
 - PHASE3_COMPLETION_SUMMARY.md (executive report)
 - Artifact index + cross-references
@@ -259,30 +271,30 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### Wave 1 (Complete)
 
-| Agent | Task | Assigned | Status | ETA | Completion |
-|-------|------|----------|--------|-----|-----------|
-| **1** | 03-01 Schema | 2026-05-07 | ✅ COMPLETE | 2026-05-07 | 20:30 UTC |
-| **3** | 03-03 Helpers | 2026-05-07 | ✅ COMPLETE | 2026-05-07 | 20:30 UTC |
+| Agent | Task          | Assigned   | Status      | ETA        | Completion |
+| ----- | ------------- | ---------- | ----------- | ---------- | ---------- |
+| **1** | 03-01 Schema  | 2026-05-07 | ✅ COMPLETE | 2026-05-07 | 20:30 UTC  |
+| **3** | 03-03 Helpers | 2026-05-07 | ✅ COMPLETE | 2026-05-07 | 20:30 UTC  |
 
 ### Wave 2 (In Progress)
 
-| Agent | Task | Assigned | Status | ETA | Blocker | Unblock |
-|-------|------|----------|--------|-----|---------|---------|
-| **2** | 03-02 Rules | 2026-05-07 | 🔄 IN PROGRESS | 2026-05-10 | None | ✅ Schema |
-| **4** | 03-04 Functions | 2026-05-07 | ⏳ READY | 2026-05-11 | Rules | 03-02 |
-| **5** | 03-05 Integration Tests | 2026-05-07 | ⏳ READY | 2026-05-11 | Functions | 03-04 |
-| **6** | 03-06 Compliance Audit | 2026-05-07 | ⏳ READY | 2026-05-12 | None | ✅ Schema |
-| **7** | 03-07 Performance Tests | 2026-05-07 | ⏳ READY | 2026-05-12 | Indexes | 03-02 |
-| **8** | 03-08 E2E Suite | 2026-05-07 | ⏳ READY | 2026-05-12 | Functions | 03-04 |
+| Agent | Task                    | Assigned   | Status         | ETA        | Blocker   | Unblock   |
+| ----- | ----------------------- | ---------- | -------------- | ---------- | --------- | --------- |
+| **2** | 03-02 Rules             | 2026-05-07 | 🔄 IN PROGRESS | 2026-05-10 | None      | ✅ Schema |
+| **4** | 03-04 Functions         | 2026-05-07 | ⏳ READY       | 2026-05-11 | Rules     | 03-02     |
+| **5** | 03-05 Integration Tests | 2026-05-07 | ⏳ READY       | 2026-05-11 | Functions | 03-04     |
+| **6** | 03-06 Compliance Audit  | 2026-05-07 | ⏳ READY       | 2026-05-12 | None      | ✅ Schema |
+| **7** | 03-07 Performance Tests | 2026-05-07 | ⏳ READY       | 2026-05-12 | Indexes   | 03-02     |
+| **8** | 03-08 E2E Suite         | 2026-05-07 | ⏳ READY       | 2026-05-12 | Functions | 03-04     |
 
 ### Support Streams (Parallel)
 
-| Agent | Task | Assigned | Status | ETA | Blocker |
-|-------|------|----------|--------|-----|---------|
-| **9** | Phase 4 Planning | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None |
-| **10** | Phase 5 Planning | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None |
-| **11** | Staging Deploy Readiness | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None |
-| **12** | Documentation & Handoff | 2026-05-07 | ⏳ QUEUED | 2026-05-14 | Wave 2 ✅ |
+| Agent  | Task                     | Assigned   | Status    | ETA        | Blocker   |
+| ------ | ------------------------ | ---------- | --------- | ---------- | --------- |
+| **9**  | Phase 4 Planning         | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None      |
+| **10** | Phase 5 Planning         | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None      |
+| **11** | Staging Deploy Readiness | 2026-05-07 | ⏳ QUEUED | 2026-05-13 | None      |
+| **12** | Documentation & Handoff  | 2026-05-07 | ⏳ QUEUED | 2026-05-14 | Wave 2 ✅ |
 
 ---
 
@@ -290,12 +302,12 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### Identified Risks
 
-| Risk | Probability | Impact | Mitigation | Status |
-|------|-------------|--------|-----------|--------|
-| **RISK-P3-001:** Agent 2 (Rules) overruns | Low (3/10) | Medium (4/10) | Buffer +2 days scheduled | ✅ Mitigated |
-| **RISK-P3-002:** Firestore indexes slow build | Very Low (1/10) | Low (2/10) | <5min typical; pre-deploy staging test | ✅ Mitigated |
-| **RISK-P3-003:** Concurrency bugs in draft locking | Low (3/10) | High (7/10) | Heavy testing (Agent 5, 8); code review pre-deploy | ✅ Mitigated |
-| **RISK-P3-004:** Performance regression (new collections) | Very Low (2/10) | Medium (5/10) | Baseline metrics (Agent 7); Web Vitals monitoring | ✅ Mitigated |
+| Risk                                                      | Probability     | Impact        | Mitigation                                         | Status       |
+| --------------------------------------------------------- | --------------- | ------------- | -------------------------------------------------- | ------------ |
+| **RISK-P3-001:** Agent 2 (Rules) overruns                 | Low (3/10)      | Medium (4/10) | Buffer +2 days scheduled                           | ✅ Mitigated |
+| **RISK-P3-002:** Firestore indexes slow build             | Very Low (1/10) | Low (2/10)    | <5min typical; pre-deploy staging test             | ✅ Mitigated |
+| **RISK-P3-003:** Concurrency bugs in draft locking        | Low (3/10)      | High (7/10)   | Heavy testing (Agent 5, 8); code review pre-deploy | ✅ Mitigated |
+| **RISK-P3-004:** Performance regression (new collections) | Very Low (2/10) | Medium (5/10) | Baseline metrics (Agent 7); Web Vitals monitoring  | ✅ Mitigated |
 
 **Overall Risk Score:** 2.5/10 (LOW) — all mitigations in place.
 
@@ -311,33 +323,33 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### RDC 978/2025 Coverage
 
-| Article | Collection | Status | Evidence |
-|---------|-----------|--------|----------|
-| Art. 6º §1 | notivisa-outbox | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
-| Art. 122 | criticos-escalacoes | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
-| Art. 167 | laudos-draft | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
+| Article    | Collection          | Status      | Evidence                     |
+| ---------- | ------------------- | ----------- | ---------------------------- |
+| Art. 6º §1 | notivisa-outbox     | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
+| Art. 122   | criticos-escalacoes | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
+| Art. 167   | laudos-draft        | 🔄 In Rules | SCHEMA_v1.4.md + 03-02 rules |
 
 **Full compliance audit:** Agent 6 (2026-05-12)
 
 ### DICQ 4.3/4.4 Coverage
 
-| Block | Collection | Status | Evidence |
-|-------|-----------|--------|----------|
-| 4.3.1 (Portal) | portal-configuracao | ✅ Designed | SCHEMA_v1.4.md |
-| 4.3.2 (Notifications) | notivisa-outbox | ✅ Designed | SCHEMA_v1.4.md |
-| 4.4.1 (Audit Trail) | All collections | 🔄 In Rules | 03-02 rules include createdAt, updatedAt, deletedAt |
+| Block                 | Collection          | Status      | Evidence                                            |
+| --------------------- | ------------------- | ----------- | --------------------------------------------------- |
+| 4.3.1 (Portal)        | portal-configuracao | ✅ Designed | SCHEMA_v1.4.md                                      |
+| 4.3.2 (Notifications) | notivisa-outbox     | ✅ Designed | SCHEMA_v1.4.md                                      |
+| 4.4.1 (Audit Trail)   | All collections     | 🔄 In Rules | 03-02 rules include createdAt, updatedAt, deletedAt |
 
 **Coverage estimate:** 85% (pending Agent 6 full audit)
 
 ### Quality Metrics (Wave 1)
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| TypeScript errors | 0 | 0 | ✅ |
-| JSON syntax errors (firestore.indexes.json) | 0 | 0 | ✅ |
-| Documentation completeness | 100% | 100% | ✅ |
-| Test data coverage | All states | 13 docs, all states | ✅ |
-| Code review (pre-commit) | N/A | Manual review ✅ | ✅ |
+| Metric                                      | Target     | Actual              | Status |
+| ------------------------------------------- | ---------- | ------------------- | ------ |
+| TypeScript errors                           | 0          | 0                   | ✅     |
+| JSON syntax errors (firestore.indexes.json) | 0          | 0                   | ✅     |
+| Documentation completeness                  | 100%       | 100%                | ✅     |
+| Test data coverage                          | All states | 13 docs, all states | ✅     |
+| Code review (pre-commit)                    | N/A        | Manual review ✅    | ✅     |
 
 ---
 
@@ -345,17 +357,17 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 
 ### Pre-Deployment Checklist
 
-| Item | Status | Owner | ETA |
-|------|--------|-------|-----|
-| Schema definitions finalized | ✅ | Agent 1 | 2026-05-07 |
-| Security rules written & tested | 🔄 | Agent 2 | 2026-05-10 |
-| Firestore indexes created (Firebase Console) | ⏳ | DevOps | 2026-05-10 |
-| Test data loaded in staging | ⏳ | Agent 11 | 2026-05-12 |
-| Functions deployed (staging region) | ⏳ | Agent 4 | 2026-05-12 |
-| Integration tests ✅ PASS | ⏳ | Agent 5 | 2026-05-12 |
-| Compliance audit ✅ PASS | ⏳ | Agent 6 | 2026-05-12 |
-| Performance tests ✅ PASS | ⏳ | Agent 7 | 2026-05-12 |
-| Cloud Logs monitoring active (24h) | ⏳ | DevOps | 2026-05-13 |
+| Item                                         | Status | Owner    | ETA        |
+| -------------------------------------------- | ------ | -------- | ---------- |
+| Schema definitions finalized                 | ✅     | Agent 1  | 2026-05-07 |
+| Security rules written & tested              | 🔄     | Agent 2  | 2026-05-10 |
+| Firestore indexes created (Firebase Console) | ⏳     | DevOps   | 2026-05-10 |
+| Test data loaded in staging                  | ⏳     | Agent 11 | 2026-05-12 |
+| Functions deployed (staging region)          | ⏳     | Agent 4  | 2026-05-12 |
+| Integration tests ✅ PASS                    | ⏳     | Agent 5  | 2026-05-12 |
+| Compliance audit ✅ PASS                     | ⏳     | Agent 6  | 2026-05-12 |
+| Performance tests ✅ PASS                    | ⏳     | Agent 7  | 2026-05-12 |
+| Cloud Logs monitoring active (24h)           | ⏳     | DevOps   | 2026-05-13 |
 
 **Estimated staging deploy:** 2026-05-13 (W+6 days)
 
@@ -366,6 +378,7 @@ Wave 2 (Rules, Functions, Integration Tests) is in active progress:
 ### Current Blockers: NONE
 
 All critical dependencies satisfied:
+
 - ✅ Wave 1 schema complete
 - ✅ Helper functions stubbed
 - ✅ Test data ready

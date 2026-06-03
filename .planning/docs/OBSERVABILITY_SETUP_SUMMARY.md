@@ -3,7 +3,7 @@
 **Date:** 2026-05-07  
 **Deliverable:** SLO Tracking Dashboard + Alert Policies  
 **Status:** Ready for deployment  
-**Deploy Time:** 30 minutes  
+**Deploy Time:** 30 minutes
 
 ---
 
@@ -22,14 +22,14 @@ A complete Service Level Objective (SLO) tracking system for HC Quality producti
 
 All files in `.planning/docs/` and `.planning/dashboard-json/`:
 
-| # | File | Role | Length |
-|---|------|------|--------|
-| 1 | `SLO_TRACKING_INDEX.md` | Navigation + overview | 1 page |
-| 2 | `SLO_TRACKING_QUICKSTART.md` | 30-min execution checklist | 2 pages |
-| 3 | `SLO_TRACKING_SETUP.md` | Full specification + context | 6 pages |
-| 4 | `SLO_ALERT_POLICIES_REFERENCE.md` | Alert configuration details | 5 pages |
-| 5 | `SLO_MONTHLY_REPORT_TEMPLATE.md` | Monthly audit report (fillable) | 8 pages |
-| 6 | `SLO_TRACKING_DASHBOARD.json` | Importable Cloud Monitoring dashboard | JSON |
+| #   | File                              | Role                                  | Length  |
+| --- | --------------------------------- | ------------------------------------- | ------- |
+| 1   | `SLO_TRACKING_INDEX.md`           | Navigation + overview                 | 1 page  |
+| 2   | `SLO_TRACKING_QUICKSTART.md`      | 30-min execution checklist            | 2 pages |
+| 3   | `SLO_TRACKING_SETUP.md`           | Full specification + context          | 6 pages |
+| 4   | `SLO_ALERT_POLICIES_REFERENCE.md` | Alert configuration details           | 5 pages |
+| 5   | `SLO_MONTHLY_REPORT_TEMPLATE.md`  | Monthly audit report (fillable)       | 8 pages |
+| 6   | `SLO_TRACKING_DASHBOARD.json`     | Importable Cloud Monitoring dashboard | JSON    |
 
 **Total:** 22 pages + JSON dashboard
 
@@ -38,6 +38,7 @@ All files in `.planning/docs/` and `.planning/dashboard-json/`:
 ## SLO Definitions
 
 ### 1. Availability: 99.5%
+
 - **Target:** Firebase + Hosting + Functions all ≥99.5% uptime
 - **Budget:** 4.32 hours downtime per month
 - **Metrics:** Firestore uptime, Cloud Hosting uptime, Cloud Functions uptime
@@ -45,6 +46,7 @@ All files in `.planning/docs/` and `.planning/dashboard-json/`:
 - **Acceptable downtime:** Planned maintenance + GCP regional incidents
 
 ### 2. Performance: P99 <3 seconds
+
 - **Target:** 95% of requests complete in <3s (P99 <3s)
 - **Budget:** 1.5% of monthly requests can exceed 3s
 - **Metrics:** Per-module execution time (95th percentile)
@@ -52,6 +54,7 @@ All files in `.planning/docs/` and `.planning/dashboard-json/`:
 - **Known drivers:** OCR (800–1200ms), PDF export (1500–2200ms), reports (500–800ms)
 
 ### 3. Error Rate: <0.1%
+
 - **Target:** Fewer than 1 error per 1,000 requests
 - **Budget:** ~50,000 errors per month in 5M requests
 - **Metrics:** HTTP 5xx, uncaught exceptions, Firebase INTERNAL/UNAVAILABLE errors
@@ -59,6 +62,7 @@ All files in `.planning/docs/` and `.planning/dashboard-json/`:
 - **Excluded:** PERMISSION_DENIED (implantação phase), transient network errors if client retries succeed
 
 ### 4. Compliance: 100% Audit Trail
+
 - **Target:** Zero missed audit events (RDC 978 Art. 117)
 - **Budget:** 0 missed events (zero tolerance)
 - **Metrics:** (Audit events captured) / (expected writes) = 100%
@@ -129,6 +133,7 @@ Four alert policies monitor SLO health:
 ### Monthly Report
 
 End of each month: Fill `SLO_MONTHLY_REPORT_TEMPLATE.md` with:
+
 - Actual % for each SLO
 - Incidents + RCAs
 - Budget consumed
@@ -161,6 +166,7 @@ Use exact config from `SLO_ALERT_POLICIES_REFERENCE.md`:
 ### Step 3: Setup Custom Metrics (5 min)
 
 Cloud Logs → **Create Metric** for:
+
 - `error_rate_percent` (ERROR-level logs)
 - `audit_trail_events_captured` (audit-trail namespace)
 - `audit_trail_expected_writes` (domain collection writes)
@@ -168,6 +174,7 @@ Cloud Logs → **Create Metric** for:
 ### Step 4: Schedule Weekly Review (2 min)
 
 Cloud Scheduler → **Create Job**
+
 - Name: `hc-quality-slo-weekly-review`
 - Frequency: `0 09 * * 1` (Mondays 09:00 UTC)
 - HTTP GET to SLO report webhook
@@ -184,22 +191,26 @@ Cloud Scheduler → **Create Job**
 ## Maintenance (5 min/week)
 
 **Daily (2 min):**
+
 - Open SLO dashboard
 - Check all 4 cards green ✅
 - Review alert history
 
 **Weekly (5 min, Mondays 09:00 UTC):**
+
 - Screenshot dashboard
 - Compare to last week (trending ↑ / ↓ / →?)
 - Post to Slack #observability
 
 **Monthly (30 min, last day of month):**
+
 - Fill SLO monthly report template
 - Export metrics from dashboard
 - Get sign-offs (DevOps / CTO / Auditor)
 - Archive as `SLO_REPORT_[YYYY-MM].md`
 
 **Quarterly:**
+
 - Review 3-month trend
 - Adjust thresholds if needed (rare)
 - Brief auditor on any SLO changes
@@ -208,14 +219,14 @@ Cloud Scheduler → **Create Job**
 
 ## Key Files Quick Reference
 
-| Document | When to Read | Time |
-|----------|--------------|------|
-| `SLO_TRACKING_INDEX.md` | First (navigation) | 3 min |
-| `SLO_TRACKING_QUICKSTART.md` | Deploying today | 5 min + 30 min execution |
-| `SLO_TRACKING_SETUP.md` | Understanding SLOs | 15 min |
-| `SLO_ALERT_POLICIES_REFERENCE.md` | Creating alerts | Reference (5 min per alert) |
-| `SLO_MONTHLY_REPORT_TEMPLATE.md` | End of month | 30 min fill |
-| Dashboard JSON | Importing to Cloud Console | 2 min copy-paste |
+| Document                          | When to Read               | Time                        |
+| --------------------------------- | -------------------------- | --------------------------- |
+| `SLO_TRACKING_INDEX.md`           | First (navigation)         | 3 min                       |
+| `SLO_TRACKING_QUICKSTART.md`      | Deploying today            | 5 min + 30 min execution    |
+| `SLO_TRACKING_SETUP.md`           | Understanding SLOs         | 15 min                      |
+| `SLO_ALERT_POLICIES_REFERENCE.md` | Creating alerts            | Reference (5 min per alert) |
+| `SLO_MONTHLY_REPORT_TEMPLATE.md`  | End of month               | 30 min fill                 |
+| Dashboard JSON                    | Importing to Cloud Console | 2 min copy-paste            |
 
 ---
 
@@ -247,7 +258,7 @@ Slack notification in #observability (auto)
 
 Before going live, test each alert:
 
-1. **Availability Alert:** 
+1. **Availability Alert:**
    - Cloud Monitoring → Policy → **Test Notification**
    - Verify Slack #observability receives test
 

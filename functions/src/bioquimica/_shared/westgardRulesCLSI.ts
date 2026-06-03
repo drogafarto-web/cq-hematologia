@@ -114,10 +114,7 @@ function checkR_4sReject(value: number, stats: StatsBundle): WestgardViolation |
  * @param stats Manufacturer stats {mean, sd} or internal stats
  * @returns Array of violations (warn + reject mixed)
  */
-export function checkWestgardCLSI(
-  value: number,
-  stats: StatsBundle
-): WestgardViolation[] {
+export function checkWestgardCLSI(value: number, stats: StatsBundle): WestgardViolation[] {
   if (!Number.isFinite(value) || !Number.isFinite(stats.mean) || stats.sd <= 0) {
     return [];
   }
@@ -163,7 +160,7 @@ interface ExtendedRuleConfig {
 export function checkExtendedRules(
   value: number,
   stats: StatsBundle,
-  config: Partial<ExtendedRuleConfig> = {}
+  config: Partial<ExtendedRuleConfig> = {},
 ): WestgardViolation[] {
   // Stub implementations — full logic deferred to v1.4
   // (would require access to historical run data)

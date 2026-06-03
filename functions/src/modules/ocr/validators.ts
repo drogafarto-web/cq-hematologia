@@ -43,8 +43,7 @@ export async function assertOcrAccess(
   const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   const memberData = memberSnap.data();
   const isActive =
-    memberSnap.exists &&
-    (memberData?.['active'] === true || memberData?.['status'] === 'active');
+    memberSnap.exists && (memberData?.['active'] === true || memberData?.['status'] === 'active');
 
   if (!isActive) {
     console.error('[OCR_ACCESS_DENIED]', {
@@ -88,11 +87,7 @@ export async function ensureOcrLabRoot(
  * Daily counter doc path. Reset implicitly by date key (`YYYY-MM-DD`); old
  * docs are not deleted (kept for monthly billing audit).
  */
-export function ocrDailyCounterDoc(
-  db: admin.firestore.Firestore,
-  labId: string,
-  dateKey: string,
-) {
+export function ocrDailyCounterDoc(db: admin.firestore.Firestore, labId: string, dateKey: string) {
   return db.doc(`ocr-extractions/${labId}/rate-limits/day-${dateKey}`);
 }
 

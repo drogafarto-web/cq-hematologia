@@ -13,7 +13,15 @@ import type { Timestamp } from 'firebase/firestore';
 
 export type BiosseguridadeNivel = 1 | 2 | 3 | 4;
 export type StatusArea = 'ativa' | 'desativada' | 'em_manutencao';
-export type TipoEPE = 'luva' | 'mascara' | 'jaleco' | 'oculos' | 'avental' | 'propé' | 'touca' | 'outro';
+export type TipoEPE =
+  | 'luva'
+  | 'mascara'
+  | 'jaleco'
+  | 'oculos'
+  | 'avental'
+  | 'propé'
+  | 'touca'
+  | 'outro';
 
 export const NIVEL_LABEL: Record<BiosseguridadeNivel, string> = {
   1: 'NB1 — Risco mínimo',
@@ -112,12 +120,7 @@ export interface InspecaoArea {
 
 export type AreaInput = Omit<
   Area,
-  | 'id'
-  | 'labId'
-  | 'pessoasAtuais'
-  | 'criadoEm'
-  | 'criadoPor'
-  | 'deletadoEm'
+  'id' | 'labId' | 'pessoasAtuais' | 'criadoEm' | 'criadoPor' | 'deletadoEm'
 >;
 
 export interface AreaCreationRequest {

@@ -45,16 +45,13 @@ export const detectarCriticos = onDocumentCreated(
     }
 
     // 3. Detecta críticos
-    const detectionResult = detectAllCriticos(
-      laudo.exames || [],
-      thresholds as any,
-      {
-        idade: typeof laudo.pacienteIdade === 'object' && 'value' in laudo.pacienteIdade
+    const detectionResult = detectAllCriticos(laudo.exames || [], thresholds as any, {
+      idade:
+        typeof laudo.pacienteIdade === 'object' && 'value' in laudo.pacienteIdade
           ? laudo.pacienteIdade.value
           : 0,
-        sexo: laudo.paciente?.sexo || 'NI',
-      },
-    );
+      sexo: laudo.paciente?.sexo || 'NI',
+    });
 
     // 4. Se há críticos, flagga laudo + dispara email
     if (detectionResult.hasCritico) {

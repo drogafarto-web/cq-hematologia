@@ -44,15 +44,15 @@ bash scripts/phase4-e2e-smoke.sh
 
 ## 🔧 Troubleshooting (Quick Fixes)
 
-| Problem | Quick Fix |
-|---|---|
-| **Port 5173 in use** | `lsof -i :5173 \| awk '{print $2}' \| xargs kill -9` |
-| **Port 8080 in use** | `lsof -i :8080 \| awk '{print $2}' \| xargs kill -9` |
-| **Java not found** | `brew install openjdk@11` (macOS) or `apt-get install openjdk-11-jdk` (Linux) |
-| **Firebase CLI not found** | `npm install -g firebase-tools` |
-| **TypeScript errors** | `npm run typecheck` to review; fix errors; re-run smoke test |
-| **Build fails** | Check `/tmp/build.log`; likely missing dependency in `package.json` |
-| **Lighthouse unavailable** | `npm install -g @lhci/cli` |
+| Problem                    | Quick Fix                                                                     |
+| -------------------------- | ----------------------------------------------------------------------------- |
+| **Port 5173 in use**       | `lsof -i :5173 \| awk '{print $2}' \| xargs kill -9`                          |
+| **Port 8080 in use**       | `lsof -i :8080 \| awk '{print $2}' \| xargs kill -9`                          |
+| **Java not found**         | `brew install openjdk@11` (macOS) or `apt-get install openjdk-11-jdk` (Linux) |
+| **Firebase CLI not found** | `npm install -g firebase-tools`                                               |
+| **TypeScript errors**      | `npm run typecheck` to review; fix errors; re-run smoke test                  |
+| **Build fails**            | Check `/tmp/build.log`; likely missing dependency in `package.json`           |
+| **Lighthouse unavailable** | `npm install -g @lhci/cli`                                                    |
 
 ---
 
@@ -101,6 +101,7 @@ Status: PASS ✅
 After execution, check:
 
 1. **Text report** (human-readable):
+
    ```bash
    cat .planning/SMOKE_TEST_RESULTS_May_*.txt
    ```
@@ -114,25 +115,25 @@ After execution, check:
 
 ## ⚡ Performance Targets (v1.3 Baseline)
 
-| Metric | v1.3 Baseline | Phase 4 Target | Hard Limit |
-|---|---|---|---|
-| **Bundle (main)** | 362 KB | ≤365 KB | 380 KB |
-| **Lighthouse avg** | 91/100 | ≥87/100 | <82/100 = FAIL |
-| **LCP (Web Vitals)** | 1.9s | <2.5s | — |
-| **INP (Web Vitals)** | 110ms | <200ms | — |
-| **CLS (Web Vitals)** | 0.04 | <0.1 | — |
+| Metric               | v1.3 Baseline | Phase 4 Target | Hard Limit     |
+| -------------------- | ------------- | -------------- | -------------- |
+| **Bundle (main)**    | 362 KB        | ≤365 KB        | 380 KB         |
+| **Lighthouse avg**   | 91/100        | ≥87/100        | <82/100 = FAIL |
+| **LCP (Web Vitals)** | 1.9s          | <2.5s          | —              |
+| **INP (Web Vitals)** | 110ms         | <200ms         | —              |
+| **CLS (Web Vitals)** | 0.04          | <0.1           | —              |
 
 ---
 
 ## 🚨 Critical Blockers (Deploy Stoppers)
 
-| Blocker | Severity | Action |
-|---|---|---|
-| TypeScript errors | 🔴 CRITICAL | Fix + re-run |
-| Build fails | 🔴 CRITICAL | Fix + re-run |
-| Bundle >380 KB | 🔴 CRITICAL | Investigate new deps + refactor |
-| E2E tests fail | 🔴 CRITICAL | Debug + fix + re-run |
-| Lighthouse <82 avg | 🔴 CRITICAL | Profile + optimize + re-run |
+| Blocker                        | Severity    | Action                             |
+| ------------------------------ | ----------- | ---------------------------------- |
+| TypeScript errors              | 🔴 CRITICAL | Fix + re-run                       |
+| Build fails                    | 🔴 CRITICAL | Fix + re-run                       |
+| Bundle >380 KB                 | 🔴 CRITICAL | Investigate new deps + refactor    |
+| E2E tests fail                 | 🔴 CRITICAL | Debug + fix + re-run               |
+| Lighthouse <82 avg             | 🔴 CRITICAL | Profile + optimize + re-run        |
 | Unauthenticated access allowed | 🔴 CRITICAL | Review firestore.rules immediately |
 
 ---
@@ -140,6 +141,7 @@ After execution, check:
 ## 📞 If Stuck
 
 1. **Check logs:**
+
    ```bash
    cat /tmp/build.log        # Build errors
    cat /tmp/e2e-tests.log    # Test failures
@@ -147,15 +149,16 @@ After execution, check:
    ```
 
 2. **Manual investigation:**
+
    ```bash
    # TypeScript
    npm run typecheck
-   
+
    # E2E tests (interactive)
    firebase emulators:start --only firestore,functions &
    npm run dev &
    npm run test:e2e -- --run
-   
+
    # Lighthouse
    npm run preview &
    npx lighthouse http://localhost:4173/hub
@@ -190,12 +193,12 @@ After execution, check:
 
 ## 📅 When to Run
 
-| Scenario | When |
-|---|---|
+| Scenario                    | When                              |
+| --------------------------- | --------------------------------- |
 | **Pre-deployment (ALWAYS)** | Day of deploy (May 20, 08:30 UTC) |
-| **After code merge** | If major changes since last run |
-| **Bundle optimization** | After upgrading dependencies |
-| **Regression suspected** | If reports of slowness in prod |
+| **After code merge**        | If major changes since last run   |
+| **Bundle optimization**     | After upgrading dependencies      |
+| **Regression suspected**    | If reports of slowness in prod    |
 
 ---
 

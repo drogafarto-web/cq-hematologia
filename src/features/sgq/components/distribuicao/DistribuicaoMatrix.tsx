@@ -13,10 +13,22 @@ import { MeusDocsAlert } from './MeusDocsAlert';
 import type { FilterState } from '../lm/ListaMestraFilters';
 
 export const SETORES_MATRIZ = [
-  'Qualidade', 'Direção', 'Faturamento', 'Recepção', 'Coleta',
-  'Bioquímica', 'Hematologia', 'Microbiologia', 'Uroanálise',
-  'Parasitologia', 'Imunologia', 'Triagem', 'Área Técnica',
-  'Estoque', 'Serviços Gerais', 'RH',
+  'Qualidade',
+  'Direção',
+  'Faturamento',
+  'Recepção',
+  'Coleta',
+  'Bioquímica',
+  'Hematologia',
+  'Microbiologia',
+  'Uroanálise',
+  'Parasitologia',
+  'Imunologia',
+  'Triagem',
+  'Área Técnica',
+  'Estoque',
+  'Serviços Gerais',
+  'RH',
 ];
 
 export const UNIDADES = ['Mercês', 'Silveirânia', 'Guarani'];
@@ -56,11 +68,11 @@ export function DistribuicaoMatrix({
 
   const filtered = useMemo(() => {
     let result = [...documentos];
-    if (filters.tipo) result = result.filter(d => d.tipo === filters.tipo);
-    if (filters.status) result = result.filter(d => d.status === filters.status);
+    if (filters.tipo) result = result.filter((d) => d.tipo === filters.tipo);
+    if (filters.status) result = result.filter((d) => d.status === filters.status);
     if (filters.setor) {
       setFocusedSetor(filters.setor);
-      result = result.filter(d => d.setoresDistribuidos.includes(filters.setor || ''));
+      result = result.filter((d) => d.setoresDistribuidos.includes(filters.setor || ''));
     }
     return result;
   }, [documentos, filters]);
@@ -78,13 +90,13 @@ export function DistribuicaoMatrix({
 
   const handleExportCSV = () => {
     const headers = ['Código', 'Título', 'Tipo', ...ALL_SETORES];
-    const rows = filtered.map(doc => [
+    const rows = filtered.map((doc) => [
       doc.codigo,
       doc.titulo,
       doc.tipo,
-      ...ALL_SETORES.map(s => doc.setoresDistribuidos.includes(s) ? '✓' : ''),
+      ...ALL_SETORES.map((s) => (doc.setoresDistribuidos.includes(s) ? '✓' : '')),
     ]);
-    const csv = [headers, ...rows].map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+    const csv = [headers, ...rows].map((r) => r.map((v) => `"${v}"`).join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -174,10 +186,12 @@ export function DistribuicaoMatrix({
             onScroll={handleScroll}
             className="max-h-[600px] overflow-y-auto"
           >
-            <div style={{ height: useVirtualization ? filtered.length * VIRTUAL_ROW_HEIGHT : 'auto' }}>
+            <div
+              style={{ height: useVirtualization ? filtered.length * VIRTUAL_ROW_HEIGHT : 'auto' }}
+            >
               {useVirtualization && (
                 <div style={{ transform: `translateY(${offsetY}px)` }}>
-                  {visibleRows.map(doc => (
+                  {visibleRows.map((doc) => (
                     <MatrixRow
                       key={doc.id}
                       doc={doc}
@@ -189,15 +203,16 @@ export function DistribuicaoMatrix({
                   ))}
                 </div>
               )}
-              {!useVirtualization && filtered.map(doc => (
-                <MatrixRow
-                  key={doc.id}
-                  doc={doc}
-                  setores={ALL_SETORES}
-                  focusedSetor={focusedSetor}
-                  onDocumentClick={onDocumentClick}
-                />
-              ))}
+              {!useVirtualization &&
+                filtered.map((doc) => (
+                  <MatrixRow
+                    key={doc.id}
+                    doc={doc}
+                    setores={ALL_SETORES}
+                    focusedSetor={focusedSetor}
+                    onDocumentClick={onDocumentClick}
+                  />
+                ))}
             </div>
           </div>
         </div>
@@ -217,15 +232,11 @@ interface MatrixRowProps {
   isVirtual?: boolean;
 }
 
-function MatrixRow({
-  doc,
-  setores,
-  focusedSetor,
-  onDocumentClick,
-  isVirtual,
-}: MatrixRowProps) {
+function MatrixRow({ doc, setores, focusedSetor, onDocumentClick, isVirtual }: MatrixRowProps) {
   return (
-    <div className={`flex border-b border-white/5 hover:bg-white/[0.02] transition-colors ${isVirtual ? '' : ''}`}>
+    <div
+      className={`flex border-b border-white/5 hover:bg-white/[0.02] transition-colors ${isVirtual ? '' : ''}`}
+    >
       <div
         onClick={() => onDocumentClick?.(doc.id)}
         className="w-32 px-3 py-2 border-r border-white/10 cursor-pointer truncate sticky left-0 bg-[#141417] hover:bg-white/5 transition-colors"
@@ -233,7 +244,7 @@ function MatrixRow({
         <div className="text-xs font-mono text-white/70">{doc.codigo}</div>
         <div className="text-xs text-white/50 truncate mt-0.5">{doc.titulo}</div>
       </div>
-      {setores.map(setor => {
+      {setores.map((setor) => {
         const isDistributed = doc.setoresDistribuidos.includes(setor);
         const isFocused = focusedSetor === setor;
         const isUnidade = UNIDADES.includes(setor);

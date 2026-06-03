@@ -62,7 +62,7 @@ Rules (DL-1 deny client-direct write) + 2 composite indexes (npr DESC; reviewDat
 
 ## Padrões arquiteturais
 
-- **Thin service, fat hooks**: risksService cobre CRUD + mapping. Hooks (useRisks, etc) carregam validações de negócio (RN-*) + orquestração.
+- **Thin service, fat hooks**: risksService cobre CRUD + mapping. Hooks (useRisks, etc) carregam validações de negócio (RN-\*) + orquestração.
 - **Server overrides client**: NPR sempre recomputed server-side; client-supplied valor ignorado (defense-in-depth).
 - **Append-only history**: reviewHistory[] + tratamento.acoes[] nunca shrink. Reclassificação cria nova entry em reviewHistory.
 - **Firestore helpers**: collectionGroup permite superadmin auditar riscos cross-lab. labId em payload redundante.

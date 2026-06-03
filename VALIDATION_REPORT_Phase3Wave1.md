@@ -11,15 +11,15 @@
 
 **Phase 3 Wave 1 validation COMPLETE.** All 5 new collections are properly defined, indexed, and conflict-free. Staging environment verified. No blockers identified for deployment to production.
 
-| Metric | Status | Details |
-|--------|--------|---------|
-| Schema documentation | ✅ Complete | SCHEMA_v1.4.md comprehensive + audit trail |
-| Index definitions | ✅ Valid | 5 composite indexes in firestore.indexes.json |
-| Naming conflicts | ✅ Clear | No overlap with existing collections |
-| Firestore rules | ✅ Updated | Phase 3.2 helpers integrated (isServer, isPatient, etc.) |
-| Test data | ✅ Ready | Integration fixtures + payloads defined |
-| Staging project | ✅ Ready | hmatologia2-staging available for deploy |
-| Deployment readiness | ✅ Verified | Type-check passing, build validated |
+| Metric               | Status      | Details                                                  |
+| -------------------- | ----------- | -------------------------------------------------------- |
+| Schema documentation | ✅ Complete | SCHEMA_v1.4.md comprehensive + audit trail               |
+| Index definitions    | ✅ Valid    | 5 composite indexes in firestore.indexes.json            |
+| Naming conflicts     | ✅ Clear    | No overlap with existing collections                     |
+| Firestore rules      | ✅ Updated  | Phase 3.2 helpers integrated (isServer, isPatient, etc.) |
+| Test data            | ✅ Ready    | Integration fixtures + payloads defined                  |
+| Staging project      | ✅ Ready    | hmatologia2-staging available for deploy                 |
+| Deployment readiness | ✅ Verified | Type-check passing, build validated                      |
 
 ---
 
@@ -27,13 +27,13 @@
 
 ### Collections Verified (5/5)
 
-| Collection | Path | Purpose | Status |
-|---|---|---|---|
-| `portal-configuracao` | `/labs/{labId}/portal-configuracao/{docId}` | Patient portal branding | ✅ Valid |
-| `notivisa-outbox/events` | `/labs/{labId}/notivisa-outbox/events/{docId}` | NOTIVISA regulatory queue | ✅ Valid |
-| `criticos-escalacoes/escalacoes` | `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}` | Critical value alerts | ✅ Valid |
-| `imuno-ias-dev/images` | `/labs/{labId}/imuno-ias-dev/images/{docId}` | IA strip training data | ✅ Valid |
-| `laudos-draft/rascunhos` | `/labs/{labId}/laudos-draft/rascunhos/{docId}` | Laudo edit state machine | ✅ Valid |
+| Collection                       | Path                                                   | Purpose                   | Status   |
+| -------------------------------- | ------------------------------------------------------ | ------------------------- | -------- |
+| `portal-configuracao`            | `/labs/{labId}/portal-configuracao/{docId}`            | Patient portal branding   | ✅ Valid |
+| `notivisa-outbox/events`         | `/labs/{labId}/notivisa-outbox/events/{docId}`         | NOTIVISA regulatory queue | ✅ Valid |
+| `criticos-escalacoes/escalacoes` | `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}` | Critical value alerts     | ✅ Valid |
+| `imuno-ias-dev/images`           | `/labs/{labId}/imuno-ias-dev/images/{docId}`           | IA strip training data    | ✅ Valid |
+| `laudos-draft/rascunhos`         | `/labs/{labId}/laudos-draft/rascunhos/{docId}`         | Laudo edit state machine  | ✅ Valid |
 
 ### Schema Compliance
 
@@ -45,13 +45,13 @@
 
 ### Field Validation Summary
 
-| Collection | Required Fields | Optional Fields | Enum Constraints | Notes |
-|---|---|---|---|---|
-| `portal-configuracao` | 5 (logo, colors, timestamp) | 4 (labels, HTML) | — | Max 50 chars on label fields |
-| `notivisa-outbox/events` | 6 (laudo_id, cpf, payload, status, attempts, createdAt) | 4 (nextRetry, sentAt, error, sentAt) | status: PENDING\|SENT\|FAILED\|DELIVERED | Max 500 chars error field |
-| `criticos-escalacoes/escalacoes` | 7 (resultado_id, config_id, analito, valor, sla_minutes, createdAt, threshold refs) | 6 (limits, sms/email arrays, notes, resolved_at) | — | SLA minutes must be positive int |
-| `imuno-ias-dev/images` | 6 (imageUrl, imageDim, classesDetected, confidence, model_version, createdAt) | 4 (feedback.*, batch_id) | confidence: 0.0–1.0 | Model version semantic (e.g., "1.1-tuned") |
-| `laudos-draft/rascunhos` | 6 (laudo_id, edited_by, content_json, locked_until_ts, version, status) | 3 (publishedAt, draft_notes) | status: EDITING\|LOCKED\|PUBLISHED | Max 1000 chars in draft_notes |
+| Collection                       | Required Fields                                                                     | Optional Fields                                  | Enum Constraints                         | Notes                                      |
+| -------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------ | ---------------------------------------- | ------------------------------------------ |
+| `portal-configuracao`            | 5 (logo, colors, timestamp)                                                         | 4 (labels, HTML)                                 | —                                        | Max 50 chars on label fields               |
+| `notivisa-outbox/events`         | 6 (laudo_id, cpf, payload, status, attempts, createdAt)                             | 4 (nextRetry, sentAt, error, sentAt)             | status: PENDING\|SENT\|FAILED\|DELIVERED | Max 500 chars error field                  |
+| `criticos-escalacoes/escalacoes` | 7 (resultado_id, config_id, analito, valor, sla_minutes, createdAt, threshold refs) | 6 (limits, sms/email arrays, notes, resolved_at) | —                                        | SLA minutes must be positive int           |
+| `imuno-ias-dev/images`           | 6 (imageUrl, imageDim, classesDetected, confidence, model_version, createdAt)       | 4 (feedback.\*, batch_id)                        | confidence: 0.0–1.0                      | Model version semantic (e.g., "1.1-tuned") |
+| `laudos-draft/rascunhos`         | 6 (laudo_id, edited_by, content_json, locked_until_ts, version, status)             | 3 (publishedAt, draft_notes)                     | status: EDITING\|LOCKED\|PUBLISHED       | Max 1000 chars in draft_notes              |
 
 ---
 
@@ -61,13 +61,13 @@
 
 **All 5 indexes present and syntactically valid:**
 
-| Index ID | Collection | Fields | Order | Use Case | Status |
-|---|---|---|---|---|---|
-| Line 666–672 | `notivisa-outbox` | (labId, status, createdAt) | ASC, ASC, DESC | Poll pending events | ✅ Valid |
-| Line 675–680 | `criticos-escalacoes` | (labId, createdAt) | ASC, DESC | Dashboard trending | ✅ Valid |
-| Line 683–689 | `imuno-ias-dev` | (labId, model_version, createdAt) | ASC, ASC, DESC | IA research pipeline | ✅ Valid |
-| Line 692–697 | `laudos-draft` | (labId, laudo_id) | ASC, ASC | Draft lookup per laudo | ✅ Valid |
-| Line 700–705 | `laudos-draft` | (labId, locked_until_ts) | ASC, ASC | Cleanup cron (expired locks) | ✅ Valid |
+| Index ID     | Collection            | Fields                            | Order          | Use Case                     | Status   |
+| ------------ | --------------------- | --------------------------------- | -------------- | ---------------------------- | -------- |
+| Line 666–672 | `notivisa-outbox`     | (labId, status, createdAt)        | ASC, ASC, DESC | Poll pending events          | ✅ Valid |
+| Line 675–680 | `criticos-escalacoes` | (labId, createdAt)                | ASC, DESC      | Dashboard trending           | ✅ Valid |
+| Line 683–689 | `imuno-ias-dev`       | (labId, model_version, createdAt) | ASC, ASC, DESC | IA research pipeline         | ✅ Valid |
+| Line 692–697 | `laudos-draft`        | (labId, laudo_id)                 | ASC, ASC       | Draft lookup per laudo       | ✅ Valid |
+| Line 700–705 | `laudos-draft`        | (labId, locked_until_ts)          | ASC, ASC       | Cleanup cron (expired locks) | ✅ Valid |
 
 **Additional indexes (SCHEMA_v1.4):**
 
@@ -80,6 +80,7 @@
 ### Index Syntax Validation
 
 All indexes:
+
 - ✅ Use `collectionGroup` or `COLLECTION` scope correctly
 - ✅ Have valid `fieldPath` strings (no typos)
 - ✅ Have valid `order` values (ASCENDING | DESCENDING)
@@ -97,7 +98,7 @@ All indexes:
 ```
 notivisa-outbox/events
   └─ laudo_id → laudos (intra-lab valid)
-  
+
 criticos-escalacoes/escalacoes
   ├─ resultado_id → runs.resultados (intra-lab valid)
   └─ threshold_config_id → criticos (intra-lab valid)
@@ -186,12 +187,14 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
 ### Fixtures Identified
 
 **NOTIVISA test data** (verified):
+
 - `/functions/src/__tests__/fixtures/notivisa-payloads.ts` ✅
   - `mockPaciente`, `mockLaudo`, `mockNotivisaPayload`
   - `mockLaudoMissingCPF`, `mockPacienteMissingCPF`, `mockLaudoEmptyResultados`
   - Covers happy path + error cases
 
 **NOTIVISA integration tests** (verified):
+
 - `/functions/src/__tests__/integration/notivisa.test.ts` ✅
   - `notivisaFormatter` tests (6 cases)
   - `validateNotivisaPayload` tests (4 cases)
@@ -199,6 +202,7 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
   - **Total: 11 test cases, all passing**
 
 **Test data completeness:**
+
 - ✅ NOTIVISA: 9 mock documents + 11 test cases
 - ⏳ Criticos: Placeholder module in place (Phase 7 implementation)
 - ⏳ Imuno IA: Placeholder module in place (Phase 9 implementation)
@@ -213,13 +217,13 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
 
 ### Firestore Project Configuration
 
-| Property | Value | Status |
-|----------|-------|--------|
-| **Project ID** | `hmatologia2` | ✅ Configured (default) |
-| **Region** | `southamerica-east1` | ✅ Configured |
-| **Firestore Rules** | firestore.rules | ✅ File exists |
-| **Indexes** | firestore.indexes.json | ✅ 75+ indexes present |
-| **Emulator support** | Port 8080 (local dev) | ✅ Configured |
+| Property             | Value                  | Status                  |
+| -------------------- | ---------------------- | ----------------------- |
+| **Project ID**       | `hmatologia2`          | ✅ Configured (default) |
+| **Region**           | `southamerica-east1`   | ✅ Configured           |
+| **Firestore Rules**  | firestore.rules        | ✅ File exists          |
+| **Indexes**          | firestore.indexes.json | ✅ 75+ indexes present  |
+| **Emulator support** | Port 8080 (local dev)  | ✅ Configured           |
 
 ### Firebase Configuration Files
 
@@ -251,16 +255,16 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
 
 ### Go/No-Go Criteria
 
-| Criterion | Status | Evidence |
-|-----------|--------|----------|
-| All 5 collections documented | ✅ Yes | SCHEMA_v1.4.md (349 lines) |
-| All 5 indexes defined | ✅ Yes | firestore.indexes.json (5 new indexes) |
-| No naming conflicts | ✅ Yes | Scan results (zero overlaps) |
-| Rules updated | ✅ Yes | firestore.rules (helpers added) |
-| Test data ready | ✅ Yes | 11 test cases for NOTIVISA |
-| Cross-references valid | ✅ Yes | All intra-lab, no cycles |
-| Staging verified | ✅ Yes | hmatologia2-staging ready |
-| Type-check passing | ✅ Yes | No TS errors in schema paths |
+| Criterion                    | Status | Evidence                               |
+| ---------------------------- | ------ | -------------------------------------- |
+| All 5 collections documented | ✅ Yes | SCHEMA_v1.4.md (349 lines)             |
+| All 5 indexes defined        | ✅ Yes | firestore.indexes.json (5 new indexes) |
+| No naming conflicts          | ✅ Yes | Scan results (zero overlaps)           |
+| Rules updated                | ✅ Yes | firestore.rules (helpers added)        |
+| Test data ready              | ✅ Yes | 11 test cases for NOTIVISA             |
+| Cross-references valid       | ✅ Yes | All intra-lab, no cycles               |
+| Staging verified             | ✅ Yes | hmatologia2-staging ready              |
+| Type-check passing           | ✅ Yes | No TS errors in schema paths           |
 
 **VERDICT: ✅ PRODUCTION-READY**
 
@@ -274,7 +278,8 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
 
 **Impact:** None — schema + indexes deploy independently. Rules are applied **after** Phase 3.2 sign-off.
 
-**Mitigation:** 
+**Mitigation:**
+
 - Wave 1 deploy (schema + indexes) can proceed now
 - Wave 2 deploy (rules + functions) follows Phase 3.2 completion
 - Staging emulator masks rule gaps during development
@@ -287,7 +292,8 @@ The firestore.rules file (lines 59–91) includes new helper functions needed fo
 
 **Impact:** Collections are schema-only. No operational features yet.
 
-**Mitigation:** 
+**Mitigation:**
+
 - Schema is complete and forward-compatible
 - Functions will populate collections when implemented
 - Example documents in SCHEMA_v1.4.md §example documents ready for manual seed
@@ -320,25 +326,25 @@ Step 4: Monitor (continuous)
 
 ## 11. Sign-Off
 
-| Role | Status | Date | Notes |
-|------|--------|------|-------|
-| DB Engineer (Stream D) | ✅ Verified | 2026-05-07 | Schema + indexes correct |
-| Validation Agent | ✅ Approved | 2026-05-07 | All checks passed |
-| Deployment Readiness | ✅ GO | 2026-05-07 | Production ready, Phase 3.2 dependency noted |
+| Role                   | Status      | Date       | Notes                                        |
+| ---------------------- | ----------- | ---------- | -------------------------------------------- |
+| DB Engineer (Stream D) | ✅ Verified | 2026-05-07 | Schema + indexes correct                     |
+| Validation Agent       | ✅ Approved | 2026-05-07 | All checks passed                            |
+| Deployment Readiness   | ✅ GO       | 2026-05-07 | Production ready, Phase 3.2 dependency noted |
 
 ---
 
 ## Appendix A: File Reference Map
 
-| File | Purpose | Status |
-|------|---------|--------|
-| `docs/SCHEMA_v1.4.md` | Master schema documentation | ✅ Complete (349 lines) |
-| `firestore.indexes.json` | Index definitions (75 total, 5 new) | ✅ Valid |
-| `firestore.rules` | Security rules + Phase 3.2 helpers | ✅ Scaffolded |
-| `functions/src/__tests__/integration/notivisa.test.ts` | NOTIVISA tests | ✅ 11 passing |
-| `functions/src/__tests__/fixtures/notivisa-payloads.ts` | Test data | ✅ Ready |
-| `firebase.json` | Firebase config | ✅ Valid |
-| `.firebaserc` | Project routing | ✅ Valid |
+| File                                                    | Purpose                             | Status                  |
+| ------------------------------------------------------- | ----------------------------------- | ----------------------- |
+| `docs/SCHEMA_v1.4.md`                                   | Master schema documentation         | ✅ Complete (349 lines) |
+| `firestore.indexes.json`                                | Index definitions (75 total, 5 new) | ✅ Valid                |
+| `firestore.rules`                                       | Security rules + Phase 3.2 helpers  | ✅ Scaffolded           |
+| `functions/src/__tests__/integration/notivisa.test.ts`  | NOTIVISA tests                      | ✅ 11 passing           |
+| `functions/src/__tests__/fixtures/notivisa-payloads.ts` | Test data                           | ✅ Ready                |
+| `firebase.json`                                         | Firebase config                     | ✅ Valid                |
+| `.firebaserc`                                           | Project routing                     | ✅ Valid                |
 
 ---
 
@@ -386,4 +392,3 @@ Firestore will create indexes in this order (automatic):
 **Last Updated:** 2026-05-07T14:30:00Z  
 **Author:** Validation Agent (Stream C)  
 **Status:** APPROVED FOR DEPLOYMENT
-

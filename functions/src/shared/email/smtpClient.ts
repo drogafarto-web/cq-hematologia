@@ -34,12 +34,7 @@ export const SMTP_PASS = defineSecret('SMTP_PASS');
 export const SMTP_PORT = defineSecret('SMTP_PORT');
 
 /** Spread this into a function's `secrets` option to bind all four. */
-export const ALL_SMTP_SECRETS = [
-  SMTP_HOST,
-  SMTP_USER,
-  SMTP_PASS,
-  SMTP_PORT,
-] as const;
+export const ALL_SMTP_SECRETS = [SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT] as const;
 
 // ─── Transporter ──────────────────────────────────────────────────────────────
 
@@ -124,8 +119,6 @@ export async function sendEmail(opts: SendEmailOptions): Promise<void> {
     subject: opts.subject,
     html: opts.html,
     ...(opts.text ? { text: opts.text } : {}),
-    ...(opts.attachments && opts.attachments.length > 0
-      ? { attachments: opts.attachments }
-      : {}),
+    ...(opts.attachments && opts.attachments.length > 0 ? { attachments: opts.attachments } : {}),
   });
 }

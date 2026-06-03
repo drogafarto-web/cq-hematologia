@@ -27,9 +27,13 @@ export function LabApoioList({ contratos }: LabApoioListProps) {
         <thead>
           <tr className="border-b border-white/5 bg-white/5">
             <th className="px-4 py-3 text-left font-medium text-white/70">Nome</th>
-            <th className="px-4 py-3 text-left font-medium text-white/70 font-tabular-nums">CNPJ</th>
+            <th className="px-4 py-3 text-left font-medium text-white/70 font-tabular-nums">
+              CNPJ
+            </th>
             <th className="px-4 py-3 text-left font-medium text-white/70">AVS</th>
-            <th className="px-4 py-3 text-left font-medium text-white/70 font-tabular-nums">Vigência</th>
+            <th className="px-4 py-3 text-left font-medium text-white/70 font-tabular-nums">
+              Vigência
+            </th>
             <th className="px-4 py-3 text-center font-medium text-white/70">Exames</th>
             <th className="px-4 py-3 text-left font-medium text-white/70">Criticidade</th>
             <th className="px-4 py-3 text-left font-medium text-white/70">Avaliação</th>
@@ -44,7 +48,9 @@ export function LabApoioList({ contratos }: LabApoioListProps) {
             >
               <td className="px-4 py-3 text-white font-medium">{contrato.nome}</td>
               <td className="px-4 py-3 text-white font-tabular-nums text-sm">{contrato.cnpj}</td>
-              <td className="px-4 py-3 text-white/70 text-sm">{contrato.habilitacaoAnvisa.substring(0, 20)}</td>
+              <td className="px-4 py-3 text-white/70 text-sm">
+                {contrato.habilitacaoAnvisa.substring(0, 20)}
+              </td>
               <td className="px-4 py-3 text-white font-tabular-nums text-sm">
                 {contrato.vigenciaInicio} • {contrato.vigenciaFim}
               </td>

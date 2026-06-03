@@ -22,18 +22,12 @@ interface MeusDocsAlertProps {
   onDocumentClick?: (id: string) => void;
 }
 
-export function MeusDocsAlert({
-  userSetores,
-  documentos,
-  onDocumentClick,
-}: MeusDocsAlertProps) {
+export function MeusDocsAlert({ userSetores, documentos, onDocumentClick }: MeusDocsAlertProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [dismissed, setDismissed] = useState(false);
 
   const myDocs = useMemo(() => {
-    return documentos.filter(doc =>
-      doc.setoresDistribuidos.some(s => userSetores.includes(s))
-    );
+    return documentos.filter((doc) => doc.setoresDistribuidos.some((s) => userSetores.includes(s)));
   }, [documentos, userSetores]);
 
   if (dismissed || myDocs.length === 0) return null;
@@ -46,7 +40,9 @@ export function MeusDocsAlert({
           <div className="flex items-center gap-3">
             <div className="flex-1">
               <p className="text-white font-medium">
-                Você tem <span className="font-bold text-violet-400">{myDocs.length}</span> documento{myDocs.length !== 1 ? 's' : ''} novo{myDocs.length !== 1 ? 's' : ''} no seu setor
+                Você tem <span className="font-bold text-violet-400">{myDocs.length}</span>{' '}
+                documento{myDocs.length !== 1 ? 's' : ''} novo{myDocs.length !== 1 ? 's' : ''} no
+                seu setor
               </p>
               <p className="text-white/60 text-xs mt-1">Clique para visualizar a lista completa</p>
             </div>
@@ -90,7 +86,7 @@ export function MeusDocsAlert({
         {/* Drawer */}
         {isOpen && (
           <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
-            {myDocs.map(doc => (
+            {myDocs.map((doc) => (
               <button
                 key={doc.id}
                 onClick={() => {
@@ -102,7 +98,7 @@ export function MeusDocsAlert({
                 <div className="font-mono text-xs text-white/70">{doc.codigo}</div>
                 <div className="text-white text-sm truncate mt-0.5">{doc.titulo}</div>
                 <div className="text-xs text-white/50 mt-1">
-                  {doc.setoresDistribuidos.filter(s => userSetores.includes(s)).join(', ')}
+                  {doc.setoresDistribuidos.filter((s) => userSetores.includes(s)).join(', ')}
                 </div>
               </button>
             ))}

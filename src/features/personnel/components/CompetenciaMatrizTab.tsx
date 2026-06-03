@@ -77,9 +77,7 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="text-sm font-semibold text-white/90">
-            Matriz de Competencias Tecnicas
-          </h3>
+          <h3 className="text-sm font-semibold text-white/90">Matriz de Competencias Tecnicas</h3>
           <p className="text-xs text-white/40 mt-0.5">
             DICQ 5.1.4 — Colaborador x Analito/Equipamento/Procedimento
           </p>
@@ -101,7 +99,13 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
             onClick={handleAddNew}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Adicionar
@@ -120,9 +124,13 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
 
       {/* Legenda */}
       <div className="flex flex-wrap gap-3">
-        {(Object.entries(NIVEL_CELL) as [NivelCompetencia, typeof NIVEL_CELL[NivelCompetencia]][]).map(([nivel, cfg]) => (
+        {(
+          Object.entries(NIVEL_CELL) as [NivelCompetencia, (typeof NIVEL_CELL)[NivelCompetencia]][]
+        ).map(([nivel, cfg]) => (
           <div key={nivel} className="flex items-center gap-1.5">
-            <span className={`w-5 h-5 rounded ${cfg.bg} flex items-center justify-center text-[9px] font-bold ${cfg.text}`}>
+            <span
+              className={`w-5 h-5 rounded ${cfg.bg} flex items-center justify-center text-[9px] font-bold ${cfg.text}`}
+            >
               {cfg.short}
             </span>
             <span className="text-[10px] text-white/40">{NIVEL_LABEL[nivel]}</span>
@@ -139,7 +147,8 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
         <div className="text-center py-10 border border-dashed border-white/[0.08] rounded-xl">
           <p className="text-sm text-white/40">Nenhuma competencia registrada.</p>
           <p className="text-xs text-white/25 mt-1">
-            Clique em &quot;Adicionar&quot; para mapear colaboradores a analitos, equipamentos ou procedimentos.
+            Clique em &quot;Adicionar&quot; para mapear colaboradores a analitos, equipamentos ou
+            procedimentos.
           </p>
         </div>
       ) : (
@@ -157,7 +166,9 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
                     title={`${CATEGORIA_LABEL[item.categoria]}: ${item.nome}`}
                   >
                     <div className="truncate max-w-[80px]">{item.nome}</div>
-                    <div className="text-[9px] text-white/25 font-normal">{CATEGORIA_LABEL[item.categoria]}</div>
+                    <div className="text-[9px] text-white/25 font-normal">
+                      {CATEGORIA_LABEL[item.categoria]}
+                    </div>
                   </th>
                 ))}
               </tr>
@@ -175,17 +186,18 @@ export function CompetenciaMatrizTab(_props: CompetenciaMatrizTabProps) {
                     const vencendo = isVencendo(cell);
 
                     return (
-                      <td
-                        key={item.id}
-                        className="px-1 py-1 text-center"
-                      >
+                      <td key={item.id} className="px-1 py-1 text-center">
                         <button
                           type="button"
                           onClick={() => handleCellClick(colab.id, item.id)}
                           className={`w-full h-8 rounded-lg ${cfg.bg} ${cfg.text} font-bold text-[10px] transition-all hover:scale-105 hover:ring-1 hover:ring-white/20 ${
                             vencendo ? 'ring-1 ring-amber-400/50 animate-pulse' : ''
                           }`}
-                          title={cell ? `${NIVEL_LABEL[nivel]}${vencendo ? ' (vencendo!)' : ''}` : 'Clique para registrar'}
+                          title={
+                            cell
+                              ? `${NIVEL_LABEL[nivel]}${vencendo ? ' (vencendo!)' : ''}`
+                              : 'Clique para registrar'
+                          }
                         >
                           {cfg.short}
                         </button>

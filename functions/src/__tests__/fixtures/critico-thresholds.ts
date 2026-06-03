@@ -30,7 +30,7 @@ export const mockCriticoConfigPotassium: MockCriticoConfig = {
   sms_escalation: true,
   email_escalation: true,
   phone: '+55 11 98765-4321',
-  email: 'clinico@lab.com'
+  email: 'clinico@lab.com',
 };
 
 export const mockCriticoConfigGlucose: MockCriticoConfig = {
@@ -40,7 +40,7 @@ export const mockCriticoConfigGlucose: MockCriticoConfig = {
   sms_escalation: true,
   email_escalation: true,
   phone: '+55 11 99999-9999',
-  email: 'manager@lab.com'
+  email: 'manager@lab.com',
 };
 
 export const mockCriticoConfigCalcium: MockCriticoConfig = {
@@ -49,7 +49,7 @@ export const mockCriticoConfigCalcium: MockCriticoConfig = {
   limite_superior: 10.5,
   sms_escalation: false,
   email_escalation: true,
-  email: 'admin@lab.com'
+  email: 'admin@lab.com',
 };
 
 export const mockCriticoAlert: MockCriticoAlert = {
@@ -60,7 +60,7 @@ export const mockCriticoAlert: MockCriticoAlert = {
   valor: 6.2,
   referencia: '3.5-5.5',
   status: 'PENDING',
-  criadoEm: 1714982400000
+  criadoEm: 1714982400000,
 };
 
 export const mockCriticoAlertHigh: MockCriticoAlert = {
@@ -71,7 +71,7 @@ export const mockCriticoAlertHigh: MockCriticoAlert = {
   valor: 450,
   referencia: '70-100',
   status: 'NOTIFIED',
-  criadoEm: 1714982400000
+  criadoEm: 1714982400000,
 };
 
 export const mockCriticoAlertLow: MockCriticoAlert = {
@@ -82,7 +82,7 @@ export const mockCriticoAlertLow: MockCriticoAlert = {
   valor: 5.5,
   referencia: '6.5-10.5',
   status: 'ESCALATED',
-  criadoEm: 1714982400000
+  criadoEm: 1714982400000,
 };
 
 export const mockEscalationConfig = {
@@ -92,8 +92,8 @@ export const mockEscalationConfig = {
   recipients: [
     { type: 'SMS', value: '+55 11 98765-4321' },
     { type: 'EMAIL', value: 'clinico@lab.com' },
-    { type: 'PHONE', value: '+55 11 98765-4321' }
+    { type: 'PHONE', value: '+55 11 98765-4321' },
   ],
   maxRetries: 3,
-  retryIntervalMs: 5000
+  retryIntervalMs: 5000,
 };

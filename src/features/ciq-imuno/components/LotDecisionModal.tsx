@@ -23,7 +23,16 @@ import type { CIQStatus } from '../types/_shared_refs';
 
 function XIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   );
@@ -31,7 +40,17 @@ function XIcon() {
 
 function ShieldIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" />
     </svg>
   );
@@ -39,9 +58,21 @@ function ShieldIcon() {
 
 function SpinnerIcon() {
   return (
-    <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg
+      className="animate-spin"
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-      <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+      <path
+        d="M22 12a10 10 0 00-10-10"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -115,9 +146,7 @@ export function LotDecisionModal({
   const headerBg = isAprovar
     ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/25'
     : 'bg-red-50 dark:bg-red-500/[0.06] border-red-200 dark:border-red-500/25';
-  const ctaBg = isAprovar
-    ? 'bg-emerald-600 hover:bg-emerald-700'
-    : 'bg-red-600 hover:bg-red-700';
+  const ctaBg = isAprovar ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-red-600 hover:bg-red-700';
 
   if (!open) return null;
 
@@ -202,7 +231,8 @@ export function LotDecisionModal({
               {lot.testType} · {lot.loteControle}
             </p>
             <p className="text-xs opacity-80 mt-0.5">
-              Validade {fmtDateBR(lot.validadeControle)} · Abertura {fmtDateBR(lot.aberturaControle)}
+              Validade {fmtDateBR(lot.validadeControle)} · Abertura{' '}
+              {fmtDateBR(lot.aberturaControle)}
             </p>
           </section>
 
@@ -266,8 +296,8 @@ export function LotDecisionModal({
                 className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-white/20 text-emerald-600 focus:ring-emerald-500 focus:ring-offset-0"
               />
               <span className="text-xs text-slate-700 dark:text-white/75 leading-relaxed">
-                Eu, <span className="font-semibold">{actorName}</span>, na condição de
-                responsável técnico, declaro formalmente{' '}
+                Eu, <span className="font-semibold">{actorName}</span>, na condição de responsável
+                técnico, declaro formalmente{' '}
                 <span className={`font-semibold ${headerColor}`}>
                   {isAprovar ? 'aprovar este lote para uso assistencial' : 'reprovar este lote'}
                 </span>{' '}

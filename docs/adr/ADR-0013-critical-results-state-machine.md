@@ -13,6 +13,7 @@
 v1.4 Phase 5 implementa notificação de resultados críticos (valores fora do range de referência que requerem ação imediata). RDC 978 Art. 184–191 exige rastreabilidade completa: qual resultado é crítico, quem foi notificado, quando, por qual meio, e qual ação foi tomada.
 
 Laboratório clínico define limites críticos por analito (ex: glicose < 40 mg/dL, K > 6.5 mEq/L). Quando resultado ultrapassa limite, 4 estados sequenciais devem ser rastreados:
+
 1. **NORMAL** — resultado dentro de range; nenhuma notificação necessária
 2. **CRITICO** — resultado ultrapassa limite; notificação gerada (SMS/email/push)
 3. **ALERTADO** — operador recebeu notificação e confirmou recebimento
@@ -21,6 +22,7 @@ Laboratório clínico define limites críticos por analito (ex: glicose < 40 mg/
 **Questão arquitetural:** Implementar como state machine enum (CRITICO status único) vs. flat flags (`isCritico`, `hasBeenAlerted`, `isResolved` independentes)?
 
 **Contexto regulatório:**
+
 - RDC 978 Art. 184: "Resultados críticos devem ser comunicados imediatamente ao clínico solicitante ou responsável."
 - DICQ 4.7: "Rastreabilidade de críticos: documentar notificação + recepção + ação."
 
@@ -47,10 +49,10 @@ type CriticoStatus = 'normal' | 'critico' | 'alertado' | 'resolvido';
 
 // Transições válidas (enforced server-side CF)
 const validTransitions: Record<CriticoStatus, CriticoStatus[]> = {
-  'normal': ['critico'],          // valor muda (dentro range → fora range)
-  'critico': ['alertado'],        // operador confirma recebimento
-  'alertado': ['resolvido'],      // ação clínica tomada
-  'resolvido': ['normal']         // follow-up (novo resultado normal)
+  normal: ['critico'], // valor muda (dentro range → fora range)
+  critico: ['alertado'], // operador confirma recebimento
+  alertado: ['resolvido'], // ação clínica tomada
+  resolvido: ['normal'], // follow-up (novo resultado normal)
 };
 ```
 
@@ -99,7 +101,7 @@ async function transitionCriticoStatus(
     resultId: string;
     newStatus: CriticoStatus;
     reason?: string;
-  }
+  },
 ): Promise<{ success: boolean; newTransition: CriticoTransition }> {
   const { labId, resultId, newStatus, reason } = data;
 
@@ -108,17 +110,14 @@ async function transitionCriticoStatus(
   if (!uid) throw new Error('Not authenticated');
 
   // 2. Read current state
-  const docRef = db.collection('labs').doc(labId)
-    .collection('resultados').doc(resultId);
+  const docRef = db.collection('labs').doc(labId).collection('resultados').doc(resultId);
   const doc = await docRef.get();
   const { critico } = doc.data();
   const currentStatus = critico?.status || 'normal';
 
   // 3. Validate transition
   if (!validTransitions[currentStatus]?.includes(newStatus)) {
-    throw new Error(
-      `Invalid transition: ${currentStatus} → ${newStatus}`
-    );
+    throw new Error(`Invalid transition: ${currentStatus} → ${newStatus}`);
   }
 
   // 4. Generate transition + LogicalSignature
@@ -129,8 +128,12 @@ async function transitionCriticoStatus(
     operatorId: uid,
     reason,
     signature: await generateLogicalSignature({
-      labId, resultId, currentStatus, newStatus, uid
-    })
+      labId,
+      resultId,
+      currentStatus,
+      newStatus,
+      uid,
+    }),
   };
 
   // 5. Trigger notification (if normal → critico)
@@ -141,7 +144,7 @@ async function transitionCriticoStatus(
   // 6. Update Firestore (append transition to history)
   await docRef.update({
     'critico.status': newStatus,
-    'critico.transitions': admin.firestore.FieldValue.arrayUnion(transition)
+    'critico.transitions': admin.firestore.FieldValue.arrayUnion(transition),
   });
 
   return { success: true, newTransition: transition };
@@ -155,7 +158,7 @@ async function transitionCriticoStatus(
 match /labs/{labId}/resultados/{resultId} {
   // Client can update resultado.status only
   allow update: if request.resource.data.status in ['pending', 'released'];
-  
+
   // Cloud Function (via service context) updates critico
   // Client CANNOT directly update critico.status
   allow update: if request.auth.uid == null  // service context only
@@ -164,7 +167,7 @@ match /labs/{labId}/resultados/{resultId} {
         resource.data.critico.status,
         request.resource.data.critico.status
       );
-  
+
   // Helper function
   function validateCriticoTransition(fromStatus, toStatus) {
     return (
@@ -174,7 +177,7 @@ match /labs/{labId}/resultados/{resultId} {
       (fromStatus == 'resolvido' && toStatus == 'normal')
     );
   }
-  
+
   // Read allowed for lab members
   allow read: if isActiveMember();
 }
@@ -186,11 +189,7 @@ match /labs/{labId}/resultados/{resultId} {
 
 ```typescript
 // functions/src/v1.4-criticos/notificaCritico.ts
-async function notificaCritico(
-  labId: string,
-  resultId: string,
-  resultData: Resultado
-) {
+async function notificaCritico(labId: string, resultId: string, resultData: Resultado) {
   const { analito, valor, range, pacienteEmail, clinicoPhone } = resultData;
 
   // Send SMS + Email (idempotent; check if already sent)
@@ -198,27 +197,26 @@ async function notificaCritico(
     sentTs: admin.firestore.Timestamp.now(),
     method: 'sms' | 'email',
     recipient: clinicoPhone || pacienteEmail,
-    deliveryStatus: 'pending'
+    deliveryStatus: 'pending',
   };
 
   // Queue async: send SMS via Twilio + email via Resend
   await sendNotification({
     to: clinicoPhone,
-    message: `CRÍTICO: ${analito} = ${valor} (range ${range}) - Resultado ${resultId}`
+    message: `CRÍTICO: ${analito} = ${valor} (range ${range}) - Resultado ${resultId}`,
   });
 
   // Update notification field (track sent)
-  await db.collection('labs').doc(labId)
-    .collection('resultados').doc(resultId)
-    .update({
-      'critico.notification': notification
-    });
+  await db.collection('labs').doc(labId).collection('resultados').doc(resultId).update({
+    'critico.notification': notification,
+  });
 }
 ```
 
 ### 6. Regulatory Alignment (RDC 978 Art. 184–191)
 
 **Art. 184–191 exigências:**
+
 - ✅ Resultado crítico identificado (via limites configuráveis em `labSettings`)
 - ✅ Notificação imediata documentada (Field: `critico.notification.sentTs`)
 - ✅ Recepção confirmada (Field: `critico.notification.confirmReceivedTs`)
@@ -227,6 +225,7 @@ async function notificaCritico(
 - ✅ Audit trail imutável (Field: `transitions[]` append-only)
 
 Auditor export:
+
 ```
 Select all resultados where critico.status != 'normal'
   → PDF report: analito, valor, notificação, recepção, ação, timestamps
@@ -247,10 +246,12 @@ interface CriticoTracking {
 ```
 
 **Pros:**
+
 - Simples de implementar (2 dias)
 - Client pode atualizar (menos CF triggers)
 
 **Cons:**
+
 - Invalid combos possíveis: `isCritico=false` + `hasBeenAlerted=true`? Inconsistência.
 - Auditor vê "foi alertado?" sem contexto de ordem.
 - Sem transições explícitas, Phase 6 audit trail retrofit é árduo.
@@ -263,10 +264,12 @@ interface CriticoTracking {
 Cada resultado crítico cria doc em `/labs/{labId}/criticos-escalacoes/{docId}` (linked via `resultId`).
 
 **Pros:**
+
 - Separate concern (críticos são "eventos", não parte de resultado).
 - Indexação separada (query críticos é rápida).
 
 **Cons:**
+
 - Dupla escrita (result.critico + criticos-escalacoes doc). Risco de inconsistência.
 - Quando resultado é soft-deleted, must cascade delete/soft-delete criticos-escalacoes.
 - Mais complexo (3 Cloud Function triggers em vez de 1).
@@ -284,10 +287,12 @@ Cada resultado crítico cria doc em `/labs/{labId}/criticos-escalacoes/{docId}` 
 ```
 
 **Pros:**
+
 - Ultra-extensível (qualquer tipo de evento cabe)
 - Imutável por design (append-only events)
 
 **Cons:**
+
 - Overkill para Phase 5 (evento sourcing é Fase 6+ scope).
 - Mais complexo (state reconstruction from events adds latency).
 - CAPA pattern (resultado com estado nested) is already proven in v1.3.

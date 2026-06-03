@@ -71,14 +71,16 @@ export const migrateNCsCollection = onCall(
         bloqueiaOperacoes: oldData.bloqueiaOperacoes ?? true,
         modulosBloqueados: oldData.modulosBloqueados || [],
         capaStatus: mapStatus(oldData.status || oldData.capaStatus),
-        capaHistorico: oldData.capaHistorico || [{
-          status: 'nao_iniciada',
-          timestamp: oldData.criadoEm || oldData.createdAt || Timestamp.now(),
-          realizadoPor: oldData.criadoPor || oldData.aberta?.uid || 'system',
-          realizadoPorName: 'Sistema (migração)',
-          descricao: 'NC migrada da collection antiga.',
-          evidencias: [],
-        }],
+        capaHistorico: oldData.capaHistorico || [
+          {
+            status: 'nao_iniciada',
+            timestamp: oldData.criadoEm || oldData.createdAt || Timestamp.now(),
+            realizadoPor: oldData.criadoPor || oldData.aberta?.uid || 'system',
+            realizadoPorName: 'Sistema (migração)',
+            descricao: 'NC migrada da collection antiga.',
+            evidencias: [],
+          },
+        ],
         abertaEm: oldData.abertaEm || oldData.criadoEm || oldData.createdAt || Timestamp.now(),
         abertaPor: oldData.abertaPor || oldData.criadoPor || oldData.aberta?.uid || 'system',
         prazoClosure: oldData.prazoClosure || null,
@@ -119,6 +121,7 @@ function mapStatus(status: string | undefined): string {
   if (status === 'acao_corretiva') return 'acao';
   if (status === 'validacao') return 'eficacia';
   if (status === 'encerrada' || status === 'fechada') return 'fechada';
-  if (['nao_iniciada', 'investigacao', 'acao', 'eficacia', 'fechada', 'reaberta'].includes(status)) return status;
+  if (['nao_iniciada', 'investigacao', 'acao', 'eficacia', 'fechada', 'reaberta'].includes(status))
+    return status;
   return 'nao_iniciada';
 }

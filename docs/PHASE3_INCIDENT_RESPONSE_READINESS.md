@@ -3,7 +3,7 @@
 **Purpose:** Verify incident response system is ready before Phase 3 goes live  
 **Owner:** CTO + DevOps  
 **Target Date:** Complete before prod deploy  
-**Status:** Ready for execution  
+**Status:** Ready for execution
 
 ---
 
@@ -232,21 +232,21 @@ docs/
 ### Engineering Sign-Off
 
 - [ ] **CTO:** Incident response procedures reviewed + approved
-  - Signature: _________________________ Date: __________
+  - Signature: ************\_************ Date: ****\_\_****
 
 - [ ] **DevOps Lead:** Monitoring + escalation matrix configured + tested
-  - Signature: _________________________ Date: __________
+  - Signature: ************\_************ Date: ****\_\_****
 
 - [ ] **Tech Lead:** Team trained + ready for on-call
-  - Signature: _________________________ Date: __________
+  - Signature: ************\_************ Date: ****\_\_****
 
 ### Compliance Sign-Off
 
 - [ ] **Compliance Officer:** Evidence preservation + retention policy documented
-  - Signature: _________________________ Date: __________
+  - Signature: ************\_************ Date: ****\_\_****
 
 - [ ] **Security Lead:** Credential rotation procedures + LGPD notification processes reviewed
-  - Signature: _________________________ Date: __________
+  - Signature: ************\_************ Date: ****\_\_****
 
 ### Final Go/No-Go
 
@@ -300,22 +300,23 @@ INCIDENT RESPONSE SYSTEM STATUS:
 
 **Lock these dates on calendar now:**
 
-| Quarter | Months | Drill Type | Owner | Status |
-|---------|--------|-----------|-------|--------|
-| Q2 2026 | May | #0 (Pilot dry-run, staging) | DevOps | ☐ Schedule |
-| Q2 2026 | Jun | #1 (Data Breach) | Security | ☐ Schedule |
-| Q3 2026 | Jul | #2 (Outage + Rollback) | DevOps | ☐ Schedule |
-| Q3 2026 | Aug | #3 (Data Corruption + Restore) | DBA | ☐ Schedule |
-| Q3 2026 | Sep | #4 (LGPD Compliance) | Compliance | ☐ Schedule |
-| Q4 2026 | Oct | #5 (Security — Credential Rotation) | Security | ☐ Schedule |
-| Q4 2026 | Nov | Review + Update Playbooks | CTO | ☐ Schedule |
-| ... | ... | (Repeat annually) | — | — |
+| Quarter | Months | Drill Type                          | Owner      | Status     |
+| ------- | ------ | ----------------------------------- | ---------- | ---------- |
+| Q2 2026 | May    | #0 (Pilot dry-run, staging)         | DevOps     | ☐ Schedule |
+| Q2 2026 | Jun    | #1 (Data Breach)                    | Security   | ☐ Schedule |
+| Q3 2026 | Jul    | #2 (Outage + Rollback)              | DevOps     | ☐ Schedule |
+| Q3 2026 | Aug    | #3 (Data Corruption + Restore)      | DBA        | ☐ Schedule |
+| Q3 2026 | Sep    | #4 (LGPD Compliance)                | Compliance | ☐ Schedule |
+| Q4 2026 | Oct    | #5 (Security — Credential Rotation) | Security   | ☐ Schedule |
+| Q4 2026 | Nov    | Review + Update Playbooks           | CTO        | ☐ Schedule |
+| ...     | ...    | (Repeat annually)                   | —          | —          |
 
 ---
 
 ## Summary: What Gets Deployed with Phase 3
 
 ### Code/Configuration
+
 - [x] Incident response procedures (6 documents, ~50 pages total)
 - [x] Escalation matrix + contact info
 - [x] Evidence preservation (GCS buckets + immutable storage)
@@ -323,11 +324,13 @@ INCIDENT RESPONSE SYSTEM STATUS:
 - [x] Drill program (quarterly schedule)
 
 ### What Does NOT Get Deployed
+
 - Real incident records (created as-needed, not in initial commit)
 - Drill results (created quarterly, not in initial commit)
 - Team contact info (stored separately, not in git)
 
 ### Phase 3 Dependencies
+
 - Cloud Monitoring alerts must be configured (infra setup)
 - GCS buckets must be created (infra setup)
 - On-call schedule must be live (HR setup)
@@ -396,4 +399,4 @@ NEXT STEPS:
 **Created:** 2026-05-07  
 **Document Owner:** CTO  
 **Status:** Ready for Execution  
-**Next Review:** After Phase 3 deployment + first week of operations  
+**Next Review:** After Phase 3 deployment + first week of operations

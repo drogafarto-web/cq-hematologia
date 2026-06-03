@@ -8,16 +8,9 @@
 
 import React, { useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
-import {
-  createFornecedor,
-  updateFornecedor,
-} from '../services/fornecedorService';
+import { createFornecedor, updateFornecedor } from '../services/fornecedorService';
 import type { Fornecedor } from '../types/Fornecedor';
-import {
-  formatCnpj,
-  isValidCnpj,
-  normalizeCnpj,
-} from '../types/Fornecedor';
+import { formatCnpj, isValidCnpj, normalizeCnpj } from '../types/Fornecedor';
 
 const INPUT_CLS = `
   w-full px-3.5 py-2.5 rounded-xl
@@ -78,12 +71,8 @@ export function FornecedorFormModal({
 
   const [razaoSocial, setRazaoSocial] = useState(fornecedor?.razaoSocial ?? '');
   const [nomeFantasia, setNomeFantasia] = useState(fornecedor?.nomeFantasia ?? '');
-  const [cnpj, setCnpj] = useState(
-    fornecedor?.cnpj ? formatCnpj(fornecedor.cnpj) : '',
-  );
-  const [inscricaoEstadual, setInscricaoEstadual] = useState(
-    fornecedor?.inscricaoEstadual ?? '',
-  );
+  const [cnpj, setCnpj] = useState(fornecedor?.cnpj ? formatCnpj(fornecedor.cnpj) : '');
+  const [inscricaoEstadual, setInscricaoEstadual] = useState(fornecedor?.inscricaoEstadual ?? '');
   const [telefone, setTelefone] = useState(fornecedor?.telefone ?? '');
   const [email, setEmail] = useState(fornecedor?.email ?? '');
   const [endereco, setEndereco] = useState(fornecedor?.endereco ?? '');
@@ -158,9 +147,7 @@ export function FornecedorFormModal({
       });
 
       if (wasDuplicate) {
-        setSubmitError(
-          'Já existe fornecedor com este CNPJ no lab. Usamos o cadastro existente.',
-        );
+        setSubmitError('Já existe fornecedor com este CNPJ no lab. Usamos o cadastro existente.');
       }
       onCreated?.(id);
       if (!wasDuplicate) onClose();
@@ -205,7 +192,12 @@ export function FornecedorFormModal({
             className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M3 3l8 8M11 3l-8 8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>

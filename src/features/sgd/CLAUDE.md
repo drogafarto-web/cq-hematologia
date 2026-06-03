@@ -12,6 +12,7 @@ Trabalhe SOMENTE em `src/features/sgd/`.
 Não acesse outros módulos sem autorização.
 
 Funcionalidade MVP: **Importação e gestão de documentos externos** (Google Drive).
+
 - Importar documentos via Drive Importer Wizard
 - Armazenar metadados em Firestore (`/labs/{labId}/sgd-externos/`)
 - Visualizar documentos (PDF inline)
@@ -19,6 +20,7 @@ Funcionalidade MVP: **Importação e gestão de documentos externos** (Google Dr
 - Sugerir e confirmar links para módulos existentes (SGQ, POP, Treinamentos, Biossegurança)
 
 V2 expande para:
+
 - Auto-versionamento de documentos
 - Sincronização periódica com Drive
 - Exportação de lista mestra (PDF + planilha)
@@ -32,6 +34,7 @@ V2 expande para:
 **LGPD** Art. 18 — direitos do titular (acesso, exclusão, portabilidade)
 
 Auditor pede 3 evidências em 4.3:
+
 1. Documentos categorizados por bloco DICQ
 2. Trilha de audit de importação + modificação
 3. Links rastreáveis para documentos regulatórios (POP, IT, Políticas)
@@ -49,32 +52,37 @@ Payload carrega `labId` redundante (defense-in-depth).
 
 ---
 
-## Regras Invioláveis (RN-SGD-*)
+## Regras Invioláveis (RN-SGD-\*)
 
 **RN-SGD-01** — Soft-delete only
+
 - Nunca chamar `deleteDoc` em sgd-externos
 - Use `sgdService.softDeleteDocument()` que marca `deletadoEm`
 - Documentos deletados seguem retenção LGPD 5a + anonimização 90d
 
 **RN-SGD-02** — Assinatura obrigatória
+
 - Todo documento tem `aud: { hash (SHA-256), operatorId, ts }`
 - Gerada por `generateAuditHash(payload)` no service
 - `operatorId === request.auth.uid` validado em rules
 - Hash é imutável após criação — evidência de integridade
 
 **RN-SGD-03** — LGPD Compliance
+
 - Import audit log obrigatório: { event, documentId, operatorEmail, consent, ts }
 - Usuário pode deletar doc anytime; hard-delete após 90 dias grace
 - Anonimização automática 5a+ (remove email/ID, mantém Timestamp)
 - User rights: access via SGDViewer, delete via soft-delete, portability via export
 
 **RN-SGD-04** — Categorização e linking
+
 - `categoriaICQ` (A-J) preenchido pós-import via Gemini (Phase 12-02)
 - `linksSugeridos` auto-gerado (confidence score > 0.7)
 - `linksConfirmados` só após user approval (manual)
 - User pode override categoria + links via UI
 
 **RN-SGD-05** — Versionamento
+
 - MVP: Manual (user cria novo doc se revisão necessária)
 - Código do documento mantém-se entre versões (não UUID)
 - V2: Auto-version com `versao++` + documentos anteriores → `obsoleto`
@@ -84,17 +92,20 @@ Payload carrega `labId` redundante (defense-in-depth).
 ## Componentes Principais
 
 **SGDView** — Entry point, tabela + filtros + KPIs
+
 - Search por titulo/descricao
 - Filtro por categoria DICQ
 - KPIs: total, categorizados, vinculados
 
 **SGDViewer** — Visualizador de documento
+
 - Inline (modal 600px) + full-screen
 - PDF preview via Drive Google Viewer iframe
 - Sidebar: metadata, audit trail, links
 - a11y: ESC to close, aria-label, keyboard nav
 
 **DriveImporterWizard** — 4-step wizard
+
 - Step 1 (Auth): Select Drive folder ID
 - Step 2 (Select): Checkbox list de files (max 50)
 - Step 3 (Preview): Review + consent checkbox
@@ -107,12 +118,14 @@ Payload carrega `labId` redundante (defense-in-depth).
 **View enum** em `src/types/index.ts`: adicionar `'sgd-documentos'`
 
 **AuthWrapper.tsx**: adicionar rota
+
 ```typescript
 case 'sgd-documentos':
   return <SGDView />
 ```
 
 **Hub (ModuleHub.tsx)**: adicionar tile
+
 ```typescript
 {
   id: 'documentos-externos',
@@ -129,25 +142,30 @@ case 'sgd-documentos':
 ## Pendências Conhecidas (Roadmap)
 
 **SGD-01** — Drive backup + resync
+
 - Phase 13: Implementar `sync-drive-backup.ts` (Cloud Function scheduled)
 - Backup automático de documentos a HC Quality Drive account
 - Mensal: resync + health check (links quebrados)
 
 **SGD-02** — Dashboard de compliance
+
 - Phase 13: Exportar lista mestra (PDF + Excel)
 - Mapa DICQ (quantos docs por bloco)
 - Auditor pode gerar relatório "Controle de Documentos 4.3"
 
 **SGD-03** — Auto-versionamento
+
 - Phase 2: Detecção automática de revisão (user carrega novo PDF com mesmo código)
 - Versão anterior → `obsoleto` (soft-deleted)
 - Cadeia: `substitui` ↔ `substituidoPor`
 
 **SGD-04** — Integração calendário
+
 - Phase 2: Alertas de revisão próxima (proximaRevisao campo)
 - Notificações para usuários responsáveis
 
 **SGD-05** — Deep linking
+
 - Phase 2: URLs compartilháveis — `/sgd/{labId}/{docId}?view=full`
 - Rastreamento: audit log registra "shared_link_accessed"
 
@@ -158,6 +176,7 @@ case 'sgd-documentos':
 Após primeira ida em prod do módulo SGD:
 
 1. Atualizar a linha em "Módulos em produção" do [root CLAUDE.md](../../../CLAUDE.md):
+
    ```text
    sgd | Em prod · Documentos Externos (DICQ 4.3) + Drive Importer | YYYY-MM-DD
    ```
@@ -195,12 +214,12 @@ match /labs/{labId}/sgd-externos-audit/{eventId} {
 
 ## Performance Targets
 
-| Metric | Target | Hard Limit |
-|--------|--------|-----------|
-| Listar documentos | <1.5s | 2.0s |
-| Renderizar tabela | <500ms | 1.0s |
-| Abrir visualizador | <800ms | 1.5s |
-| Importar batch (20 docs) | <5s | 10s |
+| Metric                   | Target | Hard Limit |
+| ------------------------ | ------ | ---------- |
+| Listar documentos        | <1.5s  | 2.0s       |
+| Renderizar tabela        | <500ms | 1.0s       |
+| Abrir visualizador       | <800ms | 1.5s       |
+| Importar batch (20 docs) | <5s    | 10s        |
 
 ---
 
@@ -225,7 +244,7 @@ match /labs/{labId}/sgd-externos-audit/{eventId} {
 
 ## Histórico
 
-| Data | Evento | Status |
-|------|--------|--------|
-| 2026-05-06 | Phase 12 planning started | Planning |
+| Data       | Evento                                            | Status      |
+| ---------- | ------------------------------------------------- | ----------- |
+| 2026-05-06 | Phase 12 planning started                         | Planning    |
 | 2026-05-06 | Plan 01 scaffolding (components, services, types) | In Progress |

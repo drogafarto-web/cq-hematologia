@@ -22,9 +22,7 @@ import {
   type DocumentReference,
   type QueryDocumentSnapshot,
 } from '../../../shared/services/firebase';
-import type {
-  ManagementReview,
-} from '../types';
+import type { ManagementReview } from '../types';
 import type { LabId } from '../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -75,9 +73,7 @@ function mapManagementReview(snap: QueryDocumentSnapshot): ManagementReview {
 export async function getMeetings(labId: LabId, limit?: number): Promise<ManagementReview[]> {
   const q = query(managementReviewCol(labId), orderBy('dataRevisao', 'desc'));
   const snapshot = await getDocs(q);
-  const reviews = snapshot.docs
-    .map(mapManagementReview)
-    .filter((r) => !r.deletedAt);
+  const reviews = snapshot.docs.map(mapManagementReview).filter((r) => !r.deletedAt);
 
   return limit ? reviews.slice(0, limit) : reviews;
 }
@@ -149,10 +145,10 @@ export async function createMeetingCallable(
   labId: LabId,
   input: CreateMeetingInput,
 ): Promise<CreateMeetingOutput> {
-  const fn = httpsCallable<
-    { labId: string; payload: CreateMeetingInput },
-    CreateMeetingOutput
-  >(functions, 'managementReview_createMeeting');
+  const fn = httpsCallable<{ labId: string; payload: CreateMeetingInput }, CreateMeetingOutput>(
+    functions,
+    'managementReview_createMeeting',
+  );
   return fn({ labId, payload: input }).then((result) => result.data);
 }
 

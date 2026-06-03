@@ -36,7 +36,7 @@ export function listenToPatientLaudos(
   labId: string,
   patientId: string,
   onData: (laudos: PatientPortalLaudo[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const constraints: QueryConstraint[] = [
     where('labId', '==', labId),
@@ -60,7 +60,7 @@ export function listenToPatientLaudos(
     (error) => {
       console.error('[listenToPatientLaudos] error:', error);
       if (onError) onError(error as Error);
-    }
+    },
   );
 }
 
@@ -70,7 +70,7 @@ export function listenToPatientLaudos(
 export async function getPatientLaudo(
   labId: string,
   patientId: string,
-  laudoId: string
+  laudoId: string,
 ): Promise<PatientPortalLaudo | null> {
   const constraints: QueryConstraint[] = [
     where('labId', '==', labId),
@@ -92,10 +92,7 @@ export async function getPatientLaudo(
 /**
  * Count total laudos for patient (for pagination/stats)
  */
-export async function countPatientLaudos(
-  labId: string,
-  patientId: string
-): Promise<number> {
+export async function countPatientLaudos(labId: string, patientId: string): Promise<number> {
   const constraints: QueryConstraint[] = [
     where('labId', '==', labId),
     where('pacienteId', '==', patientId),
@@ -116,7 +113,7 @@ export async function getPatientLaudosInDateRange(
   patientId: string,
   startDate: Timestamp,
   endDate: Timestamp,
-  pageSize: number = 20
+  pageSize: number = 20,
 ): Promise<PatientPortalLaudo[]> {
   const constraints: QueryConstraint[] = [
     where('labId', '==', labId),

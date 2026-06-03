@@ -4,7 +4,7 @@ version: 1.1
 date_created: 2026-05-07
 date_updated: 2026-05-08
 status: approved
-revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria (2026-05-08). Phases 4–5 planned (2026-05-20 ~ 2026-06-27). Phases 6, 8–9 backlog."
+revision_note: 'Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria (2026-05-08). Phases 4–5 planned (2026-05-20 ~ 2026-06-27). Phases 6, 8–9 backlog.'
 ---
 
 # HC Quality v1.4 — Roadmap
@@ -21,14 +21,14 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 **Target Completion:** 2026-08-15 (14 weeks from Phase 3 close)  
 **Compliance Target:** DICQ 88%+, RDC 978 92%+, LGPD 85%+
 
-| Phase | Focus | Deliverables | Status | Deploy | Risk |
-|-------|-------|--------------|--------|--------|------|
-| **Phase 3** | Schema, Rules, Helpers, Functions Base | 12 deliverables, 42.4K LOC, 738/738 tests | ✅ LIVE | 2026-05-07 | 2/10 |
-| **Phase 4** | Portal + NOTIVISA Integration | Portal UI (04-01/02), NOTIVISA API (04-03/04) | 📋 PLANNED | 2026-06-02 | 3.5/10 |
-| **Phase 5** | Críticos + IA Strip Enhancement | Críticos severity (05-01/02), IA OCR (05-03/04) | 📋 PLANNED | 2026-06-27 | 3.5/10 |
-| **Phase 6** | CAPA Workflow | CAPA schema + UI + audit trail | 📅 BACKLOG | 2026-07-14 | 3/10 |
-| **Phase 7** | Advanced Auditoria + AI Insights | Audit trail extension, anomaly detection, alerts, reporting | 📋 PLANNED (NEW) | 2026-08-04 | 2.5/10 |
-| **Phase 8–9** | NOTIVISA Edge + Labs Apoio + Manual QC | Extended quality assurance | 📅 BACKLOG | 2026-08-15 | 4/10 |
+| Phase         | Focus                                  | Deliverables                                                | Status           | Deploy     | Risk   |
+| ------------- | -------------------------------------- | ----------------------------------------------------------- | ---------------- | ---------- | ------ |
+| **Phase 3**   | Schema, Rules, Helpers, Functions Base | 12 deliverables, 42.4K LOC, 738/738 tests                   | ✅ LIVE          | 2026-05-07 | 2/10   |
+| **Phase 4**   | Portal + NOTIVISA Integration          | Portal UI (04-01/02), NOTIVISA API (04-03/04)               | 📋 PLANNED       | 2026-06-02 | 3.5/10 |
+| **Phase 5**   | Críticos + IA Strip Enhancement        | Críticos severity (05-01/02), IA OCR (05-03/04)             | 📋 PLANNED       | 2026-06-27 | 3.5/10 |
+| **Phase 6**   | CAPA Workflow                          | CAPA schema + UI + audit trail                              | 📅 BACKLOG       | 2026-07-14 | 3/10   |
+| **Phase 7**   | Advanced Auditoria + AI Insights       | Audit trail extension, anomaly detection, alerts, reporting | 📋 PLANNED (NEW) | 2026-08-04 | 2.5/10 |
+| **Phase 8–9** | NOTIVISA Edge + Labs Apoio + Manual QC | Extended quality assurance                                  | 📅 BACKLOG       | 2026-08-15 | 4/10   |
 
 ---
 
@@ -40,37 +40,37 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 
 ### Deliverables
 
-| Deliverable | Type | Status | LOC | Tests |
-|------------|------|--------|-----|-------|
-| **03-01** | Firestore schema (bioquímica, críticos, notivisa) | ✅ | 2.1K | 84 |
-| **03-02** | Security rules (RBAC, member validation, audit) | ✅ | 1.8K | 45 |
-| **03-03** | Helper functions (isValidRun, signHash, etc.) | ✅ | 3.2K | 156 |
-| **03-04** | Cloud Functions base (78 functions scaffolded) | ✅ | 18.5K | 287 |
-| **03-05** | Rules E2E tests (45/45 passing) | ✅ | 4.1K | 45 |
-| **03-06** | TypeScript cleanup (no TSC errors) | ✅ | — | — |
-| **03-07** | CI pipeline gate (GitHub Actions) | ✅ | — | — |
-| **03-08** | Deploy procedure doc (step-by-step) | ✅ | — | — |
-| **03-09** | Monitoring + telemetry (Cloud Logging) | ✅ | 2.4K | 34 |
-| **03-10** | ADR-0017 remediation (HMAC baseline reset) | ✅ | — | — |
-| **03-11** | ADR-0018 deploy gate (`preflight-secrets-check.sh`) | ✅ | 0.3K | 2 |
-| **03-12** | Incident log + postmortem (11 ghost callables surfaced) | ✅ | — | — |
+| Deliverable | Type                                                    | Status | LOC   | Tests |
+| ----------- | ------------------------------------------------------- | ------ | ----- | ----- |
+| **03-01**   | Firestore schema (bioquímica, críticos, notivisa)       | ✅     | 2.1K  | 84    |
+| **03-02**   | Security rules (RBAC, member validation, audit)         | ✅     | 1.8K  | 45    |
+| **03-03**   | Helper functions (isValidRun, signHash, etc.)           | ✅     | 3.2K  | 156   |
+| **03-04**   | Cloud Functions base (78 functions scaffolded)          | ✅     | 18.5K | 287   |
+| **03-05**   | Rules E2E tests (45/45 passing)                         | ✅     | 4.1K  | 45    |
+| **03-06**   | TypeScript cleanup (no TSC errors)                      | ✅     | —     | —     |
+| **03-07**   | CI pipeline gate (GitHub Actions)                       | ✅     | —     | —     |
+| **03-08**   | Deploy procedure doc (step-by-step)                     | ✅     | —     | —     |
+| **03-09**   | Monitoring + telemetry (Cloud Logging)                  | ✅     | 2.4K  | 34    |
+| **03-10**   | ADR-0017 remediation (HMAC baseline reset)              | ✅     | —     | —     |
+| **03-11**   | ADR-0018 deploy gate (`preflight-secrets-check.sh`)     | ✅     | 0.3K  | 2     |
+| **03-12**   | Incident log + postmortem (11 ghost callables surfaced) | ✅     | —     | —     |
 
 **Total Phase 3:** 12 deliverables, 42.4K LOC, 738/738 tests passing
 
 ### Compliance Impact
 
-| Block | Pre-Phase 3 | Post-Phase 3 | Delta | Target v1.4 |
-|-------|------------|-------------|-------|------------|
-| A — Governança | 73% | 75% | +2% | 80% |
-| B — Gestão Documental | 70% | 72% | +2% | 85% |
-| C — Pessoal | 75% | 78% | +3% | 88% |
-| D — Ambiente | 65% | 68% | +3% | 75% |
-| E — Pré-analítico | 72% | 75% | +3% | 82% |
-| F — Analítico | 85% | 88% | +3% | 92% |
-| G — Pós-analítico | 78% | 82% | +4% | 90% |
-| H — Garantia Qualidade | 75% | 78% | +3% | 88% |
-| I — Laudos/Liberação | 80% | 83% | +3% | 92% |
-| J — Continuidade | 70% | 72% | +2% | 80% |
+| Block                  | Pre-Phase 3 | Post-Phase 3 | Delta | Target v1.4 |
+| ---------------------- | ----------- | ------------ | ----- | ----------- |
+| A — Governança         | 73%         | 75%          | +2%   | 80%         |
+| B — Gestão Documental  | 70%         | 72%          | +2%   | 85%         |
+| C — Pessoal            | 75%         | 78%          | +3%   | 88%         |
+| D — Ambiente           | 65%         | 68%          | +3%   | 75%         |
+| E — Pré-analítico      | 72%         | 75%          | +3%   | 82%         |
+| F — Analítico          | 85%         | 88%          | +3%   | 92%         |
+| G — Pós-analítico      | 78%         | 82%          | +4%   | 90%         |
+| H — Garantia Qualidade | 75%         | 78%          | +3%   | 88%         |
+| I — Laudos/Liberação   | 80%         | 83%          | +3%   | 92%         |
+| J — Continuidade       | 70%         | 72%          | +2%   | 80%         |
 
 **Overall Post-Phase 3:** 76.3% DICQ compliance · RDC 978 80% · LGPD 72%
 
@@ -84,12 +84,12 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 
 ### Risk Summary (Phase 3)
 
-| Risk | Likelihood | Impact | Status |
-|------|-----------|--------|--------|
-| HMAC baseline mismatch (ADR-0017) | RESOLVED | Historical re-sign avoided | ✅ |
-| Secrets in Functions git diff | RESOLVED | `preflight-secrets-check.sh` gate | ✅ |
-| 11 ghost callables (no CF) | RESOLVED | Surfaced + scheduled for Phase 4 | ⚠️ |
-| TSC/lint baseline creep | RESOLVED | CI gate enforced | ✅ |
+| Risk                              | Likelihood | Impact                            | Status |
+| --------------------------------- | ---------- | --------------------------------- | ------ |
+| HMAC baseline mismatch (ADR-0017) | RESOLVED   | Historical re-sign avoided        | ✅     |
+| Secrets in Functions git diff     | RESOLVED   | `preflight-secrets-check.sh` gate | ✅     |
+| 11 ghost callables (no CF)        | RESOLVED   | Surfaced + scheduled for Phase 4  | ⚠️     |
+| TSC/lint baseline creep           | RESOLVED   | CI gate enforced                  | ✅     |
 
 ---
 
@@ -102,15 +102,15 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 
 ### Plan Structure
 
-| Plan | Focus | Duration | Owner | Deadline |
-|------|-------|----------|-------|----------|
-| **04-01** | Portal schema (patient profile, results history, consents) | 3 days | Stream A | 2026-05-23 |
-| **04-02** | Portal UI (home, results, consents, settings) | 4 days | Stream B | 2026-05-27 |
-| **04-03** | NOTIVISA API client + mapping (batch submission format) | 3 days | Stream A | 2026-05-23 |
-| **04-04** | NOTIVISA scheduler + retry logic (gov endpoint flakiness) | 4 days | Stream A | 2026-05-27 |
-| **04-05** | Portal + NOTIVISA integration (block release on gov ack) | 3 days | Stream A + B | 2026-05-30 |
-| **04-06** | E2E tests + portal accessibility audit | 2 days | Stream B | 2026-06-01 |
-| **04-07** | Deploy + monitoring | 1 day | Stream A | 2026-06-02 |
+| Plan      | Focus                                                      | Duration | Owner        | Deadline   |
+| --------- | ---------------------------------------------------------- | -------- | ------------ | ---------- |
+| **04-01** | Portal schema (patient profile, results history, consents) | 3 days   | Stream A     | 2026-05-23 |
+| **04-02** | Portal UI (home, results, consents, settings)              | 4 days   | Stream B     | 2026-05-27 |
+| **04-03** | NOTIVISA API client + mapping (batch submission format)    | 3 days   | Stream A     | 2026-05-23 |
+| **04-04** | NOTIVISA scheduler + retry logic (gov endpoint flakiness)  | 4 days   | Stream A     | 2026-05-27 |
+| **04-05** | Portal + NOTIVISA integration (block release on gov ack)   | 3 days   | Stream A + B | 2026-05-30 |
+| **04-06** | E2E tests + portal accessibility audit                     | 2 days   | Stream B     | 2026-06-01 |
+| **04-07** | Deploy + monitoring                                        | 1 day    | Stream A     | 2026-06-02 |
 
 ### Compliance Alignment
 
@@ -136,15 +136,15 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 
 ### Plan Structure
 
-| Plan | Focus | Duration | Owner | Deadline |
-|------|-------|----------|-------|----------|
-| **05-01** | Críticos severity + escalation rules (config-driven) | 3 days | Stream A | 2026-06-12 |
-| **05-02** | Críticos notification cascade (SMS → email → portal) | 3 days | Stream A | 2026-06-12 |
-| **05-03** | Gemini OCR strip parser (imunologia analytes) | 5 days | Stream C | 2026-06-17 |
-| **05-04** | IA strip integration + fuzzy match (vs expected analytes) | 4 days | Stream C | 2026-06-21 |
-| **05-05** | E2E tests (10 OCR samples, 5 escalation scenarios) | 2 days | Stream C | 2026-06-23 |
-| **05-06** | Cost analysis + abuse prevention (rate limiting) | 1 day | Stream A | 2026-06-24 |
-| **05-07** | Deploy + monitoring | 1 day | Stream A | 2026-06-27 |
+| Plan      | Focus                                                     | Duration | Owner    | Deadline   |
+| --------- | --------------------------------------------------------- | -------- | -------- | ---------- |
+| **05-01** | Críticos severity + escalation rules (config-driven)      | 3 days   | Stream A | 2026-06-12 |
+| **05-02** | Críticos notification cascade (SMS → email → portal)      | 3 days   | Stream A | 2026-06-12 |
+| **05-03** | Gemini OCR strip parser (imunologia analytes)             | 5 days   | Stream C | 2026-06-17 |
+| **05-04** | IA strip integration + fuzzy match (vs expected analytes) | 4 days   | Stream C | 2026-06-21 |
+| **05-05** | E2E tests (10 OCR samples, 5 escalation scenarios)        | 2 days   | Stream C | 2026-06-23 |
+| **05-06** | Cost analysis + abuse prevention (rate limiting)          | 1 day    | Stream A | 2026-06-24 |
+| **05-07** | Deploy + monitoring                                       | 1 day    | Stream A | 2026-06-27 |
 
 ### Compliance Alignment
 
@@ -167,13 +167,13 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 **Period:** 2026-06-30 → 2026-07-14  
 **Compliance:** RDC 978 Art. 86 (CAPA management), DICQ 4.14.6 (preventive action)
 
-| Plan | Focus | Duration |
-|------|-------|----------|
-| **06-01** | CAPA schema (finding → action → verification → closeout) | 3 days |
-| **06-02** | CAPA workflow UI (assign, track, evidence, sign-off) | 4 days |
-| **06-03** | Audit trail integration (CAPA investigation evidence) | 3 days |
-| **06-04** | E2E tests + compliance audit | 2 days |
-| **06-05** | Deploy | 1 day |
+| Plan      | Focus                                                    | Duration |
+| --------- | -------------------------------------------------------- | -------- |
+| **06-01** | CAPA schema (finding → action → verification → closeout) | 3 days   |
+| **06-02** | CAPA workflow UI (assign, track, evidence, sign-off)     | 4 days   |
+| **06-03** | Audit trail integration (CAPA investigation evidence)    | 3 days   |
+| **06-04** | E2E tests + compliance audit                             | 2 days   |
+| **06-05** | Deploy                                                   | 1 day    |
 
 ---
 
@@ -186,11 +186,11 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 
 ### Plan Structure
 
-| Plan | Focus | Duration |
-|------|-------|----------|
-| **07-01** | Audit Trail Extension (cross-collection diffs, context capture) | 3–4 days |
-| **07-02** | Anomaly Detection Engine (baseline + Gemini pattern matching) | 4–5 days |
-| **07-03** | Smart Alert System (real-time, role-based routing, drill-down UI) | 4–5 days |
+| Plan      | Focus                                                               | Duration |
+| --------- | ------------------------------------------------------------------- | -------- |
+| **07-01** | Audit Trail Extension (cross-collection diffs, context capture)     | 3–4 days |
+| **07-02** | Anomaly Detection Engine (baseline + Gemini pattern matching)       | 4–5 days |
+| **07-03** | Smart Alert System (real-time, role-based routing, drill-down UI)   | 4–5 days |
 | **07-04** | Audit Report Generation (NLP summaries Portuguese, PDF/CSV exports) | 2–3 days |
 
 ### Compliance Alignment
@@ -224,13 +224,13 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 **Period:** 2026-08-05 → 2026-08-18  
 **Compliance:** RDC 978 Arts. 36–39 (third-party labs), DICQ 4.14.8 (subcontracting)
 
-| Plan | Focus | Duration |
-|------|-------|----------|
-| **08-01** | Labs Apoio schema (CNPJ, contracts, SLA, CAP cert) | 2 days |
-| **08-02** | Labs Apoio UI + contract tracking | 3 days |
-| **08-03** | NOTIVISA edge cases (partial result blocks, ack retries) | 2 days |
-| **08-04** | E2E + compliance audit | 2 days |
-| **08-05** | Deploy | 1 day |
+| Plan      | Focus                                                    | Duration |
+| --------- | -------------------------------------------------------- | -------- |
+| **08-01** | Labs Apoio schema (CNPJ, contracts, SLA, CAP cert)       | 2 days   |
+| **08-02** | Labs Apoio UI + contract tracking                        | 3 days   |
+| **08-03** | NOTIVISA edge cases (partial result blocks, ack retries) | 2 days   |
+| **08-04** | E2E + compliance audit                                   | 2 days   |
+| **08-05** | Deploy                                                   | 1 day    |
 
 ---
 
@@ -240,13 +240,13 @@ revision_note: "Phase 3 LIVE (2026-05-07). Phase 7 pivoted to Advanced Auditoria
 **Period:** 2026-08-19 → 2026-08-15 (converge)  
 **Compliance:** DICQ F — Analítico (complete 92%+ target), RDC 978 (full trace)
 
-| Plan | Focus | Duration |
-|------|-------|----------|
-| **09-01** | Manual QC entry form + validation | 2 days |
-| **09-02** | Bioquímica analyte library expansion (50+ new analytes) | 3 days |
-| **09-03** | Legacy data backfill (importer from v1.2 sqlite) | 2 days |
-| **09-04** | E2E + compliance final audit | 2 days |
-| **09-05** | Deploy + final monitoring setup | 1 day |
+| Plan      | Focus                                                   | Duration |
+| --------- | ------------------------------------------------------- | -------- |
+| **09-01** | Manual QC entry form + validation                       | 2 days   |
+| **09-02** | Bioquímica analyte library expansion (50+ new analytes) | 3 days   |
+| **09-03** | Legacy data backfill (importer from v1.2 sqlite)        | 2 days   |
+| **09-04** | E2E + compliance final audit                            | 2 days   |
+| **09-05** | Deploy + final monitoring setup                         | 1 day    |
 
 ---
 
@@ -310,15 +310,15 @@ Phase 3 (LIVE — 2026-05-07)
 
 ## Resource Allocation (FTE per phase)
 
-| Phase | Backend | Frontend | IA/ML | DevOps | Total | Notes |
-|-------|---------|----------|-------|--------|-------|-------|
-| Phase 3 | 1.5 | 1.5 | 0.5 | 0.5 | 4.0 | COMPLETE |
-| Phase 4 | 2.0 | 1.0 | 0.5 | 0.5 | 3.5 | Parallel (start 2026-05-20) |
-| Phase 5 | 1.0 | 0.5 | 1.5 | 0.5 | 3.5 | Parallel (start 2026-06-09) |
-| Phase 6 | 1.0 | 0.8 | 0.2 | 0.5 | 2.5 | Sequential after Phase 5 |
-| Phase 7 | 1.0 | 1.0 | 0.5 | 0.5 | 3.0 | NEW: Parallel Phase 6 |
-| Phase 8 | 1.0 | 0.5 | 0.0 | 0.5 | 2.0 | Overlap Phases 6–7 |
-| Phase 9 | 1.5 | 1.0 | 0.5 | 0.5 | 3.5 | Final push, target 2026-08-15 |
+| Phase   | Backend | Frontend | IA/ML | DevOps | Total | Notes                         |
+| ------- | ------- | -------- | ----- | ------ | ----- | ----------------------------- |
+| Phase 3 | 1.5     | 1.5      | 0.5   | 0.5    | 4.0   | COMPLETE                      |
+| Phase 4 | 2.0     | 1.0      | 0.5   | 0.5    | 3.5   | Parallel (start 2026-05-20)   |
+| Phase 5 | 1.0     | 0.5      | 1.5   | 0.5    | 3.5   | Parallel (start 2026-06-09)   |
+| Phase 6 | 1.0     | 0.8      | 0.2   | 0.5    | 2.5   | Sequential after Phase 5      |
+| Phase 7 | 1.0     | 1.0      | 0.5   | 0.5    | 3.0   | NEW: Parallel Phase 6         |
+| Phase 8 | 1.0     | 0.5      | 0.0   | 0.5    | 2.0   | Overlap Phases 6–7            |
+| Phase 9 | 1.5     | 1.0      | 0.5   | 0.5    | 3.5   | Final push, target 2026-08-15 |
 
 **Baseline:** 2 FTE constant (CTO oversight + DevOps)  
 **Peak:** 4 FTE (Phase 4 + Phase 5 overlap, 2026-06-09 ~ 2026-06-27)
@@ -327,31 +327,31 @@ Phase 3 (LIVE — 2026-05-07)
 
 ## Risk Dashboard (Updated for v1.4 + Phase 7)
 
-| Risk | Likelihood | Impact | Mitigation | Status |
-|------|-----------|--------|-----------|--------|
-| **Portal UX complexity** | Medium | 1-week slip | Pair programming Phase 4 week 1; design spike pre-Phase 4 | Monitoring |
-| **NOTIVISA gov endpoint flakiness** | Medium | 2-week slip | Webhook timeout + retry queue in Phase 4-04; mock gov env for tests | Monitoring |
-| **Gemini OCR cost overruns** (Phase 5) | Low | Budget impact | Rate limiting + batch processing per Phase 5-06; cost cap $500/mo | Monitoring |
-| **Gemini anomaly detection false positives** (Phase 7) | Medium | Alert fatigue | Tuning post-deploy; start with high threshold (0.85), gradually lower | Monitoring |
-| **Report generation timeout** (Phase 7) | Low | Degraded UX | Limit query to 5000 entries per report; paginate if >5000 | Mitigation |
-| **Real-time alert memory leak** (Phase 7) | Low | Long-term cost | Enforce unsubscribe on component unmount; test with Chrome DevTools | Monitoring |
-| **Labs Apoio contract complexity** (Phase 8) | Medium | 3-day slip | Legal review by 2026-08-01; template contracts in place early | Planning |
-| **Phases 6–9 schedule compression** | Medium | Final deadline slip | Weekly checkpoint gates; cut Phase 9 scope if needed (bio analytes → v1.5) | Mitigating |
+| Risk                                                   | Likelihood | Impact              | Mitigation                                                                 | Status     |
+| ------------------------------------------------------ | ---------- | ------------------- | -------------------------------------------------------------------------- | ---------- |
+| **Portal UX complexity**                               | Medium     | 1-week slip         | Pair programming Phase 4 week 1; design spike pre-Phase 4                  | Monitoring |
+| **NOTIVISA gov endpoint flakiness**                    | Medium     | 2-week slip         | Webhook timeout + retry queue in Phase 4-04; mock gov env for tests        | Monitoring |
+| **Gemini OCR cost overruns** (Phase 5)                 | Low        | Budget impact       | Rate limiting + batch processing per Phase 5-06; cost cap $500/mo          | Monitoring |
+| **Gemini anomaly detection false positives** (Phase 7) | Medium     | Alert fatigue       | Tuning post-deploy; start with high threshold (0.85), gradually lower      | Monitoring |
+| **Report generation timeout** (Phase 7)                | Low        | Degraded UX         | Limit query to 5000 entries per report; paginate if >5000                  | Mitigation |
+| **Real-time alert memory leak** (Phase 7)              | Low        | Long-term cost      | Enforce unsubscribe on component unmount; test with Chrome DevTools        | Monitoring |
+| **Labs Apoio contract complexity** (Phase 8)           | Medium     | 3-day slip          | Legal review by 2026-08-01; template contracts in place early              | Planning   |
+| **Phases 6–9 schedule compression**                    | Medium     | Final deadline slip | Weekly checkpoint gates; cut Phase 9 scope if needed (bio analytes → v1.5) | Mitigating |
 
 ---
 
 ## Success Criteria (v1.4)
 
-| Criterion | Target | Measurement | Date |
-|-----------|--------|-------------|------|
-| **Phase 3 Production** | All systems stable, 0 critical incidents | Cloud Logs dashboard + weekly review | 2026-05-14 |
-| **Phase 4 Deploy** | Portal + NOTIVISA live, gov batch acceptance | Firebase deploy + gov test batch ACK | 2026-06-02 |
-| **Phase 5 Deploy** | Críticos + IA live, OCR accuracy ≥92% | E2E tests + 100-sample validation | 2026-06-27 |
-| **Phase 7 Deploy** | Audit trail + anomaly detection + alerts live | Firebase deploy + E2E tests ≥85% coverage | 2026-08-04 |
-| **Phase 6–9 Deliver** | All 4 phases live, DICQ ≥88% | Compliance audit + Firebase deploy | 2026-08-15 |
-| **Compliance Baseline** | DICQ 88%+, RDC 978 92%+, LGPD 85%+ | Third-party audit report | 2026-08-31 |
-| **Test Coverage** | ≥95% on new code | nyc report Phase 4–9 | 2026-08-15 |
-| **Zero Critical Debt** | No open ADRs blocking deploy | ADR registry review | 2026-08-15 |
+| Criterion               | Target                                        | Measurement                               | Date       |
+| ----------------------- | --------------------------------------------- | ----------------------------------------- | ---------- |
+| **Phase 3 Production**  | All systems stable, 0 critical incidents      | Cloud Logs dashboard + weekly review      | 2026-05-14 |
+| **Phase 4 Deploy**      | Portal + NOTIVISA live, gov batch acceptance  | Firebase deploy + gov test batch ACK      | 2026-06-02 |
+| **Phase 5 Deploy**      | Críticos + IA live, OCR accuracy ≥92%         | E2E tests + 100-sample validation         | 2026-06-27 |
+| **Phase 7 Deploy**      | Audit trail + anomaly detection + alerts live | Firebase deploy + E2E tests ≥85% coverage | 2026-08-04 |
+| **Phase 6–9 Deliver**   | All 4 phases live, DICQ ≥88%                  | Compliance audit + Firebase deploy        | 2026-08-15 |
+| **Compliance Baseline** | DICQ 88%+, RDC 978 92%+, LGPD 85%+            | Third-party audit report                  | 2026-08-31 |
+| **Test Coverage**       | ≥95% on new code                              | nyc report Phase 4–9                      | 2026-08-15 |
+| **Zero Critical Debt**  | No open ADRs blocking deploy                  | ADR registry review                       | 2026-08-15 |
 
 ---
 

@@ -5,6 +5,7 @@
 Migração de Firestore para adicionar 5 novas collections por lab, preparando a infraestrutura para Phase 4 (NOTIVISA) e recursos de críticos/escalações.
 
 **Collections criadas:**
+
 1. `labs/{labId}/portal-configuracao/` — branding, termos de serviço, privacidade (com defaults RDC 978)
 2. `labs/{labId}/notivisa-outbox/` — fila de notificações NOTIVISA (inicialmente vazio)
 3. `labs/{labId}/criticos-escalacoes/` — escalações de resultados críticos (inicialmente vazio)
@@ -15,22 +16,24 @@ Migração de Firestore para adicionar 5 novas collections por lab, preparando a
 
 ## Script Selection
 
-| OS | Bash | PowerShell |
-|---|---|---|
-| macOS / Linux | ✓ `scripts/migrate-v1.4.sh` | — |
-| Windows | (via WSL/Git Bash) | ✓ `scripts/migrate-v1.4.ps1` |
+| OS            | Bash                        | PowerShell                   |
+| ------------- | --------------------------- | ---------------------------- |
+| macOS / Linux | ✓ `scripts/migrate-v1.4.sh` | —                            |
+| Windows       | (via WSL/Git Bash)          | ✓ `scripts/migrate-v1.4.ps1` |
 
 ---
 
 ## Prerequisites
 
 1. **Firebase CLI** installed and authenticated
+
    ```bash
    npm install -g firebase-tools
    firebase login
    ```
 
 2. **Lab list in environment variable** (required for production execution)
+
    ```bash
    # Get lab IDs from Firestore
    export LABS_LIST="lab-uuid-1,lab-uuid-2,lab-uuid-3"
@@ -46,23 +49,27 @@ Migração de Firestore para adicionar 5 novas collections por lab, preparando a
 ## Bash Usage (macOS/Linux)
 
 ### Dry-run (safe, no changes)
+
 ```bash
 export LABS_LIST="lab-uuid-1,lab-uuid-2"
 bash scripts/migrate-v1.4.sh --dry-run --project hmatologia2
 ```
 
 ### Execute migration
+
 ```bash
 export LABS_LIST="lab-uuid-1,lab-uuid-2"
 bash scripts/migrate-v1.4.sh --execute --project hmatologia2
 ```
 
 ### Verify log
+
 ```bash
 cat migrate-v1.4.log
 ```
 
 ### Rollback (soft-delete)
+
 ```bash
 export LABS_LIST="lab-uuid-1,lab-uuid-2"
 bash scripts/migrate-v1.4-rollback.sh --execute --project hmatologia2
@@ -73,23 +80,27 @@ bash scripts/migrate-v1.4-rollback.sh --execute --project hmatologia2
 ## PowerShell Usage (Windows)
 
 ### Dry-run (safe, no changes)
+
 ```powershell
 $env:LABS_LIST = "lab-uuid-1,lab-uuid-2"
 .\scripts\migrate-v1.4.ps1 -DryRun -ProjectId hmatologia2
 ```
 
 ### Execute migration
+
 ```powershell
 $env:LABS_LIST = "lab-uuid-1,lab-uuid-2"
 .\scripts\migrate-v1.4.ps1 -Execute -ProjectId hmatologia2
 ```
 
 ### Verify log
+
 ```powershell
 Get-Content migrate-v1.4.log
 ```
 
 ### Rollback (soft-delete)
+
 ```powershell
 $env:LABS_LIST = "lab-uuid-1,lab-uuid-2"
 .\scripts\migrate-v1.4-rollback.ps1 -Execute -ProjectId hmatologia2
@@ -100,6 +111,7 @@ $env:LABS_LIST = "lab-uuid-1,lab-uuid-2"
 ## Getting Lab IDs
 
 ### Option 1: From Firestore Console
+
 1. Go to [Firebase Console](https://console.firebase.google.com/)
 2. Select project `hmatologia2`
 3. Firestore Database → Collections
@@ -107,11 +119,13 @@ $env:LABS_LIST = "lab-uuid-1,lab-uuid-2"
 5. Copy document IDs (these are lab UUIDs)
 
 ### Option 2: Via Firebase CLI
+
 ```bash
 firebase firestore:inspect --path=labs --project=hmatologia2
 ```
 
 ### Option 3: List from production (if emulator access available)
+
 ```bash
 # Query active labs from admin SDK
 node -e "
@@ -128,6 +142,7 @@ admin.firestore().collection('labs').get().then(snap => {
 ## Migration Workflow
 
 ### Step 1: Prepare
+
 ```bash
 # Set labs (all UUIDs from labs collection)
 export LABS_LIST="$(node scripts/list-labs.js)"
@@ -137,21 +152,25 @@ bash scripts/migrate-v1.4.sh --dry-run
 ```
 
 ### Step 2: Review
+
 - Check `migrate-v1.4.log`
 - Verify all labs listed
 - Confirm Firestore access works
 
 ### Step 3: Execute
+
 ```bash
 bash scripts/migrate-v1.4.sh --execute
 ```
 
 ### Step 4: Verify
+
 - Check Firebase Console → Firestore
 - Confirm 5 collections exist per lab
 - Review `migrate-v1.4.log` for status
 
 ### Step 5: Backup (optional, recommended)
+
 ```bash
 firebase firestore:export backup-v1.4-$(date +%s).json --project=hmatologia2
 ```
@@ -187,7 +206,7 @@ firebase firestore:export backup-v1.4-$(date +%s).json --project=hmatologia2
 
 **Usage:** Portal client reads this to populate branding and legal docs.
 
-### 2. notivisa-outbox/_init
+### 2. notivisa-outbox/\_init
 
 ```json
 {
@@ -198,9 +217,9 @@ firebase firestore:export backup-v1.4-$(date +%s).json --project=hmatologia2
 }
 ```
 
-**Usage:** Phase 4 writes NOTIVISA events here. _init marker is soft-deleted once first real event arrives.
+**Usage:** Phase 4 writes NOTIVISA events here. \_init marker is soft-deleted once first real event arrives.
 
-### 3-5. criticos-escalacoes/_init, imuno-ias-dev/_init, laudos-draft/_init
+### 3-5. criticos-escalacoes/\_init, imuno-ias-dev/\_init, laudos-draft/\_init
 
 Same structure as notivisa-outbox. Marker documents serve as collection initialization flags.
 
@@ -213,6 +232,7 @@ Same structure as notivisa-outbox. Marker documents serve as collection initiali
 **Cause:** Firebase CLI not authenticated or project not in account
 
 **Solution:**
+
 ```bash
 firebase login
 firebase projects:list
@@ -223,6 +243,7 @@ firebase projects:list
 **Cause:** Trying to execute (not dry-run) without lab list
 
 **Solution:**
+
 ```bash
 export LABS_LIST="lab1,lab2,lab3"
 bash scripts/migrate-v1.4.sh --execute
@@ -233,6 +254,7 @@ bash scripts/migrate-v1.4.sh --execute
 **Cause:** Permission denied or Firestore rules block write
 
 **Solution:**
+
 1. Verify user is `owner` of the lab
 2. Check Firestore rules allow `createDocument`
 3. Retry with specific lab: `export LABS_LIST="single-lab-id"`
@@ -263,6 +285,7 @@ cat migrate-v1.4-rollback.log
 ## Post-Migration Tasks
 
 1. **Deploy Firestore Rules** (if new rules added for v1.4)
+
    ```bash
    firebase deploy --only firestore:rules --project hmatologia2
    ```
@@ -288,6 +311,7 @@ cat migrate-v1.4-rollback.log
 ## CI/CD Integration
 
 ### GitHub Actions Example
+
 ```yaml
 name: Firestore v1.4 Migration
 
@@ -320,6 +344,7 @@ jobs:
 ## Monitoring
 
 ### Real-time progress
+
 ```bash
 # Terminal 1
 bash scripts/migrate-v1.4.sh --execute 2>&1 | tee -a migrate-v1.4.log
@@ -329,6 +354,7 @@ tail -f migrate-v1.4.log
 ```
 
 ### Post-execution verification
+
 ```bash
 # Check collections exist
 firebase firestore:inspect --path="labs/lab-uuid/portal-configuracao" --project=hmatologia2
@@ -360,6 +386,7 @@ firebase firestore:indexes --json --project=hmatologia2 | jq '.[] | select(.coll
 ## Support
 
 If migration fails:
+
 1. Check logs: `cat migrate-v1.4.log`
 2. Verify Firebase CLI: `firebase --version`
 3. Test Firestore access: `firebase firestore:inspect --path=labs --project=hmatologia2`

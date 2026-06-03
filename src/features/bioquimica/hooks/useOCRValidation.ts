@@ -88,7 +88,7 @@ export function useOCRValidation(): UseOCRValidationApi {
         throw err;
       }
     },
-    [geminiVision, catalog]
+    [geminiVision, catalog],
   );
 
   const reset = useCallback(() => {

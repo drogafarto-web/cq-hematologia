@@ -27,6 +27,7 @@ All dashboards are read-only after 12:30 UTC-3 on May 20. Real-time updates via 
 **Type:** Gauge (target: >99%)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="verifyPatientAuthToken"
@@ -34,6 +35,7 @@ AND labels.status="success"
 ```
 
 **Calculation:**
+
 ```
 success_count / total_count * 100
 // Metric source: Cloud Logging
@@ -42,6 +44,7 @@ success_count / total_count * 100
 ```
 
 **Display:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Auth Success Rate                  │
@@ -60,6 +63,7 @@ success_count / total_count * 100
 **Type:** Time Series Chart (target: p95 <500ms)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="verifyPatientAuthToken"
@@ -67,6 +71,7 @@ AND metric.type="cloudfunctions.googleapis.com/execution_times"
 ```
 
 **Calculation:**
+
 ```
 Percentile (50th): median latency
 Percentile (95th): 95th percentile latency (SLO target)
@@ -74,6 +79,7 @@ Percentile (99th): tail latency (informational)
 ```
 
 **Display:**
+
 ```
 ┌─────────────────────────────────────────────┐
 │  Login Latency (ms)                         │
@@ -95,6 +101,7 @@ Percentile (99th): tail latency (informational)
 **Type:** Gauge (target: >95%)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND textPayload=~".*sendAuthLink.*"
@@ -102,11 +109,13 @@ AND labels.status="sent"
 ```
 
 **Calculation:**
+
 ```
 sent_count / attempted_count * 100
 ```
 
 **Display:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Email Delivery Rate                │
@@ -125,6 +134,7 @@ sent_count / attempted_count * 100
 **Type:** Area Chart (trend only, no threshold)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="verifyPatientAuthToken"
@@ -132,6 +142,7 @@ AND labels.status="failed"
 ```
 
 **Display:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Failed Auth Attempts (Last 4h)     │
@@ -153,6 +164,7 @@ AND labels.status="failed"
 **Type:** Gauge (informational)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName="portal_sessions"
@@ -160,12 +172,14 @@ AND metric.type="duration"
 ```
 
 **Calculation:**
+
 ```
 Median session length in minutes
 // Firestore doc read timestamp - creation timestamp
 ```
 
 **Display:**
+
 ```
 ┌─────────────────────────────────────┐
 │  Median Session Duration            │
@@ -190,12 +204,14 @@ Median session length in minutes
 **Type:** Pie Chart / Status Summary (breakdown by status)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName="notivisa-queue"
 ```
 
 **Breakdown:**
+
 ```
 pending     (queued, waiting for processor)
 submitted   (sent to ANVISA, awaiting ACK)
@@ -204,6 +220,7 @@ failed_permanent (max retries exceeded)
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Queue Status Distribution           │
@@ -225,6 +242,7 @@ failed_permanent (max retries exceeded)
 **Type:** Time Series Chart (target: p95 <100ms)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="notivisaQueueProcessor"
@@ -232,12 +250,14 @@ AND metric.type="cloudfunctions.googleapis.com/execution_times"
 ```
 
 **Calculation:**
+
 ```
 p50 (median): typical processing time
 p95: 95th percentile (SLO target: <100ms)
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Queue Processor Latency (ms)        │
@@ -258,6 +278,7 @@ p95: 95th percentile (SLO target: <100ms)
 **Type:** Gauge (target: >95%)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND textPayload=~".*submitNotivisaToAnvisa.*"
@@ -265,12 +286,14 @@ AND labels.result="success"
 ```
 
 **Calculation:**
+
 ```
 success_count / (success_count + failed_count) * 100
 // Over last 1 hour
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Submission Success Rate (1h)        │
@@ -289,6 +312,7 @@ success_count / (success_count + failed_count) * 100
 **Type:** Gauge (alert: >0)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName="notivisa-queue"
@@ -299,11 +323,13 @@ AND (
 ```
 
 **Calculation:**
+
 ```
 Count of entries not advancing for >15 min (pending) or >30 min (submitted)
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Stuck Entries (>15min pending)      │
@@ -322,11 +348,13 @@ Count of entries not advancing for >15 min (pending) or >30 min (submitted)
 **Type:** Info Card (state + percentage)
 
 **Metric Query:**
+
 ```
 featureFlags.notivisa-rollout (Firestore document)
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  NOTIVISA Feature Flag               │
@@ -350,6 +378,7 @@ featureFlags.notivisa-rollout (Firestore document)
 **Type:** Time Series Chart (target: <3s)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND textPayload=~".*submitNotivisaToAnvisa.*"
@@ -357,11 +386,13 @@ AND labels.metric="roundTripMs"
 ```
 
 **Calculation:**
+
 ```
 p95 latency of SOAP calls to ANVISA API
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  ANVISA API Latency (p95, ms)        │
@@ -390,6 +421,7 @@ p95 latency of SOAP calls to ANVISA API
 **Type:** Time Series Chart (target: p95 <500ms)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName=~".*patients.*"
@@ -397,11 +429,13 @@ AND jsonPayload.operation="Read"
 ```
 
 **Calculation:**
+
 ```
 Firestore read latency percentiles
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Patient Read Latency (ms)           │
@@ -423,6 +457,7 @@ Firestore read latency percentiles
 **Type:** Time Series Chart (target: p95 <1000ms)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName=~".*laudos.*"
@@ -430,11 +465,13 @@ AND jsonPayload.operation="Query"
 ```
 
 **Calculation:**
+
 ```
 Firestore composite query latency (using new indexes)
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Laudo Query Latency (ms)            │
@@ -456,17 +493,20 @@ Firestore composite query latency (using new indexes)
 **Type:** Area Chart (alert: >10 in 5 min)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND textPayload=~".*Permission.*denied.*"
 ```
 
 **Calculation:**
+
 ```
 Count of rule rejections per 5-minute window
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Rule Rejections (Last 4h)           │
@@ -491,6 +531,7 @@ Count of rule rejections per 5-minute window
 **Data Source:** Firestore Index Stats
 
 **Display:**
+
 ```
 ┌────────────────────────────────────────────────┐
 │  Index Usage (Last 1h)                         │
@@ -518,18 +559,21 @@ Count of rule rejections per 5-minute window
 **Type:** Gauge (target: <0.1%, alert: >0.5%)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND severity="ERROR"
 ```
 
 **Calculation:**
+
 ```
 error_count / total_invocations * 100
 // Over last 5 minutes
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  System Error Rate (5-min)           │
@@ -548,17 +592,20 @@ error_count / total_invocations * 100
 **Type:** Time Series Chart (target: p90 <2s)
 
 **Metric Query:**
+
 ```
 resource.type="cloud_function"
 AND metric.type="cloudfunctions.googleapis.com/execution_times"
 ```
 
 **Calculation:**
+
 ```
 Percentiles across all functions
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Function Execution Time (ms)        │
@@ -580,18 +627,21 @@ Percentiles across all functions
 **Type:** Gauge (alert: >80%)
 
 **Metric Query:**
+
 ```
 resource.type="firestore"
 AND metric.type="quotas"
 ```
 
 **Calculation:**
+
 ```
 (current_usage / quota_limit) * 100
 // For daily read/write operations
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Daily Firestore Quota               │
@@ -611,12 +661,14 @@ AND metric.type="quotas"
 **Type:** Gauge + Status (target: 99.9% uptime = 43.2 min budget)
 
 **Calculation:**
+
 ```
 (max_allowed_downtime - actual_downtime) / max_allowed_downtime * 100
 // 30-day rolling window
 ```
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  Error Budget (30-day)               │
@@ -636,6 +688,7 @@ AND metric.type="quotas"
 **Type:** Info Card (state indicator)
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────┐
 │  System Uptime Status                │
@@ -661,6 +714,7 @@ AND metric.type="quotas"
 **Data Source:** Cloud Monitoring Alert Policies
 
 **Display:**
+
 ```
 ┌──────────────────────────────────────────────────────┐
 │  Active Alerts                                       │
@@ -683,6 +737,7 @@ AND metric.type="quotas"
 **Runbook:** `.planning/runbooks/phase-4-auth-failures.md`
 
 **Condition:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="verifyPatientAuthToken"
@@ -695,6 +750,7 @@ Condition: value > 5
 ```
 
 **Notification Message:**
+
 ```
 🚨 CRITICAL: Portal Auth Failures
   - >5 auth errors in 5 minutes
@@ -713,6 +769,7 @@ Condition: value > 5
 **Runbook:** `.planning/runbooks/phase-4-notivisa-queue.md`
 
 **Condition:**
+
 ```
 resource.type="firestore"
 AND labels.collectionName="notivisa-queue"
@@ -727,6 +784,7 @@ Condition: value > 0
 ```
 
 **Notification Message:**
+
 ```
 🚨 CRITICAL: NOTIVISA Queue Stuck
   - >0 entries pending >15 minutes
@@ -745,6 +803,7 @@ Condition: value > 0
 **Runbook:** `.planning/runbooks/phase-4-firestore-rules.md`
 
 **Condition:**
+
 ```
 resource.type="firestore"
 AND textPayload=~".*Permission.*denied.*"
@@ -755,6 +814,7 @@ Condition: value > 10
 ```
 
 **Notification Message:**
+
 ```
 ⚠️  HIGH: Firestore Rule Rejections Spike
   - >10 permission denied errors in 5 minutes
@@ -772,6 +832,7 @@ Condition: value > 10
 **Runbook:** `.planning/runbooks/phase-4-email-delivery.md`
 
 **Condition:**
+
 ```
 resource.type="cloud_function"
 AND textPayload=~".*sendAuthLink.*"
@@ -792,6 +853,7 @@ Condition: failure_rate > 0.05
 **Runbook:** `.planning/runbooks/phase-4-function-latency.md`
 
 **Condition:**
+
 ```
 resource.type="cloud_function"
 AND metric.type="cloudfunctions.googleapis.com/execution_times"
@@ -825,14 +887,17 @@ terraform apply
 ## Accessing Dashboards
 
 **Pre-Deployment (before May 20):**
+
 1. Create in GCP Cloud Monitoring console manually
 2. Or export from another environment
 
 **Post-Deployment (May 20+):**
+
 1. All dashboards should be live and streaming real-time data
 2. Access at: `https://console.cloud.google.com/monitoring/dashboards`
 
 **On-Call Access:**
+
 - Desktop: Full access via GCP Console
 - Mobile: Limited access via GCP Cloud Console mobile app (view-only)
 - SMS alerts: Direct to on-call engineer phone
@@ -842,11 +907,13 @@ terraform apply
 ## Maintenance & Updates
 
 **Weekly (every Monday 09:00 UTC-3):**
+
 - Review dashboard accuracy (metrics still valid?)
 - Check for stale data or missing data points
 - Adjust alert thresholds if needed (too many false positives?)
 
 **Monthly (first Monday of month):**
+
 - Archive old dashboards (>6 months unused)
 - Validate all alert policies are firing correctly
 - Update runbook references if changed

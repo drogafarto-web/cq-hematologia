@@ -21,13 +21,13 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 
 ## File Inventory
 
-| File | Format | Size | Location | Purpose |
-|------|--------|------|----------|---------|
-| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE** | Google Docs (editable) | ~15 KB | [ID: 1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk](https://docs.google.com/document/d/1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk) | Master template; fill-in-blanks for lab-specific governance; publish to SGD after QD approval |
-| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md** | Markdown | ~28 KB | `docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md` | Local reference; version control; offline access; pre-filled sections |
-| **PHASE_9_GOVERNANCE_CHECKLIST.json** | JSON | ~62 KB | `docs/PHASE_9_GOVERNANCE_CHECKLIST.json` | Machine-readable tracker; 58 items across A/D/E blocks; alert thresholds; integration points; ownership mapping |
-| **PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md** | Markdown | ~35 KB | `docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md` | Implementation cookbook; 8-week timeline; step-by-step tasks; module integration; tracking template; FAQ |
-| **PHASE_9_DELIVERY_SUMMARY.md** | Markdown | ~15 KB | `docs/PHASE_9_DELIVERY_SUMMARY.md` | This file; executive overview; usage guide; success criteria |
+| File                                     | Format                 | Size   | Location                                                                                                                            | Purpose                                                                                                         |
+| ---------------------------------------- | ---------------------- | ------ | ----------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE**    | Google Docs (editable) | ~15 KB | [ID: 1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk](https://docs.google.com/document/d/1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk) | Master template; fill-in-blanks for lab-specific governance; publish to SGD after QD approval                   |
+| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md** | Markdown               | ~28 KB | `docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md`                                                                                         | Local reference; version control; offline access; pre-filled sections                                           |
+| **PHASE_9_GOVERNANCE_CHECKLIST.json**    | JSON                   | ~62 KB | `docs/PHASE_9_GOVERNANCE_CHECKLIST.json`                                                                                            | Machine-readable tracker; 58 items across A/D/E blocks; alert thresholds; integration points; ownership mapping |
+| **PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md** | Markdown               | ~35 KB | `docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md`                                                                                         | Implementation cookbook; 8-week timeline; step-by-step tasks; module integration; tracking template; FAQ        |
+| **PHASE_9_DELIVERY_SUMMARY.md**          | Markdown               | ~15 KB | `docs/PHASE_9_DELIVERY_SUMMARY.md`                                                                                                  | This file; executive overview; usage guide; success criteria                                                    |
 
 **Total Package Size:** ~155 KB  
 **Editable Sections:** 40+ blanks in template (lab name, QD, roles, dates, supplier list, audit schedule, MR dates)
@@ -40,18 +40,19 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 
 **8 Sections + 20+ Customizable Elements**
 
-| Section | Content | Customization |
-|---------|---------|---------------|
-| **Cover Page** | Lab name, version, approval signatures, classification | Fill: lab name, QD name/signature/date, Lab Manager approval |
-| **Quality Policy** | Mission, vision, values, commitment statement | Fill: lab-specific mission; ensure staff trained; QD sign-off |
-| **Org Chart & Responsibility Matrix** | Governance roles, authority levels, substitutes | Fill: actual staff names, titles, CREA/CRMV #, contact info; insert org chart diagram |
-| **Risk Management Summary** | 5 risk categories, RPN methodology, example register | Fill: lab-specific risks; update RPN scores; populate mitigation owners/dates |
-| **Supplier Management** | Supplier classification, assessment criteria, ASL template | Fill: actual suppliers; accreditation #; SLA dates; performance metrics |
-| **Document Control Procedures** | Lifecycle, approval workflow, document types, retention | Explain: how your SGD works; link to actual folder structure; approval sign-off process |
-| **Internal Audit Schedule** | Q1–Q4 audit plan, audit scope, auditor assignment, reporting | Fill: Q1–Q4 dates; auditor names; DICQ block coverage; report due dates |
-| **Management Review Schedule** | MR calendar, 15 mandatory inputs, output/decisions | Fill: Q1–Q4 MR dates; attendee names; chair/recorder; note-taking process |
+| Section                               | Content                                                      | Customization                                                                           |
+| ------------------------------------- | ------------------------------------------------------------ | --------------------------------------------------------------------------------------- |
+| **Cover Page**                        | Lab name, version, approval signatures, classification       | Fill: lab name, QD name/signature/date, Lab Manager approval                            |
+| **Quality Policy**                    | Mission, vision, values, commitment statement                | Fill: lab-specific mission; ensure staff trained; QD sign-off                           |
+| **Org Chart & Responsibility Matrix** | Governance roles, authority levels, substitutes              | Fill: actual staff names, titles, CREA/CRMV #, contact info; insert org chart diagram   |
+| **Risk Management Summary**           | 5 risk categories, RPN methodology, example register         | Fill: lab-specific risks; update RPN scores; populate mitigation owners/dates           |
+| **Supplier Management**               | Supplier classification, assessment criteria, ASL template   | Fill: actual suppliers; accreditation #; SLA dates; performance metrics                 |
+| **Document Control Procedures**       | Lifecycle, approval workflow, document types, retention      | Explain: how your SGD works; link to actual folder structure; approval sign-off process |
+| **Internal Audit Schedule**           | Q1–Q4 audit plan, audit scope, auditor assignment, reporting | Fill: Q1–Q4 dates; auditor names; DICQ block coverage; report due dates                 |
+| **Management Review Schedule**        | MR calendar, 15 mandatory inputs, output/decisions           | Fill: Q1–Q4 MR dates; attendee names; chair/recorder; note-taking process               |
 
 **Features:**
+
 - Editable in Google Docs (no special software required)
 - Can be printed and signed (physical + digital approval)
 - Customizable headers/footers for lab branding
@@ -59,6 +60,7 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 - Download as DOCX, PDF, or keep as Google Doc
 
 **Usage:**
+
 1. Open Google Docs link (File ID provided above)
 2. Click "Make a copy" to create your lab's version
 3. Fill blanks with lab-specific information
@@ -99,55 +101,55 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 
 **Block A: Governance & Direction (7 items)**
 
-| Item | Requirement | DICQ Ref | Due Date | Owner | Priority |
-|------|-------------|----------|----------|-------|----------|
-| A-001 | Legal person registration (CNES, RLP, CNPJ, operational permit) | 4.1.1.2 | 2026-06-15 | Lab Manager | CRITICAL |
-| A-002 | Quality Director formal designation + substitutes | 4.1.1.3 | 2026-06-15 | Quality Director | CRITICAL |
-| A-003 | Mission, Vision, Values (norteadores) + ethics code | 4.1.1.3 | 2026-06-30 | Quality Director | HIGH |
-| A-004 | Quality Policy (formal document, executive endorsement) | 4.1.2.3 | 2026-06-30 | Quality Director | HIGH |
-| A-005 | Quality planning & strategic objectives (3–5 year plan) | 4.1.2.4 | 2026-07-15 | Quality Director | HIGH |
-| A-006 | Organizational chart with current names & reporting lines | 4.1.2.2 | 2026-06-15 | HR Lead | CRITICAL |
-| A-007 | Management Review cycle (minimum 2× per year; recommend quarterly) | 4.15 | 2026-06-30 | Quality Director | CRITICAL |
+| Item  | Requirement                                                        | DICQ Ref | Due Date   | Owner            | Priority |
+| ----- | ------------------------------------------------------------------ | -------- | ---------- | ---------------- | -------- |
+| A-001 | Legal person registration (CNES, RLP, CNPJ, operational permit)    | 4.1.1.2  | 2026-06-15 | Lab Manager      | CRITICAL |
+| A-002 | Quality Director formal designation + substitutes                  | 4.1.1.3  | 2026-06-15 | Quality Director | CRITICAL |
+| A-003 | Mission, Vision, Values (norteadores) + ethics code                | 4.1.1.3  | 2026-06-30 | Quality Director | HIGH     |
+| A-004 | Quality Policy (formal document, executive endorsement)            | 4.1.2.3  | 2026-06-30 | Quality Director | HIGH     |
+| A-005 | Quality planning & strategic objectives (3–5 year plan)            | 4.1.2.4  | 2026-07-15 | Quality Director | HIGH     |
+| A-006 | Organizational chart with current names & reporting lines          | 4.1.2.2  | 2026-06-15 | HR Lead          | CRITICAL |
+| A-007 | Management Review cycle (minimum 2× per year; recommend quarterly) | 4.15     | 2026-06-30 | Quality Director | CRITICAL |
 
 **Block D: Quality & Compliance Management (10 items)**
 
-| Item | Requirement | DICQ Ref | Due Date | Owner | Priority |
-|------|-------------|----------|----------|-------|----------|
-| D-001 | Internal Audit Schedule (annual plan, ≥2 audits/year per module) | 4.14.6 | 2026-06-30 | Internal Audit Coordinator | CRITICAL |
-| D-002 | Internal audit execution & CAPA linkage | 4.14.6 | 2026-12-31 | Internal Audit Coordinator | HIGH |
-| D-003 | Risk Management (FMEA/risk matrix, annual review) | 4.14.1 | 2026-07-15 | Quality Director | CRITICAL |
-| D-004 | Non-Conformance register with root cause & CAPA | 4.12.1 | 2026-08-31 | Quality Coordinator | CRITICAL |
-| D-005 | CAPA closure with effectiveness verification | 4.12.3 | 2026-08-31 | Quality Coordinator | CRITICAL |
-| D-006 | Performance Indicators (KPI dashboard) | 4.15 | 2026-07-31 | Quality Coordinator | HIGH |
-| D-007 | Document Control procedures (SGD workflow) | 4.3.1 | 2026-06-30 | Document Controller | CRITICAL |
-| D-008 | Supplier Quality Management (assessment, re-audit, SLA) | 4.14.7 | 2026-08-15 | Procurement Lead | CRITICAL |
-| D-009 | Equipment Maintenance & Calibration schedule | 4.8.1 | 2026-07-31 | Equipment Manager | CRITICAL |
-| D-010 | Complaint investigation & resolution (formal logging, root cause) | 4.14.4 | 2026-08-31 | Quality Coordinator | HIGH |
+| Item  | Requirement                                                       | DICQ Ref | Due Date   | Owner                      | Priority |
+| ----- | ----------------------------------------------------------------- | -------- | ---------- | -------------------------- | -------- |
+| D-001 | Internal Audit Schedule (annual plan, ≥2 audits/year per module)  | 4.14.6   | 2026-06-30 | Internal Audit Coordinator | CRITICAL |
+| D-002 | Internal audit execution & CAPA linkage                           | 4.14.6   | 2026-12-31 | Internal Audit Coordinator | HIGH     |
+| D-003 | Risk Management (FMEA/risk matrix, annual review)                 | 4.14.1   | 2026-07-15 | Quality Director           | CRITICAL |
+| D-004 | Non-Conformance register with root cause & CAPA                   | 4.12.1   | 2026-08-31 | Quality Coordinator        | CRITICAL |
+| D-005 | CAPA closure with effectiveness verification                      | 4.12.3   | 2026-08-31 | Quality Coordinator        | CRITICAL |
+| D-006 | Performance Indicators (KPI dashboard)                            | 4.15     | 2026-07-31 | Quality Coordinator        | HIGH     |
+| D-007 | Document Control procedures (SGD workflow)                        | 4.3.1    | 2026-06-30 | Document Controller        | CRITICAL |
+| D-008 | Supplier Quality Management (assessment, re-audit, SLA)           | 4.14.7   | 2026-08-15 | Procurement Lead           | CRITICAL |
+| D-009 | Equipment Maintenance & Calibration schedule                      | 4.8.1    | 2026-07-31 | Equipment Manager          | CRITICAL |
+| D-010 | Complaint investigation & resolution (formal logging, root cause) | 4.14.4   | 2026-08-31 | Quality Coordinator        | HIGH     |
 
 **Block E: Pre-Analytical Phase (5 items)**
 
-| Item | Requirement | DICQ Ref | Due Date | Owner | Priority |
-|------|-------------|----------|----------|-------|----------|
-| E-001 | Collection SOP (patient ID, tube specs, volume, timing) | 4.5.1 | 2026-07-15 | Pre-Analytical Lead | HIGH |
-| E-002 | Transport & Storage SOP (temperature, timing, handling) | 4.5.2 | 2026-07-15 | Pre-Analytical Lead | HIGH |
-| E-003 | Sample Reception & Rejection procedure | 4.5.3 | 2026-07-15 | Pre-Analytical Lead | HIGH |
-| E-004 | Patient ID verification & labeling (barcode, 2-step rule) | 4.5.4 | 2026-07-31 | Pre-Analytical Lead | CRITICAL |
-| E-005 | Collection site standards (environment, training, hygiene) | 4.5.5 | 2026-08-31 | Quality Director | MEDIUM |
+| Item  | Requirement                                                | DICQ Ref | Due Date   | Owner               | Priority |
+| ----- | ---------------------------------------------------------- | -------- | ---------- | ------------------- | -------- |
+| E-001 | Collection SOP (patient ID, tube specs, volume, timing)    | 4.5.1    | 2026-07-15 | Pre-Analytical Lead | HIGH     |
+| E-002 | Transport & Storage SOP (temperature, timing, handling)    | 4.5.2    | 2026-07-15 | Pre-Analytical Lead | HIGH     |
+| E-003 | Sample Reception & Rejection procedure                     | 4.5.3    | 2026-07-15 | Pre-Analytical Lead | HIGH     |
+| E-004 | Patient ID verification & labeling (barcode, 2-step rule)  | 4.5.4    | 2026-07-31 | Pre-Analytical Lead | CRITICAL |
+| E-005 | Collection site standards (environment, training, hygiene) | 4.5.5    | 2026-08-31 | Quality Director    | MEDIUM   |
 
 **Additional Governance (10 cross-cutting items)**
 
-| Item | Requirement | DICQ Ref | Due Date | Owner | Priority |
-|------|-------------|----------|----------|-------|----------|
-| G-001 | Staff Training matrix (roles, competencies, refresher schedule) | 4.1.6 | 2026-07-31 | HR Lead | CRITICAL |
-| G-002 | Operational Procedures (POPs for all critical processes) | 4.2.2 | 2026-08-31 | Document Controller | CRITICAL |
-| G-003 | Disaster Recovery & Business Continuity plan (tested annually) | 4.14.9 | 2026-07-31 | IT Lead | HIGH |
-| G-004 | Cybersecurity & Data Protection policy (passwords, encryption, LGPD) | 4.14.9 | 2026-07-31 | IT Lead | CRITICAL |
-| G-005 | Quality Manual (comprehensive ISO 15189-compliant doc) | 4.2.2.2 | 2026-08-31 | Quality Director | CRITICAL |
-| G-006 | Annual Compliance Audit (self-audit against DICQ, RDC, ISO) | 4.14.5 | 2026-09-30 | Internal Audit Coordinator | CRITICAL |
-| G-007 | Regulatory Affairs & Change Management | 4.14.2 | 2026-08-31 | Quality Director | HIGH |
-| G-008 | Customer Communication & Feedback mechanism | 4.14.4 | 2026-08-31 | Quality Coordinator | HIGH |
-| G-009 | Proficiency Testing (CEQ — External Quality Control) | 4.13.2 | 2026-07-31 | Quality Coordinator | CRITICAL |
-| G-010 | Biosecurity & Environmental Monitoring (temperature, humidity, biosafety) | 4.7.1 | 2026-08-31 | Biosafety Officer | CRITICAL |
+| Item  | Requirement                                                               | DICQ Ref | Due Date   | Owner                      | Priority |
+| ----- | ------------------------------------------------------------------------- | -------- | ---------- | -------------------------- | -------- |
+| G-001 | Staff Training matrix (roles, competencies, refresher schedule)           | 4.1.6    | 2026-07-31 | HR Lead                    | CRITICAL |
+| G-002 | Operational Procedures (POPs for all critical processes)                  | 4.2.2    | 2026-08-31 | Document Controller        | CRITICAL |
+| G-003 | Disaster Recovery & Business Continuity plan (tested annually)            | 4.14.9   | 2026-07-31 | IT Lead                    | HIGH     |
+| G-004 | Cybersecurity & Data Protection policy (passwords, encryption, LGPD)      | 4.14.9   | 2026-07-31 | IT Lead                    | CRITICAL |
+| G-005 | Quality Manual (comprehensive ISO 15189-compliant doc)                    | 4.2.2.2  | 2026-08-31 | Quality Director           | CRITICAL |
+| G-006 | Annual Compliance Audit (self-audit against DICQ, RDC, ISO)               | 4.14.5   | 2026-09-30 | Internal Audit Coordinator | CRITICAL |
+| G-007 | Regulatory Affairs & Change Management                                    | 4.14.2   | 2026-08-31 | Quality Director           | HIGH     |
+| G-008 | Customer Communication & Feedback mechanism                               | 4.14.4   | 2026-08-31 | Quality Coordinator        | HIGH     |
+| G-009 | Proficiency Testing (CEQ — External Quality Control)                      | 4.13.2   | 2026-07-31 | Quality Coordinator        | CRITICAL |
+| G-010 | Biosecurity & Environmental Monitoring (temperature, humidity, biosafety) | 4.7.1    | 2026-08-31 | Biosafety Officer          | CRITICAL |
 
 #### Governance Structure (Auto-Populate)
 
@@ -169,31 +171,34 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 #### Alert Rules & Escalation
 
 **Overdue Alert (>30 days past due):**
+
 - Severity: RED
 - Action: Escalate to owner + Quality Director
 - Email: Include item ID, due date, current status, overdue days
 
 **At-Risk Alert (7 days before due):**
+
 - Severity: YELLOW
 - Action: Notify owner
 - Email: Reminder with target closure date
 
 **Completion Lag (>25% behind schedule):**
+
 - Severity: ORANGE
 - Action: Escalate to Management Review
 - Report: Dashboard showing completion % by block vs. timeline
 
 #### Integration Points
 
-| Module | Linked Items | Auto-Population |
-|--------|--------------|-----------------|
-| **educacao-continuada** | G-001 (training matrix), auditor training | Staff training records → completion %; competency scores → MR input |
-| **sgd** | D-007 (document control), G-002 (POPs), G-005 (quality manual) | Document version history + approval audit trail |
-| **auditoria** | D-001 (audit plan), D-002 (audit execution) | Audit calendar + report links + CAPA auto-creation |
-| **capa** | D-004 (NC register), D-005 (CAPA closure) | Non-conformance logging + closure tracking + effectiveness verification |
-| **kpis** | D-006 (performance indicators) | Real-time dashboard → MR input table (15 DICQ inputs) |
-| **labSettings** | A-002, A-006, A-007 (QD, org chart, MR calendar) | Auto-populate owner fields from staff directory |
-| **risks** | D-003 (risk management) | Risk register + mitigation tracking + annual review date |
+| Module                  | Linked Items                                                   | Auto-Population                                                         |
+| ----------------------- | -------------------------------------------------------------- | ----------------------------------------------------------------------- |
+| **educacao-continuada** | G-001 (training matrix), auditor training                      | Staff training records → completion %; competency scores → MR input     |
+| **sgd**                 | D-007 (document control), G-002 (POPs), G-005 (quality manual) | Document version history + approval audit trail                         |
+| **auditoria**           | D-001 (audit plan), D-002 (audit execution)                    | Audit calendar + report links + CAPA auto-creation                      |
+| **capa**                | D-004 (NC register), D-005 (CAPA closure)                      | Non-conformance logging + closure tracking + effectiveness verification |
+| **kpis**                | D-006 (performance indicators)                                 | Real-time dashboard → MR input table (15 DICQ inputs)                   |
+| **labSettings**         | A-002, A-006, A-007 (QD, org chart, MR calendar)               | Auto-populate owner fields from staff directory                         |
+| **risks**               | D-003 (risk management)                                        | Risk register + mitigation tracking + annual review date                |
 
 ---
 
@@ -201,25 +206,27 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 
 **8-Week Implementation Roadmap**
 
-| Week | Task | Deliverable | Owner |
-|------|------|-------------|-------|
-| **Week 1** | Assign governance roles | JSON updated with QD, MR chair, audit coordinator, document controller | HR Lead |
-| **Week 2** | Complete template + org chart | Quality Manual draft approved by QD; org chart finalized | Quality Director |
-| **Week 2–3** | Risk assessment | Risk register completed; all pre-, analytical, post-, operational, regulatory risks scored | Quality Director |
-| **Week 3** | Supplier management | Approved Supplier List created; audits scheduled for all active suppliers | Procurement Lead |
-| **Week 4** | Document control setup | SGD folder structure created; approval workflow tested; Quality Manual v1.0 published | Document Controller |
-| **Week 4–5** | Audit planning | Q1–Q4 audit dates scheduled; auditors identified and trained (ISO 19011) | Internal Audit Coordinator |
-| **Week 5** | MR scheduling | Quarterly MR meetings scheduled; minute template created and approved | Quality Director |
-| **Week 6** | JSON activation | Governance checklist imported into tracking system; alert rules configured | Quality Coordinator |
+| Week         | Task                          | Deliverable                                                                                | Owner                      |
+| ------------ | ----------------------------- | ------------------------------------------------------------------------------------------ | -------------------------- |
+| **Week 1**   | Assign governance roles       | JSON updated with QD, MR chair, audit coordinator, document controller                     | HR Lead                    |
+| **Week 2**   | Complete template + org chart | Quality Manual draft approved by QD; org chart finalized                                   | Quality Director           |
+| **Week 2–3** | Risk assessment               | Risk register completed; all pre-, analytical, post-, operational, regulatory risks scored | Quality Director           |
+| **Week 3**   | Supplier management           | Approved Supplier List created; audits scheduled for all active suppliers                  | Procurement Lead           |
+| **Week 4**   | Document control setup        | SGD folder structure created; approval workflow tested; Quality Manual v1.0 published      | Document Controller        |
+| **Week 4–5** | Audit planning                | Q1–Q4 audit dates scheduled; auditors identified and trained (ISO 19011)                   | Internal Audit Coordinator |
+| **Week 5**   | MR scheduling                 | Quarterly MR meetings scheduled; minute template created and approved                      | Quality Director           |
+| **Week 6**   | JSON activation               | Governance checklist imported into tracking system; alert rules configured                 | Quality Coordinator        |
 
 **Success Criteria:**
 
 **Phase 9 Gate (by 2026-08-31):**
+
 - A-001–A-007: ≥80% complete
 - D-001–D-010: ≥80% complete
 - E-001–E-005: ≥80% complete
 
 **Audit Readiness (by 2026-09-30):**
+
 - All 58 items: ≥90% complete
 - Overdue count: 0
 - Annual compliance audit: ≥88% DICQ conformance
@@ -319,28 +326,28 @@ Phase 9 introduces **comprehensive governance infrastructure** required for audi
 
 ## Regulatory References
 
-| Document | Reference | Context |
-|----------|-----------|---------|
-| **DICQ** | Blocks A, D, E | Foundation governance, quality management, pre-analytical requirements |
-| **RDC 978** | Art. 13, 33, 49–52, 75–99 | Quality policy, documentation, personnel, management review, audit, compliance |
-| **RDC 786** | Art. 1–20 | Device quality and complaint tracking (ties to Block G post-analytical) |
-| **ISO 15189** | Section 4 (Quality Management) | Quality system, documentation, personnel, competency, equipment, results |
-| **LGPD** | Art. 32–34 | Data protection, privacy impact assessment, security controls (Block J) |
+| Document      | Reference                      | Context                                                                        |
+| ------------- | ------------------------------ | ------------------------------------------------------------------------------ |
+| **DICQ**      | Blocks A, D, E                 | Foundation governance, quality management, pre-analytical requirements         |
+| **RDC 978**   | Art. 13, 33, 49–52, 75–99      | Quality policy, documentation, personnel, management review, audit, compliance |
+| **RDC 786**   | Art. 1–20                      | Device quality and complaint tracking (ties to Block G post-analytical)        |
+| **ISO 15189** | Section 4 (Quality Management) | Quality system, documentation, personnel, competency, equipment, results       |
+| **LGPD**      | Art. 32–34                     | Data protection, privacy impact assessment, security controls (Block J)        |
 
 ---
 
 ## Common Issues & Resolutions
 
-| Issue | Root Cause | Resolution |
-|-------|-----------|-----------|
-| **QD role not formally designated** | Overlooked RDC 978 Art. 76 requirement | Create formal appointment document; include in HR file; update governance_structure in JSON; notify staff |
-| **Audit schedule not published** | No internal audit coordinator assigned | Designate audit coordinator; create calendar in labSettings; publish audit plan to SGD |
-| **Management Review not happening** | No MR chair or agenda | Schedule Q1–Q4 dates in advance; rotate chair if needed; send agenda 1 week before |
-| **Document control not enforced** | SGD access not restricted; no approval workflow | Enable SGD approval gate (QD signature required); restrict draft access; train staff on workflow |
-| **Risk assessment not updated** | Processes changed but risk register is stale | Schedule annual risk assessment (Q4 MR); invite cross-functional team; update RPN scores; document mitigations |
-| **Supplier issues not caught** | No Approved Supplier List or performance monitoring | Create ASL; define SLA metrics; conduct annual re-audits; log complaints; escalate failures to QD |
-| **Training not tracked** | No competency assessment system | Activate educacao-continuada module; create training matrix; verify completion within 30 days of hire; annual refresher |
-| **CAPA not closed** | No ownership or follow-up audit | Assign owner to each NC; set target closure date; schedule re-audit within 30 days; escalate overdue to QD |
+| Issue                               | Root Cause                                          | Resolution                                                                                                              |
+| ----------------------------------- | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| **QD role not formally designated** | Overlooked RDC 978 Art. 76 requirement              | Create formal appointment document; include in HR file; update governance_structure in JSON; notify staff               |
+| **Audit schedule not published**    | No internal audit coordinator assigned              | Designate audit coordinator; create calendar in labSettings; publish audit plan to SGD                                  |
+| **Management Review not happening** | No MR chair or agenda                               | Schedule Q1–Q4 dates in advance; rotate chair if needed; send agenda 1 week before                                      |
+| **Document control not enforced**   | SGD access not restricted; no approval workflow     | Enable SGD approval gate (QD signature required); restrict draft access; train staff on workflow                        |
+| **Risk assessment not updated**     | Processes changed but risk register is stale        | Schedule annual risk assessment (Q4 MR); invite cross-functional team; update RPN scores; document mitigations          |
+| **Supplier issues not caught**      | No Approved Supplier List or performance monitoring | Create ASL; define SLA metrics; conduct annual re-audits; log complaints; escalate failures to QD                       |
+| **Training not tracked**            | No competency assessment system                     | Activate educacao-continuada module; create training matrix; verify completion within 30 days of hire; annual refresher |
+| **CAPA not closed**                 | No ownership or follow-up audit                     | Assign owner to each NC; set target closure date; schedule re-audit within 30 days; escalate overdue to QD              |
 
 ---
 
@@ -357,13 +364,13 @@ Upon successful completion of Phase 9 governance:
 
 ## File Checksums & Versions
 
-| File | Size | Last Updated | Version |
-|------|------|--------------|---------|
-| PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md | 28 KB | 2026-05-07 | 1.0 |
-| PHASE_9_GOVERNANCE_CHECKLIST.json | 62 KB | 2026-05-07 | 1.0 |
-| PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md | 35 KB | 2026-05-07 | 1.0 |
-| PHASE_9_DELIVERY_SUMMARY.md | 15 KB | 2026-05-07 | 1.0 |
-| Google Docs: PHASE_9_MANUAL_QUALIDADE_TEMPLATE | — | 2026-05-07 | 1.0 |
+| File                                           | Size  | Last Updated | Version |
+| ---------------------------------------------- | ----- | ------------ | ------- |
+| PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md           | 28 KB | 2026-05-07   | 1.0     |
+| PHASE_9_GOVERNANCE_CHECKLIST.json              | 62 KB | 2026-05-07   | 1.0     |
+| PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md           | 35 KB | 2026-05-07   | 1.0     |
+| PHASE_9_DELIVERY_SUMMARY.md                    | 15 KB | 2026-05-07   | 1.0     |
+| Google Docs: PHASE_9_MANUAL_QUALIDADE_TEMPLATE | —     | 2026-05-07   | 1.0     |
 
 ---
 
@@ -381,6 +388,7 @@ Upon successful completion of Phase 9 governance:
 ## Acknowledgments
 
 Phase 9 governance framework is based on:
+
 - DICQ (Documento de Consenso — Brazilian quality standards)
 - RDC 978 (ANVISA regulations for clinical laboratories)
 - RDC 786 (IVD device quality requirements)

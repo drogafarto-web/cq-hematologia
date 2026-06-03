@@ -3,7 +3,7 @@
 **Updated:** 2026-05-07  
 **Scope:** `governance-checklist`, `governance-checklist/items/`, `governance-checklist/audit/`  
 **DICQ Ref:** 4.15, RDC 978 Art. 5.3  
-**Integration:** sgd, labSettings, auditoria, educacao-continuada  
+**Integration:** sgd, labSettings, auditoria, educacao-continuada
 
 ---
 
@@ -32,38 +32,38 @@
 
 match /labs/{labId}/governance-checklist/config {
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // Only Quality Director or Admin can update
-  allow update: if isAdminOrOwner(labId) && 
+  allow update: if isAdminOrOwner(labId) &&
                   request.auth.uid is string &&
                   request.resource.data.metadata.lastUpdated is timestamp;
-  
+
   allow create: if isAdminOrOwner(labId);
-  
+
   allow delete: if false; // Never delete, use soft-delete
 }
 
 match /labs/{labId}/governance-checklist/items/{itemId} {
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // Owner or QD can update
   allow update: if isAdminOrOwner(labId) &&
                   request.resource.data.status in ['pending', 'in_progress', 'completed'] &&
                   request.resource.data.lastUpdated is timestamp &&
                   request.resource.data.compliance_percentage >= 0 &&
                   request.resource.data.compliance_percentage <= 100;
-  
+
   allow delete: if false;
 }
 
 // Immutable audit trail — append-only
 match /labs/{labId}/governance-checklist/audit/{auditId} {
   allow read: if isActiveMemberOfLab(labId);
-  
+
   allow create: if isAdminOrOwner(labId) &&
                   request.resource.data.itemId is string &&
                   request.resource.data.updatedAt is timestamp;
-  
+
   allow update, delete: if false;
 }
 
@@ -74,36 +74,36 @@ match /labs/{labId}/governance-checklist/audit/{auditId} {
 
 match /labs/{labId}/management-review/calendar/{year} {
   allow read: if isActiveMemberOfLab(labId);
-  
+
   allow update: if isAdminOrOwner(labId) &&
                   request.resource.data.meetings is list;
-  
+
   allow delete: if false;
 }
 
 match /labs/{labId}/management-review/minutes/{meetingId} {
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // Only recorder or QD can create/update before signed
   allow create: if isAdminOrOwner(labId);
-  
+
   allow update: if isAdminOrOwner(labId) &&
                   request.resource.data.status in ['scheduled', 'held', 'cancelled'] &&
                   request.resource.data.lastModifiedAt is timestamp;
-  
+
   // Only QD can sign
   allow update: if isAdminOrOwner(labId) &&
                   request.resource.data.signedAt is timestamp &&
                   request.resource.data.signedBy is string;
-  
+
   allow delete: if false;
 }
 
 match /labs/{labId}/management-review/audit/{auditId} {
   allow read: if isAdminOrOwner(labId);
-  
+
   allow create: if isAdminOrOwner(labId);
-  
+
   allow delete: if false;
 }
 
@@ -170,13 +170,13 @@ Post-signature, only soft-delete is allowed (mark `deletedAt` without removing d
 
 ## Compliance Mapping
 
-| DICQ Requirement | Rule | Firestore Path |
-|---|---|---|
-| 4.15.1 — Management Review inputs | Governance items tracked + documented | `/governance-checklist/items/*` |
-| 4.15.2 — Review outputs & decisions | Minutes stored with decisions array | `/management-review/minutes/{meetingId}` |
-| 4.15.3 — Review records | Minutes signed and immutable | `.signedAt`, `.signedBy` |
-| RDC 978 5.3 — Audit trail | Chain-hashed audit collection | `/governance-checklist/audit/*` |
-| RDC 978 Art. 183 — Record retention | Soft-delete only; archival via timestamps | `.deletedAt` (optional) |
+| DICQ Requirement                    | Rule                                      | Firestore Path                           |
+| ----------------------------------- | ----------------------------------------- | ---------------------------------------- |
+| 4.15.1 — Management Review inputs   | Governance items tracked + documented     | `/governance-checklist/items/*`          |
+| 4.15.2 — Review outputs & decisions | Minutes stored with decisions array       | `/management-review/minutes/{meetingId}` |
+| 4.15.3 — Review records             | Minutes signed and immutable              | `.signedAt`, `.signedBy`                 |
+| RDC 978 5.3 — Audit trail           | Chain-hashed audit collection             | `/governance-checklist/audit/*`          |
+| RDC 978 Art. 183 — Record retention | Soft-delete only; archival via timestamps | `.deletedAt` (optional)                  |
 
 ---
 

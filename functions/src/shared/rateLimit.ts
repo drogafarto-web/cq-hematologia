@@ -55,18 +55,14 @@ function bucketRef(bucketKey: string) {
     .doc(safeKey);
 }
 
-async function checkAndIncrement(
-  opts: RateLimitOptions,
-): Promise<RateLimitResult> {
+async function checkAndIncrement(opts: RateLimitOptions): Promise<RateLimitResult> {
   const ref = bucketRef(opts.bucketKey);
   const now = Date.now();
 
   // Use a transaction for correctness under concurrent requests
   return admin.firestore().runTransaction(async (tx) => {
     const snap = await tx.get(ref);
-    const data = snap.exists
-      ? (snap.data() as { count?: number; resetAt?: number })
-      : null;
+    const data = snap.exists ? (snap.data() as { count?: number; resetAt?: number }) : null;
 
     if (!data || !data.resetAt || data.resetAt < now) {
       // Window expired or first request — start new window
@@ -108,9 +104,7 @@ async function checkAndIncrement(
  * Public endpoint rate limit (per IP, default 10/min).
  * Fail-open if Firestore is unreachable.
  */
-export async function enforcePublicRateLimit(
-  opts: RateLimitOptions,
-): Promise<RateLimitResult> {
+export async function enforcePublicRateLimit(opts: RateLimitOptions): Promise<RateLimitResult> {
   try {
     const result = await checkAndIncrement(opts);
     if (!result.allowed) {

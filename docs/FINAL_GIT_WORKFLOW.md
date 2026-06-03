@@ -13,11 +13,12 @@ git status
 ```
 
 **Expected output:**
+
 ```
 On branch main
 Changes not staged for commit:
   modified:   .planning/STATE.md
-  
+
 Untracked files:
   docs/SMOKE_TESTS_v1.3.md
   docs/POST_DEPLOY_CHECKLIST_v1.3.md
@@ -29,7 +30,7 @@ Untracked files:
   docs/v1.3_EXECUTION_SUMMARY.md
   .planning/milestones/v1.3-DEPLOYMENT_LOG.md
   [... additional deployment docs ...]
-  
+
 nothing added to commit but untracked files present (use "git add" to track)
 ```
 
@@ -64,7 +65,7 @@ git commit -m "$(cat <<'EOF'
 v1.3: CAPA Closure + Compliance + SGD Migration — Production Deploy Complete
 
 ## Summary
-Deploy v1.3 completion across all 12 phases: 32 Cloud Functions deployed, 
+Deploy v1.3 completion across all 12 phases: 32 Cloud Functions deployed,
 28 deployment artifacts generated, 5 security audits PASSED, smoke tests GREEN.
 DICQ compliance 71.3% → 78.5%. Production stable.
 
@@ -122,6 +123,7 @@ EOF
 ```
 
 **Verify commit:**
+
 ```bash
 git log -1 --stat
 ```
@@ -137,6 +139,7 @@ git push origin main
 ```
 
 **Expected output:**
+
 ```
 Enumerating objects: XX, done.
 Counting objects: 100%, ...
@@ -152,7 +155,7 @@ main -> main
 
 ## STEP 5: Verify Push in GitHub
 
-Visit: https://github.com/your-org/hc-quality  
+Visit: https://github.com/your-org/hc-quality
 
 - Check Commits tab: latest commit shows "v1.3: CAPA Closure..."
 - Check Actions tab: CI/CD pipeline triggered (should run in 5–10 min)
@@ -162,6 +165,7 @@ Visit: https://github.com/your-org/hc-quality
 ## Post-Push: Monitor CI/CD
 
 GitHub Actions should automatically:
+
 1. ✅ TypeScript type-check
 2. ✅ Lint (ESLint + Prettier)
 3. ✅ Build web bundle
@@ -171,6 +175,7 @@ GitHub Actions should automatically:
 **Expected:** All checks ✅ PASS
 
 If any check fails:
+
 1. Go to Actions tab
 2. Click on failed workflow
 3. Check error logs
@@ -182,6 +187,7 @@ If any check fails:
 ## Troubleshooting
 
 ### "fatal: not a git repository"
+
 ```bash
 cd C:\hc quality
 # Verify .git folder exists
@@ -189,6 +195,7 @@ dir .git
 ```
 
 ### "Changes would be overwritten by merge"
+
 ```bash
 git fetch origin main
 git rebase origin/main
@@ -196,7 +203,9 @@ git rebase origin/main
 ```
 
 ### "rejected … (non-fast-forward)"
+
 Someone pushed to main while you were working. Pull latest:
+
 ```bash
 git fetch origin main
 git pull origin main
@@ -204,7 +213,9 @@ git pull origin main
 ```
 
 ### CI/CD fails but you can't fix it locally
+
 Rollback the commit:
+
 ```bash
 git revert -n HEAD
 git commit -m "Revert v1.3 commit — CI failure under investigation"

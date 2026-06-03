@@ -32,18 +32,18 @@ exports.seedPhase10Analytes = functions
   .https.onCall(async (req, ctx) => {
     const labId = req.labId || throwError('Missing labId');
     await verifyMembership(ctx.auth?.uid, labId);
-    
+
     const batch = db.batch();
-    
+
     for (const analyteData of PHASE_10_ANALYTE_REGISTRY.registry.analytes) {
       const analitoRef = db
         .collection(`/labs/${labId}/bioquimica/root/analitos`)
         .doc(analyteData.id);
-      
+
       // Check idempotency
       const existing = await analitoRef.get();
       if (existing.exists) continue;
-      
+
       batch.set(analitoRef, {
         labId,
         nome: analyteData.analyteName,
@@ -67,7 +67,7 @@ exports.seedPhase10Analytes = functions
         },
       });
     }
-    
+
     await batch.commit();
     return { seeded: PHASE_10_ANALYTE_REGISTRY.registry.analytes.length };
   });
@@ -91,18 +91,18 @@ export function evaluateWestgardRules(
   previousRuns: Run[] = [],
 ): WestgardViolation[] {
   const violations: WestgardViolation[] = [];
-  
+
   for (const [analitoId, nivelResults] of Object.entries(runResultados)) {
-    const analito = analitos.find(a => a.id === analitoId);
+    const analito = analitos.find((a) => a.id === analitoId);
     if (!analito?.ativo) continue;
-    
+
     for (const [nivelId, value] of Object.entries(nivelResults)) {
       const manStats = controlMaterial.manufacturerStats?.[analitoId]?.[nivelId];
       if (!manStats) continue; // No stats yet
-      
+
       const { mean, sd } = manStats;
       const deviation = (value - mean) / sd;
-      
+
       // Rule 1-2s: warn
       if (Math.abs(deviation) > 2.0) {
         violations.push({
@@ -113,7 +113,7 @@ export function evaluateWestgardRules(
           detail: `1 result: ${Math.abs(deviation).toFixed(1)}σ from mean`,
         });
       }
-      
+
       // Rule 1-3s: reject
       if (Math.abs(deviation) > 3.0) {
         violations.push({
@@ -124,15 +124,19 @@ export function evaluateWestgardRules(
           detail: `1 result: ${Math.abs(deviation).toFixed(1)}σ > 3σ (out of spec)`,
         });
       }
-      
+
       // Rule 2-2s: 2 consecutive same side of 2σ
       if (previousRuns.length > 0) {
         const lastRun = previousRuns[0];
         const lastManStats = controlMaterial.manufacturerStats?.[analitoId]?.[nivelId];
         if (lastManStats) {
-          const lastDev = (lastRun.resultados[analitoId][nivelId] - lastManStats.mean) / lastManStats.sd;
-          if (Math.abs(deviation) > 2.0 && Math.abs(lastDev) > 2.0 &&
-              Math.sign(deviation) === Math.sign(lastDev)) {
+          const lastDev =
+            (lastRun.resultados[analitoId][nivelId] - lastManStats.mean) / lastManStats.sd;
+          if (
+            Math.abs(deviation) > 2.0 &&
+            Math.abs(lastDev) > 2.0 &&
+            Math.sign(deviation) === Math.sign(lastDev)
+          ) {
             violations.push({
               rule: '2-2s',
               analitoId,
@@ -143,7 +147,7 @@ export function evaluateWestgardRules(
           }
         }
       }
-      
+
       // Rule R-4s: range between 2 consecutive > 4σ
       if (previousRuns.length > 0) {
         const lastRun = previousRuns[0];
@@ -165,15 +169,14 @@ export function evaluateWestgardRules(
       }
     }
   }
-  
+
   return violations;
 }
 
-export const isCriticalViolation = (v: WestgardViolation): boolean => 
-  v.severity === 'reject';
+export const isCriticalViolation = (v: WestgardViolation): boolean => v.severity === 'reject';
 
 export const hasWarnings = (violations: WestgardViolation[]): boolean =>
-  violations.some(v => v.severity === 'warn');
+  violations.some((v) => v.severity === 'warn');
 ```
 
 ### 2.2 Unit tests
@@ -191,42 +194,49 @@ describe('Westgard Rules (CLSI subset)', () => {
     ativo: true,
     // ... minimal fields
   };
-  
+
   const mockControlMaterial = {
     id: 'lot-001',
     manufacturerStats: {
       'glic-001': {
-        'normal': { mean: 95, sd: 2 },
-        'patologico': { mean: 250, sd: 10 },
+        normal: { mean: 95, sd: 2 },
+        patologico: { mean: 250, sd: 10 },
       },
     },
   };
-  
+
   it('should trigger 1-2s warn for 2.1σ deviation', () => {
-    const run = { 'glic-001': { 'normal': 99.2 } }; // 95 + 2.1*2 = 99.2
+    const run = { 'glic-001': { normal: 99.2 } }; // 95 + 2.1*2 = 99.2
     const violations = evaluateWestgardRules(run, mockControlMaterial, [mockAnalito]);
     expect(violations).to.have.lengthOf(1);
     expect(violations[0].rule).to.equal('1-2s');
     expect(violations[0].severity).to.equal('warn');
   });
-  
+
   it('should trigger 1-3s reject for 3.1σ deviation', () => {
-    const run = { 'glic-001': { 'normal': 101.2 } }; // 95 + 3.1*2 = 101.2
+    const run = { 'glic-001': { normal: 101.2 } }; // 95 + 3.1*2 = 101.2
     const violations = evaluateWestgardRules(run, mockControlMaterial, [mockAnalito]);
-    expect(violations.some(v => v.rule === '1-3s' && v.severity === 'reject')).to.be.true;
+    expect(violations.some((v) => v.rule === '1-3s' && v.severity === 'reject')).to.be.true;
   });
-  
+
   it('should trigger 2-2s reject for 2 consecutive same-side 2σ', () => {
-    const run1 = { 'glic-001': { 'normal': 99 } }; // +2σ
-    const run2 = { 'glic-001': { 'normal': 99.5 } }; // +2.25σ
-    const previousRuns = [{
-      resultados: run1,
-      // ... other fields
-    }];
-    const violations = evaluateWestgardRules(run2, mockControlMaterial, [mockAnalito], previousRuns);
-    expect(violations.some(v => v.rule === '2-2s')).to.be.true;
+    const run1 = { 'glic-001': { normal: 99 } }; // +2σ
+    const run2 = { 'glic-001': { normal: 99.5 } }; // +2.25σ
+    const previousRuns = [
+      {
+        resultados: run1,
+        // ... other fields
+      },
+    ];
+    const violations = evaluateWestgardRules(
+      run2,
+      mockControlMaterial,
+      [mockAnalito],
+      previousRuns,
+    );
+    expect(violations.some((v) => v.rule === '2-2s')).to.be.true;
   });
-  
+
   // ... add 20+ more scenarios
 });
 ```
@@ -264,7 +274,7 @@ match /labs/{labId}/bioquimica/root/runs/{runId} {
   allow create: if false;  // only via callable
   allow read: if isActiveMemberOfLab(request.auth.uid, labId);
   allow update, delete: if false;
-  
+
   // Compliance overrides in a sub-collection (tracked separately)
   match /overrides/{overrideId} {
     allow create: if
@@ -294,31 +304,31 @@ export const recordRunBioquimica = functions
     // 1. Auth & multi-tenant
     const userId = context.auth?.uid || throwError('Unauthenticated');
     const { labId, lotId, equipmentId, capturaEm, resultados } = data;
-    
+
     if (!labId || !lotId || !equipmentId) {
       throwError('Missing required fields');
     }
-    
+
     const userLabId = await verifyMembership(userId, labId);
     if (userLabId !== labId) throwError('Unauthorized lab');
-    
+
     // 2. Load control material
     const lotDoc = await db.doc(`/labs/${labId}/bioquimica/root/lotes/${lotId}`).get();
     if (!lotDoc.exists) throwError('Lot not found', 404);
     const lot = lotDoc.data();
-    
+
     // 3. Verify equipment is in lot's equipmentIds
     if (!lot.equipmentIds.includes(equipmentId)) {
       throwError('Equipment not authorized for this lot');
     }
-    
+
     // 4. Load analytes
     const analytesSnap = await db
       .collection(`/labs/${labId}/bioquimica/root/analitos`)
       .where('ativo', '==', true)
       .get();
-    const analitos = analytesSnap.docs.map(d => d.data());
-    
+    const analitos = analytesSnap.docs.map((d) => d.data());
+
     // 5. Load previous runs (last 5 for this analyte-level-equipment combo)
     // (Optimization: query by index)
     const prevRunsSnap = await db
@@ -328,15 +338,15 @@ export const recordRunBioquimica = functions
       .orderBy('criadoEm', 'desc')
       .limit(5)
       .get();
-    const previousRuns = prevRunsSnap.docs.map(d => d.data());
-    
+    const previousRuns = prevRunsSnap.docs.map((d) => d.data());
+
     // 6. Evaluate Westgard
     const violations = evaluateWestgardRules(resultados, lot, analitos, previousRuns);
-    
+
     // 7. Determine status
-    const hasReject = violations.some(v => v.severity === 'reject');
+    const hasReject = violations.some((v) => v.severity === 'reject');
     const status = hasReject ? 'Rejeitada' : violations.length ? 'Pendente' : 'Aprovada';
-    
+
     // 8. Compute signature (server-side)
     const payloadHash = computeHash(JSON.stringify(resultados));
     const signature = {
@@ -344,21 +354,16 @@ export const recordRunBioquimica = functions
       operatorId: userId,
       ts: admin.firestore.FieldValue.serverTimestamp(),
     };
-    
+
     // 9. Compute chain hash (encadeamento criptográfico ADR-0001)
     const lastRunDoc = previousRuns.length ? previousRuns[0] : null;
     const lastChainHash = lastRunDoc?.chainHash || '';
-    const chainHash = computeChainHash(
-      lastChainHash,
-      signature.hash,
-      labId,
-      lotId,
-    );
-    
+    const chainHash = computeChainHash(lastChainHash, signature.hash, labId, lotId);
+
     // 10. Atomic transaction
     const runRef = db.collection(`/labs/${labId}/bioquimica/root/runs`).doc();
     const batch = db.batch();
-    
+
     batch.set(runRef, {
       labId,
       equipmentId,
@@ -373,7 +378,7 @@ export const recordRunBioquimica = functions
       chainHash,
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     // Append traceability event
     const eventRef = db.collection(`/labs/${labId}/bioquimica/root/traceability-events`).doc();
     batch.set(eventRef, {
@@ -385,9 +390,9 @@ export const recordRunBioquimica = functions
       signature,
       ts: admin.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     await batch.commit();
-    
+
     return {
       runId: runRef.id,
       status,
@@ -412,7 +417,7 @@ function throwError(msg: string, code: number = 400) {
 export function useControlMaterials(equipmentId: string) {
   const labId = useActiveLabId();
   const [lots, setLots] = useState<ControlMaterial[]>([]);
-  
+
   useEffect(() => {
     const unsubscribe = db
       .collection(`/labs/${labId}/bioquimica/root/lotes`)
@@ -421,13 +426,13 @@ export function useControlMaterials(equipmentId: string) {
       .where('validade', '>', new Date())
       .orderBy('validade')
       .onSnapshot(
-        snap => setLots(snap.docs.map(d => d.data())),
-        err => console.error(err),
+        (snap) => setLots(snap.docs.map((d) => d.data())),
+        (err) => console.error(err),
       );
-    
+
     return unsubscribe;
   }, [labId, equipmentId]);
-  
+
   return { lots };
 }
 ```
@@ -444,7 +449,7 @@ interface LJChartProps {
 export function LeveyJenningsChart({ analitoId, nivelId, equipmentId }: LJChartProps) {
   const labId = useActiveLabId();
   const [data, setData] = useState<LeveyJenningsDataEquipment>();
-  
+
   useEffect(() => {
     // Query runs for this (analitoId, nivelId, equipmentId)
     const unsubscribe = db
@@ -462,20 +467,20 @@ export function LeveyJenningsChart({ analitoId, nivelId, equipmentId }: LJChartP
             value: r.resultados[analitoId][nivelId],
             status: r.status,
           }));
-        
+
         // Compute mean, SD, etc.
         const values = points.map(p => p.value);
         const mean = values.reduce((a, b) => a + b) / values.length;
         const sd = Math.sqrt(values.reduce((a, v) => a + (v - mean) ** 2) / values.length);
-        
+
         setData({ points, mean, sd, /* ... */ });
       });
-    
+
     return unsubscribe;
   }, [labId, analitoId, nivelId, equipmentId]);
-  
+
   if (!data) return <Skeleton />;
-  
+
   return (
     <LineChart data={data.points}>
       <Line stroke="#8b5cf6" dataKey="value" />

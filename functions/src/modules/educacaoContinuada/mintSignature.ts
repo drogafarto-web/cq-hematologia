@@ -12,10 +12,7 @@
 
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 
-import {
-  assertEcAccess,
-  MintSignatureInputSchema,
-} from './validators';
+import { assertEcAccess, MintSignatureInputSchema } from './validators';
 import { generateEcSignatureServer } from './signatureCanonical';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 

@@ -48,7 +48,7 @@ export function ComparativoAuditorias({ auditorias }: Props) {
           const tb = b.dataInicio?.toDate?.()?.getTime() ?? 0;
           return ta - tb;
         }),
-    [auditorias]
+    [auditorias],
   );
 
   const lineData = useMemo(
@@ -60,7 +60,7 @@ export function ComparativoAuditorias({ auditorias }: Props) {
         score: a.scoreTotal,
         titulo: a.titulo,
       })),
-    [finalizadas]
+    [finalizadas],
   );
 
   const radarData = useMemo(() => {
@@ -89,7 +89,9 @@ export function ComparativoAuditorias({ auditorias }: Props) {
   return (
     <div className="space-y-8">
       <div className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-6">
-        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">Evolucao do Score Geral</h3>
+        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">
+          Evolucao do Score Geral
+        </h3>
         <div className="h-64">
           <ResponsiveContainer width="100%" height="100%">
             <LineChart data={lineData} margin={{ top: 8, right: 16, left: 0, bottom: 8 }}>
@@ -129,7 +131,9 @@ export function ComparativoAuditorias({ auditorias }: Props) {
       </div>
 
       <div className="bg-white border border-slate-200 dark:bg-white/[0.02] dark:border-white/[0.08] rounded-lg p-6">
-        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">Comparativo por Bloco (ultimas 3)</h3>
+        <h3 className="text-sm font-medium text-slate-900 dark:text-white/90 mb-4">
+          Comparativo por Bloco (ultimas 3)
+        </h3>
         <div className="h-80">
           <ResponsiveContainer width="100%" height="100%">
             <RadarChart data={radarData} cx="50%" cy="50%" outerRadius="70%">
@@ -154,9 +158,7 @@ export function ComparativoAuditorias({ auditorias }: Props) {
                   strokeWidth={2}
                 />
               ))}
-              <Legend
-                wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }}
-              />
+              <Legend wrapperStyle={{ fontSize: 11, color: 'rgba(255,255,255,0.6)' }} />
               <Tooltip
                 contentStyle={{
                   backgroundColor: '#1e1e22',

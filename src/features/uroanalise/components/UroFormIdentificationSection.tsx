@@ -88,10 +88,7 @@ export function UroFormIdentificationSection({
       ? ''
       : String(values.umidadeAmbiente);
 
-  const handleNumberChange = (
-    key: 'temperaturaAmbiente' | 'umidadeAmbiente',
-    raw: string,
-  ) => {
+  const handleNumberChange = (key: 'temperaturaAmbiente' | 'umidadeAmbiente', raw: string) => {
     if (raw === '') {
       onChange(key, undefined as unknown as UroanaliseFormData[typeof key]);
       return;

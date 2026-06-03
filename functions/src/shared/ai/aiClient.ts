@@ -65,7 +65,10 @@ export function createAIClient(config: AIClientConfig): AIClient {
   }
 
   function cleanJSON(raw: string): string {
-    return raw.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+    return raw
+      .replace(/^```json\n?/, '')
+      .replace(/\n?```$/, '')
+      .trim();
   }
 
   return {

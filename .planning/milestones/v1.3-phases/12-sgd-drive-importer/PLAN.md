@@ -38,6 +38,7 @@ Scaffold SGD (Système de Gestão de Documentos Externos) module with Drive impo
 ### Drive Integration Strategy
 
 **Lazy fetch** — store metadata only, generate signed URLs on demand:
+
 ```typescript
 // sgdService.ts
 async getSignedUrl(labId: string, driveFileId: string): Promise<string> {
@@ -60,7 +61,7 @@ export const sgdDriveImporter = onCall(async (request) => {
   // 1. Validate user auth + labId
   // 2. List Drive files from folder
   // 3. Return metadata batch for UI preview
-})
+});
 ```
 
 **Rationale**: Matches ADR-0006; secure Drive API key handling server-side; client just displays.
@@ -87,7 +88,7 @@ export const SGDViewer: React.FC<SGDViewerProps> = ({
 }) => {
   const { data: doc, loading } = useSGDDocumento(labId, docId)
   const { url: signedUrl, loading: urlLoading } = useSignedUrl(labId, doc?.driveFileId)
-  
+
   return (
     <div className={cn(
       'bg-[#141417] text-white',
@@ -102,12 +103,14 @@ export const SGDViewer: React.FC<SGDViewerProps> = ({
 ```
 
 **Features**:
+
 - Iframe for PDF (mimeType check)
 - Fallback for non-PDF (text preview)
 - Metadata sidebar: created by/at, categoria, links
 - Audit trail expandable below
 
 **a11y**:
+
 - `aria-label` on close button
 - Keyboard: ESC to close (inline only)
 - Focus trap in modal
@@ -127,7 +130,7 @@ const DriveImporterWizard: React.FC<{ labId: string; onComplete: () => void }> =
   const [driveFolderId, setDriveFolderId] = useState('')
   const [selectedFiles, setSelectedFiles] = useState<DriveFile[]>([])
   const [importJob, setImportJob] = useState<ImportJob | null>(null)
-  
+
   return (
     <Modal>
       {step === 'auth' && <AuthStep onNext={(fId) => {
@@ -159,22 +162,26 @@ const DriveImporterWizard: React.FC<{ labId: string; onComplete: () => void }> =
 ```
 
 **Step 1 (Auth)**: "Select Drive folder to import from"
+
 - OAuth redirect to Google (via Cloud Function)
 - User selects folder from Drive picker
 - Returns `driveFolderId`
 
 **Step 2 (Select)**: "Choose documents"
+
 - Calls `sgdDriveImporter` callable
 - Shows paginated list of files in folder
 - Checkboxes to select (batch size limit 50)
 - File size + MIME type shown
 
 **Step 3 (Preview)**: "Review before import"
+
 - Table: filename, size, type
 - Option to deselect individual files
 - Consent checkbox: "I confirm these documents are suitable for lab records"
 
 **Step 4 (Confirm)**: "Importing…"
+
 - Progress bar (files uploaded)
 - After batch import completes → show summary ("80 docs imported")
 - Disable all inputs during import
@@ -185,95 +192,104 @@ const DriveImporterWizard: React.FC<{ labId: string; onComplete: () => void }> =
 export const sgdService = {
   async createDocument(
     labId: string,
-    input: Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'aud'>
+    input: Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'aud'>,
   ): Promise<SGDDocumento> {
-    const docRef = doc(collection(db, `labs/${labId}/sgd-externos`))
-    const now = serverTimestamp()
+    const docRef = doc(collection(db, `labs/${labId}/sgd-externos`));
+    const now = serverTimestamp();
     const payload = {
       ...input,
       labId,
       criadoEm: now,
-      deletadoEm: null
-    }
-    const hash = generateAuditHash(payload)
+      deletadoEm: null,
+    };
+    const hash = generateAuditHash(payload);
     const aud: LogicalSignature = {
       hash,
       operatorId: getCurrentUser().uid,
-      ts: now
-    }
-    await setDoc(docRef, { ...payload, aud })
-    return getDoc(docRef) as Promise<SGDDocumento>
+      ts: now,
+    };
+    await setDoc(docRef, { ...payload, aud });
+    return getDoc(docRef) as Promise<SGDDocumento>;
   },
 
   async softDeleteDocument(labId: string, docId: string): Promise<void> {
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const existing = await getDoc(ref)
-    const now = serverTimestamp()
-    const hash = generateAuditHash({ ...existing.data(), deletadoEm: now })
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const existing = await getDoc(ref);
+    const now = serverTimestamp();
+    const hash = generateAuditHash({ ...existing.data(), deletadoEm: now });
     await updateDoc(ref, {
       deletadoEm: now,
       aud: {
         operatorId: getCurrentUser().uid,
         hash,
-        ts: now
-      }
-    })
+        ts: now,
+      },
+    });
   },
 
   async listDocuments(
     labId: string,
-    filters?: { categoria?: string; status?: 'vigente' | 'deletado' }
+    filters?: { categoria?: string; status?: 'vigente' | 'deletado' },
   ): Promise<SGDDocumento[]> {
-    let q = query(collection(db, `labs/${labId}/sgd-externos`))
+    let q = query(collection(db, `labs/${labId}/sgd-externos`));
     if (filters?.status === 'vigente') {
-      q = query(q, where('deletadoEm', '==', null))
+      q = query(q, where('deletadoEm', '==', null));
     }
     if (filters?.categoria) {
-      q = query(q, where('categoriaICQ', '==', filters.categoria))
+      q = query(q, where('categoriaICQ', '==', filters.categoria));
     }
-    return getDocs(q).then(snap => snap.docs.map(doc => doc.data() as SGDDocumento))
+    return getDocs(q).then((snap) => snap.docs.map((doc) => doc.data() as SGDDocumento));
   },
 
   async getSignedUrl(labId: string, driveFileId: string): Promise<string> {
     // Calls Cloud Function to generate signed URL
-    const callable = httpsCallable(getFunctions(), 'sgdGetSignedUrl')
-    const result = await callable({ labId, driveFileId })
-    return result.data.url
-  }
-}
+    const callable = httpsCallable(getFunctions(), 'sgdGetSignedUrl');
+    const result = await callable({ labId, driveFileId });
+    return result.data.url;
+  },
+};
 ```
 
 ### 4. useSGDDocumentos.ts
 
 ```typescript
 export const useSGDDocumentos = (labId: string) => {
-  const [data, setData] = useState<SGDDocumento[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<Error | null>(null)
+  const [data, setData] = useState<SGDDocumento[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
 
   useEffect(() => {
     const q = query(
       collection(db, `labs/${labId}/sgd-externos`),
       where('deletadoEm', '==', null),
-      orderBy('criadoEm', 'desc')
-    )
-    
-    const unsubscribe = onSnapshot(q, (snap) => {
-      setData(snap.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      } as SGDDocumento)))
-      setLoading(false)
-    }, (err) => {
-      setError(err)
-      setLoading(false)
-    })
+      orderBy('criadoEm', 'desc'),
+    );
 
-    return () => unsubscribe()
-  }, [labId])
+    const unsubscribe = onSnapshot(
+      q,
+      (snap) => {
+        setData(
+          snap.docs.map(
+            (doc) =>
+              ({
+                id: doc.id,
+                ...doc.data(),
+              }) as SGDDocumento,
+          ),
+        );
+        setLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setLoading(false);
+      },
+    );
 
-  return { data, loading, error }
-}
+    return () => unsubscribe();
+  }, [labId]);
+
+  return { data, loading, error };
+};
 ```
 
 ### 5. driveImporterService.ts
@@ -283,24 +299,24 @@ export const driveImporterService = {
   async importBatch(
     labId: string,
     files: DriveFile[],
-    consent: boolean
+    consent: boolean,
   ): Promise<{ created: number; failed: number; jobId: string }> {
     // Calls Cloud Function to batch-import
-    const callable = httpsCallable(getFunctions(), 'sgdDriveImporter')
+    const callable = httpsCallable(getFunctions(), 'sgdDriveImporter');
     const result = await callable({
       labId,
-      files: files.map(f => ({
+      files: files.map((f) => ({
         driveFileId: f.id,
         driveFileName: f.name,
         mimeType: f.mimeType,
-        driveFolderId: f.parents[0]
+        driveFolderId: f.parents[0],
       })),
       consent,
-      operatorEmail: getCurrentUser().email
-    })
-    return result.data
-  }
-}
+      operatorEmail: getCurrentUser().email,
+    });
+    return result.data;
+  },
+};
 ```
 
 ---
@@ -308,29 +324,29 @@ export const driveImporterService = {
 ## Cloud Function: sgd-drive-importer.ts
 
 ```typescript
-import * as functions from 'firebase-functions'
-import { google } from 'googleapis'
-import { db } from '../shared/firebaseAdmin'
+import * as functions from 'firebase-functions';
+import { google } from 'googleapis';
+import { db } from '../shared/firebaseAdmin';
 
-const drive = google.drive({ version: 'v3' })
+const drive = google.drive({ version: 'v3' });
 
 export const sgdDriveImporter = functions.https.onCall(async (data, context) => {
   // 1. Auth check
-  if (!context.auth?.uid) throw new Error('Unauthenticated')
-  
-  const { labId, files, consent, operatorEmail } = data
+  if (!context.auth?.uid) throw new Error('Unauthenticated');
+
+  const { labId, files, consent, operatorEmail } = data;
 
   // 2. Validate lab membership via custom claim
   if (!context.auth.custom_claims?.labs.includes(labId)) {
-    throw new Error('Unauthorized lab')
+    throw new Error('Unauthorized lab');
   }
 
   // 3. Batch write to Firestore
-  const batch = db.batch()
-  let created = 0
+  const batch = db.batch();
+  let created = 0;
 
   for (const file of files) {
-    const docRef = db.collection(`labs/${labId}/sgd-externos`).doc()
+    const docRef = db.collection(`labs/${labId}/sgd-externos`).doc();
     batch.set(docRef, {
       driveFileId: file.driveFileId,
       driveFileName: file.driveFileName,
@@ -346,14 +362,16 @@ export const sgdDriveImporter = functions.https.onCall(async (data, context) => 
       deletadoEm: null,
       aud: {
         operatorId: context.auth.uid,
-        hash: computeHash({ /* payload */ }),
-        ts: admin.firestore.FieldValue.serverTimestamp()
-      }
-    })
-    created++
+        hash: computeHash({
+          /* payload */
+        }),
+        ts: admin.firestore.FieldValue.serverTimestamp(),
+      },
+    });
+    created++;
   }
 
-  await batch.commit()
+  await batch.commit();
 
   // 4. Log audit event
   await db.collection(`labs/${labId}/sgd-externos-audit`).add({
@@ -362,11 +380,11 @@ export const sgdDriveImporter = functions.https.onCall(async (data, context) => 
     operatorId: context.auth.uid,
     operatorEmail,
     consent,
-    ts: admin.firestore.FieldValue.serverTimestamp()
-  })
+    ts: admin.firestore.FieldValue.serverTimestamp(),
+  });
 
-  return { created, failed: 0, jobId: Math.random().toString(36) }
-})
+  return { created, failed: 0, jobId: Math.random().toString(36) };
+});
 ```
 
 ---
@@ -375,53 +393,53 @@ export const sgdDriveImporter = functions.https.onCall(async (data, context) => 
 
 ```typescript
 export interface SGDDocumento {
-  id: string
-  labId: string
-  titulo: string
-  descricao?: string
-  driveFileId: string
-  driveFileName: string
-  mimeType: string
-  driveFolderId: string
-  categoriaICQ?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J'
-  linksSugeridos?: LinkSuggestion[]
-  linksConfirmados?: ModuleLink[]
-  criadoEm: Timestamp
-  criadoPor: string
-  deletadoEm?: Timestamp | null
-  aud: LogicalSignature
+  id: string;
+  labId: string;
+  titulo: string;
+  descricao?: string;
+  driveFileId: string;
+  driveFileName: string;
+  mimeType: string;
+  driveFolderId: string;
+  categoriaICQ?: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J';
+  linksSugeridos?: LinkSuggestion[];
+  linksConfirmados?: ModuleLink[];
+  criadoEm: Timestamp;
+  criadoPor: string;
+  deletadoEm?: Timestamp | null;
+  aud: LogicalSignature;
 }
 
 export interface LinkSuggestion {
-  targetModule: 'sgq' | 'pop' | 'treinamentos' | 'biosseguranca'
-  targetId: string
-  targetNome: string
-  confidence: number // 0-1 from Gemini classifier
+  targetModule: 'sgq' | 'pop' | 'treinamentos' | 'biosseguranca';
+  targetId: string;
+  targetNome: string;
+  confidence: number; // 0-1 from Gemini classifier
 }
 
 export interface ModuleLink {
-  targetModule: string
-  targetId: string
-  confirmedAt: Timestamp
-  confirmedBy: string
+  targetModule: string;
+  targetId: string;
+  confirmedAt: Timestamp;
+  confirmedBy: string;
 }
 
 export interface DriveFile {
-  id: string
-  name: string
-  mimeType: string
-  size: number
-  parents: string[]
+  id: string;
+  name: string;
+  mimeType: string;
+  size: number;
+  parents: string[];
 }
 
 export interface ImportJob {
-  jobId: string
-  labId: string
-  status: 'pending' | 'in_progress' | 'completed' | 'failed'
-  filesTotal: number
-  filesProcessed: number
-  createdAt: Timestamp
-  completedAt?: Timestamp
+  jobId: string;
+  labId: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'failed';
+  filesTotal: number;
+  filesProcessed: number;
+  createdAt: Timestamp;
+  completedAt?: Timestamp;
 }
 ```
 
@@ -430,7 +448,7 @@ export interface ImportJob {
 ## Unit Tests (tests/sgdService.test.ts)
 
 ```typescript
-import { sgdService } from '../services/sgdService'
+import { sgdService } from '../services/sgdService';
 
 describe('sgdService', () => {
   it('creates document with audit signature', async () => {
@@ -439,26 +457,28 @@ describe('sgdService', () => {
       driveFileId: '123',
       driveFileName: 'test.pdf',
       mimeType: 'application/pdf',
-      driveFolderId: 'f123'
-    }
-    const doc = await sgdService.createDocument('test-lab', input)
-    expect(doc.aud.hash).toHaveLength(64)
-    expect(doc.aud.operatorId).toBe(getCurrentUser().uid)
-  })
+      driveFolderId: 'f123',
+    };
+    const doc = await sgdService.createDocument('test-lab', input);
+    expect(doc.aud.hash).toHaveLength(64);
+    expect(doc.aud.operatorId).toBe(getCurrentUser().uid);
+  });
 
   it('soft-deletes document', async () => {
-    const doc = await sgdService.createDocument('test-lab', { /* ... */ })
-    await sgdService.softDeleteDocument('test-lab', doc.id)
-    const fetched = await sgdService.getDocument('test-lab', doc.id)
-    expect(fetched.deletadoEm).toBeDefined()
-  })
+    const doc = await sgdService.createDocument('test-lab', {
+      /* ... */
+    });
+    await sgdService.softDeleteDocument('test-lab', doc.id);
+    const fetched = await sgdService.getDocument('test-lab', doc.id);
+    expect(fetched.deletadoEm).toBeDefined();
+  });
 
   it('filters by categoria', async () => {
     // Create 3 docs with different categorias
     // List with filter
     // Assert only matching ones returned
-  })
-})
+  });
+});
 ```
 
 ---

@@ -62,7 +62,7 @@ describe('bootstrap-supervisor-status.mjs', () => {
       expect(mockDb.set).toHaveBeenCalledWith(
         expect.objectContaining({
           hasActiveSupervisor: false,
-        })
+        }),
       );
     });
 
@@ -204,9 +204,7 @@ describe('bootstrap-supervisor-status.mjs', () => {
       const mockDb = {
         collection: vi.fn().mockReturnThis(),
         doc: vi.fn().mockReturnThis(),
-        get: vi.fn().mockRejectedValue(
-          new Error('Permission denied')
-        ),
+        get: vi.fn().mockRejectedValue(new Error('Permission denied')),
       };
 
       try {
@@ -219,9 +217,7 @@ describe('bootstrap-supervisor-status.mjs', () => {
     it('should catch network failures and report error', async () => {
       const mockDb = {
         collection: vi.fn().mockReturnThis(),
-        get: vi.fn().mockRejectedValue(
-          new Error('Network error: ECONNREFUSED')
-        ),
+        get: vi.fn().mockRejectedValue(new Error('Network error: ECONNREFUSED')),
       };
 
       try {
@@ -279,7 +275,7 @@ describe('bootstrap-supervisor-status.mjs', () => {
         expect.objectContaining({
           hasActiveSupervisor: expect.any(Boolean),
           lastUpdated: expect.any(String),
-        })
+        }),
       );
     });
 
@@ -301,9 +297,7 @@ describe('bootstrap-supervisor-status.mjs', () => {
    */
   describe('Project & environment', () => {
     it('should default to hmatologia2 if --project not specified', () => {
-      const projectArg = process.argv.find(
-        (arg, idx, arr) => arr[idx - 1] === '--project'
-      );
+      const projectArg = process.argv.find((arg, idx, arr) => arr[idx - 1] === '--project');
       const defaultProject = projectArg || 'hmatologia2';
       expect(defaultProject).toBe('hmatologia2');
     });

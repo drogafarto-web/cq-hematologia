@@ -26,9 +26,7 @@ let computeHmac;
 
 try {
   const cryptoModule = await import(
-    pathToFileURL(
-      path.join(FUNCTIONS_DIR, 'lib/modules/audit/cryptoAudit.js'),
-    ).href
+    pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/audit/cryptoAudit.js')).href
   );
   computeHmac = cryptoModule.computeHmac;
 } catch (err) {
@@ -36,9 +34,7 @@ try {
   // (Firebase is optional for unit tests)
   computeHmac = (data, secret) => {
     const canonicalJson = JSON.stringify(data, Object.keys(data).sort());
-    return crypto.createHmac('sha256', secret)
-      .update(canonicalJson, 'utf-8')
-      .digest('hex');
+    return crypto.createHmac('sha256', secret).update(canonicalJson, 'utf-8').digest('hex');
   };
 }
 
@@ -198,7 +194,7 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
       assert(pop.versoes[0].dataVigenciaFim);
       assert(
         pop.versoes[0].dataVigenciaInicio.toDate().getTime() <
-        pop.versoes[0].dataVigenciaFim.toDate().getTime(),
+          pop.versoes[0].dataVigenciaFim.toDate().getTime(),
       );
     });
 
@@ -487,12 +483,8 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
         },
       ];
 
-      const v1_ativa = versions.filter(
-        (v) => v.numero.startsWith('1.') && v.status === 'ativa',
-      );
-      const v2_ativa = versions.filter(
-        (v) => v.numero.startsWith('2.') && v.status === 'ativa',
-      );
+      const v1_ativa = versions.filter((v) => v.numero.startsWith('1.') && v.status === 'ativa');
+      const v2_ativa = versions.filter((v) => v.numero.startsWith('2.') && v.status === 'ativa');
 
       assert.strictEqual(v1_ativa.length, 1);
       assert.strictEqual(v2_ativa.length, 1);
@@ -507,7 +499,10 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
       };
 
       const trainRecord = qualificacao.treinamentosPOP.find((t) => t.popId === 'pop-001');
-      const validoAteDate = trainRecord.validoAte && trainRecord.validoAte.toDate ? trainRecord.validoAte.toDate() : trainRecord.validoAte;
+      const validoAteDate =
+        trainRecord.validoAte && trainRecord.validoAte.toDate
+          ? trainRecord.validoAte.toDate()
+          : trainRecord.validoAte;
       const allowed = trainRecord && new Date() <= new Date(validoAteDate);
 
       assert.strictEqual(allowed, true);
@@ -540,7 +535,10 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
       };
 
       const trainRecord = qualificacao.treinamentosPOP.find((t) => t.popId === 'pop-001');
-      const validoAteDate = trainRecord.validoAte && trainRecord.validoAte.toDate ? trainRecord.validoAte.toDate() : trainRecord.validoAte;
+      const validoAteDate =
+        trainRecord.validoAte && trainRecord.validoAte.toDate
+          ? trainRecord.validoAte.toDate()
+          : trainRecord.validoAte;
       const allowed = trainRecord && new Date() <= new Date(validoAteDate);
 
       assert.strictEqual(allowed, false);
@@ -567,9 +565,7 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
         ],
       });
 
-      const versaoAtiva = pop.versoes.find(
-        (v) => v.numero === '1.0' && v.status === 'ativa',
-      );
+      const versaoAtiva = pop.versoes.find((v) => v.numero === '1.0' && v.status === 'ativa');
 
       assert.strictEqual(versaoAtiva, undefined);
     });
@@ -638,7 +634,9 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
         dataVigenciaFim: Timestamp.now(),
         hashConteudo: crypto
           .createHash('sha256')
-          .update(JSON.stringify({ markdown: '# POP Content' }, Object.keys({ markdown: '' }).sort()))
+          .update(
+            JSON.stringify({ markdown: '# POP Content' }, Object.keys({ markdown: '' }).sort()),
+          )
           .digest('hex'),
         assinadaPor: {
           uid: '',
@@ -675,7 +673,9 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
         dataVigenciaFim: Timestamp.now(),
         hashConteudo: crypto
           .createHash('sha256')
-          .update(JSON.stringify({ markdown: '# Updated POP' }, Object.keys({ markdown: '' }).sort()))
+          .update(
+            JSON.stringify({ markdown: '# Updated POP' }, Object.keys({ markdown: '' }).sort()),
+          )
           .digest('hex'),
         assinadaPor: {
           uid: '',
@@ -715,10 +715,11 @@ test('ADR 0004 Wave 2 — POP Versionado', async (suite) => {
       assert(trainRecord.validoAte);
 
       // 7. Verify operator can use POP
-      const validoAteDate = trainRecord.validoAte && trainRecord.validoAte.toDate ? trainRecord.validoAte.toDate() : trainRecord.validoAte;
-      const canUse =
-        trainRecord.popVersaoNumero === '1.1' &&
-        new Date() <= new Date(validoAteDate);
+      const validoAteDate =
+        trainRecord.validoAte && trainRecord.validoAte.toDate
+          ? trainRecord.validoAte.toDate()
+          : trainRecord.validoAte;
+      const canUse = trainRecord.popVersaoNumero === '1.1' && new Date() <= new Date(validoAteDate);
       assert.strictEqual(canUse, true);
     });
 

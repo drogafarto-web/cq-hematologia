@@ -1,6 +1,6 @@
 ---
 milestone: v1.3
-name: "Architecture Reference"
+name: 'Architecture Reference'
 status: current
 last_updated: 2026-05-06
 ---
@@ -69,10 +69,10 @@ Every domain document carries `labId` **inside the payload** in addition to its 
 
 ### Cross-Tenant Collections (rare)
 
-| Collection | Purpose |
-|------------|---------|
-| `/users/{uid}` | Identity (Firebase Auth shadow) |
-| `/admin/*` | Superadmin metadata |
+| Collection     | Purpose                                                       |
+| -------------- | ------------------------------------------------------------- |
+| `/users/{uid}` | Identity (Firebase Auth shadow)                               |
+| `/admin/*`     | Superadmin metadata                                           |
 | `/auditLogs/*` | Cross-cutting audit (deprecated — moved to per-module events) |
 
 ---
@@ -129,56 +129,56 @@ Every domain document carries `labId` **inside the payload** in addition to its 
 
 ### Bioquímica (Phase 9)
 
-| Function | Type | Trigger / Path |
-|----------|------|---------------|
-| `parseBulaBioquimica` | Callable | Gemini Vision OCR + Zod |
-| `recordRunBioquimica` | Callable | Write run + LogicalSignature + chainHash |
-| `applyBulaToLot` | Callable | Bind parsed bula to lot |
-| `recordTraceabilityEvent` | Callable | Append-only `examCodeAtChange` |
-| `generateMonthlyReport` | Callable | PDF FR-001 (Puppeteer) |
-| `chainHashTrigger_bioquimica` | Trigger | `onCreate` events subcollection |
+| Function                      | Type     | Trigger / Path                           |
+| ----------------------------- | -------- | ---------------------------------------- |
+| `parseBulaBioquimica`         | Callable | Gemini Vision OCR + Zod                  |
+| `recordRunBioquimica`         | Callable | Write run + LogicalSignature + chainHash |
+| `applyBulaToLot`              | Callable | Bind parsed bula to lot                  |
+| `recordTraceabilityEvent`     | Callable | Append-only `examCodeAtChange`           |
+| `generateMonthlyReport`       | Callable | PDF FR-001 (Puppeteer)                   |
+| `chainHashTrigger_bioquimica` | Trigger  | `onCreate` events subcollection          |
 
 ### Liberação + Críticos (Phase 10 partial)
 
-| Function | Type | Trigger / Path |
-|----------|------|---------------|
-| `criarLaudo` | Callable | (TS errors — pending 8.5 fix) |
-| `liberarLaudo` | Callable | RT signature gate |
-| `enviarComunicacaoEmail` | Callable | nodemailer |
-| `escalarCritico` | Cron 5min | Pub/Sub trigger if SLA exceeded |
-| `transitarLaudoState` | Callable | State machine transition |
+| Function                 | Type      | Trigger / Path                  |
+| ------------------------ | --------- | ------------------------------- |
+| `criarLaudo`             | Callable  | (TS errors — pending 8.5 fix)   |
+| `liberarLaudo`           | Callable  | RT signature gate               |
+| `enviarComunicacaoEmail` | Callable  | nodemailer                      |
+| `escalarCritico`         | Cron 5min | Pub/Sub trigger if SLA exceeded |
+| `transitarLaudoState`    | Callable  | State machine transition        |
 
 ### Feedback Loop (Phase 11)
 
-| Function | Type | Trigger / Path |
-|----------|------|---------------|
-| `criarReclamacao` | Callable | Multi-channel intake |
-| `transitarReclamacao` | Callable | State machine |
-| `classificarDocAuto` | Callable | Gemini classification (re-used for sugestões/reclamações) |
-| `dispararNPSPosResolucao` | Trigger | Reclamação → resolved |
-| `dispararNPSRecurring` | Cron quarterly | Pub/Sub broadcast |
-| `submitNPSResposta` | Callable (public) | Anonymous submit token |
-| `anonimizarRespostas` | Cron daily | PII zeroing >90d |
-| `criarSugestao` | Callable (dual-channel) | Internal + public |
-| `transitarSugestao` | Callable | State machine |
-| `upvoteSugestao` | Callable | Idempotent (per-user dedup) |
+| Function                  | Type                    | Trigger / Path                                            |
+| ------------------------- | ----------------------- | --------------------------------------------------------- |
+| `criarReclamacao`         | Callable                | Multi-channel intake                                      |
+| `transitarReclamacao`     | Callable                | State machine                                             |
+| `classificarDocAuto`      | Callable                | Gemini classification (re-used for sugestões/reclamações) |
+| `dispararNPSPosResolucao` | Trigger                 | Reclamação → resolved                                     |
+| `dispararNPSRecurring`    | Cron quarterly          | Pub/Sub broadcast                                         |
+| `submitNPSResposta`       | Callable (public)       | Anonymous submit token                                    |
+| `anonimizarRespostas`     | Cron daily              | PII zeroing >90d                                          |
+| `criarSugestao`           | Callable (dual-channel) | Internal + public                                         |
+| `transitarSugestao`       | Callable                | State machine                                             |
+| `upvoteSugestao`          | Callable                | Idempotent (per-user dedup)                               |
 
 ### SGD (Phase 12)
 
-| Function | Type | Trigger / Path |
-|----------|------|---------------|
-| `listarDocsDrive` | Callable | OAuth + Drive API filter by LM-01 |
-| `previewDocDrive` | Callable | Download + render preview |
-| `aprovarBatchImport` | Callable | RT batch approval |
-| `transitarVigencia` | Callable | draft → vigente |
-| `oauthClient` | Helper | Token mgmt + refresh |
+| Function             | Type     | Trigger / Path                    |
+| -------------------- | -------- | --------------------------------- |
+| `listarDocsDrive`    | Callable | OAuth + Drive API filter by LM-01 |
+| `previewDocDrive`    | Callable | Download + render preview         |
+| `aprovarBatchImport` | Callable | RT batch approval                 |
+| `transitarVigencia`  | Callable | draft → vigente                   |
+| `oauthClient`        | Helper   | Token mgmt + refresh              |
 
 ### Phase 8 Micro-Modules (foundations only)
 
-| Function | Type | Status |
-|----------|------|--------|
-| `registrarCalibracao` | Callable | Foundation |
-| `aprovarDesignacao` | Callable | Foundation |
+| Function                 | Type     | Status     |
+| ------------------------ | -------- | ---------- |
+| `registrarCalibracao`    | Callable | Foundation |
+| `aprovarDesignacao`      | Callable | Foundation |
 | `submitManagementReview` | Callable | Foundation |
 
 **Total v1.3 new functions:** ~50 (plus existing 78 from v1.2 = ~128 functions live post-deploy)
@@ -204,11 +204,11 @@ export const moduleService = {
 
 ### What lives where
 
-| Layer | Owns | Does NOT own |
-|-------|------|--------------|
-| **Service** | CRUD primitives, snapshot mapping, multi-tenant path construction | Business validation, signature generation, chainHash |
-| **Hook** | RN-* validations, atomic writes (`writeBatch`), signature generation, listener lifecycle | UI state, presentation |
-| **Callable (CF)** | Server-side validation, signature verification, chainHash linkage, regulatory writes | Reads (clients read directly) |
+| Layer             | Owns                                                                                      | Does NOT own                                         |
+| ----------------- | ----------------------------------------------------------------------------------------- | ---------------------------------------------------- |
+| **Service**       | CRUD primitives, snapshot mapping, multi-tenant path construction                         | Business validation, signature generation, chainHash |
+| **Hook**          | RN-\* validations, atomic writes (`writeBatch`), signature generation, listener lifecycle | UI state, presentation                               |
+| **Callable (CF)** | Server-side validation, signature verification, chainHash linkage, regulatory writes      | Reads (clients read directly)                        |
 
 ### Input DTOs
 
@@ -227,8 +227,8 @@ type CreateInput<T> = Omit<T, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 useEffect(() => {
   if (!labId) return;
   const unsub = moduleService.list(labId, filters, (data) => setState(data));
-  return () => unsub();    // ALWAYS cleanup
-}, [labId, JSON.stringify(filters)]);   // stable deps via JSON or memoized object
+  return () => unsub(); // ALWAYS cleanup
+}, [labId, JSON.stringify(filters)]); // stable deps via JSON or memoized object
 ```
 
 ### Anti-Patterns (Phase 8.5 audit caught some)
@@ -305,10 +305,10 @@ Client `create*` services for regulatory collections (laudos, críticos, sgq-doc
 
 ### Zustand 5 (global)
 
-| Store | Purpose |
-|-------|---------|
+| Store          | Purpose                               |
+| -------------- | ------------------------------------- |
 | `useAuthStore` | Firebase user + lab membership + role |
-| `useUIStore` | Theme, modal stack, toast queue |
+| `useUIStore`   | Theme, modal stack, toast queue       |
 
 ### Local hooks (per-module)
 
@@ -341,12 +341,12 @@ manualChunks: {
 
 ### v1.3 Bundle Sizes (gzip)
 
-| Chunk | Size | Budget |
-|-------|------|--------|
-| `module-bioquimica` | 7.21 KB | <60 KB ✅ |
-| `module-sgq` (extended) | ~45 KB | <80 KB ✅ |
-| `module-reclamacoes` (partial) | ~30 KB | <80 KB ✅ |
-| Main shell | 362 KB | <400 KB ✅ |
+| Chunk                          | Size    | Budget     |
+| ------------------------------ | ------- | ---------- |
+| `module-bioquimica`            | 7.21 KB | <60 KB ✅  |
+| `module-sgq` (extended)        | ~45 KB  | <80 KB ✅  |
+| `module-reclamacoes` (partial) | ~30 KB  | <80 KB ✅  |
+| Main shell                     | 362 KB  | <400 KB ✅ |
 
 ### Routes use `React.lazy`
 
@@ -402,13 +402,13 @@ All Cloud Functions: `southamerica-east1` (São Paulo). Latency from BR labs ~30
 
 ### Cron Schedules (v1.3)
 
-| Cron | Interval | Function |
-|------|----------|----------|
-| `escalarCritico` | every 5 min | Phase 10 SLA escalation |
-| `dispararNPSRecurring` | quarterly (1st of Jan/Apr/Jul/Oct, 09:00 BRT) | Phase 11 NPS broadcast |
-| `anonimizarRespostas` | daily 03:00 BRT | Phase 11 LGPD anonymization |
-| `aggregateAnalytics` | every 30 min | v1.1 KPI aggregation |
-| `dailyBackup` | daily 02:00 BRT | v1.2 DR backup |
+| Cron                   | Interval                                      | Function                    |
+| ---------------------- | --------------------------------------------- | --------------------------- |
+| `escalarCritico`       | every 5 min                                   | Phase 10 SLA escalation     |
+| `dispararNPSRecurring` | quarterly (1st of Jan/Apr/Jul/Oct, 09:00 BRT) | Phase 11 NPS broadcast      |
+| `anonimizarRespostas`  | daily 03:00 BRT                               | Phase 11 LGPD anonymization |
+| `aggregateAnalytics`   | every 30 min                                  | v1.1 KPI aggregation        |
+| `dailyBackup`          | daily 02:00 BRT                               | v1.2 DR backup              |
 
 ### Logging
 
@@ -420,31 +420,31 @@ All Cloud Functions: `southamerica-east1` (São Paulo). Latency from BR labs ~30
 
 ## 13. Reference Modules (read these to understand patterns)
 
-| Pattern to learn | Reference module |
-|------------------|------------------|
-| Full CIQ pipeline (CRUD + Westgard + LJ + bula parse) | `analyzer` (hematologia) |
-| New CIQ replication | `bioquimica` (v1.3) |
-| Multi-tenant SGD + audit chain | `sgq` (v1.2 + v1.3 extension) |
-| Audit subcollection + chainHash | `controle-temperatura` (v1.2) |
-| Dual-channel callable (internal + public) | `sugestoes` (v1.3) |
-| Drive importer pattern | `sgq/importar-drive` (v1.3) |
+| Pattern to learn                                      | Reference module              |
+| ----------------------------------------------------- | ----------------------------- |
+| Full CIQ pipeline (CRUD + Westgard + LJ + bula parse) | `analyzer` (hematologia)      |
+| New CIQ replication                                   | `bioquimica` (v1.3)           |
+| Multi-tenant SGD + audit chain                        | `sgq` (v1.2 + v1.3 extension) |
+| Audit subcollection + chainHash                       | `controle-temperatura` (v1.2) |
+| Dual-channel callable (internal + public)             | `sugestoes` (v1.3)            |
+| Drive importer pattern                                | `sgq/importar-drive` (v1.3)   |
 
 ---
 
 ## 14. ADR Index (relevant to v1.3)
 
-| ADR | Topic | Status |
-|-----|-------|--------|
+| ADR  | Topic                                      | Status |
+| ---- | ------------------------------------------ | ------ |
 | 0001 | Audit chain (LogicalSignature + chainHash) | Active |
-| 0002 | Soft-delete only (RN-06) | Active |
-| 0003 | NC blocking gates | Active |
-| 0004 | POPs versioning + RT training | Active |
-| 0005 | Tagged release flows | Active |
-| 0006 | Educação continuada callables | Active |
-| 0007 | Multi-tenant patterns | Active |
-| 0009 | Liberação state machine híbrida (Phase 10) | Draft |
-| 0011 | Feedback loop architecture (Phase 11) | Draft |
-| 0012 | SGD extension + Drive importer (Phase 12) | Draft |
+| 0002 | Soft-delete only (RN-06)                   | Active |
+| 0003 | NC blocking gates                          | Active |
+| 0004 | POPs versioning + RT training              | Active |
+| 0005 | Tagged release flows                       | Active |
+| 0006 | Educação continuada callables              | Active |
+| 0007 | Multi-tenant patterns                      | Active |
+| 0009 | Liberação state machine híbrida (Phase 10) | Draft  |
+| 0011 | Feedback loop architecture (Phase 11)      | Draft  |
+| 0012 | SGD extension + Drive importer (Phase 12)  | Draft  |
 
 ---
 

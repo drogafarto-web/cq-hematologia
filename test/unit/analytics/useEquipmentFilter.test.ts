@@ -42,15 +42,17 @@ function makeSnap(docs: Array<{ id: string; data: Record<string, unknown> }>) {
 describe('useEquipmentFilter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (onSnapshot as Mock).mockImplementation((_q: unknown, cb: (snap: ReturnType<typeof makeSnap>) => void) => {
-      cb(
-        makeSnap([
-          { id: 'eq1', data: { name: 'Yumizen H550', modelo: 'YUMIZEN_H550', deletadoEm: null } },
-          { id: 'eq2', data: { name: 'Micros 60', modelo: 'MICROS_60', deletadoEm: null } },
-        ]),
-      );
-      return () => {}; // unsubscribe
-    });
+    (onSnapshot as Mock).mockImplementation(
+      (_q: unknown, cb: (snap: ReturnType<typeof makeSnap>) => void) => {
+        cb(
+          makeSnap([
+            { id: 'eq1', data: { name: 'Yumizen H550', modelo: 'YUMIZEN_H550', deletadoEm: null } },
+            { id: 'eq2', data: { name: 'Micros 60', modelo: 'MICROS_60', deletadoEm: null } },
+          ]),
+        );
+        return () => {}; // unsubscribe
+      },
+    );
   });
 
   it('loads equipment from Firestore on mount', () => {
@@ -78,8 +80,12 @@ describe('useEquipmentFilter', () => {
 
   it('toggleEquipment removes an ID when already selected', () => {
     const { result } = renderHook(() => useEquipmentFilter());
-    act(() => { result.current.toggleEquipment('eq1'); });
-    act(() => { result.current.toggleEquipment('eq1'); });
+    act(() => {
+      result.current.toggleEquipment('eq1');
+    });
+    act(() => {
+      result.current.toggleEquipment('eq1');
+    });
     expect(result.current.selectedIds.has('eq1')).toBe(false);
     expect(result.current.isFiltering).toBe(false);
   });
@@ -96,8 +102,12 @@ describe('useEquipmentFilter', () => {
 
   it('clearEquipment resets selection to empty', () => {
     const { result } = renderHook(() => useEquipmentFilter());
-    act(() => { result.current.toggleEquipment('eq1'); });
-    act(() => { result.current.clearEquipment(); });
+    act(() => {
+      result.current.toggleEquipment('eq1');
+    });
+    act(() => {
+      result.current.clearEquipment();
+    });
     expect(result.current.selectedIds.size).toBe(0);
     expect(result.current.isFiltering).toBe(false);
   });

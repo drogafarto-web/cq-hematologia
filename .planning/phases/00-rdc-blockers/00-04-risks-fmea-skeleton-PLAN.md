@@ -3,7 +3,7 @@ phase: 0
 plan: 00-04
 slug: risks-fmea-skeleton
 wave: 2
-depends_on: ["00-01", "00-02"]
+depends_on: ['00-01', '00-02']
 estimate_days: 3.5
 req_ids: [REQ-412]
 risk_ids: [RISK-403, P0-R2, P0-R4, P0-R6, RISK-409]
@@ -82,24 +82,26 @@ This plan **inherits** the Wave 1 callable + audit-chain pattern from Plan 00-01
 **Outcome:** ADR documents methodology + escape hatch + thresholds.
 **Files:** docs/adr/0016-fmea-lite-methodology.md, docs/adr/README.md.
 **Steps:**
+
 1. Author per project ADR template (`docs/adr/0008-*.md` as recent example).
 2. Sections: Context, Decision, Status, Consequences, Alternatives Considered (ISO 31000 — deferred for v1.5), References (DICQ 4.14.6 + ISO 15189 §8.5 + RDC 978 Art. 86).
 3. State default thresholds: baixo ≤24, medio 25–60, alto 61–99, critico ≥100.
 4. State escape hatch: "Refine to ISO 31000 if Riopomba feedback in v1.4 retro warrants — versioned ADR-0016a."
 5. CTO sign-off.
-**Verification:** ADR file exists; README index updated; markdown lint OK.
+   **Verification:** ADR file exists; README index updated; markdown lint OK.
 
 ### T2. Scaffold types + service skeleton (read-only) + npr/nivel helpers
 
 **Outcome:** types match PHASE-0-PLAN schema; pure helpers `computeNPR` + `deriveNivel` unit-tested.
-**Files:** src/features/risks/types/Risk.ts, src/features/risks/services/risksService.ts, src/__tests__/risks/computeNPR.test.ts.
+**Files:** src/features/risks/types/Risk.ts, src/features/risks/services/risksService.ts, src/**tests**/risks/computeNPR.test.ts.
 **Steps:**
+
 1. Invoke `Skill hcq-module-generator` with `risks` (read-only mode).
 2. Define types verbatim from PHASE-0-PLAN Task 4 schema.
 3. Implement `computeNPR(p, s, d): number` (validates 1..5 each; throws otherwise).
 4. Implement `deriveNivel(npr, thresholds = DEFAULT_THRESHOLDS): Nivel`.
 5. Unit-test 8 cases for computeNPR (1×1×1=1, 5×5×5=125, edge OOB throw, etc.) + 6 cases for deriveNivel boundaries.
-**Verification:** `npx tsc --noEmit` clean; `npm test -- risks/computeNPR` green.
+   **Verification:** `npx tsc --noEmit` clean; `npm test -- risks/computeNPR` green.
 
 ### T3. Implement callable scaffold (validators, signatureCanonical, index)
 
@@ -113,54 +115,59 @@ This plan **inherits** the Wave 1 callable + audit-chain pattern from Plan 00-01
 **Outcome:** core write path operational.
 **Files:** createRisk.ts, softDeleteRisk.ts, onRiskEventCreated.ts, functions/src/index.ts.
 **Steps:**
+
 1. `createRisk`: `codigo` uniqueness within lab; auto-derive NPR + nivel server-side from input P/S/D (client value ignored if provided — server is source of truth); `reviewDate = criadoEm + 365d` default.
 2. `softDeleteRisk`: reject if `status === 'fechado'` (preserve evidence).
 3. ChainHash trigger.
 4. Smoke script `functions/scripts/smoke-risks-callables.mjs` (mirror Plan 00-01).
-**Verification:** Smoke script: unauth fail; create happy → NPR matches; create with bogus client-supplied NPR → server overwrites; soft delete on aberto ok, on fechado fail; chainHash present.
+   **Verification:** Smoke script: unauth fail; create happy → NPR matches; create with bogus client-supplied NPR → server overwrites; soft delete on aberto ok, on fechado fail; chainHash present.
 
 ### T5. Implement updateRisk + registrarRevisao + (stretch) seedFromCsv
 
 **Outcome:** review cycle works; reclassification recomputes NPR.
 **Files:** updateRisk.ts, registrarRevisao.ts, seedFromCsv.ts (stretch).
 **Steps:**
+
 1. `updateRisk`: status transitions enforced (`aberto → mitigando | fechado`; `mitigando → monitorado | fechado`; `monitorado → mitigando | fechado`; `fechado → ∅` terminal).
 2. `registrarRevisao`: append `reviewHistory[]`; reclassificado branch recomputes NPR/nivel; fechado branch sets terminal status.
 3. **Stretch (P0-R4 dropline):** `seedFromCsv` only if Wave 2 still on schedule by Day 7. Otherwise drop to v1.4.1.
-**Verification:** Smoke extended; reclassificação from NPR=80 → NPR=20 transitions nivel `medio → baixo` server-side.
+   **Verification:** Smoke extended; reclassificação from NPR=80 → NPR=20 transitions nivel `medio → baixo` server-side.
 
 ### T6. Implement scheduled review (annual + monthly top-5)
 
 **Outcome:** daily cron at 07:00 BRT identifies due reviews; idempotent.
 **Files:** scheduledReview.ts, functions/src/index.ts.
 **Steps:**
+
 1. Daily query: `reviewDate <= today AND status != 'fechado' AND deletadoEm == null`. Per match, write notification with idempotency key `${riskId}-${reviewDate-iso}`.
 2. Monthly check (cron also runs daily but only acts on day 1 of month): `npr >= 100 AND status != 'fechado'`. Notification idempotency key `${riskId}-monthly-${YYYY-MM}`.
 3. Reuse existing `/labs/{labId}/notifications/` collection.
-**Verification:** Emulator: set `reviewDate = yesterday` on test risk; trigger; one notification. Re-trigger; no dup. Set `npr=100` on another risk; trigger on Mar 1 (mock); monthly notification appears.
+   **Verification:** Emulator: set `reviewDate = yesterday` on test risk; trigger; one notification. Re-trigger; no dup. Set `npr=100` on another risk; trigger on Mar 1 (mock); monthly notification appears.
 
 ### T7. Build hooks + UI components (Register + Form + Matrix + Review + Top5)
 
 **Outcome:** all components rendering against emulator data; form computes NPR live; matrix shows distribution; review modal drives reclassificação.
 **Files:** hooks/useRisks.ts, hooks/useRiskMatrix.ts, hooks/useTopRisks.ts, components/RisksView.tsx, components/RiskRegister.tsx, components/RiskForm.tsx, components/RiskMatrix.tsx, components/RiskReviewModal.tsx, components/Top5RisksWidget.tsx.
 **Steps:**
+
 1. `useRisks` mirrors `useColaboradores`.
 2. `RiskForm` step 2: P/S/D as range inputs (1–5 with numeric label); below, large NPR display + nivel chip color-coded; debounced 100ms recompute on change. Use `tabular-nums`.
 3. `RiskMatrix` 5×5 SVG; cell color by max NPR (emerald < threshold.medio; amber < threshold.alto; orange < threshold.critico; red ≥ threshold.critico). Click → `setFilter({probabilidade, severidade})` on Register.
 4. `RiskReviewModal` step-through: pick resultado → conditional UI for reclassificado (P/S/D scrubbers) → submit via `risks_registrarRevisao`.
 5. `Top5RisksWidget` shows top 5 by NPR with color chips + click to drill-down.
 6. `RisksView` topbar + KPI strip + tabs.
-**Verification:** `npm run dev` smoke; create risk + see in matrix + run review + reclassify; `npx tsc --noEmit` clean.
+   **Verification:** `npm run dev` smoke; create risk + see in matrix + run review + reclassify; `npx tsc --noEmit` clean.
 
 ### T8. Write Firestore rules + indexes; rules emulator tests
 
 **Outcome:** rules deny client-direct write; allow Admin SDK callable; allow read by member.
 **Files:** firestore.rules, firestore.indexes.json, functions/test/risks/rules.test.mjs.
 **Steps:**
+
 1. Invoke `Skill hcq-firestore-rules-generator` with `risks` collection + DL-1 convention; include `isValidRisk` helper for defense in depth.
 2. Add 2 composite indexes.
 3. Rules emulator test: read by member ✅; create by member ❌; create by Admin SDK ✅; delete ❌; revisao subcoleção write ❌.
-**Verification:** Emulator green; baseline 738/738 still green.
+   **Verification:** Emulator green; baseline 738/738 still green.
 
 ### T9. Wire shell integration + lazy route + manualChunks
 
@@ -174,17 +181,19 @@ This plan **inherits** the Wave 1 callable + audit-chain pattern from Plan 00-01
 **Outcome:** module governance + root row + Obsidian DICQ 4.14.6 → `[x]` + Plan 00-02 DPIA v1.1 patch (cross-link to ADR-0016).
 **Files:** src/features/risks/CLAUDE.md, CLAUDE.md (root), Obsidian `01_Projetos/HC_Quality_Checklist_Auditoria.md`, docs/policies/IT-LGPD-DPIA-001-v1.1.md (patch from Plan 00-02 forward reference).
 **Steps:**
+
 1. Write module CLAUDE.md (mirror SGQ).
 2. Append root table row.
 3. Tickle Obsidian checklist.
 4. Patch DPIA template to v1.1 with concrete reference to ADR-0016 + Plan 00-04 NPR methodology. Republish DPIA via SGQ as a new revisão (per RN-SGQ-03: previous v1.0 transitions to obsoleto, v1.1 vigente).
-**Verification:** Files written; DPIA v1.1 vigente in SGQ; DPIA v1.0 obsoleto; chain `substituidoPor` populated.
+   **Verification:** Files written; DPIA v1.1 vigente in SGQ; DPIA v1.0 obsoleto; chain `substituidoPor` populated.
 
 ### T11. Pre-deploy + deploy + Cloud Logs + smoke
 
 **Outcome:** rules + functions + hosting deployed; 24h Cloud Logs running; manager-confirmed smoke for register + review + reclassificação.
 **Files:** N/A (operational).
 **Steps:**
+
 1. `provisionModulesClaims` with `'risks'` granted to active users.
 2. `npx tsc --noEmit` (web + functions); `npm run build`.
 3. `firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2`.
@@ -192,7 +201,7 @@ This plan **inherits** the Wave 1 callable + audit-chain pattern from Plan 00-01
 5. `firebase deploy --only hosting --project hmatologia2`.
 6. Hard reload + smoke (create + matrix + review cycle).
 7. `bash scripts/monitor-cloud-logs.sh 24 30`.
-**Verification:** Deploy logs clean; smoke green.
+   **Verification:** Deploy logs clean; smoke green.
 
 ## Acceptance criteria
 

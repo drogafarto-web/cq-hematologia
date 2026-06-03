@@ -18,6 +18,7 @@ RDC 978 Arts. 184–191 mandate **immediate notification of critical results** (
 4. Escalate if no ACK within 15 minutes (call backup physician, alert supervisor).
 
 Without formal state machine, risk of:
+
 - **SLA breach:** critical result sits unnoticed for hours.
 - **Audit gap:** no proof notification occurred ("we emailed, but can't show the email was received").
 - **Operator confusion:** unclear whether SMS was sent to primary vs. backup physician.
@@ -50,11 +51,13 @@ RESOLVIDO (critical event closed)
 ### States & SLA Requirements
 
 #### `NORMAL` (Baseline)
+
 - Result value is within normal/reference range (per `labSettings.criticalThresholds[analyte]`).
 - No action required.
 - Transition trigger: result approval (automatic, if value <= threshold).
 
 #### `CRITICO` (Critical Value Detected)
+
 - Result value exceeds critical threshold (e.g., glucose <40 mg/dL).
 - System detects via Cloud Function trigger on `laudos/{laudo-id}` update (after RT approval).
 - Lookup: `resultadosItems[].valor` vs. `laboratorioCriticalThresholds[analite]`.
@@ -65,6 +68,7 @@ RESOLVIDO (critical event closed)
 - Audit event: `{ operatorId, ts, acao: 'critico-detectado', analito, valor, threshold }`.
 
 #### `ALERTADO` (Physician Notified / Awaiting Acknowledgment)
+
 - Twilio SMS sent to primary physician phone (loaded from `/labs/{labId}/medicos/{medicoId}.telefone`).
 - SMS content (template): `"Lab Alert: Glucose 35 mg/dL [CRITICAL]. Confirm receipt: reply ACK"`
 - **SLA:** physician must ACK within 15 minutes (hard deadline: 900 seconds from CRITICO state entry).
@@ -76,6 +80,7 @@ RESOLVIDO (critical event closed)
 - Audit events: `{ smsId, status: 'enviado' }`, `{ smsId, status: 'ack-recebido', medicoId, tsACK }`, `{ smsId, status: 'escala-iniciada', motivo: 'sla-breach' }`.
 
 #### `RESOLVIDO` (Critical Event Closed)
+
 - Physician has acknowledged result (SMS reply "ACK" received) **and** SLA within 15 min elapsed time.
 - OR: result rechecked + false-alarm + operator manually closed.
 - Fields: `dataResolucao`, `medicoIdQuAccusou`, `tsACK`, `tempoResposta` (physician response time in seconds).
@@ -89,6 +94,7 @@ RESOLVIDO (critical event closed)
 ### Cloud Function Callables & Scheduled Functions
 
 #### 1. **`detectCriticalValueOnLaudoApproval` (trigger: `onDocumentWritten(laudos/{laudo-id})`)**
+
 - Fires when RT approves laudo (status: `aprovado`).
 - Loop through `resultadosItems[]`: check each `valor` vs. `labSettings.criticalThresholds[analito]`.
 - For each breach:
@@ -99,12 +105,14 @@ RESOLVIDO (critical event closed)
 - Returns: `{ criticoIds: string[], smsPendentes: number }`.
 
 #### 2. **`escalateCriticalValue(labId, criticoId, medicoIdBackup, tentativaNum)` (callable)**
+
 - Validates: critical value in state `ALERTADO` AND 10 minutes elapsed since `dataSMSEnviado`.
 - Sends SMS to backup physician or calls supervisor (Twilio voice API).
 - Appends escalation event: `{ operatorId, ts, acao: 'escala-iniciada', tentativa: 2, medicoIdBackup }`.
 - **Constraint:** max 3 escalation attempts per critical value (then mark `CRITICO` as `MANUAL-REVIEW-NEEDED`).
 
 #### 3. **`acknowledgePhysicianReceipt(labId, criticoId, medicoId)` (callable, from webhook)**
+
 - Triggered by Twilio webhook (SMS reply from physician).
 - Validates: critical value in state `ALERTADO`.
 - Computes `tempoResposta = now() - dataSMSEnviado`.
@@ -114,12 +122,14 @@ RESOLVIDO (critical event closed)
 - Audit event: `{ medicoId, ts, acao: 'ack-recebido', tempoResposta, slaStatus: 'on-time' | 'late' }`.
 
 #### 4. **`criticalValueOverride(labId, criticoId, motivo)` (callable, operator)**
+
 - Validates: critical value in state `CRITICO` or `ALERTADO`.
 - Transition: status → `RESOLVIDO` (or `NORMAL` if determined false-alarm).
 - Requires RT with role `isAdminOrOwner` (not auditor).
 - Audit event: `{ operatorId, ts, acao: 'override-por-operador', motivo }`.
 
 #### 5. **`processCriticalValueSMSQueue` (scheduled, every 2 minutes)**
+
 - Query: `/labs/{labId}/fila-sms-critico` with status `pending`.
 - For each entry:
   - Call Twilio API: `twilio.messages.create({ to: phone, from: LAB_TWILIO_FROM, body })`.
@@ -129,6 +139,7 @@ RESOLVIDO (critical event closed)
 - Generates audit events for each SMS send attempt.
 
 #### 6. **`validateCriticalValueSLAsScheduled` (scheduled, every 5 minutes)**
+
 - Query: `/labs/{labId}/critical-values` where `status === 'ALERTADO'` AND `dataSMSEnviado <= now() - 900s` (15 min).
 - For each overdue critical:
   - Fetch backup physician from `/medicos[?isPrimaryForCritico === false]`.
@@ -137,6 +148,7 @@ RESOLVIDO (critical event closed)
 - Audit event: each escalation + timeout trigger.
 
 #### 7. **`softDeleteCriticalValue(labId, criticoId)` (callable)**
+
 - Validates: critical value in state `RESOLVIDO` (only after fully resolved).
 - Sets `deletadoEm: Timestamp.now()`, `deletadoPor: request.auth.uid`.
 - **Preserves:** all SMS history + ACK logs in `atualizacaoCritico[]`.
@@ -151,7 +163,7 @@ RESOLVIDO (critical event closed)
 interface CriticalValue {
   id: string;
   labId: string;
-  
+
   // Result Link
   laudoId: string;
   resultado: {
@@ -160,30 +172,30 @@ interface CriticalValue {
     unidade: string;
     referenceRange: { min: number; max: number };
   };
-  
+
   // Thresholds
   thresholdCritico: number;
   breachType: 'low' | 'high';
-  
+
   // State Machine
   status: 'NORMAL' | 'CRITICO' | 'ALERTADO' | 'RESOLVIDO';
-  
+
   // Notification Details
   medicoIdPrimario: string;
   medicoIdBackup?: string;
   telefoneNotifico: string;
-  
+
   // SLA Timeline
   tsCriticoDetectado: Timestamp;
   dataSMSEnviado?: Timestamp;
   smsIdPrimario?: string; // Twilio message ID
-  
+
   // Acknowledgment
   tsACK?: Timestamp;
   medicoIdQuAccusou?: string;
   tempoResposta?: number; // seconds
   slaStatus?: 'on-time' | 'late' | 'no-ack';
-  
+
   // Escalation Tracking
   tentativasEscalacao: Array<{
     tentativa: number; // 1, 2, 3
@@ -192,27 +204,33 @@ interface CriticalValue {
     metodo: 'sms' | 'voz-call';
     resultadoSms?: { status: 'sent' | 'failed'; twilio_error?: string };
   }>;
-  
+
   // Manual Override (if any)
   overrideMotivo?: string;
   overrideTs?: Timestamp;
   overridePor?: string; // operatorId
-  
+
   // Audit Trail (append-only)
   atualizacaoCritico: Array<{
     ts: Timestamp;
-    acao: 'detectado' | 'sms-enviado' | 'ack-recebido' | 'escala-iniciada' | 'override' | 'resolvido';
+    acao:
+      | 'detectado'
+      | 'sms-enviado'
+      | 'ack-recebido'
+      | 'escala-iniciada'
+      | 'override'
+      | 'resolvido';
     operatorId: string;
     medicoId?: string;
     smsId?: string;
     tempoResposta?: number;
     chainHash: string;
   }>;
-  
+
   // Soft Delete
   deletadoEm?: Timestamp;
   deletadoPor?: string;
-  
+
   // Compliance
   criadoEm: Timestamp;
   criadoPor: string; // system trigger
@@ -236,11 +254,13 @@ interface FilaSMSCritico {
 ### Twilio Integration
 
 **Configuration:**
+
 - Account SID + Auth Token stored in Firebase Secret Manager (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`).
 - Phone number for SMS sender (`TWILIO_FROM_PHONE`) defined in `labSettings.{labId}.notificacoes.smsFromNumber`.
 - Webhook URL for SMS replies: `https://{region}-{project}.cloudfunctions.net/handleTwilioSMSReply?labId={labId}` (registered in Twilio console).
 
 **SMS Template:**
+
 ```
 Lab Alert: {ANALITO} = {VALOR} {UNIDADE} [CRITICAL - Normal: {RANGE}]
 Patient: {PATIENT_NAME} | Time: {TS_LOCAL}
@@ -250,6 +270,7 @@ Reply within 15 min or system escalates.
 ```
 
 **Webhook (incoming SMS):**
+
 - Twilio POSTs to `handleTwilioSMSReply` with: `From`, `Body`, `MessageSid`, `SmsMessageSid`.
 - Parse: `criticoId` from message link (encoded in SMS or stored in `fila-sms-critico.criticoId`).
 - Call `acknowledgePhysicianReceipt(labId, criticoId, medicoId)` via internal callable (not exposed to client).
@@ -269,16 +290,19 @@ Reply within 15 min or system escalates.
 ## Alternatives Considered
 
 ### A. Email-only notification (no SMS)
+
 **Pros:** no Twilio cost; simpler integration.  
 **Cons:** RDC 978 requires 5-minute SLA; email is not reliable (may sit in inbox 30+ min). Unacceptable for critical values.  
 **Rejected:** Does not meet regulatory timeline.
 
 ### B. SMS + no escalation (fire-and-forget)
+
 **Pros:** simpler state machine (3 states: CRITICO, ALERTADO, RESOLVIDO).  
 **Cons:** no enforcement of physician response; auditor sees alert sent but no proof read/understood.  
 **Rejected:** Violates RDC 978 intent (acknowledgment required).
 
 ### C. Custom escalation tree (hardcoded per lab, no dynamic config)
+
 **Pros:** simple implementation; no labSettings extension.  
 **Cons:** not multi-tenant friendly; each lab requires code change if physician roster changes.  
 **Rejected:** Violates multi-tenant principle (CLAUDE.md convention RN-01).

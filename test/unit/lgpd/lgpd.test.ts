@@ -31,7 +31,7 @@ describe('LGPD Module', () => {
     it('should accept all request types', () => {
       const tipos = ['acesso', 'retificacao', 'exclusao', 'portabilidade'];
 
-      tipos.forEach(tipo => {
+      tipos.forEach((tipo) => {
         expect(['acesso', 'retificacao', 'exclusao', 'portabilidade']).toContain(tipo);
       });
     });
@@ -70,11 +70,7 @@ describe('LGPD Module', () => {
     });
 
     it('should anonymize across all data collections', () => {
-      const colecoes = [
-        'labs/{labId}/runs',
-        'labs/{labId}/amostras',
-        'labs/{labId}/relatorios',
-      ];
+      const colecoes = ['labs/{labId}/runs', 'labs/{labId}/amostras', 'labs/{labId}/relatorios'];
 
       expect(colecoes.length).toBeGreaterThan(0);
     });
@@ -88,10 +84,7 @@ describe('LGPD Module', () => {
     });
 
     it('should verify deletion completeness', () => {
-      const dadosExcluidos = [
-        'labs/lab-001/runs/run-123',
-        'labs/lab-001/amostras/sample-456',
-      ];
+      const dadosExcluidos = ['labs/lab-001/runs/run-123', 'labs/lab-001/amostras/sample-456'];
 
       expect(dadosExcluidos.length).toBeGreaterThan(0);
     });
@@ -137,7 +130,7 @@ describe('LGPD Module', () => {
     it('should support status transitions', () => {
       const statusFlow = ['rascunho', 'em_revisao', 'aprovado'];
 
-      statusFlow.forEach(status => {
+      statusFlow.forEach((status) => {
         expect(['rascunho', 'em_revisao', 'aprovado', 'rejeitado']).toContain(status);
       });
     });
@@ -192,7 +185,7 @@ describe('LGPD Module', () => {
 
     it('should process all labs', () => {
       const labs = ['lab-001', 'lab-002', 'lab-003'];
-      labs.forEach(labId => {
+      labs.forEach((labId) => {
         expect(labId).toMatch(/^lab-/);
       });
     });
@@ -236,7 +229,7 @@ describe('LGPD Module', () => {
     it('should support multiple consent types', () => {
       const tiposConsentimento = ['privacidade', 'marketing', 'pesquisa'];
 
-      tiposConsentimento.forEach(tipo => {
+      tiposConsentimento.forEach((tipo) => {
         expect(['privacidade', 'marketing', 'pesquisa']).toContain(tipo);
       });
     });

@@ -1,4 +1,5 @@
 # Phase 5 Quick Reference
+
 ## Patient Portal — Implementation Cheat Sheet
 
 **Print this and bookmark it.** Updated 2026-05-07.
@@ -7,19 +8,20 @@
 
 ## URLs & Routes
 
-| Route | Purpose | Auth | Public? |
-|-------|---------|------|---------|
-| `/paciente` | Portal root (redirect to auth) | — | ✅ Yes |
-| `/paciente/auth?token=...` | Email link landing | JWT token in query | ✅ Yes |
-| `/paciente/laudos` | Patient laudo list | JWT token in Zustand | ✅ Yes (token-gated) |
-| `/paciente/laudo/{id}` | Laudo detail + download | JWT token in Zustand | ✅ Yes (token-gated) |
-| `/paciente/feedback` | NPS form (optional modal) | JWT token in Zustand | ✅ Yes (token-gated) |
+| Route                      | Purpose                        | Auth                 | Public?              |
+| -------------------------- | ------------------------------ | -------------------- | -------------------- |
+| `/paciente`                | Portal root (redirect to auth) | —                    | ✅ Yes               |
+| `/paciente/auth?token=...` | Email link landing             | JWT token in query   | ✅ Yes               |
+| `/paciente/laudos`         | Patient laudo list             | JWT token in Zustand | ✅ Yes (token-gated) |
+| `/paciente/laudo/{id}`     | Laudo detail + download        | JWT token in Zustand | ✅ Yes (token-gated) |
+| `/paciente/feedback`       | NPS form (optional modal)      | JWT token in Zustand | ✅ Yes (token-gated) |
 
 ---
 
 ## Cloud Function Callables (4 functions)
 
 ### 1. generatePatientAuthLink
+
 ```typescript
 // Input
 {
@@ -45,6 +47,7 @@ PATIENT_NOT_FOUND | RATE_LIMIT_EXCEEDED | EMAIL_SEND_FAILED
 ```
 
 ### 2. verifyPatientAuthToken
+
 ```typescript
 // Input
 {
@@ -64,6 +67,7 @@ INVALID_TOKEN | PATIENT_INACTIVE | EXPIRED
 ```
 
 ### 3. generatePatientLaudoPDF
+
 ```typescript
 // Input (client context)
 {
@@ -88,6 +92,7 @@ Logged to /labs/{labId}/patient-downloads
 ```
 
 ### 4. submitPatientFeedback
+
 ```typescript
 // Input
 {
@@ -118,6 +123,7 @@ Logged to /labs/{labId}/patient-feedback
 ## Firestore Collections (Phase 5 additions)
 
 ### /labs/{labId}/patients
+
 ```
 {
   name: string,
@@ -131,6 +137,7 @@ Logged to /labs/{labId}/patient-feedback
 ```
 
 ### /labs/{labId}/patient-auth-events (immutable, append-only)
+
 ```
 {
   patientId: string,
@@ -141,6 +148,7 @@ Logged to /labs/{labId}/patient-feedback
 ```
 
 ### /labs/{labId}/patient-downloads (immutable, append-only)
+
 ```
 {
   patientId: string,
@@ -153,6 +161,7 @@ Logged to /labs/{labId}/patient-feedback
 ```
 
 ### /labs/{labId}/patient-feedback (immutable, append-only)
+
 ```
 {
   patientId: string,
@@ -165,6 +174,7 @@ Logged to /labs/{labId}/patient-feedback
 ```
 
 ### /labs/{labId}/portal-configuracao (existing, extended)
+
 ```
 {
   patientPortalEnabled: boolean,
@@ -185,6 +195,7 @@ Logged to /labs/{labId}/patient-feedback
 ## Key Files to Create/Modify
 
 ### Functions
+
 ```
 functions/src/patient-portal/
 ├── generatePatientAuthLink.ts
@@ -200,6 +211,7 @@ functions/src/index.ts         # Register all 4 callables
 ```
 
 ### Web Components
+
 ```
 src/features/patient-portal/
 ├── components/
@@ -234,12 +246,14 @@ src/features/patient-portal/
 ```
 
 ### Tests
+
 ```
 src/__tests__/e2e/
 └── patient-portal.spec.ts     # 6 E2E specs
 ```
 
 ### Security Rules
+
 ```
 firestore.rules                # Add patient collection rules (append-only)
 ```
@@ -250,21 +264,21 @@ firestore.rules                # Add patient collection rules (append-only)
 
 ```typescript
 const usePatientAuthStore = create((set, get) => ({
-  token: null,                  // JWT token
-  patientId: null,              // UUID
-  labId: null,                  // Lab ID
-  expiresAt: null,              // Timestamp
-  
+  token: null, // JWT token
+  patientId: null, // UUID
+  labId: null, // Lab ID
+  expiresAt: null, // Timestamp
+
   setAuth: (token, patientId, labId, expiresAt) => {
     localStorage.setItem('patient_auth_token', token);
     set({ token, patientId, labId, expiresAt });
   },
-  
+
   clearAuth: () => {
     localStorage.removeItem('patient_auth_token');
     set({ token: null, patientId: null, labId: null, expiresAt: null });
   },
-  
+
   isTokenExpired: () => new Date() > (get().expiresAt || new Date(0)),
 }));
 ```
@@ -301,7 +315,7 @@ Perguntas sobre seu resultado? Entre em contato com nosso laboratório.
 {
   "laudoId": "laudo-abc123",
   "versionId": "version-xyz789",
-  "signatureHash": "abcdef0123456789",  // Last 32 chars of signature
+  "signatureHash": "abcdef0123456789", // Last 32 chars of signature
   "generatedAt": "2026-05-08T14:30:00Z"
 }
 ```
@@ -351,6 +365,7 @@ RESEND_API_KEY=<resend-api-key>
 ```
 
 Verify with:
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 ```
@@ -380,6 +395,7 @@ bash scripts/preflight-secrets-check.sh
 ## Deployment Sequence
 
 **Order matters:**
+
 1. `firebase deploy --only firestore:rules,firestore:indexes`
 2. `firebase deploy --only functions:generatePatientAuthLink`
 3. `firebase deploy --only functions:verifyPatientAuthToken`
@@ -412,29 +428,29 @@ curl -s "https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(def
 
 ## Common Errors & Fixes
 
-| Error | Cause | Fix |
-|-------|-------|-----|
-| `PATIENT_NOT_FOUND` | CPF not in system | Pre-seed patient data or CSV import |
-| `RATE_LIMIT_EXCEEDED` | 3+ links/day | Manual override via admin callable |
-| `INVALID_TOKEN` | Malformed JWT | User re-enters CPF, gets new link |
-| `EXPIRED` | Token > 72h old | User re-enters CPF, gets new link |
-| `PERMISSION_DENIED` | Token scoped wrong | Verify token contains correct patientId |
-| `PDF_GENERATION_FAILED` | Puppeteer timeout | Increase CF timeout to 120s, retry |
-| `EMAIL_SEND_FAILED` | Resend API down | Use admin callable as fallback |
+| Error                   | Cause              | Fix                                     |
+| ----------------------- | ------------------ | --------------------------------------- |
+| `PATIENT_NOT_FOUND`     | CPF not in system  | Pre-seed patient data or CSV import     |
+| `RATE_LIMIT_EXCEEDED`   | 3+ links/day       | Manual override via admin callable      |
+| `INVALID_TOKEN`         | Malformed JWT      | User re-enters CPF, gets new link       |
+| `EXPIRED`               | Token > 72h old    | User re-enters CPF, gets new link       |
+| `PERMISSION_DENIED`     | Token scoped wrong | Verify token contains correct patientId |
+| `PDF_GENERATION_FAILED` | Puppeteer timeout  | Increase CF timeout to 120s, retry      |
+| `EMAIL_SEND_FAILED`     | Resend API down    | Use admin callable as fallback          |
 
 ---
 
-## RN-* (Business Rules) Quick Refs
+## RN-\* (Business Rules) Quick Refs
 
-| Rule | What | Where |
-|------|------|-------|
-| RN-P01 | Patient-only access | Service guards (patientId check) |
-| RN-P02 | 72h token expiry | JWT issued in CF |
-| RN-P03 | Rate-limit 3/day | CF checks before issuing |
-| RN-P04 | Immutable audit trail | Append-only collections (no updates) |
-| RN-P05 | No PII in logs | Logs use ID only, anonymized IP |
-| RN-P06 | LGPD privacy notice | LGPDNotice component on auth page |
-| RN-P07 | Soft delete only | Patient.status = 'inactive' (no deleteDoc) |
+| Rule   | What                  | Where                                      |
+| ------ | --------------------- | ------------------------------------------ |
+| RN-P01 | Patient-only access   | Service guards (patientId check)           |
+| RN-P02 | 72h token expiry      | JWT issued in CF                           |
+| RN-P03 | Rate-limit 3/day      | CF checks before issuing                   |
+| RN-P04 | Immutable audit trail | Append-only collections (no updates)       |
+| RN-P05 | No PII in logs        | Logs use ID only, anonymized IP            |
+| RN-P06 | LGPD privacy notice   | LGPDNotice component on auth page          |
+| RN-P07 | Soft delete only      | Patient.status = 'inactive' (no deleteDoc) |
 
 ---
 

@@ -55,10 +55,12 @@ bash scripts/preflight-secrets-check.sh   # Must exit 0
 ### Step 2: Deploy via GitHub Actions (Recommended)
 
 **Option A: Auto (merge to main)**
+
 - Code merged → Actions tab auto-starts Phase 3 workflow
 - Wait ~20 min for completion
 
 **Option B: Manual dispatch**
+
 1. GitHub → `Actions` tab
 2. Find `Phase 3 Deploy` workflow
 3. Click `Run workflow` button
@@ -126,7 +128,7 @@ cd functions && npm run build && cd ..
 firebase deploy --only functions --project hmatologia2 --token $FIREBASE_TOKEN
 
 # Hosting
-git checkout HEAD~1 -- src/ 
+git checkout HEAD~1 -- src/
 npm run build
 firebase deploy --only hosting --project hmatologia2 --token $FIREBASE_TOKEN
 ```
@@ -139,15 +141,16 @@ firebase deploy --only hosting --project hmatologia2 --token $FIREBASE_TOKEN
 
 These block PR merge on GitHub:
 
-| Gate | Threshold | How to Fix |
-|------|-----------|-----------|
-| `pre-deploy-gate` | All 6 checks pass | Fix errors in console, commit, push |
-| `web (Node 22)` | ESLint + typecheck + tests | Same as above |
-| `functions` | Build succeeds | `cd functions && npm run build` |
-| Coverage ≥80% | Statements covered | Add tests for gaps |
-| Bundle <420 KB | Gzip size limit | Lazy-load large deps, split routes |
+| Gate              | Threshold                  | How to Fix                          |
+| ----------------- | -------------------------- | ----------------------------------- |
+| `pre-deploy-gate` | All 6 checks pass          | Fix errors in console, commit, push |
+| `web (Node 22)`   | ESLint + typecheck + tests | Same as above                       |
+| `functions`       | Build succeeds             | `cd functions && npm run build`     |
+| Coverage ≥80%     | Statements covered         | Add tests for gaps                  |
+| Bundle <420 KB    | Gzip size limit            | Lazy-load large deps, split routes  |
 
-**If stuck**: 
+**If stuck**:
+
 1. Check Actions tab → failed job
 2. Click job name → scroll to failed step
 3. Read error message
@@ -160,11 +163,13 @@ These block PR merge on GitHub:
 **Issue**: `HCQ_SIGNATURE_HMAC_KEY` or other secrets missing
 
 **Check status** (pre-deploy):
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 ```
 
 **Fix missing secret**:
+
 ```bash
 firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2
 # Paste value when prompted
@@ -172,6 +177,7 @@ firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2
 ```
 
 **Retry deploy** (workflow auto-detects next time):
+
 ```bash
 git commit -am "fix: provision missing secrets"
 git push
@@ -186,6 +192,7 @@ git push
 **Auto runs** after hosting deploy. Check artifact: `post-deploy-logs-<sha>`
 
 **Manual check**:
+
 ```bash
 # Last 50 errors in past 1h
 gcloud logging read \
@@ -199,6 +206,7 @@ gcloud logging read \
 **Symptom**: Old code still showing after deploy
 
 **Fix**:
+
 ```
 Browser: Ctrl+Shift+R (hard reload)
 Note: Changes require hard reload — SW is sticky by design
@@ -207,6 +215,7 @@ Note: Changes require hard reload — SW is sticky by design
 ### Function Invocation Latency (Spike?)
 
 **Check** (Firebase Console):
+
 1. https://console.firebase.google.com/project/hmatologia2/functions
 2. Click function name
 3. View "Invocations" + "Latency" tabs
@@ -303,28 +312,31 @@ firebase functions:secrets:set SECRET_NAME --project hmatologia2
 
 ## Support / Escalation
 
-| Issue | Who | Action |
-|-------|-----|--------|
-| PR won't merge (gates failing) | Code author | Check Actions tab, fix + commit |
-| Secrets missing | Ops / Infra | `firebase functions:secrets:set` |
-| Deploy succeeded but errors post-deploy | On-call engineer | Review Cloud Logs → decide rollback |
-| Workflow infrastructure issue (Actions down) | Platform team | Check GitHub status + rerun |
-| Lost ability to deploy | Infra lead | Check FIREBASE_TOKEN secret in GitHub |
+| Issue                                        | Who              | Action                                |
+| -------------------------------------------- | ---------------- | ------------------------------------- |
+| PR won't merge (gates failing)               | Code author      | Check Actions tab, fix + commit       |
+| Secrets missing                              | Ops / Infra      | `firebase functions:secrets:set`      |
+| Deploy succeeded but errors post-deploy      | On-call engineer | Review Cloud Logs → decide rollback   |
+| Workflow infrastructure issue (Actions down) | Platform team    | Check GitHub status + rerun           |
+| Lost ability to deploy                       | Infra lead       | Check FIREBASE_TOKEN secret in GitHub |
 
 ---
 
 ## Compliance Notes (RDC 978 / DICQ)
 
 **Deployment audit trail** required for:
+
 - RDC 978 Art. 5.3 (Audit Trail)
 - DICQ 4.4 (Documentation System)
 
 **Records kept**:
+
 - GitHub Actions logs (90 days)
 - Firebase Hosting (varies by plan)
 - Cloud Logs (30 days by default)
 
 **Export for audit**:
+
 ```bash
 # Download artifact from GitHub Actions
 # Or: gcloud logging read ... --format json > audit_export.json
@@ -363,4 +375,3 @@ firebase functions:secrets:set SECRET_NAME --project hmatologia2
 **Workflow**: `.github/workflows/phase-3-deploy.yml`  
 **Guide**: `docs/PHASE_3_DEPLOY_WORKFLOW.md`  
 **Protocol**: `docs/DEPLOY_PROTOCOL.md`
-

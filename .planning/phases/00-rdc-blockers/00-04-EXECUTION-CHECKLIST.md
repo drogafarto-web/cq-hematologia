@@ -31,7 +31,7 @@ status: execution-ready
    - Sections:
      - **Title**: "FMEA-Lite Risk Management Methodology"
      - **Status**: `ACCEPTED` (pending CTO sign-off during execution)
-     - **Context**: 
+     - **Context**:
        - DICQ 4.14.6 requires risk management (identification, analysis, evaluation, treatment)
        - RDC 978/2025 Art. 86 lists PGQ components; component 2 is risk management
        - ISO 15189:2022 §8.5 requires actions to address risks/opportunities
@@ -39,7 +39,7 @@ status: execution-ready
        - Options: FMEA-lite (familiar to labs, simple), ISO 31000 (mature, complex)
      - **Decision**: Adopt FMEA-Lite (Failure Mode & Effects Analysis) with NPR (Risk Priority Number) scoring for v1.4
        - Formula: `NPR = Probabilidade × Severidade × Detecção` (each 1–5)
-       - Levels: 
+       - Levels:
          - Baixo: NPR ≤ 24
          - Médio: NPR 25–60
          - Alto: NPR 61–99
@@ -107,22 +107,35 @@ status: execution-ready
 2. **Define types** (60 min):
    - File: `src/features/risks/types/Risk.ts`
    - Enums (from ADR-0016 + PLAN.md):
+
      ```typescript
      export type Probabilidade = 1 | 2 | 3 | 4 | 5; // P (1=rare, 5=frequent)
-     export type Severidade = 1 | 2 | 3 | 4 | 5;    // S (1=minor, 5=critical)
-     export type Deteccao = 1 | 2 | 3 | 4 | 5;      // D (1=certain, 5=unlikely)
+     export type Severidade = 1 | 2 | 3 | 4 | 5; // S (1=minor, 5=critical)
+     export type Deteccao = 1 | 2 | 3 | 4 | 5; // D (1=certain, 5=unlikely)
      export type Nivel = 'baixo' | 'medio' | 'alto' | 'critico';
      export type Status = 'aberto' | 'mitigando' | 'monitorado' | 'fechado';
-     export type Categoria = 'operacional' | 'qualidade' | 'seguranca' | 'legal' | 'financeira' | 'reputacao';
-     export type Processo = 'coleta' | 'analise' | 'relatorio' | 'manutencao' | 'recursos-humanos' | 'fornecedores';
-     
+     export type Categoria =
+       | 'operacional'
+       | 'qualidade'
+       | 'seguranca'
+       | 'legal'
+       | 'financeira'
+       | 'reputacao';
+     export type Processo =
+       | 'coleta'
+       | 'analise'
+       | 'relatorio'
+       | 'manutencao'
+       | 'recursos-humanos'
+       | 'fornecedores';
+
      export interface Tratamento {
        estrategia: 'mitigar' | 'aceitar' | 'evitar' | 'compartilhar';
        acoes: Acao[];
        responsavel: string; // uid
        dataInicio: Date;
      }
-     
+
      export interface Acao {
        descricao: string;
        prazo: Date;
@@ -130,7 +143,7 @@ status: execution-ready
        status: 'pendente' | 'em_progresso' | 'concluida' | 'cancelada';
        dataConclusao?: Date;
      }
-     
+
      export interface Revisao {
        data: Date;
        revisor: string; // uid
@@ -139,7 +152,7 @@ status: execution-ready
        nprNovo?: number; // if reclassificado
        observacoes?: string;
      }
-     
+
      export interface Risk {
        id: string;
        labId: string;
@@ -160,9 +173,12 @@ status: execution-ready
        criadoEm: Date;
        deletadoEm?: Date; // soft delete
      }
-     
-     export type RiskInput = Omit<Risk, 'id' | 'labId' | 'npr' | 'nivel' | 'criadoEm' | 'deletadoEm' | 'logicalSignature'>;
-     
+
+     export type RiskInput = Omit<
+       Risk,
+       'id' | 'labId' | 'npr' | 'nivel' | 'criadoEm' | 'deletadoEm' | 'logicalSignature'
+     >;
+
      export interface RiskFilters {
        processo?: Processo;
        categoria?: Categoria;
@@ -171,7 +187,7 @@ status: execution-ready
        nprMin?: number;
        nprMax?: number;
      }
-     
+
      export interface RiskAuditEvent {
        type: 'created' | 'updated' | 'revisao-registrada' | 'softdeleted' | 'status-changed';
        timestamp: Date;
@@ -184,26 +200,27 @@ status: execution-ready
 3. **Implement NPR + Nivel helpers** (45 min):
    - File: `src/features/risks/services/risksService.ts` (top section)
    - Functions:
+
      ```typescript
      export function computeNPR(p: Probabilidade, s: Severidade, d: Deteccao): number {
-       if (![p, s, d].every(x => x >= 1 && x <= 5)) {
+       if (![p, s, d].every((x) => x >= 1 && x <= 5)) {
          throw new Error('P, S, D must be in [1..5]');
        }
        return p * s * d;
      }
-     
+
      export interface NPRThresholds {
-       medio: number;  // default 25
-       alto: number;   // default 61
+       medio: number; // default 25
+       alto: number; // default 61
        critico: number; // default 100
      }
-     
+
      export const DEFAULT_NPR_THRESHOLDS: NPRThresholds = {
        medio: 25,
        alto: 61,
        critico: 100,
      };
-     
+
      export function deriveNivel(npr: number, thresholds = DEFAULT_NPR_THRESHOLDS): Nivel {
        if (npr < thresholds.medio) return 'baixo';
        if (npr < thresholds.alto) return 'medio';
@@ -211,6 +228,7 @@ status: execution-ready
        return 'critico';
      }
      ```
+
    - Note: do NOT trust client NPR; always recompute server-side in callables
 
 4. **Implement service read-side** (45 min):
@@ -525,7 +543,9 @@ status: execution-ready
          for (let s = 5; s >= 1; s--) {
            const row = new Map<Probabilidade, Risk[]>();
            for (let p = 1; p <= 5; p++) {
-             const cellRisks = risks.filter(r => r.severidade === s && r.probabilidade === p && !r.deletadoEm);
+             const cellRisks = risks.filter(
+               (r) => r.severidade === s && r.probabilidade === p && !r.deletadoEm,
+             );
              row.set(p, cellRisks);
            }
            matrix.set(s, row);
@@ -542,12 +562,13 @@ status: execution-ready
      ```typescript
      export function useTopRisks() {
        const { risks } = useRisks();
-       return useMemo(() =>
-         risks
-           .filter(r => r.status !== 'fechado' && !r.deletadoEm)
-           .sort((a, b) => b.npr - a.npr)
-           .slice(0, 5),
-         [risks]
+       return useMemo(
+         () =>
+           risks
+             .filter((r) => r.status !== 'fechado' && !r.deletadoEm)
+             .sort((a, b) => b.npr - a.npr)
+             .slice(0, 5),
+         [risks],
        );
      }
      ```
@@ -620,7 +641,7 @@ status: execution-ready
 4. **Implement `RiskMatrix` (heatmap)** (60 min):
    - SVG-based 5×5 grid
    - Rows = Severidade (top=5, bottom=1); Cols = Probabilidade (left=1, right=5)
-   - Cell color by max-NPR: 
+   - Cell color by max-NPR:
      - Baixo (≤24): emerald-500
      - Médio (25–60): amber-400
      - Alto (61–99): orange-500
@@ -677,7 +698,7 @@ status: execution-ready
      match /labs/{labId}/risks/{riskId} {
        allow read: if isActiveMemberOfLab(labId);
        allow create, update, delete: if false;
-       
+
        match /events/{eventId} {
          allow read: if isActiveMemberOfLab(labId);
          allow create, update, delete: if false;

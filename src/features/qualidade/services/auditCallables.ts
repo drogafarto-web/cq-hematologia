@@ -70,7 +70,7 @@ export interface CallValidateChainResult {
 export interface GenerateComplianceReportPayload {
   labId: LabId;
   dataInicio: number; // Unix timestamp (ms)
-  dataFim: number;    // Unix timestamp (ms)
+  dataFim: number; // Unix timestamp (ms)
 }
 
 export interface GetAuditTrailPayload {
@@ -114,10 +114,8 @@ let _callGenerateComplianceReport: HttpsCallable<
   GenerateComplianceReportPayload,
   CallGenerateComplianceReportResult
 > | null = null;
-let _callGetAuditTrail: HttpsCallable<GetAuditTrailPayload, CallGetAuditTrailResult> | null =
-  null;
-let _callValidateChain: HttpsCallable<ValidateChainPayload, CallValidateChainResult> | null =
-  null;
+let _callGetAuditTrail: HttpsCallable<GetAuditTrailPayload, CallGetAuditTrailResult> | null = null;
+let _callValidateChain: HttpsCallable<ValidateChainPayload, CallValidateChainResult> | null = null;
 let _callExportAuditTrail: HttpsCallable<
   ExportAuditTrailPayload,
   CallExportAuditTrailResult
@@ -128,10 +126,7 @@ function getCallGenerateComplianceReport(): HttpsCallable<
   CallGenerateComplianceReportResult
 > {
   if (!_callGenerateComplianceReport) {
-    _callGenerateComplianceReport = httpsCallable(
-      functions,
-      'qualidade_generateComplianceReport'
-    );
+    _callGenerateComplianceReport = httpsCallable(functions, 'qualidade_generateComplianceReport');
   }
   return _callGenerateComplianceReport;
 }
@@ -170,7 +165,7 @@ function getCallExportAuditTrail(): HttpsCallable<
  * Throws Error if labId is not active or date range is invalid.
  */
 export async function callGenerateComplianceReport(
-  payload: GenerateComplianceReportPayload
+  payload: GenerateComplianceReportPayload,
 ): Promise<CallGenerateComplianceReportResult> {
   try {
     const result = await getCallGenerateComplianceReport()(payload);
@@ -187,7 +182,7 @@ export async function callGenerateComplianceReport(
  * Throws Error if labId is not active, offset/limit invalid, or query fails.
  */
 export async function callGetAuditTrail(
-  payload: GetAuditTrailPayload
+  payload: GetAuditTrailPayload,
 ): Promise<CallGetAuditTrailResult> {
   try {
     const result = await getCallGetAuditTrail()(payload);
@@ -204,7 +199,7 @@ export async function callGetAuditTrail(
  * Throws Error if labId is not active or validation fails.
  */
 export async function callValidateChain(
-  payload: ValidateChainPayload
+  payload: ValidateChainPayload,
 ): Promise<CallValidateChainResult> {
   try {
     const result = await getCallValidateChain()(payload);
@@ -222,7 +217,7 @@ export async function callValidateChain(
  * Throws Error if labId is not active, format is invalid, or export fails.
  */
 export async function callExportAuditTrail(
-  payload: ExportAuditTrailPayload
+  payload: ExportAuditTrailPayload,
 ): Promise<CallExportAuditTrailResult> {
   try {
     const result = await getCallExportAuditTrail()(payload);

@@ -44,10 +44,7 @@ function cacheKey(labId: string, indicadorId: string): string {
  * - Returns null suggestion when labId is not available
  * - Provides refresh() to force re-fetch (bypasses cache)
  */
-export function useAISuggestions(
-  indicadorId: string,
-  labId: string
-): UseAISuggestionsResult {
+export function useAISuggestions(indicadorId: string, labId: string): UseAISuggestionsResult {
   const activeLabId = useActiveLabId();
   const resolvedLabId = labId || activeLabId;
 
@@ -102,7 +99,7 @@ export function useAISuggestions(
         }
       }
     },
-    [resolvedLabId, indicadorId]
+    [resolvedLabId, indicadorId],
   );
 
   // Auto-fetch on mount or when dependencies change

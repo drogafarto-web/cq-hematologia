@@ -1,7 +1,7 @@
 # NOTIVISA Integration Architecture — Visual Diagrams
 
 **Version:** 1.0  
-**Date:** 2026-05-07  
+**Date:** 2026-05-07
 
 This document contains detailed sequence diagrams, state machines, and data flow visualizations for the NOTIVISA integration.
 
@@ -401,11 +401,11 @@ T+0: submitNotivisa() called
 
 T+5min: Processor cycle 1
         notivisaQueueProcessor()
-        
+
         ├─ attemptNum = 0
         ├─ Ready? Yes (T+0 ≤ T+5)
         ├─ Call submitNotivisaToAnvisa()
-        │  
+        │
         │  Outcome A: SUCCESS ✓
         │  └─ Append { attempt: 1, ts: T+5, status: 'success', receiptCode }
         │  └─ status → 'submitted'
@@ -424,7 +424,7 @@ T+5min: Processor cycle 1
 
 T+6min: Processor cycle 2 (if Outcome B at T+5)
         notivisaQueueProcessor()
-        
+
         ├─ attemptNum = 1
         ├─ lastAttempt.ts = T+5
         ├─ nextRetry = T+5 + 1min = T+6

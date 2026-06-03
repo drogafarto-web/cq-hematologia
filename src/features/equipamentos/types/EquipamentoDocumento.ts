@@ -49,11 +49,7 @@ export interface EquipamentoDocumento {
 }
 
 /** MIME types aceitos para upload. */
-export const ALLOWED_MIME_TYPES = [
-  'application/pdf',
-  'image/jpeg',
-  'image/png',
-] as const;
+export const ALLOWED_MIME_TYPES = ['application/pdf', 'image/jpeg', 'image/png'] as const;
 
 /** Tamanho máximo de arquivo: 10 MB. */
 export const MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;

@@ -9,6 +9,7 @@
 ## Executive Summary
 
 This document defines **comprehensive test coverage** for scenarios where:
+
 1. **Legacy callable** creates a draft → **Wave 2 cron** processes it
 2. **Wave 2 callable** creates a draft → **Legacy cron** processes it (fallback)
 3. **Both callables used in same lab** → no data loss, no duplicate submissions, audit coherent
@@ -24,6 +25,7 @@ Goal: **Zero race conditions, zero silent failures during the 3-month transition
 #### Test 1.1: Legacy Draft in Wave 2 Query
 
 **Scenario:**
+
 ```
 1. Call notivisaDraftCreate (legacy) → draft ABC created with status='draft'
 2. Query: db.collection(...).where('status', 'in', ['pending', 'draft'])
@@ -34,6 +36,7 @@ Goal: **Zero race conditions, zero silent failures during the 3-month transition
 **Failure Mode:** Draft invisibly skipped; RT can't find it to approve
 
 **Implementation:**
+
 ```typescript
 it('T1.1: Legacy draft visible in Wave 2 query', async () => {
   const draftResult = await notivisaDraftCreate({
@@ -60,6 +63,7 @@ it('T1.1: Legacy draft visible in Wave 2 query', async () => {
 #### Test 1.2: Wave 2 Draft in Legacy Query
 
 **Scenario:**
+
 ```
 1. Call notivisaCreateDraft (Wave 2) → draft XYZ created with status='pending'
 2. Legacy cron queries: where('status', '==', 'draft')
@@ -70,6 +74,7 @@ it('T1.1: Legacy draft visible in Wave 2 query', async () => {
 **Failure Mode:** Legacy cron crashes or modifies Wave 2 draft
 
 **Implementation:**
+
 ```typescript
 it('T1.2: Wave 2 draft ignored by legacy status query', async () => {
   const draftResult = await notivisaCreateDraft({
@@ -97,6 +102,7 @@ it('T1.2: Wave 2 draft ignored by legacy status query', async () => {
 #### Test 2.1: Legacy Approve → Wave 2 Submit
 
 **Scenario:**
+
 ```
 1. Legacy notivisaDraftCreate creates draft with signature
 2. Legacy approveNotivisaDraft called with signature verification
@@ -108,6 +114,7 @@ it('T1.2: Wave 2 draft ignored by legacy status query', async () => {
 **Failure Mode:** Wave 2 rejects because signature missing/wrong format
 
 **Implementation:**
+
 ```typescript
 it('T2.1: Legacy-approved draft submits via Wave 2', async () => {
   // Step 1: Create with legacy
@@ -144,6 +151,7 @@ it('T2.1: Legacy-approved draft submits via Wave 2', async () => {
 #### Test 2.2: Wave 2 Approve → Legacy Submit
 
 **Scenario:**
+
 ```
 1. Wave 2 notivisaCreateDraft creates draft (status='pending', no signature)
 2. Wave 2 notivisaApproveDraft (status='pending' → 'approved', stores approvalMetadata)
@@ -155,6 +163,7 @@ it('T2.1: Legacy-approved draft submits via Wave 2', async () => {
 **Failure Mode:** Legacy submit fails due to status mismatch or missing signature
 
 **Implementation:**
+
 ```typescript
 it('T2.2: Wave 2-approved draft submits via legacy', async () => {
   // Step 1: Create with Wave 2
@@ -181,7 +190,7 @@ it('T2.2: Wave 2-approved draft submits via legacy', async () => {
 
   expect(submitResult.ok).toBe(true);
   expect(submitResult.status).toBe('pending'); // queue status
-  
+
   // Verify draft status in Firestore
   const draftSnap = await db
     .collection('notivisa-drafts')
@@ -200,6 +209,7 @@ it('T2.2: Wave 2-approved draft submits via legacy', async () => {
 #### Test 3.1: Queue Event from Legacy Draft
 
 **Scenario:**
+
 ```
 1. Legacy draft created → approved → submitted
 2. Queue event created by submitNotivisaDraft (legacy)
@@ -211,6 +221,7 @@ it('T2.2: Wave 2-approved draft submits via legacy', async () => {
 **Failure Mode:** Cron ignores event (wrong shape), crashes (missing field), or double-processes
 
 **Implementation:**
+
 ```typescript
 it('T3.1: Legacy queue event processed by Wave 2 cron', async () => {
   // Setup: legacy draft → approved → submitted
@@ -265,6 +276,7 @@ it('T3.1: Legacy queue event processed by Wave 2 cron', async () => {
 #### Test 3.2: Queue Event from Wave 2 Draft
 
 **Scenario:**
+
 ```
 1. Wave 2 draft created → approved → submitted
 2. Queue event created by notivisaSubmitDraft (Wave 2)
@@ -276,6 +288,7 @@ it('T3.1: Legacy queue event processed by Wave 2 cron', async () => {
 **Failure Mode:** Legacy cron crashes due to missing `mode` field
 
 **Implementation:**
+
 ```typescript
 it('T3.2: Wave 2 queue event has new fields (mode, nextRetry)', async () => {
   // Setup: Wave 2 draft → approved → submitted
@@ -306,7 +319,7 @@ it('T3.2: Wave 2 queue event has new fields (mode, nextRetry)', async () => {
     .doc(eventId)
     .get();
   const eventData = eventSnap.data();
-  
+
   // Wave 2 specific fields
   expect(eventData.mode).toBe('test');
   expect(eventData.nextRetry).toBeDefined(); // Timestamp
@@ -325,6 +338,7 @@ it('T3.2: Wave 2 queue event has new fields (mode, nextRetry)', async () => {
 #### Test 4.1: Audit Log Actions from Both Paths Visible
 
 **Scenario:**
+
 ```
 1. Legacy draft created → action='CREATED' logged
 2. Wave 2 draft created → action='DRAFT_CREATED' logged
@@ -336,6 +350,7 @@ it('T3.2: Wave 2 queue event has new fields (mode, nextRetry)', async () => {
 **Failure Mode:** Audit logs merged/lost, query returns incomplete results
 
 **Implementation:**
+
 ```typescript
 it('T4.1: Both legacy and Wave 2 audit actions visible', async () => {
   // Create legacy draft
@@ -371,6 +386,7 @@ it('T4.1: Both legacy and Wave 2 audit actions visible', async () => {
 #### Test 4.2: Approval Audit Trail (Both Signatures)
 
 **Scenario:**
+
 ```
 1. Legacy draft: approveNotivisaDraft stores rtApprovalSignature (hash, operatorId, ts)
 2. Wave 2 draft: notivisaApproveDraft stores approvedBy, approvedAt (no hash)
@@ -381,6 +397,7 @@ it('T4.1: Both legacy and Wave 2 audit actions visible', async () => {
 **Failure Mode:** Signature data lost, approval metadata incomplete
 
 **Implementation:**
+
 ```typescript
 it('T4.2: Legacy approval signature stored; Wave 2 stores metadata', async () => {
   // Legacy: create → approve with signature
@@ -444,6 +461,7 @@ it('T4.2: Legacy approval signature stored; Wave 2 stores metadata', async () =>
 #### Test 5.1: Legacy Rejection (Status='rejected')
 
 **Scenario:**
+
 ```
 1. Legacy draft created → rejected via rejectNotivisaDraft
 2. Query: where('status', '==', 'rejected')
@@ -454,6 +472,7 @@ it('T4.2: Legacy approval signature stored; Wave 2 stores metadata', async () =>
 **Failure Mode:** Rejection lost, motivo not stored
 
 **Implementation:**
+
 ```typescript
 it('T5.1: Legacy draft rejection stores motivo', async () => {
   const createResult = await notivisaDraftCreate({
@@ -491,6 +510,7 @@ it('T5.1: Legacy draft rejection stores motivo', async () => {
 #### Test 5.2: Wave 2 Rejection (Soft Delete)
 
 **Scenario:**
+
 ```
 1. Wave 2 draft created
 2. TBD: rejection mechanism (proposed: soft-delete via deletadoEm != null)
@@ -503,11 +523,12 @@ it('T5.1: Legacy draft rejection stores motivo', async () => {
 **Note:** Phase 4 doesn't have Wave 2 rejection callable yet; placeholder for future.
 
 **Implementation:**
+
 ```typescript
 it('T5.2: Wave 2 rejection via soft-delete (placeholder)', async () => {
   // TBD: implement rejectDraft in Wave 2 (Phase 5+)
   // For now, rejection is manual soft-delete via admin
-  
+
   const createResult = await notivisaCreateDraft({
     labId: testLabId,
     laudoId: 'T5.2-001',
@@ -546,6 +567,7 @@ it('T5.2: Wave 2 rejection via soft-delete (placeholder)', async () => {
 #### Test 6.1: Dual Submission Prevention (Idempotency)
 
 **Scenario:**
+
 ```
 1. Client calls notivisaCreateDraft (Wave 2) twice in quick succession
 2. Result: both calls return same draftId (idempotency wins)
@@ -556,6 +578,7 @@ it('T5.2: Wave 2 rejection via soft-delete (placeholder)', async () => {
 **Failure Mode:** Two separate drafts created; duplicate submissions to government
 
 **Implementation:**
+
 ```typescript
 it('T6.1: Wave 2 idempotency prevents duplicate drafts', async () => {
   const payload = {
@@ -590,6 +613,7 @@ it('T6.1: Wave 2 idempotency prevents duplicate drafts', async () => {
 #### Test 6.2: Mixed-Mode Idempotency (Legacy vs Wave 2)
 
 **Scenario:**
+
 ```
 1. Client calls notivisaDraftCreate (legacy) with laudoId='ABC' → draft D1 created, status='draft'
 2. Same client calls notivisaCreateDraft (Wave 2) with laudoId='ABC' → creates new draft D2, status='pending'
@@ -601,6 +625,7 @@ it('T6.1: Wave 2 idempotency prevents duplicate drafts', async () => {
 **Failure Mode:** Cron picks one and ignores other; race condition in queue
 
 **Implementation:**
+
 ```typescript
 it('T6.2: Mixed-mode callables create separate drafts (same laudoId allowed)', async () => {
   // Legacy call
@@ -643,6 +668,7 @@ it('T6.2: Mixed-mode callables create separate drafts (same laudoId allowed)', a
 #### Test 7.1: Legacy Rate Limit (10 req/min)
 
 **Scenario:**
+
 ```
 1. Call notivisaDraftCreate 11 times in <60 seconds
 2. First 10 succeed; 11th fails with resource-exhausted
@@ -652,6 +678,7 @@ it('T6.2: Mixed-mode callables create separate drafts (same laudoId allowed)', a
 **Failure Mode:** All 11 succeed (limit not working); no protection against abuse
 
 **Implementation:**
+
 ```typescript
 it('T7.1: Legacy rate limit enforced (10/min per lab)', async () => {
   const requests = Array.from({ length: 11 }, (_, i) => ({
@@ -680,6 +707,7 @@ it('T7.1: Legacy rate limit enforced (10/min per lab)', async () => {
 #### Test 7.2: Wave 2 No Rate Limit (Yet)
 
 **Scenario:**
+
 ```
 1. Call notivisaCreateDraft 11 times in <60 seconds
 2. All 11 succeed (no rate limiting yet; planned Phase 5)
@@ -689,6 +717,7 @@ it('T7.1: Legacy rate limit enforced (10/min per lab)', async () => {
 **Failure Mode:** Rate limit implemented early (scope creep)
 
 **Implementation:**
+
 ```typescript
 it('T7.2: Wave 2 has no rate limit (Phase 4)', async () => {
   const requests = Array.from({ length: 11 }, (_, i) => ({
@@ -720,10 +749,10 @@ it('T7.2: Wave 2 has no rate limit (Phase 4)', async () => {
 ```typescript
 /**
  * NOTIVISA Legacy Coexistence Integration Tests
- * 
+ *
  * Validates that legacy (Batch 1) and Wave 2 (Agent 10) callables
  * can coexist in the same lab without data loss or race conditions.
- * 
+ *
  * Test categories:
  * 1. Status enum compatibility
  * 2. Signature ceremony interop
@@ -760,13 +789,9 @@ describe('NOTIVISA Mixed-Mode Integration Tests', () => {
 
   afterEach(async () => {
     // Cleanup: delete test drafts
-    const snaps = await db
-      .collection('notivisa-drafts')
-      .doc(testLabId)
-      .collection('drafts')
-      .get();
+    const snaps = await db.collection('notivisa-drafts').doc(testLabId).collection('drafts').get();
     const batch = db.batch();
-    snaps.docs.forEach(d => batch.delete(d.ref));
+    snaps.docs.forEach((d) => batch.delete(d.ref));
     await batch.commit();
   });
 
@@ -786,29 +811,29 @@ describe('NOTIVISA Mixed-Mode Integration Tests', () => {
 
 ## Part C: Test Execution Matrix
 
-| Test | Phase 4 | Phase 5 | Phase 6 |
-|------|---------|---------|---------|
-| **Category 1: Status Enum** |
-| 1.1: Legacy visible in Wave 2 query | ✅ Required | ✅ Passes | ✅ N/A (legacy gone) |
-| 1.2: Wave 2 ignored by legacy query | ✅ Required | ✅ Passes | ✅ N/A |
-| **Category 2: Signature Interop** |
-| 2.1: Legacy approve + Wave 2 submit | ✅ Required | ✅ Passes | ✅ N/A |
-| 2.2: Wave 2 approve + legacy submit | ✅ Required | ✅ Passes | ✅ N/A |
-| **Category 3: Queue Processing** |
-| 3.1: Legacy queue → Wave 2 cron | ✅ Required | ✅ Passes | ✅ N/A |
-| 3.2: Wave 2 queue → Wave 2 cron | ✅ Required | ✅ Passes | ✅ Passes |
-| **Category 4: Audit Trail** |
-| 4.1: Both action names visible | ✅ Required | ✅ Passes | ✅ N/A |
-| 4.2: Approval signatures/metadata | ✅ Required | ✅ Passes | ✅ N/A |
-| **Category 5: Rejection** |
-| 5.1: Legacy rejection + motivo | ✅ Required | ✅ Passes | ✅ N/A |
-| 5.2: Wave 2 soft-delete (placeholder) | ⏳ Placeholder | ✅ Implement | ✅ Passes |
-| **Category 6: Race Conditions** |
-| 6.1: Idempotency (Wave 2) | ✅ Required | ✅ Passes | ✅ Passes |
-| 6.2: Mixed-mode (both create same laudoId) | ✅ Required | ✅ Passes | ✅ N/A |
-| **Category 7: Rate Limiting** |
-| 7.1: Legacy rate limit | ✅ Required | ✅ Passes | ✅ N/A |
-| 7.2: Wave 2 no limit (Phase 4) | ✅ Required | 📋 Plan Phase 5 | ✅ Implemented |
+| Test                                       | Phase 4        | Phase 5         | Phase 6              |
+| ------------------------------------------ | -------------- | --------------- | -------------------- |
+| **Category 1: Status Enum**                |
+| 1.1: Legacy visible in Wave 2 query        | ✅ Required    | ✅ Passes       | ✅ N/A (legacy gone) |
+| 1.2: Wave 2 ignored by legacy query        | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| **Category 2: Signature Interop**          |
+| 2.1: Legacy approve + Wave 2 submit        | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| 2.2: Wave 2 approve + legacy submit        | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| **Category 3: Queue Processing**           |
+| 3.1: Legacy queue → Wave 2 cron            | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| 3.2: Wave 2 queue → Wave 2 cron            | ✅ Required    | ✅ Passes       | ✅ Passes            |
+| **Category 4: Audit Trail**                |
+| 4.1: Both action names visible             | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| 4.2: Approval signatures/metadata          | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| **Category 5: Rejection**                  |
+| 5.1: Legacy rejection + motivo             | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| 5.2: Wave 2 soft-delete (placeholder)      | ⏳ Placeholder | ✅ Implement    | ✅ Passes            |
+| **Category 6: Race Conditions**            |
+| 6.1: Idempotency (Wave 2)                  | ✅ Required    | ✅ Passes       | ✅ Passes            |
+| 6.2: Mixed-mode (both create same laudoId) | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| **Category 7: Rate Limiting**              |
+| 7.1: Legacy rate limit                     | ✅ Required    | ✅ Passes       | ✅ N/A               |
+| 7.2: Wave 2 no limit (Phase 4)             | ✅ Required    | 📋 Plan Phase 5 | ✅ Implemented       |
 
 ---
 
@@ -848,7 +873,7 @@ describe('NOTIVISA Mixed-Mode Integration Tests', () => {
 
 ## Sign-Off
 
-| Role | Name | Date |
-|------|------|------|
-| Wave 3-6 QA Engineer | TBD | 2026-05-08 |
-| CTO Review | TBD | TBD |
+| Role                 | Name | Date       |
+| -------------------- | ---- | ---------- |
+| Wave 3-6 QA Engineer | TBD  | 2026-05-08 |
+| CTO Review           | TBD  | TBD        |

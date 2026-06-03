@@ -37,7 +37,8 @@ export const lgpd_scheduledAnnualReview = onSchedule(
 
     try {
       // Itera todos os labs via collectionGroup em sgq-documentos
-      const docsSnap = await db.collectionGroup('sgq-documentos')
+      const docsSnap = await db
+        .collectionGroup('sgq-documentos')
         .where('status', '==', 'vigente')
         .where('codigo', 'in', DOCUMENTOS_LGPD)
         .get();
@@ -95,9 +96,10 @@ export const lgpd_scheduledAnnualReview = onSchedule(
 
           // Cria notificação nova
           const notifRef = db.collection(`labs/${labId}/notifications`).doc();
-          const titulo = codigo === 'POL-LGPD-001'
-            ? 'Política de Privacidade (LGPD) vencida — revisão pendente'
-            : 'Template DPIA (LGPD) vencido — revisão pendente';
+          const titulo =
+            codigo === 'POL-LGPD-001'
+              ? 'Política de Privacidade (LGPD) vencida — revisão pendente'
+              : 'Template DPIA (LGPD) vencido — revisão pendente';
 
           const versao = data.versao as number | undefined;
 
@@ -122,11 +124,11 @@ export const lgpd_scheduledAnnualReview = onSchedule(
       }
 
       console.log(
-        `[lgpd_scheduledAnnualReview] Processados: ${totalProcessados}, Notificações criadas: ${totalNotificacoes}`
+        `[lgpd_scheduledAnnualReview] Processados: ${totalProcessados}, Notificações criadas: ${totalNotificacoes}`,
       );
     } catch (error) {
       console.error('[lgpd_scheduledAnnualReview] Erro:', error);
       throw error; // Firebase Scheduler retentará
     }
-  }
+  },
 );

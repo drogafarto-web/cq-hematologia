@@ -81,34 +81,37 @@ This plan does NOT touch `src/features/sgq/services/` for write paths — it use
 **Outcome:** two markdown files in `docs/policies/` containing the full pt-BR text, RT/DPO placeholders left as `[PREENCHER ANTES DE PUBLICAR]`, ready for compliance review.
 **Files:** docs/policies/POL-LGPD-001-v1.0.md, docs/policies/IT-LGPD-DPIA-001-v1.0.md.
 **Steps:**
+
 1. Author per template structure above.
 2. Cross-reference RDC 978 Art. 77 + Art. 115 + LGPD Arts. 7º, 8º, 11º, 18º verbatim where applicable.
 3. Section 5 of the policy must explicitly cite "Laboratórios de apoio (Arts. 36–39, ver Plano 00-03)".
 4. Section 4 of the DPIA must cite "FMEA-lite — ver ADR-0016 / Plano 00-04". `# OPEN —` per CONTEXT.md: ship DPIA v1.0 with this forward reference, plan a v1.1 patch after ADR-0016 publishes; OR block until ADR-0016 (CTO call).
-**Verification:** Markdown lint passes; pt-BR review by compliance lead (P0-R5 — CTO can self-approve if compliance lead unreachable, per Phase 0 risk register).
+   **Verification:** Markdown lint passes; pt-BR review by compliance lead (P0-R5 — CTO can self-approve if compliance lead unreachable, per Phase 0 risk register).
 
 ### T2. Convert markdown to PDF + upload to storage; capture URL
 
 **Outcome:** two PDFs accessible at signed URLs (or Drive URLs as MVP per SGQ-01 backlog), copy-paste-ready for `Documento.url` field.
 **Files:** N/A (operational — Pandoc or print-to-PDF).
 **Steps:**
+
 1. Render each markdown to PDF (`pandoc docs/policies/POL-LGPD-001-v1.0.md -o /tmp/POL-LGPD-001-v1.0.pdf` or browser print).
 2. Upload to `/labs/labclin-riopomba/sgq/documentos/POL-LGPD-001/v1.pdf` (Firebase Storage; the SGQ MVP accepts URLs but path convention per SGQ-01 is documented).
 3. Generate signed URL or set permissions per existing SGQ external-URL pattern.
-**Verification:** Both PDFs open in incognito browser via the URL; file size <2MB each.
+   **Verification:** Both PDFs open in incognito browser via the URL; file size <2MB each.
 
 ### T3. Create POL-LGPD-001 in SGQ via existing UI flow
 
 **Outcome:** `Documento` doc created at `/labs/labclin-riopomba/sgq-documentos/{auto-id}` with `tipo:'POL'`, `codigo:'POL-LGPD-001'`, `versao:1`, `status:'em_revisao'` initially, then transitioned to `vigente` after RT review. Audit chain captures `created` + `status-changed` events per RN-SGQ-06.
 **Files:** N/A (operational via SGQ UI).
 **Steps:**
+
 1. Login as RT (real session, not seed).
 2. Navigate to `SGQView` → "Novo Documento".
 3. Fill form: tipo=POL, codigo=`POL-LGPD-001`, titulo=`Política de Privacidade e Proteção de Dados (LGPD)`, versao=`1`, url=PDF URL from T2, autoridadeEmitente=`RT — [Nome do RT, CRBM-XXXX]`, dataEmissao=hoje, dataRevisao=hoje, proximaRevisao=hoje + 365 dias, status=`em_revisao`, observacoes=referência a RDC 978 Art. 77.
 4. Save. Verify audit event `created` appears in Firestore at `/labs/labclin-riopomba/sgq-documentos-audit/`.
 5. Open the doc in edit mode, transition status to `vigente` with motivo `Aprovada por RT em [data] após revisão de compliance`.
 6. Verify second audit event `status-changed` with `fromStatus:'em_revisao'`, `toStatus:'vigente'`.
-**Verification:** Two audit events present; doc visible in `DocumentosListView` with green badge; `verifyChain` over `sgq-documentos-audit` for this doc returns OK.
+   **Verification:** Two audit events present; doc visible in `DocumentosListView` with green badge; `verifyChain` over `sgq-documentos-audit` for this doc returns OK.
 
 ### T4. Create IT-LGPD-DPIA-001 in SGQ via existing UI flow
 
@@ -122,37 +125,40 @@ This plan does NOT touch `src/features/sgq/services/` for write paths — it use
 **Outcome:** badge strip rendered below KPIs in `SGQView`; both mandatory docs show emerald check; click navigates to row.
 **Files:** src/features/sgq/components/DocumentosObrigatoriosBadge.tsx, src/features/sgq/components/SGQView.tsx.
 **Steps:**
+
 1. Manifest as a constant: `DOCUMENTOS_OBRIGATORIOS = [{codigo:'POL-LGPD-001', label:'Política de Privacidade (LGPD)'}, {codigo:'IT-LGPD-DPIA-001', label:'Template DPIA (LGPD)'}]`.
 2. Hook into existing `useSGQDocumentos` (or equivalent — verify name in `src/features/sgq/hooks/`); for each codigo, find latest `vigente` doc.
 3. Render dark-first chip row: emerald check / amber warn / red X SVG `currentColor` + label + `tabular-nums` version. Hover transition 150ms.
 4. Click → opens `DocumentoFormModal` in view mode prefilled with the doc (reuse existing modal).
 5. Strip placement: directly below KPI strip in `SGQView`, above filters. Adds ≤8 lines of JSX in `SGQView`.
-**Verification:** `npm run dev` shows the strip; both docs show green badge; `npx tsc --noEmit` clean; `npm test` 738/738 green (no SGQ test regression).
+   **Verification:** `npm run dev` shows the strip; both docs show green badge; `npx tsc --noEmit` clean; `npm test` 738/738 green (no SGQ test regression).
 
 ### T6. Implement `lgpd_scheduledAnnualReview` Cloud Scheduler
 
 **Outcome:** daily 07:00 BRT cron queries the two mandatory docs; if `proximaRevisao <= today`, writes a notification to `/labs/{labId}/notifications/`. Idempotent (skips dates already notified for the same `(codigo, proximaRevisao)`).
 **Files:** functions/src/modules/lgpd/scheduledAnnualReview.ts, functions/src/index.ts.
 **Steps:**
+
 1. `onSchedule('0 7 * * *', 'America/Sao_Paulo', ...)` (Cloud Scheduler v2 syntax in firebase-functions/v2).
 2. For each lab in `/labs/{labId}` (initially only Riopomba — extends naturally for v1.5 multi-tenant):
    - Query `sgq-documentos` `where codigo in ['POL-LGPD-001','IT-LGPD-DPIA-001'] and status == 'vigente' and proximaRevisao <= now`.
    - For each match, write a notification doc with `type:'lgpd-revisao-vencida'`, `codigo`, `severity:'high'`, `proximaRevisao`, `idempotencyKey: '${codigo}-${proximaRevisao}'`.
    - Skip if a notification with the same idempotencyKey already exists for this lab.
 3. Reuse existing `/labs/{labId}/notifications/` collection rules (no rules change).
-**Verification:** Emulator: set `proximaRevisao = yesterday` on test doc; trigger cron manually; assert notification doc created. Re-trigger; assert no duplicate.
+   **Verification:** Emulator: set `proximaRevisao = yesterday` on test doc; trigger cron manually; assert notification doc created. Re-trigger; assert no duplicate.
 
 ### T7. Deploy hosting + new function
 
 **Outcome:** `DocumentosObrigatoriosBadge` live in prod; cron scheduled.
 **Files:** N/A (deploy commands).
 **Steps:**
+
 1. `npx tsc --noEmit` (web) + `cd functions && npx tsc --noEmit` clean.
 2. `npm run build` clean.
 3. `firebase deploy --only functions:lgpd_scheduledAnnualReview --project hmatologia2`.
 4. `firebase deploy --only hosting --project hmatologia2`.
 5. Hard reload prod; verify badge appears in `SGQView` with both docs green.
-**Verification:** Smoke pass; Cloud Logs spot-check shows cron schedule registered.
+   **Verification:** Smoke pass; Cloud Logs spot-check shows cron schedule registered.
 
 ### T8. Update root CLAUDE.md SGQ row
 

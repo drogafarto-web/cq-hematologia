@@ -31,7 +31,8 @@ export function ReAuditoriaCard({
 
   // Determine if re-audit button should be visible
   const isFinalized = auditoria.status === 'finalizada';
-  const tipoExecucao = (auditoria as Auditoria & { tipoExecucao?: 'inicial' | 'reAuditoria' }).tipoExecucao;
+  const tipoExecucao = (auditoria as Auditoria & { tipoExecucao?: 'inicial' | 'reAuditoria' })
+    .tipoExecucao;
   const isNotReAudit = !tipoExecucao || tipoExecucao !== 'reAuditoria';
   const shouldShowButton = isFinalized && isNotReAudit && hasClosedNCs;
 
@@ -90,9 +91,7 @@ export function ReAuditoriaCard({
         </div>
 
         {/* Status badge */}
-        <div
-          className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${statusColor.bgColor}`}
-        >
+        <div className={`flex items-center gap-2 px-3 py-1.5 rounded-lg ${statusColor.bgColor}`}>
           <div className={`w-2 h-2 rounded-full ${statusColor.dotColor}`} />
           <span className={`text-sm font-medium ${statusColor.textColor}`}>
             {statusColor.label}
@@ -104,9 +103,7 @@ export function ReAuditoriaCard({
       <div className="space-y-3 mb-6 text-sm text-white/70">
         <div className="flex justify-between">
           <span>Frequência:</span>
-          <span className="text-white/90 capitalize">
-            {auditoria.frequencia}
-          </span>
+          <span className="text-white/90 capitalize">{auditoria.frequencia}</span>
         </div>
         <div className="flex justify-between">
           <span>Responsável Técnico:</span>

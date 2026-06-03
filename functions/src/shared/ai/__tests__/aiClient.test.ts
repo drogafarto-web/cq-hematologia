@@ -70,7 +70,6 @@ describe('AIClient', () => {
     }));
 
     client = createAIClient({ apiKey: 'test-key', model: 'gemini-2.5-flash' });
-    await expect(client.generateText({ prompt: 'Hello' }))
-      .rejects.toThrow('Empty response');
+    await expect(client.generateText({ prompt: 'Hello' })).rejects.toThrow('Empty response');
   });
 });

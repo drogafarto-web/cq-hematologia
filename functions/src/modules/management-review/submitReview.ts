@@ -63,7 +63,7 @@ export const submitReview = onCall<SubmitReviewRequest>(
         diretor,
         gerenteQualidade,
         outrasCargos = [],
-        ataIds = []
+        ataIds = [],
       } = request.data;
 
       const uid = request.auth?.uid;
@@ -107,12 +107,9 @@ export const submitReview = onCall<SubmitReviewRequest>(
       }
 
       // Validate minimum participants
-      const allParticipants = [
-        diretor,
-        gerenteQualidade,
-        ...participantes,
-        ...outrasCargos
-      ].filter((p) => p && p.trim());
+      const allParticipants = [diretor, gerenteQualidade, ...participantes, ...outrasCargos].filter(
+        (p) => p && p.trim(),
+      );
 
       if (allParticipants.length < 3) {
         throw new Error('Minimum 3 participants required (Director + QM + 1 other)');
@@ -139,15 +136,11 @@ export const submitReview = onCall<SubmitReviewRequest>(
       const signature: LogicalSignature = {
         hash: reviewHash,
         operatorId: uid,
-        ts: now
+        ts: now,
       };
 
       // Create ManagementReview document
-      const reviewRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('management-reviews')
-        .doc();
+      const reviewRef = db.collection('labs').doc(labId).collection('management-reviews').doc();
 
       const review: ManagementReview = {
         id: reviewRef.id,
@@ -164,7 +157,7 @@ export const submitReview = onCall<SubmitReviewRequest>(
         ataIds,
         createdAt: now,
         updatedAt: now,
-        deletedAt: null
+        deletedAt: null,
       };
 
       // Write review to Firestore
@@ -183,7 +176,7 @@ export const submitReview = onCall<SubmitReviewRequest>(
 
           batch.update(ataRef, {
             managementReviewId: reviewRef.id,
-            updatedAt: now
+            updatedAt: now,
           });
         }
 
@@ -192,45 +185,37 @@ export const submitReview = onCall<SubmitReviewRequest>(
 
       console.log(
         `[submitReview] Created review ${reviewRef.id} for lab ${labId} year ${year}`,
-        `signed by ${uid}`
+        `signed by ${uid}`,
       );
 
       return {
         success: true,
         reviewId: reviewRef.id,
-        signature
+        signature,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error('[submitReview] Error:', message);
       return {
         success: false,
-        error: message
+        error: message,
       };
     }
-  }
+  },
 );
 
 /**
  * Generate chain hash for management review
  * Format: HMAC-SHA256(labId + year + operatorId + timestamp)
  */
-function generateChainHash(
-  labId: string,
-  year: number,
-  operatorId: string,
-  ts: Timestamp
-): string {
+function generateChainHash(labId: string, year: number, operatorId: string, ts: Timestamp): string {
   const data = `${labId}|${year}|${operatorId}|${ts.toDate().toISOString()}`;
   const secret = HCQ_SIGNATURE_HMAC_KEY.value();
   if (!secret) {
     throw new Error('HCQ_SIGNATURE_HMAC_KEY not configured — cannot generate chain hash');
   }
 
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(data)
-    .digest('hex');
+  const hash = crypto.createHmac('sha256', secret).update(data).digest('hex');
 
   return hash;
 }

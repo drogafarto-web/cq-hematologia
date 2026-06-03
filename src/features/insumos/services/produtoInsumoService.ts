@@ -48,7 +48,10 @@ function produtoRef(labId: string, produtoId: string) {
 
 // ─── Input shapes ────────────────────────────────────────────────────────────
 
-export type CreateProdutoPayload = Omit<ProdutoInsumo, 'id' | 'labId' | 'createdAt' | 'createdBy'> & {
+export type CreateProdutoPayload = Omit<
+  ProdutoInsumo,
+  'id' | 'labId' | 'createdAt' | 'createdBy'
+> & {
   createdBy: string;
 };
 
@@ -181,8 +184,7 @@ export async function updateProduto(
 ): Promise<void> {
   try {
     const { updatedBy, ...fields } = patch;
-    const isMudandoTipoOuFabricante =
-      fields.tipo !== undefined || fields.fabricante !== undefined;
+    const isMudandoTipoOuFabricante = fields.tipo !== undefined || fields.fabricante !== undefined;
     if (isMudandoTipoOuFabricante) {
       const count = await countInsumosByProduto(labId, produtoId);
       if (count > 0) {
@@ -223,10 +225,7 @@ export async function deleteProduto(labId: string, produtoId: string): Promise<v
  * UI antes de oferecer delete. Zero = liberado; >0 = bloqueado com instrução
  * de descartar/descadastrar os lotes antes.
  */
-export async function countInsumosByProduto(
-  labId: string,
-  produtoId: string,
-): Promise<number> {
+export async function countInsumosByProduto(labId: string, produtoId: string): Promise<number> {
   try {
     const insumosCol = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.INSUMOS);
     const q = query(insumosCol, where('produtoId', '==', produtoId));
@@ -239,7 +238,10 @@ export async function countInsumosByProduto(
 
 // ─── Queries ─────────────────────────────────────────────────────────────────
 
-export async function getProdutoOnce(labId: string, produtoId: string): Promise<ProdutoInsumo | null> {
+export async function getProdutoOnce(
+  labId: string,
+  produtoId: string,
+): Promise<ProdutoInsumo | null> {
   try {
     const snap = await getDoc(produtoRef(labId, produtoId));
     if (!snap.exists()) return null;

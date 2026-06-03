@@ -180,6 +180,7 @@ echo "✓ Hosting rollback complete. Monitor auth success rate."
 ```
 
 **Validation:**
+
 - [ ] Auth success rate stable within 2 min
 - [ ] Portal laudo loads <2s
 - [ ] No new errors in Cloud Logs
@@ -217,6 +218,7 @@ echo "✓ Firestore rules rollback complete. Immediate effect."
 ```
 
 **Validation:**
+
 - [ ] Client permission errors resolve within 1 min
 - [ ] User can read/write again
 - [ ] No rule violation logs in Cloud Logs
@@ -286,6 +288,7 @@ echo "✓ Function disabled. Fix issue and re-deploy."
 ```
 
 **Validation:**
+
 - [ ] Function invocation returns error (expected during rollback)
 - [ ] Processor function (if that wasn't rolled back) still works
 - [ ] Cloud Logs show controlled error (not crash)
@@ -361,6 +364,7 @@ echo "✓ Full rollback to Phase 3 complete. System stable."
 ```
 
 **Post-Full-Rollback Actions:**
+
 1. Notify team: "Full rollback to Phase 3 baseline. Phase 4 on hold."
 2. Create incident ticket: "Phase 4 rollback incident"
 3. Root cause analysis: Schedule 24h post-mortem
@@ -374,16 +378,17 @@ echo "✓ Full rollback to Phase 3 complete. System stable."
 
 **Metrics to watch:**
 
-| Metric | Target | Monitor |
-|--------|--------|---------|
-| Auth success rate | >99% | Dashboard 1 |
-| Portal load time | <2s LCP | Browser dev tools |
-| Error rate | <0.1% | Cloud Logs |
-| Firestore latency | <500ms p95 | Dashboard 3 |
+| Metric            | Target     | Monitor           |
+| ----------------- | ---------- | ----------------- |
+| Auth success rate | >99%       | Dashboard 1       |
+| Portal load time  | <2s LCP    | Browser dev tools |
+| Error rate        | <0.1%      | Cloud Logs        |
+| Firestore latency | <500ms p95 | Dashboard 3       |
 
 **Expected outcome:** Within 1 min, all metrics return to Phase 3 baseline.
 
 **If metrics still degraded after rollback:**
+
 - Investigate pre-existing issues (may have been masked during Phase 3)
 - Escalate to CTO
 - May require additional infrastructure rollback (e.g., database snapshot restore)
@@ -442,7 +447,7 @@ Signed by: [Name, Role]
 - [ ] Staging environment tested end-to-end (full smoke test)
 - [ ] Code review by CTO + tech lead
 - [ ] All pre-deployment validation items passing
-- [ ] >24 hours elapsed since rollback (cool-down period)
+- [ ] > 24 hours elapsed since rollback (cool-down period)
 
 ---
 

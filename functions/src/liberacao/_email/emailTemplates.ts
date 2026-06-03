@@ -33,9 +33,10 @@ export function subjectTemplate(input: EmailTemplateInput): string {
 
 export function bodyTemplate(input: EmailTemplateInput): string {
   const header = getHeaderByType(input.tipo);
-  const criticosHtml = input.criticos
-    ?.map(
-      (c) => `
+  const criticosHtml =
+    input.criticos
+      ?.map(
+        (c) => `
     <tr>
       <td style="padding: 8px; border-bottom: 1px solid #eee; font-family: monospace;">
         <strong>${c.analito}</strong>
@@ -49,10 +50,9 @@ export function bodyTemplate(input: EmailTemplateInput): string {
         </span>
       </td>
     </tr>
-  `
-    )
-    .join('')
-    || '';
+  `,
+      )
+      .join('') || '';
 
   return `
 <!DOCTYPE html>
@@ -82,7 +82,9 @@ export function bodyTemplate(input: EmailTemplateInput): string {
 
       <p>Um novo laudo foi gerado para o paciente <strong>${input.paciente_nome}</strong>.</p>
 
-      ${input.criticos && input.criticos.length > 0 ? `
+      ${
+        input.criticos && input.criticos.length > 0
+          ? `
       <h3 style="color: ${header.titleColor};">Resultados Críticos Detectados</h3>
       <table class="table">
         <thead>
@@ -96,7 +98,9 @@ export function bodyTemplate(input: EmailTemplateInput): string {
           ${criticosHtml}
         </tbody>
       </table>
-      ` : ''}
+      `
+          : ''
+      }
 
       <p style="text-align: center;">
         <a href="${input.laudoUrl}" class="cta-button">Ver Laudo Completo</a>
@@ -117,9 +121,7 @@ export function bodyTemplate(input: EmailTemplateInput): string {
   `;
 }
 
-function getHeaderByType(
-  tipo: string,
-): { bgColor: string; titleColor: string; title: string } {
+function getHeaderByType(tipo: string): { bgColor: string; titleColor: string; title: string } {
   switch (tipo) {
     case 'critico-alta':
       return {

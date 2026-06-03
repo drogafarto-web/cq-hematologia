@@ -188,15 +188,11 @@ describe('IA Strip OCR Validation', () => {
       modelVersion: 'gemini-2.5-flash',
     };
 
-    const validated = validateStripResult(
-      parsed,
-      ['TSH', 'T4', 'IgE'],
-      {
-        TSH: ['mIU/mL'],
-        T4: ['ng/dL'],
-        IgE: ['IU/mL'],
-      }
-    );
+    const validated = validateStripResult(parsed, ['TSH', 'T4', 'IgE'], {
+      TSH: ['mIU/mL'],
+      T4: ['ng/dL'],
+      IgE: ['IU/mL'],
+    });
 
     expect(validated[0].flags).toHaveLength(0); // TSH clean
     expect(validated[1].flags).toContain('low-confidence'); // T4 low-conf

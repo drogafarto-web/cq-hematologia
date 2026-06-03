@@ -7,9 +7,7 @@ export function buildAttemptSignaturePayload(
   dataRealizacao: string,
 ): string {
   const canonicalResults = JSON.stringify(
-    Object.fromEntries(
-      Object.entries(resultados).sort(([a], [b]) => a.localeCompare(b)),
-    ),
+    Object.fromEntries(Object.entries(resultados).sort(([a], [b]) => a.localeCompare(b))),
   );
   return `${operatorDoc}|${controlOperacionalId}|${canonicalResults}|${dataRealizacao}`;
 }

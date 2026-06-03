@@ -19,8 +19,8 @@
 - [ ] HMAC validation: 64-char hex requirement present in all create/update rules
 - [ ] File syntax valid: `firebase deploy --only firestore:rules --dry-run --project hmatologia2`
 
-**Status:** _____ (Pass/Fail)  
-**Verified By:** __________ **Date:** __________
+**Status:** **\_** (Pass/Fail)  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -37,9 +37,9 @@
 - [ ] No test regressions in existing suite (347+ tests still passing)
 - [ ] Coverage >80% for new rules paths
 
-**Status:** _____ (Pass/Fail)  
+**Status:** **\_** (Pass/Fail)  
 **Test Results:** 16/16 ✓  
-**Verified By:** __________ **Date:** __________
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -51,9 +51,9 @@
 - [ ] Cross-check: Query on 3 random labs confirms `supervisor-status/current` exists
 - [ ] Lab list count matches expectation (e.g., 15+ labs bootstrapped)
 
-**Status:** _____ (Pass/Fail)  
-**Labs Bootstrapped:** ________ (count)  
-**Verified By:** __________ **Date:** __________
+**Status:** **\_** (Pass/Fail)  
+**Labs Bootstrapped:** **\_\_\_\_** (count)  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -64,15 +64,16 @@
 - [ ] Post-deploy verification: Rules visible in staging Firebase Console
 - [ ] Rules version matches expected date (2026-05-08 or later)
 
-**Status:** _____ (Pass/Fail)  
-**Staging Deployment Time:** __________  
-**Verified By:** __________ **Date:** __________
+**Status:** **\_** (Pass/Fail)  
+**Staging Deployment Time:** ****\_\_****  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
 ### ✅ Staging Smoke Tests (24h monitoring)
 
 #### CIQ Run Creation (5 samples)
+
 - [ ] Test 1: Hematologia CIQ run create with supervisor → **PASS**
 - [ ] Test 2: Imunologia CIQ run create with supervisor → **PASS**
 - [ ] Test 3: Uroanalise CIQ run create with supervisor → **PASS**
@@ -80,23 +81,26 @@
 - [ ] Test 5: CIQ run create by non-RT → **BLOCKED** (expected)
 
 #### NOTIVISA Submission (3 samples)
+
 - [ ] Test 1: NOTIVISA draft create by RT → **PASS**
 - [ ] Test 2: NOTIVISA submit (callable) → **PASS**
 - [ ] Test 3: NOTIVISA queue status update → **PASS**
 
 #### Export (1 sample)
+
 - [ ] Test 1: Generate & export CQI report → **PASS**
 
 #### Audit Trail
+
 - [ ] No rules-related errors in Cloud Logs (grep for "permission-denied" from firestore.rules)
 - [ ] NC reads/writes by RT + supervisors: no blocks
 - [ ] POP creation by admin, signature by RT: no blocks
 - [ ] 24h monitoring window: no degradation
 
-**Status:** _____ (All Pass / Failures)  
+**Status:** **\_** (All Pass / Failures)  
 **Smoke Test Window:** 2026-05-08 to 2026-05-09 (24h)  
-**Failures (if any):** ____________________  
-**Verified By:** __________ **Date:** __________
+**Failures (if any):** ********\_\_\_\_********  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -106,9 +110,9 @@
 - [ ] Output shows: "✔ firestore:rules: Rules uploaded successfully (no changes deployed)"
 - [ ] No validation errors or warnings
 
-**Status:** _____ (Pass/Fail)  
+**Status:** **\_** (Pass/Fail)  
 **Dry-run Output:** [Paste output or attach screenshot]  
-**Verified By:** __________ **Date:** __________
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -119,10 +123,10 @@
 - [ ] TypeScript clean: `npm run tsc --noEmit` (0 errors)
 - [ ] Bundle size check: no significant increase from rule changes (rules are deployed separately)
 
-**Test Results:** _____ / 347 pass  
+**Test Results:** **\_** / 347 pass  
 **Build Status:** ✓ Clean  
 **TypeScript Errors:** 0  
-**Verified By:** __________ **Date:** __________
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -133,10 +137,10 @@
 - [ ] No syntax errors from sed/merge: no dangling braces or mismatched quotes
 - [ ] Git diff shows only intentional additions (ADR-0003, ADR-0004 blocks)
 
-**Status:** _____ (Pass/Fail)  
-**File Line Count:** ________ (expected ~2150+)  
+**Status:** **\_** (Pass/Fail)  
+**File Line Count:** **\_\_\_\_** (expected ~2150+)  
 **Git Diff Review:** ✓ Approved  
-**Verified By:** __________ **Date:** __________
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
@@ -148,16 +152,16 @@
 - [ ] Operations review: Smoke tests passed, no ongoing incidents ✓ / ✗
 
 **Architecture Sign-Off:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 **Security Sign-Off:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 **Compliance Sign-Off:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 **Operations Sign-Off:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 ---
 
@@ -166,63 +170,71 @@ Name: __________ Title: __________ Date: __________
 **Overall Status:** ⬜ PROCEED / ⬜ HOLD / ⬜ ROLLBACK
 
 **Reason (if HOLD or ROLLBACK):**
+
 ```
 _________________________________________________________________
 _________________________________________________________________
 ```
 
 **Gate Authorized By:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 ---
 
 ## Post-Deployment Verification (within 24h of prod deploy)
 
 ### Rules Deployed to Production
+
 - [ ] Rules deployed to hmatologia2: `firebase deploy --only firestore:rules --project hmatologia2`
 - [ ] Deployment timestamp verified in Firebase Console
 - [ ] No errors reported during deploy
 
-**Deployment Time:** __________  
+**Deployment Time:** ****\_\_****  
 **Deployment Status:** ✓ Success  
-**Verified By:** __________ **Date:** __________
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
 ### Production Smoke Tests (24h monitoring)
 
 #### CIQ Run Creation
+
 - [ ] 5 CIQ run creates with supervisor: all **PASS**
 - [ ] 1 CIQ run create without supervisor: **BLOCKED** (expected)
 - [ ] Cloud Logs show 0 unexpected permission-denied errors
 
 #### NOTIVISA Submission
+
 - [ ] 3 NOTIVISA submissions: all **PASS**
 - [ ] No queue backlog
 
 #### Export
+
 - [ ] 1 export cycle: **PASS**
 
 #### Audit
+
 - [ ] Cloud Logs: no firestore.rules errors
 - [ ] Error rate pre/post deploy: no degradation
 - [ ] Latency p95 pre/post deploy: no degradation >5%
 
-**Status:** _____ (All Green / Issues Found)  
-**Issues (if any):** ____________________  
-**Verified By:** __________ **Date:** __________
+**Status:** **\_** (All Green / Issues Found)  
+**Issues (if any):** ********\_\_\_\_********  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
 ## Rollback Plan (if needed)
 
 **Rollback Trigger:**
+
 - [ ] Smoke tests failing (>1% error rate)
 - [ ] Permission-denied errors in critical flows
 - [ ] Unexpected rules blocking legitimate operations
 - [ ] Cloud Logs showing recurring errors
 
 **Rollback Procedure:**
+
 ```bash
 # 1. Identify last-known-good commit
 git log --oneline | head -5
@@ -238,42 +250,46 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ```
 
 **Rollback Executed:** ⬜ Yes / ⬜ No  
-**Reason:** ____________________  
-**Rollback Time:** __________  
-**Verified By:** __________ **Date:** __________
+**Reason:** ********\_\_\_\_********  
+**Rollback Time:** ****\_\_****  
+**Verified By:** ****\_\_**** **Date:** ****\_\_****
 
 ---
 
 ## Sign-Off
 
-**Consolidation & Testing Complete:** ✓ __________  
-**Staging Validation Complete:** ✓ __________  
-**Production Deployment Complete:** ✓ __________  
-**24h Post-Deployment Monitoring Complete:** ✓ __________  
+**Consolidation & Testing Complete:** ✓ ****\_\_****  
+**Staging Validation Complete:** ✓ ****\_\_****  
+**Production Deployment Complete:** ✓ ****\_\_****  
+**24h Post-Deployment Monitoring Complete:** ✓ ****\_\_****
 
 **Final Authorization:**  
-Name: __________ Title: __________ Date: __________
+Name: ****\_\_**** Title: ****\_\_**** Date: ****\_\_****
 
 ---
 
 ## Appendix: Test Evidence
 
 ### Firestore Rules Test Output
+
 ```
 [Paste output of: npm run test -- firestore-rules.test.ts]
 ```
 
 ### Staging Deployment Output
+
 ```
 [Paste output of: firebase deploy --only firestore:rules --project hcquality-staging]
 ```
 
 ### Production Dry-Run Output
+
 ```
 [Paste output of: firebase deploy --only firestore:rules --dry-run --project hmatologia2]
 ```
 
 ### Cloud Logs Sample (Production)
+
 ```
 [Paste 20-30 lines from Cloud Logs showing successful operations post-deploy]
 ```
@@ -281,4 +297,3 @@ Name: __________ Title: __________ Date: __________
 ---
 
 **End of Checklist**
-

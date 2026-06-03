@@ -22,23 +22,24 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { useAnalyticsAggregate, useAnalyticsLoading, useAnalyticsError } from '../hooks/useAnalyticsCache';
+import {
+  useAnalyticsAggregate,
+  useAnalyticsLoading,
+  useAnalyticsError,
+} from '../hooks/useAnalyticsCache';
 import { useChartData } from '../hooks/useChartData';
 import { heatmapCellColor } from '../services/chartColorMap';
 import { FilterUnavailableBanner } from './FilterUnavailableBanner';
-import {
-  shouldShowFilterUnavailableBanner,
-  filterCapabilities,
-} from '../utils/aggregateFilters';
+import { shouldShowFilterUnavailableBanner, filterCapabilities } from '../utils/aggregateFilters';
 import type { NCHeatmapCell } from '../types/Analytics';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 const AGE_BUCKETS: Array<NCHeatmapCell['ageBucket']> = ['7d', '30d', '60d', '>60d'];
 const BUCKET_LABELS: Record<NCHeatmapCell['ageBucket'], string> = {
-  '7d':   '≤ 7 dias',
-  '30d':  '8–30 dias',
-  '60d':  '31–60 dias',
+  '7d': '≤ 7 dias',
+  '30d': '8–30 dias',
+  '60d': '31–60 dias',
   '>60d': '> 60 dias',
 };
 
@@ -113,8 +114,10 @@ export const NCHeatmapDash = React.memo(function NCHeatmapDash({
 
   const activeFilterLabel = useMemo(() => {
     const parts: string[] = [];
-    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
-    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    if (equipmentIds.size > 0)
+      parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0)
+      parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
     return parts.join(', ');
   }, [equipmentIds, operatorIds]);
 

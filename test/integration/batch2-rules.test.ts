@@ -52,7 +52,7 @@ describe('Phase 2 Batch 2 — Firestore Rules', () => {
     it('should allow authorized member to read biosseguranca-areas', async () => {
       const q = query(
         collection(db, `labs/${LAB_ID}/biosseguranca-areas`),
-        where('labId', '==', LAB_ID)
+        where('labId', '==', LAB_ID),
       );
       const snap = await getDocs(q);
       expect(snap).toBeDefined();
@@ -103,10 +103,7 @@ describe('Phase 2 Batch 2 — Firestore Rules', () => {
 
   describe('Scenario 2: PGRSS (Waste Management)', () => {
     it('should allow member to read pgrss-geracao', async () => {
-      const q = query(
-        collection(db, `labs/${LAB_ID}/pgrss-geracao`),
-        where('labId', '==', LAB_ID)
-      );
+      const q = query(collection(db, `labs/${LAB_ID}/pgrss-geracao`), where('labId', '==', LAB_ID));
       const snap = await getDocs(q);
       expect(snap).toBeDefined();
     });
@@ -146,10 +143,7 @@ describe('Phase 2 Batch 2 — Firestore Rules', () => {
 
   describe('Scenario 3: KPIs (Metrics — Read-Only)', () => {
     it('should allow member to read kpi-metrics', async () => {
-      const q = query(
-        collection(db, `labs/${LAB_ID}/kpi-metrics`),
-        where('labId', '==', LAB_ID)
-      );
+      const q = query(collection(db, `labs/${LAB_ID}/kpi-metrics`), where('labId', '==', LAB_ID));
       const snap = await getDocs(q);
       expect(snap).toBeDefined();
     });
@@ -182,7 +176,7 @@ describe('Phase 2 Batch 2 — Firestore Rules', () => {
     it('should allow member to read lgpd-solicitacoes', async () => {
       const q = query(
         collection(db, `labs/${LAB_ID}/lgpd-solicitacoes`),
-        where('labId', '==', LAB_ID)
+        where('labId', '==', LAB_ID),
       );
       const snap = await getDocs(q);
       expect(snap).toBeDefined();
@@ -243,11 +237,11 @@ describe('Phase 2 Batch 2 — Firestore Rules', () => {
 
       const bioQ = query(
         collection(db, `labs/${LAB_ID}/biosseguranca-areas`),
-        where('labId', '==', LAB_ID)
+        where('labId', '==', LAB_ID),
       );
       const pgrssQ = query(
         collection(db, `labs/${LAB_ID}/pgrss-geracao`),
-        where('labId', '==', LAB_ID)
+        where('labId', '==', LAB_ID),
       );
 
       const bioSnap = await getDocs(bioQ);

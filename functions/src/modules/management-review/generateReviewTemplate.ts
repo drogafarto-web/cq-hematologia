@@ -34,7 +34,7 @@ interface GenerateReviewTemplateResponse {
 const options: CallableOptions = {
   memory: '256MiB',
   timeoutSeconds: 60,
-  region: 'southamerica-east1'
+  region: 'southamerica-east1',
 };
 
 export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest>(
@@ -69,7 +69,7 @@ export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest>(
         customerFeedback,
         personnelCompetency,
         infrastructure,
-        supplierPerformance
+        supplierPerformance,
       ] = await Promise.all([
         pullAuditResults(labId),
         pullNCCapaStatus(labId),
@@ -77,7 +77,7 @@ export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest>(
         pullCustomerFeedback(labId),
         pullPersonnelCompetency(labId),
         pullInfrastructure(labId),
-        pullSupplierPerformance(labId)
+        pullSupplierPerformance(labId),
       ]);
 
       // Build template sections (matching reviewTemplateService.ts logic)
@@ -86,72 +86,72 @@ export const generateReviewTemplate = onCall<GenerateReviewTemplateRequest>(
           number: 1,
           titlePt: 'Análise de Resultados de Auditorias',
           content: '',
-          sourceData: auditResults
+          sourceData: auditResults,
         },
         {
           number: 2,
           titlePt: 'Análise de Conformidades e CAPAs',
           content: '',
-          sourceData: ncCapaStatus
+          sourceData: ncCapaStatus,
         },
         {
           number: 3,
           titlePt: 'Tendências de Indicadores de Desempenho',
           content: '',
-          sourceData: kpiTrends
+          sourceData: kpiTrends,
         },
         {
           number: 4,
           titlePt: 'Análise de Feedback do Cliente',
           content: '',
-          sourceData: customerFeedback
+          sourceData: customerFeedback,
         },
         {
           number: 5,
           titlePt: 'Análise de Competência do Pessoal',
           content: '',
-          sourceData: personnelCompetency
+          sourceData: personnelCompetency,
         },
         {
           number: 6,
           titlePt: 'Análise de Infraestrutura e Calibração',
           content: '',
-          sourceData: infrastructure
+          sourceData: infrastructure,
         },
         {
           number: 7,
           titlePt: 'Análise de Desempenho de Fornecedores',
           content: '',
-          sourceData: supplierPerformance
+          sourceData: supplierPerformance,
         },
         ...Array.from({ length: 8 }, (_, i) => ({
           number: 8 + i,
           titlePt: `Seção ${8 + i}`,
           content: '',
-          sourceData: {}
-        }))
+          sourceData: {},
+        })),
       ];
 
       const template: ReviewTemplate = {
         year,
         entries: sections as any,
         sourceDataTimestamp: Timestamp.now(),
-        warnings: []
+        warnings: [],
       };
 
       return {
         template,
-        success: true
+        success: true,
       };
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unknown error';
       console.error('[generateReviewTemplate] Error:', message);
       return {
         success: false,
-        error: message
+        error: message,
       };
     }
-  }
+  },
 );
 
 /**
@@ -180,7 +180,7 @@ async function pullAuditResults(labId: string): Promise<Record<string, any>> {
       totalAudits: snapshot.size,
       totalFindings,
       totalClosed,
-      completionRate: snapshot.size > 0 ? ((totalClosed / snapshot.size) * 100).toFixed(1) : 'N/A'
+      completionRate: snapshot.size > 0 ? ((totalClosed / snapshot.size) * 100).toFixed(1) : 'N/A',
     };
   } catch (error) {
     console.warn('[pullAuditResults] Error:', error);
@@ -197,12 +197,7 @@ async function pullNCCapaStatus(labId: string): Promise<Record<string, any>> {
         .collection('naoConformidades')
         .where('deletedAt', '==', null)
         .get(),
-      db
-        .collection('labs')
-        .doc(labId)
-        .collection('capa')
-        .where('deletedAt', '==', null)
-        .get()
+      db.collection('labs').doc(labId).collection('capa').where('deletedAt', '==', null).get(),
     ]);
 
     const ncByStatus = { open: 0, closed: 0, onHold: 0 };
@@ -228,7 +223,7 @@ async function pullNCCapaStatus(labId: string): Promise<Record<string, any>> {
       ncOnHold: ncByStatus.onHold,
       capaOpen: capaByStatus.open,
       capaClosed: capaByStatus.closed,
-      capaOverdue: capaByStatus.overdue
+      capaOverdue: capaByStatus.overdue,
     };
   } catch (error) {
     console.warn('[pullNCCapaStatus] Error:', error);
@@ -254,7 +249,7 @@ async function pullKPITrends(labId: string): Promise<Record<string, any>> {
 
     return {
       monthCount: snapshot.size,
-      indicators
+      indicators,
     };
   } catch (error) {
     console.warn('[pullKPITrends] Error:', error);
@@ -283,7 +278,7 @@ async function pullCustomerFeedback(labId: string): Promise<Record<string, any>>
     return {
       totalComplaints: snapshot.size,
       openComplaints: openCount,
-      closedComplaints: closedCount
+      closedComplaints: closedCount,
     };
   } catch (error) {
     console.warn('[pullCustomerFeedback] Error:', error);
@@ -309,7 +304,8 @@ async function pullPersonnelCompetency(labId: string): Promise<Record<string, an
     return {
       totalTrainings: snapshot.size,
       completedTrainings: completedCount,
-      competencyRate: snapshot.size > 0 ? ((completedCount / snapshot.size) * 100).toFixed(1) : 'N/A'
+      competencyRate:
+        snapshot.size > 0 ? ((completedCount / snapshot.size) * 100).toFixed(1) : 'N/A',
     };
   } catch (error) {
     console.warn('[pullPersonnelCompetency] Error:', error);
@@ -331,15 +327,16 @@ async function pullInfrastructure(labId: string): Promise<Record<string, any>> {
         .doc(labId)
         .collection('calibracao')
         .where('deletedAt', '==', null)
-        .get()
+        .get(),
     ]);
 
     return {
       totalEquipment: equipSnapshot.size,
       totalCalibrations: calibSnapshot.size,
-      calibrationCompliance: equipSnapshot.size > 0
-        ? ((calibSnapshot.size / equipSnapshot.size) * 100).toFixed(1)
-        : 'N/A'
+      calibrationCompliance:
+        equipSnapshot.size > 0
+          ? ((calibSnapshot.size / equipSnapshot.size) * 100).toFixed(1)
+          : 'N/A',
     };
   } catch (error) {
     console.warn('[pullInfrastructure] Error:', error);
@@ -364,7 +361,7 @@ async function pullSupplierPerformance(labId: string): Promise<Record<string, an
 
     return {
       totalSuppliers: snapshot.size,
-      activeSuppliers: activeCount
+      activeSuppliers: activeCount,
     };
   } catch (error) {
     console.warn('[pullSupplierPerformance] Error:', error);

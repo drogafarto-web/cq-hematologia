@@ -42,6 +42,7 @@ match /portal-configuracao/{docId} {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Patients can read (branding) but not write
 - Only RT/Admin can update
 - Audit field `updatedBy` enforces operator accountability
@@ -61,6 +62,7 @@ match /notivisa-outbox/{docId} {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Create restricted to RT/Admin + payload validation (3 required fields: laudo_id, patient_cpf, payload)
 - Status enum enforced: `['PENDING', 'SENT', 'FAILED', 'DELIVERED']`
 - Server (Cloud Functions) exclusive write to status field — prevents client race conditions
@@ -82,6 +84,7 @@ match /criticos-escalacoes/{docId} {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Create restricted to RT/Admin (clinical judgment required)
 - All members can read (dashboard trending requires visibility)
 - Update gated: only RT/Admin AND only if marking resolved (`resolved_at != null`)
@@ -102,6 +105,7 @@ match /imuno-ias-dev/{docId} {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Development dataset restricted to server + admin/RT
 - Patients have zero access (complies with LGPD Art. 12 — no cross-use without consent)
 - Hard delete blocked — training data lineage auditable
@@ -122,6 +126,7 @@ match /laudos-draft/{docId} {
 **Assessment:** ⚠️ **CONDITIONAL PASS** (with note)
 
 **Validation logic:**
+
 ```firestore
 function validateDraftLock(d) {
   return (d.locked_until_ts != null && d.locked_until_ts > request.time)
@@ -142,18 +147,18 @@ function validateDraftLock(d) {
 
 All role helpers correctly implement multi-tenant + access control:
 
-| Helper | Implementation | Assessment |
-|---|---|---|
-| `isAuthenticated()` | `request.auth != null` | ✅ Standard |
-| `isSuperAdmin()` | Token claim OR document lookup with `get()` | ✅ Dual-layer |
-| `isActiveMemberOfLab(labId)` | `exists(memberPath) && active == true` | ✅ Membership enforced |
-| `getMemberRole(labId)` | `get(memberPath).data.role` | ✅ Cached lookup |
-| `isAdminOrOwner(labId)` | `role in ['admin', 'owner']` | ✅ Correct enumeration |
-| `isAdmin(labId)` | `role == 'admin'` | ✅ Strict match |
-| `isPatient(labId)` | `isActiveMemberOfLab(labId) && getMemberRole == 'patient'` | ✅ Both conditions required |
-| `isAdminOrRT(labId)` | `role in ['admin', 'owner', 'rt']` | ✅ 3-way gate (new in Phase 3) |
-| `hasModuleAccess(module)` | `request.auth.token.get('modules', {})[module] == true` | ✅ Onda 2 claims (post-provisioning) |
-| `isServer()` | `request.auth == null \|\| request.auth.token.server == true` | ✅ See 1.3 below |
+| Helper                       | Implementation                                                | Assessment                           |
+| ---------------------------- | ------------------------------------------------------------- | ------------------------------------ |
+| `isAuthenticated()`          | `request.auth != null`                                        | ✅ Standard                          |
+| `isSuperAdmin()`             | Token claim OR document lookup with `get()`                   | ✅ Dual-layer                        |
+| `isActiveMemberOfLab(labId)` | `exists(memberPath) && active == true`                        | ✅ Membership enforced               |
+| `getMemberRole(labId)`       | `get(memberPath).data.role`                                   | ✅ Cached lookup                     |
+| `isAdminOrOwner(labId)`      | `role in ['admin', 'owner']`                                  | ✅ Correct enumeration               |
+| `isAdmin(labId)`             | `role == 'admin'`                                             | ✅ Strict match                      |
+| `isPatient(labId)`           | `isActiveMemberOfLab(labId) && getMemberRole == 'patient'`    | ✅ Both conditions required          |
+| `isAdminOrRT(labId)`         | `role in ['admin', 'owner', 'rt']`                            | ✅ 3-way gate (new in Phase 3)       |
+| `hasModuleAccess(module)`    | `request.auth.token.get('modules', {})[module] == true`       | ✅ Onda 2 claims (post-provisioning) |
+| `isServer()`                 | `request.auth == null \|\| request.auth.token.server == true` | ✅ See 1.3 below                     |
 
 ---
 
@@ -162,6 +167,7 @@ All role helpers correctly implement multi-tenant + access control:
 **Original concern from task:** "Bug: `&&` binds before `||`"
 
 **Current implementation (line 66-68):**
+
 ```firestore
 function isServer() {
   return request.auth == null || request.auth.token.server == true;
@@ -173,11 +179,13 @@ function isServer() {
 The rules language respects standard operator precedence: `&&` (logical AND) binds tighter than `||` (logical OR).
 
 For the expression `A || B && C`:
+
 - Evaluated as `A || (B && C)`
 - If A is true, result is true (short-circuit)
 - If A is false, evaluate B && C
 
 **In this helper:**
+
 - `request.auth == null` → A
 - `request.auth.token.server == true` → B (when auth exists)
 - No C term
@@ -185,6 +193,7 @@ For the expression `A || B && C`:
 **Correctness:** ✅ **CORRECT**
 
 The implementation correctly identifies two independent cases:
+
 1. **Admin SDK calls** (`request.auth == null`) — when Cloud Functions use Admin SDK, there's no auth object
 2. **Trusted callables** (`request.auth.token.server == true`) — when Cloud Functions use `onCall` with a custom claim
 
@@ -206,6 +215,7 @@ function validateNotivisaPayload(payload) {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - 3 required fields for regulatory reporting (RDC 978 Art. 6º)
 - Status enum prevents invalid state transitions
 - `laudo_id` + `patient_cpf` enables audit trail lookup in auditorias collection
@@ -223,6 +233,7 @@ function validateDraftLock(d) {
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Pessimistic locking: lock_window checked server-side (not client timestamp)
 - Current user bypass allows unlock-and-edit in same user context
 - **Edge case:** If two users release lock simultaneously, rules race possible → mitigated by Cloud Function `writeBatch` atomicity in callable
@@ -234,6 +245,7 @@ function validateDraftLock(d) {
 **Multi-tenant invariant:** All 5 new collections follow `labs/{labId}/collection/{id}` path.
 
 ✅ Verified:
+
 - `portal-configuracao` at `/labs/{labId}/portal-configuracao/{docId}`
 - `notivisa-outbox` at `/labs/{labId}/notivisa-outbox/{docId}`
 - `criticos-escalacoes` at `/labs/{labId}/criticos-escalacoes/{docId}`
@@ -265,11 +277,13 @@ No cross-tenant reads possible (all gated by `isActiveMemberOfLab(labId)` or `is
 ```
 
 **Assessment:** ✅ **PASS**
+
 - Test files excluded (prevents `noUnusedLocals` errors on test helpers)
 - Incomplete Wave 2 modules excluded by directory glob
 - Prevents pre-Phase-7 code from blocking overall build
 
 **Verification:** Modules list matches directory contents:
+
 - ✅ `src/modules/criticos/` exists and is excluded
 - ✅ `src/modules/notivisa/` exists and is excluded
 - ✅ `src/modules/ia-strip/` exists and is excluded
@@ -282,6 +296,7 @@ No cross-tenant reads possible (all gated by `isActiveMemberOfLab(labId)` or `is
 **File:** `functions/package.json` lines 15–34
 
 **Critical dependencies present:**
+
 - ✅ `firebase-admin@^13.8.0` — Admin SDK for rules bypass, secrets binding
 - ✅ `firebase-functions@^7.2.5` — Cloud Functions v2 runtime
 - ✅ `zod@^3.25.76` — Payload validation
@@ -293,6 +308,7 @@ No cross-tenant reads possible (all gated by `isActiveMemberOfLab(labId)` or `is
 - ✅ `puppeteer@^22.15.0` — Headless HTML-to-PDF (for export callables)
 
 **Assessment:** ✅ **PASS**
+
 - All declared imports in `functions/src` have corresponding `dependencies` entries
 - Heavy libs (xlsx, puppeteer, pdf-lib) have justification (server-side only, not in bundle)
 - Versions pinned to major; patch auto-updates allowed
@@ -313,6 +329,7 @@ export { validateStripImage, iaStripValidator, ... } from './ia';
 ```
 
 **Import graph analysis:**
+
 - ✅ `notivisa.ts` imports: `'firebase-admin'`, `'zod'` (no cross-helper imports)
 - ✅ `sms.ts` imports: `'zod'` (no circular with notivisa)
 - ✅ `laudo.ts` imports: `'firebase-admin'`, `'zod'`, local `./types` (no circular)
@@ -326,17 +343,20 @@ export { validateStripImage, iaStripValidator, ... } from './ia';
 ### 2.4 Build + Test Status
 
 **Web TSC check:**
+
 ```bash
 npx tsc --noEmit → 2 errors (pre-existing, non-security)
 ```
 
 **Errors identified:**
+
 1. `src/__tests__/e2e/phase-3-integration.test.ts(275)` — ExameLaudo schema mismatch (missing fields in test fixture)
 2. `src/__tests__/e2e/phase-3-integration.test.ts(737)` — UserId type narrowing issue
 
 Both are in test code, not production code. **Not blocking pre-deploy.**
 
 **Functions build:**
+
 ```bash
 npm run build → (assuming no errors, not run in this audit)
 ```
@@ -349,19 +369,20 @@ npm run build → (assuming no errors, not run in this audit)
 
 All 5 Phase 3 collections have match blocks in rules:
 
-| Collection | Path | Document IDs | Indexed Fields | Assessment |
-|---|---|---|---|---|
-| portal-configuracao | `/labs/{labId}/portal-configuracao/` | 1 per lab (singleton pattern) | `updatedBy`, `updatedAt` | ✅ In rules |
-| notivisa-outbox | `/labs/{labId}/notivisa-outbox/` | UUID (auto-generated) | `status`, `createdAt` | ✅ In rules + validateNotivisaPayload |
-| criticos-escalacoes | `/labs/{labId}/criticos-escalacoes/` | UUID | `createdAt`, `resolved_at` | ✅ In rules |
-| imuno-ias-dev | `/labs/{labId}/imuno-ias-dev/` | UUID | None (development) | ✅ In rules |
-| laudos-draft | `/labs/{labId}/laudos-draft/` | UUID | `locked_until_ts`, `locked_by` | ✅ In rules + validateDraftLock |
+| Collection          | Path                                 | Document IDs                  | Indexed Fields                 | Assessment                            |
+| ------------------- | ------------------------------------ | ----------------------------- | ------------------------------ | ------------------------------------- |
+| portal-configuracao | `/labs/{labId}/portal-configuracao/` | 1 per lab (singleton pattern) | `updatedBy`, `updatedAt`       | ✅ In rules                           |
+| notivisa-outbox     | `/labs/{labId}/notivisa-outbox/`     | UUID (auto-generated)         | `status`, `createdAt`          | ✅ In rules + validateNotivisaPayload |
+| criticos-escalacoes | `/labs/{labId}/criticos-escalacoes/` | UUID                          | `createdAt`, `resolved_at`     | ✅ In rules                           |
+| imuno-ias-dev       | `/labs/{labId}/imuno-ias-dev/`       | UUID                          | None (development)             | ✅ In rules                           |
+| laudos-draft        | `/labs/{labId}/laudos-draft/`        | UUID                          | `locked_until_ts`, `locked_by` | ✅ In rules + validateDraftLock       |
 
 ### 3.2 Field Type Validation
 
 **Inferred from rules validations:**
 
 #### `notivisa-outbox` payload schema:
+
 ```
 {
   laudo_id: string,
@@ -372,9 +393,11 @@ All 5 Phase 3 collections have match blocks in rules:
   [optional] createdBy: string (operatorId)
 }
 ```
+
 ✅ Validated in rules via `validateNotivisaPayload()`
 
 #### `laudos-draft` payload schema:
+
 ```
 {
   [...laudo_data]: any,
@@ -383,9 +406,11 @@ All 5 Phase 3 collections have match blocks in rules:
   [optional] status: enum['draft' | 'locked' | 'released']
 }
 ```
+
 ✅ Validated in rules via `validateDraftLock()`
 
 #### `criticos-escalacoes` implicit schema:
+
 ```
 {
   analito: string,
@@ -395,6 +420,7 @@ All 5 Phase 3 collections have match blocks in rules:
   [optional] resolvedBy: string
 }
 ```
+
 ✅ Create allowed; update gated by `resolved_at != null`
 
 ---
@@ -403,36 +429,36 @@ All 5 Phase 3 collections have match blocks in rules:
 
 ### 4.1 RDC 978/2025 Coverage
 
-| Article | Requirement | Implemented In | Assessment |
-|---|---|---|---|
-| Art. 6º (NOTIVISA) | Notification queue for critical results | `notivisa-outbox` match block | ✅ Read-only RT/Admin create, server update, audit trail read |
-| Art. 17 (Critical escalation) | SMS + email for critical values | `criticos-escalacoes` match block | ✅ Immutable history, resolved_at tracking |
-| Art. 75 (Performance SLA) | N+1 prevention in rules | No collectionGroup loops in new rules | ✅ O(1) lookups only |
-| Art. 122 (Supervisor shifts) | Audit trail per turn | `turnos` collection (existing, Phase 0) | ✅ N/A for Phase 3 |
+| Article                       | Requirement                             | Implemented In                          | Assessment                                                    |
+| ----------------------------- | --------------------------------------- | --------------------------------------- | ------------------------------------------------------------- |
+| Art. 6º (NOTIVISA)            | Notification queue for critical results | `notivisa-outbox` match block           | ✅ Read-only RT/Admin create, server update, audit trail read |
+| Art. 17 (Critical escalation) | SMS + email for critical values         | `criticos-escalacoes` match block       | ✅ Immutable history, resolved_at tracking                    |
+| Art. 75 (Performance SLA)     | N+1 prevention in rules                 | No collectionGroup loops in new rules   | ✅ O(1) lookups only                                          |
+| Art. 122 (Supervisor shifts)  | Audit trail per turn                    | `turnos` collection (existing, Phase 0) | ✅ N/A for Phase 3                                            |
 
 ### 4.2 DICQ 4.3 Coverage
 
-| Block | Requirement | Implemented In | Assessment |
-|---|---|---|---|
-| 4.3 (Documentos de Qualidade) | Versioning + audit | `sgq-documentos` (Phase 1) | ✅ Existing |
-| 4.4 (Integridade) | Tamper-evident signing | HMAC chains + ADR-0017 reset | ✅ Post-remediation |
-| 4.13 (Rastreabilidade) | Soft delete audit trail | `laudos-draft` hard delete blocked | ✅ Immutable history |
+| Block                         | Requirement             | Implemented In                     | Assessment           |
+| ----------------------------- | ----------------------- | ---------------------------------- | -------------------- |
+| 4.3 (Documentos de Qualidade) | Versioning + audit      | `sgq-documentos` (Phase 1)         | ✅ Existing          |
+| 4.4 (Integridade)             | Tamper-evident signing  | HMAC chains + ADR-0017 reset       | ✅ Post-remediation  |
+| 4.13 (Rastreabilidade)        | Soft delete audit trail | `laudos-draft` hard delete blocked | ✅ Immutable history |
 
 ### 4.3 LGPD Art. 12 Coverage (Data minimization for non-primary purpose)
 
-| Data | Restriction | Rule | Assessment |
-|---|---|---|---|
-| Patient data in `notivisa-outbox` | CPF only for notification | No full patient record in outbox | ✅ Minimized |
-| Training data in `imuno-ias-dev` | Restricted to admin/server | `allow read, write: if isServer() \|\| isAdminOrRT` | ✅ No cross-use without consent |
-| Draft content in `laudos-draft` | Readable only by lab members + patient | `allow read: if isActiveMemberOfLab(labId) \|\| isPatient` | ✅ No external sharing |
+| Data                              | Restriction                            | Rule                                                       | Assessment                      |
+| --------------------------------- | -------------------------------------- | ---------------------------------------------------------- | ------------------------------- |
+| Patient data in `notivisa-outbox` | CPF only for notification              | No full patient record in outbox                           | ✅ Minimized                    |
+| Training data in `imuno-ias-dev`  | Restricted to admin/server             | `allow read, write: if isServer() \|\| isAdminOrRT`        | ✅ No cross-use without consent |
+| Draft content in `laudos-draft`   | Readable only by lab members + patient | `allow read: if isActiveMemberOfLab(labId) \|\| isPatient` | ✅ No external sharing          |
 
 ### 4.4 ISO 15189:2022 Coverage
 
-| Clause | Requirement | Implemented In | Assessment |
-|---|---|---|---|
-| 5.8.7 (Critical values) | Escalation tracking | `criticos-escalacoes` | ✅ Read/update controlled |
-| 4.1.2 (RT authority) | RT-exclusive decisions | `isAdminOrRT()` in all clinical gates | ✅ 3-way role check |
-| 4.13 (Records retention) | 5-year audit trail | Hard delete blocked in all 5 new collections | ✅ Soft delete enforced |
+| Clause                   | Requirement            | Implemented In                               | Assessment                |
+| ------------------------ | ---------------------- | -------------------------------------------- | ------------------------- |
+| 5.8.7 (Critical values)  | Escalation tracking    | `criticos-escalacoes`                        | ✅ Read/update controlled |
+| 4.1.2 (RT authority)     | RT-exclusive decisions | `isAdminOrRT()` in all clinical gates        | ✅ 3-way role check       |
+| 4.13 (Records retention) | 5-year audit trail     | Hard delete blocked in all 5 new collections | ✅ Soft delete enforced   |
 
 ---
 
@@ -459,7 +485,7 @@ All 5 Phase 3 collections have match blocks in rules:
    - Verify: claims already provisioned for all users (from ADR-0003)
 3. **Cloud Functions** (if any for Phase 3 callables)
    - Run `bash scripts/preflight-secrets-check.sh` first (mandatory)
-   - Deploy incomplete modules *only* when full implementation ready (current: placeholders)
+   - Deploy incomplete modules _only_ when full implementation ready (current: placeholders)
 4. **Hosting** — if UI changes ship with Phase 3
    - Hard reload required in browser (`Ctrl+Shift+R`) to pick up new SW
 
@@ -469,16 +495,17 @@ All 5 Phase 3 collections have match blocks in rules:
 
 ### Risk Score Calculation
 
-| Factor | Weight | Score | Justification |
-|---|---|---|---|
-| **Rules correctness** | 40% | 0/10 | No operator precedence bugs; all 5 blocks properly gated; helpers validated |
-| **Access control (RBAC)** | 30% | 1/10 | Draft lock edge case (concurrent unlock-write race) mitigated by callable atomicity |
-| **Secrets management** | 20% | 1/10 | ADR-0017 baseline reset done; preflight-secrets-check.sh prevents re-regression |
-| **Compliance mapping** | 10% | 0/10 | All regulatory clauses (RDC 978, DICQ, LGPD, ISO 15189) addressed in rules |
+| Factor                    | Weight | Score | Justification                                                                       |
+| ------------------------- | ------ | ----- | ----------------------------------------------------------------------------------- |
+| **Rules correctness**     | 40%    | 0/10  | No operator precedence bugs; all 5 blocks properly gated; helpers validated         |
+| **Access control (RBAC)** | 30%    | 1/10  | Draft lock edge case (concurrent unlock-write race) mitigated by callable atomicity |
+| **Secrets management**    | 20%    | 1/10  | ADR-0017 baseline reset done; preflight-secrets-check.sh prevents re-regression     |
+| **Compliance mapping**    | 10%    | 0/10  | All regulatory clauses (RDC 978, DICQ, LGPD, ISO 15189) addressed in rules          |
 
 **Overall Risk Score: 2/10 (Low)**
 
 **Risk Summary:**
+
 - No security vulnerabilities detected in rules or TypeScript config
 - Compliance footprint solid
 - One documented edge case (draft lock race) is acceptable (mitigated by database atomicity)
@@ -491,6 +518,7 @@ All 5 Phase 3 collections have match blocks in rules:
 ### 7.1 Draft Lock Concurrency — Documentation Enhancement
 
 **Finding:** `validateDraftLock()` has a potential race condition if:
+
 1. User A holds lock until T+60s
 2. User B queries at T+30s, sees lock but waits
 3. At T+60s, lock expires
@@ -500,6 +528,7 @@ All 5 Phase 3 collections have match blocks in rules:
 **Current mitigation:** Cloud Functions callable wraps writes in `writeBatch()` or single `setDoc()` — Firestore guarantees atomicity per document.
 
 **Recommendation:** Add comment in rules explaining the mitigation:
+
 ```firestore
 // Concurrency note: Multiple users releasing lock simultaneously will
 // result in last-write-wins. Mitigated by Cloud Function callables
@@ -536,6 +565,7 @@ function validateNotivisaPayload(payload) {
 ### 7.3 Test Coverage Gap — Non-Security Finding
 
 **Finding:** E2E test `phase-3-integration.test.ts` has 2 TypeScript errors (pre-existing):
+
 - Line 275: ExameLaudo schema mismatch (test fixture missing fields)
 - Line 737: UserId type assignment
 
@@ -564,6 +594,7 @@ function validateNotivisaPayload(payload) {
 **Risk Score:** 2/10 (Low)
 
 **Conditions:**
+
 1. Before `firebase deploy --only functions`, run `bash scripts/preflight-secrets-check.sh`
 2. If incomplete modules (criticos, notivisa, ia-strip, portals) export from `functions/src/index.ts` before full implementation, they must be re-excluded
 3. Deploy order: firestore:rules → firestore:indexes → functions → hosting

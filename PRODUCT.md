@@ -7,12 +7,14 @@ product
 ## Users
 
 **Técnicos/Operadores de Laboratório:**
+
 - Registram e analisam resultados de tiras reagentes uroanálise diariamente
 - Trabalham em condições variáveis de iluminação (bancadas de laboratório)
 - Precisam de velocidade (ciclos rápidos de entrada/validação) mas sem compromiso de acurácia
 - Contexto: bancada ocupada, pressão por throughput, foco em uma tira/corrida por vez
 
 **Gerentes de Qualidade / RT (Responsável Técnico):**
+
 - Revisam, validam e assinam dados de conformidade regulatória (RDC 978/2025)
 - Geram relatórios, identificam tendências e não-conformidades
 - Precisam de visibilidade sobre múltiplas corridas, lotes, histórico
@@ -35,12 +37,14 @@ Sucesso = operadores registram com confiança, RTs assinam com segurança, audit
 ## Anti-references
 
 ❌ **Nada genérico/template SaaS:**
+
 - Sem card grids idênticas
 - Sem "big number + label + supporting stats" cliché
 - Sem gradientes decorativos
 - Sem interface que pudesse ser qualquer ferramenta
 
 ❌ **Nada light/casual (consumer-friendly):**
+
 - Sem cores pastel
 - Sem microinterações lúdicas
 - Sem tone of voice descontraído
@@ -63,12 +67,14 @@ Sucesso = operadores registram com confiança, RTs assinam com segurança, audit
 ## Accessibility & Inclusion
 
 **WCAG AA mínimo:**
+
 - Contraste 4.5:1 texto normal, 3:1 texto grande
 - Navegação por teclado funcional (sem dependência de mouse)
 - Aria labels em botões só com ícone
 - Foco visível sempre
 
 **Lab-specific:**
+
 - Alto contraste ainda mais elevado quando possível (lab pode ter iluminação ruim)
 - Respeito a `prefers-reduced-motion` (operadores às vezes estressados, acelerar microinterações pode aumentar erro)
 - Espaçamento generoso (dedos cansados, digitação rápida, possível tremor)

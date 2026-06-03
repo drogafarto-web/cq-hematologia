@@ -11,16 +11,7 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import {
-  Button,
-  Card,
-  Field,
-  IconAlert,
-  IconCheck,
-  IconClock,
-  IconClose,
-  inputClass,
-} from './_ui';
+import { Button, Card, Field, IconAlert, IconCheck, IconClock, IconClose, inputClass } from './_ui';
 import { computeSlaState, formatSlaCountdown } from '../utils/slaFormat';
 import type { CriticosEscalacao } from '../types';
 
@@ -30,11 +21,7 @@ interface ComunicacaoModalProps {
   onAcknowledge: (payload: { escalacaoId: string; notas?: string }) => Promise<void>;
 }
 
-export function ComunicacaoModal({
-  escalacao,
-  onClose,
-  onAcknowledge,
-}: ComunicacaoModalProps) {
+export function ComunicacaoModal({ escalacao, onClose, onAcknowledge }: ComunicacaoModalProps) {
   const [notas, setNotas] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -95,8 +82,8 @@ export function ComunicacaoModal({
                   slaState.kind === 'expired'
                     ? 'text-red-300'
                     : slaState.kind === 'warning'
-                    ? 'text-amber-300'
-                    : 'text-violet-300'
+                      ? 'text-amber-300'
+                      : 'text-violet-300'
                 }
               >
                 <IconAlert className="h-4 w-4" />
@@ -105,10 +92,7 @@ export function ComunicacaoModal({
                 Valor crítico · {escalacao.severidade === 'alta' ? 'Alto' : 'Baixo'}
               </p>
             </div>
-            <h3
-              id="ack-title"
-              className="mt-1 text-[17px] font-semibold tracking-tight text-white"
-            >
+            <h3 id="ack-title" className="mt-1 text-[17px] font-semibold tracking-tight text-white">
               Reconhecimento de comunicação
             </h3>
           </div>
@@ -127,35 +111,21 @@ export function ComunicacaoModal({
           <Card className="p-4">
             <dl className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
               <div>
-                <dt className="text-[11px] uppercase tracking-wide text-white/40">
-                  Paciente
-                </dt>
-                <dd className="mt-1 font-medium text-white">
-                  {escalacao.pacienteNome}
-                </dd>
+                <dt className="text-[11px] uppercase tracking-wide text-white/40">Paciente</dt>
+                <dd className="mt-1 font-medium text-white">{escalacao.pacienteNome}</dd>
                 <dd className="text-xs text-white/50">
                   {escalacao.pacienteIdade} a · {escalacao.pacienteSexo}
                 </dd>
               </div>
               <div>
-                <dt className="text-[11px] uppercase tracking-wide text-white/40">
-                  Médico
-                </dt>
-                <dd className="mt-1 font-medium text-white">
-                  {escalacao.medicoNome}
-                </dd>
-                <dd className="font-mono text-xs text-white/50">
-                  {escalacao.medicoTelefone}
-                </dd>
+                <dt className="text-[11px] uppercase tracking-wide text-white/40">Médico</dt>
+                <dd className="mt-1 font-medium text-white">{escalacao.medicoNome}</dd>
+                <dd className="font-mono text-xs text-white/50">{escalacao.medicoTelefone}</dd>
               </div>
               <div className="col-span-2 border-t border-white/[0.06] pt-3">
-                <dt className="text-[11px] uppercase tracking-wide text-white/40">
-                  Resultado
-                </dt>
+                <dt className="text-[11px] uppercase tracking-wide text-white/40">Resultado</dt>
                 <dd className="mt-1 flex items-baseline gap-3">
-                  <span className="font-mono text-sm text-white/70">
-                    {escalacao.analitoId}
-                  </span>
+                  <span className="font-mono text-sm text-white/70">{escalacao.analitoId}</span>
                   <span className="font-semibold tabular-nums text-2xl text-white">
                     {escalacao.valorObtido}
                   </span>
@@ -171,9 +141,7 @@ export function ComunicacaoModal({
                   </span>
                 </dd>
                 {escalacao.motivo && (
-                  <dd className="mt-1 text-xs text-white/50">
-                    {escalacao.motivo}
-                  </dd>
+                  <dd className="mt-1 text-xs text-white/50">{escalacao.motivo}</dd>
                 )}
               </div>
             </dl>
@@ -186,8 +154,8 @@ export function ComunicacaoModal({
               (slaState.kind === 'expired'
                 ? 'border-red-500/30 bg-red-500/[0.06]'
                 : slaState.kind === 'warning'
-                ? 'border-amber-500/30 bg-amber-500/[0.06]'
-                : 'border-emerald-500/25 bg-emerald-500/[0.05]')
+                  ? 'border-amber-500/30 bg-amber-500/[0.06]'
+                  : 'border-emerald-500/25 bg-emerald-500/[0.05]')
             }
           >
             <div className="flex items-center gap-2 text-sm">
@@ -202,8 +170,8 @@ export function ComunicacaoModal({
                 {slaState.kind === 'expired'
                   ? 'Vencido'
                   : slaState.kind === 'warning'
-                  ? '> 50% do prazo'
-                  : 'Em prazo'}
+                    ? '> 50% do prazo'
+                    : 'Em prazo'}
               </div>
             </div>
           </div>
@@ -228,8 +196,8 @@ export function ComunicacaoModal({
                         a.status === 'entregue'
                           ? 'text-emerald-300'
                           : a.status === 'falha'
-                          ? 'text-red-300'
-                          : 'text-white/60'
+                            ? 'text-red-300'
+                            : 'text-white/60'
                       }
                     >
                       {labelForStatus(a.status)}

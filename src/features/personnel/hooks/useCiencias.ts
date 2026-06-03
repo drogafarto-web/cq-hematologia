@@ -11,7 +11,10 @@ import { Timestamp } from '../../../shared/services/firebase';
 import { watchCiencias, createCiencia } from '../services/cienciaService';
 import { useDesignacoes } from './useDesignacoes';
 import { useCargos } from './useCargos';
-import type { CienciaResponsabilidades, CienciaResponsabilidadesInput } from '../types/CienciaResponsabilidades';
+import type {
+  CienciaResponsabilidades,
+  CienciaResponsabilidadesInput,
+} from '../types/CienciaResponsabilidades';
 import type { Designacao, Cargo } from '../types';
 
 export interface PendenteCiencia {

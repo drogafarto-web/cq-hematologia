@@ -7,11 +7,13 @@
 ## One-Liner Startup
 
 ### macOS / Linux
+
 ```bash
 bash scripts/firestore-emulator-setup.sh start && sleep 2 && bash scripts/firestore-emulator-setup.sh seed
 ```
 
 ### Windows PowerShell
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command start
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command seed
@@ -23,23 +25,23 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 
 ## Command Cheat Sheet
 
-| Task | Bash | PowerShell |
-|------|------|-----------|
-| **Start emulator** | `bash scripts/firestore-emulator-setup.sh start` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command start` |
-| **Seed test data** | `bash scripts/firestore-emulator-setup.sh seed` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command seed` |
-| **Run rules tests** | `bash scripts/firestore-emulator-setup.sh test` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command test` |
-| **Clean all data** | `bash scripts/firestore-emulator-setup.sh clean` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command clean` |
+| Task                    | Bash                                                      | PowerShell                                                                                    |
+| ----------------------- | --------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **Start emulator**      | `bash scripts/firestore-emulator-setup.sh start`          | `powershell -File scripts/firestore-emulator-setup.ps1 -Command start`                        |
+| **Seed test data**      | `bash scripts/firestore-emulator-setup.sh seed`           | `powershell -File scripts/firestore-emulator-setup.ps1 -Command seed`                         |
+| **Run rules tests**     | `bash scripts/firestore-emulator-setup.sh test`           | `powershell -File scripts/firestore-emulator-setup.ps1 -Command test`                         |
+| **Clean all data**      | `bash scripts/firestore-emulator-setup.sh clean`          | `powershell -File scripts/firestore-emulator-setup.ps1 -Command clean`                        |
 | **Restore from backup** | `bash scripts/firestore-emulator-setup.sh restore <name>` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command restore -BackupName "<name>"` |
-| **View logs** | `bash scripts/firestore-emulator-setup.sh logs` | `powershell -File scripts/firestore-emulator-setup.ps1 -Command logs` |
-| **Kill stuck emulator** | `pkill -f "firebase emulators:start"` | `Get-Process firebase \| Stop-Process -Force` |
+| **View logs**           | `bash scripts/firestore-emulator-setup.sh logs`           | `powershell -File scripts/firestore-emulator-setup.ps1 -Command logs`                         |
+| **Kill stuck emulator** | `pkill -f "firebase emulators:start"`                     | `Get-Process firebase \| Stop-Process -Force`                                                 |
 
 ---
 
 ## Default Ports
 
-| Service | URL | Port |
-|---------|-----|------|
-| Firestore | `localhost:8080` | 8080 |
+| Service     | URL                     | Port |
+| ----------- | ----------------------- | ---- |
+| Firestore   | `localhost:8080`        | 8080 |
 | Emulator UI | `http://localhost:4000` | 4000 |
 
 **In browser:** Open http://localhost:4000 to inspect data
@@ -55,6 +57,7 @@ TEST-LAB-003
 ```
 
 Each lab gets:
+
 - Sample users with module claims
 - CIQ runs (coagulation, immunology, etc.)
 - Equipment + suppliers
@@ -66,16 +69,19 @@ Each lab gets:
 ## Port Already in Use?
 
 **macOS / Linux:**
+
 ```bash
 lsof -ti:8080 | xargs kill -9
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 Get-NetTCPConnection -LocalPort 8080 | ForEach-Object { taskkill /PID $_.OwningProcess -Force }
 ```
 
 **Or use different port:**
+
 ```bash
 FIRESTORE_EMULATOR_PORT=8081 bash scripts/firestore-emulator-setup.sh start
 ```
@@ -129,6 +135,7 @@ bash scripts/firestore-emulator-setup.sh restore my-snapshot
 ## Config File
 
 Edit `.env.emulator` to customize:
+
 ```bash
 FIREBASE_PROJECT_ID=hmatologia2
 FIRESTORE_EMULATOR_PORT=8080
@@ -141,13 +148,13 @@ SEED_DATA_DIR=.firebase/emulator-backups
 
 ## Common Issues
 
-| Issue | Fix |
-|-------|-----|
-| "firebase-tools not found" | `npm install -g firebase-tools` |
-| "Port in use" | Kill via `lsof`/`taskkill` or use different port |
-| "Seed hangs" | Check port is accessible + emulator running |
-| "Rules test fails" | Emulator running? `npm run test:rules` configured? |
-| "Cannot connect" | Check `.env.emulator` → `FIRESTORE_EMULATOR_HOST` |
+| Issue                      | Fix                                                |
+| -------------------------- | -------------------------------------------------- |
+| "firebase-tools not found" | `npm install -g firebase-tools`                    |
+| "Port in use"              | Kill via `lsof`/`taskkill` or use different port   |
+| "Seed hangs"               | Check port is accessible + emulator running        |
+| "Rules test fails"         | Emulator running? `npm run test:rules` configured? |
+| "Cannot connect"           | Check `.env.emulator` → `FIRESTORE_EMULATOR_HOST`  |
 
 ---
 

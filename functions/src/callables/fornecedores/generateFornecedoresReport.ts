@@ -66,9 +66,7 @@ function formatCriterios(criterios: unknown): string {
   }
   const entries = Object.entries(criterios as Record<string, unknown>);
   if (entries.length === 0) return '—';
-  return entries
-    .map(([k, v]) => `${k}:${v === true ? 'S' : 'N'}`)
-    .join(' ');
+  return entries.map(([k, v]) => `${k}:${v === true ? 'S' : 'N'}`).join(' ');
 }
 
 async function buildFornecedoresPdfBuffer(rows: FornecedorRow[]): Promise<Buffer> {

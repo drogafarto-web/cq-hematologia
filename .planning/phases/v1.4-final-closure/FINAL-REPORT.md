@@ -18,12 +18,12 @@ v1.4-final-closure closes out the long-tail of v1.4 by landing six macro-phases 
 
 ### MP-0 — Foundation & Cleanup (4 SAs, 4 commits)
 
-| SA | Deliverable | Commit |
-|----|-------------|--------|
+| SA    | Deliverable                                                                                   | Commit    |
+| ----- | --------------------------------------------------------------------------------------------- | --------- |
 | SA-01 | Archive superseded phase folders (`03-schema-extensions`, `03.2-core-features` → `_archive/`) | `f92d0ef` |
-| SA-02 | Commit phase-11 PQ-24 UI components (5 components + barrel — pre-tracked, no-op success) | `51785dd` |
-| SA-03 | Capture v1.4 baseline metrics (BASELINE-2026-05-09.md) | `27e48e8` |
-| SA-04 | Cache 350+ design tokens for downstream UI subagents (tokens-cache.json) | `42d7c0d` |
+| SA-02 | Commit phase-11 PQ-24 UI components (5 components + barrel — pre-tracked, no-op success)      | `51785dd` |
+| SA-03 | Capture v1.4 baseline metrics (BASELINE-2026-05-09.md)                                        | `27e48e8` |
+| SA-04 | Cache 350+ design tokens for downstream UI subagents (tokens-cache.json)                      | `42d7c0d` |
 
 **Gates:** TSC web 0 errors · Functions build 0 errors · git status clean.
 
@@ -35,23 +35,23 @@ Closes the audit-cycle workflow: planos de ação, presença em reuniões, re-au
 
 **Wave W1 — Callables (3 ‖):**
 
-| SA | Callable | LOC | Commit |
-|----|----------|-----|--------|
-| SA-05 | `createPlanoAcao` (NC open validation, server signature, multi-tenant write) | 140 | `8998236` |
-| SA-06 | `registerPresenca` (reunião enum, ≥1 participante, immutable) | 130 | `8998236` |
+| SA    | Callable                                                                                         | LOC | Commit    |
+| ----- | ------------------------------------------------------------------------------------------------ | --- | --------- |
+| SA-05 | `createPlanoAcao` (NC open validation, server signature, multi-tenant write)                     | 140 | `8998236` |
+| SA-06 | `registerPresenca` (reunião enum, ≥1 participante, immutable)                                    | 130 | `8998236` |
 | SA-07 | `createReAuditoria` (original=finalizada gate, all-NCs-fechada gate, `reAuditoriaDe` chain link) | 150 | `8998236` |
 
 **Wave W2 — Rules + Indexes (sequential):**
 
-| SA | Deliverable | Commit |
-|----|-------------|--------|
+| SA    | Deliverable                                                                                    | Commit    |
+| ----- | ---------------------------------------------------------------------------------------------- | --------- |
 | SA-08 | Firestore rules: `planos-acao` (RT/admin update), `reunioes` (immutable). 3 composite indexes. | `d187b66` |
 
 **Wave W3 — Wire + Tests (2 ‖):**
 
-| SA | Deliverable | Commit |
-|----|-------------|--------|
-| SA-09 | Export 3 new callables from `functions/src/index.ts` | `14ddeeb` |
+| SA    | Deliverable                                                        | Commit    |
+| ----- | ------------------------------------------------------------------ | --------- |
+| SA-09 | Export 3 new callables from `functions/src/index.ts`               | `14ddeeb` |
 | SA-10 | Service wrappers + `useAuditoriaPQ24` hooks + 8 E2E test scenarios | `dc48449` |
 
 **Tests added:** 8 (E2E `src/__tests__/phase11/auditoriaPQ24.test.ts`).
@@ -65,11 +65,11 @@ Lights up the advanced auditoria surface: real-time alerts, anomaly timeline, PD
 
 **Wave W4 — UI Components (5 ‖):**
 
-| SA | Component | LOC |
-|----|-----------|-----|
-| SA-11 | `AlertDashboard.tsx` — filter + severity-coded list | 210 |
+| SA    | Component                                                | LOC |
+| ----- | -------------------------------------------------------- | --- |
+| SA-11 | `AlertDashboard.tsx` — filter + severity-coded list      | 210 |
 | SA-12 | `AlertDetailModal.tsx` — focus-trap dialog + acknowledge | 249 |
-| SA-13 | `ReportViewer.tsx` — exec summary + diff table | 249 |
+| SA-13 | `ReportViewer.tsx` — exec summary + diff table           | 249 |
 | SA-14 | `AnomalyTimeline.tsx` — CSS-grid heatmap (no chart libs) | 205 |
 | SA-15 | `RuleBasedAlertList.tsx` — per-rule grouping + edit link | 250 |
 
@@ -77,22 +77,22 @@ Plus hook `useAnomalyAlerts.ts` for real-time alert subscription.
 
 **Wave W5 — PDF / Archive / Email (4):**
 
-| SA | Callable / Module |
-|----|-------------------|
-| SA-16 | `generateReportPDF.ts` — Puppeteer (lazy import) cover + exec summary + per-rule sections |
+| SA    | Callable / Module                                                                                   |
+| ----- | --------------------------------------------------------------------------------------------------- |
+| SA-16 | `generateReportPDF.ts` — Puppeteer (lazy import) cover + exec summary + per-rule sections           |
 | SA-17 | `archiveAuditReport.ts` — onCall + monthly cron (`* * * 1 *` Sao Paulo), SHA-256 + LogicalSignature |
-| SA-18 | `exportSourceRegistry.ts` — register auditoria as ExportWizard source |
-| SA-19 | `emailAuditReport.ts` — SMTP via Secrets Manager (4 secrets), audit log |
+| SA-18 | `exportSourceRegistry.ts` — register auditoria as ExportWizard source                               |
+| SA-19 | `emailAuditReport.ts` — SMTP via Secrets Manager (4 secrets), audit log                             |
 
 **Wave W6 — Tests + Documentation (5):**
 
-| SA | Deliverable | Tests |
-|----|-------------|-------|
-| SA-20 | `alertDashboard.test.tsx` (incl. jest-axe) | 8 |
-| SA-21 | `anomalyDetection.test.ts` (z-score, trend, threshold) | 10 |
-| SA-22 | `reportPDF.test.ts` (golden snapshot + 5 assertions) | 5+ |
-| SA-23 | `07-VERIFICATION.md` — verification gate report | — |
-| SA-24 | `PHASE-7-OVERVIEW.md` + `auditoria` row in CLAUDE.md updated | — |
+| SA    | Deliverable                                                  | Tests |
+| ----- | ------------------------------------------------------------ | ----- |
+| SA-20 | `alertDashboard.test.tsx` (incl. jest-axe)                   | 8     |
+| SA-21 | `anomalyDetection.test.ts` (z-score, trend, threshold)       | 10    |
+| SA-22 | `reportPDF.test.ts` (golden snapshot + 5 assertions)         | 5+    |
+| SA-23 | `07-VERIFICATION.md` — verification gate report              | —     |
+| SA-24 | `PHASE-7-OVERVIEW.md` + `auditoria` row in CLAUDE.md updated | —     |
 
 **Tests added:** 23 (8+10+5).
 **Bundle delta:** +18 KB (target <30 KB) · main chunk 378 KB (limit ≤450 KB).
@@ -130,7 +130,7 @@ Per-lab critical-value thresholds, severity routing, multi-channel escalation, a
 - SA-36: tests (`criticosFlow.test.ts` 8 + `iaStripOCR.test.ts` 13 = 21)
 
 **Tests added:** 21.
-**Secrets:** TWILIO_* (3) + SMTP_* (4) on `escalateCritico`; GEMINI_API_KEY on `geminiStripParser`.
+**Secrets:** TWILIO*\* (3) + SMTP*\* (4) on `escalateCritico`; GEMINI_API_KEY on `geminiStripParser`.
 **CORS:** 2/2.
 **Bundle delta:** ~120 KB (above 40 KB target — Gemini Vision lib; future code-split candidate).
 **Compliance:** RDC 978 Arts. 6/127/128/167 · DICQ 4.3/4.4/4.14.6 · LGPD Arts. 9/11/13/17 (consent gate, no PII in SMS).
@@ -214,22 +214,22 @@ Pending. Will produce `PRE-DEPLOY-VERIFY.md` and apply the `v1.4-PARTIAL` tag on
 
 ## Aggregate Metrics
 
-| Metric | Value |
-|---|---|
-| Macro-phases completed (MP-0..5a) | 6 of 8 (75%) |
-| Total SAs executed | 60 (4 + 6 + 14 + 12 + 6 + 22 — all green) |
-| Atomic commits on branch | 48 (since `main`) |
-| New / extended modules | 6 (`auditoria-interna` new, `criticos` new, `criticos-fsm` new, `auditoria` extended, `bioquimica` extended Phase 9b) |
-| Tests added (unit + E2E) | ~131 (8 + 23 + 21 + 31 + 48) |
-| Net LOC | ~7,000 |
-| TSC web | **0 errors** |
-| TSC functions | **0 errors** |
-| Bundle main chunk | 378 KB gzip (limit 450 KB) |
-| Cumulative bundle delta vs MP-0 baseline | ~+150 KB (mostly Gemini Vision SDK on `bioquimica` route — code-split candidate) |
-| Build time | ~33s (no regression vs baseline) |
-| Cron jobs added | 2 (`archiveAuditReportsMonthly`, `fsmEscalacaoSweep` every minute) |
-| Cloud Functions callables added | ~10 (3 PQ-24 + 4 auditoria + 2 críticos + 1 FSM + 2 bioquímica = 12 — counting overlaps) |
-| Secrets newly required at deploy | TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, GEMINI_API_KEY |
+| Metric                                   | Value                                                                                                                 |
+| ---------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Macro-phases completed (MP-0..5a)        | 6 of 8 (75%)                                                                                                          |
+| Total SAs executed                       | 60 (4 + 6 + 14 + 12 + 6 + 22 — all green)                                                                             |
+| Atomic commits on branch                 | 48 (since `main`)                                                                                                     |
+| New / extended modules                   | 6 (`auditoria-interna` new, `criticos` new, `criticos-fsm` new, `auditoria` extended, `bioquimica` extended Phase 9b) |
+| Tests added (unit + E2E)                 | ~131 (8 + 23 + 21 + 31 + 48)                                                                                          |
+| Net LOC                                  | ~7,000                                                                                                                |
+| TSC web                                  | **0 errors**                                                                                                          |
+| TSC functions                            | **0 errors**                                                                                                          |
+| Bundle main chunk                        | 378 KB gzip (limit 450 KB)                                                                                            |
+| Cumulative bundle delta vs MP-0 baseline | ~+150 KB (mostly Gemini Vision SDK on `bioquimica` route — code-split candidate)                                      |
+| Build time                               | ~33s (no regression vs baseline)                                                                                      |
+| Cron jobs added                          | 2 (`archiveAuditReportsMonthly`, `fsmEscalacaoSweep` every minute)                                                    |
+| Cloud Functions callables added          | ~10 (3 PQ-24 + 4 auditoria + 2 críticos + 1 FSM + 2 bioquímica = 12 — counting overlaps)                              |
+| Secrets newly required at deploy         | TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS, GEMINI_API_KEY |
 
 ---
 
@@ -237,35 +237,35 @@ Pending. Will produce `PRE-DEPLOY-VERIFY.md` and apply the `v1.4-PARTIAL` tag on
 
 ### RDC 978/2025
 
-| Article | Coverage in v1.4-final-closure | Source |
-|---|---|---|
-| Art. 6 (NOTIVISA) | Foundation (MP-3) — full callable deferred to MP-6/Phase 6 | MP-3 |
-| Art. 107 (auditorias periódicas) | `auditoria-interna` PQ-24 closure (planos de ação + presença + re-auditoria) | MP-1 |
-| Art. 127 (escalação de valores críticos) | `criticos` routing + `criticos-fsm` FSM-driven SLA cron | MP-3, MP-4 |
-| Art. 128 (responsabilidade RT) | Threshold config audit, escalation defaults to RT, FSM panel acknowledge by RT | MP-3, MP-4 |
-| Art. 167 (laudo digital integrity) | Bioquímica OCR consent gate, Westgard signature, audit trail | MP-3, MP-5a |
-| Art. 179 (CIQ obrigatório) | 50+ analyte CLSI catalog | MP-5a |
-| Art. 180 (control plan) | analyte seed JSON | MP-5a |
-| Art. 183 (CIQ por mudança de lote) | lotId validation in Gemini callable | MP-5a |
-| 5.3 (audit trail who/what/when/where) | AlertDashboard surfaces severity + scope + ts + user via email-log | MP-2 |
+| Article                                  | Coverage in v1.4-final-closure                                                 | Source      |
+| ---------------------------------------- | ------------------------------------------------------------------------------ | ----------- |
+| Art. 6 (NOTIVISA)                        | Foundation (MP-3) — full callable deferred to MP-6/Phase 6                     | MP-3        |
+| Art. 107 (auditorias periódicas)         | `auditoria-interna` PQ-24 closure (planos de ação + presença + re-auditoria)   | MP-1        |
+| Art. 127 (escalação de valores críticos) | `criticos` routing + `criticos-fsm` FSM-driven SLA cron                        | MP-3, MP-4  |
+| Art. 128 (responsabilidade RT)           | Threshold config audit, escalation defaults to RT, FSM panel acknowledge by RT | MP-3, MP-4  |
+| Art. 167 (laudo digital integrity)       | Bioquímica OCR consent gate, Westgard signature, audit trail                   | MP-3, MP-5a |
+| Art. 179 (CIQ obrigatório)               | 50+ analyte CLSI catalog                                                       | MP-5a       |
+| Art. 180 (control plan)                  | analyte seed JSON                                                              | MP-5a       |
+| Art. 183 (CIQ por mudança de lote)       | lotId validation in Gemini callable                                            | MP-5a       |
+| 5.3 (audit trail who/what/when/where)    | AlertDashboard surfaces severity + scope + ts + user via email-log             | MP-2        |
 
 ### DICQ 4.x
 
-| Clause | Coverage |
-|---|---|
-| 4.3 (documentação) | bioquímica catalog, threshold config audit, OCR integration doc | MP-3, MP-5a |
-| 4.4 (auditoria) | Phase 7 advanced auditoria (alerts, anomaly timeline, PDF archive, email), PQ-24 closure, FSM history immutável, escalation log | MP-1, MP-2, MP-3, MP-4 |
-| 4.14.6 (gestão de risco) | criticos detection as risk mitigation; FSM SLA breach as risk indicator | MP-3, MP-4 |
-| 4.3 Bloco F (5.5.1.1, 5.6.2, 5.6.3.1, 5.6.4) | bioquímica Phase 9b — CIQ planning, Westgard rules, rejection criteria, interlab comparison | MP-5a |
+| Clause                                       | Coverage                                                                                                                        |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------- | ---------------------- |
+| 4.3 (documentação)                           | bioquímica catalog, threshold config audit, OCR integration doc                                                                 | MP-3, MP-5a            |
+| 4.4 (auditoria)                              | Phase 7 advanced auditoria (alerts, anomaly timeline, PDF archive, email), PQ-24 closure, FSM history immutável, escalation log | MP-1, MP-2, MP-3, MP-4 |
+| 4.14.6 (gestão de risco)                     | criticos detection as risk mitigation; FSM SLA breach as risk indicator                                                         | MP-3, MP-4             |
+| 4.3 Bloco F (5.5.1.1, 5.6.2, 5.6.3.1, 5.6.4) | bioquímica Phase 9b — CIQ planning, Westgard rules, rejection criteria, interlab comparison                                     | MP-5a                  |
 
 ### LGPD
 
-| Article | Coverage |
-|---|---|
-| Art. 9 (dados pessoais sensíveis) | consentToken enforced on both Gemini callables (strip parser + bioquímica OCR); IA dataset consent gate | MP-3, MP-5a |
-| Art. 11 (consentimento explícito) | IAFeedbackLoop checkbox; bioquímica consentToken | MP-3, MP-5a |
-| Art. 13 (minimização) | No patient identifiers in Storage paths or SMS body; rawText not logged | MP-3, MP-5a |
-| Art. 17 (eliminação) | soft-delete only (RN-06) on all new collections | MP-1, MP-3, MP-4 |
+| Article                           | Coverage                                                                                                |
+| --------------------------------- | ------------------------------------------------------------------------------------------------------- | ---------------- |
+| Art. 9 (dados pessoais sensíveis) | consentToken enforced on both Gemini callables (strip parser + bioquímica OCR); IA dataset consent gate | MP-3, MP-5a      |
+| Art. 11 (consentimento explícito) | IAFeedbackLoop checkbox; bioquímica consentToken                                                        | MP-3, MP-5a      |
+| Art. 13 (minimização)             | No patient identifiers in Storage paths or SMS body; rawText not logged                                 | MP-3, MP-5a      |
+| Art. 17 (eliminação)              | soft-delete only (RN-06) on all new collections                                                         | MP-1, MP-3, MP-4 |
 
 ### CLSI EP15 / Westgard 1981
 
@@ -290,12 +290,12 @@ All 8 rules implemented and unit-tested: 1-3s · 2-2s · R-4s · 4-1s · 10x · 
 
 ### New risks introduced
 
-| Risk | Severity | Mitigation |
-|---|---|---|
-| `fsmEscalacaoSweep` runs every minute (high frequency) | Medium | Batch cap 50 cases/lab/tick; cost monitor + alert when >200 escalations/min |
-| SMS/email delivery cascade may silently fail | Low | Fallback chain SMS → email → in-app; per-case logged; manual retry |
-| In-doc history (50-cap) overflow path is new | Low | Overflow auto-spills to `/history` subcollection; recommend purge after 30 days |
-| Twilio + SMTP secrets are new at deploy | High (deploy-blocking) | Pre-deploy gate `scripts/preflight-secrets-check.sh` mandatory; documented in MP-8 |
+| Risk                                                   | Severity               | Mitigation                                                                         |
+| ------------------------------------------------------ | ---------------------- | ---------------------------------------------------------------------------------- |
+| `fsmEscalacaoSweep` runs every minute (high frequency) | Medium                 | Batch cap 50 cases/lab/tick; cost monitor + alert when >200 escalations/min        |
+| SMS/email delivery cascade may silently fail           | Low                    | Fallback chain SMS → email → in-app; per-case logged; manual retry                 |
+| In-doc history (50-cap) overflow path is new           | Low                    | Overflow auto-spills to `/history` subcollection; recommend purge after 30 days    |
+| Twilio + SMTP secrets are new at deploy                | High (deploy-blocking) | Pre-deploy gate `scripts/preflight-secrets-check.sh` mandatory; documented in MP-8 |
 
 ---
 
@@ -307,7 +307,7 @@ To be finalized in `PRE-DEPLOY-VERIFY.md` (MP-8 output). Preliminary:
 - [ ] `cd functions && npm run build` exit 0
 - [ ] `npm run build` (Vite) exit 0; main chunk gzip ≤ 450 KB
 - [ ] `npm test --run` — no regressions vs baseline; +131 new tests passing
-- [ ] `bash scripts/preflight-secrets-check.sh` — verify TWILIO_*, SMTP_*, GEMINI_API_KEY in Firebase Secret Manager
+- [ ] `bash scripts/preflight-secrets-check.sh` — verify TWILIO*\*, SMTP*\*, GEMINI_API_KEY in Firebase Secret Manager
 - [ ] `firestore.rules` updated with `criticos-fsm-cases`, `auditoria-archive` append-only blocks
 - [ ] `firestore.indexes.json` deployed with 3 new PQ-24 composite indexes + criticos indexes
 - [ ] All CORS callables verified: 12 new callables × `cors: true`

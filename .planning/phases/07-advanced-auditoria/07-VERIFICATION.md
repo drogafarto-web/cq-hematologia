@@ -9,6 +9,7 @@
 ## Summary
 
 All 14 SAs delivered across Waves 4, 5, and 6:
+
 - **W4 (5 UI components):** AlertDashboard, AlertDetailModal, ReportViewer, AnomalyTimeline, RuleBasedAlertList — all dark-first, WCAG AA, no external icon/chart libs
 - **W5 (4 callables + registry):** generateAuditReportPDF (cover + exec + per-rule), archiveAuditReport (callable + cron), ExportWizard registry, emailAuditReport (SMTP)
 - **W6 (5 tests + doc + status):** 23 new unit tests (8 + 10 + 5), verification gate, Phase 7 completion status
@@ -30,14 +31,14 @@ All files pass strict TypeScript compilation.
 
 ### Summary
 
-| Component | Tests | Status |
-|-----------|-------|--------|
-| AlertDashboard | 8 | ✅ PASS |
-| AnomalyDetection | 10 | ✅ PASS |
-| ReportPDF | 5+ | ✅ PASS |
-| **Total Phase 7 W6** | **23** | **✅ PASS** |
+| Component                       | Tests  | Status      |
+| ------------------------------- | ------ | ----------- |
+| AlertDashboard                  | 8      | ✅ PASS     |
+| AnomalyDetection                | 10     | ✅ PASS     |
+| ReportPDF                       | 5+     | ✅ PASS     |
+| **Total Phase 7 W6**            | **23** | **✅ PASS** |
 | **Prior Phase 7 tests (W0-W3)** | **49** | **✅ PASS** |
-| **Overall** | **72** | **✅ PASS** |
+| **Overall**                     | **72** | **✅ PASS** |
 
 **Test breakdown:**
 
@@ -75,13 +76,13 @@ All files pass strict TypeScript compilation.
 
 ## Compliance Audit
 
-| Requirement | Source | W4-W6 Evidence | Status |
-|-------------|--------|----------------|--------|
-| **RDC 978 5.3** — Audit trail (who/what/when/where) | Art. 167 | AlertDashboard surfaces all 4 + AnomalyTimeline visualizes when + timestamp in ReportPDF cover | ✅ |
-| **RDC 978 Art. 107** — Periodic reviews | Art. 107 | archiveAuditReportsMonthly cron runs 03:00 SP time on month 1st; ReportViewer paginated archive | ✅ |
-| **RDC 978 Art. 128** — RT responsibilities | Art. 128 | Portal-RT presence from Phase 4; emailAuditReport defaults to RT role members | ✅ |
-| **DICQ 4.4** — Trilha de auditoria + anomalias | 4.4 | AlertDashboard + AnomalyTimeline + RuleBasedAlertList all index labId; no cross-tenant reads | ✅ |
-| **DICQ 4.4** — NC investigation | 4.4 | AlertDetailModal "Reconhecer" callable logs to email-log subcollection with uid+ts | ✅ |
+| Requirement                                         | Source   | W4-W6 Evidence                                                                                  | Status |
+| --------------------------------------------------- | -------- | ----------------------------------------------------------------------------------------------- | ------ |
+| **RDC 978 5.3** — Audit trail (who/what/when/where) | Art. 167 | AlertDashboard surfaces all 4 + AnomalyTimeline visualizes when + timestamp in ReportPDF cover  | ✅     |
+| **RDC 978 Art. 107** — Periodic reviews             | Art. 107 | archiveAuditReportsMonthly cron runs 03:00 SP time on month 1st; ReportViewer paginated archive | ✅     |
+| **RDC 978 Art. 128** — RT responsibilities          | Art. 128 | Portal-RT presence from Phase 4; emailAuditReport defaults to RT role members                   | ✅     |
+| **DICQ 4.4** — Trilha de auditoria + anomalias      | 4.4      | AlertDashboard + AnomalyTimeline + RuleBasedAlertList all index labId; no cross-tenant reads    | ✅     |
+| **DICQ 4.4** — NC investigation                     | 4.4      | AlertDetailModal "Reconhecer" callable logs to email-log subcollection with uid+ts              | ✅     |
 
 All Phase 7 W4-W6 deliverables meet compliance surface + security model.
 
@@ -89,10 +90,10 @@ All Phase 7 W4-W6 deliverables meet compliance surface + security model.
 
 ## Bundle
 
-| Component | Size (gzip) | Target |
-|-----------|------------|--------|
-| Auditoria module (5 components + hooks) | +18 KB | <30 KB ✅ |
-| Main chunk (after build) | 378 KB | ≤450 KB ✅ |
+| Component                               | Size (gzip) | Target     |
+| --------------------------------------- | ----------- | ---------- |
+| Auditoria module (5 components + hooks) | +18 KB      | <30 KB ✅  |
+| Main chunk (after build)                | 378 KB      | ≤450 KB ✅ |
 
 No regressions vs MP-1 baseline (362 KB → 378 KB).
 

@@ -5,9 +5,9 @@ label: Patient Portal Phase 2 — Complaint intake (RCA Five Whys) + NPS + sugge
 type: execute
 model: haiku
 escalation_model: sonnet
-depends_on: ["MP-5a"]
+depends_on: ['MP-5a']
 # MP-5b (CEQ deepening) e MP-5c (analytics consent) deferidos — ver FINAL-REPORT.md
-depends_on_deferred: ["MP-5b", "MP-5c"]
+depends_on_deferred: ['MP-5b', 'MP-5c']
 autonomous: true
 human_gates: 0
 total_subagents: 8
@@ -20,17 +20,20 @@ estimated_runtime: 2h
 **Goal:** Extend the live `portal-paciente` module with patient-facing complaint intake (with admin-side RCA Five Whys workflow), NPS survey, and 1-user-1-vote suggestion voting.
 
 **Compliance hooks:**
+
 - RDC 978/2025 Art. 86 (gestão de não-conformidades + ações corretivas).
 - DICQ 4.14.3 (reclamações e sugestões), 4.14.6 (gestão de riscos via RCA), 4.14.4 (pesquisa de satisfação).
 - LGPD Arts. 9, 11, 13, 17 (consent, anonymization, transparency, data subject rights).
 
 **Wave dependency graph:**
+
 ```
 W1 (complaint intake + RCA)   4 SAs ‖
   └─> W2 (NPS + voting)        4 SAs ‖
 ```
 
 **Existing canonical files to read:**
+
 - `src/features/portal-paciente/` — current live module (consent gate + result viewer pattern).
 - `src/features/sgq/` — Documentos da Qualidade module (RN-06 + audit chainHash patterns).
 - `functions/src/modules/portal-paciente/` — patient-facing callables.
@@ -55,17 +58,21 @@ Type system for the reclamações (complaints) domain. Zero logic — types only
 ```typescript
 export type ReclamacaoCanal = 'patient-portal' | 'phone' | 'email' | 'in-person' | 'social-media';
 export type ReclamacaoStatus =
-  | 'new'              // submitted by patient, awaiting triage
-  | 'triaged'          // admin reviewed, classified
-  | 'rca-in-progress'  // Five Whys workflow open
-  | 'rca-completed'    // root cause identified
-  | 'capa-linked'      // a CAPA opened from this complaint
-  | 'closed'           // resolved
-  | 'rejected';        // not actionable (out of scope, duplicate, etc.)
+  | 'new' // submitted by patient, awaiting triage
+  | 'triaged' // admin reviewed, classified
+  | 'rca-in-progress' // Five Whys workflow open
+  | 'rca-completed' // root cause identified
+  | 'capa-linked' // a CAPA opened from this complaint
+  | 'closed' // resolved
+  | 'rejected'; // not actionable (out of scope, duplicate, etc.)
 
 export type ReclamacaoSeverity = 'low' | 'medium' | 'high' | 'critical';
 
-export interface LogicalSignature { hash: string; operatorId: string; ts: number; }
+export interface LogicalSignature {
+  hash: string;
+  operatorId: string;
+  ts: number;
+}
 
 export interface ReclamacaoAttachment {
   id: string;
@@ -73,13 +80,13 @@ export interface ReclamacaoAttachment {
   fileSize: number;
   mimeType: 'application/pdf' | 'image/png' | 'image/jpeg' | 'image/webp';
   storagePath: string;
-  hash: string;          // SHA-256 hex64
+  hash: string; // SHA-256 hex64
   uploadedAt: number;
 }
 
 export interface RCAFiveWhysAnswer {
   level: 1 | 2 | 3 | 4 | 5;
-  question: string;      // "Por que X aconteceu?"
+  question: string; // "Por que X aconteceu?"
   answer: string;
   answeredBy: string;
   answeredAt: number;
@@ -89,8 +96,8 @@ export interface RCAFiveWhys {
   workflowId: string;
   startedAt: number;
   startedBy: string;
-  answers: RCAFiveWhysAnswer[];   // length 0..5
-  rootCause?: string;             // populated when answers.length === 5
+  answers: RCAFiveWhysAnswer[]; // length 0..5
+  rootCause?: string; // populated when answers.length === 5
   completedAt?: number;
   completedBy?: string;
   signature?: LogicalSignature;
@@ -102,14 +109,14 @@ export interface Reclamacao {
   canal: ReclamacaoCanal;
   status: ReclamacaoStatus;
   severity: ReclamacaoSeverity;
-  patientName?: string;          // optional (anonymous complaints permitted)
-  patientContact?: string;       // email or phone (LGPD: encrypted at rest server-side)
-  consentToken?: string;         // LGPD consent if patient identified themselves
-  description: string;           // ≥ 30 chars
+  patientName?: string; // optional (anonymous complaints permitted)
+  patientContact?: string; // email or phone (LGPD: encrypted at rest server-side)
+  consentToken?: string; // LGPD consent if patient identified themselves
+  description: string; // ≥ 30 chars
   attachments: ReclamacaoAttachment[];
-  signaturePatient?: LogicalSignature;  // when submitted via portal
+  signaturePatient?: LogicalSignature; // when submitted via portal
   rca?: RCAFiveWhys;
-  capaId?: string;               // link to capa-tracking doc when escalated
+  capaId?: string; // link to capa-tracking doc when escalated
   createdAt: number;
   triagedAt?: number;
   triagedBy?: string;
@@ -134,6 +141,7 @@ export const RCA_QUESTION_TEMPLATES: readonly [string, string, string, string, s
 ```
 
 **Invariantes:**
+
 - 0 lógica.
 - Sem imports externos.
 - `RCA_QUESTION_TEMPLATES` é tuple `as const` com exatamente 5 elementos em PT-BR.
@@ -165,7 +173,7 @@ export interface ReclamacaoFilters {
 export function subscribeReclamacoes(
   labId: string,
   filters: ReclamacaoFilters,
-  onChange: (rows: Reclamacao[]) => void
+  onChange: (rows: Reclamacao[]) => void,
 ): () => void;
 
 export function getReclamacao(labId: string, id: string): Promise<Reclamacao | undefined>;
@@ -185,16 +193,17 @@ export const closeReclamacao: ReturnType<typeof onCall>;
 
 **Callable contracts:**
 
-| Callable | Input | Output | Auth | Key invariants |
-|---|---|---|---|---|
-| `intakeReclamacao` | `CreateReclamacaoInput + signaturePatient?` | `{ reclamacaoId }` | optional (patient may be anonymous; if `patientContact` provided, `consentToken` required) | `description.length >= 30 && <= 5000`. Status = `'new'`. Severity defaulta `'medium'`. ChainHash audit append. |
-| `triageReclamacao` | `{ labId, reclamacaoId, severity, status: 'triaged' \| 'rejected', closingReason? }` | `{ ok: true }` | required (RT/admin/qualidade) | Source status must be `'new'`. Append audit. |
-| `startRCAFiveWhys` | `{ labId, reclamacaoId }` | `{ workflowId }` | required (RT/admin/qualidade) | Source status must be `'triaged'` with severity ≥ `'medium'`. Set status `'rca-in-progress'`. Initialize empty answers array. |
-| `submitRCAAnswer` | `{ labId, reclamacaoId, level: 1\|2\|3\|4\|5, question, answer }` | `{ ok: true }` | required | Append answer atomically. Reject if level out of order. `answer.length >= 10`. |
-| `completeRCAFiveWhys` | `{ labId, reclamacaoId, rootCause, signature }` | `{ ok: true }` | required | `answers.length === 5`. `rootCause.length >= 30`. `signature.operatorId === request.auth.uid`. Set status `'rca-completed'`. |
-| `closeReclamacao` | `{ labId, reclamacaoId, closingReason, capaId? }` | `{ ok: true }` | required | If `capaId` provided, set status `'capa-linked'` AND `'closed'` (with reason). Source status must be `'rca-completed'` or `'triaged'`. |
+| Callable              | Input                                                                                | Output             | Auth                                                                                       | Key invariants                                                                                                                         |
+| --------------------- | ------------------------------------------------------------------------------------ | ------------------ | ------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `intakeReclamacao`    | `CreateReclamacaoInput + signaturePatient?`                                          | `{ reclamacaoId }` | optional (patient may be anonymous; if `patientContact` provided, `consentToken` required) | `description.length >= 30 && <= 5000`. Status = `'new'`. Severity defaulta `'medium'`. ChainHash audit append.                         |
+| `triageReclamacao`    | `{ labId, reclamacaoId, severity, status: 'triaged' \| 'rejected', closingReason? }` | `{ ok: true }`     | required (RT/admin/qualidade)                                                              | Source status must be `'new'`. Append audit.                                                                                           |
+| `startRCAFiveWhys`    | `{ labId, reclamacaoId }`                                                            | `{ workflowId }`   | required (RT/admin/qualidade)                                                              | Source status must be `'triaged'` with severity ≥ `'medium'`. Set status `'rca-in-progress'`. Initialize empty answers array.          |
+| `submitRCAAnswer`     | `{ labId, reclamacaoId, level: 1\|2\|3\|4\|5, question, answer }`                    | `{ ok: true }`     | required                                                                                   | Append answer atomically. Reject if level out of order. `answer.length >= 10`.                                                         |
+| `completeRCAFiveWhys` | `{ labId, reclamacaoId, rootCause, signature }`                                      | `{ ok: true }`     | required                                                                                   | `answers.length === 5`. `rootCause.length >= 30`. `signature.operatorId === request.auth.uid`. Set status `'rca-completed'`.           |
+| `closeReclamacao`     | `{ labId, reclamacaoId, closingReason, capaId? }`                                    | `{ ok: true }`     | required                                                                                   | If `capaId` provided, set status `'capa-linked'` AND `'closed'` (with reason). Source status must be `'rca-completed'` or `'triaged'`. |
 
 **Global callable invariants:**
+
 - `onCall({ region: 'southamerica-east1', cors: true, memory: '256MiB', timeoutSeconds: 30 })`.
 - Auth callable rules per row above.
 - All writes via `runTransaction` for state transitions; appendsLogs (`labs/{labId}/reclamacoes/audit/{logId}`) atomic with state change.
@@ -221,7 +230,7 @@ import type { ReclamacaoCanal, LogicalSignature } from '../types';
 
 export interface ReclamacaoIntakeFormProps {
   labId: string;
-  canal?: ReclamacaoCanal;          // default 'patient-portal'
+  canal?: ReclamacaoCanal; // default 'patient-portal'
   onSubmitted: (reclamacaoId: string) => void;
   onCancel?: () => void;
 }
@@ -230,6 +239,7 @@ export function ReclamacaoIntakeForm(props: ReclamacaoIntakeFormProps): JSX.Elem
 ```
 
 **Invariantes (UX + visual):**
+
 - Container: `bg-[#0e0e10]` page-level. Form card `bg-[#141417] border border-white/10 rounded-2xl p-8 max-w-2xl mx-auto`.
 - Tipografia editorial: title `text-2xl font-medium tracking-tight text-white`, body `text-sm text-white/70 leading-relaxed`.
 - 4-step progressive disclosure (numbered nav at top): Identificação → Descrição → Anexos → Confirmação.
@@ -272,6 +282,7 @@ export function RCAFiveWhysWorkflow(props: RCAFiveWhysWorkflowProps): JSX.Elemen
 ```
 
 **Invariantes (UX + visual):**
+
 - Container: `bg-[#141417] rounded-2xl p-6 border border-white/10`.
 - 5 levels exibidos como timeline vertical à esquerda (`border-l border-white/10 pl-6 space-y-6`). Cada level: número em circle (`w-8 h-8 rounded-full bg-violet-500/20 text-violet-300 flex items-center justify-center tabular-nums text-sm`), question em `text-sm text-white/80`, answer textarea `bg-[#0e0e10] border border-white/10 rounded-lg p-3 text-sm`.
 - Default questions vêm de `RCA_QUESTION_TEMPLATES` (W1 SA-74). Admin pode editar a question (clique no texto → input inline).
@@ -309,12 +320,12 @@ export type NPSCategory = 'detractor' | 'passive' | 'promoter'; // 0-6 / 7-8 / 9
 export interface NPSResponse {
   id: string;
   labId: string;
-  score: number;                  // 0..10 integer
+  score: number; // 0..10 integer
   category: NPSCategory;
-  followUp?: string;              // free-text reason (required when score <= 6)
-  consentToken?: string;          // LGPD if respondent identified
-  patientToken?: string;          // anonymous device-bound token (one response per patient per cycle)
-  cycleId: string;                // e.g. "2026-Q2"
+  followUp?: string; // free-text reason (required when score <= 6)
+  consentToken?: string; // LGPD if respondent identified
+  patientToken?: string; // anonymous device-bound token (one response per patient per cycle)
+  cycleId: string; // e.g. "2026-Q2"
   submittedAt: number;
   deletedAt?: number;
 }
@@ -323,20 +334,24 @@ export interface NPSCycleSummary {
   cycleId: string;
   totalResponses: number;
   averageScore: number;
-  npsValue: number;               // (%promoters - %detractors) * 100
+  npsValue: number; // (%promoters - %detractors) * 100
   detractors: number;
   passives: number;
   promoters: number;
   lastUpdatedAt: number;
 }
 
-export function classifyNPSScore(score: number): NPSCategory;  // 0-6 / 7-8 / 9-10
+export function classifyNPSScore(score: number): NPSCategory; // 0-6 / 7-8 / 9-10
 ```
 
 **File 2 — `src/features/nps/services/npsService.ts`:**
 
 ```typescript
-export function subscribeNPSCycle(labId: string, cycleId: string, onChange: (s: NPSCycleSummary) => void): () => void;
+export function subscribeNPSCycle(
+  labId: string,
+  cycleId: string,
+  onChange: (s: NPSCycleSummary) => void,
+): () => void;
 export function getNPSResponses(labId: string, cycleId: string): Promise<NPSResponse[]>;
 ```
 
@@ -349,12 +364,13 @@ export const aggregateNPSCycle: ReturnType<typeof onCall>;
 
 **Callable contracts:**
 
-| Callable | Input | Output | Auth | Key invariants |
-|---|---|---|---|---|
-| `submitNPS` | `{ labId, score, followUp?, consentToken?, patientToken?, cycleId }` | `{ responseId }` | optional (anonymous OK) | `score` integer 0..10. `followUp.length >= 10` if `score <= 6`. `patientToken` enforces idempotency: server query `where('patientToken', '==', token).where('cycleId', '==', cycleId)`; if exists, return existing id (no duplicate). |
-| `aggregateNPSCycle` | `{ labId, cycleId }` | `{ summary: NPSCycleSummary }` | required (RT/admin/qualidade) | Recalcula `NPSCycleSummary` a partir de todas as `NPSResponse` com `deletedAt == null`. Persiste em `labs/{labId}/nps/cycles/{cycleId}/summary`. |
+| Callable            | Input                                                                | Output                         | Auth                          | Key invariants                                                                                                                                                                                                                        |
+| ------------------- | -------------------------------------------------------------------- | ------------------------------ | ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `submitNPS`         | `{ labId, score, followUp?, consentToken?, patientToken?, cycleId }` | `{ responseId }`               | optional (anonymous OK)       | `score` integer 0..10. `followUp.length >= 10` if `score <= 6`. `patientToken` enforces idempotency: server query `where('patientToken', '==', token).where('cycleId', '==', cycleId)`; if exists, return existing id (no duplicate). |
+| `aggregateNPSCycle` | `{ labId, cycleId }`                                                 | `{ summary: NPSCycleSummary }` | required (RT/admin/qualidade) | Recalcula `NPSCycleSummary` a partir de todas as `NPSResponse` com `deletedAt == null`. Persiste em `labs/{labId}/nps/cycles/{cycleId}/summary`.                                                                                      |
 
 **Global invariants:**
+
 - `onCall({ region: 'southamerica-east1', cors: true, memory: '256MiB' })`.
 - All writes audit-logged (event: `nps_submitted`, `nps_cycle_aggregated`).
 - NEVER log `followUp` content (LGPD — may contain personal feedback).
@@ -385,6 +401,7 @@ export function NPSSurveyForm(props: NPSSurveyFormProps): JSX.Element;
 ```
 
 **Invariantes (UX + visual):**
+
 - Container: `bg-[#141417] rounded-2xl p-8 border border-white/10 max-w-xl mx-auto`.
 - Question: `text-xl font-medium tracking-tight text-white text-center mb-2` — "Em uma escala de 0 a 10, qual a probabilidade de você recomendar este laboratório a um amigo ou colega?"
 - Subtitle: `text-sm text-white/60 text-center mb-8`.
@@ -413,18 +430,18 @@ Two-file SA: read-only client + callable v2 with fairness enforcement (1 user pe
 **File 1 — `src/features/sugestoes/services/votingService.ts`:**
 
 ```typescript
-import type { Sugestao } from '../types';  // assume types file already exists in sugestoes module
+import type { Sugestao } from '../types'; // assume types file already exists in sugestoes module
 
 export type VoteDirection = 'up' | 'down' | 'cleared';
 
 export interface SugestaoWithUserVote extends Sugestao {
-  userVote: VoteDirection;       // current user's vote on this item
+  userVote: VoteDirection; // current user's vote on this item
 }
 
 export function subscribeSugestoesRanked(
   labId: string,
   uid: string,
-  onChange: (rows: SugestaoWithUserVote[]) => void
+  onChange: (rows: SugestaoWithUserVote[]) => void,
 ): () => void;
 ```
 
@@ -437,22 +454,25 @@ export const recomputeSugestaoRank: ReturnType<typeof onCall>;
 
 **Callable contracts:**
 
-| Callable | Input | Output | Auth | Key invariants |
-|---|---|---|---|---|
-| `voteSugestao` | `{ labId, sugestaoId, direction: 'up' \| 'down' \| 'cleared' }` | `{ newScore, userVote }` | required (any active member) | Atomic transaction: read `labs/{labId}/sugestoes/{id}/votes/{uid}` for previous vote, compute delta, update `score`, update `votes/{uid}` doc with new direction. **Idempotent: same direction twice = no-op.** Cleared deletes the vote subdoc (soft-delete `deletedAt`) and reverts the score. |
-| `recomputeSugestaoRank` | `{ labId, sugestaoId? }` | `{ updated: number }` | required (admin) | Recompute `score` from votes count (live). Used to fix drift after manual data ops. |
+| Callable                | Input                                                           | Output                   | Auth                         | Key invariants                                                                                                                                                                                                                                                                                   |
+| ----------------------- | --------------------------------------------------------------- | ------------------------ | ---------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `voteSugestao`          | `{ labId, sugestaoId, direction: 'up' \| 'down' \| 'cleared' }` | `{ newScore, userVote }` | required (any active member) | Atomic transaction: read `labs/{labId}/sugestoes/{id}/votes/{uid}` for previous vote, compute delta, update `score`, update `votes/{uid}` doc with new direction. **Idempotent: same direction twice = no-op.** Cleared deletes the vote subdoc (soft-delete `deletedAt`) and reverts the score. |
+| `recomputeSugestaoRank` | `{ labId, sugestaoId? }`                                        | `{ updated: number }`    | required (admin)             | Recompute `score` from votes count (live). Used to fix drift after manual data ops.                                                                                                                                                                                                              |
 
 **Score formula:**
+
 - `score = upvotes - downvotes` (simple). Optionally weighted by recency in future — not in this SA.
 - Ranked subscription: `orderBy('score', 'desc'), orderBy('createdAt', 'desc')`.
 
 **Fairness invariants (CRITICAL — Threat: vote stuffing):**
+
 - Per-user vote document path: `labs/{labId}/sugestoes/{sugestaoId}/votes/{uid}` — `uid` is the doc id, enforces 1-vote-per-user.
 - Firestore rule for `votes/{uid}`: `request.auth.uid == uid` (user can only write their own vote).
 - Server-side transaction reads `votes/{uid}` before mutating `score` — never trusts client-supplied delta.
 - All votes audit-logged: `console.log(JSON.stringify({ event: 'sugestao_vote', labId, sugestaoId, direction, uid }))`.
 
 **Global invariants:**
+
 - `onCall({ region: 'southamerica-east1', cors: true, memory: '256MiB' })`.
 - RN-06 soft-delete on `votes/{uid}` when direction === 'cleared'.
 
@@ -475,13 +495,14 @@ import type { SugestaoWithUserVote, VoteDirection } from '../services/votingServ
 
 export interface SugestaoVotingPanelProps {
   labId: string;
-  filterTopic?: string;          // optional filter by topic tag
+  filterTopic?: string; // optional filter by topic tag
 }
 
 export function SugestaoVotingPanel(props: SugestaoVotingPanelProps): JSX.Element;
 ```
 
 **Invariantes (UX + visual):**
+
 - Layout: vertical list `space-y-3 max-w-3xl mx-auto`. Cada card `bg-[#141417] border border-white/10 rounded-2xl p-5 flex flex-row gap-4`.
 - Vote column (left, `w-12`): vertical stack — up arrow button, score (`text-lg tabular-nums font-medium text-white`), down arrow button.
   - Up arrow idle: `text-white/40 hover:text-emerald-400`. Active (user upvoted): `text-emerald-400`.
@@ -506,15 +527,15 @@ export function SugestaoVotingPanel(props: SugestaoVotingPanelProps): JSX.Elemen
 
 ## MP-6 Master Verification Gate
 
-| Gate | Pass criteria |
-|------|---------------|
-| **G-Build** | `npx tsc --noEmit` exit 0 + `cd functions && npm run build` exit 0 |
-| **G-Test** | New tests (if added by sibling QA pass) pass; no Phase 8 / MP-5* regression |
-| **G-CORS** | All 14 new callables (`intakeReclamacao`, `triageReclamacao`, `startRCAFiveWhys`, `submitRCAAnswer`, `completeRCAFiveWhys`, `closeReclamacao`, `submitNPS`, `aggregateNPSCycle`, `voteSugestao`, `recomputeSugestaoRank`, ...) have `cors:true` (grep enforced) |
-| **G-Region** | All callables in `southamerica-east1` (grep `region: 'southamerica-east1'`) |
-| **G-LGPD** | Reclamação form requires `consentToken` when patient identified; NPS does not log `followUp`; Cloud Logs sample shows zero PII in logged events |
-| **G-Fairness** | Manual smoke: same uid voting twice on same sugestaoId → score increments only once; reverting (cleared) decrements correctly |
-| **G-Soft-Delete** | grep `deleteDoc(` in new code → 0 hits (only `softDelete*` allowed; vote `cleared` uses `deletedAt`) |
-| **G-RCA-Sequence** | Manual: attempting `submitRCAAnswer` with `level: 3` while level 2 unanswered → callable rejects `failed-precondition` |
+| Gate               | Pass criteria                                                                                                                                                                                                                                                   |
+| ------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **G-Build**        | `npx tsc --noEmit` exit 0 + `cd functions && npm run build` exit 0                                                                                                                                                                                              |
+| **G-Test**         | New tests (if added by sibling QA pass) pass; no Phase 8 / MP-5\* regression                                                                                                                                                                                    |
+| **G-CORS**         | All 14 new callables (`intakeReclamacao`, `triageReclamacao`, `startRCAFiveWhys`, `submitRCAAnswer`, `completeRCAFiveWhys`, `closeReclamacao`, `submitNPS`, `aggregateNPSCycle`, `voteSugestao`, `recomputeSugestaoRank`, ...) have `cors:true` (grep enforced) |
+| **G-Region**       | All callables in `southamerica-east1` (grep `region: 'southamerica-east1'`)                                                                                                                                                                                     |
+| **G-LGPD**         | Reclamação form requires `consentToken` when patient identified; NPS does not log `followUp`; Cloud Logs sample shows zero PII in logged events                                                                                                                 |
+| **G-Fairness**     | Manual smoke: same uid voting twice on same sugestaoId → score increments only once; reverting (cleared) decrements correctly                                                                                                                                   |
+| **G-Soft-Delete**  | grep `deleteDoc(` in new code → 0 hits (only `softDelete*` allowed; vote `cleared` uses `deletedAt`)                                                                                                                                                            |
+| **G-RCA-Sequence** | Manual: attempting `submitRCAAnswer` with `level: 3` while level 2 unanswered → callable rejects `failed-precondition`                                                                                                                                          |
 
 Failure of build / CORS / region / soft-delete / LGPD gates → escalate to Sonnet 4.6. Fairness + RCA sequence gates manual; documented in MP-8 deploy checklist.

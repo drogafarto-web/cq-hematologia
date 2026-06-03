@@ -11,6 +11,7 @@ execution_mode: parallel_subagents
 **Orchestration:** Two independent subagents, each executing their ADR sequentially through 5 waves.
 
 **Parallel Structure:**
+
 ```
 Subagent 1: ADR 0003 (NC Global)     Subagent 2: ADR 0004 (POP Versionado)
 ├─ Wave 1 (Days 1-3)                 ├─ Wave 1 (Days 1-3)
@@ -35,6 +36,7 @@ Subagent 1: ADR 0003 (NC Global)     Subagent 2: ADR 0004 (POP Versionado)
 **Success Criteria:** NC schema deployed, 7-module integration live, CAPA workflow enforced, blocking gates tested
 
 **Waves:**
+
 1. **Wave 1 (Days 1-3):** Design + Schema + Backfill Strategy
    - Finalize NaoConformidade interface
    - Design CAPA workflow state machine
@@ -74,6 +76,7 @@ Subagent 1: ADR 0003 (NC Global)     Subagent 2: ADR 0004 (POP Versionado)
 **Success Criteria:** POP versioning deployed, RT signatures enforced, operator training linked, all CIQ runs reference popId
 
 **Waves:**
+
 1. **Wave 1 (Days 1-3):** Design + Schema + Versioning Spec
    - Finalize POP and POPVersao interfaces
    - Design versioning auto-increment (v1.0, v1.1, v2.0)
@@ -121,18 +124,21 @@ Both subagents must coordinate on:
 ## Success Metrics
 
 **ADR 0003:**
+
 - NaoConformidade collection created in all labs
 - 0 NC-related data loss (migration 1:1)
 - Critical NC blocking tested and verified
 - CAPA workflow: open→investigate→action→verify→close cycle tested
 
 **ADR 0004:**
+
 - POP collection versioned (v1.0, v1.1 format)
 - All active CIQ runs have popReferencia (100% coverage post-backfill)
 - Operator training on POP enforced (tested)
 - RT signature verification working (ADR 0005 integration verified)
 
 **Combined:**
+
 - 0% service disruption (dual-mode Firestore rules during migration)
 - 100% audit trail coverage (all NC + POP changes HMAC-signed)
 - Smoke tests: Open NC in Insumo (gravity=grave) → block use → investigate → remediate → close
@@ -157,6 +163,7 @@ Both subagents must coordinate on:
 ## Abort Conditions
 
 Stop and escalate to CTO if any of:
+
 - HMAC signature mismatch in ADR 0005 integration (breaks chain)
 - Firestore rules compilation error
 - Backfill script affects >10% of data unexpectedly

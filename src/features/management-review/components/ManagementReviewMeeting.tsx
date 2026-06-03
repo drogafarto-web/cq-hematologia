@@ -54,7 +54,14 @@ function ChevronIcon({ open }: { open: boolean }) {
 
 function RefreshIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36M20.49 15a9 9 0 0 1-14.85 3.36" />
     </svg>
   );
@@ -62,7 +69,14 @@ function RefreshIcon() {
 
 function SaveIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
       <polyline points="17 21 17 13 7 13 7 21" />
       <polyline points="7 3 7 8 15 8" />
@@ -72,7 +86,14 @@ function SaveIcon() {
 
 function PrintIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="6 9 6 2 18 2 18 9" />
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <rect x="6" y="14" width="12" height="8" />
@@ -111,18 +132,18 @@ function EntryAccordion({
             <p className="text-sm font-medium text-white truncate">
               {entry.entryNumber}. {entry.title}
             </p>
-            {isManual && (
-              <p className="text-xs text-slate-400 mt-0.5">Entrada manual</p>
-            )}
+            {isManual && <p className="text-xs text-slate-400 mt-0.5">Entrada manual</p>}
           </div>
         </div>
-        <span className={`text-xs font-medium px-2 py-1 rounded whitespace-nowrap ${
-          entry.error
-            ? 'bg-red-500/20 text-red-300'
-            : entry.source === 'manual'
-              ? 'bg-amber-500/20 text-amber-300'
-              : 'bg-emerald-500/20 text-emerald-300'
-        }`}>
+        <span
+          className={`text-xs font-medium px-2 py-1 rounded whitespace-nowrap ${
+            entry.error
+              ? 'bg-red-500/20 text-red-300'
+              : entry.source === 'manual'
+                ? 'bg-amber-500/20 text-amber-300'
+                : 'bg-emerald-500/20 text-emerald-300'
+          }`}
+        >
           {entry.error ? 'Erro' : isManual ? 'Manual' : 'Auto'}
         </span>
       </button>
@@ -165,25 +186,23 @@ function EntryAccordion({
   );
 }
 
-export function ManagementReviewMeeting({
-  onSave,
-}: ManagementReviewMeetingProps) {
+export function ManagementReviewMeeting({ onSave }: ManagementReviewMeetingProps) {
   const { reviews, loading } = useManagementReview();
   const [aggregationState, setAggregationState] = useState<AggregationState>('idle');
   const [year, setYear] = useState(new Date().getFullYear());
   const [meetingDate, setMeetingDate] = useState(new Date().toISOString().split('T')[0]);
   const [participants, setParticipants] = useState<Record<string, boolean>>({
-    'RT': true,
+    RT: true,
     'quality-manager': false,
-    'director': false,
-    'supervisors': false,
+    director: false,
+    supervisors: false,
   });
   const [entries, setEntries] = useState<EntryData[]>(
     ENTRY_TITLES.map((title, i) => ({
       entryNumber: i + 1,
       title,
       source: i >= 13 ? 'manual' : 'auto-aggregated',
-    }))
+    })),
   );
   const [decisions, setDecisions] = useState('');
   const [actions, setActions] = useState('');
@@ -215,9 +234,7 @@ export function ManagementReviewMeeting({
     <div className="flex flex-col gap-6 max-w-4xl">
       {/* Header */}
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold text-white">
-          Reunião de Revisão pela Gestão
-        </h1>
+        <h1 className="text-2xl font-semibold text-white">Reunião de Revisão pela Gestão</h1>
 
         <div className="grid grid-cols-2 gap-4">
           {/* Year */}
@@ -270,14 +287,18 @@ export function ManagementReviewMeeting({
                 className="w-4 h-4 rounded border border-white/20 bg-white/5 accent-violet-500"
               />
               <span className="text-sm text-slate-300 capitalize">
-                {role === 'RT' ? 'Responsável Técnico' : role === 'quality-manager' ? 'Gerente QA' : role === 'director' ? 'Diretor' : 'Supervisores'}
+                {role === 'RT'
+                  ? 'Responsável Técnico'
+                  : role === 'quality-manager'
+                    ? 'Gerente QA'
+                    : role === 'director'
+                      ? 'Diretor'
+                      : 'Supervisores'}
               </span>
             </label>
           ))}
         </div>
-        <p className="text-xs text-slate-400">
-          {participantCount} de 4 participantes selecionados
-        </p>
+        <p className="text-xs text-slate-400">{participantCount} de 4 participantes selecionados</p>
       </div>
 
       {/* Aggregation Button */}
@@ -292,9 +313,7 @@ export function ManagementReviewMeeting({
 
       {/* Entries */}
       <div className="space-y-3">
-        <h2 className="text-sm font-semibold text-white">
-          Entradas de dados ({entries.length})
-        </h2>
+        <h2 className="text-sm font-semibold text-white">Entradas de dados ({entries.length})</h2>
 
         {/* Auto-Aggregated */}
         <div className="space-y-2">
@@ -303,20 +322,14 @@ export function ManagementReviewMeeting({
           </h3>
           <div className="space-y-2">
             {autoEntries.map((entry) => (
-              <EntryAccordion
-                key={entry.entryNumber}
-                entry={entry}
-                onNotesChange={() => {}}
-              />
+              <EntryAccordion key={entry.entryNumber} entry={entry} onNotesChange={() => {}} />
             ))}
           </div>
         </div>
 
         {/* Manual */}
         <div className="space-y-2 pt-4 border-t border-white/10">
-          <h3 className="text-xs font-medium text-slate-400">
-            Manual ({manualEntries.length})
-          </h3>
+          <h3 className="text-xs font-medium text-slate-400">Manual ({manualEntries.length})</h3>
           <div className="space-y-2">
             {manualEntries.map((entry) => (
               <EntryAccordion

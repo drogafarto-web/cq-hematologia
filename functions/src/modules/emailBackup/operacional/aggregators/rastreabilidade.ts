@@ -24,9 +24,7 @@ function isoDate(date: Date | admin.firestore.Timestamp | null | undefined): str
   return d.toISOString().slice(0, 10);
 }
 
-function toDate(
-  value: admin.firestore.Timestamp | null | undefined,
-): Date | null {
+function toDate(value: admin.firestore.Timestamp | null | undefined): Date | null {
   if (!value) return null;
   return value.toDate();
 }
@@ -61,10 +59,7 @@ async function collectMovimentacoes(
 
   const movsPerChunk = await Promise.all(
     chunks.map((chunk) =>
-      db
-        .collection(`labs/${labId}/insumo-movimentacoes`)
-        .where('insumoId', 'in', chunk)
-        .get(),
+      db.collection(`labs/${labId}/insumo-movimentacoes`).where('insumoId', 'in', chunk).get(),
     ),
   );
 
@@ -77,16 +72,18 @@ async function collectMovimentacoes(
       const ts = toDate(m['timestamp']);
       if (!ts) continue;
 
-      const agg =
-        byInsumo.get(insumoId) ??
-        { entrada: null, abertura: null, fechamento: null, descarte: null };
+      const agg = byInsumo.get(insumoId) ?? {
+        entrada: null,
+        abertura: null,
+        fechamento: null,
+        descarte: null,
+      };
 
       // Para cada tipo guardamos o primeiro `entrada/abertura` (marca início)
       // e o último `fechamento/descarte` (marca fim).
       if (tipo === 'entrada' && (!agg.entrada || ts < agg.entrada)) agg.entrada = ts;
       if (tipo === 'abertura' && (!agg.abertura || ts < agg.abertura)) agg.abertura = ts;
-      if (tipo === 'fechamento' && (!agg.fechamento || ts > agg.fechamento))
-        agg.fechamento = ts;
+      if (tipo === 'fechamento' && (!agg.fechamento || ts > agg.fechamento)) agg.fechamento = ts;
       if (tipo === 'descarte' && (!agg.descarte || ts > agg.descarte)) agg.descarte = ts;
 
       byInsumo.set(insumoId, agg);
@@ -99,11 +96,7 @@ async function collectMovimentacoes(
 /**
  * Deriva alertas regulatórios a partir do doc do insumo + timeline.
  */
-function computeAlerts(
-  insumo: admin.firestore.DocumentData,
-  mov: MovAgg,
-  now: Date,
-): LotAlert[] {
+function computeAlerts(insumo: admin.firestore.DocumentData, mov: MovAgg, now: Date): LotAlert[] {
   const alerts: LotAlert[] = [];
   const status: string = insumo['status'] ?? 'ativo';
 
@@ -277,11 +270,7 @@ export async function aggregateRastreabilidade(
     };
   }
 
-  const movsByInsumo = await collectMovimentacoes(
-    db,
-    labId,
-    new Set(relevant.map((r) => r.id)),
-  );
+  const movsByInsumo = await collectMovimentacoes(db, labId, new Set(relevant.map((r) => r.id)));
 
   const now = new Date();
   const all: LotLifecycleRecord[] = relevant.map(({ id, data }) =>

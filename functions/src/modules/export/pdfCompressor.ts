@@ -63,16 +63,16 @@ export async function compressPDF(inputBuffer: Buffer): Promise<CompressionResul
     const compMB = (compressedSizeBytes / 1024 / 1024).toFixed(1);
     console.warn(
       `[PDFCompressor] File still ${compMB}MB after compression ` +
-      `(original: ${origMB}MB, ratio: ${compressionRatio.toFixed(2)}x). ` +
-      'Consider reducing the date range or using Ghostscript-based compression ' +
-      '(requires custom Docker runtime image for Cloud Functions).'
+        `(original: ${origMB}MB, ratio: ${compressionRatio.toFixed(2)}x). ` +
+        'Consider reducing the date range or using Ghostscript-based compression ' +
+        '(requires custom Docker runtime image for Cloud Functions).',
     );
   } else {
     const origMB = (originalSizeBytes / 1024 / 1024).toFixed(2);
     const compMB = (compressedSizeBytes / 1024 / 1024).toFixed(2);
     console.log(
       `[PDFCompressor] Compressed ${origMB}MB → ${compMB}MB ` +
-      `(ratio: ${compressionRatio.toFixed(2)}x)`
+        `(ratio: ${compressionRatio.toFixed(2)}x)`,
     );
   }
 

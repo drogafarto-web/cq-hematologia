@@ -116,7 +116,12 @@ export async function createEscala(labId: LabId, input: EscalaDiariaInput): Prom
 export async function updateEscala(
   labId: LabId,
   escalaId: string,
-  updates: Partial<Pick<EscalaDiariaInput, 'turno' | 'colaboradores' | 'rtPresente' | 'rtSubstitutoPresente' | 'observacoes'>>,
+  updates: Partial<
+    Pick<
+      EscalaDiariaInput,
+      'turno' | 'colaboradores' | 'rtPresente' | 'rtSubstitutoPresente' | 'observacoes'
+    >
+  >,
 ): Promise<void> {
   const ref = escalaDoc(labId, escalaId);
   await updateDoc(ref, {

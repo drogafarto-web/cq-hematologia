@@ -59,7 +59,11 @@ export async function buildOutboxCsv(
   labId: string,
   rangeStartMs?: number,
   rangeEndMs?: number,
-): Promise<{ csv: string; rowCount: number; archiveDocs: admin.firestore.QueryDocumentSnapshot[] }> {
+): Promise<{
+  csv: string;
+  rowCount: number;
+  archiveDocs: admin.firestore.QueryDocumentSnapshot[];
+}> {
   let q: admin.firestore.Query = db.collection(`notivisa-outbox/${labId}/archives`);
   if (rangeStartMs) {
     q = q.where('archivedAt', '>=', admin.firestore.Timestamp.fromMillis(rangeStartMs));

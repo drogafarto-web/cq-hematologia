@@ -1,11 +1,5 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
-import {
-  View,
-  Text,
-  Animated,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, Animated, ActivityIndicator, StyleSheet } from 'react-native';
 import { useNetInfo } from '../hooks/useNetInfo';
 import { getQueue } from '../services/offlineQueueService';
 

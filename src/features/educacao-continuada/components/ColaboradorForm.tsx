@@ -1,10 +1,7 @@
 import { useState, type FormEvent } from 'react';
 
 import { useColaboradores } from '../hooks/useColaboradores';
-import type {
-  Colaborador,
-  ColaboradorInput,
-} from '../types/EducacaoContinuada';
+import type { Colaborador, ColaboradorInput } from '../types/EducacaoContinuada';
 
 import { Field, inputClass } from './_formPrimitives';
 
@@ -54,24 +51,15 @@ function validate(state: FormState): FormErrors {
   return errors;
 }
 
-export function ColaboradorForm({
-  colaborador,
-  onSaved,
-  onCancel,
-}: ColaboradorFormProps) {
+export function ColaboradorForm({ colaborador, onSaved, onCancel }: ColaboradorFormProps) {
   const { create, update } = useColaboradores();
   const isEditing = Boolean(colaborador);
 
-  const [state, setState] = useState<FormState>(() =>
-    buildInitialState(colaborador),
-  );
+  const [state, setState] = useState<FormState>(() => buildInitialState(colaborador));
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
-  const handleChange = <K extends keyof FormState>(
-    key: K,
-    value: FormState[K],
-  ): void => {
+  const handleChange = <K extends keyof FormState>(key: K, value: FormState[K]): void => {
     setState((prev) => ({ ...prev, [key]: value }));
     if (errors[key as keyof FormErrors]) {
       setErrors((prev) => ({ ...prev, [key]: undefined }));
@@ -122,12 +110,7 @@ export function ColaboradorForm({
         </p>
       </header>
 
-      <Field
-        id="colaborador-nome"
-        label="Nome"
-        required
-        error={errors.nome}
-      >
+      <Field id="colaborador-nome" label="Nome" required error={errors.nome}>
         <input
           id="colaborador-nome"
           type="text"
@@ -140,12 +123,7 @@ export function ColaboradorForm({
         />
       </Field>
 
-      <Field
-        id="colaborador-cargo"
-        label="Cargo"
-        required
-        error={errors.cargo}
-      >
+      <Field id="colaborador-cargo" label="Cargo" required error={errors.cargo}>
         <input
           id="colaborador-cargo"
           type="text"
@@ -158,12 +136,7 @@ export function ColaboradorForm({
         />
       </Field>
 
-      <Field
-        id="colaborador-setor"
-        label="Setor"
-        required
-        error={errors.setor}
-      >
+      <Field id="colaborador-setor" label="Setor" required error={errors.setor}>
         <input
           id="colaborador-setor"
           type="text"
@@ -213,4 +186,3 @@ export function ColaboradorForm({
     </form>
   );
 }
-

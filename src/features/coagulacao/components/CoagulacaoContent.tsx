@@ -409,8 +409,8 @@ export function CoagulacaoContent({
         <p className="text-sm text-slate-500 dark:text-white/40 mb-5 max-w-md">
           Troque o lote em uso na barra superior ou use as pills{' '}
           <strong className="font-medium text-slate-600 dark:text-white/55">Nível I</strong> /{' '}
-          <strong className="font-medium text-slate-600 dark:text-white/55">Nível II</strong> (como na
-          hematologia), ou clique abaixo para registrar a primeira corrida.
+          <strong className="font-medium text-slate-600 dark:text-white/55">Nível II</strong> (como
+          na hematologia), ou clique abaixo para registrar a primeira corrida.
         </p>
         <button
           type="button"
@@ -472,7 +472,12 @@ export function CoagulacaoContent({
 
   async function handleUnpin() {
     if (!activeLot || !user) return;
-    if (!confirm(`Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`)) return;
+    if (
+      !confirm(
+        `Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`,
+      )
+    )
+      return;
     try {
       await desvincularCoagLot(activeLot.labId, activeLot.id, user.uid);
     } catch (err) {
@@ -706,8 +711,18 @@ export function CoagulacaoContent({
                   className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-amber-300 dark:border-amber-500/25 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all"
                 >
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                    <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                    <path d="M2 11l9-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    <path
+                      d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M2 11l9-9"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   Desvincular
                 </button>
@@ -721,7 +736,12 @@ export function CoagulacaoContent({
                       className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-emerald-300 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
                     >
                       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                        <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                        <path
+                          d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                          stroke="currentColor"
+                          strokeWidth="1.2"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                       Vincular oficial
                     </button>
@@ -733,7 +753,12 @@ export function CoagulacaoContent({
                     className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-blue-300 dark:border-blue-500/25 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
                   >
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                      <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                      <path
+                        d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                     Em validação
                   </button>
@@ -828,15 +853,21 @@ export function CoagulacaoContent({
                 </p>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <span className="block text-[10px] text-slate-500 dark:text-white/40">Média (x̄)</span>
+                    <span className="block text-[10px] text-slate-500 dark:text-white/40">
+                      Média (x̄)
+                    </span>
                     <span className="text-base font-semibold text-slate-900 dark:text-white/85">
                       {statsMode.activeStats.mean.toFixed(COAG_ANALYTES[selectedAnalyte].decimals)}
                     </span>
                   </div>
                   <div>
-                    <span className="block text-[10px] text-slate-500 dark:text-white/40">DP (SD)</span>
+                    <span className="block text-[10px] text-slate-500 dark:text-white/40">
+                      DP (SD)
+                    </span>
                     <span className="text-base font-semibold text-slate-900 dark:text-white/85">
-                      {statsMode.activeStats.sd.toFixed(COAG_ANALYTES[selectedAnalyte].decimals + 1)}
+                      {statsMode.activeStats.sd.toFixed(
+                        COAG_ANALYTES[selectedAnalyte].decimals + 1,
+                      )}
                     </span>
                   </div>
                 </div>
@@ -1270,9 +1301,9 @@ function DeleteLotModal({
       <div className="space-y-4">
         <div className="rounded-xl border border-red-500/25 bg-red-500/[0.07] text-red-700 dark:text-red-400 px-4 py-3 text-xs">
           Esta ação exclui o lote{' '}
-          <span className="font-mono font-semibold">{lot.loteControle}</span> ({formatCoagNivelLabel(lot.nivel)}) e
-          todas as suas <strong>{runCount}</strong> corrida{runCount !== 1 ? 's' : ''}. Um registro
-          de auditoria é preservado em nível-lab.
+          <span className="font-mono font-semibold">{lot.loteControle}</span> (
+          {formatCoagNivelLabel(lot.nivel)}) e todas as suas <strong>{runCount}</strong> corrida
+          {runCount !== 1 ? 's' : ''}. Um registro de auditoria é preservado em nível-lab.
         </div>
         <div>
           <label className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5">

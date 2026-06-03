@@ -45,8 +45,20 @@ export function ModuleLinkBadge({ moduloVinculado }: Props) {
       onMouseLeave={() => setShowTooltip(false)}
       aria-label={`Modulo vinculado: ${displayName}`}
     >
-      <svg width="10" height="10" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="2" className="shrink-0">
-        <path d="M6.5 11.5L4 14a2.12 2.12 0 01-3-3l2.5-2.5M9.5 4.5L12 2a2.12 2.12 0 013 3l-2.5 2.5M6 10l4-4" strokeLinecap="round" strokeLinejoin="round" />
+      <svg
+        width="10"
+        height="10"
+        viewBox="0 0 16 16"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        className="shrink-0"
+      >
+        <path
+          d="M6.5 11.5L4 14a2.12 2.12 0 01-3-3l2.5-2.5M9.5 4.5L12 2a2.12 2.12 0 013 3l-2.5 2.5M6 10l4-4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
       </svg>
       {displayName}
       {showTooltip && (

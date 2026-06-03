@@ -61,7 +61,7 @@ export const parseAnalyteStripImage = onCall(
     // 4. Return structured OCRParsedResult
 
     throw new Error('not_implemented: Gemini Vision integration pending');
-  }
+  },
 );
 
 // ─── Internal Helpers ──────────────────────────────────────────────────────
@@ -74,7 +74,7 @@ export const parseAnalyteStripImage = onCall(
  */
 export async function callGeminiVision(
   imageBase64: string,
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp'
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp',
 ): Promise<{ rawText: string; warnings: string[] }> {
   // Placeholder — not yet implemented
   throw new Error('not_implemented: Gemini Vision API integration pending');
@@ -87,7 +87,7 @@ export async function callGeminiVision(
  */
 function createStubOCRResult(
   imageStoragePath: string,
-  expectedAnalytes: string[]
+  expectedAnalytes: string[],
 ): OCRParsedResult {
   const timestamp = Date.now();
   const imageHash = crypto.createHash('sha256').update(imageStoragePath).digest('hex');

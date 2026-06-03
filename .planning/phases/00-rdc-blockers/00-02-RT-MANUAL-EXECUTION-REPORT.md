@@ -28,7 +28,7 @@ The RT (Responsável Técnico) manual gate has been fully planned and tested. Th
 ✅ **Firestore audit verification** — 4 expected events with schema validation  
 ✅ **Success criteria** — functional, compliance, regulatory alignment  
 ✅ **Rollback procedures** — undo steps with soft-delete pattern  
-✅ **Timeline** — 12-minute estimated execution  
+✅ **Timeline** — 12-minute estimated execution
 
 **File:** `.planning/phases/00-rdc-blockers/00-02-RT-MANUAL-EXECUTION-PLAN.md`
 
@@ -36,6 +36,7 @@ The RT (Responsável Técnico) manual gate has been fully planned and tested. Th
 
 ✅ **15 unit tests** — all passing  
 ✅ **Test coverage:**
+
 - Step 1: POL-LGPD-001 creation with em_revisao status
 - Step 2: em_revisao → vigente transition (state machine validation)
 - Step 3: IT-LGPD-DPIA-001 creation with em_revisao status
@@ -45,6 +46,7 @@ The RT (Responsável Técnico) manual gate has been fully planned and tested. Th
 - Integration: Full workflow orchestration
 
 **Validation:**
+
 ```
 Test Files  1 passed (1)
      Tests  15 passed (15)
@@ -57,6 +59,7 @@ Test Files  1 passed (1)
 
 ✅ **Node.js/Firebase Admin SDK** — executable script for CI/CD integration  
 ✅ **Operations:**
+
 - Create POL-LGPD-001 with em_revisao status
 - Transition to vigente with audit event
 - Create IT-LGPD-DPIA-001 with em_revisao status
@@ -121,29 +124,29 @@ npm run test:unit -- test/manual-gate-rt-sgq-creation.e2e.test.ts
   ✓ Step 1: Create POL-LGPD-001 (2 tests)
     ✓ should create document with em_revisao status
     ✓ should generate audit event "created"
-  
+
   ✓ Step 2: Transition POL-LGPD-001 to vigente (2 tests)
     ✓ should allow transition from em_revisao to vigente
     ✓ should generate audit event "status-changed"
-  
+
   ✓ Step 3: Create IT-LGPD-DPIA-001 (2 tests)
     ✓ should create document with em_revisao status
     ✓ should generate audit event "created"
-  
+
   ✓ Step 4: Transition IT-LGPD-DPIA-001 to vigente (2 tests)
     ✓ should allow transition from em_revisao to vigente
     ✓ should generate audit event "status-changed"
-  
+
   ✓ Step 5: Verify documents in SGQ list (3 tests)
     ✓ should list both documents with vigente status
     ✓ should display correct status badges in UI
     ✓ should show DocumentosObrigatoriosBadge with both docs
-  
+
   ✓ Step 6: Verify audit trail (3 tests)
     ✓ should have 4 audit events total
     ✓ should contain created events with versaoSnapshot=1
     ✓ should contain status-changed events with motivo
-  
+
   ✓ RT Manual Gate: Full Workflow (1 test)
     ✓ should complete all 6 steps without errors
 
@@ -211,14 +214,15 @@ The gate is **executable immediately** by the RT user:
 
 The plan expects exactly 4 events in `/labs/labclin-riopomba/sgq-documentos-audit`:
 
-| # | Type | Código | Status Change | Timestamp | Operator |
-|---|------|--------|----------------|-----------|----------|
-| 1 | `created` | POL-LGPD-001 | — | T₁ | RT_UID |
-| 2 | `status-changed` | POL-LGPD-001 | em_revisao → vigente | T₂ | RT_UID |
-| 3 | `created` | IT-LGPD-DPIA-001 | — | T₃ | RT_UID |
-| 4 | `status-changed` | IT-LGPD-DPIA-001 | em_revisao → vigente | T₄ | RT_UID |
+| #   | Type             | Código           | Status Change        | Timestamp | Operator |
+| --- | ---------------- | ---------------- | -------------------- | --------- | -------- |
+| 1   | `created`        | POL-LGPD-001     | —                    | T₁        | RT_UID   |
+| 2   | `status-changed` | POL-LGPD-001     | em_revisao → vigente | T₂        | RT_UID   |
+| 3   | `created`        | IT-LGPD-DPIA-001 | —                    | T₃        | RT_UID   |
+| 4   | `status-changed` | IT-LGPD-DPIA-001 | em_revisao → vigente | T₄        | RT_UID   |
 
 **Constraints:**
+
 - T₁ < T₂ < T₃ < T₄ (strict sequence)
 - All operadorId = RT_UID
 - All timestamps generated server-side
@@ -231,6 +235,7 @@ The plan expects exactly 4 events in `/labs/labclin-riopomba/sgq-documentos-audi
 ### RDC 978 Art. 77 (Responsável Técnico)
 
 ✅ **Gate demonstrates:**
+
 - RT can approve documents (status transition to vigente)
 - RT identity captured (operadorId)
 - Timestamp recorded for each action
@@ -239,6 +244,7 @@ The plan expects exactly 4 events in `/labs/labclin-riopomba/sgq-documentos-audi
 ### DICQ 4.3 (Controle de Documentos)
 
 ✅ **Gate demonstrates:**
+
 - Document versioning (versao = 1)
 - Status workflow (em_revisao → vigente → obsoleto)
 - Audit trail (4 events recorded)
@@ -247,6 +253,7 @@ The plan expects exactly 4 events in `/labs/labclin-riopomba/sgq-documentos-audi
 ### DICQ 4.13 (Controle de Registros)
 
 ✅ **Gate demonstrates:**
+
 - Append-only audit events
 - Non-repudiation (operadorId + signature)
 - Timestamp integrity (serverTimestamp)
@@ -270,11 +277,11 @@ All factors validated in test suite. Gate is **GO** for manual execution.
 
 ## Sign-Off
 
-| Role | Date | Status |
-|------|------|--------|
-| **Plan Author** | 2026-05-07 | ✅ Complete |
-| **Test Author** | 2026-05-07 | ✅ 15/15 Passing |
-| **Ready for RT Execution** | 2026-05-07 | ✅ Yes |
+| Role                       | Date       | Status           |
+| -------------------------- | ---------- | ---------------- |
+| **Plan Author**            | 2026-05-07 | ✅ Complete      |
+| **Test Author**            | 2026-05-07 | ✅ 15/15 Passing |
+| **Ready for RT Execution** | 2026-05-07 | ✅ Yes           |
 
 ---
 

@@ -49,7 +49,7 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
 
   const { capa, acoes, verificacoes, isLoading, error } = useCAPADetail(
     labId || '',
-    effectiveCapaId || ''
+    effectiveCapaId || '',
   );
 
   const [showVerificationForm, setShowVerificationForm] = useState(false);
@@ -167,7 +167,8 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
           </div>
           {!showTools && usedTools.length === 0 && (
             <p className="text-xs text-white/40">
-              Nenhuma ferramenta utilizada ainda. Use ferramentas como 5 Porquês, Ishikawa ou 5W2H para investigar e tratar esta NC.
+              Nenhuma ferramenta utilizada ainda. Use ferramentas como 5 Porquês, Ishikawa ou 5W2H
+              para investigar e tratar esta NC.
             </p>
           )}
           {showTools && (
@@ -223,7 +224,9 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
         {/* Verification History */}
         {verificacoes.length > 0 && (
           <div className="space-y-3">
-            <h2 className="text-lg font-semibold text-white">Verificações ({verificacoes.length})</h2>
+            <h2 className="text-lg font-semibold text-white">
+              Verificações ({verificacoes.length})
+            </h2>
             <div className="space-y-2">
               {verificacoes.map((v) => (
                 <div key={v.id} className="p-3 bg-white/[0.02] border border-white/10 rounded">
@@ -245,7 +248,9 @@ export default function CAPADetailView({ capaId: providedCapaId, onBack }: CAPAD
                   </div>
                   <p className="text-sm text-white/80">{v.notas}</p>
                   {v.horasInvestidas && (
-                    <p className="text-xs text-white/60 mt-2">Horas investidas: {v.horasInvestidas}h</p>
+                    <p className="text-xs text-white/60 mt-2">
+                      Horas investidas: {v.horasInvestidas}h
+                    </p>
                   )}
                 </div>
               ))}

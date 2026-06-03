@@ -123,12 +123,14 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 ## Quality Metrics
 
 ### Code Quality
+
 - ✅ **TypeScript**: Zero errors (`npx tsc --noEmit`)
 - ✅ **Naming**: Consistent camelCase + descriptive
 - ✅ **Comments**: JSDoc on public functions + inline TODOs
 - ✅ **Type Safety**: All `any` eliminated
 
 ### Architecture
+
 - ✅ **Component isolation**: Props interfaces + composition
 - ✅ **State management**: Local React state + hooks ready
 - ✅ **Accessibility**: ARIA roles, keyboard nav, contrast ratios WCAG AA
@@ -136,6 +138,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ **Dark-first**: bg-[#141417], white text, violet/emerald accents
 
 ### Design & UX
+
 - ✅ **Dark-first**: Apple/Linear/Stripe reference
 - ✅ **Microinteractions**: Hover states 150-200ms, transitions smooth
 - ✅ **Responsive**: Grid 1-col mobile → 4-col desktop
@@ -143,11 +146,13 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ **Empty states**: Descriptive "no documents found"
 
 ### Testing
+
 - ✅ **Unit test ready**: Mock data patterns in place
 - ✅ **E2E ready**: Routes registered, modal trigger pattern set
 - ✅ **Browser support**: No IE11; ES2020+
 
 ### Documentation
+
 - ✅ **TSDoc comments**: Component interfaces documented
 - ✅ **Inline comments**: Complex logic (state machine, virtualiz) explained
 - ✅ **TODO markers**: Phase 12-03+ integration points clear
@@ -157,12 +162,14 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 ## Acceptance Criteria (All Met ✅)
 
 ### Task 1: Badges
+
 - ✅ TipoDocumentoBadge: 15 tipos, dark-first colors
 - ✅ StatusVigenciaBadge: 4 states, semantic colors
 - ✅ Tooltips on hover
 - ✅ A11y AA (contrast, aria-label)
 
 ### Task 2: Dashboard
+
 - ✅ ListaMestraTable: filtros, paginação 50/page, sorted by status
 - ✅ ListaMestraFilters: tipo/status/setor/period + search
 - ✅ URL params ready (router integration Phase 12-03)
@@ -171,6 +178,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ Performance: LCP structure <2.5s target
 
 ### Task 3: Hierarquia
+
 - ✅ HierarquiaTree: vertical MQ → PQ → IT → FR
 - ✅ Colapsar/expandir (default MQ + PQs open)
 - ✅ Click node → detail
@@ -179,6 +187,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ Renders 80 nodes structure <500ms
 
 ### Task 4: Distribuição
+
 - ✅ DistribuicaoMatrix: docs × setores
 - ✅ Cell ✓ on distribution, empty otherwise
 - ✅ Hover tooltips
@@ -188,6 +197,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ Renders 80×17 <1s
 
 ### Task 5: MeusDocsAlert
+
 - ✅ Banner "Você tem N docs novos"
 - ✅ Click expand drawer
 - ✅ Mark as read (state hook ready)
@@ -195,6 +205,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ "lastSeenLDAt" integration point marked
 
 ### Task 6: TransicaoVigenciaModal
+
 - ✅ Modal popup
 - ✅ State machine visualization
 - ✅ Reason input
@@ -203,6 +214,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ Error handling
 
 ### Task 7: transitarVigencia Callable
+
 - ✅ Auth: RT claim validation
 - ✅ State machine: valid transitions only
 - ✅ Signature + chainHash
@@ -210,12 +222,14 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - ✅ Race condition safe (atomic transaction)
 
 ### Task 8: Routing
+
 - ✅ Routes registered: sgq-lista-mestra
 - ✅ AuthWrapper case added
 - ✅ View enum updated
 - ✅ Build succeeds
 
 ### Post-Plan Gates
+
 - ✅ `tsc --noEmit` — 0 errors
 - ✅ 3 surfaces render with mock data
 - ✅ Web Vitals structure in place (LCP target <2.5s)
@@ -227,6 +241,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 ## Deviations from Plan
 
 **[Rule 2 - Missing Dependency] Lucide React + date-fns not in package.json**
+
 - Found during: Task 1-6 (component development)
 - Issue: Imports failed; lucide-react, date-fns unavailable
 - Fix: Replaced with inline SVGs (6 icons total) + custom daterelative formatter
@@ -235,6 +250,7 @@ All 8 tasks completed with world-class dark-first design, WCAG AA accessibility,
 - Impact: **Low** — inline SVGs are smaller bundle; custom date formatter is 15 LOC
 
 **[Rule 3 - URL Params Pattern] React Router unavailable**
+
 - Found during: Task 2 (ListaMestraFilters)
 - Issue: useSearchParams requires react-router-dom (not in project)
 - Fix: Reverted to local state management (useState); URL persistence deferred to Phase 12-03 when routing is integrated
@@ -248,16 +264,16 @@ Total deviations: 2 auto-fixed (Rule 2 + Rule 3). **Impact: None — functionali
 
 ## Technical Stack
 
-| Layer | Technology | Notes |
-|-------|-----------|-------|
-| Frontend | React 19 | Functional components + hooks |
-| TypeScript | 5.8+ | Strict mode |
-| Styling | Tailwind CSS 4 | Dark-first, custom dark theme |
-| State | React useState | Local; Zustand integration Phase 12-03 |
-| Routing | React Router (Phase 12-03) | Routes registered, awaiting integration |
-| Backend | Firebase Functions | Node 22, region southamerica-east1 |
-| Auth | Firebase Auth | Custom RT claim validation |
-| Database | Firestore | Paths pre-documented, Phase 12-03 connects |
+| Layer      | Technology                 | Notes                                      |
+| ---------- | -------------------------- | ------------------------------------------ |
+| Frontend   | React 19                   | Functional components + hooks              |
+| TypeScript | 5.8+                       | Strict mode                                |
+| Styling    | Tailwind CSS 4             | Dark-first, custom dark theme              |
+| State      | React useState             | Local; Zustand integration Phase 12-03     |
+| Routing    | React Router (Phase 12-03) | Routes registered, awaiting integration    |
+| Backend    | Firebase Functions         | Node 22, region southamerica-east1         |
+| Auth       | Firebase Auth              | Custom RT claim validation                 |
+| Database   | Firestore                  | Paths pre-documented, Phase 12-03 connects |
 
 ---
 
@@ -301,8 +317,8 @@ Total: 3,950 LOC
 
 ## Commits
 
-| Commit | Message | LOC |
-|--------|---------|-----|
+| Commit    | Message                                                                              | LOC    |
+| --------- | ------------------------------------------------------------------------------------ | ------ |
 | (pending) | feat(12-sgd): UI lista-mestra + hierarquia tree + distribuição matrix + transição RT | +3,950 |
 
 ---
@@ -363,15 +379,15 @@ Key integration points:
 ```typescript
 // ListaMestraTable expects real DocumentoLM[]
 interface DocumentoLM {
-  id: string
-  codigo: string
-  titulo: string
-  tipo: string
-  status: StatusVigencia
-  versao: number
-  setoresLD: string[]
-  ultimaAtualizacao: Date
-  criadoEm: Date
+  id: string;
+  codigo: string;
+  titulo: string;
+  tipo: string;
+  status: StatusVigencia;
+  versao: number;
+  setoresLD: string[];
+  ultimaAtualizacao: Date;
+  criadoEm: Date;
 }
 
 // TransicaoVigenciaModal calls onConfirm(reason, pin)
@@ -379,12 +395,12 @@ interface DocumentoLM {
 
 // HierarquiaTree expects TreeNode[] (hierarchical)
 interface TreeNode {
-  id: string
-  codigo: string
-  titulo: string
-  tipo: TipoDocumento
-  status: StatusVigencia
-  children: TreeNode[]
+  id: string;
+  codigo: string;
+  titulo: string;
+  tipo: TipoDocumento;
+  status: StatusVigencia;
+  children: TreeNode[];
 }
 ```
 

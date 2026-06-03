@@ -33,11 +33,9 @@ const i18n = {
   'pt-BR': {
     subject: {
       escalacaoRT: '🚨 CRÍTICO — Ação Imediata Requerida — {paciente}',
-      escalacaoMedico:
-        '⚠️ CRÍTICO — Resposta do Médico Requerida — {paciente}',
+      escalacaoMedico: '⚠️ CRÍTICO — Resposta do Médico Requerida — {paciente}',
       escalacaoCTO: '🔴 CRÍTICO — Escalação Final — {paciente}',
-      slaBreach:
-        '🔔 SLA Vencido — Crítico não reconhecido — {paciente}',
+      slaBreach: '🔔 SLA Vencido — Crítico não reconhecido — {paciente}',
       notiVisaDraft: '📋 Laudo Crítico Pendente — NOTIVISA {status}',
     },
     body: {
@@ -78,11 +76,9 @@ const i18n = {
   en: {
     subject: {
       escalacaoRT: '🚨 CRITICAL — Immediate Action Required — {paciente}',
-      escalacaoMedico:
-        '⚠️ CRITICAL — Physician Response Needed — {paciente}',
+      escalacaoMedico: '⚠️ CRITICAL — Physician Response Needed — {paciente}',
       escalacaoCTO: '🔴 CRITICAL — Final Escalation — {paciente}',
-      slaBreach:
-        '🔔 SLA Breached — Unacknowledged Critical — {paciente}',
+      slaBreach: '🔔 SLA Breached — Unacknowledged Critical — {paciente}',
       notiVisaDraft: '📋 Critical Report Pending — NOTIVISA {status}',
     },
     body: {
@@ -122,17 +118,14 @@ const i18n = {
   },
 };
 
-function t<K extends keyof typeof i18n['pt-BR']>(
+function t<K extends keyof (typeof i18n)['pt-BR']>(
   locale: 'pt-BR' | 'en',
   key: K,
-): typeof i18n['pt-BR'][K] {
+): (typeof i18n)['pt-BR'][K] {
   return i18n[locale][key];
 }
 
-function substitute(
-  str: string,
-  vars: Record<string, string | number>,
-): string {
+function substitute(str: string, vars: Record<string, string | number>): string {
   return str.replace(/{(\w+)}/g, (_, key) => String(vars[key] ?? ''));
 }
 
@@ -183,9 +176,12 @@ export function renderEscalacaoEmail(
       : t(locale, 'body').severityLow;
   const severityColor = escalacao.severidade === 'alta' ? '#dc2626' : '#d97706';
 
-  const subject = substitute(t(locale, 'subject')[subjectTemplate as keyof typeof i18n['pt-BR']['subject']], {
-    paciente: escalacao.pacienteNome,
-  });
+  const subject = substitute(
+    t(locale, 'subject')[subjectTemplate as keyof (typeof i18n)['pt-BR']['subject']],
+    {
+      paciente: escalacao.pacienteNome,
+    },
+  );
 
   const html = `<!DOCTYPE html>
 <html>
@@ -419,9 +415,10 @@ export function renderEscalacaoEmail(
         <div class="sla-label">${t(locale, 'body').slaTarget}</div>
         <div class="sla-value">${escalacao.sla_minutos_target} ${t(locale, 'body').minutes}</div>
         <p style="font-size: 12px; margin-top: 8px; color: ${severityColor};">
-          ${escalacao.sla_status === 'vencido'
-            ? '⚠️ Prazo excedido — resposta urgente requerida'
-            : '✓ Em conformidade com SLA'
+          ${
+            escalacao.sla_status === 'vencido'
+              ? '⚠️ Prazo excedido — resposta urgente requerida'
+              : '✓ Em conformidade com SLA'
           }
         </p>
       </div>
@@ -620,8 +617,9 @@ export function renderSLABreachEmail(
         </div>
       </div>
 
-      ${nextTier
-        ? `
+      ${
+        nextTier
+          ? `
       <div class="next-tier-box">
         <h4>Escalando para Nível ${nextTier.tier}…</h4>
         <p>O crítico será escalado para:</p>
@@ -631,7 +629,7 @@ export function renderSLABreachEmail(
         </div>
       </div>
       `
-        : ''
+          : ''
       }
 
       <div style="text-align: center; margin-top: 24px;">
@@ -658,11 +656,15 @@ Nível ${failedTier.tier} Falhou:
   Meta de Resposta: ${failedTier.slaMinutos} minutos
   Status: Não reconhecido
 
-${nextTier ? `Escalando para Nível ${nextTier.tier}:
+${
+  nextTier
+    ? `Escalando para Nível ${nextTier.tier}:
   ${nextTier.destinatarioNome} (${nextTier.destinatario})
   Meta: ${nextTier.slaMinutos} minutos
 
-` : ''}Reconheça agora:
+`
+    : ''
+}Reconheça agora:
 ${baseUrl}/portal/criticos/${escalacao.id}
 
 ${t(locale, 'body').doNotReply}
@@ -834,13 +836,14 @@ export function renderNOTIVISANotificationEmail(
         </div>
       </div>
 
-      ${status === 'draft'
-        ? `<p>O rascunho está pronto para revisão e submissão ao NOTIVISA.</p>`
-        : status === 'submitted'
-          ? `<p>O rascunho foi enviado ao NOTIVISA para aprovação. Você será notificado quando o status mudar.</p>`
-          : status === 'approved'
-            ? `<p>O rascunho foi aprovado pelo NOTIVISA.</p>`
-            : `<p>O rascunho foi rejeitado. Revise e corrija conforme necessário.</p>`
+      ${
+        status === 'draft'
+          ? `<p>O rascunho está pronto para revisão e submissão ao NOTIVISA.</p>`
+          : status === 'submitted'
+            ? `<p>O rascunho foi enviado ao NOTIVISA para aprovação. Você será notificado quando o status mudar.</p>`
+            : status === 'approved'
+              ? `<p>O rascunho foi aprovado pelo NOTIVISA.</p>`
+              : `<p>O rascunho foi rejeitado. Revise e corrija conforme necessário.</p>`
       }
 
       <div style="text-align: center;">
@@ -851,13 +854,14 @@ export function renderNOTIVISANotificationEmail(
 
       <div class="note">
         <strong>ℹ️ Próximos Passos:</strong>
-        ${status === 'draft'
-          ? 'Revise o formulário e submeta ao NOTIVISA.'
-          : status === 'submitted'
-            ? 'Aguarde a aprovação ou rejeição do NOTIVISA.'
-            : status === 'approved'
-              ? 'O laudo foi aceito oficialmente.'
-              : 'Corrija os erros indicados e resubmita.'
+        ${
+          status === 'draft'
+            ? 'Revise o formulário e submeta ao NOTIVISA.'
+            : status === 'submitted'
+              ? 'Aguarde a aprovação ou rejeição do NOTIVISA.'
+              : status === 'approved'
+                ? 'O laudo foi aceito oficialmente.'
+                : 'Corrija os erros indicados e resubmita.'
         }
       </div>
     </div>
@@ -878,13 +882,14 @@ Paciente: ${pacienteNome}
 Laudo ID: ${laudoId}
 Rascunho ID: ${draftId}
 
-${status === 'draft'
-  ? 'O rascunho está pronto para revisão e submissão ao NOTIVISA.'
-  : status === 'submitted'
-    ? 'O rascunho foi enviado ao NOTIVISA para aprovação.'
-    : status === 'approved'
-      ? 'O rascunho foi aprovado pelo NOTIVISA.'
-      : 'O rascunho foi rejeitado. Revise e corrija conforme necessário.'
+${
+  status === 'draft'
+    ? 'O rascunho está pronto para revisão e submissão ao NOTIVISA.'
+    : status === 'submitted'
+      ? 'O rascunho foi enviado ao NOTIVISA para aprovação.'
+      : status === 'approved'
+        ? 'O rascunho foi aprovado pelo NOTIVISA.'
+        : 'O rascunho foi rejeitado. Revise e corrija conforme necessário.'
 }
 
 Abrir Rascunho:

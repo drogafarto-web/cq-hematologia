@@ -10,6 +10,7 @@
 ## Context
 
 Wave 2–3 introduced refactored NOTIVISA callables alongside pre-existing legacy code via feature flag (coexist). Legacy code contains:
+
 - Untyped parameters (`any` casts)
 - Missing exports (23+ functions with signature mismatches)
 - Old lifecycle patterns (deprecated in Wave 2-10)
@@ -90,6 +91,7 @@ Pre-deploy check `scripts/preflight-secrets-check.sh` validates secret status. T
 If hard delete causes unexpected issues:
 
 1. **Immediately (within 2h):**
+
    ```bash
    git revert <delete-commit>
    firebase deploy --only functions
@@ -110,13 +112,13 @@ If hard delete causes unexpected issues:
 
 ## Deprecation Timeline
 
-| Date | Phase | Status | Action |
-|------|-------|--------|--------|
-| 2026-05-08 | 3.3 | Current | Exclude via tsconfig + document roadmap |
-| 2026-05-20 | 4 | Start | Deploy migration guide, begin lab migration |
-| 2026-06-09 | 5 | End | Confirm all labs migrated, zero legacy usage |
-| 2026-07-08 | 6 | Execute | Hard delete legacy code + tsconfig cleanup |
-| 2026-07-10 | 6 | Verify | Deploy + 24h smoke test |
+| Date       | Phase | Status  | Action                                       |
+| ---------- | ----- | ------- | -------------------------------------------- |
+| 2026-05-08 | 3.3   | Current | Exclude via tsconfig + document roadmap      |
+| 2026-05-20 | 4     | Start   | Deploy migration guide, begin lab migration  |
+| 2026-06-09 | 5     | End     | Confirm all labs migrated, zero legacy usage |
+| 2026-07-08 | 6     | Execute | Hard delete legacy code + tsconfig cleanup   |
+| 2026-07-10 | 6     | Verify  | Deploy + 24h smoke test                      |
 
 ---
 
@@ -125,30 +127,38 @@ If hard delete causes unexpected issues:
 Run these before executing Step 2 (code deletion):
 
 ### Unit Tests
+
 ```bash
 cd functions
 npm test -- src/modules/notivisa/ --verbose
 ```
+
 Expected: 0 test files (excluded by tsconfig).
 
 ### Integration Tests
+
 ```bash
 npm test -- src/__tests__/notivisa-wave2-integration.test.ts
 ```
+
 Expected: ✓ all Wave 2-10 integration tests pass (new callables).
 
 ### Build Validation
+
 ```bash
 npm run build
 npx tsc --noEmit
 ```
+
 Expected: clean (no errors, only labApoio + ocr-quality remain).
 
 ### Firestore Rules Test
+
 ```bash
 cd ..
 npm test -- firestore.rules.test.ts
 ```
+
 Expected: notivisa rules still valid (rules are separate from code).
 
 ---
@@ -156,6 +166,7 @@ Expected: notivisa rules still valid (rules are separate from code).
 ## Documentation Artifacts
 
 Created/updated:
+
 - `NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md` (this file)
 - `NOTIVISA_WAVE2_MIGRATION_GUIDE.md` (Phase 4, to be created)
 - `NOTIVISA_MIGRATION_VALIDATION.sql` (Phase 6, to be created)
@@ -181,4 +192,3 @@ Created/updated:
 - **Phase 4 lead:** Notivisa migration team (TBD)
 - **Phase 6 lead:** Core infrastructure team
 - **Escalation:** If migration blockers arise, update `NOTIVISA_DELETE_BLOCKER_*.md` and notify tech lead 48h before Phase 6 start date.
-

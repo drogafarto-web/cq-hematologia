@@ -3,7 +3,7 @@ phase: 0
 plan: 00-03
 slug: lab-apoio-contracts
 wave: 2
-depends_on: ["00-01"]
+depends_on: ['00-01']
 estimate_days: 2.5
 req_ids: [REQ-416]
 risk_ids: [RISK-403, P0-R1, P0-R6, RISK-409]
@@ -81,62 +81,68 @@ This plan inherits the callable + rules + audit-chain pattern established by Pla
 **Outcome:** REQ-416 written into REQUIREMENTS.md (or stub committed referencing PHASE-0-PLAN); `types/LabApoio.ts` + `services/labApoioService.ts` exist.
 **Files:** .planning/milestones/v1.4-REQUIREMENTS.md, src/features/lab-apoio/types/LabApoio.ts, src/features/lab-apoio/services/labApoioService.ts.
 **Steps:**
+
 1. **OPEN —** Author REQ-416 stub (mirror REQ-411 format). User story, acceptance criteria from PHASE-0-PLAN Task 3, effort, phase=v1.4 Phase 0. CTO to confirm wording.
 2. Invoke `Skill hcq-module-generator` with `lab-apoio` (read-only mode).
 3. Define types verbatim per PHASE-0-PLAN Task 3 schema.
 4. Implement read-only `subscribeContratos`, `getContrato`, `mapSnapshotToContrato`.
 5. Add `httpsCallable` wrappers + `unwrapCallableError`.
-**Verification:** `npx tsc --noEmit` clean.
+   **Verification:** `npx tsc --noEmit` clean.
 
 ### T2. Implement callable scaffold (validators, signatureCanonical, index, CNPJ checker)
 
 **Outcome:** functions/src/modules/labApoio scaffold ready; CNPJ checksum function unit-tested.
 **Files:** functions/src/modules/labApoio/{validators,signatureCanonical,index}.ts, functions/test/labApoio/cnpj.test.mjs.
 **Steps:**
+
 1. Mirror `functions/src/modules/turnos/validators.ts` (Wave 1 output) — rename, adapt schemas.
 2. Implement `validateCNPJ(cnpj: string): boolean` with full Mod-11 checksum (8 valid + 4 invalid test cases).
 3. Implement `validateAVS(avs: string): boolean` (non-empty, minimum 6 chars — Anvisa AVS format varies; conservative check).
 4. Mirror signatureCanonical from turnos.
 5. Unit-test CNPJ + AVS validators with `node:test`.
-**Verification:** `cd functions && npx tsc --noEmit` clean; `node --test functions/test/labApoio/cnpj.test.mjs` green (12 cases).
+   **Verification:** `cd functions && npx tsc --noEmit` clean; `node --test functions/test/labApoio/cnpj.test.mjs` green (12 cases).
 
 ### T3. Implement create + softDelete + audit trigger
 
 **Outcome:** core write path working in emulator: `labApoio_createContrato` validates, signs, batches; chainHash trigger persists.
 **Files:** createContrato.ts, softDeleteContrato.ts, onContratoEventCreated.ts, functions/src/index.ts.
 **Steps:**
+
 1. Implement `labApoio_createContrato`: enforce CNPJ uniqueness within lab (RN-LABAPOIO-01) by querying existing contratos with `where(cnpj == input.cnpj, deletadoEm == null).limit(1)` — reject if found.
 2. Implement `labApoio_softDeleteContrato` with `motivo: string (min 10 chars)` requirement.
 3. Implement chainHash trigger (mirror Plan 00-01).
 4. Wire into `functions/src/index.ts`.
 5. Extend smoke script `functions/scripts/smoke-labapoio-callables.mjs` (mirror EC smoke pattern): unauth → fail; valid create → ok; duplicate CNPJ → fail; soft delete → ok; create after soft delete (different CNPJ) → ok.
-**Verification:** Smoke script all green in emulator.
+   **Verification:** Smoke script all green in emulator.
 
 ### T4. Implement update + avaliacao periodica + upload metadata
 
 **Outcome:** remaining 3 callables operational. Storage upload path validated server-side.
 **Files:** updateContrato.ts, registrarAvaliacaoPeriodica.ts, uploadContratoAnexo.ts.
 **Steps:**
+
 1. `updateContrato`: only `observacoes`, `contatos`, `certificacoes` mutable; immutable fields rejected with `failed-precondition`.
 2. `registrarAvaliacaoPeriodica`: append-only on `avaliacaoPeriodica[]`; validate `data <= today`; auto-update `proximaAvaliacaoEm`.
 3. `uploadContratoAnexo`: read Storage metadata for the path; reject if size >10MB or content-type != PDF; persist `anexoContratoUrl` + size.
-**Verification:** Smoke extended with 3 cases.
+   **Verification:** Smoke extended with 3 cases.
 
 ### T5. Implement expiry cron + email/in-app notification
 
 **Outcome:** `labApoio_checkExpiry` runs daily 06:00 BRT; idempotent across re-runs.
 **Files:** checkExpiry.ts, functions/src/index.ts.
 **Steps:**
+
 1. `onSchedule('0 6 * * *', 'America/Sao_Paulo', ...)`.
 2. For each lab → query active contratos → compute days-until-expiry → for each threshold (60, 30, 7, 0) write notification with idempotency key.
 3. If existing email infra present (check `functions/src/modules/emailBackup/`), reuse for email notifications; else log warning + leave email as backlog.
-**Verification:** Emulator: set `vigenciaFim = now + 7d` on test contrato; trigger cron; one notification appears. Re-trigger; no duplicate.
+   **Verification:** Emulator: set `vigenciaFim = now + 7d` on test contrato; trigger cron; one notification appears. Re-trigger; no duplicate.
 
 ### T6. Build hooks + UI components
 
 **Outcome:** all components rendering against emulator data; multi-step form works; expiring-soon widget shows countdown.
 **Files:** hooks/useLabApoio.ts, hooks/useExpiryAlerts.ts, components/LabApoioView.tsx, components/LabApoioList.tsx, components/LabApoioForm.tsx, components/LabApoioAvaliacao.tsx, components/VencimentosWidget.tsx.
 **Steps:**
+
 1. `useLabApoio` mirroring `useColaboradores`.
 2. `useExpiryAlerts` derives expiring bins client-side from current `contratos[]`.
 3. `LabApoioForm` 4-step wizard with disclaimer banner (P0-R1) at step 1.
@@ -144,18 +150,19 @@ This plan inherits the callable + rules + audit-chain pattern established by Pla
 5. PDF upload: standard Firebase Storage `uploadBytes` to `/labs/{labId}/lab-apoio/{contratoId}/contrato.pdf`, then call `labApoio_uploadContratoAnexo` to register URL.
 6. `LabApoioAvaliacao` with combobox over `colaboradores` (consume `useColaboradores({somenteAtivos: true})`).
 7. `VencimentosWidget` countdown badges with `tabular-nums` and color tokens per `.claude/rules/performance.md` constraints (<3KB filter response — use derived state, not new query).
-**Verification:** `npm run dev` smoke; can create contrato + upload PDF + register avaliação + see in vencimentos widget.
+   **Verification:** `npm run dev` smoke; can create contrato + upload PDF + register avaliação + see in vencimentos widget.
 
 ### T7. Write Firestore + Storage rules; emulator tests
 
 **Outcome:** rules emulator confirms client-direct write deny, Admin SDK callable allow, Storage upload deny if size>10MB or non-PDF.
 **Files:** firestore.rules, storage.rules, firestore.indexes.json, functions/test/labApoio/rules.test.mjs.
 **Steps:**
+
 1. Invoke `Skill hcq-firestore-rules-generator` with collection `lab-apoio` and DL-1 convention.
 2. Add storage.rules block with size + content-type validation.
 3. Add 2 composite indexes.
 4. Rules emulator test: read by member ✅; create by member ❌; create by Admin SDK ✅; delete ❌; events subcollection write ❌; storage upload >10MB ❌; storage upload non-PDF ❌.
-**Verification:** `firebase emulators:exec ... rules.test.mjs` green; `npm test` baseline 738/738 still green.
+   **Verification:** `firebase emulators:exec ... rules.test.mjs` green; `npm test` baseline 738/738 still green.
 
 ### T8. Wire shell integration + lazy route + manualChunks
 
@@ -175,6 +182,7 @@ This plan inherits the callable + rules + audit-chain pattern established by Pla
 **Outcome:** rules + functions + hosting deployed; 24h Cloud Logs running.
 **Files:** N/A (operational).
 **Steps:**
+
 1. `provisionModulesClaims({dryRun:false})` granting `modules['lab-apoio'] = fullAccess()` to active users.
 2. `npx tsc --noEmit` (web + functions); `npm run build`.
 3. `firebase deploy --only firestore:rules,firestore:indexes,storage:rules --project hmatologia2`.
@@ -182,7 +190,7 @@ This plan inherits the callable + rules + audit-chain pattern established by Pla
 5. `firebase deploy --only hosting --project hmatologia2`.
 6. Hard reload + smoke (create + upload + avaliação + expiring widget).
 7. `bash scripts/monitor-cloud-logs.sh 24 30`.
-**Verification:** Deploy logs clean; smoke green.
+   **Verification:** Deploy logs clean; smoke green.
 
 ## Acceptance criteria
 

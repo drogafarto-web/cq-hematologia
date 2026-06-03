@@ -58,10 +58,7 @@ export const installChecklistTemplate = onCall(
 
     try {
       // Read template from Firestore templates collection
-      const templateSnap = await db
-        .collection('templates')
-        .doc(input.templateId)
-        .get();
+      const templateSnap = await db.collection('templates').doc(input.templateId).get();
 
       if (!templateSnap.exists) {
         throw new HttpsError('not-found', `Template ${input.templateId} não encontrado`);
@@ -77,17 +74,12 @@ export const installChecklistTemplate = onCall(
       }>;
 
       if (!itens || itens.length === 0) {
-        throw new HttpsError(
-          'failed-precondition',
-          'Template não possui itens de checklist'
-        );
+        throw new HttpsError('failed-precondition', 'Template não possui itens de checklist');
       }
 
       // Verify session exists
       const sessaoRef = db
-        .collection(
-          `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes`
-        )
+        .collection(`labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes`)
         .doc(input.sessaoId);
 
       const sessaoSnap = await sessaoRef.get();
@@ -152,5 +144,5 @@ export const installChecklistTemplate = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao instalar template');
     }
-  }
+  },
 );

@@ -11,15 +11,9 @@ import {
   Timestamp,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import type {
-  NaoConformidade,
-  NCFilters,
-  CAPAStatus,
-  CAPAEvent,
-} from '../types/NaoConformidade';
+import type { NaoConformidade, NCFilters, CAPAStatus, CAPAEvent } from '../types/NaoConformidade';
 
-const ncsCollection = (labId: string) =>
-  collection(db, `labs/${labId}/naoConformidades`);
+const ncsCollection = (labId: string) => collection(db, `labs/${labId}/naoConformidades`);
 
 // ─── Subscribe ────────────────────────────────────────────────────────────
 
@@ -39,9 +33,7 @@ export function subscribeNCs(
   }
 
   if (filters.capaStatus) {
-    const statuses = Array.isArray(filters.capaStatus)
-      ? filters.capaStatus
-      : [filters.capaStatus];
+    const statuses = Array.isArray(filters.capaStatus) ? filters.capaStatus : [filters.capaStatus];
     constraints.push(where('capaStatus', 'in', statuses));
   }
 
@@ -60,8 +52,7 @@ export function subscribeNCs(
           if (filters.busca) {
             const search = filters.busca.toLowerCase();
             return (
-              nc.codigo.toLowerCase().includes(search) ||
-              nc.titulo.toLowerCase().includes(search)
+              nc.codigo.toLowerCase().includes(search) || nc.titulo.toLowerCase().includes(search)
             );
           }
           if (filters.origem) {
@@ -78,18 +69,13 @@ export function subscribeNCs(
 // ─── Get single NC ────────────────────────────────────────────────────────
 
 export async function getNC(labId: string, ncId: string): Promise<NaoConformidade | null> {
-  const snap = await getDocs(
-    query(ncsCollection(labId), where('id', '==', ncId)),
-  );
+  const snap = await getDocs(query(ncsCollection(labId), where('id', '==', ncId)));
   return snap.empty ? null : (snap.docs[0].data() as NaoConformidade);
 }
 
 // ─── Get NCs by modulo ────────────────────────────────────────────────────
 
-export async function getNCsByModulo(
-  labId: string,
-  modulo: string,
-): Promise<NaoConformidade[]> {
+export async function getNCsByModulo(labId: string, modulo: string): Promise<NaoConformidade[]> {
   const q = query(
     ncsCollection(labId),
     where('modulosBloqueados', 'array-contains', modulo),

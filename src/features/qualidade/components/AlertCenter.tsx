@@ -86,9 +86,7 @@ export function AlertCenter({ labId: propLabId, onDrillDown }: AlertCenterProps)
     if (!alert.anomalyScore.dimensions || alert.anomalyScore.dimensions.length === 0) {
       return '—';
     }
-    const highest = alert.anomalyScore.dimensions.reduce((a, b) =>
-      a.score > b.score ? a : b
-    );
+    const highest = alert.anomalyScore.dimensions.reduce((a, b) => (a.score > b.score ? a : b));
     return highest.dimension.replace(/_/g, ' ');
   };
 
@@ -105,15 +103,10 @@ export function AlertCenter({ labId: propLabId, onDrillDown }: AlertCenterProps)
 
   // Paginate filtered alerts
   const totalPages = Math.ceil(filteredAlerts.length / PAGE_SIZE);
-  const paginatedAlerts = filteredAlerts.slice(
-    page * PAGE_SIZE,
-    (page + 1) * PAGE_SIZE
-  );
+  const paginatedAlerts = filteredAlerts.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
   // Extract unique operator IDs for filter dropdown
-  const operatorIds = Array.from(
-    new Set(alerts.map((a) => a.anomalyScore.operatorId))
-  );
+  const operatorIds = Array.from(new Set(alerts.map((a) => a.anomalyScore.operatorId)));
 
   // Handlers
   const handleFilterChange = (key: keyof FilterState, value: any) => {
@@ -307,9 +300,7 @@ export function AlertCenter({ labId: propLabId, onDrillDown }: AlertCenterProps)
                   <td className="px-4 py-3 text-white/70 text-xs font-mono">
                     {formatTimestamp(alert.createdAt)}
                   </td>
-                  <td className="px-4 py-3 text-white/70 text-sm">
-                    {getPrimaryDimension(alert)}
-                  </td>
+                  <td className="px-4 py-3 text-white/70 text-sm">{getPrimaryDimension(alert)}</td>
                   <td className="px-4 py-3">
                     <span
                       className={`inline-block px-2 py-1 rounded text-xs font-medium border ${getSeverityBadgeStyle(

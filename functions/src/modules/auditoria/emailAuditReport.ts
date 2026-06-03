@@ -23,11 +23,7 @@ const db = admin.firestore();
 const EmailReportInput = z.object({
   labId: z.string().min(1),
   reportId: z.string().min(1),
-  recipients: z
-    .array(z.string().email())
-    .min(1)
-    .max(10)
-    .optional(),
+  recipients: z.array(z.string().email()).min(1).max(10).optional(),
 });
 
 type EmailReportInputType = z.infer<typeof EmailReportInput>;

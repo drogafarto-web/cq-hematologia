@@ -5,11 +5,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 
-import {
-  functions,
-  httpsCallable,
-  Timestamp,
-} from '../../../shared/services/firebase';
+import { functions, httpsCallable, Timestamp } from '../../../shared/services/firebase';
 import { useUser } from '../../../store/useAuthStore';
 import { useAvaliacoesFornecedor } from '../hooks/useAvaliacoesFornecedor';
 import type {
@@ -138,8 +134,11 @@ export function AvaliacaoFornecedorModal({
   onSuccess,
 }: AvaliacaoFornecedorModalProps) {
   const user = useUser();
-  const { avaliacoes, loading: loadingHist, error: histError } =
-    useAvaliacoesFornecedor(fornecedorId);
+  const {
+    avaliacoes,
+    loading: loadingHist,
+    error: histError,
+  } = useAvaliacoesFornecedor(fornecedorId);
 
   const [resultado, setResultado] = useState<ResultadoAvaliacaoFornecedor>('aprovado');
   const [criterios, setCriterios] = useState<CriteriosAvaliadosFornecedor>({

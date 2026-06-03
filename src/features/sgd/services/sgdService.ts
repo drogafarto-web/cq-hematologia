@@ -10,223 +10,215 @@ import {
   orderBy,
   Query,
   serverTimestamp,
-  Timestamp
-} from 'firebase/firestore'
-import { httpsCallable } from 'firebase/functions'
-import { db, functions } from '../../../shared/services/firebase'
-import { getAuth } from 'firebase/auth'
+  Timestamp,
+} from 'firebase/firestore';
+import { httpsCallable } from 'firebase/functions';
+import { db, functions } from '../../../shared/services/firebase';
+import { getAuth } from 'firebase/auth';
 import {
   SGDDocumento,
   LogicalSignature,
   DICABloco,
   SiglaDocExterno,
   LinkSuggestion,
-  ModuleLink
-} from '../types/SGDDocumento'
-import { generateAuditHash } from '../utils/auditHash'
+  ModuleLink,
+} from '../types/SGDDocumento';
+import { generateAuditHash } from '../utils/auditHash';
 
 export const sgdService = {
   async createDocument(
     labId: string,
-    input: Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>
+    input: Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>,
   ): Promise<SGDDocumento> {
-    const auth = getAuth()
-    const user = auth.currentUser
-    if (!user) throw new Error('User not authenticated')
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
 
-    const docRef = doc(collection(db, `labs/${labId}/sgd-externos`))
-    const now = serverTimestamp() as Timestamp
+    const docRef = doc(collection(db, `labs/${labId}/sgd-externos`));
+    const now = serverTimestamp() as Timestamp;
 
     const payload = {
       ...input,
       labId,
       criadoEm: now,
       criadoPor: user.uid,
-      deletadoEm: null
-    }
+      deletadoEm: null,
+    };
 
-    const hash = generateAuditHash(payload)
+    const hash = generateAuditHash(payload);
     const aud: LogicalSignature = {
       hash,
       operatorId: user.uid,
-      ts: now
-    }
+      ts: now,
+    };
 
-    await setDoc(docRef, { ...payload, aud })
+    await setDoc(docRef, { ...payload, aud });
 
-    const created = await getDoc(docRef)
+    const created = await getDoc(docRef);
     return {
       id: docRef.id,
-      ...created.data()
-    } as SGDDocumento
+      ...created.data(),
+    } as SGDDocumento;
   },
 
   async updateDocument(
     labId: string,
     docId: string,
-    updates: Partial<Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>>
+    updates: Partial<Omit<SGDDocumento, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'aud'>>,
   ): Promise<void> {
-    const auth = getAuth()
-    const user = auth.currentUser
-    if (!user) throw new Error('User not authenticated')
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
 
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const existing = await getDoc(ref)
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const existing = await getDoc(ref);
 
-    if (!existing.exists()) throw new Error('Document not found')
+    if (!existing.exists()) throw new Error('Document not found');
 
-    const now = serverTimestamp() as Timestamp
+    const now = serverTimestamp() as Timestamp;
     const payload = {
       ...existing.data(),
       ...updates,
       atualizadoEm: now,
-      atualizadoPor: user.uid
-    }
+      atualizadoPor: user.uid,
+    };
 
-    const hash = generateAuditHash(payload)
+    const hash = generateAuditHash(payload);
     const aud: LogicalSignature = {
       operatorId: user.uid,
       hash,
-      ts: now
-    }
+      ts: now,
+    };
 
-    await updateDoc(ref, { ...updates, aud, atualizadoEm: now, atualizadoPor: user.uid })
+    await updateDoc(ref, { ...updates, aud, atualizadoEm: now, atualizadoPor: user.uid });
   },
 
   async softDeleteDocument(labId: string, docId: string): Promise<void> {
-    const auth = getAuth()
-    const user = auth.currentUser
-    if (!user) throw new Error('User not authenticated')
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
 
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const existing = await getDoc(ref)
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const existing = await getDoc(ref);
 
-    if (!existing.exists()) throw new Error('Document not found')
+    if (!existing.exists()) throw new Error('Document not found');
 
-    const now = serverTimestamp() as Timestamp
+    const now = serverTimestamp() as Timestamp;
     const payload = {
       ...existing.data(),
-      deletadoEm: now
-    }
+      deletadoEm: now,
+    };
 
-    const hash = generateAuditHash(payload)
+    const hash = generateAuditHash(payload);
     const aud: LogicalSignature = {
       operatorId: user.uid,
       hash,
-      ts: now
-    }
+      ts: now,
+    };
 
     await updateDoc(ref, {
       deletadoEm: now,
-      aud
-    })
+      aud,
+    });
   },
 
   async getDocument(labId: string, docId: string): Promise<SGDDocumento | null> {
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const snap = await getDoc(ref)
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const snap = await getDoc(ref);
 
-    if (!snap.exists()) return null
+    if (!snap.exists()) return null;
 
     return {
       id: snap.id,
-      ...snap.data()
-    } as SGDDocumento
+      ...snap.data(),
+    } as SGDDocumento;
   },
 
   async listDocuments(
     labId: string,
     filters?: {
-      categoria?: DICABloco
-      sigla?: SiglaDocExterno
-      includeDeleted?: boolean
-    }
+      categoria?: DICABloco;
+      sigla?: SiglaDocExterno;
+      includeDeleted?: boolean;
+    },
   ): Promise<SGDDocumento[]> {
-    let q: Query = query(
-      collection(db, `labs/${labId}/sgd-externos`),
-      orderBy('criadoEm', 'desc')
-    )
+    let q: Query = query(collection(db, `labs/${labId}/sgd-externos`), orderBy('criadoEm', 'desc'));
 
     if (!filters?.includeDeleted) {
-      q = query(q, where('deletadoEm', '==', null))
+      q = query(q, where('deletadoEm', '==', null));
     }
 
     if (filters?.categoria) {
-      q = query(q, where('categoriaICQ', '==', filters.categoria))
+      q = query(q, where('categoriaICQ', '==', filters.categoria));
     }
 
     if (filters?.sigla) {
-      q = query(q, where('sigla', '==', filters.sigla))
+      q = query(q, where('sigla', '==', filters.sigla));
     }
 
-    const snap = await getDocs(q)
-    return snap.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    } as SGDDocumento))
+    const snap = await getDocs(q);
+    return snap.docs.map(
+      (doc) =>
+        ({
+          id: doc.id,
+          ...doc.data(),
+        }) as SGDDocumento,
+    );
   },
 
-  async addLinkSuggestion(
-    labId: string,
-    docId: string,
-    suggestion: LinkSuggestion
-  ): Promise<void> {
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const existing = await getDoc(ref)
+  async addLinkSuggestion(labId: string, docId: string, suggestion: LinkSuggestion): Promise<void> {
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const existing = await getDoc(ref);
 
-    if (!existing.exists()) throw new Error('Document not found')
+    if (!existing.exists()) throw new Error('Document not found');
 
-    const currentSuggestions = existing.data().linksSugeridos || []
-    const updated = [...currentSuggestions, suggestion]
+    const currentSuggestions = existing.data().linksSugeridos || [];
+    const updated = [...currentSuggestions, suggestion];
 
     await this.updateDocument(labId, docId, {
-      linksSugeridos: updated
-    })
+      linksSugeridos: updated,
+    });
   },
 
-  async confirmLink(
-    labId: string,
-    docId: string,
-    link: ModuleLink
-  ): Promise<void> {
-    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`)
-    const existing = await getDoc(ref)
+  async confirmLink(labId: string, docId: string, link: ModuleLink): Promise<void> {
+    const ref = doc(db, `labs/${labId}/sgd-externos/${docId}`);
+    const existing = await getDoc(ref);
 
-    if (!existing.exists()) throw new Error('Document not found')
+    if (!existing.exists()) throw new Error('Document not found');
 
-    const currentLinks = existing.data().linksConfirmados || []
-    const updated = [...currentLinks, link]
+    const currentLinks = existing.data().linksConfirmados || [];
+    const updated = [...currentLinks, link];
 
     await this.updateDocument(labId, docId, {
-      linksConfirmados: updated
-    })
+      linksConfirmados: updated,
+    });
   },
 
   async getSignedUrl(labId: string, driveFileId: string): Promise<string> {
-    const callable = httpsCallable(functions, 'sgdGetSignedUrl')
-    const result = await callable({ labId, driveFileId })
-    return (result.data as { url: string }).url
+    const callable = httpsCallable(functions, 'sgdGetSignedUrl');
+    const result = await callable({ labId, driveFileId });
+    return (result.data as { url: string }).url;
   },
 
   async logAuditEvent(
     labId: string,
     event: {
-      event: string
-      documentId?: string
-      details?: Record<string, unknown>
-      operatorEmail: string
-      consent: boolean
-    }
+      event: string;
+      documentId?: string;
+      details?: Record<string, unknown>;
+      operatorEmail: string;
+      consent: boolean;
+    },
   ): Promise<void> {
-    const auth = getAuth()
-    const user = auth.currentUser
-    if (!user) throw new Error('User not authenticated')
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if (!user) throw new Error('User not authenticated');
 
-    const auditRef = doc(collection(db, `labs/${labId}/sgd-externos-audit`))
+    const auditRef = doc(collection(db, `labs/${labId}/sgd-externos-audit`));
     await setDoc(auditRef, {
       ...event,
       operatorId: user.uid,
-      ts: serverTimestamp()
-    })
-  }
-}
+      ts: serverTimestamp(),
+    });
+  },
+};

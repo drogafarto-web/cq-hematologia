@@ -28,6 +28,7 @@ node scripts/bootstrap-supervisor-status.mjs --dry-run
 ```
 
 **Expected output format:**
+
 ```
 📋 Fetching labs...
 ✅ Found N lab(s)
@@ -44,6 +45,7 @@ node scripts/bootstrap-supervisor-status.mjs --dry-run
 ```
 
 **What to check:**
+
 - Total labs > 0 (if 0, something is wrong with Firestore connectivity)
 - Created + Skipped = Total (numbers add up)
 - No errors
@@ -51,6 +53,7 @@ node scripts/bootstrap-supervisor-status.mjs --dry-run
 ### 2. Review & Approve
 
 Look at the output:
+
 - Does the count match your expectation?
 - Any labs missing?
 - Any errors?
@@ -64,12 +67,14 @@ node scripts/bootstrap-supervisor-status.mjs
 ```
 
 **Expected output:**
+
 ```
 ✅ Created  → /labs/{labId}/supervisor-status/current
 [repeat for each lab]
 ```
 
 **What to check:**
+
 - Script completes without errors
 - Created count matches expected new labs
 - Skipped count matches labs that already had the doc
@@ -107,6 +112,7 @@ Copy this block into your deployment log / PR:
 [paste the apply output here]
 
 **Verification:**
+
 - [ ] Checked Firestore Console
 - [ ] Confirmed `/labs/{labId}/supervisor-status/current` exists
 - [ ] Field `hasActiveSupervisor` = false (safe default)
@@ -126,6 +132,7 @@ Copy this block into your deployment log / PR:
 **Error:** `Failed to initialize Firebase: ...`
 
 **Fix:**
+
 ```bash
 gcloud auth application-default login
 # Log in with your Google account in the browser
@@ -137,12 +144,14 @@ gcloud auth application-default login
 **Error:** `Lab not found: lab-uuid-xyz`
 
 **Fix:**
+
 - Double-check the lab ID exists in Firestore
 - If using `--labId`, verify you have the correct UUID
 
 ### Script hung or timeout
 
 **Fix:**
+
 - Ctrl+C to cancel
 - Check internet connectivity
 - Check Firestore is accessible: `gcloud firestore collections list --project hmatologia2`

@@ -5,7 +5,7 @@
 **Data de Revisão:** [DATA_REVISAO]  
 **Próxima Revisão:** [PROXIMA_REVISAO]  
 **Autoridade Emitente:** [PREENCHER ANTES DE PUBLICAR - RT/Diretor Técnico]  
-**Status:** Vigente  
+**Status:** Vigente
 
 ---
 
@@ -176,6 +176,7 @@ O titular pode exercer qualquer um desses direitos entrando em contato com o Enc
 O laboratório designa um Encarregado de Proteção de Dados para intermediar comunicações e garantir conformidade com a LGPD.
 
 **Contato do DPO:**
+
 - **Nome:** [PREENCHER ANTES DE PUBLICAR - Nome do DPO]
 - **Título:** Encarregado de Proteção de Dados
 - **Email:** [PREENCHER ANTES DE PUBLICAR - email@labclin-riopomba.com.br]
@@ -249,6 +250,7 @@ A revisão será agendada automaticamente pelo sistema para 365 dias a partir da
 Caso o titular tenha dúvidas sobre seus direitos ou queira registrar uma reclamação sobre o tratamento de seus dados, pode entrar em contato com a ANPD:
 
 **ANPD — Autoridade Nacional de Proteção de Dados**
+
 - **Email:** [consulta@anpd.gov.br](mailto:consulta@anpd.gov.br)
 - **Portal:** [www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd](https://www.gov.br/cidadania/pt-br/acesso-a-informacao/lgpd)
 - **Endereço:** Esplanada dos Ministérios, Bloco T, Edifício Sede do Ministério da Cidadania, 70064-902 Brasília, DF
@@ -258,6 +260,7 @@ Caso o titular tenha dúvidas sobre seus direitos ou queira registrar uma reclam
 ## Disposições Finais
 
 Esta Política de Privacidade está em conformidade com:
+
 - Lei 13.709/2018 (LGPD)
 - RDC 978/2025 (Procedimentos Técnicos para Laboratórios Clínicos)
 - RDC 222/2018 (Gestão de Resíduos Sólidos)
@@ -270,4 +273,4 @@ Esta Política de Privacidade está em conformidade com:
 
 ---
 
-*Este documento é de acesso público e disponível a todos os pacientes e colaboradores do laboratório.*
+_Este documento é de acesso público e disponível a todos os pacientes e colaboradores do laboratório._

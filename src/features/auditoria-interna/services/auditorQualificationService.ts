@@ -11,7 +11,11 @@
   onSnapshot,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import type { AuditorQualification, AuditorImpediment, AuditorQualificationInput } from '../types/auditor';
+import type {
+  AuditorQualification,
+  AuditorImpediment,
+  AuditorQualificationInput,
+} from '../types/auditor';
 
 const COLLECTION_PATH = (labId: string) => `labs/${labId}/auditor-qualifications`;
 
@@ -19,10 +23,13 @@ export async function getAuditoresQualificados(labId: string): Promise<AuditorQu
   const ref = collection(db, COLLECTION_PATH(labId));
   const q = query(ref, where('status', 'in', ['ativo', 'em-formacao']));
   const snap = await getDocs(q);
-  return snap.docs.map(d => ({ id: d.id, ...d.data() } as AuditorQualification));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as AuditorQualification);
 }
 
-export async function getAuditorById(labId: string, auditorId: string): Promise<AuditorQualification | null> {
+export async function getAuditorById(
+  labId: string,
+  auditorId: string,
+): Promise<AuditorQualification | null> {
   const ref = doc(db, COLLECTION_PATH(labId), auditorId);
   const snap = await getDoc(ref);
   if (!snap.exists()) return null;
@@ -31,9 +38,9 @@ export async function getAuditorById(labId: string, auditorId: string): Promise<
 
 export function checkImpediment(
   auditor: AuditorQualification,
-  blocoAuditado: string
+  blocoAuditado: string,
 ): AuditorImpediment | null {
-  const scope = auditor.escoposAutorizados.find(s => s.bloco === blocoAuditado);
+  const scope = auditor.escoposAutorizados.find((s) => s.bloco === blocoAuditado);
   if (scope && !scope.autorizado && scope.impedimento) {
     return {
       auditorId: auditor.id,
@@ -45,7 +52,10 @@ export function checkImpediment(
   return null;
 }
 
-export function validateQualification(auditor: AuditorQualification): { valid: boolean; issues: string[] } {
+export function validateQualification(auditor: AuditorQualification): {
+  valid: boolean;
+  issues: string[];
+} {
   const issues: string[] = [];
   const now = Timestamp.now().toMillis();
 
@@ -57,7 +67,7 @@ export function validateQualification(auditor: AuditorQualification): { valid: b
     issues.push('Necessita reciclagem');
   }
 
-  const hasFormacaoInicial = auditor.treinamentos.some(t => t.tipo === 'formacao-inicial');
+  const hasFormacaoInicial = auditor.treinamentos.some((t) => t.tipo === 'formacao-inicial');
   if (!hasFormacaoInicial) {
     issues.push('Sem treinamento de formação inicial');
   }
@@ -76,7 +86,7 @@ export function validateQualification(auditor: AuditorQualification): { valid: b
 
 export async function createAuditorQualification(
   labId: string,
-  data: AuditorQualificationInput
+  data: AuditorQualificationInput,
 ): Promise<string> {
   const ref = collection(db, COLLECTION_PATH(labId));
   const now = Timestamp.now();
@@ -91,7 +101,7 @@ export async function createAuditorQualification(
 export async function updateAuditorQualification(
   labId: string,
   auditorId: string,
-  data: Partial<AuditorQualification>
+  data: Partial<AuditorQualification>,
 ): Promise<void> {
   const ref = doc(db, COLLECTION_PATH(labId), auditorId);
   await updateDoc(ref, {
@@ -102,11 +112,11 @@ export async function updateAuditorQualification(
 
 export function subscribeAuditores(
   labId: string,
-  callback: (auditores: AuditorQualification[]) => void
+  callback: (auditores: AuditorQualification[]) => void,
 ): () => void {
   const ref = collection(db, COLLECTION_PATH(labId));
   return onSnapshot(ref, (snap) => {
-    const auditores = snap.docs.map(d => ({ id: d.id, ...d.data() } as AuditorQualification));
+    const auditores = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as AuditorQualification);
     callback(auditores);
   });
 }

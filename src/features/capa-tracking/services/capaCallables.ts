@@ -9,13 +9,7 @@
  */
 
 import { getFunctions, httpsCallable } from 'firebase/functions';
-import type {
-  CapaDocument,
-  CapaState,
-  LogicalSignature,
-  Evidence,
-  AuditorRFI,
-} from '../types';
+import type { CapaDocument, CapaState, LogicalSignature, Evidence, AuditorRFI } from '../types';
 import type { LabId } from '../types/_shared_refs';
 
 // ─── Functions client (regionalized) ───────────────────────────────────────
@@ -95,11 +89,14 @@ export interface SubmitAuditorSignOffOutput {
  * Server validates: labId membership, finding uniqueness, state machine.
  * Generates LogicalSignature server-side.
  */
-export async function createCapaCallable(labId: LabId, input: CreateCapaInput): Promise<CreateCapaOutput> {
-  const fn = httpsCallable<
-    { labId: string; payload: CreateCapaInput },
-    CreateCapaOutput
-  >(functions, 'capa_createCapa');
+export async function createCapaCallable(
+  labId: LabId,
+  input: CreateCapaInput,
+): Promise<CreateCapaOutput> {
+  const fn = httpsCallable<{ labId: string; payload: CreateCapaInput }, CreateCapaOutput>(
+    functions,
+    'capa_createCapa',
+  );
   return fn({ labId, payload: input }).then((result) => result.data);
 }
 

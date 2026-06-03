@@ -14,8 +14,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { Attempt, AttemptInput } from '../types/Attempt';
 
-const COLLECTION = (labId: string) =>
-  collection(db, 'labs', labId, 'attempts');
+const COLLECTION = (labId: string) => collection(db, 'labs', labId, 'attempts');
 
 export async function saveAttempt(
   labId: string,
@@ -53,10 +52,7 @@ export async function saveAttempt(
   };
 }
 
-export async function getAttempt(
-  labId: string,
-  id: string,
-): Promise<Attempt | null> {
+export async function getAttempt(labId: string, id: string): Promise<Attempt | null> {
   const snap = await getDoc(doc(COLLECTION(labId), id));
   if (!snap.exists()) return null;
   return { id: snap.id, ...snap.data() } as Attempt;
@@ -80,5 +76,5 @@ export async function listAttempts(
   constraints.push(orderBy('criadoEm', 'desc'));
   constraints.push(limit(options?.limit ?? 50));
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as Attempt));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attempt);
 }

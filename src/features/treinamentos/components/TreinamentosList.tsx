@@ -1,7 +1,12 @@
 import { memo, useCallback, useState } from 'react';
 import { useTreinamentos } from '../useTreinamentos';
 import { TIPO_LABEL, STATUS_LABEL, isTreinamentoPendente } from '../types/Treinamento';
-import type { Treinamento, TreinamentoFilters, StatusTreinamento, TipoTreinamento } from '../types/Treinamento';
+import type {
+  Treinamento,
+  TreinamentoFilters,
+  StatusTreinamento,
+  TipoTreinamento,
+} from '../types/Treinamento';
 
 export function TreinamentosList() {
   const [filters, setFilters] = useState<TreinamentoFilters>({});

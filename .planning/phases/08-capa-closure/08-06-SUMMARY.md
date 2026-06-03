@@ -24,6 +24,7 @@ Implemented 5 parallel subagent tasks: root page for CAPA closure workflow, risk
 ### File Structure Created
 
 **CAPA Tracking Pages:**
+
 ```
 src/features/capa-tracking/
 ├── pages/
@@ -33,6 +34,7 @@ src/features/capa-tracking/
 ```
 
 **Risk Management Components:**
+
 ```
 src/features/risk-management/
 └── components/
@@ -40,6 +42,7 @@ src/features/risk-management/
 ```
 
 **Routing Integration:**
+
 ```
 src/features/
 ├── auth/
@@ -49,6 +52,7 @@ src/features/
 ```
 
 **Function Registry:**
+
 ```
 functions/src/
 └── index.ts                           ✅ 7 callables exported (SA-39, pre-existing)
@@ -60,11 +64,11 @@ functions/src/
 
 ## Commits
 
-| # | SA | Commit | Message | Files |
-|---|----|----|---------|-------|
-| 1 | SA-36+37+38 | a02465d | Wave 5 pages + components + barrel | 3 new |
-| 2 | SA-40 | 6e25d6c | Routing + module hub integration | 2 modified |
-| 3 | SA-39 | 6aef83b | Callables index exports (Wave 3, pre-existing) | — |
+| #   | SA          | Commit  | Message                                        | Files      |
+| --- | ----------- | ------- | ---------------------------------------------- | ---------- |
+| 1   | SA-36+37+38 | a02465d | Wave 5 pages + components + barrel             | 3 new      |
+| 2   | SA-40       | 6e25d6c | Routing + module hub integration               | 2 modified |
+| 3   | SA-39       | 6aef83b | Callables index exports (Wave 3, pre-existing) | —          |
 
 **Meta:** 2 atomic commits (Wave 5 code + Wave 5 routing). Callables already registered in Wave 3.
 
@@ -77,6 +81,7 @@ functions/src/
 **Specification:** Root page for CAPA closure module (Wave 5)
 
 **Features:**
+
 - Page state: `selectedCapaId` (null = list view, string = detail panel)
 - List view: `<CAPAListView onSelect={setSelectedCapaId} />`
 - Detail view: `<CAPADetailPanel capaId={selectedCapaId} onBack={() => setSelectedCapaId(null)} />`
@@ -95,6 +100,7 @@ functions/src/
 **Specification:** 5×5 NPR heatmap visualization (Phase 8 Wave 5)
 
 **Features:**
+
 - Grid: X = Probability (1-5), Y = Severity (1-5)
 - Color by average NPR: emerald (<25), amber (25–50), red (≥50)
 - Cell content: risk count + average NPR + hover tooltips
@@ -104,6 +110,7 @@ functions/src/
 - One-time fetch pattern (no polling) with cleanup
 
 **Invariants:**
+
 - NPR = P × S × D (D defaults to 3 if missing)
 - Graceful loading + error states
 - No external chart library (CSS grid + Tailwind only)
@@ -131,6 +138,7 @@ export { CapaAuditorSignOff } from './CapaAuditorSignOff';
 **Specification:** Register 7 callables in main function registry
 
 **Status:** ✅ Already complete in Wave 3 (commit 6aef83b):
+
 ```typescript
 export {
   createCapa,
@@ -152,11 +160,13 @@ No changes needed for SA-39 — exports verified and functional.
 **Specification:** Register route and module tile for capa-tracking
 
 **AuthWrapper.tsx changes:**
+
 - Import: `const CAPATrackingHome = React.lazy(() => import('../capa-tracking/pages/CAPATrackingHome').then((m) => ({ default: m.default })))`
 - Route: Case `'capa-tracking'` → `<React.Suspense><CAPATrackingHome /></React.Suspense>`
 - Code-splitting: Lazy-load page on demand (same pattern as qualidade, auditoria-trail, turnos)
 
 **ModuleHub.tsx changes:**
+
 - New tile: `id: 'capa-closure'`, status: `active`, category: `sgq`, view: `'capa-tracking'`
 - Icon: `ShieldCheckIcon` (checkmark shield, reused from Auditoria Trilha)
 - Bloco: Bloco 5 (same as NC)
@@ -164,6 +174,7 @@ No changes needed for SA-39 — exports verified and functional.
 - Bullets: RFI auditor, upload evidências, sign-off com assinatura
 
 **Invariants:**
+
 - View type `'capa-tracking'` exists in `src/types/index.ts` (verified ✓)
 - Replaces Wave 4 CAPADashboard in route (breaking, intentional — Wave 5 supersedes)
 - Multi-tenant: labId resolved inside CAPATrackingHome via hook
@@ -175,6 +186,7 @@ No changes needed for SA-39 — exports verified and functional.
 ### Dark-First Design (CLAUDE.md requirement)
 
 All new components:
+
 - Backgrounds: `bg-slate-50 dark:bg-[#0B0F14]`, layered white/X
 - Text: `text-slate-900 dark:text-white`
 - Accents: `violet-500` (primary), `emerald-500`/`amber-500`/`red-500` (semantic)
@@ -247,6 +259,7 @@ All new components:
 **Status:** ✅ New code compiles without errors.
 
 **Pre-existing issues (not caused by Wave 5):**
+
 - `calibracao` service: type mismatches (equipmentName vs equipName)
 - `capa-tracking` (Wave 4): undefined property access, Timestamp vs number inconsistencies
 - `personnel` (Wave 4): Designacao type mismatch (dataExpiracao vs expiryDate)
@@ -284,6 +297,7 @@ All new components:
 None in Wave 5 code. All components integrated with Wave 4 UI (already tested and placeholder-free per Wave 4 summary).
 
 **Stubs in Wave 4 (external to Wave 5):**
+
 1. CapaEvidenceUpload: placeholder 1.5s upload delay (real: callable integration)
 2. ManagementReviewMeeting: aggregation button (real: callable deploy)
 3. DesignacoesList: Nova designação button (real: form modal + callable)
@@ -293,17 +307,20 @@ None in Wave 5 code. All components integrated with Wave 4 UI (already tested an
 ## What Comes Next
 
 **Testing (Wave 6+ or Phase 9):**
+
 1. Unit tests for CAPATrackingHome (useState logic, modal flow)
 2. Integration tests (RiskMatrixHeatmap + risksService subscription)
 3. E2E tests: CAPA list → select → upload evidence → RFI → sign-off
 4. Accessibility audit (Lighthouse, axe)
 
 **Deployment:**
+
 1. Deploy hosting (includes new routes)
 2. Monitor Cloud Logs for lazy-load errors
 3. Hard-reload required for users (PWA auto-update gate)
 
 **Future enhancements (Phase 9+):**
+
 1. Animated transitions between list/detail views
 2. Toast notifications (success/error)
 3. Bulk actions (multi-select CAPAs for batch sign-off)

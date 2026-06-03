@@ -13,7 +13,18 @@
  * LGPD Art. 32 (information security).
  */
 
-import { collection, doc, getDoc, setDoc, updateDoc, deleteDoc, query, where, getDocs, Timestamp } from 'firebase/firestore';
+import {
+  collection,
+  doc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  deleteDoc,
+  query,
+  where,
+  getDocs,
+  Timestamp,
+} from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { COLLECTIONS } from '../../../constants';
 import type { LogicalSignature } from '../../../types';
@@ -72,11 +83,13 @@ export const PortalSessionSchema = z.object({
   errorMessage: z.string().nullable(),
 
   // Audit
-  assinatura: z.object({
-    hash: z.string().length(64),
-    operatorId: z.string(),
-    ts: z.number().int(),
-  }).optional(),
+  assinatura: z
+    .object({
+      hash: z.string().length(64),
+      operatorId: z.string(),
+      ts: z.number().int(),
+    })
+    .optional(),
 
   criadoEm: z.number().int(),
   atualizadoEm: z.number().int(),
@@ -214,7 +227,10 @@ export async function createPortalSession(
  * Retrieves an active portal session
  * Returns null if expired, revoked, or not found
  */
-export async function getPortalSession(labId: string, sessionId: string): Promise<PortalSession | null> {
+export async function getPortalSession(
+  labId: string,
+  sessionId: string,
+): Promise<PortalSession | null> {
   const snap = await getDoc(getPortalSessionRef(labId, sessionId));
 
   if (!snap.exists()) return null;
@@ -246,7 +262,7 @@ export async function getUserPortalSessions(userId: string): Promise<PortalSessi
   );
 
   const snap = await getDocs(q);
-  return snap.docs.map(doc => PortalSessionSchema.parse(doc.data()));
+  return snap.docs.map((doc) => PortalSessionSchema.parse(doc.data()));
 }
 
 /**
@@ -437,13 +453,10 @@ export async function getPortalSessionAudit(
   sessionId: string,
   limit: number = 50,
 ): Promise<PortalAuditEvent[]> {
-  const q = query(
-    getPortalAuditCollection(labId),
-    where('details.sessionId', '==', sessionId),
-  );
+  const q = query(getPortalAuditCollection(labId), where('details.sessionId', '==', sessionId));
 
   const snap = await getDocs(q);
-  return snap.docs.map(doc => doc.data() as PortalAuditEvent);
+  return snap.docs.map((doc) => doc.data() as PortalAuditEvent);
 }
 
 // ─── OAuth State Management ──────────────────────────────────────────────────
@@ -454,7 +467,9 @@ export async function getPortalSessionAudit(
  */
 export function generateOAuthState(): string {
   const randomBytes = Array.from({ length: 32 }, () =>
-    Math.floor(Math.random() * 256).toString(16).padStart(2, '0'),
+    Math.floor(Math.random() * 256)
+      .toString(16)
+      .padStart(2, '0'),
   ).join('');
   return randomBytes;
 }
@@ -518,11 +533,7 @@ export async function cleanupExpiredPortalSessions(labId: string): Promise<numbe
   const now = Date.now();
   const sessionsRef = getPortalSessionsCollection(labId);
 
-  const q = query(
-    sessionsRef,
-    where('status', '==', 'active'),
-    where('expiresAt', '<', now),
-  );
+  const q = query(sessionsRef, where('status', '==', 'active'), where('expiresAt', '<', now));
 
   const snap = await getDocs(q);
   let count = 0;

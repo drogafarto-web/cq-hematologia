@@ -15,12 +15,12 @@ dependencies:
 
 ## Tasks Completed
 
-| # | Task | Status | Commit |
-|----|------|--------|--------|
-| 1 | Types + service layer + Firestore rules | ✓ Complete | 5643264 |
-| 2 | UI components (3-tab view + forms + cards) | ✓ Complete | (bundled in 011fc0b) |
-| 3 | Tablet responsive layout + dark theme | ✓ Complete | (bundled in 011fc0b) |
-| 4 | Module wiring + hub integration | ✓ Complete | 011fc0b |
+| #   | Task                                       | Status     | Commit               |
+| --- | ------------------------------------------ | ---------- | -------------------- |
+| 1   | Types + service layer + Firestore rules    | ✓ Complete | 5643264              |
+| 2   | UI components (3-tab view + forms + cards) | ✓ Complete | (bundled in 011fc0b) |
+| 3   | Tablet responsive layout + dark theme      | ✓ Complete | (bundled in 011fc0b) |
+| 4   | Module wiring + hub integration            | ✓ Complete | 011fc0b              |
 
 ## Components Created
 
@@ -35,6 +35,7 @@ dependencies:
 ## Module Wiring Details
 
 **Files modified:**
+
 - `src/types/index.ts` — Added `'auditoria-interna'` to View type union
 - `src/features/auth/AuthWrapper.tsx` — Added import + router case
 - `src/features/hub/ModuleHub.tsx` — Added module tile to MODULES array (active, Bloco 6)
@@ -42,6 +43,7 @@ dependencies:
 - Created `src/features/auditoria-interna/index.ts` — Barrel exports
 
 **Hub integration:**
+
 - Module appears in "Sistema da Qualidade" grid
 - Status: **active** (not "soon")
 - Icon: CheckCircle (teal-400)
@@ -51,6 +53,7 @@ dependencies:
 ## Type-Check Status
 
 **Pre-existing issues** (not from wiring task):
+
 - `AchadoForm.tsx:39` — Missing `assinatura` field (Wave 3: callable will provide)
 - `useAuditorias.ts:267` — Shorthand labId (will be fixed in Wave 3)
 
@@ -67,6 +70,7 @@ dependencies:
 ## Ready for Wave 3
 
 Cloud Functions callable integration will:
+
 - Add signature generation (`assinatura` field)
 - Implement async audit plan creation
 - Wire NC creation from achados

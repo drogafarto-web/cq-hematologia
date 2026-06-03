@@ -272,7 +272,9 @@ function buildRun(
     // Resultado — par positivo (sempre) + par negativo (apenas em manual P+N).
     resultadoEsperado: form.resultadoEsperado,
     resultadoObtido: form.resultadoObtido,
-    ...(form.resultadoEsperadoNegativo && { resultadoEsperadoNegativo: form.resultadoEsperadoNegativo }),
+    ...(form.resultadoEsperadoNegativo && {
+      resultadoEsperadoNegativo: form.resultadoEsperadoNegativo,
+    }),
     ...(form.resultadoObtidoNegativo && { resultadoObtidoNegativo: form.resultadoObtidoNegativo }),
     dataRealizacao: form.dataRealizacao,
     ...(form.acaoCorretiva && { acaoCorretiva: form.acaoCorretiva }),
@@ -286,7 +288,7 @@ function buildRun(
     // Fase B1-etapa2 / Fase F — rastreabilidade de insumos. Em modo analisador
     // apenas `reagente` vai pro snapshot; em modo manual ambos os controles
     // do kit acompanham.
-    ...(buildInsumosSnapshotPatch(options.insumosSnapshot)),
+    ...buildInsumosSnapshotPatch(options.insumosSnapshot),
     ...(options.insumoVencidoOverride && { insumoVencidoOverride: true }),
     ...(options.qcNaoValidado && { qcNaoValidado: true }),
     ...(options.overrideMotivo && { overrideMotivo: options.overrideMotivo }),

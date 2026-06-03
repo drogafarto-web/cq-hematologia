@@ -8,7 +8,7 @@ interface CIQCardProps {
 }
 
 const STATUS_COLOR: Record<CIQRun['status'], string> = {
-  valid: '#10b981',   // emerald-500
+  valid: '#10b981', // emerald-500
   invalid: '#ef4444', // red-500
   pending: '#f59e0b', // amber-500
 };
@@ -52,9 +52,7 @@ export function CIQCard({ run, onPress }: CIQCardProps): React.JSX.Element {
         {date} às {time}
       </Text>
 
-      {run.runType === 'VALIDATION' && (
-        <Text style={styles.typeTag}>Validação</Text>
-      )}
+      {run.runType === 'VALIDATION' && <Text style={styles.typeTag}>Validação</Text>}
 
       {run.comments ? (
         <Text style={styles.comment} numberOfLines={2}>

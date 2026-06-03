@@ -1,9 +1,9 @@
 ---
-plan: "05"
-phase: "11-feedback-loop"
-title: "Sugestões — Módulo Separado — SUMMARY"
-date_completed: "2026-05-06"
-status: "COMPLETE"
+plan: '05'
+phase: '11-feedback-loop'
+title: 'Sugestões — Módulo Separado — SUMMARY'
+date_completed: '2026-05-06'
+status: 'COMPLETE'
 ---
 
 # Phase 11 Plan 05 — SUMMARY
@@ -13,6 +13,7 @@ status: "COMPLETE"
 Módulo de sugestões completo: intakes dual (interno + público), workflow simples (aberta → analisada → implementada/rejeitada), upvote com idempotência, notificações automáticas via Resend.
 
 **Output delivered:**
+
 - 3 Cloud Functions callables: `criarSugestao`, `transitarSugestao`, `upvoteSugestao`
 - 2 React components: `SugestaoDashboard`, `SugestaoDetail`
 - 1 service layer: `sugestaoService`
@@ -27,6 +28,7 @@ Módulo de sugestões completo: intakes dual (interno + público), workflow simp
 ### 1. Cloud Functions (sugestoes module)
 
 #### `criarSugestao` (Public + Internal callable)
+
 - **Path:** `functions/src/modules/sugestoes/criarSugestao.ts` (220 lines)
 - **Auth:** Dual-mode:
   - Internal: `isActiveMemberOfLab(uid, labId)` required
@@ -54,6 +56,7 @@ Módulo de sugestões completo: intakes dual (interno + público), workflow simp
 - **Email:** Via Resend to author if internal user
 
 #### `transitarSugestao` (Callable, Qualidade role)
+
 - **Path:** `functions/src/modules/sugestoes/transitarSugestao.ts` (180 lines)
 - **Auth:** `isActiveMemberOfLab` + claim `qualidade` or `admin` required
 - **State machine validation:**
@@ -81,6 +84,7 @@ Módulo de sugestões completo: intakes dual (interno + público), workflow simp
 - **Email:** Status change notification via Resend
 
 #### `upvoteSugestao` (Callable, internal only)
+
 - **Path:** `functions/src/modules/sugestoes/upvoteSugestao.ts` (120 lines)
 - **Auth:** `isActiveMemberOfLab(uid, labId)` required (internal only)
 - **Idempotency:** One vote per `uid` per `sugestaoId`
@@ -98,12 +102,14 @@ Módulo de sugestões completo: intakes dual (interno + público), workflow simp
 **File:** `src/features/sugestoes/services/sugestaoService.ts` (100 lines)
 
 **Methods:**
+
 - `getSugestoes(labId, filters?)` — Query with categoria/status/ordenação filters
   - Returns array sorted by votos DESC or criadoEm DESC
   - Skips soft-deleted (deletadoEm == null)
 - `getSugestao(labId, sugestaoId)` — Single suggestion by ID
 
 **Filters:**
+
 - `categoria?`: Filter by product/process/environment/service/other
 - `status?`: Filter by aberta/analisada/implementada/rejeitada
 - `ordenarPor?`: 'votos' (default) or 'recencia'
@@ -114,12 +120,14 @@ Módulo de sugestões completo: intakes dual (interno + público), workflow simp
 **File:** `src/features/sugestoes/utils/stateMachine.ts` (50 lines)
 
 **Functions:**
+
 - `validateTransition(statusAtual, novoStatus)` — Boolean validation
 - `getNextStates(statusAtual)` — Array of valid next states
 - `getStatusLabel(status)` — Portuguese label
 - `getStatusColor(status)` — Tailwind color class
 
 **State graph:**
+
 ```
 aberta → analisada → implementada
                   ↘ rejeitada
@@ -128,6 +136,7 @@ aberta → analisada → implementada
 ### 4. React Components
 
 #### `SugestaoDashboard` (Main list view)
+
 - **File:** `src/features/sugestoes/components/SugestaoDashboard.tsx` (240 lines)
 - **Features:**
   - Filter by categoria (todas / produto / processo / ambiente / atendimento / outro)
@@ -143,6 +152,7 @@ aberta → analisada → implementada
 - **Data:** Real-time via `useSugestoes` hook
 
 #### `SugestaoDetail` (Detail view)
+
 - **File:** `src/features/sugestoes/components/SugestaoDetail.tsx` (140 lines)
 - **Display:**
   - Full título + descrição
@@ -160,6 +170,7 @@ aberta → analisada → implementada
 **File:** `src/features/sugestoes/hooks/useSugestoes.ts` (70 lines)
 
 **Behavior:**
+
 - Real-time subscription to `sugestoes` collection
 - Applies filters dynamically
 - Returns: `{ sugestoes, isLoading, error }`
@@ -170,6 +181,7 @@ aberta → analisada → implementada
 ## Firestore Schema
 
 ### Collection: `/labs/{labId}/sugestoes/{sugestaoId}`
+
 ```typescript
 {
   labId: string,
@@ -201,6 +213,7 @@ aberta → analisada → implementada
 ```
 
 ### Subcollection: `/labs/{labId}/sugestoes/{sugestaoId}/votos/{uid}`
+
 ```typescript
 {
   usuarioId: string,
@@ -271,19 +284,20 @@ aberta → analisada → implementada
 
 ## Performance
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| criarSugestao | ~500ms | Includes email send |
-| upvoteSugestao | ~50ms | Atomic increment |
-| transitarSugestao | ~300ms | Includes email + signature |
-| Query getSugestoes | ~100ms | <1000 docs, no pagination needed |
-| Real-time subscription | ~200ms | Initial load + listener setup |
+| Operation              | Time   | Notes                            |
+| ---------------------- | ------ | -------------------------------- |
+| criarSugestao          | ~500ms | Includes email send              |
+| upvoteSugestao         | ~50ms  | Atomic increment                 |
+| transitarSugestao      | ~300ms | Includes email + signature       |
+| Query getSugestoes     | ~100ms | <1000 docs, no pagination needed |
+| Real-time subscription | ~200ms | Initial load + listener setup    |
 
 ---
 
 ## Testing
 
 ### Unit Tests (Functions)
+
 - `criarSugestao` internal + public (reCAPTCHA valid/invalid)
 - `criarSugestao` idempotency (duplicate within 1h → same sugestaoId)
 - `transitarSugestao` state validation (invalid transition → error)
@@ -291,6 +305,7 @@ aberta → analisada → implementada
 - `upvoteSugestao` idempotency (double-click → single vote)
 
 ### Integration Tests (E2E)
+
 - Colaborador creates suggestion → receives email
 - Paciente public suggestion → no email sent
 - Upvote → counter increments, double-click no-op
@@ -298,6 +313,7 @@ aberta → analisada → implementada
 - Analista rejects with motivo → author receives email with reason
 
 ### Smoke Test (Local)
+
 - All 3 routes navigate correctly
 - Forms validate correctly
 - Suggestions load in real-time

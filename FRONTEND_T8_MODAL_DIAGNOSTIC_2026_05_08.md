@@ -6,13 +6,14 @@
 
 ## Component Created
 
-| Component | Lines | Features |
-|-----------|-------|----------|
-| **CreateRiskModal** | 280 | Form modal, validation, Firestore submission, error handling, haptic feedback |
+| Component           | Lines | Features                                                                      |
+| ------------------- | ----- | ----------------------------------------------------------------------------- |
+| **CreateRiskModal** | 280   | Form modal, validation, Firestore submission, error handling, haptic feedback |
 
 ## Features Implemented
 
 ### Form Fields
+
 - **código** (required) — Risk identifier
 - **descrição** (required) — Risk description
 - **processo** (required select) — coleta, armazenamento, análise, liberação, rastreabilidade
@@ -20,6 +21,7 @@
 - **FMEA Scores** — P, S, D (1-5 each, defaults to 3)
 
 ### Behavior
+
 - Modal opens via "+ Novo Risco" button in RiskRegister
 - Form validation: All required fields enforced
 - On submit: Calls `callCreateRisk(labId, payload)` Cloud Function
@@ -29,6 +31,7 @@
 - Accessibility: Auto-focus on código field, proper labels, aria attributes
 
 ### Default Values (on create)
+
 ```
 status: 'aberto'
 tratamento: { estrategia: 'mitigar', acoes: [], observacoes: '' }
@@ -39,6 +42,7 @@ reviewDate: null
 ## Integration
 
 ### RiskRegister Wiring
+
 - Import: `import { CreateRiskModal } from './CreateRiskModal'`
 - State: `showCreateModal` useState hook
 - Button: "+ Novo Risco" triggers `setShowCreateModal(true)`
@@ -46,6 +50,7 @@ reviewDate: null
 - Refresh: `onRefresh()` triggers parent subscription re-fetch
 
 ### Data Flow
+
 ```
 User clicks "+ Novo Risco"
   ↓
@@ -71,20 +76,26 @@ Table + KPIs update live
 ## Build & Deployment
 
 ### TypeScript Compilation
+
 ✅ All errors resolved:
+
 - Firestore Timestamp handling in ReviewHistory.tsx (toDate() conversion)
 - RiskInput type compliance (added status, tratamento, reviewHistory, reviewDate)
 - Processo/Categoria enum types with proper casting
 
 ### Production Build
+
 ✅ Build succeeded in 33.53s
+
 - 38 files precached
 - PWA manifest generated
 - Source maps uploaded to Sentry
 - No build warnings
 
 ### Firebase Hosting Deployment
+
 ✅ Deployed to hmatologia2.web.app
+
 - 6 new files uploaded
 - Version finalized
 - Release complete
@@ -93,37 +104,41 @@ Table + KPIs update live
 ## Compliance Validation
 
 ### RDC 978/2025 (Rastreability)
+
 ✅ createdBy + criadoEm timestamp captured by Cloud Function
 ✅ Audit event: 'created' type logged to /risks/{id}/events/{eventId}
 ✅ No raw mutations — callableOnly pattern
 
 ### ISO 15189:2022 (Quality Management)
+
 ✅ All required fields: código, descrição, processo, categoria, P/S/D
 ✅ Status initialized to 'aberto' (open)
 ✅ Tratamento strategy set to 'mitigar' (default)
 ✅ reviewDate initially null (to be scheduled in T8)
 
 ### LGPD (Data Protection)
+
 ✅ No PII collected (risk-specific only)
 ✅ No console logging of sensitive data
 ✅ Error messages safe for display
 
 ### Multi-Tenant Isolation
+
 ✅ labId enforced via `useActiveLabId()` guard
 ✅ Only active lab can create risks
 ✅ Firestore rules enforce server-side
 
 ## Error Handling
 
-| Scenario | Handling |
-|----------|----------|
-| Empty código | Show error + focus on field |
-| Empty descrição | Show error |
-| Missing processo | Show error |
-| Missing categoria | Show error |
-| Cloud Function failure | Show error message + haptic.error() |
-| Form validation failure | Stay in modal, show error |
-| Success | haptic.confirm() + close + refresh |
+| Scenario                | Handling                            |
+| ----------------------- | ----------------------------------- |
+| Empty código            | Show error + focus on field         |
+| Empty descrição         | Show error                          |
+| Missing processo        | Show error                          |
+| Missing categoria       | Show error                          |
+| Cloud Function failure  | Show error message + haptic.error() |
+| Form validation failure | Stay in modal, show error           |
+| Success                 | haptic.confirm() + close + refresh  |
 
 ## Browser Testing Checklist ✅
 
@@ -157,6 +172,7 @@ Table + KPIs update live
 **Status:** Production-ready form component
 
 ### What's Done
+
 ✅ CreateRiskModal fully functional
 ✅ Integrated into RiskRegister
 ✅ Form validation + error handling complete
@@ -168,6 +184,7 @@ Table + KPIs update live
 ✅ No blocking issues
 
 ### Blockers
+
 None
 
 ## Summary
@@ -183,6 +200,6 @@ None
 
 **Execution Time:** ~45 minutes  
 **Code Quality:** World-class (CLAUDE.md standards met)  
-**Risk Level:** LOW — Form-only component, no data model changes  
+**Risk Level:** LOW — Form-only component, no data model changes
 
 **Result:** ✅ **Ready for user testing + T8 modal suite completion**

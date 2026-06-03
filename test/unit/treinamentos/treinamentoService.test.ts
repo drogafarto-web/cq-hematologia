@@ -1,6 +1,9 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Timestamp } from 'firebase/firestore';
-import type { Treinamento, TreinamentoFilters } from '../../../src/features/treinamentos/types/Treinamento';
+import type {
+  Treinamento,
+  TreinamentoFilters,
+} from '../../../src/features/treinamentos/types/Treinamento';
 import {
   diasAteVencimentoCertificado,
   calcularFrequencia,
@@ -164,7 +167,7 @@ describe('TreinamentoService', () => {
       // Certificate expiring in 15 days
       const futureMeses = 0.5;
       const futureDate = Timestamp.fromDate(
-        new Date(Date.now() + futureMeses * 30 * 24 * 60 * 60 * 1000)
+        new Date(Date.now() + futureMeses * 30 * 24 * 60 * 60 * 1000),
       );
       const trainWithCert: Treinamento = {
         ...mockTreinamento,
@@ -199,7 +202,12 @@ describe('TreinamentoService', () => {
 
   describe('Status transitions', () => {
     it('should allow status transitions', () => {
-      const validStatuses: Treinamento['status'][] = ['planejado', 'agendado', 'realizado', 'cancelado'];
+      const validStatuses: Treinamento['status'][] = [
+        'planejado',
+        'agendado',
+        'realizado',
+        'cancelado',
+      ];
       expect(validStatuses).toContain('realizado');
       expect(validStatuses).toContain('cancelado');
     });

@@ -68,10 +68,7 @@ interface DatasetExport {
 /**
  * Get all images for a given month from Firestore
  */
-async function getImagesForMonth(
-  labId: string,
-  exportMonth: string
-): Promise<VerifiedImage[]> {
+async function getImagesForMonth(labId: string, exportMonth: string): Promise<VerifiedImage[]> {
   const db = admin.firestore();
 
   // Parse month into date range
@@ -117,7 +114,7 @@ async function getImagesForMonth(
 function buildSampleRecords(
   labId: string,
   firebaseImages: any[],
-  maxSamples: number = 100
+  maxSamples: number = 100,
 ): ExportSample[] {
   // Sort by test kit + confidence to ensure diversity
   const sorted = [...firebaseImages].sort((a, b) => {
@@ -158,9 +155,7 @@ function buildSampleRecords(
       manual_verified_at: img.manualVerdict?.verifiedAt?.toDate?.()
         ? img.manualVerdict.verifiedAt.toDate().toISOString()
         : new Date().toISOString(),
-      match:
-        img.geminiClassification?.classification ===
-        img.manualVerdict?.classification,
+      match: img.geminiClassification?.classification === img.manualVerdict?.classification,
       metadata: {
         lighting_condition: img.metadata?.lighting_condition,
         test_kit_batch: img.metadata?.test_kit_batch,
@@ -179,8 +174,10 @@ function buildSampleRecords(
 function generateMLTeamNotes(accuracy: number, totalVerified: number): string {
   const recommendations = [];
 
-  if (accuracy >= 0.90) {
-    recommendations.push('Accuracy is excellent; consider increasing confidence threshold to 0.87.');
+  if (accuracy >= 0.9) {
+    recommendations.push(
+      'Accuracy is excellent; consider increasing confidence threshold to 0.87.',
+    );
   } else if (accuracy >= 0.88) {
     recommendations.push('Accuracy is good; recommend fine-tuning with this dataset.');
   } else {
@@ -202,7 +199,7 @@ async function uploadToCloudStorage(
   projectId: string,
   labId: string,
   exportMonth: string,
-  datasetExport: DatasetExport
+  datasetExport: DatasetExport,
 ): Promise<string> {
   const storage = new Storage({ projectId });
   const bucketName = `${projectId}.appspot.com`;
@@ -238,7 +235,7 @@ async function recordExportAuditLog(
   exportMonth: string,
   stats: any,
   fileUrl: string,
-  operatorId: string
+  operatorId: string,
 ): Promise<void> {
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
@@ -277,121 +274,113 @@ export const collectIADataset = onCall(async (request) => {
   let payload: CollectDatasetPayload;
   try {
     payload = CollectDatasetPayloadSchema.parse(data);
-    } catch (error) {
-      const validationError =
-        error instanceof z.ZodError
-          ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
-          : 'Unknown validation error';
-      throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
-    }
+  } catch (error) {
+    const validationError =
+      error instanceof z.ZodError
+        ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+        : 'Unknown validation error';
+    throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
+  }
 
-    // Verify user is admin of lab
-    const db = admin.firestore();
-    const memberDoc = await db
-      .doc(`labs/${payload.labId}/members/${request.auth.uid}`)
+  // Verify user is admin of lab
+  const db = admin.firestore();
+  const memberDoc = await db.doc(`labs/${payload.labId}/members/${request.auth.uid}`).get();
+
+  if (!memberDoc.exists) {
+    throw new HttpsError('permission-denied', 'User is not a member of this lab');
+  }
+
+  const memberData = memberDoc.data() as any;
+  if (!memberData?.active) {
+    throw new HttpsError('permission-denied', 'User is not an active member of this lab');
+  }
+
+  // Only admin and owner can export
+  if (!['admin', 'owner'].includes(memberData.role)) {
+    throw new HttpsError('permission-denied', 'Only admin can export dataset');
+  }
+
+  try {
+    // Step 1: Get images for month
+    const images = await getImagesForMonth(payload.labId, payload.exportMonth);
+
+    // Step 2: Calculate accuracy
+    const accuracyMetrics = calculateAccuracy(images);
+
+    // Step 3: Get full image data from Firestore for samples
+    const fullImagesSnapshot = await db
+      .collection(`labs/${payload.labId}/imuno-ias-dev`)
+      .where('manualVerdict', '!=', null)
       .get();
 
-    if (!memberDoc.exists) {
-      throw new HttpsError('permission-denied', 'User is not a member of this lab');
-    }
+    const fullImages = fullImagesSnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
 
-    const memberData = memberDoc.data() as any;
-    if (!memberData?.active) {
-      throw new HttpsError(
-        'permission-denied',
-        'User is not an active member of this lab'
-      );
-    }
+    // Step 4: Build sample records
+    const samples = buildSampleRecords(payload.labId, fullImages);
 
-    // Only admin and owner can export
-    if (!['admin', 'owner'].includes(memberData.role)) {
-      throw new HttpsError('permission-denied', 'Only admin can export dataset');
-    }
+    // Step 5: Generate ML team notes
+    const mlTeamNotes = generateMLTeamNotes(accuracyMetrics.accuracy, accuracyMetrics.totalImages);
 
-    try {
-      // Step 1: Get images for month
-      const images = await getImagesForMonth(payload.labId, payload.exportMonth);
+    // Step 6: Build export JSON
+    const now = new Date().toISOString();
+    const exportMetadata: ExportMetadata = {
+      dataset_version: '1.0',
+      export_date: now,
+      export_month: payload.exportMonth,
+      lab_id: payload.labId,
+      total_images: images.length,
+      verified_images: accuracyMetrics.totalImages,
+    };
 
-      // Step 2: Calculate accuracy
-      const accuracyMetrics = calculateAccuracy(images);
+    const datasetExport: DatasetExport = {
+      export_metadata: exportMetadata,
+      accuracy_metrics: {
+        overall_accuracy: accuracyMetrics.accuracy,
+        total_verified: accuracyMetrics.totalImages,
+        correct_matches: accuracyMetrics.correctMatches,
+        confusion_matrix: accuracyMetrics.confusionMatrix,
+        per_confidence_bin: accuracyMetrics.confidenceBins,
+        per_test_kit: accuracyMetrics.perTestKitMetrics,
+      },
+      samples: samples.slice(0, 100),
+      ml_team_notes: mlTeamNotes,
+      export_file_path: '',
+    };
 
-      // Step 3: Get full image data from Firestore for samples
-      const fullImagesSnapshot = await db
-        .collection(`labs/${payload.labId}/imuno-ias-dev`)
-        .where('manualVerdict', '!=', null)
-        .get();
+    // Step 7: Upload to Cloud Storage
+    const fileUrl = await uploadToCloudStorage(
+      process.env.GCLOUD_PROJECT || 'hmatologia2',
+      payload.labId,
+      payload.exportMonth,
+      datasetExport,
+    );
 
-      const fullImages = fullImagesSnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
+    // Update export with file path
+    datasetExport.export_file_path = fileUrl;
 
-      // Step 4: Build sample records
-      const samples = buildSampleRecords(payload.labId, fullImages);
+    // Re-upload with complete metadata
+    await uploadToCloudStorage(
+      process.env.GCLOUD_PROJECT || 'hmatologia2',
+      payload.labId,
+      payload.exportMonth,
+      datasetExport,
+    );
 
-      // Step 5: Generate ML team notes
-      const mlTeamNotes = generateMLTeamNotes(
-        accuracyMetrics.accuracy,
-        accuracyMetrics.totalImages
-      );
-
-      // Step 6: Build export JSON
-      const now = new Date().toISOString();
-      const exportMetadata: ExportMetadata = {
-        dataset_version: '1.0',
-        export_date: now,
-        export_month: payload.exportMonth,
-        lab_id: payload.labId,
-        total_images: images.length,
-        verified_images: accuracyMetrics.totalImages,
-      };
-
-      const datasetExport: DatasetExport = {
-        export_metadata: exportMetadata,
-        accuracy_metrics: {
-          overall_accuracy: accuracyMetrics.accuracy,
-          total_verified: accuracyMetrics.totalImages,
-          correct_matches: accuracyMetrics.correctMatches,
-          confusion_matrix: accuracyMetrics.confusionMatrix,
-          per_confidence_bin: accuracyMetrics.confidenceBins,
-          per_test_kit: accuracyMetrics.perTestKitMetrics,
-        },
-        samples: samples.slice(0, 100),
-        ml_team_notes: mlTeamNotes,
-        export_file_path: '',
-      };
-
-      // Step 7: Upload to Cloud Storage
-      const fileUrl = await uploadToCloudStorage(
-        process.env.GCLOUD_PROJECT || 'hmatologia2',
-        payload.labId,
-        payload.exportMonth,
-        datasetExport
-      );
-
-      // Update export with file path
-      datasetExport.export_file_path = fileUrl;
-
-      // Re-upload with complete metadata
-      await uploadToCloudStorage(
-        process.env.GCLOUD_PROJECT || 'hmatologia2',
-        payload.labId,
-        payload.exportMonth,
-        datasetExport
-      );
-
-      // Step 8: Record audit log
-      await recordExportAuditLog(
-        payload.labId,
-        payload.exportMonth,
-        {
-          totalImages: images.length,
-          verifiedImages: accuracyMetrics.totalImages,
-          accuracy: accuracyMetrics.accuracy,
-        },
-        fileUrl,
-        request.auth.uid
-      );
+    // Step 8: Record audit log
+    await recordExportAuditLog(
+      payload.labId,
+      payload.exportMonth,
+      {
+        totalImages: images.length,
+        verifiedImages: accuracyMetrics.totalImages,
+        accuracy: accuracyMetrics.accuracy,
+      },
+      fileUrl,
+      request.auth.uid,
+    );
 
     return {
       success: true,
@@ -411,7 +400,7 @@ export const collectIADataset = onCall(async (request) => {
     console.error('Dataset collection error:', error);
     throw new HttpsError(
       'internal',
-      `Dataset export failed: ${error instanceof Error ? error.message : 'unknown error'}`
+      `Dataset export failed: ${error instanceof Error ? error.message : 'unknown error'}`,
     );
   }
 });

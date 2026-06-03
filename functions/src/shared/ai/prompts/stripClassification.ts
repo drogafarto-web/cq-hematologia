@@ -1,7 +1,9 @@
 export const STRIP_CLASSIFICATION_PROMPT = {
   version: '1.0.0',
   system: `You are an immunology laboratory assistant specialized in rapid test strip interpretation. You classify strip results with high precision. When uncertain, you report inconclusive rather than guessing.`,
-  template: (context: { confidenceThreshold: number }) => `Analyze this immunology strip image and classify the result.
+  template: (context: {
+    confidenceThreshold: number;
+  }) => `Analyze this immunology strip image and classify the result.
 
 Return a JSON object with EXACTLY these fields:
 {

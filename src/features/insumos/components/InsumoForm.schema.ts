@@ -9,8 +9,7 @@
 import { z } from 'zod';
 
 const DATE_REGEX = /^\d{4}-\d{2}-\d{2}$/;
-const dateField = (msg = 'Formato inválido (YYYY-MM-DD)') =>
-  z.string().regex(DATE_REGEX, msg);
+const dateField = (msg = 'Formato inválido (YYYY-MM-DD)') => z.string().regex(DATE_REGEX, msg);
 
 // Campos comuns a todos os tipos
 const baseShape = {
@@ -60,9 +59,7 @@ const tiraUroSchema = z.object({
   registroAnvisa: baseShape.registroAnvisa,
   notaFiscal: z.string().trim().optional(),
   fornecedor: z.string().trim().optional(),
-  analitosIncluidos: z
-    .array(z.string())
-    .min(1, 'Informe ao menos um analito incluído.'),
+  analitosIncluidos: z.array(z.string()).min(1, 'Informe ao menos um analito incluído.'),
 });
 
 // discriminatedUnion exige ZodObject puro — refines vão depois, no schema raiz.

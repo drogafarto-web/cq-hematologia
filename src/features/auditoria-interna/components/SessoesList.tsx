@@ -11,7 +11,9 @@ interface SessoesListProps {
 
 export function SessoesList({ auditorias, onSelectSessao }: SessoesListProps) {
   const labId = useActiveLabId();
-  const [sessoesByAuditoria, setSessoesByAuditoria] = useState<Record<string, { id: string; status: string; dataInicio?: any }[]>>({});
+  const [sessoesByAuditoria, setSessoesByAuditoria] = useState<
+    Record<string, { id: string; status: string; dataInicio?: any }[]>
+  >({});
 
   useEffect(() => {
     if (!labId || auditorias.length === 0) return;
@@ -25,7 +27,7 @@ export function SessoesList({ auditorias, onSelectSessao }: SessoesListProps) {
         (sessoes) => {
           setSessoesByAuditoria((prev) => ({ ...prev, [auditoria.id]: sessoes }));
         },
-        (err) => console.error('Error loading sessoes:', err)
+        (err) => console.error('Error loading sessoes:', err),
       );
       unsubscribes.push(unsub);
     }
@@ -44,10 +46,17 @@ export function SessoesList({ auditorias, onSelectSessao }: SessoesListProps) {
         auditorias.map((auditoria) => {
           const sessoes = sessoesByAuditoria[auditoria.id] || [];
           return (
-            <div key={auditoria.id} className="border border-white/10 rounded-lg p-4 bg-white/5 space-y-3">
+            <div
+              key={auditoria.id}
+              className="border border-white/10 rounded-lg p-4 bg-white/5 space-y-3"
+            >
               <div className="flex justify-between items-center">
-                <p className="font-medium">Ano {auditoria.ano} — {auditoria.frequencia}</p>
-                <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-300">Em execução</span>
+                <p className="font-medium">
+                  Ano {auditoria.ano} — {auditoria.frequencia}
+                </p>
+                <span className="px-2 py-0.5 rounded-full text-xs bg-amber-500/20 text-amber-300">
+                  Em execução
+                </span>
               </div>
 
               {sessoes.length === 0 ? (

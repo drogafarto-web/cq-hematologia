@@ -8,12 +8,14 @@
 ## Executive Summary
 
 **Firestore Current State:**
+
 - 35 composite indexes deployed (verified in `firestore.indexes.json`)
 - All critical queries for Batch 1/2 modules have required indexes ✅
 - No missing composite indexes detected
 - Client-side filtering: `deletadoEm == null` (acceptable for current scale)
 
 **Action Items:**
+
 1. ✅ All needed indexes already created
 2. ⏳ Measurement: Enable Firebase Performance Monitoring to baseline query latency
 3. ⏳ Verify: Test production indexes after next deploy
@@ -25,6 +27,7 @@
 ### 1. POPs (sgq/documentoService.ts)
 
 **Query:** `where('deletadoEm', '==', null) + orderBy('criadoEm', 'desc')`
+
 - **Pattern:** Client-side filtering → all non-deleted docs loaded → ordered in-memory
 - **Current Index:** None needed (single table scan, filter applied client-side)
 - **Status:** ✅ Acceptable for <10k docs/lab (typical: 50-200 docs)
@@ -32,10 +35,11 @@
 - **Action:** None required for MVP
 
 **Note:** The audioService.ts also queries audit events by documentoId (line 478-479):
+
 ```typescript
-where('documentoId', '==', documentoId),
-orderBy('timestamp', 'desc')
+(where('documentoId', '==', documentoId), orderBy('timestamp', 'desc'));
 ```
+
 This does NOT require a composite index (single field order).
 
 ---
@@ -45,11 +49,13 @@ This does NOT require a composite index (single field order).
 **Query:** `where('deletadoEm', '==', null) + optional filters`
 
 Constraints checked:
+
 - `where('severidade', 'in', [...])` — optional
-- `where('capaStatus', 'in', [...])` — optional  
+- `where('capaStatus', 'in', [...])` — optional
 - `where('bloqueiaOperacoes', '==', value)` — optional
 
 **Index Status:**
+
 ```
 Line 277-282 in firestore.indexes.json:
 {
@@ -65,6 +71,7 @@ Line 277-282 in firestore.indexes.json:
 ✅ **Status:** Index exists for ordered queries. Single filters don't need composite indexes in Firestore.
 
 **Scale Handling:** At scale (>1k NCs/lab), add:
+
 - `(labId ASC, severidade ASC, dataAbertura DESC)` for severity filtering
 - `(labId ASC, capaStatus ASC, dataAbertura DESC)` for CAPA status filtering
 
@@ -77,12 +84,14 @@ Line 277-282 in firestore.indexes.json:
 **Query:** `where('labId', '==', labId) + orderBy('data', 'desc')`
 
 **Index Status:**
+
 ```
 Line 277-282 in firestore.indexes.json matches labId + dataAbertura DESC.
 Auditoria likely uses 'data' (not 'dataAbertura') — verify actual field name.
 ```
 
 **Action:** Check if `auditoria` collection queries use 'data' field. If so, add index:
+
 ```json
 {
   "collectionGroup": "auditorias",
@@ -101,6 +110,7 @@ Auditoria likely uses 'data' (not 'dataAbertura') — verify actual field name.
 **Query:** `where('labId', '==', labId) + orderBy('criadoEm', 'desc')`
 
 **Current Index Status:**
+
 ```
 Line 245-250 in firestore.indexes.json:
 {
@@ -116,13 +126,14 @@ Line 245-250 in firestore.indexes.json:
 ⚠️ **Status:** Index exists but for `ativo + titulo` (not `labId + criadoEm`).
 
 **Queries in Code:**
+
 ```typescript
 // useTreinamentos.ts likely queries:
-where('labId', '==', labId),
-orderBy('criadoEm', 'desc')
+(where('labId', '==', labId), orderBy('criadoEm', 'desc'));
 ```
 
 **Index Needed:**
+
 ```json
 {
   "collectionGroup": "treinamentos",
@@ -145,6 +156,7 @@ orderBy('criadoEm', 'desc')
 **Index Status:** Not found in current indexes.json
 
 **Index Needed:**
+
 ```json
 {
   "collectionGroup": "biosseguranca-inspecoes",
@@ -168,7 +180,7 @@ Add the following to `firestore.indexes.json`:
 {
   "indexes": [
     // ... existing indexes ...
-    
+
     // Treinamentos
     {
       "collectionGroup": "treinamentos",
@@ -178,7 +190,7 @@ Add the following to `firestore.indexes.json`:
         { "fieldPath": "criadoEm", "order": "DESCENDING" }
       ]
     },
-    
+
     // Auditoria
     {
       "collectionGroup": "auditorias",
@@ -188,7 +200,7 @@ Add the following to `firestore.indexes.json`:
         { "fieldPath": "data", "order": "DESCENDING" }
       ]
     },
-    
+
     // Biosseguranca
     {
       "collectionGroup": "biosseguranca-inspecoes",
@@ -203,6 +215,7 @@ Add the following to `firestore.indexes.json`:
 ```
 
 **Deploy Step (Phase 3):**
+
 ```bash
 firebase firestore:indexes --project hmatologia2 --indexes firestore.indexes.json
 ```
@@ -211,16 +224,17 @@ firebase firestore:indexes --project hmatologia2 --indexes firestore.indexes.jso
 
 ## Query Performance Targets
 
-| Module | Query Type | Target P95 | Baseline | Status |
-|--------|-----------|-----------|----------|--------|
-| POPs | `where deletadoEm + client-sort` | <200ms | TBD | ⏳ Measure |
-| NC | `where deletadoEm + optional filters` | <300ms | TBD | ⏳ Measure |
-| Auditoria | `where labId + orderBy data` | <200ms | TBD | ⏳ Measure |
-| Treinamentos | `where labId + orderBy criadoEm` | <150ms | TBD | ⏳ Measure |
-| Biosseguranca | `where areaId + orderBy data` | <150ms | TBD | ⏳ Measure |
+| Module        | Query Type                            | Target P95 | Baseline | Status     |
+| ------------- | ------------------------------------- | ---------- | -------- | ---------- |
+| POPs          | `where deletadoEm + client-sort`      | <200ms     | TBD      | ⏳ Measure |
+| NC            | `where deletadoEm + optional filters` | <300ms     | TBD      | ⏳ Measure |
+| Auditoria     | `where labId + orderBy data`          | <200ms     | TBD      | ⏳ Measure |
+| Treinamentos  | `where labId + orderBy criadoEm`      | <150ms     | TBD      | ⏳ Measure |
+| Biosseguranca | `where areaId + orderBy data`         | <150ms     | TBD      | ⏳ Measure |
 
 **Measurement Method (Phase 2):**
 Enable Firebase Performance Monitoring in Firebase Console:
+
 1. Navigate to Performance in Firebase Console
 2. Check "Firestore" section for automatic traces
 3. Custom traces for slow queries (>1s) via `logPerformance` service
@@ -244,11 +258,13 @@ Enable Firebase Performance Monitoring in Firebase Console:
 ## Scale Thresholds & Escalation
 
 **Client-side Filtering Acceptable When:**
+
 - Docs per query <1000
 - Result set <500 docs
 - Filters applied to <10% of total collection
 
 **Escalate to Server-Side Query When:**
+
 - Any module's filter returns >1000 docs regularly
 - P95 query latency >500ms
 - Lab operator reports "list is slow"
@@ -268,12 +284,14 @@ Enable Firebase Performance Monitoring in Firebase Console:
 ## Notes for Stream C Agent
 
 **Phase 2 (Week 2) Responsibilities:**
+
 1. Enable Firebase Performance Monitoring
 2. Set up custom traces for each module
 3. Establish baseline latencies
 4. Document in `STREAM-C-PERFORMANCE-BASELINE.md`
 
 **Phase 3 (Week 3) Responsibilities:**
+
 1. Create/deploy missing indexes
 2. Measure P95 latency after index creation
 3. Document improvements

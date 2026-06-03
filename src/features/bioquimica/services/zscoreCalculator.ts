@@ -16,8 +16,8 @@ export interface InterlabPeerStats {
   analitoId: AnalitoId;
   peerCount: number;
   peerMean: number;
-  peerSD: number;       // group SD across peer labs
-  cycleId: string;      // e.g. "2026-Q2"
+  peerSD: number; // group SD across peer labs
+  cycleId: string; // e.g. "2026-Q2"
   source: 'ceq-provider' | 'internal-aggregate';
 }
 
@@ -76,7 +76,7 @@ export function calculateInterlabZScore(input: InterlabZScoreInput): InterlabZSc
 export function aggregatePeerStats(
   values: number[],
   cycleId: string,
-  analitoId: AnalitoId
+  analitoId: AnalitoId,
 ): InterlabPeerStats {
   if (values.length < 5) {
     throw new Error(`insufficient peer count: minimum 5, got ${values.length}`);

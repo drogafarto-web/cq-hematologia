@@ -1,7 +1,7 @@
 ---
-title: "Phase 4 Go-Live Checklist — Executable Sign-Off"
-date: "2026-05-08"
-status: "READY FOR DEPLOYMENT"
+title: 'Phase 4 Go-Live Checklist — Executable Sign-Off'
+date: '2026-05-08'
+status: 'READY FOR DEPLOYMENT'
 ---
 
 # Phase 4 Go-Live Checklist
@@ -16,7 +16,7 @@ status: "READY FOR DEPLOYMENT"
 
 ### Firestore Rules & Indexes
 
-- [ ] **Rules Staged** — All 5 Phase 4 collections (notivisa-*, patient-consents, supervisor-status)
+- [ ] **Rules Staged** — All 5 Phase 4 collections (notivisa-\*, patient-consents, supervisor-status)
   - [ ] notivisa-drafts rules deployed
   - [ ] notivisa-queue rules deployed
   - [ ] notivisa-outbox rules deployed
@@ -767,11 +767,13 @@ Date: _____ Time: _____
 **This Checklist:** `docs/PHASE_4_GO_LIVE_CHECKLIST.md`
 
 **Companion Documents:**
+
 - `docs/PHASE_4_GO_LIVE_READINESS_REPORT.md` — Full metrics & assessment
 - `docs/GO_LIVE_DAY_SCHEDULE_2026-05-20.md` — Minute-by-minute schedule
 - `docs/INCIDENT_RESPONSE_PLAYBOOK_PHASE_4.md` — 4 scenarios + escalation
 
 **Operational References:**
+
 - `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` — Contact tree + runbooks
 - `.planning/SLO_TRACKING_MANIFEST.md` — SLO/monitoring setup
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — 48h monitoring procedure

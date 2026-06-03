@@ -2,10 +2,7 @@ import { useMemo, useState } from 'react';
 
 import { useKitsIntegracao } from '../hooks/useKitsIntegracao';
 import { useTemplates } from '../hooks/useTemplates';
-import type {
-  KitIntegracao,
-  TemplateTreinamento,
-} from '../types/EducacaoContinuada';
+import type { KitIntegracao, TemplateTreinamento } from '../types/EducacaoContinuada';
 
 import { KitIntegracaoForm } from './KitIntegracaoForm';
 import { MaterialViewer } from './MaterialViewer';
@@ -54,9 +51,7 @@ export function BibliotecaTemplates({ onClose }: BibliotecaTemplatesProps) {
     const needle = busca.trim().toLowerCase();
     if (!needle) return kits;
     return kits.filter(
-      (k) =>
-        k.nome.toLowerCase().includes(needle) ||
-        k.cargo.toLowerCase().includes(needle),
+      (k) => k.nome.toLowerCase().includes(needle) || k.cargo.toLowerCase().includes(needle),
     );
   }, [kits, busca]);
 
@@ -137,18 +132,16 @@ export function BibliotecaTemplates({ onClose }: BibliotecaTemplatesProps) {
             type="search"
             value={busca}
             onChange={(e) => setBusca(e.target.value)}
-            placeholder={view === 'templates' ? 'Buscar por título, tema ou tag…' : 'Buscar por nome ou cargo…'}
+            placeholder={
+              view === 'templates' ? 'Buscar por título, tema ou tag…' : 'Buscar por nome ou cargo…'
+            }
             aria-label="Buscar"
             className="flex-1 rounded-md border border-slate-700 bg-slate-900 px-3 py-2 text-sm text-slate-200 placeholder-slate-500 focus:border-emerald-500 focus:outline-none"
           />
           <button
             type="button"
             onClick={() =>
-              setPanel(
-                view === 'templates'
-                  ? { mode: 'template-create' }
-                  : { mode: 'kit-create' },
-              )
+              setPanel(view === 'templates' ? { mode: 'template-create' } : { mode: 'kit-create' })
             }
             className="shrink-0 rounded-md bg-emerald-500 px-3 py-2 text-sm font-semibold text-slate-950 hover:bg-emerald-400"
           >
@@ -220,9 +213,7 @@ function SegmentTab({
       aria-selected={active ? 'true' : 'false'}
       onClick={onClick}
       className={`flex-1 rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-        active
-          ? 'bg-slate-800 text-slate-100 shadow-sm'
-          : 'text-slate-400 hover:text-slate-200'
+        active ? 'bg-slate-800 text-slate-100 shadow-sm' : 'text-slate-400 hover:text-slate-200'
       }`}
     >
       {children}
@@ -257,11 +248,7 @@ function TemplatesList({
           key={t.id}
           className="flex items-start justify-between gap-3 rounded-lg border border-slate-800 bg-slate-900/60 p-3"
         >
-          <button
-            type="button"
-            onClick={() => onOpen(t)}
-            className="flex-1 text-left"
-          >
+          <button type="button" onClick={() => onOpen(t)} className="flex-1 text-left">
             <p className="truncate text-sm font-semibold text-slate-100 hover:text-emerald-300">
               {t.titulo}
             </p>
@@ -287,9 +274,7 @@ function TemplatesList({
                 </span>
               ))}
               {t.tags.length > 3 && (
-                <span className="text-[10px] text-slate-500">
-                  +{t.tags.length - 3}
-                </span>
+                <span className="text-[10px] text-slate-500">+{t.tags.length - 3}</span>
               )}
             </div>
           </button>
@@ -355,9 +340,7 @@ function TemplateDetail({
       </dl>
 
       <section className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
-        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-          Objetivo
-        </h3>
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">Objetivo</h3>
         <p className="whitespace-pre-wrap text-sm text-slate-200">{template.objetivo}</p>
       </section>
 

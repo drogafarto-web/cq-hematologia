@@ -46,18 +46,21 @@ fechado (final)
 ### States & Responsibilities
 
 #### `aberto` (Open/Initial)
+
 - CAPA created by quality team after Finding/NC identified.
 - Fields: `titulo`, `descricao`, `dataAbertura`, `findingId` (link to audit finding), `proprietario` (operator assigned).
 - Transitions: only to `em-andamento` (via `iniciarInvestigacao` callable).
 - Audit event: `{ operatorId, ts, acao: 'opened', propriedadeAlterada: {proprietario} }`.
 
 #### `em-andamento` (In Progress)
+
 - Operator investigates root cause, develops corrective plan.
 - Fields: `analiseRaizCausa` (RCA), `acaoCorretivaPlano`, `dataPrevisaoEvidencia` (target evidence date).
 - Transitions: to `evidencia-submetida` (via `submeterEvidencia` callable) or back to `aberto` (if CAPA withdrawn).
 - Audit event: `{ operatorId, ts, acao: 'investigacao-iniciada' }`.
 
 #### `evidencia-submetida` (Evidence Submitted, Awaiting Review)
+
 - Operator uploads evidence (PDF, photo, CSV export, audit log snapshot).
 - Evidence file stored in Firebase Storage `/labs/{labId}/capa-evidencia/{capaId}/` with content-hash.
 - Fields: `evidenciaDocumento` (Storage ref), `evidenciaHash` (SHA-256 of file), `dataSubmissao`, `submissaoChainHash` (HMAC seal per ADR-0012).
@@ -65,6 +68,7 @@ fechado (final)
 - Audit event: `{ operatorId, ts, acao: 'evidencia-submetida', evidenciaHash }`.
 
 #### `auditor-revisando` (Auditor Review In Progress)
+
 - Auditor (defined by role `isAuditorMasterCIQ`) reviews evidence + RCA.
 - Fields: `auditorId` (assigned reviewer), `dataRevisaoInicio`, `comentariosAuditor` (qualitative feedback).
 - Transitions: to `fechado` (approve + evidence satisfactory) or back to `em-andamento` (reject + ask for rework).
@@ -72,6 +76,7 @@ fechado (final)
 - Audit event: `{ auditorId, ts, acao: 'revisao-iniciada' }` or `{ acao: 'evidencia-rejeitada', motivo }`.
 
 #### `fechado` (Closed/Resolved)
+
 - CAPA approved by auditor; corrective action effective.
 - Fields: `dataFechamento`, `auditorIdAprovador`, `dataEfetividadeVerificacao` (follow-up audit date).
 - Transitions: none (final state). Soft-delete flag set if no longer relevant, but record persists.
@@ -136,16 +141,16 @@ fechado (final)
 interface CAPAWorkflow {
   id: string;
   labId: string;
-  
+
   // Identification
   titulo: string;
   descricao: string;
   findingId?: string; // link to audit finding
-  
+
   // Lifecycle
   status: 'aberto' | 'em-andamento' | 'evidencia-submetida' | 'auditor-revisando' | 'fechado';
   proprietarioId: string; // operator assigned to investigation
-  
+
   // Timeline
   dataAbertura: Timestamp;
   dataInvestigacaoInicio?: Timestamp;
@@ -153,26 +158,32 @@ interface CAPAWorkflow {
   dataSubmissao?: Timestamp;
   dataRevisaoInicio?: Timestamp;
   dataFechamento?: Timestamp;
-  
+
   // Investigation (em-andamento)
   analiseRaizCausa?: string; // RCA (min 100 chars)
   acaoCorretivaPlano?: string;
-  
+
   // Evidence (evidencia-submetida)
   evidenciaDocumento?: string; // Firebase Storage path
   evidenciaHash?: string; // SHA-256 of file
   submissaoChainHash?: string; // HMAC seal at submission
-  
+
   // Auditor Review
   auditorId?: string;
   auditorIdAprovador?: string;
   comentariosAuditor?: string;
   rejeicaoMotivo?: string;
   dataEfetividadeVerificacao?: Timestamp;
-  
+
   // Audit Trail (append-only)
   transicoesCAPAs: Array<{
-    acao: 'aberto' | 'investigacao-iniciada' | 'evidencia-submetida' | 'revisao-iniciada' | 'capa-fechada' | 'evidencia-rejeitada';
+    acao:
+      | 'aberto'
+      | 'investigacao-iniciada'
+      | 'evidencia-submetida'
+      | 'revisao-iniciada'
+      | 'capa-fechada'
+      | 'evidencia-rejeitada';
     operatorId: string;
     auditorId?: string;
     ts: Timestamp;
@@ -180,11 +191,11 @@ interface CAPAWorkflow {
     motivo?: string; // if rejection
     evidenciaHash?: string;
   }>;
-  
+
   // Soft Delete
   deletadoEm?: Timestamp;
   deletadoPor?: string;
-  
+
   // Compliance
   criadoEm: Timestamp;
   criadoPor: string;
@@ -213,16 +224,19 @@ interface CAPAWorkflow {
 ## Alternatives Considered
 
 ### A. Flat status flags (no state machine)
+
 **Pros:** simpler schema (fewer validations).  
 **Cons:** no enforcement of transitions (can jump from `aberto` → `fechado` directly); auditor cannot verify workflow integrity.  
 **Rejected:** Violates audit trail requirements.
 
 ### B. Asyncio event sourcing (every action is an event, replay to compute state)
+
 **Pros:** perfect audit trail; immutable event log.  
 **Cons:** complex implementation; requires event replay on every read (higher latency); overkill for CAPA (state transitions are rare).  
 **Rejected:** Over-engineered for v1.4 scope. Use simple state field + append-only transitions array.
 
 ### C. Transition gates via Firestore rules alone (no Cloud Functions)
+
 **Pros:** no callable overhead.  
 **Cons:** Firestore rules are hard to test; cannot validate business logic (e.g., RCA length > 100 chars); cannot auto-escalate to auditor queue.  
 **Rejected:** Thin service, fat hooks pattern (per CLAUDE.md) requires business logic in callables.

@@ -14,11 +14,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
 import { generateTurnosSignatureServer } from './signatureCanonical';
-import {
-  assertTurnosAccess,
-  turnosCollection,
-  UpdateTurnoInputSchema,
-} from './validators';
+import { assertTurnosAccess, turnosCollection, UpdateTurnoInputSchema } from './validators';
 
 interface UpdateTurnoResult {
   ok: true;

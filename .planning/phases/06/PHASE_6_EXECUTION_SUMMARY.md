@@ -11,6 +11,7 @@
 ### 1. ✅ Firestore Schema (100%)
 
 **Type Definitions** (`src/features/criticos/types/index.ts`):
+
 - `CriticosThreshold` — Per-lab threshold configuration
 - `CriticosEscalacao` — Master escalation log with SLA metrics
 - `CriticosEscalacaoAttempt` — Immutable escalation attempts (SMS/EMAIL)
@@ -19,17 +20,20 @@
 - `CriticosConfig` — Lab settings extension
 
 **Firestore Collections** (schema ready):
+
 - `/labs/{labId}/criticos-thresholds/{thresholdId}` — 1 index
 - `/labs/{labId}/criticos-escalacoes/{escalacaoId}` — 2 indexes
 - `/labs/{labId}/criticos-log-eventos/{eventoId}` — 1 index
 - `/labs/{labId}/notivisa-outbox/{draftId}` — Reuses existing collection
 
 **Firestore Rules** (`firestore.rules`):
+
 - `criticos-thresholds`: RT/Owner read+write, soft-delete only
 - `criticos-escalacoes`: Cloud Function write only, RT/Auditor read
 - `criticos-log-eventos`: Cloud Function write only, append-only, RT/Auditor read
 
 **Firestore Indexes** (`firestore.indexes.json`):
+
 - All 5 required indexes added (Phase 6 indexes)
 
 ### 2. ✅ Cloud Functions (100%)
@@ -75,12 +79,14 @@
 ### 3. ✅ SMS/Email Integration (100%)
 
 **Twilio Client** (`functions/src/shared/sms/twilioClient.ts`):
+
 - `createTwilioClient()` — Initializes with Firebase secrets
 - `sendSMS()` — Sends SMS with E.164 validation + error handling
 - `checkMessageStatus()` — Polls Twilio for delivery status
 - `getSMSTemplate()` — Generates SMS message (160 chars)
 
 **SMS Template:**
+
 ```
 HC Qualidade CRÍTICO
 Paciente: {name}
@@ -90,11 +96,13 @@ Ref: {laudoId_short}
 ```
 
 **Email Templates:**
+
 - SMS fallback (HTML, styling per DESIGN_SYSTEM.md)
 - SLA breach alert (to RT)
 - NOTIVISA notification (to RT)
 
 **Secrets Required:**
+
 - `TWILIO_ACCOUNT_SID`
 - `TWILIO_AUTH_TOKEN`
 - `TWILIO_PHONE_NUMBER` (regional: São Paulo)
@@ -102,12 +110,14 @@ Ref: {laudoId_short}
 ### 4. ✅ Frontend Components (100%)
 
 **Detection Utility** (`src/features/criticos/utils/criticoDetector.ts`):
+
 - `detectCriticoEm()` — Client-side detection (pure, no Firebase deps)
 - `detectAllCriticos()` — Batch detection across exames
 - Supports conditional rules (idade/sexo filtering)
 - Already integrated into bioquimica module
 
 **UI Component** (`src/features/criticos/components/CriticosEscalacaoWidget.tsx`):
+
 - Read-only escalacao status display
 - Shows SMS/EMAIL delivery attempts
 - SLA tracking visual (em_prazo/vencido)
@@ -146,6 +156,7 @@ Ref: {laudoId_short}
 ### 6. ✅ Firestore Rules Validation
 
 **Deploy-ready rules:**
+
 - ✓ `criticos-thresholds` rule (RT+Owner write)
 - ✓ `criticos-escalacoes` rule (Cloud Function write only)
 - ✓ `criticos-log-eventos` rule (append-only)
@@ -332,6 +343,7 @@ firebase deploy --only hosting --project hmatologia2
 - **4.3.3** — SLA targets (configurável por lab)
 
 **Compliance Status:**
+
 - ✅ Auto-escalation for críticos (4.3.1)
 - ✅ Immutable audit trail (4.3.2)
 - ✅ SLA tracking + breach alerts (4.3.3)
@@ -382,6 +394,7 @@ npm test -- criticos.test.ts
 ```
 
 **Expected Output:**
+
 ```
 PASS functions/src/modules/criticos/__tests__/criticos.test.ts
   Critical Values Detection
@@ -439,16 +452,19 @@ Tests: 18 passed, 18 total
 ### Common Issues
 
 **Issue:** SMS not sending
+
 - **Check:** Twilio secrets set in Firebase Functions
 - **Run:** `bash scripts/preflight-secrets-check.sh`
 - **Verify:** `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`
 
 **Issue:** Cron not running
+
 - **Check:** Cloud Scheduler enabled in GCP
 - **Check:** Function deployed: `escalacaoCriticos`
 - **Check:** Cloud Logs for errors in `escalacaoCriticos`
 
 **Issue:** Rules blocking read
+
 - **Check:** User has `isActiveMemberOfLab(labId)` claim
 - **Check:** Claims synced via `provisionModulesClaims` callable
 
@@ -488,23 +504,23 @@ firebase emulators:exec "npm test"
 
 ### Core Implementation
 
-| File | Status | LOC | Notes |
-|------|--------|-----|-------|
-| `src/features/criticos/types/index.ts` | ✅ Complete | 260 | Full type definitions |
-| `src/features/criticos/utils/criticoDetector.ts` | ✅ Existing | 125 | Pure detection logic |
+| File                                                           | Status      | LOC | Notes                     |
+| -------------------------------------------------------------- | ----------- | --- | ------------------------- |
+| `src/features/criticos/types/index.ts`                         | ✅ Complete | 260 | Full type definitions     |
+| `src/features/criticos/utils/criticoDetector.ts`               | ✅ Existing | 125 | Pure detection logic      |
 | `src/features/criticos/components/CriticosEscalacaoWidget.tsx` | ✅ Complete | 140 | UI component (dark-first) |
-| `functions/src/modules/criticos/index.ts` | ✅ Complete | 450 | 4 callables + webhook |
-| `functions/src/modules/criticos/types.ts` | ✅ Complete | 150 | Function type defs |
-| `functions/src/shared/sms/twilioClient.ts` | ✅ Complete | 120 | Twilio integration |
-| `functions/src/modules/criticos/__tests__/criticos.test.ts` | ✅ Complete | 220 | 18 unit tests |
+| `functions/src/modules/criticos/index.ts`                      | ✅ Complete | 450 | 4 callables + webhook     |
+| `functions/src/modules/criticos/types.ts`                      | ✅ Complete | 150 | Function type defs        |
+| `functions/src/shared/sms/twilioClient.ts`                     | ✅ Complete | 120 | Twilio integration        |
+| `functions/src/modules/criticos/__tests__/criticos.test.ts`    | ✅ Complete | 220 | 18 unit tests             |
 
 ### Configuration
 
-| File | Changes | Notes |
-|------|---------|-------|
-| `firestore.rules` | +30 lines | 3 new rules + updates |
-| `firestore.indexes.json` | +50 lines | 5 new indexes |
-| `functions/src/index.ts` | +6 lines | Module exports |
+| File                     | Changes   | Notes                 |
+| ------------------------ | --------- | --------------------- |
+| `firestore.rules`        | +30 lines | 3 new rules + updates |
+| `firestore.indexes.json` | +50 lines | 5 new indexes         |
+| `functions/src/index.ts` | +6 lines  | Module exports        |
 
 ### Validation
 

@@ -1,7 +1,11 @@
 import { useEffect, useState, useCallback } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
-import { subscribeAuditorias, updateAuditoriaStatus, softDeleteAuditoria } from './auditoriaService';
+import {
+  subscribeAuditorias,
+  updateAuditoriaStatus,
+  softDeleteAuditoria,
+} from './auditoriaService';
 
 export function useAuditorias(filters: AuditoriaFilters = {}) {
   const labId = useActiveLabId();

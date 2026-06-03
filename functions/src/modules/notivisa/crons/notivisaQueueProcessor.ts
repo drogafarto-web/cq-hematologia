@@ -63,10 +63,10 @@ interface SubmissionResult {
  */
 async function submitNotivisaToAnvisaMock(
   _labId: string,
-  entry: NotivisaOutboxEntry
+  entry: NotivisaOutboxEntry,
 ): Promise<SubmissionResult> {
   // Simulate network latency
-  await new Promise(resolve => setTimeout(resolve, Math.random() * 500));
+  await new Promise((resolve) => setTimeout(resolve, Math.random() * 500));
 
   const receiptCode = `NV-SANDBOX-${Date.now()}-${Math.random().toString(36).substr(2, 9).toUpperCase()}`;
   const eventId = `evt-${Date.now()}`;
@@ -85,7 +85,7 @@ async function submitNotivisaToAnvisaMock(
  */
 async function submitNotivisaToAnvisaReal(
   _labId: string,
-  entry: NotivisaOutboxEntry
+  entry: NotivisaOutboxEntry,
 ): Promise<SubmissionResult> {
   // Phase 12: Replace with real SOAP API call to Anvisa
   // For now, fallback to mock
@@ -97,7 +97,7 @@ async function submitNotivisaToAnvisaReal(
  */
 async function submitNotivisaToAnvisa(
   labId: string,
-  entry: NotivisaOutboxEntry
+  entry: NotivisaOutboxEntry,
 ): Promise<SubmissionResult> {
   const mode = process.env.NOTIVISA_API_MODE || 'sandbox';
 
@@ -114,17 +114,14 @@ async function submitNotivisaToAnvisa(
  */
 async function notifySupervisorOfNotivisaFailure(
   labId: string,
-  entry: NotivisaOutboxEntry
+  entry: NotivisaOutboxEntry,
 ): Promise<void> {
   // Phase 8: Integrate with Twilio SMS + email service
-  functions.logger.warn(
-    `[NOTIVISA] Escalation required: ${entry.id} in lab ${labId}`,
-    {
-      motivo: entry.escalationMotivo,
-      diseaseCode: entry.diseaseCode,
-      attempts: entry.submissionAttempts.length,
-    }
-  );
+  functions.logger.warn(`[NOTIVISA] Escalation required: ${entry.id} in lab ${labId}`, {
+    motivo: entry.escalationMotivo,
+    diseaseCode: entry.diseaseCode,
+    attempts: entry.submissionAttempts.length,
+  });
 }
 
 /**
@@ -188,7 +185,7 @@ export const notivisaQueueProcessor = onSchedule(
               const lastAttempt = entry.submissionAttempts[attemptNum - 1];
               const backoffMinutes = BACKOFF_SCHEDULE[attemptNum] || 120;
               const nextRetryTime = new Date(
-                lastAttempt.ts.toDate().getTime() + backoffMinutes * 60 * 1000
+                lastAttempt.ts.toDate().getTime() + backoffMinutes * 60 * 1000,
               );
 
               if (nextRetryTime > new Date()) {
@@ -206,7 +203,8 @@ export const notivisaQueueProcessor = onSchedule(
                 const newAttempt = {
                   attempt: attemptNum + 1,
                   ts: admin.firestore.FieldValue.serverTimestamp(),
-                  method: process.env.NOTIVISA_API_MODE === 'sandbox' ? 'mock-submit' : 'soap-anvisa',
+                  method:
+                    process.env.NOTIVISA_API_MODE === 'sandbox' ? 'mock-submit' : 'soap-anvisa',
                   status: 'success' as const,
                   receiptCode: result.receiptCode,
                   roundTripMs: result.roundTripMs,
@@ -219,7 +217,9 @@ export const notivisaQueueProcessor = onSchedule(
                   anvisa_eventId: result.eventId,
                 });
 
-                functions.logger.info(`[NOTIVISA] Success: ${entryDoc.id} (attempt ${attemptNum + 1})`);
+                functions.logger.info(
+                  `[NOTIVISA] Success: ${entryDoc.id} (attempt ${attemptNum + 1})`,
+                );
               } else {
                 // Record failed attempt
                 const isRetryable = result.isRetryable ?? true;
@@ -227,7 +227,8 @@ export const notivisaQueueProcessor = onSchedule(
                 const newAttempt = {
                   attempt: attemptNum + 1,
                   ts: admin.firestore.FieldValue.serverTimestamp(),
-                  method: process.env.NOTIVISA_API_MODE === 'sandbox' ? 'mock-submit' : 'soap-anvisa',
+                  method:
+                    process.env.NOTIVISA_API_MODE === 'sandbox' ? 'mock-submit' : 'soap-anvisa',
                   status: 'failed' as const,
                   error: {
                     errorCode: result.errorCode,
@@ -243,7 +244,7 @@ export const notivisaQueueProcessor = onSchedule(
                     submissionAttempts: admin.firestore.FieldValue.arrayUnion(newAttempt),
                   });
                   functions.logger.info(
-                    `[NOTIVISA] Retryable failure: ${entryDoc.id} (attempt ${attemptNum + 1}/5)`
+                    `[NOTIVISA] Retryable failure: ${entryDoc.id} (attempt ${attemptNum + 1}/5)`,
                   );
                 } else {
                   // Non-retryable (4xx) or max retries
@@ -312,7 +313,7 @@ export const notivisaQueueProcessor = onSchedule(
 
             await notifySupervisorOfNotivisaFailure(labId, data);
             functions.logger.warn(
-              `[NOTIVISA] Past-deadline escalation: ${docSnap.id} (deadline: ${data.notificationDeadline})`
+              `[NOTIVISA] Past-deadline escalation: ${docSnap.id} (deadline: ${data.notificationDeadline})`,
             );
           }
         } catch (labError: any) {
@@ -325,5 +326,5 @@ export const notivisaQueueProcessor = onSchedule(
       functions.logger.error('[notivisaQueueProcessor] Fatal error:', error);
       throw error;
     }
-  }
+  },
 );

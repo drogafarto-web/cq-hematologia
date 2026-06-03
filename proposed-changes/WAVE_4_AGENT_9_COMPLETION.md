@@ -3,7 +3,7 @@
 **Agent:** Wave 4.9  
 **Task:** Comprehensive E2E test coverage for 8 critical Phase 4 user flows  
 **Timeline:** 2026-05-08 completion  
-**Status:** ✅ COMPLETE  
+**Status:** ✅ COMPLETE
 
 ---
 
@@ -11,18 +11,19 @@
 
 ### Test Specifications (8 E2E Specs)
 
-| Flow | File | Coverage | Status |
-|------|------|----------|--------|
-| F1 | `src/__tests__/e2e/f1-portal-rt-escalation.spec.ts` | Portal-RT dashboard → escalation acknowledgment (RDC 978 Art. 128) | ✅ Complete |
-| F2 | `src/__tests__/e2e/f2-rt-presence-check-in.spec.ts` | RT check-in → supervisor-status update → CIQ run unblocked (Art. 22) | ✅ Complete |
-| F3 | `src/__tests__/e2e/f3-portal-paciente-ocr-consent.spec.ts` | Patient auth → laudo OCR consent → Gemini processing (LGPD Art. 9/11) | ✅ Complete |
-| F4 | `src/__tests__/e2e/f4-notivisa-draft-submit.spec.ts` | NOTIVISA draft create → submit → queue poll → export (Portaria 204/2017) | ✅ Complete |
-| F5 | `src/__tests__/e2e/f5-laudo-ocr-override.spec.ts` | OCR extraction → approve/override → audit trail (RDC 978 Art. 167) | ✅ Complete |
-| F6 | `src/__tests__/e2e/f6-consent-backfill-export.spec.ts` | Patient export request → admin backfill → batch upload (LGPD Art. 17) | ✅ Complete |
-| F7 | `src/__tests__/e2e/f7-supervisor-absence-blocked.spec.ts` | No supervisor → run creation blocked (Art. 22 fail-safe) | ✅ Complete |
-| F8 | `src/__tests__/e2e/f8-gemini-fallback.spec.ts` | Gemini timeout → fallback form → manual override (Art. 167 resilience) | ✅ Complete |
+| Flow | File                                                       | Coverage                                                                 | Status      |
+| ---- | ---------------------------------------------------------- | ------------------------------------------------------------------------ | ----------- |
+| F1   | `src/__tests__/e2e/f1-portal-rt-escalation.spec.ts`        | Portal-RT dashboard → escalation acknowledgment (RDC 978 Art. 128)       | ✅ Complete |
+| F2   | `src/__tests__/e2e/f2-rt-presence-check-in.spec.ts`        | RT check-in → supervisor-status update → CIQ run unblocked (Art. 22)     | ✅ Complete |
+| F3   | `src/__tests__/e2e/f3-portal-paciente-ocr-consent.spec.ts` | Patient auth → laudo OCR consent → Gemini processing (LGPD Art. 9/11)    | ✅ Complete |
+| F4   | `src/__tests__/e2e/f4-notivisa-draft-submit.spec.ts`       | NOTIVISA draft create → submit → queue poll → export (Portaria 204/2017) | ✅ Complete |
+| F5   | `src/__tests__/e2e/f5-laudo-ocr-override.spec.ts`          | OCR extraction → approve/override → audit trail (RDC 978 Art. 167)       | ✅ Complete |
+| F6   | `src/__tests__/e2e/f6-consent-backfill-export.spec.ts`     | Patient export request → admin backfill → batch upload (LGPD Art. 17)    | ✅ Complete |
+| F7   | `src/__tests__/e2e/f7-supervisor-absence-blocked.spec.ts`  | No supervisor → run creation blocked (Art. 22 fail-safe)                 | ✅ Complete |
+| F8   | `src/__tests__/e2e/f8-gemini-fallback.spec.ts`             | Gemini timeout → fallback form → manual override (Art. 167 resilience)   | ✅ Complete |
 
 **Per-spec metrics:**
+
 - Lines of code: 50–100 LOC each
 - Scenarios: 2 per spec (1 happy + 1 error path) = 16 total scenarios
 - Total E2E LOC: ~800 lines
@@ -32,15 +33,15 @@
 
 **File:** `src/__tests__/edge-cases.test.ts`
 
-| Category | Count | Tests |
-|----------|-------|-------|
-| Concurrent submissions (race conditions) | 4 | Double OCR, concurrent NOTIVISA, concurrent CIQ runs, duplicate export requests |
-| Network timeout recovery | 4 | Retry max 3, transient failures, Firestore reconnect, offline-first sync |
-| Invalid input handling | 4 | Invalid MIME type, file size bounds, disease code format, XSS injection |
-| Permission boundaries | 4 | Cross-patient access, role enforcement, multi-tenant isolation, lab isolation |
-| State machine edge cases | 3 | Double check-in, stale sessionId, invalid draft transitions |
-| Firestore listener cleanup | 2 | Component unmount cleanup, prevent memory leaks |
-| Gemini + HMAC | 3 | Timeout >30s, signature validation, operator ID mismatch |
+| Category                                 | Count | Tests                                                                           |
+| ---------------------------------------- | ----- | ------------------------------------------------------------------------------- |
+| Concurrent submissions (race conditions) | 4     | Double OCR, concurrent NOTIVISA, concurrent CIQ runs, duplicate export requests |
+| Network timeout recovery                 | 4     | Retry max 3, transient failures, Firestore reconnect, offline-first sync        |
+| Invalid input handling                   | 4     | Invalid MIME type, file size bounds, disease code format, XSS injection         |
+| Permission boundaries                    | 4     | Cross-patient access, role enforcement, multi-tenant isolation, lab isolation   |
+| State machine edge cases                 | 3     | Double check-in, stale sessionId, invalid draft transitions                     |
+| Firestore listener cleanup               | 2     | Component unmount cleanup, prevent memory leaks                                 |
+| Gemini + HMAC                            | 3     | Timeout >30s, signature validation, operator ID mismatch                        |
 
 **Microtests total LOC:** ~350 lines (24 vitest-based assertions)
 
@@ -49,6 +50,7 @@
 **File:** `scripts/e2e-test-seeds.mjs`
 
 Features:
+
 - Creates 3 labs × 5 operators × 20 patients = 75 total test entities
 - Flags:
   - `--deterministic`: Seeded UUIDs for reproducibility
@@ -75,12 +77,12 @@ Features:
 
 ## Regulatory Coverage
 
-| Regulation | Articles | Flows |
-|---|---|---|
-| **RDC 978** | Art. 6, 22, 128, 167 | F1, F2, F4, F5, F6, F7, F8 |
-| **LGPD** | Art. 9, 11, 13, 17 | F3 (consent), F6 (export) |
-| **DICQ** | 4.1.2.7, 4.3.3, 4.4 | Audit trails in all flows |
-| **Portaria 204/2017** | Adverse event reporting | F4 (NOTIVISA) |
+| Regulation            | Articles                | Flows                      |
+| --------------------- | ----------------------- | -------------------------- |
+| **RDC 978**           | Art. 6, 22, 128, 167    | F1, F2, F4, F5, F6, F7, F8 |
+| **LGPD**              | Art. 9, 11, 13, 17      | F3 (consent), F6 (export)  |
+| **DICQ**              | 4.1.2.7, 4.3.3, 4.4     | Audit trails in all flows  |
+| **Portaria 204/2017** | Adverse event reporting | F4 (NOTIVISA)              |
 
 **Coverage:** 100% of Phase 4 critical paths
 
@@ -88,13 +90,13 @@ Features:
 
 ## Test Counts Summary
 
-| Category | Target | Delivered | Status |
-|----------|--------|-----------|--------|
-| E2E specs | 8 | 8 | ✅ Complete |
-| Scenarios (E2E) | 16 | 16 | ✅ Complete |
-| Edge-case microtests | 24 | 24 | ✅ Complete |
-| Test data seeds (labs/ops/patients) | 3/5/20 | 3/5/20 | ✅ Complete |
-| Total test LOC | — | ~1,400 | ✅ Complete |
+| Category                            | Target | Delivered | Status      |
+| ----------------------------------- | ------ | --------- | ----------- |
+| E2E specs                           | 8      | 8         | ✅ Complete |
+| Scenarios (E2E)                     | 16     | 16        | ✅ Complete |
+| Edge-case microtests                | 24     | 24        | ✅ Complete |
+| Test data seeds (labs/ops/patients) | 3/5/20 | 3/5/20    | ✅ Complete |
+| Total test LOC                      | —      | ~1,400    | ✅ Complete |
 
 ---
 
@@ -185,11 +187,13 @@ Total new LOC: ~1,400 (test code) + ~250 (seeding script)
 ## Running Tests
 
 **All E2E tests:**
+
 ```bash
 npm test -- --glob="src/__tests__/e2e/f*.spec.ts"
 ```
 
 **Individual flow:**
+
 ```bash
 npm test -- f1-portal-rt-escalation
 npm test -- f2-rt-presence-check-in
@@ -197,11 +201,13 @@ npm test -- f2-rt-presence-check-in
 ```
 
 **Edge cases:**
+
 ```bash
 npm test -- edge-cases
 ```
 
 **Seed test data (deterministic, cleanup after):**
+
 ```bash
 node scripts/e2e-test-seeds.mjs --deterministic --cleanup --dry-run
 node scripts/e2e-test-seeds.mjs --deterministic --cleanup  # Actual execution
@@ -236,9 +242,10 @@ node scripts/e2e-test-seeds.mjs --deterministic --cleanup  # Actual execution
 
 **Prepared by:** Wave 4 Agent 9  
 **Date:** 2026-05-08  
-**Status:** Ready for merge + deploy  
+**Status:** Ready for merge + deploy
 
 **Verification checklist:**
+
 - [x] All test files syntactically valid (TS 5.8)
 - [x] All imports resolve (firebase, vitest, admin SDK)
 - [x] All mocks follow project conventions
@@ -247,6 +254,7 @@ node scripts/e2e-test-seeds.mjs --deterministic --cleanup  # Actual execution
 - [x] Documentation complete and accurate
 
 **Next steps:**
+
 1. Merge to main (requires CTO approval)
 2. Run full test suite on CI
 3. Deploy Phase 4 (rules → functions → hosting)
@@ -258,34 +266,42 @@ node scripts/e2e-test-seeds.mjs --deterministic --cleanup  # Actual execution
 ## Appendix: Test Scenarios at a Glance
 
 ### F1: Portal-RT Escalation (2 scenarios)
+
 1. ✅ Login → critical escalation visible → acknowledge → audit logged
 2. ✅ Network timeout → retry → success
 
 ### F2: RT Presence Check-In (2 scenarios)
+
 1. ✅ Check-in → supervisor-status updated → /runs/new enabled
 2. ✅ No supervisor → /runs/new blocked with error + audit
 
 ### F3: Portal-Paciente OCR Consent (2 scenarios)
+
 1. ✅ Email auth → consent → OCR → fields extracted
 2. ✅ Refuse consent → manual entry form shown
 
 ### F4: NOTIVISA Draft Submit (2 scenarios)
+
 1. ✅ Draft create → submit → queue poll → export
 2. ✅ Validation failure → draft stays in draft, error shown
 
 ### F5: Laudo OCR Override (2 scenarios)
+
 1. ✅ Image extracted → RT approves → saved with OCR signature
 2. ✅ Gemini fails → fallback form → manual override → error logged
 
 ### F6: Consent Backfill Export (2 scenarios)
+
 1. ✅ Patient request → backfill form → admin batch → consents recorded
 2. ✅ CSV parse error → error shown → retry succeeds
 
 ### F7: Supervisor Absence (2 scenarios)
+
 1. ✅ No active supervisor → run creation blocked
 2. ✅ Supervisor logout realtime → run immediately blocked → check-in recovery
 
 ### F8: Gemini Fallback (2 scenarios)
+
 1. ✅ Timeout 35s → fallback form → manual entry → error logged
 2. ✅ API key missing → fallback with instructions → admin notified
 

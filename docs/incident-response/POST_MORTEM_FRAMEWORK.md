@@ -19,7 +19,7 @@
 **Facilitated by:** Incident Commander (blameless + non-defensive)  
 **Attendees:** Core responders + interested engineers (4-6 people)  
 **Duration:** 60 minutes  
-**Schedule:** Within 24 hours of resolve  
+**Schedule:** Within 24 hours of resolve
 
 ---
 
@@ -38,13 +38,14 @@
    - "What was the first true cause?"
    - Dig past symptoms: "Yes, database was unavailable, but why?"
    - Use "5 Whys" technique:
+
      ```
      Why 1: Database unavailable
      Why 2: Connection pool exhausted
      Why 3: Query taking >30s each
      Why 4: Missing index on frequently-queried field
      Why 5: Index created in dev, not propagated to production
-     
+
      Root cause: Deployment process didn't validate indexes
      ```
 
@@ -85,12 +86,12 @@
 
 ## Timeline
 
-| Time | Event |
-|------|-------|
-| 10:05 | Alert fires: function timeout |
+| Time  | Event                                     |
+| ----- | ----------------------------------------- |
+| 10:05 | Alert fires: function timeout             |
 | 10:10 | IC investigates, identifies recent deploy |
-| 10:15 | Rollback initiated |
-| 10:20 | System recovered |
+| 10:15 | Rollback initiated                        |
+| 10:20 | System recovered                          |
 
 ---
 
@@ -111,20 +112,22 @@
 ## Response Quality
 
 **What we did well:**
+
 - [Example: Quick response from on-call engineer]
 
 **What we could improve:**
+
 - [Example: Monitoring alert latency]
 
 ---
 
 ## Action Items
 
-| Item | Owner | ETA | Status |
-|------|-------|-----|--------|
-| Add pre-deploy function timeout test | Dev Lead | May 20 | Open |
-| Increase monitoring alert sensitivity | DevOps | May 15 | Open |
-| Document timeout runbook with logs link | IC | May 12 | Open |
+| Item                                    | Owner    | ETA    | Status |
+| --------------------------------------- | -------- | ------ | ------ |
+| Add pre-deploy function timeout test    | Dev Lead | May 20 | Open   |
+| Increase monitoring alert sensitivity   | DevOps   | May 15 | Open   |
+| Document timeout runbook with logs link | IC       | May 12 | Open   |
 
 ---
 

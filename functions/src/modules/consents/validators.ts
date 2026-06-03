@@ -72,11 +72,7 @@ export async function assertConsentsWriteAccess(
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
-export function consentDocRef(
-  db: admin.firestore.Firestore,
-  labId: string,
-  patientId: string,
-) {
+export function consentDocRef(db: admin.firestore.Firestore, labId: string, patientId: string) {
   return db.doc(`consents/${labId}/patients/${patientId}`);
 }
 
@@ -111,10 +107,7 @@ const ConsentVersionSchema = z
   .string()
   .min(1, 'consentVersion obrigatório')
   .max(64, 'consentVersion longo demais (máx 64)')
-  .regex(
-    /^[A-Za-z0-9._-]+$/,
-    'consentVersion aceita apenas [A-Za-z0-9._-]',
-  );
+  .regex(/^[A-Za-z0-9._-]+$/, 'consentVersion aceita apenas [A-Za-z0-9._-]');
 
 export const RecordConsentInputSchema = z.object({
   labId: z.string().min(1, 'labId obrigatório'),

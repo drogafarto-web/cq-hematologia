@@ -33,11 +33,14 @@ interface HierarquiaTreeProps {
 /**
  * Flatten tree into list with parent tracking
  */
-function flattenTree(node: TreeNode, parentPath: TreeNode[] = []): { node: TreeNode; path: TreeNode[] }[] {
+function flattenTree(
+  node: TreeNode,
+  parentPath: TreeNode[] = [],
+): { node: TreeNode; path: TreeNode[] }[] {
   const currentPath = [...parentPath, node];
   return [
     { node, path: parentPath },
-    ...node.children.flatMap(child => flattenTree(child, currentPath)),
+    ...node.children.flatMap((child) => flattenTree(child, currentPath)),
   ];
 }
 
@@ -49,9 +52,9 @@ export function HierarquiaTree({ data, loading = false, onNodeSelect }: Hierarqu
   // Default expand MQ and first level PQs
   const defaultExpanded = useMemo(() => {
     const result = new Set<string>();
-    data.forEach(mq => {
+    data.forEach((mq) => {
       result.add(mq.id); // MQ expanded
-      mq.children.forEach(pq => {
+      mq.children.forEach((pq) => {
         result.add(pq.id); // PQs expanded
       });
     });
@@ -63,7 +66,7 @@ export function HierarquiaTree({ data, loading = false, onNodeSelect }: Hierarqu
   }, [defaultExpanded]);
 
   const handleExpand = useCallback((id: string, isExpanded: boolean) => {
-    setExpanded(prev => {
+    setExpanded((prev) => {
       const next = new Set(prev);
       if (isExpanded) {
         next.add(id);
@@ -74,56 +77,62 @@ export function HierarquiaTree({ data, loading = false, onNodeSelect }: Hierarqu
     });
   }, []);
 
-  const handleNodeClick = useCallback((id: string) => {
-    // Find node in flattened tree to get path
-    const flattened = data.flatMap(node => flattenTree(node));
-    const found = flattened.find(item => item.node.id === id);
+  const handleNodeClick = useCallback(
+    (id: string) => {
+      // Find node in flattened tree to get path
+      const flattened = data.flatMap((node) => flattenTree(node));
+      const found = flattened.find((item) => item.node.id === id);
 
-    if (found) {
-      setSelectedPath(found.path);
-      setSelectedNodeId(id);
-      onNodeSelect?.(id);
-    }
-  }, [data, onNodeSelect]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
-    if (!selectedNodeId) return;
-    const flattened = data.flatMap(node => flattenTree(node));
-    const currentIdx = flattened.findIndex(item => item.node.id === selectedNodeId);
-
-    if (currentIdx === -1) return;
-
-    switch (e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        if (currentIdx < flattened.length - 1) {
-          handleNodeClick(flattened[currentIdx + 1].node.id);
-        }
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        if (currentIdx > 0) {
-          handleNodeClick(flattened[currentIdx - 1].node.id);
-        }
-        break;
-      case 'ArrowRight': {
-        e.preventDefault();
-        const currentNode = flattened[currentIdx].node;
-        if (currentNode.children.length > 0) {
-          handleExpand(currentNode.id, true);
-        }
-        break;
+      if (found) {
+        setSelectedPath(found.path);
+        setSelectedNodeId(id);
+        onNodeSelect?.(id);
       }
-      case 'ArrowLeft': {
-        e.preventDefault();
-        const currentNode = flattened[currentIdx].node;
-        if (expanded.has(currentNode.id)) {
-          handleExpand(currentNode.id, false);
+    },
+    [data, onNodeSelect],
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (!selectedNodeId) return;
+      const flattened = data.flatMap((node) => flattenTree(node));
+      const currentIdx = flattened.findIndex((item) => item.node.id === selectedNodeId);
+
+      if (currentIdx === -1) return;
+
+      switch (e.key) {
+        case 'ArrowDown':
+          e.preventDefault();
+          if (currentIdx < flattened.length - 1) {
+            handleNodeClick(flattened[currentIdx + 1].node.id);
+          }
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          if (currentIdx > 0) {
+            handleNodeClick(flattened[currentIdx - 1].node.id);
+          }
+          break;
+        case 'ArrowRight': {
+          e.preventDefault();
+          const currentNode = flattened[currentIdx].node;
+          if (currentNode.children.length > 0) {
+            handleExpand(currentNode.id, true);
+          }
+          break;
         }
-        break;
+        case 'ArrowLeft': {
+          e.preventDefault();
+          const currentNode = flattened[currentIdx].node;
+          if (expanded.has(currentNode.id)) {
+            handleExpand(currentNode.id, false);
+          }
+          break;
+        }
       }
-    }
-  }, [data, selectedNodeId, expanded, handleNodeClick, handleExpand]);
+    },
+    [data, selectedNodeId, expanded, handleNodeClick, handleExpand],
+  );
 
   if (loading) {
     return (
@@ -161,18 +170,13 @@ export function HierarquiaTree({ data, loading = false, onNodeSelect }: Hierarqu
           onExpand={handleExpand}
           onClick={handleNodeClick}
         />
-        {children.map(child => renderNode(child, level + 1))}
+        {children.map((child) => renderNode(child, level + 1))}
       </div>
     );
   };
 
   return (
-    <div
-      className="space-y-2"
-      role="tree"
-      onKeyDown={handleKeyDown}
-      tabIndex={0}
-    >
+    <div className="space-y-2" role="tree" onKeyDown={handleKeyDown} tabIndex={0}>
       {/* Breadcrumb path if node selected */}
       {selectedPath.length > 0 && (
         <HierarquiaPath path={selectedPath} onNavigate={handleNodeClick} />
@@ -180,9 +184,7 @@ export function HierarquiaTree({ data, loading = false, onNodeSelect }: Hierarqu
 
       {/* Tree nodes */}
       {data.map((mq, idx) => (
-        <div key={mq.id}>
-          {renderNode(mq, 0)}
-        </div>
+        <div key={mq.id}>{renderNode(mq, 0)}</div>
       ))}
     </div>
   );

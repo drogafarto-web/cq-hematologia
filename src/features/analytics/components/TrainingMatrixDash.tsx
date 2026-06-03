@@ -11,7 +11,11 @@
  */
 
 import React, { useMemo } from 'react';
-import { useAnalyticsAggregate, useAnalyticsLoading, useAnalyticsError } from '../hooks/useAnalyticsCache';
+import {
+  useAnalyticsAggregate,
+  useAnalyticsLoading,
+  useAnalyticsError,
+} from '../hooks/useAnalyticsCache';
 import { TRAINING_STATUS_COLORS } from '../services/chartColorMap';
 import { FilterUnavailableBanner } from './FilterUnavailableBanner';
 import { shouldShowPartialFilterNotice, filterCapabilities } from '../utils/aggregateFilters';
@@ -104,17 +108,20 @@ function deriveTrainingSummary(
   return modules.map((slug) => {
     const ncCount = ncByModule[slug];
     const baseTrainees = Math.max(3, Math.min(15, Math.round(totalRuns / 20)));
-    const certRate = Math.max(0.4, 1 - ncCount / Math.max(1, totalRuns) * 5);
+    const certRate = Math.max(0.4, 1 - (ncCount / Math.max(1, totalRuns)) * 5);
     const certified = Math.round(baseTrainees * certRate);
     const expiring = Math.min(baseTrainees - certified, Math.round(baseTrainees * 0.1));
     const expired = Math.max(0, Math.round(baseTrainees * (1 - certRate) * 0.3));
     const notTrained = Math.max(0, baseTrainees - certified - expiring - expired);
 
     const overallStatus: CertificationStatus =
-      expired > 0 ? 'expired' :
-      expiring > 0 ? 'expiring' :
-      certified >= baseTrainees ? 'valid' :
-      'not_trained';
+      expired > 0
+        ? 'expired'
+        : expiring > 0
+          ? 'expiring'
+          : certified >= baseTrainees
+            ? 'valid'
+            : 'not_trained';
 
     return {
       module: slug,
@@ -175,8 +182,10 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
 
   const activeFilterLabel = useMemo(() => {
     const parts: string[] = [];
-    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
-    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    if (equipmentIds.size > 0)
+      parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0)
+      parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
     return parts.join(', ');
   }, [equipmentIds, operatorIds]);
 
@@ -222,9 +231,7 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
           <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
             Matriz de Treinamentos
           </h2>
-          <p className="text-xs text-white/30 mt-0.5">
-            Certificações por módulo — ISO 15189 §6.2
-          </p>
+          <p className="text-xs text-white/30 mt-0.5">Certificações por módulo — ISO 15189 §6.2</p>
         </div>
 
         {/* Summary badges */}
@@ -245,16 +252,17 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
 
       {/* Partial filter notice — aggregate has no per-equipment training breakdown */}
       {showPartialNotice && (
-        <FilterUnavailableBanner
-          reason={partialReason}
-          activeFilterLabel={activeFilterLabel}
-        />
+        <FilterUnavailableBanner reason={partialReason} activeFilterLabel={activeFilterLabel} />
       )}
 
       {/* Table */}
       {rows.length > 0 ? (
         <div className="w-full overflow-x-auto rounded-xl border border-white/8">
-          <table className="min-w-[600px] w-full text-xs" role="table" aria-label="Certificações por módulo">
+          <table
+            className="min-w-[600px] w-full text-xs"
+            role="table"
+            aria-label="Certificações por módulo"
+          >
             <thead>
               <tr className="border-b border-white/8 bg-white/[0.025]">
                 <th
@@ -263,40 +271,22 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
                 >
                   Módulo
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-center text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-center text-white/40 font-medium">
                   Treinandos
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-center text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-center text-white/40 font-medium">
                   Certificados
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-center text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-center text-white/40 font-medium">
                   Vencendo
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-center text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-center text-white/40 font-medium">
                   Vencidos
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-right text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-right text-white/40 font-medium">
                   Cobertura
                 </th>
-                <th
-                  scope="col"
-                  className="px-4 py-3 text-right text-white/40 font-medium"
-                >
+                <th scope="col" className="px-4 py-3 text-right text-white/40 font-medium">
                   Status
                 </th>
               </tr>
@@ -304,13 +294,8 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
 
             <tbody className="divide-y divide-white/5">
               {rows.map((row) => (
-                <tr
-                  key={row.module}
-                  className="hover:bg-white/[0.02] transition-colors"
-                >
-                  <td className="px-4 py-3 text-white/70 font-medium">
-                    {row.moduleLabel}
-                  </td>
+                <tr key={row.module} className="hover:bg-white/[0.02] transition-colors">
+                  <td className="px-4 py-3 text-white/70 font-medium">{row.moduleLabel}</td>
                   <td className="px-4 py-3 text-center tabular-nums text-white/50">
                     {row.totalTrainees}
                   </td>
@@ -332,10 +317,7 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
                     )}
                   </td>
                   <td className="px-4 py-3 w-36">
-                    <CertProgressBar
-                      certified={row.certified}
-                      total={row.totalTrainees}
-                    />
+                    <CertProgressBar certified={row.certified} total={row.totalTrainees} />
                   </td>
                   <td className="px-4 py-3 text-right">
                     <StatusBadge status={row.overallStatus} />
@@ -347,14 +329,15 @@ export const TrainingMatrixDash = React.memo(function TrainingMatrixDash({
         </div>
       ) : (
         <div className="rounded-xl border border-white/8 bg-white/[0.02] p-8 text-center text-sm text-white/30">
-          Nenhum dado de treinamento disponível.
-          Os dados serão exibidos após o módulo de Treinamentos emitir certificações.
+          Nenhum dado de treinamento disponível. Os dados serão exibidos após o módulo de
+          Treinamentos emitir certificações.
         </div>
       )}
 
       {/* ISO footnote */}
       <p className="text-xs text-white/20 px-1">
-        Dados simulados em Phase 3.1. Dados reais disponíveis após integração com módulo de Treinamentos (Phase 3.2).
+        Dados simulados em Phase 3.1. Dados reais disponíveis após integração com módulo de
+        Treinamentos (Phase 3.2).
       </p>
     </section>
   );

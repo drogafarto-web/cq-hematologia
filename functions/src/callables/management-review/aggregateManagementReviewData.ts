@@ -90,11 +90,7 @@ async function queryDataSource(
 
       case 2: {
         // CAPA Status
-        const capas = await db
-          .collection('labs')
-          .doc(labId)
-          .collection('capa-tracking')
-          .get();
+        const capas = await db.collection('labs').doc(labId).collection('capa-tracking').get();
 
         const byState: Record<string, number> = {};
         capas.docs.forEach((doc) => {
@@ -232,7 +228,8 @@ async function queryDataSource(
           data: {
             totalComplaints: complaints.size,
             resolvedCount,
-            resolutionPercent: complaints.size > 0 ? Math.round((resolvedCount / complaints.size) * 100) : 0,
+            resolutionPercent:
+              complaints.size > 0 ? Math.round((resolvedCount / complaints.size) * 100) : 0,
           },
         };
       }
@@ -280,7 +277,8 @@ async function queryDataSource(
           data: {
             totalSuggestions: improvements.size,
             implementedCount,
-            implementationPercent: improvements.size > 0 ? Math.round((implementedCount / improvements.size) * 100) : 0,
+            implementationPercent:
+              improvements.size > 0 ? Math.round((implementedCount / improvements.size) * 100) : 0,
           },
         };
       }
@@ -309,11 +307,7 @@ async function queryDataSource(
 
       case 11: {
         // Equipment Calibration
-        const calibracoes = await db
-          .collection('labs')
-          .doc(labId)
-          .collection('calibracao')
-          .get();
+        const calibracoes = await db.collection('labs').doc(labId).collection('calibracao').get();
 
         let overdueCount = 0;
         const now = Date.now();
@@ -363,15 +357,14 @@ async function queryDataSource(
 
       case 13: {
         // Risk Management
-        const risks = await db
-          .collection('labs')
-          .doc(labId)
-          .collection('risks')
-          .get();
+        const risks = await db.collection('labs').doc(labId).collection('risks').get();
 
         let highNPRCount = 0;
         risks.docs.forEach((doc) => {
-          const npr = (doc.data()?.probability || 1) * (doc.data()?.severity || 1) * (doc.data()?.detectability || 1);
+          const npr =
+            (doc.data()?.probability || 1) *
+            (doc.data()?.severity || 1) *
+            (doc.data()?.detectability || 1);
           if (npr > 75) {
             highNPRCount++;
           }
@@ -451,12 +444,7 @@ export const aggregateManagementReviewData = onCall<
     const db = admin.firestore();
 
     // ========== 2. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
@@ -484,5 +472,5 @@ export const aggregateManagementReviewData = onCall<
     );
 
     return { entries };
-  }
+  },
 );

@@ -8,7 +8,10 @@ import { Timestamp } from 'firebase-admin/firestore';
 import { z } from 'zod';
 
 const logicalSignatureSchema = z.object({
-  hash: z.string().length(64).regex(/^[a-f0-9]{64}$/),
+  hash: z
+    .string()
+    .length(64)
+    .regex(/^[a-f0-9]{64}$/),
   operatorId: z.string().min(1),
   ts: z.unknown(),
 });

@@ -29,7 +29,9 @@ const RespostaInputSchema = z
     respostaTexto: z.string().optional(),
   })
   .refine(
-    (r) => r.opcaoId !== undefined || (r.respostaTexto !== undefined && r.respostaTexto.trim().length > 0),
+    (r) =>
+      r.opcaoId !== undefined ||
+      (r.respostaTexto !== undefined && r.respostaTexto.trim().length > 0),
     { message: 'Resposta precisa ter opcaoId OU respostaTexto.' },
   );
 
@@ -73,7 +75,10 @@ export const ec_submeterTeste = onCall<unknown, Promise<SubmeterTesteResult>>(
       throw new HttpsError('not-found', 'Execução não encontrada.');
     }
     if (execSnap.data()?.['status'] !== 'realizado') {
-      throw new HttpsError('failed-precondition', 'Teste só pode ser submetido em execução realizada.');
+      throw new HttpsError(
+        'failed-precondition',
+        'Teste só pode ser submetido em execução realizada.',
+      );
     }
 
     // Valida colaborador presente
@@ -93,9 +98,7 @@ export const ec_submeterTeste = onCall<unknown, Promise<SubmeterTesteResult>>(
     // Carrega todas as questões referidas nas respostas + seus gabaritos
     const questaoIds = Array.from(new Set(input.respostas.map((r) => r.questaoId)));
     const [questoesSnaps, gabaritosSnaps] = await Promise.all([
-      Promise.all(
-        questaoIds.map((id) => ecCollection(db, input.labId, 'questoes').doc(id).get()),
-      ),
+      Promise.all(questaoIds.map((id) => ecCollection(db, input.labId, 'questoes').doc(id).get())),
       Promise.all(
         questaoIds.map((id) => ecCollection(db, input.labId, 'questoesGabarito').doc(id).get()),
       ),
@@ -161,9 +164,8 @@ export const ec_submeterTeste = onCall<unknown, Promise<SubmeterTesteResult>>(
       };
     });
 
-    const percentualAcerto = pontuacaoMaxima > 0
-      ? Math.round((pontuacaoTotal / pontuacaoMaxima) * 100)
-      : 0;
+    const percentualAcerto =
+      pontuacaoMaxima > 0 ? Math.round((pontuacaoTotal / pontuacaoMaxima) * 100) : 0;
     const aprovado = !temDissertativasPendentes && percentualAcerto >= THRESHOLD_APROVACAO;
 
     const avaliacaoRef = ecCollection(db, input.labId, 'avaliacoesTeste').doc();

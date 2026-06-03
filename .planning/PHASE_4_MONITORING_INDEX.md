@@ -12,12 +12,12 @@ This directory contains the complete observability infrastructure for Phase 4 li
 
 **Key Documents:**
 
-| Document | Purpose | Status |
-|----------|---------|--------|
-| `PHASE_4_CLOUD_LOGS_SETUP.md` | Main monitoring spec (10 sinks, 5 alerts, 4 dashboards, 5 runbooks) | ✅ COMPLETE |
-| `runbooks/phase-4-*.md` (5 files) | Detailed incident response playbooks | ✅ COMPLETE |
-| `dashboards/*.json` | GCP Cloud Monitoring dashboard exports | ⏳ TODO (create in GCP Console) |
-| `PHASE_4_ALERT_POLICIES.tf` | Terraform config for alert policies (optional) | ⏳ TODO |
+| Document                          | Purpose                                                             | Status                          |
+| --------------------------------- | ------------------------------------------------------------------- | ------------------------------- |
+| `PHASE_4_CLOUD_LOGS_SETUP.md`     | Main monitoring spec (10 sinks, 5 alerts, 4 dashboards, 5 runbooks) | ✅ COMPLETE                     |
+| `runbooks/phase-4-*.md` (5 files) | Detailed incident response playbooks                                | ✅ COMPLETE                     |
+| `dashboards/*.json`               | GCP Cloud Monitoring dashboard exports                              | ⏳ TODO (create in GCP Console) |
+| `PHASE_4_ALERT_POLICIES.tf`       | Terraform config for alert policies (optional)                      | ⏳ TODO                         |
 
 ---
 
@@ -100,6 +100,7 @@ This directory contains the complete observability infrastructure for Phase 4 li
 **Deployment location:** GCP Cloud Monitoring console → Dashboards → Create Dashboard
 
 **Export:** After creating, export JSON:
+
 ```bash
 gcloud monitoring dashboards describe DASHBOARD_ID --format=json > dashboards/dashboard-name.json
 ```
@@ -149,15 +150,16 @@ gcloud monitoring dashboards describe DASHBOARD_ID --format=json > dashboards/da
 
 ## Runbook Quick Reference
 
-| Alert | Severity | MTTR SLA | Runbook | Escalation |
-|-------|----------|----------|---------|-----------|
-| **Portal Auth Failures** | P1 | <15 min | `phase-4-auth-failures.md` | CTO @ 30min |
-| **NOTIVISA Queue Stuck** | P1 | <15 min | `phase-4-notivisa-queue.md` | CTO @ 30min |
-| **Firestore Rules Rejections** | P2 | <1 hour | `phase-4-firestore-rules.md` | Security team |
-| **Email Delivery Failure** | P2 | <1 hour | `phase-4-email-delivery.md` | Support Manager |
-| **Function Latency** | P3 | <4 hours | `phase-4-function-latency.md` | None |
+| Alert                          | Severity | MTTR SLA | Runbook                       | Escalation      |
+| ------------------------------ | -------- | -------- | ----------------------------- | --------------- |
+| **Portal Auth Failures**       | P1       | <15 min  | `phase-4-auth-failures.md`    | CTO @ 30min     |
+| **NOTIVISA Queue Stuck**       | P1       | <15 min  | `phase-4-notivisa-queue.md`   | CTO @ 30min     |
+| **Firestore Rules Rejections** | P2       | <1 hour  | `phase-4-firestore-rules.md`  | Security team   |
+| **Email Delivery Failure**     | P2       | <1 hour  | `phase-4-email-delivery.md`   | Support Manager |
+| **Function Latency**           | P3       | <4 hours | `phase-4-function-latency.md` | None            |
 
 **Quick Access:**
+
 - All runbooks in `.planning/runbooks/phase-4-*.md`
 - Print all 5 + laminate for desk reference
 
@@ -168,12 +170,14 @@ gcloud monitoring dashboards describe DASHBOARD_ID --format=json > dashboards/da
 **Access:** GCP Cloud Monitoring → Dashboards → "HC Quality — Production System Health"
 
 **5-Minute Review:**
+
 - Error rate: Target <0.1%, Alert >0.5%
 - Firestore quota: Target <50%, Alert >80%
 - Portal latency p95: Target <1.5s, Alert >2s
 - NOTIVISA queue: Target 0 pending >15min, Alert >10 pending
 
 **Daily Review (5 minutes):**
+
 ```bash
 gcloud monitoring read \
   'metric.type="cloudfunctions.googleapis.com/execution_count" AND \
@@ -186,6 +190,7 @@ gcloud monitoring read \
 ## On-Call Responsibilities
 
 **PRIMARY ON-CALL (24/7, 4-week rotation)**
+
 - Monitor `#production-alerts` Slack channel
 - Respond to P1 <15min, P2 <1hr, P3 <4hr
 - Execute runbooks from Section 4
@@ -193,11 +198,13 @@ gcloud monitoring read \
 - Escalate to CTO if unresolved >30min
 
 **SECONDARY ON-CALL (escalation)**
+
 - Available if primary unresolved >30min
 - Fresh perspective on troubleshooting
 - Assume primary if unavailable
 
 **CTO ON-CALL (critical decisions)**
+
 - Page for P0/P1 unresolved >30min
 - Authorize rollback decisions
 - Emergency secret rotation
@@ -212,12 +219,12 @@ gcloud monitoring read \
 
 **30-Day Error Budget:** 99.9% uptime = 43.2 minutes acceptable downtime
 
-| Duration | Budget Impact |
-|----------|---------------|
-| <5 min | No impact |
-| 5–15 min | Full duration consumed |
-| 15–60 min | Full incident duration |
-| >60 min | Critical; post-mortem required |
+| Duration  | Budget Impact                  |
+| --------- | ------------------------------ |
+| <5 min    | No impact                      |
+| 5–15 min  | Full duration consumed         |
+| 15–60 min | Full incident duration         |
+| >60 min   | Critical; post-mortem required |
 
 **Check monthly:** Dashboard 4 (System Health) shows error budget remaining.
 
@@ -226,6 +233,7 @@ gcloud monitoring read \
 ## Monthly Maintenance
 
 **First day of each month:**
+
 - [ ] Review past month's incidents (count + MTTR)
 - [ ] Adjust alert thresholds if needed (too many false positives?)
 - [ ] Check error budget consumption
@@ -233,6 +241,7 @@ gcloud monitoring read \
 - [ ] Update runbooks based on lessons learned
 
 **Quarterly (every 3 months):**
+
 - [ ] Full runbook procedure test in staging (end-to-end)
 - [ ] On-call rotation effectiveness review
 - [ ] RDC 978 Art. 167–182 compliance audit
@@ -243,14 +252,17 @@ gcloud monitoring read \
 ## Related Documentation
 
 **Phase 4 Onboarding:**
+
 - `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md` — Gov API integration
 - `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` — On-call rotation
 
 **Monitoring Baseline (v1.3):**
+
 - `docs/CLOUD_LOGS_MONITORING_REPORT_v1.3.md` — Metrics baseline
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — v1.3 reference
 
 **Architecture & Security:**
+
 - `.claude/rules/firestore-security.md` — Multi-tenant rules
 - `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` — Secret management
 - `docs/adr/ADR-0021-notivisa-security.md` — Gov API security

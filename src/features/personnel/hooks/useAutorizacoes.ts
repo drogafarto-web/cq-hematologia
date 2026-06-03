@@ -57,10 +57,7 @@ export function useAutorizacoes(): UseAutorizacoesResult {
     return () => unsub();
   }, [labId]);
 
-  const ativas = useMemo(
-    () => autorizacoes.filter((a) => a.ativa),
-    [autorizacoes],
-  );
+  const ativas = useMemo(() => autorizacoes.filter((a) => a.ativa), [autorizacoes]);
 
   const porColaborador = useMemo(() => {
     const map = new Map<string, AutorizacaoFormal[]>();

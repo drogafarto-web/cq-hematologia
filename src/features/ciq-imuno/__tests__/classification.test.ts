@@ -75,15 +75,11 @@ describe('validateConfidenceThreshold', () => {
   });
 
   it('should throw on confidence below threshold', () => {
-    expect(() => validateConfidenceThreshold(0.84)).toThrow(
-      'below threshold',
-    );
+    expect(() => validateConfidenceThreshold(0.84)).toThrow('below threshold');
   });
 
   it('should throw on very low confidence', () => {
-    expect(() => validateConfidenceThreshold(0.5)).toThrow(
-      'Manual review required',
-    );
+    expect(() => validateConfidenceThreshold(0.5)).toThrow('Manual review required');
   });
 
   it('should respect custom threshold', () => {
@@ -245,7 +241,7 @@ describe('classifyStripImage', () => {
     const result = await classifyStripImage(
       {
         result: 'POSITIVE',
-        confidence: 0.90,
+        confidence: 0.9,
         rawText: 'Strip data',
         analyte: 'HIV',
       },
@@ -304,26 +300,28 @@ describe('calculateAccuracy', () => {
 
   it('should calculate 50% accuracy (5/10 accurate)', () => {
     const records = [
-      ...Array(5).fill(null).map(() => createRecord(true)),
-      ...Array(5).fill(null).map(() => createRecord(false)),
+      ...Array(5)
+        .fill(null)
+        .map(() => createRecord(true)),
+      ...Array(5)
+        .fill(null)
+        .map(() => createRecord(false)),
     ];
     expect(calculateAccuracy(records)).toBe(50);
   });
 
   it('should calculate 90% accuracy (9/10 accurate)', () => {
     const records = [
-      ...Array(9).fill(null).map(() => createRecord(true)),
+      ...Array(9)
+        .fill(null)
+        .map(() => createRecord(true)),
       createRecord(false),
     ];
     expect(calculateAccuracy(records)).toBe(90);
   });
 
   it('should round to 2 decimal places', () => {
-    const records = [
-      createRecord(true),
-      createRecord(true),
-      createRecord(false),
-    ];
+    const records = [createRecord(true), createRecord(true), createRecord(false)];
     // 2/3 = 66.666...%
     const result = calculateAccuracy(records);
     expect(result).toBe(66.67);
@@ -375,10 +373,7 @@ describe('aggregateAccuracyByMonth', () => {
 
   it('should aggregate single month with 100% accuracy', () => {
     const date = new Date('2026-05-15');
-    const records = [
-      createRecordForDate(date, true),
-      createRecordForDate(date, true),
-    ];
+    const records = [createRecordForDate(date, true), createRecordForDate(date, true)];
     const result = aggregateAccuracyByMonth(records);
 
     expect(result.size).toBe(1);
@@ -399,8 +394,12 @@ describe('aggregateAccuracyByMonth', () => {
 
   it('should separate records by month', () => {
     const records = [
-      ...Array(2).fill(null).map(() => createRecordForDate(new Date('2026-04-10'), true)),
-      ...Array(3).fill(null).map(() => createRecordForDate(new Date('2026-05-15'), true)),
+      ...Array(2)
+        .fill(null)
+        .map(() => createRecordForDate(new Date('2026-04-10'), true)),
+      ...Array(3)
+        .fill(null)
+        .map(() => createRecordForDate(new Date('2026-05-15'), true)),
       createRecordForDate(new Date('2026-05-20'), false),
     ];
     const result = aggregateAccuracyByMonth(records);

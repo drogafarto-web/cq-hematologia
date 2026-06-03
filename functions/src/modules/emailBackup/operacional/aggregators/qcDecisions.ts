@@ -246,9 +246,7 @@ function computeModuleStats(
       : null;
 
   const trendDeltaPp =
-    approvalRate7d === null
-      ? null
-      : Number((approvalRate7d - approvalRate30d).toFixed(1));
+    approvalRate7d === null ? null : Number((approvalRate7d - approvalRate30d).toFixed(1));
 
   const westgardViolationsCount: Record<string, number> = {};
   for (const r of modRuns) {
@@ -290,7 +288,12 @@ function computeOperatorRanking(runs: RawRun[]): OperatorRankingEntry[] {
   const map = new Map<string, Agg>();
   for (const r of runs) {
     const key = `${r.operatorName}::${r.operatorRole}`;
-    const agg = map.get(key) ?? { name: r.operatorName, role: r.operatorRole, runs: 0, rejections: 0 };
+    const agg = map.get(key) ?? {
+      name: r.operatorName,
+      role: r.operatorRole,
+      runs: 0,
+      rejections: 0,
+    };
     agg.runs++;
     if (r.isRejected) agg.rejections++;
     map.set(key, agg);
@@ -309,11 +312,9 @@ function computeOperatorRanking(runs: RawRun[]): OperatorRankingEntry[] {
   // falso-positivo de quem fez uma única run rejeitada).
   const qualified = entries.filter((e) => e.runsProcessed >= 5);
   if (qualified.length >= 3) {
-    const mean =
-      qualified.reduce((s, e) => s + e.rejectionRate, 0) / qualified.length;
+    const mean = qualified.reduce((s, e) => s + e.rejectionRate, 0) / qualified.length;
     const variance =
-      qualified.reduce((s, e) => s + Math.pow(e.rejectionRate - mean, 2), 0) /
-      qualified.length;
+      qualified.reduce((s, e) => s + Math.pow(e.rejectionRate - mean, 2), 0) / qualified.length;
     const sd = Math.sqrt(variance);
     const threshold = mean + 2 * sd;
     for (const e of entries) {
@@ -331,15 +332,13 @@ function computeProblematicLots(runs: RawRun[]): ProblematicLotEntry[] {
   const map = new Map<string, Agg>();
   for (const r of runs) {
     const key = `${r.moduleId}::${r.lotNumber}`;
-    const agg =
-      map.get(key) ??
-      {
-        lotNumber: r.lotNumber,
-        product: r.lotProduct,
-        moduleId: r.moduleId,
-        runs: 0,
-        rej: 0,
-      };
+    const agg = map.get(key) ?? {
+      lotNumber: r.lotNumber,
+      product: r.lotProduct,
+      moduleId: r.moduleId,
+      runs: 0,
+      rej: 0,
+    };
     agg.runs++;
     if (r.isRejected) agg.rej++;
     map.set(key, agg);

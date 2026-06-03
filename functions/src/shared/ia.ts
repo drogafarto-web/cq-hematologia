@@ -19,7 +19,7 @@ const SUPPORTED_CLASSES = [
   'CRP',
   'ESR',
   'ANA',
-  'Other'
+  'Other',
 ] as const;
 
 /**
@@ -28,7 +28,7 @@ const SUPPORTED_CLASSES = [
 export const stripFeedbackSchema = z.object({
   classes: z.array(z.enum(SUPPORTED_CLASSES)).min(1),
   correctedBy: z.string().min(1, 'Operator ID required'),
-  correctedAt: z.number().int().positive('Invalid timestamp')
+  correctedAt: z.number().int().positive('Invalid timestamp'),
 });
 
 /**
@@ -36,7 +36,7 @@ export const stripFeedbackSchema = z.object({
  */
 export const imageDimensionsSchema = z.object({
   width: z.number().int().positive('Width must be positive'),
-  height: z.number().int().positive('Height must be positive')
+  height: z.number().int().positive('Height must be positive'),
 });
 
 /**
@@ -51,7 +51,7 @@ export const iaStripValidator = z.object({
   feedback: stripFeedbackSchema.optional(),
   batch_id: z.string().optional(),
   createdAt: z.number().int().optional(),
-  updatedAt: z.number().int().optional()
+  updatedAt: z.number().int().optional(),
 });
 
 /**
@@ -75,7 +75,7 @@ export const validateStripImage = (data: unknown): StripImage => {
  * Safe validation - returns result with error info
  */
 export const validateStripImageSafe = (
-  data: unknown
+  data: unknown,
 ): { success: boolean; data?: StripImage; error?: string } => {
   const result = iaStripValidator.safeParse(data);
   if (result.success) {
@@ -83,7 +83,7 @@ export const validateStripImageSafe = (
   }
   return {
     success: false,
-    error: result.error.errors.map(e => `${e.path.join('.')}: ${e.message}`).join('; ')
+    error: result.error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; '),
   };
 };
 
@@ -91,13 +91,13 @@ export const validateStripImageSafe = (
  * Create a new strip image with defaults
  */
 export const createStripImage = (
-  input: Omit<StripImage, 'createdAt' | 'updatedAt'>
+  input: Omit<StripImage, 'createdAt' | 'updatedAt'>,
 ): StripImage => {
   const now = Date.now();
   return {
     ...input,
     createdAt: now,
-    updatedAt: now
+    updatedAt: now,
   };
 };
 
@@ -106,22 +106,19 @@ export const createStripImage = (
  */
 export const updateStripImage = (
   existing: StripImage,
-  updates: Partial<Omit<StripImage, 'createdAt'>>
+  updates: Partial<Omit<StripImage, 'createdAt'>>,
 ): StripImage => {
   return {
     ...existing,
     ...updates,
-    updatedAt: Date.now()
+    updatedAt: Date.now(),
   };
 };
 
 /**
  * Check if confidence is acceptable
  */
-export const isConfidenceAcceptable = (
-  confidence: number,
-  threshold: number = 0.7
-): boolean => {
+export const isConfidenceAcceptable = (confidence: number, threshold: number = 0.7): boolean => {
   return confidence >= threshold;
 };
 
@@ -135,9 +132,7 @@ export const getSupportedClasses = (): typeof SUPPORTED_CLASSES => {
 /**
  * Calculate confidence category
  */
-export const getConfidenceCategory = (
-  confidence: number
-): 'LOW' | 'MEDIUM' | 'HIGH' => {
+export const getConfidenceCategory = (confidence: number): 'LOW' | 'MEDIUM' | 'HIGH' => {
   if (confidence < 0.5) return 'LOW';
   if (confidence < 0.8) return 'MEDIUM';
   return 'HIGH';

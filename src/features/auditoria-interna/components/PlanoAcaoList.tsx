@@ -1,12 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import {
-  collection,
-  doc,
-  getDoc,
-  onSnapshot,
-  query,
-  type Unsubscribe,
-} from 'firebase/firestore';
+import { collection, doc, getDoc, onSnapshot, query, type Unsubscribe } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { PlanoAcao, PlanoAcaoStatus } from '../../sgq/types/Auditoria';
 
@@ -19,7 +12,7 @@ async function subscribePlanosAcao(
   labId: string,
   auditoriaId: string,
   callback: (planosAcao: PlanoAcao[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Promise<Unsubscribe> {
   const auditoriaRef = doc(db, `labs/${labId}/auditorias/${auditoriaId}`);
   const snap = await getDoc(auditoriaRef);
@@ -131,8 +124,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
             // Sort by prazo descending
             const sorted = [...planos].sort(
               (a, b) =>
-                (b.prazo?.toDate?.().getTime() ?? 0) -
-                (a.prazo?.toDate?.().getTime?.() ?? 0)
+                (b.prazo?.toDate?.().getTime() ?? 0) - (a.prazo?.toDate?.().getTime?.() ?? 0),
             );
             setPlanosAcao(sorted);
             setIsLoading(false);
@@ -141,7 +133,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
             console.error('Error subscribing to planos de ação:', err);
             setError('Erro ao carregar planos de ação');
             setIsLoading(false);
-          }
+          },
         );
       } catch (err) {
         console.error('Error setting up subscription:', err);
@@ -201,9 +193,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
           <tbody>
             {planosAcao.map((plano) => {
               const isOverdue =
-                plano.prazo &&
-                plano.prazo.toDate() < new Date() &&
-                plano.status !== 'fechado';
+                plano.prazo && plano.prazo.toDate() < new Date() && plano.status !== 'fechado';
 
               return (
                 <tr
@@ -212,9 +202,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
                 >
                   {/* Descrição */}
                   <td className="px-4 py-3 text-white/90">
-                    <span title={plano.descricao}>
-                      {truncateText(plano.descricao, 80)}
-                    </span>
+                    <span title={plano.descricao}>{truncateText(plano.descricao, 80)}</span>
                   </td>
 
                   {/* Responsável */}
@@ -239,7 +227,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
                     <span
                       className={`inline-block px-2 py-1 rounded text-xs font-medium ${getStatusBadgeClass(
                         plano.status,
-                        isOverdue
+                        isOverdue,
                       )}`}
                     >
                       {isOverdue ? 'Vencido' : formatStatus(plano.status)}
@@ -255,8 +243,7 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
       {/* Footer stats */}
       <div className="border-t border-white/8 bg-white/[0.02] px-4 py-3 flex gap-6 text-xs text-white/60">
         <div>
-          <span className="font-medium text-white/90">{planosAcao.length}</span>{' '}
-          total
+          <span className="font-medium text-white/90">{planosAcao.length}</span> total
         </div>
         <div>
           <span className="font-medium text-white/90">
@@ -266,10 +253,11 @@ export function PlanoAcaoList({ auditoriaId, labId }: PlanoAcaoListProps) {
         </div>
         <div>
           <span className="font-medium text-white/90">
-            {planosAcao.filter(
-              (p) =>
-                p.prazo && p.prazo.toDate() < new Date() && p.status !== 'fechado'
-            ).length}
+            {
+              planosAcao.filter(
+                (p) => p.prazo && p.prazo.toDate() < new Date() && p.status !== 'fechado',
+              ).length
+            }
           </span>{' '}
           vencidos
         </div>

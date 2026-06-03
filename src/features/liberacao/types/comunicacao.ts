@@ -9,11 +9,7 @@ import { LogicalSignatureLaudo } from './laudoVersion';
  * Canal de entrada: email (MVP), verbal (registrado manualmente), SMS/WhatsApp (v1.4)
  */
 export type ComunicacaoCanal = 'email' | 'verbal' | 'sms' | 'whatsapp';
-export type ComunicacaoReceptor =
-  | 'medico-solicitante'
-  | 'enfermeira'
-  | 'supervisor'
-  | 'outro';
+export type ComunicacaoReceptor = 'medico-solicitante' | 'enfermeira' | 'supervisor' | 'outro';
 
 export interface Comunicacao {
   // Identity

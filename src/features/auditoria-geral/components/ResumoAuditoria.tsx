@@ -40,13 +40,9 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
     );
   }
 
-  const abaixoDe3 = respostas.filter(
-    (r) => r.score !== null && r.score < 3 && !r.naoAplica,
-  ).length;
+  const abaixoDe3 = respostas.filter((r) => r.score !== null && r.score < 3 && !r.naoAplica).length;
 
-  const criticos = respostas.filter(
-    (r) => r.score !== null && r.score <= 2 && !r.naoAplica,
-  );
+  const criticos = respostas.filter((r) => r.score !== null && r.score <= 2 && !r.naoAplica);
 
   const totalFotos = respostas.reduce((sum, r) => sum + (r.fotos?.length ?? 0), 0);
 
@@ -109,32 +105,46 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
         <p className={`text-5xl font-bold font-mono tracking-tight ${getPercentColor(scoreTotal)}`}>
           {scoreTotal}%
         </p>
-        <p className="text-sm text-slate-500 dark:text-white/60 mt-2">Score Geral de Conformidade</p>
+        <p className="text-sm text-slate-500 dark:text-white/60 mt-2">
+          Score Geral de Conformidade
+        </p>
       </section>
 
       {/* Stats */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <div className="bg-white border border-slate-200 dark:bg-white/[0.05] dark:border-white/[0.08] rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{totalRespondidos}/57</p>
+          <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            {totalRespondidos}/57
+          </p>
           <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Respondidos</p>
         </div>
         <div className="bg-white border border-slate-200 dark:bg-white/[0.05] dark:border-white/[0.08] rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white">{totalNaoAplica}</p>
+          <p className="text-2xl font-bold font-mono text-slate-900 dark:text-white">
+            {totalNaoAplica}
+          </p>
           <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Nao Aplica</p>
         </div>
         <div className="bg-white border border-slate-200 dark:bg-white/[0.05] dark:border-white/[0.08] rounded-lg p-4 text-center">
-          <p className={`text-2xl font-bold font-mono ${abaixoDe3 > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}>{abaixoDe3}</p>
+          <p
+            className={`text-2xl font-bold font-mono ${abaixoDe3 > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-emerald-600 dark:text-emerald-400'}`}
+          >
+            {abaixoDe3}
+          </p>
           <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Abaixo de 3</p>
         </div>
         <div className="bg-white border border-slate-200 dark:bg-white/[0.05] dark:border-white/[0.08] rounded-lg p-4 text-center">
-          <p className="text-2xl font-bold font-mono text-violet-600 dark:text-violet-400">{totalFotos}</p>
+          <p className="text-2xl font-bold font-mono text-violet-600 dark:text-violet-400">
+            {totalFotos}
+          </p>
           <p className="text-xs text-slate-500 dark:text-white/60 mt-1">Fotos</p>
         </div>
       </section>
 
       {/* Block Chart */}
       <section className="bg-white border border-slate-200 dark:bg-white/[0.05] dark:border-white/[0.08] rounded-lg p-5">
-        <h2 className="text-sm font-medium text-slate-600 dark:text-white/70 mb-4">Score por Bloco</h2>
+        <h2 className="text-sm font-medium text-slate-600 dark:text-white/70 mb-4">
+          Score por Bloco
+        </h2>
         <ScoreBlocoChart scoresPorBloco={scoresPorBloco} />
       </section>
 
@@ -155,7 +165,9 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
                   className="bg-red-50 border border-red-200 dark:bg-red-500/5 dark:border-red-500/10 rounded-lg p-3"
                 >
                   <div className="flex items-center gap-2">
-                    <span className="text-xs font-mono text-slate-500 dark:text-white/50">#{r.numero}</span>
+                    <span className="text-xs font-mono text-slate-500 dark:text-white/50">
+                      #{r.numero}
+                    </span>
                     <span className="text-sm text-slate-800 dark:text-white/80">
                       {ind?.indicador ?? r.indicador}
                     </span>
@@ -164,7 +176,9 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
                     </span>
                   </div>
                   {r.observacoes && (
-                    <p className="text-xs text-slate-500 dark:text-white/40 mt-1">{r.observacoes}</p>
+                    <p className="text-xs text-slate-500 dark:text-white/40 mt-1">
+                      {r.observacoes}
+                    </p>
                   )}
                 </div>
               );
@@ -210,8 +224,7 @@ export function ResumoAuditoria({ auditoriaId, onBack, onFinalize }: ResumoAudit
         </button>
         {isFinalizada ? (
           <p className="text-sm text-slate-500 dark:text-white/60">
-            Auditoria finalizada em{' '}
-            {auditoria.dataFim?.toDate().toLocaleDateString('pt-BR')}
+            Auditoria finalizada em {auditoria.dataFim?.toDate().toLocaleDateString('pt-BR')}
           </p>
         ) : (
           <button

@@ -45,7 +45,7 @@ interface RuleEvaluationContext {
  */
 function evaluateRuleCondition(
   context: RuleEvaluationContext,
-  ruleType: 'read' | 'create' | 'update' | 'delete'
+  ruleType: 'read' | 'create' | 'update' | 'delete',
 ): boolean {
   const { request, isActiveMember, hasSupervisor, isRT, isAdmin, labId } = context;
 
@@ -324,9 +324,7 @@ describe('Firestore Rules Validation Suite — Wave 4 Agent 11', () => {
       };
 
       // Simplified: just check HMAC is 64 chars
-      const isValid =
-        context.isActiveMember &&
-        context.document.data.hmac.length === 64;
+      const isValid = context.isActiveMember && context.document.data.hmac.length === 64;
 
       expect(isValid).toBe(true);
     });

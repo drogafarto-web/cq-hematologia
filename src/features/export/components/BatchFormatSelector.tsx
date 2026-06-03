@@ -23,25 +23,29 @@ const FORMAT_OPTIONS: FormatOption[] = [
   {
     id: 'xlsx-ciq',
     label: 'XLSX — Corridas CIQ',
-    description: 'Exporta todas as corridas de controle interno de qualidade com formatação condicional (vermelho=inválido, âmbar=pendente, verde=válido).',
+    description:
+      'Exporta todas as corridas de controle interno de qualidade com formatação condicional (vermelho=inválido, âmbar=pendente, verde=válido).',
     extension: '.xlsx',
   },
   {
     id: 'xlsx-nc',
     label: 'XLSX — Registro de NCs',
-    description: 'Planilha com todas as não-conformidades: título, módulo, severidade, status e datas de abertura e fechamento.',
+    description:
+      'Planilha com todas as não-conformidades: título, módulo, severidade, status e datas de abertura e fechamento.',
     extension: '.xlsx',
   },
   {
     id: 'pdf-compliance',
     label: 'PDF — Relatório de Conformidade',
-    description: 'Relatório em PDF comprimido com histórico de conformidade do laboratório. Gerado conforme RDC 978/2025.',
+    description:
+      'Relatório em PDF comprimido com histórico de conformidade do laboratório. Gerado conforme RDC 978/2025.',
     extension: '.pdf',
   },
   {
     id: 'csv-audit',
     label: 'CSV — Log de Auditoria',
-    description: 'Log forense completo em formato CSV (RFC 4180, UTF-8 BOM). Inclui operador, ação, hashes e timestamps em ISO 8601.',
+    description:
+      'Log forense completo em formato CSV (RFC 4180, UTF-8 BOM). Inclui operador, ação, hashes e timestamps em ISO 8601.',
     extension: '.csv',
   },
 ];
@@ -95,9 +99,7 @@ export function BatchFormatSelector({ selectedFormats, onToggle }: BatchFormatSe
       <div
         className={[
           'rounded-lg border px-3 py-2 transition-colors duration-200',
-          count === 0
-            ? 'border-red-500/30 bg-red-500/10'
-            : 'border-violet-500/20 bg-violet-500/10',
+          count === 0 ? 'border-red-500/30 bg-red-500/10' : 'border-violet-500/20 bg-violet-500/10',
         ].join(' ')}
       >
         {count === 0 ? (
@@ -106,11 +108,9 @@ export function BatchFormatSelector({ selectedFormats, onToggle }: BatchFormatSe
           </p>
         ) : (
           <p className="text-xs text-violet-300/80">
-            <span className="font-semibold text-violet-200">{count}</span>
-            {' '}
-            {count === 1 ? 'arquivo será gerado.' : 'arquivos serão gerados.'}
-            {' '}
-            Processamento em paralelo via fila de exportação.
+            <span className="font-semibold text-violet-200">{count}</span>{' '}
+            {count === 1 ? 'arquivo será gerado.' : 'arquivos serão gerados.'} Processamento em
+            paralelo via fila de exportação.
           </p>
         )}
       </div>
@@ -154,9 +154,7 @@ function FormatCard({ option, isChecked, inputId, onToggle }: FormatCardProps) {
             'h-4 w-4 rounded border cursor-pointer',
             'focus:outline-none focus-visible:ring-2 focus-visible:ring-violet-500/60',
             'accent-violet-500',
-            isChecked
-              ? 'border-violet-500 bg-violet-500'
-              : 'border-white/20 bg-white/[0.05]',
+            isChecked ? 'border-violet-500 bg-violet-500' : 'border-white/20 bg-white/[0.05]',
           ].join(' ')}
           aria-describedby={`${inputId}-desc`}
         />
@@ -176,18 +174,13 @@ function FormatCard({ option, isChecked, inputId, onToggle }: FormatCardProps) {
           <span
             className={[
               'rounded px-1.5 py-0.5 font-mono text-[10px] tracking-wide transition-colors duration-150',
-              isChecked
-                ? 'bg-violet-500/20 text-violet-300'
-                : 'bg-white/[0.06] text-white/30',
+              isChecked ? 'bg-violet-500/20 text-violet-300' : 'bg-white/[0.06] text-white/30',
             ].join(' ')}
           >
             {option.extension}
           </span>
         </div>
-        <p
-          id={`${inputId}-desc`}
-          className="mt-1 text-[11px] leading-relaxed text-white/30"
-        >
+        <p id={`${inputId}-desc`} className="mt-1 text-[11px] leading-relaxed text-white/30">
           {option.description}
         </p>
       </div>

@@ -180,7 +180,12 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
               className="p-1 -mt-1 rounded-md text-white/40 hover:text-white/80 hover:bg-white/[0.05] transition-colors disabled:opacity-50"
             >
               <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path
+                  d="M5 5l10 10M15 5L5 15"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -188,7 +193,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
           {/* Nome + Sigla */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <div className="sm:col-span-2">
-              <Label htmlFor="nome" required>Nome</Label>
+              <Label htmlFor="nome" required>
+                Nome
+              </Label>
               <input
                 id="nome"
                 name="nome"
@@ -220,7 +227,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
           {/* Unidade + SI */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label htmlFor="unidade" required>Unidade</Label>
+              <Label htmlFor="unidade" required>
+                Unidade
+              </Label>
               <input
                 id="unidade"
                 name="unidade"
@@ -256,7 +265,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
             </legend>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label htmlFor="rangeMin" srOnly>Mínimo</Label>
+                <Label htmlFor="rangeMin" srOnly>
+                  Mínimo
+                </Label>
                 <input
                   id="rangeMin"
                   name="rangeMin"
@@ -264,7 +275,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
                   inputMode="decimal"
                   step="any"
                   value={Number.isFinite(values.rangeMin) ? values.rangeMin : ''}
-                  onChange={(e) => update('rangeMin', e.target.value === '' ? NaN : Number(e.target.value))}
+                  onChange={(e) =>
+                    update('rangeMin', e.target.value === '' ? NaN : Number(e.target.value))
+                  }
                   disabled={submitting}
                   placeholder="mínimo"
                   aria-label="Valor mínimo"
@@ -272,7 +285,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
                 />
               </div>
               <div>
-                <Label htmlFor="rangeMax" srOnly>Máximo</Label>
+                <Label htmlFor="rangeMax" srOnly>
+                  Máximo
+                </Label>
                 <input
                   id="rangeMax"
                   name="rangeMax"
@@ -280,7 +295,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
                   inputMode="decimal"
                   step="any"
                   value={Number.isFinite(values.rangeMax) ? values.rangeMax : ''}
-                  onChange={(e) => update('rangeMax', e.target.value === '' ? NaN : Number(e.target.value))}
+                  onChange={(e) =>
+                    update('rangeMax', e.target.value === '' ? NaN : Number(e.target.value))
+                  }
                   disabled={submitting}
                   placeholder="máximo"
                   aria-label="Valor máximo"
@@ -323,7 +340,9 @@ export function AnalitoForm({ analito, onSubmit, onCancel }: AnalitoFormProps) {
                 inputMode="decimal"
                 step="any"
                 value={Number.isFinite(values.cvAlvo) ? (values.cvAlvo as number) : ''}
-                onChange={(e) => update('cvAlvo', e.target.value === '' ? NaN : Number(e.target.value))}
+                onChange={(e) =>
+                  update('cvAlvo', e.target.value === '' ? NaN : Number(e.target.value))
+                }
                 disabled={submitting}
                 aria-invalid={Boolean(errors.cvAlvo)}
                 className={`${inputCls(Boolean(errors.cvAlvo))} tabular-nums`}
@@ -398,11 +417,7 @@ function Label({
   return (
     <label
       htmlFor={htmlFor}
-      className={
-        srOnly
-          ? 'sr-only'
-          : 'block text-xs font-medium text-white/70 mb-1.5'
-      }
+      className={srOnly ? 'sr-only' : 'block text-xs font-medium text-white/70 mb-1.5'}
     >
       {children}
       {required && <span className="text-rose-400 ml-0.5">*</span>}

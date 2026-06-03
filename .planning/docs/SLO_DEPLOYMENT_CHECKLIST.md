@@ -3,7 +3,7 @@
 **Date:** 2026-05-07  
 **Target Completion:** 2026-05-07 (same day)  
 **Time Estimate:** 30 minutes  
-**Owner:** DevOps Lead / Observability Engineer  
+**Owner:** DevOps Lead / Observability Engineer
 
 ---
 
@@ -20,16 +20,16 @@
 
 ## Artifact Checklist
 
-| # | File | Location | Status | Size |
-|---|------|----------|--------|------|
-| 1 | `SLO_TRACKING_INDEX.md` | `.planning/docs/` | ✅ | ~3 KB |
-| 2 | `SLO_TRACKING_QUICKSTART.md` | `.planning/docs/` | ✅ | ~4 KB |
-| 3 | `SLO_TRACKING_SETUP.md` | `.planning/docs/` | ✅ | ~8 KB |
-| 4 | `SLO_ALERT_POLICIES_REFERENCE.md` | `.planning/docs/` | ✅ | ~7 KB |
-| 5 | `SLO_MONTHLY_REPORT_TEMPLATE.md` | `.planning/docs/` | ✅ | ~9 KB |
-| 6 | `SLO_TRACKING_DASHBOARD.json` | `.planning/dashboard-json/` | ✅ | ~12 KB |
-| 7 | `OBSERVABILITY_SETUP_SUMMARY.md` | `.planning/docs/` | ✅ | ~6 KB |
-| 8 | `SLO_DEPLOYMENT_CHECKLIST.md` | `.planning/docs/` | ✅ | This file |
+| #   | File                              | Location                    | Status | Size      |
+| --- | --------------------------------- | --------------------------- | ------ | --------- |
+| 1   | `SLO_TRACKING_INDEX.md`           | `.planning/docs/`           | ✅     | ~3 KB     |
+| 2   | `SLO_TRACKING_QUICKSTART.md`      | `.planning/docs/`           | ✅     | ~4 KB     |
+| 3   | `SLO_TRACKING_SETUP.md`           | `.planning/docs/`           | ✅     | ~8 KB     |
+| 4   | `SLO_ALERT_POLICIES_REFERENCE.md` | `.planning/docs/`           | ✅     | ~7 KB     |
+| 5   | `SLO_MONTHLY_REPORT_TEMPLATE.md`  | `.planning/docs/`           | ✅     | ~9 KB     |
+| 6   | `SLO_TRACKING_DASHBOARD.json`     | `.planning/dashboard-json/` | ✅     | ~12 KB    |
+| 7   | `OBSERVABILITY_SETUP_SUMMARY.md`  | `.planning/docs/`           | ✅     | ~6 KB     |
+| 8   | `SLO_DEPLOYMENT_CHECKLIST.md`     | `.planning/docs/`           | ✅     | This file |
 
 **Total:** 8 documents, ~49 KB of specifications
 
@@ -40,10 +40,12 @@
 ### Step 1: Dashboard Import (10 min)
 
 **Prerequisites:**
+
 - [ ] Cloud Console access to hmatologia2 project
 - [ ] File: `.planning/dashboard-json/SLO_TRACKING_DASHBOARD.json` ready
 
 **Actions:**
+
 1. [ ] Open https://console.cloud.google.com/monitoring (project: hmatologia2)
 2. [ ] Left sidebar → **Dashboards**
 3. [ ] Click **CREATE DASHBOARD**
@@ -56,6 +58,7 @@
 10. [ ] Verify all tiles display (may show "Loading..." initially)
 
 **Success Criteria:**
+
 - [ ] Dashboard appears in Dashboards list
 - [ ] All 8 tiles visible (Availability, Performance, Error Rate, Audit Trail, Burndown, Timeline, Heatmap, Summary)
 - [ ] Dashboard accessible via unique URL
@@ -65,10 +68,12 @@
 ### Step 2: Create Alert Policies (8 min, 2 min each)
 
 **Prerequisites:**
+
 - [ ] File: `.planning/docs/SLO_ALERT_POLICIES_REFERENCE.md` (for exact config)
 - [ ] Notification channels configured (Slack, PagerDuty)
 
 **Alert Policy 1: Availability Budget 70%**
+
 - [ ] Cloud Monitoring → **Alert Policies** → **Create Policy**
 - [ ] Name: `HC Quality Availability Budget 70%`
 - [ ] Metric Type: `compute.googleapis.com/uptime`
@@ -81,6 +86,7 @@
 - [ ] Verify policy created ✓
 
 **Alert Policy 2: Performance P99 >2.5s (YELLOW)**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Latency P99 >2.5s (Yellow)`
 - [ ] Metric Type: `cloudfunctions.googleapis.com/function/execution_times`
@@ -92,6 +98,7 @@
 - [ ] Verify policy created ✓
 
 **Alert Policy 3: Performance P99 >3.0s (RED)**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Latency P99 >3.0s (Red)`
 - [ ] Metric Type: `cloudfunctions.googleapis.com/function/execution_times`
@@ -103,6 +110,7 @@
 - [ ] Verify policy created ✓
 
 **Alert Policy 4: Error Rate >0.1%**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Error Rate >0.1%`
 - [ ] Metric Type: `logging.googleapis.com/user_defined_metric/error_rate_percent`
@@ -113,6 +121,7 @@
 - [ ] Verify policy created ✓
 
 **Alert Policy 5: Audit Trail <100%**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Audit Trail Capture <100%`
 - [ ] Metric Type: `logging.googleapis.com/user_defined_metric/audit_trail_capture_rate`
@@ -127,10 +136,12 @@
 ### Step 3: Create Custom Metrics (5 min)
 
 **Prerequisites:**
+
 - [ ] Cloud Logs access
 - [ ] Actual logs being written to Cloud Logs (expected: any deployed project has logs)
 
 **Metric 1: Error Rate**
+
 - [ ] Cloud Logs Explorer → **Create Metric**
 - [ ] Log Filter:
   ```
@@ -147,6 +158,7 @@
 - [ ] Verify creation ✓
 
 **Metric 2: Audit Trail Captured**
+
 - [ ] **Create Metric**
 - [ ] Log Filter:
   ```
@@ -160,6 +172,7 @@
 - [ ] Verify creation ✓
 
 **Metric 3: Audit Trail Expected Writes**
+
 - [ ] **Create Metric**
 - [ ] Log Filter:
   ```
@@ -198,6 +211,7 @@
    - [ ] Verify PagerDuty + Slack #compliance receive test alerts
 
 **Success Criteria:**
+
 - [ ] All 5 test notifications delivered
 - [ ] Slack notifications appear immediately
 - [ ] PagerDuty notifications appear within 1 min
@@ -208,6 +222,7 @@
 ### Step 5: Setup Weekly Review Job (2 min)
 
 **Option A: Cloud Scheduler (Automated)**
+
 - [ ] Cloud Console → **Cloud Scheduler**
 - [ ] Click **Create Job**
 - [ ] Name: `hc-quality-slo-weekly-review`
@@ -220,6 +235,7 @@
 - [ ] Verify job created ✓
 
 **Option B: Manual Slack Reminder (If no Cloud Function setup)**
+
 - [ ] Post to Slack #observability:
   ```
   /remind @here "Weekly SLO Review due" every Monday at 09:00 UTC
@@ -300,18 +316,22 @@ If alerts prove problematic:
 ## Documentation Index
 
 **For DevOps Lead (deploying):**
+
 1. [ ] This checklist (you're reading it)
 2. [ ] `SLO_TRACKING_QUICKSTART.md` (step-by-step)
 
 **For Oncall Engineer (responding to alerts):**
+
 1. [ ] `SLO_ALERT_POLICIES_REFERENCE.md` (understand each alert)
 2. [ ] `docs/DR_PLAN.md` (incident response playbook)
 
 **For Team Lead (weekly reviews):**
+
 1. [ ] `SLO_TRACKING_INDEX.md` (weekly process)
 2. [ ] Dashboard URL (bookmark it)
 
 **For Auditor (monthly reports):**
+
 1. [ ] `SLO_MONTHLY_REPORT_TEMPLATE.md` (fill monthly)
 2. [ ] Dashboard access (read-only)
 3. [ ] Monthly `.planning/reports/SLO_REPORT_[YYYY-MM].md` files
@@ -321,6 +341,7 @@ If alerts prove problematic:
 ## Success Criteria (Go/No-Go Decision)
 
 **GO if all checked:**
+
 - [ ] Dashboard deployed + tiles load
 - [ ] 5 alert policies created + tested
 - [ ] 3 custom metrics reporting data
@@ -330,6 +351,7 @@ If alerts prove problematic:
 - [ ] No blockers or showstoppers
 
 **NO-GO if any of:**
+
 - [ ] Dashboard import fails (JSON syntax error)
 - [ ] Alerts not firing on test
 - [ ] Slack/PagerDuty integration broken
@@ -340,18 +362,19 @@ If alerts prove problematic:
 
 ## Sign-Off
 
-**Deployment Owner:** _____________________________
+**Deployment Owner:** **************\_**************
 
-**Date/Time Started:** ___________________________
+**Date/Time Started:** ************\_\_\_************
 
-**Date/Time Completed:** ___________________________
+**Date/Time Completed:** ************\_\_\_************
 
 **Overall Status:** [ ] GO — Deployed successfully [ ] NO-GO — Issues found (details below)
 
 **Issues (if NO-GO):**
-_________________________________________________________________
 
-**CTO Review Sign-Off:** ___________________________ Date: __________
+---
+
+**CTO Review Sign-Off:** ************\_\_\_************ Date: ****\_\_****
 
 ---
 

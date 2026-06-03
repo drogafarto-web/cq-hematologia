@@ -191,7 +191,7 @@ describe('Collect IA Dataset', () => {
 
     const totalTestKits = Object.values(accuracyMetrics.per_test_kit).reduce(
       (sum, kit) => sum + kit.count,
-      0
+      0,
     );
 
     assert.strictEqual(totalTestKits, accuracyMetrics.total_verified);
@@ -239,35 +239,25 @@ describe('Collect IA Dataset', () => {
   test('should generate appropriate ML team notes based on accuracy', () => {
     const highAccuracyNotes =
       'Accuracy is excellent; consider increasing confidence threshold to 0.87.';
-    const goodAccuracyNotes =
-      'Accuracy is good; recommend fine-tuning with this dataset.';
+    const goodAccuracyNotes = 'Accuracy is good; recommend fine-tuning with this dataset.';
     const lowAccuracyNotes = 'Accuracy below target; collect more diverse training data.';
 
     // Test accuracy >= 0.90
     let accuracy = 0.92;
-    let notes = accuracy >= 0.9
-        ? highAccuracyNotes
-        : accuracy >= 0.88
-          ? goodAccuracyNotes
-          : lowAccuracyNotes;
+    let notes =
+      accuracy >= 0.9 ? highAccuracyNotes : accuracy >= 0.88 ? goodAccuracyNotes : lowAccuracyNotes;
     assert.strictEqual(notes, highAccuracyNotes);
 
     // Test accuracy >= 0.88 and < 0.90
     accuracy = 0.88;
-    notes = accuracy >= 0.9
-        ? highAccuracyNotes
-        : accuracy >= 0.88
-          ? goodAccuracyNotes
-          : lowAccuracyNotes;
+    notes =
+      accuracy >= 0.9 ? highAccuracyNotes : accuracy >= 0.88 ? goodAccuracyNotes : lowAccuracyNotes;
     assert.strictEqual(notes, goodAccuracyNotes);
 
     // Test accuracy < 0.88
     accuracy = 0.85;
-    notes = accuracy >= 0.9
-        ? highAccuracyNotes
-        : accuracy >= 0.88
-          ? goodAccuracyNotes
-          : lowAccuracyNotes;
+    notes =
+      accuracy >= 0.9 ? highAccuracyNotes : accuracy >= 0.88 ? goodAccuracyNotes : lowAccuracyNotes;
     assert.strictEqual(notes, lowAccuracyNotes);
   });
 });

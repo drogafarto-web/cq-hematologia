@@ -175,7 +175,7 @@ export function UroAuditTrailDrawer({
       }
       if (e.key !== 'Tab' || !panelRef.current) return;
       const focusables = panelRef.current.querySelectorAll<HTMLElement>(
-        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (focusables.length === 0) return;
       const first = focusables[0];
@@ -306,9 +306,7 @@ export function UroAuditTrailDrawer({
                       {ev.operatorName}
                       {ev.operatorRole ? (
                         <>
-                          <span className="mx-1.5 text-slate-300 dark:text-white/25">
-                            ·
-                          </span>
+                          <span className="mx-1.5 text-slate-300 dark:text-white/25">·</span>
                           {ev.operatorRole}
                         </>
                       ) : null}
@@ -333,14 +331,10 @@ export function UroAuditTrailDrawer({
                             key={`${ev.id}-diff-${i}`}
                             className="text-[11px] font-mono tabular-nums text-slate-500 dark:text-white/55"
                           >
-                            <span className="text-slate-400 dark:text-white/40">
-                              {d.field}:
-                            </span>{' '}
+                            <span className="text-slate-400 dark:text-white/40">{d.field}:</span>{' '}
                             <span>{d.from ?? '∅'}</span>
                             <ArrowIcon />
-                            <span className="text-slate-700 dark:text-white/80">
-                              {d.to ?? '∅'}
-                            </span>
+                            <span className="text-slate-700 dark:text-white/80">{d.to ?? '∅'}</span>
                           </li>
                         ))}
                       </ul>

@@ -61,9 +61,7 @@ describe('Calibração', () => {
       const today = Date.now();
       const status = calculateCalibracaoStatus(today);
       // At the boundary, 0 days is not overdue (negative would be)
-      expect(['in-date', 'warning-7d', 'warning-30d', 'overdue']).toContain(
-        status,
-      );
+      expect(['in-date', 'warning-7d', 'warning-30d', 'overdue']).toContain(status);
     });
   });
 
@@ -112,8 +110,7 @@ describe('Calibração', () => {
         lastCalibrationDate: now - 365 * 24 * 60 * 60 * 1000,
         nextDueDate: now + 180 * 24 * 60 * 60 * 1000,
         certificateStoragePath: 'gs://bucket/calibracao/lab-test/equip-123/cert-001.pdf',
-        certificateHash:
-          'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
+        certificateHash: 'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
         expandedUncertainty: 0.5,
         status: 'in-date',
         statusUpdatedAt: now,
@@ -148,8 +145,7 @@ describe('Calibração', () => {
         lastCalibrationDate: Date.now(),
         nextDueDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
         certificateStoragePath: 'path',
-        certificateHash:
-          'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
+        certificateHash: 'abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789',
         expandedUncertainty: 0.1,
         status: 'warning-30d',
         statusUpdatedAt: Date.now(),
@@ -231,9 +227,7 @@ describe('Calibração', () => {
   describe('Alert triggers', () => {
     it('should track alert sent at 30 days', () => {
       const now = Date.now();
-      const alertsSent = [
-        { days: 30, sentAt: now },
-      ];
+      const alertsSent = [{ days: 30, sentAt: now }];
 
       expect(alertsSent).toHaveLength(1);
       expect(alertsSent[0].days).toBe(30);
@@ -252,9 +246,7 @@ describe('Calibração', () => {
 
     it('should not duplicate same day alert', () => {
       const now = Date.now();
-      const alertsSent = [
-        { days: 30, sentAt: now },
-      ];
+      const alertsSent = [{ days: 30, sentAt: now }];
 
       // Check if 30-day alert already sent
       const hasSent30Day = alertsSent.some((a) => a.days === 30);
@@ -381,9 +373,7 @@ describe('Calibração', () => {
         { id: 'cal-002', labId: 'lab-1' },
       ];
 
-      const lab2Records = [
-        { id: 'cal-003', labId: 'lab-2' },
-      ];
+      const lab2Records = [{ id: 'cal-003', labId: 'lab-2' }];
 
       const allRecords = [...lab1Records, ...lab2Records];
 

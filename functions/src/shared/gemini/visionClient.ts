@@ -71,7 +71,10 @@ interface LaudoOCRResult {
 
 /** Strip markdown code fences from vision responses */
 function cleanJSON(raw: string): string {
-  return raw.replace(/^```json\n?/, '').replace(/\n?```$/, '').trim();
+  return raw
+    .replace(/^```json\n?/, '')
+    .replace(/\n?```$/, '')
+    .trim();
 }
 
 // ─── Client Class ───────────────────────────────────────────────────────────
@@ -84,12 +87,12 @@ export class GeminiVisionClient {
   constructor(
     apiKey: string = process.env.GEMINI_API_KEY || '',
     confidenceThreshold: number = 0.85,
-    modelVersion: string = 'gemini-2.5-flash'
+    modelVersion: string = 'gemini-2.5-flash',
   ) {
     if (!apiKey) {
       throw new Error(
         'GEMINI_API_KEY environment variable not set. ' +
-        'Set via: firebase functions:secrets:set GEMINI_API_KEY'
+          'Set via: firebase functions:secrets:set GEMINI_API_KEY',
       );
     }
 
@@ -117,7 +120,7 @@ export class GeminiVisionClient {
   async classifyStripImage(
     imageBase64: string,
     labId: string,
-    stripId: string
+    stripId: string,
   ): Promise<Omit<ImunoIAClassification, 'id' | 'labId' | 'hash' | 'createdAt'>> {
     try {
       const prompt = STRIP_CLASSIFICATION_PROMPT.template({
@@ -136,13 +139,11 @@ export class GeminiVisionClient {
         const cleanedText = cleanJSON(response.text);
         parsed = JSON.parse(cleanedText);
       } catch (jsonErr) {
-        functions.logger.warn(
-          `[${labId}:${stripId}] Failed to parse Gemini JSON response`,
-          { rawResponse: response.text, error: String(jsonErr) }
-        );
-        throw new Error(
-          `Invalid JSON in Gemini response: ${String(jsonErr)}`
-        );
+        functions.logger.warn(`[${labId}:${stripId}] Failed to parse Gemini JSON response`, {
+          rawResponse: response.text,
+          error: String(jsonErr),
+        });
+        throw new Error(`Invalid JSON in Gemini response: ${String(jsonErr)}`);
       }
 
       // Extract fields
@@ -153,18 +154,20 @@ export class GeminiVisionClient {
       // Enforce confidence threshold
       const finalConfidence = rawConfidence;
       if (rawConfidence < this.confidenceThreshold) {
-        functions.logger.info(
-          `[${labId}:${stripId}] Confidence below threshold`,
-          { confidence: rawConfidence, threshold: this.confidenceThreshold }
-        );
+        functions.logger.info(`[${labId}:${stripId}] Confidence below threshold`, {
+          confidence: rawConfidence,
+          threshold: this.confidenceThreshold,
+        });
         result = ImunoResult.INCONCLUSIVE;
       }
 
       // Log successful classification
-      functions.logger.info(
-        `[${labId}:${stripId}] Strip classified`,
-        { analyte, result, confidence: finalConfidence, modelVersion: this.modelVersion }
-      );
+      functions.logger.info(`[${labId}:${stripId}] Strip classified`, {
+        analyte,
+        result,
+        confidence: finalConfidence,
+        modelVersion: this.modelVersion,
+      });
 
       return {
         analyte,
@@ -176,17 +179,11 @@ export class GeminiVisionClient {
         modelVersion: this.modelVersion,
       };
     } catch (error) {
-      const errorMsg =
-        error instanceof Error ? error.message : String(error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
 
-      functions.logger.error(
-        `[${labId}:${stripId}] Gemini Vision API error`,
-        { error: errorMsg }
-      );
+      functions.logger.error(`[${labId}:${stripId}] Gemini Vision API error`, { error: errorMsg });
 
-      throw new Error(
-        `Gemini Vision classification failed: ${errorMsg}`
-      );
+      throw new Error(`Gemini Vision classification failed: ${errorMsg}`);
     }
   }
 
@@ -199,9 +196,7 @@ export class GeminiVisionClient {
    *
    * Used for laudo backdating + patient consent verification
    */
-  async extractFieldsFromLaudo(
-    imageBase64: string
-  ): Promise<LaudoOCRResult> {
+  async extractFieldsFromLaudo(imageBase64: string): Promise<LaudoOCRResult> {
     try {
       const prompt = LAUDO_EXTRACTION_PROMPT.template();
 
@@ -225,8 +220,7 @@ export class GeminiVisionClient {
 
       return { fields };
     } catch (error) {
-      const errorMsg =
-        error instanceof Error ? error.message : String(error);
+      const errorMsg = error instanceof Error ? error.message : String(error);
 
       functions.logger.error('Laudo OCR extraction failed', {
         error: errorMsg,
@@ -251,10 +245,9 @@ export class GeminiVisionClient {
     }
 
     // Default to 0.5 (medium confidence) if not provided
-    functions.logger.warn(
-      'Gemini response missing confidence field; defaulting to 0.5',
-      { response }
-    );
+    functions.logger.warn('Gemini response missing confidence field; defaulting to 0.5', {
+      response,
+    });
     return 0.5;
   }
 

@@ -99,10 +99,7 @@ export default function RuleBasedAlertList({
   if (ruleId) {
     const selectedRule = enrichedRules.find((r) => r.id === ruleId);
     const ruleAlerts = alerts.filter((a) => a.scope === selectedRule?.name);
-    const paginatedAlerts = ruleAlerts.slice(
-      page * ITEMS_PER_PAGE,
-      (page + 1) * ITEMS_PER_PAGE,
-    );
+    const paginatedAlerts = ruleAlerts.slice(page * ITEMS_PER_PAGE, (page + 1) * ITEMS_PER_PAGE);
     const totalPages = Math.ceil(ruleAlerts.length / ITEMS_PER_PAGE);
 
     if (!selectedRule) {
@@ -212,8 +209,7 @@ export default function RuleBasedAlertList({
                   <p className="text-xs text-white/60 mt-1">{rule.description}</p>
                   {rule.lastTriggered && (
                     <p className="text-xs text-white/50 mt-2">
-                      Última execução:{' '}
-                      {new Date(rule.lastTriggered).toLocaleString('pt-BR')}
+                      Última execução: {new Date(rule.lastTriggered).toLocaleString('pt-BR')}
                     </p>
                   )}
                 </div>

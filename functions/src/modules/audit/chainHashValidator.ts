@@ -57,7 +57,8 @@ export const validateChainIntegrityScheduled = onSchedule(
       console.error('[ERROR] Chain integrity validation failed', error);
       throw error;
     }
-  });
+  },
+);
 
 /**
  * Callable Cloud Function to manually trigger chain validation
@@ -71,27 +72,18 @@ export const validateChainIntegrityOnDemand = onCall(
   async (request: any) => {
     // Require authentication
     if (!request.auth) {
-      throw new HttpsError(
-        'unauthenticated',
-        'Must be authenticated'
-      );
+      throw new HttpsError('unauthenticated', 'Must be authenticated');
     }
 
     // Require admin role (check custom claims)
     const claims = request.auth.token as any;
     if (!claims.admin) {
-      throw new HttpsError(
-        'permission-denied',
-        'Requires admin role'
-      );
+      throw new HttpsError('permission-denied', 'Requires admin role');
     }
 
     const secret = HCQ_SIGNATURE_HMAC_KEY.value();
     if (!secret) {
-      throw new HttpsError(
-        'internal',
-        'HCQ_SIGNATURE_HMAC_KEY not configured'
-      );
+      throw new HttpsError('internal', 'HCQ_SIGNATURE_HMAC_KEY not configured');
     }
 
     try {
@@ -104,9 +96,7 @@ export const validateChainIntegrityOnDemand = onCall(
         violations: result.violations.slice(0, 20),
       };
     } catch (error: any) {
-      throw new HttpsError(
-        'internal',
-        error.message || 'Validation failed'
-      );
+      throw new HttpsError('internal', error.message || 'Validation failed');
     }
-  });
+  },
+);

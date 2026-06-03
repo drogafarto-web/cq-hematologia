@@ -36,6 +36,11 @@ export interface VHSExam {
   leitura1: VHSLeitura;
   leitura2: VHSLeitura | null;
 
+  // Campos de dupla checagem opcional
+  isValidationActive?: boolean;
+  validacaoLeitura1?: VHSLeitura | null;
+  validacaoLeitura2?: VHSLeitura | null;
+
   status: VHSStatus;
   divergencia?: number; // |L1 - L2| em mm/h
 
@@ -69,6 +74,10 @@ export interface VHSExamInput {
   observacoes?: string;
   leitura1: VHSLeituraInput;
   leitura2?: VHSLeituraInput; // opcional — se omitido, status = 'pendente'
+
+  isValidationActive?: boolean;
+  validacaoLeitura1?: VHSLeituraInput;
+  validacaoLeitura2?: VHSLeituraInput;
 }
 
 export interface VHSAddLeitura2Input {

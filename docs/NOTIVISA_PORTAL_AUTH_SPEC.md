@@ -92,6 +92,7 @@ NOTIVISA Portal Auth provides unified OAuth 2.0 authentication layer for healthc
 ### 2.2 Data Flow
 
 #### Login Flow
+
 1. Professional navigates to `/portal/login`
 2. Frontend generates OAuth state parameter: `state = generateOAuthState()`
 3. Frontend redirects to NOTIVISA IDP:
@@ -114,7 +115,7 @@ NOTIVISA Portal Auth provides unified OAuth 2.0 authentication layer for healthc
    ```typescript
    const response = await httpsCallable(
      functions,
-     'authenticatePortal'
+     'authenticatePortal',
    )({
      labId: selectedLabId,
      code: authCode,
@@ -129,6 +130,7 @@ NOTIVISA Portal Auth provides unified OAuth 2.0 authentication layer for healthc
 11. Subsequent API calls attach custom token to `Authorization` header
 
 #### Token Refresh Flow
+
 1. Client detects token expiry approaching (<5 min remaining)
 2. Client calls `refreshPortalToken()` callable with:
    ```typescript
@@ -144,6 +146,7 @@ NOTIVISA Portal Auth provides unified OAuth 2.0 authentication layer for healthc
 6. Client stores new token, continues API calls
 
 #### Session Expiry Flow
+
 1. Cloud Scheduler cron runs daily: `cleanupExpiredPortalSessions()`
 2. Cron queries sessions with `expiresAt < now && status == 'active'`
 3. Cron marks matching sessions as expired
@@ -178,10 +181,7 @@ async function createPortalSession(
 ): Promise<PortalSession>;
 
 // Get active session
-async function getPortalSession(
-  labId: string,
-  sessionId: string,
-): Promise<PortalSession | null>;
+async function getPortalSession(labId: string, sessionId: string): Promise<PortalSession | null>;
 
 // List all active sessions for user (across labs)
 async function getUserPortalSessions(userId: string): Promise<PortalSession[]>;
@@ -196,10 +196,7 @@ async function updatePortalSessionToken(
 ): Promise<void>;
 
 // Record activity (for lastActivityAt tracking)
-async function recordPortalSessionActivity(
-  labId: string,
-  sessionId: string,
-): Promise<void>;
+async function recordPortalSessionActivity(labId: string, sessionId: string): Promise<void>;
 
 // Revoke session (immediate logout)
 async function revokePortalSession(
@@ -209,10 +206,7 @@ async function revokePortalSession(
 ): Promise<void>;
 
 // Mark expired (after expiresAt reached)
-async function markPortalSessionExpired(
-  labId: string,
-  sessionId: string,
-): Promise<void>;
+async function markPortalSessionExpired(labId: string, sessionId: string): Promise<void>;
 
 // Record error on session
 async function recordPortalSessionError(
@@ -301,10 +295,10 @@ Location: `functions/src/modules/notivisa-portal/callables/authenticatePortal.ts
 
 ```typescript
 interface AuthenticatePortalRequest {
-  labId: string;           // Lab ID (from localStorage or UI selection)
-  code: string;            // OAuth authorization code from IDP
-  redirectUri: string;     // Must match OAuth app configuration
-  state: string;           // CSRF protection (matches generateOAuthState())
+  labId: string; // Lab ID (from localStorage or UI selection)
+  code: string; // OAuth authorization code from IDP
+  redirectUri: string; // Must match OAuth app configuration
+  state: string; // CSRF protection (matches generateOAuthState())
 }
 ```
 
@@ -313,9 +307,9 @@ interface AuthenticatePortalRequest {
 ```typescript
 interface AuthenticatePortalResponse {
   ok: true;
-  sessionId: string;       // Firestore session ID
-  firebaseToken: string;   // Custom Firebase token (use in Authorization header)
-  expiresAt: number;       // unix timestamp (ms) when token expires
+  sessionId: string; // Firestore session ID
+  firebaseToken: string; // Custom Firebase token (use in Authorization header)
+  expiresAt: number; // unix timestamp (ms) when token expires
   professionalName: string;
   professionalRole: 'RT' | 'MEDICO' | 'DIRETOR' | 'AUDITOR';
 }
@@ -327,16 +321,16 @@ interface AuthenticatePortalResponse {
 interface AuthenticatePortalError {
   ok: false;
   code:
-    | 'INVALID_INPUT'           // Validation error on request
-    | 'UNAUTHORIZED'            // Not authenticated (auth guard)
-    | 'INVALID_CODE'            // Auth code invalid/expired
-    | 'TOKEN_EXCHANGE_FAILED'   // NOTIVISA IDP unreachable or rejected
-    | 'INVALID_TOKEN'           // idToken claims invalid
-    | 'LAB_NOT_FOUND'           // Lab doesn't exist or not configured
-    | 'USER_NOT_FOUND'          // Firebase user creation failed
-    | 'STATE_MISMATCH'          // CSRF state validation failed
-    | 'INTERNAL_ERROR';         // Unexpected server error
-  message: string;         // Human-readable error description
+    | 'INVALID_INPUT' // Validation error on request
+    | 'UNAUTHORIZED' // Not authenticated (auth guard)
+    | 'INVALID_CODE' // Auth code invalid/expired
+    | 'TOKEN_EXCHANGE_FAILED' // NOTIVISA IDP unreachable or rejected
+    | 'INVALID_TOKEN' // idToken claims invalid
+    | 'LAB_NOT_FOUND' // Lab doesn't exist or not configured
+    | 'USER_NOT_FOUND' // Firebase user creation failed
+    | 'STATE_MISMATCH' // CSRF state validation failed
+    | 'INTERNAL_ERROR'; // Unexpected server error
+  message: string; // Human-readable error description
 }
 ```
 
@@ -415,53 +409,54 @@ async function handleOAuthCallback() {
 ```typescript
 interface PortalSession {
   // Identity
-  id: string;                          // Session ID (auto-generated)
-  labId: string;                       // Lab ID (multi-tenant key)
-  userId: string;                      // Firebase user ID
+  id: string; // Session ID (auto-generated)
+  labId: string; // Lab ID (multi-tenant key)
+  userId: string; // Firebase user ID
 
   // OAuth Token Data
-  accessToken: string;                 // Bearer token for NOTIVISA API
-  refreshToken: string;                // For token refresh (server-side use only)
-  tokenType: 'Bearer';                 // Always 'Bearer'
-  scope: string;                       // 'notivisa:read notivisa:write'
+  accessToken: string; // Bearer token for NOTIVISA API
+  refreshToken: string; // For token refresh (server-side use only)
+  tokenType: 'Bearer'; // Always 'Bearer'
+  scope: string; // 'notivisa:read notivisa:write'
 
   // Token Lifecycle
-  issuedAt: number;                    // unix timestamp (ms) when issued
-  expiresAt: number;                   // unix timestamp (ms) when expires
-  refreshedAt: number | null;          // unix timestamp (ms) of last refresh
+  issuedAt: number; // unix timestamp (ms) when issued
+  expiresAt: number; // unix timestamp (ms) when expires
+  refreshedAt: number | null; // unix timestamp (ms) of last refresh
 
   // Professional Identity (from NOTIVISA idToken)
-  professionalId: string;              // CREMESP/CRN/etc ID
-  professionalName: string;            // Full name
-  professionalEmail: string;           // Email (unique across labs)
+  professionalId: string; // CREMESP/CRN/etc ID
+  professionalName: string; // Full name
+  professionalEmail: string; // Email (unique across labs)
   professionalRole: 'RT' | 'MEDICO' | 'DIRETOR' | 'AUDITOR';
 
   // Lab Configuration
-  notivisaLabCode: string;             // Lab's NOTIVISA registration code
+  notivisaLabCode: string; // Lab's NOTIVISA registration code
 
   // Connection Metadata
-  connectedAt: number;                 // unix timestamp (ms) of first login
-  lastActivityAt: number;              // unix timestamp (ms) of last API call
+  connectedAt: number; // unix timestamp (ms) of first login
+  lastActivityAt: number; // unix timestamp (ms) of last API call
 
   // Security
-  ipAddress: string;                   // Client IP (for fraud detection)
-  userAgent: string;                   // Client user agent
+  ipAddress: string; // Client IP (for fraud detection)
+  userAgent: string; // Client user agent
 
   // Status
   status: 'active' | 'expired' | 'revoked' | 'error';
-  errorMessage: string | null;         // Error reason if status != 'active'
+  errorMessage: string | null; // Error reason if status != 'active'
 
   // Audit
-  assinatura?: {                       // Optional logical signature (RDC 978)
-    hash: string;                      // HMAC-SHA256 (64 hex chars)
-    operatorId: string;                // User who created session
-    ts: number;                        // unix timestamp (ms)
+  assinatura?: {
+    // Optional logical signature (RDC 978)
+    hash: string; // HMAC-SHA256 (64 hex chars)
+    operatorId: string; // User who created session
+    ts: number; // unix timestamp (ms)
   };
 
   // Metadata
-  criadoEm: number;                    // unix timestamp (ms)
-  atualizadoEm: number;                // unix timestamp (ms)
-  deletadoEm: number | null;           // unix timestamp (ms) if soft-deleted
+  criadoEm: number; // unix timestamp (ms)
+  atualizadoEm: number; // unix timestamp (ms)
+  deletadoEm: number | null; // unix timestamp (ms) if soft-deleted
 }
 ```
 
@@ -483,18 +478,18 @@ interface PortalSession {
 
 ```typescript
 interface PortalAuditEvent {
-  id: string;                          // Event ID
-  labId: string;                       // Lab ID
+  id: string; // Event ID
+  labId: string; // Lab ID
   action:
-    | 'SESSION_CREATED'                // OAuth authentication succeeded
-    | 'TOKEN_REFRESHED'                // Token refresh succeeded
-    | 'SESSION_REVOKED'                // User logged out
-    | 'SESSION_EXPIRED'                // Token expiry reached
-    | 'SESSION_ERROR'                  // Token refresh failed
-    | 'AUTH_FAILED'                    // OAuth flow failed
-    | 'API_CALL_MADE';                 // Professional called NOTIVISA API
+    | 'SESSION_CREATED' // OAuth authentication succeeded
+    | 'TOKEN_REFRESHED' // Token refresh succeeded
+    | 'SESSION_REVOKED' // User logged out
+    | 'SESSION_EXPIRED' // Token expiry reached
+    | 'SESSION_ERROR' // Token refresh failed
+    | 'AUTH_FAILED' // OAuth flow failed
+    | 'API_CALL_MADE'; // Professional called NOTIVISA API
 
-  ts: number;                          // unix timestamp (ms)
+  ts: number; // unix timestamp (ms)
   details: {
     sessionId?: string;
     userId?: string;
@@ -506,7 +501,7 @@ interface PortalAuditEvent {
     [key: string]: unknown;
   };
 
-  operatorId?: string;                 // Firebase user ID (if applicable)
+  operatorId?: string; // Firebase user ID (if applicable)
 
   // Audit
   criadoEm: number;
@@ -532,12 +527,13 @@ interface PortalAuditEvent {
 interface OAuthStateDoc {
   labId: string;
   redirectUri: string;
-  createdAt: number;                   // unix timestamp (ms)
+  createdAt: number; // unix timestamp (ms)
   // Expires after 10 minutes (TTL delete via Cloud Task)
 }
 ```
 
 **Lifecycle:**
+
 - Created when frontend initiates OAuth flow
 - Deleted when callback processed (or after 10 min expiry)
 - Never queried, only point-lookup
@@ -549,12 +545,14 @@ interface OAuthStateDoc {
 ### 5.1 Token Storage & Protection
 
 **Access Tokens (NOTIVISA OAuth):**
+
 - Encrypted at rest by Firebase (default encryption)
 - Never exposed to client-side JavaScript
 - Server-side only (Cloud Functions)
 - Stored in Firestore under auth-protected rules
 
 **Custom Firebase Tokens:**
+
 - Issued by `admin.auth().createCustomToken()`
 - Embedded with session ID + professional role + lab ID
 - 1-hour default TTL (configurable)
@@ -562,6 +560,7 @@ interface OAuthStateDoc {
 - Client stores in localStorage or sessionStorage
 
 **Refresh Tokens:**
+
 - Never transmitted to client
 - Server-side only (Cloud Functions)
 - Used exclusively for token refresh operation
@@ -570,23 +569,27 @@ interface OAuthStateDoc {
 ### 5.2 Multi-Tenant Isolation
 
 **Path Structure:**
+
 ```
 /notivisa-portal-sessions/{labId}/sessions/{sessionId}
 /notivisa-portal-audit/{labId}/events/{eventId}
 ```
 
 **Firestore Rules Enforcement:**
+
 - Read: `isActiveMemberOfLab(labId) AND (owner OR auditor)`
 - Create/Update: Cloud Function only (`allow create/update: if false`)
 - No cross-tenant access possible (labId in path)
 
 **Custom Token Claims:**
+
 ```typescript
 {
-  labId: string;               // Claim limit to lab
-  portalSessionId: string;     // Link to session doc
-  professionalRole: string;    // Role-based access
-  portalOAuthToken: {          // Embedded OAuth details
+  labId: string; // Claim limit to lab
+  portalSessionId: string; // Link to session doc
+  professionalRole: string; // Role-based access
+  portalOAuthToken: {
+    // Embedded OAuth details
     accessToken: string;
     refreshToken: string;
     expiresIn: number;
@@ -597,16 +600,20 @@ interface OAuthStateDoc {
 ### 5.3 CSRF Protection (State Parameter)
 
 **State Generation:**
+
 ```typescript
 function generateOAuthState(): string {
   // 32 bytes random, hex-encoded
   return Array.from({ length: 32 }, () =>
-    Math.floor(Math.random() * 256).toString(16).padStart(2, '0')
+    Math.floor(Math.random() * 256)
+      .toString(16)
+      .padStart(2, '0'),
   ).join('');
 }
 ```
 
 **Validation:**
+
 1. Frontend generates state, saves to sessionStorage
 2. Frontend includes state in OAuth redirect URL
 3. NOTIVISA IDP returns state in callback
@@ -617,21 +624,25 @@ function generateOAuthState(): string {
 ### 5.4 Rate Limiting & Brute-Force Protection
 
 **OAuth Token Exchange:**
+
 - Max 5 failed attempts per IP per 15 minutes
 - Implemented via Cloud Functions middleware
 - Logs all failures to audit trail
 
 **Token Refresh:**
+
 - Max 10 refresh attempts per session per hour
 - Prevents token refresh loop attacks
 
 **Session Creation:**
+
 - Max 10 sessions per user per lab
 - Older inactive sessions auto-revoked
 
 ### 5.5 IP Whitelisting (Optional, Phase 5+)
 
 For sensitive labs:
+
 - Store `allowedIpRanges` in lab settings
 - Validate `x-forwarded-for` header against ranges
 - Block login if IP not in range
@@ -643,16 +654,16 @@ For sensitive labs:
 
 ### 6.1 Error Categories
 
-| Error Code | Cause | Recovery |
-|---|---|---|
-| `INVALID_INPUT` | Request validation failed | Retry with valid input |
-| `STATE_MISMATCH` | CSRF check failed | Restart OAuth flow |
-| `INVALID_CODE` | Auth code expired/revoked | Request new code from IDP |
-| `TOKEN_EXCHANGE_FAILED` | IDP unreachable | Retry after 30s (backoff) |
-| `INVALID_TOKEN` | idToken claims invalid | Contact IDP support |
-| `LAB_NOT_FOUND` | Lab not configured | Verify lab ID + configuration |
-| `USER_NOT_FOUND` | Firebase user creation failed | Retry or contact support |
-| `INTERNAL_ERROR` | Unexpected server error | Log + retry after 60s |
+| Error Code              | Cause                         | Recovery                      |
+| ----------------------- | ----------------------------- | ----------------------------- |
+| `INVALID_INPUT`         | Request validation failed     | Retry with valid input        |
+| `STATE_MISMATCH`        | CSRF check failed             | Restart OAuth flow            |
+| `INVALID_CODE`          | Auth code expired/revoked     | Request new code from IDP     |
+| `TOKEN_EXCHANGE_FAILED` | IDP unreachable               | Retry after 30s (backoff)     |
+| `INVALID_TOKEN`         | idToken claims invalid        | Contact IDP support           |
+| `LAB_NOT_FOUND`         | Lab not configured            | Verify lab ID + configuration |
+| `USER_NOT_FOUND`        | Firebase user creation failed | Retry or contact support      |
+| `INTERNAL_ERROR`        | Unexpected server error       | Log + retry after 60s         |
 
 ### 6.2 Client-Side Error Handling
 
@@ -665,10 +676,7 @@ async function authenticateWithRetry(
 
   for (let attempt = 0; attempt < maxRetries; attempt++) {
     try {
-      const response = await httpsCallable(
-        functions,
-        'authenticatePortal'
-      )(request);
+      const response = await httpsCallable(functions, 'authenticatePortal')(request);
 
       if (!response.data.ok) {
         // Non-retryable error
@@ -678,7 +686,7 @@ async function authenticateWithRetry(
 
         // Retryable error
         if (attempt < maxRetries - 1) {
-          await new Promise(resolve => setTimeout(resolve, backoffMs * (attempt + 1)));
+          await new Promise((resolve) => setTimeout(resolve, backoffMs * (attempt + 1)));
           continue;
         }
       }
@@ -693,9 +701,7 @@ async function authenticateWithRetry(
       }
 
       // Exponential backoff
-      await new Promise(resolve =>
-        setTimeout(resolve, backoffMs * Math.pow(2, attempt)),
-      );
+      await new Promise((resolve) => setTimeout(resolve, backoffMs * Math.pow(2, attempt)));
     }
   }
 
@@ -706,6 +712,7 @@ async function authenticateWithRetry(
 ### 6.3 Server-Side Error Recovery
 
 **Token Refresh Failure:**
+
 ```typescript
 // If refresh fails 3 times consecutively:
 // 1. Mark session as error status
@@ -715,6 +722,7 @@ async function authenticateWithRetry(
 ```
 
 **OAuth Token Exchange Timeout:**
+
 ```typescript
 // If IDP doesn't respond within 10 seconds:
 // 1. Return TOKEN_EXCHANGE_FAILED
@@ -730,6 +738,7 @@ async function authenticateWithRetry(
 ### 7.1 RDC 978 Art. 41 (Timely Adverse Event Reporting)
 
 **Audit Trail Requirements:**
+
 - ✅ Session creation logged (who authenticated, when, from where)
 - ✅ Token refresh logged (when token rotated)
 - ✅ API calls logged (which operations performed)
@@ -737,6 +746,7 @@ async function authenticateWithRetry(
 - ✅ Revocation logged (logout, admin revoke)
 
 **Audit Fields:**
+
 ```
 - ts: timestamp (RDC 978 5.3 — data/hora)
 - operatorId: user ID (RDC 978 5.3 — identificação)
@@ -747,6 +757,7 @@ async function authenticateWithRetry(
 ### 7.2 DICQ 4.4 (Information Security)
 
 **Authentication Security:**
+
 - ✅ OAuth 2.0 standard (vs custom auth)
 - ✅ Token encryption at rest
 - ✅ HTTPS only (enforced by Firebase)
@@ -754,6 +765,7 @@ async function authenticateWithRetry(
 - ✅ Rate limiting (brute-force protection)
 
 **Session Management:**
+
 - ✅ Automatic expiry (no persistent sessions)
 - ✅ Token refresh with new nonce
 - ✅ Logout on demand (revoke)
@@ -762,12 +774,14 @@ async function authenticateWithRetry(
 ### 7.3 LGPD Art. 32 (Information Security Measures)
 
 **Technical Measures:**
+
 - ✅ Encryption (at rest + in transit)
 - ✅ Access control (Firestore rules)
 - ✅ Audit logging (all OAuth events)
 - ✅ Incident response (error logging)
 
 **Data Minimization:**
+
 - ✅ No password storage (OAuth 2.0)
 - ✅ No session storage on client (custom tokens only)
 - ✅ PII encrypted in Firestore
@@ -826,9 +840,9 @@ Each lab must be configured with:
 ```typescript
 interface LabNotivisaConfig {
   labId: string;
-  notivisaLabCode: string;      // Government registration code
+  notivisaLabCode: string; // Government registration code
   notivisaOAuthEnabled: boolean; // Feature flag
-  allowedRoles: string[];        // ['RT', 'MEDICO', 'DIRETOR', 'AUDITOR']
+  allowedRoles: string[]; // ['RT', 'MEDICO', 'DIRETOR', 'AUDITOR']
   sessionTimeoutMinutes: number; // Default 30 * 24 * 60 = 43,200 (30 days)
 }
 ```
@@ -952,13 +966,13 @@ describe('Portal Authentication E2E', () => {
 
 ## 10. Performance Targets
 
-| Metric | Target | Measurement |
-|---|---|---|
+| Metric              | Target     | Measurement                          |
+| ------------------- | ---------- | ------------------------------------ |
 | OAuth code exchange | <2 seconds | Time from callback to Firebase token |
-| Token refresh | <1 second | Time from refresh call to response |
-| Session lookup | <100ms | Firestore document read |
-| Token validation | <50ms | JWT parsing + claim validation |
-| Audit logging | <200ms | Async write to audit collection |
+| Token refresh       | <1 second  | Time from refresh call to response   |
+| Session lookup      | <100ms     | Firestore document read              |
+| Token validation    | <50ms      | JWT parsing + claim validation       |
+| Audit logging       | <200ms     | Async write to audit collection      |
 
 ---
 
@@ -995,9 +1009,9 @@ gcloud logging read \
 
 ```yaml
 # Alert: High authentication failure rate
-- displayName: "NOTIVISA Portal Auth Failures High"
+- displayName: 'NOTIVISA Portal Auth Failures High'
   conditions:
-    - displayName: "Failure rate >10% over 5 min"
+    - displayName: 'Failure rate >10% over 5 min'
       conditionThreshold:
         filter: 'resource.type="cloud_function" AND labels.functionName="authenticatePortal"'
         comparison: COMPARISON_GT
@@ -1008,9 +1022,9 @@ gcloud logging read \
             perSeriesAligner: ALIGN_RATE
 
 # Alert: Token exchange timeout
-- displayName: "NOTIVISA IDP Timeout"
+- displayName: 'NOTIVISA IDP Timeout'
   conditions:
-    - displayName: "IDP response >10 sec"
+    - displayName: 'IDP response >10 sec'
       conditionThreshold:
         filter: 'jsonPayload.code="TOKEN_EXCHANGE_FAILED"'
         comparison: COMPARISON_GT
@@ -1027,11 +1041,13 @@ gcloud logging read \
 **Symptoms:** User clicks login, gets "OAuth state parameter invalid or expired"
 
 **Causes:**
+
 - State document not created (Cloud Function for `generateOAuthState()` failed)
 - State document expired (>10 min elapsed)
 - CSRF attack (state values don't match)
 
 **Solutions:**
+
 1. Verify `notivisa-portal-oauth-state` collection exists
 2. Check Cloud Logs for errors during state generation
 3. Increase state TTL if users are slow
@@ -1042,12 +1058,14 @@ gcloud logging read \
 **Symptoms:** "Failed to exchange authorization code"
 
 **Causes:**
+
 - NOTIVISA IDP unreachable (network issue or IDP down)
 - Invalid client ID/secret
 - Authorization code invalid or expired
 - Redirect URI mismatch
 
 **Solutions:**
+
 1. Check NOTIVISA IDP status page
 2. Verify `NOTIVISA_OAUTH_CLIENT_ID` and `NOTIVISA_OAUTH_CLIENT_SECRET` in Secret Manager
 3. Verify `NOTIVISA_OAUTH_REDIRECT_URI` matches OAuth app configuration
@@ -1061,10 +1079,12 @@ gcloud logging read \
 **Symptoms:** "Lab is not configured for NOTIVISA portal integration"
 
 **Causes:**
+
 - Lab document missing `notivisaLabCode` field
 - Lab ID incorrect
 
 **Solutions:**
+
 1. Verify lab exists: `firebase firestore document labs/{labId}`
 2. Add `notivisaLabCode` to lab settings (Admin UI)
 3. Verify lab ID sent to `authenticatePortal()` is correct
@@ -1074,10 +1094,12 @@ gcloud logging read \
 **Symptoms:** Users logged out after 5 minutes
 
 **Causes:**
+
 - NOTIVISA IDP returning short token TTL (expiresIn)
 - Client-side token validation too aggressive
 
 **Solutions:**
+
 1. Check NOTIVISA IDP token response (`expiresIn` value)
 2. Negotiate longer TTL with IDP or request new token more frequently
 3. Adjust client-side refresh threshold (currently 5 min buffer)

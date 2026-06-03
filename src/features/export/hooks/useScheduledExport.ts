@@ -151,8 +151,7 @@ export function useScheduledExport(labId: string): UseScheduledExportReturn {
       // Clear the saved indicator after 3 seconds
       setTimeout(() => setIsSaved(false), 3000);
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Falha ao salvar configuração.';
+      const message = err instanceof Error ? err.message : 'Falha ao salvar configuração.';
       setSaveError(message);
       console.error('[ScheduledExport] saveConfig error:', err);
     } finally {

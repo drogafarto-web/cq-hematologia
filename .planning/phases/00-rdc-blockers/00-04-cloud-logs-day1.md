@@ -11,18 +11,18 @@
 
 ## Deploy summary
 
-| Artifact | Status | Notes |
-| --- | --- | --- |
-| `firestore:rules` | DEPLOYED | Rules compiled OK (15 pre-existing warnings, all in unrelated lab-apoio block — see deferred-items). New `/labs/{labId}/risks/{riskId}` block + events sub-coleção released. |
-| `firestore:indexes` | DEPLOYED | 2 composite indexes on risks (NPR DESC + reviewDate ASC) — already healthy from prior plan attempt. |
-| `functions:risks_createRisk` | DEPLOYED | callable, 256 MiB, nodejs22, southamerica-east1. |
-| `functions:risks_updateRisk` | DEPLOYED | callable. Server recomputes NPR + nivel. |
-| `functions:risks_softDeleteRisk` | DEPLOYED | callable. Rejects if status=fechado. |
-| `functions:risks_registrarRevisao` | DEPLOYED | callable. Reclassificado branch recomputes NPR. |
-| `functions:onRiskEventCreated` | LIVE (pre-existing) | Firestore trigger. ChainHash idempotent. |
-| `functions:scheduledReview` | LIVE (pre-existing) | cron daily 07:00 BRT. |
-| `functions:provisionModulesClaims` | UPDATED | Now grants `modules.risks` + `modules['lab-apoio']`. |
-| `hosting` | DEPLOYED | 36 files; PWA SW autoUpdate; 9806 KiB precache; `module-risks-BcWiE7jX.js` chunk live. |
+| Artifact                           | Status              | Notes                                                                                                                                                                        |
+| ---------------------------------- | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `firestore:rules`                  | DEPLOYED            | Rules compiled OK (15 pre-existing warnings, all in unrelated lab-apoio block — see deferred-items). New `/labs/{labId}/risks/{riskId}` block + events sub-coleção released. |
+| `firestore:indexes`                | DEPLOYED            | 2 composite indexes on risks (NPR DESC + reviewDate ASC) — already healthy from prior plan attempt.                                                                          |
+| `functions:risks_createRisk`       | DEPLOYED            | callable, 256 MiB, nodejs22, southamerica-east1.                                                                                                                             |
+| `functions:risks_updateRisk`       | DEPLOYED            | callable. Server recomputes NPR + nivel.                                                                                                                                     |
+| `functions:risks_softDeleteRisk`   | DEPLOYED            | callable. Rejects if status=fechado.                                                                                                                                         |
+| `functions:risks_registrarRevisao` | DEPLOYED            | callable. Reclassificado branch recomputes NPR.                                                                                                                              |
+| `functions:onRiskEventCreated`     | LIVE (pre-existing) | Firestore trigger. ChainHash idempotent.                                                                                                                                     |
+| `functions:scheduledReview`        | LIVE (pre-existing) | cron daily 07:00 BRT.                                                                                                                                                        |
+| `functions:provisionModulesClaims` | UPDATED             | Now grants `modules.risks` + `modules['lab-apoio']`.                                                                                                                         |
+| `hosting`                          | DEPLOYED            | 36 files; PWA SW autoUpdate; 9806 KiB precache; `module-risks-BcWiE7jX.js` chunk live.                                                                                       |
 
 **Stretch task `risks_seedFromCsv` deferred to v1.4.1** per PHASE-0-PLAN P0-R4 dropline (Wave 2 budget). MVP ships with empty register; Riopomba populates manually in week 2.
 
@@ -30,12 +30,12 @@
 
 ## Type-check + build gates (pre-deploy)
 
-| Gate | Result |
-| --- | --- |
-| `npx tsc --noEmit` (web) | clean (0 errors) |
-| `cd functions && npx tsc --noEmit` | clean (0 errors) |
-| `npm run build` | clean — 32.10s, source maps uploaded to Sentry, `module-risks` chunk emitted |
-| `cd functions && npm run build` | clean (predeploy hook ran during functions deploy) |
+| Gate                               | Result                                                                       |
+| ---------------------------------- | ---------------------------------------------------------------------------- |
+| `npx tsc --noEmit` (web)           | clean (0 errors)                                                             |
+| `cd functions && npx tsc --noEmit` | clean (0 errors)                                                             |
+| `npm run build`                    | clean — 32.10s, source maps uploaded to Sentry, `module-risks` chunk emitted |
+| `cd functions && npm run build`    | clean (predeploy hook ran during functions deploy)                           |
 
 **TS errors fix lineage:** commit `824231b` (`fix(types): resolve TS errors in lab-apoio callables`) unblocked deploy after T1–T10 completion.
 
@@ -109,11 +109,13 @@ pwsh -File scripts/monitor-cloud-logs.ps1 -DurationHours 24 -CheckIntervalMinute
 ```
 
 Output:
+
 - Real-time console feed (timestamped checks)
 - `scripts/cloud-logs-export-<TS>.json` (full error JSON dump)
 - `docs/MONITORING_REPORT_<TS>.md` (final summary)
 
 **Sign-off criteria (per CLOUD_LOGS_MONITORING_GUIDE.md):**
+
 - 0 sustained errors (>5 occurrences of same signature)
 - 0 OOM / cold-start timeouts on `risks_*` callables
 - 0 chainHash compute failures in `onRiskEventCreated`
@@ -125,11 +127,11 @@ When the 24h cycle closes, paste the path to the generated MONITORING_REPORT her
 
 ## Deferred items (out of scope for Plan 00-04)
 
-| Item | Origin | Disposition |
-| --- | --- | --- |
-| 15 firestore.rules compile warnings | Pre-existing (lab-apoio + reclamacao + nps + sugestao + lgpd + laudo + turnos + contrato + aceites + otp blocks) | Track for v1.4 cleanup. None affect runtime. |
-| `risks_seedFromCsv` callable | Plan 00-04 T5 stretch | P0-R4 dropline → v1.4.1. Empty register acceptable for MVP. |
-| `labSettings.nprThresholds` per-lab tuning | Plan 00-04 OPEN | Hardcoded thresholds in `risksService.ts` (baixo ≤24, medio 25–60, alto 61–99, critico ≥100). v1.4 Phase 1 settings UI follow-up. |
+| Item                                       | Origin                                                                                                           | Disposition                                                                                                                       |
+| ------------------------------------------ | ---------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| 15 firestore.rules compile warnings        | Pre-existing (lab-apoio + reclamacao + nps + sugestao + lgpd + laudo + turnos + contrato + aceites + otp blocks) | Track for v1.4 cleanup. None affect runtime.                                                                                      |
+| `risks_seedFromCsv` callable               | Plan 00-04 T5 stretch                                                                                            | P0-R4 dropline → v1.4.1. Empty register acceptable for MVP.                                                                       |
+| `labSettings.nprThresholds` per-lab tuning | Plan 00-04 OPEN                                                                                                  | Hardcoded thresholds in `risksService.ts` (baixo ≤24, medio 25–60, alto 61–99, critico ≥100). v1.4 Phase 1 settings UI follow-up. |
 
 ---
 

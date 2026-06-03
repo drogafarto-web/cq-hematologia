@@ -28,8 +28,7 @@ type LabId = string;
 
 // ─── Paths ──────────────────────────────────────────────────────────────────
 
-const autorizacoesCol = (labId: LabId) =>
-  collection(db, 'personnel', labId, 'autorizacoes');
+const autorizacoesCol = (labId: LabId) => collection(db, 'personnel', labId, 'autorizacoes');
 
 const autorizacaoDoc = (labId: LabId, id: string) =>
   doc(db, 'personnel', labId, 'autorizacoes', id);
@@ -50,7 +49,7 @@ export function watchAutorizacoes(
   return onSnapshot(
     q,
     (snap) => {
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as AutorizacaoFormal));
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as AutorizacaoFormal);
       callback(items);
     },
     (err) => {

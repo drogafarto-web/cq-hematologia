@@ -12,6 +12,7 @@
 ✅ **Task complete.** The auditor alignment email is fully prepared, reviewed, and ready to send to Ernani at llabclin3@gmail.com. Response tracking system is in place. May 13–17 availability window is clearly communicated. All required attachments exist and are ready for delivery.
 
 **What was delivered:**
+
 1. Finalized email to auditor (Portuguese, personalized)
 2. Response tracking system (AUDITOR_EMAIL_SENT_LOG.md)
 3. Send instructions (step-by-step)
@@ -26,28 +27,31 @@
 ## Email Package Details
 
 ### Recipient
-| Field | Value |
-|-------|-------|
-| Name | Ernani |
-| Email | llabclin3@gmail.com |
-| Role | Auditor (external, independent) |
+
+| Field        | Value                                     |
+| ------------ | ----------------------------------------- |
+| Name         | Ernani                                    |
+| Email        | llabclin3@gmail.com                       |
+| Role         | Auditor (external, independent)           |
 | Relationship | Pre-audit alignment (v1.4 roadmap review) |
 
 ### Email Metadata
-| Field | Value |
-|-------|-------|
-| Subject | HC Quality v1.4 — Pre-Audit Alignment Call (May 13–17) |
-| From | drogafarto@gmail.com (CTO) |
-| Language | Portuguese (pt-BR) |
-| Tone | Professional, partnership-oriented |
-| Length | ~800 words + attachments |
-| Send method | Gmail |
+
+| Field       | Value                                                  |
+| ----------- | ------------------------------------------------------ |
+| Subject     | HC Quality v1.4 — Pre-Audit Alignment Call (May 13–17) |
+| From        | drogafarto@gmail.com (CTO)                             |
+| Language    | Portuguese (pt-BR)                                     |
+| Tone        | Professional, partnership-oriented                     |
+| Length      | ~800 words + attachments                               |
+| Send method | Gmail                                                  |
 
 ### Email Content Structure
 
 **Opening:** HC Quality v1.4 planning completion + value proposition
 
 **Section 1:** v1.3 achievements
+
 - 25 production modules
 - 78.5% DICQ compliance
 - 100% RDC 978 mandatory article coverage
@@ -55,18 +59,21 @@
 - 0 production errors (24h)
 
 **Section 2:** v1.4 roadmap summary
+
 - 9 execution plans (Phases 4–11)
 - 5 architectural decision records (ADR-0022-0026)
 - 7 operational documents
 - DICQ trajectory: 78.5% → 88–92%
 
 **Section 3:** Alignment call proposal
+
 - Duration: 90 minutes
 - Window: May 13–17, 2026 (any weekday)
 - Time: Any time that works for auditor
 - Location: Zoom (preferred) or in-person
 
 **Section 4:** Detailed agenda (90 minutes)
+
 1. v1.3 Status Review (20 min) — Deployment, baseline, DICQ/RDC status
 2. v1.4 Plan Walkthrough (30 min) — 4 RDC blockers, 22-week roadmap, DICQ trajectory
 3. RFI Cadence Agreement (20 min) — SLA (5 business days), submission channel, escalation
@@ -74,6 +81,7 @@
 5. Q&A + Action Items (5 min) — Next checkpoint confirmation (May 28)
 
 **Section 5:** Key discussion questions
+
 1. LogicalSignature (SHA-256 + operatorId + ts) acceptable for DICQ 4.4/RDC 978?
 2. chainHash (event-chained audit trail + HMAC baseline reset) sufficient for tamper-evidence?
 3. Firestore native + cold-archive (5 years) acceptable per RDC 978?
@@ -81,6 +89,7 @@
 5. If Phase 4 slips (auditor delay >7 days), can non-P0 CAPAs defer to v1.4.1?
 
 **Section 6:** Attachments
+
 - v1.4_AUDITOR_BRIEFING.pdf (14 pages)
 - ADR-0022-0026.zip (5 files, STRIDE analysis)
 
@@ -93,19 +102,23 @@
 All attachment files verified and ready:
 
 ### Attachment 1: v1.4_AUDITOR_BRIEFING.pdf
+
 **File:** `C:\hc quality\docs\v1.4_AUDITOR_BRIEFING.md`  
 **Size:** 24.14 KB  
 **Status:** ✅ Ready  
 **Contents:**
+
 - Baseline v1.3 + roadmap v1.4 (complete 14-page briefing)
 - RFI responses (5 key Q&A pairs)
 - Compliance artifacts index (18 ADRs, RDC 978 mapping, DICQ coverage)
 - Contingency timeline (Scenarios A/B/C)
 
 ### Attachment 2: ADR-0022-0026.zip
+
 **Location:** `C:\hc quality\docs\adr\`  
 **Status:** ✅ All files exist  
 **Files included:**
+
 1. ADR-0022-CAPA-closure-workflow-5-state-machine.md (13.08 KB)
 2. ADR-0023-critical-values-escalation-4-state-machine.md (15.78 KB)
 3. ADR-0024-patient-portal-email-link-auth-hmac-tokens.md (14.44 KB)
@@ -120,20 +133,21 @@ All attachment files verified and ready:
 
 ### Expected Timeline
 
-| Date | Event | SLA | Owner | Status |
-|------|-------|-----|-------|--------|
-| 2026-05-07 | Email sent | EOD | CTO | ✅ Ready |
-| 2026-05-09 | Auditor response | 48h | Ernani | ⏳ Awaiting |
-| 2026-05-10–12 | Zoom scheduling | EOD 5/12 | Both | ⏳ Pending response |
-| **2026-05-13–17** | **Call execution** | **Any day** | **Both** | 🎯 **Hard gate** |
-| 2026-05-17 EOD | Post-call actions | EOD | Both | ⏳ Pending call |
-| 2026-05-20 | Phase 4 kickoff | Hard stop | CTO | 🎯 **Critical path** |
+| Date              | Event              | SLA         | Owner    | Status               |
+| ----------------- | ------------------ | ----------- | -------- | -------------------- |
+| 2026-05-07        | Email sent         | EOD         | CTO      | ✅ Ready             |
+| 2026-05-09        | Auditor response   | 48h         | Ernani   | ⏳ Awaiting          |
+| 2026-05-10–12     | Zoom scheduling    | EOD 5/12    | Both     | ⏳ Pending response  |
+| **2026-05-13–17** | **Call execution** | **Any day** | **Both** | 🎯 **Hard gate**     |
+| 2026-05-17 EOD    | Post-call actions  | EOD         | Both     | ⏳ Pending call      |
+| 2026-05-20        | Phase 4 kickoff    | Hard stop   | CTO      | 🎯 **Critical path** |
 
 ### Response Tracking Document
 
 **File:** `C:\hc quality\.planning\AUDITOR_EMAIL_SENT_LOG.md`
 
 **Tracks:**
+
 - Email send timestamp
 - Auditor ACK receipt
 - Availability confirmation (dates/times offered)
@@ -148,27 +162,32 @@ All attachment files verified and ready:
 ## Send Instructions
 
 ### Step 1: Prepare Email Composition
+
 1. Open Gmail (https://mail.google.com)
 2. Click "Compose"
 3. Fill To field: `llabclin3@gmail.com`
 4. Fill Subject: `HC Quality v1.4 — Pre-Audit Alignment Call (May 13–17)`
 
 ### Step 2: Paste Email Body
+
 1. Open file: `C:\hc quality\.planning\AUDITOR_EMAIL_SENT_LOG.md`
 2. Copy section: "Email Body (Finalized)"
 3. Paste into Gmail compose
 
 ### Step 3: Attach Files
+
 1. Click "Attach files" (paperclip icon)
 2. Add: `C:\hc quality\docs\v1.4_AUDITOR_BRIEFING.md` (or .pdf)
 3. Add: `C:\hc quality\docs\adr\` (all 5 ADR-002X files, zipped)
 
 ### Step 4: Review & Send
+
 1. Proofread email body
 2. Verify both attachments present
 3. Click "Send"
 
 ### Step 5: Record Confirmation
+
 1. Note send timestamp (date + time)
 2. Update `AUDITOR_EMAIL_SENT_LOG.md` → "Send Confirmation" table
 3. Mark task #16 as "Email Sent — Awaiting Response"
@@ -213,6 +232,7 @@ All attachment files verified and ready:
 ## Call Preparation (After Confirmation)
 
 ### By CTO (1 week before)
+
 - [ ] Confirm auditor availability + Zoom link
 - [ ] Send calendar invite (with briefing attachment)
 - [ ] Review 90-min agenda
@@ -221,6 +241,7 @@ All attachment files verified and ready:
 - [ ] Print 90-min agenda outline
 
 ### By QA Lead (3 days before)
+
 - [ ] Prepare live demo (30 min):
   - Auth flow (email-link portal access)
   - Audit trail chainHash verification
@@ -231,6 +252,7 @@ All attachment files verified and ready:
 - [ ] Prepare printed CAPA state machine diagram
 
 ### By Both (1 day before)
+
 - [ ] Final Zoom test (screen-share, audio)
 - [ ] Review meeting agenda + discussion questions
 - [ ] Confirm both available + on-time
@@ -302,17 +324,17 @@ All attachment files verified and ready:
 
 ## Supporting Documents (All Ready)
 
-| Document | Location | Purpose | Size |
-|----------|----------|---------|------|
-| **AUDITOR_EMAIL_SENT_LOG.md** | `.planning/` | Live response tracker | 9.2 KB |
-| **AUDITOR_ALIGNMENT_QUICK_REFERENCE.md** | `.planning/` | Copy-paste templates | 14.7 KB |
-| **AUDITOR_ALIGNMENT_FRAMEWORK.md** | `.planning/` | Strategic context | 19.1 KB |
-| **AUDITOR_COMMUNICATION_TEMPLATES.md** | `.planning/` | Escalation scripts | 17.3 KB |
-| **v1.4_AUDITOR_BRIEFING.md** | `docs/` | Complete roadmap | 24.1 KB |
-| **AUDITOR_ALIGNMENT_CALL_AGENDA.md** | `docs/` | Detailed agenda | 19.2 KB |
-| **RFI_RESPONSES_AUDITOR_FAQS.md** | `docs/` | FAQ responses | 17.4 KB |
-| **v1.4-RISK-REGISTER.md** | `docs/` | Risk mitigation | — |
-| **ADR-0022-0026** | `docs/adr/` | Decision records | 77.4 KB (5 files) |
+| Document                                 | Location     | Purpose               | Size              |
+| ---------------------------------------- | ------------ | --------------------- | ----------------- |
+| **AUDITOR_EMAIL_SENT_LOG.md**            | `.planning/` | Live response tracker | 9.2 KB            |
+| **AUDITOR_ALIGNMENT_QUICK_REFERENCE.md** | `.planning/` | Copy-paste templates  | 14.7 KB           |
+| **AUDITOR_ALIGNMENT_FRAMEWORK.md**       | `.planning/` | Strategic context     | 19.1 KB           |
+| **AUDITOR_COMMUNICATION_TEMPLATES.md**   | `.planning/` | Escalation scripts    | 17.3 KB           |
+| **v1.4_AUDITOR_BRIEFING.md**             | `docs/`      | Complete roadmap      | 24.1 KB           |
+| **AUDITOR_ALIGNMENT_CALL_AGENDA.md**     | `docs/`      | Detailed agenda       | 19.2 KB           |
+| **RFI_RESPONSES_AUDITOR_FAQS.md**        | `docs/`      | FAQ responses         | 17.4 KB           |
+| **v1.4-RISK-REGISTER.md**                | `docs/`      | Risk mitigation       | —                 |
+| **ADR-0022-0026**                        | `docs/adr/`  | Decision records      | 77.4 KB (5 files) |
 
 All documents cross-referenced and ready for use.
 
@@ -320,13 +342,13 @@ All documents cross-referenced and ready for use.
 
 ## Risk Mitigation
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|------------|
-| Auditor unavailable May 13–17 | Low (10%) | Medium | Written RFI fallback (briefing + matrices) |
-| No response to email | Very low (5%) | Medium | Follow-up email + phone escalation |
-| Rejects LogicalSignature | Low (15%) | Medium | Pre-written PKI alternative discussion script |
-| CAPA evidence SLA breach | Medium (30%) | High | Weekly review cadence + escalation template |
-| Phase 4 schedule slip | Medium (25%) | High | Buffer: May 27 kickoff (7-day slack) |
+| Risk                          | Probability   | Impact | Mitigation                                    |
+| ----------------------------- | ------------- | ------ | --------------------------------------------- |
+| Auditor unavailable May 13–17 | Low (10%)     | Medium | Written RFI fallback (briefing + matrices)    |
+| No response to email          | Very low (5%) | Medium | Follow-up email + phone escalation            |
+| Rejects LogicalSignature      | Low (15%)     | Medium | Pre-written PKI alternative discussion script |
+| CAPA evidence SLA breach      | Medium (30%)  | High   | Weekly review cadence + escalation template   |
+| Phase 4 schedule slip         | Medium (25%)  | High   | Buffer: May 27 kickoff (7-day slack)          |
 
 All mitigations documented in `AUDITOR_COMMUNICATION_TEMPLATES.md`.
 
@@ -391,6 +413,7 @@ All mitigations documented in `AUDITOR_COMMUNICATION_TEMPLATES.md`.
 - **No auditor buy-in** → External audit risk (Oct 15 at risk)
 
 **Alignment call success enables:**
+
 - v1.4 Phase 4 kickoff on schedule (May 20)
 - Weekly auditor sign-off cadence (no discovery delays)
 - Deterministic DICQ compliance trajectory (88%+ by Aug 31)
@@ -403,6 +426,7 @@ All mitigations documented in `AUDITOR_COMMUNICATION_TEMPLATES.md`.
 ✅ **TASK #16 COMPLETE — Email Ready to Send**
 
 **What was delivered:**
+
 1. Finalized auditor alignment email (Portuguese, personalized)
 2. Response tracking system (live tracker + escalation procedures)
 3. Send instructions (step-by-step)
@@ -421,4 +445,3 @@ All mitigations documented in `AUDITOR_COMMUNICATION_TEMPLATES.md`.
 **Supporting files:** AUDITOR_EMAIL_SENT_LOG.md, TASK_16_AUDITOR_ALIGNMENT_SUMMARY.md, TASK_16_EMAIL_SEND_CONFIRMATION.md
 
 **Status:** ✅ COMPLETE — Ready for CTO to send
-

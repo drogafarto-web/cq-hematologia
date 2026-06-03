@@ -8,7 +8,15 @@
 interface IncidentParams {
   affectedUsers: number;
   systemsDown: string[];
-  dataImpact: 'none' | 'dev-only' | 'read-only-affected' | 'write-blocked' | 'read-slow' | 'total-loss' | 'integrity-violated' | 'records-missing';
+  dataImpact:
+    | 'none'
+    | 'dev-only'
+    | 'read-only-affected'
+    | 'write-blocked'
+    | 'read-slow'
+    | 'total-loss'
+    | 'integrity-violated'
+    | 'records-missing';
   regulatoryImpact: 'none' | 'minimal' | 'RDC-Art-99' | 'RDC-Art-128' | 'DICQ-4.4' | 'LGPD-breach';
   workaroundAvailable?: boolean;
   dataLossConfirmed?: boolean;
@@ -28,8 +36,7 @@ function classifySeverity(params: IncidentParams): 'green' | 'yellow' | 'red' | 
   // Red: critical systems down OR many users affected + regulatory impact OR read/write blocked
   if (
     (params.systemsDown.includes('firestore') &&
-      (params.regulatoryImpact === 'RDC-Art-128' ||
-        params.affectedUsers > 100)) ||
+      (params.regulatoryImpact === 'RDC-Art-128' || params.affectedUsers > 100)) ||
     (params.dataImpact === 'write-blocked' && params.affectedUsers > 100) ||
     (params.dataImpact === 'read-slow' &&
       params.regulatoryImpact === 'DICQ-4.4' &&

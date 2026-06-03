@@ -22,9 +22,7 @@ export async function getGeminiModel(labId?: string): Promise<string> {
   }
 
   try {
-    const path = labId
-      ? `labs/${labId}/settings/ai`
-      : 'platform/ai-config';
+    const path = labId ? `labs/${labId}/settings/ai` : 'platform/ai-config';
     const snap = await db.doc(path).get();
     const model = snap.data()?.geminiModel;
     if (model && ALLOWED_MODELS.includes(model)) {

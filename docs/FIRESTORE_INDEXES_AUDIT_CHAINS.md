@@ -3,6 +3,7 @@
 **Purpose:** Define composite indexes required for chain-hash audit collections to ensure sub-second query performance.
 
 **Affected collections:**
+
 - All chain-target collections (e.g., `notas-fiscais`, `criticos-log-eventos`, future audit chains)
 - All `-auditFailures` sibling collections (for failure marker queries)
 
@@ -29,10 +30,10 @@ export async function getPreviousHashInCollection(
 
 **Required indexes per collection:**
 
-| Collection | Index | Fields | Order |
-|---|---|---|---|
-| `labs/{labId}/notas-fiscais` | Single field | `timestamp` | DESCENDING |
-| `labs/{labId}/criticos-log-eventos` | Single field | `timestamp` | DESCENDING |
+| Collection                            | Index        | Fields      | Order      |
+| ------------------------------------- | ------------ | ----------- | ---------- |
+| `labs/{labId}/notas-fiscais`          | Single field | `timestamp` | DESCENDING |
+| `labs/{labId}/criticos-log-eventos`   | Single field | `timestamp` | DESCENDING |
 | `labs/{labId}/compras-chain` (future) | Single field | `timestamp` | DESCENDING |
 
 For most single-field queries on indexed fields, Firestore auto-creates the index. These are listed for completeness.
@@ -42,10 +43,7 @@ For most single-field queries on indexed fields, Firestore auto-creates the inde
 This function scans a collection in chronological order:
 
 ```typescript
-const snapshot = await db
-  .collection(collectionPath)
-  .orderBy('timestamp', 'asc')
-  .get();
+const snapshot = await db.collection(collectionPath).orderBy('timestamp', 'asc').get();
 ```
 
 **Status:** Auto-indexed by Firestore (single-field ascending on `timestamp`).
@@ -65,9 +63,9 @@ await db
 
 **Required composite indexes:**
 
-| Collection | Index | Fields | Purpose |
-|---|---|---|---|
-| `labs/{labId}/notas-fiscais-auditFailures` | Composite | `recordedAt` DESC | Query by failure timestamp |
+| Collection                                        | Index     | Fields            | Purpose                    |
+| ------------------------------------------------- | --------- | ----------------- | -------------------------- |
+| `labs/{labId}/notas-fiscais-auditFailures`        | Composite | `recordedAt` DESC | Query by failure timestamp |
 | `labs/{labId}/criticos-log-eventos-auditFailures` | Composite | `recordedAt` DESC | Query by failure timestamp |
 
 ---
@@ -174,11 +172,11 @@ firebase deploy --only firestore:indexes --project hmatologia2
 
 With proper indexes:
 
-| Collection Size | Query Latency | Notes |
-|---|---|---|
-| 0–1K documents | <50ms | Single field index sufficient |
-| 1K–100K documents | 50–200ms | Composite indexes recommended |
-| 100K+ documents | 200ms–2s | May need pagination or pre-aggregation |
+| Collection Size   | Query Latency | Notes                                  |
+| ----------------- | ------------- | -------------------------------------- |
+| 0–1K documents    | <50ms         | Single field index sufficient          |
+| 1K–100K documents | 50–200ms      | Composite indexes recommended          |
+| 100K+ documents   | 200ms–2s      | May need pagination or pre-aggregation |
 
 ---
 

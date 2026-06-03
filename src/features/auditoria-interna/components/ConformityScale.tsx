@@ -23,7 +23,12 @@ const LEVEL_LABELS: Record<number, string> = {
   5: 'Excelência',
 };
 
-export function ConformityScale({ niveis, value, onChange, disabled = false }: ConformityScaleProps) {
+export function ConformityScale({
+  niveis,
+  value,
+  onChange,
+  disabled = false,
+}: ConformityScaleProps) {
   return (
     <div className="space-y-3">
       <div className="flex gap-1" role="radiogroup" aria-label="Escala de conformidade">
@@ -41,9 +46,10 @@ export function ConformityScale({ niveis, value, onChange, disabled = false }: C
               onClick={() => onChange(level)}
               className={`
                 flex-1 py-3 px-2 rounded-lg text-center font-semibold text-sm transition-all
-                ${isSelected
-                  ? `${colors.bg} ${colors.text} ring-2 ring-offset-2 ring-offset-slate-900 ring-white/50 scale-105`
-                  : `bg-white/5 border ${colors.border}/30 text-white/60 hover:bg-white/10`
+                ${
+                  isSelected
+                    ? `${colors.bg} ${colors.text} ring-2 ring-offset-2 ring-offset-slate-900 ring-white/50 scale-105`
+                    : `bg-white/5 border ${colors.border}/30 text-white/60 hover:bg-white/10`
                 }
                 ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
               `}

@@ -9,12 +9,7 @@ import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
 import { generateAndSendCQIReport, getActiveLabs } from './generator';
-import {
-  SMTP_HOST,
-  SMTP_USER,
-  SMTP_PASS,
-  SMTP_PORT,
-} from '../../shared/email/smtpClient';
+import { SMTP_HOST, SMTP_USER, SMTP_PASS, SMTP_PORT } from '../../shared/email/smtpClient';
 
 // ─── Scheduled: daily at 23:00 BRT ───────────────────────────────────────────
 

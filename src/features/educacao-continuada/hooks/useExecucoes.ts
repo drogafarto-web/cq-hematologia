@@ -70,9 +70,7 @@ export interface UseExecucoesResult {
  * `useSaveExecucao` — a separação evita que o caller escreva parcialmente
  * um estado inconsistente por mexer só no status direto daqui.
  */
-export function useExecucoes(
-  options: SubscribeExecucoesOptions = {},
-): UseExecucoesResult {
+export function useExecucoes(options: SubscribeExecucoesOptions = {}): UseExecucoesResult {
   const labId = useActiveLabId();
   const { includeDeleted = false, treinamentoId, status } = options;
 

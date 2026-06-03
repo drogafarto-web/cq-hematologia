@@ -9,6 +9,7 @@
 ## Executive Summary
 
 Current `firestore.indexes.json` includes **67 composite indexes** supporting all modules. Validation checked:
+
 1. **NOTIVISA integration** — 3 collections (drafts, queue, outbox)
 2. **Patient portal** — 3 indexes (sessions, nps-feedback, laudos patientId)
 3. **Critical path queries** — all covered
@@ -21,13 +22,13 @@ Current `firestore.indexes.json` includes **67 composite indexes** supporting al
 
 ### Requirement Checklist
 
-| Index | Required | Location | Status |
-|-------|----------|----------|--------|
-| `notivisa-drafts`: `status + criadoEm` | ✓ | Lines 666–672 | **MISSING** |
-| `notivisa-drafts`: `laudoId + status` | ✓ | — | **MISSING** |
-| `notivisa-queue`: `status + nextRetry` | ✓ | — | **MISSING** |
-| `notivisa-queue`: `createdAt` | ✓ | — | **MISSING** |
-| `notivisa-outbox`: `labId + status + createdAt` | ✓ | Lines 666–672 | ✓ PRESENT |
+| Index                                           | Required | Location      | Status      |
+| ----------------------------------------------- | -------- | ------------- | ----------- |
+| `notivisa-drafts`: `status + criadoEm`          | ✓        | Lines 666–672 | **MISSING** |
+| `notivisa-drafts`: `laudoId + status`           | ✓        | —             | **MISSING** |
+| `notivisa-queue`: `status + nextRetry`          | ✓        | —             | **MISSING** |
+| `notivisa-queue`: `createdAt`                   | ✓        | —             | **MISSING** |
+| `notivisa-outbox`: `labId + status + createdAt` | ✓        | Lines 666–672 | ✓ PRESENT   |
 
 ### Current State
 
@@ -93,11 +94,11 @@ This is **insufficient** for Phase 8 (NOTIVISA submission/polling workflows).
 
 ### Requirement Checklist
 
-| Index | Required | Location | Status |
-|-------|----------|----------|--------|
-| `patient-auth-sessions`: `patientId + expiresAt` | ✓ | Lines 750–756 | ✓ PRESENT |
-| `patient-nps-feedback`: `labId + criadoEm` | ✓ | Lines 758–764 | ✓ PRESENT |
-| `laudos`: `patientId + criadoEm` | ✓ | Lines 742–748 | ✓ PRESENT |
+| Index                                            | Required | Location      | Status    |
+| ------------------------------------------------ | -------- | ------------- | --------- |
+| `patient-auth-sessions`: `patientId + expiresAt` | ✓        | Lines 750–756 | ✓ PRESENT |
+| `patient-nps-feedback`: `labId + criadoEm`       | ✓        | Lines 758–764 | ✓ PRESENT |
+| `laudos`: `patientId + criadoEm`                 | ✓        | Lines 742–748 | ✓ PRESENT |
 
 ### Current State
 
@@ -138,59 +139,59 @@ This is **insufficient** for Phase 8 (NOTIVISA submission/polling workflows).
 
 ### Present (56 indexes)
 
-| Module | Count | Indexes | Priority |
-|--------|-------|---------|----------|
-| **accessRequests** | 3 | status+createdAt, labId+status, labId+status+createdAt | High |
-| **lgpd-solicitacoes** | 1 | status+data_prazo | High |
-| **runs** | 7 | labId+dataRealizacao, labId+testType+dataRealizacao, labId+resultadoObtido+dataRealizacao, labId+analitoId+criadoEm, labId+equipmentId+status+criadoEm, labId+equipmentId+criadoEm, labId+lotId+criadoEm | High |
-| **insumos** | 8 | tipo+createdAt, modulo+createdAt, modulos+createdAt, tipo+modulos+status+createdAt, status+createdAt, tipo+status+createdAt, equipamentoId+status+createdAt, equipamentosPermitidos+status+createdAt | High |
-| **fornecedores** | 1 | ativo+razaoSocial | Medium |
-| **notas-fiscais** | 1 | fornecedorId+dataEmissao | Medium |
-| **ciq-audit** | 2 | severity+timestamp, moduleId+timestamp | Medium |
-| **colaboradores** | 1 | ativo+nome | Low |
-| **treinamentos** | 1 | ativo+titulo | Low |
-| **analytics-aggregates** | 1 | labId+timestamp | High |
-| **export-jobs** | 2 | labId+status, labId+initiatedAt | High |
-| **naoConformidades** | 1 | labId+dataAbertura | High |
-| **entries** | 2 | status+deletadoEm, deletadoEm+criadoEm | High |
-| **records** | 2 | status+deletadoEm, deletadoEm+status | High |
-| **auditorias-internas** | 3 | status+criadoEm, ano+status, deletadoEm+criadoEm | High |
-| **sessoes** | 2 | status+dataInicio, deletadoEm+criadoEm | Medium |
-| **achados** | 2 | severidade+criadoEm, statusNC+severidade | Medium |
-| **lgpd / politicas / privacyAceites** | 3 | criadoEm+deletadoEm, criadoEm+deletadoEm, policyVersionId+aceiteEm | High |
-| **analitos** | 1 | labId+ativo+nome | Medium |
-| **lotes** | 1 | labId+bulaPendente+criadoEm | Medium |
-| **traceability-events** | 1 | labId+equipmentId+examCodeNum | High |
-| **laudos** | 3 | labId+status+criadoEm, labId+criticoFlag+status+criadoEm, labId+medicoSolicitanteId+criadoEm | High |
-| **laudo-versions** | 1 | labId+laudoId+version | High |
-| **comunicacoes** | 1 | labId+laudoId+criadoEm | High |
-| **reclamacoes** | 4 | labId+status+criadoEm, labId+classificacao.severidade+status+criadoEm, labId+reclamante.cpf+criadoEm, labId+slaPrazo | High |
-| **sugestoes** | 2 | labId+status+criadoEm, labId+categoria+status | High |
-| **satisfacao-respostas** | 2 | labId+origem+respondidoEm, labId+categoria+respondidoEm | High |
-| **turnos** | 2 | labId+data+periodo, labId+supervisorId+data | High |
-| **lab-apoio** | 2 | labId+ativo+vigenciaFim, labId+ativo+criticidade+vigenciaFim | High |
-| **risks** | 3 | labId+deletadoEm+status+npr, labId+deletadoEm+reviewDate, deletadoEm+reviewDate+status | High |
-| **sgq-documentos** | 1 | codigo+status (COLLECTION_GROUP) | High |
-| **notivisa-outbox** | 1 | labId+status+createdAt | High |
-| **criticos-escalacoes** | 3 | labId+createdAt, laudoId+status+criadoEm, sla_status+reconhecido_em | High |
-| **imuno-ias-dev** | 1 | labId+model_version+createdAt | Medium |
-| **laudos-draft** | 2 | labId+laudo_id, labId+locked_until_ts | High |
-| **criticos-thresholds** | 1 | analitoId+ativo+criadoEm | Medium |
-| **criticos-log-eventos** | 1 | escalacaoId+timestamp | Medium |
-| **patient-auth-sessions** | 1 | patientId+expiresAt | High |
-| **patient-nps-feedback** | 1 | labId+criadoEm | High |
-| **equipamentos** | 4 | module+status+createdAt, module+createdAt, status+createdAt, status+retencaoAte (COLLECTION_GROUP) | High |
-| **equipamentos-audit** | 1 | equipamentoId+timestamp | Medium |
-| **insumo-movimentacoes** | 1 | insumoId+timestamp | Medium |
-| **insumo-transitions** | 1 | module+timestamp | Medium |
-| **produtos-insumos** | 2 | tipo+createdAt, modulos+createdAt | Low |
+| Module                                | Count | Indexes                                                                                                                                                                                                  | Priority |
+| ------------------------------------- | ----- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------- |
+| **accessRequests**                    | 3     | status+createdAt, labId+status, labId+status+createdAt                                                                                                                                                   | High     |
+| **lgpd-solicitacoes**                 | 1     | status+data_prazo                                                                                                                                                                                        | High     |
+| **runs**                              | 7     | labId+dataRealizacao, labId+testType+dataRealizacao, labId+resultadoObtido+dataRealizacao, labId+analitoId+criadoEm, labId+equipmentId+status+criadoEm, labId+equipmentId+criadoEm, labId+lotId+criadoEm | High     |
+| **insumos**                           | 8     | tipo+createdAt, modulo+createdAt, modulos+createdAt, tipo+modulos+status+createdAt, status+createdAt, tipo+status+createdAt, equipamentoId+status+createdAt, equipamentosPermitidos+status+createdAt     | High     |
+| **fornecedores**                      | 1     | ativo+razaoSocial                                                                                                                                                                                        | Medium   |
+| **notas-fiscais**                     | 1     | fornecedorId+dataEmissao                                                                                                                                                                                 | Medium   |
+| **ciq-audit**                         | 2     | severity+timestamp, moduleId+timestamp                                                                                                                                                                   | Medium   |
+| **colaboradores**                     | 1     | ativo+nome                                                                                                                                                                                               | Low      |
+| **treinamentos**                      | 1     | ativo+titulo                                                                                                                                                                                             | Low      |
+| **analytics-aggregates**              | 1     | labId+timestamp                                                                                                                                                                                          | High     |
+| **export-jobs**                       | 2     | labId+status, labId+initiatedAt                                                                                                                                                                          | High     |
+| **naoConformidades**                  | 1     | labId+dataAbertura                                                                                                                                                                                       | High     |
+| **entries**                           | 2     | status+deletadoEm, deletadoEm+criadoEm                                                                                                                                                                   | High     |
+| **records**                           | 2     | status+deletadoEm, deletadoEm+status                                                                                                                                                                     | High     |
+| **auditorias-internas**               | 3     | status+criadoEm, ano+status, deletadoEm+criadoEm                                                                                                                                                         | High     |
+| **sessoes**                           | 2     | status+dataInicio, deletadoEm+criadoEm                                                                                                                                                                   | Medium   |
+| **achados**                           | 2     | severidade+criadoEm, statusNC+severidade                                                                                                                                                                 | Medium   |
+| **lgpd / politicas / privacyAceites** | 3     | criadoEm+deletadoEm, criadoEm+deletadoEm, policyVersionId+aceiteEm                                                                                                                                       | High     |
+| **analitos**                          | 1     | labId+ativo+nome                                                                                                                                                                                         | Medium   |
+| **lotes**                             | 1     | labId+bulaPendente+criadoEm                                                                                                                                                                              | Medium   |
+| **traceability-events**               | 1     | labId+equipmentId+examCodeNum                                                                                                                                                                            | High     |
+| **laudos**                            | 3     | labId+status+criadoEm, labId+criticoFlag+status+criadoEm, labId+medicoSolicitanteId+criadoEm                                                                                                             | High     |
+| **laudo-versions**                    | 1     | labId+laudoId+version                                                                                                                                                                                    | High     |
+| **comunicacoes**                      | 1     | labId+laudoId+criadoEm                                                                                                                                                                                   | High     |
+| **reclamacoes**                       | 4     | labId+status+criadoEm, labId+classificacao.severidade+status+criadoEm, labId+reclamante.cpf+criadoEm, labId+slaPrazo                                                                                     | High     |
+| **sugestoes**                         | 2     | labId+status+criadoEm, labId+categoria+status                                                                                                                                                            | High     |
+| **satisfacao-respostas**              | 2     | labId+origem+respondidoEm, labId+categoria+respondidoEm                                                                                                                                                  | High     |
+| **turnos**                            | 2     | labId+data+periodo, labId+supervisorId+data                                                                                                                                                              | High     |
+| **lab-apoio**                         | 2     | labId+ativo+vigenciaFim, labId+ativo+criticidade+vigenciaFim                                                                                                                                             | High     |
+| **risks**                             | 3     | labId+deletadoEm+status+npr, labId+deletadoEm+reviewDate, deletadoEm+reviewDate+status                                                                                                                   | High     |
+| **sgq-documentos**                    | 1     | codigo+status (COLLECTION_GROUP)                                                                                                                                                                         | High     |
+| **notivisa-outbox**                   | 1     | labId+status+createdAt                                                                                                                                                                                   | High     |
+| **criticos-escalacoes**               | 3     | labId+createdAt, laudoId+status+criadoEm, sla_status+reconhecido_em                                                                                                                                      | High     |
+| **imuno-ias-dev**                     | 1     | labId+model_version+createdAt                                                                                                                                                                            | Medium   |
+| **laudos-draft**                      | 2     | labId+laudo_id, labId+locked_until_ts                                                                                                                                                                    | High     |
+| **criticos-thresholds**               | 1     | analitoId+ativo+criadoEm                                                                                                                                                                                 | Medium   |
+| **criticos-log-eventos**              | 1     | escalacaoId+timestamp                                                                                                                                                                                    | Medium   |
+| **patient-auth-sessions**             | 1     | patientId+expiresAt                                                                                                                                                                                      | High     |
+| **patient-nps-feedback**              | 1     | labId+criadoEm                                                                                                                                                                                           | High     |
+| **equipamentos**                      | 4     | module+status+createdAt, module+createdAt, status+createdAt, status+retencaoAte (COLLECTION_GROUP)                                                                                                       | High     |
+| **equipamentos-audit**                | 1     | equipamentoId+timestamp                                                                                                                                                                                  | Medium   |
+| **insumo-movimentacoes**              | 1     | insumoId+timestamp                                                                                                                                                                                       | Medium   |
+| **insumo-transitions**                | 1     | module+timestamp                                                                                                                                                                                         | Medium   |
+| **produtos-insumos**                  | 2     | tipo+createdAt, modulos+createdAt                                                                                                                                                                        | Low      |
 
 ### Missing (CRITICAL for Phase 8)
 
-| Collection | Required Indexes | Reason | Impact |
-|------------|-----------------|--------|--------|
-| **notivisa-drafts** | 2 indexes | Phase 8: draft submission polling + idempotency checks | Functions blocked |
-| **notivisa-queue** | 2 indexes | Phase 8: event polling + rate limiting | Functions blocked |
+| Collection          | Required Indexes | Reason                                                 | Impact            |
+| ------------------- | ---------------- | ------------------------------------------------------ | ----------------- |
+| **notivisa-drafts** | 2 indexes        | Phase 8: draft submission polling + idempotency checks | Functions blocked |
+| **notivisa-queue**  | 2 indexes        | Phase 8: event polling + rate limiting                 | Functions blocked |
 
 ---
 
@@ -205,12 +206,12 @@ This is **insufficient** for Phase 8 (NOTIVISA submission/polling workflows).
 
 ### Pre-Deploy Action Items
 
-| Item | Status | Action |
-|------|--------|--------|
-| Add notivisa-drafts indexes (2) | ⚠ PENDING | Insert 4 objects before line 673 |
-| Add notivisa-queue indexes (2) | ⚠ PENDING | Insert 4 objects before line 673 |
-| Validate syntax | ✓ DONE | firestore.indexes.json is valid JSON |
-| Run `firebase deploy --only firestore:indexes` | ⚠ PENDING | After edits, run command |
+| Item                                           | Status    | Action                               |
+| ---------------------------------------------- | --------- | ------------------------------------ |
+| Add notivisa-drafts indexes (2)                | ⚠ PENDING | Insert 4 objects before line 673     |
+| Add notivisa-queue indexes (2)                 | ⚠ PENDING | Insert 4 objects before line 673     |
+| Validate syntax                                | ✓ DONE    | firestore.indexes.json is valid JSON |
+| Run `firebase deploy --only firestore:indexes` | ⚠ PENDING | After edits, run command             |
 
 ### Firebase Deployment Commands
 
@@ -239,11 +240,13 @@ firebase firestore:indexes --project hmatologia2
 ## 5. Phase 8 Blocking Dependencies
 
 **Current Situation:**
+
 - ✓ NOTIVISA Firestore rules ready (`.claude/rules/notivisa-firestore-rules.md`)
 - ✓ Patient portal indexes 100% present
 - ✗ **NOTIVISA indexes 60% missing** — **DEPLOY BLOCKER**
 
 **To unblock Phase 8:**
+
 1. Add 4 missing NOTIVISA index definitions (see § 1)
 2. Run `firebase deploy --only firestore:indexes`
 3. Wait for build completion (monitor in Firebase Console)
@@ -253,11 +256,11 @@ firebase firestore:indexes --project hmatologia2
 
 ## 6. Summary
 
-| Category | Finding |
-|----------|---------|
-| **Patient Portal** | ✓ ALL INDEXES PRESENT |
-| **Critical Path** | ✓ 56/67 modules covered |
-| **NOTIVISA** | ✗ 1/5 indexes (60% missing) |
+| Category              | Finding                                |
+| --------------------- | -------------------------------------- |
+| **Patient Portal**    | ✓ ALL INDEXES PRESENT                  |
+| **Critical Path**     | ✓ 56/67 modules covered                |
+| **NOTIVISA**          | ✗ 1/5 indexes (60% missing)            |
 | **Ready for Deploy?** | ⚠ **NO — awaiting NOTIVISA additions** |
 
 **Next Step:** Add 4 NOTIVISA index definitions, merge to main, then deploy.

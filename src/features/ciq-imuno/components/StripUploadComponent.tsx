@@ -145,7 +145,7 @@ export const StripUploadComponent: React.FC<StripUploadProps> = ({
               }
             },
             'image/jpeg',
-            0.95
+            0.95,
           );
         };
         img.src = e.target?.result as string;
@@ -219,9 +219,7 @@ export const StripUploadComponent: React.FC<StripUploadProps> = ({
         setUploadProgress(0);
       }, 500);
     } catch (err) {
-      setError(
-        `Classification failed: ${err instanceof Error ? err.message : 'Unknown error'}`
-      );
+      setError(`Classification failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
       setIsClassifying(false);
     }
   };
@@ -271,9 +269,7 @@ export const StripUploadComponent: React.FC<StripUploadProps> = ({
                 />
               </svg>
               <p className="text-lg font-medium">Upload {testKit} Test Strip</p>
-              <p className="text-sm text-gray-500 mt-1">
-                JPEG or PNG, max 5MB
-              </p>
+              <p className="text-sm text-gray-500 mt-1">JPEG or PNG, max 5MB</p>
             </div>
 
             <div className="flex gap-3 justify-center flex-wrap">
@@ -325,11 +321,7 @@ export const StripUploadComponent: React.FC<StripUploadProps> = ({
         /* Image preview */
         <div className="space-y-4">
           <div className="relative bg-gray-900 rounded-lg overflow-hidden aspect-video">
-            <img
-              src={preview}
-              alt="Preview"
-              className="w-full h-full object-contain"
-            />
+            <img src={preview} alt="Preview" className="w-full h-full object-contain" />
           </div>
 
           {/* Metadata */}

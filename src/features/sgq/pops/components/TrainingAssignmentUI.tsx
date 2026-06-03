@@ -30,9 +30,10 @@ export default function TrainingAssignmentUI({
     );
   }
 
-  const isValid = trainingStatus?.completed && trainingStatus?.validoAte
-    ? new Date(trainingStatus.validoAte).getTime() > new Date().getTime()
-    : false;
+  const isValid =
+    trainingStatus?.completed && trainingStatus?.validoAte
+      ? new Date(trainingStatus.validoAte).getTime() > new Date().getTime()
+      : false;
 
   return (
     <div className="space-y-4">

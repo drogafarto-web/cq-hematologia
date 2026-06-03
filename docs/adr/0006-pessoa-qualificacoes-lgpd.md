@@ -8,6 +8,7 @@
 ## Problem
 
 **V-002, V-005:** Pessoa/Member sem:
+
 - `cpfHash` (LGPD)
 - `cargo` estruturado
 - `conselhoProfissional` (CRBM, CRF, CRM, CRBio)
@@ -33,17 +34,21 @@ Consequence: Não dá pra validar habilitação (quem pode rodar hemato? só com
 ## Implementation
 
 ### Types ✓
+
 - User, Member, Qualificacao criados
 
 ### Cloud Functions
+
 - `criarQualificacao()` — CF RT-only
 - `isOperadorQualificadoPara()` — validator
 
 ### Firestore Rules
+
 - Member.responsavelTecnico: única por lab
 - Qualificacao: HMAC assinado (ADR 0005)
 
 ### Backfill
+
 - Hashed CPF (SHA-256) dos membros existentes
 - Populate cargo from existing data
 - Migrar treinos de educacaoContinuada → qualificacoes

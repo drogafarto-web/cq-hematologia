@@ -17,6 +17,7 @@ v1.4 roadmap inclui **Phase 11 — IA Foundation: Strip OCR Classification Prep*
 **Questão técnica:** v1.4 usa Google Gemini 2.5 Flash (baseline) ou investe em fine-tuned model desde o início?
 
 **Restrições:**
+
 - v1.4 timeline é 22 semanas (firm deadline: 2026-09-30 para auditoria 2026-10-15).
 - Fine-tuning requer ~4-6 semanas de dataset curation + treinamento + validação clínica.
 - Gemini 2.5 Flash é production-ready; latência <3s é factível.
@@ -27,11 +28,13 @@ v1.4 roadmap inclui **Phase 11 — IA Foundation: Strip OCR Classification Prep*
 Dois caminhos divergem:
 
 ### Path A — Fine-tuned model v1.4 (agora)
+
 - **Pro:** Proprietário, accuracy otimizado para Riopomba, não depende API Google.
 - **Con:** 6+ semanas de investimento → Phase 11 é bloqueado até Week 12 → IA dataset coleta atrasa → v1.5 perde momentum.
 - **Risk:** Fine-tuning falha (accuracy <85%) → rollback caro; pipeline criado é tech debt.
 
 ### Path B — Gemini Vision API v1.4 (baseline) + fine-tuned v1.5
+
 - **Pro:** Gemini é production-ready; Phase 11 unblocked Week 11 → 500 imagens coletadas em v1.4 → v1.5 começa com dataset maduro. Custo baixo v1.4, payoff óbvio v1.5.
 - **Con:** Depende API Google (latency, rate limits, pricing). Accuracy baseline ~85% (Gemini generic vision); margem pra melhora.
 
@@ -44,10 +47,11 @@ Dois caminhos divergem:
 ### 1. Strip Classification via Gemini Vision
 
 **Prompt strategy:**
+
 ```
-Você é especialista em testes rápidos de imunodiagnóstico. Analise a imagem de um 
-strip de teste rápido [tipo: HIV/Dengue/HCG/Sífilis/COVID] e responda APENAS com um 
-JSON: 
+Você é especialista em testes rápidos de imunodiagnóstico. Analise a imagem de um
+strip de teste rápido [tipo: HIV/Dengue/HCG/Sífilis/COVID] e responda APENAS com um
+JSON:
 {
   "classification": "Positive" | "Negative" | "Invalid" | "Grey-Zone",
   "confidence": 0.0 to 1.0,
@@ -70,6 +74,7 @@ Não invente; se você não tem confiança alta (>0.8), responda confidence=0.XX
 ### 2. Confidence Threshold + Manual Fallback
 
 Classification flow:
+
 ```
 Image → Gemini API → confidence check
   ├─ confidence ≥ 0.85 → auto-populate result + audit log (PASS)
@@ -91,6 +96,7 @@ Image → Gemini API → confidence check
 ### 4. IA Performance Dashboard (v1.4 Phase 11)
 
 Monitor Gemini accuracy in real-time:
+
 - **Confusion matrix:** Gemini prediction vs RT manual verdict (TP, FP, TN, FN).
 - **Accuracy % by kit type** (HIV, Dengue, etc.).
 - **Confidence distribution histogram** (shows if Gemini is well-calibrated).
@@ -102,6 +108,7 @@ Expected v1.4 baseline: **~85% accuracy** (Gemini 2.5 Flash generic vision on ra
 ### 5. Fine-Tuning Transition (v1.5 Planning)
 
 At v1.5 kickoff (Week 1 nov/2026):
+
 - **Dataset ready:** 1000+ images, labeled, stratified by kit type.
 - **Fine-tuning plan:** 3–4 weeks engineering + 2 weeks validation (clinical + statistical).
 - **Model options:**
@@ -116,6 +123,7 @@ At v1.5 kickoff (Week 1 nov/2026):
 Train custom vision model on Riopomba's dataset + clinical validation in parallel.
 
 **Rejeitada porque:**
+
 - 6–8 weeks investment in v1.4 stalls IA phase entirely. Dataset collection gets pushed to v1.5 → no baseline accuracy comparative.
 - Clinical validation (ANVISA may require) is separate 4-week gate; adds risk.
 - Cost: $15-30k for fine-tuning infrastructure + 1 FTE research engineer = ROI unclear until v1.5 market traction.
@@ -125,6 +133,7 @@ Train custom vision model on Riopomba's dataset + clinical validation in paralle
 v1.4 focuses pure compliance; IA is blue-sky v1.5 project.
 
 **Rejeitada porque:**
+
 - Leaves competitive gap open (competitors will ship something before v1.5 launch).
 - v1.4 dataset collection never starts → v1.5 doesn't have the 500 images needed for credible fine-tuning.
 - Market messaging: "upcoming IA in v1.5" is weaker than "IA alpha collecting data now".

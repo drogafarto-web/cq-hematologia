@@ -50,7 +50,8 @@ export const ec_gerarCertificado = onCall<unknown, Promise<GerarCertificadoResul
     // Lê avaliacao + execucao + colaborador + treinamento
     const avRef = ecCollection(db, labId, 'avaliacoesCompetencia').doc(avaliacaoCompetenciaId);
     const avSnap = await avRef.get();
-    if (!avSnap.exists) throw new HttpsError('not-found', 'Avaliação de competência não encontrada.');
+    if (!avSnap.exists)
+      throw new HttpsError('not-found', 'Avaliação de competência não encontrada.');
     const av = avSnap.data()!;
     if (av['resultado'] !== 'aprovado') {
       throw new HttpsError(
@@ -59,7 +60,9 @@ export const ec_gerarCertificado = onCall<unknown, Promise<GerarCertificadoResul
       );
     }
 
-    const execSnap = await ecCollection(db, labId, 'execucoes').doc(av['execucaoId'] as string).get();
+    const execSnap = await ecCollection(db, labId, 'execucoes')
+      .doc(av['execucaoId'] as string)
+      .get();
     const exec = execSnap.data()!;
     const colaboradorSnap = await ecCollection(db, labId, 'colaboradores')
       .doc(av['colaboradorId'] as string)
@@ -92,8 +95,9 @@ export const ec_gerarCertificado = onCall<unknown, Promise<GerarCertificadoResul
       const labSnap = await db.doc(`labs/${labId}`).get();
       nomeDoLab = (labSnap.data()?.['name'] as string | undefined) ?? labId;
     }
-    const textoRodape = (config?.['textoRodape'] as string | undefined)
-      ?? 'Este certificado comprova a participação e aprovação no treinamento indicado, conforme RDC 978/2025 e ISO 15189:2022.';
+    const textoRodape =
+      (config?.['textoRodape'] as string | undefined) ??
+      'Este certificado comprova a participação e aprovação no treinamento indicado, conforme RDC 978/2025 e ISO 15189:2022.';
 
     await ensureEcLabRoot(db, labId);
 
@@ -195,24 +199,22 @@ async function buildCertificadoPdf(p: PdfParams): Promise<Buffer> {
     doc.fontSize(14).fillColor('#334155');
     doc.text('Certificamos que', { align: 'center' });
     doc.moveDown(0.3);
-    doc
-      .fontSize(28)
-      .fillColor('#065f46')
-      .text(p.nomeColaborador, { align: 'center' });
+    doc.fontSize(28).fillColor('#065f46').text(p.nomeColaborador, { align: 'center' });
     doc.moveDown(0.3);
     doc.fontSize(12).fillColor('#64748b').text(`(${p.cargoColaborador})`, { align: 'center' });
     doc.moveDown(0.8);
     doc.fontSize(14).fillColor('#334155');
     doc.text('concluiu e foi aprovado no treinamento', { align: 'center' });
     doc.moveDown(0.3);
-    doc
-      .fontSize(20)
-      .fillColor('#0f172a')
-      .text(p.tituloTreinamento, { align: 'center' });
+    doc.fontSize(20).fillColor('#0f172a').text(p.tituloTreinamento, { align: 'center' });
     doc.moveDown(0.5);
     doc.fontSize(12).fillColor('#64748b');
     const dataStr = p.dataAplicacao
-      ? p.dataAplicacao.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' })
+      ? p.dataAplicacao.toLocaleDateString('pt-BR', {
+          day: '2-digit',
+          month: 'long',
+          year: 'numeric',
+        })
       : '—';
     doc.text(`Carga horária: ${p.cargaHoraria}h · Data: ${dataStr}`, { align: 'center' });
 

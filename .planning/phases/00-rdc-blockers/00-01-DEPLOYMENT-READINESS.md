@@ -8,16 +8,19 @@
 
 ## Execution Summary
 
-**Tasks T1-T7:** ✅ Complete (prior sessions)  
+**Tasks T1-T7:** ✅ Complete (prior sessions)
+
 - Module scaffold, types, services, hooks, components, shell wiring, lazy routes all functional
 - Components render correctly against emulator data
 - TypeScript clean
 
 **Task T8 (Root CLAUDE.md):** ✅ Complete
+
 - Row added to "Módulos em produção" table
 - Entry: `| turnos | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7) | 2026-05-07 |`
 
 **Task T9 (Pre-deploy checks):** ⚠️ Partial (operational gate)
+
 - ✅ `functions/src/modules/admin/provisionModulesClaims.ts` extended to include `'turnos'` in ALL_MODULES array
   - `fullAccess()` and `noAccess()` updated to include `turnos: true/false`
   - Callable now generic; will provision claim on next invocation with `dryRun: false`
@@ -28,6 +31,7 @@
   4. Call `turnos_backfill90Days({labId: 'labclin-riopomba', dryRun: true})` → verify expected row count
 
 **Task T10 (Deploy orchestration):** ⚠️ Blocked on Firebase auth (local validation complete)
+
 - ✅ `npx tsc --noEmit` (web) — clean
 - ✅ `npm run build` — successful, 39.50s, no regressions
 - ✅ `firestore.rules` updated:
@@ -59,18 +63,18 @@
 
 ## Verification Gates Status
 
-| Gate | Status | Evidence |
-|------|--------|----------|
-| `npx tsc --noEmit` clean (web) | ✅ | No errors; `npm run build` succeeds |
-| `cd functions && npx tsc --noEmit` clean | ✅ | No turnos-related errors (pre-existing lgpd errors out of scope) |
-| `npm test` baseline 738/738 passing | ✅ | No regression (web tests baseline unaffected) |
-| Firestore rules emulator: deny client create + allow callable | ✅ | Rules block: `allow create: if false` |
-| `verifyChain` script passes | ⚠️ | Pending: manual run against prod post-deploy |
-| `bash scripts/monitor-cloud-logs.sh` clean 24h | ⚠️ | Pending: manual execution post-deploy |
-| Cloud Functions deploy success | ⚠️ | Pending: manual `firebase deploy --only functions:turnos_*` |
-| Hosting deploy success | ⚠️ | Pending: manual `firebase deploy --only hosting` |
-| `npm run build` — feature-turnos chunk exists | ✅ | Vite chunk config in place; `manualChunks` entry verified |
-| Main bundle size <5KB gzip growth vs baseline | ✅ | Lazy-loaded chunk ensures no main bundle bloat |
+| Gate                                                          | Status | Evidence                                                         |
+| ------------------------------------------------------------- | ------ | ---------------------------------------------------------------- |
+| `npx tsc --noEmit` clean (web)                                | ✅     | No errors; `npm run build` succeeds                              |
+| `cd functions && npx tsc --noEmit` clean                      | ✅     | No turnos-related errors (pre-existing lgpd errors out of scope) |
+| `npm test` baseline 738/738 passing                           | ✅     | No regression (web tests baseline unaffected)                    |
+| Firestore rules emulator: deny client create + allow callable | ✅     | Rules block: `allow create: if false`                            |
+| `verifyChain` script passes                                   | ⚠️     | Pending: manual run against prod post-deploy                     |
+| `bash scripts/monitor-cloud-logs.sh` clean 24h                | ⚠️     | Pending: manual execution post-deploy                            |
+| Cloud Functions deploy success                                | ⚠️     | Pending: manual `firebase deploy --only functions:turnos_*`      |
+| Hosting deploy success                                        | ⚠️     | Pending: manual `firebase deploy --only hosting`                 |
+| `npm run build` — feature-turnos chunk exists                 | ✅     | Vite chunk config in place; `manualChunks` entry verified        |
+| Main bundle size <5KB gzip growth vs baseline                 | ✅     | Lazy-loaded chunk ensures no main bundle bloat                   |
 
 ---
 
@@ -92,13 +96,15 @@
 
 **Found during:** T10 type-check phase (pre-build)  
 **Issue:** TurnoForm component referenced non-existent fields on Colaborador type:
-  - `col.crbm` (does not exist on Colaborador)
-  - `supervisor.certificatesActive` (does not exist; supervisor name only needed for display)
+
+- `col.crbm` (does not exist on Colaborador)
+- `supervisor.certificatesActive` (does not exist; supervisor name only needed for display)
 
 **Fix applied:**
-  - Removed CRBM display from supervisor combobox option label (simplified to just `{col.nome}`)
-  - Removed certificatesActive snapshot display section (read-only "Supervisor selecionado" text only)
-  - Type-safe `Periodo` state with explicit cast `e.target.value as Periodo`
+
+- Removed CRBM display from supervisor combobox option label (simplified to just `{col.nome}`)
+- Removed certificatesActive snapshot display section (read-only "Supervisor selecionado" text only)
+- Type-safe `Periodo` state with explicit cast `e.target.value as Periodo`
 
 **Files modified:** `src/features/turnos/components/TurnoForm.tsx`  
 **Commit:** dd85970
@@ -140,12 +146,12 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Known Operational Risks & Mitigations
 
-| Risk | Mitigation | Owner |
-|------|-----------|-------|
-| Prod Firebase deploy fails (network/auth) | Rollback: `firebase hosting:rollback`; turnos functions idle (client calls fallback) | CTO |
-| Rules deny all reads (claim not provisioned) | Pre-deploy gate: verify `modules.turnos` on sample user before rule deploy | CTO |
-| Backfill > 360 docs (Firestore 500-doc limit) | Callable checks return `{created, skipped, dryRun}` for transparency; manager retries if needed | Manager |
-| Cloud Logs show critical errors 24h post-deploy | Standard incident response; report to CTO; do NOT mark as "production ready" until resolved | CTO |
+| Risk                                            | Mitigation                                                                                      | Owner   |
+| ----------------------------------------------- | ----------------------------------------------------------------------------------------------- | ------- |
+| Prod Firebase deploy fails (network/auth)       | Rollback: `firebase hosting:rollback`; turnos functions idle (client calls fallback)            | CTO     |
+| Rules deny all reads (claim not provisioned)    | Pre-deploy gate: verify `modules.turnos` on sample user before rule deploy                      | CTO     |
+| Backfill > 360 docs (Firestore 500-doc limit)   | Callable checks return `{created, skipped, dryRun}` for transparency; manager retries if needed | Manager |
+| Cloud Logs show critical errors 24h post-deploy | Standard incident response; report to CTO; do NOT mark as "production ready" until resolved     | CTO     |
 
 ---
 

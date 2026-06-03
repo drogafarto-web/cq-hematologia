@@ -109,13 +109,7 @@ export const risks_alertRiskReviews = onSchedule(
           ? `Revisão de risco «${codigo}» vencida (${prox.toDate().toLocaleDateString('pt-BR')}).`
           : `Revisão de risco «${codigo}» prevista em ${prox.toDate().toLocaleDateString('pt-BR')} (≤ ${WINDOW_DAYS} dias).`;
 
-        await upsertKpiAlert(
-          db,
-          labId,
-          `risk_review_${riskDoc.id}`,
-          severidade,
-          mensagem,
-        );
+        await upsertKpiAlert(db, labId, `risk_review_${riskDoc.id}`, severidade, mensagem);
         alertsWritten += 1;
       }
     }

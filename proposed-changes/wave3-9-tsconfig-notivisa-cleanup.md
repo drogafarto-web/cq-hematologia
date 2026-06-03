@@ -24,6 +24,7 @@ Legacy NOTIVISA code in `functions/src/modules/notivisa/` contains 149 pre-exist
 ### 1. Retain tsconfig Exclusion (Already in Place)
 
 `functions/tsconfig.json` already excludes notivisa (line 23):
+
 ```json
 "exclude": [
   "src/modules/notivisa/**",  // Legacy code, 149 TS errors
@@ -36,6 +37,7 @@ Legacy NOTIVISA code in `functions/src/modules/notivisa/` contains 149 pre-exist
 ### 2. Enhanced Documentation & Comment
 
 Updated `functions/tsconfig.json` with inline comment explaining:
+
 - What: Legacy NOTIVISA code with 149 TS errors
 - Why: Wave 2–3 refactored via feature flag; legacy coexists but unused
 - When: Hard delete planned Phase 6 (2026-07)
@@ -44,6 +46,7 @@ Updated `functions/tsconfig.json` with inline comment explaining:
 ### 3. Cleanup Roadmap Document
 
 Created `docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md`:
+
 - **Phase 4–5 (May–Jun):** Migrate all labs from legacy to Wave 2-10 callables
 - **Phase 6 (July):** Hard delete legacy code + remove tsconfig exclusion
 - **Rollback plan:** If issues arise, revert deletion + re-enable exclusion
@@ -53,6 +56,7 @@ Created `docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md`:
 ### 4. CI/CD Notes
 
 Created `docs/DEPLOYMENT_CI_NOTES.md`:
+
 - **Build pipeline:** type-check → build → pre-deploy secret check → deploy sequence
 - **notivisa exclusion lifecycle:** Current state + Phase 6 transition + rollback steps
 - **Known issues:** What to do if notivisa exclusion is lost + other common failures
@@ -91,6 +95,7 @@ npx tsc --noEmit 2>&1 | grep -E 'labApoio|ocr-quality'
 ### Phase 6 Transition
 
 When legacy code is deleted:
+
 1. Remove `"src/modules/notivisa/**"` from tsconfig exclude
 2. Delete directory: `functions/src/modules/notivisa/`
 3. Run `npx tsc --noEmit` — must be clean
@@ -132,6 +137,7 @@ If new TS errors appear after deletion, investigate other modules (not a regress
 ## Testing Performed
 
 ### Type-Check
+
 ```bash
 npx tsc --noEmit
 # ✓ Clean (2 pre-existing labApoio + ocr-quality expected)
@@ -139,6 +145,7 @@ npx tsc --noEmit
 ```
 
 ### Build
+
 ```bash
 npm run build
 # ✓ Web bundle succeeds
@@ -147,6 +154,7 @@ npm run build -w functions
 ```
 
 ### Exclusion Validation
+
 ```bash
 npx tsc --noEmit 2>&1 | grep -c notivisa
 # ✓ Output: 0
@@ -193,4 +201,3 @@ npx tsc --noEmit 2>&1 | grep -c notivisa
 - [`docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md`](../docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md) — full timeline + testing checklist
 - [`docs/DEPLOYMENT_CI_NOTES.md`](../docs/DEPLOYMENT_CI_NOTES.md) — CI/CD pipeline documentation
 - [`.claude/rules/deploy-protocol.md`](./.claude/rules/deploy-protocol.md) — pre-flight checks + secret management
-

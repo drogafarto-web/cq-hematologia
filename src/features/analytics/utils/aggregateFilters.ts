@@ -20,9 +20,9 @@
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 export type DashboardFilterability =
-  | 'full'       // Dashboard can filter by all selected dimensions
-  | 'partial'    // Dashboard can filter by some (e.g. equipment but not operator)
-  | 'none';      // Dashboard is based on pre-aggregated data; filter cannot be applied
+  | 'full' // Dashboard can filter by all selected dimensions
+  | 'partial' // Dashboard can filter by some (e.g. equipment but not operator)
+  | 'none'; // Dashboard is based on pre-aggregated data; filter cannot be applied
 
 export interface FilterCapability {
   filterability: DashboardFilterability;

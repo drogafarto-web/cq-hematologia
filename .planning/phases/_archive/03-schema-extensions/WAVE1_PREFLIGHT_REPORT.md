@@ -12,17 +12,17 @@
 
 Phase 3 Wave 1 artifacts (03-01 Schema + 03-03 Helpers) are **production-ready for staging deployment**. All critical checks passed. One remediation was applied (tsconfig.json exclusion of Wave 2 modules) to isolate incomplete code from the build.
 
-| Check | Result | Details |
-|-------|--------|---------|
-| TypeScript compilation | ✅ PASS | 0 errors in src/ + functions/ |
-| Web build | ✅ PASS | 31.93s, all chunks generated |
-| Functions build | ✅ PASS | 78+ functions compile cleanly |
-| Production tests | ✅ PASS | 1130/1130 passing |
-| E2E schema tests | ⚠️ PARTIAL | 4 failures (non-blocking; test infrastructure) |
-| Firestore rules | ✅ PASS | No regressions, 100+ collections audited |
-| Secrets status | ⚠️ PENDING | Requires pre-deploy gate (see below) |
-| Bundle size | ✅ PASS | No performance regression |
-| Security audit | ✅ PASS | No hardcoded secrets or overly permissive rules |
+| Check                  | Result     | Details                                         |
+| ---------------------- | ---------- | ----------------------------------------------- |
+| TypeScript compilation | ✅ PASS    | 0 errors in src/ + functions/                   |
+| Web build              | ✅ PASS    | 31.93s, all chunks generated                    |
+| Functions build        | ✅ PASS    | 78+ functions compile cleanly                   |
+| Production tests       | ✅ PASS    | 1130/1130 passing                               |
+| E2E schema tests       | ⚠️ PARTIAL | 4 failures (non-blocking; test infrastructure)  |
+| Firestore rules        | ✅ PASS    | No regressions, 100+ collections audited        |
+| Secrets status         | ⚠️ PENDING | Requires pre-deploy gate (see below)            |
+| Bundle size            | ✅ PASS    | No performance regression                       |
+| Security audit         | ✅ PASS    | No hardcoded secrets or overly permissive rules |
 
 **Recommendation:** ✅ **Deploy to staging**
 
@@ -33,6 +33,7 @@ Phase 3 Wave 1 artifacts (03-01 Schema + 03-03 Helpers) are **production-ready f
 ### 1. TypeScript Compilation
 
 **Command executed:**
+
 ```bash
 npm run typecheck                    # src/
 cd functions && npm run build         # functions/src
@@ -41,6 +42,7 @@ cd functions && npm run build         # functions/src
 **Result:** ✅ **PASS — 0 errors**
 
 **Before remediation:**
+
 - Error: `functions/src/modules/criticos/index.ts:103` — `onSchedule` signature mismatch
 - Error: `functions/src/modules/notivisa/index.ts:83` — Invalid `onSchedule` call
 - Error: `functions/src/modules/ia-strip/index.ts:162` — `onSchedule` not found
@@ -48,6 +50,7 @@ cd functions && npm run build         # functions/src
 
 **Remediation applied:**
 Modified `functions/tsconfig.json` to exclude Wave 2 module directories:
+
 ```json
 "exclude": [
   "src/modules/criticos/**",
@@ -60,6 +63,7 @@ Modified `functions/tsconfig.json` to exclude Wave 2 module directories:
 **Result after remediation:** ✅ 0 errors
 
 **Justification:**
+
 - Wave 2 task 03-04 will implement these modules fully (per phase plan)
 - They are not exported from `functions/src/index.ts` yet, so not part of deployment
 - Excluding them from build prevents TypeScript errors while preserving development structure
@@ -70,11 +74,13 @@ Modified `functions/tsconfig.json` to exclude Wave 2 module directories:
 ### 2. Vite Build
 
 **Command executed:**
+
 ```bash
 npm run build
 ```
 
 **Output:**
+
 ```
 ✓ built in 31.93s
 
@@ -91,6 +97,7 @@ files generated
 **Result:** ✅ **PASS**
 
 **Artifacts:**
+
 - ✅ dist/ directory created with all bundles
 - ✅ Service Worker generated (registerSW.js, sw.js)
 - ✅ Source maps generated (debug info uploaded to Sentry)
@@ -104,6 +111,7 @@ files generated
 ### 3. Test Suite
 
 **Command executed:**
+
 ```bash
 npm run test:unit
 ```
@@ -119,12 +127,12 @@ Duration    41.08s
 
 **Breakdown:**
 
-| Category | Pass | Fail | Skipped | Status |
-|----------|------|------|---------|--------|
-| Production unit tests | 1130 | 0 | — | ✅ 100% |
-| Production integration tests | — | — | — | ✅ All pass (no regressions) |
-| E2E schema tests (Phase 3 infrastructure) | 58 | 4 | 16 | ⚠️ Non-blocking |
-| **Total** | **1130** | **4** | **16** | **✅ Safe for deploy** |
+| Category                                  | Pass     | Fail  | Skipped | Status                       |
+| ----------------------------------------- | -------- | ----- | ------- | ---------------------------- |
+| Production unit tests                     | 1130     | 0     | —       | ✅ 100%                      |
+| Production integration tests              | —        | —     | —       | ✅ All pass (no regressions) |
+| E2E schema tests (Phase 3 infrastructure) | 58       | 4     | 16      | ⚠️ Non-blocking              |
+| **Total**                                 | **1130** | **4** | **16**  | **✅ Safe for deploy**       |
 
 **Failed tests detail:**
 
@@ -141,6 +149,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 **Impact on deployment:** ❌ **ZERO impact**
 
 **Reason:**
+
 - These are test infrastructure files, not production code
 - Tests validate future phases (03-04, 04, 05, etc.) not Wave 1 deliverables
 - Production code (1130 tests) all passing
@@ -156,15 +165,15 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 
 **Audit checks:**
 
-| Rule | Expected | Found | Status |
-|------|----------|-------|--------|
-| Hard delete forbidden | `allow delete: if false` in regulatory collections | ✅ All found | ✅ PASS |
-| No unrestricted writes | No `allow write: if true` | ✅ None found | ✅ PASS |
-| No unrestricted reads | No `allow read: if true` | ✅ None found | ✅ PASS |
-| Server-only writes | Cloud Functions can write, client cannot | ✅ Patterns correct | ✅ PASS |
-| Audit trail immutable | Audit logs: `allow update, delete: if false` | ✅ All immutable | ✅ PASS |
-| Multi-tenant isolation | `labIdMatches(d)` enforced | ✅ Applied consistently | ✅ PASS |
-| Signature validation | `validSignature(d)` applied to critical collections | ✅ In place | ✅ PASS |
+| Rule                   | Expected                                            | Found                   | Status  |
+| ---------------------- | --------------------------------------------------- | ----------------------- | ------- |
+| Hard delete forbidden  | `allow delete: if false` in regulatory collections  | ✅ All found            | ✅ PASS |
+| No unrestricted writes | No `allow write: if true`                           | ✅ None found           | ✅ PASS |
+| No unrestricted reads  | No `allow read: if true`                            | ✅ None found           | ✅ PASS |
+| Server-only writes     | Cloud Functions can write, client cannot            | ✅ Patterns correct     | ✅ PASS |
+| Audit trail immutable  | Audit logs: `allow update, delete: if false`        | ✅ All immutable        | ✅ PASS |
+| Multi-tenant isolation | `labIdMatches(d)` enforced                          | ✅ Applied consistently | ✅ PASS |
+| Signature validation   | `validSignature(d)` applied to critical collections | ✅ In place             | ✅ PASS |
 
 **Specific validations:**
 
@@ -173,11 +182,12 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 ✅ Auth checks present on all public collections  
 ✅ Module claims checked for gated access  
 ✅ Server function context validated via `isServer()` helper  
-✅ Chain hash format validated: `hash.size() == 64`  
+✅ Chain hash format validated: `hash.size() == 64`
 
 **Result:** ✅ **PASS — No regressions detected**
 
 **Compliance:**
+
 - ADR-0005 (Chain hash validation): ✅ Enforced
 - ADR-0006 (Multi-tenant isolation): ✅ Enforced
 - RN-06 (Soft delete only): ✅ Enforced
@@ -190,6 +200,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 **Status:** ✅ **READY**
 
 **Verification:**
+
 - ✅ `functions/src/index.ts` compiles cleanly
 - ✅ All 78+ exported functions are accounted for
 - ✅ Region set correctly: `southamerica-east1` (line 16: `setGlobalOptions({ region: 'southamerica-east1' })`)
@@ -219,6 +230,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 **Status:** ✅ **READY**
 
 **Indexes added in 03-01:**
+
 1. ✅ `notivisa-outbox` — (labId, status, createdAt) composite
 2. ✅ `criticos-escalacoes` — (labId, createdAt) composite
 3. ✅ `imuno-ias-dev` — (labId, model_version, createdAt) composite
@@ -226,6 +238,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 5. ✅ `laudos-draft` — (labId, locked_until_ts) composite
 
 **Validation:**
+
 - ✅ Valid JSON syntax
 - ✅ No duplicate indexes
 - ✅ Field ordering matches query patterns
@@ -233,6 +246,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
 - ✅ Expected build time: <5 minutes
 
 **Indexes per collection:**
+
 ```json
 {
   "indexes": [
@@ -245,7 +259,7 @@ All 4 failures are in `src/__tests__/e2e/phase3-schema.e2e.test.ts` (test infras
         { "fieldPath": "status", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
-    },
+    }
     // ... (4 more new indexes)
   ]
 }
@@ -279,6 +293,7 @@ bash scripts/preflight-secrets-check.sh
 ### 8. Security Scan: Hardcoded Credentials
 
 **Scan executed:**
+
 ```bash
 grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
   --include="*.ts" --include="*.tsx" \
@@ -288,6 +303,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 **Result:** ✅ **PASS — No hardcoded credentials**
 
 **Details:**
+
 - ✅ 0 PENDING_SET values in source code
 - ✅ 0 API keys hardcoded
 - ✅ 0 secrets in code
@@ -301,10 +317,11 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ### 9. Bundle Size & Performance
 
 **Build artifacts:**
+
 - Main bundle: Generated (exact size not measured; not critical for schema-only deploy)
 - Code splitting: ✅ Active (18+ feature chunks)
 - PWA precache: 9.8 MB (37 entries)
-- Service Worker: ✅ Generated (dist/sw.js, dist/workbox-*.js)
+- Service Worker: ✅ Generated (dist/sw.js, dist/workbox-\*.js)
 
 **Expected impact on Web Vitals:**
 | Metric | Previous | Expected | Change |
@@ -320,12 +337,14 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ### 10. Compliance & Regulatory
 
 **RDC 978/2025 — Article 5.3 (Audit Trail):**
+
 - ✅ All writes logged via `auditLogs` subcollection
 - ✅ Chain hash validation enforced server-side
 - ✅ Immutable audit records (`allow update, delete: if false`)
 - ✅ Operand ID + timestamp + hash on all critical writes
 
 **DICQ 4.3 — Data Quality:**
+
 - ✅ Multi-tenant isolation enforced (labId in all paths)
 - ✅ Soft delete only (RN-06)
 - ✅ Signatures present (HMAC-SHA256)
@@ -352,6 +371,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 **File:** `functions/tsconfig.json`
 
 **Change:**
+
 ```json
 "exclude": [
   // ... existing excludes ...
@@ -363,6 +383,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ```
 
 **Rationale:**
+
 1. These modules are Wave 2 deliverables (03-04 task)
 2. They are NOT exported from `functions/src/index.ts` yet
 3. Excluding them prevents build errors without affecting deployment
@@ -391,7 +412,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
    - Confirm 03-03 (helpers) ✅ complete
    - Confirm 03-02 (rules) is in progress
    - Confirm 03-04 (functions) queued for Wave 2
-   
+
    **Owner:** Stream A / Phase owner  
    **Time:** 5 minutes
 
@@ -399,7 +420,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
    - Reserve time for `monitor-cloud-logs.sh` (or `.ps1`)
    - Review `CLOUD_LOGS_MONITORING_GUIDE.md`
    - Set up alerts for function timeouts
-   
+
    **Owner:** DevOps  
    **Time:** 15 minutes
 
@@ -409,7 +430,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
    - New collections: notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft, portal-configuracao
    - New indexes: 5 composites
    - New helpers: notivisa, SMS, IA, laudo formatters
-   
+
    **Owner:** CTO / Stream A lead  
    **Time:** 10 minutes
 
@@ -421,11 +442,12 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 
 **Verified by:** Automated checklist + manual audit  
 **Date:** 2026-05-07 09:50 UTC  
-**Checks:** 10 categories, 30+ individual tests  
+**Checks:** 10 categories, 30+ individual tests
 
 ### Result: ✅ **GO FOR STAGING DEPLOY**
 
 **Artifacts ready:**
+
 - ✅ TypeScript: 0 errors
 - ✅ Web build: Success
 - ✅ Functions build: Success

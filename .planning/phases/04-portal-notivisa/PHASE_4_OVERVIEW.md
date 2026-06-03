@@ -1,10 +1,10 @@
 ---
-phase: "4"
-milestone: "v1.4"
-title: "Phase 4 — Patient Portal + NOTIVISA Integration (Wave 2)"
-date_created: "2026-05-07"
-date_updated: "2026-05-07"
-status: "planning-complete"
+phase: '4'
+milestone: 'v1.4'
+title: 'Phase 4 — Patient Portal + NOTIVISA Integration (Wave 2)'
+date_created: '2026-05-07'
+date_updated: '2026-05-07'
+status: 'planning-complete'
 ---
 
 # Phase 4 — Patient Portal + NOTIVISA Integration
@@ -25,6 +25,7 @@ Phase 4 delivers two major regulatory features:
 2. **NOTIVISA Integration** (REQ-410) — Regulatory queue processor + sandbox API integration for result notifications (RDC 978 Art. 6º §1). Async retry logic, audit trail, compliance-ready for v1.5 production transition.
 
 **Key metrics:**
+
 - Scope: 2 major features, 4 interrelated tasks, 1 phase
 - Effort: 2.5 weeks, ~3–4 FTE (Stream A backend + Stream B frontend + QA)
 - Compliance: RDC 978 Arts. 6º §1, 167, 204 · DICQ 4.4 (audit) · LGPD Arts. 9, 18
@@ -42,6 +43,7 @@ Phase 4 delivers two major regulatory features:
 **Status:** Ready for execution
 
 **Deliverables:**
+
 - Email-link authentication (token validation, session management)
 - Patient laudo list view (filtered by CPF, published only)
 - Laudo detail page (full results display, read-only)
@@ -51,6 +53,7 @@ Phase 4 delivers two major regulatory features:
 - 15+ unit tests
 
 **Scope highlights:**
+
 - One-time email link (7-day expiry, single-use)
 - Session tokens (JWT, 30-day expiry, stored in localStorage)
 - No SSO (v1.4 DL-3 decision, LGPD compliance via audit trail)
@@ -58,6 +61,7 @@ Phase 4 delivers two major regulatory features:
 - Patient data isolation (CPF-based filtering, server-side validation)
 
 **Success criteria:**
+
 - Patient can access portal via email link <500ms
 - PDF download works for all laudo types
 - All patient reads logged with CPF hash in audit trail
@@ -74,6 +78,7 @@ Phase 4 delivers two major regulatory features:
 **Status:** Ready for execution
 
 **Deliverables:**
+
 - 5 core components (PortalNavbar, PortalLayout, LaudoCard, LaudoDetailPage, PortalFooter)
 - 3 page routes (PortalAuthPage, PortalLaudosPage, PortalLaudoDetailPage)
 - Dark theme design tokens (portal-specific color + typography overrides)
@@ -82,6 +87,7 @@ Phase 4 delivers two major regulatory features:
 - Storybook stories (if Storybook in use)
 
 **Scope highlights:**
+
 - Mobile-first responsive (iPhone, iPad, desktop)
 - Dark theme (dark mode only, no light mode in v1.4)
 - Lab branding injection (CSS variables for dynamic colors)
@@ -89,6 +95,7 @@ Phase 4 delivers two major regulatory features:
 - Web Vitals targets (LCP <2.0s, INP <200ms, CLS <0.05)
 
 **Success criteria:**
+
 - Passes designer review (Apple/Linear/Stripe reference, no template feel)
 - WCAG AA verified (Axe DevTools, 0 violations)
 - LCP <2.0s + INP <200ms + CLS <0.05 (Lighthouse baseline)
@@ -105,6 +112,7 @@ Phase 4 delivers two major regulatory features:
 **Status:** Ready for execution
 
 **Deliverables:**
+
 - 2 Cloud Function triggers (`onLaudoPublished` enqueue, `processNotiVisaQueue` cron processor)
 - 1 Cloud Function callable (manual re-queue for ops)
 - NOTIVISA payload generator + sandbox API client (functions/src/shared/notivisa.ts)
@@ -115,6 +123,7 @@ Phase 4 delivers two major regulatory features:
 - Operations guide (runbook for alert response, re-queue, troubleshoot)
 
 **Scope highlights:**
+
 - Regulatory queue (RDC 978 Art. 6º §1 compliance)
 - Async processing (fire-and-forget laudo publish, queue async)
 - Sandbox API integration (Portaria 204 format, ANVISA sandbox test)
@@ -123,6 +132,7 @@ Phase 4 delivers two major regulatory features:
 - Patient data security (CPF hashed in queue, plaintext only in API payload)
 
 **Success criteria:**
+
 - Events enqueued on laudo publication
 - Processor completes <10s per batch (10 events)
 - Sandbox API calls succeed (202 Accepted)
@@ -143,6 +153,7 @@ Phase 4 delivers two major regulatory features:
 **Status:** Ready for execution
 
 **Deliverables:**
+
 - 6 critical E2E flows (portal auth → laudo view → PDF download → logout + NOTIVISA queue processing)
 - Staging environment setup + data seeding script
 - Cloud Logs monitoring (alert policy, log sink, 24h tail script)
@@ -151,6 +162,7 @@ Phase 4 delivers two major regulatory features:
 - Staging sign-off report
 
 **Scope highlights:**
+
 - E2E testing (real user journeys, not unit tests)
 - Mobile responsiveness verification (real devices: iPhone, iPad, Android)
 - Accessibility testing (keyboard nav, screen reader)
@@ -159,6 +171,7 @@ Phase 4 delivers two major regulatory features:
 - Incident response runbook
 
 **Success criteria:**
+
 - All 6 E2E flows pass in staging
 - 0 console errors on portal routes
 - NOTIVISA sandbox processing verified
@@ -190,12 +203,12 @@ Phase 0 (LGPD Baseline) ──────────┘   └─→ 04-04 (Clo
 
 Phase 4 is part of **Wave 2 — Operations** (Weeks 4–8, parallel execution).
 
-| Phase | Focus | Duration | Parallel | Gate |
-|-------|-------|----------|----------|------|
-| **4** | Patient Portal + NOTIVISA | 2.5 weeks | Weeks 4–5 | Phase 3 complete ✅ |
-| **5** | Satisfação/Feedback Portal | 1.5 weeks | Week 5 | Phase 4 → UI sign-off |
-| **6** | Critical Values + SMS/Email | 2 weeks | Weeks 4–5 | Phase 3 complete ✅ |
-| **7** | Satisfação Dashboard + Trending | 1.5 weeks | Week 6 | Phase 5 + 6 complete |
+| Phase | Focus                           | Duration  | Parallel  | Gate                  |
+| ----- | ------------------------------- | --------- | --------- | --------------------- |
+| **4** | Patient Portal + NOTIVISA       | 2.5 weeks | Weeks 4–5 | Phase 3 complete ✅   |
+| **5** | Satisfação/Feedback Portal      | 1.5 weeks | Week 5    | Phase 4 → UI sign-off |
+| **6** | Critical Values + SMS/Email     | 2 weeks   | Weeks 4–5 | Phase 3 complete ✅   |
+| **7** | Satisfação Dashboard + Trending | 1.5 weeks | Week 6    | Phase 5 + 6 complete  |
 
 Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation for Phase 6 (critical value escalations that re-use NOTIVISA infrastructure).
 
@@ -203,21 +216,22 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 
 ## Compliance Mapping
 
-| Regulation | Article | Requirement | Phase 4 Delivery |
-|------------|---------|-------------|-----------------|
-| **RDC 978** | 6º §1 | NOTIVISA notification to gov | Queue + sandbox API integration |
-| **RDC 978** | 167 | Patient notification of results | Portal access + email notification |
-| **RDC 978** | 204 | Portaria 204 format compliance | Payload schema + signature validation |
-| **DICQ** | 4.3 | Data access controls | Portal RLS + Firestore Rules |
-| **DICQ** | 4.4 | Audit trail completeness | All patient reads logged |
-| **LGPD** | 9 | Sensitive data handling | CPF hashing + audit trail |
-| **LGPD** | 18 | Right of access | Patient portal mechanism |
+| Regulation  | Article | Requirement                     | Phase 4 Delivery                      |
+| ----------- | ------- | ------------------------------- | ------------------------------------- |
+| **RDC 978** | 6º §1   | NOTIVISA notification to gov    | Queue + sandbox API integration       |
+| **RDC 978** | 167     | Patient notification of results | Portal access + email notification    |
+| **RDC 978** | 204     | Portaria 204 format compliance  | Payload schema + signature validation |
+| **DICQ**    | 4.3     | Data access controls            | Portal RLS + Firestore Rules          |
+| **DICQ**    | 4.4     | Audit trail completeness        | All patient reads logged              |
+| **LGPD**    | 9       | Sensitive data handling         | CPF hashing + audit trail             |
+| **LGPD**    | 18      | Right of access                 | Patient portal mechanism              |
 
 ---
 
 ## Resource Allocation
 
 **Streams assigned:**
+
 - **Stream B (Frontend):** 04-01, 04-02 (sequential) — 1 FTE
 - **Stream A (Backend):** 04-01 callables, 04-03 (parallel) — 1.5 FTE
 - **Stream D (QA + DevOps):** 04-04 (E2E + monitoring) — 1 FTE
@@ -229,15 +243,15 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 
 ## Risk Summary
 
-| Risk | Probability | Impact | Mitigation | Owner |
-|------|-------------|--------|-----------|-------|
-| Email delivery fail (SMTP) | Medium (3/10) | High (7/10) | Test with staging, retry queue, fallback alert | Stream B |
-| Cross-patient data leak | Low (2/10) | Critical (9/10) | Server-side CPF filter + Rules, code review | Stream A |
-| NOTIVISA API key expires | Medium (3/10) | High (7/10) | Rotate quarterly, test in staging, alert on 401 | DevOps |
-| Sandbox API rejects payload | Low (2/10) | High (7/10) | Schema validation in tests, example payloads | Stream A |
-| Mobile layout breaks | Low (2/10) | Medium (5/10) | Real device testing (iPhone, iPad, Android) | Stream B |
-| E2E tests flaky | Medium (4/10) | Medium (5/10) | Add retries, local mocks, run 3x | QA |
-| Performance regression | Low (2/10) | Medium (5/10) | Web Vitals monitoring, compare vs baseline | QA |
+| Risk                        | Probability   | Impact          | Mitigation                                      | Owner    |
+| --------------------------- | ------------- | --------------- | ----------------------------------------------- | -------- |
+| Email delivery fail (SMTP)  | Medium (3/10) | High (7/10)     | Test with staging, retry queue, fallback alert  | Stream B |
+| Cross-patient data leak     | Low (2/10)    | Critical (9/10) | Server-side CPF filter + Rules, code review     | Stream A |
+| NOTIVISA API key expires    | Medium (3/10) | High (7/10)     | Rotate quarterly, test in staging, alert on 401 | DevOps   |
+| Sandbox API rejects payload | Low (2/10)    | High (7/10)     | Schema validation in tests, example payloads    | Stream A |
+| Mobile layout breaks        | Low (2/10)    | Medium (5/10)   | Real device testing (iPhone, iPad, Android)     | Stream B |
+| E2E tests flaky             | Medium (4/10) | Medium (5/10)   | Add retries, local mocks, run 3x                | QA       |
+| Performance regression      | Low (2/10)    | Medium (5/10)   | Web Vitals monitoring, compare vs baseline      | QA       |
 
 **Overall risk score:** 3.5/10 (LOW) — All major risks have clear mitigations.
 
@@ -246,6 +260,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 ## Success Criteria (Phase-level)
 
 ### Functional Completeness
+
 - [ ] Patient portal live + accessible via email link
 - [ ] PDF download works for all laudo types
 - [ ] NOTIVISA queue enqueues events automatically
@@ -253,6 +268,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 - [ ] All patient data properly secured (RBAC + Rules)
 
 ### Performance & UX
+
 - [ ] Portal loads in <2.0s (LCP, Lighthouse desktop + mobile)
 - [ ] Mobile responsive on all test devices
 - [ ] WCAG AA accessibility verified
@@ -260,6 +276,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 - [ ] Dark theme passes designer review
 
 ### Compliance & Audit
+
 - [ ] RDC 978 Arts. 6º §1, 167, 204 satisfied
 - [ ] DICQ 4.3–4.4 audit trail complete
 - [ ] LGPD Art. 18 (patient access) + Art. 9 (sensitive data) verified
@@ -267,6 +284,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 - [ ] Firestore Rules enforce isolation
 
 ### Testing & Deployment
+
 - [ ] 38+ unit tests all green (portal 12 + NOTIVISA 20 + integration 6)
 - [ ] 6 critical E2E flows all green (staging)
 - [ ] Cloud Logs 24h clean (0 ERROR/CRITICAL)
@@ -278,29 +296,34 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 ## Execution Timeline
 
 ### Kickoff (Week 1, 2026-05-20)
+
 - Day 1: Phase 3 complete + approved, Phase 4 all-hands
 - Day 2–3: 04-01 auth + 04-03 queue architecture kick-off (parallel)
 - Day 4–5: 04-02 component design finalized, spike Cloud Logs setup
 
 ### Wave 1 (Week 1–2)
+
 - **04-01:** Email-link auth + callables wired
 - **04-03:** Queue triggers + processor cron implemented
 - **04-02:** Components scaffolded + theme tokens defined
 - **04-04:** E2E tests drafted, staging environment setup
 
 ### Wave 2 (Week 2–2.5)
+
 - **04-01:** Callables tested, portal integration finalized
 - **04-02:** Responsive polish + accessibility audit
 - **04-03:** Retries + error handling, manual re-queue tested
 - **04-04:** Full E2E suite + staging smoke tests
 
 ### Deployment (Week 2.5)
+
 - Day 1: Readiness checklist approved
 - Day 2–3: Deploy Rules → Functions → Hosting (3-step deploy)
 - Day 4: Cloud Logs 24h tail begins, smoke test execution
 - Day 5–8: 24h post-deploy monitoring (auto + manual)
 
 ### Stabilization (Week 3 prep)
+
 - Monitor Cloud Logs, alert on errors
 - Fix any P0 issues immediately
 - Phase 5 unblock after 24h clean logs
@@ -310,6 +333,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 ## Handoff to Phase 5
 
 **Phase 5 prerequisites (all satisfied by Phase 4):**
+
 - ✅ Portal auth + laudo view live
 - ✅ Email notification mechanism (04-01)
 - ✅ NOTIVISA queue infrastructure (04-03)
@@ -317,6 +341,7 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 - ✅ Cloud Logs monitoring active (04-04)
 
 **Phase 5 scope (Patient Portal Phase 2 — edit workflows, RT portal):**
+
 - RT editor for draft laudos (edit before publication)
 - Pessimistic locking (prevent concurrent edits)
 - Locking timeout + cleanup cron
@@ -343,13 +368,13 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 
 **Phase 4 planning complete.** Ready for execution gate approval.
 
-| Gate | Owner | Status |
-|------|-------|--------|
-| **Scope review** | CTO | ⏳ Pending |
-| **Architecture review** | Tech Lead | ⏳ Pending |
-| **Compliance review** | Auditor liaison | ⏳ Pending |
-| **Resource commitment** | Stream leads | ⏳ Pending |
-| **Execution kickoff** | All | ⏳ Pending |
+| Gate                    | Owner           | Status     |
+| ----------------------- | --------------- | ---------- |
+| **Scope review**        | CTO             | ⏳ Pending |
+| **Architecture review** | Tech Lead       | ⏳ Pending |
+| **Compliance review**   | Auditor liaison | ⏳ Pending |
+| **Resource commitment** | Stream leads    | ⏳ Pending |
+| **Execution kickoff**   | All             | ⏳ Pending |
 
 **Expected approval date:** 2026-05-13 (end of Phase 3, start of Phase 4 week 1)
 
@@ -367,9 +392,9 @@ Phase 4 gates Phase 5 (patient portal feature expansion) and provides foundation
 
 ## Revision History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-05-07 | Initial planning, 4 PLAN.md files created (04-01 through 04-04) |
+| Version | Date       | Changes                                                         |
+| ------- | ---------- | --------------------------------------------------------------- |
+| 1.0     | 2026-05-07 | Initial planning, 4 PLAN.md files created (04-01 through 04-04) |
 
 **Last updated:** 2026-05-07 (20:50 UTC)  
 **Status:** ✅ **Ready for execution kickoff**

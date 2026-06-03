@@ -2,11 +2,12 @@
 
 **Status:** Accepted  
 **Date:** 2026-05-09  
-**Phase:** 11 — PQ-24 Compliance Remediation  
+**Phase:** 11 — PQ-24 Compliance Remediation
 
 ## Context
 
 Gap analysis `HC_Quality_vs_PQ24_FR42_Gap_Analysis.md` identified 4 critical gaps:
+
 - FR-045 (Presença): attendance signature capture missing
 - FR-043 mapping: 4-table audit report structure undocumented
 - createPlanoAcao: TODO stub (Phase 7 → Phase 11)
@@ -15,6 +16,7 @@ Gap analysis `HC_Quality_vs_PQ24_FR42_Gap_Analysis.md` identified 4 critical gap
 ## Decision
 
 Extend `Auditoria`, `Sessao`, `PlanoAcao` types + introduce `Presenca`, `ReuniaoAuditoria` interfaces to support:
+
 1. Multi-auditor tracking (`Sessao.auditorLider`, `auditoresAuxiliares[]`)
 2. Re-audit chain (`Auditoria.tipoExecucao`, `auditoriaOriginalId`)
 3. Attendance signature (`Presenca` + `LogicalSignature`)

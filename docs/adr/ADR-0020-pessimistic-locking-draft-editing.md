@@ -12,6 +12,7 @@
 Phase 7 introduces the laudo draft editing workflow: Result Technicians (RTs) log into the portal, open a laudo (report), edit it, and save draft versions before final publication. Multiple RTs may attempt to edit the same laudo concurrently (e.g., RT-A edits comments, RT-B edits equipment reference at the same time).
 
 Without locking, concurrent edits risk:
+
 1. **Lost writes** — RT-A saves their changes (version 5 → 6), but RT-B simultaneously saves (version 5 → 6 with different content). One write overwrites the other.
 2. **Merge ambiguity** — "whose content is canonical after the conflict?" Firestore doesn't have CRDT or automatic conflict resolution; the application must decide.
 3. **Audit liability** — RDC 978 Art. 5.3 / DICQ 4.4 require "clear identification of who made each change." Concurrent edits make it unclear which RT's action took precedence.
@@ -19,14 +20,17 @@ Without locking, concurrent edits risk:
 Three strategies exist:
 
 **(a) Optimistic locking** — attach a `version` field to the draft. On update, check `if currentVersion == expectedVersion` before write. If mismatch, reject and ask user to reload.
+
 - **Pro:** No server-side state. Simple.
 - **Con:** High conflict rate if two RTs edit within seconds. User experience is jarring ("your changes were rejected, please reload").
 
 **(b) CRDT (Conflict-Free Replicated Data Type)** — use a library like Yjs or Automerge to merge concurrent edits automatically at the field level.
+
 - **Pro:** No conflicts; users can edit simultaneously without rejection.
 - **Con:** Heavy (50+ KB), requires significant refactoring of edit form, RDC 978 audit trail becomes ambiguous ("which part did RT-A change, which part did RT-B?"). Overkill for typical lab workflow (RTs rarely edit the same laudo at the exact same moment).
 
 **(c) Pessimistic locking** — when an RT opens a draft for editing, the system locks it (`locked_until_ts = now + 1 hour`). Only the locking user can edit. Lock auto-expires if the user disconnects. Other users see "locked by RT-A until 15:00" and must wait.
+
 - **Pro:** Zero conflicts. Clear audit trail (exactly one RT owns the draft at a time). Simple mental model.
 - **Con:** One RT blocks others; if RT-A walks away without closing the editor, others are blocked for 1 hour. UX requires clear "lock status" messaging.
 
@@ -68,6 +72,7 @@ Draft documents in `labs/{labId}/laudos-draft/rascunhos/{draftId}` contain:
 ### Lock Acquisition & Release
 
 **Acquire lock on draft open:**
+
 ```typescript
 // Client-side call: rt-portal/pages/LaudoDraft.tsx:openForEditing()
 const acquire = await acquireDraftLock(draftId, labId);
@@ -76,20 +81,24 @@ const acquire = await acquireDraftLock(draftId, labId);
 ```
 
 On success:
+
 - Set `locked_by = currentUserId`.
 - Set `locked_until_ts = now + 1 hour`.
 - Set `status = EDITING`.
 
 On conflict (someone else holds lock):
+
 - Return `{ locked: false, lockedBy, expiresAt }`.
 - Client shows "This draft is locked by RT-A until 15:00. Please try again later."
 
 **Release lock on save or close:**
+
 - When user clicks "Save draft": callable updates `locked_until_ts = now + 1 hour` (extend lock) and increments `version`.
 - When user clicks "Close editor": callable clears `locked_by = null` and sets `status = EDITING` (lock released).
 - Unsubscribe from `onSnapshot` listener on close.
 
 **Auto-expire lock (cron):**
+
 - Scheduled function `validateDraftLocksScheduled` runs every 15 minutes.
 - Query `laudos-draft` for docs where `locked_until_ts < now`.
 - Set `locked_by = null`, `status = EDITING` for each expired lock.
@@ -109,6 +118,7 @@ match /labs/{labId}/laudos-draft/{draftId} {
 ### Conflict Fallback (Optimistic Marker)
 
 If somehow two saves race (e.g., network hiccup causes duplicate callable invocation), the `version` field breaks the tie:
+
 - Version is incremented on every successful save.
 - Client sends `expectedVersion` with each save.
 - If `requestedVersion != currentVersion`, reject with "draft was modified, please reload."
@@ -120,15 +130,19 @@ This is a safety net, not the primary locking mechanism.
 ## Alternatives Considered
 
 **(a) Optimistic locking with version field**
+
 - **Rejected.** Frequent lock conflicts for concurrent edits (even 5% rejections = poor UX). Lab operators will resort to workarounds (e.g., "I'll wait 10 minutes so no one else edits it").
 
 **(b) CRDT (Yjs / Automerge)**
+
 - **Rejected.** Overkill complexity, +50 KB bundle, RDC 978 audit trail becomes ambiguous ("which user made which sub-edit?"), requires significant client-side refactoring for Yjs binding to form fields.
 
 **(c) No locking; Last-Write-Wins**
+
 - **Rejected.** Violates RDC 978 Art. 5.3 (cannot identify who made final change). Silent data loss is unacceptable.
 
 **(d) Read-only portal** (defer drafts to Phase 12)
+
 - **Rejected.** Blocks patient portal Phase 4; RT portal (Phase 7) is a blocker for final accreditation audit.
 
 ---
@@ -136,6 +150,7 @@ This is a safety net, not the primary locking mechanism.
 ## Consequences
 
 **Immediate (Phase 7 task 07-01):**
+
 - Add `locked_by`, `locked_until_ts` to draft schema.
 - Create `acquireDraftLock()`, `releaseDraftLock()`, `extendDraftLock()` callables in `functions/src/modules/laudos/draftLocking.ts`.
 - Create `validateDraftLocksScheduled` cron job.
@@ -143,28 +158,33 @@ This is a safety net, not the primary locking mechanism.
 - Wire lock status UI in RT portal: show "Editing (locked)" or "Locked by RT-A until 15:00" banner.
 
 **Positive:**
+
 - Zero conflicts; clear linear edit history.
 - RDC 978 compliance: audit log has one author per save.
 - Simple mental model for operators: "if locked, wait or contact the other RT."
 - No CRDT complexity; no merge algorithms.
 
 **Negative:**
+
 - One RT blocks others; if RT-A forgets to close the editor, others are blocked 1 hour (worst case).
 - UX requires education: operators must understand locks and lock expiration.
 - Lock extension on every save adds ~100ms latency per save (one callable + one Firestore write).
 
 **Mitigation:**
+
 - **Lock expiration:** 1 hour is forgiving (unlikely an RT keeps editor open >1 hour without saving).
 - **Auto-close on logout:** when user logs out of RT portal, release all their locks immediately (detect via `onAuthStateChanged`).
 - **Lock status banner:** prominent display + countdown timer ("Locked by you, expires in 45 minutes").
 - **Manual release option:** admin can forcibly release a lock from the superadmin panel if an RT disappears mid-edit.
 
 **Cost:**
+
 - ~200 LOC: 3 callables + 1 cron job + Firestore rules.
 - Per-edit latency: +100ms (one callable round-trip to extend lock). Acceptable for RTs (not bulk operations).
 - Storage: negligible (lock fields per draft document).
 
 **Trade-offs:**
+
 - **Concurrency vs. Simplicity:** Pessimistic sacrifices concurrent edits but gains simplicity + compliance. RDC 978 prioritizes clarity over throughput.
 - **UX vs. Correctness:** Lock timeouts may frustrate users, but guarantee data integrity. Acceptable trade-off for clinical workflow.
 

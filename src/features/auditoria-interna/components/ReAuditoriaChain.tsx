@@ -36,9 +36,7 @@ interface ChainNode {
   children: ChainNode[];
 }
 
-export function ReAuditoriaChain({
-  auditoriaId,
-}: ReAuditoriaChainProps) {
+export function ReAuditoriaChain({ auditoriaId }: ReAuditoriaChainProps) {
   const activeLabId = useActiveLabId();
   const [allAuditorias, setAllAuditorias] = useState<Auditoria[]>([]);
   const [chain, setChain] = useState<ChainNode | null>(null);
@@ -64,7 +62,7 @@ export function ReAuditoriaChain({
       (err) => {
         setError(err);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => {
@@ -94,9 +92,7 @@ export function ReAuditoriaChain({
       }
 
       // Find all re-audits of this audit
-      const reAudits = allAuditorias.filter(
-        (a) => (a as any).auditoriaOriginalId === parentId
-      );
+      const reAudits = allAuditorias.filter((a) => (a as any).auditoriaOriginalId === parentId);
 
       const children = reAudits
         .sort((a, b) => a.criadoEm.toDate().getTime() - b.criadoEm.toDate().getTime())
@@ -152,9 +148,7 @@ export function ReAuditoriaChain({
     <div className="space-y-4">
       {/* Title */}
       <div className="mb-6">
-        <h3 className="text-lg font-semibold text-white/90 mb-1">
-          Histórico de Auditorias
-        </h3>
+        <h3 className="text-lg font-semibold text-white/90 mb-1">Histórico de Auditorias</h3>
         <p className="text-sm text-white/50">
           {flatChain.length === 1
             ? 'Auditoria original sem re-auditorias'
@@ -168,7 +162,9 @@ export function ReAuditoriaChain({
           const isLast = idx === flatChain.length - 1;
           const auditYear = node.auditoria.ano;
           const status = node.auditoria.status;
-          const tipoExecucao = (node.auditoria as Auditoria & { tipoExecucao?: 'inicial' | 'reAuditoria' }).tipoExecucao || 'inicial';
+          const tipoExecucao =
+            (node.auditoria as Auditoria & { tipoExecucao?: 'inicial' | 'reAuditoria' })
+              .tipoExecucao || 'inicial';
           const criadoEm = node.auditoria.criadoEm.toDate();
 
           // Status badge config
@@ -226,7 +222,8 @@ export function ReAuditoriaChain({
                     </div>
 
                     <div className="text-xs text-white/60">
-                      Criada em {criadoEm.toLocaleDateString('pt-BR', {
+                      Criada em{' '}
+                      {criadoEm.toLocaleDateString('pt-BR', {
                         day: '2-digit',
                         month: '2-digit',
                         year: 'numeric',
@@ -250,9 +247,11 @@ export function ReAuditoriaChain({
 
               {/* Arrow to next node (if not last) */}
               {!isLast && (
-                <div className={`relative h-4 flex items-center justify-center ${
-                  node.depth > 0 ? 'ml-8' : ''
-                }`}>
+                <div
+                  className={`relative h-4 flex items-center justify-center ${
+                    node.depth > 0 ? 'ml-8' : ''
+                  }`}
+                >
                   <div className="absolute w-0.5 h-full border-l-2 border-white/10" />
                   <div className="text-violet-500/50 text-lg">↓</div>
                 </div>

@@ -6,19 +6,19 @@
 **Doc commits:** 14  
 **Expected conflicts:** 0  
 **Base commit:** d69f2c9 (v1.3 archive — 2026-05-07)  
-**HEAD commit:** ceaff6b (fix(personnel): CargoForm import)  
+**HEAD commit:** ceaff6b (fix(personnel): CargoForm import)
 
 ---
 
 ## Commit Summary by Category
 
-| Category | Count | Status |
-|----------|-------|--------|
-| **Code Features** | 8 | ✅ READY |
-| **Code Tests** | 3 | ✅ READY |
-| **Code Fixes** | 4 | ✅ READY |
-| **Docs / Planning** | 14 | ✅ READY |
-| **Firestore Rules** | 1 | ✅ READY |
+| Category            | Count | Status   |
+| ------------------- | ----- | -------- |
+| **Code Features**   | 8     | ✅ READY |
+| **Code Tests**      | 3     | ✅ READY |
+| **Code Fixes**      | 4     | ✅ READY |
+| **Docs / Planning** | 14    | ✅ READY |
+| **Firestore Rules** | 1     | ✅ READY |
 
 ---
 
@@ -132,19 +132,19 @@
 
 ### Planning + Operational Docs (11 commits)
 
-| Commit | Message | Files | Status |
-|--------|---------|-------|--------|
-| **90cb495** | plan(04-04): E2E testing + smoke tests + production readiness gate | 1 (.planning/phases/04-04-PLAN.md) | ✅ Ready |
-| **62cf4c7** | docs(phase-4-plan-02): NOTIVISA backend integration plan | 1 (.planning/phases/04-02-PLAN.md) | ✅ Ready |
-| **b45273c** | docs(04-notivisa): create v1.4_NOTIVISA_SANDBOX_SETUP.md | 2 (docs/v1.4_NOTIVISA_SANDBOX_SETUP.md, CLAUDE.md update) | ✅ Ready |
-| **37fbb23** | v1.4 Phase 8-11 execution plans + operational infrastructure | 35+ (phases 08-11 plans, ADRs 0022-0026, operational checklists) | ✅ Ready |
-| **e7bc1e6** | docs(checkpoint): v1.4 Wave 1 Planning Complete | 1 (.planning/v1.4-WAVE1-DELIVERY-CHECKPOINT.md) | ✅ Ready |
-| **73ca09d** | feat(auditor): v1.4 alignment email + briefing package sent | 50+ (auditor alignment docs, RFI responses, incident setup) | ✅ Ready |
-| **61710aa** | security(phase-14): remediate critical vulnerabilities + XSS fix | 1 (.claude/rules/notivisa-firestore-rules.md + planning artifacts) | ✅ Ready |
-| **709fe49** | docs(distribution): Add 3 documents for v1.4 Phase 4 distribution | 3 (distribution-related docs) | ✅ Ready |
-| **e85b289** | feat(controle-interno): 3 files for Phase 8 CAPA digital designations | 3 (CAPA module files) | ✅ Ready |
-| **f364766** | docs(pre-phase4): Vendor integration checklists validation + readiness report | 1 (.planning/ vendor checklist) | ✅ Ready |
-| **3587351** | feat(phase-15): pre-deployment type fixes + tsconfig path aliases | 1 (.planning/ phase 15 docs + tsconfig refs) | ✅ Ready |
+| Commit      | Message                                                                       | Files                                                              | Status   |
+| ----------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------ | -------- |
+| **90cb495** | plan(04-04): E2E testing + smoke tests + production readiness gate            | 1 (.planning/phases/04-04-PLAN.md)                                 | ✅ Ready |
+| **62cf4c7** | docs(phase-4-plan-02): NOTIVISA backend integration plan                      | 1 (.planning/phases/04-02-PLAN.md)                                 | ✅ Ready |
+| **b45273c** | docs(04-notivisa): create v1.4_NOTIVISA_SANDBOX_SETUP.md                      | 2 (docs/v1.4_NOTIVISA_SANDBOX_SETUP.md, CLAUDE.md update)          | ✅ Ready |
+| **37fbb23** | v1.4 Phase 8-11 execution plans + operational infrastructure                  | 35+ (phases 08-11 plans, ADRs 0022-0026, operational checklists)   | ✅ Ready |
+| **e7bc1e6** | docs(checkpoint): v1.4 Wave 1 Planning Complete                               | 1 (.planning/v1.4-WAVE1-DELIVERY-CHECKPOINT.md)                    | ✅ Ready |
+| **73ca09d** | feat(auditor): v1.4 alignment email + briefing package sent                   | 50+ (auditor alignment docs, RFI responses, incident setup)        | ✅ Ready |
+| **61710aa** | security(phase-14): remediate critical vulnerabilities + XSS fix              | 1 (.claude/rules/notivisa-firestore-rules.md + planning artifacts) | ✅ Ready |
+| **709fe49** | docs(distribution): Add 3 documents for v1.4 Phase 4 distribution             | 3 (distribution-related docs)                                      | ✅ Ready |
+| **e85b289** | feat(controle-interno): 3 files for Phase 8 CAPA digital designations         | 3 (CAPA module files)                                              | ✅ Ready |
+| **f364766** | docs(pre-phase4): Vendor integration checklists validation + readiness report | 1 (.planning/ vendor checklist)                                    | ✅ Ready |
+| **3587351** | feat(phase-15): pre-deployment type fixes + tsconfig path aliases             | 1 (.planning/ phase 15 docs + tsconfig refs)                       | ✅ Ready |
 
 ---
 
@@ -165,16 +165,17 @@
 
 ### Conflict check by major file:
 
-| File Path | Status | Reason |
-|-----------|--------|--------|
-| `firestore.rules` | ⚠️ 2 changes | 1de2a32 (coagulacao access) + 38245bb (portal rules) — **additive, no overlap** |
-| `CLAUDE.md` | ✅ 1 change | b45273c (NOTIVISA docs link) — append-only |
-| `functions/package.json` | ✅ 1 change | Added jest.config.js ref — no version conflicts |
-| `src/features/patient-portal/` | ✅ new module | No upstream code, isolated feature flag |
-| `.planning/` | ✅ n/a | Documentation only |
-| `.claude/rules/` | ✅ new file | notivisa-firestore-rules.md added by 61710aa |
+| File Path                      | Status        | Reason                                                                          |
+| ------------------------------ | ------------- | ------------------------------------------------------------------------------- |
+| `firestore.rules`              | ⚠️ 2 changes  | 1de2a32 (coagulacao access) + 38245bb (portal rules) — **additive, no overlap** |
+| `CLAUDE.md`                    | ✅ 1 change   | b45273c (NOTIVISA docs link) — append-only                                      |
+| `functions/package.json`       | ✅ 1 change   | Added jest.config.js ref — no version conflicts                                 |
+| `src/features/patient-portal/` | ✅ new module | No upstream code, isolated feature flag                                         |
+| `.planning/`                   | ✅ n/a        | Documentation only                                                              |
+| `.claude/rules/`               | ✅ new file   | notivisa-firestore-rules.md added by 61710aa                                    |
 
 **Validation:** All commits are isolated to:
+
 - New feature module (`patient-portal`)
 - New doc/planning hierarchy (`.planning/phases/08-15/`, `.planning/v1.4-*`)
 - Additive rules (firestore.rules merge direction: coagulacao rules then portal rules)
@@ -189,29 +190,36 @@
 When merging to main and deploying, follow this sequence:
 
 ### Step 1: Deploy Firestore Rules + Indexes
+
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
+
 **Commits:** 38245bb (portal rules), 1de2a32 (coagulacao access)  
 **Order:** Indexes must exist before functions reference collections
 
 ### Step 2: Deploy Functions
+
 ```bash
 npm run build:functions
 firebase deploy --only functions --project hmatologia2
 ```
+
 **Commits:** f4081cd, f0ddf5e (NOTIVISA callables), 3587351 (tsconfig fixes)  
 **Dependencies:** Firestore rules must be live; functions reference `notivisa-*` collections
 
 ### Step 3: Deploy Hosting (React app)
+
 ```bash
 npm run build
 firebase deploy --only hosting --project hmatologia2
 ```
+
 **Commits:** f2599e0, f513a1d, 98905df (patient-portal UI), all test commits  
 **Dependencies:** Functions must be wired; portal calls callables
 
 ### Step 4: Smoke Tests + Monitoring
+
 Run Phase 4 E2E suite (a8a5b1a) + Cloud Logs monitoring (8c968a0)
 
 ---
@@ -241,6 +249,7 @@ Run Phase 4 E2E suite (a8a5b1a) + Cloud Logs monitoring (8c968a0)
 ## Commit Details (Chronological)
 
 ### 90cb495 — plan(04-04): E2E testing + smoke tests + production readiness gate
+
 ```
 Commit: 90cb495
 Date: 2026-05-07
@@ -252,6 +261,7 @@ Notes: Phase 4 final testing plan, smoke test matrix, production readiness crite
 ```
 
 ### 1de2a32 — onda 3: libera acesso total coagulacao (MVP)
+
 ```
 Commit: 1de2a32
 Date: 2026-05-07
@@ -264,6 +274,7 @@ Flag: TEMP-IMPLANTACAO — rollback 2026-06
 ```
 
 ### 62cf4c7 — docs(phase-4-plan-02): NOTIVISA backend integration plan
+
 ```
 Commit: 62cf4c7
 Date: 2026-05-07
@@ -275,6 +286,7 @@ Notes: NOTIVISA callable architecture, queue processor logic, webhook integratio
 ```
 
 ### b45273c — docs(04-notivisa): create v1.4_NOTIVISA_SANDBOX_SETUP.md — government API onboarding guide
+
 ```
 Commit: b45273c
 Date: 2026-05-07
@@ -287,6 +299,7 @@ Spec: ADR-0026 referenced
 ```
 
 ### 37fbb23 — v1.4 Phase 8-11 execution plans + operational infrastructure — Wave 1 complete
+
 ```
 Commit: 37fbb23
 Date: 2026-05-07
@@ -299,6 +312,7 @@ Coverage: RDC 978 Arts. 86 (risks), 117 (CAPA), 167 (notification), 179 (audit)
 ```
 
 ### e7bc1e6 — docs(checkpoint): v1.4 Wave 1 Planning Complete — 9 phase plans, operational infrastructure, ADRs ready for auditor + execution
+
 ```
 Commit: e7bc1e6
 Date: 2026-05-07
@@ -310,6 +324,7 @@ Notes: Wave 1 delivery summary, readiness criteria met
 ```
 
 ### 73ca09d — feat(auditor): v1.4 alignment email + briefing package sent (2026-05-07)
+
 ```
 Commit: 73ca09d
 Date: 2026-05-07
@@ -322,6 +337,7 @@ Audience: External auditor (Riopomba / ANVISA contact)
 ```
 
 ### 61710aa — security(phase-14): remediate critical vulnerabilities + XSS fix
+
 ```
 Commit: 61710aa
 Date: 2026-05-07
@@ -334,6 +350,7 @@ Security: RBAC validation, XSS prevention in rules
 ```
 
 ### 36342b9 — fix(firestore): add hasRole() helper function for auditor role checks
+
 ```
 Commit: 36342b9
 Date: 2026-05-07
@@ -346,6 +363,7 @@ Impact: Reusable across auditor-gated collections
 ```
 
 ### 3587351 — feat(phase-15): pre-deployment type fixes + tsconfig path aliases
+
 ```
 Commit: 3587351
 Date: 2026-05-07
@@ -358,6 +376,7 @@ Impact: Zero production behavior change (build/compile only)
 ```
 
 ### 709fe49 — docs(distribution): Add 3 documents for v1.4 Phase 4 distribution
+
 ```
 Commit: 709fe49
 Date: 2026-05-07
@@ -369,6 +388,7 @@ Notes: Document distribution lists, stakeholder comms templates
 ```
 
 ### e85b289 — feat(controle-interno): 3 files for Phase 8 CAPA digital designations
+
 ```
 Commit: e85b289
 Date: 2026-05-07
@@ -382,6 +402,7 @@ ADR: 0022
 ```
 
 ### f364766 — docs(pre-phase4): Vendor integration checklists validation + readiness report
+
 ```
 Commit: f364766
 Date: 2026-05-07
@@ -394,6 +415,7 @@ Dependencies: Required for Phase 4 + Phase 5 execution
 ```
 
 ### f0ddf5e — feat(notivisa): implement Batch 2 callables — queue processor + webhook + export + soft-delete
+
 ```
 Commit: f0ddf5e
 Date: 2026-05-07
@@ -401,7 +423,7 @@ Author: drogafarto@gmail.com
 Files: functions/src/modules/notivisa/ (6 files, 1,200+ LOC)
 Types: Cloud Functions, queue processing, webhook handler
 Status: ✅ Ready
-Callables: 
+Callables:
   - notivisa-processQueue (Pub/Sub trigger)
   - notivisa-handleWebhook (HTTP handler)
   - notivisa-exportToArchive
@@ -412,6 +434,7 @@ ADR: 0026 (queue async processing)
 ```
 
 ### f4081cd — feat(notivisa): implement Cloud Function callables — Batch 1 (ADR-0026)
+
 ```
 Commit: f4081cd
 Date: 2026-05-07
@@ -429,6 +452,7 @@ ADR: 0026 (NOTIVISA queue async processing)
 ```
 
 ### 38245bb — feat(firestore): Phase 4 patient portal rules + indexes
+
 ```
 Commit: 38245bb
 Date: 2026-05-07
@@ -446,6 +470,7 @@ Audit: immutable auditLog subcollection
 ```
 
 ### a8a5b1a — test(phase-4): E2E test suite — 22 critical scenarios, 100% flow coverage
+
 ```
 Commit: a8a5b1a
 Date: 2026-05-07
@@ -461,6 +486,7 @@ Expected: All 22 pass
 ```
 
 ### 54195e3 — docs(phase-4): E2E test suite summary — 22 scenarios, 2,481 LOC, 100% flow coverage
+
 ```
 Commit: 54195e3
 Date: 2026-05-07
@@ -472,6 +498,7 @@ Notes: E2E test documentation, scenario breakdown, coverage matrix
 ```
 
 ### 98905df — feat(patient-portal): Portal Dashboard UI — LaudoList + Viewer + Profile
+
 ```
 Commit: 98905df
 Date: 2026-05-07
@@ -489,6 +516,7 @@ A11y: WCAG AA (4.5:1 contrast, focus mgmt, aria labels)
 ```
 
 ### 006e0f0 — fix(tests): TypeScript type safety in phase-4 E2E suite — element casts, async returns
+
 ```
 Commit: 006e0f0
 Date: 2026-05-07
@@ -502,6 +530,7 @@ Production code: Zero impact
 ```
 
 ### e757d47 — docs(patient-portal): Implementation summary — 8 components, 3 hooks, RN compliance
+
 ```
 Commit: e757d47
 Date: 2026-05-07
@@ -513,6 +542,7 @@ Coverage: Component APIs, hook contracts, RN-* rule compliance
 ```
 
 ### 8c968a0 — ops(phase-4): Cloud Logs monitoring setup + 5 runbooks + alert policies
+
 ```
 Commit: 8c968a0
 Date: 2026-05-07
@@ -528,6 +558,7 @@ Usage: `scripts/monitor-cloud-logs.ps1 24 30` post-deploy
 ```
 
 ### 0021269 — refactor(tests): Rename phase-4 E2E test to .test.ts for Vitest detection
+
 ```
 Commit: 0021269
 Date: 2026-05-07
@@ -540,6 +571,7 @@ Breaking: None (test behavior unchanged)
 ```
 
 ### 24bd45c — docs(phase-4): Alert quick reference card for on-call desks
+
 ```
 Commit: 24bd45c
 Date: 2026-05-07
@@ -552,6 +584,7 @@ Usage: Print + laminate for desk
 ```
 
 ### 3067271 — fix(patient-portal): Align with existing auth store API + type definitions
+
 ```
 Commit: 3067271
 Date: 2026-05-07
@@ -568,6 +601,7 @@ Breaking: None (API version negotiated with auth module)
 ```
 
 ### 500415b — docs(phase-4): Monitoring deployment summary — complete checklist + next steps
+
 ```
 Commit: 500415b
 Date: 2026-05-07
@@ -579,6 +613,7 @@ Content: Deployment checklist (rules, functions, hosting), monitoring handoff, n
 ```
 
 ### f513a1d — feat(patient-portal): Comprehensive error handling + loading states + accessibility
+
 ```
 Commit: f513a1d
 Date: 2026-05-07
@@ -601,6 +636,7 @@ Docs: ACCESSIBILITY_GUIDE.md, ERROR_HANDLING_INTEGRATION.md (included)
 ```
 
 ### f2599e0 — feat(patient-portal): Implement auth UI components — email-link authentication flow
+
 ```
 Commit: f2599e0
 Date: 2026-05-07
@@ -634,6 +670,7 @@ Breaking: Component tree refactored; imports must update (see index.ts exports)
 ```
 
 ### ceaff6b — fix(personnel): CargoForm import — use named exports from cargoService
+
 ```
 Commit: ceaff6b
 Date: 2026-05-07
@@ -650,16 +687,16 @@ Risk: Low
 
 ## Readiness Summary
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| **Code Quality** | ✅ | 15 code commits, all tests passing (22 E2E + 738 unit) |
-| **Type Safety** | ✅ | Zero TS errors post-merge (verified via tsc --noEmit) |
-| **Security** | ✅ | Firestore rules reviewed, XSS mitigations in place, HMAC auth validated |
-| **Compliance** | ✅ | RDC 978 coverage (Arts. 117, 167, 179, 191), ADRs 0022-0026 approved |
-| **Documentation** | ✅ | 35+ planning docs, operational runbooks, auditor briefing complete |
-| **Merge Conflicts** | ✅ | Zero expected; firestore.rules changes additive |
-| **Rollback Plan** | ✅ | Temporary IMPLANTACAO access (1de2a32) marked TEMP for 2026-06 rollback |
-| **Production Deploy** | ✅ | Rules → Functions → Hosting sequence verified; dependencies satisfied |
+| Aspect                | Status | Notes                                                                   |
+| --------------------- | ------ | ----------------------------------------------------------------------- |
+| **Code Quality**      | ✅     | 15 code commits, all tests passing (22 E2E + 738 unit)                  |
+| **Type Safety**       | ✅     | Zero TS errors post-merge (verified via tsc --noEmit)                   |
+| **Security**          | ✅     | Firestore rules reviewed, XSS mitigations in place, HMAC auth validated |
+| **Compliance**        | ✅     | RDC 978 coverage (Arts. 117, 167, 179, 191), ADRs 0022-0026 approved    |
+| **Documentation**     | ✅     | 35+ planning docs, operational runbooks, auditor briefing complete      |
+| **Merge Conflicts**   | ✅     | Zero expected; firestore.rules changes additive                         |
+| **Rollback Plan**     | ✅     | Temporary IMPLANTACAO access (1de2a32) marked TEMP for 2026-06 rollback |
+| **Production Deploy** | ✅     | Rules → Functions → Hosting sequence verified; dependencies satisfied   |
 
 ---
 

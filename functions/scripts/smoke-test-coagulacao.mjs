@@ -46,7 +46,11 @@ try {
     .collection('fornecedores')
     .doc('appt-fornecedor')
     .get();
-  check('Fornecedor APPT existe', fornecedorSnap.exists, fornecedorSnap.exists ? 'appt-fornecedor' : 'não encontrado');
+  check(
+    'Fornecedor APPT existe',
+    fornecedorSnap.exists,
+    fornecedorSnap.exists ? 'appt-fornecedor' : 'não encontrado',
+  );
 
   // 1.2 Verificar nota fiscal
   const notasSnap = await db
@@ -55,7 +59,11 @@ try {
     .collection('notas-fiscais')
     .where('numero', '==', '10123')
     .get();
-  check('Nota Fiscal 10123 existe', notasSnap.size === 1, `${notasSnap.size} documento(s) encontrado(s)`);
+  check(
+    'Nota Fiscal 10123 existe',
+    notasSnap.size === 1,
+    `${notasSnap.size} documento(s) encontrado(s)`,
+  );
   const notaId = notasSnap.docs[0]?.id || null;
 
   // 1.3 Verificar insumo
@@ -72,9 +80,17 @@ try {
     check('Insumo APPT REAGENTE existe', true, insumoId);
     check('  └─ tipo: reagente', insumo.tipo === 'reagente', insumo.tipo);
     check('  └─ status: ativo', insumo.status === 'ativo', insumo.status);
-    check('  └─ modulos: [coagulacao]', Array.isArray(insumo.modulos) && insumo.modulos.includes('coagulacao'), insumo.modulos?.join(', ') || 'vazio');
+    check(
+      '  └─ modulos: [coagulacao]',
+      Array.isArray(insumo.modulos) && insumo.modulos.includes('coagulacao'),
+      insumo.modulos?.join(', ') || 'vazio',
+    );
     check('  └─ notaFiscalId preenchido', !!insumo.notaFiscalId, insumo.notaFiscalId || 'vazio');
-    check('  └─ equipamentoId: clotimer-duo', insumo.equipamentoId === 'clotimer-duo', insumo.equipamentoId || 'vazio');
+    check(
+      '  └─ equipamentoId: clotimer-duo',
+      insumo.equipamentoId === 'clotimer-duo',
+      insumo.equipamentoId || 'vazio',
+    );
   } else {
     error('Insumo APPT REAGENTE não existe');
   }
@@ -86,7 +102,11 @@ try {
     .collection('equipamentos')
     .doc('clotimer-duo')
     .get();
-  check('Equipamento CLOT DUO existe', equipSnap.exists, equipSnap.exists ? 'clotimer-duo' : 'não encontrado');
+  check(
+    'Equipamento CLOT DUO existe',
+    equipSnap.exists,
+    equipSnap.exists ? 'clotimer-duo' : 'não encontrado',
+  );
 
   // 1.5 Verificar EquipmentSetup
   const setupSnap = await db
@@ -100,7 +120,11 @@ try {
     const setup = setupSnap.data();
     check('EquipmentSetup existe', true, 'clotimer-duo');
     check('  └─ module: coagulacao', setup.module === 'coagulacao', setup.module);
-    check('  └─ activeReagenteId preenchido', setup.activeReagenteId === insumoId, setup.activeReagenteId || 'vazio');
+    check(
+      '  └─ activeReagenteId preenchido',
+      setup.activeReagenteId === insumoId,
+      setup.activeReagenteId || 'vazio',
+    );
     check('  └─ equipamentoName', setup.equipamentoName === 'CLOT DUO', setup.equipamentoName);
   } else {
     error('EquipmentSetup não existe');
@@ -137,7 +161,11 @@ try {
     // Verificar valores de mean/sd
     const hasMean = lot.mean && lot.mean.atividadeProtrombinica !== undefined;
     const hasSD = lot.sd && lot.sd.atividadeProtrombinica !== undefined;
-    check('  └─ mean preenchido', hasMean, hasMean ? `AP=${lot.mean.atividadeProtrombinica}` : 'vazio');
+    check(
+      '  └─ mean preenchido',
+      hasMean,
+      hasMean ? `AP=${lot.mean.atividadeProtrombinica}` : 'vazio',
+    );
     check('  └─ sd preenchido', hasSD, hasSD ? `AP=${lot.sd.atividadeProtrombinica}` : 'vazio');
 
     // ───────────────────────────────────────────────────────────────────────
@@ -197,11 +225,19 @@ try {
       .doc(runId)
       .get();
 
-    check('  └─ Run persistido no Firestore', runCheckSnap.exists, runCheckSnap.exists ? 'sim' : 'não');
+    check(
+      '  └─ Run persistido no Firestore',
+      runCheckSnap.exists,
+      runCheckSnap.exists ? 'sim' : 'não',
+    );
 
     if (runCheckSnap.exists) {
       const savedRun = runCheckSnap.data();
-      check('  └─ Resultados presentes', !!savedRun.resultados, `${Object.keys(savedRun.resultados).length} analitos`);
+      check(
+        '  └─ Resultados presentes',
+        !!savedRun.resultados,
+        `${Object.keys(savedRun.resultados).length} analitos`,
+      );
       check('  └─ Conformidade: A', savedRun.conformidade === 'A', savedRun.conformidade);
       check('  └─ Status: confirmed', savedRun.status === 'confirmed', savedRun.status);
     }
@@ -216,8 +252,7 @@ try {
       insumoSnap.data().notaFiscalId === notaId &&
       insumoSnap.data().equipamentoId === 'clotimer-duo';
 
-    check('Cadeia de rastreabilidade completa', traceOk,
-      `Lot→Insumo→NF→Fornecedor→Equipamento`);
+    check('Cadeia de rastreabilidade completa', traceOk, `Lot→Insumo→NF→Fornecedor→Equipamento`);
 
     if (traceOk) {
       console.log(`   └─ Lote: ${lot.loteControle}`);
@@ -231,18 +266,23 @@ try {
     console.log('\n📋 FASE 5: CONFORMIDADE RDC\n');
 
     check('RDC 786/2023 (rastreabilidade fiscal)', !!lot.notaFiscalId, 'notaFiscalId presente');
-    check('RDC 978/2025 (worklab)', !!lot.rastreabilidadeWorklab, lot.rastreabilidadeWorklab ? `${lot.rastreabilidadeWorklab.exam} ${lot.rastreabilidadeWorklab.codigo}` : 'vazio');
+    check(
+      'RDC 978/2025 (worklab)',
+      !!lot.rastreabilidadeWorklab,
+      lot.rastreabilidadeWorklab
+        ? `${lot.rastreabilidadeWorklab.exam} ${lot.rastreabilidadeWorklab.codigo}`
+        : 'vazio',
+    );
     check('CLSI H47-A2 (níveis)', ['nv1', 'nv2'].includes(lot.nivel), `Nível ${lot.nivel}`);
     check('Westgard (mean/SD)', hasMean && hasSD, 'Valores de controle presentes');
-
   }
 
   // ─────────────────────────────────────────────────────────────────────────
   console.log('\n📋 FASE 6: RELATÓRIO FINAL\n');
 
   const totalChecks = results.checks.length;
-  const passedChecks = results.checks.filter(c => c.passed).length;
-  const failedChecks = results.checks.filter(c => !c.passed).length;
+  const passedChecks = results.checks.filter((c) => c.passed).length;
+  const failedChecks = results.checks.filter((c) => !c.passed).length;
 
   console.log(`Total de checks: ${totalChecks}`);
   console.log(`✅ Passou: ${passedChecks}`);
@@ -257,7 +297,6 @@ try {
 
   // ─────────────────────────────────────────────────────────────────────────
   console.log('═══════════════════════════════════════════════════════════════\n');
-
 } catch (err) {
   console.error('❌ ERRO CRÍTICO NO TESTE:');
   console.error('   Mensagem:', err.message);

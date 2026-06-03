@@ -23,9 +23,7 @@ const ESQUEMAS = {
     { id: 'hematologia-basica', nome: 'Hematologia Básica' },
     { id: 'bioquimica-rotina', nome: 'Bioquímica Rotina' },
   ],
-  'eqa-provider': [
-    { id: 'imunologia', nome: 'Imunologia' },
-  ],
+  'eqa-provider': [{ id: 'imunologia', nome: 'Imunologia' }],
   pncq: [
     { id: 'hematologia-basica', nome: 'Hematologia Básica' },
     { id: 'coagulacao', nome: 'Coagulação' },
@@ -110,7 +108,10 @@ export function CEQParticipacaoForm({ onSubmit, loading }: CEQParticipacaoFormPr
   const selectedEsquemas = ESQUEMAS[formData.provedorId as keyof typeof ESQUEMAS] || [];
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 p-6 rounded-lg border border-white/10">
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white/5 p-6 rounded-lg border border-white/10"
+    >
       <h3 className="text-lg font-semibold">Nova Participação em PT</h3>
 
       {/* Provedor Selection */}

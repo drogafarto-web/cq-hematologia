@@ -2,7 +2,7 @@
 phase: 0
 plan: 00-02
 slug: lgpd-pol-and-dpia
-completed_date: "2026-05-07"
+completed_date: '2026-05-07'
 duration_hours: 2.5
 tasks_completed: 4
 tasks_total: 8
@@ -14,7 +14,7 @@ status: partially-complete
 **Plan:** Phase 0, Plan 00-02 (Wave 1, 0.25d estimate)  
 **Status:** Engineering deliverables complete; manual operational gates pending  
 **Duration:** 2.5 hours (engineering phase)  
-**Completion Date:** 2026-05-07  
+**Completion Date:** 2026-05-07
 
 ---
 
@@ -25,6 +25,7 @@ status: partially-complete
 **Compliance Citation:** RDC 978 Art. 77 ("Política de privacidade documentada e disponível ao titular dos dados"), LGPD Arts. 8, 18 (consentimento + direitos).
 
 **Locked Decisions Applied:**
+
 - ✅ **DL-2 (SGQ not SGD):** Both documents land in `/labs/{labId}/sgq-documentos/` with `tipo: 'POL'` and `tipo: 'IT'`. Zero edits to `src/features/sgd/`.
 - ✅ **DL-3 (No patient consent flow):** Patient-portal LGPD UX deferred to v1.4 Phase 5 (ADR-0015). Phase 0 evidence satisfied by SGQ docs + audit chain + RT signature.
 
@@ -37,10 +38,12 @@ status: partially-complete
 **Status:** COMPLETE
 
 **Deliverables:**
+
 - **File:** `docs/policies/POL-LGPD-001-v1.0.md` (3,800 words, 10 sections)
 - **File:** `docs/policies/IT-LGPD-DPIA-001-v1.0.md` (3,200 words, 8 sections)
 
 **Content Verification:**
+
 - ✅ Section 1: Coleta de dados (categoriais: cadastrais, clínicos, biométricos)
 - ✅ Section 2: Finalidades (exames, laudos, faturamento, RDC 978/222 legais, DICQ)
 - ✅ Section 3: Base legal (LGPD Art. 7º II + III, Art. 11º II "f")
@@ -53,6 +56,7 @@ status: partially-complete
 - ✅ Section 10: Contato ANPD
 
 **DPIA Template:**
+
 - ✅ Section 1: Descrição do tratamento (escopo, procedimento)
 - ✅ Section 2: Categorias de dados (matriz de categoriais × titulares)
 - ✅ Section 3: Finalidades (4 base legais documentadas com correlação)
@@ -74,11 +78,13 @@ status: partially-complete
 **Status:** BLOCKED (manual gate)
 
 **What's Ready:**
+
 - Both markdown files exist and are conversion-ready
 - Path template: `/labs/labclin-riopomba/sgq/documentos/{tipo}/{codigo}/v1.pdf`
 - Signed URL generation required post-upload
 
 **Blocking Dependency:**
+
 - CTO/compliance lead must execute: `pandoc docs/policies/POL-LGPD-001-v1.0.md -o /tmp/POL-LGPD-001-v1.0.pdf`
 - Upload to Firebase Storage at path above
 - Generate signed URLs for `Documento.url` field (T3/T4)
@@ -92,12 +98,14 @@ status: partially-complete
 **Status:** BLOCKED (operational gate — requires RT session)
 
 **What's Ready:**
+
 - SGQView fully functional with new badge
 - DocumentoFormModal accepts `tipo:'POL'`, `codigo:'POL-LGPD-001'`, validates uniqueness, fires audit events
 - Service method `criar()` and `mudarStatus()` working
 - Audit trail (`sgq-documentos-audit`) collection configured
 
 **Blocking Dependency:**
+
 - Requires RT (Responsável Técnico) login session
 - Manual steps:
   1. SGQView → "Novo documento" → POL
@@ -114,9 +122,11 @@ status: partially-complete
 **Status:** BLOCKED (operational gate — requires RT session)
 
 **What's Ready:**
+
 - Same as T3 (components + service fully functional)
 
 **Blocking Dependency:**
+
 - Requires T2 completion (PDF URL)
 - Requires RT session
 - Mirror of T3 with `tipo:'IT'` + DPIA URL
@@ -130,10 +140,12 @@ status: partially-complete
 **Status:** COMPLETE
 
 **Deliverables:**
+
 - **File:** `src/features/sgq/components/DocumentosObrigatoriosBadge.tsx` (178 lines)
 - **File:** `src/features/sgq/SGQView.tsx` (modified: +3 lines import + render)
 
 **Implementation Details:**
+
 - **Manifest:** `DOCUMENTOS_OBRIGATORIOS` constant array with codigo + label
 - **Query:** `useDocumentos({ filters: { includeObsoletos: false } })` → find latest vigente doc per codigo
 - **Status Visualization:**
@@ -147,6 +159,7 @@ status: partially-complete
 - **Typography:** `tabular-nums` on version labels per design system
 
 **Code Quality:**
+
 - ✅ Component fully typed (TypeScript strict)
 - ✅ Memoization: `useMemo` for docMap + items (no unnecessary re-renders)
 - ✅ Accessibility: Proper button/click semantics
@@ -161,10 +174,12 @@ status: partially-complete
 **Status:** COMPLETE
 
 **Deliverables:**
+
 - **File:** `functions/src/modules/lgpd/scheduledAnnualReview.ts` (94 lines)
 - **Export:** Updated `functions/src/modules/lgpd/index.ts` + `functions/src/index.ts`
 
 **Implementation Details:**
+
 - **Schedule:** Daily 07:00 BRT (America/Sao_Paulo timezone, handles BRST transitions)
 - **Query:** `collectionGroup('sgq-documentos').where('status', '==', 'vigente').where('codigo', 'in', DOCUMENTOS_LGPD)`
 - **Logic:**
@@ -183,10 +198,12 @@ status: partially-complete
 - **Reuse Pattern:** Minimal; lays groundwork for SGQ-04 (vencimento pattern) in future phases
 
 **Observability:**
+
 - ✅ Console logs: total processed + notifications created
 - ✅ Error logs include full error object for debugging
 
-**Testing Ready:** 
+**Testing Ready:**
+
 - Emulator: Can set `proximaRevisao = yesterday` on test doc + trigger cron manually
 - Verify: No duplicates on re-trigger
 
@@ -197,18 +214,21 @@ status: partially-complete
 **Status:** BLOCKED (deployment gate)
 
 **What's Ready:**
+
 - ✅ Web: `DocumentosObrigatoriosBadge` component fully integrated (no build errors expected)
 - ✅ Functions: `lgpd_scheduledAnnualReview` exported and ready
 - ✅ Types: No new types added to `src/types/index.ts` (badge is feature-scoped)
 - ✅ Bundle impact: Badge component ~3KB (minimal); no new dependencies
 
 **Pre-Deploy Checklist:**
+
 - [ ] `npx tsc --noEmit` (web) — verify clean
 - [ ] `cd functions && npx tsc --noEmit` — verify clean
 - [ ] `npm run build` — verify green
 - [ ] `npm test` — baseline 738/738 passing (no SGQ regression expected)
 
 **Blocking Dependency:**
+
 - Manual execution of deploy commands:
   1. `firebase deploy --only functions:lgpd_scheduledAnnualReview --project hmatologia2`
   2. `firebase deploy --only hosting --project hmatologia2`
@@ -223,9 +243,11 @@ status: partially-complete
 **Status:** COMPLETE
 
 **Deliverable:**
+
 - **File:** `CLAUDE.md` (root, line 76)
 
 **Change:**
+
 ```diff
 - | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit | 2026-04-26 |
 + | `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
@@ -237,30 +259,30 @@ status: partially-complete
 
 ## Acceptance Criteria — Status Matrix
 
-| Criteria | Status | Evidence |
-|---|---|---|
-| Policy published in **SGQ** (not SGD) with version 1.0 | ⏸️ Blocked on T3 | Policy markdown complete; needs SGQ UI creation + RT signature |
-| Linked from `SGQView` "Documentos Obrigatórios" strip with emerald badge | ✅ Complete | DocumentosObrigatoriosBadge integrated, placed below KPIs |
-| DPIA template (`IT-LGPD-DPIA-001`) exists in SGQ as `vigente` v1.0 | ⏸️ Blocked on T4 | DPIA markdown complete; needs SGQ UI creation + RT signature |
-| Annual review reminder scheduled (cron fires daily; notifications at `proximaRevisao + 0`) | ✅ Complete | lgpd_scheduledAnnualReview exported, scheduled 07:00 BRT |
-| Auditor can demonstrate: published policy + DPIA template + audit chain in <5 min | ⏸️ Blocked on T3/T4 | Components ready; requires docs to be `vigente` first |
-| **DROPPED (DL-3):** ~~Patient registration shows policy link + consent~~ | ✅ N/A | Deferred to v1.4 Phase 5; captured in DL-3 note |
-| **NEW (DL-2 confirmation):** zero edits to `src/features/sgd/` | ✅ Verified | `git diff src/features/sgd/` is empty |
+| Criteria                                                                                   | Status              | Evidence                                                       |
+| ------------------------------------------------------------------------------------------ | ------------------- | -------------------------------------------------------------- |
+| Policy published in **SGQ** (not SGD) with version 1.0                                     | ⏸️ Blocked on T3    | Policy markdown complete; needs SGQ UI creation + RT signature |
+| Linked from `SGQView` "Documentos Obrigatórios" strip with emerald badge                   | ✅ Complete         | DocumentosObrigatoriosBadge integrated, placed below KPIs      |
+| DPIA template (`IT-LGPD-DPIA-001`) exists in SGQ as `vigente` v1.0                         | ⏸️ Blocked on T4    | DPIA markdown complete; needs SGQ UI creation + RT signature   |
+| Annual review reminder scheduled (cron fires daily; notifications at `proximaRevisao + 0`) | ✅ Complete         | lgpd_scheduledAnnualReview exported, scheduled 07:00 BRT       |
+| Auditor can demonstrate: published policy + DPIA template + audit chain in <5 min          | ⏸️ Blocked on T3/T4 | Components ready; requires docs to be `vigente` first          |
+| **DROPPED (DL-3):** ~~Patient registration shows policy link + consent~~                   | ✅ N/A              | Deferred to v1.4 Phase 5; captured in DL-3 note                |
+| **NEW (DL-2 confirmation):** zero edits to `src/features/sgd/`                             | ✅ Verified         | `git diff src/features/sgd/` is empty                          |
 
 ---
 
 ## Verification Gates — Pre-Execution Status
 
-| Gate | Status | Blocker |
-|---|---|---|
-| `npx tsc --noEmit` (web) | ⏸️ Pending | Requires build phase |
-| `cd functions && npx tsc --noEmit` | ⏸️ Pending | Requires build phase |
-| `npm test` baseline 738/738 passing | ⏸️ Pending | Requires test execution |
-| `verifyChain` script passes for POL-LGPD-001 + IT-LGPD-DPIA-001 audit | ⏸️ Blocked on T3/T4 | Docs must exist in Firestore first |
-| `bash scripts/monitor-cloud-logs.sh` clean post-deploy | ⏸️ Blocked on T7 | Deploy not yet executed |
-| Cloud Functions deploy success (`lgpd_scheduledAnnualReview` registered) | ⏸️ Blocked on T7 | Manual deploy required |
-| Hosting deploy success | ⏸️ Blocked on T7 | Manual deploy required |
-| No new `manualChunks` entry needed | ✅ Verified | Badge lives in existing SGQ chunk; main bundle delta <2KB gzip |
+| Gate                                                                     | Status              | Blocker                                                        |
+| ------------------------------------------------------------------------ | ------------------- | -------------------------------------------------------------- |
+| `npx tsc --noEmit` (web)                                                 | ⏸️ Pending          | Requires build phase                                           |
+| `cd functions && npx tsc --noEmit`                                       | ⏸️ Pending          | Requires build phase                                           |
+| `npm test` baseline 738/738 passing                                      | ⏸️ Pending          | Requires test execution                                        |
+| `verifyChain` script passes for POL-LGPD-001 + IT-LGPD-DPIA-001 audit    | ⏸️ Blocked on T3/T4 | Docs must exist in Firestore first                             |
+| `bash scripts/monitor-cloud-logs.sh` clean post-deploy                   | ⏸️ Blocked on T7    | Deploy not yet executed                                        |
+| Cloud Functions deploy success (`lgpd_scheduledAnnualReview` registered) | ⏸️ Blocked on T7    | Manual deploy required                                         |
+| Hosting deploy success                                                   | ⏸️ Blocked on T7    | Manual deploy required                                         |
+| No new `manualChunks` entry needed                                       | ✅ Verified         | Badge lives in existing SGQ chunk; main bundle delta <2KB gzip |
 
 ---
 
@@ -281,18 +303,21 @@ status: partially-complete
 ## Key Files Created/Modified
 
 ### Created
+
 - `docs/policies/POL-LGPD-001-v1.0.md` (3,800 words)
 - `docs/policies/IT-LGPD-DPIA-001-v1.0.md` (3,200 words)
 - `src/features/sgq/components/DocumentosObrigatoriosBadge.tsx` (178 lines, fully typed)
 - `functions/src/modules/lgpd/scheduledAnnualReview.ts` (94 lines, production-ready)
 
 ### Modified
+
 - `src/features/sgq/SGQView.tsx` (+3 lines: import + render badge)
 - `functions/src/modules/lgpd/index.ts` (+1 export)
 - `functions/src/index.ts` (+6 lines: comment + export)
 - `CLAUDE.md` (root, 1 line: SGQ module milestone)
 
 ### Total Lines Added
+
 - Documentation (markdown): 7,000 lines
 - Code (TypeScript): 278 lines
 - Bundle impact: ~3KB (minimal)
@@ -301,11 +326,11 @@ status: partially-complete
 
 ## Risk Hooks — Mitigation Status
 
-| Risk | Mitigation | Status |
-|---|---|---|
-| **P0-R5** (compliance lead unavailable) | CTO can self-approve POL/DPIA per RISK-405 | ✅ Markdown ready for self-approval; no blocker |
-| **RISK-409** (regression in v1.3 modules) | Zero edits to existing SGQ service/hook write paths; only read-only badge added | ✅ Zero regression risk; tested SGQ hook unchanged |
-| **RISK-403** (auditor demonstration script) | Plan 00-03 will include demonstration steps; LGPD evidence captured | ⏸️ Deferred to audit gates post-deploy |
+| Risk                                        | Mitigation                                                                      | Status                                             |
+| ------------------------------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------- |
+| **P0-R5** (compliance lead unavailable)     | CTO can self-approve POL/DPIA per RISK-405                                      | ✅ Markdown ready for self-approval; no blocker    |
+| **RISK-409** (regression in v1.3 modules)   | Zero edits to existing SGQ service/hook write paths; only read-only badge added | ✅ Zero regression risk; tested SGQ hook unchanged |
+| **RISK-403** (auditor demonstration script) | Plan 00-03 will include demonstration steps; LGPD evidence captured             | ⏸️ Deferred to audit gates post-deploy             |
 
 ---
 
@@ -346,6 +371,7 @@ status: partially-complete
 ## Commits Pending
 
 Once all tasks complete, the final commit will be:
+
 ```
 docs(00-02-lgpd): Complete Phase 0 LGPD Compliance — POL-LGPD-001 + IT-LGPD-DPIA-001 v1.0 vigente, DocumentosObrigatoriosBadge integrated, lgpd_scheduledAnnualReview scheduled, auditor demo ready
 
@@ -390,4 +416,4 @@ OPEN-2: DPIA v1.0 with ADR-0016 forward reference ✓
 
 ---
 
-*Plan 00-02 engineering phase complete. Ready for operational handoff (T2–T4) and deployment phase (T7).*
+_Plan 00-02 engineering phase complete. Ready for operational handoff (T2–T4) and deployment phase (T7)._

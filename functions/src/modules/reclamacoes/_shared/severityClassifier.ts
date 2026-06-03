@@ -42,24 +42,13 @@ const ALTA_PATTERNS: SeverityPattern[] = [
 const MEDIA_PATTERNS: SeverityPattern[] = [
   {
     severidade: 'media',
-    keywords: [
-      'demora',
-      'atrasado',
-      'atraso',
-      'esperando',
-      'valor cobrado',
-      'cobrança',
-    ],
+    keywords: ['demora', 'atrasado', 'atraso', 'esperando', 'valor cobrado', 'cobrança'],
     weight: 0.8,
   },
 ];
 
 function normalizeText(text: string): string {
-  return text
-    .toLowerCase()
-    .normalize('NFD')
-    .replace(/[̀-ͯ]/g, '')
-    .trim();
+  return text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').trim();
 }
 
 function scoreText(text: string, patterns: SeverityPattern[]): number {
@@ -81,9 +70,7 @@ function scoreText(text: string, patterns: SeverityPattern[]): number {
   return Math.min(1.0, score / (patterns.length * 0.5 + matchCount * 0.1));
 }
 
-export function classificarSeveridadeHeuristica(
-  descricao: string
-): {
+export function classificarSeveridadeHeuristica(descricao: string): {
   severidade: SeveridadeReclamacao;
   confianca: number;
 } {
@@ -112,7 +99,7 @@ export function classificarSeveridadeHeuristica(
 
 export function shouldTriggerNCAutocreate(
   severidade: SeveridadeReclamacao,
-  descricao: string
+  descricao: string,
 ): boolean {
   return severidade === 'alta' && descricao.trim().length >= 100;
 }

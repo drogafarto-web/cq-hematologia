@@ -10,14 +10,18 @@ const RegisterPresencaInput = z.object({
   labId: z.string().min(1, 'labId é obrigatório'),
   auditoriaId: z.string().min(1, 'auditoriaId é obrigatório'),
   sessaoId: z.string().min(1, 'sessaoId é obrigatório'),
-  reuniao: z.enum(['abertura', 'encerramento'], { message: 'reuniao deve ser abertura ou encerramento' }),
-  participantes: z.array(
-    z.object({
-      userId: z.string().min(1, 'userId é obrigatório'),
-      nome: z.string().min(1, 'nome é obrigatório'),
-      papel: z.string().min(1, 'papel é obrigatório'),
-    })
-  ).min(1, 'Deve haver pelo menos um participante'),
+  reuniao: z.enum(['abertura', 'encerramento'], {
+    message: 'reuniao deve ser abertura ou encerramento',
+  }),
+  participantes: z
+    .array(
+      z.object({
+        userId: z.string().min(1, 'userId é obrigatório'),
+        nome: z.string().min(1, 'nome é obrigatório'),
+        papel: z.string().min(1, 'papel é obrigatório'),
+      }),
+    )
+    .min(1, 'Deve haver pelo menos um participante'),
 });
 
 type RegisterPresencaInputType = z.infer<typeof RegisterPresencaInput>;
@@ -58,7 +62,12 @@ export const registerPresenca = onCall(
 
     try {
       // Verify auditoria exists
-      const auditoriaSnap = await db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).get();
+      const auditoriaSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .get();
       if (!auditoriaSnap.exists) {
         throw new HttpsError('not-found', 'Auditoria não encontrada');
       }
@@ -68,7 +77,14 @@ export const registerPresenca = onCall(
       }
 
       // Verify sessao exists under this auditoria
-      const sessaoSnap = await db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).collection('sessoes').doc(sessaoId).get();
+      const sessaoSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .collection('sessoes')
+        .doc(sessaoId)
+        .get();
       if (!sessaoSnap.exists) {
         throw new HttpsError('not-found', 'Sessão não encontrada nesta auditoria');
       }
@@ -88,7 +104,15 @@ export const registerPresenca = onCall(
       };
 
       // Write reunião record (immutable)
-      const reuniaoRef = db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).collection('sessoes').doc(sessaoId).collection('reunioes').doc();
+      const reuniaoRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .collection('sessoes')
+        .doc(sessaoId)
+        .collection('reunioes')
+        .doc();
       await reuniaoRef.set({
         labId,
         auditoriaId,
@@ -109,5 +133,5 @@ export const registerPresenca = onCall(
       console.error('registerPresenca error:', err);
       throw new HttpsError('internal', 'Erro ao registrar presença');
     }
-  }
+  },
 );

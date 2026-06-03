@@ -123,8 +123,7 @@ export function calculateAccuracy(images: VerifiedImage[]): AccuracyMetrics {
 
   for (const img of verified) {
     const conf = img.geminiClassification.confidence;
-    const isCorrect =
-      img.geminiClassification.classification === img.manualVerdict.classification;
+    const isCorrect = img.geminiClassification.classification === img.manualVerdict.classification;
 
     if (conf >= 0.7 && conf < 0.8) {
       bins['0.7-0.8'].total++;
@@ -145,8 +144,7 @@ export function calculateAccuracy(images: VerifiedImage[]): AccuracyMetrics {
   for (const kit of testKits) {
     const kitImages = verified.filter((img) => img.testKit === kit);
     const kitCorrect = kitImages.filter(
-      (img) =>
-        img.geminiClassification.classification === img.manualVerdict.classification
+      (img) => img.geminiClassification.classification === img.manualVerdict.classification,
     ).length;
 
     const avgConf =
@@ -170,24 +168,15 @@ export function calculateAccuracy(images: VerifiedImage[]): AccuracyMetrics {
     confidenceBins: {
       '0.7-0.8': {
         count: bins['0.7-0.8'].total,
-        accuracy:
-          bins['0.7-0.8'].total > 0
-            ? bins['0.7-0.8'].correct / bins['0.7-0.8'].total
-            : 0,
+        accuracy: bins['0.7-0.8'].total > 0 ? bins['0.7-0.8'].correct / bins['0.7-0.8'].total : 0,
       },
       '0.8-0.9': {
         count: bins['0.8-0.9'].total,
-        accuracy:
-          bins['0.8-0.9'].total > 0
-            ? bins['0.8-0.9'].correct / bins['0.8-0.9'].total
-            : 0,
+        accuracy: bins['0.8-0.9'].total > 0 ? bins['0.8-0.9'].correct / bins['0.8-0.9'].total : 0,
       },
       '0.9-1.0': {
         count: bins['0.9-1.0'].total,
-        accuracy:
-          bins['0.9-1.0'].total > 0
-            ? bins['0.9-1.0'].correct / bins['0.9-1.0'].total
-            : 0,
+        accuracy: bins['0.9-1.0'].total > 0 ? bins['0.9-1.0'].correct / bins['0.9-1.0'].total : 0,
       },
     },
     perTestKitMetrics: perKit,

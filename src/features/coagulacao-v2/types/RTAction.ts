@@ -4,12 +4,8 @@ export interface RTAction {
   id: string;
   labId: string;
   tipo: 'aprovar_controle' | 'rejeitar_controle' | 'notificar_notivisa';
-  targetRef:
-    | { type: 'ControlOperacional'; id: string }
-    | { type: 'Attempt'; id: string };
-  payload: AprovarControlePayload
-    | RejeitarControlePayload
-    | NotificarNotivisaPayload;
+  targetRef: { type: 'ControlOperacional'; id: string } | { type: 'Attempt'; id: string };
+  payload: AprovarControlePayload | RejeitarControlePayload | NotificarNotivisaPayload;
   criadoEm: Timestamp;
   criadoPor: string;
 }
@@ -36,6 +32,18 @@ export interface NotificarNotivisaPayload {
 }
 
 export type RTActionInput =
-  | { tipo: 'aprovar_controle'; controlOperacionalId: string; payload: Omit<AprovarControlePayload, 'tipo'> }
-  | { tipo: 'rejeitar_controle'; controlOperacionalId: string; payload: Omit<RejeitarControlePayload, 'tipo'> }
-  | { tipo: 'notificar_notivisa'; attemptId: string; payload: Omit<NotificarNotivisaPayload, 'tipo'> };
+  | {
+      tipo: 'aprovar_controle';
+      controlOperacionalId: string;
+      payload: Omit<AprovarControlePayload, 'tipo'>;
+    }
+  | {
+      tipo: 'rejeitar_controle';
+      controlOperacionalId: string;
+      payload: Omit<RejeitarControlePayload, 'tipo'>;
+    }
+  | {
+      tipo: 'notificar_notivisa';
+      attemptId: string;
+      payload: Omit<NotificarNotivisaPayload, 'tipo'>;
+    };

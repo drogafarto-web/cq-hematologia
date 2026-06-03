@@ -147,9 +147,7 @@ export function NCConfiguracoes({ labId }: NCConfiguracoesProps) {
       {/* Setores */}
       <div className="bg-[#141417] rounded-xl border border-white/[0.08] p-6">
         <h3 className="text-sm font-semibold text-white mb-1">Setores</h3>
-        <p className="text-xs text-white/40 mb-4">
-          Setores disponíveis para classificação de NCs
-        </p>
+        <p className="text-xs text-white/40 mb-4">Setores disponíveis para classificação de NCs</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {config.setores.map((setor) => (
             <span
@@ -191,9 +189,7 @@ export function NCConfiguracoes({ labId }: NCConfiguracoesProps) {
       {/* Origens */}
       <div className="bg-[#141417] rounded-xl border border-white/[0.08] p-6">
         <h3 className="text-sm font-semibold text-white mb-1">Origens</h3>
-        <p className="text-xs text-white/40 mb-4">
-          Como a não conformidade foi identificada
-        </p>
+        <p className="text-xs text-white/40 mb-4">Como a não conformidade foi identificada</p>
         <div className="flex flex-wrap gap-2 mb-4">
           {config.origens.map((origem) => (
             <span
@@ -262,9 +258,7 @@ export function NCConfiguracoes({ labId }: NCConfiguracoesProps) {
       {/* Salvar */}
       <div className="flex items-center justify-between">
         <div className="text-xs text-white/40">
-          {saved && (
-            <span className="text-emerald-400 font-medium">✓ Configurações salvas</span>
-          )}
+          {saved && <span className="text-emerald-400 font-medium">✓ Configurações salvas</span>}
         </div>
         <button
           type="button"
@@ -294,7 +288,11 @@ export function NCConfiguracoes({ labId }: NCConfiguracoesProps) {
 
 function MigrationPanel({ labId }: { labId: string }) {
   const [migrating, setMigrating] = useState(false);
-  const [result, setResult] = useState<{ migrated: number; skipped: number; message: string } | null>(null);
+  const [result, setResult] = useState<{
+    migrated: number;
+    skipped: number;
+    message: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const runMigration = async () => {
@@ -317,8 +315,8 @@ function MigrationPanel({ labId }: { labId: string }) {
     <div className="bg-[#141417] rounded-xl border border-amber-500/20 p-6">
       <h3 className="text-sm font-semibold text-amber-400 mb-1">Migração de Dados</h3>
       <p className="text-xs text-white/40 mb-4">
-        Migra NCs da collection antiga (nao-conformidades) para a collection unificada (naoConformidades).
-        NCs criadas pelo CEQ antes da correção serão importadas.
+        Migra NCs da collection antiga (nao-conformidades) para a collection unificada
+        (naoConformidades). NCs criadas pelo CEQ antes da correção serão importadas.
       </p>
 
       {result && (

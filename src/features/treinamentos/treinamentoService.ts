@@ -14,8 +14,7 @@ import {
 import { db } from '../../shared/services/firebase';
 import type { Treinamento, TreinamentoFilters } from './types/Treinamento';
 
-const treinamentosCollection = (labId: string) =>
-  collection(db, `labs/${labId}/treinamentos`);
+const treinamentosCollection = (labId: string) => collection(db, `labs/${labId}/treinamentos`);
 
 // ─── Subscribe ────────────────────────────────────────────────────────────
 
@@ -43,7 +42,11 @@ export function subscribeTrainamentos(
     whereConstraints.push(where('instrutorId', '==', filters.instrutorId));
   }
 
-  const q = query(treinamentosCollection(labId), ...whereConstraints, orderBy('dataAgendada', 'desc'));
+  const q = query(
+    treinamentosCollection(labId),
+    ...whereConstraints,
+    orderBy('dataAgendada', 'desc'),
+  );
 
   return onSnapshot(
     q,
@@ -54,8 +57,7 @@ export function subscribeTrainamentos(
           if (filters.busca) {
             const search = filters.busca.toLowerCase();
             return (
-              t.titulo.toLowerCase().includes(search) ||
-              t.popNome.toLowerCase().includes(search)
+              t.titulo.toLowerCase().includes(search) || t.popNome.toLowerCase().includes(search)
             );
           }
           return true;
@@ -80,10 +82,7 @@ export async function getTreinamento(
 
 // ─── Get by POP ────────────────────────────────────────────────────────────
 
-export async function getTreinamentosByPopId(
-  labId: string,
-  popId: string,
-): Promise<Treinamento[]> {
+export async function getTreinamentosByPopId(labId: string, popId: string): Promise<Treinamento[]> {
   const q = query(
     treinamentosCollection(labId),
     where('popId', '==', popId),

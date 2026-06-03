@@ -9,7 +9,13 @@
 
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { CreateRiskInputSchema, validateAndComputeNPR, assertRisksAccess, risksCollection, ensureRisksLabRoot } from './validators';
+import {
+  CreateRiskInputSchema,
+  validateAndComputeNPR,
+  assertRisksAccess,
+  risksCollection,
+  ensureRisksLabRoot,
+} from './validators';
 import { generateRisksSignatureServer } from './signatureCanonical';
 
 export const risks_seedFromXlsx = onCall(
@@ -30,10 +36,8 @@ export const risks_seedFromXlsx = onCall(
     const db = admin.firestore();
     await ensureRisksLabRoot(db, labId);
 
-    const existingSnap = await risksCollection(db, labId)
-      .where('deletadoEm', '==', null)
-      .get();
-    const existingCodigos = new Set(existingSnap.docs.map(d => d.data().codigo));
+    const existingSnap = await risksCollection(db, labId).where('deletadoEm', '==', null).get();
+    const existingCodigos = new Set(existingSnap.docs.map((d) => d.data().codigo));
 
     const now = admin.firestore.Timestamp.now();
     const reviewDate = new admin.firestore.Timestamp(

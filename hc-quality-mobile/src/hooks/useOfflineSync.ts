@@ -11,7 +11,7 @@ export function useOfflineSync() {
   });
   const [lastResult, setLastResult] = useState<SyncResult | null>(null);
   const serviceRef = useRef<SyncService | null>(null);
-  const pendingSyncCount = useAuditOfflineStore(s => s.pendingSyncCount);
+  const pendingSyncCount = useAuditOfflineStore((s) => s.pendingSyncCount);
 
   useEffect(() => {
     const service = new SyncService((newStatus) => {
@@ -27,7 +27,7 @@ export function useOfflineSync() {
   }, []);
 
   useEffect(() => {
-    setStatus(prev => ({ ...prev, pendingCount: pendingSyncCount }));
+    setStatus((prev) => ({ ...prev, pendingCount: pendingSyncCount }));
   }, [pendingSyncCount]);
 
   const syncNow = useCallback(async () => {

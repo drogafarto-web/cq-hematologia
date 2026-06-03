@@ -33,12 +33,12 @@ export async function createNCFromAchado(
   achado: Achado,
   auditoriaId: string,
   sessaoId: string,
-  operatorId: string
+  operatorId: string,
 ): Promise<{ ncId: string }> {
   // CRITICAL: Cross-tenant validation
   if (achado.labId !== labId) {
     throw new Error(
-      `Cross-tenant violation: achado.labId=${achado.labId} does not match labId=${labId}`
+      `Cross-tenant violation: achado.labId=${achado.labId} does not match labId=${labId}`,
     );
   }
 
@@ -60,15 +60,10 @@ export async function createNCFromAchado(
   const sortedKeys = Object.keys(canonicalPayload).sort();
   const canonicalJson =
     '{' +
-    sortedKeys
-      .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
-      .join(',') +
+    sortedKeys.map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`).join(',') +
     '}';
 
-  const hash = crypto
-    .createHash('sha256')
-    .update(canonicalJson)
-    .digest('hex');
+  const hash = crypto.createHash('sha256').update(canonicalJson).digest('hex');
 
   const assinatura: LogicalSignature = {
     hash,

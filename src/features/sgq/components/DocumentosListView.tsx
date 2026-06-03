@@ -26,14 +26,30 @@ import {
   type TipoAlteracao,
   type TipoDocumento,
 } from '../types/Documento';
-import { criarDocumentoGDocs, publicarDocumento, exportDocumentoPdfA4, exportFormularioXlsx } from '../services/documentoService';
+import {
+  criarDocumentoGDocs,
+  publicarDocumento,
+  exportDocumentoPdfA4,
+  exportFormularioXlsx,
+} from '../services/documentoService';
 import { PublicarDocumentoModal } from './PublicarDocumentoModal';
 import { CarimboVirtual } from './CarimboVirtual';
 import { useHistoricoVersoes } from '../hooks/useHistoricoVersoes';
 import { useActiveLabId, useActiveLab } from '../../../store/useAuthStore';
 import { storage, getDownloadURL, ref } from '../../../shared/services/firebase';
 
-const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'PQ-ANA', 'PQ-EQP', 'IT', 'ITA', 'FR', 'POL', 'ATA', 'RAI'];
+const TIPOS: TipoDocumento[] = [
+  'MQ',
+  'PQ',
+  'PQ-ANA',
+  'PQ-EQP',
+  'IT',
+  'ITA',
+  'FR',
+  'POL',
+  'ATA',
+  'RAI',
+];
 const STATUSES: StatusDocumento[] = ['em_revisao', 'vigente', 'obsoleto'];
 
 interface Props {
@@ -267,160 +283,199 @@ const DocumentoRow = memo(function DocumentoRow({
 
   return (
     <>
-    <tr
-      className="hover:bg-white/[0.02] transition-colors cursor-pointer"
-      onClick={() => setExpanded((prev) => !prev)}
-    >
-      <td className="px-4 py-2.5 font-mono text-xs text-white/85">{doc.codigo}</td>
-      <td className="px-4 py-2.5 text-white/85 truncate max-w-xs">{doc.titulo}</td>
-      <td className="px-4 py-2.5 text-white/50 text-xs">{TIPO_LABEL[doc.tipo]}</td>
-      <td className="px-4 py-2.5 text-white/50 text-xs">{formatVersao(doc.versao)}</td>
-      <td className="px-4 py-2.5">
-        <span
-          className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusBadge}`}
-        >
-          {statusLabel}
-        </span>
-      </td>
-      <td className="px-4 py-2.5 text-white/50 text-xs">
-        {(doc.proximaRevisao && typeof doc.proximaRevisao.toDate === 'function'
-          ? doc.proximaRevisao.toDate().toLocaleDateString('pt-BR')
-          : doc.proximaRevisao instanceof Date
-            ? doc.proximaRevisao.toLocaleDateString('pt-BR')
-            : '—')}
-      </td>
-      <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
-        <div className="inline-flex items-center gap-1 justify-end">
-          {/* Criar no Google Docs */}
-          {!doc.googleDocId && doc.status === 'em_revisao' && labId && (
-            <button
-              type="button"
-              onClick={async () => {
-                setCreatingGDocs(true);
-                try {
-                  await criarDocumentoGDocs(labId, doc.id);
-                } finally {
-                  setCreatingGDocs(false);
-                }
-              }}
-              disabled={creatingGDocs}
-              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05] disabled:opacity-40"
-              title="Criar no Google Docs"
-            >
-              {creatingGDocs ? (
-                <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+      <tr
+        className="hover:bg-white/[0.02] transition-colors cursor-pointer"
+        onClick={() => setExpanded((prev) => !prev)}
+      >
+        <td className="px-4 py-2.5 font-mono text-xs text-white/85">{doc.codigo}</td>
+        <td className="px-4 py-2.5 text-white/85 truncate max-w-xs">{doc.titulo}</td>
+        <td className="px-4 py-2.5 text-white/50 text-xs">{TIPO_LABEL[doc.tipo]}</td>
+        <td className="px-4 py-2.5 text-white/50 text-xs">{formatVersao(doc.versao)}</td>
+        <td className="px-4 py-2.5">
+          <span
+            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${statusBadge}`}
+          >
+            {statusLabel}
+          </span>
+        </td>
+        <td className="px-4 py-2.5 text-white/50 text-xs">
+          {doc.proximaRevisao && typeof doc.proximaRevisao.toDate === 'function'
+            ? doc.proximaRevisao.toDate().toLocaleDateString('pt-BR')
+            : doc.proximaRevisao instanceof Date
+              ? doc.proximaRevisao.toLocaleDateString('pt-BR')
+              : '—'}
+        </td>
+        <td className="px-4 py-2.5 text-right" onClick={(e) => e.stopPropagation()}>
+          <div className="inline-flex items-center gap-1 justify-end">
+            {/* Criar no Google Docs */}
+            {!doc.googleDocId && doc.status === 'em_revisao' && labId && (
+              <button
+                type="button"
+                onClick={async () => {
+                  setCreatingGDocs(true);
+                  try {
+                    await criarDocumentoGDocs(labId, doc.id);
+                  } finally {
+                    setCreatingGDocs(false);
+                  }
+                }}
+                disabled={creatingGDocs}
+                className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05] disabled:opacity-40"
+                title="Criar no Google Docs"
+              >
+                {creatingGDocs ? (
+                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="12" y1="18" x2="12" y2="12" />
+                    <line x1="9" y1="15" x2="15" y2="15" />
+                  </svg>
+                )}
+              </button>
+            )}
+
+            {/* Abrir no Google Docs */}
+            {doc.googleDocId && doc.status === 'em_revisao' && doc.googleDocUrl && (
+              <button
+                type="button"
+                onClick={() => window.open(doc.googleDocUrl!, '_blank')}
+                className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+                title="Abrir no Google Docs"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
+                  <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
+                  <polyline points="15 3 21 3 21 9" />
+                  <line x1="10" y1="14" x2="21" y2="3" />
                 </svg>
-              ) : (
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              </button>
+            )}
+
+            {/* Ver PDF */}
+            {doc.snapshotPdfUrl && (
+              <button
+                type="button"
+                onClick={handleOpenPdf}
+                className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+                title="Ver PDF"
+              >
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                >
                   <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                   <polyline points="14 2 14 8 20 8" />
-                  <line x1="12" y1="18" x2="12" y2="12" />
-                  <line x1="9" y1="15" x2="15" y2="15" />
+                  <path d="M9 15h6" />
+                  <path d="M9 11h6" />
                 </svg>
-              )}
-            </button>
-          )}
-
-          {/* Abrir no Google Docs */}
-          {doc.googleDocId && doc.status === 'em_revisao' && doc.googleDocUrl && (
-            <button
-              type="button"
-              onClick={() => window.open(doc.googleDocUrl!, '_blank')}
-              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
-              title="Abrir no Google Docs"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6" />
-                <polyline points="15 3 21 3 21 9" />
-                <line x1="10" y1="14" x2="21" y2="3" />
-              </svg>
-            </button>
-          )}
-
-          {/* Ver PDF */}
-          {doc.snapshotPdfUrl && (
-            <button
-              type="button"
-              onClick={handleOpenPdf}
-              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
-              title="Ver PDF"
-            >
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-                <polyline points="14 2 14 8 20 8" />
-                <path d="M9 15h6" />
-                <path d="M9 11h6" />
-              </svg>
-            </button>
-          )}
-
-          {/* Abrir URL */}
-          {doc.url && doc.url.startsWith('http') && (
-            <a
-              href={doc.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
-              title="Abrir documento"
-            >
-              Abrir
-            </a>
-          )}
-
-          {doc.status === 'em_revisao' && (
-            <>
-              {/* Publicar */}
-              <button
-                type="button"
-                onClick={() => onPublicar(doc)}
-                className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30"
-                title="Publicar documento"
-              >
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                  <polyline points="20 6 9 17 4 12" />
-                </svg>
-                Publicar
               </button>
-              <button
-                type="button"
-                onClick={() => onEditar(doc)}
+            )}
+
+            {/* Abrir URL */}
+            {doc.url && doc.url.startsWith('http') && (
+              <a
+                href={doc.url}
+                target="_blank"
+                rel="noopener noreferrer"
                 className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+                title="Abrir documento"
               >
-                Editar
-              </button>
-              <button
-                type="button"
-                onClick={() => onRemover(doc)}
-                className="text-[11px] text-red-400/70 hover:text-red-400 px-2 py-1 rounded hover:bg-red-500/10"
-              >
-                Remover
-              </button>
-            </>
-          )}
-          {doc.status === 'vigente' && (
-            <>
-              <button
-                type="button"
-                onClick={() => onRevisar(doc)}
-                className="text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/10"
-              >
-                Revisar
-              </button>
-              <button
-                type="button"
-                onClick={() => onEditar(doc)}
-                className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
-              >
-                Editar
-              </button>
-            </>
-          )}
-        </div>
-      </td>
-    </tr>
-    {expanded && <ExpandedCarimboRow doc={doc} />}
+                Abrir
+              </a>
+            )}
+
+            {doc.status === 'em_revisao' && (
+              <>
+                {/* Publicar */}
+                <button
+                  type="button"
+                  onClick={() => onPublicar(doc)}
+                  className="inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded bg-emerald-600/20 hover:bg-emerald-600/30"
+                  title="Publicar documento"
+                >
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                  Publicar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onEditar(doc)}
+                  className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+                >
+                  Editar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onRemover(doc)}
+                  className="text-[11px] text-red-400/70 hover:text-red-400 px-2 py-1 rounded hover:bg-red-500/10"
+                >
+                  Remover
+                </button>
+              </>
+            )}
+            {doc.status === 'vigente' && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => onRevisar(doc)}
+                  className="text-[11px] text-emerald-400 hover:text-emerald-300 px-2 py-1 rounded hover:bg-emerald-500/10"
+                >
+                  Revisar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onEditar(doc)}
+                  className="text-[11px] text-white/50 hover:text-white/85 px-2 py-1 rounded hover:bg-white/[0.05]"
+                >
+                  Editar
+                </button>
+              </>
+            )}
+          </div>
+        </td>
+      </tr>
+      {expanded && <ExpandedCarimboRow doc={doc} />}
     </>
   );
 });
@@ -474,11 +529,29 @@ function ExpandedCarimboRow({ doc }: { doc: Documento }) {
               >
                 {exporting ? (
                   <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                 ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
                     <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
                     <polyline points="14 2 14 8 20 8" />
                     <path d="M12 18v-6M9 15l3 3 3-3" />
@@ -496,11 +569,29 @@ function ExpandedCarimboRow({ doc }: { doc: Documento }) {
               >
                 {exportingXlsx ? (
                   <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                    />
                   </svg>
                 ) : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <svg
+                    width="14"
+                    height="14"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.5"
+                  >
                     <rect x="3" y="3" width="18" height="18" rx="2" />
                     <path d="M9 3v18M3 9h18M3 15h18" />
                   </svg>

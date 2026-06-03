@@ -1,4 +1,5 @@
 # Phase 5 Execution Checklist
+
 ## Patient Portal Phase 1 — Laudo Download + Portal Access
 
 **Duration:** 14 working days (2 weeks)  
@@ -451,9 +452,10 @@
 - [ ] **src/features/patient-portal/CLAUDE.md** — complete (module-specific rules)
 - [ ] **src/features/patient-portal/README.md** (if needed) — quick start for developers
 - [ ] **Commit message template:**
+
   ```
   feat(patient-portal): Phase 5 — Email-link auth + laudo download + NPS feedback
-  
+
   - Email-link auth with 72h expiry (generatePatientAuthLink CF)
   - PDF generation with QR code (generatePatientLaudoPDF CF)
   - NPS feedback form (submitPatientFeedback CF)
@@ -462,7 +464,7 @@
   - Mobile responsive (375px target)
   - LGPD privacy notice + policy modal
   - 6 E2E test specs (email, token, PDF, NPS, mobile, audit)
-  
+
   Co-Authored-By: Claude Haiku 4.5 <noreply@anthropic.com>
   ```
 
@@ -479,7 +481,7 @@
 ✅ **LGPD compliance checked** (notice visible, policy accessible)  
 ✅ **Riopomba patient CSV loaded** (2,000+ patients)  
 ✅ **RT dashboard audit log visible** (in Liberação module)  
-✅ **Post-deploy monitoring active** (24h logging)  
+✅ **Post-deploy monitoring active** (24h logging)
 
 ---
 

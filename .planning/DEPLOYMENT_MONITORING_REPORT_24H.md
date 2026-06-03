@@ -10,6 +10,7 @@
 ## Executive Summary
 
 HC Quality v1.3 deployment completed successfully across all three phases:
+
 - **Step 1 (Rules+Indexes):** ✅ Live 2026-05-07 00:32:25Z
 - **Step 2 (Cloud Functions):** ✅ Deployed 2026-05-07 (32 functions, 5 batches)
 - **Step 3 (Hosting):** ✅ Live 2026-05-07 02:15:00Z
@@ -20,15 +21,15 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 
 ## Deployment Timeline
 
-| Event | Timestamp (UTC) | Status | Details |
-|-------|---|---|---|
-| Step 1: Rules + Indexes | 2026-05-07 00:32:25Z | ✅ Complete | Firestore security rules + 4 composite indexes |
-| Step 2: Functions Deploy Batch 1 | 2026-05-07 ~01:00Z | ✅ Complete | Management-Review (2 functions) |
-| Step 2: Functions Deploy Batch 2 | 2026-05-07 ~01:05Z | ✅ Complete | Bioquímica (5 functions, cron fix applied) |
-| Step 2: Functions Deploy Batch 3 | 2026-05-07 ~01:40Z | ✅ Complete | SGQ + Liberação (12 functions) |
-| Step 2: Functions Deploy Batch 4 | 2026-05-07 ~02:00Z | ✅ Complete | Reclamações (5 functions) |
-| Step 2: Functions Deploy Batch 5 | 2026-05-07 ~02:15Z | ✅ Complete | Satisfação + Sugestões (8 functions) |
-| Step 3: Hosting Deploy | 2026-05-07 02:15:00Z | ✅ Complete | Web app + PWA |
+| Event                            | Timestamp (UTC)      | Status      | Details                                        |
+| -------------------------------- | -------------------- | ----------- | ---------------------------------------------- |
+| Step 1: Rules + Indexes          | 2026-05-07 00:32:25Z | ✅ Complete | Firestore security rules + 4 composite indexes |
+| Step 2: Functions Deploy Batch 1 | 2026-05-07 ~01:00Z   | ✅ Complete | Management-Review (2 functions)                |
+| Step 2: Functions Deploy Batch 2 | 2026-05-07 ~01:05Z   | ✅ Complete | Bioquímica (5 functions, cron fix applied)     |
+| Step 2: Functions Deploy Batch 3 | 2026-05-07 ~01:40Z   | ✅ Complete | SGQ + Liberação (12 functions)                 |
+| Step 2: Functions Deploy Batch 4 | 2026-05-07 ~02:00Z   | ✅ Complete | Reclamações (5 functions)                      |
+| Step 2: Functions Deploy Batch 5 | 2026-05-07 ~02:15Z   | ✅ Complete | Satisfação + Sugestões (8 functions)           |
+| Step 3: Hosting Deploy           | 2026-05-07 02:15:00Z | ✅ Complete | Web app + PWA                                  |
 
 **Total deployment time:** ~2h 45m (Steps 1–3 complete)
 
@@ -38,24 +39,24 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 
 ### Firebase Services Health
 
-| Service | Status | Notes |
-|---------|--------|-------|
-| **Authentication** | ✅ Normal | Multi-tenant auth via `request.auth.uid` enforced |
+| Service                  | Status    | Notes                                                                                  |
+| ------------------------ | --------- | -------------------------------------------------------------------------------------- |
+| **Authentication**       | ✅ Normal | Multi-tenant auth via `request.auth.uid` enforced                                      |
 | **Firestore (Database)** | ✅ Normal | Rules engine permissive during implantação phase; no permission denied errors expected |
-| **Cloud Functions** | ✅ Normal | 32/32 functions ACTIVE in Firebase Console; all regions: `southamerica-east1` |
-| **Cloud Hosting** | ✅ Normal | Static assets served from CDN; PWA Service Worker registered |
-| **Firestore Rules** | ✅ Active | All security rules live; `/labs/{labId}/*` multi-tenant isolation enforced |
+| **Cloud Functions**      | ✅ Normal | 32/32 functions ACTIVE in Firebase Console; all regions: `southamerica-east1`          |
+| **Cloud Hosting**        | ✅ Normal | Static assets served from CDN; PWA Service Worker registered                           |
+| **Firestore Rules**      | ✅ Active | All security rules live; `/labs/{labId}/*` multi-tenant isolation enforced             |
 
 ### Function Deployment Details
 
-| Module | Function Count | Status | Critical Notes |
-|--------|---|---|---|
-| Bioquímica | 5 | ✅ Live | Scheduled: monthly report generation (0 8 1 * *) |
-| SGQ + Liberação | 12 | ✅ Live | OAuth callback, Drive importer, Laudo PDF export |
-| Reclamações | 5 | ✅ Live | Intake, IA classification, NC workflow |
-| Satisfação + Sugestões | 8 | ✅ Live | NPS triggers, recurring campaigns, email queue |
-| Management-Review | 2 | ✅ Live | Review template generation + submission |
-| **Total** | **32** | ✅ Complete | All exports wired in `functions/src/index.ts` |
+| Module                 | Function Count | Status      | Critical Notes                                     |
+| ---------------------- | -------------- | ----------- | -------------------------------------------------- |
+| Bioquímica             | 5              | ✅ Live     | Scheduled: monthly report generation (0 8 1 \* \*) |
+| SGQ + Liberação        | 12             | ✅ Live     | OAuth callback, Drive importer, Laudo PDF export   |
+| Reclamações            | 5              | ✅ Live     | Intake, IA classification, NC workflow             |
+| Satisfação + Sugestões | 8              | ✅ Live     | NPS triggers, recurring campaigns, email queue     |
+| Management-Review      | 2              | ✅ Live     | Review template generation + submission            |
+| **Total**              | **32**         | ✅ Complete | All exports wired in `functions/src/index.ts`      |
 
 ### Hosting Deployment
 
@@ -92,19 +93,20 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 
 ## Expected Baseline Metrics (First 24h)
 
-| Metric | Threshold | Expected | Status |
-|--------|-----------|----------|--------|
-| Cloud Functions Error Rate | <0.1% | ~0 errors | ✅ Expected |
-| Firestore Permission Denied Errors | 0 | 0 | ✅ Expected (implantação rules permissive) |
-| Hosting HTTP 5xx Rate | <0.01% | 0 errors | ✅ Expected |
-| Function Timeout Errors | 0 | 0 | ✅ Expected (all async handlers complete) |
-| Firestore Document Size Violations | 0 | 0 | ✅ Expected (no bulk data in laudo/declaracao) |
+| Metric                             | Threshold | Expected  | Status                                         |
+| ---------------------------------- | --------- | --------- | ---------------------------------------------- |
+| Cloud Functions Error Rate         | <0.1%     | ~0 errors | ✅ Expected                                    |
+| Firestore Permission Denied Errors | 0         | 0         | ✅ Expected (implantação rules permissive)     |
+| Hosting HTTP 5xx Rate              | <0.01%    | 0 errors  | ✅ Expected                                    |
+| Function Timeout Errors            | 0         | 0         | ✅ Expected (all async handlers complete)      |
+| Firestore Document Size Violations | 0         | 0         | ✅ Expected (no bulk data in laudo/declaracao) |
 
 ---
 
 ## Known Issues & Resolutions
 
 ### Issue #1: Bioquímica Scheduled Function Cron Syntax
+
 - **Severity:** 🟡 MEDIUM (resolved pre-deploy)
 - **Pattern:** Invalid Cloud Scheduler syntax `cron(0 8 1 * *)` → corrected to `0 8 1 * *`
 - **File:** `functions/src/bioquimica/generateMonthlyReportBioquimica.ts` (line 30)
@@ -113,6 +115,7 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 - **Verification:** Check Cloud Scheduler in Firebase Console; should show status `ENABLED` for `generateMonthlyReportBioquimica`
 
 ### Issue #2: Functions Export Wiring (27 missing exports)
+
 - **Severity:** 🔴 CRITICAL (resolved pre-deploy)
 - **Pattern:** 27 function exports missing from `functions/src/index.ts` (Batches 1–4 progress)
 - **Root Cause:** Module wiring incomplete during Phase 8.5 cleanup
@@ -121,6 +124,7 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 - **Verification:** `firebase functions:list` shows 209+ total functions (pre-existing + v1.3 additions)
 
 ### Issue #3: TypeScript Errors (Phase 8.5 cleanup)
+
 - **Severity:** 🔴 CRITICAL (resolved pre-deploy)
 - **Pattern:** 88 TS errors across `src/` and `functions/` (module resolution, missing types)
 - **Resolution:** Phase 8.5 housekeeping completed; `npm run tsc --noEmit` reports 0 errors
@@ -133,34 +137,34 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 
 ### RDC 978/2025 Status
 
-| Article | Requirement | Module Coverage | Status |
-|---------|-------------|---|---|
-| **Art. 167** | Laudo signature + RT accountability | Liberação | ✅ Covered |
-| **Art. 179** | CIQ obrigatório | Bioquímica + CIQ-modules | ✅ Covered (95%) |
-| **Art. 180** | CIQ planos por analito | SGQ (FR-010) | ✅ Covered (85%) |
-| **Art. 181** | Rastreabilidade amostras controle | TraceabilityEvent | ✅ Covered (90%) |
-| **Art. 182** | Validação métodos analíticos | Analyzer + Bula parser | ✅ Covered |
+| Article      | Requirement                         | Module Coverage          | Status           |
+| ------------ | ----------------------------------- | ------------------------ | ---------------- |
+| **Art. 167** | Laudo signature + RT accountability | Liberação                | ✅ Covered       |
+| **Art. 179** | CIQ obrigatório                     | Bioquímica + CIQ-modules | ✅ Covered (95%) |
+| **Art. 180** | CIQ planos por analito              | SGQ (FR-010)             | ✅ Covered (85%) |
+| **Art. 181** | Rastreabilidade amostras controle   | TraceabilityEvent        | ✅ Covered (90%) |
+| **Art. 182** | Validação métodos analíticos        | Analyzer + Bula parser   | ✅ Covered       |
 
 ### DICQ 4.3 Compliance
 
-| Block | Coverage | Status |
-|-------|----------|--------|
-| **DICQ 4.1** (Organização) | 100% | ✅ Operacional |
-| **DICQ 4.2** (Responsabilidades) | 100% | ✅ Operacional |
-| **DICQ 4.3** (Documentação) | 82% | ✅ Audit-ready (audit module + SGD live) |
-| **DICQ 4.4** (Gestão documental) | 90% | ✅ Operacional (Drive importer deployed) |
-| **DICQ 4.5** (Treinamentos) | 95% | ✅ Operacional |
+| Block                            | Coverage | Status                                   |
+| -------------------------------- | -------- | ---------------------------------------- |
+| **DICQ 4.1** (Organização)       | 100%     | ✅ Operacional                           |
+| **DICQ 4.2** (Responsabilidades) | 100%     | ✅ Operacional                           |
+| **DICQ 4.3** (Documentação)      | 82%      | ✅ Audit-ready (audit module + SGD live) |
+| **DICQ 4.4** (Gestão documental) | 90%      | ✅ Operacional (Drive importer deployed) |
+| **DICQ 4.5** (Treinamentos)      | 95%      | ✅ Operacional                           |
 
 **Overall DICQ Compliance:** 78% audit-ready (sufficient for external audit 2026-08-31)
 
 ### Audit Trail Integrity
 
-| Feature | Status | Notes |
-|---------|--------|-------|
-| Write Intent Capture | ✅ Enabled | `auditoria` module tracks creator, timestamp, change description |
-| Immutable Event Logs | ✅ Enforced | `TraceabilityEvent` collection: append-only via Firestore rules |
-| Hash Signature | ✅ Implemented | `LogicalSignature = { hash (64-byte), operatorId, ts }` |
-| Compliance Fields | ✅ Complete | All entities carry `labId`, `criadoEm`, `deletadoEm` (soft delete only) |
+| Feature              | Status         | Notes                                                                   |
+| -------------------- | -------------- | ----------------------------------------------------------------------- |
+| Write Intent Capture | ✅ Enabled     | `auditoria` module tracks creator, timestamp, change description        |
+| Immutable Event Logs | ✅ Enforced    | `TraceabilityEvent` collection: append-only via Firestore rules         |
+| Hash Signature       | ✅ Implemented | `LogicalSignature = { hash (64-byte), operatorId, ts }`                 |
+| Compliance Fields    | ✅ Complete    | All entities carry `labId`, `criadoEm`, `deletadoEm` (soft delete only) |
 
 **Audit Trail Status:** ✅ **Operational** — RDC 978 5.3 compliance verified
 
@@ -173,6 +177,7 @@ All 32 functions deployed without rollback-requiring errors. Critical exports wi
 **Monitoring Status:** ✅ **All Clear**
 
 Based on:
+
 1. Successful deployment of all 32 functions without rollback-requiring errors
 2. Firestore rules deployed and active
 3. Hosting live and serving content
@@ -180,6 +185,7 @@ Based on:
 5. All batches completed sequentially without blocking
 
 **Outstanding Tasks (Non-Blocking):**
+
 - ⏳ **Step 4 (Smoke Tests):** Manual execution pending (not automated, requires QA or stakeholder action)
 - ⏳ **Cloud Logs Verification:** 24h monitoring script optional (already in production safely)
 
@@ -204,7 +210,7 @@ Based on:
 3. **Verify Scheduled Functions**
    - Check Cloud Scheduler in [Firebase Console](https://console.firebase.google.com/project/hmatologia2/functions/manage)
    - Expected scheduled jobs:
-     - `generateMonthlyReportBioquimica` (0 8 1 * * — first of month, 8:00 UTC)
+     - `generateMonthlyReportBioquimica` (0 8 1 \* \* — first of month, 8:00 UTC)
      - `npsEmailQueueHandler` (pattern: daily, configurable)
    - **Action:** If any disabled, re-enable via Firebase Console or redeploy
 
@@ -228,15 +234,16 @@ Based on:
 
 If **any of these** occur during 24h monitoring:
 
-| Condition | Action |
-|-----------|--------|
-| >10 ERROR logs in 1 hour | Page on-call engineer; consider rollback |
+| Condition                                         | Action                                            |
+| ------------------------------------------------- | ------------------------------------------------- |
+| >10 ERROR logs in 1 hour                          | Page on-call engineer; consider rollback          |
 | `"Permission denied"` on `/labs/{labId}/*` writes | Rollback functions immediately; investigate rules |
-| HTTP 502/503 sustained >10 min | Rollback hosting; warm up Functions |
-| `"Document too large"` on laudo | Stop write operations; investigate data model |
-| Function timeout on every invocation | Rollback functions; fix async handler |
+| HTTP 502/503 sustained >10 min                    | Rollback hosting; warm up Functions               |
+| `"Document too large"` on laudo                   | Stop write operations; investigate data model     |
+| Function timeout on every invocation              | Rollback functions; fix async handler             |
 
 **Rollback Command (if needed):**
+
 ```bash
 git checkout HEAD~1 functions/
 firebase deploy --only functions --project hmatologia2
@@ -267,26 +274,26 @@ bash scripts/monitor-cloud-logs.sh 2 10
 
 ## Next Review Points
 
-| Milestone | Timeline | Owner | Action |
-|-----------|----------|-------|--------|
-| **Smoke Tests Complete** | T+48h | QA | Run Step 4, report any failures |
-| **Cloud Logs Report** | T+24h (if script run) | Ops | Review auto-generated report, approve or escalate |
-| **Manual Sign-Off** | T+48h | CTO | Create `docs/SIGN_OFF_CLOUD_LOGS_2026-05-08.md`, commit |
-| **Phase 13 Planning** | T+72h | Stream A | CAPA closure execution begins (Phase 8, sequential) |
+| Milestone                | Timeline              | Owner    | Action                                                  |
+| ------------------------ | --------------------- | -------- | ------------------------------------------------------- |
+| **Smoke Tests Complete** | T+48h                 | QA       | Run Step 4, report any failures                         |
+| **Cloud Logs Report**    | T+24h (if script run) | Ops      | Review auto-generated report, approve or escalate       |
+| **Manual Sign-Off**      | T+48h                 | CTO      | Create `docs/SIGN_OFF_CLOUD_LOGS_2026-05-08.md`, commit |
+| **Phase 13 Planning**    | T+72h                 | Stream A | CAPA closure execution begins (Phase 8, sequential)     |
 
 ---
 
 ## Summary Table
 
-| Category | Status | Details |
-|----------|--------|---------|
-| **Deployment** | ✅ Complete | Steps 1–3 live, 32 functions active, hosting serving |
-| **Functions** | ✅ Healthy | All exports wired, 0 known errors, scheduled jobs enabled |
-| **Firestore Rules** | ✅ Active | Multi-tenant isolation enforced, audit trail ready |
-| **Compliance** | ✅ Ready | 78% DICQ, RDC 978 critical articles covered |
-| **Incidents** | ✅ None | No escalations, all blockers resolved pre-deploy |
-| **Monitoring** | ⏳ Pending | Script ready; 24h verification optional but recommended |
-| **Sign-Off** | ⏳ Pending | Awaiting smoke tests + cloud logs review |
+| Category            | Status      | Details                                                   |
+| ------------------- | ----------- | --------------------------------------------------------- |
+| **Deployment**      | ✅ Complete | Steps 1–3 live, 32 functions active, hosting serving      |
+| **Functions**       | ✅ Healthy  | All exports wired, 0 known errors, scheduled jobs enabled |
+| **Firestore Rules** | ✅ Active   | Multi-tenant isolation enforced, audit trail ready        |
+| **Compliance**      | ✅ Ready    | 78% DICQ, RDC 978 critical articles covered               |
+| **Incidents**       | ✅ None     | No escalations, all blockers resolved pre-deploy          |
+| **Monitoring**      | ⏳ Pending  | Script ready; 24h verification optional but recommended   |
+| **Sign-Off**        | ⏳ Pending  | Awaiting smoke tests + cloud logs review                  |
 
 **Overall Status:** 🟢 **HEALTHY** — System in production, monitoring ongoing
 
@@ -296,13 +303,13 @@ bash scripts/monitor-cloud-logs.sh 2 10
 
 ### Deployment Artifacts
 
-| File | Purpose | View |
-|------|---------|------|
-| `STEP_2_DEPLOY_REPORT.md` | Detailed Functions deploy log (32 functions, 5 batches) | Full batch details |
-| `docs/COMPLIANCE_SUMMARY_v1.3.md` | RDC 978 + DICQ coverage map | Compliance status |
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Full monitoring reference | Comprehensive guide |
-| `docs/CLOUD_LOGS_QUICK_REFERENCE.md` | TL;DR + command cheatsheet | Quick lookup |
-| `.planning/STATE.md` | Current project status | Phase 12 complete, Phase 13 pending |
+| File                                  | Purpose                                                 | View                                |
+| ------------------------------------- | ------------------------------------------------------- | ----------------------------------- |
+| `STEP_2_DEPLOY_REPORT.md`             | Detailed Functions deploy log (32 functions, 5 batches) | Full batch details                  |
+| `docs/COMPLIANCE_SUMMARY_v1.3.md`     | RDC 978 + DICQ coverage map                             | Compliance status                   |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Full monitoring reference                               | Comprehensive guide                 |
+| `docs/CLOUD_LOGS_QUICK_REFERENCE.md`  | TL;DR + command cheatsheet                              | Quick lookup                        |
+| `.planning/STATE.md`                  | Current project status                                  | Phase 12 complete, Phase 13 pending |
 
 ### Monitoring Commands
 
@@ -333,6 +340,7 @@ gcloud logging read "severity >= ERROR" \
 ### Escalation Contact
 
 If critical issues found:
+
 - **Contact:** @drogafarto (CTO)
 - **Include:** Error timestamp + log snippet + action taken
 - **Response Time:** <30 min (during business hours)

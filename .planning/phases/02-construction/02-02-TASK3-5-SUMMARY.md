@@ -19,6 +19,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### Cloud Functions Implemented
 
 **registrarGeracao** (onCall)
+
 - Records waste generation with type segregation validation
 - Accepts: tipo (biologico|quimico|radioativo|perfuro-cortante|comum), weight, description, responsible person
 - Validates: positive weight, valid type enum
@@ -27,6 +28,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: registroId on success
 
 **registrarColeta** (onCall)
+
 - Tracks waste collection with evidence (PDF URL)
 - Links multiple waste generation records to single collection
 - Batch updates: marks all linked generations as 'coletado'
@@ -35,6 +37,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: coletaId on success
 
 **validarSegregacao** (onCall)
+
 - RDC 222/2018 compliance check
 - Identifies violations: biological ≠ chemical, sharps overweight (>30kg)
 - Auto-creates NC if violations found (critical if >3 violations)
@@ -42,6 +45,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: violations array, type counts, registry totals
 
 **gerarRelatorioMensal** (onSchedule)
+
 - Scheduled: 1st day of month at 00:00 UTC
 - Aggregates monthly waste data per lab
 - Metrics: peso gerado, peso coletado, peso pendente, compliance %
@@ -64,6 +68,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### UI Components
 
 **WasteRegistry.tsx**
+
 - Color-coded type overview (biológico=red, químico=yellow, radioativo=purple, etc.)
 - Aggregated metrics per type (count + weight)
 - Recent registros list with status badges (gerado|segregado|coletado|descartado)
@@ -79,6 +84,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - RDC compliance: waste type segregation, container capacity, movement documentation
 
 **Files Created:**
+
 - `functions/src/modules/pgrss/pgrss.ts` (4 callables, ~200 lines)
 - `functions/src/modules/pgrss/index.ts` (exports)
 - `src/features/pgrss/usePGRSS.ts` (hook, ~60 lines)
@@ -92,25 +98,29 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### Cloud Function Implemented
 
 **aggregateKPIs** (onSchedule)
+
 - Scheduled: Every day at 00:00 UTC
 - Iterates all labs
 - Aggregates last 24h of runs + NCs
 
 **Metrics Calculated:**
+
 1. **Turnaround** — avg(resultadoLiberadoEm - criadoEm) in hours
    - Also computes P95 percentile
-2. **Rework %** — (repeat runs / total runs) * 100
+2. **Rework %** — (repeat runs / total runs) \* 100
    - Counts samples run multiple times in 24h window
-3. **Conformance %** — (runs with popId + equipId + operadorId / total) * 100
+3. **Conformance %** — (runs with popId + equipId + operadorId / total) \* 100
 4. **NC Origins** — count by module from open NCs in window
 5. **SLA Compliance** — turnaround <= labConfig.slaLimitHoras
 
 **Alert Generation** (auto-creates KPIAlert docs)
+
 - SLA breach: turnaround > slaLimit (severity: critical)
 - High rework: >10% (warning) or >20% (critical)
 - Low conformance: <95% (warning) or <90% (critical)
 
 **Storage:**
+
 - `/labs/{labId}/kpi-metrics/{id}` — daily aggregated record
 - `/labs/{labId}/kpi-alerts/{id}` — auto-generated alerts
 
@@ -127,6 +137,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### UI Component
 
 **KPIDashboard.tsx**
+
 - 3-column metric cards: turnaround (with SLA badge), rework%, conformance%
 - Trend indicators: green (good) / red (bad)
 - P95 percentile display (turnaround)
@@ -145,6 +156,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Storage: KPI record structure, alert creation, historical data preservation
 
 **Files Created:**
+
 - `functions/src/modules/kpis/kpis.ts` (1 scheduled function, ~200 lines)
 - `functions/src/modules/kpis/index.ts` (exports)
 - `src/features/kpis/useKPIs.ts` (hook, ~40 lines)
@@ -158,6 +170,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### Cloud Functions Implemented
 
 **criarSolicitacao** (onCall)
+
 - Initiates LGPD data subject request
 - Types: acesso, retificacao, exclusao, portabilidade
 - Email validation
@@ -167,10 +180,11 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: solicitacaoId + dataPrazo
 
 **processarExclusao** (onCall)
+
 - Anonymization pipeline for deletion requests
 - Steps:
   1. Hash PII (email → SHA-256)
-  2. Generate anonymized name (Paciente_[hex8])
+  2. Generate anonymized name (Paciente\_[hex8])
   3. Iterate all collections (runs, amostras, relatorios)
   4. Update docs: replace usuario_id, usuario_nome, usuario_email with anonymized versions
   5. Archive original data (7-year retention legal requirement)
@@ -180,6 +194,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: logId + count of anonymized data
 
 **gerarDPIA** (onCall)
+
 - Data Protection Impact Assessment template
 - Accepts: titulo, descricao, dados_pessoais_processados[], riscos_identificados[]
 - Supports: mitigation measures array (extensible)
@@ -190,6 +205,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Returns: dpiaId + status
 
 **scheduledProcessarSolicitacoesVencidas** (onSchedule)
+
 - Scheduled: Daily at 01:00 UTC
 - Finds pending requests with data_prazo < now
 - Updates: status → 'recusada', motivo_recusa → 'SLA de 30 dias expirado'
@@ -212,6 +228,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ### UI Components
 
 **RequestForm.tsx** (Data Subject Request Portal)
+
 - LGPD rights explanation (4-item list: acesso, retificacao, exclusao, portabilidade)
 - Form fields: titular_id, titular_nome, titular_email, tipo, motivo
 - Email validation
@@ -220,6 +237,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Data protection compliance notice at bottom
 
 **AdminDashboard.tsx** (Request Management)
+
 - Summary cards: total, pending, completed, anonymizations
 - Urgent SLA warning (red highlight if <5 days)
 - Pending solicitações table:
@@ -243,6 +261,7 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - Data security: SHA-256 verification, PII non-storage post-anonymization, completeness verification
 
 **Files Created:**
+
 - `functions/src/modules/lgpd/lgpd.ts` (3 callables + 1 scheduled, ~300 lines)
 - `functions/src/modules/lgpd/index.ts` (exports)
 - `src/features/lgpd/useLGPD.ts` (hook, ~70 lines)
@@ -255,11 +274,13 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 ## Cloud Function Integration Details
 
 ### ADR-0003 Integration (NC Gates)
+
 - PGRSS `registrarGeracao`: calls `checkNCs(labId, 'pgrss')` before write
 - Auto-blocks operation if critical NC exists
 - Returns HttpsError with NC-related message
 
 ### Firestore Collections Created
+
 - `/labs/{labId}/pgrss-geracao` — waste generation records
 - `/labs/{labId}/pgrss-coleta` — collection tracking
 - `/labs/{labId}/pgrss-relatorios` — monthly aggregation
@@ -272,17 +293,22 @@ Completed full backend + frontend infrastructure for 3 critical compliance modul
 - `/labs/{labId}/lgpd-arquivo` — 7-year data archives
 
 ### Error Handling
+
 All callables throw HttpsError with proper codes:
+
 - `invalid-argument` — validation failures
 - `permission-denied` — auth gate failures
 - `not-found` — missing resources
 - `internal` — server-side exceptions
 
 ### Regionalization
+
 All Cloud Functions: `southamerica-east1`
 
 ### Audit Logging
+
 All operations create auditLogs entries with:
+
 - action: MODULE_OPERATION_NAME
 - callerUid: request.auth.uid
 - labId: target lab
@@ -293,19 +319,21 @@ All operations create auditLogs entries with:
 
 ## Testing Summary
 
-| Module | Tests | Status | Coverage |
-|--------|-------|--------|----------|
-| PGRSS  | 19    | ✓ Pass | RDC compliance, validation, NC integration |
-| KPIs   | 27    | ✓ Pass | Metric calculations, alert thresholds, SLA |
-| LGPD   | 28    | ✓ Pass | Anonymization, SLA enforcement, consent |
-| **Total** | **74** | **✓ Pass** | **100% passing** |
+| Module    | Tests  | Status     | Coverage                                   |
+| --------- | ------ | ---------- | ------------------------------------------ |
+| PGRSS     | 19     | ✓ Pass     | RDC compliance, validation, NC integration |
+| KPIs      | 27     | ✓ Pass     | Metric calculations, alert thresholds, SLA |
+| LGPD      | 28     | ✓ Pass     | Anonymization, SLA enforcement, consent    |
+| **Total** | **74** | **✓ Pass** | **100% passing**                           |
 
 **Test Execution:**
+
 ```bash
 npm run test:unit -- test/unit/{pgrss,kpis,lgpd} --run
 ```
 
 **Coverage Highlights:**
+
 - RDC 222/2018 compliance validation (PGRSS)
 - Metric calculation accuracy (KPIs)
 - Anonymization completeness verification (LGPD)
@@ -322,9 +350,10 @@ npm run test:unit -- test/unit/{pgrss,kpis,lgpd} --run
 ✅ PWA service worker: Generated  
 ✅ Sentry source maps: Uploaded  
 ✅ All tests: Passing  
-✅ Functions regionalized: southamerica-east1  
+✅ Functions regionalized: southamerica-east1
 
 **Next Steps:**
+
 1. Task 6: Deploy Firestore rules for all 5 modules
 2. Task 7: Final hosting + smoke test
 
@@ -333,6 +362,7 @@ npm run test:unit -- test/unit/{pgrss,kpis,lgpd} --run
 ## Deviations from Plan
 
 None. Plan executed exactly as specified:
+
 - All 7 Cloud Functions implemented (4 PGRSS, 1 KPIs, 3 LGPD)
 - All React hooks created with full CRUD integration
 - All UI components built with real-time subscriptions
@@ -353,9 +383,11 @@ None. Plan executed exactly as specified:
 ## Files Modified
 
 **Root exports updated:**
+
 - `functions/src/index.ts` — added 8 exports for Tasks 3-5 modules
 
 **Files Created: 17**
+
 - Cloud Functions: 6 files
 - React hooks: 3 files
 - UI components: 4 files
@@ -370,4 +402,3 @@ None. Plan executed exactly as specified:
 **Execution Time:** ~2 hours  
 **Status:** READY FOR RULES DEPLOYMENT (Task 6)  
 **Signed:** Claude Haiku 4.5
-

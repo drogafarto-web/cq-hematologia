@@ -42,7 +42,7 @@ export default function IAFeedbackLoop({
 }: Props) {
   const user = useUser();
   const [analytes, setAnalytes] = useState<EditableAnalyte[]>(
-    validatedAnalytes.map((a) => ({ ...a, isEditing: false }))
+    validatedAnalytes.map((a) => ({ ...a, isEditing: false })),
   );
   const [consentChecked, setConsentChecked] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -59,7 +59,7 @@ export default function IAFeedbackLoop({
       };
       setAnalytes(newAnalytes);
     },
-    [analytes]
+    [analytes],
   );
 
   // Submit feedback
@@ -136,16 +136,10 @@ export default function IAFeedbackLoop({
           </thead>
           <tbody className="divide-y divide-white/10">
             {analytes.map((analyte, i) => {
-              const hasFlagsClass =
-                analyte.flags.length > 0
-                  ? `ring-1 ring-amber-400/40`
-                  : '';
+              const hasFlagsClass = analyte.flags.length > 0 ? `ring-1 ring-amber-400/40` : '';
 
               return (
-                <tr
-                  key={i}
-                  className={`hover:bg-white/[0.02] transition-colors ${hasFlagsClass}`}
-                >
+                <tr key={i} className={`hover:bg-white/[0.02] transition-colors ${hasFlagsClass}`}>
                   <td className="px-4 py-3">
                     <input
                       type="text"

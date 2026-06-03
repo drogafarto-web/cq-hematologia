@@ -170,7 +170,10 @@ export default function RiskMatrixHeatmap() {
         <div className="space-y-4">
           {/* Grid */}
           <div className="border border-slate-200 dark:border-white/[0.08] rounded-lg overflow-hidden">
-            <div className="bg-slate-50 dark:bg-white/[0.02] grid" style={{ gridTemplateColumns: 'auto repeat(5, 1fr)' }}>
+            <div
+              className="bg-slate-50 dark:bg-white/[0.02] grid"
+              style={{ gridTemplateColumns: 'auto repeat(5, 1fr)' }}
+            >
               {/* Header row */}
               <div className="p-3 border-r border-b border-slate-200 dark:border-white/[0.08] text-xs font-semibold text-slate-600 dark:text-white/40 text-center" />
               {[1, 2, 3, 4, 5].map((p) => (
@@ -194,7 +197,8 @@ export default function RiskMatrixHeatmap() {
                   {[1, 2, 3, 4, 5].map((prob) => {
                     const key = `${prob}-${severity}`;
                     const cell = matrix[key];
-                    const isHovered = hoveredCell && hoveredCell[0] === prob && hoveredCell[1] === severity;
+                    const isHovered =
+                      hoveredCell && hoveredCell[0] === prob && hoveredCell[1] === severity;
 
                     return (
                       <div
@@ -236,9 +240,7 @@ export default function RiskMatrixHeatmap() {
           {/* Top 5 risks */}
           {topRisks.length > 0 && (
             <div className="bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.08] rounded-lg p-4 space-y-3">
-              <p className="text-sm font-semibold text-slate-900 dark:text-white">
-                Top 5 Riscos
-              </p>
+              <p className="text-sm font-semibold text-slate-900 dark:text-white">Top 5 Riscos</p>
               {topRisks.map((risk, idx) => (
                 <div
                   key={risk.id}

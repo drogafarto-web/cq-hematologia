@@ -27,7 +27,7 @@
   "nota_fiscal": {
     "numero": "SMOKE-NF-000001",
     "dataEmissao": "2026-04-01",
-    "valorTotal": 1000.00
+    "valorTotal": 1000.0
   },
   "equipamento": {
     "modulo": "hematologia",

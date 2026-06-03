@@ -9,25 +9,11 @@ import {
   iotEndpointUrl,
 } from '../services/ctIoTService';
 import { WifiIcon, WifiOffIcon } from './_icons';
-import {
-  Button,
-  Field,
-  Modal,
-  SectionHeader,
-  Select,
-  StatusBadge,
-  TextInput,
-} from './_shared';
+import { Button, Field, Modal, SectionHeader, Select, StatusBadge, TextInput } from './_shared';
 
 const INTERVALOS = [5, 10, 15, 30, 60];
 
-export function DispositivoIoTForm({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function DispositivoIoTForm({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { equipamentos } = useEquipamentos({ status: 'ativo' });
   const { createComToken } = useDispositivosIoT();
 
@@ -215,7 +201,8 @@ export function DispositivosIoTList() {
   const { equipamentos } = useEquipamentos({ includeDeleted: true });
   const [open, setOpen] = useState(false);
 
-  if (isLoading) return <div className="p-6 text-sm text-slate-500">Carregando dispositivos...</div>;
+  if (isLoading)
+    return <div className="p-6 text-sm text-slate-500">Carregando dispositivos...</div>;
 
   return (
     <div className="space-y-4">

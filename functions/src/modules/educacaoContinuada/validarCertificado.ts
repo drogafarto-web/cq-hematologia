@@ -13,65 +13,72 @@
 import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-export const validarCertificadoEc = onRequest(
-  { cors: true },
-  async (req, res) => {
-    const labId = String(req.query['lab'] ?? '').trim();
-    const certId = String(req.query['cert'] ?? '').trim();
+export const validarCertificadoEc = onRequest({ cors: true }, async (req, res) => {
+  const labId = String(req.query['lab'] ?? '').trim();
+  const certId = String(req.query['cert'] ?? '').trim();
 
-    if (!labId || !certId) {
-      res.status(400).send(renderErrorHtml('Parâmetros inválidos', 'Faltam "lab" ou "cert".'));
+  if (!labId || !certId) {
+    res.status(400).send(renderErrorHtml('Parâmetros inválidos', 'Faltam "lab" ou "cert".'));
+    return;
+  }
+
+  const db = admin.firestore();
+
+  try {
+    const certSnap = await db.doc(`educacaoContinuada/${labId}/certificados/${certId}`).get();
+
+    if (!certSnap.exists) {
+      res
+        .status(404)
+        .send(
+          renderErrorHtml(
+            'Certificado não encontrado',
+            `ID ${certId} não existe neste laboratório.`,
+          ),
+        );
       return;
     }
 
-    const db = admin.firestore();
+    const cert = certSnap.data()!;
 
-    try {
-      const certSnap = await db
-        .doc(`educacaoContinuada/${labId}/certificados/${certId}`)
-        .get();
+    const [colSnap, treinSnap, execSnap] = await Promise.all([
+      db.doc(`educacaoContinuada/${labId}/colaboradores/${cert['colaboradorId']}`).get(),
+      db.doc(`educacaoContinuada/${labId}/treinamentos/${cert['treinamentoId']}`).get(),
+      db.doc(`educacaoContinuada/${labId}/execucoes/${cert['execucaoId']}`).get(),
+    ]);
 
-      if (!certSnap.exists) {
-        res.status(404).send(renderErrorHtml('Certificado não encontrado', `ID ${certId} não existe neste laboratório.`));
-        return;
-      }
+    const configSnap = await db.doc(`educacaoContinuada/${labId}/certificadoConfig/config`).get();
+    const nomeDoLab =
+      (configSnap.data()?.['nomeDoLab'] as string | undefined) ??
+      ((await db.doc(`labs/${labId}`).get()).data()?.['name'] as string | undefined) ??
+      labId;
 
-      const cert = certSnap.data()!;
+    const dataEmissao = (cert['emitidoEm'] as admin.firestore.Timestamp | undefined)?.toDate();
+    const dataAplicacao = (
+      execSnap.data()?.['dataAplicacao'] as admin.firestore.Timestamp | null | undefined
+    )?.toDate();
 
-      const [colSnap, treinSnap, execSnap] = await Promise.all([
-        db.doc(`educacaoContinuada/${labId}/colaboradores/${cert['colaboradorId']}`).get(),
-        db.doc(`educacaoContinuada/${labId}/treinamentos/${cert['treinamentoId']}`).get(),
-        db.doc(`educacaoContinuada/${labId}/execucoes/${cert['execucaoId']}`).get(),
-      ]);
+    const html = renderSuccessHtml({
+      certificadoId: certId,
+      nomeColaborador: (colSnap.data()?.['nome'] as string | undefined) ?? '—',
+      cargoColaborador: (colSnap.data()?.['cargo'] as string | undefined) ?? '—',
+      tituloTreinamento: (treinSnap.data()?.['titulo'] as string | undefined) ?? '—',
+      cargaHoraria: (treinSnap.data()?.['cargaHoraria'] as number | undefined) ?? 0,
+      dataEmissao,
+      dataAplicacao,
+      nomeDoLab,
+    });
 
-      const configSnap = await db.doc(`educacaoContinuada/${labId}/certificadoConfig/config`).get();
-      const nomeDoLab = (configSnap.data()?.['nomeDoLab'] as string | undefined)
-        ?? ((await db.doc(`labs/${labId}`).get()).data()?.['name'] as string | undefined)
-        ?? labId;
-
-      const dataEmissao = (cert['emitidoEm'] as admin.firestore.Timestamp | undefined)?.toDate();
-      const dataAplicacao = (execSnap.data()?.['dataAplicacao'] as admin.firestore.Timestamp | null | undefined)?.toDate();
-
-      const html = renderSuccessHtml({
-        certificadoId: certId,
-        nomeColaborador: (colSnap.data()?.['nome'] as string | undefined) ?? '—',
-        cargoColaborador: (colSnap.data()?.['cargo'] as string | undefined) ?? '—',
-        tituloTreinamento: (treinSnap.data()?.['titulo'] as string | undefined) ?? '—',
-        cargaHoraria: (treinSnap.data()?.['cargaHoraria'] as number | undefined) ?? 0,
-        dataEmissao,
-        dataAplicacao,
-        nomeDoLab,
-      });
-
-      // Cache de 10min pra resposta idempotente
-      res.set('Cache-Control', 'public, max-age=600');
-      res.status(200).send(html);
-    } catch (err) {
-      console.error('[validarCertificadoEc]', err);
-      res.status(500).send(renderErrorHtml('Erro interno', 'Não foi possível consultar o certificado.'));
-    }
-  },
-);
+    // Cache de 10min pra resposta idempotente
+    res.set('Cache-Control', 'public, max-age=600');
+    res.status(200).send(html);
+  } catch (err) {
+    console.error('[validarCertificadoEc]', err);
+    res
+      .status(500)
+      .send(renderErrorHtml('Erro interno', 'Não foi possível consultar o certificado.'));
+  }
+});
 
 // ─── HTML templates ──────────────────────────────────────────────────────────
 

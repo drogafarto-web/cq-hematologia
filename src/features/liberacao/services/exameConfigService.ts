@@ -28,12 +28,12 @@ import { ExameConfig } from '../types/exameConfig';
 export function subscribeExameConfigs(
   labId: LabId,
   onData: (configs: ExameConfig[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const q = query(
     collection(db, 'labs', labId, 'exames-config'),
     where('deletadoEm', '==', null),
-    orderBy('examName', 'asc')
+    orderBy('examName', 'asc'),
   );
 
   const unsubscribe = onSnapshot(
@@ -48,7 +48,7 @@ export function subscribeExameConfigs(
     (error) => {
       console.error('[subscribeExameConfigs] error:', error);
       onError?.(error);
-    }
+    },
   );
 
   return unsubscribe;
@@ -57,14 +57,11 @@ export function subscribeExameConfigs(
 /**
  * Get config por exam code
  */
-export async function getExameConfig(
-  labId: LabId,
-  examCode: string
-): Promise<ExameConfig | null> {
+export async function getExameConfig(labId: LabId, examCode: string): Promise<ExameConfig | null> {
   const q = query(
     collection(db, 'labs', labId, 'exames-config'),
     where('examCode', '==', examCode),
-    where('deletadoEm', '==', null)
+    where('deletadoEm', '==', null),
   );
 
   const snapshot = await getDocs(q);
@@ -86,7 +83,7 @@ export async function getExameConfig(
  */
 export async function createExameConfig(
   labId: LabId,
-  input: Omit<ExameConfig, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>
+  input: Omit<ExameConfig, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>,
 ): Promise<ExameConfig> {
   const docRef = doc(collection(db, 'labs', labId, 'exames-config'));
 
@@ -109,7 +106,7 @@ export async function createExameConfig(
 export async function updateExameConfig(
   labId: LabId,
   configId: string,
-  updates: Partial<ExameConfig>
+  updates: Partial<ExameConfig>,
 ): Promise<void> {
   const docRef = doc(db, 'labs', labId, 'exames-config', configId);
 
@@ -126,10 +123,7 @@ export async function updateExameConfig(
 /**
  * Soft delete exame config
  */
-export async function softDeleteExameConfig(
-  labId: LabId,
-  configId: string
-): Promise<void> {
+export async function softDeleteExameConfig(labId: LabId, configId: string): Promise<void> {
   const docRef = doc(db, 'labs', labId, 'exames-config', configId);
   await updateDoc(docRef, {
     deletadoEm: Timestamp.now(),

@@ -27,14 +27,7 @@ describe('useChartData', () => {
     });
 
     const { result } = renderHook(() =>
-      useChartData(
-        'lab1',
-        'eq1',
-        'analito1',
-        'normal',
-        { mean: 100, sd: 5 },
-        'manufacturer'
-      )
+      useChartData('lab1', 'eq1', 'analito1', 'normal', { mean: 100, sd: 5 }, 'manufacturer'),
     );
 
     expect(result.current.points).toEqual([]);
@@ -50,7 +43,7 @@ describe('useChartData', () => {
     });
 
     const { result } = renderHook(() =>
-      useChartData('lab1', 'eq1', 'analito1', 'normal', null, 'manufacturer')
+      useChartData('lab1', 'eq1', 'analito1', 'normal', null, 'manufacturer'),
     );
 
     expect(Number.isNaN(result.current.mean)).toBe(true);
@@ -66,7 +59,7 @@ describe('useChartData', () => {
     });
 
     const { result } = renderHook(() =>
-      useChartData('lab1', 'eq1', 'analito1', 'normal', { mean: 100, sd: 5 })
+      useChartData('lab1', 'eq1', 'analito1', 'normal', { mean: 100, sd: 5 }),
     );
 
     expect(result.current.lines).toEqual([
@@ -89,14 +82,7 @@ describe('useChartData', () => {
     });
 
     const { result } = renderHook(() =>
-      useChartData(
-        'lab1',
-        'eq1',
-        'analito1',
-        'normal',
-        { mean: 100, sd: 5 },
-        'internal'
-      )
+      useChartData('lab1', 'eq1', 'analito1', 'normal', { mean: 100, sd: 5 }, 'internal'),
     );
 
     expect(result.current.mean).toBe(102);
@@ -113,14 +99,7 @@ describe('useChartData', () => {
     });
 
     const { result } = renderHook(() =>
-      useChartData(
-        'lab1',
-        'eq1',
-        'analito1',
-        'normal',
-        { mean: 100, sd: 5 },
-        'internal'
-      )
+      useChartData('lab1', 'eq1', 'analito1', 'normal', { mean: 100, sd: 5 }, 'internal'),
     );
 
     expect(result.current.mean).toBe(100);
@@ -135,9 +114,7 @@ describe('useChartData', () => {
       progress: 1,
     });
 
-    const { result } = renderHook(() =>
-      useChartData('lab1', 'eq1', 'analito1', 'normal', null)
-    );
+    const { result } = renderHook(() => useChartData('lab1', 'eq1', 'analito1', 'normal', null));
 
     expect(result.current.isInternalReady).toBe(true);
   });

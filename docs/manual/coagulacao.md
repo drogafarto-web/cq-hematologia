@@ -10,17 +10,17 @@
 
 Mesmo que você já conheça hematologia, vale revisar esses conceitos — eles se aplicam à coagulação com algumas particularidades:
 
-| Palavra | O que significa, sem firula |
-|---|---|
-| **Controle de coagulação** | Plasma controle com valores conhecidos de AP, RNI e TTPA. Passa no coagulômetro pra ver se a máquina tá medindo certo. |
-| **Nível I (normal)** | Controle com valores dentro da faixa fisiológica — pra validar que a máquina mede "amostra normal" direito. |
-| **Nível II (alterado)** | Controle com valores fora da faixa — pra validar que a máquina mede "amostra de paciente anticoagulado" direito. |
-| **AP (Atividade de Protrombina)** | % de atividade da protrombina. Faixa típica: 80–120% no Nível I. Valores abaixo de 70% indicam anticoagulação. |
-| **RNI (Razão Normalizada Internacional)** | Número adimensional padronizado mundialmente. Paciente estável em varfarina: RNI 2,0–3,0. Controle Nível I: ~0,97. |
-| **TTPA (Tempo de Tromboplastina Parcial Ativada)** | Segundos. Faixa típica: 27–39seg. |
-| **Lote controle** | Número do lote do plasma controle. Cada lote tem uma bula com valores de referência. |
-| **Corrida / tentativa (attempt)** | Uma rodada de teste do controle no coagulômetro. Cada tentativa vira um ponto no gráfico Levey-Jennings. |
-| **Westgard** | Regras que olham os pontos do gráfico e dizem se a corrida está OK ou se tem desvio sistemático. |
+| Palavra                                            | O que significa, sem firula                                                                                            |
+| -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| **Controle de coagulação**                         | Plasma controle com valores conhecidos de AP, RNI e TTPA. Passa no coagulômetro pra ver se a máquina tá medindo certo. |
+| **Nível I (normal)**                               | Controle com valores dentro da faixa fisiológica — pra validar que a máquina mede "amostra normal" direito.            |
+| **Nível II (alterado)**                            | Controle com valores fora da faixa — pra validar que a máquina mede "amostra de paciente anticoagulado" direito.       |
+| **AP (Atividade de Protrombina)**                  | % de atividade da protrombina. Faixa típica: 80–120% no Nível I. Valores abaixo de 70% indicam anticoagulação.         |
+| **RNI (Razão Normalizada Internacional)**          | Número adimensional padronizado mundialmente. Paciente estável em varfarina: RNI 2,0–3,0. Controle Nível I: ~0,97.     |
+| **TTPA (Tempo de Tromboplastina Parcial Ativada)** | Segundos. Faixa típica: 27–39seg.                                                                                      |
+| **Lote controle**                                  | Número do lote do plasma controle. Cada lote tem uma bula com valores de referência.                                   |
+| **Corrida / tentativa (attempt)**                  | Uma rodada de teste do controle no coagulômetro. Cada tentativa vira um ponto no gráfico Levey-Jennings.               |
+| **Westgard**                                       | Regras que olham os pontos do gráfico e dizem se a corrida está OK ou se tem desvio sistemático.                       |
 
 **Cores da tela:**
 
@@ -111,14 +111,14 @@ Não entre em pânico. O sistema é feito exatamente pra capturar isso.
 
 Antes de repetir, verifique:
 
-| Causa provável | Como confirmar |
-|---|---|
-| **Plasma controle estragado / fora de validade** | Validade do frasco; aspecto visual (turvo, precipitado) |
-| **Mistura inadequada** | Confirma se fez 8-10 inversões suaves (não chacoalhou) |
-| **Temperatura errada** | Controle deve estar entre 2-8°C na geladeira (não congelador) |
-| **Reagente vencido** | Verificar lote e validade do reagente de tromboplastina |
-| **Equipamento sem calibração** | Data da última calibração do coagulômetro |
-| **ISI da tromboplastina mudou** | Se trocou de lote do reagente, o ISI novo precisa estar cadastrado |
+| Causa provável                                   | Como confirmar                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------ |
+| **Plasma controle estragado / fora de validade** | Validade do frasco; aspecto visual (turvo, precipitado)            |
+| **Mistura inadequada**                           | Confirma se fez 8-10 inversões suaves (não chacoalhou)             |
+| **Temperatura errada**                           | Controle deve estar entre 2-8°C na geladeira (não congelador)      |
+| **Reagente vencido**                             | Verificar lote e validade do reagente de tromboplastina            |
+| **Equipamento sem calibração**                   | Data da última calibração do coagulômetro                          |
+| **ISI da tromboplastina mudou**                  | Se trocou de lote do reagente, o ISI novo precisa estar cadastrado |
 
 Se a causa não for óbvia, **chame o Responsável Técnico (RT)**.
 
@@ -134,11 +134,11 @@ Apenas o RT (ou super-admin) consegue acessar algumas funções específicas. El
 2. **Ver a lista de tentativas pendentes** de análise crítica.
 3. Para cada tentativa ou grupo de tentativas, uma das 3 ações:
 
-| Ação | Quando usar | O que faz no sistema |
-|---|---|---|
-| ✅ **Aprovar** | Tentativas conformes, sem ação corretiva pendente | Marca como revisada e aprovada formalmente pelo RT (exigência RDC 978) |
-| ❌ **Rejeitar** | Tentativa com problema sério que não foi corrigido | Bloqueia aquela tentativa e exige investigação + ação corretiva |
-| 📋 **NOTIVISA** | Evento adverso relevante (reação adversa, lote defeituoso de fabricante) | Envia notificação à ANVISA via Notivisa (RDC 978 Art. 54) |
+| Ação            | Quando usar                                                              | O que faz no sistema                                                   |
+| --------------- | ------------------------------------------------------------------------ | ---------------------------------------------------------------------- |
+| ✅ **Aprovar**  | Tentativas conformes, sem ação corretiva pendente                        | Marca como revisada e aprovada formalmente pelo RT (exigência RDC 978) |
+| ❌ **Rejeitar** | Tentativa com problema sério que não foi corrigido                       | Bloqueia aquela tentativa e exige investigação + ação corretiva        |
+| 📋 **NOTIVISA** | Evento adverso relevante (reação adversa, lote defeituoso de fabricante) | Envia notificação à ANVISA via Notivisa (RDC 978 Art. 54)              |
 
 ---
 
@@ -150,19 +150,19 @@ O gráfico Levey-Jennings é o coração do controle de qualidade de coagulaçã
 
 - **Pontos todos no meio, oscilando**: máquina estável. ✅
 - **Tendência** (pontos subindo ou descendo gradualmente): desvio sistemático. Chamar o RT. ⚠️
-- **Todos os pontos do mesmo lado da média**: *shift* (desvio sistemático). Investigar. 🚨
+- **Todos os pontos do mesmo lado da média**: _shift_ (desvio sistemático). Investigar. 🚨
 - **Ponto isolado fora de ±3σ**: erro aleatório ou problema agudo. Investigar antes de liberar. 🚨
 
 ### Regras Westgard — o que cada uma significa
 
-| Regra | Descrição | Gravidade |
-|---|---|---|
-| **1-2s** | 1 ponto fora de ±2σ | ⚠️ Warning (aprovado, mas acompanhar) |
-| **1-3s** | 1 ponto fora de ±3σ | 🚨 **Rejeição automática** |
-| **2-2s** | 2 pontos consecutivos fora de ±2σ do mesmo lado | 🚨 Rejeição (tendência) |
-| **R-4s** | 2 pontos consecutivos com diferença > 4σ entre si | 🚨 Rejeição (variação) |
-| **4-1s** | 4 pontos consecutivos fora de ±1σ do mesmo lado | 🚨 Rejeição (drift) |
-| **10x** | 10 pontos consecutivos do mesmo lado da média | 🚨 Rejeição (shift) |
+| Regra    | Descrição                                         | Gravidade                             |
+| -------- | ------------------------------------------------- | ------------------------------------- |
+| **1-2s** | 1 ponto fora de ±2σ                               | ⚠️ Warning (aprovado, mas acompanhar) |
+| **1-3s** | 1 ponto fora de ±3σ                               | 🚨 **Rejeição automática**            |
+| **2-2s** | 2 pontos consecutivos fora de ±2σ do mesmo lado   | 🚨 Rejeição (tendência)               |
+| **R-4s** | 2 pontos consecutivos com diferença > 4σ entre si | 🚨 Rejeição (variação)                |
+| **4-1s** | 4 pontos consecutivos fora de ±1σ do mesmo lado   | 🚨 Rejeição (drift)                   |
+| **10x**  | 10 pontos consecutivos do mesmo lado da média     | 🚨 Rejeição (shift)                   |
 
 O sistema aplica essas regras **automaticamente**. Seu trabalho é ler o resultado e agir conforme a cor da badge.
 
@@ -220,6 +220,7 @@ npx playwright test specs/coag-v2-manual-screenshots.spec.ts --headed
 ```
 
 Output vai para `docs/manual/screenshots/coag/`. Para regenerar manualmente, execute o comando acima após garantir que:
+
 1. O usuário RT (`drogafarto@gmail.com`) tem acesso a pelo menos um laboratório
 2. O lab tem controles operacionais ativos e tentativas cadastradas
 3. As variáveis `RT_EMAIL` e `RT_PASSWORD` estão configuradas em `smoke-test/.env.test`

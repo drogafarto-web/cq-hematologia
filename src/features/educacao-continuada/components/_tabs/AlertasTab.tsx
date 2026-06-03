@@ -49,10 +49,7 @@ export function AlertasTab() {
     );
   }, [alertas, alertasVencidos, alertasIminentes]);
 
-  const resolvidos = useMemo(
-    () => alertas.filter((a) => a.status === 'resolvido'),
-    [alertas],
-  );
+  const resolvidos = useMemo(() => alertas.filter((a) => a.status === 'resolvido'), [alertas]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -65,9 +62,7 @@ export function AlertasTab() {
 
       {isLoading && <SkeletonList rows={4} />}
 
-      {!isLoading && alertas.length === 0 && (
-        <Empty text="Nenhum alerta registrado ainda." />
-      )}
+      {!isLoading && alertas.length === 0 && <Empty text="Nenhum alerta registrado ainda." />}
 
       {!isLoading && alertasVencidos.length > 0 && (
         <AlertaGroup
@@ -225,7 +220,10 @@ function SkeletonList({ rows }: { rows: number }) {
   return (
     <div className="flex flex-col gap-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+        <div
+          key={i}
+          className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40"
+        />
       ))}
     </div>
   );

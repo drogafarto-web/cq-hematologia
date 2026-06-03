@@ -20,11 +20,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
 import type { Risk, RiskInput } from '../types/Risk';
-import {
-  computeNPR,
-  deriveNivel,
-  DEFAULT_NPR_THRESHOLDS,
-} from '../services/risksService';
+import { computeNPR, deriveNivel, DEFAULT_NPR_THRESHOLDS } from '../services/risksService';
 
 describe('Risks Module — E2E Test Suite', () => {
   describe('Phase 1: CREATE Risk with FMEA Scoring', () => {
@@ -45,19 +41,19 @@ describe('Risks Module — E2E Test Suite', () => {
 
     it('should compute NPR = P × S × D correctly', () => {
       expect(computeNPR(5, 5, 5)).toBe(125); // Max
-      expect(computeNPR(1, 1, 1)).toBe(1);   // Min
-      expect(computeNPR(3, 4, 2)).toBe(24);  // Mid-range
+      expect(computeNPR(1, 1, 1)).toBe(1); // Min
+      expect(computeNPR(3, 4, 2)).toBe(24); // Mid-range
     });
 
     it('should derive Nivel from NPR (default thresholds)', () => {
-      expect(deriveNivel(1)).toBe('baixo');      // ≤24
-      expect(deriveNivel(24)).toBe('baixo');     // ≤24
-      expect(deriveNivel(25)).toBe('medio');     // 25–60
-      expect(deriveNivel(60)).toBe('medio');     // 25–60
-      expect(deriveNivel(61)).toBe('alto');      // 61–99
-      expect(deriveNivel(99)).toBe('alto');      // 61–99
-      expect(deriveNivel(100)).toBe('critico');  // ≥100
-      expect(deriveNivel(125)).toBe('critico');  // ≥100
+      expect(deriveNivel(1)).toBe('baixo'); // ≤24
+      expect(deriveNivel(24)).toBe('baixo'); // ≤24
+      expect(deriveNivel(25)).toBe('medio'); // 25–60
+      expect(deriveNivel(60)).toBe('medio'); // 25–60
+      expect(deriveNivel(61)).toBe('alto'); // 61–99
+      expect(deriveNivel(99)).toBe('alto'); // 61–99
+      expect(deriveNivel(100)).toBe('critico'); // ≥100
+      expect(deriveNivel(125)).toBe('critico'); // ≥100
     });
 
     it('should derive Nivel with custom thresholds', () => {

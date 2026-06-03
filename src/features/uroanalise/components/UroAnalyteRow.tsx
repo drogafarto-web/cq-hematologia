@@ -40,7 +40,7 @@ export function UroAnalyteRow({
 }: UroAnalyteRowProps) {
   const options = useMemo<ReadonlyArray<UroToggleOption<UroValorCategorico>>>(
     () => scale.map((v) => ({ value: v, label: formatScaleLabel(v) })),
-    [scale]
+    [scale],
   );
 
   const dot = STATUS_DOT[conformidade];
@@ -57,7 +57,9 @@ export function UroAnalyteRow({
         <span className="text-sm font-medium text-slate-800 dark:text-white/85 leading-tight flex items-baseline gap-1">
           <span className="capitalize">{label}</span>
           {required && (
-            <span className="text-red-500 dark:text-red-400 text-xs" aria-label="obrigatório">*</span>
+            <span className="text-red-500 dark:text-red-400 text-xs" aria-label="obrigatório">
+              *
+            </span>
           )}
         </span>
         {expected && (
@@ -88,7 +90,9 @@ export function UroAnalyteRow({
         title={dot.label}
         aria-label={dot.label}
       >
-        <span className={`w-2.5 h-2.5 rounded-full ${dot.color} ${conformidade === 'pendente' ? 'animate-pulse motion-reduce:animate-none' : ''}`} />
+        <span
+          className={`w-2.5 h-2.5 rounded-full ${dot.color} ${conformidade === 'pendente' ? 'animate-pulse motion-reduce:animate-none' : ''}`}
+        />
       </div>
     </div>
   );

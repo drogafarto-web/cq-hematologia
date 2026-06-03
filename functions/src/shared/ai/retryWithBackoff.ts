@@ -12,10 +12,7 @@ const DEFAULT_OPTIONS: Required<RetryOptions> = {
   isRetryable: () => true,
 };
 
-export async function retryWithBackoff<T>(
-  fn: () => Promise<T>,
-  opts: RetryOptions
-): Promise<T> {
+export async function retryWithBackoff<T>(fn: () => Promise<T>, opts: RetryOptions): Promise<T> {
   const { maxAttempts, baseDelayMs, maxDelayMs, isRetryable } = {
     ...DEFAULT_OPTIONS,
     ...opts,

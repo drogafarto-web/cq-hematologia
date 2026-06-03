@@ -45,7 +45,10 @@ export function OnboardingPanel({ onClose }: OnboardingPanelProps) {
 
   if (panel.mode === 'trilha-create' || panel.mode === 'trilha-edit') {
     return (
-      <Header onClose={onClose} titulo={panel.mode === 'trilha-create' ? 'Nova trilha' : 'Editar trilha'}>
+      <Header
+        onClose={onClose}
+        titulo={panel.mode === 'trilha-create' ? 'Nova trilha' : 'Editar trilha'}
+      >
         <TrilhaForm
           trilha={panel.mode === 'trilha-edit' ? panel.trilha : undefined}
           onSaved={() => {
@@ -128,9 +131,8 @@ export function OnboardingPanel({ onClose }: OnboardingPanelProps) {
 
           {progressos.length === 0 ? (
             <div className="rounded-lg border border-dashed border-slate-800 py-8 text-center text-xs text-slate-500">
-              Nenhum colaborador em onboarding no momento. Cadastre um colaborador
-              com cargo correspondente a uma trilha ativa — o progresso inicia
-              automaticamente (RN-08).
+              Nenhum colaborador em onboarding no momento. Cadastre um colaborador com cargo
+              correspondente a uma trilha ativa — o progresso inicia automaticamente (RN-08).
             </div>
           ) : (
             <ul className="flex flex-col gap-2">
@@ -192,8 +194,8 @@ export function OnboardingPanel({ onClose }: OnboardingPanelProps) {
         {/* RN-08 hint — iniciador manual para casos sem cargo exato */}
         <section className="flex flex-col gap-2 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
           <p className="text-xs text-slate-500">
-            Iniciar trilha manualmente para colaborador existente (fallback quando
-            cargo não bate automaticamente):
+            Iniciar trilha manualmente para colaborador existente (fallback quando cargo não bate
+            automaticamente):
           </p>
           <ManualStart
             trilhas={trilhas.filter((t) => t.ativo)}

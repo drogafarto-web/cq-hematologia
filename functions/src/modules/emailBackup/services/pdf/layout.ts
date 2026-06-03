@@ -28,7 +28,6 @@ export const Fonts: {
   usingCustom: false,
 };
 
-
 /**
  * Resolve o caminho absoluto para um arquivo em `functions/assets/fonts/`.
  * Funciona tanto em dev (rodando de `src/` via ts-node) quanto em prod
@@ -273,12 +272,11 @@ export function renderEnvironmentBanner(
     .font(Fonts.bold)
     .fontSize(9)
     .fillColor(COLOR.white)
-    .text(
-      `DOCUMENTO DE ${label} — Dados não válidos para auditoria sanitária`,
-      x,
-      y + 8,
-      { width, align: 'center', lineBreak: false },
-    );
+    .text(`DOCUMENTO DE ${label} — Dados não válidos para auditoria sanitária`, x, y + 8, {
+      width,
+      align: 'center',
+      lineBreak: false,
+    });
   doc.restore();
 
   return height + 8;

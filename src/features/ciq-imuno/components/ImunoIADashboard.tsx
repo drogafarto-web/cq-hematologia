@@ -13,15 +13,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  collection,
-  query,
-  where,
-  onSnapshot,
-  orderBy,
-  startAt,
-  endAt,
-} from 'firebase/firestore';
+import { collection, query, where, onSnapshot, orderBy, startAt, endAt } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { IAPerfMetrics, TestType, Classification } from '../types';
 
@@ -34,7 +26,9 @@ interface ImunoIADashboardProps {
  */
 export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => {
   const [metrics, setMetrics] = useState<IAPerfMetrics | null>(null);
-  const [confusionMatrix, setConfusionMatrix] = useState<Record<string, Record<string, number>>>({});
+  const [confusionMatrix, setConfusionMatrix] = useState<Record<string, Record<string, number>>>(
+    {},
+  );
   const [selectedTestKit, setSelectedTestKit] = useState<TestType>('HIV');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string>('');
@@ -52,7 +46,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
         imagesRef,
         where('deletadoEm', '==', null),
         where('createdAt', '>=', thirtyDaysAgo),
-        orderBy('createdAt', 'desc')
+        orderBy('createdAt', 'desc'),
       );
 
       const unsubscribe = onSnapshot(
@@ -67,16 +61,16 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
         },
         (err) => {
           setError(
-            `Failed to load metrics: ${err instanceof Error ? err.message : 'unknown error'}`
+            `Failed to load metrics: ${err instanceof Error ? err.message : 'unknown error'}`,
           );
           setLoading(false);
-        }
+        },
       );
 
       return () => unsubscribe();
     } catch (err) {
       setError(
-        `Error subscribing to data: ${err instanceof Error ? err.message : 'unknown error'}`
+        `Error subscribing to data: ${err instanceof Error ? err.message : 'unknown error'}`,
       );
       setLoading(false);
     }
@@ -120,10 +114,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
       // Accuracy calculation
       if (image.manualVerdict) {
         manualOverrideCount++;
-        if (
-          image.geminiClassification.classification ===
-          image.manualVerdict.classification
-        ) {
+        if (image.geminiClassification.classification === image.manualVerdict.classification) {
           totalCorrect++;
         }
       } else if (image.geminiClassification) {
@@ -138,8 +129,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
       const confidenceBin = `${Math.floor(confidence * 10) * 10}-${
         Math.floor(confidence * 10) * 10 + 10
       }%`;
-      confidenceDistribution[confidenceBin] =
-        (confidenceDistribution[confidenceBin] || 0) + 1;
+      confidenceDistribution[confidenceBin] = (confidenceDistribution[confidenceBin] || 0) + 1;
 
       // Daily trend
       const date = image.createdAt?.toDate?.() || new Date();
@@ -163,7 +153,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
         const kitCorrect = kitImages.filter(
           (img: any) =>
             !img.manualVerdict ||
-            img.geminiClassification.classification === img.manualVerdict.classification
+            img.geminiClassification.classification === img.manualVerdict.classification,
         ).length;
         accuracyByTestKit[kit] = (kitCorrect / kitImages.length) * 100;
       } else {
@@ -174,11 +164,9 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
     return {
       totalImages,
       imagesByTestKit,
-      accuracyPct:
-        totalImages > 0 ? (totalCorrect / totalImages) * 100 : 0,
+      accuracyPct: totalImages > 0 ? (totalCorrect / totalImages) * 100 : 0,
       accuracyByTestKit,
-      manualOverrideRate:
-        totalImages > 0 ? (manualOverrideCount / totalImages) * 100 : 0,
+      manualOverrideRate: totalImages > 0 ? (manualOverrideCount / totalImages) * 100 : 0,
       avgConfidence: totalImages > 0 ? totalConfidence / totalImages : 0,
       confidenceDistribution,
       dailyTrend: Object.entries(dailyTrend)
@@ -249,18 +237,12 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
 
   if (error) {
     return (
-      <div className="p-4 bg-red-900 border border-red-700 rounded-lg text-red-100">
-        {error}
-      </div>
+      <div className="p-4 bg-red-900 border border-red-700 rounded-lg text-red-100">{error}</div>
     );
   }
 
   if (!metrics) {
-    return (
-      <div className="p-4 text-center text-gray-400">
-        No classification data yet
-      </div>
-    );
+    return <div className="p-4 text-center text-gray-400">No classification data yet</div>;
   }
 
   return (
@@ -280,9 +262,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
           <div className="text-gray-400 text-sm">Total Images</div>
-          <div className="text-2xl font-bold text-white mt-1">
-            {metrics.totalImages}
-          </div>
+          <div className="text-2xl font-bold text-white mt-1">{metrics.totalImages}</div>
         </div>
 
         <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
@@ -311,27 +291,25 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
       <div className="bg-gray-900 rounded-lg p-4 border border-gray-800">
         <h3 className="text-lg font-bold text-white mb-4">By Test Kit</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-3">
-          {(['HIV', 'Dengue', 'Syphilis', 'COVID', 'HCG'] as TestType[]).map(
-            (kit) => (
-              <div
-                key={kit}
-                className={`p-3 rounded-lg border cursor-pointer transition ${
-                  selectedTestKit === kit
-                    ? 'bg-emerald-900 border-emerald-600'
-                    : 'bg-gray-800 border-gray-700 hover:border-gray-600'
-                }`}
-                onClick={() => setSelectedTestKit(kit)}
-              >
-                <div className="text-sm text-gray-400">{kit}</div>
-                <div className="text-xl font-bold text-white mt-1">
-                  {metrics.imagesByTestKit[kit]}
-                </div>
-                <div className="text-xs text-emerald-400 mt-1">
-                  {metrics.accuracyByTestKit[kit].toFixed(1)}% accuracy
-                </div>
+          {(['HIV', 'Dengue', 'Syphilis', 'COVID', 'HCG'] as TestType[]).map((kit) => (
+            <div
+              key={kit}
+              className={`p-3 rounded-lg border cursor-pointer transition ${
+                selectedTestKit === kit
+                  ? 'bg-emerald-900 border-emerald-600'
+                  : 'bg-gray-800 border-gray-700 hover:border-gray-600'
+              }`}
+              onClick={() => setSelectedTestKit(kit)}
+            >
+              <div className="text-sm text-gray-400">{kit}</div>
+              <div className="text-xl font-bold text-white mt-1">
+                {metrics.imagesByTestKit[kit]}
               </div>
-            )
-          )}
+              <div className="text-xs text-emerald-400 mt-1">
+                {metrics.accuracyByTestKit[kit].toFixed(1)}% accuracy
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -342,9 +320,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
           {Object.entries(metrics.confidenceDistribution)
             .sort(([a], [b]) => a.localeCompare(b))
             .map(([range, count]) => {
-              const maxCount = Math.max(
-                ...Object.values(metrics.confidenceDistribution)
-              );
+              const maxCount = Math.max(...Object.values(metrics.confidenceDistribution));
               const height = (count / maxCount) * 100;
 
               return (
@@ -362,10 +338,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
 
         {/* Threshold line indicator */}
         <div className="mt-4 flex items-center gap-2">
-          <div
-            className="h-1 bg-orange-500"
-            style={{ width: '85%' }}
-          />
+          <div className="h-1 bg-orange-500" style={{ width: '85%' }} />
           <span className="text-xs text-gray-400">0.85 threshold</span>
         </div>
       </div>
@@ -376,9 +349,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
           <h3 className="text-lg font-bold text-white mb-4">30-Day Trend</h3>
           <div className="flex items-end gap-1 h-40">
             {metrics.dailyTrend.slice(-30).map((point, idx) => {
-              const maxAccuracy = Math.max(
-                ...metrics.dailyTrend.map((p) => p.accuracy)
-              );
+              const maxAccuracy = Math.max(...metrics.dailyTrend.map((p) => p.accuracy));
               const height = (point.accuracy / maxAccuracy) * 100;
 
               return (
@@ -392,9 +363,7 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
                     style={{ height: `${height}%`, minHeight: '2px' }}
                   />
                   {idx % 5 === 0 && (
-                    <div className="text-xs text-gray-500 mt-1">
-                      {point.date.substring(5)}
-                    </div>
+                    <div className="text-xs text-gray-500 mt-1">{point.date.substring(5)}</div>
                   )}
                 </div>
               );
@@ -405,8 +374,8 @@ export const ImunoIADashboard: React.FC<ImunoIADashboardProps> = ({ labId }) => 
 
       {/* Recommendation */}
       <div className="bg-blue-900 border border-blue-700 rounded-lg p-4 text-blue-100 text-sm">
-        <strong>Baseline accuracy:</strong> Expect ~88% for Gemini Vision on rapid tests.
-        Consider collecting 500+ diverse images across all conditions before fine-tuning.
+        <strong>Baseline accuracy:</strong> Expect ~88% for Gemini Vision on rapid tests. Consider
+        collecting 500+ diverse images across all conditions before fine-tuning.
       </div>
     </div>
   );

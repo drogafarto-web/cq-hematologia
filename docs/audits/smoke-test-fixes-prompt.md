@@ -83,26 +83,28 @@ Problema: Upload de arquivos retorna HTTP 403. Path:
 Implementação:
 
 1. Em storage.rules, adicione ou corrija:
-   ```
-   match /auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{fileName} {
-     allow read: if request.auth != null;
-     allow create: if request.auth != null
-       && request.resource.size < 10 * 1024 * 1024;
-     allow delete: if request.auth != null;
-   }
-   ```
+```
+
+match /auditoria-geral/{labId}/{auditoriaId}/{indicadorId}/{fileName} {
+allow read: if request.auth != null;
+allow create: if request.auth != null
+&& request.resource.size < 10 _ 1024 _ 1024;
+allow delete: if request.auth != null;
+}
+
+```
 
 2. Em IndicadorCard.tsx:
-   - Capture erro 403 no upload e exiba toast "Sem permissão para upload"
+- Capture erro 403 no upload e exiba toast "Sem permissão para upload"
 
 3. Em auditoriaGeralService.ts (função uploadFotoEvidencia):
-   - Adicione try/catch com log estruturado
-   - Se upload falhar, propague erro para o componente
+- Adicione try/catch com log estruturado
+- Se upload falhar, propague erro para o componente
 
 Verificação:
-  # Teste manual: subir PDF de 2KB no indicador 1, verificar console
-  npx firebase emulators:start --only storage
-  # Verificar se regra permite upload autenticado
+# Teste manual: subir PDF de 2KB no indicador 1, verificar console
+npx firebase emulators:start --only storage
+# Verificar se regra permite upload autenticado
 ```
 
 ### Agente 1.3 — Observação Obrigatória p/ NC

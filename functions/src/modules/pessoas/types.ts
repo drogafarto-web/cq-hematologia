@@ -4,7 +4,9 @@ export interface Qualificacao {
   id: string;
   uid: string;
   tipo: 'treinamento' | 'capacitacao' | 'reciclagem';
-  modulosLiberados: Array<'hematologia' | 'imunologia' | 'coagulacao' | 'uroanalise' | 'bioquimica'>;
+  modulosLiberados: Array<
+    'hematologia' | 'imunologia' | 'coagulacao' | 'uroanalise' | 'bioquimica'
+  >;
   evidenciaUrl?: string;
   validoDe: Timestamp;
   validoAte?: Timestamp;

@@ -94,7 +94,9 @@ export default function NCList({ onSelectNC, showBloqueando = false }: NCListPro
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <h3 className="font-medium text-white truncate">{nc.codigo}</h3>
-                      <span className={`text-xs px-2 py-1 rounded text-white ${SEVERIDADE_CORES[nc.severidade]}`}>
+                      <span
+                        className={`text-xs px-2 py-1 rounded text-white ${SEVERIDADE_CORES[nc.severidade]}`}
+                      >
                         {SEVERIDADE_LABEL[nc.severidade]}
                       </span>
                     </div>

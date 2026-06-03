@@ -22,25 +22,21 @@ export { validateAuthorization } from './validateAuthorization';
 export { logAuditTrail } from './logAuditTrail';
 
 // Type definitions for callable inputs/outputs
-export type {
-  // authenticatePortal types
-  // (defined inline in callable, exported here for reference)
-} from './authenticatePortal';
+export type {} from // authenticatePortal types
+// (defined inline in callable, exported here for reference)
+'./authenticatePortal';
 
-export type {
-  // getPatientData types
-  // (defined inline in callable, exported here for reference)
-} from './getPatientData';
+export type {} from // getPatientData types
+// (defined inline in callable, exported here for reference)
+'./getPatientData';
 
-export type {
-  // submitRequisition types
-  // (defined inline in callable, exported here for reference)
-} from './submitRequisition';
+export type {} from // submitRequisition types
+// (defined inline in callable, exported here for reference)
+'./submitRequisition';
 
-export type {
-  // trackSampleStatus types
-  // (defined inline in callable, exported here for reference)
-} from './trackSampleStatus';
+export type {} from // trackSampleStatus types
+// (defined inline in callable, exported here for reference)
+'./trackSampleStatus';
 
 /**
  * Callable registration helper

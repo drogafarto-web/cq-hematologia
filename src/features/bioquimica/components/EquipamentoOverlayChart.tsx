@@ -13,7 +13,7 @@ interface EquipamentoOverlayChartProps {
 const hashToColor = (str: string): string => {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
-    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash = (hash << 5) - hash + str.charCodeAt(i);
     hash = hash & hash;
   }
   const colors = [
@@ -35,7 +35,7 @@ export const EquipamentoOverlayChart: React.FC<EquipamentoOverlayChartProps> = (
   nivelName,
 }) => {
   const [selectedEquipamentos, setSelectedEquipamentos] = useState<Set<string>>(
-    new Set(equipamentos.map((e) => e.id))
+    new Set(equipamentos.map((e) => e.id)),
   );
 
   const toggleEquipamento = (eqId: string) => {
@@ -81,10 +81,7 @@ export const EquipamentoOverlayChart: React.FC<EquipamentoOverlayChartProps> = (
                   : 'bg-slate-900 border border-slate-700'
               } ${!hasData ? 'opacity-40 cursor-not-allowed' : 'cursor-pointer hover:bg-slate-800'}`}
             >
-              <div
-                className="w-2.5 h-2.5 rounded-full"
-                style={{ backgroundColor: color }}
-              />
+              <div className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: color }} />
               {eq.nome}
             </button>
           );
@@ -118,11 +115,7 @@ export const EquipamentoOverlayChart: React.FC<EquipamentoOverlayChartProps> = (
                   />
                   <h4 className="text-sm font-semibold text-slate-200">{eq.nome}</h4>
                 </div>
-                <LeveyJenningsChart
-                  data={eqData}
-                  analitoName={analitoName}
-                  nivelName={nivelName}
-                />
+                <LeveyJenningsChart data={eqData} analitoName={analitoName} nivelName={nivelName} />
               </div>
             );
           })

@@ -18,19 +18,19 @@ Primeiro portal de acesso público para pacientes em HC Quality. Pacientes auten
 
 ## Decisões locked
 
-| Aspecto | Decisão | Rationale |
-|---------|---------|-----------|
-| Auth | Email-link JWT (72h expiry) | Simples, stateless, LGPD-friendly (sem password storage) |
-| URL | Path `/paciente/*` (não subdomain) | Facilita hosting (single SSL), rewrites Vite existentes |
-| PDF | Pacient-facing template (minimal tech jargon) | vs. export module (operator-facing, detalhado) |
-| QR | Laudo ID + version + signature hash | Validação auditável; pode ser escaneado pra verify assinatura |
-| Patient data | Manual entry + CSV import v1.4; LIS sync v1.4.1+ | Email-link auth não depende de LIS; fallback robusto |
-| Feedback | NPS 0–10 + satisfaction 5-point + free text | Integra com fase 11 (satisfacao) |
-| Storage | Firestore (audit, feedback, auth events) + GCS (PDF) | Escalável, auditável, LGPD-compliant |
+| Aspecto      | Decisão                                              | Rationale                                                     |
+| ------------ | ---------------------------------------------------- | ------------------------------------------------------------- |
+| Auth         | Email-link JWT (72h expiry)                          | Simples, stateless, LGPD-friendly (sem password storage)      |
+| URL          | Path `/paciente/*` (não subdomain)                   | Facilita hosting (single SSL), rewrites Vite existentes       |
+| PDF          | Pacient-facing template (minimal tech jargon)        | vs. export module (operator-facing, detalhado)                |
+| QR           | Laudo ID + version + signature hash                  | Validação auditável; pode ser escaneado pra verify assinatura |
+| Patient data | Manual entry + CSV import v1.4; LIS sync v1.4.1+     | Email-link auth não depende de LIS; fallback robusto          |
+| Feedback     | NPS 0–10 + satisfaction 5-point + free text          | Integra com fase 11 (satisfacao)                              |
+| Storage      | Firestore (audit, feedback, auth events) + GCS (PDF) | Escalável, auditável, LGPD-compliant                          |
 
 ---
 
-## Regras de negócio (RN-*)
+## Regras de negócio (RN-\*)
 
 ### RN-P01: Patient-Only Access
 
@@ -142,7 +142,7 @@ export const usePatientAuthStore = create((set) => ({
   patientId: null,
   labId: null,
   expiresAt: null,
-  
+
   setAuth: (token, patientId, labId, expiresAt) => {
     // Validate token expiry locally
     if (new Date() > expiresAt) throw new Error('Token expired');
@@ -150,7 +150,7 @@ export const usePatientAuthStore = create((set) => ({
     localStorage.setItem('patient_auth_token', token);
     set({ token, patientId, labId, expiresAt });
   },
-  
+
   isTokenExpired: () => new Date() > (get().expiresAt || new Date(0)),
 }));
 ```

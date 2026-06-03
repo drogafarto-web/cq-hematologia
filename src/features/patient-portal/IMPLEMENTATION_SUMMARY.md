@@ -120,7 +120,7 @@
 
 ### Tests (1 file, 27 test cases, 300+ LOC)
 
-**__tests__/patient-portal.test.tsx** — Vitest unit tests
+****tests**/patient-portal.test.tsx** — Vitest unit tests
 
 - **Auth Store:** initialization, setAuth, clearAuth, expiry validation
 - **Session:** countdown timer, expiry detection
@@ -168,18 +168,18 @@ Firestore rules validate `request.auth.uid == pacienteId` (JWT claim).
 
 ### Design System Integration
 
-| Element | Token | Implementation |
-|---------|-------|----------------|
-| BG page | `bg-[#0B0F14]` | dark-950 via Tailwind |
-| Card | `bg-white/4` | `dark:bg-white/3` |
-| Border | `border-white/8` | `dark:border-white/10` |
-| Text | `text-white` | `dark:text-white` |
-| Text muted | `text-slate-400` | `dark:text-slate-400` |
-| Status green | `emerald-500` (✓ Finalizado) | `bg-emerald-500/10` |
-| Status yellow | `amber-500` (⏱ Pendente) | `bg-amber-500/10` |
-| Status blue | `blue-500` (⧖ Análise) | `bg-blue-500/10` |
-| Status red | `red-500` (× Cancelado) | `bg-red-500/10` |
-| Critical | `red-300/400` | Separate badge |
+| Element       | Token                        | Implementation         |
+| ------------- | ---------------------------- | ---------------------- |
+| BG page       | `bg-[#0B0F14]`               | dark-950 via Tailwind  |
+| Card          | `bg-white/4`                 | `dark:bg-white/3`      |
+| Border        | `border-white/8`             | `dark:border-white/10` |
+| Text          | `text-white`                 | `dark:text-white`      |
+| Text muted    | `text-slate-400`             | `dark:text-slate-400`  |
+| Status green  | `emerald-500` (✓ Finalizado) | `bg-emerald-500/10`    |
+| Status yellow | `amber-500` (⏱ Pendente)     | `bg-amber-500/10`      |
+| Status blue   | `blue-500` (⧖ Análise)       | `bg-blue-500/10`       |
+| Status red    | `red-500` (× Cancelado)      | `bg-red-500/10`        |
+| Critical      | `red-300/400`                | Separate badge         |
 
 ### Accessibility (WCAG AA)
 
@@ -198,20 +198,20 @@ Firestore rules validate `request.auth.uid == pacienteId` (JWT claim).
 
 ### RDC 978 (ANVISA Laboratorial)
 
-| Art. | Requirement | Implementation |
-|-----|-------------|-----------------|
-| 167 | 14 campos obrigatórios | PatientPortalLaudo schema covers all |
-| 48 | Retenção 5 anos | Firestore rules + audit trail |
-| 184-191 | Críticos + comunicação | criticoFlag + warning banner |
-| 78 | Assinatura digital | signatureHash in laudo |
+| Art.    | Requirement            | Implementation                       |
+| ------- | ---------------------- | ------------------------------------ |
+| 167     | 14 campos obrigatórios | PatientPortalLaudo schema covers all |
+| 48      | Retenção 5 anos        | Firestore rules + audit trail        |
+| 184-191 | Críticos + comunicação | criticoFlag + warning banner         |
+| 78      | Assinatura digital     | signatureHash in laudo               |
 
 ### DICQ (Diretriz de Acreditação)
 
-| Bloco | Item | Implementation |
-|-------|------|----------------|
-| E | 5.2.3 | Acesso a informações do paciente | Portal reader |
-| G | 5.7 | Resultado ao paciente (legible format) | LaudoList + LaudoCard |
-| I | 5.9 | Controle de registros | Soft-delete + audit trail |
+| Bloco | Item  | Implementation                         |
+| ----- | ----- | -------------------------------------- | ------------------------- |
+| E     | 5.2.3 | Acesso a informações do paciente       | Portal reader             |
+| G     | 5.7   | Resultado ao paciente (legible format) | LaudoList + LaudoCard     |
+| I     | 5.9   | Controle de registros                  | Soft-delete + audit trail |
 
 ### LGPD (Lei Geral de Proteção de Dados)
 
@@ -261,6 +261,7 @@ src/features/patient-portal/
 - Vitest ✓ (already present)
 
 **Optional (not required for MVP):**
+
 - html2pdf.js (for client-side PDF generation — currently uses browser print as fallback)
 
 ---
@@ -293,7 +294,7 @@ import { PatientPortalDashboard } from './patient-portal';
 
 export function AuthWrapper() {
   const currentView = useAppStore((s) => s.currentView);
-  
+
   if (currentView === 'patient-portal') {
     return <PatientPortalDashboard patientName="..." labName="..." onLogout={...} />;
   }
@@ -302,6 +303,7 @@ export function AuthWrapper() {
 ```
 
 To add routing:
+
 ```typescript
 // src/App.tsx
 const PatientPortalView = React.lazy(() =>
@@ -330,15 +332,15 @@ const PatientPortalView = React.lazy(() =>
 
 ## Quality Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| TypeScript errors | 0 | ✓ Pass |
-| Test coverage | >80% | ✓ 27 tests |
-| Bundle impact | <50KB | ✓ ~12KB (components only) |
-| LCP | <2.5s | ✓ Lazy-loaded route |
-| CLS | <0.1 | ✓ No layout shifts |
-| WCAG AA | 100% | ✓ Semantic HTML + contrast |
-| RDC 978 | 100% | ✓ 14 campos + audit |
+| Metric            | Target | Status                     |
+| ----------------- | ------ | -------------------------- |
+| TypeScript errors | 0      | ✓ Pass                     |
+| Test coverage     | >80%   | ✓ 27 tests                 |
+| Bundle impact     | <50KB  | ✓ ~12KB (components only)  |
+| LCP               | <2.5s  | ✓ Lazy-loaded route        |
+| CLS               | <0.1   | ✓ No layout shifts         |
+| WCAG AA           | 100%   | ✓ Semantic HTML + contrast |
+| RDC 978           | 100%   | ✓ 14 campos + audit        |
 
 ---
 

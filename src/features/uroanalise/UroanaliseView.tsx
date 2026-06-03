@@ -399,10 +399,7 @@ export function UroanaliseView() {
           onOpenSettings={() => setShowSettings(true)}
         />
 
-        <EquipmentSetupBar
-          module="uroanalise"
-          onEditSetup={() => setCurrentView('insumos')}
-        />
+        <EquipmentSetupBar module="uroanalise" onEditSetup={() => setCurrentView('insumos')} />
 
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-[1400px] w-full mx-auto px-8 py-6 pb-10">

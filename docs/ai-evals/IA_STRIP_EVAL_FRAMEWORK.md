@@ -92,25 +92,25 @@ npx promptfoo eval -c eval/ia-strip/promptfooconfig.yaml --filter-providers hiv-
 
 ## Interpreting results
 
-| Signal | What it means | Action |
-| --- | --- | --- |
-| Overall accuracy < 0.85 | Model regressed OR fixtures expanded into harder cases | Triage by test type — find the bucket dragging the average |
-| Clear-case avg confidence < 0.85 | Calibration drift — model is hedging on cases it should be sure about | Investigate prompt; check if Gemini version bumped |
-| Ambiguous-case confidence > 0.80 | Over-confident — model not self-flagging for `MANUAL_REVIEW` | **High clinical risk.** Page on-call. |
-| Schema parse failure > 0 | Model output drifted from JSON contract | `parseGeminiResponse()` would return `INCONCLUSIVE` in prod — silent degradation. Fix prompt or pin model version. |
-| Latency p99 > 5s | Inference slower than the 30s callable timeout but past the 3s product target | Track; not a release blocker unless > 10s |
+| Signal                           | What it means                                                                 | Action                                                                                                             |
+| -------------------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Overall accuracy < 0.85          | Model regressed OR fixtures expanded into harder cases                        | Triage by test type — find the bucket dragging the average                                                         |
+| Clear-case avg confidence < 0.85 | Calibration drift — model is hedging on cases it should be sure about         | Investigate prompt; check if Gemini version bumped                                                                 |
+| Ambiguous-case confidence > 0.80 | Over-confident — model not self-flagging for `MANUAL_REVIEW`                  | **High clinical risk.** Page on-call.                                                                              |
+| Schema parse failure > 0         | Model output drifted from JSON contract                                       | `parseGeminiResponse()` would return `INCONCLUSIVE` in prod — silent degradation. Fix prompt or pin model version. |
+| Latency p99 > 5s                 | Inference slower than the 30s callable timeout but past the 3s product target | Track; not a release blocker unless > 10s                                                                          |
 
 ---
 
 ## Threshold rationale
 
-| Threshold | Value | Source |
-| --- | --- | --- |
-| Runtime confidence cutoff | 0.85 | Hardcoded default in `classifyStripGemini.ts` line 103 (overridable per-lab via `imuno-ia-dev/{labId}/config.confidenceThreshold`) |
-| Eval accuracy gate | 0.85 | Matches in-code claim "85–88% on validation set" (line 9) |
-| Ambiguous max confidence | 0.80 | One step below runtime cutoff — ensures ambiguous fixtures fall into `MANUAL_REVIEW` even with 5pp upward drift |
-| Schema failure tolerance | 0.00 | Any parse failure becomes `INCONCLUSIVE` in prod with confidence=0, silently shifting load to manual review. Zero tolerance. |
-| Latency budget | 5000ms (eval), 3000ms (product target) | Callable timeout is 30s; product SLA is p99 < 3s. Eval gate is loose to absorb network jitter. |
+| Threshold                 | Value                                  | Source                                                                                                                             |
+| ------------------------- | -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+| Runtime confidence cutoff | 0.85                                   | Hardcoded default in `classifyStripGemini.ts` line 103 (overridable per-lab via `imuno-ia-dev/{labId}/config.confidenceThreshold`) |
+| Eval accuracy gate        | 0.85                                   | Matches in-code claim "85–88% on validation set" (line 9)                                                                          |
+| Ambiguous max confidence  | 0.80                                   | One step below runtime cutoff — ensures ambiguous fixtures fall into `MANUAL_REVIEW` even with 5pp upward drift                    |
+| Schema failure tolerance  | 0.00                                   | Any parse failure becomes `INCONCLUSIVE` in prod with confidence=0, silently shifting load to manual review. Zero tolerance.       |
+| Latency budget            | 5000ms (eval), 3000ms (product target) | Callable timeout is 30s; product SLA is p99 < 3s. Eval gate is loose to absorb network jitter.                                     |
 
 These will be re-baselined after the first real fixture run. Update this section
 and the YAML when you do.

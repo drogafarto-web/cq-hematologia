@@ -82,11 +82,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
       });
     } catch (err) {
       console.error('Erro ao atualizar CAPA:', err);
-      alert(
-        err instanceof Error
-          ? err.message
-          : 'Erro ao processar ação. Tente novamente.',
-      );
+      alert(err instanceof Error ? err.message : 'Erro ao processar ação. Tente novamente.');
     } finally {
       setLoading(false);
     }
@@ -115,11 +111,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                           : 'bg-white/10 text-white/50'
                     }`}
                   >
-                    {isCompleted ? (
-                      <span>✓</span>
-                    ) : (
-                      <span>{idx + 1}</span>
-                    )}
+                    {isCompleted ? <span>✓</span> : <span>{idx + 1}</span>}
                   </div>
                   {idx < WORKFLOW_ORDER.length - 1 && (
                     <div
@@ -160,9 +152,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                     <div className="mt-4 p-3 bg-black/20 rounded-lg space-y-3">
                       <textarea
                         value={formData.descricao}
-                        onChange={(e) =>
-                          setFormData({ ...formData, descricao: e.target.value })
-                        }
+                        onChange={(e) => setFormData({ ...formData, descricao: e.target.value })}
                         placeholder="Descreva a ação..."
                         rows={3}
                         className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
@@ -172,9 +162,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                       {nextStatuses.includes('investigacao') && (
                         <textarea
                           value={formData.achados}
-                          onChange={(e) =>
-                            setFormData({ ...formData, achados: e.target.value })
-                          }
+                          onChange={(e) => setFormData({ ...formData, achados: e.target.value })}
                           placeholder="Achados da investigação (opcional)"
                           rows={2}
                           className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white placeholder-white/40 focus:outline-none focus:border-violet-500/50"
@@ -192,9 +180,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                           onChange={(e) =>
                             setFormData({
                               ...formData,
-                              dataPrevista: e.target.value
-                                ? new Date(e.target.value)
-                                : undefined,
+                              dataPrevista: e.target.value ? new Date(e.target.value) : undefined,
                             })
                           }
                           className="w-full px-3 py-2 bg-white/5 border border-white/10 rounded text-xs text-white focus:outline-none focus:border-violet-500/50"
@@ -209,13 +195,8 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                               Resultado da verificação
                             </label>
                             <div className="flex gap-3">
-                              {(
-                                ['eficaz', 'ineficaz', 'nao_concluida'] as const
-                              ).map((res) => (
-                                <label
-                                  key={res}
-                                  className="flex items-center gap-2 cursor-pointer"
-                                >
+                              {(['eficaz', 'ineficaz', 'nao_concluida'] as const).map((res) => (
+                                <label key={res} className="flex items-center gap-2 cursor-pointer">
                                   <input
                                     type="radio"
                                     name="resultado"
@@ -224,8 +205,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
                                     onChange={(e) =>
                                       setFormData({
                                         ...formData,
-                                        resultado: e.target
-                                          .value as typeof formData.resultado,
+                                        resultado: e.target.value as typeof formData.resultado,
                                       })
                                     }
                                     className="w-4 h-4"
@@ -284,9 +264,7 @@ export default function CAPAWorkflow({ nc, onUpdate }: CAPAWorkflowProps) {
               <div key={idx} className="flex items-start justify-between p-2 bg-black/20 rounded">
                 <div>
                   <p className="text-white/80">{CAPA_STATUS_LABEL[event.status]}</p>
-                  {event.descricao && (
-                    <p className="text-white/50 mt-1">{event.descricao}</p>
-                  )}
+                  {event.descricao && <p className="text-white/50 mt-1">{event.descricao}</p>}
                 </div>
                 <span className="text-white/40 whitespace-nowrap ml-2">
                   {event.timestamp.toDate().toLocaleDateString('pt-BR')}

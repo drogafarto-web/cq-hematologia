@@ -5,10 +5,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  subscribeToFornecedores,
-  type FornecedorFilters,
-} from '../services/fornecedorService';
+import { subscribeToFornecedores, type FornecedorFilters } from '../services/fornecedorService';
 import type { Fornecedor } from '../types/Fornecedor';
 
 interface UseFornecedoresResult {

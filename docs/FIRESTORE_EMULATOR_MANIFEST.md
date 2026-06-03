@@ -12,29 +12,29 @@ Audience: All engineers
 
 ### Scripts (4 files)
 
-| File | Purpose | Type | Platform |
-|------|---------|------|----------|
-| `scripts/firestore-emulator-setup.sh` | Main setup + control | Bash | macOS/Linux |
-| `scripts/firestore-emulator-setup.ps1` | Windows setup + control | PowerShell | Windows |
-| `scripts/check-emulator-prerequisites.sh` | Prerequisite validation | Bash | macOS/Linux |
-| `scripts/check-emulator-prerequisites.ps1` | Prerequisite validation | PowerShell | Windows |
+| File                                       | Purpose                 | Type       | Platform    |
+| ------------------------------------------ | ----------------------- | ---------- | ----------- |
+| `scripts/firestore-emulator-setup.sh`      | Main setup + control    | Bash       | macOS/Linux |
+| `scripts/firestore-emulator-setup.ps1`     | Windows setup + control | PowerShell | Windows     |
+| `scripts/check-emulator-prerequisites.sh`  | Prerequisite validation | Bash       | macOS/Linux |
+| `scripts/check-emulator-prerequisites.ps1` | Prerequisite validation | PowerShell | Windows     |
 
 ### Configuration (1 file)
 
-| File | Purpose |
-|------|---------|
+| File            | Purpose                                                     |
+| --------------- | ----------------------------------------------------------- |
 | `.env.emulator` | Emulator runtime configuration (ports, lab IDs, backup dir) |
 
 ### Documentation (6 files)
 
-| File | Purpose | Audience | Read time |
-|------|---------|----------|-----------|
-| `docs/FIRESTORE_EMULATOR_README.md` | Navigation hub + overview | All | 5 min |
-| `docs/FIRESTORE_EMULATOR_QUICK_REFERENCE.md` | Cheat sheet + command table | Quick lookup | 2 min |
-| `docs/FIRESTORE_EMULATOR_GUIDE.md` | Complete setup + workflows | Deep dive | 15 min |
-| `docs/FIRESTORE_EMULATOR_CI_INTEGRATION.md` | CI/CD pipeline patterns | DevOps | 10 min |
-| `docs/FIRESTORE_RULES_TEST_EXAMPLE.md` | Real test code examples | Test authors | 20 min |
-| `docs/FIRESTORE_EMULATOR_MANIFEST.md` | This file | Admin | 5 min |
+| File                                         | Purpose                     | Audience     | Read time |
+| -------------------------------------------- | --------------------------- | ------------ | --------- |
+| `docs/FIRESTORE_EMULATOR_README.md`          | Navigation hub + overview   | All          | 5 min     |
+| `docs/FIRESTORE_EMULATOR_QUICK_REFERENCE.md` | Cheat sheet + command table | Quick lookup | 2 min     |
+| `docs/FIRESTORE_EMULATOR_GUIDE.md`           | Complete setup + workflows  | Deep dive    | 15 min    |
+| `docs/FIRESTORE_EMULATOR_CI_INTEGRATION.md`  | CI/CD pipeline patterns     | DevOps       | 10 min    |
+| `docs/FIRESTORE_RULES_TEST_EXAMPLE.md`       | Real test code examples     | Test authors | 20 min    |
+| `docs/FIRESTORE_EMULATOR_MANIFEST.md`        | This file                   | Admin        | 5 min     |
 
 ---
 
@@ -76,6 +76,7 @@ C:\hc quality\
 ## Quick Start Commands
 
 ### Verify Prerequisites
+
 ```bash
 # macOS / Linux
 bash scripts/check-emulator-prerequisites.sh --fix
@@ -85,6 +86,7 @@ powershell -ExecutionPolicy Bypass -File scripts/check-emulator-prerequisites.ps
 ```
 
 ### Start Emulator
+
 ```bash
 # macOS / Linux
 bash scripts/firestore-emulator-setup.sh start
@@ -94,6 +96,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ```
 
 ### Seed Test Data
+
 ```bash
 # macOS / Linux
 bash scripts/firestore-emulator-setup.sh seed
@@ -103,6 +106,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ```
 
 ### Run Rules Tests
+
 ```bash
 # macOS / Linux
 bash scripts/firestore-emulator-setup.sh test
@@ -112,6 +116,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ```
 
 ### Clean & Reset
+
 ```bash
 # macOS / Linux
 bash scripts/firestore-emulator-setup.sh clean
@@ -136,7 +141,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ✓ Manage backups + restoration  
 ✓ Clean all data + reset  
 ✓ Stream logs in real-time  
-✓ Error handling + helpful output  
+✓ Error handling + helpful output
 
 ### Prerequisite Checker
 
@@ -148,7 +153,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ✓ Verify network ports (8080, 4000)  
 ✓ Check node_modules + Firebase deps  
 ✓ Detect optional tools (TypeScript, Jest)  
-✓ Auto-fix mode (--fix) to install missing tools  
+✓ Auto-fix mode (--fix) to install missing tools
 
 ### Test Data Seeding
 
@@ -161,7 +166,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ✓ Add portal configuration with branding  
 ✓ Add sample NOTIVISA events (regulatory)  
 ✓ Create audit logs subcollection  
-✓ Fully realistic multi-tenant structure  
+✓ Fully realistic multi-tenant structure
 
 ### Documentation
 
@@ -171,7 +176,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ✓ Real test code examples (6 test suites)  
 ✓ Workflow examples (rule dev, schema migration, regression testing)  
 ✓ Performance benchmarks  
-✓ Related documentation cross-references  
+✓ Related documentation cross-references
 
 ---
 
@@ -201,14 +206,14 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 
 ### Compatibility
 
-| Component | Requirement | Status |
-|-----------|-------------|--------|
-| Node.js | 18+ | ✓ Checked |
-| npm | 9+ | ✓ Checked |
-| firebase-tools | Latest | ✓ Checked |
-| macOS | 10.13+ | ✓ Tested |
-| Linux | Ubuntu 18+, Debian 10+ | ✓ Tested |
-| Windows | PowerShell 5.1+ | ✓ Supported |
+| Component      | Requirement            | Status      |
+| -------------- | ---------------------- | ----------- |
+| Node.js        | 18+                    | ✓ Checked   |
+| npm            | 9+                     | ✓ Checked   |
+| firebase-tools | Latest                 | ✓ Checked   |
+| macOS          | 10.13+                 | ✓ Tested    |
+| Linux          | Ubuntu 18+, Debian 10+ | ✓ Tested    |
+| Windows        | PowerShell 5.1+        | ✓ Supported |
 
 ---
 
@@ -228,23 +233,23 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 
 ### Regular Tasks
 
-| Frequency | Task | Command |
-|-----------|------|---------|
-| **Per session** | Start emulator | `bash scripts/firestore-emulator-setup.sh start` |
-| **Per task** | Seed test data | `bash scripts/firestore-emulator-setup.sh seed` |
-| **Per change** | Run rules tests | `npm run test:rules` |
-| **Weekly** | Backup baseline | `firebase emulators:export .firebase/emulator-backups/weekly-$(date +%Y%m%d)` |
-| **Monthly** | Clean old backups | `find .firebase/emulator-backups -mtime +30 -delete` |
+| Frequency       | Task              | Command                                                                       |
+| --------------- | ----------------- | ----------------------------------------------------------------------------- |
+| **Per session** | Start emulator    | `bash scripts/firestore-emulator-setup.sh start`                              |
+| **Per task**    | Seed test data    | `bash scripts/firestore-emulator-setup.sh seed`                               |
+| **Per change**  | Run rules tests   | `npm run test:rules`                                                          |
+| **Weekly**      | Backup baseline   | `firebase emulators:export .firebase/emulator-backups/weekly-$(date +%Y%m%d)` |
+| **Monthly**     | Clean old backups | `find .firebase/emulator-backups -mtime +30 -delete`                          |
 
 ### Troubleshooting
 
-| Issue | Resolution | Docs |
-|-------|-----------|------|
-| Port in use | Use different port via `.env.emulator` | GUIDE § Troubleshooting |
-| Seed fails | Check emulator running: `nc -zv localhost 8080` | GUIDE § Troubleshooting |
-| Rules tests fail | Emulator running + `npm run test:rules` configured | GUIDE § Troubleshooting |
-| Missing prerequisites | Run checker: `bash scripts/check-emulator-prerequisites.sh --fix` | QUICK REFERENCE |
-| Backup corrupted | See restore procedures in GUIDE § Restore | GUIDE § Restore |
+| Issue                 | Resolution                                                        | Docs                    |
+| --------------------- | ----------------------------------------------------------------- | ----------------------- |
+| Port in use           | Use different port via `.env.emulator`                            | GUIDE § Troubleshooting |
+| Seed fails            | Check emulator running: `nc -zv localhost 8080`                   | GUIDE § Troubleshooting |
+| Rules tests fail      | Emulator running + `npm run test:rules` configured                | GUIDE § Troubleshooting |
+| Missing prerequisites | Run checker: `bash scripts/check-emulator-prerequisites.sh --fix` | QUICK REFERENCE         |
+| Backup corrupted      | See restore procedures in GUIDE § Restore                         | GUIDE § Restore         |
 
 ---
 
@@ -300,9 +305,9 @@ bash scripts/firestore-emulator-setup.sh logs
 
 ## Version History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-05-07 | Initial release — 4 scripts + 6 docs + config file |
+| Version | Date       | Changes                                            |
+| ------- | ---------- | -------------------------------------------------- |
+| 1.0     | 2026-05-07 | Initial release — 4 scripts + 6 docs + config file |
 
 ---
 
@@ -311,12 +316,12 @@ bash scripts/firestore-emulator-setup.sh logs
 **Total files created:** 11 (4 scripts + 1 config + 6 docs)  
 **Total documentation:** 6 files, ~50KB, 1500+ lines  
 **Code:** ~1000 lines of shell + PowerShell + examples  
-**Configuration:** 1 file (`.env.emulator`)  
+**Configuration:** 1 file (`.env.emulator`)
 
 **Ready to use:** Yes ✓  
 **Requires manual execution:** Yes (no auto-deploy)  
 **Production impact:** None (local development only)  
-**Testing:** All scripts validated before delivery  
+**Testing:** All scripts validated before delivery
 
 ---
 

@@ -1,9 +1,9 @@
 ---
-plan: "04"
-phase: "11-feedback-loop"
-title: "NPS Pós-Resolução + Recurring Trimestral + Anonimização LGPD — SUMMARY"
-date_completed: "2026-05-06"
-status: "COMPLETE"
+plan: '04'
+phase: '11-feedback-loop'
+title: 'NPS Pós-Resolução + Recurring Trimestral + Anonimização LGPD — SUMMARY'
+date_completed: '2026-05-06'
+status: 'COMPLETE'
 ---
 
 # Phase 11 Plan 04 — SUMMARY
@@ -13,6 +13,7 @@ status: "COMPLETE"
 NPS Net Promoter Score system complete: auto-trigger on complaint resolution, batch quarterly campaigns via cron, automatic LGPD anonimization after 90 days, public token-based response submission.
 
 **Output delivered:**
+
 - 4 Cloud Functions: `dispararNPSPosResolucao` (trigger), `dispararNPSRecurring` (cron), `submitNPSResposta` (callable), `anonimizarRespostas` (cron)
 - 1 Pub/Sub handler: `npsEmailQueueHandler` (async email fan-out)
 - 3 React components: `NPSScoreCard`, `NPSResposta`, `SatisfacaoAdmin`
@@ -27,6 +28,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 ### 1. Cloud Functions (satisfacao module)
 
 #### `dispararNPSPosResolucao` (Firestore trigger)
+
 - **Path:** `functions/src/modules/satisfacao/dispararNPSPosResolucao.ts` (180 lines)
 - **Trigger:** `onDocumentUpdated` when reclamacao.status → 'Resolvida'
 - **Action:**
@@ -37,6 +39,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 - **Resilience:** Fails gracefully if email fails (doesn't break complaint resolution)
 
 #### `dispararNPSRecurring` (Cloud Scheduler)
+
 - **Path:** `functions/src/modules/satisfacao/dispararNPSRecurring.ts` (120 lines)
 - **Schedule:** Every 3 months on the 15th at 09:00 BRT (12:00 UTC)
   - Cron: `0 12 15 */3 *`
@@ -47,11 +50,13 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
   - Log delivery in `comunicacoes-cliente`
 
 #### `npsEmailQueueHandler` (Pub/Sub handler)
+
 - **Path:** `functions/src/modules/satisfacao/dispararNPSRecurring.ts` (Pub/Sub topic handler)
 - **Rate limiting:** 1 email per 3.6 seconds (max 1000/hour = compliant with Resend)
 - **Payload:** `{ labId, pacienteId, email, nome, npsToken, tipo: 'trimestral' }`
 
 #### `submitNPSResposta` (Public callable)
+
 - **Path:** `functions/src/modules/satisfacao/submitNPSResposta.ts` (180 lines)
 - **Auth:** Token-based (no Firebase auth required)
 - **Input validation:** Zod schema
@@ -72,6 +77,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 - **LGPD:** `anonimizadoEm: null` initially; cron job sets it after 90d
 
 #### `anonimizarRespostas` (Cloud Scheduler)
+
 - **Path:** `functions/src/modules/satisfacao/anonimizarRespostas.ts` (140 lines)
 - **Schedule:** Daily at 03:00 BRT (06:00 UTC)
   - Cron: `0 6 * * *`
@@ -87,6 +93,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 **File:** `src/features/satisfacao/services/satisfacaoService.ts` (120 lines)
 
 **Methods:**
+
 - `getRespostas(labId, filters)` — Query with origem/dataInicio/dataFim filters
 - `calculateNPS(respostas)` — Returns `%promotores - %detratores` (integer -100 to +100)
 - `getCategoryBreakdown(respostas)` — Returns `{ promotores, neutros, detratores }` counts
@@ -95,6 +102,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 ### 3. React Components
 
 #### `NPSScoreCard` (Dashboard metric card)
+
 - **File:** `src/features/satisfacao/components/NPSScoreCard.tsx` (150 lines)
 - **Props:** `labId`, `origem?`, `title?`
 - **Display:**
@@ -105,6 +113,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 - **Dark-first:** Full Tailwind dark mode support
 
 #### `NPSResposta` (Survey form)
+
 - **File:** `src/features/satisfacao/components/NPSResposta.tsx` (180 lines)
 - **Flow:**
   1. 10-point numeric scale (0-10 button grid)
@@ -118,6 +127,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 - **Error handling:** Shows HTTP errors from callable
 
 #### `SatisfacaoAdmin` (Admin dashboard)
+
 - **File:** `src/features/satisfacao/components/SatisfacaoAdmin.tsx` (180 lines)
 - **Tabs:**
   - **NPS Score:** Shows 3 cards (Overall, Pós-Resolução, Trimestral)
@@ -132,6 +142,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 **File:** `src/features/satisfacao/hooks/useNPSScore.ts` (80 lines)
 
 **Behavior:**
+
 - Real-time subscription to `satisfacao-respostas` (client-side onSnapshot)
 - Calculates NPS on-the-fly using SatisfacaoService
 - Optional filter: `origem: 'pos-reclamacao' | 'trimestral'`
@@ -142,6 +153,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 ## Firestore Schema
 
 ### Collection: `/labs/{labId}/satisfacao-respostas/{respostaId}`
+
 ```typescript
 {
   labId: string,
@@ -163,6 +175,7 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 ```
 
 ### Collection: `/labs/{labId}/satisfacao-campanhas/{campanhaId}`
+
 ```typescript
 {
   labId: string,
@@ -204,18 +217,21 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 ## Testing
 
 ### Unit Tests (Functions)
+
 - `submitNPSResposta` with valid token → creates resposta + updates reclamacao
 - `submitNPSResposta` with expired token → throws `unauthenticated`
 - Auto-categorization: nota=3 → 'detrator', nota=7 → 'neutro', nota=9 → 'promotor'
 - `anonimizarRespostas` cron: resposta >90d gets anonymized, pacienteId → null
 
 ### Integration Tests (E2E)
+
 - Reclamacao resolution → NPS email sent + token valid
 - Email link click → form loads
 - Form submit → resposta created + reclamacao closed
 - Admin dashboard loads NPS score
 
 ### Load Test
+
 - Cron `dispararNPSRecurring`: 5000 emails → Pub/Sub queues at 1000/hour
 - Pub/Sub handler: 1000 concurrent emails → all sent successfully (Resend quota OK)
 
@@ -223,18 +239,18 @@ NPS Net Promoter Score system complete: auto-trigger on complaint resolution, ba
 
 ## Performance
 
-| Metric | Value | Target |
-|--------|-------|--------|
-| NPS calculation | O(n) where n = resposta count | <100ms for n<10k |
-| Anonimização batch update | 1000 docs → ~5s | <30s for daily cron |
-| Email send via Resend | ~100ms per email | <5s p95 |
+| Metric                    | Value                         | Target              |
+| ------------------------- | ----------------------------- | ------------------- |
+| NPS calculation           | O(n) where n = resposta count | <100ms for n<10k    |
+| Anonimização batch update | 1000 docs → ~5s               | <30s for daily cron |
+| Email send via Resend     | ~100ms per email              | <5s p95             |
 
 ---
 
 ## Post-Deployment
 
-1. **Cloud Scheduler:** Create job for `dispararNPSRecurring` (0 12 15 */3 *)
-2. **Cloud Scheduler:** Create job for `anonimizarRespostas` (0 6 * * *)
+1. **Cloud Scheduler:** Create job for `dispararNPSRecurring` (0 12 15 _/3 _)
+2. **Cloud Scheduler:** Create job for `anonimizarRespostas` (0 6 \* \* \*)
 3. **Firestore Rules:** Add satisfacao-respostas security rules (Plan 11-02 already done)
 4. **Firestore Indexes:** Add `(labId, respondidoEm DESC)` for anonimização query
 5. **Pub/Sub:** Create topic `nps-email-queue` + subscription to handler

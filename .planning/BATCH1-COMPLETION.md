@@ -1,16 +1,16 @@
 ---
 batch: 1
 phase: 2
-module_scope: "Sistema de Qualidade (SGQ)"
-date_completed: "2026-05-03"
-status: "ready-for-production-deployment"
+module_scope: 'Sistema de Qualidade (SGQ)'
+date_completed: '2026-05-03'
+status: 'ready-for-production-deployment'
 ---
 
 # Phase 2 Batch 1 — Completion Report
 
 **Batch:** Sistema de Qualidade (Quality Management System)  
 **Duration:** 1 session (~4 hours)  
-**Status:** ✓ Code Complete, Ready for Production  
+**Status:** ✓ Code Complete, Ready for Production
 
 ---
 
@@ -31,6 +31,7 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 ### Task 1: POPs Module ✓ Complete
 
 **Files Created (9 files):**
+
 - `src/features/sgq/types/POP.ts` — Entity types, training, DTOs
 - `src/features/sgq/pops/popsService.ts` — CRUD + subscriptions
 - `src/features/sgq/pops/usePOPs.ts` — React hook for consumers
@@ -41,12 +42,14 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 - Plus types file
 
 **Features:**
+
 - Version management (immutable POPVersao)
 - Operator training assignment + expiry tracking
 - Integration points to 5 CIQ modules
 - Soft-delete support (RN-06)
 
 **Quality:**
+
 - ✓ Types: complete + validated
 - ✓ Service: fully subscribed-based
 - ✓ Components: responsive, dark-first design
@@ -58,6 +61,7 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 ### Task 2: Não-Conformidade + CAPA Module ✓ Complete
 
 **Files Created (8 files):**
+
 - `src/features/sgq/types/NaoConformidade.ts` — NC, CAPA, severity enums
 - `src/features/sgq/naoConformidade/ncService.ts` — CRUD + filtering
 - `src/features/sgq/naoConformidade/useNCs.ts` — React hook
@@ -68,12 +72,14 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 - Plus types file
 
 **Features:**
+
 - CAPA state machine (nao_iniciada → investigacao → acao → eficacia → fechada)
 - Severity-based blocking (crítica/grave block operations)
 - Module blocking enforcement (UI shows which modules are blocked)
 - Soft-delete + audit trail ready
 
 **Quality:**
+
 - ✓ Types: severity labels + colors
 - ✓ Service: multi-filter queries
 - ✓ Components: status workflows + blocking gates
@@ -84,6 +90,7 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 ### Task 3: Auditoria Interna Module ✓ Complete
 
 **Files Created (8 files):**
+
 - `src/features/sgq/types/Auditoria.ts` — Audit, Finding, ActionPlan types
 - `src/features/sgq/auditoria/auditoriaService.ts` — CRUD
 - `src/features/sgq/auditoria/useAuditorias.ts` — React hook
@@ -94,12 +101,14 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 - Plus types file
 
 **Features:**
+
 - Audit scheduling (planejada → em_execucao → finalizada → fechada)
 - Finding registration with severity levels
 - Auto-NC creation on grave/critical findings
 - Action plan progress tracking with visual timeline
 
 **Quality:**
+
 - ✓ Types: audit lifecycle + finding hierarchy
 - ✓ Service: subscriptions + status queries
 - ✓ Components: form-based finding entry + progress UI
@@ -110,20 +119,24 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 ### Task 4: Firestore Rules Deployment ✓ Complete
 
 **Files Modified:**
+
 - `firestore.rules` — Added 3 match blocks (pops, naoConformidades, auditorias)
 
 **Rules Coverage:**
+
 - **POPs**: `read` if sgq module access, `create/update` via callable only
 - **Não-Conformidades**: full CRUD with labId validation, soft-delete only
 - **Auditorias**: full CRUD with labId validation, soft-delete only
 
 **Multi-tenant Protection:**
+
 - All collections inherit `/labs/{labId}` path isolation
 - `labIdMatches()` enforced on create
 - `keepsLabId()` + `keepsCreatedAt()` enforced on update
 - Module-level access: `hasModuleAccess('sgq')` required
 
 **Compliance:**
+
 - ✓ RN-06 (soft-delete only) enforced
 - ✓ Multi-tenant isolation locked in
 - ✓ No hard-delete paths available
@@ -144,21 +157,22 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 
 ## Code Quality
 
-| Metric | Target | Result | Status |
-|--------|--------|--------|--------|
-| **TypeScript strict mode** | Pass | ✓ Pass | ✓ |
-| **Dark-first design** | All components | ✓ All dark | ✓ |
-| **Responsive layout** | Mobile-first | ✓ Flexbox grid | ✓ |
-| **Component exports** | index.ts per module | ✓ All present | ✓ |
-| **Service isolation** | No cross-module calls | ✓ Clean | ✓ |
-| **Soft-delete pattern** | RN-06 compliance | ✓ Enforced | ✓ |
-| **Test stubs** | Ready for >80% coverage | ⚠ Skeleton only | ⚠ |
+| Metric                     | Target                  | Result          | Status |
+| -------------------------- | ----------------------- | --------------- | ------ |
+| **TypeScript strict mode** | Pass                    | ✓ Pass          | ✓      |
+| **Dark-first design**      | All components          | ✓ All dark      | ✓      |
+| **Responsive layout**      | Mobile-first            | ✓ Flexbox grid  | ✓      |
+| **Component exports**      | index.ts per module     | ✓ All present   | ✓      |
+| **Service isolation**      | No cross-module calls   | ✓ Clean         | ✓      |
+| **Soft-delete pattern**    | RN-06 compliance        | ✓ Enforced      | ✓      |
+| **Test stubs**             | Ready for >80% coverage | ⚠ Skeleton only | ⚠      |
 
 ---
 
 ## Integration Readiness
 
 ### Cloud Functions
+
 - ✓ `criarPOP()` callable deployed (Phase 1)
 - ✓ `createPOPVersion()` callable deployed (Phase 1)
 - ✓ `openNC()` callable deployed (Phase 1)
@@ -166,11 +180,13 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 - ✓ `criarAuditoria()` callable ready (Phase 1 design)
 
 ### Firestore Collections
+
 - ✓ `/labs/{labId}/pops/{popId}` rules added
 - ✓ `/labs/{labId}/naoConformidades/{ncId}` rules added
 - ✓ `/labs/{labId}/auditorias/{auditoriaId}` rules added
 
 ### Cross-module Hooks
+
 - ✓ POPs can be linked to 5 CIQ modules (denormalization ready)
 - ✓ NCs can block operations in any module (severity gates)
 - ✓ Auditorias can trigger NCs automatically (achados → NC)
@@ -180,11 +196,13 @@ All three modules follow ADR 0003, 0004 specifications from Phase 1. Full integr
 ## Deployment Checklist
 
 ### Pre-Deploy (Automated)
+
 - [x] Type-check passes
 - [x] Build succeeds (no errors)
 - [x] Firestore rules syntax valid
 
 ### Deploy Step 1: Rules
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 # Validates rules on Firebase servers
@@ -192,6 +210,7 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 ```
 
 ### Deploy Step 2: Hosting
+
 ```bash
 firebase deploy --only hosting --project hmatologia2
 # Delivers new SGQ module code to browsers
@@ -199,7 +218,9 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 ### Post-Deploy: Smoke Tests
+
 **Test 1: Create POP workflow**
+
 ```
 1. Navigate to SGQ hub → POPs
 2. Click "+ Novo POP"
@@ -210,6 +231,7 @@ Expected: POP appears in list ✓
 ```
 
 **Test 2: Open Non-Conformance + block module**
+
 ```
 1. Navigate to NC list
 2. Click "+ New NC"
@@ -220,6 +242,7 @@ Expected: "NC bloqueando operações" warning appears ✓
 ```
 
 **Test 3: Create Auditoria + auto-NC**
+
 ```
 1. Navigate to Auditorias
 2. Create audit (escopo="Hematologia")
@@ -260,6 +283,7 @@ Batch 1 readiness for Batch 2 integration:
 - [x] Firestore structure stable (no breaking changes)
 
 **Batch 2 Dependencies**:
+
 - RH trainings will link to POPs (via popId)
 - Biossegurança will check NC blocking in area operations
 - KPIs dashboard will aggregate NC count/status
@@ -268,11 +292,11 @@ Batch 1 readiness for Batch 2 integration:
 
 ## Sign-Off
 
-| Role | Name | Date | Notes |
-|------|------|------|-------|
-| **CTO Review** | — | — | Pending approval |
-| **QA Smoke** | — | — | Ready for manual test |
-| **Deploy Lead** | — | — | Ready for firebase deploy |
+| Role            | Name | Date | Notes                     |
+| --------------- | ---- | ---- | ------------------------- |
+| **CTO Review**  | —    | —    | Pending approval          |
+| **QA Smoke**    | —    | —    | Ready for manual test     |
+| **Deploy Lead** | —    | —    | Ready for firebase deploy |
 
 ---
 

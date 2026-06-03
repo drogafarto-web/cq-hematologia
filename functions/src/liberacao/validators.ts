@@ -6,8 +6,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-export const LIB_ACCESS_DENIED_MSG =
-  'Sem permissão para este módulo — contate o administrador.';
+export const LIB_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
 
 interface AuthDataLite {
   uid: string;
@@ -47,10 +46,7 @@ export async function assertLiberacaoAccess(
   }
 
   // 2. Membership ativa no lab solicitado
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[LIB_ACCESS_DENIED]', {
       uid,
@@ -110,8 +106,7 @@ export async function assertRTAccess(
 
 const ID_REGEX = /^[a-zA-Z0-9_\-:]+$/;
 
-const idString = (max = 100) =>
-  z.string().min(1).max(max).regex(ID_REGEX, 'ID inválido');
+const idString = (max = 100) => z.string().min(1).max(max).regex(ID_REGEX, 'ID inválido');
 
 const ResultadoExameSchema = z
   .object({
@@ -170,9 +165,7 @@ export const ExameLaudoSchema = z
 
 export const SignaturePayloadSchema = z
   .object({
-    hash: z
-      .string()
-      .regex(/^[a-f0-9]{64}$/i, 'Hash deve ter 64 caracteres hexadecimais'),
+    hash: z.string().regex(/^[a-f0-9]{64}$/i, 'Hash deve ter 64 caracteres hexadecimais'),
     operatorId: z.string().min(1).max(100),
     timestamp: z.number().int().positive(),
   })

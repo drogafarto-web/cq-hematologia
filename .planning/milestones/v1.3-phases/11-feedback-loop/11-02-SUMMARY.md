@@ -1,9 +1,9 @@
 ---
-plan: "02"
-phase: "11-feedback-loop"
-title: "Firestore Rules + Cloud Functions Callables — SUMMARY"
-date_completed: "2026-05-06"
-status: "COMPLETE"
+plan: '02'
+phase: '11-feedback-loop'
+title: 'Firestore Rules + Cloud Functions Callables — SUMMARY'
+date_completed: '2026-05-06'
+status: 'COMPLETE'
 ---
 
 # Phase 11 Plan 02 — SUMMARY
@@ -13,6 +13,7 @@ status: "COMPLETE"
 Firestore security rules + composite indexes + 3 core Cloud Function callables for multi-channel complaint intake, Gemini AI classification, and email parsing.
 
 **Output delivered:**
+
 - Firestore rules block for reclamacoes + sugestoes + satisfacao (700+ lines, ADR 0002 + RN-06 + RN-11 + RN-13)
 - 9 composite indexes for complaint queries (severity/status/SLA trending)
 - 3 Cloud Functions: `criarReclamacao` (callable), `classificarReclamacaoIA` (task queue), `parseEmailReclamacao` (webhook)
@@ -28,6 +29,7 @@ Firestore security rules + composite indexes + 3 core Cloud Function callables f
 **File:** `firestore.rules` (inserted at line 1550)
 
 **Bloco reclamacoes:**
+
 - `match /labs/{labId}/reclamacoes/{reclamacaoId}`:
   - `allow read`: isSuperAdmin OR isActiveMemberOfLab
   - `allow create/update/delete: if false` (Cloud Function callable only)
@@ -43,6 +45,7 @@ Firestore security rules + composite indexes + 3 core Cloud Function callables f
 - `match /reclamacoes-versions/{versionId}`: Immutable snapshots (retification audit)
 
 **Bloco satisfacao-respostas:**
+
 - `match /labs/{labId}/satisfacao-respostas/{respostaId}`:
   - NPS scoring (0-10 scale)
   - Categoria enum: detrator | neutro | promotor
@@ -52,18 +55,21 @@ Firestore security rules + composite indexes + 3 core Cloud Function callables f
 - `match /satisfacao-campanhas/{campanhaId}`: Campaign metadata (quarterly template)
 
 **Bloco sugestoes:**
+
 - `match /labs/{labId}/sugestoes/{sugestaoId}`:
   - Status workflow: aberta → analisada → implementada/rejeitada
   - Categoria enum: produto | processo | ambiente | atendimento | outro
   - Soft-delete + timestamp tracking
 
 **Shared collections:**
+
 - `match /comunicacoes-cliente/{comunicacaoId}`: Immutable email log (Resend delivery)
 - `match /lgpd-requests/{requestId}`: LGPD access/deletion requests
 - `match /lgpd-audit/{logId}`: Append-only PII access trail (RDC 978 5.3)
 - `match /feedback-classificacao-auto/{logId}`: Gemini IA audit log (transparency)
 
 **Rules philosophy:**
+
 - Defense-in-depth: all writes via Cloud Function only (rules + server validation)
 - Soft-delete enforced: `allow delete: if false`
 - Signature mandatory: `signature.hash.size() == 64` + `operatorId == request.auth.uid`
@@ -74,16 +80,16 @@ Firestore security rules + composite indexes + 3 core Cloud Function callables f
 
 **File:** `firestore.indexes.json` (appended)
 
-| Collection | Fields | Use Case |
-|---|---|---|
-| reclamacoes | (labId, status, criadoEm DESC) | Dashboard list + status filter |
-| reclamacoes | (labId, severidade, status, criadoEm DESC) | Severity trending + SLA KPI |
-| reclamacoes | (labId, cpf, criadoEm DESC) | Patient complaint history |
-| reclamacoes | (labId, slaPrazo ASC) | SLA tracker + overdue alerts |
-| sugestoes | (labId, status, criadoEm DESC) | Suggestion workflow + trending |
-| sugestoes | (labId, categoria, status) | Category breakdown |
-| satisfacao-respostas | (labId, origem, respondidoEm DESC) | NPS trending + recurring vs. post-resolução |
-| satisfacao-respostas | (labId, categoria, respondidoEm DESC) | NPS breakdown (promotor/neutro/detrator) |
+| Collection           | Fields                                     | Use Case                                    |
+| -------------------- | ------------------------------------------ | ------------------------------------------- |
+| reclamacoes          | (labId, status, criadoEm DESC)             | Dashboard list + status filter              |
+| reclamacoes          | (labId, severidade, status, criadoEm DESC) | Severity trending + SLA KPI                 |
+| reclamacoes          | (labId, cpf, criadoEm DESC)                | Patient complaint history                   |
+| reclamacoes          | (labId, slaPrazo ASC)                      | SLA tracker + overdue alerts                |
+| sugestoes            | (labId, status, criadoEm DESC)             | Suggestion workflow + trending              |
+| sugestoes            | (labId, categoria, status)                 | Category breakdown                          |
+| satisfacao-respostas | (labId, origem, respondidoEm DESC)         | NPS trending + recurring vs. post-resolução |
+| satisfacao-respostas | (labId, categoria, respondidoEm DESC)      | NPS breakdown (promotor/neutro/detrator)    |
 
 **Rationale:** Queries on `(where + orderBy)` on different fields require composite indexes. Client-side filtering works up to ~5k docs; these indexes enable server-side filtering at scale.
 
@@ -92,6 +98,7 @@ Firestore security rules + composite indexes + 3 core Cloud Function callables f
 **File:** `functions/src/modules/reclamacoes/criarReclamacao.ts` (380 lines)
 
 **Signature:**
+
 ```typescript
 export const criarReclamacao = functions.https.onCall(...)
 Input: {
@@ -105,6 +112,7 @@ Output: {success: true, reclamacaoId, status, slaPrazo}
 ```
 
 **Pipeline:**
+
 1. ✅ Validate auth (active lab member OR public channel with reCAPTCHA)
 2. ✅ Validate reCAPTCHA v3 (public channel only, score ≥0.5)
 3. ✅ Validate CPF format (11 digits)
@@ -117,6 +125,7 @@ Output: {success: true, reclamacaoId, status, slaPrazo}
 10. ✅ Queue confirmation email (Resend)
 
 **Security:**
+
 - Zod input validation (typed, strict)
 - reCAPTCHA v3 anti-spam (public channel)
 - Signature generation server-side (not trusted client)
@@ -124,10 +133,12 @@ Output: {success: true, reclamacaoId, status, slaPrazo}
 - LGPD consent captured: timestamp + IP + UserAgent logged
 
 **SLA:**
+
 - 30-day deadline per CDC Lei 8.078/90 Art. 26
 - slaPrazo = recebidoEm + 30 dias
 
 **Features:**
+
 - 6 channels: web-interno, web-publico, email, telefone, qr-laudo, worklab-deep-link
 - Heuristic severity (fallback if Gemini fails)
 - NC auto-trigger heuristic (severity alta + descricao.length ≥ 100)
@@ -138,6 +149,7 @@ Output: {success: true, reclamacaoId, status, slaPrazo}
 **File:** `functions/src/modules/reclamacoes/classificarReclamacaoIA.ts` (260 lines)
 
 **Signature:**
+
 ```typescript
 export const classificarReclamacaoIA = functions.tasks.onTaskDispatched(...)
 Input: {labId, reclamacaoId, descricao}
@@ -145,6 +157,7 @@ Output: void (updates complaint doc + audit log)
 ```
 
 **Pipeline:**
+
 1. ✅ Initialize Gemini 2.5 Flash (@google/genai)
 2. ✅ Build structured prompt (6 complaint types × 3 severities × 5 areas)
 3. ✅ Call Gemini with JSON mode (responseMimeType: 'application/json')
@@ -154,6 +167,7 @@ Output: void (updates complaint doc + audit log)
 7. ✅ Flag confidence < 0.6 as "review needed"
 
 **Gemini Classification Schema:**
+
 ```json
 {
   "tipo": "laudo-errado" | "demora" | "atendimento" | "valor-cobrado" | "amostra-hemolisada" | "outro",
@@ -165,6 +179,7 @@ Output: void (updates complaint doc + audit log)
 ```
 
 **Prompt Engineering:**
+
 - Contextualized instructions (DICQ + RDC 978 + CDC compliance)
 - 6 complaint types with clinical examples
 - Severity definition: alta (dano potencial), media (7-30d demora), baixa (sugestões)
@@ -172,11 +187,13 @@ Output: void (updates complaint doc + audit log)
 - Temperature: 0.3 (deterministic)
 
 **Idempotency:**
+
 - Task retries up to 3 times (exponential backoff)
 - Logs failures → complaint stays without classificacaoAuto
 - RT classifies manually if IA fails
 
 **Audit Trail:**
+
 - Stores raw Gemini response + latency + confidence
 - Logs used for fine-tuning (future v1.4 custom model)
 - Non-exposed to UI (RT only via internal docs)
@@ -186,6 +203,7 @@ Output: void (updates complaint doc + audit log)
 **File:** `functions/src/modules/reclamacoes/parseEmailReclamacao.ts` (310 lines)
 
 **Signature:**
+
 ```typescript
 export const parseEmailReclamacao = functions.https.onRequest(...)
 POST /api/inbound/reclamacoes (Resend Inbound Webhook)
@@ -194,6 +212,7 @@ Output: {success: true, message, taskId}
 ```
 
 **Pipeline:**
+
 1. ✅ Verify Resend webhook signature (HMAC SHA-256)
 2. ✅ Parse email: extract sender, subject, body
 3. ✅ Strip HTML, preserve text
@@ -205,6 +224,7 @@ Output: {success: true, message, taskId}
 9. ✅ Send auto-reply: "We received your complaint #XXX"
 
 **Security:**
+
 - Resend signature verification mandatory (HMAC)
 - HTML injection prevention (strip all tags)
 - Rate limit: 100 emails/hour per domain
@@ -212,11 +232,13 @@ Output: {success: true, message, taskId}
 - Email sender as reclamante.email (consent implied)
 
 **Idempotency:**
+
 - emailHash = SHA256(from + subject + body[0:100])
 - Duplicate check before queuing
 - Returns existing reclamacaoId if already processed
 
 **Error Handling:**
+
 - 401: Missing/invalid signature
 - 400: No valid CPF, body too short, wrong recipient
 - 500: No labs configured
@@ -323,18 +345,18 @@ functions/src/index.ts             [MODIFIED — +7 lines reclamacoes exports]
 
 ## Compliance Alignment
 
-| Standard | Coverage | Status |
-|----------|----------|--------|
-| DICQ 4.8 | Complaint intake (6 channels) + status workflow | ✅ Rules enforced |
-| DICQ 4.14.3 | NPS schema + campaign metadata | ✅ Types + rules |
-| DICQ 4.14.4 | Suggestions schema + status workflow | ✅ Rules enforced |
-| RDC 978 Art. 86 | Complaint registration + 30-day SLA | ✅ slaPrazo field + CDC compliance |
-| RDC 978 Art. 115, 117 | Soft-delete + 5-year retention | ✅ Rules enforce soft-delete only |
-| RDC 978 Art. 5.3 | LGPD audit trail for PII access | ✅ lgpd-audit collection + Firestore rules |
-| LGPD Lei 13.709/18 | Consent capture + anonimização | ✅ consentimentoLgpd + anonimizadoEm fields |
-| CDC Lei 8.078/90 Art. 26 | 30-day response deadline | ✅ slaPrazo = recebidoEm + 30d |
-| ADR 0001 | Chain hash + LogicalSignature | ✅ Implemented in criarReclamacao |
-| ADR 0002 | Multi-tenant isolation | ✅ Rules validate labId in path + payload |
+| Standard                 | Coverage                                        | Status                                      |
+| ------------------------ | ----------------------------------------------- | ------------------------------------------- |
+| DICQ 4.8                 | Complaint intake (6 channels) + status workflow | ✅ Rules enforced                           |
+| DICQ 4.14.3              | NPS schema + campaign metadata                  | ✅ Types + rules                            |
+| DICQ 4.14.4              | Suggestions schema + status workflow            | ✅ Rules enforced                           |
+| RDC 978 Art. 86          | Complaint registration + 30-day SLA             | ✅ slaPrazo field + CDC compliance          |
+| RDC 978 Art. 115, 117    | Soft-delete + 5-year retention                  | ✅ Rules enforce soft-delete only           |
+| RDC 978 Art. 5.3         | LGPD audit trail for PII access                 | ✅ lgpd-audit collection + Firestore rules  |
+| LGPD Lei 13.709/18       | Consent capture + anonimização                  | ✅ consentimentoLgpd + anonimizadoEm fields |
+| CDC Lei 8.078/90 Art. 26 | 30-day response deadline                        | ✅ slaPrazo = recebidoEm + 30d              |
+| ADR 0001                 | Chain hash + LogicalSignature                   | ✅ Implemented in criarReclamacao           |
+| ADR 0002                 | Multi-tenant isolation                          | ✅ Rules validate labId in path + payload   |
 
 ---
 
@@ -354,6 +376,7 @@ functions/src/index.ts             [MODIFIED — +7 lines reclamacoes exports]
 **Phase duration:** 1.5 days (estimated 3 days, accelerated with function patterns from previous phases)
 
 **Key decisions:**
+
 - Gemini 2.5 Flash chosen for low-latency classification (inline prompts, no fine-tuning needed in MVP)
 - Severity heuristic as fallback ensures complaints never get stuck (IA failure → manual classification)
 - Resend Inbound chosen over SendGrid for webhook simplicity + existing integration
@@ -361,6 +384,7 @@ functions/src/index.ts             [MODIFIED — +7 lines reclamacoes exports]
 - Email parser queues complaint async (doesn't block webhook response)
 
 **Team notes:**
+
 - Rules follow established ADR 0002 pattern (multi-tenant, soft-delete, signature)
 - Gemini classification audit log enables fine-tuning (confidence tracking, raw response storage)
 - Idempotency via hash prevents duplicate complaints (same sender, same text, same hour)

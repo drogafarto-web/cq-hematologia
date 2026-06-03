@@ -260,8 +260,16 @@
       "ready": {
         "count": 10,
         "risks": [
-          "RISK-405", "RISK-406", "RISK-407", "RISK-410", "RISK-411",
-          "RISK-414", "RISK-415", "RISK-417", "RISK-419", "RISK-409"
+          "RISK-405",
+          "RISK-406",
+          "RISK-407",
+          "RISK-410",
+          "RISK-411",
+          "RISK-414",
+          "RISK-415",
+          "RISK-417",
+          "RISK-419",
+          "RISK-409"
         ],
         "completion_percent": 50
       },
@@ -280,7 +288,14 @@
       "week": 1,
       "phase": 1,
       "review_date": "2026-05-13",
-      "attendees": ["CTO", "QA Lead", "Stream A Lead", "Stream B Lead", "Stream C Lead", "Stream D Lead"],
+      "attendees": [
+        "CTO",
+        "QA Lead",
+        "Stream A Lead",
+        "Stream B Lead",
+        "Stream C Lead",
+        "Stream D Lead"
+      ],
       "status_update_due": "2026-05-12 EOD",
       "escalation_decisions_deadline": "Within 4h post-review",
       "action_items": [

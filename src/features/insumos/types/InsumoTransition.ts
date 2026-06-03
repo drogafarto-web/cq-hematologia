@@ -24,10 +24,10 @@ import type { EquipmentSetupSlot } from './EquipmentSetup';
  * troca normal de override auditado.
  */
 export type InsumoTransitionType =
-  | 'activation'    // primeira vez que um slot é populado (era null)
-  | 'swap'          // troca normal: caixa antiga acabou, entrou nova
-  | 'correction'    // operador selecionou lote errado, corrigiu em seguida
-  | 'override-vencido'   // Fase B — liberou uso de insumo vencido com justificativa
+  | 'activation' // primeira vez que um slot é populado (era null)
+  | 'swap' // troca normal: caixa antiga acabou, entrou nova
+  | 'correction' // operador selecionou lote errado, corrigiu em seguida
+  | 'override-vencido' // Fase B — liberou uso de insumo vencido com justificativa
   | 'override-qc-pendente'; // Fase B — liberou uso com CQ pendente
 
 export interface InsumoTransition {

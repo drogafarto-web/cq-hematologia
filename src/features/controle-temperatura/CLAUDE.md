@@ -38,7 +38,7 @@ controleTemperatura/{labId}/
 
 Storage: `labs/{labId}/controle-temperatura/calibracoes/{file}`.
 
-## Regras invioláveis (RN-*)
+## Regras invioláveis (RN-\*)
 
 - **RN-01** — `createLeituraComNC` (service) deriva `foraDosLimites` e, se
   fora, cria NC em batch atômico. `avaliarForaDosLimites` exportada para uso
@@ -95,10 +95,12 @@ Registradas em `functions/src/index.ts`:
 ## Débitos técnicos
 
 **Concluídos:**
+
 - ✅ **CT-01** (2026-05-04) — Assinatura migrada para callable `ct_commitLeitura` (Cloud Function admin SDK). Client-side mantém apenas `verifyCtSignature` para auditoria histórica. Arquivo: `services/ctSignatureService.ts`.
 - ✅ **CT-04** (2026-05-04) — Firestore rules completo (180 linhas) com schema strict, gate `hasModuleAccess('controle-temperatura')`, soft-delete enforçado. Deployed em produção.
 
 **Abertos (MVP-aceitável):**
+
 - **CT-02** — Token de dispositivo gerado client-side. Upgrade drop-in via callable `ct_mintDeviceToken` (não muda contrato de `DispositivoInput`). Prioridade: Baixa.
 - **CT-03** — Calendário ignora feriados (cai no bucket `diasUteis`). Integrar lookup de feriados nacionais/municipais antes de ir pra produção em labs 24/7. Prioridade: Média.
 - **CT-05** — Firestore pode exigir índice composto para a query do IoT (`equipamentoId + status + dataHoraPrevista` em `leituras-previstas`). Verificar no primeiro acesso real via Firebase Console. Prioridade: Alta.

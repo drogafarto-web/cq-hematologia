@@ -9,13 +9,14 @@
 
 ## Budget Thresholds
 
-| Metric | Threshold | Severity | Action |
-|--------|-----------|----------|--------|
-| LCP (Largest Contentful Paint) | > 2500 ms | 🔴 Critical | Block merge + investigate |
-| INP (Interaction to Next Paint) | > 200 ms | 🟠 Warning | Review + monitor next 24h |
-| CLS (Cumulative Layout Shift) | > 0.1 | 🟠 Warning | Review + monitor next 24h |
+| Metric                          | Threshold | Severity    | Action                    |
+| ------------------------------- | --------- | ----------- | ------------------------- |
+| LCP (Largest Contentful Paint)  | > 2500 ms | 🔴 Critical | Block merge + investigate |
+| INP (Interaction to Next Paint) | > 200 ms  | 🟠 Warning  | Review + monitor next 24h |
+| CLS (Cumulative Layout Shift)   | > 0.1     | 🟠 Warning  | Review + monitor next 24h |
 
 **Rationale:**
+
 - **LCP > 2.5s**: Lighthouse fails; users perceive site as slow to load
 - **INP > 200ms**: Users perceive slow interactions; indicates main thread bottleneck
 - **CLS > 0.1**: Visual jank visible to users; compliance concern for lab workflows
@@ -34,6 +35,7 @@
 - **Purpose:** LCP > 2.5s is Lighthouse FAIL; alerts on production regression
 
 **When this fires:**
+
 1. Check Firebase Performance dashboard → Web Vitals → LCP
 2. Identify which page(s) regressed (view by page/route)
 3. Correlate with recent deploys via git log
@@ -50,6 +52,7 @@
 - **Purpose:** Slow INP = unresponsive UI; flag before it reaches 300ms hard limit
 
 **When this fires:**
+
 1. Check dashboard: which interactions are slow (filter by page/event type)
 2. Likely cause: main thread blocked by expensive computation
 3. Remediation: move work to worker, memoize expensive renders, lazy-load heavy libs
@@ -65,6 +68,7 @@
 - **Purpose:** Layout shift > 0.1 is Lighthouse FAIL; very noticeable to users
 
 **When this fires:**
+
 1. Check dashboard: which pages have shift (likely new route or feature)
 2. Common causes: missing image dimensions, late-loading content, modals without z-index reserve
 3. Fix: add fixed `width`/`height` to images, reserve space with skeleton loaders, ensure z-index stacking
@@ -77,12 +81,14 @@
 **Access at:** https://console.firebase.google.com/project/hmatologia2/performance
 
 **Views available:**
+
 - By Device: desktop / mobile / tablet — different budgets may apply
 - By Browser: Chrome, Safari, Edge, Firefox — helps identify platform-specific issues
 - By Page: broken down by route (/hub, /features/analytics, etc) — see which routes underperform
 - By Time range: last 7d, 30d, 90d custom — trend analysis
 
 **Key navigation:**
+
 1. Go to "Performance" tab in Firebase Console
 2. View "Web Vitals" section
 3. Scroll to "Web Vitals by page" card
@@ -95,6 +101,7 @@
 ### Priority-based response:
 
 **CRITICAL (LCP >2.5s):**
+
 1. Fire: CTO + eng team notified immediately
 2. Assess: Is it a new deploy? Check git log + staging environment
 3. Triage:
@@ -109,6 +116,7 @@
 7. Monitor: Watch dashboard for 2 hours post-deploy; confirm alert clears
 
 **WARNING (INP >200ms or CLS >0.1):**
+
 1. Fire: Team notified
 2. Assess: Is it reproducible? Check same page/device combo multiple times
 3. If noise (single outlier): wait 24h, resample
@@ -166,6 +174,7 @@ module.exports = {
 ```
 
 **Run locally before merging:**
+
 ```bash
 npm run lighthouse:ci
 ```
@@ -177,6 +186,7 @@ If any assertion fails (LCP/INP/CLS violated), fix before commit. This prevents 
 Configured in Firebase Console (manually set up; see "Configuration" above).
 
 **How they work:**
+
 1. Firebase SDK in browser periodically reports Web Vitals
 2. Firebase Performance Monitoring aggregates metrics per page/device
 3. If aggregate crosses threshold (e.g., LCP > 2.5s), alert fires
@@ -184,6 +194,7 @@ Configured in Firebase Console (manually set up; see "Configuration" above).
 5. Engineering team investigates via dashboard
 
 **Why both Lighthouse CI + Firebase alerts?**
+
 - **Lighthouse CI**: Synthetic monitoring (controlled environment) — catches regressions early
 - **Firebase alerts**: Real user monitoring (RUM) — catches production issues real users see
 - **Together**: Layer-1 (merge gate) + Layer-2 (production safety net)
@@ -212,6 +223,7 @@ Configured in Firebase Console (manually set up; see "Configuration" above).
 4. CLS Alert dialog (threshold 0.1)
 
 **Lighthouse CI baseline captured:**
+
 - 3 routes × 2 devices (desktop + mobile) = 6 baselines
 - 3 runs per baseline, averaged
 - Results in `.lhci-results/` (JSON reports for auditor)

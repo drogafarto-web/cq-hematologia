@@ -36,11 +36,11 @@ function isValidStateTransition(from: string, to: string): boolean {
   if (from === 'auditor-reviewing' && to === 'in-progress') return true;
 
   const validNext: Record<string, string[]> = {
-    'open': ['in-progress'],
+    open: ['in-progress'],
     'in-progress': ['evidence-submitted'],
     'evidence-submitted': ['auditor-reviewing'],
     'auditor-reviewing': ['closed'],
-    'closed': [],
+    closed: [],
   };
 
   return validNext[from]?.includes(to) ?? false;
@@ -49,97 +49,85 @@ function isValidStateTransition(from: string, to: string): boolean {
 export const updateCapaState = onCall<
   { labId: string; capaId: string; newState: string; reason?: string },
   Promise<UpdateCapaStateOutput>
->(
-  { region: 'southamerica-east1', cors: true },
-  async (request): Promise<UpdateCapaStateOutput> => {
-    // ========== 1. Validate request ==========
-    if (!request.auth) {
-      throw new HttpsError('unauthenticated', 'User must be authenticated');
-    }
+>({ region: 'southamerica-east1', cors: true }, async (request): Promise<UpdateCapaStateOutput> => {
+  // ========== 1. Validate request ==========
+  if (!request.auth) {
+    throw new HttpsError('unauthenticated', 'User must be authenticated');
+  }
 
-    const input = updateCapaStateInputSchema.parse(request.data);
-    const { labId, capaId, newState, reason } = input;
-    const uid = request.auth.uid;
+  const input = updateCapaStateInputSchema.parse(request.data);
+  const { labId, capaId, newState, reason } = input;
+  const uid = request.auth.uid;
 
-    const db = admin.firestore();
+  const db = admin.firestore();
 
-    // ========== 2. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+  // ========== 2. Authorization check ==========
+  const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
-    if (!memberDoc.exists) {
-      throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
-    }
+  if (!memberDoc.exists) {
+    throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
+  }
 
-    // ========== 3. Fetch current CAPA ==========
-    const capaRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('capa-tracking')
-      .doc(capaId);
+  // ========== 3. Fetch current CAPA ==========
+  const capaRef = db.collection('labs').doc(labId).collection('capa-tracking').doc(capaId);
 
-    const capaSnap = await capaRef.get();
+  const capaSnap = await capaRef.get();
 
-    if (!capaSnap.exists) {
-      throw new HttpsError('not-found', `CAPA ${capaId} not found`);
-    }
+  if (!capaSnap.exists) {
+    throw new HttpsError('not-found', `CAPA ${capaId} not found`);
+  }
 
-    const capaData = capaSnap.data();
-    const currentState = capaData?.state;
+  const capaData = capaSnap.data();
+  const currentState = capaData?.state;
 
-    // ========== 4. Validate soft-delete ==========
-    if (capaData?.deletedAt !== undefined && capaData.deletedAt !== null) {
-      throw new HttpsError('invalid-argument', 'Cannot transition deleted CAPA');
-    }
+  // ========== 4. Validate soft-delete ==========
+  if (capaData?.deletedAt !== undefined && capaData.deletedAt !== null) {
+    throw new HttpsError('invalid-argument', 'Cannot transition deleted CAPA');
+  }
 
-    // ========== 5. Validate state transition ==========
-    if (!isValidStateTransition(currentState, newState)) {
-      throw new HttpsError(
-        'invalid-argument',
-        `Invalid transition from ${currentState} to ${newState}`,
-      );
-    }
+  // ========== 5. Validate state transition ==========
+  if (!isValidStateTransition(currentState, newState)) {
+    throw new HttpsError(
+      'invalid-argument',
+      `Invalid transition from ${currentState} to ${newState}`,
+    );
+  }
 
-    // ========== 6. Atomic update ==========
-    const now = Date.now();
+  // ========== 6. Atomic update ==========
+  const now = Date.now();
 
-    const newStateHistory = capaData?.stateHistory || [];
-    newStateHistory.push({
+  const newStateHistory = capaData?.stateHistory || [];
+  newStateHistory.push({
+    from: currentState,
+    to: newState,
+    transitionedAt: now,
+    transitionedBy: uid,
+    reason,
+  });
+
+  const updatePayload = {
+    state: newState,
+    stateHistory: newStateHistory,
+  };
+
+  await capaRef.update(updatePayload);
+
+  // ========== 7. Log to Cloud Logs ==========
+  console.log(
+    JSON.stringify({
+      event: 'capa_state_transition',
+      capaId,
+      labId,
       from: currentState,
       to: newState,
-      transitionedAt: now,
       transitionedBy: uid,
       reason,
-    });
+      timestamp: new Date(now).toISOString(),
+    }),
+  );
 
-    const updatePayload = {
-      state: newState,
-      stateHistory: newStateHistory,
-    };
-
-    await capaRef.update(updatePayload);
-
-    // ========== 7. Log to Cloud Logs ==========
-    console.log(
-      JSON.stringify({
-        event: 'capa_state_transition',
-        capaId,
-        labId,
-        from: currentState,
-        to: newState,
-        transitionedBy: uid,
-        reason,
-        timestamp: new Date(now).toISOString(),
-      }),
-    );
-
-    return {
-      success: true,
-      previousState: currentState,
-    };
-  }
-);
+  return {
+    success: true,
+    previousState: currentState,
+  };
+});

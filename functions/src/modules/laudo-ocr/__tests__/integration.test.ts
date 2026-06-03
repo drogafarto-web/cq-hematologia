@@ -156,8 +156,17 @@ describe('Laudo OCR Integration — Gemini Happy Path', () => {
     it('should validate Gemini response against schema before storing', async () => {
       const validResponse = {
         field10: { text: 'Valid', confidence: 'high' as const },
-        field11: { detected: true, boundingBox: { x: 10, y: 20, width: 30, height: 40 }, confidence: 'high' as const },
-        field12: { detected: true, dateText: '2026-05-08', boundingBox: null, confidence: 'high' as const },
+        field11: {
+          detected: true,
+          boundingBox: { x: 10, y: 20, width: 30, height: 40 },
+          confidence: 'high' as const,
+        },
+        field12: {
+          detected: true,
+          dateText: '2026-05-08',
+          boundingBox: null,
+          confidence: 'high' as const,
+        },
         overallConfidence: 'high' as const,
       };
 
@@ -215,7 +224,8 @@ describe('Laudo OCR Integration — Gemini Happy Path', () => {
     it('should return validation_failed if Gemini output fails schema check', async () => {
       const errorResponse: ExtractLaudoFieldsResponse = {
         ok: false,
-        error: 'Extraction validation failed: Field 10 (Observações) is required and cannot be empty',
+        error:
+          'Extraction validation failed: Field 10 (Observações) is required and cannot be empty',
         code: 'validation_failed',
         allowManualEntry: true,
       };

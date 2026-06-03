@@ -25,16 +25,16 @@ Atue como agente de implementação **orientado por especificação**: contexto 
 
 Inclua:
 
-| Campo | Conteúdo |
-|--------|-----------|
-| Problema | O que está faltando ou errado |
-| Objetivo do módulo | Uma frase mensurável |
-| Arquivos envolvidos | Lista com `@` |
-| Dependências | Módulos, callables, rules, índices |
-| Riscos | Regressão, multi-tenant, compliance |
-| Critérios de aceite | Checklist testável |
-| Passos de implementação | Ordem e tamanho de cada fatia |
-| Plano de validação | Comandos / cenários manuais |
+| Campo                   | Conteúdo                            |
+| ----------------------- | ----------------------------------- |
+| Problema                | O que está faltando ou errado       |
+| Objetivo do módulo      | Uma frase mensurável                |
+| Arquivos envolvidos     | Lista com `@`                       |
+| Dependências            | Módulos, callables, rules, índices  |
+| Riscos                  | Regressão, multi-tenant, compliance |
+| Critérios de aceite     | Checklist testável                  |
+| Passos de implementação | Ordem e tamanho de cada fatia       |
+| Plano de validação      | Comandos / cenários manuais         |
 
 ## Plano de implementação
 

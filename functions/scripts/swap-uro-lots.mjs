@@ -44,7 +44,7 @@ const URO_ANALITOS = [
   'ph',
   'sangue',
   'densidade',
-  'leucocitos'
+  'leucocitos',
 ];
 
 function validateUroResultado(analito, valor, nivel) {
@@ -84,7 +84,9 @@ function avaliarRun(resultados, nivel) {
 
 // Genesis hash helper
 function genesisHash(labId) {
-  return createHash('sha256').update('hcq-audit-genesis:' + labId).digest('hex');
+  return createHash('sha256')
+    .update('hcq-audit-genesis:' + labId)
+    .digest('hex');
 }
 
 // Canonical JSON sorting
@@ -131,8 +133,8 @@ const swapConfig = {
       sangue: '1+',
       leucocitos: '1+',
       ph: { min: 6, max: 8 },
-      densidade: { min: 1.015, max: 1.03 }
-    }
+      densidade: { min: 1.015, max: 1.03 },
+    },
   },
   '796388e5-8c3e-4415-b6a4-3f34a8a04528': {
     targetNivel: 'N',
@@ -146,9 +148,9 @@ const swapConfig = {
       sangue: 'NEGATIVO',
       leucocitos: 'NEGATIVO',
       ph: { min: 5, max: 6 },
-      densidade: { min: 1.005, max: 1.025 }
-    }
-  }
+      densidade: { min: 1.005, max: 1.025 },
+    },
+  },
 };
 
 async function executeMigration() {
@@ -158,9 +160,7 @@ async function executeMigration() {
     // 1. Read audit chain state to calculate correct chained hashes
     const chainStateRef = db.doc(`labs/${labId}/_state/ciq-audit-chain`);
     const stateSnap = await tx.get(chainStateRef);
-    let previousHash = stateSnap.exists
-      ? stateSnap.data()?.['lastChainHash']
-      : genesisHash(labId);
+    let previousHash = stateSnap.exists ? stateSnap.data()?.['lastChainHash'] : genesisHash(labId);
 
     console.log(`Current chain hash in state: ${previousHash}`);
 
@@ -203,7 +203,10 @@ async function executeMigration() {
 
       runsSnap.forEach((runDoc) => {
         const runData = runDoc.data();
-        const { conformidade, analitosNaoConformes } = avaliarRun(runData.resultados, config.targetNivel);
+        const { conformidade, analitosNaoConformes } = avaliarRun(
+          runData.resultados,
+          config.targetNivel,
+        );
 
         const runBefore = {
           nivel: runData.nivel,
@@ -251,13 +254,13 @@ async function executeMigration() {
     const auditRef = db.doc(`labs/${labId}/ciq-audit/${eventId}`);
 
     const beforeCombined = {
-      lots: lotUpdates.map(u => ({ id: u.lotId, ...u.auditBefore })),
-      runs: runUpdates.map(u => ({ id: u.runId, lotId: u.lotId, ...u.auditBefore })),
+      lots: lotUpdates.map((u) => ({ id: u.lotId, ...u.auditBefore })),
+      runs: runUpdates.map((u) => ({ id: u.runId, lotId: u.lotId, ...u.auditBefore })),
     };
 
     const afterCombined = {
-      lots: lotUpdates.map(u => ({ id: u.lotId, ...u.auditAfter })),
-      runs: runUpdates.map(u => ({ id: u.runId, lotId: u.lotId, ...u.auditAfter })),
+      lots: lotUpdates.map((u) => ({ id: u.lotId, ...u.auditAfter })),
+      runs: runUpdates.map((u) => ({ id: u.runId, lotId: u.lotId, ...u.auditAfter })),
     };
 
     const action = 'EDIT_RUN_VALUE';
@@ -266,7 +269,8 @@ async function executeMigration() {
     const actorUid = 'system-migration';
     const actorName = 'Script de Migração Swap Uro Lots';
     const actorRole = 'sistema';
-    const reason = 'Uroanálise Redesign & Smart Swap: Correção de níveis trocados de lote Normal e Patológico (Onda 1)';
+    const reason =
+      'Uroanálise Redesign & Smart Swap: Correção de níveis trocados de lote Normal e Patológico (Onda 1)';
     const severity = 'critical';
 
     const contentHash = computeContentHash({
@@ -314,7 +318,7 @@ async function executeMigration() {
         lastEventId: eventId,
         lastTimestamp: timestamp,
       },
-      { merge: true }
+      { merge: true },
     );
     console.log(`Updated audit chain state lastChainHash to ${chainHash}`);
   });

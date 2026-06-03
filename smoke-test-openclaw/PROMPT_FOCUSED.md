@@ -18,6 +18,7 @@ OUTPUT_DIR             = ./smoke-focused-$(date +%Y%m%d-%H%M)
 Você é QA senior. Faz login em `$BASE_URL` (preenche E-mail/Senha, clica "Entrar", seleciona `$TEST_LAB_NAME` se aparecer LabSelector) e executa os 4 fluxos abaixo. Playwright com Chromium. Timeout 60s por ação (OCR demora).
 
 **Políticas não-negociáveis**:
+
 - Zero DELETE
 - Zero confirmação em dados reais — em runs, sempre clica "Cancelar" após ver o resultado
 - Cria apenas dados com prefix `SMOKE_`
@@ -43,11 +44,12 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
    c. Após resposta, espera 2s pra UI atualizar
    d. Screenshot: `f03b-img{N}-extracted.png` (N = 1, 2, 3)
    e. Captura do DOM quais campos numéricos ficaram preenchidos. Analitos esperados (17):
-      `RBC, HGB, HCT, MCV, MCH, MCHC, RDW, PLT, MPV, PDW, PCT, WBC, NEU#, LYM#, MON#, EOS#, BAS#`
+   `RBC, HGB, HCT, MCV, MCH, MCHC, RDW, PLT, MPV, PDW, PCT, WBC, NEU#, LYM#, MON#, EOS#, BAS#`
    f. **Clica "Cancelar"** (ou fecha modal com ESC) — NÃO confirma
    g. Reabre o form da corrida pra próxima imagem
 
 **Assertions por imagem**:
+
 - [ ] HTTP response do `extractFromImage` foi 200
 - [ ] ≥ 10 dos 17 analitos preenchidos com número (não NaN, null, undefined, vazio)
 - [ ] Campo "Sample ID" preenchido OU nulo (ambos OK) — mas não "undefined"
@@ -58,7 +60,7 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
 
 ---
 
-## F08 — Insumos: criar produto + lote (prefix SMOKE_)
+## F08 — Insumos: criar produto + lote (prefix SMOKE\_)
 
 **Steps**:
 
@@ -90,6 +92,7 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
 14. Screenshot: `f08-03-lote-salvo.png`
 
 **Assertions**:
+
 - [ ] Produto aparece na lista com o prefix `SMOKE_`
 - [ ] Toast "Produto criado"/"salvo com sucesso" apareceu
 - [ ] Request POST/SET pra Firestore em `/labs/{labId}/produtos-insumos` teve status 200
@@ -116,6 +119,7 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
 10. Captura do DOM o status da movimentação
 
 **Assertions**:
+
 - [ ] Evento "Abertura" aparece na timeline do lote
 - [ ] Request pra Firestore `/labs/{labId}/insumo-movimentacoes/{movId}` deu 200 no create (com `chainStatus=pending` e `chainHash=null` no payload)
 - [ ] Após 5s, o doc foi atualizado com `chainStatus=sealed` (verifica via leitura — Firebase DevTools ou inspeção do DOM se a UI refletir). Se a UI não mostrar `chainStatus`, marca como "não-observável via UI" e anota no relatório
@@ -159,6 +163,7 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
 **NUNCA CLICA**: "Aplicar", "Conceder SuperAdmin a todos", "Revogar SuperAdmin temporário"
 
 **Assertions**:
+
 - [ ] As 4 seções aparecem (2 antigas + 2 novas)
 - [ ] Card vermelho "Operação crítica" tem o banner de riscos visível (LGPD, cross-lab, etc)
 - [ ] Dry-run provision retornou JSON com 4 contadores
@@ -203,6 +208,7 @@ Este é o fluxo que mais importa — valida OCR Gemini em hardware/imagem real.
 Exit 0 se todos passaram; 1 se qualquer FAIL ou BLOCK.
 
 Print no terminal final:
+
 ```
 F03b=PASS  F08=PASS  F09=PASS  F13b=PASS
 relatorio: $OUTPUT_DIR/REPORT.md

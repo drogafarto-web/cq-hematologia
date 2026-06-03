@@ -77,7 +77,9 @@ async function main() {
   const db = admin.firestore();
 
   console.log(`\n${'═'.repeat(64)}`);
-  console.log(apply ? '🔥 APPLY MODE — mudanças serão persistidas' : '🔍 DRY RUN — nada será alterado');
+  console.log(
+    apply ? '🔥 APPLY MODE — mudanças serão persistidas' : '🔍 DRY RUN — nada será alterado',
+  );
   console.log('═'.repeat(64));
 
   const labDoc = await findTargetLab(db);
@@ -146,9 +148,7 @@ async function main() {
   console.log(`    ✓ ${movimDeleted} docs removidos`);
 
   console.log('  • produtos-insumo...');
-  const produtosDeleted = await deleteCollectionRecursive(
-    labDoc.ref.collection('produtos-insumo'),
-  );
+  const produtosDeleted = await deleteCollectionRecursive(labDoc.ref.collection('produtos-insumo'));
   console.log(`    ✓ ${produtosDeleted} docs removidos`);
 
   console.log('\n✅ Wipe concluído. Lab pronto pra uso real.\n');

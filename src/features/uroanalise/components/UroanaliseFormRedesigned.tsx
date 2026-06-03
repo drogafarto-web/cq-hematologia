@@ -18,7 +18,7 @@ import type {
   UroLotStatus,
   UroNivel,
 } from '../types/_shared_refs';
-import type { UroFieldAuditado } from '../types/Uroanalise';
+import type { UroFieldAuditado, UroExpectedValueConfig } from '../types/Uroanalise';
 import { validateUroResultado } from '../hooks/useUroValidator';
 import { toast } from '../../../shared/store/useToastStore';
 
@@ -67,8 +67,38 @@ function readAuditado<T>(field: UroFieldAuditado<T> | undefined): T | null {
 function getExpectedDisplay(
   analito: UroAnalitoId,
   nivel: UroNivel | undefined,
-  configuredExpected: any
+  configuredExpected: any,
+  expectedConfig?: UroExpectedValueConfig,
 ): string {
+  if (expectedConfig) {
+    const { tipo, min, max, valores } = expectedConfig;
+    if (tipo === 'numerico') {
+      const minStr = min !== undefined ? min.toFixed(analito === 'ph' ? 1 : 3).replace('.', ',') : '';
+      const maxStr = max !== undefined ? max.toFixed(analito === 'ph' ? 1 : 3).replace('.', ',') : '';
+      return `${minStr} - ${maxStr}`;
+    }
+    if (tipo === 'faixa_cruzes') {
+      const getCrossLabel = (n: number): string => {
+        if (n === 0) return 'NEG';
+        if (n === 0.5) return 'TRACOS';
+        return `${n}+`;
+      };
+      const minStr = min !== undefined ? getCrossLabel(min) : '';
+      const maxStr = max !== undefined ? getCrossLabel(max) : '';
+      return `${minStr} a ${maxStr}`;
+    }
+    if (tipo === 'nominal') {
+      if (!valores || valores.length === 0) return '';
+      return valores.map(v => {
+        if (v === 'NEGATIVO') return 'NEG';
+        if (v === 'PRESENTE') return 'POS';
+        if (v === 'AUMENTADO') return 'AUM';
+        if (v === 'NORMAL') return 'NORM';
+        return v;
+      }).join(' ou ');
+    }
+  }
+
   if (!nivel) return '';
   if (nivel === 'N') {
     if (analito === 'ph') return '5,0 - 6,0';
@@ -97,10 +127,11 @@ function evalCategoricalConformidade(
   value: UroValorCategorico | null,
   analito: UroAnalitoId,
   nivel: UroNivel | undefined,
+  expectedConfig?: UroExpectedValueConfig,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (!value) return 'sem_avaliar';
   if (!nivel) return 'sem_avaliar';
-  const ok = validateUroResultado(analito, value, nivel);
+  const ok = validateUroResultado(analito, value, nivel, expectedConfig);
   if (ok === null) return 'sem_avaliar';
   return ok ? 'conforme' : 'desvio';
 }
@@ -109,10 +140,11 @@ function evalNumericConformidade(
   value: number | null,
   analito: UroAnalitoId,
   nivel: UroNivel | undefined,
+  expectedConfig?: UroExpectedValueConfig,
 ): 'conforme' | 'desvio' | 'sem_avaliar' {
   if (value === null || value === undefined || Number.isNaN(value)) return 'sem_avaliar';
   if (!nivel) return 'sem_avaliar';
-  const ok = validateUroResultado(analito, value, nivel);
+  const ok = validateUroResultado(analito, value, nivel, expectedConfig);
   if (ok === null) return 'sem_avaliar';
   return ok ? 'conforme' : 'desvio';
 }
@@ -205,16 +237,17 @@ export function UroanaliseFormRedesigned({
   const rowConformidade = useMemo(() => {
     const out: Record<string, 'conforme' | 'desvio' | 'sem_avaliar'> = {};
     if (!nivel) return out;
+    const dynamicExpected = values.expectedValuesRun ?? {};
     for (const cat of CAT_ANALITOS) {
       const valor = readAuditado(values.resultados?.[cat]);
-      out[cat] = evalCategoricalConformidade(valor, cat, nivel);
+      out[cat] = evalCategoricalConformidade(valor, cat, nivel, dynamicExpected[cat]);
     }
     for (const q of QUANT_ANALITOS) {
       const valor = readAuditado(values.resultados?.[q]);
-      out[q] = evalNumericConformidade(valor as number | null, q, nivel);
+      out[q] = evalNumericConformidade(valor as number | null, q, nivel, dynamicExpected[q]);
     }
     return out;
-  }, [values.resultados, nivel]);
+  }, [values.resultados, values.expectedValuesRun, nivel]);
 
   // ── Summary metrics for footer ──────────────────────────────────────────
   const summary = useMemo(() => {
@@ -343,6 +376,7 @@ export function UroanaliseFormRedesigned({
                 const field = values.resultados?.[analito];
                 const valor = readAuditado(field);
                 const expected = expectedSnapshot[analito];
+                const dynamicExpected = values.expectedValuesRun?.[analito];
                 return (
                   <UroAnalyteRow
                     key={analito}
@@ -350,7 +384,7 @@ export function UroanaliseFormRedesigned({
                     label={URO_ANALITO_LABELS[analito]}
                     scale={opcoes}
                     value={valor}
-                    expected={getExpectedDisplay(analito, nivel, expected)}
+                    expected={getExpectedDisplay(analito, nivel, expected, dynamicExpected)}
                     onChange={(v) => setCatResultado(analito, v)}
                     conformidade={rowConformidade[analito] ?? 'sem_avaliar'}
                     disabled={disabled}
@@ -364,7 +398,10 @@ export function UroanaliseFormRedesigned({
               {QUANT_ANALITOS.map((analito) => {
                 const field = values.resultados?.[analito];
                 const valor = readAuditado(field) as number | null;
-                const range = expectedSnapshot[analito];
+                const expectedConfig = values.expectedValuesRun?.[analito];
+                const range = expectedConfig 
+                  ? { min: expectedConfig.min ?? 0, max: expectedConfig.max ?? 0 } 
+                  : (expectedSnapshot[analito] as { min: number; max: number } | undefined);
                 const fallbackRange = nivel
                   ? (URO_CRITERIOS[nivel][analito] as { min: number; max: number })
                   : undefined;

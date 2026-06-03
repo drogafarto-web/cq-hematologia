@@ -38,16 +38,18 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
     it('should use isActiveMemberOfLab for analytics read access', () => {
       // Extract analytics rule section
       const analyticsMatch = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s,
       );
 
       expect(analyticsMatch).toBeTruthy();
-      expect(analyticsMatch![1]).toContain('allow read: if isSuperAdmin() || isActiveMemberOfLab(labId)');
+      expect(analyticsMatch![1]).toContain(
+        'allow read: if isSuperAdmin() || isActiveMemberOfLab(labId)',
+      );
     });
 
     it('should forbid analytics create', () => {
       const analyticsMatch = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s,
       );
 
       expect(analyticsMatch).toBeTruthy();
@@ -56,7 +58,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should forbid analytics update', () => {
       const analyticsMatch = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s,
       );
 
       expect(analyticsMatch).toBeTruthy();
@@ -65,7 +67,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should forbid analytics delete', () => {
       const analyticsMatch = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s,
       );
 
       expect(analyticsMatch).toBeTruthy();
@@ -80,36 +82,30 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
   describe('Export-Jobs Collection Membership Gate', () => {
     it('should use isActiveMemberOfLab for export-jobs read access', () => {
       // Extract export-jobs rule section
-      const exportMatch = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s
-      );
+      const exportMatch = rulesContent.match(/match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s);
 
       expect(exportMatch).toBeTruthy();
-      expect(exportMatch![1]).toContain('allow read: if isSuperAdmin() || isActiveMemberOfLab(labId)');
+      expect(exportMatch![1]).toContain(
+        'allow read: if isSuperAdmin() || isActiveMemberOfLab(labId)',
+      );
     });
 
     it('should forbid export-jobs create', () => {
-      const exportMatch = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s
-      );
+      const exportMatch = rulesContent.match(/match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s);
 
       expect(exportMatch).toBeTruthy();
       expect(exportMatch![1]).toContain('allow create: if false');
     });
 
     it('should forbid export-jobs update', () => {
-      const exportMatch = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s
-      );
+      const exportMatch = rulesContent.match(/match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s);
 
       expect(exportMatch).toBeTruthy();
       expect(exportMatch![1]).toContain('allow update: if false');
     });
 
     it('should forbid export-jobs delete', () => {
-      const exportMatch = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s
-      );
+      const exportMatch = rulesContent.match(/match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s);
 
       expect(exportMatch).toBeTruthy();
       expect(exportMatch![1]).toContain('allow delete: if false');
@@ -131,10 +127,10 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
   describe('Membership Gate Consistency', () => {
     it('should have identical membership rules for both collections', () => {
       const analyticsMatch = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+allow read:[^;]+;)/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+allow read:[^;]+;)/s,
       );
       const exportMatch = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+allow read:[^;]+;)/s
+        /match \/export-jobs\/\{jobId\}\s*\{([^}]+allow read:[^;]+;)/s,
       );
 
       expect(analyticsMatch).toBeTruthy();
@@ -151,10 +147,10 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
     it('should prefer isActiveMemberOfLab over isAuthenticated', () => {
       // Ensure we're not using the old temporary bypass
       const analyticsSection = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+)\}/s,
       )?.[1];
       const exportSection = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s
+        /match \/export-jobs\/\{jobId\}\s*\{([^}]+)\}/s,
       )?.[1];
 
       expect(analyticsSection).not.toContain('isAuthenticated()');
@@ -170,14 +166,14 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
       // 2. Analytics uses membership gate
       const analyticsRule = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
       expect(analyticsRule).toContain('isSuperAdmin()');
       expect(analyticsRule).toContain('isActiveMemberOfLab(labId)');
 
       // 3. Export-jobs uses membership gate
       const exportRule = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
       expect(exportRule).toContain('isSuperAdmin()');
       expect(exportRule).toContain('isActiveMemberOfLab(labId)');
@@ -190,7 +186,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should enforce soft-delete for analytics (no hard delete)', () => {
       const analyticsDelete = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+allow delete:[^;]+;)/s
+        /match \/analytics\/\{document=\*\*\}\s*\{([^}]+allow delete:[^;]+;)/s,
       )?.[1];
 
       expect(analyticsDelete).toContain('allow delete: if false');
@@ -198,7 +194,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should enforce soft-delete for export-jobs (audit trail required)', () => {
       const exportDelete = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{([^}]+allow delete:[^;]+;)/s
+        /match \/export-jobs\/\{jobId\}\s*\{([^}]+allow delete:[^;]+;)/s,
       )?.[1];
 
       expect(exportDelete).toContain('allow delete: if false');
@@ -210,7 +206,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
     it('should not break existing member access to analytics', () => {
       // The rule allows members to read analytics
       const rule = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
 
       // isActiveMemberOfLab(labId) evaluates to true for lab members
@@ -220,7 +216,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
     it('should not break existing member access to export-jobs', () => {
       // The rule allows members to read export-jobs
       const rule = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
 
       // isActiveMemberOfLab(labId) evaluates to true for lab members
@@ -229,7 +225,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should allow super admins to read analytics (unchanged)', () => {
       const rule = rulesContent.match(
-        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/analytics\/\{document=\*\*\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
 
       expect(rule).toContain('isSuperAdmin()');
@@ -237,7 +233,7 @@ describe('Phase 4 (CLEAN-01): Analytics + Export-Jobs Membership Hardening', () 
 
     it('should allow super admins to read export-jobs (unchanged)', () => {
       const rule = rulesContent.match(
-        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/
+        /match \/export-jobs\/\{jobId\}\s*\{\s*allow read: if ([^;]+);/,
       )?.[1];
 
       expect(rule).toContain('isSuperAdmin()');

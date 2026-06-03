@@ -5,9 +5,11 @@
 ## Pre-Deployment Steps (automated)
 
 - [ ] **Type check** — Run in functions directory:
+
   ```bash
   cd functions && npm run build
   ```
+
   Expected: No errors, generates `lib/` folder
 
 - [ ] **Frontend build** (root):
@@ -19,19 +21,23 @@
 ## Files Modified/Created
 
 **Functions (backend)**:
+
 - ✅ `functions/src/modules/auditoria/generatePDF.ts` — NEW, Puppeteer PDF generation
 - ✅ `functions/src/modules/auditoria/index.ts` — Updated to export `generateAuditReportPDF`
 - ✅ `functions/src/index.ts` — Updated to wire `generateAuditReportPDF`
 
 **Frontend (web)**:
+
 - ✅ `src/features/auditoria-interna/hooks/useAuditReportExport.ts` — NEW, export hook
 - ✅ `src/features/auditoria-interna/hooks/index.ts` — NEW, hooks barrel export
 - ✅ `src/features/auditoria-interna/components/AuditoriasList.tsx` — Updated with export button
 
 **Tests**:
+
 - ✅ `smoke-test-openclaw/wave3-audit-pdf-e2e.test.mjs` — NEW, end-to-end test
 
 **Documentation**:
+
 - ✅ `WAVE3_IMPLEMENTATION.md` — Implementation details
 - ✅ `STATE.md` — Updated with Phase 5 status
 - ✅ `WAVE3_DEPLOY_CHECKLIST.md` — This file
@@ -39,6 +45,7 @@
 ## Code Quality Checklist
 
 **Cloud Function (`generatePDF.ts`)**:
+
 - ✅ Type-safe with Zod input validation
 - ✅ Lab membership check (multi-tenant security)
 - ✅ Error handling (HttpsError with meaningful messages)
@@ -49,6 +56,7 @@
 - ✅ Puppeteer configured for Cloud Functions (headless='new', --no-sandbox)
 
 **Frontend Hook (`useAuditReportExport.ts`)**:
+
 - ✅ Follows pattern from educacao-continuada
 - ✅ useActiveLabId guard
 - ✅ Loading state management
@@ -57,6 +65,7 @@
 - ✅ Download helper (triggers browser download)
 
 **UI Component (`AuditoriasList.tsx`)**:
+
 - ✅ Dark-first design (matches existing theme)
 - ✅ Expandable audit cards
 - ✅ Export button with loading state
@@ -66,12 +75,14 @@
 ## What Gets Deployed
 
 ### Cloud Functions (functions/lib/index.js)
+
 - New callable: `generateAuditReportPDF`
 - Memory: 2GiB
 - Timeout: 300s
 - Region: southamerica-east1
 
 ### Web Hosting (hmatologia2.web.app)
+
 - New hook: `useAuditReportExport`
 - Updated component: `AuditoriasList.tsx` with export button
 - No breaking changes to existing UIs
@@ -101,6 +112,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Alternative** (one command, if comfortable):
+
 ```bash
 firebase deploy --only functions,hosting --project hmatologia2
 ```
@@ -156,6 +168,7 @@ npm run build && firebase deploy --only hosting
 ## CTO Approval Required
 
 Before running deploy commands, we need explicit approval to proceed with:
+
 - `firebase deploy --only functions` (modifies Cloud Functions in prod)
 - `firebase deploy --only hosting` (updates web app in prod)
 

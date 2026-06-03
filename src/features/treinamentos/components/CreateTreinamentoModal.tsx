@@ -11,7 +11,11 @@ interface CreateTreinamentoModalProps {
   onSuccess?: () => void;
 }
 
-export function CreateTreinamentoModal({ isOpen, onClose, onSuccess }: CreateTreinamentoModalProps) {
+export function CreateTreinamentoModal({
+  isOpen,
+  onClose,
+  onSuccess,
+}: CreateTreinamentoModalProps) {
   const labId = useActiveLabId();
   const user = useUser();
   const uid = user?.uid;
@@ -86,7 +90,11 @@ export function CreateTreinamentoModal({ isOpen, onClose, onSuccess }: CreateTre
       <div className="bg-gray-900 border border-gray-800 rounded-lg p-6 max-w-md w-full mx-4">
         <h2 className="text-lg font-semibold text-white mb-4">Agendar Treinamento</h2>
 
-        {error && <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded text-red-400 text-sm">{error}</div>}
+        {error && (
+          <div className="mb-4 p-3 bg-red-900/20 border border-red-800 rounded text-red-400 text-sm">
+            {error}
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -166,7 +174,9 @@ export function CreateTreinamentoModal({ isOpen, onClose, onSuccess }: CreateTre
           </div>
 
           <div>
-            <label className="text-sm font-medium text-gray-300">Participantes (UIDs separados por virgula)</label>
+            <label className="text-sm font-medium text-gray-300">
+              Participantes (UIDs separados por virgula)
+            </label>
             <textarea
               name="participantes"
               placeholder="uid1, uid2, uid3"

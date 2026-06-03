@@ -95,9 +95,7 @@ const DateInputField: React.FC<{
 }> = ({ label, value, onChange, hint }) => {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-900 dark:text-white">
-        {label}
-      </label>
+      <label className="block text-sm font-medium text-gray-900 dark:text-white">{label}</label>
       <input
         type="date"
         value={value}
@@ -199,7 +197,7 @@ export const LaudoManualOverrideForm: React.FC<LaudoManualOverrideFormProps> = (
       await onSubmit(input);
     } catch (err) {
       setError(
-        err instanceof Error ? err.message : 'Erro ao salvar entrada manual. Tente novamente.'
+        err instanceof Error ? err.message : 'Erro ao salvar entrada manual. Tente novamente.',
       );
     }
   };
@@ -212,8 +210,8 @@ export const LaudoManualOverrideForm: React.FC<LaudoManualOverrideFormProps> = (
           Entrada Manual de Campos — Laudo {laudoId}
         </h2>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          Preencha os campos abaixo se a extração automática falhou ou precisa de correção.
-          Campo 10 (Observações) é obrigatório.
+          Preencha os campos abaixo se a extração automática falhou ou precisa de correção. Campo 10
+          (Observações) é obrigatório.
         </p>
       </div>
 

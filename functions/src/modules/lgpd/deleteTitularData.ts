@@ -116,9 +116,7 @@ export const deleteTitularData = onCall(async (request: any) => {
     if (batchOpCount >= batchLimit) {
       // Note: In production, would need to handle multiple batches
       // For now, assuming all results fit in one batch (typically <500 users per CPF)
-      console.warn(
-        `[deleteTitularData] Warning: batch approaching limit (${batchOpCount} ops)`,
-      );
+      console.warn(`[deleteTitularData] Warning: batch approaching limit (${batchOpCount} ops)`);
     }
   });
 
@@ -130,9 +128,7 @@ export const deleteTitularData = onCall(async (request: any) => {
 
   await batch.commit();
 
-  console.log(
-    `[deleteTitularData] cpfHash=${cpfHash} deleted PII from ${deletionCount} docs`,
-  );
+  console.log(`[deleteTitularData] cpfHash=${cpfHash} deleted PII from ${deletionCount} docs`);
 
   // ─────────────────────────────────────────────────────────────────────────
   // 6. Create audit log entry with LogicalSignature

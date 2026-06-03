@@ -69,11 +69,7 @@ async function triggerLabExport(
     const jobId = randomUUID();
     jobIds.push(jobId);
 
-    const jobRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('export-jobs')
-      .doc(jobId);
+    const jobRef = db.collection('labs').doc(labId).collection('export-jobs').doc(jobId);
 
     const jobData: Record<string, unknown> = {
       jobId,
@@ -116,19 +112,13 @@ async function triggerLabExport(
 
   await batch.commit();
 
-  console.log(
-    `[ScheduledExport] Lab ${labId}: created ${jobIds.length} jobs (batch ${batchId})`,
-  );
+  console.log(`[ScheduledExport] Lab ${labId}: created ${jobIds.length} jobs (batch ${batchId})`);
 
   // Enqueue to Pub/Sub (non-atomic — jobs exist if enqueue partially fails)
   const topic = pubsub.topic('exports');
   const enqueueResults = await Promise.allSettled(
     jobIds.map((jobId, i) =>
-      topic.publish(
-        Buffer.from(
-          JSON.stringify({ jobId, labId, format: formats[i] }),
-        ),
-      ),
+      topic.publish(Buffer.from(JSON.stringify({ jobId, labId, format: formats[i] }))),
     ),
   );
 
@@ -211,8 +201,8 @@ export const scheduledWeeklyExport = onSchedule(
     const durationMs = Date.now() - runStart;
     console.log(
       `[ScheduledExport] Weekly run complete: ` +
-      `${successCount} succeeded, ${errorCount} failed, ` +
-      `${durationMs}ms total`,
+        `${successCount} succeeded, ${errorCount} failed, ` +
+        `${durationMs}ms total`,
     );
   },
 );

@@ -47,24 +47,14 @@ function makeOperatorFilter(overrides?: Partial<OperatorFilterState>): OperatorF
 
 describe('FilterBar', () => {
   it('renders equipment and operator dropdowns', () => {
-    render(
-      <FilterBar
-        equipment={makeEquipmentFilter()}
-        operators={makeOperatorFilter()}
-      />,
-    );
+    render(<FilterBar equipment={makeEquipmentFilter()} operators={makeOperatorFilter()} />);
 
     expect(screen.getByLabelText('Equipamento')).toBeInTheDocument();
     expect(screen.getByLabelText('Operador')).toBeInTheDocument();
   });
 
   it('does NOT show "Limpar filtros" when no filter is active', () => {
-    render(
-      <FilterBar
-        equipment={makeEquipmentFilter()}
-        operators={makeOperatorFilter()}
-      />,
-    );
+    render(<FilterBar equipment={makeEquipmentFilter()} operators={makeOperatorFilter()} />);
 
     expect(screen.queryByText('Limpar filtros')).not.toBeInTheDocument();
   });
@@ -97,7 +87,11 @@ describe('FilterBar', () => {
 
     render(
       <FilterBar
-        equipment={makeEquipmentFilter({ isFiltering: true, selectedIds: new Set(['eq1']), clearEquipment })}
+        equipment={makeEquipmentFilter({
+          isFiltering: true,
+          selectedIds: new Set(['eq1']),
+          clearEquipment,
+        })}
         operators={makeOperatorFilter({ clearOperator })}
       />,
     );
@@ -108,12 +102,7 @@ describe('FilterBar', () => {
   });
 
   it('renders equipment options in the dropdown', () => {
-    render(
-      <FilterBar
-        equipment={makeEquipmentFilter()}
-        operators={makeOperatorFilter()}
-      />,
-    );
+    render(<FilterBar equipment={makeEquipmentFilter()} operators={makeOperatorFilter()} />);
 
     const select = screen.getByLabelText('Equipamento') as HTMLSelectElement;
     const optionTexts = Array.from(select.options).map((o) => o.text);
@@ -122,12 +111,7 @@ describe('FilterBar', () => {
   });
 
   it('renders operator options in the dropdown', () => {
-    render(
-      <FilterBar
-        equipment={makeEquipmentFilter()}
-        operators={makeOperatorFilter()}
-      />,
-    );
+    render(<FilterBar equipment={makeEquipmentFilter()} operators={makeOperatorFilter()} />);
 
     const select = screen.getByLabelText('Operador') as HTMLSelectElement;
     const optionTexts = Array.from(select.options).map((o) => o.text);

@@ -35,9 +35,7 @@ export const transcribeAuditoriaAudio = onCall(
     const { labId, audioPath } = parsed.data;
     const uid = request.auth.uid;
 
-    const memberSnap = await admin.firestore()
-      .doc(`labs/${labId}/members/${uid}`)
-      .get();
+    const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
     if (!memberSnap.exists || memberSnap.data()?.status !== 'active') {
       throw new HttpsError('permission-denied', 'Not an active member of this lab');
     }
@@ -60,7 +58,9 @@ export const transcribeAuditoriaAudio = onCall(
           {
             role: 'user',
             parts: [
-              { text: 'Transcreva o seguinte audio de auditoria laboratorial em portugues. Retorne apenas o texto transcrito, sem formatacao.' },
+              {
+                text: 'Transcreva o seguinte audio de auditoria laboratorial em portugues. Retorne apenas o texto transcrito, sem formatacao.',
+              },
               { inlineData: { mimeType: 'audio/webm', data: base64Audio } },
             ],
           },
@@ -80,5 +80,5 @@ export const transcribeAuditoriaAudio = onCall(
       logger.error('Transcription failed', { error: message, audioPath });
       throw new HttpsError('internal', 'Transcription failed: ' + message);
     }
-  }
+  },
 );

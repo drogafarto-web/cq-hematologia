@@ -8,7 +8,10 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import type { ManagementReviewMinutes, ManagementReviewInput } from '../../features/management-review/types/ManagementReview';
+import type {
+  ManagementReviewMinutes,
+  ManagementReviewInput,
+} from '../../features/management-review/types/ManagementReview';
 
 // DICQ 4.15 — 15 mandatory entries
 const MANAGEMENT_REVIEW_ENTRY_TITLES = [
@@ -38,81 +41,55 @@ describe('Management Review — DICQ 4.15', () => {
     });
 
     it('should include audit findings as entry 1', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[0]).toBe(
-        'Análise de Resultados de Auditorias',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[0]).toBe('Análise de Resultados de Auditorias');
     });
 
     it('should include NC/CAPA analysis as entry 2', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[1]).toBe(
-        'Análise de Conformidades e CAPAs',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[1]).toBe('Análise de Conformidades e CAPAs');
     });
 
     it('should include KPI trends as entry 3', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[2]).toBe(
-        'Tendências de Indicadores de Desempenho',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[2]).toBe('Tendências de Indicadores de Desempenho');
     });
 
     it('should include customer feedback as entry 4', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[3]).toBe(
-        'Análise de Feedback do Cliente',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[3]).toBe('Análise de Feedback do Cliente');
     });
 
     it('should include personnel competency as entry 5', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[4]).toBe(
-        'Análise de Competência do Pessoal',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[4]).toBe('Análise de Competência do Pessoal');
     });
 
     it('should include infrastructure/calibration as entry 6', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[5]).toBe(
-        'Análise de Infraestrutura e Calibração',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[5]).toBe('Análise de Infraestrutura e Calibração');
     });
 
     it('should include supplier performance as entry 7', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[6]).toBe(
-        'Análise de Desempenho de Fornecedores',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[6]).toBe('Análise de Desempenho de Fornecedores');
     });
 
     it('should include regulatory changes as entry 8', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[7]).toBe(
-        'Análise de Mudanças Regulatórias',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[7]).toBe('Análise de Mudanças Regulatórias');
     });
 
     it('should include improvement opportunities as entry 9', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[8]).toBe(
-        'Oportunidades para Melhoria',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[8]).toBe('Oportunidades para Melhoria');
     });
 
     it('should include risk assessment as entry 10', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[9]).toBe(
-        'Avaliação de Riscos e Mitigação',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[9]).toBe('Avaliação de Riscos e Mitigação');
     });
 
     it('should include quality objectives as entry 11', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[10]).toBe(
-        'Status de Objetivos de Qualidade',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[10]).toBe('Status de Objetivos de Qualidade');
     });
 
     it('should include resource allocation as entry 12', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[11]).toBe(
-        'Decisões sobre Alocação de Recursos',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[11]).toBe('Decisões sobre Alocação de Recursos');
     });
 
     it('should include procedural changes as entry 13', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[12]).toBe(
-        'Mudanças Procedimentais Aprovadas',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[12]).toBe('Mudanças Procedimentais Aprovadas');
     });
 
     it('should include strategic initiatives as entry 14', () => {
@@ -122,9 +99,7 @@ describe('Management Review — DICQ 4.15', () => {
     });
 
     it('should include date/participants/signature as entry 15', () => {
-      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[14]).toBe(
-        'Data, Participantes e Assinatura',
-      );
+      expect(MANAGEMENT_REVIEW_ENTRY_TITLES[14]).toBe('Data, Participantes e Assinatura');
     });
   });
 
@@ -148,10 +123,20 @@ describe('Management Review — DICQ 4.15', () => {
 
     it('should support all 15 entry types', () => {
       const input: ManagementReviewInput = {
-        auditFindings: { internalAudits: 0, externalAudits: 0, openFindings: 0, capaClosureRate: 0 },
+        auditFindings: {
+          internalAudits: 0,
+          externalAudits: 0,
+          openFindings: 0,
+          capaClosureRate: 0,
+        },
         complaints: { newComplaints: 0, totalOpen: 0, resolutionRate: 0, criticalComplaints: 0 },
         nonConformances: { newNC: 0, totalOpen: 0, capaImplemented: 0, capaEffectivenessRate: 0 },
-        proficiencyTesting: { roundsCompleted: 0, passedRounds: 0, failedRounds: 0, averageZScore: 0 },
+        proficiencyTesting: {
+          roundsCompleted: 0,
+          passedRounds: 0,
+          failedRounds: 0,
+          averageZScore: 0,
+        },
         qualityIndicators: {
           turnaroundTime: 0,
           errorRate: 0,
@@ -159,9 +144,23 @@ describe('Management Review — DICQ 4.15', () => {
           reworkPercentage: 0,
           ncOrigin: { internal: 0, external: 0, supplier: 0 },
         },
-        equipment: { totalEquipment: 0, equipmentUptime: 0, calibrationCompliance: 0, maintenanceOverdue: 0 },
-        risksAndMitigation: { totalRisks: 0, highRiskCount: 0, mitigationImplemented: 0, riskReviewDate: '' },
-        trainingCompetency: { trainingCompletionRate: 0, competencyAssessmentRate: 0, trainingGaps: [] },
+        equipment: {
+          totalEquipment: 0,
+          equipmentUptime: 0,
+          calibrationCompliance: 0,
+          maintenanceOverdue: 0,
+        },
+        risksAndMitigation: {
+          totalRisks: 0,
+          highRiskCount: 0,
+          mitigationImplemented: 0,
+          riskReviewDate: '',
+        },
+        trainingCompetency: {
+          trainingCompletionRate: 0,
+          competencyAssessmentRate: 0,
+          trainingGaps: [],
+        },
         resources: {
           budgetStatus: 'adequate',
           equipmentNeeds: [],
@@ -169,7 +168,11 @@ describe('Management Review — DICQ 4.15', () => {
           safetyIssues: [],
         },
         regulatory: { newRegulatoryChanges: [], implementationStatus: '', complianceGaps: [] },
-        customerSatisfaction: { satisfactionScore: 0, surveyResponseRate: 0, marketPositioning: '' },
+        customerSatisfaction: {
+          satisfactionScore: 0,
+          surveyResponseRate: 0,
+          marketPositioning: '',
+        },
         strategicInitiatives: { activeInitiatives: [], completedMilestones: [], delayedItems: [] },
         succession: { staffChanges: [], crossTrainingProgress: '', keyPersonRisks: [] },
         procurementSupplier: { supplierCount: 0, performanceIssues: [], auditsPending: 0 },
@@ -219,7 +222,12 @@ describe('Management Review — DICQ 4.15', () => {
           },
         ],
         inputs: {
-          auditFindings: { internalAudits: 2, externalAudits: 1, openFindings: 1, capaClosureRate: 90 },
+          auditFindings: {
+            internalAudits: 2,
+            externalAudits: 1,
+            openFindings: 1,
+            capaClosureRate: 90,
+          },
         },
         decisions: [],
         actionItems: [],
@@ -457,9 +465,7 @@ describe('Management Review — DICQ 4.15', () => {
       expect(has2026).toBe(true);
 
       // Can't create another for same year/lab
-      const canCreate = !reviews.some(
-        (r) => r.year === 2026 && r.labId === 'lab-test',
-      );
+      const canCreate = !reviews.some((r) => r.year === 2026 && r.labId === 'lab-test');
       expect(canCreate).toBe(false);
     });
 

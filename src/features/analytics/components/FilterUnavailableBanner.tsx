@@ -59,9 +59,7 @@ export const FilterUnavailableBanner = React.memo(function FilterUnavailableBann
       <InfoIcon />
       <div className="space-y-0.5 leading-relaxed">
         {activeFilterLabel && (
-          <p className="font-medium text-amber-400">
-            Filtro ativo: {activeFilterLabel}
-          </p>
+          <p className="font-medium text-amber-400">Filtro ativo: {activeFilterLabel}</p>
         )}
         <p className="text-amber-400/70">{reason}</p>
       </div>

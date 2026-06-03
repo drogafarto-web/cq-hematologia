@@ -15,7 +15,14 @@ interface CAPADetailPanelProps {
 
 function ArrowIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M19 12H5M12 19l-7-7 7-7" />
     </svg>
   );
@@ -23,7 +30,14 @@ function ArrowIcon() {
 
 function TimelineIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <circle cx="12" cy="12" r="1" fill="currentColor" />
       <path d="M12 2v4m0 12v4" />
     </svg>
@@ -80,9 +94,7 @@ export function CAPADetailPanel({ capaId, onBack }: CAPADetailPanelProps) {
         </button>
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-lg font-semibold text-white">
-              Detalhe da CAPA
-            </h2>
+            <h2 className="text-lg font-semibold text-white">Detalhe da CAPA</h2>
             <p className="text-xs text-slate-400 mt-1">ID: {capa.id.slice(-6)}</p>
           </div>
         </div>
@@ -101,14 +113,14 @@ export function CAPADetailPanel({ capaId, onBack }: CAPADetailPanelProps) {
                 <div key={i} className="flex items-start gap-3 text-xs">
                   <TimelineIcon />
                   <div className="flex-1 pt-0.5">
-                    <p className="text-slate-200 font-medium">
-                      Estado atualizado
-                    </p>
-                    <p className="text-slate-400 text-[10px]">
-                      por {transition.transitionedBy}
-                    </p>
+                    <p className="text-slate-200 font-medium">Estado atualizado</p>
+                    <p className="text-slate-400 text-[10px]">por {transition.transitionedBy}</p>
                     <p className="text-slate-500 text-[10px]">
-                      {new Date(typeof transition.transitionedAt === 'number' ? transition.transitionedAt : (transition.transitionedAt as any)?.toMillis?.()).toLocaleString('pt-BR')}
+                      {new Date(
+                        typeof transition.transitionedAt === 'number'
+                          ? transition.transitionedAt
+                          : (transition.transitionedAt as any)?.toMillis?.(),
+                      ).toLocaleString('pt-BR')}
                     </p>
                   </div>
                 </div>
@@ -118,11 +130,12 @@ export function CAPADetailPanel({ capaId, onBack }: CAPADetailPanelProps) {
         )}
 
         {/* Empty State */}
-        {!capa.stateHistory || capa.stateHistory.length === 0 && (
-          <div className="text-center py-8 text-slate-400">
-            <p className="text-sm">Nenhum histórico de estado disponível</p>
-          </div>
-        )}
+        {!capa.stateHistory ||
+          (capa.stateHistory.length === 0 && (
+            <div className="text-center py-8 text-slate-400">
+              <p className="text-sm">Nenhum histórico de estado disponível</p>
+            </div>
+          ))}
       </div>
     </div>
   );

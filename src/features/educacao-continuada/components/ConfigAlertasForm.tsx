@@ -7,10 +7,7 @@ import {
   saveCertificadoConfig,
   saveConfigAlerta,
 } from '../services/ecFirebaseService';
-import type {
-  CertificadoConfigInput,
-  ConfiguracaoAlertaInput,
-} from '../types/EducacaoContinuada';
+import type { CertificadoConfigInput, ConfiguracaoAlertaInput } from '../types/EducacaoContinuada';
 
 import { Field, inputClass } from './_formPrimitives';
 
@@ -167,8 +164,8 @@ export function ConfigAlertasForm({ onClose }: ConfigAlertasFormProps) {
         <section className="flex flex-col gap-3 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
           <h3 className="text-sm font-semibold text-slate-200">Alertas por email</h3>
           <p className="text-xs text-slate-500">
-            Executado diariamente às {state.horaEnvio} no fuso São Paulo via scheduled
-            Cloud Function. Usa Resend para envio.
+            Executado diariamente às {state.horaEnvio} no fuso São Paulo via scheduled Cloud
+            Function. Usa Resend para envio.
           </p>
 
           <div className="grid grid-cols-2 gap-4">
@@ -287,7 +284,10 @@ export function ConfigAlertasForm({ onClose }: ConfigAlertasFormProps) {
         </section>
 
         {err && (
-          <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <p
+            role="alert"
+            className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          >
             {err}
           </p>
         )}

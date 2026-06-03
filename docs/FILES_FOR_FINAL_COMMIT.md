@@ -17,15 +17,16 @@ ls -la C:\hc quality\docs\POST_DEPLOY_CHECKLIST_v1.3.md
 ls -la C:\hc quality\docs\COMPLIANCE_SUMMARY_v1.3.md
 ```
 
-| File | Size | Status |
-|------|------|--------|
-| `docs/SMOKE_TESTS_v1.3.md` | ~340 lines | ✅ Ready to stage |
+| File                                  | Size       | Status            |
+| ------------------------------------- | ---------- | ----------------- |
+| `docs/SMOKE_TESTS_v1.3.md`            | ~340 lines | ✅ Ready to stage |
 | `docs/SMOKE_TESTS_TEST_DATA_GUIDE.md` | ~427 lines | ✅ Ready to stage |
-| `docs/POST_DEPLOY_CHECKLIST_v1.3.md` | ~220 lines | ✅ Ready to stage |
-| `docs/SECURITY_SIGN_OFF_v1.3.md` | ~215 lines | ✅ Ready to stage |
-| `docs/COMPLIANCE_SUMMARY_v1.3.md` | ~360 lines | ✅ Ready to stage |
+| `docs/POST_DEPLOY_CHECKLIST_v1.3.md`  | ~220 lines | ✅ Ready to stage |
+| `docs/SECURITY_SIGN_OFF_v1.3.md`      | ~215 lines | ✅ Ready to stage |
+| `docs/COMPLIANCE_SUMMARY_v1.3.md`     | ~360 lines | ✅ Ready to stage |
 
 **Staging command:**
+
 ```bash
 git add docs/SMOKE_TESTS_v1.3.md \
         docs/SMOKE_TESTS_TEST_DATA_GUIDE.md \
@@ -38,16 +39,18 @@ git add docs/SMOKE_TESTS_v1.3.md \
 
 ## 2. Project State — UPDATED
 
-| File | Change | Status |
-|------|--------|--------|
+| File                 | Change                                                    | Status                  |
+| -------------------- | --------------------------------------------------------- | ----------------------- |
 | `.planning/STATE.md` | ✏️ Update deployment progress (Step 2→4), final timestamp | ⏳ Wait for smoke tests |
 
 **Staging command:**
+
 ```bash
 git add .planning/STATE.md
 ```
 
 **What to update in STATE.md before staging:**
+
 - Change `deployment_steps_complete` from `2` to `4`
 - Change `deployment_percent` from `50` to `100`
 - Update `status` from `v1.3-deploying` to `v1.3-deployed`
@@ -58,11 +61,12 @@ git add .planning/STATE.md
 
 ## 3. Functions — Wire Index (ALREADY DONE IN STEP 2)
 
-| File | Change | Status |
-|------|--------|--------|
+| File                     | Change                             | Status                      |
+| ------------------------ | ---------------------------------- | --------------------------- |
 | `functions/src/index.ts` | ✅ 27 v1.3 exports added (Batch 4) | ✅ Already staged in Step 2 |
 
 **Do NOT re-edit this file.** All 27 exports are already present:
+
 - 6 Bioquímica functions
 - 4 SGQ functions
 - 4 Liberação + Críticos functions
@@ -70,6 +74,7 @@ git add .planning/STATE.md
 - 3 Phase 8 (CAPA/calibração) functions
 
 **Verify no changes pending:**
+
 ```bash
 git status functions/src/index.ts
 # Should show clean or already staged
@@ -217,11 +222,13 @@ git push origin main --force
 ```
 
 **When to rollback:**
+
 - TypeScript errors post-merge (rare, but catch-all)
 - Production outage (critical bug in v1.3 code)
 - Firestore rules lock-out (failed ACL deployment)
 
 **When NOT to rollback:**
+
 - Smoke test failures (debug + fix + new commit)
 - Minor UI/UX issues (hotfix commit)
 - Documentation typos (update + new commit)
@@ -230,15 +237,15 @@ git push origin main --force
 
 ## 9. Timeline & Approvals
 
-| Step | Owner | Timeline | Status |
-|------|-------|----------|--------|
-| Build verification | Engineer | Immediate | ⏳ Wait for smoke tests |
-| Stage files | Engineer | ~2 min | ⏳ Wait for approval |
-| Create commit | Engineer | ~1 min | ⏳ Wait for approval |
-| Push to main | Engineer | ~10 sec | ⏳ Wait for approval |
-| GitHub Actions CI | Automated | ~5-10 min | ⏳ Auto-triggered |
-| Step 4 smoke tests | QA/Engineer | ~30 min | ⏳ User-executed |
-| Cloud Logs monitoring | Ops/Engineer | 24h | ⏳ Ongoing |
+| Step                  | Owner        | Timeline  | Status                  |
+| --------------------- | ------------ | --------- | ----------------------- |
+| Build verification    | Engineer     | Immediate | ⏳ Wait for smoke tests |
+| Stage files           | Engineer     | ~2 min    | ⏳ Wait for approval    |
+| Create commit         | Engineer     | ~1 min    | ⏳ Wait for approval    |
+| Push to main          | Engineer     | ~10 sec   | ⏳ Wait for approval    |
+| GitHub Actions CI     | Automated    | ~5-10 min | ⏳ Auto-triggered       |
+| Step 4 smoke tests    | QA/Engineer  | ~30 min   | ⏳ User-executed        |
+| Cloud Logs monitoring | Ops/Engineer | 24h       | ⏳ Ongoing              |
 
 **Final approval gate:** After Step 4 smoke tests PASS + 0 errors in Cloud Logs (24h tail)
 

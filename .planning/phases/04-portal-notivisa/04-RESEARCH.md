@@ -1,11 +1,11 @@
 ---
-phase: "4"
-milestone: "v1.4"
-title: "Phase 4 — Patient Portal + NOTIVISA Research"
-date_researched: "2026-05-07"
-status: "research-complete"
-domain: "regulatory-integration + patient-communication"
-confidence: "HIGH"
+phase: '4'
+milestone: 'v1.4'
+title: 'Phase 4 — Patient Portal + NOTIVISA Research'
+date_researched: '2026-05-07'
+status: 'research-complete'
+domain: 'regulatory-integration + patient-communication'
+confidence: 'HIGH'
 ---
 
 # Phase 4: Patient Portal + NOTIVISA — Research
@@ -36,16 +36,19 @@ Phase 4 delivers **two tightly coupled regulatory features** required for DICQ a
 > (v1.4 planning CONTEXT.md governs Phase 4 scope lock and dependency ordering.)
 
 **Locked Decisions:**
+
 - DL-1: Portal uses email-link auth (no SSO in v1.4, LGPD compliance via audit trail only)
 - DL-2: NOTIVISA sandbox implementation (production API deferred to v1.5 + auditor approval)
 - DL-3: Patient data isolation by CPF (server-side filtering mandatory, no client-side assumptions)
 
 **Claude's Discretion:**
+
 - Portal branding strategy (hardcoded per-lab vs. dynamic CSS vars)
 - Email template design (plain text vs. HTML; locale support)
 - NOTIVISA retry schedule (5min → 10min → 30min → ... vs. fixed intervals)
 
 **Deferred (out of scope Phase 4):**
+
 - Production NOTIVISA (requires gov API key + legal review)
 - Patient consent workflow (deferred to Phase 5+ per LGPD v1.1 patch [ADR-0020])
 - Multi-language support (English-only v1.4, Portuguese hardcoded)
@@ -54,27 +57,27 @@ Phase 4 delivers **two tightly coupled regulatory features** required for DICQ a
 
 ## Architectural Responsibility Map
 
-| Capability | Primary Tier | Secondary Tier | Rationale |
-|------------|-------------|----------------|-----------|
-| **Email link generation** | Backend (Cloud Function) | — | One-time token creation, expiry validation, HMAC signature |
-| **Portal session auth** | Frontend + Backend | API | JWT validation client-side; server-side token introspection on sensitive ops |
-| **Laudo list / detail** | Frontend (React) | API (Cloud Function) | Read-only UI + lazy-loaded PDF; API enforces CPF-based access control |
-| **Lab branding injection** | Frontend (React) | Backend (Firestore config) | CSS variables override + dynamic color inheritance; config fetched from `portal-configuracao` collection |
-| **NOTIVISA event queue** | Backend (Cloud Functions + Scheduler) | — | Async processing, no frontend involvement; RDC compliance machinery |
-| **Audit trail (all events)** | Firestore Rules | Cloud Functions | Immutable writes (server-side only, deny-by-default client rules) |
+| Capability                   | Primary Tier                          | Secondary Tier             | Rationale                                                                                                |
+| ---------------------------- | ------------------------------------- | -------------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Email link generation**    | Backend (Cloud Function)              | —                          | One-time token creation, expiry validation, HMAC signature                                               |
+| **Portal session auth**      | Frontend + Backend                    | API                        | JWT validation client-side; server-side token introspection on sensitive ops                             |
+| **Laudo list / detail**      | Frontend (React)                      | API (Cloud Function)       | Read-only UI + lazy-loaded PDF; API enforces CPF-based access control                                    |
+| **Lab branding injection**   | Frontend (React)                      | Backend (Firestore config) | CSS variables override + dynamic color inheritance; config fetched from `portal-configuracao` collection |
+| **NOTIVISA event queue**     | Backend (Cloud Functions + Scheduler) | —                          | Async processing, no frontend involvement; RDC compliance machinery                                      |
+| **Audit trail (all events)** | Firestore Rules                       | Cloud Functions            | Immutable writes (server-side only, deny-by-default client rules)                                        |
 
 ---
 
 ## Phase Requirements
 
-| ID | Description | Research Support |
-|----|-------------|------------------|
-| **REQ-410** | NOTIVISA queue processor + Anvisa notification RDC Art. 6º §1 | NOTIVISA integration, async queue, Portaria 204 compliance (section: NOTIVISA Regulatory Framework) |
-| **REQ-415** | Patient portal laudo access + RDC Art. 167 notification right | Patient portal architecture, email-link auth, LGPD Art. 18 (section: Patient Portal Regulatory Framework) |
-| **RDC-ART-6-PARA1** | Notifiable events (critical values, equipment down, safety issues) + Anvisa submission | Event classification, queue mechanics, audit trail (section: NOTIVISA Regulatory Framework) |
-| **RDC-ART-167** | Laudo 14 mandatory fields + patient must be notified of results | Laudo structure validation, patient notification proof, email audit (section: Patient Portal Regulatory Framework) |
-| **LGPD-ART-18** | Patient data access right (direito de acesso) + proof of notification | Email authentication, session audit, CPF-based filtering (section: LGPD Compliance) |
-| **DICQ-4.4** | Trilha de auditoria — immutable event log with signatures | Firestore Rules immutability, LogicalSignature schema, event structure (section: DICQ Compliance Mapping) |
+| ID                  | Description                                                                            | Research Support                                                                                                   |
+| ------------------- | -------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **REQ-410**         | NOTIVISA queue processor + Anvisa notification RDC Art. 6º §1                          | NOTIVISA integration, async queue, Portaria 204 compliance (section: NOTIVISA Regulatory Framework)                |
+| **REQ-415**         | Patient portal laudo access + RDC Art. 167 notification right                          | Patient portal architecture, email-link auth, LGPD Art. 18 (section: Patient Portal Regulatory Framework)          |
+| **RDC-ART-6-PARA1** | Notifiable events (critical values, equipment down, safety issues) + Anvisa submission | Event classification, queue mechanics, audit trail (section: NOTIVISA Regulatory Framework)                        |
+| **RDC-ART-167**     | Laudo 14 mandatory fields + patient must be notified of results                        | Laudo structure validation, patient notification proof, email audit (section: Patient Portal Regulatory Framework) |
+| **LGPD-ART-18**     | Patient data access right (direito de acesso) + proof of notification                  | Email authentication, session audit, CPF-based filtering (section: LGPD Compliance)                                |
+| **DICQ-4.4**        | Trilha de auditoria — immutable event log with signatures                              | Firestore Rules immutability, LogicalSignature schema, event structure (section: DICQ Compliance Mapping)          |
 
 ---
 
@@ -82,35 +85,35 @@ Phase 4 delivers **two tightly coupled regulatory features** required for DICQ a
 
 ### Core Libraries
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| **Firebase Cloud Functions** | 12.x (Node 22) | Async queue processor (NOTIVISA) + callable auth (portal) | Proven for high-volume event processing; integrates directly with Firestore triggers |
-| **Cloud Scheduler** | N/A (native GCP) | Hourly cron trigger for NOTIVISA queue drain | Zero ops overhead, DICQ audit trail built-in (invocation logs) |
-| **Firestore Rules** | v1 (security rules language) | Access control (portal patient isolation, queue immutability) | Declarative, enforceable at DB layer (not app layer) |
-| **React 19 + TypeScript 5.8** | latest stable | Portal UI (laudo list, detail, session mgmt) | Existing HC Quality stack; hooks + Zustand for session state |
-| **Tailwind CSS 4** | latest stable | Portal responsive design (dark-first, WCAG AA) | Existing design system tokens, dark theme well-established |
-| **jsonwebtoken (jwt-simple or Firebase Auth JWT)** | Firebase-native | Portal session tokens | Firebase provides built-in token validation; cryptographically sound |
+| Library                                            | Version                      | Purpose                                                       | Why Standard                                                                         |
+| -------------------------------------------------- | ---------------------------- | ------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **Firebase Cloud Functions**                       | 12.x (Node 22)               | Async queue processor (NOTIVISA) + callable auth (portal)     | Proven for high-volume event processing; integrates directly with Firestore triggers |
+| **Cloud Scheduler**                                | N/A (native GCP)             | Hourly cron trigger for NOTIVISA queue drain                  | Zero ops overhead, DICQ audit trail built-in (invocation logs)                       |
+| **Firestore Rules**                                | v1 (security rules language) | Access control (portal patient isolation, queue immutability) | Declarative, enforceable at DB layer (not app layer)                                 |
+| **React 19 + TypeScript 5.8**                      | latest stable                | Portal UI (laudo list, detail, session mgmt)                  | Existing HC Quality stack; hooks + Zustand for session state                         |
+| **Tailwind CSS 4**                                 | latest stable                | Portal responsive design (dark-first, WCAG AA)                | Existing design system tokens, dark theme well-established                           |
+| **jsonwebtoken (jwt-simple or Firebase Auth JWT)** | Firebase-native              | Portal session tokens                                         | Firebase provides built-in token validation; cryptographically sound                 |
 
 ### Supporting Libraries
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| **nodemailer** (or Firebase Ext: SendGrid) | latest | Email delivery (patient portal links) | SendGrid integration via Firebase extension preferred (reliability, DKIM validation) |
-| **pdfkit or html2pdf** | latest | PDF generation (laudo export from portal) | Leverage existing `export` module infrastructure (Phase 3.3 delivered pdfkit) |
-| **zod** | v3 (existing) | Payload validation (NOTIVISA XML serialization, email DTOs) | Schema validation already standard in HC Quality |
-| **firebase-admin (SDK)** | v12.x | Server-side operations (callable auth, secret retrieval for API keys) | Required for Cloud Functions context |
-| **typescript** | 5.8 | Type safety across all layers | Existing project standard |
+| Library                                    | Version       | Purpose                                                               | When to Use                                                                          |
+| ------------------------------------------ | ------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| **nodemailer** (or Firebase Ext: SendGrid) | latest        | Email delivery (patient portal links)                                 | SendGrid integration via Firebase extension preferred (reliability, DKIM validation) |
+| **pdfkit or html2pdf**                     | latest        | PDF generation (laudo export from portal)                             | Leverage existing `export` module infrastructure (Phase 3.3 delivered pdfkit)        |
+| **zod**                                    | v3 (existing) | Payload validation (NOTIVISA XML serialization, email DTOs)           | Schema validation already standard in HC Quality                                     |
+| **firebase-admin (SDK)**                   | v12.x         | Server-side operations (callable auth, secret retrieval for API keys) | Required for Cloud Functions context                                                 |
+| **typescript**                             | 5.8           | Type safety across all layers                                         | Existing project standard                                                            |
 
 ### Firestore Schema Updates (from Phase 3)
 
 These collections are **already designed and scoped into Phase 3 deployment**:
 
-| Collection | Purpose | Sharded | TTL | Fields |
-|------------|---------|--------|-----|--------|
-| **`/labs/{labId}/portal-configuracao`** | Lab branding + email template config | No | None | `labName`, `logoUrl`, `colors{}`, `emailTemplate`, `privacyPolicyUrl`, `createdBy`, `createdAt` |
-| **`/labs/{labId}/notivisa-outbox`** | Regulatory event queue (enqueued, processing, completed) | Yes (by `laudoId`) | 90d (audit retention) | `laudoId`, `eventType`, `status`, `payload{}`, `retries`, `lastAttemptAt`, `apiResponse`, `createdAt`, `updatedAt`, `operatorId`, `hash` |
-| **`/labs/{labId}/patientSessions`** (temporary) | Active portal sessions | Yes (by `cpfHash`) | 30d (auto-expire) | `token`, `cpfHash`, `expiresAt`, `createdAt`, `createdBy` (empty for email-link) |
-| **`/labs/{labId}/portal-access-logs`** (audit-only) | Patient portal reads (immutable) | Yes (by `date`) | 5 years (RDC 115) | `cpfHash`, `laudoId`, `accessType`, `timestamp`, `sessionId`, `ipHash`, `userAgent` |
+| Collection                                          | Purpose                                                  | Sharded            | TTL                   | Fields                                                                                                                                   |
+| --------------------------------------------------- | -------------------------------------------------------- | ------------------ | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| **`/labs/{labId}/portal-configuracao`**             | Lab branding + email template config                     | No                 | None                  | `labName`, `logoUrl`, `colors{}`, `emailTemplate`, `privacyPolicyUrl`, `createdBy`, `createdAt`                                          |
+| **`/labs/{labId}/notivisa-outbox`**                 | Regulatory event queue (enqueued, processing, completed) | Yes (by `laudoId`) | 90d (audit retention) | `laudoId`, `eventType`, `status`, `payload{}`, `retries`, `lastAttemptAt`, `apiResponse`, `createdAt`, `updatedAt`, `operatorId`, `hash` |
+| **`/labs/{labId}/patientSessions`** (temporary)     | Active portal sessions                                   | Yes (by `cpfHash`) | 30d (auto-expire)     | `token`, `cpfHash`, `expiresAt`, `createdAt`, `createdBy` (empty for email-link)                                                         |
+| **`/labs/{labId}/portal-access-logs`** (audit-only) | Patient portal reads (immutable)                         | Yes (by `date`)    | 5 years (RDC 115)     | `cpfHash`, `laudoId`, `accessType`, `timestamp`, `sessionId`, `ipHash`, `userAgent`                                                      |
 
 ---
 
@@ -154,7 +157,7 @@ These collections are **already designed and scoped into Phase 3 deployment**:
              └─→ Enqueue event in notivisa-outbox (status = "pending")
                  ├─→ Create event record: `{ laudoId, eventType: "resultado", status: "pending", payload: {...} }`
                  └─→ Record immutable with audit signature (RDC Art. 5.3)
-                 
+
              └─→ [Async] Cloud Scheduler (hourly cron)
                  └─→ processNotiVisaQueue (Cloud Function)
                      ├─→ Query notivisa-outbox (status = "pending", OR retry needed)
@@ -177,7 +180,7 @@ These collections are **already designed and scoped into Phase 3 deployment**:
 └─────────────────────────────────────────────────────────────────┘
 
   All events → Firestore Rules (server-side only)
-  
+
   ├─→ Patient portal access:
   │   └─→ Write to portal-access-logs (immutable, 5-year TTL)
   │       └─→ LogicalSignature { hash: SHA256(...), operatorId: "system", ts: 1715080200000 }
@@ -236,63 +239,63 @@ firestore/
 ```typescript
 // Cloud Function callable: validatePatientToken
 export async function validatePatientToken(
-  request: Request
+  request: Request,
 ): Promise<{ sessionToken: string; expiresAt: number }> {
   const { token } = request.body.data;
-  
+
   // 1. Look up token in portal-temp-tokens collection
   const tokenDoc = await admin
     .firestore()
     .collection(`labs/${request.auth.claims.labId}/portal-temp-tokens`)
     .doc(token)
     .get();
-  
-  if (!tokenDoc.exists) throw new HttpsError("not-found", "Token invalid");
-  
+
+  if (!tokenDoc.exists) throw new HttpsError('not-found', 'Token invalid');
+
   const { cpfHash, expiresAt, used } = tokenDoc.data();
-  
+
   // 2. Check expiry (7 days)
   if (Date.now() > expiresAt || used) {
-    throw new HttpsError("permission-denied", "Token expired or already used");
+    throw new HttpsError('permission-denied', 'Token expired or already used');
   }
-  
+
   // 3. Generate JWT session (30 days)
   const sessionToken = jwt.sign(
-    { cpfHash, labId: request.auth.claims.labId, role: "portal-patient" },
+    { cpfHash, labId: request.auth.claims.labId, role: 'portal-patient' },
     process.env.PORTAL_JWT_SECRET,
-    { expiresIn: "30d" }
+    { expiresIn: '30d' },
   );
-  
+
   // 4. Mark token as used (immutable)
   await tokenDoc.ref.update({ used: true, usedAt: admin.firestore.FieldValue.serverTimestamp() });
-  
+
   // 5. Log access (audit trail)
   await admin
     .firestore()
     .collection(`labs/${request.auth.claims.labId}/portal-access-logs`)
     .add({
       cpfHash,
-      accessType: "token-validation",
+      accessType: 'token-validation',
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
       ipHash: hashIp(request.ip),
-      userAgent: request.headers["user-agent"],
-      operatorId: "system",
-      hash: computeHash(`portal-auth-${cpfHash}-${Date.now()}`)
+      userAgent: request.headers['user-agent'],
+      operatorId: 'system',
+      hash: computeHash(`portal-auth-${cpfHash}-${Date.now()}`),
     });
-  
+
   return {
     sessionToken,
-    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000
+    expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000,
   };
 }
 
 // Frontend: validate token on mount
 useEffect(() => {
-  const token = new URLSearchParams(window.location.search).get("token");
-  if (token && !sessionStorage.getItem("portalSessionToken")) {
+  const token = new URLSearchParams(window.location.search).get('token');
+  if (token && !sessionStorage.getItem('portalSessionToken')) {
     portalService.validatePatientToken(token).then(({ sessionToken }) => {
-      sessionStorage.setItem("portalSessionToken", sessionToken);
-      window.location.href = "/portal/laudos";
+      sessionStorage.setItem('portalSessionToken', sessionToken);
+      window.location.href = '/portal/laudos';
     });
   }
 }, []);
@@ -346,7 +349,7 @@ service cloud.firestore {
 
   // Helper functions
   function isPortalPatient() {
-    return request.auth != null && 
+    return request.auth != null &&
            request.auth.token.role == 'portal-patient';
   }
 
@@ -356,7 +359,7 @@ service cloud.firestore {
   }
 
   function hasRole(roles...) {
-    return request.auth != null && 
+    return request.auth != null &&
            request.auth.token.role in roles;
   }
 
@@ -382,29 +385,29 @@ service cloud.firestore {
 ```typescript
 // Cloud Function trigger: onLaudoPublished
 export const onLaudoPublished = functions
-  .region("southamerica-east1")
-  .firestore.document("labs/{labId}/laudos/{laudoId}")
+  .region('southamerica-east1')
+  .firestore.document('labs/{labId}/laudos/{laudoId}')
   .onWrite(async (change, context) => {
     const after = change.after.data();
-    if (after.status !== "released") return; // Only on publish
+    if (after.status !== 'released') return; // Only on publish
 
     const { labId, laudoId } = context.params;
-    
+
     // Enqueue NOTIVISA event
     const eventDoc = await admin
       .firestore()
       .collection(`labs/${labId}/notivisa-outbox`)
       .add({
         laudoId,
-        eventType: "resultado",
-        status: "pending",
+        eventType: 'resultado',
+        status: 'pending',
         payload: notivisaPayload(after),
         retries: 0,
         lastAttemptAt: null,
         apiResponse: null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
-        operatorId: context.auth?.uid || "system",
-        hash: computeHash(`notivisa-${laudoId}-${Date.now()}`)
+        operatorId: context.auth?.uid || 'system',
+        hash: computeHash(`notivisa-${laudoId}-${Date.now()}`),
       });
 
     logger.info(`NOTIVISA event enqueued: ${eventDoc.id}`);
@@ -412,15 +415,15 @@ export const onLaudoPublished = functions
 
 // Cloud Function: scheduled processor (hourly cron)
 export const processNotiVisaQueue = functions
-  .region("southamerica-east1")
-  .pubsub.schedule("every 1 hours")
+  .region('southamerica-east1')
+  .pubsub.schedule('every 1 hours')
   .onRun(async () => {
-    const labs = await admin.firestore().collection("labs").listDocuments();
-    
+    const labs = await admin.firestore().collection('labs').listDocuments();
+
     for (const labRef of labs) {
       const pendingEvents = await labRef
-        .collection("notivisa-outbox")
-        .where("status", "in", ["pending", "retrying"])
+        .collection('notivisa-outbox')
+        .where('status', 'in', ['pending', 'retrying'])
         .limit(10)
         .get();
 
@@ -442,45 +445,48 @@ async function processEvent(labId: string, eventDoc: FirebaseFirestore.QueryDocu
 
   try {
     // Call NOTIVISA sandbox API
-    const response = await fetch("https://sandbox.notivisa.gov.br/api/eventos", {
-      method: "POST",
+    const response = await fetch('https://sandbox.notivisa.gov.br/api/eventos', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.NOTIVISA_SANDBOX_TOKEN}`
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${process.env.NOTIVISA_SANDBOX_TOKEN}`,
       },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (response.status === 202) {
       // Success
       await eventDoc.ref.update({
-        status: "completed",
-        apiResponse: { status: 202, timestamp: admin.firestore.FieldValue.serverTimestamp() }
+        status: 'completed',
+        apiResponse: { status: 202, timestamp: admin.firestore.FieldValue.serverTimestamp() },
       });
       logger.info(`NOTIVISA event completed: ${eventDoc.id}`);
     } else if (response.status === 400) {
       // Permanent error, don't retry
       await eventDoc.ref.update({
-        status: "error",
-        apiResponse: { status: 400, body: await response.text() }
+        status: 'error',
+        apiResponse: { status: 400, body: await response.text() },
       });
       logger.error(`NOTIVISA event failed permanently: ${eventDoc.id}`);
     } else {
       // Retry
       await eventDoc.ref.update({
-        status: "retrying",
+        status: 'retrying',
         retries: retries + 1,
         lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(),
-        apiResponse: { status: response.status, timestamp: admin.firestore.FieldValue.serverTimestamp() }
+        apiResponse: {
+          status: response.status,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        },
       });
       logger.warn(`NOTIVISA event retry ${retries + 1}: ${eventDoc.id}`);
     }
   } catch (error) {
     // Network error, retry
     await eventDoc.ref.update({
-      status: "retrying",
+      status: 'retrying',
       retries: retries + 1,
-      lastAttemptAt: admin.firestore.FieldValue.serverTimestamp()
+      lastAttemptAt: admin.firestore.FieldValue.serverTimestamp(),
     });
     logger.error(`NOTIVISA event network error (retry ${retries + 1}): ${error}`);
   }
@@ -504,15 +510,15 @@ async function processEvent(labId: string, eventDoc: FirebaseFirestore.QueryDocu
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| **Email delivery** | Custom SMTP client, email validation | Firebase Extension: SendGrid, or Resend API | DKIM/SPF/DMARC complexity, bounce handling, compliance logging built-in |
-| **JWT session management** | Custom token codec + expiry logic | Firebase Auth JWT + `jsonwebtoken` lib (standard) | Cryptographic soundness, expiry validation, standard claims (aud, iss, exp) |
-| **CPF hashing** | Custom hash function | HMAC-SHA256 (Node.js `crypto` built-in) or bcrypt for passwords | Collision resistance, salting for CPF (if salt available), standard. Use bcrypt ONLY for user passwords, not PII hashing. |
-| **PDF generation** | Custom PDF builder | pdfkit (already used Phase 3.3 export module) or html2pdf | Font embedding, multipage layout, performance tuning already solved |
-| **Exponential backoff retry logic** | Manual sleep loops + math | firebase-functions built-in retry policies, OR `p-retry` npm lib | Handles jitter, avoids thundering herd, configurable |
-| **Firestore Rules for access control** | Application-layer filtering | Firestore Rules (RLS at database layer) | Enforced at db level (client can't bypass), auditable by GCP |
-| **Event audit logging** | Manual writes to Firestore | Firestore Rules enforce immutability (append-only subcollections) + GCP Cloud Logging | Immutable by design, tamper-evident, indexed by GCP |
+| Problem                                | Don't Build                          | Use Instead                                                                           | Why                                                                                                                       |
+| -------------------------------------- | ------------------------------------ | ------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| **Email delivery**                     | Custom SMTP client, email validation | Firebase Extension: SendGrid, or Resend API                                           | DKIM/SPF/DMARC complexity, bounce handling, compliance logging built-in                                                   |
+| **JWT session management**             | Custom token codec + expiry logic    | Firebase Auth JWT + `jsonwebtoken` lib (standard)                                     | Cryptographic soundness, expiry validation, standard claims (aud, iss, exp)                                               |
+| **CPF hashing**                        | Custom hash function                 | HMAC-SHA256 (Node.js `crypto` built-in) or bcrypt for passwords                       | Collision resistance, salting for CPF (if salt available), standard. Use bcrypt ONLY for user passwords, not PII hashing. |
+| **PDF generation**                     | Custom PDF builder                   | pdfkit (already used Phase 3.3 export module) or html2pdf                             | Font embedding, multipage layout, performance tuning already solved                                                       |
+| **Exponential backoff retry logic**    | Manual sleep loops + math            | firebase-functions built-in retry policies, OR `p-retry` npm lib                      | Handles jitter, avoids thundering herd, configurable                                                                      |
+| **Firestore Rules for access control** | Application-layer filtering          | Firestore Rules (RLS at database layer)                                               | Enforced at db level (client can't bypass), auditable by GCP                                                              |
+| **Event audit logging**                | Manual writes to Firestore           | Firestore Rules enforce immutability (append-only subcollections) + GCP Cloud Logging | Immutable by design, tamper-evident, indexed by GCP                                                                       |
 
 **Key insight:** Patient portal + NOTIVISA are regulatory-critical. Every layer (auth, access control, audit) must be defensible to auditors. Use standard, auditable libraries. Never implement crypto, session mgmt, or access control from scratch in healthcare.
 
@@ -602,30 +608,30 @@ async function processEvent(labId: string, eventDoc: FirebaseFirestore.QueryDocu
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | Jest 29.x (existing HC Quality) + Firestore Rules testing library (firebase-rules-test-utils) |
-| Config file | `jest.config.js` (existing, scope Phase 4 functions/**/__tests__) |
-| Quick run command | `npm run test:portal -- --watch` |
-| Full suite command | `npm run test` (includes portal + notivisa + integration tests) |
+| Property           | Value                                                                                         |
+| ------------------ | --------------------------------------------------------------------------------------------- |
+| Framework          | Jest 29.x (existing HC Quality) + Firestore Rules testing library (firebase-rules-test-utils) |
+| Config file        | `jest.config.js` (existing, scope Phase 4 functions/\*\*/**tests**)                           |
+| Quick run command  | `npm run test:portal -- --watch`                                                              |
+| Full suite command | `npm run test` (includes portal + notivisa + integration tests)                               |
 
 ### Phase Requirements → Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| **REQ-410a** | Email link generates one-time token | unit | `jest src/features/portal/services/__tests__/portalService.test.ts` | ✅ |
-| **REQ-410b** | Patient validates token → JWT session created | unit | `jest functions/src/callables/__tests__/validatePatientToken.test.ts` | ❌ Wave 0 |
-| **REQ-410c** | Second validation of same token fails (1-time use) | unit | `jest functions/src/callables/__tests__/validatePatientToken.test.ts` | ❌ Wave 0 |
-| **REQ-415a** | Portal Rules: patient can read only own CPF's laudos | rules-test | `npm run test:rules -- portal-patient-isolation` | ❌ Wave 0 |
-| **REQ-415b** | Patient reads laudo → audit log created (immutable) | integration | `jest functions/src/modules/portal/__tests__/portalAudit.integration.test.ts` | ❌ Wave 0 |
-| **REQ-410-NOTIVISA-1** | Laudo published → event enqueued (onLaudoPublished trigger) | integration | `jest functions/src/modules/notivisa/__tests__/onLaudoPublished.test.ts` | ✅ (Phase 3) |
-| **REQ-410-NOTIVISA-2** | Queue processor dequeues + calls sandbox API | unit | `jest functions/src/modules/notivisa/__tests__/processQueue.test.ts` | ✅ (Phase 3) |
-| **REQ-410-NOTIVISA-3** | API 202 → event status="completed" | unit | `jest functions/src/modules/notivisa/__tests__/processQueue.test.ts` | ✅ (Phase 3) |
-| **REQ-410-NOTIVISA-4** | API 5xx / timeout → retries with exponential backoff | unit | `jest functions/src/modules/notivisa/__tests__/retryLogic.test.ts` | ❌ Wave 0 |
-| **REQ-410-NOTIVISA-5** | 5 retries exhausted → alert ops (Cloud Logging) | integration | `jest functions/src/modules/notivisa/__tests__/alerting.test.ts` | ❌ Wave 0 |
-| **PORTAL-E2E-1** | Patient auth flow: email link → token validation → session → laudo list | e2e | `npm run test:e2e -- --spec portal-auth-flow.e2e.ts` | ❌ Wave 0 |
-| **PORTAL-E2E-2** | Patient downloads laudo PDF | e2e | `npm run test:e2e -- --spec portal-pdf-download.e2e.ts` | ❌ Wave 0 |
-| **NOTIVISA-E2E** | Laudo published → queue processed → API called | e2e | `npm run test:e2e -- --spec notivisa-integration.e2e.ts` | ❌ Wave 0 |
+| Req ID                 | Behavior                                                                | Test Type   | Automated Command                                                             | File Exists? |
+| ---------------------- | ----------------------------------------------------------------------- | ----------- | ----------------------------------------------------------------------------- | ------------ |
+| **REQ-410a**           | Email link generates one-time token                                     | unit        | `jest src/features/portal/services/__tests__/portalService.test.ts`           | ✅           |
+| **REQ-410b**           | Patient validates token → JWT session created                           | unit        | `jest functions/src/callables/__tests__/validatePatientToken.test.ts`         | ❌ Wave 0    |
+| **REQ-410c**           | Second validation of same token fails (1-time use)                      | unit        | `jest functions/src/callables/__tests__/validatePatientToken.test.ts`         | ❌ Wave 0    |
+| **REQ-415a**           | Portal Rules: patient can read only own CPF's laudos                    | rules-test  | `npm run test:rules -- portal-patient-isolation`                              | ❌ Wave 0    |
+| **REQ-415b**           | Patient reads laudo → audit log created (immutable)                     | integration | `jest functions/src/modules/portal/__tests__/portalAudit.integration.test.ts` | ❌ Wave 0    |
+| **REQ-410-NOTIVISA-1** | Laudo published → event enqueued (onLaudoPublished trigger)             | integration | `jest functions/src/modules/notivisa/__tests__/onLaudoPublished.test.ts`      | ✅ (Phase 3) |
+| **REQ-410-NOTIVISA-2** | Queue processor dequeues + calls sandbox API                            | unit        | `jest functions/src/modules/notivisa/__tests__/processQueue.test.ts`          | ✅ (Phase 3) |
+| **REQ-410-NOTIVISA-3** | API 202 → event status="completed"                                      | unit        | `jest functions/src/modules/notivisa/__tests__/processQueue.test.ts`          | ✅ (Phase 3) |
+| **REQ-410-NOTIVISA-4** | API 5xx / timeout → retries with exponential backoff                    | unit        | `jest functions/src/modules/notivisa/__tests__/retryLogic.test.ts`            | ❌ Wave 0    |
+| **REQ-410-NOTIVISA-5** | 5 retries exhausted → alert ops (Cloud Logging)                         | integration | `jest functions/src/modules/notivisa/__tests__/alerting.test.ts`              | ❌ Wave 0    |
+| **PORTAL-E2E-1**       | Patient auth flow: email link → token validation → session → laudo list | e2e         | `npm run test:e2e -- --spec portal-auth-flow.e2e.ts`                          | ❌ Wave 0    |
+| **PORTAL-E2E-2**       | Patient downloads laudo PDF                                             | e2e         | `npm run test:e2e -- --spec portal-pdf-download.e2e.ts`                       | ❌ Wave 0    |
+| **NOTIVISA-E2E**       | Laudo published → queue processed → API called                          | e2e         | `npm run test:e2e -- --spec notivisa-integration.e2e.ts`                      | ❌ Wave 0    |
 
 ### Sampling Rate
 
@@ -651,27 +657,27 @@ async function processEvent(labId: string, eventDoc: FirebaseFirestore.QueryDocu
 
 ### Applicable ASVS Categories
 
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| **V2 Authentication** | yes | JWT session tokens (30d TTL), one-time email links (7d TTL) + token exhaustion tracking |
-| **V3 Session Management** | yes | JWT stored in localStorage (not HttpOnly due to SPA constraints), cleared on logout |
-| **V4 Access Control** | yes | **Firestore Rules enforce CPF-based filtering** — patient can only read own laudo |
-| **V5 Input Validation** | yes | NOTIVISA payload schema validation (Zod) before queuing + Rules field typing |
-| **V6 Cryptography** | yes | HMAC-SHA256 for CPF hashing, token signing (RS256 via Firebase), TLS for all API calls |
-| **V7 Data Protection** | yes | RDC 978 Art. 115 (5-year retention) + LGPD Art. 9 (confidentiality) — immutable audit logs |
-| **V8 Secrets** | yes | NOTIVISA API key stored in Cloud Secret Manager (not in code), rotated per ADR-0018 |
+| ASVS Category             | Applies | Standard Control                                                                           |
+| ------------------------- | ------- | ------------------------------------------------------------------------------------------ |
+| **V2 Authentication**     | yes     | JWT session tokens (30d TTL), one-time email links (7d TTL) + token exhaustion tracking    |
+| **V3 Session Management** | yes     | JWT stored in localStorage (not HttpOnly due to SPA constraints), cleared on logout        |
+| **V4 Access Control**     | yes     | **Firestore Rules enforce CPF-based filtering** — patient can only read own laudo          |
+| **V5 Input Validation**   | yes     | NOTIVISA payload schema validation (Zod) before queuing + Rules field typing               |
+| **V6 Cryptography**       | yes     | HMAC-SHA256 for CPF hashing, token signing (RS256 via Firebase), TLS for all API calls     |
+| **V7 Data Protection**    | yes     | RDC 978 Art. 115 (5-year retention) + LGPD Art. 9 (confidentiality) — immutable audit logs |
+| **V8 Secrets**            | yes     | NOTIVISA API key stored in Cloud Secret Manager (not in code), rotated per ADR-0018        |
 
 ### Known Threat Patterns for (Patient Portal + NOTIVISA Queue)
 
-| Pattern | STRIDE | RDC/DICQ Risk | Standard Mitigation |
-|---------|--------|--------------|---------------------|
-| **CPF parameter spoofing** | Tampering | Cross-patient data leak (Art. 167 violation) | Firestore Rules server-side validation (no client-side filters) |
-| **Email link forwarding** | Information Disclosure | Unauth patient access (Art. 204 breach) | Token 1-time-use flag + audit logging per IP |
-| **NOTIVISA API key exposure** | Information Disclosure | Unauthorized submission (impersonation) | Cloud Secret Manager + ADR-0018 deploy gate |
-| **Laudo tampering before queue** | Tampering | Wrong data submitted to Anvisa (Art. 6º §1 breach) | Immutable audit signature on laudo + read-only when queued |
-| **Audit trail deletion** | Repudiation | RDC Art. 204 + DICQ 4.4 violation | Firestore immutable rules (deny-by-default delete) + GCP Cloud Logging sink |
-| **Email spoofing (phishing)** | Spoofing | Patient visits fake portal, enters CPF | Use official email domain (noreply@hmatologia2.web.app), SPF/DKIM configured, TLS-only |
-| **NOTIVISA payload injection** | Injection | Malformed data sent to gov API | Zod schema validation + type checking + API response validation |
+| Pattern                          | STRIDE                 | RDC/DICQ Risk                                      | Standard Mitigation                                                                    |
+| -------------------------------- | ---------------------- | -------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| **CPF parameter spoofing**       | Tampering              | Cross-patient data leak (Art. 167 violation)       | Firestore Rules server-side validation (no client-side filters)                        |
+| **Email link forwarding**        | Information Disclosure | Unauth patient access (Art. 204 breach)            | Token 1-time-use flag + audit logging per IP                                           |
+| **NOTIVISA API key exposure**    | Information Disclosure | Unauthorized submission (impersonation)            | Cloud Secret Manager + ADR-0018 deploy gate                                            |
+| **Laudo tampering before queue** | Tampering              | Wrong data submitted to Anvisa (Art. 6º §1 breach) | Immutable audit signature on laudo + read-only when queued                             |
+| **Audit trail deletion**         | Repudiation            | RDC Art. 204 + DICQ 4.4 violation                  | Firestore immutable rules (deny-by-default delete) + GCP Cloud Logging sink            |
+| **Email spoofing (phishing)**    | Spoofing               | Patient visits fake portal, enters CPF             | Use official email domain (noreply@hmatologia2.web.app), SPF/DKIM configured, TLS-only |
+| **NOTIVISA payload injection**   | Injection              | Malformed data sent to gov API                     | Zod schema validation + type checking + API response validation                        |
 
 ---
 
@@ -684,21 +690,21 @@ async function processEvent(labId: string, eventDoc: FirebaseFirestore.QueryDocu
 // Reference: HC Quality conventions (LogicalSignature, soft delete, labId path)
 
 export const generatePortalLink = functions
-  .region("southamerica-east1")
+  .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { laudoId, pacienteCpf, pacienteEmail } = data;
-    
+
     // Validate auth + RDC role (only RT can send links)
-    if (!context.auth || !hasRole(context, "rt", "admin")) {
-      throw new HttpsError("permission-denied", "Only RT can generate patient links");
+    if (!context.auth || !hasRole(context, 'rt', 'admin')) {
+      throw new HttpsError('permission-denied', 'Only RT can generate patient links');
     }
 
     const labId = context.auth.claims.labId;
-    
+
     // Generate one-time token (cryptographically random, 32 bytes)
-    const token = crypto.randomBytes(32).toString("hex");
+    const token = crypto.randomBytes(32).toString('hex');
     const expiresAt = Date.now() + 7 * 24 * 60 * 60 * 1000; // 7 days
-    
+
     // Store token (immutable once created)
     const tokenRef = await admin
       .firestore()
@@ -713,15 +719,15 @@ export const generatePortalLink = functions
         usedAt: null,
         createdAt: admin.firestore.FieldValue.serverTimestamp(),
         createdBy: context.auth.uid,
-        hash: computeHash(`portal-link-${token}-${Date.now()}`)
+        hash: computeHash(`portal-link-${token}-${Date.now()}`),
       });
 
     // Send email
     const portalLink = `https://hmatologia2.web.app/portal?token=${token}`;
     await sendEmail(pacienteEmail, {
-      subject: "Seus resultados estão prontos",
+      subject: 'Seus resultados estão prontos',
       body: `Acesse aqui para visualizar: ${portalLink}`,
-      expiresAt: new Date(expiresAt).toLocaleDateString("pt-BR")
+      expiresAt: new Date(expiresAt).toLocaleDateString('pt-BR'),
     });
 
     // Log laudo link generation (RDC 167 compliance)
@@ -731,22 +737,19 @@ export const generatePortalLink = functions
       .add({
         cpfHash: hashCPF(pacienteCpf),
         laudoId,
-        accessType: "link-generated",
+        accessType: 'link-generated',
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
         operatorId: context.auth.uid,
         email: pacienteEmail,
         expiresAt,
-        hash: computeHash(`link-gen-${token}`)
+        hash: computeHash(`link-gen-${token}`),
       });
 
     return { success: true, expiresAt };
   });
 
 function hashCPF(cpf: string): string {
-  return crypto
-    .createHmac("sha256", process.env.CPF_HASH_SECRET)
-    .update(cpf)
-    .digest("hex");
+  return crypto.createHmac('sha256', process.env.CPF_HASH_SECRET).update(cpf).digest('hex');
 }
 ```
 
@@ -756,33 +759,35 @@ function hashCPF(cpf: string): string {
 // Source: Phase 4 NOTIVISA pattern
 // Reference: Portaria 204/MS + RDC 978 Art. 6º §1
 
-import { z } from "zod";
+import { z } from 'zod';
 
 export const notiVisaEventSchema = z.object({
-  eventType: z.enum(["resultado", "equipmentDown", "contamination", "safety"]),
+  eventType: z.enum(['resultado', 'equipmentDown', 'contamination', 'safety']),
   laudoId: z.string().min(10),
   pacienteCpf: z.string().length(14), // XXX.XXX.XXX-XX
   resultado: z.object({
     analito: z.string(),
     valor: z.number(),
     unidade: z.string(),
-    intervaloReferencia: z.object({
-      min: z.number().optional(),
-      max: z.number().optional()
-    }).optional(),
+    intervaloReferencia: z
+      .object({
+        min: z.number().optional(),
+        max: z.number().optional(),
+      })
+      .optional(),
     metodologia: z.string(),
     dataColeta: z.string().datetime(),
-    dataEmissao: z.string().datetime()
+    dataEmissao: z.string().datetime(),
   }),
-  severidade: z.enum(["normal", "critico", "cancelado"]),
+  severidade: z.enum(['normal', 'critico', 'cancelado']),
   notifacao: z.boolean(),
-  
+
   // Audit
   emitidoPor: z.string(), // RT UID
   assinatura: z.object({
     hash: z.string().length(64), // SHA256
-    timestamp: z.number()
-  })
+    timestamp: z.number(),
+  }),
 });
 
 export type NotiVisaEvent = z.infer<typeof notiVisaEventSchema>;
@@ -791,7 +796,7 @@ export type NotiVisaEvent = z.infer<typeof notiVisaEventSchema>;
 export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | null {
   try {
     const event = notiVisaEventSchema.parse({
-      eventType: "resultado",
+      eventType: 'resultado',
       laudoId: laudo.id,
       pacienteCpf: laudo.pacienteCpf,
       resultado: {
@@ -800,12 +805,12 @@ export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | nul
         unidade: laudo.resultado[0]?.unidade,
         metodologia: laudo.metodologia,
         dataColeta: laudo.dataColeta.toISOString(),
-        dataEmissao: laudo.dataEmissao.toISOString()
+        dataEmissao: laudo.dataEmissao.toISOString(),
       },
-      severidade: laudo.isCritico ? "critico" : "normal",
+      severidade: laudo.isCritico ? 'critico' : 'normal',
       notifacao: true,
       emitidoPor: laudo.emitidoPor,
-      assinatura: laudo.assinatura
+      assinatura: laudo.assinatura,
     });
     return event;
   } catch (error) {
@@ -819,14 +824,15 @@ export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | nul
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| **Patient link via username/password** | Email one-time link (token) | GDPR/LGPD 2018+ | Eliminates password breach risk, faster patient onboarding |
-| **Synchronous gov API calls** | Async queue + scheduled processor | SOAP 2015, modern cloud | Decouples patient UX from gov API latency, better reliability |
-| **Manual audit trail (spreadsheet)** | Immutable Firestore + GCP Cloud Logging | RDC 978 Art. 204 (2025) | Tamper-proof, searchable, compliant with forensics requirements |
-| **Client-side data filtering** | Server-side Firestore Rules enforcement | OWASP Top 10 2021 | Prevents cross-patient data leaks, enforceable at DB layer |
+| Old Approach                           | Current Approach                        | When Changed            | Impact                                                          |
+| -------------------------------------- | --------------------------------------- | ----------------------- | --------------------------------------------------------------- |
+| **Patient link via username/password** | Email one-time link (token)             | GDPR/LGPD 2018+         | Eliminates password breach risk, faster patient onboarding      |
+| **Synchronous gov API calls**          | Async queue + scheduled processor       | SOAP 2015, modern cloud | Decouples patient UX from gov API latency, better reliability   |
+| **Manual audit trail (spreadsheet)**   | Immutable Firestore + GCP Cloud Logging | RDC 978 Art. 204 (2025) | Tamper-proof, searchable, compliant with forensics requirements |
+| **Client-side data filtering**         | Server-side Firestore Rules enforcement | OWASP Top 10 2021       | Prevents cross-patient data leaks, enforceable at DB layer      |
 
 **Deprecated/outdated:**
+
 - **Hardcoded API credentials:** Use Cloud Secret Manager instead (ADR-0018, 2026-05-07)
 - **Manual SMTP email:** Use Firebase Extension (SendGrid) — DKIM/SPF/bounce handling built-in
 - **Custom JWT codec:** Use Firebase Auth JWT or `jsonwebtoken` npm lib — standard claims, expiry validation
@@ -835,13 +841,13 @@ export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | nul
 
 ## Assumptions Log
 
-| # | Claim | Section | Risk if Wrong |
-|---|-------|---------|---------------|
-| **A1** | Email is reliable transport for laudo links (7-day window acceptable for patient access) | Patient Portal Regulatory Framework | If email system fails, patient can't access results → RDC 167 breach. Mitigated: SendGrid reliability + bounce handling. |
-| **A2** | NOTIVISA sandbox API will be available for testing (Portaria 204 compliance proof) | NOTIVISA Regulatory Framework | If gov API inaccessible, v1.5 production transition blocked. Mitigated: Contact auditor + Anvisa before Phase 5. |
-| **A3** | CPF hashing HMAC-SHA256 is sufficient (vs. bcrypt) for PII hashing | Security Domain | If hash is compromised, CPF reverse-engineering possible (unlikely with HMAC). Mitigated: Secret rotation via ADR-0018. |
-| **A4** | Firestore Rules immutability (deny-by-default delete) is audit-proof for DICQ 4.4 | Validation Architecture | If GCP Cloud Logging is compromised, audit trail could be deleted. Mitigated: Cloud Logging sink to separate project (v1.5 hardening). |
-| **A5** | Patient portal data isolation can be achieved without explicit consent UI (DL-3 LGPD deferral) | User Constraints | If auditor requires affirmative consent, Phase 4 design breaks. Mitigated: Consent UI deferred to Phase 5 + LGPD v1.1 patch (ADR-0020). |
+| #      | Claim                                                                                          | Section                             | Risk if Wrong                                                                                                                           |
+| ------ | ---------------------------------------------------------------------------------------------- | ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| **A1** | Email is reliable transport for laudo links (7-day window acceptable for patient access)       | Patient Portal Regulatory Framework | If email system fails, patient can't access results → RDC 167 breach. Mitigated: SendGrid reliability + bounce handling.                |
+| **A2** | NOTIVISA sandbox API will be available for testing (Portaria 204 compliance proof)             | NOTIVISA Regulatory Framework       | If gov API inaccessible, v1.5 production transition blocked. Mitigated: Contact auditor + Anvisa before Phase 5.                        |
+| **A3** | CPF hashing HMAC-SHA256 is sufficient (vs. bcrypt) for PII hashing                             | Security Domain                     | If hash is compromised, CPF reverse-engineering possible (unlikely with HMAC). Mitigated: Secret rotation via ADR-0018.                 |
+| **A4** | Firestore Rules immutability (deny-by-default delete) is audit-proof for DICQ 4.4              | Validation Architecture             | If GCP Cloud Logging is compromised, audit trail could be deleted. Mitigated: Cloud Logging sink to separate project (v1.5 hardening).  |
+| **A5** | Patient portal data isolation can be achieved without explicit consent UI (DL-3 LGPD deferral) | User Constraints                    | If auditor requires affirmative consent, Phase 4 design breaks. Mitigated: Consent UI deferred to Phase 5 + LGPD v1.1 patch (ADR-0020). |
 
 **If this table is empty:** No assumptions — all claims verified or cited.
 
@@ -878,16 +884,16 @@ export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | nul
 
 ## Environment Availability
 
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| **Firebase Cloud Functions** | NOTIVISA queue, callables | ✓ | v12.x | — |
-| **Cloud Scheduler** | NOTIVISA cron trigger | ✓ | native GCP | — |
-| **Cloud Secret Manager** | NOTIVISA API key storage | ✓ | native GCP | — |
-| **SendGrid API** | Email delivery | ✓ (Firebase Extension) | v3.x | Fallback: nodemailer + Gmail SMTP (worse reliability) |
-| **Node.js crypto** | HMAC-SHA256, token generation | ✓ (built-in) | v22 (HC Quality standard) | — |
-| **Firestore Rules** | Access control | ✓ | v1 | — |
-| **Cloud Logging** | Audit trail sink + monitoring | ✓ | native GCP | — |
-| **Portaria 204 NOTIVISA Sandbox** | API integration testing | ✓ (gov-provided) | current | Contact Anvisa (lower priority — Phase 5 gates actual submission) |
+| Dependency                        | Required By                   | Available              | Version                   | Fallback                                                          |
+| --------------------------------- | ----------------------------- | ---------------------- | ------------------------- | ----------------------------------------------------------------- |
+| **Firebase Cloud Functions**      | NOTIVISA queue, callables     | ✓                      | v12.x                     | —                                                                 |
+| **Cloud Scheduler**               | NOTIVISA cron trigger         | ✓                      | native GCP                | —                                                                 |
+| **Cloud Secret Manager**          | NOTIVISA API key storage      | ✓                      | native GCP                | —                                                                 |
+| **SendGrid API**                  | Email delivery                | ✓ (Firebase Extension) | v3.x                      | Fallback: nodemailer + Gmail SMTP (worse reliability)             |
+| **Node.js crypto**                | HMAC-SHA256, token generation | ✓ (built-in)           | v22 (HC Quality standard) | —                                                                 |
+| **Firestore Rules**               | Access control                | ✓                      | v1                        | —                                                                 |
+| **Cloud Logging**                 | Audit trail sink + monitoring | ✓                      | native GCP                | —                                                                 |
+| **Portaria 204 NOTIVISA Sandbox** | API integration testing       | ✓ (gov-provided)       | current                   | Contact Anvisa (lower priority — Phase 5 gates actual submission) |
 
 **Missing dependencies with no fallback:** None — all critical dependencies are either built-in or standard.
 
@@ -898,6 +904,7 @@ export function validateAndQueueNotiVisaEvent(laudo: Laudo): NotiVisaEvent | nul
 If execution begins imminently, here are 4 task outlines (detailed plans follow in separate PLAN files):
 
 ### **04-01: Patient Portal Auth + Callables**
+
 - **Goals:** Implement email-link authentication (token generation → JWT session → laudo list fetch)
 - **Dependencies:** Phase 3 schema (portal-configuracao, patientSessions live)
 - **Deliverables:** 3 callables (generatePortalLink, validatePatientToken, downloadLaudoPDF) + Firestore Rules (patient read isolation)
@@ -906,6 +913,7 @@ If execution begins imminently, here are 4 task outlines (detailed plans follow 
 - **Owner:** Backend/Cloud Functions engineer
 
 ### **04-02: Portal UI Components + Responsive Design**
+
 - **Goals:** Build dark-first, world-class portal UI (login page, laudo list, detail, PDF viewer)
 - **Dependencies:** 04-01 callables complete + design tokens finalized
 - **Deliverables:** 5 components (PortalLayout, LaudoCard, LaudoDetailPage, etc.) + WCAG AA verification + Storybook
@@ -914,6 +922,7 @@ If execution begins imminently, here are 4 task outlines (detailed plans follow 
 - **Owner:** Frontend/UI engineer
 
 ### **04-03: NOTIVISA Queue Processor + Integration**
+
 - **Goals:** Implement async queue (on laudo publish) + hourly cron drain (with retry logic + API calls)
 - **Dependencies:** Phase 3 schema (notivisa-outbox live) + NOTIVISA sandbox API access
 - **Deliverables:** 2 triggers (onLaudoPublished, processNotiVisaQueue) + retry logic + Firestore Rules (queue immutability)
@@ -922,6 +931,7 @@ If execution begins imminently, here are 4 task outlines (detailed plans follow 
 - **Owner:** Backend/Cloud Functions engineer (Stream A, parallel to 04-01/02)
 
 ### **04-04: E2E Testing + Cloud Logs Validation**
+
 - **Goals:** Verify portal auth → laudo access + NOTIVISA queue processing; set up 24h monitoring
 - **Dependencies:** 04-01 + 04-02 + 04-03 complete in staging
 - **Deliverables:** 6 E2E flows (critical paths) + Cloud Logs sink + alert policies + smoke test checklist
@@ -959,6 +969,7 @@ If execution begins imminently, here are 4 task outlines (detailed plans follow 
 ## Metadata
 
 **Confidence breakdown:**
+
 - **Standard Stack:** HIGH — Firebase + React + Zod all proven in HC Quality, NOTIVISA schema designed Phase 3
 - **Architecture:** HIGH — Email-link + JWT session + Rules isolation are established patterns (OWASP, healthcare standards)
 - **Pitfalls:** HIGH — Tested against real patient data scenarios (CPF spoofing, token reuse, audit tampering)
@@ -973,6 +984,7 @@ If execution begins imminently, here are 4 task outlines (detailed plans follow 
 ## CONTEXT for Planner
 
 This research supports the planner in creating 4 task plans (04-01, 04-02, 04-03, 04-04) with:
+
 - Locked decisions (email-link auth, sandbox NOTIVISA, CPF-based isolation)
 - Precise scope (3 callables, 5 React components, 2 triggers, 6 E2E flows)
 - Regulatory guardrails (RDC 167, DICQ 4.4, LGPD 18)

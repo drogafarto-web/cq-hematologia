@@ -17,7 +17,7 @@ export interface RCAValidationResult {
 /** RCA generation heuristic result */
 export interface RCAHeuristicResult {
   causaRaizSugerida: string;
-  confianca: number;     // 0.0-1.0
+  confianca: number; // 0.0-1.0
 }
 
 /** RCA template for guided analysis */

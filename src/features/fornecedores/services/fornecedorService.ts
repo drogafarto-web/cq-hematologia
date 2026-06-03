@@ -257,10 +257,7 @@ export async function findFornecedorByCnpj(
  * Conta notas fiscais vinculadas ao fornecedor. Usado como gate pra permitir
  * hard-delete (só quando == 0).
  */
-export async function countNotasByFornecedor(
-  labId: string,
-  fornecedorId: string,
-): Promise<number> {
+export async function countNotasByFornecedor(labId: string, fornecedorId: string): Promise<number> {
   try {
     const notasCol = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.NOTAS_FISCAIS);
     const q = query(notasCol, where('fornecedorId', '==', fornecedorId));

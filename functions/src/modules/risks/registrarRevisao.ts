@@ -12,7 +12,12 @@
 
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { RegistrarRevisaoInputSchema, validateAndComputeNPR, assertRisksAccess, risksCollection } from './validators';
+import {
+  RegistrarRevisaoInputSchema,
+  validateAndComputeNPR,
+  assertRisksAccess,
+  risksCollection,
+} from './validators';
 import { generateRisksSignatureServer } from './signatureCanonical';
 
 export const risks_registrarRevisao = onCall(
@@ -83,7 +88,7 @@ export const risks_registrarRevisao = onCall(
       // mantido, reduzido: reschedule review for 365d from now
       const nextReviewDate = new admin.firestore.Timestamp(
         now.seconds + 365 * 24 * 60 * 60,
-        now.nanoseconds
+        now.nanoseconds,
       );
       updates.reviewDate = nextReviewDate;
     }

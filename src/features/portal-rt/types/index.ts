@@ -4,7 +4,12 @@
  * Responsible Technician (RT) dashboard types for operational QC hub.
  */
 
-export type PortalRTSectionType = 'dashboard' | 'criticos' | 'resultados' | 'compliance' | 'configuracao';
+export type PortalRTSectionType =
+  | 'dashboard'
+  | 'criticos'
+  | 'resultados'
+  | 'compliance'
+  | 'configuracao';
 
 export interface PortalRTState {
   activeSection: PortalRTSectionType;

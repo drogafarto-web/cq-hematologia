@@ -101,9 +101,7 @@ export const turnos_supervisorCheckout = onCall<unknown, Promise<CheckoutResult>
     // Compute chainHash from prior presenca-event
     const eventsCol = presencaEventsCol(db, input.labId, input.turnoId);
     const lastEventQ = await eventsCol.orderBy('timestamp', 'desc').limit(1).get();
-    const prevHash = lastEventQ.empty
-      ? null
-      : (lastEventQ.docs[0].data()['chainHash'] as string);
+    const prevHash = lastEventQ.empty ? null : (lastEventQ.docs[0].data()['chainHash'] as string);
 
     const eventCanon = JSON.stringify({
       tipo: 'checkout',

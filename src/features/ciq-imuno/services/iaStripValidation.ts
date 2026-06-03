@@ -84,7 +84,7 @@ export function fuzzyMatch(a: string, b: string): number {
       matrix[i][j] = Math.min(
         matrix[i][j - 1] + 1, // deletion
         matrix[i - 1][j] + 1, // insertion
-        matrix[i - 1][j - 1] + cost // substitution
+        matrix[i - 1][j - 1] + cost, // substitution
       );
     }
   }
@@ -105,7 +105,7 @@ export function fuzzyMatch(a: string, b: string): number {
 export function validateStripResult(
   parsed: StripParseResult,
   expectedAnalytes: string[],
-  unitDictionary: Record<string, string[]> = {}
+  unitDictionary: Record<string, string[]> = {},
 ): ValidatedAnalyte[] {
   return parsed.analytes.map((analyte) => {
     const flags: ValidatedAnalyte['flags'] = [];

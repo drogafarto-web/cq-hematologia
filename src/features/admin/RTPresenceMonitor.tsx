@@ -203,9 +203,7 @@ export const RTPresenceMonitor: React.FC<RTPresenceMonitorProps> = ({
     <div className="p-6 space-y-6">
       <div>
         <h2 className="text-lg font-semibold text-white/90">Monitoramento de Presença de RT</h2>
-        <p className="text-sm text-white/50 mt-1">
-          RDC 978/2025 Art. 22 — Status em tempo real
-        </p>
+        <p className="text-sm text-white/50 mt-1">RDC 978/2025 Art. 22 — Status em tempo real</p>
       </div>
 
       {/* Filters */}
@@ -239,9 +237,10 @@ export const RTPresenceMonitor: React.FC<RTPresenceMonitorProps> = ({
           }`}
         >
           Expirados (
-          {presenceRecords.filter(
-            (r) => !r.hasActiveRT || (r.expiresAt && r.expiresAt <= now)
-          ).length}
+          {
+            presenceRecords.filter((r) => !r.hasActiveRT || (r.expiresAt && r.expiresAt <= now))
+              .length
+          }
           )
         </button>
       </div>

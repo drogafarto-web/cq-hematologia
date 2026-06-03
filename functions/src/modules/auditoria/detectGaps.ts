@@ -47,8 +47,7 @@ interface GapDetection {
 
 function monthsSince(date: Date): number {
   const now = new Date();
-  return (now.getFullYear() - date.getFullYear()) * 12 +
-    (now.getMonth() - date.getMonth());
+  return (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
 }
 
 function daysSince(date: Date): number {
@@ -77,7 +76,8 @@ async function detectFornecedorGaps(labId: string): Promise<GapDetection[]> {
         moduloOrigem: 'fornecedores',
         descricao: `Fornecedor "${data.nome || doc.id}" nunca foi avaliado.`,
         severidade: 'alta',
-        recomendacao: 'Realizar avaliação inicial do fornecedor conforme procedimento de qualificação.',
+        recomendacao:
+          'Realizar avaliação inicial do fornecedor conforme procedimento de qualificação.',
         indicadorRelacionado: 'fornecedor.avaliacao',
       });
     } else if (monthsSince(ultimaAvaliacao) > 12) {
@@ -85,7 +85,8 @@ async function detectFornecedorGaps(labId: string): Promise<GapDetection[]> {
         moduloOrigem: 'fornecedores',
         descricao: `Fornecedor "${data.nome || doc.id}" com avaliação vencida (${monthsSince(ultimaAvaliacao)} meses).`,
         severidade: 'media',
-        recomendacao: 'Programar reavaliação do fornecedor. Prazo máximo: 12 meses entre avaliações.',
+        recomendacao:
+          'Programar reavaliação do fornecedor. Prazo máximo: 12 meses entre avaliações.',
         indicadorRelacionado: 'fornecedor.avaliacao',
       });
     }
@@ -113,7 +114,8 @@ async function detectEquipamentoGaps(labId: string): Promise<GapDetection[]> {
         moduloOrigem: 'equipamentos',
         descricao: `Certificado de calibração "${data.numero || doc.id}" vencido desde ${validade.toLocaleDateString('pt-BR')}.`,
         severidade: 'critica',
-        recomendacao: 'Equipamento com calibração vencida não deve ser utilizado. Providenciar recalibração imediata.',
+        recomendacao:
+          'Equipamento com calibração vencida não deve ser utilizado. Providenciar recalibração imediata.',
         indicadorRelacionado: 'calibracao.validade',
       });
     }
@@ -127,15 +129,16 @@ async function detectEquipamentoGaps(labId: string): Promise<GapDetection[]> {
 
   for (const doc of equipSnap.docs) {
     const data = doc.data();
-    const proximaManutencao = data.proximaManutencao?.toDate?.()
-      ?? data.dataProximaManutencao?.toDate?.();
+    const proximaManutencao =
+      data.proximaManutencao?.toDate?.() ?? data.dataProximaManutencao?.toDate?.();
 
     if (proximaManutencao && proximaManutencao < now) {
       gaps.push({
         moduloOrigem: 'equipamentos',
         descricao: `Equipamento "${data.nome || doc.id}" com manutenção atrasada desde ${proximaManutencao.toLocaleDateString('pt-BR')}.`,
         severidade: 'alta',
-        recomendacao: 'Realizar manutenção preventiva conforme calendário. Avaliar impacto nos resultados.',
+        recomendacao:
+          'Realizar manutenção preventiva conforme calendário. Avaliar impacto nos resultados.',
         indicadorRelacionado: 'equipamento.manutencao',
       });
     }
@@ -203,8 +206,7 @@ async function detectDocumentoGaps(labId: string): Promise<GapDetection[]> {
 
   for (const doc of docSnap.docs) {
     const data = doc.data();
-    const proximaRevisao = data.proximaRevisao?.toDate?.()
-      ?? data.dataProximaRevisao?.toDate?.();
+    const proximaRevisao = data.proximaRevisao?.toDate?.() ?? data.dataProximaRevisao?.toDate?.();
 
     if (proximaRevisao && proximaRevisao < now) {
       const mesesAtraso = monthsSince(proximaRevisao);
@@ -212,7 +214,8 @@ async function detectDocumentoGaps(labId: string): Promise<GapDetection[]> {
         moduloOrigem: 'documentos',
         descricao: `Documento "${data.titulo || doc.id}" com revisão vencida há ${mesesAtraso} mês(es).`,
         severidade: mesesAtraso > 6 ? 'alta' : 'media',
-        recomendacao: 'Revisar documento conforme ciclo estabelecido. Verificar se versão em uso está atualizada.',
+        recomendacao:
+          'Revisar documento conforme ciclo estabelecido. Verificar se versão em uso está atualizada.',
         indicadorRelacionado: 'documento.revisao',
       });
     }
@@ -235,15 +238,15 @@ async function detectRiscoGaps(labId: string): Promise<GapDetection[]> {
       moduloOrigem: 'riscos',
       descricao: 'Mapa de riscos não encontrado no sistema.',
       severidade: 'critica',
-      recomendacao: 'Elaborar mapa de riscos conforme requisitos da norma. Item obrigatório para acreditação.',
+      recomendacao:
+        'Elaborar mapa de riscos conforme requisitos da norma. Item obrigatório para acreditação.',
       indicadorRelacionado: 'risco.mapa',
     });
     return gaps;
   }
 
   const riscoData = riscoSnap.docs[0].data();
-  const ultimaRevisao = riscoData.ultimaRevisao?.toDate?.()
-    ?? riscoData.dataRevisao?.toDate?.();
+  const ultimaRevisao = riscoData.ultimaRevisao?.toDate?.() ?? riscoData.dataRevisao?.toDate?.();
 
   if (!ultimaRevisao) {
     gaps.push({
@@ -285,7 +288,8 @@ async function detectNCGaps(labId: string): Promise<GapDetection[]> {
         moduloOrigem: 'naoConformidades',
         descricao: `NC "${data.titulo || doc.id}" aberta há ${dias} dias sem tratamento.`,
         severidade: dias > 90 ? 'critica' : dias > 60 ? 'alta' : 'media',
-        recomendacao: 'Tratar não conformidade com análise de causa raiz e ação corretiva. Prazo máximo recomendado: 30 dias.',
+        recomendacao:
+          'Tratar não conformidade com análise de causa raiz e ação corretiva. Prazo máximo recomendado: 30 dias.',
         indicadorRelacionado: 'nc.tratamento',
       });
     }
@@ -325,21 +329,15 @@ export const detectGaps = onCall(
 
     try {
       // Run all gap detections in parallel
-      const [
-        fornecedorGaps,
-        equipamentoGaps,
-        treinamentoGaps,
-        documentoGaps,
-        riscoGaps,
-        ncGaps,
-      ] = await Promise.all([
-        detectFornecedorGaps(input.labId),
-        detectEquipamentoGaps(input.labId),
-        detectTreinamentoGaps(input.labId),
-        detectDocumentoGaps(input.labId),
-        detectRiscoGaps(input.labId),
-        detectNCGaps(input.labId),
-      ]);
+      const [fornecedorGaps, equipamentoGaps, treinamentoGaps, documentoGaps, riscoGaps, ncGaps] =
+        await Promise.all([
+          detectFornecedorGaps(input.labId),
+          detectEquipamentoGaps(input.labId),
+          detectTreinamentoGaps(input.labId),
+          detectDocumentoGaps(input.labId),
+          detectRiscoGaps(input.labId),
+          detectNCGaps(input.labId),
+        ]);
 
       const allGaps: GapDetection[] = [
         ...fornecedorGaps,
@@ -364,5 +362,5 @@ export const detectGaps = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao detectar gaps');
     }
-  }
+  },
 );

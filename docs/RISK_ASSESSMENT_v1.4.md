@@ -15,6 +15,7 @@
 **Severity:** Medium (not critical; new code uses v1.4 path)
 
 **Mitigation:**
+
 - [x] New callables use `functions/src/modules/notivisa/**` only (v1.4)
 - [x] Legacy path documented for Phase 6 hard delete (migration guide Wave 3.6)
 - [x] Code review: check imports (no `from 'notivisa-legacy'`)
@@ -33,6 +34,7 @@
 **Severity:** Low (DPIA enforced in code; only approval is pending)
 
 **Mitigation:**
+
 - [x] DPIA v1.1 signed & functional (covers Gemini Vision, Resend email, patient data exports)
 - [x] All consent gates + audit logging implemented per DPIA requirements
 - [ ] Phase 5: Final v2.0 sign-off post-UAT (customer sign-off gate)
@@ -50,6 +52,7 @@
 **Severity:** Low (idempotent; safe to re-run)
 
 **Mitigation:**
+
 - [x] Bootstrap script is fully idempotent (safe to run multiple times)
 - [x] Dry-run mode (`--dry-run`) for verification
 - [x] Pre-flight check: `scripts/preflight-secrets-check.sh`
@@ -69,6 +72,7 @@
 **Severity:** Very low (cryptographically negligible)
 
 **Mitigation:**
+
 - [x] Token includes: patientId + email + expiryTimestamp + HMAC (unique per patient + time)
 - [x] Collision probability: <10^-77 (beyond any practical concern)
 - [x] Non-threat at scale (even 1 billion patients, collision risk = 0)
@@ -84,6 +88,7 @@
 **Severity:** Medium (degrades performance, not data loss)
 
 **Mitigation:**
+
 - [x] Cache: OCR results cached 1h per image SHA256 (prevent re-processing)
 - [x] Rate limit: Cloud Function callable rate-limited (100 OCR requests/hour per lab)
 - [x] Fallback: Manual entry always available (no blocking)
@@ -103,6 +108,7 @@
 **Severity:** Low (caught by dry-run before deploy)
 
 **Mitigation:**
+
 - [x] Rules dry-run: `firebase deploy --dry-run` (no changes without clean check)
 - [x] Manual review: 2 engineers reviewed all new rules blocks (ADR-0032, 0033, 0034)
 - [x] Test: E2E tests verify RT-only access (portal-rt reads blocked for non-RT)
@@ -119,6 +125,7 @@
 **Severity:** Medium (poor UX, not data loss)
 
 **Mitigation:**
+
 - [x] Resend: Industry-standard email provider (99.9% SLA)
 - [x] Backup: If Resend fails, error returned to patient (explicit "Email could not be sent; contact support")
 - [x] Audit: All export attempts logged (can resend manually if needed)
@@ -137,6 +144,7 @@
 **Severity:** Medium (patient safety risk if undetected)
 
 **Mitigation:**
+
 - [x] Operator review: Form shows OCR-parsed values; operator must click "Confirm" (not auto-submit)
 - [x] Manual override: Operator can change any value before saving
 - [x] Fallback: If OCR accuracy <80%, show manual entry form instead (Gemini confidence score checked)
@@ -157,6 +165,7 @@
 **Severity:** Medium (Phase 6 blocker)
 
 **Mitigation:**
+
 - [x] Payload schema: Validated against Portaria 204/2017 spec (immutable government requirement)
 - [x] Request/response tests: 6 integration tests cover all payload variations
 - [x] Versioning: Callable version param allows future API version negotiation
@@ -176,6 +185,7 @@
 **Severity:** Low (currently <100 labs, each with 1–5 RTs; scale issue Phase 8+)
 
 **Mitigation:**
+
 - [x] Listener cleanup: Every hook returns unsubscribe function (tested in cleanup tests)
 - [x] Monitoring: Cloud Logs tracks active listeners (alert if >1,000)
 - [x] Stress test: E2E suite verified with 10 concurrent listeners (passed)
@@ -189,18 +199,18 @@
 
 ## Risk Matrix
 
-| Risk | Severity | Probability | Detectability | RPN | Mitigation |
-|------|----------|-------------|----------------|-----|-----------|
-| NOTIVISA legacy coexistence | 3 | 2 (unlikely if no bad import) | 1 (easy: code review) | 6 | Phase 6 delete |
-| DPIA draft status | 2 | 1 (low: approval TBD) | 1 (easy: doc review) | 2 | Phase 5 sign-off |
-| Bootstrap execution order | 2 | 1 (low: idempotent) | 2 (med: error message) | 4 | Re-run script |
-| Email token collision | 1 | 0 (negligible) | 3 (hard: audit log) | 0 | Accepted |
-| Gemini quota exhaustion | 2 | 2 (possible surge) | 2 (med: alert) | 8 | Fallback + Phase 5 queue |
-| Firestore rules regression | 2 | 1 (low: dry-run check) | 1 (easy: E2E test) | 2 | Deploy gate |
-| Email delivery failure | 2 | 1 (low: 99.9% SLA) | 1 (easy: error state) | 2 | Error handling |
-| OCR accuracy | 3 | 2 (possible w/ faded strips) | 1 (easy: operator review) | 6 | Operator override |
-| NOTIVISA sandbox API change | 3 | 2 (possible gov change) | 2 (med: payload test) | 12 | Phase 5–6 verify |
-| Performance listener leak | 2 | 1 (low: current scale) | 2 (med: logs) | 4 | Phase 7+ pooling |
+| Risk                        | Severity | Probability                   | Detectability             | RPN | Mitigation               |
+| --------------------------- | -------- | ----------------------------- | ------------------------- | --- | ------------------------ |
+| NOTIVISA legacy coexistence | 3        | 2 (unlikely if no bad import) | 1 (easy: code review)     | 6   | Phase 6 delete           |
+| DPIA draft status           | 2        | 1 (low: approval TBD)         | 1 (easy: doc review)      | 2   | Phase 5 sign-off         |
+| Bootstrap execution order   | 2        | 1 (low: idempotent)           | 2 (med: error message)    | 4   | Re-run script            |
+| Email token collision       | 1        | 0 (negligible)                | 3 (hard: audit log)       | 0   | Accepted                 |
+| Gemini quota exhaustion     | 2        | 2 (possible surge)            | 2 (med: alert)            | 8   | Fallback + Phase 5 queue |
+| Firestore rules regression  | 2        | 1 (low: dry-run check)        | 1 (easy: E2E test)        | 2   | Deploy gate              |
+| Email delivery failure      | 2        | 1 (low: 99.9% SLA)            | 1 (easy: error state)     | 2   | Error handling           |
+| OCR accuracy                | 3        | 2 (possible w/ faded strips)  | 1 (easy: operator review) | 6   | Operator override        |
+| NOTIVISA sandbox API change | 3        | 2 (possible gov change)       | 2 (med: payload test)     | 12  | Phase 5–6 verify         |
+| Performance listener leak   | 2        | 1 (low: current scale)        | 2 (med: logs)             | 4   | Phase 7+ pooling         |
 
 **Legend:** 1=Low, 2=Medium, 3=High · RPN = Severity × Probability × (3-Detectability)
 
@@ -210,11 +220,11 @@
 
 **All risks assessed and mitigated. Safe to deploy to production.**
 
-| Role | Approval | Date |
-|------|----------|------|
-| **CTO** | ✅ Approved | 2026-05-08 |
+| Role           | Approval    | Date       |
+| -------------- | ----------- | ---------- |
+| **CTO**        | ✅ Approved | 2026-05-08 |
 | **Compliance** | ✅ Approved | 2026-05-08 |
-| **Security** | ✅ Approved | 2026-05-08 |
+| **Security**   | ✅ Approved | 2026-05-08 |
 
 ---
 
@@ -226,6 +236,7 @@
 **Phase 7+:** Monitor risk #10 (scale)
 
 **Alert Thresholds:**
+
 - Rule rejections: >100/hour
 - Gemini errors: >5/hour
 - Email failures: >10/day

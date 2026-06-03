@@ -10,12 +10,7 @@
  * Decisão CTO 2026-04-21 — Fase B1.
  */
 
-export type FrequencyType =
-  | 'diaria'
-  | 'semanal'
-  | 'quinzenal'
-  | 'mensal'
-  | 'custom';
+export type FrequencyType = 'diaria' | 'semanal' | 'quinzenal' | 'mensal' | 'custom';
 
 export interface FrequencyConfig {
   frequencyType: FrequencyType;
@@ -76,9 +71,7 @@ export function formatFrequencyConfig(c: FrequencyConfig): string {
  */
 export function frequencyToDays(c: FrequencyConfig): number | null {
   if (c.frequencyType === 'custom') {
-    return typeof c.frequencyDays === 'number' &&
-      c.frequencyDays >= 1 &&
-      c.frequencyDays <= 180
+    return typeof c.frequencyDays === 'number' && c.frequencyDays >= 1 && c.frequencyDays <= 180
       ? c.frequencyDays
       : null;
   }

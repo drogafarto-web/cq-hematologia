@@ -65,6 +65,6 @@ export function useReviewTemplate(year: number): UseReviewTemplateResult {
     template,
     loading,
     error,
-    ready
+    ready,
   };
 }

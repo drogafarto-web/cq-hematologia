@@ -4,22 +4,22 @@ Decisões técnicas do sistema. Este documento é fonte da verdade para todos os
 
 ## Stack
 
-| Layer | Tecnologia | Versão | Justificativa |
-|-------|-----------|--------|---------------|
-| Framework | Next.js App Router | 14.2+ | SSR, RSC, API routes integradas. DeepSeek performa excelente. |
-| Lang | TypeScript | 5.4+ strict | Type safety para dados médicos. Compilador detecta bugs. |
-| ORM | Prisma | 5.x | Migrations automáticas, type-safe queries, Studio de debugging. |
-| Database | PostgreSQL | 16 | ACID, audit log via triggers, JSONB para flexibilidade. |
-| Styling | Tailwind CSS | 3.4 | Herdado do protótipo. Utility-first. |
-| Charts | Recharts | 2.x | React-native, performático, SSR-friendly. |
-| Auth | NextAuth.js v5 (Auth.js) | beta | Middleware + JWT integrado ao Next.js. |
-| PDF | @react-pdf/renderer | 3.x | PDF declarativo em React. |
-| Excel | ExcelJS | 4.x | Export XLSX com formatação. |
-| Email | Resend | - | Alertas para supervisores, notificações. |
-| Deploy | Vercel + NeonDB | - | Zero-config. DB serverless PostgreSQL. |
-| Testing | Vitest + Playwright | latest | Unit/integration + E2E. |
-| Lint | Biome | 1.x | Rápido, substitui ESLint + Prettier. |
-| CI | GitHub Actions | - | Test + deploy automáticos. |
+| Layer     | Tecnologia               | Versão      | Justificativa                                                   |
+| --------- | ------------------------ | ----------- | --------------------------------------------------------------- |
+| Framework | Next.js App Router       | 14.2+       | SSR, RSC, API routes integradas. DeepSeek performa excelente.   |
+| Lang      | TypeScript               | 5.4+ strict | Type safety para dados médicos. Compilador detecta bugs.        |
+| ORM       | Prisma                   | 5.x         | Migrations automáticas, type-safe queries, Studio de debugging. |
+| Database  | PostgreSQL               | 16          | ACID, audit log via triggers, JSONB para flexibilidade.         |
+| Styling   | Tailwind CSS             | 3.4         | Herdado do protótipo. Utility-first.                            |
+| Charts    | Recharts                 | 2.x         | React-native, performático, SSR-friendly.                       |
+| Auth      | NextAuth.js v5 (Auth.js) | beta        | Middleware + JWT integrado ao Next.js.                          |
+| PDF       | @react-pdf/renderer      | 3.x         | PDF declarativo em React.                                       |
+| Excel     | ExcelJS                  | 4.x         | Export XLSX com formatação.                                     |
+| Email     | Resend                   | -           | Alertas para supervisores, notificações.                        |
+| Deploy    | Vercel + NeonDB          | -           | Zero-config. DB serverless PostgreSQL.                          |
+| Testing   | Vitest + Playwright      | latest      | Unit/integration + E2E.                                         |
+| Lint      | Biome                    | 1.x         | Rápido, substitui ESLint + Prettier.                            |
+| CI        | GitHub Actions           | -           | Test + deploy automáticos.                                      |
 
 ## Estrutura de Projeto
 
@@ -118,7 +118,7 @@ model Analyzer {
   archived       Boolean  @default(false)
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
-  
+
   lots           Lot[]
   qcRuns         QcRun[]
   calibrations   Calibration[]
@@ -145,7 +145,7 @@ model Calibration {
   performedBy      String?
   notes            String?
   createdAt        DateTime @default(now())
-  
+
   analyzer         Analyzer  @relation(fields: [analyzerId], references: [id])
 }
 
@@ -159,7 +159,7 @@ model Maintenance {
   outcome          MaintenanceOutcome
   nextScheduledAt  DateTime?
   createdAt        DateTime @default(now())
-  
+
   analyzer         Analyzer  @relation(fields: [analyzerId], references: [id])
 }
 
@@ -191,9 +191,9 @@ model Lot {
   updatedAt     DateTime   @updatedAt
   createdById   String
   archivedById  String?
-  
+
   uniqueLotPerLevel  String @unique // lotNumber_level
-  
+
   analyzer     Analyzer  @relation(fields: [analyzerId], references: [id])
   createdBy    User      @relation("LotCreator", fields: [createdById], references: [id])
   archivedBy   User?     @relation("LotArchiver", fields: [archivedById], references: [id])
@@ -220,10 +220,10 @@ model QcRun {
   runAt         DateTime @default(now())
   operatorId    String
   createdAt     DateTime @default(now())
-  
+
   lot           Lot      @relation(fields: [lotId], references: [id])
   operator      User     @relation(fields: [operatorId], references: [id])
-  
+
   @@index([lotId, runAt])
   @@index([operatorId, runAt])
 }
@@ -245,33 +245,33 @@ model CorrectiveAction {
   analyzer           Analyzer? @relation(fields: [equipmentId], references: [id])
   ruleViolated       String?
   status             CAStatus  @default(OPEN)
-  
+
   // Operator who opened
   operatorId         String
   operator           User      @relation("CAOperator", fields: [operatorId], references: [id])
-  
+
   // Investigator assigned
   investigatorId     String?
   investigator       User?     @relation("CAInvestigator", fields: [investigatorId], references: [id])
-  
+
   // Investigation (Section B)
   rootCause          String?
   supportingEvidence String?
-  
+
   // Action (Section C)
   actionTaken        String?
   preventiveMeasure  String?
   targetCompletionAt DateTime?
-  
+
   // Verification (Section D)
   effectivenessCheck String?
   verifiedById       String?
   verificationAt     DateTime?
-  
+
   closedAt           DateTime?
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
-  
+
   auditLogs          AuditLog[]
 }
 
@@ -293,7 +293,7 @@ model AuditLog {
   userId      String
   user        User     @relation(fields: [userId], references: [id])
   createdAt   DateTime @default(now())
-  
+
   @@index([entityType, entityId])
 }
 
@@ -306,7 +306,7 @@ model Report {
   s3Key       String?  // Path to generated PDF
   generatedBy String   // User name snapshot
   generatedAt DateTime @default(now())
-  
+
   @@index([type, generatedAt])
 }
 
@@ -351,6 +351,7 @@ enum ReportType {
 Todos os endpoints sob `/api/`:
 
 ### QC Runs
+
 ```
 GET    /api/qc?lotId=xxx&limit=20     → latest QC runs
 POST   /api/qc                         → create new run
@@ -359,6 +360,7 @@ GET    /api/qc/chart?lotId=xxx&days=30 → Levey-Jennings data points
 ```
 
 ### Lots
+
 ```
 GET    /api/lots                       → list all
 POST   /api/lots                       → create
@@ -368,6 +370,7 @@ POST   /api/lots/import-pncq           → PNCQ integration
 ```
 
 ### Corrective Actions
+
 ```
 GET    /api/corrective-actions?status=OPEN  → list
 POST   /api/corrective-actions              → create
@@ -375,6 +378,7 @@ PATCH  /api/corrective-actions/:id          → update status, fields
 ```
 
 ### Analyzers
+
 ```
 GET    /api/analyzers                 → list
 POST   /api/analyzers                 → create
@@ -385,6 +389,7 @@ POST   /api/analyzers/:id/maintenance → log maintenance
 ```
 
 ### Reports
+
 ```
 POST   /api/reports/generate          → generate PDF, returns URL
 GET    /api/reports                   → list history
@@ -392,6 +397,7 @@ GET    /api/reports/:id/download/:format  → pdf | excel
 ```
 
 ### Auth
+
 ```
 POST   /api/auth/signin               → NextAuth
 POST   /api/auth/signout              → NextAuth
@@ -405,26 +411,26 @@ export function evaluateWestgard(
   value: number,
   mean: number,
   sd: number,
-  history: QcRun[] // últimos 20
+  history: QcRun[], // últimos 20
 ): { rule: string | null; isWarning: boolean; isReject: boolean } {
   const z = (value - mean) / sd;
   const absZ = Math.abs(z);
-  
+
   // 1-2S: warning
   if (absZ > 2 && absZ <= 3) {
-    return { rule: "1-2S", isWarning: true, isReject: false };
+    return { rule: '1-2S', isWarning: true, isReject: false };
   }
-  
+
   // 1-3S: reject
   if (absZ > 3) {
-    return { rule: "1-3S", isWarning: false, isReject: true };
+    return { rule: '1-3S', isWarning: false, isReject: true };
   }
-  
+
   // 2-2S: reject (2 consec > 2 SD on same side)
   // 4-1S: reject (4 consec > 1 SD on same side)
   // R-4S: reject (range > 4 SD between 2 consec)
   // 10X: reject (10 consec on same side of mean)
-  
+
   return { rule: null, isWarning: false, isReject: false };
 }
 ```
@@ -438,22 +444,22 @@ export function deriveAnalyzerStatus(analyzer: Analyzer) {
   const now = new Date();
   const lastCal = analyzer.calibrations[0];
   const calDueAt = lastCal?.nextDueAt;
-  
-  if (analyzer.status === "OUT_OF_SERVICE") return "OUT_OF_SERVICE";
-  if (!lastCal || !calDueAt) return "CAL_OVERDUE";
-  
-  if (calDueAt < now) return "CAL_OVERDUE";
-  if (daysUntil(calDueAt) <= 30) return "CAL_DUE_SOON";
-  
+
+  if (analyzer.status === 'OUT_OF_SERVICE') return 'OUT_OF_SERVICE';
+  if (!lastCal || !calDueAt) return 'CAL_OVERDUE';
+
+  if (calDueAt < now) return 'CAL_OVERDUE';
+  if (daysUntil(calDueAt) <= 30) return 'CAL_DUE_SOON';
+
   const lastMaint = analyzer.maintenances[0];
   if (lastMaint?.nextScheduledAt && lastMaint.nextScheduledAt < now) {
-    return "MAINTENANCE_OVERDUE";
+    return 'MAINTENANCE_OVERDUE';
   }
   if (lastMaint?.nextScheduledAt && daysUntil(lastMaint.nextScheduledAt) <= 30) {
-    return "MAINTENANCE_DUE";
+    return 'MAINTENANCE_DUE';
   }
-  
-  return "OPERATIONAL";
+
+  return 'OPERATIONAL';
 }
 ```
 
@@ -475,7 +481,7 @@ S3_BUCKET="qc-control-reports"
 1. **Todos os dados médicos em PostgreSQL** (não SQLite, não NoSQL)
 2. **Records são imutáveis para auditoria** — archive (soft delete) apenas
 3. **Audit log de TODAS as mutations** via middleware Prisma ou triggers DB
-4. **Auth em toda rota** — middleware bloqueia /api/* e /dashboard/* sem session
+4. **Auth em toda rota** — middleware bloqueia /api/_ e /dashboard/_ sem session
 5. **TypeScript strict** — `strict`, `strictNullChecks`, `noUncheckedIndexedAccess`
 6. **Test coverage mínima**: 80% em `/lib` (Westgard, utils), 60% em routes
 7. **No runtime type coercion** — validar tudo com Zod
@@ -496,12 +502,14 @@ S3_BUCKET="qc-control-reports"
 ## Deploy Target
 
 **Produção**:
+
 - Vercel (frontend + API routes)
 - NeonDB (serverless PostgreSQL) — free até 0.5GB
 - AWS S3 (PDF reports)
 - Resend (email)
 
 **Dev**:
+
 - Local PostgreSQL via Docker
 - Vercel CLI local
 

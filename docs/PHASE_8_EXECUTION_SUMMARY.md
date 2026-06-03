@@ -14,21 +14,22 @@ All implemented with full Zod validation, error handling, rate limiting, and aud
 
 #### Callables (HTTPS)
 
-| Callable | File | Purpose | Input | Output |
-|----------|------|---------|-------|--------|
-| `submitNotivisa` | `callables/submitNotivisa.ts` | Gateway for draft submission to queue | {labId, draftId, signature?, token?} | {ok, eventId, status, nextPollAt} |
-| `notivisaDraftCreate` | `callables/notivisaDraftCreate.ts` | Auto-draft creation from laudo | {labId, laudoId, critico?, override?} | {ok, draftId, status, payload, ts} |
-| `getNotivisaDraft` | `callables/getNotivisaDraft.ts` | Fetch draft + audit log | {labId, draftId} | {ok, draft, auditLog[], event?} |
-| `rejectNotivisaDraft` | `callables/rejectNotivisaDraft.ts` | RT rejection gate | {labId, draftId, reason, sig} | {ok, draftId, status, reason} |
-| `listNotivisaOutbox` | `callables/listNotivisaOutbox.ts` | Auditor export + pagination | {labId, filters?, format?, page?} | {ok, items[], total, pageToken?, url?} |
+| Callable              | File                               | Purpose                               | Input                                 | Output                                 |
+| --------------------- | ---------------------------------- | ------------------------------------- | ------------------------------------- | -------------------------------------- |
+| `submitNotivisa`      | `callables/submitNotivisa.ts`      | Gateway for draft submission to queue | {labId, draftId, signature?, token?}  | {ok, eventId, status, nextPollAt}      |
+| `notivisaDraftCreate` | `callables/notivisaDraftCreate.ts` | Auto-draft creation from laudo        | {labId, laudoId, critico?, override?} | {ok, draftId, status, payload, ts}     |
+| `getNotivisaDraft`    | `callables/getNotivisaDraft.ts`    | Fetch draft + audit log               | {labId, draftId}                      | {ok, draft, auditLog[], event?}        |
+| `rejectNotivisaDraft` | `callables/rejectNotivisaDraft.ts` | RT rejection gate                     | {labId, draftId, reason, sig}         | {ok, draftId, status, reason}          |
+| `listNotivisaOutbox`  | `callables/listNotivisaOutbox.ts`  | Auditor export + pagination           | {labId, filters?, format?, page?}     | {ok, items[], total, pageToken?, url?} |
 
 #### Cron Job
 
-| Job | File | Schedule | Purpose | Timeout |
-|-----|------|----------|---------|---------|
-| `notivisaStatusCheck` | `crons/notivisaStatusCheck.ts` | Every 5 minutes | Poll government API; update queue status; exponential backoff | 120s |
+| Job                   | File                           | Schedule        | Purpose                                                       | Timeout |
+| --------------------- | ------------------------------ | --------------- | ------------------------------------------------------------- | ------- |
+| `notivisaStatusCheck` | `crons/notivisaStatusCheck.ts` | Every 5 minutes | Poll government API; update queue status; exponential backoff | 120s    |
 
 **Totals:**
+
 - ~2,500 LOC production code
 - Full Zod schemas + error handling
 - Rate limiting (10/hour per lab)
@@ -55,6 +56,7 @@ verifyHmac(payload, hmac, secret) → boolean
 ```
 
 **Features:**
+
 - SHA-256 hex hashing (64-char signatures)
 - Canonical JSON stringification (keys sorted)
 - Chain hash integrity (previous hash input)
@@ -108,6 +110,7 @@ Provides complete rules block for:
 ```
 
 Helper functions:
+
 - `isActiveMemberOfLab(labId)` — multi-tenant authorization
 - `isAdminOrOwner(labId)` — role-based access
 
@@ -119,18 +122,19 @@ Helper functions:
 
 All critical workflows covered:
 
-| Test | Flow | Pass Criteria |
-|------|------|---------------|
-| E2E-01 | Draft creation | Draft exists, payload valid, criadoEm set |
-| E2E-02 | RT approval | Queue event created, eventId returned, nextPollAt set |
-| E2E-03 | Audit immutability | 3+ audit entries logged, modification blocked |
-| E2E-04 | Rate limiting | 11th submission blocked with code=RATE_LIMITED |
-| E2E-05 | Idempotency | Duplicate token returns same eventId, no dupe entry |
+| Test   | Flow               | Pass Criteria                                          |
+| ------ | ------------------ | ------------------------------------------------------ |
+| E2E-01 | Draft creation     | Draft exists, payload valid, criadoEm set              |
+| E2E-02 | RT approval        | Queue event created, eventId returned, nextPollAt set  |
+| E2E-03 | Audit immutability | 3+ audit entries logged, modification blocked          |
+| E2E-04 | Rate limiting      | 11th submission blocked with code=RATE_LIMITED         |
+| E2E-05 | Idempotency        | Duplicate token returns same eventId, no dupe entry    |
 | E2E-06 | Government polling | Status updated (acknowledged/rejected) on API response |
-| E2E-07 | Error recovery | Transient error → retry with backoff, nextRetry set |
-| E2E-08 | Authorization | Non-RT users rejected from submit/reject operations |
+| E2E-07 | Error recovery     | Transient error → retry with backoff, nextRetry set    |
+| E2E-08 | Authorization      | Non-RT users rejected from submit/reject operations    |
 
 **Test execution:**
+
 ```bash
 npm test -- __tests__/integration/notivisa-e2e.test.ts
 # Expected: 8/8 PASS
@@ -170,6 +174,7 @@ Day 8 (Jun 16): Production deploy + smoke test
 ## Code Locations
 
 **Cloud Functions:**
+
 ```
 functions/src/
 ├── modules/notivisa/
@@ -192,6 +197,7 @@ functions/src/
 ```
 
 **Documentation:**
+
 ```
 docs/
 ├── PHASE_8_DETAILED_PLAN.md           (existing — 1,500 LOC spec)
@@ -243,10 +249,13 @@ Per-lab sliding window (10/hour):
 
 ```typescript
 const oneHourAgo = Date.now() - 3600000;
-const count = await db.collection('notivisa-queue').doc(labId)
+const count = await db
+  .collection('notivisa-queue')
+  .doc(labId)
   .collection('events')
   .where('createdAt', '>=', oneHourAgo)
-  .count().get();
+  .count()
+  .get();
 if (count >= 10) throw RESOURCE_EXHAUSTED;
 ```
 
@@ -271,7 +280,9 @@ Config per lab, max 5 attempts default.
 UUID tokens prevent duplicate submissions:
 
 ```typescript
-const existing = await db.collection('notivisa-queue').doc(labId)
+const existing = await db
+  .collection('notivisa-queue')
+  .doc(labId)
   .collection('events')
   .where('idempotencyToken', '==', token)
   .where('status', 'in', ['pending', 'sent', 'acknowledged'])
@@ -315,9 +326,10 @@ Preserves audit trail; archival handles pruning.
 const endpoint = 'https://sandbox.notivisa.gov.br/api/v1/';
 
 // v1.5: Production (certificate + real endpoint)
-const endpoint = process.env.NODE_ENV === 'production'
-  ? 'https://notivisa.saude.gov.br/api/v1/'
-  : 'https://sandbox.notivisa.gov.br/api/v1/';
+const endpoint =
+  process.env.NODE_ENV === 'production'
+    ? 'https://notivisa.saude.gov.br/api/v1/'
+    : 'https://sandbox.notivisa.gov.br/api/v1/';
 ```
 
 No schema changes, no queue refactor. Clean upgrade path.
@@ -326,17 +338,17 @@ No schema changes, no queue refactor. Clean upgrade path.
 
 ## Compliance Mapping
 
-| Regulation | Article | Requirement | Implementation |
-|-----------|---------|-------------|-----------------|
-| **RDC 978** | Art. 6º §1 | NOTIVISA notification | Draft form generation (v1.4) |
-| **RDC 978** | Art. 66 | Notify MS of critical results | Auto-draft on critico (Phase 10) |
-| **RDC 978** | Art. 167 | Laudo release audit trail | auditLog subcollection |
-| **RDC 978** | Art. 204 | Audit trail of critical decisions | LogicalSignature chain hash |
-| **Portaria 204/2016** | Art. 6º | Mandatory fields (15) | notivisaPayloadSchema (Zod) |
-| **DICQ 4.4.1** | — | Management of adverse events | Draft → approval → audit |
-| **DICQ 4.3** | — | Documented procedures | NOTIVISA workflow procedure |
-| **LGPD** | Art. 9 | Lawful basis (health safety) | Critical health reporting |
-| **LGPD** | Art. 18 | Data subject rights | Immutable audit trail |
+| Regulation            | Article    | Requirement                       | Implementation                   |
+| --------------------- | ---------- | --------------------------------- | -------------------------------- |
+| **RDC 978**           | Art. 6º §1 | NOTIVISA notification             | Draft form generation (v1.4)     |
+| **RDC 978**           | Art. 66    | Notify MS of critical results     | Auto-draft on critico (Phase 10) |
+| **RDC 978**           | Art. 167   | Laudo release audit trail         | auditLog subcollection           |
+| **RDC 978**           | Art. 204   | Audit trail of critical decisions | LogicalSignature chain hash      |
+| **Portaria 204/2016** | Art. 6º    | Mandatory fields (15)             | notivisaPayloadSchema (Zod)      |
+| **DICQ 4.4.1**        | —          | Management of adverse events      | Draft → approval → audit         |
+| **DICQ 4.3**          | —          | Documented procedures             | NOTIVISA workflow procedure      |
+| **LGPD**              | Art. 9     | Lawful basis (health safety)      | Critical health reporting        |
+| **LGPD**              | Art. 18    | Data subject rights               | Immutable audit trail            |
 
 **DICQ gain:** +4–5 points (78.5% → ~83–84%)
 
@@ -344,14 +356,14 @@ No schema changes, no queue refactor. Clean upgrade path.
 
 ## Risk Register + Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| Gov API downtime | Medium | High | Exponential backoff + queue holds submissions; cron retries |
-| Certificate delay (v1.5 blocker) | Medium | Critical | Sandbox mode sufficient for v1.4 compliance; v1.5 deferred |
-| Duplicate submissions (network retry) | High | Medium | Idempotency tokens (UUID) prevent dupe queue entries |
-| Audit chain corruption | Very Low | Critical | Immutable rules + append-only writes; verification script (v1.5) |
-| Rate limit exhaustion | Low | Medium | Max 10/hour enforced; RT trained to stagger submissions |
-| Data leakage via CPF | Low | Critical | CPF masked in logs; full value only in encrypted payload |
+| Risk                                  | Likelihood | Impact   | Mitigation                                                       |
+| ------------------------------------- | ---------- | -------- | ---------------------------------------------------------------- |
+| Gov API downtime                      | Medium     | High     | Exponential backoff + queue holds submissions; cron retries      |
+| Certificate delay (v1.5 blocker)      | Medium     | Critical | Sandbox mode sufficient for v1.4 compliance; v1.5 deferred       |
+| Duplicate submissions (network retry) | High       | Medium   | Idempotency tokens (UUID) prevent dupe queue entries             |
+| Audit chain corruption                | Very Low   | Critical | Immutable rules + append-only writes; verification script (v1.5) |
+| Rate limit exhaustion                 | Low        | Medium   | Max 10/hour enforced; RT trained to stagger submissions          |
+| Data leakage via CPF                  | Low        | Critical | CPF masked in logs; full value only in encrypted payload         |
 
 ---
 
@@ -441,6 +453,7 @@ Phase 12+ (2026-08-31 target)
 **Status:** 🟢 **Production-ready**
 
 All code is:
+
 - ✅ Type-checked (TS 5.8+)
 - ✅ Linted (88-baseline warning tolerance)
 - ✅ Tested (8 critical E2E flows)

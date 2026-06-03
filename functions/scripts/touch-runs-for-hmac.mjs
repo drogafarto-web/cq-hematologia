@@ -35,9 +35,7 @@ async function main() {
     // Runs de hematologia — labs/{labId}/lots/{lotId}/runs
     const lotsSnap = await db.collection(`labs/${labId}/lots`).get();
     for (const lotDoc of lotsSnap.docs) {
-      const runsSnap = await db
-        .collection(`labs/${labId}/lots/${lotDoc.id}/runs`)
-        .get();
+      const runsSnap = await db.collection(`labs/${labId}/lots/${lotDoc.id}/runs`).get();
       for (const runDoc of runsSnap.docs) {
         if (runDoc.data().serverHmac) continue;
         queue.push({ ref: runDoc.ref, kind: 'hematologia-run', docId: runDoc.id });
@@ -47,9 +45,7 @@ async function main() {
     // Runs de imuno — labs/{labId}/ciq-imuno/{lotId}/runs
     const ciqSnap = await db.collection(`labs/${labId}/ciq-imuno`).get();
     for (const lotDoc of ciqSnap.docs) {
-      const runsSnap = await db
-        .collection(`labs/${labId}/ciq-imuno/${lotDoc.id}/runs`)
-        .get();
+      const runsSnap = await db.collection(`labs/${labId}/ciq-imuno/${lotDoc.id}/runs`).get();
       for (const runDoc of runsSnap.docs) {
         if (runDoc.data().serverHmac) continue;
         queue.push({ ref: runDoc.ref, kind: 'imuno-run', docId: runDoc.id });

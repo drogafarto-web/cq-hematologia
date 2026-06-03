@@ -15,6 +15,7 @@ This index consolidates all Phase 4 deployment readiness artifacts. Select the d
 **Start here:** [FINAL_READINESS_REPORT_May_7_EXECUTIVE_SUMMARY.txt](./FINAL_READINESS_REPORT_May_7_EXECUTIVE_SUMMARY.txt) (1 page)
 
 Contents:
+
 - 3 critical blockers (all fixable by May 19 6:30pm)
 - Deployment timeline confirmed
 - 3 contingency plans prepared
@@ -30,6 +31,7 @@ Contents:
 **Start here:** [FINAL_READINESS_REPORT_May_7_STATUS_BOARD.md](./FINAL_READINESS_REPORT_May_7_STATUS_BOARD.md) (visual guide)
 
 Contents:
+
 - Critical blockers with fix procedures (5 min + 30 min)
 - May 19 fix sprint schedule (3 parallel streams)
 - May 20 deployment sequence (4-step, 4.5 hours)
@@ -46,6 +48,7 @@ Contents:
 **Start here:** [FINAL_READINESS_REPORT_May_7.md](./FINAL_READINESS_REPORT_May_7.md) (comprehensive, 200+ lines)
 
 Contents:
+
 - Executive summary (80% readiness)
 - Task status matrix (all deliverables)
 - Blocker resolution plan with timeline
@@ -64,6 +67,7 @@ Contents:
 **Email template:** See "Quick Reference Cards" section in STATUS_BOARD.md
 
 Contents:
+
 - Deployment date: May 20
 - Timeline: May 8 call, May 19 final checks, May 20 deployment
 - Status: On track (80% ready)
@@ -76,15 +80,15 @@ Contents:
 
 ## 🎯 Quick Facts
 
-| Item | Status | Details |
-|------|--------|---------|
-| **Readiness** | 🟡 80% | 3 blockers, all fixable by May 19 6:30pm |
-| **Blockers** | 🔴 → 🟢 | TS error (5 min), unit tests (30 min), ANVISA (deferred) |
-| **Code Quality** | 🔴 → 🟢 | 1 TS error, 57 test failures → fix sprint May 19 |
-| **Infrastructure** | 🟡 → 🟢 | Dashboards + alerts to create May 19 |
-| **Deployment** | 🟢 | 4-step sequence ready (08:00–12:30 UTC-3) |
-| **Contingencies** | 🟢 | 3 plans (credentials, TS recovery, rollback) |
-| **Go/No-Go** | 🟢 APPROVED | Pending May 19 fixes + sign-offs |
+| Item               | Status      | Details                                                  |
+| ------------------ | ----------- | -------------------------------------------------------- |
+| **Readiness**      | 🟡 80%      | 3 blockers, all fixable by May 19 6:30pm                 |
+| **Blockers**       | 🔴 → 🟢     | TS error (5 min), unit tests (30 min), ANVISA (deferred) |
+| **Code Quality**   | 🔴 → 🟢     | 1 TS error, 57 test failures → fix sprint May 19         |
+| **Infrastructure** | 🟡 → 🟢     | Dashboards + alerts to create May 19                     |
+| **Deployment**     | 🟢          | 4-step sequence ready (08:00–12:30 UTC-3)                |
+| **Contingencies**  | 🟢          | 3 plans (credentials, TS recovery, rollback)             |
+| **Go/No-Go**       | 🟢 APPROVED | Pending May 19 fixes + sign-offs                         |
 
 ---
 
@@ -126,11 +130,13 @@ May 22–25 (Phase 4.4)
 **Location:** `src/features/notivisa-portal/services/PortalAuthService.ts:19`
 
 **Error:**
+
 ```
 Module '"../../../types"' has no exported member 'LogicalSignature'
 ```
 
 **Fix (5 minutes):**
+
 ```typescript
 // src/types/index.ts
 export type LogicalSignature = {
@@ -214,18 +220,21 @@ If ANY RED → ROLLBACK (2–5 min per layer)
 ## 📋 Sign-Off Gates (May 19, EOD)
 
 ### Gate 1: Code Quality (6:30 PM)
+
 - [ ] TypeScript clean (0 errors)
 - [ ] Unit tests pass (1,276/1,276)
 - [ ] ESLint clean (0 new violations)
 - [ ] Git clean (all changes committed)
 
 ### Gate 2: Infrastructure (8:00 PM)
+
 - [ ] Firestore rules dry-run PASS
 - [ ] 5 alert policies deployed
 - [ ] 4 Cloud dashboards created
 - [ ] On-call rotation + escalation contacts configured
 
 ### Gate 3: Final Readiness (8:00 PM)
+
 - [ ] All code quality items GREEN
 - [ ] All infrastructure items GREEN
 - [ ] Contingency plans reviewed
@@ -240,6 +249,7 @@ If ANY RED → ROLLBACK (2–5 min per layer)
 ### Plan A: ANVISA Credentials Unavailable (HIGH probability)
 
 **Solution:** Deploy with `NOTIVISA_ENABLED=false`
+
 - Portal auth module fully functional
 - All other 25 modules live
 - No breaking changes
@@ -252,6 +262,7 @@ If ANY RED → ROLLBACK (2–5 min per layer)
 ### Plan B: TypeScript Error Recurrence (MEDIUM probability)
 
 **Solution:** Batch-fix all errors, re-test before 8pm gate
+
 - Early build test (May 19, 1pm) catches cascading errors
 - Functions build parallel (3pm) confirms no hidden errors
 - Final TS check (6:30pm) gate
@@ -265,6 +276,7 @@ If ANY RED → ROLLBACK (2–5 min per layer)
 **Trigger:** Smoke tests detect P0 errors or exit criteria fail
 
 **Solution:** Layer-by-layer rollback (functions → rules → hosting)
+
 - Rollback time: 2–5 min per layer, ~30 min total
 - Result: Zero data loss, return to v1.3
 - Next: Regroup, debug, retry May 21 08:00 UTC-3
@@ -275,25 +287,25 @@ If ANY RED → ROLLBACK (2–5 min per layer)
 
 ## 📞 Escalation Contacts
 
-| Role | Contact | Phone | Email |
-|------|---------|-------|-------|
-| **CTO** | — | — | drogafarto@gmail.com |
-| **Tech Lead** | — | — | — |
-| **DevOps** | — | — | — |
-| **Lab Director** | — | — | — |
+| Role             | Contact | Phone | Email                |
+| ---------------- | ------- | ----- | -------------------- |
+| **CTO**          | —       | —     | drogafarto@gmail.com |
+| **Tech Lead**    | —       | —     | —                    |
+| **DevOps**       | —       | —     | —                    |
+| **Lab Director** | —       | —     | —                    |
 
-*(To be filled in by May 19, 5pm)*
+_(To be filled in by May 19, 5pm)_
 
 ---
 
 ## 🔍 Document Inventory
 
-| Document | Location | Audience | Size | Purpose |
-|----------|----------|----------|------|---------|
-| **Executive Summary** | FINAL_READINESS_REPORT_May_7_EXECUTIVE_SUMMARY.txt | CTO/Stakeholder | 1 page | 5-minute overview |
-| **Status Board** | FINAL_READINESS_REPORT_May_7_STATUS_BOARD.md | Engineers/DevOps | 10 pages | Visual timelines + checklists |
-| **Comprehensive Report** | FINAL_READINESS_REPORT_May_7.md | Operations/Reference | 15 pages | Full technical details |
-| **Index** | FINAL_READINESS_REPORT_May_7_INDEX.md | All | 2 pages | Navigation guide |
+| Document                 | Location                                           | Audience             | Size     | Purpose                       |
+| ------------------------ | -------------------------------------------------- | -------------------- | -------- | ----------------------------- |
+| **Executive Summary**    | FINAL_READINESS_REPORT_May_7_EXECUTIVE_SUMMARY.txt | CTO/Stakeholder      | 1 page   | 5-minute overview             |
+| **Status Board**         | FINAL_READINESS_REPORT_May_7_STATUS_BOARD.md       | Engineers/DevOps     | 10 pages | Visual timelines + checklists |
+| **Comprehensive Report** | FINAL_READINESS_REPORT_May_7.md                    | Operations/Reference | 15 pages | Full technical details        |
+| **Index**                | FINAL_READINESS_REPORT_May_7_INDEX.md              | All                  | 2 pages  | Navigation guide              |
 
 ---
 
@@ -323,24 +335,28 @@ Expected Outcome:
 ## 📬 Next Steps
 
 ### For CTO
+
 1. Read: Executive Summary (5 min)
 2. Verify: 3 blockers fixable by May 19
 3. Approve: Contingency plans + go-ahead
 4. Assign: Team + timeline for May 19 fix sprint
 
 ### For Engineers
+
 1. Read: Status Board (10 min)
 2. Review: Blocker 1 + Blocker 2 (15 min)
 3. Prepare: May 19 fix sprint schedule
 4. Execute: Code fixes 09:00–12:00 May 19
 
 ### For DevOps
+
 1. Read: Status Board + Comprehensive Report (20 min)
 2. Create: 4 Cloud dashboards (May 19, 2–4pm)
 3. Deploy: 5 alert policies (May 19, 3–4pm)
 4. Execute: Deployment steps 08:00–08:35 May 20
 
 ### For Lab Director
+
 1. Receive: Email from Engineering (forwarded by CTO)
 2. Confirm: Availability May 8 (call) + May 20 (monitoring)
 3. Escalate: Any questions to drogafarto@gmail.com

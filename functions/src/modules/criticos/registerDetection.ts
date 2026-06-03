@@ -40,9 +40,7 @@ const CriticalDetectionInputSchema = z.object({
   }),
   physicianId: z.string().min(1, 'physicianId required'),
   physicianNome: z.string().min(1, 'physicianNome required'),
-  physicianTelefone: z
-    .string()
-    .regex(/^\+?[\d\s\-()]{10,}$/, 'Invalid phone format'),
+  physicianTelefone: z.string().regex(/^\+?[\d\s\-()]{10,}$/, 'Invalid phone format'),
   physicianEmail: z.string().email('Invalid email format'),
   severidade: z.enum(['alta', 'baixa'], {
     message: 'severidade must be alta or baixa',
@@ -61,11 +59,7 @@ const CriticalDetectionInputSchema = z.object({
  * @param severidade Expected severity level
  * @returns true if result is deemed critical
  */
-function isCritical(
-  result: number,
-  analitoId: string,
-  severidade: 'alta' | 'baixa'
-): boolean {
+function isCritical(result: number, analitoId: string, severidade: 'alta' | 'baixa'): boolean {
   // Phase 5 stub: in production, fetch from bioquimica threshold service
   // For now, accept any numeric result and trust the client's severidade flag
   return !isNaN(result) && result !== 0;
@@ -87,8 +81,7 @@ async function buildLogEventoSignature(params: {
   assinatura: CriticosLogEvento['assinatura'];
   eventoAnteriorId?: string;
 }> {
-  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } =
-    params;
+  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } = params;
 
   // Fetch most recent prior event for this escalacao to chain against.
   const priorSnap = await db
@@ -100,9 +93,7 @@ async function buildLogEventoSignature(params: {
     .limit(1)
     .get();
 
-  const prior = priorSnap.empty
-    ? null
-    : (priorSnap.docs[0].data() as CriticosLogEvento);
+  const prior = priorSnap.empty ? null : (priorSnap.docs[0].data() as CriticosLogEvento);
   const previousHash = prior?.assinatura?.hash ?? null;
   const eventoAnteriorId = prior?.id;
 
@@ -133,7 +124,7 @@ function createInitialTiers(
   rtNome: string,
   physicianId: string,
   physicianNome: string,
-  activatedAtTs: admin.firestore.Timestamp
+  activatedAtTs: admin.firestore.Timestamp,
 ): CriticosTierEscalation[] {
   void activatedAtTs;
   const tiers: CriticosTierEscalation[] = [];
@@ -158,7 +149,7 @@ function createInitialTiers(
     destinatarioNome: physicianNome,
     activatedAt: new admin.firestore.Timestamp(
       activatedAtTs.seconds + 15 * 60,
-      activatedAtTs.nanoseconds
+      activatedAtTs.nanoseconds,
     ),
     slaMinutos: 15,
     status: 'aberto',
@@ -173,7 +164,7 @@ function createInitialTiers(
     destinatarioNome: 'CTO/Diretor Médico',
     activatedAt: new admin.firestore.Timestamp(
       activatedAtTs.seconds + 30 * 60,
-      activatedAtTs.nanoseconds
+      activatedAtTs.nanoseconds,
     ),
     slaMinutos: 30,
     status: 'aberto',
@@ -204,10 +195,7 @@ export const registerCriticoDetection = onCall(
     try {
       // Validate auth
       if (!request.auth?.uid) {
-        throw new HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       // Parse + validate input
@@ -241,7 +229,7 @@ export const registerCriticoDetection = onCall(
       if (!labData?.criticos?.ativo) {
         throw new HttpsError(
           'failed-precondition',
-          'Critical values feature not enabled for this lab'
+          'Critical values feature not enabled for this lab',
         );
       }
 
@@ -268,19 +256,11 @@ export const registerCriticoDetection = onCall(
         .doc(request.auth.uid)
         .get();
 
-      const rtNome = rtDoc.exists
-        ? rtDoc.data()?.nome || request.auth.uid
-        : request.auth.uid;
-      const rtEmail = rtDoc.exists
-        ? rtDoc.data()?.email || ''
-        : '';
+      const rtNome = rtDoc.exists ? rtDoc.data()?.nome || request.auth.uid : request.auth.uid;
+      const rtEmail = rtDoc.exists ? rtDoc.data()?.email || '' : '';
 
       // Create escalacao document
-      const escalacaoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('criticos-escalacoes')
-        .doc();
+      const escalacaoRef = db.collection('labs').doc(labId).collection('criticos-escalacoes').doc();
 
       const now = admin.firestore.Timestamp.now();
       const tiers = createInitialTiers(
@@ -289,7 +269,7 @@ export const registerCriticoDetection = onCall(
         rtNome,
         physicianId,
         physicianNome,
-        now
+        now,
       );
 
       const escalacao: CriticosEscalacao = {
@@ -330,11 +310,7 @@ export const registerCriticoDetection = onCall(
       };
 
       // Create audit log event
-      const eventoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('criticos-log-eventos')
-        .doc();
+      const eventoRef = db.collection('labs').doc(labId).collection('criticos-log-eventos').doc();
 
       const eventoTs = admin.firestore.Timestamp.now();
       const detalhes = {
@@ -380,8 +356,7 @@ export const registerCriticoDetection = onCall(
       const slaDeadlines = tiers.map((tier) => ({
         tier: tier.tier,
         destinatario: tier.destinatario,
-        deadlineMs:
-          tier.activatedAt.toMillis() + tier.slaMinutos * 60 * 1000,
+        deadlineMs: tier.activatedAt.toMillis() + tier.slaMinutos * 60 * 1000,
       }));
 
       return {
@@ -403,16 +378,13 @@ export const registerCriticoDetection = onCall(
       }
 
       if (error instanceof z.ZodError) {
-        throw new HttpsError(
-          'invalid-argument',
-          `Validation error: ${error.errors[0].message}`
-        );
+        throw new HttpsError('invalid-argument', `Validation error: ${error.errors[0].message}`);
       }
 
       throw new HttpsError(
         'internal',
-        error.message || 'Internal error registering critical detection'
+        error.message || 'Internal error registering critical detection',
       );
     }
-  }
+  },
 );

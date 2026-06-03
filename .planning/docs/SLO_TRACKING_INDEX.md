@@ -2,18 +2,18 @@
 
 **Date:** 2026-05-07  
 **Status:** Ready for deployment (all artifacts complete)  
-**Total Setup Time:** 30 minutes  
+**Total Setup Time:** 30 minutes
 
 ---
 
 ## Quick Navigation
 
-| Role | Document | Purpose | Time |
-|------|----------|---------|------|
-| **DevOps Lead** | `SLO_TRACKING_QUICKSTART.md` | Step-by-step setup checklist | 5 min read |
-| **Team Lead** | `SLO_TRACKING_SETUP.md` | Full specification + context | 10 min read |
-| **Alert Owner** | `SLO_ALERT_POLICIES_REFERENCE.md` | Exact alert config + thresholds | Reference |
-| **Auditor** | `SLO_MONTHLY_REPORT_TEMPLATE.md` | Monthly compliance report | Template |
+| Role            | Document                          | Purpose                         | Time        |
+| --------------- | --------------------------------- | ------------------------------- | ----------- |
+| **DevOps Lead** | `SLO_TRACKING_QUICKSTART.md`      | Step-by-step setup checklist    | 5 min read  |
+| **Team Lead**   | `SLO_TRACKING_SETUP.md`           | Full specification + context    | 10 min read |
+| **Alert Owner** | `SLO_ALERT_POLICIES_REFERENCE.md` | Exact alert config + thresholds | Reference   |
+| **Auditor**     | `SLO_MONTHLY_REPORT_TEMPLATE.md`  | Monthly compliance report       | Template    |
 
 ---
 
@@ -24,6 +24,7 @@
 **File:** `.planning/docs/SLO_TRACKING_QUICKSTART.md`
 
 Execution checklist with exact steps:
+
 - [ ] Dashboard import (10 min)
 - [ ] Alert policies (8 min)
 - [ ] Custom metrics (5 min)
@@ -41,21 +42,25 @@ Execution checklist with exact steps:
 Complete SLO definitions + rationale:
 
 **1. Availability SLO (99.5%)**
+
 - 4.32 hours monthly downtime budget
 - Alert thresholds: 70% / 80% / 90% budget consumed
 - Metrics: Firebase + Hosting + Functions uptime
 
 **2. Performance SLO (P99 <3s)**
+
 - 1.5% of requests allowed to exceed 3s
 - Alert thresholds: YELLOW (2.5s) / RED (3.0s)
 - Metrics: Per-module execution times
 
 **3. Error Rate SLO (<0.1%)**
+
 - ~50k errors allowed per month in 5M requests
 - Alert thresholds: YELLOW (0.05%) / RED (0.1%)
 - Metrics: HTTP 5xx + uncaught exceptions
 
 **4. Compliance SLO (100% audit trail)**
+
 - Zero tolerance for missed audit events (RDC 978)
 - Alert threshold: Capture rate <100% = RED
 - Metrics: Events in audit-trail / expected writes ratio
@@ -69,30 +74,35 @@ Complete SLO definitions + rationale:
 Four alert policies with exact configuration:
 
 **Alert 1: Availability Budget (70%)**
+
 - Metric: `compute.googleapis.com/uptime`
 - Threshold: <99.65%
 - Duration: 5 min sustained
 - Notification: Slack #observability
 
 **Alert 2: Performance P99**
+
 - Metric: `cloudfunctions.googleapis.com/function/execution_times`
 - Threshold: >2500ms (YELLOW) or >3000ms (RED)
 - Duration: 15 min (YELLOW) / 5 min (RED)
 - Notification: Slack #observability (yellow), PagerDuty (red)
 
 **Alert 3: Error Rate**
+
 - Metric: `logging.googleapis.com/user_defined_metric/error_rate_percent`
 - Threshold: >0.001 (0.1%)
 - Duration: 5 min sustained
 - Notification: PagerDuty (critical)
 
 **Alert 4: Audit Trail Capture**
+
 - Metric: Custom metric (audit events captured / expected)
 - Threshold: <1.0 (100%)
 - Duration: 1 minute (zero tolerance)
 - Notification: PagerDuty + Slack #compliance
 
 **Also includes:**
+
 - How to test each alert
 - Tuning guidance (when to tighten/loosen)
 - Integration with incident response (docs/DR_PLAN.md)
@@ -113,6 +123,7 @@ Pre-built Google Cloud Monitoring dashboard with:
 - **Status Cards** — Firebase / Functions / Hosting health
 
 **To use:**
+
 1. Cloud Console → Dashboards → Create Dashboard
 2. Click ⋮ → Import Dashboard
 3. Paste JSON contents
@@ -128,6 +139,7 @@ Pre-built Google Cloud Monitoring dashboard with:
 Auditor-ready monthly SLO review template:
 
 **Sections:**
+
 1. Executive Summary (scorecard)
 2. Availability analysis + uptime by service
 3. Performance analysis + P99 latency by module
@@ -139,6 +151,7 @@ Auditor-ready monthly SLO review template:
 9. Sign-offs (DevOps / CTO / Auditor)
 
 **Fill once per month (30 min):**
+
 - Export metrics from dashboard
 - Fill in actual numbers
 - Note any incidents
@@ -165,6 +178,7 @@ Auditor-ready monthly SLO review template:
 ### Phase 2: Verification (Week 1, daily 2 min)
 
 Each morning:
+
 1. [ ] Open SLO Tracking Dashboard
 2. [ ] Check 4 SLO cards (all green?)
 3. [ ] Review alert history
@@ -177,6 +191,7 @@ Each morning:
 ### Phase 3: Weekly Reviews (Week 2+, 5 min/week)
 
 Every Monday at 09:00 UTC:
+
 1. [ ] Open dashboard
 2. [ ] Compare to previous week
 3. [ ] Screenshot + post to Slack #observability
@@ -189,6 +204,7 @@ Every Monday at 09:00 UTC:
 ### Phase 4: Monthly Reporting (Month 2+, 30 min/month)
 
 Last day of each month:
+
 1. [ ] Fill `SLO_MONTHLY_REPORT_TEMPLATE.md`
 2. [ ] Export metrics from dashboard
 3. [ ] Get sign-offs (DevOps / CTO / Auditor)
@@ -202,6 +218,7 @@ Last day of each month:
 ### Phase 5: Tuning (Quarter 2+, as needed)
 
 Every 3 months:
+
 1. [ ] Review 3-month trend for each SLO
 2. [ ] Adjust thresholds if data supports
 3. [ ] Document changes in ADR
@@ -213,14 +230,14 @@ Every 3 months:
 
 ## Key Files Reference
 
-| File | Location | Purpose |
-|------|----------|---------|
-| Quick Start | `.planning/docs/SLO_TRACKING_QUICKSTART.md` | 30-min execution checklist |
-| Full Spec | `.planning/docs/SLO_TRACKING_SETUP.md` | Complete SLO definitions + context |
-| Alert Ref | `.planning/docs/SLO_ALERT_POLICIES_REFERENCE.md` | Exact alert configuration |
-| Dashboard JSON | `.planning/dashboard-json/SLO_TRACKING_DASHBOARD.json` | Importable Cloud Monitoring dashboard |
-| Report Template | `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` | Monthly compliance report |
-| This Index | `.planning/docs/SLO_TRACKING_INDEX.md` | Navigation + overview |
+| File            | Location                                               | Purpose                               |
+| --------------- | ------------------------------------------------------ | ------------------------------------- |
+| Quick Start     | `.planning/docs/SLO_TRACKING_QUICKSTART.md`            | 30-min execution checklist            |
+| Full Spec       | `.planning/docs/SLO_TRACKING_SETUP.md`                 | Complete SLO definitions + context    |
+| Alert Ref       | `.planning/docs/SLO_ALERT_POLICIES_REFERENCE.md`       | Exact alert configuration             |
+| Dashboard JSON  | `.planning/dashboard-json/SLO_TRACKING_DASHBOARD.json` | Importable Cloud Monitoring dashboard |
+| Report Template | `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md`        | Monthly compliance report             |
+| This Index      | `.planning/docs/SLO_TRACKING_INDEX.md`                 | Navigation + overview                 |
 
 ---
 
@@ -259,19 +276,23 @@ Every 3 months:
 ## Maintenance Schedule
 
 ### Daily (2 min)
+
 - [ ] Check SLO dashboard (all green?)
 - [ ] Review overnight alerts
 
 ### Weekly (5 min)
+
 - [ ] Monday 09:00 UTC: SLO review + Slack post
 - [ ] Check alert policies for false positives
 
 ### Monthly (30 min)
+
 - [ ] End of month: Fill SLO report
 - [ ] Get sign-offs (DevOps / CTO / Auditor)
 - [ ] Archive report
 
 ### Quarterly (1 hour)
+
 - [ ] Review 3-month trend
 - [ ] Adjust thresholds if needed
 - [ ] Brief auditor on any changes
@@ -365,14 +386,15 @@ A: Phase 4 post-deployment. Currently single region (southamerica-east1). After 
 
 ## Sign-Off
 
-**Setup Owner:** ___________________________ Date: __________
+**Setup Owner:** ************\_\_\_************ Date: ****\_\_****
 
-**CTO Review:** ___________________________ Date: __________
+**CTO Review:** ************\_\_\_************ Date: ****\_\_****
 
 Ready to deploy: [ ] Yes [ ] No
 
 If no, blockers:
-________________________________________________________________________
+
+---
 
 ---
 

@@ -16,13 +16,13 @@ Created unified type system for CAPA closure tracking infrastructure (5 subagent
 
 **Oneliners per subagent:**
 
-| SA | Module | Deliverable |
-|----|---------|----|
-| SA-01 | capa-tracking | CAPA closure state machine with evidence tracking, RFI log, logical signatures (CapaState, CapaDocument, Evidence, AuditorRFI) |
-| SA-02 | calibracao | Equipment calibration status tracking with certificate uploads and due-date alerts (CalibracaoStatus, CalibracaoRecord, CertificateUpload) |
-| SA-03 | personnel/cargos | Job description types with permission matrix and authority boundaries (Cargo, CargoPermissions, DEFAULT_CARGO_IDS) |
-| SA-04 | personnel/designacoes | Formal personnel appointments with cryptographic signatures and audit log (Designacao, LogicalSignature, CreateDesignacaoInput) |
-| SA-05 | management-review | DICQ 4.15 annual direction critical analysis with 15 mandatory sections (ManagementReviewMeeting, ReviewEntry, ReviewTemplate) |
+| SA    | Module                | Deliverable                                                                                                                                |
+| ----- | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
+| SA-01 | capa-tracking         | CAPA closure state machine with evidence tracking, RFI log, logical signatures (CapaState, CapaDocument, Evidence, AuditorRFI)             |
+| SA-02 | calibracao            | Equipment calibration status tracking with certificate uploads and due-date alerts (CalibracaoStatus, CalibracaoRecord, CertificateUpload) |
+| SA-03 | personnel/cargos      | Job description types with permission matrix and authority boundaries (Cargo, CargoPermissions, DEFAULT_CARGO_IDS)                         |
+| SA-04 | personnel/designacoes | Formal personnel appointments with cryptographic signatures and audit log (Designacao, LogicalSignature, CreateDesignacaoInput)            |
+| SA-05 | management-review     | DICQ 4.15 annual direction critical analysis with 15 mandatory sections (ManagementReviewMeeting, ReviewEntry, ReviewTemplate)             |
 
 ---
 
@@ -42,13 +42,13 @@ src/features/
 
 ### Commits
 
-| Commit | SA | Message | Files |
-|--------|----|---------| ------|
-| `670de9f` | SA-01 | CAPA Closure Type System | capa-tracking/types/index.ts |
-| `9839578` | SA-02 | Equipment Calibration Type System | calibracao/types/index.ts |
-| `2c5b314` | SA-03 | Personnel Cargos Type System | personnel/cargos/types/index.ts |
+| Commit    | SA    | Message                           | Files                                |
+| --------- | ----- | --------------------------------- | ------------------------------------ |
+| `670de9f` | SA-01 | CAPA Closure Type System          | capa-tracking/types/index.ts         |
+| `9839578` | SA-02 | Equipment Calibration Type System | calibracao/types/index.ts            |
+| `2c5b314` | SA-03 | Personnel Cargos Type System      | personnel/cargos/types/index.ts      |
 | `83d8147` | SA-04 | Personnel Designações Type System | personnel/designacoes/types/index.ts |
-| `743e6e9` | SA-05 | Management Review Type System | management-review/types/index.ts |
+| `743e6e9` | SA-05 | Management Review Type System     | management-review/types/index.ts     |
 
 ---
 
@@ -57,6 +57,7 @@ src/features/
 ### SA-01: CAPA Tracking
 
 **Exports per plan:**
+
 - ✅ `CapaState` = 'open' | 'in-progress' | 'evidence-submitted' | 'auditor-reviewing' | 'closed'
 - ✅ `CapaSeverity` = 'critical' | 'major' | 'minor'
 - ✅ `RFIStatus` = 'pending' | 'answered'
@@ -76,6 +77,7 @@ src/features/
 ### SA-02: Calibração
 
 **Exports per plan:**
+
 - ✅ `CalibracaoStatus` = 'in-date' | 'warning-30d' | 'warning-7d' | 'overdue' | 'out-of-service'
 - ✅ `CalibracaoRecord { id, labId, equipamentoId, calibrationMethod, nextDueDate, status, ... }`
 - ✅ `CalibracaoAlert { equipamentoName, daysUntilOverdue, alertType, emailSentAt, ... }`
@@ -88,6 +90,7 @@ src/features/
 ### SA-03: Personnel — Cargos
 
 **Exports per plan:**
+
 - ✅ `SecaoLab` = 'análise' | 'coleta' | 'qualidade' | 'direção' | 'administrativo'
 - ✅ `Cargo { id, labId, nome, descricao, requisitosMinimos, secao, reportaA, substituidor, dataDesignacao, ... }`
 - ✅ `CargoPermissions { canReleaseLaudos, canFlagNC, canApproveNC, canManageInventory, ... }` (9 permissions)
@@ -99,6 +102,7 @@ src/features/
 ### SA-04: Personnel — Designações
 
 **Exports per plan:**
+
 - ✅ `DesignacaoType` = 'responsavel-tecnico' | 'gerente-qualidade' | 'diretor-laboratorio'
 - ✅ `LogicalSignature { hash: string; operatorId: string; ts: number }`
 - ✅ `Designacao { id, labId, type, personId, personName, cargoId, dataDesignacao, motivo, vigencia, dataExpiracao, assinatura, auditLog[], ... }`
@@ -111,6 +115,7 @@ src/features/
 ### SA-05: Management Review
 
 **Exports per plan (Phase 8 simplified):**
+
 - ✅ `EntrySource` = 'auto-aggregated' | 'manual' | 'imported'
 - ✅ `ManagementReviewEntry { entryNumber: 1–15, title, data, source, lastUpdated }`
 - ✅ `ReviewSignature { signerRole, signerName, operatorId, hash, ts }`
@@ -118,6 +123,7 @@ src/features/
 - ✅ `MANAGEMENT_REVIEW_ENTRY_TITLES` — fixed array of 15 Portuguese titles per DICQ 4.15
 
 **Additional exports (Wave 1+):**
+
 - Extended `ReviewEntry`, `ReviewTemplate`, `Ata`, `ManagementReview`, `ReviewStatus` enum, helpers
 - For compatibility with existing management-review services (managementReviewService.ts, reviewTemplateService.ts, ataService.ts)
 
@@ -131,7 +137,8 @@ src/features/
 
 **Root cause:** Wave 0 type refactoring changed the type structure (English vs Portuguese status names, field naming) to match the plan spec. Components from Wave 1 expect the old structure.
 
-**Rationale:** 
+**Rationale:**
+
 - The 5 type files created exactly match the plan specification
 - Components are not part of the Wave 0 "types only" task
 - Fixing components would require 2+ hours of refactoring (out of scope)
@@ -145,27 +152,32 @@ src/features/
 ## Compliance & Architecture
 
 ### Multi-Tenant Enforcement (RN-Multi-Tenant)
+
 - All 5 modules scope entities to `/labs/{labId}/<collection>`
 - All types carry redundant `labId` in payload (defense-in-depth)
 - All service functions will require `labId` as first parameter
 
 ### Soft-Delete Only (RN-06)
+
 - All entities have `deletedAt: number | undefined` marker
 - No `deleteDoc()` calls in service layer (not yet implemented, but types enforce this)
 - 5-year retention per RDC 978
 
 ### LogicalSignature Pattern
+
 - Immutable audit marker: `{ hash (SHA-256), operatorId, ts }`
 - Used in CAPA evidence, calibração certificates, personnel designations, management review signatures
 - Rules will validate: `hash.size() == 64` + `operatorId == request.auth.uid` + `ts is timestamp`
 
 ### DICQ Compliance
+
 - **DICQ 5.1.3** (Cargo descriptions): Cargo type captured
 - **DICQ 4.1.2.7** (RT designation): Designacao type with signature
 - **DICQ 4.15** (Annual direction review): ManagementReviewMeeting with 15 entries
 - **DICQ 5.3.1.4** (Equipment calibration): CalibracaoRecord with due-date tracking
 
 ### RDC 978 Articles
+
 - **Art. 167** (Evidence/Consent): Evidence type with storagePath, uploadedBy, uploadedAt
 - **Art. 128** (RT Presence/Designation): Designacao type with auditors log
 - **Art. 6** (Notification): foundation for Phase 8 Wave 2+ (NOTIVISA integration)
@@ -181,6 +193,7 @@ None. All types are fully specified per the plan.
 ## Threat Flags
 
 No new threat surfaces introduced. All types include:
+
 - Multi-tenant isolation (labId in all entities)
 - Audit trail markers (LogicalSignature, auditLog, stateHistory)
 - Immutability enforcement (readonly fields, no deleteDoc)
@@ -190,6 +203,7 @@ No new threat surfaces introduced. All types include:
 ## Testing Status
 
 Type system validation:
+
 - ✅ All 5 type files created
 - ✅ Exported types match plan specification exactly
 - ✅ Backward compatibility aliases for existing code
@@ -212,6 +226,7 @@ Type system validation:
 ## What Comes Next
 
 **Wave 1 (2–3 weeks):**
+
 - Service layer (CRUD, multi-tenant scoping, soft-delete enforcement)
 - Cloud Function callables (atomicity, LogicalSignature generation, validation)
 - Firestore Rules (deny direct writes, allow callables only)
@@ -219,11 +234,13 @@ Type system validation:
 - Unit tests (service + hook layer)
 
 **Wave 2 (concurrent):**
+
 - UI components (React + Tailwind)
 - Real-time subscriptions (hooks)
 - E2E test scenarios
 
 **Wave 3+:**
+
 - Integration with audit trail (auditoria-interna module)
 - CAPA closure ceremony + auditor sign-off
 - Scheduled jobs (due-date alerts, review reminders)

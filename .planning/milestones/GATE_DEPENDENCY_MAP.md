@@ -161,6 +161,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 ### Window 1: Phases 4–7 + Phase 10 (May 20 → Jul 28, 10 weeks)
 
 **Independent phases (no blocking):**
+
 - Phase 4 must complete first (portal auth foundation)
 - Phase 5 depends Phase 4 PASS (critical escalation needs portal)
 - Phase 6 **partially** depends Phase 4 (v1.3 Phase 10 foundation exists)
@@ -168,6 +169,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 - Phase 10 parallel (penetration test — independent consultant)
 
 **Timeline:**
+
 - Phase 4: May 20–Jun 2 (CRITICAL — gates all downstream)
 - Phase 5: Jun 9–Jun 30 (blocked by Phase 4 PASS on 2026-06-02)
 - Phase 6: Jul 1–Jul 14 (independent, non-critical path)
@@ -175,6 +177,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 - Phase 10: Jun 1–Jun 21 (report), remediation Jul 1–Jul 4 (parallel Phase 6)
 
 **Resource allocation:**
+
 - 4 agents on Phase 4 (critical)
 - 4 agents on Phase 5 (high priority)
 - 2 agents on Phase 6 + Phase 7 (shared, low priority)
@@ -183,22 +186,26 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 ### Window 2: Phase 8 + Phase 9 + Phase 11 + Phase 12 (Jun 15 → Aug 5, 7 weeks)
 
 **Phase 8 is CRITICAL PATH; others dependent or parallel:**
+
 - Phase 8 CAPA: Jun 15–Aug 5 (auditor-driven, hard deadline 2026-08-05)
 - Phase 9 KPI: Jul 22–Aug 4 (depends Phase 5 data + Phase 8 start)
 - Phase 11 Auditor: Jun 1–Aug 5 (weekly meetings, parallel all phases)
 - Phase 12 Test data: Jul 29–Aug 2 (depends Phase 8 CAPA completion)
 
 **Timeline:**
+
 - Phase 8 Week 1–2 (Jun 15–29): F-01 → F-04 implementation
 - Phase 8 Week 3 (Jul 6–12): CTO + auditor prep (F-05 → F-06)
 - Phase 8 Week 4 (Jul 13–20): Auditor ceremony (F-07 final sign-off)
 
 **Auditor ceremony timeline (non-negotiable):**
+
 - 2026-08-05: HARD DEADLINE for CAPA closure
 - 3-week buffer before external audit (2026-08-31)
 - If Phase 8 slips past 2026-08-05 → external audit at risk
 
 **Resource allocation:**
+
 - CTO + Eng A–D full-time on Phase 8 (4–5 people)
 - 2 agents on Phase 9 (lower priority, post-Phase 5)
 - CTO + Auditor weekly Phase 11 (coordination, not code)
@@ -207,11 +214,13 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 ### Window 3: Phases 13–15 Sequential (Aug 12 → Nov 30, 16 weeks)
 
 **Hard dependency chain:**
+
 - Phase 13 starts: Aug 12 (depends Wave 2 PASS)
 - Phase 14 starts: Sep 1 (depends Phase 13 PASS)
 - Phase 15 starts: Oct 15 (depends Phase 14 PASS)
 
 **Timeline:**
+
 - Phase 13: Aug 12–Sep 30 (7 weeks)
 - Phase 14: Sep 1–Oct 31 (9 weeks)
   - Phase 13 + 14 overlap Sep 1–Sep 30 (3 weeks, light overlap)
@@ -219,6 +228,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
   - Phase 14 + 15 overlap Oct 15–Oct 31 (2 weeks, light overlap)
 
 **Resource allocation:**
+
 - 2–3 agents per phase (sequential handoff)
 - CTO involved Phase 14 (internal audit coordination) + Phase 15 (planning)
 
@@ -228,18 +238,19 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 
 ### Most Dangerous Gates (Single-Point Failure)
 
-| Gate | Risk | Dependency | Mitigation |
-|---|---|---|---|
-| **Phase 4** | Hard blocker for Phases 5–7 | Portal auth + NOTIVISA | Start May 20; 1-week buffer built in |
-| **Phase 8** | Hard blocker for Wave 2 + external audit | CAPA auditor sign-off (2026-08-05) | Weekly auditor alignment; artifacts pre-drafted |
-| **Phase 12** | Blocks Wave 2 gate decision | Riopomba validation + smoke tests | Automate test data generation; parallel with Phase 9 |
-| **Wave 2 Gate** | Unblocks Phase 13 (multi-tenant) | All Phases 8–12 PASS | No buffers available; must hit 2026-08-31 |
+| Gate            | Risk                                     | Dependency                         | Mitigation                                           |
+| --------------- | ---------------------------------------- | ---------------------------------- | ---------------------------------------------------- |
+| **Phase 4**     | Hard blocker for Phases 5–7              | Portal auth + NOTIVISA             | Start May 20; 1-week buffer built in                 |
+| **Phase 8**     | Hard blocker for Wave 2 + external audit | CAPA auditor sign-off (2026-08-05) | Weekly auditor alignment; artifacts pre-drafted      |
+| **Phase 12**    | Blocks Wave 2 gate decision              | Riopomba validation + smoke tests  | Automate test data generation; parallel with Phase 9 |
+| **Wave 2 Gate** | Unblocks Phase 13 (multi-tenant)         | All Phases 8–12 PASS               | No buffers available; must hit 2026-08-31            |
 
 ### Cascading Failure Scenarios
 
 #### Scenario A: Phase 4 misses 2026-06-02 deadline
 
 **Impact chain:**
+
 - Phase 4 misses deadline by 1 week → 2026-06-09
 - Phase 5 pushed to Jun 16–Jul 7 (1 week delay)
 - Phase 6 pushed to Jul 8–Jul 21 (1 week delay)
@@ -248,6 +259,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 - Phase 5 completion misses Phase 9 data dependency → Phase 9 extends
 
 **Recovery strategy:**
+
 - Extend timeline 1 week total (phase 4 slip = 1 phase slip)
 - Phases 6–7 are non-critical; can compress if needed
 - Target: Phase 5 PASS by Jun 30 (hard requirement for Phase 9)
@@ -255,12 +267,14 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 #### Scenario B: Phase 8 CAPA slips past 2026-08-05 auditor deadline
 
 **Impact chain:**
+
 - CAPA ceremony reschedules → external audit cannot start 2026-08-31
 - v1.4 release delayed minimum 2 weeks (auditor feedback cycle)
 - Go-Live gate missed; external audit pushed to Sep 30 (best case)
 - Wave 2 gate fails (blocker: auditor sign-off incomplete)
 
 **Recovery strategy:**
+
 - This is CRITICAL PATH. No recovery without external auditor agreement
 - Built-in 3-week buffer before audit (May 7 → Aug 31) specifically to prevent this
 - If Phase 8 at risk by Jul 20 → escalate to CTO + external auditor immediately
@@ -269,11 +283,13 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 #### Scenario C: Phase 14 ISO audit finds >10 major findings
 
 **Impact chain:**
+
 - Internal audit fails; remediation extends Phase 14 by 4+ weeks
 - Phase 15 v2 planning pushed to Q1 2027
 - Go-Live gate delayed (external audit cannot proceed without internal audit clean)
 
 **Recovery strategy:**
+
 - Mitigate via Phase 14 preparation (pre-audit gap analysis by Sep 1)
 - If major findings predicted → re-scope Phase 14 (defer non-critical artifacts)
 - Engage external ISO auditor as advisor during Phase 14 (proactive feedback)
@@ -285,6 +301,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 ### Human Resource Bottleneck
 
 **CTO is involved in 6 gates directly:**
+
 1. Phase 4 sign-off
 2. Phase 8 (CAPA closure — full-time)
 3. Phase 11 (auditor alignment — 2h/week)
@@ -297,6 +314,7 @@ purpose: Visual reference for gate blocking relationships and parallel execution
 ### External Auditor Bottleneck
 
 **Auditor involved in:**
+
 1. Phase 11 (weekly meetings 8×, 8 hours total)
 2. Phase 8 (CAPA ceremony, 20 hours)
 3. Wave 2 gate sign-off
@@ -376,6 +394,7 @@ Week    Phase 4   Phase 5   Phase 6   Phase 7   Phase 8   Phase 9   Phase 10  Ph
 ```
 
 **Legend:**
+
 - `[====]` = Phase active (development)
 - `[XXXX]` = Gate validation window
 - `[start]` = Phase kickoff
@@ -413,12 +432,12 @@ Phase Executor Detects Issue (Day 1)
 
 ## Success Criteria Summary
 
-| Level | Condition | Owner | Gate |
-|---|---|---|---|
-| **Phase-level** | ✓ All 13 core checklist items PASS | Phase executor + CTO | Phase gate |
-| **Wave-level** | ✓ All child phases PASS + E2E 100% | Wave coordinator + CTO | Wave gate |
-| **Campaign-level** | ✓ All 4 wave gates + external audit | CTO | Go-Live gate |
-| **Go-Live** | ✓ 19/19 gates + auditor alignment + CTO sign-off | CTO + External auditor | PRODUCTION |
+| Level              | Condition                                        | Owner                  | Gate         |
+| ------------------ | ------------------------------------------------ | ---------------------- | ------------ |
+| **Phase-level**    | ✓ All 13 core checklist items PASS               | Phase executor + CTO   | Phase gate   |
+| **Wave-level**     | ✓ All child phases PASS + E2E 100%               | Wave coordinator + CTO | Wave gate    |
+| **Campaign-level** | ✓ All 4 wave gates + external audit              | CTO                    | Go-Live gate |
+| **Go-Live**        | ✓ 19/19 gates + auditor alignment + CTO sign-off | CTO + External auditor | PRODUCTION   |
 
 ---
 

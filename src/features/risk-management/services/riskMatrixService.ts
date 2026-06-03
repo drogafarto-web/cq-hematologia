@@ -28,11 +28,9 @@ import type { LabId } from '../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
 
-const risksCol = (labId: LabId): CollectionReference =>
-  collection(db, 'labs', labId, 'risks');
+const risksCol = (labId: LabId): CollectionReference => collection(db, 'labs', labId, 'risks');
 
-const riskDoc = (labId: LabId, riskId: string): DocumentReference =>
-  doc(risksCol(labId), riskId);
+const riskDoc = (labId: LabId, riskId: string): DocumentReference => doc(risksCol(labId), riskId);
 
 // ─── Risk types (minimal — extend as needed) ──────────────────────────────
 
@@ -92,9 +90,7 @@ export function getRiskLevel(npr: number): 'low' | 'medium' | 'high' | 'critical
 export async function getRisks(labId: LabId): Promise<RiskRecord[]> {
   const q = query(risksCol(labId), orderBy('criadoEm', 'desc'));
   const snapshot = await getDocs(q);
-  return snapshot.docs
-    .map(mapRiskRecord)
-    .filter((risk) => !risk.deletedAt);
+  return snapshot.docs.map(mapRiskRecord).filter((risk) => !risk.deletedAt);
 }
 
 /**
@@ -110,9 +106,7 @@ export function subscribeToRisks(
   return onSnapshot(
     q,
     (snapshot) => {
-      const risks = snapshot.docs
-        .map(mapRiskRecord)
-        .filter((risk) => !risk.deletedAt);
+      const risks = snapshot.docs.map(mapRiskRecord).filter((risk) => !risk.deletedAt);
       onUpdate(risks);
     },
     (err) => {
@@ -170,10 +164,10 @@ export async function createRiskCallable(
   labId: LabId,
   input: CreateRiskInput,
 ): Promise<CreateRiskOutput> {
-  const fn = httpsCallable<
-    { labId: string; payload: CreateRiskInput },
-    CreateRiskOutput
-  >(functions, 'risks_createRisk');
+  const fn = httpsCallable<{ labId: string; payload: CreateRiskInput }, CreateRiskOutput>(
+    functions,
+    'risks_createRisk',
+  );
   return fn({ labId, payload: input }).then((result) => result.data);
 }
 
@@ -199,10 +193,10 @@ export async function updateRiskCallable(
 export async function generateRiskMatrixPDFCallable(
   labId: LabId,
 ): Promise<GenerateRiskMatrixPDFOutput> {
-  const fn = httpsCallable<
-    { labId: string },
-    GenerateRiskMatrixPDFOutput
-  >(functions, 'risks_generateMatrixPDF');
+  const fn = httpsCallable<{ labId: string }, GenerateRiskMatrixPDFOutput>(
+    functions,
+    'risks_generateMatrixPDF',
+  );
   return fn({ labId }).then((result) => result.data);
 }
 

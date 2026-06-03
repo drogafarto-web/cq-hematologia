@@ -2,54 +2,54 @@
 name: HC Quality - Uroanalise CIQ
 description: Clinical dashboard for urinalysis quality control with precision-first dark mode
 colors:
-  accent-amber: "#f59e0b"
-  accent-red: "#ef4444"
-  accent-emerald: "#10b981"
-  neutral-text-dark: "#0f172a"
-  neutral-text-light: "#f9fafb"
-  neutral-slate-900: "#0f172a"
-  neutral-slate-500: "#64748b"
-  neutral-slate-400: "#78909c"
-  neutral-slate-200: "#e2e8f0"
-  neutral-slate-50: "#f8fafc"
+  accent-amber: '#f59e0b'
+  accent-red: '#ef4444'
+  accent-emerald: '#10b981'
+  neutral-text-dark: '#0f172a'
+  neutral-text-light: '#f9fafb'
+  neutral-slate-900: '#0f172a'
+  neutral-slate-500: '#64748b'
+  neutral-slate-400: '#78909c'
+  neutral-slate-200: '#e2e8f0'
+  neutral-slate-50: '#f8fafc'
 rounded:
-  sm: "4px"
-  md: "8px"
-  lg: "12px"
-  xl: "16px"
+  sm: '4px'
+  md: '8px'
+  lg: '12px'
+  xl: '16px'
 spacing:
-  xs: "4px"
-  sm: "8px"
-  md: "12px"
-  lg: "16px"
-  xl: "20px"
-  2xl: "24px"
+  xs: '4px'
+  sm: '8px'
+  md: '12px'
+  lg: '16px'
+  xl: '20px'
+  2xl: '24px'
 components:
   input-default:
-    backgroundColor: "{colors.neutral-slate-50}"
-    textColor: "{colors.neutral-text-dark}"
-    rounded: "{rounded.xl}"
-    padding: "10px 14px"
+    backgroundColor: '{colors.neutral-slate-50}'
+    textColor: '{colors.neutral-text-dark}'
+    rounded: '{rounded.xl}'
+    padding: '10px 14px'
   input-dark:
-    backgroundColor: "rgba(255, 255, 255, 0.06)"
-    textColor: "rgba(255, 255, 255, 0.9)"
-    rounded: "{rounded.xl}"
-    padding: "10px 14px"
+    backgroundColor: 'rgba(255, 255, 255, 0.06)'
+    textColor: 'rgba(255, 255, 255, 0.9)'
+    rounded: '{rounded.xl}'
+    padding: '10px 14px'
   button-primary:
-    backgroundColor: "{colors.accent-amber}"
-    textColor: "{colors.neutral-text-light}"
-    rounded: "{rounded.lg}"
-    padding: "12px 16px"
+    backgroundColor: '{colors.accent-amber}'
+    textColor: '{colors.neutral-text-light}'
+    rounded: '{rounded.lg}'
+    padding: '12px 16px'
   button-secondary:
-    backgroundColor: "transparent"
-    textColor: "{colors.neutral-slate-500}"
-    rounded: "{rounded.xl}"
-    padding: "12px 16px"
+    backgroundColor: 'transparent'
+    textColor: '{colors.neutral-slate-500}'
+    rounded: '{rounded.xl}'
+    padding: '12px 16px'
   button-danger:
-    backgroundColor: "{colors.accent-red}"
-    textColor: "{colors.neutral-text-light}"
-    rounded: "{rounded.lg}"
-    padding: "12px 16px"
+    backgroundColor: '{colors.accent-red}'
+    textColor: '{colors.neutral-text-light}'
+    rounded: '{rounded.lg}'
+    padding: '12px 16px'
 ---
 
 # Design System: HC Quality — Uroanalise
@@ -63,6 +63,7 @@ The uroanalise module is a specialist's workbench for quality control analysis. 
 The system rejects template-SaaS defaults (card grids, hero metrics, gradient text, glassmorphism). It rejects consumer-friendly casualness (pastel colors, playful microinteractions, conversational tone). It looks like it was built by someone who understands urinalysis, not by a design algorithm.
 
 **Key Characteristics:**
+
 - Specialist's interface; zero pedagogical scaffolding
 - Dark-first with high contrast for variable lab lighting
 - Precision hierarchy: complex data immediately legible
@@ -125,6 +126,7 @@ Hierarchy via size (≥1.25 ratio) + weight contrast (400 → 500 → 600). No f
 This system is **flat at rest, raised only on interaction** (hover, focus, selection). Depth comes from color tint (background brightness change) and borders, not shadows.
 
 Shadow use is minimal:
+
 - Hover shadow on selected buttons: `shadow-md shadow-amber-500/20` (subtle; visible under amber button only).
 - No drop shadows on cards, panels, or fixed UI chrome.
 - Focus rings use border style only, not shadow-based halos.
@@ -133,7 +135,7 @@ Dark mode has no shadows; contrast is achieved through borders and tinted backgr
 
 ### Named Rule: The Flat-By-Default Rule
 
-Surfaces are flat. Depth is structural (layering via z-index + positioning), not shadow-volumetric. Shadows appear *only* as confirmation feedback (e.g., "this button is pressed"). If you feel the urge to add shadow for "visual interest", stop; that's a sign the layout needs hierarchy work, not decoration.
+Surfaces are flat. Depth is structural (layering via z-index + positioning), not shadow-volumetric. Shadows appear _only_ as confirmation feedback (e.g., "this button is pressed"). If you feel the urge to add shadow for "visual interest", stop; that's a sign the layout needs hierarchy work, not decoration.
 
 ## 5. Components
 
@@ -156,12 +158,13 @@ Surfaces are flat. Depth is structural (layering via z-index + positioning), not
 ### Fields & Toggles
 
 - **Label:** text-xs, font-medium, slate-500 / white/45%, uppercase tracking. Appears above input.
-- **Validation marker:** Required (*) in red; optional hints in slate-400 / white/25%.
+- **Validation marker:** Required (\*) in red; optional hints in slate-400 / white/25%.
 - **Toggle/radio pattern:** Button grid with amber selection highlight. Each option is a small button (52px min-width). Grouped in flexbox with gap-1.5.
 
 ### Status Dot
 
 Used in lot lists to signal overall CIQ status:
+
 - **sem_dados** (gray): No data yet.
 - **válido** (emerald): All runs passing.
 - **atenção** (amber): Warning-level deviation.

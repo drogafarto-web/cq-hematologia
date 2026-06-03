@@ -56,9 +56,7 @@ function extractLabId(ref: FirebaseFirestore.DocumentReference): string | null {
   return parts.length >= 2 && parts[0] === 'controleTemperatura' ? parts[1] : null;
 }
 
-async function findDispositivoByTokenHash(
-  hash: string,
-): Promise<DispositivoLookup | null> {
+async function findDispositivoByTokenHash(hash: string): Promise<DispositivoLookup | null> {
   const snap = await admin
     .firestore()
     .collectionGroup('dispositivos-iot')
@@ -97,7 +95,11 @@ function avaliarForaDosLimites(
   return { fora: false, violado: null };
 }
 
-function assinaturaServerSide(dispositivoId: string, labId: string, ts: FirebaseFirestore.Timestamp): {
+function assinaturaServerSide(
+  dispositivoId: string,
+  labId: string,
+  ts: FirebaseFirestore.Timestamp,
+): {
   hash: string;
   operatorId: string;
   ts: FirebaseFirestore.Timestamp;
@@ -137,10 +139,8 @@ export const registrarLeituraIoT = onRequest(
       return;
     }
     const umidade = body?.umidade !== undefined ? Number(body.umidade) : undefined;
-    const tMax =
-      body?.temperaturaMax !== undefined ? Number(body.temperaturaMax) : temperatura;
-    const tMin =
-      body?.temperaturaMin !== undefined ? Number(body.temperaturaMin) : temperatura;
+    const tMax = body?.temperaturaMax !== undefined ? Number(body.temperaturaMax) : temperatura;
+    const tMin = body?.temperaturaMin !== undefined ? Number(body.temperaturaMin) : temperatura;
 
     const { labId, data: dispData, ref: dispRef } = lookup;
     const equipamentoId = dispData.equipamentoId as string;
@@ -178,16 +178,21 @@ export const registrarLeituraIoT = onRequest(
       .collection('leituras-previstas')
       .where('equipamentoId', '==', equipamentoId)
       .where('status', '==', 'pendente')
-      .where('dataHoraPrevista', '>=', admin.firestore.Timestamp.fromMillis(agora.toMillis() - janelaMs))
-      .where('dataHoraPrevista', '<=', admin.firestore.Timestamp.fromMillis(agora.toMillis() + janelaMs))
+      .where(
+        'dataHoraPrevista',
+        '>=',
+        admin.firestore.Timestamp.fromMillis(agora.toMillis() - janelaMs),
+      )
+      .where(
+        'dataHoraPrevista',
+        '<=',
+        admin.firestore.Timestamp.fromMillis(agora.toMillis() + janelaMs),
+      )
       .limit(1)
       .get();
     const previstaRef = previstasSnap.empty ? null : previstasSnap.docs[0].ref;
 
-    const leiturasCol = db
-      .collection('controleTemperatura')
-      .doc(labId)
-      .collection('leituras');
+    const leiturasCol = db.collection('controleTemperatura').doc(labId).collection('leituras');
     const leituraRef = leiturasCol.doc();
 
     const assinatura = assinaturaServerSide(dispRef.id, labId, agora);
@@ -213,11 +218,7 @@ export const registrarLeituraIoT = onRequest(
 
     let ncId: string | null = null;
     if (avaliacao.fora && avaliacao.violado !== null) {
-      const ncRef = db
-        .collection('controleTemperatura')
-        .doc(labId)
-        .collection('ncs')
-        .doc();
+      const ncRef = db.collection('controleTemperatura').doc(labId).collection('ncs').doc();
       ncId = ncRef.id;
       batch.set(ncRef, {
         labId,

@@ -57,7 +57,6 @@ vi.mock('../components/NCReportBuilder', () => ({
   NCReportBuilder: () => <div data-testid="nc-report-builder">NCReportBuilder Mock</div>,
 }));
 
-
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import NCView from '../NCView';

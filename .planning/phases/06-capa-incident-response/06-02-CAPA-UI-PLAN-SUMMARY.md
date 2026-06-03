@@ -1,59 +1,58 @@
 ---
-phase: "06-capa-incident-response"
-plan: "02"
-subsystem: "sgq/capa"
-tags: ["hooks", "components", "ui", "dark-first", "wcag-aa", "realtime", "firestore"]
+phase: '06-capa-incident-response'
+plan: '02'
+subsystem: 'sgq/capa'
+tags: ['hooks', 'components', 'ui', 'dark-first', 'wcag-aa', 'realtime', 'firestore']
 dependency:
-  requires: ["06-01 CAPA Schema"]
-  provides: ["CAPA UI layer", "realtime list/detail views", "forms for create/verify"]
-  affects: ["06-03 Incident Response workflows"]
+  requires: ['06-01 CAPA Schema']
+  provides: ['CAPA UI layer', 'realtime list/detail views', 'forms for create/verify']
+  affects: ['06-03 Incident Response workflows']
 tech_stack:
   added:
-    - "useCAPAList hook (realtime subscription with filters)"
-    - "useCAPADetail hook (parallel CAPA + actions + verifications)"
-    - "CAPAListView component (dark-first table, filters, sorting)"
-    - "CAPADetailView component (finding + actions + verification + audit)"
-    - "ActionCard component (individual action display + mark complete)"
-    - "VerificationForm component (resultado dropdown + notas + hours)"
-    - "CAPAForm component (create modal with validation)"
-    - "CAPAHome page (top-level entry point)"
+    - 'useCAPAList hook (realtime subscription with filters)'
+    - 'useCAPADetail hook (parallel CAPA + actions + verifications)'
+    - 'CAPAListView component (dark-first table, filters, sorting)'
+    - 'CAPADetailView component (finding + actions + verification + audit)'
+    - 'ActionCard component (individual action display + mark complete)'
+    - 'VerificationForm component (resultado dropdown + notas + hours)'
+    - 'CAPAForm component (create modal with validation)'
+    - 'CAPAHome page (top-level entry point)'
   patterns:
-    - "useEffect cleanup for Firestore unsubscribe"
-    - "Dark-first Tailwind (bg-[#141417], text-white/90, violet accents)"
-    - "Status badges with icon + text + color (no color-only indication)"
-    - "WCAG AA: semantic HTML, focus rings, keyboard navigation"
-    - "Service layer integration (no direct Firestore writes from client)"
+    - 'useEffect cleanup for Firestore unsubscribe'
+    - 'Dark-first Tailwind (bg-[#141417], text-white/90, violet accents)'
+    - 'Status badges with icon + text + color (no color-only indication)'
+    - 'WCAG AA: semantic HTML, focus rings, keyboard navigation'
+    - 'Service layer integration (no direct Firestore writes from client)'
 key_files:
   created:
-    - "src/features/sgq/capa/hooks/useCAPAList.ts"
-    - "src/features/sgq/capa/hooks/useCAPADetail.ts"
-    - "src/features/sgq/capa/hooks/index.ts"
-    - "src/features/sgq/capa/components/CAPAListView.tsx"
-    - "src/features/sgq/capa/components/CAPADetailView.tsx"
-    - "src/features/sgq/capa/components/ActionCard.tsx"
-    - "src/features/sgq/capa/components/VerificationForm.tsx"
-    - "src/features/sgq/capa/components/CAPAForm.tsx"
-    - "src/features/sgq/capa/components/index.ts"
-    - "src/features/sgq/capa/pages/CAPAHome.tsx"
+    - 'src/features/sgq/capa/hooks/useCAPAList.ts'
+    - 'src/features/sgq/capa/hooks/useCAPADetail.ts'
+    - 'src/features/sgq/capa/hooks/index.ts'
+    - 'src/features/sgq/capa/components/CAPAListView.tsx'
+    - 'src/features/sgq/capa/components/CAPADetailView.tsx'
+    - 'src/features/sgq/capa/components/ActionCard.tsx'
+    - 'src/features/sgq/capa/components/VerificationForm.tsx'
+    - 'src/features/sgq/capa/components/CAPAForm.tsx'
+    - 'src/features/sgq/capa/components/index.ts'
+    - 'src/features/sgq/capa/pages/CAPAHome.tsx'
   modified:
-    - "src/features/auth/AuthWrapper.tsx (added CAPAHome import + routing)"
-    - "src/features/hub/ModuleHub.tsx (activated nao-conformidades tile)"
+    - 'src/features/auth/AuthWrapper.tsx (added CAPAHome import + routing)'
+    - 'src/features/hub/ModuleHub.tsx (activated nao-conformidades tile)'
 decisions:
-  - "Use realtime subscriptions (onSnapshot) for both list and actions; verifications are static (immutable, one-time fetch)"
-  - "Dark-first design: bg-[#141417], text-white/90, violet-500 accents, no gradients"
-  - "Status badges always use icon + text + color (WCAG AA color-not-sole indicator)"
-  - "Form validation client-side before submission (UX), server-side via callable (security)"
-  - "Service layer: all writes via callables, client reads via subscriptions"
-  - "CAPAHome as single-entry-point; routing via useActiveLabId + labId context"
+  - 'Use realtime subscriptions (onSnapshot) for both list and actions; verifications are static (immutable, one-time fetch)'
+  - 'Dark-first design: bg-[#141417], text-white/90, violet-500 accents, no gradients'
+  - 'Status badges always use icon + text + color (WCAG AA color-not-sole indicator)'
+  - 'Form validation client-side before submission (UX), server-side via callable (security)'
+  - 'Service layer: all writes via callables, client reads via subscriptions'
+  - 'CAPAHome as single-entry-point; routing via useActiveLabId + labId context'
 metrics:
-  duration: "~90 minutes (parallel execution across 2 agents)"
-  completed_date: "2026-05-09"
-  tasks_completed: "4/4"
-  commits: "2 (hooks from 0b89a9b, routing from 390c0b9)"
-  files_created: "10"
-  files_modified: "2"
-  test_count: "0 (unit tests pending in 06-03)"
-
+  duration: '~90 minutes (parallel execution across 2 agents)'
+  completed_date: '2026-05-09'
+  tasks_completed: '4/4'
+  commits: '2 (hooks from 0b89a9b, routing from 390c0b9)'
+  files_created: '10'
+  files_modified: '2'
+  test_count: '0 (unit tests pending in 06-03)'
 ---
 
 # Phase 6 Plan 02: CAPA UI Summary
@@ -82,7 +81,7 @@ Build dark-first, world-class React UI for CAPA (Corrective/Preventive Action) l
 
 - **Purpose:** Load single CAPA with all related data
 - **Features:**
-  - Root CAPA: fetch once via `getCAPA()` 
+  - Root CAPA: fetch once via `getCAPA()`
   - Actions: realtime subscription via `subscribeAcoes()`
   - Verifications: one-time fetch via `getVerificacoes()` (immutable)
   - Parallel loading: `Promise.all([loadCAPA(), loadVerificacoes()])`
@@ -187,26 +186,26 @@ Build dark-first, world-class React UI for CAPA (Corrective/Preventive Action) l
 
 ## Design System Adherence
 
-| Aspect | Implementation |
-|--------|---|
-| Dark Theme | bg-[#141417] (root), white/90 text, white/10 borders |
-| Accents | Violet-500 (primary), Emerald-500 (success), Red-500 (error) |
-| Typography | Geist Sans (system fallback), 18pt headings, 14pt body, 12pt captions |
-| Spacing | 4px grid: p-1, p-2, p-4, p-6, p-8 |
-| Status Indicators | Icon + text + color (never color-only) |
-| Transitions | 150-200ms ease, no flashing |
-| Hover/Focus | bg-white/[0.04] hover, ring-2 ring-violet-500 focus |
+| Aspect            | Implementation                                                        |
+| ----------------- | --------------------------------------------------------------------- |
+| Dark Theme        | bg-[#141417] (root), white/90 text, white/10 borders                  |
+| Accents           | Violet-500 (primary), Emerald-500 (success), Red-500 (error)          |
+| Typography        | Geist Sans (system fallback), 18pt headings, 14pt body, 12pt captions |
+| Spacing           | 4px grid: p-1, p-2, p-4, p-6, p-8                                     |
+| Status Indicators | Icon + text + color (never color-only)                                |
+| Transitions       | 150-200ms ease, no flashing                                           |
+| Hover/Focus       | bg-white/[0.04] hover, ring-2 ring-violet-500 focus                   |
 
 ## WCAG AA Compliance
 
-| Criterion | Implementation |
-|-----------|---|
-| Contrast (4.5:1) | Text white/90 on bg-[#141417] = 18:1 ✓ |
-| Focus Visible | ring-2 ring-violet-500 on all interactive elements ✓ |
-| Keyboard Navigation | Tab through rows/buttons, Enter to activate ✓ |
-| Semantic HTML | `<table>`, `<th scope="col">`, `<label>`, `<button>` ✓ |
-| Color Not Sole Indicator | Status uses icon + text + color ✓ |
-| Form Labels | All inputs have labels + aria-describedby ✓ |
+| Criterion                | Implementation                                         |
+| ------------------------ | ------------------------------------------------------ |
+| Contrast (4.5:1)         | Text white/90 on bg-[#141417] = 18:1 ✓                 |
+| Focus Visible            | ring-2 ring-violet-500 on all interactive elements ✓   |
+| Keyboard Navigation      | Tab through rows/buttons, Enter to activate ✓          |
+| Semantic HTML            | `<table>`, `<th scope="col">`, `<label>`, `<button>` ✓ |
+| Color Not Sole Indicator | Status uses icon + text + color ✓                      |
+| Form Labels              | All inputs have labels + aria-describedby ✓            |
 
 ## Realtime Data Flow
 
@@ -216,7 +215,7 @@ CAPAHome (useActiveLabId)
      ├─ subscribeCAPAs(labId, {status?, prioridade?, ...})
      │  └─ onSnapshot callback → setState(capas)
      └─ returns { capas[], isLoading, error }
-  
+
   └─ CAPAListView(capas, isLoading, error)
      └─ Row click → navigate to /capa/{capaId}
 
@@ -225,7 +224,7 @@ CAPADetail (from navigation)
      ├─ getCAPA(labId, capaId) → setCapa
      ├─ subscribeAcoes(labId, capaId) → setAcoes (realtime)
      └─ getVerificacoes(labId, capaId) → setVerificacoes (static)
-  
+
   └─ CAPADetailView(capa, acoes, verificacoes)
      ├─ ActionCard(action)
      └─ VerificationForm (calls verifyCAPA → updates status)
@@ -237,11 +236,11 @@ None — plan executed exactly as specified. All components created with correct
 
 ## Threat Flags
 
-| Flag | File | Description |
-|------|------|-------------|
-| No client-side writes | All components | CAPAForm/VerificationForm submit via callables only, Rules enforce `allow create: if false` |
-| No XSS in user inputs | All components | React auto-escapes, plus server-side callable validation |
-| No unauthorized filtering | useCAPAList | Rules filter query results by membership (client can request but Firestore Rules deny) |
+| Flag                      | File           | Description                                                                                 |
+| ------------------------- | -------------- | ------------------------------------------------------------------------------------------- |
+| No client-side writes     | All components | CAPAForm/VerificationForm submit via callables only, Rules enforce `allow create: if false` |
+| No XSS in user inputs     | All components | React auto-escapes, plus server-side callable validation                                    |
+| No unauthorized filtering | useCAPAList    | Rules filter query results by membership (client can request but Firestore Rules deny)      |
 
 ## Post-Completion Verification
 

@@ -33,7 +33,6 @@ try {
   console.log(`   Lote ID: ${lotId}`);
   console.log(`   Setup Type: principal`);
   console.log(`   Status: Pronto para registrar corridas\n`);
-
 } catch (err) {
   console.error('❌ Erro ao vincular:');
   console.error('   Mensagem:', err.message);

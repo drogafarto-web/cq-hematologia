@@ -268,7 +268,7 @@ describe('WCAG 2.1 Level AA Accessibility Audit', () => {
     test('WCAG 2.1.1: All interactive elements are keyboard accessible', () => {
       const elements = component.getElements();
       const interactiveElements = elements.filter(
-        (e) => e.role === 'button' || e.tagName === 'button' || e.tagName === 'a'
+        (e) => e.role === 'button' || e.tagName === 'button' || e.tagName === 'a',
       );
 
       interactiveElements.forEach((el) => {
@@ -437,7 +437,7 @@ describe('WCAG 2.1 Level AA Accessibility Audit', () => {
       const elements = component.getElements();
 
       const focusableElements = elements.filter(
-        (e) => e.role === 'button' || e.tagName === 'button' || e.tagName === 'select'
+        (e) => e.role === 'button' || e.tagName === 'button' || e.tagName === 'select',
       );
 
       expect(focusableElements.length).toBeGreaterThan(0);
@@ -452,7 +452,7 @@ describe('WCAG 2.1 Level AA Accessibility Audit', () => {
       const elements = component.getElements();
 
       const positiveTabindexCount = elements.filter(
-        (e) => e.tabindex !== undefined && e.tabindex > 0
+        (e) => e.tabindex !== undefined && e.tabindex > 0,
       ).length;
 
       // Positive tabindex (1+) should be rare/zero — use source order instead
@@ -554,7 +554,7 @@ describe('WCAG 2.1 Level AA Accessibility Audit', () => {
       const elements = component.getElements();
 
       const interactiveElements = elements.filter(
-        (e) => e.role === 'button' || e.role === 'combobox' || e.tagName === 'button'
+        (e) => e.role === 'button' || e.role === 'combobox' || e.tagName === 'button',
       );
 
       interactiveElements.forEach((el) => {

@@ -120,9 +120,7 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
   // Filtro de colaboradores por search
   const filteredColaboradores = operadorSearch
     ? colaboradores.filter((c) =>
-        `${c.nome} (${c.id})`
-          .toLowerCase()
-          .includes(operadorSearch.toLowerCase())
+        `${c.nome} (${c.id})`.toLowerCase().includes(operadorSearch.toLowerCase()),
       )
     : colaboradores;
 
@@ -165,7 +163,7 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
     const h = (e: KeyboardEvent) => {
       if (e.key !== 'Tab') return;
       const els = dialog.querySelectorAll<HTMLElement>(
-        'button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])'
+        'button:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
       );
       if (!els.length) return;
       const first = els[0],
@@ -198,8 +196,7 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
   // Submit
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!actualLabId || !operadorId || !tipo || modulosLiberados.size === 0 || !validoDe)
-      return;
+    if (!actualLabId || !operadorId || !tipo || modulosLiberados.size === 0 || !validoDe) return;
 
     if (validoAte && validoAte <= validoDe) {
       setError('Data de término deve ser após a data inicial.');
@@ -279,8 +276,8 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
           </div>
           <div className="px-6 py-5">
             <p className="text-sm text-white/60">
-              Apenas responsáveis técnicos podem conceder qualificações. Contate o administrador
-              do laboratório.
+              Apenas responsáveis técnicos podem conceder qualificações. Contate o administrador do
+              laboratório.
             </p>
           </div>
           <div className="px-6 py-4 border-t border-white/[0.07]">
@@ -418,7 +415,9 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
                         </button>
                       ))
                     ) : (
-                      <div className="px-3.5 py-3 text-xs text-white/40">Nenhum operador encontrado</div>
+                      <div className="px-3.5 py-3 text-xs text-white/40">
+                        Nenhum operador encontrado
+                      </div>
                     )}
                   </div>
                 )}
@@ -473,7 +472,10 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
               >
                 {['Hematologia', 'Imunologia', 'Coagulação', 'Uroanálise', 'Bioquímica'].map(
                   (mod) => (
-                    <label key={mod} className="flex items-center gap-2.5 cursor-pointer select-none">
+                    <label
+                      key={mod}
+                      className="flex items-center gap-2.5 cursor-pointer select-none"
+                    >
                       <input
                         type="checkbox"
                         checked={modulosLiberados.has(mod)}
@@ -491,7 +493,7 @@ export function CriarQualificacaoModal({ open, labId: propLabId, onClose, onSucc
                       />
                       <span className="text-sm text-white/60">{mod}</span>
                     </label>
-                  )
+                  ),
                 )}
               </div>
             </div>

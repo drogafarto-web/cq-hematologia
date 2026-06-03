@@ -60,9 +60,7 @@ export const geminiStripParser = onCall(
         throw new HttpsError('unauthenticated', 'User not authenticated');
       }
 
-      const { labId, imageBase64, expectedAnalytes } = GeminiParserInputSchema.parse(
-        request.data
-      );
+      const { labId, imageBase64, expectedAnalytes } = GeminiParserInputSchema.parse(request.data);
 
       // Verify user is member of lab
       const memberDoc = await db
@@ -178,7 +176,7 @@ Return ONLY the JSON response with analyzed values and confidence scores (0-1).`
 
       throw new HttpsError(
         'internal',
-        `Gemini returned non-JSON after 2 attempts: ${lastError?.message || 'unknown error'}`
+        `Gemini returned non-JSON after 2 attempts: ${lastError?.message || 'unknown error'}`,
       );
     } catch (err) {
       if (err instanceof HttpsError) {
@@ -192,5 +190,5 @@ Return ONLY the JSON response with analyzed values and confidence scores (0-1).`
       console.error('[geminiStripParser] Error:', err);
       throw new HttpsError('internal', 'Strip parsing failed');
     }
-  }
+  },
 );

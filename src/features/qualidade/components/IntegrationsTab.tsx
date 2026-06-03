@@ -11,14 +11,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  limit,
-  onSnapshot,
-} from 'firebase/firestore';
+import { collection, query, where, orderBy, limit, onSnapshot } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { LabId } from '../types/shared_refs';
 
@@ -60,7 +53,7 @@ export function IntegrationsTab({ labId }: IntegrationsTabProps) {
       where('origem', '==', 'auditoria-avancada'),
       where('deletadoEm', '==', null),
       orderBy('criadoEm', 'desc'),
-      limit(20)
+      limit(20),
     );
 
     const unsubscribe = onSnapshot(
@@ -85,7 +78,7 @@ export function IntegrationsTab({ labId }: IntegrationsTabProps) {
         console.error('[IntegrationsTab] NC subscription error', err);
         setError(err.message || 'Erro ao carregar NCs vinculadas');
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -102,7 +95,7 @@ export function IntegrationsTab({ labId }: IntegrationsTabProps) {
       where('status', '==', 'active'),
       where('createdAt', '>=', thirtyDaysAgo),
       orderBy('createdAt', 'desc'),
-      limit(100)
+      limit(100),
     );
 
     const unsubscribe = onSnapshot(
@@ -119,7 +112,7 @@ export function IntegrationsTab({ labId }: IntegrationsTabProps) {
           moduleCounts[moduleId].count++;
           moduleCounts[moduleId].lastDetected = Math.max(
             moduleCounts[moduleId].lastDetected,
-            data.createdAt || 0
+            data.createdAt || 0,
           );
         });
 
@@ -130,7 +123,7 @@ export function IntegrationsTab({ labId }: IntegrationsTabProps) {
 
         setConcentrations(sorted);
       },
-      () => {}
+      () => {},
     );
 
     return () => unsubscribe();

@@ -13,21 +13,15 @@ const equipamentoId = 'clotimer-duo';
 const userId = '2C7CDajpigXfaAVAzzJVFfrhgYB2';
 
 try {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('insumos')
-    .doc(insumoId)
-    .update({
-      equipamentoId,
-      updatedAt: admin.firestore.Timestamp.now(),
-      updatedBy: userId,
-    });
+  await db.collection('labs').doc(labId).collection('insumos').doc(insumoId).update({
+    equipamentoId,
+    updatedAt: admin.firestore.Timestamp.now(),
+    updatedBy: userId,
+  });
 
   console.log('✅ Insumo atualizado!\n');
   console.log(`   Insumo: APPT REAGENTE (${insumoId})`);
   console.log(`   Equipamento: ${equipamentoId}\n`);
-
 } catch (err) {
   console.error('❌ Erro ao atualizar:');
   console.error('   Mensagem:', err.message);

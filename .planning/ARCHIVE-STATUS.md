@@ -69,22 +69,22 @@
 
 ### v1.3 Timeline
 
-| Phase | Period | Status | Outcome |
-|-------|--------|--------|---------|
-| Phase 0 | 2026-05-04 | Planning | RDC 978 blockers identified |
-| Phase 2 | 2026-05-04 → 2026-05-05 | Complete | 20/20 modules in production |
-| Phase 3.1 | 2026-05-05 | Complete | Foundation (mobile scaffold + analytics) |
-| Phase 3.2 | 2026-05-05 | Complete | Core features (export, reports) |
-| Phase 3.3 | 2026-05-05 → 2026-05-06 | Complete | Polish (TSC clean, tests ✅) |
-| **Deploy Step 1** | 2026-05-06 | Complete | Hosting live |
-| **Deploy Step 2** | 2026-05-06 | Complete | Cloud Functions deployed |
-| **Deploy Step 3** | 2026-05-06 | Complete | 24h Cloud Logs monitoring baseline |
-| **Deploy Step 4** | 2026-05-06 | Complete | Smoke tests (19/19 ✅) |
-| Phase 8 | 2026-05-06 → ongoing | Closed | CAPA closure (11/12, NC-011 deferred) |
-| Phase 9 | 2026-05-06 → 2026-05-07 | **Complete** | Bioquímica (module 25) deployed |
-| Phase 12 | 2026-05-06 → 2026-05-07 | **Complete** | SGD + Riopomba migration (80 docs) |
-| Phase 10 | 2026-05-06 → ongoing | In Progress | Release gates + rollback playbook |
-| Phase 11 | 2026-05-06 → ongoing | In Progress | Complaints + satisfaction + feedback |
+| Phase             | Period                  | Status       | Outcome                                  |
+| ----------------- | ----------------------- | ------------ | ---------------------------------------- |
+| Phase 0           | 2026-05-04              | Planning     | RDC 978 blockers identified              |
+| Phase 2           | 2026-05-04 → 2026-05-05 | Complete     | 20/20 modules in production              |
+| Phase 3.1         | 2026-05-05              | Complete     | Foundation (mobile scaffold + analytics) |
+| Phase 3.2         | 2026-05-05              | Complete     | Core features (export, reports)          |
+| Phase 3.3         | 2026-05-05 → 2026-05-06 | Complete     | Polish (TSC clean, tests ✅)             |
+| **Deploy Step 1** | 2026-05-06              | Complete     | Hosting live                             |
+| **Deploy Step 2** | 2026-05-06              | Complete     | Cloud Functions deployed                 |
+| **Deploy Step 3** | 2026-05-06              | Complete     | 24h Cloud Logs monitoring baseline       |
+| **Deploy Step 4** | 2026-05-06              | Complete     | Smoke tests (19/19 ✅)                   |
+| Phase 8           | 2026-05-06 → ongoing    | Closed       | CAPA closure (11/12, NC-011 deferred)    |
+| Phase 9           | 2026-05-06 → 2026-05-07 | **Complete** | Bioquímica (module 25) deployed          |
+| Phase 12          | 2026-05-06 → 2026-05-07 | **Complete** | SGD + Riopomba migration (80 docs)       |
+| Phase 10          | 2026-05-06 → ongoing    | In Progress  | Release gates + rollback playbook        |
+| Phase 11          | 2026-05-06 → ongoing    | In Progress  | Complaints + satisfaction + feedback     |
 
 ### Archived Content
 
@@ -107,19 +107,20 @@
 
 ### DICQ Coverage
 
-| Section | Pre-v1.3 | v1.3 Final | Target | Status |
-|---------|----------|-----------|--------|--------|
-| Bloco A (Governance) | 73% | 78% | 75% | ✅ EXCEEDED |
-| Bloco B (Document Control) | ~70% | 95% | 75% | ✅ EXCEEDED |
-| Bloco C (Personnel) | 67% | 80% | 75% | ✅ EXCEEDED |
-| Bloco D (Infrastructure) | 75% | 82% | 75% | ✅ EXCEEDED |
-| Bloco E (Resource Mgmt) | 68% | 85% | 75% | ✅ EXCEEDED |
-| Bloco F (Analytical) | 85% | 92% | 75% | ✅ EXCEEDED |
-| **Overall DICQ** | 71.3% | 78.5% | 75% | ✅ EXCEEDED |
+| Section                    | Pre-v1.3 | v1.3 Final | Target | Status      |
+| -------------------------- | -------- | ---------- | ------ | ----------- |
+| Bloco A (Governance)       | 73%      | 78%        | 75%    | ✅ EXCEEDED |
+| Bloco B (Document Control) | ~70%     | 95%        | 75%    | ✅ EXCEEDED |
+| Bloco C (Personnel)        | 67%      | 80%        | 75%    | ✅ EXCEEDED |
+| Bloco D (Infrastructure)   | 75%      | 82%        | 75%    | ✅ EXCEEDED |
+| Bloco E (Resource Mgmt)    | 68%      | 85%        | 75%    | ✅ EXCEEDED |
+| Bloco F (Analytical)       | 85%      | 92%        | 75%    | ✅ EXCEEDED |
+| **Overall DICQ**           | 71.3%    | 78.5%      | 75%    | ✅ EXCEEDED |
 
 ### Modules in Production (v1.3)
 
 **25 modules deployed:**
+
 1. analyzer
 2. coagulacao
 3. ciq-imuno
@@ -154,13 +155,13 @@
 
 ### RDC 978/2025 Compliance (Snapshot)
 
-| Article | Requirement | Status | Module |
-|---------|-------------|--------|--------|
-| Art. 179-180 | CIQ (all analytes) | ✅ | analyzer, coagulacao, bioquimica |
-| Art. 122 | Shift supervision | ✅ | turnos |
-| Art. 111 | Complaints handling | ⏳ Phase 11 | reclamacoes |
-| Art. 86 | Risk management | ✅ | risks |
-| Arts. 36–39 | Support lab contracts | ✅ | lab-apoio |
+| Article      | Requirement           | Status      | Module                           |
+| ------------ | --------------------- | ----------- | -------------------------------- |
+| Art. 179-180 | CIQ (all analytes)    | ✅          | analyzer, coagulacao, bioquimica |
+| Art. 122     | Shift supervision     | ✅          | turnos                           |
+| Art. 111     | Complaints handling   | ⏳ Phase 11 | reclamacoes                      |
+| Art. 86      | Risk management       | ✅          | risks                            |
+| Arts. 36–39  | Support lab contracts | ✅          | lab-apoio                        |
 
 ---
 
@@ -169,6 +170,7 @@
 **Planning Location:** `.planning/phases/00-rdc-blockers/` (active)  
 **Schedule:** TBD (post-v1.3 review)  
 **Focus Areas:**
+
 - Order-entry system (NC-011 deferral from Phase 8)
 - Advanced risk management (FMEA-Complete)
 - Customer feedback analytics (Phase 11 continuation)

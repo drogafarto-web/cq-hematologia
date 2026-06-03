@@ -24,6 +24,7 @@ If ANVISA sandbox credentials are not provisioned by **May 15, 2026** (5 days pa
 3. Credentials are partial (e.g., sandbox URL but no API key, or vice versa)
 
 **Do NOT activate if:**
+
 - Credentials arrive before May 15 (use normal Phase 4.4 path per `NOTIVISA_SANDBOX_SETUP.md`)
 - ANVISA confirms extended timeline via official communication (CTO acknowledges and notifies team)
 
@@ -42,8 +43,8 @@ export const USE_MOCK_NOTIVISA = NOTIVISA_MODE === 'MOCK';
 
 export const notivisaConfig = {
   apiKey: USE_MOCK_NOTIVISA ? 'mock-key-xyz' : process.env.ANVISA_API_KEY,
-  apiUrl: USE_MOCK_NOTIVISA 
-    ? 'http://localhost:8081/mock/notivisa' 
+  apiUrl: USE_MOCK_NOTIVISA
+    ? 'http://localhost:8081/mock/notivisa'
     : process.env.ANVISA_SANDBOX_URL,
   retryAttempts: 3,
   retryDelayMs: USE_MOCK_NOTIVISA ? 100 : 2000,
@@ -104,7 +105,7 @@ export const mockNotivisaEndpoint = functions.https.onRequest(
 
     try {
       const payload = req.body as MockNOTIVISAPayload;
-      
+
       // Validation
       if (!payload.evento || !payload.laudo?.id) {
         res.status(400).json({
@@ -136,7 +137,7 @@ export const mockNotivisaEndpoint = functions.https.onRequest(
         timestamp: new Date().toISOString(),
       } as MockNOTIVISAResponse);
     }
-  }
+  },
 );
 ```
 
@@ -167,7 +168,7 @@ async function submitToMockEndpoint(draftId: string, labId: string) {
   // Identical response contract to real ANVISA
   const response = await fetch(notivisaConfig.apiUrl, {
     method: 'POST',
-    headers: { 'Authorization': `Bearer ${notivisaConfig.apiKey}` },
+    headers: { Authorization: `Bearer ${notivisaConfig.apiKey}` },
     body: JSON.stringify({ evento: 'submission', laudo: { id: draftId } }),
   });
   return response.json();
@@ -213,24 +214,29 @@ export const useNotivisaSubmit = () => {
   const config = useNOTIVISAConfig();
   const isMockMode = config?.enableMockMode ?? false;
 
-  const submit = useCallback(async (draftId: string) => {
-    if (isMockMode) {
-      showNotification({
-        type: 'warning',
-        title: 'Modo de Teste',
-        message: 'NOTIVISA em modo de teste. Credenciais da ANVISA pendentes. Nenhuma notificação será enviada ao governo.',
-      });
-      // Allow submit but mark as TEST
-      return submitDraft(draftId, { testMode: true });
-    }
-    return submitDraft(draftId, { testMode: false });
-  }, [config?.enableMockMode]);
+  const submit = useCallback(
+    async (draftId: string) => {
+      if (isMockMode) {
+        showNotification({
+          type: 'warning',
+          title: 'Modo de Teste',
+          message:
+            'NOTIVISA em modo de teste. Credenciais da ANVISA pendentes. Nenhuma notificação será enviada ao governo.',
+        });
+        // Allow submit but mark as TEST
+        return submitDraft(draftId, { testMode: true });
+      }
+      return submitDraft(draftId, { testMode: false });
+    },
+    [config?.enableMockMode],
+  );
 
   return { submit, isMockMode };
 };
 ```
 
 **UI Behavior:**
+
 - Submit button visible but labeled "Enviar (Teste)" or disabled with tooltip
 - Draft status badge shows "TESTE" / "Pendente Gov" clearly
 - No confusion with production submissions
@@ -272,6 +278,7 @@ export const useNotivisaSubmit = () => {
 ### Step 1: Check ANVISA Helpdesk (same day)
 
 **Action:** CTO or Auditor sends escalation email to:
+
 - **To:** `contato@anvisa.gov.br` (copied to provisioning contact)
 - **Subject:** `[URGENTE] Sandbox Credenciais - Projeto HC Quality (CNPJ: XXX)`
 - **Template:**
@@ -371,13 +378,13 @@ bash scripts/monitor-cloud-logs.sh 60 30
 
 ## Backup Contact (ANVISA Escalation)
 
-| Role | Name | Email | Phone |
-|------|------|-------|-------|
-| ANVISA Provisioning | [Contact from initial request] | [Email] | [Phone] |
-| ANVISA Helpdesk | Suporte Técnico | contato@anvisa.gov.br | — |
-| CTO (This project) | [CTO Name] | [CTO Email] | [CTO Phone] |
-| Auditor (Lab) | [Auditor Name] | [Auditor Email] | [Auditor Phone] |
-| Director (Lab) | [Director Name] | [Director Email] | [Director Phone] |
+| Role                | Name                           | Email                 | Phone            |
+| ------------------- | ------------------------------ | --------------------- | ---------------- |
+| ANVISA Provisioning | [Contact from initial request] | [Email]               | [Phone]          |
+| ANVISA Helpdesk     | Suporte Técnico                | contato@anvisa.gov.br | —                |
+| CTO (This project)  | [CTO Name]                     | [CTO Email]           | [CTO Phone]      |
+| Auditor (Lab)       | [Auditor Name]                 | [Auditor Email]       | [Auditor Phone]  |
+| Director (Lab)      | [Director Name]                | [Director Email]      | [Director Phone] |
 
 **Update contacts before May 10.**
 
@@ -385,14 +392,14 @@ bash scripts/monitor-cloud-logs.sh 60 30
 
 ## Risk Mitigation Summary
 
-| Risk | Mitigation | Owner |
-|------|-----------|-------|
-| **No real credentials by May 15** | Activate Phase 4.4 Mock Mode immediately | CTO |
-| **Production NOTIVISA leak** | Feature flag + Firestore rules block all real submissions | Security + CTO |
-| **Test data confusion** | All mock submissions marked `mockMode=true` + "TESTE" UI badge | Auditor |
-| **Timeline slip** | Mock endpoint unblocks dev; real credentials enable parallel work, no rework | CTO |
-| **ANVISA unresponsiveness** | Escalation path + director notification + May 25 deadline | CTO + Director |
-| **Rollback complexity** | Pre-tested rollback checklist (see above) | DevOps |
+| Risk                              | Mitigation                                                                   | Owner          |
+| --------------------------------- | ---------------------------------------------------------------------------- | -------------- |
+| **No real credentials by May 15** | Activate Phase 4.4 Mock Mode immediately                                     | CTO            |
+| **Production NOTIVISA leak**      | Feature flag + Firestore rules block all real submissions                    | Security + CTO |
+| **Test data confusion**           | All mock submissions marked `mockMode=true` + "TESTE" UI badge               | Auditor        |
+| **Timeline slip**                 | Mock endpoint unblocks dev; real credentials enable parallel work, no rework | CTO            |
+| **ANVISA unresponsiveness**       | Escalation path + director notification + May 25 deadline                    | CTO + Director |
+| **Rollback complexity**           | Pre-tested rollback checklist (see above)                                    | DevOps         |
 
 ---
 
@@ -415,7 +422,7 @@ If YES:
   - Merged to main: [Commit SHA]
   - Deployed to sandbox: [Date/Time]
   - First live submission: [Protocol ID / Link to log]
-  
+
 If NO (escalation → Phase 5 or later):
   - Final escalation email sent: [Date]
   - Director approval to defer: [Date]

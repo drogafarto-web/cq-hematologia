@@ -15,8 +15,7 @@ import type { Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { ControlOperacional, ControlOperacionalInput } from '../types/ControlOperacional';
 
-const COLLECTION = (labId: string) =>
-  collection(db, 'labs', labId, 'control-operacional');
+const COLLECTION = (labId: string) => collection(db, 'labs', labId, 'control-operacional');
 
 export async function createControlOperacional(
   labId: string,
@@ -60,7 +59,7 @@ export async function listControlOperacionals(
   constraints.push(orderBy('criadoEm', 'desc'));
   constraints.push(limit(50));
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as ControlOperacional));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ControlOperacional);
 }
 
 export async function updateControlOperacional(
@@ -74,10 +73,7 @@ export async function updateControlOperacional(
   });
 }
 
-export async function deleteControlOperacional(
-  labId: string,
-  id: string,
-): Promise<void> {
+export async function deleteControlOperacional(labId: string, id: string): Promise<void> {
   await updateDoc(doc(COLLECTION(labId), id), {
     status: 'aposentado',
     atualizadoEm: serverTimestamp(),

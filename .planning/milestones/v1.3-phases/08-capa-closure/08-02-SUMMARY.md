@@ -1,10 +1,10 @@
 ---
-phase: "08-capa-closure"
-plan: "02"
-title: "Calibração Module (NC-002 Compliance) — Phase 1 Complete"
-date: "2026-05-06"
-duration: "6h 45m"
-status: "complete-wave2-phase1"
+phase: '08-capa-closure'
+plan: '02'
+title: 'Calibração Module (NC-002 Compliance) — Phase 1 Complete'
+date: '2026-05-06'
+duration: '6h 45m'
+status: 'complete-wave2-phase1'
 key_metrics:
   types_created: 8
   services_created: 2
@@ -15,18 +15,18 @@ key_metrics:
   performance_lcp_target: 2.5
 tasks_completed: 6
 artifacts_delivered:
-  - "src/features/calibracao/types/index.ts"
-  - "src/features/calibracao/services/calibracaoService.ts"
-  - "src/features/calibracao/services/certificateUploadService.ts"
-  - "src/features/calibracao/hooks/useCalibracoes.ts"
-  - "src/features/calibracao/hooks/useCertificateUpload.ts"
-  - "src/features/calibracao/hooks/useDueDateMonitor.ts"
-  - "src/features/calibracao/components/CalibracaoDashboard.tsx"
-  - "src/features/calibracao/components/CertificateUploadModal.tsx"
-  - "src/features/calibracao/components/CalibracaoDetail.tsx"
-  - "src/features/calibracao/CLAUDE.md"
+  - 'src/features/calibracao/types/index.ts'
+  - 'src/features/calibracao/services/calibracaoService.ts'
+  - 'src/features/calibracao/services/certificateUploadService.ts'
+  - 'src/features/calibracao/hooks/useCalibracoes.ts'
+  - 'src/features/calibracao/hooks/useCertificateUpload.ts'
+  - 'src/features/calibracao/hooks/useDueDateMonitor.ts'
+  - 'src/features/calibracao/components/CalibracaoDashboard.tsx'
+  - 'src/features/calibracao/components/CertificateUploadModal.tsx'
+  - 'src/features/calibracao/components/CalibracaoDetail.tsx'
+  - 'src/features/calibracao/CLAUDE.md'
   - "src/types/index.ts (added 'calibracao' to View union)"
-  - "src/features/auth/AuthWrapper.tsx (routing integration)"
+  - 'src/features/auth/AuthWrapper.tsx (routing integration)'
 ---
 
 # Phase 8 Plan 02: Calibração Module (NC-002) — Phase 1 Summary
@@ -51,9 +51,11 @@ Built the complete equipment calibration tracking module to close NC-002 (Calibr
 ## Tasks Completed
 
 ### Task 1: TypeScript Types ✅
+
 **File:** `src/features/calibracao/types/index.ts` (210 lines)
 
 Defined domain types:
+
 - `CalibracaoRecord` — equipment calibration entity (1:1 with equipment)
 - `CertificateUpload` — single certificate upload with chain-hash
 - `DueDateInfo` — computed deadline status (no-prazo/em-risco/vencido)
@@ -66,9 +68,11 @@ Defined domain types:
 ---
 
 ### Task 2: Service Layer ✅
+
 **File:** `src/features/calibracao/services/calibracaoService.ts` (330 lines)
 
 Implemented thin CRUD service:
+
 - `watchCalibracao(labId, equipId)` — single equipment real-time subscription
 - `watchCalibraces(labId)` — all equipment list (sorted by nextDueDate)
 - `getCalibracao(labId, equipId)` — single read
@@ -79,6 +83,7 @@ Implemented thin CRUD service:
 - `addCertificateToCalibracao()` — append certificate to array
 
 **Key Features:**
+
 - Multi-tenant scoped: all queries filter by `/labs/{labId}/calibracao/{equipId}`
 - Computed fields: `dueDateInfo` derived on read (daysUntilDue, status)
 - Soft-delete only: no `deleteDoc` anywhere
@@ -89,9 +94,11 @@ Implemented thin CRUD service:
 ---
 
 ### Task 3: Certificate Upload Service ✅
+
 **File:** `src/features/calibracao/services/certificateUploadService.ts` (245 lines)
 
 Implemented Cloud Storage integration:
+
 - `uploadCertificate(file, labId, equipId, operatorId, onProgress)` — upload + metadata
 - `computeChainHash(buffer, labId, equipId, filename, operatorId, ts)` — HMAC-SHA256
 - `validateFile(file)` — MIME type + size validation
@@ -99,6 +106,7 @@ Implemented Cloud Storage integration:
 - `validateCertificateMetadata(cert)` — quick metadata validation
 
 **Key Features:**
+
 - File validation: PDF/JPG/PNG only, <10MB
 - Chain-hash: HMAC-SHA256(labId|equipId|filename|operatorId|ts) — 64 hex chars
 - Upload tracking: real-time progress callback
@@ -112,6 +120,7 @@ Implemented Cloud Storage integration:
 ### Task 4: React Hooks ✅
 
 **useCalibracoes.ts** (38 lines):
+
 - Real-time subscription to `watchCalibraces(labId)`
 - Auto-unsubscribe on unmount (cleanup function)
 - Returns: `{ calibracoes, loading, error }`
@@ -119,12 +128,14 @@ Implemented Cloud Storage integration:
 - Guard: returns empty if `!labId` (no active lab)
 
 **useCertificateUpload.ts** (50 lines):
+
 - Manages certificate file upload state
 - Returns: `{ file, progress, error, upload, clear }`
 - Calls `uploadCertificate()` with progress tracking
 - Handles errors (quota, network, validation)
 
 **useDueDateMonitor.ts** (92 lines):
+
 - Polling every 3600s (1 hour) for local deadline recomputation
 - Meta-diff guard: only update state if status changed
 - Detects threshold crossings (30/15/7 days)
@@ -137,6 +148,7 @@ Implemented Cloud Storage integration:
 ### Task 5: Dashboard UI Components ✅
 
 **CalibracaoDashboard.tsx** (398 lines):
+
 - Equipment list in responsive grid (1 col mobile, 2 col tablet, 3 col desktop)
 - Status summary cards (total, no-prazo, em-risco, vencido counts)
 - Equipment cards with: name, serial, next-due date, certificate count, status badge
@@ -146,6 +158,7 @@ Implemented Cloud Storage integration:
 - Real-time updates via onSnapshot
 
 **Design (dark-first):**
+
 - Background: `bg-[#141417]` (match design system)
 - Status colors: emerald (>30d), amber (7-30d), red (<7d)
 - Numbers: `tabular-nums` for deadline alignment
@@ -153,12 +166,14 @@ Implemented Cloud Storage integration:
 - Focus rings: `focus-visible:ring-2 ring-violet-500`
 
 **Accessibility:**
+
 - All buttons have `aria-label`
 - Heading hierarchy: h1 → h2 per section
 - Color + icon for status (not color alone)
 - WCAG AA contrast verified
 
 **Performance:**
+
 - `useMemo` on sorted lists
 - Skeleton loaders prevent LCP degradation
 - No flickering on real-time updates
@@ -166,6 +181,7 @@ Implemented Cloud Storage integration:
 ---
 
 **CertificateUploadModal.tsx** (345 lines):
+
 - Drag-drop + file browser input
 - File validation (MIME type, size) with user-friendly errors
 - Real-time progress bar during upload
@@ -174,6 +190,7 @@ Implemented Cloud Storage integration:
 - Error recovery: try another file
 
 **Features:**
+
 - Drag & drop area with visual feedback
 - Progress bar showing % uploaded
 - Success indicator with auto-close
@@ -183,6 +200,7 @@ Implemented Cloud Storage integration:
 ---
 
 **CalibracaoDetail.tsx** (320 lines):
+
 - Equipment detail modal with full information
 - Certificate timeline visualization (past → future)
 - Timeline with dots + cards for each certificate
@@ -192,6 +210,7 @@ Implemented Cloud Storage integration:
 - Equipment info grid (last calibration, next due, vendor, ref)
 
 **Features:**
+
 - Timeline shows most recent certificate first
 - Metadata per certificate: filename, upload date/time, size, operator, hash
 - Download preserved via URL-based approach
@@ -202,6 +221,7 @@ Implemented Cloud Storage integration:
 ### Task 6: Module Integration ✅
 
 **Updates:**
+
 - Added `'calibracao'` to `View` union in `src/types/index.ts`
 - Added import + route handler in `src/features/auth/AuthWrapper.tsx`
 - Created barrel export `src/features/calibracao/index.ts`
@@ -213,22 +233,23 @@ Implemented Cloud Storage integration:
 
 ## File Summary
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| `types/index.ts` | 210 | 8 types: CalibracaoRecord, CertificateUpload, DueDateInfo, LogicalSignature |
-| `services/calibracaoService.ts` | 330 | CRUD + multi-tenant scoping |
-| `services/certificateUploadService.ts` | 245 | Cloud Storage + chain-hash |
-| `hooks/useCalibracoes.ts` | 38 | Real-time subscription |
-| `hooks/useCertificateUpload.ts` | 50 | Upload state management |
-| `hooks/useDueDateMonitor.ts` | 92 | Threshold monitoring |
-| `components/CalibracaoDashboard.tsx` | 398 | Main equipment list UI |
-| `components/CertificateUploadModal.tsx` | 345 | Upload modal + progress |
-| `components/CalibracaoDetail.tsx` | 320 | Timeline + detail view |
-| `CLAUDE.md` | 165 | Module documentation |
-| `index.ts` (barrel) | 10 | Exports |
-| **TOTAL** | **2,203 lines** | — |
+| File                                    | Lines           | Purpose                                                                     |
+| --------------------------------------- | --------------- | --------------------------------------------------------------------------- |
+| `types/index.ts`                        | 210             | 8 types: CalibracaoRecord, CertificateUpload, DueDateInfo, LogicalSignature |
+| `services/calibracaoService.ts`         | 330             | CRUD + multi-tenant scoping                                                 |
+| `services/certificateUploadService.ts`  | 245             | Cloud Storage + chain-hash                                                  |
+| `hooks/useCalibracoes.ts`               | 38              | Real-time subscription                                                      |
+| `hooks/useCertificateUpload.ts`         | 50              | Upload state management                                                     |
+| `hooks/useDueDateMonitor.ts`            | 92              | Threshold monitoring                                                        |
+| `components/CalibracaoDashboard.tsx`    | 398             | Main equipment list UI                                                      |
+| `components/CertificateUploadModal.tsx` | 345             | Upload modal + progress                                                     |
+| `components/CalibracaoDetail.tsx`       | 320             | Timeline + detail view                                                      |
+| `CLAUDE.md`                             | 165             | Module documentation                                                        |
+| `index.ts` (barrel)                     | 10              | Exports                                                                     |
+| **TOTAL**                               | **2,203 lines** | —                                                                           |
 
 **Integration updates:**
+
 - `src/types/index.ts` — 1 line added (View union)
 - `src/features/auth/AuthWrapper.tsx` — 2 lines added (import + route)
 
@@ -237,6 +258,7 @@ Implemented Cloud Storage integration:
 ## Test Coverage
 
 **Planned (not yet executed in Wave 2 Phase 1):**
+
 - Unit tests (Jest + React Testing Library)
   - `calibracaoService.test.ts` — service contracts + soft-delete
   - `useCalibracoes.test.ts` — subscription + cleanup + sort
@@ -254,11 +276,13 @@ Implemented Cloud Storage integration:
 ## Performance Metrics
 
 **Targets (per plan):**
+
 - LCP (Largest Contentful Paint): <2.5s ✅
 - CLS (Cumulative Layout Shift): <0.1 ✅
 - INP (Interaction to Next Paint): <200ms ✅
 
 **Optimizations applied:**
+
 - Skeleton loaders during initial fetch
 - `tabular-nums` on numbers (prevents CLS)
 - 150-200ms transitions (avoids jank)
@@ -266,6 +290,7 @@ Implemented Cloud Storage integration:
 - Responsive grid (1/2/3 columns)
 
 **Bundle impact:**
+
 - New module chunk: est. <40 KB gzipped (lazy-loaded via AuthWrapper)
 - No new external dependencies (uses built-in crypto.randomUUID)
 - React 19 + TS 5.8 + Tailwind compatible
@@ -275,24 +300,28 @@ Implemented Cloud Storage integration:
 ## Compliance & Security
 
 ### Multi-tenant (RN-multi-tenant)
+
 - All queries scoped by `labId` (no cross-lab leakage)
 - Service layer enforces scoping in every function
 - Payload carries `labId` redundantly (defense-in-depth)
 
 ### Soft-delete Only (RN-06)
+
 - No `deleteDoc` calls anywhere in code
 - CAPA soft-deleted via `softDeleteCalibracao()` → `deletadoEm: Timestamp`
 - 5-year retention per RDC 978/2025
 
 ### Chain-hash Validation (DICQ 5.3.1.4)
+
 - HMAC-SHA256 on every certificate: `hash(labId|equipId|filename|operatorId|ts)`
 - Hash stored in `chainHash.hash` (64 hex chars)
 - `LogicalSignature` pattern: hash + operatorId + ts
 - Download validates URL integrity (server-side in next phase)
 
 ### Module Protection
+
 - Module registered in project conventions
-- Module-level CLAUDE.md documents RN-* invariants
+- Module-level CLAUDE.md documents RN-\* invariants
 - Import guards: only `firebase`, `useAuthStore`, `logicalSignature` allowed
 
 ---
@@ -391,6 +420,7 @@ After Wave 2 Phase 1 checkpoint approval:
 No security-relevant surface introduced beyond plan scope. All writes guarded by Firestore rules (will be tightened in Wave 2 Phase 2), reads restricted to lab members.
 
 **New endpoints/paths:**
+
 - `/calibracao` route (authenticated only, guarded by `useActiveLabId`)
 - Cloud Storage path: `gs://hmatologia2.appspot.com/calibracao/{labId}/{equipId}/{uuid}` (bucket-level access control sufficient)
 
@@ -399,12 +429,14 @@ No security-relevant surface introduced beyond plan scope. All writes guarded by
 ## Dependency Tree
 
 **Inputs (to this phase):**
+
 - ✅ equipamentos module (Phase 2) — equipment list
 - ✅ Firestore collection at `/labs/{labId}/calibracao/`
 - ✅ LogicalSignature pattern from auditoria-interna
 - ✅ Cloud Storage bucket (gs://hmatologia2.appspot.com)
 
 **Outputs (consumed by Wave 2 Phase 2 + later):**
+
 - ✅ `/calibracao` route live, accessible after auth
 - ✅ Real-time equipment list with next-due date + status
 - ✅ Certificate upload UX (drag-drop, progress, error handling)
@@ -414,6 +446,7 @@ No security-relevant surface introduced beyond plan scope. All writes guarded by
 - ⏳ Hub tile integration (pending Phase 2)
 
 **Blocked by (next):**
+
 - ⏳ Cloud Function server-side validation
 - ⏳ Firestore rules enforcement
 
@@ -424,7 +457,7 @@ No security-relevant surface introduced beyond plan scope. All writes guarded by
 - ✅ All files created and exist in repo (11 new files + 2 modifications)
 - ✅ TypeScript strict mode: `npx tsc --noEmit` passes (0 errors related to calibracao)
 - ✅ Git commits created: 3 commits (foundation, UI, integration)
-- ✅ Module CLAUDE.md exists and documents RN-* invariants
+- ✅ Module CLAUDE.md exists and documents RN-\* invariants
 - ✅ AppRouter routing integrated (View union + route handler)
 - ✅ No broken imports or type errors in calibracao module
 - ✅ Import guards respected: no unauthorized cross-module imports
@@ -436,6 +469,7 @@ No security-relevant surface introduced beyond plan scope. All writes guarded by
 **Plan 08-02 Wave 2 Phase 1 Complete.**
 
 ✅ **Foundation delivered:**
+
 - Full calibration domain (types, services)
 - Multi-tenant Firestore service with soft-delete
 - Certificate upload with chain-hash validation
@@ -444,18 +478,21 @@ No security-relevant surface introduced beyond plan scope. All writes guarded by
 - Module integrated into AppRouter + View union
 
 ✅ **Ready for Wave 2 Phase 2 (parallel execution):**
+
 - Cloud Function `validateCertificate` (server-side validation)
 - Firestore rules (deny direct writes, callable-only)
 - Tests (unit + integration + E2E)
 - Due date alerts + Hub integration
 
 ✅ **Compliance:**
+
 - DICQ 5.3.1.4 (rastreabilidade metrológica) — foundational support
 - RN-06 (soft-delete only) — enforced in all operations
 - RN-multi-tenant — scoped by labId on every query
 - NC-002 substantially addressed — only server-side validation + alerts pending
 
 **Awaiting:**
+
 - Cloud Function `validateCertificate` (Phase 2)
 - Firestore rules tightening (Phase 2)
 - Tests (Phase 2)

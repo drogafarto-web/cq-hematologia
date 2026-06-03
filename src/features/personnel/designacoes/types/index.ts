@@ -25,7 +25,12 @@ export interface Designacao {
   vigencia: number;
   dataExpiracao: number;
   assinatura: LogicalSignature;
-  auditLog: { action: 'created' | 'revoked'; timestamp: number; operatorId: string; reason?: string }[];
+  auditLog: {
+    action: 'created' | 'revoked';
+    timestamp: number;
+    operatorId: string;
+    reason?: string;
+  }[];
   createdAt: number;
   createdBy: string;
   deletedAt?: number;

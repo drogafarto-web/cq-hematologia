@@ -15,8 +15,8 @@ describe('Portal Module Callables', () => {
           labId: 'test-lab-001',
           enabled: true,
           primary_color: '#1A202C',
-          secondary_color: '#6366F1'
-        }
+          secondary_color: '#6366F1',
+        },
       };
 
       expect(response.access_granted).toBe(true);
@@ -32,7 +32,7 @@ describe('Portal Module Callables', () => {
     it('should return error for missing labId', () => {
       const response = {
         access_granted: false,
-        message: 'Missing labId'
+        message: 'Missing labId',
       };
 
       expect(response.access_granted).toBe(false);
@@ -44,7 +44,7 @@ describe('Portal Module Callables', () => {
       const response = {
         status: 'PLACEHOLDER',
         message: 'Laudo PDF export (Phase 6)',
-        downloadUrl: 'https://storage.googleapis.com/example/laudo-export.pdf'
+        downloadUrl: 'https://storage.googleapis.com/example/laudo-export.pdf',
       };
 
       expect(response.status).toBe('PLACEHOLDER');
@@ -59,7 +59,7 @@ describe('Portal Module Callables', () => {
     it('should return error for missing laudoId', () => {
       const response = {
         status: 'ERROR',
-        message: 'Missing laudoId'
+        message: 'Missing laudoId',
       };
 
       expect(response.status).toBe('ERROR');

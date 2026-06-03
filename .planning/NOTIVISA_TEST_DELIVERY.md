@@ -4,7 +4,7 @@
 **Phase:** 4 (Sandbox Integration)  
 **Status:** ✓ COMPLETE AND READY FOR PRODUCTION  
 **Test Count:** 52 comprehensive tests  
-**Coverage:** 100% callable line coverage, 95% branch coverage  
+**Coverage:** 100% callable line coverage, 95% branch coverage
 
 ---
 
@@ -85,38 +85,38 @@ All tests validate regulatory compliance (RDC 978, DICQ 4.3, LGPD) and productio
 
 ### Batch 1: Draft Lifecycle
 
-| Callable | Tests | Scenarios |
-|----------|-------|-----------|
-| **notivisaDraftCreate** | 12 | Schema validation (8), signature determinism (4) |
-| **approveNotivisaDraft** | 8 | Schema validation (8), signature verification (4) |
-| **submitNotivisaDraft** | 8 | Schema (5), masking (2), audit/queue (3) |
-| **rejectNotivisaDraft** | 6 | Schema validation & motivo (6) |
-| **Subtotal** | **34** | **Core draft workflow** |
+| Callable                 | Tests  | Scenarios                                         |
+| ------------------------ | ------ | ------------------------------------------------- |
+| **notivisaDraftCreate**  | 12     | Schema validation (8), signature determinism (4)  |
+| **approveNotivisaDraft** | 8      | Schema validation (8), signature verification (4) |
+| **submitNotivisaDraft**  | 8      | Schema (5), masking (2), audit/queue (3)          |
+| **rejectNotivisaDraft**  | 6      | Schema validation & motivo (6)                    |
+| **Subtotal**             | **34** | **Core draft workflow**                           |
 
 ### Batch 2: Queue/Webhook/Export/Delete
 
-| Callable | Tests | Scenarios |
-|----------|-------|-----------|
-| **notivisaQueueProcessor** | 10 | Entry detection (2), backoff (4), idempotency (2), failure (3), metrics (4) |
-| **notivisaWebhookHandler** | 8 | Signature (5), entry processing (3), error handling (3) |
-| **notivisaExportArchive** | 6 | Permissions (4), filtering (3), splitting (2), metadata (3), perf (1) |
-| **notivisaSoftDelete** | 6 | Permissions (3), logic (4), filtering (2) |
-| **Subtotal** | **30** | **Queue/webhook/archive/delete** |
+| Callable                   | Tests  | Scenarios                                                                   |
+| -------------------------- | ------ | --------------------------------------------------------------------------- |
+| **notivisaQueueProcessor** | 10     | Entry detection (2), backoff (4), idempotency (2), failure (3), metrics (4) |
+| **notivisaWebhookHandler** | 8      | Signature (5), entry processing (3), error handling (3)                     |
+| **notivisaExportArchive**  | 6      | Permissions (4), filtering (3), splitting (2), metadata (3), perf (1)       |
+| **notivisaSoftDelete**     | 6      | Permissions (3), logic (4), filtering (2)                                   |
+| **Subtotal**               | **30** | **Queue/webhook/archive/delete**                                            |
 
 ### Integration Layer
 
-| Category | Tests | Scope |
-|----------|-------|-------|
-| E2E Workflows | 3 | Create → approve → submit → process → acknowledge |
-| Error Recovery | 4 | Transient retry, permanent fail, backoff, escalation |
-| Concurrency | 3 | Race condition prevention, rate limiting |
-| Cloud Logs | 1 | Audit trail logging |
-| Idempotency | 3 | Deduplication via key/window |
-| Data Integrity | 3 | CPF consistency, payload immutability, signature validation |
-| Performance | 3 | <500ms, <5s, <100ms benchmarks |
-| Smoke Seeding | 1 | 10 labs + 50 drafts |
-| Rollback | 1 | State rollback scenarios |
-| **Subtotal** | **18** | **Full workflow verification** |
+| Category       | Tests  | Scope                                                       |
+| -------------- | ------ | ----------------------------------------------------------- |
+| E2E Workflows  | 3      | Create → approve → submit → process → acknowledge           |
+| Error Recovery | 4      | Transient retry, permanent fail, backoff, escalation        |
+| Concurrency    | 3      | Race condition prevention, rate limiting                    |
+| Cloud Logs     | 1      | Audit trail logging                                         |
+| Idempotency    | 3      | Deduplication via key/window                                |
+| Data Integrity | 3      | CPF consistency, payload immutability, signature validation |
+| Performance    | 3      | <500ms, <5s, <100ms benchmarks                              |
+| Smoke Seeding  | 1      | 10 labs + 50 drafts                                         |
+| Rollback       | 1      | State rollback scenarios                                    |
+| **Subtotal**   | **18** | **Full workflow verification**                              |
 
 ### **TOTAL: 52 Tests**
 
@@ -141,14 +141,14 @@ All tests validate regulatory compliance (RDC 978, DICQ 4.3, LGPD) and productio
 
 ### By Test Type
 
-| Type | Count | Lines | Branches |
-|------|-------|-------|----------|
-| Schema Validation | 32 | 100% | 100% |
-| Signature Verification | 8 | 100% | 95% |
-| Error Handling | 9 | 100% | 90% |
-| Idempotency | 7 | 100% | 100% |
-| Permission Checks | 7 | 100% | 100% |
-| Performance | 4 | 100% | 95% |
+| Type                   | Count | Lines | Branches |
+| ---------------------- | ----- | ----- | -------- |
+| Schema Validation      | 32    | 100%  | 100%     |
+| Signature Verification | 8     | 100%  | 95%      |
+| Error Handling         | 9     | 100%  | 90%      |
+| Idempotency            | 7     | 100%  | 100%     |
+| Permission Checks      | 7     | 100%  | 100%     |
+| Performance            | 4     | 100%  | 95%      |
 
 ---
 
@@ -156,30 +156,30 @@ All tests validate regulatory compliance (RDC 978, DICQ 4.3, LGPD) and productio
 
 ### RDC 978 (Brazilian Clinical Lab Standard)
 
-| Article | Requirement | Test Coverage | Status |
-|---------|-------------|---|---|
-| Art. 5.3 | Audit trail (write intent + read consent) | Batch 1 (6), Integration (3) | ✓ |
-| Art. 36–39 | Lab contracts/support labs | Export tests (6) | ✓ |
-| Art. 86 | Risk management | Error recovery tests (4) | ✓ |
-| Art. 122 | Supervision records | Escalation tests (2) | ✓ |
+| Article    | Requirement                               | Test Coverage                | Status |
+| ---------- | ----------------------------------------- | ---------------------------- | ------ |
+| Art. 5.3   | Audit trail (write intent + read consent) | Batch 1 (6), Integration (3) | ✓      |
+| Art. 36–39 | Lab contracts/support labs                | Export tests (6)             | ✓      |
+| Art. 86    | Risk management                           | Error recovery tests (4)     | ✓      |
+| Art. 122   | Supervision records                       | Escalation tests (2)         | ✓      |
 
 ### DICQ 4.3 (Quality Documentation)
 
-| Section | Requirement | Test Coverage | Status |
-|---------|-------------|---|---|
-| 4.3 | Version control | Batch 1 signature tests (4) | ✓ |
-| 4.1.2.7 | Shift supervision | Integration escalation (2) | ✓ |
-| 4.3 | Document audit trail | Integration workflow (3) | ✓ |
-| 4.14.6 | Risk management | Error scenarios (7) | ✓ |
-| 4.14.8 | Lab contracts | Export permissions (4) | ✓ |
+| Section | Requirement          | Test Coverage               | Status |
+| ------- | -------------------- | --------------------------- | ------ |
+| 4.3     | Version control      | Batch 1 signature tests (4) | ✓      |
+| 4.1.2.7 | Shift supervision    | Integration escalation (2)  | ✓      |
+| 4.3     | Document audit trail | Integration workflow (3)    | ✓      |
+| 4.14.6  | Risk management      | Error scenarios (7)         | ✓      |
+| 4.14.8  | Lab contracts        | Export permissions (4)      | ✓      |
 
 ### LGPD (Brazilian Privacy Law)
 
-| Requirement | Test Coverage | Status |
-|---|---|---|
-| Data minimization | Masking tests (2) | ✓ |
-| Right to erasure | Soft delete tests (6) | ✓ |
-| Audit trail | Logging tests (1) | ✓ |
+| Requirement       | Test Coverage         | Status |
+| ----------------- | --------------------- | ------ |
+| Data minimization | Masking tests (2)     | ✓      |
+| Right to erasure  | Soft delete tests (6) | ✓      |
+| Audit trail       | Logging tests (1)     | ✓      |
 
 ---
 
@@ -199,14 +199,14 @@ With real API (Phase 12) ~5-10s (dependent on SOAP latency)
 
 ### Smoke Test Timeline
 
-| Step | Duration | Action |
-|------|----------|--------|
-| Pre-test seeding | 5 min | Seed 10 labs + 50 drafts |
-| Unit tests | 1 min | Run all 52 tests |
-| Integration tests | 2 min | Run E2E workflows |
-| Cloud Logs verification | 5 min | Verify 50+ audit entries |
-| Manual workflow | 10 min | Create → approve → submit → ACK |
-| **Total** | **23 min** | *(30 min with buffer)* |
+| Step                    | Duration   | Action                          |
+| ----------------------- | ---------- | ------------------------------- |
+| Pre-test seeding        | 5 min      | Seed 10 labs + 50 drafts        |
+| Unit tests              | 1 min      | Run all 52 tests                |
+| Integration tests       | 2 min      | Run E2E workflows               |
+| Cloud Logs verification | 5 min      | Verify 50+ audit entries        |
+| Manual workflow         | 10 min     | Create → approve → submit → ACK |
+| **Total**               | **23 min** | _(30 min with buffer)_          |
 
 ---
 
@@ -214,21 +214,21 @@ With real API (Phase 12) ~5-10s (dependent on SOAP latency)
 
 ### Test Scenarios
 
-| Scenario | HTTP Code | Behavior | Use Case |
-|----------|-----------|----------|----------|
-| SUCCESS | 200 | Instant receipt code | Happy path |
-| VALIDATION_ERROR | 400 | CPF format error | Error recovery |
-| TIMEOUT | 504 | 5s timeout | Retry logic |
-| NETWORK_DOWN | — | ECONNREFUSED | Failure handling |
-| MALFORMED_RESPONSE | 500 | Invalid XML | Resilience |
+| Scenario           | HTTP Code | Behavior             | Use Case         |
+| ------------------ | --------- | -------------------- | ---------------- |
+| SUCCESS            | 200       | Instant receipt code | Happy path       |
+| VALIDATION_ERROR   | 400       | CPF format error     | Error recovery   |
+| TIMEOUT            | 504       | 5s timeout           | Retry logic      |
+| NETWORK_DOWN       | —         | ECONNREFUSED         | Failure handling |
+| MALFORMED_RESPONSE | 500       | Invalid XML          | Resilience       |
 
 ### Configuration
 
 ```typescript
 // Create mock client
 const mockClient = createMockSoapClient(
-  SoapMockScenario.SUCCESS,  // Scenario
-  100                         // Latency in ms
+  SoapMockScenario.SUCCESS, // Scenario
+  100, // Latency in ms
 );
 
 // Switch scenarios on the fly
@@ -273,15 +273,15 @@ docs/
 
 ### Code Stats
 
-| File | Type | Lines | Tests |
-|------|------|-------|-------|
-| batch1-expanded.test.ts | TypeScript | 650 | 28 |
-| batch2-comprehensive.test.ts | TypeScript | 550 | 24 |
-| integration.test.ts | TypeScript | 450 | 14 |
-| soapClient.ts | TypeScript | 350 | — |
-| jest.config.js | JavaScript | 30 | — |
-| seed-notivisa-test-data.sh | Bash | 50 | — |
-| **Total** | — | **2,080** | **52** |
+| File                         | Type       | Lines     | Tests  |
+| ---------------------------- | ---------- | --------- | ------ |
+| batch1-expanded.test.ts      | TypeScript | 650       | 28     |
+| batch2-comprehensive.test.ts | TypeScript | 550       | 24     |
+| integration.test.ts          | TypeScript | 450       | 14     |
+| soapClient.ts                | TypeScript | 350       | —      |
+| jest.config.js               | JavaScript | 30        | —      |
+| seed-notivisa-test-data.sh   | Bash       | 50        | —      |
+| **Total**                    | —          | **2,080** | **52** |
 
 ---
 
@@ -367,12 +367,12 @@ gcloud functions logs read --limit 100 --region southamerica-east1
 
 ## Phase Timeline
 
-| Phase | Date | Scope | Status |
-|-------|------|-------|--------|
+| Phase       | Date       | Scope                               | Status  |
+| ----------- | ---------- | ----------------------------------- | ------- |
 | **Phase 4** | 2026-05-20 | Sandbox mock API, all tests passing | ✓ READY |
-| Phase 8 | TBD | SMS/email escalation tests | Pending |
-| Phase 12 | TBD | Real SOAP API + mTLS tests | Pending |
-| Phase 13 | TBD | WebSocket + analytics tests | Pending |
+| Phase 8     | TBD        | SMS/email escalation tests          | Pending |
+| Phase 12    | TBD        | Real SOAP API + mTLS tests          | Pending |
+| Phase 13    | TBD        | WebSocket + analytics tests         | Pending |
 
 ---
 
@@ -452,6 +452,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 This test suite is **production-ready** for Phase 4 deployment on **May 20, 2026**.
 
 All 52 tests validate:
+
 - ✓ Core callable functionality
 - ✓ Error handling & recovery
 - ✓ Data integrity & consistency

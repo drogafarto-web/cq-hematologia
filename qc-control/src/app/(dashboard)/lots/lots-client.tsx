@@ -1,54 +1,54 @@
-'use client'
+'use client';
 
-import { useState, useMemo } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { LotsTable } from './components/lots-table'
-import { LotForm } from './components/lot-form'
-import { PncqImportModal } from './components/pncq-import-modal'
+import { useState, useMemo } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { LotsTable } from './components/lots-table';
+import { LotForm } from './components/lot-form';
+import { PncqImportModal } from './components/pncq-import-modal';
 
 const levelOptions = [
   { value: '', label: 'All Levels' },
   { value: '1', label: 'Level 1' },
   { value: '2', label: 'Level 2' },
-]
+];
 
 const statusOptions = [
   { value: '', label: 'All Statuses' },
   { value: 'ACTIVE', label: 'Active' },
   { value: 'EXPIRED', label: 'Expired' },
   { value: 'ARCHIVED', label: 'Archived' },
-]
+];
 
 export default function LotsClient({
   lots: initialLots,
   analyzers,
 }: {
-  lots: any[]
-  analyzers: any[]
+  lots: any[];
+  analyzers: any[];
 }) {
-  const [lots, setLots] = useState(initialLots)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [selectedLevel, setSelectedLevel] = useState('')
-  const [selectedStatus, setSelectedStatus] = useState('')
-  const [selectedLot, setSelectedLot] = useState<any | null>(null)
-  const [panelOpen, setPanelOpen] = useState(false)
-  const [pncqOpen, setPncqOpen] = useState(false)
+  const [lots, setLots] = useState(initialLots);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [selectedLevel, setSelectedLevel] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState('');
+  const [selectedLot, setSelectedLot] = useState<any | null>(null);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [pncqOpen, setPncqOpen] = useState(false);
 
   const filteredLots = useMemo(() => {
     return lots.filter((lot: any) => {
-      const q = searchQuery.toLowerCase()
+      const q = searchQuery.toLowerCase();
       const matchesSearch =
         !q ||
         lot.lotNumber.toLowerCase().includes(q) ||
         lot.analyte.toLowerCase().includes(q) ||
-        lot.reagentName.toLowerCase().includes(q)
-      const matchesLevel = !selectedLevel || lot.level === Number.parseInt(selectedLevel)
-      const matchesStatus = !selectedStatus || lot.status === selectedStatus
-      return matchesSearch && matchesLevel && matchesStatus
-    })
-  }, [lots, searchQuery, selectedLevel, selectedStatus])
+        lot.reagentName.toLowerCase().includes(q);
+      const matchesLevel = !selectedLevel || lot.level === Number.parseInt(selectedLevel);
+      const matchesStatus = !selectedStatus || lot.status === selectedStatus;
+      return matchesSearch && matchesLevel && matchesStatus;
+    });
+  }, [lots, searchQuery, selectedLevel, selectedStatus]);
 
   return (
     <div className="p-6">
@@ -60,8 +60,8 @@ export default function LotsClient({
           </Button>
           <Button
             onClick={() => {
-              setSelectedLot(null)
-              setPanelOpen(true)
+              setSelectedLot(null);
+              setPanelOpen(true);
             }}
           >
             Add Lot
@@ -99,8 +99,8 @@ export default function LotsClient({
       <LotsTable
         lots={filteredLots}
         onRowClick={(lot: any) => {
-          setSelectedLot(lot)
-          setPanelOpen(true)
+          setSelectedLot(lot);
+          setPanelOpen(true);
         }}
       />
 
@@ -111,12 +111,12 @@ export default function LotsClient({
         analyzers={analyzers}
         onSaved={(lot: any) => {
           if (selectedLot) {
-            setLots((prev: any[]) => prev.map((l: any) => (l.id === lot.id ? lot : l)))
+            setLots((prev: any[]) => prev.map((l: any) => (l.id === lot.id ? lot : l)));
           } else {
-            setLots((prev: any[]) => [lot, ...prev])
+            setLots((prev: any[]) => [lot, ...prev]);
           }
-          setPanelOpen(false)
-          setSelectedLot(null)
+          setPanelOpen(false);
+          setSelectedLot(null);
         }}
       />
 
@@ -125,9 +125,9 @@ export default function LotsClient({
         onClose={() => setPncqOpen(false)}
         analyzers={analyzers}
         onImported={() => {
-          setPncqOpen(false)
+          setPncqOpen(false);
         }}
       />
     </div>
-  )
+  );
 }

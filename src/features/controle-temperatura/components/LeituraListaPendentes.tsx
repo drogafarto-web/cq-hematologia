@@ -3,10 +3,7 @@ import { useMemo, useState } from 'react';
 import { Timestamp } from '../../../shared/services/firebase';
 import { useEquipamentos } from '../hooks/useEquipamentos';
 import { useLeiturasPrevistas } from '../hooks/useLeiturasPrevistas';
-import type {
-  EquipamentoMonitorado,
-  LeituraPrevista,
-} from '../types/ControlTemperatura';
+import type { EquipamentoMonitorado, LeituraPrevista } from '../types/ControlTemperatura';
 import { ClockIcon } from './_icons';
 import { Button, StatusBadge } from './_shared';
 import { LeituraRapidaForm } from './LeituraRapidaForm';

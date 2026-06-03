@@ -68,10 +68,7 @@ export function CadastroSemBulaModal({ onAdd, onClose }: CadastroSemBulaModalPro
       const num = lvl.lotNumber.trim();
       if (!num) continue;
       const dup = existingLots.find(
-        (l) =>
-          l.lotNumber === num &&
-          l.level === lvl.level &&
-          l.controlName === trimmedName,
+        (l) => l.lotNumber === num && l.level === lvl.level && l.controlName === trimmedName,
       );
       if (dup) out.push({ level: lvl.level, lotNumber: num });
     }
@@ -162,8 +159,8 @@ export function CadastroSemBulaModal({ onAdd, onClose }: CadastroSemBulaModalPro
               Cadastrar 3 lotes sem bula
             </h2>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Para usar quando o sangue chegou e a bula está atrasada (≤7 dias).
-              Westgard fica suspenso até a bula chegar.
+              Para usar quando o sangue chegou e a bula está atrasada (≤7 dias). Westgard fica
+              suspenso até a bula chegar.
             </p>
           </div>
           <button
@@ -177,12 +174,14 @@ export function CadastroSemBulaModal({ onAdd, onClose }: CadastroSemBulaModalPro
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="flex-1 min-h-0 overflow-y-auto px-6 py-5 space-y-4"
+        >
           <div className="rounded-xl bg-amber-50 dark:bg-amber-500/[0.06] border border-amber-200 dark:border-amber-500/25 px-3.5 py-2.5 text-xs text-amber-800 dark:text-amber-200 leading-snug">
-            <strong>Lote sem bula</strong> — corridas serão registradas com valores
-            brutos. Regras Westgard ficam suspensas até a bula chegar. Quando ela
-            chegar, importe via "Importar bula deste lote" e o sistema recalcula
-            tudo retroativamente.
+            <strong>Lote sem bula</strong> — corridas serão registradas com valores brutos. Regras
+            Westgard ficam suspensas até a bula chegar. Quando ela chegar, importe via "Importar
+            bula deste lote" e o sistema recalcula tudo retroativamente.
           </div>
 
           {/* Metadata comum */}

@@ -11,6 +11,7 @@ last_updated: 2026-05-08T18:30:00Z
 ## Current State
 
 **What we just completed:**
+
 1. ✅ PRODUCT.md — strategic context (specialist scientific, RDC compliance, operadores + RTs)
 2. ✅ DESIGN.md — visual system (Clinical Dashboard, amber+slate, dark-first)
 3. ✅ .impeccable/design.json — sidecar with components, colors, motion, narrative
@@ -18,6 +19,7 @@ last_updated: 2026-05-08T18:30:00Z
 5. ✅ UroStatusBar.tsx — first component (color-coded status indicator)
 
 **Where we paused:**
+
 - Mid-craft phase (Phase 1 of 6: Components Base)
 - Reason: Context budget at 70% (approaching token limit)
 - All design decisions made and locked; implementation is straightforward component composition
@@ -25,35 +27,41 @@ last_updated: 2026-05-08T18:30:00Z
 ## Implementation Roadmap (6 Phases)
 
 ### Phase 1: Components Base ✓ Started
+
 - [x] Create UroStatusBar.tsx (paused here)
 - [ ] Create UroAnalyteRow.tsx (single-line analito)
 - [ ] Create UroInputField.tsx (refined input)
 - [ ] Create UroButtonToggle.tsx (nivel N/P)
 
 ### Phase 2: Run Entry Form Redesign
+
 - [ ] UroanaliseFormRedesigned.tsx wrapper
 - [ ] Integrate status bar (fixed/sticky)
 - [ ] Keyboard navigation (Tab/Enter)
 - [ ] Validation on blur + real-time status
 
 ### Phase 3: Lot List & Navigation
+
 - [ ] Refactor sidebar (favorites + recent)
 - [ ] Breadcrumb header (Lot > Run #)
 - [ ] Mobile tab bar
 
 ### Phase 4: Audit View & Compliance
+
 - [ ] RT audit table (runs + status + signature)
 - [ ] Audit trail sidebar
 - [ ] Compliance checklist
 - [ ] Inline signature flow
 
 ### Phase 5: Responsive & Polish
+
 - [ ] Container queries (3 breakpoints)
 - [ ] Touch targets (44px)
 - [ ] Light mode support
 - [ ] All 8 interaction states
 
 ### Phase 6: Browser Testing & Iterate
+
 - [ ] Screenshot validation
 - [ ] Design brief alignment
 - [ ] DESIGN.md audit
@@ -61,17 +69,18 @@ last_updated: 2026-05-08T18:30:00Z
 
 ## Design Pillars (Locked)
 
-| Pillar | Decision | Why | Consequence |
-|--------|----------|-----|-------------|
-| North Star | Clinical Dashboard | Operator stressed, variable lab light. RT needs audit trail. | Colors, density, interaction follow this |
-| Pain Points Solved | Status bar + clarity + org + compliance | All 4 main issues addressed | Status dot (color-coded), layout redesign, hierarchy |
-| Color Strategy | Restrained (amber ≤10%) | Medical professional context | Limits accent; forces hierarchy via space+weight |
-| Keyboard-Native | Tab advances, Enter submits | Operator can't rely on mouse | Every field handles Tab order |
-| Compliance Visible | Audit trail + signature always visible | RDC 978 requirement | Not hidden in modal or deep menu |
+| Pillar             | Decision                                | Why                                                          | Consequence                                          |
+| ------------------ | --------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------- |
+| North Star         | Clinical Dashboard                      | Operator stressed, variable lab light. RT needs audit trail. | Colors, density, interaction follow this             |
+| Pain Points Solved | Status bar + clarity + org + compliance | All 4 main issues addressed                                  | Status dot (color-coded), layout redesign, hierarchy |
+| Color Strategy     | Restrained (amber ≤10%)                 | Medical professional context                                 | Limits accent; forces hierarchy via space+weight     |
+| Keyboard-Native    | Tab advances, Enter submits             | Operator can't rely on mouse                                 | Every field handles Tab order                        |
+| Compliance Visible | Audit trail + signature always visible  | RDC 978 requirement                                          | Not hidden in modal or deep menu                     |
 
 ## Critical Implementation Rules
 
 **MUST:**
+
 - Preserve all RDC 978 compliance logic (no changes to validation rules)
 - Keep Firestore multi-tenant paths unchanged (labs/{labId}/...)
 - Use soft-delete only (no deleteDoc calls)
@@ -79,12 +88,14 @@ last_updated: 2026-05-08T18:30:00Z
 - Test responsive (mobile/tablet/desktop) as you build
 
 **MUST NOT:**
+
 - Rewrite UroanaliseView completely (integrate gradually)
 - Skip interaction states (default/hover/focus/active/disabled/loading/error/success)
 - Add dependencies without justification
 - Commit without browser testing
 
 **Optional But Smart:**
+
 - Use storybook or component isolation for testing
 - Feature flag the new form (parallel version for A/B testing)
 - Screenshot each component at 3 viewports before final integration
@@ -104,6 +115,7 @@ last_updated: 2026-05-08T18:30:00Z
 ## Open Questions (Answer During Build)
 
 These still require decisions — DO NOT assume:
+
 1. Tira marca selection timing? (before entry or default to last-used)
 2. RT bulk-sign? (multiple runs or one-by-one)
 3. Audit trail detail level? (every field or run-level events)

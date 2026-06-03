@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  calcMeanSdBessel,
-  calcZScore,
-  calcCV,
-  mergeStats,
-} from '../utils/statsHelpers';
+import { calcMeanSdBessel, calcZScore, calcCV, mergeStats } from '../utils/statsHelpers';
 
 describe('statsHelpers', () => {
   describe('calcMeanSdBessel', () => {

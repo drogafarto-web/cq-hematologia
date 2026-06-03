@@ -20,11 +20,13 @@
 ## Document Descriptions
 
 ### Deploy Quick Reference
+
 **File**: `docs/DEPLOY_QUICK_REFERENCE.md` (320 lines)  
 **Audience**: Engineers during deployment  
 **Format**: Checklists + copy-paste commands
 
 **Sections**:
+
 - Pre-merge checklist
 - Manual deploy full cycle (Step 1-4)
 - Rollback procedures (emergency)
@@ -43,11 +45,13 @@
 ---
 
 ### Phase 3 Deploy Workflow
+
 **File**: `docs/PHASE_3_DEPLOY_WORKFLOW.md` (340 lines)  
 **Audience**: Engineers deploying to production  
 **Format**: Narrative guide with tables + scenarios
 
 **Sections**:
+
 - Deployment modes (auto vs manual)
 - Pre-deploy gate details (7 checks)
 - Deployment order & rationale
@@ -67,11 +71,13 @@
 ---
 
 ### Workflow Architecture
+
 **File**: `docs/WORKFLOW_ARCHITECTURE.md` (520 lines)  
 **Audience**: Architects, infrastructure engineers  
 **Format**: Technical deep-dive with diagrams + decision trees
 
 **Sections**:
+
 - System overview (ASCII diagram)
 - Job dependency graph (visual)
 - 3 execution flows (auto, manual, PR)
@@ -92,11 +98,13 @@
 ---
 
 ### Phase 3 Setup Guide
+
 **File**: `docs/PHASE_3_SETUP_GUIDE.md` (280 lines)  
 **Audience**: Infrastructure/ops team (one-time setup)  
 **Format**: Step-by-step walkthrough
 
 **Sections**:
+
 - Step 1: Firebase authentication token
 - Step 2: Branch protection rules
 - Step 3: GitHub Actions permissions
@@ -115,11 +123,13 @@
 ---
 
 ### Phase 3 Deploy Deliverables
+
 **File**: `PHASE_3_DEPLOY_DELIVERABLES.md` (500 lines)  
 **Audience**: Project stakeholders + handoff  
 **Format**: Executive summary + technical details
 
 **Sections**:
+
 - Executive summary
 - Deliverables overview (workflow + docs + scripts)
 - Pre-deploy gate details (7 checks table)
@@ -142,11 +152,13 @@
 ---
 
 ### Implementation Report
+
 **File**: `../DEPLOY_WORKFLOW_IMPLEMENTATION_REPORT.txt` (450 lines)  
 **Audience**: Project management + technical sign-off  
 **Format**: Structured text report
 
 **Sections**:
+
 - Deliverables summary
 - Pre-deploy gate details (7 checks)
 - Deployment ordering
@@ -177,6 +189,7 @@
 **Format**: YAML GitHub Actions workflow
 
 **Jobs**:
+
 1. `pre-deploy-gate` — Mandatory 7-check gate
 2. `deploy-rules` — Firestore rules deployment
 3. `deploy-indexes` — Firestore indexes deployment
@@ -188,6 +201,7 @@
 9. `deploy-status` — Summary report
 
 **Triggers**:
+
 - Manual dispatch (full control over stage + toggles)
 - Auto on merge to main (Rules + Functions only, never Hosting)
 - PR validation (merge-protection checks)
@@ -351,13 +365,13 @@ C:\hc quality\
 
 ## Support & Escalation
 
-| Issue | Reference | Escalate To |
-|-------|-----------|-------------|
-| "How do I deploy?" | `DEPLOY_QUICK_REFERENCE.md` | Team lead |
-| "Pre-gate failed" | `PHASE_3_DEPLOY_WORKFLOW.md` § Scenarios | Code author |
-| "Production error" | `DEPLOY_QUICK_REFERENCE.md` § Incident | On-call engineer |
-| "Secrets missing" | `WORKFLOW_ARCHITECTURE.md` § Secrets | Infra team |
-| "Workflow broken" | `PHASE_3_SETUP_GUIDE.md` § Troubleshooting | Platform team |
+| Issue              | Reference                                     | Escalate To      |
+| ------------------ | --------------------------------------------- | ---------------- |
+| "How do I deploy?" | `DEPLOY_QUICK_REFERENCE.md`                   | Team lead        |
+| "Pre-gate failed"  | `PHASE_3_DEPLOY_WORKFLOW.md` § Scenarios      | Code author      |
+| "Production error" | `DEPLOY_QUICK_REFERENCE.md` § Incident        | On-call engineer |
+| "Secrets missing"  | `WORKFLOW_ARCHITECTURE.md` § Secrets          | Infra team       |
+| "Workflow broken"  | `PHASE_3_SETUP_GUIDE.md` § Troubleshooting    | Platform team    |
 | "Compliance audit" | `PHASE_3_DEPLOY_DELIVERABLES.md` § Compliance | Security officer |
 
 ---
@@ -369,6 +383,7 @@ C:\hc quality\
 **File**: `DEPLOY_QUICK_REFERENCE.md` (print pages 1-2)
 
 Contains:
+
 - Pre-merge checklist
 - Manual deploy 4 steps
 - Rollback procedures
@@ -384,6 +399,7 @@ Contains:
 **File**: `DEPLOY_QUICK_REFERENCE.md` § Incident Response Checklist
 
 Contains:
+
 - Decision tree
 - Action items
 - Escalation chain
@@ -436,4 +452,3 @@ If you find errors, ambiguities, or missing information:
 **Generated**: 2026-05-07  
 **For**: HC Quality Phase 3 Deployment System  
 **Status**: Complete
-

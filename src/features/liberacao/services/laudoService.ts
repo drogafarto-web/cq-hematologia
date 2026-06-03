@@ -51,7 +51,7 @@ export function subscribeLaudos(
   labId: LabId,
   filters: LaudoFilters = {},
   onData: (laudos: Laudo[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const constraints: QueryConstraint[] = [
     where('labId', '==', labId),
@@ -99,7 +99,7 @@ export function subscribeLaudos(
     (error) => {
       console.error('[subscribeLaudos] error:', error);
       onError?.(error);
-    }
+    },
   );
 
   return unsubscribe;
@@ -108,10 +108,7 @@ export function subscribeLaudos(
 /**
  * Get laudo por ID (uma vez)
  */
-export async function getLaudo(
-  labId: LabId,
-  laudoId: string
-): Promise<Laudo | null> {
+export async function getLaudo(labId: LabId, laudoId: string): Promise<Laudo | null> {
   const docRef = doc(db, 'labs', labId, 'laudos', laudoId);
   const snapshot = await getDoc(docRef);
 
@@ -129,15 +126,12 @@ export async function getLaudo(
  * Get versão mais recente de um laudo
  * Consulta /laudos/{laudoId}/versions ordenado por version DESC
  */
-export async function getLaudoLatestVersion(
-  labId: LabId,
-  laudoId: string
-): Promise<any | null> {
+export async function getLaudoLatestVersion(labId: LabId, laudoId: string): Promise<any | null> {
   const q = query(
     collection(db, 'labs', labId, 'laudo-versions'),
     where('laudoId', '==', laudoId),
     orderBy('version', 'desc'),
-    limit(1)
+    limit(1),
   );
 
   const snapshot = await getDocs(q);
@@ -157,10 +151,7 @@ export async function getLaudoLatestVersion(
  * Soft delete — marca deletadoEm em vez de remover
  * Implementado em Cloud Function no Plan 10-02+ para validação server-side
  */
-export async function softDeleteLaudo(
-  labId: LabId,
-  laudoId: string
-): Promise<void> {
+export async function softDeleteLaudo(labId: LabId, laudoId: string): Promise<void> {
   const docRef = doc(db, 'labs', labId, 'laudos', laudoId);
   await updateDoc(docRef, {
     deletadoEm: Timestamp.now(),

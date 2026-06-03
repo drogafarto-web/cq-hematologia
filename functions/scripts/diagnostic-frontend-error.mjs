@@ -73,9 +73,9 @@ async function testBuildChartLot() {
         if (!baseline) {
           throw new Error(
             `Cannot read properties of undefined (reading 'mean')\n` +
-            `  - COAG_ANALYTES[${id}].levels[${coagLot.nivel}] é undefined\n` +
-            `  - Valores válidos para 'nivel': 'I' | 'II'\n` +
-            `  - Valor fornecido: '${coagLot.nivel}'`
+              `  - COAG_ANALYTES[${id}].levels[${coagLot.nivel}] é undefined\n` +
+              `  - Valores válidos para 'nivel': 'I' | 'II'\n` +
+              `  - Valor fornecido: '${coagLot.nivel}'`,
           );
         }
 
@@ -90,7 +90,6 @@ async function testBuildChartLot() {
 
     console.log('\n   ✅ manufacturerStats calculado com sucesso');
     console.log(`      ${JSON.stringify(manufacturerStats, null, 2)}`);
-
   } catch (err) {
     console.log(`\n   ❌ ERRO: ${err.message}`);
     throw err;

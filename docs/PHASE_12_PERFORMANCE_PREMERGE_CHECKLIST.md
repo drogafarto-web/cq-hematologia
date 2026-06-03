@@ -8,10 +8,11 @@
 
 ## Checklist (Copy & Paste into PR Description)
 
-```markdown
+````markdown
 ## Performance Checklist (Phase 12 Gate)
 
 ### Web Vitals & Bundle
+
 - [ ] No new dependencies >50 KB gzip (or justified with size + rationale in PR)
 - [ ] No eager imports of routes (all new routes use `React.lazy` + `Suspense`)
 - [ ] No new listeners without cleanup (useEffect always returns unsubscribe)
@@ -19,6 +20,7 @@
 - [ ] Lighthouse locally green: `npx @lhci/cli@latest autorun` → performance ≥0.85
 
 ### Mobile & Accessibility
+
 - [ ] Touch targets ≥48×48px (buttons, inputs, checkboxes)
 - [ ] Form responsive on landscape iPad (tested in Chrome DevTools)
 - [ ] No keyboard hidden by mobile keyboard on input focus
@@ -26,6 +28,7 @@
 - [ ] All interactive elements keyboard navigable (`aria-label` on icon buttons)
 
 ### Database & Queries
+
 - [ ] No N+1 query patterns (loop with `getDoc` inside callback)
 - [ ] Firestore listeners deduplicated (one listener per path per view)
 - [ ] No `onSnapshot` without cleanup function in useEffect
@@ -33,12 +36,14 @@
 - [ ] Signatures, equipment, analytes denormalized (not separate fetches)
 
 ### Code Quality
+
 - [ ] TypeScript: `npx tsc --noEmit` passes
 - [ ] Tests pass: `npm test -- --run` (738+ baseline tests)
 - [ ] No console errors or warnings in DevTools
 - [ ] No memory leaks (Chrome DevTools Detached DOM check)
 
 ### If Adding a Heavy Library (>50 KB gzip)
+
 - [ ] Justify in PR comment:
   - Actual gzip size
   - Why lighter alternative insufficient
@@ -47,12 +52,14 @@
 - [ ] Verify in `npm run analyze` output that size matches claim
 
 ### If Adding a New Route
+
 - [ ] Route uses `React.lazy` + `Suspense` (not eager import)
 - [ ] Route chunk size audited: `npm run analyze` → <150 KB gzip
 - [ ] Skeleton fallback rendered during load
 - [ ] Data prefetch considered (parent route on route-anticipation)
 
 ### If Touching Form TTI (e.g., Laudo, CIQ Run)
+
 - [ ] Form skeleton loads immediately (100ms)
 - [ ] Data fetch parallel (not blocking skeleton)
 - [ ] Validation schema lazy-loaded (not on module import)
@@ -60,6 +67,7 @@
 - [ ] Local TTI measured: <1.5s (laudo), <1.2s (CIQ run)
 
 ### If Touching Chart/Analytics
+
 - [ ] Memoized chart components (`React.memo` on series data)
 - [ ] Large datasets (>100 points) tested for <500ms render
 - [ ] Responsive container (`width="100%"`, not fixed px)
@@ -67,6 +75,7 @@
 - [ ] Levey-Jennings load time <500ms verified locally
 
 ### If Adding Export/PDF Feature
+
 - [ ] PDF generation <10s for 50 pages (verify via Cloud Function timing)
 - [ ] Stream generation if possible (not buffer-all approach)
 - [ ] Cloud Function warm (dedicated trigger or keep-alive)
@@ -88,14 +97,17 @@
    # Should NOT see: import Foo from 'src/features/...'
    # Should see: const Foo = lazy(() => import(...))
    ```
+````
 
 3. **Firestore cleanup:** Check hooks for unsubscribe
+
    ```bash
    git diff main -- 'src/features/**/hooks/**'
    # Should see: useEffect(() => { const unsub = onSnapshot(...); return () => unsub(); }, [])
    ```
 
 4. **No new >50 KB deps:** Check package.json diff
+
    ```bash
    git diff main -- package.json
    # If new dependency, verify gzip size in PR comment
@@ -122,6 +134,7 @@
 **Cause:** Eager import of large module.
 
 **Fix:**
+
 ```typescript
 // Before: ❌ Eager import (bloats main bundle)
 import HeavyModule from 'src/features/heavy/HeavyModule';
@@ -157,7 +170,7 @@ import { createRunSchema } from './schemas'; // Zod parse on import
 const useRunSchema = () => {
   const [schema, setSchema] = useState(null);
   useEffect(() => {
-    import('./schemas').then(m => setSchema(m.createRunSchema()));
+    import('./schemas').then((m) => setSchema(m.createRunSchema()));
   }, []);
   return schema;
 };
@@ -170,6 +183,7 @@ const useRunSchema = () => {
 **Cause:** useEffect doesn't return cleanup function.
 
 **Fix:**
+
 ```typescript
 // Before: ❌ No cleanup
 useEffect(() => {
@@ -190,6 +204,7 @@ useEffect(() => {
 **Cause:** Fetching equipment/analyte for every run separately.
 
 **Fix (denormalization):**
+
 ```typescript
 // Before: ❌ N+1 queries (100 runs → 101 queries)
 useEffect(() => {
@@ -219,6 +234,7 @@ useEffect(() => {
 **Cause:** All data loaded before skeleton rendered.
 
 **Fix (skeleton + prefetch):**
+
 ```typescript
 // Before: ❌ Fetch then render
 export const LaudoPanel = () => {
@@ -250,12 +266,15 @@ export const LaudoPanel = () => {
 ## Lighthouse CI Details
 
 ### What Gets Tested
+
 When you push to main, GitHub Actions automatically runs:
+
 1. Build: `npm run build`
 2. Lighthouse: 3 runs on static `dist/`
 3. Assert: All metrics in lighthouserc.js
 
 ### Thresholds (Phase 12)
+
 - Performance score ≥0.85 (hard fail)
 - LCP ≤2000ms (hard fail)
 - CLS ≤0.05 (hard fail)
@@ -264,6 +283,7 @@ When you push to main, GitHub Actions automatically runs:
 - PWA ≥0.9 (hard fail)
 
 ### How to Debug Locally
+
 ```bash
 # 1. Build
 npm run build
@@ -279,6 +299,7 @@ cat .lighthouseci/result.json | jq '.[0].categories.performance.score'
 ```
 
 ### If CI Fails
+
 1. Check `.lighthouseci/` artifact on failed workflow run
 2. Download and analyze report (look at DevTools → Performance tab data)
 3. Identify slow metric (LCP? TBT? CLS?)

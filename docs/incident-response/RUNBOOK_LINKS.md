@@ -6,15 +6,15 @@ Index of procedures for common production incidents.
 
 ## Runbook Index
 
-| Scenario | Severity | MTTR Target |
-|----------|----------|-------------|
-| Function timeout | Yellow | 15 min |
-| Database unavailable | Red | 30 min |
-| Auth service down | Red | 15 min |
-| Firestore Rules broken | Red | 20 min |
-| Data corruption detected | Black | 1 hour (restore) |
-| NOTIVISA API failure | Red | 30 min |
-| Memory leak in function | Yellow | 30 min |
+| Scenario                 | Severity | MTTR Target      |
+| ------------------------ | -------- | ---------------- |
+| Function timeout         | Yellow   | 15 min           |
+| Database unavailable     | Red      | 30 min           |
+| Auth service down        | Red      | 15 min           |
+| Firestore Rules broken   | Red      | 20 min           |
+| Data corruption detected | Black    | 1 hour (restore) |
+| NOTIVISA API failure     | Red      | 30 min           |
+| Memory leak in function  | Yellow   | 30 min           |
 
 ---
 
@@ -23,6 +23,7 @@ Index of procedures for common production incidents.
 **Trigger:** Cloud Logs shows "Functions runtime exceeded 540s"
 
 **IC Actions:**
+
 1. Check which function(s): Cloud Logs filter `severity=ERROR resource.type=cloud_function`
 2. Check recent deploy (last 10 min)
 3. Options:
@@ -33,6 +34,7 @@ Index of procedures for common production incidents.
 5. Notify team: Slack #incidents with root cause
 
 **Prevention:**
+
 - Tests verify function execution <300s
 - High-latency operations use Cloud Tasks (async)
 
@@ -43,6 +45,7 @@ Index of procedures for common production incidents.
 **Trigger:** Firestore connection fails, all queries fail
 
 **IC Actions:**
+
 1. Check Firebase Console: Firestore status
 2. Check region status: https://status.cloud.google.com
 3. Options:
@@ -59,6 +62,7 @@ Index of procedures for common production incidents.
 **Trigger:** Login fails for all users
 
 **IC Actions:**
+
 1. Check Firebase Console: Authentication status
 2. Check if issue is Firebase Auth or app code
 3. Options:
@@ -75,6 +79,7 @@ Index of procedures for common production incidents.
 **Trigger:** All writes fail with "permission-denied"
 
 **IC Actions:**
+
 1. Check Cloud Logs: filter `resource.name=~"firestore" AND severity=ERROR`
 2. Check recent Rules deploy
 3. If recent deploy caused this:
@@ -89,6 +94,7 @@ Index of procedures for common production incidents.
 **Trigger:** Audit chain broken OR customer reports missing records
 
 **IC Actions:**
+
 1. **DO NOT DELETE DATA** — preserve for forensics
 2. **Escalate to CTO immediately** — this is Black incident
 3. CTO decides: restore from backup vs forensic recovery
@@ -107,6 +113,7 @@ Index of procedures for common production incidents.
 **Trigger:** Gov endpoint down or rejecting batches
 
 **IC Actions:**
+
 1. Check NOTIVISA service status (check emails, gov notifications)
 2. Check if submission queue is backed up
 3. Options:
@@ -122,6 +129,7 @@ Index of procedures for common production incidents.
 **Trigger:** Function memory approaching limit
 
 **IC Actions:**
+
 1. Check Cloud Functions dashboard: memory usage trend
 2. Identify which function is leaking
 3. Check recent deploy to that function

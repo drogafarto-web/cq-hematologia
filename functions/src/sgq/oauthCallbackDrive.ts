@@ -23,10 +23,7 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import type { Response } from 'express';
-import {
-  exchangeCodeForTokens,
-  validateStateToken,
-} from './_drive/oauthClient';
+import { exchangeCodeForTokens, validateStateToken } from './_drive/oauthClient';
 import { enforcePublicRateLimit } from '../shared/rateLimit';
 
 const FRONTEND_BASE = 'https://hmatologia2.web.app/sgq/importar-drive';
@@ -35,12 +32,10 @@ const FRONTEND_BASE = 'https://hmatologia2.web.app/sgq/importar-drive';
  * Find a state token across all labs.
  * Returns { labId, userId } if found, null otherwise.
  */
-async function findStateToken(
-  state: string,
-): Promise<{ labId: string; userId: string } | null> {
+async function findStateToken(state: string): Promise<{ labId: string; userId: string } | null> {
   // Iterate through all labs and check their sgq-oauth-pending collections
   const labsSnap = await admin.firestore().collection('labs').listDocuments();
-  
+
   for (const labRef of labsSnap) {
     const stateDoc = await labRef.collection('sgq-oauth-pending').doc(state).get();
     if (stateDoc.exists) {
@@ -48,7 +43,7 @@ async function findStateToken(
       return { labId: labRef.id, userId: data!.userId };
     }
   }
-  
+
   return null;
 }
 
@@ -77,9 +72,7 @@ export const oauthCallbackDrive = functions.https.onRequest(async (req, res) => 
 
   // ─── 1. Rate limit (anti-DOS / brute-force on callback) ────────────────
   const clientIp =
-    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
-    req.ip ||
-    'unknown';
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0]?.trim() || req.ip || 'unknown';
 
   try {
     const rl = await enforcePublicRateLimit({
@@ -131,18 +124,13 @@ export const oauthCallbackDrive = functions.https.onRequest(async (req, res) => 
     const { expiresIn } = await exchangeCodeForTokens(code, labId, userId);
 
     // ─── 5. Audit log: successful authorization ───────────────────────────
-    await admin
-      .firestore()
-      .collection('labs')
-      .doc(labId)
-      .collection('sgq-oauth-logs')
-      .add({
-        userId,
-        event: 'oauth-authorized',
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-        expiresIn,
-        ipAddress: clientIp,
-      });
+    await admin.firestore().collection('labs').doc(labId).collection('sgq-oauth-logs').add({
+      userId,
+      event: 'oauth-authorized',
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      expiresIn,
+      ipAddress: clientIp,
+    });
 
     // ─── 6. Redirect back to frontend ─────────────────────────────────────
     const redirectUrl = new URL(FRONTEND_BASE);

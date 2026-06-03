@@ -123,29 +123,29 @@
 
 ### Response Time SLAs
 
-| Workload | Operation | P95 Target | Notes |
-|----------|-----------|-----------|-------|
-| Portal reads | GET /portalConfig | <150ms | 10k concurrent patients |
-| NOTIVISA | POST /notiVisaEvents | <300ms | Includes audit write |
-| Critical escalation | POST /criticalResults | <200ms | High-priority path |
-| Draft locks | POST + DELETE | <100ms | Real-time editing |
-| **Aggregate** | **All HTTP** | **<250ms** | **P95 across all requests** |
+| Workload            | Operation             | P95 Target | Notes                       |
+| ------------------- | --------------------- | ---------- | --------------------------- |
+| Portal reads        | GET /portalConfig     | <150ms     | 10k concurrent patients     |
+| NOTIVISA            | POST /notiVisaEvents  | <300ms     | Includes audit write        |
+| Critical escalation | POST /criticalResults | <200ms     | High-priority path          |
+| Draft locks         | POST + DELETE         | <100ms     | Real-time editing           |
+| **Aggregate**       | **All HTTP**          | **<250ms** | **P95 across all requests** |
 
 ### Error Rate SLAs
 
-| Scenario | Error Rate Target | HTTP Failure Target |
-|----------|------------------|-------------------|
-| Baseline (10 VUs) | <1% | <1% |
-| Stress (100 VUs) | <5% | <1% |
-| Spike (500 VUs) | <5% | <1% |
+| Scenario          | Error Rate Target | HTTP Failure Target |
+| ----------------- | ----------------- | ------------------- |
+| Baseline (10 VUs) | <1%               | <1%                 |
+| Stress (100 VUs)  | <5%               | <1%                 |
+| Spike (500 VUs)   | <5%               | <1%                 |
 
 ### Quota SLAs
 
-| Metric | Threshold | Action |
-|--------|-----------|--------|
+| Metric               | Threshold | Action                                          |
+| -------------------- | --------- | ----------------------------------------------- |
 | Quota exceeded (429) | <10 total | If hit: review Firestore quotas + rate limiting |
-| Firestore reads | info only | Monitor in Cloud Console |
-| Firestore writes | info only | Monitor in Cloud Console |
+| Firestore reads      | info only | Monitor in Cloud Console                        |
+| Firestore writes     | info only | Monitor in Cloud Console                        |
 
 ---
 

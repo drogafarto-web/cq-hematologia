@@ -28,7 +28,9 @@ const callGenerateRiskMatrixPDF = httpsCallable<{ labId: string }, { url: string
 
 export const RisksView: React.FC = () => {
   const labId = useActiveLabId();
-  const [activeTab, setActiveTab] = useState<'registro' | 'matriz' | 'top5' | 'revisoes'>('registro');
+  const [activeTab, setActiveTab] = useState<'registro' | 'matriz' | 'top5' | 'revisoes'>(
+    'registro',
+  );
   const [risks, setRisks] = useState<Risk[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -56,7 +58,7 @@ export const RisksView: React.FC = () => {
       (err) => {
         setError(err.message);
         setIsLoading(false);
-      }
+      },
     );
 
     return unsub;
@@ -64,19 +66,20 @@ export const RisksView: React.FC = () => {
 
   // KPI calculations
   const kpis = useMemo(() => {
-    const active = risks.filter(r => !r.deletadoEm && r.status !== 'fechado');
-    const criticos = active.filter(r => r.nivel === 'critico');
-    const altos = active.filter(r => r.nivel === 'alto');
-    const mitigando = active.filter(r => r.status === 'mitigando');
+    const active = risks.filter((r) => !r.deletadoEm && r.status !== 'fechado');
+    const criticos = active.filter((r) => r.nivel === 'critico');
+    const altos = active.filter((r) => r.nivel === 'alto');
+    const mitigando = active.filter((r) => r.status === 'mitigando');
     const now = new Date();
     const thirtyDaysFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
-    const vencendo = active.filter(r => {
+    const vencendo = active.filter((r) => {
       if (!r.reviewDate) return false;
-      const reviewDateObj = r.reviewDate instanceof Date
-        ? r.reviewDate
-        : (typeof r.reviewDate === 'object' && 'toDate' in r.reviewDate)
-        ? (r.reviewDate as any).toDate()
-        : new Date(r.reviewDate);
+      const reviewDateObj =
+        r.reviewDate instanceof Date
+          ? r.reviewDate
+          : typeof r.reviewDate === 'object' && 'toDate' in r.reviewDate
+            ? (r.reviewDate as any).toDate()
+            : new Date(r.reviewDate);
       return reviewDateObj < thirtyDaysFromNow;
     });
 
@@ -120,8 +123,18 @@ export const RisksView: React.FC = () => {
       <div className="sticky top-0 z-40 border-b border-white/10 bg-[#141417]/95 backdrop-blur">
         <div className="flex items-center gap-3 px-4 py-3">
           <a href="/hub" className="p-1.5 hover:bg-white/5 rounded-lg transition-colors">
-            <svg className="w-5 h-5 text-white/70" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+            <svg
+              className="w-5 h-5 text-white/70"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M15 19l-7-7 7-7"
+              />
             </svg>
           </a>
           <div className="flex-1 min-w-0">
@@ -148,19 +161,27 @@ export const RisksView: React.FC = () => {
             <div className="text-xs text-white/50">Ativos</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-red-500">{isLoading ? '—' : kpis.criticos}</div>
+            <div className="text-lg font-semibold text-red-500">
+              {isLoading ? '—' : kpis.criticos}
+            </div>
             <div className="text-xs text-white/50">Críticos</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-orange-500">{isLoading ? '—' : kpis.altos}</div>
+            <div className="text-lg font-semibold text-orange-500">
+              {isLoading ? '—' : kpis.altos}
+            </div>
             <div className="text-xs text-white/50">Alto</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-amber-500">{isLoading ? '—' : kpis.mitigando}</div>
+            <div className="text-lg font-semibold text-amber-500">
+              {isLoading ? '—' : kpis.mitigando}
+            </div>
             <div className="text-xs text-white/50">Mitigando</div>
           </div>
           <div>
-            <div className="text-lg font-semibold text-yellow-600">{isLoading ? '—' : kpis.vencendo}</div>
+            <div className="text-lg font-semibold text-yellow-600">
+              {isLoading ? '—' : kpis.vencendo}
+            </div>
             <div className="text-xs text-white/50">Vencendo</div>
           </div>
         </div>
@@ -181,12 +202,14 @@ export const RisksView: React.FC = () => {
                   : 'border-transparent text-white/60 hover:text-white/80'
               }`}
             >
-              {{
-                registro: 'Registro',
-                matriz: 'Matriz',
-                top5: 'Top 5',
-                revisoes: 'Revisões',
-              }[tab]}
+              {
+                {
+                  registro: 'Registro',
+                  matriz: 'Matriz',
+                  top5: 'Top 5',
+                  revisoes: 'Revisões',
+                }[tab]
+              }
             </button>
           ))}
         </div>
@@ -207,9 +230,7 @@ export const RisksView: React.FC = () => {
             <RiskHeatmap risks={risks} />
           </div>
         )}
-        {activeTab === 'top5' && (
-          <Top5RisksWidget risks={risks} onRiskClick={setSelectedRisk} />
-        )}
+        {activeTab === 'top5' && <Top5RisksWidget risks={risks} onRiskClick={setSelectedRisk} />}
         {activeTab === 'revisoes' && selectedRisk ? (
           <div className="p-4">
             <div className="mb-4">
@@ -228,34 +249,47 @@ export const RisksView: React.FC = () => {
               Riscos com revisão periódica próxima ou vencida. Clique para ver histórico.
             </p>
             {risks
-              .filter(r => !r.deletadoEm && r.status !== 'fechado')
+              .filter((r) => !r.deletadoEm && r.status !== 'fechado')
               .sort((a, b) => {
-                const aDate = a.reviewDate instanceof Date ? a.reviewDate : (a.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
-                const bDate = b.reviewDate instanceof Date ? b.reviewDate : (b.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
+                const aDate =
+                  a.reviewDate instanceof Date
+                    ? a.reviewDate
+                    : (a.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
+                const bDate =
+                  b.reviewDate instanceof Date
+                    ? b.reviewDate
+                    : (b.reviewDate as any)?.toDate?.() || new Date('2099-01-01');
                 return aDate.getTime() - bDate.getTime();
               })
               .slice(0, 10)
-              .map(risk => {
-                const reviewDateObj = risk.reviewDate instanceof Date
-                  ? risk.reviewDate
-                  : (risk.reviewDate as any)?.toDate?.() || null;
+              .map((risk) => {
+                const reviewDateObj =
+                  risk.reviewDate instanceof Date
+                    ? risk.reviewDate
+                    : (risk.reviewDate as any)?.toDate?.() || null;
                 const isOverdue = reviewDateObj && reviewDateObj < new Date();
                 return (
                   <div
                     key={risk.id}
                     onClick={() => setSelectedRisk(risk)}
                     className={`rounded-lg border p-3 cursor-pointer transition-colors hover:bg-white/[0.03] ${
-                      isOverdue ? 'border-red-500/30 bg-red-500/[0.04]' : 'border-white/10 bg-white/[0.01]'
+                      isOverdue
+                        ? 'border-red-500/30 bg-red-500/[0.04]'
+                        : 'border-white/10 bg-white/[0.01]'
                     }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <span className="text-xs font-mono text-white/50">{risk.codigo}</span>
-                        <span className="text-sm text-white/80 truncate max-w-xs">{risk.descricao}</span>
+                        <span className="text-sm text-white/80 truncate max-w-xs">
+                          {risk.descricao}
+                        </span>
                       </div>
                       <div className="text-right shrink-0">
                         {reviewDateObj && (
-                          <span className={`text-xs ${isOverdue ? 'text-red-400 font-medium' : 'text-white/50'}`}>
+                          <span
+                            className={`text-xs ${isOverdue ? 'text-red-400 font-medium' : 'text-white/50'}`}
+                          >
                             {isOverdue ? 'Vencida: ' : 'Próxima: '}
                             {reviewDateObj.toLocaleDateString('pt-BR')}
                           </span>

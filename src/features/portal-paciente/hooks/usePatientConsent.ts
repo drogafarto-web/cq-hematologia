@@ -23,10 +23,7 @@ interface UsePatientConsentReturn {
  * @param patientId - Patient ID
  * @returns Consent state
  */
-export function usePatientConsent(
-  labId: string,
-  patientId: string
-): UsePatientConsentReturn {
+export function usePatientConsent(labId: string, patientId: string): UsePatientConsentReturn {
   const [consent, setConsent] = useState<PatientConsent | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -55,7 +52,7 @@ export function usePatientConsent(
       (err) => {
         setError(err as Error);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -108,7 +105,7 @@ export function useRecordPatientConsent() {
         setIsLoading(false);
       }
     },
-    []
+    [],
   );
 
   return { recordConsent, isLoading, error };

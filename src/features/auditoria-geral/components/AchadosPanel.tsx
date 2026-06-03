@@ -12,17 +12,41 @@ interface AchadosPanelProps {
 }
 
 const TIPO_LABELS: Record<TipoAchado, { label: string; classes: string }> = {
-  'nc-critica': { label: 'NC Crítica', classes: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400' },
-  'nc-maior': { label: 'NC Maior', classes: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400' },
-  'nc-menor': { label: 'NC Menor', classes: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400' },
-  'oportunidade-melhoria': { label: 'Oportunidade', classes: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400' },
-  'observacao': { label: 'Observação', classes: 'bg-slate-100 text-slate-600 dark:bg-white/[0.08] dark:text-white/60' },
+  'nc-critica': {
+    label: 'NC Crítica',
+    classes: 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400',
+  },
+  'nc-maior': {
+    label: 'NC Maior',
+    classes: 'bg-orange-100 text-orange-700 dark:bg-orange-500/20 dark:text-orange-400',
+  },
+  'nc-menor': {
+    label: 'NC Menor',
+    classes: 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400',
+  },
+  'oportunidade-melhoria': {
+    label: 'Oportunidade',
+    classes: 'bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-400',
+  },
+  observacao: {
+    label: 'Observação',
+    classes: 'bg-slate-100 text-slate-600 dark:bg-white/[0.08] dark:text-white/60',
+  },
 };
 
 const STATUS_LABELS: Record<string, { label: string; classes: string }> = {
-  'aberto': { label: 'Aberto', classes: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400' },
-  'em-tratamento': { label: 'Em Tratamento', classes: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400' },
-  'fechado': { label: 'Fechado', classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400' },
+  aberto: {
+    label: 'Aberto',
+    classes: 'bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400',
+  },
+  'em-tratamento': {
+    label: 'Em Tratamento',
+    classes: 'bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400',
+  },
+  fechado: {
+    label: 'Fechado',
+    classes: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400',
+  },
 };
 
 export function AchadosPanel({ auditoriaId, readonly = false }: AchadosPanelProps) {
@@ -46,7 +70,8 @@ export function AchadosPanel({ auditoriaId, readonly = false }: AchadosPanelProp
       <div className="text-center py-6">
         <p className="text-sm text-slate-500 dark:text-white/50">Nenhum achado registrado</p>
         <p className="text-xs text-slate-400 dark:text-white/30 mt-1">
-          Achados são gerados automaticamente ao finalizar a auditoria para indicadores com score 0-2
+          Achados são gerados automaticamente ao finalizar a auditoria para indicadores com score
+          0-2
         </p>
       </div>
     );
@@ -63,9 +88,21 @@ export function AchadosPanel({ auditoriaId, readonly = false }: AchadosPanelProp
           Achados ({achados.length})
         </h3>
         <div className="flex items-center gap-2 text-[10px]">
-          {abertos > 0 && <span className="px-1.5 py-0.5 rounded bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">{abertos} abertos</span>}
-          {emTratamento > 0 && <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">{emTratamento} em tratamento</span>}
-          {fechados > 0 && <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">{fechados} fechados</span>}
+          {abertos > 0 && (
+            <span className="px-1.5 py-0.5 rounded bg-red-50 text-red-600 dark:bg-red-500/10 dark:text-red-400">
+              {abertos} abertos
+            </span>
+          )}
+          {emTratamento > 0 && (
+            <span className="px-1.5 py-0.5 rounded bg-amber-50 text-amber-600 dark:bg-amber-500/10 dark:text-amber-400">
+              {emTratamento} em tratamento
+            </span>
+          )}
+          {fechados > 0 && (
+            <span className="px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-400">
+              {fechados} fechados
+            </span>
+          )}
         </div>
       </div>
 
@@ -123,7 +160,10 @@ function AchadoCard({
     }
   };
 
-  const handleVerificacao = async (resultado: VerificacaoEficacia['resultado'], evidencia: string) => {
+  const handleVerificacao = async (
+    resultado: VerificacaoEficacia['resultado'],
+    evidencia: string,
+  ) => {
     setSaving(true);
     try {
       await saveVerificacaoEficacia(labId, auditoriaId, achado.id, {
@@ -143,20 +183,24 @@ function AchadoCard({
   };
 
   return (
-    <div className={`border rounded-lg transition-all ${
-      achado.status === 'aberto'
-        ? 'border-red-200 dark:border-red-500/20'
-        : achado.status === 'em-tratamento'
-          ? 'border-amber-200 dark:border-amber-500/20'
-          : 'border-emerald-200 dark:border-emerald-500/20'
-    }`}>
+    <div
+      className={`border rounded-lg transition-all ${
+        achado.status === 'aberto'
+          ? 'border-red-200 dark:border-red-500/20'
+          : achado.status === 'em-tratamento'
+            ? 'border-amber-200 dark:border-amber-500/20'
+            : 'border-emerald-200 dark:border-emerald-500/20'
+      }`}
+    >
       {/* Header */}
       <button
         type="button"
         onClick={onToggle}
         className="w-full text-left px-4 py-3 flex items-center gap-3"
       >
-        <span className="text-xs font-mono text-slate-500 dark:text-white/40">#{achado.numero}</span>
+        <span className="text-xs font-mono text-slate-500 dark:text-white/40">
+          #{achado.numero}
+        </span>
         <span className="text-xs font-medium text-slate-700 dark:text-white/80 flex-1 truncate">
           {achado.indicador}
         </span>
@@ -168,7 +212,10 @@ function AchadoCard({
         </span>
         <svg
           className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? 'rotate-180' : ''}`}
-          fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
         </svg>
@@ -297,15 +344,20 @@ function AchadoCard({
                 Verificação de Eficácia
               </p>
               <div className="flex items-center gap-2 text-xs">
-                <span className={`px-1.5 py-0.5 rounded font-medium ${
-                  achado.verificacaoEficacia.resultado === 'eficaz'
-                    ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
+                <span
+                  className={`px-1.5 py-0.5 rounded font-medium ${
+                    achado.verificacaoEficacia.resultado === 'eficaz'
+                      ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-400'
+                      : achado.verificacaoEficacia.resultado === 'ineficaz'
+                        ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
+                        : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
+                  }`}
+                >
+                  {achado.verificacaoEficacia.resultado === 'eficaz'
+                    ? 'Eficaz'
                     : achado.verificacaoEficacia.resultado === 'ineficaz'
-                      ? 'bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-400'
-                      : 'bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-400'
-                }`}>
-                  {achado.verificacaoEficacia.resultado === 'eficaz' ? 'Eficaz' :
-                   achado.verificacaoEficacia.resultado === 'ineficaz' ? 'Ineficaz' : 'Parcialmente Eficaz'}
+                      ? 'Ineficaz'
+                      : 'Parcialmente Eficaz'}
                 </span>
                 <span className="text-slate-500 dark:text-white/50">
                   por {achado.verificacaoEficacia.verificadorNome}
@@ -349,7 +401,9 @@ function Field({
         type="text"
         value={local}
         onChange={(e) => setLocal(e.target.value)}
-        onBlur={() => { if (local !== value) onSave(local); }}
+        onBlur={() => {
+          if (local !== value) onSave(local);
+        }}
         disabled={readonly}
         className="w-full bg-slate-50 border border-slate-200 dark:bg-white/[0.03] dark:border-white/[0.08] rounded-lg px-2 py-1.5 text-xs text-slate-700 dark:text-white/70 disabled:opacity-60"
       />

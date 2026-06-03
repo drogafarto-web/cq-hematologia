@@ -10,7 +10,14 @@ import { StatusVigenciaBadge, type StatusVigencia } from '../lm/StatusVigenciaBa
 
 function ChevronDown({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="6 9 12 15 18 9"></polyline>
     </svg>
   );
@@ -18,7 +25,14 @@ function ChevronDown({ size }: { size: number }) {
 
 function ChevronRight({ size }: { size: number }) {
   return (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="9 18 15 12 9 6"></polyline>
     </svg>
   );
@@ -78,11 +92,7 @@ export function HierarquiaNode({
           disabled={!hasChildren}
           aria-hidden={!hasChildren}
         >
-          {expanded ? (
-            <ChevronDown size={16} />
-          ) : (
-            <ChevronRight size={16} />
-          )}
+          {expanded ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
         </button>
 
         {/* Content */}

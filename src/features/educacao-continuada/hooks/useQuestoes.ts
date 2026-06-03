@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { functions, httpsCallable } from '../../../shared/services/firebase';
-import {
-  subscribeQuestoes,
-  type SubscribeQuestoesOptions,
-} from '../services/ecFirebaseService';
+import { subscribeQuestoes, type SubscribeQuestoesOptions } from '../services/ecFirebaseService';
 import type { Questao, QuestaoInput } from '../types/EducacaoContinuada';
 
 export interface UseQuestoesResult {

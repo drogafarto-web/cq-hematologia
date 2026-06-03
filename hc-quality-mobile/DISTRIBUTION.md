@@ -14,21 +14,21 @@ Manual distribution is a one-command operation: `npm run build:android:release`.
 
 ### Android
 
-| Requirement | Version | Notes |
-|---|---|---|
-| JDK | 17 (Temurin) | `java -version` must show 17 |
-| Android SDK | API 34 | Via Android Studio SDK Manager |
-| Gradle | 8.x | Managed by gradle wrapper — no manual install |
-| Keystore | `hcquality.keystore` | See generation steps below |
+| Requirement | Version              | Notes                                         |
+| ----------- | -------------------- | --------------------------------------------- |
+| JDK         | 17 (Temurin)         | `java -version` must show 17                  |
+| Android SDK | API 34               | Via Android Studio SDK Manager                |
+| Gradle      | 8.x                  | Managed by gradle wrapper — no manual install |
+| Keystore    | `hcquality.keystore` | See generation steps below                    |
 
 ### iOS
 
-| Requirement | Notes |
-|---|---|
-| macOS | Required — Xcode will not run on Linux/Windows |
-| Xcode | 15+ |
+| Requirement             | Notes                                            |
+| ----------------------- | ------------------------------------------------ |
+| macOS                   | Required — Xcode will not run on Linux/Windows   |
+| Xcode                   | 15+                                              |
 | Apple Developer account | For provisioning profiles + signing certificates |
-| CocoaPods | `sudo gem install cocoapods` |
+| CocoaPods               | `sudo gem install cocoapods`                     |
 
 ---
 
@@ -47,6 +47,7 @@ keytool -genkey -v \
 ```
 
 When prompted, choose strong passwords (16+ chars). Record:
+
 - Store password
 - Key alias (`hcquality`)
 - Key password
@@ -65,13 +66,13 @@ base64 hcquality.keystore
 
 Add these in **Settings → Secrets and variables → Actions** on the repository:
 
-| Secret name | Value |
-|---|---|
-| `ANDROID_KEYSTORE_BASE64` | Base64-encoded content of `hcquality.keystore` |
-| `ANDROID_KEY_ALIAS` | `hcquality` (or the alias you chose) |
-| `ANDROID_STORE_PASSWORD` | Keystore store password |
-| `ANDROID_KEY_PASSWORD` | Key password |
-| `FIREBASE_ANDROID_APP_ID` | Android App ID from Firebase console (e.g. `1:123456:android:abc`) |
+| Secret name                | Value                                                                           |
+| -------------------------- | ------------------------------------------------------------------------------- |
+| `ANDROID_KEYSTORE_BASE64`  | Base64-encoded content of `hcquality.keystore`                                  |
+| `ANDROID_KEY_ALIAS`        | `hcquality` (or the alias you chose)                                            |
+| `ANDROID_STORE_PASSWORD`   | Keystore store password                                                         |
+| `ANDROID_KEY_PASSWORD`     | Key password                                                                    |
+| `FIREBASE_ANDROID_APP_ID`  | Android App ID from Firebase console (e.g. `1:123456:android:abc`)              |
 | `FIREBASE_SERVICE_ACCOUNT` | JSON content of a GCP service account with Firebase App Distribution Admin role |
 
 ### Getting FIREBASE_ANDROID_APP_ID

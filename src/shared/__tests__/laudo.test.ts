@@ -28,9 +28,7 @@ describe('laudo.ts', () => {
       const afterTime = Date.now();
 
       const lockedUntilMs =
-        lock.lockedUntil instanceof Timestamp
-          ? lock.lockedUntil.toMillis()
-          : lock.lockedUntil;
+        lock.lockedUntil instanceof Timestamp ? lock.lockedUntil.toMillis() : lock.lockedUntil;
 
       expect(lockedUntilMs).toBeGreaterThanOrEqual(beforeTime + customDuration);
       expect(lockedUntilMs).toBeLessThanOrEqual(afterTime + customDuration);

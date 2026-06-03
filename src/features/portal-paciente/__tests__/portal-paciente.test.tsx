@@ -51,7 +51,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Laboratório Exemplo"
         onLogout={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('João Silva')).toBeInTheDocument();
@@ -66,7 +66,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Lab São Paulo"
         onLogout={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Maria Santos')).toBeInTheDocument();
@@ -82,7 +82,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Laboratório"
         onLogout={onLogout}
-      />
+      />,
     );
 
     const logoutButton = screen.getByText('Sair');
@@ -99,7 +99,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Laboratório"
         onLogout={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Meus Resultados')).toBeInTheDocument();
@@ -113,7 +113,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Laboratório"
         onLogout={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Consentimentos')).toBeInTheDocument();
@@ -127,7 +127,7 @@ describe('PortalPacienteShell', () => {
         labId="lab_001"
         labName="Laboratório"
         onLogout={vi.fn()}
-      />
+      />,
     );
 
     expect(screen.getByText('Meus Direitos LGPD')).toBeInTheDocument();
@@ -210,7 +210,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={vi.fn()}
         labName="Laboratório"
-      />
+      />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -222,7 +222,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={vi.fn()}
         labName="Laboratório"
-      />
+      />,
     );
 
     expect(screen.getByText('Autorizar processamento com IA')).toBeInTheDocument();
@@ -235,7 +235,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={vi.fn()}
         labName="Lab São Paulo"
-      />
+      />,
     );
 
     // Lab name appears multiple times in modal
@@ -251,7 +251,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={onSubmit}
         labName="Laboratório"
-      />
+      />,
     );
 
     const checkbox = screen.getByRole('checkbox');
@@ -272,7 +272,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={vi.fn()}
         labName="Laboratório"
-      />
+      />,
     );
 
     const submitButton = screen.getByText('Autorizar') as HTMLButtonElement;
@@ -286,7 +286,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={vi.fn()}
         labName="Laboratório"
-      />
+      />,
     );
 
     const checkbox = screen.getByRole('checkbox');
@@ -304,7 +304,7 @@ describe('ConsentCaptureModal', () => {
         onClose={onClose}
         onSubmit={vi.fn()}
         labName="Laboratório"
-      />
+      />,
     );
 
     const rejectButton = screen.getByText('Recusar');
@@ -321,7 +321,7 @@ describe('ConsentCaptureModal', () => {
         onClose={vi.fn()}
         onSubmit={onSubmit}
         labName="Laboratório"
-      />
+      />,
     );
 
     const checkbox = screen.getByRole('checkbox');

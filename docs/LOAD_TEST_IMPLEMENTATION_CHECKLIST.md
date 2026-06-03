@@ -19,12 +19,14 @@ Use this checklist to ensure load testing está fully integrated no seu workflow
 ### k6 Installation
 
 **macOS:**
+
 ```bash
 brew install k6
 k6 version  # Should return v0.50.0+
 ```
 
 **Linux (Debian/Ubuntu):**
+
 ```bash
 curl https://dl.k6.io/release/v0.50.0/k6-v0.50.0-linux-amd64.tar.gz | tar xz
 sudo mv k6 /usr/local/bin/
@@ -32,6 +34,7 @@ k6 version
 ```
 
 **Windows (Chocolatey):**
+
 ```powershell
 choco install k6
 k6 version
@@ -51,11 +54,13 @@ k6-reporter --version
 ### Validate Installation
 
 **PowerShell (Windows):**
+
 ```powershell
 .\scripts\load-test-phase-3.ps1 -SkipReport
 ```
 
 **Bash (Linux/macOS):**
+
 ```bash
 ./scripts/load-test-phase-3.sh baseline --skip-report
 ```
@@ -79,6 +84,7 @@ k6-reporter --version
 ### Example PR Checklist
 
 When opening a PR that touches:
+
 - Firestore queries → run baseline
 - Cloud Functions → run baseline
 - Frontend portal → run baseline + stress test
@@ -251,11 +257,11 @@ Create `docs/LOAD_TEST_BASELINE_HISTORY.md`:
 ```markdown
 # Load Test Baseline History
 
-| Date | Portal P95 | Error Rate | Quota Exceeded | Status |
-|------|-----------|-----------|----------------|--------|
-| 2026-05-07 | 181ms | 0.2% | 0 | ✓ |
-| 2026-05-14 | 175ms | 0.1% | 0 | ✓ IMPROVED |
-| 2026-05-21 | 189ms | 0.3% | 0 | ⚠ DEGRADED (investigate) |
+| Date       | Portal P95 | Error Rate | Quota Exceeded | Status                   |
+| ---------- | ---------- | ---------- | -------------- | ------------------------ |
+| 2026-05-07 | 181ms      | 0.2%       | 0              | ✓                        |
+| 2026-05-14 | 175ms      | 0.1%       | 0              | ✓ IMPROVED               |
+| 2026-05-21 | 189ms      | 0.3%       | 0              | ⚠ DEGRADED (investigate) |
 ```
 
 - [ ] Create `LOAD_TEST_BASELINE_HISTORY.md` if doing weekly tracking
@@ -273,6 +279,7 @@ Create `docs/LOAD_TEST_BASELINE_HISTORY.md`:
 When load test reveals performance issue:
 
 1. [ ] Document issue in JIRA/GitHub issue:
+
    ```
    Title: Portal reads P95 latency degraded to 287ms (target: 150ms)
    Load Test: LOAD_TEST_RESULTS.md
@@ -284,11 +291,13 @@ When load test reveals performance issue:
 2. [ ] Implement fix (add index, optimize query, cache, etc)
 
 3. [ ] Re-test locally:
+
    ```bash
    ./scripts/load-test-phase-3.sh baseline
    ```
 
 4. [ ] Verify improvement:
+
    ```bash
    grep "Portal Config Reads" LOAD_TEST_RESULTS.md
    # Before: 287ms
@@ -296,16 +305,17 @@ When load test reveals performance issue:
    ```
 
 5. [ ] Commit with before/after metrics:
+
    ```
    git commit -m "perf: add firestore index for portal config reads
-   
+
    Before: Portal reads P95 287ms (exceeded target 150ms)
    After:  Portal reads P95 145ms ✓ (48% improvement)
-   
+
    Changes:
      - Added composite index: portalEnabled (Asc) + modifiedTime (Desc)
      - No code changes required
-   
+
    Verification: ./scripts/load-test-phase-3.sh baseline
    "
    ```
@@ -341,12 +351,12 @@ Create `docs/LOAD_TEST_COMPLIANCE_RECORD.md`:
 
 ## Results
 
-| Requirement | Target | Actual | Status |
-|-------------|--------|--------|--------|
-| Portal response time (P95) | <150ms | 145ms | ✓ PASS |
-| NOTIVISA event latency | <300ms | 289ms | ✓ PASS |
-| Critical escalation latency | <200ms | 187ms | ✓ PASS |
-| Error rate | <1% | 0.2% | ✓ PASS |
+| Requirement                 | Target | Actual | Status |
+| --------------------------- | ------ | ------ | ------ |
+| Portal response time (P95)  | <150ms | 145ms  | ✓ PASS |
+| NOTIVISA event latency      | <300ms | 289ms  | ✓ PASS |
+| Critical escalation latency | <200ms | 187ms  | ✓ PASS |
+| Error rate                  | <1%    | 0.2%   | ✓ PASS |
 
 ## Compliance
 
@@ -382,6 +392,7 @@ Create `docs/LOAD_TEST_COMPLIANCE_RECORD.md`:
 ### "Permission denied: scripts/load-test-phase-3.sh"
 
 **Linux/macOS:**
+
 ```bash
 chmod +x scripts/load-test-phase-3.sh
 ```
@@ -424,13 +435,13 @@ Load testing integration is **complete** when:
 
 ## Reference Documents
 
-| Document | Purpose |
-|----------|---------|
-| `LOAD_TEST_QUICK_REFERENCE.md` | Quick start, commands, examples |
-| `LOAD_TEST_INTEGRATION_GUIDE.md` | Full architecture, CI/CD, pre/post deploy |
-| `LOAD_TEST_DELIVERY_SUMMARY.md` | Deliverables recap, metrics, next steps |
-| `LOAD_TEST_EXAMPLE_OUTPUTS.md` | Real-world output examples, troubleshooting |
-| This file | Implementation checklist |
+| Document                         | Purpose                                     |
+| -------------------------------- | ------------------------------------------- |
+| `LOAD_TEST_QUICK_REFERENCE.md`   | Quick start, commands, examples             |
+| `LOAD_TEST_INTEGRATION_GUIDE.md` | Full architecture, CI/CD, pre/post deploy   |
+| `LOAD_TEST_DELIVERY_SUMMARY.md`  | Deliverables recap, metrics, next steps     |
+| `LOAD_TEST_EXAMPLE_OUTPUTS.md`   | Real-world output examples, troubleshooting |
+| This file                        | Implementation checklist                    |
 
 ---
 

@@ -47,12 +47,7 @@ export const submitAuditorSignOff = onCall<
     const db = admin.firestore();
 
     // ========== 2. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
@@ -69,11 +64,7 @@ export const submitAuditorSignOff = onCall<
     const signOffId = uuid();
 
     for (const capaId of capaIds) {
-      const capaRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('capa-tracking')
-        .doc(capaId);
+      const capaRef = db.collection('labs').doc(labId).collection('capa-tracking').doc(capaId);
 
       const capaSnap = await capaRef.get();
 
@@ -164,5 +155,5 @@ export const submitAuditorSignOff = onCall<
       signOffId,
       closedAt: now,
     };
-  }
+  },
 );

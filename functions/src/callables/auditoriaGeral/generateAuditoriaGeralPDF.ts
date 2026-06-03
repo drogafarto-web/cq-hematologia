@@ -56,15 +56,16 @@ function str(v: unknown, fb = '—'): string {
 }
 
 function parseResposta(data: Record<string, unknown>): Resposta {
-  const score = typeof data['score'] === 'number' && Number.isFinite(data['score'] as number)
-    ? data['score'] as number
-    : null;
+  const score =
+    typeof data['score'] === 'number' && Number.isFinite(data['score'] as number)
+      ? (data['score'] as number)
+      : null;
   const rawFotos = Array.isArray(data['fotos']) ? data['fotos'] : [];
   const fotos = rawFotos
     .filter((f: any) => typeof f?.url === 'string')
     .map((f: any) => ({ url: f.url as string, nome: (f.nome as string) || 'foto' }));
   return {
-    numero: typeof data['numero'] === 'number' ? data['numero'] as number : 0,
+    numero: typeof data['numero'] === 'number' ? (data['numero'] as number) : 0,
     nome: str(data['nome'] || data['indicador'] || data['descricao'], 'Indicador'),
     bloco: str(data['bloco'], '?'),
     score,
@@ -75,12 +76,12 @@ function parseResposta(data: Record<string, unknown>): Resposta {
 }
 
 function computeScores(respostas: Resposta[]) {
-  const respondidos = respostas.filter(r => r.score !== null && !r.naoAplica);
-  const naCount = respostas.filter(r => r.naoAplica).length;
+  const respondidos = respostas.filter((r) => r.score !== null && !r.naoAplica);
+  const naCount = respostas.filter((r) => r.naoAplica).length;
   const totalScore = respondidos.reduce((sum, r) => sum + (r.score ?? 0), 0);
   const maxPossible = respondidos.length * 5;
   const scorePercent = maxPossible > 0 ? Math.round((totalScore / maxPossible) * 100) : 0;
-  const belowThree = respondidos.filter(r => (r.score ?? 0) <= 2).length;
+  const belowThree = respondidos.filter((r) => (r.score ?? 0) <= 2).length;
 
   // Per-bloco scores
   const blocoScores: Record<string, { total: number; count: number }> = {};
@@ -90,7 +91,15 @@ function computeScores(respostas: Resposta[]) {
     blocoScores[r.bloco].count += 1;
   }
 
-  return { respondidos: respondidos.length, naCount, totalScore, maxPossible, scorePercent, belowThree, blocoScores };
+  return {
+    respondidos: respondidos.length,
+    naCount,
+    totalScore,
+    maxPossible,
+    scorePercent,
+    belowThree,
+    blocoScores,
+  };
 }
 
 async function fetchImageBuffer(url: string): Promise<Buffer | null> {
@@ -111,7 +120,7 @@ async function buildPdfBuffer(
 ): Promise<Buffer> {
   // Pre-fetch all photo buffers before building the PDF
   const imageCache = new Map<string, Buffer | null>();
-  const respostasComFoto = respostas.filter(r => r.fotos.length > 0);
+  const respostasComFoto = respostas.filter((r) => r.fotos.length > 0);
   for (const r of respostasComFoto) {
     for (const foto of r.fotos) {
       if (!imageCache.has(foto.url)) {
@@ -130,10 +139,17 @@ async function buildPdfBuffer(
     const pageW = doc.page.width;
     const contentW = pageW - 100;
     const now = new Date();
-    const dateStr = now.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+    const dateStr = now.toLocaleDateString('pt-BR', {
+      day: '2-digit',
+      month: 'long',
+      year: 'numeric',
+    });
 
     const titulo = str(auditoria['titulo'] || auditoria['title'], 'Auditoria Geral');
-    const auditorName = str(auditoria['auditorNome'] || auditoria['auditor'] || auditoria['auditorName'], '—');
+    const auditorName = str(
+      auditoria['auditorNome'] || auditoria['auditor'] || auditoria['auditorName'],
+      '—',
+    );
     const dataAuditoria = auditoria['data']
       ? (auditoria['data'] as { toDate?: () => Date }).toDate
         ? (auditoria['data'] as { toDate: () => Date }).toDate().toLocaleDateString('pt-BR')
@@ -145,9 +161,15 @@ async function buildPdfBuffer(
     // === CAPA ===
     doc.rect(0, 0, pageW, doc.page.height).fill('#0f1115');
     doc.fillColor('#ffffff');
-    doc.fontSize(10).font('Helvetica').text('SISTEMA DE GESTAO DA QUALIDADE', 50, 80, { align: 'center' });
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .text('SISTEMA DE GESTAO DA QUALIDADE', 50, 80, { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(8).fillColor('#888888').text('RDC 978/2025 | DICQ 4.4 | ISO 15189', { align: 'center' });
+    doc
+      .fontSize(8)
+      .fillColor('#888888')
+      .text('RDC 978/2025 | DICQ 4.4 | ISO 15189', { align: 'center' });
     doc.fillColor('#ffffff').moveDown(4);
     doc.fontSize(24).font('Helvetica-Bold').text('Auditoria Geral', { align: 'center' });
     doc.moveDown(0.3);
@@ -157,15 +179,30 @@ async function buildPdfBuffer(
     doc.moveDown(3);
     doc.fillColor('#ffffff').fontSize(14).font('Helvetica-Bold').text(labName, { align: 'center' });
     doc.moveDown(0.5);
-    doc.fontSize(10).font('Helvetica').fillColor('#888888').text(`Auditor: ${auditorName}`, { align: 'center' });
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .fillColor('#888888')
+      .text(`Auditor: ${auditorName}`, { align: 'center' });
     doc.moveDown(0.3);
     doc.text(`Data: ${dataAuditoria}`, { align: 'center' });
     doc.moveDown(3);
-    doc.fillColor('#ffffff').fontSize(36).font('Helvetica-Bold').text(`${stats.scorePercent}%`, { align: 'center' });
+    doc
+      .fillColor('#ffffff')
+      .fontSize(36)
+      .font('Helvetica-Bold')
+      .text(`${stats.scorePercent}%`, { align: 'center' });
     doc.moveDown(0.3);
-    doc.fontSize(10).font('Helvetica').fillColor('#aaaaaa').text('Score de Conformidade', { align: 'center' });
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .fillColor('#aaaaaa')
+      .text('Score de Conformidade', { align: 'center' });
     doc.moveDown(5);
-    doc.fontSize(7).fillColor('#666666').text('Documento gerado automaticamente pelo HC Quality', { align: 'center' });
+    doc
+      .fontSize(7)
+      .fillColor('#666666')
+      .text('Documento gerado automaticamente pelo HC Quality', { align: 'center' });
     doc.text('Valido como registro do SGQ - preservar para auditoria', { align: 'center' });
 
     // === SUMARIO EXECUTIVO ===
@@ -174,12 +211,16 @@ async function buildPdfBuffer(
     doc.fontSize(16).font('Helvetica-Bold').text('1. Sumario Executivo');
     doc.moveDown(0.8);
     doc.fontSize(9).font('Helvetica').fillColor('#333333');
-    doc.text(`Este relatorio apresenta os resultados da auditoria geral realizada no laboratorio ${labName}.`);
+    doc.text(
+      `Este relatorio apresenta os resultados da auditoria geral realizada no laboratorio ${labName}.`,
+    );
     doc.moveDown(0.8);
     doc.font('Helvetica-Bold').text('Indicadores-chave:');
     doc.moveDown(0.3);
     doc.font('Helvetica');
-    doc.text(`  Score total: ${stats.scorePercent}% (${stats.totalScore}/${stats.maxPossible} pontos)`);
+    doc.text(
+      `  Score total: ${stats.scorePercent}% (${stats.totalScore}/${stats.maxPossible} pontos)`,
+    );
     doc.text(`  Indicadores respondidos: ${stats.respondidos}/57`);
     doc.text(`  Indicadores N/A: ${stats.naCount}`);
     doc.text(`  Indicadores com score <= 2 (criticos): ${stats.belowThree}`);
@@ -188,11 +229,19 @@ async function buildPdfBuffer(
     doc.moveDown(0.3);
     doc.font('Helvetica');
     if (stats.scorePercent >= 80) {
-      doc.text('O laboratorio apresenta nivel de conformidade SATISFATORIO. Manter ciclo de melhoria continua.');
+      doc.text(
+        'O laboratorio apresenta nivel de conformidade SATISFATORIO. Manter ciclo de melhoria continua.',
+      );
     } else if (stats.scorePercent >= 60) {
-      doc.text('O laboratorio apresenta nivel de conformidade PARCIAL. Acoes corretivas recomendadas nos blocos com score inferior a 60%.');
+      doc.text(
+        'O laboratorio apresenta nivel de conformidade PARCIAL. Acoes corretivas recomendadas nos blocos com score inferior a 60%.',
+      );
     } else {
-      doc.fillColor('#cc0000').text('ATENCAO: Nivel de conformidade INSATISFATORIO. Acoes corretivas imediatas necessarias.');
+      doc
+        .fillColor('#cc0000')
+        .text(
+          'ATENCAO: Nivel de conformidade INSATISFATORIO. Acoes corretivas imediatas necessarias.',
+        );
       doc.fillColor('#333333');
     }
 
@@ -202,13 +251,20 @@ async function buildPdfBuffer(
     doc.fontSize(16).font('Helvetica-Bold').text('2. Scores por Bloco');
     doc.moveDown(0.5);
     doc.fontSize(8).font('Helvetica').fillColor('#555555');
-    doc.text('Percentual de conformidade por bloco tematico (score obtido / score maximo possivel).');
+    doc.text(
+      'Percentual de conformidade por bloco tematico (score obtido / score maximo possivel).',
+    );
     doc.moveDown(0.8);
 
     doc.font('Helvetica-Bold').fontSize(8).fillColor('#000000');
     doc.text('Bloco  Nome                                    Score %   Barra');
     doc.moveDown(0.2);
-    doc.moveTo(50, doc.y).lineTo(pageW - 50, doc.y).strokeColor('#cccccc').lineWidth(0.5).stroke();
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(pageW - 50, doc.y)
+      .strokeColor('#cccccc')
+      .lineWidth(0.5)
+      .stroke();
     doc.moveDown(0.3);
 
     doc.font('Helvetica').fontSize(8).fillColor('#333333');
@@ -227,20 +283,27 @@ async function buildPdfBuffer(
     }
 
     // === ACHADOS CRITICOS ===
-    const criticos = respostas.filter(r => r.score !== null && r.score <= 2);
+    const criticos = respostas.filter((r) => r.score !== null && r.score <= 2);
     if (criticos.length > 0) {
       doc.addPage();
       doc.fillColor('#000000');
       doc.fontSize(16).font('Helvetica-Bold').text('3. Achados Criticos (Score <= 2)');
       doc.moveDown(0.5);
       doc.fontSize(8).font('Helvetica').fillColor('#555555');
-      doc.text(`${criticos.length} indicador(es) com pontuacao critica identificado(s). Requerem acao corretiva.`);
+      doc.text(
+        `${criticos.length} indicador(es) com pontuacao critica identificado(s). Requerem acao corretiva.`,
+      );
       doc.moveDown(0.8);
 
       doc.font('Helvetica-Bold').fontSize(7).fillColor('#000000');
       doc.text('No.  | Indicador                                    | Score | Observacoes');
       doc.moveDown(0.2);
-      doc.moveTo(50, doc.y).lineTo(pageW - 50, doc.y).strokeColor('#cccccc').lineWidth(0.5).stroke();
+      doc
+        .moveTo(50, doc.y)
+        .lineTo(pageW - 50, doc.y)
+        .strokeColor('#cccccc')
+        .lineWidth(0.5)
+        .stroke();
       doc.moveDown(0.3);
 
       doc.font('Helvetica').fontSize(7).fillColor('#333333');
@@ -251,9 +314,9 @@ async function buildPdfBuffer(
         }
         const nome = r.nome.length > 44 ? r.nome.slice(0, 42) + '..' : r.nome;
         const obs = r.observacoes.length > 40 ? r.observacoes.slice(0, 38) + '..' : r.observacoes;
-        doc.fillColor('#cc0000').text(
-          `${String(r.numero).padStart(3)}  | ${nome.padEnd(46)} |   ${r.score}   | ${obs}`,
-        );
+        doc
+          .fillColor('#cc0000')
+          .text(`${String(r.numero).padStart(3)}  | ${nome.padEnd(46)} |   ${r.score}   | ${obs}`);
         doc.moveDown(0.15);
       }
     }
@@ -261,7 +324,14 @@ async function buildPdfBuffer(
     // === TABELA COMPLETA ===
     doc.addPage();
     doc.fillColor('#000000');
-    doc.fontSize(16).font('Helvetica-Bold').text(criticos.length > 0 ? '4. Tabela Completa (57 Indicadores)' : '3. Tabela Completa (57 Indicadores)');
+    doc
+      .fontSize(16)
+      .font('Helvetica-Bold')
+      .text(
+        criticos.length > 0
+          ? '4. Tabela Completa (57 Indicadores)'
+          : '3. Tabela Completa (57 Indicadores)',
+      );
     doc.moveDown(0.3);
     doc.fontSize(7).font('Helvetica').fillColor('#555555');
     doc.text('Todos os indicadores avaliados, ordenados por numero.');
@@ -270,7 +340,12 @@ async function buildPdfBuffer(
     doc.font('Helvetica-Bold').fontSize(6.5).fillColor('#000000');
     doc.text('No. | Bloco | Indicador                                         | Score | Obs');
     doc.moveDown(0.2);
-    doc.moveTo(50, doc.y).lineTo(pageW - 50, doc.y).strokeColor('#cccccc').lineWidth(0.5).stroke();
+    doc
+      .moveTo(50, doc.y)
+      .lineTo(pageW - 50, doc.y)
+      .strokeColor('#cccccc')
+      .lineWidth(0.5)
+      .stroke();
     doc.moveDown(0.3);
 
     doc.font('Helvetica').fontSize(6.5).fillColor('#333333');
@@ -284,14 +359,18 @@ async function buildPdfBuffer(
       const scoreStr = r.score !== null ? String(r.score) : 'N/A';
       const obs = r.observacoes.length > 25 ? r.observacoes.slice(0, 23) + '..' : r.observacoes;
       const scoreColor = r.score !== null && r.score <= 2 ? '#cc0000' : '#333333';
-      doc.fillColor('#333333').text(`${String(r.numero).padStart(3)} |   ${r.bloco}   | ${nome.padEnd(49)} | `, { continued: true });
+      doc
+        .fillColor('#333333')
+        .text(`${String(r.numero).padStart(3)} |   ${r.bloco}   | ${nome.padEnd(49)} | `, {
+          continued: true,
+        });
       doc.fillColor(scoreColor).text(`${scoreStr.padStart(3)}`, { continued: true });
       doc.fillColor('#333333').text(`  | ${obs}`);
       doc.moveDown(0.1);
     }
 
     // === EVIDENCIAS FOTOGRAFICAS ===
-    const fotosRespostas = sorted.filter(r => r.fotos.length > 0);
+    const fotosRespostas = sorted.filter((r) => r.fotos.length > 0);
     if (fotosRespostas.length > 0) {
       doc.addPage();
       doc.fillColor('#000000');
@@ -319,7 +398,11 @@ async function buildPdfBuffer(
               doc.fontSize(7).fillColor('#999999').font('Helvetica').text(`[Imagem: ${foto.nome}]`);
             }
           } else {
-            doc.fontSize(7).fillColor('#999999').font('Helvetica').text(`[Imagem indisponivel: ${foto.nome}]`);
+            doc
+              .fontSize(7)
+              .fillColor('#999999')
+              .font('Helvetica')
+              .text(`[Imagem indisponivel: ${foto.nome}]`);
           }
           doc.moveDown(0.3);
         }
@@ -333,16 +416,14 @@ async function buildPdfBuffer(
       doc.switchToPage(i);
       if (i === 0) continue;
       doc.fontSize(7).fillColor('#999999').font('Helvetica');
-      doc.text(
-        `HC Quality - Auditoria Geral | ${labName} | ${dateStr}`,
-        50, doc.page.height - 40,
-        { width: contentW - 60, align: 'left' },
-      );
-      doc.text(
-        `Pagina ${i} de ${pages.count - 1}`,
-        50, doc.page.height - 40,
-        { width: contentW, align: 'right' },
-      );
+      doc.text(`HC Quality - Auditoria Geral | ${labName} | ${dateStr}`, 50, doc.page.height - 40, {
+        width: contentW - 60,
+        align: 'left',
+      });
+      doc.text(`Pagina ${i} de ${pages.count - 1}`, 50, doc.page.height - 40, {
+        width: contentW,
+        align: 'right',
+      });
     }
 
     doc.end();
@@ -378,13 +459,19 @@ export const generateAuditoriaGeralPDF = onCall(
     const respostasSnap = await db
       .collection(`auditoria-geral/${labId}/auditorias/${auditoriaId}/respostas`)
       .get();
-    const respostas: Resposta[] = respostasSnap.docs.map(d => parseResposta(d.data() as Record<string, unknown>));
+    const respostas: Resposta[] = respostasSnap.docs.map((d) =>
+      parseResposta(d.data() as Record<string, unknown>),
+    );
 
     // Read lab info
     const labSnap = await db.doc(`labs/${labId}`).get();
     const labName = labDisplayName(labSnap.data() as Record<string, unknown> | undefined);
 
-    logger.info('generateAuditoriaGeralPDF', { labId, auditoriaId, respostasCount: respostas.length });
+    logger.info('generateAuditoriaGeralPDF', {
+      labId,
+      auditoriaId,
+      respostasCount: respostas.length,
+    });
 
     const pdfBuffer = await buildPdfBuffer(labName, auditoriaData, respostas);
     const pdf = pdfBuffer.toString('base64');

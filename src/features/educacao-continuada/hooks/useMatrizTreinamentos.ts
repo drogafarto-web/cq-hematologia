@@ -1,11 +1,7 @@
 import { useMemo } from 'react';
 
 import { Timestamp } from '../../../shared/services/firebase';
-import type {
-  Colaborador,
-  Periodicidade,
-  Treinamento,
-} from '../types/EducacaoContinuada';
+import type { Colaborador, Periodicidade, Treinamento } from '../types/EducacaoContinuada';
 
 import { useAvaliacaoCompetencia } from './useAvaliacaoCompetencia';
 import { useColaboradores } from './useColaboradores';
@@ -92,9 +88,7 @@ export function useMatrizTreinamentos(
 
   const colaboradores = useMemo(
     () =>
-      [...colaboradoresHook.colaboradores].sort((a, b) =>
-        a.nome.localeCompare(b.nome, 'pt-BR'),
-      ),
+      [...colaboradoresHook.colaboradores].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR')),
     [colaboradoresHook.colaboradores],
   );
 

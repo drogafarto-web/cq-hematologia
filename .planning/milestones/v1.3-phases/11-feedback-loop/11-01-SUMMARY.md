@@ -1,9 +1,9 @@
 ---
-plan: "01"
-phase: "11-feedback-loop"
-title: "Schema + Types + Service + RCA 5 Whys + NC Auto-Trigger"
-date_completed: "2026-05-06"
-status: "COMPLETE"
+plan: '01'
+phase: '11-feedback-loop'
+title: 'Schema + Types + Service + RCA 5 Whys + NC Auto-Trigger'
+date_completed: '2026-05-06'
+status: 'COMPLETE'
 ---
 
 # Phase 11 Plan 01 — SUMMARY
@@ -13,6 +13,7 @@ status: "COMPLETE"
 Foundation completo do feedback loop: tipos, schema Firestore, services, RCA engine, severity classifier heurístico, NC auto-trigger, rules, indexes, hub tiles. Base sobre a qual Plans 02-08 constroem.
 
 **Output delivered:**
+
 - Schema deployado (types + DTOs)
 - 4 rotas lazy registradas (AppRouter)
 - Types exportados via barrel
@@ -29,6 +30,7 @@ Foundation completo do feedback loop: tipos, schema Firestore, services, RCA eng
 **File:** `src/features/reclamacoes/types/reclamacao.ts`
 
 Complete domain model:
+
 - `Reclamacao` (master complaint entity with RCA + NC link)
 - `RCAFiveWhys` + `PorquePergunta` (5 Whys structure)
 - `ClassificacaoAuto` (Gemini AI suggestion)
@@ -54,6 +56,7 @@ Complete domain model:
 **File:** `src/features/reclamacoes/utils/rcaFiveWhys.ts`
 
 Pure functional engine:
+
 - `validateRCA(rca)` → validation result with specific errors
   - ✓ Min 3 levels filled
   - ✓ Sequential levels starting at 1
@@ -73,6 +76,7 @@ Pure functional engine:
 **File:** `src/features/reclamacoes/utils/severityClassifier.ts`
 
 Pure heuristic (client-side + server-side):
+
 - Keywords patterns for alta/media/baixa
 - Accent-normalization + case-insensitive matching
 - Confidence scoring (0.0-1.0) based on match weight
@@ -89,6 +93,7 @@ Pure heuristic (client-side + server-side):
 **File:** `src/features/reclamacoes/utils/auditChain.ts`
 
 Replicates ADR 0001 pattern:
+
 - `sha256(data)` → 64-char hex
 - `computeChainHash(prev, entityId, op, ts, uid)` → sequential hash
 - `verifyChainIntegrity(entries)` → chain validity check + tampering detection
@@ -102,6 +107,7 @@ Replicates ADR 0001 pattern:
 ### 6. Service Layer (300+ lines)
 
 #### `reclamacaoService.ts` (280 lines)
+
 - `subscribeToReclamacoes(labId, filters)` → Unsubscribe (listener management)
 - `subscribeToReclamacao(labId, id)` → Unsubscribe (single complaint)
 - `getReclamacao(labId, id)` → one-time read
@@ -117,6 +123,7 @@ Replicates ADR 0001 pattern:
 **Cleanup:** All listeners properly unsubscribed in useEffect cleanup
 
 #### `sugestaoService.ts` (200 lines)
+
 - Subscribe + single read pattern
 - `getSugestoesByStatus(labId, status)` → workflow view
 - `getSugestoesByCategoria(labId, cat)` → category filtering
@@ -125,6 +132,7 @@ Replicates ADR 0001 pattern:
 - `countSugestoesByStatus(labId, status)` → KPI
 
 #### `satisfacaoService.ts` (220 lines)
+
 - NPS response subscriptions + campaign management
 - `getNPSRespostasParaReclamacao(labId, reclamacaoId)` → post-resolution NPS
 - `getNPSRespostasParaCampanha(labId, trimestre)` → quarterly campaigns
@@ -135,11 +143,13 @@ Replicates ADR 0001 pattern:
 ### 7. React Hooks (140 lines)
 
 #### `useReclamacoes.ts` (75 lines)
+
 - `useReclamacoes(filters)` → { reclamacoes[], loading, error, getById, getByStatus, getBySeveridade }
 - `useReclamacao(id)` → { reclamacao | null, loading, error }
 - Listener cleanup ✓
 
 #### `useSugestoes.ts` (65 lines)
+
 - `useSugestoes(filters)` → { sugestoes[], loading, error, ... }
 - `useSugestao(id)` → { sugestao | null, loading, error }
 
@@ -150,6 +160,7 @@ Replicates ADR 0001 pattern:
 Firestore trigger: `onDocumentCreated('labs/{labId}/reclamacoes/{reclamacaoId}')`
 
 Pipeline:
+
 1. Read created complaint
 2. Check `shouldTriggerNCAutocreate(sev, desc)` → false = skip
 3. If true:
@@ -169,6 +180,7 @@ Pipeline:
 **File:** `functions/src/modules/reclamacoes/_shared/severityClassifier.ts` (80 lines)
 
 Server-side copy of severity classifier for Cloud Functions (no external dependencies).
+
 - Used by criarNCDraft to validate before NC creation
 
 ### 10. Module Documentation (180 lines)
@@ -176,9 +188,10 @@ Server-side copy of severity classifier for Cloud Functions (no external depende
 **File:** `src/features/reclamacoes/CLAUDE.md`
 
 Complete module specification:
+
 - Multi-tenant paths + soft-delete pattern
 - State machines (Reclamacao → Resolvida → Fechada, Sugestao workflow)
-- RN-* rules (RN-06 soft-delete, RN-11 signature, RN-13 NC trigger, etc.)
+- RN-\* rules (RN-06 soft-delete, RN-11 signature, RN-13 NC trigger, etc.)
 - Firestore rules requirements + indexes
 - Service layer API reference
 - Engine documentation
@@ -266,17 +279,17 @@ functions/src/modules/reclamacoes/
 
 ## Compliance Alignment
 
-| Standard | Coverage | Status |
-|----------|----------|--------|
-| DICQ 4.8 | Complaint handling workflow (Nova → Fechada) | ✅ Complete |
-| DICQ 4.14.3 | Satisfaction (NPS) types + campaign schema | ✅ Complete |
-| DICQ 4.14.4 | Suggestions + upvote system | ✅ Complete |
-| DICQ 4.14.6 | Risk analysis via NC link | ✅ Complete |
-| RDC 978 Art. 86, 115, 117 | Soft-delete + 5-year retention framework | ✅ Complete |
-| CDC Lei 8.078/90 Art. 26 | 30-day SLA field (slaPrazo) | ✅ Complete |
-| LGPD Lei 13.709/18 | Consent + audit log + anonymization + export | ✅ Complete |
-| ISO 15189:2015 §4.8, §5.6.1 | Complete feedback loop types | ✅ Complete |
-| ADR 0001 | Chain hash utilities (auditChain.ts) | ✅ Complete |
+| Standard                    | Coverage                                     | Status      |
+| --------------------------- | -------------------------------------------- | ----------- |
+| DICQ 4.8                    | Complaint handling workflow (Nova → Fechada) | ✅ Complete |
+| DICQ 4.14.3                 | Satisfaction (NPS) types + campaign schema   | ✅ Complete |
+| DICQ 4.14.4                 | Suggestions + upvote system                  | ✅ Complete |
+| DICQ 4.14.6                 | Risk analysis via NC link                    | ✅ Complete |
+| RDC 978 Art. 86, 115, 117   | Soft-delete + 5-year retention framework     | ✅ Complete |
+| CDC Lei 8.078/90 Art. 26    | 30-day SLA field (slaPrazo)                  | ✅ Complete |
+| LGPD Lei 13.709/18          | Consent + audit log + anonymization + export | ✅ Complete |
+| ISO 15189:2015 §4.8, §5.6.1 | Complete feedback loop types                 | ✅ Complete |
+| ADR 0001                    | Chain hash utilities (auditChain.ts)         | ✅ Complete |
 
 ---
 
@@ -295,6 +308,7 @@ functions/src/modules/reclamacoes/
 **Phase duration:** 1 working day (estimated 7 days, but accelerated with domain clarity from CONTEXT.md)
 
 **Key decisions locked (from discuss-phase):**
+
 - 6 complaint entry channels (web interno/público, email, phone, QR, Worklab deep link)
 - Identification required (no anonymous complaints — LGPD compliance)
 - NC auto-trigger on severity='alta' + description≥100 chars
@@ -302,6 +316,7 @@ functions/src/modules/reclamacoes/
 - RCA 5 Whys as MVP (Ishikawa deferred v1.4)
 
 **Team notes:**
+
 - Types designed for cross-module integration (NC module, Phase 8 management-review)
 - Services follow established patterns from educacao-continuada + auditoria
 - RCA engine + severity classifier are pure functions (testable, reusable)

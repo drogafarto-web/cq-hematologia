@@ -13,6 +13,7 @@
 Wave 2 validates that all three modules (mobile, analytics, export) built in Wave 1 compile, run, and integrate correctly. This is a **go/no-go gate** for Phase 3.2. All tasks in this checklist must pass before proceeding to feature development.
 
 **Critical Path:**
+
 1. Mobile compiles & runs in simulator (1-2 hours)
 2. Analytics Cloud Functions deploy & execute (1-2 hours)
 3. Export job flow end-to-end (1-2 hours)
@@ -44,6 +45,7 @@ npx tsc --noEmit
 - [ ] Type errors (if any) documented with resolution plan
 
 **Success Criteria:**
+
 - Clean compile with no warnings
 
 ---
@@ -66,6 +68,7 @@ npm ci
 - [ ] No peer dependency violations
 
 **Success Criteria:**
+
 - Dependencies installed cleanly
 
 ---
@@ -82,6 +85,7 @@ npm run test:unit
 ```
 
 **Expected output format:**
+
 ```
 PASS  src/__tests__/store/useAuthStore.test.ts
   useAuthStore
@@ -96,6 +100,7 @@ Time:        X.XXXs
 ```
 
 **Validation:**
+
 - [ ] All test suites marked `PASS`
 - [ ] No tests marked `FAIL` or `SKIP`
 - [ ] Total tests ≥ 3 (count from output)
@@ -103,10 +108,12 @@ Time:        X.XXXs
 - [ ] Coverage output (if available): ≥80%
 
 **Failing test handling:**
+
 - If test fails: Document test name, error message, and root cause
 - Assign fix: Blocking issue for Phase 3.1 Wave 3 (hotfix)
 
 **Success Criteria:**
+
 - 100% of tests passing, 0 failures
 
 ---
@@ -123,21 +130,26 @@ npm start
 ```
 
 **Expected output:**
+
 ```
 expo start
 ```
+
 Or for React Native CLI:
+
 ```
 npm start
 ```
 
 **Validation:**
+
 - [ ] Dev server starts without crashes (wait 10s)
 - [ ] Output contains QR code or Metro bundler message
 - [ ] No `Error:` messages in console
 - [ ] Bundling completes (may take 20-30s first run)
 
 **Success Criteria:**
+
 - Dev server operational, ready for simulator launch
 
 ---
@@ -147,6 +159,7 @@ npm start
 **Objective:** Mobile app boots in simulator and renders AuthScreen.
 
 **Prerequisites:**
+
 - [ ] Xcode installed (macOS)
 - [ ] iOS Simulator available (`xcode-select --install` if needed)
 
@@ -158,6 +171,7 @@ npm run ios
 ```
 
 **Expected behavior:**
+
 1. Simulator boots (shows Apple logo, loads iOS)
 2. App installs into simulator
 3. App launches and displays **AuthScreen**
@@ -166,6 +180,7 @@ npm run ios
 6. Login button visible and tappable
 
 **Validation:**
+
 - [ ] Simulator boots within 60 seconds
 - [ ] App bundle loaded (watch for "Building" messages)
 - [ ] App launches without red screen (crash)
@@ -178,11 +193,13 @@ npm run ios
 - [ ] Text is legible (contrast check)
 
 **Failing simulator launch:**
+
 - If simulator won't boot: Check Xcode installation, try `xcrun simctl erase all`, retry
 - If app won't install: Check build logs for compilation errors, escalate to Wave 3
 - If red screen: Document error message, escalate
 
 **Success Criteria:**
+
 - App boots, AuthScreen renders, no crashes
 
 ---
@@ -192,6 +209,7 @@ npm run ios
 **Objective:** Verify conditional navigation based on auth state.
 
 **Checklist:**
+
 1. App is running in simulator (from 1.5)
 2. Type in email field: `test@example.com`
 3. Type in password field: `password123`
@@ -204,16 +222,19 @@ npm run ios
    - [ ] No crash or white screen of death
 
 **Expected outcomes:**
+
 - **Case 1 (success):** Firebase test user exists → login succeeds → HomeScreen loads
 - **Case 2 (failure):** Invalid credentials → error message displayed (no crash)
 - **Case 3 (no Firebase):** Emulator mode → error message or placeholder (acceptable for Phase 3.1)
 
 **Validation:**
+
 - [ ] Login flow completes without crashing
 - [ ] Navigation responds to auth state
 - [ ] Error handling is user-friendly (message, not exception)
 
 **Success Criteria:**
+
 - Navigation flow works without crashes
 
 ---
@@ -223,10 +244,12 @@ npm run ios
 **Objective:** Mobile CI workflow triggers on commit and passes.
 
 **Prerequisites:**
+
 - [ ] `.github/workflows/mobile-ci.yml` exists in repo
 - [ ] Workflow configured to trigger on `push` to `mobile/**` or `**` (depends on config)
 
 **Checklist:**
+
 1. Make a test commit:
    ```bash
    cd hc-quality-mobile
@@ -248,32 +271,35 @@ npm run ios
      - [ ] `npm run test:unit`
 
 **Expected workflow steps (from `.github/workflows/mobile-ci.yml`):**
+
 ```yaml
 - name: Checkout code
   uses: actions/checkout@v4
-  
+
 - name: Setup Node.js
   uses: actions/setup-node@v4
   with:
     node-version: 20
-    
+
 - name: Install dependencies
   run: npm ci --prefix hc-quality-mobile
-  
+
 - name: Type check
   run: npx tsc --noEmit --prefix hc-quality-mobile
-  
+
 - name: Run tests
   run: npm --prefix hc-quality-mobile run test:unit
 ```
 
 **Validation:**
+
 - [ ] Workflow triggered automatically
 - [ ] All steps pass (no red X marks)
 - [ ] No timeout errors (job limit: 6 hours)
 - [ ] No secrets exposed in logs
 
 **Success Criteria:**
+
 - CI pipeline runs and passes on commit
 
 ---
@@ -292,18 +318,22 @@ npm run build
 ```
 
 **Expected output:**
+
 ```
 $ tsc
 ```
+
 Exit code: 0
 
 **Validation:**
+
 - [ ] Exit code: 0
 - [ ] No TypeScript errors
 - [ ] Output directory created (typically `lib/` or `dist/`)
 - [ ] All `.js` files generated from `.ts` sources
 
 **Success Criteria:**
+
 - Cloud Functions compile cleanly
 
 ---
@@ -313,23 +343,27 @@ Exit code: 0
 **Objective:** Confirm required composite indices exist in Firestore.
 
 **Prerequisites:**
+
 - [ ] Firebase project initialized: `hmatologia2`
 - [ ] Firestore emulator available (or live Firebase Console access)
 
 **Checklist:**
 
 **Via Firebase Console:**
+
 1. Navigate to: https://console.firebase.google.com/project/hmatologia2/firestore/indexes
 2. Look for composite indices:
    - [ ] Index on `runs/{labId}/entries` with fields: `(status, deletadoEm)` — Status: `Enabled`
    - [ ] Any aggregation query indices from Phase 2 CT-05
 
 **Via gcloud CLI:**
+
 ```bash
 gcloud firestore indexes list --project=hmatologia2
 ```
 
 **Expected indices:**
+
 ```
 NAME                                      COLLECTION    FIELDS
 ...
@@ -338,6 +372,7 @@ runs-labId-status-deletadoEm               runs        (status, deletadoEm)
 ```
 
 **If indices missing:**
+
 1. Create index file: `firestore.indexes.json`
    ```json
    {
@@ -356,11 +391,13 @@ runs-labId-status-deletadoEm               runs        (status, deletadoEm)
 2. Deploy: `gcloud firestore indexes create --config=firestore.indexes.json --project=hmatologia2`
 
 **Validation:**
+
 - [ ] All required indices exist
 - [ ] Index status: `Enabled`
 - [ ] No error messages in Console
 
 **Success Criteria:**
+
 - Required indices verified or created
 
 ---
@@ -377,6 +414,7 @@ npm run test:unit -- --testPathPattern=analytics
 ```
 
 **Expected output:**
+
 ```
 PASS  functions/__tests__/modules/analytics/queryCIQCompliance.test.mjs
   queryCIQCompliance
@@ -396,6 +434,7 @@ Tests:       7 passed, 7 total
 ```
 
 **Validation:**
+
 - [ ] Query tests pass (≥3 tests):
   - [ ] `computes valid run count correctly`
   - [ ] `returns all required metrics fields`
@@ -409,6 +448,7 @@ Tests:       7 passed, 7 total
 - [ ] No timeout errors
 
 **Success Criteria:**
+
 - 7+ unit tests passing, 0 failures
 
 ---
@@ -420,6 +460,7 @@ Tests:       7 passed, 7 total
 **Checklist:**
 
 **Step 1: Update `firebase.json`**
+
 ```json
 {
   "emulators": {
@@ -449,6 +490,7 @@ Tests:       7 passed, 7 total
 - [ ] `firebase.json` updated with emulators section
 
 **Step 2: Create `functions/.env.local`**
+
 ```
 GCLOUD_PROJECT=hmatologia2
 FIREBASE_DATABASE_EMULATOR_HOST=localhost:8080
@@ -458,11 +500,13 @@ PUBSUB_EMULATOR_HOST=localhost:8085
 - [ ] `.env.local` exists with environment variables
 
 **Step 3: Start emulators**
+
 ```bash
 firebase emulators:start --only firestore,functions,pubsub
 ```
 
 **Expected output:**
+
 ```
 ✔  firestore emulator started on port 8080
 ✔  functions emulator started on port 5001
@@ -477,11 +521,13 @@ Use `firebase emulators:exec "your command"` to run an async command with these 
 - [ ] UI accessible at http://localhost:4000
 
 **Validation:**
+
 - [ ] Emulator UI loads (no connection errors)
 - [ ] Firestore tab shows empty Firestore state
 - [ ] No port conflicts (if ports already in use, find process and kill)
 
 **Success Criteria:**
+
 - Emulators running, UI accessible
 
 ---
@@ -491,18 +537,21 @@ Use `firebase emulators:exec "your command"` to run an async command with these 
 **Objective:** Verify scheduled Cloud Function runs and computes metrics.
 
 **Prerequisites:**
+
 - [ ] Emulators running (from 2.4)
 - [ ] Test lab data in Firestore emulator (or function handles empty state)
 
 **Checklist:**
 
 **Step 1: Manually trigger aggregateAnalytics function**
+
 ```bash
 curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/aggregateAnalytics \
   -H "Content-Type: application/json"
 ```
 
 **Expected response:**
+
 ```json
 {
   "success": true,
@@ -513,6 +562,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/aggregateAnaly
 ```
 
 **Validation:**
+
 - [ ] HTTP 200 response
 - [ ] Success field: `true`
 - [ ] `labsProcessed` ≥ 0 (0 if no labs exist, acceptable)
@@ -520,15 +570,18 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/aggregateAnaly
 
 **Step 2: Check function logs**
 In emulator console output, observe:
+
 - [ ] Log: `[Analytics] Hourly aggregation started`
 - [ ] Log: `[Analytics] ✓ Lab {labId}: cached metrics` (for each lab)
 - [ ] Log: `[Analytics] Aggregation completed in XXXms`
 
 **Validation:**
+
 - [ ] Function completes within 30 seconds (no timeout)
 - [ ] Logs show metrics computed (no errors)
 
 **Success Criteria:**
+
 - Scheduled function executes, computes metrics, completes in <30s
 
 ---
@@ -538,16 +591,19 @@ In emulator console output, observe:
 **Objective:** Verify aggregated metrics stored in Firestore with correct schema.
 
 **Prerequisites:**
+
 - [ ] `aggregateAnalytics` function executed (from 2.5)
 - [ ] Emulator UI accessible at http://localhost:4000
 
 **Checklist:**
 
 **Step 1: Navigate to Emulator UI**
+
 - Open http://localhost:4000 in browser
 - Click "Firestore" tab
 
 **Step 2: Locate cache document**
+
 - Collection: `labs`
 - Document: `{any-test-labId}`
 - Sub-collection: `analytics`
@@ -557,6 +613,7 @@ In emulator console output, observe:
 **Expected path:** `/labs/{labId}/analytics/cache/metrics/ciqCompliance`
 
 **Step 3: Verify cache document structure**
+
 - [ ] Document exists
 - [ ] Fields present:
   - [ ] `totalRuns` (number ≥ 0)
@@ -570,11 +627,13 @@ In emulator console output, observe:
 - [ ] Data types match schema (number, timestamp, etc.)
 
 **Validation:**
+
 - [ ] Cache document structure matches schema
 - [ ] All required fields present
 - [ ] Data is sensible (compliance percent between 0-100)
 
 **Success Criteria:**
+
 - Cache document created with correct schema
 
 ---
@@ -590,6 +649,7 @@ npm run test:unit -- useAnalytics
 ```
 
 **Expected output:**
+
 ```
 PASS  src/__tests__/features/analytics/useAnalytics.test.ts
   useAnalytics helpers
@@ -602,11 +662,13 @@ Tests:       4 passed, 4 total
 ```
 
 **Validation:**
+
 - [ ] Helper function tests pass (format, staleness)
 - [ ] No timeout errors
 - [ ] All assertions passing
 
 **Success Criteria:**
+
 - Hook tests pass, hook logic verified
 
 ---
@@ -618,12 +680,14 @@ Tests:       4 passed, 4 total
 **Objective:** Ensure Pub/Sub infrastructure exists for export worker.
 
 **Prerequisites:**
+
 - [ ] gcloud CLI installed and authenticated
 - [ ] Project: `hmatologia2` (set as default or via `--project` flag)
 
 **Checklist:**
 
 **Step 1: Create Pub/Sub topic (or verify exists)**
+
 ```bash
 gcloud pubsub topics create exports \
   --project=hmatologia2 2>/dev/null && echo "✓ Topic created" || echo "✓ Topic already exists"
@@ -633,6 +697,7 @@ gcloud pubsub topics create exports \
 - [ ] Output: "Topic created" or "Topic already exists"
 
 **Step 2: Create subscription (or verify exists)**
+
 ```bash
 gcloud pubsub subscriptions create exports-worker \
   --topic=exports \
@@ -646,11 +711,13 @@ gcloud pubsub subscriptions create exports-worker \
 - [ ] Output: "Subscription created" or "Subscription already exists"
 
 **Verification (via Console):**
+
 - Navigate to: https://console.cloud.google.com/cloudpubsub/topic/list?project=hmatologia2
 - [ ] Topic: `exports` exists
 - [ ] Subscription: `exports-worker` exists and points to correct endpoint
 
 **Success Criteria:**
+
 - Pub/Sub topic and subscription created/verified
 
 ---
@@ -667,6 +734,7 @@ npm run test:unit -- --testPathPattern=export
 ```
 
 **Expected output:**
+
 ```
 PASS  functions/__tests__/modules/export/initiateExport.test.mjs
   initiateExport validation
@@ -694,6 +762,7 @@ Tests:       12 passed, 12 total
 ```
 
 **Validation:**
+
 - [ ] Callable validation tests pass (≥5 tests)
 - [ ] XLSX generator tests pass (≥4 tests)
 - [ ] Hook helper tests pass (≥3 tests)
@@ -701,6 +770,7 @@ Tests:       12 passed, 12 total
 - [ ] No failures or timeouts
 
 **Success Criteria:**
+
 - 12+ unit tests passing, 0 failures
 
 ---
@@ -713,8 +783,12 @@ Tests:       12 passed, 12 total
 
 **Step 1: Create test file to invoke generator**
 Create `test-xlsx-generation.mjs`:
+
 ```javascript
-import { generateXlsx, generateSampleData } from './functions/src/modules/export/generators/xlsxGenerator.ts';
+import {
+  generateXlsx,
+  generateSampleData,
+} from './functions/src/modules/export/generators/xlsxGenerator.ts';
 
 const sampleData = generateSampleData(100);
 console.log(`Sample data rows: ${sampleData.length}`);
@@ -732,11 +806,13 @@ if (buffer.subarray(0, 4).toString('hex') === '504b0304') {
 ```
 
 **Step 2: Run test**
+
 ```bash
 node test-xlsx-generation.mjs
 ```
 
 **Expected output:**
+
 ```
 Sample data rows: 100
 Generated XLSX buffer: 8192 bytes (or larger)
@@ -745,6 +821,7 @@ Magic bytes: 504b0304
 ```
 
 **Validation:**
+
 - [ ] Sample data generated (100 rows)
 - [ ] XLSX buffer created (size > 5KB for 100 rows)
 - [ ] Magic bytes: `504b0304` (ZIP header for XLSX)
@@ -752,6 +829,7 @@ Magic bytes: 504b0304
 - [ ] Process exits with code 0
 
 **Success Criteria:**
+
 - XLSX generator produces valid file format
 
 ---
@@ -761,12 +839,14 @@ Magic bytes: 504b0304
 **Objective:** Test Cloud Callable accepts request and creates job document.
 
 **Prerequisites:**
+
 - [ ] Emulators running (firestore, functions, pubsub)
 - [ ] `firebase emulators:start --only firestore,functions,pubsub` active
 
 **Checklist:**
 
 **Step 1: Call initiateExport via HTTP**
+
 ```bash
 curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport \
   -H "Content-Type: application/json" \
@@ -779,6 +859,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 ```
 
 **Expected response:**
+
 ```json
 {
   "jobId": "abc123xyz789",
@@ -789,6 +870,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 ```
 
 **Validation:**
+
 - [ ] HTTP 200 response
 - [ ] Response contains: `jobId`, `status`, `estimatedMinutes`, `createdAt`
 - [ ] `status` = `"queued"`
@@ -796,6 +878,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 - [ ] No error response
 
 **Success Criteria:**
+
 - Callable accepts valid request, returns jobId
 
 ---
@@ -807,11 +890,13 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 **Checklist:**
 
 **Step 1: Check Firestore emulator UI**
+
 - Navigate to http://localhost:4000
 - Click "Firestore" tab
 - Find document path: `/labs/test-lab-001/export-jobs/{jobId}`
 
 **Step 2: Verify document structure**
+
 - [ ] Document exists at correct path
 - [ ] Fields:
   - [ ] `jobId` (string, 21+ chars)
@@ -825,6 +910,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 - [ ] No errors in document structure
 
 **Success Criteria:**
+
 - Job document created with correct schema
 
 ---
@@ -836,6 +922,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 **Checklist:**
 
 **Test Case 1: Invalid format**
+
 ```bash
 curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport \
   -H "Content-Type: application/json" \
@@ -848,10 +935,12 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 ```
 
 **Expected:** HTTP 400 or 422 with error message
+
 - [ ] Response includes error (HttpsError or similar)
 - [ ] Error message mentions format validation
 
 **Test Case 2: startDate >= endDate**
+
 ```bash
 curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport \
   -H "Content-Type: application/json" \
@@ -864,10 +953,12 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 ```
 
 **Expected:** HTTP 400 with error message
+
 - [ ] Response includes error
 - [ ] Error message mentions date range
 
 **Test Case 3: Date range > 1 year**
+
 ```bash
 curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport \
   -H "Content-Type: application/json" \
@@ -880,14 +971,17 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 ```
 
 **Expected:** HTTP 400 with error message
+
 - [ ] Response includes error
 - [ ] Error message mentions date range limit
 
 **Validation:**
+
 - [ ] All three test cases correctly rejected
 - [ ] Error messages are user-friendly
 
 **Success Criteria:**
+
 - Callable validation working correctly
 
 ---
@@ -897,6 +991,7 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateExport
 **Objective:** Simulate export worker processing a job.
 
 **Prerequisites:**
+
 - [ ] Job created (from 3.4)
 - [ ] Emulators running
 
@@ -916,17 +1011,20 @@ curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/exportWorker \
 ```
 
 **Expected response:**
+
 ```
 Success
 ```
 
 **Validation:**
+
 - [ ] HTTP 200 response
 - [ ] Function completes without timeout
 - [ ] Check Firestore: job status updated to `processing`
 
 **Step 2: Verify job status update**
 Check Firestore emulator UI:
+
 - Path: `/labs/test-lab-001/export-jobs/{jobId}`
 - [ ] `status` field updated to `"processing"` or `"completed"` or `"failed"`
 - [ ] `completedAt` field set (if completed)
@@ -935,6 +1033,7 @@ Check Firestore emulator UI:
 **Note:** In emulator, Cloud Storage upload may fail (emulator limitation). This is acceptable for Phase 3.1. Real upload tested in Phase 3.2 on GCP.
 
 **Success Criteria:**
+
 - Worker processes job, updates status in Firestore
 
 ---
@@ -950,6 +1049,7 @@ npm run test:unit -- useExportJobs
 ```
 
 **Expected output:**
+
 ```
 PASS  src/__tests__/features/export/useExportJobs.test.ts
   useExportJobs helpers
@@ -962,6 +1062,7 @@ Tests:       3 passed, 3 total
 ```
 
 **Validation:**
+
 - [ ] File size formatting tests pass
 - [ ] Duration formatting tests pass
 - [ ] Expiry detection tests pass
@@ -969,6 +1070,7 @@ Tests:       3 passed, 3 total
 - [ ] No timeouts
 
 **Success Criteria:**
+
 - Export hook tests pass, polling logic verified
 
 ---
@@ -982,6 +1084,7 @@ Tests:       3 passed, 3 total
 **Checklist:**
 
 **Step 1: Verify file exists**
+
 ```bash
 ls -la .github/workflows/mobile-ci.yml
 ```
@@ -989,16 +1092,19 @@ ls -la .github/workflows/mobile-ci.yml
 - [ ] File exists at `.github/workflows/mobile-ci.yml`
 
 **Step 2: Validate YAML syntax**
+
 ```bash
 npx @octokit/app-validate-action .github/workflows/mobile-ci.yml
 ```
 
 Or check manually in GitHub:
+
 - Navigate to: https://github.com/{owner}/hc-quality/blob/main/.github/workflows/mobile-ci.yml
 - [ ] No syntax errors highlighted in editor
 
 **Step 3: Verify workflow triggers**
 Check workflow file content:
+
 ```yaml
 on:
   push:
@@ -1013,6 +1119,7 @@ on:
 - [ ] Triggers on workflow file changes (self-trigger for CI updates)
 
 **Success Criteria:**
+
 - Workflow file valid, triggers configured correctly
 
 ---
@@ -1024,6 +1131,7 @@ on:
 **Checklist:**
 
 **Step 1: Make a test commit**
+
 ```bash
 git checkout -b test/ci-validation
 echo "// CI test" >> hc-quality-mobile/src/App.tsx
@@ -1033,6 +1141,7 @@ git push origin test/ci-validation
 ```
 
 **Step 2: Monitor GitHub Actions**
+
 - Navigate to: https://github.com/{owner}/hc-quality/actions
 - [ ] Workflow run appears (within 1-2 minutes)
 - [ ] Run status: **In progress**
@@ -1053,11 +1162,13 @@ Each step should appear and complete:
   - [ ] Exit code: 0
 
 **Step 4: Final workflow status**
+
 - [ ] All jobs completed
 - [ ] Final status: **Passed** (green checkmark)
 - [ ] Workflow run time: <5 minutes (acceptable)
 
 **Expected workflow time breakdown:**
+
 - Setup: 1-2 min
 - Dependencies: 1-2 min
 - Type check: 10-30 sec
@@ -1065,12 +1176,14 @@ Each step should appear and complete:
 - **Total: 4-6 minutes**
 
 **Validation:**
+
 - [ ] Workflow runs automatically on push
 - [ ] All checks pass (no red X marks)
 - [ ] No secrets exposed in logs
 - [ ] Timing is reasonable (not timing out)
 
 **Step 5: Cleanup test branch**
+
 ```bash
 git push origin --delete test/ci-validation
 git checkout main
@@ -1078,6 +1191,7 @@ git branch -D test/ci-validation
 ```
 
 **Success Criteria:**
+
 - CI/CD pipeline runs end-to-end and passes
 
 ---
@@ -1089,17 +1203,20 @@ git branch -D test/ci-validation
 **Objective:** Verify web app meets performance targets.
 
 **Prerequisites:**
+
 - [ ] Web app deployed to staging or running locally
 - [ ] Lighthouse CLI installed: `npm install -g @lhci/cli@latest`
 
 **Checklist:**
 
 **Step 1: Run Lighthouse CI**
+
 ```bash
 lhci autorun --config=.lightningrc.json
 ```
 
 Or manually in Chrome DevTools:
+
 1. Open web app in Chrome
 2. Press F12 → DevTools
 3. Click "Lighthouse" tab
@@ -1107,23 +1224,27 @@ Or manually in Chrome DevTools:
 5. Click "Analyze page load"
 
 **Expected scores:**
+
 - [ ] **Performance:** >85 (target: no regression vs Stream C baseline)
 - [ ] **Accessibility:** >90
 - [ ] **Best Practices:** >90
 - [ ] **SEO:** >90
 
 **Detailed performance checks:**
+
 - [ ] **LCP (Largest Contentful Paint):** <2.5s
 - [ ] **INP (Interaction to Next Paint):** <200ms
 - [ ] **CLS (Cumulative Layout Shift):** <0.1
 - [ ] **Bundle size:** <850KB gzip
 
 **Validation:**
+
 - [ ] All scores ≥85 (or within 5 points of baseline)
 - [ ] No regressions vs previous audit
 - [ ] Web Vitals in green
 
 **Step 2: Check bundle size**
+
 ```bash
 npm run build
 du -sh dist/
@@ -1132,10 +1253,12 @@ gzip -c dist/assets/*.js | wc -c
 ```
 
 **Expected output:**
+
 - [ ] Total build size: <850KB gzip
 - [ ] Largest JS bundle: <500KB gzip
 
 **Success Criteria:**
+
 - Performance scores meet targets, no regressions
 
 ---
@@ -1147,6 +1270,7 @@ gzip -c dist/assets/*.js | wc -c
 **Checklist:**
 
 **Step 1: Monitor frame rate in iOS Simulator**
+
 1. App running in simulator (from section 1.5)
 2. Simulate slow network (optional):
    - In Xcode: Debug → Simulate slow network
@@ -1158,6 +1282,7 @@ gzip -c dist/assets/*.js | wc -c
    - [ ] No memory warnings
 
 **Step 2: Check memory usage (Xcode)**
+
 1. Xcode: Debug Navigator → Memory
 2. Tap buttons, navigate, list scrolling
 3. Observe:
@@ -1166,6 +1291,7 @@ gzip -c dist/assets/*.js | wc -c
    - [ ] No red warnings
 
 **Success Criteria:**
+
 - App runs smoothly, frame rates acceptable, memory stable
 
 ---
@@ -1204,6 +1330,7 @@ grep -r "labId" functions/src/modules/analytics/ functions/src/modules/export/
 ```
 
 Verify patterns:
+
 ```typescript
 // CORRECT:
 const ref = doc(db, 'labs', labId, 'analytics', 'cache', 'metrics', 'ciqCompliance');
@@ -1214,6 +1341,7 @@ const ref = collection(db, 'analytics', 'global', 'ciqCompliance'); // No labId
 ```
 
 **Validation:**
+
 - [ ] All Firestore reads have `.where('labId', '==', labId)`
 - [ ] All paths include `{labId}` segment
 - [ ] No global collections without labId filter
@@ -1232,11 +1360,13 @@ curl -X GET \
 ```
 
 **Validation:**
+
 - [ ] Request blocked (403 Forbidden)
 - [ ] No data leaked
 - [ ] Error message generic (no hints about what exists)
 
 **Success Criteria:**
+
 - Multi-tenant isolation verified, cross-lab access blocked
 
 ---
@@ -1248,28 +1378,34 @@ curl -X GET \
 **Checklist:**
 
 **Export format validation:**
+
 - [ ] Callable validates format against whitelist: `['xlsx', 'pdf', 'csv']`
 - [ ] Invalid format rejected with HttpsError
 
 **Date range validation:**
+
 - [ ] `startDate` < `endDate` enforced
 - [ ] Date range <= 1 year enforced
 - [ ] Invalid dates parsed and rejected
 
 **Auth validation:**
+
 - [ ] All callables check `request.auth.uid`
 - [ ] Missing auth returns HttpsError 401
 
 **Code review:**
+
 ```bash
 grep -n "format\|startDate\|endDate\|request.auth" functions/src/modules/export/*.ts
 ```
 
 **Validation:**
+
 - [ ] Input validation functions called in every callable
 - [ ] No direct use of user input in queries
 
 **Success Criteria:**
+
 - All inputs validated, no injection attacks possible
 
 ---
@@ -1281,6 +1417,7 @@ grep -n "format\|startDate\|endDate\|request.auth" functions/src/modules/export/
 **Checklist:**
 
 **Step 1: Verify no hardcoded secrets**
+
 ```bash
 git log -p -S "FIREBASE_KEY\|API_KEY\|SECRET" -- . | head -20
 grep -r "secret\|password\|key" functions/src/ | grep -v "pubsub" | grep -v "apiKey" | grep -v "serviceAccountKey" | head -10
@@ -1291,6 +1428,7 @@ grep -r "secret\|password\|key" functions/src/ | grep -v "pubsub" | grep -v "api
 - [ ] No `.env` file committed (check `.gitignore`)
 
 **Step 2: Verify environment variables used**
+
 ```bash
 cat functions/.env.local
 ```
@@ -1301,6 +1439,7 @@ cat functions/.env.local
 
 **Step 3: Verify logs don't leak data**
 Check Cloud Function code:
+
 ```typescript
 // CORRECT:
 console.log('[Export] Job started', { jobId, labId }); // Safe: metadata only
@@ -1310,10 +1449,12 @@ console.log('[Export] Full payload:', JSON.stringify(request)); // Might leak se
 ```
 
 **Validation:**
+
 - [ ] Logs contain no auth tokens, keys, or PII
 - [ ] Sensitive data logged with masks (e.g., first 4 chars only)
 
 **Success Criteria:**
+
 - No secrets exposed in code, logs, or git history
 
 ---
@@ -1327,6 +1468,7 @@ console.log('[Export] Full payload:', JSON.stringify(request)); // Might leak se
 **File:** `.planning/phases/03.1-foundation/VALIDATION.md`
 
 **Checklist:**
+
 - [ ] File created with complete gate criteria
 - [ ] All sections filled:
   - [ ] Mobile checklist (8+ items)
@@ -1340,6 +1482,7 @@ console.log('[Export] Full payload:', JSON.stringify(request)); // Might leak se
 - [ ] Issue tracker template present
 
 **Success Criteria:**
+
 - VALIDATION.md complete and ready for sign-off
 
 ---
@@ -1351,6 +1494,7 @@ console.log('[Export] Full payload:', JSON.stringify(request)); // Might leak se
 **File:** `.planning/phases/03.1-foundation/03.1-COMPLETION.md`
 
 **Checklist:**
+
 - [ ] File created with:
   - [ ] Deliverables summary (mobile, analytics, export, tests, infra)
   - [ ] Code quality metrics (unit tests, coverage, errors)
@@ -1362,6 +1506,7 @@ console.log('[Export] Full payload:', JSON.stringify(request)); // Might leak se
   - [ ] Sign-off section
 
 **Success Criteria:**
+
 - COMPLETION.md complete, comprehensive, ready for CTO review
 
 ---
@@ -1387,6 +1532,7 @@ git push origin main
 - [ ] Files pushed to main branch
 
 **Success Criteria:**
+
 - All Wave 2 documentation committed
 
 ---
@@ -1398,6 +1544,7 @@ git push origin main
 **Objective:** Engineering lead + CTO review VALIDATION.md and decide GO or NO-GO.
 
 **Criteria for GO:**
+
 - [ ] All checklists sections completed with ✓ marks
 - [ ] 0 critical blockers
 - [ ] Unit test pass rate: 100%
@@ -1410,18 +1557,21 @@ git push origin main
 - [ ] Firestore indices created
 
 **Criteria for NO-GO:**
+
 - [ ] Any critical blocker (crash, data leakage, deployment issue)
 - [ ] Unit test failures (>1 failing test)
 - [ ] Performance fails gates (LCP >2.5s, INP >200ms)
 - [ ] Security violation (cross-lab access possible)
 
 **Decision record:**
+
 - [ ] VALIDATION.md signed by Engineering Lead
 - [ ] VALIDATION.md signed by CTO
 - [ ] Decision: **GO** or **NO-GO** documented
 - [ ] If NO-GO: Blockers listed with resolution plan
 
 **Success Criteria:**
+
 - GO: Proceed to Phase 3.2 planning
 - NO-GO: Route blockers to Phase 3.1 Wave 3 (hotfix)
 
@@ -1437,6 +1587,7 @@ git push origin main
    - Issue ID, component, severity, description, reproduction steps
 
 2. **Create hotfix branch**
+
    ```bash
    git checkout -b hotfix/03.1-{issue-name}
    ```
@@ -1448,6 +1599,7 @@ git push origin main
    - Verify issue resolved
 
 5. **Commit and push**
+
    ```bash
    git commit -m "fix(03.1): {issue description}"
    git push origin hotfix/03.1-{issue-name}
@@ -1462,6 +1614,7 @@ git push origin main
    - Record fix date and engineer name
 
 **Timeline for hotfixes:**
+
 - Critical (crash, data loss): Fix within 2 hours
 - High (auth failure, performance): Fix within 4 hours
 - Medium (UI glitch, slow query): Schedule for Phase 3.2
@@ -1498,17 +1651,18 @@ Upon GO decision:
 
 **Wave 2 Validation Execution Timeline:**
 
-| Section | Estimated Time |
-|---------|---|
-| 1. Mobile Validation (7 tasks) | 2-3 hours |
-| 2. Analytics Validation (7 tasks) | 2-3 hours |
-| 3. Export Validation (8 tasks) | 2-3 hours |
-| 4. CI/CD Validation (2 tasks) | 30 min - 1 hour |
-| 5-6. Performance & Security (6 tasks) | 1-2 hours |
-| 7-8. Documentation & Decision (3 tasks) | 1-2 hours |
-| **TOTAL** | **8-11 hours** |
+| Section                                 | Estimated Time  |
+| --------------------------------------- | --------------- |
+| 1. Mobile Validation (7 tasks)          | 2-3 hours       |
+| 2. Analytics Validation (7 tasks)       | 2-3 hours       |
+| 3. Export Validation (8 tasks)          | 2-3 hours       |
+| 4. CI/CD Validation (2 tasks)           | 30 min - 1 hour |
+| 5-6. Performance & Security (6 tasks)   | 1-2 hours       |
+| 7-8. Documentation & Decision (3 tasks) | 1-2 hours       |
+| **TOTAL**                               | **8-11 hours**  |
 
 **Recommended execution:**
+
 - Day 1: Sections 1-3 (mobile, analytics, export)
 - Day 1 Afternoon: Sections 4-6 (CI/CD, performance, security)
 - Day 2 Morning: Sections 7-8 (documentation, decision)

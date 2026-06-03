@@ -21,12 +21,7 @@ import {
   type DocumentReference,
   type QueryDocumentSnapshot,
 } from '../../../../shared/services/firebase';
-import type {
-  Cargo,
-  CargoPermissions,
-  CargoAuthorityMatrix,
-  SecaoLab,
-} from '../types';
+import type { Cargo, CargoPermissions, CargoAuthorityMatrix, SecaoLab } from '../types';
 import type { LabId } from '../../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -65,15 +60,16 @@ function mapCargo(snap: QueryDocumentSnapshot): Cargo {
  */
 export async function getCargos(labId: LabId): Promise<Cargo[]> {
   const snapshot = await getDocs(cargosCol(labId));
-  return snapshot.docs
-    .map(mapCargo)
-    .filter((cargo) => !cargo.deletedAt);
+  return snapshot.docs.map(mapCargo).filter((cargo) => !cargo.deletedAt);
 }
 
 /**
  * Create a new cargo (admin only — rules enforce).
  */
-export async function createCargo(labId: LabId, input: Omit<Cargo, 'id' | 'labId' | 'createdAt' | 'deletedAt'>): Promise<string> {
+export async function createCargo(
+  labId: LabId,
+  input: Omit<Cargo, 'id' | 'labId' | 'createdAt' | 'deletedAt'>,
+): Promise<string> {
   const ref = doc(cargosCol(labId));
   await setDoc(ref, {
     labId,
@@ -135,7 +131,10 @@ export async function getAuthorityMatrix(labId: LabId): Promise<CargoAuthorityMa
  * Update authority matrix (admin only).
  * Writes individual permission updates to each cargo document.
  */
-export async function updateAuthorityMatrix(labId: LabId, matrix: CargoAuthorityMatrix): Promise<void> {
+export async function updateAuthorityMatrix(
+  labId: LabId,
+  matrix: CargoAuthorityMatrix,
+): Promise<void> {
   const updates = Object.entries(matrix).map(([cargoId, permissions]) =>
     updateDoc(cargoDoc(labId, cargoId), { permissions }),
   );

@@ -43,9 +43,7 @@ export function validateRCA(rca: RCAFiveWhys): RCAValidationResult {
 
   // Check minimum 3 levels
   if (rca.porques.length < 3) {
-    errors.push(
-      `At least 3 levels required (5 Whys structure). Found ${rca.porques.length}.`
-    );
+    errors.push(`At least 3 levels required (5 Whys structure). Found ${rca.porques.length}.`);
   }
 
   // Validate each level
@@ -113,9 +111,7 @@ export function validateRCA(rca: RCAFiveWhys): RCAValidationResult {
  *
  * Suggestion: "Reagente vencido porque controle de estoque não funcionou"
  */
-export function generateCausaRaizHeuristic(
-  porques: PorquePergunta[]
-): RCAHeuristicResult {
+export function generateCausaRaizHeuristic(porques: PorquePergunta[]): RCAHeuristicResult {
   if (!porques || porques.length < 2) {
     return {
       causaRaizSugerida: '',
@@ -127,9 +123,7 @@ export function generateCausaRaizHeuristic(
   const sorted = [...porques].sort((a, b) => a.nivel - b.nivel);
 
   // Filter filled responses
-  const filled = sorted.filter(
-    (p) => p.resposta && p.resposta.trim().length > 0
-  );
+  const filled = sorted.filter((p) => p.resposta && p.resposta.trim().length > 0);
 
   if (filled.length < 2) {
     return {
@@ -143,8 +137,7 @@ export function generateCausaRaizHeuristic(
   const causaRaizSugerida = `${last2[0].resposta.trim()} porque ${last2[1].resposta.trim()}`;
 
   // Confidence based on depth: longer answers = higher confidence
-  const avgLength =
-    last2.reduce((sum, p) => sum + p.resposta.length, 0) / last2.length;
+  const avgLength = last2.reduce((sum, p) => sum + p.resposta.length, 0) / last2.length;
   const confianca = Math.min(0.95, avgLength / 100); // max 0.95, normalized by 100 chars avg
 
   return {
@@ -204,8 +197,7 @@ export function sugerirProximaPergunta(respostaAnterior: string): string {
  */
 export function countFilledLevels(porques: PorquePergunta[]): number {
   if (!porques) return 0;
-  return porques.filter((p) => p.resposta && p.resposta.trim().length > 0)
-    .length;
+  return porques.filter((p) => p.resposta && p.resposta.trim().length > 0).length;
 }
 
 /**

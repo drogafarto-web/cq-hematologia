@@ -10,7 +10,7 @@ owner: CTO (drogafarto)
 # Step 4 — Smoke Test Execution Guide
 
 **Duration:** 90 minutes total (30 min core tests + 30 min buffer + 30 min monitoring)  
-**Tester Name:** _________________ | **Start Time:** _________________ | **End Time:** _________________
+**Tester Name:** ********\_******** | **Start Time:** ********\_******** | **End Time:** ********\_********
 
 ---
 
@@ -86,32 +86,36 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 
 ## SMOKE TEST 1: BIOQUÍMICA CIQ (10 min)
 
-**Start Time:** __________ | **Status:** ☐ PASS ☐ FAIL
+**Start Time:** ****\_\_**** | **Status:** ☐ PASS ☐ FAIL
 
 ### Step 1.1: Load Bioquímica Module
 
 **Action:**
+
 1. In browser, navigate to: `https://hmatologia2.web.app/bioquimica`
 2. Wait for page to load (expect <3 sec)
 
 **Expected Result:**
+
 - ✅ Page loads without error
 - ✅ Table or list visible labeled "Analitos" or showing columns: Sigla, Unidade, Range, Método, CV%
 - ✅ **Exactly 16 analitos** visible in list: GLI, URE, CRE, TGO, TGP, FA, GGT, BT-D, BT-I, CT, HDL, LDL, TG, Na, K, Cl (+ 1 bonus: Ca)
 - ✅ DevTools Console (press F12): **0 red ERROR messages**
 
 **If FAIL:**
+
 - Blank page / 404: Check URL spelling. Verify lab dropdown shows "riopomba".
 - <16 analitos: Refresh page (seed function auto-runs on first load). Wait 2 sec.
 - Red console error: Screenshot error text. Note below.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 1.2: Upload & Parse Bula PDF (Gemini)
 
 **Action:**
+
 1. Look for button "Enviar Bula", "+ Adicionar Bula", or "Upload PDF" on the Bioquímica page
 2. Click button → file picker opens
 3. Select test PDF file:
@@ -122,6 +126,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. **WAIT up to 35 seconds** for Gemini to parse the PDF
 
 **Expected Result:**
+
 - ✅ Spinner disappears (before 35s)
 - ✅ Success panel appears showing:
   - **Lote:** (extracted from PDF, e.g., "BIO-2026-001")
@@ -133,17 +138,19 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red ERROR messages
 
 **If FAIL:**
+
 - Spinner hangs >35s: Gemini API slow. Refresh page, try lightweight synthetic PDF. Check Cloud Logs for timeout.
 - Parse shows empty stats: PDF may lack structured text. Use different bula.
 - Error "GEMINI_API_KEY not set": DevOps issue. Contact CTO.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 1.3: Create CIQ Lot
 
 **Action:**
+
 1. On success panel from Step 1.2, click button "Usar esta Bula" or "Criar Lote" (usually green/blue, at bottom-right)
 2. Modal appears with pre-filled form:
    - Lote: `BIO-2026-001` (pre-filled from bula)
@@ -156,6 +163,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 5. Modal closes within 2 sec
 
 **Expected Result:**
+
 - ✅ Modal closes
 - ✅ Page returns to Bioquímica view
 - ✅ Navigate to "Lotes" tab or section (may need refresh)
@@ -169,17 +177,19 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - Error "Lote já existe": Use unique lote number. In future tests, append suffix: `BIO-2026-001-TEST-2`
 - "Equipamento required": Create equipment first (ask CTO or use admin panel)
 - Modal hangs >5s: Check Network tab for stalled request. Refresh and retry.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 1.4: Record a QC Run
 
 **Action:**
+
 1. On Bioquímica page, navigate to "Runs" or "Corridas" tab/section
 2. Click "+ Nova Corrida" or "Record Run" button
 3. Form appears. Fill in order:
@@ -198,6 +208,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. Button shows spinner, then form submits
 
 **Expected Result:**
+
 - ✅ Form submits within 2 sec
 - ✅ Modal/form closes
 - ✅ Run appears in runs list (refresh if needed) with:
@@ -212,17 +223,19 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Firestore check (optional): Navigate to `/labs/riopomba/bioquimica/root/runs/` — new run doc present
 
 **If FAIL:**
+
 - Error "GLI out of range": Bula stats may differ. Adjust value (try 100 instead of 95).
 - "Lote not found" or empty dropdown: Lot not created in Step 1.3. Go back and retry.
 - No chainHash in response: Server issue. Check Cloud Logs for `recordRunBioquimica` errors.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 1.5: View Levey-Jennings Chart
 
 **Action:**
+
 1. On Bioquímica page, find "Gráfico" or "Levey-Jennings" tab/button
 2. Page shows filter dropdowns. Select:
    - **Analito:** `Glicose (GLI)`
@@ -231,6 +244,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 3. Chart loads within 2 sec
 
 **Expected Result:**
+
 - ✅ Chart displays with:
   - Title: "Levey-Jennings — Glicose (GLI) — Nível 1"
   - X-axis: Run sequence (1, 2, 3…)
@@ -244,17 +258,19 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - Chart blank / axis-only: Run data may not have loaded. Check Network tab. Refresh and retry.
 - Point not visible: Run status may be wrong. Check run in list — must be `APROVADA` or `PENDENTE_REVISAO`, not `RASCUNHO`.
 - Control lines missing: Refresh page. If persists, check Cloud Logs.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 1.6: Verify Signature (ChainHash) — COMPLIANCE
 
 **Action (quick verification):**
+
 1. Open DevTools (F12) → Network tab
 2. Record another QC run (same as Step 1.4, but with different values e.g., GLI=100 instead of 95)
 3. Watch Network tab for POST request to `recordRunBioquimica`
@@ -263,6 +279,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. **Check:** Must be exactly 64 characters, all hex (0–9, a–f)
 
 **Expected Result:**
+
 - ✅ Hash field present: `"hash": "abc123def456...xyz789"`
 - ✅ Hash length: Exactly 64 characters
 - ✅ Hash format: Only 0–9, a–f (no special chars)
@@ -270,75 +287,83 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ ts: Recent timestamp (within 1 min of now)
 
 **If FAIL:**
+
 - No hash field: Server not signing. Check Cloud Logs for `recordRunBioquimica` errors.
 - Hash wrong length or format: Cryptographic issue. Contact CTO.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 **Smoke 1 Summary:**
 
-| Step | Component | Status |
-|------|-----------|--------|
-| 1.1 | Load Analitos (16 visible) | ☐ PASS ☐ FAIL |
-| 1.2 | Parse Bula (Gemini, <35s) | ☐ PASS ☐ FAIL |
-| 1.3 | Create Lot | ☐ PASS ☐ FAIL |
-| 1.4 | Record Run (chainHash present) | ☐ PASS ☐ FAIL |
-| 1.5 | Levey-Jennings Chart | ☐ PASS ☐ FAIL |
-| 1.6 | Verify Signature | ☐ PASS ☐ FAIL |
+| Step | Component                      | Status        |
+| ---- | ------------------------------ | ------------- |
+| 1.1  | Load Analitos (16 visible)     | ☐ PASS ☐ FAIL |
+| 1.2  | Parse Bula (Gemini, <35s)      | ☐ PASS ☐ FAIL |
+| 1.3  | Create Lot                     | ☐ PASS ☐ FAIL |
+| 1.4  | Record Run (chainHash present) | ☐ PASS ☐ FAIL |
+| 1.5  | Levey-Jennings Chart           | ☐ PASS ☐ FAIL |
+| 1.6  | Verify Signature               | ☐ PASS ☐ FAIL |
 
-**Overall Smoke 1 Result:** ☐ PASS ☐ FAIL | **Total Time:** _____________ | **Failed Steps (if any):** _________________________________
+**Overall Smoke 1 Result:** ☐ PASS ☐ FAIL | **Total Time:** ******\_****** | **Failed Steps (if any):** ****************\_****************
 
 ---
 
 ## SMOKE TEST 2: SGD DRIVE IMPORTER (12 min)
 
-**Start Time:** __________ | **Status:** ☐ PASS ☐ FAIL
+**Start Time:** ****\_\_**** | **Status:** ☐ PASS ☐ FAIL
 
 ### Step 2.1: Navigate to SGD
 
 **Action:**
+
 1. In browser, navigate to: `https://hmatologia2.web.app/sgd` (or `/sgq` depending on routing)
 2. Page loads within 3 sec
 
 **Expected Result:**
+
 - ✅ Page loads without 404 or 500
 - ✅ View shows "Master List" or "Lista Mestra" with existing documents (if any)
 - ✅ Button visible for "Importar de Drive", "Sincronizar Drive", or similar
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - 404 error: Route may have changed. Check `/src/core/AppRouter.tsx` for correct path.
 - Page blank: Feature may be behind flag. Refresh cache (Ctrl+Shift+R).
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.2: Click Import Button & See OAuth Form
 
 **Action:**
+
 1. Click the "Importar de Drive" or "Import" button (top-right or menu)
 2. Modal or panel opens within 2 sec
 
 **Expected Result:**
+
 - ✅ Modal title: "Importar Documentos de Drive" or "Drive Importer"
 - ✅ **Step 1** visible with text: "Conecte sua conta Google Drive para continuar"
 - ✅ **Button:** "Conectar ao Google Drive" (blue/primary color)
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - Button not found: Check module routing and menu layout.
 - Modal doesn't open: Browser/React issue. Refresh page.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.3: Authorize Google Drive (OAuth)
 
 **Action:**
+
 1. Click the blue "Conectar ao Google Drive" button
 2. Popup window opens within 2 sec
 3. **Google consent screen** appears (may show account selector first)
@@ -348,6 +373,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 7. Click **"Allow"** to grant permission
 
 **Expected Result:**
+
 - ✅ Popup opens with Google consent screen
 - ✅ Scopes visible (read-only Drive access)
 - ✅ Allow/Cancel buttons present
@@ -359,18 +385,20 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - Popup blocked: Check browser popup blocker icon. Allow popups and retry.
 - Consent screen blank: Google service slow. Wait 3s; if still blank, close and retry.
 - "Invalid client" error: OAuth credentials misconfigured. Contact DevOps.
 - Popup closes but wizard stays at Step 1: OAuth may have failed. Refresh and retry.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.4: List Documents from Drive Folder
 
 **Action:**
+
 1. In Step 2 form, locate **Folder ID input field** (labeled "ID da Pasta" or "Folder ID")
 2. Click field and paste your test folder ID:
    - Example ID format: `1ABC123defGHI456jklMNO789pqrSTU`
@@ -380,6 +408,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 4. **Wait 5–10 seconds** for Cloud Function to fetch file list
 
 **Expected Result:**
+
 - ✅ Loading spinner appears briefly
 - ✅ After 5–10s: Table renders with exactly **5 documents**:
   1. MQ-001 Manual da Qualidade v1
@@ -394,19 +423,21 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - "Folder not found": Folder ID invalid or permission denied. Verify ID from Drive URL.
 - List empty (0 documents): Folder exists but has no files. Add 5 test documents to Drive folder.
 - Timeout >15s: Cloud Function slow. Check Cloud Logs for `listarDocsDrive` errors.
 - "Permission denied": OAuth scope missing. Go back to Step 2.3 and re-authorize.
 - Only 3 docs visible: Some files missing from Drive. Add remaining 2 and reload.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.5: Preview 3 Documents
 
 **Action:**
+
 1. In the document table from Step 2.4, click the first row (MQ-001) or look for preview icon (👁 or 🔍)
 2. Preview modal opens within 2 sec
 3. View document content (PDF viewer or rendered text)
@@ -415,6 +446,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. **Repeat for 2 more documents** (e.g., PQ-002 and IT-003)
 
 **Expected Result (per document):**
+
 - ✅ Modal opens with title "Preview — {document name}"
 - ✅ Content area shows document (PDF viewer for PDFs, text for Google Docs)
 - ✅ Metadata visible:
@@ -429,18 +461,20 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ **3+ documents previewed** without error
 
 **If FAIL:**
+
 - Preview blank/white: PDF may be image-heavy. Try another document.
 - Modal hangs >5s: Network/API issue. Check Network tab for stalled requests.
 - Content doesn't render: File format not supported. Try PDF instead of Google Doc.
 - Modal won't close: Browser issue. Refresh page and retry.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.6: Batch Import All 5 Documents
 
 **Action:**
+
 1. Return to document table from Step 2.4 (if closed, start over from Step 2.1)
 2. At table **header row**, find checkbox labeled "Select All" (usually left side)
 3. Click header checkbox to select all 5 documents (should change ☐ → ☑)
@@ -449,6 +483,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. **Wizard advances to Step 3** (review/confirmation)
 
 **Expected Result (Step 3 - Review):**
+
 - ✅ Page shows "Revisar Importação" or "Review Import"
 - ✅ Summary displays:
   - "5 documentos selecionados"
@@ -458,13 +493,10 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Buttons: "Voltar" (back) and "Confirmar Importação" (blue)
 - ✅ Console: 0 red errors
 
-**Action (continued):**
-7. Review the summary
-8. Check consent checkbox: "Concordo com a importação..."
-9. Click "Confirmar Importação" button
-10. Progress bar appears: "Importando documentos..."
+**Action (continued):** 7. Review the summary 8. Check consent checkbox: "Concordo com a importação..." 9. Click "Confirmar Importação" button 10. Progress bar appears: "Importando documentos..."
 
 **Expected Result (completion):**
+
 - ✅ After 10–30s: All 5 documents imported
 - ✅ Success message: "✓ 5 documentos importados com sucesso!"
 - ✅ Wizard closes or shows button "Ver Documentos" or "Go to List"
@@ -473,31 +505,28 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - "Documento duplicado": Codes already exist. Use unique codes in future tests (add `-TEST` suffix).
 - Progress bar hangs >45s: Cloud Function timeout. Check Cloud Logs for `aprovarBatchImport` errors.
 - Partial import (only 3/5 succeed): Check Cloud Logs for per-document errors.
 - Auth error: Drive access lost. Go back to Step 2.3 and re-authorize.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 ### Step 2.7: Publish Documents & Verify Search
 
 **Action (Part A - Navigate to List):**
+
 1. Click "Ver Documentos" (from Step 2.6 success) or navigate to `/sgd` or `/sgq/lista-mestra`
 2. Page shows table with imported 5 documents
 3. All 5 show status **`rascunho`** (gray badge, draft/unpublished)
 
-**Action (Part B - Publish Documents):**
-4. Click first document row (MQ-001) or the "..." menu for that row
-5. Click "Publicar", "Aprovar para Vigência", or "Publish" option
-6. Confirmation modal: "Tem certeza? Publicar este documento?"
-7. Click "Sim, publicar" or "Confirmar"
-8. Modal closes; document status changes to **`vigente`** (green badge, active/published)
-9. **Repeat for remaining 4 documents** (publish each one)
+**Action (Part B - Publish Documents):** 4. Click first document row (MQ-001) or the "..." menu for that row 5. Click "Publicar", "Aprovar para Vigência", or "Publish" option 6. Confirmation modal: "Tem certeza? Publicar este documento?" 7. Click "Sim, publicar" or "Confirmar" 8. Modal closes; document status changes to **`vigente`** (green badge, active/published) 9. **Repeat for remaining 4 documents** (publish each one)
 
 **Expected Result (after publishing all 5):**
+
 - ✅ All 5 documents show status **`vigente`** (green badges)
 - ✅ Each row displays:
   - Status: `vigente`
@@ -508,16 +537,10 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Each transition completes <3s
 - ✅ Console: 0 red errors
 
-**Action (Part C - Search & Filter):**
-10. At table top, locate search box (labeled "Pesquisar...", "Search", or 🔍 icon)
-11. Click search field and type: `MQ`
-12. Table filters to show **only 1 document**: MQ-001
-13. Clear search (delete text or click X)
-14. Table shows all 5 again
-15. Type another search: `Procedimento`
-16. Table filters to **only PQ-002 Procedimento de Coleta**
+**Action (Part C - Search & Filter):** 10. At table top, locate search box (labeled "Pesquisar...", "Search", or 🔍 icon) 11. Click search field and type: `MQ` 12. Table filters to show **only 1 document**: MQ-001 13. Clear search (delete text or click X) 14. Table shows all 5 again 15. Type another search: `Procedimento` 16. Table filters to **only PQ-002 Procedimento de Coleta**
 
 **Expected Result (search):**
+
 - ✅ Search is real-time (<500ms response)
 - ✅ Searches title, código, other fields
 - ✅ Case-insensitive: "mq" finds "MQ-001"
@@ -525,28 +548,29 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - ✅ Console: 0 red errors
 
 **If FAIL:**
+
 - Publish button not visible: Check user role in `/labs/riopomba/members/{uid}` — must have RT role.
 - Transition hangs >5s: Check Cloud Logs for `updateDocumentStatus` errors.
 - Status doesn't change: Page may not have refreshed. Hard refresh (Ctrl+Shift+R).
 - Search not working: May be slow or disabled. Check Firestore performance in Network tab.
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
 **Smoke 2 Summary:**
 
-| Step | Component | Status |
-|------|-----------|--------|
-| 2.1 | Navigate to SGD | ☐ PASS ☐ FAIL |
-| 2.2 | Import button visible | ☐ PASS ☐ FAIL |
-| 2.3 | OAuth authorization | ☐ PASS ☐ FAIL |
-| 2.4 | List 5 documents | ☐ PASS ☐ FAIL |
-| 2.5 | Preview 3+ documents | ☐ PASS ☐ FAIL |
-| 2.6 | Batch import (all 5) | ☐ PASS ☐ FAIL |
-| 2.7 | Publish & search | ☐ PASS ☐ FAIL |
+| Step | Component             | Status        |
+| ---- | --------------------- | ------------- |
+| 2.1  | Navigate to SGD       | ☐ PASS ☐ FAIL |
+| 2.2  | Import button visible | ☐ PASS ☐ FAIL |
+| 2.3  | OAuth authorization   | ☐ PASS ☐ FAIL |
+| 2.4  | List 5 documents      | ☐ PASS ☐ FAIL |
+| 2.5  | Preview 3+ documents  | ☐ PASS ☐ FAIL |
+| 2.6  | Batch import (all 5)  | ☐ PASS ☐ FAIL |
+| 2.7  | Publish & search      | ☐ PASS ☐ FAIL |
 
-**Overall Smoke 2 Result:** ☐ PASS ☐ FAIL | **Total Time:** _____________ | **Failed Steps (if any):** _________________________________
+**Overall Smoke 2 Result:** ☐ PASS ☐ FAIL | **Total Time:** ******\_****** | **Failed Steps (if any):** ****************\_****************
 
 ---
 
@@ -554,24 +578,25 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 
 **Quick spot-check of 5 existing v1.2 modules — ensure no breakage:**
 
-**Start Time:** __________ | **Status:** ☐ PASS ☐ FAIL
+**Start Time:** ****\_\_**** | **Status:** ☐ PASS ☐ FAIL
 
-| Module | URL | Expected | Status |
-|--------|-----|----------|--------|
-| Analyzer | https://hmatologia2.web.app/analyzer | Page loads, no 5xx | ☐ PASS ☐ FAIL |
-| Coagulação | https://hmatologia2.web.app/coagulacao | Page loads, no 5xx | ☐ PASS ☐ FAIL |
-| Auditoria | https://hmatologia2.web.app/auditoria | Page loads, no 5xx | ☐ PASS ☐ FAIL |
-| Treinamentos | https://hmatologia2.web.app/treinamentos | Page loads, no 5xx | ☐ PASS ☐ FAIL |
+| Module              | URL                                             | Expected           | Status        |
+| ------------------- | ----------------------------------------------- | ------------------ | ------------- |
+| Analyzer            | https://hmatologia2.web.app/analyzer            | Page loads, no 5xx | ☐ PASS ☐ FAIL |
+| Coagulação          | https://hmatologia2.web.app/coagulacao          | Page loads, no 5xx | ☐ PASS ☐ FAIL |
+| Auditoria           | https://hmatologia2.web.app/auditoria           | Page loads, no 5xx | ☐ PASS ☐ FAIL |
+| Treinamentos        | https://hmatologia2.web.app/treinamentos        | Page loads, no 5xx | ☐ PASS ☐ FAIL |
 | Educação Continuada | https://hmatologia2.web.app/educacao-continuada | Page loads, no 5xx | ☐ PASS ☐ FAIL |
 
 **For each module:**
+
 - Click the URL
 - Wait <3s for page to load
 - Check DevTools Console: **0 red ERROR messages**
 - Check Network tab: **No 5xx responses**
 - Move to next module
 
-**Overall Smoke 5 Result:** ☐ All PASS ☐ Some FAIL | **Failed Module (if any):** _________________________________
+**Overall Smoke 5 Result:** ☐ All PASS ☐ Some FAIL | **Failed Module (if any):** ****************\_****************
 
 ---
 
@@ -580,11 +605,13 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 ### ☐ Browser Console Check (CRITICAL)
 
 **Action:**
+
 1. DevTools remains open (Console tab)
 2. Scan **entire console output** for red 🔴 ERROR text
 3. Ignore YELLOW ⚠️ warnings and BLUE ℹ️ info — these are OK
 
 **What to look for (red text):**
+
 - `Uncaught Error`
 - `Uncaught TypeError`
 - `Uncaught ReferenceError`
@@ -592,38 +619,43 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 - `Failed to fetch`
 
 **What to ignore:**
+
 - `[Firebase] Auth... initialized` (blue, informational)
 - Third-party library warnings (Tailwind, analytics)
 - `Security: Credentials mode is 'include'...` (spam warning)
 
 **Expected Result:**
+
 - ✅ **0 red ERROR messages** (application errors)
 - ✅ Only INFO/WARN acceptable
 - ✅ Console output matches expectations from smoke tests
 
-**Sign-Off:** ☐ PASS (0 errors) ☐ FAIL | **Error Count:** _____ | **Error Types:** _________________________________
+**Sign-Off:** ☐ PASS (0 errors) ☐ FAIL | **Error Count:** **\_** | **Error Types:** ****************\_****************
 
 ---
 
 ### ☐ Cloud Logs Check
 
 **Action:**
+
 1. Check monitoring setup from Pre-Execution:
    - **Script method:** Terminal from Step 4a shows summary (e.g., "Last 5 min: 0 errors")
    - **Console method:** Refresh Cloud Logging tab, check last 10 min for ERROR entries
 
 **Expected Result:**
+
 - ✅ **0–5 ERROR entries** (normal range, no critical errors)
 - ✅ No recurring/cascading errors
 - ✅ No 5xx spike during smoke test window
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Error Summary:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Error Summary:** ****************\_****************
 
 ---
 
 ### ☐ Firestore Spot-Check (Optional)
 
 **Action (bonus verification):**
+
 1. Open Firestore Console: https://console.firebase.google.com/project/hmatologia2/firestore
 2. Navigate: Collections → `labs` → `riopomba` → `bioquimica` → `root` → `runs`
 3. Look for your test runs (should see 2+ documents with recent timestamps)
@@ -632,12 +664,13 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 6. **Verify:** 64-character hex string present
 
 **Expected Result:**
+
 - ✅ 2+ run documents visible
 - ✅ chainHash field present with 64-char hex
 - ✅ operatorId matches logged-in user
 - ✅ ts is recent (within test window)
 
-**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** _________________________________
+**Sign-Off:** ☐ PASS ☐ FAIL | **Notes:** ****************\_****************
 
 ---
 
@@ -645,13 +678,13 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 
 **Summary of All Test Results:**
 
-| Test | Result | Failed Steps |
-|------|--------|--------------|
-| **Smoke 1: Bioquímica** | ☐ PASS ☐ FAIL | _________________ |
-| **Smoke 2: SGD** | ☐ PASS ☐ FAIL | _________________ |
-| **Smoke 5: Regression** | ☐ PASS ☐ FAIL | _________________ |
-| **Browser Console** | ☐ PASS ☐ FAIL | _________________ |
-| **Cloud Logs** | ☐ PASS ☐ FAIL | _________________ |
+| Test                    | Result        | Failed Steps       |
+| ----------------------- | ------------- | ------------------ |
+| **Smoke 1: Bioquímica** | ☐ PASS ☐ FAIL | ********\_******** |
+| **Smoke 2: SGD**        | ☐ PASS ☐ FAIL | ********\_******** |
+| **Smoke 5: Regression** | ☐ PASS ☐ FAIL | ********\_******** |
+| **Browser Console**     | ☐ PASS ☐ FAIL | ********\_******** |
+| **Cloud Logs**          | ☐ PASS ☐ FAIL | ********\_******** |
 
 ---
 
@@ -676,18 +709,21 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 ### Troubleshooting Quick Reference
 
 **Bioquímica Module Issues:**
+
 1. **Seed analitos not loaded:** Refresh page (seed triggers on first load)
 2. **Bula parsing timeout:** Retry upload with simpler PDF. Check Cloud Logs: `parseBulaBioquimica`
 3. **ChainHash missing:** Server issue. Check Cloud Logs for `recordRunBioquimica` error
 4. **Chart blank:** Run status wrong (must be `APROVADA` or `PENDENTE_REVISAO`). Refresh page.
 
 **SGD Drive Importer Issues:**
+
 1. **OAuth consent doesn't appear:** Allow browser popups. Refresh and retry.
 2. **Drive folder returns 0 docs:** Check folder ID (copy from URL again). Verify 5 test docs exist in folder.
 3. **Duplicate código error:** Use unique codes. Add `-TEST-2` suffix if re-testing.
 4. **Import hangs:** Check Cloud Logs: `aprovarBatchImport` for timeout.
 
 **General Issues:**
+
 1. **Service Worker caching old code:** Hard refresh (Ctrl+Shift+R). Clear site data (DevTools → Application → Clear site data).
 2. **User access denied:** Verify in Firestore: `/labs/riopomba/members/{uid}` has `isActiveMemberOfLab: true` and `role: "RT"`.
 3. **5xx errors:** Check Cloud Logs filter: `severity>=ERROR AND resource.type=cloud_function`. Screenshot error.
@@ -708,13 +744,14 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
 
 **Final Status:** ☐ GO ☐ NO-GO
 
-**Tester Name:** _________________ | **Date/Time:** _________________ | **Signature:** _________________
+**Tester Name:** ********\_******** | **Date/Time:** ********\_******** | **Signature:** ********\_********
 
 ---
 
 ## NEXT STEPS
 
 **If GO:**
+
 1. ✅ Stop monitoring script (Ctrl+C in terminal)
 2. ✅ Run commit:
    ```powershell
@@ -727,6 +764,7 @@ Expected output: Terminal shows status every 5 min (e.g., "Last 5 min: 0 errors 
    > "v1.3 smoke tests GREEN ✅. Bioquímica + SGD + regression all passing. Production stable. Ready for next 24h ops."
 
 **If NO-GO:**
+
 1. 🔴 **DO NOT COMMIT** or push
 2. 🔴 File issue with:
    - Screenshot of console error (Ctrl+PrtScn)

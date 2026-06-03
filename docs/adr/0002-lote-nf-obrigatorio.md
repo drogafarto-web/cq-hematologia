@@ -13,6 +13,7 @@
 **Violation V-003:** `Insumo.notaFiscalId` e `fornecedorId` são **opcionais**.
 
 Consequence:
+
 - Lotes de reagentes aparecem sem origem fiscal
 - Não conformidade rastreável: qual fornecedor vendeu este reagente?
 - RDC 978 exige rastreabilidade ponta-a-ponta (origem → consumo)
@@ -40,6 +41,7 @@ Make rastreabilidade **mandatory**:
 ### 1. Schema Updates
 
 #### Fornecedor (novo)
+
 ```typescript
 interface Fornecedor {
   id: string;
@@ -48,12 +50,13 @@ interface Fornecedor {
   status: 'pendente' | 'qualificado' | 'suspenso' | 'desqualificado';
   qualificadoEm?: Timestamp;
   proximaRequalificacao?: Timestamp;
-  evidencias: Array<{ tipo, url, dataUpload }>;
+  evidencias: Array<{ tipo; url; dataUpload }>;
   categoriasFornecidas: string[];
 }
 ```
 
 #### NotaFiscal (novo + estendido)
+
 ```typescript
 interface NotaFiscal {
   numero: string;
@@ -74,6 +77,7 @@ interface NotaFiscal {
 ```
 
 #### Insumo (estendido)
+
 ```typescript
 interface Insumo {
   // ... existing fields
@@ -111,14 +115,14 @@ match /labs/{labId}/notas-fiscais/{nfId} {
   allow create: if request.auth.uid != null
              && request.resource.data.fornecedorId != null
              && request.resource.data.itens != null;
-  
+
   allow read: if request.auth.uid != null;
 }
 
 match /labs/{labId}/insumos/{loteId} {
   // NEW: Require notaFiscalId + fornecedorId for writes after migration
   allow create: if request.auth.uid != null
-             && (request.resource.data.notaFiscalId != null || 
+             && (request.resource.data.notaFiscalId != null ||
                  request.resource.data._legacyMigrated == true);
 }
 ```
@@ -126,18 +130,21 @@ match /labs/{labId}/insumos/{loteId} {
 ### 4. Cloud Functions
 
 #### `criarNotaFiscal()`
+
 - Input: labId, numero, serie, dataEmissao, fornecedorId, itens, valorTotal
 - Validates: Fornecedor.status === 'qualificado'
 - Creates: NotaFiscal doc
 - Audit: logs criação via ADR 0005 chain
 
 #### `confirmarRecebimento()`
+
 - Input: labId, nfId, desviosObservados?
 - Reads: NotaFiscal
 - For each item: creates Insumo Lote (notaFiscalId + fornecedorId mandatory)
 - Deviations: stored; will trigger NC after ADR 0003
 
 #### `upsertFornecedor()`
+
 - Input: labId, razaoSocial, cnpj, status, evidencias, categories
 - Creates/updates Fornecedor doc
 - Validates: CNPJ format, qualificação date logic
@@ -147,6 +154,7 @@ match /labs/{labId}/insumos/{loteId} {
 ## Migration (Backfill)
 
 ### Legado Problem
+
 - Existing Insumos have no notaFiscalId / fornecedorId
 - Can't delete them (data loss)
 - Solution: dual-mode for N weeks → hard requirement after
@@ -158,12 +166,13 @@ match /labs/{labId}/insumos/{loteId} {
 3. **For each Insumo without notaFiscalId:**
    - Create synthetic NotaFiscal (numero = "LEGADO-BATCH-{date}")
    - Link Insumo.notaFiscalId → synthetic NF
-   - Set Insumo._legacyMigrated = true
+   - Set Insumo.\_legacyMigrated = true
    - Set Insumo.fornecedorId = "fornecedor-legado"
 4. **Firestore rules:** allow writes to insumos if `_legacyMigrated === true`
 5. **Deprecate:** after 4 weeks, rules enforce notaFiscalId obrigatório
 
 ### Script
+
 ```bash
 node functions/scripts/backfill-notaFiscal.mjs --labId=<lab-id>
 ```
@@ -180,13 +189,14 @@ node functions/scripts/backfill-notaFiscal.mjs --labId=<lab-id>
 ✓ Backfill: 100% legacy Insumos migrated + synthetic NF created  
 ✓ Firestore rules updated (dual-mode → strict)  
 ✓ Tests: E2E NF → Lote workflow  
-✓ Audit: all operations logged via ADR 0005 chain  
+✓ Audit: all operations logged via ADR 0005 chain
 
 ---
 
 ## Timeline
 
 **Week 3-5 (parallel with ADR 0006):**
+
 - Day 10-12: Schema + CF implementation
 - Day 13-14: Firestore rules + backfill script
 - Day 15: Testing + security audit
@@ -197,6 +207,7 @@ node functions/scripts/backfill-notaFiscal.mjs --labId=<lab-id>
 ## Rollback
 
 If critical issue:
+
 1. Revert Firestore rules to `notaFiscalId` optional
 2. Keep NF + Fornecedor docs (immutable)
 3. Revert CF (stop creating new Lotes with FK)

@@ -34,7 +34,7 @@ describe('PortalRTShell', () => {
         activeSection="dashboard"
         onSelectSection={handleSelectSection}
         escalationCount={0}
-      />
+      />,
     );
 
     // Top bar elements (getAllByText for Lab name which appears in both sidebar and header)
@@ -59,7 +59,7 @@ describe('PortalRTShell', () => {
         activeSection="dashboard"
         onSelectSection={handleSelectSection}
         escalationCount={0}
-      />
+      />,
     );
 
     // Find logout button in top bar
@@ -84,7 +84,7 @@ describe('PortalRTShell', () => {
         escalationCount={0}
       >
         <div data-testid="custom-content">Test Content</div>
-      </PortalRTShell>
+      </PortalRTShell>,
     );
 
     expect(screen.getByTestId('custom-content')).toBeInTheDocument();
@@ -101,7 +101,7 @@ describe('PortalRTShell', () => {
         activeSection="dashboard"
         onSelectSection={handleSelectSection}
         escalationCount={0}
-      />
+      />,
     );
 
     // Mobile menu button should exist (it's in the layout structure)
@@ -120,7 +120,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     // Check nav buttons for all sections
@@ -140,7 +140,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     let dashboardButton = screen.getByRole('button', { name: /dashboard/i });
@@ -152,7 +152,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     const criticosButton = screen.getByRole('button', { name: /críticos/i });
@@ -168,7 +168,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={5}
-      />
+      />,
     );
 
     expect(screen.getByText('5')).toBeInTheDocument();
@@ -183,7 +183,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     const criticosButton = screen.getByRole('button', { name: /críticos/i });
@@ -201,7 +201,7 @@ describe('PortalRTNav', () => {
         onSelectSection={handleSelectSection}
         labName="Labclin Riopomba"
         escalationCount={0}
-      />
+      />,
     );
 
     // Lab name appears in nav
@@ -222,7 +222,7 @@ describe('PortalRTNav - Active state underline', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     // The active section button should have the hover class applied
@@ -234,7 +234,13 @@ describe('PortalRTNav - Active state underline', () => {
 describe('Section navigation flow', () => {
   it('handles sequential section changes', () => {
     const handleSelectSection = vi.fn();
-    const sections: PortalRTSectionType[] = ['dashboard', 'criticos', 'resultados', 'compliance', 'configuracao'];
+    const sections: PortalRTSectionType[] = [
+      'dashboard',
+      'criticos',
+      'resultados',
+      'compliance',
+      'configuracao',
+    ];
     const sectionLabels = {
       dashboard: 'Dashboard',
       criticos: 'Críticos',
@@ -249,7 +255,7 @@ describe('Section navigation flow', () => {
         onSelectSection={handleSelectSection}
         labName="Test Lab"
         escalationCount={0}
-      />
+      />,
     );
 
     sections.forEach((section) => {

@@ -10,11 +10,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-import {
-  assertTurnosAccess,
-  turnosCollection,
-  SoftDeleteTurnoInputSchema,
-} from './validators';
+import { assertTurnosAccess, turnosCollection, SoftDeleteTurnoInputSchema } from './validators';
 
 interface SoftDeleteTurnoResult {
   ok: true;

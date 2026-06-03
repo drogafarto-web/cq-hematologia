@@ -80,15 +80,10 @@ export const finalizeSession = onCall(
       }
 
       // Fetch all checklist items
-      const checklistSnap = await db
-        .collection(`${basePath}/checklist-items`)
-        .get();
+      const checklistSnap = await db.collection(`${basePath}/checklist-items`).get();
 
       if (checklistSnap.empty) {
-        throw new HttpsError(
-          'failed-precondition',
-          'Sessão não possui itens de checklist'
-        );
+        throw new HttpsError('failed-precondition', 'Sessão não possui itens de checklist');
       }
 
       // Validate all items have been responded and calculate counters
@@ -99,9 +94,7 @@ export const finalizeSession = onCall(
       let totalNA = 0;
 
       // Collect responses for signature generation (sorted by doc ID for determinism)
-      const sortedDocs = checklistSnap.docs.sort((a, b) =>
-        a.id.localeCompare(b.id)
-      );
+      const sortedDocs = checklistSnap.docs.sort((a, b) => a.id.localeCompare(b.id));
       const responseEntries: Array<{ id: string; resposta: string }> = [];
 
       for (const doc of sortedDocs) {
@@ -111,7 +104,8 @@ export const finalizeSession = onCall(
           unanswered.push(data.numeroDICQ || doc.id);
         } else {
           if (data.resposta === 'conforme') totalConforme++;
-          else if (data.resposta === 'não-conforme' || data.resposta === 'nao-conforme') totalNaoConforme++;
+          else if (data.resposta === 'não-conforme' || data.resposta === 'nao-conforme')
+            totalNaoConforme++;
           else totalNA++;
         }
 
@@ -125,25 +119,21 @@ export const finalizeSession = onCall(
       if (unanswered.length > 0) {
         throw new HttpsError(
           'failed-precondition',
-          `${unanswered.length} item(ns) sem resposta: ${unanswered.slice(0, 5).join(', ')}${unanswered.length > 5 ? '...' : ''}`
+          `${unanswered.length} item(ns) sem resposta: ${unanswered.slice(0, 5).join(', ')}${unanswered.length > 5 ? '...' : ''}`,
         );
       }
 
       // Calculate conformity score (percentage)
       const totalApplicable = totalConforme + totalNaoConforme;
-      const score = totalApplicable > 0
-        ? Math.round((totalConforme / totalApplicable) * 10000) / 100
-        : 0;
+      const score =
+        totalApplicable > 0 ? Math.round((totalConforme / totalApplicable) * 10000) / 100 : 0;
 
       // Generate LogicalSignature: SHA-256 hash of all responses
       const canonicalPayload = JSON.stringify(
-        responseEntries.map((e) => ({ id: e.id, resposta: e.resposta }))
+        responseEntries.map((e) => ({ id: e.id, resposta: e.resposta })),
       );
 
-      const hash = crypto
-        .createHash('sha256')
-        .update(canonicalPayload)
-        .digest('hex');
+      const hash = crypto.createHash('sha256').update(canonicalPayload).digest('hex');
 
       const assinatura: LogicalSignature = {
         hash,
@@ -156,7 +146,7 @@ export const finalizeSession = onCall(
         status: 'finalizada',
         dataFim: admin.firestore.Timestamp.now(),
         itensConforme: totalConforme,
-        'itensNãoConforme': totalNaoConforme,
+        itensNãoConforme: totalNaoConforme,
         itensNA: totalNA,
         score,
         assinatura,
@@ -165,9 +155,7 @@ export const finalizeSession = onCall(
       });
 
       // Write to audit-trail
-      const auditTrailRef = db
-        .collection(`${basePath}/audit-trail`)
-        .doc();
+      const auditTrailRef = db.collection(`${basePath}/audit-trail`).doc();
 
       await auditTrailRef.set({
         id: auditTrailRef.id,
@@ -191,5 +179,5 @@ export const finalizeSession = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao finalizar sessão');
     }
-  }
+  },
 );

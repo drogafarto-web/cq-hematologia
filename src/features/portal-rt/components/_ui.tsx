@@ -11,10 +11,10 @@ import React, { PropsWithChildren } from 'react';
 
 export const PortalRTTokens = {
   bg: {
-    base: 'bg-[#141417]',        // Deep charcoal (dark-first)
-    card: 'bg-[#1a1a1d]',         // Card elevation
-    hover: 'bg-[#242428]',        // Hover state
-    interactive: 'bg-[#2a2a2f]',  // Input/buttons
+    base: 'bg-[#141417]', // Deep charcoal (dark-first)
+    card: 'bg-[#1a1a1d]', // Card elevation
+    hover: 'bg-[#242428]', // Hover state
+    interactive: 'bg-[#2a2a2f]', // Input/buttons
   },
   text: {
     primary: 'text-white',
@@ -56,11 +56,7 @@ export function PortalHeading({ level = 2, children, subtitle, className }: Port
       <Tag className={`${sizeStyles[level]} ${baseStyles} ${PortalRTTokens.text.primary}`}>
         {children}
       </Tag>
-      {subtitle && (
-        <p className={`mt-1 text-sm ${PortalRTTokens.text.secondary}`}>
-          {subtitle}
-        </p>
-      )}
+      {subtitle && <p className={`mt-1 text-sm ${PortalRTTokens.text.secondary}`}>{subtitle}</p>}
     </div>
   );
 }
@@ -74,12 +70,22 @@ export interface PortalSectionProps extends PropsWithChildren {
   className?: string;
 }
 
-export function PortalSection({ title, subtitle, actions, children, className }: PortalSectionProps) {
+export function PortalSection({
+  title,
+  subtitle,
+  actions,
+  children,
+  className,
+}: PortalSectionProps) {
   return (
     <div className={`flex flex-col gap-6 ${className}`}>
       {(title || actions) && (
         <div className="flex items-start justify-between gap-4">
-          {title && <PortalHeading level={3} subtitle={subtitle}>{title}</PortalHeading>}
+          {title && (
+            <PortalHeading level={3} subtitle={subtitle}>
+              {title}
+            </PortalHeading>
+          )}
           {actions && <div className="flex gap-2">{actions}</div>}
         </div>
       )}
@@ -119,7 +125,10 @@ export function PortalText({ children, className }: PropsWithChildren<{ classNam
   return <p className={`text-sm ${PortalRTTokens.text.primary} ${className}`}>{children}</p>;
 }
 
-export function PortalTextSecondary({ children, className }: PropsWithChildren<{ className?: string }>) {
+export function PortalTextSecondary({
+  children,
+  className,
+}: PropsWithChildren<{ className?: string }>) {
   return <p className={`text-sm ${PortalRTTokens.text.secondary} ${className}`}>{children}</p>;
 }
 
@@ -143,7 +152,8 @@ export function PortalBadge({ variant, children, className }: BadgeProps) {
   };
 
   return (
-    <span className={`
+    <span
+      className={`
       inline-block
       px-3 py-1
       rounded-full
@@ -151,7 +161,8 @@ export function PortalBadge({ variant, children, className }: BadgeProps) {
       border
       ${variants[variant]}
       ${className}
-    `}>
+    `}
+    >
       {children}
     </span>
   );

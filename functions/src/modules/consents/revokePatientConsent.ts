@@ -19,11 +19,7 @@
 
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import {
-  RevokeConsentInputSchema,
-  assertConsentsWriteAccess,
-  consentDocRef,
-} from './validators';
+import { RevokeConsentInputSchema, assertConsentsWriteAccess, consentDocRef } from './validators';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 export const revokePatientConsent = onCall(
@@ -49,10 +45,7 @@ export const revokePatientConsent = onCall(
     const snap = await ref.get();
 
     if (!snap.exists) {
-      throw new HttpsError(
-        'not-found',
-        'Consentimento não encontrado para este paciente.',
-      );
+      throw new HttpsError('not-found', 'Consentimento não encontrado para este paciente.');
     }
 
     const serverTs = admin.firestore.FieldValue.serverTimestamp();

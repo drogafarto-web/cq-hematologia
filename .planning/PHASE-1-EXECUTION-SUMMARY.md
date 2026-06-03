@@ -19,12 +19,12 @@ total_duration: 8 hours (09:00–17:00 BRT)
 
 Phase 1 of v1.4 roadmap completed in a single day via parallel execution of 4 critical work streams:
 
-| Task | Objective | Status | Deliverable |
-|------|-----------|--------|------------|
-| **A** | Smoke Tests + Logs Closure | ✅ PASS | 01-BASELINE-SMOKE-REPORT.md |
-| **B** | Requirements Finalization | ✅ VERIFIED | v1.4-REQUIREMENTS-VERIFIED.md |
-| **C** | Risk Register Closure | ✅ MITIGATED | v1.4-RISK-MITIGATION-MATRIX.md |
-| **D** | STATE.md + Roadmap Update | ✅ UPDATED | STATE.md (Phase 1→2 transition) |
+| Task  | Objective                  | Status       | Deliverable                     |
+| ----- | -------------------------- | ------------ | ------------------------------- |
+| **A** | Smoke Tests + Logs Closure | ✅ PASS      | 01-BASELINE-SMOKE-REPORT.md     |
+| **B** | Requirements Finalization  | ✅ VERIFIED  | v1.4-REQUIREMENTS-VERIFIED.md   |
+| **C** | Risk Register Closure      | ✅ MITIGATED | v1.4-RISK-MITIGATION-MATRIX.md  |
+| **D** | STATE.md + Roadmap Update  | ✅ UPDATED   | STATE.md (Phase 1→2 transition) |
 
 **Result:** Phase 2 (Planning Deep-Dive) unblocked for 2026-05-08 kickoff. Phase 3 (Schema Prep) ready for 2026-05-13.
 
@@ -38,22 +38,22 @@ Phase 1 of v1.4 roadmap completed in a single day via parallel execution of 4 cr
 
 ### Critical Flow Validation (4 paths)
 
-| Flow | Target | Result | Evidence |
-|------|--------|--------|----------|
-| Hub load (LCP) | <2.5s | ✅ 1.8s | Lighthouse snapshot, network waterfall |
-| CIQ realtime | <200ms | ✅ ~150ms | React DevTools, onSnapshot latency |
-| EC dashboard TTI | <2.5s | ✅ 1.2s | PageSpeed Insights, virtualization |
-| IoT sensor sync | <5s | ✅ 3.0s | Firestore audit logs, device timestamp |
+| Flow             | Target | Result    | Evidence                               |
+| ---------------- | ------ | --------- | -------------------------------------- |
+| Hub load (LCP)   | <2.5s  | ✅ 1.8s   | Lighthouse snapshot, network waterfall |
+| CIQ realtime     | <200ms | ✅ ~150ms | React DevTools, onSnapshot latency     |
+| EC dashboard TTI | <2.5s  | ✅ 1.2s   | PageSpeed Insights, virtualization     |
+| IoT sensor sync  | <5s    | ✅ 3.0s   | Firestore audit logs, device timestamp |
 
 ### Baseline Metrics Captured
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Unit tests | 738/738 | ✅ GREEN (0 regressions) |
-| Cloud Logs 24h+ | 0 ERROR/CRITICAL | ✅ ZERO errors |
-| Bundle size | 362 KB gzip | ✅ Stable (no bloat) |
-| Firestore index build | 100% | ✅ Complete |
-| Rules test suite | 42/42 | ✅ Security audit PASS |
+| Metric                | Value            | Status                   |
+| --------------------- | ---------------- | ------------------------ |
+| Unit tests            | 738/738          | ✅ GREEN (0 regressions) |
+| Cloud Logs 24h+       | 0 ERROR/CRITICAL | ✅ ZERO errors           |
+| Bundle size           | 362 KB gzip      | ✅ Stable (no bloat)     |
+| Firestore index build | 100%             | ✅ Complete              |
+| Rules test suite      | 42/42            | ✅ Security audit PASS   |
 
 ### Cloud Logs Analysis
 
@@ -75,16 +75,17 @@ Phase 1 of v1.4 roadmap completed in a single day via parallel execution of 4 cr
 
 ### Verification Coverage
 
-| Category | Count | Verified | Status |
-|----------|-------|----------|--------|
-| Core requirements | 15 | 15 | ✅ 100% |
-| Technical debt | 4 | 4 | ✅ 100% |
-| v2 parking lot | 7 | 7 | ✅ 100% (with deferral rationale) |
-| **Total** | **26** | **26** | ✅ **100% VERIFIED** |
+| Category          | Count  | Verified | Status                            |
+| ----------------- | ------ | -------- | --------------------------------- |
+| Core requirements | 15     | 15       | ✅ 100%                           |
+| Technical debt    | 4      | 4        | ✅ 100%                           |
+| v2 parking lot    | 7      | 7        | ✅ 100% (with deferral rationale) |
+| **Total**         | **26** | **26**   | ✅ **100% VERIFIED**              |
 
 ### Acceptance Criteria Verification
 
 All 15 core REQs verified for:
+
 - ✅ Clear acceptance criteria (7–8 per REQ)
 - ✅ Phase/wave assignment (locked in ROADMAP)
 - ✅ DICQ mapping (4.1–5.7 blocks covered)
@@ -95,6 +96,7 @@ All 15 core REQs verified for:
 ### ROADMAP Alignment
 
 **REQ ↔ Phase Matrix:**
+
 - All 15 core reqs aligned to ROADMAP phases (no ambiguities)
 - 16 sub-plans (00-01→15-03) mapped to REQ-IDs
 - Critical path locked: REQ-402 + REQ-403 → Phase 1 gateway
@@ -102,12 +104,12 @@ All 15 core REQs verified for:
 
 ### Compliance Mapping
 
-| Standard | Coverage | Status |
-|----------|----------|--------|
-| **DICQ (27 blocks)** | 27/40+ (68%) | ✅ Target 88% by Phase 4 |
-| **RDC 978 (10 articles)** | 10/10 (100%) | ✅ Critical articles fully covered |
-| **Portaria 204** | 100% (NOTIVISA Phase 3) | ✅ On schedule |
-| **LGPD (DPIA + Policy)** | 100% (Phase 0 + Phase 1) | ✅ Phase 0 DONE |
+| Standard                  | Coverage                 | Status                             |
+| ------------------------- | ------------------------ | ---------------------------------- |
+| **DICQ (27 blocks)**      | 27/40+ (68%)             | ✅ Target 88% by Phase 4           |
+| **RDC 978 (10 articles)** | 10/10 (100%)             | ✅ Critical articles fully covered |
+| **Portaria 204**          | 100% (NOTIVISA Phase 3)  | ✅ On schedule                     |
+| **LGPD (DPIA + Policy)**  | 100% (Phase 0 + Phase 1) | ✅ Phase 0 DONE                    |
 
 **Sign-off:** ✅ All 16 requirements verified, zero ambiguities. Ready for Phase 2 execution.
 
@@ -121,33 +123,33 @@ All 15 core REQs verified for:
 
 ### Risk Score Recalibration (Phase 0 Impact)
 
-| Risk ID | Pre-Phase-0 | Post-Phase-0 | Delta | Reason |
-|---------|------------|--------------|-------|--------|
-| **RISK-401** | 9 🔴 | 2 🟢 | −7 | REQ↔Phase matrix locked |
-| **RISK-403** | 9 🔴 | 1 🟢 | −8 | All 4 RDC blockers deployed |
-| RISK-409 | 4 🟡 | 2 🟢 | −2 | 738/738 tests green |
-| RISK-406 | 6 🟡 | 5 🟡 | −1 | Schema review plan locked |
-| RISK-407 | 6 🟡 | 5 🟡 | −1 | Evidence tracking template ready |
-| RISK-413 | 4 🟡 | 3 🟡 | −1 | Owner assigned (Stream D) |
+| Risk ID      | Pre-Phase-0 | Post-Phase-0 | Delta | Reason                           |
+| ------------ | ----------- | ------------ | ----- | -------------------------------- |
+| **RISK-401** | 9 🔴        | 2 🟢         | −7    | REQ↔Phase matrix locked          |
+| **RISK-403** | 9 🔴        | 1 🟢         | −8    | All 4 RDC blockers deployed      |
+| RISK-409     | 4 🟡        | 2 🟢         | −2    | 738/738 tests green              |
+| RISK-406     | 6 🟡        | 5 🟡         | −1    | Schema review plan locked        |
+| RISK-407     | 6 🟡        | 5 🟡         | −1    | Evidence tracking template ready |
+| RISK-413     | 4 🟡        | 3 🟡         | −1    | Owner assigned (Stream D)        |
 
 **Net Risk Reduction:** Probability of Phase 1 blockers: 20% → <5% (post-Phase-0)
 
 ### Critical Risks Mitigation
 
-| Risk | Original | Mitigation | Status |
-|------|----------|-----------|--------|
-| **RISK-401** | REQ↔Phase inconsistency (9) | v1.4-REQ-PHASE-MATRIX.md locked | ✅ MITIGATED |
-| **RISK-403** | 4 RDC blockers (9) | All 4 Phase 0 items deployed 2026-05-07 | ✅ MITIGATED |
+| Risk         | Original                    | Mitigation                              | Status       |
+| ------------ | --------------------------- | --------------------------------------- | ------------ |
+| **RISK-401** | REQ↔Phase inconsistency (9) | v1.4-REQ-PHASE-MATRIX.md locked         | ✅ MITIGATED |
+| **RISK-403** | 4 RDC blockers (9)          | All 4 Phase 0 items deployed 2026-05-07 | ✅ MITIGATED |
 
 **Top 5 Medium Risks (Score 4–6):**
 
-| Risk | Score | Mitigation | Owner |
-|------|-------|-----------|-------|
-| RISK-402 (Auditor availability) | 6 | Pre-alignment call Week 1 + async SLA | QA Lead |
-| RISK-406 (Schema migration) | 6 | Whiteboard review + rules emulator test | Stream D |
-| RISK-407 (CAPA evidence gaps) | 6 | Weekly tracker + evidence template | Stream A |
-| RISK-411 (Gemini drift) | 6 | Confidence threshold 0.85 + monthly audit | Stream C |
-| RISK-416 (Multi-lab pressure) | 6 | Stakeholder memo (Week 1) + sales playbook | CTO + Sales |
+| Risk                            | Score | Mitigation                                 | Owner       |
+| ------------------------------- | ----- | ------------------------------------------ | ----------- |
+| RISK-402 (Auditor availability) | 6     | Pre-alignment call Week 1 + async SLA      | QA Lead     |
+| RISK-406 (Schema migration)     | 6     | Whiteboard review + rules emulator test    | Stream D    |
+| RISK-407 (CAPA evidence gaps)   | 6     | Weekly tracker + evidence template         | Stream A    |
+| RISK-411 (Gemini drift)         | 6     | Confidence threshold 0.85 + monthly audit  | Stream C    |
+| RISK-416 (Multi-lab pressure)   | 6     | Stakeholder memo (Week 1) + sales playbook | CTO + Sales |
 
 **Weekly Risk Review Schedule:** Monday 09:30 BRT (starting 2026-05-13)
 
@@ -163,16 +165,17 @@ All 15 core REQs verified for:
 
 ### Phase Transition Status
 
-| Phase | Status | Dates | Unblock Gate |
-|-------|--------|-------|--------------|
-| **Phase 0** (RDC Blockers) | ✅ COMPLETE | 2026-05-07 | Phase 1 gate REACHED ✅ |
-| **Phase 1** (v1.3 Stab + Reqs) | ✅ COMPLETE | 2026-05-07 | Phase 2 gate REACHED ✅ |
-| **Phase 2** (Planning Deep-Dive) | ⏳ READY | 2026-05-08→10 | Phase 3 gate (schema prep) |
-| **Phase 3** (Schema Extensions) | ⏳ READY | 2026-05-13 | Wave 2 gate (CAPA + Portal) |
+| Phase                            | Status      | Dates         | Unblock Gate                |
+| -------------------------------- | ----------- | ------------- | --------------------------- |
+| **Phase 0** (RDC Blockers)       | ✅ COMPLETE | 2026-05-07    | Phase 1 gate REACHED ✅     |
+| **Phase 1** (v1.3 Stab + Reqs)   | ✅ COMPLETE | 2026-05-07    | Phase 2 gate REACHED ✅     |
+| **Phase 2** (Planning Deep-Dive) | ⏳ READY    | 2026-05-08→10 | Phase 3 gate (schema prep)  |
+| **Phase 3** (Schema Extensions)  | ⏳ READY    | 2026-05-13    | Wave 2 gate (CAPA + Portal) |
 
 ### STATE.md Updates
 
 **Before Phase 1:**
+
 ```yaml
 status: planning
 progress:
@@ -180,6 +183,7 @@ progress:
 ```
 
 **After Phase 1:**
+
 ```yaml
 status: executing
 progress:
@@ -192,6 +196,7 @@ progress:
 ### Roadmap Validation
 
 ✅ **ROADMAP.md (v1.0):**
+
 - 15 phases (Phases 1–15)
 - 4 waves (Weeks 1–22)
 - 48 core requirements
@@ -199,12 +204,14 @@ progress:
 - Critical path: REQ-402 (SGD) → REQ-403 (Personnel)
 
 ✅ **REQUIREMENTS.md (v1.0):**
+
 - 15 core (REQ-401–416)
 - 4 technical debt (TD-401–404)
 - 7 v2 features (REQ-501–507, deferred)
 - Acceptance criteria 100% complete
 
 ✅ **RISK-REGISTER.md (v1.0):**
+
 - 19 risks (RISK-401–419)
 - Escalation matrix defined
 - Weekly review schedule established
@@ -217,13 +224,13 @@ progress:
 
 ### Artifacts Delivered (4 main documents)
 
-| Artifact | Lines | Review | Sign-Off |
-|----------|-------|--------|----------|
-| 01-BASELINE-SMOKE-REPORT.md | 2,847 | ✅ QA Lead | ✅ PASS |
-| v1.4-REQUIREMENTS-VERIFIED.md | 3,214 | ✅ CTO | ✅ VERIFIED |
-| v1.4-RISK-MITIGATION-MATRIX.md | 2,684 | ✅ Risk Owner | ✅ MITIGATED |
-| STATE.md (updated) | +45 lines | ✅ CTO | ✅ LOCKED |
-| **Total** | **8,790** | — | **✅ COMPLETE** |
+| Artifact                       | Lines     | Review        | Sign-Off        |
+| ------------------------------ | --------- | ------------- | --------------- |
+| 01-BASELINE-SMOKE-REPORT.md    | 2,847     | ✅ QA Lead    | ✅ PASS         |
+| v1.4-REQUIREMENTS-VERIFIED.md  | 3,214     | ✅ CTO        | ✅ VERIFIED     |
+| v1.4-RISK-MITIGATION-MATRIX.md | 2,684     | ✅ Risk Owner | ✅ MITIGATED    |
+| STATE.md (updated)             | +45 lines | ✅ CTO        | ✅ LOCKED       |
+| **Total**                      | **8,790** | —             | **✅ COMPLETE** |
 
 ### Git Commit
 
@@ -244,16 +251,16 @@ dd0dd49 docs(phase-0): Cloud Logs health check — production baseline verified
 
 ## Execution Metrics
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| **Delivery time** | 8 hours | 1 day | ✅ On-time |
-| **Parallel task completion** | 4/4 | 4/4 | ✅ 100% |
-| **Smoke tests passed** | 4/4 | 4/4 | ✅ 100% |
-| **Requirements verified** | 26/26 | 26/26 | ✅ 100% |
-| **Risks mitigated** | 5/5 | 5/5 | ✅ 100% |
-| **Phase 2 unblocked** | Yes | Yes | ✅ YES |
-| **Code review blocks** | 0 | 0 | ✅ None |
-| **Regressions** | 0 | 0 | ✅ None |
+| Metric                       | Value   | Target | Status     |
+| ---------------------------- | ------- | ------ | ---------- |
+| **Delivery time**            | 8 hours | 1 day  | ✅ On-time |
+| **Parallel task completion** | 4/4     | 4/4    | ✅ 100%    |
+| **Smoke tests passed**       | 4/4     | 4/4    | ✅ 100%    |
+| **Requirements verified**    | 26/26   | 26/26  | ✅ 100%    |
+| **Risks mitigated**          | 5/5     | 5/5    | ✅ 100%    |
+| **Phase 2 unblocked**        | Yes     | Yes    | ✅ YES     |
+| **Code review blocks**       | 0       | 0      | ✅ None    |
+| **Regressions**              | 0       | 0      | ✅ None    |
 
 ---
 
@@ -269,36 +276,36 @@ dd0dd49 docs(phase-0): Cloud Logs health check — production baseline verified
 
 ### Risks Eliminated
 
-| Risk | Pre-Phase-0 | Post-Phase-0 | Action |
-|------|------------|--------------|--------|
-| v1.3 production instability | 6 🟡 | 1 🟢 | Smoke tests PASS, cloud logs clean |
-| REQ↔Phase inconsistency | 9 🔴 | 2 🟢 | Matrix locked, auditor preview ready |
-| 4 RDC blockers unscheduled | 9 🔴 | 1 🟢 | All 4 Phase 0 items deployed |
+| Risk                        | Pre-Phase-0 | Post-Phase-0 | Action                               |
+| --------------------------- | ----------- | ------------ | ------------------------------------ |
+| v1.3 production instability | 6 🟡        | 1 🟢         | Smoke tests PASS, cloud logs clean   |
+| REQ↔Phase inconsistency     | 9 🔴        | 2 🟢         | Matrix locked, auditor preview ready |
+| 4 RDC blockers unscheduled  | 9 🔴        | 1 🟢         | All 4 Phase 0 items deployed         |
 
 ### Outstanding Action Items (Non-Blocking)
 
-| Action | Owner | Due | Priority |
-|--------|-------|-----|----------|
-| v1.4-DICQ-COVERAGE-MATRIX.md | QA Lead | 2026-05-10 | P2 |
-| v1.4-STREAM-ALLOCATION.md | CTO | 2026-05-10 | P2 |
-| Stakeholder memo (multi-tenant deferral) | CTO + Sales | 2026-05-10 | P2 |
-| Sales playbook ("v1.5 ETA Q1 2027") | Sales Lead | 2026-05-10 | P2 |
-| Auditor pre-alignment call | QA Lead | 2026-05-13 | P1 |
-| Phase 2 Planning Deep-Dive kickoff | CTO | 2026-05-08 | P1 |
+| Action                                   | Owner       | Due        | Priority |
+| ---------------------------------------- | ----------- | ---------- | -------- |
+| v1.4-DICQ-COVERAGE-MATRIX.md             | QA Lead     | 2026-05-10 | P2       |
+| v1.4-STREAM-ALLOCATION.md                | CTO         | 2026-05-10 | P2       |
+| Stakeholder memo (multi-tenant deferral) | CTO + Sales | 2026-05-10 | P2       |
+| Sales playbook ("v1.5 ETA Q1 2027")      | Sales Lead  | 2026-05-10 | P2       |
+| Auditor pre-alignment call               | QA Lead     | 2026-05-13 | P1       |
+| Phase 2 Planning Deep-Dive kickoff       | CTO         | 2026-05-08 | P1       |
 
 ---
 
 ## Phase 2 Readiness Assessment
 
-| Gate | Criterion | Status |
-|------|-----------|--------|
-| **Requirements locked** | All 16 reqs verified, zero ambiguities | ✅ PASS |
-| **Phase assignments confirmed** | ROADMAP phases 1–15 locked | ✅ PASS |
-| **Risk register active** | 19 risks mapped, top-5 mitigated | ✅ PASS |
-| **Baseline metrics captured** | v1.3 production stable (738 tests, 0 errors) | ✅ PASS |
-| **Team alignment** | All 4 stream leads briefed on critical path | ✅ PASS |
-| **Compliance mapping complete** | DICQ 27/40 blocks, RDC 978 10/10 articles | ✅ PASS |
-| **Auditor engagement plan** | Pre-alignment call scheduled, RFI SLA drafted | ✅ PASS |
+| Gate                            | Criterion                                     | Status  |
+| ------------------------------- | --------------------------------------------- | ------- |
+| **Requirements locked**         | All 16 reqs verified, zero ambiguities        | ✅ PASS |
+| **Phase assignments confirmed** | ROADMAP phases 1–15 locked                    | ✅ PASS |
+| **Risk register active**        | 19 risks mapped, top-5 mitigated              | ✅ PASS |
+| **Baseline metrics captured**   | v1.3 production stable (738 tests, 0 errors)  | ✅ PASS |
+| **Team alignment**              | All 4 stream leads briefed on critical path   | ✅ PASS |
+| **Compliance mapping complete** | DICQ 27/40 blocks, RDC 978 10/10 articles     | ✅ PASS |
+| **Auditor engagement plan**     | Pre-alignment call scheduled, RFI SLA drafted | ✅ PASS |
 
 **Overall Phase 1 Gate Status:** ✅ **PASS — PHASE 2 UNBLOCKED**
 
@@ -309,6 +316,7 @@ dd0dd49 docs(phase-0): Cloud Logs health check — production baseline verified
 **Phase 2: v1.4 Planning & Requirements Deep-Dive** (2026-05-08 → 2026-05-10)
 
 **Deliverables:**
+
 1. v1.4-DEPENDENCY-MATRIX.md (DAG of phases + blockers + critical path)
 2. v1.4-COMPLIANCE-GAP-ANALYSIS.md (block-by-block DICQ + article-by-article RDC)
 3. Auditor pre-alignment call (written confirmation of timeline + sign-off plan)
@@ -322,12 +330,12 @@ dd0dd49 docs(phase-0): Cloud Logs health check — production baseline verified
 
 ## Sign-Off
 
-| Role | Name | Date | Time | Status |
-|------|------|------|------|--------|
-| **QA Lead** | — | 2026-05-07 | 17:00 BRT | ✅ Smoke tests PASS |
-| **CTO** | drogafarto | 2026-05-07 | 19:00 BRT | ✅ Phase 1 COMPLETE |
-| **DevOps** | Stream D | 2026-05-07 | 19:00 BRT | ✅ Monitoring active |
-| **Compliance** | QA Lead | 2026-05-07 | 19:00 BRT | ✅ RDC 978 100% covered |
+| Role           | Name       | Date       | Time      | Status                  |
+| -------------- | ---------- | ---------- | --------- | ----------------------- |
+| **QA Lead**    | —          | 2026-05-07 | 17:00 BRT | ✅ Smoke tests PASS     |
+| **CTO**        | drogafarto | 2026-05-07 | 19:00 BRT | ✅ Phase 1 COMPLETE     |
+| **DevOps**     | Stream D   | 2026-05-07 | 19:00 BRT | ✅ Monitoring active    |
+| **Compliance** | QA Lead    | 2026-05-07 | 19:00 BRT | ✅ RDC 978 100% covered |
 
 **v1.4 Phase 1 Execution:** ✅ **APPROVED FOR PHASE 2 KICKOFF (2026-05-08)**
 

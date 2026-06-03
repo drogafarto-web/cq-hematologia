@@ -188,9 +188,7 @@ export function ManualEventModal({
                 autoComplete="off"
                 placeholder={suggested ? `Sugestão: ${suggested}` : 'ex: 0107092'}
                 value={examCode}
-                onChange={(e) =>
-                  setExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))
-                }
+                onChange={(e) => setExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 className="w-full h-10 px-3 font-mono text-sm bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
               />
               {suggested && !examCode && (

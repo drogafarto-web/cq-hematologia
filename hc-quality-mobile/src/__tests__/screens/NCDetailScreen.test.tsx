@@ -29,16 +29,25 @@ mockOnSnapshot.mockImplementation((_q: unknown, onNext: (s: any) => void) => {
 });
 
 jest.mock('firebase/firestore', () => ({
-  collection: (...args: any[]) => { mockCollection(...args); return {}; },
+  collection: (...args: any[]) => {
+    mockCollection(...args);
+    return {};
+  },
   query: jest.fn(() => ({})),
-  where: (...args: any[]) => { mockWhere(...args); return {}; },
-  orderBy: (...args: any[]) => { mockOrderBy(...args); return {}; },
+  where: (...args: any[]) => {
+    mockWhere(...args);
+    return {};
+  },
+  orderBy: (...args: any[]) => {
+    mockOrderBy(...args);
+    return {};
+  },
   onSnapshot: (q: any, onNext: any) => mockOnSnapshot(q, onNext),
 }));
 
 jest.mock('../../store/useAuthStore', () => ({
   useAuthStore: jest.fn((selector: (s: any) => any) =>
-    selector({ user: { uid: 'user-1' }, activeLabId: 'lab-1', loading: false })
+    selector({ user: { uid: 'user-1' }, activeLabId: 'lab-1', loading: false }),
   ),
 }));
 
@@ -135,11 +144,11 @@ describe('offline queue behavior', () => {
       justification: 'Cause identified',
     });
 
-    expect(offlineQueueService.enqueueAction).toHaveBeenCalledWith(
-      'updateNCStatus',
-      'lab-1',
-      { ncId: 'nc-1', status: 'investigating', justification: 'Cause identified' }
-    );
+    expect(offlineQueueService.enqueueAction).toHaveBeenCalledWith('updateNCStatus', 'lab-1', {
+      ncId: 'nc-1',
+      status: 'investigating',
+      justification: 'Cause identified',
+    });
   });
 
   it('enqueues submitCIQComment action on network failure', async () => {
@@ -148,11 +157,10 @@ describe('offline queue behavior', () => {
       comments: 'Test comment',
     });
 
-    expect(offlineQueueService.enqueueAction).toHaveBeenCalledWith(
-      'submitCIQComment',
-      'lab-1',
-      { runId: 'run-1', comments: 'Test comment' }
-    );
+    expect(offlineQueueService.enqueueAction).toHaveBeenCalledWith('submitCIQComment', 'lab-1', {
+      runId: 'run-1',
+      comments: 'Test comment',
+    });
   });
 
   it('marks retry on repeated failure', async () => {

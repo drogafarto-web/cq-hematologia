@@ -58,100 +58,97 @@ interface NotaConformidadeDraft {
 export const criarNCDraft = onDocumentCreated(
   'labs/{labId}/reclamacoes/{reclamacaoId}',
   async (event: any) => {
-      const labId = event.params.labId;
-      const reclamacaoId = event.params.reclamacaoId;
+    const labId = event.params.labId;
+    const reclamacaoId = event.params.reclamacaoId;
 
-      if (!event.data) {
-        console.log(
-          `[criarNCDraft] No data in event for ${labId}/${reclamacaoId}`
-        );
-        return;
-      }
-
-      const reclamacao = event.data.data() as ReclamacaoCreatedData;
-
-      console.log(
-        `[criarNCDraft] Processing complaint ${reclamacaoId} in lab ${labId}`
-      );
-      console.log(`  Severity: ${reclamacao.classificacao.severidade}`);
-      console.log(`  Description length: ${reclamacao.descricao.length}`);
-
-      // Check if should trigger NC creation
-      const shouldCreate = shouldTriggerNCAutocreate(
-        reclamacao.classificacao.severidade,
-        reclamacao.descricao
-      );
-
-      if (!shouldCreate) {
-        console.log(
-          `[criarNCDraft] Criteria not met (severity=${reclamacao.classificacao.severidade}, len=${reclamacao.descricao.length}). Skipping NC creation.`
-        );
-        return;
-      }
-
-      try {
-        const db = admin.firestore();
-
-        // Generate unique NC ID
-        const ncId = uuidv4();
-
-        // Build NC draft
-        const ncDraft: NotaConformidadeDraft = {
-          id: ncId,
-          labId,
-          status: 'draft',
-          severidade: reclamacao.classificacao.severidade,
-          tipo: reclamacao.classificacao.tipo,
-          descricao: `Nota de Não-Conformidade criada automaticamente a partir de reclamação: ${reclamacao.descricao}`,
-          areaResponsavel: reclamacao.classificacao.areaResponsavel,
-          reclamacaoId,
-          criadaEm: admin.firestore.Timestamp.now(),
-          signature: {
-            hash: 'placeholder_will_be_filled_by_rules', // Rules will validate
-            operatorId: 'SYSTEM_RECLAMACAO_TRIGGER',
-            ts: admin.firestore.Timestamp.now(),
-          },
-        };
-
-        // Batch write: create NC + update complaint
-        const batch = db.batch();
-
-        // Create NC draft
-        const ncRef = db.collection('labs').doc(labId).collection('naoconformidades').doc(ncId);
-        batch.set(ncRef, ncDraft);
-
-        // Update complaint with NC reference
-        const reclamacaoRef = db.collection('labs').doc(labId).collection('reclamacoes').doc(reclamacaoId);
-        batch.update(reclamacaoRef, {
-          ncId,
-          ncStatus: 'draft',
-        });
-
-        // Log audit entry
-        const auditRef = db.collection('labs').doc(labId).collection('auditLogs').doc(
-          `NC_AUTO_TRIGGER_${Date.now()}_${Math.random()}`
-        );
-        batch.set(auditRef, {
-          acao: 'nc-autocreate',
-          reclamacaoId,
-          ncId,
-          operadoPor: 'SYSTEM_RECLAMACAO_TRIGGER',
-          descricao: `NC draft criada automaticamente de reclamação severity alta`,
-          em: admin.firestore.Timestamp.now(),
-        });
-
-        // Commit batch
-        await batch.commit();
-
-        console.log(
-          `[criarNCDraft] SUCCESS: NC draft ${ncId} created for complaint ${reclamacaoId}`
-        );
-      } catch (error) {
-        console.error(
-          `[criarNCDraft] ERROR creating NC for complaint ${reclamacaoId}:`,
-          error
-        );
-        throw error; // re-throw so Firebase logs the error
-      }
+    if (!event.data) {
+      console.log(`[criarNCDraft] No data in event for ${labId}/${reclamacaoId}`);
+      return;
     }
+
+    const reclamacao = event.data.data() as ReclamacaoCreatedData;
+
+    console.log(`[criarNCDraft] Processing complaint ${reclamacaoId} in lab ${labId}`);
+    console.log(`  Severity: ${reclamacao.classificacao.severidade}`);
+    console.log(`  Description length: ${reclamacao.descricao.length}`);
+
+    // Check if should trigger NC creation
+    const shouldCreate = shouldTriggerNCAutocreate(
+      reclamacao.classificacao.severidade,
+      reclamacao.descricao,
+    );
+
+    if (!shouldCreate) {
+      console.log(
+        `[criarNCDraft] Criteria not met (severity=${reclamacao.classificacao.severidade}, len=${reclamacao.descricao.length}). Skipping NC creation.`,
+      );
+      return;
+    }
+
+    try {
+      const db = admin.firestore();
+
+      // Generate unique NC ID
+      const ncId = uuidv4();
+
+      // Build NC draft
+      const ncDraft: NotaConformidadeDraft = {
+        id: ncId,
+        labId,
+        status: 'draft',
+        severidade: reclamacao.classificacao.severidade,
+        tipo: reclamacao.classificacao.tipo,
+        descricao: `Nota de Não-Conformidade criada automaticamente a partir de reclamação: ${reclamacao.descricao}`,
+        areaResponsavel: reclamacao.classificacao.areaResponsavel,
+        reclamacaoId,
+        criadaEm: admin.firestore.Timestamp.now(),
+        signature: {
+          hash: 'placeholder_will_be_filled_by_rules', // Rules will validate
+          operatorId: 'SYSTEM_RECLAMACAO_TRIGGER',
+          ts: admin.firestore.Timestamp.now(),
+        },
+      };
+
+      // Batch write: create NC + update complaint
+      const batch = db.batch();
+
+      // Create NC draft
+      const ncRef = db.collection('labs').doc(labId).collection('naoconformidades').doc(ncId);
+      batch.set(ncRef, ncDraft);
+
+      // Update complaint with NC reference
+      const reclamacaoRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('reclamacoes')
+        .doc(reclamacaoId);
+      batch.update(reclamacaoRef, {
+        ncId,
+        ncStatus: 'draft',
+      });
+
+      // Log audit entry
+      const auditRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditLogs')
+        .doc(`NC_AUTO_TRIGGER_${Date.now()}_${Math.random()}`);
+      batch.set(auditRef, {
+        acao: 'nc-autocreate',
+        reclamacaoId,
+        ncId,
+        operadoPor: 'SYSTEM_RECLAMACAO_TRIGGER',
+        descricao: `NC draft criada automaticamente de reclamação severity alta`,
+        em: admin.firestore.Timestamp.now(),
+      });
+
+      // Commit batch
+      await batch.commit();
+
+      console.log(`[criarNCDraft] SUCCESS: NC draft ${ncId} created for complaint ${reclamacaoId}`);
+    } catch (error) {
+      console.error(`[criarNCDraft] ERROR creating NC for complaint ${reclamacaoId}:`, error);
+      throw error; // re-throw so Firebase logs the error
+    }
+  },
 );

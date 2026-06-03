@@ -515,12 +515,14 @@ loadTestData();
 After loading test data, verify with these queries:
 
 ### Portal Configuracao
+
 ```
 collection: labs/TEST-LAB-001/portal-configuracao
 Expected: 2 documents (branding-v1, branding-v2)
 ```
 
 ### NOTIVISA Events
+
 ```
 collection: labs/TEST-LAB-001/notivisa-outbox/events
 where: status in [PENDING, SENT, FAILED, DELIVERED]
@@ -528,6 +530,7 @@ Expected: 4 documents
 ```
 
 ### Críticos Escalacoes
+
 ```
 collection: labs/TEST-LAB-001/criticos-escalacoes/escalacoes
 orderBy: createdAt DESC
@@ -535,6 +538,7 @@ Expected: 3 documents
 ```
 
 ### Imuno IAS Dev
+
 ```
 collection: labs/TEST-LAB-001/imuno-ias-dev/images
 where: batch_id == "BATCH-2026-MAY-RETRAIN"
@@ -542,6 +546,7 @@ Expected: 2 documents
 ```
 
 ### Laudos Draft
+
 ```
 collection: labs/TEST-LAB-001/laudos-draft/rascunhos
 where: status == "EDITING"

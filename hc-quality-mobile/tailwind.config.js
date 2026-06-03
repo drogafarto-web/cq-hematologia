@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    './App.{js,jsx,ts,tsx}',
-    './src/**/*.{js,jsx,ts,tsx}',
-  ],
+  content: ['./App.{js,jsx,ts,tsx}', './src/**/*.{js,jsx,ts,tsx}'],
 
   // Nativewind v4 uses 'class' strategy: darkMode is toggled via 'dark' className
   // on the root view or via system color scheme (useColorScheme)
@@ -23,10 +20,10 @@ module.exports = {
           mutedAA: '#b3b3b3',
           // Accent palette
           accent: {
-            violet: '#6366f1',  // primary CTA, violet-500
+            violet: '#6366f1', // primary CTA, violet-500
             emerald: '#10b981', // success / sign, emerald-500
-            amber: '#f59e0b',   // pending / warning, amber-500
-            red: '#ef4444',     // error / invalid / urgent, red-500
+            amber: '#f59e0b', // pending / warning, amber-500
+            red: '#ef4444', // error / invalid / urgent, red-500
           },
         },
         // Re-export core semantic aliases for ergonomic Nativewind usage
@@ -78,12 +75,7 @@ module.exports = {
           'Arial',
           'sans-serif',
         ],
-        mono: [
-          'Menlo',
-          'Monaco',
-          'Courier New',
-          'monospace',
-        ],
+        mono: ['Menlo', 'Monaco', 'Courier New', 'monospace'],
       },
     },
   },

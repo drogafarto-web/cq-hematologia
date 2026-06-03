@@ -3,7 +3,7 @@
 **Document Version:** 1.0  
 **Date:** 2026-05-07  
 **Status:** Ready for deployment  
-**Owner:** DevOps / Observability  
+**Owner:** DevOps / Observability
 
 ---
 
@@ -30,16 +30,19 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 **Measurement Window:** 30-day rolling calendar month
 
 **Metrics:**
+
 - `firebase.uptime` — Firestore + Auth service health (from Firebase status page)
 - `hosting.uptime` — Cloud Hosting (hmatologia2.web.app) HTTP 200 responses
 - `functions.uptime` — Cloud Functions (all regions) execution success rate
 
 **Alert Thresholds:**
+
 - YELLOW (70% budget consumed): <99.65% in rolling 7 days
 - ORANGE (80% budget consumed): <99.58% in rolling 7 days
 - RED (90% budget consumed): <99.51% in rolling 7 days
 
 **Acceptable Downtime Sources:**
+
 - Planned maintenance (weekly Friday 02:00–03:00 UTC via Cloud Scheduler)
 - GCP regional incidents (excluded from SLO post-incident review)
 
@@ -51,15 +54,18 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 **Monthly Budget:** 1.5% of requests can exceed 3s (75,000 out of 5M requests/month)
 
 **Metrics:**
+
 - `cloud_function_duration_ms` — per module (analyzer, coagulacao, ciq-imuno, etc.)
 - `http_response_time_ms` — Hosting responses (hosting.googleapis.com)
 - `firestore_read_latency_ms` — Firestore document reads
 
 **Alert Thresholds:**
+
 - YELLOW: P99 latency 2.5s (15-min sustained)
 - RED: P99 latency >3.0s (5-min sustained) + >1% error rate
 
 **Excluded (not SLO):**
+
 - First cold-start after function update (expected, monitored separately)
 - Requests during GCP quota throttling (logged as `RESOURCE_EXHAUSTED`)
 
@@ -71,17 +77,20 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 **Monthly Budget:** ~50,000 errors allowed in 5M requests/month
 
 **Metrics:**
+
 - HTTP 5xx responses (500, 502, 503, 504)
 - Uncaught exceptions in Cloud Functions
 - Firestore `PERMISSION_DENIED` + `INTERNAL` errors
 - Client-side JavaScript errors (RUM)
 
 **Error Categories:**
+
 - **Unrecoverable:** `INTERNAL`, `UNAVAILABLE`, `DEADLINE_EXCEEDED` → SLO violates immediately
 - **Recoverable:** Transient network errors (client retries) → counted only if final attempt fails
 - **Excluded:** `PERMISSION_DENIED` after v1.3 (rules are permissive during implantação; will tighten Phase 4)
 
 **Alert Thresholds:**
+
 - YELLOW: >0.05% daily rate (500 errors/day in 5M requests)
 - RED: >0.1% sustained 30 min (1,000 errors)
 
@@ -93,12 +102,14 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 **Monthly Budget:** Zero missed events (0% tolerance)
 
 **Metrics:**
+
 - `audit_trail_capture_rate` — (events in audit collection) / (expected writes)
 - `audit_trail_lag_p99` — write→audit latency, P99 <500ms
 
 **Expected Writes per Month:** ~50,000 (CIQ runs, DICQ docs, training records, risk assessments)
 
 **Audit-Relevant Operations:**
+
 - CIQ run creation / approval / invalidation
 - Documento da Qualidade edits / signature
 - POP certification / training assignment
@@ -106,6 +117,7 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 - User access grant / revocation
 
 **Alert Thresholds:**
+
 - RED: <100% capture (any missed event) → immediate investigation
 - YELLOW: P99 lag >500ms (5 min window)
 
@@ -129,6 +141,7 @@ SLO (Service Level Objective) tracking provides continuous visibility into HC Qu
 8. Click **Save**
 
 **Dashboard Contents:**
+
 - SLO burndown chart (error budget remaining by day)
 - Uptime timeline (green/yellow/red by service)
 - P99 latency trend (7-day moving average per module)
@@ -257,6 +270,7 @@ The capture rate = `audit_trail_events_captured / audit_trail_expected_writes`. 
 10. **Click Create**
 
 This will trigger a server-side Cloud Function that:
+
 - Queries last 7 days of SLO metrics
 - Generates JSON report
 - Sends to Slack #compliance
@@ -265,6 +279,7 @@ This will trigger a server-side Cloud Function that:
 **Manual Alternative (no Cloud Scheduler):**
 
 Weekly on Monday morning, an engineer navigates to the SLO Tracking Dashboard and:
+
 1. Checks all 4 SLO cards (green/yellow/red)
 2. Takes a screenshot
 3. Compares to previous week (trending up or down?)
@@ -297,12 +312,12 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## 1. Availability (Target: 99.5% = 4.32 hours budget)
 
-| Service | Uptime | Status | Notes |
-|---------|--------|--------|-------|
-| Firebase (Firestore) | 99.98% | PASS | — |
-| Cloud Hosting | 99.97% | PASS | — |
-| Cloud Functions | 99.89% | PASS | 1 incident (2026-05-14, 45 min, GCP regional outage) |
-| **Composite** | **99.94%** | **PASS** | Budget: 3.2h used, 1.1h remaining |
+| Service              | Uptime     | Status   | Notes                                                |
+| -------------------- | ---------- | -------- | ---------------------------------------------------- |
+| Firebase (Firestore) | 99.98%     | PASS     | —                                                    |
+| Cloud Hosting        | 99.97%     | PASS     | —                                                    |
+| Cloud Functions      | 99.89%     | PASS     | 1 incident (2026-05-14, 45 min, GCP regional outage) |
+| **Composite**        | **99.94%** | **PASS** | Budget: 3.2h used, 1.1h remaining                    |
 
 **Incidents:** GCP southamerica-east1 maintenance window (planned, May 14 02:00–02:45). No SLO credit required.
 
@@ -312,13 +327,13 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## 2. Performance (Target: P99 <3s, budget 1.5% requests)
 
-| Module | P99 Latency | Budget Used | Status |
-|--------|------------|-------------|--------|
-| analyzer | 1,240ms | 0% | PASS |
-| coagulacao | 892ms | 0% | PASS |
-| ciq-imuno | 756ms | 0% | PASS |
-| ... (25 more modules) | — | — | — |
-| **Composite P99** | **2,145ms** | **<0.1%** | **PASS** |
+| Module                | P99 Latency | Budget Used | Status   |
+| --------------------- | ----------- | ----------- | -------- |
+| analyzer              | 1,240ms     | 0%          | PASS     |
+| coagulacao            | 892ms       | 0%          | PASS     |
+| ciq-imuno             | 756ms       | 0%          | PASS     |
+| ... (25 more modules) | —           | —           | —        |
+| **Composite P99**     | **2,145ms** | **<0.1%**   | **PASS** |
 
 **7-day avg:** 2,089ms (trending stable)  
 **Peak:** 2,856ms (May 23, 11:00 UTC, analyzer OCR spike—expected during load test)
@@ -329,16 +344,17 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## 3. Error Rate (Target: <0.1%, budget ~50k errors/month in 5M requests)
 
-| Category | Count | Rate | Status |
-|----------|-------|------|--------|
-| HTTP 5xx | 127 | 0.00254% | PASS |
-| Uncaught JS exceptions | 34 | 0.00068% | PASS |
-| Firestore INTERNAL errors | 8 | 0.00016% | PASS |
-| **Total** | **169** | **0.00338%** | **PASS** |
+| Category                  | Count   | Rate         | Status   |
+| ------------------------- | ------- | ------------ | -------- |
+| HTTP 5xx                  | 127     | 0.00254%     | PASS     |
+| Uncaught JS exceptions    | 34      | 0.00068%     | PASS     |
+| Firestore INTERNAL errors | 8       | 0.00016%     | PASS     |
+| **Total**                 | **169** | **0.00338%** | **PASS** |
 
 **Errors analyzed:** 0 sev-1, 5 sev-2 (retry succeeded), 164 sev-3 (transient)
 
 **Root causes:**
+
 - 89 errors: OCR timeout (Gemini Vision API rate limit, auto-backoff working)
 - 50 errors: Transient Firebase auth token refresh
 - 30 errors: Client-side network timeouts (user's ISP)
@@ -349,12 +365,12 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## 4. Compliance: Audit Trail (Target: 100% capture, 0 tolerance)
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Expected writes (CIQ/DICQ/POP/training) | 47,293 | — |
-| Audit events captured | 47,293 | MATCH |
-| Capture rate | 100.0% | PASS |
-| P99 lag (write→audit) | 142ms | <500ms target ✓ |
+| Metric                                  | Value  | Status          |
+| --------------------------------------- | ------ | --------------- |
+| Expected writes (CIQ/DICQ/POP/training) | 47,293 | —               |
+| Audit events captured                   | 47,293 | MATCH           |
+| Capture rate                            | 100.0% | PASS            |
+| P99 lag (write→audit)                   | 142ms  | <500ms target ✓ |
 
 **Missed events:** 0  
 **Lag outliers:** 3 events >500ms (all during 2026-05-13 function cold-start; acceptable)
@@ -365,12 +381,12 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## Summary
 
-| SLO | Target | Achieved | Status |
-|-----|--------|----------|--------|
-| Availability | 99.5% | 99.94% | ✅ |
-| Performance P99 | <3s | 2.145s | ✅ |
-| Error Rate | <0.1% | 0.00338% | ✅ |
-| Audit Trail | 100% | 100.0% | ✅ |
+| SLO             | Target | Achieved | Status |
+| --------------- | ------ | -------- | ------ |
+| Availability    | 99.5%  | 99.94%   | ✅     |
+| Performance P99 | <3s    | 2.145s   | ✅     |
+| Error Rate      | <0.1%  | 0.00338% | ✅     |
+| Audit Trail     | 100%   | 100.0%   | ✅     |
 
 **Overall Status:** ✅ **EXCELLENT**
 
@@ -390,10 +406,10 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## Alerts Fired
 
-| Alert | Date | Duration | Resolution |
-|-------|------|----------|-----------|
-| Availability <99.65% (70%) | 2026-05-14 02:00 | 45 min | GCP incident, auto-resolved |
-| Latency P99 >2.5s | 2026-05-23 11:15 | 8 min | analyzer module OCR load test (expected), manual check passed |
+| Alert                      | Date             | Duration | Resolution                                                    |
+| -------------------------- | ---------------- | -------- | ------------------------------------------------------------- |
+| Availability <99.65% (70%) | 2026-05-14 02:00 | 45 min   | GCP incident, auto-resolved                                   |
+| Latency P99 >2.5s          | 2026-05-23 11:15 | 8 min    | analyzer module OCR load test (expected), manual check passed |
 
 **Total alert fatigue:** 2 events in 31 days = healthy (no false positives)
 
@@ -410,9 +426,9 @@ Save as `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` and fill monthly:
 
 ## Sign-Off
 
-- **DevOps Lead:** ____________ Date: _______
-- **CTO Review:** ____________ Date: _______
-- **Auditor Acknowledgment:** ____________ Date: _______
+- **DevOps Lead:** ****\_\_\_\_**** Date: **\_\_\_**
+- **CTO Review:** ****\_\_\_\_**** Date: **\_\_\_**
+- **Auditor Acknowledgment:** ****\_\_\_\_**** Date: **\_\_\_**
 
 Next Review: 2026-06-30
 ```
@@ -437,14 +453,15 @@ The dashboard JSON is pre-built (see separate artifact `SLO_TRACKING_DASHBOARD.j
 
 **Severity Levels:**
 
-| Severity | SLO Impact | Alert Channel | Response SLA |
-|----------|------------|----------------|--------------|
-| **Critical (Red)** | Immediate SLO violation | PagerDuty + Slack #sev-1 | 15 min (page oncall) |
-| **High (Orange)** | 10% of budget consumed in 24h | Slack #observability + email | 1 hour (team review) |
-| **Medium (Yellow)** | 5% of budget consumed in 7 days | Slack #observability | Next business day |
-| **Info (Green)** | On track | Weekly Slack report | N/A |
+| Severity            | SLO Impact                      | Alert Channel                | Response SLA         |
+| ------------------- | ------------------------------- | ---------------------------- | -------------------- |
+| **Critical (Red)**  | Immediate SLO violation         | PagerDuty + Slack #sev-1     | 15 min (page oncall) |
+| **High (Orange)**   | 10% of budget consumed in 24h   | Slack #observability + email | 1 hour (team review) |
+| **Medium (Yellow)** | 5% of budget consumed in 7 days | Slack #observability         | Next business day    |
+| **Info (Green)**    | On track                        | Weekly Slack report          | N/A                  |
 
 **Escalation:**
+
 1. Alert fires → Slack notification (immediate)
 2. If Red (SLO violation): PagerDuty → page oncall engineer
 3. Oncall: 15 min to acknowledge + 30 min to open incident ticket

@@ -24,23 +24,27 @@
 ### Callable-Only Write Enforcement ✓ VERIFIED
 
 **Laudos (Phase 10)**:
+
 - `allow create: if false` — Only `criarLaudo` callable (liberacao/index.ts)
 - `allow update: if false` — Only `liberarLaudo` / `retificar` callables
 - State machine enforced: Pendente → Em Revisão → Liberado → Superado
 
 **Reclamações (Phase 11)**:
+
 - `allow create: if false` — Only `criarReclamacao` callable
 - Input validation via Zod (functions/src/modules/reclamacoes/criarReclamacao.ts)
 - LGPD consent capture mandatory
 - Rate limiting: 60/min per uid
 
 **Bioquímica (Phase 9)**:
+
 - `allow create: if false` — Only `seedBioquimicaDefaults` callable for analitos
 - Signature enforcement validated server-side
 
 ### LogicalSignature Validation ✓ VERIFIED
 
 **Ciq-Audit (line 162–171)**:
+
 ```
 function hasValidSignature(d) {
   return d.hmac is string && d.hmac.size() > 0 &&
@@ -49,30 +53,35 @@ function hasValidSignature(d) {
          d.operatorId == request.auth.uid;
 }
 ```
+
 - SHA-256 hash (64 hex chars) enforced
 - operatorId verified against `request.auth.uid`
 - Timestamp immutable during updates
 
 **Reclamações** (criarReclamacao.ts:344–355):
+
 - `generateLogicalSignature()` via SHA-256 on serialized payload
 - `computeChainHash()` for chain-of-custody
 - Both fields immutable after creation
 
 **Liberação** (validators.ts:145–152):
+
 - `SignaturePayloadSchema` enforces: hash (64 hex chars) + operatorId + timestamp
 - Zod `.strict()` rejects unknown keys
 
 ### LGPD Consent Fields ✓ VERIFIED
 
 **Reclamações** (criarReclamacao.ts:50–55):
+
 ```typescript
 consentimentoLgpd: {
-  aceito: boolean;           // Zod literal(true) — mandatory
+  aceito: boolean; // Zod literal(true) — mandatory
   em: admin.firestore.Timestamp;
-  ipAddress: string;         // Capped 45 chars (IPv6 + zone)
-  userAgent: string;         // Capped 1000 chars
+  ipAddress: string; // Capped 45 chars (IPv6 + zone)
+  userAgent: string; // Capped 1000 chars
 }
 ```
+
 - Zod validation: `aceito` must be `true` (line 118)
 - Length caps prevent injection
 - `.strict()` blocks unknown keys
@@ -85,6 +94,7 @@ consentimentoLgpd: {
 ### OAuth State Token CSRF ✓ NOT APPLICABLE
 
 **Finding**: No `oauthCallbackDrive` function found in codebase. Compliance assumption:
+
 - If Google Drive integration exists (Plan 12?), must validate OAuth state token in callback
 - Pattern: store random `state` in transient Firestore doc, verify on callback before exchanging code
 - Refer: `.claude/rules/firestore-security.md` for callable-only write pattern
@@ -92,6 +102,7 @@ consentimentoLgpd: {
 ### Rate Limiting ✓ VERIFIED
 
 **Implementation** (functions/src/shared/rateLimit.ts):
+
 - **Public endpoints**: 10/min per IP (fail-open on Firestore error)
 - **Authenticated callables**: 100/min per uid (configurable, e.g., 60/min for `criarReclamacao`)
 - **Storage**: Firestore `/_system/rate-limits/{bucketKey}`
@@ -99,12 +110,14 @@ consentimentoLgpd: {
 - **Logging**: Rate-limit hits logged to `/_system/rate-limits/hits`
 
 **Verified in**:
+
 - `criarReclamacao` (line 240–254): 60/min authenticated
 - Pattern deployable to all public-facing callables
 
 ### Zod Validator Bypass ✓ VERIFIED — No z.any() Bypass Found
 
 **Comprehensive scan result**:
+
 - `criarReclamacao.ts` (lines 97–144):
   - All object schemas use `.strict()`
   - `z.record(z.unknown())` forced explicit cast at call site (line 128)
@@ -126,11 +139,13 @@ consentimentoLgpd: {
 ### Debug Logging ✓ VERIFIED — v1.3 Modules Clean
 
 **Bioquímica Module**:
+
 - `lotService.ts:193`: `console.log('[TODO] Log lot switch...')` — **TODO comment, acceptable for in-progress work**
 - `NovaCorridaForm.tsx:94`: `console.log('TODO: recordRunBioquimica')` — **TODO, acceptable**
 - No secret leakage detected
 
 **Other modules scanned**: analytics, export, lgpd, auditoria-interna, reclamacoes, management-review
+
 - Contain `console.log()` in performance-tracing + web-vitals libraries (acceptable — monitoring)
 - No sensitive data in logs
 
@@ -139,6 +154,7 @@ consentimentoLgpd: {
 ### Hardcoded Secrets ✓ VERIFIED — None Found
 
 **Scan result**:
+
 - `firebase.config.ts`: Firebase public config (projectId, apiKey) — safe
 - `controle-temperatura` IoT module: No hardcoded API keys
 - `emailDelivery.ts` comment (line ~23): "Secrets are NEVER hardcoded" — acknowledged pattern
@@ -162,17 +178,17 @@ consentimentoLgpd: {
 
 ## 5. Deploy Readiness Checklist
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Rules deploy order (provisionModulesClaims first) | ✓ | No claim-provisioning pending for v1.3 |
-| Rate limiting on public callables | ✓ | criarReclamacao + seedBioquimicaDefaults protected |
-| Soft-delete enforcement | ✓ | 73 hard-delete blocks verified |
-| Signature validation (SHA-256) | ✓ | criarReclamacao + ciq-audit + liberacao |
-| LGPD consent capture | ✓ | Mandatory field + audit trail |
-| Zod strict validation | ✓ | No z.any() bypass detected |
-| No debug logging in v1.3 (prod-ready) | ~ | 2 TODO console.logs — acceptable for in-progress |
-| No hardcoded secrets | ✓ | All via process.env |
-| Auth + membership checks | ✓ | All callables validate request.auth + lab membership |
+| Item                                              | Status | Notes                                                |
+| ------------------------------------------------- | ------ | ---------------------------------------------------- |
+| Rules deploy order (provisionModulesClaims first) | ✓      | No claim-provisioning pending for v1.3               |
+| Rate limiting on public callables                 | ✓      | criarReclamacao + seedBioquimicaDefaults protected   |
+| Soft-delete enforcement                           | ✓      | 73 hard-delete blocks verified                       |
+| Signature validation (SHA-256)                    | ✓      | criarReclamacao + ciq-audit + liberacao              |
+| LGPD consent capture                              | ✓      | Mandatory field + audit trail                        |
+| Zod strict validation                             | ✓      | No z.any() bypass detected                           |
+| No debug logging in v1.3 (prod-ready)             | ~      | 2 TODO console.logs — acceptable for in-progress     |
+| No hardcoded secrets                              | ✓      | All via process.env                                  |
+| Auth + membership checks                          | ✓      | All callables validate request.auth + lab membership |
 
 ---
 
@@ -181,7 +197,8 @@ consentimentoLgpd: {
 ### GREEN — Production Ready
 
 **Rationale**:
-1. ✓ Firestore rules enforce all RN-* constraints (RN-06 soft-delete, RN-11 signature, RN-13 LGPD consent)
+
+1. ✓ Firestore rules enforce all RN-\* constraints (RN-06 soft-delete, RN-11 signature, RN-13 LGPD consent)
 2. ✓ All regulatory writes via callable-only pattern (Fase 0b)
 3. ✓ Rate limiting deployed on criarReclamacao; pattern ready for rollout to other public endpoints
 4. ✓ Multi-tenant isolation verified across all v1.3 modules

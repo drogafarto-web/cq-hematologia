@@ -77,7 +77,9 @@ function parseQuantFromText(text: string): QuantResult[] {
   const results: QuantResult[] = [];
   const lines = text.split('\n');
   for (const line of lines) {
-    const m = line.match(/([\d,]+)\s+([\d,]+)\s+(-?[\d,]+)\s+([\d,]+)\s+[\d,]+\s+\d+\s+\d+\s+([BAI])\s*$/);
+    const m = line.match(
+      /([\d,]+)\s+([\d,]+)\s+(-?[\d,]+)\s+([\d,]+)\s+[\d,]+\s+\d+\s+\d+\s+([BAI])\s*$/,
+    );
     if (!m) continue;
     const valorLab = parseFloat(m[1].replace(',', '.'));
     const media = parseFloat(m[2].replace(',', '.'));
@@ -88,9 +90,14 @@ function parseQuantFromText(text: string): QuantResult[] {
     const constituinte = extractConstituinte(prefix);
     if (!constituinte) continue;
     results.push({
-      type: 'quantitativo', constituinte,
-      metodo: extractMetodo(prefix), unidade: extractUnidade(prefix),
-      valorLab, media, dp, conceito,
+      type: 'quantitativo',
+      constituinte,
+      metodo: extractMetodo(prefix),
+      unidade: extractUnidade(prefix),
+      valorLab,
+      media,
+      dp,
+      conceito,
     });
   }
   return results;
@@ -98,10 +105,21 @@ function parseQuantFromText(text: string): QuantResult[] {
 
 function extractConstituinte(prefix: string): string {
   const known = [
-    'LEUCOCITOS', 'HEMACIAS', 'HEMOGLOBINA', 'HEMATOCRITO',
-    'VGM', 'HGM', 'CHGM', 'RDW', 'PLAQUETAS',
-    'TEMPO DE PROTROMBINA', 'ATIVIDADE', 'INR',
-    'TEMPO DE TROMBOPLASTINA', 'VHS', 'VELOCIDADE',
+    'LEUCOCITOS',
+    'HEMACIAS',
+    'HEMOGLOBINA',
+    'HEMATOCRITO',
+    'VGM',
+    'HGM',
+    'CHGM',
+    'RDW',
+    'PLAQUETAS',
+    'TEMPO DE PROTROMBINA',
+    'ATIVIDADE',
+    'INR',
+    'TEMPO DE TROMBOPLASTINA',
+    'VHS',
+    'VELOCIDADE',
   ];
   const upper = prefix.toUpperCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   for (const k of known) {
@@ -128,16 +146,30 @@ function parseQualFromText(text: string): QualResult[] {
   const lines = text.split('\n');
   for (const line of lines) {
     if (line.includes('Pagina') || line.includes('Participante:') || line.includes('MC=')) continue;
-    const dengue = line.match(/AMOSTRA\s+(\d+)\s+.+?\s+((?:N.{1,3}O\s+)?REAGENTE|POSITIVO|NEGATIVO)\s+((?:N.{1,3}O\s+)?REAGENTE|POSITIVO|NEGATIVO)\s+\d+\s+([BAI])/i);
+    const dengue = line.match(
+      /AMOSTRA\s+(\d+)\s+.+?\s+((?:N.{1,3}O\s+)?REAGENTE|POSITIVO|NEGATIVO)\s+((?:N.{1,3}O\s+)?REAGENTE|POSITIVO|NEGATIVO)\s+\d+\s+([BAI])/i,
+    );
     if (dengue) {
-      results.push({ type: 'qualitativo', constituinte: `Amostra ${dengue[1]}`, determinacaoLab: dengue[2], resultadoCoordenadoria: dengue[3], conceito: dengue[4] });
+      results.push({
+        type: 'qualitativo',
+        constituinte: `Amostra ${dengue[1]}`,
+        determinacaoLab: dengue[2],
+        resultadoCoordenadoria: dengue[3],
+        conceito: dengue[4],
+      });
       continue;
     }
     const endMatch = line.match(/(\d+)\s+([BAI])\s*$/);
     if (endMatch && !line.includes('PRO-EX') && !line.includes('Vers') && line.length > 20) {
       const content = line.substring(0, endMatch.index || 0).trim();
       if (content.length > 5) {
-        results.push({ type: 'qualitativo', constituinte: content.substring(0, 80), determinacaoLab: '', resultadoCoordenadoria: '', conceito: endMatch[2] });
+        results.push({
+          type: 'qualitativo',
+          constituinte: content.substring(0, 80),
+          determinacaoLab: '',
+          resultadoCoordenadoria: '',
+          conceito: endMatch[2],
+        });
       }
     }
   }
@@ -172,7 +204,10 @@ export const parsePNCQReport = onCall(
     const expectedPrefix = `labs/${labId}/ceq-uploads/`;
     for (const p of storagePaths) {
       if (!p.startsWith(expectedPrefix)) {
-        throw new HttpsError('invalid-argument', `Path inválido: deve iniciar com ${expectedPrefix}`);
+        throw new HttpsError(
+          'invalid-argument',
+          `Path inválido: deve iniciar com ${expectedPrefix}`,
+        );
       }
     }
 
@@ -245,7 +280,8 @@ export const confirmCEQResults = onCall(
       if (report.resultados.length === 0) continue;
 
       // Find or create participacao for this especialidade
-      const participSnap = await db.collection(`labs/${labId}/ceq-participacoes`)
+      const participSnap = await db
+        .collection(`labs/${labId}/ceq-participacoes`)
         .where('esquema', '==', report.especialidade)
         .where('ativo', '==', true)
         .where('deletadoEm', '==', null)
@@ -257,10 +293,17 @@ export const confirmCEQResults = onCall(
         // Create new participacao
         const pRef = db.collection(`labs/${labId}/ceq-participacoes`).doc();
         await pRef.set({
-          labId, provedorId: 'pncq', provedorNome: 'PNCQ - Programa Nacional de Controle de Qualidade',
-          esquema: report.especialidade, dataInicio: now, frequencia: 'mensal',
-          analitosParticipados: report.resultados.map(r => r.constituinte),
-          ativo: true, criadoEm: now, criadoPor: uid, deletadoEm: null,
+          labId,
+          provedorId: 'pncq',
+          provedorNome: 'PNCQ - Programa Nacional de Controle de Qualidade',
+          esquema: report.especialidade,
+          dataInicio: now,
+          frequencia: 'mensal',
+          analitosParticipados: report.resultados.map((r) => r.constituinte),
+          ativo: true,
+          criadoEm: now,
+          criadoPor: uid,
+          deletadoEm: null,
         });
         participacaoId = pRef.id;
       } else {
@@ -270,9 +313,16 @@ export const confirmCEQResults = onCall(
       // Create amostra
       const amostraRef = db.collection(`labs/${labId}/ceq-amostras`).doc();
       await amostraRef.set({
-        labId, ceqParticipacaoId: participacaoId, rodada, ano,
-        dataRecepcao: now, provedorRodadaId: report.loteProEx,
-        status: 'processada', criadoEm: now, criadoPor: uid, deletadoEm: null,
+        labId,
+        ceqParticipacaoId: participacaoId,
+        rodada,
+        ano,
+        dataRecepcao: now,
+        provedorRodadaId: report.loteProEx,
+        status: 'processada',
+        criadoEm: now,
+        criadoPor: uid,
+        deletadoEm: null,
       });
       totalAmostras++;
 
@@ -285,12 +335,21 @@ export const confirmCEQResults = onCall(
           const interpretacao = conceitoToInterpretacao(res.conceito);
 
           const resultadoDoc: Record<string, any> = {
-            labId, ceqAmostraId: amostraRef.id, ceqParticipacaoId: participacaoId,
+            labId,
+            ceqAmostraId: amostraRef.id,
+            ceqParticipacaoId: participacaoId,
             analyteId: res.constituinte.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, ''),
-            analyteName: res.constituinte, valorObtido: res.valorLab,
-            unidade: res.unidade || 'N/A', valorReferencia: res.media, desvioEstimado: res.dp,
-            zScore: Math.round(zScore * 1000) / 1000, interpretacao,
-            status: 'validado', criadoEm: now, criadoPor: uid, deletadoEm: null,
+            analyteName: res.constituinte,
+            valorObtido: res.valorLab,
+            unidade: res.unidade || 'N/A',
+            valorReferencia: res.media,
+            desvioEstimado: res.dp,
+            zScore: Math.round(zScore * 1000) / 1000,
+            interpretacao,
+            status: 'validado',
+            criadoEm: now,
+            criadoPor: uid,
+            deletadoEm: null,
           };
 
           // Auto-NC for insatisfatório
@@ -307,12 +366,21 @@ export const confirmCEQResults = onCall(
         } else {
           const acertou = res.conceito === 'B' || res.conceito === 'A';
           await rRef.set({
-            labId, ceqAmostraId: amostraRef.id, ceqParticipacaoId: participacaoId,
+            labId,
+            ceqAmostraId: amostraRef.id,
+            ceqParticipacaoId: participacaoId,
             analyteId: res.constituinte.toLowerCase().replace(/\s+/g, '-').replace(/[()]/g, ''),
-            analyteName: res.constituinte, valorObtido: acertou ? 1 : 0,
-            unidade: 'qualitativo', valorReferencia: 1, desvioEstimado: 0.5,
-            zScore: acertou ? 0 : 2, interpretacao: conceitoToInterpretacao(res.conceito),
-            status: 'validado', criadoEm: now, criadoPor: uid, deletadoEm: null,
+            analyteName: res.constituinte,
+            valorObtido: acertou ? 1 : 0,
+            unidade: 'qualitativo',
+            valorReferencia: 1,
+            desvioEstimado: 0.5,
+            zScore: acertou ? 0 : 2,
+            interpretacao: conceitoToInterpretacao(res.conceito),
+            status: 'validado',
+            criadoEm: now,
+            criadoPor: uid,
+            deletadoEm: null,
           });
         }
         totalResultados++;
@@ -355,14 +423,16 @@ async function criarNCFromCEQ(
       bloqueiaOperacoes: true,
       modulosBloqueados: ['ceq'],
       capaStatus: 'nao_iniciada',
-      capaHistorico: [{
-        status: 'nao_iniciada',
-        timestamp: Timestamp.now(),
-        realizadoPor: 'system',
-        realizadoPorName: 'Sistema CEQ',
-        descricao: `NC auto-criada: resultado CEQ insatisfatório (|Z| ≥ 3). DICQ 4.5 / ISO 17043.`,
-        evidencias: [],
-      }],
+      capaHistorico: [
+        {
+          status: 'nao_iniciada',
+          timestamp: Timestamp.now(),
+          realizadoPor: 'system',
+          realizadoPorName: 'Sistema CEQ',
+          descricao: `NC auto-criada: resultado CEQ insatisfatório (|Z| ≥ 3). DICQ 4.5 / ISO 17043.`,
+          evidencias: [],
+        },
+      ],
       abertaEm: Timestamp.now(),
       abertaPor: uid,
       prazoClosure: Timestamp.fromMillis(Date.now() + 15 * 24 * 60 * 60 * 1000),

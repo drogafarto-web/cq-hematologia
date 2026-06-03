@@ -101,8 +101,10 @@ export function ProntuarioColaborador({ colaborador, onClose }: ProntuarioColabo
       })
       .filter((item) => item.execucao)
       .sort((a, b) => {
-        const da = a.execucao?.dataAplicacao?.toMillis() ?? a.execucao?.dataPlanejada.toMillis() ?? 0;
-        const db = b.execucao?.dataAplicacao?.toMillis() ?? b.execucao?.dataPlanejada.toMillis() ?? 0;
+        const da =
+          a.execucao?.dataAplicacao?.toMillis() ?? a.execucao?.dataPlanejada.toMillis() ?? 0;
+        const db =
+          b.execucao?.dataAplicacao?.toMillis() ?? b.execucao?.dataPlanejada.toMillis() ?? 0;
         return db - da;
       });
   }, [participantes, execMap, treinamentoMap]);
@@ -144,7 +146,8 @@ export function ProntuarioColaborador({ colaborador, onClose }: ProntuarioColabo
             {colaborador.cargo} · {colaborador.setor}
           </p>
           <p className="text-xs text-slate-500">
-            {totalPresencas} presença(s) · {totalAusencias} ausência(s) · {avaliacoes.length} avaliação(ões) de competência · {certificados.length} certificado(s)
+            {totalPresencas} presença(s) · {totalAusencias} ausência(s) · {avaliacoes.length}{' '}
+            avaliação(ões) de competência · {certificados.length} certificado(s)
           </p>
         </div>
         <button
@@ -200,20 +203,14 @@ export function ProntuarioColaborador({ colaborador, onClose }: ProntuarioColabo
       {/* Fase 7 — Trilhas em andamento/concluídas */}
       <Section title="Trilhas de aprendizado">
         <div className="py-2">
-          <TrilhaProgressoView
-            colaboradorId={colaborador.id}
-            colaboradorNome={colaborador.nome}
-          />
+          <TrilhaProgressoView colaboradorId={colaborador.id} colaboradorNome={colaborador.nome} />
         </div>
       </Section>
 
       {/* Fase 9 — Certificados emitidos */}
       <Section title="Certificados emitidos">
         <div className="py-2">
-          <CertificadoViewer
-            colaboradorId={colaborador.id}
-            colaboradorNome={colaborador.nome}
-          />
+          <CertificadoViewer colaboradorId={colaborador.id} colaboradorNome={colaborador.nome} />
         </div>
       </Section>
     </div>
@@ -226,9 +223,7 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   return (
     <section className="flex flex-col gap-2">
       <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500">{title}</h3>
-      <div className="rounded-md border border-slate-800 bg-slate-900/40 px-3 py-1">
-        {children}
-      </div>
+      <div className="rounded-md border border-slate-800 bg-slate-900/40 px-3 py-1">{children}</div>
     </section>
   );
 }
@@ -303,8 +298,7 @@ function AvaliacaoItem({
     }
   };
 
-  const podeGerar =
-    avaliacao.resultado === 'aprovado' && !certificadoExistente;
+  const podeGerar = avaliacao.resultado === 'aprovado' && !certificadoExistente;
 
   return (
     <div className="flex flex-col gap-2">
@@ -314,7 +308,8 @@ function AvaliacaoItem({
             {treinamento?.titulo ?? 'Treinamento não encontrado'}
           </span>
           <span className="text-xs text-slate-500">
-            {avaliacao.dataAvaliacao.toDate().toLocaleDateString('pt-BR')} · {METODO_LABEL[avaliacao.metodo]}
+            {avaliacao.dataAvaliacao.toDate().toLocaleDateString('pt-BR')} ·{' '}
+            {METODO_LABEL[avaliacao.metodo]}
             {avaliacao.proximaAvaliacaoEm &&
               ` · reavaliar em ${avaliacao.proximaAvaliacaoEm.toDate().toLocaleDateString('pt-BR')}`}
           </span>

@@ -98,9 +98,7 @@ export function AvaliacoesResumoCard(): React.ReactElement | null {
           <p className="text-[10px] font-medium uppercase tracking-wider text-white/40">
             Total avaliados
           </p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-white">
-            {stats.total}
-          </p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-white">{stats.total}</p>
         </div>
 
         {/* Aprovados */}
@@ -111,7 +109,9 @@ export function AvaliacoesResumoCard(): React.ReactElement | null {
           <p className="mt-1 text-2xl font-bold tabular-nums text-emerald-300">
             {stats.pctAprovados}%
           </p>
-          <p className="text-[10px] text-emerald-300/50">{stats.aprovados} de {stats.total}</p>
+          <p className="text-[10px] text-emerald-300/50">
+            {stats.aprovados} de {stats.total}
+          </p>
         </div>
 
         {/* Reprovados */}
@@ -119,9 +119,7 @@ export function AvaliacoesResumoCard(): React.ReactElement | null {
           <p className="text-[10px] font-medium uppercase tracking-wider text-red-300/70">
             Reprovados
           </p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-red-300">
-            {stats.reprovados}
-          </p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-red-300">{stats.reprovados}</p>
           <p className="text-[10px] text-red-300/50">pendentes de retreinamento</p>
         </div>
 
@@ -130,9 +128,7 @@ export function AvaliacoesResumoCard(): React.ReactElement | null {
           <p className="text-[10px] font-medium uppercase tracking-wider text-amber-300/70">
             Vencendo (30d)
           </p>
-          <p className="mt-1 text-2xl font-bold tabular-nums text-amber-300">
-            {stats.vencendo}
-          </p>
+          <p className="mt-1 text-2xl font-bold tabular-nums text-amber-300">{stats.vencendo}</p>
           <p className="text-[10px] text-amber-300/50">reavaliação necessária</p>
         </div>
       </div>

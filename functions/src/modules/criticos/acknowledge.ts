@@ -10,11 +10,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 import { generateChainHash } from '../../shared/signature';
-import type {
-  AcknowledgeEscalacaoResponse,
-  CriticosEscalacao,
-  CriticosLogEvento,
-} from './types';
+import type { AcknowledgeEscalacaoResponse, CriticosEscalacao, CriticosLogEvento } from './types';
 
 const db = admin.firestore();
 
@@ -42,8 +38,7 @@ async function buildLogEventoSignature(params: {
   assinatura: CriticosLogEvento['assinatura'];
   eventoAnteriorId?: string;
 }> {
-  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } =
-    params;
+  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } = params;
 
   // Fetch most recent prior event for this escalacao to chain against.
   const priorSnap = await db
@@ -55,9 +50,7 @@ async function buildLogEventoSignature(params: {
     .limit(1)
     .get();
 
-  const prior = priorSnap.empty
-    ? null
-    : (priorSnap.docs[0].data() as CriticosLogEvento);
+  const prior = priorSnap.empty ? null : (priorSnap.docs[0].data() as CriticosLogEvento);
   const previousHash = prior?.assinatura?.hash ?? null;
   const eventoAnteriorId = prior?.id;
 
@@ -101,15 +94,10 @@ const AcknowledgeEscalacaoRequestSchema = z.object({
  */
 export const acknowledgeEscalacao = onCall(
   { region: 'southamerica-east1', cors: true },
-  async (
-    request
-  ): Promise<AcknowledgeEscalacaoResponse> => {
+  async (request): Promise<AcknowledgeEscalacaoResponse> => {
     try {
       if (!request.auth?.uid) {
-        throw new HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const data = AcknowledgeEscalacaoRequestSchema.parse(request.data);
@@ -117,13 +105,9 @@ export const acknowledgeEscalacao = onCall(
 
       // Validate RT role (or admin)
       const claims = request.auth.token as any;
-      const isRTOrAdmin =
-        claims.role === 'RT' || claims.role === 'ADMIN' || claims.admin;
+      const isRTOrAdmin = claims.role === 'RT' || claims.role === 'ADMIN' || claims.admin;
       if (!isRTOrAdmin) {
-        throw new HttpsError(
-          'permission-denied',
-          'Requires RT or admin role'
-        );
+        throw new HttpsError('permission-denied', 'Requires RT or admin role');
       }
 
       const escalacaoRef = db
@@ -134,30 +118,21 @@ export const acknowledgeEscalacao = onCall(
 
       const escalacaoDoc = await escalacaoRef.get();
       if (!escalacaoDoc.exists) {
-        throw new HttpsError(
-          'not-found',
-          'Escalacao not found'
-        );
+        throw new HttpsError('not-found', 'Escalacao not found');
       }
 
       const escalacao = escalacaoDoc.data() as CriticosEscalacao;
 
       // Validate state: must be 'enviado' or 'sent' (not already acknowledged)
       if (escalacao.status !== 'enviado') {
-        throw new HttpsError(
-          'failed-precondition',
-          'Escalacao already acknowledged or canceled'
-        );
+        throw new HttpsError('failed-precondition', 'Escalacao already acknowledged or canceled');
       }
 
       const now = admin.firestore.Timestamp.now();
-      const tempoSlaMs =
-        now.toMillis() - escalacao.criadoEm.toMillis();
+      const tempoSlaMs = now.toMillis() - escalacao.criadoEm.toMillis();
 
       const slaStatus =
-        tempoSlaMs <= escalacao.sla_minutos_target * 60 * 1000
-          ? 'em_prazo'
-          : 'vencido';
+        tempoSlaMs <= escalacao.sla_minutos_target * 60 * 1000 ? 'em_prazo' : 'vencido';
 
       // Count total attempts before canceling
       const totalAttempts = escalacao.escalacoes.length;
@@ -190,11 +165,7 @@ export const acknowledgeEscalacao = onCall(
       });
 
       // Create audit log event
-      const eventoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('criticos-log-eventos')
-        .doc();
+      const eventoRef = db.collection('labs').doc(labId).collection('criticos-log-eventos').doc();
 
       const ackDetalhes = {
         reconhecido_por: acknowledgedBy,
@@ -243,10 +214,7 @@ export const acknowledgeEscalacao = onCall(
       console.error('acknowledgeEscalacao error:', error);
       if (error instanceof HttpsError) throw error;
 
-      throw new HttpsError(
-        'internal',
-        error.message || 'Internal error'
-      );
+      throw new HttpsError('internal', error.message || 'Internal error');
     }
-  }
+  },
 );

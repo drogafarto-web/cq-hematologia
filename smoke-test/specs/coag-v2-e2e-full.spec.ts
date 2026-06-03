@@ -82,24 +82,47 @@ const AUTH_URL = `https://identitytoolkit.googleapis.com/v1/accounts:signInWithP
 // TTPA: mean=33 sd=3 low=27 high=39
 
 const ATTEMPT_PLAN: Array<{
-  ap: number; rni: number; ttpa: number;
+  ap: number;
+  rni: number;
+  ttpa: number;
   expectedConformidade: 'A' | 'R';
   expectedViolations?: string[];
   desc: string;
 }> = [
   { ap: 100, rni: 0.97, ttpa: 33.0, expectedConformidade: 'A', desc: 'Dia 1 AM — baseline exato' },
-  { ap: 98,  rni: 0.95, ttpa: 34.0, expectedConformidade: 'A', desc: 'Dia 1 PM — normal' },
+  { ap: 98, rni: 0.95, ttpa: 34.0, expectedConformidade: 'A', desc: 'Dia 1 PM — normal' },
   { ap: 102, rni: 0.99, ttpa: 32.5, expectedConformidade: 'A', desc: 'Dia 2 AM — normal' },
   { ap: 105, rni: 1.01, ttpa: 33.5, expectedConformidade: 'A', desc: 'Dia 2 PM — leve drift +' },
-  { ap: 87,  rni: 0.89, ttpa: 36.0, expectedConformidade: 'A', desc: 'Dia 3 AM — próximo -2σ' },
+  { ap: 87, rni: 0.89, ttpa: 36.0, expectedConformidade: 'A', desc: 'Dia 3 AM — próximo -2σ' },
   { ap: 112, rni: 1.05, ttpa: 30.0, expectedConformidade: 'A', desc: 'Dia 3 PM — próximo +2σ' },
-  { ap: 95,  rni: 0.94, ttpa: 35.0, expectedConformidade: 'A', desc: 'Dia 4 AM — normal' },
+  { ap: 95, rni: 0.94, ttpa: 35.0, expectedConformidade: 'A', desc: 'Dia 4 AM — normal' },
   { ap: 101, rni: 0.98, ttpa: 32.0, expectedConformidade: 'A', desc: 'Dia 4 PM — normal' },
-  { ap: 87,  rni: 0.88, ttpa: 37.0, expectedConformidade: 'A', expectedViolations: ['1-2s'], desc: 'Dia 5 AM — 1-2s warning AP (87 < 80 = -1.3σ, dentro faixa mas alerta)' },
+  {
+    ap: 87,
+    rni: 0.88,
+    ttpa: 37.0,
+    expectedConformidade: 'A',
+    expectedViolations: ['1-2s'],
+    desc: 'Dia 5 AM — 1-2s warning AP (87 < 80 = -1.3σ, dentro faixa mas alerta)',
+  },
   { ap: 100, rni: 0.96, ttpa: 33.5, expectedConformidade: 'A', desc: 'Dia 5 PM — normal' },
-  { ap: 86,  rni: 0.88, ttpa: 36.5, expectedConformidade: 'R', expectedViolations: ['2-2s'], desc: 'Dia 6 AM — 2-2s (AP 86+87 consec abaix -2σ, 6 pts no mesmo lado)' },
-  { ap: 131, rni: 1.20, ttpa: 24.0, expectedConformidade: 'R', expectedViolations: ['1-3s'], desc: 'Dia 6 PM — 1-3s (AP=131 > +3σ=130)' },
-  { ap: 95,  rni: 0.93, ttpa: 34.0, expectedConformidade: 'A', desc: 'Dia 7 AM — recuperação' },
+  {
+    ap: 86,
+    rni: 0.88,
+    ttpa: 36.5,
+    expectedConformidade: 'R',
+    expectedViolations: ['2-2s'],
+    desc: 'Dia 6 AM — 2-2s (AP 86+87 consec abaix -2σ, 6 pts no mesmo lado)',
+  },
+  {
+    ap: 131,
+    rni: 1.2,
+    ttpa: 24.0,
+    expectedConformidade: 'R',
+    expectedViolations: ['1-3s'],
+    desc: 'Dia 6 PM — 1-3s (AP=131 > +3σ=130)',
+  },
+  { ap: 95, rni: 0.93, ttpa: 34.0, expectedConformidade: 'A', desc: 'Dia 7 AM — recuperação' },
   { ap: 101, rni: 0.98, ttpa: 32.5, expectedConformidade: 'A', desc: 'Dia 7 PM — estável' },
 ];
 
@@ -109,7 +132,9 @@ const TIMEOUT = 10000;
 // Helpers
 // ═════════════════════════════════════════════════════════════════════════════
 
-function sleep(ms: number) { return new Promise(r => setTimeout(r, ms)); }
+function sleep(ms: number) {
+  return new Promise((r) => setTimeout(r, ms));
+}
 
 async function retry<T>(fn: () => Promise<T>, label: string, maxRetries = 3): Promise<T> {
   for (let i = 0; i < maxRetries; i++) {
@@ -124,7 +149,10 @@ async function retry<T>(fn: () => Promise<T>, label: string, maxRetries = 3): Pr
   throw new Error(`retry exhausted: ${label}`);
 }
 
-async function authSignIn(email: string, password: string): Promise<{ idToken: string; localId: string }> {
+async function authSignIn(
+  email: string,
+  password: string,
+): Promise<{ idToken: string; localId: string }> {
   const res = await fetch(AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
@@ -176,7 +204,10 @@ async function firestorePatch(path: string, body: any, token: string): Promise<a
 }
 
 async function firestoreDelete(path: string, token: string): Promise<any> {
-  const res = await fetch(`${FIRESTORE_BASE}/${path}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } });
+  const res = await fetch(`${FIRESTORE_BASE}/${path}`, {
+    method: 'DELETE',
+    headers: { Authorization: `Bearer ${token}` },
+  });
   if (!res.ok && res.status !== 404) {
     const b = await res.text();
     throw new Error(`Firestore DELETE ${path}: ${res.status} ${b}`);
@@ -195,11 +226,13 @@ function parseFirestoreDoc(d: any): any {
     else if (v.booleanValue !== undefined) obj[key] = v.booleanValue;
     else if (v.nullValue !== undefined) obj[key] = null;
     else if (v.mapValue !== undefined) obj[key] = v.mapValue.fields;
-    else if (v.arrayValue !== undefined) obj[key] = v.arrayValue.values?.map((e: any) => {
-      if (e.stringValue) return e.stringValue;
-      if (e.doubleValue) return e.doubleValue;
-      return e;
-    }) ?? [];
+    else if (v.arrayValue !== undefined)
+      obj[key] =
+        v.arrayValue.values?.map((e: any) => {
+          if (e.stringValue) return e.stringValue;
+          if (e.doubleValue) return e.doubleValue;
+          return e;
+        }) ?? [];
     else if (v.timestampValue !== undefined) obj[key] = v.timestampValue;
     else obj[key] = v;
   }
@@ -214,25 +247,33 @@ function firestoreDoc(docId: string, fields: Record<string, any>) {
     else if (typeof val === 'number') {
       if (Number.isInteger(val)) f[key] = { integerValue: String(val) };
       else f[key] = { doubleValue: val };
-    }
-    else if (typeof val === 'boolean') f[key] = { booleanValue: val };
+    } else if (typeof val === 'boolean') f[key] = { booleanValue: val };
     else if (Array.isArray(val)) {
-      f[key] = { arrayValue: { values: val.map((e: any) => {
-        if (typeof e === 'string') return { stringValue: e };
-        if (typeof e === 'number') return { doubleValue: e };
-        return { stringValue: String(e) };
-      })}};
-    }
-    else if (typeof val === 'object') f[key] = { mapValue: { fields: firestoreDoc('_', val).fields } };
+      f[key] = {
+        arrayValue: {
+          values: val.map((e: any) => {
+            if (typeof e === 'string') return { stringValue: e };
+            if (typeof e === 'number') return { doubleValue: e };
+            return { stringValue: String(e) };
+          }),
+        },
+      };
+    } else if (typeof val === 'object')
+      f[key] = { mapValue: { fields: firestoreDoc('_', val).fields } };
     else f[key] = { stringValue: String(val) };
   }
   return { fields: f };
 }
 
-function now() { return new Date().toISOString(); }
-function today() { return now().split('T')[0]; }
+function now() {
+  return new Date().toISOString();
+}
+function today() {
+  return now().split('T')[0];
+}
 function futureDate(days: number) {
-  const d = new Date(); d.setDate(d.getDate() + days);
+  const d = new Date();
+  d.setDate(d.getDate() + days);
   return d.toISOString().split('T')[0];
 }
 
@@ -266,21 +307,25 @@ async function login(page: Page, email: string, password: string): Promise<void>
   await page.goto('/', { waitUntil: 'networkidle', timeout: TIMEOUT });
   // Wait for login form — Firebase Auth UI
   await page.waitForLoadState('domcontentloaded');
-  
+
   // Try to find email/password fields — Firebase Auth UI varies
   // Some apps use a custom login form, others use FirebaseUI
   const emailField = page.getByLabel(/email/i).or(page.locator('input[type="email"]')).first();
-  const passwordField = page.getByLabel(/senha/i).or(page.locator('input[type="password"]')).first();
-  
+  const passwordField = page
+    .getByLabel(/senha/i)
+    .or(page.locator('input[type="password"]'))
+    .first();
+
   if (await emailField.isVisible({ timeout: 5000 }).catch(() => false)) {
     await emailField.fill(email);
     await passwordField.fill(password);
-    const submitBtn = page.getByRole('button', { name: /entrar|login|sign.?in/i }).or(
-      page.locator('button[type="submit"]'),
-    ).first();
+    const submitBtn = page
+      .getByRole('button', { name: /entrar|login|sign.?in/i })
+      .or(page.locator('button[type="submit"]'))
+      .first();
     await submitBtn.click();
   }
-  
+
   // Wait for redirect to hub
   await page.waitForURL('**/*', { timeout: TIMEOUT });
   await sleep(3000); // Let React render the hub
@@ -310,40 +355,41 @@ async function takeScreenshot(page: Page, name: string): Promise<string> {
 // ═════════════════════════════════════════════════════════════════════════════
 
 test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
-
   // ─── Setup ────────────────────────────────────────────────────────────────
 
   test.beforeAll(async () => {
     // Ensure output dirs
     fs.mkdirSync(OUT_DIR, { recursive: true });
     fs.mkdirSync(CHECKPOINT_DIR, { recursive: true });
-    
+
     // Read credentials from env
     const opEmail = process.env.OPERATOR_EMAIL || '';
     const opPass = process.env.OPERATOR_PASSWORD || '';
     const rtEmail = process.env.RT_EMAIL || '';
     const rtPass = process.env.RT_PASSWORD || '';
-    
+
     if (!opEmail || !opPass || !rtEmail || !rtPass) {
       throw new Error('Missing credentials in .env.test');
     }
-    
+
     // Sign in operators via REST API (for Firestore operations)
     const op = await authSignIn(opEmail, opPass);
     CTX.operatorToken = op.idToken;
     CTX.operatorUid = op.localId;
-    
+
     const rt = await authSignIn(rtEmail, rtPass);
     CTX.rtToken = rt.idToken;
     CTX.rtUid = rt.localId;
-    
+
     // Discover labId — list labs accessible by operator
     const labsRes = await firestoreGet('labs', CTX.operatorToken);
     const labs = labsRes.documents ?? [];
     if (labs.length === 0) throw new Error('No labs found for operator');
     const firstLab = parseFirestoreDoc(labs[0]);
     CTX.labId = labs[0].name.split('/').pop();
-    console.log(`[setup] labId: ${CTX.labId}, operatorUid: ${CTX.operatorUid}, rtUid: ${CTX.rtUid}`);
+    console.log(
+      `[setup] labId: ${CTX.labId}, operatorUid: ${CTX.operatorUid}, rtUid: ${CTX.rtUid}`,
+    );
   });
 
   // ─── Phase 0: Auth verification (REST API) ──────────────────────────────
@@ -354,22 +400,34 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 0 — Auth verification (REST API)', async () => {
     const start = Date.now();
-    
+
     try {
       // Verify operator token works by reading own user doc
       const userRes = await firestoreGet(`users/${CTX.operatorUid}`, CTX.operatorToken);
       const userEmail = userRes.fields?.email?.stringValue ?? 'unknown';
       console.log(`[phase 0] operator authenticated: ${userEmail}`);
-      
+
       // Verify RT token works
       const rtUserRes = await firestoreGet(`users/${CTX.rtUid}`, CTX.rtToken);
       const rtEmail = rtUserRes.fields?.email?.stringValue ?? 'unknown';
       console.log(`[phase 0] rt authenticated: ${rtEmail}`);
-      
-      CTX.phaseResults.push({ phaseId: 0, name: 'Auth verification', status: 'passed', duration: Date.now() - start, details: `Operator: ${userEmail}, RT: ${rtEmail}` });
+
+      CTX.phaseResults.push({
+        phaseId: 0,
+        name: 'Auth verification',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `Operator: ${userEmail}, RT: ${rtEmail}`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 0, step: 'auth-verify', message: err.message });
-      CTX.phaseResults.push({ phaseId: 0, name: 'Auth verification', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 0,
+        name: 'Auth verification',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -378,12 +436,12 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 1 — Create ControlOperacional', async () => {
     const start = Date.now();
-    
+
     try {
       const nome = `E2E-${CTX.ts} Controle Nível I`;
       const loteControle = `CTRL-E2E-${CTX.ts}`;
       const validadeControle = futureDate(180);
-      
+
       const doc = firestoreDoc('_', {
         nome,
         nivel: 'I',
@@ -397,20 +455,34 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         atualizadoEm: now(),
         criadoPor: CTX.operatorUid,
       });
-      
+
       // Firestore REST needs documents in a specific format:
       // POST /labs/{labId}/control-operacional { fields: {...} }
-      const res = await retry(() => 
-        firestorePost(`labs/${CTX.labId}/control-operacional`, doc, CTX.operatorToken),
-      'create control', 3);
-      
+      const res = await retry(
+        () => firestorePost(`labs/${CTX.labId}/control-operacional`, doc, CTX.operatorToken),
+        'create control',
+        3,
+      );
+
       CTX.controlId = res.name?.split('/').pop() || '';
       console.log(`[phase 1] control created: ${CTX.controlId} (${nome})`);
-      
-      CTX.phaseResults.push({ phaseId: 1, name: 'Create ControlOperacional', status: 'passed', duration: Date.now() - start, details: `controlId: ${CTX.controlId}` });
+
+      CTX.phaseResults.push({
+        phaseId: 1,
+        name: 'Create ControlOperacional',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `controlId: ${CTX.controlId}`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 1, step: 'create-control', message: err.message });
-      CTX.phaseResults.push({ phaseId: 1, name: 'Create ControlOperacional', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 1,
+        name: 'Create ControlOperacional',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -423,19 +495,21 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 2 — Submit 14 attempts (1 week condensed)', async () => {
     const start = Date.now();
-    
+
     try {
       for (let i = 0; i < ATTEMPT_PLAN.length; i++) {
         const attempt = ATTEMPT_PLAN[i];
         const idx = i + 1;
         const attemptId = `att-E2E-${CTX.ts}-${String(idx).padStart(2, '0')}`;
-        
+
         // Use the expected conformidade directly from the plan.
         // Westgard rules are tested in unit tests; E2E tests focus on data flow.
         const { expectedConformidade: conformidade } = attempt;
-        
-        console.log(`[phase 2] attempt ${idx}/${ATTEMPT_PLAN.length}: AP=${attempt.ap}, RNI=${attempt.rni}, TTPA=${attempt.ttpa}, conformidade=${conformidade}`);
-        
+
+        console.log(
+          `[phase 2] attempt ${idx}/${ATTEMPT_PLAN.length}: AP=${attempt.ap}, RNI=${attempt.rni}, TTPA=${attempt.ttpa}, conformidade=${conformidade}`,
+        );
+
         const doc = firestoreDoc('_', {
           id: attemptId,
           controlId: CTX.controlId,
@@ -449,11 +523,13 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
           operadorId: CTX.operatorUid,
           acaoCorretiva: conformidade === 'R' ? `Ação corretiva E2E tentativa #${idx}` : null,
         });
-        
-        const res = await retry(() =>
-          firestorePost(`labs/${CTX.labId}/attempts`, doc, CTX.operatorToken),
-          `submit attempt ${idx}`, 3);
-        
+
+        const res = await retry(
+          () => firestorePost(`labs/${CTX.labId}/attempts`, doc, CTX.operatorToken),
+          `submit attempt ${idx}`,
+          3,
+        );
+
         const writtenId = res.name?.split('/').pop() || attemptId;
         CTX.attemptIds.push(writtenId);
         CTX.attemptLogs.push({
@@ -466,12 +542,24 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         });
         console.log(`  → attempt ${idx}: id=${writtenId}`);
       }
-      
+
       console.log(`[phase 2] submitted ${CTX.attemptIds.length}/${ATTEMPT_PLAN.length} attempts`);
-      CTX.phaseResults.push({ phaseId: 2, name: 'Submit 14 attempts', status: 'passed', duration: Date.now() - start, details: `${CTX.attemptIds.length} attempts submitted` });
+      CTX.phaseResults.push({
+        phaseId: 2,
+        name: 'Submit 14 attempts',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `${CTX.attemptIds.length} attempts submitted`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 2, step: 'submit-attempts', message: err.message });
-      CTX.phaseResults.push({ phaseId: 2, name: 'Submit 14 attempts', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 2,
+        name: 'Submit 14 attempts',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -480,24 +568,26 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 3 — Westgard rules verification', async () => {
     const start = Date.now();
-    
+
     try {
       let rulesChecked = 0;
-      
+
       for (const log of CTX.attemptLogs) {
-        const res = await retry(() => 
-          firestoreGet(`labs/${CTX.labId}/attempts/${log.id}`, CTX.operatorToken),
-        `get attempt ${log.id}`, 3);
-        
+        const res = await retry(
+          () => firestoreGet(`labs/${CTX.labId}/attempts/${log.id}`, CTX.operatorToken),
+          `get attempt ${log.id}`,
+          3,
+        );
+
         if (!res.fields) {
           console.log(`[phase 3] attempt ${log.id} not found, skipping`);
           continue;
         }
-        
+
         const data = parseFirestoreDoc(res);
         const storedConformidade = data.conformidade as string;
         const storedViolacoes: string[] = data.violacoes ?? [];
-        
+
         // Check logical signature — attempts created via REST API may not have
         // a client-side logical signature (that's computed by the app's hook).
         // Verify it if present, otherwise note it.
@@ -510,31 +600,45 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         } else {
           console.log(`  → logicalSignature absent (REST API direct write — expected)`);
         }
-        
+
         // Check conformidade matches expectation
         const planItem = ATTEMPT_PLAN[log.index - 1];
         if (planItem) {
-          console.log(`[phase 3] attempt #${log.index}: conformidade=${storedConformidade} (expected ${planItem.expectedConformidade}) violacoes=${storedViolacoes.join(',') || 'none'}`);
-          
+          console.log(
+            `[phase 3] attempt #${log.index}: conformidade=${storedConformidade} (expected ${planItem.expectedConformidade}) violacoes=${storedViolacoes.join(',') || 'none'}`,
+          );
+
           // Verify conformidade
           expect(storedConformidade).toBe(planItem.expectedConformidade);
-          
+
           // Note: expectedViolations is informational only for this E2E.
           // Detailed Westgard rule verification is done in unit tests.
           if (planItem.expectedViolations?.length) {
             console.log(`  → expected violations: ${planItem.expectedViolations.join(', ')}`);
           }
         }
-        
+
         rulesChecked++;
       }
-      
+
       console.log(`[phase 3] ${rulesChecked} attempts verified`);
-      
-      CTX.phaseResults.push({ phaseId: 3, name: 'Westgard Verification', status: 'passed', duration: Date.now() - start, details: `${rulesChecked} attempts verified, signatures OK` });
+
+      CTX.phaseResults.push({
+        phaseId: 3,
+        name: 'Westgard Verification',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `${rulesChecked} attempts verified, signatures OK`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 3, step: 'westgard-verify', message: err.message });
-      CTX.phaseResults.push({ phaseId: 3, name: 'Westgard Verification', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 3,
+        name: 'Westgard Verification',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -543,16 +647,16 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 4 — RT operations (approve, reject, NOTIVISA)', async () => {
     const start = Date.now();
-    
+
     try {
       // Find a conforme attempt and a rejeitada attempt
-      const conformeAttempt = CTX.attemptLogs.find(a => a.expectedConformidade === 'A');
-      const rejectedAttempt = CTX.attemptLogs.find(a => a.expectedConformidade === 'R');
-      
+      const conformeAttempt = CTX.attemptLogs.find((a) => a.expectedConformidade === 'A');
+      const rejectedAttempt = CTX.attemptLogs.find((a) => a.expectedConformidade === 'R');
+
       if (!conformeAttempt || !rejectedAttempt) {
         throw new Error('Missing conforme/rejected attempts for RT actions');
       }
-      
+
       // Create RTAction: approve (aprovar_controle)
       const approveDoc = firestoreDoc('_', {
         labId: CTX.labId,
@@ -562,13 +666,15 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         criadoEm: now(),
         criadoPor: CTX.rtUid,
       });
-      const approveRes = await retry(() =>
-        firestorePost(`labs/${CTX.labId}/rt-actions`, approveDoc, CTX.rtToken),
-      'create approve', 3);
+      const approveRes = await retry(
+        () => firestorePost(`labs/${CTX.labId}/rt-actions`, approveDoc, CTX.rtToken),
+        'create approve',
+        3,
+      );
       const approveId = approveRes.name?.split('/').pop() || '';
       CTX.rtActionIds.push(approveId);
       console.log(`[phase 4] approve RT action created: ${approveId}`);
-      
+
       // Create RTAction: reject (rejeitar_controle)
       const rejectDoc = firestoreDoc('_', {
         labId: CTX.labId,
@@ -578,33 +684,53 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         criadoEm: now(),
         criadoPor: CTX.rtUid,
       });
-      const rejectRes = await retry(() =>
-        firestorePost(`labs/${CTX.labId}/rt-actions`, rejectDoc, CTX.rtToken),
-      'create reject', 3);
+      const rejectRes = await retry(
+        () => firestorePost(`labs/${CTX.labId}/rt-actions`, rejectDoc, CTX.rtToken),
+        'create reject',
+        3,
+      );
       const rejectId = rejectRes.name?.split('/').pop() || '';
       CTX.rtActionIds.push(rejectId);
       console.log(`[phase 4] reject RT action created: ${rejectId}`);
-      
+
       // Create RTAction: NOTIVISA (notificar_notivisa)
       const notivisaDoc = firestoreDoc('_', {
         labId: CTX.labId,
         tipo: 'notificar_notivisa',
         targetRef: { type: 'Attempt', id: rejectedAttempt.id },
-        payload: { tipo: 'notificar_notivisa', notivisaTipo: 'queixa_tecnica', motivo: '1-3s no AP — NOTIVISA E2E' },
+        payload: {
+          tipo: 'notificar_notivisa',
+          notivisaTipo: 'queixa_tecnica',
+          motivo: '1-3s no AP — NOTIVISA E2E',
+        },
         criadoEm: now(),
         criadoPor: CTX.rtUid,
       });
-      const notivisaRes = await retry(() =>
-        firestorePost(`labs/${CTX.labId}/rt-actions`, notivisaDoc, CTX.rtToken),
-      'create NOTIVISA', 3);
+      const notivisaRes = await retry(
+        () => firestorePost(`labs/${CTX.labId}/rt-actions`, notivisaDoc, CTX.rtToken),
+        'create NOTIVISA',
+        3,
+      );
       const notivisaId = notivisaRes.name?.split('/').pop() || '';
       CTX.rtActionIds.push(notivisaId);
       console.log(`[phase 4] NOTIVISA RT action created: ${notivisaId}`);
-      
-      CTX.phaseResults.push({ phaseId: 4, name: 'RT Operations', status: 'passed', duration: Date.now() - start, details: `3 RT actions created (approve, reject, NOTIVISA)` });
+
+      CTX.phaseResults.push({
+        phaseId: 4,
+        name: 'RT Operations',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `3 RT actions created (approve, reject, NOTIVISA)`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 4, step: 'rt-actions', message: err.message });
-      CTX.phaseResults.push({ phaseId: 4, name: 'RT Operations', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 4,
+        name: 'RT Operations',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -613,7 +739,7 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
   test('Phase 5 — Data persistence verification', async () => {
     const start = Date.now();
-    
+
     try {
       // 1. Verify all attempts have expected data
       // Note: logicalSignature / signedBy / signedAt / snapshot are added by
@@ -623,7 +749,7 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
       for (const log of CTX.attemptLogs) {
         const res = await firestoreGet(`labs/${CTX.labId}/attempts/${log.id}`, CTX.operatorToken);
         const data = parseFirestoreDoc(res);
-        
+
         expect(data.conformidade).toBeTruthy();
         expect(['A', 'R']).toContain(data.conformidade);
         expect(data.controlId).toBeTruthy();
@@ -633,13 +759,16 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         expect(data.resultados?.ttpa).toBeDefined();
         verifiedCount++;
       }
-      
+
       // 2. Verify ControlOperacional still exists
-      const ctrlRes = await firestoreGet(`labs/${CTX.labId}/control-operacional/${CTX.controlId}`, CTX.operatorToken);
+      const ctrlRes = await firestoreGet(
+        `labs/${CTX.labId}/control-operacional/${CTX.controlId}`,
+        CTX.operatorToken,
+      );
       const ctrlData = parseFirestoreDoc(ctrlRes);
       expect(ctrlData.status).toBe('ativo');
       expect(ctrlData.nome).toContain('E2E');
-      
+
       // 3. Verify RT actions exist
       for (const id of CTX.rtActionIds) {
         const res = await firestoreGet(`labs/${CTX.labId}/rt-actions/${id}`, CTX.rtToken);
@@ -648,13 +777,27 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         expect(data.targetRef).toBeTruthy();
         expect(data.criadoEm).toBeTruthy();
       }
-      
-      console.log(`[phase 5] ${verifiedCount} attempts verified, ${CTX.rtActionIds.length} RT actions, 1 control`);
-      
-      CTX.phaseResults.push({ phaseId: 5, name: 'Data Persistence', status: 'passed', duration: Date.now() - start, details: `${verifiedCount} attempts, ${CTX.rtActionIds.length} RT actions verified` });
+
+      console.log(
+        `[phase 5] ${verifiedCount} attempts verified, ${CTX.rtActionIds.length} RT actions, 1 control`,
+      );
+
+      CTX.phaseResults.push({
+        phaseId: 5,
+        name: 'Data Persistence',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `${verifiedCount} attempts, ${CTX.rtActionIds.length} RT actions verified`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 5, step: 'persistence', message: err.message });
-      CTX.phaseResults.push({ phaseId: 5, name: 'Data Persistence', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 5,
+        name: 'Data Persistence',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -682,18 +825,20 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
 
         for (const key of analyteKeys) {
           const raw = resultados[key];
-          const val = typeof raw === 'number'
-            ? raw
-            : raw?.doubleValue !== undefined
-              ? raw.doubleValue
-              : raw?.integerValue !== undefined
-                ? parseInt(raw.integerValue, 10)
-                : Number(raw);
+          const val =
+            typeof raw === 'number'
+              ? raw
+              : raw?.doubleValue !== undefined
+                ? raw.doubleValue
+                : raw?.integerValue !== undefined
+                  ? parseInt(raw.integerValue, 10)
+                  : Number(raw);
           expect(typeof val).toBe('number');
           expect(isNaN(val)).toBe(false);
           const { mean, sd } = BASELINES[key];
           const zScore = (val - mean) / sd;
-          const expectedVal = key === 'atividadeProtrombinica' ? log.ap : key === 'rni' ? log.rni : log.ttpa;
+          const expectedVal =
+            key === 'atividadeProtrombinica' ? log.ap : key === 'rni' ? log.rni : log.ttpa;
           const expectedZ = (expectedVal - mean) / sd;
           expect(Math.abs(zScore - expectedZ)).toBeLessThan(
             0.01,
@@ -702,7 +847,11 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
         }
       }
 
-      const sampleMean: Record<string, number[]> = { atividadeProtrombinica: [], rni: [], ttpa: [] };
+      const sampleMean: Record<string, number[]> = {
+        atividadeProtrombinica: [],
+        rni: [],
+        ttpa: [],
+      };
       for (const log of CTX.attemptLogs) {
         const plan = ATTEMPT_PLAN[log.index - 1];
         sampleMean.atividadeProtrombinica.push(plan.ap);
@@ -722,15 +871,29 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
           BASELINES[key].sd * 0.4,
           `${key} sample sd ${sd.toFixed(4)} deviates >40% from baseline ${BASELINES[key].sd}`,
         );
-        console.log(`[phase 6] ${key}: sample mean=${m.toFixed(3)} sd=${sd.toFixed(3)} (baseline mean=${BASELINES[key].mean} sd=${BASELINES[key].sd})`);
+        console.log(
+          `[phase 6] ${key}: sample mean=${m.toFixed(3)} sd=${sd.toFixed(3)} (baseline mean=${BASELINES[key].mean} sd=${BASELINES[key].sd})`,
+        );
       }
 
       console.log(`[phase 6] ${CTX.attemptLogs.length} attempts × 3 analytes chart data verified`);
 
-      CTX.phaseResults.push({ phaseId: 6, name: 'Curve (Levey-Jennings)', status: 'passed', duration: Date.now() - start, details: `${CTX.attemptLogs.length} attempts × 3 analytes, z-scores + stats verified` });
+      CTX.phaseResults.push({
+        phaseId: 6,
+        name: 'Curve (Levey-Jennings)',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `${CTX.attemptLogs.length} attempts × 3 analytes, z-scores + stats verified`,
+      });
     } catch (err: any) {
       CTX.errors.push({ phaseId: 6, step: 'curve', message: err.message });
-      CTX.phaseResults.push({ phaseId: 6, name: 'Curve (Levey-Jennings)', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 6,
+        name: 'Curve (Levey-Jennings)',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
       throw err;
     }
   });
@@ -740,7 +903,7 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
   test.afterAll(async () => {
     const start = Date.now();
     console.log('[cleanup] starting data cleanup...');
-    
+
     try {
       // Delete attempts
       let deletedAttempts = 0;
@@ -753,7 +916,7 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
           console.log(`[cleanup] failed to delete attempt ${id}: ${e}`);
         }
       }
-      
+
       // Delete RT actions
       let deletedRtActions = 0;
       for (const id of CTX.rtActionIds) {
@@ -765,29 +928,47 @@ test.describe.serial('E2E Coagulação v2 — Operator Simulation', () => {
           console.log(`[cleanup] failed to delete RT action ${id}: ${e}`);
         }
       }
-      
+
       // Soft-delete control (mark as aposentado, do NOT hard-delete)
       if (CTX.controlId) {
         try {
-          await firestorePatch(`labs/${CTX.labId}/control-operacional/${CTX.controlId}`, {
-            fields: {
-              status: { stringValue: 'aposentado' },
-              atualizadoEm: { stringValue: now() },
+          await firestorePatch(
+            `labs/${CTX.labId}/control-operacional/${CTX.controlId}`,
+            {
+              fields: {
+                status: { stringValue: 'aposentado' },
+                atualizadoEm: { stringValue: now() },
+              },
             },
-          }, CTX.operatorToken);
+            CTX.operatorToken,
+          );
           console.log(`[cleanup] control ${CTX.controlId} marked as aposentado`);
         } catch (e) {
           console.log(`[cleanup] failed to retire control: ${e}`);
         }
       }
-      
-      console.log(`[cleanup] done: ${deletedAttempts} attempts, ${deletedRtActions} RT actions, 1 control retired`);
-      
-      CTX.phaseResults.push({ phaseId: 7, name: 'Cleanup', status: 'passed', duration: Date.now() - start, details: `${deletedAttempts} attempts, ${deletedRtActions} RT actions deleted, control retired` });
+
+      console.log(
+        `[cleanup] done: ${deletedAttempts} attempts, ${deletedRtActions} RT actions, 1 control retired`,
+      );
+
+      CTX.phaseResults.push({
+        phaseId: 7,
+        name: 'Cleanup',
+        status: 'passed',
+        duration: Date.now() - start,
+        details: `${deletedAttempts} attempts, ${deletedRtActions} RT actions deleted, control retired`,
+      });
     } catch (err: any) {
-      CTX.phaseResults.push({ phaseId: 7, name: 'Cleanup', status: 'failed', duration: Date.now() - start, details: err.message });
+      CTX.phaseResults.push({
+        phaseId: 7,
+        name: 'Cleanup',
+        status: 'failed',
+        duration: Date.now() - start,
+        details: err.message,
+      });
     }
-    
+
     // ─── Generate Report ──────────────────────────────────────────────────
     generateReport();
   });
@@ -801,12 +982,12 @@ function generateReport() {
   const nowStr = now().replace(/[:]/g, '-').slice(0, 19);
   const reportFile = path.join(OUT_DIR, `coag-v2-e2e-report-${nowStr}.json`);
   const summaryFile = path.join(OUT_DIR, `coag-v2-e2e-summary-${nowStr}.md`);
-  
+
   const totalTime = CTX.phaseResults.reduce((s, p) => s + p.duration, 0);
-  const passedCount = CTX.phaseResults.filter(p => p.status === 'passed').length;
-  const failedCount = CTX.phaseResults.filter(p => p.status === 'failed').length;
-  const skippedCount = CTX.phaseResults.filter(p => p.status === 'skipped').length;
-  
+  const passedCount = CTX.phaseResults.filter((p) => p.status === 'passed').length;
+  const failedCount = CTX.phaseResults.filter((p) => p.status === 'failed').length;
+  const skippedCount = CTX.phaseResults.filter((p) => p.status === 'skipped').length;
+
   const report = {
     runId: `E2E-${CTX.ts}`,
     timestamp: now(),
@@ -819,7 +1000,7 @@ function generateReport() {
     attemptCount: CTX.attemptIds.length,
     rtActionCount: CTX.rtActionIds.length,
     errors: CTX.errors,
-    phases: CTX.phaseResults.map(p => ({
+    phases: CTX.phaseResults.map((p) => ({
       id: p.phaseId,
       name: p.name,
       status: p.status,
@@ -828,9 +1009,11 @@ function generateReport() {
       screenshot: p.screenshot,
     })),
     westgardSummary: {
-      attemptsWithViolations: CTX.attemptLogs.filter(a => a.expectedConformidade === 'R').length,
-      conformes: CTX.attemptLogs.filter(a => a.expectedConformidade === 'A').length,
-      rulesTriggered: ATTEMPT_PLAN.filter(a => a.expectedViolations?.length).map(a => a.expectedViolations).flat(),
+      attemptsWithViolations: CTX.attemptLogs.filter((a) => a.expectedConformidade === 'R').length,
+      conformes: CTX.attemptLogs.filter((a) => a.expectedConformidade === 'A').length,
+      rulesTriggered: ATTEMPT_PLAN.filter((a) => a.expectedViolations?.length)
+        .map((a) => a.expectedViolations)
+        .flat(),
     },
     summary: {
       totalPhases: CTX.phaseResults.length,
@@ -839,9 +1022,9 @@ function generateReport() {
       skipped: skippedCount,
     },
   };
-  
+
   fs.writeFileSync(reportFile, JSON.stringify(report, null, 2));
-  
+
   // Markdown summary
   const md = `# Relatório E2E Coagulação v2
 
@@ -853,11 +1036,16 @@ function generateReport() {
 
 | Fase | Nome | Status | Duração |
 |------|------|--------|---------|
-${CTX.phaseResults.map(p => `| ${p.phaseId} | ${p.name} | ${p.status === 'passed' ? '✅' : p.status === 'failed' ? '❌' : '⏭️'} ${p.status.toUpperCase()} | ${Math.round(p.duration / 1000)}s |`).join('\n')}
+${CTX.phaseResults.map((p) => `| ${p.phaseId} | ${p.name} | ${p.status === 'passed' ? '✅' : p.status === 'failed' ? '❌' : '⏭️'} ${p.status.toUpperCase()} | ${Math.round(p.duration / 1000)}s |`).join('\n')}
 
 ## Regras Westgard Verificadas
 
-${ATTEMPT_PLAN.filter(a => a.expectedViolations?.length).map(a => `| ${a.expectedViolations?.join(', ')} | Attempt #${ATTEMPT_PLAN.indexOf(a) + 1} | ✅ Verificado |`).join('\n')}
+${ATTEMPT_PLAN.filter((a) => a.expectedViolations?.length)
+  .map(
+    (a) =>
+      `| ${a.expectedViolations?.join(', ')} | Attempt #${ATTEMPT_PLAN.indexOf(a) + 1} | ✅ Verificado |`,
+  )
+  .join('\n')}
 
 ## Assinatura Lógica (SHA-256)
 
@@ -876,13 +1064,14 @@ ${ATTEMPT_PLAN.filter(a => a.expectedViolations?.length).map(a => `| ${a.expecte
 
 ## Erros Encontrados
 
-${CTX.errors.map(e => `- Fase ${e.phaseId} [${e.step}]: ${e.message}`).join('\n') || 'Nenhum'}
+${CTX.errors.map((e) => `- Fase ${e.phaseId} [${e.step}]: ${e.message}`).join('\n') || 'Nenhum'}
 
 ## Conclusão
 
-${failedCount > 0 
-  ? `**${failedCount} fase(s) com falha.** Revisar logs acima.`
-  : '**Módulo Coagulação v2 opera corretamente em produção.** Regras Westgard CLSI C24-A3 aplicadas corretamente, assinatura lógica SHA-256 íntegra, fluxo RT funcional. Nenhuma regressão detectada.'
+${
+  failedCount > 0
+    ? `**${failedCount} fase(s) com falha.** Revisar logs acima.`
+    : '**Módulo Coagulação v2 opera corretamente em produção.** Regras Westgard CLSI C24-A3 aplicadas corretamente, assinatura lógica SHA-256 íntegra, fluxo RT funcional. Nenhuma regressão detectada.'
 }
 
 ## Screenshots
@@ -890,10 +1079,12 @@ ${failedCount > 0
 - \`${CTX.ts}-phase-2-start.png\`
 - \`${CTX.ts}-phase-2-complete.png\`
 `;
-  
+
   fs.writeFileSync(summaryFile, md, 'utf-8');
-  
+
   console.log(`\n[report] JSON: ${reportFile}`);
   console.log(`[report] MD:   ${summaryFile}`);
-  console.log(`[report] Resumo: ${passedCount} fases passaram, ${failedCount} falharam, ${skippedCount} skipped`);
+  console.log(
+    `[report] Resumo: ${passedCount} fases passaram, ${failedCount} falharam, ${skippedCount} skipped`,
+  );
 }

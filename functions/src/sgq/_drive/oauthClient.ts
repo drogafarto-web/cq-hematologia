@@ -48,9 +48,7 @@ export function createOAuth2Client(): OAuth2Client {
   const clientSecret = OAUTH_CLIENT_SECRET.value();
 
   if (!clientId || !clientSecret) {
-    throw new Error(
-      'Missing GOOGLE_OAUTH_CLIENT_ID or GOOGLE_OAUTH_CLIENT_SECRET secrets',
-    );
+    throw new Error('Missing GOOGLE_OAUTH_CLIENT_ID or GOOGLE_OAUTH_CLIENT_SECRET secrets');
   }
 
   return new OAuth2Client(clientId, clientSecret, REDIRECT_URI);
@@ -62,10 +60,7 @@ export function createOAuth2Client(): OAuth2Client {
  *
  * @returns state token (64 hex chars, 256 bits entropy)
  */
-export async function generateStateToken(
-  labId: string,
-  userId: string,
-): Promise<string> {
+export async function generateStateToken(labId: string, userId: string): Promise<string> {
   // 32 bytes = 256 bits of entropy → 64 hex chars
   const stateToken = crypto.randomBytes(32).toString('hex');
 
@@ -79,9 +74,7 @@ export async function generateStateToken(
       labId,
       userId,
       createdAt: admin.firestore.FieldValue.serverTimestamp(),
-      expiresAt: admin.firestore.Timestamp.fromMillis(
-        Date.now() + STATE_TOKEN_TTL_MS,
-      ),
+      expiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + STATE_TOKEN_TTL_MS),
     });
 
   return stateToken;
@@ -137,12 +130,7 @@ export async function validateStateToken(
   if (data.labId !== labId || data.userId !== userId) {
     // Delete to prevent further tampering
     await pendingRef.delete();
-    await logInvalidStateAttempt(
-      labId,
-      userId,
-      'tenant_mismatch',
-      stateToken,
-    );
+    await logInvalidStateAttempt(labId, userId, 'tenant_mismatch', stateToken);
     throw new Error('State token tenant mismatch');
   }
 
@@ -208,9 +196,7 @@ export async function exchangeCodeForTokens(
 
   // tokens.expiry_date is an ABSOLUTE timestamp (ms since epoch) per google-auth-library
   const expiryMs =
-    typeof tokens.expiry_date === 'number'
-      ? tokens.expiry_date
-      : Date.now() + 60 * 60 * 1000; // 1h fallback
+    typeof tokens.expiry_date === 'number' ? tokens.expiry_date : Date.now() + 60 * 60 * 1000; // 1h fallback
 
   // Store refresh token (encrypted at-rest by GCP) and access token + absolute expiry
   await admin
@@ -252,10 +238,7 @@ export async function exchangeCodeForTokens(
  *
  * Audit log written on every refresh.
  */
-export async function getAccessToken(
-  labId: string,
-  userId: string,
-): Promise<string> {
+export async function getAccessToken(labId: string, userId: string): Promise<string> {
   const tokenRef = admin
     .firestore()
     .collection('labs')

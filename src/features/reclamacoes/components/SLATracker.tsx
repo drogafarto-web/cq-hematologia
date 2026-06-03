@@ -27,7 +27,9 @@ export const SLATracker: React.FC<SLATrackerProps> = ({ slaPrazo }) => {
   }, [slaPrazo]);
 
   return (
-    <div className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full ${info.colorClass}`}>
+    <div
+      className={`inline-flex items-center px-3 py-1.5 text-sm font-medium rounded-full ${info.colorClass}`}
+    >
       <svg
         className="w-4 h-4 mr-1.5"
         fill="none"

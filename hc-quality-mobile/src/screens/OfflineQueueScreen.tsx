@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { useOfflineQueue } from '../hooks/useOfflineQueue';
 import { useNetInfo } from '../hooks/useNetInfo';
 import { MAX_RETRY_LIMIT } from '../services/offlineQueueService';
@@ -58,10 +52,7 @@ export function OfflineQueueScreen({ navigation }: OfflineQueueScreenProps): Rea
             {queue.map((item) => {
               const isMaxRetry = item.retryCount >= MAX_RETRY_LIMIT;
               return (
-                <View
-                  key={item.id}
-                  style={[styles.card, isMaxRetry && styles.cardError]}
-                >
+                <View key={item.id} style={[styles.card, isMaxRetry && styles.cardError]}>
                   <View style={styles.cardHeader}>
                     <Text style={styles.actionLabel}>
                       {ACTION_LABEL[item.action] ?? item.action}
@@ -81,9 +72,7 @@ export function OfflineQueueScreen({ navigation }: OfflineQueueScreenProps): Rea
                   </Text>
                   <Text style={styles.labId}>Lab: {item.labId}</Text>
                   {item.lastError ? (
-                    <Text style={styles.lastError}>
-                      Último erro: {item.lastError}
-                    </Text>
+                    <Text style={styles.lastError}>Último erro: {item.lastError}</Text>
                   ) : null}
                 </View>
               );

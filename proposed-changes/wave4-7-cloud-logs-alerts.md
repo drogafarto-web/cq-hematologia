@@ -3,7 +3,7 @@
 **Status:** Complete ✓  
 **Date:** 2026-05-08  
 **Agent:** Wave 4 Agent 7  
-**Scope:** Cloud Monitoring alert policy activation + admin UI + extended runbook  
+**Scope:** Cloud Monitoring alert policy activation + admin UI + extended runbook
 
 ---
 
@@ -95,14 +95,14 @@ Run: `npm test -- scripts/__tests__/activate-alerts.test.mjs`
 
 ## Policy Details
 
-| Policy | Name | Severity | Status | Trigger | Action | RDC/DICQ |
-|--------|------|----------|--------|---------|--------|----------|
-| **A1** | Audit log fallback | WARNING | **ACTIVE** | writeAuditLog fails >3× in 1h | Page on-call eng | RDC 978 Art. 128 |
-| **A2** | Críticos SLA breach | ERROR | Pending | SLA exceeds 60 min | Page RT clinical | RDC 978 Art. 5.7.1 |
-| **A3** | Consent gate violation | ERROR | **ACTIVE** | consentGate rejects (no LGPD consent) | Page DPO + RT | LGPD Art. 9 |
-| **A4** | HMAC chain break | CRITICAL | **ACTIVE** | Audit chain verification fails | **P0: Page CTO 5 min** | RDC 978 Art. 128 |
-| **A5** | Twilio SMS failure | WARNING | Pending | SMS failures >10% in 5 min | Page on-call eng | RDC 978 Art. 5.7.1 |
-| **A6** | Gemini bypass | CRITICAL | Pending | AI call without LGPD consent | **P0: Page CTO + DPO** | LGPD Art. 9 + 48 |
+| Policy | Name                   | Severity | Status     | Trigger                               | Action                 | RDC/DICQ           |
+| ------ | ---------------------- | -------- | ---------- | ------------------------------------- | ---------------------- | ------------------ |
+| **A1** | Audit log fallback     | WARNING  | **ACTIVE** | writeAuditLog fails >3× in 1h         | Page on-call eng       | RDC 978 Art. 128   |
+| **A2** | Críticos SLA breach    | ERROR    | Pending    | SLA exceeds 60 min                    | Page RT clinical       | RDC 978 Art. 5.7.1 |
+| **A3** | Consent gate violation | ERROR    | **ACTIVE** | consentGate rejects (no LGPD consent) | Page DPO + RT          | LGPD Art. 9        |
+| **A4** | HMAC chain break       | CRITICAL | **ACTIVE** | Audit chain verification fails        | **P0: Page CTO 5 min** | RDC 978 Art. 128   |
+| **A5** | Twilio SMS failure     | WARNING  | Pending    | SMS failures >10% in 5 min            | Page on-call eng       | RDC 978 Art. 5.7.1 |
+| **A6** | Gemini bypass          | CRITICAL | Pending    | AI call without LGPD consent          | **P0: Page CTO + DPO** | LGPD Art. 9 + 48   |
 
 ---
 
@@ -174,15 +174,18 @@ For A2, A5, A6 activation, Wave 3 must deliver:
 ## Files Created / Modified
 
 **Created:**
+
 - `scripts/activate-cloud-logs-alerts.sh` (201 lines, Bash)
 - `docs/observability/WAVE4_ALERT_CHECKLIST.md` (269 lines, Markdown)
 - `src/features/admin/AlertsStatus.tsx` (280 lines, React/TypeScript)
 - `scripts/__tests__/activate-alerts.test.mjs` (449 lines, Node.js test)
 
 **Modified:**
+
 - `docs/observability/RUNBOOK.md` (appended 160 lines: troubleshooting + escalation + templates)
 
 **Policy files (pre-existing, used as-is):**
+
 - `docs/observability/policies/A1-audit-fallback.json`
 - `docs/observability/policies/A3-consent-gate.json`
 - `docs/observability/policies/A4-hmac-chain-break.json`

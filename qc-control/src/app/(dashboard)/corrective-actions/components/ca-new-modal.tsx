@@ -1,62 +1,70 @@
-'use client'
+'use client';
 
-import { useState, useEffect } from 'react'
-import toast from 'react-hot-toast'
-import { Button } from '@/components/ui/button'
-import { Modal } from '@/components/ui/modal'
+import { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { Button } from '@/components/ui/button';
+import { Modal } from '@/components/ui/modal';
 
 interface User {
-  id: string
-  name: string
+  id: string;
+  name: string;
 }
 
 interface CANewModalProps {
-  open: boolean
-  onClose: () => void
-  onCreated: (action: unknown) => void
-  prefillLot?: string
-  prefillRule?: string
-  users: User[]
-  currentUserId: string
+  open: boolean;
+  onClose: () => void;
+  onCreated: (action: unknown) => void;
+  prefillLot?: string;
+  prefillRule?: string;
+  users: User[];
+  currentUserId: string;
 }
 
-const RULE_OPTIONS = ['1-3S', '2-2S', 'R-4S', '4-1S', '10X']
+const RULE_OPTIONS = ['1-3S', '2-2S', 'R-4S', '4-1S', '10X'];
 
-export function CANewModal({ open, onClose, onCreated, prefillLot, prefillRule, users, currentUserId }: CANewModalProps) {
-  const [analyte, setAnalyte] = useState('')
-  const [linkedLot, setLinkedLot] = useState('')
-  const [ruleViolated, setRuleViolated] = useState('')
-  const [investigatorId, setInvestigatorId] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [lots, setLots] = useState<{ id: string; lotNumber: string; analyte: string }[]>([])
+export function CANewModal({
+  open,
+  onClose,
+  onCreated,
+  prefillLot,
+  prefillRule,
+  users,
+  currentUserId,
+}: CANewModalProps) {
+  const [analyte, setAnalyte] = useState('');
+  const [linkedLot, setLinkedLot] = useState('');
+  const [ruleViolated, setRuleViolated] = useState('');
+  const [investigatorId, setInvestigatorId] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [lots, setLots] = useState<{ id: string; lotNumber: string; analyte: string }[]>([]);
 
   useEffect(() => {
     if (open) {
-      if (prefillRule) setRuleViolated(prefillRule)
-      if (prefillLot) setLinkedLot(prefillLot)
-      fetchLots()
+      if (prefillRule) setRuleViolated(prefillRule);
+      if (prefillLot) setLinkedLot(prefillLot);
+      fetchLots();
     } else {
-      setAnalyte('')
-      setLinkedLot('')
-      setRuleViolated('')
-      setInvestigatorId('')
+      setAnalyte('');
+      setLinkedLot('');
+      setRuleViolated('');
+      setInvestigatorId('');
     }
-  }, [open, prefillLot, prefillRule])
+  }, [open, prefillLot, prefillRule]);
 
   async function fetchLots() {
     try {
-      const res = await fetch('/api/lots')
-      const json = await res.json()
-      if (json.success) setLots(json.data)
+      const res = await fetch('/api/lots');
+      const json = await res.json();
+      if (json.success) setLots(json.data);
     } catch {}
   }
 
   async function handleCreate() {
     if (!analyte) {
-      toast.error('Analyte is required')
-      return
+      toast.error('Analyte is required');
+      return;
     }
-    setLoading(true)
+    setLoading(true);
     try {
       const res = await fetch('/api/corrective-actions', {
         method: 'POST',
@@ -68,18 +76,18 @@ export function CANewModal({ open, onClose, onCreated, prefillLot, prefillRule, 
           investigatorId: investigatorId || undefined,
           operatorId: currentUserId,
         }),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (!json.success) {
-        toast.error(json.error?.message || 'Failed to create corrective action')
-        return
+        toast.error(json.error?.message || 'Failed to create corrective action');
+        return;
       }
-      toast.success(`Created ${json.data.caNumber}`)
-      onCreated(json.data)
+      toast.success(`Created ${json.data.caNumber}`);
+      onCreated(json.data);
     } catch {
-      toast.error('Failed to create corrective action')
+      toast.error('Failed to create corrective action');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
   }
 
@@ -162,5 +170,5 @@ export function CANewModal({ open, onClose, onCreated, prefillLot, prefillRule, 
         </div>
       </div>
     </Modal>
-  )
+  );
 }

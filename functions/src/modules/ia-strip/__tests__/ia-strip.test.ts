@@ -9,7 +9,7 @@ import {
   validateStripImageSafe,
   isConfidenceAcceptable,
   getConfidenceCategory,
-  getSupportedClasses
+  getSupportedClasses,
 } from '../../../shared/ia';
 
 describe('IA Strip Image Module', () => {
@@ -20,7 +20,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 1024, height: 768 },
         classesDetected: ['IgG', 'IgM'],
         confidence: 0.95,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       const result = validateStripImage(validImage);
@@ -34,7 +34,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 1024, height: 768 },
         classesDetected: [],
         confidence: 0.8,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       expect(() => validateStripImage(invalidImage)).toThrow();
@@ -45,7 +45,7 @@ describe('IA Strip Image Module', () => {
         imageUrl: 'https://example.com/image.jpg',
         classesDetected: [],
         confidence: 0.8,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       expect(() => validateStripImage(noSize as any)).toThrow();
@@ -57,7 +57,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 1024, height: 768 },
         classesDetected: [],
         confidence: 1.5,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       expect(() => validateStripImage(highConfidence)).toThrow();
@@ -69,7 +69,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 1024, height: 768 },
         classesDetected: [],
         confidence: 0.8,
-        model_version: 'latest'
+        model_version: 'latest',
       };
 
       expect(() => validateStripImage(badVersion)).toThrow();
@@ -85,8 +85,8 @@ describe('IA Strip Image Module', () => {
         feedback: {
           classes: ['IgM'],
           correctedBy: 'operator-123',
-          correctedAt: Date.now()
-        }
+          correctedAt: Date.now(),
+        },
       };
 
       const result = validateStripImage(withFeedback);
@@ -99,7 +99,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 1024, height: 768 },
         classesDetected: ['UnknownClass'],
         confidence: 0.8,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       expect(() => validateStripImage(unknownClass)).toThrow();
@@ -113,7 +113,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 800, height: 600 },
         classesDetected: ['IgG'],
         confidence: 0.92,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       const result = validateStripImageSafe(validImage);
@@ -127,7 +127,7 @@ describe('IA Strip Image Module', () => {
         imageDim: { width: 800, height: 600 },
         classesDetected: [],
         confidence: 0.8,
-        model_version: '1.0.0'
+        model_version: '1.0.0',
       };
 
       const result = validateStripImageSafe(invalidImage);
@@ -140,7 +140,7 @@ describe('IA Strip Image Module', () => {
     it('should accept high confidence (>0.7)', () => {
       expect(isConfidenceAcceptable(0.95)).toBe(true);
       expect(isConfidenceAcceptable(0.85)).toBe(true);
-      expect(isConfidenceAcceptable(0.70)).toBe(true);
+      expect(isConfidenceAcceptable(0.7)).toBe(true);
     });
 
     it('should reject low confidence (<0.7)', () => {

@@ -33,7 +33,7 @@ export function useLaudoVersions(laudoId: string) {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     return () => {

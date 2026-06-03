@@ -95,4 +95,4 @@ jobs:
           serviceCredentialsFileContent: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
           groups: internal-testers
           file: hc-quality-mobile/android/app/build/outputs/apk/release/app-release.apk
-          releaseNotes: "Build from ${{ github.sha }} — ${{ github.event.head_commit.message }}"
+          releaseNotes: 'Build from ${{ github.sha }} — ${{ github.event.head_commit.message }}'

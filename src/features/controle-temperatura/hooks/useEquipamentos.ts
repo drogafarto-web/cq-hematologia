@@ -9,10 +9,7 @@ import {
   updateEquipamento,
   type SubscribeEquipamentosOptions,
 } from '../services/ctFirebaseService';
-import type {
-  EquipamentoInput,
-  EquipamentoMonitorado,
-} from '../types/ControlTemperatura';
+import type { EquipamentoInput, EquipamentoMonitorado } from '../types/ControlTemperatura';
 
 export interface UseEquipamentosResult {
   equipamentos: EquipamentoMonitorado[];
@@ -24,9 +21,7 @@ export interface UseEquipamentosResult {
   restore: (id: string) => Promise<void>;
 }
 
-export function useEquipamentos(
-  options: SubscribeEquipamentosOptions = {},
-): UseEquipamentosResult {
+export function useEquipamentos(options: SubscribeEquipamentosOptions = {}): UseEquipamentosResult {
   const labId = useActiveLabId();
   const { includeDeleted = false, status } = options;
 

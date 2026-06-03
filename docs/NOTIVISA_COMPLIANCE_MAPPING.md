@@ -1,9 +1,10 @@
 # NOTIVISA Compliance Mapping
+
 ## RDC 978 Art. 66 + DICQ 4.4 Coverage Matrix
 
 **Version:** 1.0  
 **Date:** 2026-05-07  
-**Status:** Complete for Phase 4–12  
+**Status:** Complete for Phase 4–12
 
 ---
 
@@ -18,6 +19,7 @@
 **English:** The clinical laboratory must notify the Ministry of Health via the NOTIVISA system of any positive result for a reportable disease within 24 hours of result approval.
 
 **Scope:**
+
 - **Who:** Clinical laboratory (all modalities under RDC 222/2018)
 - **What:** Any positive result (or suspect/probable/confirmado per Portaria 204/2016 criteria)
 - **Where:** 99 reportable diseases (MS Portaria 204/2016 list)
@@ -31,44 +33,44 @@
 
 ### 2.1 Form Generation Compliance
 
-| Requirement | Compliance Evidence | Implementation | Verification |
-|---|---|---|---|
-| **Form Generation** (Art. 6º §1 schema) | ✓ Payload built per Anvisa Art. 6º specification | `notivisaFormatter()` + Zod validation (15 mandatory fields) | Unit test: `notivisa.test.ts` (payload structure) |
-| **Patient Anonymization** | ✓ Patient name anonymized, CPF masked in export | `patientData.name_anon = "Paciente {ID}"` | Audit: `notivisaExportArchive` CSV output |
-| **Disease Coding** | ✓ MS Portaria 204/2016 codes supported (99 diseases) | `diseaseCode` field indexed, seeded database | Lookup table: `seeds/portaria-204-diseases.json` |
-| **Result Recording** | ✓ Result value, date, method recorded | `resultValue`, `resultDate`, `testMethod` fields | Form payload inspection (all fields present) |
-| **Operator Signature** | ✓ RT approval recorded with signature (HMAC-SHA256) | `approveNotivisaDraft()` callable, chainHash per ADR-0012 | Audit log entry: signature + operatorId + ts |
+| Requirement                             | Compliance Evidence                                  | Implementation                                               | Verification                                      |
+| --------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------ | ------------------------------------------------- |
+| **Form Generation** (Art. 6º §1 schema) | ✓ Payload built per Anvisa Art. 6º specification     | `notivisaFormatter()` + Zod validation (15 mandatory fields) | Unit test: `notivisa.test.ts` (payload structure) |
+| **Patient Anonymization**               | ✓ Patient name anonymized, CPF masked in export      | `patientData.name_anon = "Paciente {ID}"`                    | Audit: `notivisaExportArchive` CSV output         |
+| **Disease Coding**                      | ✓ MS Portaria 204/2016 codes supported (99 diseases) | `diseaseCode` field indexed, seeded database                 | Lookup table: `seeds/portaria-204-diseases.json`  |
+| **Result Recording**                    | ✓ Result value, date, method recorded                | `resultValue`, `resultDate`, `testMethod` fields             | Form payload inspection (all fields present)      |
+| **Operator Signature**                  | ✓ RT approval recorded with signature (HMAC-SHA256)  | `approveNotivisaDraft()` callable, chainHash per ADR-0012    | Audit log entry: signature + operatorId + ts      |
 
 ### 2.2 Deadline Enforcement (24h SLA)
 
-| Requirement | Compliance Evidence | Implementation | Verification |
-|---|---|---|---|
-| **Deadline Calculation** | ✓ notificationDeadline = resultDate + 24h | Set in `submitNotivisa()` callable | Firestore doc: `notificationDeadline` field |
-| **Deadline Tracking** | ✓ Scheduled processor queries deadline ≤ now() | `notivisaQueueProcessor` Phase C (every 5 min) | Cloud Logs: "[NOTIVISA] Past-deadline escalation" |
-| **Escalation Alert** | ✓ Supervisor alerted if deadline passed | SMS + email via Twilio + SendGrid (Phase 8+) | Supervisor receives alert notification |
-| **Status in Firestore** | ✓ Escalated entries marked `escalatedToSupervisor=true` | `notivisaQueueProcessor` Phase D | Query: `where('escalatedToSupervisor', '==', true)` |
+| Requirement              | Compliance Evidence                                     | Implementation                                 | Verification                                        |
+| ------------------------ | ------------------------------------------------------- | ---------------------------------------------- | --------------------------------------------------- |
+| **Deadline Calculation** | ✓ notificationDeadline = resultDate + 24h               | Set in `submitNotivisa()` callable             | Firestore doc: `notificationDeadline` field         |
+| **Deadline Tracking**    | ✓ Scheduled processor queries deadline ≤ now()          | `notivisaQueueProcessor` Phase C (every 5 min) | Cloud Logs: "[NOTIVISA] Past-deadline escalation"   |
+| **Escalation Alert**     | ✓ Supervisor alerted if deadline passed                 | SMS + email via Twilio + SendGrid (Phase 8+)   | Supervisor receives alert notification              |
+| **Status in Firestore**  | ✓ Escalated entries marked `escalatedToSupervisor=true` | `notivisaQueueProcessor` Phase D               | Query: `where('escalatedToSupervisor', '==', true)` |
 
 ### 2.3 Audit Trail Completeness (RDC 978 § 5.3)
 
-| Requirement | Compliance Evidence | Implementation | Verification |
-|---|---|---|---|
-| **Who** (Operator ID) | ✓ Every action tagged with `operatorId` | `request.auth.uid` captured in auditLog | Firestore subcollection: `auditLog/{ts}` → `operatorId` |
-| **When** (Timestamp) | ✓ Immutable server-side timestamp | `admin.firestore.Timestamp.now()` (not client timestamp) | All auditLog entries: `ts` field present |
-| **What** (Action) | ✓ Action enumerated (CREATED, APPROVED, SUBMISSION_ATTEMPT, etc.) | `action` field in auditLog | auditLog entries: `action` ∈ {CREATED, APPROVED, ...} |
-| **Why** (Context) | ✓ Context recorded (source: critico_detector or manual_ui, etc.) | `details` subcollection (structured JSON) | auditLog entries: `details` explains action |
-| **Result** (Outcome) | ✓ Submission attempt outcome recorded (success/failed + error) | `submissionAttempts` array (append-only) | Entry: `submissionAttempts[].status` + error fields |
-| **Immutability** | ✓ No update/delete after creation | Firestore rules: `allow update/delete: if false` | Rules validation test |
-| **Retention** | ✓ Archives retained 90 days minimum | notivisaExportArchive + soft-delete after 90d | Compliance period covers entire submission cycle |
+| Requirement           | Compliance Evidence                                               | Implementation                                           | Verification                                            |
+| --------------------- | ----------------------------------------------------------------- | -------------------------------------------------------- | ------------------------------------------------------- |
+| **Who** (Operator ID) | ✓ Every action tagged with `operatorId`                           | `request.auth.uid` captured in auditLog                  | Firestore subcollection: `auditLog/{ts}` → `operatorId` |
+| **When** (Timestamp)  | ✓ Immutable server-side timestamp                                 | `admin.firestore.Timestamp.now()` (not client timestamp) | All auditLog entries: `ts` field present                |
+| **What** (Action)     | ✓ Action enumerated (CREATED, APPROVED, SUBMISSION_ATTEMPT, etc.) | `action` field in auditLog                               | auditLog entries: `action` ∈ {CREATED, APPROVED, ...}   |
+| **Why** (Context)     | ✓ Context recorded (source: critico_detector or manual_ui, etc.)  | `details` subcollection (structured JSON)                | auditLog entries: `details` explains action             |
+| **Result** (Outcome)  | ✓ Submission attempt outcome recorded (success/failed + error)    | `submissionAttempts` array (append-only)                 | Entry: `submissionAttempts[].status` + error fields     |
+| **Immutability**      | ✓ No update/delete after creation                                 | Firestore rules: `allow update/delete: if false`         | Rules validation test                                   |
+| **Retention**         | ✓ Archives retained 90 days minimum                               | notivisaExportArchive + soft-delete after 90d            | Compliance period covers entire submission cycle        |
 
 ### 2.4 Submission & Receipt (Phase 12+)
 
-| Requirement | Compliance Evidence | Implementation | Verification |
-|---|---|---|---|
-| **API Integration** | ✓ Real Anvisa SOAP API integration (Phase 12+) | `submitNotivisaToAnvisaReal()` (SOAP client, X.509 cert) | Integration test: sandbox submission succeeds |
-| **Receipt Code** | ✓ Anvisa receipt code captured and stored | `receiptCodeFromAnvisa` field in entry | Firestore doc: receipt code visible after submission |
-| **Idempotent Retries** | ✓ No duplicate submissions (deduplication key) | `idempotencyKey = SHA256(labId:disease:patient:date)` | Anvisa API respects idempotency (no duplicates) |
-| **Webhook Acknowledgment** | ✓ Anvisa sends callback confirming receipt | `notivisaWebhookHandler()` receives eventId | Firestore: `anvisa_eventId` recorded after webhook |
-| **Signature Verification** | ✓ Webhook signature verified (HMAC-SHA256) | Constant-time comparison in webhook handler | Security test: spoofed webhook rejected (401) |
+| Requirement                | Compliance Evidence                            | Implementation                                           | Verification                                         |
+| -------------------------- | ---------------------------------------------- | -------------------------------------------------------- | ---------------------------------------------------- |
+| **API Integration**        | ✓ Real Anvisa SOAP API integration (Phase 12+) | `submitNotivisaToAnvisaReal()` (SOAP client, X.509 cert) | Integration test: sandbox submission succeeds        |
+| **Receipt Code**           | ✓ Anvisa receipt code captured and stored      | `receiptCodeFromAnvisa` field in entry                   | Firestore doc: receipt code visible after submission |
+| **Idempotent Retries**     | ✓ No duplicate submissions (deduplication key) | `idempotencyKey = SHA256(labId:disease:patient:date)`    | Anvisa API respects idempotency (no duplicates)      |
+| **Webhook Acknowledgment** | ✓ Anvisa sends callback confirming receipt     | `notivisaWebhookHandler()` receives eventId              | Firestore: `anvisa_eventId` recorded after webhook   |
+| **Signature Verification** | ✓ Webhook signature verified (HMAC-SHA256)     | Constant-time comparison in webhook handler              | Security test: spoofed webhook rejected (401)        |
 
 ---
 
@@ -110,11 +112,11 @@ Every NOTIVISA entry has immutable subcollection `auditLog/{timestamp}`:
 ```firestore
 // Firestore Rules
 match /labs/{labId}/notivisa-outbox/{entryId}/auditLog/{logId} {
-  allow read: if isActiveMemberOfLab(labId) && 
+  allow read: if isActiveMemberOfLab(labId) &&
               (isAdminOrOwner(labId) || role == 'AUDITOR');
-  
+
   allow create: if request.auth != null;  // Any authenticated user can append
-  
+
   allow update: if false;                 // NEVER update
   allow delete: if false;                 // NEVER delete
 }
@@ -186,14 +188,14 @@ chainHash = HMAC-SHA256({
 
 #### Authentication & Authorization
 
-| Action | Operator Identification | Evidence |
-|--------|------------------------|-----------| 
-| Draft creation | `request.auth.uid` (from Firebase Auth ID token) | auditLog.operatorId |
-| RT approval | `request.auth.uid` (RT role required) | auditLog.operatorId + role check |
-| Queue submission | `request.auth.uid` (RT or admin) | auditLog.operatorId |
-| Soft delete | `request.auth.uid` (admin only) | auditLog.operatorId |
-| Export archive | `request.auth.uid` (AUDITOR only) | archive.exportedBy |
-| Scheduled processing | `'system'` (Cloud Scheduler) | auditLog.operatorId = 'system' |
+| Action               | Operator Identification                          | Evidence                         |
+| -------------------- | ------------------------------------------------ | -------------------------------- |
+| Draft creation       | `request.auth.uid` (from Firebase Auth ID token) | auditLog.operatorId              |
+| RT approval          | `request.auth.uid` (RT role required)            | auditLog.operatorId + role check |
+| Queue submission     | `request.auth.uid` (RT or admin)                 | auditLog.operatorId              |
+| Soft delete          | `request.auth.uid` (admin only)                  | auditLog.operatorId              |
+| Export archive       | `request.auth.uid` (AUDITOR only)                | archive.exportedBy               |
+| Scheduled processing | `'system'` (Cloud Scheduler)                     | auditLog.operatorId = 'system'   |
 
 #### Operator Custom Claims
 
@@ -201,13 +203,14 @@ At login, operator receives custom claims (set by admin):
 
 ```json
 {
-  "role": "RT",                      // RT | AUDITOR | admin | owner
-  "labIds": ["lab-alpha", "lab-b"],  // Which labs operator can access
-  "department": "hematologia"        // Optional: department
+  "role": "RT", // RT | AUDITOR | admin | owner
+  "labIds": ["lab-alpha", "lab-b"], // Which labs operator can access
+  "department": "hematologia" // Optional: department
 }
 ```
 
 Callable functions validate:
+
 ```typescript
 const role = request.auth.token.role;
 if (role !== 'RT' && role !== 'admin') {
@@ -236,7 +239,7 @@ if (pastDeadlineEntries.length > 0) {
     UPDATE escalatedToSupervisor = true
     UPDATE escalationTs = now()
     UPDATE escalationMotivo = 'deadline-passed' | 'permanent-failure'
-    
+
     ALERT supervisor:
       SMS: "[NOTIVISA] Entry {id} past 24h deadline. Act now."
       Email: Full entry details + error context + next steps
@@ -246,6 +249,7 @@ if (pastDeadlineEntries.length > 0) {
 #### Supervisor Dashboard View
 
 Web UI shows:
+
 - List of escalated entries (red banner)
 - Deadline status (green if <24h, yellow if <1h, red if past)
 - Submission attempt history (errors, timestamps, operator)
@@ -257,7 +261,7 @@ Web UI shows:
 // Supervisor can query escalated entries:
 db.collection(`labs/${labId}/notivisa-outbox`)
   .where('escalatedToSupervisor', '==', true)
-  .orderBy('escalationTs', 'desc')
+  .orderBy('escalationTs', 'desc');
 
 // Supervisor can manually resolve:
 // 1. Fix root cause (e.g., renew certificate if auth error)
@@ -274,31 +278,32 @@ db.collection(`labs/${labId}/notivisa-outbox`)
 
 HC Quality implements complete Portaria 204/2016 list:
 
-| Disease | Code | Criteria | Testing Method |
-|---------|------|----------|-----------------|
-| HIV | 99078 | Positive serology (ELISA, Western Blot) | HIV screening + confirmatory |
-| Syphilis (acquired) | 99079 | RPR positive + FTA-ABS or TP-PA | Serology (RPR, FTA) |
-| Syphilis (gestational) | 99080 | Same as acquired, mother status pregnancy | Serology |
-| Syphilis (congenital) | 99081 | Infant + mother + delivery context | Serology + clinical |
-| Tuberculosis | 99082 | Clinical + AFB smear or culture | Sputum AFB, culture |
-| Hepatitis B | 99083 | HBsAg positive (confirmatory ELISA or immunoblot) | HBsAg screening |
-| Hepatitis C | 99084 | Anti-HCV positive + HCV RNA (if available) | Anti-HCV, HCV RNA |
-| Dengue | 99085 | IgM or NS1 positive | IgM ELISA, NS1 antigen |
-| Dengue (pregnancy) | 99086 | Same as dengue, in pregnant woman | IgM ELISA (pregnancy context) |
-| ... | ... | ... | ... |
-| **Total** | **99001–99099** | **99 diseases** (MS list) | Varies |
+| Disease                | Code            | Criteria                                          | Testing Method                |
+| ---------------------- | --------------- | ------------------------------------------------- | ----------------------------- |
+| HIV                    | 99078           | Positive serology (ELISA, Western Blot)           | HIV screening + confirmatory  |
+| Syphilis (acquired)    | 99079           | RPR positive + FTA-ABS or TP-PA                   | Serology (RPR, FTA)           |
+| Syphilis (gestational) | 99080           | Same as acquired, mother status pregnancy         | Serology                      |
+| Syphilis (congenital)  | 99081           | Infant + mother + delivery context                | Serology + clinical           |
+| Tuberculosis           | 99082           | Clinical + AFB smear or culture                   | Sputum AFB, culture           |
+| Hepatitis B            | 99083           | HBsAg positive (confirmatory ELISA or immunoblot) | HBsAg screening               |
+| Hepatitis C            | 99084           | Anti-HCV positive + HCV RNA (if available)        | Anti-HCV, HCV RNA             |
+| Dengue                 | 99085           | IgM or NS1 positive                               | IgM ELISA, NS1 antigen        |
+| Dengue (pregnancy)     | 99086           | Same as dengue, in pregnant woman                 | IgM ELISA (pregnancy context) |
+| ...                    | ...             | ...                                               | ...                           |
+| **Total**              | **99001–99099** | **99 diseases** (MS list)                         | Varies                        |
 
 **Implementation:**
+
 ```typescript
 // Seed database with disease list
 const diseases = [
-  {code: '99078', name: 'HIV', testMethods: ['ELISA', 'Western Blot']},
-  {code: '99079', name: 'Syphilis (acquired)', testMethods: ['RPR', 'FTA']},
+  { code: '99078', name: 'HIV', testMethods: ['ELISA', 'Western Blot'] },
+  { code: '99079', name: 'Syphilis (acquired)', testMethods: ['RPR', 'FTA'] },
   // ... 97 more
 ];
 
 // notivisaDraftCreate validates:
-if (!diseases.find(d => d.code === diseaseCode)) {
+if (!diseases.find((d) => d.code === diseaseCode)) {
   throw new Error('Unknown disease code');
 }
 ```
@@ -313,7 +318,6 @@ if (!diseases.find(d => d.code === diseaseCode)) {
   - [x] NOTIVISA collections protected (labId + role checks)
   - [x] Audit log immutable (create-only)
   - [x] Hard delete forbidden (RN-06)
-  
 - [x] **Cloud Functions Tested**
   - [x] notivisaDraftCreate: Art. 6º payload valid
   - [x] approveNotivisaDraft: signature verified, chainHash generated
@@ -343,12 +347,14 @@ if (!diseases.find(d => d.code === diseaseCode)) {
 ### Post-Deployment (Phase 4 → Phase 12)
 
 **Phase 8 (Mid-Point, 2026-07-15):**
+
 - [ ] Form generation working 90 days
 - [ ] Zero escalation alerts (queue processing normal)
 - [ ] Auditor archives exported successfully
 - [ ] Audit log queries for compliance complete
 
 **Phase 12 (Production Integration):**
+
 - [ ] Real Anvisa API submissions working
 - [ ] Receipt codes captured from Anvisa
 - [ ] Webhook acknowledgments processed
@@ -408,13 +414,13 @@ FINDINGS:
   □ RT approval workflow: PASS
   □ 24h deadline enforcement: PASS
   □ Receipt code tracking: PASS (Phase 12+)
-  
+
 ✓ DICQ 4.4 Audit Trail
   □ Operator tracking (every action): PASS
   □ Immutable audit log: PASS
   □ Complete history (who/when/what/why/result): PASS
   □ Retention ≥90 days: PASS
-  
+
 ✓ DICQ 4.3 Record Integrity
   □ No unauthorized modifications: PASS
   □ Soft-delete only (RN-06): PASS

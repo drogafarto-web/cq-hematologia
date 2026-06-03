@@ -15,6 +15,7 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 ## Tasks Completed
 
 ### ✅ Task 1: Finalize STATE.md
+
 - [x] Updated milestone status: `v1.3-deploying` → `v1.3-complete`
 - [x] Updated deployment progress: Steps 1–3 LIVE, Step 4 in progress
 - [x] Added final metrics:
@@ -25,6 +26,7 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 - [x] Updated last_activity timestamp (2026-05-07 20:45 UTC)
 
 ### ✅ Task 2: Create v1.3 Milestone Entry
+
 - [x] Created comprehensive MILESTONES.md v1.3 section:
   - Start date: 2026-05-06, Completion: 2026-05-07
   - Phases 8–12 (27 plans delivered)
@@ -35,6 +37,7 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 - [x] Added v1.4 planning preview
 
 ### ✅ Task 3: Create Archive Infrastructure
+
 - [x] Created `.planning/milestones/v1.3-ARCHIVE-INDEX.md` (comprehensive navigation)
 - [x] Created `.planning/ARCHIVE_v1.3_INSTRUCTIONS.md` (movement instructions)
 - [x] Updated `v1.3-COMPLETION-SUMMARY.md` (status → complete-live)
@@ -42,6 +45,7 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 - [x] Created `V1.3_ARCHIVAL_COMPLETE.md` (archival tracking)
 
 ### ✅ Task 4: Update PROJECT.md
+
 - [x] Changed status: `Milestone v1.3 Planning` → `v1.3 LIVE & COMPLETE`
 - [x] Updated milestone timeline table with archive locations
 - [x] Added v1.4 next milestone section
@@ -49,6 +53,7 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 - [x] Added production URL and deployment date
 
 ### ✅ Task 5: Phase Directory Readiness
+
 - [x] Identified 5 v1.3 phase directories ready for movement:
   - 08-capa-closure (4/5 plans, partial)
   - 09-bioquimica (5/5 plans, complete)
@@ -62,24 +67,24 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 
 ## Key Metrics Finalized
 
-| Category | Metric | Value | Status |
-|----------|--------|-------|--------|
-| **Scope** | Modules live | 25 | ✅ All in prod |
-| **Scope** | Phases complete | 12 (v1.0+v1.1+v1.2+v1.3) | ✅ Documented |
-| **Code** | Total LOC (v1.3) | ~12,000 | ✅ Verified |
-| **Code** | Cloud Functions | ~50 new | ✅ Deployed |
-| **Code** | React components | ~30 new | ✅ Live |
-| **Tests** | Unit tests passing | 738/738 | ✅ GREEN |
-| **Tests** | E2E scaffolds | 6 (bioquimica) | ✅ Ready |
-| **Compliance** | DICQ baseline | 71.3% | ✅ v1.2 |
-| **Compliance** | DICQ post-v1.3 | 78.5% | ✅ +7.2 pts |
-| **Compliance** | DICQ Block B | 65% | ✅ Riopomba +65% |
-| **Compliance** | RDC 978 | Compliant | ✅ Arts. 117, 167, 179-191 |
-| **Compliance** | LGPD | Compliant | ✅ Arts. 9, 18, 38 |
-| **Deployment** | Hosting | LIVE | ✅ 2026-05-07 00:25 UTC |
-| **Deployment** | Functions | LIVE | ✅ 78 callables |
-| **Deployment** | Rules | LIVE | ✅ 2,100+ lines |
-| **Operations** | Production URL | hmatologia2.web.app | ✅ Active |
+| Category       | Metric             | Value                    | Status                     |
+| -------------- | ------------------ | ------------------------ | -------------------------- |
+| **Scope**      | Modules live       | 25                       | ✅ All in prod             |
+| **Scope**      | Phases complete    | 12 (v1.0+v1.1+v1.2+v1.3) | ✅ Documented              |
+| **Code**       | Total LOC (v1.3)   | ~12,000                  | ✅ Verified                |
+| **Code**       | Cloud Functions    | ~50 new                  | ✅ Deployed                |
+| **Code**       | React components   | ~30 new                  | ✅ Live                    |
+| **Tests**      | Unit tests passing | 738/738                  | ✅ GREEN                   |
+| **Tests**      | E2E scaffolds      | 6 (bioquimica)           | ✅ Ready                   |
+| **Compliance** | DICQ baseline      | 71.3%                    | ✅ v1.2                    |
+| **Compliance** | DICQ post-v1.3     | 78.5%                    | ✅ +7.2 pts                |
+| **Compliance** | DICQ Block B       | 65%                      | ✅ Riopomba +65%           |
+| **Compliance** | RDC 978            | Compliant                | ✅ Arts. 117, 167, 179-191 |
+| **Compliance** | LGPD               | Compliant                | ✅ Arts. 9, 18, 38         |
+| **Deployment** | Hosting            | LIVE                     | ✅ 2026-05-07 00:25 UTC    |
+| **Deployment** | Functions          | LIVE                     | ✅ 78 callables            |
+| **Deployment** | Rules              | LIVE                     | ✅ 2,100+ lines            |
+| **Operations** | Production URL     | hmatologia2.web.app      | ✅ Active                  |
 
 ---
 
@@ -134,24 +139,24 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 
 ## Files Modified
 
-| File Path | Changes | Status |
-|-----------|---------|--------|
-| `.planning/STATE.md` | Updated milestone status, metrics, deployment timeline | ✅ Updated |
-| `.planning/PROJECT.md` | Updated v1.3 final status, added v1.4 planning | ✅ Updated |
-| `.planning/MILESTONES.md` | Added v1.3 complete entry, finalized v1.2 | ✅ Updated |
-| `.planning/milestones/v1.3-COMPLETION-SUMMARY.md` | Updated status to complete-live | ✅ Updated |
-| `.planning/milestones/v1.3-DEPLOYMENT_LOG.md` | Final deployment details | ✅ Current |
+| File Path                                         | Changes                                                | Status     |
+| ------------------------------------------------- | ------------------------------------------------------ | ---------- |
+| `.planning/STATE.md`                              | Updated milestone status, metrics, deployment timeline | ✅ Updated |
+| `.planning/PROJECT.md`                            | Updated v1.3 final status, added v1.4 planning         | ✅ Updated |
+| `.planning/MILESTONES.md`                         | Added v1.3 complete entry, finalized v1.2              | ✅ Updated |
+| `.planning/milestones/v1.3-COMPLETION-SUMMARY.md` | Updated status to complete-live                        | ✅ Updated |
+| `.planning/milestones/v1.3-DEPLOYMENT_LOG.md`     | Final deployment details                               | ✅ Current |
 
 ---
 
 ## New Files Created
 
-| File Path | Purpose | Size |
-|-----------|---------|------|
-| `.planning/milestones/v1.3-ARCHIVE-INDEX.md` | Comprehensive archive navigation | ~350 lines |
-| `.planning/ARCHIVE_v1.3_INSTRUCTIONS.md` | Phase directory movement instructions | ~150 lines |
-| `.planning/V1.3_ARCHIVAL_COMPLETE.md` | Archival tracking & status | ~200 lines |
-| `AGENTE_C_ARCHIVAL_REPORT.md` | This final report | ~350 lines |
+| File Path                                    | Purpose                               | Size       |
+| -------------------------------------------- | ------------------------------------- | ---------- |
+| `.planning/milestones/v1.3-ARCHIVE-INDEX.md` | Comprehensive archive navigation      | ~350 lines |
+| `.planning/ARCHIVE_v1.3_INSTRUCTIONS.md`     | Phase directory movement instructions | ~150 lines |
+| `.planning/V1.3_ARCHIVAL_COMPLETE.md`        | Archival tracking & status            | ~200 lines |
+| `AGENTE_C_ARCHIVAL_REPORT.md`                | This final report                     | ~350 lines |
 
 ---
 
@@ -160,14 +165,14 @@ v1.3 milestone has been successfully archived and formalized. All documentation 
 **Current location:** `.planning/phases/`  
 **Target location:** `.planning/milestones/v1.3-phases/`
 
-| Phase | Plans | Status | Archived | Notes |
-|-------|-------|--------|----------|-------|
-| 08 — CAPA Closure | 4/5 | 🟡 Partial | Not yet | Plans 01–04 live; 05–07 deferred to v1.4 |
-| 8.5 — Housekeeping | 4 batches | ✅ Complete | Not yet | Integrated with Phase 8 |
-| 09 — Bioquímica | 5/5 | ✅ Complete | Not yet | Full module live |
-| 10 — Liberação | 3/7 | 🟡 Partial | Not yet | Plans 01–03 live; 04–07 deferred to v1.4 |
-| 11 — Feedback Loop | 5/8 | 🟡 Partial | Not yet | Plans 01–05 live; 06–08 deferred to v1.4 |
-| 12 — SGD | 6/6 | ✅ Complete | Not yet | Full module + 80-doc migration live |
+| Phase              | Plans     | Status      | Archived | Notes                                    |
+| ------------------ | --------- | ----------- | -------- | ---------------------------------------- |
+| 08 — CAPA Closure  | 4/5       | 🟡 Partial  | Not yet  | Plans 01–04 live; 05–07 deferred to v1.4 |
+| 8.5 — Housekeeping | 4 batches | ✅ Complete | Not yet  | Integrated with Phase 8                  |
+| 09 — Bioquímica    | 5/5       | ✅ Complete | Not yet  | Full module live                         |
+| 10 — Liberação     | 3/7       | 🟡 Partial  | Not yet  | Plans 01–03 live; 04–07 deferred to v1.4 |
+| 11 — Feedback Loop | 5/8       | 🟡 Partial  | Not yet  | Plans 01–05 live; 06–08 deferred to v1.4 |
+| 12 — SGD           | 6/6       | ✅ Complete | Not yet  | Full module + 80-doc migration live      |
 
 **Total plans delivered:** 27/31 (87%)
 
@@ -266,4 +271,3 @@ Next action: Execute manual phase directory movement commands and create git com
 **Report prepared by:** AGENTE C  
 **Date:** 2026-05-07 20:45 UTC  
 **Verification:** All documentation updated and cross-checked
-

@@ -5,7 +5,7 @@ const db = admin.firestore();
 
 export async function validarCalibracaoEquipamento(
   labId: string,
-  equipId: string
+  equipId: string,
 ): Promise<EquipamentoValidacao> {
   try {
     const equipDoc = await db.collection(`labs/${labId}/equipamentos`).doc(equipId).get();
@@ -47,7 +47,7 @@ export async function validarCalibracaoEquipamento(
 
 export async function validarManutencaoEquipamento(
   labId: string,
-  equipId: string
+  equipId: string,
 ): Promise<EquipamentoValidacao> {
   try {
     const equipDoc = await db.collection(`labs/${labId}/equipamentos`).doc(equipId).get();

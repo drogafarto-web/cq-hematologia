@@ -10,14 +10,14 @@ export async function generateXlsx(data: Record<string, any>[]): Promise<Buffer>
   try {
     // 1. Flatten nested objects for Excel (max 50 columns)
     const flattened = data.map((run) => ({
-      'ID': run.id,
-      'Status': run.status,
-      'Equipamento': run.equipmentId,
-      'Operador': run.operatorId,
-      'Resultado': run.resultado,
-      'Data': run.criadoEm?.toDate?.() ?? run.criadoEm,
+      ID: run.id,
+      Status: run.status,
+      Equipamento: run.equipmentId,
+      Operador: run.operatorId,
+      Resultado: run.resultado,
+      Data: run.criadoEm?.toDate?.() ?? run.criadoEm,
       'Assinado em': run.assinadorEm?.toDate?.() ?? run.assinadorEm,
-      'Módulo': run.moduleName,
+      Módulo: run.moduleName,
       // Add more fields as needed, but keep <50 columns for Excel compatibility
       ...Object.entries(run)
         .slice(0, 10) // Additional custom fields

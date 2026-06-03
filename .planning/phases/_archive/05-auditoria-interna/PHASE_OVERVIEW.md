@@ -29,11 +29,13 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ## Plans Breakdown
 
 ### 05-01: Foundation (Wave 1)
+
 **Status:** Ready to execute  
 **Autonomous:** Yes  
 **Output:** Types, service layer, hooks, Firestore rules, checklist seed
 
 **Tasks (6):**
+
 1. Type definitions for Auditoria, Sessao, ChecklistItem, Achado, LogicalSignature
 2. Service layer (CRUD, soft-delete, real-time subscribers)
 3. React hooks (useAuditorias, useChecklistTemplate, useSessao, useAchadoMutation)
@@ -49,11 +51,13 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ---
 
 ### 05-02: UI Components (Wave 2)
+
 **Status:** Ready to execute (after 05-01)  
 **Autonomous:** No (has checkpoint: human-verify UI on tablet)  
 **Output:** Dark-first, tablet-optimized UI for audit planning + execution + findings entry
 
 **Tasks (4):**
+
 1. AuditoriaView entry point + AuditoriaPlanning (create annual plan form)
 2. SessaoExecucaoPanel (in-loco checklist execution) + ChecklistItemCard (individual item renderer)
 3. AchadoForm (finding entry with evidence upload)
@@ -68,11 +72,13 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ---
 
 ### 05-03: Cloud Functions (Wave 2, parallel to 05-02)
+
 **Status:** Ready to execute (after 05-01)  
 **Autonomous:** No (has checkpoint: test callables in emulator)  
 **Output:** Server-side logic for template loading, achado registration, automatic NC creation
 
 **Tasks (5):**
+
 1. Enhance registerAchado: signature generation + auto-NC creation (severity >= grave)
 2. Create achadoToNC helper: bidirectional linking (achado ↔ NC)
 3. installChecklistTemplate callable: load ~115 DICQ items into session
@@ -88,11 +94,13 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ---
 
 ### 05-04: PDF Generation + E2E (Wave 3)
+
 **Status:** Ready to execute (after 05-02 + 05-03)  
 **Autonomous:** Yes  
 **Output:** PDF report generation + E2E test covering full audit workflow
 
 **Tasks (5):**
+
 1. generateAuditReportPDF Cloud Function (puppeteer-based, server-side rendering)
 2. useAuditReportExport hook (client-side PDF download trigger)
 3. Add "Exportar PDF" button to AuditoriaDetail component
@@ -142,6 +150,7 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ## File Inventory
 
 ### Frontend (src/features/auditoria-interna/)
+
 - **types/index.ts** — Entity definitions (Auditoria, Sessao, ChecklistItem, Achado)
 - **services/auditoriaService.ts** — CRUD + real-time subscribers
 - **services/checklistTemplateService.ts** — Template loading
@@ -160,6 +169,7 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 - **CLAUDE.md** — Module rules + status
 
 ### Backend (functions/src/modules/auditoria/)
+
 - **types.ts** — Type definitions (Auditoria, Sessao, etc.)
 - **auditoria.ts** — Core callables (createAuditoria, registerAchado, createPlanoAcao, closeAuditoria, updateChecklistResponses)
 - **checklistTemplate.ts** — installChecklistTemplate callable
@@ -168,29 +178,34 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 - **index.ts** — Module exports
 
 ### Infrastructure
+
 - **firestore.rules** — Security rules (auditorias-internas collection)
 - **firestore.indexes.json** — Composite indices (status+time, severity+time, etc.)
 - **functions/package.json** — Puppeteer dependency
 
 ### Tests
-- **src/__tests__/auditoria-interna.test.ts** — E2E test (6 cases)
+
+- **src/**tests**/auditoria-interna.test.ts** — E2E test (6 cases)
 
 ---
 
 ## Security Model
 
 ### Authentication
+
 - All callables require `request.auth` (signed-in user)
 - Lab membership validated via `isActiveMemberOfLab(labId, uid)`
 - Role-based UI gating: auditor + responsavelTecnico only
 
 ### Data Integrity
+
 - LogicalSignature on every achado: hash (SHA-256) + operatorId + ts
 - Soft-delete only (RN-06): never hard-delete audit records
 - Atomic batch writes: achado + NC link together (both succeed or both fail)
 - Firestore rules enforce: no direct client writes (callable-only pattern)
 
 ### Audit Trail
+
 - Every mutation logged with operatorId + timestamp
 - Chain-hash preserved (achado signatures immutable)
 - NC creation tracked (achadoId back-reference)
@@ -201,12 +216,14 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 ## Quality Gates
 
 ### 05-01 Completion Criteria
+
 - [ ] TypeScript compiles without errors
 - [ ] Service layer tested (snapshot mapping, cleanup)
 - [ ] Firestore rules tested in emulator
 - [ ] Checklist template has ~115 items (DICQ 4.3 + RDC 978)
 
 ### 05-02 Completion Criteria
+
 - [ ] UI renders without errors
 - [ ] Smoke test on tablet: create plan → start session → execute checklist → upload evidence
 - [ ] Offline mode works (localStorage draft, sync on reconnect)
@@ -214,6 +231,7 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 - [ ] Touch targets ≥32px (ergonomic for in-loco use)
 
 ### 05-03 Completion Criteria
+
 - [ ] registerAchado callable creates achado + signature + auto-creates NC for grave findings
 - [ ] installChecklistTemplate callable loads ~115 items atomically
 - [ ] updateChecklistResponses callable syncs offline responses
@@ -221,6 +239,7 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 - [ ] Zod input validation on all callables
 
 ### 05-04 Completion Criteria
+
 - [ ] generateAuditReportPDF callable renders HTML → PDF (puppeteer)
 - [ ] PDF file <10MB
 - [ ] Signed URL generated (7-day expiry)
@@ -231,25 +250,27 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 
 ## Risk Mitigation
 
-| Risk | Severity | Likelihood | Mitigation |
-|------|----------|-----------|-----------|
-| 05-01 sub-estimated (~2 types, ~10 functions per service) | 🟢 | Low | Template seed already exists (Obsidian); service pattern established (educacao-continuada reference) |
-| 05-02 tablet UX friction (responsive design complex) | 🟠 | Medium | CSS grid + flexbox tested; media queries for portrait/landscape; checkpoint for human verify |
-| 05-03 callable + NC linking race condition | 🔴 | Low | Atomic batch write (both succeed/fail together); tests cover |
-| 05-04 puppeteer cold start delay (5-10s) | 🟠 | Medium | Acceptable for report generation (not user-blocking); document in release notes |
-| Checklist template mismatch with actual DICQ 8th ed. | 🟠 | Medium | Use Obsidian checklist as source of truth (already validated by auditor); version seed as v1.0 |
+| Risk                                                      | Severity | Likelihood | Mitigation                                                                                           |
+| --------------------------------------------------------- | -------- | ---------- | ---------------------------------------------------------------------------------------------------- |
+| 05-01 sub-estimated (~2 types, ~10 functions per service) | 🟢       | Low        | Template seed already exists (Obsidian); service pattern established (educacao-continuada reference) |
+| 05-02 tablet UX friction (responsive design complex)      | 🟠       | Medium     | CSS grid + flexbox tested; media queries for portrait/landscape; checkpoint for human verify         |
+| 05-03 callable + NC linking race condition                | 🔴       | Low        | Atomic batch write (both succeed/fail together); tests cover                                         |
+| 05-04 puppeteer cold start delay (5-10s)                  | 🟠       | Medium     | Acceptable for report generation (not user-blocking); document in release notes                      |
+| Checklist template mismatch with actual DICQ 8th ed.      | 🟠       | Medium     | Use Obsidian checklist as source of truth (already validated by auditor); version seed as v1.0       |
 
 ---
 
 ## Rollback Plan
 
 **If Phase 5 encounters blocker before Wave 3 (05-04):**
+
 1. Pause 05-04 (PDF generation is nice-to-have, not blocking audit dry-run)
 2. Proceed to Phase 7 with manual PDF export (user creates PDF from browser print)
 3. Resume 05-04 in post-Phase-7 cleanup
 
 **If critical bug found in deployed callables:**
-1. Rollback functions/src/modules/auditoria/* to prior version
+
+1. Rollback functions/src/modules/auditoria/\* to prior version
 2. Deploy hosting rollback (UI still works with stale data)
 3. Trigger fix + redeploy (no data loss — audit records immutable via soft-delete)
 
@@ -257,38 +278,43 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 
 ## Success Metrics
 
-| Metric | Target | Acceptance |
-|--------|--------|-----------|
-| Modules in prod | 25 (+ auditoria-interna) | ✅ Tile visible in hub |
-| AUDI requirements covered | 6/6 (AUDI-01 through AUDI-06) | ✅ All 6 assigned to plans |
-| E2E test coverage | Full audit workflow | ✅ Create → execute → export |
-| Firestore rules strict | 0 client direct writes | ✅ All writes via callables |
-| Performance | LCP <2.5s, INP <200ms | ✅ Service layer optimized, lazy loading components |
-| Accessibility | WCAG AA minimum | ✅ Dark theme meets contrast (4.5:1), keyboard nav supported |
+| Metric                    | Target                        | Acceptance                                                   |
+| ------------------------- | ----------------------------- | ------------------------------------------------------------ |
+| Modules in prod           | 25 (+ auditoria-interna)      | ✅ Tile visible in hub                                       |
+| AUDI requirements covered | 6/6 (AUDI-01 through AUDI-06) | ✅ All 6 assigned to plans                                   |
+| E2E test coverage         | Full audit workflow           | ✅ Create → execute → export                                 |
+| Firestore rules strict    | 0 client direct writes        | ✅ All writes via callables                                  |
+| Performance               | LCP <2.5s, INP <200ms         | ✅ Service layer optimized, lazy loading components          |
+| Accessibility             | WCAG AA minimum               | ✅ Dark theme meets contrast (4.5:1), keyboard nav supported |
 
 ---
 
 ## Deployment Sequence
 
 **Day 0 (Phase 4 complete):**
+
 - Rules for auditorias-internas deployed (Phase 05-01)
 - Checklist template seed in place
 
 **Day 3-4 (Wave 1 complete):**
+
 - Types, service, hooks deployed to client
 - 05-01 checkpoint: types compile, service ready
 
 **Day 5-7 (Wave 2 parallel):**
+
 - 05-02 UI components deployed to hosting
 - 05-03 Cloud Function callables deployed to functions
 - Checkpoint: UI smoke test on tablet (05-02) + callable tests in emulator (05-03)
 
 **Day 8-10 (Wave 3):**
+
 - 05-04 PDF generation deployed
 - E2E test suite green
 - Module "audit-ready" for Phase 7 dry-run
 
 **Day 11-12 (Buffer + Phase 7 prep):**
+
 - Final smoke test in prod
 - Dry-run audit execution (Phase 7 starts)
 
@@ -309,10 +335,12 @@ Wave 3 (Days 8-10, dependent on Wave 2):
 Phase 5 completion unblocks Phase 6 (Compliance Operacional — LGPD + DR) to run in parallel.
 
 **Phase 6 dependencies on Phase 5:**
+
 - LGPD deletion flow must preserve audit trail (achieved via soft-delete pattern in Phase 5)
 - DR restore test must not corrupt audit records (Phase 5 audit trail immutable)
 
 **Phase 5 clean-up tasks for Phase 6:**
+
 - [ ] Verify soft-delete pattern prevents audit trail corruption
 - [ ] Document LGPD-compliance in auditoria module (PII handling, retention)
 - [ ] Checklist template versioning documented (audit trail of template changes)
@@ -324,6 +352,7 @@ Phase 5 completion unblocks Phase 6 (Compliance Operacional — LGPD + DR) to ru
 Phase 5 completion blocks Phase 7 (Audit Dry-Run) waiting on full deployment + smoke test.
 
 **Phase 7 will use Phase 5 module to:**
+
 1. Create annual audit plan (DICQ + RDC 978)
 2. Execute full checklist (~115 items)
 3. Register critical findings (auto-create NCs)

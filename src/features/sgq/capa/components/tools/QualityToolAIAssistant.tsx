@@ -19,14 +19,19 @@ interface Props {
 }
 
 const PROMPTS_BY_TOOL: Record<QualityToolType, string> = {
-  'cinco-porques': 'Sugira uma cadeia de 5 Porquês para investigar a causa raiz desta não conformidade. Para cada "Por quê?", forneça uma pergunta e uma possível resposta baseada no contexto laboratorial. Termine com a causa raiz provável.',
-  ishikawa: 'Sugira possíveis causas para esta não conformidade organizadas nas 6 categorias do Ishikawa (6M): Mão de obra, Método, Material, Máquina, Meio ambiente, Medição. Liste 2-3 causas por categoria, considerando o contexto de laboratório clínico.',
-  '5w2h': 'Sugira um plano de ação 5W2H (O quê, Por quê, Onde, Quando, Quem, Como, Quanto custa) para corrigir esta não conformidade. Considere o contexto de laboratório clínico com equipe técnica.',
+  'cinco-porques':
+    'Sugira uma cadeia de 5 Porquês para investigar a causa raiz desta não conformidade. Para cada "Por quê?", forneça uma pergunta e uma possível resposta baseada no contexto laboratorial. Termine com a causa raiz provável.',
+  ishikawa:
+    'Sugira possíveis causas para esta não conformidade organizadas nas 6 categorias do Ishikawa (6M): Mão de obra, Método, Material, Máquina, Meio ambiente, Medição. Liste 2-3 causas por categoria, considerando o contexto de laboratório clínico.',
+  '5w2h':
+    'Sugira um plano de ação 5W2H (O quê, Por quê, Onde, Quando, Quem, Como, Quanto custa) para corrigir esta não conformidade. Considere o contexto de laboratório clínico com equipe técnica.',
   pdca: 'Sugira o preenchimento de um ciclo PDCA para tratar esta não conformidade: Plan (o que investigar e planejar), Do (ações a implementar), Check (como verificar eficácia), Act (como padronizar ou reiniciar).',
-  pareto: 'Sugira categorias típicas para um Diagrama de Pareto relacionado a esta não conformidade em laboratório clínico. Liste 5-8 categorias de causas/tipos que poderiam ser analisadas por frequência.',
+  pareto:
+    'Sugira categorias típicas para um Diagrama de Pareto relacionado a esta não conformidade em laboratório clínico. Liste 5-8 categorias de causas/tipos que poderiam ser analisadas por frequência.',
   gut: 'Avalie esta não conformidade usando a Matriz GUT. Sugira scores de 1-5 para Gravidade, Urgência e Tendência, justificando cada nota no contexto de laboratório clínico acreditado.',
   '8d': 'Sugira o preenchimento das 8 Disciplinas (8D) para tratar esta não conformidade crítica: D1 (equipe sugerida), D2 (descrição estruturada), D3 (contenção imediata), D4 (causa raiz), D5 (ação corretiva), D6 (implementação), D7 (prevenção), D8 (encerramento).',
-  brainstorming: 'Sugira 8-12 possíveis causas/hipóteses para esta não conformidade, como se fosse uma sessão de brainstorming em laboratório clínico. Inclua causas de diferentes categorias (pessoal, processo, equipamento, ambiente).',
+  brainstorming:
+    'Sugira 8-12 possíveis causas/hipóteses para esta não conformidade, como se fosse uma sessão de brainstorming em laboratório clínico. Inclua causas de diferentes categorias (pessoal, processo, equipamento, ambiente).',
 };
 
 export function QualityToolAIAssistant({ toolType, capaTitle, capaDescription }: Props) {
@@ -41,10 +46,10 @@ export function QualityToolAIAssistant({ toolType, capaTitle, capaDescription }:
     setSuggestion(null);
 
     try {
-      const callable = httpsCallable<
-        { prompt: string; context: string },
-        { text: string }
-      >(functions, 'geminiQualityAssistant');
+      const callable = httpsCallable<{ prompt: string; context: string }, { text: string }>(
+        functions,
+        'geminiQualityAssistant',
+      );
 
       const prompt = PROMPTS_BY_TOOL[toolType];
       const context = `Não Conformidade: "${capaTitle}"\nDescrição: "${capaDescription}"\nFerramenta: ${QUALITY_TOOL_LABELS[toolType]}`;
@@ -104,7 +109,11 @@ export function QualityToolAIAssistant({ toolType, capaTitle, capaDescription }:
       {error && (
         <div className="px-3 py-2 bg-red-900/20 border border-red-700/30 rounded-lg">
           <p className="text-xs text-red-300">{error}</p>
-          <button type="button" onClick={askAI} className="text-[10px] text-red-400 hover:text-red-300 mt-1">
+          <button
+            type="button"
+            onClick={askAI}
+            className="text-[10px] text-red-400 hover:text-red-300 mt-1"
+          >
             Tentar novamente
           </button>
         </div>

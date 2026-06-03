@@ -8,7 +8,7 @@ import {
   doc,
   Timestamp,
   QueryConstraint,
-  Unsubscribe
+  Unsubscribe,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { Ata } from '../types';
@@ -34,24 +34,17 @@ import { Ata } from '../types';
  * @param callback - Invoked when data changes
  * @returns Unsubscribe function
  */
-export function watchAtas(
-  labId: string,
-  callback: (atas: Ata[]) => void
-): Unsubscribe {
+export function watchAtas(labId: string, callback: (atas: Ata[]) => void): Unsubscribe {
   const path = collection(db, 'labs', labId, 'management-review-atas');
 
-  const q = query(
-    path,
-    where('deletedAt', '==', null),
-    where('labId', '==', labId)
-  );
+  const q = query(path, where('deletedAt', '==', null), where('labId', '==', labId));
 
   return onSnapshot(q, (snapshot) => {
     const atas: Ata[] = [];
     snapshot.forEach((doc) => {
       atas.push({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       } as Ata);
     });
     callback(atas);
@@ -69,7 +62,7 @@ export function watchAtas(
 export function watchAtasForReview(
   labId: string,
   managementReviewId: string,
-  callback: (atas: Ata[]) => void
+  callback: (atas: Ata[]) => void,
 ): Unsubscribe {
   const path = collection(db, 'labs', labId, 'management-review-atas');
 
@@ -77,7 +70,7 @@ export function watchAtasForReview(
     path,
     where('deletedAt', '==', null),
     where('labId', '==', labId),
-    where('managementReviewId', '==', managementReviewId)
+    where('managementReviewId', '==', managementReviewId),
   );
 
   return onSnapshot(q, (snapshot) => {
@@ -85,7 +78,7 @@ export function watchAtasForReview(
     snapshot.forEach((doc) => {
       atas.push({
         id: doc.id,
-        ...doc.data()
+        ...doc.data(),
       } as Ata);
     });
     callback(atas);
@@ -102,11 +95,7 @@ export function watchAtasForReview(
 export async function getAtas(labId: string): Promise<Ata[]> {
   const path = collection(db, 'labs', labId, 'management-review-atas');
 
-  const q = query(
-    path,
-    where('deletedAt', '==', null),
-    where('labId', '==', labId)
-  );
+  const q = query(path, where('deletedAt', '==', null), where('labId', '==', labId));
 
   const snapshot = await getDocs(q);
   const atas: Ata[] = [];
@@ -114,7 +103,7 @@ export async function getAtas(labId: string): Promise<Ata[]> {
   snapshot.forEach((doc) => {
     atas.push({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     } as Ata);
   });
 
@@ -128,17 +117,14 @@ export async function getAtas(labId: string): Promise<Ata[]> {
  * @param managementReviewId - Management review ID
  * @returns Array of Ata linked to this review
  */
-export async function getAtasForReview(
-  labId: string,
-  managementReviewId: string
-): Promise<Ata[]> {
+export async function getAtasForReview(labId: string, managementReviewId: string): Promise<Ata[]> {
   const path = collection(db, 'labs', labId, 'management-review-atas');
 
   const q = query(
     path,
     where('deletedAt', '==', null),
     where('labId', '==', labId),
-    where('managementReviewId', '==', managementReviewId)
+    where('managementReviewId', '==', managementReviewId),
   );
 
   const snapshot = await getDocs(q);
@@ -147,7 +133,7 @@ export async function getAtasForReview(
   snapshot.forEach((doc) => {
     atas.push({
       id: doc.id,
-      ...doc.data()
+      ...doc.data(),
     } as Ata);
   });
 
@@ -161,10 +147,7 @@ export async function getAtasForReview(
  * @param ataId - Ata ID
  * @returns Ata or null if not found
  */
-export async function getAta(
-  labId: string,
-  ataId: string
-): Promise<Ata | null> {
+export async function getAta(labId: string, ataId: string): Promise<Ata | null> {
   const docRef = doc(db, 'labs', labId, 'management-review-atas', ataId);
   const docSnap = await getDoc(docRef);
 
@@ -179,7 +162,7 @@ export async function getAta(
 
   return {
     id: docSnap.id,
-    ...data
+    ...data,
   } as Ata;
 }
 
@@ -192,14 +175,10 @@ export async function getAta(
  * @param ataId - Ata ID to delete
  * @param deletedAt - Timestamp of deletion (usually Timestamp.now())
  */
-export function markAtaDeleted(
-  labId: string,
-  ataId: string,
-  deletedAt: Timestamp
-): void {
+export function markAtaDeleted(labId: string, ataId: string, deletedAt: Timestamp): void {
   // This is a marker function; actual deletion happens via CF
   console.log(
-    `[AtaService] Marking ata ${ataId} as deleted at ${deletedAt.toDate().toISOString()}`
+    `[AtaService] Marking ata ${ataId} as deleted at ${deletedAt.toDate().toISOString()}`,
   );
 }
 
@@ -224,6 +203,6 @@ export function mapAtaDoc(doc: any): Ata {
     chainHash: doc.chainHash,
     createdAt: doc.createdAt,
     updatedAt: doc.updatedAt,
-    deletedAt: doc.deletedAt || null
+    deletedAt: doc.deletedAt || null,
   } as Ata;
 }

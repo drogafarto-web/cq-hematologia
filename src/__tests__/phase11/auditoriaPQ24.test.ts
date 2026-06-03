@@ -11,12 +11,8 @@ describe('phase-11 PQ-24 e2e', () => {
   // Scenario 1: createPlanoAcao rejects when NC has no open status
   it('createPlanoAcao: rejects when achado has no open NC', async () => {
     // Mock: callable throws FailedPrecondition error
-    const mockError = new Error(
-      'Este achado não tem uma não-conformidade aberta associada'
-    );
-    expect(mockError.message).toContain(
-      'não-conformidade aberta'
-    );
+    const mockError = new Error('Este achado não tem uma não-conformidade aberta associada');
+    expect(mockError.message).toContain('não-conformidade aberta');
   });
 
   // Scenario 2: createPlanoAcao succeeds and returns planoId
@@ -42,7 +38,7 @@ describe('phase-11 PQ-24 e2e', () => {
   // Scenario 5: createReAuditoria rejects when original has open NCs
   it('createReAuditoria: rejects when original has open NCs', async () => {
     const mockError = new Error(
-      'Não é possível criar re-auditoria. NCs abertas encontradas: nc-001, nc-002'
+      'Não é possível criar re-auditoria. NCs abertas encontradas: nc-001, nc-002',
     );
     expect(mockError.message).toContain('NCs abertas');
   });

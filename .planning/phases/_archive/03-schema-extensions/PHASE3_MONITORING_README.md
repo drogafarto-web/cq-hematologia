@@ -54,12 +54,14 @@ pwsh scripts/monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30
 ```
 
 **What it does:**
+
 - Queries Cloud Logs for last 24h every 30 minutes
 - Counts ERROR severity events
 - Exports JSON snapshot: `scripts/cloud-logs-export-baseline-[timestamp].json`
 - Generates report: `docs/MONITORING_REPORT_[timestamp].md`
 
 **Expected output (pre-Phase 3):**
+
 ```
 ERROR logs in last 30m: 0
 Firestore errors:       0
@@ -79,6 +81,7 @@ pwsh scripts/monitor-cloud-logs.ps1 -Hours 1 -IntervalMinutes 5
 ```
 
 **Watch for:**
+
 - Error count spike >10 in any 5m window = **P0 STOP** (see ALERT_CHECKLIST_PHASE3.md)
 - Rules warnings jump >22 = **P1 ESCALATE**
 - Permission denies for authorized users = **P1 INVESTIGATE**
@@ -94,6 +97,7 @@ pwsh scripts/monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30 -StartTime "20
 ```
 
 **Success criteria:**
+
 - ✅ 0 sustained errors (>5 same signature)
 - ✅ 0 CRITICAL events
 - ✅ All 25 Firestore indexes READY by T+10m
@@ -161,6 +165,7 @@ MONITORING LAYERS
 ### T0 (2026-05-08 23:00 UTC) — Wave 1 Deployment Begins
 
 **Stage 1: Schema (T+0m → T+5m)**
+
 - [ ] Deploy 5 collections: portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft
 - [ ] Create 3 composite indexes
 - [ ] Monitor: `scripts/monitor-cloud-logs.ps1 -Hours 1 -IntervalMinutes 5`
@@ -168,24 +173,28 @@ MONITORING LAYERS
 - [ ] Dashboard update: HEALTH_CHECK_DASHBOARD.md Stage 1
 
 **Stage 2: Rules (T+5m → T+10m)**
+
 - [ ] Deploy Firestore Rules v1.4
 - [ ] Monitor: Rules compile success, warnings ≤20
 - [ ] Expected: 0 permission denies (authorized users), valid NOTIVISA payloads accepted
 - [ ] Dashboard update: Stage 2
 
 **Stage 3: Shared Helpers (T+10m → T+20m)**
+
 - [ ] Deploy 4 functions: notivisa-sender, sms-gateway, laudo-finalizer, ia-strip-processor
 - [ ] Monitor: Cold-start latency, warm latency, initialization errors
 - [ ] Expected: Cold-start <300ms, warm <100ms, 0 errors
 - [ ] Dashboard update: Stage 3
 
 **Stage 4: Base Structures (T+20m → T+25m)**
+
 - [ ] Deploy 3 callables: portal-getter, portal-setter, notivisa-processor
 - [ ] Monitor: Response time <100ms, no errors
 - [ ] Expected: All 3 responding, 0 errors
 - [ ] Dashboard update: Stage 4
 
 **Stage 5: Smoke Tests (T+25m → T+30m)**
+
 - [ ] Test 1: NOTIVISA doc create (rules allow)
 - [ ] Test 2: Portal unauthorized read (rules deny)
 - [ ] Test 3: Critical escalation create (SMS fires)
@@ -324,7 +333,7 @@ npm run firestore:rules-validate 2>&1 | grep -i "warning"
 
 ### Rollback Thresholds (Automatic Stop)
 
-- [ ] >20 errors of same signature in 30m
+- [ ] > 20 errors of same signature in 30m
 - [ ] 1+ CRITICAL event
 - [ ] Rules compilation failure
 - [ ] Index creation FAILED state
@@ -334,12 +343,12 @@ npm run firestore:rules-validate 2>&1 | grep -i "warning"
 
 ## Reference & Documentation
 
-| Document | Purpose | Update Frequency |
-|----------|---------|---|
-| CLOUD_LOGS_BASELINE.md | Pre/post comparison, sign-off | Once pre-deploy, once post-deploy |
-| ALERT_CHECKLIST_PHASE3.md | Real-time escalation guide | Referenced on alert only |
-| HEALTH_CHECK_DASHBOARD.md | Live KPI tracker | Every 30m during Wave 1 |
-| PHASE3_MONITORING_README.md | This file; architecture overview | Once (reference only) |
+| Document                    | Purpose                          | Update Frequency                  |
+| --------------------------- | -------------------------------- | --------------------------------- |
+| CLOUD_LOGS_BASELINE.md      | Pre/post comparison, sign-off    | Once pre-deploy, once post-deploy |
+| ALERT_CHECKLIST_PHASE3.md   | Real-time escalation guide       | Referenced on alert only          |
+| HEALTH_CHECK_DASHBOARD.md   | Live KPI tracker                 | Every 30m during Wave 1           |
+| PHASE3_MONITORING_README.md | This file; architecture overview | Once (reference only)             |
 
 ---
 
@@ -436,16 +445,20 @@ Monitoring Script / Alert Triggered
 ## Support & References
 
 **For monitoring questions:**
+
 - See `docs/CLOUD_LOGS_MONITORING_GUIDE.md` (v1.3 reference)
 - See `docs/CLOUD_LOGS_QUICK_REFERENCE.md` (commands)
 
 **For alert escalation:**
+
 - See `ALERT_CHECKLIST_PHASE3.md` (real-time response guide)
 
 **For live status:**
+
 - See `HEALTH_CHECK_DASHBOARD.md` (KPI trends, stage progress)
 
 **For deployment context:**
+
 - See `.planning/phases/03-schema-extensions/03-PLAN.md` (Phase 3 full plan)
 
 ---

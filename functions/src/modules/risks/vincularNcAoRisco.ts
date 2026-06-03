@@ -8,11 +8,7 @@ import { FieldValue } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
 import { logger } from 'firebase-functions';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
-import {
-  assertRisksAccess,
-  risksCollection,
-  VincularNcAoRiscoInputSchema,
-} from './validators';
+import { assertRisksAccess, risksCollection, VincularNcAoRiscoInputSchema } from './validators';
 
 export const risks_vincularNcAoRisco = onCall(
   { region: 'southamerica-east1', enforceAppCheck: false },

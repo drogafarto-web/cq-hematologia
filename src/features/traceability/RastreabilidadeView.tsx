@@ -8,7 +8,17 @@ import type { TraceabilityEvent, TraceabilityEventType } from '../../types';
 
 function SearchIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <circle cx="11" cy="11" r="7" />
       <path d="M21 21l-4.35-4.35" />
     </svg>
@@ -17,7 +27,16 @@ function SearchIcon() {
 
 function ReagentIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M9 3h6M10 3v5L5 19a2 2 0 002 2h10a2 2 0 002-2L14 8V3" />
     </svg>
   );
@@ -25,7 +44,16 @@ function ReagentIcon() {
 
 function ControlIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M3 12l4 4 14-14" />
       <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h7" />
     </svg>
@@ -34,7 +62,16 @@ function ControlIcon() {
 
 function CalibrationIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <circle cx="12" cy="12" r="9" />
       <path d="M12 7v5l3 2" />
     </svg>
@@ -43,7 +80,16 @@ function CalibrationIcon() {
 
 function MaintenanceIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden>
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M14.7 6.3a4 4 0 00-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 005.4-5.4l-2.5 2.5-3-.4-.4-3z" />
     </svg>
   );
@@ -152,9 +198,7 @@ function SlotCard({ type, current, next, queryExamNum }: SlotCardProps) {
             <span className="font-mono text-lg font-bold text-slate-800 dark:text-white">
               {current.examCodeAtChange}
             </span>
-            <span className="text-[11px] text-slate-400 dark:text-slate-500">
-              início vigência
-            </span>
+            <span className="text-[11px] text-slate-400 dark:text-slate-500">início vigência</span>
           </div>
 
           <div className="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
@@ -189,9 +233,7 @@ export function RastreabilidadeView() {
   const [submitted, setSubmitted] = useState<{ code: string; unidade: string } | null>(null);
   const [tab, setTab] = useState<'consulta' | 'historico'>('consulta');
   const [showManual, setShowManual] = useState(false);
-  const [historyTypeFilter, setHistoryTypeFilter] = useState<TraceabilityEventType | 'all'>(
-    'all',
-  );
+  const [historyTypeFilter, setHistoryTypeFilter] = useState<TraceabilityEventType | 'all'>('all');
   const [historyUnidadeFilter, setHistoryUnidadeFilter] = useState<string>('all');
 
   const snapshot = useMemo(() => {
@@ -209,9 +251,8 @@ export function RastreabilidadeView() {
   const totalEvents = events.length;
   const eventsForUnidade = useMemo(
     () =>
-      events.filter(
-        (e) => e.unidadeCode === unidadeCode && e.equipmentId === DEFAULT_EQUIPMENT_ID,
-      ).length,
+      events.filter((e) => e.unidadeCode === unidadeCode && e.equipmentId === DEFAULT_EQUIPMENT_ID)
+        .length,
     [events, unidadeCode],
   );
 
@@ -233,8 +274,8 @@ export function RastreabilidadeView() {
             Rastreabilidade
           </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5">
-            Consulte qual reagente, controle e equipamento estavam vigentes em um
-            determinado código de atendimento — auditoria ISO 15189:2022 cláusula 7.4.
+            Consulte qual reagente, controle e equipamento estavam vigentes em um determinado código
+            de atendimento — auditoria ISO 15189:2022 cláusula 7.4.
           </p>
         </div>
         <button
@@ -289,121 +330,121 @@ export function RastreabilidadeView() {
 
       {tab === 'consulta' && (
         <>
-      {/* Query form */}
-      <form
-        onSubmit={handleSubmit}
-        className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-6 shadow-sm dark:shadow-none"
-      >
-        <div className="grid grid-cols-[1fr_180px_auto] gap-3 items-end">
-          <div>
-            <label
-              htmlFor="exam-code"
-              className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
-            >
-              Código de atendimento
-            </label>
-            <input
-              id="exam-code"
-              type="text"
-              inputMode="numeric"
-              pattern="[0-9]*"
-              autoComplete="off"
-              placeholder="Ex: 0107028"
-              value={examCode}
-              onChange={(e) => setExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
-              className="w-full h-11 px-3.5 font-mono text-base bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="unidade-select"
-              className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
-            >
-              Unidade
-            </label>
-            <select
-              id="unidade-select"
-              value={unidadeCode}
-              onChange={(e) => setUnidadeCode(e.target.value)}
-              className="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-800 dark:text-white outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
-            >
-              {UNIDADES.map((u) => (
-                <option key={u.code} value={u.code}>
-                  {u.code} — {u.label}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <button
-            type="submit"
-            disabled={!examCode.trim()}
-            className="h-11 px-5 inline-flex items-center gap-2 rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-blue-500/20"
+          {/* Query form */}
+          <form
+            onSubmit={handleSubmit}
+            className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-2xl p-6 shadow-sm dark:shadow-none"
           >
-            <SearchIcon />
-            Consultar
-          </button>
-        </div>
+            <div className="grid grid-cols-[1fr_180px_auto] gap-3 items-end">
+              <div>
+                <label
+                  htmlFor="exam-code"
+                  className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+                >
+                  Código de atendimento
+                </label>
+                <input
+                  id="exam-code"
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  autoComplete="off"
+                  placeholder="Ex: 0107028"
+                  value={examCode}
+                  onChange={(e) => setExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                  className="w-full h-11 px-3.5 font-mono text-base bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-800 dark:text-white placeholder-slate-400 dark:placeholder-slate-600 outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
+                />
+              </div>
 
-        <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-3">
-          {isLoading
-            ? 'Carregando eventos…'
-            : `${totalEvents} eventos no lab · ${eventsForUnidade} em ${unidadeCode} · ${DEFAULT_EQUIPMENT_LABEL}`}
-        </p>
-      </form>
+              <div>
+                <label
+                  htmlFor="unidade-select"
+                  className="block text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-slate-400 mb-1.5"
+                >
+                  Unidade
+                </label>
+                <select
+                  id="unidade-select"
+                  value={unidadeCode}
+                  onChange={(e) => setUnidadeCode(e.target.value)}
+                  className="w-full h-11 px-3.5 text-sm bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-800 dark:text-white outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
+                >
+                  {UNIDADES.map((u) => (
+                    <option key={u.code} value={u.code}>
+                      {u.code} — {u.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-      {/* Results */}
-      {snapshot && (
-        <section>
-          <div className="mb-4 flex items-baseline gap-3">
-            <h2 className="text-base font-semibold text-slate-700 dark:text-white/80">
-              Atendimento
-            </h2>
-            <span className="font-mono text-xl font-bold text-slate-900 dark:text-white">
-              {snapshot.queryExamCode}
-            </span>
-            <span className="text-xs text-slate-400 dark:text-slate-500">
-              · {snapshot.unidadeCode} · {DEFAULT_EQUIPMENT_LABEL}
-            </span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <SlotCard
-              type="reagent_change"
-              current={snapshot.reagentChange}
-              next={snapshot.nextReagentChange}
-              queryExamNum={snapshot.queryExamNum}
-            />
-            <SlotCard
-              type="control_run"
-              current={snapshot.controlRun}
-              next={snapshot.nextControlRun}
-              queryExamNum={snapshot.queryExamNum}
-            />
-            <SlotCard
-              type="calibration"
-              current={snapshot.calibration}
-              next={null}
-              queryExamNum={snapshot.queryExamNum}
-            />
-            <SlotCard
-              type="maintenance"
-              current={snapshot.maintenance}
-              next={null}
-              queryExamNum={snapshot.queryExamNum}
-            />
-          </div>
-
-          {!snapshot.reagentChange && !snapshot.controlRun && (
-            <div className="mt-5 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-500/[0.08] border border-amber-200 dark:border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
-              Nenhum evento de rastreabilidade foi registrado antes deste código
-              em {snapshot.unidadeCode}. Cadastre eventos ao trocar reagente e
-              ao aprovar controle para começar a construir a linha de rastreabilidade.
+              <button
+                type="submit"
+                disabled={!examCode.trim()}
+                className="h-11 px-5 inline-flex items-center gap-2 rounded-lg text-sm font-semibold bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-sm shadow-blue-500/20"
+              >
+                <SearchIcon />
+                Consultar
+              </button>
             </div>
+
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-3">
+              {isLoading
+                ? 'Carregando eventos…'
+                : `${totalEvents} eventos no lab · ${eventsForUnidade} em ${unidadeCode} · ${DEFAULT_EQUIPMENT_LABEL}`}
+            </p>
+          </form>
+
+          {/* Results */}
+          {snapshot && (
+            <section>
+              <div className="mb-4 flex items-baseline gap-3">
+                <h2 className="text-base font-semibold text-slate-700 dark:text-white/80">
+                  Atendimento
+                </h2>
+                <span className="font-mono text-xl font-bold text-slate-900 dark:text-white">
+                  {snapshot.queryExamCode}
+                </span>
+                <span className="text-xs text-slate-400 dark:text-slate-500">
+                  · {snapshot.unidadeCode} · {DEFAULT_EQUIPMENT_LABEL}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <SlotCard
+                  type="reagent_change"
+                  current={snapshot.reagentChange}
+                  next={snapshot.nextReagentChange}
+                  queryExamNum={snapshot.queryExamNum}
+                />
+                <SlotCard
+                  type="control_run"
+                  current={snapshot.controlRun}
+                  next={snapshot.nextControlRun}
+                  queryExamNum={snapshot.queryExamNum}
+                />
+                <SlotCard
+                  type="calibration"
+                  current={snapshot.calibration}
+                  next={null}
+                  queryExamNum={snapshot.queryExamNum}
+                />
+                <SlotCard
+                  type="maintenance"
+                  current={snapshot.maintenance}
+                  next={null}
+                  queryExamNum={snapshot.queryExamNum}
+                />
+              </div>
+
+              {!snapshot.reagentChange && !snapshot.controlRun && (
+                <div className="mt-5 px-4 py-3 rounded-lg bg-amber-50 dark:bg-amber-500/[0.08] border border-amber-200 dark:border-amber-500/20 text-xs text-amber-800 dark:text-amber-300">
+                  Nenhum evento de rastreabilidade foi registrado antes deste código em{' '}
+                  {snapshot.unidadeCode}. Cadastre eventos ao trocar reagente e ao aprovar controle
+                  para começar a construir a linha de rastreabilidade.
+                </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
         </>
       )}
 

@@ -42,6 +42,7 @@
 Go to: https://console.firebase.google.com/project/hmatologia2/performance
 
 **Expected to see:**
+
 - Overview dashboard
 - Performance metrics (empty initially)
 - Custom traces section (will appear after data arrives)
@@ -240,12 +241,14 @@ gcloud monitoring time-series list \
 **Troubleshooting:**
 
 1. Check that Firebase app is initialized:
+
    ```typescript
    import app from './config/firebase.config';
    console.log('Firebase app:', app);
    ```
 
 2. Verify performance monitoring is enabled:
+
    ```typescript
    import { getPerformance } from 'firebase/performance';
    const perf = getPerformance();
@@ -266,6 +269,7 @@ gcloud monitoring time-series list \
 ### Issue: High latency or missing traces
 
 **Possible causes:**
+
 - Network issues
 - Firestore auth gate (onAuthStateChanged blocking load)
 - Large bundle size delaying app startup
@@ -278,21 +282,21 @@ gcloud monitoring time-series list \
 ### Web Vitals Targets
 
 | Metric | Target | Warning | Critical |
-|--------|--------|---------|----------|
-| LCP | <2.5s | >2.5s | >3.0s |
-| INP | <200ms | >200ms | >300ms |
-| CLS | <0.1 | >0.1 | >0.25 |
-| FCP | <1.8s | >1.8s | >3.0s |
-| TTFB | <800ms | >800ms | >1.8s |
+| ------ | ------ | ------- | -------- |
+| LCP    | <2.5s  | >2.5s   | >3.0s    |
+| INP    | <200ms | >200ms  | >300ms   |
+| CLS    | <0.1   | >0.1    | >0.25    |
+| FCP    | <1.8s  | >1.8s   | >3.0s    |
+| TTFB   | <800ms | >800ms  | >1.8s    |
 
 ### Custom Trace Targets
 
-| Operation | Target | Warning | Critical |
-|-----------|--------|---------|----------|
-| List Load | <1s | >1s | >1.5s |
-| Dialog Open | <500ms | >500ms | >1s |
-| Form Submit | <2s | >2s | >5s |
-| Firestore Query | <500ms | >500ms | >1s |
+| Operation       | Target | Warning | Critical |
+| --------------- | ------ | ------- | -------- |
+| List Load       | <1s    | >1s     | >1.5s    |
+| Dialog Open     | <500ms | >500ms  | >1s      |
+| Form Submit     | <2s    | >2s     | >5s      |
+| Firestore Query | <500ms | >500ms  | >1s      |
 
 ---
 

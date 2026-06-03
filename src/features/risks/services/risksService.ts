@@ -21,11 +21,7 @@ import { collection, query, where, onSnapshot, doc, getDoc } from 'firebase/fire
  * Compute NPR = Probabilidade × Severidade × Detecção.
  * Validates each input is in [1, 5].
  */
-export function computeNPR(
-  probabilidade: number,
-  severidade: number,
-  deteccao: number
-): number {
+export function computeNPR(probabilidade: number, severidade: number, deteccao: number): number {
   if (![1, 2, 3, 4, 5].includes(probabilidade)) {
     throw new Error(`Probabilidade fora do intervalo [1,5]: ${probabilidade}`);
   }
@@ -44,7 +40,7 @@ export function computeNPR(
  */
 export function deriveNivel(
   npr: number,
-  thresholds: NprThresholds = DEFAULT_NPR_THRESHOLDS
+  thresholds: NprThresholds = DEFAULT_NPR_THRESHOLDS,
 ): Nivel {
   if (npr <= thresholds.medio - 1) return 'baixo';
   if (npr <= thresholds.alto - 1) return 'medio';
@@ -63,7 +59,7 @@ export function subscribeRisks(
   labId: string,
   filters?: RiskFilters,
   onData?: (risks: Risk[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ) {
   const constraints: any[] = [];
 
@@ -95,22 +91,13 @@ export function subscribeRisks(
           if (filters?.nprMax !== undefined && risk.npr > filters.nprMax) {
             return false;
           }
-          if (
-            filters?.probabilidade &&
-            !filters.probabilidade.includes(risk.probabilidade)
-          ) {
+          if (filters?.probabilidade && !filters.probabilidade.includes(risk.probabilidade)) {
             return false;
           }
-          if (
-            filters?.severidade &&
-            !filters.severidade.includes(risk.severidade)
-          ) {
+          if (filters?.severidade && !filters.severidade.includes(risk.severidade)) {
             return false;
           }
-          if (
-            filters?.categoria &&
-            !filters.categoria.includes(risk.categoria)
-          ) {
+          if (filters?.categoria && !filters.categoria.includes(risk.categoria)) {
             return false;
           }
           if (filters?.processo && !filters.processo.includes(risk.processo)) {
@@ -133,7 +120,7 @@ export function subscribeRisks(
     },
     (error: any) => {
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -164,12 +151,8 @@ export function mapSnapshotToRisk(data: any, id: string): Risk {
     ...data,
     id,
     criadoEm: data.criadoEm?.toDate ? data.criadoEm.toDate() : data.criadoEm,
-    deletadoEm: data.deletadoEm?.toDate
-      ? data.deletadoEm.toDate()
-      : data.deletadoEm,
-    reviewDate: data.reviewDate?.toDate
-      ? data.reviewDate.toDate()
-      : data.reviewDate,
+    deletadoEm: data.deletadoEm?.toDate ? data.deletadoEm.toDate() : data.deletadoEm,
+    reviewDate: data.reviewDate?.toDate ? data.reviewDate.toDate() : data.reviewDate,
     tratamento: {
       ...data.tratamento,
       acoes: (data.tratamento?.acoes || []).map((acao: any) => ({
@@ -189,7 +172,7 @@ export function mapSnapshotToRisk(data: any, id: string): Risk {
 
 export async function callCreateRisk(
   labId: string,
-  payload: Omit<RiskInput, 'labId'>
+  payload: Omit<RiskInput, 'labId'>,
 ): Promise<Risk> {
   const fn = httpsCallable<any, any>(functions, 'risks_createRisk');
   try {
@@ -203,7 +186,7 @@ export async function callCreateRisk(
 export async function callUpdateRisk(
   labId: string,
   riskId: string,
-  payload: Partial<RiskInput>
+  payload: Partial<RiskInput>,
 ): Promise<Risk> {
   const fn = httpsCallable<any, any>(functions, 'risks_updateRisk');
   try {
@@ -214,10 +197,7 @@ export async function callUpdateRisk(
   }
 }
 
-export async function callSoftDeleteRisk(
-  labId: string,
-  input: SoftDeleteRiskInput
-): Promise<void> {
+export async function callSoftDeleteRisk(labId: string, input: SoftDeleteRiskInput): Promise<void> {
   const fn = httpsCallable<any, void>(functions, 'risks_softDeleteRisk');
   try {
     await fn({ labId, ...input });
@@ -228,7 +208,7 @@ export async function callSoftDeleteRisk(
 
 export async function callRegistrarRevisao(
   labId: string,
-  input: RegistrarRevisaoInput
+  input: RegistrarRevisaoInput,
 ): Promise<Risk> {
   const fn = httpsCallable<any, any>(functions, 'risks_registrarRevisao');
   try {
@@ -244,7 +224,7 @@ export async function callRegistrarRevisao(
  */
 export async function callSeedFromCsv(
   labId: string,
-  rows: RiskInput[]
+  rows: RiskInput[],
 ): Promise<{ created: number; skipped: number }> {
   const fn = httpsCallable<any, any>(functions, 'risks_seedFromCsv');
   try {

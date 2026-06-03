@@ -42,9 +42,7 @@ async function main() {
     // Runs de hematologia — labs/{labId}/lots/{lotId}/runs
     const lotsSnap = await db.collection(`labs/${labId}/lots`).get();
     for (const lotDoc of lotsSnap.docs) {
-      const runsSnap = await db
-        .collection(`labs/${labId}/lots/${lotDoc.id}/runs`)
-        .get();
+      const runsSnap = await db.collection(`labs/${labId}/lots/${lotDoc.id}/runs`).get();
       for (const runDoc of runsSnap.docs) {
         totalRunsHema++;
         if (runDoc.data().serverHmac) runsHemaWithHmac++;
@@ -54,9 +52,7 @@ async function main() {
     // Runs de imuno — labs/{labId}/ciq-imuno/{lotId}/runs
     const ciqImunoSnap = await db.collection(`labs/${labId}/ciq-imuno`).get();
     for (const lotDoc of ciqImunoSnap.docs) {
-      const runsSnap = await db
-        .collection(`labs/${labId}/ciq-imuno/${lotDoc.id}/runs`)
-        .get();
+      const runsSnap = await db.collection(`labs/${labId}/ciq-imuno/${lotDoc.id}/runs`).get();
       for (const runDoc of runsSnap.docs) {
         totalRunsImuno++;
         if (runDoc.data().serverHmac) runsImunoWithHmac++;
@@ -80,7 +76,9 @@ async function main() {
   console.log('\n─── Totais ───────────────────────────────────────────────');
   console.log(`Runs hematologia:     ${totalRunsHema} (com serverHmac: ${runsHemaWithHmac})`);
   console.log(`Runs imuno:           ${totalRunsImuno} (com serverHmac: ${runsImunoWithHmac})`);
-  console.log(`Movimentações:        ${totalMov} (com serverHmac: ${movWithHmac}, sealed: ${movSealed})`);
+  console.log(
+    `Movimentações:        ${totalMov} (com serverHmac: ${movWithHmac}, sealed: ${movSealed})`,
+  );
   console.log(
     `\nTotal assinaturas HMAC já gravadas: ${runsHemaWithHmac + runsImunoWithHmac + movWithHmac}`,
   );

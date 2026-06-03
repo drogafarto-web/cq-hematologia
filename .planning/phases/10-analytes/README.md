@@ -53,11 +53,13 @@ This addresses Phase 9 gaps (single equipment only) and prepares the system for 
 ```
 
 **Coverage:**
+
 - **Phase 9 base**: 17 seed analytes (glucose, urea, liver panel, lipids, electrolytes)
 - **Phase 10 expansion**: 9 new analytes (albumin, total protein, magnesium, phosphorus, uric acid, CK, LDH, amylase, lipase)
 - **Phase 11 immunoassay**: 4 analytes (HbA1c, iron, ferritin, PSA, TSH)
 
 **Westgard implementation:**
+
 - **Active rules** (MVP, Phase 9): `1-2s` (warn), `1-3s` (reject), `2-2s` (reject), `R-4s` (reject)
 - **Extended rules** (defined, disabled by default): `4-1s`, `10x`, `6T`, `6X` (enabled in v1.4 per analyte)
 - **Each analyte** has explicit thresholds and severity mappings
@@ -68,19 +70,19 @@ This addresses Phase 9 gaps (single equipment only) and prepares the system for 
 
 **11-section strategy document covering:**
 
-| Section | Topic | Key Points |
-|---------|-------|-----------|
-| 1 | Multi-Equipment Design | One control lot → N instruments; runs are 1-to-1 equipment |
-| 2 | Westgard Engine (Server-Side) | `recordRunBioquimica` Cloud Function; never client-side computation (Threat T5) |
-| 3 | Levey-Jennings by Equipment | Per-equipment charts + method-comparison overlays for cross-instrument validation |
-| 4 | Equipment Metadata | `Equipamento` schema with lifecycle (ativo → manutencao → aposentado), calibration tracking |
-| 5 | Lot Traceability | Lot-to-equipment association, archival, 5-year retention per RDC 786/2023 |
-| 6 | Cross-Equipment Quality | Bias metrics, precision comparison, acceptable tolerance thresholds |
-| 7 | Compliance & Audit Trail | Immutable `TraceabilityEvent` append-only log; RDC 978 + DICQ 4.3 mapping |
-| 8 | Phase 10 Checklist | Data structures, UI components, tests, deployment gates |
-| 9 | Known Limitations | Extended Westgard disabled, no retroactive bula re-evaluation UI, no IoT yet |
-| 10 | Deployment | Firestore indexes, Cloud Function configuration, rollback plan |
-| 11 | References | RDC 978/2025, DICQ 4.3, CLSI EP15, ISO 15189, Westgard QC |
+| Section | Topic                         | Key Points                                                                                  |
+| ------- | ----------------------------- | ------------------------------------------------------------------------------------------- |
+| 1       | Multi-Equipment Design        | One control lot → N instruments; runs are 1-to-1 equipment                                  |
+| 2       | Westgard Engine (Server-Side) | `recordRunBioquimica` Cloud Function; never client-side computation (Threat T5)             |
+| 3       | Levey-Jennings by Equipment   | Per-equipment charts + method-comparison overlays for cross-instrument validation           |
+| 4       | Equipment Metadata            | `Equipamento` schema with lifecycle (ativo → manutencao → aposentado), calibration tracking |
+| 5       | Lot Traceability              | Lot-to-equipment association, archival, 5-year retention per RDC 786/2023                   |
+| 6       | Cross-Equipment Quality       | Bias metrics, precision comparison, acceptable tolerance thresholds                         |
+| 7       | Compliance & Audit Trail      | Immutable `TraceabilityEvent` append-only log; RDC 978 + DICQ 4.3 mapping                   |
+| 8       | Phase 10 Checklist            | Data structures, UI components, tests, deployment gates                                     |
+| 9       | Known Limitations             | Extended Westgard disabled, no retroactive bula re-evaluation UI, no IoT yet                |
+| 10      | Deployment                    | Firestore indexes, Cloud Function configuration, rollback plan                              |
+| 11      | References                    | RDC 978/2025, DICQ 4.3, CLSI EP15, ISO 15189, Westgard QC                                   |
 
 **Key design decisions:**
 
@@ -122,7 +124,7 @@ This addresses Phase 9 gaps (single equipment only) and prepares the system for 
 ```firestore
 // Allow creation of ControlMaterial only with valid equipmentIds
 match /labs/{labId}/bioquimica/root/lotes/{lotId} {
-  allow create, update: if 
+  allow create, update: if
     isActiveMember(request.auth.uid, labId) &&
     validateEquipmentArray(resource.data.equipmentIds, labId) &&
     resource.data.labId == labId;
@@ -177,29 +179,29 @@ match /labs/{labId}/bioquimica/root/traceability-events/{eventId} {
 
 ## Regulatory Compliance Mapping
 
-| RDC 978/2025 | DICQ 4.3 | Implemented | Where |
-|---|---|---|---|
-| Art. 179 — CIQ obrigatório | 5.5.1.1 — Método | Analito.metodo + westgardRules | Analyte Registry + Run.violations |
-| Art. 180 — Rastreabilidade material | 5.5.2 — Origem controle | ControlMaterial.origem + equipmentIds | Multi-instrument schema |
-| Art. 181 — Amostra controle auditada | 5.6.3.1 — Registro corrida | Run doc + signature | Immutable runs + TraceabilityEvent |
-| Art. 128 — Reagente rastreado | — | ReagenteSnapshot frozen | In Run doc |
-| Art. 167 — Laudo gerado | — | FR-001 monthly report | Cloud Function + PDF export |
-| Art. 183 — CIQ por lote novo | — | Separate ControlMaterial per lot | Lot ID in Run payload |
-| RDC 786/2023 Art. 42 — Equipamento retenção 5a | — | aposentadoEm + retencaoAte | Equipment lifecycle |
+| RDC 978/2025                                   | DICQ 4.3                   | Implemented                           | Where                              |
+| ---------------------------------------------- | -------------------------- | ------------------------------------- | ---------------------------------- |
+| Art. 179 — CIQ obrigatório                     | 5.5.1.1 — Método           | Analito.metodo + westgardRules        | Analyte Registry + Run.violations  |
+| Art. 180 — Rastreabilidade material            | 5.5.2 — Origem controle    | ControlMaterial.origem + equipmentIds | Multi-instrument schema            |
+| Art. 181 — Amostra controle auditada           | 5.6.3.1 — Registro corrida | Run doc + signature                   | Immutable runs + TraceabilityEvent |
+| Art. 128 — Reagente rastreado                  | —                          | ReagenteSnapshot frozen               | In Run doc                         |
+| Art. 167 — Laudo gerado                        | —                          | FR-001 monthly report                 | Cloud Function + PDF export        |
+| Art. 183 — CIQ por lote novo                   | —                          | Separate ControlMaterial per lot      | Lot ID in Run payload              |
+| RDC 786/2023 Art. 42 — Equipamento retenção 5a | —                          | aposentadoEm + retencaoAte            | Equipment lifecycle                |
 
 ---
 
 ## Phase 10 Timeline & Milestones
 
-| Milestone | Date | Deliverable |
-|-----------|------|-------------|
-| Specification (this phase) | 2026-05-07 | Registry JSON + Strategy MD |
-| Schema migration | 2026-05-10 | Firestore indexes + Rules updates |
-| Westgard engine | 2026-05-14 | westgardEngine.ts + unit tests (50+) |
-| Cloud Functions | 2026-05-18 | recordRunBioquimica + applyBulaToLot |
-| UI components | 2026-05-24 | ControlMaterialSelector + LJ Chart |
-| E2E testing | 2026-05-28 | Multi-instrument scenarios + compliance |
-| Deployment | 2026-05-31 | Hosting + Functions + Rules deploy |
+| Milestone                  | Date       | Deliverable                             |
+| -------------------------- | ---------- | --------------------------------------- |
+| Specification (this phase) | 2026-05-07 | Registry JSON + Strategy MD             |
+| Schema migration           | 2026-05-10 | Firestore indexes + Rules updates       |
+| Westgard engine            | 2026-05-14 | westgardEngine.ts + unit tests (50+)    |
+| Cloud Functions            | 2026-05-18 | recordRunBioquimica + applyBulaToLot    |
+| UI components              | 2026-05-24 | ControlMaterialSelector + LJ Chart      |
+| E2E testing                | 2026-05-28 | Multi-instrument scenarios + compliance |
+| Deployment                 | 2026-05-31 | Hosting + Functions + Rules deploy      |
 
 ---
 

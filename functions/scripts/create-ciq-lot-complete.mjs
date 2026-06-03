@@ -47,19 +47,19 @@ try {
     // Rastreabilidade Worklab (RDC 978/2025)
     rastreabilidadeWorklab: {
       exam: 'CTL',
-      codigo: '107416'
+      codigo: '107416',
     },
 
     // Valores de controle (média e desvio padrão)
     mean: {
       atividadeProtrombinica: 100,
       rni: 2.5,
-      ttpa: 35
+      ttpa: 35,
     },
     sd: {
       atividadeProtrombinica: 5,
       rni: 0.5,
-      ttpa: 3
+      ttpa: 3,
     },
 
     // Status
@@ -72,12 +72,7 @@ try {
   };
 
   // Criar CIQ lot
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('ciq-coagulacao')
-    .doc(lotId)
-    .set(lotData);
+  await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(lotId).set(lotData);
 
   console.log('\n✅ CIQ lot criado com sucesso!\n');
   console.log(`   ID do lote: ${lotId}`);
@@ -91,7 +86,6 @@ try {
   console.log(`     ├─ NF: ${notaFiscalId} (NF 10123)`);
   console.log(`     ├─ Worklab: CTL 107416`);
   console.log(`     └─ Valores: AP=100±5, INR=2.5±0.5, TTPA=35±3\n`);
-
 } catch (err) {
   console.error('❌ Erro ao criar CIQ lot:');
   console.error('   Código:', err.code);

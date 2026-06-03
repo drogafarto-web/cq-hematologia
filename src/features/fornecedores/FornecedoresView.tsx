@@ -20,10 +20,7 @@ import {
   deleteFornecedor,
   countNotasByFornecedor,
 } from './services/fornecedorService';
-import {
-  deleteNotaFiscal,
-  countInsumosByNota,
-} from './services/notaFiscalService';
+import { deleteNotaFiscal, countInsumosByNota } from './services/notaFiscalService';
 import { callConfirmarRecebimento } from './services/notaFiscalCallables';
 import { FornecedorFormModal } from './components/FornecedorFormModal';
 import { NotaFiscalFormModal } from './components/NotaFiscalFormModal';
@@ -95,9 +92,7 @@ function ConferirRecebimentoModal({
         nfId,
         desviosObservados: desvios || undefined,
       });
-      toast.success(
-        `${result.lotesGerados.length} lote(s) criado(s) com sucesso`
-      );
+      toast.success(`${result.lotesGerados.length} lote(s) criado(s) com sucesso`);
       onConfirmed(result.lotesGerados);
       onClose();
     } catch (err) {
@@ -142,7 +137,12 @@ function ConferirRecebimentoModal({
             className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all disabled:opacity-50"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M3 3l8 8M11 3l-8 8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -209,9 +209,9 @@ export function FornecedoresView({ labId, canMutate }: FornecedoresViewProps) {
           Fornecedores & notas fiscais
         </h2>
         <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5 max-w-2xl leading-relaxed">
-          Cadastro global do lab. Fornecedor → nota fiscal → lote — rastreabilidade
-          fiscal completa exigida pela RDC 786/2023 art. 42. Cada lote cadastrado
-          pode (e deve) ser vinculado a uma nota.
+          Cadastro global do lab. Fornecedor → nota fiscal → lote — rastreabilidade fiscal completa
+          exigida pela RDC 786/2023 art. 42. Cada lote cadastrado pode (e deve) ser vinculado a uma
+          nota.
         </p>
       </header>
 
@@ -439,8 +439,8 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
           {!search.trim() && !showInactive && canMutate && (
             <>
               <p className="text-xs text-slate-500 dark:text-white/40 mt-1 max-w-md mx-auto leading-relaxed">
-                Cadastre os fornecedores do lab pra vincular notas fiscais e
-                acompanhar histórico de fornecimento.
+                Cadastre os fornecedores do lab pra vincular notas fiscais e acompanhar histórico de
+                fornecimento.
               </p>
               <button
                 type="button"
@@ -549,8 +549,19 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                             className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-amber-600 dark:hover:text-amber-400 hover:bg-amber-500/10 transition-colors"
                           >
                             <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
-                              <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.2" />
-                              <path d="M3 9l6-6" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+                              <circle
+                                cx="6"
+                                cy="6"
+                                r="4.5"
+                                stroke="currentColor"
+                                strokeWidth="1.2"
+                              />
+                              <path
+                                d="M3 9l6-6"
+                                stroke="currentColor"
+                                strokeWidth="1.2"
+                                strokeLinecap="round"
+                              />
                             </svg>
                             Desativar
                           </button>
@@ -563,7 +574,13 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                               title="Reativar"
                               className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-emerald-600 dark:hover:text-emerald-400 hover:bg-emerald-500/10 transition-colors"
                             >
-                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+                              <svg
+                                width="11"
+                                height="11"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                aria-hidden
+                              >
                                 <path
                                   d="M2 6l3 3 5-5"
                                   stroke="currentColor"
@@ -581,7 +598,13 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
                               title="Excluir (só se não tiver notas)"
                               className="inline-flex items-center gap-1 px-2 h-7 rounded-md text-[11px] font-medium text-slate-600 dark:text-white/60 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-500/10 transition-colors"
                             >
-                              <svg width="11" height="11" viewBox="0 0 12 12" fill="none" aria-hidden>
+                              <svg
+                                width="11"
+                                height="11"
+                                viewBox="0 0 12 12"
+                                fill="none"
+                                aria-hidden
+                              >
                                 <path
                                   d="M2.5 3.5h7M5 2h2m-3 1.5v6.5a1 1 0 001 1h2a1 1 0 001-1V3.5m-3 2v4m2-4v4"
                                   stroke="currentColor"
@@ -604,9 +627,7 @@ function FornecedoresSection({ labId, canMutate }: { labId: string; canMutate: b
         </div>
       )}
 
-      {showNovo && (
-        <FornecedorFormModal labId={labId} onClose={() => setShowNovo(false)} />
-      )}
+      {showNovo && <FornecedorFormModal labId={labId} onClose={() => setShowNovo(false)} />}
       {emEdicao && (
         <FornecedorFormModal
           labId={labId}
@@ -626,10 +647,7 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
   const [actionError, setActionError] = useState<string | null>(null);
   const [selectedNFForConferencia, setSelectedNFForConferencia] = useState<string | null>(null);
 
-  const filters = useMemo(
-    () => ({ query: search.trim() || undefined }),
-    [search],
-  );
+  const filters = useMemo(() => ({ query: search.trim() || undefined }), [search]);
   const { notas, isLoading, error } = useNotasFiscais(filters);
   const { fornecedores } = useFornecedores();
   const fornecedorById = useMemo(() => {
@@ -743,13 +761,16 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
                         NF {n.numero}
                         {n.serie && n.serie !== '1' && (
                           <span className="text-slate-500 dark:text-white/45 font-normal">
-                            {' '}· Série {n.serie}
+                            {' '}
+                            · Série {n.serie}
                           </span>
                         )}
                       </p>
                     </div>
                     <p className="text-[11px] text-slate-500 dark:text-white/45 mt-0.5 truncate">
-                      {f ? `${f.nomeFantasia ?? f.razaoSocial} · ${formatCnpj(f.cnpj)}` : 'Fornecedor removido'}
+                      {f
+                        ? `${f.nomeFantasia ?? f.razaoSocial} · ${formatCnpj(f.cnpj)}`
+                        : 'Fornecedor removido'}
                     </p>
                     <div className="flex flex-wrap gap-x-3 gap-y-0.5 mt-1">
                       <span className="text-[11px] text-slate-500 dark:text-white/45">
@@ -823,9 +844,7 @@ function NotasSection({ labId, canMutate }: { labId: string; canMutate: boolean 
         </div>
       )}
 
-      {showNovo && (
-        <NotaFiscalFormModal labId={labId} onClose={() => setShowNovo(false)} />
-      )}
+      {showNovo && <NotaFiscalFormModal labId={labId} onClose={() => setShowNovo(false)} />}
 
       <ConferirRecebimentoModal
         open={!!selectedNFForConferencia}

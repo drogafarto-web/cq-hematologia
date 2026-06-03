@@ -41,12 +41,12 @@ npm i -g k6-reporter
 
 **Workload Distribution:**
 
-| Workload | Peso | Descrição | SLA |
-|----------|------|-----------|-----|
-| Portal config reads | 50% | 10k pacientes acessando portal | <150ms P95 |
-| NOTIVISA events | 20% | Criação de eventos (publicação de laudos) | <300ms P95 |
-| Critical escalations | 15% | Escalação de resultados críticos | <200ms P95 |
-| Draft locks | 15% | Aquisição/liberação de locks (edição RT) | <100ms P95 |
+| Workload             | Peso | Descrição                                 | SLA        |
+| -------------------- | ---- | ----------------------------------------- | ---------- |
+| Portal config reads  | 50%  | 10k pacientes acessando portal            | <150ms P95 |
+| NOTIVISA events      | 20%  | Criação de eventos (publicação de laudos) | <300ms P95 |
+| Critical escalations | 15%  | Escalação de resultados críticos          | <200ms P95 |
+| Draft locks          | 15%  | Aquisição/liberação de locks (edição RT)  | <100ms P95 |
 
 ---
 
@@ -300,27 +300,27 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '22'
-      
+
       - name: Install k6
         run: |
           curl https://dl.k6.io/release/v0.50.0/k6-v0.50.0-linux-amd64.tar.gz | tar xz
           sudo mv k6 /usr/local/bin/
-      
+
       - name: Install k6-reporter
         run: npm i -g k6-reporter
-      
+
       - name: Run load test
         run: ./scripts/load-test-phase-3.sh ${{ inputs.scenario || 'baseline' }}
         env:
           TEST_LAB_ID: lab_ci_${{ github.run_id }}
-      
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v3
         with:
           name: load-test-results
           path: load-test-results-*.{json,html}
-      
+
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v6

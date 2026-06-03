@@ -48,11 +48,7 @@ export const DEFAULT_TIER_LADDER: ReadonlyArray<{
  * @param windowMin Tier SLA window (minutes)
  * @param nowMs Current time (ms epoch)
  */
-export function isTierExpired(
-  activatedAtMs: number,
-  windowMin: number,
-  nowMs: number,
-): boolean {
+export function isTierExpired(activatedAtMs: number, windowMin: number, nowMs: number): boolean {
   const deadlineMs = activatedAtMs + windowMin * 60 * 1000;
   return nowMs > deadlineMs;
 }
@@ -101,7 +97,9 @@ export function getRemainingTierMs(
 /**
  * Determine outcome label from the tier on which acknowledgment occurred.
  */
-export function outcomeFromAckTier(tier: TierNumber): 'reconhecido_tier1' | 'reconhecido_tier2' | 'reconhecido_tier3' {
+export function outcomeFromAckTier(
+  tier: TierNumber,
+): 'reconhecido_tier1' | 'reconhecido_tier2' | 'reconhecido_tier3' {
   return `reconhecido_tier${tier}` as const;
 }
 

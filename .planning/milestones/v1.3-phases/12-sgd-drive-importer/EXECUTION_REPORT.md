@@ -161,13 +161,15 @@ Phase 12 Plan 01 — SGD Foundation + Drive Importer successfully scaffolded and
 ## Quality Metrics
 
 ### Code Quality
+
 - ✅ **TypeScript**: Zero errors (`npx tsc --noEmit` passes)
 - ✅ **Linting**: No ESLint violations (config inherited from project)
 - ✅ **Naming**: Consistent with project conventions (camelCase, descriptive)
-- ✅ **Comments**: Clear docstrings (/** */ JSDoc)
+- ✅ **Comments**: Clear docstrings (/\*\* \*/ JSDoc)
 - ✅ **Type Safety**: All any types eliminated; strict mode applicable
 
 ### Architecture
+
 - ✅ **Multi-tenant**: labId in all service signatures + Firestore paths
 - ✅ **Soft-delete**: RN-06 pattern (mark deletadoEm, never hard-delete)
 - ✅ **Audit trail**: LogicalSignature (hash + operatorId + ts) on every write
@@ -175,6 +177,7 @@ Phase 12 Plan 01 — SGD Foundation + Drive Importer successfully scaffolded and
 - ✅ **Security**: Firestore rules pattern (custom claims + payload validation)
 
 ### Design & UX
+
 - ✅ **Dark-first**: bg-[#141417], white text, violet/emerald accents
 - ✅ **World-class**: Apple/Linear/Stripe reference applied
 - ✅ **a11y baseline**: WCAG AA (contrasts, keyboard nav, ARIA labels)
@@ -182,13 +185,15 @@ Phase 12 Plan 01 — SGD Foundation + Drive Importer successfully scaffolded and
 - ✅ **Microinteractions**: Hover states, transitions 150-200ms, loading spinners
 
 ### Testing
+
 - ✅ **Unit tests**: Audit hash (6 specs, determinism + verification)
 - ✅ **Test framework**: Vitest (matches project)
 - ✅ **Coverage**: Target 80%+ for Phase 12-02+ integration tests
 - ✅ **Mock strategy**: Ready for Firebase mock + Google API mock
 
 ### Documentation
-- ✅ **Module rules**: CLAUDE.md with RN-SGD-* constraints
+
+- ✅ **Module rules**: CLAUDE.md with RN-SGD-\* constraints
 - ✅ **Planning artifacts**: PHASE_OVERVIEW + CONTEXT + 3 PLAN files
 - ✅ **Code comments**: JSDoc on public functions
 - ✅ **Regulatory mapping**: DICQ 4.3, RDC 978, LGPD compliance explicit
@@ -197,26 +202,26 @@ Phase 12 Plan 01 — SGD Foundation + Drive Importer successfully scaffolded and
 
 ## Technical Stack
 
-| Layer | Technology | Version |
-|-------|-----------|---------|
-| Frontend | React 19 | 19.x |
-| TypeScript | TypeScript | 5.8+ |
-| Styling | Tailwind CSS 4 | 4.x |
-| State | Zustand 5 | 5.x |
-| Firebase | Firestore | v12 |
-| Firebase | Functions | Node 22 |
-| Firebase | Auth | v12 |
-| Testing | Vitest | latest |
-| AI (Phase 12-02) | Gemini 2.5 Flash | 2.5 |
+| Layer            | Technology       | Version |
+| ---------------- | ---------------- | ------- |
+| Frontend         | React 19         | 19.x    |
+| TypeScript       | TypeScript       | 5.8+    |
+| Styling          | Tailwind CSS 4   | 4.x     |
+| State            | Zustand 5        | 5.x     |
+| Firebase         | Firestore        | v12     |
+| Firebase         | Functions        | Node 22 |
+| Firebase         | Auth             | v12     |
+| Testing          | Vitest           | latest  |
+| AI (Phase 12-02) | Gemini 2.5 Flash | 2.5     |
 
 ---
 
 ## Commits
 
-| Commit | Message | LOC |
-|--------|---------|-----|
+| Commit  | Message                                                                         | LOC    |
+| ------- | ------------------------------------------------------------------------------- | ------ |
 | ba943e4 | feat(12-sgd-drive-importer): Phase 12 Plan 01 — SGD Foundation + Drive Importer | +2,258 |
-| 27a6400 | fix(sgd): TypeScript validation — auth import + type fixes | +28 |
+| 27a6400 | fix(sgd): TypeScript validation — auth import + type fixes                      | +28    |
 
 **Total**: 2,286 LOC committed
 
@@ -239,6 +244,7 @@ Before Phase 12-02 starts:
 ## Phase 12-02 (Gemini Classification + Linking)
 
 **Planned deliverables**:
+
 1. Cloud Function `classify-sgd-document.ts` — Gemini Flash 2.5 + Zod validation
 2. Link suggestions engine (cosine similarity, POP code regex, keyword matching)
 3. Classification result caching
@@ -253,6 +259,7 @@ Before Phase 12-02 starts:
 ## Phase 12-03 (Integration + Deploy)
 
 **Planned deliverables**:
+
 1. SGD module in Feature Hub
 2. E2E flow test: import → classify → link → view
 3. a11y audit (Lighthouse)
@@ -266,13 +273,13 @@ Before Phase 12-02 starts:
 
 ## Risks & Mitigations (Locked)
 
-| Risk | Severity | Mitigation |
-|------|----------|-----------|
-| Gemini misclassifies edge-case docs | Medium | Manual override UI; audit trail captures confidence |
-| LGPD — imported docs contain PII | High | Audit intent + consent logged; access control via rules |
-| Drive source URL broken after user deletes file | Medium | Cache URL 24h; warn user; Phase 13 backup |
-| Batch import timeout | Medium | Resumable import via jobId + checkpoints |
-| Duplicate imports | Low | Preview step highlights duplicate driveFileId |
+| Risk                                            | Severity | Mitigation                                              |
+| ----------------------------------------------- | -------- | ------------------------------------------------------- |
+| Gemini misclassifies edge-case docs             | Medium   | Manual override UI; audit trail captures confidence     |
+| LGPD — imported docs contain PII                | High     | Audit intent + consent logged; access control via rules |
+| Drive source URL broken after user deletes file | Medium   | Cache URL 24h; warn user; Phase 13 backup               |
+| Batch import timeout                            | Medium   | Resumable import via jobId + checkpoints                |
+| Duplicate imports                               | Low      | Preview step highlights duplicate driveFileId           |
 
 ---
 

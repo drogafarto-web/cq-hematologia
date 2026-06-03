@@ -88,7 +88,7 @@ export function TrainingScreen({ route }: TrainingScreenProps): React.JSX.Elemen
           training.lastSignedAt
             ? new Date(training.lastSignedAt).toLocaleDateString('pt-BR')
             : 'data desconhecida'
-        }.`
+        }.`,
       );
       return;
     }
@@ -113,24 +113,21 @@ export function TrainingScreen({ route }: TrainingScreenProps): React.JSX.Elemen
       // Update local state optimistically
       setTrainings((prev) =>
         prev.map((t) =>
-          t.id === selectedTraining.id
-            ? { ...t, status: 'signed', lastSignedAt: Date.now() }
-            : t
-        )
+          t.id === selectedTraining.id ? { ...t, status: 'signed', lastSignedAt: Date.now() } : t,
+        ),
       );
 
       setSignatureModalVisible(false);
       Alert.alert('Sucesso', `Treinamento "${selectedTraining.title}" assinado com sucesso.`);
     } catch (err: any) {
-      const isNetworkError =
-        err.code === 'unavailable' || err.message?.includes('network');
+      const isNetworkError = err.code === 'unavailable' || err.message?.includes('network');
 
       setSignatureModalVisible(false);
 
       if (isNetworkError) {
         Alert.alert(
           'Assinatura enfileirada',
-          'Sem conexão. A assinatura será enviada automaticamente ao reconectar.'
+          'Sem conexão. A assinatura será enviada automaticamente ao reconectar.',
         );
       } else {
         Alert.alert('Erro', err.message || 'Falha ao assinar treinamento.');
@@ -176,7 +173,8 @@ export function TrainingScreen({ route }: TrainingScreenProps): React.JSX.Elemen
 
               {due ? (
                 <Text style={[styles.dueDate, due.isPast && styles.dueDateOverdue]}>
-                  {due.isPast ? 'Venceu em ' : 'Vence em '}{due.label}
+                  {due.isPast ? 'Venceu em ' : 'Vence em '}
+                  {due.label}
                 </Text>
               ) : null}
 

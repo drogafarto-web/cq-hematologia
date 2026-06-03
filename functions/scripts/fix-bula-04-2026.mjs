@@ -157,7 +157,9 @@ async function main() {
     batch.set(lotsCol.doc(id), lotDoc);
     batch.set(insumosCol.doc(id), insumoDoc);
     await batch.commit();
-    console.log(`  ✓ ${lot.lotNumber} NV${lot.level} criado (id=${id.slice(0, 8)}, analytes=${requiredAnalytes.length})`);
+    console.log(
+      `  ✓ ${lot.lotNumber} NV${lot.level} criado (id=${id.slice(0, 8)}, analytes=${requiredAnalytes.length})`,
+    );
   }
 
   // ── 2) Arquivar lotes antigos da bula 03/2026 ────────────────────────────
@@ -183,7 +185,9 @@ async function main() {
         batch.update(insumoRef, { archivedAt: now, status: 'fechado' });
       }
       await batch.commit();
-      console.log(`  ✓ ${lotNumber} arquivado (id=${doc.id.slice(0, 8)}, archivedAt=${nowDate.toISOString()})`);
+      console.log(
+        `  ✓ ${lotNumber} arquivado (id=${doc.id.slice(0, 8)}, archivedAt=${nowDate.toISOString()})`,
+      );
     }
   }
 

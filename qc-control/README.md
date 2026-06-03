@@ -4,15 +4,15 @@ Sistema de Controle de Qualidade para laboratório de coagulação.
 
 ## Stack
 
-| Layer | Tecnologia |
-|---|---|
-| Framework | Next.js 14 App Router |
-| Linguagem | TypeScript strict |
-| ORM | Prisma 5 + PostgreSQL 16 |
-| Estilo | Tailwind CSS 3 |
-| Gráficos | Recharts (Levey-Jennings) |
-| Auth | NextAuth.js v5 (Credentials) |
-| Testes | Vitest + Playwright |
+| Layer     | Tecnologia                   |
+| --------- | ---------------------------- |
+| Framework | Next.js 14 App Router        |
+| Linguagem | TypeScript strict            |
+| ORM       | Prisma 5 + PostgreSQL 16     |
+| Estilo    | Tailwind CSS 3               |
+| Gráficos  | Recharts (Levey-Jennings)    |
+| Auth      | NextAuth.js v5 (Credentials) |
+| Testes    | Vitest + Playwright          |
 
 ## Pré-requisitos
 

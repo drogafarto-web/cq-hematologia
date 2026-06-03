@@ -21,14 +21,16 @@ import {
   where,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type { CienciaResponsabilidades, CienciaResponsabilidadesInput } from '../types/CienciaResponsabilidades';
+import type {
+  CienciaResponsabilidades,
+  CienciaResponsabilidadesInput,
+} from '../types/CienciaResponsabilidades';
 
 type LabId = string;
 
 // ─── Paths ──────────────────────────────────────────────────────────────────
 
-const cienciasCol = (labId: LabId) =>
-  collection(db, 'personnel', labId, 'ciencias');
+const cienciasCol = (labId: LabId) => collection(db, 'personnel', labId, 'ciencias');
 
 // ─── Hash generation ────────────────────────────────────────────────────────
 
@@ -65,7 +67,7 @@ export function watchCiencias(
   return onSnapshot(
     q,
     (snap) => {
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as CienciaResponsabilidades));
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as CienciaResponsabilidades);
       callback(items);
     },
     (err) => {

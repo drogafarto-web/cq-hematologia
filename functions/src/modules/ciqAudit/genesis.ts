@@ -5,5 +5,7 @@ import { createHash } from 'crypto';
 const GENESIS_PREFIX = 'hcq-audit-genesis:';
 
 export function genesisHash(labId: string): string {
-  return createHash('sha256').update(GENESIS_PREFIX + labId).digest('hex');
+  return createHash('sha256')
+    .update(GENESIS_PREFIX + labId)
+    .digest('hex');
 }

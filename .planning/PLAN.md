@@ -38,6 +38,7 @@ Day 8:    Deploy + monitoring
 **Objective:** Formalize spec, get CTO sign-off before coding.
 
 **Deliverables:**
+
 - ADR 0005 doc in `docs/adr/0005-helper-cryptoaudit.md`
 - Includes:
   - Problem statement (V-009 duplication)
@@ -48,6 +49,7 @@ Day 8:    Deploy + monitoring
   - Rollback plan
 
 **Acceptance:**
+
 - [ ] ADR draft complete
 - [ ] CTO review + ack
 - [ ] No open questions on implementation
@@ -64,12 +66,14 @@ Day 8:    Deploy + monitoring
 **Objective:** Configure `HCQ_SIGNATURE_HMAC_KEY` in Firebase.
 
 **Details:**
+
 - Key size: 32 bytes (256-bit) for SHA-256
 - Generate: `openssl rand -hex 32`
 - Store in: `firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --data "<value>"`
 - Verify: `firebase functions:secrets:access HCQ_SIGNATURE_HMAC_KEY` (returns `[object Object]`)
 
 **Acceptance:**
+
 - [ ] Secret set in Firebase
 - [ ] Accessible in local emulator
 - [ ] CI/CD has secret available (GitHub Actions / Cloud Build)
@@ -82,6 +86,7 @@ Day 8:    Deploy + monitoring
 **Objective:** Create directory + boilerplate for crypto helper.
 
 **Files:**
+
 ```
 functions/src/modules/audit/
 ├── cryptoAudit.ts              (helper: sign, verify, chain operations)
@@ -91,11 +96,13 @@ functions/src/modules/audit/
 ```
 
 **Boilerplate:**
+
 - Import crypto, admin, functions
 - Environment: `process.env.HCQ_SIGNATURE_HMAC_KEY`
 - Logger: structured logs with HMAC validation results
 
 **Acceptance:**
+
 - [ ] Directory created
 - [ ] Imports working
 - [ ] Tests runnable (empty suite OK)
@@ -112,41 +119,35 @@ functions/src/modules/audit/
 **Objective:** Core HMAC + chain-hash logic.
 
 **Function signatures:**
+
 ```typescript
 // 1. Sign an audit entry
 export async function signAuditEntry(
-  collectionPath: string,      // '/ciq-audit' or '/labs/{labId}/audit-log'
+  collectionPath: string, // '/ciq-audit' or '/labs/{labId}/audit-log'
   docRef: FirebaseFirestore.DocumentReference,
   operadorId: string,
-  operation: string,           // 'insumo.recebido', 'laudo.liberado', etc
-  payload: Record<string, any>
-): Promise<AuditEntry>
+  operation: string, // 'insumo.recebido', 'laudo.liberado', etc
+  payload: Record<string, any>,
+): Promise<AuditEntry>;
 
 // 2. Verify existing entry
-export function verifyAuditEntry(
-  entry: AuditEntry,
-  secret: string
-): boolean
+export function verifyAuditEntry(entry: AuditEntry, secret: string): boolean;
 
 // 3. Get previous hash (for chain)
 export async function getPreviousHash(
   collectionPath: string,
-  orderedBy: 'createdAt' | 'timestamp'
-): Promise<string | null>
+  orderedBy: 'createdAt' | 'timestamp',
+): Promise<string | null>;
 
 // 4. Compute HMAC (standalone, for migration)
-export function computeHmac(
-  data: Record<string, any>,
-  secret: string
-): string
+export function computeHmac(data: Record<string, any>, secret: string): string;
 
 // 5. Compute SHA-256 hash (deterministic)
-export function hashData(
-  data: Record<string, any>
-): string
+export function hashData(data: Record<string, any>): string;
 ```
 
 **Implementation details:**
+
 - JSON deterministic: `JSON.stringify(data, Object.keys(data).sort())`
 - HMAC output: hex format
 - Hash output: hex format
@@ -154,6 +155,7 @@ export function hashData(
 - previousHash: queried from Firestore (last entry), not computed
 
 **Unit tests:**
+
 ```typescript
 describe('cryptoAudit', () => {
   it('signAuditEntry creates valid HMAC', async () => { ... })
@@ -166,6 +168,7 @@ describe('cryptoAudit', () => {
 ```
 
 **Acceptance:**
+
 - [ ] All functions implement per spec
 - [ ] Unit tests >90% coverage
 - [ ] Tests pass in emulator
@@ -181,6 +184,7 @@ describe('cryptoAudit', () => {
 **Objective:** Make `chainHash.ts` + `ciqAudit/writer.ts` use new helper (don't delete).
 
 **Changes:**
+
 ```typescript
 // Before: functions/src/modules/insumos/chainHash.ts
 export async function recordMovement(...) {
@@ -203,6 +207,7 @@ export async function recordMovement(...) {
 ```
 
 **Similarly for `ciqAudit/writer.ts`:**
+
 ```typescript
 import { signAuditEntry } from './cryptoAudit';
 
@@ -219,6 +224,7 @@ export async function writeAuditLog(...) {
 ```
 
 **Acceptance:**
+
 - [ ] Both modules refactored
 - [ ] Integration tests pass
 - [ ] No behavior change (audit output identical)
@@ -235,10 +241,11 @@ export async function writeAuditLog(...) {
 **Objective:** Scheduled Cloud Function to verify chain-hash unbroken.
 
 **Signature:**
+
 ```typescript
 export async function validateChainIntegrity(
   collectionPath: string,
-  options?: { maxAge?: number; batchSize?: number }
+  options?: { maxAge?: number; batchSize?: number },
 ): Promise<{
   valid: boolean;
   violations: Array<{
@@ -248,10 +255,11 @@ export async function validateChainIntegrity(
     actualHash: string;
   }>;
   stats: { scanned: number; valid: number; invalid: number; duration: number };
-}>
+}>;
 ```
 
 **Logic:**
+
 1. Query all entries, sorted by timestamp ascending
 2. For each entry:
    - Recompute HMAC(entry.payload) + secret
@@ -260,11 +268,12 @@ export async function validateChainIntegrity(
 3. Return violations list
 
 **Scheduled deployment:**
+
 ```typescript
 export const validateChainIntegrityScheduled = functions
   .region('southamerica-east1')
   .pubsub.schedule('every 12 hours')
-  .onRun(async context => {
+  .onRun(async (context) => {
     const result = await validateChainIntegrity('/ciq-audit');
     if (!result.valid) {
       console.error('Chain broken:', result.violations);
@@ -275,6 +284,7 @@ export const validateChainIntegrityScheduled = functions
 ```
 
 **Acceptance:**
+
 - [ ] Validator queries Firestore correctly
 - [ ] Recomputes HMAC matching signAuditEntry
 - [ ] Scheduled function deploys
@@ -292,6 +302,7 @@ export const validateChainIntegrityScheduled = functions
 **Objective:** Migrate existing chain-hash entries to new HMAC format.
 
 **Strategy:**
+
 1. Export `/insumo-movimentacoes` (current live chain-hash)
 2. For each doc:
    - If already has `hmac` + `hash`: skip (already new format)
@@ -300,10 +311,13 @@ export const validateChainIntegrityScheduled = functions
 3. Validate chain post-migration
 
 **Script:**
+
 ```typescript
 // functions/scripts/backfill-hmac.mjs
 async function backfillHmac() {
-  const docs = await db.collection('labs').doc(labId)
+  const docs = await db
+    .collection('labs')
+    .doc(labId)
     .collection('insumo-movimentacoes')
     .orderBy('timestamp')
     .get();
@@ -318,6 +332,7 @@ async function backfillHmac() {
 ```
 
 **Acceptance:**
+
 - [ ] Script runs without errors
 - [ ] 100% docs processed
 - [ ] Chain validation passes post-migration
@@ -335,6 +350,7 @@ async function backfillHmac() {
 **Objective:** End-to-end validation.
 
 **Tests:**
+
 1. **Unit:** All cryptoAudit functions (already in 1.3.1)
 2. **Integration:**
    - Create audit entry → verify HMAC valid
@@ -347,11 +363,13 @@ async function backfillHmac() {
    - Scheduled validator runs → 0 violations
 
 **Test environment:**
+
 - Firebase emulator (local)
 - Test data: 50 docs per collection
 - Runs in <2min
 
 **Acceptance:**
+
 - [ ] All tests pass
 - [ ] Coverage >90%
 - [ ] No timeouts
@@ -364,6 +382,7 @@ async function backfillHmac() {
 **Objective:** Review for crypto/secret mgmt risks.
 
 **Checklist:**
+
 - [ ] Secret never logged (grep `-v HCQ_SIGNATURE_HMAC_KEY`)
 - [ ] HMAC-SHA256 is NIST approved
 - [ ] previousHash prevents replay attacks
@@ -372,6 +391,7 @@ async function backfillHmac() {
 - [ ] Firestore rules block direct writes (CF mediation enforced)
 
 **Acceptance:**
+
 - [ ] Security review completed
 - [ ] No critical findings
 - [ ] CTO sign-off
@@ -386,6 +406,7 @@ async function backfillHmac() {
 **Task 1.7.1 — Deploy to Production**
 
 **Steps:**
+
 1. Merge ADR 0005 branch (code review + CTO approval)
 2. `firebase deploy --only functions:signAuditEntry,functions:validateChainIntegrityScheduled,firestore:rules`
 3. Verify in prod:
@@ -395,6 +416,7 @@ async function backfillHmac() {
 4. Monitor errors (Firestore, Cloud Functions logs)
 
 **Acceptance:**
+
 - [ ] Deploy successful
 - [ ] No function errors
 - [ ] Scheduled validator ran 1x successfully
@@ -407,16 +429,19 @@ async function backfillHmac() {
 **Objective:** Catch chain-hash failures early.
 
 **Alerts:**
+
 - If `validateChainIntegrity` returns violations → Slack alert
 - If any HMAC recomputation fails → error log + alert
 - If secret access fails → error log + lock function
 
 **Dashboards (Firestore Analytics):**
+
 - Audit entries created per day
 - HMAC validation pass rate
 - Chain integrity status
 
 **Acceptance:**
+
 - [ ] Alerts configured
 - [ ] Dashboard visible
 - [ ] CTO can monitor
@@ -428,25 +453,25 @@ async function backfillHmac() {
 
 ## Critical Decisions
 
-| Decision | Rationale |
-|----------|-----------|
-| HMAC-SHA256 | NIST approved, deterministic, no decryption needed |
-| Chain-hash (not tree) | Linear for audit log, simpler validation, RDC 978 compatible |
-| Scheduled validator 12h | Catch breaks early; <1min overhead; configurable frequency |
-| Backfill with `_migratedAt` | Track which entries are "old format" vs "new"; audit trail |
-| Cloud Function mediation | Firestore rules can't validate HMAC natively; CF is enforcement point |
+| Decision                    | Rationale                                                             |
+| --------------------------- | --------------------------------------------------------------------- |
+| HMAC-SHA256                 | NIST approved, deterministic, no decryption needed                    |
+| Chain-hash (not tree)       | Linear for audit log, simpler validation, RDC 978 compatible          |
+| Scheduled validator 12h     | Catch breaks early; <1min overhead; configurable frequency            |
+| Backfill with `_migratedAt` | Track which entries are "old format" vs "new"; audit trail            |
+| Cloud Function mediation    | Firestore rules can't validate HMAC natively; CF is enforcement point |
 
 ---
 
 ## Risks & Mitigations
 
-| Risk | Sev | Mitigation |
-|------|-----|-----------|
-| Secret key leak | 🔴 | Never log; use Firebase Secrets; rotate quarterly |
-| HMAC divergence (old vs new) | 🟠 | Backfill validates 100%; scheduled validator catches divergence |
-| Performance: validate 10k entries | 🟠 | Parallel batch validation; runs in ~3-5s; scheduled (not blocking) |
-| Rollback breaks chain | 🔴 | Keep old code path 1 week; dual-read logic if needed; have backup |
-| Previous hash not found (first entry) | 🟡 | previousHash = null OK; validator handles null case |
+| Risk                                  | Sev | Mitigation                                                         |
+| ------------------------------------- | --- | ------------------------------------------------------------------ |
+| Secret key leak                       | 🔴  | Never log; use Firebase Secrets; rotate quarterly                  |
+| HMAC divergence (old vs new)          | 🟠  | Backfill validates 100%; scheduled validator catches divergence    |
+| Performance: validate 10k entries     | 🟠  | Parallel batch validation; runs in ~3-5s; scheduled (not blocking) |
+| Rollback breaks chain                 | 🔴  | Keep old code path 1 week; dual-read logic if needed; have backup  |
+| Previous hash not found (first entry) | 🟡  | previousHash = null OK; validator handles null case                |
 
 ---
 

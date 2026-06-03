@@ -1,12 +1,12 @@
 ---
-title: "ANVISA Lab Director Checklist — NOTIVISA Sandbox Onboarding"
-version: "1.0 (Comprehensive)"
-created: "2026-05-07"
-updated: "2026-05-07"
-status: "Ready for Lab Director Execution — Start TODAY"
-milestone: "v1.4 Phase 4 — Task 04-03 (NOTIVISA Integration)"
-target_deadline: "2026-05-10 (credentials to CTO)"
-audience: "Lab Director + Responsável Técnico (RT) + Administrative staff"
+title: 'ANVISA Lab Director Checklist — NOTIVISA Sandbox Onboarding'
+version: '1.0 (Comprehensive)'
+created: '2026-05-07'
+updated: '2026-05-07'
+status: 'Ready for Lab Director Execution — Start TODAY'
+milestone: 'v1.4 Phase 4 — Task 04-03 (NOTIVISA Integration)'
+target_deadline: '2026-05-10 (credentials to CTO)'
+audience: 'Lab Director + Responsável Técnico (RT) + Administrative staff'
 related_docs:
   - v1.4_NOTIVISA_SANDBOX_SETUP.md (technical reference for CTO)
   - ADR-0014 (sandbox-to-production pathway)
@@ -14,6 +14,7 @@ related_docs:
 ---
 
 # ANVISA Lab Director Checklist
+
 ## NOTIVISA Sandbox Onboarding — Quick-Start Guide
 
 **GOAL:** Complete government registration for NOTIVISA sandbox access **by 2026-05-10** to unblock Phase 4 development (2026-05-20 kickoff).
@@ -63,6 +64,7 @@ Print/organize these **before** calling ANVISA at 0800 642 9782. Have them withi
   - Action: Identify the correct regional health authority for your city/state BEFORE calling
 
 **Pre-Call Checklist:**
+
 - [ ] CNPJ status verified as "ativa" (active)
 - [ ] RT ANVISA login tested successfully
 - [ ] All 6 documents printed or in hand
@@ -76,6 +78,7 @@ Print/organize these **before** calling ANVISA at 0800 642 9782. Have them withi
 You will call ANVISA at: **0800 642 9782** (toll-free, Brazil)
 
 **Call Details:**
+
 - **Expected wait time:** 5–15 minutes
 - **Language:** Portuguese (Brasil) — you don't need to be fluent, use the phrases below
 - **Greeting:** Start with this opening statement
@@ -83,24 +86,24 @@ You will call ANVISA at: **0800 642 9782** (toll-free, Brazil)
 **What to Say (Script):**
 
 ```
-Olá, sou [Your Name], diretor do [Lab Name]. 
-Estou aqui para registrar nosso laboratório no NOTIVISA sandbox 
+Olá, sou [Your Name], diretor do [Lab Name].
+Estou aqui para registrar nosso laboratório no NOTIVISA sandbox
 para integração com nosso sistema de Controle Interno de Qualidade (CIQ), HC Quality.
 
-(Translation: Hello, I am [Your Name], director of [Lab Name]. 
-I am here to register our laboratory in NOTIVISA sandbox 
+(Translation: Hello, I am [Your Name], director of [Lab Name].
+I am here to register our laboratory in NOTIVISA sandbox
 for integration with our Internal Quality Control system, HC Quality.)
 ```
 
 **Follow up with:**
 
 ```
-Nós temos um sistema SaaS chamado HC Quality. 
-Precisamos do acesso ao sandbox NOTIVISA para testar a integração de notificações 
+Nós temos um sistema SaaS chamado HC Quality.
+Precisamos do acesso ao sandbox NOTIVISA para testar a integração de notificações
 de eventos adversos em conformidade com RDC 978 Art. 6º §1 e Portaria 204/2016.
 
-(Translation: We have an SaaS system called HC Quality. 
-We need access to the NOTIVISA sandbox to test adverse event notification integration 
+(Translation: We have an SaaS system called HC Quality.
+We need access to the NOTIVISA sandbox to test adverse event notification integration
 in compliance with RDC 978 Art. 6º §1 and Portaria 204/2016.)
 ```
 
@@ -110,17 +113,18 @@ in compliance with RDC 978 Art. 6º §1 and Portaria 204/2016.)
 
 **ANVISA will ask these questions.** Write down your answers NOW in the table below (filling in TBD fields as ANVISA provides them).
 
-| # | Question | Your Answer | Notes |
-|---|----------|------|-------|
-| **1** | **Client ID / Registration ID?** | _(ANVISA generates after registration)_ | Not asked on first call; they will email this to you |
-| **2** | **API Secret / API Key format?** | TBD | Ask them: "Em qual formato vocês enviam a chave de API? Via e-mail?" |
-| **3** | **Sandbox URL / Endpoint?** | TBD | Ask them: "Qual é a URL base do endpoint sandbox?" |
-| **4** | **Webhook format / Response schema?** | TBD | Ask them: "Vocês têm documentação sobre o formato do webhook / resposta da API?" |
-| **5** | **Rate limits?** | TBD | Ask them: "Qual é o limite de requisições por hora/dia no sandbox?" |
-| **6** | **SLA / Support contact?** | TBD | Ask them: "Qual é o contato para suporte técnico do sandbox?" |
-| **7** | **Certificate requirement timeline?** | TBD | Ask them: "Quando precisamos de certificado digital para produção?" |
+| #     | Question                              | Your Answer                             | Notes                                                                            |
+| ----- | ------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------- |
+| **1** | **Client ID / Registration ID?**      | _(ANVISA generates after registration)_ | Not asked on first call; they will email this to you                             |
+| **2** | **API Secret / API Key format?**      | TBD                                     | Ask them: "Em qual formato vocês enviam a chave de API? Via e-mail?"             |
+| **3** | **Sandbox URL / Endpoint?**           | TBD                                     | Ask them: "Qual é a URL base do endpoint sandbox?"                               |
+| **4** | **Webhook format / Response schema?** | TBD                                     | Ask them: "Vocês têm documentação sobre o formato do webhook / resposta da API?" |
+| **5** | **Rate limits?**                      | TBD                                     | Ask them: "Qual é o limite de requisições por hora/dia no sandbox?"              |
+| **6** | **SLA / Support contact?**            | TBD                                     | Ask them: "Qual é o contato para suporte técnico do sandbox?"                    |
+| **7** | **Certificate requirement timeline?** | TBD                                     | Ask them: "Quando precisamos de certificado digital para produção?"              |
 
 **Template — Copy & Keep Handy:**
+
 ```
 ANVISA CALL NOTES — [DATE] [TIME]
 Attended by: __________________________ + [RT name if present]
@@ -181,12 +185,14 @@ ANVISA Agent name: ____________________
 ### B2. If Agent Says "Sandbox Not Available Yet"
 
 **If ANVISA says sandbox is not ready:**
+
 - Ask: "Qual é a data estimada de disponibilidade?" (What is the estimated availability date?)
 - Get a timeline
 - **Email CTO immediately** (drogafarto@gmail.com) with the timeline
 - Adjust Phase 4 kickoff accordingly
 
 **If ANVISA says "You must use production API instead":**
+
 - This is unusual but possible
 - Politely ask: "Precisamos primeiro validar a integração em ambiente sandbox antes de produção." (We need to validate integration in sandbox first before production.)
 - Insist on sandbox access
@@ -207,7 +213,7 @@ ANVISA Agent name: ____________________
 ```
 Prezados,
 
-Segue confirmação dos dados coletados durante nossa chamada de registro 
+Segue confirmação dos dados coletados durante nossa chamada de registro
 NOTIVISA para a integração do sistema HC Quality.
 
 DADOS DO LABORATÓRIO:
@@ -283,6 +289,7 @@ Atenciosamente,
 **Subject:** `[ANVISA] NOTIVISA Sandbox Credentials Received`
 
 **Message template:**
+
 ```
 Credentials received from ANVISA for HC Quality NOTIVISA sandbox integration.
 
@@ -304,58 +311,66 @@ Original ANVISA email attached.
 
 **Use this table to mark off each step as you complete it.**
 
-| Step | ✓ | Date | Time | Notes |
-|------|---|------|------|-------|
-| **PART A: Prep** | | | | |
-| A1. Documents gathered | ⬜ | | | CNPJ, RT info, address, health authority |
-| A2. Talking points reviewed | ⬜ | | | Re-read Portuguese script in Part A2 |
-| A3. 7 Q&A prepared | ⬜ | | | All questions filled in with "TBD" placeholders |
-| **PART B: Phone Call** | | | | |
-| B1. Call placed to ANVISA | ⬜ | | | Dialed 0800 642 9782 |
-| B2. Waited for agent | ⬜ | | | How long? _____ minutes |
-| B3. All documents provided | ⬜ | | | CNPJ, RT info, address, health authority |
-| B4. 7 questions asked | ⬜ | | | All written down with ANVISA answers |
-| B5. Registration ID received | ⬜ | | | Write here: ______________________ |
-| **PART C: Follow-Up** | | | | |
-| C1. Email sent to ANVISA | ⬜ | | | Confirmation email with call summary |
-| C2. CC sent to CTO | ⬜ | | | drogafarto@gmail.com notified |
-| **PART D: Credentials Received** | | | | |
-| D1. Email from ANVISA arrived | ⬜ | | | Contains API key + sandbox URL |
-| D2. Credentials forwarded to CTO | ⬜ | | | Email sent to drogafarto@gmail.com |
-| D3. CTO confirms storage | ⬜ | | | Firebase Secrets Manager confirmed |
-| **PART E: Verification** | | | | |
-| E1. Dev team runs connectivity test | ⬜ | | | CTO runs: bash test-notivisa-connectivity.sh |
-| E2. Test passing (3 checkmarks) | ⬜ | | | Dev team reports 0 errors |
-| E3. Phase 4 kickoff approved | ⬜ | | | CTO sends green light for 2026-05-20 |
+| Step                                | ✓   | Date | Time | Notes                                           |
+| ----------------------------------- | --- | ---- | ---- | ----------------------------------------------- |
+| **PART A: Prep**                    |     |      |      |                                                 |
+| A1. Documents gathered              | ⬜  |      |      | CNPJ, RT info, address, health authority        |
+| A2. Talking points reviewed         | ⬜  |      |      | Re-read Portuguese script in Part A2            |
+| A3. 7 Q&A prepared                  | ⬜  |      |      | All questions filled in with "TBD" placeholders |
+| **PART B: Phone Call**              |     |      |      |                                                 |
+| B1. Call placed to ANVISA           | ⬜  |      |      | Dialed 0800 642 9782                            |
+| B2. Waited for agent                | ⬜  |      |      | How long? **\_** minutes                        |
+| B3. All documents provided          | ⬜  |      |      | CNPJ, RT info, address, health authority        |
+| B4. 7 questions asked               | ⬜  |      |      | All written down with ANVISA answers            |
+| B5. Registration ID received        | ⬜  |      |      | Write here: **********\_\_**********            |
+| **PART C: Follow-Up**               |     |      |      |                                                 |
+| C1. Email sent to ANVISA            | ⬜  |      |      | Confirmation email with call summary            |
+| C2. CC sent to CTO                  | ⬜  |      |      | drogafarto@gmail.com notified                   |
+| **PART D: Credentials Received**    |     |      |      |                                                 |
+| D1. Email from ANVISA arrived       | ⬜  |      |      | Contains API key + sandbox URL                  |
+| D2. Credentials forwarded to CTO    | ⬜  |      |      | Email sent to drogafarto@gmail.com              |
+| D3. CTO confirms storage            | ⬜  |      |      | Firebase Secrets Manager confirmed              |
+| **PART E: Verification**            |     |      |      |                                                 |
+| E1. Dev team runs connectivity test | ⬜  |      |      | CTO runs: bash test-notivisa-connectivity.sh    |
+| E2. Test passing (3 checkmarks)     | ⬜  |      |      | Dev team reports 0 errors                       |
+| E3. Phase 4 kickoff approved        | ⬜  |      |      | CTO sends green light for 2026-05-20            |
 
 ---
 
 ## PART F: Troubleshooting — Common Issues
 
 ### Issue: "CNPJ status is not 'ativa' (active)"
+
 **Action:** Contact your accountant immediately. CNPJ may be inactive due to unpaid taxes or administrative issues. This must be resolved before ANVISA will register you. Expect 2–5 days.
 
 ### Issue: "RT ANVISA login fails"
+
 **Action:** RT must reset password or re-register at https://portalanvisa.gov.br/. Typically takes 1–2 days. Do this ASAP before calling ANVISA.
 
 ### Issue: "ANVISA says sandbox is not ready yet"
+
 **Action:** Email CTO with the timeline they provide. Phase 4 will need a revised start date. This is not a blocker, but delays development.
 
 ### Issue: "ANVISA asks for a formal authorization letter"
+
 **Action:** RT should sign the letter template in `v1.4_NOTIVISA_SANDBOX_SETUP.md` (Part 1, Step 1.1). RT must sign with electronic signature (ICP-Brasil certificate) or wet signature + scan.
 
 ### Issue: "ANVISA asks for certificate immediately"
+
 **Action:** This means they want production API access (unusual). Politely ask for sandbox-only access first. If they refuse, email CTO — this is a strategic decision requiring executive approval.
 
 ### Issue: "Credentials email doesn't arrive after 5 days"
+
 **Action:** Call ANVISA again at 0800 642 9782 with your registration ID. Ask for status. Check email spam/junk folder.
 
 ### Issue: "Connectivity test fails (sandbox API unreachable)"
+
 **Action:** Check with CTO:
+
 1. Is API key correct in Firebase Secrets Manager?
 2. Is sandbox URL correct in Firebase config?
 3. Is ANVISA sandbox currently under maintenance?
-Contact ANVISA support for sandbox status check.
+   Contact ANVISA support for sandbox status check.
 
 ---
 
@@ -443,45 +458,49 @@ CTO Sign-Off: ____________________  Date: ____________________
 ### Contact Information
 
 **ANVISA NOTIVISA Support:**
+
 - **Phone:** 0800 642 9782 (toll-free, Brazil)
 - **Hours:** Typically 8 AM–6 PM Brasília time, Monday–Friday
 - **Language:** Portuguese (Brasil)
 
 **HC Quality CTO:**
+
 - **Email:** drogafarto@gmail.com
 - **For:** Credential storage, Firebase setup, technical escalations, Phase 4 blockers
 
 **Your Lab Director Info (fill in for ANVISA call):**
-- **Name:** ____________________
-- **Title:** ____________________
-- **Phone:** ____________________
-- **Email:** ____________________
-- **CNPJ:** ____________________
+
+- **Name:** ********\_\_\_\_********
+- **Title:** ********\_\_\_\_********
+- **Phone:** ********\_\_\_\_********
+- **Email:** ********\_\_\_\_********
+- **CNPJ:** ********\_\_\_\_********
 
 ### Portuguese Quick Phrases
 
 **You don't need to be fluent, but these phrases help:**
 
-| English | Portuguese |
-|---------|-----------|
-| Hello | Olá |
-| I need to register our lab in NOTIVISA | Preciso registrar nosso laboratório no NOTIVISA |
-| For system integration | Para integração de sistema |
-| Thank you | Obrigado (if male) / Obrigada (if female) |
-| Can you repeat, please? | Pode repetir, por favor? |
-| What is the registration ID? | Qual é o ID de registro? |
-| When will I receive credentials? | Quando receberei as credenciais? |
-| What is the sandbox URL? | Qual é a URL do sandbox? |
-| What are the rate limits? | Qual é o limite de requisições? |
-| Who is the support contact? | Quem é o contato de suporte? |
-| What is the timeline for a certificate? | Qual é o timeline para certificado digital? |
-| The email address for credentials is: | O endereço de e-mail para as credenciais é: |
+| English                                 | Portuguese                                      |
+| --------------------------------------- | ----------------------------------------------- |
+| Hello                                   | Olá                                             |
+| I need to register our lab in NOTIVISA  | Preciso registrar nosso laboratório no NOTIVISA |
+| For system integration                  | Para integração de sistema                      |
+| Thank you                               | Obrigado (if male) / Obrigada (if female)       |
+| Can you repeat, please?                 | Pode repetir, por favor?                        |
+| What is the registration ID?            | Qual é o ID de registro?                        |
+| When will I receive credentials?        | Quando receberei as credenciais?                |
+| What is the sandbox URL?                | Qual é a URL do sandbox?                        |
+| What are the rate limits?               | Qual é o limite de requisições?                 |
+| Who is the support contact?             | Quem é o contato de suporte?                    |
+| What is the timeline for a certificate? | Qual é o timeline para certificado digital?     |
+| The email address for credentials is:   | O endereço de e-mail para as credenciais é:     |
 
 ---
 
 ## Document Scope (Portaria 204/2016)
 
 **NOTIVISA Coverage:**
+
 - **Integrator:** ANVISA (Brazilian Health Authority)
 - **Document Type:** Notification of notifiable diseases (Portaria 204/2016)
 - **Scope:** 99+ notifiable diseases (as of RDC 978/2025)
@@ -491,6 +510,7 @@ CTO Sign-Off: ____________________  Date: ____________________
   - Event-based: Food poisoning, Chemical exposure, Radiation exposure
 
 **Our System Responsibility:**
+
 - Store draft notifications (notivisa-drafts collection)
 - Queue submissions (notivisa-queue collection)
 - Track status via polling mechanism
@@ -501,13 +521,13 @@ CTO Sign-Off: ____________________  Date: ____________________
 
 ## Timeline
 
-| Date | Owner | Task | Status |
-|------|-------|------|--------|
-| **2026-05-08 (Wed)** | Lab Director | Call ANVISA (0800 642 9782) | 📋 ACTION |
-| **2026-05-10 (Fri)** | Lab Director | **DEADLINE:** Credentials + endpoints to CTO | 🔴 CRITICAL |
-| **2026-05-13 (Mon)** | CTO + Engineer | Validate credentials in Phase 4 pre-check | 📅 GATE |
-| **2026-05-20 (Mon)** | Team | Phase 4 kickoff (Portal Auth + NOTIVISA) | 🟢 LIVE |
-| **2026-06-02 (Sun)** | Team | Phase 4 production deploy | 🎯 TARGET |
+| Date                 | Owner          | Task                                         | Status      |
+| -------------------- | -------------- | -------------------------------------------- | ----------- |
+| **2026-05-08 (Wed)** | Lab Director   | Call ANVISA (0800 642 9782)                  | 📋 ACTION   |
+| **2026-05-10 (Fri)** | Lab Director   | **DEADLINE:** Credentials + endpoints to CTO | 🔴 CRITICAL |
+| **2026-05-13 (Mon)** | CTO + Engineer | Validate credentials in Phase 4 pre-check    | 📅 GATE     |
+| **2026-05-20 (Mon)** | Team           | Phase 4 kickoff (Portal Auth + NOTIVISA)     | 🟢 LIVE     |
+| **2026-06-02 (Sun)** | Team           | Phase 4 production deploy                    | 🎯 TARGET   |
 
 ---
 
@@ -526,14 +546,16 @@ Prezados Senhores,
 Solicitamos acesso ao ambiente sandbox da NOTIVISA para integração de sistema de Controle Interno de Qualidade (CIQ) em nosso laboratório clínico.
 
 **Dados do Laboratório:**
-- CNPJ: __________________
-- Razão Social: __________________
-- Endereço: __________________
-- Telefone: __________________
-- Email de Contato: __________________
-- Responsável Técnico: __________________
+
+- CNPJ: ********\_\_********
+- Razão Social: ********\_\_********
+- Endereço: ********\_\_********
+- Telefone: ********\_\_********
+- Email de Contato: ********\_\_********
+- Responsável Técnico: ********\_\_********
 
 **Escopo da Integração:**
+
 - Sistema: HC Quality (CIQ)
 - Cobertura: 99+ doenças notificáveis (Portaria 204/2016)
 - Tipo de Notificação: Classificação automática (laudo → notificação)
@@ -541,6 +563,7 @@ Solicitamos acesso ao ambiente sandbox da NOTIVISA para integração de sistema 
 - Auditoría: Trilha completa RDC 978/2025 Art. 5.3
 
 **Informações Técnicas Necessárias:**
+
 1. Client ID (OAuth 2.0)
 2. Client Secret
 3. Sandbox base URL
@@ -568,20 +591,20 @@ Diretor(a) de Laboratório
 
 After the Lab Director call, use this checklist to confirm all items received:
 
-- [ ] **Client ID:** ____________________________
-- [ ] **Client Secret:** ____________________________
-- [ ] **Sandbox Base URL:** ____________________________
-- [ ] **Production URL:** ____________________________
-- [ ] **Webhook Format (JSON schema):** ____________________________
-- [ ] **Rate Limits:** ____________________________
-- [ ] **SLA/Uptime:** ____________________________
+- [ ] **Client ID:** ************\_\_\_\_************
+- [ ] **Client Secret:** ************\_\_\_\_************
+- [ ] **Sandbox Base URL:** ************\_\_\_\_************
+- [ ] **Production URL:** ************\_\_\_\_************
+- [ ] **Webhook Format (JSON schema):** ************\_\_\_\_************
+- [ ] **Rate Limits:** ************\_\_\_\_************
+- [ ] **SLA/Uptime:** ************\_\_\_\_************
 - [ ] **Authentication Type:** ☐ OAuth 2.0 ☐ JWT ☐ API Key
 - [ ] **Certificate Requirements:** ☐ Yes (Specify) ☐ No
-- [ ] **Rotation Policy:** ____________________________
-- [ ] **Notifiable Diseases List (PDF/URL):** ____________________________
-- [ ] **Contact Name (ANVISA Liaison):** ____________________________
-- [ ] **Contact Email:** ____________________________
-- [ ] **Contact Phone:** ____________________________
+- [ ] **Rotation Policy:** ************\_\_\_\_************
+- [ ] **Notifiable Diseases List (PDF/URL):** ************\_\_\_\_************
+- [ ] **Contact Name (ANVISA Liaison):** ************\_\_\_\_************
+- [ ] **Contact Email:** ************\_\_\_\_************
+- [ ] **Contact Phone:** ************\_\_\_\_************
 
 ---
 
@@ -670,16 +693,16 @@ REGISTRATION TRACKER: [Registration ID from ANVISA] ______________
 
 ## Timeline Overview
 
-| Phase | Date | Owner | Action | Status |
-|-------|------|-------|--------|--------|
-| **Prep** | 2026-05-07 | Lab Director | Read this checklist + gather documents | 📋 START HERE |
-| **Call** | 2026-05-08/09 | Lab Director | Call ANVISA 0800 642 9782 | 📞 CRITICAL |
-| **Follow-Up** | 2026-05-08/09 | Lab Director | Send confirmation email | ✉️ IMPORTANT |
-| **Waiting** | 2026-05-09 to 2026-05-13 | ANVISA | Process registration (3–5 days) | ⏳ GOVT PROCESS |
-| **Delivery** | By 2026-05-13 | ANVISA | Email credentials to Lab Director | 📧 DEADLINE |
-| **Forward** | 2026-05-13 | Lab Director | Send credentials to CTO | 🚀 URGENT |
-| **Validation** | 2026-05-13 to 2026-05-15 | CTO | Connectivity test + storage | ✅ GATE |
-| **Kickoff** | 2026-05-20 | Team | Phase 4 development starts | 🎯 LAUNCH |
+| Phase          | Date                     | Owner        | Action                                 | Status          |
+| -------------- | ------------------------ | ------------ | -------------------------------------- | --------------- |
+| **Prep**       | 2026-05-07               | Lab Director | Read this checklist + gather documents | 📋 START HERE   |
+| **Call**       | 2026-05-08/09            | Lab Director | Call ANVISA 0800 642 9782              | 📞 CRITICAL     |
+| **Follow-Up**  | 2026-05-08/09            | Lab Director | Send confirmation email                | ✉️ IMPORTANT    |
+| **Waiting**    | 2026-05-09 to 2026-05-13 | ANVISA       | Process registration (3–5 days)        | ⏳ GOVT PROCESS |
+| **Delivery**   | By 2026-05-13            | ANVISA       | Email credentials to Lab Director      | 📧 DEADLINE     |
+| **Forward**    | 2026-05-13               | Lab Director | Send credentials to CTO                | 🚀 URGENT       |
+| **Validation** | 2026-05-13 to 2026-05-15 | CTO          | Connectivity test + storage            | ✅ GATE         |
+| **Kickoff**    | 2026-05-20               | Team         | Phase 4 development starts             | 🎯 LAUNCH       |
 
 ---
 
@@ -703,8 +726,8 @@ STEP 1: GATHER DOCUMENTS (30 min)
 STEP 2: CALL ANVISA (15 min)
 Phone: 0800 642 9782 (toll-free, Brazil)
 Language: Portuguese
-Opening: "Olá, sou [Name], diretor do [Lab Name]. 
-          Preciso registrar nosso laboratório no NOTIVISA sandbox 
+Opening: "Olá, sou [Name], diretor do [Lab Name].
+          Preciso registrar nosso laboratório no NOTIVISA sandbox
           para integração de sistema CIQ, HC Quality."
 
 Ask 7 questions (see Part A3) + write down all answers

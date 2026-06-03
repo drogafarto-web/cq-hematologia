@@ -243,7 +243,8 @@ describe('CAPA Workflow E2E', () => {
 
     const acao = db.createAcao(capaId, {
       tipo: 'corretiva',
-      descricao: 'Profile laudo release function using Cloud Profiler, identify bottlenecks, optimize database queries',
+      descricao:
+        'Profile laudo release function using Cloud Profiler, identify bottlenecks, optimize database queries',
       responsavel: TEST_ENGINEER_ID,
       dataVencimento: TEST_FUTURE_DATE_SHORT,
       status: 'aberta',
@@ -272,7 +273,8 @@ describe('CAPA Workflow E2E', () => {
       verificadoPor: TEST_RT_ID,
       dataVerificacao: new Date(),
       resultado: 'efetiva',
-      notas: 'Profiling identified N+1 queries in laudo release handler. After optimization, release now completes in <1s. Verified in production 5 times, consistent performance.',
+      notas:
+        'Profiling identified N+1 queries in laudo release handler. After optimization, release now completes in <1s. Verified in production 5 times, consistent performance.',
     });
 
     // Verify auto-closed on efetiva
@@ -332,7 +334,8 @@ describe('CAPA Workflow E2E', () => {
       verificadoPor: TEST_RT_ID,
       dataVerificacao: new Date(),
       resultado: 'nao-efetiva',
-      notas: 'Action did not resolve the issue. Root cause analysis suggests a different approach is needed.',
+      notas:
+        'Action did not resolve the issue. Root cause analysis suggests a different approach is needed.',
     });
 
     // Should NOT be auto-closed

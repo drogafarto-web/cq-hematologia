@@ -1,329 +1,478 @@
-<!DOCTYPE html>
+<!doctype html>
 <html class="light" lang="pt-BR">
-<head>
-<meta charset="utf-8"/>
-<title>Analyzer Management · QC Control</title>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms"></script>
-<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/sans.css" rel="stylesheet"/>
-<link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/mono.css" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1" rel="stylesheet"/>
-<style>
-body { font-family: 'Geist', sans-serif; }
-.mono { font-family: 'Geist Mono', monospace; font-variant-numeric: tabular-nums; }
-.material-symbols-outlined { font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 20; vertical-align: middle; font-size: 20px; }
-input:focus, select:focus, textarea:focus { outline: none; border-width: 2px !important; border-color: #004787 !important; }
-</style>
-<script>
-tailwind.config = {
-  darkMode: 'class',
-  theme: {
-    extend: {
-      colors: {
-        primary: '#004787',
-        'primary-hover': '#003160',
-        surface: '#F9F9FF',
-        'surface-variant': '#F3F3F9',
-        border: '#E5E7EB',
-        'border-variant': '#C2C6D2',
-        'on-surface': '#191C20',
-        'on-surface-variant': '#424750',
-        outline: '#727781',
-        error: '#BA1A1A',
-        'error-container': '#FFDAD6',
-        warning: '#D97706',
-        'warning-container': '#FEF3C7',
-        success: '#059669',
-        'success-container': '#D1FAE5',
-      },
-      borderRadius: { DEFAULT: '4px' },
-    }
-  }
-}
-</script>
-</head>
-<body class="bg-white text-on-surface min-h-screen">
-
-<!-- HEADER -->
-<header class="sticky top-0 z-40 h-12 bg-white border-b border-border flex items-center justify-between px-6">
-  <div class="flex items-center gap-3">
-    <a href="#" class="text-on-surface-variant text-sm hover:text-primary flex items-center gap-1">
-      <span class="material-symbols-outlined text-[18px]">chevron_left</span>
-      QC Control
-    </a>
-    <span class="h-5 w-px bg-border-variant"></span>
-    <span class="text-sm font-semibold text-on-surface">Analyzer Management</span>
-  </div>
-  <div class="flex items-center gap-2">
-    <button class="h-9 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded flex items-center gap-1.5">
-      <span class="material-symbols-outlined text-[18px]">add</span>
-      Add Analyzer
-    </button>
-    <div class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold">MS</div>
-  </div>
-</header>
-
-<!-- MAIN -->
-<main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
-
-  <!-- PAGE TITLE -->
-  <div>
-    <h1 class="text-2xl font-semibold text-on-surface tracking-tight">Analyzer Management</h1>
-    <p class="text-sm text-on-surface-variant mt-1">Register analyzers, track calibration cycles, and log maintenance events for DICQ compliance.</p>
-  </div>
-
-  <!-- FILTERS -->
-  <div class="flex flex-wrap gap-3 items-center">
-    <div class="relative flex-1 min-w-[240px]">
-      <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]">search</span>
-      <input type="text" placeholder="Search by ID or model..." class="w-full h-11 pl-10 pr-3 border border-border-variant rounded text-sm bg-white"/>
-    </div>
-    <select class="h-11 px-3 border border-border-variant rounded text-sm bg-white min-w-[180px]">
-      <option>All statuses</option>
-      <option>Operational</option>
-      <option>Cal Due Soon</option>
-      <option>Cal Overdue</option>
-      <option>Maintenance Due</option>
-      <option>Maintenance Overdue</option>
-      <option>Out of Service</option>
-    </select>
-  </div>
-
-  <!-- TABLE -->
-  <section class="border border-border rounded bg-white overflow-hidden">
-    <table class="w-full text-sm">
-      <thead class="bg-surface-variant">
-        <tr class="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
-          <th class="px-5 py-3">ID</th>
-          <th class="px-5 py-3">Model · Manufacturer</th>
-          <th class="px-5 py-3">Location</th>
-          <th class="px-5 py-3">Last Cal</th>
-          <th class="px-5 py-3">Cal Due</th>
-          <th class="px-5 py-3">Last Maint</th>
-          <th class="px-5 py-3">Status</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
-          <td class="px-5 py-3 mono font-semibold text-primary">COAG-01</td>
-          <td class="px-5 py-3">ACL TOP 550 CTS · <span class="text-on-surface-variant">Werfen</span></td>
-          <td class="px-5 py-3">Coag Lab · St 04</td>
-          <td class="px-5 py-3 mono">2026-05-10</td>
-          <td class="px-5 py-3 mono">2027-05-10</td>
-          <td class="px-5 py-3 mono">2026-11-15</td>
-          <td class="px-5 py-3">
-            <span class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full">Operational</span>
-          </td>
-        </tr>
-        <tr class="border-t border-border bg-surface-variant cursor-pointer border-l-4 border-l-primary">
-          <td class="px-5 py-3 mono font-semibold text-primary">COAG-02</td>
-          <td class="px-5 py-3">ACL TOP 350 · <span class="text-on-surface-variant">Werfen</span></td>
-          <td class="px-5 py-3">Coag Lab · St 02</td>
-          <td class="px-5 py-3 mono">2025-01-15</td>
-          <td class="px-5 py-3 mono text-error font-semibold">2026-01-15</td>
-          <td class="px-5 py-3 mono">2026-07-20</td>
-          <td class="px-5 py-3">
-            <span class="px-2 py-0.5 bg-error-container text-red-900 text-[11px] font-semibold rounded-full">Cal Overdue</span>
-          </td>
-        </tr>
-        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
-          <td class="px-5 py-3 mono font-semibold text-primary">COAG-03</td>
-          <td class="px-5 py-3">Sysmex CS-2500 · <span class="text-on-surface-variant">Sysmex</span></td>
-          <td class="px-5 py-3">Main Lab</td>
-          <td class="px-5 py-3 mono">2025-12-01</td>
-          <td class="px-5 py-3 mono text-amber-700 font-semibold">2026-12-01</td>
-          <td class="px-5 py-3 mono">2026-03-10</td>
-          <td class="px-5 py-3">
-            <span class="px-2 py-0.5 bg-warning-container text-amber-900 text-[11px] font-semibold rounded-full">Cal Due Soon</span>
-          </td>
-        </tr>
-        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary">
-          <td class="px-5 py-3 mono font-semibold text-primary">COAG-04</td>
-          <td class="px-5 py-3">Stago STA R Max · <span class="text-on-surface-variant">Stago</span></td>
-          <td class="px-5 py-3">Hematology</td>
-          <td class="px-5 py-3 mono">2026-06-20</td>
-          <td class="px-5 py-3 mono">2027-06-20</td>
-          <td class="px-5 py-3 mono">2026-12-20</td>
-          <td class="px-5 py-3">
-            <span class="px-2 py-0.5 bg-warning-container text-amber-900 text-[11px] font-semibold rounded-full">Maintenance Due</span>
-          </td>
-        </tr>
-        <tr class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary opacity-60">
-          <td class="px-5 py-3 mono font-semibold text-on-surface-variant">COAG-05</td>
-          <td class="px-5 py-3">Siemens CS-2100i · <span class="text-on-surface-variant">Siemens</span></td>
-          <td class="px-5 py-3">Satellite Lab</td>
-          <td class="px-5 py-3 mono">2026-04-05</td>
-          <td class="px-5 py-3 mono">2027-04-05</td>
-          <td class="px-5 py-3 mono">2026-10-05</td>
-          <td class="px-5 py-3">
-            <span class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[11px] font-semibold italic rounded-full">Out of Service</span>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </section>
-
-  <p class="text-xs text-on-surface-variant">3 operational · 1 cal overdue · 1 cal due soon · 1 maintenance due · 1 out of service</p>
-</main>
-
-<!-- FOOTER -->
-<footer class="h-8 border-t border-border bg-white flex items-center justify-between px-6 text-xs text-on-surface-variant">
-  <span>5 analyzers</span>
-  <div class="flex gap-4">
-    <a href="#" class="hover:text-primary">Export PDF</a>
-    <a href="#" class="hover:text-primary">Export Excel</a>
-  </div>
-</footer>
-
-<!-- SLIDE-OUT PANEL -->
-<div id="panelOverlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
-<aside class="fixed right-0 top-0 h-screen w-[480px] bg-white z-50 border-l border-border-variant flex flex-col translate-x-full transition-transform duration-200">
-  <div class="h-12 px-5 border-b border-border flex justify-between items-center">
-    <h2 class="text-base font-semibold text-on-surface">COAG-02</h2>
-    <button class="p-1.5 hover:bg-surface-variant rounded-full" onclick="closePanel()">
-      <span class="material-symbols-outlined">close</span>
-    </button>
-  </div>
-
-  <div class="flex-1 overflow-y-auto p-5 space-y-6">
-
-    <!-- Identification -->
-    <section>
-      <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">Identification</h3>
-      <div class="grid grid-cols-2 gap-3 p-4 bg-surface-variant rounded text-xs">
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">ID</p>
-          <p class="mono text-on-surface">COAG-02</p>
-        </div>
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Model</p>
-          <p class="text-on-surface">ACL TOP 350</p>
-        </div>
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Manufacturer</p>
-          <p class="text-on-surface">Werfen</p>
-        </div>
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Serial Number</p>
-          <p class="mono text-on-surface">WFN-883921</p>
-        </div>
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Installed</p>
-          <p class="mono text-on-surface">20 Nov 2022</p>
-        </div>
-        <div>
-          <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">Location</p>
-          <p class="text-on-surface">Coag Lab · St 02</p>
+  <head>
+    <meta charset="utf-8" />
+    <title>Analyzer Management · QC Control</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms"></script>
+    <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/sans.css" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/font/mono.css" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        font-family: 'Geist', sans-serif;
+      }
+      .mono {
+        font-family: 'Geist Mono', monospace;
+        font-variant-numeric: tabular-nums;
+      }
+      .material-symbols-outlined {
+        font-variation-settings:
+          'FILL' 0,
+          'wght' 400,
+          'GRAD' 0,
+          'opsz' 20;
+        vertical-align: middle;
+        font-size: 20px;
+      }
+      input:focus,
+      select:focus,
+      textarea:focus {
+        outline: none;
+        border-width: 2px !important;
+        border-color: #004787 !important;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              primary: '#004787',
+              'primary-hover': '#003160',
+              surface: '#F9F9FF',
+              'surface-variant': '#F3F3F9',
+              border: '#E5E7EB',
+              'border-variant': '#C2C6D2',
+              'on-surface': '#191C20',
+              'on-surface-variant': '#424750',
+              outline: '#727781',
+              error: '#BA1A1A',
+              'error-container': '#FFDAD6',
+              warning: '#D97706',
+              'warning-container': '#FEF3C7',
+              success: '#059669',
+              'success-container': '#D1FAE5',
+            },
+            borderRadius: { DEFAULT: '4px' },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-white text-on-surface min-h-screen">
+    <!-- HEADER -->
+    <header
+      class="sticky top-0 z-40 h-12 bg-white border-b border-border flex items-center justify-between px-6"
+    >
+      <div class="flex items-center gap-3">
+        <a
+          href="#"
+          class="text-on-surface-variant text-sm hover:text-primary flex items-center gap-1"
+        >
+          <span class="material-symbols-outlined text-[18px]">chevron_left</span>
+          QC Control
+        </a>
+        <span class="h-5 w-px bg-border-variant"></span>
+        <span class="text-sm font-semibold text-on-surface">Analyzer Management</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button
+          class="h-9 px-4 bg-primary hover:bg-primary-hover text-white text-sm font-semibold rounded flex items-center gap-1.5"
+        >
+          <span class="material-symbols-outlined text-[18px]">add</span>
+          Add Analyzer
+        </button>
+        <div
+          class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-xs font-semibold"
+        >
+          MS
         </div>
       </div>
-    </section>
+    </header>
 
-    <!-- Calibration -->
-    <section class="border-l-4 border-l-error bg-white border border-border-variant p-4 rounded">
-      <div class="flex justify-between items-start mb-3">
-        <h3 class="text-base font-semibold text-on-surface">Calibration</h3>
-        <span class="px-2 py-0.5 bg-error-container text-error text-[10px] font-semibold rounded-full">Overdue</span>
+    <!-- MAIN -->
+    <main class="max-w-[1200px] mx-auto px-6 py-8 space-y-6">
+      <!-- PAGE TITLE -->
+      <div>
+        <h1 class="text-2xl font-semibold text-on-surface tracking-tight">Analyzer Management</h1>
+        <p class="text-sm text-on-surface-variant mt-1">
+          Register analyzers, track calibration cycles, and log maintenance events for DICQ
+          compliance.
+        </p>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Last Calibration</label>
-          <input type="text" value="15 Jan 2025" readonly class="w-full h-10 px-3 bg-surface-variant rounded text-sm cursor-not-allowed mono"/>
+      <!-- FILTERS -->
+      <div class="flex flex-wrap gap-3 items-center">
+        <div class="relative flex-1 min-w-[240px]">
+          <span
+            class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant text-[18px]"
+            >search</span
+          >
+          <input
+            type="text"
+            placeholder="Search by ID or model..."
+            class="w-full h-11 pl-10 pr-3 border border-border-variant rounded text-sm bg-white"
+          />
         </div>
-        <div>
-          <label class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1">Next Due</label>
-          <input type="date" value="2026-01-15" class="w-full h-10 px-3 border-2 border-primary rounded text-sm mono"/>
-        </div>
-      </div>
-      <p class="text-xs text-on-surface-variant italic mb-3">Interval: 12 months</p>
-      <button class="w-full h-10 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded">
-        Record New Calibration
-      </button>
-    </section>
-
-    <!-- Maintenance History -->
-    <section>
-      <div class="flex justify-between items-center mb-3">
-        <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">Maintenance History</h3>
-        <button class="text-xs text-primary font-semibold hover:underline">Log Maintenance</button>
+        <select
+          class="h-11 px-3 border border-border-variant rounded text-sm bg-white min-w-[180px]"
+        >
+          <option>All statuses</option>
+          <option>Operational</option>
+          <option>Cal Due Soon</option>
+          <option>Cal Overdue</option>
+          <option>Maintenance Due</option>
+          <option>Maintenance Overdue</option>
+          <option>Out of Service</option>
+        </select>
       </div>
 
-      <div class="border border-border-variant rounded bg-white overflow-hidden">
-        <table class="w-full text-xs">
+      <!-- TABLE -->
+      <section class="border border-border rounded bg-white overflow-hidden">
+        <table class="w-full text-sm">
           <thead class="bg-surface-variant">
-            <tr class="text-left text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider">
-              <th class="p-2">Date</th>
-              <th class="p-2">Type</th>
-              <th class="p-2">Technician</th>
-              <th class="p-2">Outcome</th>
+            <tr
+              class="text-left text-xs font-semibold text-on-surface-variant uppercase tracking-wider"
+            >
+              <th class="px-5 py-3">ID</th>
+              <th class="px-5 py-3">Model · Manufacturer</th>
+              <th class="px-5 py-3">Location</th>
+              <th class="px-5 py-3">Last Cal</th>
+              <th class="px-5 py-3">Cal Due</th>
+              <th class="px-5 py-3">Last Maint</th>
+              <th class="px-5 py-3">Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr class="border-t border-border-variant">
-              <td class="p-2 mono">2026-07-20</td>
-              <td class="p-2"><span class="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">Preventive</span></td>
-              <td class="p-2">J. Doe</td>
-              <td class="p-2 text-success">Pass</td>
+            <tr
+              class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary"
+            >
+              <td class="px-5 py-3 mono font-semibold text-primary">COAG-01</td>
+              <td class="px-5 py-3">
+                ACL TOP 550 CTS · <span class="text-on-surface-variant">Werfen</span>
+              </td>
+              <td class="px-5 py-3">Coag Lab · St 04</td>
+              <td class="px-5 py-3 mono">2026-05-10</td>
+              <td class="px-5 py-3 mono">2027-05-10</td>
+              <td class="px-5 py-3 mono">2026-11-15</td>
+              <td class="px-5 py-3">
+                <span
+                  class="px-2 py-0.5 bg-success-container text-green-800 text-[11px] font-semibold rounded-full"
+                  >Operational</span
+                >
+              </td>
             </tr>
-            <tr class="border-t border-border-variant">
-              <td class="p-2 mono">2026-04-12</td>
-              <td class="p-2"><span class="px-1.5 py-0.5 bg-warning-container text-amber-900 text-[10px] font-semibold rounded">Corrective</span></td>
-              <td class="p-2">M. Smith</td>
-              <td class="p-2 text-success">Pass</td>
+            <tr
+              class="border-t border-border bg-surface-variant cursor-pointer border-l-4 border-l-primary"
+            >
+              <td class="px-5 py-3 mono font-semibold text-primary">COAG-02</td>
+              <td class="px-5 py-3">
+                ACL TOP 350 · <span class="text-on-surface-variant">Werfen</span>
+              </td>
+              <td class="px-5 py-3">Coag Lab · St 02</td>
+              <td class="px-5 py-3 mono">2025-01-15</td>
+              <td class="px-5 py-3 mono text-error font-semibold">2026-01-15</td>
+              <td class="px-5 py-3 mono">2026-07-20</td>
+              <td class="px-5 py-3">
+                <span
+                  class="px-2 py-0.5 bg-error-container text-red-900 text-[11px] font-semibold rounded-full"
+                  >Cal Overdue</span
+                >
+              </td>
             </tr>
-            <tr class="border-t border-border-variant">
-              <td class="p-2 mono">2025-07-18</td>
-              <td class="p-2"><span class="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded">Preventive</span></td>
-              <td class="p-2">J. Doe</td>
-              <td class="p-2 text-success">Pass</td>
+            <tr
+              class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary"
+            >
+              <td class="px-5 py-3 mono font-semibold text-primary">COAG-03</td>
+              <td class="px-5 py-3">
+                Sysmex CS-2500 · <span class="text-on-surface-variant">Sysmex</span>
+              </td>
+              <td class="px-5 py-3">Main Lab</td>
+              <td class="px-5 py-3 mono">2025-12-01</td>
+              <td class="px-5 py-3 mono text-amber-700 font-semibold">2026-12-01</td>
+              <td class="px-5 py-3 mono">2026-03-10</td>
+              <td class="px-5 py-3">
+                <span
+                  class="px-2 py-0.5 bg-warning-container text-amber-900 text-[11px] font-semibold rounded-full"
+                  >Cal Due Soon</span
+                >
+              </td>
+            </tr>
+            <tr
+              class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary"
+            >
+              <td class="px-5 py-3 mono font-semibold text-primary">COAG-04</td>
+              <td class="px-5 py-3">
+                Stago STA R Max · <span class="text-on-surface-variant">Stago</span>
+              </td>
+              <td class="px-5 py-3">Hematology</td>
+              <td class="px-5 py-3 mono">2026-06-20</td>
+              <td class="px-5 py-3 mono">2027-06-20</td>
+              <td class="px-5 py-3 mono">2026-12-20</td>
+              <td class="px-5 py-3">
+                <span
+                  class="px-2 py-0.5 bg-warning-container text-amber-900 text-[11px] font-semibold rounded-full"
+                  >Maintenance Due</span
+                >
+              </td>
+            </tr>
+            <tr
+              class="border-t border-border hover:bg-surface-variant cursor-pointer border-l-4 border-l-transparent hover:border-l-primary opacity-60"
+            >
+              <td class="px-5 py-3 mono font-semibold text-on-surface-variant">COAG-05</td>
+              <td class="px-5 py-3">
+                Siemens CS-2100i · <span class="text-on-surface-variant">Siemens</span>
+              </td>
+              <td class="px-5 py-3">Satellite Lab</td>
+              <td class="px-5 py-3 mono">2026-04-05</td>
+              <td class="px-5 py-3 mono">2027-04-05</td>
+              <td class="px-5 py-3 mono">2026-10-05</td>
+              <td class="px-5 py-3">
+                <span
+                  class="px-2 py-0.5 bg-gray-100 text-gray-600 text-[11px] font-semibold italic rounded-full"
+                  >Out of Service</span
+                >
+              </td>
             </tr>
           </tbody>
         </table>
-      </div>
-    </section>
+      </section>
 
-    <!-- Traceability -->
-    <section class="border border-border-variant rounded bg-surface-variant p-3 cursor-pointer hover:bg-surface hover:border-primary transition-colors">
-      <div class="flex justify-between items-center">
-        <div class="flex gap-4 text-sm">
-          <span><strong>QC Runs:</strong> <span class="text-primary">387</span> this month</span>
-          <span><strong>Open CAs:</strong> <span class="text-error">1</span></span>
+      <p class="text-xs text-on-surface-variant">
+        3 operational · 1 cal overdue · 1 cal due soon · 1 maintenance due · 1 out of service
+      </p>
+    </main>
+
+    <!-- FOOTER -->
+    <footer
+      class="h-8 border-t border-border bg-white flex items-center justify-between px-6 text-xs text-on-surface-variant"
+    >
+      <span>5 analyzers</span>
+      <div class="flex gap-4">
+        <a href="#" class="hover:text-primary">Export PDF</a>
+        <a href="#" class="hover:text-primary">Export Excel</a>
+      </div>
+    </footer>
+
+    <!-- SLIDE-OUT PANEL -->
+    <div id="panelOverlay" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
+    <aside
+      class="fixed right-0 top-0 h-screen w-[480px] bg-white z-50 border-l border-border-variant flex flex-col translate-x-full transition-transform duration-200"
+    >
+      <div class="h-12 px-5 border-b border-border flex justify-between items-center">
+        <h2 class="text-base font-semibold text-on-surface">COAG-02</h2>
+        <button class="p-1.5 hover:bg-surface-variant rounded-full" onclick="closePanel()">
+          <span class="material-symbols-outlined">close</span>
+        </button>
+      </div>
+
+      <div class="flex-1 overflow-y-auto p-5 space-y-6">
+        <!-- Identification -->
+        <section>
+          <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-3">
+            Identification
+          </h3>
+          <div class="grid grid-cols-2 gap-3 p-4 bg-surface-variant rounded text-xs">
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">ID</p>
+              <p class="mono text-on-surface">COAG-02</p>
+            </div>
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">
+                Model
+              </p>
+              <p class="text-on-surface">ACL TOP 350</p>
+            </div>
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">
+                Manufacturer
+              </p>
+              <p class="text-on-surface">Werfen</p>
+            </div>
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">
+                Serial Number
+              </p>
+              <p class="mono text-on-surface">WFN-883921</p>
+            </div>
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">
+                Installed
+              </p>
+              <p class="mono text-on-surface">20 Nov 2022</p>
+            </div>
+            <div>
+              <p class="text-on-surface-variant uppercase text-[10px] font-semibold mb-0.5">
+                Location
+              </p>
+              <p class="text-on-surface">Coag Lab · St 02</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Calibration -->
+        <section
+          class="border-l-4 border-l-error bg-white border border-border-variant p-4 rounded"
+        >
+          <div class="flex justify-between items-start mb-3">
+            <h3 class="text-base font-semibold text-on-surface">Calibration</h3>
+            <span
+              class="px-2 py-0.5 bg-error-container text-error text-[10px] font-semibold rounded-full"
+              >Overdue</span
+            >
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 mb-3">
+            <div>
+              <label
+                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1"
+                >Last Calibration</label
+              >
+              <input
+                type="text"
+                value="15 Jan 2025"
+                readonly
+                class="w-full h-10 px-3 bg-surface-variant rounded text-sm cursor-not-allowed mono"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-xs font-semibold text-on-surface-variant uppercase tracking-wider mb-1"
+                >Next Due</label
+              >
+              <input
+                type="date"
+                value="2026-01-15"
+                class="w-full h-10 px-3 border-2 border-primary rounded text-sm mono"
+              />
+            </div>
+          </div>
+          <p class="text-xs text-on-surface-variant italic mb-3">Interval: 12 months</p>
+          <button
+            class="w-full h-10 bg-primary hover:bg-primary-hover text-white font-semibold text-sm rounded"
+          >
+            Record New Calibration
+          </button>
+        </section>
+
+        <!-- Maintenance History -->
+        <section>
+          <div class="flex justify-between items-center mb-3">
+            <h3 class="text-xs font-semibold text-on-surface-variant uppercase tracking-wider">
+              Maintenance History
+            </h3>
+            <button class="text-xs text-primary font-semibold hover:underline">
+              Log Maintenance
+            </button>
+          </div>
+
+          <div class="border border-border-variant rounded bg-white overflow-hidden">
+            <table class="w-full text-xs">
+              <thead class="bg-surface-variant">
+                <tr
+                  class="text-left text-[10px] font-semibold text-on-surface-variant uppercase tracking-wider"
+                >
+                  <th class="p-2">Date</th>
+                  <th class="p-2">Type</th>
+                  <th class="p-2">Technician</th>
+                  <th class="p-2">Outcome</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr class="border-t border-border-variant">
+                  <td class="p-2 mono">2026-07-20</td>
+                  <td class="p-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded"
+                      >Preventive</span
+                    >
+                  </td>
+                  <td class="p-2">J. Doe</td>
+                  <td class="p-2 text-success">Pass</td>
+                </tr>
+                <tr class="border-t border-border-variant">
+                  <td class="p-2 mono">2026-04-12</td>
+                  <td class="p-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-warning-container text-amber-900 text-[10px] font-semibold rounded"
+                      >Corrective</span
+                    >
+                  </td>
+                  <td class="p-2">M. Smith</td>
+                  <td class="p-2 text-success">Pass</td>
+                </tr>
+                <tr class="border-t border-border-variant">
+                  <td class="p-2 mono">2025-07-18</td>
+                  <td class="p-2">
+                    <span
+                      class="px-1.5 py-0.5 bg-primary/10 text-primary text-[10px] font-semibold rounded"
+                      >Preventive</span
+                    >
+                  </td>
+                  <td class="p-2">J. Doe</td>
+                  <td class="p-2 text-success">Pass</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+
+        <!-- Traceability -->
+        <section
+          class="border border-border-variant rounded bg-surface-variant p-3 cursor-pointer hover:bg-surface hover:border-primary transition-colors"
+        >
+          <div class="flex justify-between items-center">
+            <div class="flex gap-4 text-sm">
+              <span
+                ><strong>QC Runs:</strong> <span class="text-primary">387</span> this month</span
+              >
+              <span><strong>Open CAs:</strong> <span class="text-error">1</span></span>
+            </div>
+            <span class="material-symbols-outlined text-outline text-[18px]">expand_more</span>
+          </div>
+        </section>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-5 border-t border-border space-y-3">
+        <button
+          class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold rounded"
+        >
+          Save
+        </button>
+        <div class="flex justify-between">
+          <button class="text-sm text-on-surface-variant hover:underline" onclick="closePanel()">
+            Cancel
+          </button>
+          <button class="text-sm text-error font-semibold hover:underline flex items-center gap-1">
+            <span class="material-symbols-outlined text-[18px]">archive</span>
+            Archive Analyzer
+          </button>
         </div>
-        <span class="material-symbols-outlined text-outline text-[18px]">expand_more</span>
       </div>
-    </section>
-  </div>
+    </aside>
 
-  <!-- Footer -->
-  <div class="p-5 border-t border-border space-y-3">
-    <button class="w-full h-11 bg-primary hover:bg-primary-hover text-white font-semibold rounded">Save</button>
-    <div class="flex justify-between">
-      <button class="text-sm text-on-surface-variant hover:underline" onclick="closePanel()">Cancel</button>
-      <button class="text-sm text-error font-semibold hover:underline flex items-center gap-1">
-        <span class="material-symbols-outlined text-[18px]">archive</span>
-        Archive Analyzer
-      </button>
-    </div>
-  </div>
-</aside>
+    <script>
+      const panel = document.querySelector('aside');
+      const overlay = document.getElementById('panelOverlay');
+      function openPanel() {
+        panel.classList.remove('translate-x-full');
+        overlay.classList.remove('hidden');
+      }
+      function closePanel() {
+        panel.classList.add('translate-x-full');
+        overlay.classList.add('hidden');
+      }
+      overlay.addEventListener('click', closePanel);
 
-<script>
-  const panel = document.querySelector('aside');
-  const overlay = document.getElementById('panelOverlay');
-  function openPanel() {
-    panel.classList.remove('translate-x-full');
-    overlay.classList.remove('hidden');
-  }
-  function closePanel() {
-    panel.classList.add('translate-x-full');
-    overlay.classList.add('hidden');
-  }
-  overlay.addEventListener('click', closePanel);
-
-  document.querySelectorAll('tbody tr').forEach(row => {
-    row.addEventListener('click', openPanel);
-  });
-</script>
-
-</body>
+      document.querySelectorAll('tbody tr').forEach((row) => {
+        row.addEventListener('click', openPanel);
+      });
+    </script>
+  </body>
 </html>

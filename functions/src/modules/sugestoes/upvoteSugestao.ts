@@ -30,13 +30,13 @@ export const upvoteSugestao = onCall<UpvoteSugestaoInput>(
       if (!isMember) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          'Usuário não é membro do laboratório'
+          'Usuário não é membro do laboratório',
         );
       }
 
       // Idempotent: use set with merge (if document exists, no error; if not, creates)
       const votoRef = db.doc(
-        `labs/${input.labId}/sugestoes/${input.sugestaoId}/votos/${request.auth.uid}`
+        `labs/${input.labId}/sugestoes/${input.sugestaoId}/votos/${request.auth.uid}`,
       );
 
       await votoRef.set(
@@ -44,7 +44,7 @@ export const upvoteSugestao = onCall<UpvoteSugestaoInput>(
           usuarioId: request.auth.uid,
           votadoEm: admin.firestore.FieldValue.serverTimestamp(),
         },
-        { merge: true }
+        { merge: true },
       );
 
       // Increment vote count on sugestao (atomic)
@@ -66,5 +66,5 @@ export const upvoteSugestao = onCall<UpvoteSugestaoInput>(
 
       throw new functions.https.HttpsError('internal', 'Erro ao votar em sugestão');
     }
-  }
+  },
 );

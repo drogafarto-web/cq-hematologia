@@ -4,14 +4,14 @@
 
 Updated in `firebase.json` for Phase 3.1:
 
-| Service | Port | Purpose | Phase 3.1 Use |
-|---------|------|---------|---------------|
-| **Auth** | 9099 | Firebase Auth emulation | Mobile + Web auth flow testing |
-| **Firestore** | 8080 | Firestore database emulation | Query + write testing (analytics aggregates, export jobs) |
-| **Functions** | 5001 | Cloud Functions emulation | Test `initiateExport`, `analyticsAggregation` callables locally |
-| **Storage** | 9199 | Cloud Storage emulation | Test export file upload + signed URL generation |
-| **Pub/Sub** | 8085 | Cloud Pub/Sub emulation | **NEW** — Test export job queue |
-| **Emulator UI** | 4000 | Web dashboard | Inspect all services state in real-time |
+| Service         | Port | Purpose                      | Phase 3.1 Use                                                   |
+| --------------- | ---- | ---------------------------- | --------------------------------------------------------------- |
+| **Auth**        | 9099 | Firebase Auth emulation      | Mobile + Web auth flow testing                                  |
+| **Firestore**   | 8080 | Firestore database emulation | Query + write testing (analytics aggregates, export jobs)       |
+| **Functions**   | 5001 | Cloud Functions emulation    | Test `initiateExport`, `analyticsAggregation` callables locally |
+| **Storage**     | 9199 | Cloud Storage emulation      | Test export file upload + signed URL generation                 |
+| **Pub/Sub**     | 8085 | Cloud Pub/Sub emulation      | **NEW** — Test export job queue                                 |
+| **Emulator UI** | 4000 | Web dashboard                | Inspect all services state in real-time                         |
 
 ---
 
@@ -114,6 +114,7 @@ firebase emulators:exec "npm --prefix functions run test -- analyticsAggregation
 ```
 
 In test:
+
 ```typescript
 // functions/src/modules/analytics/__tests__/aggregation.test.ts
 import { onRequest } from 'firebase-functions/v2/https';
@@ -128,15 +129,20 @@ describe('analyticsAggregation', () => {
       resultadoObtido: 'válido',
       dataRealizacao: now,
     });
-    
+
     // Call Cloud Function (emulator)
     const response = await callFunction('analyticsAggregation', {
       labId: 'test-lab',
     });
-    
+
     // Verify aggregate was written
-    const agg = await db.collection('labs').doc('test-lab')
-      .collection('analytics-aggregates').orderBy('timestamp', 'desc').limit(1).get();
+    const agg = await db
+      .collection('labs')
+      .doc('test-lab')
+      .collection('analytics-aggregates')
+      .orderBy('timestamp', 'desc')
+      .limit(1)
+      .get();
     expect(agg.docs[0].data().totalRuns).toBe(1);
   });
 });
@@ -150,29 +156,33 @@ firebase emulators:exec "npm --prefix functions run test -- exportWorker"
 ```
 
 In test:
+
 ```typescript
 // functions/src/modules/export/__tests__/worker.test.ts
 describe('exportWorker', () => {
   it('should process job from Pub/Sub and upload XLSX', async () => {
     // Create test job in Firestore
-    const jobRef = db.collection('labs').doc('test-lab')
-      .collection('export-jobs').doc('job-123');
+    const jobRef = db.collection('labs').doc('test-lab').collection('export-jobs').doc('job-123');
     await jobRef.set({
       status: 'queued',
       format: 'xlsx',
       dateRange: { start: now, end: now },
     });
-    
+
     // Publish to Pub/Sub (emulator)
     const pubsub = admin.pubsub();
     const topic = pubsub.topic('exports');
-    await topic.publish(Buffer.from(JSON.stringify({
-      labId: 'test-lab',
-      jobId: 'job-123',
-      format: 'xlsx',
-      dateRange: { start: now, end: now },
-    })));
-    
+    await topic.publish(
+      Buffer.from(
+        JSON.stringify({
+          labId: 'test-lab',
+          jobId: 'job-123',
+          format: 'xlsx',
+          dateRange: { start: now, end: now },
+        }),
+      ),
+    );
+
     // Wait for worker to process (emulator runs sync)
     // Verify job updated with completed status
     const updated = await jobRef.get();
@@ -194,12 +204,14 @@ firebase emulators:start --import .firebase/emulator-state --export-on-exit
 ```
 
 This persists:
+
 - All Firestore collections
 - Auth user accounts
 - Storage files
 - Pub/Sub messages (limited history)
 
 **Directory structure:**
+
 ```
 .firebase/
 ├── emulator-state/

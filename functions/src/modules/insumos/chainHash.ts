@@ -133,20 +133,18 @@ export const onInsumoMovimentacaoCreate = onDocumentCreated(
     }
 
     // Guard contra docs mal-formados. Rules já validam, mas defense-in-depth.
-    if (!data.payloadSignature || typeof data.payloadSignature !== 'string' || data.payloadSignature.length !== 64) {
+    if (
+      !data.payloadSignature ||
+      typeof data.payloadSignature !== 'string' ||
+      data.payloadSignature.length !== 64
+    ) {
       logger.error('[insumos][chainHash] Invalid payloadSignature', { labId, movId });
       return; // Não joga — doc defeituoso não deve ser retryado.
     }
 
     const db = admin.firestore();
 
-    const previous = await findPreviousSealed(
-      db,
-      labId,
-      data.insumoId,
-      movId,
-      data.timestamp,
-    );
+    const previous = await findPreviousSealed(db, labId, data.insumoId, movId, data.timestamp);
 
     if (previous === 'not-ready') {
       // Evento anterior ainda pendente — lança para forçar retry do scheduler.

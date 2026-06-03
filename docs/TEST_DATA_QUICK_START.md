@@ -138,24 +138,25 @@ Inside your test folder, create/upload:
 **Option B:** Create synthetic PDF:
 
 1. Save text to `test-bula.txt`:
+
    ```
    CONTROLE DE QUALIDADE INTERNO
-   
+
    NÍVEL 1
    Glicose: Média 95 mg/dL (SD 2.5)
    Ureia: Média 25 mg/dL (SD 1.0)
    Creatinina: Média 0.8 mg/dL (SD 0.05)
-   
+
    NÍVEL 2
    Glicose: Média 150 mg/dL (SD 3.0)
    Ureia: Média 45 mg/dL (SD 1.5)
    Creatinina: Média 1.5 mg/dL (SD 0.1)
-   
+
    NÍVEL 3
    Glicose: Média 250 mg/dL (SD 4.0)
    Ureia: Média 70 mg/dL (SD 2.0)
    Creatinina: Média 2.5 mg/dL (SD 0.15)
-   
+
    Lote: BIO-2026-001
    Validade: 2026-12-31
    Fabricante: BioPlus Diagnósticos
@@ -204,13 +205,13 @@ Once all 10 items are checked, proceed to:
 
 ## Quick Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Analitos not in Firestore | Re-run `seedBioquimicaDefaults` from Cloud Console |
-| Drive folder empty after import | Verify 5 files are in folder; retry OAuth |
-| Bula parse timeout | Use synthetic PDF; Gemini may be slow on cold start |
-| Permission denied on read | Check member doc has `isActiveMemberOfLab: true` |
-| Service Worker stale | Hard refresh: Ctrl+Shift+R |
+| Issue                           | Fix                                                 |
+| ------------------------------- | --------------------------------------------------- |
+| Analitos not in Firestore       | Re-run `seedBioquimicaDefaults` from Cloud Console  |
+| Drive folder empty after import | Verify 5 files are in folder; retry OAuth           |
+| Bula parse timeout              | Use synthetic PDF; Gemini may be slow on cold start |
+| Permission denied on read       | Check member doc has `isActiveMemberOfLab: true`    |
+| Service Worker stale            | Hard refresh: Ctrl+Shift+R                          |
 
 ---
 

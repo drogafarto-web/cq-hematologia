@@ -47,7 +47,7 @@ export default function AlertDashboard({
   onOpenDetail,
 }: AlertDashboardProps): JSX.Element {
   const [selectedSeverities, setSelectedSeverities] = useState<AlertSeverity[]>(
-    initialFilters?.severity ? [initialFilters.severity] : []
+    initialFilters?.severity ? [initialFilters.severity] : [],
   );
   const [dateFrom, setDateFrom] = useState<string>(() => {
     if (!initialFilters?.from) return '';
@@ -126,7 +126,7 @@ export default function AlertDashboard({
                 key={sev}
                 onClick={() => {
                   setSelectedSeverities((prev) =>
-                    prev.includes(sev) ? prev.filter((s) => s !== sev) : [...prev, sev]
+                    prev.includes(sev) ? prev.filter((s) => s !== sev) : [...prev, sev],
                   );
                 }}
                 className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
@@ -143,7 +143,10 @@ export default function AlertDashboard({
 
         <div className="flex gap-4">
           <div className="flex-1">
-            <label htmlFor="date-from" className="text-xs font-medium text-white/70 tracking-wider uppercase mb-2 block">
+            <label
+              htmlFor="date-from"
+              className="text-xs font-medium text-white/70 tracking-wider uppercase mb-2 block"
+            >
               Desde
             </label>
             <input
@@ -155,7 +158,10 @@ export default function AlertDashboard({
             />
           </div>
           <div className="flex-1">
-            <label htmlFor="date-to" className="text-xs font-medium text-white/70 tracking-wider uppercase mb-2 block">
+            <label
+              htmlFor="date-to"
+              className="text-xs font-medium text-white/70 tracking-wider uppercase mb-2 block"
+            >
               Até
             </label>
             <input
@@ -172,9 +178,7 @@ export default function AlertDashboard({
       {/* State Rendering */}
       {error && (
         <div className="flex items-center justify-between p-4 rounded-lg bg-rose-500/15 border border-rose-400/30">
-          <div className="text-sm text-rose-200">
-            Erro ao carregar alertas: {error.message}
-          </div>
+          <div className="text-sm text-rose-200">Erro ao carregar alertas: {error.message}</div>
           <button
             onClick={() => window.location.reload()}
             className="px-3 py-1.5 rounded-md text-xs font-medium bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 focus-visible:outline focus-visible:outline-2 focus-visible:outline-rose-400"
@@ -202,9 +206,7 @@ export default function AlertDashboard({
         </div>
       )}
 
-      {!loading && alerts.length > 0 && (
-        <div className="flex flex-col gap-3">{alertCards}</div>
-      )}
+      {!loading && alerts.length > 0 && <div className="flex flex-col gap-3">{alertCards}</div>}
     </div>
   );
 }

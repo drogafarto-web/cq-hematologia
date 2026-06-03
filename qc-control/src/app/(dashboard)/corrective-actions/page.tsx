@@ -1,11 +1,11 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
-import CAClient from './ca-client'
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/db';
+import CAClient from './ca-client';
 
 export default async function CorrectiveActionsPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const session = await auth();
+  if (!session?.user) redirect('/login');
 
   const [raw, users] = await Promise.all([
     prisma.correctiveAction.findMany({
@@ -25,7 +25,7 @@ export default async function CorrectiveActionsPage() {
       },
     }),
     prisma.user.findMany({ select: { id: true, name: true }, orderBy: { name: 'asc' } }),
-  ])
+  ]);
 
   const actions = raw.map((a) => ({
     ...a,
@@ -45,7 +45,7 @@ export default async function CorrectiveActionsPage() {
     preventiveMeasure: a.preventiveMeasure ?? null,
     effectivenessCheck: a.effectivenessCheck ?? null,
     verifiedById: a.verifiedById ?? null,
-  }))
+  }));
 
-  return <CAClient actions={actions} users={users} currentUserId={session.user.id} />
+  return <CAClient actions={actions} users={users} currentUserId={session.user.id} />;
 }

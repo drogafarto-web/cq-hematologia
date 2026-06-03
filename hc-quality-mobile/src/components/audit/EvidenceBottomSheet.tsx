@@ -1,13 +1,5 @@
 import React, { useCallback } from 'react';
-import {
-  View,
-  Text,
-  TouchableOpacity,
-  FlatList,
-  StyleSheet,
-  Modal,
-  Pressable,
-} from 'react-native';
+import { View, Text, TouchableOpacity, FlatList, StyleSheet, Modal, Pressable } from 'react-native';
 import { colors, spacing, typography, borderRadius, shadows } from '../../theme/darkTheme';
 
 interface EvidenceItem {
@@ -34,11 +26,12 @@ const TYPE_ICONS: Record<EvidenceItem['type'], string> = {
   document: '📋',
 };
 
-const STATUS_CONFIG: Record<EvidenceItem['status'], { label: string; color: string; bg: string }> = {
-  aprovado: { label: 'Aprovado', color: '#fff', bg: colors.accent.emerald },
-  pendente: { label: 'Pendente', color: '#000', bg: colors.accent.amber },
-  rejeitado: { label: 'Rejeitado', color: '#fff', bg: colors.accent.red },
-};
+const STATUS_CONFIG: Record<EvidenceItem['status'], { label: string; color: string; bg: string }> =
+  {
+    aprovado: { label: 'Aprovado', color: '#fff', bg: colors.accent.emerald },
+    pendente: { label: 'Pendente', color: '#000', bg: colors.accent.amber },
+    rejeitado: { label: 'Rejeitado', color: '#fff', bg: colors.accent.red },
+  };
 
 export const EvidenceBottomSheet = React.memo(function EvidenceBottomSheet({
   visible,
@@ -48,38 +41,28 @@ export const EvidenceBottomSheet = React.memo(function EvidenceBottomSheet({
   onRecordAudio,
   onAttachPDF,
 }: EvidenceBottomSheetProps): React.JSX.Element {
-  const renderEvidence = useCallback(
-    ({ item }: { item: EvidenceItem }) => {
-      const statusCfg = STATUS_CONFIG[item.status];
-      return (
-        <View style={styles.evidenceRow}>
-          <Text style={styles.evidenceIcon}>{TYPE_ICONS[item.type]}</Text>
-          <View style={styles.evidenceContent}>
-            <Text style={styles.evidenceTitle} numberOfLines={1}>
-              {item.title}
-            </Text>
-            <Text style={styles.evidenceDate}>{item.date}</Text>
-          </View>
-          <View style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}>
-            <Text style={[styles.statusText, { color: statusCfg.color }]}>
-              {statusCfg.label}
-            </Text>
-          </View>
+  const renderEvidence = useCallback(({ item }: { item: EvidenceItem }) => {
+    const statusCfg = STATUS_CONFIG[item.status];
+    return (
+      <View style={styles.evidenceRow}>
+        <Text style={styles.evidenceIcon}>{TYPE_ICONS[item.type]}</Text>
+        <View style={styles.evidenceContent}>
+          <Text style={styles.evidenceTitle} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <Text style={styles.evidenceDate}>{item.date}</Text>
         </View>
-      );
-    },
-    []
-  );
+        <View style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}>
+          <Text style={[styles.statusText, { color: statusCfg.color }]}>{statusCfg.label}</Text>
+        </View>
+      </View>
+    );
+  }, []);
 
   const keyExtractor = useCallback((item: EvidenceItem) => item.id, []);
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={onClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable style={styles.backdrop} onPress={onClose}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           {/* Handle */}

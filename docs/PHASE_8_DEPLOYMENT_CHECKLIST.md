@@ -120,7 +120,7 @@
   - [ ] P2: Queue backed up (>50 pending drafts)
 - [ ] Cloud Scheduler job configured:
   - [ ] Name: `notivisa-polling`
-  - [ ] Schedule: `every 5 minutes` (0 */5 * * * *)
+  - [ ] Schedule: `every 5 minutes` (0 _/5 _ \* \* \*)
   - [ ] Region: `southamerica-east1`
   - [ ] Function: `notivisaStatusCheck`
   - [ ] Timeout: 120 seconds
@@ -235,6 +235,7 @@ firebase deploy --only functions:submitNotivisa,functions:notivisaDraftCreate,fu
    - ✓ Pass criteria: all 3 calls rejected with code='PERMISSION_DENIED'
 
 **Test Execution:**
+
 ```bash
 npm test -- __tests__/integration/notivisa-e2e.test.ts
 # All 8 tests must PASS
@@ -251,6 +252,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 **Pass criteria:**
+
 - Error rate <1% (0 CRITICAL/ERROR for 24h preferred)
 - All function invocations complete within 30s
 - No HMAC signature failures
@@ -267,6 +269,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 - [ ] Draft status: draft → submitted → (polling) → acknowledged
 
 **Test command:**
+
 ```bash
 npm test -- __tests__/integration/criticos-notivisa-integration.test.ts
 ```
@@ -337,17 +340,20 @@ firebase deploy --project hmatologia2
 ### Incident Response
 
 **Scenario: Government API down**
+
 - Alert: P1 (blocking notifications)
 - Action: Check `https://portalanvisa.gov.br/status` (if available)
 - Mitigation: Queue events retry automatically (5 attempts max)
 - Communication: Email RT that submissions paused temporarily
 
 **Scenario: Rate limited**
+
 - Alert: P2 (informational)
 - Action: Review lab submission frequency
 - Mitigation: Increase rate limit (if gov allows) or stagger submissions
 
 **Scenario: Signature verification fails**
+
 - Alert: P1 (security event)
 - Action: Check Cloud Logs for details
 - Mitigation: Soft-delete invalid draft, audit for tampering
@@ -372,15 +378,15 @@ firebase deploy --project hmatologia2
 
 ## Timeline & Contingencies
 
-| Date | Milestone | Contingency |
-|------|-----------|-------------|
-| 2026-05-10 | Gov registration submitted (3–5 day wait begins) | Contact ANVISA; escalate if >5 days |
-| 2026-06-02 | Phase 8 kickoff (credentials must arrive) | Defer Phase 8 by 1 week if pending |
-| 2026-06-02 | Deploy rules + indexes | Cancel Phase 8 if rules rollback fails |
-| 2026-06-03 | Deploy Cloud Functions | Hotfix + redeploy if function errors |
-| 2026-06-05–06 | E2E testing (8 flows) | Fix + retest if <90% pass |
-| 2026-06-09 | 24h Cloud Logs monitoring | Alert on-call if errors exceed threshold |
-| 2026-06-16 | Production deploy + smoke test | Rollback if smoke test fails |
+| Date          | Milestone                                        | Contingency                              |
+| ------------- | ------------------------------------------------ | ---------------------------------------- |
+| 2026-05-10    | Gov registration submitted (3–5 day wait begins) | Contact ANVISA; escalate if >5 days      |
+| 2026-06-02    | Phase 8 kickoff (credentials must arrive)        | Defer Phase 8 by 1 week if pending       |
+| 2026-06-02    | Deploy rules + indexes                           | Cancel Phase 8 if rules rollback fails   |
+| 2026-06-03    | Deploy Cloud Functions                           | Hotfix + redeploy if function errors     |
+| 2026-06-05–06 | E2E testing (8 flows)                            | Fix + retest if <90% pass                |
+| 2026-06-09    | 24h Cloud Logs monitoring                        | Alert on-call if errors exceed threshold |
+| 2026-06-16    | Production deploy + smoke test                   | Rollback if smoke test fails             |
 
 ---
 

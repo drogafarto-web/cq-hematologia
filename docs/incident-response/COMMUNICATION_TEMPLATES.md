@@ -55,18 +55,21 @@ Severity: Critical
 **Summary:**  
 [Lab Name] experienced an incident affecting [clinical/audit] data availability. Root cause was [X]. Data integrity status: [no loss | partial loss of X records].
 
-**RDC Compliance Impact:**  
+**RDC Compliance Impact:**
+
 - **Art. 128 (Rastreabilidade):** Audit trail inaccessible from [TIME] to [TIME] (restored). No audit records lost.
 - **Art. 39 (Registro):** Clinical records [inaccessible | intact]. [Estimated patients affected: X]
 
-**Response Timeline:**  
+**Response Timeline:**
+
 - [TIME] — Issue detected
 - [TIME] — Escalated to Level 1 (CTO)
 - [TIME] — Incident Commander declared Critical
 - [TIME] — Restore from backup initiated
 - [TIME] — System recovered
 
-**Corrective Actions:**  
+**Corrective Actions:**
+
 1. Enhanced monitoring dashboard (deployed [DATE])
 2. Automatic failover testing (quarterly, starting [DATE])
 3. Backup recovery drill (monthly, starting [DATE])
@@ -97,9 +100,10 @@ Severity: Critical
 **Who:**  
 [@ic-primary] Incident Commander, [@backup-ic] Backup, [@eng-lead] Engineering
 
-**Links:**  
-- [Cloud Logs filter]  
-- [Runbook](#runbook-name)  
+**Links:**
+
+- [Cloud Logs filter]
+- [Runbook](#runbook-name)
 - [Slack thread] (for discussion)
 
 **Do not reply in Slack — use thread.**
@@ -125,7 +129,8 @@ Example: "A database replication lag exceeded our monitoring threshold, causing 
 [Why we didn't catch it earlier]  
 Example: "Our monitoring alert thresholds were not sensitive enough; they have since been adjusted."
 
-**What We're Doing:**  
+**What We're Doing:**
+
 1. [Action Item 1, ETA]
 2. [Action Item 2, ETA]
 3. [Action Item 3, ETA]
@@ -142,6 +147,7 @@ Best regards,
 ---
 
 **Approval Chain:**
+
 - IC drafts message (within 1h of resolve)
 - CTO reviews + approves
 - Legal reviews (if data loss or regulatory implication)

@@ -42,9 +42,7 @@ function unwrapErr(err: unknown, fallback: string): Error {
   return new Error(fallback);
 }
 
-export function useCertificados(
-  options: SubscribeCertificadosOptions = {},
-): UseCertificadosResult {
+export function useCertificados(options: SubscribeCertificadosOptions = {}): UseCertificadosResult {
   const labId = useActiveLabId();
   const { colaboradorId, treinamentoId } = options;
 

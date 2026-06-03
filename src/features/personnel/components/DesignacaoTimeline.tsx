@@ -27,7 +27,9 @@ interface DesignacaoTimelineProps {
 
 function formatTimestamp(ts: { toDate: () => Date } | null): string {
   if (!ts) return 'Atual';
-  return ts.toDate().toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
+  return ts
+    .toDate()
+    .toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit', year: 'numeric' });
 }
 
 export function DesignacaoTimeline({ colaboradorId }: DesignacaoTimelineProps): React.ReactElement {
@@ -110,7 +112,9 @@ export function DesignacaoTimeline({ colaboradorId }: DesignacaoTimelineProps): 
   if (designacoes.length === 0) {
     return (
       <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
-        <p className="text-sm text-white/50">Nenhuma designação registrada para este colaborador.</p>
+        <p className="text-sm text-white/50">
+          Nenhuma designação registrada para este colaborador.
+        </p>
       </div>
     );
   }
@@ -128,9 +132,7 @@ export function DesignacaoTimeline({ colaboradorId }: DesignacaoTimelineProps): 
               {/* Dot */}
               <div
                 className={`absolute -left-6 top-3 h-[10px] w-[10px] rounded-full border-2 ${
-                  isActive
-                    ? 'border-violet-500 bg-violet-500'
-                    : 'border-white/30 bg-[#141417]'
+                  isActive ? 'border-violet-500 bg-violet-500' : 'border-white/30 bg-[#141417]'
                 }`}
                 aria-hidden="true"
               />
@@ -144,7 +146,9 @@ export function DesignacaoTimeline({ colaboradorId }: DesignacaoTimelineProps): 
                 }`}
               >
                 <div className="flex items-center justify-between">
-                  <h4 className={`text-sm font-semibold ${isActive ? 'text-violet-300' : 'text-white/80'}`}>
+                  <h4
+                    className={`text-sm font-semibold ${isActive ? 'text-violet-300' : 'text-white/80'}`}
+                  >
                     {d.descricaoAutoridade || d.cargoId}
                   </h4>
                   {isActive && (
@@ -156,9 +160,7 @@ export function DesignacaoTimeline({ colaboradorId }: DesignacaoTimelineProps): 
                 <p className="mt-1 text-xs text-white/50">
                   {formatTimestamp(d.dataInicio)} → {formatTimestamp(d.dataFim)}
                 </p>
-                {d.pessoaNome && (
-                  <p className="mt-0.5 text-xs text-white/40">{d.pessoaNome}</p>
-                )}
+                {d.pessoaNome && <p className="mt-0.5 text-xs text-white/40">{d.pessoaNome}</p>}
               </div>
             </div>
           );

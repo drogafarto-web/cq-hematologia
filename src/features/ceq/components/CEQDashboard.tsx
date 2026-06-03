@@ -45,13 +45,24 @@ const ExchangeIcon = ({ size }: { size?: number }) => (
 const ZScoreIcon = ({ size }: { size?: number }) => (
   <Svg size={size}>
     <rect x="2.5" y="2.5" width="15" height="15" rx="2" stroke="currentColor" strokeWidth="1.4" />
-    <path d="M6.5 7h7l-7 6h7" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M6.5 7h7l-7 6h7"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
 const AlertIcon = ({ size }: { size?: number }) => (
   <Svg size={size}>
-    <path d="M10 3l7.5 13h-15L10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+    <path
+      d="M10 3l7.5 13h-15L10 3z"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+    />
     <path d="M10 8.5v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <circle cx="10" cy="14" r="0.9" fill="currentColor" />
   </Svg>
@@ -60,7 +71,13 @@ const AlertIcon = ({ size }: { size?: number }) => (
 const CheckIcon = ({ size }: { size?: number }) => (
   <Svg size={size}>
     <circle cx="10" cy="10" r="7.5" stroke="currentColor" strokeWidth="1.5" />
-    <path d="M6.5 10.2l2.5 2.5L13.5 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M6.5 10.2l2.5 2.5L13.5 8"
+      stroke="currentColor"
+      strokeWidth="1.6"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -73,7 +90,13 @@ const FlaskIcon = ({ size }: { size?: number }) => (
       strokeLinecap="round"
       strokeLinejoin="round"
     />
-    <path d="M5.5 13h9" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeDasharray="1.5 1.5" />
+    <path
+      d="M5.5 13h9"
+      stroke="currentColor"
+      strokeWidth="1.2"
+      strokeLinecap="round"
+      strokeDasharray="1.5 1.5"
+    />
   </Svg>
 );
 
@@ -85,13 +108,25 @@ const PlusIcon = ({ size }: { size?: number }) => (
 
 const ChevronRightIcon = ({ size }: { size?: number }) => (
   <Svg size={size}>
-    <path d="M8 5l5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M8 5l5 5-5 5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
 const ChevronDownIcon = ({ size }: { size?: number }) => (
   <Svg size={size}>
-    <path d="M5 8l5 5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M5 8l5 5 5-5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </Svg>
 );
 
@@ -103,7 +138,13 @@ const XIcon = ({ size }: { size?: number }) => (
 
 /* ─── Z-Score Badge ───────────────────────────────────────────────────────── */
 
-function ZScoreBadge({ interpretacao, zScore }: { interpretacao: CEQResultado['interpretacao']; zScore: number }) {
+function ZScoreBadge({
+  interpretacao,
+  zScore,
+}: {
+  interpretacao: CEQResultado['interpretacao'];
+  zScore: number;
+}) {
   const config = {
     satisfatoria: {
       label: 'Satisfatório',
@@ -130,7 +171,8 @@ function ZScoreBadge({ interpretacao, zScore }: { interpretacao: CEQResultado['i
       className={`inline-flex items-center gap-1.5 text-[11px] font-medium px-2.5 py-1 rounded-full border ${config.bg} ${config.text}`}
     >
       <span className={`w-1.5 h-1.5 rounded-full ${config.dot} shrink-0`} />
-      {config.label} · Z {zScore >= 0 ? '+' : ''}{zScore.toFixed(2)}
+      {config.label} · Z {zScore >= 0 ? '+' : ''}
+      {zScore.toFixed(2)}
     </span>
   );
 }
@@ -140,9 +182,18 @@ function ZScoreBadge({ interpretacao, zScore }: { interpretacao: CEQResultado['i
 function AmostraStatusChip({ status }: { status: CEQAmostra['status'] }) {
   const config = {
     recebida: { label: 'Recebida', cls: 'text-sky-400 bg-sky-500/[0.08] border-sky-500/20' },
-    em_analise: { label: 'Em análise', cls: 'text-violet-400 bg-violet-500/[0.08] border-violet-500/20' },
-    resultado_lancado: { label: 'Resultado lançado', cls: 'text-amber-400 bg-amber-500/[0.08] border-amber-500/20' },
-    processada: { label: 'Processada', cls: 'text-emerald-400 bg-emerald-500/[0.08] border-emerald-500/20' },
+    em_analise: {
+      label: 'Em análise',
+      cls: 'text-violet-400 bg-violet-500/[0.08] border-violet-500/20',
+    },
+    resultado_lancado: {
+      label: 'Resultado lançado',
+      cls: 'text-amber-400 bg-amber-500/[0.08] border-amber-500/20',
+    },
+    processada: {
+      label: 'Processada',
+      cls: 'text-emerald-400 bg-emerald-500/[0.08] border-emerald-500/20',
+    },
   }[status];
 
   return (
@@ -158,17 +209,20 @@ function ZScoreBar({ zScore }: { zScore: number }) {
   const abs = Math.abs(zScore);
   // Map |Z| 0–4 to 0–100% (capped at 4 for display)
   const pct = Math.min((abs / 4) * 100, 100);
-  const color =
-    abs < 2 ? 'bg-emerald-400' : abs < 3 ? 'bg-amber-400' : 'bg-red-400';
+  const color = abs < 2 ? 'bg-emerald-400' : abs < 3 ? 'bg-amber-400' : 'bg-red-400';
 
   return (
     <div className="flex items-center gap-2" aria-label={`Z-score ${zScore.toFixed(2)}`}>
       <div className="flex-1 h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
-        <div className={`h-full rounded-full transition-all ${color}`} style={{ width: `${pct}%` }} />
+        <div
+          className={`h-full rounded-full transition-all ${color}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
       {/* reference lines at 2/3 */}
       <span className="text-[10px] tabular-nums text-white/40 w-10 text-right">
-        {zScore >= 0 ? '+' : ''}{zScore.toFixed(2)}
+        {zScore >= 0 ? '+' : ''}
+        {zScore.toFixed(2)}
       </span>
     </div>
   );
@@ -319,8 +373,14 @@ function CeqTransportBlocked({
       <ul className="mt-8 text-left text-xs text-white/35 max-w-md space-y-2 list-disc pl-4">
         <li>Desative bloqueadores (uBlock, AdGuard, Privacy Badger) para este domínio.</li>
         <li>No Brave: reduza Shields ou use uma janela sem extensões.</li>
-        <li>Confirme que <code className="text-white/45">firestore.googleapis.com</code> não está bloqueado.</li>
-        <li>Opcional de ambiente: <code className="text-white/45">VITE_FIRESTORE_USE_LONG_POLLING=true</code> (rebuild).</li>
+        <li>
+          Confirme que <code className="text-white/45">firestore.googleapis.com</code> não está
+          bloqueado.
+        </li>
+        <li>
+          Opcional de ambiente:{' '}
+          <code className="text-white/45">VITE_FIRESTORE_USE_LONG_POLLING=true</code> (rebuild).
+        </li>
       </ul>
     </div>
   );
@@ -338,8 +398,8 @@ function EmptyParticipacoes({ onAdd }: { onAdd: () => void }) {
         Nenhuma participação registrada
       </h3>
       <p className="text-sm text-white/40 max-w-sm mb-6">
-        Registre a participação do laboratório em um programa interlaboratorial
-        (Controllab, BIPEA, PNCQ) para acompanhar Z-scores e conformidade.
+        Registre a participação do laboratório em um programa interlaboratorial (Controllab, BIPEA,
+        PNCQ) para acompanhar Z-scores e conformidade.
       </p>
       <div className="flex flex-col items-center gap-2 text-xs text-white/25">
         <p>DICQ 4.5 · ISO 17043 · RDC 978/2025</p>
@@ -359,7 +419,15 @@ function EmptyParticipacoes({ onAdd }: { onAdd: () => void }) {
 
 /* ─── Modal wrapper ───────────────────────────────────────────────────────── */
 
-function Modal({ open, onClose, children }: { open: boolean; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   if (!open) return null;
   return (
     <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
@@ -426,16 +494,13 @@ export function CEQDashboard() {
   return (
     <div className="min-h-screen bg-[#0B0F14] text-white">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 space-y-8">
-
         {/* ── Page header ───────────────────────────────────────────────── */}
         <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-4">
           <div>
             <p className="text-[10px] font-bold tracking-widest uppercase text-teal-400/80 mb-1.5">
               DICQ 4.5 · ISO 17043
             </p>
-            <h1 className="text-2xl font-semibold tracking-tight">
-              Controle de Qualidade Externo
-            </h1>
+            <h1 className="text-2xl font-semibold tracking-tight">Controle de Qualidade Externo</h1>
             <p className="text-sm text-white/40 mt-1">
               Ensaios interlaboratoriais · Z-score · Conformidade
             </p>
@@ -471,9 +536,9 @@ export function CEQDashboard() {
             <div>
               <p className="font-medium text-white/90">Modo degradado (polling)</p>
               <p className="text-white/50 mt-1 text-xs leading-relaxed">
-                O tempo real do Firestore pode estar bloqueado no navegador. Os dados são atualizados aproximadamente
-                a cada 8 segundos. Use &quot;Tentar tempo real novamente&quot; no painel de bloqueio ou após desativar
-                extensões.
+                O tempo real do Firestore pode estar bloqueado no navegador. Os dados são
+                atualizados aproximadamente a cada 8 segundos. Use &quot;Tentar tempo real
+                novamente&quot; no painel de bloqueio ou após desativar extensões.
               </p>
             </div>
           </div>
@@ -513,17 +578,25 @@ export function CEQDashboard() {
                 <StatCard
                   label="Satisfatórios"
                   value={satisfatorios}
-                  sub={totalResultados ? `${Math.round((satisfatorios / totalResultados) * 100)}%` : undefined}
+                  sub={
+                    totalResultados
+                      ? `${Math.round((satisfatorios / totalResultados) * 100)}%`
+                      : undefined
+                  }
                   accent="emerald"
                 />
                 <StatCard label="Questionáveis" value={questionaveis} accent="amber" />
-                <StatCard label="Insatisfatórios" value={insatisfatorios} sub={insatisfatorios > 0 ? 'NC gerada' : undefined} accent={insatisfatorios > 0 ? 'red' : 'teal'} />
+                <StatCard
+                  label="Insatisfatórios"
+                  value={insatisfatorios}
+                  sub={insatisfatorios > 0 ? 'NC gerada' : undefined}
+                  accent={insatisfatorios > 0 ? 'red' : 'teal'}
+                />
               </div>
             )}
 
             {/* ── Main layout: participacoes list + detail ───────────── */}
             <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-
               {/* Participacoes list */}
               <aside className="space-y-2">
                 <p className="text-[10px] font-semibold uppercase tracking-widest text-white/30 mb-3 px-1">
@@ -552,14 +625,14 @@ export function CEQDashboard() {
                       >
                         <div className="flex items-start justify-between gap-2">
                           <div className="min-w-0">
-                            <p className={`text-sm font-medium truncate ${isSelected ? 'text-teal-300' : 'text-white/80'}`}>
+                            <p
+                              className={`text-sm font-medium truncate ${isSelected ? 'text-teal-300' : 'text-white/80'}`}
+                            >
                               {p.provedorNome}
                             </p>
                             <p className="text-[11px] text-white/40 mt-0.5 truncate">{p.esquema}</p>
                           </div>
-                          <ChevronRightIcon
-                            size={14}
-                          />
+                          <ChevronRightIcon size={14} />
                         </div>
                         <div className="mt-2 flex items-center gap-2 flex-wrap">
                           <span className="text-[10px] px-1.5 py-0.5 rounded bg-white/[0.05] text-white/35 capitalize">
@@ -596,7 +669,9 @@ export function CEQDashboard() {
                           <h2 className="text-base font-semibold text-white/90">
                             {selectedParticipacao.provedorNome}
                           </h2>
-                          <p className="text-sm text-white/45 mt-0.5">{selectedParticipacao.esquema}</p>
+                          <p className="text-sm text-white/45 mt-0.5">
+                            {selectedParticipacao.esquema}
+                          </p>
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
                           <span className="text-[10px] px-2 py-1 rounded-lg bg-white/[0.05] text-white/40 capitalize">
@@ -660,7 +735,10 @@ export function CEQDashboard() {
                             const isExpanded = expandedAmostra === a.id;
 
                             return (
-                              <div key={a.id} className={`rounded-xl border transition-all ${isActive ? 'border-teal-500/25 bg-teal-500/[0.05]' : 'border-white/[0.06] bg-white/[0.02]'}`}>
+                              <div
+                                key={a.id}
+                                className={`rounded-xl border transition-all ${isActive ? 'border-teal-500/25 bg-teal-500/[0.05]' : 'border-white/[0.06] bg-white/[0.02]'}`}
+                              >
                                 <button
                                   type="button"
                                   onClick={() => {
@@ -670,7 +748,9 @@ export function CEQDashboard() {
                                   className="w-full text-left px-4 py-3 flex items-center justify-between gap-3"
                                 >
                                   <div className="flex items-center gap-3 min-w-0">
-                                    <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-teal-500/20 text-teal-400' : 'bg-white/[0.04] text-white/30'}`}>
+                                    <div
+                                      className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${isActive ? 'bg-teal-500/20 text-teal-400' : 'bg-white/[0.04] text-white/30'}`}
+                                    >
                                       <FlaskIcon size={14} />
                                     </div>
                                     <div className="min-w-0">
@@ -739,14 +819,14 @@ export function CEQDashboard() {
           <p className="text-xs text-white/40 mb-5">
             Registre o laboratório em um programa de ensaio de aptidão.
           </p>
-          <CEQParticipacaoForm
-            onSubmit={handleParticipacaoSubmit}
-            loading={loading}
-          />
+          <CEQParticipacaoForm onSubmit={handleParticipacaoSubmit} loading={loading} />
         </div>
       </Modal>
 
-      <Modal open={showResultadoForm && !!selectedAmostra} onClose={() => setShowResultadoForm(false)}>
+      <Modal
+        open={showResultadoForm && !!selectedAmostra}
+        onClose={() => setShowResultadoForm(false)}
+      >
         <div className="p-6">
           <h2 className="text-base font-semibold mb-1">Lançar Resultado</h2>
           {selectedAmostra && (
@@ -783,7 +863,9 @@ function ResultadoRow({ resultado }: { resultado: CEQResultado }) {
       <div className="flex items-start justify-between gap-3 mb-2.5">
         <div>
           <p className="text-sm font-medium text-white/85">{resultado.analyteName}</p>
-          <p className="text-[10px] font-mono text-white/35 mt-0.5 uppercase">{resultado.analyteId}</p>
+          <p className="text-[10px] font-mono text-white/35 mt-0.5 uppercase">
+            {resultado.analyteId}
+          </p>
         </div>
         <ZScoreBadge interpretacao={resultado.interpretacao} zScore={resultado.zScore} />
       </div>
@@ -791,9 +873,15 @@ function ResultadoRow({ resultado }: { resultado: CEQResultado }) {
       <ZScoreBar zScore={resultado.zScore} />
 
       <div className="mt-2.5 flex items-center gap-4 text-[11px] text-white/35 tabular-nums">
-        <span>Obtido: <span className="text-white/60">{resultado.valorObtido.toFixed(2)}</span></span>
-        <span>Ref: <span className="text-white/60">{resultado.valorReferencia.toFixed(2)}</span></span>
-        <span>DP: <span className="text-white/60">{resultado.desvioEstimado.toFixed(2)}</span></span>
+        <span>
+          Obtido: <span className="text-white/60">{resultado.valorObtido.toFixed(2)}</span>
+        </span>
+        <span>
+          Ref: <span className="text-white/60">{resultado.valorReferencia.toFixed(2)}</span>
+        </span>
+        <span>
+          DP: <span className="text-white/60">{resultado.desvioEstimado.toFixed(2)}</span>
+        </span>
         <span className="text-white/25">{resultado.unidade}</span>
       </div>
 
@@ -802,7 +890,10 @@ function ResultadoRow({ resultado }: { resultado: CEQResultado }) {
           <AlertIcon size={12} />
           NC automática gerada · Z-score insatisfatório
           {resultado.ncAutomaticaCriadaId && (
-            <span className="font-mono text-red-400/70"> · {resultado.ncAutomaticaCriadaId.slice(0, 8)}</span>
+            <span className="font-mono text-red-400/70">
+              {' '}
+              · {resultado.ncAutomaticaCriadaId.slice(0, 8)}
+            </span>
           )}
         </div>
       )}

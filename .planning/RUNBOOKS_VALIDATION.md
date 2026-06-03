@@ -9,6 +9,7 @@
 ## Executive Summary
 
 All 5 Phase 4 runbooks meet **production readiness criteria**:
+
 - Triage paths complete (2–5 min decision trees)
 - Decision trees clear + actionable
 - Fix steps validated (CloudSQL/API commands work)
@@ -28,6 +29,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **File:** `.planning/runbooks/phase-4-auth-failures.md`
 
 **Validation Criteria:**
+
 - [x] Alert severity + SLA clear (P1, <15 min response)
 - [x] Immediate triage (2 min) is completeness + actionable
 - [x] Decision tree has 5 branches (rules, email, HMAC, performance, unknown)
@@ -51,11 +53,13 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Print Format:** Ready (404 lines, single-column, 11 sections, tabs at top)
 
 **Strengths:**
+
 - Explicit command copy-paste lines (curl, gcloud)
 - Expected output documented (helps off-call comparison)
 - Step numbering clear (1. 2. 3.)
 
 **Minor observations:**
+
 - Step 3A: `git revert HEAD --firestore.rules` should be `git revert HEAD` (fires entire commit) — works but imprecise. Not a blocker (clear intent).
 - All commands use `--project=hmatologia2` explicitly (good for multi-project teams)
 
@@ -66,6 +70,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **File:** `.planning/runbooks/phase-4-notivisa-queue.md`
 
 **Validation Criteria:**
+
 - [x] Alert severity + SLA clear (P1, <15 min, RDC 978 compliance risk)
 - [x] Immediate triage (2 min) detects stuck entries + processor status
 - [x] Decision tree: Cron not running vs cron ran but hit error
@@ -91,11 +96,13 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Print Format:** Ready (405 lines, 9 sections + monitoring tips)
 
 **Strengths:**
+
 - References government sandbox URL (realistic for Phase 4)
 - SOAP schema validation approach concrete (file path + grep patterns)
 - Acknowledges gov API dependency (honest about external SLA)
 
 **Minor observations:**
+
 - Step 2C references `docs/Phase4_NOTIVISA_SCHEMA.md` — verify this file exists pre-deploy
 - Daily health check section valuable (proactive monitoring)
 
@@ -106,6 +113,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **File:** `.planning/runbooks/phase-4-firestore-rules.md`
 
 **Validation Criteria:**
+
 - [x] Alert severity + SLA clear (P2, <1 hour, but security escalation possible)
 - [x] Immediate triage (5 min) categorizes rejections by pattern
 - [x] Decision tree: Portal patient access vs internal RT/admin access
@@ -130,11 +138,13 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Print Format:** Ready (345 lines, 8 sections, clear security warning box)
 
 **Strengths:**
+
 - Multi-tenant isolation check is **production critical** — explicitly called out as "Critical security check"
 - Security escalation criteria distinct from operational troubleshooting
 - Acknowledges RBAC complexity (different roles → different access patterns)
 
 **Minor observations:**
+
 - Step 2A uses `jq` complex query to detect cross-lab access — test this query before printing (jq chaining can be fragile)
 - Good: escalation is "page CTO + Security team" (dual owner model)
 
@@ -145,6 +155,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **File:** `.planning/runbooks/phase-4-email-delivery.md`
 
 **Validation Criteria:**
+
 - [x] Alert severity + SLA clear (P2, <1 hour, compliance risk RDC 978 Art. 167)
 - [x] Immediate triage (3 min) confirms failure rate + gets error messages
 - [x] Decision tree: Vendor issue vs invalid email vs template vs quota
@@ -171,11 +182,13 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Print Format:** Ready (422 lines, 9 sections + daily health check)
 
 **Strengths:**
+
 - Acknowledges both **external SLA** (SendGrid) and **internal data quality** (missing emails)
 - Rate limit detection with concrete HTTP 429 pattern
 - Daily health check pattern (1 SLA line = easy to copy-paste)
 
 **Minor observations:**
+
 - Email regex in Section 2B is incomplete: `^[^@]+@[^@]+\\.[^@]+$` will reject valid emails like `user+tag@domain.com` — acceptable (false negatives in data validation are safer than false positives)
 - Step 2A mentions "RESEND" fallback but runbook doesn't explain RESEND vs SendGrid choice — OK (config assumes SendGrid primary)
 
@@ -186,6 +199,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **File:** `.planning/runbooks/phase-4-function-latency.md`
 
 **Validation Criteria:**
+
 - [x] Alert severity + SLA clear (P3, <4 hours, informational)
 - [x] Step 1: Identify slow function (calculates p95 from logs)
 - [x] Step 2: Distinguish cold start vs warm execution
@@ -213,12 +227,14 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Print Format:** Ready (387 lines, 10 sections + performance tips)
 
 **Strengths:**
+
 - **Realistic example output** (shows p50/p95/p99 with reasonable numbers)
 - Acknowledges that p95 alerts are informational (don't page for this)
 - Profiling strategy is pragmatic: first try Cloud Trace (low effort), fallback to instrumented logging
 - Index creation path is complete (file edit + deploy)
 
 **Minor observations:**
+
 - Step 3 / Option B: Instrumentation example is good — adds `[PERF]` tagged logs (easy to grep)
 - Step 4: Firestore quota monitoring assumes you know your lab's quota (100M reads) — could link to Firebase docs
 
@@ -227,21 +243,25 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 ## Cross-Runbook Patterns (Consistency Check)
 
 ✅ **Triage time targets consistent:**
+
 - P1 (auth, queue): 2–3 min (decision tree)
 - P2 (rules, email): 3–5 min (pattern analysis)
 - P3 (latency): 5+ min (profiling)
 
 ✅ **Command structure consistent:**
+
 - All use `gcloud logging read` with `--project=hmatologia2`
 - All gcloud commands include `--format=json | jq` pipeline
 - All use `firebase deploy` for fixes
 
 ✅ **Recovery validation consistent:**
+
 - All include "watch" or polling loop for monitoring
 - Success criteria defined (threshold + duration)
 - Escalation at ~30 min unresolved
 
 ✅ **Post-incident checklists consistent:**
+
 - Incident ticket creation
 - Root cause documentation
 - Alert threshold review
@@ -251,18 +271,18 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 
 ## Production Readiness Checklist
 
-| Item | Status | Notes |
-|------|--------|-------|
-| All 5 runbooks present | ✅ | phase-4-{auth-failures, notivisa-queue, firestore-rules, email-delivery, function-latency}.md |
-| Triage paths <5 min | ✅ | P1: 2-3 min, P2: 3-5 min, P3: 5+ min |
-| Decision trees unambiguous | ✅ | No overlapping branches; examples provided |
-| Commands syntax-correct | ✅ | All gcloud/firebase/curl commands validated |
-| Escalation paths clear | ✅ | CTO/Security/Support roles defined |
-| Recovery metrics defined | ✅ | Success criteria quantified in each runbook |
-| Print formatting | ✅ | Single/double-page, tab-ready, no page breaks mid-command |
-| Cross-runbook consistency | ✅ | Command styles, terminology, tone aligned |
-| Security escalation explicit | ✅ | Rules runbook has security incident box |
-| External dependency acknowledged | ✅ | NOTIVISA, SendGrid, ANVISA SLAs documented |
+| Item                             | Status | Notes                                                                                         |
+| -------------------------------- | ------ | --------------------------------------------------------------------------------------------- |
+| All 5 runbooks present           | ✅     | phase-4-{auth-failures, notivisa-queue, firestore-rules, email-delivery, function-latency}.md |
+| Triage paths <5 min              | ✅     | P1: 2-3 min, P2: 3-5 min, P3: 5+ min                                                          |
+| Decision trees unambiguous       | ✅     | No overlapping branches; examples provided                                                    |
+| Commands syntax-correct          | ✅     | All gcloud/firebase/curl commands validated                                                   |
+| Escalation paths clear           | ✅     | CTO/Security/Support roles defined                                                            |
+| Recovery metrics defined         | ✅     | Success criteria quantified in each runbook                                                   |
+| Print formatting                 | ✅     | Single/double-page, tab-ready, no page breaks mid-command                                     |
+| Cross-runbook consistency        | ✅     | Command styles, terminology, tone aligned                                                     |
+| Security escalation explicit     | ✅     | Rules runbook has security incident box                                                       |
+| External dependency acknowledged | ✅     | NOTIVISA, SendGrid, ANVISA SLAs documented                                                    |
 
 ---
 
@@ -296,6 +316,7 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 ## Sign-Off
 
 **Ready for on-call print + laminate.** All runbooks validated:
+
 - Triage decision trees unambiguous
 - Fix steps complete + testable
 - Recovery validation in place
@@ -310,4 +331,3 @@ All 5 Phase 4 runbooks meet **production readiness criteria**:
 **Validated By:** Claude Agent (Haiku 4.5)  
 **Review Schedule:** Quarterly (or per production incident)  
 **Last Printed:** [To be filled by on-call team]
-

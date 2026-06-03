@@ -2,10 +2,7 @@ import { useCallback, useState } from 'react';
 
 import { functions, httpsCallable } from '../../../shared/services/firebase';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
-import type {
-  EquipamentoMonitorado,
-  LeituraInput,
-} from '../types/ControlTemperatura';
+import type { EquipamentoMonitorado, LeituraInput } from '../types/ControlTemperatura';
 
 export interface UseSaveLeituraResult {
   save: (

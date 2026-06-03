@@ -37,20 +37,20 @@ Depois lê o CLAUDE.md do módulo:
 
 ## Callables em prod (southamerica-east1/hmatologia2)
 
-| Callable | Fase | Papel |
-|---|---|---|
-| `ec_mintSignature` | 0b | Assinatura server-side em lote (ExecucaoForm, Import XLSX) |
-| `ec_commitExecucaoRealizada` | 0b | RN-03 + RN-05 batch atomic |
-| `ec_commitExecucaoAdiada` | 0b | RN-01 atomic |
-| `ec_registrarAvaliacaoEficacia` | 0b | RN-02 server |
-| `ec_fecharAvaliacaoEficacia` | 0b | Re-aplica RN-02 na transição |
-| `ec_registrarAvaliacaoCompetencia` | 0b | ISO 15189 + FK Participante.presente + auto-injeta avaliadorId |
-| `ec_criarQuestao` | 8 | Separa opções públicas de gabarito (RN-10) |
-| `ec_arquivarQuestao` | 8 | ativo=false preservando gabarito |
-| `ec_submeterTeste` | 8 | Lê gabarito server + corrige objetivas + dissertativas → null |
-| `ec_gerarCertificado` | 9 | PDF (PDFKit) + QR + Storage signed URL + doc |
-| `validarCertificadoEc` | 9 | **HTTP público** — página de validação server-rendered (QR payload aponta aqui) |
-| `ec_scheduledAlertasVencimento` | 9 | Scheduled 08:00 SP, Resend, collectionGroup |
+| Callable                           | Fase | Papel                                                                           |
+| ---------------------------------- | ---- | ------------------------------------------------------------------------------- |
+| `ec_mintSignature`                 | 0b   | Assinatura server-side em lote (ExecucaoForm, Import XLSX)                      |
+| `ec_commitExecucaoRealizada`       | 0b   | RN-03 + RN-05 batch atomic                                                      |
+| `ec_commitExecucaoAdiada`          | 0b   | RN-01 atomic                                                                    |
+| `ec_registrarAvaliacaoEficacia`    | 0b   | RN-02 server                                                                    |
+| `ec_fecharAvaliacaoEficacia`       | 0b   | Re-aplica RN-02 na transição                                                    |
+| `ec_registrarAvaliacaoCompetencia` | 0b   | ISO 15189 + FK Participante.presente + auto-injeta avaliadorId                  |
+| `ec_criarQuestao`                  | 8    | Separa opções públicas de gabarito (RN-10)                                      |
+| `ec_arquivarQuestao`               | 8    | ativo=false preservando gabarito                                                |
+| `ec_submeterTeste`                 | 8    | Lê gabarito server + corrige objetivas + dissertativas → null                   |
+| `ec_gerarCertificado`              | 9    | PDF (PDFKit) + QR + Storage signed URL + doc                                    |
+| `validarCertificadoEc`             | 9    | **HTTP público** — página de validação server-rendered (QR payload aponta aqui) |
+| `ec_scheduledAlertasVencimento`    | 9    | Scheduled 08:00 SP, Resend, collectionGroup                                     |
 
 ## Caminhos que valem ler primeiro
 

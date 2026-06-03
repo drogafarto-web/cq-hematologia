@@ -10,13 +10,8 @@ import React, { useMemo, useRef, useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
 import { Timestamp } from '../../../shared/services/firebase';
 import { useFornecedores } from '../hooks/useFornecedores';
-import {
-  createNotaFiscal,
-} from '../services/notaFiscalService';
-import {
-  createFornecedor,
-  findFornecedorByCnpj,
-} from '../services/fornecedorService';
+import { createNotaFiscal } from '../services/notaFiscalService';
+import { createFornecedor, findFornecedorByCnpj } from '../services/fornecedorService';
 import { FornecedorFormModal } from './FornecedorFormModal';
 import type { Fornecedor } from '../types/Fornecedor';
 import { formatCnpj, normalizeCnpj } from '../types/Fornecedor';
@@ -37,11 +32,7 @@ interface NotaFiscalFormModalProps {
   onCreated?: (notaId: string) => void;
 }
 
-export function NotaFiscalFormModal({
-  labId,
-  onClose,
-  onCreated,
-}: NotaFiscalFormModalProps) {
+export function NotaFiscalFormModal({ labId, onClose, onCreated }: NotaFiscalFormModalProps) {
   const user = useUser();
   const todayIso = new Date().toISOString().slice(0, 10);
 
@@ -231,7 +222,12 @@ export function NotaFiscalFormModal({
               className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all"
             >
               <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-                <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+                <path
+                  d="M3 3l8 8M11 3l-8 8"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -260,8 +256,9 @@ export function NotaFiscalFormModal({
                   Importar do XML da NFe
                 </p>
                 <p className="text-[11px] text-slate-500 dark:text-white/45 mt-0.5 leading-relaxed">
-                  Arraste o XML ou clique pra selecionar. Fornecedor é cadastrado automaticamente
-                  se o CNPJ for novo — senão, reaproveita o existente. Você revisa tudo antes de salvar.
+                  Arraste o XML ou clique pra selecionar. Fornecedor é cadastrado automaticamente se
+                  o CNPJ for novo — senão, reaproveita o existente. Você revisa tudo antes de
+                  salvar.
                 </p>
                 <div className="mt-2 flex items-center gap-3">
                   <button
@@ -336,9 +333,7 @@ export function NotaFiscalFormModal({
                   />
                   <div className="rounded-xl border border-slate-200 dark:border-white/[0.06] max-h-52 overflow-y-auto">
                     {loadingFornecedores ? (
-                      <p className="p-3 text-xs text-slate-500 dark:text-white/40">
-                        Carregando…
-                      </p>
+                      <p className="p-3 text-xs text-slate-500 dark:text-white/40">Carregando…</p>
                     ) : fornecedores.length === 0 ? (
                       <div className="p-3 text-xs text-slate-500 dark:text-white/40 flex items-center justify-between gap-3">
                         <span>
@@ -410,9 +405,7 @@ export function NotaFiscalFormModal({
                   placeholder="ex: 12345"
                   autoComplete="off"
                 />
-                {errors.numero && (
-                  <p className="text-xs text-red-500 mt-1">{errors.numero}</p>
-                )}
+                {errors.numero && <p className="text-xs text-red-500 mt-1">{errors.numero}</p>}
               </div>
               <div>
                 <label
@@ -436,7 +429,8 @@ export function NotaFiscalFormModal({
                   htmlFor="dataEmissaoNF"
                   className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5"
                 >
-                  Data de emissão <span className="text-red-500 dark:text-red-400/70 ml-0.5">*</span>
+                  Data de emissão{' '}
+                  <span className="text-red-500 dark:text-red-400/70 ml-0.5">*</span>
                 </label>
                 <input
                   id="dataEmissaoNF"
@@ -456,7 +450,8 @@ export function NotaFiscalFormModal({
                   htmlFor="dataRecebimentoNF"
                   className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5 ml-0.5"
                 >
-                  Data de recebimento <span className="text-red-500 dark:text-red-400/70 ml-0.5">*</span>
+                  Data de recebimento{' '}
+                  <span className="text-red-500 dark:text-red-400/70 ml-0.5">*</span>
                 </label>
                 <input
                   id="dataRecebimentoNF"

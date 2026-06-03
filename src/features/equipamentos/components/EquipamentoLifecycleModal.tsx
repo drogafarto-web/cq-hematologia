@@ -117,7 +117,10 @@ export function EnterManutencaoModal({
     >
       <div className="p-5 space-y-4">
         <div>
-          <label htmlFor="motivo-manu" className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5">
+          <label
+            htmlFor="motivo-manu"
+            className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5"
+          >
             Motivo <span className="text-red-500 ml-0.5">*</span>
           </label>
           <textarea
@@ -216,8 +219,14 @@ export function LeaveManutencaoModal({
         )}
 
         <div>
-          <label htmlFor="nota-leave" className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5">
-            Nota de conclusão <span className="text-slate-400 dark:text-white/25 font-normal normal-case">(opcional)</span>
+          <label
+            htmlFor="nota-leave"
+            className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5"
+          >
+            Nota de conclusão{' '}
+            <span className="text-slate-400 dark:text-white/25 font-normal normal-case">
+              (opcional)
+            </span>
           </label>
           <textarea
             id="nota-leave"
@@ -333,13 +342,16 @@ export function AposentarEquipamentoModal({
             Cloud Function de limpeza remove automaticamente.
           </p>
           <p className="mt-1.5 leading-relaxed">
-            Lotes vinculados a este equipamento continuam válidos — mas não poderão ser ativados
-            em setup de outro equipamento sem cadastro manual.
+            Lotes vinculados a este equipamento continuam válidos — mas não poderão ser ativados em
+            setup de outro equipamento sem cadastro manual.
           </p>
         </div>
 
         <div>
-          <label htmlFor="motivo-apo" className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5">
+          <label
+            htmlFor="motivo-apo"
+            className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5"
+          >
             Motivo da aposentadoria <span className="text-red-500 ml-0.5">*</span>
           </label>
           <textarea
@@ -351,11 +363,16 @@ export function AposentarEquipamentoModal({
             placeholder="Ex: equipamento vendido para LabClin Conceição; NF 4821/2026; retirada em 2026-04-25."
             className={INPUT_CLS}
           />
-          <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">Mínimo 10 caracteres.</p>
+          <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">
+            Mínimo 10 caracteres.
+          </p>
         </div>
 
         <div>
-          <label htmlFor="destino" className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5">
+          <label
+            htmlFor="destino"
+            className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5"
+          >
             Destino final <span className="text-red-500 ml-0.5">*</span>
           </label>
           <select
@@ -376,7 +393,10 @@ export function AposentarEquipamentoModal({
         </div>
 
         <div>
-          <label htmlFor="confirm" className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5">
+          <label
+            htmlFor="confirm"
+            className="block text-xs uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40 mb-1.5"
+          >
             Digite para confirmar <span className="text-red-500 ml-0.5">*</span>
           </label>
           <input
@@ -388,7 +408,8 @@ export function AposentarEquipamentoModal({
             autoComplete="off"
           />
           <p className="text-[11px] text-slate-500 dark:text-white/35 mt-1">
-            Previne aposentadoria acidental. Digite: <code className="px-1 bg-slate-100 dark:bg-white/[0.06] rounded">{expected}</code>
+            Previne aposentadoria acidental. Digite:{' '}
+            <code className="px-1 bg-slate-100 dark:bg-white/[0.06] rounded">{expected}</code>
           </p>
         </div>
 

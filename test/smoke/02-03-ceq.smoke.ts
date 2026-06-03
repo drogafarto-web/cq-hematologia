@@ -116,7 +116,7 @@ describe('02-03 CEQ Smoke Tests: Z-Score + Auto-NC', () => {
     });
 
     it('should handle decimal precision', () => {
-      const result = calcularZScore(5.67, 5.50, 0.15);
+      const result = calcularZScore(5.67, 5.5, 0.15);
       expect(result.zScore).toBeCloseTo(1.133, 2);
       expect(result.interpretacao).toBe('satisfatoria');
     });
@@ -386,7 +386,7 @@ describe('02-03 CEQ Smoke Tests: Z-Score + Auto-NC', () => {
       const dependencies = {
         'firebase-admin': 'required',
         'firebase-functions': 'required',
-        'zod': 'optional',
+        zod: 'optional',
       };
 
       expect(dependencies['firebase-admin']).toBe('required');

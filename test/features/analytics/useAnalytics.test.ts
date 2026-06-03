@@ -11,8 +11,14 @@
  */
 
 import { describe, it, expect } from 'vitest';
-import { formatAnalyticsMetrics, isAnalyticsStale } from '../../../src/features/analytics/hooks/useAnalytics';
-import type { CIQComplianceMetrics, AnalyticsMetadata } from '../../../src/features/analytics/types';
+import {
+  formatAnalyticsMetrics,
+  isAnalyticsStale,
+} from '../../../src/features/analytics/hooks/useAnalytics';
+import type {
+  CIQComplianceMetrics,
+  AnalyticsMetadata,
+} from '../../../src/features/analytics/types';
 
 describe('useAnalytics helpers', () => {
   const mockMetrics: CIQComplianceMetrics = {

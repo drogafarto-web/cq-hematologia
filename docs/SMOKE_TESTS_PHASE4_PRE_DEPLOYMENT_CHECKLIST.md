@@ -9,15 +9,15 @@
 
 ## 🎯 Deployment Timeline
 
-| Date | Task | Owner | Status |
-|---|---|---|---|
-| **2026-05-13** | Final Phase 4 code review | Engineering | ⏳ Pending |
-| **2026-05-19 15:00 UTC** | Run full smoke test suite | QA | ⏳ Pending |
-| **2026-05-20 08:00 UTC** | Final pre-flight check | DevOps | ⏳ Pending |
-| **2026-05-20 09:30 UTC** | Deploy Step 1: Rules | DevOps | ⏳ Pending |
-| **2026-05-20 09:35 UTC** | Deploy Step 2: Functions | DevOps | ⏳ Pending |
-| **2026-05-20 09:45 UTC** | Deploy Step 3: Hosting | DevOps | ⏳ Pending |
-| **2026-05-20 10:00 UTC** | Go-live confirmation | CTO | ⏳ Pending |
+| Date                     | Task                      | Owner       | Status     |
+| ------------------------ | ------------------------- | ----------- | ---------- |
+| **2026-05-13**           | Final Phase 4 code review | Engineering | ⏳ Pending |
+| **2026-05-19 15:00 UTC** | Run full smoke test suite | QA          | ⏳ Pending |
+| **2026-05-20 08:00 UTC** | Final pre-flight check    | DevOps      | ⏳ Pending |
+| **2026-05-20 09:30 UTC** | Deploy Step 1: Rules      | DevOps      | ⏳ Pending |
+| **2026-05-20 09:35 UTC** | Deploy Step 2: Functions  | DevOps      | ⏳ Pending |
+| **2026-05-20 09:45 UTC** | Deploy Step 3: Hosting    | DevOps      | ⏳ Pending |
+| **2026-05-20 10:00 UTC** | Go-live confirmation      | CTO         | ⏳ Pending |
 
 ---
 
@@ -203,15 +203,15 @@ firebase deploy --only hosting --project hmatologia2
 
 ## 🔍 Smoke Test Troubleshooting Quick Reference
 
-| Issue | Likely Cause | Quick Fix |
-|---|---|---|
-| **Exit code 1** | One or more tests failed | Review output above summary |
-| **Build fails** | Missing dependency | Check `package.json` and `functions/package.json` |
-| **TypeScript errors** | Code has type issues | `npm run typecheck` and fix |
-| **Bundle >365 KB** | New large dependency | Lazy load or refactor |
-| **E2E tests fail** | Firebase emulator issue | `pkill -f firebase; sleep 2; retry` |
-| **Lighthouse <87** | Performance regression | Profile with DevTools Performance tab |
-| **Port in use** | Background process | Kill with `lsof -i :[port]` |
+| Issue                 | Likely Cause             | Quick Fix                                         |
+| --------------------- | ------------------------ | ------------------------------------------------- |
+| **Exit code 1**       | One or more tests failed | Review output above summary                       |
+| **Build fails**       | Missing dependency       | Check `package.json` and `functions/package.json` |
+| **TypeScript errors** | Code has type issues     | `npm run typecheck` and fix                       |
+| **Bundle >365 KB**    | New large dependency     | Lazy load or refactor                             |
+| **E2E tests fail**    | Firebase emulator issue  | `pkill -f firebase; sleep 2; retry`               |
+| **Lighthouse <87**    | Performance regression   | Profile with DevTools Performance tab             |
+| **Port in use**       | Background process       | Kill with `lsof -i :[port]`                       |
 
 ---
 
@@ -314,10 +314,10 @@ Verified: _________________ Date: _________
 
 ## 📅 Deployment History
 
-| Phase | Date | Status | Notes |
-|---|---|---|---|
+| Phase       | Date       | Status     | Notes                                    |
+| ----------- | ---------- | ---------- | ---------------------------------------- |
 | **Phase 4** | 2026-05-20 | 🔜 Pending | First execution of this smoke test suite |
-| (Future) | — | — | — |
+| (Future)    | —          | —          | —                                        |
 
 ---
 

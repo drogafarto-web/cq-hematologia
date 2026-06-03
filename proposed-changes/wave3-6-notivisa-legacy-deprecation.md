@@ -14,6 +14,7 @@ The NOTIVISA module currently has **two fully functional, parallel implementatio
 2. **Wave 2 (Agent 10, test-mode skeleton):** `notivisaCreateDraft`, `notivisaApproveDraft`, `notivisaSubmitDraft`
 
 Both write to the same Firestore collections with **incompatible schemas**:
+
 - Different status enums (`'draft'` vs `'pending'`)
 - Different audit log action names (`CREATED` vs `DRAFT_CREATED`)
 - Different signature strategies (HMAC-SHA256 vs metadata-only)
@@ -37,11 +38,11 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 ### Timeline
 
-| Phase | Dates | Status | Actions |
-|-------|-------|--------|---------|
-| **Phase 4 (Kickoff)** | May 20 → Jun 20 | Implementing | Deprecation markers, feature flag, Wave 2 launch, telemetry |
-| **Phase 5 (Monitoring)** | Jun 20 → Jul 20 | Planning | Rate limiting, conflict detection cron, usage monitoring |
-| **Phase 6 (Cutover)** | Jul 20 → Aug 1 | Planning | Feature flag flip, code deletion, production cutover |
+| Phase                    | Dates           | Status       | Actions                                                     |
+| ------------------------ | --------------- | ------------ | ----------------------------------------------------------- |
+| **Phase 4 (Kickoff)**    | May 20 → Jun 20 | Implementing | Deprecation markers, feature flag, Wave 2 launch, telemetry |
+| **Phase 5 (Monitoring)** | Jun 20 → Jul 20 | Planning     | Rate limiting, conflict detection cron, usage monitoring    |
+| **Phase 6 (Cutover)**    | Jul 20 → Aug 1  | Planning     | Feature flag flip, code deletion, production cutover        |
 
 ### Phase 4 Actions (May 20 → Jun 20)
 
@@ -150,6 +151,7 @@ Both write to the same Firestore collections with **incompatible schemas**:
 ### Code Changes (Wave 3-6)
 
 1. **Deprecation Markers (Week 1, Phase 4)**
+
    ```typescript
    /**
     * @deprecated Use notivisaCreateDraft instead (Wave 2-10).
@@ -158,13 +160,15 @@ Both write to the same Firestore collections with **incompatible schemas**:
     */
    export const notivisaDraftCreate = onCall(...)
    ```
+
    - Apply to: `notivisaDraftCreate`, `approveNotivisaDraft`, `submitNotivisaDraft`, `rejectNotivisaDraft`
 
 2. **Feature Flag (Week 1, Phase 4)**
+
    ```typescript
    const LEGACY_FEATURE_FLAG = process.env.FEATURE_LEGACY_NOTIVISA_ENABLED !== 'false';
    const LEGACY_CUTOVER_DATE = new Date('2026-08-01T00:00:00Z');
-   
+
    if (LEGACY_FEATURE_FLAG && Date.now() < LEGACY_CUTOVER_DATE.getTime()) {
      export { notivisaDraftCreate } from './notivisaDraftCreate';
      // ... other legacy exports
@@ -201,6 +205,7 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 **Severity:** Medium (breaks their integration)
 **Mitigation:**
+
 1. Multiple notices (May 20, Jun 20, Jul 20)
 2. Staged cutover (Phase 5 monitoring identifies laggards; Phase 6 notice gives 1 week)
 3. Support team on standby (Aug 1 morning)
@@ -210,6 +215,7 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 **Severity:** High (new path breaks on cutover)
 **Mitigation:**
+
 1. Extensive testing (42 mixed-mode tests)
 2. Staging cutover test (Jul 25)
 3. Extended monitoring (1 hour, then daily for 1 week)
@@ -219,6 +225,7 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 **Severity:** Medium (compliance issue)
 **Mitigation:**
+
 1. Both action names (`CREATED` + `DRAFT_CREATED`) explicitly handled in dashboards
 2. Conflict detection cron flags mixed-mode labs for manual review
 3. No data deletion during transition (just marking as soft-deleted)
@@ -227,6 +234,7 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 **Severity:** High (undetected data loss)
 **Mitigation:**
+
 1. Comprehensive test coverage (6 race condition tests)
 2. Idempotency checks (Wave 2 prevents duplicate creates)
 3. Queue event creation tested in both code paths
@@ -282,10 +290,12 @@ Both write to the same Firestore collections with **incompatible schemas**:
 ### Alternative B: Hard Cutover (Jul 1, 2026)
 
 **Pros:**
+
 - Clean, no coexistence complexity
 - Faster code cleanup
 
 **Cons:**
+
 - Risk of orphaned in-flight drafts
 - Less time for migration
 - Higher customer support load
@@ -296,10 +306,12 @@ Both write to the same Firestore collections with **incompatible schemas**:
 ### Alternative C: No Deprecation (Keep Both Indefinitely)
 
 **Pros:**
+
 - Maximum backward compat
 - No forced migration
 
 **Cons:**
+
 - Ongoing maintenance burden
 - Audit confusion never resolved
 - Risk compounds as codebase grows
@@ -311,27 +323,27 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 ## Estimated Effort
 
-| Phase | Task | Effort | Owner |
-|-------|------|--------|-------|
-| **Phase 4** | Documentation (5 files) | 16 hrs | Engineering |
-| | Deprecation markers + feature flag | 4 hrs | Engineering |
-| | Telemetry logging | 4 hrs | Engineering |
-| | 42 mixed-mode tests | 20 hrs | QA |
-| | Code review + sign-off | 8 hrs | CTO |
-| | **Phase 4 Total** | **52 hrs** | |
-| **Phase 5** | Rate limiting for Wave 2 | 6 hrs | Engineering |
-| | Conflict detection cron | 8 hrs | Engineering |
-| | Telemetry dashboards | 6 hrs | DevOps |
-| | Monitoring + weekly reports | 10 hrs | DevOps |
-| | Staging cutover test | 8 hrs | QA |
-| | Customer outreach | 6 hrs | Support |
-| | **Phase 5 Total** | **44 hrs** | |
-| **Phase 6** | Code deletion + cleanup | 4 hrs | Engineering |
-| | Deploy sequence | 8 hrs | DevOps |
-| | Monitoring (1 week) | 10 hrs | DevOps |
-| | Post-incident review | 4 hrs | Engineering |
-| | **Phase 6 Total** | **26 hrs** | |
-| **Grand Total** | | **122 hrs** | |
+| Phase           | Task                               | Effort      | Owner       |
+| --------------- | ---------------------------------- | ----------- | ----------- |
+| **Phase 4**     | Documentation (5 files)            | 16 hrs      | Engineering |
+|                 | Deprecation markers + feature flag | 4 hrs       | Engineering |
+|                 | Telemetry logging                  | 4 hrs       | Engineering |
+|                 | 42 mixed-mode tests                | 20 hrs      | QA          |
+|                 | Code review + sign-off             | 8 hrs       | CTO         |
+|                 | **Phase 4 Total**                  | **52 hrs**  |             |
+| **Phase 5**     | Rate limiting for Wave 2           | 6 hrs       | Engineering |
+|                 | Conflict detection cron            | 8 hrs       | Engineering |
+|                 | Telemetry dashboards               | 6 hrs       | DevOps      |
+|                 | Monitoring + weekly reports        | 10 hrs      | DevOps      |
+|                 | Staging cutover test               | 8 hrs       | QA          |
+|                 | Customer outreach                  | 6 hrs       | Support     |
+|                 | **Phase 5 Total**                  | **44 hrs**  |             |
+| **Phase 6**     | Code deletion + cleanup            | 4 hrs       | Engineering |
+|                 | Deploy sequence                    | 8 hrs       | DevOps      |
+|                 | Monitoring (1 week)                | 10 hrs      | DevOps      |
+|                 | Post-incident review               | 4 hrs       | Engineering |
+|                 | **Phase 6 Total**                  | **26 hrs**  |             |
+| **Grand Total** |                                    | **122 hrs** |             |
 
 ---
 
@@ -376,14 +388,14 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 ## Approval Gates
 
-| Gate | Owner | Approval Status | Date |
-|------|-------|-----------------|------|
-| Documentation review | CTO | Pending | TBD |
-| Risk assessment | CTO | Pending | TBD |
-| Phase 4 code review | CTO | Pending | TBD |
-| Phase 5 plan review | Product | Pending | TBD |
-| Phase 6 deployment plan | DevOps | Pending | TBD |
-| Customer communication | Support | Pending | TBD |
+| Gate                    | Owner   | Approval Status | Date |
+| ----------------------- | ------- | --------------- | ---- |
+| Documentation review    | CTO     | Pending         | TBD  |
+| Risk assessment         | CTO     | Pending         | TBD  |
+| Phase 4 code review     | CTO     | Pending         | TBD  |
+| Phase 5 plan review     | Product | Pending         | TBD  |
+| Phase 6 deployment plan | DevOps  | Pending         | TBD  |
+| Customer communication  | Support | Pending         | TBD  |
 
 ---
 
@@ -414,10 +426,10 @@ Both write to the same Firestore collections with **incompatible schemas**:
 
 ## Sign-Off
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Wave 3-6 Lead | TBD | Proposed | 2026-05-08 |
-| CTO | TBD | Pending | TBD |
-| DevOps/Infra Lead | TBD | Pending | TBD |
-| Product Lead | TBD | Pending | TBD |
-| Support Lead | TBD | Pending | TBD |
+| Role              | Name | Signature | Date       |
+| ----------------- | ---- | --------- | ---------- |
+| Wave 3-6 Lead     | TBD  | Proposed  | 2026-05-08 |
+| CTO               | TBD  | Pending   | TBD        |
+| DevOps/Infra Lead | TBD  | Pending   | TBD        |
+| Product Lead      | TBD  | Pending   | TBD        |
+| Support Lead      | TBD  | Pending   | TBD        |

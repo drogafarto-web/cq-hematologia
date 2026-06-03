@@ -56,7 +56,10 @@ export function usePOPs(filters: POPFilters = {}) {
   );
 
   const atualizar = useCallback(
-    async (popId: string, updates: Partial<Omit<POP, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>>) => {
+    async (
+      popId: string,
+      updates: Partial<Omit<POP, 'id' | 'labId' | 'criadoEm' | 'criadoPor'>>,
+    ) => {
       if (!labId) throw new Error('Lab não selecionado');
       return updatePOP(labId, popId, updates);
     },

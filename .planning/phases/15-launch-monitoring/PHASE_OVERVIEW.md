@@ -1,16 +1,16 @@
 ---
 phase: 15
 milestone: v1.4
-name: "Launch & Post-Deploy Monitoring"
+name: 'Launch & Post-Deploy Monitoring'
 status: planning-complete
 period_start: 2026-05-07
 period_end: 2026-05-09
 duration_days: 3
 dependencies:
-  - "Phase 14 complete (code merged to main)"
-  - "CTO authorization email"
-  - "On-call engineer assigned"
-  - "Secrets provisioned in GCP"
+  - 'Phase 14 complete (code merged to main)'
+  - 'CTO authorization email'
+  - 'On-call engineer assigned'
+  - 'Secrets provisioned in GCP'
 ---
 
 # Phase 15 Overview
@@ -110,22 +110,24 @@ Phase 15 is the **final gate** before v1.4 "goes live" in production. It consist
 
 ### What We Monitor
 
-| Layer | Metric | Red Flag | Expected |
-|-------|--------|----------|----------|
-| **Cloud Functions** | Error rate | Timeout, undefined, OOM | <0.01% |
-| **Firestore** | Permission errors | "Permission denied" | 0 |
-| **Hosting** | 5xx errors | 500, 502, 503, 504 | 0 |
-| **NOTIVISA** | SMS delivery | Function error | 99%+ delivery |
-| **Gemini API** | OCR errors | Timeout, bad input | <10 errors/48h |
+| Layer               | Metric            | Red Flag                | Expected       |
+| ------------------- | ----------------- | ----------------------- | -------------- |
+| **Cloud Functions** | Error rate        | Timeout, undefined, OOM | <0.01%         |
+| **Firestore**       | Permission errors | "Permission denied"     | 0              |
+| **Hosting**         | 5xx errors        | 500, 502, 503, 504      | 0              |
+| **NOTIVISA**        | SMS delivery      | Function error          | 99%+ delivery  |
+| **Gemini API**      | OCR errors        | Timeout, bad input      | <10 errors/48h |
 
 ### Automation + Manual Checks
 
 **Automated:**
+
 - PowerShell/Bash script runs continuously (or every 30 min)
 - Logs filtered for ERROR/WARNING severity
 - JSON export + Markdown report generated
 
 **Manual:**
+
 - Spot-checks every 6 hours (on-call engineer)
 - War room post (Slack) every 6 hours
 - Action on P0 incident within 5 minutes
@@ -133,11 +135,11 @@ Phase 15 is the **final gate** before v1.4 "goes live" in production. It consist
 
 ### Escalation Thresholds
 
-| Incident Type | Action | SLA |
-|---------------|--------|-----|
-| **P0:** NOTIVISA down, rules block traffic, auth broken | Immediate investigation + potential rollback | <5 min acknowledge |
-| **P1:** 10% error rate in single module, sustained rate-limit | Escalate → patch after Phase 15 | <2h decision |
-| **P2:** Single timeout, transient OAuth | Document → v1.4.1 | <24h review |
+| Incident Type                                                 | Action                                       | SLA                |
+| ------------------------------------------------------------- | -------------------------------------------- | ------------------ |
+| **P0:** NOTIVISA down, rules block traffic, auth broken       | Immediate investigation + potential rollback | <5 min acknowledge |
+| **P1:** 10% error rate in single module, sustained rate-limit | Escalate → patch after Phase 15              | <2h decision       |
+| **P2:** Single timeout, transient OAuth                       | Document → v1.4.1                            | <24h review        |
 
 ### Rollback Procedure
 
@@ -191,28 +193,34 @@ If P0 cannot be fixed in 15 minutes:
 After 48h monitoring, QA lead compiles baseline snapshot:
 
 **DICQ Compliance:**
+
 - Expected: 78–82% (v1.3 baseline + v1.4 gains)
 - Per-block breakdown (A–J)
 
 **RDC 978 Coverage:**
+
 - Arts. 117 (SGD), 167 (laudo), 179–191 (CIQ + critical values)
 - Expected: 90%+
 
 **Web Vitals (from RUM):**
+
 - LCP <2.5s (p50 target: <2.0s)
 - INP <200ms (p50 target: <120ms)
 - CLS <0.1 (p50 target: <0.05)
 
 **Cloud Functions:**
+
 - Cold-start latency (avg 2–4s expected)
 - Error rate (<0.01%)
 - P95 response time
 
 **SMS/Email Delivery:**
+
 - SMS: 99%+ (Twilio)
 - Email: 99%+ (Resend)
 
 **IA Foundation:**
+
 - Imuno OCR dataset size
 - Model inference latency (if live)
 
@@ -240,6 +248,7 @@ After 48h monitoring, QA lead compiles baseline snapshot:
 ### v1.5 Kickoff (2026-05-10 09:00 UTC)
 
 30-minute alignment meeting:
+
 - Phase 4 (CAPA Closure) readiness
 - Phases 5–7 planning (portal, RDC Part 2, DICQ → 88%)
 - Resource allocation (4 parallel streams)
@@ -251,23 +260,24 @@ After 48h monitoring, QA lead compiles baseline snapshot:
 
 For Phase 15 to be "complete," ALL must be true:
 
-| Criterion | Target | Status |
-|-----------|--------|--------|
-| All 4 deploy steps execute | ✓ No blockers | TBD |
-| 0 P0 incidents in 48h window | ✓ None | TBD |
-| Smoke tests 8/8 passing | ✓ All green | TBD |
-| Real-world workflows validated | ✓ RT + auditor sign-off | TBD |
-| DICQ baseline captured | ✓ 78–82% documented | TBD |
-| RDC 978 coverage verified | ✓ 90%+ documented | TBD |
-| Web Vitals green | ✓ LCP <2.5s, INP <200ms, CLS <0.1 | TBD |
-| Cloud logs exported | ✓ JSON + PDF saved | TBD |
-| CTO + auditor approvals | ✓ Emails documented | TBD |
+| Criterion                      | Target                            | Status |
+| ------------------------------ | --------------------------------- | ------ |
+| All 4 deploy steps execute     | ✓ No blockers                     | TBD    |
+| 0 P0 incidents in 48h window   | ✓ None                            | TBD    |
+| Smoke tests 8/8 passing        | ✓ All green                       | TBD    |
+| Real-world workflows validated | ✓ RT + auditor sign-off           | TBD    |
+| DICQ baseline captured         | ✓ 78–82% documented               | TBD    |
+| RDC 978 coverage verified      | ✓ 90%+ documented                 | TBD    |
+| Web Vitals green               | ✓ LCP <2.5s, INP <200ms, CLS <0.1 | TBD    |
+| Cloud logs exported            | ✓ JSON + PDF saved                | TBD    |
+| CTO + auditor approvals        | ✓ Emails documented               | TBD    |
 
 ---
 
 ## Critical Dependencies
 
 **Blocking (must be complete before 2026-05-07 20:00 UTC):**
+
 - [ ] Phase 14 merged to main
 - [ ] CTO authorization email received
 - [ ] On-call engineer assigned (name + phone)
@@ -276,6 +286,7 @@ For Phase 15 to be "complete," ALL must be true:
 - [ ] Test accounts created (auditor, patient, RT)
 
 **Non-blocking (nice to have):**
+
 - Pre-create Slack war room channel
 - Stage monitoring scripts locally
 - Pre-warm function invocations (optional)
@@ -284,25 +295,27 @@ For Phase 15 to be "complete," ALL must be true:
 
 ## Roles & Responsibilities
 
-| Role | Primary Duty | Phase 15 Window |
-|------|--------------|-----------------|
-| **CTO** | Approval gate + post-closure sign-off | Async (emails) |
-| **DevOps Lead** | Deploy execution + validation | 2026-05-07 all day (20:00–21:45 active) |
-| **QA Lead** | Smoke tests + 48h monitoring oversight | 2026-05-07 21:45+ (daily 6h rotations) |
-| **On-Call Engineer** | 48-hour continuous monitoring | 2026-05-07 22:30 → 2026-05-09 22:30 (12h shifts) |
-| **Auditor** | Real-world workflow validation | 2026-05-08 08:00–17:00 UTC |
+| Role                 | Primary Duty                           | Phase 15 Window                                  |
+| -------------------- | -------------------------------------- | ------------------------------------------------ |
+| **CTO**              | Approval gate + post-closure sign-off  | Async (emails)                                   |
+| **DevOps Lead**      | Deploy execution + validation          | 2026-05-07 all day (20:00–21:45 active)          |
+| **QA Lead**          | Smoke tests + 48h monitoring oversight | 2026-05-07 21:45+ (daily 6h rotations)           |
+| **On-Call Engineer** | 48-hour continuous monitoring          | 2026-05-07 22:30 → 2026-05-09 22:30 (12h shifts) |
+| **Auditor**          | Real-world workflow validation         | 2026-05-08 08:00–17:00 UTC                       |
 
 ---
 
 ## Related Documents
 
 **In this phase directory:**
+
 - `README.md` — Navigation guide (start here)
 - `PHASE_15_DETAILED_PLAN.md` — Full execution guide
 - `PHASE_15_EXECUTIVE_SUMMARY.md` — Stakeholder overview
 - `PHASE_15_DEPLOYMENT_CHECKLIST.md` — Live deployment checklist
 
 **In project root:**
+
 - `.claude/rules/deploy-protocol.md` — Deploy sequence + rules
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — Cloud logs setup
 - `scripts/monitor-cloud-logs.sh` / `.ps1` — Monitoring automation
@@ -334,6 +347,7 @@ A: P0 incident detected during 48h monitoring → execute rollback → back to v
 After Phase 15 is complete and v1.4 is "LIVE," Phase 4 begins **2026-05-20**:
 
 **Phase 4: CAPA Closure & Process Execution**
+
 - Duration: 2–3 weeks
 - Owner: Auditor-led (with tech team support)
 - Goal: Close 8 CAPA items from Phase 8
@@ -345,16 +359,16 @@ See `.planning/milestones/v1.4-ROADMAP.md` § Phase 4 for full details.
 
 ## Document Metadata
 
-| Property | Value |
-|----------|-------|
-| Phase | 15 |
-| Milestone | v1.4 |
-| Status | Planning complete, ready for execution |
-| Duration | 3 calendar days (105 min deployment + 48h monitoring) |
-| Owner | DevOps Lead + QA Lead + On-Call Engineer |
-| CTO Gate | Authorization required before Step 1 |
-| Created | 2026-05-07 |
-| Version | 1.0 |
+| Property  | Value                                                 |
+| --------- | ----------------------------------------------------- |
+| Phase     | 15                                                    |
+| Milestone | v1.4                                                  |
+| Status    | Planning complete, ready for execution                |
+| Duration  | 3 calendar days (105 min deployment + 48h monitoring) |
+| Owner     | DevOps Lead + QA Lead + On-Call Engineer              |
+| CTO Gate  | Authorization required before Step 1                  |
+| Created   | 2026-05-07                                            |
+| Version   | 1.0                                                   |
 
 ---
 

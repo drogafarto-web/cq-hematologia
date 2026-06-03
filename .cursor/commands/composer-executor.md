@@ -4,12 +4,12 @@ Use quando estiver no **Composer 2** ou quiser **execução enxuta**: o modelo t
 
 ## Fluxo recomendado (cadeia)
 
-| Ordem | Comando | Função |
-|--------|---------|--------|
-| 1 | `/spec-module` | Gerar **mini-especificação** e **dividir** o trabalho em fases/fatias. |
-| 2 | `/composer-executor` | Executar **apenas uma fatia** autorizada por vez. |
-| 3 | `/designer` | Se houver **UI/experiência** na fatia ou no módulo. |
-| 4 | `/qa` | Checar **riscos, testes e integridade** antes de avançar para a próxima fatia. |
+| Ordem | Comando              | Função                                                                         |
+| ----- | -------------------- | ------------------------------------------------------------------------------ |
+| 1     | `/spec-module`       | Gerar **mini-especificação** e **dividir** o trabalho em fases/fatias.         |
+| 2     | `/composer-executor` | Executar **apenas uma fatia** autorizada por vez.                              |
+| 3     | `/designer`          | Se houver **UI/experiência** na fatia ou no módulo.                            |
+| 4     | `/qa`                | Checar **riscos, testes e integridade** antes de avançar para a próxima fatia. |
 
 **Relação com `/spec-module`:** o plano nasce no `/spec-module`; aqui você **só executa** a fatia combinada (uma por rodada).
 
@@ -83,7 +83,7 @@ Implementar **apenas a tarefa atual** com o **menor risco possível**, seguindo 
 
 **FORMATO DE RESPOSTA OBRIGATÓRIO**
 
-*Antes de codar:*
+_Antes de codar:_
 
 - entendimento do contexto;
 - arquivos que serão usados;
@@ -91,7 +91,7 @@ Implementar **apenas a tarefa atual** com o **menor risco possível**, seguindo 
 - plano de execução;
 - riscos.
 
-*Durante a execução:*
+_Durante a execução:_
 
 - faça **apenas a etapa autorizada**;
 - mostre o resultado;

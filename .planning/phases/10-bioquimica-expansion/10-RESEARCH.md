@@ -14,14 +14,14 @@ Phase 10 extends Bioquímica Phase 1 (v1.3, 16 analitos, single-instrument model
 
 ## Architectural Responsibility Map
 
-| Capability | Primary Tier | Secondary Tier | Rationale |
-|------------|-------------|----------------|-----------|
-| Multi-equipment QC engine | Cloud Functions (callable) | Firestore rules | Westgard rules + statistical decisions server-side; rules enforce path isolation per equipment |
-| Equipment-analyte affinity mapping | API/Backend | Database | Service layer validates that anlito X can run on equipment Y (LIS-like constraint) |
-| Lot expiry + batch tracking | Database/Service | API (validation) | Lot docs carregam `validadoAte`; pre-flight checks block stale lots |
-| Control material specifications | Database | Frontend (read) | Bula-to-spec mapping lives in `/lotes/{lotId}/especificacoes`; client reads only |
-| Multi-run aggregation (Levey-Jennings) | Cloud Functions (aggregate) | Frontend (chart) | Stats computed server-side; client renders pre-computed series |
-| Instrument data integration (OCR) | Cloud Functions (parser) | Browser (upload) | Gemini Vision or equipment-specific parser; IA runs server-side |
+| Capability                             | Primary Tier                | Secondary Tier   | Rationale                                                                                      |
+| -------------------------------------- | --------------------------- | ---------------- | ---------------------------------------------------------------------------------------------- |
+| Multi-equipment QC engine              | Cloud Functions (callable)  | Firestore rules  | Westgard rules + statistical decisions server-side; rules enforce path isolation per equipment |
+| Equipment-analyte affinity mapping     | API/Backend                 | Database         | Service layer validates that anlito X can run on equipment Y (LIS-like constraint)             |
+| Lot expiry + batch tracking            | Database/Service            | API (validation) | Lot docs carregam `validadoAte`; pre-flight checks block stale lots                            |
+| Control material specifications        | Database                    | Frontend (read)  | Bula-to-spec mapping lives in `/lotes/{lotId}/especificacoes`; client reads only               |
+| Multi-run aggregation (Levey-Jennings) | Cloud Functions (aggregate) | Frontend (chart) | Stats computed server-side; client renders pre-computed series                                 |
+| Instrument data integration (OCR)      | Cloud Functions (parser)    | Browser (upload) | Gemini Vision or equipment-specific parser; IA runs server-side                                |
 
 ---
 
@@ -44,7 +44,7 @@ Phase 10 extends Bioquímica Phase 1 (v1.3, 16 analitos, single-instrument model
 ### Deferred to v1.5 (OUT OF SCOPE)
 
 1. **Method validation** (RDC 978 Art. 157) — selectivity, accuracy, precision, linearity requires lab protocols + external standards. Deferred as **XL effort**, not Phase 10.
-2. **Equipment SDK integration** (Roche Cobas, Abbott, Siemens direct API) — requires vendor contracts + documentation. Phase 10 may have *design* for equipment SDK architecture, but no production implementation.
+2. **Equipment SDK integration** (Roche Cobas, Abbott, Siemens direct API) — requires vendor contracts + documentation. Phase 10 may have _design_ for equipment SDK architecture, but no production implementation.
 3. **CEQ PNCQ importer** — proficiency testing import from `pncq2013.pncq.org.br`. Scoped for v1.5.
 4. **Equipment maintenance scheduling** (FR-11 style) — deferred to v1.5 Batch 2.
 
@@ -52,13 +52,13 @@ Phase 10 extends Bioquímica Phase 1 (v1.3, 16 analitos, single-instrument model
 
 ## Phase Requirements
 
-| ID | Description | Research Support |
-|----|-------------|------------------|
-| REQ-460 | Multi-equipment Westgard validation across ≥3 instruments | Phase 9 engine + equipment path isolation in rules |
-| REQ-461 | Analyte expansion: coagulation, immunology, urinalysis with equipment affinity | seedAnalitos expansion + equipment mapper service |
-| REQ-462 | Control material lot expiry enforcement + batch traceability | Bula integration + lot spec doc + preflight checks |
-| REQ-463 | Levey-Jennings multi-equipment chart + equipment selector | Chart component enhancement + server-side aggregation |
-| REQ-464 | Compliance: RDC 978 Art. 180 (CIQ control plans), DICQ 4.6.3 | Multi-equipment plan doc + audit trail |
+| ID      | Description                                                                    | Research Support                                      |
+| ------- | ------------------------------------------------------------------------------ | ----------------------------------------------------- |
+| REQ-460 | Multi-equipment Westgard validation across ≥3 instruments                      | Phase 9 engine + equipment path isolation in rules    |
+| REQ-461 | Analyte expansion: coagulation, immunology, urinalysis with equipment affinity | seedAnalitos expansion + equipment mapper service     |
+| REQ-462 | Control material lot expiry enforcement + batch traceability                   | Bula integration + lot spec doc + preflight checks    |
+| REQ-463 | Levey-Jennings multi-equipment chart + equipment selector                      | Chart component enhancement + server-side aggregation |
+| REQ-464 | Compliance: RDC 978 Art. 180 (CIQ control plans), DICQ 4.6.3                   | Multi-equipment plan doc + audit trail                |
 
 ---
 
@@ -66,36 +66,38 @@ Phase 10 extends Bioquímica Phase 1 (v1.3, 16 analitos, single-instrument model
 
 ### Core (Inherited from Phase 9)
 
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| Westgard CLSI | Phase 9 impl | Subset QC rules (1-2s, 1-3s, 2-2s, R-4s) | RDC 978 Art. 179 mandated; CLSI EP15 baseline |
-| Gemini 2.5 Flash | 2.5 (confirmed) | OCR bula + equipment output parsing | Cost-effective, multi-format (PDF + image), auditable |
-| Firestore | 12.x (admin) | Multi-tenant collection isolation + audit | Multi-equipment path scoping: `/labs/{labId}/bioquimica/root/runs/{runId}` + equipment index |
-| React 19 + Recharts | Latest | Levey-Jennings chart rendering | Dark-first design system, real-time updates via `onSnapshot` |
+| Library             | Version         | Purpose                                   | Why Standard                                                                                 |
+| ------------------- | --------------- | ----------------------------------------- | -------------------------------------------------------------------------------------------- |
+| Westgard CLSI       | Phase 9 impl    | Subset QC rules (1-2s, 1-3s, 2-2s, R-4s)  | RDC 978 Art. 179 mandated; CLSI EP15 baseline                                                |
+| Gemini 2.5 Flash    | 2.5 (confirmed) | OCR bula + equipment output parsing       | Cost-effective, multi-format (PDF + image), auditable                                        |
+| Firestore           | 12.x (admin)    | Multi-tenant collection isolation + audit | Multi-equipment path scoping: `/labs/{labId}/bioquimica/root/runs/{runId}` + equipment index |
+| React 19 + Recharts | Latest          | Levey-Jennings chart rendering            | Dark-first design system, real-time updates via `onSnapshot`                                 |
 
 ### Supporting (Phase 10 Additions)
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `date-fns` | 3.x | Lot expiry validation + run date filtering | RDC 978 Art. 181 (rastreabilidade); real-time expiry checks |
-| `zod` | 3.x | Equipment-analyte affinity schema validation | Prevent invalid (analito, equipment) pairs before runs |
-| Puppeteer (lazy) | 22.x | Multi-equipment report generation (PDF) | FR-001 reports; server-side only, lazy-loaded in callable |
+| Library          | Version | Purpose                                      | When to Use                                                 |
+| ---------------- | ------- | -------------------------------------------- | ----------------------------------------------------------- |
+| `date-fns`       | 3.x     | Lot expiry validation + run date filtering   | RDC 978 Art. 181 (rastreabilidade); real-time expiry checks |
+| `zod`            | 3.x     | Equipment-analyte affinity schema validation | Prevent invalid (analito, equipment) pairs before runs      |
+| Puppeteer (lazy) | 22.x    | Multi-equipment report generation (PDF)      | FR-001 reports; server-side only, lazy-loaded in callable   |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
+| Instead of                      | Could Use                                       | Tradeoff                                                                                                                                                                                                       |
+| ------------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Gemini Vision for all equipment | Equipment-specific SDKs (Roche API, Abbott SDK) | Gemini = vendor neutral, cheaper, slower on structured output. SDKs = native performance, vendor lock-in, contract overhead. **Recommendation: Gemini + SDK fallback (Phase 10 design, Phase 11+ implement).** |
-| Firestore Realtime aggregate | Materialized views (Cloud SQL + Pubsub) | Firestore = simpler rules scoping. SQL = better for heavy aggregation across 50+ analitos. **Phase 10 uses Firestore; Phase 12 may optimize with SQL if Levey-Jennings renders slowly.** |
-| React Recharts | Victory, Visx, Plot.ly | Recharts = lightweight, dark-mode native. Victory = enterprise features (not needed Phase 10). **Stick with Recharts.** |
+| Firestore Realtime aggregate    | Materialized views (Cloud SQL + Pubsub)         | Firestore = simpler rules scoping. SQL = better for heavy aggregation across 50+ analitos. **Phase 10 uses Firestore; Phase 12 may optimize with SQL if Levey-Jennings renders slowly.**                       |
+| React Recharts                  | Victory, Visx, Plot.ly                          | Recharts = lightweight, dark-mode native. Victory = enterprise features (not needed Phase 10). **Stick with Recharts.**                                                                                        |
 
 **Installation (Phase 10 additions):**
+
 ```bash
 npm install date-fns@3.x zod@3.x --save
 npm install --save-dev @types/date-fns
 ```
 
 **Version verification (as of 2026-05-07):**
+
 - [VERIFIED: npm registry] `date-fns@3.6.0` (latest 3.x)
 - [VERIFIED: npm registry] `zod@3.23.8` (latest 3.x)
 - [VERIFIED: npm registry] `recharts@2.13.2` (latest 2.x, pinned in package-lock)
@@ -187,6 +189,7 @@ functions/src/modules/bioquimica/
 ### Pattern 1: Multi-Equipment Run Validation
 
 **What:** Before a run can be recorded, validate that:
+
 1. Lot is not expired (`validadoAte` ≥ today)
 2. Lot explicitly includes selected equipment in `equipmentIds[]`
 3. Analito is approved for equipment (affinity mapping)
@@ -195,37 +198,36 @@ functions/src/modules/bioquimica/
 **When to use:** `PreFlightCheck` component before `recordRunBioquimica` callable.
 
 **Example:**
+
 ```typescript
 // Source: Phase 9 PreFlightCheck.tsx + Phase 10 enhancement
 export async function validateMultiEquipmentRun(
   labId: string,
   lotId: string,
   equipmentId: string,
-  analitoIds: string[]
+  analitoIds: string[],
 ): Promise<ValidationResult> {
   // 1. Fetch lot doc
   const lotDoc = await bioquimicaService.getLote(labId, lotId);
-  
+
   // 2. Check expiry
   if (new Date(lotDoc.validadoAte) < new Date()) {
     return { valid: false, reason: 'Lot expired' };
   }
-  
+
   // 3. Check lot includes equipment
   if (!lotDoc.equipmentIds.includes(equipmentId)) {
     return { valid: false, reason: 'Equipment not included in this lot' };
   }
-  
+
   // 4. Validate affinity (analito X equipment)
   for (const analitoId of analitoIds) {
-    const affinity = await equipamentoAffinityService.getAffinity(
-      labId, analitoId, equipmentId
-    );
+    const affinity = await equipamentoAffinityService.getAffinity(labId, analitoId, equipmentId);
     if (!affinity?.aprovado) {
       return { valid: false, reason: `Analito ${analitoId} not approved for ${equipmentId}` };
     }
   }
-  
+
   return { valid: true };
 }
 ```
@@ -237,19 +239,17 @@ export async function validateMultiEquipmentRun(
 **When to use:** Preflight checks + scheduled cleanup (mark expired lots as `utilizavelAte: false`).
 
 **Example:**
+
 ```typescript
 // Source: lotService + Phase 10 enhancement
-export async function canUseLotForRun(
-  labId: string, lotId: string
-): Promise<boolean> {
-  const lote = await db.collection(`/labs/${labId}/bioquimica/root/lotes`)
-    .doc(lotId).get();
-  
+export async function canUseLotForRun(labId: string, lotId: string): Promise<boolean> {
+  const lote = await db.collection(`/labs/${labId}/bioquimica/root/lotes`).doc(lotId).get();
+
   if (!lote.exists) return false;
-  
+
   const data = lote.data() as ControlMaterial;
   const isExpired = new Date(data.validadoAte) < new Date();
-  
+
   return !isExpired && !data.deletadoEm;
 }
 ```
@@ -261,20 +261,17 @@ export async function canUseLotForRun(
 **When to use:** LeveyJenningsChart component when equipment filter active.
 
 **Example:**
+
 ```typescript
 // Source: Phase 10 useMultiEquipmentStats.ts (new)
-export function useMultiEquipmentStats(
-  labId: string,
-  analitoId: string,
-  equipmentId?: string
-) {
+export function useMultiEquipmentStats(labId: string, analitoId: string, equipmentId?: string) {
   const [statsMap, setStatsMap] = useState<
     Record<string, RunStat[]> // key = "H550.1S" (equipment.nivel)
   >({});
-  
+
   useEffect(() => {
     if (!analitoId) return;
-    
+
     // Subscribe to runs matching analito + optional equipment
     const q = equipmentId
       ? query(
@@ -282,39 +279,39 @@ export function useMultiEquipmentStats(
           where('analitoIds', 'array-contains', analitoId),
           where('equipmentId', '==', equipmentId),
           orderBy('criadoEm', 'desc'),
-          limit(500)
+          limit(500),
         )
       : query(
           collection(db, `/labs/${labId}/bioquimica/root/runs`),
           where('analitoIds', 'array-contains', analitoId),
           orderBy('criadoEm', 'desc'),
-          limit(500)
+          limit(500),
         );
-    
+
     const unsubscribe = onSnapshot(q, (snap) => {
       const grouped = new Map<string, RunStat[]>();
-      
-      snap.docs.forEach(doc => {
+
+      snap.docs.forEach((doc) => {
         const run = doc.data() as Run;
         const key = `${run.equipmentId}.${run.nivelId}`;
-        
+
         if (!grouped.has(key)) {
           grouped.set(key, []);
         }
-        
+
         grouped.get(key)!.push({
           date: run.criadoEm,
           value: run.resultados[analitoId],
           westgardStatus: run.westgardStatus[analitoId],
         });
       });
-      
+
       setStatsMap(Object.fromEntries(grouped));
     });
-    
+
     return unsubscribe;
   }, [labId, analitoId, equipmentId]);
-  
+
   return statsMap;
 }
 ```
@@ -330,13 +327,13 @@ export function useMultiEquipmentStats(
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Equipment data parsing (Yumizen, Cobas, etc.) | Custom regex + CSV parser | Gemini Vision API (Phase 9 pattern) + equipment SDK bridges (Phase 10 design) | OCR handles handwriting + noise; SDKs provide structure. Custom parsing fails on small notation changes. |
-| Multi-equipment Westgard stats | In-app JS reduce over 500+ runs | Server-side Cloud Function aggregator | Browser renderer chokes on 50+ concurrent series. Server-side aggregation (scheduled or on-demand) + materialized view pattern essential for >500 data points. |
-| Lot expiry logic | Distributed checks in components | Centralized lotService.canUseLotForRun() | Expiry rules must be uniform; scattered checks lead to soft-delete races and audit inconsistency. |
-| Equipment-analyte affinity validation | Case statement in component | Zod schema + service layer | Affinity rules change per lab + per equipment firmware update. Schema-driven approach allows operators to update rules without code. |
-| Levey-Jennings multi-equipment rendering | Custom D3 multi-axis chart | Recharts (existing) + virtual scroller (react-window) | Recharts handles dark theme + responsive. Virtual scroller prevents DOM thrashing with 1000+ data points. |
+| Problem                                       | Don't Build                      | Use Instead                                                                   | Why                                                                                                                                                            |
+| --------------------------------------------- | -------------------------------- | ----------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Equipment data parsing (Yumizen, Cobas, etc.) | Custom regex + CSV parser        | Gemini Vision API (Phase 9 pattern) + equipment SDK bridges (Phase 10 design) | OCR handles handwriting + noise; SDKs provide structure. Custom parsing fails on small notation changes.                                                       |
+| Multi-equipment Westgard stats                | In-app JS reduce over 500+ runs  | Server-side Cloud Function aggregator                                         | Browser renderer chokes on 50+ concurrent series. Server-side aggregation (scheduled or on-demand) + materialized view pattern essential for >500 data points. |
+| Lot expiry logic                              | Distributed checks in components | Centralized lotService.canUseLotForRun()                                      | Expiry rules must be uniform; scattered checks lead to soft-delete races and audit inconsistency.                                                              |
+| Equipment-analyte affinity validation         | Case statement in component      | Zod schema + service layer                                                    | Affinity rules change per lab + per equipment firmware update. Schema-driven approach allows operators to update rules without code.                           |
+| Levey-Jennings multi-equipment rendering      | Custom D3 multi-axis chart       | Recharts (existing) + virtual scroller (react-window)                         | Recharts handles dark theme + responsive. Virtual scroller prevents DOM thrashing with 1000+ data points.                                                      |
 
 **Key insight:** Multi-equipment CIQ creates a 10x increase in data cardinality (analito × equipment × nivel × date). Distributed logic fails under scale. Invest in server-side aggregation + schema-driven validation early.
 
@@ -348,13 +345,13 @@ export function useMultiEquipmentStats(
 
 ### Scenario: Equipamento ID refactor (e.g., "H550-SN12345" → "equipment-h550-sn12345")
 
-| Category | Items Found | Action Required |
-|----------|-------------|------------------|
-| Stored data | Firestore `/lotes/{lotId}` docs contain `equipmentIds: ["H550-SN12345"]`; `/runs/{runId}.equipmentId: "H550-SN12345"` | Data migration: batch update all lotes + runs with new ID format. No code-only fix. |
-| Live service config | None (HC Quality is web-only; no task scheduler or external equipment registry) | None |
-| OS-registered state | None | None |
-| Secrets/env vars | None (equipment IDs are not secrets) | None |
-| Build artifacts | None | None |
+| Category            | Items Found                                                                                                           | Action Required                                                                     |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------- |
+| Stored data         | Firestore `/lotes/{lotId}` docs contain `equipmentIds: ["H550-SN12345"]`; `/runs/{runId}.equipmentId: "H550-SN12345"` | Data migration: batch update all lotes + runs with new ID format. No code-only fix. |
+| Live service config | None (HC Quality is web-only; no task scheduler or external equipment registry)                                       | None                                                                                |
+| OS-registered state | None                                                                                                                  | None                                                                                |
+| Secrets/env vars    | None (equipment IDs are not secrets)                                                                                  | None                                                                                |
+| Build artifacts     | None                                                                                                                  | None                                                                                |
 
 **If equipamento ID changes:** Migrate via callable `renameBioquimicaEquipamento()` that batch-updates lotes + runs + audit trail in transaction.
 
@@ -369,6 +366,7 @@ export function useMultiEquipmentStats(
 **Why it happens:** LeveyJenningsChart component doesn't label series by equipment. Phase 9 prototype did single-equipment only.
 
 **How to avoid:**
+
 - Series name must include equipment: `"GLI H550.1S"`, `"GLI Cobas.1S"`, `"GLI Abbott.2S"`.
 - Legend with equipment color coding (e.g., H550=blue, Cobas=green, Abbott=orange).
 - Tooltip shows equipment on hover.
@@ -384,6 +382,7 @@ export function useMultiEquipmentStats(
 **Why it happens:** Client-side validation is optimistic; server-side validation missing or late.
 
 **How to avoid:**
+
 - **Server-side source of truth:** `recordRunBioquimica` callable **must** re-validate expiry before writing.
 - Code pattern: Check expiry inside callable's transaction start, not in hook.
 - Test: E2E scenario where lot expires during preflight-to-submit window.
@@ -399,6 +398,7 @@ export function useMultiEquipmentStats(
 **Why it happens:** Implicit affinity assumption (if both exist, they're compatible) breaks when equipment is added later. RDC 978 Art. 180 requires explicit control plans per instrument.
 
 **How to avoid:**
+
 - **Seed affinity docs on analito creation:** When operator adds analito via admin, for every existing equipment, create affinity doc with `aprovado: true` by default.
 - **Affinity as explicit opt-out:** Operator must actively disable affinity if not valid (not leave it undefined).
 - Test: After seeding new equipment, query for missing affinity docs.
@@ -414,6 +414,7 @@ export function useMultiEquipmentStats(
 **Why it happens:** CV alvo (Phase 9 constant) is per-analito global. Phase 10 adds per-equipment CV in bula specs. Westgard engine needs to know which CV to apply — can be missed.
 
 **How to avoid:**
+
 - **CV sourcing explicit in callable:** `recordRunBioquimica(lotId, equipmentId, analitoIds)` must fetch CV from `/lotes/{lotId}/especificacoes/{analito-equipment}`, not from analito doc global.
 - Test: Same run data evaluated on 2 equipment models with different CVs. Assert Westgard status differs iff CV differs.
 
@@ -450,33 +451,30 @@ export type EquipamentoAffinity = z.infer<typeof EquipamentoAffinitySchema>;
 export async function getAffinity(
   labId: string,
   analitoId: string,
-  equipmentId: string
+  equipmentId: string,
 ): Promise<EquipamentoAffinity | null> {
-  const docRef = doc(
-    db,
-    `/labs/${labId}/bioquimica/root/affinities/${analitoId}-${equipmentId}`
-  );
-  
+  const docRef = doc(db, `/labs/${labId}/bioquimica/root/affinities/${analitoId}-${equipmentId}`);
+
   const snapshot = await getDoc(docRef);
-  
+
   if (!snapshot.exists()) {
     return null;
   }
-  
+
   const data = snapshot.data();
-  
+
   // Respect soft-delete
   if (data.deletadoEm) {
     return null;
   }
-  
+
   return EquipamentoAffinitySchema.parse(data);
 }
 
 export async function isAnalitoApprovedForEquipment(
   labId: string,
   analitoId: string,
-  equipmentId: string
+  equipmentId: string,
 ): Promise<boolean> {
   const affinity = await getAffinity(labId, analitoId, equipmentId);
   return affinity?.aprovado ?? false;
@@ -501,24 +499,22 @@ export function daysUntilExpiry(lot: ControlMaterial): number {
 
 export function getExpiryStatus(lot: ControlMaterial): 'expired' | 'warning' | 'valid' {
   const days = daysUntilExpiry(lot);
-  
+
   if (days < 0) {
     return 'expired';
   }
-  
+
   if (days < 30) {
     return 'warning';
   }
-  
+
   return 'valid';
 }
 
 // Cloud Function usage (in recordRunBioquimica callable)
 export function validateLotForRun(lot: ControlMaterial): void {
   if (isLotExpired(lot)) {
-    throw new Error(
-      `Lot ${lot.id} expired on ${lot.validadoAte}. Cannot record new runs.`
-    );
+    throw new Error(`Lot ${lot.id} expired on ${lot.validadoAte}. Cannot record new runs.`);
   }
 }
 ```
@@ -545,10 +541,10 @@ export async function aggregateMultiEquipmentStats(
   labId: string,
   analitoId: string,
   equipmentId: string,
-  nivelId: string
+  nivelId: string,
 ): Promise<AggregatedStat> {
   const db = admin.firestore();
-  
+
   // Fetch last 30 runs for this (analito, equipment, nivel)
   const runsSnap = await db
     .collection(`/labs/${labId}/bioquimica/root/runs`)
@@ -558,21 +554,18 @@ export async function aggregateMultiEquipmentStats(
     .orderBy('criadoEm', 'desc')
     .limit(30)
     .get();
-  
+
   if (runsSnap.empty) {
     throw new Error('Insufficient data for aggregation');
   }
-  
-  const values = runsSnap.docs
-    .map(d => d.data().resultados[analitoId])
-    .filter(v => v != null);
-  
+
+  const values = runsSnap.docs.map((d) => d.data().resultados[analitoId]).filter((v) => v != null);
+
   const mean = values.reduce((a, b) => a + b, 0) / values.length;
-  const variance =
-    values.reduce((a, v) => a + Math.pow(v - mean, 2), 0) / values.length;
+  const variance = values.reduce((a, v) => a + Math.pow(v - mean, 2), 0) / values.length;
   const stdDev = Math.sqrt(variance);
   const cv = (stdDev / mean) * 100;
-  
+
   return {
     analito: analitoId,
     equipment: equipmentId,
@@ -590,14 +583,15 @@ export async function aggregateMultiEquipmentStats(
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Single equipment QC (Phase 9 MVP) | Multi-equipment CIQ with affinity mapping | Phase 10 | Enables RDC 978 Art. 180 (control plans per instrument) + DICQ 4.6.3 compliance |
-| Lot as single batch (no equipment binding) | Lot with explicit equipmentIds[] | Phase 9 → Phase 10 | Prevents cross-equipment lot usage; audit trail clearer |
-| Global CV targets | Per-equipment CV from bula specs | Phase 10 | Westgard rules tuned per instrument; accuracy improves |
-| Client-side Levey-Jennings (all runs in memory) | Server-side aggregation + virtual scroller | Phase 10 if >500 series | Renders chart with 1000+ points smoothly; no UI lag |
+| Old Approach                                    | Current Approach                           | When Changed            | Impact                                                                          |
+| ----------------------------------------------- | ------------------------------------------ | ----------------------- | ------------------------------------------------------------------------------- |
+| Single equipment QC (Phase 9 MVP)               | Multi-equipment CIQ with affinity mapping  | Phase 10                | Enables RDC 978 Art. 180 (control plans per instrument) + DICQ 4.6.3 compliance |
+| Lot as single batch (no equipment binding)      | Lot with explicit equipmentIds[]           | Phase 9 → Phase 10      | Prevents cross-equipment lot usage; audit trail clearer                         |
+| Global CV targets                               | Per-equipment CV from bula specs           | Phase 10                | Westgard rules tuned per instrument; accuracy improves                          |
+| Client-side Levey-Jennings (all runs in memory) | Server-side aggregation + virtual scroller | Phase 10 if >500 series | Renders chart with 1000+ points smoothly; no UI lag                             |
 
 **Deprecated/outdated:**
+
 - **Single-analito seed data (Phase 9):** Phase 10 uses multi-analito seed + lab-specific custom analitos.
 - **Equipment-agnostic bula parsing (Phase 9):** Phase 10 adds equipment-specific spec extraction.
 
@@ -605,15 +599,15 @@ export async function aggregateMultiEquipmentStats(
 
 ## Assumptions Log
 
-| # | Claim | Section | Risk if Wrong |
-|---|-------|---------|---------------|
-| A1 | Yumizen H550 is primary/baseline equipment; Cobas/Abbott/Siemens are secondary targets. | Scope | If scope includes all 4 as equal priority, Phase 10 overruns +3 weeks. Recommend scoping to H550 MVP + Cobas design-only. |
-| A2 | Analyte expansion target is 25–35 analitos by Phase 10 end (from 16 in Phase 9). | Scope | If lab needs 50+ on day 1, seed data creation becomes manual bottleneck. Consider Excel importer Phase 10.1. |
-| A3 | Westgard rules remain Phase 9 subset (no extended rules 4-1s, 10x, 6T, 6X). | Locked | If auditor requires extended rules for multi-equipment validation, Phase 10 timeline extends +1 week. |
-| A4 | Lot expiry enforcement is **soft stop** (UI prevents submission, not hard fail in callable). | Locked | If hard fail required (no overrides), authorization + audit flow adds +3 days. |
-| A5 | Gemini Vision API is sufficient for all equipment OCR; no equipment SDK implementation in Phase 10. | Discretion | If equipment vendors enforce SDK-only parsing (e.g., Roche Cobas), Phase 10 becomes blocked. Recommend async SDK evaluation in parallel. |
-| A6 | Phase 10 does NOT include method validation (RDC 978 Art. 157). | Deferred | If auditor flags method validation as blocker, Phase 10 scope increases +2 weeks. Recommend pre-audit discussion. |
-| A7 | Levey-Jennings chart supports ≤1000 data points natively; >1000 requires virtual scroller. | Performance | If chart renders <1000 points, virtual scroller is nice-to-have. If >1000 is day-1 production load, it's required. |
+| #   | Claim                                                                                               | Section     | Risk if Wrong                                                                                                                            |
+| --- | --------------------------------------------------------------------------------------------------- | ----------- | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| A1  | Yumizen H550 is primary/baseline equipment; Cobas/Abbott/Siemens are secondary targets.             | Scope       | If scope includes all 4 as equal priority, Phase 10 overruns +3 weeks. Recommend scoping to H550 MVP + Cobas design-only.                |
+| A2  | Analyte expansion target is 25–35 analitos by Phase 10 end (from 16 in Phase 9).                    | Scope       | If lab needs 50+ on day 1, seed data creation becomes manual bottleneck. Consider Excel importer Phase 10.1.                             |
+| A3  | Westgard rules remain Phase 9 subset (no extended rules 4-1s, 10x, 6T, 6X).                         | Locked      | If auditor requires extended rules for multi-equipment validation, Phase 10 timeline extends +1 week.                                    |
+| A4  | Lot expiry enforcement is **soft stop** (UI prevents submission, not hard fail in callable).        | Locked      | If hard fail required (no overrides), authorization + audit flow adds +3 days.                                                           |
+| A5  | Gemini Vision API is sufficient for all equipment OCR; no equipment SDK implementation in Phase 10. | Discretion  | If equipment vendors enforce SDK-only parsing (e.g., Roche Cobas), Phase 10 becomes blocked. Recommend async SDK evaluation in parallel. |
+| A6  | Phase 10 does NOT include method validation (RDC 978 Art. 157).                                     | Deferred    | If auditor flags method validation as blocker, Phase 10 scope increases +2 weeks. Recommend pre-audit discussion.                        |
+| A7  | Levey-Jennings chart supports ≤1000 data points natively; >1000 requires virtual scroller.          | Performance | If chart renders <1000 points, virtual scroller is nice-to-have. If >1000 is day-1 production load, it's required.                       |
 
 **If this table is empty:** All claims in this research were verified or cited — no user confirmation needed.
 
@@ -645,18 +639,20 @@ export async function aggregateMultiEquipmentStats(
 
 ## Environment Availability
 
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Gemini 2.5 Flash API | Equipment OCR, bula parsing | ✓ | 2.5 (confirmed Phase 9) | Manual data entry |
-| Firestore composite indexes | Multi-equipment aggregation queries | ✓ | Admin SDK 12.x | Denormalize to materialized view (Phase 12 perf tuning) |
-| Firebase Cloud Functions | Westgard eval, stats aggregation | ✓ | Node 22, southamerica-east1 | None (callable required by RDC 978 Art. 5.3 audit) |
-| React 19 + Recharts | Levey-Jennings multi-equipment chart | ✓ | React 19.x, Recharts 2.13 | Victory.js (heavier bundle, not recommended) |
-| date-fns library | Lot expiry validation | ✗ (Phase 10 addition) | 3.6.0 (available) | Manual date math (error-prone) |
+| Dependency                  | Required By                          | Available             | Version                     | Fallback                                                |
+| --------------------------- | ------------------------------------ | --------------------- | --------------------------- | ------------------------------------------------------- |
+| Gemini 2.5 Flash API        | Equipment OCR, bula parsing          | ✓                     | 2.5 (confirmed Phase 9)     | Manual data entry                                       |
+| Firestore composite indexes | Multi-equipment aggregation queries  | ✓                     | Admin SDK 12.x              | Denormalize to materialized view (Phase 12 perf tuning) |
+| Firebase Cloud Functions    | Westgard eval, stats aggregation     | ✓                     | Node 22, southamerica-east1 | None (callable required by RDC 978 Art. 5.3 audit)      |
+| React 19 + Recharts         | Levey-Jennings multi-equipment chart | ✓                     | React 19.x, Recharts 2.13   | Victory.js (heavier bundle, not recommended)            |
+| date-fns library            | Lot expiry validation                | ✗ (Phase 10 addition) | 3.6.0 (available)           | Manual date math (error-prone)                          |
 
 **Missing dependencies with no fallback:**
+
 - None identified. Phase 10 is expansion, not dependent on external services unavailable today.
 
 **Missing dependencies with fallback:**
+
 - date-fns: fallback is manual date arithmetic (not recommended for production). Install as standard.
 
 ---
@@ -665,23 +661,23 @@ export async function aggregateMultiEquipmentStats(
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | Vitest (existing; configured in vite.config.ts) |
-| Config file | `vitest.config.ts` or `vite.config.ts` (shared) |
-| Quick run command | `npm run test:unit -- src/features/bioquimica/` |
-| Full suite command | `npm run test:unit` |
+| Property           | Value                                           |
+| ------------------ | ----------------------------------------------- |
+| Framework          | Vitest (existing; configured in vite.config.ts) |
+| Config file        | `vitest.config.ts` or `vite.config.ts` (shared) |
+| Quick run command  | `npm run test:unit -- src/features/bioquimica/` |
+| Full suite command | `npm run test:unit`                             |
 
 ### Phase Requirements → Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| REQ-460 | Multi-equipment Westgard validation for same analito on different equipment yields different results iff CV differs | unit | `npm run test:unit -- westgardRulesCLSI.test.ts -t "multi-equipment"` | ✅ westgardRulesCLSI.test.ts (Phase 9); needs +6 tests |
-| REQ-461 | Analyte expansion seed loads 25+ analitos without duplication | unit | `npm run test:unit -- analitoService.test.ts` | ❌ Wave 0 (needs creation) |
-| REQ-461 | Equipment-analyte affinity validation blocks invalid pairs | unit | `npm run test:unit -- equipamentoAffinityService.test.ts` | ❌ Wave 0 (needs creation) |
-| REQ-462 | Lot past `validadoAte` blocks new runs; historical reads allowed | unit + integration | `npm run test:unit -- lotExpiryValidator.test.ts` | ❌ Wave 0 (needs creation) |
-| REQ-463 | Levey-Jennings chart filters runs by equipment correctly | unit | `npm run test:unit -- LeveyJenningsChart.test.tsx` | ✅ useChartData.test.ts (Phase 9); needs enhancement |
-| REQ-464 | Audit trail records multi-equipment run metadata + Westgard status | integration | `npm run test:unit -- bioquimicaService.test.ts` | ❌ Wave 0 (needs creation) |
+| Req ID  | Behavior                                                                                                            | Test Type          | Automated Command                                                     | File Exists?                                           |
+| ------- | ------------------------------------------------------------------------------------------------------------------- | ------------------ | --------------------------------------------------------------------- | ------------------------------------------------------ |
+| REQ-460 | Multi-equipment Westgard validation for same analito on different equipment yields different results iff CV differs | unit               | `npm run test:unit -- westgardRulesCLSI.test.ts -t "multi-equipment"` | ✅ westgardRulesCLSI.test.ts (Phase 9); needs +6 tests |
+| REQ-461 | Analyte expansion seed loads 25+ analitos without duplication                                                       | unit               | `npm run test:unit -- analitoService.test.ts`                         | ❌ Wave 0 (needs creation)                             |
+| REQ-461 | Equipment-analyte affinity validation blocks invalid pairs                                                          | unit               | `npm run test:unit -- equipamentoAffinityService.test.ts`             | ❌ Wave 0 (needs creation)                             |
+| REQ-462 | Lot past `validadoAte` blocks new runs; historical reads allowed                                                    | unit + integration | `npm run test:unit -- lotExpiryValidator.test.ts`                     | ❌ Wave 0 (needs creation)                             |
+| REQ-463 | Levey-Jennings chart filters runs by equipment correctly                                                            | unit               | `npm run test:unit -- LeveyJenningsChart.test.tsx`                    | ✅ useChartData.test.ts (Phase 9); needs enhancement   |
+| REQ-464 | Audit trail records multi-equipment run metadata + Westgard status                                                  | integration        | `npm run test:unit -- bioquimicaService.test.ts`                      | ❌ Wave 0 (needs creation)                             |
 
 ### Sampling Rate
 
@@ -704,22 +700,22 @@ export async function aggregateMultiEquipmentStats(
 
 ### Applicable ASVS Categories
 
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| V2 Authentication | No (auth scoped Phase 9+) | — |
-| V3 Session Management | No | — |
-| V4 Access Control | Yes | Equipment data scoped to `labId` path; RT-only affinity edits via callable |
-| V5 Input Validation | Yes | `Zod` schema for affinity + lot mutations; Firestore Rules enforce path arity |
-| V6 Cryptography | Yes (inherited Phase 9) | HMAC chain integrity for runs + audit trail; no new crypto in Phase 10 |
+| ASVS Category         | Applies                   | Standard Control                                                              |
+| --------------------- | ------------------------- | ----------------------------------------------------------------------------- |
+| V2 Authentication     | No (auth scoped Phase 9+) | —                                                                             |
+| V3 Session Management | No                        | —                                                                             |
+| V4 Access Control     | Yes                       | Equipment data scoped to `labId` path; RT-only affinity edits via callable    |
+| V5 Input Validation   | Yes                       | `Zod` schema for affinity + lot mutations; Firestore Rules enforce path arity |
+| V6 Cryptography       | Yes (inherited Phase 9)   | HMAC chain integrity for runs + audit trail; no new crypto in Phase 10        |
 
 ### Known Threat Patterns for Multi-Equipment CIQ
 
-| Pattern | STRIDE | Standard Mitigation |
-|---------|--------|---------------------|
-| Equipment affinity bypass (run analito on unapproved equipment) | Tampering | Validate affinity server-side in `recordRunBioquimica` callable; Firestore Rules block direct writes to runs from client |
-| Lot expiry circumvention (submit run on expired lot) | Tampering | Server-side `validateLotForRun()` in callable; re-check expiry at transaction boundary |
-| Cross-equipment data leakage (equipment A reads results from equipment B) | Information disclosure | Queries scoped by `equipmentId` + `labId` in Rules; no cross-equipment queries allowed |
-| Westgard rule tampering (client modifies `westgardStatus` before submit) | Tampering | Rules evaluate Westgard server-side; client cannot write `westgardStatus` directly (read-only field) |
+| Pattern                                                                   | STRIDE                 | Standard Mitigation                                                                                                      |
+| ------------------------------------------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------ |
+| Equipment affinity bypass (run analito on unapproved equipment)           | Tampering              | Validate affinity server-side in `recordRunBioquimica` callable; Firestore Rules block direct writes to runs from client |
+| Lot expiry circumvention (submit run on expired lot)                      | Tampering              | Server-side `validateLotForRun()` in callable; re-check expiry at transaction boundary                                   |
+| Cross-equipment data leakage (equipment A reads results from equipment B) | Information disclosure | Queries scoped by `equipmentId` + `labId` in Rules; no cross-equipment queries allowed                                   |
+| Westgard rule tampering (client modifies `westgardStatus` before submit)  | Tampering              | Rules evaluate Westgard server-side; client cannot write `westgardStatus` directly (read-only field)                     |
 
 ---
 
@@ -746,6 +742,7 @@ export async function aggregateMultiEquipmentStats(
 ## Metadata
 
 **Confidence breakdown:**
+
 - **Standard stack:** HIGH — Phase 9 foundation solid; Phase 10 is incremental (date-fns, zod are standard utilities).
 - **Architecture:** MEDIUM-HIGH — Multi-equipment patterns are industry-standard (lab information systems); Phase 10 design sound but execution dependencies on equipment data integration remain.
 - **Scope:** MEDIUM — Phase 10 deliverables ("25–35 analitos", "≥3 instruments") are estimates pending lab inventory confirmation.
@@ -755,12 +752,14 @@ export async function aggregateMultiEquipmentStats(
 **Valid until:** 2026-05-21 (2 weeks; multi-equipment integration may evolve if equipment SDKs become available)
 
 **T-shirt estimate:** Phase 10 is **MEDIUM-to-LARGE (M-L)** effort.
+
 - Infrastructure (rules, services, types, callables): L (10 pts)
 - Component enhancements (PreFlightCheck, LeveyJenningsChart, EquipamentoMultiselect): M (6 pts)
 - Testing + compliance audit: M (5 pts)
 - **Total: ~21 pts (3 weeks at 7 pts/week velocity)**
 
 **Deferred to v1.5 (explicitly):**
+
 - Method validation (RDC 978 Art. 157): XL effort, requires lab protocol design + external standard sourcing
 - Equipment SDK implementation (Roche, Abbott, Siemens): L effort each, but requires vendor contracts; Phase 10 design, Phase 11+ execute
 - CEQ PNCQ importer: M effort, compliance-gated by proficiency testing participation

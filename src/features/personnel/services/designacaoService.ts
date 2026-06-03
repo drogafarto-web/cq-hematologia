@@ -35,7 +35,8 @@ const PERSONNEL_ROOT = 'personnel';
 
 const labRootDoc = (labId: LabId): DocumentReference => doc(db, PERSONNEL_ROOT, labId);
 
-const designacoesCol = (labId: LabId): CollectionReference => collection(labRootDoc(labId), 'designacoes');
+const designacoesCol = (labId: LabId): CollectionReference =>
+  collection(labRootDoc(labId), 'designacoes');
 
 const designacaoDoc = (labId: LabId, designacaoId: string): DocumentReference =>
   doc(designacoesCol(labId), designacaoId);
@@ -103,7 +104,10 @@ export async function createDesignacao(
 /**
  * Lê uma designação específica.
  */
-export async function getDesignacao(labId: LabId, designacaoId: string): Promise<Designacao | null> {
+export async function getDesignacao(
+  labId: LabId,
+  designacaoId: string,
+): Promise<Designacao | null> {
   const snap = await getDoc(designacaoDoc(labId, designacaoId));
   if (!snap.exists()) return null;
   const designacao = mapDesignacao(snap);
@@ -162,7 +166,10 @@ export function watchDesignacoes(
 /**
  * Retorna designação ativa para um cargo (dataFim = null, mais recente).
  */
-export async function getActiveDesignacao(labId: LabId, cargoId: string): Promise<Designacao | null> {
+export async function getActiveDesignacao(
+  labId: LabId,
+  cargoId: string,
+): Promise<Designacao | null> {
   const q = query(
     designacoesCol(labId),
     where('cargoId', '==', cargoId),

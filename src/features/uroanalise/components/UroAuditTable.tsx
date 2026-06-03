@@ -105,7 +105,11 @@ function ConformidadePill({ row }: { row: UroAuditRow }) {
 
 function NotivisaPill({ pending }: { pending: boolean | undefined }) {
   if (!pending) {
-    return <span aria-label="sem pendência" className="text-slate-300 dark:text-white/20">.</span>;
+    return (
+      <span aria-label="sem pendência" className="text-slate-300 dark:text-white/20">
+        .
+      </span>
+    );
   }
   return (
     <span
@@ -120,7 +124,11 @@ function NotivisaPill({ pending }: { pending: boolean | undefined }) {
 
 function SignatureCell({ row }: { row: UroAuditRow }) {
   if (!row.signed) {
-    return <span aria-label="não assinado" className="text-sm text-slate-400 dark:text-white/30">pendente</span>;
+    return (
+      <span aria-label="não assinado" className="text-sm text-slate-400 dark:text-white/30">
+        pendente
+      </span>
+    );
   }
   const time = row.signedAt ? formatSignedTime(row.signedAt) : '';
   const who = row.signedBy ?? 'RT';
@@ -159,7 +167,12 @@ function ActionButton({
       : 'border border-slate-200 dark:border-white/[0.12] text-slate-700 dark:text-white/80 ' +
         'hover:bg-slate-100 dark:hover:bg-white/[0.06] focus-visible:ring-slate-400/70 dark:focus-visible:ring-white/30';
   return (
-    <button type="button" onClick={onClick} aria-label={ariaLabel} className={joinClass(base, skin)}>
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label={ariaLabel}
+      className={joinClass(base, skin)}
+    >
       {children}
     </button>
   );

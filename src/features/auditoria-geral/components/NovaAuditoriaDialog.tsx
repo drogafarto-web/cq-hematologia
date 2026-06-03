@@ -56,9 +56,7 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
   };
 
   const toggleBloco = (id: BlocoId) => {
-    setEscopo((prev) =>
-      prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]
-    );
+    setEscopo((prev) => (prev.includes(id) ? prev.filter((b) => b !== id) : [...prev, id]));
   };
 
   return (
@@ -73,7 +71,10 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
         className="bg-white border border-slate-200 dark:bg-[#141417] dark:border-white/[0.08] rounded-xl shadow-2xl w-full max-w-lg p-6"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2 id="nova-auditoria-title" className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+        <h2
+          id="nova-auditoria-title"
+          className="text-lg font-semibold text-slate-900 dark:text-white mb-1"
+        >
           Nova Auditoria
         </h2>
         <p className="text-xs text-slate-500 dark:text-white/40 mb-5">
@@ -84,7 +85,10 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
           {step === 1 && (
             <>
               <div>
-                <label htmlFor="titulo" className="block text-xs text-slate-500 dark:text-white/50 mb-1.5">
+                <label
+                  htmlFor="titulo"
+                  className="block text-xs text-slate-500 dark:text-white/50 mb-1.5"
+                >
                   Título da Auditoria
                 </label>
                 <input
@@ -159,7 +163,9 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
               </div>
 
               <div>
-                <label className="block text-xs text-slate-500 dark:text-white/50 mb-1.5">Auditor Líder</label>
+                <label className="block text-xs text-slate-500 dark:text-white/50 mb-1.5">
+                  Auditor Líder
+                </label>
                 <p className="text-sm text-slate-700 dark:text-white/70">
                   {user?.displayName || user?.email || '—'}
                 </p>
@@ -202,17 +208,22 @@ export function NovaAuditoriaDialog({ open, onClose, onCreated }: Props) {
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-500 dark:text-white/50">Auditor</span>
-                  <span className="text-slate-700 dark:text-white/80">{user?.displayName || user?.email}</span>
+                  <span className="text-slate-700 dark:text-white/80">
+                    {user?.displayName || user?.email}
+                  </span>
                 </div>
                 <div className="flex justify-between text-xs">
                   <span className="text-slate-500 dark:text-white/50">Data</span>
-                  <span className="text-slate-700 dark:text-white/80">{new Date().toLocaleDateString('pt-BR')}</span>
+                  <span className="text-slate-700 dark:text-white/80">
+                    {new Date().toLocaleDateString('pt-BR')}
+                  </span>
                 </div>
               </div>
 
               <div className="bg-amber-50 dark:bg-amber-500/5 border border-amber-200 dark:border-amber-500/20 rounded-lg p-3">
                 <p className="text-xs text-amber-700 dark:text-amber-400">
-                  <strong>Independência:</strong> Confirmo que o auditor não possui conflito de interesse com as áreas auditadas conforme RDC 978/2025 Art. 107 §2.
+                  <strong>Independência:</strong> Confirmo que o auditor não possui conflito de
+                  interesse com as áreas auditadas conforme RDC 978/2025 Art. 107 §2.
                 </p>
               </div>
 

@@ -217,16 +217,19 @@ In repo root:
 # Deployment Contacts
 
 ## On-Call Engineer
+
 - **Name**: [Your Name]
 - **Slack**: @on-call
 - **Escalation**: Platform team lead
 
 ## Incident Response
+
 - **Post critical deploy**: Notify #deployments
 - **Rollback needed**: Call on-call immediately
 - **Out of hours**: Page PagerDuty
 
 ## Secrets Management
+
 - **Firebase token expired**: Contact GCP admin
 - **New secret needed**: File ticket in [system]
 ```
@@ -242,7 +245,7 @@ In repo root:
 1. Go to: https://console.cloud.google.com/logs?project=hmatologia2
 2. Create a **Log Sink** (optional, for long-term retention):
    - **Sink name**: `hcq-deploy-monitoring`
-   - **Query**: 
+   - **Query**:
      ```
      resource.type=cloud_function
      severity>=ERROR
@@ -300,6 +303,7 @@ echo "✅ All pre-deploy gates pass locally!"
 ### First Deployment (Test)
 
 1. Create test branch:
+
    ```bash
    git checkout -b test/first-deploy
    echo "test" >> README.md
@@ -330,6 +334,7 @@ echo "✅ All pre-deploy gates pass locally!"
 **Cause**: Secret not stored in GitHub
 
 **Fix**:
+
 ```bash
 # Regenerate token
 firebase login:ci --project hmatologia2
@@ -344,6 +349,7 @@ firebase login:ci --project hmatologia2
 **Cause**: Branch protection rule or workflow config issue
 
 **Check**:
+
 1. File exists: `.github/workflows/phase-3-deploy.yml` ✅
 2. Branch protection rule for `main` exists ✅
 3. YAML syntax is valid (GitHub UI shows no error) ✅
@@ -354,6 +360,7 @@ firebase login:ci --project hmatologia2
 **Cause**: Code doesn't meet quality standards
 
 **Fix**:
+
 ```bash
 npm run typecheck          # Fix any TS errors
 npm run lint --fix          # Auto-fix lint issues
@@ -367,6 +374,7 @@ npm run build               # Verify build succeeds
 **Cause**: Firebase secret is unprovisioned
 
 **Fix**:
+
 ```bash
 firebase functions:secrets:set SECRET_NAME --project hmatologia2
 # Follow prompts to set value
@@ -403,18 +411,17 @@ bash scripts/preflight-secrets-check.sh
 
 ## Support
 
-| Issue | Command | Reference |
-|-------|---------|-----------|
-| Type-check fails | `npm run typecheck` | `tsconfig.json` |
-| Lint fails | `npm run lint --fix` | `.eslintrc.js` |
-| Tests fail | `npm run test:unit --watch` | `vitest.config.ts` |
-| Coverage low | `npm run test:coverage` | `vitest.config.ts` |
-| Build fails | `npm run build` | `vite.config.ts` |
-| Secrets fail | `bash scripts/preflight-secrets-check.sh` | `scripts/preflight-secrets-check.sh` |
+| Issue            | Command                                   | Reference                            |
+| ---------------- | ----------------------------------------- | ------------------------------------ |
+| Type-check fails | `npm run typecheck`                       | `tsconfig.json`                      |
+| Lint fails       | `npm run lint --fix`                      | `.eslintrc.js`                       |
+| Tests fail       | `npm run test:unit --watch`               | `vitest.config.ts`                   |
+| Coverage low     | `npm run test:coverage`                   | `vitest.config.ts`                   |
+| Build fails      | `npm run build`                           | `vite.config.ts`                     |
+| Secrets fail     | `bash scripts/preflight-secrets-check.sh` | `scripts/preflight-secrets-check.sh` |
 
 ---
 
 **Generated**: 2026-05-07  
 **For**: HC Quality (CQ Labclin) · Phase 3+  
 **Next review**: 2026-06-07
-

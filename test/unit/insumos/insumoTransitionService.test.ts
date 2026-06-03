@@ -34,15 +34,15 @@ describe('validateTransitionInput', () => {
 
   describe('tipos que exigem motivo', () => {
     it('rejects correction sem motivo', () => {
-      expect(() =>
-        validateTransitionInput({ ...base, type: 'correction' }),
-      ).toThrow(/exige motivo/);
+      expect(() => validateTransitionInput({ ...base, type: 'correction' })).toThrow(
+        /exige motivo/,
+      );
     });
 
     it('rejects correction com motivo vazio ou whitespace', () => {
-      expect(() =>
-        validateTransitionInput({ ...base, type: 'correction', motivo: '   ' }),
-      ).toThrow(/exige motivo/);
+      expect(() => validateTransitionInput({ ...base, type: 'correction', motivo: '   ' })).toThrow(
+        /exige motivo/,
+      );
     });
 
     it('accepts correction com motivo', () => {
@@ -56,9 +56,9 @@ describe('validateTransitionInput', () => {
     });
 
     it('rejects override-vencido sem motivo', () => {
-      expect(() =>
-        validateTransitionInput({ ...base, type: 'override-vencido' }),
-      ).toThrow(/exige motivo/);
+      expect(() => validateTransitionInput({ ...base, type: 'override-vencido' })).toThrow(
+        /exige motivo/,
+      );
     });
 
     it('accepts override-vencido com motivo', () => {
@@ -72,9 +72,9 @@ describe('validateTransitionInput', () => {
     });
 
     it('rejects override-qc-pendente sem motivo', () => {
-      expect(() =>
-        validateTransitionInput({ ...base, type: 'override-qc-pendente' }),
-      ).toThrow(/exige motivo/);
+      expect(() => validateTransitionInput({ ...base, type: 'override-qc-pendente' })).toThrow(
+        /exige motivo/,
+      );
     });
   });
 });

@@ -65,16 +65,11 @@ export async function verifyNPSToken(
   if (parts.length !== 2) return null;
   const [payloadB64, hmac] = parts;
 
-  const expectedHmac = crypto
-    .createHmac('sha256', getSecret())
-    .update(payloadB64)
-    .digest('hex');
+  const expectedHmac = crypto.createHmac('sha256', getSecret()).update(payloadB64).digest('hex');
 
   // Constant-time compare
   try {
-    if (
-      !crypto.timingSafeEqual(Buffer.from(hmac, 'hex'), Buffer.from(expectedHmac, 'hex'))
-    ) {
+    if (!crypto.timingSafeEqual(Buffer.from(hmac, 'hex'), Buffer.from(expectedHmac, 'hex'))) {
       return null;
     }
   } catch {

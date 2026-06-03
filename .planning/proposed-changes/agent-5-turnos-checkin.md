@@ -10,7 +10,7 @@ enforcement primitive on top of the v1.3 designation-only baseline.
     `functions/src/modules/turnos/index.ts` nor wired in `functions/src/index.ts`.
   - This change wires both into the public surface.
 - `src/features/turnos/services/turnosCallables.ts` — adds `callSupervisorCheckin`
-  + `callSupervisorCheckout`.
+  - `callSupervisorCheckout`.
 - `src/features/turnos/hooks/useSupervisorPresenca.ts` — read presença/current,
   derive flags, call mutations.
 - `src/features/turnos/components/SupervisorPresencaActions.tsx` — Check-in /
@@ -29,8 +29,8 @@ export {
   turnos_updateTurno,
   turnos_softDeleteTurno,
   turnos_backfill90Days,
-  turnos_supervisorCheckin,    // NEW — RDC 978 Art. 122 presence check-in
-  turnos_supervisorCheckout,   // NEW — RDC 978 Art. 122 presence check-out
+  turnos_supervisorCheckin, // NEW — RDC 978 Art. 122 presence check-in
+  turnos_supervisorCheckout, // NEW — RDC 978 Art. 122 presence check-out
   onTurnoEventCreated,
 } from './modules/turnos/index';
 ```

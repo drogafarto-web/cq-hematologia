@@ -311,13 +311,18 @@ const PERMISSION_MATRIX: PermissionMatrixCell[] = [
 export const FirestoreRulesInspector: React.FC = () => {
   const [selectedCollection, setSelectedCollection] = useState<string>('');
   const [selectedRole, setSelectedRole] = useState<string>('member');
-  const [selectedAction, setSelectedAction] = useState<'read' | 'create' | 'update' | 'delete'>('read');
+  const [selectedAction, setSelectedAction] = useState<'read' | 'create' | 'update' | 'delete'>(
+    'read',
+  );
   const [treeExpanded, setTreeExpanded] = useState<boolean>(true);
 
   // Evaluate permission for selected combination
   const permission = useMemo(() => {
     const matching = PERMISSION_MATRIX.find(
-      (cell) => cell.collection === selectedCollection && cell.role === (selectedRole as any) && cell.action === selectedAction
+      (cell) =>
+        cell.collection === selectedCollection &&
+        cell.role === (selectedRole as any) &&
+        cell.action === selectedAction,
     );
     return matching;
   }, [selectedCollection, selectedRole, selectedAction]);
@@ -332,7 +337,9 @@ export const FirestoreRulesInspector: React.FC = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-4xl font-bold mb-2">Firestore Rules Inspector</h1>
-        <p className="text-gray-400">Wave 4 Agent 11 — Consolidated Rules (ADR 0003, 0004, 0005, 0007)</p>
+        <p className="text-gray-400">
+          Wave 4 Agent 11 — Consolidated Rules (ADR 0003, 0004, 0005, 0007)
+        </p>
       </div>
 
       {/* Two-column layout */}
@@ -344,9 +351,13 @@ export const FirestoreRulesInspector: React.FC = () => {
             <div className="ml-0">
               <div className="text-emerald-400">match /databases/</div>
               <div className="ml-4">
-                <div className="text-emerald-400">match /labs/{'{'} labId {'}'}</div>
+                <div className="text-emerald-400">
+                  match /labs/{'{'} labId {'}'}
+                </div>
                 <div className="ml-8 text-blue-300">
-                  <div>match /nao-conformidades/{'{'} ncId {'}'}</div>
+                  <div>
+                    match /nao-conformidades/{'{'} ncId {'}'}
+                  </div>
                   <div className="ml-4 text-gray-400">
                     allow read: isActiveMemberOfLab
                     <br />
@@ -358,7 +369,9 @@ export const FirestoreRulesInspector: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-8 text-blue-300">
-                  <div>match /pops/{'{'} popId {'}'}</div>
+                  <div>
+                    match /pops/{'{'} popId {'}'}
+                  </div>
                   <div className="ml-4 text-gray-400">
                     allow read: isActiveMemberOfLab
                     <br />
@@ -370,7 +383,9 @@ export const FirestoreRulesInspector: React.FC = () => {
                   </div>
                 </div>
                 <div className="ml-8 text-blue-300">
-                  <div>match /*/runs/{'{'} runId {'}'}</div>
+                  <div>
+                    match /*/runs/{'{'} runId {'}'}
+                  </div>
                   <div className="ml-4 text-gray-400">
                     allow create: isActiveMemberOfLab + hasActiveSupervisor (RDC 978 Art. 122)
                   </div>
@@ -401,13 +416,15 @@ export const FirestoreRulesInspector: React.FC = () => {
                       <td className="p-2 text-blue-400 font-mono">{col}</td>
                       {(['read', 'create', 'update', 'delete'] as const).map((action) => {
                         const cell = PERMISSION_MATRIX.find(
-                          (c) => c.collection === col && c.role === 'rt' && c.action === action
+                          (c) => c.collection === col && c.role === 'rt' && c.action === action,
                         );
                         return (
                           <td
                             key={`${col}-${action}`}
                             className={`text-center p-2 font-semibold ${
-                              cell?.allowed ? 'text-emerald-400 bg-emerald-900/20' : 'text-red-400 bg-red-900/20'
+                              cell?.allowed
+                                ? 'text-emerald-400 bg-emerald-900/20'
+                                : 'text-red-400 bg-red-900/20'
                             }`}
                           >
                             {cell?.allowed ? '✓' : '✗'}
@@ -415,11 +432,13 @@ export const FirestoreRulesInspector: React.FC = () => {
                         );
                       })}
                     </tr>
-                  )
+                  ),
                 )}
               </tbody>
             </table>
-            <p className="text-xs text-gray-500 mt-2">*Matrix shows RT role (most permissive non-admin)</p>
+            <p className="text-xs text-gray-500 mt-2">
+              *Matrix shows RT role (most permissive non-admin)
+            </p>
           </div>
         </div>
       </div>
@@ -507,19 +526,22 @@ export const FirestoreRulesInspector: React.FC = () => {
         <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-4">
           <h3 className="font-semibold text-blue-400 mb-2">ADR 0003: NC Global Spine</h3>
           <p className="text-sm text-gray-400">
-            All labs can track NCs. RT/admin update status. HMAC on create/update. Append-only statusHistory.
+            All labs can track NCs. RT/admin update status. HMAC on create/update. Append-only
+            statusHistory.
           </p>
         </div>
         <div className="bg-purple-900/20 border border-purple-700 rounded-lg p-4">
           <h3 className="font-semibold text-purple-400 mb-2">ADR 0004: POP Versionado</h3>
           <p className="text-sm text-gray-400">
-            Admin creates, RT signs versions. All members read. Training records immutable. DICQ 4.3 compliant.
+            Admin creates, RT signs versions. All members read. Training records immutable. DICQ 4.3
+            compliant.
           </p>
         </div>
         <div className="bg-orange-900/20 border border-orange-700 rounded-lg p-4">
           <h3 className="font-semibold text-orange-400 mb-2">RDC 978 Art. 122: Supervisor</h3>
           <p className="text-sm text-gray-400">
-            Critical CIQ runs require active supervisor. hasActiveSupervisor gate on create. Enforcement via rules.
+            Critical CIQ runs require active supervisor. hasActiveSupervisor gate on create.
+            Enforcement via rules.
           </p>
         </div>
       </div>

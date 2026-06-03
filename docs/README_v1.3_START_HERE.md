@@ -1,7 +1,7 @@
 ---
-title: "v1.3 Deployment — START HERE"
-date: "2026-05-07"
-status: "🟢 LIVE"
+title: 'v1.3 Deployment — START HERE'
+date: '2026-05-07'
+status: '🟢 LIVE'
 ---
 
 # v1.3 Deployment — START HERE
@@ -13,10 +13,12 @@ status: "🟢 LIVE"
 ## Pick Your Role
 
 ### 👤 Leadership / Manager / Stakeholder
+
 **Read this (10 min), then approve/go-live:**
 → [v1.3_DEPLOYMENT_EXECUTIVE_SUMMARY.md](v1.3_DEPLOYMENT_EXECUTIVE_SUMMARY.md)
 
 **Key facts:**
+
 - ✅ PRODUCTION DEPLOYED (Step 1+3 LIVE, Step 2 complete, Step 4 pending)
 - ✅ Security audit: GREEN
 - ✅ Compliance: 78.5% DICQ (audit-ready)
@@ -28,10 +30,12 @@ status: "🟢 LIVE"
 ---
 
 ### 🔧 Deployment Engineer / DevOps
+
 **Execute this (2–3 hours):**
 → [POST_DEPLOY_CHECKLIST_v1.3.md](POST_DEPLOY_CHECKLIST_v1.3.md)
 
 **Steps you'll take:**
+
 1. Step 4.1 — Firebase Console verification (5 checks, 10 min)
 2. Step 4.2 — Routing verification (4 routes, 5 min)
 3. Step 4.3 — PWA + Service Worker (2 checks, 5 min)
@@ -46,10 +50,12 @@ status: "🟢 LIVE"
 ---
 
 ### 🧪 QA / Tester
+
 **Execute this (1–1.5 hours):**
 → [SMOKE_TESTS_EXECUTION_GATE.md](SMOKE_TESTS_EXECUTION_GATE.md)
 
 **Scenarios you'll test:**
+
 1. Bioquímica CIQ (seed analito, run control, verify Levey-Jennings)
 2. SGD Drive importer (upload docs, verify hierarchy)
 3. Reclamações (complaint intake, LGPD consent, audit trail)
@@ -63,6 +69,7 @@ status: "🟢 LIVE"
 ---
 
 ### 🔒 Security / Auditor
+
 **Review this (15–20 min):**
 → [SECURITY_SIGN_OFF_v1.3.md](SECURITY_SIGN_OFF_v1.3.md)
 
@@ -80,14 +87,14 @@ status: "🟢 LIVE"
 
 ## Status at a Glance
 
-| Step | Status | When | Owner |
-|------|--------|------|-------|
-| Step 1: Rules + Indexes | ✅ LIVE | 2026-05-06 00:32 | Firebase |
-| Step 2: Functions | ✅ LIVE | 2026-05-07 14:00 | Cloud Functions |
-| Step 3: Hosting | ✅ LIVE | 2026-05-06 02:15 | Firebase Hosting |
-| Step 4: Smoke Tests | ⏳ TODAY | — | QA |
-| Step 5: Cloud Logs 24h | ⏳ TODAY+1 | — | DevOps |
-| Step 6: Sign-Off | ⏳ AFTER STEP 5 | — | All |
+| Step                    | Status          | When             | Owner            |
+| ----------------------- | --------------- | ---------------- | ---------------- |
+| Step 1: Rules + Indexes | ✅ LIVE         | 2026-05-06 00:32 | Firebase         |
+| Step 2: Functions       | ✅ LIVE         | 2026-05-07 14:00 | Cloud Functions  |
+| Step 3: Hosting         | ✅ LIVE         | 2026-05-06 02:15 | Firebase Hosting |
+| Step 4: Smoke Tests     | ⏳ TODAY        | —                | QA               |
+| Step 5: Cloud Logs 24h  | ⏳ TODAY+1      | —                | DevOps           |
+| Step 6: Sign-Off        | ⏳ AFTER STEP 5 | —                | All              |
 
 **Go/No-Go Decision:** All 4 smoke tests must PASS + Cloud Logs must show 0 new ERRORs
 
@@ -113,34 +120,30 @@ status: "🟢 LIVE"
 
 **Live as of 2026-05-07:**
 
-| Module | Function | Status |
-|--------|----------|--------|
-| **bioquimica** | Quantitative QC (17 analitos) | ✅ PROD |
-| **liberacao** | Release workflow + RT signature | ✅ PROD |
-| **reclamacoes** | Complaint intake + RCA | ✅ PROD |
-| **criticos** | Critical value framework | ✅ PROD |
-| **sgd** | Document master list + Drive importer | ✅ PROD |
-| **25+ other modules** | Phase 2 complete | ✅ PROD |
+| Module                | Function                              | Status  |
+| --------------------- | ------------------------------------- | ------- |
+| **bioquimica**        | Quantitative QC (17 analitos)         | ✅ PROD |
+| **liberacao**         | Release workflow + RT signature       | ✅ PROD |
+| **reclamacoes**       | Complaint intake + RCA                | ✅ PROD |
+| **criticos**          | Critical value framework              | ✅ PROD |
+| **sgd**               | Document master list + Drive importer | ✅ PROD |
+| **25+ other modules** | Phase 2 complete                      | ✅ PROD |
 
 ---
 
 ## Next 48 Hours (Critical Path)
 
 **Today:**
+
 1. Execute smoke tests (1 hour) — SMOKE_TESTS_EXECUTION_GATE.md
 2. Monitor Cloud Logs (ongoing, 30 min setup) — CLOUD_LOGS_QUICK_REFERENCE.md
 3. Verify Firestore indexes (5 min) — POST_DEPLOY_CHECKLIST_v1.3.md Step 4.1.2
 
-**Today EOD:**
-4. Stakeholder notification (status = GO/NO-GO)
-5. Archive deployment artifacts
+**Today EOD:** 4. Stakeholder notification (status = GO/NO-GO) 5. Archive deployment artifacts
 
-**Within 24h:**
-6. Audit trail spot-check (5 logs)
-7. Cloud Logs summary export (CSV)
+**Within 24h:** 6. Audit trail spot-check (5 logs) 7. Cloud Logs summary export (CSV)
 
-**Within 72h:**
-8. Production issue SLA (3 engineers on-call)
+**Within 72h:** 8. Production issue SLA (3 engineers on-call)
 
 ---
 
@@ -166,4 +169,3 @@ status: "🟢 LIVE"
 **Last Updated:** 2026-05-07 14:00 UTC  
 **Status:** 🟢 LIVE  
 **Questions?** Pick your role above and go to your document.
-

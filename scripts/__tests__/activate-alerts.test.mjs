@@ -68,7 +68,10 @@ class MockGcloud {
   }
 
   listPolicies(filter) {
-    let results = Array.from(this.policies.entries()).map(([id, policy]) => ({ name: id, ...policy }));
+    let results = Array.from(this.policies.entries()).map(([id, policy]) => ({
+      name: id,
+      ...policy,
+    }));
 
     if (filter) {
       results = results.filter((p) => p.displayName.includes(filter));
@@ -118,14 +121,13 @@ const SAMPLE_POLICY_A1 = {
     {
       displayName: 'writeAuditLog failure count > 3 in 1h',
       conditionMatchedLog: {
-        filter: 'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"',
+        filter:
+          'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"',
       },
     },
   ],
   enabled: true,
-  notificationChannels: [
-    'projects/hmatologia2/notificationChannels/slack-oncall-eng',
-  ],
+  notificationChannels: ['projects/hmatologia2/notificationChannels/slack-oncall-eng'],
   severity: 'WARNING',
 };
 
@@ -139,14 +141,13 @@ const SAMPLE_POLICY_A3 = {
     {
       displayName: 'consent-not-captured occurrences >= 1 in 5min',
       conditionMatchedLog: {
-        filter: 'resource.type="cloud_function" AND resource.labels.function_name="classifyStripGemini" AND severity="ERROR"',
+        filter:
+          'resource.type="cloud_function" AND resource.labels.function_name="classifyStripGemini" AND severity="ERROR"',
       },
     },
   ],
   enabled: true,
-  notificationChannels: [
-    'projects/hmatologia2/notificationChannels/slack-dpo',
-  ],
+  notificationChannels: ['projects/hmatologia2/notificationChannels/slack-dpo'],
   severity: 'ERROR',
 };
 
@@ -186,14 +187,18 @@ test('Policy creation — alert properties preserved', () => {
   assert(result.enabled === true);
   assert(result.severity === 'WARNING');
   assert(result.conditions.length === 1);
-  assert(result.notificationChannels.includes('projects/hmatologia2/notificationChannels/slack-oncall-eng'));
+  assert(
+    result.notificationChannels.includes(
+      'projects/hmatologia2/notificationChannels/slack-oncall-eng',
+    ),
+  );
 });
 
 test('Notification channel validation — channel exists', () => {
   const gcloud = new MockGcloud();
   gcloud.addChannel(
     'projects/hmatologia2/notificationChannels/slack-oncall-eng',
-    SAMPLE_CHANNEL_SLACK
+    SAMPLE_CHANNEL_SLACK,
   );
 
   const channels = gcloud.listChannels();
@@ -245,7 +250,8 @@ test('Policy update — modifying existing policy', () => {
 });
 
 test('Log filter parsing — A1 audit fallback filter', () => {
-  const filter = 'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"';
+  const filter =
+    'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"';
 
   const parts = filter.split(' AND ');
   assert(parts.includes('resource.type="cloud_function"'));
@@ -254,7 +260,8 @@ test('Log filter parsing — A1 audit fallback filter', () => {
 });
 
 test('Log filter parsing — A3 consent gate filter', () => {
-  const filter = 'resource.type="cloud_function" AND resource.labels.function_name="classifyStripGemini" AND severity="ERROR"';
+  const filter =
+    'resource.type="cloud_function" AND resource.labels.function_name="classifyStripGemini" AND severity="ERROR"';
 
   const hasFunctionName = filter.includes('classifyStripGemini');
   const hasSeverity = filter.includes('ERROR');
@@ -275,7 +282,8 @@ test('Test alert firing — A1 policy', async () => {
   };
 
   // Verify filter matches
-  const filter = 'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"';
+  const filter =
+    'resource.type="cloud_function" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"';
   assert(testLog.textPayload.includes('[writeAuditLog]'));
   assert(testLog.severity === 'ERROR');
 });
@@ -304,7 +312,7 @@ test('Error handling — policy not found', () => {
   }, /Policy not found/);
 });
 
-test('Error handling — invalid update (policy doesn\'t exist)', () => {
+test("Error handling — invalid update (policy doesn't exist)", () => {
   const gcloud = new MockGcloud();
 
   assert.throws(() => {
@@ -344,9 +352,7 @@ test('AlertsStatus component — severity color mapping', () => {
 test('Placeholder replacement — channel ID substitution', () => {
   const policyJson = JSON.stringify({
     ...SAMPLE_POLICY_A1,
-    notificationChannels: [
-      'projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG',
-    ],
+    notificationChannels: ['projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG'],
   });
 
   const policy = JSON.parse(policyJson);
@@ -369,7 +375,7 @@ test('Rate limiting — notification interval validation', () => {
   const rateLimits = {
     A1: 3600, // 1h
     A3: 1800, // 30m
-    A4: 60,   // 1m (CRITICAL, aggressive)
+    A4: 60, // 1m (CRITICAL, aggressive)
   };
 
   assert(rateLimits.A1 === 3600);

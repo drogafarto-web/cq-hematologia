@@ -56,22 +56,37 @@ export function useEquipmentSetup(
       setupDocId,
       (incoming) => {
         if (incoming) {
-          if (unsubFallback) { unsubFallback(); unsubFallback = null; }
+          if (unsubFallback) {
+            unsubFallback();
+            unsubFallback = null;
+          }
           setSetup(incoming);
-          if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
+          if (firstSnapshot) {
+            setIsLoading(false);
+            firstSnapshot = false;
+          }
         } else if (fallbackDocId && fallbackDocId !== setupDocId) {
           unsubFallback = subscribeToSetupById(
             labId,
             fallbackDocId,
             (fallbackSetup) => {
               setSetup(fallbackSetup);
-              if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
+              if (firstSnapshot) {
+                setIsLoading(false);
+                firstSnapshot = false;
+              }
             },
-            (err) => { setError(err.message); setIsLoading(false); },
+            (err) => {
+              setError(err.message);
+              setIsLoading(false);
+            },
           );
         } else {
           setSetup(null);
-          if (firstSnapshot) { setIsLoading(false); firstSnapshot = false; }
+          if (firstSnapshot) {
+            setIsLoading(false);
+            firstSnapshot = false;
+          }
         }
       },
       (err) => {

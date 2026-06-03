@@ -33,22 +33,11 @@ import type {
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
 function qualificacoesCol(labId: string) {
-  return collection(
-    db,
-    COLLECTIONS.LABS,
-    labId,
-    SUBCOLLECTIONS.INSUMO_QUALIFICACOES,
-  );
+  return collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.INSUMO_QUALIFICACOES);
 }
 
 function qualificacaoRef(labId: string, qId: string) {
-  return doc(
-    db,
-    COLLECTIONS.LABS,
-    labId,
-    SUBCOLLECTIONS.INSUMO_QUALIFICACOES,
-    qId,
-  );
+  return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.INSUMO_QUALIFICACOES, qId);
 }
 
 // ─── Canonical signature (deve bater com server) ─────────────────────────────

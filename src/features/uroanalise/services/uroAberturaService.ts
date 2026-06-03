@@ -87,7 +87,9 @@ export async function createAbertura(params: {
               loteControle: params.snapshotLote.lote,
               fabricanteControle: params.snapshotLote.fabricante,
               validadeControle: params.snapshotLote.validade,
-              aberturaControle: now.toDate ? now.toDate().toISOString().slice(0, 10) : new Date().toISOString().slice(0, 10),
+              aberturaControle: now.toDate
+                ? now.toDate().toISOString().slice(0, 10)
+                : new Date().toISOString().slice(0, 10),
             }),
       },
       { merge: true },

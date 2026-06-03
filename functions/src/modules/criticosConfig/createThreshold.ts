@@ -36,10 +36,7 @@ export const criticosConfig_createThreshold = onCall(
     try {
       input = CreateThresholdInputSchema.parse({ labId, ...payload });
     } catch (error: any) {
-      throw new HttpsError(
-        'invalid-argument',
-        `Entrada inválida: ${error.message}`,
-      );
+      throw new HttpsError('invalid-argument', `Entrada inválida: ${error.message}`);
     }
 
     const db = admin.firestore();

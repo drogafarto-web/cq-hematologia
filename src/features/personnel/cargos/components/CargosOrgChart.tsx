@@ -13,7 +13,14 @@ interface CargosOrgChartProps {}
 
 function PrintIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="6 9 6 2 18 2 18 9" />
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <rect x="6" y="14" width="12" height="8" />
@@ -132,11 +139,11 @@ function CargoTreeNode({
               {!hasChildren && <div className="w-5" />}
 
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-semibold text-white truncate">
-                  {node.titulo}
-                </h3>
+                <h3 className="text-sm font-semibold text-white truncate">{node.titulo}</h3>
                 <div className="flex items-center gap-2 mt-1">
-                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getSectorBadgeColor(node.setor)}`}>
+                  <span
+                    className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium ${getSectorBadgeColor(node.setor)}`}
+                  >
                     {node.setor}
                   </span>
                 </div>

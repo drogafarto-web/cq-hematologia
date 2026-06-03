@@ -1,7 +1,7 @@
 ---
-title: "Wave 2 Real-Time Monitoring Dashboard"
-purpose: "Daily status tracking for Phases 4-7 parallel execution"
-update_frequency: "Every 4 hours during execution"
+title: 'Wave 2 Real-Time Monitoring Dashboard'
+purpose: 'Daily status tracking for Phases 4-7 parallel execution'
+update_frequency: 'Every 4 hours during execution'
 ---
 
 # Wave 2 Monitoring Dashboard — Phases 4-7 Status Tracking
@@ -29,6 +29,7 @@ update_frequency: "Every 4 hours during execution"
 ## Phase Status Checklist (During Execution)
 
 ### Phase 4: Patient Portal + NOTIVISA Integration
+
 **Period:** 2026-05-20 → 2026-06-02  
 **Status:** ⏳ AWAITING KICKOFF
 
@@ -60,6 +61,7 @@ Status Report Template (every 4h):
 ---
 
 ### Phase 5: Critical Escalation + IA Training Dataset
+
 **Period:** 2026-06-09 → 2026-06-30  
 **Status:** ⏳ AWAITING PHASE 4 PRODUCTION VERIFICATION
 
@@ -95,6 +97,7 @@ Status Report Template (every 4h):
 ---
 
 ### Phase 6: Liberación Completion + Críticos Polish
+
 **Period:** 2026-07-01 → 2026-07-14  
 **Status:** ⏳ AWAITING PHASE 5 PRODUCTION VERIFICATION
 
@@ -130,6 +133,7 @@ Status Report Template (every 4h):
 ---
 
 ### Phase 7: Export Wizard + Reclamações/Satisfação + Portal Paciente
+
 **Period:** 2026-07-15 → 2026-07-28  
 **Status:** ⏳ AWAITING PHASE 6 PRODUCTION VERIFICATION
 
@@ -276,7 +280,7 @@ Overall Wave 2 Status:
 
 ### Phase 4 Cloud Logs Baseline (2026-06-02 deploy → 2026-06-03 monitor)
 
-```
+````
 Alert Policy:
 ├─ ERROR count: 0 (fail if >0)
 ├─ CRITICAL count: 0 (fail if >0)
@@ -310,7 +314,7 @@ gcloud functions logs read --limit 500 --region southamerica-east1 \
   --project hmatologia2 \
   --filter='resource.type=cloud_function AND severity=ERROR' \
   --format=json
-```
+````
 
 Acceptance Criteria:
 ├─ 0 ERROR/CRITICAL (fail if >0)
@@ -320,12 +324,14 @@ Acceptance Criteria:
 
 Sign-Off:
 └─ [ ] QA Lead approved (24h logs clean)
+
 ```
 
 ### Phase 5 Cloud Logs Baseline (2026-06-30 deploy → 2026-07-01 monitor)
 
 Similar structure as Phase 4, with functions:
 ```
+
 ├─ setCriticalThreshold() ← Config
 ├─ escalateCriticalValue() ← Escalation trigger
 ├─ detectCriticalValue() ← Real-time detection
@@ -333,20 +339,24 @@ Similar structure as Phase 4, with functions:
 ├─ sendEmailAlert() ← Email delivery
 ├─ uploadIATrainingImage() ← Strip upload
 └─ [Custom logging]
+
 ```
 
 ### Phase 6 Cloud Logs Baseline (2026-07-14 deploy → 2026-07-15 monitor)
 
 ```
+
 ├─ generateLaudoPDF() ← PDF generation
 ├─ generateQRCode() ← QR code generation
 ├─ portalMedicoLogin() ← Portal médico auth
 └─ [Custom logging]
+
 ```
 
 ### Phase 7 Cloud Logs Baseline (2026-07-28 deploy → 2026-07-29 monitor)
 
 ```
+
 ├─ exportToXLSX() ← Excel generation
 ├─ exportToPDF() ← PDF batch export
 ├─ exportToCSV() ← CSV export
@@ -354,6 +364,7 @@ Similar structure as Phase 4, with functions:
 ├─ submitFeedback() ← Feedback submission
 ├─ calculateTrending() ← Trending calculations
 └─ [Custom logging]
+
 ```
 
 ---
@@ -363,6 +374,7 @@ Similar structure as Phase 4, with functions:
 ### LCP (Largest Contentful Paint) — Target <2.0s (Phase 4) / <2.5s (Phase 5-7)
 
 ```
+
 Phase 4 (Portal):
 ├─ Desktop: [baseline TBD] target <2.0s
 ├─ Mobile: [baseline TBD] target <2.5s
@@ -384,11 +396,13 @@ Phase 7 (Export):
 
 Regression Trigger:
 └─ If LCP >2.5s (Phase 4) or >3.0s (Phase 5-7): Investigate + fix before deploy
+
 ```
 
 ### INP (Interaction to Next Paint) — Target <200ms
 
 ```
+
 All Phases:
 ├─ Click-to-response: [baseline TBD] target <200ms
 ├─ Form submission: [baseline TBD] target <300ms
@@ -396,11 +410,13 @@ All Phases:
 
 Regression Trigger:
 └─ If INP >300ms: Optimize before deploy
+
 ```
 
 ### CLS (Cumulative Layout Shift) — Target <0.05 (strict) / <0.1 (acceptable)
 
 ```
+
 All Phases:
 ├─ Portal layout stability: [baseline TBD] target <0.05
 ├─ Modal/dialog stability: [baseline TBD] target <0.05
@@ -408,6 +424,7 @@ All Phases:
 
 Regression Trigger:
 └─ If CLS >0.1: Block deploy until fixed
+
 ```
 
 ---
@@ -417,6 +434,7 @@ Regression Trigger:
 ### Unit Tests (vitest)
 
 ```
+
 Phase 4:
 ├─ Target: 38+ tests
 ├─ Current: [0 pre-kickoff]
@@ -439,11 +457,13 @@ Overall: 133+ tests target (all phases)
 
 Regression Trigger:
 └─ If coverage drops >5% or tests fail >2: Block deploy
+
 ```
 
 ### E2E Tests (Detox / Playwright)
 
 ```
+
 Phase 4:
 ├─ Flows: [list 6 critical flows]
 ├─ Pass rate: [% of runs]
@@ -464,6 +484,7 @@ Phase 7:
 
 Regression Trigger:
 └─ If any flow passes <95% on 3 runs: Investigate + fix before deploy
+
 ```
 
 ---
@@ -473,24 +494,26 @@ Regression Trigger:
 ### Status Levels
 
 ```
+
 🟢 GREEN — On track, no action needed
-   └─ Definition: 0 blockers, on-schedule, metrics on-target
-   └─ Update frequency: Daily standup
+└─ Definition: 0 blockers, on-schedule, metrics on-target
+└─ Update frequency: Daily standup
 
 🟡 YELLOW — At-risk, 3+ day buffer to remediation
-   └─ Definition: 1+ blockers, slipping, metrics drift
-   └─ Action: Escalate to Wave 2 Lead same day
-   └─ Update frequency: Daily standup + daily async update
+└─ Definition: 1+ blockers, slipping, metrics drift
+└─ Action: Escalate to Wave 2 Lead same day
+└─ Update frequency: Daily standup + daily async update
 
 🔴 RED — Blocking, <3 day buffer to remediation
-   └─ Definition: 2+ blockers, major slip, metrics critical
-   └─ Action: Escalate to Tech Lead + CTO <2h
-   └─ Update frequency: Every 2h standup
+└─ Definition: 2+ blockers, major slip, metrics critical
+└─ Action: Escalate to Tech Lead + CTO <2h
+└─ Update frequency: Every 2h standup
 
 ⚫ CRITICAL — Deploy abort, immediate action
-   └─ Definition: Unmitigatable regression, security breach, compliance gap
-   └─ Action: Escalate to CTO + Phone call + Emergency meeting
-   └─ Update frequency: Every 1h or real-time
+└─ Definition: Unmitigatable regression, security breach, compliance gap
+└─ Action: Escalate to CTO + Phone call + Emergency meeting
+└─ Update frequency: Every 1h or real-time
+
 ```
 
 ### Escalation Matrix
@@ -505,6 +528,7 @@ Regression Trigger:
 ### Escalation Checklist (When Escalating)
 
 ```
+
 Status: [YELLOW/RED/CRITICAL]
 Phase: [4/5/6/7]
 Issue: [Brief description]
@@ -517,6 +541,7 @@ Deadline: [When?]
 Escalated by: [Name]
 Escalated to: [Name]
 Timestamp: [YYYY-MM-DD HH:MM UTC]
+
 ```
 
 ---
@@ -526,6 +551,7 @@ Timestamp: [YYYY-MM-DD HH:MM UTC]
 Due 2026-07-28:
 
 ```
+
 Deployment Verification:
 ├─ [ ] Phase 4 live (2026-06-02) + 48h stable
 ├─ [ ] Phase 5 live (2026-06-30) + 48h stable
@@ -566,6 +592,7 @@ Sign-Off:
 ├─ [ ] Tech Lead approval (architecture)
 ├─ [ ] QA Lead approval (testing)
 ├─ [ ] DevOps Lead approval (infrastructure)
+
 ```
 
 ---
@@ -604,6 +631,7 @@ Sign-Off:
 **Date:** 2026-05-31 (End of Week 1 Phase 4)
 
 ```
+
 PHASE 4 STATUS — Week 1 Complete
 
 Shipped:
@@ -647,14 +675,16 @@ Wave 2 Overall Status:
 ├─ Phase 6: READY (dependent on Phase 5)
 ├─ Phase 7: READY (dependent on Phase 6)
 └─ Health: 🟢 GREEN | On-time delivery: 95%
+
 ```
 
 ---
 
-**Dashboard Last Updated:** 2026-05-07 (pre-kickoff template)  
-**Next Update:** 2026-05-21 (Phase 4 execution Day 1)  
+**Dashboard Last Updated:** 2026-05-07 (pre-kickoff template)
+**Next Update:** 2026-05-21 (Phase 4 execution Day 1)
 **Update Frequency (During Execution):** Every 4 hours + daily standup + weekly coordination
 
 ---
 
 This dashboard is your real-time command center for Wave 2. Keep it updated, escalate early (YELLOW), respond fast (RED), and you'll maintain momentum.
+```

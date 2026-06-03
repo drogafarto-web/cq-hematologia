@@ -156,9 +156,7 @@ async function buildDiff(
       ? (claims['modules'] as Record<string, unknown>)
       : null;
 
-  const labIds = Array.isArray(userDocData?.['labIds'])
-    ? (userDocData!['labIds'] as string[])
-    : [];
+  const labIds = Array.isArray(userDocData?.['labIds']) ? (userDocData!['labIds'] as string[]) : [];
 
   if (filterLabId && !labIds.includes(filterLabId)) {
     return {
@@ -166,9 +164,7 @@ async function buildDiff(
       email,
       labIds,
       beforeModules,
-      afterModules: beforeModules
-        ? (beforeModules as ModulesClaim)
-        : noAccess(),
+      afterModules: beforeModules ? (beforeModules as ModulesClaim) : noAccess(),
       changed: false,
       reason: 'no-labs-skipped',
     };
@@ -180,9 +176,7 @@ async function buildDiff(
       email,
       labIds,
       beforeModules,
-      afterModules: beforeModules
-        ? (beforeModules as ModulesClaim)
-        : noAccess(),
+      afterModules: beforeModules ? (beforeModules as ModulesClaim) : noAccess(),
       changed: false,
       reason: 'no-labs-skipped',
     };
@@ -190,8 +184,7 @@ async function buildDiff(
 
   const desired = fullAccess();
   const reason: ProvisionUserDiff['reason'] = beforeModules === null ? 'new-claim' : 'updated';
-  const changed =
-    beforeModules === null || !modulesEqual(beforeModules, desired);
+  const changed = beforeModules === null || !modulesEqual(beforeModules, desired);
 
   return {
     uid,
@@ -204,9 +197,7 @@ async function buildDiff(
   };
 }
 
-async function applyDiff(
-  diff: ProvisionUserDiff,
-): Promise<void> {
+async function applyDiff(diff: ProvisionUserDiff): Promise<void> {
   if (!diff.changed) return;
   const db = admin.firestore();
   await db.doc(`users/${diff.uid}`).update({ modules: diff.afterModules });
@@ -214,9 +205,7 @@ async function applyDiff(
 }
 
 // Firebase Auth `listUsers` pagina em 1000 por chamada.
-async function listAllUsers(
-  filterUid: string | undefined,
-): Promise<admin.auth.UserRecord[]> {
+async function listAllUsers(filterUid: string | undefined): Promise<admin.auth.UserRecord[]> {
   if (filterUid) {
     const user = await admin.auth().getUser(filterUid);
     return [user];
@@ -242,10 +231,7 @@ export const provisionModulesClaims = onCall(
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
     }
-    await assertSuperAdmin(
-      request.auth.uid,
-      request.auth.token as Record<string, unknown>,
-    );
+    await assertSuperAdmin(request.auth.uid, request.auth.token as Record<string, unknown>);
 
     const parsed = ProvisionInputSchema.safeParse(request.data ?? {});
     if (!parsed.success) {

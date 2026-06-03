@@ -9,6 +9,7 @@
 ## Phase 1: Response Awaiting (Target 48h turnaround: May 9–13)
 
 ### 1.1 Email Delivery Confirmation
+
 - [ ] **Task:** Check Gmail inbox (drogafarto@gmail.com) for delivery status
   - **Action:** Verify email sent to llabclin3@gmail.com completed (no bounces, no spam flag)
   - **Timeline:** Immediate (within 2h of send)
@@ -16,6 +17,7 @@
   - **Verification:** Gmail delivery receipt in Sent folder shows ✓ delivered
 
 ### 1.2 Await Auditor Response
+
 - [ ] **Task:** Monitor for calendar confirmation from Ernani
   - **Action:** Check email for availability response and calendar conflict flags
   - **Target timeline:** May 9–11 (48h from send)
@@ -28,6 +30,7 @@
 ## Phase 2: Calendar Scheduling (Target: May 12–15)
 
 ### 2.1 Schedule Auditor Alignment Call
+
 - [ ] **Task:** Create Google Calendar invite
   - **Duration:** 90 minutes (1.5h)
   - **Proposed window:** Week of May 13–17, 2026
@@ -39,6 +42,7 @@
   - **Title:** "HC Quality v1.4 Auditor Alignment · Architecture + Compliance"
   - **Location:** Google Meet (link auto-generated in calendar)
   - **Agenda item (calendar description):**
+
     ```
     90-minute session to present:
     1. v1.3 Baseline + v1.4 Roadmap (10 min)
@@ -47,9 +51,10 @@
     4. Phase 4-11 execution plans (state of Phase 8-11 detail) — 20 min
     5. RFI feedback loop + contingency scenarios — 10 min
     6. Resource allocation & timeline confirmation — 5 min
-    
+
     Pre-call materials: v1.4_AUDITOR_BRIEFING.pdf + ADR-0022-0026.zip
     ```
+
   - **Owner:** CTO
   - **Verification:** Calendar invite sent; Ernani's acceptance received
 
@@ -58,6 +63,7 @@
 ## Phase 3: Pre-Call Preparation (May 13–17, ~3 days before call)
 
 ### 3.1 Prepare Screen-Share Deck
+
 - [ ] **Task:** Assemble 9 Phase execution plans for live walkthrough
   - **Deck structure (Google Slides or PDF + browser tab switching):**
     - **Slide 1:** v1.3 Completion snapshot (35 modules, DICQ 78.5%, all Phase 0-3 done)
@@ -78,6 +84,7 @@
   - **Estimated effort:** 4–6 hours (consolidate existing docs into deck format)
 
 ### 3.2 Pre-Call Briefing Review
+
 - [ ] **Task:** CTO reads auditor feedback (if any interim messages received)
   - **Action:** Check email for any pre-call questions or concerns from Ernani
   - **Owner:** CTO
@@ -88,6 +95,7 @@
 ## Phase 4: Call Execution (Call date TBD, likely May 15–17)
 
 ### 4.1 Auditor Alignment Call
+
 - [ ] **Task:** Conduct 90-minute live session
   - **Pre-call setup (15 min before):**
     - [ ] Google Meet link tested + audio/video working
@@ -109,6 +117,7 @@
   - **Verification:** Call recording saved to Google Drive (with Ernani consent), transcript auto-generated
 
 ### 4.2 Post-Call Notes Distribution
+
 - [ ] **Task:** Email call summary to Ernani + internal team
   - **Content:**
     - Call agenda recap + timing breakdown
@@ -125,6 +134,7 @@
 ## Phase 5: Post-Call Follow-Up (May 18–22)
 
 ### 5.1 RFI Resolution (if any emerged from call)
+
 - [ ] **Task:** Resolve any outstanding auditor questions
   - **Action:** Assign RFI items to relevant module owners
   - **Target timeline:** 3–5 business days per RFI (by May 22)
@@ -132,6 +142,7 @@
   - **Verification:** Responses drafted, CTO reviews, sends to Ernani with next decision point
 
 ### 5.2 Phase 4 Kickoff Confirmation
+
 - [ ] **Task:** Confirm May 20 Phase 4 launch go/no-go based on auditor alignment
   - **Action:** CTO meets with product + engineering, confirms:
     - No blocking compliance findings
@@ -141,6 +152,7 @@
   - **Verification:** Phase 4 PLAN.md status updated, team notified of launch readiness
 
 ### 5.3 Update CLAUDE.md + Milestone Tracker
+
 - [ ] **Task:** Document call outcomes in project context
   - **Action:** Update `.planning/STATE.md` with auditor alignment date + outcomes
   - **Update:** CLAUDE.md "v1.4 Production Readiness" section with Ernani feedback summary (if material)
@@ -151,45 +163,48 @@
 
 ## Timestamps & Delivery Status
 
-| Step | Target Date | Actual Date | Status | Notes |
-|---|---|---|---|---|
-| Email sent | 2026-05-07 | — | Pending | To llabclin3@gmail.com |
-| Delivery confirmed | 2026-05-07 (same day) | — | Pending | Check Gmail Sent folder |
-| Auditor response received | 2026-05-09 to -05-13 | — | Awaiting | 48h target |
-| Calendar invite sent | 2026-05-12 | — | Pending | For week of May 13–17 |
-| Auditor accepts | 2026-05-12 to -05-15 | — | Awaiting | Confirms slot |
-| Deck + prep complete | 2026-05-15 (3 days prior) | — | Pending | Screen-share ready |
-| Alignment call | 2026-05-15 to -05-17 | — | Pending | Likely May 15–16 |
-| Post-call summary sent | 2026-05-17 (same day) | — | Pending | Within 2h |
-| Phase 4 kickoff go/no-go | 2026-05-19 | — | Pending | 1 day before May 20 launch |
+| Step                      | Target Date               | Actual Date | Status   | Notes                      |
+| ------------------------- | ------------------------- | ----------- | -------- | -------------------------- |
+| Email sent                | 2026-05-07                | —           | Pending  | To llabclin3@gmail.com     |
+| Delivery confirmed        | 2026-05-07 (same day)     | —           | Pending  | Check Gmail Sent folder    |
+| Auditor response received | 2026-05-09 to -05-13      | —           | Awaiting | 48h target                 |
+| Calendar invite sent      | 2026-05-12                | —           | Pending  | For week of May 13–17      |
+| Auditor accepts           | 2026-05-12 to -05-15      | —           | Awaiting | Confirms slot              |
+| Deck + prep complete      | 2026-05-15 (3 days prior) | —           | Pending  | Screen-share ready         |
+| Alignment call            | 2026-05-15 to -05-17      | —           | Pending  | Likely May 15–16           |
+| Post-call summary sent    | 2026-05-17 (same day)     | —           | Pending  | Within 2h                  |
+| Phase 4 kickoff go/no-go  | 2026-05-19                | —           | Pending  | 1 day before May 20 launch |
 
 ---
 
 ## Escalation & Contact
 
-| Role | Name | Email | Phone | Escalation trigger |
-|---|---|---|---|---|
-| Primary Auditor | Ernani | llabclin3@gmail.com | — | Any blocking RFI; >48h no response |
-| CTO (this project) | drogafarto | drogafarto@gmail.com | — | Owns call, sets timeline, resources go/no-go |
-| Compliance Lead | TBD | TBD | — | RFI resolution coordination |
+| Role               | Name       | Email                | Phone | Escalation trigger                           |
+| ------------------ | ---------- | -------------------- | ----- | -------------------------------------------- |
+| Primary Auditor    | Ernani     | llabclin3@gmail.com  | —     | Any blocking RFI; >48h no response           |
+| CTO (this project) | drogafarto | drogafarto@gmail.com | —     | Owns call, sets timeline, resources go/no-go |
+| Compliance Lead    | TBD        | TBD                  | —     | RFI resolution coordination                  |
 
 ---
 
 ## Notes & Context
 
 **Why this checklist:**
+
 - Formalizes post-email workflow to ensure no gaps between send → call → Phase 4 launch
 - Provides clear task ownership + verification criteria
 - Tracks all RFI feedback for future audits (Dec 2026 DICQ + Oct 2026 external audit)
 - Keeps timeline on track: May 7 send → May 15–17 call → May 20 Phase 4 kickoff (13 days)
 
 **Related documents:**
+
 - Email template: `.planning/AUDITOR_ALIGNMENT_EMAIL.md`
 - Briefing PDF: `.planning/v1.4_AUDITOR_BRIEFING.pdf` (to be generated/attached)
 - ADRs: `.planning/ADR-0022-0026.zip`
 - Phase 4 plan: `.planning/phases/04-portal-notivisa/04-PLAN.md`
 
 **Maintenance:**
+
 - Update this checklist weekly (Fridays) with actual dates/outcomes
 - Close out completed phases (mark [ ] → [✓])
 - Escalate blockers to CTO + Ernani by EOD if timeline at risk

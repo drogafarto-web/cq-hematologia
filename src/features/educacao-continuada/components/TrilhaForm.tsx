@@ -48,14 +48,22 @@ export function TrilhaForm({ trilha, onSaved, onCancel }: TrilhaFormProps) {
   const isEditing = Boolean(trilha);
 
   const [state, setState] = useState<FormState>(() => buildInitial(trilha));
-  const [errors, setErrors] = useState<{ nome?: string; cargo?: string; etapas?: string; submit?: string }>({});
+  const [errors, setErrors] = useState<{
+    nome?: string;
+    cargo?: string;
+    etapas?: string;
+    submit?: string;
+  }>({});
   const [isSaving, setIsSaving] = useState(false);
 
   const addEtapa = (templateId: string) => {
     const nextOrdem = state.etapas.length + 1;
     setState((prev) => ({
       ...prev,
-      etapas: [...prev.etapas, { ordem: nextOrdem, templateId, prazoEmDias: 30, obrigatoria: true }],
+      etapas: [
+        ...prev.etapas,
+        { ordem: nextOrdem, templateId, prazoEmDias: 30, obrigatoria: true },
+      ],
     }));
   };
   const removeEtapa = (idx: number) => {
@@ -112,7 +120,8 @@ export function TrilhaForm({ trilha, onSaved, onCancel }: TrilhaFormProps) {
   };
 
   const disponiveis = templates.filter((t) => !state.etapas.some((e) => e.templateId === t.id));
-  const templateTitulo = (id: string): string => templates.find((t) => t.id === id)?.titulo ?? 'Template removido';
+  const templateTitulo = (id: string): string =>
+    templates.find((t) => t.id === id)?.titulo ?? 'Template removido';
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
@@ -121,9 +130,8 @@ export function TrilhaForm({ trilha, onSaved, onCancel }: TrilhaFormProps) {
           {isEditing ? 'Editar trilha' : 'Nova trilha'}
         </h2>
         <p className="text-sm text-slate-400">
-          Sequência ordenada de templates por cargo. RN-08: ao cadastrar
-          colaborador novo com cargo {state.cargo || '…'}, o progresso inicia
-          automaticamente.
+          Sequência ordenada de templates por cargo. RN-08: ao cadastrar colaborador novo com cargo{' '}
+          {state.cargo || '…'}, o progresso inicia automaticamente.
         </p>
       </header>
 
@@ -165,9 +173,7 @@ export function TrilhaForm({ trilha, onSaved, onCancel }: TrilhaFormProps) {
       </Field>
 
       <section className="flex flex-col gap-3 rounded-lg border border-slate-800 bg-slate-900/40 p-4">
-        <h3 className="text-sm font-semibold text-slate-200">
-          Etapas ({state.etapas.length})
-        </h3>
+        <h3 className="text-sm font-semibold text-slate-200">Etapas ({state.etapas.length})</h3>
 
         {state.etapas.length === 0 ? (
           <p className="text-xs text-slate-500">
@@ -291,7 +297,10 @@ export function TrilhaForm({ trilha, onSaved, onCancel }: TrilhaFormProps) {
       </label>
 
       {errors.submit && (
-        <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+        <p
+          role="alert"
+          className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+        >
           {errors.submit}
         </p>
       )}

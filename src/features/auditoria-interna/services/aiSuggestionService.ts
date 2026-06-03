@@ -52,14 +52,11 @@ export interface RecurrenceResult {
  * Analyzes module data related to the indicator and returns a deterministic
  * conformity level suggestion (1-5) with justification.
  */
-export async function getAISuggestion(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
-  const callable = httpsCallable<
-    { labId: string; indicadorId: string },
-    AISuggestion
-  >(functions, 'generateAISuggestion');
+export async function getAISuggestion(labId: string, indicadorId: string): Promise<AISuggestion> {
+  const callable = httpsCallable<{ labId: string; indicadorId: string }, AISuggestion>(
+    functions,
+    'generateAISuggestion',
+  );
 
   const result = await callable({ labId, indicadorId });
   return result.data;
@@ -72,10 +69,10 @@ export async function getAISuggestion(
  * and NCs for compliance gaps that should be addressed.
  */
 export async function detectGaps(labId: string): Promise<GapDetection[]> {
-  const callable = httpsCallable<
-    { labId: string },
-    { gaps: GapDetection[] }
-  >(functions, 'detectGaps');
+  const callable = httpsCallable<{ labId: string }, { gaps: GapDetection[] }>(
+    functions,
+    'detectGaps',
+  );
 
   const result = await callable({ labId });
   return result.data.gaps;
@@ -89,11 +86,16 @@ export async function detectGaps(labId: string): Promise<GapDetection[]> {
  */
 export async function checkRecurrence(
   labId: string,
-  indicadorId: string
+  indicadorId: string,
 ): Promise<RecurrenceResult> {
   const callable = httpsCallable<
     { labId: string; indicadorId: string },
-    { isRecurrent: boolean; occurrences: number; lastAuditDate: string | null; recommendation: string }
+    {
+      isRecurrent: boolean;
+      occurrences: number;
+      lastAuditDate: string | null;
+      recommendation: string;
+    }
   >(functions, 'checkRecurrence');
 
   const result = await callable({ labId, indicadorId });
@@ -101,9 +103,7 @@ export async function checkRecurrence(
   return {
     isRecurrent: result.data.isRecurrent,
     occurrences: result.data.occurrences,
-    lastAuditDate: result.data.lastAuditDate
-      ? new Date(result.data.lastAuditDate)
-      : null,
+    lastAuditDate: result.data.lastAuditDate ? new Date(result.data.lastAuditDate) : null,
     recommendation: result.data.recommendation,
   };
 }

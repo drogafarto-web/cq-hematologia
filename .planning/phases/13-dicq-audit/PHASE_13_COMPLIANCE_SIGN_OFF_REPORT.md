@@ -1,9 +1,9 @@
 ---
-title: "Phase 13 Final Compliance Sign-Off Report"
+title: 'Phase 13 Final Compliance Sign-Off Report'
 date: 2026-05-07
 version: 1.0
-audit_period: "2026-05-07 (planning) → 2026-06-10 (execution target)"
-compliance_target: "≥88% DICQ + 100% RDC 978 critical articles"
+audit_period: '2026-05-07 (planning) → 2026-06-10 (execution target)'
+compliance_target: '≥88% DICQ + 100% RDC 978 critical articles'
 ---
 
 # Phase 13 — Final Compliance Sign-Off Report
@@ -22,12 +22,14 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 **Phase 13 audit and remediation plan:** Projected to reach **85.5% DICQ** post-remediation, **100% RDC 978 critical articles** verified.
 
 **Key Findings:**
+
 - RDC 978 critical articles: **8/8 VERIFIED** ✅ (Art. 117, 167, 179-191, 204)
 - DICQ blocks: **10 blocks audited**, gaps identified and remediation planned
 - Highest-ROI gaps: Block B (Document Management), Block D (Quality/Compliance), Block G (Post-Analytic)
 - Deployment blocker (RDC): lab-apoio contract module (Arts. 36–39) — **must complete Phase 13 Week 2**
 
 **Compliance Status:**
+
 - ✅ All critical RDC 978 articles verified (audit trail, RT signature, CIQ, critical values, soft-delete)
 - ✅ DICQ Foundation strong (78.5% baseline; post-remediation 85.5%)
 - ✅ Firestore security rules enforce multi-tenant + immutability
@@ -41,21 +43,22 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 
 ### Pre- vs. Post-Remediation Summary
 
-| Block | Title | v1.3 % | Target % | Post-Audit % | Δ | Status |
-|-------|-------|--------|----------|--------------|---|--------|
-| A | Governance | 78% | 92% | 88% | +10 | 🟡 On track |
-| B | Document Mgmt | 65% | 92% | 92% | +27 | ✅ High-ROI |
-| C | Personnel | 80% | 92% | 92% | +12 | 🟡 Data migration risk |
-| D | Quality & Compliance | 60% | 85% | 85% | +25 | 🟡 Phase 4 RFI dependency |
-| E | Pre-Analytical | 64% | 75% | 75% | +11 | ✅ Low effort |
-| F | Analytical | 92% | 95% | 95% | +3 | ✅ High confidence |
-| G | Post-Analytical | 70% | 92% | 92% | +22 | 🟡 Portal + NOTIVISA |
-| H | Resources | 75% | 88% | 88% | +13 | 🔴 **lab-apoio BLOCKER** |
-| I | Environment | 64% | 80% | 80% | +16 | ✅ Moderate effort |
-| J | Continuity | 70% | 78% | 78% | +8 | ✅ Low effort |
-| **WEIGHTED AVG** | — | **78.5%** | **≥88%** | **85.5%** | **+7.0** | 🟡 **Within margin** |
+| Block            | Title                | v1.3 %    | Target % | Post-Audit % | Δ        | Status                    |
+| ---------------- | -------------------- | --------- | -------- | ------------ | -------- | ------------------------- |
+| A                | Governance           | 78%       | 92%      | 88%          | +10      | 🟡 On track               |
+| B                | Document Mgmt        | 65%       | 92%      | 92%          | +27      | ✅ High-ROI               |
+| C                | Personnel            | 80%       | 92%      | 92%          | +12      | 🟡 Data migration risk    |
+| D                | Quality & Compliance | 60%       | 85%      | 85%          | +25      | 🟡 Phase 4 RFI dependency |
+| E                | Pre-Analytical       | 64%       | 75%      | 75%          | +11      | ✅ Low effort             |
+| F                | Analytical           | 92%       | 95%      | 95%          | +3       | ✅ High confidence        |
+| G                | Post-Analytical      | 70%       | 92%      | 92%          | +22      | 🟡 Portal + NOTIVISA      |
+| H                | Resources            | 75%       | 88%      | 88%          | +13      | 🔴 **lab-apoio BLOCKER**  |
+| I                | Environment          | 64%       | 80%      | 80%          | +16      | ✅ Moderate effort        |
+| J                | Continuity           | 70%       | 78%      | 78%          | +8       | ✅ Low effort             |
+| **WEIGHTED AVG** | —                    | **78.5%** | **≥88%** | **85.5%**    | **+7.0** | 🟡 **Within margin**      |
 
 **Interpretation:**
+
 - **Baseline (78.5%)** ✅ exceeds 75% audit-ready threshold
 - **Target (≥88%)** 🟡 achievable with Phase 13 remediation (3-week execution plan)
 - **Projected (85.5%)** 🟡 within acceptable margin (2.5 pts below target, but 10.5 pts above floor)
@@ -67,17 +70,17 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 
 ### Detailed Verification Matrix
 
-| Article | Title | Requirement | Status | Evidence | Code Location | Blocker |
-|---------|-------|---|---|---|---|---|
-| **117** | Audit Trail | Rastreabilidade ponta-a-ponta | ✅ VERIFIED | LogicalSignature HMAC + chain-hash immutability | `src/shared/logicalSignature.ts` + `firestore.rules` | — |
-| **167** | Laudos & RT | Assinatura RT + responsabilidade técnica | ✅ VERIFIED | liberacao state machine + RT-only release + LogicalSignature | `src/features/liberacao/` | — |
-| **179** | CIQ | Controle Interno da Qualidade obrigatório | ✅ VERIFIED | bioquimica (17 analytes) + coagulacao + ciq-imuno + uroanalise | `src/features/bioquimica/` | — |
-| **180** | Planos CIQ | Planos específicos por analito | ✅ VERIFIED | bulaparser + sgq templates (fr-010-plano-ciq) | `src/features/bulaparser/` + `src/features/sgq/` | — |
-| **181** | Rastreabilidade | Rastreabilidade amostras controle | ✅ VERIFIED | traceability append-only events + immutable logs | `src/features/traceability/` | — |
-| **183** | Críticos | Valores críticos + bloqueio liberação | ✅ VERIFIED | criticos detection + laudo release block + escalation | `src/features/criticos/` | — |
-| **184–191** | NC & Escalação | Não-conformidades + escalação + CAPA | ✅ VERIFIED | qualidade module + auto-escalation + CAPA linkage | `src/features/qualidade/` + `src/features/capa-tracking/` | — |
-| **204** | Integridade Dados | Soft-delete only (no hard-delete) | ✅ VERIFIED | Firestore rules + soft-delete pattern | `firestore.rules` + `src/shared/softDelete.ts` | — |
-| **TOTAL** | — | — | **✅ 8/8** | — | — | — |
+| Article     | Title             | Requirement                               | Status      | Evidence                                                       | Code Location                                             | Blocker |
+| ----------- | ----------------- | ----------------------------------------- | ----------- | -------------------------------------------------------------- | --------------------------------------------------------- | ------- |
+| **117**     | Audit Trail       | Rastreabilidade ponta-a-ponta             | ✅ VERIFIED | LogicalSignature HMAC + chain-hash immutability                | `src/shared/logicalSignature.ts` + `firestore.rules`      | —       |
+| **167**     | Laudos & RT       | Assinatura RT + responsabilidade técnica  | ✅ VERIFIED | liberacao state machine + RT-only release + LogicalSignature   | `src/features/liberacao/`                                 | —       |
+| **179**     | CIQ               | Controle Interno da Qualidade obrigatório | ✅ VERIFIED | bioquimica (17 analytes) + coagulacao + ciq-imuno + uroanalise | `src/features/bioquimica/`                                | —       |
+| **180**     | Planos CIQ        | Planos específicos por analito            | ✅ VERIFIED | bulaparser + sgq templates (fr-010-plano-ciq)                  | `src/features/bulaparser/` + `src/features/sgq/`          | —       |
+| **181**     | Rastreabilidade   | Rastreabilidade amostras controle         | ✅ VERIFIED | traceability append-only events + immutable logs               | `src/features/traceability/`                              | —       |
+| **183**     | Críticos          | Valores críticos + bloqueio liberação     | ✅ VERIFIED | criticos detection + laudo release block + escalation          | `src/features/criticos/`                                  | —       |
+| **184–191** | NC & Escalação    | Não-conformidades + escalação + CAPA      | ✅ VERIFIED | qualidade module + auto-escalation + CAPA linkage              | `src/features/qualidade/` + `src/features/capa-tracking/` | —       |
+| **204**     | Integridade Dados | Soft-delete only (no hard-delete)         | ✅ VERIFIED | Firestore rules + soft-delete pattern                          | `firestore.rules` + `src/shared/softDelete.ts`            | —       |
+| **TOTAL**   | —                 | —                                         | **✅ 8/8**  | —                                                              | —                                                         | —       |
 
 **Compliance Status:** All 8 critical RDC 978 articles **VERIFIED** with production code evidence. ✅
 
@@ -95,7 +98,8 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 
 **Blocker Impact:** ANVISA inspector will immediately ask "How do you monitor support lab SLAs?" Without documented contracts, lab fails inspection.
 
-**Phase 13 Plan:** 
+**Phase 13 Plan:**
+
 - Week 2: Create contract template (6 clauses + checklist)
 - Week 2: Implement contract upload + expiry alert
 - Week 2: Add SLA monitoring dashboard
@@ -115,6 +119,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 **Blocker Impact:** Inspector asks "Show me John's complete training record." No single view = compliance failure.
 
 **Phase 13 Plan:**
+
 - Week 2: Design data aggregation query (4 sources)
 - Week 2: Build dossier UI component
 - Week 2: Data validation + test on staging
@@ -134,6 +139,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 **Blocker Impact:** Phase 4 depends on auditor RFI interaction (2–4 week dependency).
 
 **Phase 13 Plan:**
+
 - Week 1: Create efficacy verification form
 - Week 1: Prepare auditor RFI response package
 - Weeks 5–8 (Phase 4): Weekly async gates + auditor feedback loop
@@ -153,6 +159,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 **Blocker Impact:** Phase 8 dependency; no patient result can be released if case is reportable without NOTIVISA submission.
 
 **Phase 13 Plan:**
+
 - Week 3: Integrate NOTIVISA Sandbox API
 - Week 3: Map reportable disease codes
 - Week 3: RT approval gate before submission
@@ -165,18 +172,18 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 
 ### Tier 2: High-Confidence Remediation (Phase 13 Weeks 1–3)
 
-| Task | Block | Effort | Owner | Timeline |
-|------|-------|--------|-------|----------|
-| mgmt-review aggregation callable | A | 4h | Eng A | W1 |
-| QM template population + approval UI | B | 8h | Eng B | W1–2 |
-| Job description audit + completion | C | 6h | Eng A | W2 |
-| Risk mgmt FMEA + NPR calculator | D | 8h | Eng B | W2 |
-| Transport SLA + rejection UI | E | 6h | Eng C | W3 |
-| Method validation templates | F | 6h | Eng B | W3 |
-| Critical value escalation (email/SMS) | G | 8h | Eng C | W3 |
-| Infection prevention POPs | I | 4h | Eng C | W2 |
-| LGPD policy document | J | 4h | Eng A | W1 |
-| **TOTAL** | — | **54h** | 3 FTE | 3 weeks |
+| Task                                  | Block | Effort  | Owner | Timeline |
+| ------------------------------------- | ----- | ------- | ----- | -------- |
+| mgmt-review aggregation callable      | A     | 4h      | Eng A | W1       |
+| QM template population + approval UI  | B     | 8h      | Eng B | W1–2     |
+| Job description audit + completion    | C     | 6h      | Eng A | W2       |
+| Risk mgmt FMEA + NPR calculator       | D     | 8h      | Eng B | W2       |
+| Transport SLA + rejection UI          | E     | 6h      | Eng C | W3       |
+| Method validation templates           | F     | 6h      | Eng B | W3       |
+| Critical value escalation (email/SMS) | G     | 8h      | Eng C | W3       |
+| Infection prevention POPs             | I     | 4h      | Eng C | W2       |
+| LGPD policy document                  | J     | 4h      | Eng A | W1       |
+| **TOTAL**                             | —     | **54h** | 3 FTE | 3 weeks  |
 
 **Total Phase 13 Effort:** ~90 hours (includes lab-apoio + blockers + high-confidence tasks)
 
@@ -187,6 +194,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 ### Pre-Production Sign-Off (Must Verify Before Merge)
 
 **Code Quality & Security:**
+
 - [ ] Functions TSC: 0 errors (`npm run build` succeeds)
 - [ ] Web TSC: 0 errors (`npm run build` succeeds)
 - [ ] Firestore rules validated (emulator tests pass, soft-delete enforced)
@@ -195,6 +203,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 - [ ] LogicalSignature sealing working (test: create event → seal → verify chain integrity)
 
 **Compliance Verification:**
+
 - [ ] DICQ ≥85% (post-remediation target; 85.5% projected)
 - [ ] RDC 978 critical articles 8/8 verified
 - [ ] All P0 blockers completed (lab-apoio, dossier, CAPA form, NOTIVISA)
@@ -204,6 +213,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 - [ ] Disaster recovery tested (backup → restore on staging)
 
 **Testing & Performance:**
+
 - [ ] E2E smoke tests passed (bioquimica, liberacao, CAPA, criticos)
 - [ ] Load test passed (1k concurrent users on analytics, response <2.5s)
 - [ ] Web Vitals within SLA (LCP <2.5s, INP <200ms, CLS <0.1)
@@ -211,6 +221,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 - [ ] 347/347 unit tests passing (or documented exception)
 
 **Deployment Artifacts:**
+
 - [ ] `PHASE_13_DICQ_CONFORMANCE_MATRIX.md` (completed audit results)
 - [ ] `PHASE_13_RDC_978_CRITICAL_ARTICLES_VERIFICATION.md` (8/8 verified)
 - [ ] `PHASE_13_GAP_REMEDIATION_PLAN.md` (all remediation tasks + evidence)
@@ -218,6 +229,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 - [ ] Updated SGD documentation (policies, procedures, training materials)
 
 **Operational Readiness:**
+
 - [ ] Incident response plan ready (contacts, escalation, communication templates)
 - [ ] Post-deployment monitoring setup (Cloud Logging alerts + 24h tail)
 - [ ] Rollback procedure documented + tested
@@ -229,23 +241,23 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 
 ### Current Audit Readiness (v1.3 baseline)
 
-| Standard | Coverage | Confidence | Gap |
-|----------|----------|------------|-----|
-| **RDC 978/2025** | 85% (critical articles 100%) | ✅ High | Arts. 36–39 (lab-apoio) |
-| **DICQ 4.3** | 78.5% (Blocks A–J average) | 🟡 Medium | Blocks B, D, G (documentation) |
-| **LGPD** | 62% (core + feedback-loop) | 🟡 Medium | Art. 18 (right to access) |
-| **ISO 15189** | 88% (clinical lab mgmt) | ✅ High | Methods validation (refinement) |
-| **Overall** | **78.5%** | 🟡 **Medium** | **+7 pts to 85.5%** |
+| Standard         | Coverage                     | Confidence    | Gap                             |
+| ---------------- | ---------------------------- | ------------- | ------------------------------- |
+| **RDC 978/2025** | 85% (critical articles 100%) | ✅ High       | Arts. 36–39 (lab-apoio)         |
+| **DICQ 4.3**     | 78.5% (Blocks A–J average)   | 🟡 Medium     | Blocks B, D, G (documentation)  |
+| **LGPD**         | 62% (core + feedback-loop)   | 🟡 Medium     | Art. 18 (right to access)       |
+| **ISO 15189**    | 88% (clinical lab mgmt)      | ✅ High       | Methods validation (refinement) |
+| **Overall**      | **78.5%**                    | 🟡 **Medium** | **+7 pts to 85.5%**             |
 
 ### Post-Phase 13 Positioning (Projected)
 
-| Standard | Coverage | Confidence | Readiness |
-|----------|----------|------------|-----------|
-| **RDC 978/2025** | 95% | ✅ High | **AUDIT-READY** ✅ |
-| **DICQ 4.3** | 85.5% | 🟡 Medium | **AUDIT-READY** ✅ |
-| **LGPD** | 70% | 🟡 Medium | On-track (Phase 15 completion) |
-| **ISO 15189** | 92% | ✅ High | **AUDIT-READY** ✅ |
-| **Overall** | **85.5%** | 🟡 **Medium** | **DEPLOYMENT READY** ✅ |
+| Standard         | Coverage  | Confidence    | Readiness                      |
+| ---------------- | --------- | ------------- | ------------------------------ |
+| **RDC 978/2025** | 95%       | ✅ High       | **AUDIT-READY** ✅             |
+| **DICQ 4.3**     | 85.5%     | 🟡 Medium     | **AUDIT-READY** ✅             |
+| **LGPD**         | 70%       | 🟡 Medium     | On-track (Phase 15 completion) |
+| **ISO 15189**    | 92%       | ✅ High       | **AUDIT-READY** ✅             |
+| **Overall**      | **85.5%** | 🟡 **Medium** | **DEPLOYMENT READY** ✅        |
 
 ---
 
@@ -256,6 +268,7 @@ HC Quality v1.3 baseline: **78.5% DICQ conformance** (audit-ready threshold 75%)
 **I certify that Phase 13 audit findings are accurate and remediation plan is achievable within the stated 3-week timeline.**
 
 Conditions:
+
 - Phase 13 execution must complete by 2026-06-10
 - All P0 blockers must be deployed before moving to Phase 14
 - Personnel dossier migration must be data-validated before go-live
@@ -286,6 +299,7 @@ Conditions:
 **Phase 13 audit is complete. All critical RDC 978 articles verified. DICQ framework strong. Remediation plan detailed and achievable.**
 
 Recommendations for external audit (October 2026):
+
 1. Prepare compliance report (PDF) summarizing DICQ blocks + RDC 978 coverage
 2. Schedule auditor walkthrough of liberacao + criticos + CAPA + lab-apoio modules
 3. Demonstrate LogicalSignature chain integrity verification (verifyChainIntegrity callable)
@@ -339,6 +353,7 @@ Recommendations for external audit (October 2026):
 **Impact:** 🔴 High (−4 pts DICQ if not completed)
 
 **Mitigation:**
+
 1. Phase 13 Week 1: Design aggregation query + test on 5 sample employees
 2. Phase 13 Week 2: Batch migration + data validation audit
 3. Phase 13 Week 3: Staging verification + auditor walkthrough
@@ -351,6 +366,7 @@ Recommendations for external audit (October 2026):
 **Impact:** 🟠 Medium (−2 pts DICQ if delayed)
 
 **Mitigation:**
+
 1. Phase 13: Prepare auditor RFI package (12 CAPA findings summary)
 2. Phase 4: Weekly async email gates (Monday + Friday)
 3. Phase 4: Monthly pre-scheduled 1h call with auditor
@@ -363,6 +379,7 @@ Recommendations for external audit (October 2026):
 **Impact:** 🟠 Medium (−1 pt DICQ)
 
 **Mitigation:**
+
 1. Phase 13: Early contact with gov API team (request dev sandbox)
 2. Phase 13: Implement queue + retry logic
 3. Phase 8: Load test with 100 submissions/min
@@ -379,19 +396,20 @@ Recommendations for external audit (October 2026):
 ✅ **DICQ Blocks:** 10 blocks audited, gaps identified, remediation planned  
 ✅ **Compliance Score:** 85.5% post-remediation (within acceptable margin of 88% target)  
 ✅ **Regulatory Positioning:** Audit-ready for October 2026 external audit  
-✅ **Deployment Artifacts:** All compliance docs + audit trails prepared  
+✅ **Deployment Artifacts:** All compliance docs + audit trails prepared
 
 ### Risks & Mitigation
 
 🟡 **Data Migration Risk (Block C):** Mitigated with phased validation approach  
 🟡 **Auditor RFI Timing (Block D):** Mitigated with weekly async gates + pre-scheduled calls  
-🟢 **API Rate-Limits (Block G):** Mitigated with early gov contact + queue logic  
+🟢 **API Rate-Limits (Block G):** Mitigated with early gov contact + queue logic
 
 ### Final Recommendation
 
 **APPROVED FOR DEPLOYMENT** with Phase 13 remediation completion.
 
 Timeline:
+
 - Phase 13 execution: 2026-05-20 → 2026-06-10 (3 weeks)
 - Phase 14 (pre-launch security): 2026-06-10 → 2026-06-30
 - External audit: October 2026
@@ -407,21 +425,21 @@ Timeline:
 
 ## Appendix: DICQ Detailed Gap Remediation Plan
 
-*See companion document:* `PHASE_13_GAP_REMEDIATION_PLAN.md`
+_See companion document:_ `PHASE_13_GAP_REMEDIATION_PLAN.md`
 
-| Block | Gap | P0 | Owner | Timeline | Hours |
-|-------|-----|----|----|----------|-------|
-| A | Mgmt review aggregation | ✅ | Eng A | W1 | 4 |
-| B | QM population + approval UI | ✅ | Eng B | W1-2 | 8 |
-| C | Dossier UI aggregation | ✅ | Eng A | W2 | 8 |
-| D | FMEA + NPR calculator | ✅ | Eng B | W2 | 8 |
-| E | Transport SLA + rejection UI | — | Eng C | W3 | 6 |
-| F | Method validation templates | — | Eng B | W3 | 6 |
-| G | Escalation + PGRSS + NOTIVISA | ✅ | Eng C | W3 | 8 |
-| H | **lab-apoio contracts** | ✅ | Eng A | W2 | 8 |
-| I | Infection prevention POPs | — | Eng C | W2 | 4 |
-| J | LGPD policy document | — | Eng A | W1 | 4 |
-| **TOTAL** | — | **6** | 3 FTE | 3 wks | 90h |
+| Block     | Gap                           | P0    | Owner | Timeline | Hours |
+| --------- | ----------------------------- | ----- | ----- | -------- | ----- |
+| A         | Mgmt review aggregation       | ✅    | Eng A | W1       | 4     |
+| B         | QM population + approval UI   | ✅    | Eng B | W1-2     | 8     |
+| C         | Dossier UI aggregation        | ✅    | Eng A | W2       | 8     |
+| D         | FMEA + NPR calculator         | ✅    | Eng B | W2       | 8     |
+| E         | Transport SLA + rejection UI  | —     | Eng C | W3       | 6     |
+| F         | Method validation templates   | —     | Eng B | W3       | 6     |
+| G         | Escalation + PGRSS + NOTIVISA | ✅    | Eng C | W3       | 8     |
+| H         | **lab-apoio contracts**       | ✅    | Eng A | W2       | 8     |
+| I         | Infection prevention POPs     | —     | Eng C | W2       | 4     |
+| J         | LGPD policy document          | —     | Eng A | W1       | 4     |
+| **TOTAL** | —                             | **6** | 3 FTE | 3 wks    | 90h   |
 
 ---
 

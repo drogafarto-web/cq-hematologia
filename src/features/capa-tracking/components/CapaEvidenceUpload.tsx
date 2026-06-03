@@ -23,7 +23,14 @@ const ALLOWED_MIMES = ['application/pdf', 'image/png', 'image/jpeg', 'text/plain
 
 function FileIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    >
       <path d="M13 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
       <path d="M13 2v7h7" />
     </svg>
@@ -32,7 +39,14 @@ function FileIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   );
@@ -51,11 +65,7 @@ function formatFileSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function CapaEvidenceUpload({
-  capaId,
-  onSuccess,
-  onClose,
-}: CapaEvidenceUploadProps) {
+export function CapaEvidenceUpload({ capaId, onSuccess, onClose }: CapaEvidenceUploadProps) {
   const [state, setState] = useState<UploadState>('idle');
   const [file, setFile] = useState<File | null>(null);
   const [hash, setHash] = useState<string>('');
@@ -89,18 +99,15 @@ export function CapaEvidenceUpload({
     }
   }, []);
 
-  const handleDrag = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      e.stopPropagation();
-      if (e.type === 'dragenter' || e.type === 'dragover') {
-        setDragActive(true);
-      } else if (e.type === 'dragleave') {
-        setDragActive(false);
-      }
-    },
-    []
-  );
+  const handleDrag = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  }, []);
 
   const handleDrop = useCallback(
     (e: React.DragEvent) => {
@@ -112,7 +119,7 @@ export function CapaEvidenceUpload({
         handleFileSelect(e.dataTransfer.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -185,7 +192,9 @@ export function CapaEvidenceUpload({
               onDragOver={handleDrag}
               onDrop={handleDrop}
               className={`border-2 border-dashed rounded-lg p-6 text-center transition-colors ${
-                dragActive ? 'border-violet-500 bg-violet-500/10' : 'border-white/20 hover:border-white/30'
+                dragActive
+                  ? 'border-violet-500 bg-violet-500/10'
+                  : 'border-white/20 hover:border-white/30'
               }`}
             >
               {file ? (
@@ -194,9 +203,7 @@ export function CapaEvidenceUpload({
                     <FileIcon />
                   </div>
                   <p className="text-sm font-medium text-white">{file.name}</p>
-                  <p className="text-xs text-slate-400 mt-1">
-                    {formatFileSize(file.size)}
-                  </p>
+                  <p className="text-xs text-slate-400 mt-1">{formatFileSize(file.size)}</p>
                   {hash && (
                     <p className="text-[10px] text-slate-500 font-mono mt-2 break-all">
                       Hash: {hash.slice(0, 32)}...
@@ -219,12 +226,8 @@ export function CapaEvidenceUpload({
                   <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center mx-auto mb-2">
                     <FileIcon />
                   </div>
-                  <p className="text-sm font-medium text-white mb-1">
-                    Arraste o arquivo aqui
-                  </p>
-                  <p className="text-xs text-slate-400">
-                    ou clique para selecionar
-                  </p>
+                  <p className="text-sm font-medium text-white mb-1">Arraste o arquivo aqui</p>
+                  <p className="text-xs text-slate-400">ou clique para selecionar</p>
                   <p className="text-[10px] text-slate-500 mt-2">
                     PDF, PNG, JPEG ou TXT · até {formatFileSize(MAX_FILE_SIZE)}
                   </p>
@@ -245,7 +248,10 @@ export function CapaEvidenceUpload({
 
             {/* Description */}
             <div>
-              <label htmlFor="description" className="block text-xs font-medium text-slate-300 mb-2">
+              <label
+                htmlFor="description"
+                className="block text-xs font-medium text-slate-300 mb-2"
+              >
                 Descrição da evidência
               </label>
               <textarea

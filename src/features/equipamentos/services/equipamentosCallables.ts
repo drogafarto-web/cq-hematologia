@@ -63,7 +63,7 @@ function getCallRegistrarManutencao(): HttpsCallable<
  * v1.5 NO-UI-YET: Server-side callable ready. UI (equipment detail form + structured form) pending.
  */
 export async function callRegistrarManutencao(
-  payload: RegistrarManutencaoPayload
+  payload: RegistrarManutencaoPayload,
 ): Promise<CallRegistrarManutencaoResult> {
   try {
     const result = await getCallRegistrarManutencao()(payload);
@@ -91,12 +91,14 @@ function translateError(error: unknown): Error {
     }
     if (message.includes('INVALID_ARGUMENT')) {
       const match = message.match(/Dados inválidos: (.+)/);
-      return new Error(match ? match[1] : 'Dados inválidos — verifique tipo e campos obrigatórios.');
+      return new Error(
+        match ? match[1] : 'Dados inválidos — verifique tipo e campos obrigatórios.',
+      );
     }
     if (message.includes('FAILED_PRECONDITION')) {
       const match = message.match(/FAILED_PRECONDITION: (.+)/);
       return new Error(
-        match ? match[1] : 'Operação não permitida — equipamento pode estar inativo ou em uso.'
+        match ? match[1] : 'Operação não permitida — equipamento pode estar inativo ou em uso.',
       );
     }
     if (message.includes('INTERNAL')) {

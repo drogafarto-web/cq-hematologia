@@ -1,6 +1,6 @@
 ---
-phase: "12-sgd-drive-importer"
-title: "Phase 12 — SGD (Sistema Gestão Documental) + Drive Importer Riopomba"
+phase: '12-sgd-drive-importer'
+title: 'Phase 12 — SGD (Sistema Gestão Documental) + Drive Importer Riopomba'
 milestone: v1.3
 status: planning
 total_plans: 6
@@ -28,6 +28,7 @@ revision: 1.0
 Estender módulo SGQ existente para se tornar **Sistema de Gestão Documental (SGD) completo** com Lista Mestra (LM-01), hierarquia documental (MQ→PQ→IT→FR), Lista de Distribuição dinâmica por setor, e importer do Drive para migrar ~80 documentos do Riopomba. Cobre DICQ Block B (Gestão Documental) que está 100% 🔴 hoje + entrega valor concreto para Riopomba (migração real).
 
 **Output:**
+
 - SGQ expandido: enum de tipos 5→15, campos `listaDistribuicao` + `hierarquia` + `urlDriveOriginal`
 - 4 surfaces deployadas:
   - `/sgq/lista-mestra` (LM-01 catálogo unificado)
@@ -53,18 +54,18 @@ Estender módulo SGQ existente para se tornar **Sistema de Gestão Documental (S
 
 ### Decisões locked (do discuss-phase 2026-05-06)
 
-| Decisão | Valor | Rationale |
-|---------|-------|-----------|
-| Arquitetura | **Extensão do SGQ existente** | Reuso 100% audit chain + versionamento; síntese Obsidian aponta como decisão já travada (2026-04-26); 0 retrabalho |
-| Drive auth | OAuth browser + preview obrigatório RT | Auditável (DICQ 4.3 exige autorização RT); token refresh automático |
-| Versionamento | Flat v1.0 on import + Drive URL como referência | Auditor quer "o que vale agora"; histórico antigo via Drive link em `urlDriveOriginal` |
-| Lista de Distribuição | Dinâmica via módulo Pessoal (Phase 8) | Sync automático: colaborador muda de setor → LD atualiza; mais robusto que LD estática |
-| Aprovação RT | Obrigatória pre-vigente | Doc importado fica `draft` até RT aprovar; cumpre DICQ 4.3 explicitamente |
-| Multi-tenant | Per-lab desde dia 1 | Schema com `labId` correto desde início; permite split futuro sem retrabalho |
-| Sync ongoing Drive | Defer v1.4 | Big-bang migration; lab para de editar Drive após go-live |
-| Documentos externos (bulas, RDCs) | LM-02 separado (referências) | Não importar como docs vigentes |
-| FRs em Google Forms | Linkados via URL (template) | Não snapshot; preserva fluxo Forms→Sheets nativo |
-| Ruído Drive | Ignorado | POPs Farmácia obsoletos, .rar, .jpg solta — importer pula |
+| Decisão                           | Valor                                           | Rationale                                                                                                          |
+| --------------------------------- | ----------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Arquitetura                       | **Extensão do SGQ existente**                   | Reuso 100% audit chain + versionamento; síntese Obsidian aponta como decisão já travada (2026-04-26); 0 retrabalho |
+| Drive auth                        | OAuth browser + preview obrigatório RT          | Auditável (DICQ 4.3 exige autorização RT); token refresh automático                                                |
+| Versionamento                     | Flat v1.0 on import + Drive URL como referência | Auditor quer "o que vale agora"; histórico antigo via Drive link em `urlDriveOriginal`                             |
+| Lista de Distribuição             | Dinâmica via módulo Pessoal (Phase 8)           | Sync automático: colaborador muda de setor → LD atualiza; mais robusto que LD estática                             |
+| Aprovação RT                      | Obrigatória pre-vigente                         | Doc importado fica `draft` até RT aprovar; cumpre DICQ 4.3 explicitamente                                          |
+| Multi-tenant                      | Per-lab desde dia 1                             | Schema com `labId` correto desde início; permite split futuro sem retrabalho                                       |
+| Sync ongoing Drive                | Defer v1.4                                      | Big-bang migration; lab para de editar Drive após go-live                                                          |
+| Documentos externos (bulas, RDCs) | LM-02 separado (referências)                    | Não importar como docs vigentes                                                                                    |
+| FRs em Google Forms               | Linkados via URL (template)                     | Não snapshot; preserva fluxo Forms→Sheets nativo                                                                   |
+| Ruído Drive                       | Ignorado                                        | POPs Farmácia obsoletos, .rar, .jpg solta — importer pula                                                          |
 
 ---
 
@@ -75,11 +76,13 @@ Phase 12 has **6 plans** organized em 3 ondas:
 ### Wave 1 — Foundation (Plan 12-01 sequencial; 12-02 paralelo após types)
 
 #### Plan 12-01: Schema Extension SGQ + Multi-Tenant + Hierarquia
+
 **Duration:** 1.5 weeks (2026-06-17 → 2026-06-27)
 **Type:** Build (foundation)
 **Goal:** Estender schema SGQ existente: enum 15 tipos, campo listaDistribuicao, hierarquia parent/derivados, urlDriveOriginal, labId enforcement multi-tenant.
 
 #### Plan 12-02: UI — LM-01 Dashboard + Hierarquia Tree + Distribuicao Matrix
+
 **Duration:** 1.5 weeks (2026-06-27 → 2026-07-08)
 **Type:** Build (visualization)
 **Goal:** 3 surfaces: catálogo unificado paginado, árvore hierárquica MQ→PQ→IT→FR, matriz docs×setores com filtros.
@@ -87,6 +90,7 @@ Phase 12 has **6 plans** organized em 3 ondas:
 ### Wave 2 — Importer
 
 #### Plan 12-03: Drive Importer + OAuth Browser + Preview RT
+
 **Duration:** 2 weeks (2026-07-08 → 2026-07-22)
 **Type:** Build (migration tool)
 **Goal:** Wizard `/sgq/importar-drive` com OAuth Drive, parser para 15 tipos LM-01, mapping LD para 17 setores, preview RT antes de aprovar batch import.
@@ -94,16 +98,19 @@ Phase 12 has **6 plans** organized em 3 ondas:
 ### Wave 3 — Migration + Closure
 
 #### Plan 12-04: Riopomba Pilot Import (Staging — 30 docs críticos)
+
 **Duration:** 1.5 weeks (2026-07-22 → 2026-08-01)
 **Type:** Migration (pilot)
 **Goal:** Pilot com 30 docs críticos (MQ, PQ-01 a PQ-25, IT principais) em staging; validação RT + ajustes.
 
 #### Plan 12-05: Riopomba Production Import (~80 docs full + verification)
+
 **Duration:** 1.5 weeks (2026-08-01 → 2026-08-12)
 **Type:** Migration (production)
 **Goal:** Import completo Riopomba em prod; RT aprova batch; smoke test 17 setores; verificação DICQ baseline.
 
 #### Plan 12-06: Polish + A11y + Perf + LGPD Audit + Deploy
+
 **Duration:** 1 week (2026-08-12 → 2026-08-19)
 **Type:** Build (deploy)
 **Goal:** A11y AA, Web Vitals, ADR 0012, regression sweep, deploy progressivo, comunicação Riopomba.
@@ -136,18 +143,18 @@ Wave 1: Foundation              Wave 2: Importer            Wave 3: Migration
 
 ## Risk Register
 
-| Risk | Severity | Likelihood | Mitigation |
-|------|----------|------------|-----------|
-| Drive API quota exceeded em batch import | 🟡 | Médio | Pub/Sub queue + 4 workers paralelos; rate limit 100 calls/min/user; refresh quotas daily |
-| OAuth token expira durante import | 🟡 | Baixo | Auto-refresh logic; alerta CTO antes expirar (24h); pause/resume capability |
-| Formatação rica Docs (tabelas, imagens, signatures) não converte | 🟠 | Alto | Spike de 1 dia em 12-03 com 5 docs reais; export PDF como fallback; preserva Drive URL para visualização original |
-| RT não aprova 80 docs em batch (gargalo humano) | 🟠 | Alto | Pre-classificação automatic; UI batch-approve por categoria; mass-approve com check |
-| LD dinâmica gera explosão de combinações (15 docs × 17 setores = 255 entries) | 🟡 | Médio | Lazy loading; matriz virtualizada >50 rows; índices Firestore otimizados |
-| Naming convention Drive divergente vs LM-01 (gaps) | 🟡 | Alto | Importer força match por código LM-01 (não nome arquivo); gaps logged em "manual review" queue |
-| Permissões Drive Riopomba mudam mid-import | 🟢 | Baixo | Idempotência por hash + retry on permission denied |
-| Multi-tenant labId errado em import (Riopomba vs Mercês) | 🟠 | Baixo | UI exige seleção explícita lab antes de batch; audit log labId em cada import |
-| Aprovação RT obrigatória atrasa go-live (RT férias) | 🟡 | Médio | Delegação ao RT-Substituto; SLA explícito (5 dias úteis para aprovar batch) |
-| FRs em Google Forms quebram após link import (lab apaga Form) | 🟡 | Baixo | Snapshot HTML do Form preview no momento do import; fallback se URL retorna 404 |
+| Risk                                                                          | Severity | Likelihood | Mitigation                                                                                                        |
+| ----------------------------------------------------------------------------- | -------- | ---------- | ----------------------------------------------------------------------------------------------------------------- |
+| Drive API quota exceeded em batch import                                      | 🟡       | Médio      | Pub/Sub queue + 4 workers paralelos; rate limit 100 calls/min/user; refresh quotas daily                          |
+| OAuth token expira durante import                                             | 🟡       | Baixo      | Auto-refresh logic; alerta CTO antes expirar (24h); pause/resume capability                                       |
+| Formatação rica Docs (tabelas, imagens, signatures) não converte              | 🟠       | Alto       | Spike de 1 dia em 12-03 com 5 docs reais; export PDF como fallback; preserva Drive URL para visualização original |
+| RT não aprova 80 docs em batch (gargalo humano)                               | 🟠       | Alto       | Pre-classificação automatic; UI batch-approve por categoria; mass-approve com check                               |
+| LD dinâmica gera explosão de combinações (15 docs × 17 setores = 255 entries) | 🟡       | Médio      | Lazy loading; matriz virtualizada >50 rows; índices Firestore otimizados                                          |
+| Naming convention Drive divergente vs LM-01 (gaps)                            | 🟡       | Alto       | Importer força match por código LM-01 (não nome arquivo); gaps logged em "manual review" queue                    |
+| Permissões Drive Riopomba mudam mid-import                                    | 🟢       | Baixo      | Idempotência por hash + retry on permission denied                                                                |
+| Multi-tenant labId errado em import (Riopomba vs Mercês)                      | 🟠       | Baixo      | UI exige seleção explícita lab antes de batch; audit log labId em cada import                                     |
+| Aprovação RT obrigatória atrasa go-live (RT férias)                           | 🟡       | Médio      | Delegação ao RT-Substituto; SLA explícito (5 dias úteis para aprovar batch)                                       |
+| FRs em Google Forms quebram após link import (lab apaga Form)                 | 🟡       | Baixo      | Snapshot HTML do Form preview no momento do import; fallback se URL retorna 404                                   |
 
 ---
 
@@ -187,6 +194,7 @@ Wave 1: Foundation              Wave 2: Importer            Wave 3: Migration
 ## Canonical References
 
 **Obsidian:**
+
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Labclin_Drive_Inventory.md` — inventário completo Drive Riopomba (~80 docs, 15 tipos, 17 setores, ruído mapeado)
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_QMS_Index_2026-04-27.md` — índice QMS atual
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Compliance_DICQ.md` — Block B (4.2.2.2, 4.3.x)
@@ -195,22 +203,26 @@ Wave 1: Foundation              Wave 2: Importer            Wave 3: Migration
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Visao.md` — Riopomba como piloto
 
 **Código vivo:**
+
 - `src/features/sgq/` — base (estender, não substituir)
 - `src/features/pops/` — pattern de aprovação RT
 - `src/features/auditoria/` — chainHash + LogicalSignature
 - `src/features/treinamentos/` — vínculo doc → treinamento (FR-27/FR-28)
 
 **ADRs:**
+
 - ADR 0001 (audit chain)
 - ADR 0002 (multi-tenant)
 - ADR 0012 (a criar): SGD architecture extension + Drive importer pattern
 
 **Specs/Rules:**
+
 - `.claude/rules/firestore-security.md`
 - `.claude/rules/performance.md`
 - `.claude/rules/deploy-protocol.md`
 
 **Skills:**
+
 - `hcq-firestore-rules-generator`
 - `hcq-deploy-gates`
 - `firebase-security-rules-auditor`

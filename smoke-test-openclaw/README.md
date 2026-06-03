@@ -16,6 +16,7 @@ Conteúdo deste diretório:
    - Ou no workspace atual: `.openclaw/skills/` (tem precedência sobre o global)
 
 2. Cria diretório pra skill e copia:
+
    ```bash
    mkdir -p ~/.openclaw/skills/hc-quality-smoke
    cp SKILL.md ~/.openclaw/skills/hc-quality-smoke/
@@ -45,15 +46,19 @@ Trade-off: menos rigoroso que a skill (skill tem parser XML e injection estrutur
 ## Fixtures incluídos
 
 ### `fixtures/bula-mock.pdf`
+
 PDF de 1 página com texto "BULA MOCK — SMOKE TEST" — serve pra validar o fluxo F10 (upload de bula). Gemini não vai extrair nada útil; o teste valida apenas que o pipeline aceita o arquivo e retorna resposta estruturada vazia.
 
 ### `fixtures/lote-csv-mock.csv`
+
 CSV no formato esperado pelo AddLotModal, com 17 analitos × 3 níveis. Pode ser usado em F08 como alternativa à criação manual.
 
 ### `fixtures/strip-mock.jpg`
+
 Imagem sintética 400×800px simulando um strip de imunoensaio com 2 linhas (C + T) — usa no F05.
 
 ### `fixtures/tira-mock.jpg`
+
 Imagem sintética 600×100px com quadrados coloridos simulando uma tira urinária — usa no F06.
 
 ---
@@ -80,19 +85,21 @@ const db = admin.firestore();
 const labId = 'seu-lab-id';
 
 // Produtos mock
-const produtos = await db.collection(`labs/${labId}/produtos-insumos`)
+const produtos = await db
+  .collection(`labs/${labId}/produtos-insumos`)
   .where('nomeComercial', '>=', 'SMOKE_')
   .where('nomeComercial', '<', 'SMOKE_~')
   .get();
 
 // Lotes mock
-const lotes = await db.collection(`labs/${labId}/insumos`)
+const lotes = await db
+  .collection(`labs/${labId}/insumos`)
   .where('lote', '>=', 'SMOKE-LOT-')
   .where('lote', '<', 'SMOKE-LOT-~')
   .get();
 
 // Lista pra revisar antes de deletar
-[produtos.docs, lotes.docs].flat().forEach(d => console.log(d.ref.path, d.data()));
+[produtos.docs, lotes.docs].flat().forEach((d) => console.log(d.ref.path, d.data()));
 ```
 
 Revisa a lista, depois batch delete se OK.

@@ -38,7 +38,7 @@ export function computeChainHash(
   entityId: string,
   operation: 'create' | 'update' | 'delete' | 'transition',
   timestamp: string,
-  operatorId: string
+  operatorId: string,
 ): string {
   const input = `${previousHash}|${entityId}|${operation}|${timestamp}|${operatorId}`;
   return sha256(input);
@@ -58,7 +58,7 @@ export function verifyChainIntegrity(
     timestamp: string;
     operatorId: string;
     actualHash: string;
-  }>
+  }>,
 ): { valid: boolean; invalidAt?: number } {
   if (entries.length === 0) {
     return { valid: true };
@@ -88,7 +88,7 @@ export function verifyChainIntegrity(
       entry.entityId,
       entry.operation as any,
       entry.timestamp,
-      entry.operatorId
+      entry.operatorId,
     );
 
     // Check if actual matches computed
@@ -115,7 +115,7 @@ export function verifyChainIntegrity(
 export function generateLogicalSignature(
   docState: string, // JSON stringified document or diff
   operatorId: string,
-  timestamp: string
+  timestamp: string,
 ): {
   hash: string;
   operatorId: string;
@@ -140,7 +140,7 @@ export function verifyLogicalSignature(
   docState: string,
   operatorId: string,
   timestamp: string,
-  claimedHash: string
+  claimedHash: string,
 ): boolean {
   const sig = generateLogicalSignature(docState, operatorId, timestamp);
   return sig.hash === claimedHash;
@@ -182,7 +182,7 @@ export function fingerprintDocument(doc: Record<string, any>): string {
  */
 export function computeDocDiff(
   before: Record<string, any>,
-  after: Record<string, any>
+  after: Record<string, any>,
 ): Record<string, { before: any; after: any }> {
   const diff: Record<string, { before: any; after: any }> = {};
 

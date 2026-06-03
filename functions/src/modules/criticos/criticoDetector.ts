@@ -34,7 +34,7 @@ const CACHE_TTL_MS = 60 * 1000; // 60s TTL
 
 async function getThresholdForAnalyte(
   labId: string,
-  analitoId: string
+  analitoId: string,
 ): Promise<CachedThreshold | null> {
   const now = Date.now();
 
@@ -86,23 +86,19 @@ async function getThresholdForAnalyte(
  */
 function classifySeverity(
   valor: number,
-  threshold: CachedThreshold
+  threshold: CachedThreshold,
 ): 'low' | 'medium' | 'high' | 'panic' | null {
   // Check panic range first
   if (threshold.faixaPanico) {
-    const inMin =
-      threshold.faixaPanico.min === null || valor >= threshold.faixaPanico.min;
-    const inMax =
-      threshold.faixaPanico.max === null || valor <= threshold.faixaPanico.max;
+    const inMin = threshold.faixaPanico.min === null || valor >= threshold.faixaPanico.min;
+    const inMax = threshold.faixaPanico.max === null || valor <= threshold.faixaPanico.max;
     if (inMin && inMax) return 'panic';
   }
 
   // Check critical range
   if (threshold.faixaCritica) {
-    const inMin =
-      threshold.faixaCritica.min === null || valor >= threshold.faixaCritica.min;
-    const inMax =
-      threshold.faixaCritica.max === null || valor <= threshold.faixaCritica.max;
+    const inMin = threshold.faixaCritica.min === null || valor >= threshold.faixaCritica.min;
+    const inMax = threshold.faixaCritica.max === null || valor <= threshold.faixaCritica.max;
     if (inMin && inMax) {
       const def = threshold.severityDefault;
       return def === 'panic' || def === 'low' ? 'medium' : def;
@@ -176,11 +172,7 @@ export const onResultWriteDetectCritico = onDocumentWritten(
       const batch = admin.firestore().batch();
       for (const alert of alerts) {
         const alertId = admin.firestore().collection('_').doc().id;
-        const alertRef = db
-          .collection('labs')
-          .doc(labId)
-          .collection('criticos')
-          .doc(alertId);
+        const alertRef = db.collection('labs').doc(labId).collection('criticos').doc(alertId);
 
         batch.set(alertRef, {
           labId,
@@ -219,15 +211,15 @@ export const onResultWriteDetectCritico = onDocumentWritten(
       const elapsed = Date.now() - startTime;
       if (elapsed > 200) {
         console.warn(
-          `[criticoDetector] Latency exceeded 200ms: ${elapsed}ms for lab=${labId}, result=${resultId}`
+          `[criticoDetector] Latency exceeded 200ms: ${elapsed}ms for lab=${labId}, result=${resultId}`,
         );
       }
     } catch (err) {
       console.error(
         `[criticoDetector] Error detecting criticos for lab=${labId}, result=${resultId}:`,
-        err
+        err,
       );
       // Non-blocking — log and continue
     }
-  }
+  },
 );

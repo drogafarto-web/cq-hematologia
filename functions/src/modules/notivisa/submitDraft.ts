@@ -17,11 +17,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-import {
-  assertNotivisaAccess,
-  notivisaDraftsCol,
-  notivisaQueueCol,
-} from './validators';
+import { assertNotivisaAccess, notivisaDraftsCol, notivisaQueueCol } from './validators';
 import { getNotivisaMode } from './testMode';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 

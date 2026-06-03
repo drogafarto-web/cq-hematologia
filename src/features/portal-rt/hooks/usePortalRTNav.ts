@@ -47,9 +47,7 @@ export interface UsePortalRTNavReturn {
   isLoading: boolean;
 }
 
-export function usePortalRTNav(
-  options: UsePortalRTNavOptions = {}
-): UsePortalRTNavReturn {
+export function usePortalRTNav(options: UsePortalRTNavOptions = {}): UsePortalRTNavReturn {
   const { initialSection = 'dashboard' } = options;
   const [activeSection, setActiveSection] = useState<PortalRTSectionType>(initialSection);
   const [isLoading, setIsLoading] = useState(true);

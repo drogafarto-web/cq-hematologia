@@ -116,10 +116,7 @@ export function EmailDeliveryStep({ emailRecipient, onChange }: EmailDeliverySte
       {/* Email input — only shown when enabled */}
       {enabled && (
         <div className="space-y-2">
-          <label
-            htmlFor={inputId}
-            className="block text-xs font-medium text-white/60"
-          >
+          <label htmlFor={inputId} className="block text-xs font-medium text-white/60">
             Endereço de email
           </label>
 
@@ -140,18 +137,14 @@ export function EmailDeliveryStep({ emailRecipient, onChange }: EmailDeliverySte
               showError
                 ? 'border-red-500/60 focus:border-red-500/60'
                 : isEmpty
-                ? 'border-amber-500/40'
-                : 'border-white/10 focus:border-violet-500/40',
+                  ? 'border-amber-500/40'
+                  : 'border-white/10 focus:border-violet-500/40',
             ].join(' ')}
           />
 
           {/* Validation error */}
           {showError && (
-            <p
-              id={errorId}
-              role="alert"
-              className="text-xs text-red-400 flex items-center gap-1.5"
-            >
+            <p id={errorId} role="alert" className="text-xs text-red-400 flex items-center gap-1.5">
               <svg
                 className="h-3.5 w-3.5 flex-shrink-0"
                 viewBox="0 0 20 20"
@@ -176,11 +169,11 @@ export function EmailDeliveryStep({ emailRecipient, onChange }: EmailDeliverySte
           {/* LGPD notice */}
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.03] p-3">
             <p className="text-[11px] text-white/25 leading-relaxed">
-              <span className="font-medium text-white/40">Aviso LGPD (Lei 13.709/2018):</span>{' '}
-              Ao inserir um email, você autoriza o envio de um email transacional para este
-              endereço. O email conterá apenas o link de download — nenhum dado de paciente ou
-              laboratório será enviado. O email é enviado a pedido do operador autenticado e não
-              pode ser cancelado após o envio.
+              <span className="font-medium text-white/40">Aviso LGPD (Lei 13.709/2018):</span> Ao
+              inserir um email, você autoriza o envio de um email transacional para este endereço. O
+              email conterá apenas o link de download — nenhum dado de paciente ou laboratório será
+              enviado. O email é enviado a pedido do operador autenticado e não pode ser cancelado
+              após o envio.
             </p>
           </div>
         </div>
@@ -204,8 +197,8 @@ export function EmailDeliveryStep({ emailRecipient, onChange }: EmailDeliverySte
             />
           </svg>
           <p className="text-xs text-violet-300/80">
-            Link será enviado para{' '}
-            <span className="font-medium text-violet-200">{localEmail}</span> após conclusão.
+            Link será enviado para <span className="font-medium text-violet-200">{localEmail}</span>{' '}
+            após conclusão.
           </p>
         </div>
       )}

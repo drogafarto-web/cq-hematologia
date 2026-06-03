@@ -1,4 +1,5 @@
 # Cloud Functions Build & TypeScript Compilation Report
+
 **Phase 3 Validation — 2026-05-07**
 
 ---
@@ -29,18 +30,21 @@
 ### tsconfig.json Audit
 
 **Wave 2 Exclusions (Incomplete Modules):**
+
 - ✓ `src/modules/criticos/**`
 - ✓ `src/modules/notivisa/**`
 - ✓ `src/modules/ia-strip/**`
 - ✓ `src/modules/portals/**`
 
 **Test File Exclusions:**
+
 - ✓ `src/**/*.test.ts` (covered)
 - ✓ `src/**/*.test.tsx` (covered)
 - ✓ `src/__tests__/**` (covered)
 - Found: 17 test files that are correctly excluded
 
 **TypeScript Settings:**
+
 - ✓ `strict: true`
 - ✓ `noImplicitReturns: true`
 - ✓ `noUnusedLocals: true`
@@ -53,31 +57,32 @@
 
 ### Compiled Output
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Total size | 3.3 MB | ✓ OK |
-| .js files | 236 | ✓ OK |
-| .js.map files | 236 | ✓ OK (debugging) |
-| Uncompressed LOC | ~31,083 | ✓ OK |
+| Metric           | Value   | Status           |
+| ---------------- | ------- | ---------------- |
+| Total size       | 3.3 MB  | ✓ OK             |
+| .js files        | 236     | ✓ OK             |
+| .js.map files    | 236     | ✓ OK (debugging) |
+| Uncompressed LOC | ~31,083 | ✓ OK             |
 
 ### Node Modules Audit
 
 **Top 10 Largest Dependencies:**
 
-| Package | Size | Purpose | Status |
-|---------|------|---------|--------|
-| googleapis | 115 MB | Google API clients | ✓ Necessary (Drive, Sheets) |
-| typescript | 23 MB | Build-time only (devDeps) | ✓ Not in bundle |
-| pdf-lib | 22 MB | PDF generation | ✓ Used in functions |
-| @google/ | 17 MB | Genkit + Generative AI | ✓ Necessary (Gemini 2.5) |
-| @firebase/ | 14 MB | Firebase Admin SDK deps | ✓ Necessary |
-| @google-cloud/ | 13 MB | Cloud Pub/Sub | ✓ Necessary |
-| puppeteer-core | 9.8 MB | Headless browser | ⚠️ Dynamic import required |
-| @opentelemetry/ | 9.2 MB | Tracing (implicit Firebase dep) | ✓ OK |
-| chromium-bidi | 9.0 MB | Puppeteer transport | ⚠️ Only loaded if puppeteer used |
-| web-streams-polyfill | 8.8 MB | Polyfill (Firebase dep) | ✓ OK |
+| Package              | Size   | Purpose                         | Status                           |
+| -------------------- | ------ | ------------------------------- | -------------------------------- |
+| googleapis           | 115 MB | Google API clients              | ✓ Necessary (Drive, Sheets)      |
+| typescript           | 23 MB  | Build-time only (devDeps)       | ✓ Not in bundle                  |
+| pdf-lib              | 22 MB  | PDF generation                  | ✓ Used in functions              |
+| @google/             | 17 MB  | Genkit + Generative AI          | ✓ Necessary (Gemini 2.5)         |
+| @firebase/           | 14 MB  | Firebase Admin SDK deps         | ✓ Necessary                      |
+| @google-cloud/       | 13 MB  | Cloud Pub/Sub                   | ✓ Necessary                      |
+| puppeteer-core       | 9.8 MB | Headless browser                | ⚠️ Dynamic import required       |
+| @opentelemetry/      | 9.2 MB | Tracing (implicit Firebase dep) | ✓ OK                             |
+| chromium-bidi        | 9.0 MB | Puppeteer transport             | ⚠️ Only loaded if puppeteer used |
+| web-streams-polyfill | 8.8 MB | Polyfill (Firebase dep)         | ✓ OK                             |
 
 **Dynamic Imports (lazy-load patterns found):**
+
 - ✓ xlsx — dynamically imported (not static top-level)
 - ⚠️ puppeteer — **needs verification in functions/src/**
 
@@ -104,6 +109,7 @@
 ```
 
 **Findings:**
+
 - ✓ All imports in `src/shared/*.ts` have corresponding package.json entries
 - ✓ firebase-admin + firebase-functions versions compatible
 - ✓ Node 22 specified (current/supported)
@@ -115,36 +121,38 @@
 
 ### Shared Helpers Analysis
 
-| File | External Imports | Status |
-|------|------------------|--------|
-| auditHash.ts | crypto (node built-in) | ✓ OK |
-| auth.ts | None | ✓ OK |
-| firebase.ts | firebase-admin | ✓ OK |
-| ia.ts | zod | ✓ OK |
-| laudo.ts | **firebase/firestore** | ⚠️ CRITICAL |
-| notivisa.ts | zod | ✓ OK |
-| rateLimit.ts | firebase-admin | ✓ OK |
-| recaptcha.ts | None | ✓ OK |
-| signature.ts | crypto (node built-in) | ✓ OK |
-| sms.ts | None | ✓ OK |
-| tokenUtils.ts | crypto (node built-in) | ✓ OK |
+| File          | External Imports       | Status      |
+| ------------- | ---------------------- | ----------- |
+| auditHash.ts  | crypto (node built-in) | ✓ OK        |
+| auth.ts       | None                   | ✓ OK        |
+| firebase.ts   | firebase-admin         | ✓ OK        |
+| ia.ts         | zod                    | ✓ OK        |
+| laudo.ts      | **firebase/firestore** | ⚠️ CRITICAL |
+| notivisa.ts   | zod                    | ✓ OK        |
+| rateLimit.ts  | firebase-admin         | ✓ OK        |
+| recaptcha.ts  | None                   | ✓ OK        |
+| signature.ts  | crypto (node built-in) | ✓ OK        |
+| sms.ts        | None                   | ✓ OK        |
+| tokenUtils.ts | crypto (node built-in) | ✓ OK        |
 
 ### Critical Issue: laudo.ts
 
 **Problem:**
+
 ```typescript
 // functions/src/shared/laudo.ts — LINE 7
-import { Firestore, getDoc, setDoc, updateDoc, doc, getFirestore } 
-  from 'firebase/firestore';  // ❌ Client SDK in functions/src/
+import { Firestore, getDoc, setDoc, updateDoc, doc, getFirestore } from 'firebase/firestore'; // ❌ Client SDK in functions/src/
 ```
 
 **Impact:**
+
 - ✓ No runtime failure yet (nothing imports LaudoDraftManager in active functions)
 - ✓ Compiles to `lib/shared/laudo.js` with broken `require("firebase/firestore")`
 - ✓ Exported from `shared/index.ts` (bundled in functions)
 - ⚠️ Future import would cause runtime error: `Error: Cannot find module 'firebase/firestore'`
 
 **Recommendation:**
+
 - **Move** `laudo.ts` to `functions/src/utilities/laudo-client-only.ts` or exclude from functions bundle
 - **OR** Rewrite using firebase-admin SDK instead of client SDK
 - Mark as excluded in tsconfig.json if keeping in src/
@@ -164,19 +172,20 @@ Exit code: 1 (failure)
 
 ### Failing Tests (Test Data Issue, Not Rules Issue)
 
-| Test | File | Status | Root Cause |
-|------|------|--------|-----------|
-| No overly permissive rules | rules-v1-4.test.mjs:410 | ✗ FAIL | Test data references undefined collection specs |
-| Admin overrides justified | rules-v1-4.test.mjs:447 | ✗ FAIL | Test data references undefined collection specs |
-| All new paths use /labs/{labId}/ pattern | rules-v1-4.test.mjs:471 | ✗ FAIL | **Test paths missing leading `/`** |
+| Test                                     | File                    | Status | Root Cause                                      |
+| ---------------------------------------- | ----------------------- | ------ | ----------------------------------------------- |
+| No overly permissive rules               | rules-v1-4.test.mjs:410 | ✗ FAIL | Test data references undefined collection specs |
+| Admin overrides justified                | rules-v1-4.test.mjs:447 | ✗ FAIL | Test data references undefined collection specs |
+| All new paths use /labs/{labId}/ pattern | rules-v1-4.test.mjs:471 | ✗ FAIL | **Test paths missing leading `/`**              |
 
 **Details — All 3 failures traced:**
 
 1. **Line 471 failure (path validation):**
+
    ```javascript
    // Test line 464-468 defines paths without leading slash:
    'labs/{labId}/portal-configuracao/{docId}'  // ❌ Missing /
-   
+
    // Test line 473-475 checks:
    assert.ok(
      path.includes('/labs/{labId}/'),  // Looking for /labs/{labId}/ with slash
@@ -186,11 +195,12 @@ Exit code: 1 (failure)
    ```
 
 2. **Lines 410 & 447 failures (specs missing data):**
+
    ```javascript
    // rulesDefinition[0] has specs for:
    // - 'portal-configuracao' ✓
    // - 'laudos (portal read)' ✓
-   
+
    // BUT line 414-420 iterates rulesDefinition looking for:
    // - All specs should NOT have 'true' in read/create
    // - Some specs may be missing or incomplete
@@ -210,6 +220,7 @@ Exit code: 1 (failure)
 ## Circular Dependency Check
 
 ✓ **No circular dependencies detected** in `src/shared/`
+
 - auth.ts → none
 - firebase.ts → none
 - ia.ts → firebase.ts (safe)
@@ -220,15 +231,15 @@ Exit code: 1 (failure)
 
 ## Deployment Readiness Checklist
 
-| Item | Status | Notes |
-|------|--------|-------|
-| TypeScript compilation | ✅ PASS | 0 errors |
-| npm run build | ✅ PASS | Output: lib/ (3.3 MB) |
-| Module exclusions | ✅ PASS | criticos, notivisa, ia-strip, portals excluded |
-| Test file exclusions | ✅ PASS | 17 test files excluded |
-| Package.json integrity | ⚠️ WARN | puppeteer is static dep, should be lazy |
-| Shared helpers imports | ⚠️ WARN | laudo.ts imports client Firebase SDK |
-| Unit tests | ❌ FAIL | 3 rules validation failures |
+| Item                     | Status     | Notes                                          |
+| ------------------------ | ---------- | ---------------------------------------------- |
+| TypeScript compilation   | ✅ PASS    | 0 errors                                       |
+| npm run build            | ✅ PASS    | Output: lib/ (3.3 MB)                          |
+| Module exclusions        | ✅ PASS    | criticos, notivisa, ia-strip, portals excluded |
+| Test file exclusions     | ✅ PASS    | 17 test files excluded                         |
+| Package.json integrity   | ⚠️ WARN    | puppeteer is static dep, should be lazy        |
+| Shared helpers imports   | ⚠️ WARN    | laudo.ts imports client Firebase SDK           |
+| Unit tests               | ❌ FAIL    | 3 rules validation failures                    |
 | Pre-flight secrets check | ⏳ NOT RUN | Use: `bash scripts/preflight-secrets-check.sh` |
 
 ---
@@ -238,6 +249,7 @@ Exit code: 1 (failure)
 ### 🟡 BLOCKER 1: Test Data Issue in rules-v1-4.test.mjs (Not Rules Issue)
 
 **Test failures in `rules-v1-4.test.mjs`:**
+
 - Line 464-468: Path definitions missing leading `/` (e.g., `'labs/{labId}/...'` should be `'/labs/{labId}/...'`)
 - Lines 410, 447: Assertions checking specs that may be incomplete in test data
 
@@ -247,6 +259,7 @@ Exit code: 1 (failure)
 ✗ **Test file** has incorrect mock data paths
 
 **Action Required:**
+
 1. Fix test data in `functions/test/phase-3-2/rules-v1-4.test.mjs`:
    - Line 464-468: Add leading `/` to all paths
    - Lines 410-423: Verify all rulesDefinition specs are complete
@@ -258,6 +271,7 @@ Exit code: 1 (failure)
 **File:** `functions/src/shared/laudo.ts:7`
 
 **Action Required (choose one):**
+
 1. Move to excluded path (e.g., `src/shared/laudo-client-draft.ts` → exclude in tsconfig)
 2. Rewrite using firebase-admin APIs
 3. Remove if not used in Phase 3 functions
@@ -267,6 +281,7 @@ Exit code: 1 (failure)
 **Issue:** puppeteer listed as direct dependency, should be lazy-loaded
 
 **Action Required:**
+
 1. Verify all puppeteer imports use dynamic `import('puppeteer')`
 2. If static imports exist, convert to lazy loading
 3. Check `functions/src/**/*.ts` for `import puppeteer from 'puppeteer'` patterns
@@ -319,7 +334,7 @@ Blocker 1: Test data fix required (paths missing / prefix)
 Blocker 2: laudo.ts imports client SDK
 Blocker 3: puppeteer not lazy-loaded
 
-Quick fix: 
+Quick fix:
 1. Fix test paths: sed -i "s/'labs\/{labId}/'\/labs\/{labId}/g" functions/test/phase-3-2/rules-v1-4.test.mjs
 2. Re-run: npm test
 3. Expected: ~87 tests PASS

@@ -113,7 +113,10 @@ describe('F2: RT Presence Check-In & Art. 22 Enforcement', () => {
   describe('Scenario 2.2: Error path — No supervisor → /runs/new blocked', () => {
     it('should block CIQ run creation when no RT supervisor is checked in', async () => {
       // Setup: Lab with no active supervisor
-      const testUser = seedLabOperator('user_op_' + Math.random().toString(36).substr(2, 9), testLabId);
+      const testUser = seedLabOperator(
+        'user_op_' + Math.random().toString(36).substr(2, 9),
+        testLabId,
+      );
       await loginWithCustomToken(await generateRtAuthToken(testUser));
 
       // Mock: Supervisor status check returns no active supervisor
@@ -224,12 +227,14 @@ function seedTestLab(labId: string, options: any = {}) {
 
 async function generateRtAuthToken(user: any): Promise<string> {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -260,7 +265,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }

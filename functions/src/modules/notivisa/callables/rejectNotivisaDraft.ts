@@ -14,7 +14,10 @@ import { LogicalSignature, verifyLogicalSignature } from '../../../shared/crypto
 const rejectNotivisaDraftInputSchema = z.object({
   labId: z.string().min(1, 'labId required'),
   draftId: z.string().min(1, 'draftId required'),
-  reason: z.string().min(10, 'Reason must be at least 10 characters').max(500, 'Reason max 500 chars'),
+  reason: z
+    .string()
+    .min(10, 'Reason must be at least 10 characters')
+    .max(500, 'Reason max 500 chars'),
   signature: z.object({
     hash: z.string().length(64),
     operatorId: z.string().min(1),
@@ -45,15 +48,13 @@ type RejectNotivisaDraftInput = z.infer<typeof rejectNotivisaDraftInputSchema>;
 type RejectNotivisaDraftOutput = z.infer<typeof rejectNotivisaDraftOutputSchema>;
 type RejectNotivisaDraftError = z.infer<typeof rejectNotivisaDraftErrorSchema>;
 
-export const rejectNotivisaDraft = functions.region('southamerica-east1').onCall(
-  async (request): Promise<RejectNotivisaDraftOutput | RejectNotivisaDraftError> => {
+export const rejectNotivisaDraft = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<RejectNotivisaDraftOutput | RejectNotivisaDraftError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = rejectNotivisaDraftInputSchema.parse(request.data);
@@ -63,22 +64,18 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1').onCall
       const db = admin.firestore();
 
       // ========== 2. Authorization check ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          `User is not a member of lab ${labId}`
+          `User is not a member of lab ${labId}`,
         );
       }
 
       const memberRole = memberDoc.data()?.role;
-      const isRTOrAuditor = memberRole === 'RT' || memberRole === 'AUDITOR' || memberRole === 'admin';
+      const isRTOrAuditor =
+        memberRole === 'RT' || memberRole === 'AUDITOR' || memberRole === 'admin';
       if (!isRTOrAuditor) {
         return {
           ok: false,
@@ -151,21 +148,18 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1').onCall
       });
 
       // Create audit log
-      batch.set(
-        draftRef.collection('auditLog').doc(`${now}`),
-        {
-          action: 'REJECTED',
-          operatorId: uid,
-          ts: now,
-          details: {
-            reason,
-            signature: {
-              hash: signature.hash,
-              ts: signature.ts,
-            },
+      batch.set(draftRef.collection('auditLog').doc(`${now}`), {
+        action: 'REJECTED',
+        operatorId: uid,
+        ts: now,
+        details: {
+          reason,
+          signature: {
+            hash: signature.hash,
+            ts: signature.ts,
           },
-        }
-      );
+        },
+      });
 
       await batch.commit();
 
@@ -203,5 +197,4 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1').onCall
         message: error.message || 'Internal error rejecting draft',
       };
     }
-  }
-);
+  });

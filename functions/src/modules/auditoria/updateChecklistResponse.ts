@@ -93,9 +93,7 @@ export const updateChecklistResponse = onCall(
       await itemRef.update(updateData);
 
       // Write to audit-trail
-      const auditTrailRef = db
-        .collection(`${basePath}/audit-trail`)
-        .doc();
+      const auditTrailRef = db.collection(`${basePath}/audit-trail`).doc();
 
       await auditTrailRef.set({
         id: auditTrailRef.id,
@@ -114,22 +112,22 @@ export const updateChecklistResponse = onCall(
 
       if (
         input.resposta === 'nao-conforme' &&
-        (input.severidade === 'critica' || input.severidade === 'grave' ||
-         input.severidade === 'crítica')
+        (input.severidade === 'critica' ||
+          input.severidade === 'grave' ||
+          input.severidade === 'crítica')
       ) {
         const itemData = itemSnap.data()!;
 
         // Create achado document
-        const achadoRef = db
-          .collection(`${basePath}/achados`)
-          .doc();
+        const achadoRef = db.collection(`${basePath}/achados`).doc();
 
         const achado = {
           id: achadoRef.id,
           sessaoId: input.sessaoId,
           labId: input.labId,
           checklistItemId: input.itemId,
-          descricao: itemData.descricao || `Não-conformidade no item ${itemData.numeroDICQ || input.itemId}`,
+          descricao:
+            itemData.descricao || `Não-conformidade no item ${itemData.numeroDICQ || input.itemId}`,
           evidencia: input.observacao || '',
           severidade: input.severidade as any,
           statusNC: 'pendente' as const,
@@ -151,7 +149,7 @@ export const updateChecklistResponse = onCall(
           { ...achado, id: achadoRef.id } as any,
           input.auditoriaId,
           input.sessaoId,
-          operatorId
+          operatorId,
         );
 
         // Update achado with NC link
@@ -173,5 +171,5 @@ export const updateChecklistResponse = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao atualizar resposta');
     }
-  }
+  },
 );

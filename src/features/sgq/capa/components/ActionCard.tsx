@@ -61,7 +61,9 @@ export default function ActionCard({
   const [isEditing, setIsEditing] = useState(false);
   const [editResponsavel, setEditResponsavel] = useState(action.responsavel);
   const [editDataVencimento, setEditDataVencimento] = useState(
-    action.dataVencimento ? new Date(action.dataVencimento.seconds * 1000).toISOString().split('T')[0] : ''
+    action.dataVencimento
+      ? new Date(action.dataVencimento.seconds * 1000).toISOString().split('T')[0]
+      : '',
   );
 
   const statusStyle = STATUS_STYLES[action.status];

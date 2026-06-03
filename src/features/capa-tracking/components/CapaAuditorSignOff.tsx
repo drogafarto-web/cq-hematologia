@@ -18,7 +18,14 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 function CheckIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   );
@@ -26,18 +33,21 @@ function CheckIcon() {
 
 function WarningIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M12 2l10 19H2L12 2z" />
       <path d="M12 9v4M12 17h.01" />
     </svg>
   );
 }
 
-export function CapaAuditorSignOff({
-  capaIds,
-  onSuccess,
-  onClose,
-}: CapaAuditorSignOffProps) {
+export function CapaAuditorSignOff({ capaIds, onSuccess, onClose }: CapaAuditorSignOffProps) {
   const user = useUser();
   const [state, setState] = useState<FormState>('idle');
   const [auditorName, setAuditorName] = useState(user?.displayName || '');
@@ -138,9 +148,7 @@ export function CapaAuditorSignOff({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-slate-900 border border-white/10 rounded-xl shadow-xl max-w-md w-full p-6 max-h-[90vh] overflow-y-auto">
         {/* Header */}
-        <h2 className="text-lg font-semibold text-white mb-1">
-          Confirmar fechamento
-        </h2>
+        <h2 className="text-lg font-semibold text-white mb-1">Confirmar fechamento</h2>
         <p className="text-xs text-slate-400 mb-6">
           Assinatura do auditor para fechamento final das CAPAs.
         </p>
@@ -189,9 +197,7 @@ export function CapaAuditorSignOff({
               }`}
               disabled={state === 'loading'}
             />
-            {errors.name && (
-              <p className="text-[10px] text-red-400 mt-1">{errors.name}</p>
-            )}
+            {errors.name && <p className="text-[10px] text-red-400 mt-1">{errors.name}</p>}
           </div>
 
           {/* Firm */}
@@ -210,9 +216,7 @@ export function CapaAuditorSignOff({
               }`}
               disabled={state === 'loading'}
             />
-            {errors.firm && (
-              <p className="text-[10px] text-red-400 mt-1">{errors.firm}</p>
-            )}
+            {errors.firm && <p className="text-[10px] text-red-400 mt-1">{errors.firm}</p>}
           </div>
 
           {/* Message */}
@@ -231,9 +235,7 @@ export function CapaAuditorSignOff({
               rows={3}
               disabled={state === 'loading'}
             />
-            {errors.message && (
-              <p className="text-[10px] text-red-400 mt-1">{errors.message}</p>
-            )}
+            {errors.message && <p className="text-[10px] text-red-400 mt-1">{errors.message}</p>}
           </div>
 
           {/* Loading */}
@@ -256,7 +258,9 @@ export function CapaAuditorSignOff({
             </button>
             <button
               type="submit"
-              disabled={!auditorName.trim() || !auditorFirm.trim() || !message.trim() || state === 'loading'}
+              disabled={
+                !auditorName.trim() || !auditorFirm.trim() || !message.trim() || state === 'loading'
+              }
               className="flex-1 h-9 px-3 rounded-lg text-sm font-medium bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-50 transition-colors"
             >
               {state === 'loading' ? 'Confirmando...' : 'Confirmar Sign-Off'}

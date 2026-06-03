@@ -61,7 +61,7 @@ Each entry describes one labeled image:
     "testType": "hiv",
     "expectedLabel": "INCONCLUSIVE",
     "expectedConfidenceMin": 0.0,
-    "expectedConfidenceMax": 0.80,
+    "expectedConfidenceMax": 0.8,
     "ambiguous": true,
     "labeledBy": "rt@lab.example",
     "labeledAt": "2026-05-08T14:00:00Z",
@@ -72,31 +72,31 @@ Each entry describes one labeled image:
 
 ### Field semantics
 
-| Field | Required | Meaning |
-| --- | --- | --- |
-| `imageId` | yes | Stable ID, used in eval output. `<testType>/<descriptor>-NNN`. |
-| `imagePath` | yes | Relative path under `fixtures/`. |
-| `testType` | yes | One of `hiv`, `dengue`, `syphilis`, `covid`, `hcg`. |
-| `expectedLabel` | yes | Ground truth: `R`, `NR`, or `INCONCLUSIVE`. |
-| `expectedConfidenceMin` | yes | Lower bound assertion. For clear cases, set ≥ 0.85 (matches runtime threshold). For ambiguous, set 0. |
-| `expectedConfidenceMax` | no | Upper bound assertion. Set on ambiguous cases (≤ 0.80) so over-confident errors are caught. |
-| `ambiguous` | yes | Marks a fixture intentionally chosen to test the manual-review escalation path. |
-| `labeledBy` | yes | Email of the RT/clinical reviewer who signed the label. |
-| `labeledAt` | yes | ISO-8601 timestamp of labeling. |
-| `notes` | no | Human-readable context — useful when triaging eval failures. |
+| Field                   | Required | Meaning                                                                                               |
+| ----------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `imageId`               | yes      | Stable ID, used in eval output. `<testType>/<descriptor>-NNN`.                                        |
+| `imagePath`             | yes      | Relative path under `fixtures/`.                                                                      |
+| `testType`              | yes      | One of `hiv`, `dengue`, `syphilis`, `covid`, `hcg`.                                                   |
+| `expectedLabel`         | yes      | Ground truth: `R`, `NR`, or `INCONCLUSIVE`.                                                           |
+| `expectedConfidenceMin` | yes      | Lower bound assertion. For clear cases, set ≥ 0.85 (matches runtime threshold). For ambiguous, set 0. |
+| `expectedConfidenceMax` | no       | Upper bound assertion. Set on ambiguous cases (≤ 0.80) so over-confident errors are caught.           |
+| `ambiguous`             | yes      | Marks a fixture intentionally chosen to test the manual-review escalation path.                       |
+| `labeledBy`             | yes      | Email of the RT/clinical reviewer who signed the label.                                               |
+| `labeledAt`             | yes      | ISO-8601 timestamp of labeling.                                                                       |
+| `notes`                 | no       | Human-readable context — useful when triaging eval failures.                                          |
 
 ---
 
 ## Minimum coverage targets (before this eval is operational)
 
-| Test type | Clear R | Clear NR | Ambiguous / Inconclusive | Total |
-| --- | --- | --- | --- | --- |
-| hiv | 20 | 20 | 10 | 50 |
-| dengue | 15 | 15 | 10 | 40 |
-| syphilis | 15 | 15 | 10 | 40 |
-| covid | 15 | 15 | 10 | 40 |
-| hcg | 15 | 15 | 10 | 40 |
-| **Total** | **80** | **80** | **50** | **210** |
+| Test type | Clear R | Clear NR | Ambiguous / Inconclusive | Total   |
+| --------- | ------- | -------- | ------------------------ | ------- |
+| hiv       | 20      | 20       | 10                       | 50      |
+| dengue    | 15      | 15       | 10                       | 40      |
+| syphilis  | 15      | 15       | 10                       | 40      |
+| covid     | 15      | 15       | 10                       | 40      |
+| hcg       | 15      | 15       | 10                       | 40      |
+| **Total** | **80**  | **80**   | **50**                   | **210** |
 
 Rationale: 85% accuracy ± 5pp at 95% CI requires ~200 labeled cases per the
 audit; the split is weighted toward HIV because it carries the highest clinical

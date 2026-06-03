@@ -4,10 +4,7 @@ import { Timestamp } from '../../../shared/services/firebase';
 import { useAvaliacaoEficacia } from '../hooks/useAvaliacaoEficacia';
 import { useExecucoes } from '../hooks/useExecucoes';
 import { useTreinamentos } from '../hooks/useTreinamentos';
-import type {
-  Execucao,
-  ResultadoEficacia,
-} from '../types/EducacaoContinuada';
+import type { Execucao, ResultadoEficacia } from '../types/EducacaoContinuada';
 
 import { Field, inputClass, selectClass } from './_formPrimitives';
 
@@ -99,11 +96,7 @@ export function AvaliacaoEficaciaForm({
     if (!state.execucaoId) errs.execucaoId = 'Selecione uma execução realizada.';
     if (state.evidencia.trim().length === 0) errs.evidencia = 'Evidência é obrigatória.';
     if (!state.dataAvaliacao) errs.dataAvaliacao = 'Informe a data da avaliação.';
-    if (
-      state.resultado === 'ineficaz' &&
-      state.fechar &&
-      state.acaoCorretiva.trim().length === 0
-    ) {
+    if (state.resultado === 'ineficaz' && state.fechar && state.acaoCorretiva.trim().length === 0) {
       errs.acaoCorretiva = 'RN-02: ação corretiva obrigatória para fechar avaliação ineficaz.';
     }
 
@@ -124,8 +117,7 @@ export function AvaliacaoEficaciaForm({
         resultado: state.resultado,
         evidencia: state.evidencia,
         dataAvaliacao,
-        acaoCorretiva:
-          state.acaoCorretiva.trim().length > 0 ? state.acaoCorretiva : undefined,
+        acaoCorretiva: state.acaoCorretiva.trim().length > 0 ? state.acaoCorretiva : undefined,
         fechar: state.fechar,
       });
       onSaved();
@@ -159,7 +151,8 @@ export function AvaliacaoEficaciaForm({
             <option value="">Selecione…</option>
             {execucoes.map((e) => (
               <option key={e.id} value={e.id}>
-                {tituloPorExec(e)} — {e.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
+                {tituloPorExec(e)} —{' '}
+                {e.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
               </option>
             ))}
           </select>
@@ -168,7 +161,9 @@ export function AvaliacaoEficaciaForm({
 
       {execucaoId && execucaoSelecionada && (
         <div className="rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2 text-xs text-slate-400">
-          Avaliando: <span className="font-medium text-slate-200">{tituloPorExec(execucaoSelecionada)}</span> — {execucaoSelecionada.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
+          Avaliando:{' '}
+          <span className="font-medium text-slate-200">{tituloPorExec(execucaoSelecionada)}</span> —{' '}
+          {execucaoSelecionada.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
         </div>
       )}
 

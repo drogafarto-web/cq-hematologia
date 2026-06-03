@@ -11,49 +11,56 @@ Smoke tests for Phase 3 schema extensions, rules, and helpers.
 ## Run Tests
 
 ### All E2E Tests
+
 ```bash
 npm run test:unit -- src/__tests__/e2e
 ```
 
 ### Phase 3 Tests Only
+
 ```bash
 npm run test:unit -- src/__tests__/e2e/phase3
 ```
 
 ### With Coverage
+
 ```bash
 npm run test:coverage -- src/__tests__/e2e
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:unit:watch -- src/__tests__/e2e
 ```
 
 ## Test Coverage
 
-| Test | Purpose | Status |
-|------|---------|--------|
-| **Schema (5 tests)** | Collections exist, indexes work, schema correct | ✅ Ready |
-| **Rules (5 tests)** | RBAC enforced, patient/RT/admin access | ✅ Ready |
-| **Helpers (18 tests)** | Formatters, validators, state machine | ✅ Ready |
+| Test                   | Purpose                                         | Status   |
+| ---------------------- | ----------------------------------------------- | -------- |
+| **Schema (5 tests)**   | Collections exist, indexes work, schema correct | ✅ Ready |
+| **Rules (5 tests)**    | RBAC enforced, patient/RT/admin access          | ✅ Ready |
+| **Helpers (18 tests)** | Formatters, validators, state machine           | ✅ Ready |
 
 **Total: 28 smoke tests**
 
 ## Dependencies
 
 Tests require:
+
 - Firebase Emulator (for local development)
 - OR production Cloud Firestore in test mode (for staging/prod)
 
 ### Local Setup
 
 1. Start Firebase Emulator:
+
 ```bash
 firebase emulators:start
 ```
 
 2. In another terminal, run tests:
+
 ```bash
 FIREBASE_EMULATOR_HOST=localhost:8080 npm run test:unit -- src/__tests__/e2e
 ```
@@ -61,6 +68,7 @@ FIREBASE_EMULATOR_HOST=localhost:8080 npm run test:unit -- src/__tests__/e2e
 ### Production Setup
 
 Tests can run against production Cloud Firestore if:
+
 - Database rules allow `read, write: if true` (for test-only collections)
 - Test user has access to `TEST-LAB-*` collections
 - Automatic cleanup runs after each test
@@ -70,6 +78,7 @@ Tests can run against production Cloud Firestore if:
 All tests use `testLabId = 'TEST-LAB-PHASE3-001'` (or similar) to avoid collisions with real data.
 
 Cleanup happens in `afterEach()` hooks:
+
 ```typescript
 afterEach(async () => {
   // Delete all test data
@@ -103,6 +112,7 @@ npm run test:unit -- src/__tests__/e2e/phase3 && echo "✅ Phase 3 smoke tests p
 ```
 
 Success criteria:
+
 - 28/28 tests passing
 - No timeout errors
 - No "collection not found" errors
@@ -111,18 +121,22 @@ Success criteria:
 ## Troubleshooting
 
 ### "Collection not found"
+
 - Verify 03-01 task completed (schema collections created)
 - Check Firestore Console for test collections
 
 ### "Permission denied"
+
 - Verify 03-02 task completed (rules deployed)
 - Check rule syntax: `npm run lint` (if firestore lint available)
 
 ### "Index not found"
+
 - Verify 03-01 indexes created (check Firestore Console)
 - Wait up to 5 minutes for index to build
 
 ### "Helper not found"
+
 - Verify 03-03 task completed (helpers implemented)
 - Import from `src/shared/` not `src/shared/index.ts` yet
 

@@ -206,6 +206,6 @@ export async function sendExportEmail(payload: ExportEmailPayload): Promise<void
   });
 
   console.log(
-    `[EmailDelivery] Sent "${subject}" to ${payload.recipientEmail} for operator ${payload.operatorId}`
+    `[EmailDelivery] Sent "${subject}" to ${payload.recipientEmail} for operator ${payload.operatorId}`,
   );
 }

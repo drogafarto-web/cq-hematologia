@@ -1,5 +1,5 @@
 ---
-title: "Phase 3 → Phase 4 Integration Verification Report"
+title: 'Phase 3 → Phase 4 Integration Verification Report'
 date: 2026-05-07
 status: READY FOR PHASE 4 KICKOFF
 critical_items: 3
@@ -36,13 +36,13 @@ critical_items: 3
 
 ### 1.1 Phase 3 Schema (✅ DEPLOYED)
 
-| Collection | Path | Purpose | Rules | Status |
-|---|---|---|---|---|
-| portal-configuracao | `/labs/{labId}/portal-configuracao/{docId}` | Patient portal branding + localization | Read: isPatient ∨ isAdminOrRT; Write: isAdminOrRT only | ✅ Live |
-| notivisa-outbox | `/labs/{labId}/notivisa-outbox/events/{docId}` | NOTIVISA regulatory queue (RDC 978 Art. 6º) | Create: isServer ∧ Cloud Function callable only; Status update: server-side only | ✅ Live |
-| criticos-escalacoes | `/labs/{labId}/criticos-escalacoes/{docId}` | Critical value escalation + audit trail | Create: isAdminOrRT; Read: isActiveMemberOfLab | ✅ Live |
-| imuno-ias-dev | `/labs/{labId}/imuno-ias-dev/{docId}` | IA training dataset for immunology strip classification | Create: isServer only; Read: isAdminOrRT ∨ isServer | ✅ Live (Phase 9) |
-| laudos-draft | `/labs/{labId}/laudos-draft/{docId}` | Pessimistic lock-managed draft laudo editing | Read: isPatient ∨ isAdminOrRT; Write: pessimistic lock validation only | ✅ Live |
+| Collection          | Path                                           | Purpose                                                 | Rules                                                                            | Status            |
+| ------------------- | ---------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------- | ----------------- |
+| portal-configuracao | `/labs/{labId}/portal-configuracao/{docId}`    | Patient portal branding + localization                  | Read: isPatient ∨ isAdminOrRT; Write: isAdminOrRT only                           | ✅ Live           |
+| notivisa-outbox     | `/labs/{labId}/notivisa-outbox/events/{docId}` | NOTIVISA regulatory queue (RDC 978 Art. 6º)             | Create: isServer ∧ Cloud Function callable only; Status update: server-side only | ✅ Live           |
+| criticos-escalacoes | `/labs/{labId}/criticos-escalacoes/{docId}`    | Critical value escalation + audit trail                 | Create: isAdminOrRT; Read: isActiveMemberOfLab                                   | ✅ Live           |
+| imuno-ias-dev       | `/labs/{labId}/imuno-ias-dev/{docId}`          | IA training dataset for immunology strip classification | Create: isServer only; Read: isAdminOrRT ∨ isServer                              | ✅ Live (Phase 9) |
+| laudos-draft        | `/labs/{labId}/laudos-draft/{docId}`           | Pessimistic lock-managed draft laudo editing            | Read: isPatient ∨ isAdminOrRT; Write: pessimistic lock validation only           | ✅ Live           |
 
 **Indexes created:** 5 composite indexes deployed (notivisa status+attempts, criticos timestamp, etc). 23/28 suite passing (NOTIVISA index timing non-blocker, see ADR-0017).
 
@@ -51,6 +51,7 @@ critical_items: 3
 **File:** `firestore.rules` (v1.4, deployed 2026-05-07)
 
 **Helper Functions Added:**
+
 - `isServer()` — Cloud Functions calls (Admin SDK or trusted callable context)
 - `isPatient(labId)` — Patient role in lab for portal read access
 - `isAdminOrRT(labId)` — Admin/Owner/RT combined check
@@ -58,6 +59,7 @@ critical_items: 3
 - `validateDraftLock(d)` — Pessimistic lock enforcement for drafts
 
 **Match blocks deployed:**
+
 ```firestore
 /labs/{labId}/portal-configuracao/{docId}        — ✅
 /labs/{labId}/notivisa-outbox/{docId}            — ✅
@@ -72,12 +74,12 @@ critical_items: 3
 
 **Location:** `functions/src/shared/`
 
-| Helper | File | Purpose | Tests | Status |
-|---|---|---|---|---|
-| notivisaFormatter | `notivisaFormatter.ts` | Converts HC Quality laudo → NOTIVISA payload (Art. 6º structure) | 4/4 passing | ✅ |
-| smsTemplate | `smsTemplate.ts` | SMS body generation + Twilio driver (template + send) | 3/3 passing | ✅ |
-| LaudoDraftManager | `LaudoDraftManager.ts` | Pessimistic lock + draft state machine (lock_until_ts, locked_by) | 8/8 passing | ✅ |
-| iaStripValidator | `iaStripValidator.ts` | Validate immunology strip image format + metadata for IA dataset | 8/8 passing | ✅ |
+| Helper            | File                   | Purpose                                                           | Tests       | Status |
+| ----------------- | ---------------------- | ----------------------------------------------------------------- | ----------- | ------ |
+| notivisaFormatter | `notivisaFormatter.ts` | Converts HC Quality laudo → NOTIVISA payload (Art. 6º structure)  | 4/4 passing | ✅     |
+| smsTemplate       | `smsTemplate.ts`       | SMS body generation + Twilio driver (template + send)             | 3/3 passing | ✅     |
+| LaudoDraftManager | `LaudoDraftManager.ts` | Pessimistic lock + draft state machine (lock_until_ts, locked_by) | 8/8 passing | ✅     |
+| iaStripValidator  | `iaStripValidator.ts`  | Validate immunology strip image format + metadata for IA dataset  | 8/8 passing | ✅     |
 
 **Test coverage:** 23/23 unit tests passing (commit `e579903`, rules + helpers suite clean).
 
@@ -86,6 +88,7 @@ critical_items: 3
 **78 functions live in `southamerica-east1`.** Phase 3 adds / updates:
 
 **New Phase 4 callables (wired in index.ts, deployed 2026-05-07):**
+
 - `notivisa_submitEvent` — callable, creates NOTIVISA event in outbox
 - `notivisa_checkStatus` — polling endpoint for status updates
 - `portals_getLabConfig` — public read of portal-configuracao
@@ -93,6 +96,7 @@ critical_items: 3
 - `ia_submitStripImage` — callable, validates + queues image for IA training
 
 **Existing Phase 0 callables (deployed 2026-05-05):**
+
 - `turnos_createTurno`, `turnos_updateTurno`, `turnos_softDeleteTurno`, `turnos_backfill90Days` — shift registry
 - `labApoio_*` (5 callables) — lab apoio contracts
 - `risks_*` (3 callables) — risk management
@@ -106,8 +110,9 @@ critical_items: 3
 ### 2.1 Patient Portal Access Flow
 
 **Dependency chain:**
+
 ```
-User (patient role) 
+User (patient role)
   → Rule check: isPatient(labId) ✅ (helper deployed)
   → Read /labs/{labId}/laudos-draft + portal-configuracao ✅ (rules deployed)
   → Callable: portals_getLabConfig ✅ (wired in index.ts)
@@ -121,6 +126,7 @@ User (patient role)
 ### 2.2 NOTIVISA Callable Queue
 
 **Dependency chain:**
+
 ```
 Admin/RT (isAdminOrRT check)
   → Callable: notivisa_submitEvent ✅ (deployed)
@@ -131,6 +137,7 @@ Admin/RT (isAdminOrRT check)
 ```
 
 **Infrastructure Status:**
+
 - ✅ **Cloud Tasks API enabled** — ready for NOTIVISA queue
 - ✅ **notivisaFormatter helper deployed** — converts laudo → RDC 978 Art. 6º schema
 - ⚠️ **NOTIVISA sandbox credentials NOT provisioned** (action item #1)
@@ -143,6 +150,7 @@ Admin/RT (isAdminOrRT check)
 ### 2.3 PDF Export for Portal
 
 **Dependency chain:**
+
 ```
 Callable: portals_downloadLaudo
   → Cloud Function with Puppeteer
@@ -152,6 +160,7 @@ Callable: portals_downloadLaudo
 ```
 
 **Current State:**
+
 - ✅ **Puppeteer installed** — `npm run build` includes puppeteer 22.15.0
 - ✅ **Cloud Storage bucket** — `hmatologia2.firebasestorage.app` exists + CORS configured
 - ⚠️ **Storage rules for laudo-exports NOT explicitly configured** (action item #2)
@@ -164,6 +173,7 @@ Callable: portals_downloadLaudo
 ### 2.4 SMS/Email Routing (Critical Values)
 
 **Dependency chain:**
+
 ```
 Callable: criticos_escalate
   → Checks escalation rules (critical value threshold)
@@ -173,6 +183,7 @@ Callable: criticos_escalate
 ```
 
 **Current Infrastructure:**
+
 - ✅ **smsTemplate helper deployed** — body generation + escape sequences
 - ✅ **nodemailer installed** — 8.0.7 (SMTP client)
 - ✅ **SMTP configured** — `functions/src/shared/email/smtpClient.ts` live (migration from Resend per ADR-0017 Wave 2)
@@ -188,11 +199,13 @@ Callable: criticos_escalate
 ### 2.5 Email-Link Auth (Passwordless Flow)
 
 **Current State:**
+
 - ✅ **Firebase Auth configured** — email/password + OAuth providers live
 - ✅ **Firestore rule for isPatient** — deployed
 - ⚠️ **Email-link auth (passwordless) NOT tested end-to-end**
 
 **Verification needed (action item #3):**
+
 ```
 1. Firebase Auth console: enable "Email Link (Passwordless)" sign-in method
 2. Set redirect URL: https://hmatologia2.web.app/auth/link-callback
@@ -209,6 +222,7 @@ Callable: criticos_escalate
 ### 3.1 Cloud Storage (✅ READY)
 
 **Bucket:** `hmatologia2.firebasestorage.app`
+
 - **Region:** US-EAST1 (legacy, NOT aligned with southamerica-east1 functions)
 - **CORS:** Configured for read + write
 - **Rules:** `storage.rules` deployed (enforces `isActiveMember()` + `isAdminOrOwner()`)
@@ -217,6 +231,7 @@ Callable: criticos_escalate
 **Gap identified:** Bucket is in `US-EAST1` while functions are in `southamerica-east1`. **No blocker** (data egress incurs cost but works; v1.5 can relocate to SA region).
 
 **Action:** Create subdirectory bucket for laudo exports if latency is unacceptable.
+
 ```
 gs://hmatologia2.firebasestorage.app/labs/{labId}/laudo-exports/{uuid}.pdf
 ```
@@ -230,6 +245,7 @@ gs://hmatologia2.firebasestorage.app/labs/{labId}/laudo-exports/{uuid}.pdf
 **API Status:** ✅ Enabled in GCP project
 
 **Setup required (action item #1):**
+
 ```bash
 # Create queue for NOTIVISA retry processor
 gcloud tasks queues create notivisa-outbox-queue \
@@ -248,6 +264,7 @@ gcloud tasks queues create notivisa-outbox-queue \
 ### 3.3 Cloud Scheduler (✅ ENABLED, IN USE)
 
 **Current usage:**
+
 - `scheduledGenerateLeiturasPrevistas` — 01:00 SP daily
 - `scheduledMarcarLeiturasPerdidas` — every 30 min
 - `scheduledExpireInsumos` — daily
@@ -262,6 +279,7 @@ gcloud tasks queues create notivisa-outbox-queue \
 ### 3.4 Firestore Multi-Tenant Isolation (✅ VERIFIED)
 
 **Enforcement:**
+
 - Path-level: all collections use `/{labId}` segment
 - Rule-level: `isActiveMemberOfLab(labId)` checks `labs/{labId}/members/{uid}` subcollection
 - Payload validation: custom rules check `d.labId == labId`
@@ -279,11 +297,13 @@ gcloud tasks queues create notivisa-outbox-queue \
 **Current:** `functions/src/shared/email/smtpClient.ts` deployed per ADR-0017 Wave 2 fix (Resend migration).
 
 **Provider options:**
+
 - **Gmail SMTP** (uses App Password, ~30s setup)
 - **Brevo (Sendinblue)** (higher limits, SLA support)
 - **AWS SES** (production-grade, requires IAM role)
 
 **Setup (action item #1):**
+
 ```bash
 # Option 1: Gmail (test-only)
 firebase functions:secrets:set SMTP_HOST --data="smtp.gmail.com"
@@ -307,6 +327,7 @@ firebase functions:secrets:set SMTP_PASS --data="<brevo-api-key>"
 **Current:** `smsTemplate` helper deployed; Twilio driver NOT YET WIRED.
 
 **Setup (action item #1):**
+
 ```bash
 # Provision Twilio account + phone number (30 min)
 # Then:
@@ -316,6 +337,7 @@ firebase functions:secrets:set TWILIO_FROM_NUMBER --data="+551199999999"
 ```
 
 **Wire in callable (commit needed):**
+
 ```typescript
 // In criticos_escalate callable
 const twilio = require('twilio')(
@@ -353,17 +375,17 @@ await twilio.messages.create({
 
 ### 5.1 Phase 4 Blocking Dependencies
 
-| Item | Status | Blocker? | Mitigation |
-|---|---|---|---|
-| Firestore schema v1.4 | ✅ Deployed 2026-05-07 | ❌ No | — |
-| Rules + helpers | ✅ Deployed 2026-05-07 | ❌ No | — |
-| Cloud Storage | ✅ Configured | ❌ No | Bucket region suboptimal but functional |
-| Cloud Tasks API | ✅ Enabled | ❌ No | Queue creation 1-line gcloud command |
-| Cloud Scheduler | ✅ Enabled | ❌ No | — |
-| **SMTP (email)** | ⚠️ Pending credential provision | ⚠️ **Soft block** | Escalation email falls back to SMTP; unblock in 1–2h |
-| **Twilio (SMS)** | ⚠️ Pending account + credentials | ⚠️ **Soft block** | SMS escalation disabled; Phase 4 continues with email-only |
-| **NOTIVISA sandbox** | ⚠️ Pending ANVISA procurement | ❌ No (Phase 8 only) | Mock NOTIVISA queue in Phase 4; integrate real API in Phase 8 |
-| **Email-link auth** | ⚠️ Pending E2E test | ⚠️ **Soft block** | Firebase Auth method enabled; 30 min E2E test + patient role provisioning |
+| Item                  | Status                           | Blocker?             | Mitigation                                                                |
+| --------------------- | -------------------------------- | -------------------- | ------------------------------------------------------------------------- |
+| Firestore schema v1.4 | ✅ Deployed 2026-05-07           | ❌ No                | —                                                                         |
+| Rules + helpers       | ✅ Deployed 2026-05-07           | ❌ No                | —                                                                         |
+| Cloud Storage         | ✅ Configured                    | ❌ No                | Bucket region suboptimal but functional                                   |
+| Cloud Tasks API       | ✅ Enabled                       | ❌ No                | Queue creation 1-line gcloud command                                      |
+| Cloud Scheduler       | ✅ Enabled                       | ❌ No                | —                                                                         |
+| **SMTP (email)**      | ⚠️ Pending credential provision  | ⚠️ **Soft block**    | Escalation email falls back to SMTP; unblock in 1–2h                      |
+| **Twilio (SMS)**      | ⚠️ Pending account + credentials | ⚠️ **Soft block**    | SMS escalation disabled; Phase 4 continues with email-only                |
+| **NOTIVISA sandbox**  | ⚠️ Pending ANVISA procurement    | ❌ No (Phase 8 only) | Mock NOTIVISA queue in Phase 4; integrate real API in Phase 8             |
+| **Email-link auth**   | ⚠️ Pending E2E test              | ⚠️ **Soft block**    | Firebase Auth method enabled; 30 min E2E test + patient role provisioning |
 
 ### 5.2 Recommended Unblocking Sequence
 
@@ -388,10 +410,11 @@ Week 2–3 (Phase 4 Execution):
 
 ### Infrastructure Setup (Day 1–4)
 
-```markdown
+````markdown
 ## PRE-PHASE-4 INFRASTRUCTURE CHECKLIST
 
 ### ✅ Verified (No action needed)
+
 - [ ] Cloud Storage bucket `hmatologia2.firebasestorage.app` exists
 - [ ] Cloud Storage rules enforce multi-tenant isolation
 - [ ] Cloud Tasks API enabled in GCP
@@ -405,10 +428,12 @@ Week 2–3 (Phase 4 Execution):
 ### ⚠️ ACTION REQUIRED (Ops/Admin)
 
 #### Task 1: Provision SMTP (Email Escalation)
+
 **Effort:** 1–2 hours  
 **Owner:** DevOps/CTO
 
 **Option A: Gmail (development)**
+
 ```bash
 # Create app password at https://myaccount.google.com/apppasswords
 firebase functions:secrets:set SMTP_HOST --data="smtp.gmail.com"
@@ -417,8 +442,10 @@ firebase functions:secrets:set SMTP_USER --data="labclin-noreply@gmail.com"
 firebase functions:secrets:set SMTP_PASS --data="<app-password>"
 firebase deploy --only functions:criticos_escalate,functions:liberacao_escalate
 ```
+````
 
 **Option B: Brevo (production)**
+
 ```bash
 # Sign up at https://www.brevo.com, generate API key
 firebase functions:secrets:set SMTP_HOST --data="smtp-relay.brevo.com"
@@ -429,6 +456,7 @@ firebase deploy --only functions:criticos_escalate,functions:liberacao_escalate
 ```
 
 **Verify:** Send test email via `criticos_escalate` callable
+
 ```bash
 firebase functions:call criticos_escalate --data='{"labId":"labclin-riopomba","laudoId":"test","phone":"","email":"drogafarto@gmail.com"}'
 ```
@@ -436,6 +464,7 @@ firebase functions:call criticos_escalate --data='{"labId":"labclin-riopomba","l
 ---
 
 #### Task 2: Create Cloud Tasks Queue for NOTIVISA
+
 **Effort:** 15 minutes  
 **Owner:** DevOps
 
@@ -449,6 +478,7 @@ gcloud tasks queues create notivisa-outbox-queue \
 ```
 
 **Verify:**
+
 ```bash
 gcloud tasks queues describe notivisa-outbox-queue \
   --location=southamerica-east1 \
@@ -458,6 +488,7 @@ gcloud tasks queues describe notivisa-outbox-queue \
 ---
 
 #### Task 3: Enable Email-Link Auth in Firebase (Optional, Phase 5)
+
 **Effort:** 30 minutes  
 **Owner:** DevOps/Frontend lead
 
@@ -468,6 +499,7 @@ gcloud tasks queues describe notivisa-outbox-queue \
 5. Save
 
 **Verify:** E2E test
+
 ```bash
 1. Call `auth.sendSignInLinkToEmail('patient@example.com', {...actionCodeSettings})`
 2. Check email inbox → click link
@@ -477,13 +509,16 @@ gcloud tasks queues describe notivisa-outbox-queue \
 ---
 
 #### Task 4 (OPTIONAL): Twilio Provisioning (Defer if not critical)
+
 **Effort:** 30 minutes + 2–3 days procurement  
 **Owner:** Operations/CTO
 
 If SMS escalation is in Phase 4 scope:
+
 1. Create Twilio account (https://www.twilio.com)
 2. Provision Brazil phone number (+55...)
 3. Secrets:
+
 ```bash
 firebase functions:secrets:set TWILIO_ACCOUNT_SID --data="<sid>"
 firebase functions:secrets:set TWILIO_AUTH_TOKEN --data="<token>"
@@ -496,6 +531,7 @@ firebase deploy --only functions:criticos_escalate
 ---
 
 #### Task 5 (BLOCKED): NOTIVISA Sandbox Credentials
+
 **Effort:** N/A (gov procurement, ~5–7 days)  
 **Owner:** Compliance/ANVISA liaison
 
@@ -564,32 +600,33 @@ firebase deploy --only hosting \
 
 ### Sign-off
 
-- [ ] Infrastructure lead: ___________ Date: ___________
-- [ ] CTO: ___________ Date: ___________
-- [ ] QA: ___________ Date: ___________
+- [ ] Infrastructure lead: ****\_\_\_**** Date: ****\_\_\_****
+- [ ] CTO: ****\_\_\_**** Date: ****\_\_\_****
+- [ ] QA: ****\_\_\_**** Date: ****\_\_\_****
 
 ```
+
 ```
 
 ---
 
 ## 7. File & Code Path Reference
 
-| Component | File Path | Status |
-|---|---|---|
-| **Phase 3 Schema** | `firestore.rules` (lines 600–750) | ✅ Deployed |
-| **Rules Helpers** | `firestore.rules` (lines 59–95) | ✅ Deployed |
-| **Shared Helpers** | `functions/src/shared/` | ✅ Deployed |
-| **SMTP Client** | `functions/src/shared/email/smtpClient.ts` | ✅ Deployed |
-| **Cloud Functions Index** | `functions/src/index.ts` (lines 1–350) | ✅ Deployed |
-| **Storage Rules** | `storage.rules` (lines 1–150) | ✅ Deployed |
-| **Firestore Indexes** | `firestore.indexes.json` | ✅ Deployed |
-| **Unit Tests (Helpers)** | `functions/src/__tests__/` | ✅ 23/23 passing |
-| **Deploy Protocol** | `.claude/rules/deploy-protocol.md` | Reference doc |
-| **Phase 3 Handbook** | `docs/PHASE_3_HANDBOOK.md` | Reference doc |
-| **ADR-0017 (HMAC)** | `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` | ADR |
-| **ADR-0018 (Deploy Gate)** | `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` | ADR |
-| **Preflight Secrets Script** | `scripts/preflight-secrets-check.sh` | Deployment automation |
+| Component                    | File Path                                              | Status                |
+| ---------------------------- | ------------------------------------------------------ | --------------------- |
+| **Phase 3 Schema**           | `firestore.rules` (lines 600–750)                      | ✅ Deployed           |
+| **Rules Helpers**            | `firestore.rules` (lines 59–95)                        | ✅ Deployed           |
+| **Shared Helpers**           | `functions/src/shared/`                                | ✅ Deployed           |
+| **SMTP Client**              | `functions/src/shared/email/smtpClient.ts`             | ✅ Deployed           |
+| **Cloud Functions Index**    | `functions/src/index.ts` (lines 1–350)                 | ✅ Deployed           |
+| **Storage Rules**            | `storage.rules` (lines 1–150)                          | ✅ Deployed           |
+| **Firestore Indexes**        | `firestore.indexes.json`                               | ✅ Deployed           |
+| **Unit Tests (Helpers)**     | `functions/src/__tests__/`                             | ✅ 23/23 passing      |
+| **Deploy Protocol**          | `.claude/rules/deploy-protocol.md`                     | Reference doc         |
+| **Phase 3 Handbook**         | `docs/PHASE_3_HANDBOOK.md`                             | Reference doc         |
+| **ADR-0017 (HMAC)**          | `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`  | ADR                   |
+| **ADR-0018 (Deploy Gate)**   | `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` | ADR                   |
+| **Preflight Secrets Script** | `scripts/preflight-secrets-check.sh`                   | Deployment automation |
 
 ---
 
@@ -598,6 +635,7 @@ firebase deploy --only hosting \
 ### ✅ APPROVED FOR KICKOFF (2026-05-20)
 
 **Justification:**
+
 1. All Phase 3 deliverables verified and in production
 2. Zero hard blockers for Phase 4 execution
 3. SMTP setup is straightforward 1–2h task
@@ -605,6 +643,7 @@ firebase deploy --only hosting \
 5. Fallback behavior (email-only escalation) ensures no feature regression if Twilio delayed
 
 **Next steps:**
+
 1. Execute pre-kickoff checklist (Task 1–3 above)
 2. Validate in staging/production
 3. Schedule Phase 4 kickoff standup for 2026-05-20
@@ -619,31 +658,31 @@ graph TD
     Phase3Schema["Phase 3 Schema v1.4<br/>✅ DEPLOYED"]
     Phase3Rules["Phase 3 Rules<br/>✅ DEPLOYED"]
     Phase3Helpers["Phase 3 Helpers<br/>✅ DEPLOYED"]
-    
+
     Phase3Schema -->|feeds| Portal["Phase 4: Patient Portal"]
     Phase3Schema -->|feeds| NOTIVISA["Phase 4: NOTIVISA Queue"]
     Phase3Schema -->|feeds| Escalation["Phase 4: Critical Escalation"]
-    
+
     Phase3Rules -->|gates| Portal
     Phase3Rules -->|gates| NOTIVISA
     Phase3Rules -->|gates| Escalation
-    
+
     Phase3Helpers -->|notivisaFormatter| NOTIVISA
     Phase3Helpers -->|smsTemplate| Escalation
     Phase3Helpers -->|LaudoDraftManager| Portal
-    
+
     SMTP["SMTP Secrets<br/>⚠️ PENDING"]
     CloudTasks["Cloud Tasks<br/>⚠️ QUEUE PENDING"]
     Twilio["Twilio Secrets<br/>⚠️ PENDING"]
-    
+
     SMTP -->|unblock| Escalation
     CloudTasks -->|unblock| NOTIVISA
     Twilio -->|optional| Escalation
-    
+
     Portal -->|feeds| Phase5["Phase 5: Portal Polish"]
     NOTIVISA -->|feeds| Phase8["Phase 8: NOTIVISA Prod"]
     Escalation -->|feeds| Phase5
-    
+
     style Phase3Schema fill:#90EE90
     style Phase3Rules fill:#90EE90
     style Phase3Helpers fill:#90EE90

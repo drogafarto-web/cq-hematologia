@@ -25,13 +25,13 @@ export const CargoForm: React.FC<CargoFormProps> = ({
   const [titulo, setTitulo] = useState(initialData?.titulo || '');
   const [descricao, setDescricao] = useState(initialData?.descricao || '');
   const [responsabilidades, setResponsabilidades] = useState<string[]>(
-    initialData?.responsabilidades ? [...initialData.responsabilidades] : ['']
+    initialData?.responsabilidades ? [...initialData.responsabilidades] : [''],
   );
   const [autoridades, setAutoridades] = useState<string[]>(
-    initialData?.autoridades ? [...initialData.autoridades] : ['']
+    initialData?.autoridades ? [...initialData.autoridades] : [''],
   );
   const [certificacoes, setCertificacoes] = useState<string[]>(
-    initialData?.certificacoes ? [...initialData.certificacoes] : ['']
+    initialData?.certificacoes ? [...initialData.certificacoes] : [''],
   );
   const [reportaA, setReportaA] = useState(initialData?.reportaA || '');
 
@@ -99,9 +99,9 @@ export const CargoForm: React.FC<CargoFormProps> = ({
       return;
     }
 
-    const filteredResponsabilidades = responsabilidades.filter(r => r.trim());
-    const filteredAutoridades = autoridades.filter(a => a.trim());
-    const filteredCertificacoes = certificacoes.filter(c => c.trim());
+    const filteredResponsabilidades = responsabilidades.filter((r) => r.trim());
+    const filteredAutoridades = autoridades.filter((a) => a.trim());
+    const filteredCertificacoes = certificacoes.filter((c) => c.trim());
 
     if (filteredResponsabilidades.length === 0) {
       setError('Adicione pelo menos uma responsabilidade');

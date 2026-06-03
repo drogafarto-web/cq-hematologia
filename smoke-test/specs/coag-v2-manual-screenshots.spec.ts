@@ -3,8 +3,10 @@ import * as path from 'path';
 import * as fs from 'fs';
 
 const SCREENSHOT_DIR = path.resolve(__dirname, '../../docs/manual/screenshots/coag');
-const FS_BASE = 'https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents';
-const AUTH_URL = 'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDXLZlp-vDfDDHI-JG1I91yIamTo65fwio';
+const FS_BASE =
+  'https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents';
+const AUTH_URL =
+  'https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDXLZlp-vDfDDHI-JG1I91yIamTo65fwio';
 const EMAIL = process.env.RT_EMAIL || 'drogafarto@gmail.com';
 const PASS = process.env.RT_PASSWORD || '12345678';
 
@@ -54,7 +56,7 @@ async function seedControlAndAttempts(token: string, labId: string, uid: string)
     { ap: 101, rni: 0.98, ttpa: 32, c: 'A' },
     { ap: 87, rni: 0.88, ttpa: 37, c: 'A' },
     { ap: 100, rni: 0.96, ttpa: 33.5, c: 'A' },
-    { ap: 131, rni: 1.20, ttpa: 24, c: 'R', v: ['1-3s'] },
+    { ap: 131, rni: 1.2, ttpa: 24, c: 'R', v: ['1-3s'] },
     { ap: 95, rni: 0.93, ttpa: 34, c: 'A' },
   ];
 
@@ -64,11 +66,15 @@ async function seedControlAndAttempts(token: string, labId: string, uid: string)
     d.setDate(d.getDate() - (vals.length - i - 1));
     const fields: any = {
       controlOperacionalId: { stringValue: ctrlId },
-      resultados: { mapValue: { fields: {
-        atividadeProtrombinica: { doubleValue: v.ap },
-        rni: { doubleValue: v.rni },
-        ttpa: { doubleValue: v.ttpa },
-      }}},
+      resultados: {
+        mapValue: {
+          fields: {
+            atividadeProtrombinica: { doubleValue: v.ap },
+            rni: { doubleValue: v.rni },
+            ttpa: { doubleValue: v.ttpa },
+          },
+        },
+      },
       conformidade: { stringValue: v.c },
       data: { stringValue: d.toISOString() },
       operadorId: { stringValue: uid },
@@ -101,14 +107,13 @@ async function login(page: Page, email: string, password: string) {
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
   await page.click('button:has-text("Entrar")');
-  await page.waitForFunction(
-    () => !document.querySelector('input[type="password"]'),
-    { timeout: 30000 }
-  );
-  
+  await page.waitForFunction(() => !document.querySelector('input[type="password"]'), {
+    timeout: 30000,
+  });
+
   // Wait for either: (a) app ready with hub, or (b) lab selector
   await sleep(1500);
-  
+
   // If lab selector screen appears, select first lab
   const labSelectorHeading = page.locator('h2:has-text("Selecione o laboratório")');
   if (await labSelectorHeading.isVisible({ timeout: 3000 }).catch(() => false)) {
@@ -122,7 +127,7 @@ async function login(page: Page, email: string, password: string) {
       await sleep(2000);
     }
   }
-  
+
   // Wait for app to fully load
   await sleep(2000);
   console.log('[auth] logged in');
@@ -133,15 +138,20 @@ async function getLabId(page: Page): Promise<string> {
   const labId = await page.evaluate(async () => {
     // Use Firebase SDK to get the currently selected lab
     try {
-      const { getFirestore, doc, getDoc } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
-      const { getApps, initializeApp, getApp } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js');
-      const { getAuth } = await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js');
-      
-      const app = getApps()[0] || initializeApp({
-        apiKey: "AIzaSyDXLZlp-vDfDDHI-JG1I91yIamTo65fwio",
-        authDomain: "hmatologia2.firebaseapp.com",
-        projectId: "hmatologia2",
-      });
+      const { getFirestore, doc, getDoc } =
+        await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js');
+      const { getApps, initializeApp, getApp } =
+        await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js');
+      const { getAuth } =
+        await import('https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js');
+
+      const app =
+        getApps()[0] ||
+        initializeApp({
+          apiKey: 'AIzaSyDXLZlp-vDfDDHI-JG1I91yIamTo65fwio',
+          authDomain: 'hmatologia2.firebaseapp.com',
+          projectId: 'hmatologia2',
+        });
       const auth = getAuth(app);
       if (auth.currentUser) {
         // Get user's custom claims or lab from users doc
@@ -174,7 +184,7 @@ async function navigateTo(page: Page, view: string) {
     }
   }, view);
   await sleep(500);
-  
+
   // Verify navigation worked by checking if we're still on the same page
   const currentPath = await page.evaluate(() => window.location.pathname + window.location.hash);
   console.log(`[nav] navigated to: ${currentPath}`);
@@ -217,11 +227,13 @@ test.describe.serial('Coagulação v2 — Screenshots para Manual', () => {
     if (!seeded) {
       console.log('\n[seed] Seed via REST...');
       const token = await restAuth();
-      const uid = (await fetch(AUTH_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: EMAIL, password: PASS, returnSecureToken: true }),
-      }).then(r => r.json())).localId;
+      const uid = (
+        await fetch(AUTH_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: EMAIL, password: PASS, returnSecureToken: true }),
+        }).then((r) => r.json())
+      ).localId;
       const labs = await getUserLabIds(token);
       console.log(`[seed] user has ${labs.length} labs, seeding first 5`);
       for (const lid of labs.slice(0, 5)) {
@@ -268,7 +280,9 @@ test.describe.serial('Coagulação v2 — Screenshots para Manual', () => {
 
     const ta = page.locator('textarea').first();
     if (await ta.isVisible().catch(() => false)) {
-      await ta.fill('Repetir análise com novo lote de controle. Verificar calibração do equipamento.');
+      await ta.fill(
+        'Repetir análise com novo lote de controle. Verificar calibração do equipamento.',
+      );
       await sleep(300);
     }
     await shot(page, '09-acao-corretiva');

@@ -55,15 +55,15 @@ Triggered via GitHub Actions UI:
 
 **Must pass all 6 checks before any code is deployed.**
 
-| # | Check | Command | Failure = Block |
-|---|-------|---------|-----------------|
-| 1 | Type-check | `npm run typecheck` | ✅ Yes |
-| 2 | Lint | `npm run lint` | ✅ Yes |
-| 3 | Unit tests | `npm run test:unit` | ✅ Yes |
-| 4 | Build app | `npm run build` | ✅ Yes |
-| 5 | Build functions | `cd functions && npm run build` | ✅ Yes |
-| 6 | Rules syntax | Firebase dry-run | ✅ Yes |
-| 7 | Secrets status | `bash scripts/preflight-secrets-check.sh` | ✅ Yes (if functions changed) |
+| #   | Check           | Command                                   | Failure = Block               |
+| --- | --------------- | ----------------------------------------- | ----------------------------- |
+| 1   | Type-check      | `npm run typecheck`                       | ✅ Yes                        |
+| 2   | Lint            | `npm run lint`                            | ✅ Yes                        |
+| 3   | Unit tests      | `npm run test:unit`                       | ✅ Yes                        |
+| 4   | Build app       | `npm run build`                           | ✅ Yes                        |
+| 5   | Build functions | `cd functions && npm run build`           | ✅ Yes                        |
+| 6   | Rules syntax    | Firebase dry-run                          | ✅ Yes                        |
+| 7   | Secrets status  | `bash scripts/preflight-secrets-check.sh` | ✅ Yes (if functions changed) |
 
 **Exit on first failure** — no deployment proceeds until all gates pass.
 
@@ -142,13 +142,13 @@ Polls Cloud Logging every 60s for 1 hour, checking for:
 
 **Enabled for**: All pull requests to `main`
 
-| Gate | Threshold | Failure = Block PR |
-|------|-----------|-------------------|
-| Type-check | `0 errors` | ✅ Yes |
-| Lint | ESLint default + 88-warning baseline | ✅ Yes |
-| Unit tests | All passing | ✅ Yes |
-| Coverage | ≥80% statements | ✅ Yes |
-| Bundle size | <420 KB gzip | ✅ Yes |
+| Gate        | Threshold                            | Failure = Block PR |
+| ----------- | ------------------------------------ | ------------------ |
+| Type-check  | `0 errors`                           | ✅ Yes             |
+| Lint        | ESLint default + 88-warning baseline | ✅ Yes             |
+| Unit tests  | All passing                          | ✅ Yes             |
+| Coverage    | ≥80% statements                      | ✅ Yes             |
+| Bundle size | <420 KB gzip                         | ✅ Yes             |
 
 **Check**: GitHub PR status checks (required before merge)
 
@@ -198,9 +198,9 @@ firebase deploy --only hosting --project hmatologia2
 
 ### Required GitHub Secrets
 
-| Secret | Value | Used By |
-|--------|-------|---------|
-| `FIREBASE_TOKEN` | Firebase CLI token | All deploy jobs |
+| Secret                           | Value                    | Used By         |
+| -------------------------------- | ------------------------ | --------------- |
+| `FIREBASE_TOKEN`                 | Firebase CLI token       | All deploy jobs |
 | `GOOGLE_APPLICATION_CREDENTIALS` | GCP service account JSON | Auth (implicit) |
 
 **Setup**:
@@ -230,22 +230,26 @@ NPM_VERSION=10
 ### During Deployment
 
 **GitHub Actions UI**:
+
 - https://github.com/`<owner>`/hc-quality/actions/workflows/phase-3-deploy.yml
 - Click running workflow to watch step-by-step progress
 
 ### Post-Deployment
 
 **Cloud Logs**:
+
 - https://console.cloud.google.com/logs?project=hmatologia2
 - Filter by:
   - `resource.type=cloud_function`
   - `severity=ERROR` or `severity=CRITICAL`
 
 **Firebase Console**:
+
 - https://console.firebase.google.com/project/hmatologia2/overview
 - Functions, Rules, Hosting tabs
 
 **Artifacts** (GitHub Actions):
+
 - `post-deploy-logs-<sha>` — Cloud Logs monitoring output
 - `web-dist-<sha>` — Built hosting artifacts (7-day retention)
 - `coverage-report` — Unit test coverage (30-day retention)
@@ -373,16 +377,16 @@ Is it a new error (not in previous deploys)?
 
 **Recommended settings for `main` branch**:
 
-| Setting | Value | Rationale |
-|---------|-------|-----------|
-| Require PR reviews | 1 approval | Human gate before merge |
-| Dismiss stale reviews | ✅ Enabled | Re-review after push |
-| Require status checks | ✅ Enabled | Pre-deploy gate must pass |
-| Required checks | `pre-deploy-gate` | Enforce gates before merge |
-| Require branches up-to-date | ✅ Enabled | No stale merges |
-| Require conversation resolution | ✅ Enabled | Comments must be addressed |
-| Allow auto-merge | ❌ Disabled | Manual control over timing |
-| Dismiss PR stale reviews | ✅ Yes | Re-review after new commits |
+| Setting                         | Value             | Rationale                   |
+| ------------------------------- | ----------------- | --------------------------- |
+| Require PR reviews              | 1 approval        | Human gate before merge     |
+| Dismiss stale reviews           | ✅ Enabled        | Re-review after push        |
+| Require status checks           | ✅ Enabled        | Pre-deploy gate must pass   |
+| Required checks                 | `pre-deploy-gate` | Enforce gates before merge  |
+| Require branches up-to-date     | ✅ Enabled        | No stale merges             |
+| Require conversation resolution | ✅ Enabled        | Comments must be addressed  |
+| Allow auto-merge                | ❌ Disabled       | Manual control over timing  |
+| Dismiss PR stale reviews        | ✅ Yes            | Re-review after new commits |
 
 **Setup** (GitHub UI):
 
@@ -464,7 +468,6 @@ firebase hosting:channel:list --project hmatologia2
 
 ## Version History
 
-| Date | Version | Changes |
-|------|---------|---------|
-| 2026-05-07 | 1.0 | Initial workflow + guide (Phase 3 launch) |
-
+| Date       | Version | Changes                                   |
+| ---------- | ------- | ----------------------------------------- |
+| 2026-05-07 | 1.0     | Initial workflow + guide (Phase 3 launch) |

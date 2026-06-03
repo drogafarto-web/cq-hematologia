@@ -97,9 +97,7 @@ export const ResultadosAdvanced: React.FC<ResultadosAdvancedProps> = ({
         <div className="space-y-3 sm:space-y-0 sm:flex sm:gap-3 sm:flex-wrap">
           {/* Status Filter */}
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-white/70 mb-1.5">
-              Status
-            </label>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Status</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
@@ -115,9 +113,7 @@ export const ResultadosAdvanced: React.FC<ResultadosAdvancedProps> = ({
 
           {/* Exam Type Filter */}
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-white/70 mb-1.5">
-              Tipo de Exame
-            </label>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Tipo de Exame</label>
             <select
               value={examTypeFilter}
               onChange={(e) => setExamTypeFilter(e.target.value)}
@@ -134,9 +130,7 @@ export const ResultadosAdvanced: React.FC<ResultadosAdvancedProps> = ({
 
           {/* Sort Controls */}
           <div className="flex-1 min-w-[200px]">
-            <label className="block text-xs font-medium text-white/70 mb-1.5">
-              Ordenar por
-            </label>
+            <label className="block text-xs font-medium text-white/70 mb-1.5">Ordenar por</label>
             <div className="flex gap-2">
               <select
                 value={sortField}
@@ -186,9 +180,7 @@ export const ResultadosAdvanced: React.FC<ResultadosAdvancedProps> = ({
         </div>
       ) : (
         <div className="p-8 rounded-lg border border-white/8 bg-white/2 text-center">
-          <p className="text-sm text-white/60">
-            Nenhum resultado disponível no momento.
-          </p>
+          <p className="text-sm text-white/60">Nenhum resultado disponível no momento.</p>
         </div>
       )}
     </div>

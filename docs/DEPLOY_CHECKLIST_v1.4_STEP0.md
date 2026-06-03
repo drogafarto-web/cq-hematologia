@@ -12,6 +12,7 @@
 This document defines the pre-deployment bootstrap sequence required before deploying v1.4 Firestore rules, functions, and hosting. The sequence is **strictly ordered** due to chicken-and-egg constraints (rules block writes until supervisor-status docs exist).
 
 **Critical path:**
+
 1. ✅ **STEP 0 (this doc):** Bootstrap supervisor-status docs
 2. ⏭️ **STEP 1:** Deploy Firestore rules + indexes
 3. ⏭️ **STEP 2:** Deploy Cloud Functions (callables)
@@ -37,6 +38,7 @@ node scripts/bootstrap-supervisor-status.mjs --dry-run --project hmatologia2
 ```
 
 **Expected output:**
+
 ```
 ════════════════════════════════════════════════════════════
   Bootstrap supervisor-status
@@ -58,6 +60,7 @@ Summary:
 ```
 
 **Verification:**
+
 - [ ] Command succeeds (exit code 0)
 - [ ] Lab count matches (1 lab: `labclin-riopomba`)
 - [ ] No errors in output
@@ -71,6 +74,7 @@ node scripts/bootstrap-supervisor-status.mjs --project hmatologia2
 ```
 
 **Expected output:**
+
 ```
 ════════════════════════════════════════════════════════════
   Bootstrap supervisor-status
@@ -91,6 +95,7 @@ Summary:
 ```
 
 **Verification:**
+
 - [ ] Command succeeds (exit code 0)
 - [ ] "Created" count matches dry-run
 - [ ] No "Error for lab" messages
@@ -106,10 +111,15 @@ Summary:
      - `lastUpdated: <timestamp>`
 
 2. **Firestore Query validation** (alternative):
+
    ```javascript
    // In browser console (Firebase Console)
-   db.collection('labs').doc('labclin-riopomba').collection('supervisor-status').doc('current').get()
-     .then(doc => {
+   db.collection('labs')
+     .doc('labclin-riopomba')
+     .collection('supervisor-status')
+     .doc('current')
+     .get()
+     .then((doc) => {
        console.log('exists:', doc.exists);
        console.log('data:', doc.data());
      });
@@ -125,13 +135,13 @@ Summary:
 
 ### Expected Results
 
-| Item | Status | Details |
-|------|--------|---------|
-| Dry-run | ✅ | 1 lab identified, 0 writes |
-| Apply | ✅ | 1 doc created (labclin-riopomba) |
-| Doc persisted | ✅ | Visible in Firestore Console |
-| Rules NOT deployed | ✅ | supervisor-status collection still writable |
-| No errors | ✅ | Clean logs |
+| Item               | Status | Details                                     |
+| ------------------ | ------ | ------------------------------------------- |
+| Dry-run            | ✅     | 1 lab identified, 0 writes                  |
+| Apply              | ✅     | 1 doc created (labclin-riopomba)            |
+| Doc persisted      | ✅     | Visible in Firestore Console                |
+| Rules NOT deployed | ✅     | supervisor-status collection still writable |
+| No errors          | ✅     | Clean logs                                  |
 
 ---
 
@@ -140,6 +150,7 @@ Summary:
 ### Idempotency
 
 Running bootstrap twice produces same result:
+
 - **First run:** Creates `/labs/{labId}/supervisor-status/current`
 - **Second run:** Skips (doc already exists), reports `Skipped: 1`
 
@@ -173,6 +184,7 @@ node scripts/bootstrap-supervisor-status.mjs --project hmatologia2
 ### Why Dry-Run First?
 
 Bootstrap writes are gated by Admin SDK credentials (unrestricted). Before applying:
+
 1. Dry-run verifies lab count, paths, and output format
 2. Human reviews labs to be bootstrapped
 3. Apply mode proceeds with confidence
@@ -198,6 +210,7 @@ Timeline:
 ```
 
 If rules deploy first (T0 → T1 reversed):
+
 - Bootstrap fails (rules block supervisor-status creates)
 - Labs remain without docs
 - CIQ runs fail (doc missing → rule fails closed)
@@ -205,6 +218,7 @@ If rules deploy first (T0 → T1 reversed):
 ### Firestore Rules Fail-Closed Design
 
 In `firestore.rules` (line 111):
+
 ```firestore
 let statusPath = /databases/$(database)/documents/labs/$(labId)/supervisor-status/current;
 function hasActiveSupervisor(labId) {
@@ -224,11 +238,13 @@ If doc doesn't exist → `exists(statusPath)` = false → `hasActiveSupervisor()
 ## Testing (8 tests bundled)
 
 Run test suite:
+
 ```bash
 npm test -- scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs
 ```
 
 **Coverage:**
+
 - [ ] Test 1: Dry-run mode (no writes)
 - [ ] Test 2: Apply mode (writes to Firestore)
 - [ ] Test 3: Lab filtering (--labId option)
@@ -250,6 +266,7 @@ npm test -- scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs
 **Result:** ✅ Bootstrap COMPLETE
 
 **Artifacts created:**
+
 1. `docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md` — Execution log + verification checklist
 2. `src/features/admin/SupervisorStatusBootstrapVerifier.tsx` — Real-time verification UI (180 LOC)
 3. `scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs` — 8 comprehensive tests
@@ -260,17 +277,20 @@ npm test -- scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs
 ## Next Gate: Deploy Firestore Rules (STEP 1)
 
 **Prerequisites (all from STEP 0):**
+
 - ✅ Supervisor-status docs created for all labs
 - ✅ Verification UI confirms all green
 - ✅ 8 tests pass
 - ✅ No errors in bootstrap logs
 
 **Command (Step 1):**
+
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 **This will:**
+
 - Lock `/labs/{labId}/supervisor-status/{docId}` to callables-only (no direct client writes)
 - Activate `hasActiveSupervisor()` helper (gating CIQ run creates on doc existence)
 - Fail-closed: CIQ writes denied if doc missing (bootstrap ensures doc exists)

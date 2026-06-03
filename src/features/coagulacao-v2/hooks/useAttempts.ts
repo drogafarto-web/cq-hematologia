@@ -33,7 +33,7 @@ export function useAttempts(
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setAttempts(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Attempt)));
+        setAttempts(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as Attempt));
         setIsLoading(false);
       },
       (err) => {

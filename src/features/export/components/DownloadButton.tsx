@@ -16,8 +16,7 @@ export function DownloadButton({ job }: DownloadButtonProps) {
     return null;
   }
 
-  const isExpired =
-    job.expiresAt ? new Date() > job.expiresAt : false;
+  const isExpired = job.expiresAt ? new Date() > job.expiresAt : false;
   const isExpiring = isDownloadExpiringsome(job);
   const fileSize = formatFileSize(job.fileSizeBytes);
 

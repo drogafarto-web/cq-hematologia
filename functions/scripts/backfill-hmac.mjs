@@ -21,7 +21,7 @@ if (!secret) {
 
 // Parse arguments
 const args = process.argv.slice(2);
-const labIdArg = args.find(arg => arg.startsWith('--labId='));
+const labIdArg = args.find((arg) => arg.startsWith('--labId='));
 const labId = labIdArg ? labIdArg.split('=')[1] : null;
 
 if (!labId) {
@@ -33,18 +33,12 @@ console.log(`Starting backfill for lab: ${labId}`);
 
 function computeHmac(data, secret) {
   const canonicalJson = JSON.stringify(data, Object.keys(data).sort());
-  return crypto
-    .createHmac('sha256', secret)
-    .update(canonicalJson, 'utf-8')
-    .digest('hex');
+  return crypto.createHmac('sha256', secret).update(canonicalJson, 'utf-8').digest('hex');
 }
 
 function hashData(data) {
   const json = JSON.stringify(data, Object.keys(data).sort());
-  return crypto
-    .createHash('sha256')
-    .update(json, 'utf-8')
-    .digest('hex');
+  return crypto.createHash('sha256').update(json, 'utf-8').digest('hex');
 }
 
 async function backfillHmac() {
@@ -52,10 +46,7 @@ async function backfillHmac() {
     const collectionPath = `labs/${labId}/insumo-movimentacoes`;
     console.log(`Querying: ${collectionPath}`);
 
-    const snapshot = await db
-      .collection(collectionPath)
-      .orderBy('timestamp', 'asc')
-      .get();
+    const snapshot = await db.collection(collectionPath).orderBy('timestamp', 'asc').get();
 
     console.log(`Found ${snapshot.size} entries`);
 
@@ -110,10 +101,7 @@ Backfill complete:
     let validationPassed = 0;
     let validationFailed = 0;
 
-    const validated = await db
-      .collection(collectionPath)
-      .orderBy('timestamp', 'asc')
-      .get();
+    const validated = await db.collection(collectionPath).orderBy('timestamp', 'asc').get();
 
     for (const doc of validated.docs) {
       const entry = doc.data();
@@ -131,7 +119,7 @@ Backfill complete:
       // Verify chain
       if (entry.previousHash !== previousHash) {
         console.error(
-          `FAILED: ${doc.id} - Chain broken (expected ${previousHash}, got ${entry.previousHash})`
+          `FAILED: ${doc.id} - Chain broken (expected ${previousHash}, got ${entry.previousHash})`,
         );
         validationFailed++;
         continue;

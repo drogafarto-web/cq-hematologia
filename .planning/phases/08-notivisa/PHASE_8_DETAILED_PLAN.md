@@ -41,35 +41,59 @@ const NotivisaPayloadSchema = z.object({
   // Identificação da unidade notificante
   facilityCode: z.string().length(7, 'CNES 7-digit code'),
   facilityName: z.string().min(1),
-  
+
   // Doença notificável
   diseaseCode: z.string().regex(/^\d{5}$/, 'MS 5-digit code (ex: 99078 = syphilis)'),
   diseaseName: z.string(),
-  
+
   // Dados do paciente (anonimizado per LGPD)
   patientInitials: z.string().length(2, 'First + last initial only'),
   dateOfBirth: z.date(),
   sex: z.enum(['M', 'F', 'O']),
-  
+
   // Resultado do exame
   resultStatus: z.enum(['POSITIVE', 'PRESUMPTIVE_POSITIVE', 'INCONCLUSIVE']),
   resultValue: z.string().optional(), // e.g., "1:512", "5.2 ng/mL"
   testMethod: z.string(), // ICD or lab-specific name
   sampleCollectionDate: z.date(),
   resultDate: z.date(),
-  
+
   // Informações do solicitante
   requestingPhysicianName: z.string(),
   requestingPhysicianCRM: z.string().regex(/^\d{4,6}$/, 'CRM 4–6 digits'),
   requestingPhysicianState: z.enum([
-    'AC', 'AL', 'AP', 'AM', 'BA', 'CE', 'DF', 'ES', 'GO', 'MA',
-    'MT', 'MS', 'MG', 'PA', 'PB', 'PR', 'PE', 'PI', 'RJ', 'RN',
-    'RS', 'RO', 'RR', 'SC', 'SP', 'SE', 'TO'
+    'AC',
+    'AL',
+    'AP',
+    'AM',
+    'BA',
+    'CE',
+    'DF',
+    'ES',
+    'GO',
+    'MA',
+    'MT',
+    'MS',
+    'MG',
+    'PA',
+    'PB',
+    'PR',
+    'PE',
+    'PI',
+    'RJ',
+    'RN',
+    'RS',
+    'RO',
+    'RR',
+    'SC',
+    'SP',
+    'SE',
+    'TO',
   ]),
-  
+
   // Observações opcionais
   notes: z.string().max(500).optional(),
-  
+
   // Auditoria (preenchida pelo sistema)
   // NÃO incluir: estes são adicionados server-side
   // operatorId, chartHash, ts, labId
@@ -80,6 +104,7 @@ export { NotivisaPayloadSchema, NotivisaPayload };
 ```
 
 **Validações imediatas:**
+
 - `diseaseCode` matches MS Portaria 204 whitelist (99 codes)
 - `resultStatus` must be POSITIVE or PRESUMPTIVE_POSITIVE (INCONCLUSIVE doesn't require notification)
 - `patientInitials` is non-empty (LGPD anonymization proof)
@@ -95,53 +120,71 @@ export { NotivisaPayloadSchema, NotivisaPayload };
 export const NOTIFIABLE_DISEASES = [
   // Portaria 204/2016 (99 doenças notificáveis)
   {
-    code: '99001', name: 'Acidentes por animais peçonhentos', urgent: false
+    code: '99001',
+    name: 'Acidentes por animais peçonhentos',
+    urgent: false,
   },
   {
-    code: '99002', name: 'Acidente com exposição a material biológico', urgent: true
+    code: '99002',
+    name: 'Acidente com exposição a material biológico',
+    urgent: true,
   },
   // ... (96 more)
   {
-    code: '99078', name: 'Sífilis adquirida', urgent: false
+    code: '99078',
+    name: 'Sífilis adquirida',
+    urgent: false,
   },
   {
-    code: '99079', name: 'Sífilis congênita', urgent: true
+    code: '99079',
+    name: 'Sífilis congênita',
+    urgent: true,
   },
   {
-    code: '99080', name: 'Sífilis em gestante', urgent: true
+    code: '99080',
+    name: 'Sífilis em gestante',
+    urgent: true,
   },
   {
-    code: '99081', name: 'Tuberculose', urgent: false
+    code: '99081',
+    name: 'Tuberculose',
+    urgent: false,
   },
   {
-    code: '99082', name: 'Tuberculose miliar', urgent: true
+    code: '99082',
+    name: 'Tuberculose miliar',
+    urgent: true,
   },
   // Dengue variants
   {
-    code: '99050', name: 'Dengue em gestante', urgent: true
+    code: '99050',
+    name: 'Dengue em gestante',
+    urgent: true,
   },
   {
-    code: '99051', name: 'Dengue grave', urgent: true
+    code: '99051',
+    name: 'Dengue grave',
+    urgent: true,
   },
   // HIV / AIDS
   {
-    code: '99068', name: 'HIV/AIDS', urgent: false
+    code: '99068',
+    name: 'HIV/AIDS',
+    urgent: false,
   },
   // ... (more)
 ];
 
-export const NOTIFIABLE_DISEASE_MAP = new Map(
-  NOTIFIABLE_DISEASES.map(d => [d.code, d])
-);
+export const NOTIFIABLE_DISEASE_MAP = new Map(NOTIFIABLE_DISEASES.map((d) => [d.code, d]));
 
-export const isNotifiableDisease = (code: string): boolean => 
-  NOTIFIABLE_DISEASE_MAP.has(code);
+export const isNotifiableDisease = (code: string): boolean => NOTIFIABLE_DISEASE_MAP.has(code);
 
-export const isUrgentDisease = (code: string): boolean => 
+export const isUrgentDisease = (code: string): boolean =>
   NOTIFIABLE_DISEASE_MAP.get(code)?.urgent ?? false;
 ```
 
 **Whitelisting rules:**
+
 - Only codes in Portaria 204 list trigger NOTIVISA draft creation
 - Labs can configure subset (e.g., "enable syphilis but not dengue")
 - Urgent diseases (e.g., syphilis in pregnancy) get SMS/email escalation (Phase 6 integration)
@@ -155,10 +198,10 @@ export const isUrgentDisease = (code: string): boolean =>
 ```typescript
 interface NotivisaDraft {
   // Identity
-  id: string;                          // docId
-  labId: string;                       // multi-tenant
-  criadoEm: Timestamp;                 // system-generated
-  deletadoEm?: Timestamp;              // soft-delete only
+  id: string; // docId
+  labId: string; // multi-tenant
+  criadoEm: Timestamp; // system-generated
+  deletadoEm?: Timestamp; // soft-delete only
 
   // Workflow status
   status: 'draft' | 'approved' | 'submitted' | 'acknowledged' | 'rejected';
@@ -166,16 +209,16 @@ interface NotivisaDraft {
   // v1.5: approved → submitted → acknowledged (after Anvisa API integration)
 
   // Payload (Art. 6º fields)
-  diseaseCode: string;                 // '99078' (syphilis)
-  diseaseName: string;                 // 'Sífilis adquirida'
-  facilityCode: string;                // CNES 7-digit
+  diseaseCode: string; // '99078' (syphilis)
+  diseaseName: string; // 'Sífilis adquirida'
+  facilityCode: string; // CNES 7-digit
   facilityName: string;
-  patientInitials: string;             // 'JD' (LGPD anonimizado)
-  dateOfBirth: Timestamp;              // patient age inference
+  patientInitials: string; // 'JD' (LGPD anonimizado)
+  dateOfBirth: Timestamp; // patient age inference
   sex: 'M' | 'F' | 'O';
   resultStatus: 'POSITIVE' | 'PRESUMPTIVE_POSITIVE' | 'INCONCLUSIVE';
-  resultValue?: string;                // quantitative if available
-  testMethod: string;                  // e.g., "Treponema pallidum total antibody"
+  resultValue?: string; // quantitative if available
+  testMethod: string; // e.g., "Treponema pallidum total antibody"
   sampleCollectionDate: Timestamp;
   resultDate: Timestamp;
   requestingPhysicianName: string;
@@ -184,19 +227,19 @@ interface NotivisaDraft {
   notes?: string;
 
   // RT approval (v1.4)
-  approvedBy?: string;                 // operatorId (RT's uid)
+  approvedBy?: string; // operatorId (RT's uid)
   approvedAt?: Timestamp;
   approvalNotes?: string;
 
   // Rejection (v1.4)
-  rejectedBy?: string;                 // operatorId
+  rejectedBy?: string; // operatorId
   rejectedAt?: Timestamp;
-  rejectionReason?: string;            // Why RT didn't approve
+  rejectionReason?: string; // Why RT didn't approve
 
   // Audit trail (v1.4)
-  chartHash: string;                   // HMAC-SHA256(payload + prevHash)
-  operatorId: string;                  // who created (auto-generated by CF)
-  ts: Timestamp;                       // creation timestamp
+  chartHash: string; // HMAC-SHA256(payload + prevHash)
+  operatorId: string; // who created (auto-generated by CF)
+  ts: Timestamp; // creation timestamp
 
   // Submission attempts (v1.5+)
   submissionAttempts: Array<{
@@ -204,17 +247,17 @@ interface NotivisaDraft {
     status: 'success' | 'error' | 'pending';
     httpStatus?: number;
     errorMessage?: string;
-    receiptCode?: string;              // from Anvisa
+    receiptCode?: string; // from Anvisa
   }>;
 
   // Anvisa response (v1.5+)
-  receiptCodeFromAnvisa?: string;      // transactionId
+  receiptCodeFromAnvisa?: string; // transactionId
   acknowledgedAt?: Timestamp;
 
   // Computed
-  notificationDeadline: Timestamp;     // resultDate + 24h
-  daysUntilDeadline: number;           // computed field (read-only)
-  isOverdue: boolean;                  // resultDate + 24h < now
+  notificationDeadline: Timestamp; // resultDate + 24h
+  daysUntilDeadline: number; // computed field (read-only)
+  isOverdue: boolean; // resultDate + 24h < now
 }
 ```
 
@@ -224,16 +267,16 @@ interface NotivisaDraft {
 match /labs/{labId}/notivisa-outbox/{docId} {
   // Only RT + SuperAdmin can read
   allow read: if isAdminOrOwner(labId) || request.auth.token.role == 'RT';
-  
+
   // CF creates drafts (write-only from server)
   allow create: if false; // client cannot create directly
-  
+
   // RT approves (via callable)
-  allow update: if isAdminOrOwner(labId) && 
+  allow update: if isAdminOrOwner(labId) &&
                (request.resource.data.status == 'approved' ||
                 request.resource.data.status == 'rejected') &&
                request.resource.data.chartHash.size() == 64;
-  
+
   // Never delete (soft-delete only)
   allow delete: if false;
 
@@ -283,11 +326,12 @@ interface NotivisaDraftCreateRequest {
   requestingPhysicianCRM: string;
   requestingPhysicianState: string;
   notes?: string;
-  facilityCode?: string;  // defaults to lab.facilityCode
-  facilityName?: string;  // defaults to lab.name
+  facilityCode?: string; // defaults to lab.facilityCode
+  facilityName?: string; // defaults to lab.name
 }
 
-export const notivisaDraftCreate = functions.region('southamerica-east1')
+export const notivisaDraftCreate = functions
+  .region('southamerica-east1')
   .https.onCall(async (data: unknown, context) => {
     try {
       // Auth guard
@@ -299,14 +343,12 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
       const labId = req.labId;
 
       // Authorization: SuperAdmin OR lab owner/admin
-      const userDoc = await admin.firestore()
-        .collection('users')
-        .doc(context.auth.uid)
-        .get();
+      const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
       const isSuperAdmin = userDoc.data()?.['superAdmin'] === true;
-      
+
       if (!isSuperAdmin) {
-        const memberDoc = await admin.firestore()
+        const memberDoc = await admin
+          .firestore()
           .collection('labs')
           .doc(labId)
           .collection('members')
@@ -314,22 +356,23 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
           .get();
         const role = memberDoc.data()?.['role'];
         if (role !== 'owner' && role !== 'admin') {
-          throw new functions.https.HttpsError('permission-denied',
-            `User role ${role} cannot create NOTIVISA drafts`);
+          throw new functions.https.HttpsError(
+            'permission-denied',
+            `User role ${role} cannot create NOTIVISA drafts`,
+          );
         }
       }
 
       // Validate disease code exists
       if (!NOTIFIABLE_DISEASE_MAP.has(req.diseaseCode)) {
-        throw new functions.https.HttpsError('invalid-argument',
-          `Disease code ${req.diseaseCode} not in Portaria 204/2016 whitelist`);
+        throw new functions.https.HttpsError(
+          'invalid-argument',
+          `Disease code ${req.diseaseCode} not in Portaria 204/2016 whitelist`,
+        );
       }
 
       // Build payload
-      const labDoc = await admin.firestore()
-        .collection('labs')
-        .doc(labId)
-        .get();
+      const labDoc = await admin.firestore().collection('labs').doc(labId).get();
       const labData = labDoc.data() || {};
 
       const payload: NotivisaPayload = {
@@ -356,10 +399,7 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
 
       // Create draft doc
       const db = admin.firestore();
-      const outboxRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('notivisa-outbox');
+      const outboxRef = db.collection('labs').doc(labId).collection('notivisa-outbox');
 
       // Calculate logical signature
       const prevHashRef = await db
@@ -388,7 +428,7 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
         ts,
         notificationDeadline: new admin.firestore.Timestamp(
           (req.resultDate.toDate().getTime() + 24 * 60 * 60 * 1000) / 1000,
-          0
+          0,
         ),
         submissionAttempts: [],
       };
@@ -397,20 +437,25 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
       const batch = db.batch();
       batch.set(outboxRef.doc(newDraftId), newDraft);
       batch.set(
-        db.collection('labs').doc(labId).collection('notivisa-outbox')
-          .doc(newDraftId).collection('audit').doc(ts.toString()),
+        db
+          .collection('labs')
+          .doc(labId)
+          .collection('notivisa-outbox')
+          .doc(newDraftId)
+          .collection('audit')
+          .doc(ts.toString()),
         {
           action: 'created',
           operatorId: context.auth.uid,
           ts,
           prevHash,
           chartHash: hash,
-        }
+        },
       );
       batch.set(
         db.collection('labs').doc(labId).collection('_state').doc('notivisa-chain'),
         { hash, lastUpdated: ts },
-        { merge: true }
+        { merge: true },
       );
 
       await batch.commit();
@@ -421,16 +466,18 @@ export const notivisaDraftCreate = functions.region('southamerica-east1')
         status: 'draft',
         notificationDeadline: newDraft.notificationDeadline,
       };
-
     } catch (error: any) {
       console.error('[notivisaDraftCreate] Error:', error);
-      throw new functions.https.HttpsError('internal',
-        error.message || 'Failed to create NOTIVISA draft');
+      throw new functions.https.HttpsError(
+        'internal',
+        error.message || 'Failed to create NOTIVISA draft',
+      );
     }
   });
 ```
 
 **Deployment & Registration:**
+
 - Add to `functions/src/index.ts`: `exports.notivisaDraftCreate = notivisaDraftCreate;`
 - Cloud Functions config: `memory: 256MB`, `timeout: 60s`
 
@@ -447,7 +494,8 @@ interface ApproveNotivisaDraftRequest {
   approvalNotes?: string;
 }
 
-export const approveNotivisaDraft = functions.region('southamerica-east1')
+export const approveNotivisaDraft = functions
+  .region('southamerica-east1')
   .https.onCall(async (data: unknown, context) => {
     try {
       if (!context.auth) {
@@ -458,22 +506,24 @@ export const approveNotivisaDraft = functions.region('southamerica-east1')
       const { labId, draftId, approvalNotes } = req;
 
       // Auth: RT role required
-      const userDoc = await admin.firestore()
-        .collection('users')
-        .doc(context.auth.uid)
-        .get();
-      const hasRTRole = (userDoc.data()?.customClaims?.role === 'RT' ||
-                         userDoc.data()?.superAdmin === true);
+      const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+      const hasRTRole =
+        userDoc.data()?.customClaims?.role === 'RT' || userDoc.data()?.superAdmin === true;
 
       if (!hasRTRole) {
-        throw new functions.https.HttpsError('permission-denied',
-          'Only RTs can approve NOTIVISA drafts');
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          'Only RTs can approve NOTIVISA drafts',
+        );
       }
 
       // Fetch draft
-      const draftRef = admin.firestore()
-        .collection('labs').doc(labId)
-        .collection('notivisa-outbox').doc(draftId);
+      const draftRef = admin
+        .firestore()
+        .collection('labs')
+        .doc(labId)
+        .collection('notivisa-outbox')
+        .doc(draftId);
       const draftSnap = await draftRef.get();
 
       if (!draftSnap.exists) {
@@ -482,8 +532,10 @@ export const approveNotivisaDraft = functions.region('southamerica-east1')
 
       const draftData = draftSnap.data() as NotivisaDraft;
       if (draftData.status !== 'draft') {
-        throw new functions.https.HttpsError('failed-precondition',
-          `Draft is ${draftData.status}, cannot approve`);
+        throw new functions.https.HttpsError(
+          'failed-precondition',
+          `Draft is ${draftData.status}, cannot approve`,
+        );
       }
 
       // Seal with signature
@@ -510,23 +562,19 @@ export const approveNotivisaDraft = functions.region('southamerica-east1')
         ts,
       });
 
-      batch.set(
-        draftRef.collection('audit').doc(ts.toString()),
-        {
-          action: 'approved',
-          operatorId: context.auth.uid,
-          ts,
-          prevHash: draftData.chartHash,
-          chartHash: hash,
-          approvalNotes,
-        }
-      );
+      batch.set(draftRef.collection('audit').doc(ts.toString()), {
+        action: 'approved',
+        operatorId: context.auth.uid,
+        ts,
+        prevHash: draftData.chartHash,
+        chartHash: hash,
+        approvalNotes,
+      });
 
       batch.set(
-        db.collection('labs').doc(labId)
-          .collection('_state').doc('notivisa-chain'),
+        db.collection('labs').doc(labId).collection('_state').doc('notivisa-chain'),
         { hash, lastUpdated: ts },
-        { merge: true }
+        { merge: true },
       );
 
       await batch.commit();
@@ -541,7 +589,6 @@ export const approveNotivisaDraft = functions.region('southamerica-east1')
         status: 'approved',
         approvedAt: ts,
       };
-
     } catch (error: any) {
       console.error('[approveNotivisaDraft] Error:', error);
       throw new functions.https.HttpsError('internal', error.message);
@@ -562,7 +609,8 @@ interface RejectNotivisaDraftRequest {
   rejectionReason: string;
 }
 
-export const rejectNotivisaDraft = functions.region('southamerica-east1')
+export const rejectNotivisaDraft = functions
+  .region('southamerica-east1')
   .https.onCall(async (data: unknown, context) => {
     try {
       if (!context.auth) {
@@ -573,22 +621,24 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1')
       const { labId, draftId, rejectionReason } = req;
 
       // Auth: RT role
-      const userDoc = await admin.firestore()
-        .collection('users')
-        .doc(context.auth.uid)
-        .get();
-      const hasRTRole = (userDoc.data()?.customClaims?.role === 'RT' ||
-                         userDoc.data()?.superAdmin === true);
+      const userDoc = await admin.firestore().collection('users').doc(context.auth.uid).get();
+      const hasRTRole =
+        userDoc.data()?.customClaims?.role === 'RT' || userDoc.data()?.superAdmin === true;
 
       if (!hasRTRole) {
-        throw new functions.https.HttpsError('permission-denied',
-          'Only RTs can reject NOTIVISA drafts');
+        throw new functions.https.HttpsError(
+          'permission-denied',
+          'Only RTs can reject NOTIVISA drafts',
+        );
       }
 
       // Fetch draft
-      const draftRef = admin.firestore()
-        .collection('labs').doc(labId)
-        .collection('notivisa-outbox').doc(draftId);
+      const draftRef = admin
+        .firestore()
+        .collection('labs')
+        .doc(labId)
+        .collection('notivisa-outbox')
+        .doc(draftId);
       const draftSnap = await draftRef.get();
 
       if (!draftSnap.exists) {
@@ -597,8 +647,10 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1')
 
       const draftData = draftSnap.data() as NotivisaDraft;
       if (draftData.status !== 'draft') {
-        throw new functions.https.HttpsError('failed-precondition',
-          `Draft is ${draftData.status}, cannot reject`);
+        throw new functions.https.HttpsError(
+          'failed-precondition',
+          `Draft is ${draftData.status}, cannot reject`,
+        );
       }
 
       // Seal rejection
@@ -624,23 +676,19 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1')
         ts,
       });
 
-      batch.set(
-        draftRef.collection('audit').doc(ts.toString()),
-        {
-          action: 'rejected',
-          operatorId: context.auth.uid,
-          ts,
-          prevHash: draftData.chartHash,
-          chartHash: hash,
-          rejectionReason,
-        }
-      );
+      batch.set(draftRef.collection('audit').doc(ts.toString()), {
+        action: 'rejected',
+        operatorId: context.auth.uid,
+        ts,
+        prevHash: draftData.chartHash,
+        chartHash: hash,
+        rejectionReason,
+      });
 
       batch.set(
-        db.collection('labs').doc(labId)
-          .collection('_state').doc('notivisa-chain'),
+        db.collection('labs').doc(labId).collection('_state').doc('notivisa-chain'),
         { hash, lastUpdated: ts },
-        { merge: true }
+        { merge: true },
       );
 
       await batch.commit();
@@ -651,7 +699,6 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1')
         status: 'rejected',
         rejectedAt: ts,
       };
-
     } catch (error: any) {
       console.error('[rejectNotivisaDraft] Error:', error);
       throw new functions.https.HttpsError('internal', error.message);
@@ -669,17 +716,19 @@ export const rejectNotivisaDraft = functions.region('southamerica-east1')
 // v1.4: placeholder (mock submission)
 // v1.5: will call real Anvisa API + process responses
 
-export const notivisaStatusCheck = functions.region('southamerica-east1')
+export const notivisaStatusCheck = functions
+  .region('southamerica-east1')
   .pubsub.schedule('every 30 minutes')
   .onRun(async (context) => {
     // v1.4 logic: check for approved drafts, mark ready for v1.5 submission
     const db = admin.firestore();
-    
+
     const labs = await db.collection('labs').get();
     for (const labDoc of labs.docs) {
       const labId = labDoc.id;
       const approved = await db
-        .collection('labs').doc(labId)
+        .collection('labs')
+        .doc(labId)
         .collection('notivisa-outbox')
         .where('status', '==', 'approved')
         .where('submissionAttempts', 'array-contains', null)
@@ -962,19 +1011,26 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 
     // Header
     doc.fontSize(16).font('Helvetica-Bold').text('NOTIVISA FORM', { align: 'center' });
-    doc.fontSize(10).font('Helvetica').text('(Sandbox Mode - v1.4 Form Generation)', { align: 'center' });
+    doc
+      .fontSize(10)
+      .font('Helvetica')
+      .text('(Sandbox Mode - v1.4 Form Generation)', { align: 'center' });
     doc.moveDown();
 
     // Lab info
     doc.fontSize(11).font('Helvetica-Bold').text('Lab Information');
-    doc.fontSize(10).font('Helvetica')
+    doc
+      .fontSize(10)
+      .font('Helvetica')
       .text(`Facility: ${draft.facilityName} (${draft.facilityCode})`)
       .text(`Generated: ${new Date().toLocaleString('pt-BR')}`);
     doc.moveDown();
 
     // Disease & Status
     doc.fontSize(11).font('Helvetica-Bold').text('Notifiable Disease');
-    doc.fontSize(10).font('Helvetica')
+    doc
+      .fontSize(10)
+      .font('Helvetica')
       .text(`Code: ${draft.diseaseCode}`)
       .text(`Name: ${draft.diseaseName}`)
       .text(`Status: ${draft.resultStatus}`);
@@ -982,7 +1038,9 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 
     // Patient info (anonymized)
     doc.fontSize(11).font('Helvetica-Bold').text('Patient Information (Anonymized)');
-    doc.fontSize(10).font('Helvetica')
+    doc
+      .fontSize(10)
+      .font('Helvetica')
       .text(`Initials: ${draft.patientInitials}`)
       .text(`Sex: ${draft.sex}`)
       .text(`Date of Birth: ${draft.dateOfBirth.toDate().toLocaleDateString('pt-BR')}`);
@@ -990,7 +1048,9 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 
     // Test info
     doc.fontSize(11).font('Helvetica-Bold').text('Test Information');
-    doc.fontSize(10).font('Helvetica')
+    doc
+      .fontSize(10)
+      .font('Helvetica')
       .text(`Method: ${draft.testMethod}`)
       .text(`Sample Collection: ${draft.sampleCollectionDate.toDate().toLocaleDateString('pt-BR')}`)
       .text(`Result Date: ${draft.resultDate.toDate().toLocaleDateString('pt-BR')}`)
@@ -999,7 +1059,9 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 
     // Physician
     doc.fontSize(11).font('Helvetica-Bold').text('Requesting Physician');
-    doc.fontSize(10).font('Helvetica')
+    doc
+      .fontSize(10)
+      .font('Helvetica')
       .text(`Name: ${draft.requestingPhysicianName}`)
       .text(`CRM: ${draft.requestingPhysicianCRM} (${draft.requestingPhysicianState})`);
     doc.moveDown();
@@ -1007,7 +1069,9 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
     // Approval status
     if (draft.status === 'approved' && draft.approvedAt) {
       doc.fontSize(11).font('Helvetica-Bold').text('Approval Information');
-      doc.fontSize(10).font('Helvetica')
+      doc
+        .fontSize(10)
+        .font('Helvetica')
         .text(`Approved by: ${draft.approvedBy}`)
         .text(`Approved Date: ${draft.approvedAt.toDate().toLocaleString('pt-BR')}`)
         .text(`Approval Notes: ${draft.approvalNotes || 'None'}`);
@@ -1016,17 +1080,22 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 
     // Audit chain
     doc.fontSize(11).font('Helvetica-Bold').text('Audit Trail');
-    doc.fontSize(9).font('Helvetica')
+    doc
+      .fontSize(9)
+      .font('Helvetica')
       .text(`Chain Hash: ${draft.chartHash}`)
       .text(`Operator ID: ${draft.operatorId}`)
       .text(`Timestamp: ${draft.ts.toDate().toLocaleString('pt-BR')}`);
     doc.moveDown();
 
     // Footer
-    doc.fontSize(8).font('Helvetica').text(
-      'This is a form-generation proof (v1.4 Sandbox). v1.5 will enable direct Anvisa API submission.',
-      { align: 'center' }
-    );
+    doc
+      .fontSize(8)
+      .font('Helvetica')
+      .text(
+        'This is a form-generation proof (v1.4 Sandbox). v1.5 will enable direct Anvisa API submission.',
+        { align: 'center' },
+      );
 
     doc.end();
   });
@@ -1044,7 +1113,7 @@ export async function generateNotivisaPDF(draft: NotivisaDraft, labName: string)
 async function handleCriticalResult(labId: string, result: CriticoResult) {
   // 1. Check if disease is notifiable
   const isNotifiable = NOTIFIABLE_DISEASE_MAP.has(result.diseaseCode);
-  
+
   if (isNotifiable) {
     // 2. Auto-create NOTIVISA draft
     const draftResponse = await notivisaDraftCreate({
@@ -1065,8 +1134,11 @@ async function handleCriticalResult(labId: string, result: CriticoResult) {
     });
 
     // 3. Flag for RT priority review
-    await firestore.collection('labs').doc(labId)
-      .collection('notifications').add({
+    await firestore
+      .collection('labs')
+      .doc(labId)
+      .collection('notifications')
+      .add({
         type: 'NOTIVISA_DRAFT_REQUIRES_APPROVAL',
         draftId: draftResponse.draftId,
         urgency: isUrgentDisease(result.diseaseCode) ? 'URGENT' : 'STANDARD',
@@ -1114,7 +1186,8 @@ test('E2E-01: Auto-create NOTIVISA draft when critical syphilis result detected'
 
   // Verify draft created
   const drafts = await firestore
-    .collection('labs').doc(labId)
+    .collection('labs')
+    .doc(labId)
     .collection('notivisa-outbox')
     .where('diseaseCode', '==', '99078')
     .get();
@@ -1163,8 +1236,10 @@ test('E2E-02: RT approves NOTIVISA draft and seals with signature', async () => 
 
   // Verify in Firestore
   const updatedDraft = await firestore
-    .collection('labs').doc(labId)
-    .collection('notivisa-outbox').doc(draftId)
+    .collection('labs')
+    .doc(labId)
+    .collection('notivisa-outbox')
+    .doc(draftId)
     .get();
 
   const data = updatedDraft.data() as NotivisaDraft;
@@ -1277,7 +1352,7 @@ test('E2E-06: Reject NOTIVISA draft creation if disease code not in Portaria 204
       requestingPhysicianName: 'Dr. Silva',
       requestingPhysicianCRM: '123456',
       requestingPhysicianState: 'SP',
-    })
+    }),
   ).rejects.toThrow(/not in Portaria 204/);
 });
 ```
@@ -1306,8 +1381,10 @@ test('E2E-07: Notification deadline is resultDate + 24h', async () => {
   });
 
   const draftSnap = await firestore
-    .collection('labs').doc(labId)
-    .collection('notivisa-outbox').doc(response.draftId)
+    .collection('labs')
+    .doc(labId)
+    .collection('notivisa-outbox')
+    .doc(response.draftId)
     .get();
 
   const deadline = (draftSnap.data() as NotivisaDraft).notificationDeadline.toDate();
@@ -1340,23 +1417,23 @@ test('E2E-08: Only RTs can approve NOTIVISA drafts', async () => {
 ```firestore
 match /labs/{labId}/notivisa-outbox/{docId} {
   // Read: admin, owner, RT
-  allow read: if isAdminOrOwner(labId) || 
+  allow read: if isAdminOrOwner(labId) ||
                request.auth.token.role == 'RT' ||
                request.auth.token.role == 'OPERADOR';
-  
+
   // Create: CF only (not client)
   allow create: if false;
-  
+
   // Update: Only RT/admin for approval/rejection
   allow update: if (isAdminOrOwner(labId) || request.auth.token.role == 'RT') &&
                    (request.resource.data.status == 'approved' ||
                     request.resource.data.status == 'rejected') &&
                    request.resource.data.chartHash.size() == 64 &&
                    request.resource.data.ts is timestamp;
-  
+
   // Delete: never
   allow delete: if false;
-  
+
   // Audit subcollection
   match /audit/{logId} {
     allow read: if isAdminOrOwner(labId) || request.auth.token.role == 'RT';
@@ -1377,16 +1454,16 @@ match /labs/{labId}/_state/notivisa-chain {
 
 ## Risk Register & Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **Gov API downtime (v1.5)** | Medium | High | Implement exponential backoff + retry queue; cap at 10 req/min per Anvisa limits |
-| **Certificate provisioning delay** | Medium | Critical | Start parallel legal track immediately; v1.5 deferred if unavailable (still compliant with form proof) |
-| **Form schema mismatch vs Anvisa spec** | Low | Medium | Zod schema validated against published Art. 6º spec; E2E test covers all mandatory fields |
-| **RT forgets to approve (overdue deadline)** | Medium | Medium | Daily digest email + UI urgency indicator (red badge if <1 day left) |
-| **Audit chain corruption** | Very Low | Critical | Immutable rules + append-only writes; periodic hash verification script (v1.5) |
-| **Patient re-identification via initials** | Low | Critical | Validation: patientInitials must be non-empty (LGPD artifact), no other PII in payload |
-| **Disease code data entry error** | Medium | Medium | Whitelist validation (Zod enum), UI dropdown (not free text) |
-| **Workflow stuck in draft status** | Low | Low | Manual export + RT can submit PDF to Anvisa portal as fallback |
+| Risk                                         | Likelihood | Impact   | Mitigation                                                                                             |
+| -------------------------------------------- | ---------- | -------- | ------------------------------------------------------------------------------------------------------ |
+| **Gov API downtime (v1.5)**                  | Medium     | High     | Implement exponential backoff + retry queue; cap at 10 req/min per Anvisa limits                       |
+| **Certificate provisioning delay**           | Medium     | Critical | Start parallel legal track immediately; v1.5 deferred if unavailable (still compliant with form proof) |
+| **Form schema mismatch vs Anvisa spec**      | Low        | Medium   | Zod schema validated against published Art. 6º spec; E2E test covers all mandatory fields              |
+| **RT forgets to approve (overdue deadline)** | Medium     | Medium   | Daily digest email + UI urgency indicator (red badge if <1 day left)                                   |
+| **Audit chain corruption**                   | Very Low   | Critical | Immutable rules + append-only writes; periodic hash verification script (v1.5)                         |
+| **Patient re-identification via initials**   | Low        | Critical | Validation: patientInitials must be non-empty (LGPD artifact), no other PII in payload                 |
+| **Disease code data entry error**            | Medium     | Medium   | Whitelist validation (Zod enum), UI dropdown (not free text)                                           |
+| **Workflow stuck in draft status**           | Low        | Low      | Manual export + RT can submit PDF to Anvisa portal as fallback                                         |
 
 ---
 
@@ -1401,6 +1478,7 @@ match /labs/{labId}/_state/notivisa-chain {
 7. **Day 8 (Jun 16):** Production deploy + smoke test
 
 **Rollback Plan:**
+
 - If E2E <90% pass: revert Cloud Functions + rules (1h RTO)
 - If audit chain compromised: soft-delete all drafts + manual rebuild from backup
 
@@ -1408,32 +1486,32 @@ match /labs/{labId}/_state/notivisa-chain {
 
 ## Compliance Mapping
 
-| Article | Requirement | v1.4 Implementation | Status |
-|---------|-------------|-------------------|--------|
-| **RDC 978 Art. 66** | Notif. of adverse events to MS via NOTIVISA | Form generation + RT approval + audit log | ✅ v1.4 (submission in v1.5) |
-| **RDC 978 Art. 167** | Laudo release audit trail | Included in notivisa-outbox audit subcollection | ✅ v1.4 |
-| **RDC 978 Art. 204** | Audit trail of all critical decisions | LogicalSignature (chainHash) + immutable audit docs | ✅ v1.4 |
-| **Portaria 204/2016 Art. 6º** | Mandatory fields for notification | Zod schema covers all 15 fields | ✅ v1.4 |
-| **DICQ 4.4.1** | Management of adverse events | Form generation workflow implemented | ✅ v1.4 (baseline +5% DICQ) |
-| **LGPD Art. 9** | Lawful basis for processing | Critical health reporting (legitimate interest) | ✅ v1.4 |
-| **LGPD Art. 18** | Data subject rights (access/correction/deletion) | Audit trail immutable; patient access via portal (Phase 10) | ⏳ v1.4 baseline |
+| Article                       | Requirement                                      | v1.4 Implementation                                         | Status                       |
+| ----------------------------- | ------------------------------------------------ | ----------------------------------------------------------- | ---------------------------- |
+| **RDC 978 Art. 66**           | Notif. of adverse events to MS via NOTIVISA      | Form generation + RT approval + audit log                   | ✅ v1.4 (submission in v1.5) |
+| **RDC 978 Art. 167**          | Laudo release audit trail                        | Included in notivisa-outbox audit subcollection             | ✅ v1.4                      |
+| **RDC 978 Art. 204**          | Audit trail of all critical decisions            | LogicalSignature (chainHash) + immutable audit docs         | ✅ v1.4                      |
+| **Portaria 204/2016 Art. 6º** | Mandatory fields for notification                | Zod schema covers all 15 fields                             | ✅ v1.4                      |
+| **DICQ 4.4.1**                | Management of adverse events                     | Form generation workflow implemented                        | ✅ v1.4 (baseline +5% DICQ)  |
+| **LGPD Art. 9**               | Lawful basis for processing                      | Critical health reporting (legitimate interest)             | ✅ v1.4                      |
+| **LGPD Art. 18**              | Data subject rights (access/correction/deletion) | Audit trail immutable; patient access via portal (Phase 10) | ⏳ v1.4 baseline             |
 
 ---
 
 ## DICQ Mapping
 
-| DICQ Block | Element | v1.4 Coverage |
-|-----------|---------|---------------|
-| **Block A** (Personnel) | Not applicable | — |
-| **Block B** (Equipment) | Not applicable | — |
-| **Block C** (Reagents) | Not applicable | — |
-| **Block D** (Standards) | Not applicable | — |
-| **Block E** (Quality Control) | Not applicable | — |
-| **Block F** (Analytical) | Not applicable | — |
-| **Block G** (Medical) | Not applicable | — |
-| **Block H** (Quality Management) | 5.8 (Adverse events management) | ✅ NOTIVISA form generation + approval |
-| **Block I** (Documentation) | 4.3 (Documented procedures) | ✅ NOTIVISA procedure (draft + approval + audit) |
-| **Block J** (Escalation) | 4.4.1 (Management review inputs) | ✅ Audit trail feeds management review KPIs |
+| DICQ Block                       | Element                          | v1.4 Coverage                                    |
+| -------------------------------- | -------------------------------- | ------------------------------------------------ |
+| **Block A** (Personnel)          | Not applicable                   | —                                                |
+| **Block B** (Equipment)          | Not applicable                   | —                                                |
+| **Block C** (Reagents)           | Not applicable                   | —                                                |
+| **Block D** (Standards)          | Not applicable                   | —                                                |
+| **Block E** (Quality Control)    | Not applicable                   | —                                                |
+| **Block F** (Analytical)         | Not applicable                   | —                                                |
+| **Block G** (Medical)            | Not applicable                   | —                                                |
+| **Block H** (Quality Management) | 5.8 (Adverse events management)  | ✅ NOTIVISA form generation + approval           |
+| **Block I** (Documentation)      | 4.3 (Documented procedures)      | ✅ NOTIVISA procedure (draft + approval + audit) |
+| **Block J** (Escalation)         | 4.4.1 (Management review inputs) | ✅ Audit trail feeds management review KPIs      |
 
 **DICQ gain:** +4–5 percentage points (from 78.5% → ~83–84%)
 

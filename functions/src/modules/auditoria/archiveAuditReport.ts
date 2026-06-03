@@ -55,15 +55,15 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
 
 // ─── Helper: Generate LogicalSignature ────────────────────────────────────────
 
-function generateSignature(data: any, uid: string): {
+function generateSignature(
+  data: any,
+  uid: string,
+): {
   hash: string;
   operatorId: string;
   ts: admin.firestore.Timestamp;
 } {
-  const hash = crypto
-    .createHash('sha256')
-    .update(JSON.stringify(data))
-    .digest('hex');
+  const hash = crypto.createHash('sha256').update(JSON.stringify(data)).digest('hex');
 
   return {
     hash,
@@ -99,10 +99,7 @@ async function archiveSingleReport(
   }
 
   const reportData = reportSnap.data();
-  const dataHash = crypto
-    .createHash('sha256')
-    .update(JSON.stringify(reportData))
-    .digest('hex');
+  const dataHash = crypto.createHash('sha256').update(JSON.stringify(reportData)).digest('hex');
 
   const signature = generateSignature(reportData, operatorUid);
 

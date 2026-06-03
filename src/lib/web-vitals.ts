@@ -42,7 +42,7 @@ export const VITALS_THRESHOLDS: PerformanceThresholds = {
  */
 function getRating(
   metric: WebVitalsMetric['name'],
-  value: number
+  value: number,
 ): 'good' | 'needs-improvement' | 'poor' {
   const thresholds = VITALS_THRESHOLDS[metric];
   if (value <= thresholds.good) return 'good';
@@ -294,7 +294,10 @@ export function getWebVitalsSummary(): {
   const layoutShiftEntries = performance.getEntriesByType('layout-shift');
   const interactionEntries = performance.getEntriesByType('interaction');
 
-  const lcp = lcpEntries.length > 0 ? Math.round((lcpEntries[lcpEntries.length - 1] as any).renderTime) : null;
+  const lcp =
+    lcpEntries.length > 0
+      ? Math.round((lcpEntries[lcpEntries.length - 1] as any).renderTime)
+      : null;
 
   let cls = 0;
   for (const entry of layoutShiftEntries) {

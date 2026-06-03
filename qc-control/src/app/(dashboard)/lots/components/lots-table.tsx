@@ -1,12 +1,12 @@
-'use client'
+'use client';
 
-import { DataTable } from '@/components/data-table'
-import { Pill } from '@/components/ui/pill'
-import { cn } from '@/lib/utils'
+import { DataTable } from '@/components/data-table';
+import { Pill } from '@/components/ui/pill';
+import { cn } from '@/lib/utils';
 
 interface LotsTableProps {
-  lots: any[]
-  onRowClick: (lot: any) => void
+  lots: any[];
+  onRowClick: (lot: any) => void;
 }
 
 export function LotsTable({ lots, onRowClick }: LotsTableProps) {
@@ -56,19 +56,17 @@ export function LotsTable({ lots, onRowClick }: LotsTableProps) {
       key: 'status',
       header: 'Status',
       render: (lot: any) => {
-        const isActive = lot.status === 'ACTIVE'
+        const isActive = lot.status === 'ACTIVE';
         return (
           <Pill variant={isActive ? 'success' : 'neutral'}>
             <span className={cn(!isActive && 'italic')}>
-              {isActive
-                ? 'Active'
-                : lot.status.charAt(0) + lot.status.slice(1).toLowerCase()}
+              {isActive ? 'Active' : lot.status.charAt(0) + lot.status.slice(1).toLowerCase()}
             </span>
           </Pill>
-        )
+        );
       },
     },
-  ]
+  ];
 
   return (
     <DataTable
@@ -77,5 +75,5 @@ export function LotsTable({ lots, onRowClick }: LotsTableProps) {
       onRowClick={onRowClick}
       emptyState="No lots registered. Add your first above."
     />
-  )
+  );
 }

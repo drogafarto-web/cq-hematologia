@@ -18,7 +18,14 @@ type FormState = 'idle' | 'loading' | 'success' | 'error';
 
 function CheckIcon() {
   return (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   );
@@ -28,11 +35,7 @@ function formatDate(ts: number): string {
   return new Date(ts).toLocaleDateString('pt-BR');
 }
 
-export function AuditorRFIForm({
-  capaId,
-  onSuccess,
-  onClose,
-}: AuditorRFIFormProps) {
+export function AuditorRFIForm({ capaId, onSuccess, onClose }: AuditorRFIFormProps) {
   const { submitRFI } = useAuditorRFI();
   const [state, setState] = useState<FormState>('idle');
   const [question, setQuestion] = useState('');
@@ -120,9 +123,7 @@ export function AuditorRFIForm({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
       <div className="bg-slate-900 border border-white/10 rounded-xl shadow-xl max-w-md w-full p-6">
         {/* Header */}
-        <h2 className="text-lg font-semibold text-white mb-1">
-          Solicitar informação (RFI)
-        </h2>
+        <h2 className="text-lg font-semibold text-white mb-1">Solicitar informação (RFI)</h2>
         <p className="text-xs text-slate-400 mb-6">
           Faça uma pergunta que o responsável deve responder até a data limite.
         </p>
@@ -139,7 +140,9 @@ export function AuditorRFIForm({
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Ex: Qual foi a ação imediata tomada após a detecção do desvio?"
               className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-sm text-white placeholder-slate-500 focus:outline-none resize-none transition-colors ${
-                errors.question ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-violet-500/50'
+                errors.question
+                  ? 'border-red-500/50 focus:border-red-500/50'
+                  : 'border-white/10 focus:border-violet-500/50'
               }`}
               rows={4}
               disabled={state === 'loading'}
@@ -147,9 +150,7 @@ export function AuditorRFIForm({
             />
             <div className="flex items-center justify-between mt-1">
               <p className="text-[10px] text-slate-500">{question.length}/2000 caracteres</p>
-              {errors.question && (
-                <p className="text-[10px] text-red-400">{errors.question}</p>
-              )}
+              {errors.question && <p className="text-[10px] text-red-400">{errors.question}</p>}
             </div>
           </div>
 
@@ -165,7 +166,9 @@ export function AuditorRFIForm({
               onChange={(e) => setDueDate(e.target.value)}
               min={new Date().toISOString().split('T')[0]}
               className={`w-full px-3 py-2 bg-white/5 border rounded-lg text-sm text-white focus:outline-none transition-colors ${
-                errors.dueDate ? 'border-red-500/50 focus:border-red-500/50' : 'border-white/10 focus:border-violet-500/50'
+                errors.dueDate
+                  ? 'border-red-500/50 focus:border-red-500/50'
+                  : 'border-white/10 focus:border-violet-500/50'
               }`}
               disabled={state === 'loading'}
             />
@@ -175,9 +178,7 @@ export function AuditorRFIForm({
                   {formatDate(new Date(dueDate).getTime())}
                 </p>
               )}
-              {errors.dueDate && (
-                <p className="text-[10px] text-red-400">{errors.dueDate}</p>
-              )}
+              {errors.dueDate && <p className="text-[10px] text-red-400">{errors.dueDate}</p>}
             </div>
           </div>
 

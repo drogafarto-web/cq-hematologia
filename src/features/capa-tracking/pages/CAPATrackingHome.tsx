@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import { CAPAListView, CAPADetailPanel, CapaEvidenceUpload, AuditorRFIForm, CapaAuditorSignOff } from '../components';
+import {
+  CAPAListView,
+  CAPADetailPanel,
+  CapaEvidenceUpload,
+  AuditorRFIForm,
+  CapaAuditorSignOff,
+} from '../components';
 
 /**
  * CAPATrackingHome — Root page for CAPA closure module (Phase 8 Wave 5)
@@ -42,9 +48,7 @@ export default function CAPATrackingHome() {
           <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-600 dark:text-emerald-400/80 mb-2">
             Rastreamento
           </p>
-          <h1 className="text-3xl font-semibold tracking-tight mb-2">
-            CAPA Closure
-          </h1>
+          <h1 className="text-3xl font-semibold tracking-tight mb-2">CAPA Closure</h1>
           <p className="text-sm text-slate-600 dark:text-white/40">
             Ações corretivas e preventivas — Rastreamento com auditor RDC 978 Art. 5.3
           </p>
@@ -59,10 +63,7 @@ export default function CAPATrackingHome() {
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
             {/* Main detail panel */}
             <div className="lg:col-span-3">
-              <CAPADetailPanel
-                capaId={selectedCapaId}
-                onBack={() => setSelectedCapaId(null)}
-              />
+              <CAPADetailPanel capaId={selectedCapaId} onBack={() => setSelectedCapaId(null)} />
             </div>
 
             {/* Side action bar */}

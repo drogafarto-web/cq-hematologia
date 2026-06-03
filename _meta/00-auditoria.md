@@ -9,11 +9,11 @@
 
 ## 1. Caminho declarado na missão
 
-| Item | Valor |
-|------|--------|
-| Caminho informado | `C:\HC Quality` |
-| Caminho canônico no disco (Windows) | `c:\hc quality` (mesmo diretório, case-insensitive) |
-| É repositório Git do projeto HC Quality | Sim |
+| Item                                    | Valor                                               |
+| --------------------------------------- | --------------------------------------------------- |
+| Caminho informado                       | `C:\HC Quality`                                     |
+| Caminho canônico no disco (Windows)     | `c:\hc quality` (mesmo diretório, case-insensitive) |
+| É repositório Git do projeto HC Quality | Sim                                                 |
 
 ---
 
@@ -25,11 +25,11 @@ Um diretório é a **raiz de um vault Obsidian** quando contém a pasta oculta *
 
 ## 3. Busca por `.obsidian/` em `C:\HC Quality`
 
-| Método | Resultado |
-|--------|-----------|
-| Busca por arquivos `**/.obsidian/**` sob `c:\hc quality` | **Nenhum resultado** |
+| Método                                                                      | Resultado                    |
+| --------------------------------------------------------------------------- | ---------------------------- |
+| Busca por arquivos `**/.obsidian/**` sob `c:\hc quality`                    | **Nenhum resultado**         |
 | `Get-ChildItem -Recurse -Filter ".obsidian" -Directory` sob `C:\HC Quality` | **Nenhuma pasta encontrada** |
-| `dir /a /s` explícito para `c:\hc quality\.obsidian` | **Não existe** |
+| `dir /a /s` explícito para `c:\hc quality\.obsidian`                        | **Não existe**               |
 
 **Conclusão Fase 0:** `C:\HC Quality` **não** é, neste momento, a raiz de um vault Obsidian (ausência de `.obsidian/`).
 
@@ -41,10 +41,10 @@ Um diretório é a **raiz de um vault Obsidian** quando contém a pasta oculta *
 
 Foi localizada **uma** pasta com `.obsidian/` usada anteriormente no contexto HC Quality:
 
-| Campo | Valor |
-|-------|--------|
-| Caminho raiz candidato | `C:\Users\labcl\Obsidian_Brain` |
-| Evidência | Presença de `.obsidian\` (ex.: `app.json`, `workspace.json`, `community-plugins.json`, plugins) |
+| Campo                  | Valor                                                                                           |
+| ---------------------- | ----------------------------------------------------------------------------------------------- |
+| Caminho raiz candidato | `C:\Users\labcl\Obsidian_Brain`                                                                 |
+| Evidência              | Presença de `.obsidian\` (ex.: `app.json`, `workspace.json`, `community-plugins.json`, plugins) |
 
 **Esta Fase 0 não define** esse caminho como “oficial” para a missão — apenas registra achado para **sua aprovação** na próxima etapa: ou o vault da missão é `Obsidian_Brain`, ou você inicializa vault em `C:\HC Quality`, ou indica outro caminho.
 

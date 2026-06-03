@@ -26,7 +26,7 @@ if (!admin.apps.length) {
 describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
   const mockEntries = (
     count: number,
-    overrides?: Array<Partial<QualidadeAuditEntry>>
+    overrides?: Array<Partial<QualidadeAuditEntry>>,
   ): QualidadeAuditEntry[] => {
     const entries: QualidadeAuditEntry[] = [];
     for (let i = 0; i < count; i++) {
@@ -39,7 +39,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
         operatorId: 'user-001',
         payload: {},
         timestamp: admin.firestore.Timestamp.fromDate(
-          new Date(Date.now() - (count - i) * 3600000)  // Spread over hours
+          new Date(Date.now() - (count - i) * 3600000), // Spread over hours
         ),
         deletadoEm: null,
         previousHash: null,
@@ -60,7 +60,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
     expect(baseline.totalEntries).toBe(0);
     expect(baseline.hourlyPattern.length).toBe(24);
     expect(baseline.hourlyPattern.every((p) => Math.abs(p - 1 / 24) < 0.001)).toBe(true);
-    expect(baseline.entropyScore).toBeCloseTo(1.0);  // Uniform = max entropy
+    expect(baseline.entropyScore).toBeCloseTo(1.0); // Uniform = max entropy
   });
 
   it('should aggregate operation counts correctly', () => {
@@ -69,13 +69,13 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
     const baseline = computeBaseline(entries);
 
     expect(baseline.totalEntries).toBe(15);
-    expect(baseline.operationCounts['create']).toBe(5);  // 15/3
+    expect(baseline.operationCounts['create']).toBe(5); // 15/3
     expect(baseline.operationCounts['update']).toBe(5);
     expect(baseline.operationCounts['delete']).toBe(5);
   });
 
   it('should normalize module frequency to sum=1', () => {
-    const entries = mockEntries(20);  // 10 capa, 10 analise
+    const entries = mockEntries(20); // 10 capa, 10 analise
 
     const baseline = computeBaseline(entries);
 
@@ -86,7 +86,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
   });
 
   it('should build hourly pattern distribution', () => {
-    const entries = mockEntries(24);  // 1 per hour
+    const entries = mockEntries(24); // 1 per hour
 
     const baseline = computeBaseline(entries);
 
@@ -112,7 +112,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
         operatorId: 'user-001',
         payload: {},
         timestamp: admin.firestore.Timestamp.fromDate(
-          new Date(Date.now() - (i % 2) * 3600000)  // Only 2 distinct hours
+          new Date(Date.now() - (i % 2) * 3600000), // Only 2 distinct hours
         ),
         deletadoEm: null,
         previousHash: null,
@@ -133,7 +133,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
     // Score an entry with a rare operation
     const rareEntry: QualidadeAuditEntry = {
       labId: 'lab-test',
-      operation: 'export',  // Not in baseline
+      operation: 'export', // Not in baseline
       modulo: 'capa',
       acao: 'audit',
       resultado: 'sucesso',
@@ -147,7 +147,7 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
     };
 
     const score = normalizeBaseline(baseline, rareEntry);
-    expect(score).toBeGreaterThan(0.3);  // Rare operation should score high
+    expect(score).toBeGreaterThan(0.3); // Rare operation should score high
   });
 
   it('should return 0 score when no baseline entries exist', () => {
@@ -162,6 +162,6 @@ describe('normalizeBaseline — Phase 7 Wave 1 (SA-06)', () => {
     const entry = mockEntries(1)[0];
     const score = normalizeBaseline(baseline, entry);
 
-    expect(score).toBe(0);  // No baseline data → assume normal
+    expect(score).toBe(0); // No baseline data → assume normal
   });
 });

@@ -196,11 +196,7 @@ export function ImportTreinamentosModal({ onClose, onImported }: ImportTreinamen
 
         <div className="flex-1 overflow-y-auto px-6 py-5">
           {phase.kind === 'idle' && (
-            <IdleState
-              fileInputRef={fileInputRef}
-              onDrop={handleDrop}
-              onPick={handleFilePick}
-            />
+            <IdleState fileInputRef={fileInputRef} onDrop={handleDrop} onPick={handleFilePick} />
           )}
 
           {phase.kind === 'parsing' && (
@@ -321,23 +317,17 @@ function IdleState({ fileInputRef, onDrop, onPick }: IdleStateProps) {
       <div className="rounded-md border border-slate-800 bg-slate-900/40 p-3 text-xs text-slate-400">
         <p className="mb-1 font-medium text-slate-300">Formato esperado:</p>
         <p>
-          9 colunas — Título, Tema, Carga (h), Modalidade, Unidade, Responsável,
-          Periodicidade, Ativo, Datas Planejadas. A coluna "Datas Planejadas" é
-          opcional (DD/MM/AAAA separadas por <code>;</code>) e cria execuções
-          no cronograma. A aba "Instruções" do modelo lista os valores aceitos.
+          9 colunas — Título, Tema, Carga (h), Modalidade, Unidade, Responsável, Periodicidade,
+          Ativo, Datas Planejadas. A coluna "Datas Planejadas" é opcional (DD/MM/AAAA separadas por{' '}
+          <code>;</code>) e cria execuções no cronograma. A aba "Instruções" do modelo lista os
+          valores aceitos.
         </p>
       </div>
     </div>
   );
 }
 
-function PreviewState({
-  result,
-  fileName,
-}: {
-  result: TreinamentoParseResult;
-  fileName: string;
-}) {
+function PreviewState({ result, fileName }: { result: TreinamentoParseResult; fileName: string }) {
   const hasErrors = result.errors.length > 0;
   const totalExecucoes = result.ok.reduce((sum, r) => sum + r.datasPlanejadas.length, 0);
   return (
@@ -370,7 +360,8 @@ function PreviewState({
             ))}
           </ul>
           <p className="text-xs text-slate-400">
-            Corrija o arquivo e envie novamente, ou importe apenas as linhas válidas (os erros serão ignorados).
+            Corrija o arquivo e envie novamente, ou importe apenas as linhas válidas (os erros serão
+            ignorados).
           </p>
         </div>
       )}
@@ -447,7 +438,9 @@ function DoneState({ state }: { state: Extract<Phase, { kind: 'done' }> }) {
       {state.errors.length > 0 && (
         <ul className="max-h-40 overflow-y-auto rounded-md border border-red-500/30 bg-red-500/5 p-3 text-xs text-red-200">
           {state.errors.map((e, i) => (
-            <li key={i} className="py-0.5">{e}</li>
+            <li key={i} className="py-0.5">
+              {e}
+            </li>
           ))}
         </ul>
       )}
@@ -465,9 +458,7 @@ function Stat({
   tone: 'slate' | 'emerald' | 'red';
 }) {
   const text =
-    tone === 'emerald' ? 'text-emerald-300'
-      : tone === 'red' ? 'text-red-300'
-      : 'text-slate-200';
+    tone === 'emerald' ? 'text-emerald-300' : tone === 'red' ? 'text-red-300' : 'text-slate-200';
   return (
     <div className="flex flex-col gap-1 rounded-md border border-slate-800 bg-slate-900/40 px-3 py-2">
       <span className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">
@@ -477,4 +468,3 @@ function Stat({
     </div>
   );
 }
-

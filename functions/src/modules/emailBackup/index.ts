@@ -199,9 +199,7 @@ async function processLabBackup(
   return { sent: true };
 }
 
-function mapOperacionalToSubject(
-  status: OperacionalStatus,
-): 'critico' | 'atencao' | null {
+function mapOperacionalToSubject(status: OperacionalStatus): 'critico' | 'atencao' | null {
   if (status === 'critico') return 'critico';
   if (status === 'atencao') return 'atencao';
   return null;

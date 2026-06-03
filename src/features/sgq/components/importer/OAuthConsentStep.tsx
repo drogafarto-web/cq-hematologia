@@ -12,10 +12,7 @@ export interface OAuthConsentStepProps {
   onNext: () => void;
 }
 
-export function OAuthConsentStep({
-  labId,
-  onNext,
-}: OAuthConsentStepProps) {
+export function OAuthConsentStep({ labId, onNext }: OAuthConsentStepProps) {
   const handleAuthorize = () => {
     const authUrl = initiateOAuthFlow(labId);
     window.location.href = authUrl;
@@ -24,9 +21,7 @@ export function OAuthConsentStep({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium text-white mb-2">
-          Autorizar acesso ao Google Drive
-        </h3>
+        <h3 className="text-base font-medium text-white mb-2">Autorizar acesso ao Google Drive</h3>
         <p className="text-sm text-neutral-400">
           Para gerenciar documentos, precisamos acessar seu Google Drive e Google Docs.
         </p>
@@ -56,8 +51,8 @@ export function OAuthConsentStep({
 
       <div className="bg-blue-900/20 border border-blue-900/50 rounded p-4">
         <p className="text-xs text-blue-300">
-          Sua autenticação é segura. Usamos OAuth 2.0 com tokens armazenados encriptados.
-          O acesso pode ser revogado a qualquer momento nas configurações do Google.
+          Sua autenticação é segura. Usamos OAuth 2.0 com tokens armazenados encriptados. O acesso
+          pode ser revogado a qualquer momento nas configurações do Google.
         </p>
       </div>
 

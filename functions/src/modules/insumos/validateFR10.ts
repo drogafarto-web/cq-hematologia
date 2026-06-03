@@ -223,10 +223,12 @@ interface EmissionDoc {
 }
 
 function renderFound(data: EmissionDoc): string {
-  const cnpj = data.labCnpj ? `<div class="field">
+  const cnpj = data.labCnpj
+    ? `<div class="field">
     <div class="field-label">CNPJ</div>
     <div class="field-value">${escapeHtml(data.labCnpj)}</div>
-  </div>` : '';
+  </div>`
+    : '';
 
   return htmlShell(
     `FR-10 válido — ${data.labName}`,
@@ -318,9 +320,10 @@ export const validateFR10 = onRequest(
   async (req, res) => {
     // Apenas GET — evita side effects em POST/PUT.
     if (req.method !== 'GET') {
-      res.status(405).type('text/html; charset=utf-8').send(
-        renderBadRequest('Método HTTP não permitido — use GET.'),
-      );
+      res
+        .status(405)
+        .type('text/html; charset=utf-8')
+        .send(renderBadRequest('Método HTTP não permitido — use GET.'));
       return;
     }
 
@@ -328,26 +331,29 @@ export const validateFR10 = onRequest(
     const hash = typeof req.query.hash === 'string' ? req.query.hash : '';
 
     if (!lab || !hash) {
-      res.status(400).type('text/html; charset=utf-8').send(
-        renderBadRequest('Parâmetros obrigatórios: lab e hash.'),
-      );
+      res
+        .status(400)
+        .type('text/html; charset=utf-8')
+        .send(renderBadRequest('Parâmetros obrigatórios: lab e hash.'));
       return;
     }
 
     // Guard de formato — SHA-256 hex tem 64 caracteres, só [0-9a-f].
     if (!/^[0-9a-f]{64}$/.test(hash)) {
-      res.status(400).type('text/html; charset=utf-8').send(
-        renderBadRequest('Hash inválido — deve ser SHA-256 hex de 64 caracteres.'),
-      );
+      res
+        .status(400)
+        .type('text/html; charset=utf-8')
+        .send(renderBadRequest('Hash inválido — deve ser SHA-256 hex de 64 caracteres.'));
       return;
     }
 
     // Guard de labId — alfanumérico + hífen/underscore, máx 100 chars.
     // Evita path traversal via `../` e injection via caracteres especiais.
     if (!/^[a-zA-Z0-9_-]{1,100}$/.test(lab)) {
-      res.status(400).type('text/html; charset=utf-8').send(
-        renderBadRequest('Identificador de laboratório inválido.'),
-      );
+      res
+        .status(400)
+        .type('text/html; charset=utf-8')
+        .send(renderBadRequest('Identificador de laboratório inválido.'));
       return;
     }
 
@@ -374,9 +380,10 @@ export const validateFR10 = onRequest(
         hashPrefix: hash.slice(0, 12),
         err: err instanceof Error ? err.message : String(err),
       });
-      res.status(500).type('text/html; charset=utf-8').send(
-        renderBadRequest('Erro interno ao consultar a base de dados. Tente novamente.'),
-      );
+      res
+        .status(500)
+        .type('text/html; charset=utf-8')
+        .send(renderBadRequest('Erro interno ao consultar a base de dados. Tente novamente.'));
     }
   },
 );

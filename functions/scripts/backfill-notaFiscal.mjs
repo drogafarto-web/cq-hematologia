@@ -3,12 +3,16 @@ import admin from 'firebase-admin';
 admin.initializeApp({ projectId: 'hmatologia2' });
 const db = admin.firestore();
 
-const labId = process.argv.find(a => a.startsWith('--labId='))?.split('=')[1];
-if (!labId) { console.error('Usage: node backfill-notaFiscal.mjs --labId=<lab>'); process.exit(1); }
+const labId = process.argv.find((a) => a.startsWith('--labId='))?.split('=')[1];
+if (!labId) {
+  console.error('Usage: node backfill-notaFiscal.mjs --labId=<lab>');
+  process.exit(1);
+}
 
 async function backfill() {
   const insumos = await db.collection(`labs/${labId}/insumos`).get();
-  let updated = 0, skipped = 0;
+  let updated = 0,
+    skipped = 0;
 
   // Create catch-all Fornecedor
   const forn = await db.collection(`labs/${labId}/fornecedores`).add({
@@ -31,7 +35,10 @@ async function backfill() {
 
   // Backfill Insumos
   for (const doc of insumos.docs) {
-    if (doc.data().notaFiscalId) { skipped++; continue; }
+    if (doc.data().notaFiscalId) {
+      skipped++;
+      continue;
+    }
     await doc.ref.update({
       notaFiscalId: nf.id,
       fornecedorId: forn.id,
@@ -45,4 +52,7 @@ async function backfill() {
   process.exit(0);
 }
 
-backfill().catch(e => { console.error(e); process.exit(1); });
+backfill().catch((e) => {
+  console.error(e);
+  process.exit(1);
+});

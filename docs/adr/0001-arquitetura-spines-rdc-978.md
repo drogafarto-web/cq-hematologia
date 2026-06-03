@@ -46,17 +46,17 @@ Adotar **monolito modular** com três princípios não-negociáveis:
 
 Existe um conjunto reduzido de entidades canônicas com **dono único** e **referência por id** em todos os módulos consumidores. As 8 spines, suas coleções e seus donos estão definidas em [reference/compliance-spines.md (skill)](../../../Users/labcl/.claude/skills/hc-quality/reference/compliance-spines.md):
 
-| Spine | Dono | Coleção |
-|---|---|---|
-| Pessoa/Operador | Gestão de Pessoas | `/users` + `/labs/{labId}/members` + `/labs/{labId}/qualificacoes` |
-| Fornecedor | Compras | `/labs/{labId}/fornecedores` |
-| Nota Fiscal | Compras | `/labs/{labId}/notas-fiscais` |
-| Lote rastreável | Estoque | `/labs/{labId}/insumos` |
-| Movimentação assinada | infra | `/labs/{labId}/insumo-movimentacoes` |
-| Equipamento | Equipamentos | `/labs/{labId}/equipamentos` |
-| POP / documento vigente | Documentos | `/labs/{labId}/pops` |
-| Não-conformidade (NC) | Qualidade | `/labs/{labId}/nao-conformidades` |
-| Audit log assinado | infra | `/labs/{labId}/ciq-audit` + `/auditLogs` |
+| Spine                   | Dono              | Coleção                                                            |
+| ----------------------- | ----------------- | ------------------------------------------------------------------ |
+| Pessoa/Operador         | Gestão de Pessoas | `/users` + `/labs/{labId}/members` + `/labs/{labId}/qualificacoes` |
+| Fornecedor              | Compras           | `/labs/{labId}/fornecedores`                                       |
+| Nota Fiscal             | Compras           | `/labs/{labId}/notas-fiscais`                                      |
+| Lote rastreável         | Estoque           | `/labs/{labId}/insumos`                                            |
+| Movimentação assinada   | infra             | `/labs/{labId}/insumo-movimentacoes`                               |
+| Equipamento             | Equipamentos      | `/labs/{labId}/equipamentos`                                       |
+| POP / documento vigente | Documentos        | `/labs/{labId}/pops`                                               |
+| Não-conformidade (NC)   | Qualidade         | `/labs/{labId}/nao-conformidades`                                  |
+| Audit log assinado      | infra             | `/labs/{labId}/ciq-audit` + `/auditLogs`                           |
 
 **Regra:** consumidor referencia spine por `id`. Snapshot de campos só com justificativa explícita de invariância histórica (ex: nome do reagente no laudo do passado deve permanecer mesmo após renomeação do produto). Snapshot sem justificativa documentada é bug.
 
@@ -67,6 +67,7 @@ Existe um conjunto reduzido de entidades canônicas com **dono único** e **refe
 A `chain-hash tamper-evident` que já protege `/insumo-movimentacoes` é o padrão **universal** para todo log sensível: qualificações de operador, calibrações de equipamento, transições de NC, aprovações de POP, liberação de laudos.
 
 Implementação canônica:
+
 1. Cliente cria doc com `status: 'pending'` + payload.
 2. Cloud Function trigger calcula `prev_hash` da chain, aplica HMAC com secret rotativo, sela como `status: 'sealed'` + `chainHash`.
 3. Rules permitem `pending → sealed` apenas via service (sem usuário direto).
@@ -85,6 +86,7 @@ Um único deploy, uma única base Firestore, um único conjunto de Cloud Functio
 Cada módulo como serviço independente com seu Firestore/banco e API própria.
 
 **Por que rejeitada:**
+
 - Lab de pequeno-médio porte não comporta o overhead operacional (cada serviço precisa de monitoring, deploy pipeline, secrets, oncall).
 - Auditoria regulatória precisa ver **uma cadeia única** de eventos — distribuir entre serviços fragmenta a chain HMAC e enfraquece a evidência de imutabilidade.
 - Time de 1 pessoa não escala para N serviços.
@@ -94,6 +96,7 @@ Cada módulo como serviço independente com seu Firestore/banco e API própria.
 Cada módulo define suas estruturas; integração via cópia de campos.
 
 **Por que rejeitada:**
+
 - Não atende RDC §rastreabilidade — não consegue responder "todos os ensaios com lote X em 2026".
 - Diverge naming/casing entre módulos; relatórios consolidados ficam impossíveis sem ETL.
 - Custo de refatoração cresce super-linearmente com o número de módulos. Adiar a decisão a torna inviável.
@@ -103,6 +106,7 @@ Cada módulo define suas estruturas; integração via cópia de campos.
 Estado derivado 100% de eventos imutáveis; nenhuma "tabela de estado" mutável.
 
 **Por que não agora:**
+
 - Curva de implementação alta vs benefício marginal sobre o padrão "pending → sealed + estado projetado" já validado.
 - Reavaliar quando entrar módulo de Indicadores: se a complexidade analítica exigir replay completo, vale subir o nível.
 

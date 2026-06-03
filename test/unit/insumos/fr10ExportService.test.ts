@@ -4,7 +4,10 @@ import {
   canonicalFR10,
   computeFR10Hash,
 } from '../../../src/features/insumos/services/fr10ExportService';
-import type { FR10Payload, FR10Row } from '../../../src/features/insumos/services/fr10ExportService';
+import type {
+  FR10Payload,
+  FR10Row,
+} from '../../../src/features/insumos/services/fr10ExportService';
 
 // ─── Fixtures ────────────────────────────────────────────────────────────────
 
@@ -52,12 +55,10 @@ describe('canonicalFR10', () => {
 
   it('diverge quando qualquer campo de linha muda', () => {
     const base = canonicalFR10(basePayload());
-    expect(
-      canonicalFR10(basePayload({ rows: [baseRow({ lote: 'L999' })] })),
-    ).not.toBe(base);
-    expect(
-      canonicalFR10(basePayload({ rows: [baseRow({ operadorAbertura: 'outro' })] })),
-    ).not.toBe(base);
+    expect(canonicalFR10(basePayload({ rows: [baseRow({ lote: 'L999' })] }))).not.toBe(base);
+    expect(canonicalFR10(basePayload({ rows: [baseRow({ operadorAbertura: 'outro' })] }))).not.toBe(
+      base,
+    );
     expect(
       canonicalFR10(basePayload({ rows: [baseRow({ dataAbertura: new Date('2026-04-02') })] })),
     ).not.toBe(base);

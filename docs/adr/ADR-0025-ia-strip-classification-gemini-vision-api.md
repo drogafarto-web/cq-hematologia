@@ -20,6 +20,7 @@ v1.3 implemented Gemini Vision for H550 analyzer OCR (analyte result parsing fro
 **Technical challenge:** Gemini Vision API supports image-to-text inference; how to structure prompts for reliable multi-analyte extraction + error handling?
 
 **Business constraints:**
+
 - **Cost:** Gemini 2.5 Flash = $0.075 / 1M input tokens (cheap); fine-tuned model = $5–20K setup + $0.50–1.00 per inference (expensive).
 - **Latency:** Gemini inference ~2–5 sec per image; acceptable for batch processing, not real-time mobile.
 - **Accuracy:** Gemini ~95% accuracy on trained OCR tasks; custom ML = 98%+ but requires labeled dataset (10K+ images for training).
@@ -109,6 +110,7 @@ const UrinalysisResultSchema = z.object({
 #### 3. Gemini Prompt Templates (per equipment)
 
 **H550 Hematology:**
+
 ```
 You are a laboratory analyzer OCR system. Analyze the image of a Sysmex H550 hematology analyzer output screen and extract the following parameters:
 
@@ -137,6 +139,7 @@ If any field is unclear, set value to null and confidence to 0.
 ```
 
 **Coagulation:**
+
 ```
 You are a laboratory analyzer OCR system. Analyze the image of a coagulation analyzer output and extract:
 1. PT (Prothrombin Time) in seconds
@@ -154,6 +157,7 @@ Format as JSON only:
 ```
 
 **Immunology (Serology Strip):**
+
 ```
 Analyze the image of a serology/immunology test strip. Identify:
 1. Test name (e.g., "HIV", "Syphilis", "Hepatitis B")
@@ -170,6 +174,7 @@ Format as JSON:
 ```
 
 **Urinalysis (Dipstick):**
+
 ```
 Analyze a urinalysis dipstick image. Extract color/intensity for each parameter:
 1. Glucose: Negative, Trace, 1+, 2+, 3+, 4+
@@ -236,14 +241,12 @@ export const classifyAnalyzerImage = onCall(
 
     // 7. Check confidence scores; flag low-confidence fields for manual review
     const requiresManualReview = Object.entries(validatedResult.confidenceScores).some(
-      ([field, confidence]) => confidence < 80
+      ([field, confidence]) => confidence < 80,
     );
 
     // 8. Store result in Firestore
     const resultId = admin.firestore().collection('_').doc().id;
-    const docRef = admin.firestore()
-      .collection(`/labs/${labId}/ia-ocr-results`)
-      .doc(resultId);
+    const docRef = admin.firestore().collection(`/labs/${labId}/ia-ocr-results`).doc(resultId);
 
     await docRef.set({
       id: resultId,
@@ -277,13 +280,14 @@ export const classifyAnalyzerImage = onCall(
       requiresManualReview,
       confidenceScores: validatedResult.confidenceScores,
     };
-  }
+  },
 );
 ```
 
 #### 5. Manual Review & Integration
 
 If `requiresManualReview === true`:
+
 - Flag result in RT dashboard: "Review OCR result for <equipment> — confidence <80%".
 - RT can accept (trust Gemini) or reject + manually re-enter values.
 - If rejected: store feedback `{ resultId, correctedValues, fieldsFlagged }` → future Gemini fine-tuning dataset.
@@ -303,21 +307,25 @@ If `requiresManualReview === true`:
 ## Alternatives Considered
 
 ### A. Fine-tuned custom ML model (on-premise or vendor)
+
 **Pros:** 98%+ accuracy; no vendor dependency; full control.  
 **Cons:** 4–6 weeks to build; requires 10K+ labeled images per equipment; $5–20K setup cost.  
 **Rejected:** v1.4 timeline can't absorb 6 weeks. Revisit in v1.5 if Gemini accuracy gap grows.
 
 ### B. Vendor SDK APIs (Sysmex, Mindray, etc.)
+
 **Pros:** vendor-backed accuracy; no OCR needed (if analyzer exports structured data).  
 **Cons:** Riopomba's H550 outputs PDF/image only (no API available); other equipment also image-only.  
 **Rejected:** doesn't work for existing analyzer fleet.
 
 ### C. OCR libraries (Tesseract, EasyOCR)
+
 **Pros:** open-source; no cloud dependency.  
 **Cons:** accuracy <80% on medical analyzer displays (poor at small fonts, color-coded values).  
 **Rejected:** insufficient accuracy for critical lab values.
 
 ### D. Hybrid: Gemini + human review (no automation)
+
 **Pros:** full manual control; zero false positives.  
 **Cons:** no speedup (still manual entry per result); defeats purpose of Phase 11 ("IA integration").  
 **Rejected:** defeats IA benefit; v1.4 still ships "broken OCR".

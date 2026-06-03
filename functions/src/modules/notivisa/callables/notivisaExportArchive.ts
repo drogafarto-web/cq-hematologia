@@ -34,13 +34,7 @@ const notivisaExportArchiveOutputSchema = z.object({
 
 const notivisaExportArchiveErrorSchema = z.object({
   ok: z.literal(false),
-  code: z.enum([
-    'UNAUTHORIZED',
-    'LAB_NOT_FOUND',
-    'NO_DATA',
-    'EXPORT_FAILED',
-    'INTERNAL_ERROR',
-  ]),
+  code: z.enum(['UNAUTHORIZED', 'LAB_NOT_FOUND', 'NO_DATA', 'EXPORT_FAILED', 'INTERNAL_ERROR']),
   message: z.string(),
 });
 
@@ -82,7 +76,7 @@ function generateCSV(entries: NotivisaOutboxEntry[]): string {
     'createdAt',
   ];
 
-  const rows = entries.map(entry => [
+  const rows = entries.map((entry) => [
     entry.id,
     entry.diseaseCode,
     entry.patientData?.name_anon || 'N/A',
@@ -96,7 +90,7 @@ function generateCSV(entries: NotivisaOutboxEntry[]): string {
 
   const csvContent = [
     headers.join(','),
-    ...rows.map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
+    ...rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')),
   ].join('\n');
 
   return csvContent;
@@ -106,7 +100,7 @@ function generateCSV(entries: NotivisaOutboxEntry[]): string {
  * Format outbox entries as JSON
  */
 function generateJSON(entries: NotivisaOutboxEntry[]): string {
-  const exported = entries.map(entry => ({
+  const exported = entries.map((entry) => ({
     id: entry.id,
     diseaseCode: entry.diseaseCode,
     patientAnon: entry.patientData?.name_anon || 'N/A',
@@ -131,10 +125,7 @@ export const notivisaExportArchive = onCall(
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = notivisaExportArchiveInputSchema.parse(request.data);
@@ -144,12 +135,7 @@ export const notivisaExportArchive = onCall(
       const db = admin.firestore();
 
       // ========== 2. Authorization: auditor only ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         return {
@@ -190,7 +176,7 @@ export const notivisaExportArchive = onCall(
         };
       }
 
-      const entries = acknowledgedEntries.docs.map(doc => doc.data() as NotivisaOutboxEntry);
+      const entries = acknowledgedEntries.docs.map((doc) => doc.data() as NotivisaOutboxEntry);
 
       // ========== 4. Generate export files ==========
       const formats: Array<'csv' | 'json'> = [];
@@ -208,9 +194,7 @@ export const notivisaExportArchive = onCall(
       }
 
       // ========== 5. Store archive entry (immutable) ==========
-      const archivesRef = db
-        .collection(`labs/${labId}/notivisa-outbox`)
-        .doc('_archives');
+      const archivesRef = db.collection(`labs/${labId}/notivisa-outbox`).doc('_archives');
 
       // Ensure archives parent exists
       await archivesRef.set({ _type: 'archives-parent' }, { merge: true });
@@ -253,16 +237,19 @@ export const notivisaExportArchive = onCall(
       }
 
       // ========== 7. Create audit log entry ==========
-      await archiveDocRef.collection('auditLog').doc(`${now}`).set({
-        action: 'CREATED',
-        operatorId: uid,
-        ts: now,
-        details: {
-          recordCount: entries.length,
-          formats,
-          daysBack,
-        },
-      });
+      await archiveDocRef
+        .collection('auditLog')
+        .doc(`${now}`)
+        .set({
+          action: 'CREATED',
+          operatorId: uid,
+          ts: now,
+          details: {
+            recordCount: entries.length,
+            formats,
+            daysBack,
+          },
+        });
 
       functions.logger.info(`[NOTIVISA] Archive created: ${archiveId}`, {
         labId,
@@ -299,5 +286,5 @@ export const notivisaExportArchive = onCall(
         message: error.message || 'Internal error during export',
       };
     }
-  }
+  },
 );

@@ -8,13 +8,13 @@
 
 Aprenda esses 5 termos uma vez e já era:
 
-| Palavra | O que significa, sem firula |
-|---|---|
-| **Sangue controle** | Frasquinho de sangue "fake" com valores conhecidos. A gente passa todo dia pra ver se a máquina tá medindo certo. Se ela acerta no controle, dá pra confiar no sangue do paciente. |
-| **Lote** | Cada caixa nova de sangue controle vem com um número (ex.: "Lote 12345"). É tipo o número de série. Cada lote tem valores certos diferentes. |
-| **Bula** | O papelzinho que vem dentro da caixa. Diz: "neste lote, hemoglobina deve dar entre 12 e 14, eritrócitos entre 4 e 5, etc." Esses números são a **régua** que usamos pra julgar a corrida. |
-| **Corrida** | Cada vez que você passa o controle na máquina = uma corrida. Toda corrida vira um pontinho no gráfico. |
-| **Westgard** | Regrinhas que olham os pontinhos e falam "tá tudo bem" ou "tem coisa errada". O sistema aplica sozinho. Você só lê o resultado. |
+| Palavra             | O que significa, sem firula                                                                                                                                                               |
+| ------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Sangue controle** | Frasquinho de sangue "fake" com valores conhecidos. A gente passa todo dia pra ver se a máquina tá medindo certo. Se ela acerta no controle, dá pra confiar no sangue do paciente.        |
+| **Lote**            | Cada caixa nova de sangue controle vem com um número (ex.: "Lote 12345"). É tipo o número de série. Cada lote tem valores certos diferentes.                                              |
+| **Bula**            | O papelzinho que vem dentro da caixa. Diz: "neste lote, hemoglobina deve dar entre 12 e 14, eritrócitos entre 4 e 5, etc." Esses números são a **régua** que usamos pra julgar a corrida. |
+| **Corrida**         | Cada vez que você passa o controle na máquina = uma corrida. Toda corrida vira um pontinho no gráfico.                                                                                    |
+| **Westgard**        | Regrinhas que olham os pontinhos e falam "tá tudo bem" ou "tem coisa errada". O sistema aplica sozinho. Você só lê o resultado.                                                           |
 
 Cores que vai aparecer na tela:
 
@@ -167,10 +167,10 @@ O frasco vazia. Você não vai mais passar corrida nele. Mas **não joga fora do
 
 São duas coisas diferentes. Erra essa e estraga seu histórico.
 
-| Ação | Quando usar | O que faz |
-|---|---|---|
-| **Encerrar** | Frasco acabou, **fim normal de vida útil**. Você usou tudo direitinho. | Marca o lote como histórico. Mantém todas as corridas, todo o gráfico. Não pode passar mais corrida nele. ✅ Esse é o caminho normal. |
-| **Descartar** | Frasco contaminou, vazou, ficou fora da geladeira a noite toda, ou bateu coliforme — **algo deu errado**. | Marca o lote como descartado por problema. Vira evidência num eventual relatório de não-conformidade. |
+| Ação          | Quando usar                                                                                               | O que faz                                                                                                                             |
+| ------------- | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| **Encerrar**  | Frasco acabou, **fim normal de vida útil**. Você usou tudo direitinho.                                    | Marca o lote como histórico. Mantém todas as corridas, todo o gráfico. Não pode passar mais corrida nele. ✅ Esse é o caminho normal. |
+| **Descartar** | Frasco contaminou, vazou, ficou fora da geladeira a noite toda, ou bateu coliforme — **algo deu errado**. | Marca o lote como descartado por problema. Vira evidência num eventual relatório de não-conformidade.                                 |
 
 **Regra simples**: se acabou normal → **Encerrar**. Se aconteceu acidente → **Descartar** (e provavelmente abre Ação Corretiva também).
 
@@ -179,7 +179,7 @@ São duas coisas diferentes. Erra essa e estraga seu histórico.
 1. Abre o sistema → módulo onde o lote vive (Hematologia ou aba Insumos).
 2. Encontra o **card do lote** que acabou. Vai estar com status **"ativo"** ou **"em uso"**.
 3. No card, procura o botão **"Encerrar"**.
-   - Tooltip que aparece ao passar o mouse: *"Encerrar lote — fim de vida útil, mantém no histórico"*
+   - Tooltip que aparece ao passar o mouse: _"Encerrar lote — fim de vida útil, mantém no histórico"_
 4. Clica. Pronto.
 
 O sistema:
@@ -247,7 +247,8 @@ Pare imediatamente e chame o RT (ou suporte técnico) quando:
 
 Se algo gritar vermelho ou der erro estranho — **para, anota, chama o RT**. Nunca apague, nunca refaça pra mascarar.
 
-
 ---
+
 ## 🔗 Conexões Centrais
+
 - [[HC_Quality]]

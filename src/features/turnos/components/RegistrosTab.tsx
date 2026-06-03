@@ -31,11 +31,20 @@ export function RegistrosTab() {
         </p>
         <button
           type="button"
-          onClick={() => { setSelectedTurno(undefined); setShowForm(true); }}
+          onClick={() => {
+            setSelectedTurno(undefined);
+            setShowForm(true);
+          }}
           className="inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium transition-colors"
           style={{ fontSize: '12px', background: 'var(--accent-600, #2563EB)', color: '#fff' }}
         >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Novo Turno
@@ -69,7 +78,11 @@ export function RegistrosTab() {
             strokeWidth={1}
             style={{ color: 'var(--text-faint, #64748B)' }}
           >
-            <path strokeLinecap="round" strokeLinejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
           </svg>
           <p style={{ fontSize: '13px', color: 'var(--text-muted, #94A3B8)' }}>
             Nenhum turno registrado ainda.
@@ -88,7 +101,9 @@ export function RegistrosTab() {
         >
           <table className="w-full">
             <thead>
-              <tr style={{ borderBottom: '1px solid var(--border-hairline, rgba(255,255,255,0.04))' }}>
+              <tr
+                style={{ borderBottom: '1px solid var(--border-hairline, rgba(255,255,255,0.04))' }}
+              >
                 {['Data', 'Período', 'Supervisor', 'CRBM', 'Status'].map((col) => (
                   <th
                     key={col}
@@ -111,11 +126,25 @@ export function RegistrosTab() {
                   key={turno.id}
                   onClick={() => handleEdit(turno)}
                   className="cursor-pointer transition-colors"
-                  style={{ borderBottom: '1px solid var(--border-hairline, rgba(255,255,255,0.04))' }}
-                  onMouseEnter={(e) => { (e.currentTarget as HTMLElement).style.background = 'rgba(37,99,235,0.05)'; }}
-                  onMouseLeave={(e) => { (e.currentTarget as HTMLElement).style.background = ''; }}
+                  style={{
+                    borderBottom: '1px solid var(--border-hairline, rgba(255,255,255,0.04))',
+                  }}
+                  onMouseEnter={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = 'rgba(37,99,235,0.05)';
+                  }}
+                  onMouseLeave={(e) => {
+                    (e.currentTarget as HTMLElement).style.background = '';
+                  }}
                 >
-                  <td className="px-4 py-2.5" style={{ fontSize: '13px', fontFamily: 'JetBrains Mono, monospace', fontWeight: 500, color: 'var(--text-body, rgba(255,255,255,0.82))' }}>
+                  <td
+                    className="px-4 py-2.5"
+                    style={{
+                      fontSize: '13px',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      fontWeight: 500,
+                      color: 'var(--text-body, rgba(255,255,255,0.82))',
+                    }}
+                  >
                     {turno.data}
                   </td>
                   <td className="px-4 py-2.5">
@@ -131,10 +160,20 @@ export function RegistrosTab() {
                       {PERIODO_LABELS[turno.periodo] ?? turno.periodo}
                     </span>
                   </td>
-                  <td className="px-4 py-2.5" style={{ fontSize: '13px', color: 'var(--text-body, rgba(255,255,255,0.82))' }}>
+                  <td
+                    className="px-4 py-2.5"
+                    style={{ fontSize: '13px', color: 'var(--text-body, rgba(255,255,255,0.82))' }}
+                  >
                     {turno.supervisorName}
                   </td>
-                  <td className="px-4 py-2.5" style={{ fontSize: '12px', fontFamily: 'JetBrains Mono, monospace', color: 'var(--text-muted, #94A3B8)' }}>
+                  <td
+                    className="px-4 py-2.5"
+                    style={{
+                      fontSize: '12px',
+                      fontFamily: 'JetBrains Mono, monospace',
+                      color: 'var(--text-muted, #94A3B8)',
+                    }}
+                  >
                     {turno.supervisorCRBM || '—'}
                   </td>
                   <td className="px-4 py-2.5">
@@ -143,13 +182,21 @@ export function RegistrosTab() {
                       style={{
                         fontSize: '11px',
                         fontWeight: 500,
-                        background: turno.inferred ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)',
-                        color: turno.inferred ? 'var(--warning-500, #F59E0B)' : 'var(--success-500, #10B981)',
+                        background: turno.inferred
+                          ? 'rgba(245,158,11,0.1)'
+                          : 'rgba(16,185,129,0.1)',
+                        color: turno.inferred
+                          ? 'var(--warning-500, #F59E0B)'
+                          : 'var(--success-500, #10B981)',
                       }}
                     >
                       <span
                         className="h-1.5 w-1.5 rounded-full"
-                        style={{ background: turno.inferred ? 'var(--warning-500, #F59E0B)' : 'var(--success-500, #10B981)' }}
+                        style={{
+                          background: turno.inferred
+                            ? 'var(--warning-500, #F59E0B)'
+                            : 'var(--success-500, #10B981)',
+                        }}
                       />
                       {turno.inferred ? 'Inferido' : 'Registrado'}
                     </span>
@@ -166,7 +213,12 @@ export function RegistrosTab() {
         <div
           className="fixed inset-0 z-50 flex items-center justify-center p-4"
           style={{ background: 'rgba(0,0,0,0.6)' }}
-          onClick={(e) => { if (e.target === e.currentTarget) { setShowForm(false); setSelectedTurno(undefined); } }}
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowForm(false);
+              setSelectedTurno(undefined);
+            }
+          }}
         >
           <div
             className="w-full max-w-md rounded-xl p-6 shadow-2xl max-h-[90vh] overflow-y-auto"
@@ -177,8 +229,14 @@ export function RegistrosTab() {
           >
             <TurnoForm
               turnoId={selectedTurno?.id}
-              onClose={() => { setShowForm(false); setSelectedTurno(undefined); }}
-              onSuccess={() => { setShowForm(false); setSelectedTurno(undefined); }}
+              onClose={() => {
+                setShowForm(false);
+                setSelectedTurno(undefined);
+              }}
+              onSuccess={() => {
+                setShowForm(false);
+                setSelectedTurno(undefined);
+              }}
             />
           </div>
         </div>

@@ -25,7 +25,9 @@ function CargoListItem({ cargo, onSelect }: CargoListItemProps): React.ReactElem
     >
       <div>
         <h3 className="font-semibold text-white">{cargo.titulo}</h3>
-        {cargo.reportaA && <p className="mt-1 text-xs text-white/60">Reports to: {cargo.reportaA}</p>}
+        {cargo.reportaA && (
+          <p className="mt-1 text-xs text-white/60">Reports to: {cargo.reportaA}</p>
+        )}
       </div>
 
       <p className="line-clamp-2 text-sm text-white/70">{cargo.descricao}</p>
@@ -46,7 +48,10 @@ interface CargoDetailProps {
 
 function CargoDetail({ cargo, onClose }: CargoDetailProps): React.ReactElement {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="max-h-[80vh] w-full max-w-2xl overflow-y-auto rounded-lg bg-[#1a1a1d] p-8"
         onClick={(e) => e.stopPropagation()}
@@ -55,7 +60,12 @@ function CargoDetail({ cargo, onClose }: CargoDetailProps): React.ReactElement {
           <h2 className="text-2xl font-bold text-white">{cargo.titulo}</h2>
           <button onClick={onClose} className="text-white/60 hover:text-white">
             <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -69,7 +79,9 @@ function CargoDetail({ cargo, onClose }: CargoDetailProps): React.ReactElement {
 
           {/* Responsibilities */}
           <div>
-            <h3 className="text-sm font-semibold uppercase text-white/40 mb-3">Responsabilidades</h3>
+            <h3 className="text-sm font-semibold uppercase text-white/40 mb-3">
+              Responsabilidades
+            </h3>
             <ul className="space-y-2">
               {cargo.responsabilidades.map((resp, i) => (
                 <li key={i} className="flex gap-3 text-white/80">
@@ -98,7 +110,9 @@ function CargoDetail({ cargo, onClose }: CargoDetailProps): React.ReactElement {
           {/* Certifications */}
           {cargo.certificacoes && cargo.certificacoes.length > 0 && (
             <div>
-              <h3 className="text-sm font-semibold uppercase text-white/40 mb-3">Certificações Requeridas</h3>
+              <h3 className="text-sm font-semibold uppercase text-white/40 mb-3">
+                Certificações Requeridas
+              </h3>
               <div className="flex flex-wrap gap-2">
                 {cargo.certificacoes.map((cert, i) => (
                   <span
@@ -163,7 +177,9 @@ export function CargoList({ cargos }: CargoListProps): React.ReactElement {
       )}
 
       {/* Detail Modal */}
-      {selectedCargo && <CargoDetail cargo={selectedCargo} onClose={() => setSelectedCargo(null)} />}
+      {selectedCargo && (
+        <CargoDetail cargo={selectedCargo} onClose={() => setSelectedCargo(null)} />
+      )}
     </div>
   );
 }

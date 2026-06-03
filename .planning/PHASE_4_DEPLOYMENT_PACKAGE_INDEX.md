@@ -14,13 +14,13 @@ This complete deployment package includes **4 runbooks + 5 monitoring specificat
 
 ### Core Documents
 
-| Document | Purpose | Owner | Time to Read |
-|----------|---------|-------|--------------|
-| **PHASE_4_DEPLOYMENT_RUNBOOK.md** | Step-by-step deployment execution | Incident Commander | 20 min |
-| **PHASE_4_FEATURE_FLAG_STRATEGY.md** | Gradual NOTIVISA rollout (0%→25%→50%→100%) | Alert Manager | 15 min |
-| **PHASE_4_MONITORING_DASHBOARD_SPECS.md** | 4 dashboards + 5 alert policies + 10 log sinks | Monitoring Lead | 25 min |
-| **PHASE_4_POST_DEPLOYMENT_VALIDATION.md** | Smoke tests + lab testing + auditor review | QA Lead + Lab Director | 30 min |
-| **PHASE_4_ROLLBACK_PROCEDURES.md** (existing) | Complete rollback decision trees + steps | On-Call Engineer | 15 min |
+| Document                                      | Purpose                                        | Owner                  | Time to Read |
+| --------------------------------------------- | ---------------------------------------------- | ---------------------- | ------------ |
+| **PHASE_4_DEPLOYMENT_RUNBOOK.md**             | Step-by-step deployment execution              | Incident Commander     | 20 min       |
+| **PHASE_4_FEATURE_FLAG_STRATEGY.md**          | Gradual NOTIVISA rollout (0%→25%→50%→100%)     | Alert Manager          | 15 min       |
+| **PHASE_4_MONITORING_DASHBOARD_SPECS.md**     | 4 dashboards + 5 alert policies + 10 log sinks | Monitoring Lead        | 25 min       |
+| **PHASE_4_POST_DEPLOYMENT_VALIDATION.md**     | Smoke tests + lab testing + auditor review     | QA Lead + Lab Director | 30 min       |
+| **PHASE_4_ROLLBACK_PROCEDURES.md** (existing) | Complete rollback decision trees + steps       | On-Call Engineer       | 15 min       |
 
 **Total Reading Time:** 105 minutes (1.75 hours)
 
@@ -109,11 +109,13 @@ This complete deployment package includes **4 runbooks + 5 monitoring specificat
 ```
 
 **How it works:**
+
 1. Client-side: Portal UI checks flag; if 0%, shows "Coming Soon"
 2. Server-side: `submitNotivisa` callable checks flag; returns error if not in rollout
 3. No code changes needed to disable — just update Firestore document
 
 **Timeline:**
+
 - May 20: Deploy with flag = 0% (code live, feature off)
 - May 22: Enable internal labs (whitelist)
 - May 24: 25% of production labs
@@ -124,19 +126,24 @@ This complete deployment package includes **4 runbooks + 5 monitoring specificat
 
 ### Monitoring (4 Dashboards)
 
-**Dashboard 1: Portal Auth Health** — Patient login system  
+**Dashboard 1: Portal Auth Health** — Patient login system
+
 - Auth success rate, latency, email delivery, failed attempts
 
-**Dashboard 2: NOTIVISA Queue Health** — Government submission queue  
+**Dashboard 2: NOTIVISA Queue Health** — Government submission queue
+
 - Queue status, processing latency, success rate, stuck entries, feature flag state
 
-**Dashboard 3: Firestore Access** — Data access patterns & security  
+**Dashboard 3: Firestore Access** — Data access patterns & security
+
 - Patient read latency, laudo query latency, rule rejections, index usage
 
-**Dashboard 4: System Health Overview** — Overall system SLOs  
+**Dashboard 4: System Health Overview** — Overall system SLOs
+
 - Error rate, function execution time, quota usage, error budget, uptime status
 
 **5 Alert Policies:**
+
 1. Portal Auth Failures (P1) — SMS page + Slack
 2. NOTIVISA Queue Stuck (P1) — SMS page + Slack
 3. Firestore Rule Rejections (P2) — Email + Slack
@@ -156,6 +163,7 @@ This complete deployment package includes **4 runbooks + 5 monitoring specificat
 5. **Full Rollback** (10 min) — Architectural issue
 
 **Fast Rollback via Feature Flag** (<1 min):
+
 ```
 // Instead of code rollback, just disable the flag:
 db.collection('featureFlags').doc('notivisa-rollout').update({
@@ -200,6 +208,7 @@ June 10
 ## Pre-Deployment Checklist (May 19, EOD)
 
 **Code Quality:**
+
 - [ ] `npx tsc --noEmit` — 0 errors
 - [ ] `npm run lint` — 0 new violations (baseline: 88)
 - [ ] `npm run test` — 320+ tests passing
@@ -207,17 +216,20 @@ June 10
 - [ ] `git status` — clean working tree
 
 **Firebase:**
+
 - [ ] `firebase deploy --only firestore:rules --dry-run` — would update
 - [ ] `gcloud firestore indexes list` — all indexes READY
 - [ ] `cd functions && npm run build && npm test` — 0 errors, 46 tests pass
 - [ ] `bash scripts/preflight-secrets-check.sh` — exit code 0
 
 **Performance:**
+
 - [ ] `npm run build` — dist/index.js <365 KB
 - [ ] Lighthouse audit — score ≥87, LCP <2.0s
 - [ ] Deployment window reserved — 08:30–12:30 UTC-3
 
 **Team:**
+
 - [ ] CTO available — confirmed
 - [ ] On-call rotation — SMS pager tested
 - [ ] Slack channels — `#production-alerts` created
@@ -228,26 +240,31 @@ June 10
 ## Deployment Execution Checklist (May 20, 08:30 UTC-3)
 
 **Phase 4.0: Hosting** (2 min)
+
 - [ ] `firebase deploy --only hosting --project hmatologia2` — success
 - [ ] `curl -I https://hmatologia2.web.app/portal/auth` — HTTP 200
 
 **Phase 4.1: Rules + Indexes** (3–5 min)
+
 - [ ] `firebase deploy --only firestore:rules --project hmatologia2` — rules published
 - [ ] Wait for indexes to build — verify all 6 READY
 - [ ] No rule syntax errors
 
 **Phase 4.2: Functions** (3–5 min)
+
 - [ ] `cd functions && npm run build` — 0 errors
 - [ ] `npm test` — 46 tests passing
 - [ ] `firebase deploy --only functions --project hmatologia2` — functions deployed
 - [ ] `gcloud functions list` — all notivisa functions ACTIVE
 
 **Phase 4.3: Feature Flag** (2 min)
+
 - [ ] Create `/featureFlags/notivisa-rollout` in Firestore
 - [ ] Set: `enabled = true`, `rolloutPercentage = 0`
 - [ ] Verify: Firestore document readable
 
 **Phase 4.4: Smoke Tests** (15 min)
+
 - [ ] `bash .planning/scripts/phase-4-smoke-test.sh` — 10/10 pass
 - [ ] No failing checks (Anvisa credentials WARN is expected)
 
@@ -256,16 +273,19 @@ June 10
 ## Post-Deployment Checklist (May 20, 08:45–12:30 UTC-3)
 
 **Monitoring (4 hours):**
+
 - [ ] Hour 1: Dashboard review (4 dashboards healthy)
 - [ ] Hours 2–3: Manual scenarios (6 test cases)
 - [ ] Hour 4: Cloud Logs analysis (0 unhandled exceptions)
 
 **Validation (1.75 hours):**
+
 - [ ] Smoke tests: 7/7 automated checks pass
 - [ ] Lab testing: 5/5 manual scenarios pass (note any issues)
 - [ ] Auditor review: Compliance sign-off
 
 **Sign-Off:**
+
 - [ ] Incident Commander: GO-LIVE APPROVED
 - [ ] Lab Director: COMPLIANT FOR PHASE 4
 - [ ] Post-mortem template prepared (if needed)
@@ -274,13 +294,13 @@ June 10
 
 ## Emergency Contacts
 
-| Role | Name | Phone | Slack | Email |
-|------|------|-------|-------|-------|
-| Incident Commander | [CTO] | +55 11 xxxxxx | @cto | cto@hc-quality.local |
+| Role                | Name   | Phone         | Slack     | Email                    |
+| ------------------- | ------ | ------------- | --------- | ------------------------ |
+| Incident Commander  | [CTO]  | +55 11 xxxxxx | @cto      | cto@hc-quality.local     |
 | On-Call Engineer #1 | [Name] | +55 11 xxxxxx | @oncall-1 | oncall1@hc-quality.local |
 | On-Call Engineer #2 | [Name] | +55 11 xxxxxx | @oncall-2 | oncall2@hc-quality.local |
-| Lab Director | [Name] | +55 11 xxxxxx | @lab-dir | labdir@hc-quality.local |
-| Alert Manager | [Name] | +55 11 xxxxxx | @alerts | alerts@hc-quality.local |
+| Lab Director        | [Name] | +55 11 xxxxxx | @lab-dir  | labdir@hc-quality.local  |
+| Alert Manager       | [Name] | +55 11 xxxxxx | @alerts   | alerts@hc-quality.local  |
 
 **Escalation:** If P1 alert unresolved >15 min, page CTO. If CTO unavailable, escalate to Tech Lead.
 
@@ -288,20 +308,21 @@ June 10
 
 ## Critical Thresholds (Alert Triggers)
 
-| Metric | Threshold | Severity | Action |
-|--------|-----------|----------|--------|
-| Auth success rate | <95% | P1 | Page on-call engineer |
-| Auth failures | >5 in 5 min | P1 | SMS alert + Slack |
-| Queue stuck entries | >0 | P1 | SMS alert + Slack |
-| Rule rejections | >10 in 5 min | P2 | Email + Slack |
-| Error rate | >0.5% | P2 | Email + Slack |
-| Function latency p95 | >3s | P3 | Email (informational) |
+| Metric               | Threshold    | Severity | Action                |
+| -------------------- | ------------ | -------- | --------------------- |
+| Auth success rate    | <95%         | P1       | Page on-call engineer |
+| Auth failures        | >5 in 5 min  | P1       | SMS alert + Slack     |
+| Queue stuck entries  | >0           | P1       | SMS alert + Slack     |
+| Rule rejections      | >10 in 5 min | P2       | Email + Slack         |
+| Error rate           | >0.5%        | P2       | Email + Slack         |
+| Function latency p95 | >3s          | P3       | Email (informational) |
 
 ---
 
 ## Quick Links
 
 ### Documentation
+
 - [Deployment Runbook](PHASE_4_DEPLOYMENT_RUNBOOK.md)
 - [Feature Flag Strategy](PHASE_4_FEATURE_FLAG_STRATEGY.md)
 - [Monitoring Dashboards](PHASE_4_MONITORING_DASHBOARD_SPECS.md)
@@ -309,6 +330,7 @@ June 10
 - [Rollback Procedures](PHASE_4_ROLLBACK_PROCEDURES.md)
 
 ### Incident Response
+
 - [Runbook: Auth Failures](runbooks/phase-4-auth-failures.md)
 - [Runbook: Queue Stuck](runbooks/phase-4-notivisa-queue.md)
 - [Runbook: Rule Rejections](runbooks/phase-4-firestore-rules.md)
@@ -316,6 +338,7 @@ June 10
 - [Runbook: Function Latency](runbooks/phase-4-function-latency.md)
 
 ### Related Phase 4 Documents
+
 - [Cloud Logs Setup](PHASE_4_CLOUD_LOGS_SETUP.md)
 - [Incident Response Contacts](v1.4-INCIDENT_RESPONSE_CONTACTS.md)
 - [Smoke Test Script](scripts/phase-4-smoke-test.sh)

@@ -12,6 +12,7 @@
 Primeiro módulo de laudo do HC Quality. Workflow híbrido de liberação (auto-liberar rotina, RT revisa críticos), valores críticos com thresholds parametrizáveis e comunicação por email + log imutável, geração de PDF com os 14 campos RDC 978 Art. 167, QR code de validação, e portal externo para médicos solicitantes acessarem laudos de seus pacientes.
 
 3 surfaces deployadas:
+
 - `/liberacao` (RT + técnico)
 - `/criticos/admin` (gestão de thresholds)
 - `/portal-medico` (médico solicitante externo)
@@ -41,17 +42,18 @@ Primeiro módulo de laudo do HC Quality. Workflow híbrido de liberação (auto-
 ### Locked (CTO via discuss-phase 2026-05-06)
 
 #### 1. Assinatura RT
+
 - **LogicalSignature SHA-256** seguindo ADR 0001
 - Cada liberação gera doc imutável com:
   ```typescript
   signature: {
-    operatorId: UserId;       // RT que liberou
-    operatorRole: 'RT' | 'RT-Substituto' | 'Sistema';  // 'Sistema' só em auto-liberação
+    operatorId: UserId; // RT que liberou
+    operatorRole: 'RT' | 'RT-Substituto' | 'Sistema'; // 'Sistema' só em auto-liberação
     operatorName: string;
-    operatorRegistro: string;  // CRBM, CRF, CRM, CRBio etc
-    timestamp: Timestamp;       // server-side
-    hash: string;              // SHA-256(canonical(payload + chainHash))
-    chainHash: string;         // chain do lab (ADR 0001 pattern)
+    operatorRegistro: string; // CRBM, CRF, CRM, CRBio etc
+    timestamp: Timestamp; // server-side
+    hash: string; // SHA-256(canonical(payload + chainHash))
+    chainHash: string; // chain do lab (ADR 0001 pattern)
   }
   ```
 - Validação client-side mostra "🔒 Assinado por {operatorName} ({operatorRegistro}) em {timestamp}"
@@ -59,7 +61,9 @@ Primeiro módulo de laudo do HC Quality. Workflow híbrido de liberação (auto-
 - ICP-Brasil A1/A3 fica como upgrade v1.4 (sem retrabalho de schema — apenas adiciona campo `icpSignature?: string`)
 
 #### 2. State machine híbrida
+
 **Estados:**
+
 1. `Pendente` — laudo criado pelo técnico, aguardando revisão
 2. `Em Revisão` — RT abriu modal de revisão (lock soft)
 3. `Liberado` — RT autorizou (signature criada)
@@ -68,28 +72,32 @@ Primeiro módulo de laudo do HC Quality. Workflow híbrido de liberação (auto-
 6. `Superado` — versão substituída por nova (retificação)
 
 **Classificação de exame (exameClassifier):**
+
 - `rotina` — auto-libera se: Westgard OK + amostra não-restrita + sem crítico detectado
 - `revisao-rt` — sempre exige RT (exames hormonais, hemograma manual, citologia, PCR diagnóstico)
 - `bloqueio-critico` — exames onde QUALQUER valor crítico bloqueia liberação (ex: cultura positiva, marcadores tumorais)
 
 **Configuração:**
+
 - UI admin `/liberacao/admin/exames` permite lab classificar cada exame
 - Default: 80% rotina, 20% revisao-rt (CTO valida com RT Riopomba)
 - Audit log toda mudança de classificação
 
 **Atalho condicional auto-liberação:**
+
 ```typescript
 // Pseudo-code
 function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): boolean {
   if (classification === 'revisao-rt') return false;
   if (classification === 'bloqueio-critico' && hasCritico(laudo)) return false;
-  if (laudo.westgardViolations.some(v => v.severity === 'reject')) return false;
+  if (laudo.westgardViolations.some((v) => v.severity === 'reject')) return false;
   if (laudo.amostra.restricoes.length > 0) return false;
   return true;
 }
 ```
 
 #### 3. Comunicação críticos
+
 - **Email apenas no MVP** (sem SMS/WhatsApp). Provedor: Resend (já no stack via `resend@4.5.2`).
 - **Thresholds parametrizáveis** por lab via `/criticos/admin`:
   - Por analito (ex: Glicose < 50 mg/dL OU > 400 mg/dL)
@@ -106,6 +114,7 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
 - **Cron escalação:** function `escalarCritico` roda a cada 5 min, alerta se SLA extrapolado
 
 #### 4. Saída do laudo (multi-canal)
+
 - **PDF com 14 campos RDC 978 Art. 167** — Puppeteer + template HTML pixel-perfect
 - **QR code de validação** — canto inferior direito; aponta para `/api/validar-laudo/{laudoId}/v{version}` (endpoint público, rate-limited 60req/h por IP)
   - Endpoint retorna metadata sem PII: `{ hash, rt: { name, registro }, timestamp, version, isCurrent: bool, lab: { name, cnes } }`
@@ -122,6 +131,7 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
   - Dark-first design (consistente)
 
 #### 5. Histórico de versões (mandatório RDC 978 Art. 167 + DICQ 5.9.3)
+
 - **Retificação cria nova versão imutável** — v1 não é editado
 - Schema: `/labs/{labId}/laudos/{laudoId}` (master) + `/labs/{labId}/laudo-versions/{versionId}`
 - Cada versão tem:
@@ -138,6 +148,7 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
 - Limite: 20 versões por laudo (UI bloqueia v21; caso real: nunca atingido em prática)
 
 #### 6. Médico solicitante (master = Worklab)
+
 - Sync nightly de `/api/worklab/medicos` → cache local em `/labs/{labId}/medicos-solicitantes/{medicoId}`
 - Campos: `id, name, crm, crmUf, ativo, ultimoSync`
 - HC Quality não permite cadastro/edição local (master = Worklab)
@@ -161,6 +172,7 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
 ```
 
 **Convenções multi-tenant aplicadas:**
+
 - `labId` redundante em todos os payloads
 - Soft-delete only (LaudoDelete = soft, mantém histórico para auditoria)
 - LogicalSignature obrigatório em create de laudo-versions e comunicacoes
@@ -173,22 +185,23 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
 
 #### 8. Cloud Functions (callable, region southamerica-east1)
 
-| Function | Propósito | Auth + validação |
-|----------|-----------|-------------------|
-| `criarLaudo` | Cria laudo a partir de runs aprovadas (chama auto-release engine) | `isActiveMemberOfLab` + Zod payload |
-| `liberarLaudo` | RT libera manualmente; cria versão + signature + chainHash | `isActiveMemberOfLab` + claim RT |
-| `retificarLaudo` | Cria nova versão; v anterior fica supersededBy | `isActiveMemberOfLab` + claim RT |
-| `detectarCriticos` | Trigger onCreate em laudos: roda thresholds + flag | Internal (não exposto) |
-| `enviarComunicacaoEmail` | Email via Resend para médico solicitante (PDF anexo) | `isActiveMemberOfLab` + claim RT |
-| `registrarComunicacaoVerbal` | Cria doc imutável de comunicação verbal | `isActiveMemberOfLab` + signature |
-| `escalarCritico` | Cron 5min: alerta supervisor se SLA extrapolado | Scheduler |
-| `generateLaudoPDF` | Puppeteer render + Storage upload + return signed URL | `isActiveMemberOfLab` |
-| `validarLaudoPublico` | Endpoint público; retorna metadata sem PII | Rate-limited (60req/h/IP) |
-| `convidarMedicoPortal` | RT convida médico via email | `isActiveMemberOfLab` + claim RT/admin |
-| `aceitarConvitePortal` | Médico aceita convite; cadastra senha; CRM validado | Auth flow |
-| `syncMedicosWorklab` | Cron nightly: sync /api/worklab/medicos → cache | Scheduler |
+| Function                     | Propósito                                                         | Auth + validação                       |
+| ---------------------------- | ----------------------------------------------------------------- | -------------------------------------- |
+| `criarLaudo`                 | Cria laudo a partir de runs aprovadas (chama auto-release engine) | `isActiveMemberOfLab` + Zod payload    |
+| `liberarLaudo`               | RT libera manualmente; cria versão + signature + chainHash        | `isActiveMemberOfLab` + claim RT       |
+| `retificarLaudo`             | Cria nova versão; v anterior fica supersededBy                    | `isActiveMemberOfLab` + claim RT       |
+| `detectarCriticos`           | Trigger onCreate em laudos: roda thresholds + flag                | Internal (não exposto)                 |
+| `enviarComunicacaoEmail`     | Email via Resend para médico solicitante (PDF anexo)              | `isActiveMemberOfLab` + claim RT       |
+| `registrarComunicacaoVerbal` | Cria doc imutável de comunicação verbal                           | `isActiveMemberOfLab` + signature      |
+| `escalarCritico`             | Cron 5min: alerta supervisor se SLA extrapolado                   | Scheduler                              |
+| `generateLaudoPDF`           | Puppeteer render + Storage upload + return signed URL             | `isActiveMemberOfLab`                  |
+| `validarLaudoPublico`        | Endpoint público; retorna metadata sem PII                        | Rate-limited (60req/h/IP)              |
+| `convidarMedicoPortal`       | RT convida médico via email                                       | `isActiveMemberOfLab` + claim RT/admin |
+| `aceitarConvitePortal`       | Médico aceita convite; cadastra senha; CRM validado               | Auth flow                              |
+| `syncMedicosWorklab`         | Cron nightly: sync /api/worklab/medicos → cache                   | Scheduler                              |
 
 #### 9. Roteamento
+
 - `/liberacao` — dashboard de RT/técnico (lazy)
 - `/liberacao/admin/exames` — classificação de exames (claim adminLab)
 - `/criticos/admin` — gestão de thresholds (claim adminLab ou RT)
@@ -197,6 +210,7 @@ function shouldAutoRelease(laudo: Laudo, classification: ExamClassification): bo
 - `/api/validar-laudo/{laudoId}/v{version}` — endpoint público (sem auth)
 
 #### 10. Bundle/manualChunks
+
 ```typescript
 manualChunks: {
   'module-liberacao': ['./src/features/liberacao'],
@@ -219,11 +233,13 @@ manualChunks: {
 </decisions>
 
 <canonical_refs>
+
 ## Canonical References
 
 **Downstream agents MUST read these before planning or implementing.**
 
 ### Estratégico (Obsidian)
+
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md` — Bloco G + Bloco I + 5.7-5.9
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md` — Arts. 167, 184-191
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_vs_786_vs_DICQ.md` — divergências entre normas
@@ -233,6 +249,7 @@ manualChunks: {
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Decisoes_Abertas.md` — multi-tenant, ICP-Brasil
 
 ### Código vivo (HC Quality repo)
+
 - `src/features/auditoria/` — pattern de chainHash + LogicalSignature em sub-coleção (replicar)
 - `functions/src/auditoria/generatePDF.ts` — Puppeteer + 10MB limit (replicar)
 - `src/features/educacao-continuada/` — assinatura RT + certificados PDF (referência)
@@ -242,18 +259,21 @@ manualChunks: {
 - `firestore.rules` (bloco `auditoria/*`) — template para `liberacao/*`
 
 ### ADRs
+
 - `docs/adr/0001-audit-chain.md` — chainHash + LogicalSignature (BASE)
 - `docs/adr/0002-multi-tenant-firestore.md` — convenções multi-tenant
 - `docs/adr/0007-*.md` — refinamentos pattern
 - ADR 0009 (a criar): state machine híbrida + classificação de exame
 
 ### Specs/Rules
+
 - `.claude/rules/firestore-security.md` — invariantes
 - `.claude/rules/performance.md` — Web Vitals + manualChunks
 - `.claude/rules/deploy-protocol.md` — ordem deploy
 - `.claude/rules/module-protection.md` — isolamento módulos
 
 ### Skills aplicáveis
+
 - `hcq-firestore-rules-generator` — bloco rules para liberacao + criticos + portal
 - `hcq-ciq-audit-trail` — chainHash pattern para liberação
 - `hcq-pdf-export-scaffold` — geração de laudo PDF
@@ -266,18 +286,21 @@ manualChunks: {
 ## Phase-Specific Constraints
 
 ### Bundle budget
+
 - `module-liberacao` ≤ 180KB gzip (lots of UI: ReviewLaudoModal, state machine UI, signature gate)
 - `module-criticos` ≤ 80KB gzip (admin focus)
 - `module-portal-medico` ≤ 120KB gzip (separado app shell mínimo)
 - `vendor-charts` (recharts) — não usado neste módulo (sem charts)
 
 ### Firestore custos
+
 - Reads alvo: ≤5 reads/segundo por usuário ativo
 - Writes: 1 laudo = 1 doc + 1 audit log + (1 comunicação se crítico) = 2-3 writes
 - Volume Riopomba: ~500 laudos/dia = 2500 reads + 1500 writes — confortável
 - onSnapshot: máx 4 listeners por usuário (laudos pendentes, em revisão, comunicações pendentes, dashboard)
 
 ### Cloud Function quotas
+
 - `liberarLaudo`: ≤2s p99
 - `generateLaudoPDF`: ≤15s p99 (Puppeteer)
 - `enviarComunicacaoEmail`: ≤5s p99 (Resend API)
@@ -285,12 +308,14 @@ manualChunks: {
 - Rate limit `validarLaudoPublico`: 60 req/h/IP (anti-abuse)
 
 ### Web Vitals targets (rotas críticas)
+
 - `/liberacao` (RT dashboard): LCP <2.5s, INP <200ms, CLS <0.1
 - `/liberacao/laudo/{id}`: LCP <2.5s, INP <150ms (interação rápida com modal)
 - `/portal-medico`: LCP <2.5s, INP <200ms (médico tem expectativa de rapidez)
 - `/portal-medico/laudo/{id}`: LCP <3s aceitável (PDF preview pode ser pesado)
 
 ### Threat model
+
 - **T1: Médico vê laudos de outro médico** — mitigação: rule `medicoSolicitanteId == request.auth.uid` em todas as queries
 - **T2: Operador adultera laudo após signature** — mitigação: rules `allow update: if false` em laudo-versions; retificação cria nova versão
 - **T3: Endpoint público `validarLaudoPublico` vaza PII** — mitigação: retorna apenas metadata (hash, RT, timestamp, version) sem dados do paciente
@@ -302,18 +327,21 @@ manualChunks: {
 - **T9: Worklab cache desatualizado (médico CRM antigo)** — mitigação: sync nightly + manual refresh button; UI mostra `ultimoSync`
 
 ### Performance profile
+
 - Volumes Riopomba: ~500 laudos/dia, ~50 críticos/dia, ~150 médicos solicitantes ativos
 - Picos: 9h-12h (manhã coletas), 16h-18h (resultados saindo)
 - Caching agressivo: lista de médicos, classificações de exames (cached 1h)
 - `useMemo` em filtros do dashboard; `React.memo` em row components
 
 ### Localization
+
 - pt-BR em toda UI
 - PDF em pt-BR
 - Email subject + body em pt-BR (templates Resend)
 - Datas: DD/MM/YYYY HH:mm
 
 ### Email transacional
+
 - Provedor: Resend (já em `package.json` de functions)
 - Domínio: `notificacoes@hmatologia2.web.app` (configurar SPF + DKIM + DMARC)
 - Templates HTML simples, brand neutro (white-label-ready)

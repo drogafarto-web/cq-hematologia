@@ -25,10 +25,7 @@ import * as useAnomalyAlertsModule from '../../features/auditoria/hooks/useAnoma
 // Mock the hook
 vi.mock('../../features/auditoria/hooks/useAnomalyAlerts');
 
-const mockUseAnomalyAlerts = vi.spyOn(
-  useAnomalyAlertsModule,
-  'useAnomalyAlerts',
-);
+const mockUseAnomalyAlerts = vi.spyOn(useAnomalyAlertsModule, 'useAnomalyAlerts');
 
 describe('AlertDashboard', () => {
   beforeEach(() => {
@@ -44,9 +41,7 @@ describe('AlertDashboard', () => {
       error: null,
     });
 
-    const { container } = render(
-      <AlertDashboard labId="lab-1" onOpenDetail={() => {}} />,
-    );
+    const { container } = render(<AlertDashboard labId="lab-1" onOpenDetail={() => {}} />);
 
     expect(screen.getByText(/Nenhum alerta no período/i)).toBeInTheDocument();
     // Empty state usa um ponto decorativo com pulse (design atual)
@@ -62,9 +57,7 @@ describe('AlertDashboard', () => {
       error: null,
     });
 
-    const { container } = render(
-      <AlertDashboard labId="lab-1" onOpenDetail={() => {}} />,
-    );
+    const { container } = render(<AlertDashboard labId="lab-1" onOpenDetail={() => {}} />);
 
     const skeletons = container.querySelectorAll('.animate-pulse');
     expect(skeletons.length).toBeGreaterThan(0);
@@ -239,9 +232,7 @@ describe('AlertDashboard', () => {
     });
 
     const handleOpenDetail = vi.fn();
-    render(
-      <AlertDashboard labId="lab-1" onOpenDetail={handleOpenDetail} />,
-    );
+    render(<AlertDashboard labId="lab-1" onOpenDetail={handleOpenDetail} />);
 
     const detailButton = screen.getByRole('button', {
       name: /Ver detalhes do alerta/i,
@@ -273,9 +264,7 @@ describe('AlertDashboard', () => {
       error: null,
     });
 
-    const { container } = render(
-      <AlertDashboard labId="lab-1" onOpenDetail={() => {}} />,
-    );
+    const { container } = render(<AlertDashboard labId="lab-1" onOpenDetail={() => {}} />);
 
     const results = await axe(container);
     expect(results).toHaveNoViolations();

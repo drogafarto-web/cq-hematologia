@@ -33,13 +33,7 @@ import {
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { afterAll, beforeAll, beforeEach, describe, it, expect } from '@jest/globals';
-import {
-  doc,
-  setDoc,
-  getDoc,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
+import { doc, setDoc, getDoc, serverTimestamp, Timestamp } from 'firebase/firestore';
 
 const LAB_ID = 'lab-supgate-test';
 const OPERATOR_UID = 'operator-001';
@@ -119,12 +113,8 @@ describe('Rules — supervisor presence gating (RDC 978 Art. 122)', () => {
   // ───────────────────────────────────────────────────────────────────────
 
   describe('hematologia runs (/lots/{lotId}/runs)', () => {
-    it.todo(
-      'BLOCKS run create when no supervisor is checked in (cache.hasActiveSupervisor=false)',
-    );
-    it.todo(
-      'ALLOWS run create when supervisor is active (cache.hasActiveSupervisor=true)',
-    );
+    it.todo('BLOCKS run create when no supervisor is checked in (cache.hasActiveSupervisor=false)');
+    it.todo('ALLOWS run create when supervisor is active (cache.hasActiveSupervisor=true)');
     it.todo('BLOCKS run create when supervisor-status doc does not exist (fail-closed)');
     it.todo('ALLOWS run create for superAdmin even with hasActiveSupervisor=false (escape hatch)');
     it.todo('ALLOWS run READ regardless of supervisor presence (auditor access not gated)');
@@ -165,9 +155,7 @@ describe('Rules — supervisor presence gating (RDC 978 Art. 122)', () => {
     it.todo('ALLOWS laudos-draft writes regardless of supervisor presence (drafts excluded)');
     it.todo('ALLOWS turnos writes pathway is callable-only (DL-1) — no rule change here');
     it.todo('ALLOWS ciq-coagulacao runs (open-access MVP — out of scope)');
-    it.todo(
-      'ALLOWS run delete by admin regardless of presence (admin bypass on cleanup)',
-    );
+    it.todo('ALLOWS run delete by admin regardless of presence (admin bypass on cleanup)');
   });
 
   // ───────────────────────────────────────────────────────────────────────

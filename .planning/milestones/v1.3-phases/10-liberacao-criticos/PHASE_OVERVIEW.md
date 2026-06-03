@@ -1,6 +1,6 @@
 ---
-phase: "10-liberacao-criticos"
-title: "Phase 10 — Liberação + Críticos (Combined)"
+phase: '10-liberacao-criticos'
+title: 'Phase 10 — Liberação + Críticos (Combined)'
 milestone: v1.3
 status: planning
 total_plans: 7
@@ -29,6 +29,7 @@ revision: 1.0
 Construir o **primeiro módulo de laudo do HC Quality** — não existe hoje. Workflow de liberação híbrido (auto-liberação por tipo de exame + RT review excepcional), valores críticos com comunicação via email + log imutável, geração de PDF de laudo (14 campos RDC 978 Art. 167), QR code de validação, e portal médico para acesso externo de médicos solicitantes.
 
 **Output:**
+
 - Módulo `liberacao-laudos` em produção
 - Módulo `criticos` em produção (vinculado, mas codepaths separados)
 - Portal médico em `https://hmatologia2.web.app/portal-medico`
@@ -51,17 +52,17 @@ Construir o **primeiro módulo de laudo do HC Quality** — não existe hoje. Wo
 
 ### Decisões locked (do discuss-phase 2026-05-06)
 
-| Decisão | Valor | Rationale |
-|---------|-------|-----------|
-| Assinatura RT | LogicalSignature SHA-256 (ADR 0001) | Padrão HC Quality, audit chain imutável; aceita por RDC 978 Art. 167. ICP-Brasil fica como upsell v1.4 |
-| State machine | Híbrido por tipo de exame | Auto-libera rotina; RT revisa críticos. Lab configura quais auto via UI. RDC 978 Art. 186 §2 (critérios validados automatizados) |
-| Comunicação críticos | Email apenas no MVP + UI registro verbal | SMS deferido pra v1.4 (Zenvia/Twilio). Cumpre RDC 978 Art. 184 minimamente |
-| Saída do laudo | PDF (14 campos RDC) + email anexo + Portal médico + QR validação | Multi-canal; QR previne falsificação |
-| Histórico de versões | Retificação cria v2/v3 imutáveis (RDC 978 Art. 167 + DICQ 5.9.3) | Mandatório regulatório; v1 marca "Superado", não deletado |
-| Médico solicitante | Read-only do Worklab LIS (cache local 24h) | Single source of truth; já existe integração unidirecional |
-| Worklab reverso | Defer pra v1.4 (escrita "Liberado" back) | Requer API bidirecional; não pronta |
-| ICP-Brasil | Defer pra v1.4 | Custo + complexidade; LogicalSignature suficiente |
-| WhatsApp Business | Defer pra v1.4 | Aprovação Meta ~30d |
+| Decisão              | Valor                                                            | Rationale                                                                                                                        |
+| -------------------- | ---------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Assinatura RT        | LogicalSignature SHA-256 (ADR 0001)                              | Padrão HC Quality, audit chain imutável; aceita por RDC 978 Art. 167. ICP-Brasil fica como upsell v1.4                           |
+| State machine        | Híbrido por tipo de exame                                        | Auto-libera rotina; RT revisa críticos. Lab configura quais auto via UI. RDC 978 Art. 186 §2 (critérios validados automatizados) |
+| Comunicação críticos | Email apenas no MVP + UI registro verbal                         | SMS deferido pra v1.4 (Zenvia/Twilio). Cumpre RDC 978 Art. 184 minimamente                                                       |
+| Saída do laudo       | PDF (14 campos RDC) + email anexo + Portal médico + QR validação | Multi-canal; QR previne falsificação                                                                                             |
+| Histórico de versões | Retificação cria v2/v3 imutáveis (RDC 978 Art. 167 + DICQ 5.9.3) | Mandatório regulatório; v1 marca "Superado", não deletado                                                                        |
+| Médico solicitante   | Read-only do Worklab LIS (cache local 24h)                       | Single source of truth; já existe integração unidirecional                                                                       |
+| Worklab reverso      | Defer pra v1.4 (escrita "Liberado" back)                         | Requer API bidirecional; não pronta                                                                                              |
+| ICP-Brasil           | Defer pra v1.4                                                   | Custo + complexidade; LogicalSignature suficiente                                                                                |
+| WhatsApp Business    | Defer pra v1.4                                                   | Aprovação Meta ~30d                                                                                                              |
 
 ---
 
@@ -72,11 +73,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 ### Wave 1 — Foundation (Plans 10-01 sequencial; 10-02, 10-03 podem começar com ~3d delay)
 
 #### Plan 10-01: Schema + State Machine + Classificação de Exame
+
 **Duration:** 1.5 weeks (2026-05-20 → 2026-05-30)
 **Type:** Build (foundation)
 **Goal:** Tipos, schema Firestore, state machine, regras de classificação (rotina/crítico/sempre-RT), service multi-tenant.
 
 **Deliverables:**
+
 - `src/features/liberacao/types/` (Laudo, LaudoVersion, ReleaseState, ExamClassification)
 - `src/features/liberacao/services/laudoService.ts` + audit log integration
 - State machine: `Pendente → Em Revisão → Liberado → Comunicado` (linear) e `Pendente → Auto-Liberado → Comunicado` (atalho condicional)
@@ -85,11 +88,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 - `firestore.rules` + indexes para `/laudos`, `/laudo-versions`, `/comunicacoes`
 
 #### Plan 10-02: RT Signature Workflow + Auto-Liberar Engine + ReviewLaudoModal
+
 **Duration:** 2 weeks (2026-05-30 → 2026-06-13)
 **Type:** Build (core domain)
 **Goal:** UI de revisão pelo RT, engine de auto-liberação por critérios, signature integration.
 
 **Deliverables:**
+
 - `ReviewLaudoModal.tsx` — RT vê resultado bruto + amostra + Westgard violations + valor crítico flag
 - `useAutoReleaseEngine.ts` — orquestra: classificação OK + Westgard OK + sem amostra restrita + sem crítico → auto-libera
 - `RTSignatureGate.tsx` — pin/password confirm + LogicalSignature SHA-256
@@ -97,11 +102,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 - Cloud Function callable `liberarLaudo` (server-side validation)
 
 #### Plan 10-03: Críticos Thresholds + Comunicação Email + Log/Escalação
+
 **Duration:** 2 weeks (2026-06-13 → 2026-06-27)
 **Type:** Build (vertical slice críticos)
 **Goal:** UI de cadastro de thresholds, detecção em tempo real, comunicação por email + UI de registro verbal, escalação se não comunicado em SLA.
 
 **Deliverables:**
+
 - `CriticosThresholdsAdmin.tsx` — CRUD por analito + população (idade/sexo opcionais)
 - `CriticoDetector.ts` — engine puro: dado um resultado, retorna `{ critico: bool, severidade: 'alta'|'baixa', threshold }`
 - `ComunicacaoModal.tsx` — registrar email enviado OU comunicação verbal (timestamp + receptor + RT)
@@ -112,11 +119,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 ### Wave 2 — Output + Distribution (Plans 10-04 sequencial; 10-05 pode iniciar após 10-04 plan 50%)
 
 #### Plan 10-04: Geração de PDF + QR Validação + Endpoint Público + Email
+
 **Duration:** 2 weeks (2026-06-27 → 2026-07-11)
 **Type:** Build (output rendering)
 **Goal:** PDF do laudo com 14 campos RDC, QR code apontando para endpoint público de validação, email transacional com PDF anexo.
 
 **Deliverables:**
+
 - `functions/src/liberacao/generateLaudoPDF.ts` — Puppeteer + template HTML pixel-perfect
 - 14 campos RDC 978 Art. 167 mandatory; QR code de validação (canto inferior direito)
 - `functions/src/liberacao/validarLaudoPublico.ts` — endpoint público (rate-limited 60req/h por IP) que retorna metadata sem PII (apenas hash, RT, timestamp, versão atual, "superado" flag)
@@ -124,11 +133,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 - Storage bucket: `gs://hmatologia2.appspot.com/laudos/{labId}/{laudoId}/v{version}.pdf`
 
 #### Plan 10-05: Portal Médico (Auth Externa + Dashboard)
+
 **Duration:** 2.5 weeks (2026-07-11 → 2026-07-29)
 **Type:** Build (new surface)
 **Goal:** Portal `/portal-medico` com auth externa (médicos solicitantes), dashboard de pacientes que ele solicitou, download de laudos, histórico de versões.
 
 **Deliverables:**
+
 - Rota separada `/portal-medico` (subdomain ou path; decisão em CONTEXT.md)
 - Firebase Auth com claim `medicoSolicitante: true` + `crm: string`
 - `MedicoDashboard.tsx` — listagem de laudos onde `medicoSolicitanteId === request.auth.uid`
@@ -140,11 +151,13 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 ### Wave 3 — Closure
 
 #### Plan 10-06: E2E + Integration Testing + Edge Cases
+
 **Duration:** 1.5 weeks (2026-07-29 → 2026-08-08)
 **Type:** Build (quality)
 **Goal:** Suite E2E cobrindo fluxos críticos (técnico → RT → comunicação → médico portal), integration tests entre componentes, edge cases (retificação, desfazer comunicação, médico inativo).
 
 **Deliverables:**
+
 - `e2e/liberacao.spec.ts` — 8 fluxos críticos
 - `e2e/criticos.spec.ts` — 4 fluxos críticos
 - `e2e/portal-medico.spec.ts` — 3 fluxos críticos
@@ -152,13 +165,15 @@ Phase 10 has **7 plans** organized em 3 ondas (paralelismo otimizado por depende
 - Edge cases: retificação de laudo já comunicado; médico solicitante inativo; PDF corrompido; QR validation contra laudo deletado
 
 #### Plan 10-07: Polish + A11y + Perf + Deploy Progressivo
+
 **Duration:** 1 week (2026-08-08 → 2026-08-15)
 **Type:** Build (deploy)
 **Goal:** A11y AA, Web Vitals targets, ADR 0009 (state machine híbrida), deploy progressivo, smoke Riopomba.
 
 **Deliverables:**
+
 - A11y AA audit (axe-core + manual screen reader)
-- Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1 nas rotas /liberacao/*, /portal-medico/*
+- Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1 nas rotas /liberacao/_, /portal-medico/_
 - Bundle: chunks `module-liberacao` ≤ 180KB gzip, `module-portal-medico` ≤ 120KB gzip
 - ADR 0009: documenta state machine híbrida + classificação de exame
 - Deploy ordem: rules+indexes → functions → hosting → portal-medico (se separado)
@@ -192,16 +207,16 @@ Wave 1: Foundation                Wave 2: Output             Wave 3: Closure
 
 ## Risk Register
 
-| Risk | Severity | Likelihood | Mitigation |
-|------|----------|------------|-----------|
-| Auditor rejeita LogicalSignature SHA-256 (exige ICP-Brasil) | 🔴 | Baixo | ADR 0009 explícita: precedentes ANVISA + audit chain imutável; ICP-Brasil disponível como upgrade v1.4 (não retrabalho de schema) |
-| Auto-liberação aprova laudo problemático (crítico não detectado) | 🔴 | Médio | Defesa em camadas: classificação + Westgard + thresholds críticos + RT review por exceção; auditor logger persistente |
-| Portal médico vira surface de attack (auth externa exposta) | 🟠 | Médio | Rate limiting agressivo, MFA opcional, pen test antes de prod, claim isolado (médico não acessa /labs/*) |
-| 14 campos RDC 978 Art. 167 + QR code não cabem em página A4 sem ficar denso | 🟡 | Médio | Spike de 1 dia em 10-04 com layout em 2 páginas se necessário; rodapé QR + footer condensado |
-| Email entregue mas spam/quarentena (lab perde comunicação) | 🟠 | Alto | SPF + DKIM + DMARC configurados; whitelist com clientes; alerta visual no dashboard "email em quarentena" |
-| Worklab cache de médicos solicitantes desatualizado (CRM inválido) | 🟡 | Médio | Sync nightly + manual refresh button; fallback de cadastro local se Worklab offline |
-| Histórico de versões cresce sem limite (storage cost) | 🟡 | Baixo | Retenção mínima 5 anos (RDC); arquivamento Glacier após 1 ano; máximo 20 versões por laudo (UI bloqueia v21) |
-| Volumes Riopomba (~500 laudos/dia) saturam Firestore writes | 🟡 | Baixo | Batch writes onde possível; monitorar quota; caching agressivo no portal |
+| Risk                                                                        | Severity | Likelihood | Mitigation                                                                                                                        |
+| --------------------------------------------------------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Auditor rejeita LogicalSignature SHA-256 (exige ICP-Brasil)                 | 🔴       | Baixo      | ADR 0009 explícita: precedentes ANVISA + audit chain imutável; ICP-Brasil disponível como upgrade v1.4 (não retrabalho de schema) |
+| Auto-liberação aprova laudo problemático (crítico não detectado)            | 🔴       | Médio      | Defesa em camadas: classificação + Westgard + thresholds críticos + RT review por exceção; auditor logger persistente             |
+| Portal médico vira surface de attack (auth externa exposta)                 | 🟠       | Médio      | Rate limiting agressivo, MFA opcional, pen test antes de prod, claim isolado (médico não acessa /labs/\*)                         |
+| 14 campos RDC 978 Art. 167 + QR code não cabem em página A4 sem ficar denso | 🟡       | Médio      | Spike de 1 dia em 10-04 com layout em 2 páginas se necessário; rodapé QR + footer condensado                                      |
+| Email entregue mas spam/quarentena (lab perde comunicação)                  | 🟠       | Alto       | SPF + DKIM + DMARC configurados; whitelist com clientes; alerta visual no dashboard "email em quarentena"                         |
+| Worklab cache de médicos solicitantes desatualizado (CRM inválido)          | 🟡       | Médio      | Sync nightly + manual refresh button; fallback de cadastro local se Worklab offline                                               |
+| Histórico de versões cresce sem limite (storage cost)                       | 🟡       | Baixo      | Retenção mínima 5 anos (RDC); arquivamento Glacier após 1 ano; máximo 20 versões por laudo (UI bloqueia v21)                      |
+| Volumes Riopomba (~500 laudos/dia) saturam Firestore writes                 | 🟡       | Baixo      | Batch writes onde possível; monitorar quota; caching agressivo no portal                                                          |
 
 ---
 
@@ -238,6 +253,7 @@ Wave 1: Foundation                Wave 2: Output             Wave 3: Closure
 ## Canonical References
 
 **Obsidian:**
+
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Compliance_DICQ.md` — Bloco G (5.7.x), Bloco I (5.8.x, 5.9.x)
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_RDC_978_2025_Resumo.md` — Arts. 167 (14 campos), 184-191 (críticos+liberação)
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_RDC_978_vs_786_vs_DICQ.md` — divergências entre normas
@@ -247,6 +263,7 @@ Wave 1: Foundation                Wave 2: Output             Wave 3: Closure
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Decisoes_Abertas.md` — multi-tenant, ICP-Brasil
 
 **Código vivo (referência/reuso):**
+
 - `src/features/auditoria/` — pattern de chainHash + LogicalSignature em sub-coleção
 - `src/features/auditoria/components/generatePDF.ts` (functions) — Puppeteer + 10MB limit
 - `src/features/educacao-continuada/` — assinatura RT em certificados
@@ -254,11 +271,13 @@ Wave 1: Foundation                Wave 2: Output             Wave 3: Closure
 - `src/shared/services/firebaseService.ts` — `subscribeToState` 5 layers
 
 **ADRs (manter consistência):**
+
 - `docs/adr/0001-audit-chain.md` — chainHash + LogicalSignature (base)
 - `docs/adr/0002-multi-tenant-firestore.md` — convenções multi-tenant
 - ADR 0009 (a criar em 10-07): state machine híbrida + classificação de exame
 
 **Specs/Rules:**
+
 - `.claude/rules/firestore-security.md` — invariantes (validSignature, labIdMatches)
 - `.claude/rules/performance.md` — Web Vitals targets, manualChunks
 - `.claude/rules/deploy-protocol.md` — ordem de deploy

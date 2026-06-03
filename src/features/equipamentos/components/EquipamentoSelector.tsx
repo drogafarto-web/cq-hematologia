@@ -61,8 +61,8 @@ export function EquipamentoSelector({
           Nenhum equipamento cadastrado neste módulo.
         </p>
         <p className="text-[11px] text-amber-700/80 dark:text-amber-300/80 mt-0.5">
-          Cadastre pelo menos um equipamento em <strong>Insumos &amp; Equipamentos</strong> antes
-          de registrar corridas.
+          Cadastre pelo menos um equipamento em <strong>Insumos &amp; Equipamentos</strong> antes de
+          registrar corridas.
         </p>
       </div>
     );
@@ -75,9 +75,7 @@ export function EquipamentoSelector({
         <p className="text-[10px] uppercase tracking-widest font-semibold text-slate-500 dark:text-white/40">
           Equipamento
         </p>
-        <p className="text-sm font-medium text-slate-900 dark:text-white/85 mt-0.5">
-          {only.name}
-        </p>
+        <p className="text-sm font-medium text-slate-900 dark:text-white/85 mt-0.5">{only.name}</p>
         <p className="text-[11px] text-slate-500 dark:text-white/45">
           {only.fabricante} · {only.modelo}
           {only.numeroSerie && ` · Nº ${only.numeroSerie}`}
@@ -99,7 +97,7 @@ export function EquipamentoSelector({
         value={value ?? ''}
         onChange={(e) => {
           const id = e.target.value || null;
-          const eq = id ? equipamentos.find((x) => x.id === id) ?? null : null;
+          const eq = id ? (equipamentos.find((x) => x.id === id) ?? null) : null;
           onChange(id, eq);
         }}
         className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-sm text-slate-900 dark:text-white/90 focus:outline-none focus:border-violet-500/50"

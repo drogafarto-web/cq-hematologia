@@ -41,8 +41,5 @@ export function verifyChainHash(
   expected: string,
 ): boolean {
   const computed = generateChainHash(payload);
-  return crypto.timingSafeEqual(
-    Buffer.from(computed, 'hex'),
-    Buffer.from(expected, 'hex'),
-  );
+  return crypto.timingSafeEqual(Buffer.from(computed, 'hex'), Buffer.from(expected, 'hex'));
 }

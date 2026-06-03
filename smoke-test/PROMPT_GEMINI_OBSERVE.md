@@ -132,7 +132,7 @@ Para cada aba (4 tabs):
 
 - **NovoLoteModal** (abrir clicando "+ Novo lote" e fechar IMEDIATAMENTE
   via X): captura step 1 (ProdutoPicker) e o botão `+ Cadastrar novo produto
-  no catálogo`. NÃO clica.
+no catálogo`. NÃO clica.
 - **CIQImunoForm** (abrir via "+ Registrar Corrida" e fechar via Cancelar):
   observe seções: Operador, Tipo de Teste, Kit Manual, Resultados.
 - **CIQTestTypeManager** (abrir clicando "Gerenciar" perto do testType
@@ -166,18 +166,22 @@ Salva em `$OUTPUT_DIR/REPORT.md`:
 
 ```markdown
 # Auditoria CIQ-Imuno — {timestamp}
+
 Auditor: Gemini · Modo: read-only
 Usuário: drogafarto@gmail.com (owner)
 
 ## TL;DR (3-5 linhas)
+
 {Estado geral do módulo numa frase. Achados notáveis em bullets.}
 
 ## Inventário de telas auditadas
+
 {Lista das 12 telas + 6 modais com PASS/SKIP/NÃO ENCONTRADO}
 
 ## Achados por tela
 
 ### 2. Bancada (Corridas)
+
 - Estado: {empty/populated/parcial}
 - Setups vinculados: N (oficiais=X, validação=Y)
 - Corridas recentes: M últimas
@@ -189,54 +193,67 @@ Usuário: drogafarto@gmail.com (owner)
 (repetir pra cada tela)
 
 ## Bugs observados (sintomas, não causas)
+
 - [Severidade: alto/médio/baixo] {descrição do sintoma + onde reproduzir}
 - ...
 
 ## Inconsistências de UX
+
 - {ex: badge X em uma tela usa cor diferente da mesma badge em outra}
 - ...
 
 ## Botões/labels com texto inconsistente
+
 {ex: "Cadastrar produto" vs "Salvar produto" vs "Criar"}
 
 ## Modais sem aria-label / role="dialog"
+
 {lista}
 
 ## Console errors (browser DevTools)
+
 {lista, com URL e stack quando possível}
 
 ## Network failures (status ≥ 400)
+
 {lista de requests com URL + status + payload resumido}
 
 ## Acessibilidade
+
 - Modais sem role="dialog": {lista}
 - Botões só com ícone sem aria-label: {lista}
 - Inputs sem label associado: {lista}
 
 ## Performance percebida
+
 - Telas com loading > 3s: {lista}
 - Telas com flash de conteúdo (FOUC): {lista}
 
 ## Dados sensíveis em produção
+
 {Reporta se viu dados de pacientes ou PII em telas que deveriam ser sintéticas.}
 
 ## Checklist regulatório (RDC 786 + 978/2025)
+
 - [✓/✗] InsumoRow mostra rastreabilidade fiscal (NF + fornecedor)
 - [✓/✗] Movimentações têm timestamp + operador
 - [✓/✗] Chain hash status (pending/sealed) visível em algum lugar
 - [✓/✗] Botão "Qualificar lote" requer re-auth (apenas reporta presença)
 - [✓/✗] Lotes reprovados têm badge "Segregado" e somem dos pickers
-        (verifica indiretamente: cadastrate apenas observa lista, não testa)
+  (verifica indiretamente: cadastrate apenas observa lista, não testa)
 
 ## Coberto vs não-coberto
+
 - Coberto: {lista de fluxos visualmente inspecionados}
 - Não-coberto (bloqueado por regra read-only): {lista}
 
 ## Anexos
+
 - Screenshots numerados: {tabela com nome e descrição}
 - HAR (se possível) ou logs de network filtrados
 
 ## Conclusão
+
 {Frase final: módulo saudável / com ressalvas / com bugs críticos. NÃO
 recomende fix — só classifique severidade.}
 ```
@@ -246,15 +263,18 @@ recomende fix — só classifique severidade.}
 ## Comportamento se algo "exigir" interação
 
 Se uma tela bloquear navegação até preencher (ex: lab obrigatório):
+
 - Já está logado em LabClin Rio Pomba MG, não troca de lab.
 - Se aparecer modal forçado (ex: aceitar termos), CAPTURA screenshot,
   REPORTA no achado, e tenta fechar via X. Se não fechar sem aceitar,
   PARA a auditoria daquela tela e segue pra próxima.
 
 Se PWA mostrar update available:
+
 - NÃO atualiza. Reporta no relatório.
 
 Se sessão expirar mid-auditoria:
+
 - Re-loga, NÃO refaz telas já auditadas, continua de onde parou.
 
 ---
@@ -263,11 +283,13 @@ Se sessão expirar mid-auditoria:
 
 O módulo CIQ-Imuno é regulatório (RDC 786 + RDC 978/2025 Art.128). Cada
 qualificação que você fizer fica permanentemente em /insumo-qualificacoes/
-+ /ciq-audit/, e a chain de movimentações é tamper-evident — não dá pra
-"limpar" depois. Cada Disponibilizar cria um envelope CIQImunoLot que
-polui Bancada e Gestão de Lotes. Cada produto SMOKE polui o catálogo.
+
+- /ciq-audit/, e a chain de movimentações é tamper-evident — não dá pra
+  "limpar" depois. Cada Disponibilizar cria um envelope CIQImunoLot que
+  polui Bancada e Gestão de Lotes. Cada produto SMOKE polui o catálogo.
 
 Manter read-only:
+
 1. Zero risco de pisar em dados reais
 2. Zero limpeza pós-rodada
 3. Auditoria pode rodar quantas vezes quiser sem custo
@@ -288,6 +310,7 @@ crítico**, não a execução.
 Tempo estimado: 30-45 min de auditoria + 10 min de redação. Total ~1h.
 
 **Print final no terminal:**
+
 ```
 Auditoria concluída.
 Telas inspecionadas: N/12

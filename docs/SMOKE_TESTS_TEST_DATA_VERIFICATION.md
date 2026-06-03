@@ -50,6 +50,7 @@ scope: Riopomba Lab (pilot staging lab for smoke tests)
 **If Lab Not Found:**
 
 1. Create lab document manually in Firestore Console:
+
    ```json
    {
      "id": "riopomba",
@@ -102,25 +103,25 @@ scope: Riopomba Lab (pilot staging lab for smoke tests)
 
 **Expected Analitos (17 total):**
 
-| # | Nome | Sigla | Unidade | Range Bio | CV% |
-|---|------|-------|---------|-----------|-----|
-| 1 | Glicose | GLI | mg/dL | 70–99 | 2.5 |
-| 2 | Ureia | URE | mg/dL | 17–49 | 3.0 |
-| 3 | Creatinina | CRE | mg/dL | 0.6–1.3 | 4.0 |
-| 4 | TGO/AST | TGO | U/L | 5–40 | 5.0 |
-| 5 | TGP/ALT | TGP | U/L | 5–41 | 5.0 |
-| 6 | Fosfatase Alcalina | FA | U/L | 40–129 | 4.5 |
-| 7 | GGT | GGT | U/L | 8–61 | 6.0 |
-| 8 | Bilirrubina Direta | BT-D | mg/dL | 0–0.3 | 8.0 |
-| 9 | Bilirrubina Indireta | BT-I | mg/dL | 0.1–1.0 | 8.0 |
-| 10 | Colesterol Total | CT | mg/dL | 0–199 | 3.0 |
-| 11 | HDL Colesterol | HDL | mg/dL | 40–999 | 4.0 |
-| 12 | LDL Colesterol | LDL | mg/dL | 0–129 | 4.5 |
-| 13 | Triglicerídeos | TG | mg/dL | 0–150 | 4.0 |
-| 14 | Sódio | Na | mEq/L | 136–145 | 1.5 |
-| 15 | Potássio | K | mEq/L | 3.5–5.0 | 2.0 |
-| 16 | Cloro | Cl | mEq/L | 98–107 | 1.5 |
-| 17 | Cálcio Total | Ca | mg/dL | 8.5–10.2 | 3.0 |
+| #   | Nome                 | Sigla | Unidade | Range Bio | CV% |
+| --- | -------------------- | ----- | ------- | --------- | --- |
+| 1   | Glicose              | GLI   | mg/dL   | 70–99     | 2.5 |
+| 2   | Ureia                | URE   | mg/dL   | 17–49     | 3.0 |
+| 3   | Creatinina           | CRE   | mg/dL   | 0.6–1.3   | 4.0 |
+| 4   | TGO/AST              | TGO   | U/L     | 5–40      | 5.0 |
+| 5   | TGP/ALT              | TGP   | U/L     | 5–41      | 5.0 |
+| 6   | Fosfatase Alcalina   | FA    | U/L     | 40–129    | 4.5 |
+| 7   | GGT                  | GGT   | U/L     | 8–61      | 6.0 |
+| 8   | Bilirrubina Direta   | BT-D  | mg/dL   | 0–0.3     | 8.0 |
+| 9   | Bilirrubina Indireta | BT-I  | mg/dL   | 0.1–1.0   | 8.0 |
+| 10  | Colesterol Total     | CT    | mg/dL   | 0–199     | 3.0 |
+| 11  | HDL Colesterol       | HDL   | mg/dL   | 40–999    | 4.0 |
+| 12  | LDL Colesterol       | LDL   | mg/dL   | 0–129     | 4.5 |
+| 13  | Triglicerídeos       | TG    | mg/dL   | 0–150     | 4.0 |
+| 14  | Sódio                | Na    | mEq/L   | 136–145   | 1.5 |
+| 15  | Potássio             | K     | mEq/L   | 3.5–5.0   | 2.0 |
+| 16  | Cloro                | Cl    | mEq/L   | 98–107    | 1.5 |
+| 17  | Cálcio Total         | Ca    | mg/dL   | 8.5–10.2  | 3.0 |
 
 **If Analitos Missing:**
 
@@ -284,6 +285,7 @@ Temperatura de Armazenamento: 2–8°C
 - **Size:** ≥100 KB (to test preview rendering)
 
 **Creation Steps:**
+
 1. In Google Drive folder, click **"+ New"** → **"Google Doc"** (or upload PDF)
 2. Name it: `MQ-001 Manual da Qualidade v1`
 3. Add some text (e.g., "Manual da Qualidade v1. Procedimentos operacionais...")
@@ -363,7 +365,8 @@ Temperatura de Armazenamento: 2–8°C
 
 ### Step 8: Verify Test User & Member Doc
 
-**Location:** 
+**Location:**
+
 - Firebase Auth user: any existing test account
 - Firestore member doc: `/labs/riopomba/members/{uid}`
 
@@ -421,29 +424,29 @@ Temperatura de Armazenamento: 2–8°C
 
 #### Bioquímica Functions
 
-| Function | Status | Env Vars |
-|----------|--------|----------|
-| `seedBioquimicaDefaults` | ☐ OK | — |
-| `parseBulaBioquimica` | ☐ OK | `GEMINI_API_KEY` ✓ |
-| `recordRunBioquimica` | ☐ OK | — |
-| `applyBulaToLot` | ☐ OK | — |
+| Function                 | Status | Env Vars           |
+| ------------------------ | ------ | ------------------ |
+| `seedBioquimicaDefaults` | ☐ OK   | —                  |
+| `parseBulaBioquimica`    | ☐ OK   | `GEMINI_API_KEY` ✓ |
+| `recordRunBioquimica`    | ☐ OK   | —                  |
+| `applyBulaToLot`         | ☐ OK   | —                  |
 
 #### SGD/Drive Functions
 
-| Function | Status | Env Vars |
-|----------|--------|----------|
-| `listarDocsDrive` | ☐ OK | `DRIVE_OAUTH_CLIENT_SECRET` ✓ |
-| `previewDocDrive` | ☐ OK | — |
-| `aprovarBatchImport` | ☐ OK | — |
-| `oauthCallbackDrive` | ☐ OK | `DRIVE_OAUTH_CLIENT_SECRET` ✓ |
-| `classificarDocAuto` | ☐ OK | `GEMINI_API_KEY` ✓ |
+| Function             | Status | Env Vars                      |
+| -------------------- | ------ | ----------------------------- |
+| `listarDocsDrive`    | ☐ OK   | `DRIVE_OAUTH_CLIENT_SECRET` ✓ |
+| `previewDocDrive`    | ☐ OK   | —                             |
+| `aprovarBatchImport` | ☐ OK   | —                             |
+| `oauthCallbackDrive` | ☐ OK   | `DRIVE_OAUTH_CLIENT_SECRET` ✓ |
+| `classificarDocAuto` | ☐ OK   | `GEMINI_API_KEY` ✓            |
 
 #### Other Critical Functions
 
-| Function | Status | Env Vars |
-|----------|--------|----------|
-| `criarReclamacao` | ☐ OK | — |
-| `liberarLaudo` | ☐ OK | — |
+| Function          | Status | Env Vars |
+| ----------------- | ------ | -------- |
+| `criarReclamacao` | ☐ OK   | —        |
+| `liberarLaudo`    | ☐ OK   | —        |
 
 **If Functions Missing:**
 
@@ -454,6 +457,7 @@ Temperatura de Armazenamento: 2–8°C
 **If Env Vars Missing:**
 
 Check Cloud Secrets Manager:
+
 ```bash
 gcloud secrets list --project=hmatologia2 | grep -E "(GEMINI|DRIVE)"
 ```
@@ -582,6 +586,7 @@ Complete this checklist before executing Smoke Tests 1–5:
 **Resolution:**
 
 1. Check Cloud Logs for `seedBioquimicaDefaults` errors:
+
    ```bash
    gcloud functions logs read seedBioquimicaDefaults \
      --region=southamerica-east1 \
@@ -601,7 +606,8 @@ Complete this checklist before executing Smoke Tests 1–5:
 
 **Symptom:** Smoke Test 2, Step 4 shows "Folder empty" or 0 documents listed.
 
-**Cause:** 
+**Cause:**
+
 - Folder ID invalid
 - Folder has no files
 - OAuth token revoked
@@ -639,6 +645,7 @@ Complete this checklist before executing Smoke Tests 1–5:
 **Resolution:**
 
 1. Verify `GEMINI_API_KEY` is set:
+
    ```bash
    gcloud functions describe parseBulaBioquimica \
      --gen2 --region=southamerica-east1 --project=hmatologia2 \
@@ -662,12 +669,14 @@ Complete this checklist before executing Smoke Tests 1–5:
 **Resolution:**
 
 1. Verify member doc:
+
    ```
    Firestore Console → labs → riopomba → members → {uid}
    Check: isActiveMemberOfLab = true
    ```
 
 2. Verify rules are published (no errors):
+
    ```
    Firestore Console → Rules tab → should show "Last published: now"
    ```
@@ -711,17 +720,17 @@ Complete this checklist before executing Smoke Tests 1–5:
 
 - [ ] **All checks passed** — Ready to execute Smoke Tests 1–5
 - [ ] **Some items incomplete** — List below and assign owner:
-  - ___________________________________________________
-  - ___________________________________________________
-  - ___________________________________________________
+  - ***
+  - ***
+  - ***
 
 **Sign-Off:**
 
 I confirm that test data preparation is complete and the Riopomba lab is ready for Step 4 (Smoke Tests).
 
-**Signature:** ________________________  
-**Name:** ________________________  
-**Timestamp:** ________________________
+**Signature:** **********\_\_\_\_**********  
+**Name:** **********\_\_\_\_**********  
+**Timestamp:** **********\_\_\_\_**********
 
 ---
 

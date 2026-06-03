@@ -46,12 +46,7 @@ try {
       createdBy: '2C7CDajpigXfaAVAzzJVFfrhgYB2', // drogafarto@gmail.com
     };
 
-    await db
-      .collection('labs')
-      .doc(labId)
-      .collection('ciq-coagulacao')
-      .doc(lotId)
-      .set(newLot);
+    await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(lotId).set(newLot);
 
     console.log(`   ✅ Write bem-sucedido. Lote criado: ${lotId}`);
   } else {
@@ -73,7 +68,6 @@ try {
   console.log('\n✅ SUCESSO: Todo o fluxo funcionou!\n');
   console.log('💡 Conclusão: O servidor está OK. O problema é CLIENT-SIDE.');
   console.log('   Próximo passo: Investigar SDK do cliente ou cache local.\n');
-
 } catch (err) {
   console.error('\n❌ ERRO NO FLUXO:');
   console.error('   Código:', err.code);

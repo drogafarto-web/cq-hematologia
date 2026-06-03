@@ -58,10 +58,7 @@ export interface VerificarEficaciaPayload {
 
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
 
-let _callInvestigarNC: HttpsCallable<
-  InvestigarNCPayload,
-  CallInvestigarNCResult
-> | null = null;
+let _callInvestigarNC: HttpsCallable<InvestigarNCPayload, CallInvestigarNCResult> | null = null;
 let _callExecutarAcaoCorretiva: HttpsCallable<
   ExecutarAcaoCorrecivaPayload,
   CallExecutarAcaoCorrecivaResult
@@ -71,10 +68,7 @@ let _callVerificarEficacia: HttpsCallable<
   CallVerificarEficaciaResult
 > | null = null;
 
-function getCallInvestigarNC(): HttpsCallable<
-  InvestigarNCPayload,
-  CallInvestigarNCResult
-> {
+function getCallInvestigarNC(): HttpsCallable<InvestigarNCPayload, CallInvestigarNCResult> {
   if (!_callInvestigarNC) {
     _callInvestigarNC = httpsCallable(functions, 'capa_investigarNC');
   }
@@ -171,9 +165,7 @@ function translateError(error: unknown): Error {
     if (message.includes('FAILED_PRECONDITION')) {
       const match = message.match(/FAILED_PRECONDITION: (.+)/);
       return new Error(
-        match
-          ? match[1]
-          : 'Operação não permitida no estado atual da Não-Conformidade.',
+        match ? match[1] : 'Operação não permitida no estado atual da Não-Conformidade.',
       );
     }
     if (message.includes('INTERNAL')) {

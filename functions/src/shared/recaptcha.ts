@@ -24,10 +24,7 @@ interface SiteVerifyResponse {
  * Verify a reCAPTCHA v3 token. Returns true when valid + score >= threshold.
  * Permissive in emulator (no secret configured).
  */
-export async function verifyRecaptcha(
-  token: string,
-  expectedAction?: string,
-): Promise<boolean> {
+export async function verifyRecaptcha(token: string, expectedAction?: string): Promise<boolean> {
   const secret = process.env[SECRET_ENV];
   if (!secret) {
     // Emulator / local dev — skip verification

@@ -5,7 +5,7 @@
 **Effective Date:** 2026-05-07  
 **Next Review:** 2026-05-07 + 6 months  
 **Owner:** CTO + DevOps + Security Lead  
-**Classification:** DICQ 4.4 (Gestão de documentação + Trilha de auditoria)  
+**Classification:** DICQ 4.4 (Gestão de documentação + Trilha de auditoria)
 
 ---
 
@@ -19,12 +19,12 @@ This playbook defines response procedures for critical incidents in HC Quality (
 
 **Incident Severity Levels:**
 
-| Priority | Impact | RTO | Notification |
-|----------|--------|-----|--------------|
-| **P0** | Patient safety risk, data breach, system down, regulatory reporting required | 15 min | Immediate: CTO + customer + regulator |
-| **P1** | Significant service degradation, data integrity concern, potential compliance violation | 1 hour | Within 30 min: CTO + customer |
-| **P2** | Minor service impact, isolated user report, no compliance implications | 8 hours | Within 4 hours: team + customer |
-| **P3** | Informational, post-incident improvement | No SLA | End of day |
+| Priority | Impact                                                                                  | RTO     | Notification                          |
+| -------- | --------------------------------------------------------------------------------------- | ------- | ------------------------------------- |
+| **P0**   | Patient safety risk, data breach, system down, regulatory reporting required            | 15 min  | Immediate: CTO + customer + regulator |
+| **P1**   | Significant service degradation, data integrity concern, potential compliance violation | 1 hour  | Within 30 min: CTO + customer         |
+| **P2**   | Minor service impact, isolated user report, no compliance implications                  | 8 hours | Within 4 hours: team + customer       |
+| **P3**   | Informational, post-incident improvement                                                | No SLA  | End of day                            |
 
 ---
 
@@ -37,12 +37,14 @@ This playbook defines response procedures for critical incidents in HC Quality (
 **Investigative Scope:** Who accessed? How much data? When was breach detected?
 
 **Indicators:**
+
 - Unauthorized read access to `/pacientes/{labId}/*`, `/laudos/{labId}/*`, `/declaracoes/{labId}/*`
 - Firestore audit logs show `read` from unexpected IP / service account
 - Customer reports patient complaint about unauthorized access
 - External notification (e.g., data found on dark web)
 
 **Severity Assignment:**
+
 - P0 if: >100 patients affected OR contains health data (diagnoses, test results) OR data exported/exfiltrated
 - P1 if: <100 patients, only contact info, contained to single lab
 - P2 if: Suspicious read denied by rules (attempted breach, not successful)
@@ -56,6 +58,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 **Investigative Scope:** Root cause, which modules affected, how long?
 
 **Indicators:**
+
 - Firebase Hosting returns 5xx errors or connection refused
 - Cloud Functions time out or crash on invocation
 - Firestore rules reject all writes with permission error
@@ -63,6 +66,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 - Cloud Monitoring alerts: error rate >5%, latency >10s
 
 **Severity Assignment:**
+
 - P0 if: All modules down OR downtime >30 min without ETA recovery
 - P1 if: Specific module down (e.g., CIQ analyzer) but core hub accessible OR downtime 5–30 min
 - P2 if: Intermittent errors, specific user action fails, system recovers within 5 min
@@ -76,6 +80,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 **Investigative Scope:** Which documents? Root cause? Scope of corruption?
 
 **Indicators:**
+
 - Firestore document hash verification fails (`chainHash` mismatch)
 - Cloud Function writes inconsistent data (missing `labId`, null timestamps)
 - Laudo marked "locked" but operator reports they didn't lock it
@@ -83,6 +88,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 - NOTIVISA payload validation fails (missing required fields)
 
 **Severity Assignment:**
+
 - P0 if: Regulatory document (NOTIVISA, certification) corrupted OR >50 docs affected
 - P1 if: Working copy (draft laudo) corrupted but published version intact OR <50 docs
 - P2 if: Single document corruption, easily recoverable, no patient-facing impact
@@ -96,6 +102,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 **Investigative Scope:** Which request? Processed status? Audit trail intact?
 
 **Indicators:**
+
 - Data subject requests deletion; system does not act within 30 days
 - Soft-delete flag set but data still visible in queries
 - Export request (Art. 18) incomplete or malformed
@@ -103,6 +110,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 - DPIA findings not addressed (risk mitigation overdue)
 
 **Severity Assignment:**
+
 - P0 if: Legal obligation deadline passed (>30 days since valid request)
 - P1 if: Valid request not actioned within 15 days
 - P2 if: Technical issue processing request but deadline not approached
@@ -116,6 +124,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 **Investigative Scope:** Credential scope, affected systems, attacker capability?
 
 **Indicators:**
+
 - API key or `HCQ_SIGNATURE_HMAC_KEY` found in git history
 - Firebase Admin SDK credentials leaked via third-party tool
 - Anomalous audit log activity (writes from unexpected location, timezone, IP)
@@ -123,6 +132,7 @@ This playbook defines response procedures for critical incidents in HC Quality (
 - Phishing attack reports on team
 
 **Severity Assignment:**
+
 - P0 if: Admin-level credential compromised OR secret in public repo OR attacker already wrote data
 - P1 if: Read-only credential leaked (no immediate write risk) OR secret in private repo
 - P2 if: Credential rotated before use detected
@@ -167,6 +177,7 @@ Detection
 4. **Create Slack thread** in `#incident` channel: `[P0|P1|P2] <title> — <one-line description>`
 
 **Example:**
+
 ```
 [P0] Data Breach — Unauthorized reads detected in pacientes collection
 Detected: 2026-05-07 14:23 UTC
@@ -209,6 +220,7 @@ Scope: Unknown (investigation in progress)
 ### 2.4 Phase: Investigation & Cause Analysis (15–60 minutes)
 
 **Incident Commander Responsibilities:**
+
 - Designate primary investigator (usually the on-call engineer who detected it)
 - Update status every 15 minutes in Slack + customer
 - Collect evidence in real-time (see Section 3 below)
@@ -225,33 +237,41 @@ Scope: Unknown (investigation in progress)
 **Where to Look (by incident type):**
 
 **Data Breach → Check Firestore audit logs:**
+
 ```
 gcloud logging read "resource.type=cloud_firestore AND severity >= WARNING" \
   --project=hmatologia2 --limit=1000 --format=json | jq '.[] | select(.jsonPayload.operation == "read")'
 ```
+
 Look for: unusual IPs, service accounts, read patterns that match `pacientes`, `laudos`, `declaracoes` collections.
 
 **System Outage → Check Cloud Functions logs:**
+
 ```
 gcloud logging read "resource.type=cloud_function AND severity >= ERROR" \
   --project=hmatologia2 --limit=500 --format=json
 ```
+
 Look for: timeout, permission denied, out of memory, deploy failures.
 
 **Data Corruption → Check Firestore directly:**
+
 - Navigate to document in Firebase Console
 - Check `chainHash`, `assinatura`, `labId` fields
 - Run spot-check: `validateChainIntegrityScheduled` on 10 random docs from the affected collection
 - Check audit logs for writes that created/modified the corrupted doc
 
 **Compliance Violation → Check LGPD audit trail:**
+
 ```
 gcloud logging read "resource.type=cloud_firestore AND jsonPayload.collection = 'lgpd-requests'" \
   --project=hmatologia2 --limit=100
 ```
+
 Look for: request date, completion status, delay vs. 30-day deadline.
 
 **Security Incident → Check Cloud IAM + Firestore rules:**
+
 - Review recent IAM role assignments (Cloud Console → IAM & Admin)
 - Check git history for accidental commits: `git log -p --all -S 'HMAC_KEY' | head -100`
 - Review Firestore rule changes: `git log -p firestore.rules | head -50`
@@ -266,25 +286,31 @@ Look for: request date, completion status, delay vs. 30-day deadline.
 **Immediate Actions (within 15 min of triage):**
 
 1. **Cloud Logs snapshot:**
+
    ```bash
    gcloud logging read "resource.type=cloud_function OR resource.type=cloud_firestore" \
      --project=hmatologia2 --limit=10000 --format=json > /tmp/incident-logs-$(date +%s).json
    ```
+
    Upload to incident Slack thread.
 
 2. **Firestore rules snapshot:**
+
    ```bash
    firebase firestore:indexes --project hmatologia2 > /tmp/firestore-indexes.json
    cat firestore.rules > /tmp/firestore-rules-snapshot.txt
    ```
+
    Archive in incident folder.
 
 3. **Affected documents (read-only):**
    If investigating data corruption, export samples:
+
    ```bash
    gcloud firestore export gs://hmatologia2-incident-backups/export-$(date +%s) \
      --project=hmatologia2
    ```
+
    Do NOT download to local machine without CTO approval.
 
 4. **Screenshot audit trail:**
@@ -333,6 +359,7 @@ Is root cause a recent code/rule deploy?
 **Rollback Procedure (if applicable):**
 
 1. Identify last known-good commit:
+
    ```bash
    git log --oneline | head -10
    # Example output:
@@ -342,11 +369,12 @@ Is root cause a recent code/rule deploy?
    ```
 
 2. Check if deploy of `x7y8z9a` is associated with outage. If yes, rollback to `a1b2c3d`:
+
    ```bash
    # Option A: Redeploy specific services from previous commit
    git checkout a1b2c3d -- firestore.rules functions/
    firebase deploy --only firestore:rules,functions --project hmatologia2
-   
+
    # Option B: Revert commit (creates new commit that undoes changes)
    git revert --no-edit x7y8z9a
    git push origin main
@@ -414,14 +442,15 @@ Is root cause a recent code/rule deploy?
 **Example: API key leaked**
 
 1. **Immediate action:**
+
    ```bash
    # Revoke compromised key
    gcloud services api-keys delete projects/hmatologia2/locations/global/keys/abc123 \
      --project=hmatologia2
-   
+
    # Create new key
    gcloud services api-keys create --project=hmatologia2 --restrictions api_target=firestore.googleapis.com
-   
+
    # Update application (Functions, CI/CD, client SDKs)
    firebase functions:secrets:set FIRESTORE_API_KEY --project hmatologia2 # paste new key
    firebase deploy --only functions --project hmatologia2
@@ -536,16 +565,16 @@ Data do Incidente: [data/hora primeira detecção]
    Tipo: Acesso não autorizado
    Dados afetados: [Pacientes, resultados de exames, etc.]
    Número estimado de titulares: [número]
-   
+
 2. Causa Raiz (Investigação em andamento)
    Hipótese: [credencial comprometida / falha de regra / outro]
    Status: [a confirmar / confirmado]
-   
+
 3. Medidas Tomadas Imediatamente
    - [Medida 1]
    - [Medida 2]
    - [Medida 3]
-   
+
 4. Próximos Passos
    - Relatório completo dentro de 72 horas
    - Notificação aos titulares de dados
@@ -611,7 +640,7 @@ Documentação:
 **Incident ID:** [INC-YYYY-MM-DD-001]  
 **Date:** [YYYY-MM-DD]  
 **Severity:** [P0|P1|P2]  
-**Duration:** [HH:MM]  
+**Duration:** [HH:MM]
 
 ## 1. Summary
 
@@ -619,20 +648,21 @@ Documentação:
 
 ## 2. Timeline
 
-| Time (UTC) | Event |
-|--|--|
-| 14:23 | Issue detected via alert / customer report |
-| 14:28 | Triage complete, severity assigned P0 |
-| 14:35 | Root cause identified: [description] |
-| 14:50 | Remediation deployed |
-| 15:01 | System recovered, validation passed |
-| 15:15 | Customer notified |
+| Time (UTC) | Event                                      |
+| ---------- | ------------------------------------------ |
+| 14:23      | Issue detected via alert / customer report |
+| 14:28      | Triage complete, severity assigned P0      |
+| 14:35      | Root cause identified: [description]       |
+| 14:50      | Remediation deployed                       |
+| 15:01      | System recovered, validation passed        |
+| 15:15      | Customer notified                          |
 
 ## 3. Root Cause Analysis
 
 **Primary cause:** [description]
 
 **Contributing factors:**
+
 - [Factor 1]
 - [Factor 2]
 
@@ -656,16 +686,16 @@ Documentação:
 
 ## 6. Preventive Actions
 
-| Action | Owner | Due Date |
-|--|--|--|
+| Action                                 | Owner    | Due Date   |
+| -------------------------------------- | -------- | ---------- |
 | [Action 1: Implement monitoring for X] | Engineer | YYYY-MM-DD |
-| [Action 2: Update runbook for Y] | DevOps | YYYY-MM-DD |
-| [Action 3: Add test for Z] | QA | YYYY-MM-DD |
+| [Action 2: Update runbook for Y]       | DevOps   | YYYY-MM-DD |
+| [Action 3: Add test for Z]             | QA       | YYYY-MM-DD |
 
 ## 7. Approval
 
-- CTO approval: ______ (sign + date)
-- Tech Lead approval: ______ (sign + date)
+- CTO approval: **\_\_** (sign + date)
+- Tech Lead approval: **\_\_** (sign + date)
 ```
 
 ---
@@ -726,13 +756,14 @@ gsutil -m cp -r gs://hmatologia2-incident-backups/exports/export-TIMESTAMP/* /tm
 **How:**
 
 1. **Enable debug logging in Firestore rules (temporary):**
+
    ```javascript
    rules_version = '2';
    service cloud.firestore {
      function debugLog(message) {
        return debug(message);
      }
-     
+
      match /databases/{database}/documents {
        match /pacientes/{labId}/{rest=**} {
          allow read: if debugLog('read attempt from ' + request.auth.uid) && isActiveMemberOfLab(labId);
@@ -742,8 +773,8 @@ gsutil -m cp -r gs://hmatologia2-incident-backups/exports/export-TIMESTAMP/* /tm
    ```
 
 2. **Deploy rules, reproduce incident**
-   
 3. **Capture debug logs:**
+
    ```bash
    gcloud logging read "resource.type=cloud_firestore AND jsonPayload.debugOutput != null" \
      --project=hmatologia2 --limit=1000 --format=json
@@ -779,7 +810,7 @@ Is the bug a clear regression in the current deploy?
         Rollback procedure: (see Section 2.6, step 2)
      └─ NO → Apply hotfix (minimize custom code)
         Hotfix procedure: (see below)
-  
+
   └─ NO → Is this a pre-existing bug surfaced by load/usage?
      └─ YES → Apply hotfix + increase test coverage
      └─ NO → Investigate further before deciding
@@ -788,12 +819,14 @@ Is the bug a clear regression in the current deploy?
 **Hotfix Procedure:**
 
 1. Create hotfix branch from production tag:
+
    ```bash
    git checkout tags/prod-v1.3-2026-05-07
    git checkout -b hotfix/incident-INC-001-quick-fix
    ```
 
 2. Make minimal change (1–3 lines):
+
    ```bash
    # Example: Fix permission check in rules
    nano firestore.rules
@@ -802,12 +835,14 @@ Is the bug a clear regression in the current deploy?
    ```
 
 3. Test locally:
+
    ```bash
    npm run test:firestore  # Must pass 100%
    npm run build           # No errors
    ```
 
 4. Deploy with incident ID in commit message:
+
    ```bash
    git add firestore.rules
    git commit -m "hotfix(INC-001): fix permission check for CIQ reads"
@@ -835,13 +870,13 @@ Is the bug a clear regression in the current deploy?
 
 **Preventive Action Categories:**
 
-| Category | Examples | Timeline |
-|----------|----------|----------|
-| **Monitoring** | Add alert for unusual IP patterns, add rate-limit alert | 1 week |
-| **Documentation** | Update runbook, add FAQ entry, create decision tree | 1 week |
-| **Testing** | Add integration test for [scenario], add chaos test | 2 weeks |
-| **Architecture** | Refactor [module], extract [common pattern], add retry logic | 4 weeks |
-| **Training** | Team training on [incident type], update on-call runbook | 1 week |
+| Category          | Examples                                                     | Timeline |
+| ----------------- | ------------------------------------------------------------ | -------- |
+| **Monitoring**    | Add alert for unusual IP patterns, add rate-limit alert      | 1 week   |
+| **Documentation** | Update runbook, add FAQ entry, create decision tree          | 1 week   |
+| **Testing**       | Add integration test for [scenario], add chaos test          | 2 weeks  |
+| **Architecture**  | Refactor [module], extract [common pattern], add retry logic | 4 weeks  |
+| **Training**      | Team training on [incident type], update on-call runbook     | 1 week   |
 
 **Ticket Creation:**
 
@@ -866,6 +901,7 @@ Acceptance Criteria:
 ## 6. RDC 978 Art. 5 Compliance Checklist
 
 **RDC 978 Art. 5** requires laboratories to:
+
 > "Manter registros de rastreabilidade e conformidade, incluindo incidentes de segurança, relatórios de investigação e medidas corretivas, acessíveis para inspeção por órgãos reguladores."
 
 **Incident Response Compliance:**
@@ -885,13 +921,13 @@ Acceptance Criteria:
 
 ## 7. On-Call Escalation Matrix
 
-| Role | On-Call Hours | Phone | Email | Escalation Path |
-|---|---|---|---|---|
-| **Tier 1: DevOps** | 24/7 | [phone] | devops@hcquality.com.br | Initial response, triage |
-| **Tier 2: CTO** | 24/7 weekdays, on-demand weekends | [phone] | drogafarto@gmail.com | P0/P1 decision, remediation approval |
-| **Tier 3: Tech Lead** | 24/7 (backup CTO) | [phone] | tech@hcquality.com.br | If CTO unreachable >15 min |
-| **Tier 4: Security Lead** | 24/7 for security incidents | [phone] | security@hcquality.com.br | Data breach, credential compromise |
-| **Tier 5: Legal + ANVISA Liaison** | Business hours | — | legal@hcquality.com.br | Regulatory notification (>8h incidents) |
+| Role                               | On-Call Hours                     | Phone   | Email                     | Escalation Path                         |
+| ---------------------------------- | --------------------------------- | ------- | ------------------------- | --------------------------------------- |
+| **Tier 1: DevOps**                 | 24/7                              | [phone] | devops@hcquality.com.br   | Initial response, triage                |
+| **Tier 2: CTO**                    | 24/7 weekdays, on-demand weekends | [phone] | drogafarto@gmail.com      | P0/P1 decision, remediation approval    |
+| **Tier 3: Tech Lead**              | 24/7 (backup CTO)                 | [phone] | tech@hcquality.com.br     | If CTO unreachable >15 min              |
+| **Tier 4: Security Lead**          | 24/7 for security incidents       | [phone] | security@hcquality.com.br | Data breach, credential compromise      |
+| **Tier 5: Legal + ANVISA Liaison** | Business hours                    | —       | legal@hcquality.com.br    | Regulatory notification (>8h incidents) |
 
 **Escalation SLA:**
 
@@ -947,12 +983,12 @@ Is it a real issue? (not false positive)
 
 ## 10. Document History
 
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0 | 2026-05-07 | Initial creation | CTO |
+| Version | Date       | Changes          | Author |
+| ------- | ---------- | ---------------- | ------ |
+| 1.0     | 2026-05-07 | Initial creation | CTO    |
 
 ---
 
 **Document Owner:** CTO  
 **Next Review Date:** 2026-11-07  
-**Classification:** DICQ 4.4 / RDC 978 Art. 5  
+**Classification:** DICQ 4.4 / RDC 978 Art. 5

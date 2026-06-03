@@ -1,21 +1,13 @@
 import { useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  importarXlsxBatch,
-  type ImportResultado,
-} from '../services/ctFirebaseService';
+import { importarXlsxBatch, type ImportResultado } from '../services/ctFirebaseService';
 import {
   downloadCtTemplate,
   parseImportXlsx,
   type ImportParseResult,
 } from '../services/ctXlsxService';
-import {
-  AlertTriangleIcon,
-  CheckIcon,
-  DownloadIcon,
-  XIcon,
-} from './_icons';
+import { AlertTriangleIcon, CheckIcon, DownloadIcon, XIcon } from './_icons';
 import { Button, Modal, StatusBadge } from './_shared';
 
 export interface CTImportXlsxProps {
@@ -119,11 +111,7 @@ export function CTImportXlsx({ open, onClose, onImported }: CTImportXlsxProps) {
             >
               Cancelar
             </Button>
-            <Button
-              className="flex-1"
-              onClick={handleConfirm}
-              disabled={!canConfirm || importando}
-            >
+            <Button className="flex-1" onClick={handleConfirm} disabled={!canConfirm || importando}>
               {importando
                 ? 'Importando...'
                 : parse
@@ -209,7 +197,10 @@ export function CTImportXlsx({ open, onClose, onImported }: CTImportXlsxProps) {
                     <ul className="ml-4 list-disc space-y-1">
                       {parse.erros.slice(0, 15).map((e, i) => (
                         <li key={i}>
-                          <span className="font-mono text-xs">{e.aba} L{e.linha}</span> — {e.mensagem}
+                          <span className="font-mono text-xs">
+                            {e.aba} L{e.linha}
+                          </span>{' '}
+                          — {e.mensagem}
                         </li>
                       ))}
                       {parse.erros.length > 15 ? (
@@ -227,7 +218,10 @@ export function CTImportXlsx({ open, onClose, onImported }: CTImportXlsxProps) {
                     <ul className="ml-4 list-disc space-y-1">
                       {parse.warnings.map((w, i) => (
                         <li key={i}>
-                          <span className="font-mono text-xs">{w.aba} L{w.linha}</span> — {w.mensagem}
+                          <span className="font-mono text-xs">
+                            {w.aba} L{w.linha}
+                          </span>{' '}
+                          — {w.mensagem}
                         </li>
                       ))}
                     </ul>

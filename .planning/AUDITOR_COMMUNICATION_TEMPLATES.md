@@ -63,7 +63,7 @@ Compliance Lead, HC Quality
 ---
 
 CC: [CTO]
-Files attached: 
+Files attached:
 - weekly_scorecard_week_X.xlsx
 - phase_X_status_update.md
 ```
@@ -576,11 +576,11 @@ Esta é uma notificação de escalação: RFI-XXX está com resposta atrasada.
 
 ISSUE
 
-RFI-XXX: [Topic]  
-Opening date: [Date]  
-Original due date: [Date + 5 business days]  
-Current status: ⏳ In progress (delayed by [X] days)  
-Updated ETA: [New date]  
+RFI-XXX: [Topic]
+Opening date: [Date]
+Original due date: [Date + 5 business days]
+Current status: ⏳ In progress (delayed by [X] days)
+Updated ETA: [New date]
 
 ROOT CAUSE
 [Explanation: engineering capacity, dependency on other work, etc.]
@@ -622,6 +622,7 @@ CC: CTO
 5. **Escalations** — Send immediately when discovered (no delays)
 
 **Always include:**
+
 - Compliance metrics (DICQ %, RDC articles, LGPD %)
 - Evidence links (code, tests, ADRs)
 - Clear action items + owners + due dates

@@ -41,11 +41,7 @@ function generateMockPDF(data: any): {
     SUMMARY:
     ${data.summary || 'Sumário não disponível.'}
 
-    ${
-      data.rules
-        ?.map((rule: any) => `RULE: ${rule.name}\nCOUNT: ${rule.alertCount}`)
-        .join('\n')
-    }
+    ${data.rules?.map((rule: any) => `RULE: ${rule.name}\nCOUNT: ${rule.alertCount}`).join('\n')}
   `;
 
   const buffer = Buffer.from(textContent, 'utf-8');
@@ -140,12 +136,8 @@ describe('reportPDF', () => {
   it('executive summary section contains full summary text', () => {
     const { metadata } = generateMockPDF(fixtureReport);
 
-    expect(metadata.textContent).toContain(
-      'Este período apresentou 3 alertas críticos',
-    );
-    expect(metadata.textContent).toContain(
-      'Recomenda-se revisão de calibração',
-    );
+    expect(metadata.textContent).toContain('Este período apresentou 3 alertas críticos');
+    expect(metadata.textContent).toContain('Recomenda-se revisão de calibração');
   });
 
   // ─── Test 4: Per-rule sections found for each rule ──────────────────────
@@ -182,14 +174,8 @@ describe('reportPDF', () => {
     // Determinism is asserted on the stable content (lab name, period, rules).
     const strip = (s: string) => s.replace(/GENERATED:.*?\n/, '');
 
-    const hash1 = crypto
-      .createHash('sha256')
-      .update(strip(meta1.textContent))
-      .digest('hex');
-    const hash2 = crypto
-      .createHash('sha256')
-      .update(strip(meta2.textContent))
-      .digest('hex');
+    const hash1 = crypto.createHash('sha256').update(strip(meta1.textContent)).digest('hex');
+    const hash2 = crypto.createHash('sha256').update(strip(meta2.textContent)).digest('hex');
 
     expect(hash1).toBe(hash2);
   });
@@ -205,9 +191,7 @@ describe('reportPDF', () => {
       periodFrom: '2026-05-01',
       periodTo: '2026-05-31',
       hasRules: metadata.textContent.includes('RULE:'),
-      hasSummary: metadata.textContent.includes(
-        'Este período apresentou',
-      ),
+      hasSummary: metadata.textContent.includes('Este período apresentou'),
     });
 
     // Verify snapshot data was captured

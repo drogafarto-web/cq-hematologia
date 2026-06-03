@@ -56,9 +56,7 @@ export function CoagLevelPills({
             ].join(' ')}
           >
             {formatCoagNivelLabel(nivel)}
-            {!hasLot && (
-              <span className="ml-1.5 text-[10px] font-normal opacity-80">+</span>
-            )}
+            {!hasLot && <span className="ml-1.5 text-[10px] font-normal opacity-80">+</span>}
           </button>
         );
       })}

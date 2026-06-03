@@ -25,23 +25,13 @@ export interface ImporterWizardProps {
   onSuccess: (importJobId: string, count: number) => void;
 }
 
-export function ImporterWizard({
-  labId,
-  onClose,
-  onSuccess,
-}: ImporterWizardProps) {
+export function ImporterWizard({ labId, onClose, onSuccess }: ImporterWizardProps) {
   const [step, setStep] = useState<WizardStep>('consent');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
   const handleNext = async () => {
-    const steps: WizardStep[] = [
-      'consent',
-      'list',
-      'preview',
-      'mapping',
-      'confirm',
-    ];
+    const steps: WizardStep[] = ['consent', 'list', 'preview', 'mapping', 'confirm'];
     const currentIndex = steps.indexOf(step);
     if (currentIndex < steps.length - 1) {
       setStep(steps[currentIndex + 1]);
@@ -49,13 +39,7 @@ export function ImporterWizard({
   };
 
   const handlePrev = () => {
-    const steps: WizardStep[] = [
-      'consent',
-      'list',
-      'preview',
-      'mapping',
-      'confirm',
-    ];
+    const steps: WizardStep[] = ['consent', 'list', 'preview', 'mapping', 'confirm'];
     const currentIndex = steps.indexOf(step);
     if (currentIndex > 0) {
       setStep(steps[currentIndex - 1]);
@@ -68,17 +52,12 @@ export function ImporterWizard({
         {/* Header */}
         <div className="sticky top-0 bg-neutral-900 border-b border-neutral-800 px-6 py-4 flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-white">
-              Importar documentos do Drive
-            </h2>
+            <h2 className="text-lg font-semibold text-white">Importar documentos do Drive</h2>
             <p className="text-sm text-neutral-400 mt-1">
               Passo {['consent', 'list', 'preview', 'mapping', 'confirm'].indexOf(step) + 1} de 5
             </p>
           </div>
-          <button
-            onClick={onClose}
-            className="text-neutral-400 hover:text-white transition-colors"
-          >
+          <button onClick={onClose} className="text-neutral-400 hover:text-white transition-colors">
             ✕
           </button>
         </div>
@@ -91,9 +70,7 @@ export function ImporterWizard({
             </div>
           )}
 
-          {step === 'consent' && (
-            <OAuthConsentStep labId={labId} onNext={handleNext} />
-          )}
+          {step === 'consent' && <OAuthConsentStep labId={labId} onNext={handleNext} />}
           {step === 'list' && (
             <DriveListStep
               labId={labId}
@@ -113,11 +90,7 @@ export function ImporterWizard({
             />
           )}
           {step === 'mapping' && (
-            <MappingEditor
-              labId={labId}
-              onNext={handleNext}
-              onError={setError}
-            />
+            <MappingEditor labId={labId} onNext={handleNext} onError={setError} />
           )}
           {step === 'confirm' && (
             <ConfirmStep

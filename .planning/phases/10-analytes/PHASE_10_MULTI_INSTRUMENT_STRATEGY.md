@@ -18,6 +18,7 @@ This document defines the end-to-end strategy for managing quantitative biochemi
 5. **Cross-instrument statistical reconciliation** — comparing results across models
 
 This architecture aligns with:
+
 - **RDC 978/2025** Arts. 179–183 (CIQ mandatory, material traceability)
 - **DICQ 4.3** Blocks F (Analytical) + inventory (calibration per equipment)
 - **CLSI EP15** (method comparison studies)
@@ -130,36 +131,37 @@ exports.recordRunBioquimica = functions
   .https.onCall(async (req, ctx) => {
     // 1. Validate auth
     const userId = ctx.auth?.uid || throwError('Unauthenticated');
-    
+
     // 2. Validate multi-tenant: req.labId must match user's active lab
     const labId = req.labId || throwError('Missing labId');
     const { labId: userLabId } = await verifyMembership(userId, labId);
-    
+
     // 3. Load control material (bula stats)
     const lot = await db.doc(`/labs/${labId}/bioquimica/root/lotes/${req.lotId}`).get();
     if (!lot.exists) throw new HttpsError('not-found', 'Lot not found');
-    
+
     // 4. Load analytes (all enabled)
-    const analitos = await db.collection(`/labs/${labId}/bioquimica/root/analitos`)
+    const analitos = await db
+      .collection(`/labs/${labId}/bioquimica/root/analitos`)
       .where('ativo', '==', true)
       .get();
-    
+
     // 5. Evaluate Westgard rules (see 2.2 below)
     const violations = evaluateWestgard(req.resultados, lot, analitos);
-    
+
     // 6. Determine status + aproveitamento
-    const status = violations.some(v => v.severity === 'reject') 
-      ? 'Rejeitada' 
-      : violations.length > 0 
-        ? 'Pendente' 
+    const status = violations.some((v) => v.severity === 'reject')
+      ? 'Rejeitada'
+      : violations.length > 0
+        ? 'Pendente'
         : 'Aprovada';
-    
+
     // 7. Compute signature (server-side)
     const signature = await computeLogicalSignature(userId, payload);
-    
+
     // 8. Compute chainHash (encadeamento criptográfico)
     const chainHash = await computeChainHash(labId, signature, lastRunChainHash);
-    
+
     // 9. Atomic transaction: create Run + append TraceabilityEvent
     const batch = db.batch();
     batch.set(db.collection(`/labs/${labId}/bioquimica/root/runs`).doc(), {
@@ -171,12 +173,12 @@ exports.recordRunBioquimica = functions
       resultados: req.resultados,
       violations,
       status,
-      aproveitamento: violations.some(v => v.severity === 'reject') ? 'informativa' : 'oficial',
+      aproveitamento: violations.some((v) => v.severity === 'reject') ? 'informativa' : 'oficial',
       signature,
       chainHash,
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     batch.set(db.collection(`/labs/${labId}/bioquimica/root/traceability-events`).doc(), {
       labId,
       type: 'run-recorded',
@@ -186,9 +188,9 @@ exports.recordRunBioquimica = functions
       signature,
       ts: admin.firestore.FieldValue.serverTimestamp(),
     });
-    
+
     await batch.commit();
-    
+
     return { runId: runDocRef.id, status, violations };
   });
 ```
@@ -203,24 +205,24 @@ exports.recordRunBioquimica = functions
  * Returns array of violations (empty = all OK).
  */
 export function evaluateWestgardRules(
-  runResultados: RunResultados,          // { analitoId → { nivelId → value } }
-  controlMaterial: ControlMaterial,      // { manufacturerStats, ... }
-  analitos: Analito[],                   // all analytes in lab
-  previousRuns: Run[],                   // last N runs on same (analitoId, equipmentId, nivelId)
+  runResultados: RunResultados, // { analitoId → { nivelId → value } }
+  controlMaterial: ControlMaterial, // { manufacturerStats, ... }
+  analitos: Analito[], // all analytes in lab
+  previousRuns: Run[], // last N runs on same (analitoId, equipmentId, nivelId)
 ): WestgardViolation[] {
   const violations: WestgardViolation[] = [];
-  
+
   for (const [analitoId, nivelResults] of Object.entries(runResultados)) {
-    const analito = analitos.find(a => a.id === analitoId);
+    const analito = analitos.find((a) => a.id === analitoId);
     if (!analito) continue; // Skip if analyte doesn't exist
-    
+
     for (const [nivelId, value] of Object.entries(nivelResults)) {
       const manStats = controlMaterial.manufacturerStats?.[analitoId]?.[nivelId];
       if (!manStats) continue; // No stats = no rules (waiting for bula)
-      
+
       const { mean, sd } = manStats;
       const deviation = (value - mean) / sd; // σ units
-      
+
       // 1-2s rule (warn)
       if (Math.abs(deviation) > 2.0) {
         violations.push({
@@ -231,7 +233,7 @@ export function evaluateWestgardRules(
           detail: `Run 1: ${deviation.toFixed(1)}σ from mean (${mean} ± ${sd})`,
         });
       }
-      
+
       // 1-3s rule (reject)
       if (Math.abs(deviation) > 3.0) {
         violations.push({
@@ -242,15 +244,19 @@ export function evaluateWestgardRules(
           detail: `Run 1: ${deviation.toFixed(1)}σ > 3σ (out of spec)`,
         });
       }
-      
+
       // 2-2s rule (2 consecutive same side of 2σ)
       if (previousRuns.length > 0) {
         const lastRun = previousRuns[0];
         const lastManStats = controlMaterial.manufacturerStats?.[analitoId]?.[nivelId];
         if (lastManStats) {
-          const lastDeviation = (lastRun.resultados[analitoId][nivelId] - lastManStats.mean) / lastManStats.sd;
-          if (Math.abs(deviation) > 2.0 && Math.abs(lastDeviation) > 2.0 &&
-              Math.sign(deviation) === Math.sign(lastDeviation)) {
+          const lastDeviation =
+            (lastRun.resultados[analitoId][nivelId] - lastManStats.mean) / lastManStats.sd;
+          if (
+            Math.abs(deviation) > 2.0 &&
+            Math.abs(lastDeviation) > 2.0 &&
+            Math.sign(deviation) === Math.sign(lastDeviation)
+          ) {
             violations.push({
               rule: '2-2s',
               analitoId,
@@ -261,7 +267,7 @@ export function evaluateWestgardRules(
           }
         }
       }
-      
+
       // R-4s rule (range between 2 consecutive > 4σ)
       if (previousRuns.length > 0) {
         const lastRun = previousRuns[0];
@@ -283,12 +289,13 @@ export function evaluateWestgardRules(
       }
     }
   }
-  
+
   return violations;
 }
 ```
 
 **Key points:**
+
 - **Server-only**: Client never computes Westgard (Threat T5).
 - **Queryable result history**: Violations are embedded in the Run doc → easy to filter "Rejeitada" runs in UI.
 - **Severity escalation**: 1-2s remains `warn` (advisory), all others are `reject` (blocks oficial approval).
@@ -307,15 +314,15 @@ interface LeveyJenningsDataEquipment {
   analitoId: AnalitoId;
   nivelId: NivelId;
   equipmentId: EquipmentId;
-  
+
   // From bula (manufacturer reference)
   manufacturerMean: number;
   manufacturerSd: number;
-  
+
   // Computed from runs on this equipment
-  internalMean: number;       // mean of last N runs
-  internalSd: number;         // std dev of last N runs
-  
+  internalMean: number; // mean of last N runs
+  internalSd: number; // std dev of last N runs
+
   // Time series for chart
   points: Array<{
     runId: string;
@@ -324,12 +331,12 @@ interface LeveyJenningsDataEquipment {
     status: 'Aprovada' | 'Rejeitada' | 'Pendente';
     deviationFromMean: number; // in σ units
   }>;
-  
+
   // Trend stats
   pointCount: number;
   trendAnalysis: {
-    isStable: boolean;         // no 2-2s or R-4s violations
-    driftDetected: boolean;    // rising/falling over last 5 points?
+    isStable: boolean; // no 2-2s or R-4s violations
+    driftDetected: boolean; // rising/falling over last 5 points?
     cvPercent: number;
   };
 }
@@ -343,22 +350,22 @@ interface LeveyJenningsDataEquipment {
 interface MethodComparisonChart {
   analitoId: AnalitoId;
   nivelId: NivelId;
-  
+
   equipmentGroups: Array<{
     equipmentId: EquipmentId;
-    equipmentName: string;      // e.g., "Yumizen H550 — Bancada 2"
-    modelo: string;              // YUMIZEN_H550
-    
+    equipmentName: string; // e.g., "Yumizen H550 — Bancada 2"
+    modelo: string; // YUMIZEN_H550
+
     // Stats from this equipment
     mean: number;
     sd: number;
     pointCount: number;
-    
+
     // Comparison to reference (bula)
-    biasPercent: number;        // (mean - manufacturerMean) / manufacturerMean
-    isComparable: boolean;      // |bias| < X% (configurable, default 10%)
+    biasPercent: number; // (mean - manufacturerMean) / manufacturerMean
+    isComparable: boolean; // |bias| < X% (configurable, default 10%)
   }>;
-  
+
   // Overall assessment
   methodsComparable: boolean;
   recommendedReference: EquipmentId; // which one to use as "golden"?
@@ -366,6 +373,7 @@ interface MethodComparisonChart {
 ```
 
 **UI rendering:**
+
 - X-axis: capture date
 - Y-axis: result value (with ±2σ and ±3σ bands from manufacturer)
 - Lines per equipment: distinct colors
@@ -389,27 +397,27 @@ interface MethodComparisonChart {
 interface Equipamento {
   id: string;
   labId: string;
-  
+
   // Identity
   module: 'bioquimica';
-  name: string;                   // "Yumizen H550 — Bancada 2"
-  modelo: string;                 // YUMIZEN_H550 (UPPER_SNAKE_CASE, used in bula lookup)
+  name: string; // "Yumizen H550 — Bancada 2"
+  modelo: string; // YUMIZEN_H550 (UPPER_SNAKE_CASE, used in bula lookup)
   fabricante: string;
-  numeroSerie?: string;           // RDC 786/2023 Art. 42 (required in audit)
+  numeroSerie?: string; // RDC 786/2023 Art. 42 (required in audit)
   anoFabricacao?: number;
   anoAquisicao?: number;
-  registroAnvisa?: string;        // ANVISA device registration number
-  observacoes?: string;           // free-form: calibration schedule, contract details, etc.
-  
+  registroAnvisa?: string; // ANVISA device registration number
+  observacoes?: string; // free-form: calibration schedule, contract details, etc.
+
   // Lifecycle
   status: 'ativo' | 'manutencao' | 'aposentado';
   manutencaoDesde?: Timestamp;
   motivoManutencao?: string;
-  aposentadoEm?: Timestamp;       // RDC 978 Art. 180 (traceability of retired instruments)
-  motivoAposentadoria?: string;   // ≥10 chars (defensible audit trail)
+  aposentadoEm?: Timestamp; // RDC 978 Art. 180 (traceability of retired instruments)
+  motivoAposentadoria?: string; // ≥10 chars (defensible audit trail)
   destinoFinal?: 'venda' | 'devolucao' | 'sucateamento' | 'descarte-ambiental' | 'doacao';
-  retencaoAte?: Timestamp;        // aposentadoEm + 5 years (RDC 786/2023)
-  
+  retencaoAte?: Timestamp; // aposentadoEm + 5 years (RDC 786/2023)
+
   createdAt: Timestamp;
   createdBy: UserId;
   updatedAt?: Timestamp;
@@ -422,11 +430,13 @@ interface Equipamento {
 **Not a separate collection**; instead, part of `observacoes` free-form field + equipment audit log.
 
 **Manual entry points** (Phase 10):
+
 1. **Supervisor daily checklist**: "Run normal control on Yumizen #1 — is it passing Westgard?"
 2. **Service log**: When technician replaces lamp, realigns optics, etc., operator records in `observacoes` + creates `EquipamentoAuditEvent` of type `'updated'`.
 3. **Preventive maintenance calendar**: Stored outside this system (e.g., Obsidian, external maintenance contract).
 
-**Future integration** (Phase 11+): 
+**Future integration** (Phase 11+):
+
 - IoT integration: ESP32 periodically sends temperature, humidity, lamp intensity → Firestore timeseries.
 - Automated calibration alerts: When CV exceeds threshold for 3 consecutive runs.
 
@@ -561,29 +571,29 @@ interface EquipmentComparison {
   nivelId: NivelId;
   equipmentIdA: EquipmentId;
   equipmentIdB: EquipmentId;
-  
+
   // Manufacturer reference
   referenceMean: number;
   referenceSd: number;
-  
+
   // Equipment A stats
   meanA: number;
   sdA: number;
   pointCountA: number;
-  biasA: number;              // (meanA - referenceMean) / referenceMean * 100
-  cvA: number;                // (sdA / meanA) * 100
-  
+  biasA: number; // (meanA - referenceMean) / referenceMean * 100
+  cvA: number; // (sdA / meanA) * 100
+
   // Equipment B stats
   meanB: number;
   sdB: number;
   pointCountB: number;
   biasB: number;
   cvB: number;
-  
+
   // Comparison
-  meanDifference: number;      // meanA - meanB
-  isSystematic: boolean;       // |bias_diff| > acceptable threshold?
-  comparableEstimate: string;  // "yes", "no — A runs 5% high", "insufficient data"
+  meanDifference: number; // meanA - meanB
+  isSystematic: boolean; // |bias_diff| > acceptable threshold?
+  comparableEstimate: string; // "yes", "no — A runs 5% high", "insufficient data"
 }
 ```
 
@@ -594,9 +604,9 @@ interface EquipmentComparison {
 ```json
 {
   "methodComparison": {
-    "acceptableBiasPercent": 10,        // max 10% bias vs. reference
-    "acceptablePrecisionRatio": 1.5,    // max σ_A / σ_B = 1.5×
-    "minPointsPerEquipment": 10         // need 10+ data points to compare
+    "acceptableBiasPercent": 10, // max 10% bias vs. reference
+    "acceptablePrecisionRatio": 1.5, // max σ_A / σ_B = 1.5×
+    "minPointsPerEquipment": 10 // need 10+ data points to compare
   }
 }
 ```
@@ -615,23 +625,23 @@ interface EquipmentComparison {
 interface TraceabilityEvent {
   id: string;
   labId: LabId;
-  
+
   // What happened?
-  type: 'bula-applied' 
-      | 'run-recorded' 
-      | 'lot-archived' 
-      | 'equipment-registered' 
+  type: 'bula-applied'
+      | 'run-recorded'
+      | 'lot-archived'
+      | 'equipment-registered'
       | 'compliance-override-applied'
       | ...;
-  
+
   // Context
   lotId?: string;
   runId?: string;
   equipmentId?: string;
-  
+
   // Human accountability
   signature: LogicalSignature;  // { hash (SHA-256), operatorId, ts }
-  
+
   // Metadata
   detail?: string;              // free-form reason
   timestamp: Timestamp;
@@ -650,25 +660,25 @@ match /labs/{labId}/bioquimica/root/traceability-events/{eventId} {
 
 ### 7.2 RDC 978/2025 Compliance Checklist
 
-| Requisito | Implementação | Verificação |
-|-----------|---------------|-------------|
-| Art. 179 — CIQ obrigatório | Westgard engine + runs | `violations` array in Run doc |
+| Requisito                                       | Implementação                                      | Verificação                         |
+| ----------------------------------------------- | -------------------------------------------------- | ----------------------------------- |
+| Art. 179 — CIQ obrigatório                      | Westgard engine + runs                             | `violations` array in Run doc       |
 | Art. 180 — Material control com rastreabilidade | ControlMaterial.equipmentIds + Traceability events | Lot history queryable per equipment |
-| Art. 181 — Amostra controle auditada | TraceabilityEvent.signature + chainHash | Immutable log, crypto-verified |
-| Art. 128 — Reagente rastreado | ReagenteSnapshot in Run | Snapshot frozen at capture |
-| Art. 167 — Laudo gerado | Monthly FR-001 report (Phase 10+) | Cloud Function generates PDF |
-| Art. 183 — CIQ por troca lote | Separate ControlMaterial doc per lot | UI filters by lot + equipment |
+| Art. 181 — Amostra controle auditada            | TraceabilityEvent.signature + chainHash            | Immutable log, crypto-verified      |
+| Art. 128 — Reagente rastreado                   | ReagenteSnapshot in Run                            | Snapshot frozen at capture          |
+| Art. 167 — Laudo gerado                         | Monthly FR-001 report (Phase 10+)                  | Cloud Function generates PDF        |
+| Art. 183 — CIQ por troca lote                   | Separate ControlMaterial doc per lot               | UI filters by lot + equipment       |
 
 ### 7.3 DICQ 4.3 Compliance Mapping
 
-| Bloco F (Analítico) | Donde vivem os dados |
-|---------------------|---------------------|
-| 5.5.1.1 — Método descrito | Analito.metodo + bula PDF |
-| 5.5.1.3 — CV alvo | Analito.cvAlvo |
+| Bloco F (Analítico)              | Donde vivem os dados                  |
+| -------------------------------- | ------------------------------------- |
+| 5.5.1.1 — Método descrito        | Analito.metodo + bula PDF             |
+| 5.5.1.3 — CV alvo                | Analito.cvAlvo                        |
 | 5.5.2 — Material controle origem | ControlMaterial.origem + Traceability |
-| 5.6.2 — Regras Westgard | westgardRules in Run.violations |
-| 5.6.3.1 — Registro de corrida | Run doc + TraceabilityEvent |
-| 5.6.4 — Ação quando regra viola | UI modal + approval/reject button |
+| 5.6.2 — Regras Westgard          | westgardRules in Run.violations       |
+| 5.6.3.1 — Registro de corrida    | Run doc + TraceabilityEvent           |
+| 5.6.4 — Ação quando regra viola  | UI modal + approval/reject button     |
 
 ---
 

@@ -103,11 +103,7 @@
             }
           ]
         },
-        "errors": [
-          "PERM_FORBIDDEN",
-          "LAUDO_NOT_FOUND",
-          "INVALID_STATE (not draft)"
-        ],
+        "errors": ["PERM_FORBIDDEN", "LAUDO_NOT_FOUND", "INVALID_STATE (not draft)"],
         "consuming_phases": ["4-02 (UI draft editor)", "4-04 (E2E review → sign)"],
         "integration_tests": ["Scenario 1"],
         "notes": "auditaEventos is immutable append-only collection. Signature context must include all fields needed for Phase 6 PDF generation."
@@ -198,7 +194,12 @@
           "INVALID_EMAIL",
           "INVALID_PHONE"
         ],
-        "consuming_phases": ["5-02 (critical detection)", "5-04 (versioning constraints)", "9 (KPI dashboard)", "11 (auditor review)"],
+        "consuming_phases": [
+          "5-02 (critical detection)",
+          "5-04 (versioning constraints)",
+          "9 (KPI dashboard)",
+          "11 (auditor review)"
+        ],
         "integration_tests": ["Scenario 3: Critical value → SMS/email + dashboard SLA"],
         "notes": "Config is lab-wide, not operator-specific. Changes take effect immediately (no warmup). Phase 9 KPI dashboard must query this to validate SLA calculations."
       },
@@ -226,7 +227,12 @@
           "SMS_SERVICE_UNAVAILABLE",
           "EMAIL_SERVICE_UNAVAILABLE"
         ],
-        "consuming_phases": ["5-02 (trigger)", "5-04 (auto-queue to IA)", "9 (SLA tracking)", "11 (auditor SLA validation)"],
+        "consuming_phases": [
+          "5-02 (trigger)",
+          "5-04 (auto-queue to IA)",
+          "9 (SLA tracking)",
+          "11 (auditor SLA validation)"
+        ],
         "integration_tests": ["Scenario 3"],
         "notes": "RDC 978 Arts. 115–117 compliance: must log operator who triggered, timestamp, result reference. SMS/email delivery SLA target: <2min (measured, not mocked in integration test)."
       },
@@ -253,13 +259,12 @@
           },
           "annotationRequired": "boolean"
         },
-        "errors": [
-          "IMAGE_TOO_LARGE",
-          "INVALID_IMAGE_FORMAT",
-          "GEMINI_API_ERROR",
-          "QUOTA_EXCEEDED"
+        "errors": ["IMAGE_TOO_LARGE", "INVALID_IMAGE_FORMAT", "GEMINI_API_ERROR", "QUOTA_EXCEEDED"],
+        "consuming_phases": [
+          "5-03 (upload UI)",
+          "5-04 (versioning + A/B test)",
+          "12 (test data fixture)"
         ],
-        "consuming_phases": ["5-03 (upload UI)", "5-04 (versioning + A/B test)", "12 (test data fixture)"],
         "integration_tests": ["Scenario 4: IA strip upload → Gemini Vision → model versioning"],
         "notes": "Gemini Vision API latency ~2–5s (acceptable for batch upload, not blocking on sync). Image metadata helps with multi-instrument labeling. Phase 5-04 routes image to v1.0 or v1.1 model based on experiment bucket."
       },
@@ -280,12 +285,12 @@
           "annotationId": "string",
           "modelVersion": "string (v1.0 | v1.1)"
         },
-        "errors": [
-          "IMAGE_NOT_FOUND",
-          "PERM_FORBIDDEN",
-          "INVALID_OCR_TEXT"
+        "errors": ["IMAGE_NOT_FOUND", "PERM_FORBIDDEN", "INVALID_OCR_TEXT"],
+        "consuming_phases": [
+          "5-03 (form handler)",
+          "5-04 (feedback to model)",
+          "12 (training dataset)"
         ],
-        "consuming_phases": ["5-03 (form handler)", "5-04 (feedback to model)", "12 (training dataset)"],
         "integration_tests": ["Scenario 4"],
         "notes": "Immutable: each annotation is a separate doc in `imuno-ias-dev/{imageId}/annotations/`. No updates, only create. Model versioning: v1.0 is read-only (baseline), v1.1 collects new annotations for next iteration."
       }
@@ -313,7 +318,12 @@
           "PDF_GENERATION_TIMEOUT",
           "STORAGE_QUOTA_EXCEEDED"
         ],
-        "consuming_phases": ["6-01 (PDF gen)", "6-02 (portal médico UI)", "10 (pen-test QR endpoint)", "12 (PDF export validation)"],
+        "consuming_phases": [
+          "6-01 (PDF gen)",
+          "6-02 (portal médico UI)",
+          "10 (pen-test QR endpoint)",
+          "12 (PDF export validation)"
+        ],
         "integration_tests": ["Scenario 5: Liberação PDF → portal médico access → auditor portal"],
         "notes": "CloudFunction memory 1GB, timeout 300s (puppeteer is heavy). QR embeds permalink to public verify endpoint (rate-limited by Phase 10). Phase 4 signature must be stable format (PDF callable depends on signature schema)."
       },
@@ -336,11 +346,7 @@
             }
           }
         },
-        "errors": [
-          "QR_TOKEN_INVALID",
-          "QR_TOKEN_EXPIRED",
-          "LAUDO_NOT_FOUND"
-        ],
+        "errors": ["QR_TOKEN_INVALID", "QR_TOKEN_EXPIRED", "LAUDO_NOT_FOUND"],
         "consuming_phases": ["6-01 (QR gen)", "6-02 (public verify)", "10 (pen-test rate-limit)"],
         "integration_tests": ["Scenario 5"],
         "notes": "Public, rate-limited (Phase 10 requirement: max 10 requests/IP/hour). QR token expires 90 days post-signature (configurable). LGPD: patient name shown only if patient consented to external QR sharing."
@@ -367,12 +373,12 @@
           "submittedAt": "timestamp",
           "anonimizationDate": "timestamp (if anonymousConsent=true)"
         },
-        "errors": [
-          "PATIENT_TOKEN_INVALID",
-          "PATIENT_TOKEN_EXPIRED",
-          "INVALID_NPS_SCORE"
+        "errors": ["PATIENT_TOKEN_INVALID", "PATIENT_TOKEN_EXPIRED", "INVALID_NPS_SCORE"],
+        "consuming_phases": [
+          "7-01 (feedback form)",
+          "7-02 (anonimization cron)",
+          "9 (KPI trending)"
         ],
-        "consuming_phases": ["7-01 (feedback form)", "7-02 (anonimization cron)", "9 (KPI trending)"],
         "integration_tests": ["Scenario 6: Portal paciente feedback → trending dashboard"],
         "notes": "Portal paciente is external (no auth required, token-based). LGPD: consent checkbox required for non-anon submission. Phase 7-02 cron scrubs PII after 90d window (immutable audit trail remains)."
       }
@@ -399,12 +405,13 @@
           "status": "pending",
           "createdAt": "timestamp"
         },
-        "errors": [
-          "PERM_FORBIDDEN (not RT/admin)",
-          "FINDING_NOT_FOUND",
-          "INVALID_TARGET_DATE"
+        "errors": ["PERM_FORBIDDEN (not RT/admin)", "FINDING_NOT_FOUND", "INVALID_TARGET_DATE"],
+        "consuming_phases": [
+          "8-01 (create)",
+          "8-04 (verify)",
+          "8-05 (CTO review)",
+          "8-06 (audit ceremony)"
         ],
-        "consuming_phases": ["8-01 (create)", "8-04 (verify)", "8-05 (CTO review)", "8-06 (audit ceremony)"],
         "integration_tests": ["Scenario 7: CAPA closure → auditor sign-off"],
         "notes": "State machine enum: pending → impl_in_progress → impl_complete → verify_passed → auditor_review → closed. Each state transition creates immutable audit trail entry."
       },
@@ -425,10 +432,7 @@
           "verifiedAt": "timestamp",
           "verifiedBy": "string (operatorId)"
         },
-        "errors": [
-          "CAPA_NOT_FOUND",
-          "INVALID_STATE (not impl_complete)"
-        ],
+        "errors": ["CAPA_NOT_FOUND", "INVALID_STATE (not impl_complete)"],
         "consuming_phases": ["8-01 (eng verify)", "8-05 (CTO audit)", "8-07 (auditor ceremony)"],
         "integration_tests": ["Scenario 7"],
         "notes": "Engineer owns Plans 01–04 (eng-only findings). CTO owns Plans 05–07 (process + audit). No state bypass allowed (must progress sequentially)."
@@ -446,7 +450,9 @@
           "labId": "string",
           "startDate": "date",
           "endDate": "date",
-          "metricsRequested": ["string (turnaround_time | retest_pct | conformance_pct | sla_escalation)"]
+          "metricsRequested": [
+            "string (turnaround_time | retest_pct | conformance_pct | sla_escalation)"
+          ]
         },
         "returns": {
           "aggregates": {
@@ -465,12 +471,16 @@
           },
           "generatedAt": "timestamp"
         },
-        "errors": [
-          "INVALID_DATE_RANGE",
-          "NO_DATA_FOR_PERIOD"
+        "errors": ["INVALID_DATE_RANGE", "NO_DATA_FOR_PERIOD"],
+        "consuming_phases": [
+          "9 (dashboard query)",
+          "11 (auditor metrics review)",
+          "12 (baseline test)"
         ],
-        "consuming_phases": ["9 (dashboard query)", "11 (auditor metrics review)", "12 (baseline test)"],
-        "integration_tests": ["Scenario 3: Critical value → SMS/email + dashboard SLA", "Scenario 9: Multi-instrument data → vitals baseline"],
+        "integration_tests": [
+          "Scenario 3: Critical value → SMS/email + dashboard SLA",
+          "Scenario 9: Multi-instrument data → vitals baseline"
+        ],
         "notes": "Must not query live collections; use pre-computed aggregate docs. Phase 9 cron job updates aggregates nightly (lag acceptable). Query SLA: <500ms (dashboard LCP requirement)."
       }
     }
@@ -525,11 +535,7 @@
           "recordsCreated": "number",
           "generationTimeMs": "number"
         },
-        "errors": [
-          "QUOTA_EXCEEDED",
-          "TIMEOUT",
-          "INVALID_INSTRUMENT_MIX"
-        ],
+        "errors": ["QUOTA_EXCEEDED", "TIMEOUT", "INVALID_INSTRUMENT_MIX"],
         "consuming_phases": ["12 (fixture gen)", "12 (smoke test)", "15 (deploy gates baseline)"],
         "integration_tests": ["Scenario 9: Multi-instrument data → Phase 12 Web Vitals baseline"],
         "notes": "Test data must be multi-tenant isolated (each lab has unique labId). Fixture generator checks schema compatibility with all v1.4 callable signatures."

@@ -40,12 +40,7 @@ export const agendarManutencao = onCall<z.infer<typeof schema>, Promise<AgendarM
 
     const db = admin.firestore();
 
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists || memberDoc.data()?.status !== 'active') {
       throw new HttpsError('permission-denied', 'User must be active member of lab');

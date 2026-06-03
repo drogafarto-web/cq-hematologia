@@ -14,7 +14,16 @@ import type { CIQImunoLot, CIQImunoRun } from '../types/CIQImuno';
 
 function PlusIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
@@ -23,7 +32,12 @@ function PlusIcon() {
 function PinIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 13 13" fill="none" aria-hidden>
-      <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+      <path
+        d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -39,7 +53,17 @@ function InfoIcon() {
 
 function CheckIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M20 6L9 17l-5-5" />
     </svg>
   );
@@ -47,7 +71,16 @@ function CheckIcon() {
 
 function XIcon() {
   return (
-    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="13"
+      height="13"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   );
@@ -55,7 +88,15 @@ function XIcon() {
 
 // ─── Modal ────────────────────────────────────────────────────────────────────
 
-function Modal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+function Modal({
+  title,
+  onClose,
+  children,
+}: {
+  title: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] rounded-2xl shadow-2xl">
@@ -139,10 +180,7 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
   const { save, isSaving } = useSaveCIQRun();
 
   const pinnedLots = useMemo(
-    () =>
-      lots.filter(
-        (l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela',
-      ),
+    () => lots.filter((l) => l.setupType === 'principal' || l.setupType === 'validacao_paralela'),
     [lots],
   );
 
@@ -190,9 +228,25 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-32">
-        <svg className="animate-spin w-5 h-5 text-slate-300 dark:text-white/20" viewBox="0 0 24 24" fill="none">
-          <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-          <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+        <svg
+          className="animate-spin w-5 h-5 text-slate-300 dark:text-white/20"
+          viewBox="0 0 24 24"
+          fill="none"
+        >
+          <circle
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeOpacity="0.25"
+          />
+          <path
+            d="M22 12a10 10 0 00-10-10"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+          />
         </svg>
       </div>
     );
@@ -264,8 +318,8 @@ export function BancadaImunoView({ onGoToLotes }: { onGoToLotes: () => void }) {
             Bancada vazia
           </p>
           <p className="text-xs text-slate-500 dark:text-white/40 mt-1.5 max-w-md mx-auto leading-relaxed">
-            A bancada mostra os lotes vinculados como Setup Oficial ou Em Validação. Vá em
-            Gestão de Lotes, escolha um lote e clique em <span className="font-medium">Vincular</span>.
+            A bancada mostra os lotes vinculados como Setup Oficial ou Em Validação. Vá em Gestão de
+            Lotes, escolha um lote e clique em <span className="font-medium">Vincular</span>.
           </p>
           <button
             type="button"
@@ -529,9 +583,7 @@ function RunDetailModal({
           <RowDetail label="Código" value={run.runCode ?? '—'} mono />
           <RowDetail label="Data" value={fmtDateBR(run.dataRealizacao)} />
           <RowDetail label="Operador" value={run.operatorName ?? '—'} />
-          {run.operatorRole && (
-            <RowDetail label="Cargo" value={run.operatorRole} />
-          )}
+          {run.operatorRole && <RowDetail label="Cargo" value={run.operatorRole} />}
           {run.equipamentoSnapshot?.name && (
             <RowDetail label="Equipamento" value={run.equipamentoSnapshot.name} />
           )}
@@ -586,9 +638,7 @@ function RunDetailModal({
               <RowDetail label="Obtido" value={run.resultadoObtido} />
             </>
           )}
-          {run.acaoCorretiva && (
-            <RowDetail label="Ação corretiva" value={run.acaoCorretiva} />
-          )}
+          {run.acaoCorretiva && <RowDetail label="Ação corretiva" value={run.acaoCorretiva} />}
         </section>
 
         {/* Westgard */}
@@ -658,9 +708,25 @@ function LotReportPrinter({ lot, onClose }: { lot: CIQImunoLot; onClose: () => v
     return (
       <Modal title="Carregando relatório…" onClose={onClose}>
         <div className="flex items-center justify-center py-10">
-          <svg className="animate-spin w-5 h-5 text-slate-400 dark:text-white/30" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="3" strokeOpacity="0.25" />
-            <path d="M22 12a10 10 0 00-10-10" stroke="currentColor" strokeWidth="3" strokeLinecap="round" />
+          <svg
+            className="animate-spin w-5 h-5 text-slate-400 dark:text-white/30"
+            viewBox="0 0 24 24"
+            fill="none"
+          >
+            <circle
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeOpacity="0.25"
+            />
+            <path
+              d="M22 12a10 10 0 00-10-10"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
           </svg>
         </div>
       </Modal>
@@ -672,7 +738,17 @@ function LotReportPrinter({ lot, onClose }: { lot: CIQImunoLot; onClose: () => v
 
 function PrinterIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M6 9V2h12v7" />
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <rect x="6" y="14" width="12" height="8" rx="1" />

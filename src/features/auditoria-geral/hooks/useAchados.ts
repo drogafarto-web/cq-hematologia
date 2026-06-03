@@ -19,7 +19,7 @@ export function useAchados(auditoriaId: string) {
         setAchados(data);
         setIsLoading(false);
       },
-      () => setIsLoading(false)
+      () => setIsLoading(false),
     );
 
     return unsub;

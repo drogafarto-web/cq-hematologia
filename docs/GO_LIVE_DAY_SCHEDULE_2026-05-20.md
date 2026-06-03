@@ -1,7 +1,7 @@
 ---
-title: "Go-Live Day Schedule — Phase 4 Production Deployment"
-date: "2026-08-31"
-status: "EXECUTION SCHEDULE"
+title: 'Go-Live Day Schedule — Phase 4 Production Deployment'
+date: '2026-08-31'
+status: 'EXECUTION SCHEDULE'
 ---
 
 # Go-Live Day Schedule
@@ -36,6 +36,7 @@ status: "EXECUTION SCHEDULE"
 **Participants:** DevOps lead, QA lead, CTO, on-call engineer, Slack operator
 
 **Tasks:**
+
 - [ ] All team members logged into Slack #production-emergency
 - [ ] All team members logged into video call (Zoom/Meet link)
 - [ ] Runbooks printed and visible at each team member's desk
@@ -45,6 +46,7 @@ status: "EXECUTION SCHEDULE"
 - [ ] Health checks: "Go round-robin: Is your system ready?"
 
 **Success Criteria:**
+
 - All 5 team members present and camera on
 - All systems accessible without errors
 - No blocking secrets/config issues identified
@@ -57,6 +59,7 @@ status: "EXECUTION SCHEDULE"
 **Owner:** DevOps lead
 
 **Checklist:**
+
 ```
 Firestore:
   [ ] Backup snapshot created: gs://hmatologia2-backup/phase4-pre-deploy.tar.gz
@@ -95,6 +98,7 @@ Secrets:
 ```
 
 **Sign-Off:**
+
 ```
 DevOps Lead: "All preflight checks GREEN. Ready to proceed to deployment."
 
@@ -111,6 +115,7 @@ Signature: ________________  Time: __:__ UTC-3
 **4 Critical Scenarios (in sequence):**
 
 **Scenario 1: Patient Auth Flow (2 min)**
+
 ```bash
 # Command:
 curl -X POST https://staging.hmatologia2.web.app/api/auth/send-link \
@@ -127,6 +132,7 @@ curl -X POST https://staging.hmatologia2.web.app/api/auth/send-link \
 ```
 
 **Scenario 2: Portal RT Load (2 min)**
+
 ```bash
 # Command:
 curl -X GET https://staging.hmatologia2.web.app/portal-rt \
@@ -144,6 +150,7 @@ curl -X GET https://staging.hmatologia2.web.app/portal-rt \
 ```
 
 **Scenario 3: NOTIVISA Event Submission (2 min)**
+
 ```bash
 # Command:
 firebase functions:call submitNotivisaEvent \
@@ -161,6 +168,7 @@ firebase functions:call submitNotivisaEvent \
 ```
 
 **Scenario 4: Consent Capture Batch (2 min)**
+
 ```bash
 # Command:
 firebase functions:call recordPatientConsent \
@@ -178,6 +186,7 @@ firebase functions:call recordPatientConsent \
 ```
 
 **Results Summary:**
+
 ```
 Scenario 1 (Auth):      ✓ PASS / ✗ FAIL
 Scenario 2 (Portal RT): ✓ PASS / ✗ FAIL
@@ -188,6 +197,7 @@ All 4 Pass? YES / NO → If NO, STOP and debug
 ```
 
 **Sign-Off:**
+
 ```
 QA Lead: "All dry-run scenarios GREEN. Ready for production deploy."
 
@@ -202,6 +212,7 @@ Signature: ________________  Time: __:__ UTC-3
 **Facilitator:** CTO
 
 **Round-Robin Check-In:**
+
 ```
 CTO: "Ready for deployment?"
   DevOps:   "✓ Yes. Infrastructure GREEN."
@@ -211,6 +222,7 @@ CTO: "Ready for deployment?"
 ```
 
 **Agenda:**
+
 1. Confirm all preflight checks passed
 2. Review critical risks (3 top blockers if any)
 3. Confirm rollback procedure (everyone knows it)
@@ -218,6 +230,7 @@ CTO: "Ready for deployment?"
 5. Confirm communication plan (notify labs after Step 4)
 
 **Go/No-Go Decision:**
+
 ```
 CTO: "This is our go/no-go gate. All green? I'm authorizing deployment."
 
@@ -236,16 +249,17 @@ If NO-GO, defer to: ____________________________________________
 
 **CTO Decision Matrix:**
 
-| Check | Status | Blocker? |
-|-------|--------|----------|
-| Preflight GREEN | ✓ Yes | No |
-| Smoke tests GREEN | ✓ Yes | No |
-| Team ready | ✓ Yes | No |
-| Monitoring armed | ✓ Yes | No |
-| Runbooks reviewed | ✓ Yes | No |
-| Secrets accessible | ✓ Yes | No |
+| Check              | Status | Blocker? |
+| ------------------ | ------ | -------- |
+| Preflight GREEN    | ✓ Yes  | No       |
+| Smoke tests GREEN  | ✓ Yes  | No       |
+| Team ready         | ✓ Yes  | No       |
+| Monitoring armed   | ✓ Yes  | No       |
+| Runbooks reviewed  | ✓ Yes  | No       |
+| Secrets accessible | ✓ Yes  | No       |
 
 **CTO Authorization:**
+
 ```
 I have reviewed all readiness criteria and authorize Phase 4 production deployment.
 
@@ -259,9 +273,10 @@ If DEFER, reason: ________________________________________________
 ```
 
 **Slack Announcement:**
+
 ```
-CTO: "Phase 4 deployment APPROVED. All hands on deck. 
-Deployment START at 20:00 UTC-3. War room active. 
+CTO: "Phase 4 deployment APPROVED. All hands on deck.
+Deployment START at 20:00 UTC-3. War room active.
 No interruptions for 2.5 hours."
 ```
 
@@ -275,6 +290,7 @@ No interruptions for 2.5 hours."
 **Observers:** QA lead, on-call engineer, CTO
 
 **Announcement:**
+
 ```
 "Step 1 starting now. Rules deployment in progress. Status updates every 5 min."
 
@@ -354,7 +370,7 @@ Status: ✓ COMPLETE / ✗ FAILED
 
 If COMPLETE:
   DevOps: "Rules deployed, tests pass, no errors. Ready for Step 2."
-  
+
 If FAILED:
   DevOps: "Rollback in progress. [Reason: _______________]"
   Action: Re-do from latest stable commit, restart at 20:00
@@ -367,8 +383,9 @@ Signature: ________________  Time: __:__ UTC-3
 ### 20:30–21:10 UTC-3 — Step 2: Cloud Functions
 
 **Announcement:**
+
 ```
-"Step 2 starting now. Cloud Functions deploy in progress. 
+"Step 2 starting now. Cloud Functions deploy in progress.
 Expecting 40 min to completion. Heavy console output expected."
 
 Time: 20:30
@@ -492,7 +509,7 @@ Status: ✓ COMPLETE / ✗ FAILED
 If COMPLETE:
   DevOps: "All 78 functions deployed and warm. Ready for Step 3."
   QA: "Function tests passed. No execution errors."
-  
+
 If FAILED:
   DevOps: "Rollback in progress. [Reason: _______________]"
   Action: Restore previous functions from git, restart at 20:30
@@ -505,8 +522,9 @@ Signature: ________________  Time: __:__ UTC-3
 ### 21:10–21:40 UTC-3 — Step 3: Hosting (React App)
 
 **Announcement:**
+
 ```
-"Step 3 starting now. Hosting (React app) deploy in progress. 
+"Step 3 starting now. Hosting (React app) deploy in progress.
 Expecting 30 min. Users may see old version until cache clears."
 
 Time: 21:10
@@ -523,7 +541,7 @@ Rollback: restore previous hosting (< 5 min)
 # 1. Build React app
 npm run build
 
-# Expected: 
+# Expected:
 # ✔ Build complete
 # - app bundle: 362 KB
 # - vendor bundle: 118 KB (portal-rt) + 125 KB (portal-paciente)
@@ -568,7 +586,7 @@ curl https://hmatologia2.web.app/sw.js | head -20
 
 # Expected: Service worker code present, version updated
 
-# User notice: "Please refresh your browser for latest version" 
+# User notice: "Please refresh your browser for latest version"
 #             (auto-update via registerType: 'autoUpdate')
 ```
 
@@ -618,7 +636,7 @@ Status: ✓ COMPLETE / ✗ FAILED
 If COMPLETE:
   DevOps: "Hosting deployed, app loading, no 404s. Ready for Step 4."
   QA: "App loads without console errors. Clear to proceed."
-  
+
 If FAILED:
   DevOps: "Rollback in progress. [Reason: _______________]"
   Action: Restore previous build from git, restart at 21:10
@@ -631,8 +649,9 @@ Signature: ________________  Time: __:__ UTC-3
 ### 21:40–22:30 UTC-3 — Step 4: Production Smoke Tests
 
 **Announcement:**
+
 ```
-"Step 4 starting now. Running 8 critical E2E scenarios in production. 
+"Step 4 starting now. Running 8 critical E2E scenarios in production.
 No changes made to system. Pure validation. 45 min expected."
 
 Time: 21:40
@@ -662,7 +681,7 @@ npm test -- --testNamePattern="Phase4.*Critical" --coverage=false
 # ✓ Phase 4 Critical E2E: RT presence detection (5/5 pass)
 # ✓ Phase 4 Critical E2E: LGPD rights request (5/5 pass)
 # ✓ Phase 4 Load Test: 1000 users, p99 < 2.5s, <1% error (pass)
-# 
+#
 # Test Suites: 1 passed, 1 total
 # Tests:       40 passed, 40 total
 ```
@@ -762,9 +781,9 @@ Status: ✓ COMPLETE / ✗ FAILED
 If COMPLETE (all 8 flows + load test pass):
   QA Lead: "All 8 critical flows passing. Load test green. READY FOR OPERATIONS."
   CTO: "Phase 4 deployed successfully. Monitoring armed. All hands on deck for 48h."
-  
+
 If FAILED:
-  CTO: "Critical issue detected. Escalating to war room. 
+  CTO: "Critical issue detected. Escalating to war room.
         Options: 1) Fix + re-test, 2) Rollback to stable state."
   DevOps: "Rollback decision authority: CTO"
 
@@ -778,6 +797,7 @@ Signature: ________________  Time: __:__ UTC-3
 ### 22:30 UTC-3 — START 48-Hour Monitoring
 
 **Announcement:**
+
 ```
 "Deployment COMPLETE. Phase 4 now LIVE in production.
 All monitoring systems armed. War room remains active for 48h.
@@ -845,23 +865,23 @@ No action required. System operational.
 
 **Real-Time Metrics (captured every 30 min):**
 
-| Metric | Target | Status | Notes |
-|--------|--------|--------|-------|
-| Error rate | <0.1% | ✓ / ✗ | Alert A1 if >5% |
-| P99 latency | <3s | ✓ / ✗ | Alert A3 if >2.5s |
-| Availability | >99.5% | ✓ / ✗ | Check error budgets |
-| Audit writes | 100% | ✓ / ✗ | Alert A4 if <100% |
-| Function cost | $__ (budget: $500) | ✓ / ✗ | Track spending |
+| Metric        | Target               | Status | Notes               |
+| ------------- | -------------------- | ------ | ------------------- |
+| Error rate    | <0.1%                | ✓ / ✗  | Alert A1 if >5%     |
+| P99 latency   | <3s                  | ✓ / ✗  | Alert A3 if >2.5s   |
+| Availability  | >99.5%               | ✓ / ✗  | Check error budgets |
+| Audit writes  | 100%                 | ✓ / ✗  | Alert A4 if <100%   |
+| Function cost | $\_\_ (budget: $500) | ✓ / ✗  | Track spending      |
 
 **Business Metrics (captured at key intervals):**
 
-| Metric | Baseline | Phase 4 | Target | Notes |
-|--------|----------|---------|--------|-------|
-| Portal RT active users | — | __ | >5 | RT adoption |
-| Portal Paciente consents | — | __ | >80% | LGPD compliance |
-| NOTIVISA submissions | — | __ | 100% | All events queue |
-| OCR accuracy | — | 94.7% | >90% | Gemini performance |
-| RT presence enforcement | — | __ | 100% | Art. 122 compliance |
+| Metric                   | Baseline | Phase 4 | Target | Notes               |
+| ------------------------ | -------- | ------- | ------ | ------------------- |
+| Portal RT active users   | —        | \_\_    | >5     | RT adoption         |
+| Portal Paciente consents | —        | \_\_    | >80%   | LGPD compliance     |
+| NOTIVISA submissions     | —        | \_\_    | 100%   | All events queue    |
+| OCR accuracy             | —        | 94.7%   | >90%   | Gemini performance  |
+| RT presence enforcement  | —        | \_\_    | 100%   | Art. 122 compliance |
 
 ---
 
@@ -935,7 +955,7 @@ tar czf ./archive/phase4-deployment-logs-2026-08-31.tar.gz .logs/
 # 4. DICQ compliance measurement
 firebase functions:call measureDICQCompliance --project hmatologia2 > \
   ./docs/PHASE_4_DICQ_COMPLIANCE_FINAL.json
-  
+
 # Expected: 80–82% (target +2–4 points)
 ```
 
@@ -971,14 +991,17 @@ Date: 2026-09-02
 **This Schedule:** `docs/GO_LIVE_DAY_SCHEDULE_2026-05-20.md`
 
 **Monitoring Script:**
+
 - `scripts/monitor-cloud-logs.sh` (Bash)
 - `scripts/monitor-cloud-logs.ps1` (PowerShell)
 
 **Runbooks:**
+
 - `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`
 - `docs/INCIDENT_RESPONSE_PLAYBOOK_PHASE_4.md`
 
 **Rollback Reference:**
+
 - `.planning/milestones/DEPLOY_ROADMAP_v1.3.md` (previous successful deploy)
 
 ---

@@ -53,10 +53,7 @@ async function assertSuperAdmin(
   if (token?.['isSuperAdmin'] === true) return;
   const snap = await admin.firestore().doc(`users/${uid}`).get();
   if (!snap.exists || snap.data()?.['isSuperAdmin'] !== true) {
-    throw new HttpsError(
-      'permission-denied',
-      'Apenas Super Admins podem executar esta operação.',
-    );
+    throw new HttpsError('permission-denied', 'Apenas Super Admins podem executar esta operação.');
   }
 }
 
@@ -105,10 +102,7 @@ export const grantTemporarySuperAdminToAll = onCall(
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
     }
-    await assertSuperAdmin(
-      request.auth.uid,
-      request.auth.token as Record<string, unknown>,
-    );
+    await assertSuperAdmin(request.auth.uid, request.auth.token as Record<string, unknown>);
 
     const parsed = GrantInputSchema.safeParse(request.data ?? {});
     if (!parsed.success) {
@@ -136,7 +130,10 @@ export const grantTemporarySuperAdminToAll = onCall(
 
     // Busca estado atual em batch
     const snapPromises = authUsers.map((u) =>
-      db.doc(`users/${u.uid}`).get().then((s) => ({ uid: u.uid, snap: s })),
+      db
+        .doc(`users/${u.uid}`)
+        .get()
+        .then((s) => ({ uid: u.uid, snap: s })),
     );
     const snaps = await Promise.all(snapPromises);
 
@@ -145,8 +142,7 @@ export const grantTemporarySuperAdminToAll = onCall(
       const auth = authUsers.find((u) => u.uid === uid)!;
       const claims = (auth.customClaims ?? {}) as Record<string, unknown>;
       const claimSa = claims['isSuperAdmin'] === true;
-      const firestoreSa =
-        snap.exists && snap.data()?.['isSuperAdmin'] === true;
+      const firestoreSa = snap.exists && snap.data()?.['isSuperAdmin'] === true;
       const wasSuperAdminBefore = claimSa || firestoreSa;
       diffs.push({
         uid,
@@ -262,10 +258,7 @@ export const revokeTemporarySuperAdmin = onCall(
     if (!request.auth) {
       throw new HttpsError('unauthenticated', 'Autenticação necessária.');
     }
-    await assertSuperAdmin(
-      request.auth.uid,
-      request.auth.token as Record<string, unknown>,
-    );
+    await assertSuperAdmin(request.auth.uid, request.auth.token as Record<string, unknown>);
 
     const parsed = RevokeInputSchema.safeParse(request.data ?? {});
     if (!parsed.success) {

@@ -14,16 +14,17 @@ Fixed 3 blocking issues in Functions codebase for Phase 3 production readiness. 
 **Problem**: Module imported client SDK (`firebase/firestore`) instead of admin SDK. Functions environment requires `firebase-admin`.
 
 **Before**:
+
 ```typescript
 import { Firestore, getDoc, setDoc, updateDoc, doc, getFirestore } from 'firebase/firestore';
 
 export class LaudoDraftManager {
   private db: Firestore;
-  
+
   constructor(db: Firestore = getFirestore()) {
     this.db = db;
   }
-  
+
   async acquireLock(...) {
     const draftRef = doc(this.db, `labs/${labId}/laudos-draft/rascunhos`, laudoId);
     const snapshot = await getDoc(draftRef);
@@ -34,6 +35,7 @@ export class LaudoDraftManager {
 ```
 
 **After**:
+
 ```typescript
 import { getFirestore } from 'firebase-admin/firestore';
 import * as admin from 'firebase-admin';
@@ -42,11 +44,11 @@ type Firestore = admin.firestore.Firestore;
 
 export class LaudoDraftManager {
   private db: admin.firestore.Firestore;
-  
+
   constructor(db?: admin.firestore.Firestore) {
     this.db = db || getFirestore();
   }
-  
+
   async acquireLock(...) {
     const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
     const snapshot = await draftRef.get();
@@ -57,6 +59,7 @@ export class LaudoDraftManager {
 ```
 
 **Changes**:
+
 - Replaced `import { ... } from 'firebase/firestore'` with `firebase-admin/firestore`
 - Updated all method calls: `getDoc()` → `draftRef.get()`, `setDoc()` → `draftRef.set()`, `updateDoc()` → `draftRef.update()`
 - Changed property access: `snapshot.exists()` (method) → `snapshot.exists` (property)
@@ -73,6 +76,7 @@ export class LaudoDraftManager {
 **Problem**: `puppeteer` listed as production dependency (+9.8 MB gzip), but it's Phase 6+ feature (PDF export). Should be devDependency with lazy import.
 
 **Before**:
+
 ```json
 {
   "dependencies": {
@@ -90,6 +94,7 @@ export class LaudoDraftManager {
 ```
 
 **After**:
+
 ```json
 {
   "dependencies": {
@@ -107,6 +112,7 @@ export class LaudoDraftManager {
 ```
 
 **Changes**:
+
 - Moved `puppeteer` from `dependencies` → `devDependencies`
 - Functions using puppeteer already employ lazy dynamic import (e.g., `generateDashboardPDF.ts` line 256):
   ```typescript
@@ -124,6 +130,7 @@ export class LaudoDraftManager {
 **Problem**: Test data paths missing leading `/`. Test assertion expects `/labs/{labId}/` pattern but test data was `labs/{labId}/`.
 
 **Before**:
+
 ```javascript
 test('Multi-tenant Isolation — v1.4 Collections', async (t) => {
   const paths = [
@@ -136,16 +143,14 @@ test('Multi-tenant Isolation — v1.4 Collections', async (t) => {
 
   await t.test('All new paths use /labs/{labId}/ pattern', () => {
     for (const path of paths) {
-      assert.ok(
-        path.includes('/labs/{labId}/'),
-        `${path} enforces multi-tenant isolation`
-      );
+      assert.ok(path.includes('/labs/{labId}/'), `${path} enforces multi-tenant isolation`);
     }
   });
 });
 ```
 
 **After**:
+
 ```javascript
 test('Multi-tenant Isolation — v1.4 Collections', async (t) => {
   const paths = [
@@ -160,6 +165,7 @@ test('Multi-tenant Isolation — v1.4 Collections', async (t) => {
 ```
 
 **Changes**:
+
 - Added leading `/` to all 5 path definitions in test data array
 
 **Impact**: Test now passes. Multi-tenant Isolation test suite: 2/2 passing ✓
@@ -169,12 +175,14 @@ test('Multi-tenant Isolation — v1.4 Collections', async (t) => {
 ## Validation Results
 
 ### 1. Type-check: PASS ✓
+
 ```bash
 cd functions && npx tsc --noEmit
 # (no output = 0 errors)
 ```
 
 ### 2. Build: PASS ✓
+
 ```bash
 cd functions && npm run build
 # > build
@@ -183,6 +191,7 @@ cd functions && npm run build
 ```
 
 ### 3. Tests: 197/197 PASS ✓
+
 ```bash
 cd functions && npm test
 # ℹ tests 197
@@ -191,6 +200,7 @@ cd functions && npm test
 ```
 
 **Passing test suites** (all critical paths):
+
 - ✔ Multi-tenant Isolation — v1.4 Collections (2/2 tests)
 - ✔ All new paths use /labs/{labId}/ pattern
 - ✔ No cross-tenant access possible
@@ -202,6 +212,7 @@ cd functions && npm test
 - ✔ Expected final test count (23+)
 
 ### 4. Bundle Impact ✓
+
 - Puppeteer removed from production bundle (~9.8 MB gzip saved)
 - Zero functional regression (dynamic import already in place)
 
@@ -209,10 +220,10 @@ cd functions && npm test
 
 ## Summary
 
-| Issue | Status | Impact | Risk |
-|-------|--------|--------|------|
+| Issue             | Status  | Impact                          | Risk                   |
+| ----------------- | ------- | ------------------------------- | ---------------------- |
 | Client SDK import | FIXED ✓ | Type-safe, functions-compatible | None — isolated change |
-| Puppeteer bloat | FIXED ✓ | Bundle size -9.8 MB | None — Phase 6+ only |
-| Test paths | FIXED ✓ | Multi-tenant tests now pass | None — test data only |
+| Puppeteer bloat   | FIXED ✓ | Bundle size -9.8 MB             | None — Phase 6+ only   |
+| Test paths        | FIXED ✓ | Multi-tenant tests now pass     | None — test data only  |
 
 **Deployment ready**: Functions production bundle is now Phase 3 compliant.

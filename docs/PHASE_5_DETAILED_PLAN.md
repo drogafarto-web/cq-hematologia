@@ -1,9 +1,10 @@
 # HC Quality v1.4 — Phase 5 Detailed Execution Plan
+
 ## Patient Portal Phase 1 (Laudo Download + Portal Access)
 
 **Duration:** 2 weeks (14 working days)  
 **Wave 1 (Days 1–7):** Foundation + Schema + Backend callables  
-**Wave 2 (Days 8–14):** Portal UI + PDF generation + Responsive + Testing  
+**Wave 2 (Days 8–14):** Portal UI + PDF generation + Responsive + Testing
 
 **Decision Reference:** ADR-0015 (Patient Portal Email-Link Auth v1.4)  
 **Regulatory Baseline:** RDC 978 Art. 167 + LGPD Art. 18  
@@ -16,11 +17,13 @@
 ### Decision: Path-based (no subdomain)
 
 **Rationale:**
+
 - Single SSL cert, simpler hosting config
 - Firebase Hosting rewrites already configured (all routes → `index.html`)
 - Easier auth context isolation (single Zustand store; route guards via token)
 
 **URL Pattern:**
+
 ```
 https://hmatologia2.web.app/paciente            # Patient portal root
 https://hmatologia2.web.app/paciente/auth       # Email link landing (token in query)
@@ -30,6 +33,7 @@ https://hmatologia2.web.app/paciente/feedback   # NPS form (optional; can be mod
 ```
 
 **UnauthN redirect:**
+
 ```
 // In AppRouter (src/App.tsx or routing wrapper):
 if (route.startsWith('/paciente') && !patientAuthToken) {
@@ -48,6 +52,7 @@ if (route.startsWith('/paciente') && !patientAuthToken) {
 **Responsibility:** Lab RT or admin (manual entry or CSV import).
 
 **Collection Schema:**
+
 ```
 /labs/{labId}/patients/{patientId}
 ├── name: string                    # "João da Silva"
@@ -69,6 +74,7 @@ if (route.startsWith('/paciente') && !patientAuthToken) {
 ```
 
 **CSV Import Script** (`scripts/import-patients.ts`):
+
 ```typescript
 // Input: CSV with columns: nome, data_nascimento, cpf, email
 // Output: Imported to /labs/{labId}/patients collection
@@ -99,40 +105,40 @@ export const generatePatientAuthLink = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { labId, cpf, email } = data;
-    
+
     // 1. Lookup patient by CPF (hashed) in /labs/{labId}/patients
     const patient = await db
       .collection(`/labs/${labId}/patients`)
       .where('cpfHash', '==', hashCPF(cpf))
       .limit(1)
       .get()
-      .then(snap => snap.docs[0]?.data());
-    
+      .then((snap) => snap.docs[0]?.data());
+
     if (!patient) {
       throw new Error('PATIENT_NOT_FOUND');
     }
-    
+
     // 2. Rate-limit check (max 3 links per day per patient)
     const dayAgo = Timestamp.now().toDate();
     dayAgo.setDate(dayAgo.getDate() - 1);
-    
+
     const recentLinks = await db
       .collection(`/labs/${labId}/patient-auth-events`)
       .where('patientId', '==', patient.id)
       .where('createdAt', '>=', Timestamp.fromDate(dayAgo))
       .get();
-    
+
     if (recentLinks.size >= 3) {
       throw new Error('RATE_LIMIT_EXCEEDED');
     }
-    
+
     // 3. Generate JWT token (72h expiry)
     const token = jwt.sign(
       { patientId: patient.id, labId, iat: Date.now() },
       process.env.PATIENT_PORTAL_SECRET,
-      { expiresIn: '72h' }
+      { expiresIn: '72h' },
     );
-    
+
     // 4. Send email (Resend or SendGrid)
     await sendPatientAuthEmail({
       to: patient.email,
@@ -141,23 +147,22 @@ export const generatePatientAuthLink = functions
       portalUrl: `https://hmatologia2.web.app/paciente/auth?token=${token}`,
       expiresIn: '72 horas',
     });
-    
+
     // 5. Log event (immutable audit trail)
-    await db
-      .collection(`/labs/${labId}/patient-auth-events`)
-      .add({
-        patientId: patient.id,
-        action: 'LINK_GENERATED',
-        createdAt: Timestamp.now(),
-        ipAddress: extractClientIP(context),
-        operatorId: null, // Null = auto-generated (not RT-signed)
-      });
-    
+    await db.collection(`/labs/${labId}/patient-auth-events`).add({
+      patientId: patient.id,
+      action: 'LINK_GENERATED',
+      createdAt: Timestamp.now(),
+      ipAddress: extractClientIP(context),
+      operatorId: null, // Null = auto-generated (not RT-signed)
+    });
+
     return { success: true, message: 'Link sent to email' };
   });
 ```
 
 **Email Template** (`functions/src/shared/templates/patientAuthEmail.ts`):
+
 ```
 Subject: Acesso ao seu resultado — HC Quality Laboratorial
 
@@ -190,23 +195,23 @@ const verifyPatientAuthToken = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { token } = data;
-    
+
     try {
-      const decoded = jwt.verify(
-        token,
-        process.env.PATIENT_PORTAL_SECRET
-      ) as { patientId: string; labId: string };
-      
+      const decoded = jwt.verify(token, process.env.PATIENT_PORTAL_SECRET) as {
+        patientId: string;
+        labId: string;
+      };
+
       // Verify patient still active
       const patient = await db
         .collection(`/labs/${decoded.labId}/patients`)
         .doc(decoded.patientId)
         .get();
-      
+
       if (!patient.exists || patient.data().status === 'inactive') {
         throw new Error('PATIENT_INACTIVE');
       }
-      
+
       // Return scoped token for client-side use
       return {
         valid: true,
@@ -221,24 +226,25 @@ const verifyPatientAuthToken = functions
 ```
 
 **Token Storage (Zustand):**
+
 ```typescript
 export const usePatientAuthStore = create<PatientAuthState>((set) => ({
   token: null,
   patientId: null,
   labId: null,
   expiresAt: null,
-  
+
   setAuth: (token, patientId, labId, expiresAt) => {
     // Store in localStorage (unencrypted — token is single-use)
     localStorage.setItem('patient_auth_token', token);
     set({ token, patientId, labId, expiresAt });
   },
-  
+
   clearAuth: () => {
     localStorage.removeItem('patient_auth_token');
     set({ token: null, patientId: null, labId: null, expiresAt: null });
   },
-  
+
   isTokenExpired: () => {
     return new Date() > (get().expiresAt || new Date(0));
   },
@@ -254,6 +260,7 @@ export const usePatientAuthStore = create<PatientAuthState>((set) => ({
 **Callable:** `generatePatientLaudoPDF` (NOT reusing export module's PDF generator).
 
 **Rationale:**
+
 - Export module's PDF is operator-facing (internal use, detailed metadata).
 - Patient portal PDF is patient-facing (minimal technical details, prominent QR).
 - Different scope guards (RN-17: patient can only download own laudo).
@@ -296,37 +303,31 @@ export const generatePatientLaudoPDF = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { patientId, labId, laudoId } = data;
-    
+
     // 1. Auth guard: only patient themselves can generate
     const token = context.auth?.token; // Verify token scoped to patientId
-    const decoded = jwt.verify(
-      token,
-      process.env.PATIENT_PORTAL_SECRET
-    ) as { patientId: string };
-    
+    const decoded = jwt.verify(token, process.env.PATIENT_PORTAL_SECRET) as { patientId: string };
+
     if (decoded.patientId !== patientId) {
       throw new HttpsError('permission-denied', 'Invalid token scope');
     }
-    
+
     // 2. Fetch laudo + latest version
-    const laudo = await db
-      .collection(`/labs/${labId}/laudos`)
-      .doc(laudoId)
-      .get();
-    
+    const laudo = await db.collection(`/labs/${labId}/laudos`).doc(laudoId).get();
+
     const version = await db
       .collection(`/labs/${labId}/laudo-versions`)
       .where('laudoId', '==', laudoId)
       .orderBy('version', 'desc')
       .limit(1)
       .get()
-      .then(snap => snap.docs[0]?.data());
-    
+      .then((snap) => snap.docs[0]?.data());
+
     // 3. Verify patient ID matches laudo
     if (laudo.data().paciente.id !== patientId) {
       throw new HttpsError('permission-denied', 'Patient mismatch');
     }
-    
+
     // 4. Generate QR code (laudo ID + version + signature hash)
     const qrDataString = JSON.stringify({
       laudoId,
@@ -334,13 +335,13 @@ export const generatePatientLaudoPDF = functions
       signatureHash: version.signature.hash.substring(32),
       generatedAt: new Date().toISOString(),
     });
-    
+
     const qrImage = await generateQRCode(qrDataString, {
       width: 200,
       margin: 1,
       color: { dark: '#000000', light: '#ffffff' },
     });
-    
+
     // 5. Render HTML → PDF via Puppeteer
     const htmlContent = renderPatientLaudoHTML({
       laudo: laudo.data(),
@@ -349,45 +350,43 @@ export const generatePatientLaudoPDF = functions
       labLogo: lab.logoUrl, // From portal-configuracao
       labBranding: lab.portalBranding, // Colors, fonts, etc.
     });
-    
+
     const pdfBuffer = await generatePDFViaPuppeteer(htmlContent, {
       format: 'A4',
       margin: { top: '1cm', bottom: '1cm', left: '1.5cm', right: '1.5cm' },
       printBackground: true,
     });
-    
+
     // 6. Upload to GCS
     const gcsPath = `patient-laudos/${labId}/${laudoId}/v${version.version}.pdf`;
     const bucket = admin.storage().bucket();
     const file = bucket.file(gcsPath);
-    
+
     await file.save(pdfBuffer, {
       metadata: {
         contentType: 'application/pdf',
         cacheControl: 'public, max-age=3600',
       },
     });
-    
+
     // 7. Generate signed URL (1h expiry for download)
     const [downloadUrl] = await file.getSignedUrl({
       version: 'v4',
       action: 'read',
       expires: Date.now() + 3600 * 1000, // 1 hour
     });
-    
+
     // 8. Log download event (immutable)
-    await db
-      .collection(`/labs/${labId}/patient-downloads`)
-      .add({
-        patientId,
-        laudoId,
-        versionId: version.id,
-        downloadedAt: Timestamp.now(),
-        ipAddress: extractClientIP(context),
-        userAgent: context.headers['user-agent'],
-        action: 'PDF_GENERATED',
-      });
-    
+    await db.collection(`/labs/${labId}/patient-downloads`).add({
+      patientId,
+      laudoId,
+      versionId: version.id,
+      downloadedAt: Timestamp.now(),
+      ipAddress: extractClientIP(context),
+      userAgent: context.headers['user-agent'],
+      action: 'PDF_GENERATED',
+    });
+
     return {
       success: true,
       downloadUrl,
@@ -512,7 +511,7 @@ export function renderPatientLaudoHTML(props: {
           <img src="data:image/png;base64,${qrImage.toString('base64')}" alt="QR Code" />
           <div class="qr-text">Validar assinatura</div>
         </div>
-        
+
         <!-- Header: Logo + Lab Info -->
         <div class="header">
           <img src="${labLogo}" alt="Logo" class="logo" />
@@ -523,7 +522,7 @@ export function renderPatientLaudoHTML(props: {
             <p>Tel: ${laudo.labTelefone}</p>
           </div>
         </div>
-        
+
         <!-- Patient Info Section (RDC 978 Art. 167 § 3) -->
         <div class="patient-section">
           <h2>Informações do Paciente</h2>
@@ -544,7 +543,7 @@ export function renderPatientLaudoHTML(props: {
             <span class="patient-value">${formatDateTime(laudo.coletaEm)}</span>
           </div>
         </div>
-        
+
         <!-- Exams Section -->
         <div class="exams-section">
           ${laudo.exames.map(exam => \`
@@ -558,7 +557,7 @@ export function renderPatientLaudoHTML(props: {
             </div>
           \`).join('')}
         </div>
-        
+
         <!-- Signature & Verification -->
         <div class="signature-section">
           <div class="signature-block">
@@ -572,14 +571,14 @@ export function renderPatientLaudoHTML(props: {
             <p>${laudo.rtRegistro}</p>
           </div>
         </div>
-        
+
         <!-- Data de Emissão & LGPD Disclaimer -->
         <div class="footer">
           <p><strong>Data de Emissão:</strong> ${formatDateTime(laudo.emissaoEm)}</p>
           <p><strong>Versão do Resultado:</strong> ${version.version}</p>
           <p><strong>Hash de Verificação:</strong> ${version.signature.hash.substring(0, 32)}...</p>
         </div>
-        
+
         <div class="disclaimer">
           <strong>Aviso de Privacidade (LGPD):</strong> Este documento contém informações médicas confidenciais. Acesso não autorizado é proibido. Para mais informações sobre privacidade, visite ${labLogo}/politica-privacidade.
         </div>
@@ -639,18 +638,12 @@ export function useLabPortalBranding() {
 
   useEffect(() => {
     // Extract labId from laudo or URL
-    const unsub = onSnapshot(
-      doc(
-        db,
-        `/labs/${labId}/portal-configuracao`
-      ),
-      (snap) => {
-        if (snap.exists()) {
-          setBranding(snap.data() as LabBrandingConfig);
-        }
-        setLoading(false);
+    const unsub = onSnapshot(doc(db, `/labs/${labId}/portal-configuracao`), (snap) => {
+      if (snap.exists()) {
+        setBranding(snap.data() as LabBrandingConfig);
       }
-    );
+      setLoading(false);
+    });
 
     return () => unsub();
   }, [labId]);
@@ -726,10 +719,7 @@ export function FeedbackForm({ laudoId, patientId, labId }: Props) {
   const [comment, setComment] = useState('');
   const [submitted, setSubmitted] = useState(false);
 
-  const submitFeedback = httpsCallable(
-    functions,
-    'submitPatientFeedback'
-  );
+  const submitFeedback = httpsCallable(functions, 'submitPatientFeedback');
 
   const handleSubmit = async () => {
     try {
@@ -751,9 +741,7 @@ export function FeedbackForm({ laudoId, patientId, labId }: Props) {
   if (submitted) {
     return (
       <div className="rounded-lg bg-emerald-50 p-4 text-center">
-        <p className="text-sm font-medium text-emerald-900">
-          Obrigado pelo seu feedback!
-        </p>
+        <p className="text-sm font-medium text-emerald-900">Obrigado pelo seu feedback!</p>
       </div>
     );
   }
@@ -790,18 +778,20 @@ export function FeedbackForm({ laudoId, patientId, labId }: Props) {
           Como você se sentiu com a clareza do resultado?
         </label>
         <div className="space-y-2">
-          {['very_satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very_dissatisfied'].map((option) => (
-            <label key={option} className="flex items-center">
-              <input
-                type="radio"
-                value={option}
-                checked={satisfaction === option}
-                onChange={() => setSatisfaction(option)}
-                className="mr-2"
-              />
-              <span className="text-sm text-gray-700">{translateSatisfaction(option)}</span>
-            </label>
-          ))}
+          {['very_satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very_dissatisfied'].map(
+            (option) => (
+              <label key={option} className="flex items-center">
+                <input
+                  type="radio"
+                  value={option}
+                  checked={satisfaction === option}
+                  onChange={() => setSatisfaction(option)}
+                  className="mr-2"
+                />
+                <span className="text-sm text-gray-700">{translateSatisfaction(option)}</span>
+              </label>
+            ),
+          )}
         </div>
       </div>
 
@@ -854,26 +844,24 @@ export const submitPatientFeedback = functions
     }
 
     // Write feedback (immutable)
-    const feedbackRef = await db
-      .collection(`/labs/${labId}/patient-feedback`)
-      .add({
-        patientId,
-        laudoId,
-        npsScore,
-        satisfaction: satisfaction || null,
-        comment: comment || '',
-        aspects: {
-          resultClarity: null,
-          downloadSpeed: null,
-          uiUsability: null,
-        },
-        createdAt: Timestamp.now(),
-        metadata: {
-          ipAddress: extractClientIP(context),
-          userAgent: context.headers['user-agent'],
-          timeOnPortal,
-        },
-      });
+    const feedbackRef = await db.collection(`/labs/${labId}/patient-feedback`).add({
+      patientId,
+      laudoId,
+      npsScore,
+      satisfaction: satisfaction || null,
+      comment: comment || '',
+      aspects: {
+        resultClarity: null,
+        downloadSpeed: null,
+        uiUsability: null,
+      },
+      createdAt: Timestamp.now(),
+      metadata: {
+        ipAddress: extractClientIP(context),
+        userAgent: context.headers['user-agent'],
+        timeOnPortal,
+      },
+    });
 
     return {
       success: true,
@@ -900,15 +888,24 @@ export function LGPDNotice({ labId }: { labId: string }) {
   return (
     <div className="rounded-lg border border-yellow-200 bg-yellow-50 p-4">
       <div className="flex items-start gap-3">
-        <svg className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
-          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+        <svg
+          className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5"
+          fill="currentColor"
+          viewBox="0 0 20 20"
+        >
+          <path
+            fillRule="evenodd"
+            d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
+            clipRule="evenodd"
+          />
         </svg>
         <div className="flex-1">
           <p className="text-sm font-medium text-yellow-900">
             Aviso de Privacidade — Lei Geral de Proteção de Dados (LGPD)
           </p>
           <p className="text-sm text-yellow-800 mt-2">
-            Seus dados são protegidos sob a Lei nº 13.709/2018. Para saber como utilizamos suas informações, leia nossa{' '}
+            Seus dados são protegidos sob a Lei nº 13.709/2018. Para saber como utilizamos suas
+            informações, leia nossa{' '}
             <button
               onClick={() => setIsOpen(true)}
               className="font-semibold underline hover:text-yellow-900"
@@ -942,40 +939,36 @@ export function PrivacyPolicyModal({ isOpen, onClose, policyUrl }: Props) {
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30">
       <div className="w-full max-w-2xl max-h-[80vh] overflow-auto rounded-lg bg-white p-6">
         <h2 className="text-xl font-semibold mb-4">Política de Privacidade</h2>
-        
+
         <div className="prose prose-sm max-w-none">
           <h3>1. Coleta de Dados</h3>
           <p>
-            Coletamos dados pessoais (nome, CPF, email, data de nascimento) para
-            permitir acesso aos seus resultados de laboratório conforme Lei 13.709/2018.
+            Coletamos dados pessoais (nome, CPF, email, data de nascimento) para permitir acesso aos
+            seus resultados de laboratório conforme Lei 13.709/2018.
           </p>
 
           <h3>2. Uso de Dados</h3>
           <p>
-            Seus dados são utilizados exclusivamente para:
-            - Autenticar acesso ao seu resultado
-            - Gerar auditoria de acesso
-            - Melhorar nossa plataforma (feedback anônimo)
+            Seus dados são utilizados exclusivamente para: - Autenticar acesso ao seu resultado -
+            Gerar auditoria de acesso - Melhorar nossa plataforma (feedback anônimo)
           </p>
 
           <h3>3. Retenção</h3>
           <p>
-            Conforme RDC 978 Art. 48, resultados são retidos por 5 anos. Após esse
-            período, são destruídos de forma segura.
+            Conforme RDC 978 Art. 48, resultados são retidos por 5 anos. Após esse período, são
+            destruídos de forma segura.
           </p>
 
           <h3>4. Seus Direitos</h3>
           <p>
-            Você tem o direito de:
-            - Acessar seus dados pessoais
-            - Solicitar correção ou exclusão
-            - Revogar consentimento a qualquer hora
+            Você tem o direito de: - Acessar seus dados pessoais - Solicitar correção ou exclusão -
+            Revogar consentimento a qualquer hora
           </p>
 
           <h3>5. Contato</h3>
           <p>
-            Para exercer seus direitos ou reportar preocupações de privacidade,
-            entre em contato: {supportEmail}
+            Para exercer seus direitos ou reportar preocupações de privacidade, entre em contato:{' '}
+            {supportEmail}
           </p>
         </div>
 
@@ -1043,16 +1036,16 @@ export function usePatientDownloadAudit(labId: string) {
       query(
         collection(db, `/labs/${labId}/patient-downloads`),
         orderBy('downloadedAt', 'desc'),
-        limit(100)
+        limit(100),
       ),
       (snap) => {
-        const data = snap.docs.map(doc => ({
+        const data = snap.docs.map((doc) => ({
           id: doc.id,
           ...doc.data(),
         })) as AuditLog[];
         setLogs(data);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsub();
@@ -1072,7 +1065,7 @@ export function AuditDownloadsPanel() {
   return (
     <div className="rounded-lg border border-gray-200 p-6">
       <h3 className="text-lg font-semibold mb-4">Auditoria: Downloads de Laudos</h3>
-      
+
       <table className="w-full text-sm">
         <thead className="border-b border-gray-300">
           <tr>
@@ -1083,7 +1076,7 @@ export function AuditDownloadsPanel() {
           </tr>
         </thead>
         <tbody>
-          {logs.map(log => (
+          {logs.map((log) => (
             <tr key={log.id} className="border-b border-gray-100">
               <td className="py-2">{formatDateTime(log.downloadedAt)}</td>
               <td className="py-2">{log.patientId.substring(0, 8)}...</td>
@@ -1120,9 +1113,7 @@ export function PatientLaudoView() {
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
       {/* Left column: Laudo info */}
-      <section className="col-span-1 sm:col-span-1 lg:col-span-2">
-        {/* Main content */}
-      </section>
+      <section className="col-span-1 sm:col-span-1 lg:col-span-2">{/* Main content */}</section>
 
       {/* Right sidebar: Actions (on mobile: stacked below) */}
       <aside className="col-span-1 sm:col-span-2 lg:col-span-1">
@@ -1137,18 +1128,18 @@ export function PatientLaudoView() {
 
 **Optimization Checklist:**
 
-| Metric | Target | Technique |
-|--------|--------|-----------|
-| **LCP** | <2.5s | Lazy-load images, pre-render header, optimize fonts |
-| **INP** | <200ms | Debounce feedback form, virtualize long lists |
-| **CLS** | <0.1 | Skeleton loaders, fixed dimensions on images |
-| **FID** | <100ms | Code-split routes, defer non-critical JS |
+| Metric  | Target | Technique                                           |
+| ------- | ------ | --------------------------------------------------- |
+| **LCP** | <2.5s  | Lazy-load images, pre-render header, optimize fonts |
+| **INP** | <200ms | Debounce feedback form, virtualize long lists       |
+| **CLS** | <0.1   | Skeleton loaders, fixed dimensions on images        |
+| **FID** | <100ms | Code-split routes, defer non-critical JS            |
 
 **Code Split Patient Portal:**
 
 ```typescript
 // src/App.tsx
-const PatientPortalApp = React.lazy(() => 
+const PatientPortalApp = React.lazy(() =>
   import('./features/patient-portal/PatientPortalApp')
 );
 
@@ -1229,14 +1220,7 @@ src/features/patient-portal/
 
 ```typescript
 import { db } from '@/shared/services/firebase';
-import {
-  collection,
-  query,
-  where,
-  orderBy,
-  onSnapshot,
-  getDocs,
-} from 'firebase/firestore';
+import { collection, query, where, orderBy, onSnapshot, getDocs } from 'firebase/firestore';
 import { Laudo } from '@/features/liberacao/types/laudo';
 
 /**
@@ -1247,23 +1231,23 @@ export function listenToPatientLaudos(
   labId: string,
   patientId: string,
   onData: (laudos: Laudo[]) => void,
-  onError: (error: Error) => void
+  onError: (error: Error) => void,
 ) {
   const unsubscribe = onSnapshot(
     query(
       collection(db, `/labs/${labId}/laudos`),
       where('paciente.id', '==', patientId),
       where('deletadoEm', '==', null),
-      orderBy('emissaoEm', 'desc')
+      orderBy('emissaoEm', 'desc'),
     ),
     (snap) => {
-      const laudos = snap.docs.map(doc => ({
+      const laudos = snap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       })) as Laudo[];
       onData(laudos);
     },
-    (error) => onError(error as Error)
+    (error) => onError(error as Error),
   );
 
   return unsubscribe;
@@ -1275,19 +1259,19 @@ export function listenToPatientLaudos(
 export async function getPatientLaudo(
   labId: string,
   patientId: string,
-  laudoId: string
+  laudoId: string,
 ): Promise<Laudo | null> {
   const laudoSnap = await getDocs(
     query(
       collection(db, `/labs/${labId}/laudos`),
       where('id', '==', laudoId),
       where('paciente.id', '==', patientId),
-      where('deletadoEm', '==', null)
-    )
+      where('deletadoEm', '==', null),
+    ),
   );
 
   if (laudoSnap.empty) return null;
-  
+
   const laudoDoc = laudoSnap.docs[0];
   return {
     id: laudoDoc.id,
@@ -1302,12 +1286,12 @@ export async function getPatientLaudo(
 
 ### 10.1 Summary of New Callables
 
-| Callable | Scope | Trigger | Return |
-|----------|-------|---------|--------|
-| `generatePatientAuthLink` | Public | Patient enters CPF | `{success, message}` |
-| `verifyPatientAuthToken` | Public | Token in URL | `{valid, patientId, labId, expiresAt}` |
-| `generatePatientLaudoPDF` | Patient | Patient clicks download | `{downloadUrl, expiresAt, filename}` |
-| `submitPatientFeedback` | Patient | Feedback form submit | `{success, feedbackId}` |
+| Callable                  | Scope   | Trigger                 | Return                                 |
+| ------------------------- | ------- | ----------------------- | -------------------------------------- |
+| `generatePatientAuthLink` | Public  | Patient enters CPF      | `{success, message}`                   |
+| `verifyPatientAuthToken`  | Public  | Token in URL            | `{valid, patientId, labId, expiresAt}` |
+| `generatePatientLaudoPDF` | Patient | Patient clicks download | `{downloadUrl, expiresAt, filename}`   |
+| `submitPatientFeedback`   | Patient | Feedback form submit    | `{success, feedbackId}`                |
 
 ### 10.2 File Structure in Functions
 
@@ -1345,7 +1329,7 @@ functions/src/
 match /labs/{labId}/patients/{patientId} {
   // RT/Admin can read all patients
   allow read: if request.auth != null && isAdminOrOwner(labId);
-  
+
   // RT/Admin can create/update/delete patients
   allow write: if request.auth != null && isAdminOrOwner(labId);
 }
@@ -1354,10 +1338,10 @@ match /labs/{labId}/patients/{patientId} {
 match /labs/{labId}/patient-auth-events/{eventId} {
   // Only append (create) — no updates/deletes
   allow create: if request.auth == null; // CF calls this, not user
-  
+
   // RT/Admin can read audit log
   allow read: if request.auth != null && isAdminOrOwner(labId);
-  
+
   // No updates/deletes
   allow update, delete: if false;
 }
@@ -1366,10 +1350,10 @@ match /labs/{labId}/patient-auth-events/{eventId} {
 match /labs/{labId}/patient-downloads/{downloadId} {
   // Only append (CF creates)
   allow create: if request.auth == null;
-  
+
   // RT/Admin can read
   allow read: if request.auth != null && isAdminOrOwner(labId);
-  
+
   // No updates/deletes
   allow update, delete: if false;
 }
@@ -1378,10 +1362,10 @@ match /labs/{labId}/patient-downloads/{downloadId} {
 match /labs/{labId}/patient-feedback/{feedbackId} {
   // Only append
   allow create: if request.auth == null;
-  
+
   // RT/Admin can read + aggregate
   allow read: if request.auth != null && isAdminOrOwner(labId);
-  
+
   // No updates/deletes
   allow update, delete: if false;
 }
@@ -1390,7 +1374,7 @@ match /labs/{labId}/patient-feedback/{feedbackId} {
 match /labs/{labId}/portal-configuracao {
   // Public can read (portal styling)
   allow read: if true;
-  
+
   // Only RT/Admin can write
   allow write: if request.auth != null && isAdminOrOwner(labId);
 }
@@ -1409,27 +1393,26 @@ import { loginAsRT, seedPatients, seedLaudo } from './fixtures';
 const BASE_URL = 'https://localhost:3000'; // Or staging URL
 
 test.describe('Patient Portal — E2E', () => {
-  
   // ========== Spec 1: Email Link Generation & Expiry ==========
   test('Spec 1: Patient receives email link with 72h expiry', async ({ page }) => {
     // 1. Seed patient data
     const { patientCPF, patientEmail } = await seedPatients(1);
-    
+
     // 2. Navigate to /paciente/auth
     await page.goto(`${BASE_URL}/paciente/auth`);
-    
+
     // 3. Enter CPF
     await page.fill('[data-testid="patient-cpf-input"]', patientCPF);
     await page.click('[data-testid="generate-link-btn"]');
-    
+
     // 4. Expect success message
     const successMsg = page.locator('[data-testid="success-message"]');
     await expect(successMsg).toContainText('Link enviado para email');
-    
+
     // 5. Check email (mock email service)
     const emailContent = await getLatestEmail(patientEmail);
     expect(emailContent).toContain(`${BASE_URL}/paciente/auth?token=`);
-    
+
     // 6. Verify link expiry (72h = 259200s)
     const tokenUrl = extractTokenFromEmail(emailContent);
     const decoded = decodeJWT(tokenUrl.split('token=')[1]);
@@ -1444,11 +1427,11 @@ test.describe('Patient Portal — E2E', () => {
   test('Spec 2: Invalid token redirects to error page', async ({ page }) => {
     // 1. Try accessing with malformed token
     await page.goto(`${BASE_URL}/paciente/auth?token=invalid-token-xyz`);
-    
+
     // 2. Expect error state
     const errorBanner = page.locator('[data-testid="error-banner"]');
     await expect(errorBanner).toContainText('Token inválido ou expirado');
-    
+
     // 3. Expect redirect option
     const retryBtn = page.locator('[data-testid="retry-button"]');
     await expect(retryBtn).toBeVisible();
@@ -1459,28 +1442,25 @@ test.describe('Patient Portal — E2E', () => {
     // 1. Setup: Generate valid token & seed laudo
     const { patientId, labId, token } = await setupPatientSession();
     const { laudoId } = await seedLaudo(labId, patientId);
-    
+
     // 2. Navigate to /paciente/laudos with token
-    await page.goto(
-      `${BASE_URL}/paciente/auth?token=${token}`,
-      { waitUntil: 'networkidle' }
-    );
-    
+    await page.goto(`${BASE_URL}/paciente/auth?token=${token}`, { waitUntil: 'networkidle' });
+
     // 3. Wait for redirect to /paciente/laudos
     await page.waitForURL('**/paciente/laudos');
-    
+
     // 4. Verify laudo is visible
     const laudoCard = page.locator(`[data-testid="laudo-card-${laudoId}"]`);
     await expect(laudoCard).toBeVisible();
-    
+
     // 5. Click download button
     await page.click(`[data-testid="download-btn-${laudoId}"]`);
-    
+
     // 6. Wait for PDF download (Playwright captures downloads)
     const downloadPromise = page.waitForEvent('download');
     const download = await downloadPromise;
     expect(download.suggestedFilename()).toMatch(/Resultado_.+\.pdf/);
-    
+
     // 7. Verify audit log was created (check Firestore)
     await waitForAuditLog(labId, patientId, laudoId, 'PDF_GENERATED', 5000);
     const auditEntry = await getAuditLogEntry(labId, patientId, laudoId);
@@ -1493,34 +1473,34 @@ test.describe('Patient Portal — E2E', () => {
     // 1. Setup authenticated session
     const { patientId, labId, token } = await setupPatientSession();
     const { laudoId } = await seedLaudo(labId, patientId);
-    
+
     // 2. Navigate to /paciente/laudos
     await page.goto(`${BASE_URL}/paciente/auth?token=${token}`);
     await page.waitForURL('**/paciente/laudos');
-    
+
     // 3. Open feedback form (click on a laudo first)
     await page.click(`[data-testid="laudo-card-${laudoId}"]`);
     await page.waitForURL(`**/paciente/laudo/${laudoId}`);
-    
+
     // 4. Scroll to feedback section
     await page.locator('[data-testid="feedback-form"]').scrollIntoViewIfNeeded();
-    
+
     // 5. Submit NPS (score 9)
     await page.click('[data-testid="nps-score-9"]');
-    
+
     // 6. Select satisfaction
     await page.click('[data-testid="satisfaction-satisfied"]');
-    
+
     // 7. Type comment
     await page.fill('[data-testid="feedback-comment"]', 'Resultado muito claro!');
-    
+
     // 8. Submit
     await page.click('[data-testid="submit-feedback-btn"]');
-    
+
     // 9. Expect confirmation message
     const confirmMsg = page.locator('[data-testid="feedback-success-msg"]');
     await expect(confirmMsg).toContainText('Obrigado pelo seu feedback');
-    
+
     // 10. Verify Firestore write
     await waitForFeedbackEntry(labId, patientId, laudoId, 5000);
   });
@@ -1529,27 +1509,27 @@ test.describe('Patient Portal — E2E', () => {
   test('Spec 5: Portal UI is usable on mobile (375px)', async ({ page }) => {
     // Set mobile viewport
     await page.setViewportSize({ width: 375, height: 667 });
-    
+
     // 1. Authenticate
     const { token } = await setupPatientSession();
     await page.goto(`${BASE_URL}/paciente/auth?token=${token}`);
     await page.waitForURL('**/paciente/laudos');
-    
+
     // 2. Verify header is visible (not hidden)
     const header = page.locator('[data-testid="portal-header"]');
     await expect(header).toBeVisible();
-    
+
     // 3. Verify laudo cards stack vertically
     const laudoCards = page.locator('[data-testid^="laudo-card-"]');
     const count = await laudoCards.count();
     expect(count).toBeGreaterThan(0);
-    
+
     // 4. Download button is accessible (not cut off)
     const downloadBtn = laudoCards.first().locator('[data-testid$="download-btn"]');
     const boundingBox = await downloadBtn.boundingBox();
     expect(boundingBox?.x).toBeGreaterThanOrEqual(0);
     expect(boundingBox?.x! + boundingBox?.width!).toBeLessThanOrEqual(375);
-    
+
     // 5. Feedback form scrolls (no horizontal scroll)
     await page.locator('[data-testid^="laudo-card-"]').first().click();
     const feedbackForm = page.locator('[data-testid="feedback-form"]');
@@ -1562,28 +1542,26 @@ test.describe('Patient Portal — E2E', () => {
   test('Spec 6: RT can view patient download audit log', async ({ page }) => {
     // 1. Login as RT
     await loginAsRT(page);
-    
+
     // 2. Navigate to Liberação module audit section
     await page.goto(`${BASE_URL}/hub/liberacao`);
     await page.click('[data-testid="audit-downloads-tab"]');
-    
+
     // 3. Seed a patient download (via separate API call)
     const { patientId, laudoId } = await simulatePatientDownload();
-    
+
     // 4. Refresh audit log
     await page.click('[data-testid="refresh-audit-btn"]');
-    
+
     // 5. Verify download entry appears
-    const downloadRow = page.locator(
-      `[data-testid="audit-row-${patientId}-${laudoId}"]`
-    );
+    const downloadRow = page.locator(`[data-testid="audit-row-${patientId}-${laudoId}"]`);
     await expect(downloadRow).toBeVisible();
-    
+
     // 6. Verify columns: Date, Patient ID (masked), Laudo ID, Action
     const dateCol = downloadRow.locator('[data-testid="col-date"]');
     const patientCol = downloadRow.locator('[data-testid="col-patient"]');
     const actionCol = downloadRow.locator('[data-testid="col-action"]');
-    
+
     await expect(dateCol).toContainText(/\d{2}\/\d{2}\/\d{4}/); // Date format
     expect(await patientCol.textContent()).toMatch(/[a-f0-9]{8}\.\.\./); // Masked ID
     await expect(actionCol).toContainText('PDF_GENERATED');
@@ -1605,12 +1583,9 @@ export async function seedPatients(count: number) {
       email: `patient${i}@test.local`,
       status: 'active',
     };
-    
-    const docRef = await addDoc(
-      collection(db, `/labs/test-lab-id/patients`),
-      patientData
-    );
-    
+
+    const docRef = await addDoc(collection(db, `/labs/test-lab-id/patients`), patientData);
+
     patients.push({ id: docRef.id, ...patientData });
   }
   return patients;
@@ -1633,12 +1608,9 @@ export async function seedLaudo(labId: string, patientId: string) {
       },
     ],
   };
-  
-  const docRef = await addDoc(
-    collection(db, `/labs/${labId}/laudos`),
-    laudoData
-  );
-  
+
+  const docRef = await addDoc(collection(db, `/labs/${labId}/laudos`), laudoData);
+
   return { id: docRef.id, ...laudoData };
 }
 
@@ -1652,23 +1624,19 @@ export function generateTestToken(patientId: string, labId: string): string {
   return jwt.sign(
     { patientId, labId, iat: Date.now() },
     process.env.PATIENT_PORTAL_SECRET || 'test-secret',
-    { expiresIn: '72h' }
+    { expiresIn: '72h' },
   );
 }
 
-export async function getAuditLogEntry(
-  labId: string,
-  patientId: string,
-  laudoId: string
-) {
+export async function getAuditLogEntry(labId: string, patientId: string, laudoId: string) {
   const snap = await getDocs(
     query(
       collection(db, `/labs/${labId}/patient-downloads`),
       where('patientId', '==', patientId),
       where('laudoId', '==', laudoId),
       orderBy('downloadedAt', 'desc'),
-      limit(1)
-    )
+      limit(1),
+    ),
   );
   return snap.docs[0]?.data();
 }
@@ -1681,6 +1649,7 @@ export async function getAuditLogEntry(
 ### 13.1 Pre-Deploy Verification
 
 **Functions:**
+
 ```bash
 # 1. Type-check functions
 cd functions && npm run build
@@ -1696,6 +1665,7 @@ bash scripts/preflight-secrets-check.sh
 ```
 
 **Rules:**
+
 ```bash
 # 1. Deploy rules (includes new patient-* collections)
 firebase deploy --only firestore:rules
@@ -1705,6 +1675,7 @@ firebase emulators:exec 'npm test -- rules'
 ```
 
 **Web:**
+
 ```bash
 # 1. Type-check React
 npx tsc --noEmit
@@ -1722,15 +1693,15 @@ firebase deploy --only hosting
 
 ### 13.2 Post-Deploy Smoke Tests (Manual)
 
-| Step | Action | Expected |
-|------|--------|----------|
-| 1 | Navigate to `/paciente` on staging | Portal auth page loads |
-| 2 | Enter test patient CPF | "Link sent" message + email received |
-| 3 | Click email link | Redirects to `/paciente/laudos` |
-| 4 | Download PDF | File saves, audit log created |
-| 5 | Submit NPS (score 8) | "Thanks for feedback" message |
-| 6 | Login as RT | Audit log visible in Liberação module |
-| 7 | Open mobile (375px) | UI is responsive, no horizontal scroll |
+| Step | Action                             | Expected                               |
+| ---- | ---------------------------------- | -------------------------------------- |
+| 1    | Navigate to `/paciente` on staging | Portal auth page loads                 |
+| 2    | Enter test patient CPF             | "Link sent" message + email received   |
+| 3    | Click email link                   | Redirects to `/paciente/laudos`        |
+| 4    | Download PDF                       | File saves, audit log created          |
+| 5    | Submit NPS (score 8)               | "Thanks for feedback" message          |
+| 6    | Login as RT                        | Audit log visible in Liberação module  |
+| 7    | Open mobile (375px)                | UI is responsive, no horizontal scroll |
 
 ### 13.3 Monitoring (First 24h)
 
@@ -1756,26 +1727,26 @@ db.collection('labs/default/patient-downloads').orderBy('downloadedAt', 'desc').
 **Scenario:** Resend / SendGrid API down.
 
 **Mitigation:**
+
 1. Patient can still view `/paciente/laudos` (no email needed)
 2. RT generates link manually (admin callable) + emails patient directly
 3. Fallback: RT provides patient with test token via phone
 
 **Implementation:**
+
 ```typescript
 // Admin-only callable for RT to generate token manually
 export const generatePatientAuthLinkAdmin = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     if (!isAdminOrOwner(context)) throw new HttpsError('permission-denied', '');
-    
+
     const { patientId, labId, expiryHours = 72 } = data;
-    
-    const token = jwt.sign(
-      { patientId, labId },
-      process.env.PATIENT_PORTAL_SECRET,
-      { expiresIn: `${expiryHours}h` }
-    );
-    
+
+    const token = jwt.sign({ patientId, labId }, process.env.PATIENT_PORTAL_SECRET, {
+      expiresIn: `${expiryHours}h`,
+    });
+
     // Return token (RT copies + pastes into email)
     return { token, portalUrl: `https://hmatologia2.web.app/paciente/auth?token=${token}` };
   });
@@ -1786,6 +1757,7 @@ export const generatePatientAuthLinkAdmin = functions
 **Scenario:** JWT library mismatch, secret rotation bug.
 
 **Mitigation:**
+
 1. Fallback: Patient re-enters CPF → re-triggers link generation
 2. No data loss (email link is stateless)
 3. Rate-limit is per-patient, not account-level
@@ -1795,6 +1767,7 @@ export const generatePatientAuthLinkAdmin = functions
 **Scenario:** Puppeteer hangs or Laudo HTML is too complex (>30s).
 
 **Mitigation:**
+
 1. Set Cloud Function timeout to 120s (vs. 60s default)
 2. Pre-generate PDFs during laudo release (background job)
 3. If timeout on-demand → return cached PDF from GCS (if available)
@@ -1806,6 +1779,7 @@ export const generatePatientAuthLinkAdmin = functions
 **Timeline:** 2–3 weeks after v1.4 Phase 5 launch.
 
 **Scope (not in Phase 5):**
+
 1. LIS middleware (HL7 v2.4 or FHIR wrapper)
 2. Patient sync batch job (`syncPatientsFromLIS` callable)
 3. Self-service patient login (CPF + name verification against LIS)
@@ -1818,6 +1792,7 @@ export const generatePatientAuthLinkAdmin = functions
 ## Summary
 
 **Phase 5 delivers:**
+
 - Portal URL structure: `/paciente/*` (path-based)
 - Patient auth: Email-link (72h expiry), immutable audit trail
 - PDF generation: Laudo + QR code (patient-facing template)
@@ -1829,6 +1804,7 @@ export const generatePatientAuthLinkAdmin = functions
 - Tests: 6 E2E specs (email, token, PDF, NPS, mobile, audit)
 
 **Resources:**
+
 - 2 Cloud Function developers (1 FTE callables, 1 FTE PDF/email)
 - 2 React developers (1 FTE portal UI, 1 FTE testing)
 - 1 QA engineer (manual smoke tests + mobile)

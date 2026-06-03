@@ -10,6 +10,7 @@ Decisões arquiteturais relevantes do HC Quality. Cada ADR é imutável após `A
 - Escolha de tecnologia ou padrão que define como o time trabalha.
 
 **Não** crie ADR para:
+
 - Refatoração interna de um módulo só.
 - Mudança de naming, formatação, lint.
 - Bug fix.
@@ -20,6 +21,7 @@ Decisões arquiteturais relevantes do HC Quality. Cada ADR é imutável após `A
 Numeração sequencial: `0001`, `0002`, `0003`. Nome curto descritivo: `0042-foo-bar.md`.
 
 Seções obrigatórias:
+
 - **Status:** Proposed / Accepted / Deprecated / Superseded
 - **Data, Decisor, Substitui, Substituído por**
 - **Contexto** — o estado do mundo quando a decisão foi tomada
@@ -33,10 +35,12 @@ Seções obrigatórias:
 ## Índice
 
 ### v1.3 ADRs (Completed)
+
 - [0001 — Arquitetura de spines para rastreabilidade RDC 978](0001-arquitetura-spines-rdc-978.md)
 - [0002–0008] (Voir référence docs/adr/ pour historique complet)
 
 ### v1.4 ADRs (Current Planning, 2026-05-07)
+
 - [ADR-0009 — React 19 + TypeScript 5.8 Version Lock Strategy](ADR-0009-react-19-typescript-58-version-lock-strategy.md)
 - [ADR-0010 — Gemini Vision API as IA Baseline](ADR-0010-gemini-vision-api-as-ia-baseline.md)
 - [ADR-0011 — Single-Lab Deployment Model (v1.4)](ADR-0011-single-lab-deployment-model-v1-4.md)
@@ -49,9 +53,11 @@ Seções obrigatórias:
 - [ADR-0018 — Deploy Gate: Secret-Status Check](ADR-0018-deploy-gate-secret-status-check.md)
 
 ### Phase 3 ADRs (2026-05-07, Schema + Architecture)
+
 - [ADR-0019 — Phase 3 Schema Design: 5 New Collections + Indices](ADR-0019-phase-3-schema-design.md)
 - [ADR-0020 — Pessimistic Locking for Concurrent Draft Editing](ADR-0020-pessimistic-locking-draft-editing.md)
 - [ADR-0021 — NOTIVISA Queue & Retry Pattern](ADR-0021-notivisa-queue-pattern.md)
 
 ### Wave 1 / 2 ADRs (2026-05-08, Incident Response Continuation)
+
 - [ADR-0030 — Criticos Audit Trail: HMAC Baseline Reset Extension](ADR-0030-criticos-hmac-baseline-extension.md) — extends ADR-0017 to the criticos chain (covers Wave 1 Agent 1 fix `a6e01ad`)

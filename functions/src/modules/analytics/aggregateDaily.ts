@@ -62,11 +62,7 @@ export const aggregateAnalytics = onSchedule(
           await cacheRef.set(metrics, { merge: true });
 
           // Also update metadata: /labs/{labId}/analytics/meta
-          const metaRef = db
-            .collection('labs')
-            .doc(labId)
-            .collection('analytics')
-            .doc('meta');
+          const metaRef = db.collection('labs').doc(labId).collection('analytics').doc('meta');
 
           await metaRef.set(
             {

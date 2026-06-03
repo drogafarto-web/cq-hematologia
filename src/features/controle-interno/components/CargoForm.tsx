@@ -2,7 +2,11 @@ import { useState, type FormEvent } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import type { Cargo, CargoInput } from '../types/ControlInterno';
-import { Field, inputClass, selectClass } from '../../educacao-continuada/components/_formPrimitives';
+import {
+  Field,
+  inputClass,
+  selectClass,
+} from '../../educacao-continuada/components/_formPrimitives';
 
 export interface CargoFormProps {
   /** Quando presente o form entra em modo edição. */
@@ -52,7 +56,8 @@ function validate(state: FormState): FormErrors {
   if (nome.length < 2) errors.nome = 'Informe um nome com pelo menos 2 caracteres.';
   if (departamento.length === 0) errors.departamento = 'Departamento é obrigatório.';
   if (state.nivel < 1 || state.nivel > 5) errors.nivel = 'Nível deve estar entre 1 e 5.';
-  if (responsabilidades.length === 0) errors.responsabilidades = 'Responsabilidades são obrigatórias.';
+  if (responsabilidades.length === 0)
+    errors.responsabilidades = 'Responsabilidades são obrigatórias.';
 
   return errors;
 }
@@ -118,12 +123,7 @@ export function CargoForm({ cargo, onSaved, onCancel }: CargoFormProps) {
         </p>
       </header>
 
-      <Field
-        id="cargo-nome"
-        label="Nome do cargo"
-        required
-        error={errors.nome}
-      >
+      <Field id="cargo-nome" label="Nome do cargo" required error={errors.nome}>
         <input
           id="cargo-nome"
           type="text"
@@ -136,12 +136,7 @@ export function CargoForm({ cargo, onSaved, onCancel }: CargoFormProps) {
         />
       </Field>
 
-      <Field
-        id="cargo-departamento"
-        label="Departamento"
-        required
-        error={errors.departamento}
-      >
+      <Field id="cargo-departamento" label="Departamento" required error={errors.departamento}>
         <input
           id="cargo-departamento"
           type="text"
@@ -154,12 +149,7 @@ export function CargoForm({ cargo, onSaved, onCancel }: CargoFormProps) {
         />
       </Field>
 
-      <Field
-        id="cargo-nivel"
-        label="Nível hierárquico (1-5)"
-        required
-        error={errors.nivel}
-      >
+      <Field id="cargo-nivel" label="Nível hierárquico (1-5)" required error={errors.nivel}>
         <select
           id="cargo-nivel"
           value={state.nivel}

@@ -30,11 +30,13 @@ OUTPUT_DIR             = ./smoke-results/$(date +%Y-%m-%d_%H-%M)
 ## 1. Pré-requisitos e ambiente
 
 1. Instale o browser driver:
+
    ```bash
    npx playwright install chromium
    ```
 
 2. Crie o diretório de output:
+
    ```bash
    mkdir -p "$OUTPUT_DIR/screenshots" "$OUTPUT_DIR/videos"
    ```
@@ -83,6 +85,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 ### F01 — Login e seleção de lab (BLOQUEADOR — se falhar, aborta tudo)
 
 **Steps**:
+
 1. `page.goto(BASE_URL)` — espera document ready
 2. Screenshot: `f01-01-landing.png`
 3. Se aparecer LoginScreen:
@@ -98,6 +101,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 5. Screenshot: `f01-02-ready.png`
 
 **Assertions**:
+
 - [ ] Status HTTP do `BASE_URL` é 200
 - [ ] Após login, URL contém `hmatologia2.web.app` (não redirecionou pra auth provider externa)
 - [ ] ModuleHub visível (existe texto "Hematologia" + "Coagulação" + "Uroanálise" + "CIQ-Imuno")
@@ -110,6 +114,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 ### F02 — Navegação ampla (sanity check de roteamento)
 
 **Steps**:
+
 1. No ModuleHub, itera pelas views e clica em cada uma, tira screenshot, volta pro hub.
 2. Views a visitar (clica no botão com o texto exato):
    - "Hematologia" → `f02-01-hematologia.png`
@@ -123,6 +128,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
    - "Super Admin" / "Painel Super Admin" → `f02-09-superadmin.png` (só SuperAdmin)
 
 **Assertions por view**:
+
 - [ ] Nenhum erro runtime no console (`console.error` count == 0)
 - [ ] Nenhuma mensagem "Something went wrong" / "Erro inesperado" visível
 - [ ] Página renderizou algum conteúdo não-vazio (body tem > 500 chars de texto)
@@ -135,10 +141,12 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 ### F03 — Hematologia: registrar corrida via OCR (USA SUAS IMAGENS)
 
 **Setup**:
+
 1. Clica "Hematologia" na Hub.
 2. Se dropdown LotSwitcher mostrar "Selecione um lote", escolhe qualquer lote existente. Se nenhum existir → marca fluxo como BLOQUEADO com nota "nenhum lote cadastrado pra testar run".
 
 **Steps (usa imagem real do WhatsApp)**:
+
 1. Clica botão "Nova Corrida" (ou "Registrar corrida" / "+ Corrida" — qualquer variante visível)
 2. Screenshot: `f03-01-form.png`
 3. Upload: pega a primeira imagem de `$WHATSAPP_IMAGES_DIR/*.jpg|*.jpeg|*.png` — deve ser um screen do Yumizen H550
@@ -147,6 +155,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 6. NÃO clica "Confirmar" (pra não poluir os dados reais). Clica "Cancelar" ou fecha o modal.
 
 **Assertions**:
+
 - [ ] Toast de erro NÃO apareceu durante upload
 - [ ] Pelo menos 10 dos 17 analitos ficaram preenchidos com valores numéricos
 - [ ] Gráfico Levey-Jennings aparece em algum lugar da tela (div com classe contendo "recharts" ou canvas)
@@ -159,6 +168,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 ### F04 — Hematologia: visualizar Levey-Jennings e Westgard
 
 **Steps**:
+
 1. Na view Hematologia, toggle "Gráfico" se estiver escondido.
 2. Seleciona um analito com mais de 5 corridas históricas (ex: "HGB").
 3. Screenshot: `f04-01-lj-chart.png`
@@ -166,6 +176,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 5. Screenshot: `f04-02-stats-toggle.png`
 
 **Assertions**:
+
 - [ ] Gráfico Levey-Jennings renderizou linhas de controle (±1SD, ±2SD, ±3SD visíveis)
 - [ ] Toggle de stats muda os valores-alvo na tabela lateral
 - [ ] Não há regressão visual grosseira (comparar contra `fixtures/lj-chart-reference.png` se existir — se não, pula)
@@ -185,6 +196,7 @@ Ao final, grava `$OUTPUT_DIR/REPORT.md` com:
 Se não tiver como gerar sintético, **usa a mesma imagem do WhatsApp** (o OCR do strip vai falhar ou retornar low confidence — é esperado, apenas valida o pipeline de upload+chamada).
 
 **Steps**:
+
 1. Hub → "CIQ-Imuno"
 2. Seleciona um lote existente (se não houver, BLOQUEADO)
 3. Clica "Nova Corrida"
@@ -195,6 +207,7 @@ Se não tiver como gerar sintético, **usa a mesma imagem do WhatsApp** (o OCR d
 8. Clica "Cancelar" — não confirma
 
 **Assertions**:
+
 - [ ] Upload não causou crash
 - [ ] Cloud Function `analyzeImmunoStrip` foi chamada (ver Network tab: POST pra `/southamerica-east1-hmatologia2.cloudfunctions.net/analyzeImmunoStrip`)
 - [ ] Resposta contém `resultadoObtido` e `confidence`
@@ -207,6 +220,7 @@ Se não tiver como gerar sintético, **usa a mesma imagem do WhatsApp** (o OCR d
 Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 
 **Steps**:
+
 1. Hub → "Uroanálise"
 2. Seleciona lote existente (se não houver, BLOQUEADO)
 3. "Nova Corrida" → upload da imagem
@@ -214,6 +228,7 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 5. Cancelar.
 
 **Assertions**:
+
 - [ ] Cloud Function `parseUrinaTira` foi chamada
 - [ ] Resposta tem os 7 analitos (glicose, cetonas, proteína, nitrito, sangue, leucócitos, pH)
 - [ ] Cada analito tem `confidence` 0..1
@@ -223,12 +238,14 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 ### F07 — Coagulação: visualização (read-only)
 
 **Steps**:
+
 1. Hub → "Coagulação"
 2. Screenshot da view inteira.
 3. Se houver lote cadastrado: abre, lista corridas, fecha.
 4. Se tiver botão "FR-10" / "Gerar relatório regulatório": clica e verifica se abre modal (mas NÃO confirma geração).
 
 **Assertions**:
+
 - [ ] View renderizou sem erro
 - [ ] Sem regressão visual (comparar contra fixture, se houver)
 
@@ -239,6 +256,7 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 **Cuidado**: esse fluxo CRIA dados. Prefix tudo com `SMOKE_` pra o CTO limpar depois.
 
 **Steps**:
+
 1. Hub → "Insumos" → aba "Produtos"
 2. Clica "Novo Produto" (ou "+ Produto")
 3. Preenche:
@@ -261,6 +279,7 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 9. Salva. Screenshot: `f08-02-lote-ok.png`
 
 **Assertions**:
+
 - [ ] Toast "Produto criado" (ou "salvo com sucesso") apareceu
 - [ ] Produto aparece na lista da aba
 - [ ] Lote aparece na aba "Lotes" vinculado ao produto
@@ -271,6 +290,7 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 ### F09 — Insumos: movimentação (abertura) — testa chain hash
 
 **Steps**:
+
 1. No lote `SMOKE-LOT-*` criado em F08, clica "Abrir frasco" (ou "Movimentação → Abertura")
 2. Preenche motivo se pedido. Confirma.
 3. Screenshot: `f09-01-movimentacao.png`
@@ -278,6 +298,7 @@ Mesma lógica de F05 — usa mock ou reaproveita uma imagem do WhatsApp.
 5. Abre timeline do lote. Verifica aparecer um evento de "Abertura".
 
 **Assertions**:
+
 - [ ] Evento de abertura visível na timeline
 - [ ] Evento tem `chainStatus: sealed` depois de alguns segundos (se a UI mostrar esse campo)
 - [ ] Toast de sucesso apareceu
@@ -296,12 +317,14 @@ echo "BULA MOCK — Controle Hematologia SMOKE TEST" > mock.txt
 Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com nota.
 
 **Steps**:
+
 1. Hub → "Importar bula PDF"
 2. Upload do PDF mock
 3. Espera resposta do Gemini (timeout 60s)
 4. Screenshot: `f10-01-bula-result.png`
 
 **Assertions**:
+
 - [ ] Sem crash no upload
 - [ ] Cloud Function `extractFromBula` foi chamada
 - [ ] Resposta tem estrutura `{ controlName, expiryDate, levels: [...] }` (pode estar vazia pra um PDF de teste — é esperado)
@@ -312,6 +335,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 ### F11 — Relatórios: visualização + filtro
 
 **Steps**:
+
 1. Hub → "Relatórios"
 2. Aplica filtro: últimos 30 dias, todos módulos, todos status.
 3. Screenshot: `f11-01-reports.png`
@@ -319,6 +343,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 5. NÃO clica "Enviar por email" (evita disparar Resend).
 
 **Assertions**:
+
 - [ ] Tabela de relatório renderizou
 - [ ] Download de CSV > 100 bytes
 - [ ] Sem erros no console
@@ -330,6 +355,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 **Requer**: role=admin ou owner ou SuperAdmin. Se o usuário de teste não tem essa role, marca como SKIP.
 
 **Steps**:
+
 1. Hub → "Configurações"
 2. Screenshot: `f12-01-settings.png`
 3. Toggle uma regra Westgard (ex: "1-2s") — se estiver desligada, liga; se ligada, deixa como estava.
@@ -338,6 +364,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 6. Se mudou algo, DESFAZ antes de sair.
 
 **Assertions**:
+
 - [ ] Regras Westgard persistem após reload da página
 - [ ] Input de email de backup aceita múltiplos (separados por vírgula ou linha)
 
@@ -348,6 +375,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 **Requer**: SuperAdmin (durante período de testes, todos devem ser — vide grant).
 
 **Steps**:
+
 1. Menu de conta (canto superior direito) → "Painel Super Admin" ou Hub → "Super Admin"
 2. Aba "Usuários"
 3. Screenshot: `f13-01-users-list.png`
@@ -360,6 +388,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 8. Screenshot dos resultados.
 
 **Assertions**:
+
 - [ ] Dry-runs executaram e retornaram JSON com contadores
 - [ ] Nenhum dry-run tentou escrever (scanned > 0, mas updated == 0 ou > 0 conforme estado)
 - [ ] Se apareceu "auditLogId" nos retornos, registra no report
@@ -371,6 +400,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 **Não dispara o envio** — só valida que as configurações estão acessíveis.
 
 **Steps**:
+
 1. Configurações → seção "Backup Diário"
 2. Screenshot: `f14-01-backup-settings.png`
 3. Verifica campos:
@@ -380,6 +410,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 4. Verifica campo informativo "Relatório Operacional (2º anexo)" ou "Anexo operacional" — deve mencionar o novo PDF.
 
 **Assertions**:
+
 - [ ] Configuração de backup está presente e editável (se for admin)
 - [ ] Email list tem formato válido
 - [ ] Menção ao relatório operacional aparece (comprova que a Onda nova está refletida na UI)
@@ -411,6 +442,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 ## 5. Políticas gerais
 
 ### Não pode
+
 - Deletar QUALQUER dado existente
 - Confirmar ("Salvar" / "Confirmar" / "Enviar") operações em dados reais — só em dados criados pelo próprio teste com prefix `SMOKE_`
 - Chamar `grantTemporarySuperAdminToAll`, `revokeTemporarySuperAdmin`, `provisionModulesClaims`, `deleteUser`, `removeUserFromLab` — essas são destrutivas
@@ -418,6 +450,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 - Testar em mais de um lab simultaneamente
 
 ### Deve
+
 - Tirar screenshot ANTES e DEPOIS de cada ação destrutiva/criativa
 - Capturar console logs e errors (`page.on('console')`, `page.on('pageerror')`)
 - Capturar network requests falhos (`response.status() >= 400`)
@@ -425,6 +458,7 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 - Fazer `page.waitForLoadState('networkidle')` entre navegações
 
 ### Boas práticas
+
 - Antes de cada fluxo, reset: fecha modais abertos, volta pro Hub via menu
 - Timeout global: 60s por ação (OCR pode demorar)
 - Retry: 2x em falhas de rede (ECONNRESET, 503)
@@ -434,21 +468,21 @@ Se não tiver pandoc/chrome-headless pra gerar PDF: **marca como BLOQUEADO** com
 
 ## 6. Resumo de cobertura esperada
 
-| Módulo | F# | Criticidade | OCR? | Cria dados? |
-|---|---|---|---|---|
-| Auth | F01 | Bloqueador | — | — |
-| Navegação | F02 | Alta | — | — |
-| Hematologia | F03, F04 | Alta | ✅ Gemini | Não (cancela) |
-| CIQ-Imuno | F05 | Alta | ✅ Gemini | Não |
-| Uroanálise | F06 | Média | ✅ Gemini | Não |
-| Coagulação | F07 | Média | — | — |
-| Insumos | F08, F09 | Alta | — | ✅ (SMOKE_*) |
-| BulaParser | F10 | Média | ✅ Gemini | Não |
-| Reports | F11 | Média | — | — |
-| Settings | F12 | Baixa | — | Toggle revertido |
-| Admin | F13 | Média | — | Só dry-runs |
-| Backup config | F14 | Baixa | — | — |
-| Negativos | N01-N03 | Média | — | — |
+| Módulo        | F#       | Criticidade | OCR?      | Cria dados?      |
+| ------------- | -------- | ----------- | --------- | ---------------- |
+| Auth          | F01      | Bloqueador  | —         | —                |
+| Navegação     | F02      | Alta        | —         | —                |
+| Hematologia   | F03, F04 | Alta        | ✅ Gemini | Não (cancela)    |
+| CIQ-Imuno     | F05      | Alta        | ✅ Gemini | Não              |
+| Uroanálise    | F06      | Média       | ✅ Gemini | Não              |
+| Coagulação    | F07      | Média       | —         | —                |
+| Insumos       | F08, F09 | Alta        | —         | ✅ (SMOKE\_\*)   |
+| BulaParser    | F10      | Média       | ✅ Gemini | Não              |
+| Reports       | F11      | Média       | —         | —                |
+| Settings      | F12      | Baixa       | —         | Toggle revertido |
+| Admin         | F13      | Média       | —         | Só dry-runs      |
+| Backup config | F14      | Baixa       | —         | —                |
+| Negativos     | N01-N03  | Média       | —         | —                |
 
 **Critério de passa global**: F01 + F02 + F03 + F05 + F06 + F08 + F13 passam → smoke OK.
 Se qualquer um dos bloqueadores falhar → smoke FAIL e merge do app deve ser revertido.
@@ -458,6 +492,7 @@ Se qualquer um dos bloqueadores falhar → smoke FAIL e merge do app deve ser re
 ## 7. Entrega
 
 Ao terminar:
+
 1. `$OUTPUT_DIR/REPORT.md` com sumário executivo
 2. `$OUTPUT_DIR/screenshots/*.png` organizados por fluxo
 3. `$OUTPUT_DIR/console.log` com logs agregados do browser
@@ -465,6 +500,7 @@ Ao terminar:
 5. Exit code: 0 se tudo passou; 1 se 1+ bloqueador falhou; 2 se erros em fluxos não-bloqueadores
 
 Se exit != 0, imprime no terminal:
+
 ```
 ❌ SMOKE FAIL
    bloqueadores falhos: F01, F03

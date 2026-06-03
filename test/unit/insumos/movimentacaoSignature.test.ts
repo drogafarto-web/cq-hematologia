@@ -94,10 +94,7 @@ describe('computeMovimentacaoSignature', () => {
 
 describe('INSUMO_CHAIN_GENESIS_HASH', () => {
   it('bate com SHA-256 do seed — invariante compartilhada com a Cloud Function', () => {
-    const recomputed = crypto
-      .createHash('sha256')
-      .update(INSUMO_CHAIN_GENESIS_SEED)
-      .digest('hex');
+    const recomputed = crypto.createHash('sha256').update(INSUMO_CHAIN_GENESIS_SEED).digest('hex');
     expect(INSUMO_CHAIN_GENESIS_HASH).toBe(recomputed);
     expect(INSUMO_CHAIN_GENESIS_HASH).toMatch(/^[0-9a-f]{64}$/);
   });

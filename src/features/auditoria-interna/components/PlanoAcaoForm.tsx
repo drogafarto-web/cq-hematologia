@@ -8,11 +8,7 @@ interface PlanoAcaoFormProps {
   onSuccess?: (planoId: string) => void;
 }
 
-export function PlanoAcaoForm({
-  achadoId,
-  auditoriaId,
-  onSuccess,
-}: PlanoAcaoFormProps) {
+export function PlanoAcaoForm({ achadoId, auditoriaId, onSuccess }: PlanoAcaoFormProps) {
   const labId = useActiveLabId();
   const [descricao, setDescricao] = useState('');
   const [responsavel, setResponsavel] = useState('');
@@ -65,7 +61,7 @@ export function PlanoAcaoForm({
         achadoId,
         descricao,
         responsavel,
-        prazoDate
+        prazoDate,
       );
 
       setDescricao('');
@@ -83,10 +79,7 @@ export function PlanoAcaoForm({
 
   const descricaoLength = descricao.length;
   const isValid =
-    descricaoLength >= 20 &&
-    descricaoLength <= 500 &&
-    responsavel.trim() !== '' &&
-    prazo !== '';
+    descricaoLength >= 20 && descricaoLength <= 500 && responsavel.trim() !== '' && prazo !== '';
 
   return (
     <form
@@ -96,9 +89,7 @@ export function PlanoAcaoForm({
       {/* Header */}
       <div>
         <h3 className="text-sm font-semibold text-white">Novo Plano de Ação</h3>
-        <p className="text-xs text-white/60 mt-1">
-          Defina as ações corretivas para este achado
-        </p>
+        <p className="text-xs text-white/60 mt-1">Defina as ações corretivas para este achado</p>
       </div>
 
       {/* Descrição */}
@@ -114,9 +105,7 @@ export function PlanoAcaoForm({
           className="w-full h-20 bg-white/5 border border-white/10 rounded-lg p-3 text-white placeholder-white/40 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:border-transparent resize-none text-sm"
         />
         <div className="flex justify-between items-center">
-          <p className="text-xs text-white/60">
-            {descricaoLength}/500 caracteres
-          </p>
+          <p className="text-xs text-white/60">{descricaoLength}/500 caracteres</p>
           {descricaoLength < 20 && descricaoLength > 0 && (
             <p className="text-xs text-rose-400">Mínimo 20 caracteres</p>
           )}

@@ -11,14 +11,14 @@
 
 **Phase 4–5 Performance Budget: APPROVED ✅**
 
-| Metric | v1.3 Baseline | Phase 4–5 Target | Status |
-|--------|---------------|------------------|--------|
-| **Main Bundle (gzip)** | 397 KB | <420 KB (+23 KB headroom) | ✅ **399 KB** (within budget) |
-| **Total App Size (precache)** | 5.2 MB | <5.5 MB | ✅ **5.25 MB** (acceptable) |
-| **Build Time** | 29s | <35s | ✅ **25.03s** (improved) |
-| **LCP Target** | <2.0s | <2.5s (hard limit) | ⏳ Measured (see next section) |
-| **INP Target** | <200ms | <200ms | ⏳ Measured |
-| **CLS Target** | <0.05 | <0.1 (hard limit) | ⏳ Measured |
+| Metric                        | v1.3 Baseline | Phase 4–5 Target          | Status                         |
+| ----------------------------- | ------------- | ------------------------- | ------------------------------ |
+| **Main Bundle (gzip)**        | 397 KB        | <420 KB (+23 KB headroom) | ✅ **399 KB** (within budget)  |
+| **Total App Size (precache)** | 5.2 MB        | <5.5 MB                   | ✅ **5.25 MB** (acceptable)    |
+| **Build Time**                | 29s           | <35s                      | ✅ **25.03s** (improved)       |
+| **LCP Target**                | <2.0s         | <2.5s (hard limit)        | ⏳ Measured (see next section) |
+| **INP Target**                | <200ms        | <200ms                    | ⏳ Measured                    |
+| **CLS Target**                | <0.05         | <0.1 (hard limit)         | ⏳ Measured                    |
 
 ---
 
@@ -29,18 +29,18 @@
 ```
 MAIN BUNDLE (App Shell + Core Routes):
   index-qRzlyxDh.js       1,602 KB raw  |  399 KB gzip  |  ← MAIN ENTRY
-  
+
 VENDOR CHUNKS:
   vendor-firebase-CR8j0sqV.js      703 KB raw  |  162 KB gzip  |  Firebase 12
   vendor-pdf-m4-iSrJB.js           452 KB raw  |  135 KB gzip  |  PDFKit
   vendor-xlsx-1fHNqz0U.js          430 KB raw  |  143 KB gzip  |  SheetJS
   vendor-charts-JHQ430Uy.js        ~300 KB raw (est)  | 85 KB gzip |  Chart.js
   vendor-react-Csx7Aqq-.js         ~350 KB raw (est)  | 90 KB gzip |  React 19
-  
+
 MODULE CHUNKS:
   module-educacao-Oc1MwW3S.js       680 KB map (code: ~140 KB)  |  Educação module
   module-ct-qLkq7rM3.js            408 KB map (code: ~80 KB)   |  Controle-Temperatura
-  
+
 TOTAL PRECACHE (PWA):               5.25 MB
 BUILD TIME:                         25.03s ✅
 ```
@@ -48,12 +48,14 @@ BUILD TIME:                         25.03s ✅
 ### Phase 4 Budget Impact (Portal + NOTIVISA)
 
 **New Imports Phase 4:**
+
 - Patient portal auth flow (3 React components)
 - NOTIVISA queue monitor (1 component + polling logic)
 - Portal navbar + layout (2 reusable components)
 - Estimated code: **~45–55 KB raw** → **~12–15 KB gzip**
 
 **Allocation:**
+
 - Main bundle growth: +12 KB gzip (within 23 KB headroom) ✅
 - New route: `React.lazy()` dynamic import (0 KB main bundle impact) ✅
 - No new heavy dependencies (Firebase, PDF, XLSX already loaded) ✅
@@ -63,12 +65,14 @@ BUILD TIME:                         25.03s ✅
 ### Phase 5 Budget Impact (Critical Values + IA OCR)
 
 **New Imports Phase 5:**
+
 - Gemini 2.5 Flash LLM integration (callables only, no client library)
 - Critical value escalation UI (3 components)
 - IA OCR result preview (image canvas, lightweight)
 - Estimated code: **~30–40 KB raw** → **~8–10 KB gzip**
 
 **Allocation:**
+
 - Main bundle growth: +8 KB gzip (within 23 KB headroom) ✅
 - Gemini API client: Server-side only (Cloud Function callables, no browser SDK) ✅
 - OCR preview: Canvas-lite (no Puppeteer in browser) ✅
@@ -83,18 +87,19 @@ BUILD TIME:                         25.03s ✅
 
 ### Current Patterns ✅
 
-| Feature | Pattern | Verdict |
-|---------|---------|---------|
-| **Export (XLSX)** | Dynamic `import('xlsx')` on ExportWizard route | ✅ CORRECT (0 KB main) |
-| **PDF Export** | Dynamic `import('pdf-lib')` on report generation | ✅ CORRECT (loaded on demand) |
-| **Module Routes** | `React.lazy()` + `Suspense` on `/feature/*` | ✅ CORRECT |
-| **Analytics Dashboard** | `React.lazy()` on `/analytics` (heavy charts) | ✅ CORRECT |
-| **Educacao-continuada** | Standalone module chunk (lazy-loaded) | ✅ CORRECT |
-| **Controle-temperatura** | Standalone module chunk (lazy-loaded) | ✅ CORRECT |
+| Feature                  | Pattern                                          | Verdict                       |
+| ------------------------ | ------------------------------------------------ | ----------------------------- |
+| **Export (XLSX)**        | Dynamic `import('xlsx')` on ExportWizard route   | ✅ CORRECT (0 KB main)        |
+| **PDF Export**           | Dynamic `import('pdf-lib')` on report generation | ✅ CORRECT (loaded on demand) |
+| **Module Routes**        | `React.lazy()` + `Suspense` on `/feature/*`      | ✅ CORRECT                    |
+| **Analytics Dashboard**  | `React.lazy()` on `/analytics` (heavy charts)    | ✅ CORRECT                    |
+| **Educacao-continuada**  | Standalone module chunk (lazy-loaded)            | ✅ CORRECT                    |
+| **Controle-temperatura** | Standalone module chunk (lazy-loaded)            | ✅ CORRECT                    |
 
 ### Potential Regressions (Flagged in build output)
 
 **Build Warning:** "Some chunks are larger than 600 kB after minification"
+
 - **Chunk:** `index-qRzlyxDh.js` (1,602 KB raw, 399 KB gzip)
 - **Cause:** Core React bundle + shared hooks + auth context + Firestore utils
 - **Severity:** LOW (warning only, not error; gzip size is acceptable)
@@ -120,7 +125,7 @@ useEffect(() => {
   const unsubscribe = onSnapshot(query, (snapshot) => {
     setData(mapSnapshot(snapshot));
   });
-  return () => unsubscribe();  // ← cleanup
+  return () => unsubscribe(); // ← cleanup
 }, []);
 
 // ❌ WOULD BE WRONG: No cleanup
@@ -144,7 +149,7 @@ From commit 448a95a ("perf(phase-3): capture performance baseline"):
 
 ```
 LCP:  1.8s  (target <2.0s)    ✅
-FCP:  0.9s  
+FCP:  0.9s
 INP:  145ms (target <200ms)   ✅
 CLS:  0.03  (target <0.05)    ✅
 TTFB: 0.3s
@@ -156,12 +161,12 @@ TTFB: 0.3s
 **Estimated LCP Impact:** +50–100ms (additional JS parse time)  
 **Projected LCP:** 1.8s → 1.9–1.95s (still <2.5s hard limit) ✅
 
-| Metric | v1.3 | Projected | Limit | Status |
-|--------|------|-----------|-------|--------|
-| LCP | 1.8s | 1.95s | 2.5s | ✅ PASS |
-| INP | 145ms | 160ms | 200ms | ✅ PASS |
-| CLS | 0.03 | 0.03 | 0.1 | ✅ PASS |
-| TTFB | 0.3s | 0.3s | — | ✅ OK |
+| Metric | v1.3  | Projected | Limit | Status  |
+| ------ | ----- | --------- | ----- | ------- |
+| LCP    | 1.8s  | 1.95s     | 2.5s  | ✅ PASS |
+| INP    | 145ms | 160ms     | 200ms | ✅ PASS |
+| CLS    | 0.03  | 0.03      | 0.1   | ✅ PASS |
+| TTFB   | 0.3s  | 0.3s      | —     | ✅ OK   |
 
 **Verdict: Phase 4–5 will maintain green Web Vitals.**
 
@@ -169,18 +174,18 @@ TTFB: 0.3s
 
 ## 5. Production Readiness Checklist
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| **TypeScript --noEmit** | ✅ CLEAN | (requires run pre-deploy) |
-| **Bundle analysis** | ✅ COMPLETE | Data above |
-| **Code-splitting validation** | ✅ PASS | All patterns correct |
-| **Listener cleanup** | ✅ VERIFIED | 12 hooks sampled |
-| **Dynamic imports** | ✅ VERIFIED | Heavy libs correctly deferred |
-| **Build time** | ✅ GOOD | 25.03s (baseline: 29s) |
-| **PWA precache** | ✅ OK | 5.25 MB (target <5.5 MB) |
-| **Source maps** | ✅ GENERATED | Production builds enabled |
-| **Cloud Logs baseline** | ✅ STABLE | 0 performance-related errors v1.3 |
-| **Lighthouse smoke test** | ⏳ SCHEDULED | Pre-Phase 4 kickoff (2026-05-20) |
+| Item                          | Status       | Evidence                          |
+| ----------------------------- | ------------ | --------------------------------- |
+| **TypeScript --noEmit**       | ✅ CLEAN     | (requires run pre-deploy)         |
+| **Bundle analysis**           | ✅ COMPLETE  | Data above                        |
+| **Code-splitting validation** | ✅ PASS      | All patterns correct              |
+| **Listener cleanup**          | ✅ VERIFIED  | 12 hooks sampled                  |
+| **Dynamic imports**           | ✅ VERIFIED  | Heavy libs correctly deferred     |
+| **Build time**                | ✅ GOOD      | 25.03s (baseline: 29s)            |
+| **PWA precache**              | ✅ OK        | 5.25 MB (target <5.5 MB)          |
+| **Source maps**               | ✅ GENERATED | Production builds enabled         |
+| **Cloud Logs baseline**       | ✅ STABLE    | 0 performance-related errors v1.3 |
+| **Lighthouse smoke test**     | ⏳ SCHEDULED | Pre-Phase 4 kickoff (2026-05-20)  |
 
 **Blocking Gate for Phase 4 Launch (2026-05-20):**
 
@@ -196,12 +201,12 @@ TTFB: 0.3s
 
 ## 6. Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **Phase 4 Portal adds >20 KB gzip** | LOW (estimated +12 KB) | MEDIUM (could hit 420 KB limit) | Code review + bundle analysis |
-| **Firebase listeners leak under load** | LOW (pattern verified) | HIGH (billing + memory leak) | Continuous monitoring post-Phase 4 |
-| **LCP regression due to new dependencies** | LOW (no new libs) | MEDIUM (could hit 2.5s limit) | Lighthouse testing pre-deploy |
-| **NOTIVISA polling causes CLS shifts** | LOW (queue UI stable) | LOW (minor) | Monitor via Sentry |
+| Risk                                       | Likelihood             | Impact                          | Mitigation                         |
+| ------------------------------------------ | ---------------------- | ------------------------------- | ---------------------------------- |
+| **Phase 4 Portal adds >20 KB gzip**        | LOW (estimated +12 KB) | MEDIUM (could hit 420 KB limit) | Code review + bundle analysis      |
+| **Firebase listeners leak under load**     | LOW (pattern verified) | HIGH (billing + memory leak)    | Continuous monitoring post-Phase 4 |
+| **LCP regression due to new dependencies** | LOW (no new libs)      | MEDIUM (could hit 2.5s limit)   | Lighthouse testing pre-deploy      |
+| **NOTIVISA polling causes CLS shifts**     | LOW (queue UI stable)  | LOW (minor)                     | Monitor via Sentry                 |
 
 ---
 

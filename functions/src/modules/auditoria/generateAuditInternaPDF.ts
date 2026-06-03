@@ -15,7 +15,9 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
   try {
     const snap = await db.collection('users').doc(uid).collection('labs').doc(labId).get();
     return snap.exists && snap.data()?.ativo === true;
-  } catch { return false; }
+  } catch {
+    return false;
+  }
 }
 
 function escapeHtml(text: string): string {
@@ -24,11 +26,16 @@ function escapeHtml(text: string): string {
 
 function severityColor(sev: string): string {
   switch (sev) {
-    case 'critica': return '#dc2626';
-    case 'grave': return '#ea580c';
-    case 'moderada': return '#d97706';
-    case 'leve': return '#2563eb';
-    default: return '#6b7280';
+    case 'critica':
+      return '#dc2626';
+    case 'grave':
+      return '#ea580c';
+    case 'moderada':
+      return '#d97706';
+    case 'leve':
+      return '#2563eb';
+    default:
+      return '#6b7280';
   }
 }
 
@@ -61,13 +68,15 @@ export const generateAuditInternaPDF = onCall(
     const sessao = sessaoSnap.data()!;
 
     // Fetch checklist items
-    const itemsSnap = await db.collection(`${basePath}/sessoes/${sessaoId}/checklist-items`)
-      .orderBy('numero', 'asc').get();
-    const items = itemsSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const itemsSnap = await db
+      .collection(`${basePath}/sessoes/${sessaoId}/checklist-items`)
+      .orderBy('numero', 'asc')
+      .get();
+    const items = itemsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
     // Fetch achados
     const achadosSnap = await db.collection(`${basePath}/sessoes/${sessaoId}/achados`).get();
-    const achados = achadosSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const achados = achadosSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
 
     // Calculate stats
     const total = items.length;
@@ -86,9 +95,16 @@ export const generateAuditInternaPDF = onCall(
     });
 
     const blocoLabels: Record<string, string> = {
-      A: 'Documentação Legal', B: 'Contratos', C: 'Tecnologia e Equipamentos',
-      D: 'Gestão', E: 'Infraestrutura', F: 'Fase Pré-Analítica',
-      G: 'Fase Analítica', H: 'Fase Pós-Analítica', I: 'Informática', J: 'Qualidade',
+      A: 'Documentação Legal',
+      B: 'Contratos',
+      C: 'Tecnologia e Equipamentos',
+      D: 'Gestão',
+      E: 'Infraestrutura',
+      F: 'Fase Pré-Analítica',
+      G: 'Fase Analítica',
+      H: 'Fase Pós-Analítica',
+      I: 'Informática',
+      J: 'Qualidade',
     };
 
     const dataFormatada = new Date().toLocaleDateString('pt-BR');
@@ -152,27 +168,38 @@ export const generateAuditInternaPDF = onCall(
 
     // Results by Block
     html += `<div class="page-break"></div><h2>2. Resultados por Bloco</h2>`;
-    Object.entries(blocos).sort(([a], [b]) => a.localeCompare(b)).forEach(([bloco, blocoItems]) => {
-      const blocoConf = blocoItems.filter((i: any) => i.resposta === 'conforme').length;
-      const blocoNcCount = blocoItems.filter((i: any) => i.resposta === 'nao-conforme').length;
-      const blocoScore = blocoItems.length > 0 ? Math.round((blocoConf / blocoItems.length) * 100) : 0;
+    Object.entries(blocos)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .forEach(([bloco, blocoItems]) => {
+        const blocoConf = blocoItems.filter((i: any) => i.resposta === 'conforme').length;
+        const blocoNcCount = blocoItems.filter((i: any) => i.resposta === 'nao-conforme').length;
+        const blocoScore =
+          blocoItems.length > 0 ? Math.round((blocoConf / blocoItems.length) * 100) : 0;
 
-      html += `<h3>Bloco ${bloco} — ${blocoLabels[bloco] || bloco} (${blocoScore}% · ${blocoNcCount} NC)</h3>
+        html += `<h3>Bloco ${bloco} — ${blocoLabels[bloco] || bloco} (${blocoScore}% · ${blocoNcCount} NC)</h3>
       <table><tr><th>#</th><th>Indicador</th><th>Resultado</th><th>Severidade</th></tr>`;
-      blocoItems.forEach((item: any) => {
-        const badge = item.resposta === 'conforme' ? 'badge-conforme'
-          : item.resposta === 'nao-conforme' ? 'badge-nc' : 'badge-na';
-        const label = item.resposta === 'conforme' ? 'Conforme'
-          : item.resposta === 'nao-conforme' ? 'NC' : 'N/A';
-        html += `<tr>
+        blocoItems.forEach((item: any) => {
+          const badge =
+            item.resposta === 'conforme'
+              ? 'badge-conforme'
+              : item.resposta === 'nao-conforme'
+                ? 'badge-nc'
+                : 'badge-na';
+          const label =
+            item.resposta === 'conforme'
+              ? 'Conforme'
+              : item.resposta === 'nao-conforme'
+                ? 'NC'
+                : 'N/A';
+          html += `<tr>
           <td>${item.numero || ''}</td>
           <td>${escapeHtml(item.indicador || item.descricao || '')}</td>
           <td><span class="badge ${badge}">${label}</span></td>
           <td>${item.severidade ? `<span class="severity" style="background:${severityColor(item.severidade)}">${item.severidade}</span>` : '—'}</td>
         </tr>`;
+        });
+        html += `</table>`;
       });
-      html += `</table>`;
-    });
 
     // Non-Conformities
     if (achados.length > 0) {
@@ -215,7 +242,10 @@ export const generateAuditInternaPDF = onCall(
       metadata: { contentType: 'text/html', metadata: { auditoriaId, sessaoId, generatedBy: uid } },
     });
 
-    const [url] = await file.getSignedUrl({ action: 'read', expires: Date.now() + 7 * 24 * 60 * 60 * 1000 });
+    const [url] = await file.getSignedUrl({
+      action: 'read',
+      expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+    });
 
     // Save reference in Firestore
     await db.collection(`${basePath}/reports`).add({
@@ -230,5 +260,5 @@ export const generateAuditInternaPDF = onCall(
     });
 
     return { success: true, pdfUrl: url, score, totalNC: nc };
-  }
+  },
 );

@@ -150,13 +150,13 @@ If GO:
 
 ## Test Scenarios Summary
 
-| # | Name | Module | Duration | Status |
-|---|------|--------|----------|--------|
-| 1 | Bioquímica E2E | `bioquimica` | 10 min | Core (MUST PASS) |
-| 2 | SGD Drive Importer | `sgq`, `sgd` | 12 min | Core (MUST PASS) |
-| 3 | Reclamação Multi-Channel | `reclamacoes` | 8 min | Optional |
-| 4 | Liberação State Machine | `liberacao` | 5 min | Optional |
-| 5 | Regression Check | All existing | 10 min | Core (MUST PASS) |
+| #   | Name                     | Module        | Duration | Status           |
+| --- | ------------------------ | ------------- | -------- | ---------------- |
+| 1   | Bioquímica E2E           | `bioquimica`  | 10 min   | Core (MUST PASS) |
+| 2   | SGD Drive Importer       | `sgq`, `sgd`  | 12 min   | Core (MUST PASS) |
+| 3   | Reclamação Multi-Channel | `reclamacoes` | 8 min    | Optional         |
+| 4   | Liberação State Machine  | `liberacao`   | 5 min    | Optional         |
+| 5   | Regression Check         | All existing  | 10 min   | Core (MUST PASS) |
 
 **Core Tests (must all pass for GO):** 1, 2, 5  
 **Optional Tests:** 3, 4 (can be skipped if time-constrained)
@@ -167,40 +167,40 @@ If GO:
 
 ### Most Important (Read First)
 
-| File | Purpose | Time to Read |
-|------|---------|--------------|
-| `TEST_DATA_QUICK_START.md` | Fast setup checklist | 2 min |
-| `SMOKE_TESTS_EXECUTION_GATE.md` | Test execution + sign-off | 5 min |
-| `SMOKE_TESTS_v1.3.md` | Detailed smoke tests | 10 min (skim) |
+| File                            | Purpose                   | Time to Read  |
+| ------------------------------- | ------------------------- | ------------- |
+| `TEST_DATA_QUICK_START.md`      | Fast setup checklist      | 2 min         |
+| `SMOKE_TESTS_EXECUTION_GATE.md` | Test execution + sign-off | 5 min         |
+| `SMOKE_TESTS_v1.3.md`           | Detailed smoke tests      | 10 min (skim) |
 
 ### Reference (Lookup as Needed)
 
-| File | Purpose | Time to Read |
-|------|---------|--------------|
-| `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` | Detailed test data guide | 10 min |
-| `POST_DEPLOY_CHECKLIST_v1.3.md` | Infrastructure verification | 5 min |
-| `SMOKE_TESTS_QUICK_CHECKLIST_v1.3.md` | Quick reference | 2 min |
+| File                                    | Purpose                     | Time to Read |
+| --------------------------------------- | --------------------------- | ------------ |
+| `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` | Detailed test data guide    | 10 min       |
+| `POST_DEPLOY_CHECKLIST_v1.3.md`         | Infrastructure verification | 5 min        |
+| `SMOKE_TESTS_QUICK_CHECKLIST_v1.3.md`   | Quick reference             | 2 min        |
 
 ### Sign-Off & Compliance (Post-Test)
 
-| File | Purpose | Time to Read |
-|------|---------|--------------|
-| `COMPLIANCE_SUMMARY_v1.3.md` | Compliance results | 5 min |
-| `SECURITY_SIGN_OFF_v1.3.md` | Security audit results | 5 min |
+| File                         | Purpose                | Time to Read |
+| ---------------------------- | ---------------------- | ------------ |
+| `COMPLIANCE_SUMMARY_v1.3.md` | Compliance results     | 5 min        |
+| `SECURITY_SIGN_OFF_v1.3.md`  | Security audit results | 5 min        |
 
 ---
 
 ## Troubleshooting Quick Links
 
-| Issue | Solution Location |
-|-------|-------------------|
-| Analitos not seeding | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Analitos Not Appearing" |
-| Drive folder empty | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Drive Folder Returns 0 Documents" |
-| Gemini timeout | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Gemini API Timeout" |
-| Permission denied | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Firestore Rules Reject Reads" |
-| Service Worker stale | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Service Worker Not Updated" |
-| Test failing in Smoke 1 | `SMOKE_TESTS_v1.3.md` → Smoke Test 1 → Troubleshooting section |
-| Test failing in Smoke 2 | `SMOKE_TESTS_v1.3.md` → Smoke Test 2 → Troubleshooting section |
+| Issue                   | Solution Location                                                                              |
+| ----------------------- | ---------------------------------------------------------------------------------------------- |
+| Analitos not seeding    | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Analitos Not Appearing"           |
+| Drive folder empty      | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Drive Folder Returns 0 Documents" |
+| Gemini timeout          | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Gemini API Timeout"               |
+| Permission denied       | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Firestore Rules Reject Reads"     |
+| Service Worker stale    | `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` → Troubleshooting → "Service Worker Not Updated"       |
+| Test failing in Smoke 1 | `SMOKE_TESTS_v1.3.md` → Smoke Test 1 → Troubleshooting section                                 |
+| Test failing in Smoke 2 | `SMOKE_TESTS_v1.3.md` → Smoke Test 2 → Troubleshooting section                                 |
 
 ---
 
@@ -282,17 +282,17 @@ If GO:
 
 ## Timeline Summary
 
-| Phase | Task | Duration | Owner |
-|-------|------|----------|-------|
-| Setup | Prepare test data | 5–10 min | QA Engineer |
-| Setup | Verify infrastructure | 5 min | DevOps |
-| Exec | Smoke Test 1 | 10 min | QA Engineer |
-| Exec | Smoke Test 2 | 12 min | QA Engineer |
-| Exec | Smoke Test 5 | 10 min | QA Engineer |
-| Verify | Cloud Logs review | 5 min | DevOps |
-| Verify | Data integrity | 5 min | DevOps |
-| Sign-Off | Complete gate form | 3 min | QA Lead |
-| **Total** | **All phases** | **~50 min** | — |
+| Phase     | Task                  | Duration    | Owner       |
+| --------- | --------------------- | ----------- | ----------- |
+| Setup     | Prepare test data     | 5–10 min    | QA Engineer |
+| Setup     | Verify infrastructure | 5 min       | DevOps      |
+| Exec      | Smoke Test 1          | 10 min      | QA Engineer |
+| Exec      | Smoke Test 2          | 12 min      | QA Engineer |
+| Exec      | Smoke Test 5          | 10 min      | QA Engineer |
+| Verify    | Cloud Logs review     | 5 min       | DevOps      |
+| Verify    | Data integrity        | 5 min       | DevOps      |
+| Sign-Off  | Complete gate form    | 3 min       | QA Lead     |
+| **Total** | **All phases**        | **~50 min** | —           |
 
 **Plus:** 24 hours of operational monitoring (Phase 9)
 
@@ -306,6 +306,7 @@ If GO:
 **Review Schedule:** After each v1.3 hotfix or Phase 9 (24h ops)
 
 **If Documents Need Update:**
+
 1. Edit the relevant doc in `C:\hc quality\docs\`
 2. Update this index if new documents added
 3. Commit with message: `chore(smoke-tests): update documentation`
@@ -315,9 +316,11 @@ If GO:
 ## Archive & History
 
 **Previous Smoke Test Docs:**
+
 - None (v1.3 is first structured post-deployment smoke test suite)
 
 **Related Phase Documents:**
+
 - `.planning/milestones/v1.3-DEPLOYMENT_LOG.md` — Deployment timeline
 - `docs/DEPLOY_ROADMAP_v1.3.md` — Full deployment roadmap
 - `CLAUDE.md` — Project conventions and rules

@@ -114,20 +114,20 @@ async function seedStagingData() {
       // Set custom claims for module access
       const claims = {
         modules: {
-          'analyzer': true,
-          'coagulacao': true,
+          analyzer: true,
+          coagulacao: true,
           'ciq-imuno': true,
-          'insumos': true,
-          'uroanalise': true,
-          'equipamentos': true,
-          'fornecedores': true,
-          'lots': true,
-          'runs': true,
-          'chart': true,
-          'reports': true,
-          'labSettings': true,
-          'hub': true,
-          'bulaparser': true,
+          insumos: true,
+          uroanalise: true,
+          equipamentos: true,
+          fornecedores: true,
+          lots: true,
+          runs: true,
+          chart: true,
+          reports: true,
+          labSettings: true,
+          hub: true,
+          bulaparser: true,
         },
         labIds: [TEST_LAB_ID],
       };
@@ -136,7 +136,11 @@ async function seedStagingData() {
       log(`✓ Custom claims set for modules`);
 
       // Create user lab membership
-      const userDocRef = db.collection('labs').doc(TEST_LAB_ID).collection('usuarios').doc(userRecord.uid);
+      const userDocRef = db
+        .collection('labs')
+        .doc(TEST_LAB_ID)
+        .collection('usuarios')
+        .doc(userRecord.uid);
       const userData = {
         id: userRecord.uid,
         labId: TEST_LAB_ID,
@@ -230,11 +234,7 @@ async function seedStagingData() {
 
     // 3c: Lotes (control lots)
     try {
-      const lotRef = db
-        .collection('labs')
-        .doc(TEST_LAB_ID)
-        .collection('lotes')
-        .doc('lot-001');
+      const lotRef = db.collection('labs').doc(TEST_LAB_ID).collection('lotes').doc('lot-001');
 
       await lotRef.set({
         id: 'lot-001',

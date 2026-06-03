@@ -51,7 +51,11 @@ interface PersonnelDossierTabProps {
 
 export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): React.ReactElement {
   const labId = useActiveLabId();
-  const { colaboradores, isLoading: colabLoading, error: colabError } = useColaboradores({
+  const {
+    colaboradores,
+    isLoading: colabLoading,
+    error: colabError,
+  } = useColaboradores({
     somenteAtivos: true,
   });
 
@@ -73,7 +77,12 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
     });
   }, [sorted]);
 
-  const { dossier, loading: dossierLoading, error: dossierError, save } = usePersonnelDossier(selectedId);
+  const {
+    dossier,
+    loading: dossierLoading,
+    error: dossierError,
+    save,
+  } = usePersonnelDossier(selectedId);
 
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
@@ -137,7 +146,9 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
         {colabLoading ? (
           <div className="h-11 animate-pulse rounded-lg bg-white/5" />
         ) : sorted.length === 0 ? (
-          <p className="text-sm text-white/50">Nenhum colaborador ativo cadastrado em Educação Continuada.</p>
+          <p className="text-sm text-white/50">
+            Nenhum colaborador ativo cadastrado em Educação Continuada.
+          </p>
         ) : (
           <div className="max-w-xl">
             <label htmlFor={selectId} className="mb-2 block text-xs font-medium text-white/50">
@@ -267,18 +278,26 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
               </div>
             )}
             {!canEdit && (
-              <p className="text-xs text-white/45">Somente leitura — permissão insuficiente para editar.</p>
+              <p className="text-xs text-white/45">
+                Somente leitura — permissão insuficiente para editar.
+              </p>
             )}
           </section>
 
-          <section aria-labelledby="personnel-dossier-qual-heading" className="space-y-4 border-t border-white/10 pt-8">
+          <section
+            aria-labelledby="personnel-dossier-qual-heading"
+            className="space-y-4 border-t border-white/10 pt-8"
+          >
             <h2 id="personnel-dossier-qual-heading" className="text-lg font-semibold text-white">
               Qualificações e treinamentos registrados
             </h2>
             <OperatorQualificacoesTab operadorId={selectedId} labId={labId} canEdit={canEdit} />
           </section>
 
-          <section aria-labelledby="personnel-dossier-trein-heading" className="space-y-4 border-t border-white/10 pt-8">
+          <section
+            aria-labelledby="personnel-dossier-trein-heading"
+            className="space-y-4 border-t border-white/10 pt-8"
+          >
             <h2 id="personnel-dossier-trein-heading" className="text-lg font-semibold text-white">
               Histórico de Treinamentos
             </h2>
@@ -287,8 +306,14 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
 
           {/* Point 5: Alertas de Vencimento */}
           {dossier && (
-            <section aria-labelledby="personnel-dossier-alertas-heading" className="space-y-4 border-t border-white/10 pt-8">
-              <h2 id="personnel-dossier-alertas-heading" className="text-lg font-semibold text-white">
+            <section
+              aria-labelledby="personnel-dossier-alertas-heading"
+              className="space-y-4 border-t border-white/10 pt-8"
+            >
+              <h2
+                id="personnel-dossier-alertas-heading"
+                className="text-lg font-semibold text-white"
+              >
                 Alertas de Vencimento
               </h2>
               <AlertasCertificacoesCard dossier={dossier} />
@@ -296,8 +321,14 @@ export function PersonnelDossierTab({ canEdit }: PersonnelDossierTabProps): Reac
           )}
 
           {/* Point 7: Histórico de Funções (Timeline) */}
-          <section aria-labelledby="personnel-dossier-timeline-heading" className="space-y-4 border-t border-white/10 pt-8">
-            <h2 id="personnel-dossier-timeline-heading" className="text-lg font-semibold text-white">
+          <section
+            aria-labelledby="personnel-dossier-timeline-heading"
+            className="space-y-4 border-t border-white/10 pt-8"
+          >
+            <h2
+              id="personnel-dossier-timeline-heading"
+              className="text-lg font-semibold text-white"
+            >
               Histórico de Funções
             </h2>
             <DesignacaoTimeline colaboradorId={selectedId} />

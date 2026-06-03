@@ -37,7 +37,7 @@ interface PresetConfig {
 const PRESETS: PresetConfig[] = [
   { id: '30d', label: '30 dias', ariaLabel: 'Últimos 30 dias' },
   { id: '90d', label: '90 dias', ariaLabel: 'Últimos 90 dias' },
-  { id: '1y',  label: '1 ano',   ariaLabel: 'Último ano' },
+  { id: '1y', label: '1 ano', ariaLabel: 'Último ano' },
 ];
 
 // ─── Date helpers ─────────────────────────────────────────────────────────────

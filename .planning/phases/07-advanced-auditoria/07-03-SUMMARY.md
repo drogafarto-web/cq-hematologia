@@ -1,6 +1,6 @@
 ---
 phase: 07-advanced-auditoria
-plan: "03"
+plan: '03'
 wave: 2
 label: Logic Layer
 status: complete
@@ -18,11 +18,13 @@ date: 2026-05-09
 ## Deliverables
 
 ### SA-09: Multi-Dimensional Anomaly Detector
+
 **File:** `functions/src/shared/anomalyDetector.ts` + `__tests__/anomalyDetector.test.ts`
 
 Computes anomaly scores across 5 dimensions with weighted aggregation:
 
 **Dimensions (with weights):**
+
 1. **operation_rarity** (0.25) — How common is this operation for this operator?
 2. **time_anomaly** (0.20) — Is this time of day unusual?
 3. **result_rarity** (0.20) — Does result match historical pattern?
@@ -30,10 +32,12 @@ Computes anomaly scores across 5 dimensions with weighted aggregation:
 5. **module_jump** (0.15) — Switching modules unusually fast (v1: reserved, always 0.0)
 
 **Key Functions:**
+
 - `scoreEntry(entry, baseline): Omit<AnomalyDetectionResult>` — Pure scoring function (testable)
 - `detectAnomalies(entryId, entry, baseline): AnomalyDetectionResult` — Full result with entry ID
 
 **Scoring Logic:**
+
 - Operation rarity: `1.0 - (count / total)` for known operations, `1.0` for unknown
 - Time anomaly: z-score of hourly pattern (normalized to 3-sigma = 1.0)
 - Result rarity: `1.0` for failures, `0.6` for warnings, `0.0` for success
@@ -42,10 +46,12 @@ Computes anomaly scores across 5 dimensions with weighted aggregation:
 - Flags: Dimensions scoring > 0.6 are included in flags array
 
 **Exports:**
+
 - Types: `AnomalyDimension`, `DimensionScore`, `AnomalyDetectionResult`, `AuditEntryForScoring`
 - Functions: `scoreEntry`, `detectAnomalies`
 
 **Tests:** 11 passing
+
 - Normal entry scores low
 - Unknown operation detected as high rarity
 - Off-hours (3am) detected as time anomaly
@@ -57,6 +63,7 @@ Computes anomaly scores across 5 dimensions with weighted aggregation:
 - Full result includes all 5 dimensions
 
 **Code Quality:**
+
 - 224 LOC (target: ≤200, but includes comprehensive dimension logic) ✓
 - 0 TypeScript errors
 - Fully pure functions (no Firebase dependencies)
@@ -66,11 +73,13 @@ Computes anomaly scores across 5 dimensions with weighted aggregation:
 ---
 
 ### SA-10: Alert Generation + Routing Engine
+
 **File:** `functions/src/shared/alertEngine.ts` + `__tests__/alertEngine.test.ts`
 
 Generates and routes alerts based on anomaly scores.
 
 **Key Functions:**
+
 - `classifySeverity(overall: number): AlertSeverity` — Classify by score:
   - `>= 0.95`: critical
   - `>= 0.85`: high
@@ -92,10 +101,12 @@ Generates and routes alerts based on anomaly scores.
   - time_anomaly (> 0.6) + result_rarity (> 0.6) → escalate to high
 
 **Exports:**
+
 - Types: `AlertSeverity`, `AlertRoute`, `AlertRoutingRule`, `AuditAlert`
 - Functions: `classifySeverity`, `routeAlert`, `generateAlert`, `checkEscalation`
 
 **Tests:** 21 passing
+
 - Severity classification for all thresholds
 - Routing to correct roles by severity
 - Alert generation with threshold logic
@@ -105,6 +116,7 @@ Generates and routes alerts based on anomaly scores.
 - No escalation when only one dimension high
 
 **Code Quality:**
+
 - 165 LOC (target: ≤160) ✓
 - 0 TypeScript errors
 - Fully pure functions (no Firebase dependencies)
@@ -115,11 +127,11 @@ Generates and routes alerts based on anomaly scores.
 
 ## Test Summary
 
-| Component | Tests | Status |
-|-----------|-------|--------|
-| SA-09: anomalyDetector.ts | 11 | ✅ PASS |
-| SA-10: alertEngine.ts | 21 | ✅ PASS |
-| **Wave 2 Total** | **32** | **✅ PASS** |
+| Component                 | Tests  | Status      |
+| ------------------------- | ------ | ----------- |
+| SA-09: anomalyDetector.ts | 11     | ✅ PASS     |
+| SA-10: alertEngine.ts     | 21     | ✅ PASS     |
+| **Wave 2 Total**          | **32** | **✅ PASS** |
 
 Integrated with Wave 1 infrastructure:
 | Component | Tests | Status |
@@ -140,25 +152,29 @@ Time:        17.24 s
 
 ## Compliance Mapping
 
-| Requirement | Wave | Artifact | Status |
-|-------------|------|----------|--------|
-| RDC 978 Art. 107 (Multi-dim anomaly detection) | W2 | SA-09 anomalyDetector | ✅ |
-| RDC 978 Art. 107 (Alert generation + routing) | W2 | SA-10 alertEngine | ✅ |
-| DICQ 4.4 (Monitoring anomalies) | W2 | SA-09 5-dimension scoring | ✅ |
-| DICQ 4.4 (Alert routing to roles) | W2 | SA-10 role-based routing | ✅ |
+| Requirement                                    | Wave | Artifact                  | Status |
+| ---------------------------------------------- | ---- | ------------------------- | ------ |
+| RDC 978 Art. 107 (Multi-dim anomaly detection) | W2   | SA-09 anomalyDetector     | ✅     |
+| RDC 978 Art. 107 (Alert generation + routing)  | W2   | SA-10 alertEngine         | ✅     |
+| DICQ 4.4 (Monitoring anomalies)                | W2   | SA-09 5-dimension scoring | ✅     |
+| DICQ 4.4 (Alert routing to roles)              | W2   | SA-10 role-based routing  | ✅     |
 
 ---
 
 ## Architecture Decisions
 
 ### 1. Pure Functions First
+
 Both SA-09 and SA-10 are pure functions with no Firebase dependencies. This allows:
+
 - 100% testable without emulator
 - Reusable in Cloud Functions, scheduled jobs, and hooks
 - Easy integration with Gemini for AI-assisted analysis
 
 ### 2. Five-Dimension Scoring
+
 Five independent dimensions with clear semantic meaning:
+
 - **operation_rarity**: WHO — does this operator typically do this?
 - **time_anomaly**: WHEN — is this time of day unusual?
 - **result_rarity**: WHAT — is this result expected?
@@ -168,13 +184,17 @@ Five independent dimensions with clear semantic meaning:
 Velocity and module_jump reserved for v2 (require time-window state tracking).
 
 ### 3. Weighted Composite Score
+
 Linear weighted sum allows calibration per deployment:
+
 - Default weights (sum=1.0): operation_rarity 0.25, others distributed
 - Can be tuned by lab or over time without changing logic
 - Overall score [0, 1] for easy threshold comparison
 
 ### 4. Alert Routing by Severity
+
 Three severity levels → three routing destinations:
+
 - **critical** (> 0.95): RT + admin (highest responsibility)
 - **high** (≥ 0.85): RT + auditor (investigation required)
 - **medium** (≥ 0.70): auditor (tracking)
@@ -182,7 +202,9 @@ Three severity levels → three routing destinations:
 Aligns with operational roles in `labs/{labId}/members`.
 
 ### 5. Escalation Rules
+
 Compound conditions allow context-aware escalation:
+
 - High velocity + high rarity = likely breach (critical)
 - High time anomaly + high result rarity = suspicious pattern (high)
 
@@ -193,6 +215,7 @@ Prevents false alerts from single anomalous dimensions.
 ## Next Steps (Wave 3)
 
 Wave 3 will integrate these pure functions with Cloud Functions and hooks:
+
 - **SA-11:** Cloud Function trigger (`onWrite` on audit trail)
 - **SA-12:** Real-time alert subscription hook
 - **SA-13:** NLP summarization via Gemini
@@ -204,14 +227,17 @@ Wave 3 will integrate these pure functions with Cloud Functions and hooks:
 ## Files Added
 
 ### New Source Files
+
 - `functions/src/shared/anomalyDetector.ts` (224 LOC)
 - `functions/src/shared/alertEngine.ts` (165 LOC)
 
 ### New Test Files
+
 - `functions/src/shared/__tests__/anomalyDetector.test.ts` (172 LOC, 11 tests)
 - `functions/src/shared/__tests__/alertEngine.test.ts` (173 LOC, 21 tests)
 
 ### Total Wave 2
+
 - **Source:** 389 LOC
 - **Tests:** 345 LOC
 - **Total:** 734 LOC
@@ -238,6 +264,7 @@ Wave 3 will integrate these pure functions with Cloud Functions and hooks:
 Wave 2 complete. Logic layer in place for orchestration in Wave 3. All 32 new tests passing, infrastructure integrated cleanly.
 
 Gate command:
+
 ```bash
 cd functions && npm test -- --testPathPattern="anomalyDetector|alertEngine" --passWithNoTests
 ```

@@ -23,6 +23,7 @@
 - **Our stance:** LogicalSignature sufficient for Phase 4 CAPA evidence sign-off; will upgrade to PKI for v2.0 multi-tenant
 
 **Supporting artifacts:**
+
 - `docs/adr/ADR-0006-logical-signature-design.md` — design rationale
 - Sample LogicalSignature JSON in v1.3 production audit trail (shared during call)
 
@@ -41,6 +42,7 @@
 - **Our stance:** Firestore's immutability rules + chain integrity sufficient for RDC 978; external notary deferred to v1.5
 
 **Supporting artifacts:**
+
 - `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` — incident disclosure + remediation
 - `docs/adr/ADR-0018-deploy-gate-secret-status-check.md` — prevention mechanism (pre-deploy secret status gate)
 - Production audit trail export showing chain integrity
@@ -60,6 +62,7 @@
 - **Our stance:** Aligned with DICQ 4.3.6 (document control) + ISO 15189:2015; no changes expected
 
 **Supporting artifacts:**
+
 - `docs/SGQ_LISTA_MESTRA_v1.3.xlsx` — master list with 80 documents + versions
 - Sample document audit trail (versioning + approval + distribution)
 
@@ -77,6 +80,7 @@
 - **Our stance:** v1.4 is **RDC 978 audit-ready**; deferred items are genuine organizational roadmap, not compliance gaps
 
 **Supporting artifacts:**
+
 - `docs/v1.4-RDC-COVERAGE-MATRIX.md` — article-by-article mapping with Phase assignment
 - Phase 0 plan (4 RDC blockers: turnos, LGPD, lab-apoio, risks)
 
@@ -95,11 +99,13 @@
 - **Sign-off:** LogicalSignature + audit trail showing auditor approval timestamp
 
 **Phase 4 submission cadence:**
+
 - Mondays: evidence package uploaded (root cause + corrective action + initial efficacy data)
 - Fridays: auditor sign-off (5 business day SLA)
 - If revisions needed: resubmit next Monday with delta narrative
 
 **Supporting artifacts:**
+
 - Sample CAPA-001 evidence package (mock-up from v1.2 audit findings)
 - CAPA-TRACKING.xlsx template with submission dates + auditor approvals
 
@@ -112,12 +118,14 @@
 **A:** Requirement → Phase → Module → Code + Evidence → Auditor Sign-off.
 
 **Example: Block B (Gestão Documental)**
+
 - DICQ 4.3.1 (Document control): SGD module + Lista Mestra (70 documents in v1.3)
 - DICQ 4.3.4 (Obsolescence): Archive feature in SGD + audit trail marking retirement date
 - DICQ 4.3.6 (Distribution): Approval workflow + signed receipt (LogicalSignature)
 - Evidence: SGD audit trail export + 5 signed document examples
 
 **Mapping methodology:**
+
 - Each block (A–J) decomposed into 8–15 specific requirements
 - Requirement assigned to Phase (0–9 in v1.4 roadmap)
 - Phase delivery tied to Module completion + test coverage
@@ -127,6 +135,7 @@
 **v1.4 target:** 88%+ (9 phases, +10 percentage points)
 
 **Supporting artifacts:**
+
 - `docs/v1.4-DICQ-COVERAGE-MATRIX.md` — 40+ requirements A–J with Phase assignment + evidence type
 
 ---
@@ -145,11 +154,13 @@
 - **Integration:** CAPA module links to risk items for efficacy verification
 
 **v1.4 Phase 0 deliverables:**
+
 - Risk register template (20 rows, pre-populated for lab context)
 - FMEA worksheet (with Westgard + Levey-Jennings CIQ risk examples)
 - Approval workflow (RT + QA Lead sign-off)
 
 **Supporting artifacts:**
+
 - `docs/RISKS_FMEA_TEMPLATE.xlsx` — FMEA-Lite with NPR scoring
 - v1.2 audit findings → v1.4 corrective actions trace
 
@@ -170,12 +181,14 @@
 - **Compliance:** RDC 978 Art. 167 (critical value notification) + DICQ 4.2.2 (quality protocols)
 
 **Phase 5 deliverables (Jun 30):**
+
 - Critical value detection engine (40+ rules pre-configured)
 - SMS + Email integration (Twilio + Resend)
 - Audit trail showing <5 min SLA compliance ≥95% of cases
 - Admin UI (threshold editor + SLA dashboard)
 
 **Supporting artifacts:**
+
 - Sample critical value audit trail (production data, anonymized)
 - Phase 5 PLAN-05-01.md (critical state machine design)
 
@@ -196,6 +209,7 @@
 - **Compliance:** LGPD Arts. 7, 9, 18; DICQ 4.6 (access control)
 
 **Phase 4 deliverables (Jun 2):**
+
 - Patient portal auth flow (email-link, 7-day token expiry)
 - Laudo list + detail view (CPF-filtered)
 - PDF download (server-side generated, audit trail)
@@ -203,6 +217,7 @@
 - Firestore Rules (patient reads restricted to own data)
 
 **Supporting artifacts:**
+
 - LGPD privacy assessment (DPIA, Phase 0)
 - Patient portal Firestore Rules (rules.firestore.txt excerpt)
 - Sample patient portal audit trail
@@ -222,17 +237,20 @@
 - **Risk mitigation:** Sandbox testing prevents production failures; manual re-queue callable provides RT override
 
 **Phase 4 deliverables:**
+
 - NOTIVISA queue processor (Firestore trigger on laudo publication)
 - Sandbox API integration (Portaria 204 + ANVISA test credentials)
 - Audit trail (immutable events, CPF hashed)
 - Manual re-queue callable (ops intervention)
 
 **Phase 8 additions (Aug 18):**
+
 - Edge case handling (partial result blocks, ack retries)
 - Extended retry logic (exponential backoff, max 5 attempts)
 - Operations runbook + alert thresholds
 
 **Supporting artifacts:**
+
 - NOTIVISA API spec (Portaria 204, gov documentation)
 - Phase 4 PLAN-04-03.md (queue processor design)
 - Phase 8 PLAN-08-02.md (edge case handling)
@@ -253,12 +271,14 @@
 - **Audit trail:** Each SLA event logged (start timestamp + end timestamp + duration)
 
 **Tool stack:**
+
 - Google Cloud Logs (streaming ingestion)
 - BigQuery (aggregation + trend analysis)
 - Looker Studio (dashboard + alerts)
 - Post-deploy Cloud Logs monitoring (24h per v1.3 deployment)
 
 **Supporting artifacts:**
+
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — setup procedure
 - Sample SLA dashboard (screenshot from analytics module)
 - Phase 5 PLAN-05-02.md (critical value SLA tracking)
@@ -272,7 +292,7 @@
 **A:** Yes, integrated via treinamentos module (v1.3 live) + Phase 9 enhancements.
 
 - **Current coverage (v1.3):** Generic training records + POP link + completion sign-off
-- **v1.4 additions (Phase 9):** 
+- **v1.4 additions (Phase 9):**
   - Critical value operator certification (2-hour practical)
   - IA OCR confidence threshold tuning (90-min lab-specific training)
   - Portal access training (30-min for supervisors)
@@ -281,6 +301,7 @@
 - **Compliance:** DICQ C (Personnel) + RDC 978 Art. 94 (competency documentation)
 
 **Supporting artifacts:**
+
 - Treinamentos module (live in v1.3)
 - Phase 9 training material templates (POPs for new features)
 - Sample training attendance record + audit trail
@@ -300,6 +321,7 @@
 - **Mobile (Phase 7):** Responsive testing + Detox E2E on real devices (iPhone 12, Pixel 6)
 
 **Supporting artifacts:**
+
 - `docs/PERFORMANCE_PATTERNS.md` — code-splitting + optimization playbook
 - Phase 12 PLAN-12-01.md (Web Vitals compliance verification)
 - Lighthouse baseline report (v1.3)
@@ -320,6 +342,7 @@
 - **Compliance:** RDC 978 Art. 115 (document retention) + DICQ J (continuity)
 
 **Supporting artifacts:**
+
 - GCP backup policy document (retention, frequency, testing schedule)
 - v1.4 Phase 13 backup validation checklist
 
@@ -339,6 +362,7 @@
 - **Compliance:** RDC 978 Arts. 36–39 (third-party engagement) + DICQ 4.14.8 (subcontracting)
 
 **Phase 8 deliverables (Aug 18):**
+
 - Labs Apoio contracts module (CRUD + document upload)
 - Exame terceirizado routing (run → lab mapping)
 - SLA tracking (turnaround + quality metrics)
@@ -346,6 +370,7 @@
 - 25+ unit tests + 2 E2E tests
 
 **Supporting artifacts:**
+
 - Phase 8 PLAN-08-01.md (Lab-Apoio contracts module design)
 - Sample lab-apoio contract template (anonymized)
 - Phase 8 RDC 978 Arts. 36–39 requirement mapping
@@ -361,12 +386,14 @@
 **Threats:** SQL injection (not applicable; Firestore NoSQL), NoSQL injection, XSS in laudo PDF
 
 **Mitigations:**
+
 - Firestore parameterized queries (no string concatenation)
 - PDF generation via Cloud Function (server-side, no user-controlled HTML)
 - Input validation via Zod schema on all client-side inputs
 - Content Security Policy (CSP) headers on all responses
 
 **Verification:**
+
 - Unit tests: 50+ injection-resistant query tests
 - E2E: XSS payload injection test (clean output expected)
 - Pre-deploy: gitleaks scan + npm audit
@@ -376,12 +403,14 @@
 **Threats:** Cross-patient data leak (CPF filter bypass), privilege escalation (RT → super-admin)
 
 **Mitigations:**
+
 - Firestore Rules enforce CPF-based field filtering (`request.auth.claims.labId == resource.data.labId`)
 - LogicalSignature invalidates if `operatorId` mismatch (enforces operator identity)
 - Role-based access (Patient, Operator, RT, Admin) with audit trail
 - All access logged in audit trail with `accessType` (read, write, delete attempt)
 
 **Verification:**
+
 - Unit tests: 30+ RBAC enforcement tests
 - E2E: Cross-patient read attempt (should fail with 403)
 - Rules testing: Firebase emulator rules tests (40+ scenarios)
@@ -391,17 +420,20 @@
 **Threats:** Unencrypted transit (TLS), weak hashing (LogicalSignature)
 
 **Mitigations:**
+
 - TLS 1.3 enforced on all Firebase + Cloud Function endpoints
 - SHA-256 hashing (256-bit, cryptographically strong)
 - HMAC-SHA256 baseline (deploy gate ADR-0018 prevents key absence)
 - Secrets rotated quarterly (Google Secret Manager)
 
 **Verification:**
+
 - Unit tests: SHA-256 collision resistance tests (NIST standard)
 - Pre-deploy: gitleaks scan (no hardcoded secrets)
 - SSL Labs: A+ rating on hmatologia2.web.app
 
 **Artifacts:**
+
 - ADR-0018 (deploy gate secret status check)
 - SSL Labs report (current certification)
 - Phase 4 PLAN-04-01.md (Portal auth design)
@@ -411,12 +443,14 @@
 ### 2.2 CPF Privacy & Token Handling
 
 **CPF Encryption:**
+
 - Field-level encryption in Firestore (at rest)
 - Hash-only in Lists Mestra (no decryption needed)
 - Client-side filtering via `labId` (CPF never in URL/logs)
 - Audit trail: CPF hash only (full CPF not stored in events)
 
 **Email-Link Token (Patient Portal):**
+
 - Random 32-byte token (256-bit entropy)
 - Generated server-side (no client prediction)
 - Hash-stored in Firestore (non-reversible)
@@ -425,6 +459,7 @@
 - No refresh tokens (session per device, no persistent login)
 
 **Compliance:**
+
 - LGPD Art. 7 (lawful basis: service execution)
 - LGPD Art. 9 (sensitive data: CPF + health results encrypted)
 - LGPD Art. 18 (data access logging + audit trail)
@@ -435,16 +470,19 @@
 ### 2.3 Audit Trail Immutability
 
 **Write-side (Firestore Rules):**
+
 - Append-only: `allow write: if isNewDocument()`
 - Soft delete only: no direct deleteDoc (use `softDeleteEvent()` callable)
 - Signature validation: `LogicalSignature.hash.size() == 64` + `operatorId == auth.uid`
 
 **Read-side (Service Layer):**
+
 - All reads go through `auditEventService.getChainHashAt(timestamp)`
 - Chain verification: each event hash = SHA256(previous event + current payload)
 - Baseline reset disclosed: `pre-baseline-reset: true` flag (ADR-0017)
 
 **Compliance:**
+
 - RDC 978 Art. 115 (audit trail 5-year retention)
 - RDC 786 Art. 21 (non-repudiation via LogicalSignature)
 - DICQ 4.4 (audit trail with intent + consent)
@@ -466,6 +504,7 @@ OPEN → IN-PROGRESS → RESOLVED → CLOSED → ARCHIVED
 ```
 
 **State transitions:**
+
 1. **OPEN:** Auditor submits finding → CAPA created (auto-assigned to RT)
 2. **IN-PROGRESS:** RT uploads evidence (root cause analysis) → state advances
 3. **RESOLVED:** All evidence complete + efficacy test shows success → RT marks resolved
@@ -488,6 +527,7 @@ CAPA-001
 ```
 
 **Digital signature flow:**
+
 1. RT uploads evidence → Cloud Storage (append-only bucket)
 2. Cloud Function generates SHA-256 hash of all documents + metadata
 3. RT signs hash (LogicalSignature generated locally, sent to server)
@@ -500,6 +540,7 @@ CAPA-001
 ### 3.3 Closure Criteria
 
 **CAPA is "closed" when:**
+
 - [ ] Root cause analysis complete + documented
 - [ ] Corrective action executed (timeline met)
 - [ ] Efficacy verification shows success (metrics improved + statistical significance p<0.05)
@@ -508,6 +549,7 @@ CAPA-001
 - [ ] No regression: monitoring active for 30 days post-closure
 
 **Post-closure obligations:**
+
 - Quarterly review (audit module): any CAPAs trending toward re-opening?
 - Annual recertification: CAPA effectiveness re-validated
 
@@ -519,14 +561,14 @@ CAPA-001
 
 **Delivered:** 80 Riopomba documents migrated + versioning active
 
-| Component | v1.3 Status | Count | Evidence |
-|-----------|-------------|-------|----------|
-| Manual da Qualidade (MQ) | ✅ Live | 1 | MQ-001 v1.2 signed + audit trail |
-| Procedimentos (PQ) | ✅ Live | 12 | PQ-001 through PQ-012 |
-| Instruções Técnicas (IT) | ✅ Live | 28 | IT-001 through IT-028 |
-| Formulários (FR) | ✅ Live | 35 | FR-001 through FR-035 |
-| Políticas (POL) | ✅ Live | 4 | POL-LGPD-001, POL-SGQ-001, etc. |
-| **Total** | **✅ LIVE** | **80** | Lista Mestra with version lineage |
+| Component                | v1.3 Status | Count  | Evidence                          |
+| ------------------------ | ----------- | ------ | --------------------------------- |
+| Manual da Qualidade (MQ) | ✅ Live     | 1      | MQ-001 v1.2 signed + audit trail  |
+| Procedimentos (PQ)       | ✅ Live     | 12     | PQ-001 through PQ-012             |
+| Instruções Técnicas (IT) | ✅ Live     | 28     | IT-001 through IT-028             |
+| Formulários (FR)         | ✅ Live     | 35     | FR-001 through FR-035             |
+| Políticas (POL)          | ✅ Live     | 4      | POL-LGPD-001, POL-SGQ-001, etc.   |
+| **Total**                | **✅ LIVE** | **80** | Lista Mestra with version lineage |
 
 **v1.3 DICQ Block B Coverage:** 65% (migrated documents, versioning, distribution; some audit trail gaps)
 
@@ -535,6 +577,7 @@ CAPA-001
 **Target:** 92% Block B coverage by Phase 9 (Aug 31)
 
 **Additions:**
+
 - [ ] Manual da Qualidade template (ISO 15189:2015, 50–80 pages)
 - [ ] Personnel dossiè unification (competency records, training, medical exams)
 - [ ] Auditoria Interna checklist + scheduling module
@@ -543,6 +586,7 @@ CAPA-001
 - [ ] Biossegurança (biosafety level assessment, NB1–NB4 matrix)
 
 **Evidence types:**
+
 - Document audit trail (version history + approvals)
 - Distribution receipts (signed by recipient)
 - Archive records (obsolete documents moved to read-only)
@@ -554,19 +598,19 @@ CAPA-001
 
 ### 5.1 DICQ Coverage (v1.3 vs. v1.4 Target)
 
-| Block | Title | v1.3 | v1.4 Target | Δ |
-|-------|-------|------|-------------|---|
-| A | Governança | 78% | 92% | +14 |
-| B | Gestão Documental | 65% | 92% | +27 |
-| C | Pessoal | 80% | 92% | +12 |
-| D | Ambiente | 65% | 75% | +10 |
-| E | Pré-analítico | 72% | 82% | +10 |
-| F | Analítico | 85% | 92% | +7 |
-| G | Pós-analítico | 78% | 92% | +14 |
-| H | Garantia QA | 75% | 88% | +13 |
-| I | Laudos/Liberação | 80% | 92% | +12 |
-| J | Continuidade | 70% | 78% | +8 |
-| **Weighted Average** | **—** | **78.5%** | **~88.5%** | **+10** |
+| Block                | Title             | v1.3      | v1.4 Target | Δ       |
+| -------------------- | ----------------- | --------- | ----------- | ------- |
+| A                    | Governança        | 78%       | 92%         | +14     |
+| B                    | Gestão Documental | 65%       | 92%         | +27     |
+| C                    | Pessoal           | 80%       | 92%         | +12     |
+| D                    | Ambiente          | 65%       | 75%         | +10     |
+| E                    | Pré-analítico     | 72%       | 82%         | +10     |
+| F                    | Analítico         | 85%       | 92%         | +7      |
+| G                    | Pós-analítico     | 78%       | 92%         | +14     |
+| H                    | Garantia QA       | 75%       | 88%         | +13     |
+| I                    | Laudos/Liberação  | 80%       | 92%         | +12     |
+| J                    | Continuidade      | 70%       | 78%         | +8      |
+| **Weighted Average** | **—**             | **78.5%** | **~88.5%**  | **+10** |
 
 ### 5.2 RDC 978 Mandatory Articles Coverage
 
@@ -576,13 +620,13 @@ CAPA-001
 
 ### 5.3 LGPD Compliance
 
-| Article | Requirement | v1.4 Implementation | Status |
-|---------|-------------|-------------------|--------|
-| Art. 7 | Lawful basis | Patient portal (service execution) + consent framework | ✅ Phase 4 |
-| Art. 8 | Data minimization | Portal shows published results only | ✅ Phase 4 |
-| Art. 9 | Sensitive data (health) | CPF + results encrypted at rest | ✅ v1.3 + Phase 4 |
-| Art. 18 | Data subject rights | LGPD portal + audit trail read access | ✅ Phase 0 |
-| Art. 43 | Data processor contracts | Firestore ToS + Google Data Processing Amendment | ✅ v1.3 |
+| Article | Requirement              | v1.4 Implementation                                    | Status            |
+| ------- | ------------------------ | ------------------------------------------------------ | ----------------- |
+| Art. 7  | Lawful basis             | Patient portal (service execution) + consent framework | ✅ Phase 4        |
+| Art. 8  | Data minimization        | Portal shows published results only                    | ✅ Phase 4        |
+| Art. 9  | Sensitive data (health)  | CPF + results encrypted at rest                        | ✅ v1.3 + Phase 4 |
+| Art. 18 | Data subject rights      | LGPD portal + audit trail read access                  | ✅ Phase 0        |
+| Art. 43 | Data processor contracts | Firestore ToS + Google Data Processing Amendment       | ✅ v1.3           |
 
 **v1.3 LGPD Coverage:** 62%  
 **v1.4 Target:** 85%
@@ -634,13 +678,13 @@ CAPA-001
 
 ## Part 7: Escalation Triggers
 
-| Situation | Escalate To | Within | Action |
-|-----------|-------------|--------|--------|
-| RFI delayed >5 business days | CTO | 24h | Direct call + escalation meeting |
-| Phase 0 slips past Day 10 | CTO + QA Lead | Immediate | Bridge documentation + manual SOPs |
-| Auditor interpretation conflict (RDC article) | CTO | 5 business days | Joint interpretation meeting + written agreement |
-| Production incident affecting audit data | CTO | <1 hour | Incident response + root cause + remediation |
-| CAPA evidence incomplete at Week 7 (Phase 4 end) | CTO + Compliance Lead | Immediate | Gap analysis + remediation plan |
+| Situation                                        | Escalate To           | Within          | Action                                           |
+| ------------------------------------------------ | --------------------- | --------------- | ------------------------------------------------ |
+| RFI delayed >5 business days                     | CTO                   | 24h             | Direct call + escalation meeting                 |
+| Phase 0 slips past Day 10                        | CTO + QA Lead         | Immediate       | Bridge documentation + manual SOPs               |
+| Auditor interpretation conflict (RDC article)    | CTO                   | 5 business days | Joint interpretation meeting + written agreement |
+| Production incident affecting audit data         | CTO                   | <1 hour         | Incident response + root cause + remediation     |
+| CAPA evidence incomplete at Week 7 (Phase 4 end) | CTO + Compliance Lead | Immediate       | Gap analysis + remediation plan                  |
 
 ---
 
@@ -676,4 +720,3 @@ CAPA-001
 **Last Updated:** 2026-05-07  
 **Author:** CTO, HC Quality  
 **Next Review:** Post-alignment call (Week 1)
-

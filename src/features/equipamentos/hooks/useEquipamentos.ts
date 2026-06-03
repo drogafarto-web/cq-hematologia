@@ -16,9 +16,7 @@ interface UseEquipamentosResult {
   error: string | null;
 }
 
-export function useEquipamentos(
-  filters: EquipamentoFilters = {},
-): UseEquipamentosResult {
+export function useEquipamentos(filters: EquipamentoFilters = {}): UseEquipamentosResult {
   const labId = useActiveLabId();
   const [equipamentos, setEquipamentos] = useState<Equipamento[]>([]);
   const [isLoading, setIsLoading] = useState(true);

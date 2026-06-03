@@ -65,8 +65,8 @@ describe.skip('Edge Cases: Phase 4 Resilience', () => {
       ]);
 
       // All should succeed with different runIds
-      expect(runs.filter(r => r.success)).toHaveLength(3);
-      expect(new Set(runs.map(r => r.runId))).toHaveSize(3); // All unique
+      expect(runs.filter((r) => r.success)).toHaveLength(3);
+      expect(new Set(runs.map((r) => r.runId))).toHaveSize(3); // All unique
     });
 
     it('should prevent concurrent patient export requests', async () => {
@@ -201,9 +201,7 @@ describe.skip('Edge Cases: Phase 4 Resilience', () => {
       const result = validateNotivisaDraft(invalidDraft);
       expect(result.valid).toBe(false);
       expect(result.errors).toEqual(
-        expect.arrayContaining([
-          expect.objectContaining({ field: 'diseaseCode' })
-        ])
+        expect.arrayContaining([expect.objectContaining({ field: 'diseaseCode' })]),
       );
     });
 
@@ -221,7 +219,7 @@ describe.skip('Edge Cases: Phase 4 Resilience', () => {
   // ─────────────────────────────────────────────────────────────────────────────
 
   describe('Permission Boundaries', () => {
-    it('should prevent patient from viewing another patient\'s laudo', async () => {
+    it("should prevent patient from viewing another patient's laudo", async () => {
       const patientA = 'patient_a';
       const patientB = 'patient_b';
       const laudoId = 'laudo_patient_b_001';
@@ -330,7 +328,7 @@ describe.skip('Edge Cases: Phase 4 Resilience', () => {
       expect(listeners).toHaveLength(5);
 
       // Cleanup all
-      const unsubCount = listeners.filter(l => {
+      const unsubCount = listeners.filter((l) => {
         l?.();
         return true;
       }).length;
@@ -402,7 +400,7 @@ async function requestPatientExport(patientId: string) {
 }
 
 async function backoffDelay(attempt: number) {
-  return new Promise(r => setTimeout(r, Math.min(1000 * Math.pow(2, attempt - 1), 10000)));
+  return new Promise((r) => setTimeout(r, Math.min(1000 * Math.pow(2, attempt - 1), 10000)));
 }
 
 function setupFirestoreListener(collection: string) {
@@ -413,11 +411,11 @@ function setupFirestoreListener(collection: string) {
 }
 
 async function simulateNetworkDisconnect() {
-  return new Promise(r => setTimeout(r, 100));
+  return new Promise((r) => setTimeout(r, 100));
 }
 
 async function simulateNetworkReconnect() {
-  return new Promise(r => setTimeout(r, 100));
+  return new Promise((r) => setTimeout(r, 100));
 }
 
 function saveToLocalStorage(key: string, value: any) {
@@ -460,7 +458,10 @@ function sanitizeInput(input: string): string {
 }
 
 function checkLaudoAccess(patientId: string, laudoId: string, laudoPatientId: string) {
-  return { allowed: patientId === laudoPatientId, code: patientId !== laudoPatientId ? 'PERMISSION_DENIED' : 'OK' };
+  return {
+    allowed: patientId === laudoPatientId,
+    code: patientId !== laudoPatientId ? 'PERMISSION_DENIED' : 'OK',
+  };
 }
 
 function checkNotivisaDraftPermission(user: any) {
@@ -510,7 +511,7 @@ async function withTimeout(promise: Promise<any>, ms: number) {
   return Promise.race([
     promise,
     new Promise((_, reject) => setTimeout(() => reject({ code: 'TIMEOUT' }), ms)),
-  ]).catch(e => e);
+  ]).catch((e) => e);
 }
 
 function generateHmacSignature(payload: any) {

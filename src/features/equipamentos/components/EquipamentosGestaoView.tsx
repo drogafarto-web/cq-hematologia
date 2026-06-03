@@ -68,7 +68,8 @@ export function EquipamentosGestaoView(): React.ReactElement {
       <main className="max-w-[1400px] w-full mx-auto px-8 py-6 space-y-6">
         <p className="text-xs text-slate-500 dark:text-white/45 max-w-2xl leading-relaxed">
           Cadastro e manutenção por módulo. Para catálogo de produtos, fornecedores e todos os
-          lotes, use <span className="text-slate-700 dark:text-white/65">Insumos & Equipamentos</span>.
+          lotes, use{' '}
+          <span className="text-slate-700 dark:text-white/65">Insumos & Equipamentos</span>.
         </p>
         <div className="space-y-6">
           {MODULES.map((m) => (

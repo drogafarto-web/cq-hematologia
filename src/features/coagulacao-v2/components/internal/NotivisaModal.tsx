@@ -2,7 +2,10 @@ import { useState } from 'react';
 
 interface NotivisaModalProps {
   isSaving: boolean;
-  onConfirm: (data: { notivisaTipo: 'queixa_tecnica' | 'evento_adverso'; motivo: string }) => Promise<void>;
+  onConfirm: (data: {
+    notivisaTipo: 'queixa_tecnica' | 'evento_adverso';
+    motivo: string;
+  }) => Promise<void>;
   onClose: () => void;
 }
 
@@ -19,13 +22,17 @@ export function NotivisaModal({ isSaving, onConfirm, onClose }: NotivisaModalPro
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
       <div className="w-full max-w-md rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card-elevated)] p-6 shadow-xl">
-        <h3 className="mb-2 text-base font-medium text-[var(--cl-text-strong)]">NOTIVISA — Tecnovigilância</h3>
+        <h3 className="mb-2 text-base font-medium text-[var(--cl-text-strong)]">
+          NOTIVISA — Tecnovigilância
+        </h3>
         <p className="mb-4 text-sm text-[var(--cl-text-muted)]">
           Notificar a ANVISA sobre evento adverso ou queixa técnica relacionada a esta tentativa.
         </p>
 
         <div className="mb-4">
-          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">Tipo de notificação</label>
+          <label className="mb-1 block text-xs font-medium uppercase tracking-wider text-[var(--cl-text-muted)]">
+            Tipo de notificação
+          </label>
           <select
             value={tipo}
             onChange={(e) => setTipo(e.target.value as typeof tipo)}

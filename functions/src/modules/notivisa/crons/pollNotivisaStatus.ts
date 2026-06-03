@@ -61,10 +61,8 @@ function getCredentials(mode: 'sandbox' | 'prod'): {
   }
 
   return {
-    apiKey:
-      process.env.NOTIVISA_SANDBOX_KEY || 'PENDING_SET_NOTIVISA_SANDBOX_KEY',
-    baseUrl:
-      process.env.NOTIVISA_SANDBOX_URL || 'PENDING_SET_NOTIVISA_SANDBOX_URL',
+    apiKey: process.env.NOTIVISA_SANDBOX_KEY || 'PENDING_SET_NOTIVISA_SANDBOX_KEY',
+    baseUrl: process.env.NOTIVISA_SANDBOX_URL || 'PENDING_SET_NOTIVISA_SANDBOX_URL',
   };
 }
 
@@ -243,12 +241,7 @@ export const pollNotivisaStatus = onSchedule(
     timeZone: 'America/Sao_Paulo',
     region: 'southamerica-east1',
     retryCount: 0,
-    secrets: [
-      notivisaSandboxKey,
-      notivisaSandboxUrl,
-      notivisaProdKey,
-      notivisaProdUrl,
-    ],
+    secrets: [notivisaSandboxKey, notivisaSandboxUrl, notivisaProdKey, notivisaProdUrl],
   },
   async () => {
     await runPollCycleOnce();

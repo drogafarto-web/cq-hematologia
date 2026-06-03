@@ -107,11 +107,7 @@ export const notivisaStatusCheck = onSchedule(
 
             try {
               // Call government API (v1.4: sandbox only)
-              const govResponse = await pollGovernmentAPI(
-                event,
-                config,
-                POLL_TIMEOUT_MS
-              );
+              const govResponse = await pollGovernmentAPI(event, config, POLL_TIMEOUT_MS);
 
               if (!govResponse) {
                 // Network error: keep as sent, schedule retry
@@ -231,7 +227,7 @@ export const notivisaStatusCheck = onSchedule(
       console.error('[notivisaStatusCheck] Fatal error:', error);
       throw error;
     }
-  }
+  },
 );
 
 /**
@@ -241,7 +237,7 @@ export const notivisaStatusCheck = onSchedule(
 async function pollGovernmentAPI(
   event: NotivisaQueueEvent,
   config: NotivisaConfig,
-  timeoutMs: number
+  timeoutMs: number,
 ): Promise<{ status: string; code: string; message: string; timestamp: number } | null> {
   try {
     // v1.4: sandbox endpoint (to be replaced with production in v1.5)
@@ -265,7 +261,7 @@ async function pollGovernmentAPI(
           'Content-Type': 'application/json',
         },
         timeout: timeoutMs,
-      }
+      },
     );
 
     return {
@@ -298,22 +294,17 @@ async function scheduleRetry(
   event: NotivisaQueueEvent,
   now: number,
   backoffMs: number[],
-  newAttempts?: number
+  newAttempts?: number,
 ): Promise<void> {
   const attempts = newAttempts ?? event.attempts + 1;
 
   if (attempts >= event.maxAttempts) {
     // Mark as failed
-    await db
-      .collection('notivisa-queue')
-      .doc(labId)
-      .collection('events')
-      .doc(event.id)
-      .update({
-        status: 'failed',
-        attempts,
-        updatedAt: now,
-      });
+    await db.collection('notivisa-queue').doc(labId).collection('events').doc(event.id).update({
+      status: 'failed',
+      attempts,
+      updatedAt: now,
+    });
     return;
   }
 
@@ -321,17 +312,12 @@ async function scheduleRetry(
   const backoffIndex = Math.min(attempts - 1, backoffMs.length - 1);
   const nextRetry = now + backoffMs[backoffIndex];
 
-  await db
-    .collection('notivisa-queue')
-    .doc(labId)
-    .collection('events')
-    .doc(event.id)
-    .update({
-      status: 'sent',
-      attempts,
-      nextRetry,
-      updatedAt: now,
-    });
+  await db.collection('notivisa-queue').doc(labId).collection('events').doc(event.id).update({
+    status: 'sent',
+    attempts,
+    nextRetry,
+    updatedAt: now,
+  });
 }
 
 /**
@@ -342,7 +328,7 @@ async function logAuditEvent(
   labId: string,
   draftId: string,
   action: string,
-  details: Record<string, any>
+  details: Record<string, any>,
 ): Promise<void> {
   try {
     await db

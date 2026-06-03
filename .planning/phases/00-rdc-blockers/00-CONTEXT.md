@@ -75,10 +75,10 @@ These three overrides were locked by CTO on 2026-05-07 and **must propagate to e
 
 ## Wave plan summary
 
-| Wave | Plans | Rationale |
-|------|-------|-----------|
-| **1** | `00-01-turnos-supervisor-shift` (1.5d), `00-02-lgpd-pol-and-dpia` (0.25d) | Independent. Both establish patterns reused by Wave 2. Turnos creates the canonical "callable + audit trail + lazy route + manualChunks" template for the next two modules; LGPD ships during a compliance review window without code dependency. Stream B (FE/BE) drives Plan 00-01; Stream A (compliance) drives Plan 00-02. |
-| **2** | `00-03-lab-apoio-contracts` (2.5d), `00-04-risks-fmea-skeleton` (3.5d) | Both depend on Wave 1: they reuse the `turnos` callable scaffold (`functions/src/modules/<module>/{validators,signatureCanonical,index}.ts` shape), the rules-helper conventions, and the audit-chain trigger pattern. Plan 00-03 adds Storage rules for PDF uploads; Plan 00-04 adds an ADR (FMEA methodology) and a heatmap UI. |
+| Wave  | Plans                                                                     | Rationale                                                                                                                                                                                                                                                                                                                         |
+| ----- | ------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **1** | `00-01-turnos-supervisor-shift` (1.5d), `00-02-lgpd-pol-and-dpia` (0.25d) | Independent. Both establish patterns reused by Wave 2. Turnos creates the canonical "callable + audit trail + lazy route + manualChunks" template for the next two modules; LGPD ships during a compliance review window without code dependency. Stream B (FE/BE) drives Plan 00-01; Stream A (compliance) drives Plan 00-02.    |
+| **2** | `00-03-lab-apoio-contracts` (2.5d), `00-04-risks-fmea-skeleton` (3.5d)    | Both depend on Wave 1: they reuse the `turnos` callable scaffold (`functions/src/modules/<module>/{validators,signatureCanonical,index}.ts` shape), the rules-helper conventions, and the audit-chain trigger pattern. Plan 00-03 adds Storage rules for PDF uploads; Plan 00-04 adds an ADR (FMEA methodology) and a heatmap UI. |
 
 **Parallelism within waves:** within Wave 1 the two plans touch disjoint folders (`src/features/turnos/**` vs `src/features/sgq/**` for badge only). Within Wave 2 the plans touch disjoint folders (`src/features/lab-apoio/**` vs `src/features/risks/**`). Both waves can run as concurrent agents.
 
@@ -91,22 +91,22 @@ These three overrides were locked by CTO on 2026-05-07 and **must propagate to e
 
 ## Canonical references (read these when planning each plan)
 
-| Concern | File | Why |
-|---|---|---|
-| Hook pattern | `src/features/educacao-continuada/hooks/useColaboradores.ts` | Project canonical: `useActiveLabId()` guard + `onSnapshot` + cleanup + mutations that throw without lab |
-| Module CLAUDE.md format | `src/features/educacao-continuada/CLAUDE.md`, `src/features/sgq/CLAUDE.md` | Required structure: scope, refs, multi-tenant paths, RN-* invariants, integration with shell, pendências |
-| Callable shape | `functions/src/modules/controleTemperatura/{commitLeitura,signatureCanonical,validators,index}.ts` | Canonical: Zod input → assertCtAccess → Admin SDK re-read → server-side signature → atomic writeBatch → audit log |
-| SGQ audit chain | `src/features/sgq/types/Documento.ts` (DocumentoAuditEvent), `src/features/sgq/CLAUDE.md` (RN-SGQ-06) | Append-only `/labs/{labId}/sgq-documentos-audit/` written in same batch as the doc itself |
-| Rules patterns | `firestore.rules` helpers (`isActiveMemberOfLab`, `isAdminOrOwner`, `validSignature`, `labIdMatches`, `keepsLabId`, `keepsCreatedAt`) | Reuse helpers; do not redefine |
-| Rules generator | Skill `hcq-firestore-rules-generator` | Use to draft rule blocks |
-| Module scaffold | Skill `hcq-module-generator` | Use to scaffold types + service + hook + component skeletons for plans 00-01, 00-03, 00-04 |
-| Audit trail | Skill `hcq-ciq-audit-trail` | Subcoleção events + `chainHash` trigger via Cloud Function |
-| Deploy gates | Skill `hcq-deploy-gates` | Pre-merge + pre-deploy gate (TS, tests, rules emulator, baseline) |
-| PDF export | Skill `hcq-pdf-export-scaffold` | Plan 00-03 contract PDF export, if extracted |
-| Performance rule | `.claude/rules/performance.md` | All new routes lazy + manualChunks; new dep >50KB gzip needs justification |
-| Module protection | `.claude/rules/module-protection.md` | Tasks that touch `useAuthStore`, `firestore.rules`, root `CLAUDE.md` are explicitly cross-module — ack each |
-| Deploy protocol | `.claude/rules/deploy-protocol.md` | Order: `provisionModulesClaims` → rules → functions → hosting; hard reload after PWA deploy; Cloud Logs 24h post-deploy |
-| Cloud Logs monitoring | `docs/CLOUD_LOGS_MONITORING_GUIDE.md` + `scripts/monitor-cloud-logs.sh` | Run after each module's Functions deploy |
+| Concern                 | File                                                                                                                                  | Why                                                                                                                     |
+| ----------------------- | ------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------- |
+| Hook pattern            | `src/features/educacao-continuada/hooks/useColaboradores.ts`                                                                          | Project canonical: `useActiveLabId()` guard + `onSnapshot` + cleanup + mutations that throw without lab                 |
+| Module CLAUDE.md format | `src/features/educacao-continuada/CLAUDE.md`, `src/features/sgq/CLAUDE.md`                                                            | Required structure: scope, refs, multi-tenant paths, RN-\* invariants, integration with shell, pendências               |
+| Callable shape          | `functions/src/modules/controleTemperatura/{commitLeitura,signatureCanonical,validators,index}.ts`                                    | Canonical: Zod input → assertCtAccess → Admin SDK re-read → server-side signature → atomic writeBatch → audit log       |
+| SGQ audit chain         | `src/features/sgq/types/Documento.ts` (DocumentoAuditEvent), `src/features/sgq/CLAUDE.md` (RN-SGQ-06)                                 | Append-only `/labs/{labId}/sgq-documentos-audit/` written in same batch as the doc itself                               |
+| Rules patterns          | `firestore.rules` helpers (`isActiveMemberOfLab`, `isAdminOrOwner`, `validSignature`, `labIdMatches`, `keepsLabId`, `keepsCreatedAt`) | Reuse helpers; do not redefine                                                                                          |
+| Rules generator         | Skill `hcq-firestore-rules-generator`                                                                                                 | Use to draft rule blocks                                                                                                |
+| Module scaffold         | Skill `hcq-module-generator`                                                                                                          | Use to scaffold types + service + hook + component skeletons for plans 00-01, 00-03, 00-04                              |
+| Audit trail             | Skill `hcq-ciq-audit-trail`                                                                                                           | Subcoleção events + `chainHash` trigger via Cloud Function                                                              |
+| Deploy gates            | Skill `hcq-deploy-gates`                                                                                                              | Pre-merge + pre-deploy gate (TS, tests, rules emulator, baseline)                                                       |
+| PDF export              | Skill `hcq-pdf-export-scaffold`                                                                                                       | Plan 00-03 contract PDF export, if extracted                                                                            |
+| Performance rule        | `.claude/rules/performance.md`                                                                                                        | All new routes lazy + manualChunks; new dep >50KB gzip needs justification                                              |
+| Module protection       | `.claude/rules/module-protection.md`                                                                                                  | Tasks that touch `useAuthStore`, `firestore.rules`, root `CLAUDE.md` are explicitly cross-module — ack each             |
+| Deploy protocol         | `.claude/rules/deploy-protocol.md`                                                                                                    | Order: `provisionModulesClaims` → rules → functions → hosting; hard reload after PWA deploy; Cloud Logs 24h post-deploy |
+| Cloud Logs monitoring   | `docs/CLOUD_LOGS_MONITORING_GUIDE.md` + `scripts/monitor-cloud-logs.sh`                                                               | Run after each module's Functions deploy                                                                                |
 
 ---
 
@@ -127,12 +127,12 @@ Embed mitigation evidence in plan acceptance criteria:
 
 ## Compliance evidence map
 
-| Plan | REQ-IDs | RDC 978 | DICQ | RISKs |
-|------|---------|---------|------|-------|
-| 00-01 | REQ-403 (partial — supervisor sub-deliverable) | Art. 122; RDC 786 (habilitado vs capacitado) | 4.1.2.7 | RISK-403, P0-R3, P0-R6, RISK-409 |
-| 00-02 | REQ-411 | Art. 77 | 4.3 (POL hierarchy), 4.13 (audit chain) | RISK-403, P0-R5, RISK-409 |
-| 00-03 | REQ-416 (new — Lab Apoio module) | Arts. 36, 37, 38, 39 | 4.14.8 (supplier audit) | RISK-403, P0-R1, P0-R6, RISK-409 |
-| 00-04 | REQ-412 | Art. 86 (componente 2 — gerenciamento dos riscos) | 4.14.6 (risk management) + ISO 15189 §8.5 | RISK-403, P0-R2, P0-R4, P0-R6, RISK-409 |
+| Plan  | REQ-IDs                                        | RDC 978                                           | DICQ                                      | RISKs                                   |
+| ----- | ---------------------------------------------- | ------------------------------------------------- | ----------------------------------------- | --------------------------------------- |
+| 00-01 | REQ-403 (partial — supervisor sub-deliverable) | Art. 122; RDC 786 (habilitado vs capacitado)      | 4.1.2.7                                   | RISK-403, P0-R3, P0-R6, RISK-409        |
+| 00-02 | REQ-411                                        | Art. 77                                           | 4.3 (POL hierarchy), 4.13 (audit chain)   | RISK-403, P0-R5, RISK-409               |
+| 00-03 | REQ-416 (new — Lab Apoio module)               | Arts. 36, 37, 38, 39                              | 4.14.8 (supplier audit)                   | RISK-403, P0-R1, P0-R6, RISK-409        |
+| 00-04 | REQ-412                                        | Art. 86 (componente 2 — gerenciamento dos riscos) | 4.14.6 (risk management) + ISO 15189 §8.5 | RISK-403, P0-R2, P0-R4, P0-R6, RISK-409 |
 
 REQ-416 is new (introduced by Phase 0). It must be back-linked into `v1.4-REQUIREMENTS.md` Section 1 by the planner-of-record before plan 00-03 executes — see "Open questions" below.
 

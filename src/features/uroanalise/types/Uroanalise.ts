@@ -12,6 +12,13 @@ import type {
   UroAlert,
 } from './_shared_refs';
 
+export interface UroExpectedValueConfig {
+  tipo: 'faixa_cruzes' | 'numerico' | 'nominal';
+  min?: number;
+  max?: number;
+  valores?: string[];
+}
+
 // ─── Campo com Auditoria de Origem ────────────────────────────────────────────
 
 /**
@@ -323,6 +330,7 @@ export interface UroanaliseRun extends Omit<
    * tira + controle no ManualKitPicker. Ausente/false em runs de analisador.
    */
   manual?: boolean;
+  expectedValuesRun?: Record<string, UroExpectedValueConfig>;
 }
 
 // ─── Lote ─────────────────────────────────────────────────────────────────────
@@ -368,6 +376,7 @@ export interface UroanaliseLot {
    * Serve como referência rápida sem precisar abrir um run individual.
    */
   resultadosEsperados?: UroanaliseRun['resultadosEsperados'];
+  expectedValues?: Record<string, UroExpectedValueConfig>;
 
   // ── Contadores ────────────────────────────────────────────────────────────
 

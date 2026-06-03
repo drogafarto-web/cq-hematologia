@@ -13,7 +13,7 @@ import {
   callCreateRisk,
   callUpdateRisk,
   callSoftDeleteRisk,
-  subscribeRisks
+  subscribeRisks,
 } from '../services/risksService';
 import { ConfirmModal } from '../../../shared/components/ConfirmModal';
 import { CreateRiskModal } from './CreateRiskModal';
@@ -64,47 +64,69 @@ interface RiskRegisterProps {
   onRefresh?: () => void;
 }
 
-const RiskRow = memo(({ risk, onEdit, onDelete }: {
-  risk: Risk;
-  onEdit: (risk: Risk) => void;
-  onDelete: (risk: Risk) => void;
-}) => (
-  <tr className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors duration-150">
-    <td className="px-4 py-3 text-xs font-mono text-white/70">{risk.codigo}</td>
-    <td className="px-4 py-3 text-sm text-white/80 truncate max-w-xs">{risk.descricao}</td>
-    <td className="px-4 py-3 text-xs text-white/60">{risk.processo}</td>
-    <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">{risk.probabilidade}</td>
-    <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">{risk.severidade}</td>
-    <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">{risk.deteccao}</td>
-    <td className="px-4 py-3 text-center tabular-nums text-lg font-bold text-white">{risk.npr}</td>
-    <td className="px-4 py-3">
-      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${NIVEL_CONFIG[risk.nivel]?.cls || ''}`}>
-        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${NIVEL_CONFIG[risk.nivel]?.dot || ''}`} />
-        {risk.nivel}
-      </span>
-    </td>
-    <td className="px-4 py-3">
-      <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_CONFIG[risk.status]?.cls || ''}`}>
-        <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_CONFIG[risk.status]?.dot || ''}`} />
-        {risk.status}
-      </span>
-    </td>
-    <td className="px-4 py-3 text-right space-x-2">
-      <button
-        onClick={() => onEdit(risk)}
-        className="text-xs px-2 py-1 rounded text-violet-300 hover:bg-violet-500/10 transition-colors"
-      >
-        Editar
-      </button>
-      <button
-        onClick={() => onDelete(risk)}
-        className="text-xs px-2 py-1 rounded text-red-300 hover:bg-red-500/10 transition-colors"
-      >
-        Excluir
-      </button>
-    </td>
-  </tr>
-));
+const RiskRow = memo(
+  ({
+    risk,
+    onEdit,
+    onDelete,
+  }: {
+    risk: Risk;
+    onEdit: (risk: Risk) => void;
+    onDelete: (risk: Risk) => void;
+  }) => (
+    <tr className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors duration-150">
+      <td className="px-4 py-3 text-xs font-mono text-white/70">{risk.codigo}</td>
+      <td className="px-4 py-3 text-sm text-white/80 truncate max-w-xs">{risk.descricao}</td>
+      <td className="px-4 py-3 text-xs text-white/60">{risk.processo}</td>
+      <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">
+        {risk.probabilidade}
+      </td>
+      <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">
+        {risk.severidade}
+      </td>
+      <td className="px-4 py-3 text-center tabular-nums text-sm font-semibold text-white/80">
+        {risk.deteccao}
+      </td>
+      <td className="px-4 py-3 text-center tabular-nums text-lg font-bold text-white">
+        {risk.npr}
+      </td>
+      <td className="px-4 py-3">
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${NIVEL_CONFIG[risk.nivel]?.cls || ''}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0 ${NIVEL_CONFIG[risk.nivel]?.dot || ''}`}
+          />
+          {risk.nivel}
+        </span>
+      </td>
+      <td className="px-4 py-3">
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${STATUS_CONFIG[risk.status]?.cls || ''}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0 ${STATUS_CONFIG[risk.status]?.dot || ''}`}
+          />
+          {risk.status}
+        </span>
+      </td>
+      <td className="px-4 py-3 text-right space-x-2">
+        <button
+          onClick={() => onEdit(risk)}
+          className="text-xs px-2 py-1 rounded text-violet-300 hover:bg-violet-500/10 transition-colors"
+        >
+          Editar
+        </button>
+        <button
+          onClick={() => onDelete(risk)}
+          className="text-xs px-2 py-1 rounded text-red-300 hover:bg-red-500/10 transition-colors"
+        >
+          Excluir
+        </button>
+      </td>
+    </tr>
+  ),
+);
 
 RiskRow.displayName = 'RiskRow';
 
@@ -121,11 +143,14 @@ export const RiskRegister: React.FC<RiskRegisterProps> = ({
   const [filters, setFilters] = useState({ statusFilter: '', searchText: '' });
 
   const filteredRisks = useMemo(() => {
-    return risks.filter(r => {
+    return risks.filter((r) => {
       if (filters.statusFilter && r.status !== filters.statusFilter) return false;
       if (filters.searchText) {
         const search = filters.searchText.toLowerCase();
-        if (!r.codigo.toLowerCase().includes(search) && !r.descricao.toLowerCase().includes(search)) {
+        if (
+          !r.codigo.toLowerCase().includes(search) &&
+          !r.descricao.toLowerCase().includes(search)
+        ) {
           return false;
         }
       }
@@ -159,12 +184,12 @@ export const RiskRegister: React.FC<RiskRegisterProps> = ({
           type="text"
           placeholder="Pesquisar por código ou descrição..."
           value={filters.searchText}
-          onChange={(e) => setFilters(f => ({ ...f, searchText: e.target.value }))}
+          onChange={(e) => setFilters((f) => ({ ...f, searchText: e.target.value }))}
           className="flex-1 px-3 py-2 rounded-md bg-white/[0.04] border border-white/[0.08] text-sm text-white/90 placeholder:text-white/30 focus:outline-none focus:border-violet-500/60"
         />
         <select
           value={filters.statusFilter}
-          onChange={(e) => setFilters(f => ({ ...f, statusFilter: e.target.value }))}
+          onChange={(e) => setFilters((f) => ({ ...f, statusFilter: e.target.value }))}
           className="px-3 py-2 rounded-md bg-white/[0.04] border border-white/[0.08] text-sm text-white/90 focus:outline-none focus:border-violet-500/60"
         >
           <option value="">Todos os status</option>
@@ -204,7 +229,7 @@ export const RiskRegister: React.FC<RiskRegisterProps> = ({
               </tr>
             </thead>
             <tbody>
-              {filteredRisks.map(risk => (
+              {filteredRisks.map((risk) => (
                 <RiskRow
                   key={risk.id}
                   risk={risk}

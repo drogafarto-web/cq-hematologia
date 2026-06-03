@@ -10,10 +10,10 @@
 
 ## Contexto — duas camadas de defesa
 
-| Camada | Ferramenta                        | Janela                                                   | Granularidade     | Uso                                                       |
-| ------ | --------------------------------- | -------------------------------------------------------- | ----------------- | --------------------------------------------------------- |
-| **1**  | **PITR** (Point-in-Time Recovery) | **7 dias**                                               | Segundos          | Rollback rápido (delete/overwrite acidental, bug recente) |
-| **2**  | **Scheduled export** (GCS)        | **5 anos** (Nearline 30d → Coldline 1y → Archive 4y)     | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria, RDC 786          |
+| Camada | Ferramenta                        | Janela                                               | Granularidade     | Uso                                                       |
+| ------ | --------------------------------- | ---------------------------------------------------- | ----------------- | --------------------------------------------------------- |
+| **1**  | **PITR** (Point-in-Time Recovery) | **7 dias**                                           | Segundos          | Rollback rápido (delete/overwrite acidental, bug recente) |
+| **2**  | **Scheduled export** (GCS)        | **5 anos** (Nearline 30d → Coldline 1y → Archive 4y) | Diário, 03:00 BRT | Incidente antigo, catástrofe, auditoria, RDC 786          |
 
 Bucket `gs://hmatologia2-firestore-backups` tem **retention policy de 1825 dias** — exclusão de objetos rejeitada mesmo por Owner do projeto até cumprir o prazo. Verificação semanal via `scheduledVerifyBackupIntegrity` (segundas 04:00 BRT) que escreve em `firestore-backup-alerts` se algum backup faltar ou falhar.
 

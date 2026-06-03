@@ -147,10 +147,7 @@ function stripJpegMetadata(buf: Buffer): { buffer: Buffer; removed: number } {
 
     // Standalone markers (no length): RSTn, TEM, etc. Rare in stored JPEGs
     // but be defensive.
-    if (
-      (marker >= 0xffd0 && marker <= 0xffd7) ||
-      marker === 0xff01
-    ) {
+    if ((marker >= 0xffd0 && marker <= 0xffd7) || marker === 0xff01) {
       out.push(buf.subarray(i, i + 2));
       i += 2;
       continue;

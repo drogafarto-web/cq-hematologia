@@ -68,7 +68,14 @@ function Skeleton() {
 
 function UploadIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
       <path d="M17 8l-5-5-5 5M12 3v12" />
     </svg>
@@ -81,19 +88,31 @@ export function CalibracaoList() {
 
   const sorted = useMemo(() => {
     return [...calibracoes].sort((a, b) => {
-      const aNext = typeof a.nextDueDate === 'number' ? a.nextDueDate : (a.nextDueDate as any)?.toMillis?.() ?? Infinity;
-      const bNext = typeof b.nextDueDate === 'number' ? b.nextDueDate : (b.nextDueDate as any)?.toMillis?.() ?? Infinity;
+      const aNext =
+        typeof a.nextDueDate === 'number'
+          ? a.nextDueDate
+          : ((a.nextDueDate as any)?.toMillis?.() ?? Infinity);
+      const bNext =
+        typeof b.nextDueDate === 'number'
+          ? b.nextDueDate
+          : ((b.nextDueDate as any)?.toMillis?.() ?? Infinity);
       return aNext - bNext;
     });
   }, [calibracoes]);
 
   const overdueCount = sorted.filter((c) => {
-    const nextDue = typeof c.nextDueDate === 'number' ? c.nextDueDate : (c.nextDueDate as any)?.toMillis?.() ?? 0;
+    const nextDue =
+      typeof c.nextDueDate === 'number'
+        ? c.nextDueDate
+        : ((c.nextDueDate as any)?.toMillis?.() ?? 0);
     return nextDue < Date.now();
   }).length;
 
   const warningCount = sorted.filter((c) => {
-    const nextDue = typeof c.nextDueDate === 'number' ? c.nextDueDate : (c.nextDueDate as any)?.toMillis?.() ?? 0;
+    const nextDue =
+      typeof c.nextDueDate === 'number'
+        ? c.nextDueDate
+        : ((c.nextDueDate as any)?.toMillis?.() ?? 0);
     const daysUntil = (nextDue - Date.now()) / (1000 * 60 * 60 * 24);
     return daysUntil >= 0 && daysUntil < 30;
   }).length;
@@ -170,18 +189,26 @@ export function CalibracaoList() {
                   >
                     <td className="px-4 py-3 text-slate-200">
                       <p className="font-medium">{cal.equipName}</p>
-                      <p className="text-[10px] text-slate-500 mt-0.5">
-                        ID: {cal.equipamentoId}
-                      </p>
+                      <p className="text-[10px] text-slate-500 mt-0.5">ID: {cal.equipamentoId}</p>
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-xs">
-                      {formatDate(typeof cal.lastCalibrationDate === 'number' ? cal.lastCalibrationDate : (cal.lastCalibrationDate as any)?.toMillis?.())}
+                      {formatDate(
+                        typeof cal.lastCalibrationDate === 'number'
+                          ? cal.lastCalibrationDate
+                          : (cal.lastCalibrationDate as any)?.toMillis?.(),
+                      )}
                     </td>
                     <td className="px-4 py-3 text-slate-400 text-xs font-mono">
-                      {formatDate(typeof cal.nextDueDate === 'number' ? cal.nextDueDate : (cal.nextDueDate as any)?.toMillis?.())}
+                      {formatDate(
+                        typeof cal.nextDueDate === 'number'
+                          ? cal.nextDueDate
+                          : (cal.nextDueDate as any)?.toMillis?.(),
+                      )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${statusColor.badge}`}>
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-full text-xs font-medium ${statusColor.badge}`}
+                      >
                         <span className={`w-1.5 h-1.5 rounded-full ${statusColor.dot}`} />
                         {statusColor.label}
                       </span>

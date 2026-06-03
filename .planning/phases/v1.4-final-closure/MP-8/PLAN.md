@@ -125,7 +125,7 @@ for fn in createCapa createPlanoAcao registerPresenca; do
 done
 
 # 6.3 Firestore rules check (read fails without auth)
-curl -sf "https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents/labs/test/auditorias-internas" 
+curl -sf "https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents/labs/test/auditorias-internas"
 # Should return 401/403, not 200 with data
 
 # 6.4 Cloud Logs baseline (start 24h monitor)
@@ -154,6 +154,7 @@ git push origin v1.4-FINAL
 ## Step 8 — FINAL-REPORT.md
 
 Orchestrator generates this with:
+
 - Total commits in v1.4-final-closure
 - Total LOC delta (insertions/deletions)
 - Test count delta (before/after)
@@ -170,6 +171,7 @@ Commit: `docs(v1.4-FINAL): final report`
 ## Failure handling
 
 If any step fails:
+
 - **Step 1 fails:** Fix the failing gate (typically a regression introduced late). Re-run from Step 1.
 - **Step 3 fails (rules):** Investigate emulator test failures. Roll back the failing rule block. Re-run Step 1+3.
 - **Step 4 fails (functions):** Check first 5 errors in deploy output. Most common: TS6196 unused locals. Fix and retry. If quota exceeded, wait 1h and retry.

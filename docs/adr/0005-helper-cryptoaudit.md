@@ -16,16 +16,19 @@
 2. `functions/src/modules/ciqAudit/writer.ts` — rastreia audit log de análises
 
 **Riscos:**
+
 - Código duplicado = bugs divergentes
 - Se um é corrigido, o outro fica quebrado
 - Manutenção duplicada (refactor é 2x o trabalho)
 - HMAC pode divergir entre módulos (auditoria falha)
 
 **Impacto regulatório:**
+
 - RDC 978 exige rastreabilidade + integridade
 - Se HMAC diverge, laudo não é auditável
 
 **Bloqueador técnico:**
+
 - ADR 0002 (Lote↔NF) precisa de HMAC unificado
 - ADR 0003 (NC global) precisa de HMAC unificado
 - Sem isso, spines não conseguem validar integridade
@@ -55,25 +58,25 @@ functions/src/modules/audit/
 ```typescript
 type AuditEntry = {
   // Document metadata
-  id: string;                    // Firestore doc ID
-  collectionPath: string;        // '/ciq-audit' or '/labs/{labId}/audit-log'
-  
+  id: string; // Firestore doc ID
+  collectionPath: string; // '/ciq-audit' or '/labs/{labId}/audit-log'
+
   // Operation context
-  timestamp: Timestamp;          // server-generated, never client time
-  operadorId: string;            // FK to /users
-  operation: string;             // 'insumo.recebido', 'laudo.liberado', 'nc.aberta', etc
-  
+  timestamp: Timestamp; // server-generated, never client time
+  operadorId: string; // FK to /users
+  operation: string; // 'insumo.recebido', 'laudo.liberado', 'nc.aberta', etc
+
   // Payload (what changed)
-  payload: Record<string, any>;  // {loteId, quantidade, motivo, ...}
-  
+  payload: Record<string, any>; // {loteId, quantidade, motivo, ...}
+
   // Cryptographic integrity
-  hmac: string;                  // HMAC-SHA256(deterministic JSON)
-  hash: string;                  // SHA-256(entire entry JSON)
-  previousHash: string | null;   // hash of entry before this one (chain)
-  
+  hmac: string; // HMAC-SHA256(deterministic JSON)
+  hash: string; // SHA-256(entire entry JSON)
+  previousHash: string | null; // hash of entry before this one (chain)
+
   // Migration tracking
-  _migratedAt?: Timestamp;       // For legacy entries (null = new format)
-  _legacyHash?: string;          // For entries without HMAC (migration temp)
+  _migratedAt?: Timestamp; // For legacy entries (null = new format)
+  _legacyHash?: string; // For entries without HMAC (migration temp)
 };
 ```
 
@@ -82,26 +85,17 @@ type AuditEntry = {
 ```typescript
 import crypto from 'crypto';
 
-export function computeHmac(
-  data: Record<string, any>,
-  secret: string
-): string {
+export function computeHmac(data: Record<string, any>, secret: string): string {
   // Deterministic JSON: sort keys alphabetically
   const canonicalJson = JSON.stringify(data, Object.keys(data).sort());
-  
+
   // HMAC-SHA256, output as hex
-  return crypto
-    .createHmac('sha256', secret)
-    .update(canonicalJson, 'utf-8')
-    .digest('hex');
+  return crypto.createHmac('sha256', secret).update(canonicalJson, 'utf-8').digest('hex');
 }
 
 export function hashData(data: Record<string, any>): string {
   const json = JSON.stringify(data, Object.keys(data).sort());
-  return crypto
-    .createHash('sha256')
-    .update(json, 'utf-8')
-    .digest('hex');
+  return crypto.createHash('sha256').update(json, 'utf-8').digest('hex');
 }
 ```
 
@@ -116,15 +110,11 @@ export async function signAuditEntry(
   operation: string,
   payload: Record<string, any>,
   db: FirebaseFirestore.Firestore,
-  secret: string
+  secret: string,
 ): Promise<AuditEntry> {
   // 1. Get previous hash (for chain)
-  const previousHash = await getPreviousHashInCollection(
-    db,
-    collectionPath,
-    'timestamp'
-  );
-  
+  const previousHash = await getPreviousHashInCollection(db, collectionPath, 'timestamp');
+
   // 2. Create entry (without hmac/hash yet)
   const entryData = {
     collectionPath,
@@ -134,11 +124,11 @@ export async function signAuditEntry(
     payload,
     previousHash,
   };
-  
+
   // 3. Compute HMAC + hash
   const hmac = computeHmac(entryData, secret);
   const hash = hashData({ ...entryData, hmac });
-  
+
   // 4. Add cryptographic fields
   const finalEntry: AuditEntry = {
     ...entryData,
@@ -146,7 +136,7 @@ export async function signAuditEntry(
     hash,
     timestamp: admin.firestore.FieldValue.serverTimestamp(),
   };
-  
+
   // 5. Write to Firestore (via Cloud Function, never direct)
   const docRef = await db.collection(collectionPath).add(finalEntry);
   return { ...finalEntry, id: docRef.id } as AuditEntry;
@@ -158,7 +148,7 @@ export async function signAuditEntry(
 ```typescript
 export function verifyAuditEntry(
   entry: AuditEntry,
-  secret: string
+  secret: string,
 ): {
   valid: boolean;
   reason?: string;
@@ -166,14 +156,14 @@ export function verifyAuditEntry(
   // Recompute HMAC (without hmac field)
   const { hmac: originalHmac, hash: originalHash, ...dataForHmac } = entry;
   const computedHmac = computeHmac(dataForHmac, secret);
-  
+
   if (computedHmac !== originalHmac) {
     return {
       valid: false,
       reason: `HMAC mismatch: expected ${originalHmac}, computed ${computedHmac}`,
     };
   }
-  
+
   // Recompute hash (with hmac included)
   const computedHash = hashData({ ...dataForHmac, hmac: originalHmac });
   if (computedHash !== originalHash) {
@@ -182,7 +172,7 @@ export function verifyAuditEntry(
       reason: `Hash mismatch: expected ${originalHash}, computed ${computedHash}`,
     };
   }
-  
+
   return { valid: true };
 }
 ```
@@ -194,7 +184,7 @@ export async function validateChainIntegrity(
   db: FirebaseFirestore.Firestore,
   collectionPath: string,
   secret: string,
-  options?: { batchSize?: number; maxAge?: number }
+  options?: { batchSize?: number; maxAge?: number },
 ): Promise<{
   valid: boolean;
   violations: Array<{
@@ -263,7 +253,7 @@ export async function validateChainIntegrity(
 export const validateChainIntegrityScheduled = functions
   .region('southamerica-east1')
   .pubsub.schedule('every 12 hours')
-  .onRun(async context => {
+  .onRun(async (context) => {
     const secret = process.env.HCQ_SIGNATURE_HMAC_KEY;
     if (!secret) throw new Error('HCQ_SIGNATURE_HMAC_KEY not set');
 
@@ -287,12 +277,13 @@ match /ciq-audit/{auditId} {
 
 match /labs/{labId}/audit-log/{entryId} {
   allow create: if false;
-  allow read: if request.auth.uid != null && 
+  allow read: if request.auth.uid != null &&
               request.auth.token.labs[labId] != null;
 }
 ```
 
 **Enforcement in Cloud Function:**
+
 - Check HMAC + hash present before writing
 - Reject if missing or invalid
 - Log rejection in separate error collection
@@ -302,36 +293,43 @@ match /labs/{labId}/audit-log/{entryId} {
 ## Implementation Plan
 
 ### Phase 1: Setup (Day 2)
+
 - [ ] Create directory structure
 - [ ] Add `process.env.HCQ_SIGNATURE_HMAC_KEY` via Firebase Secrets
 - [ ] Initialize boilerplate (imports, types)
 
 ### Phase 2: Core Helper (Days 3-4)
+
 - [ ] Implement `cryptoAudit.ts` (sign, verify, chain operations)
 - [ ] Unit tests >90% coverage
 - [ ] Test with Firebase emulator
 
 ### Phase 3: Refactor Existing (Days 3-4)
+
 - [ ] Update `chainHash.ts` to use helper
 - [ ] Update `ciqAudit/writer.ts` to use helper
 - [ ] Integration tests (no behavior change)
 
 ### Phase 4: Validator (Day 5)
+
 - [ ] Implement `chainHashValidator.ts`
 - [ ] Scheduled Cloud Function
 - [ ] Test validator with seeded data
 
 ### Phase 5: Migration (Day 6)
+
 - [ ] Backfill legacy entries with HMAC
 - [ ] Verify chain unbroken post-migration
 - [ ] Script: `functions/scripts/backfill-hmac.mjs`
 
 ### Phase 6: Testing & Audit (Day 7)
+
 - [ ] Smoke tests (create entry → verify HMAC → validate chain)
 - [ ] Security review (secret mgmt, crypto correctness)
 - [ ] CTO sign-off
 
 ### Phase 7: Production Deploy (Day 8)
+
 - [ ] Merge to main (code review)
 - [ ] `firebase deploy --only functions`
 - [ ] Monitor logs (Firestore, Cloud Functions)
@@ -342,18 +340,21 @@ match /labs/{labId}/audit-log/{entryId} {
 ## Security Considerations
 
 ### Key Management
+
 - Secret: `HCQ_SIGNATURE_HMAC_KEY` (32 bytes, SHA-256 input size)
 - Stored in: Firebase Secret Manager (not .env, not git)
 - Rotation: Quarterly (generate new → deploy → retire old)
 - Access: Cloud Functions only (service account)
 
 ### Cryptographic Correctness
+
 - HMAC-SHA256: NIST FIPS 198-1 approved ✓
 - Deterministic JSON: sorts keys, no whitespace variation ✓
 - Timestamp: server-generated, never client time ✓
 - previousHash: prevents reordering attacks ✓
 
 ### Secrets Never Logged
+
 - Grep `-v HCQ_SIGNATURE_HMAC_KEY` on all code
 - No `console.log(secret)`
 - No `console.log(hmac)` in production logs
@@ -363,6 +364,7 @@ match /labs/{labId}/audit-log/{entryId} {
 ## Acceptance Criteria
 
 ✓ **Technical:**
+
 - Helper `cryptoAudit.ts` implemented
 - Unit tests >90% coverage, all passing
 - Integration tests pass (emulator)
@@ -372,12 +374,14 @@ match /labs/{labId}/audit-log/{entryId} {
 - Zero HMAC divergence between modules
 
 ✓ **Security:**
+
 - Secret manager configured
 - Firestore rules block direct writes
 - Security review passed
 - CTO sign-off
 
 ✓ **Production:**
+
 - Deployed without errors
 - Scheduled validator runs 1x successfully
 - Monitoring alerts configured
@@ -438,7 +442,7 @@ Task 1.3 (Implementation) ← helper + tests
 - [ ] **Engineer:** Design reviewed, ready to implement
 - [ ] **CTO:** Scope approved, security risks acceptable, timeline OK
 
-**CTO Signature:** _________________  **Date:** _________________
+**CTO Signature:** ********\_******** **Date:** ********\_********
 
 ---
 

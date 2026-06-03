@@ -197,10 +197,7 @@ export const ImunoIAClassificationPayloadSchema = z
   .object({
     analyte: z.string().min(1, 'Analito é obrigatório.'),
     result: ImunoResultSchema,
-    confidence: z
-      .number()
-      .min(0, 'Confiança deve ser ≥ 0.')
-      .max(1, 'Confiança deve ser ≤ 1.'),
+    confidence: z.number().min(0, 'Confiança deve ser ≥ 0.').max(1, 'Confiança deve ser ≤ 1.'),
     rawText: z.string().min(1, 'Texto bruto da strip é obrigatório.'),
     operatorId: z.string().min(1, 'ID do operador é obrigatório.'),
     hash: z.string().length(64, 'Hash deve ter 64 caracteres (HMAC-SHA256).'),
@@ -214,9 +211,7 @@ export const ImunoIAClassificationPayloadSchema = z
     path: ['confidence'],
   });
 
-export type ImunoIAClassificationPayload = z.infer<
-  typeof ImunoIAClassificationPayloadSchema
->;
+export type ImunoIAClassificationPayload = z.infer<typeof ImunoIAClassificationPayloadSchema>;
 
 /**
  * Zod validator for ImunoIAUploadRequest.
@@ -249,9 +244,7 @@ export const ImunoIADatasetRecordPayloadSchema = z.object({
   exported: z.boolean().default(false),
 });
 
-export type ImunoIADatasetRecordPayload = z.infer<
-  typeof ImunoIADatasetRecordPayloadSchema
->;
+export type ImunoIADatasetRecordPayload = z.infer<typeof ImunoIADatasetRecordPayloadSchema>;
 
 /**
  * Zod validator for ImunoIAAccuracy metrics.
@@ -259,22 +252,15 @@ export type ImunoIADatasetRecordPayload = z.infer<
  */
 export const ImunoIAAccuracyPayloadSchema = z
   .object({
-    period: z
-      .string()
-      .regex(/^\d{4}-\d{2}$/, 'Período deve estar em formato YYYY-MM.'),
-    accuracyPct: z
-      .number()
-      .min(0, 'Acurácia deve ser ≥ 0%.')
-      .max(100, 'Acurácia deve ser ≤ 100%.'),
+    period: z.string().regex(/^\d{4}-\d{2}$/, 'Período deve estar em formato YYYY-MM.'),
+    accuracyPct: z.number().min(0, 'Acurácia deve ser ≥ 0%.').max(100, 'Acurácia deve ser ≤ 100%.'),
     confidenceThreshold: z
       .number()
       .min(0, 'Threshold deve ser ≥ 0.')
       .max(1, 'Threshold deve ser ≤ 1.')
       .default(0.85),
     datasetSize: z.number().min(0, 'Tamanho do dataset deve ser ≥ 0.'),
-    belowThreshold: z
-      .number()
-      .min(0, 'Registros abaixo do threshold devem ser ≥ 0.'),
+    belowThreshold: z.number().min(0, 'Registros abaixo do threshold devem ser ≥ 0.'),
   })
   // Validate: belowThreshold ≤ datasetSize
   .refine((d) => d.belowThreshold <= d.datasetSize, {
@@ -283,4 +269,3 @@ export const ImunoIAAccuracyPayloadSchema = z
   });
 
 export type ImunoIAAccuracyPayload = z.infer<typeof ImunoIAAccuracyPayloadSchema>;
-

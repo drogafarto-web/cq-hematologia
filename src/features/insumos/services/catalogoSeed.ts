@@ -51,8 +51,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Horiba',
         nomeComercial: 'ABX Whitediff',
         codigoFabricante: 'ABX-WDF-1L',
-        funcaoTecnica:
-          'Lise seletiva de hemácias + diferenciação de 5 populações leucocitárias',
+        funcaoTecnica: 'Lise seletiva de hemácias + diferenciação de 5 populações leucocitárias',
         equipamentosCompativeis: ['Yumizen H550', 'Yumizen H750'],
         diasEstabilidadeAberturaDefault: 30,
         isCatalogoPadrao: true,
@@ -120,8 +119,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Stago',
         nomeComercial: 'Neoplastine CI+',
         codigoFabricante: 'NEO-CI-PLUS',
-        funcaoTecnica:
-          'Tromboplastina recombinante para TP/INR — ISI declarado lote a lote',
+        funcaoTecnica: 'Tromboplastina recombinante para TP/INR — ISI declarado lote a lote',
         equipamentosCompativeis: ['Clotimer Duo', 'STA Compact', 'ACL TOP'],
         diasEstabilidadeAberturaDefault: 5,
         isCatalogoPadrao: true,
@@ -143,8 +141,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Stago',
         nomeComercial: 'Coag Control N',
         codigoFabricante: 'COA-N',
-        funcaoTecnica:
-          'Plasma controle liofilizado — nível normal (doadores saudáveis pooled)',
+        funcaoTecnica: 'Plasma controle liofilizado — nível normal (doadores saudáveis pooled)',
         equipamentosCompativeis: ['Clotimer Duo', 'STA Compact'],
         nivelDefault: 'normal',
         diasEstabilidadeAberturaDefault: 1,
@@ -156,8 +153,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Stago',
         nomeComercial: 'Coag Control P',
         codigoFabricante: 'COA-P',
-        funcaoTecnica:
-          'Plasma controle liofilizado — nível patológico (pacientes anticoagulados)',
+        funcaoTecnica: 'Plasma controle liofilizado — nível patológico (pacientes anticoagulados)',
         equipamentosCompativeis: ['Clotimer Duo', 'STA Compact'],
         nivelDefault: 'patologico',
         diasEstabilidadeAberturaDefault: 1,
@@ -168,8 +164,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
 
   'uri-color': {
     equipamento: 'Uri Color Control (Wama Diagnóstica)',
-    descricao:
-      'Leitor semi-automático de tiras reagentes urinárias — 10 analitos + densidade/pH.',
+    descricao: 'Leitor semi-automático de tiras reagentes urinárias — 10 analitos + densidade/pH.',
     produtos: [
       {
         tipo: 'tira-uro',
@@ -177,8 +172,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Wama Diagnóstica',
         nomeComercial: 'Uri-Check 10SG',
         codigoFabricante: 'URI-10SG',
-        funcaoTecnica:
-          'Tira reagente 10 analitos (GLU, BIL, CET, SG, pH, PRO, URO, NIT, LEU, HGB)',
+        funcaoTecnica: 'Tira reagente 10 analitos (GLU, BIL, CET, SG, pH, PRO, URO, NIT, LEU, HGB)',
         equipamentosCompativeis: ['Uri Color Control', 'Uri-Color Check'],
         diasEstabilidadeAberturaDefault: 90,
         isCatalogoPadrao: true,
@@ -212,8 +206,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
 
   'imuno-strips': {
     equipamento: 'Strips de Imunoensaio (multi-fabricante)',
-    descricao:
-      'Imunocromatografia — sorológicos rápidos (HIV, HBsAg, HCV, Sífilis, Dengue etc).',
+    descricao: 'Imunocromatografia — sorológicos rápidos (HIV, HBsAg, HCV, Sífilis, Dengue etc).',
     produtos: [
       {
         tipo: 'reagente',
@@ -243,8 +236,7 @@ export const CATALOGO_TEMPLATES: Record<string, CatalogoTemplate> = {
         fabricante: 'Bioclin',
         nomeComercial: 'Dengue IgG/IgM + NS1',
         codigoFabricante: 'BIO-DEN',
-        funcaoTecnica:
-          'Imunocromatografia combinada — IgG/IgM anti-Dengue + antígeno NS1',
+        funcaoTecnica: 'Imunocromatografia combinada — IgG/IgM anti-Dengue + antígeno NS1',
         equipamentosCompativeis: ['Strips manuais'],
         diasEstabilidadeAberturaDefault: 0,
         isCatalogoPadrao: true,

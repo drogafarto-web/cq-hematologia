@@ -32,16 +32,16 @@ TOTAL            $16/month         $27/month      +$11/month
 
 ### Projected Monthly Cost by Phase
 
-| Phase | Weeks | Focus | Monthly Cost | Cumulative |
-|-------|-------|-------|--------------|-----------|
-| **v1.3** | — | Foundation (22 modules) | $16 | $16 |
-| **Phase 0b** | 1–2 | RDC blockers (turnos, risks, lab-apoio) | +$2 | $18 |
-| **Phase 3.1–3.3** | 1–3 | Portal + IA foundation | +$9 | **$27** |
-| **Phase 4–5** | 4–8 | CAPA closure + patient portal | +$8 | $35 |
-| **Phase 6–7** | 6–8 | Críticos + feedback portal | +$10 | $45 |
-| **Phase 8–9** | 9–11 | NOTIVISA + IA scaling | +$20 | $65 |
-| **Phase 10–11** | 12–14 | Multi-equipment + dataset | +$10 | $75 |
-| **Phase 12–15** | 16–22 | Performance + launch prep | +$10–25 | $85–100 |
+| Phase             | Weeks | Focus                                   | Monthly Cost | Cumulative |
+| ----------------- | ----- | --------------------------------------- | ------------ | ---------- |
+| **v1.3**          | —     | Foundation (22 modules)                 | $16          | $16        |
+| **Phase 0b**      | 1–2   | RDC blockers (turnos, risks, lab-apoio) | +$2          | $18        |
+| **Phase 3.1–3.3** | 1–3   | Portal + IA foundation                  | +$9          | **$27**    |
+| **Phase 4–5**     | 4–8   | CAPA closure + patient portal           | +$8          | $35        |
+| **Phase 6–7**     | 6–8   | Críticos + feedback portal              | +$10         | $45        |
+| **Phase 8–9**     | 9–11  | NOTIVISA + IA scaling                   | +$20         | $65        |
+| **Phase 10–11**   | 12–14 | Multi-equipment + dataset               | +$10         | $75        |
+| **Phase 12–15**   | 16–22 | Performance + launch prep               | +$10–25      | $85–100    |
 
 ---
 
@@ -67,12 +67,12 @@ Labs    Revenue     Costs       Profit      Margin
 
 ## Risk Factors (Could add $10–30/month)
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| IA dataset explosion (Gemini free tier exceeded) | Medium | +$5–15/month | Cap images at 500; batch processing |
-| Portal PDF generation at scale (1k+ users) | Low | +$7/month | PDF caching + CDN |
-| Critical SMS spikes (equipment malfunction) | Medium | +$10/month | Deduplication + cooldown |
-| Analytics polling surge (100+ concurrent) | Medium | +$10/month | Polling backoff + aggregates |
+| Risk                                             | Probability | Impact       | Mitigation                          |
+| ------------------------------------------------ | ----------- | ------------ | ----------------------------------- |
+| IA dataset explosion (Gemini free tier exceeded) | Medium      | +$5–15/month | Cap images at 500; batch processing |
+| Portal PDF generation at scale (1k+ users)       | Low         | +$7/month    | PDF caching + CDN                   |
+| Critical SMS spikes (equipment malfunction)      | Medium      | +$10/month   | Deduplication + cooldown            |
+| Analytics polling surge (100+ concurrent)        | Medium      | +$10/month   | Polling backoff + aggregates        |
 
 ---
 
@@ -109,12 +109,12 @@ Labs    Revenue     Costs       Profit      Margin
 
 ## Cost Optimization Roadmap (Do These)
 
-| Week | Action | Savings | Effort |
-|------|--------|---------|--------|
-| 1 | Set up GCP billing alerts + dashboard | N/A | 1h |
-| 4 | Evaluate WebSocket polling vs 30s interval | $18/month | 2d |
-| 8 | Batch NOTIVISA queue (1h poll instead of 15m) | $5/month | 1d |
-| 12 | Archive audit events >90d to BigQuery | $10/month | 3d |
+| Week | Action                                        | Savings   | Effort |
+| ---- | --------------------------------------------- | --------- | ------ |
+| 1    | Set up GCP billing alerts + dashboard         | N/A       | 1h     |
+| 4    | Evaluate WebSocket polling vs 30s interval    | $18/month | 2d     |
+| 8    | Batch NOTIVISA queue (1h poll instead of 15m) | $5/month  | 1d     |
+| 12   | Archive audit events >90d to BigQuery         | $10/month | 3d     |
 
 ---
 
@@ -147,8 +147,8 @@ A: Firestore reads scale but are **per-document (metered), not per-request**. A 
 
 ## Version History
 
-| Ver | Date | Author | Changes |
-|-----|------|--------|---------|
+| Ver | Date       | Author       | Changes                           |
+| --- | ---------- | ------------ | --------------------------------- |
 | 1.0 | 2026-05-07 | Claude Agent | Initial exec summary + financials |
 
 **Last updated:** 2026-05-07  

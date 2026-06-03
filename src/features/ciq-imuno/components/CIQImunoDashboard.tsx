@@ -820,11 +820,7 @@ function BancadaPanel({
             : isPrincipal
               ? 'border-emerald-200 dark:border-emerald-500/25 bg-emerald-50/40 dark:bg-emerald-500/[0.05]'
               : 'border-blue-200 dark:border-blue-500/25 bg-blue-50/40 dark:bg-blue-500/[0.05]';
-          const bar = expired
-            ? 'bg-red-500'
-            : isPrincipal
-              ? 'bg-emerald-500'
-              : 'bg-blue-500';
+          const bar = expired ? 'bg-red-500' : isPrincipal ? 'bg-emerald-500' : 'bg-blue-500';
           const labelCls = expired
             ? 'text-red-700 dark:text-red-400'
             : isPrincipal
@@ -832,15 +828,10 @@ function BancadaPanel({
               : 'text-blue-700 dark:text-blue-400';
 
           return (
-            <div
-              key={lot.id}
-              className={`relative rounded-xl border p-4 ${accent} transition-all`}
-            >
+            <div key={lot.id} className={`relative rounded-xl border p-4 ${accent} transition-all`}>
               <span className={`absolute top-0 left-0 w-1 h-full rounded-l-xl ${bar}`} />
               <div className="flex items-start justify-between gap-2 mb-1">
-                <p
-                  className={`text-[10px] font-bold uppercase tracking-wider ${labelCls}`}
-                >
+                <p className={`text-[10px] font-bold uppercase tracking-wider ${labelCls}`}>
                   {expired ? 'Vencido' : isPrincipal ? 'Setup Oficial' : 'Em Validação'}
                 </p>
                 <LotStatusBadge status={lot.lotStatus} />
@@ -1478,16 +1469,14 @@ export function CIQImunoDashboard() {
               <RowDetail label="Validade" value={pinningLot.validadeControle} />
             </div>
             <p className="text-xs text-slate-500 dark:text-white/50 leading-relaxed">
-              Vincular um lote à bancada destrava registro de corridas para esse lote sem
-              precisar selecioná-lo manualmente. Toda mudança fica registrada no histórico
-              do lote (RDC 786).
+              Vincular um lote à bancada destrava registro de corridas para esse lote sem precisar
+              selecioná-lo manualmente. Toda mudança fica registrada no histórico do lote (RDC 786).
             </p>
             {pinningLot.ciqDecision !== 'A' && (
               <div className="rounded-xl border border-blue-200 dark:border-blue-400/20 bg-blue-50 dark:bg-blue-500/[0.06] px-4 py-3 text-xs text-blue-700 dark:text-blue-400">
                 Este lote ainda não foi aprovado pelo RT — apenas vinculação{' '}
-                <span className="font-medium">Em validação</span> está disponível.
-                Corridas registradas serão classificadas como validação até o lote ser
-                aprovado.
+                <span className="font-medium">Em validação</span> está disponível. Corridas
+                registradas serão classificadas como validação até o lote ser aprovado.
               </div>
             )}
             {pinErr && <p className="text-xs text-red-500 dark:text-red-400">{pinErr}</p>}
@@ -1532,8 +1521,8 @@ export function CIQImunoDashboard() {
               <RowDetail label="Lote" value={unpinningLot.loteControle} />
             </div>
             <p className="text-xs text-slate-500 dark:text-white/50">
-              O lote permanece no estoque com o histórico de corridas intacto. Ação registrada
-              no histórico do lote.
+              O lote permanece no estoque com o histórico de corridas intacto. Ação registrada no
+              histórico do lote.
             </p>
             <div className="flex justify-end gap-2 pt-1">
               <button

@@ -76,9 +76,7 @@ function EquipmentCard({ record, onViewDetail, onUploadCertificate }: EquipmentC
       <div className="mb-3 flex items-start justify-between">
         <div className="flex-1">
           <h3 className="text-sm font-semibold text-white">{record.equipName}</h3>
-          {record.equipSerial && (
-            <p className="text-xs text-gray-400">SN: {record.equipSerial}</p>
-          )}
+          {record.equipSerial && <p className="text-xs text-gray-400">SN: {record.equipSerial}</p>}
         </div>
         <div
           className={`inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium ${colors.bg}`}
@@ -180,10 +178,7 @@ function SkeletonLoader() {
   return (
     <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="animate-pulse rounded-lg border border-white/10 bg-white/5 p-4"
-        >
+        <div key={i} className="animate-pulse rounded-lg border border-white/10 bg-white/5 p-4">
           <div className="mb-3 h-4 w-3/4 rounded bg-white/10" />
           <div className="mb-3 h-8 w-1/2 rounded bg-white/10" />
           <div className="h-20 rounded bg-white/5" />
@@ -237,8 +232,7 @@ export default function CalibracaoDashboard() {
     switch (sortBy) {
       case 'due-date':
         sorted.sort(
-          (a, b) =>
-            a.dueDateInfo.nextDueDate.toMillis() - b.dueDateInfo.nextDueDate.toMillis(),
+          (a, b) => a.dueDateInfo.nextDueDate.toMillis() - b.dueDateInfo.nextDueDate.toMillis(),
         );
         break;
       case 'priority':
@@ -246,8 +240,7 @@ export default function CalibracaoDashboard() {
         const statusPriority = { vencido: 0, 'em-risco': 1, 'no-prazo': 2 };
         sorted.sort((a, b) => {
           const statusDiff =
-            statusPriority[a.dueDateInfo.status] -
-            statusPriority[b.dueDateInfo.status];
+            statusPriority[a.dueDateInfo.status] - statusPriority[b.dueDateInfo.status];
           if (statusDiff !== 0) return statusDiff;
           return a.dueDateInfo.daysUntilDue - b.dueDateInfo.daysUntilDue;
         });

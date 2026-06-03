@@ -176,11 +176,11 @@ export async function updateUroLotMeta(
   labId: string,
   lotId: string,
   fields: Partial<
-    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados'>
+    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados' | 'expectedValues'>
   >,
   actorUid: string,
   prevValues: Partial<
-    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados'>
+    Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'resultadosEsperados' | 'expectedValues'>
   >,
 ): Promise<void> {
   try {

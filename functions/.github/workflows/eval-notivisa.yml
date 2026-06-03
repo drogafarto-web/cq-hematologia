@@ -3,15 +3,15 @@ name: NOTIVISA Validation Guardrails — Eval Gate
 on:
   pull_request:
     paths:
-      - "functions/src/modules/notivisa/**"
-      - "functions/eval/notivisa/**"
-      - "functions/src/shared/notivisa/**"
+      - 'functions/src/modules/notivisa/**'
+      - 'functions/eval/notivisa/**'
+      - 'functions/src/shared/notivisa/**'
   push:
     branches:
       - main
     paths:
-      - "functions/src/modules/notivisa/**"
-      - "functions/eval/notivisa/**"
+      - 'functions/src/modules/notivisa/**'
+      - 'functions/eval/notivisa/**'
 
 jobs:
   notivisa-eval:

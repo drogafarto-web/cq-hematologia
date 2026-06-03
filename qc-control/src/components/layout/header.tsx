@@ -1,15 +1,15 @@
-'use client'
+'use client';
 
-import Link from 'next/link'
-import { NavLink } from './nav-link'
-import { cn } from '@/lib/utils'
+import Link from 'next/link';
+import { NavLink } from './nav-link';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
   user?: {
-    name?: string | null
-    email?: string | null
-  } | null
-  onLogout?: () => void
+    name?: string | null;
+    email?: string | null;
+  } | null;
+  onLogout?: () => void;
 }
 
 const navItems = [
@@ -18,9 +18,9 @@ const navItems = [
   { href: '/corrective-actions', label: 'Ações Corretivas' },
   { href: '/analyzers', label: 'Analisadores' },
   { href: '/reports', label: 'Relatórios' },
-]
+];
 
-const hiddenMobile = ['/corrective-actions', '/analyzers', '/reports']
+const hiddenMobile = ['/corrective-actions', '/analyzers', '/reports'];
 
 export function Header({ user, onLogout }: HeaderProps) {
   const initials = user?.name
@@ -30,7 +30,7 @@ export function Header({ user, onLogout }: HeaderProps) {
         .join('')
         .toUpperCase()
         .slice(0, 2)
-    : '??'
+    : '??';
 
   return (
     <header className="sticky top-0 h-12 bg-white border-b border-border px-6 z-30">
@@ -67,5 +67,5 @@ export function Header({ user, onLogout }: HeaderProps) {
         </div>
       </div>
     </header>
-  )
+  );
 }

@@ -17,12 +17,12 @@ Phase 09 transforms HC Quality mobile from Phase 3.3 scaffold into production-re
 
 ## Plans
 
-| Plan | Wave | Focus | Deliverables | Context |
-|------|------|-------|--------------|---------|
-| **09-01** | 1 | Dark Mode Audit + Coverage | All 26 screens dark-only, no hardcoded colors, 10+ snapshot tests | [09-01-PLAN.md](09-01-PLAN.md) |
-| **09-02** | 1 | Biometric + PIN + Keychain | Face ID/fingerprint, PIN fallback, secure JWT storage, lockout, 8 E2E flows | [09-02-PLAN.md](09-02-PLAN.md) |
-| **09-03** | 2 | Bundle Optimization + Performance | <10MB APK, <2s startup, <1.5s LCP, code-split routes, lazy images, metrics baseline | [09-03-PLAN.md](09-03-PLAN.md) |
-| **09-04** | 2 | E2E Expansion + Offline + CI | 20+ Detox flows, offline read-only mode, GitHub Actions CI, deploy gate | [09-04-PLAN.md](09-04-PLAN.md) |
+| Plan      | Wave | Focus                             | Deliverables                                                                        | Context                        |
+| --------- | ---- | --------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------ |
+| **09-01** | 1    | Dark Mode Audit + Coverage        | All 26 screens dark-only, no hardcoded colors, 10+ snapshot tests                   | [09-01-PLAN.md](09-01-PLAN.md) |
+| **09-02** | 1    | Biometric + PIN + Keychain        | Face ID/fingerprint, PIN fallback, secure JWT storage, lockout, 8 E2E flows         | [09-02-PLAN.md](09-02-PLAN.md) |
+| **09-03** | 2    | Bundle Optimization + Performance | <10MB APK, <2s startup, <1.5s LCP, code-split routes, lazy images, metrics baseline | [09-03-PLAN.md](09-03-PLAN.md) |
+| **09-04** | 2    | E2E Expansion + Offline + CI      | 20+ Detox flows, offline read-only mode, GitHub Actions CI, deploy gate             | [09-04-PLAN.md](09-04-PLAN.md) |
 
 ---
 
@@ -31,6 +31,7 @@ Phase 09 transforms HC Quality mobile from Phase 3.3 scaffold into production-re
 **Strategic Guide:** [09-PHASE-BRIEF.md](09-PHASE-BRIEF.md)
 
 Comprehensive overview with:
+
 - Phase goal and success criteria
 - Performance targets (bundle, startup, LCP, memory)
 - Risk assessment (likelihood, impact, mitigation)
@@ -100,29 +101,29 @@ Wave 2 (Days 5–8, depends on Wave 1):
 
 ## Success Metrics
 
-| Category | Metric | Target | Owner |
-|----------|--------|--------|-------|
-| **Dark Mode** | Screen coverage | 100% (26/26 screens) | Plan 09-01 |
-| **Dark Mode** | Hardcoded colors | 0 in src/screens, src/components | Plan 09-01 |
-| **Dark Mode** | Snapshot tests | ≥10 pass rate | Plan 09-01 |
-| **Auth** | Biometric detection | Face ID + Fingerprint supported | Plan 09-02 |
-| **Auth** | PIN fallback | 6-digit entry, masked display | Plan 09-02 |
-| **Auth** | Lockout protection | 5 failures → 5-min lockout | Plan 09-02 |
-| **Auth** | Secure storage | JWT in Keychain (encrypted) | Plan 09-02 |
-| **Auth** | E2E coverage | 8 flows, 100% pass | Plan 09-02 |
-| **Performance** | APK size (gzip) | <10 MB | Plan 09-03 |
-| **Performance** | Startup time | <2 seconds | Plan 09-03 |
-| **Performance** | LCP | <1.5 seconds | Plan 09-03 |
-| **Performance** | Memory at startup | <200 MB | Plan 09-03 |
-| **Performance** | Navigation latency | <500 ms | Plan 09-03 |
-| **Performance** | Regression tests | 100% pass | Plan 09-03 |
-| **E2E** | Flow count | 20+ | Plan 09-04 |
-| **E2E** | Pass rate | 100% on CI | Plan 09-04 |
-| **E2E** | Duration | <10 minutes | Plan 09-04 |
-| **Offline** | Read-only mode | Functional | Plan 09-04 |
-| **Offline** | Sync queue | Auto-sync on reconnect | Plan 09-04 |
-| **CI** | Workflow coverage | All 4 deploy gate checks | Plan 09-04 |
-| **CI** | Trigger accuracy | Push to main → auto-run | Plan 09-04 |
+| Category        | Metric              | Target                           | Owner      |
+| --------------- | ------------------- | -------------------------------- | ---------- |
+| **Dark Mode**   | Screen coverage     | 100% (26/26 screens)             | Plan 09-01 |
+| **Dark Mode**   | Hardcoded colors    | 0 in src/screens, src/components | Plan 09-01 |
+| **Dark Mode**   | Snapshot tests      | ≥10 pass rate                    | Plan 09-01 |
+| **Auth**        | Biometric detection | Face ID + Fingerprint supported  | Plan 09-02 |
+| **Auth**        | PIN fallback        | 6-digit entry, masked display    | Plan 09-02 |
+| **Auth**        | Lockout protection  | 5 failures → 5-min lockout       | Plan 09-02 |
+| **Auth**        | Secure storage      | JWT in Keychain (encrypted)      | Plan 09-02 |
+| **Auth**        | E2E coverage        | 8 flows, 100% pass               | Plan 09-02 |
+| **Performance** | APK size (gzip)     | <10 MB                           | Plan 09-03 |
+| **Performance** | Startup time        | <2 seconds                       | Plan 09-03 |
+| **Performance** | LCP                 | <1.5 seconds                     | Plan 09-03 |
+| **Performance** | Memory at startup   | <200 MB                          | Plan 09-03 |
+| **Performance** | Navigation latency  | <500 ms                          | Plan 09-03 |
+| **Performance** | Regression tests    | 100% pass                        | Plan 09-03 |
+| **E2E**         | Flow count          | 20+                              | Plan 09-04 |
+| **E2E**         | Pass rate           | 100% on CI                       | Plan 09-04 |
+| **E2E**         | Duration            | <10 minutes                      | Plan 09-04 |
+| **Offline**     | Read-only mode      | Functional                       | Plan 09-04 |
+| **Offline**     | Sync queue          | Auto-sync on reconnect           | Plan 09-04 |
+| **CI**          | Workflow coverage   | All 4 deploy gate checks         | Plan 09-04 |
+| **CI**          | Trigger accuracy    | Push to main → auto-run          | Plan 09-04 |
 
 ---
 
@@ -144,31 +145,34 @@ Wave 2 (Days 5–8, depends on Wave 1):
 
 ## Known Risks & Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| Dark mode incomplete | 2/10 | 4/10 | Task 1 audit catches all 26 screens + snapshot tests |
-| Biometric flaky on emulator | 4/10 | 3/10 | PIN always available fallback; extensive error handling |
-| APK bloat creep | 4/10 | 6/10 | Bundle analyzer enforced, code-split pre-vetted, CI gate blocks >10MB |
-| E2E timeout/flakiness | 4/10 | 4/10 | Detox v20+ stable; proper waits + timeouts; emulator performance validated |
-| Memory leak | 2/10 | 6/10 | Performance baseline tracks; regression tests catch; manual profiling |
-| Offline sync race condition | 3/10 | 5/10 | Queue persisted in AsyncStorage; idempotent syncs; server-side dedup |
-| CI infra unavailable | 1/10 | 5/10 | GitHub Actions auto-retry 2x; manual override gate if needed |
+| Risk                        | Likelihood | Impact | Mitigation                                                                 |
+| --------------------------- | ---------- | ------ | -------------------------------------------------------------------------- |
+| Dark mode incomplete        | 2/10       | 4/10   | Task 1 audit catches all 26 screens + snapshot tests                       |
+| Biometric flaky on emulator | 4/10       | 3/10   | PIN always available fallback; extensive error handling                    |
+| APK bloat creep             | 4/10       | 6/10   | Bundle analyzer enforced, code-split pre-vetted, CI gate blocks >10MB      |
+| E2E timeout/flakiness       | 4/10       | 4/10   | Detox v20+ stable; proper waits + timeouts; emulator performance validated |
+| Memory leak                 | 2/10       | 6/10   | Performance baseline tracks; regression tests catch; manual profiling      |
+| Offline sync race condition | 3/10       | 5/10   | Queue persisted in AsyncStorage; idempotent syncs; server-side dedup       |
+| CI infra unavailable        | 1/10       | 5/10   | GitHub Actions auto-retry 2x; manual override gate if needed               |
 
 ---
 
 ## Communication Plan
 
 ### Stakeholders
+
 - **CTO** (decision-maker): Weekly checkpoint (Wave 1 end, Wave 2 mid, Phase end)
 - **QA Lead** (verifier): Per-plan sign-off (09-01 snapshot validation, 09-04 E2E pass rate)
 - **DevOps** (CI/deploy): CI workflow approval, deploy gate sign-off
 
 ### Check-In Schedule
+
 - **Day 4 (Wave 1 end):** Both 09-01 and 09-02 complete; demo dark mode + auth screen
 - **Day 8 (Wave 2 end):** Both 09-03 and 09-04 complete; run full E2E suite + deploy gate
 - **Day 10 (Phase close):** All SUMMARY docs created; production readiness assessment
 
 ### Deployment Gate
+
 - **Pre-Condition:** All 4 plans COMPLETE, all success criteria GREEN
 - **Check:** `scripts/mobile-deploy-gate.sh` passes (bundle <10MB, E2E 100%, tsc clean)
 - **Artifact:** app-release.apk signed + uploaded to Firebase App Distribution
@@ -203,14 +207,14 @@ After Phase 09 ships:
 
 ## Document Ownership
 
-| Document | Owner | Last Updated |
-|----------|-------|--------------|
-| INDEX.md (this file) | CTO | 2026-05-07 |
-| 09-PHASE-BRIEF.md | CTO | 2026-05-07 |
-| 09-01-PLAN.md | Mobile Lead | 2026-05-07 |
-| 09-02-PLAN.md | Mobile Lead | 2026-05-07 |
-| 09-03-PLAN.md | DevOps + Mobile | 2026-05-07 |
-| 09-04-PLAN.md | QA Lead | 2026-05-07 |
+| Document             | Owner           | Last Updated |
+| -------------------- | --------------- | ------------ |
+| INDEX.md (this file) | CTO             | 2026-05-07   |
+| 09-PHASE-BRIEF.md    | CTO             | 2026-05-07   |
+| 09-01-PLAN.md        | Mobile Lead     | 2026-05-07   |
+| 09-02-PLAN.md        | Mobile Lead     | 2026-05-07   |
+| 09-03-PLAN.md        | DevOps + Mobile | 2026-05-07   |
+| 09-04-PLAN.md        | QA Lead         | 2026-05-07   |
 
 ---
 

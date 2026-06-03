@@ -13,7 +13,7 @@ on:
 
 jobs:
   test:
-    runs-on: macos-latest  # iOS builds require macOS
+    runs-on: macos-latest # iOS builds require macOS
 
     steps:
       - name: Checkout code
@@ -42,13 +42,13 @@ jobs:
         working-directory: hcQualityMobile
         run: |
           npm run build:android 2>/dev/null || echo "Android build configured but requires native setup"
-        continue-on-error: true  # Phase 3.1: just verify task exists
+        continue-on-error: true # Phase 3.1: just verify task exists
 
       - name: Build iOS (without signing)
         working-directory: hcQualityMobile
         run: |
           npm run build:ios 2>/dev/null || echo "iOS build configured but requires Xcode + provisioning"
-        continue-on-error: true  # Phase 3.1: just verify task exists
+        continue-on-error: true # Phase 3.1: just verify task exists
 
   lint:
     runs-on: ubuntu-latest

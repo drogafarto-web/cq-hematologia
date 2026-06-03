@@ -53,9 +53,7 @@ interface ExpirationSummary {
  * Tolerante a falha parcial — se 1 batch falha, continua nos próximos e
  * reporta no `errors[]`.
  */
-async function expireOverdueInsumos(
-  source: 'scheduled' | 'manual',
-): Promise<ExpirationSummary> {
+async function expireOverdueInsumos(source: 'scheduled' | 'manual'): Promise<ExpirationSummary> {
   const start = Date.now();
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
@@ -183,15 +181,9 @@ export const triggerInsumosExpiration = onCall(
     if (!isSuperAdmin) {
       const { labId } = (request.data ?? {}) as { labId?: string };
       if (!labId) {
-        throw new HttpsError(
-          'invalid-argument',
-          'labId obrigatório para usuários não-SuperAdmin.',
-        );
+        throw new HttpsError('invalid-argument', 'labId obrigatório para usuários não-SuperAdmin.');
       }
-      const memberSnap = await admin
-        .firestore()
-        .doc(`labs/${labId}/members/${uid}`)
-        .get();
+      const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
       const member = memberSnap.data() ?? {};
       if (!member.active || (member.role !== 'admin' && member.role !== 'owner')) {
         throw new HttpsError(

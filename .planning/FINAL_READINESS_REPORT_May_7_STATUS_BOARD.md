@@ -19,6 +19,7 @@
 ```
 
 **Fix steps:**
+
 ```typescript
 // src/types/index.ts
 export type LogicalSignature = {
@@ -43,11 +44,13 @@ Then: `npx tsc --noEmit` → expect 0 errors
 ```
 
 **Current failures:**
+
 - `usePatientAuthStore.getState().clearAuth is not a function` (8 tests)
 - `usePatientAuthStore.getState().setAuth is not a function` (5 tests)
 - Cascading failures across 44 other tests
 
 **Fix steps:**
+
 1. Locate: `src/features/notivisa-portal/services/PortalAuthService.ts`
 2. Ensure Zustand store has: `clearAuth()`, `setAuth()`, `getState()`
 3. Run: `npm run test:unit` → expect 1,276/1,276 passing
@@ -64,6 +67,7 @@ Then: `npx tsc --noEmit` → expect 0 errors
 ```
 
 **May 20 deployment plan:**
+
 - ✅ Deploy with `NOTIVISA_ENABLED=false`
 - ✅ Portal auth module fully functional (staging mode)
 - ✅ All other 25 modules live
@@ -73,16 +77,16 @@ Then: `npx tsc --noEmit` → expect 0 errors
 
 ## TASK STATUS MATRIX
 
-| Task | Component | Status | Evidence | Deadline |
-|------|-----------|--------|----------|----------|
-| **TS Fixes** | TypeScript | 🔴 1 error | TS2305 (LogicalSignature) | May 19, 6:00pm |
-| **Unit Tests** | Vitest | 🔴 57 failures | Patient portal store methods | May 19, 6:30pm |
-| **Build** | Functions + Web | 🟡 BLOCKED | Depends on TS fix | May 19, 1:00pm |
-| **Smoke Tests** | E2E | 🟢 READY | Scripts validated (Bash + PS1) | May 20, 08:20 |
-| **Deploy Scripts** | Operations | 🟢 READY | 4-step sequence documented | May 20, 08:00 |
-| **Monitoring** | Cloud Logs | 🟡 PENDING | Dashboards + alerts to create | May 19, 8:00pm |
-| **On-Call** | Incident Mgmt | 🟡 PENDING | Rotation + escalation contacts | May 19, 8:00pm |
-| **Security Sign-off** | Compliance | 🟡 PENDING | CTO review required | May 19, 5:00pm |
+| Task                  | Component       | Status         | Evidence                       | Deadline       |
+| --------------------- | --------------- | -------------- | ------------------------------ | -------------- |
+| **TS Fixes**          | TypeScript      | 🔴 1 error     | TS2305 (LogicalSignature)      | May 19, 6:00pm |
+| **Unit Tests**        | Vitest          | 🔴 57 failures | Patient portal store methods   | May 19, 6:30pm |
+| **Build**             | Functions + Web | 🟡 BLOCKED     | Depends on TS fix              | May 19, 1:00pm |
+| **Smoke Tests**       | E2E             | 🟢 READY       | Scripts validated (Bash + PS1) | May 20, 08:20  |
+| **Deploy Scripts**    | Operations      | 🟢 READY       | 4-step sequence documented     | May 20, 08:00  |
+| **Monitoring**        | Cloud Logs      | 🟡 PENDING     | Dashboards + alerts to create  | May 19, 8:00pm |
+| **On-Call**           | Incident Mgmt   | 🟡 PENDING     | Rotation + escalation contacts | May 19, 8:00pm |
+| **Security Sign-off** | Compliance      | 🟡 PENDING     | CTO review required            | May 19, 5:00pm |
 
 ---
 
@@ -428,16 +432,16 @@ CTO signature: ______________________________ (Name, Date/Time UTC-3)
 
 ## FINAL SUMMARY
 
-| Aspect | Status | Notes |
-|--------|--------|-------|
-| **Readiness Level** | 🟡 80% | 3 blockers, all fixable by May 19 6:30pm |
-| **Code Quality** | 🔴→🟢 | 1 TS error, 57 test failures (6–8 hours to fix) |
-| **Infrastructure** | 🟡→🟢 | Dashboards + alerts to create May 19 |
-| **Deployment Ready** | 🟢 | 4-step sequence documented + rehearsed |
-| **Monitoring Ready** | 🟡→🟢 | Setup May 19 (2–3 hours) |
-| **Contingencies** | 🟢 | 3 plans prepared (A: credentials, B: TS error, C: rollback) |
-| **Team Ready** | 🟡→🟢 | Availability to confirm May 19 |
-| **Go/No-Go Decision** | 🟢 | **APPROVED** (pending May 19 fixes & sign-offs) |
+| Aspect                | Status | Notes                                                       |
+| --------------------- | ------ | ----------------------------------------------------------- |
+| **Readiness Level**   | 🟡 80% | 3 blockers, all fixable by May 19 6:30pm                    |
+| **Code Quality**      | 🔴→🟢  | 1 TS error, 57 test failures (6–8 hours to fix)             |
+| **Infrastructure**    | 🟡→🟢  | Dashboards + alerts to create May 19                        |
+| **Deployment Ready**  | 🟢     | 4-step sequence documented + rehearsed                      |
+| **Monitoring Ready**  | 🟡→🟢  | Setup May 19 (2–3 hours)                                    |
+| **Contingencies**     | 🟢     | 3 plans prepared (A: credentials, B: TS error, C: rollback) |
+| **Team Ready**        | 🟡→🟢  | Availability to confirm May 19                              |
+| **Go/No-Go Decision** | 🟢     | **APPROVED** (pending May 19 fixes & sign-offs)             |
 
 ---
 
@@ -501,6 +505,6 @@ Contact: drogafarto@gmail.com (escalations)
 
 ---
 
-*Generated: 2026-05-07 23:55 UTC-3*  
-*Full report: `.planning/FINAL_READINESS_REPORT_May_7.md` (200+ lines)*  
-*Questions: drogafarto@gmail.com*
+_Generated: 2026-05-07 23:55 UTC-3_  
+_Full report: `.planning/FINAL_READINESS_REPORT_May_7.md` (200+ lines)_  
+_Questions: drogafarto@gmail.com_

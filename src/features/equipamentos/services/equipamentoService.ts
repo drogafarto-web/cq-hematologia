@@ -41,10 +41,7 @@ import type {
   EquipamentoFilters,
   EquipamentoStatus,
 } from '../types/Equipamento';
-import {
-  computeRetencaoAte,
-  RETENCAO_ANOS_POS_APOSENTADORIA,
-} from '../types/Equipamento';
+import { computeRetencaoAte, RETENCAO_ANOS_POS_APOSENTADORIA } from '../types/Equipamento';
 import type { InsumoModulo } from '../../insumos/types/Insumo';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────
@@ -164,9 +161,7 @@ export interface AposentarPayload {
 function requireMotivo(motivo: string, min = 10): string {
   const t = motivo?.trim() ?? '';
   if (t.length < min) {
-    throw new Error(
-      `Motivo obrigatório — mínimo ${min} caracteres para trilha de auditoria.`,
-    );
+    throw new Error(`Motivo obrigatório — mínimo ${min} caracteres para trilha de auditoria.`);
   }
   return t;
 }
@@ -339,8 +334,7 @@ export async function updateEquipamento(
     const changes: Record<string, { from: unknown; to: unknown }> = {};
     for (const [k, v] of Object.entries(fields)) {
       if (v === undefined) continue;
-      const normalized =
-        typeof v === 'string' ? v.trim() : v;
+      const normalized = typeof v === 'string' ? v.trim() : v;
       const prev = (current as unknown as Record<string, unknown>)[k];
       if (prev !== normalized) {
         changes[k] = { from: prev ?? null, to: normalized };
@@ -557,7 +551,10 @@ export function subscribeToEquipamentoAudit(
       onData(
         snap.docs.map(
           (d) =>
-            ({ id: d.id, ...(d.data() as Omit<EquipamentoAuditEvent, 'id'>) }) as EquipamentoAuditEvent,
+            ({
+              id: d.id,
+              ...(d.data() as Omit<EquipamentoAuditEvent, 'id'>),
+            }) as EquipamentoAuditEvent,
         ),
       );
     },

@@ -1,14 +1,14 @@
 ---
-phase: "04"
-plan: "01"
-type: "execute"
-wave: "1"
-title: "Patient Portal Auth + UX Foundation — SUMMARY"
-status: "complete"
+phase: '04'
+plan: '01'
+type: 'execute'
+wave: '1'
+title: 'Patient Portal Auth + UX Foundation — SUMMARY'
+status: 'complete'
 dates:
-  start: "2026-05-20"
-  end: "2026-05-28"
-  completed: "2026-05-08"
+  start: '2026-05-20'
+  end: '2026-05-28'
+  completed: '2026-05-08'
 metrics:
   tasks: 1
   artifacts_created: 13
@@ -39,58 +39,58 @@ Build production-ready patient portal authentication layer + core UI components 
 
 ### Frontend Components
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `src/features/patient-portal/PatientPortalPage.tsx` | 120 | Portal shell + routing | ✅ LIVE |
-| `src/features/patient-portal/components/PatientAuthForm.tsx` | 145 | Email link input + validation | ✅ LIVE |
-| `src/features/patient-portal/components/PortalAuthLink.tsx` | 95 | Link validation + token parsing | ✅ LIVE |
-| `src/features/patient-portal/components/PortalAuthGuard.tsx` | 80 | Route protection middleware | ✅ LIVE |
-| `src/features/patient-portal/components/PatientDashboard.tsx` | 200 | Authenticated portal layout | ✅ LIVE |
-| `src/features/patient-portal/components/PatientLaudoViewer.tsx` | 180 | Read-only laudo detail view | ✅ LIVE |
-| `src/features/patient-portal/components/PatientSessionIndicator.tsx` | 75 | Session status indicator | ✅ LIVE |
+| File                                                                 | Lines | Purpose                         | Status  |
+| -------------------------------------------------------------------- | ----- | ------------------------------- | ------- |
+| `src/features/patient-portal/PatientPortalPage.tsx`                  | 120   | Portal shell + routing          | ✅ LIVE |
+| `src/features/patient-portal/components/PatientAuthForm.tsx`         | 145   | Email link input + validation   | ✅ LIVE |
+| `src/features/patient-portal/components/PortalAuthLink.tsx`          | 95    | Link validation + token parsing | ✅ LIVE |
+| `src/features/patient-portal/components/PortalAuthGuard.tsx`         | 80    | Route protection middleware     | ✅ LIVE |
+| `src/features/patient-portal/components/PatientDashboard.tsx`        | 200   | Authenticated portal layout     | ✅ LIVE |
+| `src/features/patient-portal/components/PatientLaudoViewer.tsx`      | 180   | Read-only laudo detail view     | ✅ LIVE |
+| `src/features/patient-portal/components/PatientSessionIndicator.tsx` | 75    | Session status indicator        | ✅ LIVE |
 
 ### Hooks & State Management
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `src/features/patient-portal/hooks/usePatientAuthStore.ts` | 112 | Zustand auth store (72h expiry) | ✅ LIVE |
-| `src/features/patient-portal/hooks/usePatientLaudos.ts` | 95 | CPF-filtered laudo queries | ✅ LIVE |
+| File                                                       | Lines | Purpose                         | Status  |
+| ---------------------------------------------------------- | ----- | ------------------------------- | ------- |
+| `src/features/patient-portal/hooks/usePatientAuthStore.ts` | 112   | Zustand auth store (72h expiry) | ✅ LIVE |
+| `src/features/patient-portal/hooks/usePatientLaudos.ts`    | 95    | CPF-filtered laudo queries      | ✅ LIVE |
 
 ### Services & Types
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `src/features/patient-portal/services/patientPortalService.ts` | 140 | Firestore read operations | ✅ LIVE |
-| `src/features/patient-portal/types/index.ts` | 65 | TypeScript types | ✅ LIVE |
+| File                                                           | Lines | Purpose                   | Status  |
+| -------------------------------------------------------------- | ----- | ------------------------- | ------- |
+| `src/features/patient-portal/services/patientPortalService.ts` | 140   | Firestore read operations | ✅ LIVE |
+| `src/features/patient-portal/types/index.ts`                   | 65    | TypeScript types          | ✅ LIVE |
 
 ### Cloud Functions (Server-Side)
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `functions/src/callables/patientPortal/validatePatientToken.ts` | 98 | Token validation + JWT issuance | ✅ LIVE |
-| `functions/src/callables/patientPortal/downloadLaudoPDF.ts` | 115 | PDF generation + signed URL | ✅ LIVE |
-| `functions/src/callables/patientPortal/updatePatientPreferences.ts` | 68 | Settings update callable | ✅ LIVE |
+| File                                                                | Lines | Purpose                         | Status  |
+| ------------------------------------------------------------------- | ----- | ------------------------------- | ------- |
+| `functions/src/callables/patientPortal/validatePatientToken.ts`     | 98    | Token validation + JWT issuance | ✅ LIVE |
+| `functions/src/callables/patientPortal/downloadLaudoPDF.ts`         | 115   | PDF generation + signed URL     | ✅ LIVE |
+| `functions/src/callables/patientPortal/updatePatientPreferences.ts` | 68    | Settings update callable        | ✅ LIVE |
 
 ### Firestore & Security
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `firestore.rules` (additions) | 42 | Portal RLS + CPF filtering | ✅ LIVE |
-| Portal indexes | 4 | Composite indexes for queries | ✅ DEPLOYED |
+| File                          | Lines | Purpose                       | Status      |
+| ----------------------------- | ----- | ----------------------------- | ----------- |
+| `firestore.rules` (additions) | 42    | Portal RLS + CPF filtering    | ✅ LIVE     |
+| Portal indexes                | 4     | Composite indexes for queries | ✅ DEPLOYED |
 
 ### Tests
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `src/features/patient-portal/__tests__/patient-portal.test.tsx` | 280 | Unit tests (auth store, expiry) | ✅ LIVE |
-| `src/features/patient-portal/__tests__/error-handling.test.tsx` | 180 | Error scenario tests | ⚠️ FIXED |
-| `src/__tests__/e2e/phase-4-critical-flows.test.ts` | 450 | E2E integration tests | ✅ LIVE |
+| File                                                            | Lines | Purpose                         | Status   |
+| --------------------------------------------------------------- | ----- | ------------------------------- | -------- |
+| `src/features/patient-portal/__tests__/patient-portal.test.tsx` | 280   | Unit tests (auth store, expiry) | ✅ LIVE  |
+| `src/features/patient-portal/__tests__/error-handling.test.tsx` | 180   | Error scenario tests            | ⚠️ FIXED |
+| `src/__tests__/e2e/phase-4-critical-flows.test.ts`              | 450   | E2E integration tests           | ✅ LIVE  |
 
 ### Documentation
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `src/features/patient-portal/CLAUDE.md` | 245 | Module documentation | ✅ LIVE |
+| File                                    | Lines | Purpose              | Status  |
+| --------------------------------------- | ----- | -------------------- | ------- |
+| `src/features/patient-portal/CLAUDE.md` | 245   | Module documentation | ✅ LIVE |
 
 ---
 
@@ -99,36 +99,43 @@ Build production-ready patient portal authentication layer + core UI components 
 ### Functional (RN-P01 through RN-P07)
 
 ✅ **RN-P01: Patient-Only Access**
+
 - Service validates patientId match before returning laudos
 - Server-side CPF filtering enforced
 - Firestore Rules block cross-patient reads
 
 ✅ **RN-P02: Email-Link Expiry**
+
 - 72-hour token expiry in JWT payload
 - Token parsed and validated on link click
 - Expired tokens reject with "Link expirado" error
 
 ✅ **RN-P03: Rate-Limit (Anti-Spam)**
+
 - Cloud Function tracks 3 links/day per patient
 - Blocks 4th request with "Rate limited" error
 - Rate-limit timer displayed to user
 
 ✅ **RN-P04: Immutable Audit Trail**
+
 - All auth events logged to `patient-auth-events` collection
 - Append-only Firestore Rules (no updates/deletes)
 - Events: LINK_GENERATED, TOKEN_VERIFIED, LINK_EXPIRED, SESSION_CLEARED
 
 ✅ **RN-P05: No Patient PII in Logs**
+
 - Logs contain patientId only (not email, not CPF)
 - IP addresses anonymized (last octet masked)
 - User-Agent logged for security audit
 
 ✅ **RN-P06: LGPD Privacy Notice**
+
 - Portal displays LGPD disclaimer on auth page
 - Clickable link opens privacy policy modal
 - Policy modal has clear accept/reject flow
 
 ✅ **RN-P07: Soft Delete Only**
+
 - Service checks `deletadoEm` field before generating auth link
 - Inactive patients see "Patient account inactive" error
 - No hard delete in any portal collection
@@ -136,24 +143,28 @@ Build production-ready patient portal authentication layer + core UI components 
 ### Non-Functional
 
 ✅ **Performance**
+
 - LCP: 1.8s (target <2.0s)
 - INP: 95ms (target <200ms)
 - CLS: 0.04 (target <0.05)
 - Bundle delta: +18 KB gzip (portal route code-split)
 
 ✅ **Accessibility**
+
 - WCAG AA contrast: 4.8:1 (body text on dark bg)
 - Keyboard navigation: fully functional (Tab, Enter, Escape)
 - Screen reader: role="alert" on errors, aria-live regions
 - Focus management: Trap focus in auth modal
 
 ✅ **Dark Theme**
+
 - Portal uses `bg-[#141417]` base (Apple-inspired)
 - Accent colors: `violet-500` (primary), `emerald-500` (success)
 - All form inputs have `colorScheme="dark"`
 - No light-mode CSS (dark-first approach)
 
 ✅ **Mobile Responsive**
+
 - Tested on 375px (iPhone SE), 1024px (iPad)
 - No horizontal scroll
 - Touch targets: 44px minimum
@@ -162,16 +173,19 @@ Build production-ready patient portal authentication layer + core UI components 
 ### Compliance
 
 ✅ **RDC 978 Art. 167** — Patient notification mechanism
+
 - Email link contains valid token for auth
 - Portal displays laudo with all required fields (14 campos obrigatórios)
 - Audit trail proves patient accessed result
 
 ✅ **DICQ 4.3** — Data access controls
+
 - Portal RLS enforces CPF-based filtering
 - Read operations logged with operator identity (patient-portal source)
 - No modifications allowed (read-only portal)
 
 ✅ **LGPD Art. 9 & 18** — Sensitive data handling
+
 - Sensitive data (email, CPF) encrypted in transit (HTTPS)
 - No PII in audit logs (patientId anonymized)
 - Patient right of access implemented (portal access)
@@ -184,12 +198,14 @@ Build production-ready patient portal authentication layer + core UI components 
 
 **Decision:** Token-based auth (email link) instead of Firebase Auth sign-in  
 **Rationale:**
+
 - Eliminates need for patient password management (LGPD-friendly)
 - Stateless JWT (no session table needed)
 - Simple UX (1 click vs. password entry)
 - ADR-0015 registered
 
 **Implementation:**
+
 1. Patient enters email
 2. Cloud Function validates email + rate-limit
 3. JWT generated (patientId + labId + 72h expiry)
@@ -202,11 +218,13 @@ Build production-ready patient portal authentication layer + core UI components 
 
 **Decision:** Firestore Rules enforce patient isolation; service validates  
 **Rationale:**
+
 - Rules are primary security boundary (defense-in-depth)
 - Service layer provides secondary validation
 - Cannot trust client to filter correctly
 
 **Implementation:**
+
 - Firestore Rule: `request.resource.data.pacienteId == getPatientIdFromToken(request.auth.token)`
 - Service: `listenToPatientLaudos()` filters by patientId before returning
 - Tests: Cross-patient access rejected by Rules
@@ -215,11 +233,13 @@ Build production-ready patient portal authentication layer + core UI components 
 
 **Decision:** Never hard-delete; always mark with `deletadoEm`  
 **Rationale:**
+
 - Audit trail integrity (deleted records still in logs)
 - Regulatory compliance (DICQ 4.4 requires immutability)
 - Data recovery (accidental deletion can be undone)
 
 **Implementation:**
+
 - Service checks `!laudo.deletadoEm` before showing
 - Auth link generation blocked for inactive patients
 - No `deleteDoc()` calls in portal code
@@ -233,12 +253,14 @@ Build production-ready patient portal authentication layer + core UI components 
 **Found during:** Test execution phase  
 **Issue:** Tests expected `setAuth(token, patientId, labId, expiresAt)` but implementation had `setSession(session: PatientSession)`  
 **Fix:** Refactored store to match test API contract
+
 - Changed `setSession` → `setAuth` (flat parameters)
 - Renamed `clearSession` → `clearAuth`
 - Added `isExpired`, `remainingMs` computed state
 - Updated localStorage keys to individual items
 
 **Files modified:**
+
 - `src/features/patient-portal/hooks/usePatientAuthStore.ts`
 - `src/features/patient-portal/__tests__/patient-portal.test.tsx` (added `afterEach`)
 
@@ -357,16 +379,16 @@ functions/src/callables/patientPortal/
 
 ## Commits Summary
 
-| Commit | Message | Files |
-|--------|---------|-------|
-| f2599e0 | feat(patient-portal): Implement auth UI components | 7 components |
-| f513a1d | feat(patient-portal): Comprehensive error handling | error-handling |
-| 98905df | feat(patient-portal): Portal Dashboard UI | PatientDashboard |
-| 38245bb | feat(firestore): Phase 4 patient portal rules + indexes | firestore.rules |
+| Commit  | Message                                                 | Files               |
+| ------- | ------------------------------------------------------- | ------------------- |
+| f2599e0 | feat(patient-portal): Implement auth UI components      | 7 components        |
+| f513a1d | feat(patient-portal): Comprehensive error handling      | error-handling      |
+| 98905df | feat(patient-portal): Portal Dashboard UI               | PatientDashboard    |
+| 38245bb | feat(firestore): Phase 4 patient portal rules + indexes | firestore.rules     |
 | 3067271 | fix(patient-portal): Align with existing auth store API | usePatientAuthStore |
-| 1533a99 | fix(portal-auth): resolve 15+ TypeScript errors | callables |
-| f2599e0 | feat(patient-portal): Implement auth UI components | auth flow |
-| (new) | fix(patient-portal): align Zustand store API | store + tests |
+| 1533a99 | fix(portal-auth): resolve 15+ TypeScript errors         | callables           |
+| f2599e0 | feat(patient-portal): Implement auth UI components      | auth flow           |
+| (new)   | fix(patient-portal): align Zustand store API            | store + tests       |
 
 ---
 
@@ -487,12 +509,14 @@ Email link
 ### Phase 5 Dependency (Satisfação Portal)
 
 Plan 05-01 depends on this plan for:
+
 - ✅ Patient auth infrastructure (email-link + session)
 - ✅ Portal base UI (layout, sidebar, navbar)
 - ✅ Patient-laudo relationship (CPF filtering)
 - ✅ Firestore Rules for patient collections
 
 Phase 5 will add:
+
 - NPS survey (0–10 scale)
 - Satisfaction (5-point)
 - Free-text feedback
@@ -510,12 +534,12 @@ Phase 5 will add:
 
 ## Performance Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| LCP | <2.0s | 1.8s | ✅ GREEN |
-| INP | <200ms | 95ms | ✅ GREEN |
-| CLS | <0.05 | 0.04 | ✅ GREEN |
-| TTI | <3.0s | 2.4s | ✅ GREEN |
+| Metric           | Target | Actual | Status   |
+| ---------------- | ------ | ------ | -------- |
+| LCP              | <2.0s  | 1.8s   | ✅ GREEN |
+| INP              | <200ms | 95ms   | ✅ GREEN |
+| CLS              | <0.05  | 0.04   | ✅ GREEN |
+| TTI              | <3.0s  | 2.4s   | ✅ GREEN |
 | Bundle (+portal) | <50 KB | +18 KB | ✅ GREEN |
 
 **Lighthouse Score:** 94 (Performance: 98, Accessibility: 100, Best Practices: 100)
@@ -524,14 +548,14 @@ Phase 5 will add:
 
 ## Compliance Summary
 
-| Framework | Article | Requirement | Status |
-|-----------|---------|-------------|--------|
-| RDC 978 | Art. 167 | Patient notification | ✅ MET |
-| RDC 978 | Art. 6º §1 | NOTIVISA prep | ✅ READY (04-03) |
-| DICQ | 4.3 | Data access controls | ✅ MET |
-| DICQ | 4.4 | Audit trail | ✅ MET |
-| LGPD | Art. 9 | Sensitive data handling | ✅ MET |
-| LGPD | Art. 18 | Patient right of access | ✅ MET |
+| Framework | Article    | Requirement             | Status           |
+| --------- | ---------- | ----------------------- | ---------------- |
+| RDC 978   | Art. 167   | Patient notification    | ✅ MET           |
+| RDC 978   | Art. 6º §1 | NOTIVISA prep           | ✅ READY (04-03) |
+| DICQ      | 4.3        | Data access controls    | ✅ MET           |
+| DICQ      | 4.4        | Audit trail             | ✅ MET           |
+| LGPD      | Art. 9     | Sensitive data handling | ✅ MET           |
+| LGPD      | Art. 18    | Patient right of access | ✅ MET           |
 
 ---
 
@@ -539,13 +563,13 @@ Phase 5 will add:
 
 **Plan 04-01: COMPLETE and DELIVERED**
 
-| Role | Status | Date |
-|------|--------|------|
-| Backend Engineer | ✅ Complete | 2026-05-28 |
+| Role              | Status      | Date       |
+| ----------------- | ----------- | ---------- |
+| Backend Engineer  | ✅ Complete | 2026-05-28 |
 | Frontend Engineer | ✅ Complete | 2026-05-28 |
-| QA | ✅ Verified | 2026-05-28 |
-| Security Review | ✅ Approved | 2026-05-08 |
-| CTO | ✅ Approved | 2026-05-08 |
+| QA                | ✅ Verified | 2026-05-28 |
+| Security Review   | ✅ Approved | 2026-05-08 |
+| CTO               | ✅ Approved | 2026-05-08 |
 
 ---
 

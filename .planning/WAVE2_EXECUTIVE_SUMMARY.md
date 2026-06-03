@@ -1,8 +1,8 @@
 ---
-title: "Wave 2 (Phases 4-7) Executive Summary for CTO"
-date: "2026-05-07"
-kickoff_date: "2026-05-20"
-status: "READY FOR GO/NO-GO DECISION"
+title: 'Wave 2 (Phases 4-7) Executive Summary for CTO'
+date: '2026-05-07'
+kickoff_date: '2026-05-20'
+status: 'READY FOR GO/NO-GO DECISION'
 ---
 
 # Wave 2 Executive Summary — Ready for CTO Decision
@@ -34,15 +34,16 @@ status: "READY FOR GO/NO-GO DECISION"
 
 ### Phases 4-7 Scope
 
-| Phase | Focus | Duration | Effort | Risk | DICQ Gain |
-|-------|-------|----------|--------|------|-----------|
-| **4** | Patient Portal + NOTIVISA | 2.5 weeks | 3.5 FTE | 3.5/10 | +7% |
-| **5** | Critical Escalation + IA | 3 weeks | 4 FTE | 3/10 | +4% |
-| **6** | Liberación + Críticos | 2 weeks | 2 FTE | 2.5/10 | +3% |
-| **7** | Export + Feedback + Trending | 3 weeks | 2.5 FTE | 3/10 | +4% |
-| **TOTAL** | Compliance bridge + auditor alignment | 9 weeks | 12 FTE | **3.0/10** | **+18%** |
+| Phase     | Focus                                 | Duration  | Effort  | Risk       | DICQ Gain |
+| --------- | ------------------------------------- | --------- | ------- | ---------- | --------- |
+| **4**     | Patient Portal + NOTIVISA             | 2.5 weeks | 3.5 FTE | 3.5/10     | +7%       |
+| **5**     | Critical Escalation + IA              | 3 weeks   | 4 FTE   | 3/10       | +4%       |
+| **6**     | Liberación + Críticos                 | 2 weeks   | 2 FTE   | 2.5/10     | +3%       |
+| **7**     | Export + Feedback + Trending          | 3 weeks   | 2.5 FTE | 3/10       | +4%       |
+| **TOTAL** | Compliance bridge + auditor alignment | 9 weeks   | 12 FTE  | **3.0/10** | **+18%**  |
 
 **DICQ Progression:**
+
 - Current (v1.3): 78.5%
 - Wave 2 target: 88%+
 - External audit target: 92%+ (by Phase 14)
@@ -90,10 +91,9 @@ status: "READY FOR GO/NO-GO DECISION"
 **Critical path (3 items):**
 
 1. **SMTP Provisioning** (DevOps, 1–2h)
-   - Set credentials in HCQ_SMTP_* secrets
+   - Set credentials in HCQ*SMTP*\* secrets
    - Test: Send to staging address
    - Fallback: Email delivery can use Resend instead
-   
 2. **Cloud Tasks Queue Creation** (DevOps, 15 min)
    - Queue: `hmatologia2-operations` in southamerica-east1
    - Fallback: Manual job scheduling (slower but functional)
@@ -114,6 +114,7 @@ status: "READY FOR GO/NO-GO DECISION"
 ### Team ✅ READY
 
 **Phase 4 (2026-05-20 → 2026-06-02):**
+
 - Stream A (Backend): 1.5 FTE — Portal callables + NOTIVISA queue processor
 - Stream B (Frontend): 1.0 FTE — Portal UI + responsive design
 - Stream D (QA/DevOps): 0.5 FTE — E2E tests + Cloud Logs monitoring
@@ -126,6 +127,7 @@ status: "READY FOR GO/NO-GO DECISION"
 ### Test Data ✅ READY
 
 **Phase 4 (Due 2026-05-19):**
+
 - 100 test laudos (50 HEMOGRAMA + 30 COAGULACAO + 20 other)
 - NOTIVISA queue mock data (10 PENDING + 5 ACKED + 3 FAILED)
 - 6 mock users (RT, physician, operator, patient ×2, admin)
@@ -151,17 +153,20 @@ status: "READY FOR GO/NO-GO DECISION"
 ### Compliance ✅ ALIGNED
 
 **RDC 978 Coverage (Phase 4-7):**
+
 - Art. 6º §1 (NOTIVISA notification) — Phase 4 ✅
 - Art. 115-117 (Critical values + escalation) — Phase 5 ✅
 - Art. 167 (Patient notification) — Phase 4, 7 ✅
 - Art. 204 (Portaria 204 format) — Phase 4 ✅
 
 **DICQ Coverage:**
+
 - 4.3 (Audit trail completeness) — Phase 4, 5, 7 → +15%
 - 4.7 (IA training dataset) — Phase 5 → +5%
 - 4.15 (Feedback trending) — Phase 7 → +8%
 
 **LGPD Coverage:**
+
 - Arts. 5-7 (Security measures) — Phase 4, 5 ✅
 - Art. 9 (Sensitive data handling) — Phase 4, 5 ✅
 - Art. 18 (Right of access) — Phase 4, 7 ✅
@@ -176,12 +181,12 @@ status: "READY FOR GO/NO-GO DECISION"
 
 **Must pass all 4 gates:**
 
-| Gate | Threshold | Status |
-|------|-----------|--------|
-| **Functional** | Portal responsive + PDF download + NOTIVISA queue processing | TBD (execution phase) |
-| **Performance** | LCP <2.0s, INP <200ms, CLS <0.05 | TBD (execution phase) |
-| **Compliance** | RDC 978 Arts. 6, 167, 204 verified + audit trail complete | DESIGN VERIFIED ✅ |
-| **Testing** | 38+ unit tests + 6 E2E flows + Cloud Logs 24h clean | INFRASTRUCTURE READY ✅ |
+| Gate            | Threshold                                                    | Status                  |
+| --------------- | ------------------------------------------------------------ | ----------------------- |
+| **Functional**  | Portal responsive + PDF download + NOTIVISA queue processing | TBD (execution phase)   |
+| **Performance** | LCP <2.0s, INP <200ms, CLS <0.05                             | TBD (execution phase)   |
+| **Compliance**  | RDC 978 Arts. 6, 167, 204 verified + audit trail complete    | DESIGN VERIFIED ✅      |
+| **Testing**     | 38+ unit tests + 6 E2E flows + Cloud Logs 24h clean          | INFRASTRUCTURE READY ✅ |
 
 **Authority:** CTO + Tech Lead (joint decision)
 
@@ -290,6 +295,7 @@ Each subsequent phase has same 4-gate structure, dependent on prior phase produc
 ### Known Issues from Phase 3
 
 Per the memory file, Phase 3 had issues with:
+
 - HMAC remediation + signature baseline reset (RESOLVED)
 - Deploy gate secret checks (RESOLVED)
 - Functions deploy hygiene (package.json deps, tsconfig) (RESOLVED)
@@ -389,9 +395,10 @@ Per the memory file, Phase 3 had issues with:
 **Wave 2 Coordinator:** (Listed in framework document)  
 **Tech Lead:** (Architecture oversight)  
 **DevOps Lead:** (Infrastructure provisioning)  
-**Stream Leads:** (Team capacity + execution)  
+**Stream Leads:** (Team capacity + execution)
 
 For detailed information, see:
+
 - `WAVE2_COORDINATION_FRAMEWORK.md` (full coordination guide)
 - `WAVE2_PRE_KICKOFF_STATUS.md` (readiness snapshot)
 - `PHASE_4_READINESS_FINAL_SUMMARY.md` (Phase 4 specifics)

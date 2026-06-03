@@ -10,10 +10,7 @@
 
 import React, { useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
-import {
-  createEquipamento,
-  updateEquipamento,
-} from '../services/equipamentoService';
+import { createEquipamento, updateEquipamento } from '../services/equipamentoService';
 import type { Equipamento } from '../types/Equipamento';
 import type { InsumoModulo } from '../../insumos/types/Insumo';
 
@@ -73,12 +70,24 @@ export function EquipamentoFormModal({
   const [localizacao, setLocalizacao] = useState(equipamento?.localizacao ?? '');
   const [frequenciaManutencao, setFreqManut] = useState(equipamento?.frequenciaManutencao ?? '');
   const [frequenciaCalibracao, setFreqCalib] = useState(equipamento?.frequenciaCalibracao ?? '');
-  const [responsavelTecnicoNome, setRespTecNome] = useState(equipamento?.responsavelTecnicoNome ?? '');
-  const [condicoesVoltagem, setCondicoesVoltagem] = useState(equipamento?.condicoesAmbientais?.voltagem ?? '');
-  const [condicoesTempMin, setCondicoesTempMin] = useState<number | ''>(equipamento?.condicoesAmbientais?.temperaturaMin ?? '');
-  const [condicoesTempMax, setCondicoesTempMax] = useState<number | ''>(equipamento?.condicoesAmbientais?.temperaturaMax ?? '');
-  const [condicoesUmidMin, setCondicoesUmidMin] = useState<number | ''>(equipamento?.condicoesAmbientais?.umidadeMin ?? '');
-  const [condicoesUmidMax, setCondicoesUmidMax] = useState<number | ''>(equipamento?.condicoesAmbientais?.umidadeMax ?? '');
+  const [responsavelTecnicoNome, setRespTecNome] = useState(
+    equipamento?.responsavelTecnicoNome ?? '',
+  );
+  const [condicoesVoltagem, setCondicoesVoltagem] = useState(
+    equipamento?.condicoesAmbientais?.voltagem ?? '',
+  );
+  const [condicoesTempMin, setCondicoesTempMin] = useState<number | ''>(
+    equipamento?.condicoesAmbientais?.temperaturaMin ?? '',
+  );
+  const [condicoesTempMax, setCondicoesTempMax] = useState<number | ''>(
+    equipamento?.condicoesAmbientais?.temperaturaMax ?? '',
+  );
+  const [condicoesUmidMin, setCondicoesUmidMin] = useState<number | ''>(
+    equipamento?.condicoesAmbientais?.umidadeMin ?? '',
+  );
+  const [condicoesUmidMax, setCondicoesUmidMax] = useState<number | ''>(
+    equipamento?.condicoesAmbientais?.umidadeMax ?? '',
+  );
   const [showDicqFields, setShowDicqFields] = useState(false);
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -125,8 +134,12 @@ export function EquipamentoFormModal({
           ...(localizacao.trim() && { localizacao: localizacao.trim() }),
           ...(frequenciaManutencao && { frequenciaManutencao: frequenciaManutencao as any }),
           ...(frequenciaCalibracao && { frequenciaCalibracao: frequenciaCalibracao as any }),
-          ...(responsavelTecnicoNome.trim() && { responsavelTecnicoNome: responsavelTecnicoNome.trim() }),
-          ...((condicoesVoltagem || typeof condicoesTempMin === 'number' || typeof condicoesTempMax === 'number') && {
+          ...(responsavelTecnicoNome.trim() && {
+            responsavelTecnicoNome: responsavelTecnicoNome.trim(),
+          }),
+          ...((condicoesVoltagem ||
+            typeof condicoesTempMin === 'number' ||
+            typeof condicoesTempMax === 'number') && {
             condicoesAmbientais: {
               ...(typeof condicoesTempMin === 'number' && { temperaturaMin: condicoesTempMin }),
               ...(typeof condicoesTempMax === 'number' && { temperaturaMax: condicoesTempMax }),
@@ -155,8 +168,12 @@ export function EquipamentoFormModal({
           ...(localizacao.trim() && { localizacao: localizacao.trim() }),
           ...(frequenciaManutencao && { frequenciaManutencao: frequenciaManutencao as any }),
           ...(frequenciaCalibracao && { frequenciaCalibracao: frequenciaCalibracao as any }),
-          ...(responsavelTecnicoNome.trim() && { responsavelTecnicoNome: responsavelTecnicoNome.trim() }),
-          ...((condicoesVoltagem || typeof condicoesTempMin === 'number' || typeof condicoesTempMax === 'number') && {
+          ...(responsavelTecnicoNome.trim() && {
+            responsavelTecnicoNome: responsavelTecnicoNome.trim(),
+          }),
+          ...((condicoesVoltagem ||
+            typeof condicoesTempMin === 'number' ||
+            typeof condicoesTempMax === 'number') && {
             condicoesAmbientais: {
               ...(typeof condicoesTempMin === 'number' && { temperaturaMin: condicoesTempMin }),
               ...(typeof condicoesTempMax === 'number' && { temperaturaMax: condicoesTempMax }),
@@ -230,7 +247,8 @@ export function EquipamentoFormModal({
             </div>
             {isEdit ? (
               <div className="px-3.5 py-2.5 rounded-xl bg-slate-100 dark:bg-white/[0.04] text-sm text-slate-700 dark:text-white/65">
-                {MODULE_LABEL[moduleSel]} <span className="text-slate-400 dark:text-white/30 text-xs ml-2">· imutável</span>
+                {MODULE_LABEL[moduleSel]}{' '}
+                <span className="text-slate-400 dark:text-white/30 text-xs ml-2">· imutável</span>
               </div>
             ) : (
               <div className="flex gap-2 flex-wrap">
@@ -308,9 +326,7 @@ export function EquipamentoFormModal({
                 max={YEAR_NOW}
                 className={INPUT_CLS}
                 value={anoFabricacao === '' ? '' : anoFabricacao}
-                onChange={(e) =>
-                  setAnoFab(e.target.value === '' ? '' : Number(e.target.value))
-                }
+                onChange={(e) => setAnoFab(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="2023"
               />
             </Field>
@@ -322,9 +338,7 @@ export function EquipamentoFormModal({
                 max={YEAR_NOW}
                 className={INPUT_CLS}
                 value={anoAquisicao === '' ? '' : anoAquisicao}
-                onChange={(e) =>
-                  setAnoAq(e.target.value === '' ? '' : Number(e.target.value))
-                }
+                onChange={(e) => setAnoAq(e.target.value === '' ? '' : Number(e.target.value))}
                 placeholder="2024"
               />
             </Field>
@@ -353,7 +367,10 @@ export function EquipamentoFormModal({
               </span>
               <svg
                 className={`w-4 h-4 text-slate-400 transition-transform ${showDicqFields ? 'rotate-180' : ''}`}
-                fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={2}
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
@@ -362,7 +379,11 @@ export function EquipamentoFormModal({
             {showDicqFields && (
               <div className="p-4 space-y-4 border-t border-slate-200 dark:border-white/[0.06]">
                 <div className="grid grid-cols-2 gap-4">
-                  <Field id="patrimonio" label="Patrimônio / TAG" hint="Etiqueta patrimonial interna">
+                  <Field
+                    id="patrimonio"
+                    label="Patrimônio / TAG"
+                    hint="Etiqueta patrimonial interna"
+                  >
                     <input
                       id="patrimonio"
                       className={INPUT_CLS}
@@ -437,7 +458,9 @@ export function EquipamentoFormModal({
                         type="number"
                         className={INPUT_CLS}
                         value={condicoesTempMin === '' ? '' : condicoesTempMin}
-                        onChange={(e) => setCondicoesTempMin(e.target.value === '' ? '' : Number(e.target.value))}
+                        onChange={(e) =>
+                          setCondicoesTempMin(e.target.value === '' ? '' : Number(e.target.value))
+                        }
                         placeholder="15"
                       />
                     </Field>
@@ -447,7 +470,9 @@ export function EquipamentoFormModal({
                         type="number"
                         className={INPUT_CLS}
                         value={condicoesTempMax === '' ? '' : condicoesTempMax}
-                        onChange={(e) => setCondicoesTempMax(e.target.value === '' ? '' : Number(e.target.value))}
+                        onChange={(e) =>
+                          setCondicoesTempMax(e.target.value === '' ? '' : Number(e.target.value))
+                        }
                         placeholder="30"
                       />
                     </Field>
@@ -467,7 +492,9 @@ export function EquipamentoFormModal({
                         type="number"
                         className={INPUT_CLS}
                         value={condicoesUmidMin === '' ? '' : condicoesUmidMin}
-                        onChange={(e) => setCondicoesUmidMin(e.target.value === '' ? '' : Number(e.target.value))}
+                        onChange={(e) =>
+                          setCondicoesUmidMin(e.target.value === '' ? '' : Number(e.target.value))
+                        }
                         placeholder="20"
                       />
                     </Field>
@@ -477,7 +504,9 @@ export function EquipamentoFormModal({
                         type="number"
                         className={INPUT_CLS}
                         value={condicoesUmidMax === '' ? '' : condicoesUmidMax}
-                        onChange={(e) => setCondicoesUmidMax(e.target.value === '' ? '' : Number(e.target.value))}
+                        onChange={(e) =>
+                          setCondicoesUmidMax(e.target.value === '' ? '' : Number(e.target.value))
+                        }
                         placeholder="80"
                       />
                     </Field>
@@ -487,7 +516,11 @@ export function EquipamentoFormModal({
             )}
           </div>
 
-          <Field id="obs" label="Observações" hint="Contrato de manutenção, calibração especial, etc">
+          <Field
+            id="obs"
+            label="Observações"
+            hint="Contrato de manutenção, calibração especial, etc"
+          >
             <textarea
               id="obs"
               rows={3}

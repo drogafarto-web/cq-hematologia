@@ -10,6 +10,7 @@
 ## Section 1: Email (Copy-Paste Ready)
 
 ### Subject Line
+
 ```
 HC Quality v1.4 Roadmap — Pre-Audit Alignment Call (90 min, Week of May 13–17)
 ```
@@ -42,12 +43,14 @@ We are now executing **v1.4**, a 14-week roadmap targeting **≥88% DICQ complia
 5. **Q&A + Action Items (5 min):** Confirm next checkpoint (Week 3)
 
 **Pre-Call Materials (attached):**
+
 - v1.4 Auditor Briefing (14 pages, complete roadmap)
 - v1.4 DICQ Coverage Matrix (block-by-block compliance)
 - v1.4 RDC Coverage Matrix (article-by-article)
 - Auditor RFI Preparation (15 Q&A pairs)
 
 **Key Questions for the Call:**
+
 1. Is LogicalSignature (SHA-256 hash + operatorId + timestamp) acceptable as digital signature for DICQ 4.4 / RDC 978?
 2. Is chainHash (event-chained audit trail with HMAC baseline reset) sufficient for tamper-evidence?
 3. Firestore native + cold-archive retention (5 years per RDC 978) — acceptable?
@@ -68,6 +71,7 @@ drogafarto@gmail.com
 ## Section 2: Calendar Invites
 
 ### Alignment Call (Week 1)
+
 ```
 Event: HC Quality v1.4 Auditor Alignment
 Date: [SELECT May 13, 14, or 15, TBD after auditor response]
@@ -78,6 +82,7 @@ Zoom Link: [TBD]
 ```
 
 ### Phase 4 Weekly Reviews (8 Fridays)
+
 ```
 Event: HC Quality v1.4 Phase 4 CAPA Evidence Review
 Recurring: Every Friday starting May 28 through July 23
@@ -93,12 +98,14 @@ Agenda: Weekly CAPA evidence package review + auditor sign-off
 ## Section 3: Pre-Call Checklist (1 Week Before)
 
 ### By CTO (5 days before)
+
 - [ ] Confirm auditor email + name
 - [ ] Send email draft (customize + proofread)
 - [ ] Attach briefing + RFI prep
 - [ ] Await auditor response (target: within 2 days)
 
 ### By QA Lead (3 days before)
+
 - [ ] Prepare live demo walkthrough (30 min):
   - [ ] Auth flow (email-link portal access)
   - [ ] Audit trail chainHash verification
@@ -109,6 +116,7 @@ Agenda: Weekly CAPA evidence package review + auditor sign-off
 - [ ] Prepare printed CAPA state machine diagram
 
 ### By CTO (1 day before)
+
 - [ ] Test Zoom screen-share + audio
 - [ ] Prepare 90-min agenda printout
 - [ ] Confirm CTO + QA Lead both available + on-time
@@ -129,41 +137,47 @@ Agenda: Weekly CAPA evidence package review + auditor sign-off
 **Next Meeting:** Phase 4 weekly review, Friday May 28
 
 **Part 1 — v1.3 Status Review**
+
 - ✅ v1.3 deployed May 7 (25 modules, 78.5% DICQ, 100% RDC 978)
 - ✅ 19/19 smoke tests passing, 0 errors 24h
 - ✅ HMAC incident (ADR-0017) + deploy gate (ADR-0018) explained
 - ✅ Live demo: audit trail chainHash + signed laudo + LogicalSignature
 
 **Part 2 — v1.4 Roadmap Walkthrough**
+
 - ✅ Phase 0 (RDC blockers): turnos, LGPD, lab-apoio, risks
 - ✅ Phases 4–6 (critical gates): portal, critical values, CAPA
 - ✅ DICQ trajectory: 78.5% → 88.5% (May → Aug)
 - ✅ Deferred: multi-tenant, NOTIVISA prod, Gemini fine-tuning
 
 **Part 3 — RFI Cadence Agreement**
+
 - **RFI SLA: 5 business days** (auditor confirms: YES / NO / CONDITIONAL)
 - **Submission channel:** Shared SGD folder + email notification
 - **Escalation:** CTO direct call if >5 days delayed
 - **Phase 4 weekly reviews:** Fridays 10:00 AM Brasília, 30 min
 
 **Part 4 — Evidence Standards Confirmation**
-- **LogicalSignature acceptable?** Auditor response: _______________
-- **chainHash + HMAC baseline sufficient?** Auditor response: _______________
-- **Firestore retention + cold-archive?** Auditor response: _______________
-- **Any adjustments needed?** YES / NO — If YES, describe: _______________
+
+- **LogicalSignature acceptable?** Auditor response: ******\_\_\_******
+- **chainHash + HMAC baseline sufficient?** Auditor response: ******\_\_\_******
+- **Firestore retention + cold-archive?** Auditor response: ******\_\_\_******
+- **Any adjustments needed?** YES / NO — If YES, describe: ******\_\_\_******
 
 **Part 5 — Action Items**
 | Item | Owner | Due | Status |
 |------|-------|-----|--------|
-| RFI SLA document (email) | Auditor | 2026-05-10 | _____ |
-| Evidence format confirmation | Auditor | 2026-05-10 | _____ |
-| Phase 4 calendar lock | QA Lead | 2026-05-11 | _____ |
-| STATE.md update | CTO | 2026-05-11 | _____ |
+| RFI SLA document (email) | Auditor | 2026-05-10 | **\_** |
+| Evidence format confirmation | Auditor | 2026-05-10 | **\_** |
+| Phase 4 calendar lock | QA Lead | 2026-05-11 | **\_** |
+| STATE.md update | CTO | 2026-05-11 | **\_** |
 
 **Risks / Open Questions**
+
 - (none captured during call) / List any concerns here
 
 **Next Checkpoint**
+
 - **Date:** Friday, May 28 (Phase 4 Week 1)
 - **Format:** 30-min Zoom, CAPA evidence review
 - **Preparation:** QA Lead uploads CAPA-001 to CAPA-TRACKING.xlsx + SGQ folder
@@ -173,6 +187,7 @@ Agenda: Weekly CAPA evidence package review + auditor sign-off
 ## Section 5: One-Pagers
 
 ### DICQ Compliance Snapshot
+
 ```
 v1.3 Baseline (2026-05-07):
 - Block A (Governança): 78%
@@ -193,6 +208,7 @@ WEIGHTED AVERAGE TARGET: 88.5% (range 85–92% actual)
 ```
 
 ### RDC 978 Mandatory Articles
+
 ```
 v1.3: 100% coverage of Arts. 117, 167, 179–191, 204
 v1.4: 100% of above + Arts. 77, 122, 36–39, 86
@@ -200,6 +216,7 @@ Status: AUDIT-READY before Phase 1 (May 14)
 ```
 
 ### Critical Phases (Auditor Gates)
+
 ```
 Phase 0: RDC blockers (turnos, LGPD, lab-apoio, risks)
 → Gate: Day 10 hard stop (May 17) + bridge docs if slip
@@ -222,6 +239,7 @@ Phase 13: Pre-audit matrix review
 ## Section 6: Risk Mitigation Scripts
 
 ### If Auditor Unavailable May 13–17
+
 ```
 EMAIL:
 Subject: Backup Plan — HC Quality v1.4 Auditor Alignment
@@ -230,7 +248,7 @@ Dear [AUDITOR_NAME],
 
 I understand May 13–17 is not available. No problem — let's execute via written RFI instead.
 
-I'll send you the full artifact bundle (briefing, coverage matrices, CAPA template, ADRs). 
+I'll send you the full artifact bundle (briefing, coverage matrices, CAPA template, ADRs).
 Please review and respond within 7 business days with:
 
 1. RFI SLA agreement (5 business days acceptable? Y/N)
@@ -248,6 +266,7 @@ drogafarto
 ```
 
 ### If Auditor Rejects LogicalSignature
+
 ```
 EMAIL:
 Subject: LogicalSignature Technical Discussion — PKI Alternative
@@ -269,13 +288,14 @@ drogafarto
 ```
 
 ### If CAPA Backlog (Auditor Delayed >5 Days)
+
 ```
 EMAIL:
 Subject: ESCALATION — Phase 4 CAPA Evidence Review Delayed
 
 Dear [AUDITOR_NAME],
 
-I noticed CAPA-[N] evidence review is now [X] days past the 5-business-day SLA. 
+I noticed CAPA-[N] evidence review is now [X] days past the 5-business-day SLA.
 
 To keep Phase 4 on track, I'd like to:
 1. Check if you need additional information on the submission
@@ -294,6 +314,7 @@ Phone: [PHONE]
 ## Section 7: Key Dates & Reminders
 
 ### Timeline
+
 ```
 May 7:      v1.3 live + v1.4 package ready
 May 7–11:   Send email draft to auditor + briefing materials
@@ -311,6 +332,7 @@ Oct 15:     External audit execution (DICQ accreditation)
 ```
 
 ### Recurring Reminders
+
 ```
 - **Every Monday (during Phase 4):** Remind auditor CAPA evidence due Friday
 - **Every Thursday (during Phase 4):** Check inbox for auditor response
@@ -324,15 +346,17 @@ Oct 15:     External audit execution (DICQ accreditation)
 ## Section 8: Document Cross-References
 
 ### Briefing Components
-| Document | Location | Audience | Purpose |
-|----------|----------|----------|---------|
-| **Email Draft** | `.planning/AUDITOR_ALIGNMENT_EMAIL_DRAFT.md` | CTO | Invitation + key facts |
-| **RFI Prep (15 Q&A)** | `.planning/AUDITOR_RFI_PREPARATION.md` | Auditor + internal | FAQ + security posture |
-| **v1.4 Briefing** | `docs/v1.4_AUDITOR_BRIEFING.md` | Auditor + CTO + board | Complete roadmap (14 pages) |
-| **Alignment Package** | `.planning/v1.4_AUDITOR_ALIGNMENT_PACKAGE.md` | CTO | Overview of all 3 docs |
-| **Quick Reference** | `.planning/AUDITOR_ALIGNMENT_QUICK_REFERENCE.md` | CTO | This file — copy-paste ready |
+
+| Document              | Location                                         | Audience              | Purpose                      |
+| --------------------- | ------------------------------------------------ | --------------------- | ---------------------------- |
+| **Email Draft**       | `.planning/AUDITOR_ALIGNMENT_EMAIL_DRAFT.md`     | CTO                   | Invitation + key facts       |
+| **RFI Prep (15 Q&A)** | `.planning/AUDITOR_RFI_PREPARATION.md`           | Auditor + internal    | FAQ + security posture       |
+| **v1.4 Briefing**     | `docs/v1.4_AUDITOR_BRIEFING.md`                  | Auditor + CTO + board | Complete roadmap (14 pages)  |
+| **Alignment Package** | `.planning/v1.4_AUDITOR_ALIGNMENT_PACKAGE.md`    | CTO                   | Overview of all 3 docs       |
+| **Quick Reference**   | `.planning/AUDITOR_ALIGNMENT_QUICK_REFERENCE.md` | CTO                   | This file — copy-paste ready |
 
 ### Related Artifacts (Shared during Call)
+
 - `docs/v1.4-DICQ-COVERAGE-MATRIX.md` (40+ blocks A–J)
 - `docs/v1.4-RDC-COVERAGE-MATRIX.md` (200+ articles)
 - `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (incident + remediation)
@@ -354,6 +378,7 @@ Dear [AUDITOR_NAME],
 Thank you for the productive 90-minute alignment call on [DATE]. Here's a summary of decisions made:
 
 **Confirmed Points:**
+
 - ✅ Phase 0 scope (4 RDC blockers) sufficient for May 14 Phase 1 kickoff
 - ✅ RFI SLA: 5 business days (Mondays submit, Fridays respond)
 - ✅ Evidence standards: LogicalSignature + chainHash + Firestore retention **approved**
@@ -361,14 +386,15 @@ Thank you for the productive 90-minute alignment call on [DATE]. Here's a summar
 
 **Action Items:**
 
-| Item | Owner | Due | Status |
-|------|-------|-----|--------|
-| RFI SLA document (email confirmation) | You | May 10 | _____ |
-| Evidence format sign-off (email) | You | May 10 | _____ |
-| CAPA-001 mock-up submission | QA Lead | May 27 | _____ |
-| Phase 4 calendar lock (8 Fridays) | QA Lead | May 11 | _____ |
+| Item                                  | Owner   | Due    | Status |
+| ------------------------------------- | ------- | ------ | ------ |
+| RFI SLA document (email confirmation) | You     | May 10 | **\_** |
+| Evidence format sign-off (email)      | You     | May 10 | **\_** |
+| CAPA-001 mock-up submission           | QA Lead | May 27 | **\_** |
+| Phase 4 calendar lock (8 Fridays)     | QA Lead | May 11 | **\_** |
 
 **Next Milestone:**
+
 - **Phase 4 Week 1 Review:** Friday, May 28, 10:00 AM Brasília
 - **Deliverable:** CAPA-001 evidence package (root cause + corrective action + efficacy)
 - **Zoom link:** [Link in calendar invite]
@@ -389,6 +415,7 @@ drogafarto@gmail.com
 ## Section 10: Success Metrics
 
 ### Alignment Call is Successful If:
+
 - [ ] Auditor confirms Phase 0 scope sufficient
 - [ ] RFI SLA documented in writing (5 business days)
 - [ ] Evidence standards confirmed (no post-Phase-2 rework)
@@ -397,6 +424,7 @@ drogafarto@gmail.com
 - [ ] No show-stopper gaps identified
 
 ### v1.4 Stays On Track If:
+
 - [ ] Phase 0 completes by May 17 (Day 10 + 1-day buffer)
 - [ ] Phase 4 CAPA evidence reviewed within SLA each week
 - [ ] No major interpretation conflicts surface post-Week 1
@@ -409,4 +437,3 @@ drogafarto@gmail.com
 **Last Updated:** 2026-05-07  
 **Owner:** CTO  
 **Next Step:** Customize email + send to auditor by end of business Day 1
-

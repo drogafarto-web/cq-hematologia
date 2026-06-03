@@ -187,10 +187,7 @@ describe('Bioquímica Integration Pipeline', () => {
   });
 
   it('scenario 5: blockers populated only on reject paths', () => {
-    const observations = [
-      createObs('1', 95, 0),
-      createObs('2', 105, 1000),
-    ];
+    const observations = [createObs('1', 95, 0), createObs('2', 105, 1000)];
 
     const westgardResult = detectWestgardViolations({
       windowObservations: observations,

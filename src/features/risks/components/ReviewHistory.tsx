@@ -29,11 +29,12 @@ const RESULTADO_CONFIG: Record<string, { dot: string; cls: string }> = {
 };
 
 const ReviewRow = memo(({ revisao }: { revisao: Revisao }) => {
-  const date = revisao.criadoEm instanceof Date
-    ? revisao.criadoEm
-    : (revisao.criadoEm && typeof revisao.criadoEm === 'object' && 'toDate' in revisao.criadoEm)
-    ? (revisao.criadoEm as any).toDate()
-    : new Date(revisao.criadoEm);
+  const date =
+    revisao.criadoEm instanceof Date
+      ? revisao.criadoEm
+      : revisao.criadoEm && typeof revisao.criadoEm === 'object' && 'toDate' in revisao.criadoEm
+        ? (revisao.criadoEm as any).toDate()
+        : new Date(revisao.criadoEm);
 
   return (
     <tr className="border-b border-white/[0.04] last:border-b-0 hover:bg-white/[0.02] transition-colors duration-150">
@@ -43,8 +44,12 @@ const ReviewRow = memo(({ revisao }: { revisao: Revisao }) => {
       </td>
       <td className="px-4 py-3 text-sm text-white/80">{revisao.revisorNome || revisao.revisor}</td>
       <td className="px-4 py-3">
-        <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${RESULTADO_CONFIG[revisao.resultado]?.cls || ''}`}>
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${RESULTADO_CONFIG[revisao.resultado]?.dot || ''}`} />
+        <span
+          className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${RESULTADO_CONFIG[revisao.resultado]?.cls || ''}`}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0 ${RESULTADO_CONFIG[revisao.resultado]?.dot || ''}`}
+          />
           {revisao.resultado}
         </span>
       </td>
@@ -74,17 +79,14 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ risk }) => {
   const reviews = [...risk.reviewHistory].reverse(); // Most recent first
 
   if (reviews.length === 0) {
-    return (
-      <div className="py-8 text-center text-white/30 text-sm">
-        Nenhuma revisão registrada
-      </div>
-    );
+    return <div className="py-8 text-center text-white/30 text-sm">Nenhuma revisão registrada</div>;
   }
 
   return (
     <div className="p-4 space-y-4">
       <div className="text-sm text-white/60">
-        {reviews.length} revisão{reviews.length !== 1 ? 'ões' : ''} registrada{reviews.length !== 1 ? 's' : ''}
+        {reviews.length} revisão{reviews.length !== 1 ? 'ões' : ''} registrada
+        {reviews.length !== 1 ? 's' : ''}
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-white/[0.06] bg-white/[0.01]">
@@ -115,7 +117,7 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ risk }) => {
           </div>
           <div className="rounded-lg border border-white/[0.06] bg-white/[0.02] p-3 text-center">
             <div className="font-semibold text-amber-300">
-              {risk.reviewHistory.filter(r => r.resultado === 'reclassificado').length}
+              {risk.reviewHistory.filter((r) => r.resultado === 'reclassificado').length}
             </div>
             <div className="text-white/50">Reclassificadas</div>
           </div>
@@ -124,13 +126,13 @@ export const ReviewHistory: React.FC<ReviewHistoryProps> = ({ risk }) => {
               {risk.reviewDate ? 'Próxima' : 'Não agendada'}
             </div>
             <div className="text-white/50">
-              {risk.reviewDate ? (
-                risk.reviewDate instanceof Date
+              {risk.reviewDate
+                ? risk.reviewDate instanceof Date
                   ? risk.reviewDate.toLocaleDateString('pt-BR')
-                  : (typeof risk.reviewDate === 'object' && 'toDate' in risk.reviewDate)
-                  ? (risk.reviewDate as any).toDate().toLocaleDateString('pt-BR')
-                  : new Date(risk.reviewDate).toLocaleDateString('pt-BR')
-              ) : '—'}
+                  : typeof risk.reviewDate === 'object' && 'toDate' in risk.reviewDate
+                    ? (risk.reviewDate as any).toDate().toLocaleDateString('pt-BR')
+                    : new Date(risk.reviewDate).toLocaleDateString('pt-BR')
+                : '—'}
             </div>
           </div>
         </div>

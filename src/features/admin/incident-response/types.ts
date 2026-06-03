@@ -44,7 +44,13 @@ export type SeverityLevel = z.infer<typeof SeverityLevelSchema>;
 
 // ─── Incident Status ───────────────────────────────────────────────────────
 
-export const IncidentStatusSchema = z.enum(['open', 'investigating', 'mitigating', 'resolved', 'closed']);
+export const IncidentStatusSchema = z.enum([
+  'open',
+  'investigating',
+  'mitigating',
+  'resolved',
+  'closed',
+]);
 export type IncidentStatus = z.infer<typeof IncidentStatusSchema>;
 
 // ─── Escalation Level ─────────────────────────────────────────────────────
@@ -167,7 +173,7 @@ export const RecordPostMortemInputSchema = z.object({
       eta: z.date(),
       status: z.enum(['open', 'in-progress', 'complete']).optional().default('open'),
       notes: z.string().optional(),
-    })
+    }),
   ),
 });
 

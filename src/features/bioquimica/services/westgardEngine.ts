@@ -19,7 +19,7 @@ import type {
 // ─── Engine Input/Output ──────────────────────────────────────────────────
 
 export interface WestgardEngineInput {
-  windowObservations: WestgardObservation[];  // ordered by ts ASC, oldest first
+  windowObservations: WestgardObservation[]; // ordered by ts ASC, oldest first
   rulesConfig: WestgardRuleConfigCLSI8[];
 }
 

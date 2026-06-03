@@ -9,7 +9,7 @@ const transicoes: Record<SugestaoStatus, SugestaoStatus[]> = {
 
 export function validateTransition(
   statusAtual: SugestaoStatus,
-  novoStatus: SugestaoStatus
+  novoStatus: SugestaoStatus,
 ): boolean {
   return transicoes[statusAtual]?.includes(novoStatus) ?? false;
 }

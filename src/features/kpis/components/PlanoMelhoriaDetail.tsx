@@ -11,12 +11,7 @@ import {
   Timestamp,
 } from '../../../shared/services/firebase';
 import { toast } from '../../../shared/store/useToastStore';
-import {
-  useActiveLabId,
-  useIsSuperAdmin,
-  useUser,
-  useUserRole,
-} from '../../../store/useAuthStore';
+import { useActiveLabId, useIsSuperAdmin, useUser, useUserRole } from '../../../store/useAuthStore';
 import { usePlanoMelhoria } from '../hooks/usePlanoMelhoria';
 import type { AcaoMelhoria, AcaoMelhoriaStatus } from '../types/PlanoMelhoria';
 import { AcaoMelhoriaForm } from './AcaoMelhoriaForm';
@@ -46,7 +41,10 @@ const callAtualizarAcao = httpsCallable<AtualizarAcaoPayload, { ok: true }>(
   'atualizarAcaoMelhoria',
 );
 
-const callFecharPlano = httpsCallable<FecharPlanoPayload, { ok: true }>(functions, 'fecharPlanoMelhoria');
+const callFecharPlano = httpsCallable<FecharPlanoPayload, { ok: true }>(
+  functions,
+  'fecharPlanoMelhoria',
+);
 
 const ACAO_STATUS_OPTIONS: readonly { value: AcaoMelhoriaStatus; label: string }[] = [
   { value: 'pendente', label: 'Pendente' },
@@ -229,7 +227,9 @@ export function PlanoMelhoriaDetail({ planoId, onBack }: PlanoMelhoriaDetailProp
                 {planoStatusLabel(plano.status)}
               </span>
             </div>
-            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/65">{plano.descricao}</p>
+            <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-white/65">
+              {plano.descricao}
+            </p>
             <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
               <div>
                 <dt className="text-xs uppercase tracking-wide text-white/40">Responsável</dt>
@@ -257,7 +257,8 @@ export function PlanoMelhoriaDetail({ planoId, onBack }: PlanoMelhoriaDetailProp
                   {fecharSubmitting ? 'Encerrando…' : 'Fechar plano (concluído)'}
                 </button>
                 <p className="mt-2 text-xs text-white/45">
-                  Apenas administradores do laboratório (ou superadmin) podem encerrar o plano com status ativo.
+                  Apenas administradores do laboratório (ou superadmin) podem encerrar o plano com
+                  status ativo.
                 </p>
               </div>
             ) : null}
@@ -338,7 +339,10 @@ export function PlanoMelhoriaDetail({ planoId, onBack }: PlanoMelhoriaDetailProp
                         </select>
                       </div>
                       <div>
-                        <label htmlFor={`acao-ev-${a.id}`} className="text-xs font-medium text-white/50">
+                        <label
+                          htmlFor={`acao-ev-${a.id}`}
+                          className="text-xs font-medium text-white/50"
+                        >
                           Evidência
                         </label>
                         <textarea

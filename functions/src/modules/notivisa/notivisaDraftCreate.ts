@@ -50,9 +50,7 @@ async function checkRateLimitPerMinute(
   const now = new Date();
   const minuteKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}T${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
 
-  const counterRef = db.doc(
-    `notivisa-drafts/${labId}/rate-limits/minute-${minuteKey}`,
-  );
+  const counterRef = db.doc(`notivisa-drafts/${labId}/rate-limits/minute-${minuteKey}`);
   const counterSnap = await counterRef.get();
 
   if (!counterSnap.exists) {
@@ -61,10 +59,7 @@ async function checkRateLimitPerMinute(
   } else {
     const count = (counterSnap.data()?.['count'] ?? 0) + 1;
     if (count > 10) {
-      throw new HttpsError(
-        'resource-exhausted',
-        'Taxa de submissão excedida — máx 10 por minuto.',
-      );
+      throw new HttpsError('resource-exhausted', 'Taxa de submissão excedida — máx 10 por minuto.');
     }
     await counterRef.update({ count });
   }

@@ -3,6 +3,7 @@
 **Project:** `hmatologia2` · **Region:** `southamerica-east1` · **Window:** last 48h
 
 **Already addressed (excluded from this report):**
+
 - HMAC secret rotation (ADR-0017)
 - LGPD `solicitacoes-exclusao` composite index (deployed)
 - `aggregateAnalytics` 256 → 512 MiB bump
@@ -15,13 +16,13 @@
 - DEGRADING issues: **2**
 - NOISE issues: **0**
 
-| # | Issue | Service | Severity | Count |
-|---|---|---|---|---|
-| 1 | Missing `insumo-movimentacoes` index (DESC, not ASC) | `onInsumoMovimentacaoCreate` | BLOCKING | 56 |
-| 2 | Missing `sgq-documentos` composite index (codigo+status) | `lgpd_scheduledAnnualReview` | BLOCKING | 2 (every cron tick) |
-| 3 | Missing `risks` composite index (deletadoEm+reviewDate+status) | `risks_scheduledReview` | BLOCKING | 1+ (every cron tick) |
-| 4 | Memory limit 256 MiB exceeded on multiple functions still at default | `lgpd_scheduledAnnualReview`, `scheduledMarcarLeiturasPerdidas`, `ec_scheduledAlertasVencimento`, `labApoio_checkExpiry`, `anonimizarRespostas`, `risks_scheduledReview`, `scheduledExpireInsumos` | DEGRADING | 11 |
-| 5 | `validateChainIntegrityScheduled` reading old HMAC env var (`HCQ_SIGNATURE_HMAC_KEY`) | `validateChainIntegrityScheduled` | DEGRADING | 1 (every 24h) |
+| #   | Issue                                                                                 | Service                                                                                                                                                                                            | Severity  | Count                |
+| --- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------------- |
+| 1   | Missing `insumo-movimentacoes` index (DESC, not ASC)                                  | `onInsumoMovimentacaoCreate`                                                                                                                                                                       | BLOCKING  | 56                   |
+| 2   | Missing `sgq-documentos` composite index (codigo+status)                              | `lgpd_scheduledAnnualReview`                                                                                                                                                                       | BLOCKING  | 2 (every cron tick)  |
+| 3   | Missing `risks` composite index (deletadoEm+reviewDate+status)                        | `risks_scheduledReview`                                                                                                                                                                            | BLOCKING  | 1+ (every cron tick) |
+| 4   | Memory limit 256 MiB exceeded on multiple functions still at default                  | `lgpd_scheduledAnnualReview`, `scheduledMarcarLeiturasPerdidas`, `ec_scheduledAlertasVencimento`, `labApoio_checkExpiry`, `anonimizarRespostas`, `risks_scheduledReview`, `scheduledExpireInsumos` | DEGRADING | 11                   |
+| 5   | `validateChainIntegrityScheduled` reading old HMAC env var (`HCQ_SIGNATURE_HMAC_KEY`) | `validateChainIntegrityScheduled`                                                                                                                                                                  | DEGRADING | 1 (every 24h)        |
 
 ---
 
@@ -31,10 +32,13 @@
 **Cloud Run service:** `oninsumomovimentacaocreate`
 **Occurrences:** 56 in 48h (every insumo movement create — chainHash is broken in production)
 **Error:**
+
 ```
 Error: 9 FAILED_PRECONDITION: The query requires an index.
 ```
+
 **Required index (decoded from URL):**
+
 - Collection group: `insumo-movimentacoes`
 - Fields: `insumoId ASC`, `timestamp DESC`, `__name__ DESC`
 
@@ -43,6 +47,7 @@ Error: 9 FAILED_PRECONDITION: The query requires an index.
 **File to edit:** `C:\hc quality\firestore.indexes.json` (line 126)
 
 **Fix (edit the JSON):**
+
 ```json
 {
   "collectionGroup": "insumo-movimentacoes",
@@ -55,6 +60,7 @@ Error: 9 FAILED_PRECONDITION: The query requires an index.
 ```
 
 **Deploy command:**
+
 ```bash
 firebase deploy --only firestore:indexes --project hmatologia2
 ```
@@ -69,10 +75,13 @@ firebase deploy --only firestore:indexes --project hmatologia2
 **Cloud Run service:** `lgpd-scheduledannualreview`
 **Occurrences:** Every scheduler tick (~hourly) — 100% failure rate in window
 **Error:**
+
 ```
 Error: 9 FAILED_PRECONDITION: The query requires an index.
 ```
+
 **Required index (decoded):**
+
 - Collection group: `sgq-documentos`
 - Fields: `codigo ASC`, `status ASC`, `__name__ ASC`
 
@@ -81,6 +90,7 @@ Error: 9 FAILED_PRECONDITION: The query requires an index.
 **File to edit:** `C:\hc quality\firestore.indexes.json`
 
 **Fix — append:**
+
 ```json
 {
   "collectionGroup": "sgq-documentos",
@@ -93,6 +103,7 @@ Error: 9 FAILED_PRECONDITION: The query requires an index.
 ```
 
 **Deploy command:**
+
 ```bash
 firebase deploy --only firestore:indexes --project hmatologia2
 ```
@@ -107,11 +118,14 @@ firebase deploy --only firestore:indexes --project hmatologia2
 **Cloud Run service:** `scheduledreview`
 **Occurrences:** Every scheduler tick — 100% failure rate
 **Error:**
+
 ```
 Error: 9 FAILED_PRECONDITION: The query requires an index.
 The query contains range and inequality filters on multiple fields...
 ```
+
 **Required index (decoded):**
+
 - Collection group: `risks`
 - Fields: `deletadoEm ASC`, `reviewDate ASC`, `status ASC`, `__name__ ASC`
 
@@ -120,6 +134,7 @@ The query contains range and inequality filters on multiple fields...
 **File to edit:** `C:\hc quality\firestore.indexes.json`
 
 **Fix — append:**
+
 ```json
 {
   "collectionGroup": "risks",
@@ -133,6 +148,7 @@ The query contains range and inequality filters on multiple fields...
 ```
 
 **Deploy command:**
+
 ```bash
 firebase deploy --only firestore:indexes --project hmatologia2
 ```
@@ -144,6 +160,7 @@ firebase deploy --only firestore:indexes --project hmatologia2
 ## Issue 4 — Multiple scheduled functions still default to 256 MiB and are crossing the limit (DEGRADING)
 
 **Functions affected (memory exceeded ≥1× in window):**
+
 - `lgpd_scheduledAnnualReview` — 256–259 MiB (3 hits) — **also Issue 2**
 - `scheduledMarcarLeiturasPerdidas` — 2 hits
 - `ec_scheduledAlertasVencimento` — 1 hit
@@ -155,6 +172,7 @@ firebase deploy --only firestore:indexes --project hmatologia2
 **Root cause:** Default `functions.runWith({ memory: '256MB' })` (or no override) in scheduled functions that hold large Firestore result sets. Same pattern that bit `aggregateAnalytics` — not solved by the one-off bump.
 
 **Fix — pattern across all scheduled functions:**
+
 ```typescript
 // In each function file's options:
 export const fooScheduled = onSchedule({
@@ -166,6 +184,7 @@ export const fooScheduled = onSchedule({
 ```
 
 **Files to edit (priority order):**
+
 1. `functions/src/modules/lgpd/scheduledAnnualReview.ts`
 2. `functions/src/modules/risks/scheduledReview.ts`
 3. `functions/src/modules/insumos/scheduledExpireInsumos.ts` (or wherever it lives)
@@ -175,6 +194,7 @@ export const fooScheduled = onSchedule({
 7. `functions/src/modules/nps/anonimizarRespostas.ts`
 
 **Deploy command (after fix):**
+
 ```bash
 cd functions && npm run build && cd ..
 firebase deploy --only functions:lgpd_scheduledAnnualReview,functions:risks_scheduledReview,functions:scheduledExpireInsumos,functions:labApoio_checkExpiry,functions:ec_scheduledAlertasVencimento,functions:scheduledMarcarLeiturasPerdidas,functions:anonimizarRespostas --project hmatologia2
@@ -189,6 +209,7 @@ firebase deploy --only functions:lgpd_scheduledAnnualReview,functions:risks_sche
 **Function:** `validateChainIntegrityScheduled`
 **Occurrences:** 1 in window (runs ~daily)
 **Error:**
+
 ```
 Error: HCQ_SIGNATURE_HMAC_KEY environment variable not set
 ```
@@ -198,21 +219,26 @@ Error: HCQ_SIGNATURE_HMAC_KEY environment variable not set
 **File to edit:** Find with `grep -rn "HCQ_SIGNATURE_HMAC_KEY" functions/src/` — likely `functions/src/modules/signatures/scheduled.ts` or similar.
 
 **Fix:**
+
 ```typescript
 import { defineSecret } from 'firebase-functions/params';
 const hmacKey = defineSecret('HCQ_SIGNATURE_HMAC_KEY');
 
-export const validateChainIntegrityScheduled = onSchedule({
-  schedule: 'every 24 hours',
-  region: 'southamerica-east1',
-  secrets: [hmacKey],   // ← bind here
-}, async () => {
-  const key = hmacKey.value();   // ← read via .value() not process.env
-  // ...
-});
+export const validateChainIntegrityScheduled = onSchedule(
+  {
+    schedule: 'every 24 hours',
+    region: 'southamerica-east1',
+    secrets: [hmacKey], // ← bind here
+  },
+  async () => {
+    const key = hmacKey.value(); // ← read via .value() not process.env
+    // ...
+  },
+);
 ```
 
 **Deploy command:**
+
 ```bash
 firebase deploy --only functions:validateChainIntegrityScheduled --project hmatologia2
 ```

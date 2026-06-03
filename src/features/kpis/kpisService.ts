@@ -68,7 +68,11 @@ export function subscribeActiveAlerts(
   callback?: (alerts: KPIAlert[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(alertCollection(labId), where('lida', '==', false), orderBy('acionada_em', 'desc'));
+  const q = query(
+    alertCollection(labId),
+    where('lida', '==', false),
+    orderBy('acionada_em', 'desc'),
+  );
 
   return onSnapshot(
     q,

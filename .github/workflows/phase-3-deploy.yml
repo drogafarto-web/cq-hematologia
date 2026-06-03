@@ -597,7 +597,8 @@ jobs:
   # ─── FINAL STATUS ──────────────────────────────────────────────────────────
   deploy-status:
     name: Deployment Status
-    needs: [pre-deploy-gate, deploy-rules, deploy-functions, deploy-hosting, post-deploy-verification]
+    needs:
+      [pre-deploy-gate, deploy-rules, deploy-functions, deploy-hosting, post-deploy-verification]
     if: always()
     runs-on: ubuntu-latest
 

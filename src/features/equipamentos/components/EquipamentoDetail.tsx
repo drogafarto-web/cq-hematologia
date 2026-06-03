@@ -145,7 +145,8 @@ export function EquipamentoDetail({ equipamento }: EquipamentoDetailProps) {
             {equipamento.ciqPendenteAposManutencao && (
               <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
                 <p className="text-xs font-medium text-amber-700 dark:text-amber-300">
-                  RDC 978 Art. 183 - Execute o Controle Interno de Qualidade (CIQ) antes de liberar este equipamento para a rotina.
+                  RDC 978 Art. 183 - Execute o Controle Interno de Qualidade (CIQ) antes de liberar
+                  este equipamento para a rotina.
                 </p>
               </div>
             )}
@@ -156,7 +157,13 @@ export function EquipamentoDetail({ equipamento }: EquipamentoDetailProps) {
                 onClick={() => setShowManutencaoForm(true)}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors"
               >
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                <svg
+                  className="w-3.5 h-3.5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
                 Registrar manutencao
@@ -180,10 +187,7 @@ export function EquipamentoDetail({ equipamento }: EquipamentoDetailProps) {
           <TabCalibracao equipamento={equipamento} calibracaoStatus={calibracaoStatus} />
         )}
         {activeTab === 'qualificacao' && (
-          <QualificacaoTimeline
-            labId={equipamento.labId}
-            equipamentoId={equipamento.id}
-          />
+          <QualificacaoTimeline labId={equipamento.labId} equipamentoId={equipamento.id} />
         )}
       </div>
     </div>
@@ -205,8 +209,14 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
     { label: 'Data Instalacao', value: e.dataInstalacao?.toDate?.().toLocaleDateString('pt-BR') },
     { label: 'Ano Fabricacao', value: e.anoFabricacao?.toString() },
     { label: 'Ano Aquisicao', value: e.anoAquisicao?.toString() },
-    { label: 'Freq. Manutencao', value: e.frequenciaManutencao ? FREQ_LABEL[e.frequenciaManutencao] : undefined },
-    { label: 'Freq. Calibracao', value: e.frequenciaCalibracao ? FREQ_LABEL[e.frequenciaCalibracao] : undefined },
+    {
+      label: 'Freq. Manutencao',
+      value: e.frequenciaManutencao ? FREQ_LABEL[e.frequenciaManutencao] : undefined,
+    },
+    {
+      label: 'Freq. Calibracao',
+      value: e.frequenciaCalibracao ? FREQ_LABEL[e.frequenciaCalibracao] : undefined,
+    },
     { label: 'Responsavel Tecnico', value: e.responsavelTecnicoNome },
   ];
 
@@ -215,7 +225,10 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
       {/* Dados cadastrais */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {fields.map((f) => (
-          <div key={f.label} className="p-2.5 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/[0.05]">
+          <div
+            key={f.label}
+            className="p-2.5 rounded-lg bg-slate-50 dark:bg-white/[0.03] border border-slate-100 dark:border-white/[0.05]"
+          >
             <p className="text-[10px] uppercase tracking-wider text-slate-400 dark:text-white/25 font-medium">
               {f.label}
             </p>
@@ -233,10 +246,22 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
             Contrato de Manutencao
           </p>
           <div className="grid grid-cols-2 gap-2 text-xs">
-            <div><span className="text-slate-500 dark:text-white/35">N:</span> {e.contratoManutencao.numero}</div>
-            <div><span className="text-slate-500 dark:text-white/35">Empresa:</span> {e.contratoManutencao.empresa}</div>
-            <div><span className="text-slate-500 dark:text-white/35">Inicio:</span> {e.contratoManutencao.vigenciaInicio?.toDate?.().toLocaleDateString('pt-BR')}</div>
-            <div><span className="text-slate-500 dark:text-white/35">Fim:</span> {e.contratoManutencao.vigenciaFim?.toDate?.().toLocaleDateString('pt-BR')}</div>
+            <div>
+              <span className="text-slate-500 dark:text-white/35">N:</span>{' '}
+              {e.contratoManutencao.numero}
+            </div>
+            <div>
+              <span className="text-slate-500 dark:text-white/35">Empresa:</span>{' '}
+              {e.contratoManutencao.empresa}
+            </div>
+            <div>
+              <span className="text-slate-500 dark:text-white/35">Inicio:</span>{' '}
+              {e.contratoManutencao.vigenciaInicio?.toDate?.().toLocaleDateString('pt-BR')}
+            </div>
+            <div>
+              <span className="text-slate-500 dark:text-white/35">Fim:</span>{' '}
+              {e.contratoManutencao.vigenciaFim?.toDate?.().toLocaleDateString('pt-BR')}
+            </div>
           </div>
         </div>
       )}
@@ -248,11 +273,19 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
             Condicoes Ambientais Requeridas
           </p>
           <div className="grid grid-cols-3 gap-2 text-xs text-slate-700 dark:text-white/60">
-            {(e.condicoesAmbientais.temperaturaMin != null || e.condicoesAmbientais.temperaturaMax != null) && (
-              <div>Temp: {e.condicoesAmbientais.temperaturaMin ?? '?'} - {e.condicoesAmbientais.temperaturaMax ?? '?'} C</div>
+            {(e.condicoesAmbientais.temperaturaMin != null ||
+              e.condicoesAmbientais.temperaturaMax != null) && (
+              <div>
+                Temp: {e.condicoesAmbientais.temperaturaMin ?? '?'} -{' '}
+                {e.condicoesAmbientais.temperaturaMax ?? '?'} C
+              </div>
             )}
-            {(e.condicoesAmbientais.umidadeMin != null || e.condicoesAmbientais.umidadeMax != null) && (
-              <div>Umidade: {e.condicoesAmbientais.umidadeMin ?? '?'} - {e.condicoesAmbientais.umidadeMax ?? '?'}%</div>
+            {(e.condicoesAmbientais.umidadeMin != null ||
+              e.condicoesAmbientais.umidadeMax != null) && (
+              <div>
+                Umidade: {e.condicoesAmbientais.umidadeMin ?? '?'} -{' '}
+                {e.condicoesAmbientais.umidadeMax ?? '?'}%
+              </div>
             )}
             {e.condicoesAmbientais.voltagem && (
               <div>Voltagem: {e.condicoesAmbientais.voltagem}</div>
@@ -267,7 +300,9 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
           <p className="text-[11px] uppercase tracking-widest font-semibold text-slate-400 dark:text-white/30 mb-1">
             Observacoes
           </p>
-          <p className="text-xs text-slate-600 dark:text-white/50 whitespace-pre-wrap">{e.observacoes}</p>
+          <p className="text-xs text-slate-600 dark:text-white/50 whitespace-pre-wrap">
+            {e.observacoes}
+          </p>
         </div>
       )}
     </div>
@@ -276,7 +311,13 @@ function TabResumo({ equipamento }: { equipamento: Equipamento }) {
 
 // ─── Tab Calibracao ─────────────────────────────────────────────────────────
 
-function TabCalibracao({ equipamento, calibracaoStatus }: { equipamento: Equipamento; calibracaoStatus: CalibracaoStatus }) {
+function TabCalibracao({
+  equipamento,
+  calibracaoStatus,
+}: {
+  equipamento: Equipamento;
+  calibracaoStatus: CalibracaoStatus;
+}) {
   const [showForm, setShowForm] = useState(false);
   const [proximaData, setProximaData] = useState('');
   const [certificadoUrl, setCertificadoUrl] = useState('');
@@ -323,7 +364,13 @@ function TabCalibracao({ equipamento, calibracaoStatus }: { equipamento: Equipam
           onClick={() => setShowForm(!showForm)}
           className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors"
         >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Registrar calibracao
@@ -334,7 +381,9 @@ function TabCalibracao({ equipamento, calibracaoStatus }: { equipamento: Equipam
         <div className="p-4 rounded-xl bg-white dark:bg-[#0F1318] border border-violet-200 dark:border-violet-500/20 space-y-3">
           <p className="text-xs font-semibold text-slate-700 dark:text-white/70">Nova calibracao</p>
           <div>
-            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-1">Proxima calibracao *</label>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-1">
+              Proxima calibracao *
+            </label>
             <input
               type="date"
               value={proximaData}
@@ -343,7 +392,9 @@ function TabCalibracao({ equipamento, calibracaoStatus }: { equipamento: Equipam
             />
           </div>
           <div>
-            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-1">URL do certificado (opcional)</label>
+            <label className="block text-[11px] text-slate-500 dark:text-white/40 mb-1">
+              URL do certificado (opcional)
+            </label>
             <input
               type="text"
               value={certificadoUrl}
@@ -429,7 +480,8 @@ function ProximaManutencaoAlerta({ equipamento }: { equipamento: Equipamento }) 
               Frequencia de manutencao preventiva nao configurada
             </p>
             <p className="text-[11px] text-slate-400 dark:text-white/30">
-              Edite o equipamento e preencha &quot;Frequencia Manutencao Preventiva&quot; na secao DICQ para ativar alertas automaticos.
+              Edite o equipamento e preencha &quot;Frequencia Manutencao Preventiva&quot; na secao
+              DICQ para ativar alertas automaticos.
             </p>
           </div>
         </div>
@@ -479,13 +531,11 @@ function ProximaManutencaoAlerta({ equipamento }: { equipamento: Equipamento }) 
         <span>{iconText}</span>
         <div>
           <p className={`text-xs font-medium ${textStyle}`}>
-            Proxima manutencao preventiva ({FREQ_LABEL[freq]}): {proximaData.toLocaleDateString('pt-BR')}
+            Proxima manutencao preventiva ({FREQ_LABEL[freq]}):{' '}
+            {proximaData.toLocaleDateString('pt-BR')}
           </p>
           <p className={`text-[11px] ${textStyle} opacity-70`}>
-            {diasRestantes <= 0
-              ? 'Manutencao preventiva VENCIDA'
-              : `Faltam ${diasRestantes} dias`
-            }
+            {diasRestantes <= 0 ? 'Manutencao preventiva VENCIDA' : `Faltam ${diasRestantes} dias`}
           </p>
         </div>
       </div>

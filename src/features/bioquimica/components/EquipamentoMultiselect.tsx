@@ -89,9 +89,7 @@ export function EquipamentoMultiselect({
 
   // Equipment currently in use (has an active lot)
   const equipmentosEmUso = new Set(
-    lotesEmUso
-      .flatMap((lot) => lot.equipmentIds)
-      .filter((id) => !selectedIds.includes(id)), // Don't disable if already selected
+    lotesEmUso.flatMap((lot) => lot.equipmentIds).filter((id) => !selectedIds.includes(id)), // Don't disable if already selected
   );
 
   // Toggle selection
@@ -189,21 +187,13 @@ export function EquipamentoMultiselect({
                               : 'hover:bg-white/[0.05] active:bg-white/[0.08]'
                           }
                         `}
-                        title={
-                          isBusy
-                            ? `${equip.name} já possui um lote ativo`
-                            : undefined
-                        }
+                        title={isBusy ? `${equip.name} já possui um lote ativo` : undefined}
                       >
                         {/* Checkbox */}
                         <div
                           className={`w-4 h-4 rounded border flex items-center justify-center shrink-0
                             transition-colors
-                            ${
-                              isSelected
-                                ? 'bg-violet-500 border-violet-500'
-                                : 'border-white/20'
-                            }
+                            ${isSelected ? 'bg-violet-500 border-violet-500' : 'border-white/20'}
                           `}
                         >
                           {isSelected && (
@@ -216,9 +206,7 @@ export function EquipamentoMultiselect({
                         {/* Label */}
                         <div className="flex-1 min-w-0">
                           <p className="text-white/90 truncate">{equip.name}</p>
-                          <p className="text-[11px] text-white/40 truncate">
-                            {equip.modelo}
-                          </p>
+                          <p className="text-[11px] text-white/40 truncate">{equip.modelo}</p>
                         </div>
 
                         {/* Busy badge */}
@@ -263,9 +251,7 @@ export function EquipamentoMultiselect({
 
       {/* Helper text */}
       {selectedIds.length === 0 && (
-        <p className="text-xs text-white/25 ml-0.5">
-          Selecione pelo menos um equipamento
-        </p>
+        <p className="text-xs text-white/25 ml-0.5">Selecione pelo menos um equipamento</p>
       )}
     </div>
   );

@@ -8,8 +8,7 @@ import type { CalibracaoStatus } from '../hooks/useCalibracaoStatus';
 import { useCalibracaoBadgePresentation } from '../hooks/useCalibracaoBadgePresentation';
 
 /** Base espacial/tipográfica do módulo (espelha `CHIP` em EquipamentoCard). */
-const BADGE_BASE =
-  'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold';
+const BADGE_BASE = 'inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold';
 
 export interface CalibracaoBadgeProps {
   calibracaoStatus: CalibracaoStatus;

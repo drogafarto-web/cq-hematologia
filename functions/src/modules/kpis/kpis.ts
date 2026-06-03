@@ -44,7 +44,7 @@ export const aggregateKPIs = onSchedule(
         }
 
         // Aggregate metrics
-        const runs = runsSnapshot.docs.map(d => d.data());
+        const runs = runsSnapshot.docs.map((d) => d.data());
         const totalRuns = runs.length;
 
         // TURNAROUND: avg time from creation to result release
@@ -61,7 +61,8 @@ export const aggregateKPIs = onSchedule(
           }
         }
 
-        const turnaroundMedia = turnaroundTimes.length > 0 ? turnaroundSum / turnaroundTimes.length : 0;
+        const turnaroundMedia =
+          turnaroundTimes.length > 0 ? turnaroundSum / turnaroundTimes.length : 0;
         turnaroundTimes.sort((a, b) => a - b);
         const turnaroundP95 = turnaroundTimes[Math.ceil(turnaroundTimes.length * 0.95) - 1] || 0;
 
@@ -73,18 +74,14 @@ export const aggregateKPIs = onSchedule(
         let reruns = 0;
 
         const hasExplicitRerunField = runs.some(
-          r => r.rerun !== undefined || r.statusRun !== undefined,
+          (r) => r.rerun !== undefined || r.statusRun !== undefined,
         );
 
         if (hasExplicitRerunField) {
-          reruns = runs.filter(
-            r => r.rerun === true || r.statusRun === 'repetido',
-          ).length;
+          reruns = runs.filter((r) => r.rerun === true || r.statusRun === 'repetido').length;
         } else {
           // Fallback: amostraId-based heuristic — exclude null/'unknown' to avoid over-counting
-          const validRuns = runs.filter(
-            r => r.amostraId && r.amostraId !== 'unknown',
-          );
+          const validRuns = runs.filter((r) => r.amostraId && r.amostraId !== 'unknown');
           const runsPerSample: Record<string, number> = {};
           for (const run of validRuns) {
             const key = run.amostraId as string;
@@ -194,7 +191,9 @@ export const aggregateKPIs = onSchedule(
 
         await db.collection(`labs/${labId}/kpi-metrics`).add(kpiRecord);
 
-        console.log(`[KPI] Lab ${labId}: Aggregation complete (runs: ${totalRuns}, turnaround: ${turnaroundMedia.toFixed(1)}h)`);
+        console.log(
+          `[KPI] Lab ${labId}: Aggregation complete (runs: ${totalRuns}, turnaround: ${turnaroundMedia.toFixed(1)}h)`,
+        );
 
         // Audit — best-effort com retry + fallback
         await writeAuditLog({
@@ -211,5 +210,5 @@ export const aggregateKPIs = onSchedule(
         console.error(`Erro agregando KPIs para ${labId}:`, error);
       }
     }
-  }
+  },
 );

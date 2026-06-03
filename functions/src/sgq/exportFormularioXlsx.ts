@@ -75,12 +75,15 @@ export const exportFormularioXlsx = onCall<ExportFormularioInput>(
 
     const colWidths = calcColWidths(colunas, dados);
     const totalWidth = colWidths.reduce((sum, w) => sum + w, 0);
-    const orientation: 'portrait' | 'landscape' = totalWidth > LARGURA_LIMITE_RETRATO ? 'landscape' : 'portrait';
+    const orientation: 'portrait' | 'landscape' =
+      totalWidth > LARGURA_LIMITE_RETRATO ? 'landscape' : 'portrait';
 
     const headerRows = [
       [labName.toUpperCase()],
       [`${codigo} — ${docTitulo} (v${versao})`],
-      [`Exportado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`],
+      [
+        `Exportado em: ${new Date().toLocaleDateString('pt-BR')} ${new Date().toLocaleTimeString('pt-BR')}`,
+      ],
       [],
     ];
 

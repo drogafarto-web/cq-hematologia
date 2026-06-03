@@ -52,11 +52,16 @@ interface ExportJob {
 /** Maps format code to human-readable label for email subjects */
 function formatLabel(format: string): string {
   switch (format) {
-    case 'xlsx-ciq':       return 'XLSX — Corridas CIQ';
-    case 'xlsx-nc':        return 'XLSX — Registro de NCs';
-    case 'pdf-compliance': return 'PDF — Relatório de Conformidade';
-    case 'csv-audit':      return 'CSV — Log de Auditoria';
-    default:               return format;
+    case 'xlsx-ciq':
+      return 'XLSX — Corridas CIQ';
+    case 'xlsx-nc':
+      return 'XLSX — Registro de NCs';
+    case 'pdf-compliance':
+      return 'PDF — Relatório de Conformidade';
+    case 'csv-audit':
+      return 'CSV — Log de Auditoria';
+    default:
+      return format;
   }
 }
 
@@ -73,15 +78,8 @@ function toDate(ts: FirebaseFirestore.Timestamp | Date | unknown): Date {
  * Generates CIQ XLSX with conditional formatting for out-of-range values.
  * Requires xlsx installed with cellStyles support.
  */
-async function generateXlsxCIQ(
-  labId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<Buffer> {
-  const col = db
-    .collection('runs')
-    .doc(labId)
-    .collection('entries');
+async function generateXlsxCIQ(labId: string, startDate: Date, endDate: Date): Promise<Buffer> {
+  const col = db.collection('runs').doc(labId).collection('entries');
 
   const snap = await col
     .where('criadoEm', '>=', startDate)
@@ -92,13 +90,13 @@ async function generateXlsxCIQ(
   const data = snap.docs.map((d) => {
     const r = d.data();
     return {
-      'ID':          d.id,
-      'Status':      r['status'] ?? '',
-      'Equipamento': r['equipmentId'] ?? '',
-      'Operador':    r['operatorId'] ?? '',
-      'Resultado':   r['resultado'] ?? '',
-      'Data':        r['criadoEm']?.toDate?.() ?? r['criadoEm'],
-      'Módulo':      r['moduleName'] ?? '',
+      ID: d.id,
+      Status: r['status'] ?? '',
+      Equipamento: r['equipmentId'] ?? '',
+      Operador: r['operatorId'] ?? '',
+      Resultado: r['resultado'] ?? '',
+      Data: r['criadoEm']?.toDate?.() ?? r['criadoEm'],
+      Módulo: r['moduleName'] ?? '',
     };
   });
 
@@ -134,11 +132,7 @@ async function generateXlsxCIQ(
 /**
  * Generates NC XLSX from nao-conformidades collection.
  */
-async function generateXlsxNC(
-  labId: string,
-  startDate: Date,
-  endDate: Date,
-): Promise<Buffer> {
+async function generateXlsxNC(labId: string, startDate: Date, endDate: Date): Promise<Buffer> {
   const col = db.collection('labs').doc(labId).collection('naoConformidades');
 
   const snap = await col
@@ -150,22 +144,29 @@ async function generateXlsxNC(
   const data = snap.docs.map((d) => {
     const r = d.data();
     return {
-      'ID':           d.id,
-      'Título':       r['titulo'] ?? '',
-      'Módulo':       r['moduloOrigem'] ?? '',
-      'Status':       r['status'] ?? '',
-      'Severidade':   r['severidade'] ?? '',
-      'Operador':     r['operatorId'] ?? '',
+      ID: d.id,
+      Título: r['titulo'] ?? '',
+      Módulo: r['moduloOrigem'] ?? '',
+      Status: r['status'] ?? '',
+      Severidade: r['severidade'] ?? '',
+      Operador: r['operatorId'] ?? '',
       'Data abertura': r['criadoEm']?.toDate?.() ?? '',
       'Data fechamento': r['fechadoEm']?.toDate?.() ?? '',
-      'Descrição':    r['descricao'] ?? '',
+      Descrição: r['descricao'] ?? '',
     };
   });
 
   const ws = XLSX.utils.json_to_sheet(data);
   ws['!cols'] = [
-    { wch: 20 }, { wch: 30 }, { wch: 16 }, { wch: 14 },
-    { wch: 14 }, { wch: 14 }, { wch: 22 }, { wch: 22 }, { wch: 40 },
+    { wch: 20 },
+    { wch: 30 },
+    { wch: 16 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 14 },
+    { wch: 22 },
+    { wch: 22 },
+    { wch: 40 },
   ];
 
   const wb = XLSX.utils.book_new();
@@ -201,14 +202,18 @@ async function generateCompliancePDF(
     doc.fontSize(20).text('Relatório de Conformidade', { align: 'center' });
     doc.moveDown();
     doc.fontSize(12).text(`Laboratório: ${labId}`);
-    doc.text(`Período: ${startDate.toLocaleDateString('pt-BR')} — ${endDate.toLocaleDateString('pt-BR')}`);
+    doc.text(
+      `Período: ${startDate.toLocaleDateString('pt-BR')} — ${endDate.toLocaleDateString('pt-BR')}`,
+    );
     doc.text(`Gerado em: ${new Date().toISOString()}`);
     doc.moveDown();
 
-    doc.fontSize(10).text(
-      'Este relatório foi gerado automaticamente pelo HC Quality (RDC 978/2025 Art. 128). ' +
-      'Os dados refletem o estado do sistema no período selecionado.'
-    );
+    doc
+      .fontSize(10)
+      .text(
+        'Este relatório foi gerado automaticamente pelo HC Quality (RDC 978/2025 Art. 128). ' +
+          'Os dados refletem o estado do sistema no período selecionado.',
+      );
 
     doc.end();
   });
@@ -245,11 +250,7 @@ export const backgroundWorker = onMessagePublished(
       console.log(`[BackgroundWorker] Processing job ${jobId} for lab ${labId}, format ${format}`);
 
       // 2. Load job document
-      const jobRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('export-jobs')
-        .doc(jobId);
+      const jobRef = db.collection('labs').doc(labId).collection('export-jobs').doc(jobId);
 
       const jobDoc = await jobRef.get();
       if (!jobDoc.exists) {
@@ -322,9 +323,7 @@ export const backgroundWorker = onMessagePublished(
         },
       });
 
-      console.log(
-        `[BackgroundWorker] Uploaded to ${gsPath}, size: ${fileBuffer.length} bytes`
-      );
+      console.log(`[BackgroundWorker] Uploaded to ${gsPath}, size: ${fileBuffer.length} bytes`);
 
       // 6. Generate signed URL (7-day expiry)
       const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
@@ -373,9 +372,7 @@ export const backgroundWorker = onMessagePublished(
         }
       }
 
-      console.log(
-        `[BackgroundWorker] Job ${jobId} completed in ${processingDurationMs}ms`
-      );
+      console.log(`[BackgroundWorker] Job ${jobId} completed in ${processingDurationMs}ms`);
 
       return { success: true, jobId, processingDurationMs };
     } catch (error: unknown) {
@@ -403,5 +400,5 @@ export const backgroundWorker = onMessagePublished(
 
       throw error; // Pub/Sub will retry
     }
-  }
+  },
 );

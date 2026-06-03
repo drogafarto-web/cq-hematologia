@@ -11,10 +11,7 @@
 
 import * as React from 'react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import {
-  functions,
-  httpsCallable,
-} from '../../../shared/services/firebase';
+import { functions, httpsCallable } from '../../../shared/services/firebase';
 import type { ReclamacaoCanal } from '../types/mp6';
 
 export interface ReclamacaoIntakeFormProps {
@@ -38,12 +35,7 @@ interface AttachmentDraft {
   mimeType: string;
 }
 
-const ACCEPTED_MIMES = [
-  'application/pdf',
-  'image/png',
-  'image/jpeg',
-  'image/webp',
-] as const;
+const ACCEPTED_MIMES = ['application/pdf', 'image/png', 'image/jpeg', 'image/webp'] as const;
 
 const MAX_TOTAL_BYTES = 10 * 1024 * 1024; // 10 MB
 const MAX_FILES = 5;
@@ -94,17 +86,10 @@ export function ReclamacaoIntakeForm({
   const stepValid = useMemo<boolean>(() => {
     if (step === 1) {
       if (anonymous) return true;
-      return (
-        patientName.trim().length >= 2 &&
-        patientContact.trim().length >= 4 &&
-        consent
-      );
+      return patientName.trim().length >= 2 && patientContact.trim().length >= 4 && consent;
     }
     if (step === 2) {
-      return (
-        description.trim().length >= MIN_DESCRIPTION &&
-        description.length <= MAX_DESCRIPTION
-      );
+      return description.trim().length >= MIN_DESCRIPTION && description.length <= MAX_DESCRIPTION;
     }
     if (step === 3) {
       return totalBytes <= MAX_TOTAL_BYTES && attachments.length <= MAX_FILES;
@@ -127,11 +112,7 @@ export function ReclamacaoIntakeForm({
       const next: AttachmentDraft[] = [...attachments];
       for (const f of Array.from(files)) {
         if (next.length >= MAX_FILES) break;
-        if (
-          !ACCEPTED_MIMES.includes(
-            f.type as (typeof ACCEPTED_MIMES)[number],
-          )
-        ) {
+        if (!ACCEPTED_MIMES.includes(f.type as (typeof ACCEPTED_MIMES)[number])) {
           continue;
         }
         next.push({
@@ -185,16 +166,7 @@ export function ReclamacaoIntakeForm({
           : 'Não foi possível enviar a reclamação. Tente novamente.';
       setSubmitState({ kind: 'error', message });
     }
-  }, [
-    labId,
-    canal,
-    description,
-    anonymous,
-    patientName,
-    patientContact,
-    consent,
-    onSubmitted,
-  ]);
+  }, [labId, canal, description, anonymous, patientName, patientContact, consent, onSubmitted]);
 
   return (
     <div className="min-h-screen bg-[#0e0e10] text-white px-4 py-12">
@@ -208,26 +180,19 @@ export function ReclamacaoIntakeForm({
         aria-labelledby={`${descId}-title`}
       >
         <header className="space-y-2">
-          <h1
-            id={`${descId}-title`}
-            className="text-2xl font-medium tracking-tight text-white"
-          >
+          <h1 id={`${descId}-title`} className="text-2xl font-medium tracking-tight text-white">
             Registrar reclamação
           </h1>
           <p className="text-sm text-white/70 leading-relaxed">
-            Sua percepção move melhorias reais. Trataremos seu relato com
-            confidencialidade e rastreabilidade auditável.
+            Sua percepção move melhorias reais. Trataremos seu relato com confidencialidade e
+            rastreabilidade auditável.
           </p>
         </header>
 
         <StepNav step={step} reducedMotion={reducedMotion} />
 
         {step === 1 && (
-          <section
-            role="region"
-            aria-labelledby={`${descId}-step-1`}
-            className="space-y-5"
-          >
+          <section role="region" aria-labelledby={`${descId}-step-1`} className="space-y-5">
             <h2 id={`${descId}-step-1`} className="sr-only">
               Identificação
             </h2>
@@ -240,12 +205,10 @@ export function ReclamacaoIntakeForm({
                 onChange={(e) => setAnonymous(e.target.checked)}
               />
               <span className="text-sm text-white/85">
-                <strong className="font-medium">
-                  Quero permanecer anônimo(a)
-                </strong>
+                <strong className="font-medium">Quero permanecer anônimo(a)</strong>
                 <span className="block text-white/60 text-xs mt-1 leading-relaxed">
-                  Recomendamos identificação para que possamos retornar com a
-                  resolução, mas você pode prosseguir anonimamente.
+                  Recomendamos identificação para que possamos retornar com a resolução, mas você
+                  pode prosseguir anonimamente.
                 </span>
               </span>
             </label>
@@ -293,9 +256,8 @@ export function ReclamacaoIntakeForm({
                     >
                       Política de Privacidade
                     </a>{' '}
-                    para que o laboratório possa entrar em contato sobre esta
-                    reclamação. Consentimento registrado conforme LGPD Art.
-                    9/11.
+                    para que o laboratório possa entrar em contato sobre esta reclamação.
+                    Consentimento registrado conforme LGPD Art. 9/11.
                   </span>
                 </label>
               </div>
@@ -304,15 +266,8 @@ export function ReclamacaoIntakeForm({
         )}
 
         {step === 2 && (
-          <section
-            role="region"
-            aria-labelledby={`${descId}-step-2`}
-            className="space-y-3"
-          >
-            <h2
-              id={`${descId}-step-2`}
-              className="text-base font-medium text-white"
-            >
+          <section role="region" aria-labelledby={`${descId}-step-2`} className="space-y-3">
+            <h2 id={`${descId}-step-2`} className="text-base font-medium text-white">
               Descreva o ocorrido
             </h2>
             <textarea
@@ -324,10 +279,7 @@ export function ReclamacaoIntakeForm({
               placeholder="Descreva o ocorrido com clareza — quanto mais contexto, melhor poderemos investigar."
               className="w-full bg-[#0e0e10] border border-white/10 focus:border-violet-500/60 focus:ring-2 focus:ring-violet-500/40 rounded-lg px-4 py-3 text-sm text-white placeholder:text-white/30 leading-relaxed outline-none transition-colors duration-150 resize-none"
             />
-            <p
-              id={counterId}
-              className="text-xs text-white/50 tabular-nums flex justify-between"
-            >
+            <p id={counterId} className="text-xs text-white/50 tabular-nums flex justify-between">
               <span>
                 {description.length < MIN_DESCRIPTION
                   ? `${MIN_DESCRIPTION - description.length} caracteres restantes (mínimo)`
@@ -341,15 +293,8 @@ export function ReclamacaoIntakeForm({
         )}
 
         {step === 3 && (
-          <section
-            role="region"
-            aria-labelledby={`${descId}-step-3`}
-            className="space-y-4"
-          >
-            <h2
-              id={`${descId}-step-3`}
-              className="text-base font-medium text-white"
-            >
+          <section role="region" aria-labelledby={`${descId}-step-3`} className="space-y-4">
+            <h2 id={`${descId}-step-3`} className="text-base font-medium text-white">
               Anexos (opcional)
             </h2>
             <label
@@ -381,9 +326,7 @@ export function ReclamacaoIntakeForm({
                     className="flex items-center justify-between bg-white/[0.03] border border-white/5 rounded-lg px-4 py-2.5"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm text-white/90 truncate">
-                        {a.fileName}
-                      </p>
+                      <p className="text-sm text-white/90 truncate">{a.fileName}</p>
                       <p className="text-xs text-white/50 tabular-nums">
                         {formatBytes(a.fileSize)}
                       </p>
@@ -413,29 +356,15 @@ export function ReclamacaoIntakeForm({
         )}
 
         {step === 4 && (
-          <section
-            role="region"
-            aria-labelledby={`${descId}-step-4`}
-            className="space-y-5"
-          >
-            <h2
-              id={`${descId}-step-4`}
-              className="text-base font-medium text-white"
-            >
+          <section role="region" aria-labelledby={`${descId}-step-4`} className="space-y-5">
+            <h2 id={`${descId}-step-4`} className="text-base font-medium text-white">
               Conferir e enviar
             </h2>
             <SummaryRow
               label="Identificação"
-              value={
-                anonymous
-                  ? 'Anônima'
-                  : `${patientName} · ${patientContact}`
-              }
+              value={anonymous ? 'Anônima' : `${patientName} · ${patientContact}`}
             />
-            <SummaryRow
-              label="Descrição"
-              value={`${description.length} caracteres`}
-            />
+            <SummaryRow label="Descrição" value={`${description.length} caracteres`} />
             <SummaryRow
               label="Anexos"
               value={
@@ -445,8 +374,8 @@ export function ReclamacaoIntakeForm({
               }
             />
             <p className="text-xs text-white/50 leading-relaxed">
-              Ao enviar, gravamos uma assinatura criptográfica do seu relato
-              para garantir integridade e rastreabilidade conforme RDC 978/2025.
+              Ao enviar, gravamos uma assinatura criptográfica do seu relato para garantir
+              integridade e rastreabilidade conforme RDC 978/2025.
             </p>
 
             {submitState.kind === 'error' && (
@@ -502,9 +431,7 @@ export function ReclamacaoIntakeForm({
             <button
               type="submit"
               disabled={
-                !stepValid ||
-                submitState.kind === 'submitting' ||
-                submitState.kind === 'success'
+                !stepValid || submitState.kind === 'submitting' || submitState.kind === 'success'
               }
               className="bg-violet-500 hover:bg-violet-600 disabled:bg-white/10 disabled:text-white/40 disabled:cursor-not-allowed text-white font-medium px-5 py-2.5 rounded-xl text-sm transition-colors duration-150"
             >
@@ -531,11 +458,7 @@ function StepNav({
   reducedMotion: boolean;
 }): React.JSX.Element {
   return (
-    <nav
-      role="navigation"
-      aria-label="Etapas do formulário"
-      className="flex items-center gap-2"
-    >
+    <nav role="navigation" aria-label="Etapas do formulário" className="flex items-center gap-2">
       {STEPS.map((s, idx) => {
         const active = s.id === step;
         const done = s.id < step;
@@ -556,16 +479,13 @@ function StepNav({
               {done ? '✓' : s.id}
             </span>
             <span
-              className={[
-                'text-xs hidden sm:inline',
-                active ? 'text-white' : 'text-white/50',
-              ].join(' ')}
+              className={['text-xs hidden sm:inline', active ? 'text-white' : 'text-white/50'].join(
+                ' ',
+              )}
             >
               {s.label}
             </span>
-            {idx < STEPS.length - 1 && (
-              <div className="flex-1 h-px bg-white/5" aria-hidden />
-            )}
+            {idx < STEPS.length - 1 && <div className="flex-1 h-px bg-white/5" aria-hidden />}
           </div>
         );
       })}
@@ -588,13 +508,7 @@ function FieldLabel({
   );
 }
 
-function SummaryRow({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}): React.JSX.Element {
+function SummaryRow({ label, value }: { label: string; value: string }): React.JSX.Element {
   return (
     <div className="flex items-baseline justify-between gap-4 border-b border-white/5 pb-3">
       <span className="text-xs text-white/50">{label}</span>

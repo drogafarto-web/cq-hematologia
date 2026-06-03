@@ -22,12 +22,8 @@ export const PortalPacienteNav: React.FC<PortalPacienteNavProps> = ({
         {/* Left: Patient + Lab info */}
         <div className="min-w-0 flex-1">
           <p className="text-xs text-white/60">Paciente</p>
-          <p className="text-sm font-medium text-white/95 truncate">
-            {patientName}
-          </p>
-          <p className="text-xs text-white/50 mt-0.5">
-            {labName}
-          </p>
+          <p className="text-sm font-medium text-white/95 truncate">{patientName}</p>
+          <p className="text-xs text-white/50 mt-0.5">{labName}</p>
         </div>
 
         {/* Right: Logout button */}

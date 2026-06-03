@@ -21,7 +21,7 @@ created: 2026-05-07
 1. ✅ **Tests**: `npm test` passes 738/738 unit tests
 2. ✅ **Type check**: `npx tsc --noEmit` zero errors (web + functions)
 3. ✅ **Deploy**: Step 1 (Rules+Indexes) + Step 2 (Functions 78×) + Step 3 (Hosting) **LIVE** in production
-4. ✅ **Baseline artifacts**: 
+4. ✅ **Baseline artifacts**:
    - `src/features/turnos/` (complete, Plan 00-01 done)
    - `docs/policies/POL-LGPD-001-v1.0.pdf` + `IT-LGPD-DPIA-001-v1.0.pdf` (uploaded to Storage, Plan 00-02 done)
    - Firebase project `hmatologia2` accessible with southamerica-east1 region
@@ -158,14 +158,14 @@ See detailed file: `.planning/phases/00-rdc-blockers/00-04-EXECUTION-CHECKLIST.m
 
 ## Failure Recovery (per Phase 0 Risk Register)
 
-| Risk ID | Trigger | Escalation | Mitigation |
-|---------|---------|-----------|-----------|
-| P0-R1 | Lab Apoio contracts template wrong | P0-R1 in Stream A docs | Disclaimer banner at form step 1; Phase 1 week 2 review scheduled |
-| P0-R2 | FMEA methodology change request mid-execution | ADR-0016 objection from CTO | Escape hatch in ADR: "ISO 31000 v1.5 if feedback warrants" |
-| P0-R3 | Turnos supervisor not active in educacao | Turnos callable validation | Validation pre-check in callable; error message guides user |
-| P0-R4 | Risk seed data incomplete | CSV importer stretch task | Mark stretch; ship without seed; backlog for v1.4 Phase 1 |
-| P0-R5 | LGPD policies not reviewed by compliance | Plan 00-02 sign-off | CTO can self-approve; escalate if external counsel required |
-| P0-R6 | Callable pattern breaks under load | Emulator smoke test | Emulator test non-binding; scale test post-Phase 0 (Phase 1 week 3) |
+| Risk ID | Trigger                                       | Escalation                  | Mitigation                                                          |
+| ------- | --------------------------------------------- | --------------------------- | ------------------------------------------------------------------- |
+| P0-R1   | Lab Apoio contracts template wrong            | P0-R1 in Stream A docs      | Disclaimer banner at form step 1; Phase 1 week 2 review scheduled   |
+| P0-R2   | FMEA methodology change request mid-execution | ADR-0016 objection from CTO | Escape hatch in ADR: "ISO 31000 v1.5 if feedback warrants"          |
+| P0-R3   | Turnos supervisor not active in educacao      | Turnos callable validation  | Validation pre-check in callable; error message guides user         |
+| P0-R4   | Risk seed data incomplete                     | CSV importer stretch task   | Mark stretch; ship without seed; backlog for v1.4 Phase 1           |
+| P0-R5   | LGPD policies not reviewed by compliance      | Plan 00-02 sign-off         | CTO can self-approve; escalate if external counsel required         |
+| P0-R6   | Callable pattern breaks under load            | Emulator smoke test         | Emulator test non-binding; scale test post-Phase 0 (Phase 1 week 3) |
 
 ---
 

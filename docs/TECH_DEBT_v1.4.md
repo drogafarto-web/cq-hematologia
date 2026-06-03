@@ -12,7 +12,8 @@
 
 **Issue:** Old NOTIVISA code at `functions/src/modules/notivisa-legacy/**` contains 149 TypeScript errors.
 
-**Impact:** 
+**Impact:**
+
 - Lint warnings pollute build output (not runtime-critical)
 - Risk of accidental import from legacy path (code review mitigates)
 - Technical debt for Phase 6+
@@ -24,6 +25,7 @@
 **Type Errors:** 149 (missing types, circular imports, deprecated patterns)
 
 **Remediation Plan:**
+
 - **Phase 6 (2026-06-12):** Hard delete `notivisa-legacy/**` directory
 - **Pre-Delete Checklist:**
   - [x] Wave 3.6 migration guide documented
@@ -44,17 +46,20 @@
 **Issue:** `functions/src/modules/ocr-quality/types.ts` and `labApoio/contractTemplate.ts` export types that are not used by current modules.
 
 **Impact:**
+
 - Type index incomplete (developers can't import from `ocr-quality/types`)
 - Inconsistent export pattern (some modules have barrel exports, others don't)
 - Not a runtime error, but hampers developer ergonomics
 
 **Location:**
+
 - `functions/src/modules/ocr-quality/types.ts` (exported types: unused)
 - `functions/src/modules/labApoio/contractTemplate.ts` (template type: exported but internal)
 
 **Lines:** ~50 LOC (type defs)
 
 **Remediation Plan:**
+
 - **Phase 5 (2026-05-22):** Consolidate type exports
   - Create barrel file: `functions/src/modules/ocr-quality/index.ts`
   - Export: `{ OcrResult, OcrRequest, OcrResponse }` from types
@@ -73,21 +78,21 @@
 **Issue:** Both old and new NOTIVISA paths exist concurrently (Phase 4 adds v1.4, Phase 3 kept legacy).
 
 **Impact:**
+
 - Risk: Dev accidentally imports from legacy path → silent behavioral difference
 - Code review catches this, but adds friction
 - Customer confusion if legacy API docs still circulate
 
 **Migration Path:**
+
 - **Phase 4 (Now):** v1.4 is primary path
   - All new callables use `notivisa/**`
   - All tests reference v1.4
   - Legacy path untouched (backward compat window)
-  
 - **Phase 5 (2026-05-22):** Customer communication
   - "Migrate to v1.4 API by [date]"
   - Publish migration guide (Wave 3.6 proposal)
   - Support legacy for 1 more phase
-  
 - **Phase 6 (2026-06-12):** Hard delete
   - Remove `notivisa-legacy/**`
   - Verify no references remain
@@ -103,6 +108,7 @@
 **Issue:** Portal-Paciente reserves 'analytics' consent scope, but analytics module doesn't yet consume it.
 
 **Impact:**
+
 - No functional impact (scope unused)
 - When analytics module needs consent, scope will be ready
 - Prevents duplicate refactoring later
@@ -118,6 +124,7 @@
 ## Phase 4 Cleanup (No New Debt)
 
 **Code Quality Baseline:**
+
 - ✅ TypeScript: 0 errors (excluding notivisa-legacy pre-existing)
 - ✅ Linting: <20 warnings (baseline acceptable)
 - ✅ Bundle: 362 KB (within target)
@@ -125,6 +132,7 @@
 - ✅ Audit: No new audit findings
 
 **Debt Not Introduced:**
+
 - ✅ No dead code added
 - ✅ No TODO comments without phase labels
 - ✅ No console.log statements in production code
@@ -135,12 +143,12 @@
 
 ## Debt Resolution Timeline
 
-| Phase | Item | Action | Effort | Owner |
-|-------|------|--------|--------|-------|
-| Phase 5 (2026-05-22) | Export type consolidation | Organize barrel exports | 1h | Wave lead |
-| Phase 5 | Analytics scope | Document as placeholder | 15m | PM |
-| Phase 6 (2026-06-12) | NOTIVISA legacy hard delete | Delete + verify + test | 2h | Wave lead |
-| Phase 6 | Legacy migration comms | Customer notification | 1h | PM |
+| Phase                | Item                        | Action                  | Effort | Owner     |
+| -------------------- | --------------------------- | ----------------------- | ------ | --------- |
+| Phase 5 (2026-05-22) | Export type consolidation   | Organize barrel exports | 1h     | Wave lead |
+| Phase 5              | Analytics scope             | Document as placeholder | 15m    | PM        |
+| Phase 6 (2026-06-12) | NOTIVISA legacy hard delete | Delete + verify + test  | 2h     | Wave lead |
+| Phase 6              | Legacy migration comms      | Customer notification   | 1h     | PM        |
 
 ---
 
@@ -195,11 +203,11 @@ Minimum: 80% code coverage
 
 ## Maintenance Schedule
 
-| Frequency | Task | Owner |
-|-----------|------|-------|
-| Weekly | Lint warnings review (keep <20) | Tech Lead |
-| Monthly | Tech debt backlog review | CTO |
-| Phase boundary | Debt resolution verification | Wave lead |
+| Frequency      | Task                            | Owner     |
+| -------------- | ------------------------------- | --------- |
+| Weekly         | Lint warnings review (keep <20) | Tech Lead |
+| Monthly        | Tech debt backlog review        | CTO       |
+| Phase boundary | Debt resolution verification    | Wave lead |
 
 ---
 

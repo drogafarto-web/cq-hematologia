@@ -3,6 +3,7 @@
 ## [0.1.0] - 2026-05-25
 
 ### Added
+
 - Next.js 14 project scaffold with TypeScript strict
 - PostgreSQL database with Prisma ORM
 - Prisma schema: User, Analyzer, Calibration, Maintenance, Lot, QcRun, CorrectiveAction, AuditLog, Report

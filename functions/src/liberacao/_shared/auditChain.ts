@@ -37,10 +37,7 @@ export function sha256(input: string): string {
  * @param payload Dados a hashear
  * @returns SHA-256 de 64 caracteres hexadecimais
  */
-export function calculateChainHash(
-  prevChainHash: string,
-  payload: any
-): string {
+export function calculateChainHash(prevChainHash: string, payload: any): string {
   const canonical = canonicalizePayload(payload);
   const combined = prevChainHash + canonical;
   return sha256(combined);

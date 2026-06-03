@@ -45,7 +45,7 @@ function generateId(): string {
 export async function enqueueAction(
   action: QueuedActionType,
   labId: string,
-  data: Record<string, unknown>
+  data: Record<string, unknown>,
 ): Promise<string> {
   try {
     const existing = await AsyncStorage.getItem(QUEUE_KEY);
@@ -114,9 +114,7 @@ export async function markRetry(id: string, error: string): Promise<void> {
 
     const queue = JSON.parse(existing) as QueuedAction[];
     const updated = queue.map((a) =>
-      a.id === id
-        ? { ...a, retryCount: a.retryCount + 1, lastError: error }
-        : a
+      a.id === id ? { ...a, retryCount: a.retryCount + 1, lastError: error } : a,
     );
 
     await AsyncStorage.setItem(QUEUE_KEY, JSON.stringify(updated));
@@ -125,7 +123,7 @@ export async function markRetry(id: string, error: string): Promise<void> {
     if (action && action.retryCount >= MAX_RETRIES) {
       console.warn(
         `[OfflineQueue] Action ${id} (${action.action}) has reached MAX_RETRIES (${MAX_RETRIES}). ` +
-          'Manual intervention required.'
+          'Manual intervention required.',
       );
     }
   } catch (err) {

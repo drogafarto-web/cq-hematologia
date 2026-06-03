@@ -103,7 +103,9 @@ export async function queryCIQCompliance(labId: string): Promise<CIQComplianceMe
       const resolutionDaysArray = closedNCDocs.map((doc) => {
         const data = doc.data();
         const createdAt = data.criadoEm?.toDate ? data.criadoEm.toDate() : new Date(data.criadoEm);
-        const closedAt = data.fechadoEm?.toDate ? data.fechadoEm.toDate() : new Date(data.fechadoEm);
+        const closedAt = data.fechadoEm?.toDate
+          ? data.fechadoEm.toDate()
+          : new Date(data.fechadoEm);
         const days = (closedAt.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24);
         return days;
       });
@@ -128,7 +130,9 @@ export async function queryCIQCompliance(labId: string): Promise<CIQComplianceMe
         const processingHoursArray = sampleRunDocs
           .map((doc) => {
             const data = doc.data();
-            const createdAt = data.criadoEm?.toDate ? data.criadoEm.toDate() : new Date(data.criadoEm);
+            const createdAt = data.criadoEm?.toDate
+              ? data.criadoEm.toDate()
+              : new Date(data.criadoEm);
             const signedAt = data.assinadorEm?.toDate ? data.assinadorEm.toDate() : undefined;
 
             if (!signedAt) return 0; // Unsigned, exclude
@@ -146,9 +150,8 @@ export async function queryCIQCompliance(labId: string): Promise<CIQComplianceMe
 
     // 7. Build result object
     const compliancePercent = totalCount > 0 ? Math.round((validCount / totalCount) * 100) : 0;
-    const ncResolutionRate = openNCs + closedNCs > 0
-      ? Math.round((closedNCs / (openNCs + closedNCs)) * 100)
-      : 0;
+    const ncResolutionRate =
+      openNCs + closedNCs > 0 ? Math.round((closedNCs / (openNCs + closedNCs)) * 100) : 0;
 
     const metrics: CIQComplianceMetrics = {
       totalRuns: totalCount,

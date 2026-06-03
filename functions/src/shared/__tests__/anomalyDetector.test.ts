@@ -6,11 +6,7 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import {
-  scoreEntry,
-  detectAnomalies,
-  type AuditEntryForScoring,
-} from '../anomalyDetector';
+import { scoreEntry, detectAnomalies, type AuditEntryForScoring } from '../anomalyDetector';
 import type { BaselineStats } from '../normalizeBaseline';
 
 /**
@@ -89,7 +85,7 @@ describe('anomalyDetector', () => {
 
       const timeDim = result.dimensions.find((d) => d.dimension === 'time_anomaly');
       expect(timeDim).toBeDefined();
-      expect(timeDim!.score).toBeGreaterThan(0.2);  // Relaxed threshold
+      expect(timeDim!.score).toBeGreaterThan(0.2); // Relaxed threshold
     });
 
     it('should score result_rarity 1.0 for failure', () => {
@@ -132,7 +128,7 @@ describe('anomalyDetector', () => {
         entropyScore: 0.1,
         hourlyPattern: Array(24)
           .fill(0)
-          .map((_, i) => (i === 12 ? 0.99 : 0.002 / 23)),  // Almost all at noon
+          .map((_, i) => (i === 12 ? 0.99 : 0.002 / 23)), // Almost all at noon
       });
       const timestamp12 = new Date('2026-05-09 12:00:00').getTime();
       const entry = mockEntry({ timestamp: timestamp12 });
@@ -147,7 +143,7 @@ describe('anomalyDetector', () => {
       // Chaotic baseline (high entropy = operator operates at many times)
       const baseline = mockBaseline({
         entropyScore: 0.95,
-        hourlyPattern: Array(24).fill(1 / 24),  // Uniform
+        hourlyPattern: Array(24).fill(1 / 24), // Uniform
       });
       const timestamp3am = new Date('2026-05-09 03:00:00').getTime();
       const entry = mockEntry({ timestamp: timestamp3am });

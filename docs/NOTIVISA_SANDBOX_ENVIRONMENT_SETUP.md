@@ -1,9 +1,9 @@
 ---
-title: "NOTIVISA Sandbox Environment Configuration & Secret Setup"
-date_created: "2026-05-07"
-version: "1.1"
-status: "Ready for Phase 4 Implementation"
-audience: "DevOps + Backend Engineering + Operations"
+title: 'NOTIVISA Sandbox Environment Configuration & Secret Setup'
+date_created: '2026-05-07'
+version: '1.1'
+status: 'Ready for Phase 4 Implementation'
+audience: 'DevOps + Backend Engineering + Operations'
 ---
 
 # NOTIVISA Sandbox Environment Configuration
@@ -30,13 +30,15 @@ Complete guide for configuring HC Quality's sandbox environment with NOTIVISA cr
 
 **Timeline:** 3-5 business days for ANVISA sandbox credential provisioning after registration.
 
-**Objective:** 
+**Objective:**
+
 - Configure HC Quality to securely access NOTIVISA sandbox API
 - Establish environment-based credential switching
 - Validate sandbox connectivity before Phase 4 execution
 - Document production transition pathway
 
 **Scope (v1.4 Phase 8):**
+
 - Sandbox credentials only (no production certificate yet)
 - Form generation + RT approval workflow
 - Audit trail logging
@@ -65,6 +67,7 @@ gcloud services list --enabled --project=hmatologia2 | grep secretmanager
 ```
 
 If Secrets Manager API is not enabled:
+
 ```bash
 gcloud services enable secretmanager.googleapis.com --project=hmatologia2
 ```
@@ -133,7 +136,7 @@ export const getNotivisaSecrets = async () => {
 
   if (!apiKey || !endpoint || !cnpj) {
     throw new Error(
-      'Missing NOTIVISA secrets. Set: NOTIVISA_SANDBOX_API_KEY, NOTIVISA_SANDBOX_ENDPOINT, NOTIVISA_LAB_CNPJ'
+      'Missing NOTIVISA secrets. Set: NOTIVISA_SANDBOX_API_KEY, NOTIVISA_SANDBOX_ENDPOINT, NOTIVISA_LAB_CNPJ',
     );
   }
 
@@ -180,6 +183,7 @@ gcloud functions describe notivisaDraftCreate --region=southamerica-east1 --proj
 ```
 
 **Expected output:**
+
 ```
 secretEnvironmentVariables:
 - key: NOTIVISA_SANDBOX_API_KEY
@@ -336,6 +340,7 @@ SENTRY_RELEASE=v1.4-phase-8
 ### Step 2.2: Load .env.sandbox in Development
 
 **For Bash/Zsh:**
+
 ```bash
 # Load sandbox environment
 source .env.sandbox
@@ -349,6 +354,7 @@ NOTIVISA_SANDBOX_API_KEY="${NOTIVISA_SANDBOX_API_KEY}" npm run dev
 ```
 
 **For PowerShell (Windows):**
+
 ```powershell
 # Load .env.sandbox
 Get-Content .env.sandbox | ForEach-Object {
@@ -518,9 +524,9 @@ try {
     "Authorization" = "Bearer $ApiKey"
     "Content-Type"  = "application/json"
   }
-  
+
   $response = Invoke-WebRequest -Uri "${Endpoint}health" -Headers $headers -Method Get -ErrorAction Stop
-  
+
   if ($response.StatusCode -eq 200) {
     Write-Host "✓ Sandbox API is reachable (HTTP $($response.StatusCode))"
   } else {
@@ -566,6 +572,7 @@ bash scripts/test-notivisa-sandbox-connectivity.sh
 ```
 
 **Expected output:**
+
 ```
 ═══════════════════════════════════════════════════════════════
 NOTIVISA Sandbox Connectivity Tests
@@ -594,7 +601,7 @@ Create `scripts/test-notivisa-sandbox-submission.ts` (runs in Cloud Functions en
 /**
  * NOTIVISA Sandbox Submission Test
  * Validates that payloads can be successfully submitted to sandbox API
- * 
+ *
  * Usage: npm run test:notivisa-sandbox -- --payload=syphilis
  */
 
@@ -630,40 +637,28 @@ async function testSandboxSubmission(): Promise<void> {
 
     // Test 1: Syphilis submission
     console.log('[Test 1/3] Submitting syphilis payload...');
-    const syphilisTest = await testPayloadSubmission(
-      'syphilis',
-      secrets,
-      testPayloads.syphilis
-    );
+    const syphilisTest = await testPayloadSubmission('syphilis', secrets, testPayloads.syphilis);
     results.push(syphilisTest);
     console.log(`${syphilisTest.status === 'PASS' ? '✓' : '✗'} ${syphilisTest.message}`);
     console.log('');
 
     // Test 2: Dengue submission
     console.log('[Test 2/3] Submitting dengue payload...');
-    const dengueTest = await testPayloadSubmission(
-      'dengue',
-      secrets,
-      testPayloads.dengue
-    );
+    const dengueTest = await testPayloadSubmission('dengue', secrets, testPayloads.dengue);
     results.push(dengueTest);
     console.log(`${dengueTest.status === 'PASS' ? '✓' : '✗'} ${dengueTest.message}`);
     console.log('');
 
     // Test 3: HIV submission
     console.log('[Test 3/3] Submitting HIV payload...');
-    const hivTest = await testPayloadSubmission(
-      'hiv',
-      secrets,
-      testPayloads.hiv
-    );
+    const hivTest = await testPayloadSubmission('hiv', secrets, testPayloads.hiv);
     results.push(hivTest);
     console.log(`${hivTest.status === 'PASS' ? '✓' : '✗'} ${hivTest.message}`);
     console.log('');
 
     // Summary
-    const passed = results.filter(r => r.status === 'PASS').length;
-    const failed = results.filter(r => r.status === 'FAIL').length;
+    const passed = results.filter((r) => r.status === 'PASS').length;
+    const failed = results.filter((r) => r.status === 'FAIL').length;
     const duration = Date.now() - startTime;
 
     console.log('═══════════════════════════════════════════════════════════════');
@@ -682,21 +677,17 @@ async function testSandboxSubmission(): Promise<void> {
 async function testPayloadSubmission(
   diseaseName: string,
   secrets: any,
-  testPayload: any
+  testPayload: any,
 ): Promise<TestResult> {
   const start = Date.now();
   try {
-    const response = await axios.post(
-      `${secrets.endpoint}submit`,
-      testPayload,
-      {
-        headers: {
-          'Authorization': `Bearer ${secrets.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: 30000,
-      }
-    );
+    const response = await axios.post(`${secrets.endpoint}submit`, testPayload, {
+      headers: {
+        Authorization: `Bearer ${secrets.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      timeout: 30000,
+    });
 
     return {
       name: diseaseName,
@@ -730,6 +721,7 @@ npm run test:notivisa-sandbox
 ```
 
 **Expected output:**
+
 ```
 ═══════════════════════════════════════════════════════════════
 NOTIVISA Sandbox API Validation Tests
@@ -763,6 +755,7 @@ Results: 3 passed, 0 failed (2341ms)
 ANVISA sandbox credentials should be rotated annually for security compliance.
 
 **Rotation timeline:**
+
 - Credentials provisioned: 2026-05-07
 - First rotation: 2027-05-07
 - Frequency: Annual (per security policy)
@@ -770,6 +763,7 @@ ANVISA sandbox credentials should be rotated annually for security compliance.
 **Procedure:**
 
 1. **Request new credentials from ANVISA:**
+
    ```bash
    # Contact ANVISA support (via registration contact email)
    # Subject: "HC Quality NOTIVISA Sandbox Credential Rotation"
@@ -777,6 +771,7 @@ ANVISA sandbox credentials should be rotated annually for security compliance.
    ```
 
 2. **Test new credentials in separate secrets:**
+
    ```bash
    # Set new secrets temporarily (with _NEW suffix)
    firebase functions:secrets:set NOTIVISA_SANDBOX_API_KEY_NEW --project=hmatologia2
@@ -786,6 +781,7 @@ ANVISA sandbox credentials should be rotated annually for security compliance.
    ```
 
 3. **Promote new credentials:**
+
    ```bash
    # Delete old secret version
    gcloud secrets versions destroy latest \
@@ -798,11 +794,13 @@ ANVISA sandbox credentials should be rotated annually for security compliance.
    ```
 
 4. **Redeploy functions with new secrets:**
+
    ```bash
    firebase deploy --only functions:notivisaDraftCreate,functions:notivisaQueueProcessor --project=hmatologia2
    ```
 
 5. **Verify rollout:**
+
    ```bash
    # Test a sandbox submission
    npm run test:notivisa-sandbox
@@ -834,11 +832,13 @@ If credentials are suspected compromised:
 **Immediate actions:**
 
 1. **Revoke credentials in ANVISA portal:**
+
    ```
    https://portalanvisa.gov.br/notivisa → Account Settings → Revoke API Key
    ```
 
 2. **Clear local environment:**
+
    ```bash
    # Delete secret from Firebase
    gcloud secrets delete NOTIVISA_SANDBOX_API_KEY --project=hmatologia2
@@ -849,6 +849,7 @@ If credentials are suspected compromised:
    ```
 
 3. **Request emergency replacement from ANVISA:**
+
    ```
    Contact: ANVISA support (emergency@anvisa.gov.br, if available)
    Subject: "URGENT: HC Quality NOTIVISA Sandbox API Key Compromised"
@@ -889,7 +890,7 @@ export interface NotivisaEndpointConfig {
 }
 
 export async function getNotivisaEndpoint(
-  env: NotivisaEnvironment
+  env: NotivisaEnvironment,
 ): Promise<NotivisaEndpointConfig> {
   const secretsManager = require('@google-cloud/secret-manager');
   const client = new secretsManager.SecretManagerServiceClient();
@@ -898,8 +899,8 @@ export async function getNotivisaEndpoint(
 
   if (env === 'sandbox') {
     // v1.4: Sandbox endpoint
-    const sandboxEndpoint = process.env.NOTIVISA_SANDBOX_ENDPOINT ||
-      'https://sandbox.notivisa.gov.br/api/v1/';
+    const sandboxEndpoint =
+      process.env.NOTIVISA_SANDBOX_ENDPOINT || 'https://sandbox.notivisa.gov.br/api/v1/';
     const sandboxApiKey = process.env.NOTIVISA_SANDBOX_API_KEY;
 
     if (!sandboxApiKey) {
@@ -915,8 +916,8 @@ export async function getNotivisaEndpoint(
     };
   } else if (env === 'production') {
     // v1.5+: Production endpoint with mTLS certificate
-    const prodEndpoint = process.env.NOTIVISA_PROD_ENDPOINT ||
-      'https://notivisa.saude.gov.br/api/v1/';
+    const prodEndpoint =
+      process.env.NOTIVISA_PROD_ENDPOINT || 'https://notivisa.saude.gov.br/api/v1/';
     const prodApiKey = process.env.NOTIVISA_PROD_API_KEY;
     const certPfx = process.env.NOTIVISA_CERT_PFX;
     const certPassword = process.env.NOTIVISA_CERT_PASSWORD;
@@ -924,7 +925,7 @@ export async function getNotivisaEndpoint(
     if (!prodApiKey || !certPfx || !certPassword) {
       throw new Error(
         'Production NOTIVISA credentials incomplete: ' +
-        'NOTIVISA_PROD_API_KEY, NOTIVISA_CERT_PFX, NOTIVISA_CERT_PASSWORD required'
+          'NOTIVISA_PROD_API_KEY, NOTIVISA_CERT_PFX, NOTIVISA_CERT_PASSWORD required',
       );
     }
 
@@ -945,7 +946,7 @@ export async function getNotivisaEndpoint(
  */
 export function getActiveNotivisaEnvironment(): NotivisaEnvironment {
   const env = process.env.NODE_ENV || 'development';
-  
+
   // v1.4: Always use sandbox
   if (process.env.NOTIVISA_VERSION === 'v1.4') {
     return 'sandbox';
@@ -979,17 +980,13 @@ export async function submitNotivisaRequest(payload: NotivisaPayload): Promise<S
   });
 
   try {
-    const response = await axios.post(
-      `${endpoint.baseUrl}submit`,
-      payload,
-      {
-        headers: {
-          'Authorization': `Bearer ${endpoint.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: endpoint.timeout,
-      }
-    );
+    const response = await axios.post(`${endpoint.baseUrl}submit`, payload, {
+      headers: {
+        Authorization: `Bearer ${endpoint.apiKey}`,
+        'Content-Type': 'application/json',
+      },
+      timeout: endpoint.timeout,
+    });
 
     return {
       status: 'success',
@@ -1026,6 +1023,7 @@ Add version control to distinguish v1.4 (sandbox-only) from v1.5+ (switchable):
 ```
 
 Deploy with version:
+
 ```bash
 firebase deploy --only functions:notivisaQueueProcessor --project=hmatologia2
 # Functions will read NOTIVISA_VERSION from environment config
@@ -1037,14 +1035,14 @@ firebase deploy --only functions:notivisaQueueProcessor --project=hmatologia2
 
 ### Step 7.1: Common Issues & Fixes
 
-| Issue | Symptoms | Root Cause | Fix |
-|-------|----------|-----------|-----|
-| **Credentials not loaded** | "NOTIVISA_SANDBOX_API_KEY secret not loaded" | Secret not set in Firebase Secrets Manager | `firebase functions:secrets:set NOTIVISA_SANDBOX_API_KEY` |
-| **Invalid API key** | 401 Unauthorized | Expired or incorrect API key | Verify with `gcloud secrets versions access latest --secret=NOTIVISA_SANDBOX_API_KEY` |
-| **Wrong endpoint URL** | 404 Not Found | Endpoint URL typo or outdated | Confirm URL with ANVISA documentation |
-| **Rate limiting** | 429 Too Many Requests | Too many submissions in short time | Implement exponential backoff (see Part 2) |
-| **Timeout errors** | Request timed out after 30s | Sandbox API slow or network latency | Increase `NOTIVISA_SUBMISSION_TIMEOUT_MS` to 60000 |
-| **Network unreachable** | Connection refused | ANVISA sandbox down or maintenance | Check status page + retry after maintenance window |
+| Issue                      | Symptoms                                     | Root Cause                                 | Fix                                                                                   |
+| -------------------------- | -------------------------------------------- | ------------------------------------------ | ------------------------------------------------------------------------------------- |
+| **Credentials not loaded** | "NOTIVISA_SANDBOX_API_KEY secret not loaded" | Secret not set in Firebase Secrets Manager | `firebase functions:secrets:set NOTIVISA_SANDBOX_API_KEY`                             |
+| **Invalid API key**        | 401 Unauthorized                             | Expired or incorrect API key               | Verify with `gcloud secrets versions access latest --secret=NOTIVISA_SANDBOX_API_KEY` |
+| **Wrong endpoint URL**     | 404 Not Found                                | Endpoint URL typo or outdated              | Confirm URL with ANVISA documentation                                                 |
+| **Rate limiting**          | 429 Too Many Requests                        | Too many submissions in short time         | Implement exponential backoff (see Part 2)                                            |
+| **Timeout errors**         | Request timed out after 30s                  | Sandbox API slow or network latency        | Increase `NOTIVISA_SUBMISSION_TIMEOUT_MS` to 60000                                    |
+| **Network unreachable**    | Connection refused                           | ANVISA sandbox down or maintenance         | Check status page + retry after maintenance window                                    |
 
 ### Step 7.2: Validation Checklist (Pre-Phase 4)
 

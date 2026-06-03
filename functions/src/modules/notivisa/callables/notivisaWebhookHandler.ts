@@ -50,11 +50,7 @@ interface WebhookHandlerResponse {
  * @param secret - webhook secret (from Secret Manager, Phase 12+)
  * @returns true if signature matches
  */
-function verifyWebhookSignature(
-  payload: string,
-  signature: string,
-  secret: string
-): boolean {
+function verifyWebhookSignature(payload: string, signature: string, secret: string): boolean {
   const computed = crypto.createHmac('sha256', secret).update(payload).digest('hex');
   // Constant-time comparison to prevent timing attacks
   return computed.length === signature.length && computed === signature;
@@ -88,7 +84,8 @@ export const notivisaWebhookHandler = onRequest(
 
       // 3. Verify signature
       // Phase 12: replace placeholder with real secret from Secret Manager
-      const ANVISA_WEBHOOK_SECRET = process.env.ANVISA_WEBHOOK_SECRET || 'PLACEHOLDER_SECRET_PHASE_12';
+      const ANVISA_WEBHOOK_SECRET =
+        process.env.ANVISA_WEBHOOK_SECRET || 'PLACEHOLDER_SECRET_PHASE_12';
       const payloadString = JSON.stringify(req.body);
 
       if (!verifyWebhookSignature(payloadString, signature, ANVISA_WEBHOOK_SECRET)) {
@@ -146,16 +143,19 @@ export const notivisaWebhookHandler = onRequest(
           await entryDoc.ref.update(updateData);
 
           // 7. Create audit log entry
-          await entryDoc.ref.collection('webhookLog').doc(`${Date.now()}`).set({
-            action: 'ANVISA_WEBHOOK',
-            ts: admin.firestore.FieldValue.serverTimestamp(),
-            payload: {
-              eventId: payload.eventId,
-              status: payload.status,
-              receiptNumber: payload.receiptNumber || null,
-              errorCode: payload.errorCode || null,
-            },
-          });
+          await entryDoc.ref
+            .collection('webhookLog')
+            .doc(`${Date.now()}`)
+            .set({
+              action: 'ANVISA_WEBHOOK',
+              ts: admin.firestore.FieldValue.serverTimestamp(),
+              payload: {
+                eventId: payload.eventId,
+                status: payload.status,
+                receiptNumber: payload.receiptNumber || null,
+                errorCode: payload.errorCode || null,
+              },
+            });
 
           functions.logger.info('[NOTIVISA Webhook] Entry updated', {
             labId,
@@ -199,5 +199,5 @@ export const notivisaWebhookHandler = onRequest(
         note: 'Internal error but webhook acknowledged',
       });
     }
-  }
+  },
 );

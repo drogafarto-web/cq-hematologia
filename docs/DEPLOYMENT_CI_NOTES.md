@@ -15,12 +15,14 @@ npx tsc --noEmit
 ```
 
 **Expected output:** 2 pre-existing errors (expected, not blockers)
+
 ```
 src/index.ts(222,3): error TS2305: Module '"./modules/labApoio"' has no exported member 'labApoio_generateContractTemplate'.
 src/modules/ocr-quality/types.ts(15,15): error TS2305: Module '"../../shared/signature"' has no exported member 'LogicalSignature'.
 ```
 
 **What is excluded from tsc:**
+
 - `src/**/*.test.ts` / `src/**/*.test.tsx` — test files
 - `src/__tests__/**` — test directories
 - `src/modules/notivisa/**` — **Legacy NOTIVISA code (149 TS errors, temporary exclusion, Phase 6 deletion planned)**
@@ -29,6 +31,7 @@ src/modules/ocr-quality/types.ts(15,15): error TS2305: Module '"../../shared/sig
 - `src/modules/personnel/**` — pre-existing exclusion
 
 **If tsc reports NEW errors (not labApoio or ocr-quality):**
+
 1. Check if notivisa exclusion was removed (see below)
 2. Run `git diff functions/tsconfig.json` to confirm no accidental deletions
 3. If notivisa exclusion is missing, update `functions/tsconfig.json` before merging
@@ -36,11 +39,13 @@ src/modules/ocr-quality/types.ts(15,15): error TS2305: Module '"../../shared/sig
 ### Step 2: Build (Web & Functions)
 
 **Web:**
+
 ```bash
 npm run build
 ```
 
 **Functions:**
+
 ```bash
 cd functions && npm run build
 ```
@@ -56,6 +61,7 @@ bash scripts/preflight-secrets-check.sh
 ```
 
 **Expected output:**
+
 - `Exit code 0`: All secrets provisioned, safe to deploy
 - `Exit code 1`: At least one secret not set. Output lists:
   ```
@@ -66,9 +72,11 @@ bash scripts/preflight-secrets-check.sh
 **Important:** Do NOT force-deploy with unset secrets. Follow the listed commands to set them, then re-run the check.
 
 **Emergency override** (incident only):
+
 ```bash
 bash scripts/preflight-secrets-check.sh --allow-pending-secrets
 ```
+
 Log the override, deploy, and review in 24h. See ADR-0017 for context (2026-05-07 HMAC incident).
 
 ---
@@ -78,6 +86,7 @@ Log the override, deploy, and review in 24h. See ADR-0017 for context (2026-05-0
 ### Current (Phase 3–5)
 
 **tsconfig.json snippet:**
+
 ```json
 "exclude": [
   "src/modules/notivisa/**",  // Legacy NOTIVISA: 149 TS errors, Phase 6 delete planned
@@ -93,6 +102,7 @@ Log the override, deploy, and review in 24h. See ADR-0017 for context (2026-05-0
 ### Phase 6 Transition (2026-07)
 
 When legacy code is deleted:
+
 1. Remove `"src/modules/notivisa/**"` from tsconfig exclude array
 2. Run `npx tsc --noEmit` — must still be clean (notivisa deleted, not just excluded)
 3. Run `npm run build` — must succeed
@@ -193,6 +203,7 @@ See `CLOUD_LOGS_MONITORING_GUIDE.md` for analysis + sign-off template.
 **Cause:** tsconfig.json notivisa exclusion was accidentally removed or reverted.
 
 **Fix:**
+
 ```bash
 git diff functions/tsconfig.json
 # If notivisa exclude line is missing, restore it:
@@ -210,6 +221,7 @@ git diff functions/tsconfig.json
 **Cause:** Functions package.json missing a peer dep (cascade-kills all 78 functions).
 
 **Fix:**
+
 ```bash
 cd functions
 npm install <missing-package>
@@ -225,12 +237,14 @@ npm ci  # clean install to verify
 **Symptom:** Web client receives `{code: 'internal', message: 'Internal'}` from callable.
 
 **Cause:** Either:
+
 1. Function failed to deploy (code old/broken on server)
 2. Secret not provisioned (HMAC key missing, auth fails)
 3. Firestore rules blocked the operation
 4. Unhandled exception in function code
 
 **Debug:**
+
 ```bash
 # Check Cloud Logs (Filter by function name + timestamp)
 firebase functions:log --only <function-name> --project hmatologia2
@@ -252,6 +266,7 @@ firebase emulators:start --only firestore
 See `docs/CLOUD_LOGS_MONITORING_GUIDE.md` for full setup.
 
 Quick reference:
+
 ```bash
 # Watch for errors in real-time (24h)
 bash scripts/monitor-cloud-logs.sh 24 30
@@ -269,10 +284,10 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 ## Version & Deprecation Timeline
 
-| Node Version | Released | Deprecated | Status |
-|---|---|---|---|
-| Node 20 | 2023-04 | 2026-10-30 | Deployed; migrating to 22 |
-| Node 22 | 2024-04 | TBD | Current (southamerica-east1) |
+| Node Version | Released | Deprecated | Status                       |
+| ------------ | -------- | ---------- | ---------------------------- |
+| Node 20      | 2023-04  | 2026-10-30 | Deployed; migrating to 22    |
+| Node 22      | 2024-04  | TBD        | Current (southamerica-east1) |
 
 **Action:** No action needed until Node 20 deprecation (Oct 2026). Cloud Functions auto-upgrade before cutoff.
 
@@ -285,4 +300,3 @@ bash scripts/monitor-cloud-logs.sh 24 30
 - **Monitoring:** `docs/CLOUD_LOGS_MONITORING_GUIDE.md` + `CLOUD_LOGS_QUICK_REFERENCE.md`
 - **Secret management:** `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` + `ADR-0018-deploy-gate-secret-status-check.md`
 - **notivisa cleanup:** `docs/NOTIVISA_TSCONFIG_CLEANUP_ROADMAP.md`
-

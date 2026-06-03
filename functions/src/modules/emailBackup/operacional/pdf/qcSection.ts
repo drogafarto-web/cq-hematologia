@@ -39,10 +39,7 @@ function approvalColor(rate: number): string {
   return COLOR.danger;
 }
 
-function renderPageChrome(
-  doc: PDFKit.PDFDocument,
-  continuation: boolean,
-): number {
+function renderPageChrome(doc: PDFKit.PDFDocument, continuation: boolean): number {
   doc.rect(0, 0, PAGE.width, 4).fill(COLOR.accent);
   let y = PAGE.margin;
   if (continuation) {
@@ -70,11 +67,7 @@ function renderModuleCard(
   const cardHeight = 94;
 
   doc.roundedRect(x, y, width, cardHeight, 6).fillColor('#131316').fill();
-  doc
-    .roundedRect(x, y, width, cardHeight, 6)
-    .lineWidth(0.5)
-    .strokeColor(COLOR.border)
-    .stroke();
+  doc.roundedRect(x, y, width, cardHeight, 6).lineWidth(0.5).strokeColor(COLOR.border).stroke();
 
   // Nome
   doc
@@ -137,11 +130,16 @@ function renderModuleCard(
     .font(Fonts.regular)
     .fontSize(FONT_SIZES.micro)
     .fillColor(COLOR.textMuted)
-    .text(`${module.totalRuns} corrida(s) · ${module.rejected} rejeição(ões)`, trendX, approvalY + 34, {
-      width: 96,
-      align: 'right',
-      lineBreak: false,
-    });
+    .text(
+      `${module.totalRuns} corrida(s) · ${module.rejected} rejeição(ões)`,
+      trendX,
+      approvalY + 34,
+      {
+        width: 96,
+        align: 'right',
+        lineBreak: false,
+      },
+    );
 
   return y + cardHeight;
 }
@@ -182,10 +180,7 @@ function renderStatusBanner(
   return y + height;
 }
 
-export function renderQcSection(
-  doc: PDFKit.PDFDocument,
-  report: OperacionalReport,
-): void {
+export function renderQcSection(doc: PDFKit.PDFDocument, report: OperacionalReport): void {
   const x = PAGE.margin;
   const width = CONTENT_WIDTH;
   const section = report.qcDecisions;
@@ -220,9 +215,7 @@ export function renderQcSection(
       {
         label: 'Taxa de aprovação',
         value:
-          section.globalApprovalRate !== null
-            ? `${section.globalApprovalRate.toFixed(1)}%`
-            : '—',
+          section.globalApprovalRate !== null ? `${section.globalApprovalRate.toFixed(1)}%` : '—',
         valueColor:
           section.globalApprovalRate !== null
             ? approvalColor(section.globalApprovalRate)
@@ -237,8 +230,7 @@ export function renderQcSection(
       {
         label: 'Lotes problemáticos',
         value: String(section.problematicLots.length),
-        valueColor:
-          section.problematicLots.length === 0 ? COLOR.success : COLOR.accentWarm,
+        valueColor: section.problematicLots.length === 0 ? COLOR.success : COLOR.accentWarm,
         sublabel:
           section.problematicLots.filter((l) => l.shouldSegregate).length > 0
             ? `${section.problematicLots.filter((l) => l.shouldSegregate).length} p/ segregar`
@@ -394,8 +386,7 @@ export function renderQcSection(
         label: 'Taxa rej.',
         weight: 0.8,
         align: 'right',
-        color: (_v, row) =>
-          row['segregate'] === '1' ? COLOR.danger : COLOR.accentWarm,
+        color: (_v, row) => (row['segregate'] === '1' ? COLOR.danger : COLOR.accentWarm),
       },
     ];
     const lotRows = section.problematicLots.map((l) => ({
@@ -422,8 +413,7 @@ export function renderQcSection(
         return drawTableHeader(doc, x, chromeY + 10, width, lotColumns);
       },
       {
-        accentLeftColor: (row) =>
-          row['segregate'] === '1' ? COLOR.danger : COLOR.accentWarm,
+        accentLeftColor: (row) => (row['segregate'] === '1' ? COLOR.danger : COLOR.accentWarm),
       },
     );
   }

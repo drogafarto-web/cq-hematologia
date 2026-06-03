@@ -17,15 +17,18 @@ You are the **single point of contact** between HC Quality engineering and the e
 ## Week 1 Checklist (Week of May 20, Phase 4 kickoff)
 
 **Monday May 20:**
+
 - [ ] Phase 4 kickoff email sent to team (from CTO template)
 - [ ] Verify CI/CD pipeline ready (Rules + Functions + Hosting deploy test)
 - [ ] Daily scorecard automated (Cloud Function syncing to Google Sheets)
 
 **Wednesday May 22:**
+
 - [ ] Mid-week Phase 4 status check (task % completion vs. plan)
 - [ ] Alert CTO if any task >20% behind (escalate early)
 
 **Thursday May 23:**
+
 - [ ] Prepare Friday briefing document (due 17:00 BRT)
   - [ ] DICQ % (pull from scorecard)
   - [ ] RDC 978 articles covered (pull from PLAN.md)
@@ -35,6 +38,7 @@ You are the **single point of contact** between HC Quality engineering and the e
   - [ ] RFI status (from tracking sheet)
 
 **Friday May 24:**
+
 - [ ] 10:00 BRT — Auditor call (Ernani + you + CTO)
   - [ ] Duration: 30 min strict
   - [ ] You scribe: capture feedback, action items, RFI questions
@@ -48,6 +52,7 @@ You are the **single point of contact** between HC Quality engineering and the e
 ## Daily Workflow (Standard Day)
 
 **09:00 BRT — Check Compliance Scorecard**
+
 ```bash
 # Automated each morning at 09:00 BRT
 # Open: .planning/daily/COMPLIANCE_SCORECARD_2026-MM-DD.md
@@ -59,6 +64,7 @@ You are the **single point of contact** between HC Quality engineering and the e
 ```
 
 **09:15 BRT — Spot-Check Audit Trail**
+
 ```
 3 random audit events, verify:
 - [ ] Event has chain-hash (40+ char SHA-256 hex)
@@ -68,22 +74,26 @@ You are the **single point of contact** between HC Quality engineering and the e
 ```
 
 **10:00–14:00 — Async Work**
+
 - Respond to RFI questions (if any pending, due within SLA)
 - Coordinate with engineering leads on compliance tasks
 - Monitor Slack #hc-quality-v14 for blockers
 - Update RFI tracking sheet with status changes
 
 **15:00 BRT (if Friday) — Weekly Report Prep**
+
 - Compile daily scorecards into weekly trends
 - Draft compliance report sections (1–7, see COMPLIANCE_MONITORING_SYSTEM.md)
 - Prepare briefing for 10:00 BRT call (due 17:00 Thu)
 
 **17:00 BRT (if Friday) — Send Weekly Email**
+
 - Use Template 1 (Weekly Auditor Update Email)
 - Attach: weekly_scorecard.xlsx, phase_status_update.md
 - CC: CTO
 
 **End of Day — Escalation Check**
+
 - Any metric crossed threshold (DICQ <+0.5%/week, RFI >5 days old, Phase >3 days late)?
 - If yes: escalate email to CTO immediately
 - Record in `.planning/ESCALATION_LOG.md`
@@ -93,6 +103,7 @@ You are the **single point of contact** between HC Quality engineering and the e
 ## Weekly Workflow (Every Friday)
 
 **Thursday EOD (17:00 BRT):**
+
 1. Finalize briefing document (Template: COMPLIANCE_MONITORING_SYSTEM.md → Weekly Compliance Report)
    - [ ] Update metrics (DICQ, RDC, LGPD)
    - [ ] Phase X progress (% done, risks, blockers)
@@ -106,32 +117,38 @@ You are the **single point of contact** between HC Quality engineering and the e
    - [ ] RFI_Tracking_Summary.md (if RFIs this week)
 
 **Friday 09:00 BRT:**
+
 - Review scorecard for anomalies
 - Alert CTO if any red flags (DICQ stalled, test failure, Cloud Logs error)
 
 **Friday 09:45 BRT (15 min before call):**
+
 - Test Google Meet link
 - Load briefing document in browser
 - Have phone/Slack open for post-call communication
 - Prepare notes template (Google Doc, ready to share)
 
 **Friday 10:00–10:30 BRT:**
+
 - Auditor call (live)
 - You: scribe (capture feedback, RFIs, action items)
 - CTO: presents (Phase status, compliance gaps, RFI responses)
 
 **Friday 10:30–11:00 BRT (30 min after call):**
+
 - Type up call notes in Google Doc
 - Share with CTO + Ernani via email
 - List action items + owners + due dates
 - Send post-call summary email (Template 7)
 
 **Friday 16:00–17:00 BRT:**
+
 - Finalize weekly compliance report (Sections 1–10, see COMPLIANCE_MONITORING_SYSTEM.md)
 - Proofread (DICQ %, RDC articles, LGPD %, phase status, risks)
 - Get CTO sign-off (reply-all on email with ✅)
 
 **Friday 17:00 BRT:**
+
 - Send report email to Ernani (Template 1)
 - Attach: compliance_report_week_X.md, scorecard.xlsx
 - CC: CTO
@@ -142,6 +159,7 @@ You are the **single point of contact** between HC Quality engineering and the e
 ## Monthly Workflow (End of Month)
 
 **Last Friday of month, 14:00 BRT:**
+
 1. Aggregate all weekly reports into monthly summary
    - [ ] DICQ trend (start → end of month, +X%)
    - [ ] RDC 978 articles (start → end, +X articles)
@@ -150,14 +168,15 @@ You are the **single point of contact** between HC Quality engineering and the e
    - [ ] Known issues (summary + remediation status)
    - [ ] Auditor calls (count, topics, feedback themes)
 
-2. Create COMPLIANCE_REPORT_[MONTH]_2026.md (Template in COMPLIANCE_MONITORING_SYSTEM.md)
+2. Create COMPLIANCE*REPORT*[MONTH]\_2026.md (Template in COMPLIANCE_MONITORING_SYSTEM.md)
    - Sections 1–9 (headline, DICQ, RDC, LGPD, auditor, issues, artifacts, forecast)
 
-3. Create ARTIFACTS_CHECKLIST_[MONTH]_2026.md
+3. Create ARTIFACTS*CHECKLIST*[MONTH]\_2026.md
    - List all evidence (ADRs, phase plans, tests, audit logs)
    - Verify all files uploaded to archive location
 
 **Last Friday, 16:00 BRT:**
+
 - Final review by CTO
 - Send monthly email to Ernani (Template 3)
 - Archive in `.planning/monthly/`
@@ -202,6 +221,7 @@ You are the **single point of contact** between HC Quality engineering and the e
 ## Escalation Playbook
 
 **Trigger: Phase delivery >3 days late**
+
 ```
 Severity: 🟡 Yellow
 1. Email CTO immediately (subject: "Phase X Slipping 3+ Days — HC Quality")
@@ -211,6 +231,7 @@ Severity: 🟡 Yellow
 ```
 
 **Trigger: DICQ trend <+0.5%/week (2-week rolling average)**
+
 ```
 Severity: 🟡 Yellow
 1. Flag in Friday briefing: "DICQ trend slower than expected"
@@ -220,6 +241,7 @@ Severity: 🟡 Yellow
 ```
 
 **Trigger: RFI >5 business days without response**
+
 ```
 Severity: 🟡 Yellow → 🔴 Red (if >7 days)
 1. Day 6: Send escalation email (Template 8)
@@ -229,6 +251,7 @@ Severity: 🟡 Yellow → 🔴 Red (if >7 days)
 ```
 
 **Trigger: Critical security finding in Cloud Logs**
+
 ```
 Severity: 🔴 Red (IMMEDIATE)
 1. Alert CTO immediately (phone + email)
@@ -239,6 +262,7 @@ Severity: 🔴 Red (IMMEDIATE)
 ```
 
 **Trigger: LGPD data breach detected**
+
 ```
 Severity: 🔴 Red (IMMEDIATE + LEGAL)
 1. Alert CTO + legal immediately (phone + email)
@@ -252,18 +276,19 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 
 ## Tools & Access Required
 
-| Tool | Purpose | Access needed by | Setup |
-|---|---|---|---|
-| **Google Calendar** | Schedule auditor calls + reminders | Email: drogafarto@gmail.com | Auto-invite Ernani (llabclin3@gmail.com) |
-| **Google Meet** | Call recording + transcription | Calendar integration | Auto-generated per call |
-| **Google Sheets** | Compliance scorecard + RFI tracking | Editor access (shared) | Automation via Cloud Function |
-| **Google Drive** | Archive reports + evidence | Folder: HC Quality v1.4 Auditor | Create structure per COMPLIANCE_MONITORING_SYSTEM.md |
-| **Slack** | Daily ops + escalations | Channel: #hc-quality-v14 | Post scorecard summary each morning |
-| **GitHub** | Code references + ADRs | Repo: C:\hc quality | View-only (code links in RFI responses) |
-| **Firebase Console** | Cloud Logs, Firestore data | Project: hmatologia2 | Query auditLogs for daily spot-check |
-| **Google Docs** | Weekly briefing + call notes | Shared with CTO + auditor | Live document during calls |
+| Tool                 | Purpose                             | Access needed by                | Setup                                                |
+| -------------------- | ----------------------------------- | ------------------------------- | ---------------------------------------------------- |
+| **Google Calendar**  | Schedule auditor calls + reminders  | Email: drogafarto@gmail.com     | Auto-invite Ernani (llabclin3@gmail.com)             |
+| **Google Meet**      | Call recording + transcription      | Calendar integration            | Auto-generated per call                              |
+| **Google Sheets**    | Compliance scorecard + RFI tracking | Editor access (shared)          | Automation via Cloud Function                        |
+| **Google Drive**     | Archive reports + evidence          | Folder: HC Quality v1.4 Auditor | Create structure per COMPLIANCE_MONITORING_SYSTEM.md |
+| **Slack**            | Daily ops + escalations             | Channel: #hc-quality-v14        | Post scorecard summary each morning                  |
+| **GitHub**           | Code references + ADRs              | Repo: C:\hc quality             | View-only (code links in RFI responses)              |
+| **Firebase Console** | Cloud Logs, Firestore data          | Project: hmatologia2            | Query auditLogs for daily spot-check                 |
+| **Google Docs**      | Weekly briefing + call notes        | Shared with CTO + auditor       | Live document during calls                           |
 
 **Setup checklist:**
+
 - [ ] Create `.planning/AUDITOR_CALENDAR_2026.ics` (recurring Friday 10:00 BRT)
 - [ ] Share folder `.planning/weekly/` with Ernani (view-only)
 - [ ] Share folder `.planning/monthly/` with Ernani (view-only)
@@ -277,18 +302,21 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 ## Success Checklist (End of v1.4 Aug 5)
 
 **Weekly Auditor Calls:**
+
 - [ ] 13 calls completed (May 24 → Aug 5, every Friday)
 - [ ] 100% attendance (Ernani + you + CTO)
 - [ ] All recordings saved + shared with auditor
 - [ ] Post-call summaries sent within 2h of each call
 
 **RFI Management:**
+
 - [ ] All RFIs responded within SLA (5 business days)
 - [ ] 0 escalations for late responses
 - [ ] Evidence linked in all responses (code + tests + ADRs)
 - [ ] RFI tracking spreadsheet archived + signed by auditor
 
 **Compliance Monitoring:**
+
 - [ ] Daily scorecards 100% complete (no missing days)
 - [ ] Weekly reports 100% on time (Fridays by 17:00)
 - [ ] Monthly reports 100% on time (last Friday by 17:30)
@@ -297,12 +325,14 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 - [ ] LGPD: 85%+ by Aug 4 ✅
 
 **Escalations:**
+
 - [ ] 0 critical blockers unresolved >7 days
 - [ ] All Phase slips escalated within 4h of discovery
 - [ ] CTO informed before auditor informed (courtesy)
 - [ ] Contingency timelines activated (if needed)
 
 **Artifacts:**
+
 - [ ] All monthly artifact checklists completed
 - [ ] All ADRs uploaded to archive (.planning/monthly/)
 - [ ] All phase plans uploaded to archive
@@ -310,6 +340,7 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 - [ ] Evidence audit trail 100% intact + auditor-accessible
 
 **Auditor Satisfaction:**
+
 - [ ] ✅ Ernani signs off on CAPA closure (Phase 8) by Aug 5
 - [ ] ✅ No blocking RFI feedback
 - [ ] ✅ Auditor confirms readiness for external audit (Oct 2026)
@@ -319,12 +350,14 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 ## Key Dates (Mark Your Calendar)
 
 **May 2026:**
+
 - May 15 (Wed): Pre-alignment ceremony (90 min, Ernani + CTO)
 - May 20 (Mon): Phase 4 kickoff
 - May 24 (Fri): Weekly call #1
 - May 31 (Fri): Weekly call #2 + May compliance report
 
 **June 2026:**
+
 - Jun 2 (Sun): Phase 4 deploy target
 - Jun 6 (Fri): Weekly call #3
 - Jun 9 (Mon): Phase 5 kickoff
@@ -335,6 +368,7 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 - Jun 30 (Mon): Phase 5 deploy target
 
 **July 2026:**
+
 - Jul 1 (Tue): RDC 978 critical articles target 100% ✅
 - Jul 4 (Fri): Weekly call #7
 - Jul 11 (Fri): Weekly call #8
@@ -343,6 +377,7 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 - Jul 28 (Mon): Phase 6–7 deploy target
 
 **August 2026:**
+
 - Aug 1 (Fri): Weekly call #11
 - Aug 4 (Mon): Phase 4–9 complete, DICQ ≥88% target ✅
 - Aug 5 (Tue): **CAPA ceremony** (auditor sign-off on Phase 8 findings)
@@ -354,16 +389,19 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 ## Contact Tree
 
 **During normal ops (Mon–Fri 08:00–18:00):**
+
 1. Question/blocker discovered → Slack #hc-quality-v14 (tag @CTO)
 2. No response in 1h → Email CTO (drogafarto@gmail.com)
 3. If escalation needed → call CTO (phone TBD)
 
 **Auditor contact:**
+
 - Email: llabclin3@gmail.com
 - For urgent issues: Reply-all on latest email chain (CC: CTO)
 - For scheduling: Use Google Calendar invite (Ernani auto-accepts)
 
 **Your backup:**
+
 - If you're unavailable (sick/vacation), CTO or designated Audit Lead backup takes over
 - Backup responsibilities: daily scorecard, Friday call scribing, weekly email
 - Hand-off document: `.planning/.continue-here.md` (update before absence)
@@ -373,12 +411,14 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 ## Document References (Quick Links)
 
 **Core frameworks:**
+
 - Auditor Alignment Framework: `.planning/AUDITOR_ALIGNMENT_FRAMEWORK.md`
 - Compliance Monitoring System: `.planning/COMPLIANCE_MONITORING_SYSTEM.md`
 - Communication Templates: `.planning/AUDITOR_COMMUNICATION_TEMPLATES.md`
 - This handbook: `.planning/AUDITOR_ALIGNMENT_LEAD_HANDBOOK.md`
 
 **Artifacts (created during execution):**
+
 - RFI Tracking: `.planning/AUDITOR_RFI_TRACKING.md`
 - Daily scorecards: `.planning/daily/COMPLIANCE_SCORECARD_YYYY-MM-DD.md`
 - Weekly reports: `.planning/weekly/COMPLIANCE_REPORT_WEEK-X-2026.md`
@@ -387,6 +427,7 @@ Severity: 🔴 Red (IMMEDIATE + LEGAL)
 - Email archive: `.planning/email-archive/YYYY-MM/`
 
 **Related v1.4 docs:**
+
 - v1.4 Kickoff Summary: `.planning/milestones/v1.4-KICKOFF-SUMMARY.md`
 - DICQ compliance target: `CLAUDE.md` (root project file)
 - ADRs (architecture decisions): `docs/adr/ADR-*.md`

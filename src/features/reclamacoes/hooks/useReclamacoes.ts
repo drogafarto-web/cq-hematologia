@@ -48,9 +48,7 @@ export function useReclamacoes(filters?: UseReclamacoesFilters) {
         // Client-side filtering for severity (Firestore doesn't index nested fields well)
         let filtered = data;
         if (filters?.severidade) {
-          filtered = data.filter(
-            (r) => r.classificacao.severidade === filters.severidade
-          );
+          filtered = data.filter((r) => r.classificacao.severidade === filters.severidade);
         }
         setReclamacoes(filtered);
         setLoading(false);
@@ -59,7 +57,7 @@ export function useReclamacoes(filters?: UseReclamacoesFilters) {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     // Cleanup listener on unmount
@@ -71,7 +69,7 @@ export function useReclamacoes(filters?: UseReclamacoesFilters) {
       if (!labId) return null;
       return getReclamacao(labId, reclamacaoId);
     },
-    [labId]
+    [labId],
   );
 
   const getByStatus = useCallback(
@@ -79,7 +77,7 @@ export function useReclamacoes(filters?: UseReclamacoesFilters) {
       if (!labId) return [];
       return getReclamacoesByStatus(labId, status, filters?.limit || 100);
     },
-    [labId, filters?.limit]
+    [labId, filters?.limit],
   );
 
   const getBySeveridade = useCallback(
@@ -87,7 +85,7 @@ export function useReclamacoes(filters?: UseReclamacoesFilters) {
       if (!labId) return [];
       return getReclamacoesBySeveridade(labId, severidade, filters?.limit || 100);
     },
-    [labId, filters?.limit]
+    [labId, filters?.limit],
   );
 
   return {

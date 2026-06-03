@@ -71,13 +71,15 @@ export function PortalRTShell({
       {/* Main content area */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Top bar */}
-        <header className={`
+        <header
+          className={`
           h-16
           border-b ${PortalRTTokens.border.default}
           ${PortalRTTokens.bg.base}
           flex items-center justify-between px-4 md:px-6
           sticky top-0 z-40
-        `}>
+        `}
+        >
           {/* Mobile menu button */}
           <button
             type="button"
@@ -91,7 +93,15 @@ export function PortalRTShell({
             `}
             aria-label="Menu"
           >
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+            >
               <line x1="3" y1="5" x2="17" y2="5" />
               <line x1="3" y1="10" x2="17" y2="10" />
               <line x1="3" y1="15" x2="17" y2="15" />
@@ -107,12 +117,20 @@ export function PortalRTShell({
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-full bg-violet-500/20 flex items-center justify-center">
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" className="text-violet-400">
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 16 16"
+                  fill="currentColor"
+                  className="text-violet-400"
+                >
                   <path d="M8 8c2.2 0 4-1.8 4-4s-1.8-4-4-4-4 1.8-4 4 1.8 4 4 4zm0 2c-2.7 0-8 1.3-8 4v2h16v-2c0-2.7-5.3-4-8-4z" />
                 </svg>
               </div>
               <div className="hidden sm:block">
-                <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>{operatorName}</p>
+                <p className={`text-sm font-medium ${PortalRTTokens.text.primary}`}>
+                  {operatorName}
+                </p>
                 <p className={`text-xs ${PortalRTTokens.text.tertiary}`}>Responsável Técnico</p>
               </div>
             </div>
@@ -137,12 +155,14 @@ export function PortalRTShell({
         </header>
 
         {/* Content pane */}
-        <main className={`
+        <main
+          className={`
           flex-1 overflow-y-auto
           ${PortalRTTokens.bg.base}
           px-4 md:px-6 py-6
           max-w-7xl mx-auto w-full
-        `}>
+        `}
+        >
           {children || (
             <div className={`text-center py-12`}>
               <p className={PortalRTTokens.text.secondary}>

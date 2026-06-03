@@ -18,12 +18,7 @@
  *    services. They are two valid wire formats for the same logical concept.
  */
 
-export type ReclamacaoCanal =
-  | 'patient-portal'
-  | 'phone'
-  | 'email'
-  | 'in-person'
-  | 'social-media';
+export type ReclamacaoCanal = 'patient-portal' | 'phone' | 'email' | 'in-person' | 'social-media';
 
 export type ReclamacaoStatus =
   | 'new' // submitted by patient, awaiting triage
@@ -113,13 +108,7 @@ export interface CreateReclamacaoInput {
  * Default Five Whys question prompts (PT-BR). Admin can override per level
  * inline in the workflow component. Locked at 5 elements.
  */
-export const RCA_QUESTION_TEMPLATES: readonly [
-  string,
-  string,
-  string,
-  string,
-  string,
-] = [
+export const RCA_QUESTION_TEMPLATES: readonly [string, string, string, string, string] = [
   'Por que isso aconteceu?',
   'Por que essa causa imediata existiu?',
   'Por que esse fator contribuinte estava presente?',

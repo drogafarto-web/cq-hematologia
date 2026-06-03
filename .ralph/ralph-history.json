@@ -11,9 +11,7 @@
       "filesModified": [],
       "exitCode": -1,
       "completionDetected": false,
-      "errors": [
-        "Error: ENOENT: no such file or directory, uv_spawn 'claude'"
-      ]
+      "errors": ["Error: ENOENT: no such file or directory, uv_spawn 'claude'"]
     },
     {
       "iteration": 2,
@@ -26,9 +24,7 @@
       "filesModified": [],
       "exitCode": -1,
       "completionDetected": false,
-      "errors": [
-        "Error: ENOENT: no such file or directory, uv_spawn 'claude'"
-      ]
+      "errors": ["Error: ENOENT: no such file or directory, uv_spawn 'claude'"]
     },
     {
       "iteration": 3,
@@ -41,9 +37,7 @@
       "filesModified": [],
       "exitCode": -1,
       "completionDetected": false,
-      "errors": [
-        "Error: ENOENT: no such file or directory, uv_spawn 'claude'"
-      ]
+      "errors": ["Error: ENOENT: no such file or directory, uv_spawn 'claude'"]
     },
     {
       "iteration": 4,

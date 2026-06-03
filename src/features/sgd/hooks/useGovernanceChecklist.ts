@@ -98,7 +98,7 @@ export function useGovernanceChecklist(): UseGovernanceChecklistReturn {
         console.error('[useGovernanceChecklist] Error updating item:', err);
       }
     },
-    [activeLabId, reload]
+    [activeLabId, reload],
   );
 
   const exportForMR = useCallback(() => {

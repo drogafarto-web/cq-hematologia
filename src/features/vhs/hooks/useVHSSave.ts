@@ -1,4 +1,4 @@
-﻿import { useCallback, useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
 import type { VHSExamInput, VHSLeituraInput } from '../types/VHSExam';
 import { useVHSSignature } from './useVHSSignature';
@@ -52,7 +52,27 @@ export function useVHSSave(labId: string) {
           sig2 = await sign(buildSigPayload(input.amostraId, input.leitura2, input.metodo));
         }
 
-        const examId = await saveVHSExam(labId, input, sig1, user.uid, sig2);
+        let sigVal1: string | undefined;
+        let sigVal2: string | undefined;
+
+        if (input.isValidationActive) {
+          if (input.validacaoLeitura1) {
+            sigVal1 = await sign(buildSigPayload(input.amostraId, input.validacaoLeitura1, input.metodo));
+          }
+          if (input.validacaoLeitura2) {
+            sigVal2 = await sign(buildSigPayload(input.amostraId, input.validacaoLeitura2, input.metodo));
+          }
+        }
+
+        const examId = await saveVHSExam(
+          labId,
+          input,
+          sig1,
+          user.uid,
+          sig2,
+          sigVal1,
+          sigVal2,
+        );
 
         return examId;
       } catch (err) {

@@ -40,17 +40,13 @@ interface Top5RisksWidgetProps {
 export const Top5RisksWidget: React.FC<Top5RisksWidgetProps> = ({ risks, onRiskClick }) => {
   const top5 = useMemo(() => {
     return risks
-      .filter(r => !r.deletadoEm)
+      .filter((r) => !r.deletadoEm)
       .sort((a, b) => b.npr - a.npr)
       .slice(0, 5);
   }, [risks]);
 
   if (top5.length === 0) {
-    return (
-      <div className="p-8 text-center text-white/30 text-sm">
-        Nenhum risco cadastrado
-      </div>
-    );
+    return <div className="p-8 text-center text-white/30 text-sm">Nenhum risco cadastrado</div>;
   }
 
   return (
@@ -82,8 +78,12 @@ export const Top5RisksWidget: React.FC<Top5RisksWidgetProps> = ({ risks, onRiskC
 
               {/* Badges */}
               <div className="flex gap-2 flex-wrap">
-                <span className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${NIVEL_CONFIG[risk.nivel]?.cls || ''}`}>
-                  <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${NIVEL_CONFIG[risk.nivel]?.dot || ''}`} />
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-xs font-medium border ${NIVEL_CONFIG[risk.nivel]?.cls || ''}`}
+                >
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${NIVEL_CONFIG[risk.nivel]?.dot || ''}`}
+                  />
                   {risk.nivel}
                 </span>
                 <span className="text-xs bg-white/[0.04] border border-white/[0.08] text-white/60 px-2 py-0.5 rounded-full">

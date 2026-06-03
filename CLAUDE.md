@@ -25,7 +25,7 @@ O contexto do projeto vive em **camadas** — carrega só o que precisa para a t
 - **Multi-tenant**: toda coleção de domínio vive em `/<coleção>/{labId}/<sub>` ou `/labs/{labId}/<coleção>/<sub>`. Payload carrega `labId` redundante.
 - **RN-06 — soft delete only**: nunca `deleteDoc`; sempre `softDelete*` do service.
 - **Assinatura**: `LogicalSignature = { hash, operatorId, ts }` com `operatorId === request.auth.uid`. Rules validam `hash.size() == 64` + `ts is timestamp`.
-- **Thin service, fat hooks**: service cobre CRUD + mapping snapshot → entidade. Hooks carregam validações de negócio (RN-*), orquestração atomic (`writeBatch`), geração de assinatura.
+- **Thin service, fat hooks**: service cobre CRUD + mapping snapshot → entidade. Hooks carregam validações de negócio (RN-\*), orquestração atomic (`writeBatch`), geração de assinatura.
 - **Escrita regulatória via Cloud Function callable** (Fase 0b+). Client só lê dessas coleções. Service client-side `create*` fica deprecated por 1 sprint antes de remover.
 - **Input DTOs via `Omit<Entidade, 'id'|'labId'|'criadoEm'|'deletadoEm'>`** — service é a única fonte de audit fields.
 - **Auth e módulos protegidos**: não tocar `auth`, `admin`, `shared` sem autorização explícita.
@@ -96,50 +96,50 @@ Use: `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` equiv.) imediatamente
 
 > **Dever de atualização**: cada módulo mantém sua própria linha aqui. Após milestone no módulo, editar.
 
-| Módulo | Status | Última entrega |
-| --- | --- | --- |
-| `analyzer` | Em prod · OCR Yumizen H550 via Gemini | — |
-| `coagulacao` | Em prod · CIQ coagulação | — |
-| `ciq-imuno` | Em prod · CIQ imunologia qualitativa | — |
-| `insumos` | Em prod · controle de insumos | — |
-| `controle-temperatura` | Em prod · FR-11 + IoT ESP32 + calibração + assinatura callable | 2026-05-04 |
-| `uroanalise` | Em prod · uroanálise | — |
-| `equipamentos` | Em prod · cadastro de equipamentos | — |
-| `fornecedores` | Em prod · cadastro de fornecedores | — |
-| `lots` | Em prod · gestão de lotes CQ | — |
-| `runs` | Em prod · corridas de controle | — |
-| `chart` | Em prod · Levey-Jennings | — |
-| `reports` | Em prod · relatórios | — |
-| `labSettings` | Em prod · config de lab | — |
-| `hub` | Em prod · dashboard de módulos | — |
-| `bulaparser` | Em prod · parse de bulas | — |
-| `auth` | Em prod · autenticação/onboarding | — |
-| `admin` | Em prod · superadmin | — |
-| `educacao-continuada` | Em prod · ISO 15189 + XLSX + callables server-side | 2026-04-24 |
-| `sgq` | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0) | 2026-05-07 |
-| `pops` | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT | 2026-05-03 |
-| `auditoria` | Em prod · Phase 7 W4-W6 (advanced — alerts, anomaly timeline, PDF archive, email, ExportWizard) — RDC 978 5.3 + DICQ 4.4 | 2026-05-09 |
-| `auditoria-interna` | Em prod · Phase 11 PQ-24 (planos de ação + presença reuniões + re-auditoria com chain de NCs fechadas + callable createAuditoria wired) — RDC 978 Art. 107 + DICQ 4.4 | 2026-05-13 |
-| `sgd` | Em prod · Sistema de Gestão Documental (DICQ 4.3) — Lista Mestra, hierarquia, distribuição, Drive importer + Riopomba migration (80 docs) | 2026-05-06 |
-| `treinamentos` | Em prod · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação | 2026-05-05 |
-| `biosseguranca` | Em prod · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644 | 2026-05-05 |
-| `pgrss` | Em prod · Gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes | 2026-05-05 |
-| `kpis` | Em prod · Dashboard de KPIs — turnaround, retrabalho%, conformidade, NC origem, SLA | 2026-05-05 |
-| `lgpd` | Em prod · Política de privacidade + direitos do titular + DPIA + exclusão com audit trail | 2026-05-05 |
-| `analytics` | Em prod · Phase 3.3 — polling 30s, date/equipment/operator filters, PDF export CF, tablet responsive | 2026-05-05 |
-| `export` | Em prod · Phase 3.3 — ExportWizard 4-step + XLSX CF + PDF compress + email + batch+scheduled | 2026-05-05 |
-| `mobile` | Em prod · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows) | 2026-05-05 |
-| `ceq` | Em prod · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial | 2026-05-05 |
-| `bioquimica` | Em prod · Phase 9b (CLSI 8-rule Westgard + z-score interlaboratorial + Gemini OCR de tira reagente, 50+ analitos) — RDC 978 Arts. 167/179/180/183 + DICQ 4.3 Bloco F + LGPD Art. 9 | 2026-05-09 |
-| `turnos` | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7) | 2026-05-07 |
-| `risks` | Em prod · Gestão de Riscos (FMEA-Lite P×S×D, NPR 1–125, revisão periódica) — RDC 978 Art. 86 + DICQ 4.14.6 | 2026-05-07 |
-| `lab-apoio` | Em prod · Contratos com labs de apoio (CNPJ + AVS + vigência + exames terceirizados + avaliação anual — RDC 978 Arts. 36–39 + DICQ 4.14.8) | 2026-05-07 |
-| `portal-rt` | Em prod · Portal RT (dashboard operacional, escalações críticas, presença RT tempo-real — RDC 978 Art. 128 + DICQ 4.1.2.7) | 2026-05-08 |
-| `portal-paciente` | Em prod · Portal Paciente (acesso a resultados via email + LGPD export + consentimento explícito — LGPD Art. 9/11/13/17 + RDC 978 Art. 167) | 2026-05-08 |
-| `notivisa` | Em prod · Integração NOTIVISA v1.4 (sandbox ready; produção Phase 6 após aprovação gov — Portaria 204/2017 + RDC 978 Art. 6) | 2026-05-08 |
-| `laudo-ocr` | Em prod · OCR de laudos via Gemini Vision + gate de consentimento + fallback manual (RDC 978 Art. 167 + LGPD Art. 9) | 2026-05-08 |
-| `criticos` | Em prod · Phase 5 (per-lab thresholds + SMS+email+in-app escalation cascade + IA strip OCR via Gemini + dataset feedback loop) — RDC 978 Arts. 127/128/167 + DICQ 4.4 + LGPD Arts. 9/13/17 | 2026-05-09 |
-| `criticos-fsm` | Em prod · Phase 10 (FSM 4 estados NORMAL→CRITICO→ALERTADO→RESOLVIDO + SLA enforcement por minuto + history append-only imutável) — RDC 978 Art. 127 + DICQ 4.4 | 2026-05-09 |
+| Módulo                 | Status                                                                                                                                                                                     | Última entrega |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | -------------- |
+| `analyzer`             | Em prod · OCR Yumizen H550 via Gemini                                                                                                                                                      | —              |
+| `coagulacao`           | Em prod · CIQ coagulação                                                                                                                                                                   | —              |
+| `ciq-imuno`            | Em prod · CIQ imunologia qualitativa                                                                                                                                                       | —              |
+| `insumos`              | Em prod · controle de insumos                                                                                                                                                              | —              |
+| `controle-temperatura` | Em prod · FR-11 + IoT ESP32 + calibração + assinatura callable                                                                                                                             | 2026-05-04     |
+| `uroanalise`           | Em prod · uroanálise                                                                                                                                                                       | —              |
+| `equipamentos`         | Em prod · cadastro de equipamentos                                                                                                                                                         | —              |
+| `fornecedores`         | Em prod · cadastro de fornecedores                                                                                                                                                         | —              |
+| `lots`                 | Em prod · gestão de lotes CQ                                                                                                                                                               | —              |
+| `runs`                 | Em prod · corridas de controle                                                                                                                                                             | —              |
+| `chart`                | Em prod · Levey-Jennings                                                                                                                                                                   | —              |
+| `reports`              | Em prod · relatórios                                                                                                                                                                       | —              |
+| `labSettings`          | Em prod · config de lab                                                                                                                                                                    | —              |
+| `hub`                  | Em prod · dashboard de módulos                                                                                                                                                             | —              |
+| `bulaparser`           | Em prod · parse de bulas                                                                                                                                                                   | —              |
+| `auth`                 | Em prod · autenticação/onboarding                                                                                                                                                          | —              |
+| `admin`                | Em prod · superadmin                                                                                                                                                                       | —              |
+| `educacao-continuada`  | Em prod · ISO 15189 + XLSX + callables server-side                                                                                                                                         | 2026-04-24     |
+| `sgq`                  | Em prod · Documentos da Qualidade (DICQ 4.3) — MQ/PQ/IT/FR/POL + versionamento + audit + POL-LGPD-001 + IT-LGPD-DPIA-001 (Phase 0)                                                         | 2026-05-07     |
+| `pops`                 | Em prod · Procedimentos Operacionais Padrão (DICQ 4.3) — versionamento + treinamento + assinatura RT                                                                                       | 2026-05-03     |
+| `auditoria`            | Em prod · Phase 7 W4-W6 (advanced — alerts, anomaly timeline, PDF archive, email, ExportWizard) — RDC 978 5.3 + DICQ 4.4                                                                   | 2026-05-09     |
+| `auditoria-interna`    | Em prod · Phase 11 PQ-24 (planos de ação + presença reuniões + re-auditoria com chain de NCs fechadas + callable createAuditoria wired) — RDC 978 Art. 107 + DICQ 4.4                      | 2026-05-13     |
+| `sgd`                  | Em prod · Sistema de Gestão Documental (DICQ 4.3) — Lista Mestra, hierarquia, distribuição, Drive importer + Riopomba migration (80 docs)                                                  | 2026-05-06     |
+| `treinamentos`         | Em prod · Sistema de registro de treinamentos com vínculo a POPs + certificação + revalidação                                                                                              | 2026-05-05     |
+| `biosseguranca`        | Em prod · Gestão de áreas de risco, níveis NB1-NB4, EPE + inspeções com ISO 14644                                                                                                          | 2026-05-05     |
+| `pgrss`                | Em prod · Gestão de resíduos (RDC 222/2018) — segregação, coleta, comprovantes                                                                                                             | 2026-05-05     |
+| `kpis`                 | Em prod · Dashboard de KPIs — turnaround, retrabalho%, conformidade, NC origem, SLA                                                                                                        | 2026-05-05     |
+| `lgpd`                 | Em prod · Política de privacidade + direitos do titular + DPIA + exclusão com audit trail                                                                                                  | 2026-05-05     |
+| `analytics`            | Em prod · Phase 3.3 — polling 30s, date/equipment/operator filters, PDF export CF, tablet responsive                                                                                       | 2026-05-05     |
+| `export`               | Em prod · Phase 3.3 — ExportWizard 4-step + XLSX CF + PDF compress + email + batch+scheduled                                                                                               | 2026-05-05     |
+| `mobile`               | Em prod · Phase 3.3 — NativeWind dark theme + biometric auth + Detox E2E (5 critical flows)                                                                                                | 2026-05-05     |
+| `ceq`                  | Em prod · Controle de Qualidade Externo — participação externa, z-score, comparação interlaboratorial                                                                                      | 2026-05-05     |
+| `bioquimica`           | Em prod · Phase 9b (CLSI 8-rule Westgard + z-score interlaboratorial + Gemini OCR de tira reagente, 50+ analitos) — RDC 978 Arts. 167/179/180/183 + DICQ 4.3 Bloco F + LGPD Art. 9         | 2026-05-09     |
+| `turnos`               | Em prod · Registro de supervisão de turnos (RDC 978 Art. 122 + RDC 786 + DICQ 4.1.2.7)                                                                                                     | 2026-05-07     |
+| `risks`                | Em prod · Gestão de Riscos (FMEA-Lite P×S×D, NPR 1–125, revisão periódica) — RDC 978 Art. 86 + DICQ 4.14.6                                                                                 | 2026-05-07     |
+| `lab-apoio`            | Em prod · Contratos com labs de apoio (CNPJ + AVS + vigência + exames terceirizados + avaliação anual — RDC 978 Arts. 36–39 + DICQ 4.14.8)                                                 | 2026-05-07     |
+| `portal-rt`            | Em prod · Portal RT (dashboard operacional, escalações críticas, presença RT tempo-real — RDC 978 Art. 128 + DICQ 4.1.2.7)                                                                 | 2026-05-08     |
+| `portal-paciente`      | Em prod · Portal Paciente (acesso a resultados via email + LGPD export + consentimento explícito — LGPD Art. 9/11/13/17 + RDC 978 Art. 167)                                                | 2026-05-08     |
+| `notivisa`             | Em prod · Integração NOTIVISA v1.4 (sandbox ready; produção Phase 6 após aprovação gov — Portaria 204/2017 + RDC 978 Art. 6)                                                               | 2026-05-08     |
+| `laudo-ocr`            | Em prod · OCR de laudos via Gemini Vision + gate de consentimento + fallback manual (RDC 978 Art. 167 + LGPD Art. 9)                                                                       | 2026-05-08     |
+| `criticos`             | Em prod · Phase 5 (per-lab thresholds + SMS+email+in-app escalation cascade + IA strip OCR via Gemini + dataset feedback loop) — RDC 978 Arts. 127/128/167 + DICQ 4.4 + LGPD Arts. 9/13/17 | 2026-05-09     |
+| `criticos-fsm`         | Em prod · Phase 10 (FSM 4 estados NORMAL→CRITICO→ALERTADO→RESOLVIDO + SLA enforcement por minuto + history append-only imutável) — RDC 978 Art. 127 + DICQ 4.4                             | 2026-05-09     |
 
 **Phase 2 — COMPLETE (2026-05-05):** Todos os 20 módulos em produção. 347/347 testes passando. ADRs 0005+0002+0006+0003+0004 todos deployados.
 
@@ -315,6 +315,7 @@ Auditoria contínua, não fase final.
 5. **Após aprovação**, escrever spec curta (decisão + escopo + critérios de aceite) antes de codar.
 
 **Quando NÃO ativa (executar direto):**
+
 - Bug fix em arquivo conhecido
 - Renomeação/refactor local sem mudança de comportamento
 - Atualização de texto/copy

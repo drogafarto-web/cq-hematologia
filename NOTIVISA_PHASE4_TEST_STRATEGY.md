@@ -13,6 +13,7 @@
 This document defines a **comprehensive Phase 4 integration test strategy** for the NOTIVISA portal (RDC 978 Art. 66 compliance). Scope includes **8 callable functions**, **unit + integration tests**, **sandbox mock scenarios**, **error resilience**, **E2E flows**, and **coverage targets**.
 
 **Deliverable Structure:**
+
 - Jest unit test suite (1 file per callable × 8 = 8 test files)
 - Firebase Emulator integration tests (1 suite)
 - E2E flow validation (auth → submit → track → retrieve)
@@ -26,16 +27,16 @@ This document defines a **comprehensive Phase 4 integration test strategy** for 
 
 ### 1.1 Callable Functions Inventory
 
-| # | Name | Input | Output | Critical Behavior | Error Codes |
-|---|------|-------|--------|------------------|-------------|
-| 1 | `authenticatePortal` | labId, username, password, mfaCode? | ok, authToken, expiresAt, sessionId | Portal login; session creation; audit log | INVALID_CREDENTIALS, MFA_REQUIRED, MFA_INVALID, PORTAL_CONFIG_MISSING, PORTAL_UNREACHABLE, SESSION_CREATION_FAILED, PERMISSION_DENIED, INTERNAL_ERROR |
-| 2 | `getPatientData` | labId, pacienteCpf, laudoId? | ok, paciente, laudo, readyForSubmission, missingFields? | Fetch patient + laudo; validate completeness; check required fields | PATIENT_NOT_FOUND, LAUDO_NOT_FOUND, INCOMPLETE_DATA, PERMISSION_DENIED, INTERNAL_ERROR |
-| 3 | `submitRequisition` | labId, pacienteCpf, laudoId, authSessionId, notivisaPayload | ok, requisitionId, status, protocolNumber?, nextCheckAt? | Validate payload; submit to portal; queue for polling; audit log; dedup check; rate limit | INVALID_SESSION, SESSION_EXPIRED, INVALID_PAYLOAD, DUPLICATE_SUBMISSION, PORTAL_ERROR, RATE_LIMITED, PERMISSION_DENIED, INTERNAL_ERROR |
-| 4 | `trackSampleStatus` | labId, requisitionId, authSessionId? | ok, status, protocolNumber?, portalStatus?, updatedAt, nextCheckAt?, errorMessage?, details? | Poll portal; update status; check terminal states; timeout after 24h; audit log | REQUISITION_NOT_FOUND, SESSION_INVALID, SESSION_EXPIRED, PERMISSION_DENIED, PORTAL_ERROR, INTERNAL_ERROR |
-| 5 | `notivisaDraftCreate` | labId, laudoId, payload | ok, draftId, status, createdAt | Create draft; idempotency check; audit trail | INCOMPLETE_DATA, DUPLICATE_LAUDO, PERMISSION_DENIED, INTERNAL_ERROR |
-| 6 | `getNotivisaDraft` | labId, draftId | ok, draft, status, auditLog? | Fetch draft; return current state + audit history | DRAFT_NOT_FOUND, PERMISSION_DENIED, INTERNAL_ERROR |
-| 7 | `rejectNotivisaDraft` | labId, draftId, motivo, signature | ok, draftId, status, rejectedAt | Transition draft back to drafting; log rejection reason; audit trail | DRAFT_NOT_FOUND, INVALID_SIGNATURE, PERMISSION_DENIED, INTERNAL_ERROR |
-| 8 | `listNotivisaOutbox` | labId | ok, submissions[], totalCount, pageToken? | List submitted + completed; pagination; filter by status/date | PERMISSION_DENIED, INTERNAL_ERROR |
+| #   | Name                  | Input                                                       | Output                                                                                       | Critical Behavior                                                                         | Error Codes                                                                                                                                           |
+| --- | --------------------- | ----------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `authenticatePortal`  | labId, username, password, mfaCode?                         | ok, authToken, expiresAt, sessionId                                                          | Portal login; session creation; audit log                                                 | INVALID_CREDENTIALS, MFA_REQUIRED, MFA_INVALID, PORTAL_CONFIG_MISSING, PORTAL_UNREACHABLE, SESSION_CREATION_FAILED, PERMISSION_DENIED, INTERNAL_ERROR |
+| 2   | `getPatientData`      | labId, pacienteCpf, laudoId?                                | ok, paciente, laudo, readyForSubmission, missingFields?                                      | Fetch patient + laudo; validate completeness; check required fields                       | PATIENT_NOT_FOUND, LAUDO_NOT_FOUND, INCOMPLETE_DATA, PERMISSION_DENIED, INTERNAL_ERROR                                                                |
+| 3   | `submitRequisition`   | labId, pacienteCpf, laudoId, authSessionId, notivisaPayload | ok, requisitionId, status, protocolNumber?, nextCheckAt?                                     | Validate payload; submit to portal; queue for polling; audit log; dedup check; rate limit | INVALID_SESSION, SESSION_EXPIRED, INVALID_PAYLOAD, DUPLICATE_SUBMISSION, PORTAL_ERROR, RATE_LIMITED, PERMISSION_DENIED, INTERNAL_ERROR                |
+| 4   | `trackSampleStatus`   | labId, requisitionId, authSessionId?                        | ok, status, protocolNumber?, portalStatus?, updatedAt, nextCheckAt?, errorMessage?, details? | Poll portal; update status; check terminal states; timeout after 24h; audit log           | REQUISITION_NOT_FOUND, SESSION_INVALID, SESSION_EXPIRED, PERMISSION_DENIED, PORTAL_ERROR, INTERNAL_ERROR                                              |
+| 5   | `notivisaDraftCreate` | labId, laudoId, payload                                     | ok, draftId, status, createdAt                                                               | Create draft; idempotency check; audit trail                                              | INCOMPLETE_DATA, DUPLICATE_LAUDO, PERMISSION_DENIED, INTERNAL_ERROR                                                                                   |
+| 6   | `getNotivisaDraft`    | labId, draftId                                              | ok, draft, status, auditLog?                                                                 | Fetch draft; return current state + audit history                                         | DRAFT_NOT_FOUND, PERMISSION_DENIED, INTERNAL_ERROR                                                                                                    |
+| 7   | `rejectNotivisaDraft` | labId, draftId, motivo, signature                           | ok, draftId, status, rejectedAt                                                              | Transition draft back to drafting; log rejection reason; audit trail                      | DRAFT_NOT_FOUND, INVALID_SIGNATURE, PERMISSION_DENIED, INTERNAL_ERROR                                                                                 |
+| 8   | `listNotivisaOutbox`  | labId                                                       | ok, submissions[], totalCount, pageToken?                                                    | List submitted + completed; pagination; filter by status/date                             | PERMISSION_DENIED, INTERNAL_ERROR                                                                                                                     |
 
 ---
 
@@ -61,17 +62,17 @@ functions/src/modules/notivisa/callables/
 
 ### 2.2 Unit Test Coverage Targets
 
-| Callable | Line Coverage | Branch Coverage | Critical Path | Timeout Coverage | Error Paths |
-|----------|---|---|---|---|---|
-| authenticatePortal | 95% | 90% | 100% | Yes (session expiry) | All 8 error codes |
-| getPatientData | 92% | 88% | 100% | No | All 5 error codes |
-| submitRequisition | 96% | 92% | 100% | Yes (rate limit, polling) | All 8 error codes |
-| trackSampleStatus | 94% | 90% | 100% | Yes (24h timeout) | All 6 error codes |
-| notivisaDraftCreate | 91% | 87% | 100% | No | All 4 error codes |
-| getNotivisaDraft | 89% | 85% | 100% | No | All 3 error codes |
-| rejectNotivisaDraft | 93% | 89% | 100% | No | All 4 error codes |
-| listNotivisaOutbox | 88% | 84% | 100% | No | All 2 error codes |
-| **TOTAL** | **92%** | **88%** | **100%** | **4 callables** | **40 error scenarios** |
+| Callable            | Line Coverage | Branch Coverage | Critical Path | Timeout Coverage          | Error Paths            |
+| ------------------- | ------------- | --------------- | ------------- | ------------------------- | ---------------------- |
+| authenticatePortal  | 95%           | 90%             | 100%          | Yes (session expiry)      | All 8 error codes      |
+| getPatientData      | 92%           | 88%             | 100%          | No                        | All 5 error codes      |
+| submitRequisition   | 96%           | 92%             | 100%          | Yes (rate limit, polling) | All 8 error codes      |
+| trackSampleStatus   | 94%           | 90%             | 100%          | Yes (24h timeout)         | All 6 error codes      |
+| notivisaDraftCreate | 91%           | 87%             | 100%          | No                        | All 4 error codes      |
+| getNotivisaDraft    | 89%           | 85%             | 100%          | No                        | All 3 error codes      |
+| rejectNotivisaDraft | 93%           | 89%             | 100%          | No                        | All 4 error codes      |
+| listNotivisaOutbox  | 88%           | 84%             | 100%          | No                        | All 2 error codes      |
+| **TOTAL**           | **92%**       | **88%**         | **100%**      | **4 callables**           | **40 error scenarios** |
 
 ### 2.3 Unit Test Template (Pattern)
 
@@ -81,7 +82,7 @@ Each callable test file follows this structure:
 /**
  * {CALLABLE_NAME}.test.ts
  * Phase 4 — Tests for {CALLABLE_NAME}
- * 
+ *
  * Coverage:
  * - Input validation (Zod schemas)
  * - Authorization checks (assertNotivisaAccess)
@@ -155,6 +156,7 @@ describe('{CALLABLE_NAME}', () => {
 **File:** `functions/src/__tests__/integration/notivisa-integration.test.ts`
 
 **Setup:**
+
 - Firebase Rules Unit Testing (`@firebase/rules-unit-testing`)
 - Firestore Emulator (local, in-process)
 - Functions Emulator (port 5001)
@@ -425,7 +427,7 @@ describe('NOTIVISA Integration — Error Scenarios & Resilience', () => {
     });
 
     test('trackSampleStatus should timeout polling after 24 hours', async () => {
-      const submittedAt = Date.now() - (25 * 3600 * 1000); // 25 hours ago
+      const submittedAt = Date.now() - 25 * 3600 * 1000; // 25 hours ago
       // Create a submission with submittedAt = 25h ago
       const result = await trackSampleStatus(request);
       expect(result.status).toBe('failed'); // Should timeout
@@ -447,9 +449,9 @@ describe('NOTIVISA Integration — Error Scenarios & Resilience', () => {
     test('should handle concurrent submitRequisition calls safely', async () => {
       const promises = [1, 2, 3].map(() => submitRequisition(request));
       const results = await Promise.all(promises);
-      
+
       // Only 1 should succeed; others should be DUPLICATE_SUBMISSION
-      const successes = results.filter(r => r.ok);
+      const successes = results.filter((r) => r.ok);
       expect(successes.length).toBe(1);
     });
   });
@@ -464,7 +466,7 @@ Validate RDC 978 Art. 66 audit logging.
 describe('NOTIVISA Integration — Audit Trail & Compliance (RDC 978 Art. 66)', () => {
   test('authenticatePortal should log to notivisa-audit-logs/logins', async () => {
     await authenticatePortal(request);
-    
+
     const auditDocs = await db
       .collection('notivisa-audit-logs')
       .doc(labId)
@@ -553,7 +555,7 @@ describe('NOTIVISA Integration — Audit Trail & Compliance (RDC 978 Art. 66)', 
     // - ts (when, unix ms)
     // - action (what)
     // - details (context)
-    
+
     const allAudits = await db
       .collectionGroup('auditLog')
       .get();
@@ -659,7 +661,10 @@ describe('NOTIVISA Integration — E2E Happy Path Flows', () => {
         draftId,
         motivo: 'Paciente com data de nascimento inválida — solicitar confirmação',
         signature: {
-          hash: crypto.createHash('sha256').update(JSON.stringify(getDraftResult.draft)).digest('hex'),
+          hash: crypto
+            .createHash('sha256')
+            .update(JSON.stringify(getDraftResult.draft))
+            .digest('hex'),
           operatorId: auditorUser.uid,
           ts: Date.now(),
         },
@@ -710,16 +715,14 @@ describe('NOTIVISA Integration — Firestore Rules Validation', () => {
     // RT should read
     const rtClient = initializeTestApp({ projectId, auth: { uid: rtUser.uid } });
     const rtDb = getFirestore(rtClient);
-    const sessionSnap = await getDoc(
-      doc(rtDb, 'notivisa-sessions', labId, 'sessions', 'sess-001')
-    );
+    const sessionSnap = await getDoc(doc(rtDb, 'notivisa-sessions', labId, 'sessions', 'sess-001'));
     expect(sessionSnap.exists()).toBe(true);
 
     // Stranger should not read
     const strangerClient = initializeTestApp({ projectId, auth: { uid: 'stranger' } });
     const strangerDb = getFirestore(strangerClient);
     const forbiddenSnap = await getDoc(
-      doc(strangerDb, 'notivisa-sessions', labId, 'sessions', 'sess-001')
+      doc(strangerDb, 'notivisa-sessions', labId, 'sessions', 'sess-001'),
     );
     // Expect to fail per rules
   });
@@ -732,7 +735,7 @@ describe('NOTIVISA Integration — Firestore Rules Validation', () => {
     expect(async () => {
       await setDoc(
         doc(rtDb, 'notivisa-requisitions', labId, 'submissions', 'req-999'),
-        { status: 'submitted' } // Not allowed — CF only
+        { status: 'submitted' }, // Not allowed — CF only
       );
     }).rejects.toThrow();
   });
@@ -743,9 +746,7 @@ describe('NOTIVISA Integration — Firestore Rules Validation', () => {
     const rtDb = getFirestore(rtClient);
 
     expect(async () => {
-      await deleteDoc(
-        doc(rtDb, 'notivisa-requisitions', labId, 'submissions', 'req-001')
-      );
+      await deleteDoc(doc(rtDb, 'notivisa-requisitions', labId, 'submissions', 'req-001'));
     }).rejects.toThrow();
   });
 });
@@ -762,7 +763,7 @@ describe('NOTIVISA Integration — Firestore Rules Validation', () => {
 ```typescript
 /**
  * notivisa-mocks.ts — Mock NOTIVISA API responses for sandbox testing
- * 
+ *
  * Usage:
  *   const mockResponse = generateMockPortalResponse('submit_success', { protocolNumber: 'NV-LAB-123' });
  *   const mockStatus = generateMockStatusProgression(3); // 3 polls
@@ -840,7 +841,7 @@ export const MockNotivisaResponses = {
   statusProgression: (steps: number) => {
     const progression = [];
     const protocol = `NV-${Date.now()}`;
-    
+
     for (let i = 0; i < steps; i++) {
       if (i < 2) {
         progression.push(MockNotivisaResponses.statusSubmitted(protocol));
@@ -865,7 +866,7 @@ export const MockNotivisaResponses = {
 };
 
 export function mockPortalSubmit(
-  scenario: 'success' | 'failure' | 'timeout' | 'invalid_creds'
+  scenario: 'success' | 'failure' | 'timeout' | 'invalid_creds',
 ): any {
   switch (scenario) {
     case 'success':
@@ -880,7 +881,7 @@ export function mockPortalSubmit(
 }
 
 export function mockPortalStatusCheck(
-  scenario: 'submitted' | 'processing' | 'completed' | 'rejected'
+  scenario: 'submitted' | 'processing' | 'completed' | 'rejected',
 ): any {
   const protocol = 'NV-LAB-001';
   switch (scenario) {
@@ -932,9 +933,19 @@ export const ValidPayloads = {
     paciente_cpf: '11122233344',
     data_resultado: Date.now(),
     resultados: [
-      { analito: 'NS1 Antígeno', valor: 'Positivo', unidade: 'Qualitativo', referencia: 'Negativo' },
+      {
+        analito: 'NS1 Antígeno',
+        valor: 'Positivo',
+        unidade: 'Qualitativo',
+        referencia: 'Negativo',
+      },
       { analito: 'IgM Anti-Dengue', valor: '2.5', unidade: 'Índice', referencia: '<0.9' },
-      { analito: 'IgG Anti-Dengue', valor: 'Negativo', unidade: 'Qualitativo', referencia: 'Negativo' },
+      {
+        analito: 'IgG Anti-Dengue',
+        valor: 'Negativo',
+        unidade: 'Qualitativo',
+        referencia: 'Negativo',
+      },
     ],
     assinador: {
       cpf: '55566677788',
@@ -1082,24 +1093,24 @@ jest.setTimeout(15000);
 
 ### 6.1 Coverage Matrix
 
-| Layer | Component | Tests | Coverage Target | Current | Gap |
-|-------|-----------|-------|---|---|---|
-| Unit | authenticatePortal | 18 | 95% | — | — |
-| Unit | getPatientData | 16 | 92% | — | — |
-| Unit | submitRequisition | 22 | 96% | — | — |
-| Unit | trackSampleStatus | 20 | 94% | — | — |
-| Unit | notivisaDraftCreate | 14 | 91% | — | — |
-| Unit | getNotivisaDraft | 12 | 89% | — | — |
-| Unit | rejectNotivisaDraft | 15 | 93% | — | — |
-| Unit | listNotivisaOutbox | 11 | 88% | — | — |
-| Integration | Firestore Emulator | 42 | 90% | — | — |
-| Integration | Mock Responses | 15 | 85% | — | — |
-| Integration | Authorization | 8 | 100% | — | — |
-| Integration | Error Resilience | 18 | 90% | — | — |
-| Integration | Audit Trail | 10 | 100% | — | — |
-| E2E | Happy Path Flows | 5 | 95% | — | — |
-| E2E | Firestore Rules | 5 | 90% | — | — |
-| **TOTAL** | **All** | **211** | **92%** | — | — |
+| Layer       | Component           | Tests   | Coverage Target | Current | Gap |
+| ----------- | ------------------- | ------- | --------------- | ------- | --- |
+| Unit        | authenticatePortal  | 18      | 95%             | —       | —   |
+| Unit        | getPatientData      | 16      | 92%             | —       | —   |
+| Unit        | submitRequisition   | 22      | 96%             | —       | —   |
+| Unit        | trackSampleStatus   | 20      | 94%             | —       | —   |
+| Unit        | notivisaDraftCreate | 14      | 91%             | —       | —   |
+| Unit        | getNotivisaDraft    | 12      | 89%             | —       | —   |
+| Unit        | rejectNotivisaDraft | 15      | 93%             | —       | —   |
+| Unit        | listNotivisaOutbox  | 11      | 88%             | —       | —   |
+| Integration | Firestore Emulator  | 42      | 90%             | —       | —   |
+| Integration | Mock Responses      | 15      | 85%             | —       | —   |
+| Integration | Authorization       | 8       | 100%            | —       | —   |
+| Integration | Error Resilience    | 18      | 90%             | —       | —   |
+| Integration | Audit Trail         | 10      | 100%            | —       | —   |
+| E2E         | Happy Path Flows    | 5       | 95%             | —       | —   |
+| E2E         | Firestore Rules     | 5       | 90%             | —       | —   |
+| **TOTAL**   | **All**             | **211** | **92%**         | —       | —   |
 
 ### 6.2 Test Execution Plan
 
@@ -1163,20 +1174,20 @@ The following **critical flows** must achieve **100% branch coverage** (no excep
 
 ## 8. Error Scenario Matrix
 
-| Scenario | Trigger | Expected Behavior | Test File | Assertion |
-|----------|---------|---|---|---|
-| API Down (503) | submitRequisition → portal unavailable | Queue for retry (status=queued) | submitRequisition.test.ts | expect(result.status).toBe('queued') |
-| API Timeout (30s) | trackSampleStatus → no response | Return PORTAL_ERROR | trackSampleStatus.test.ts | expect(result.code).toBe('PORTAL_ERROR') |
-| Invalid CPF | getPatientData → CPF <11 digits | Zod validation error → INTERNAL_ERROR | getPatientData.test.ts | expect(result.code).toContain('INTERNAL_ERROR') |
-| Session Expired | trackSampleStatus → authSessionId > 1h old | Return SESSION_EXPIRED | trackSampleStatus.test.ts | expect(result.code).toBe('SESSION_EXPIRED') |
-| Rate Limited | submitRequisition → >20/hour | Return RATE_LIMITED | submitRequisition.test.ts | expect(result.code).toBe('RATE_LIMITED') |
-| Duplicate Submit | submitRequisition → same laudo + patient | Return DUPLICATE_SUBMISSION | submitRequisition.test.ts | expect(result.code).toBe('DUPLICATE_SUBMISSION') |
-| Config Missing | authenticatePortal → no portal config | Return PORTAL_CONFIG_MISSING | authenticatePortal.test.ts | expect(result.code).toBe('PORTAL_CONFIG_MISSING') |
-| MFA Required | authenticatePortal → config requires MFA but not provided | Return MFA_REQUIRED | authenticatePortal.test.ts | expect(result.code).toBe('MFA_REQUIRED') |
-| Incomplete Data | getPatientData → paciente missing dataNascimento | Return INCOMPLETE_DATA + missingFields | getPatientData.test.ts | expect(result.missingFields).toContain(...) |
-| 24h Timeout | trackSampleStatus → submission >24h old | Set status=failed | trackSampleStatus.test.ts | expect(result.status).toBe('failed') |
-| Concurrent Submit | submitRequisition × 3 parallel | Only 1 succeeds; 2 get DUPLICATE_SUBMISSION | notivisa-integration.test.ts | expect(successes.length).toBe(1) |
-| Malformed Portal Response | trackSampleStatus → portal returns invalid JSON | Fallback gracefully | trackSampleStatus.test.ts | expect(result.ok).toBeDefined() |
+| Scenario                  | Trigger                                                   | Expected Behavior                           | Test File                    | Assertion                                         |
+| ------------------------- | --------------------------------------------------------- | ------------------------------------------- | ---------------------------- | ------------------------------------------------- |
+| API Down (503)            | submitRequisition → portal unavailable                    | Queue for retry (status=queued)             | submitRequisition.test.ts    | expect(result.status).toBe('queued')              |
+| API Timeout (30s)         | trackSampleStatus → no response                           | Return PORTAL_ERROR                         | trackSampleStatus.test.ts    | expect(result.code).toBe('PORTAL_ERROR')          |
+| Invalid CPF               | getPatientData → CPF <11 digits                           | Zod validation error → INTERNAL_ERROR       | getPatientData.test.ts       | expect(result.code).toContain('INTERNAL_ERROR')   |
+| Session Expired           | trackSampleStatus → authSessionId > 1h old                | Return SESSION_EXPIRED                      | trackSampleStatus.test.ts    | expect(result.code).toBe('SESSION_EXPIRED')       |
+| Rate Limited              | submitRequisition → >20/hour                              | Return RATE_LIMITED                         | submitRequisition.test.ts    | expect(result.code).toBe('RATE_LIMITED')          |
+| Duplicate Submit          | submitRequisition → same laudo + patient                  | Return DUPLICATE_SUBMISSION                 | submitRequisition.test.ts    | expect(result.code).toBe('DUPLICATE_SUBMISSION')  |
+| Config Missing            | authenticatePortal → no portal config                     | Return PORTAL_CONFIG_MISSING                | authenticatePortal.test.ts   | expect(result.code).toBe('PORTAL_CONFIG_MISSING') |
+| MFA Required              | authenticatePortal → config requires MFA but not provided | Return MFA_REQUIRED                         | authenticatePortal.test.ts   | expect(result.code).toBe('MFA_REQUIRED')          |
+| Incomplete Data           | getPatientData → paciente missing dataNascimento          | Return INCOMPLETE_DATA + missingFields      | getPatientData.test.ts       | expect(result.missingFields).toContain(...)       |
+| 24h Timeout               | trackSampleStatus → submission >24h old                   | Set status=failed                           | trackSampleStatus.test.ts    | expect(result.status).toBe('failed')              |
+| Concurrent Submit         | submitRequisition × 3 parallel                            | Only 1 succeeds; 2 get DUPLICATE_SUBMISSION | notivisa-integration.test.ts | expect(successes.length).toBe(1)                  |
+| Malformed Portal Response | trackSampleStatus → portal returns invalid JSON           | Fallback gracefully                         | trackSampleStatus.test.ts    | expect(result.ok).toBeDefined()                   |
 
 ---
 
@@ -1184,16 +1195,16 @@ The following **critical flows** must achieve **100% branch coverage** (no excep
 
 ### 9.1 Performance Baselines
 
-| Callable | Target P50 | Target P99 | SLA |
-|----------|---|---|---|
-| authenticatePortal | 200ms | 800ms | <1s |
-| getPatientData | 150ms | 600ms | <1s |
-| submitRequisition | 300ms | 1200ms | <2s |
-| trackSampleStatus | 200ms | 900ms | <1.5s |
-| notivisaDraftCreate | 250ms | 1000ms | <1.5s |
-| getNotivisaDraft | 100ms | 400ms | <1s |
-| rejectNotivisaDraft | 150ms | 500ms | <1s |
-| listNotivisaOutbox | 200ms | 800ms | <1.5s |
+| Callable            | Target P50 | Target P99 | SLA   |
+| ------------------- | ---------- | ---------- | ----- |
+| authenticatePortal  | 200ms      | 800ms      | <1s   |
+| getPatientData      | 150ms      | 600ms      | <1s   |
+| submitRequisition   | 300ms      | 1200ms     | <2s   |
+| trackSampleStatus   | 200ms      | 900ms      | <1.5s |
+| notivisaDraftCreate | 250ms      | 1000ms     | <1.5s |
+| getNotivisaDraft    | 100ms      | 400ms      | <1s   |
+| rejectNotivisaDraft | 150ms      | 500ms      | <1s   |
+| listNotivisaOutbox  | 200ms      | 800ms      | <1.5s |
 
 ### 9.2 Load Test (Future Phase)
 
@@ -1206,11 +1217,11 @@ describe('NOTIVISA Load Testing (Smoke Test)', () => {
         submitRequisition({
           auth: rtUser,
           data: { ...input, pacienteCpf: `${10000000000 + i}` },
-        })
+        }),
       );
     }
     const results = await Promise.all(promises);
-    const successes = results.filter(r => r.ok).length;
+    const successes = results.filter((r) => r.ok).length;
     expect(successes).toBeGreaterThan(90); // Allow 10% failure (duplicates, etc.)
   });
 
@@ -1221,7 +1232,7 @@ describe('NOTIVISA Load Testing (Smoke Test)', () => {
         trackSampleStatus({
           auth: rtUser,
           data: { labId, requisitionId: `req-${i}` },
-        })
+        }),
       );
     }
     const start = Date.now();
@@ -1294,19 +1305,19 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: '22'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Start Firebase Emulator
         run: |
           npm install -g firebase-tools
           firebase emulators:start --import=./emulator-seed &
           sleep 5 # Wait for emulator
-      
+
       - name: Run NOTIVISA tests
         run: npm test -- modules/notivisa __tests__/integration/notivisa
-      
+
       - name: Upload coverage
         uses: codecov/codecov-action@v3
         with:
@@ -1340,11 +1351,11 @@ jobs:
 
 ### 11.2 Sign-Off
 
-| Role | Responsibility | Sign-Off |
-|------|---|---|
-| Engineer | Implementation + unit tests | |
-| QA Lead | Integration + E2E tests + coverage report | |
-| CTO | Critical path verification + compliance check | |
+| Role     | Responsibility                                | Sign-Off |
+| -------- | --------------------------------------------- | -------- |
+| Engineer | Implementation + unit tests                   |          |
+| QA Lead  | Integration + E2E tests + coverage report     |          |
+| CTO      | Critical path verification + compliance check |          |
 
 ---
 
@@ -1432,16 +1443,16 @@ describe('NOTIVISA Integration — Mock Responses', () => {
 
 ## 13. Timeline & Milestones
 
-| Phase | Task | Duration | Owner |
-|-------|------|----------|-------|
-| 1 | Create 8 unit test files | 2d | Engineer |
-| 2 | Create integration test suite | 1d | Engineer |
-| 3 | Create E2E test flows | 1d | QA |
-| 4 | Mock NOTIVISA responses + fixtures | 0.5d | Engineer |
-| 5 | Firestore Rules validation tests | 0.5d | Engineer |
-| 6 | Coverage report + gap analysis | 0.5d | QA |
-| 7 | Performance baseline collection | 1d | Engineer |
-| **TOTAL** | **Phase 4 Test Strategy** | **6d** | **Team** |
+| Phase     | Task                               | Duration | Owner    |
+| --------- | ---------------------------------- | -------- | -------- |
+| 1         | Create 8 unit test files           | 2d       | Engineer |
+| 2         | Create integration test suite      | 1d       | Engineer |
+| 3         | Create E2E test flows              | 1d       | QA       |
+| 4         | Mock NOTIVISA responses + fixtures | 0.5d     | Engineer |
+| 5         | Firestore Rules validation tests   | 0.5d     | Engineer |
+| 6         | Coverage report + gap analysis     | 0.5d     | QA       |
+| 7         | Performance baseline collection    | 1d       | Engineer |
+| **TOTAL** | **Phase 4 Test Strategy**          | **6d**   | **Team** |
 
 ---
 

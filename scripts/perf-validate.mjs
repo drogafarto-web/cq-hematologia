@@ -52,10 +52,7 @@ const ONLY = argv.only ? new Set(argv.only.split(',').map((s) => s.trim())) : nu
 const EMIT_JSON = Boolean(argv.json);
 const EMIT_PR_SUMMARY = Boolean(argv['pr-summary']);
 const TIMESTAMP = new Date().toISOString().replace(/[:.]/g, '-');
-const REPORT_PATH = path.resolve(
-  REPO_ROOT,
-  argv.out ?? `dist/perf-report-${TIMESTAMP}.md`,
-);
+const REPORT_PATH = path.resolve(REPO_ROOT, argv.out ?? `dist/perf-report-${TIMESTAMP}.md`);
 
 // ───────────────────────────────────────────────────────────── status helpers
 const STATUS = Object.freeze({
@@ -198,8 +195,9 @@ async function measureLighthouse(overrides) {
     const audits = data.audits ?? {};
     const lcpMs = audits['largest-contentful-paint']?.numericValue;
     const cls = audits['cumulative-layout-shift']?.numericValue;
-    const inp = audits['interaction-to-next-paint']?.numericValue
-      ?? audits['max-potential-fid']?.numericValue;
+    const inp =
+      audits['interaction-to-next-paint']?.numericValue ??
+      audits['max-potential-fid']?.numericValue;
     if (lcpMs != null) lcps.push(lcpMs);
     if (cls != null) clss.push(cls);
     if (inp != null) inps.push(inp);
@@ -326,9 +324,7 @@ function buildResults({ baseline, bundle, lighthouse, telemetry }) {
 
   for (const key of ['auth', 'laudo', 'queue', 'rules']) {
     if (!shouldRun(key)) continue;
-    const tel = telemetry[
-      key === 'laudo' ? 'laudoLoad' : key === 'rules' ? 'firestoreRules' : key
-    ];
+    const tel = telemetry[key === 'laudo' ? 'laudoLoad' : key === 'rules' ? 'firestoreRules' : key];
     const baseKey = key === 'laudo' ? 'laudoLoad' : key === 'rules' ? 'firestoreRules' : key;
     if (!tel) {
       results[key] = {
@@ -461,7 +457,9 @@ function renderReport({ results, verdict, baseline, ctx }) {
   lines.push(`**Generated:** ${new Date().toISOString()}`);
   lines.push(`**Baseline:** ${baseline.version} (captured ${baseline.capturedAt})`);
   lines.push(`**Commit:** ${ctx.commit ?? 'unknown'}`);
-  lines.push(`**Mode:** ${STRICT ? 'strict' : 'non-strict'}${ONLY ? ` · only=${[...ONLY].join(',')}` : ''}`);
+  lines.push(
+    `**Mode:** ${STRICT ? 'strict' : 'non-strict'}${ONLY ? ` · only=${[...ONLY].join(',')}` : ''}`,
+  );
   lines.push('');
   lines.push(`## Verdict: ${statusGlyph(verdict.verdict)}`);
   lines.push('');
@@ -476,7 +474,9 @@ function renderReport({ results, verdict, baseline, ctx }) {
 
   if (results.bundle) {
     if (results.bundle.status === STATUS.SKIP) {
-      lines.push(`| 1. Bundle (main shell) | — | ${baseline.metrics.bundle.mainShellGzipKb.baseline} KB | ${baseline.metrics.bundle.mainShellGzipKb.fail} KB | SKIP | ${results.bundle.reason} |`);
+      lines.push(
+        `| 1. Bundle (main shell) | — | ${baseline.metrics.bundle.mainShellGzipKb.baseline} KB | ${baseline.metrics.bundle.mainShellGzipKb.fail} KB | SKIP | ${results.bundle.reason} |`,
+      );
     } else {
       lines.push(metricRow('1. Bundle (main shell, gzip)', results.bundle.mainShellGzipKb));
       lines.push(metricRow('1b. Bundle (total JS, gzip)', results.bundle.totalGzipKb));
@@ -484,7 +484,9 @@ function renderReport({ results, verdict, baseline, ctx }) {
   }
   if (results.lighthouse) {
     if (results.lighthouse.status === STATUS.SKIP) {
-      lines.push(`| 2. Lighthouse (avg perf) | — | ${baseline.metrics.lighthouse.averagePerformance.baseline}/100 | ${baseline.metrics.lighthouse.averagePerformance.fail}/100 | SKIP | ${results.lighthouse.reason} |`);
+      lines.push(
+        `| 2. Lighthouse (avg perf) | — | ${baseline.metrics.lighthouse.averagePerformance.baseline}/100 | ${baseline.metrics.lighthouse.averagePerformance.fail}/100 | SKIP | ${results.lighthouse.reason} |`,
+      );
     } else {
       lines.push(metricRow('2. Lighthouse (avg perf)', results.lighthouse.averagePerformance));
       lines.push(metricRow('2b. Lighthouse (avg a11y)', results.lighthouse.averageAccessibility));
@@ -501,28 +503,36 @@ function renderReport({ results, verdict, baseline, ctx }) {
   }
   if (results.auth) {
     if (results.auth.status === STATUS.SKIP) {
-      lines.push(`| 4. Auth latency | — | ${baseline.metrics.auth.p95Ms.baseline} ms | ${baseline.metrics.auth.p95Ms.fail} ms | SKIP | ${results.auth.reason} |`);
+      lines.push(
+        `| 4. Auth latency | — | ${baseline.metrics.auth.p95Ms.baseline} ms | ${baseline.metrics.auth.p95Ms.fail} ms | SKIP | ${results.auth.reason} |`,
+      );
     } else {
       lines.push(metricRow('4. Auth p95', results.auth.p95Ms));
     }
   }
   if (results.laudo) {
     if (results.laudo.status === STATUS.SKIP) {
-      lines.push(`| 5. Laudo load | — | ${baseline.metrics.laudoLoad.p95Ms.baseline} ms | ${baseline.metrics.laudoLoad.p95Ms.fail} ms | SKIP | ${results.laudo.reason} |`);
+      lines.push(
+        `| 5. Laudo load | — | ${baseline.metrics.laudoLoad.p95Ms.baseline} ms | ${baseline.metrics.laudoLoad.p95Ms.fail} ms | SKIP | ${results.laudo.reason} |`,
+      );
     } else {
       lines.push(metricRow('5. Laudo load p95', results.laudo.p95Ms));
     }
   }
   if (results.queue) {
     if (results.queue.status === STATUS.SKIP) {
-      lines.push(`| 6. Queue processing | — | ${baseline.metrics.queue.p95Ms.baseline} ms | ${baseline.metrics.queue.p95Ms.fail} ms | SKIP | ${results.queue.reason} |`);
+      lines.push(
+        `| 6. Queue processing | — | ${baseline.metrics.queue.p95Ms.baseline} ms | ${baseline.metrics.queue.p95Ms.fail} ms | SKIP | ${results.queue.reason} |`,
+      );
     } else {
       lines.push(metricRow('6. Queue p95', results.queue.p95Ms));
     }
   }
   if (results.rules) {
     if (results.rules.status === STATUS.SKIP) {
-      lines.push(`| 7. Firestore rules | — | ${baseline.metrics.firestoreRules.p95Ms.baseline} ms | ${baseline.metrics.firestoreRules.p95Ms.fail} ms | SKIP | ${results.rules.reason} |`);
+      lines.push(
+        `| 7. Firestore rules | — | ${baseline.metrics.firestoreRules.p95Ms.baseline} ms | ${baseline.metrics.firestoreRules.p95Ms.fail} ms | SKIP | ${results.rules.reason} |`,
+      );
     } else {
       lines.push(metricRow('7. Rules p95', results.rules.p95Ms));
     }
@@ -564,7 +574,9 @@ function renderReport({ results, verdict, baseline, ctx }) {
   lines.push('');
   lines.push('## How to read this report');
   lines.push('');
-  lines.push('See `docs/observability/PERF_VALIDATION_RUNBOOK.md` for status semantics, suppression policy, and escalation.');
+  lines.push(
+    'See `docs/observability/PERF_VALIDATION_RUNBOOK.md` for status semantics, suppression policy, and escalation.',
+  );
   lines.push('');
   lines.push('---');
   lines.push(`Generated by \`scripts/perf-validate.mjs\``);
@@ -639,7 +651,9 @@ async function main() {
   const telemetry = measureTelemetry(loadTelemetry(), overrides);
 
   const [bundle, lighthouse] = await Promise.all([
-    shouldRun('bundle') ? measureBundle() : Promise.resolve({ skipped: true, reason: 'filtered out by --only' }),
+    shouldRun('bundle')
+      ? measureBundle()
+      : Promise.resolve({ skipped: true, reason: 'filtered out by --only' }),
     shouldRun('lighthouse') || shouldRun('webVitals')
       ? measureLighthouse(overrides)
       : Promise.resolve({ skipped: true, reason: 'filtered out by --only' }),
@@ -649,11 +663,7 @@ async function main() {
   const verdict = computeVerdict(results);
 
   const ctx = {
-    commit:
-      process.env.GITHUB_SHA ??
-      process.env.COMMIT_SHA ??
-      (await tryGitSha()) ??
-      'unknown',
+    commit: process.env.GITHUB_SHA ?? process.env.COMMIT_SHA ?? (await tryGitSha()) ?? 'unknown',
   };
 
   const report = renderReport({ results, verdict, baseline, ctx });
@@ -665,7 +675,17 @@ async function main() {
     const jsonPath = REPORT_PATH.replace(/\.md$/, '.json');
     await fs.writeFile(
       jsonPath,
-      JSON.stringify({ generatedAt: new Date().toISOString(), baseline: baseline.version, ctx, verdict, results }, null, 2),
+      JSON.stringify(
+        {
+          generatedAt: new Date().toISOString(),
+          baseline: baseline.version,
+          ctx,
+          verdict,
+          results,
+        },
+        null,
+        2,
+      ),
       'utf8',
     );
     console.log(`Wrote ${path.relative(REPO_ROOT, jsonPath)}`);

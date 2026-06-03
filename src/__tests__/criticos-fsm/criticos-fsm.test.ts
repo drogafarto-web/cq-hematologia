@@ -13,7 +13,10 @@ import {
   type CriticoFSMState,
   type CriticoTransitionEvent,
 } from '../../features/criticos-fsm/types';
-import { resolveSLA, DEFAULT_FSM_THRESHOLD_CONFIG } from '../../features/criticos-fsm/config/thresholdsConfig';
+import {
+  resolveSLA,
+  DEFAULT_FSM_THRESHOLD_CONFIG,
+} from '../../features/criticos-fsm/config/thresholdsConfig';
 
 // ─── Pure FSM Logic Tests (15 tests) ───────────────────────────────────────
 
@@ -213,8 +216,9 @@ describe('FSM immutability invariants', () => {
     const to: CriticoFSMState = 'CRITICO';
 
     // Service logic: if (from or to) is in {CRITICO, ALERTADO, RESOLVIDO} → immutable = true
-    const isImmutable = ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
-                       ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
+    const isImmutable =
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
     expect(isImmutable).toBe(true);
   });
 
@@ -222,8 +226,9 @@ describe('FSM immutability invariants', () => {
     const from: CriticoFSMState = 'CRITICO';
     const to: CriticoFSMState = 'ALERTADO';
 
-    const isImmutable = ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
-                       ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
+    const isImmutable =
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
     expect(isImmutable).toBe(true);
   });
 
@@ -231,8 +236,9 @@ describe('FSM immutability invariants', () => {
     const from: CriticoFSMState = 'ALERTADO';
     const to: CriticoFSMState = 'RESOLVIDO';
 
-    const isImmutable = ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
-                       ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
+    const isImmutable =
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
     expect(isImmutable).toBe(true);
   });
 
@@ -240,8 +246,9 @@ describe('FSM immutability invariants', () => {
     const from: CriticoFSMState = 'NORMAL';
     const to: CriticoFSMState = 'NORMAL';
 
-    const isImmutable = ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
-                       ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
+    const isImmutable =
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(to) ||
+      ['CRITICO', 'ALERTADO', 'RESOLVIDO'].includes(from);
     expect(isImmutable).toBe(false);
   });
 });

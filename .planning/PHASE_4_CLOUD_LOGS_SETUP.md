@@ -11,6 +11,7 @@
 ## Overview
 
 Phase 4 introduces two critical new subsystems to HC Quality:
+
 1. **Portal Patient Access** — Patient-facing auth + laudo reads (RDC 978 Art. 167)
 2. **NOTIVISA Submission Queue** — Government adverse event reporting (RDC 978 Art. 41 + ANVISA req)
 
@@ -29,8 +30,9 @@ This document establishes the observability infrastructure for safe live operati
 **Purpose:** Track patient authentication failures (Portal feature).
 
 **Filter:**
+
 ```
-severity >= ERROR 
+severity >= ERROR
 AND (resource.type="cloud_function" OR resource.type="firestore")
 AND (
   textPayload=~".*verifyPatientAuthToken.*"
@@ -42,12 +44,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** >5 errors per 5 minutes → Alert 1 (P1)
 - **Failure Mode:** Patient cannot authenticate or access portal
 
 **What to Monitor:**
+
 - Email delivery failures (token link generation)
 - Firestore rule rejections on `/labs/{labId}/patients/{patientId}`
 - Function timeout on `verifyPatientAuthToken`
@@ -62,8 +66,9 @@ AND (
 **Purpose:** Track government API queue processing failures.
 
 **Filter:**
+
 ```
-severity >= ERROR 
+severity >= ERROR
 AND resource.type="cloud_function"
 AND (
   textPayload=~".*notivisaDraftCreate.*"
@@ -75,12 +80,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 60 days (compliance: RDC 978 Art. 41 audit trail)
 - **Alert Threshold:** >3 errors per 10 minutes → Alert 2 (P1)
 - **Failure Mode:** Adverse events queued but never submitted to ANVISA
 
 **What to Monitor:**
+
 - SOAP API timeout (gov API unavailable)
 - Invalid payload format (message structure error)
 - Authentication failure to gov sandbox/production
@@ -96,8 +103,9 @@ AND (
 **Purpose:** Detect access control violations (multi-tenant isolation breach).
 
 **Filter:**
+
 ```
-severity >= ERROR 
+severity >= ERROR
 AND resource.type="firestore"
 AND textPayload=~".*Permission.*denied.*"
 AND (
@@ -107,12 +115,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** >10 rejections per 5 minutes → Alert 3 (P2) + manual audit
 - **Failure Mode:** Patient accessing wrong lab; RT accessing patient data; rule syntax error
 
 **What to Monitor:**
+
 - Portal patient reads outside their labId
 - RT reads on portal collections (should not happen)
 - Signature validation failure (hash mismatch)
@@ -127,6 +137,7 @@ AND (
 **Purpose:** Track patient laudo read patterns (audit trail + analytics).
 
 **Filter:**
+
 ```
 resource.type="firestore"
 AND (
@@ -137,12 +148,14 @@ AND jsonPayload.request.auth.token.portal == true
 ```
 
 **Sink Configuration:**
+
 - **Destination:** BigQuery (table: `hc_quality.cloud_logs.portal_laudo_reads`)
 - **Retention:** 365 days (1 year for compliance)
 - **Export Schedule:** Continuous
 - **Failure Mode:** None (read-only logs)
 
 **What to Monitor:**
+
 - Patient access frequency (pattern analysis)
 - Which results are most viewed (usage analytics)
 - Peak access hours (capacity planning)
@@ -157,6 +170,7 @@ AND jsonPayload.request.auth.token.portal == true
 **Purpose:** Monitor patient session lifecycle (normal vs. forced logouts).
 
 **Filter:**
+
 ```
 severity >= WARNING
 AND (
@@ -168,12 +182,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** None (informational)
 - **Failure Mode:** None (normal operation)
 
 **What to Monitor:**
+
 - Expected logout rate (patient closes session)
 - Unexpected session expirations (idle timeout)
 - Forced logouts (admin session termination)
@@ -188,6 +204,7 @@ AND (
 **Purpose:** Track patient authentication email delivery success/failure.
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND (
@@ -200,12 +217,14 @@ AND (severity >= WARNING OR severity >= ERROR)
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** Error rate >20% over 1 hour window → Alert 4 (P2)
 - **Failure Mode:** Patient cannot receive auth link; cannot access portal
 
 **What to Monitor:**
+
 - Email delivery success rate
 - Bounce rate (invalid email addresses)
 - SendGrid/RESEND quota usage
@@ -221,6 +240,7 @@ AND (severity >= WARNING OR severity >= ERROR)
 **Purpose:** Track government callback processing (adverse event submission confirmation).
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND labels.functionName="notivisaWebhookHandler"
@@ -232,12 +252,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 90 days (compliance: RDC 978 Art. 41 submission audit)
 - **Alert Threshold:** None (webhook is asynchronous)
 - **Failure Mode:** Gov callback lost; lab thinks event not submitted
 
 **What to Monitor:**
+
 - Webhook delivery success rate
 - ACK receipt latency (how fast gov responds)
 - Webhook signature validation (security check)
@@ -253,6 +275,7 @@ AND (
 **Purpose:** Detect function execution time degradation.
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND (
@@ -262,12 +285,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** >5 functions with execution >5s per hour → Alert 5 (P3)
 - **Failure Mode:** Slow auth, slow laudo reads, poor UX
 
 **What to Monitor:**
+
 - Function execution time histogram (p50/p95/p99)
 - Cold start latency (normal, expected)
 - Warm execution time (should be <1s for callables)
@@ -283,6 +308,7 @@ AND (
 **Purpose:** Monitor database quota approach (cost control + availability).
 
 **Filter:**
+
 ```
 resource.type="firestore"
 AND (
@@ -293,12 +319,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 60 days
 - **Alert Threshold:** Any quota warning → Alert Manager + CTO email
 - **Failure Mode:** Database unavailable; all reads/writes fail
 
 **What to Monitor:**
+
 - Document write rate (daily limit: 24M for hmatologia2)
 - Document read rate (daily limit: 100M)
 - Index maintenance quota
@@ -313,6 +341,7 @@ AND (
 **Purpose:** Catch JS runtime errors in functions (TypeError, ReferenceError, etc.).
 
 **Filter:**
+
 ```
 severity = ERROR
 AND resource.type="cloud_function"
@@ -326,12 +355,14 @@ AND (
 ```
 
 **Sink Configuration:**
+
 - **Destination:** Cloud Logging (default)
 - **Retention:** 30 days
 - **Alert Threshold:** Any error → Alert 10 (P0, immediate page)
 - **Failure Mode:** Function crash; callable returns 500 Internal Server Error
 
 **What to Monitor:**
+
 - Null/undefined access crashes
 - Missing dependencies (import errors)
 - Invalid JSON parsing
@@ -351,6 +382,7 @@ AND (
 ### Alert 1: Portal Auth Failures Spike (P1)
 
 **Condition:**
+
 ```
 resource.type = "cloud_function"
 metric.type = "cloudfunctions.googleapis.com/execution_count"
@@ -365,6 +397,7 @@ AND aggregation(
 **Alert Name:** `portal-auth-failures-spike`
 
 **Notification:**
+
 1. Slack `#production-alerts`: `🚨 AUTH CRITICAL: Portal token verification failing (>5/5min). Check email service + Firestore rules.`
 2. SMS Page: On-call engineer
 3. Email: CTO + Alert Manager
@@ -374,6 +407,7 @@ AND aggregation(
 **Runbook:** See Section 4, Runbook 1 (Auth Failures > 5/5min)
 
 **Escalation:**
+
 - If unresolved after 30 min: page CTO
 - If unresolved after 60 min: consider rollback to v1.3 portal-disabled
 
@@ -384,6 +418,7 @@ AND aggregation(
 ### Alert 2: NOTIVISA Queue Stuck (P1)
 
 **Condition:**
+
 ```
 resource.type = "firestore"
 AND collection = "notivisa-queue/{labId}/events"
@@ -393,6 +428,7 @@ aggregate(count) > 10
 
 **Alternative (if above not available):**
 Manual daily check via Cloud Logs:
+
 ```bash
 gcloud logging read \
   'resource.type="firestore" AND textPayload=~"notivisa.*queue"' \
@@ -402,6 +438,7 @@ gcloud logging read \
 **Alert Name:** `notivisa-queue-stuck`
 
 **Notification:**
+
 1. Slack `#production-alerts`: `🚨 NOTIVISA QUEUE STUCK: 10+ pending events not processed in 15 min. Restart cron or check SOAP API availability.`
 2. SMS Page: On-call engineer
 3. Email: CTO
@@ -411,6 +448,7 @@ gcloud logging read \
 **Runbook:** See Section 4, Runbook 2 (NOTIVISA Queue Stuck)
 
 **Escalation:**
+
 - If unresolved after 30 min: soft-delete stuck entry + escalate
 - If pattern repeats: investigate gov API stability
 
@@ -421,6 +459,7 @@ gcloud logging read \
 ### Alert 3: High Firestore Rule Rejections (P2)
 
 **Condition:**
+
 ```
 resource.type = "firestore"
 AND textPayload =~ ".*Permission.*denied.*"
@@ -430,6 +469,7 @@ aggregate(count over 300s) > 10
 **Alert Name:** `firestore-rule-rejections-spike`
 
 **Notification:**
+
 1. Slack `#production-alerts`: `⚠️ FIRESTORE RULES: 10+ access rejections detected. Audit session tokens + rule syntax.`
 2. Email: Alert Manager + Security team
 
@@ -438,6 +478,7 @@ aggregate(count over 300s) > 10
 **Runbook:** See Section 4, Runbook 3 (Firestore Rules Rejections Spike)
 
 **Escalation:**
+
 - If rejections are from valid users: rule syntax bug → deploy fix
 - If rejections are from invalid session tokens: patient/RT usage error → support notification
 
@@ -448,6 +489,7 @@ aggregate(count over 300s) > 10
 ### Alert 4: Email Delivery Failure Rate (P2)
 
 **Condition:**
+
 ```
 resource.type = "cloud_function"
 AND labels.functionName = "generatePatientAuthLink"
@@ -457,6 +499,7 @@ aggregate over 3600s:
 
 **Alternative:**
 Manual check via Cloud Logs:
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function" AND functionName="generatePatientAuthLink"' \
@@ -466,6 +509,7 @@ gcloud logging read \
 **Alert Name:** `email-delivery-failure-rate`
 
 **Notification:**
+
 1. Slack `#production-alerts`: `⚠️ EMAIL: 20%+ auth emails failing. Check SendGrid/RESEND quota + bounce rate.`
 2. Email: CTO + Support Manager
 
@@ -474,6 +518,7 @@ gcloud logging read \
 **Runbook:** See Section 4, Runbook 4 (Email Delivery Failure > 20%)
 
 **Escalation:**
+
 - If email vendor quota exceeded: upgrade plan or use fallback SMS
 - If high bounce rate: audit patient email addresses in database
 
@@ -484,6 +529,7 @@ gcloud logging read \
 ### Alert 5: Function Latency Degradation (P3)
 
 **Condition:**
+
 ```
 resource.type = "cloud_function"
 AND (
@@ -498,6 +544,7 @@ aggregate over 300s:
 **Alert Name:** `function-latency-degradation`
 
 **Notification:**
+
 1. Slack `#production-alerts`: `ℹ️ LATENCY: Portal functions p95 > 2s. Profile execution + check Firestore indexes.`
 2. Email: Alert Manager
 
@@ -506,6 +553,7 @@ aggregate over 300s:
 **Runbook:** See Section 4, Runbook 5 (Function Latency > 2s)
 
 **Escalation:**
+
 - If bottleneck is Firestore query: check index coverage + create missing indexes
 - If bottleneck is CPU: optimize payload validation or signature computation
 
@@ -527,18 +575,19 @@ aggregate over 300s:
 
 **Metrics:**
 
-| Widget | Metric | Display | Threshold |
-|--------|--------|---------|-----------|
-| **Auth Token Gen Success Rate** | Function invocation success % | Gauge (0–100%) | Green >99%, Yellow 95–99%, Red <95% |
-| **Email Delivery Rate** | SendGrid/RESEND success % | Time series | Green >95%, Yellow 85–95%, Red <85% |
-| **Active Patient Sessions** | Session count (real-time) | Number | Info only |
-| **Auth Latency p50/p95/p99** | Function execution time | Line chart | p95 target: <1s, warning >1.5s |
-| **Daily Auth Volume** | Cumulative token generations | Bar chart | Info only |
-| **Email Bounces** | Bounce count + bounce rate | Stacked bar | Alert if >5% |
-| **Session Avg Duration** | Average time logged in | Gauge (minutes) | Info only |
-| **Auth Error Count** | Errors over past 24h | Counter | Alert if >5 |
+| Widget                          | Metric                        | Display         | Threshold                           |
+| ------------------------------- | ----------------------------- | --------------- | ----------------------------------- |
+| **Auth Token Gen Success Rate** | Function invocation success % | Gauge (0–100%)  | Green >99%, Yellow 95–99%, Red <95% |
+| **Email Delivery Rate**         | SendGrid/RESEND success %     | Time series     | Green >95%, Yellow 85–95%, Red <85% |
+| **Active Patient Sessions**     | Session count (real-time)     | Number          | Info only                           |
+| **Auth Latency p50/p95/p99**    | Function execution time       | Line chart      | p95 target: <1s, warning >1.5s      |
+| **Daily Auth Volume**           | Cumulative token generations  | Bar chart       | Info only                           |
+| **Email Bounces**               | Bounce count + bounce rate    | Stacked bar     | Alert if >5%                        |
+| **Session Avg Duration**        | Average time logged in        | Gauge (minutes) | Info only                           |
+| **Auth Error Count**            | Errors over past 24h          | Counter         | Alert if >5                         |
 
 **SQL Query (BigQuery optional):**
+
 ```sql
 SELECT
   TIMESTAMP_TRUNC(timestamp, HOUR) as hour,
@@ -561,18 +610,19 @@ LIMIT 24
 
 **Metrics:**
 
-| Widget | Metric | Display | Threshold |
-|--------|--------|---------|-----------|
-| **Queue Status** | Pending / Submitted / Failed count | Pie chart | Green: all processed, Yellow: >5 pending, Red: >10 pending |
-| **Submission Success Rate** | % of queue events successfully submitted | Gauge | Green >98%, Yellow 95–98%, Red <95% |
-| **Avg Processing Latency** | Time from creation to submission | Gauge (seconds) | Green <60s, Yellow 60–120s, Red >120s |
-| **Webhook ACK Rate** | % of submitted events receiving gov ACK | Gauge | Green >99%, Yellow 95–99%, Red <95% |
-| **Queue Entry Age Distribution** | Histogram of pending entry age | Heatmap | Alert if >1 pending entry >15min old |
-| **Daily Submission Volume** | Cumulative submissions per day | Bar chart | Info only |
-| **Queue Processor Cron Status** | Last execution timestamp + duration | Gauge | Alert if >1h since last run |
-| **NOTIVISA API Errors** | Error count in past 24h | Counter | Alert if >3 |
+| Widget                           | Metric                                   | Display         | Threshold                                                  |
+| -------------------------------- | ---------------------------------------- | --------------- | ---------------------------------------------------------- |
+| **Queue Status**                 | Pending / Submitted / Failed count       | Pie chart       | Green: all processed, Yellow: >5 pending, Red: >10 pending |
+| **Submission Success Rate**      | % of queue events successfully submitted | Gauge           | Green >98%, Yellow 95–98%, Red <95%                        |
+| **Avg Processing Latency**       | Time from creation to submission         | Gauge (seconds) | Green <60s, Yellow 60–120s, Red >120s                      |
+| **Webhook ACK Rate**             | % of submitted events receiving gov ACK  | Gauge           | Green >99%, Yellow 95–99%, Red <95%                        |
+| **Queue Entry Age Distribution** | Histogram of pending entry age           | Heatmap         | Alert if >1 pending entry >15min old                       |
+| **Daily Submission Volume**      | Cumulative submissions per day           | Bar chart       | Info only                                                  |
+| **Queue Processor Cron Status**  | Last execution timestamp + duration      | Gauge           | Alert if >1h since last run                                |
+| **NOTIVISA API Errors**          | Error count in past 24h                  | Counter         | Alert if >3                                                |
 
 **Manual Check (Firestore Console):**
+
 ```
 Collection: notivisa-queue/{labId}/events
 Filter: status == "pending" AND createdAt < now() - 15 minutes
@@ -589,16 +639,16 @@ Expected: 0 documents
 
 **Metrics:**
 
-| Widget | Metric | Display | Threshold |
-|--------|--------|---------|-----------|
-| **Patient Portal Reads** | Read count to `laudos` collection from portal sessions | Line chart | Info only |
-| **RT Admin Reads** | Read count to `runs`, `results` collections | Line chart | Info only |
-| **Rule Rejection Count** | Permission denied errors | Counter + trend | Alert if >10 per 5min |
-| **Rule Rejection Reason** | Breakdown by path (chart) | Pie chart | Top 3 rejection patterns |
-| **Access by Time of Day** | Heatmap (hour × day) | Heatmap | Identify peak hours for capacity |
-| **Multi-Tenant Isolation Check** | Count of cross-labId reads (should be 0) | Gauge | Alert if >0 |
-| **Signature Validation Failures** | Count of hash mismatch errors | Counter | Alert if >0 |
-| **Firestore Ops Rate** | Read/write/delete per second | Stacked area | Info only |
+| Widget                            | Metric                                                 | Display         | Threshold                        |
+| --------------------------------- | ------------------------------------------------------ | --------------- | -------------------------------- |
+| **Patient Portal Reads**          | Read count to `laudos` collection from portal sessions | Line chart      | Info only                        |
+| **RT Admin Reads**                | Read count to `runs`, `results` collections            | Line chart      | Info only                        |
+| **Rule Rejection Count**          | Permission denied errors                               | Counter + trend | Alert if >10 per 5min            |
+| **Rule Rejection Reason**         | Breakdown by path (chart)                              | Pie chart       | Top 3 rejection patterns         |
+| **Access by Time of Day**         | Heatmap (hour × day)                                   | Heatmap         | Identify peak hours for capacity |
+| **Multi-Tenant Isolation Check**  | Count of cross-labId reads (should be 0)               | Gauge           | Alert if >0                      |
+| **Signature Validation Failures** | Count of hash mismatch errors                          | Counter         | Alert if >0                      |
+| **Firestore Ops Rate**            | Read/write/delete per second                           | Stacked area    | Info only                        |
 
 ---
 
@@ -610,18 +660,19 @@ Expected: 0 documents
 
 **Metrics:**
 
-| Widget | Metric | Display | Threshold |
-|--------|--------|---------|-----------|
-| **Cloud Functions Error Rate** | % of invocations ending in error | Gauge | Green <0.1%, Yellow 0.1–0.5%, Red >0.5% |
-| **Firestore Quota Usage** | % of daily quota consumed | Gauge | Green <50%, Yellow 50–80%, Red >80% |
-| **Error Budget Remaining (30-day)** | % of 30-day error budget left | Gauge | Green >50%, Yellow 25–50%, Red <25% |
-| **Hosting HTTP 5xx Rate** | % of requests returning 5xx | Gauge | Green 0%, Yellow <0.01%, Red >0.01% |
-| **Function Timeout Count** | Timeouts in past 24h | Counter | Alert if >0 |
-| **Firestore Document Size Violations** | Count of docs >100KB | Counter | Alert if >0 |
-| **Memory OOM Events** | Out-of-memory errors in functions | Counter | Alert if >0 |
-| **Uptime** | System availability % (30-day) | Gauge | Target: >99.9% |
+| Widget                                 | Metric                            | Display | Threshold                               |
+| -------------------------------------- | --------------------------------- | ------- | --------------------------------------- |
+| **Cloud Functions Error Rate**         | % of invocations ending in error  | Gauge   | Green <0.1%, Yellow 0.1–0.5%, Red >0.5% |
+| **Firestore Quota Usage**              | % of daily quota consumed         | Gauge   | Green <50%, Yellow 50–80%, Red >80%     |
+| **Error Budget Remaining (30-day)**    | % of 30-day error budget left     | Gauge   | Green >50%, Yellow 25–50%, Red <25%     |
+| **Hosting HTTP 5xx Rate**              | % of requests returning 5xx       | Gauge   | Green 0%, Yellow <0.01%, Red >0.01%     |
+| **Function Timeout Count**             | Timeouts in past 24h              | Counter | Alert if >0                             |
+| **Firestore Document Size Violations** | Count of docs >100KB              | Counter | Alert if >0                             |
+| **Memory OOM Events**                  | Out-of-memory errors in functions | Counter | Alert if >0                             |
+| **Uptime**                             | System availability % (30-day)    | Gauge   | Target: >99.9%                          |
 
 **Health Scorecard (automated):**
+
 - 🟢 GREEN: All metrics nominal
 - 🟡 YELLOW: 1+ metric in warning zone
 - 🔴 RED: 1+ metric in critical zone
@@ -653,6 +704,7 @@ gcloud logging read \
 ```
 
 **Look for:**
+
 - `PERMISSION_DENIED` on `/labs/{labId}/patients/{patientId}` → Rule violation
 - `auth/invalid-email` → Invalid token payload
 - `undefined is not a function` → Missing HMAC secret binding
@@ -660,6 +712,7 @@ gcloud logging read \
 - Function timeout (>60s) → Cold start or Firestore slow query
 
 **Decision Tree:**
+
 - **If PERMISSION_DENIED:** → Go to Step 2A (Firestore rules)
 - **If SendGrid error:** → Go to Step 2B (Email service)
 - **If HMAC/signature error:** → Go to Step 2C (Token validation)
@@ -678,6 +731,7 @@ cat firestore.rules | grep -A5 "match /labs/{labId}/patients"
 ```
 
 **If rules syntax is broken:**
+
 1. Compare `firestore.rules` against last known good version:
    ```bash
    git diff HEAD~1 firestore.rules
@@ -690,6 +744,7 @@ cat firestore.rules | grep -A5 "match /labs/{labId}/patients"
    ```
 
 **If rules syntax is correct but rejections persist:**
+
 1. Check patient session token:
    ```bash
    # In browser console (patient portal)
@@ -709,12 +764,14 @@ curl -s https://status.sendgrid.com/api/v2/status.json | jq '.status.indicator'
 ```
 
 **If email service is down:**
+
 1. Notify patient support team (ETA for recovery)
 2. Check if fallback SMS is configured (see `.env`)
 3. If no fallback: escalate to CTO for temporary portal disable decision
 4. Monitor service status dashboard
 
 **If email service is operational:**
+
 1. Check SendGrid account quota:
    ```bash
    gcloud secrets versions access latest --secret="SENDGRID_API_KEY" --project=hmatologia2
@@ -736,15 +793,18 @@ grep -r "secrets:" functions/src/modules/auth/
 ```
 
 **If HMAC secret not bound:**
+
 1. Add to function:
+
    ```typescript
    const hmacKey = defineSecret('HCQ_SIGNATURE_HMAC_KEY');
-   
+
    export const verifyPatientAuthToken = onCall(
      { secrets: [hmacKey], region: 'southamerica-east1' },
      async (request) => { ... }
    );
    ```
+
 2. Ensure secret is provisioned in Firebase:
    ```bash
    firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project hmatologia2
@@ -755,6 +815,7 @@ grep -r "secrets:" functions/src/modules/auth/
    ```
 
 **If secret is bound but validation fails:**
+
 1. Check secret value matches signer:
    ```bash
    gcloud secrets versions access latest --secret="HCQ_SIGNATURE_HMAC_KEY" --project=hmatologia2
@@ -774,6 +835,7 @@ gcloud logging read \
 ```
 
 **If execution time > 5s:**
+
 1. Profile function (Cloud Profiler or Cloud Trace):
    ```bash
    gcloud trace list --project=hmatologia2 --filter="name:verifyPatientAuthToken" --limit=5
@@ -797,6 +859,7 @@ watch -n 5 'gcloud logging read \
 ```
 
 **Success Criteria:**
+
 - Error count < 1 per 5 minutes (below alert threshold)
 - At least 10 consecutive successful authentications
 - No new errors in past 10 minutes
@@ -831,6 +894,7 @@ gcloud logging read \
 ```
 
 **Look for:**
+
 - Queue entries with status == "pending" for >15 minutes
 - Processor cron last execution timestamp (should be <5min ago)
 - SOAP API connection errors
@@ -852,6 +916,7 @@ gcloud logging read \
 **If cron has not run in >15 minutes:**
 
 1. **Manual trigger:**
+
    ```bash
    gcloud functions call notivisaQueueProcessor \
      --project=hmatologia2 --region=southamerica-east1 \
@@ -859,6 +924,7 @@ gcloud logging read \
    ```
 
 2. **Monitor execution:**
+
    ```bash
    # Wait 30s then check logs
    gcloud logging read \
@@ -890,12 +956,14 @@ curl -s -X POST \
 ```
 
 **If gov API is down:**
+
 1. Check ANVISA status page: https://www.anvisa.gov.br/
 2. Notify CTO + Compliance Officer (adverse events cannot be submitted)
 3. Keep queue entries in `pending` state (will retry automatically on schedule)
 4. Monitor and update status every 30 minutes
 
 **If gov API is reachable but returns errors:**
+
 1. Check SOAP request format matches WSDL (see Phase 12 spec)
 2. Verify authentication credentials (client certificate + API key)
 3. Test with sample payload from Phase 4 documentation
@@ -915,6 +983,7 @@ gcloud firestore export gs://hmatologia2_backups/queue-export-$(date +%s) \
 ```
 
 **If entry is corrupted or oversized:**
+
 1. Soft-delete it:
    ```bash
    gcloud firestore update-document \
@@ -925,6 +994,7 @@ gcloud firestore export gs://hmatologia2_backups/queue-export-$(date +%s) \
 3. Log incident for post-mortem analysis
 
 **If entry format is valid:**
+
 1. Check against WSDL schema (see docs/Phase4_NOTIVISA_SCHEMA.md)
 2. If schema mismatch: update queue processor logic + redeploy
 3. If schema OK: re-trigger processor with verbose logging
@@ -941,6 +1011,7 @@ watch -n 10 'gcloud logging read \
 ```
 
 **Success Criteria:**
+
 - All pending entries processed within 10 minutes
 - No new entries stuck in pending
 - Processor cron executed successfully
@@ -974,12 +1045,14 @@ gcloud logging read \
 ```
 
 **Categorize rejections:**
+
 - **Path pattern 1:** Portal patient reading wrong lab → misconfigured session token
 - **Path pattern 2:** RT reading patient data → rule syntax bug
 - **Path pattern 3:** Admin accessing superadmin collection → role check failed
 - **Path pattern 4:** Any user reading `/audit-log/*` → immutable rule violation
 
 **Example:**
+
 ```
 Rejections all from paths: /labs/lab-abc/patients/...
 Rejected by: user-xyz (known to be patient)
@@ -994,16 +1067,19 @@ Operation: read
 **If rejections are from valid paths + valid users:**
 
 1. **Check Firestore Rules syntax:**
+
    ```bash
    npx tsc firestore.rules 2>&1 | head -20
    ```
 
 2. **Check for recent changes:**
+
    ```bash
    git log --oneline -10 firestore.rules
    ```
 
 3. **If recent change:** Compare against previous version:
+
    ```bash
    git show HEAD~1:firestore.rules | grep -A10 "isActiveMemberOfLab"
    ```
@@ -1056,6 +1132,7 @@ watch -n 10 'gcloud logging read \
 ```
 
 **Success Criteria:**
+
 - Rejection count drops to <2 per 5 minutes (background noise)
 - Valid users can access data again
 - No new rejections for same path/user pair
@@ -1065,6 +1142,7 @@ watch -n 10 'gcloud logging read \
 **Step 4: Detailed Investigation (if persists)**
 
 1. **Check multi-tenant isolation:**
+
    ```bash
    # Query for cross-labId reads (should be impossible)
    gcloud logging read \
@@ -1075,6 +1153,7 @@ watch -n 10 'gcloud logging read \
    ```
 
 2. **Check signature validation:**
+
    ```bash
    gcloud logging read \
      'textPayload=~".*hash.*mismatch|.*signature.*invalid"' \
@@ -1103,6 +1182,7 @@ gcloud logging read \
 ```
 
 **Expected output:**
+
 ```
 [
   { "severity": "ERROR", "count": 2 },   # Failures
@@ -1136,6 +1216,7 @@ curl -s https://status.resend.com/api/v2/status.json | jq '.status.indicator'
 ```
 
 **If service status is degraded:**
+
 1. Check vendor status page for ETA
 2. Enable email retry logic (exponential backoff)
 3. Notify patient support team
@@ -1156,6 +1237,7 @@ curl -s https://api.sendgrid.com/v3/user/credits \
 ```
 
 **If quota exceeded:**
+
 1. Upgrade plan in SendGrid dashboard
 2. Or use fallback email provider (check `.env` for `EMAIL_FALLBACK_PROVIDER`)
 3. Monitor quota recovery
@@ -1174,6 +1256,7 @@ curl -s https://api.sendgrid.com/v3/user/credits \
 ```
 
 **If bounce rate >5%:**
+
 1. Audit patient email addresses:
    ```bash
    gcloud firestore documents list \
@@ -1211,6 +1294,7 @@ npm run test:email-template -- \
 ```
 
 **If template render fails:**
+
 1. Check template syntax in `functions/src/modules/notifications/templates/`
 2. Fix syntax error
 3. Deploy function
@@ -1228,6 +1312,7 @@ watch -n 10 'gcloud logging read \
 ```
 
 **Success Criteria:**
+
 - Success rate returns to >95%
 - At least 20 consecutive successful deliveries
 - No new errors for 30 minutes
@@ -1262,6 +1347,7 @@ gcloud logging read \
 ```
 
 **Example output:**
+
 ```json
 [
   { "name": "verifyPatientAuthToken", "p95_latency": 950 },    # OK (<2s)
@@ -1299,6 +1385,7 @@ gcloud profiler profile create \
 **Option C: Manual logging (quick)**
 
 Add timing logs to function:
+
 ```typescript
 const start = Date.now();
 
@@ -1323,6 +1410,7 @@ gcloud firestore indexes composite list --project=hmatologia2 | \
 ```
 
 **If index is missing:**
+
 1. Create composite index in Firebase Console → Cloud Firestore → Indexes
 2. Or via CLI:
    ```bash
@@ -1332,6 +1420,7 @@ gcloud firestore indexes composite list --project=hmatologia2 | \
 4. Redeploy function to use new index
 
 **If index exists but query still slow:**
+
 1. Check Firestore quota usage:
    ```bash
    gcloud monitoring read \
@@ -1353,6 +1442,7 @@ gcloud functions describe verifyPatientAuthToken \
 ```
 
 **If memory is low:**
+
 1. Increase memory allocation:
    ```bash
    gcloud functions deploy verifyPatientAuthToken \
@@ -1363,6 +1453,7 @@ gcloud functions describe verifyPatientAuthToken \
 2. Monitor latency improvement
 
 **If memory is high but latency still slow:**
+
 1. Optimize code (profile with Chrome DevTools or Node profiler)
 2. Look for:
    - Inefficient loops or regex operations
@@ -1383,16 +1474,18 @@ gcloud logging read \
 ```
 
 **If initialization time is >2s:**
+
 - This is normal for first invocation after deploy
 - Monitor warm execution (2nd+ invocations) instead
 - Set alerting threshold to exclude cold starts
 
 **If initialization time is high for every invocation:**
+
 1. Check function size (gzipped bundle size)
 2. Reduce dependencies (tree-shake unused modules)
 3. Use dynamic imports for heavy libraries:
    ```typescript
-   const xlsx = await import('xlsx');  // Load only when needed
+   const xlsx = await import('xlsx'); // Load only when needed
    ```
 
 ---
@@ -1424,6 +1517,7 @@ Once bottleneck identified:
 **Step 5: Recovery Validation (10 min)**
 
 **Success Criteria:**
+
 - p95 latency < 1.5s for 30 consecutive minutes
 - p99 latency < 3s
 - No cold-start bias in measurements
@@ -1449,6 +1543,7 @@ Once bottleneck identified:
 ### PRIMARY ON-CALL (24/7, Slack rotation)
 
 **Responsibilities:**
+
 1. Monitor `#production-alerts` Slack channel in real-time
 2. Respond to P1/P2 alerts within SLA (<15min for P1, <1h for P2)
 3. Execute runbooks from Section 4
@@ -1456,12 +1551,14 @@ Once bottleneck identified:
 5. Escalate to secondary on-call if issue unresolved >30min
 
 **Access Requirements:**
+
 - GCP project permissions: `hmatologia2` viewer + functions/firestore access
 - Firebase CLI authenticated: `firebase login`
 - Slack notification settings: @-mention enabled
 - Phone on-call pager: SMS + voice alerts enabled
 
 **Weekly Handoff:**
+
 - Sunday 9am UTC: Sync between departing + incoming on-call
 - Review incidents from past week
 - Update alert thresholds if needed
@@ -1472,6 +1569,7 @@ Once bottleneck identified:
 ### SECONDARY ON-CALL (escalation)
 
 **Responsibilities:**
+
 1. Available for escalation if primary unresolved >30min
 2. Fresh perspective on troubleshooting
 3. May assume primary if primary unavailable (illness, outage)
@@ -1484,6 +1582,7 @@ Once bottleneck identified:
 ### CTO ON-CALL (critical decisions + rollback authority)
 
 **Responsibilities:**
+
 1. Page for P0/P1 incidents unresolved >30min
 2. Make rollback decisions
 3. Authorize emergency secret rotation
@@ -1497,12 +1596,12 @@ Once bottleneck identified:
 
 **30-Day Error Budget:** 99.9% uptime = 43.2 minutes of acceptable downtime
 
-| Incident Duration | Impact on Budget |
-|---|---|
-| <5 min | No impact (within margin) |
-| 5–15 min | 5–15 min consumed |
-| 15–60 min | Full incident duration consumed |
-| >60 min | Critical incident; post-mortem required |
+| Incident Duration | Impact on Budget                        |
+| ----------------- | --------------------------------------- |
+| <5 min            | No impact (within margin)               |
+| 5–15 min          | 5–15 min consumed                       |
+| 15–60 min         | Full incident duration consumed         |
+| >60 min           | Critical incident; post-mortem required |
 
 **Budget Status:** Check monthly in Dashboard 4 (System Health).
 
@@ -1527,12 +1626,14 @@ Once bottleneck identified:
 ## Maintenance & Review Schedule
 
 **Monthly Review (every Phase):**
+
 - Update alert thresholds based on new baseline metrics
 - Review 30-day error budget consumption
 - Add new sinks/runbooks if Phase introduces new critical paths
 - Archive logs >retention period to BigQuery (cost optimization)
 
 **Quarterly Audit (every 3 months):**
+
 - Run full runbook procedures in staging (end-to-end test)
 - Review on-call rotation effectiveness
 - Update incident response contacts

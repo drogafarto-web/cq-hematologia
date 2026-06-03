@@ -29,10 +29,7 @@ import {
 } from '../../../shared/services/firebase';
 import type { Unsubscribe, WriteBatch } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
-import type {
-  InsumoTransition,
-  InsumoTransitionType,
-} from '../types/InsumoTransition';
+import type { InsumoTransition, InsumoTransitionType } from '../types/InsumoTransition';
 import type { InsumoModulo } from '../types/Insumo';
 import type { EquipmentSetupSlot } from '../types/EquipmentSetup';
 
@@ -73,11 +70,7 @@ export interface TransitionInput {
  *
  * @returns ID gerado para o transition (para caller referir em logs).
  */
-export function stageTransition(
-  batch: WriteBatch,
-  labId: string,
-  input: TransitionInput,
-): string {
+export function stageTransition(batch: WriteBatch, labId: string, input: TransitionInput): string {
   validateInput(input);
   const id = crypto.randomUUID();
 
@@ -153,8 +146,7 @@ export function subscribeToTransitions(
     (snap) => {
       onData(
         snap.docs.map(
-          (d) =>
-            ({ id: d.id, ...(d.data() as Omit<InsumoTransition, 'id'>) }) as InsumoTransition,
+          (d) => ({ id: d.id, ...(d.data() as Omit<InsumoTransition, 'id'>) }) as InsumoTransition,
         ),
       );
     },
@@ -177,8 +169,7 @@ export async function getTransitions(
 
     const snap = await getDocs(query(transitionsCol(labId), ...constraints));
     return snap.docs.map(
-      (d) =>
-        ({ id: d.id, ...(d.data() as Omit<InsumoTransition, 'id'>) }) as InsumoTransition,
+      (d) => ({ id: d.id, ...(d.data() as Omit<InsumoTransition, 'id'>) }) as InsumoTransition,
     );
   } catch (err) {
     throw new Error(firestoreErrorMessage(err), { cause: err });

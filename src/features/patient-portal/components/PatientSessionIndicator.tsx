@@ -17,7 +17,7 @@ export const PatientSessionIndicator: React.FC = () => {
 
     const updateTimer = () => {
       const remaining = usePatientAuthStore.getState().getTimeRemaining();
-      
+
       if (remaining <= 0) {
         // Session expired — auto-logout
         clearSession();
@@ -55,12 +55,7 @@ export const PatientSessionIndicator: React.FC = () => {
       }`}
     >
       <div className="flex items-center gap-2 text-sm font-medium">
-        <svg
-          className="w-4 h-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
@@ -73,9 +68,7 @@ export const PatientSessionIndicator: React.FC = () => {
         <span className="font-semibold">{displayTime}</span>
       </div>
       {showWarning && (
-        <p className="text-xs text-amber-100/70 mt-1">
-          Log in again to extend your session
-        </p>
+        <p className="text-xs text-amber-100/70 mt-1">Log in again to extend your session</p>
       )}
     </div>
   );

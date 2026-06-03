@@ -10,6 +10,7 @@
 ## Overview
 
 This checklist validates that Phase 4 deployment (Portal Auth + NOTIVISA Queue) is functioning correctly across:
+
 1. **Smoke Tests** — Automated technical validation
 2. **Lab Testing** — Manual lab-based functional testing
 3. **Auditor Review** — Compliance review by lab director/auditor
@@ -23,6 +24,7 @@ All items must be completed before sign-off.
 ### 1.1 Hosting Reachability
 
 **Command:**
+
 ```bash
 curl -s -o /dev/null -w "%{http_code}" https://hmatologia2.web.app/portal/auth
 ```
@@ -30,6 +32,7 @@ curl -s -o /dev/null -w "%{http_code}" https://hmatologia2.web.app/portal/auth
 **Expected:** `200`
 
 **Failure Response:**
+
 ```bash
 # If fails:
 curl -v https://hmatologia2.web.app/portal/auth
@@ -43,6 +46,7 @@ curl -v https://hmatologia2.web.app/portal/auth
 ### 1.2 Firestore Rules Validation
 
 **Command:**
+
 ```bash
 firebase emulator:start --only firestore &
 npm run test:firestore-rules
@@ -51,6 +55,7 @@ npm run test:firestore-rules
 **Expected:** All tests pass (example: "✓ NOTIVISA rules (12 tests)")
 
 **Failure Response:**
+
 ```bash
 # If fails:
 firebase emulator:start --only firestore
@@ -66,12 +71,14 @@ npm run test:firestore-rules 2>&1 | grep -i "fail\|error"
 ### 1.3 Cloud Functions Health
 
 **Command:**
+
 ```bash
 gcloud functions list --project hmatologia2 --region southamerica-east1 \
   --filter="name:notivisa*" --format="table(name, status)"
 ```
 
 **Expected Output:**
+
 ```
 NAME                               STATUS
 projects/.../notivisaDraftCreate   ACTIVE
@@ -82,6 +89,7 @@ projects/.../notivisaWebhookHandler ACTIVE
 ```
 
 **Failure Response:**
+
 ```bash
 # If status is DEPLOYMENT_IN_PROGRESS or ERROR:
 gcloud functions describe notivisaDraftCreate \
@@ -96,6 +104,7 @@ gcloud functions describe notivisaDraftCreate \
 ### 1.4 Firestore Indexes Ready
 
 **Command:**
+
 ```bash
 gcloud firestore indexes list --project hmatologia2 | grep -E "notivisa|READY"
 ```
@@ -103,6 +112,7 @@ gcloud firestore indexes list --project hmatologia2 | grep -E "notivisa|READY"
 **Expected:** All notivisa indexes with status `READY` (6 total)
 
 **Failure Response:**
+
 ```bash
 # If any index shows "Building" or "Error":
 gcloud firestore indexes list --project hmatologia2 --filter="database=default" --format="table(name, state)"
@@ -116,6 +126,7 @@ gcloud firestore indexes list --project hmatologia2 --filter="database=default" 
 ### 1.5 Bundle Size Check
 
 **Command:**
+
 ```bash
 du -k dist/assets/index-*.js | awk '{print $1}'
 ```
@@ -123,6 +134,7 @@ du -k dist/assets/index-*.js | awk '{print $1}'
 **Expected:** <365 KB (actual size should be ~320–355 KB)
 
 **Failure Response:**
+
 ```bash
 # If size >365 KB:
 npm run build -- --mode production
@@ -137,11 +149,13 @@ du -k dist/assets/index-*.js
 ### 1.6 Lighthouse Performance Audit
 
 **Command:**
+
 ```bash
 npm run lighthouse -- https://hmatologia2.web.app/portal/dashboard
 ```
 
 **Expected:**
+
 ```
 Performance Score: ≥87
 LCP: <2.0 seconds
@@ -150,6 +164,7 @@ CLS: <0.05
 ```
 
 **Failure Response:**
+
 ```bash
 # If score <87:
 # 1. Check DevTools > Lighthouse (local)
@@ -165,6 +180,7 @@ CLS: <0.05
 ### 1.7 E2E Test Suite
 
 **Command:**
+
 ```bash
 npm run test:e2e -- --spec "src/__tests__/e2e/phase-4-critical-flows.test.ts"
 ```
@@ -172,6 +188,7 @@ npm run test:e2e -- --spec "src/__tests__/e2e/phase-4-critical-flows.test.ts"
 **Expected:** All 6 critical flows pass
 
 **Flows:**
+
 1. Auth flow — patient login → dashboard
 2. Draft creation — auditor creates NOTIVISA draft
 3. Draft submission — (0% rollout: should be blocked)
@@ -180,6 +197,7 @@ npm run test:e2e -- --spec "src/__tests__/e2e/phase-4-critical-flows.test.ts"
 6. Error handling — offline mode, network failure recovery
 
 **Failure Response:**
+
 ```bash
 # If any test fails:
 npm run test:e2e -- --headed --spec "..."
@@ -200,27 +218,31 @@ npm run test:e2e -- --headed --spec "..."
 **Steps:**
 
 1. **Navigate to Portal**
+
    ```
    URL: https://hmatologia2.web.app/portal/auth
    Expected: Page loads in <2 seconds, dark theme visible
    ```
 
 2. **Enter Email**
+
    ```
    Email: patient-test-001@hc-quality.local
    Expected: Input accepts email, no validation errors
    ```
 
 3. **Request Auth Link**
+
    ```
    Click: "Enviar Link de Acesso"
-   Expected: 
+   Expected:
      - Success notification appears (<1s)
      - "Check your email for login link"
      - HTTP request completes <500ms
    ```
 
 4. **Check Email**
+
    ```
    Expected:
      - Email arrives <1 minute
@@ -230,6 +252,7 @@ npm run test:e2e -- --headed --spec "..."
    ```
 
 5. **Click Email Link**
+
    ```
    Open link in new browser
    Expected:
@@ -252,6 +275,7 @@ npm run test:e2e -- --headed --spec "..."
 **Result:** ☐ PASS ☐ FAIL ☐ PARTIAL (note issues)
 
 **Issues Found (if any):**
+
 ```
 _________________________________________
 _________________________________________
@@ -266,6 +290,7 @@ _________________________________________
 **Steps:**
 
 1. **Login as Auditor**
+
    ```
    Navigate to: /portal/auth
    Email: auditor-test-001@hc-quality.local
@@ -273,6 +298,7 @@ _________________________________________
    ```
 
 2. **Navigate to NOTIVISA**
+
    ```
    URL: /portal/notivisa
    Expected: "NOTIVISA Coming Soon" message
@@ -281,6 +307,7 @@ _________________________________________
    ```
 
 3. **Verify UI Elements**
+
    ```
    Expected:
      - Form loads even though feature disabled
@@ -300,6 +327,7 @@ _________________________________________
 **Result:** ☐ PASS ☐ FAIL ☐ PARTIAL (note issues)
 
 **Issues Found (if any):**
+
 ```
 _________________________________________
 _________________________________________
@@ -314,12 +342,14 @@ _________________________________________
 **Steps:**
 
 1. **Login to Lab A (auditor-a@lab-a.local)**
+
    ```
    Expected: Can access /labs/lab-a/* paths
    Expected: Can read /notivisa-drafts/lab-a/drafts/*
    ```
 
 2. **Attempt Cross-Tenant Access**
+
    ```
    URL: /portal/dashboard?labId=lab-b
    Expected: Either:
@@ -347,6 +377,7 @@ _________________________________________
 **Steps:**
 
 1. **Offline Mode (DevTools)**
+
    ```
    Open DevTools > Network > Offline
    Navigate: /portal/dashboard
@@ -355,6 +386,7 @@ _________________________________________
    ```
 
 2. **Slow Network (Throttle)**
+
    ```
    Open DevTools > Network > Slow 3G
    Navigate: /portal/dashboard
@@ -383,6 +415,7 @@ _________________________________________
 **Steps:**
 
 1. **Page Load (LCP)**
+
    ```
    Reload /portal/dashboard
    DevTools > Performance tab
@@ -391,6 +424,7 @@ _________________________________________
    ```
 
 2. **Interaction (INP)**
+
    ```
    Click buttons, scroll, interact
    Expected: INP <200ms (measure "Interaction to Next Paint")
@@ -398,6 +432,7 @@ _________________________________________
    ```
 
 3. **Visual Stability (CLS)**
+
    ```
    Observe page during load
    Expected: CLS <0.05 (no layout shift)
@@ -433,6 +468,7 @@ _________________________________________
 - [ ] Patient cannot modify results
 
 **Validation Command:**
+
 ```bash
 # Check audit logs
 gcloud logging read "labels.functionName=verifyPatientAuthToken" \
@@ -458,6 +494,7 @@ gcloud logging read "labels.functionName=verifyPatientAuthToken" \
 - [ ] Rollback procedures documented
 
 **Full Compliance (Phase 12+):**
+
 - [ ] Real ANVISA API endpoint configured
 - [ ] Submissions logged and auditable
 - [ ] Receipts stored (idempotency tracking)
@@ -479,6 +516,7 @@ gcloud logging read "labels.functionName=verifyPatientAuthToken" \
 - [ ] No sensitive data in logs (PII filtered)
 
 **Validation Commands:**
+
 ```bash
 # Check firestore rules don't allow read across labs
 grep -n "labId ==" firestore.rules | head -5
@@ -512,10 +550,10 @@ git diff HEAD~10 | grep -i "apikey\|password\|secret"
 
 ### Incident Commander Approval
 
-**Name:** _______________________________  
+**Name:** **************\_\_\_**************  
 **Title:** CTO / Technical Lead  
-**Date/Time:** __________________ UTC-3  
-**Signature:** ___________________________
+**Date/Time:** ********\_\_******** UTC-3  
+**Signature:** ************\_\_\_************
 
 **Overall Status:**
 
@@ -541,10 +579,10 @@ git diff HEAD~10 | grep -i "apikey\|password\|secret"
 
 ### Lab Director / Auditor Approval
 
-**Name:** _______________________________  
+**Name:** **************\_\_\_**************  
 **Title:** Lab Director / Auditor  
-**Date/Time:** __________________ UTC-3  
-**Signature:** ___________________________
+**Date/Time:** ********\_\_******** UTC-3  
+**Signature:** ************\_\_\_************
 
 **Compliance Confirmation:**
 
@@ -569,30 +607,33 @@ git diff HEAD~10 | grep -i "apikey\|password\|secret"
 
 ### Critical Metrics Targets
 
-| Metric | Target | Check Command |
-|--------|--------|---|
-| Auth success | >99% | Dashboard 1, Widget 1.1 |
-| Auth latency p95 | <500ms | Dashboard 1, Widget 1.2 |
-| Queue stuck entries | 0 | Dashboard 2, Widget 2.4 |
-| LCP | <2.0s | Lighthouse audit |
-| INP | <200ms | DevTools Performance |
-| Error rate | <0.1% | Dashboard 4, Widget 4.1 |
+| Metric              | Target | Check Command           |
+| ------------------- | ------ | ----------------------- |
+| Auth success        | >99%   | Dashboard 1, Widget 1.1 |
+| Auth latency p95    | <500ms | Dashboard 1, Widget 1.2 |
+| Queue stuck entries | 0      | Dashboard 2, Widget 2.4 |
+| LCP                 | <2.0s  | Lighthouse audit        |
+| INP                 | <200ms | DevTools Performance    |
+| Error rate          | <0.1%  | Dashboard 4, Widget 4.1 |
 
 ### Troubleshooting Checklist
 
 **If smoke test fails:**
+
 1. Check internet connectivity
 2. Verify GCP project access (`gcloud auth list`)
 3. Check region (`southamerica-east1`)
 4. Review function logs (`firebase functions:log`)
 
 **If lab test fails:**
+
 1. Clear browser cache (Ctrl+Shift+Delete)
 2. Hard reload (Ctrl+Shift+R)
 3. Check DevTools console for errors
 4. Try in private/incognito window
 
 **If compliance issue:**
+
 1. Document gap in Section 3
 2. Determine if blocking (rollback) or non-blocking (remediate in Phase 5+)
 3. Notify CTO and lab director

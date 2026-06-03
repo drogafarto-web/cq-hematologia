@@ -22,6 +22,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Duration:** 5 minutes
 
 **Setup:**
+
 - [ ] iOS simulator running (from Phase 3.1 validation)
 - [ ] App loaded on AuthScreen
 - [ ] Firebase emulator or test Firebase project accessible
@@ -59,6 +60,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Expected outcome:** ✓ Auth flow works, navigation is correct
 
 **Failure handling:**
+
 - If auth fails: Check Firebase credentials, verify emulator connectivity
 - If navigation fails: Check RootNavigator.tsx, verify useAuthPersistence hook
 
@@ -71,6 +73,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Duration:** 10 minutes
 
 **Setup:**
+
 - [ ] User logged in on mobile (from Scenario 1)
 - [ ] Active lab ID set in Zustand store
 - [ ] Analytics cache populated in Firestore (from validation checklist section 2.5)
@@ -115,6 +118,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Expected outcome:** ✓ Analytics dashboard loads, metrics displayed correctly, staleness handled
 
 **Failure handling:**
+
 - If metrics don't load: Check Firestore rules, verify cache document exists
 - If formatting is wrong: Check formatAnalyticsMetrics helper function
 - If staleness not detected: Check `isAnalyticsStale` logic, test with old timestamp
@@ -128,6 +132,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Duration:** 10 minutes
 
 **Setup:**
+
 - [ ] User logged in (from Scenario 1)
 - [ ] Active lab ID set
 - [ ] Export screen accessible from main menu
@@ -186,6 +191,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Expected outcome:** ✓ Export job created, status tracked, download available
 
 **Failure handling:**
+
 - If job doesn't create: Check Cloud Callable auth, verify lab ID sent
 - If status doesn't update: Check Firestore rules, verify worker function triggered
 - If download fails: Check Cloud Storage upload in worker, verify signed URL generation
@@ -199,6 +205,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Duration:** 15 minutes
 
 **Setup:**
+
 - [ ] All previous scenarios passed
 - [ ] Fresh app restart (test AsyncStorage persistence)
 
@@ -235,6 +242,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Expected outcome:** ✓ Full workflow works, multi-tenant isolation verified
 
 **Failure handling:**
+
 - If session doesn't persist: Check AsyncStorage, verify useAuthPersistence hook
 - If lab ID not passed correctly: Check Zustand store, verify prop drilling
 - If multi-tenant isolation fails: Check Firestore rules, verify labId filtering
@@ -248,6 +256,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Duration:** 10 minutes
 
 **Setup:**
+
 - [ ] All previous scenarios passed
 - [ ] App ready for error testing
 
@@ -334,6 +343,7 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 **Expected outcome:** ✓ Long operations don't block UI, progress shown
 
 **Failure handling:**
+
 - If validation error not shown: Check form validation logic
 - If network error crashes app: Add try-catch, show error message
 - If empty state shows blank: Add empty state UI component
@@ -354,13 +364,13 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 
 ### Execution Log
 
-| Scenario | Status | Notes | Time | Tester |
-|----------|--------|-------|------|--------|
-| 1: Mobile Auth | ⏳ | | | |
-| 2: Analytics Dashboard | ⏳ | | | |
-| 3: Export Job | ⏳ | | | |
-| 4: Cross-Module | ⏳ | | | |
-| 5: Error Handling | ⏳ | | | |
+| Scenario               | Status | Notes | Time | Tester |
+| ---------------------- | ------ | ----- | ---- | ------ |
+| 1: Mobile Auth         | ⏳     |       |      |        |
+| 2: Analytics Dashboard | ⏳     |       |      |        |
+| 3: Export Job          | ⏳     |       |      |        |
+| 4: Cross-Module        | ⏳     |       |      |        |
+| 5: Error Handling      | ⏳     |       |      |        |
 
 ### Results Summary
 
@@ -376,9 +386,9 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 
 ## Defect Log (If Failures Found)
 
-| ID | Scenario | Description | Severity | Status |
-|----|----------|-------------|----------|--------|
-| | | | | |
+| ID  | Scenario | Description | Severity | Status |
+| --- | -------- | ----------- | -------- | ------ |
+|     |          |             |          |        |
 
 ---
 
@@ -395,11 +405,13 @@ This document outlines 5 comprehensive end-to-end (E2E) test scenarios that vali
 ## Automation Notes (For Phase 3.2)
 
 These E2E scenarios should be automated in Phase 3.2 using:
+
 - **Mobile E2E:** Detox or Expo Testing Library
 - **Web E2E:** Cypress or Playwright
 - **CI/CD:** GitHub Actions E2E job
 
 Example Detox test file structure:
+
 ```javascript
 describe('Scenario 1: Mobile Auth', () => {
   beforeAll(async () => {
@@ -410,13 +422,16 @@ describe('Scenario 1: Mobile Auth', () => {
     await element(by.id('emailInput')).typeText('test@hcquality.lab');
     await element(by.id('passwordInput')).typeText('TestPassword123!');
     await element(by.label('Login')).tap();
-    await waitFor(element(by.id('homeScreen'))).toBeVisible().withTimeout(5000);
+    await waitFor(element(by.id('homeScreen')))
+      .toBeVisible()
+      .withTimeout(5000);
   });
 });
 ```
 
 Automation in Phase 3.2 will:
-- Run on every commit to mobile/**
+
+- Run on every commit to mobile/\*\*
 - Validate all 5 scenarios in <10 minutes
 - Block merge if any scenario fails
 - Provide detailed failure screenshots

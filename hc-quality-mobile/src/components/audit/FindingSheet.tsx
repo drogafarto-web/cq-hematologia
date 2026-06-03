@@ -65,12 +65,7 @@ export const FindingSheet = React.memo(function FindingSheet({
   }, [onClose]);
 
   return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      transparent
-      onRequestClose={handleClose}
-    >
+    <Modal visible={visible} animationType="slide" transparent onRequestClose={handleClose}>
       <Pressable style={styles.backdrop} onPress={handleClose}>
         <Pressable style={styles.sheet} onPress={() => {}}>
           {/* Handle */}
@@ -106,21 +101,13 @@ export const FindingSheet = React.memo(function FindingSheet({
                   return (
                     <TouchableOpacity
                       key={opt.value}
-                      style={[
-                        styles.severityChip,
-                        isActive && { backgroundColor: opt.color },
-                      ]}
+                      style={[styles.severityChip, isActive && { backgroundColor: opt.color }]}
                       onPress={() => setSeverity(opt.value)}
                       accessibilityRole="radio"
                       accessibilityState={{ selected: isActive }}
                       accessibilityLabel={`Severidade ${opt.label}`}
                     >
-                      <Text
-                        style={[
-                          styles.severityText,
-                          isActive && styles.severityTextActive,
-                        ]}
-                      >
+                      <Text style={[styles.severityText, isActive && styles.severityTextActive]}>
                         {opt.label}
                       </Text>
                     </TouchableOpacity>

@@ -15,6 +15,7 @@
 **Depende de:** —
 
 **O que fazer:**
+
 1. Adicionar os campos ao interface `Risk` (não remover ou renomear campo existente):
    - `ncIds: string[]` (default `[]`)
    - `capaIds: string[]` (default `[]`)
@@ -35,6 +36,7 @@
 **Depende de:** —
 
 **O que fazer:**
+
 1. Criar interface `RiskTemplate` conforme spec (id, labId, categoria, processo, titulo, descricao, causaPotencial, efeitoPotencial, pDefault, sDefault, dDefault, ativo, criadoEm).
 2. Usar `RiskCategory` e `RiskProcess` enums já existentes no `Risk.ts`.
 3. Exportar pelo barrel.
@@ -52,6 +54,7 @@
 
 **O que fazer:**
 Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
+
 - `read`: isActiveMemberOfLab(labId)
 - `create`, `update`: isAdminOrOwner(labId)
 - `delete`: **false** (soft-delete apenas — `ativo: false`)
@@ -68,6 +71,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-01
 
 **O que fazer:**
+
 1. Callable com Zod: `{ riskId, ncId?, capaId? }` (pelo menos um obrigatório).
 2. Validar que chamador é membro ativo do lab.
 3. Usar `arrayUnion` para adicionar a `ncIds` ou `capaIds` (não substituir o array).
@@ -86,6 +90,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-01
 
 **O que fazer:**
+
 1. Callable com Zod: `{ labId, riskId, logicalSignature }` (paridade com demais callables do módulo).
 2. Verificar que chamador tem role `admin` ou `owner`.
 3. Verificar que o risco tem `nivel === 'critico'` e `status` em `aberto` ou `mitigando` (paridade com domínio `Risk.Status`; spec legado citava aceito/em_tratamento).
@@ -104,6 +109,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** —
 
 **O que fazer:**
+
 1. CF agendada (pubsub scheduler, 1x/dia).
 2. Iterar `/labs/{labId}/risks/` com status `aberto` ou `em_tratamento`.
 3. Para riscos com `reviewSchedule.proximaRevisao` < now + 7 dias, criar/upsert `KPIAlert` em `/labs/{labId}/kpi-alerts/` com `tipo: 'revisao_risco_vencida'`.
@@ -121,6 +127,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** —
 
 **O que fazer:**
+
 1. Hook que lê riscos ativos do lab.
 2. Filtra client-side: `reviewSchedule.proximaRevisao < Date.now()` (já vencidas) ou `< Date.now() + 7 dias` (prestes a vencer).
 3. Retorna `{ vencidas: Risk[], prestes: Risk[], count: number }`.
@@ -138,6 +145,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-02, T-GR-03
 
 **O que fazer:**
+
 1. Hook com `onSnapshot` em `/labs/{labId}/risk-templates` filtrando `ativo === true`.
 2. Retorna `{ templates: RiskTemplate[], loading, error }`.
 3. Ordenar por `categoria` + `titulo`.
@@ -154,6 +162,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** —
 
 **O que fazer:**
+
 1. Componente que recebe `risks: Risk[]` como prop.
 2. Renderizar grid 5×5 (eixo X = Severidade, eixo Y = Probabilidade).
 3. Cada célula mostra `count` de riscos naquela combinação P×S.
@@ -173,6 +182,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-07, T-GR-09
 
 **O que fazer:**
+
 1. Seção com:
    - `RiskHeatmap` (tarefa anterior)
    - Barras simples (SVG ou CSS) de distribuição por `nivel` (baixo/médio/alto/crítico)
@@ -192,6 +202,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-01
 
 **O que fazer:**
+
 1. Callable que lê todos os riscos ativos do lab.
 2. Ordena por NPR desc.
 3. Gera PDF com: cabeçalho do lab, data, tabela de riscos (título, categoria, P, S, D, NPR, nível, status, responsável), heat map textual (ou ASCII art se PDF simples).
@@ -210,6 +221,7 @@ Adicionar bloco para `/labs/{labId}/risk-templates/{templateId}`:
 **Depende de:** T-GR-08, T-GR-11
 
 **O que fazer:**
+
 1. Adicionar botão "Exportar Mapa de Riscos (PDF)" que chama `generateRiskMatrixPDF`.
 2. No modal de criação de risco, adicionar dropdown "Usar template" (lê `useRiskTemplates`).
    - Ao selecionar template, pré-preenche campos: categoria, processo, descricao, P, S, D.

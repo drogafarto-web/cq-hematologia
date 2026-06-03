@@ -156,28 +156,19 @@ function RelatorioHeader({ titulo, labNome }: { titulo: string; labNome: string 
         <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{labNome}</p>
         <h1 className="text-xl font-semibold text-slate-900">{titulo}</h1>
       </div>
-      <div className="text-xs text-slate-500">
-        Emitido em {new Date().toLocaleString('pt-BR')}
-      </div>
+      <div className="text-xs text-slate-500">Emitido em {new Date().toLocaleString('pt-BR')}</div>
     </header>
   );
 }
 
 function FR001Body({ payload }: { payload: RelatorioFR001 }) {
-  const {
-    execucao,
-    treinamento,
-    participantes,
-    avaliacaoEficacia,
-    avaliacoesCompetencia,
-  } = payload;
+  const { execucao, treinamento, participantes, avaliacaoEficacia, avaliacoesCompetencia } =
+    payload;
   const presentes = participantes.filter((p) => p.presente);
   const competenciaPorColab = new Map(
     avaliacoesCompetencia.map((a) => [a.colaboradorId, a] as const),
   );
-  const totalAvaliados = presentes.filter((p) =>
-    competenciaPorColab.has(p.colaborador.id),
-  ).length;
+  const totalAvaliados = presentes.filter((p) => competenciaPorColab.has(p.colaborador.id)).length;
   return (
     <div className="flex flex-col gap-6 text-sm">
       <Section titulo="Treinamento">
@@ -273,9 +264,7 @@ function FR001Body({ payload }: { payload: RelatorioFR001 }) {
                     ) : (
                       <>
                         <td className="py-1.5 pr-2 text-slate-400">—</td>
-                        <td className="py-1.5 pr-2 font-semibold text-amber-700">
-                          Pendente
-                        </td>
+                        <td className="py-1.5 pr-2 font-semibold text-amber-700">Pendente</td>
                         <td className="py-1.5 text-slate-400">—</td>
                       </>
                     )}
@@ -388,14 +377,18 @@ function Row({
     return (
       <div className="flex flex-col gap-0.5 py-1">
         <span className="text-xs font-medium text-slate-500">{label}</span>
-        <p className={`text-sm text-slate-900 ${mono ? 'font-mono text-xs break-all' : ''}`}>{value}</p>
+        <p className={`text-sm text-slate-900 ${mono ? 'font-mono text-xs break-all' : ''}`}>
+          {value}
+        </p>
       </div>
     );
   }
   return (
     <div className="flex gap-2 py-0.5">
       <span className="w-36 shrink-0 text-xs font-medium text-slate-500">{label}</span>
-      <span className={`text-sm text-slate-900 ${mono ? 'font-mono text-xs break-all' : ''}`}>{value}</span>
+      <span className={`text-sm text-slate-900 ${mono ? 'font-mono text-xs break-all' : ''}`}>
+        {value}
+      </span>
     </div>
   );
 }

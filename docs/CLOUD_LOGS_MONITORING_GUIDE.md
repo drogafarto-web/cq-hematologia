@@ -10,13 +10,13 @@
 
 ## 1. Pre-Monitoring Setup
 
-| Setting | Value |
-|---------|-------|
-| **GCP Project** | `hmatologia2` |
-| **Region** | `southamerica-east1` |
-| **Duration** | 24h continuous or spot-check every 30 min |
-| **Alert Threshold** | Any `ERROR` or `EXCEPTION` severity |
-| **Expected Error Rate** | <5 errors per 10,000 invocations |
+| Setting                 | Value                                     |
+| ----------------------- | ----------------------------------------- |
+| **GCP Project**         | `hmatologia2`                             |
+| **Region**              | `southamerica-east1`                      |
+| **Duration**            | 24h continuous or spot-check every 30 min |
+| **Alert Threshold**     | Any `ERROR` or `EXCEPTION` severity       |
+| **Expected Error Rate** | <5 errors per 10,000 invocations          |
 
 ### Prerequisites
 
@@ -33,17 +33,20 @@
 **Entry Point:** [Cloud Console Logs Explorer](https://console.cloud.google.com/logs/query)
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name=~".*"
 ```
 
 **Watch For:**
+
 - `severity >= ERROR` (red flag icons in UI)
 - Text contains: `"Exception"`, `"Timeout"`, `"Crash"`, `"undefined is not a function"`
 - `"Exceeded timeout of X seconds"` — async operations not completing
 
 **Expected Outcome:**
+
 - 0 permission/auth errors (v1.3 rules are fully permissive during implantação)
 - <1 unhandled exception per deployment
 - Cold-start latency on first invocation (expected, not an error)
@@ -55,17 +58,20 @@ AND resource.labels.function_name=~".*"
 **Entry Point:** Cloud Console Logs Explorer
 
 **Filter:**
+
 ```
 resource.type="cloud_firestore"
 ```
 
 **Watch For:**
+
 - `"Request rate exceeded"` — quota/throttling warning
 - `"Permission denied"` — rules rejecting writes (should be 0 in v1.3)
 - `"Document too large"` — data model exceeds 1 MB
 - `"Index missing"` — composite index not created
 
 **Expected Outcome:**
+
 - 0 permission denied errors
 - 0 document-too-large errors
 - Rate exceeded OK during load spike; auto-backs off after 60s
@@ -77,17 +83,20 @@ resource.type="cloud_firestore"
 **Entry Point:** Cloud Console Logs Explorer
 
 **Filter:**
+
 ```
 resource.type="cloud_run"
 OR resource.labels.service="hmatologia2"
 ```
 
 **Watch For:**
+
 - HTTP status `5xx` (500, 502, 503, 504)
 - `severity=ERROR`
 - Latency >5s (P99)
 
 **Expected Outcome:**
+
 - 0 5xx errors post-deploy
 - LCP <2.5s
 - All 200/204 responses
@@ -96,15 +105,15 @@ OR resource.labels.service="hmatologia2"
 
 ## 3. Common Issues & Troubleshooting
 
-| Symptom | Log Signature | Root Cause | Resolution |
-|---------|---------------|-----------|-----------|
-| Function stops after 30s | `"Exceeded timeout of 30 seconds"` | Async handler not awaiting; missing `return` | Check callable handler in `functions/src/modules/*/index.ts`; ensure all promises are awaited |
-| `undefined is not a function` | Stack trace with line number | Missing dependency or import path wrong | Run `npm list` in `functions/`; check `package.json` for Supabase CLI tool, Cloud Tasks, etc. |
-| `"Permission denied"` on Firestore write | `"Error writing document at path /...` + perm denied | Rules too restrictive | Verify v1.3 rules in `firestore.rules` — should be `.allow write: if request.auth.uid != null;` OR check `allowUnauthenticated` setting in Firebase config |
-| Rate limit spam: `"Request rate exceeded"` | Repeated in logs every 1-2 sec | Client polling too aggressively or bulk operation hammering quota | Confirm polling interval >30s; check if migration script (Drive importer, etc.) is running — if so, whitelist quota temporarily in GCP |
-| `"Document too large"` | Error on `laudo`, `declaracao`, or bulk update | Data model field exceeds 1 MB (e.g., PDF embedded as base64) | Split into subcollection or move to Cloud Storage; avoid storing binary in Firestore |
-| `"Invalid grant"` (OAuth) | Auth error during Drive import | Token refresh failed or credentials rotated | Check Cloud Functions environment variable `GOOGLE_APPLICATION_CREDENTIALS`; re-deploy functions with fresh credentials |
-| Missing `labId` in reads | Query returns empty on `/labs/{labId}/*` | Collection path using default `uid` instead of `labId` | Verify hook/query uses `labId` from auth payload; check `useColaboradores`, `useOrcamentos` patterns |
+| Symptom                                    | Log Signature                                        | Root Cause                                                        | Resolution                                                                                                                                                 |
+| ------------------------------------------ | ---------------------------------------------------- | ----------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Function stops after 30s                   | `"Exceeded timeout of 30 seconds"`                   | Async handler not awaiting; missing `return`                      | Check callable handler in `functions/src/modules/*/index.ts`; ensure all promises are awaited                                                              |
+| `undefined is not a function`              | Stack trace with line number                         | Missing dependency or import path wrong                           | Run `npm list` in `functions/`; check `package.json` for Supabase CLI tool, Cloud Tasks, etc.                                                              |
+| `"Permission denied"` on Firestore write   | `"Error writing document at path /...` + perm denied | Rules too restrictive                                             | Verify v1.3 rules in `firestore.rules` — should be `.allow write: if request.auth.uid != null;` OR check `allowUnauthenticated` setting in Firebase config |
+| Rate limit spam: `"Request rate exceeded"` | Repeated in logs every 1-2 sec                       | Client polling too aggressively or bulk operation hammering quota | Confirm polling interval >30s; check if migration script (Drive importer, etc.) is running — if so, whitelist quota temporarily in GCP                     |
+| `"Document too large"`                     | Error on `laudo`, `declaracao`, or bulk update       | Data model field exceeds 1 MB (e.g., PDF embedded as base64)      | Split into subcollection or move to Cloud Storage; avoid storing binary in Firestore                                                                       |
+| `"Invalid grant"` (OAuth)                  | Auth error during Drive import                       | Token refresh failed or credentials rotated                       | Check Cloud Functions environment variable `GOOGLE_APPLICATION_CREDENTIALS`; re-deploy functions with fresh credentials                                    |
+| Missing `labId` in reads                   | Query returns empty on `/labs/{labId}/*`             | Collection path using default `uid` instead of `labId`            | Verify hook/query uses `labId` from auth payload; check `useColaboradores`, `useOrcamentos` patterns                                                       |
 
 ---
 
@@ -126,6 +135,7 @@ OR resource.labels.service="hmatologia2"
    - Or click the refresh icon (top-right, circular arrow)
 
 **Visual Cues:**
+
 - Red icon = ERROR, orange = WARNING, blue = INFO
 - Click any log line to expand full stack trace
 
@@ -136,6 +146,7 @@ OR resource.labels.service="hmatologia2"
 **Best for:** Developers, automated checks, scripting.
 
 **Setup:**
+
 ```bash
 # Verify project is set
 gcloud config get-value project
@@ -146,6 +157,7 @@ gcloud config set project hmatologia2
 ```
 
 **Command 1: Last-24h Error Snapshot**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 \
@@ -154,15 +166,18 @@ gcloud logging read "severity >= ERROR" \
 ```
 
 **Command 2: Real-Time Error Tail (Streaming)**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 \
   --limit=50 \
   --follow
 ```
+
 Press `Ctrl + C` to stop. Tails last 50 errors and streams new ones.
 
 **Command 3: Function-Specific Errors**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function" AND severity >= ERROR' \
@@ -179,6 +194,7 @@ gcloud logging read \
 See **CLOUD_LOGS_MONITORING_SCRIPT.sh** below for full executable.
 
 **Quick Usage:**
+
 ```bash
 # Monitor for 24 hours, check every 30 minutes
 ./scripts/monitor-cloud-logs.sh 24 30
@@ -232,29 +248,30 @@ Use this template to document the 24-hour monitoring period. **Save as:** `docs/
 
 **Method Used:** [☐ Cloud Console | ☐ gcloud CLI | ☐ Monitoring Script]
 
-**Reviewer Name:** _________________________
+**Reviewer Name:** ************\_************
 
-**Reviewer Email:** _________________________
+**Reviewer Email:** ************\_************
 
 ---
 
 ## Summary
 
-| Metric | Value |
-|--------|-------|
-| **Total Function Invocations** | |
-| **Total Firestore Operations** | |
-| **Total Hosting Requests** | |
-| **Error Count (severity >= ERROR)** | |
-| **Error Rate %** | |
-| **P99 Latency (Functions)** | |
-| **P99 Latency (Hosting)** | |
+| Metric                              | Value |
+| ----------------------------------- | ----- |
+| **Total Function Invocations**      |       |
+| **Total Firestore Operations**      |       |
+| **Total Hosting Requests**          |       |
+| **Error Count (severity >= ERROR)** |       |
+| **Error Rate %**                    |       |
+| **P99 Latency (Functions)**         |       |
+| **P99 Latency (Hosting)**           |       |
 
 ---
 
 ## Errors Detailed
 
 ### Functions Errors
+
 - [ ] None found ✅
 - [ ] Found [N] errors:
   - Error 1: [description + timestamp]
@@ -262,12 +279,14 @@ Use this template to document the 24-hour monitoring period. **Save as:** `docs/
   - (list up to 5; if >5, attach JSON export)
 
 ### Firestore Errors
+
 - [ ] None found ✅
 - [ ] Found [N] errors:
   - Permission denied: [count] — [resolution]
   - Rate limited: [count] — [resolution]
 
 ### Hosting Errors
+
 - [ ] None found ✅
 - [ ] Found [N] errors: [list status codes]
 
@@ -275,9 +294,9 @@ Use this template to document the 24-hour monitoring period. **Save as:** `docs/
 
 ## Issues Found & Resolved
 
-| Issue | Detection Time | Root Cause | Action Taken | Status |
-|-------|---|---|---|---|
-| [e.g., Function timeout] | 2026-05-07 14:30 UTC | [cause] | [action] | ✅ Resolved |
+| Issue                    | Detection Time       | Root Cause | Action Taken | Status      |
+| ------------------------ | -------------------- | ---------- | ------------ | ----------- |
+| [e.g., Function timeout] | 2026-05-07 14:30 UTC | [cause]    | [action]     | ✅ Resolved |
 
 ---
 
@@ -291,7 +310,7 @@ Use this template to document the 24-hour monitoring period. **Save as:** `docs/
 
 ---
 
-**Signature:** _________________________ | **Date:** _____________
+**Signature:** ************\_************ | **Date:** ******\_******
 ```
 
 ---
@@ -307,6 +326,7 @@ If **any of these** are found during monitoring, escalate immediately:
 5. **`"Document too large"` on laudo/declaracao** → Data model overflow
 
 **Escalation Process:**
+
 1. Note exact timestamp + log snippet
 2. Alert deployer / CTO (@drogafarto)
 3. Rollback to previous deploy if critical: `firebase deploy --only functions --project hmatologia2` (revert `functions/` to git HEAD~1)
@@ -327,12 +347,12 @@ If **any of these** are found during monitoring, escalate immediately:
 
 ## Appendix: GCP Quota Limits (Reference)
 
-| Resource | Daily Limit | Alert Threshold |
-|----------|------------|---|
-| Cloud Functions invocations | Unlimited | N/A |
-| Firestore writes per second | 10,000 (adjustable) | >8,000 |
-| Firestore document size | 1 MB | Document approaching |
-| Drive API calls per user | 1,000,000 / day | >800,000 |
+| Resource                    | Daily Limit         | Alert Threshold      |
+| --------------------------- | ------------------- | -------------------- |
+| Cloud Functions invocations | Unlimited           | N/A                  |
+| Firestore writes per second | 10,000 (adjustable) | >8,000               |
+| Firestore document size     | 1 MB                | Document approaching |
+| Drive API calls per user    | 1,000,000 / day     | >800,000             |
 
 If Drive importer is running during monitoring, expect rate-limit warnings after 100k reads. This is **expected** and **not a blocker**. Backoff + retry logic handles it automatically.
 

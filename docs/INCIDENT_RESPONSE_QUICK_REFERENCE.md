@@ -21,11 +21,11 @@ Checklist (do ALL):
 
 ## Severity in 30 Seconds
 
-| If… | …it's | …do this |
-|-----|-------|----------|
-| Patient data exposed OR system 100% down OR >30min without recovery | **P0** | ☐ `/remind @CTO Phone now` ☐ Create Meet link ☐ Slack: `@CTO @DevOps-Lead @Security-Lead` |
-| Specific module down (CIQ works) OR data integrity question OR <30min outage | **P1** | ☐ Ping `@CTO` on Slack ☐ Customer: "investigating, 30min update" |
-| User reports one action broken OR intermittent errors that resolve themselves | **P2** | ☐ Assign to on-call ☐ Log in Slack thread ☐ No immediate customer ping |
+| If…                                                                           | …it's  | …do this                                                                                  |
+| ----------------------------------------------------------------------------- | ------ | ----------------------------------------------------------------------------------------- |
+| Patient data exposed OR system 100% down OR >30min without recovery           | **P0** | ☐ `/remind @CTO Phone now` ☐ Create Meet link ☐ Slack: `@CTO @DevOps-Lead @Security-Lead` |
+| Specific module down (CIQ works) OR data integrity question OR <30min outage  | **P1** | ☐ Ping `@CTO` on Slack ☐ Customer: "investigating, 30min update"                          |
+| User reports one action broken OR intermittent errors that resolve themselves | **P2** | ☐ Assign to on-call ☐ Log in Slack thread ☐ No immediate customer ping                    |
 
 ---
 
@@ -199,16 +199,16 @@ Contact: security@hcquality.com.br for questions
 
 ## Key Numbers (Save These)
 
-| What | Value |
-|------|-------|
-| **GCP Project** | `hmatologia2` |
-| **Region** | `southamerica-east1` |
+| What                      | Value                                       |
+| ------------------------- | ------------------------------------------- |
+| **GCP Project**           | `hmatologia2`                               |
+| **Region**                | `southamerica-east1`                        |
 | **Firestore quota limit** | 20K reads/sec, 10K writes/sec (per account) |
-| **Function timeout** | 30 seconds (don't exceed) |
-| **Cloud Logs retention** | 30 days (export old logs to GCS) |
-| **CTO phone** | [from escalation matrix] |
-| **On-call Slack** | `#incident` |
-| **Status page** | status.hcquality.com.br |
+| **Function timeout**      | 30 seconds (don't exceed)                   |
+| **Cloud Logs retention**  | 30 days (export old logs to GCS)            |
+| **CTO phone**             | [from escalation matrix]                    |
+| **On-call Slack**         | `#incident`                                 |
+| **Status page**           | status.hcquality.com.br                     |
 
 ---
 
@@ -224,14 +224,14 @@ Contact: security@hcquality.com.br for questions
 
 ## Common Errors & Fixes
 
-| Error | Fix |
-|-------|-----|
-| `"Exceeded timeout of 30 seconds"` | Function doing too much. Check for long loops in Cloud Function logs. |
+| Error                                    | Fix                                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------- |
+| `"Exceeded timeout of 30 seconds"`       | Function doing too much. Check for long loops in Cloud Function logs.                          |
 | `"Permission denied"` on Firestore write | Rules too strict. Check firestore.rules for recent changes. Ask: which user? which collection? |
-| `"Document too large"` | Firestore has 1MB document limit. Split into subcollection or move to Cloud Storage. |
-| `"Request rate exceeded"` | Too many queries too fast. Check polling interval (should be ≥30s). |
-| `"Invalid grant"` (OAuth) | Token expired. Check GCP credentials. Redeploy functions. |
-| `ERR_BLOCKED_BY_CLIENT` (browser) | CORS issue OR browser blocked Firebase API. Check browser console for details. |
+| `"Document too large"`                   | Firestore has 1MB document limit. Split into subcollection or move to Cloud Storage.           |
+| `"Request rate exceeded"`                | Too many queries too fast. Check polling interval (should be ≥30s).                            |
+| `"Invalid grant"` (OAuth)                | Token expired. Check GCP credentials. Redeploy functions.                                      |
+| `ERR_BLOCKED_BY_CLIENT` (browser)        | CORS issue OR browser blocked Firebase API. Check browser console for details.                 |
 
 ---
 

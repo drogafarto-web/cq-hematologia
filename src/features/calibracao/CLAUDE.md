@@ -20,6 +20,7 @@ Equipment calibration tracking with certificate uploads and due date monitoring.
 ## Multi-tenant
 
 Collection structure:
+
 ```
 calibracao/
   {labId}/
@@ -35,22 +36,26 @@ All writes scoped by `labId` (RN-multi-tenant). Firestore rules enforce lab isol
 ## Padrões invioláveis
 
 **RN-06 (Soft-delete only):**
+
 - Never call `deleteDoc`
 - Use `softDeleteCalibracao(labId, equipId, operatorId)`
 - Sets `deletadoEm` timestamp, preserves 5-year audit trail
 
 **RN-multi-tenant:**
+
 - All service functions take `labId` as first parameter
 - Firestore rules validate `labId` on read/write paths
 - Payload carries `labId` redundantly (defense-in-depth)
 
 **Chain-hash validation:**
+
 - HMAC-SHA256 computed on every certificate upload
 - Hash = `HMAC(message: labId|equipId|filename|operatorId|ts, key: labId)`
 - Stored as `chainHash: LogicalSignature` (hash 64 chars hex)
 - Download validates hash matches before returning file
 
 **File constraints:**
+
 - MIME types: `application/pdf`, `image/jpeg`, `image/png`
 - Max size: 10 MB
 - Storage path: `gs://bucket/calibracao/{labId}/{equipId}/{uuid}`
@@ -148,7 +153,7 @@ src/features/calibracao/
 
 ---
 
-## Validações de negócio (RN-*)
+## Validações de negócio (RN-\*)
 
 **RN-calibração-01:** Equipment can have many calibrations (1:N).  
 **RN-calibração-02:** Each certificate requires chain-hash for integrity (non-repudiation).  
@@ -174,6 +179,7 @@ src/features/calibracao/
 ## Dever de atualização
 
 Após mudanças estruturais ou novas fases:
+
 1. Update this CLAUDE.md
 2. Update parent module table in `src/features/calibracao/CLAUDE.md`
 3. Update `.planning/phases/08-capa-closure/` summary

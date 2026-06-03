@@ -83,7 +83,9 @@ function generateDPIAHTML(dpia: DPIA): string {
     (dpia.dataAprovacao
       ? `<div class="signature-item">Aprovado em: ${dpia.dataAprovacao.toDate().toLocaleDateString('pt-BR')}</div>`
       : '') +
-    (dpia.assinaturRT ? `<div class="signature-item">Assinado por: ${dpia.assinaturRT.operatorId}</div>` : '');
+    (dpia.assinaturRT
+      ? `<div class="signature-item">Assinado por: ${dpia.assinaturRT.operatorId}</div>`
+      : '');
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">

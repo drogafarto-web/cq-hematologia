@@ -11,9 +11,11 @@
 ## System Components Delivered
 
 ### 1. AUDITOR_ALIGNMENT_FRAMEWORK.md (19 KB)
+
 **Purpose:** Master schedule + operational structure for auditor engagement
 
 **Contains:**
+
 - Weekly auditor call schedule (Fridays 10:00 BRT, 30 min)
 - Pre-call briefing template (due Thursday 17:00)
 - Post-call action items log
@@ -29,9 +31,11 @@
 ---
 
 ### 2. COMPLIANCE_MONITORING_SYSTEM.md (17 KB)
+
 **Purpose:** Metrics, dashboards, and automation for compliance tracking
 
 **Contains:**
+
 - Daily compliance scorecard template (DICQ % by block, RDC articles, LGPD %, tests, audit trail)
 - Weekly compliance report template (sections 1–10: headline, DICQ, RDC, LGPD, issues, auditor feedback, phases, risks, escalations, projection)
 - Monthly compliance report template (headline + DICQ + RDC + LGPD + auditor calls + known issues + artifacts)
@@ -44,9 +48,11 @@
 ---
 
 ### 3. AUDITOR_COMMUNICATION_TEMPLATES.md (15 KB)
+
 **Purpose:** Ready-to-send, professionally formatted email templates
 
 **Templates included:**
+
 1. **Weekly Auditor Update** (Friday 10:30 BRT) — headline metrics + phase status + RFI summary
 2. **RFI Response** (within 5 business days) — question + answer + evidence + next steps
 3. **Monthly Compliance Report** (last Friday 17:30 BRT) — consolidated compliance metrics + forecast
@@ -61,9 +67,11 @@
 ---
 
 ### 4. AUDITOR_ALIGNMENT_LEAD_HANDBOOK.md (15 KB)
+
 **Purpose:** Day-to-day operations + role expectations for Audit Lead
 
 **Contains:**
+
 - Role definition (3-sentence summary)
 - Week 1 checklist (Mon–Fri Phase 4 kickoff week)
 - Daily workflow (09:00 scorecard → 17:00 escalation)
@@ -81,9 +89,11 @@
 ---
 
 ### 5. AUDITOR_ALIGNMENT_INITIALIZATION.md (15 KB)
+
 **Purpose:** Transition from planning to execution; Audit Lead assignment + Week 1 launch
 
 **Contains:**
+
 - Audit Lead prerequisites (skills, time commitment, resources)
 - Assignment process (CTO identifies → onboard → Week 1 launch)
 - Week 1 immediate actions (Mon–Fri)
@@ -200,40 +210,41 @@
 
 ## Key Dates (Quick Reference)
 
-| Date | Event | Duration | Attendees | Action |
-|---|---|---|---|---|
-| May 15 | Pre-alignment ceremony | 90 min | Ernani, CTO, Audit Lead | Present Phase 4 architecture + CAPA strategy |
-| May 20 | Phase 4 kickoff | — | Engineering team | Audit Lead starts daily scorecard |
-| May 24 | Weekly call #1 | 30 min | Ernani, CTO, Audit Lead | Compliance baseline + Phase 4 Week 1 status |
-| May 31 | May compliance report | — | Ernani, CTO | Submit monthly summary |
-| Jun 2 | Phase 4 deploy | — | Engineering team | Audit Lead verifies + reports to Ernani |
-| Jun 9 | Phase 5 kickoff | — | Engineering team | Critical escalation + IA training begins |
-| Jun 30 | Phase 5 deploy + June report | — | Engineering + Ernani | Submit monthly summary |
-| Jul 1 | RDC 978 critical 100% | — | — | Target milestone (Art. 6, 115, 117, 167, 204) |
-| Jul 31 | July compliance report | — | Ernani, CTO | Submit monthly summary |
-| Aug 4 | Phases 4–9 complete | — | Engineering team | DICQ ≥88%, all RFIs answered |
-| Aug 5 | **CAPA ceremony** | 120 min | Ernani, CTO, Engineering | **Auditor sign-off on Phase 8** |
-| Aug 31 | v1.4 complete | — | — | Ready for external audit (Oct 2026) |
+| Date   | Event                        | Duration | Attendees                | Action                                        |
+| ------ | ---------------------------- | -------- | ------------------------ | --------------------------------------------- |
+| May 15 | Pre-alignment ceremony       | 90 min   | Ernani, CTO, Audit Lead  | Present Phase 4 architecture + CAPA strategy  |
+| May 20 | Phase 4 kickoff              | —        | Engineering team         | Audit Lead starts daily scorecard             |
+| May 24 | Weekly call #1               | 30 min   | Ernani, CTO, Audit Lead  | Compliance baseline + Phase 4 Week 1 status   |
+| May 31 | May compliance report        | —        | Ernani, CTO              | Submit monthly summary                        |
+| Jun 2  | Phase 4 deploy               | —        | Engineering team         | Audit Lead verifies + reports to Ernani       |
+| Jun 9  | Phase 5 kickoff              | —        | Engineering team         | Critical escalation + IA training begins      |
+| Jun 30 | Phase 5 deploy + June report | —        | Engineering + Ernani     | Submit monthly summary                        |
+| Jul 1  | RDC 978 critical 100%        | —        | —                        | Target milestone (Art. 6, 115, 117, 167, 204) |
+| Jul 31 | July compliance report       | —        | Ernani, CTO              | Submit monthly summary                        |
+| Aug 4  | Phases 4–9 complete          | —        | Engineering team         | DICQ ≥88%, all RFIs answered                  |
+| Aug 5  | **CAPA ceremony**            | 120 min  | Ernani, CTO, Engineering | **Auditor sign-off on Phase 8**               |
+| Aug 31 | v1.4 complete                | —        | —                        | Ready for external audit (Oct 2026)           |
 
 ---
 
 ## Compliance Metrics (Targets)
 
-| Metric | Baseline | Target | By when | Trend |
-|---|---|---|---|---|
-| **DICQ %** | 78.5% | 88%+ | Aug 4 | +1-2%/week |
-| **RDC 978 articles** | 17/20 | 20/20 | Jul 1 | +1 article/week |
-| **LGPD %** | 62% | 85% | Aug 31 | +0.5-1%/week |
-| **Weekly calls** | 0 | 13 | May 24 → Aug 5 | 100% attendance |
-| **RFI response SLA** | N/A | 5 days | Ongoing | 0 overdue |
-| **Phase deployments** | 0 | 6 (P4–P9) | Jun 2 → Jul 28 | All on schedule |
-| **Monthly reports** | 0 | 3 | May 31 → Jul 31 | 100% on time |
+| Metric                | Baseline | Target    | By when         | Trend           |
+| --------------------- | -------- | --------- | --------------- | --------------- |
+| **DICQ %**            | 78.5%    | 88%+      | Aug 4           | +1-2%/week      |
+| **RDC 978 articles**  | 17/20    | 20/20     | Jul 1           | +1 article/week |
+| **LGPD %**            | 62%      | 85%       | Aug 31          | +0.5-1%/week    |
+| **Weekly calls**      | 0        | 13        | May 24 → Aug 5  | 100% attendance |
+| **RFI response SLA**  | N/A      | 5 days    | Ongoing         | 0 overdue       |
+| **Phase deployments** | 0        | 6 (P4–P9) | Jun 2 → Jul 28  | All on schedule |
+| **Monthly reports**   | 0        | 3         | May 31 → Jul 31 | 100% on time    |
 
 ---
 
 ## Files Created (Artifacts)
 
 ### Planning documents (.planning/)
+
 ```
 .planning/
 ├── AUDITOR_ALIGNMENT_FRAMEWORK.md (19 KB) ✅
@@ -252,6 +263,7 @@
 ```
 
 ### Workflow files (to be created during execution)
+
 ```
 .planning/daily/
 └── COMPLIANCE_SCORECARD_2026-MM-DD.md (daily, 09:00 BRT)
@@ -275,12 +287,14 @@
 ## Implementation Checklist
 
 ### Before May 15 (Pre-alignment ceremony)
+
 - [ ] Assign Audit Lead + onboard (read handbook + framework)
 - [ ] Verify tool access (Google Calendar, Sheets, Slack, Firebase, GitHub)
 - [ ] Create pre-alignment ceremony deck (state machines + DICQ blocks + RFI responses)
 - [ ] Prepare ADR-0015, ADR-0020, ADR-0021, ADR-0012 for auditor review
 
 ### Before May 20 (Phase 4 kickoff)
+
 - [ ] Audit Lead starts daily scorecard (manual or automated, depending on Cloud Function readiness)
 - [ ] Create Google Sheets: HC_Quality_Compliance_Scorecard_2026 (auto-populated by CF)
 - [ ] Create Google Sheets: HC_Quality_RFI_Tracking_2026 (manual, Audit Lead maintains)
@@ -288,12 +302,14 @@
 - [ ] Confirm Friday 10:00 BRT calendar invite accepted by Ernani
 
 ### Week 1 (May 20–24)
+
 - [ ] Audit Lead prepares Friday briefing (Phase 4 Week 1 status)
 - [ ] First auditor call (May 24, 10:00 BRT)
 - [ ] Post-call summary email + weekly compliance report (May 24, 17:00)
 - [ ] Verify all tools working (scorecard automation, email delivery, calendar sync)
 
 ### Monthly (ongoing)
+
 - [ ] Audit Lead submits monthly compliance report (last Friday 17:30)
 - [ ] CTO reviews + signs off (same day or next Monday)
 - [ ] Archive all monthly artifacts (ADRs, phase plans, tests)
@@ -304,20 +320,24 @@
 ## Quick Links
 
 **For Audit Lead — Read first:**
+
 1. AUDITOR_ALIGNMENT_LEAD_HANDBOOK.md (15 min read)
 2. AUDITOR_ALIGNMENT_FRAMEWORK.md (20 min read)
 3. COMPLIANCE_MONITORING_SYSTEM.md (15 min read)
 
 **For CTO — Reference only:**
+
 1. AUDITOR_ALIGNMENT_INITIALIZATION.md (5 min — "Audit Lead Assignment" section)
 2. AUDITOR_ALIGNMENT_FRAMEWORK.md (20 min — "Escalation Matrix" section)
 
 **For weekly operations — Templates:**
+
 1. AUDITOR_COMMUNICATION_TEMPLATES.md → Template 1 (Friday 10:30)
 2. COMPLIANCE_MONITORING_SYSTEM.md → Weekly Compliance Report section (Friday 17:00)
 3. AUDITOR_ALIGNMENT_FRAMEWORK.md → Post-Call Action Items Log (Friday 10:30)
 
 **For RFI management:**
+
 1. AUDITOR_COMMUNICATION_TEMPLATES.md → Template 2 (RFI Response)
 2. AUDITOR_ALIGNMENT_LEAD_HANDBOOK.md → RFI Management section (5-day cycle)
 
@@ -345,9 +365,10 @@
 **Audit Lead assigned:** [Name TBD]  
 **Email:** [TBD]  
 **CTO (escalation):** drogafarto@gmail.com  
-**External Auditor:** Ernani, llabclin3@gmail.com  
+**External Auditor:** Ernani, llabclin3@gmail.com
 
 **For questions about this system:**
+
 - Email CTO with subject: "Auditor Alignment System question — [topic]"
 - Or tag @CTO in Slack #hc-quality-v14
 
@@ -358,6 +379,7 @@
 All planning documents live in: `C:\hc quality\.planning\`
 
 Recommended folder structure:
+
 ```
 .planning/
 ├── AUDITOR_ALIGNMENT_FRAMEWORK.md

@@ -31,8 +31,8 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({ risks, onCellClick }) =>
       }
     }
     risks
-      .filter(r => !r.deletadoEm)
-      .forEach(r => {
+      .filter((r) => !r.deletadoEm)
+      .forEach((r) => {
         const key = `${r.probabilidade}-${r.severidade}`;
         if (grid[key]) grid[key].push(r);
       });
@@ -41,9 +41,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({ risks, onCellClick }) =>
 
   return (
     <div className="p-4 space-y-4">
-      <div className="text-sm text-white/60">
-        Matriz 5×5 de Probabilidade × Severidade
-      </div>
+      <div className="text-sm text-white/60">Matriz 5×5 de Probabilidade × Severidade</div>
 
       {/* Legend */}
       <div className="flex gap-4 text-xs">
@@ -61,7 +59,7 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({ risks, onCellClick }) =>
           {/* Header row (Severidade) */}
           <div className="flex">
             <div className="w-12 h-12 border-r border-b border-white/[0.06] bg-white/[0.02]" />
-            {[1, 2, 3, 4, 5].map(s => (
+            {[1, 2, 3, 4, 5].map((s) => (
               <div
                 key={`header-${s}`}
                 className="w-20 h-12 border-r border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-center text-xs font-medium text-white/60"
@@ -72,12 +70,12 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({ risks, onCellClick }) =>
           </div>
 
           {/* Rows (Probabilidade) */}
-          {[5, 4, 3, 2, 1].map(p => (
+          {[5, 4, 3, 2, 1].map((p) => (
             <div key={`row-${p}`} className="flex">
               <div className="w-12 h-12 border-r border-b border-white/[0.06] bg-white/[0.02] flex items-center justify-center text-xs font-medium text-white/60">
                 P={p}
               </div>
-              {[1, 2, 3, 4, 5].map(s => {
+              {[1, 2, 3, 4, 5].map((s) => {
                 const key = `${p}-${s}`;
                 const cellRisks = matrix[key] || [];
                 const npr = p * s;
@@ -109,10 +107,13 @@ export const RiskMatrix: React.FC<RiskMatrixProps> = ({ risks, onCellClick }) =>
 
       {/* Summary */}
       <div className="grid grid-cols-4 gap-2 text-xs">
-        {['baixo', 'medio', 'alto', 'critico'].map(nivel => {
-          const count = risks.filter(r => !r.deletadoEm && r.nivel === nivel).length;
+        {['baixo', 'medio', 'alto', 'critico'].map((nivel) => {
+          const count = risks.filter((r) => !r.deletadoEm && r.nivel === nivel).length;
           return (
-            <div key={nivel} className={`p-3 rounded-lg border ${NIVEL_COLORS[nivel as keyof typeof NIVEL_COLORS]}`}>
+            <div
+              key={nivel}
+              className={`p-3 rounded-lg border ${NIVEL_COLORS[nivel as keyof typeof NIVEL_COLORS]}`}
+            >
               <div className="font-semibold">{count}</div>
               <div className="text-white/50 capitalize">{nivel}</div>
             </div>

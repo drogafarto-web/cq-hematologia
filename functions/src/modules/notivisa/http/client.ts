@@ -136,20 +136,16 @@ export class NotivisaHTTPClient {
 
         // Non-200 response
         const errorText = await response.text();
-        lastError = new Error(
-          `HTTP ${response.status}: ${errorText.slice(0, 500)}`,
-        );
+        lastError = new Error(`HTTP ${response.status}: ${errorText.slice(0, 500)}`);
 
         // Determine if retryable
-        const isRetryable =
-          response.status >= 500 || response.status === 429; // server error or rate limit
+        const isRetryable = response.status >= 500 || response.status === 429; // server error or rate limit
         if (!isRetryable) {
           // Don't retry 4xx errors (except 429)
           break;
         }
       } catch (err) {
-        lastError =
-          err instanceof Error ? err : new Error(String(err));
+        lastError = err instanceof Error ? err : new Error(String(err));
 
         // Timeout and network errors are retryable
         if (lastError.message.includes('AbortError')) {
@@ -200,16 +196,13 @@ export class NotivisaHTTPClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        const response = await fetch(
-          `${this.baseUrl}/api/v1/submissions/${statusId}/status`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-            signal: controller.signal,
+        const response = await fetch(`${this.baseUrl}/api/v1/submissions/${statusId}/status`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
           },
-        );
+          signal: controller.signal,
+        });
 
         clearTimeout(timeoutId);
 
@@ -225,8 +218,7 @@ export class NotivisaHTTPClient {
         const isRetryable = response.status >= 500 || response.status === 429;
         if (!isRetryable) break;
       } catch (err) {
-        lastError =
-          err instanceof Error ? err : new Error(String(err));
+        lastError = err instanceof Error ? err : new Error(String(err));
       }
 
       if (attempt < MAX_RETRIES - 1) {
@@ -261,9 +253,7 @@ export class NotivisaHTTPClient {
    * Returns: { approvalId, approvedAt, certificateUrl }
    * On error: { status: 'error', reason }
    */
-  async retrieveApproval(
-    statusId: string,
-  ): Promise<RetrieveApprovalResponse | HTTPError> {
+  async retrieveApproval(statusId: string): Promise<RetrieveApprovalResponse | HTTPError> {
     let lastError: Error | null = null;
 
     for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
@@ -271,16 +261,13 @@ export class NotivisaHTTPClient {
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
-        const response = await fetch(
-          `${this.baseUrl}/api/v1/submissions/${statusId}/approval`,
-          {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${this.apiKey}`,
-            },
-            signal: controller.signal,
+        const response = await fetch(`${this.baseUrl}/api/v1/submissions/${statusId}/approval`, {
+          method: 'GET',
+          headers: {
+            Authorization: `Bearer ${this.apiKey}`,
           },
-        );
+          signal: controller.signal,
+        });
 
         clearTimeout(timeoutId);
 
@@ -297,8 +284,7 @@ export class NotivisaHTTPClient {
         const isRetryable = response.status >= 500 || response.status === 429;
         if (!isRetryable) break;
       } catch (err) {
-        lastError =
-          err instanceof Error ? err : new Error(String(err));
+        lastError = err instanceof Error ? err : new Error(String(err));
       }
 
       if (attempt < MAX_RETRIES - 1) {

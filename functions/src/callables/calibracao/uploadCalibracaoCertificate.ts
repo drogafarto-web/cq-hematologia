@@ -22,7 +22,10 @@ const uploadCalibracaoCertificateInputSchema = z.object({
   lastCalibrationDate: z.number().int(),
   nextDueDate: z.number().int(),
   certificateStoragePath: z.string().min(1, 'certificateStoragePath required'),
-  certificateHash: z.string().length(64, 'hash must be 64 hex characters').regex(/^[a-f0-9]{64}$/),
+  certificateHash: z
+    .string()
+    .length(64, 'hash must be 64 hex characters')
+    .regex(/^[a-f0-9]{64}$/),
   expandedUncertainty: z.number().positive('expandedUncertainty must be positive'),
   calibrationMethod: z.string().min(1, 'calibrationMethod required'),
   calibrationProvider: z.string().optional(),
@@ -69,12 +72,7 @@ export const uploadCalibracaoCertificate = onCall<
     const db = admin.firestore();
 
     // ========== 2. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
@@ -150,5 +148,5 @@ export const uploadCalibracaoCertificate = onCall<
     );
 
     return { calibracaoId };
-  }
+  },
 );

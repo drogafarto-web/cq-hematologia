@@ -67,71 +67,71 @@ async function assertLabAdminOrSuperAdmin(
   }
 }
 
-export const definirMetaKPI = onCall<
-  unknown,
-  Promise<{ ok: true; metaId: string }>
->({ region: 'southamerica-east1', cors: true }, async (request) => {
-  if (!request.auth) {
-    throw new HttpsError('unauthenticated', 'Autenticação necessária.');
-  }
+export const definirMetaKPI = onCall<unknown, Promise<{ ok: true; metaId: string }>>(
+  { region: 'southamerica-east1', cors: true },
+  async (request) => {
+    if (!request.auth) {
+      throw new HttpsError('unauthenticated', 'Autenticação necessária.');
+    }
 
-  const parsed = inputSchema.safeParse(request.data);
-  if (!parsed.success) {
-    throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
-  }
+    const parsed = inputSchema.safeParse(request.data);
+    if (!parsed.success) {
+      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+    }
 
-  const input = parsed.data;
-  const uid = request.auth.uid;
-  const token = request.auth.token as Record<string, unknown> | undefined;
+    const input = parsed.data;
+    const uid = request.auth.uid;
+    const token = request.auth.token as Record<string, unknown> | undefined;
 
-  await assertLabAdminOrSuperAdmin(uid, input.labId, token);
+    await assertLabAdminOrSuperAdmin(uid, input.labId, token);
 
-  const vigenciaInicio = toFirestoreTimestamp(input.vigenciaInicio, 'vigenciaInicio');
-  const vigenciaFimOpt =
-    input.vigenciaFim === undefined || input.vigenciaFim === null
-      ? undefined
-      : toFirestoreTimestamp(input.vigenciaFim, 'vigenciaFim');
+    const vigenciaInicio = toFirestoreTimestamp(input.vigenciaInicio, 'vigenciaInicio');
+    const vigenciaFimOpt =
+      input.vigenciaFim === undefined || input.vigenciaFim === null
+        ? undefined
+        : toFirestoreTimestamp(input.vigenciaFim, 'vigenciaFim');
 
-  if (vigenciaFimOpt !== undefined && vigenciaFimOpt.toMillis() < vigenciaInicio.toMillis()) {
-    throw new HttpsError('invalid-argument', 'vigenciaFim deve ser >= vigenciaInicio.');
-  }
+    if (vigenciaFimOpt !== undefined && vigenciaFimOpt.toMillis() < vigenciaInicio.toMillis()) {
+      throw new HttpsError('invalid-argument', 'vigenciaFim deve ser >= vigenciaInicio.');
+    }
 
-  const definidoPorNome = await resolveOperatorDisplayName(uid);
-  const col = db.collection(`labs/${input.labId}/kpi-metas`);
-  const now = admin.firestore.Timestamp.now();
+    const definidoPorNome = await resolveOperatorDisplayName(uid);
+    const col = db.collection(`labs/${input.labId}/kpi-metas`);
+    const now = admin.firestore.Timestamp.now();
 
-  let metaId = '';
+    let metaId = '';
 
-  await db.runTransaction(async (tx) => {
-    const q = col.where('tipoKPI', '==', input.tipoKPI).limit(50);
-    const snap = await tx.get(q);
-    for (const doc of snap.docs) {
-      const d = doc.data();
-      if (d?.ativo === true) {
-        tx.update(doc.ref, { ativo: false, vigenciaFim: now });
+    await db.runTransaction(async (tx) => {
+      const q = col.where('tipoKPI', '==', input.tipoKPI).limit(50);
+      const snap = await tx.get(q);
+      for (const doc of snap.docs) {
+        const d = doc.data();
+        if (d?.ativo === true) {
+          tx.update(doc.ref, { ativo: false, vigenciaFim: now });
+        }
       }
-    }
 
-    const newRef = col.doc();
-    metaId = newRef.id;
+      const newRef = col.doc();
+      metaId = newRef.id;
 
-    const payload: Record<string, unknown> = {
-      labId: input.labId,
-      tipoKPI: input.tipoKPI,
-      valor: input.valor,
-      unidade: input.unidade,
-      vigenciaInicio,
-      definidoPor: uid,
-      definidoPorNome,
-      criadoEm: admin.firestore.FieldValue.serverTimestamp(),
-      ativo: true,
-    };
-    if (vigenciaFimOpt !== undefined) {
-      payload.vigenciaFim = vigenciaFimOpt;
-    }
+      const payload: Record<string, unknown> = {
+        labId: input.labId,
+        tipoKPI: input.tipoKPI,
+        valor: input.valor,
+        unidade: input.unidade,
+        vigenciaInicio,
+        definidoPor: uid,
+        definidoPorNome,
+        criadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        ativo: true,
+      };
+      if (vigenciaFimOpt !== undefined) {
+        payload.vigenciaFim = vigenciaFimOpt;
+      }
 
-    tx.set(newRef, payload);
-  });
+      tx.set(newRef, payload);
+    });
 
-  return { ok: true, metaId };
-});
+    return { ok: true, metaId };
+  },
+);

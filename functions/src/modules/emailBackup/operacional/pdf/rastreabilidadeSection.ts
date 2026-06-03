@@ -6,11 +6,7 @@ import {
   PAGE,
   safeBottomY,
 } from '../../services/pdf/layout';
-import type {
-  LotAlertCode,
-  LotLifecycleRecord,
-  OperacionalReport,
-} from '../types';
+import type { LotAlertCode, LotLifecycleRecord, OperacionalReport } from '../types';
 import {
   drawKpiGrid,
   drawSectionTitle,
@@ -56,11 +52,14 @@ function renderPageChrome(doc: PDFKit.PDFDocument, continuation: boolean): numbe
 }
 
 function rowForLot(record: LotLifecycleRecord): Record<string, string> {
-  const alertsPriority = record.alerts.reduce((acc, a) => {
-    if (a.severity === 'critical') return 'critical';
-    if (a.severity === 'warning' && acc !== 'critical') return 'warning';
-    return acc;
-  }, 'none' as 'critical' | 'warning' | 'none');
+  const alertsPriority = record.alerts.reduce(
+    (acc, a) => {
+      if (a.severity === 'critical') return 'critical';
+      if (a.severity === 'warning' && acc !== 'critical') return 'warning';
+      return acc;
+    },
+    'none' as 'critical' | 'warning' | 'none',
+  );
 
   const alertsLabel =
     record.alerts.length === 0
@@ -99,11 +98,7 @@ function renderLotTable(
     y = renderPageChrome(doc, true);
   }
 
-  doc
-    .font(Fonts.bold)
-    .fontSize(11)
-    .fillColor(COLOR.textPrimary)
-    .text(title, x, y, { width });
+  doc.font(Fonts.bold).fontSize(11).fillColor(COLOR.textPrimary).text(title, x, y, { width });
   y += 16;
 
   const columns: SimpleColumn[] = [
@@ -206,12 +201,11 @@ function renderAlertDetail(
         .font(Fonts.bold)
         .fontSize(FONT_SIZES.small)
         .fillColor(COLOR.textPrimary)
-        .text(
-          `${lot.nomeComercial} · Lote ${lot.lotNumber}`,
-          x + 140,
-          y + 4,
-          { width: width - 160, lineBreak: false, ellipsis: true },
-        );
+        .text(`${lot.nomeComercial} · Lote ${lot.lotNumber}`, x + 140, y + 4, {
+          width: width - 160,
+          lineBreak: false,
+          ellipsis: true,
+        });
 
       doc
         .font(Fonts.regular)

@@ -1,14 +1,14 @@
-'use client'
+'use client';
 
-import { useEffect, useState } from 'react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { Panel } from '@/components/ui/panel'
-import { AuditHistory } from './audit-history'
+import { useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Panel } from '@/components/ui/panel';
+import { AuditHistory } from './audit-history';
 
 const analytes = [
   { value: 'PT-INR', label: 'PT-INR' },
@@ -16,7 +16,7 @@ const analytes = [
   { value: 'Fibrinogen', label: 'Fibrinogen' },
   { value: 'TT', label: 'TT' },
   { value: 'D-Dimer', label: 'D-Dimer' },
-]
+];
 
 const lotFormSchema = z.object({
   lotNumber: z.string().min(1, 'Required'),
@@ -28,22 +28,22 @@ const lotFormSchema = z.object({
   sd: z.coerce.number().positive('Must be positive'),
   minAcceptance: z.coerce.number(),
   maxAcceptance: z.coerce.number(),
-})
+});
 
-type LotFormValues = z.infer<typeof lotFormSchema>
+type LotFormValues = z.infer<typeof lotFormSchema>;
 
 interface LotFormProps {
-  open: boolean
-  onClose: () => void
-  lot: any | null
-  analyzers: any[]
-  onSaved: (lot: any) => void
+  open: boolean;
+  onClose: () => void;
+  lot: any | null;
+  analyzers: any[];
+  onSaved: (lot: any) => void;
 }
 
 export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps) {
-  const isEdit = !!lot
-  const [saving, setSaving] = useState(false)
-  const [auditLogs, setAuditLogs] = useState<any[]>([])
+  const isEdit = !!lot;
+  const [saving, setSaving] = useState(false);
+  const [auditLogs, setAuditLogs] = useState<any[]>([]);
 
   const {
     register,
@@ -53,7 +53,7 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
   } = useForm<LotFormValues>({
     resolver: zodResolver(lotFormSchema),
     defaultValues: { level: 1 },
-  })
+  });
 
   useEffect(() => {
     if (lot) {
@@ -67,13 +67,13 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
         sd: Number(lot.sd),
         minAcceptance: Number(lot.minAcceptance),
         maxAcceptance: Number(lot.maxAcceptance),
-      })
+      });
       fetch(`/api/lots/${lot.id}/audit`)
         .then((r) => r.json())
         .then((res) => {
-          if (res.success) setAuditLogs(res.data)
+          if (res.success) setAuditLogs(res.data);
         })
-        .catch(() => {})
+        .catch(() => {});
     } else {
       reset({
         lotNumber: '',
@@ -85,47 +85,47 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
         sd: 0,
         minAcceptance: 0,
         maxAcceptance: 0,
-      })
-      setAuditLogs([])
+      });
+      setAuditLogs([]);
     }
-  }, [lot, reset])
+  }, [lot, reset]);
 
   const onSubmit = async (data: LotFormValues) => {
-    setSaving(true)
+    setSaving(true);
     try {
-      const url = isEdit ? `/api/lots/${lot.id}` : '/api/lots'
-      const method = isEdit ? 'PUT' : 'POST'
+      const url = isEdit ? `/api/lots/${lot.id}` : '/api/lots';
+      const method = isEdit ? 'PUT' : 'POST';
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (json.success) {
-        onSaved(json.data)
+        onSaved(json.data);
       }
     } catch {
       // Error handled silently – user can add toast later
     } finally {
-      setSaving(false)
+      setSaving(false);
     }
-  }
+  };
 
   const handleArchive = async () => {
-    if (!confirm('Archive this lot?')) return
+    if (!confirm('Archive this lot?')) return;
     try {
-      const res = await fetch(`/api/lots/${lot.id}/archive`, { method: 'POST' })
-      const json = await res.json()
-      if (json.success) onSaved(json.data)
+      const res = await fetch(`/api/lots/${lot.id}/archive`, { method: 'POST' });
+      const json = await res.json();
+      if (json.success) onSaved(json.data);
     } catch {
       // Error handled silently
     }
-  }
+  };
 
   const analyzerOptions = analyzers.map((a: any) => ({
     value: a.id,
     label: `${a.analyzerId} – ${a.model}`,
-  }))
+  }));
 
   const footer = (
     <>
@@ -136,7 +136,7 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
         Save
       </Button>
     </>
-  )
+  );
 
   return (
     <Panel
@@ -190,12 +190,7 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
             error={errors.targetMean?.message}
             {...register('targetMean')}
           />
-          <Input
-            label="SD"
-            className="font-mono"
-            error={errors.sd?.message}
-            {...register('sd')}
-          />
+          <Input label="SD" className="font-mono" error={errors.sd?.message} {...register('sd')} />
           <Input
             label="Min Acceptance"
             className="font-mono"
@@ -226,5 +221,5 @@ export function LotForm({ open, onClose, lot, analyzers, onSaved }: LotFormProps
         )}
       </div>
     </Panel>
-  )
+  );
 }

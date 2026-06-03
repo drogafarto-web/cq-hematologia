@@ -23,10 +23,7 @@ const RegisterAchadoInput = z.object({
     .max(500, 'Descrição não pode exceder 500 caracteres')
     .regex(/^[\w\s\p{L}\p{P}]+$/u, 'Descrição contém caracteres inválidos'),
   severidade: z.enum(['crítica', 'grave', 'moderada', 'leve', 'observação']),
-  evidencia: z
-    .string()
-    .max(2000, 'Evidência não pode exceder 2000 caracteres')
-    .optional(),
+  evidencia: z.string().max(2000, 'Evidência não pode exceder 2000 caracteres').optional(),
 });
 
 type RegisterAchadoInputType = z.infer<typeof RegisterAchadoInput>;
@@ -49,7 +46,7 @@ const UpdateChecklistResponseInput = z.object({
       resposta: z.enum(['conforme', 'não-conforme', 'N/A']),
       severidade: z.enum(['crítica', 'grave', 'moderada', 'leve', 'observação']).optional(),
       observacoes: z.string().optional(),
-    })
+    }),
   ),
 });
 
@@ -85,16 +82,23 @@ export const createAuditoria = onCall(
     if (!labId || !ano || !frequencia || !responsavelTecnico || !proximaAuditoriaPlanejada) {
       throw new HttpsError(
         'invalid-argument',
-        'Campos obrigatórios: labId, ano, frequencia, responsavelTecnico, proximaAuditoriaPlanejada'
+        'Campos obrigatórios: labId, ano, frequencia, responsavelTecnico, proximaAuditoriaPlanejada',
       );
     }
 
     const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
-    console.log('createAuditoria: uid:', request.auth.uid, 'isSuperAdmin:', isSuperAdmin, 'token:', request.auth.token);
-    
+    console.log(
+      'createAuditoria: uid:',
+      request.auth.uid,
+      'isSuperAdmin:',
+      isSuperAdmin,
+      'token:',
+      request.auth.token,
+    );
+
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
     console.log('createAuditoria: isMember:', isMember, 'labId:', labId);
-    
+
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -105,7 +109,7 @@ export const createAuditoria = onCall(
       if (ncCheck.blocked) {
         throw new HttpsError(
           'failed-precondition',
-          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo',
         );
       }
 
@@ -116,7 +120,7 @@ export const createAuditoria = onCall(
         frequencia,
         responsavelTecnico,
         proximaAuditoriaPlanejada: admin.firestore.Timestamp.fromDate(
-          new Date(proximaAuditoriaPlanejada)
+          new Date(proximaAuditoriaPlanejada),
         ),
         status: 'planejada',
         criadoEm: admin.firestore.Timestamp.now(),
@@ -136,7 +140,7 @@ export const createAuditoria = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao criar auditoria');
     }
-  }
+  },
 );
 
 /**
@@ -163,7 +167,7 @@ export const registerAchado = onCall(
     // Check lab membership
     const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, operatorId));
-    
+
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -172,7 +176,10 @@ export const registerAchado = onCall(
       // Check for blocking NCs
       const ncCheck = await checkNCs(input.labId, 'auditoria');
       if (ncCheck.blocked) {
-        throw new HttpsError('failed-precondition', ncCheck.message || 'Blocking NC prevents operation');
+        throw new HttpsError(
+          'failed-precondition',
+          ncCheck.message || 'Blocking NC prevents operation',
+        );
       }
 
       // Generate logical signature with deterministic canonical JSON
@@ -186,14 +193,9 @@ export const registerAchado = onCall(
       const sortedKeys = Object.keys(canonicalPayload).sort();
       const canonicalJson =
         '{' +
-        sortedKeys
-          .map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`)
-          .join(',') +
+        sortedKeys.map((k) => `"${k}":${JSON.stringify((canonicalPayload as any)[k])}`).join(',') +
         '}';
-      const hash = crypto
-        .createHash('sha256')
-        .update(canonicalJson)
-        .digest('hex');
+      const hash = crypto.createHash('sha256').update(canonicalJson).digest('hex');
 
       const assinatura: LogicalSignature = {
         hash,
@@ -204,7 +206,7 @@ export const registerAchado = onCall(
       // Create achado document
       const achadoRef = db
         .collection(
-          `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/achados`
+          `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/achados`,
         )
         .doc();
 
@@ -233,9 +235,7 @@ export const registerAchado = onCall(
 
         // If severity >= grave, auto-create NC in same transaction
         if (input.severidade === 'crítica' || input.severidade === 'grave') {
-          const ncRef = db
-            .collection(`labs/${input.labId}/naoConformidades`)
-            .doc();
+          const ncRef = db.collection(`labs/${input.labId}/naoConformidades`).doc();
 
           // Prepare NC data with deterministic signature
           const ncCanonical = {
@@ -248,14 +248,9 @@ export const registerAchado = onCall(
           const ncSortedKeys = Object.keys(ncCanonical).sort();
           const ncCanonicalJson =
             '{' +
-            ncSortedKeys
-              .map((k) => `"${k}":${JSON.stringify((ncCanonical as any)[k])}`)
-              .join(',') +
+            ncSortedKeys.map((k) => `"${k}":${JSON.stringify((ncCanonical as any)[k])}`).join(',') +
             '}';
-          const ncHash = crypto
-            .createHash('sha256')
-            .update(ncCanonicalJson)
-            .digest('hex');
+          const ncHash = crypto.createHash('sha256').update(ncCanonicalJson).digest('hex');
 
           const ncAssinatura: LogicalSignature = {
             hash: ncHash,
@@ -306,7 +301,7 @@ export const registerAchado = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Error registering achado');
     }
-  }
+  },
 );
 
 /**
@@ -329,7 +324,7 @@ export const installChecklistTemplate = onCall(
 
     const isSuperAdmin = !!request.auth.token.superAdmin;
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, request.auth.uid));
-    
+
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -343,12 +338,12 @@ export const installChecklistTemplate = onCall(
       if (!template.itens || template.itens.length === 0) {
         throw new HttpsError(
           'failed-precondition',
-          `Template has no items. Expected ~115 DICQ items.`
+          `Template has no items. Expected ~115 DICQ items.`,
         );
       }
       if (template.itens.length < 110) {
         console.warn(
-          `Template item count (${template.itens.length}) below expected ~115. Proceeding.`
+          `Template item count (${template.itens.length}) below expected ~115. Proceeding.`,
         );
       }
 
@@ -406,7 +401,7 @@ export const installChecklistTemplate = onCall(
           } catch (err: any) {
             throw new HttpsError(
               'internal',
-              `Batch commit failed at item ${itemsCount}: ${err.message}. Partial load possible — restart.`
+              `Batch commit failed at item ${itemsCount}: ${err.message}. Partial load possible — restart.`,
             );
           }
           batch = db.batch();
@@ -419,7 +414,7 @@ export const installChecklistTemplate = onCall(
       } catch (err: any) {
         throw new HttpsError(
           'internal',
-          `Final batch commit failed at item ${itemsCount}: ${err.message}`
+          `Final batch commit failed at item ${itemsCount}: ${err.message}`,
         );
       }
 
@@ -432,7 +427,7 @@ export const installChecklistTemplate = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Error installing template');
     }
-  }
+  },
 );
 
 /**
@@ -455,19 +450,21 @@ export const updateChecklistResponses = onCall(
 
     const isSuperAdmin = !!request.auth.token.superAdmin;
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(input.labId, request.auth.uid));
-    
+
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
 
     try {
       const batch = db.batch();
-      let conforme = 0, naoConforme = 0, na = 0;
+      let conforme = 0,
+        naoConforme = 0,
+        na = 0;
 
       for (const resp of input.responses) {
         const itemRef = db
           .collection(
-            `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/checklist-items`
+            `labs/${input.labId}/auditorias-internas/${input.auditoriaId}/sessoes/${input.sessaoId}/checklist-items`,
           )
           .doc(resp.itemId);
 
@@ -512,7 +509,7 @@ export const updateChecklistResponses = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message);
     }
-  }
+  },
 );
 
 /**
@@ -528,15 +525,12 @@ export const closeAuditoria = onCall(
     const { labId, auditoriaId } = request.data;
 
     if (!labId || !auditoriaId) {
-      throw new HttpsError(
-        'invalid-argument',
-        'Campos obrigatórios: labId, auditoriaId'
-      );
+      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, auditoriaId');
     }
 
     const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
-    
+
     if (!isMember) {
       throw new HttpsError('permission-denied', 'Not a lab member');
     }
@@ -557,5 +551,5 @@ export const closeAuditoria = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message);
     }
-  }
+  },
 );

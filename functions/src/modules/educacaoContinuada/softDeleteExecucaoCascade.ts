@@ -62,35 +62,22 @@ export const ec_softDeleteExecucaoCascade = onCall<unknown, Promise<Result>>(
       throw new HttpsError('not-found', 'Execução não encontrada.');
     }
     if (execSnap.data()?.['deletadoEm'] !== null) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Execução já está arquivada.',
-      );
+      throw new HttpsError('failed-precondition', 'Execução já está arquivada.');
     }
 
     // Buscar dependentes em paralelo
     const [participantesSnap, eficaciaSnap, competenciaSnap] = await Promise.all([
-      ecCollection(db, labId, 'participantes')
-        .where('execucaoId', '==', execucaoId)
-        .get(),
-      ecCollection(db, labId, 'avaliacoesEficacia')
-        .where('execucaoId', '==', execucaoId)
-        .get(),
-      ecCollection(db, labId, 'avaliacoesCompetencia')
-        .where('execucaoId', '==', execucaoId)
-        .get(),
+      ecCollection(db, labId, 'participantes').where('execucaoId', '==', execucaoId).get(),
+      ecCollection(db, labId, 'avaliacoesEficacia').where('execucaoId', '==', execucaoId).get(),
+      ecCollection(db, labId, 'avaliacoesCompetencia').where('execucaoId', '==', execucaoId).get(),
     ]);
 
     // Filtrar só os ainda não arquivados (idempotente — re-run seguro)
     const participantesAtivos = participantesSnap.docs.filter(
       (d) => d.data()?.['deletadoEm'] === null,
     );
-    const eficaciaAtivas = eficaciaSnap.docs.filter(
-      (d) => d.data()?.['deletadoEm'] === null,
-    );
-    const competenciaAtivas = competenciaSnap.docs.filter(
-      (d) => d.data()?.['deletadoEm'] === null,
-    );
+    const eficaciaAtivas = eficaciaSnap.docs.filter((d) => d.data()?.['deletadoEm'] === null);
+    const competenciaAtivas = competenciaSnap.docs.filter((d) => d.data()?.['deletadoEm'] === null);
 
     const totalWrites = 1 + participantesAtivos.length;
     if (totalWrites > 500) {

@@ -26,7 +26,12 @@ function formatKpiDate(data: KPIDaily['data'] | undefined): string {
   if (data instanceof Timestamp) {
     return data.toDate().toLocaleDateString('pt-BR');
   }
-  if (typeof data === 'object' && data !== null && 'toDate' in data && typeof (data as Timestamp).toDate === 'function') {
+  if (
+    typeof data === 'object' &&
+    data !== null &&
+    'toDate' in data &&
+    typeof (data as Timestamp).toDate === 'function'
+  ) {
     return (data as Timestamp).toDate().toLocaleDateString('pt-BR');
   }
   return '—';
@@ -103,7 +108,8 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
 
   const kpiErr = kpiError?.message ?? null;
   const alertsErr = alertsError?.message ?? null;
-  const metasErr = metasError instanceof Error ? metasError.message : metasError ? String(metasError) : null;
+  const metasErr =
+    metasError instanceof Error ? metasError.message : metasError ? String(metasError) : null;
 
   const dataLabel = useMemo(() => formatKpiDate(kpi?.data), [kpi?.data]);
 
@@ -141,10 +147,15 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
 
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Turnaround</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">
+            Turnaround
+          </div>
           <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
             {kpiLoading ? (
-              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+              <span
+                className="inline-block h-9 w-20 animate-pulse rounded bg-white/10"
+                aria-hidden
+              />
             ) : (
               `${kpi?.turnaround_media_horas?.toFixed(1) ?? '—'}h`
             )}
@@ -166,10 +177,15 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
         </div>
 
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Retrabalho</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">
+            Retrabalho
+          </div>
           <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
             {kpiLoading ? (
-              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+              <span
+                className="inline-block h-9 w-20 animate-pulse rounded bg-white/10"
+                aria-hidden
+              />
             ) : (
               `${kpi?.retrabalho_percentual?.toFixed(1) ?? '—'}%`
             )}
@@ -189,10 +205,15 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
         </div>
 
         <div className="rounded-lg border border-white/10 bg-white/[0.03] p-4">
-          <div className="text-xs font-medium uppercase tracking-wide text-white/45">Documentação</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-white/45">
+            Documentação
+          </div>
           <div className="mt-2 text-3xl font-semibold tabular-nums tracking-tight text-white">
             {kpiLoading ? (
-              <span className="inline-block h-9 w-20 animate-pulse rounded bg-white/10" aria-hidden />
+              <span
+                className="inline-block h-9 w-20 animate-pulse rounded bg-white/10"
+                aria-hidden
+              />
             ) : (
               `${kpi?.documentacao_percentual?.toFixed(1) ?? '—'}%`
             )}
@@ -212,9 +233,7 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
         </div>
       </div>
 
-      {metasLoading ? (
-        <p className="mt-4 text-xs text-white/40">Carregando metas…</p>
-      ) : null}
+      {metasLoading ? <p className="mt-4 text-xs text-white/40">Carregando metas…</p> : null}
 
       {!alertsLoading && alerts.length > 0 ? (
         <div className="mt-6 border-t border-white/10 pt-6">
@@ -236,9 +255,13 @@ export function KPIDashboard({ labId }: KPIDashboardProps): ReactElement {
                   aria-hidden
                 />
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm font-medium text-white">{ALERT_TIPO_LABEL[alert.tipo]}</div>
+                  <div className="text-sm font-medium text-white">
+                    {ALERT_TIPO_LABEL[alert.tipo]}
+                  </div>
                   <div className="mt-0.5 text-xs text-white/55">{alert.mensagem}</div>
-                  <div className="mt-1 text-[11px] tabular-nums text-white/35">{formatAlertTime(alert.acionada_em)}</div>
+                  <div className="mt-1 text-[11px] tabular-nums text-white/35">
+                    {formatAlertTime(alert.acionada_em)}
+                  </div>
                 </div>
               </div>
             ))}

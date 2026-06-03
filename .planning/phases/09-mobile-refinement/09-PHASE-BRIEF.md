@@ -14,6 +14,7 @@
 Transform the Phase 3.3 mobile scaffold (NativeWind dark theme, biometric auth, Detox E2E 5 flows) into production-ready, performant, extensively tested mobile app. Achieve dark mode 100% coverage, biometric auth + PIN fallback fully functional, bundle <10MB, startup <2s, and 20+ E2E critical flow coverage.
 
 **Success criteria:**
+
 - Dark mode applied to 100% of screens (no light components visible)
 - Biometric auth fully integrated with PIN fallback (device lockout protection)
 - App bundle ≤10MB (gzipped APK)
@@ -27,14 +28,15 @@ Transform the Phase 3.3 mobile scaffold (NativeWind dark theme, biometric auth, 
 
 ## Plans at a Glance
 
-| Plan | Focus | Wave | Key Deliverables | Tests | Est. Context |
-|------|-------|------|------------------|-------|--------------|
-| **09-01** | Dark mode audit + component fixes | 1 | Screen audit, dark variants, test coverage | Visual + unit | 20% |
-| **09-02** | Biometric + PIN fallback + secure storage | 1 | Face ID/fingerprint detect, PIN entry form, keychain integration, error handling | 8 E2E flows | 25% |
-| **09-03** | Bundle optimization + performance | 2 | Code-split routes, lazy load images, tree-shake, metrics baseline | Performance tests | 20% |
-| **09-04** | E2E expansion + CI + offline mode | 2 | 20+ Detox flows, offline read-only mode, CI integration, performance E2E | Detox suite + metrics | 25% |
+| Plan      | Focus                                     | Wave | Key Deliverables                                                                 | Tests                 | Est. Context |
+| --------- | ----------------------------------------- | ---- | -------------------------------------------------------------------------------- | --------------------- | ------------ |
+| **09-01** | Dark mode audit + component fixes         | 1    | Screen audit, dark variants, test coverage                                       | Visual + unit         | 20%          |
+| **09-02** | Biometric + PIN fallback + secure storage | 1    | Face ID/fingerprint detect, PIN entry form, keychain integration, error handling | 8 E2E flows           | 25%          |
+| **09-03** | Bundle optimization + performance         | 2    | Code-split routes, lazy load images, tree-shake, metrics baseline                | Performance tests     | 20%          |
+| **09-04** | E2E expansion + CI + offline mode         | 2    | 20+ Detox flows, offline read-only mode, CI integration, performance E2E         | Detox suite + metrics | 25%          |
 
 **Dependency structure:**
+
 - Plan 09-01 and 09-02 → Wave 1 (parallel, different concerns)
 - Plan 09-03 and 09-04 → Wave 2 (depend on Wave 1 baseline)
 
@@ -43,13 +45,15 @@ Transform the Phase 3.3 mobile scaffold (NativeWind dark theme, biometric auth, 
 ## Plan 09-01: Dark Mode — Audit + Full Coverage
 
 ### Goal
+
 Audit all mobile screens (26 screens) for dark mode compliance. Fix light-mode leakage, apply dark-first design system (tokens, colors, spacing). 100% coverage validated via component visual tests.
 
 ### Tasks
 
 #### Task 1: Component Audit + Dark Mode Gap Analysis
+
 - **Files affected:** `src/screens/**`, `src/components/**`, `src/theme/`
-- **Action:** 
+- **Action:**
   1. Screenshot each of 26 screens in dark mode (emulator)
   2. Catalog any light backgrounds, white text, low-contrast combinations
   3. Generate audit report (markdown table: screen name, component, issue, fix priority)
@@ -59,6 +63,7 @@ Audit all mobile screens (26 screens) for dark mode compliance. Fix light-mode l
 - **Done:** All 26 screens visually verified dark-only. No light mode CSS escapes. darkTheme.ts complete.
 
 #### Task 2: Dark Mode Component Fix + Apply Tokens
+
 - **Files affected:** `src/screens/*.tsx` (all 26), `src/components/*.tsx`, `src/hooks/useDarkMode.ts`
 - **Action:**
   1. For each screen with dark mode issues (from Task 1 audit):
@@ -72,6 +77,7 @@ Audit all mobile screens (26 screens) for dark mode compliance. Fix light-mode l
 - **Done:** All components use tokens. Dark mode passes visual regression on all 26 screens.
 
 #### Task 3: Visual Regression Tests (Dark Mode Coverage)
+
 - **Files affected:** `src/__tests__/screens/darkMode.test.ts`, `src/__tests__/components/darkMode.test.ts`
 - **Action:**
   1. Create Jest visual snapshot tests for 8–10 critical screens (HomeScreen, CIQScreen, NCDetailScreen, ReadingsScreen, etc.)
@@ -87,11 +93,13 @@ Audit all mobile screens (26 screens) for dark mode compliance. Fix light-mode l
 ## Plan 09-02: Biometric + PIN Fallback + Secure Storage
 
 ### Goal
+
 Complete biometric authentication (Face ID + Fingerprint detection, fallback to PIN) with secure storage, error handling, and device lockout protection. Full E2E coverage of auth flows (success, fallback, retry, lockout).
 
 ### Tasks
 
 #### Task 1: Biometric Detection + Device Lockout + PIN Entry Form
+
 - **Files affected:** `src/hooks/useBiometricAuth.ts` (enhance), `src/screens/AuthScreen.tsx`, `src/components/PINForm.tsx` (new)
 - **Action:**
   1. Enhance `useBiometricAuth()` to detect:
@@ -106,13 +114,13 @@ Complete biometric authentication (Face ID + Fingerprint detection, fallback to 
      - Auto-focus next input on digit entry
      - Show biometric button if available
      - Show "Forgot PIN?" → contact flow (out of scope, just UI placeholder)
-  4. AuthScreen: 
+  4. AuthScreen:
      - Button "Autenticar com {biometricLabel}" if biometric available and enabled
      - On tap: prompt biometric via `useBiometricAuth().promptBiometric()`
      - On fallback (method='pin'): show PINForm
      - On success: setAuthToken + navigate to HomeScreen
   5. Commit: `feat(mobile): biometric detection + PIN fallback + lockout`
-- **Verify:** 
+- **Verify:**
   - `promptBiometric()` returns correct method ('biometric' | 'pin' | 'none')
   - PINForm accepts 6 digits, masks display, auto-focuses
   - 5 failed PINs trigger 5-min lockout (test with mocked time)
@@ -120,6 +128,7 @@ Complete biometric authentication (Face ID + Fingerprint detection, fallback to 
 - **Done:** AuthScreen handles biometric + PIN. Lockout protection active.
 
 #### Task 2: Secure Storage (Keychain/SecureStore)
+
 - **Files affected:** `src/services/secureStorageService.ts` (new), `src/hooks/useAuthPersistence.ts` (update)
 - **Action:**
   1. Install `react-native-keychain` (iOS Keychain + Android Credential Manager):
@@ -142,6 +151,7 @@ Complete biometric authentication (Face ID + Fingerprint detection, fallback to 
 - **Done:** Firebase JWT stored in OS Keychain. Auto-login on app resume works.
 
 #### Task 3: Error Handling + Biometric Fallback Edge Cases
+
 - **Files affected:** `src/screens/AuthScreen.tsx`, `src/components/ErrorBoundary.tsx` (if new), `src/hooks/useBiometricAuth.ts`
 - **Action:**
   1. Handle biometric platform errors:
@@ -163,6 +173,7 @@ Complete biometric authentication (Face ID + Fingerprint detection, fallback to 
 - **Done:** Auth flow resilient. All error paths tested.
 
 #### Task 4: Biometric Auth E2E Tests (8 flows)
+
 - **Files affected:** `e2e/flows/auth.biometric.e2e.ts`, `e2e/flows/auth.lockout.e2e.ts`, `e2e/flows/auth.secure-storage.e2e.ts`
 - **Action:**
   1. Create Detox E2E flows:
@@ -184,11 +195,13 @@ Complete biometric authentication (Face ID + Fingerprint detection, fallback to 
 ## Plan 09-03: Bundle Optimization + Performance Baseline
 
 ### Goal
+
 Reduce APK size to <10MB (gzipped), achieve startup <2s cold start, LCP <1.5s on device. Establish performance baseline metrics (bundle breakdown, execution time, memory usage).
 
 ### Tasks
 
 #### Task 1: Bundle Analysis + Code-Split Routes
+
 - **Files affected:** `vite.config.ts` (if applicable, or Webpack config), `src/navigation/RootNavigator.tsx`, build output
 - **Action:**
   1. Run bundle analyzer:
@@ -212,6 +225,7 @@ Reduce APK size to <10MB (gzipped), achieve startup <2s cold start, LCP <1.5s on
 - **Done:** APK ≤10MB gzipped. Bundle analyzer report committed.
 
 #### Task 2: Performance Metrics Baseline + Startup Time
+
 - **Files affected:** `src/core/performance.ts` (new), `App.tsx`, `src/screens/SplashScreen.tsx` (if new)
 - **Action:**
   1. Create performance measurement utilities:
@@ -235,6 +249,7 @@ Reduce APK size to <10MB (gzipped), achieve startup <2s cold start, LCP <1.5s on
 - **Done:** Baseline metrics established. Thresholds set for future phases.
 
 #### Task 3: Image Optimization + Lazy Load
+
 - **Files affected:** `src/components/CIQCard.tsx`, `src/components/NCCard.tsx`, any image-heavy screens
 - **Action:**
   1. Audit all `<Image>` usage (grep `from 'react-native'`):
@@ -255,6 +270,7 @@ Reduce APK size to <10MB (gzipped), achieve startup <2s cold start, LCP <1.5s on
 - **Done:** Images optimized. No layout shift on load.
 
 #### Task 4: Performance Tests (Jest)
+
 - **Files affected:** `src/__tests__/performance.test.ts`
 - **Action:**
   1. Create Jest performance test suite:
@@ -272,11 +288,13 @@ Reduce APK size to <10MB (gzipped), achieve startup <2s cold start, LCP <1.5s on
 ## Plan 09-04: E2E Expansion (20+ flows) + Offline Mode + CI Integration
 
 ### Goal
+
 Expand Detox E2E suite from 5 flows to 20+, covering critical user journeys, edge cases, and error scenarios. Implement offline mode (read-only access to cached data). Integrate Detox into CI pipeline (GitHub Actions).
 
 ### Tasks
 
 #### Task 1: E2E Flow Expansion (20+ Detox flows)
+
 - **Files affected:** `e2e/flows/*.e2e.ts`, `e2e/.detoxrc.js`
 - **Action:**
   1. Catalog all critical user journeys (from Phase 3.3 baseline, add new):
@@ -301,6 +319,7 @@ Expand Detox E2E suite from 5 flows to 20+, covering critical user journeys, edg
 - **Done:** 20+ E2E flows automated. CI gate active.
 
 #### Task 2: Offline Mode (Read-Only Cache)
+
 - **Files affected:** `src/hooks/useOfflineMode.ts` (new), `src/screens/HomeScreen.tsx`, `src/components/OfflineIndicator.tsx` (enhance)
 - **Action:**
   1. Create `useOfflineMode()` hook:
@@ -324,6 +343,7 @@ Expand Detox E2E suite from 5 flows to 20+, covering critical user journeys, edg
 - **Done:** Offline mode functional (read-only). Sync queue implemented.
 
 #### Task 3: Performance E2E Tests (Latency + Memory)
+
 - **Files affected:** `e2e/flows/performance.e2e.ts`
 - **Action:**
   1. Create performance E2E flows:
@@ -342,6 +362,7 @@ Expand Detox E2E suite from 5 flows to 20+, covering critical user journeys, edg
 - **Done:** Performance E2E automated. Regressions caught.
 
 #### Task 4: CI Integration + Deploy Gate
+
 - **Files affected:** `.github/workflows/mobile-e2e.yml`, `scripts/mobile-deploy-gate.sh` (new)
 - **Action:**
   1. GitHub Actions workflow (`.github/workflows/mobile-e2e.yml`):
@@ -381,28 +402,28 @@ Expand Detox E2E suite from 5 flows to 20+, covering critical user journeys, edg
 
 ## Performance Targets
 
-| Metric | Target | Baseline | Phase 9 Goal | Hard Limit |
-|--------|--------|----------|--------------|-----------|
-| **APK Size (gzip)** | <10 MB | ~12 MB (Phase 3.3) | 9.5 MB | 12 MB |
-| **Startup Time** | <2s | ~2.5s (Phase 3.3) | <2s | 2.5s |
-| **LCP (1st paint)** | <1.5s | ~1.8s (Phase 3.3) | <1.5s | 2.0s |
-| **Memory (launch)** | <200 MB | ~220 MB | <200 MB | 250 MB |
-| **Memory (no leak)** | Stable after 5 nav cycles | +15 MB leak | Stable (±5 MB) | <10 MB leak |
-| **Screen nav latency** | <500ms | ~600ms | <500ms | 800ms |
-| **E2E duration** | <10 min total | N/A (Phase 3.3: 5 flows) | <10 min (20 flows) | 15 min |
+| Metric                 | Target                    | Baseline                 | Phase 9 Goal       | Hard Limit  |
+| ---------------------- | ------------------------- | ------------------------ | ------------------ | ----------- |
+| **APK Size (gzip)**    | <10 MB                    | ~12 MB (Phase 3.3)       | 9.5 MB             | 12 MB       |
+| **Startup Time**       | <2s                       | ~2.5s (Phase 3.3)        | <2s                | 2.5s        |
+| **LCP (1st paint)**    | <1.5s                     | ~1.8s (Phase 3.3)        | <1.5s              | 2.0s        |
+| **Memory (launch)**    | <200 MB                   | ~220 MB                  | <200 MB            | 250 MB      |
+| **Memory (no leak)**   | Stable after 5 nav cycles | +15 MB leak              | Stable (±5 MB)     | <10 MB leak |
+| **Screen nav latency** | <500ms                    | ~600ms                   | <500ms             | 800ms       |
+| **E2E duration**       | <10 min total             | N/A (Phase 3.3: 5 flows) | <10 min (20 flows) | 15 min      |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **Dark mode incomplete** | Low (2/10) | Medium (4/10) — user sees white components | Task 1 audit catches all screens; snapshot tests verify |
-| **Biometric flakiness** | Medium (4/10) | Low-Medium (3/10) — fallback to PIN works | PIN is always available fallback; error handling tested |
-| **APK size creep** | Medium (4/10) | High (6/10) — exceeds app store limits | Bundle analyzer + code-split prevent; CI gate enforces |
-| **E2E flakiness** | Medium (4/10) | Medium (4/10) — unreliable CI gates | Detox waits properly; emulator performance stable; retry on timeout |
-| **Memory leak** | Low (2/10) | High (6/10) — app crashes on device | Memory profiling in Phase 3.3 baseline; perf tests catch |
-| **Startup regression** | Low (2/10) | Medium (4/10) — poor UX | Metrics tracked in Task 2; CI gate enforces |
+| Risk                     | Likelihood    | Impact                                     | Mitigation                                                          |
+| ------------------------ | ------------- | ------------------------------------------ | ------------------------------------------------------------------- |
+| **Dark mode incomplete** | Low (2/10)    | Medium (4/10) — user sees white components | Task 1 audit catches all screens; snapshot tests verify             |
+| **Biometric flakiness**  | Medium (4/10) | Low-Medium (3/10) — fallback to PIN works  | PIN is always available fallback; error handling tested             |
+| **APK size creep**       | Medium (4/10) | High (6/10) — exceeds app store limits     | Bundle analyzer + code-split prevent; CI gate enforces              |
+| **E2E flakiness**        | Medium (4/10) | Medium (4/10) — unreliable CI gates        | Detox waits properly; emulator performance stable; retry on timeout |
+| **Memory leak**          | Low (2/10)    | High (6/10) — app crashes on device        | Memory profiling in Phase 3.3 baseline; perf tests catch            |
+| **Startup regression**   | Low (2/10)    | Medium (4/10) — poor UX                    | Metrics tracked in Task 2; CI gate enforces                         |
 
 ---
 
@@ -422,30 +443,30 @@ Wave 2 (Depends on Wave 1):
 
 ## Success Criteria
 
-| Criterion | Measurement | Target |
-|-----------|-------------|--------|
-| **Dark mode coverage** | All 26 screens audit + visual test | 100% ✓ |
-| **Biometric auth** | 8 E2E flows + lockout + secure storage | ✓ All green |
-| **Bundle size** | `ls -lh app-release.apk.gz` | ≤10MB ✓ |
-| **Startup time** | Measure from app launch to HomeScreen visible | <2s ✓ |
-| **LCP** | Measure time to first meaningful paint | <1.5s ✓ |
-| **Memory** | Emulator Profiler after 5 nav cycles | <200MB + stable ✓ |
-| **E2E coverage** | Detox flow count | 20+ ✓ |
-| **E2E pass rate** | CI workflow green | 100% ✓ |
-| **Offline mode** | Read-only cache + sync queue | ✓ Functional |
-| **Zero critical regressions** | Baseline performance tests | 100% pass ✓ |
+| Criterion                     | Measurement                                   | Target            |
+| ----------------------------- | --------------------------------------------- | ----------------- |
+| **Dark mode coverage**        | All 26 screens audit + visual test            | 100% ✓            |
+| **Biometric auth**            | 8 E2E flows + lockout + secure storage        | ✓ All green       |
+| **Bundle size**               | `ls -lh app-release.apk.gz`                   | ≤10MB ✓           |
+| **Startup time**              | Measure from app launch to HomeScreen visible | <2s ✓             |
+| **LCP**                       | Measure time to first meaningful paint        | <1.5s ✓           |
+| **Memory**                    | Emulator Profiler after 5 nav cycles          | <200MB + stable ✓ |
+| **E2E coverage**              | Detox flow count                              | 20+ ✓             |
+| **E2E pass rate**             | CI workflow green                             | 100% ✓            |
+| **Offline mode**              | Read-only cache + sync queue                  | ✓ Functional      |
+| **Zero critical regressions** | Baseline performance tests                    | 100% pass ✓       |
 
 ---
 
 ## Effort Breakdown (per plan)
 
-| Plan | Context Cost | Effort | Owner | Duration |
-|------|--------------|--------|-------|----------|
-| **09-01** | ~20% | Component audit + fixes + tests | Mobile Lead | 3 days |
-| **09-02** | ~25% | Biometric + PIN + keychain + E2E | Mobile Lead | 4 days |
-| **09-03** | ~20% | Bundle analysis + optimization + metrics | DevOps + Mobile | 3 days |
-| **09-04** | ~25% | E2E expansion + offline + CI | QA Lead | 4 days |
-| **Total** | ~90% | Parallel waves (W1 3.5d, W2 4d) | 2 FTE | 7–8 days wall-clock |
+| Plan      | Context Cost | Effort                                   | Owner           | Duration            |
+| --------- | ------------ | ---------------------------------------- | --------------- | ------------------- |
+| **09-01** | ~20%         | Component audit + fixes + tests          | Mobile Lead     | 3 days              |
+| **09-02** | ~25%         | Biometric + PIN + keychain + E2E         | Mobile Lead     | 4 days              |
+| **09-03** | ~20%         | Bundle analysis + optimization + metrics | DevOps + Mobile | 3 days              |
+| **09-04** | ~25%         | E2E expansion + offline + CI             | QA Lead         | 4 days              |
+| **Total** | ~90%         | Parallel waves (W1 3.5d, W2 4d)          | 2 FTE           | 7–8 days wall-clock |
 
 ---
 

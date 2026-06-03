@@ -10,14 +10,14 @@
 
 ## 1. Pre-Monitoring Setup
 
-| Setting | Value |
-|---------|-------|
-| **GCP Project** | `hmatologia2` |
-| **Region** | `southamerica-east1` |
-| **Monitoring Interval** | 24h continuous or 30-min spot-checks |
-| **Alert Threshold** | Any `ERROR` or `EXCEPTION` severity |
-| **Expected Error Rate** | <5 errors per 10,000 invocations |
-| **BLOCK Threshold** | Any unhandled exception + `severity=ERROR` on `/labs/*` paths |
+| Setting                 | Value                                                         |
+| ----------------------- | ------------------------------------------------------------- |
+| **GCP Project**         | `hmatologia2`                                                 |
+| **Region**              | `southamerica-east1`                                          |
+| **Monitoring Interval** | 24h continuous or 30-min spot-checks                          |
+| **Alert Threshold**     | Any `ERROR` or `EXCEPTION` severity                           |
+| **Expected Error Rate** | <5 errors per 10,000 invocations                              |
+| **BLOCK Threshold**     | Any unhandled exception + `severity=ERROR` on `/labs/*` paths |
 
 ### Prerequisites
 
@@ -33,12 +33,14 @@
 ### Phase 4 — NOTIVISA Sandbox Integration (May 20)
 
 **Functions to Monitor:**
+
 - `submitNotivisaDraft()` (callable) — client submits draft to NOTIVISA sandbox
 - `processNotivisaQueueScheduled()` (scheduled, 5-min interval) — polls queue, enqueues submissions
 - `notivisaWorker()` (Pub/Sub) — processes NOTIVISA API calls to ANVISA sandbox
 - `manuallyRetryNotivisaCallable()` (callable) — admin-triggered retry
 
 **Red Flags:**
+
 ```
 severity=ERROR AND (
   resource.labels.function_name=~"notivisa.*"
@@ -47,6 +49,7 @@ severity=ERROR AND (
 ```
 
 **Expected Behavior:**
+
 - `submitNotivisaDraft()` returns `{ draftId, status: 'PENDING' }` <500ms
 - `processNotivisaQueueScheduled()` runs every 5 min, 0 errors
 - `notivisaWorker()` logs `DELIVERED` or `FAILED_TEMP` (never silent failure)
@@ -54,6 +57,7 @@ severity=ERROR AND (
 - Idempotent resubmissions: if `anvisa_protocol_id` exists, skip retry
 
 **Firestore Collections to Inspect:**
+
 ```
 gcloud logging read "resource.type='cloud_firestore' AND jsonPayload.collectionName=~'notivisa-.*'" \
   --project=hmatologia2 --limit=50 --format=json
@@ -64,12 +68,14 @@ gcloud logging read "resource.type='cloud_firestore' AND jsonPayload.collectionN
 ### Phase 5 — Advanced Audit Trail (June 15)
 
 **Functions to Monitor:**
+
 - `recordAuditDiff()` (callable) — captures cross-collection diff on writes
 - `captureContextSnapshot()` (trigger) — async context capture (compliance snapshot)
 - `queryAuditTrailByDateRange()` (callable) — auditor-triggered range queries
 - `generateAuditReport()` (callable) — PDF/CSV export for RDC 978 5.3 compliance
 
 **Red Flags:**
+
 ```
 severity=ERROR AND (
   resource.labels.function_name=~"audit.*"
@@ -79,12 +85,14 @@ severity=ERROR AND (
 ```
 
 **Expected Behavior:**
+
 - `recordAuditDiff()` captures before/after snapshots, calculates hash in <100ms
 - Audit documents immutable: no updates after creation
 - Context snapshots async, latency <2s behind write
 - Export functions complete <30s (P99)
 
 **Firestore Collections to Inspect:**
+
 ```
 gcloud logging read "resource.type='cloud_firestore' AND jsonPayload.collectionName=~'.*auditLog.*'" \
   --project=hmatologia2 --limit=100 --format=json
@@ -95,12 +103,14 @@ gcloud logging read "resource.type='cloud_firestore' AND jsonPayload.collectionN
 ### Phase 6–9 — Critical Values, Patient Portal, Analytics Scaling (July–September)
 
 **Functions to Monitor:**
+
 - `escalateCriticalResult()` (callable) — triggers on-call escalation (Phase 6)
 - `generatePatientAuthToken()` (callable) — HMAC email link generation (Phase 7)
 - `bulkExportAnalyticsSnapshot()` (scheduled, 30-min interval) — aggregates KPI data (Phase 8)
 - `detectAnomalies()` (scheduled, hourly) — ML-based QC chart anomaly detection (Phase 9)
 
 **Red Flags:**
+
 ```
 severity=ERROR AND (
   resource.labels.function_name=~"critical|escalate|patient|analytics|anomaly"
@@ -111,6 +121,7 @@ severity=ERROR AND (
 ```
 
 **Expected Behavior:**
+
 - Critical value escalation: <5s end-to-end (from result write to email sent)
 - Patient token generation: <200ms, no HMAC collision
 - Analytics snapshots: batch <2GB Firestore read quota per cycle
@@ -122,14 +133,14 @@ severity=ERROR AND (
 
 ### Cloud Console Quick Access
 
-| Resource Type | Filter Query | Bookmark |
-|---|---|---|
-| **All Errors (Last Hour)** | `severity >= ERROR AND timestamp > now - 60m` | ⭐ Most common |
-| **Cloud Functions Only** | `resource.type="cloud_function" AND severity >= ERROR` | Phase 4–9 focus |
-| **Firestore Rules Rejections** | `resource.type="cloud_firestore" AND textPayload=~"Permission"` | Rules regression detection |
-| **Hosting 5xx Errors** | `resource.type="cloud_run" AND httpRequest.status >= 500` | Availability |
-| **Function Timeouts** | `resource.type="cloud_function" AND textPayload=~"Exceeded timeout"` | Async/heavy workload issues |
-| **Pub/Sub Dead-Letter** | `resource.type="cloud_pubsub" AND severity >= WARNING` | Queue backlog warning |
+| Resource Type                  | Filter Query                                                         | Bookmark                    |
+| ------------------------------ | -------------------------------------------------------------------- | --------------------------- |
+| **All Errors (Last Hour)**     | `severity >= ERROR AND timestamp > now - 60m`                        | ⭐ Most common              |
+| **Cloud Functions Only**       | `resource.type="cloud_function" AND severity >= ERROR`               | Phase 4–9 focus             |
+| **Firestore Rules Rejections** | `resource.type="cloud_firestore" AND textPayload=~"Permission"`      | Rules regression detection  |
+| **Hosting 5xx Errors**         | `resource.type="cloud_run" AND httpRequest.status >= 500`            | Availability                |
+| **Function Timeouts**          | `resource.type="cloud_function" AND textPayload=~"Exceeded timeout"` | Async/heavy workload issues |
+| **Pub/Sub Dead-Letter**        | `resource.type="cloud_pubsub" AND severity >= WARNING`               | Queue backlog warning       |
 
 ### Firestore Index Monitoring
 
@@ -143,16 +154,16 @@ gcloud logging read "resource.type='cloud_firestore' AND textPayload=~'.*index.*
 
 ## 4. Common Issues & Troubleshooting (Phase 4–9 Edition)
 
-| Symptom | Log Signature | Root Cause | Resolution | Phase |
-|---------|---|---|---|---|
-| NOTIVISA submissions hang | `notivisaWorker` 0 output for >10 min | ANVISA API timeout or network issue | Check ANVISA sandbox status + increase Pub/Sub retry; escalate if >2h | 4 |
-| Audit trail gaps | `recordAuditDiff` skipped docs | Callable error (not logged) | Check Cloud Function trace logs; ensure context snapshot succeeds | 5 |
-| Patient portal login 401 | `generatePatientAuthToken` returns error | HMAC mismatch or salt rotation | Verify `SECRET_PATIENT_AUTH_HMAC` provisioned; check token TTL | 7 |
-| KPI dashboard stale | `bulkExportAnalyticsSnapshot` delayed >30 min | Firestore quota exceeded or network backoff | Reduce aggregation window; increase read quota allocation | 8 |
-| False positive anomalies | `detectAnomalies` flags normal variance | Model drift (retraining needed) | Review last N chart points manually; retrain baseline | 9 |
-| Function cold-start latency spike | `duration_ms` >5s on first invoke | Expected on new version deploy | Not an error; caches warm after 30s; do not retry |  |
-| Permission denied on `/labs/{labId}/*` | `textPayload=~"Permission"` | Rules mismatch or user not active | Check Firestore rules git diff; verify user in `labs/{labId}/members` | Any |
-| Document too large (>1 MB) | `textPayload=~"Document exceeds max size"` | Audit trail or diff payload bloat | Split document or implement soft-limit on nested arrays | 5 |
+| Symptom                                | Log Signature                                 | Root Cause                                  | Resolution                                                            | Phase |
+| -------------------------------------- | --------------------------------------------- | ------------------------------------------- | --------------------------------------------------------------------- | ----- |
+| NOTIVISA submissions hang              | `notivisaWorker` 0 output for >10 min         | ANVISA API timeout or network issue         | Check ANVISA sandbox status + increase Pub/Sub retry; escalate if >2h | 4     |
+| Audit trail gaps                       | `recordAuditDiff` skipped docs                | Callable error (not logged)                 | Check Cloud Function trace logs; ensure context snapshot succeeds     | 5     |
+| Patient portal login 401               | `generatePatientAuthToken` returns error      | HMAC mismatch or salt rotation              | Verify `SECRET_PATIENT_AUTH_HMAC` provisioned; check token TTL        | 7     |
+| KPI dashboard stale                    | `bulkExportAnalyticsSnapshot` delayed >30 min | Firestore quota exceeded or network backoff | Reduce aggregation window; increase read quota allocation             | 8     |
+| False positive anomalies               | `detectAnomalies` flags normal variance       | Model drift (retraining needed)             | Review last N chart points manually; retrain baseline                 | 9     |
+| Function cold-start latency spike      | `duration_ms` >5s on first invoke             | Expected on new version deploy              | Not an error; caches warm after 30s; do not retry                     |       |
+| Permission denied on `/labs/{labId}/*` | `textPayload=~"Permission"`                   | Rules mismatch or user not active           | Check Firestore rules git diff; verify user in `labs/{labId}/members` | Any   |
+| Document too large (>1 MB)             | `textPayload=~"Document exceeds max size"`    | Audit trail or diff payload bloat           | Split document or implement soft-limit on nested arrays               | 5     |
 
 ---
 
@@ -220,6 +231,7 @@ echo "Status: $(git log --oneline | head -1)"
 ```
 
 **Post-Incident:**
+
 - Pause Phase workstreams until root cause identified
 - Create incident report in `.planning/incidents/INCIDENT_<date>_<phase>.md`
 - Update ADR if architectural flaw; update rules if security issue
@@ -260,6 +272,7 @@ cd "C:\hc quality"
 ```
 
 **Output Files:**
+
 - `docs/MONITORING_REPORT_<timestamp>.md` — auto-generated summary (error counts, red flags, sign-off template)
 - `scripts/cloud-logs-export-<timestamp>.json` — all raw error logs (JSON format, for audit trail)
 
@@ -276,7 +289,7 @@ After 24h monitoring completes (or earlier if confident), create:
 **Deploy Time (UTC):** [HH:MM]  
 **Phase:** Phase [N] — [Module Name]  
 **Monitoring Duration:** 24h  
-**Monitor Operator:** [Your Name]  
+**Monitor Operator:** [Your Name]
 
 ## Summary
 
@@ -346,27 +359,28 @@ Save as: `docs/SIGN_OFF_CLOUD_LOGS_<phase>_<date>.md`
 
 ## 10. References & Quick Links
 
-| Document | Purpose | Path |
-|---|---|---|
-| **Main Monitoring Guide (v1.3)** | Full reference, v1.3 base | `docs/CLOUD_LOGS_MONITORING_GUIDE.md` |
-| **Quick Reference Card** | Cheat sheet, gcloud commands | `docs/CLOUD_LOGS_QUICK_REFERENCE.md` |
-| **Integration Checklist** | Pre/during/post deploy tasks | **← This document** |
-| **Deploy Protocol** | Firestore rules → Functions → Hosting sequence | `.claude/rules/deploy-protocol.md` |
-| **Incident Response** | Severity matrix, on-call rotation, runbooks | `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` |
-| **NOTIVISA ADR** | Phase 4 NOTIVISA queue architecture | `docs/adr/ADR-0021-notivisa-queue-pattern.md` |
-| **Audit Trail ADR** | Phase 5 diff capture + context snapshot | `docs/adr/ADR-0014-audit-trail-extensibility.md` |
+| Document                         | Purpose                                        | Path                                             |
+| -------------------------------- | ---------------------------------------------- | ------------------------------------------------ |
+| **Main Monitoring Guide (v1.3)** | Full reference, v1.3 base                      | `docs/CLOUD_LOGS_MONITORING_GUIDE.md`            |
+| **Quick Reference Card**         | Cheat sheet, gcloud commands                   | `docs/CLOUD_LOGS_QUICK_REFERENCE.md`             |
+| **Integration Checklist**        | Pre/during/post deploy tasks                   | **← This document**                              |
+| **Deploy Protocol**              | Firestore rules → Functions → Hosting sequence | `.claude/rules/deploy-protocol.md`               |
+| **Incident Response**            | Severity matrix, on-call rotation, runbooks    | `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md`   |
+| **NOTIVISA ADR**                 | Phase 4 NOTIVISA queue architecture            | `docs/adr/ADR-0021-notivisa-queue-pattern.md`    |
+| **Audit Trail ADR**              | Phase 5 diff capture + context snapshot        | `docs/adr/ADR-0014-audit-trail-extensibility.md` |
 
 ---
 
 ## 11. Escalation Contacts
 
-| Issue Type | Contact | Response Time |
-|---|---|---|
-| 🔴 BLOCK issue (critical error) | @drogafarto (CTO) | <30 min (business hours) |
-| 🟡 Slow latency / Pub/Sub backlog | @devops (on-call) | <1h |
-| 🟢 Low-priority question | `#dev-ops` Slack | <4h |
+| Issue Type                        | Contact           | Response Time            |
+| --------------------------------- | ----------------- | ------------------------ |
+| 🔴 BLOCK issue (critical error)   | @drogafarto (CTO) | <30 min (business hours) |
+| 🟡 Slow latency / Pub/Sub backlog | @devops (on-call) | <1h                      |
+| 🟢 Low-priority question          | `#dev-ops` Slack  | <4h                      |
 
 **Include in escalation:**
+
 - Error timestamp + log snippet
 - Function name + phase
 - Action taken (rollback Y/N)

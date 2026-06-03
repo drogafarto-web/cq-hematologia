@@ -3,7 +3,7 @@
 **Date:** 2026-05-07  
 **Phase:** Phase 4 (Patient Portal Foundation)  
 **Components:** Firestore Rules + Indexes for patient portal access  
-**Regulatory Alignment:** RDC 978 Arts. 164-165, 184-191; RDC 786 Art. 59; LGPD Arts. 8, 14  
+**Regulatory Alignment:** RDC 978 Arts. 164-165, 184-191; RDC 786 Art. 59; LGPD Arts. 8, 14
 
 ---
 
@@ -92,6 +92,7 @@ firebase deploy \
 ```
 
 **Expected output:**
+
 ```
 ✔  Deploy complete!
 ...
@@ -104,6 +105,7 @@ Monitor index build at:
 https://console.firebase.google.com/project/hmatologia2/firestore/indexes
 
 Three new indexes should appear:
+
 - `laudos (patientId, criadoEm desc)`
 - `patient-auth-sessions (patientId, expiresAt asc)`
 - `patient-nps-feedback (labId, criadoEm desc)`
@@ -275,12 +277,14 @@ firebase deploy --only firestore:rules --project hmatologia2 --dry-run
 ### 2. Index Status
 
 Check Firebase Console:
+
 - All three new indexes in "Ready" state
 - No "Error" or "Building" state after 10 minutes
 
 ### 3. Laudo Reads Work
 
 In Firestore Console, test a sample read:
+
 ```
 Collection: laudos
 Query: patientId == "test_patient_uid"
@@ -306,13 +310,16 @@ gcloud logging read "resource.type=cloud_firestore AND textPayload=~'.*PERMISSIO
 
 **Type:** Global collection (not under /labs/)  
 **Permissions:**
+
 - **Read:** Portal patient (token.portal=true, patientId=uid) OR RT/Admin of owning lab
 - **Create/Update/Delete:** Cloud Function only
 
 **Indexes:**
+
 - (patientId, criadoEm desc)
 
 **Typical fields:**
+
 ```json
 {
   "patientId": "patient_uid_123",
@@ -330,12 +337,14 @@ gcloud logging read "resource.type=cloud_firestore AND textPayload=~'.*PERMISSIO
 
 **Type:** Lab-scoped collection  
 **Permissions:**
+
 - **Read:** RT/Admin of lab only
 - **Create/Update/Delete:** Cloud Function only
 
 **Indexes:** None (small collections, <1k per lab)
 
 **Typical fields:**
+
 ```json
 {
   "patientId": "patient_uid_123",
@@ -354,13 +363,16 @@ gcloud logging read "resource.type=cloud_firestore AND textPayload=~'.*PERMISSIO
 
 **Type:** Global collection  
 **Permissions:**
+
 - **Read:** Own session only (patientId=uid)
 - **Create/Update/Delete:** Cloud Function only (verifyPatientOTP callable)
 
 **Indexes:**
+
 - (patientId, expiresAt asc)
 
 **Typical fields:**
+
 ```json
 {
   "patientId": "patient_uid_123",
@@ -377,14 +389,17 @@ gcloud logging read "resource.type=cloud_firestore AND textPayload=~'.*PERMISSIO
 
 **Type:** Global collection  
 **Permissions:**
+
 - **Read:** Auditor of owning lab
 - **Create:** Portal patients only
 - **Update/Delete:** Cloud Function only (soft-delete)
 
 **Indexes:**
+
 - (labId, criadoEm desc)
 
 **Typical fields:**
+
 ```json
 {
   "feedbackId": "nps_2026_05_0123",
@@ -409,6 +424,7 @@ Ensure the following callables exist and use Admin SDK with server-side signatur
 - **`softDeleteLaudo`** — Updates laudos.deletadoEm via batch write
 
 All must:
+
 1. Validate caller via `isActiveMemberOfLab` + role
 2. Generate `LogicalSignature` server-side
 3. Write via `writeBatch` for atomicity
@@ -433,6 +449,7 @@ A: No. Soft-delete only via Cloud Function, which requires RT/admin authorizatio
 **Q: What if indexes don't build within 5 minutes?**
 
 A: Firebase usually builds small indexes instantly. If delayed:
+
 1. Check Cloud Logs for errors: https://console.cloud.google.com/logs/query
 2. Verify index definition (JSON syntax)
 3. Try manual index creation via Console

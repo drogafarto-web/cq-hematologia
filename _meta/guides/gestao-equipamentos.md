@@ -13,47 +13,47 @@ Garantir que todos os analisadores, coagulômetros, leitores de tira e equipamen
 
 ## Já existe no HC Quality
 
-| Componente | Path | Status |
-|---|---|---|
-| Entidade `Equipamento` (12+ campos, soft-delete) | `src/features/equipamentos/types/Equipamento.ts` | ✅ Em prod |
-| Firestore `/labs/{labId}/equipamentos` | `firestore.rules` | ✅ Em prod |
-| Ciclo de vida: ativo / manutencao / aposentado | `Equipamento.ts` | ✅ Em prod |
-| Destino final (venda / sucata / devolução) | `Equipamento.ts` | ✅ Em prod |
-| Retenção 5 anos pós-aposentadoria | `RETENCAO_ANOS_POS_APOSENTADORIA = 5` | ✅ Em prod |
-| `EquipamentoAuditEvent` (chain-hash append-only) | `Equipamento.ts` | ✅ Em prod |
-| UI: `EquipamentoFormModal`, `EquipamentoLifecycleModal` | `src/features/equipamentos/components/` | ✅ Em prod |
-| `ModuleEquipamentosPanel` por módulo CIQ | `src/features/equipamentos/components/` | ✅ Em prod |
-| `EquipamentoSelector` reutilizável em forms CIQ | `src/features/equipamentos/components/` | ✅ Em prod |
-| Callable `equipamentosCallables.ts` | `src/features/equipamentos/services/` | ✅ Em prod |
-| Subcoleção calibração (upload de certificado) | `functions/src/callables/calibracao/` | ✅ Em prod |
+| Componente                                              | Path                                             | Status     |
+| ------------------------------------------------------- | ------------------------------------------------ | ---------- |
+| Entidade `Equipamento` (12+ campos, soft-delete)        | `src/features/equipamentos/types/Equipamento.ts` | ✅ Em prod |
+| Firestore `/labs/{labId}/equipamentos`                  | `firestore.rules`                                | ✅ Em prod |
+| Ciclo de vida: ativo / manutencao / aposentado          | `Equipamento.ts`                                 | ✅ Em prod |
+| Destino final (venda / sucata / devolução)              | `Equipamento.ts`                                 | ✅ Em prod |
+| Retenção 5 anos pós-aposentadoria                       | `RETENCAO_ANOS_POS_APOSENTADORIA = 5`            | ✅ Em prod |
+| `EquipamentoAuditEvent` (chain-hash append-only)        | `Equipamento.ts`                                 | ✅ Em prod |
+| UI: `EquipamentoFormModal`, `EquipamentoLifecycleModal` | `src/features/equipamentos/components/`          | ✅ Em prod |
+| `ModuleEquipamentosPanel` por módulo CIQ                | `src/features/equipamentos/components/`          | ✅ Em prod |
+| `EquipamentoSelector` reutilizável em forms CIQ         | `src/features/equipamentos/components/`          | ✅ Em prod |
+| Callable `equipamentosCallables.ts`                     | `src/features/equipamentos/services/`            | ✅ Em prod |
+| Subcoleção calibração (upload de certificado)           | `functions/src/callables/calibracao/`            | ✅ Em prod |
 
 ---
 
 ## O que é comum com outros módulos
 
-| Padrão | Onde aparece | Descrição |
-|---|---|---|
-| Soft-delete com `deletadoEm` | equipamentos, insumos, lab-apoio, fornecedores, risks | Nunca `deleteDoc`. |
-| `logicalSignature` (SHA-256 + operatorId + ts) | equipamentos, lab-apoio, risks, educacao-continuada | Server-side; Rules validam. |
-| `chainHash` em trilha de auditoria | equipamentos-audit, risks-audit, lab-apoio-audit | Append-only, imutável. |
-| Subcoleção `*-audit` append-only | equipamentos, risks, insumos | CF trigger calcula chainHash. |
-| `labId` em todos os docs | todos os módulos | Multi-tenancy. |
-| Callable obrigatório para escritas regulatórias | equipamentos, risks, lab-apoio, educacao | Client só lê. |
-| Ciclo de vida (status enum) | equipamentos, pops, sgq-docs, insumos | ativo/inativo/encerrado. |
+| Padrão                                          | Onde aparece                                          | Descrição                     |
+| ----------------------------------------------- | ----------------------------------------------------- | ----------------------------- |
+| Soft-delete com `deletadoEm`                    | equipamentos, insumos, lab-apoio, fornecedores, risks | Nunca `deleteDoc`.            |
+| `logicalSignature` (SHA-256 + operatorId + ts)  | equipamentos, lab-apoio, risks, educacao-continuada   | Server-side; Rules validam.   |
+| `chainHash` em trilha de auditoria              | equipamentos-audit, risks-audit, lab-apoio-audit      | Append-only, imutável.        |
+| Subcoleção `*-audit` append-only                | equipamentos, risks, insumos                          | CF trigger calcula chainHash. |
+| `labId` em todos os docs                        | todos os módulos                                      | Multi-tenancy.                |
+| Callable obrigatório para escritas regulatórias | equipamentos, risks, lab-apoio, educacao              | Client só lê.                 |
+| Ciclo de vida (status enum)                     | equipamentos, pops, sgq-docs, insumos                 | ativo/inativo/encerrado.      |
 
 ---
 
 ## Lacunas (DICQ Gap)
 
-| Gap | DICQ Req | Prioridade | Observação |
-|---|---|---|---|
-| Subcoleção `manutencoes` (preventiva, corretiva, fora-de-uso) | 5.3.1.5 | Alta | TD-403 mapeado para Phase 10. Hoje: campo `ultimaManutencao` flat. |
-| Calibração com rastreabilidade metrológica (RBC/INMETRO) | 5.3.1.4 | Alta | Certificado já uploadável, mas sem validação de acreditadora e alerta de vencimento. |
-| Verificação dos 12 campos obrigatórios DICQ | 5.3.1.7 | Média | Auditar `Equipamento.ts` vs checklist DICQ (fabricante, série, instrução, contato técnico, inspeções, etc). |
-| Integração tecnovigilância → NOTIVISA | 5.3.1.6 | Média | Incidente adverso com equipamento deve gerar notificação. Deferred Phase 8. |
-| Alerta de calibração vencida para RT | 5.3.1.4 | Média | Hoje não há cron de alerta. Padrão existe em `controle-temperatura`. |
-| Relatório de baixa de bens (aposentadoria + destino final) | RDC 786 Art. 42 | Baixa | Exportar PDF do registro de aposentadoria. |
-| Tela de listagem global (cross-módulo) no hub | UX | Baixa | Hoje cada módulo CIQ exibe seus próprios equipamentos. Falta visão consolidada. |
+| Gap                                                           | DICQ Req        | Prioridade | Observação                                                                                                  |
+| ------------------------------------------------------------- | --------------- | ---------- | ----------------------------------------------------------------------------------------------------------- |
+| Subcoleção `manutencoes` (preventiva, corretiva, fora-de-uso) | 5.3.1.5         | Alta       | TD-403 mapeado para Phase 10. Hoje: campo `ultimaManutencao` flat.                                          |
+| Calibração com rastreabilidade metrológica (RBC/INMETRO)      | 5.3.1.4         | Alta       | Certificado já uploadável, mas sem validação de acreditadora e alerta de vencimento.                        |
+| Verificação dos 12 campos obrigatórios DICQ                   | 5.3.1.7         | Média      | Auditar `Equipamento.ts` vs checklist DICQ (fabricante, série, instrução, contato técnico, inspeções, etc). |
+| Integração tecnovigilância → NOTIVISA                         | 5.3.1.6         | Média      | Incidente adverso com equipamento deve gerar notificação. Deferred Phase 8.                                 |
+| Alerta de calibração vencida para RT                          | 5.3.1.4         | Média      | Hoje não há cron de alerta. Padrão existe em `controle-temperatura`.                                        |
+| Relatório de baixa de bens (aposentadoria + destino final)    | RDC 786 Art. 42 | Baixa      | Exportar PDF do registro de aposentadoria.                                                                  |
+| Tela de listagem global (cross-módulo) no hub                 | UX              | Baixa      | Hoje cada módulo CIQ exibe seus próprios equipamentos. Falta visão consolidada.                             |
 
 ---
 
@@ -87,6 +87,7 @@ UI (src/features/equipamentos/)
 ## Dados / Entidades
 
 ### `Equipamento` (já existe — estender)
+
 ```
 Campos existentes: id, labId, module, name, modelo, fabricante, numeroSerie,
 status, criadoEm, atualizadoEm, deletadoEm, aposentadoEm, retencaoAte,
@@ -94,6 +95,7 @@ destinoFinal, logicalSignature
 ```
 
 **Campos a auditar/adicionar para 5.3.1.7:**
+
 - `localInstalacao` (sala/bancada)
 - `contatoTecnico` (fabricante / empresa manutenção)
 - `dataAquisicao`
@@ -102,6 +104,7 @@ destinoFinal, logicalSignature
 - `proximaCalibracao` (calculado)
 
 ### `Manutencao` (nova subcoleção)
+
 ```
 tipo: 'preventiva' | 'corretiva' | 'calibracao' | 'verificacao'
 data: Timestamp
@@ -115,6 +118,7 @@ logicalSignature: LogicalSignature
 ```
 
 ### `CertificadoCalibracaoExtendido` (estender existente)
+
 ```
 acreditadora: string  // RBC, INMETRO, outro
 numeroCertificado: string
@@ -126,26 +130,26 @@ rastreabilidadeMetrologica: boolean
 
 ## Ações principais
 
-| Ação | Quem | Como |
-|---|---|---|
-| Cadastrar equipamento | Operador | Callable server-side |
-| Alterar status (ativo ↔ manutenção) | RT / Admin | Callable + logicalSignature |
-| Aposentar equipamento + destino final | RT / Admin | Callable + audit event |
-| Registrar manutenção / calibração | Operador | Callable (nova) |
-| Gerar alerta de calibração vencida | Sistema | Cloud Function cron diário |
-| Exportar registro de aposentadoria | RT | PDF client-side |
+| Ação                                  | Quem       | Como                        |
+| ------------------------------------- | ---------- | --------------------------- |
+| Cadastrar equipamento                 | Operador   | Callable server-side        |
+| Alterar status (ativo ↔ manutenção)   | RT / Admin | Callable + logicalSignature |
+| Aposentar equipamento + destino final | RT / Admin | Callable + audit event      |
+| Registrar manutenção / calibração     | Operador   | Callable (nova)             |
+| Gerar alerta de calibração vencida    | Sistema    | Cloud Function cron diário  |
+| Exportar registro de aposentadoria    | RT         | PDF client-side             |
 
 ---
 
 ## Integrações
 
-| Módulo | Integração |
-|---|---|
-| `insumos` | `reagente/tira-uro → equipamentoId` (1:1); controles → `equipamentosPermitidos[]` |
-| `runs` (CIQ) | Corrida vincula `equipamentoId`; status `manutencao` bloqueia criação |
-| `controle-temperatura` | Padrão de alerta de vencimento reutilizável |
-| `notivisa` | Incidente adverso cria draft de notificação (Phase 8) |
-| `auditoria-interna` | Checklist de calibração puxa status do equipamento |
+| Módulo                 | Integração                                                                        |
+| ---------------------- | --------------------------------------------------------------------------------- |
+| `insumos`              | `reagente/tira-uro → equipamentoId` (1:1); controles → `equipamentosPermitidos[]` |
+| `runs` (CIQ)           | Corrida vincula `equipamentoId`; status `manutencao` bloqueia criação             |
+| `controle-temperatura` | Padrão de alerta de vencimento reutilizável                                       |
+| `notivisa`             | Incidente adverso cria draft de notificação (Phase 8)                             |
+| `auditoria-interna`    | Checklist de calibração puxa status do equipamento                                |
 
 ---
 

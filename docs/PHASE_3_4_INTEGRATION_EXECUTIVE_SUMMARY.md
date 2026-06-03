@@ -1,5 +1,5 @@
 ---
-title: "Phase 3 → Phase 4 Integration: Executive Summary"
+title: 'Phase 3 → Phase 4 Integration: Executive Summary'
 date: 2026-05-07
 status: READY FOR KICKOFF
 version: 1.0
@@ -32,12 +32,12 @@ version: 1.0
 
 ### Objective 1: Dependency Verification ✅
 
-| Deliverable | Expected | Verified | Status |
-|---|---|---|---|
-| **Phase 3 schema** | 5 collections | portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft | ✅ All live |
-| **Firestore rules** | 5 match blocks + 5 helpers | isServer, isPatient, isAdminOrRT, validateNotivisaPayload, validateDraftLock | ✅ All deployed |
-| **Shared helpers** | 4 modules | notivisaFormatter, smsTemplate, LaudoDraftManager, iaStripValidator | ✅ 23/23 tests |
-| **Cloud Functions** | 78 total | All functions deployed to southamerica-east1; 4 new Phase 4 callables wired | ✅ Live |
+| Deliverable         | Expected                   | Verified                                                                               | Status          |
+| ------------------- | -------------------------- | -------------------------------------------------------------------------------------- | --------------- |
+| **Phase 3 schema**  | 5 collections              | portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft | ✅ All live     |
+| **Firestore rules** | 5 match blocks + 5 helpers | isServer, isPatient, isAdminOrRT, validateNotivisaPayload, validateDraftLock           | ✅ All deployed |
+| **Shared helpers**  | 4 modules                  | notivisaFormatter, smsTemplate, LaudoDraftManager, iaStripValidator                    | ✅ 23/23 tests  |
+| **Cloud Functions** | 78 total                   | All functions deployed to southamerica-east1; 4 new Phase 4 callables wired            | ✅ Live         |
 
 **Verdict:** ✅ **100% verified**. Phase 3 schema, rules, and helpers are production-ready.
 
@@ -45,13 +45,13 @@ version: 1.0
 
 ### Objective 2: Phase 4 Requirements Check ✅
 
-| Feature | Auth Gate | Data Layer | Callable | Storage | External API | Status |
-|---|---|---|---|---|---|---|
-| **Patient Portal** | ✅ isPatient() | ✅ portal-configuracao | ✅ portals_getLabConfig | ✅ Cloud Storage | N/A | ✅ Ready |
-| **NOTIVISA Queue** | ✅ isAdminOrRT() | ✅ notivisa-outbox | ✅ notivisa_submitEvent | ✅ Cloud Storage | ⚠️ Sandbox TBD | ✅ Ready (mocked) |
-| **Escalation SMS/Email** | ✅ isAdminOrRT() | ✅ criticos-escalacoes | ✅ criticos_escalate | ✅ Cloud Storage | ⚠️ SMTP/Twilio TBD | ✅ Ready (email) |
-| **IA Training Dataset** | ✅ isServer() | ✅ imuno-ias-dev | ✅ ia_submitStripImage | ✅ Cloud Storage | ✅ Gemini live | ✅ Ready |
-| **Laudo Draft Lock** | ✅ isPatient() | ✅ laudos-draft | TBD (Phase 5) | ✅ Cloud Storage | N/A | ✅ Ready |
+| Feature                  | Auth Gate        | Data Layer             | Callable                | Storage          | External API       | Status            |
+| ------------------------ | ---------------- | ---------------------- | ----------------------- | ---------------- | ------------------ | ----------------- |
+| **Patient Portal**       | ✅ isPatient()   | ✅ portal-configuracao | ✅ portals_getLabConfig | ✅ Cloud Storage | N/A                | ✅ Ready          |
+| **NOTIVISA Queue**       | ✅ isAdminOrRT() | ✅ notivisa-outbox     | ✅ notivisa_submitEvent | ✅ Cloud Storage | ⚠️ Sandbox TBD     | ✅ Ready (mocked) |
+| **Escalation SMS/Email** | ✅ isAdminOrRT() | ✅ criticos-escalacoes | ✅ criticos_escalate    | ✅ Cloud Storage | ⚠️ SMTP/Twilio TBD | ✅ Ready (email)  |
+| **IA Training Dataset**  | ✅ isServer()    | ✅ imuno-ias-dev       | ✅ ia_submitStripImage  | ✅ Cloud Storage | ✅ Gemini live     | ✅ Ready          |
+| **Laudo Draft Lock**     | ✅ isPatient()   | ✅ laudos-draft        | TBD (Phase 5)           | ✅ Cloud Storage | N/A                | ✅ Ready          |
 
 **Verdict:** ✅ **All Phase 4 features have their dependencies met.** Email escalation works immediately; SMS optional Phase 4.1. NOTIVISA sandbox mocked in Phase 4; real API Phase 8.
 
@@ -82,6 +82,7 @@ version: 1.0
    - **Impact:** Phase 4 proceeds; Phase 5 patient portal login works either way
 
 **Additional Items (Not Blocking Phase 4):**
+
 - NOTIVISA sandbox credentials (pending ANVISA procurement, ~5–7 days) → Phase 8 only
 - Twilio SMS (optional Phase 4.1; email-only escalation works immediately) → Phase 4 proceeds
 
@@ -93,23 +94,23 @@ version: 1.0
 
 ### Infrastructure Status: ✅ READY
 
-| Component | Status | Details |
-|---|---|---|
-| Cloud Firestore | ✅ | Schema v1.4, rules v1.4, 5 indexes, PITR enabled |
-| Cloud Functions | ✅ | 78 deployed to southamerica-east1, all Phase 0 callables live |
-| Cloud Storage | ✅ | Multi-tenant isolation enforced, CORS configured (region suboptimal but functional) |
-| Cloud Tasks API | ✅ | Enabled; queue creation pending 1 gcloud command |
-| Cloud Scheduler | ✅ | 8+ scheduled functions active |
-| Firestore Multi-Tenant | ✅ | 100% isolation at path + rule level, 27/28 emulator tests passing |
-| Gemini API | ✅ | Key provisioned (ADR-0017 remediation) |
+| Component              | Status | Details                                                                             |
+| ---------------------- | ------ | ----------------------------------------------------------------------------------- |
+| Cloud Firestore        | ✅     | Schema v1.4, rules v1.4, 5 indexes, PITR enabled                                    |
+| Cloud Functions        | ✅     | 78 deployed to southamerica-east1, all Phase 0 callables live                       |
+| Cloud Storage          | ✅     | Multi-tenant isolation enforced, CORS configured (region suboptimal but functional) |
+| Cloud Tasks API        | ✅     | Enabled; queue creation pending 1 gcloud command                                    |
+| Cloud Scheduler        | ✅     | 8+ scheduled functions active                                                       |
+| Firestore Multi-Tenant | ✅     | 100% isolation at path + rule level, 27/28 emulator tests passing                   |
+| Gemini API             | ✅     | Key provisioned (ADR-0017 remediation)                                              |
 
 ### External APIs: ⚠️ PARTIAL
 
-| Service | Status | Blocker? |
-|---|---|---|
-| SMTP (email) | ⚠️ Pending credential provision | Soft-block (1–2h fix) |
-| Twilio (SMS) | ⚠️ Pending account + credentials | Soft-block (optional Phase 4.1) |
-| NOTIVISA Sandbox | ⚠️ Pending ANVISA procurement | No (Phase 8 only; Phase 4 mocks) |
+| Service          | Status                           | Blocker?                         |
+| ---------------- | -------------------------------- | -------------------------------- |
+| SMTP (email)     | ⚠️ Pending credential provision  | Soft-block (1–2h fix)            |
+| Twilio (SMS)     | ⚠️ Pending account + credentials | Soft-block (optional Phase 4.1)  |
+| NOTIVISA Sandbox | ⚠️ Pending ANVISA procurement    | No (Phase 8 only; Phase 4 mocks) |
 
 ---
 
@@ -163,16 +164,16 @@ Estimated Time: 1.5 hours
 
 For detailed information, refer to:
 
-| Document | Purpose | Audience |
-|---|---|---|
-| **PHASE_3_4_INTEGRATION_REPORT.md** | Comprehensive verification + dependency matrix | Engineers, DevOps |
-| **PHASE_4_BLOCKERS_ACTION_ITEMS.md** | Actionable task list + runbooks | Ops, DevOps lead |
-| **PHASE_4_DEPENDENCY_VERIFICATION_MATRIX.md** | Go/No-Go criteria + infrastructure audit | CTO, QA, DevOps |
-| **PHASE_3_HANDBOOK.md** | Phase 3 architecture reference | Engineers |
-| **PHASE_3_TRAINING.md** | Onboarding for new engineers | New team members |
-| **.claude/rules/deploy-protocol.md** | Deploy standards + preflight gates | DevOps |
-| **docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md** | HMAC remediation + baseline reset | Security, CTO |
-| **docs/adr/ADR-0018-deploy-gate-secret-status-check.md** | Deploy gate automation | DevOps |
+| Document                                                 | Purpose                                        | Audience          |
+| -------------------------------------------------------- | ---------------------------------------------- | ----------------- |
+| **PHASE_3_4_INTEGRATION_REPORT.md**                      | Comprehensive verification + dependency matrix | Engineers, DevOps |
+| **PHASE_4_BLOCKERS_ACTION_ITEMS.md**                     | Actionable task list + runbooks                | Ops, DevOps lead  |
+| **PHASE_4_DEPENDENCY_VERIFICATION_MATRIX.md**            | Go/No-Go criteria + infrastructure audit       | CTO, QA, DevOps   |
+| **PHASE_3_HANDBOOK.md**                                  | Phase 3 architecture reference                 | Engineers         |
+| **PHASE_3_TRAINING.md**                                  | Onboarding for new engineers                   | New team members  |
+| **.claude/rules/deploy-protocol.md**                     | Deploy standards + preflight gates             | DevOps            |
+| **docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md**  | HMAC remediation + baseline reset              | Security, CTO     |
+| **docs/adr/ADR-0018-deploy-gate-secret-status-check.md** | Deploy gate automation                         | DevOps            |
 
 ---
 
@@ -181,6 +182,7 @@ For detailed information, refer to:
 ### Phase 4 Launch Risk: 🟢 **LOW**
 
 **Justification:**
+
 - All Phase 3 dependencies verified and deployed
 - Zero hard blockers; soft blockers are 1–2h fixes
 - Fallback behavior in place (email-only escalation if Twilio delayed)
@@ -189,13 +191,13 @@ For detailed information, refer to:
 
 ### Mitigation Strategies
 
-| Risk | Likelihood | Impact | Mitigation |
-|---|---|---|---|
-| SMTP provisioning delayed past 2026-05-20 | Low | Medium | Phase 4 proceeds; email escalation feature deferred 1 week |
-| Cloud Tasks queue creation missed | Low | Low | 15-min gcloud command; NOTIVISA queue processor deferred 1–2 days |
-| NOTIVISA sandbox credentials delayed (gov SLA) | Medium | Low | Phase 4 mocks API; Phase 8 deferred to 2026-07-07 if needed |
-| Firestore index performance regression | Low | Medium | Existing indexes validated in emulator; monitoring baseline established 2026-05-07 |
-| Email-link auth E2E failure | Low | Low | Fallback: standard email/password auth works; passwordless optional |
+| Risk                                           | Likelihood | Impact | Mitigation                                                                         |
+| ---------------------------------------------- | ---------- | ------ | ---------------------------------------------------------------------------------- |
+| SMTP provisioning delayed past 2026-05-20      | Low        | Medium | Phase 4 proceeds; email escalation feature deferred 1 week                         |
+| Cloud Tasks queue creation missed              | Low        | Low    | 15-min gcloud command; NOTIVISA queue processor deferred 1–2 days                  |
+| NOTIVISA sandbox credentials delayed (gov SLA) | Medium     | Low    | Phase 4 mocks API; Phase 8 deferred to 2026-07-07 if needed                        |
+| Firestore index performance regression         | Low        | Medium | Existing indexes validated in emulator; monitoring baseline established 2026-05-07 |
+| Email-link auth E2E failure                    | Low        | Low    | Fallback: standard email/password auth works; passwordless optional                |
 
 ---
 
@@ -204,11 +206,13 @@ For detailed information, refer to:
 ### ✅ Phase 4 Approved to Kick Off 2026-05-20
 
 **Conditions:**
+
 1. Complete Tasks 1–2 (SMTP + Cloud Tasks) by 2026-05-20
 2. No P0 security findings in Cloud Logs (last 7 days)
 3. Pre-phase-4 meeting: confirm team assignments + schedule
 
 **Next Steps:**
+
 1. **2026-05-19:** Run pre-kickoff verification checklist (see PHASE_4_BLOCKERS_ACTION_ITEMS.md)
 2. **2026-05-20:** Go/No-Go decision standup (CTO, DevOps, QA, Eng leads)
 3. **2026-05-20 PM:** Phase 4 kickoff + stream assignments

@@ -39,41 +39,39 @@ const INITIAL_STATE: ExportWizardState = {
   submittedJobId: null,
 };
 
-export const useExportWizardStore = create<ExportWizardState & ExportWizardActions>(
-  (set, get) => ({
-    ...INITIAL_STATE,
+export const useExportWizardStore = create<ExportWizardState & ExportWizardActions>((set, get) => ({
+  ...INITIAL_STATE,
 
-    open: () => set({ isOpen: true, step: 1, submittedJobId: null }),
+  open: () => set({ isOpen: true, step: 1, submittedJobId: null }),
 
-    close: () => set({ ...INITIAL_STATE }),
+  close: () => set({ ...INITIAL_STATE }),
 
-    setStep: (step) => set({ step }),
+  setStep: (step) => set({ step }),
 
-    nextStep: () => {
-      const current = get().step;
-      if (current < 3) set({ step: (current + 1) as 1 | 2 | 3 | 4 });
-    },
+  nextStep: () => {
+    const current = get().step;
+    if (current < 3) set({ step: (current + 1) as 1 | 2 | 3 | 4 });
+  },
 
-    prevStep: () => {
-      const current = get().step;
-      if (current > 1) set({ step: (current - 1) as 1 | 2 | 3 | 4 });
-    },
+  prevStep: () => {
+    const current = get().step;
+    if (current > 1) set({ step: (current - 1) as 1 | 2 | 3 | 4 });
+  },
 
-    setFormat: (format) => set({ format }),
+  setFormat: (format) => set({ format }),
 
-    setStartDate: (startDate) => set({ startDate }),
+  setStartDate: (startDate) => set({ startDate }),
 
-    setEndDate: (endDate) => set({ endDate }),
+  setEndDate: (endDate) => set({ endDate }),
 
-    setSubmittedJobId: (submittedJobId) => set({ submittedJobId }),
+  setSubmittedJobId: (submittedJobId) => set({ submittedJobId }),
 
-    reset: () =>
-      set({
-        step: 1 as const,
-        format: null,
-        startDate: '',
-        endDate: '',
-        submittedJobId: null,
-      }),
-  }),
-);
+  reset: () =>
+    set({
+      step: 1 as const,
+      format: null,
+      startDate: '',
+      endDate: '',
+      submittedJobId: null,
+    }),
+}));

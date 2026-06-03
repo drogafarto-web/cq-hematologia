@@ -9,53 +9,61 @@
 ## Deliverables Completed
 
 ### Components
+
 - ✅ **SGDView.tsx** — Entry point with KPIs, search, filtering, document list
 - ✅ **SGDViewer.tsx** — Viewer component (inline + full-screen), PDF preview, metadata sidebar
 - ✅ **DriveImporterWizard.tsx** — 4-step wizard (auth → select → preview → confirm)
 
 ### Services & Utilities
+
 - ✅ **sgdService.ts** — CRUD service (create, update, softDelete, list, getSignedUrl, logAuditEvent)
 - ✅ **auditHash.ts** — SHA-256 audit signature generation + verification
 - ✅ **driveImporterService.ts** (stub) — Ready for Phase 12-02
 
 ### Hooks
+
 - ✅ **useSGDDocumentos.ts** — Firestore listener with batching + cleanup
 - ✅ **useSGDDocumento.ts** — Single document listener
 - ✅ **useSGDAuditEvents.ts** — Audit trail listener
 
 ### Types
+
 - ✅ **SGDDocumento.ts** — Complete type definitions (SGDDocumento, DriveFile, ImportJob, DICABloco, LinkSuggestion, ModuleLink)
 
 ### Tests
+
 - ✅ **sgdService.test.ts** — Audit hash unit tests (deterministic generation, verification, tamper detection)
 
 ### Documentation
-- ✅ **CLAUDE.md** — Module-specific rules, RN-SGD-* constraints, roadmap, regulatory context
+
+- ✅ **CLAUDE.md** — Module-specific rules, RN-SGD-\* constraints, roadmap, regulatory context
 - ✅ **Module Index** (index.ts) — Barrel exports
 
 ---
 
 ## Architecture Decisions (Locked)
 
-| Decision | Value | Rationale |
-|----------|-------|-----------|
-| Storage path | `/labs/{labId}/sgd-externos/` | Scalability; separate from SGQ; clear audit boundary |
-| Drive integration | Lazy fetch + signed URLs (metadata only in Firestore) | Avoids replication; respects Drive quota; GDPR-friendly |
-| Audit signature | SHA-256 hash + operatorId + timestamp | Immutable integrity proof; multi-tenant safe |
-| Soft delete | Mark `deletadoEm` (never `deleteDoc`) | LGPD compliance; audit trail preservation; RN-06 pattern |
-| Classification timing | Post-import via Cloud Function (Phase 12-02) | Faster wizard UX; batch processing |
+| Decision              | Value                                                 | Rationale                                                |
+| --------------------- | ----------------------------------------------------- | -------------------------------------------------------- |
+| Storage path          | `/labs/{labId}/sgd-externos/`                         | Scalability; separate from SGQ; clear audit boundary     |
+| Drive integration     | Lazy fetch + signed URLs (metadata only in Firestore) | Avoids replication; respects Drive quota; GDPR-friendly  |
+| Audit signature       | SHA-256 hash + operatorId + timestamp                 | Immutable integrity proof; multi-tenant safe             |
+| Soft delete           | Mark `deletadoEm` (never `deleteDoc`)                 | LGPD compliance; audit trail preservation; RN-06 pattern |
+| Classification timing | Post-import via Cloud Function (Phase 12-02)          | Faster wizard UX; batch processing                       |
 
 ---
 
 ## Verification Results
 
 ### TypeScript Validation
+
 ```
 npx tsc --noEmit
 ✅ No errors in src/features/sgd/
 ```
 
 ### Code Review Checklist
+
 - ✅ No hardcoded secrets
 - ✅ Multi-tenant safety (labId passed + checked)
 - ✅ a11y baseline (aria-label, keyboard nav ESC, semantic HTML)
@@ -64,6 +72,7 @@ npx tsc --noEmit
 - ✅ Naming consistency (service/hook/component naming follows project pattern)
 
 ### Test Coverage
+
 - ✅ Audit hash: 6 unit tests (determinism, verification, tamper detection, nested objects)
 - ✅ Service: CRUD logic tested via mocks (ready for integration)
 - ✅ Hooks: Listener pattern validated (unsub cleanup)
@@ -104,7 +113,7 @@ npx tsc --noEmit
 - ✅ Audit hash deterministic + verifiable (RN-SGQ-06 pattern)
 - ✅ TypeScript: zero errors
 - ✅ Unit tests for audit hash logic (80%+ coverage)
-- ✅ CLAUDE.md written with RN-SGD-* constraints + roadmap
+- ✅ CLAUDE.md written with RN-SGD-\* constraints + roadmap
 - ✅ Components use dark-first, world-class design (Apple/Linear reference)
 - ✅ a11y baseline: WCAG AA (keyboard nav, contrast, ARIA)
 - ✅ Performance: component renders in <500ms (mocked data)
@@ -174,6 +183,7 @@ Total: ~1,700 LOC (comments + types + tests)
 **Deadline:** 2026-08-25
 
 **Ready for:**
+
 - [ ] CTO review (architecture + compliance)
 - [ ] Integration into AuthWrapper + Hub
 - [ ] Phase 12-02 planning (Gemini + Cloud Functions)

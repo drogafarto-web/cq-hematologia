@@ -43,29 +43,23 @@ const verificacaoCollection = (labId: string, capaId: string) =>
 
 // ─── Cloud Function Callables ──────────────────────────────────────────────
 
-const createCAPACallable = httpsCallable<
-  any,
-  { capaId: string; auditEntryId: string }
->(functions, 'createCAPA');
-
-const updateCAPACallable = httpsCallable<any, { success: boolean }>(
+const createCAPACallable = httpsCallable<any, { capaId: string; auditEntryId: string }>(
   functions,
-  'updateCAPA'
+  'createCAPA',
 );
+
+const updateCAPACallable = httpsCallable<any, { success: boolean }>(functions, 'updateCAPA');
 
 const assignCAPACallable = httpsCallable<any, { success: boolean; acaoId?: string }>(
   functions,
-  'assignCAPA'
+  'assignCAPA',
 );
 
-const verifyCAPACallable = httpsCallable<any, { success: boolean }>(
-  functions,
-  'verifyCAPA'
-);
+const verifyCAPACallable = httpsCallable<any, { success: boolean }>(functions, 'verifyCAPA');
 
 const softDeleteCAPACallable = httpsCallable<any, { success: boolean }>(
   functions,
-  'softDeleteCAPA'
+  'softDeleteCAPA',
 );
 
 // ─── CREATE ────────────────────────────────────────────────────────────────
@@ -77,7 +71,7 @@ const softDeleteCAPACallable = httpsCallable<any, { success: boolean }>(
 export async function createCAPA(
   labId: string,
   input: CreateCAPAInput,
-  userId?: string
+  userId?: string,
 ): Promise<string> {
   if (!input.titulo || input.titulo.trim().length < 5) {
     throw new Error('Título deve ter pelo menos 5 caracteres');
@@ -147,10 +141,7 @@ export async function getAcoes(labId: string, capaId: string): Promise<CAParecao
 /**
  * Get verifications for a CAPA
  */
-export async function getVerificacoes(
-  labId: string,
-  capaId: string
-): Promise<Verificacao[]> {
+export async function getVerificacoes(labId: string, capaId: string): Promise<Verificacao[]> {
   try {
     const colRef = verificacaoCollection(labId, capaId);
     const snap = await getDocs(colRef);
@@ -170,7 +161,7 @@ export function subscribeCAPAs(
   labId: string,
   filters: CAPAFilters = {},
   callback: (capas: CAPA[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const constraints = [where('deletadoEm', '==', null)];
 
@@ -203,13 +194,13 @@ export function subscribeCAPAs(
         capas = capas.filter(
           (capa) =>
             capa.titulo.toLowerCase().includes(search) ||
-            capa.descricao.toLowerCase().includes(search)
+            capa.descricao.toLowerCase().includes(search),
         );
       }
 
       callback(capas);
     },
-    onError
+    onError,
   );
 }
 
@@ -221,7 +212,7 @@ export function subscribeAcoes(
   capaId: string,
   filters: AcaoFilters = {},
   callback: (acoes: CAParecao[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const constraints = [where('deletadoEm', '==', null)];
 
@@ -245,7 +236,7 @@ export function subscribeAcoes(
       const acoes = snap.docs.map((d) => d.data() as CAParecao);
       callback(acoes);
     },
-    onError
+    onError,
   );
 }
 
@@ -259,7 +250,7 @@ export async function updateCAPAStatus(
   labId: string,
   capaId: string,
   newStatus: CAPAStatus,
-  notes?: string
+  notes?: string,
 ): Promise<void> {
   try {
     await updateCAPACallable({
@@ -270,7 +261,7 @@ export async function updateCAPAStatus(
     });
   } catch (error: any) {
     throw new Error(
-      error.message || 'Erro ao atualizar status da CAPA. Por favor, tente novamente.'
+      error.message || 'Erro ao atualizar status da CAPA. Por favor, tente novamente.',
     );
   }
 }
@@ -282,7 +273,7 @@ export async function updateCAPAStatus(
 export async function assignCAPA(
   labId: string,
   capaId: string,
-  input: CreateAcaoInput
+  input: CreateAcaoInput,
 ): Promise<string> {
   try {
     if (!input.descricao || input.descricao.trim().length < 10) {
@@ -309,9 +300,7 @@ export async function assignCAPA(
     // Return the action ID (stored in server response)
     return result.data.acaoId || capaId; // Fallback to capaId if not returned
   } catch (error: any) {
-    throw new Error(
-      error.message || 'Erro ao atribuir ação. Por favor, tente novamente.'
-    );
+    throw new Error(error.message || 'Erro ao atribuir ação. Por favor, tente novamente.');
   }
 }
 
@@ -323,7 +312,7 @@ export async function assignCAPA(
 export async function verifyCAPA(
   labId: string,
   capaId: string,
-  input: CreateVerificacaoInput
+  input: CreateVerificacaoInput,
 ): Promise<void> {
   try {
     if (!input.verificadoPor) {
@@ -346,9 +335,7 @@ export async function verifyCAPA(
       horasInvestidas: input.horasInvestidas || 0,
     });
   } catch (error: any) {
-    throw new Error(
-      error.message || 'Erro ao registrar verificação. Por favor, tente novamente.'
-    );
+    throw new Error(error.message || 'Erro ao registrar verificação. Por favor, tente novamente.');
   }
 }
 
@@ -361,7 +348,7 @@ export async function verifyCAPA(
 export async function softDeleteCAPA(
   labId: string,
   capaId: string,
-  deletadoPor: string
+  deletadoPor: string,
 ): Promise<void> {
   try {
     await softDeleteCAPACallable({
@@ -370,8 +357,6 @@ export async function softDeleteCAPA(
       deletadoPor,
     });
   } catch (error: any) {
-    throw new Error(
-      error.message || 'Erro ao deletar CAPA. Por favor, tente novamente.'
-    );
+    throw new Error(error.message || 'Erro ao deletar CAPA. Por favor, tente novamente.');
   }
 }

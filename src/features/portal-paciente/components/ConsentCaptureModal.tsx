@@ -37,9 +37,7 @@ export const ConsentCaptureModal: React.FC<ConsentCaptureModalProps> = ({
       setIsChecked(false);
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Erro ao capturar consentimento'
-      );
+      setError(err instanceof Error ? err.message : 'Erro ao capturar consentimento');
       setIsLoading(false);
     }
   };
@@ -58,9 +56,7 @@ export const ConsentCaptureModal: React.FC<ConsentCaptureModalProps> = ({
         <div className="bg-[#1a1a1e] rounded-lg border border-white/10 shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="px-6 py-5 border-b border-white/5">
-            <h2 className="text-lg font-semibold text-white/95">
-              Autorizar processamento com IA
-            </h2>
+            <h2 className="text-lg font-semibold text-white/95">Autorizar processamento com IA</h2>
             <p className="text-sm text-white/60 mt-1">
               Processamento automatizado de análise de urina
             </p>
@@ -71,8 +67,8 @@ export const ConsentCaptureModal: React.FC<ConsentCaptureModalProps> = ({
             {/* Explanation */}
             <div className="p-4 bg-white/2 rounded-lg border border-white/5">
               <p className="text-sm text-white/80 leading-relaxed">
-                O <strong>{labName}</strong> utiliza tecnologia de IA para realizar
-                análise automática de resultados de uroanálise. Isso permite:
+                O <strong>{labName}</strong> utiliza tecnologia de IA para realizar análise
+                automática de resultados de uroanálise. Isso permite:
               </p>
               <ul className="mt-3 space-y-2 text-sm text-white/70">
                 <li className="flex gap-2">

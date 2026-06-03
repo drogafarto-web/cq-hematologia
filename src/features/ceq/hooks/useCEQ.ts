@@ -175,8 +175,16 @@ export function useCEQ() {
       clearAmostras?: boolean;
       clearResultados?: boolean;
     }) => {
-      const { err, stream, labId, participacaoId, amostraId, clearParticipacoes, clearAmostras, clearResultados } =
-        params;
+      const {
+        err,
+        stream,
+        labId,
+        participacaoId,
+        amostraId,
+        clearParticipacoes,
+        clearAmostras,
+        clearResultados,
+      } = params;
 
       await primeAuthTokenForFirestore();
       const unaryProbe = await unaryProbeForStream(labId, stream, participacaoId, amostraId);
@@ -428,7 +436,13 @@ export function useCEQ() {
       cancelled = true;
       unsubscribe?.();
     };
-  }, [activeLab, state.selectedParticipacao, listenerEpoch, realtimeDegraded, applyListenerFailure]);
+  }, [
+    activeLab,
+    state.selectedParticipacao,
+    listenerEpoch,
+    realtimeDegraded,
+    applyListenerFailure,
+  ]);
 
   // ─── Load resultados when amostra selected ───────────────────────────────
 
@@ -526,7 +540,9 @@ export function useCEQ() {
 
       try {
         const participacao = await criarCEQParticipacao(activeLab.id, input, uid);
-        toast.success(`Participação criada — ${participacao.provedorNome} · ${participacao.esquema}`);
+        toast.success(
+          `Participação criada — ${participacao.provedorNome} · ${participacao.esquema}`,
+        );
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao criar participação';
         setState((s) => ({ ...s, error: msg }));
@@ -568,9 +584,13 @@ export function useCEQ() {
         const resultado = await lancarCEQResultado(activeLab.id, input, uid);
 
         if (resultado.temNCGrave) {
-          toast.warning(`NC Automática Criada — Z-Score ${resultado.zScore.toFixed(2)} ≥ 3 — Investigação necessária`);
+          toast.warning(
+            `NC Automática Criada — Z-Score ${resultado.zScore.toFixed(2)} ≥ 3 — Investigação necessária`,
+          );
         } else {
-          toast.success(`Resultado lançado — ${resultado.analyteName} · Z ${resultado.zScore.toFixed(2)}`);
+          toast.success(
+            `Resultado lançado — ${resultado.analyteName} · Z ${resultado.zScore.toFixed(2)}`,
+          );
         }
       } catch (error) {
         const msg = error instanceof Error ? error.message : 'Erro ao lançar resultado';

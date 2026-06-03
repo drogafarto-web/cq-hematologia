@@ -15,22 +15,23 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 
 ## Batch Deployment Status
 
-| Batch | Functions | Count | Status | Deploy Time | Issues |
-|-------|-----------|-------|--------|-------------|--------|
-| 1 | Management-Review | 2 | ✅ **LIVE** | ~35s | None |
-| 2 | Bioquímica (+ cron fix) | 5 | ✅ **LIVE** | ~60s | Fixed: cron syntax (0 8 1 * *) |
-| 3 | SGQ + Liberação | 12 | ✅ **LIVE** | ~90s | None |
-| 4 | Reclamações | 5 | ✅ **LIVE** | ~60s | None |
-| 5 | Satisfação + Sugestões | 8 | ✅ **LIVE** | ~75s | None |
+| Batch | Functions               | Count | Status      | Deploy Time | Issues                           |
+| ----- | ----------------------- | ----- | ----------- | ----------- | -------------------------------- |
+| 1     | Management-Review       | 2     | ✅ **LIVE** | ~35s        | None                             |
+| 2     | Bioquímica (+ cron fix) | 5     | ✅ **LIVE** | ~60s        | Fixed: cron syntax (0 8 1 \* \*) |
+| 3     | SGQ + Liberação         | 12    | ✅ **LIVE** | ~90s        | None                             |
+| 4     | Reclamações             | 5     | ✅ **LIVE** | ~60s        | None                             |
+| 5     | Satisfação + Sugestões  | 8     | ✅ **LIVE** | ~75s        | None                             |
 
 **Total Functions:** 32 deployed ✅  
-**Total Deploy Time:** ~4 min 20s  
+**Total Deploy Time:** ~4 min 20s
 
 ---
 
 ## Batch Details
 
 ### Batch 1: Management-Review (✅ Deployed)
+
 - `generateReviewTemplate` — callable
 - `submitReview` — callable
 
@@ -39,11 +40,12 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 ---
 
 ### Batch 2: Bioquímica (✅ Deployed)
+
 - `parseBulaBioquimica` — callable
 - `recordRunBioquimica` — callable
 - `applyBulaToLot` — callable
 - `onRunCreated` — Firestore trigger
-- `generateMonthlyReportBioquimica` — scheduled (0 8 1 * *)
+- `generateMonthlyReportBioquimica` — scheduled (0 8 1 \* \*)
 
 **Issue Fixed:** Invalid cron syntax `cron(0 8 1 * *)` → corrected to `0 8 1 * *`  
 **File:** `functions/src/bioquimica/generateMonthlyReportBioquimica.ts` (line 30)  
@@ -52,6 +54,7 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 ---
 
 ### Batch 3: SGQ + Liberação (✅ Deployed)
+
 - `listarDocsDrive` — callable
 - `previewDocDrive` — callable
 - `aprovarBatchImport` — callable
@@ -70,6 +73,7 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 ---
 
 ### Batch 4: Reclamações (✅ Deployed)
+
 - `criarReclamacao` — callable
 - `classificarReclamacaoIA` — callable
 - `parseEmailReclamacao` — callable
@@ -81,6 +85,7 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 ---
 
 ### Batch 5: Satisfação + Sugestões (✅ Deployed)
+
 - `dispararNPSPosResolucao` — callable
 - `dispararNPSRecurring` — callable
 - `submitNPSResposta` — callable
@@ -101,7 +106,7 @@ All 32 functions deployed in 5 sequential batches grouped by module dependency o
 ✅ **Functions count:** 209+ rows in `firebase functions:list` (includes pre-existing + v1.3)  
 ✅ **Build:** Clean (0 TypeScript errors)  
 ✅ **Region:** southamerica-east1 (confirmed on all functions)  
-✅ **Runtime:** Node.js 22 (confirmed on all functions)  
+✅ **Runtime:** Node.js 22 (confirmed on all functions)
 
 ---
 

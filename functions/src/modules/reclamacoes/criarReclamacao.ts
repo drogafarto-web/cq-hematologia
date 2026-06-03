@@ -81,7 +81,10 @@ interface Reclamacao {
   classificacao?: any;
 }
 
-import { classificarSeveridadeHeuristica, shouldTriggerNCAutocreate } from './_shared/severityClassifier';
+import {
+  classificarSeveridadeHeuristica,
+  shouldTriggerNCAutocreate,
+} from './_shared/severityClassifier';
 
 const db = admin.firestore();
 const logger = functions.logger;
@@ -94,54 +97,65 @@ const logger = functions.logger;
 // (caller still has to cast to use it server-side, no implicit any) and added
 // length caps + .strict() on all object schemas to reject unknown keys.
 // Also caps ipAddress (45 = max for IPv6 + zone) and userAgent (#14).
-const CreateReclamacaoCallableInput = z.object({
-  labId: z.string().min(1).max(100),
-  canalEntrada: z.enum([
-    'web-interno',
-    'web-publico',
-    'email',
-    'telefone',
-    'qr-laudo',
-    'worklab-deep-link',
-  ]),
-  descricao: z.string().min(10, 'Descrição mínima 10 caracteres').max(10000),
-  reclamante: z
-    .object({
-      nome: z.string().min(3).max(200),
-      cpf: z.string().regex(/^\d{11}$/, 'CPF deve ter 11 dígitos'),
-      email: z.string().email().max(255).optional(),
-      telefone: z.string().regex(/^\d{10,11}$/).optional(),
-    })
-    .strict(),
-  consentimentoLgpd: z
-    .object({
-      aceito: z.literal(true, { errorMap: () => ({ message: 'Consentimento LGPD obrigatório' }) }),
-      ipAddress: z.string().max(45),
-      userAgent: z.string().max(1000),
-    })
-    .strict(),
-  origemDados: z
-    .object({
-      source: z.string().min(1).max(100),
-      // metadata: server consumers must validate before use. z.unknown() forces
-      // explicit casts at the call site instead of silent any propagation.
-      metadata: z.record(z.unknown()).optional(),
-    })
-    .strict(),
-  recaptchaToken: z.string().max(2048).optional(),  // web-publico only
-  anexos: z
-    .array(
-      z
-        .object({
-          storageUrl: z.string().url().max(2048),
-          mimeType: z.string().max(255),
-          size: z.number().int().nonnegative().max(50 * 1024 * 1024), // 50 MB cap
-        })
-        .strict()
-    )
-    .max(5)
-    .optional(),
-}).strict();
+const CreateReclamacaoCallableInput = z
+  .object({
+    labId: z.string().min(1).max(100),
+    canalEntrada: z.enum([
+      'web-interno',
+      'web-publico',
+      'email',
+      'telefone',
+      'qr-laudo',
+      'worklab-deep-link',
+    ]),
+    descricao: z.string().min(10, 'Descrição mínima 10 caracteres').max(10000),
+    reclamante: z
+      .object({
+        nome: z.string().min(3).max(200),
+        cpf: z.string().regex(/^\d{11}$/, 'CPF deve ter 11 dígitos'),
+        email: z.string().email().max(255).optional(),
+        telefone: z
+          .string()
+          .regex(/^\d{10,11}$/)
+          .optional(),
+      })
+      .strict(),
+    consentimentoLgpd: z
+      .object({
+        aceito: z.literal(true, {
+          errorMap: () => ({ message: 'Consentimento LGPD obrigatório' }),
+        }),
+        ipAddress: z.string().max(45),
+        userAgent: z.string().max(1000),
+      })
+      .strict(),
+    origemDados: z
+      .object({
+        source: z.string().min(1).max(100),
+        // metadata: server consumers must validate before use. z.unknown() forces
+        // explicit casts at the call site instead of silent any propagation.
+        metadata: z.record(z.unknown()).optional(),
+      })
+      .strict(),
+    recaptchaToken: z.string().max(2048).optional(), // web-publico only
+    anexos: z
+      .array(
+        z
+          .object({
+            storageUrl: z.string().url().max(2048),
+            mimeType: z.string().max(255),
+            size: z
+              .number()
+              .int()
+              .nonnegative()
+              .max(50 * 1024 * 1024), // 50 MB cap
+          })
+          .strict(),
+      )
+      .max(5)
+      .optional(),
+  })
+  .strict();
 
 // ─────────────────────────────────────────────────────────────────────────────
 // reCAPTCHA Validation
@@ -149,7 +163,7 @@ const CreateReclamacaoCallableInput = z.object({
 
 async function validateRecaptcha(
   token: string,
-  remoteip: string
+  remoteip: string,
 ): Promise<{ success: boolean; score: number; action: string }> {
   const secretKey = process.env.RECAPTCHA_SECRET_KEY;
   if (!secretKey) {
@@ -167,7 +181,7 @@ async function validateRecaptcha(
     }).toString(),
   });
 
-  const data = await response.json() as {
+  const data = (await response.json()) as {
     success: boolean;
     score?: number;
     action?: string;
@@ -190,7 +204,7 @@ async function validateRecaptcha(
 function generateLogicalSignature(
   docData: Record<string, any>,
   uid: string,
-  ts: admin.firestore.Timestamp
+  ts: admin.firestore.Timestamp,
 ): LogicalSignature {
   const payload = JSON.stringify(docData);
   const hash = createHash('sha256').update(payload).digest('hex');
@@ -207,7 +221,7 @@ function computeChainHash(
   entityId: string,
   operation: string,
   ts: admin.firestore.Timestamp,
-  uid: string
+  uid: string,
 ): string {
   const data = `${prevHash}|${entityId}|${operation}|${ts.toDate().toISOString()}|${uid}`;
   return createHash('sha256').update(data).digest('hex');
@@ -227,24 +241,15 @@ export const criarReclamacao = functions.https.onCall(
     try {
       // 1. Validate auth
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       // 1b. Rate limit (SECURITY_AUDIT.md #18) — 60/min for authenticated users.
       // Channel may be public-facing (web-publico, email) but the callable still
       // requires Firebase auth (anonymous or signed-in). Key by uid to prevent
       // abuse from single account.
-      const { enforceAuthenticatedRateLimit } = await import(
-        '../../shared/rateLimit'
-      );
-      const rl = await enforceAuthenticatedRateLimit(
-        request.auth.uid,
-        'criarReclamacao',
-        60,
-      );
+      const { enforceAuthenticatedRateLimit } = await import('../../shared/rateLimit');
+      const rl = await enforceAuthenticatedRateLimit(request.auth.uid, 'criarReclamacao', 60);
       if (!rl.allowed) {
         throw new functions.https.HttpsError(
           'resource-exhausted',
@@ -255,18 +260,36 @@ export const criarReclamacao = functions.https.onCall(
 
       // 2. Parse and validate input
       const data = CreateReclamacaoCallableInput.parse(request.data);
-      const { labId, canalEntrada, descricao, reclamante, consentimentoLgpd, origemDados, recaptchaToken, anexos } = data;
+      const {
+        labId,
+        canalEntrada,
+        descricao,
+        reclamante,
+        consentimentoLgpd,
+        origemDados,
+        recaptchaToken,
+        anexos,
+      } = data;
 
       // 3. Verify lab membership
-      const memberRef = db.collection('labs').doc(labId).collection('members').doc(request.auth.uid);
+      const memberRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('members')
+        .doc(request.auth.uid);
       const memberSnap = await memberRef.get();
 
       if (!memberSnap.exists || !memberSnap.data()?.active) {
         // Allow public channel without membership
-        if (canalEntrada !== 'web-publico' && canalEntrada !== 'email' && canalEntrada !== 'worklab-deep-link' && canalEntrada !== 'qr-laudo') {
+        if (
+          canalEntrada !== 'web-publico' &&
+          canalEntrada !== 'email' &&
+          canalEntrada !== 'worklab-deep-link' &&
+          canalEntrada !== 'qr-laudo'
+        ) {
           throw new functions.https.HttpsError(
             'permission-denied',
-            'Not an active member of this lab'
+            'Not an active member of this lab',
           );
         }
       }
@@ -276,33 +299,30 @@ export const criarReclamacao = functions.https.onCall(
         if (!recaptchaToken) {
           throw new functions.https.HttpsError(
             'invalid-argument',
-            'reCAPTCHA token required for web-publico channel'
+            'reCAPTCHA token required for web-publico channel',
           );
         }
 
-        const recaptchaResult = await validateRecaptcha(recaptchaToken, request.rawRequest.ip ?? '0.0.0.0');
+        const recaptchaResult = await validateRecaptcha(
+          recaptchaToken,
+          request.rawRequest.ip ?? '0.0.0.0',
+        );
         if (!recaptchaResult.success || recaptchaResult.score < 0.5) {
           throw new functions.https.HttpsError(
             'permission-denied',
-            'reCAPTCHA validation failed (spam detected)'
+            'reCAPTCHA validation failed (spam detected)',
           );
         }
       }
 
       // 5. Validate LGPD consent
       if (!consentimentoLgpd.aceito) {
-        throw new functions.https.HttpsError(
-          'invalid-argument',
-          'LGPD consent is mandatory'
-        );
+        throw new functions.https.HttpsError('invalid-argument', 'LGPD consent is mandatory');
       }
 
       // 6. Classify severity heuristically (will be overridden by Gemini async)
       const severityResult = classificarSeveridadeHeuristica(descricao);
-      const shouldCreateNCDraft = shouldTriggerNCAutocreate(
-        severityResult.severidade,
-        descricao
-      );
+      const shouldCreateNCDraft = shouldTriggerNCAutocreate(severityResult.severidade, descricao);
 
       // 7. Create complaint document
       const reclamacaoId = db.collection('labs').doc(labId).collection('reclamacoes').doc().id;
@@ -344,14 +364,14 @@ export const criarReclamacao = functions.https.onCall(
       const signature = generateLogicalSignature(
         { ...reclamacaoData, id: reclamacaoId },
         request.auth.uid,
-        now
+        now,
       );
       const chainHash = computeChainHash(
         '0'.repeat(64), // Genesis hash
         reclamacaoId,
         'create',
         now,
-        request.auth.uid
+        request.auth.uid,
       );
 
       reclamacaoData.signature = signature;
@@ -369,11 +389,7 @@ export const criarReclamacao = functions.https.onCall(
       batch.set(reclamacaoRef, reclamacaoData);
 
       // Log LGPD access
-      const lgpdAuditRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('lgpd-audit')
-        .doc();
+      const lgpdAuditRef = db.collection('labs').doc(labId).collection('lgpd-audit').doc();
 
       batch.set(lgpdAuditRef, {
         labId,
@@ -385,11 +401,7 @@ export const criarReclamacao = functions.https.onCall(
       });
 
       // Audit log
-      const auditRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('audit')
-        .doc();
+      const auditRef = db.collection('labs').doc(labId).collection('audit').doc();
 
       batch.set(auditRef, {
         labId,
@@ -410,15 +422,13 @@ export const criarReclamacao = functions.https.onCall(
       // 10. Trigger async Gemini classification (fire and forget)
       try {
         // Schedule async callable
-        await db
-          .collection('_functions-queue')
-          .add({
-            function: 'classificarReclamacaoIA',
-            labId,
-            reclamacaoId,
-            descricao,
-            createdAt: now,
-          });
+        await db.collection('_functions-queue').add({
+          function: 'classificarReclamacaoIA',
+          labId,
+          reclamacaoId,
+          descricao,
+          createdAt: now,
+        });
       } catch (err) {
         logger.warn('Failed to queue Gemini classification', { error: err, reclamacaoId });
         // Continue — complaint created, classification can retry
@@ -427,14 +437,12 @@ export const criarReclamacao = functions.https.onCall(
       // 11. Trigger NC auto-create if needed (fire and forget)
       if (shouldCreateNCDraft) {
         try {
-          await db
-            .collection('_functions-queue')
-            .add({
-              function: 'criarNCDraft',
-              labId,
-              reclamacaoId,
-              createdAt: now,
-            });
+          await db.collection('_functions-queue').add({
+            function: 'criarNCDraft',
+            labId,
+            reclamacaoId,
+            createdAt: now,
+          });
         } catch (err) {
           logger.warn('Failed to queue NC draft creation', { error: err, reclamacaoId });
         }
@@ -443,17 +451,15 @@ export const criarReclamacao = functions.https.onCall(
       // 12. Send confirmation email (Resend) — fire and forget
       if (reclamante.email) {
         try {
-          await db
-            .collection('_mail-queue')
-            .add({
-              to: reclamante.email,
-              template: 'reclamacao-recebida',
-              data: {
-                reclamacaoId,
-                reclamanteName: reclamante.nome,
-                slaPrazo: slaPrazo.toLocaleDateString('pt-BR'),
-              },
-            });
+          await db.collection('_mail-queue').add({
+            to: reclamante.email,
+            template: 'reclamacao-recebida',
+            data: {
+              reclamacaoId,
+              reclamanteName: reclamante.nome,
+              slaPrazo: slaPrazo.toLocaleDateString('pt-BR'),
+            },
+          });
         } catch (err) {
           logger.warn('Failed to queue confirmation email', { error: err, reclamacaoId });
         }
@@ -471,7 +477,7 @@ export const criarReclamacao = functions.https.onCall(
       if (err instanceof z.ZodError) {
         throw new functions.https.HttpsError(
           'invalid-argument',
-          `Validation error: ${err.errors[0].message}`
+          `Validation error: ${err.errors[0].message}`,
         );
       }
 
@@ -481,5 +487,5 @@ export const criarReclamacao = functions.https.onCall(
 
       throw new functions.https.HttpsError('internal', 'Unexpected error creating complaint');
     }
-  }
+  },
 );

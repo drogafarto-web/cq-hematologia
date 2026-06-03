@@ -3,9 +3,7 @@ import { Timestamp } from 'firebase/firestore';
 import { computeSlaState, formatSlaCountdown } from '../utils/slaFormat';
 import type { CriticosEscalacao } from '../types';
 
-const baseEscalacao = (
-  overrides: Partial<CriticosEscalacao> = {},
-): CriticosEscalacao => ({
+const baseEscalacao = (overrides: Partial<CriticosEscalacao> = {}): CriticosEscalacao => ({
   id: 'e1',
   labId: 'lab-1',
   laudoId: 'laudo-1',

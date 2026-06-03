@@ -8,18 +8,19 @@
 
 ## Compliance Scorecard
 
-| Standard | v1.3 | Phase 0 | v1.4 Target | Status |
-|----------|------|---------|-------------|--------|
-| **DICQ** | 78.5% | 82% | 88%+ | ✅ On track |
-| **RDC 978** | 79% | 80% | 100% | ✅ On track |
-| **LGPD** | 70% | 72% | 78% | ✅ On track |
-| **Tests** | 738/738 | 738/738 | — | ✅ All passing |
+| Standard    | v1.3    | Phase 0 | v1.4 Target | Status         |
+| ----------- | ------- | ------- | ----------- | -------------- |
+| **DICQ**    | 78.5%   | 82%     | 88%+        | ✅ On track    |
+| **RDC 978** | 79%     | 80%     | 100%        | ✅ On track    |
+| **LGPD**    | 70%     | 72%     | 78%         | ✅ On track    |
+| **Tests**   | 738/738 | 738/738 | —           | ✅ All passing |
 
 ---
 
 ## What's Deployed (Phase 3.1–3.3)
 
 **25 modules in production** covering all clinical lab operations:
+
 - CIQ (Bioquímica, Coagulação, Imunologia, Uroanálise, Analyzer)
 - Document control (SGD + 80 Riopomba docs migrated)
 - Personnel (EC + turnos skeleton)
@@ -30,12 +31,12 @@
 
 ## Tier-1 Blockers Addressed (Phase 0 — by 2026-05-14)
 
-| Blocker | Module | Evidence | ETA |
-|---------|--------|----------|-----|
-| Art. 122 (Supervisor presence) | `turnos` | Shift registry + callable | ✅ Done |
+| Blocker                          | Module      | Evidence                          | ETA     |
+| -------------------------------- | ----------- | --------------------------------- | ------- |
+| Art. 122 (Supervisor presence)   | `turnos`    | Shift registry + callable         | ✅ Done |
 | Art. 36–39 (Lab Apoio contracts) | `lab-apoio` | Contract form + 6-clause template | ✅ Done |
-| Art. 86–87 (Risk management) | `risks` | FMEA-Lite per ADR-0016 | ✅ Done |
-| HMAC key rotation | crypto | ADR-0017 + ADR-0018 gate | ✅ Done |
+| Art. 86–87 (Risk management)     | `risks`     | FMEA-Lite per ADR-0016            | ✅ Done |
+| HMAC key rotation                | crypto      | ADR-0017 + ADR-0018 gate          | ✅ Done |
 
 ---
 
@@ -59,13 +60,13 @@
 
 ## Remaining Gaps (Closed Phase 4–9)
 
-| Gap | Phase | Impact |
-|-----|-------|--------|
-| Laudo fields 10–12 (limitations, in-house, restrictions) | 9–10 | RDC Art. 167 |
-| Manual da Qualidade | 9 | DICQ 4.2.2.2 |
-| NOTIVISA integration (disease reporting) | 5 | RDC Art. 195 |
-| Auditoria-interna checklist formalization | 4–9 | DICQ 4.14.5 |
-| Patient data portal | 5+ | LGPD Art. 12 (deferred) |
+| Gap                                                      | Phase | Impact                  |
+| -------------------------------------------------------- | ----- | ----------------------- |
+| Laudo fields 10–12 (limitations, in-house, restrictions) | 9–10  | RDC Art. 167            |
+| Manual da Qualidade                                      | 9     | DICQ 4.2.2.2            |
+| NOTIVISA integration (disease reporting)                 | 5     | RDC Art. 195            |
+| Auditoria-interna checklist formalization                | 4–9   | DICQ 4.14.5             |
+| Patient data portal                                      | 5+    | LGPD Art. 12 (deferred) |
 
 **Risk:** None. All gaps have documented remediation phases; no indefinite blockers.
 

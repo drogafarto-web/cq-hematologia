@@ -18,7 +18,7 @@ interface ReviewSectionProps {
 export default function ReviewSection({
   entry,
   editable = false,
-  onContentChange
+  onContentChange,
 }: ReviewSectionProps) {
   const sectionDef = REVIEW_SECTIONS[entry.sectionNumber - 1];
 
@@ -46,9 +46,7 @@ export default function ReviewSection({
             {Object.entries(entry.sourceData).map(([key, value]) => (
               <div key={key} className="flex items-center justify-between text-sm">
                 <span className="text-white/70 capitalize">{formatKey(key)}:</span>
-                <span className="font-mono font-semibold text-white/90">
-                  {formatValue(value)}
-                </span>
+                <span className="font-mono font-semibold text-white/90">{formatValue(value)}</span>
               </div>
             ))}
           </div>
@@ -71,9 +69,7 @@ export default function ReviewSection({
       )}
 
       {/* Character Count */}
-      <div className="text-xs text-white/50 text-right">
-        {entry.content.length} caracteres
-      </div>
+      <div className="text-xs text-white/50 text-right">{entry.content.length} caracteres</div>
 
       {/* Notes (if any) */}
       {entry.notes && (

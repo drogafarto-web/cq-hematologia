@@ -33,7 +33,10 @@ export function AuditoriasList({ auditorias }: AuditoriasListProps) {
         </div>
       ) : (
         auditorias.map((auditoria) => (
-          <div key={auditoria.id} className="border border-white/10 rounded-lg overflow-hidden bg-white/5">
+          <div
+            key={auditoria.id}
+            className="border border-white/10 rounded-lg overflow-hidden bg-white/5"
+          >
             {/* Header */}
             <div className="p-4">
               <div className="flex justify-between items-start mb-2">

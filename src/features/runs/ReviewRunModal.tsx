@@ -373,15 +373,17 @@ export function ReviewRunModal({
               aria-live="polite"
               className="rounded-xl border border-amber-300 dark:border-amber-500/30 bg-amber-50/70 dark:bg-amber-500/[0.06] px-3.5 py-2.5 flex items-start gap-2.5"
             >
-              <span aria-hidden className="text-base leading-none mt-0.5">⏳</span>
+              <span aria-hidden className="text-base leading-none mt-0.5">
+                ⏳
+              </span>
               <div className="flex-1 min-w-0">
                 <p className="text-[12px] font-semibold text-amber-800 dark:text-amber-300/95">
                   Corrida sem bula
                 </p>
                 <p className="text-[11px] leading-snug text-amber-700/85 dark:text-amber-200/70 mt-0.5">
-                  Bula Controllab ainda não chegou — Westgard suspenso e Levey-Jennings
-                  sem linhas-guia. Quando a bula for importada, esta corrida será
-                  recalculada e classificada retroativamente.
+                  Bula Controllab ainda não chegou — Westgard suspenso e Levey-Jennings sem
+                  linhas-guia. Quando a bula for importada, esta corrida será recalculada e
+                  classificada retroativamente.
                 </p>
               </div>
             </div>
@@ -517,7 +519,6 @@ export function ReviewRunModal({
                 ))}
               </div>
             )}
-
           </section>
 
           {/* Rastreabilidade — opcional. Ancora a aprovação deste controle ao
@@ -560,9 +561,7 @@ export function ReviewRunModal({
                     : 'Primeiro atendimento coberto (ex: 0107037)'
                 }
                 value={traceExamCode}
-                onChange={(e) =>
-                  setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))
-                }
+                onChange={(e) => setTraceExamCode(e.target.value.replace(/\D/g, '').slice(0, 10))}
                 className="h-9 px-3 font-mono text-xs bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] rounded-lg text-slate-700 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 outline-none focus:border-blue-500 dark:focus:border-blue-500/60 transition-all"
               />
             </div>
@@ -588,100 +587,102 @@ export function ReviewRunModal({
               reclassificáveis (marksRunAsInformational), muda visual para amarelo
               + texto "informativa" — corrida será gravada mas não compõe
               estatísticas do lote. */}
-          {overrideMode && !complianceResult.canProceed && (() => {
-            const blockersInformational = complianceResult.blockers.filter(
-              (b) => b.marksRunAsInformational,
-            );
-            const isFullyInformational =
-              complianceResult.blockers.length > 0 &&
-              blockersInformational.length === complianceResult.blockers.length &&
-              complianceResult.minimoFaltando === null;
+          {overrideMode &&
+            !complianceResult.canProceed &&
+            (() => {
+              const blockersInformational = complianceResult.blockers.filter(
+                (b) => b.marksRunAsInformational,
+              );
+              const isFullyInformational =
+                complianceResult.blockers.length > 0 &&
+                blockersInformational.length === complianceResult.blockers.length &&
+                complianceResult.minimoFaltando === null;
 
-            return (
-              <div
-                className={`rounded-xl border-2 p-3 space-y-2 ${
-                  isFullyInformational
-                    ? 'border-amber-300 dark:border-amber-500/40 bg-amber-50/50 dark:bg-amber-500/[0.05]'
-                    : 'border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/[0.05]'
-                }`}
-              >
-                <div>
-                  <p
-                    className={`text-xs font-semibold ${
-                      isFullyInformational
-                        ? 'text-amber-700 dark:text-amber-300'
-                        : 'text-red-700 dark:text-red-300'
-                    }`}
-                  >
-                    {isFullyInformational
-                      ? 'Corrida será registrada como INFORMATIVA — justificativa obrigatória'
-                      : 'Override auditado — justificativa obrigatória'}
-                  </p>
-                  <p
-                    className={`text-[11px] mt-0.5 leading-snug ${
-                      isFullyInformational
-                        ? 'text-amber-700/80 dark:text-amber-400/70'
-                        : 'text-red-600/80 dark:text-red-400/70'
-                    }`}
-                  >
-                    {isFullyInformational ? (
-                      <>
-                        Esta corrida entra no histórico do lote para julgamento clínico
-                        e rastreabilidade (RDC 978/2025), mas <strong>não é usada</strong>{' '}
-                        para média, DP, Westgard ou decisão de aprovação da bancada.
-                        Justificativa registrada permanentemente. Mínimo 15 caracteres.
-                      </>
-                    ) : (
-                      <>
-                        Você está prestes a registrar esta corrida apesar dos bloqueios
-                        listados acima. A justificativa fica registrada permanentemente
-                        no log de auditoria (RDC 978/2025). Mínimo 15 caracteres.
-                      </>
-                    )}
-                  </p>
+              return (
+                <div
+                  className={`rounded-xl border-2 p-3 space-y-2 ${
+                    isFullyInformational
+                      ? 'border-amber-300 dark:border-amber-500/40 bg-amber-50/50 dark:bg-amber-500/[0.05]'
+                      : 'border-red-300 dark:border-red-500/40 bg-red-50/50 dark:bg-red-500/[0.05]'
+                  }`}
+                >
+                  <div>
+                    <p
+                      className={`text-xs font-semibold ${
+                        isFullyInformational
+                          ? 'text-amber-700 dark:text-amber-300'
+                          : 'text-red-700 dark:text-red-300'
+                      }`}
+                    >
+                      {isFullyInformational
+                        ? 'Corrida será registrada como INFORMATIVA — justificativa obrigatória'
+                        : 'Override auditado — justificativa obrigatória'}
+                    </p>
+                    <p
+                      className={`text-[11px] mt-0.5 leading-snug ${
+                        isFullyInformational
+                          ? 'text-amber-700/80 dark:text-amber-400/70'
+                          : 'text-red-600/80 dark:text-red-400/70'
+                      }`}
+                    >
+                      {isFullyInformational ? (
+                        <>
+                          Esta corrida entra no histórico do lote para julgamento clínico e
+                          rastreabilidade (RDC 978/2025), mas <strong>não é usada</strong> para
+                          média, DP, Westgard ou decisão de aprovação da bancada. Justificativa
+                          registrada permanentemente. Mínimo 15 caracteres.
+                        </>
+                      ) : (
+                        <>
+                          Você está prestes a registrar esta corrida apesar dos bloqueios listados
+                          acima. A justificativa fica registrada permanentemente no log de auditoria
+                          (RDC 978/2025). Mínimo 15 caracteres.
+                        </>
+                      )}
+                    </p>
+                  </div>
+                  <textarea
+                    value={overrideJustificativa}
+                    onChange={(e) => setOverrideJustificativa(e.target.value)}
+                    rows={2}
+                    autoFocus
+                    placeholder="Ex: Lote novo chegou hoje e lote anterior acabou — corrida para qualificar o novo material."
+                    aria-label="Justificativa do override"
+                    className="w-full px-3 py-2 rounded-lg bg-white dark:bg-white/[0.08] border border-red-200 dark:border-red-500/30 text-sm text-slate-900 dark:text-white/85 placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-red-500/60 resize-none"
+                  />
+                  <div className="flex items-center justify-between">
+                    {(() => {
+                      const len = overrideJustificativa.trim().length;
+                      const faltam = Math.max(0, 15 - len);
+                      return (
+                        <span
+                          className={`text-[10px] font-medium ${
+                            len < 15
+                              ? 'text-red-600 dark:text-red-400'
+                              : 'text-emerald-600 dark:text-emerald-400'
+                          }`}
+                          aria-live="polite"
+                        >
+                          {len < 15
+                            ? `${len}/15 — faltam ${faltam} caracter${faltam === 1 ? '' : 'es'}`
+                            : `${len} caracteres ✓`}
+                        </span>
+                      );
+                    })()}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setOverrideMode(false);
+                        setOverrideJustificativa('');
+                      }}
+                      className="text-[11px] font-medium text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85"
+                    >
+                      Cancelar override — voltar e corrigir
+                    </button>
+                  </div>
                 </div>
-                <textarea
-                  value={overrideJustificativa}
-                  onChange={(e) => setOverrideJustificativa(e.target.value)}
-                  rows={2}
-                  autoFocus
-                  placeholder="Ex: Lote novo chegou hoje e lote anterior acabou — corrida para qualificar o novo material."
-                  aria-label="Justificativa do override"
-                  className="w-full px-3 py-2 rounded-lg bg-white dark:bg-white/[0.08] border border-red-200 dark:border-red-500/30 text-sm text-slate-900 dark:text-white/85 placeholder-slate-400 dark:placeholder-white/25 focus:outline-none focus:border-red-500/60 resize-none"
-                />
-                <div className="flex items-center justify-between">
-                  {(() => {
-                    const len = overrideJustificativa.trim().length;
-                    const faltam = Math.max(0, 15 - len);
-                    return (
-                      <span
-                        className={`text-[10px] font-medium ${
-                          len < 15
-                            ? 'text-red-600 dark:text-red-400'
-                            : 'text-emerald-600 dark:text-emerald-400'
-                        }`}
-                        aria-live="polite"
-                      >
-                        {len < 15
-                          ? `${len}/15 — faltam ${faltam} caracter${faltam === 1 ? '' : 'es'}`
-                          : `${len} caracteres ✓`}
-                      </span>
-                    );
-                  })()}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOverrideMode(false);
-                      setOverrideJustificativa('');
-                    }}
-                    className="text-[11px] font-medium text-slate-600 dark:text-white/55 hover:text-slate-900 dark:hover:text-white/85"
-                  >
-                    Cancelar override — voltar e corrigir
-                  </button>
-                </div>
-              </div>
-            );
-          })()}
+              );
+            })()}
 
           {/* Westgard alerts panel — shown when violations are detected */}
           {hasAnyViolation && (
@@ -730,10 +731,8 @@ export function ReviewRunModal({
             // Com blockers: antes do overrideMode, botão abre o painel de justificativa.
             // Durante overrideMode: botão só libera quando justificativa ≥ 15 chars.
             const overrideReady = overrideMode && overrideJustificativa.trim().length >= 15;
-            const approveDisabled =
-              isConfirming || (hasBlockers && overrideMode && !overrideReady);
-            const rejectDisabled =
-              isConfirming || (hasBlockers && overrideMode && !overrideReady);
+            const approveDisabled = isConfirming || (hasBlockers && overrideMode && !overrideReady);
+            const rejectDisabled = isConfirming || (hasBlockers && overrideMode && !overrideReady);
 
             const approveLabel = isConfirming
               ? null

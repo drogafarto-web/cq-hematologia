@@ -21,6 +21,7 @@ Phase 4 performance validation establishes quantified targets and test commands 
 7. **Firestore Rules** — <50ms p95 (server-side validation latency)
 
 **V1.3 Baseline (2026-05-07):**
+
 - Main shell: **362 KB gzip** (3 KB under budget)
 - Average Lighthouse: **91/100** (4 points above 87 target)
 - Web Vitals: **All green** (LCP avg 1.9s, INP avg 110ms, CLS avg 0.04)
@@ -28,6 +29,7 @@ Phase 4 performance validation establishes quantified targets and test commands 
 - Laudo load: **~1.2s median** (0.8s under target)
 
 **Phase 4 Targets (Pre-Smoke Test):**
+
 - Bundle: ≤365 KB gzip (no new large dependencies)
 - Lighthouse: ≥87 (no regressions >5 points on any route)
 - Web Vitals: Within v1.3 ±10% LCP, ±15% INP, ±20% CLS
@@ -44,12 +46,12 @@ Phase 4 performance validation establishes quantified targets and test commands 
 
 ### 1.1 Target
 
-| Component | v1.3 Actual | Phase 4 Target | Headroom | Status |
-|-----------|-------------|----------------|----------|--------|
-| Main shell (index.js) | 362 KB | ≤365 KB | 3 KB | ✅ Passing |
-| Vendor eager (React, Firebase, Zod) | 267 KB | ≤400 KB | 133 KB | ✅ Passing |
-| Total initial JS load | ~770 KB | ≤900 KB | 130 KB | ✅ Passing |
-| All lazy chunks combined | 1.35 MB | ≤2.0 MB | 650 KB | ✅ Passing |
+| Component                           | v1.3 Actual | Phase 4 Target | Headroom | Status     |
+| ----------------------------------- | ----------- | -------------- | -------- | ---------- |
+| Main shell (index.js)               | 362 KB      | ≤365 KB        | 3 KB     | ✅ Passing |
+| Vendor eager (React, Firebase, Zod) | 267 KB      | ≤400 KB        | 133 KB   | ✅ Passing |
+| Total initial JS load               | ~770 KB     | ≤900 KB        | 130 KB   | ✅ Passing |
+| All lazy chunks combined            | 1.35 MB     | ≤2.0 MB        | 650 KB   | ✅ Passing |
 
 ### 1.2 Test Commands
 
@@ -77,7 +79,7 @@ const dir = './dist/assets';
   const files = fs.readdirSync(dir).filter(f => f.endsWith('.js'));
   let totalGzip = 0;
   console.log('Chunk Sizes (gzip):');
-  
+
   for (const file of files) {
     const content = fs.readFileSync(path.join(dir, file));
     const compressed = await gzip(content);
@@ -85,7 +87,7 @@ const dir = './dist/assets';
     console.log('  ' + file + ': ' + kb + ' KB');
     totalGzip += compressed.length;
   }
-  
+
   console.log('Total gzip: ' + (totalGzip / 1024).toFixed(1) + ' KB');
   console.log(totalGzip < 900 * 1024 ? '✅ PASS' : '❌ FAIL');
 })();
@@ -122,10 +124,10 @@ foreach ($file in $files) {
     $input.CopyTo($gzip)
     $gzip.Close()
     $input.Close()
-    
+
     $gzipSize = [math]::Round($output.Length / 1024, 1)
     $totalGzip += $output.Length
-    
+
     Write-Host "  $($file.Name): $gzipSize KB"
 }
 
@@ -149,6 +151,7 @@ if ($totalGzip -lt 900 * 1024) {
 ### 1.4 Regression Thresholds
 
 If bundle increases above v1.3 baseline:
+
 - **+5% alert** (18 KB increase on 362 KB main) → investigate dependencies
 - **+10% alert** (36 KB increase) → block merge until explained
 - **+15% alert** (54 KB increase) → escalate to CTO
@@ -161,14 +164,14 @@ If bundle increases above v1.3 baseline:
 
 **Average Lighthouse Performance Score ≥87/100** across 5 critical routes.
 
-| Route | v1.3 Score | Phase 4 Target | Regression Threshold |
-|-------|------------|----------------|----------------------|
-| `/hub` (dashboard) | 92 | ≥88 | <78 (fail) |
-| `/auth/login` | 95 | ≥92 | <87 (fail) |
-| `/bioquimica/runs` | 87 | ≥82 | <77 (fail) |
-| `/analytics` | 88 | ≥83 | <78 (fail) |
-| `/export/wizard` | 94 | ≥89 | <84 (fail) |
-| **Average** | **91** | **≥87** | **<82 (fail)** |
+| Route              | v1.3 Score | Phase 4 Target | Regression Threshold |
+| ------------------ | ---------- | -------------- | -------------------- |
+| `/hub` (dashboard) | 92         | ≥88            | <78 (fail)           |
+| `/auth/login`      | 95         | ≥92            | <87 (fail)           |
+| `/bioquimica/runs` | 87         | ≥82            | <77 (fail)           |
+| `/analytics`       | 88         | ≥83            | <78 (fail)           |
+| `/export/wizard`   | 94         | ≥89            | <84 (fail)           |
+| **Average**        | **91**     | **≥87**        | **<82 (fail)**       |
 
 ### 2.2 Test Commands
 
@@ -257,15 +260,16 @@ ls -la .lighthouseci/
 
 ### 3.1 Targets
 
-| Metric | Target | Hard Limit | v1.3 Baseline | v1.3 Avg |
-|--------|--------|-----------|---------------|----------|
-| **LCP** (Largest Contentful Paint) | <2.0s | <2.5s | 1.5–2.2s | 1.9s |
-| **INP** (Interaction to Next Paint) | <200ms | <250ms | 78–150ms | 110ms |
-| **CLS** (Cumulative Layout Shift) | <0.05 | <0.1 | 0.02–0.06 | 0.04 |
-| **FCP** (First Contentful Paint) | <1.5s | <2.0s | 1.0–1.6s | 1.3s |
-| **TTFB** (Time to First Byte) | <0.8s | <1.2s | 0.25–0.4s | 0.35s |
+| Metric                              | Target | Hard Limit | v1.3 Baseline | v1.3 Avg |
+| ----------------------------------- | ------ | ---------- | ------------- | -------- |
+| **LCP** (Largest Contentful Paint)  | <2.0s  | <2.5s      | 1.5–2.2s      | 1.9s     |
+| **INP** (Interaction to Next Paint) | <200ms | <250ms     | 78–150ms      | 110ms    |
+| **CLS** (Cumulative Layout Shift)   | <0.05  | <0.1       | 0.02–0.06     | 0.04     |
+| **FCP** (First Contentful Paint)    | <1.5s  | <2.0s      | 1.0–1.6s      | 1.3s     |
+| **TTFB** (Time to First Byte)       | <0.8s  | <1.2s      | 0.25–0.4s     | 0.35s    |
 
 **Regression Thresholds (Phase 4):**
+
 - LCP: baseline ±10% (e.g., 1.9s → fail if >2.09s)
 - INP: baseline ±15% (e.g., 110ms → fail if >126ms)
 - CLS: baseline ±20% (e.g., 0.04 → fail if >0.048)
@@ -288,13 +292,13 @@ routes.forEach(route => {
   const file = fs.readFileSync('lh-' + route + '.json', 'utf8');
   const data = JSON.parse(file);
   const metrics = data.lighthouseResult.audits.metrics.details.items[0];
-  
+
   const lcp = (metrics.largestContentfulPaint / 1000).toFixed(1);
   const inp = metrics.totalInteractionLatency || '—';
   const cls = metrics.cumulativeLayoutShift.toFixed(3);
   const fcp = (metrics.firstContentfulPaint / 1000).toFixed(1);
   const ttfb = (metrics.timeToFirstByte / 1000).toFixed(2);
-  
+
   console.log(route.padEnd(20) + lcp + 's\\t' + inp + 'ms\\t' + cls + '\\t' + fcp + 's\\t' + ttfb + 's');
 });
 "
@@ -373,17 +377,17 @@ firebase auth:create --email "$EMAIL" --password "$PASSWORD" --project hmatologi
 TIMES=()
 for i in $(seq 1 $ITERATIONS); do
   START=$(date +%s%3N)
-  
+
   # Simulate login via cURL to API endpoint
   curl -s -X POST "https://southamerica-east1-hmatologia2.cloudfunctions.net/triggerUserCreation" \
     -H "Content-Type: application/json" \
     -d "{\"email\": \"$EMAIL\"}" \
     -o /dev/null
-  
+
   END=$(date +%s%3N)
   ELAPSED=$((END - START))
   TIMES+=($ELAPSED)
-  
+
   echo "  Run $i: ${ELAPSED}ms"
 done
 
@@ -467,16 +471,16 @@ echo "Testing laudo load latency ($ITERATIONS runs)..."
 TIMES=()
 for i in $(seq 1 $ITERATIONS); do
   START=$(date +%s%3N)
-  
+
   # Fetch laudo from Firestore via REST API
   curl -s "https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents/labs/$LAB_ID/laudos/$LAUDO_ID" \
     -H "Authorization: Bearer $FIREBASE_TOKEN" \
     -o /dev/null
-  
+
   END=$(date +%s%3N)
   ELAPSED=$((END - START))
   TIMES+=($ELAPSED)
-  
+
   echo "  Run $i: ${ELAPSED}ms"
 done
 
@@ -557,18 +561,18 @@ echo "Testing queue processing latency ($ITERATIONS runs)..."
 TIMES=()
 for i in $(seq 1 $ITERATIONS); do
   START=$(date +%s%3N)
-  
+
   # Enqueue a task
   curl -s -X POST "https://southamerica-east1-hmatologia2.cloudfunctions.net/enqueueAsyncTask" \
     -H "Content-Type: application/json" \
     -H "Authorization: Bearer $FIREBASE_TOKEN" \
     -d "{\"taskType\": \"test\", \"payload\": {}}" \
     -o /dev/null
-  
+
   END=$(date +%s%3N)
   ELAPSED=$((END - START))
   TIMES+=($ELAPSED)
-  
+
   echo "  Run $i: ${ELAPSED}ms"
   sleep 0.5  # Throttle to avoid rate limits
 done
@@ -652,14 +656,14 @@ echo "  (Ensure Firebase emulator is running: firebase emulators:start)"
 TIMES=()
 for i in $(seq 1 $ITERATIONS); do
   START=$(date +%s%3N)
-  
+
   # Write operation (triggers rule validation)
   curl -s -X PATCH \
     "http://localhost:8080/v1/projects/test/databases/(default)/documents/test/doc$i" \
     -H "Content-Type: application/json" \
     -d '{"fields": {"timestamp": {"timestampValue": "'$(date -u +%Y-%m-%dT%H:%M:%SZ)'"}}}' \
     -o /dev/null 2>&1
-  
+
   END=$(date +%s%3N)
   ELAPSED=$((END - START))
   TIMES+=($ELAPSED)
@@ -754,7 +758,7 @@ for route in "${ROUTES[@]}"; do
     --output=json \
     --output-path="/tmp/lh-$route.json" \
     --quiet 2>/dev/null || true
-  
+
   SCORE=$(jq '.lighthouseResult.categories.performance.score * 100' /tmp/lh-$route.json 2>/dev/null || echo "0")
   SCORE=${SCORE%.*}
   SCORES+=($SCORE)
@@ -812,6 +816,7 @@ bash scripts/phase4-predeployment-validation.sh
 **Real-time monitoring URL:** https://console.firebase.google.com/project/hmatologia2/performance
 
 **Alerts configured:**
+
 - LCP >2500ms → email + Slack
 - INP >200ms → email + Slack
 - CLS >0.1 → email + Slack
@@ -836,15 +841,15 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 **If Phase 4 measurements exceed these limits, investigate before shipping:**
 
-| Metric | v1.3 Baseline | ⚠️ Warning | 🔴 Fail |
-|--------|---------------|-----------|---------|
-| Bundle (main shell) | 362 KB | +5% (380 KB) | +10% (398 KB) |
-| Lighthouse avg | 91/100 | <88/100 | <82/100 |
-| LCP p95 | 2.2s | >2.4s | >2.5s |
-| INP p95 | 150ms | >172ms | >200ms |
-| CLS p95 | 0.09 | >0.108 | >0.1 |
-| Auth latency p95 | ~400ms | >450ms | >500ms |
-| Laudo load p95 | ~1.2s | >1.8s | >2.0s |
+| Metric              | v1.3 Baseline | ⚠️ Warning   | 🔴 Fail       |
+| ------------------- | ------------- | ------------ | ------------- |
+| Bundle (main shell) | 362 KB        | +5% (380 KB) | +10% (398 KB) |
+| Lighthouse avg      | 91/100        | <88/100      | <82/100       |
+| LCP p95             | 2.2s          | >2.4s        | >2.5s         |
+| INP p95             | 150ms         | >172ms       | >200ms        |
+| CLS p95             | 0.09          | >0.108       | >0.1          |
+| Auth latency p95    | ~400ms        | >450ms       | >500ms        |
+| Laudo load p95      | ~1.2s         | >1.8s        | >2.0s         |
 
 ---
 

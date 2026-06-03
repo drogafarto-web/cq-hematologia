@@ -43,7 +43,7 @@ export async function capturePhoto(): Promise<string | null> {
         } catch {
           resolve(sourceUri);
         }
-      }
+      },
     );
   });
 }
@@ -75,7 +75,7 @@ export async function pickFromGallery(): Promise<string | null> {
         } catch {
           resolve(sourceUri);
         }
-      }
+      },
     );
   });
 }

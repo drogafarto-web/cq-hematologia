@@ -212,7 +212,7 @@ describe('stripImageMetadata — defensive', () => {
   it('does not throw on a corrupted JPEG header', () => {
     const garbage = Buffer.from([0x00, 0x00, 0x00, 0x00, 0x00]);
     expect(() =>
-      stripImageMetadata({ base64: b64(garbage), mimeType: 'image/jpeg' })
+      stripImageMetadata({ base64: b64(garbage), mimeType: 'image/jpeg' }),
     ).not.toThrow();
   });
 });

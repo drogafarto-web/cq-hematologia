@@ -3,7 +3,7 @@
 **Document Set:** HC Quality Phase 3 Incident Response Playbook  
 **Version:** 1.0  
 **Effective:** 2026-05-07  
-**Classification:** DICQ 4.4 / RDC 978 Art. 5 / LGPD Art. 34  
+**Classification:** DICQ 4.4 / RDC 978 Art. 5 / LGPD Art. 34
 
 ---
 
@@ -17,9 +17,10 @@ This index provides a roadmap to the 4-document incident response system for HC 
 
 **Purpose:** Complete operational procedures for all incident types  
 **Audience:** Incident commanders, on-call engineers, CTO, compliance  
-**Length:** ~15 pages  
+**Length:** ~15 pages
 
 **Contents:**
+
 - Section 1: Incident classification (5 types: breach, outage, corruption, compliance, security)
 - Section 2: Universal workflow (detection → triage → escalation → investigation → remediation → communication → post-mortem)
 - Section 3: Communication templates (customer, regulator, internal)
@@ -30,11 +31,13 @@ This index provides a roadmap to the 4-document incident response system for HC 
 - Section 8: Incident decision tree (quick reference)
 
 **When to Use:**
+
 - During actual incident (reference Section 2 + applicable remediation section)
 - During training (read full document)
 - During audit prep (Sections 1, 2, 6 demonstrate compliance)
 
 **Key Procedures:**
+
 - Data Breach → Section 2.6.1 (containment + investigation + notification)
 - System Outage → Section 2.6.2 (rollback or restore decision)
 - Data Corruption → Section 2.6.3 (stop writes + restore from backup)
@@ -47,9 +50,10 @@ This index provides a roadmap to the 4-document incident response system for HC 
 
 **Purpose:** On-call cheat sheet — print and laminate  
 **Audience:** On-call engineers (primary), DevOps team  
-**Length:** 2 pages  
+**Length:** 2 pages
 
 **Contents:**
+
 - 0–5 min: Is this real?
 - Severity in 30 seconds (P0/P1/P2 decision matrix)
 - Quick diagnosis (command snippets for each incident type)
@@ -61,11 +65,13 @@ This index provides a roadmap to the 4-document incident response system for HC 
 - Key numbers & URLs
 
 **When to Use:**
+
 - During active incident (quick lookup)
 - Desk reference (print on card stock, laminate, keep on monitor)
 - Training new on-call engineers (reference during onboarding)
 
 **Example Usage:**
+
 ```
 Incident happens → Check severity in quick-reference table
 → Get command from "Quick Diagnosis" section
@@ -80,9 +86,10 @@ Incident happens → Check severity in quick-reference table
 
 **Purpose:** Quarterly drill procedures to verify incident response system works  
 **Audience:** DevOps, QA, security team, CTO  
-**Length:** ~25 pages (detailed drill scripts)  
+**Length:** ~25 pages (detailed drill scripts)
 
 **Contents:**
+
 - Pre-drill setup (scheduling, environment prep, backups)
 - Drill 1: Data Breach Detection & Containment (90 min)
 - Drill 2: System Outage & Rollback (120 min)
@@ -93,12 +100,14 @@ Incident happens → Check severity in quick-reference table
 - Quarterly schedule + compliance verification
 
 **When to Use:**
+
 - Quarterly (Q1, Q2, Q3, Q4 — one drill per month)
 - Before major deploy (validate system handles new services)
 - After team changes (onboard new on-call engineer)
 - Before accreditation audit (prove system works)
 
 **Execution:**
+
 1. Schedule 1 week in advance (don't surprise customers)
 2. Alert customers: "Scheduled incident response drill. No data loss expected."
 3. Use staging project (not production) when possible
@@ -107,6 +116,7 @@ Incident happens → Check severity in quick-reference table
 6. Archive results (evidence for auditor)
 
 **Compliance Value:**
+
 - DICQ 4.1.2.7: Proves monitoring + supervision system works
 - DICQ 4.4: Proves data integrity + recovery procedures tested
 - RDC 978 Art. 5: Proves incident response training + competency
@@ -117,9 +127,10 @@ Incident happens → Check severity in quick-reference table
 
 **Purpose:** Regulatory compliance justification for auditors  
 **Audience:** CTO, compliance officer, auditors (ANVISA, ANPD, DICQ)  
-**Length:** ~10 pages  
+**Length:** ~10 pages
 
 **Contents:**
+
 - Executive summary (incident response = compliance with 3 regulatory frameworks)
 - RDC 978 mapping (Art. 5, 86, 122 — quality, traceability, supervision)
 - LGPD mapping (Art. 18, 34, 35 — access, notification, deletion rights)
@@ -128,12 +139,14 @@ Incident happens → Check severity in quick-reference table
 - Auditor-ready incident report template
 
 **When to Use:**
+
 - Audit preparation (1 month before audit, familiarize team)
 - During audit (reference when auditor asks "How do you comply with RDC 978 Art. 5?")
 - Internal compliance training (explain why we have incident response)
 - Risk assessment updates (FMEA/probability-severity-detection scores)
 
 **Example Audit Q&A:**
+
 ```
 Auditor: "Show me your incident response procedures."
 Answer: "INCIDENT_RESPONSE_PLAYBOOK.md § Sections 1–6"
@@ -261,15 +274,18 @@ docs/
 ## Key Contacts & Links
 
 **On-Call Matrix:**
+
 - See INCIDENT_RESPONSE_PLAYBOOK.md Section 7
 
 **Cloud Resources:**
+
 - Cloud Logs: https://console.cloud.google.com/logs/query
 - Firebase: https://console.firebase.google.com/project/hmatologia2
 - GCP Dashboard: https://console.cloud.google.com
 - Status Page: https://status.hcquality.com.br
 
 **Runbooks (related docs):**
+
 - Firestore Restore: docs/DR_RUNBOOKS.md (Scenario 1)
 - Rollback: docs/deploy-protocol.md
 - Cloud Logs Setup: docs/CLOUD_LOGS_MONITORING_GUIDE.md
@@ -300,9 +316,9 @@ This incident response system is designed to meet:
 
 ## Document History & Maintenance
 
-| Version | Date | Changes | Author |
-|---------|------|---------|--------|
-| 1.0 | 2026-05-07 | Initial creation | CTO |
+| Version | Date       | Changes          | Author |
+| ------- | ---------- | ---------------- | ------ |
+| 1.0     | 2026-05-07 | Initial creation | CTO    |
 
 **Next Review:** 2026-11-07  
 **Owner:** CTO + DevOps + Compliance Officer  

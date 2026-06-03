@@ -14,7 +14,12 @@ import { useActiveLabId } from '../../../store/useAuthStore';
 import { toast } from '../../../shared/store/useToastStore';
 import { useEscalas } from '../hooks/useEscalas';
 import { createEscala, updateEscala, softDeleteEscala } from '../services/escalaService';
-import { TURNO_LABEL, type EscalaColaborador, type EscalaDiaria, type Turno } from '../types/Escala';
+import {
+  TURNO_LABEL,
+  type EscalaColaborador,
+  type EscalaDiaria,
+  type Turno,
+} from '../types/Escala';
 
 const DIAS_SEMANA = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
@@ -39,7 +44,9 @@ function loadEscalaPadrao(labId: string): EscalaPadrao | null {
   try {
     const raw = localStorage.getItem(`${STORAGE_KEY}_${labId}`);
     return raw ? JSON.parse(raw) : null;
-  } catch { return null; }
+  } catch {
+    return null;
+  }
 }
 
 function saveEscalaPadrao(labId: string, padrao: EscalaPadrao) {
@@ -68,7 +75,16 @@ const emptyForm: EscalaFormState = {
 
 export function EscalaTab(): React.ReactElement {
   const labId = useActiveLabId();
-  const { escalas, loading, error, diasSemCobertura, alertasCount, rangeStart, rangeEnd, setWeekOffset } = useEscalas();
+  const {
+    escalas,
+    loading,
+    error,
+    diasSemCobertura,
+    alertasCount,
+    rangeStart,
+    rangeEnd,
+    setWeekOffset,
+  } = useEscalas();
   const [modalDay, setModalDay] = useState<Date | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState<EscalaFormState>(emptyForm);
@@ -126,7 +142,14 @@ export function EscalaTab(): React.ReactElement {
     if (!form.novoNome.trim()) return;
     setForm((f) => ({
       ...f,
-      colaboradores: [...f.colaboradores, { id: crypto.randomUUID(), nome: f.novoNome.trim(), cargo: f.novoCargo.trim() || 'Técnico' }],
+      colaboradores: [
+        ...f.colaboradores,
+        {
+          id: crypto.randomUUID(),
+          nome: f.novoNome.trim(),
+          cargo: f.novoCargo.trim() || 'Técnico',
+        },
+      ],
       novoNome: '',
       novoCargo: '',
     }));
@@ -169,28 +192,41 @@ export function EscalaTab(): React.ReactElement {
     }
   }, [labId, modalDay, editingId, form, closeModal]);
 
-  const handleDelete = useCallback(async (escalaId: string) => {
-    if (!labId) return;
-    try {
-      await softDeleteEscala(labId, escalaId);
-      toast.success('Escala removida.');
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : 'Erro ao remover.');
-    }
-  }, [labId]);
+  const handleDelete = useCallback(
+    async (escalaId: string) => {
+      if (!labId) return;
+      try {
+        await softDeleteEscala(labId, escalaId);
+        toast.success('Escala removida.');
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : 'Erro ao remover.');
+      }
+    },
+    [labId],
+  );
 
   // ─── Escala Padrão ──────────────────────────────────────────────────────────
 
   const [showPadraoConfig, setShowPadraoConfig] = useState(false);
-  const [padrao, setPadrao] = useState<EscalaPadrao | null>(() => labId ? loadEscalaPadrao(labId) : null);
+  const [padrao, setPadrao] = useState<EscalaPadrao | null>(() =>
+    labId ? loadEscalaPadrao(labId) : null,
+  );
   const [applyingPadrao, setApplyingPadrao] = useState(false);
 
   // Template form state
   const [padraoForm, setPadraoForm] = useState<EscalaPadrao>(
-    padrao || { diasAtivos: [0, 1, 2, 3, 4], turnos: [] }
+    padrao || { diasAtivos: [0, 1, 2, 3, 4], turnos: [] },
   );
-  const [newTurnoForm, setNewTurnoForm] = useState<{ turno: Turno; nomes: string; rtPresente: boolean; rtSub: boolean }>({
-    turno: 'manha', nomes: '', rtPresente: true, rtSub: false,
+  const [newTurnoForm, setNewTurnoForm] = useState<{
+    turno: Turno;
+    nomes: string;
+    rtPresente: boolean;
+    rtSub: boolean;
+  }>({
+    turno: 'manha',
+    nomes: '',
+    rtPresente: true,
+    rtSub: false,
   });
 
   const savePadraoConfig = useCallback(() => {
@@ -203,20 +239,26 @@ export function EscalaTab(): React.ReactElement {
 
   const addTurnoToTemplate = useCallback(() => {
     if (!newTurnoForm.nomes.trim()) return;
-    const colaboradores: EscalaColaborador[] = newTurnoForm.nomes.split(',').map((n) => ({
-      id: crypto.randomUUID(),
-      nome: n.trim(),
-      cargo: 'Técnico',
-    })).filter((c) => c.nome);
+    const colaboradores: EscalaColaborador[] = newTurnoForm.nomes
+      .split(',')
+      .map((n) => ({
+        id: crypto.randomUUID(),
+        nome: n.trim(),
+        cargo: 'Técnico',
+      }))
+      .filter((c) => c.nome);
 
     setPadraoForm((p) => ({
       ...p,
-      turnos: [...p.turnos, {
-        turno: newTurnoForm.turno,
-        colaboradores,
-        rtPresente: newTurnoForm.rtPresente,
-        rtSubstitutoPresente: newTurnoForm.rtSub,
-      }],
+      turnos: [
+        ...p.turnos,
+        {
+          turno: newTurnoForm.turno,
+          colaboradores,
+          rtPresente: newTurnoForm.rtPresente,
+          rtSubstitutoPresente: newTurnoForm.rtSub,
+        },
+      ],
     }));
     setNewTurnoForm({ turno: 'manha', nomes: '', rtPresente: true, rtSub: false });
   }, [newTurnoForm]);
@@ -273,8 +315,10 @@ export function EscalaTab(): React.ReactElement {
         <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 flex items-center gap-3">
           <span className="h-2 w-2 rounded-full bg-red-500 animate-pulse" aria-hidden="true" />
           <p className="text-sm text-red-200">
-            <span className="font-medium">{alertasCount} dia{alertasCount !== 1 ? 's' : ''}</span> sem cobertura RT nesta semana.
-            RDC 978 Art. 122 exige presença de RT ou substituto.
+            <span className="font-medium">
+              {alertasCount} dia{alertasCount !== 1 ? 's' : ''}
+            </span>{' '}
+            sem cobertura RT nesta semana. RDC 978 Art. 122 exige presença de RT ou substituto.
           </p>
         </div>
       )}
@@ -288,8 +332,18 @@ export function EscalaTab(): React.ReactElement {
             disabled={applyingPadrao}
             className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-emerald-500 disabled:opacity-50 transition-colors"
           >
-            <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            <svg
+              className="w-3.5 h-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+              />
             </svg>
             {applyingPadrao ? 'Aplicando...' : 'Aplicar padrao na semana'}
           </button>
@@ -299,15 +353,30 @@ export function EscalaTab(): React.ReactElement {
           onClick={() => setShowPadraoConfig(!showPadraoConfig)}
           className="inline-flex items-center gap-1.5 rounded-lg border border-white/10 px-3 py-1.5 text-xs text-white/60 hover:text-white hover:border-white/20 transition-colors"
         >
-          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-            <path strokeLinecap="round" strokeLinejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+          <svg
+            className="w-3.5 h-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"
+            />
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
+            />
           </svg>
           {showPadraoConfig ? 'Fechar config' : 'Configurar escala padrao'}
         </button>
         {padrao && padrao.turnos.length > 0 && (
           <span className="text-[10px] text-white/30">
-            Padrao: {padrao.turnos.map((t) => TURNO_LABEL[t.turno]).join(' + ')} · {padrao.diasAtivos.length} dias/semana
+            Padrao: {padrao.turnos.map((t) => TURNO_LABEL[t.turno]).join(' + ')} ·{' '}
+            {padrao.diasAtivos.length} dias/semana
           </span>
         )}
       </div>
@@ -317,23 +386,29 @@ export function EscalaTab(): React.ReactElement {
         <div className="rounded-xl border border-white/[0.08] bg-white/[0.02] p-4 space-y-4">
           <div>
             <h4 className="text-sm font-medium text-white/80 mb-1">Escala Padrao Semanal</h4>
-            <p className="text-xs text-white/40">Configure uma vez. Aplique em qualquer semana com um clique.</p>
+            <p className="text-xs text-white/40">
+              Configure uma vez. Aplique em qualquer semana com um clique.
+            </p>
           </div>
 
           {/* Dias ativos */}
           <div>
-            <label className="block text-xs font-medium text-white/50 mb-2">Dias de funcionamento</label>
+            <label className="block text-xs font-medium text-white/50 mb-2">
+              Dias de funcionamento
+            </label>
             <div className="flex gap-2">
               {DIAS_SEMANA.map((dia, idx) => (
                 <button
                   key={idx}
                   type="button"
-                  onClick={() => setPadraoForm((p) => ({
-                    ...p,
-                    diasAtivos: p.diasAtivos.includes(idx)
-                      ? p.diasAtivos.filter((d) => d !== idx)
-                      : [...p.diasAtivos, idx].sort(),
-                  }))}
+                  onClick={() =>
+                    setPadraoForm((p) => ({
+                      ...p,
+                      diasAtivos: p.diasAtivos.includes(idx)
+                        ? p.diasAtivos.filter((d) => d !== idx)
+                        : [...p.diasAtivos, idx].sort(),
+                    }))
+                  }
                   className={`px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                     padraoForm.diasAtivos.includes(idx)
                       ? 'bg-violet-600 text-white'
@@ -351,14 +426,21 @@ export function EscalaTab(): React.ReactElement {
             <div className="space-y-2">
               <label className="block text-xs font-medium text-white/50">Turnos configurados</label>
               {padraoForm.turnos.map((t, idx) => (
-                <div key={idx} className="flex items-center justify-between rounded-lg bg-white/[0.04] px-3 py-2">
+                <div
+                  key={idx}
+                  className="flex items-center justify-between rounded-lg bg-white/[0.04] px-3 py-2"
+                >
                   <div>
-                    <span className="text-xs font-medium text-violet-400">{TURNO_LABEL[t.turno]}</span>
+                    <span className="text-xs font-medium text-violet-400">
+                      {TURNO_LABEL[t.turno]}
+                    </span>
                     <span className="text-xs text-white/40 ml-2">
                       {t.colaboradores.map((c) => c.nome).join(', ')}
                     </span>
                     {t.rtPresente && <span className="ml-2 text-[10px] text-emerald-400">RT</span>}
-                    {t.rtSubstitutoPresente && <span className="ml-1 text-[10px] text-emerald-400">Sub</span>}
+                    {t.rtSubstitutoPresente && (
+                      <span className="ml-1 text-[10px] text-emerald-400">Sub</span>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -374,7 +456,9 @@ export function EscalaTab(): React.ReactElement {
 
           {/* Adicionar turno */}
           <div className="border-t border-white/[0.06] pt-3 space-y-2">
-            <label className="block text-xs font-medium text-white/50">Adicionar turno ao padrao</label>
+            <label className="block text-xs font-medium text-white/50">
+              Adicionar turno ao padrao
+            </label>
             <div className="grid grid-cols-4 gap-2">
               <select
                 value={newTurnoForm.turno}
@@ -491,12 +575,16 @@ export function EscalaTab(): React.ReactElement {
               <div
                 key={idx}
                 className={`rounded-lg border p-3 min-h-[160px] flex flex-col ${
-                  isToday ? 'border-violet-500/50 bg-violet-500/5' : 'border-white/10 bg-white/[0.02]'
+                  isToday
+                    ? 'border-violet-500/50 bg-violet-500/5'
+                    : 'border-white/10 bg-white/[0.02]'
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs font-medium text-white/60">{DIAS_SEMANA[idx]}</span>
-                  <span className={`text-xs ${isToday ? 'text-violet-400 font-semibold' : 'text-white/40'}`}>
+                  <span
+                    className={`text-xs ${isToday ? 'text-violet-400 font-semibold' : 'text-white/40'}`}
+                  >
                     {formatDate(day)}
                   </span>
                 </div>
@@ -504,10 +592,14 @@ export function EscalaTab(): React.ReactElement {
                 {/* RT badge */}
                 <div className="mb-2">
                   {dayEscalas.length > 0 ? (
-                    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                      hasRT ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
-                    }`}>
-                      <span className={`h-1.5 w-1.5 rounded-full ${hasRT ? 'bg-emerald-500' : 'bg-red-500'}`} />
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${
+                        hasRT ? 'bg-emerald-500/20 text-emerald-400' : 'bg-red-500/20 text-red-400'
+                      }`}
+                    >
+                      <span
+                        className={`h-1.5 w-1.5 rounded-full ${hasRT ? 'bg-emerald-500' : 'bg-red-500'}`}
+                      />
                       {hasRT ? 'RT' : 'Sem RT'}
                     </span>
                   ) : (
@@ -528,7 +620,9 @@ export function EscalaTab(): React.ReactElement {
                       tabIndex={0}
                       onKeyDown={(ev) => ev.key === 'Enter' && openModal(day, e)}
                     >
-                      <span className="text-[10px] text-violet-400 font-medium">{TURNO_LABEL[e.turno]}</span>
+                      <span className="text-[10px] text-violet-400 font-medium">
+                        {TURNO_LABEL[e.turno]}
+                      </span>
                       <div className="text-[10px] text-white/50 truncate">
                         {e.colaboradores.map((c) => c.nome).join(', ') || '—'}
                       </div>
@@ -585,10 +679,22 @@ interface EscalaModalProps {
 }
 
 function EscalaModal({
-  day, form, setForm, editing, saving, onSave, onClose, onDelete, onAddColaborador, onRemoveColaborador,
+  day,
+  form,
+  setForm,
+  editing,
+  saving,
+  onSave,
+  onClose,
+  onDelete,
+  onAddColaborador,
+  onRemoveColaborador,
 }: EscalaModalProps): React.ReactElement {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-lg rounded-xl border border-white/10 bg-[#1a1a1f] p-6 shadow-2xl space-y-4"
         onClick={(e) => e.stopPropagation()}
@@ -598,10 +704,23 @@ function EscalaModal({
       >
         <div className="flex items-center justify-between">
           <h3 className="text-lg font-semibold text-white">
-            {editing ? 'Editar' : 'Nova'} Escala — {day.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' })}
+            {editing ? 'Editar' : 'Nova'} Escala —{' '}
+            {day.toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: '2-digit' })}
           </h3>
-          <button type="button" onClick={onClose} className="text-white/40 hover:text-white" aria-label="Fechar">
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+          <button
+            type="button"
+            onClick={onClose}
+            className="text-white/40 hover:text-white"
+            aria-label="Fechar"
+          >
+            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
           </button>
         </div>
 
@@ -614,7 +733,9 @@ function EscalaModal({
             className="w-full rounded-lg border border-white/10 bg-[#141417] px-3 py-2 text-sm text-white outline-none focus:border-violet-500"
           >
             {(Object.entries(TURNO_LABEL) as [Turno, string][]).map(([k, v]) => (
-              <option key={k} value={k}>{v}</option>
+              <option key={k} value={k}>
+                {v}
+              </option>
             ))}
           </select>
         </div>
@@ -647,9 +768,20 @@ function EscalaModal({
           {form.colaboradores.length > 0 && (
             <div className="mb-2 space-y-1">
               {form.colaboradores.map((c) => (
-                <div key={c.id} className="flex items-center justify-between rounded bg-white/5 px-2 py-1">
-                  <span className="text-sm text-white/80">{c.nome} <span className="text-white/40">({c.cargo})</span></span>
-                  <button type="button" onClick={() => onRemoveColaborador(c.id)} className="text-red-400 hover:text-red-300 text-xs">Remover</button>
+                <div
+                  key={c.id}
+                  className="flex items-center justify-between rounded bg-white/5 px-2 py-1"
+                >
+                  <span className="text-sm text-white/80">
+                    {c.nome} <span className="text-white/40">({c.cargo})</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onRemoveColaborador(c.id)}
+                    className="text-red-400 hover:text-red-300 text-xs"
+                  >
+                    Remover
+                  </button>
                 </div>
               ))}
             </div>
@@ -693,12 +825,22 @@ function EscalaModal({
         {/* Actions */}
         <div className="flex items-center justify-between pt-2">
           {onDelete ? (
-            <button type="button" onClick={onDelete} className="text-sm text-red-400 hover:text-red-300">
+            <button
+              type="button"
+              onClick={onDelete}
+              className="text-sm text-red-400 hover:text-red-300"
+            >
               Excluir
             </button>
-          ) : <span />}
+          ) : (
+            <span />
+          )}
           <div className="flex gap-3">
-            <button type="button" onClick={onClose} className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-lg border border-white/10 px-4 py-2 text-sm text-white/70 hover:bg-white/5"
+            >
               Cancelar
             </button>
             <button

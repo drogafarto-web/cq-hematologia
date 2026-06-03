@@ -80,9 +80,7 @@ export const analyticsMetadataSchema = z.object({
  * @param data Raw Firestore document data (from snap.data())
  * @returns Validated aggregate or null
  */
-export function parseAnalyticsAggregate(
-  data: unknown,
-): AnalyticsAggregateValidated | null {
+export function parseAnalyticsAggregate(data: unknown): AnalyticsAggregateValidated | null {
   const result = analyticsAggregateSchema.safeParse(data);
   if (!result.success) {
     console.warn('[Analytics] Aggregate schema validation failed:', result.error.issues);

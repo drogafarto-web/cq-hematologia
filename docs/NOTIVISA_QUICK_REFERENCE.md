@@ -36,6 +36,7 @@ Result (laudo) with reportable disease
 ## 8 Callable Functions (Summary)
 
 ### 1. `notivisaDraftCreate(labId, laudoId)`
+
 - **Purpose:** Generate NOTIVISA form from result
 - **Role Required:** Any member of lab
 - **Input:** labId, laudoId, (optional criticoContext)
@@ -44,6 +45,7 @@ Result (laudo) with reportable disease
 - **Error Codes:** LAUDO_NOT_FOUND, PACIENTE_NOT_FOUND, INVALID_PAYLOAD
 
 ### 2. `getNotivisaDraft(labId, draftId)`
+
 - **Purpose:** View draft details + audit log
 - **Role Required:** RT or AUDITOR
 - **Input:** labId, draftId
@@ -52,6 +54,7 @@ Result (laudo) with reportable disease
 - **Error Codes:** UNAUTHORIZED, DRAFT_NOT_FOUND
 
 ### 3. `approveNotivisaDraft(labId, draftId, signature)`
+
 - **Purpose:** RT approval + signature
 - **Role Required:** RT only
 - **Input:** labId, draftId, signature {hash, operatorId, ts}
@@ -61,6 +64,7 @@ Result (laudo) with reportable disease
 - **Note:** Signature = HMAC-SHA256 (server validates)
 
 ### 4. `submitNotivisa(labId, draftId)`
+
 - **Purpose:** Move approved draft to async queue
 - **Role Required:** RT or Admin
 - **Input:** labId, draftId
@@ -70,6 +74,7 @@ Result (laudo) with reportable disease
 - **Note:** Sets deadline = resultDate + 24h (RDC 978 Art. 66)
 
 ### 5. `notivisaQueueProcessor()` (Scheduled)
+
 - **Purpose:** Async submission processing (every 5 minutes)
 - **Trigger:** Cloud Scheduler (automatic)
 - **Processing:** Exponential backoff (1m → 5m → 15m → 45m → 120m)
@@ -79,6 +84,7 @@ Result (laudo) with reportable disease
 - **Note:** Run `notivisaQueueProcessor()` manually if urgent: `gcloud functions call notivisaQueueProcessor --region southamerica-east1`
 
 ### 6. `notivisaExportArchive(labId, daysBack, format)`
+
 - **Purpose:** Auditor-only export of acknowledged entries
 - **Role Required:** AUDITOR only
 - **Input:** labId, daysBack (1–365, default 90), format (csv|json|both)
@@ -88,6 +94,7 @@ Result (laudo) with reportable disease
 - **Note:** Archive immutable, retained 90 days
 
 ### 7. `notivisaSoftDelete(labId, entryId, reason, notes?)`
+
 - **Purpose:** Mark entry as deleted (soft-delete only, RN-06)
 - **Role Required:** Admin or Owner only
 - **Input:** labId, entryId, reason (duplicate|incorrect-patient|false-positive|test-entry|other), notes?
@@ -97,6 +104,7 @@ Result (laudo) with reportable disease
 - **Note:** Soft delete appends immutable audit log entry
 
 ### 8. `notivisaWebhookHandler()` (Phase 12+)
+
 - **Purpose:** Receive Anvisa acknowledgment callback
 - **Trigger:** Anvisa SOAP service (HTTP POST)
 - **Auth:** HMAC-SHA256 signature verification (header: x-anvisa-signature)
@@ -110,6 +118,7 @@ Result (laudo) with reportable disease
 ## Error Classification
 
 ### Retryable Errors (Processor Retries)
+
 ```
 5xx (500, 502, 503, 504)
 ECONNREFUSED, ETIMEDOUT, ENOTFOUND
@@ -119,6 +128,7 @@ ECONNREFUSED, ETIMEDOUT, ENOTFOUND
 ```
 
 ### Non-Retryable Errors (Escalate Immediately)
+
 ```
 4xx (400, 401, 403, 404, 422)
 → Action: Escalate supervisor
@@ -128,6 +138,7 @@ ECONNREFUSED, ETIMEDOUT, ENOTFOUND
 ```
 
 ### Deadline Escalation
+
 ```
 Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submitted']
 → Action: Escalate supervisor
@@ -140,6 +151,7 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 ## Firestore Collections (Quick Reference)
 
 ### `/notivisa-drafts/{labId}/drafts/{draftId}`
+
 - **Purpose:** NOTIVISA form drafts (awaiting RT approval)
 - **Status:** draft → approved → submitted → deleted
 - **Key Fields:** payload (Art. 6º), status, criadoEm
@@ -147,6 +159,7 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 - **Access:** RT (read/update), Admin (read)
 
 ### `/labs/{labId}/notivisa-outbox/{entryId}`
+
 - **Purpose:** Async submission queue (RDC 978 Art. 66 compliance)
 - **Status:** pending → submitted → acknowledged → failed-permanent → deleted
 - **Key Fields:** diseaseCode, patientAnon, notificationDeadline, submissionAttempts[]
@@ -154,6 +167,7 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 - **Access:** RT (read), Admin (read/write soft-delete), AUDITOR (read/export)
 
 ### `/labs/{labId}/notivisa-outbox/_archives/exports/{archiveId}`
+
 - **Purpose:** Immutable audit archives (retained 90 days)
 - **Status:** ready (immutable)
 - **Key Fields:** exportedBy, exportedAt, expiresAt, formats[]
@@ -167,6 +181,7 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 ### I. Received Alert: "Entry Past Deadline"
 
 **Action:**
+
 1. Check Firestore: `where('escalatedToSupervisor', '==', true)`
 2. View entry details: diseaseCode, patientAnon, deadline, last error
 3. Assess: Is submission still possible?
@@ -174,19 +189,22 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 **Options:**
 
 #### Option A: Retryable Error (5xx, network)
+
 - **What to do:** Wait 1–5 minutes; processor will retry automatically
 - **If still failing after 30 min:** Contact IT/ops (possible Anvisa downtime)
 
 #### Option B: Non-Retryable Error (4xx, validation)
+
 - **What to do:** Contact RT who approved form
 - **Issue:** Likely malformed payload (missing field, invalid code)
-- **Fix:** 
+- **Fix:**
   1. RT reviews draft payload
   2. Correct issue (e.g., add missing field)
   3. Create new draft + resubmit
   4. Soft-delete old (failed) entry (reason='false-positive' or 'incorrect-patient')
 
 #### Option C: Permanent Failure (max attempts)
+
 - **What to do:** Check submissionAttempts[] log for error pattern
 - **If pattern:** Certificate expired, API endpoint wrong, rate limit exceeded
 - **Fix:** Contact Security/Ops to:
@@ -196,6 +214,7 @@ Entry past notificationDeadline (result + 24h) AND status in ['pending', 'submit
 - **Then:** Manually retry entry (processor will pick up)
 
 #### Option D: Past Deadline (>24h without ACK)
+
 - **What to do:** Manual mitigation (outside HC Quality system)
 - **Steps:**
   1. Export entry as PDF (use HC Quality UI)
@@ -266,6 +285,7 @@ gcloud logging read \
 **Setup:** Create laudo with positive result for HIV (99078)
 
 **Expected Flow:**
+
 ```
 T+0: notivisaDraftCreate() → draft-001 created
 T+0: approveNotivisaDraft() → signature verified, status='approved'
@@ -286,6 +306,7 @@ T+10: Auditor export → CSV includes entry with status='acknowledged' (mock)
 **Setup:** Same as Scenario 1, but inject mock 503 error on first attempt
 
 **Expected Flow:**
+
 ```
 T+5: notivisaQueueProcessor() → submitNotivisaToAnvisa(mock) → 503 error
      → isRetryable=true, keep status='pending'
@@ -305,6 +326,7 @@ T+6: notivisaQueueProcessor() → submitNotivisaToAnvisa(mock) → SUCCESS
 **Setup:** Create laudo with invalid CPF (causes 400 error)
 
 **Expected Flow:**
+
 ```
 T+5: notivisaQueueProcessor() → submitNotivisaToAnvisa(mock) → 400 error
      → isRetryable=false, status='failed-permanent'
@@ -313,7 +335,8 @@ T+5: notivisaQueueProcessor() → submitNotivisaToAnvisa(mock) → 400 error
      → Alert supervisor (SMS + email, Phase 8+)
 ```
 
-**Verify:** 
+**Verify:**
+
 - Cloud Logs show `[NOTIVISA] Permanent failure: entry-001` ✓
 - Entry document: `escalatedToSupervisor=true` ✓
 - Supervisor receives alert ✓
@@ -325,6 +348,7 @@ T+5: notivisaQueueProcessor() → submitNotivisaToAnvisa(mock) → 400 error
 **Setup:** Create entry with result date 25 hours ago (deadline = 24h + result)
 
 **Expected Flow:**
+
 ```
 T+5: notivisaQueueProcessor() runs
      → Queries status in ['pending','submitted']
@@ -336,6 +360,7 @@ T+5: notivisaQueueProcessor() runs
 ```
 
 **Verify:**
+
 - Cloud Logs show `[NOTIVISA] Past-deadline escalation: entry-001` ✓
 - Entry field: `escalationMotivo='deadline-passed'` ✓
 
@@ -346,6 +371,7 @@ T+5: notivisaQueueProcessor() runs
 **Setup:** Entry in 'pending' status
 
 **Expected Flow:**
+
 ```
 T+0: notivisaSoftDelete(labId, entryId, reason='false-positive', notes='Retested, negative')
      → Update entry: status='deleted', deletedAt, deletedBy
@@ -355,6 +381,7 @@ T+0: notivisaSoftDelete(labId, entryId, reason='false-positive', notes='Retested
 ```
 
 **Verify:**
+
 - Entry document: `status='deleted'` ✓
 - auditLog contains SOFT_DELETED entry ✓
 - Query `where('status','==','deleted')` returns entry ✓
@@ -386,21 +413,25 @@ T+0: notivisaSoftDelete(labId, entryId, reason='false-positive', notes='Retested
 ## Contact & Escalation
 
 ### Engineering (Code Issues)
+
 - **Channel:** #notivisa-integration Slack
 - **On-Call:** Claude Code Agent / Engineering Lead
 - **For:** Function errors, deployment issues, database locks
 
 ### Regulatory Affairs (Compliance)
+
 - **Contact:** Regulatory Officer
 - **For:** RDC 978 questions, Portaria 204 disease code updates
 - **Frequency:** Quarterly review
 
 ### Auditor (Audit Trail)
+
 - **Contact:** Internal/External Auditor
 - **Frequency:** Phase 4 completion, Phase 12 completion, annual
 - **Access:** Read-only to notivisa-outbox + archives
 
 ### Anvisa Support (API Integration, Phase 12+)
+
 - **Portal:** https://notivisa.saude.gov.br/
 - **Email:** notivisa-suporte@saude.gov.br
 - **Response Time:** 2–5 business days (government SLA)
@@ -409,19 +440,19 @@ T+0: notivisaSoftDelete(labId, entryId, reason='false-positive', notes='Retested
 
 ## Glossary
 
-| Term | Definition |
-|------|-----------|
-| **NOTIVISA** | Notificação Imediata de Vítima de Violência — ANVISA system for immediate disease notification |
-| **RDC 978** | Current ANVISA regulation for laboratory operations (2026-01-15) |
-| **DICQ 4.x** | Laboratory Quality Management Standard (blocks 4.1–4.4) |
-| **Art. 66** | RDC 978 Article 66 — requires NOTIVISA notification within 24h |
-| **RT** | Responsável Técnico — laboratory technical director (sign-off role) |
-| **Portaria 204/2016** | MS (Ministry of Health) list of 99 reportable diseases |
-| **idempotencyKey** | SHA-256 hash unique to each form; prevents duplicate Anvisa submissions |
-| **chainHash** | Cumulative HMAC signature proving audit trail immutability (ADR-0012) |
-| **Escalation** | Supervisor alert for deadline passed or permanent submission failure |
-| **Soft Delete** | Mark record deleted but preserve for audit (never hard delete, RN-06) |
-| **Backoff** | Exponential delay between retries (1m → 5m → 15m → 45m → 120m) |
+| Term                  | Definition                                                                                     |
+| --------------------- | ---------------------------------------------------------------------------------------------- |
+| **NOTIVISA**          | Notificação Imediata de Vítima de Violência — ANVISA system for immediate disease notification |
+| **RDC 978**           | Current ANVISA regulation for laboratory operations (2026-01-15)                               |
+| **DICQ 4.x**          | Laboratory Quality Management Standard (blocks 4.1–4.4)                                        |
+| **Art. 66**           | RDC 978 Article 66 — requires NOTIVISA notification within 24h                                 |
+| **RT**                | Responsável Técnico — laboratory technical director (sign-off role)                            |
+| **Portaria 204/2016** | MS (Ministry of Health) list of 99 reportable diseases                                         |
+| **idempotencyKey**    | SHA-256 hash unique to each form; prevents duplicate Anvisa submissions                        |
+| **chainHash**         | Cumulative HMAC signature proving audit trail immutability (ADR-0012)                          |
+| **Escalation**        | Supervisor alert for deadline passed or permanent submission failure                           |
+| **Soft Delete**       | Mark record deleted but preserve for audit (never hard delete, RN-06)                          |
+| **Backoff**           | Exponential delay between retries (1m → 5m → 15m → 45m → 120m)                                 |
 
 ---
 

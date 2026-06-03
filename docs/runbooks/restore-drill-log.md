@@ -2,9 +2,9 @@
 
 Registro dos testes trimestrais de restauração. Backup que nunca foi restaurado não é backup.
 
-| Data       | Backup usado            | Cenário                          | Resultado | Observações                                                                            |
-| ---------- | ----------------------- | -------------------------------- | --------- | -------------------------------------------------------------------------------------- |
-| 2026-04-29 | `daily/2026-04-28/`     | Soft drill — validação estrutura | ✅ OK     | Validação de integridade do export mais recente. Drill completo em sandbox: pendente. |
+| Data       | Backup usado        | Cenário                          | Resultado | Observações                                                                           |
+| ---------- | ------------------- | -------------------------------- | --------- | ------------------------------------------------------------------------------------- |
+| 2026-04-29 | `daily/2026-04-28/` | Soft drill — validação estrutura | ✅ OK     | Validação de integridade do export mais recente. Drill completo em sandbox: pendente. |
 
 ## Próximo drill — pendente
 

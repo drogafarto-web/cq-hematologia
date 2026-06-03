@@ -11,12 +11,14 @@
 Complete feedback loop for HC Quality: **Complaint Intake + RCA 5 Whys + Satisfaction (NPS) + Suggestions + LGPD Framework**.
 
 Module consists of 4 primary entities:
+
 1. **Reclamacao** (`/labs/{labId}/reclamacoes/`) — complaint master with auto-classification + NC link
 2. **Sugestao** (`/labs/{labId}/sugestoes/`) — improvement suggestions (internal + public)
 3. **NPSResposta** (`/labs/{labId}/satisfacao-respostas/`) — survey responses (post-resolution + quarterly)
 4. **LgpdRequest** (`/labs/{labId}/lgpd-requests/`) — data access/deletion requests (LGPD Art. 18)
 
 Plus supporting entities:
+
 - `ReclamacaoVersion` — immutable snapshot for retifications
 - `CampanhaSatisfacao` — quarterly NPS campaign metadata
 - `LgpdAuditLog` — operation log for all PII processing
@@ -53,11 +55,13 @@ Plus supporting entities:
 ### State Machines
 
 #### Reclamacao Workflow
+
 ```
 Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ```
 
 **Transitions require:**
+
 - Status 'Nova' → 'Analisando': classifier approval (AI or manual)
 - Status 'Analisando' → 'RCA': RCA engine must be started
 - Status 'RCA' → 'Resolvida': RCA must be complete (≥4 levels filled) + severidade=alta only
@@ -65,11 +69,13 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 - Status 'Comunicada' → 'Fechada': NPS response received OR 14 days elapsed
 
 #### Sugestao Workflow
+
 ```
 Aberta → Analisada → (Implementada | Rejeitada)
 ```
 
 #### NC Auto-trigger
+
 ```
 Reclamacao created + severity='alta' + description.length ≥100
   → onDocumentCreated trigger
@@ -79,34 +85,37 @@ Reclamacao created + severity='alta' + description.length ≥100
 
 ---
 
-## Rules (RN-*)
+## Rules (RN-\*)
 
-| Rule | Description |
-|------|-------------|
-| RN-06 | Soft-delete only — never `deleteDoc`. Set `deletadoEm: Timestamp` instead. |
-| RN-11 | Signature required: `LogicalSignature = { hash, operatorId, ts }` on all writes. |
-| RN-12 | Chain hash (`chainHash`) must be sequential per lab (ADR 0001). |
+| Rule  | Description                                                                       |
+| ----- | --------------------------------------------------------------------------------- |
+| RN-06 | Soft-delete only — never `deleteDoc`. Set `deletadoEm: Timestamp` instead.        |
+| RN-11 | Signature required: `LogicalSignature = { hash, operatorId, ts }` on all writes.  |
+| RN-12 | Chain hash (`chainHash`) must be sequential per lab (ADR 0001).                   |
 | RN-13 | Severity 'alta' must trigger NC auto-creation (Plan 11-01, criarNCDraft trigger). |
-| RN-14 | RCA required before Resolvida status if severity='alta'. |
-| RN-15 | NPS anonimization: after 90 days, drop `pacienteId` (LGPD Art. 18). |
-| RN-16 | Reclamacao anônima NÃO permitida no MVP — identification obrigatória (CPF). |
-| RN-17 | LGPD audit log every operation on PII: `lgpd-audit/{logId}`. |
+| RN-14 | RCA required before Resolvida status if severity='alta'.                          |
+| RN-15 | NPS anonimization: after 90 days, drop `pacienteId` (LGPD Art. 18).               |
+| RN-16 | Reclamacao anônima NÃO permitida no MVP — identification obrigatória (CPF).       |
+| RN-17 | LGPD audit log every operation on PII: `lgpd-audit/{logId}`.                      |
 
 ---
 
 ## Firestore Rules (firestore.rules)
 
 **Reclamacao read/write:**
+
 - `read`: `auth.uid exists && request.auth.uid in resource.data.editors[]` (RT/Qualidade)
 - `write`: via callable only (Plan 11-03+); client-side service is deprecated after 1 sprint
 - `delete`: `false` — soft-delete only
 
 **Portal-paciente auth:**
+
 - Custom claim: `paciente: true`
 - Can see own reclamacoes: `pacienteId == auth.uid`
 - Can submit suggestions + NPS responses
 
 **Public surfaces:**
+
 - `/portal-paciente/reclamacao/nova` — reCAPTCHA v3 required, rate limit 5/h per IP
 - `/portal-paciente/nps/{token}` — token-based, no auth needed
 
@@ -115,6 +124,7 @@ Reclamacao created + severity='alta' + description.length ≥100
 ## Services (Client-side)
 
 ### `reclamacaoService.ts`
+
 - `subscribeToReclamacoes(labId, filters)` → Unsubscribe
 - `subscribeToReclamacao(labId, id)` → Unsubscribe
 - `getReclamacao(labId, id)` → Reclamacao | null
@@ -127,6 +137,7 @@ Reclamacao created + severity='alta' + description.length ≥100
 - `countReclamacoesByStatus(labId, status)` → number
 
 ### `sugestaoService.ts`
+
 - `subscribeToSugestoes(labId, filters)` → Unsubscribe
 - `subscribeToSugestao(labId, id)` → Unsubscribe
 - `getSugestao(labId, id)` → Sugestao | null
@@ -136,6 +147,7 @@ Reclamacao created + severity='alta' + description.length ≥100
 - `countSugestoesByStatus(labId, status)` → number
 
 ### `satisfacaoService.ts`
+
 - `subscribeToNPSRespostas(labId, filters)` → Unsubscribe
 - `getNPSRespostasParaReclamacao(labId, reclamacaoId)` → NPSResposta[]
 - `getNPSRespostasParaCampanha(labId, trimestre)` → NPSResposta[]
@@ -148,17 +160,20 @@ Reclamacao created + severity='alta' + description.length ≥100
 ## Engines (Pure Utils)
 
 ### `rcaFiveWhys.ts`
+
 - `validateRCA(rca)` → `{ valid, errors[], warnings[] }`
 - `generateCausaRaizHeuristic(porques)` → `{ causaRaizSugerida, confianca }`
 - `getProximoNivel(porques)` → 1|2|3|4|5|null
 - `isRCAComplete(rca)` → boolean (≥4 levels + causaRaiz)
 
 ### `severityClassifier.ts`
+
 - `classificarSeveridadeHeuristica(descricao)` → `{ severidade, confianca, matchedKeywords }`
 - `classificarLote(descricoes)` → Array
 - `shouldTriggerNCAutocreate(sev, desc)` → boolean
 
 ### `auditChain.ts`
+
 - `sha256(data)` → string (64-char hex)
 - `computeChainHash(prev, entityId, op, ts, uid)` → string
 - `verifyChainIntegrity(entries)` → `{ valid, invalidAt? }`
@@ -171,43 +186,47 @@ Reclamacao created + severity='alta' + description.length ≥100
 ## Hooks
 
 ### `useReclamacoes(filters?)`
+
 - State: `reclamacoes[]`, `loading`, `error`
 - Methods: `getById(id)`, `getByStatus(status)`, `getBySeveridade(sev)`
 - Cleanup: listener is unsubscribed on unmount
 
 ### `useReclamacao(reclamacaoId)`
+
 - State: `reclamacao | null`, `loading`, `error`
 - One-time fetch (can be upgraded to listener)
 
 ### `useSugestoes(filters?)`
+
 - State: `sugestoes[]`, `loading`, `error`
 - Methods: `getById(id)`, `getByStatus(status)`, `getTopVoted()`
 
 ### `useSugestao(sugestaoId)`
+
 - State: `sugestao | null`, `loading`, `error`
 
 ---
 
 ## Cloud Functions (Plan 11-03+)
 
-| Function | Type | Trigger | Purpose |
-|----------|------|---------|---------|
-| `criarReclamacao` | Callable | Client | Create complaint + classify Gemini + NC auto |
-| `classificarReclamacaoIA` | Internal | `criarReclamacao` | Gemini classify |
-| `aprovarClassificacao` | Callable | RT | Approve AI suggestion |
-| `criarNCDraft` | Firestore trigger | `onDocumentCreated` reclamacoes | Auto-create NC if severity=alta |
-| `transitarReclamacao` | Callable | Client | Status change + validate RCA |
-| `enviarComunicacaoReclamante` | Callable | Hook | Email status update |
-| `dispararNPSPosResolucao` | Firestore trigger | `onUpdate` Reclamacao | Email NPS on Resolvida |
-| `dispararNPSRecurring` | Pub/Sub cron | Quarterly | Batch email NPS campaigns |
-| `submitNPSResposta` | Callable | Public (token) | Patient submits NPS |
-| `anonimizarRespostas` | Pub/Sub cron | Daily 03:00 BRT | Drop `pacienteId` after 90d |
-| `criarSugestao` | Callable | Client | Create suggestion |
-| `transitarSugestao` | Callable | Client | Change suggestion status |
-| `parseEmailReclamacao` | HTTPS | Resend Inbound | Email parser |
-| `exportarMeusDadosLgpd` | Callable | Client | Export patient data (Art. 18) |
-| `solicitarExclusaoLgpd` | Callable | Client | Request deletion (Art. 19) |
-| `exportarParaAnaliseCritica` | Callable | Phase 8 | JSON for management-review |
+| Function                      | Type              | Trigger                         | Purpose                                      |
+| ----------------------------- | ----------------- | ------------------------------- | -------------------------------------------- |
+| `criarReclamacao`             | Callable          | Client                          | Create complaint + classify Gemini + NC auto |
+| `classificarReclamacaoIA`     | Internal          | `criarReclamacao`               | Gemini classify                              |
+| `aprovarClassificacao`        | Callable          | RT                              | Approve AI suggestion                        |
+| `criarNCDraft`                | Firestore trigger | `onDocumentCreated` reclamacoes | Auto-create NC if severity=alta              |
+| `transitarReclamacao`         | Callable          | Client                          | Status change + validate RCA                 |
+| `enviarComunicacaoReclamante` | Callable          | Hook                            | Email status update                          |
+| `dispararNPSPosResolucao`     | Firestore trigger | `onUpdate` Reclamacao           | Email NPS on Resolvida                       |
+| `dispararNPSRecurring`        | Pub/Sub cron      | Quarterly                       | Batch email NPS campaigns                    |
+| `submitNPSResposta`           | Callable          | Public (token)                  | Patient submits NPS                          |
+| `anonimizarRespostas`         | Pub/Sub cron      | Daily 03:00 BRT                 | Drop `pacienteId` after 90d                  |
+| `criarSugestao`               | Callable          | Client                          | Create suggestion                            |
+| `transitarSugestao`           | Callable          | Client                          | Change suggestion status                     |
+| `parseEmailReclamacao`        | HTTPS             | Resend Inbound                  | Email parser                                 |
+| `exportarMeusDadosLgpd`       | Callable          | Client                          | Export patient data (Art. 18)                |
+| `solicitarExclusaoLgpd`       | Callable          | Client                          | Request deletion (Art. 19)                   |
+| `exportarParaAnaliseCritica`  | Callable          | Phase 8                         | JSON for management-review                   |
 
 ---
 
@@ -250,17 +269,20 @@ Reclamacao created + severity='alta' + description.length ≥100
 ## Testing
 
 **Unit Tests (Jest):**
+
 - `rcaFiveWhys.test.ts` — 15+ validation scenarios + heuristic generation
 - `severityClassifier.test.ts` — 30+ real complaint phrases
 - `auditChain.test.ts` — chain integrity verification
 
 **Integration Tests (Firestore emulator):**
+
 - Complaint creation → NC auto-trigger (severity alta)
 - Complaint status transitions with RCA validation
 - NPS response anonymization (>90d)
 - LGPD request processing
 
 **E2E (Detox, Plan 11-04+):**
+
 - Patient submits complaint via `/portal-paciente/reclamacao/nova`
 - Complaint appears in `/reclamacoes` for RT
 - RT approves classification

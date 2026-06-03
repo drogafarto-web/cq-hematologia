@@ -20,7 +20,7 @@ The redesign clears the WCAG AA bar across all 15 components and demonstrates ra
 - [UroFormFooterSection.tsx:194-200] `DateField` and [UroFormFooterSection.tsx:246-253] `TextField` reimplement input styling already in `UroInputField`. Not an a11y bug, but drift risk — collapse into UroInputField (it supports `type="date"` and text already).
 - [UroAuditTable.tsx:158] `bg-amber-500 text-slate-950` on the primary action — contrast is good, but `active:bg-amber-500` on hover state means there is no visible "pressed" feedback (button stays the same color). Use `active:bg-amber-600` or add `active:scale-[0.97]`.
 - [UroAuditTable.tsx:262 + 257] `<input type="checkbox">` uses native styling; in dark mode on Windows this renders as a light grey box that clashes with the surface. Acceptable for AA but dim. Consider a custom checkbox in a follow-up.
-- [UroBreadcrumbHeader.tsx:21] `CRUMB_ACTIVE` uses `text-amber-700 dark:text-amber-300` — this *adds an amber element to the persistent header*, which violates DESIGN.md "Amber Scarcity Rule" since the form save button and selected toggles are also amber. Consider `text-slate-900 dark:text-white/95` for active crumb.
+- [UroBreadcrumbHeader.tsx:21] `CRUMB_ACTIVE` uses `text-amber-700 dark:text-amber-300` — this _adds an amber element to the persistent header_, which violates DESIGN.md "Amber Scarcity Rule" since the form save button and selected toggles are also amber. Consider `text-slate-900 dark:text-white/95` for active crumb.
 - [UroLotSidebar.tsx:439] placeholder ends with `.` — DESIGN.md tone is "Confirm níveis" not casual; trailing period in placeholder is fine but the period inside `Buscar lote ou fabricante.` reads as a sentence. Drop the period.
 - [UroAuditTrailDrawer.tsx:215] No focus trap implemented — Tab can leave the drawer and reach the underlying page (still scrollable-locked, but interactive elements remain reachable via keyboard). For a `role="dialog" aria-modal="true"` this is technically non-conforming. Add a focus trap or use inert on siblings.
 - [UroanaliseRedesignedShell.tsx:190 + 205] Two `TabButton` instances rendered (mobile + desktop). When `aria-selected` flips, both update — fine — but the `role="tab"` group has no parent `role="tablist"` wrapper around the desktop instance (the mobile div lacks role too). Wrap each set with `role="tablist" aria-label="...".`
@@ -28,23 +28,23 @@ The redesign clears the WCAG AA bar across all 15 components and demonstrates ra
 
 ## Per-file matrix
 
-| File | States | Responsive | A11y | Touch | Light mode | Verdict |
-|---|---|---|---|---|---|---|
-| UroStatusBar | 5/5 (n/a hover/active) | OK | OK | n/a | OK | PASS |
-| UroInputField | 8/8 | OK | WARN (label+aria-label dup) | OK (py-2.5≈40px, +label = 44+) | OK | PASS_WITH_NOTES |
-| UroButtonToggle | 8/8 | OK | OK (radiogroup + arrow keys) | OK (min-w-44 sm, 52 md) | OK | NEEDS_FIX (`/12` token) |
-| UroAnalyteRow | 7/8 (no error state on row) | WARN (fixed grid breaks <360px) | OK | OK (toggles 44px) | OK | PASS_WITH_NOTES |
-| UroQuantitativoRow | 8/8 | WARN (same grid) | OK | OK | OK | PASS_WITH_NOTES |
-| UroFormIdentificationSection | n/a (composes) | OK (sm:grid-cols-2) | OK | OK | OK | PASS |
-| UroFormFooterSection | 8/8 | OK | OK | OK (py-3 = 44+) | OK | PASS_WITH_NOTES (drift) |
-| UroanaliseFormRedesigned | n/a (composes) | OK (max-w-4xl, sticky bar) | OK | OK | OK | PASS_WITH_NOTES (memo timestamp) |
-| UroLotSidebar | 8/8 | OK (max-w-xs, listbox keys) | WARN (focus ring on tabIndex=-1 row) | OK (min-h-44) | OK | PASS_WITH_NOTES |
-| UroBreadcrumbHeader | 6/8 (no loading/success) | OK (sm split layout) | OK | OK (text-only crumbs ~32px — borderline) | OK | PASS_WITH_NOTES |
-| UroMobileTabBar | 7/8 | OK (sm:hidden, safe-area) | NEEDS_FIX (aria-pressed on tab) | OK (min-h-56) | OK | NEEDS_FIX |
-| UroAuditTable | 8/8 | OK (overflow-x + min-w-880) | OK (scoped headers, indeterminate) | OK (min-h-44 actions) | OK | PASS_WITH_NOTES |
-| UroAuditTrailDrawer | 7/8 (no error event styling) | OK (full-w mobile, 420 lg) | WARN (no focus trap) | OK (h-11 close) | OK | PASS_WITH_NOTES |
-| UroComplianceChecklist | 6/8 (no hover/active — read-only) | OK | OK (role list/listitem) | n/a (read-only) | OK | PASS |
-| UroanaliseRedesignedShell | n/a (composes) | OK (3-col → mobile tabs) | WARN (tablist wrapper missing) | OK | OK | PASS_WITH_NOTES |
+| File                         | States                            | Responsive                      | A11y                                 | Touch                                    | Light mode | Verdict                          |
+| ---------------------------- | --------------------------------- | ------------------------------- | ------------------------------------ | ---------------------------------------- | ---------- | -------------------------------- |
+| UroStatusBar                 | 5/5 (n/a hover/active)            | OK                              | OK                                   | n/a                                      | OK         | PASS                             |
+| UroInputField                | 8/8                               | OK                              | WARN (label+aria-label dup)          | OK (py-2.5≈40px, +label = 44+)           | OK         | PASS_WITH_NOTES                  |
+| UroButtonToggle              | 8/8                               | OK                              | OK (radiogroup + arrow keys)         | OK (min-w-44 sm, 52 md)                  | OK         | NEEDS_FIX (`/12` token)          |
+| UroAnalyteRow                | 7/8 (no error state on row)       | WARN (fixed grid breaks <360px) | OK                                   | OK (toggles 44px)                        | OK         | PASS_WITH_NOTES                  |
+| UroQuantitativoRow           | 8/8                               | WARN (same grid)                | OK                                   | OK                                       | OK         | PASS_WITH_NOTES                  |
+| UroFormIdentificationSection | n/a (composes)                    | OK (sm:grid-cols-2)             | OK                                   | OK                                       | OK         | PASS                             |
+| UroFormFooterSection         | 8/8                               | OK                              | OK                                   | OK (py-3 = 44+)                          | OK         | PASS_WITH_NOTES (drift)          |
+| UroanaliseFormRedesigned     | n/a (composes)                    | OK (max-w-4xl, sticky bar)      | OK                                   | OK                                       | OK         | PASS_WITH_NOTES (memo timestamp) |
+| UroLotSidebar                | 8/8                               | OK (max-w-xs, listbox keys)     | WARN (focus ring on tabIndex=-1 row) | OK (min-h-44)                            | OK         | PASS_WITH_NOTES                  |
+| UroBreadcrumbHeader          | 6/8 (no loading/success)          | OK (sm split layout)            | OK                                   | OK (text-only crumbs ~32px — borderline) | OK         | PASS_WITH_NOTES                  |
+| UroMobileTabBar              | 7/8                               | OK (sm:hidden, safe-area)       | NEEDS_FIX (aria-pressed on tab)      | OK (min-h-56)                            | OK         | NEEDS_FIX                        |
+| UroAuditTable                | 8/8                               | OK (overflow-x + min-w-880)     | OK (scoped headers, indeterminate)   | OK (min-h-44 actions)                    | OK         | PASS_WITH_NOTES                  |
+| UroAuditTrailDrawer          | 7/8 (no error event styling)      | OK (full-w mobile, 420 lg)      | WARN (no focus trap)                 | OK (h-11 close)                          | OK         | PASS_WITH_NOTES                  |
+| UroComplianceChecklist       | 6/8 (no hover/active — read-only) | OK                              | OK (role list/listitem)              | n/a (read-only)                          | OK         | PASS                             |
+| UroanaliseRedesignedShell    | n/a (composes)                    | OK (3-col → mobile tabs)        | WARN (tablist wrapper missing)       | OK                                       | OK         | PASS_WITH_NOTES                  |
 
 ## Specific recommendations
 

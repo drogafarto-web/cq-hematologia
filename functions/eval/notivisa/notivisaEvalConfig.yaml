@@ -9,220 +9,220 @@
 # Scenarios: 6 critical validation paths (valid, CPF error, exam code, etc.)
 # ─────────────────────────────────────────────────────────────────────────────
 
-description: "NOTIVISA Payload Validation Framework — Government Schema Compliance"
+description: 'NOTIVISA Payload Validation Framework — Government Schema Compliance'
 
 env:
   # No external APIs needed for this eval (all local validation)
-  EVAL_MODE: "local"
+  EVAL_MODE: 'local'
 
 # Test fixtures: Real laudo payloads (anonymized)
 fixtures:
   - id: fixture-001-valid-hemoglobin
-    description: "Valid payload: Hemoglobin test, correct CPF, RT signature"
+    description: 'Valid payload: Hemoglobin test, correct CPF, RT signature'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-001-HEMOGLOBIN"
-      paciente_cpf: "11144477735"
-      data_resultado: 1714982400000  # 2026-05-06 12:00 UTC
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-001-HEMOGLOBIN'
+      paciente_cpf: '11144477735'
+      data_resultado: 1714982400000 # 2026-05-06 12:00 UTC
       resultados:
-        - analito: "Hemoglobin"
+        - analito: 'Hemoglobin'
           valor: 14.5
-          unidade: "g/dL"
-          referencia: "12.0-16.0"
+          unidade: 'g/dL'
+          referencia: '12.0-16.0'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Maria Silva"
+        cpf: '11144477735'
+        nome: 'Dr. Maria Silva'
         data_assinatura: 1714982400000
     expected_valid: true
     expected_errors: 0
     expected_warnings: 0
 
   - id: fixture-002-invalid-cpf-checksum
-    description: "Invalid payload: Patient CPF fails Mod-11 checksum"
+    description: 'Invalid payload: Patient CPF fails Mod-11 checksum'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-002-INVALID-CPF"
-      paciente_cpf: "12345678901"  # Invalid checksum
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-002-INVALID-CPF'
+      paciente_cpf: '12345678901' # Invalid checksum
       data_resultado: 1714982400000
       resultados:
-        - analito: "Glucose"
+        - analito: 'Glucose'
           valor: 105
-          unidade: "mg/dL"
-          referencia: "70-100"
+          unidade: 'mg/dL'
+          referencia: '70-100'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. João Silva"
+        cpf: '11144477735'
+        nome: 'Dr. João Silva'
         data_assinatura: 1714982400000
     expected_valid: false
-    expected_errors: 1  # CPF validation error
+    expected_errors: 1 # CPF validation error
     expected_warnings: 0
 
   - id: fixture-003-unregistered-exam-code
-    description: "Warning: Exam not in ANVISA registry (but allowed with override)"
+    description: 'Warning: Exam not in ANVISA registry (but allowed with override)'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-003-NEW-EXAM"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-003-NEW-EXAM'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "EXPERIMENTAL-001"  # Not in ANVISA registry
-          valor: "positive"
-          unidade: "Qualitative"
-          referencia: "Negative"
+        - analito: 'EXPERIMENTAL-001' # Not in ANVISA registry
+          valor: 'positive'
+          unidade: 'Qualitative'
+          referencia: 'Negative'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Carlos Santos"
+        cpf: '11144477735'
+        nome: 'Dr. Carlos Santos'
         data_assinatura: 1714982400000
-    expected_valid: true  # Valid schema but warning
+    expected_valid: true # Valid schema but warning
     expected_errors: 0
-    expected_warnings: 1  # Unregistered exam code
+    expected_warnings: 1 # Unregistered exam code
 
   - id: fixture-004-future-result-date
-    description: "Invalid: Result date is in the future"
+    description: 'Invalid: Result date is in the future'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-004-FUTURE"
-      paciente_cpf: "11144477735"
-      data_resultado: 1746604800000  # 2026-06-06 12:00 UTC (future)
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-004-FUTURE'
+      paciente_cpf: '11144477735'
+      data_resultado: 1746604800000 # 2026-06-06 12:00 UTC (future)
       resultados:
-        - analito: "Triglycerides"
+        - analito: 'Triglycerides'
           valor: 150
-          unidade: "mg/dL"
-          referencia: "<150"
+          unidade: 'mg/dL'
+          referencia: '<150'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Ana Costa"
+        cpf: '11144477735'
+        nome: 'Dr. Ana Costa'
         data_assinatura: 1746604800000
     expected_valid: false
-    expected_errors: 1  # Future date
+    expected_errors: 1 # Future date
     expected_warnings: 0
 
   - id: fixture-005-multiple-results
-    description: "Valid: Multiple test results (panel), all within normal range"
+    description: 'Valid: Multiple test results (panel), all within normal range'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-005-PANEL"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-005-PANEL'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "Hemoglobin"
+        - analito: 'Hemoglobin'
           valor: 14.2
-          unidade: "g/dL"
-          referencia: "12.0-16.0"
-        - analito: "Glucose"
+          unidade: 'g/dL'
+          referencia: '12.0-16.0'
+        - analito: 'Glucose'
           valor: 95
-          unidade: "mg/dL"
-          referencia: "70-100"
-        - analito: "Triglycerides"
+          unidade: 'mg/dL'
+          referencia: '70-100'
+        - analito: 'Triglycerides'
           valor: 120
-          unidade: "mg/dL"
-          referencia: "<150"
+          unidade: 'mg/dL'
+          referencia: '<150'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Fernando Rocha"
+        cpf: '11144477735'
+        nome: 'Dr. Fernando Rocha'
         data_assinatura: 1714982400000
     expected_valid: true
     expected_errors: 0
     expected_warnings: 0
 
   - id: fixture-006-stale-signature
-    description: "Valid schema but warning: Signature >7 days old"
+    description: 'Valid schema but warning: Signature >7 days old'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-006-STALE"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-006-STALE'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "Hemoglobin"
+        - analito: 'Hemoglobin'
           valor: 13.8
-          unidade: "g/dL"
-          referencia: "12.0-16.0"
+          unidade: 'g/dL'
+          referencia: '12.0-16.0'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Roberto Gomes"
-        data_assinatura: 1713600000000  # 8 days before result
-    expected_valid: true  # Still valid, but with warning
+        cpf: '11144477735'
+        nome: 'Dr. Roberto Gomes'
+        data_assinatura: 1713600000000 # 8 days before result
+    expected_valid: true # Still valid, but with warning
     expected_errors: 0
-    expected_warnings: 1  # Stale signature
+    expected_warnings: 1 # Stale signature
 
   - id: fixture-007-coded-result-negative
-    description: "Valid: Qualitative test (coded result) — Negative"
+    description: 'Valid: Qualitative test (coded result) — Negative'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-007-HIV-NEG"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-007-HIV-NEG'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "HIV Antibody"
-          valor: "negative"
-          unidade: "Qualitative"
-          referencia: "Negative"
+        - analito: 'HIV Antibody'
+          valor: 'negative'
+          unidade: 'Qualitative'
+          referencia: 'Negative'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Lucia Ferreira"
+        cpf: '11144477735'
+        nome: 'Dr. Lucia Ferreira'
         data_assinatura: 1714982400000
     expected_valid: true
     expected_errors: 0
     expected_warnings: 0
 
   - id: fixture-008-coded-result-reagent
-    description: "Valid: Qualitative test with Portuguese coded value (reagente)"
+    description: 'Valid: Qualitative test with Portuguese coded value (reagente)'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-008-HCV-POS"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-008-HCV-POS'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "Hepatitis C Antibody"
-          valor: "reagente"
-          unidade: "Qualitative"
-          referencia: "Não-reagente"
+        - analito: 'Hepatitis C Antibody'
+          valor: 'reagente'
+          unidade: 'Qualitative'
+          referencia: 'Não-reagente'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Paulo Oliveira"
+        cpf: '11144477735'
+        nome: 'Dr. Paulo Oliveira'
         data_assinatura: 1714982400000
     expected_valid: true
     expected_errors: 0
     expected_warnings: 0
 
   - id: fixture-009-unusual-coded-value
-    description: "Valid schema but warning: Non-standard coded value"
+    description: 'Valid schema but warning: Non-standard coded value'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-009-UNUSUAL"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-009-UNUSUAL'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "COVID Antigen"
-          valor: "maybe-positive"  # Non-standard code
-          unidade: "Qualitative"
-          referencia: "Negative"
+        - analito: 'COVID Antigen'
+          valor: 'maybe-positive' # Non-standard code
+          unidade: 'Qualitative'
+          referencia: 'Negative'
       assinador:
-        cpf: "11144477735"
-        nome: "Dr. Helena Dias"
+        cpf: '11144477735'
+        nome: 'Dr. Helena Dias'
         data_assinatura: 1714982400000
     expected_valid: true
     expected_errors: 0
-    expected_warnings: 1  # Unusual coded value
+    expected_warnings: 1 # Unusual coded value
 
   - id: fixture-010-operator-cpf-invalid
-    description: "Invalid: Operator CPF fails checksum validation"
+    description: 'Invalid: Operator CPF fails checksum validation'
     payload:
-      versao: "1.0"
-      laudo_id: "LAU-2026-05-010-OP-BAD-CPF"
-      paciente_cpf: "11144477735"
+      versao: '1.0'
+      laudo_id: 'LAU-2026-05-010-OP-BAD-CPF'
+      paciente_cpf: '11144477735'
       data_resultado: 1714982400000
       resultados:
-        - analito: "Hemoglobin"
+        - analito: 'Hemoglobin'
           valor: 14.5
-          unidade: "g/dL"
-          referencia: "12.0-16.0"
+          unidade: 'g/dL'
+          referencia: '12.0-16.0'
       assinador:
-        cpf: "99999999999"  # Invalid CPF
-        nome: "Dr. Unknown"
+        cpf: '99999999999' # Invalid CPF
+        nome: 'Dr. Unknown'
         data_assinatura: 1714982400000
     expected_valid: false
-    expected_errors: 1  # Operator CPF validation
+    expected_errors: 1 # Operator CPF validation
     expected_warnings: 0
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -231,80 +231,80 @@ fixtures:
 
 scenarios:
   - id: scenario-1-schema-compliance
-    description: "All fixtures validate against NOTIVISA schema"
-    rule: "Each payload must conform to version 1.0 schema"
+    description: 'All fixtures validate against NOTIVISA schema'
+    rule: 'Each payload must conform to version 1.0 schema'
     fixtures:
       - fixture-001-valid-hemoglobin
       - fixture-002-invalid-cpf-checksum
       - fixture-003-unregistered-exam-code
-    pass_criteria: "Valid fixtures accept, invalid reject"
+    pass_criteria: 'Valid fixtures accept, invalid reject'
 
   - id: scenario-2-cpf-validation
-    description: "CPF validation (patient + operator) via Mod-11"
-    rule: "CPF checksum must be correct; reject all-same-digit CPFs"
+    description: 'CPF validation (patient + operator) via Mod-11'
+    rule: 'CPF checksum must be correct; reject all-same-digit CPFs'
     fixtures:
       - fixture-002-invalid-cpf-checksum
       - fixture-010-operator-cpf-invalid
-    pass_criteria: "Both invalid CPFs rejected"
+    pass_criteria: 'Both invalid CPFs rejected'
 
   - id: scenario-3-date-validation
-    description: "Date fields must be past or present (not future)"
-    rule: "data_resultado and data_assinatura <= now()"
+    description: 'Date fields must be past or present (not future)'
+    rule: 'data_resultado and data_assinatura <= now()'
     fixtures:
       - fixture-004-future-result-date
-    pass_criteria: "Future date rejected with clear error"
+    pass_criteria: 'Future date rejected with clear error'
 
   - id: scenario-4-exam-code-registry
-    description: "Exam codes checked against ANVISA registry"
-    rule: "Unknown codes trigger warning; force flag allows override"
+    description: 'Exam codes checked against ANVISA registry'
+    rule: 'Unknown codes trigger warning; force flag allows override'
     fixtures:
       - fixture-003-unregistered-exam-code
-    pass_criteria: "Unregistered code warns but allows submission"
+    pass_criteria: 'Unregistered code warns but allows submission'
 
   - id: scenario-5-qualitative-results
-    description: "Support both numeric and coded (qualitative) results"
-    rule: "valor can be number or standard coded string (positive/negative/reagente/não-reagente/inconclusive)"
+    description: 'Support both numeric and coded (qualitative) results'
+    rule: 'valor can be number or standard coded string (positive/negative/reagente/não-reagente/inconclusive)'
     fixtures:
       - fixture-007-coded-result-negative
       - fixture-008-coded-result-reagent
       - fixture-009-unusual-coded-value
-    pass_criteria: "Standard codes pass; unusual codes warn"
+    pass_criteria: 'Standard codes pass; unusual codes warn'
 
   - id: scenario-6-multiple-results
-    description: "Support multi-test payloads (panels)"
-    rule: "resultados array must contain 1+ tests"
+    description: 'Support multi-test payloads (panels)'
+    rule: 'resultados array must contain 1+ tests'
     fixtures:
       - fixture-005-multiple-results
-    pass_criteria: "Panel validates with all tests"
+    pass_criteria: 'Panel validates with all tests'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Success Metrics
 # ─────────────────────────────────────────────────────────────────────────────
 
 success_criteria:
-  - metric: "Fixtures Passing"
-    target: ">=95% (9/10 fixtures)"
-    description: "At least 95% of test fixtures validate as expected"
+  - metric: 'Fixtures Passing'
+    target: '>=95% (9/10 fixtures)'
+    description: 'At least 95% of test fixtures validate as expected'
 
-  - metric: "Error Detection Accuracy"
-    target: "100%"
-    description: "All intentionally invalid fixtures rejected with appropriate errors"
+  - metric: 'Error Detection Accuracy'
+    target: '100%'
+    description: 'All intentionally invalid fixtures rejected with appropriate errors'
 
-  - metric: "Warning Detection Accuracy"
-    target: "100%"
-    description: "All warning scenarios trigger correct warning codes"
+  - metric: 'Warning Detection Accuracy'
+    target: '100%'
+    description: 'All warning scenarios trigger correct warning codes'
 
-  - metric: "False Negative Rate"
-    target: "0%"
-    description: "No valid payloads incorrectly rejected"
+  - metric: 'False Negative Rate'
+    target: '0%'
+    description: 'No valid payloads incorrectly rejected'
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Output Format
 # ─────────────────────────────────────────────────────────────────────────────
 
 output:
-  format: "json"  # Can switch to 'html' for reports
+  format: 'json' # Can switch to 'html' for reports
   summary: true
   include_fixtures: true
   include_timestamps: true
-  export_path: "./eval/notivisa/results/"
+  export_path: './eval/notivisa/results/'

@@ -5,14 +5,45 @@ interface ScoreSelectorWithRubricProps {
   onChange: (score: number | null, naoAplica: boolean) => void;
 }
 
-const SCORE_COLORS: Record<number, { bg: string; border: string; text: string; activeBg: string }> = {
-  0: { bg: 'bg-slate-50 dark:bg-white/[0.02]', border: 'border-slate-200 dark:border-white/[0.08]', text: 'text-slate-600 dark:text-white/60', activeBg: 'bg-slate-100 dark:bg-white/[0.08]' },
-  1: { bg: 'bg-red-50/50 dark:bg-red-500/5', border: 'border-red-200 dark:border-red-500/20', text: 'text-red-700 dark:text-red-400', activeBg: 'bg-red-100 dark:bg-red-500/20' },
-  2: { bg: 'bg-orange-50/50 dark:bg-orange-500/5', border: 'border-orange-200 dark:border-orange-500/20', text: 'text-orange-700 dark:text-orange-400', activeBg: 'bg-orange-100 dark:bg-orange-500/20' },
-  3: { bg: 'bg-amber-50/50 dark:bg-amber-500/5', border: 'border-amber-200 dark:border-amber-500/20', text: 'text-amber-700 dark:text-amber-400', activeBg: 'bg-amber-100 dark:bg-amber-500/20' },
-  4: { bg: 'bg-emerald-50/50 dark:bg-emerald-500/5', border: 'border-emerald-200 dark:border-emerald-500/20', text: 'text-emerald-700 dark:text-emerald-400', activeBg: 'bg-emerald-100 dark:bg-emerald-500/20' },
-  5: { bg: 'bg-emerald-50/50 dark:bg-emerald-600/5', border: 'border-emerald-300 dark:border-emerald-600/20', text: 'text-emerald-800 dark:text-emerald-300', activeBg: 'bg-emerald-100 dark:bg-emerald-600/20' },
-};
+const SCORE_COLORS: Record<number, { bg: string; border: string; text: string; activeBg: string }> =
+  {
+    0: {
+      bg: 'bg-slate-50 dark:bg-white/[0.02]',
+      border: 'border-slate-200 dark:border-white/[0.08]',
+      text: 'text-slate-600 dark:text-white/60',
+      activeBg: 'bg-slate-100 dark:bg-white/[0.08]',
+    },
+    1: {
+      bg: 'bg-red-50/50 dark:bg-red-500/5',
+      border: 'border-red-200 dark:border-red-500/20',
+      text: 'text-red-700 dark:text-red-400',
+      activeBg: 'bg-red-100 dark:bg-red-500/20',
+    },
+    2: {
+      bg: 'bg-orange-50/50 dark:bg-orange-500/5',
+      border: 'border-orange-200 dark:border-orange-500/20',
+      text: 'text-orange-700 dark:text-orange-400',
+      activeBg: 'bg-orange-100 dark:bg-orange-500/20',
+    },
+    3: {
+      bg: 'bg-amber-50/50 dark:bg-amber-500/5',
+      border: 'border-amber-200 dark:border-amber-500/20',
+      text: 'text-amber-700 dark:text-amber-400',
+      activeBg: 'bg-amber-100 dark:bg-amber-500/20',
+    },
+    4: {
+      bg: 'bg-emerald-50/50 dark:bg-emerald-500/5',
+      border: 'border-emerald-200 dark:border-emerald-500/20',
+      text: 'text-emerald-700 dark:text-emerald-400',
+      activeBg: 'bg-emerald-100 dark:bg-emerald-500/20',
+    },
+    5: {
+      bg: 'bg-emerald-50/50 dark:bg-emerald-600/5',
+      border: 'border-emerald-300 dark:border-emerald-600/20',
+      text: 'text-emerald-800 dark:text-emerald-300',
+      activeBg: 'bg-emerald-100 dark:bg-emerald-600/20',
+    },
+  };
 
 const BADGE_COLORS: Record<number, string> = {
   0: 'bg-slate-200 text-slate-700 dark:bg-white/10 dark:text-white/60',
@@ -61,12 +92,12 @@ export function ScoreSelectorWithRubric({
               </span>
               <span
                 className={`text-xs leading-relaxed ${
-                  isSelected
-                    ? colors.text + ' font-medium'
-                    : 'text-slate-600 dark:text-white/60'
+                  isSelected ? colors.text + ' font-medium' : 'text-slate-600 dark:text-white/60'
                 } ${!isSelected ? 'line-clamp-1' : ''}`}
               >
-                {text || <span className="italic text-slate-400 dark:text-white/30">Sem descrição</span>}
+                {text || (
+                  <span className="italic text-slate-400 dark:text-white/30">Sem descrição</span>
+                )}
               </span>
             </div>
           </button>

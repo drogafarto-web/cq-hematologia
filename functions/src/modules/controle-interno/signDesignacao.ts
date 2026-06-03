@@ -231,10 +231,7 @@ export const ci_signDesignacao = onCall<SignDesignacaoInput, Promise<SignDesigna
         operatorId: input.operatorId,
         error: err instanceof Error ? err.message : String(err),
       });
-      throw new HttpsError(
-        'internal',
-        'Erro ao gravar designação. Contate o administrador.',
-      );
+      throw new HttpsError('internal', 'Erro ao gravar designação. Contate o administrador.');
     }
 
     return {

@@ -141,9 +141,7 @@ export function EscalacaoDashboard() {
   if (!userRole || !['RT', 'ADMIN', 'MEDICO'].includes(userRole)) {
     return (
       <Card className="p-8 text-center">
-        <p className="text-sm text-red-200">
-          Acesso restrito a RT, médicos ou administradores.
-        </p>
+        <p className="text-sm text-red-200">Acesso restrito a RT, médicos ou administradores.</p>
       </Card>
     );
   }
@@ -163,7 +161,10 @@ export function EscalacaoDashboard() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {/* Status Filter */}
           <div>
-            <label htmlFor="filter-status" className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5">
+            <label
+              htmlFor="filter-status"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5"
+            >
               Status
             </label>
             <select
@@ -181,7 +182,10 @@ export function EscalacaoDashboard() {
 
           {/* Sort */}
           <div>
-            <label htmlFor="sort-by" className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5">
+            <label
+              htmlFor="sort-by"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5"
+            >
               Ordenar por
             </label>
             <select
@@ -198,7 +202,10 @@ export function EscalacaoDashboard() {
           {/* Lab Filter (superadmin only) */}
           {isSuperAdmin && (
             <div>
-              <label htmlFor="filter-lab" className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5">
+              <label
+                htmlFor="filter-lab"
+                className="block text-xs font-medium uppercase tracking-wide text-white/50 mb-1.5"
+              >
                 Laboratório
               </label>
               <select
@@ -221,7 +228,8 @@ export function EscalacaoDashboard() {
         {/* Count badge */}
         <div className="flex items-center justify-between">
           <p className="text-sm text-white/50">
-            {sorted.length} escalação{sorted.length !== 1 ? 'ões' : ''} {filterStatus !== 'todos' ? `(${filterStatus})` : ''}
+            {sorted.length} escalação{sorted.length !== 1 ? 'ões' : ''}{' '}
+            {filterStatus !== 'todos' ? `(${filterStatus})` : ''}
           </p>
         </div>
       </div>
@@ -358,13 +366,7 @@ interface TableRowProps {
   isLast: boolean;
 }
 
-function TableRow({
-  escalacao,
-  now,
-  isLoading,
-  onAcknowledge,
-  isLast,
-}: TableRowProps) {
+function TableRow({ escalacao, now, isLoading, onAcknowledge, isLast }: TableRowProps) {
   const slaState = computeSlaState(escalacao, now);
   const isPending = escalacao.status === 'enviado';
 
@@ -372,17 +374,14 @@ function TableRow({
     escalacao.status === 'reconhecido'
       ? 'emerald'
       : escalacao.status === 'cancelado'
-      ? 'slate'
-      : slaState.kind === 'expired'
-      ? 'red'
-      : slaState.kind === 'warning'
-      ? 'amber'
-      : 'violet';
+        ? 'slate'
+        : slaState.kind === 'expired'
+          ? 'red'
+          : slaState.kind === 'warning'
+            ? 'amber'
+            : 'violet';
 
-  const colorClasses: Record<
-    string,
-    { text: string; bg: string; badge: string }
-  > = {
+  const colorClasses: Record<string, { text: string; bg: string; badge: string }> = {
     emerald: {
       text: 'text-emerald-300',
       bg: 'bg-emerald-500/[0.08]',
@@ -427,15 +426,11 @@ function TableRow({
       </td>
 
       {/* Analito */}
-      <td className="px-4 py-3 text-sm font-mono text-white/70">
-        {escalacao.analitoId}
-      </td>
+      <td className="px-4 py-3 text-sm font-mono text-white/70">{escalacao.analitoId}</td>
 
       {/* Resultado */}
       <td className="px-4 py-3 text-sm text-right">
-        <span className="font-semibold text-white tabular-nums">
-          {escalacao.valorObtido}
-        </span>
+        <span className="font-semibold text-white tabular-nums">{escalacao.valorObtido}</span>
       </td>
 
       {/* Severidade */}
@@ -469,14 +464,12 @@ function TableRow({
 
       {/* Status */}
       <td className="px-4 py-3 text-center">
-        <span
-          className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${c.badge}`}
-        >
+        <span className={`inline-block rounded-full px-2 py-1 text-xs font-medium ${c.badge}`}>
           {escalacao.status === 'reconhecido'
             ? 'Reconhecida'
             : escalacao.status === 'cancelado'
-            ? 'Cancelada'
-            : 'Pendente'}
+              ? 'Cancelada'
+              : 'Pendente'}
         </span>
       </td>
 
@@ -516,12 +509,7 @@ interface MobileCardProps {
   onAcknowledge: () => void;
 }
 
-function MobileCard({
-  escalacao,
-  now,
-  isLoading,
-  onAcknowledge,
-}: MobileCardProps) {
+function MobileCard({ escalacao, now, isLoading, onAcknowledge }: MobileCardProps) {
   const slaState = computeSlaState(escalacao, now);
   const isPending = escalacao.status === 'enviado';
 
@@ -529,17 +517,14 @@ function MobileCard({
     escalacao.status === 'reconhecido'
       ? 'emerald'
       : escalacao.status === 'cancelado'
-      ? 'slate'
-      : slaState.kind === 'expired'
-      ? 'red'
-      : slaState.kind === 'warning'
-      ? 'amber'
-      : 'violet';
+        ? 'slate'
+        : slaState.kind === 'expired'
+          ? 'red'
+          : slaState.kind === 'warning'
+            ? 'amber'
+            : 'violet';
 
-  const colorClasses: Record<
-    string,
-    { ring: string; text: string; bg: string; dot: string }
-  > = {
+  const colorClasses: Record<string, { ring: string; text: string; bg: string; dot: string }> = {
     emerald: {
       ring: 'border-emerald-500/25',
       text: 'text-emerald-300',
@@ -579,26 +564,19 @@ function MobileCard({
       {/* Header */}
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0 flex-1">
-          <p className="font-medium text-white truncate">
-            {escalacao.pacienteNome}
-          </p>
+          <p className="font-medium text-white truncate">{escalacao.pacienteNome}</p>
           <p className="text-xs text-white/40 mt-0.5">
             {escalacao.pacienteIdade} a · {escalacao.pacienteSexo} · {escalacao.analitoId}
           </p>
         </div>
-        <span
-          className={`h-2 w-2 shrink-0 rounded-full ${c.dot}`}
-          aria-hidden="true"
-        />
+        <span className={`h-2 w-2 shrink-0 rounded-full ${c.dot}`} aria-hidden="true" />
       </div>
 
       {/* Details */}
       <div className="space-y-2 text-xs">
         <div className="flex items-center justify-between">
           <span className="text-white/60">Resultado:</span>
-          <span className="font-semibold text-white tabular-nums">
-            {escalacao.valorObtido}
-          </span>
+          <span className="font-semibold text-white tabular-nums">{escalacao.valorObtido}</span>
         </div>
         <div className="flex items-center justify-between">
           <span className="text-white/60">Severidade:</span>

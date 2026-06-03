@@ -24,7 +24,7 @@ export const RCAFiveWhysForm: React.FC<RCAFiveWhysFormProps> = ({
       nivel: i + 1,
       pergunta: `Por quê? (Nível ${i + 1})`,
       resposta: '',
-    }))
+    })),
   );
   const [nivelRaiz, setNivelRaiz] = useState('');
   const [acoesRecomendadas, setAcoesRecomendadas] = useState('');
@@ -32,9 +32,7 @@ export const RCAFiveWhysForm: React.FC<RCAFiveWhysFormProps> = ({
   const [error, setError] = useState<string | null>(null);
 
   const handleLevelChange = (nivel: number, resposta: string) => {
-    setLevels(
-      levels.map((l) => (l.nivel === nivel ? { ...l, resposta } : l))
-    );
+    setLevels(levels.map((l) => (l.nivel === nivel ? { ...l, resposta } : l)));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -72,8 +70,8 @@ export const RCAFiveWhysForm: React.FC<RCAFiveWhysFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 p-4 rounded-lg">
         <p className="text-sm text-blue-700 dark:text-blue-400">
-          <strong>5 Whys:</strong> Responda a cada nível para identificar a causa raiz.
-          Comece com o problema e faça 5 perguntas "Por quê?" sucessivas.
+          <strong>5 Whys:</strong> Responda a cada nível para identificar a causa raiz. Comece com o
+          problema e faça 5 perguntas "Por quê?" sucessivas.
         </p>
       </div>
 

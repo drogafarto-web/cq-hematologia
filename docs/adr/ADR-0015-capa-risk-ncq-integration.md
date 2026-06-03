@@ -17,6 +17,7 @@ v1.4 Phase 8 integra 3 conceitos de gestão de qualidade que historicamente fora
 3. **RISK (FMEA-Lite)** — Probabilidade × Severidade × Detecção = Número de Prioridade. RDC 978 Art. 86 (Risk Management component 2).
 
 **Relacionamento regulatório:**
+
 ```
 RDC 978 Art. 86 — Risk Management has 3 components:
   1. Risk identification (what can go wrong?)
@@ -45,15 +46,14 @@ Schema hierarchy:
     └─ Linked to: Risk (if treatment of risk) or NCQ (if remediation of finding)
 ```
 
-**Questão arquitetural:** 
+**Questão arquitetural:**
 
 Are CAPAs:
-- **A)** Always nested inside NCQ (nao-conformidades/{ncId}/capa subfield)? 
+
+- **A)** Always nested inside NCQ (nao-conformidades/{ncId}/capa subfield)?
   - Implies: "CAPA without NCQ doesn't exist" (but Risk management also creates CAPAs)
-  
 - **B)** Top-level collection (/labs/{labId}/capas/{capaId}), linked via FK to Risk and/or NCQ?
   - Implies: "CAPA is standalone entity; can be linked to multiple sources"
-  
 - **C)** Hybrid: CAPAs are top-level, but Risk + NCQ both hold references to CAPA (read-side links, not redundant data)?
   - Pros: CAPA is normalized; no data duplication.
   - Cons: Circular references (Risk → CAPA → NCQ → Risk?).
@@ -67,6 +67,7 @@ Three competing architectures:
 ### Option A: NCQ-only (CAPA nested in nao-conformidades)
 
 **Schema:**
+
 ```
 /labs/{labId}/nao-conformidades/{ncId}
 ├── descricao: string
@@ -82,6 +83,7 @@ Three competing architectures:
 ```
 
 **Characteristics:**
+
 - ✅ Simple: NCQ = canonical entity; CAPA lives inside.
 - ✅ Proven: ADR-0003 already uses this for insumos/equipamento NCQs.
 - ❌ Rigidity: Risk-to-CAPA linkage is reverse (Risk references NCQ, not vice versa). May cause confusion.
@@ -90,6 +92,7 @@ Three competing architectures:
 ### Option B: CAPA top-level (separate collection)
 
 **Schema:**
+
 ```
 /labs/{labId}/capas/{capaId}
 ├── numero: 'CAPA-2026-0001'
@@ -116,6 +119,7 @@ Three competing architectures:
 ```
 
 **Characteristics:**
+
 - ✅ Flexible: 1 risk can have multiple CAPAs; 1 CAPA can address multiple risks.
 - ✅ Normalized: CAPA is its own entity (like Risk).
 - ❌ Complexity: 3 collections with cross-links (NCQ ↔ CAPA ↔ Risk). More queries needed.
@@ -141,6 +145,7 @@ Validation (server-side):
 ```
 
 **Characteristics:**
+
 - ✅ Flexibility: Option B benefits + policy clarity.
 - ✅ Normalized: Single CAPA entity, reusable.
 - ⚠️ Complexity: Policy must be enforced server-side (Cloud Function callable).
@@ -150,21 +155,22 @@ Validation (server-side):
 
 **Analysis matrix:**
 
-| Criterion | Option A (NCQ-only) | Option B (Top-level) | Option C (Hybrid) |
-|---|---|---|---|
-| Implementation speed | ⭐⭐⭐⭐⭐ (already done) | ⭐⭐ (needs new collection) | ⭐⭐⭐ (new collection + policy) |
-| Query simplicity | ⭐⭐⭐ (1 doc read) | ⭐⭐ (multiple FK joins) | ⭐⭐ (multiple FK joins) |
-| Flexibility (multi-source CAPA) | ⭐ (1:1 only) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
-| Consistency (audit trail) | ⭐⭐⭐ (single doc) | ⭐⭐ (distributed) | ⭐⭐ (distributed) |
-| Regulatory alignment (RDC 978) | ⭐⭐⭐ (works) | ⭐⭐⭐⭐⭐ (explicit) | ⭐⭐⭐⭐⭐ (explicit) |
-| Scalability (# of CAPAs per Risk) | ⭐ (1 only) | ⭐⭐⭐⭐⭐ | ⭐⭐⭐⭐⭐ |
+| Criterion                         | Option A (NCQ-only)       | Option B (Top-level)        | Option C (Hybrid)                |
+| --------------------------------- | ------------------------- | --------------------------- | -------------------------------- |
+| Implementation speed              | ⭐⭐⭐⭐⭐ (already done) | ⭐⭐ (needs new collection) | ⭐⭐⭐ (new collection + policy) |
+| Query simplicity                  | ⭐⭐⭐ (1 doc read)       | ⭐⭐ (multiple FK joins)    | ⭐⭐ (multiple FK joins)         |
+| Flexibility (multi-source CAPA)   | ⭐ (1:1 only)             | ⭐⭐⭐⭐⭐                  | ⭐⭐⭐⭐⭐                       |
+| Consistency (audit trail)         | ⭐⭐⭐ (single doc)       | ⭐⭐ (distributed)          | ⭐⭐ (distributed)               |
+| Regulatory alignment (RDC 978)    | ⭐⭐⭐ (works)            | ⭐⭐⭐⭐⭐ (explicit)       | ⭐⭐⭐⭐⭐ (explicit)            |
+| Scalability (# of CAPAs per Risk) | ⭐ (1 only)               | ⭐⭐⭐⭐⭐                  | ⭐⭐⭐⭐⭐                       |
 
 ## Decisão
 
 **v1.4 Phase 8 adota OPTION C: Hybrid (CAPA as top-level collection with strict linking policy).**
 
 **Rationale:**
-1. **Phase 8 introduces Risk management (ADR-0016).** Risks are first-class entities in RDC 978. CAPAs are the *treatment* of risks. So CAPA must be first-class too (not nested inside NCQ).
+
+1. **Phase 8 introduces Risk management (ADR-0016).** Risks are first-class entities in RDC 978. CAPAs are the _treatment_ of risks. So CAPA must be first-class too (not nested inside NCQ).
 2. **Flexibility matters.** A risk (e.g., "equipment reliability") may spawn multiple CAPAs (calibration, preventive maintenance, staff training). One-CAPA-per-NCQ is too rigid.
 3. **Regulatory alignment.** RDC 978 Art. 86 explicitly connects Risk → Treatment (CAPA). Nested CAPA (Option A) obscures this relationship.
 4. **v1.3 precedent.** ADR-0003 nested CAPA in NCQ because v1.3 had no Risk management. Now that Risk exists, CAPA should reflect Risk treatment (top-level entity).
@@ -249,26 +255,31 @@ Validation (server-side):
 ### 2. Phase 8 Implementation Tasks
 
 **A) Create /capas collection + schema**
+
 - Cloud Firestore: new collection + indexes (status, linkedRiskIds)
 - Firestore Rules: validate linkage policy (riskIds OR ncqId required)
 - Schema migration: copy v1.3 nested NCQ.capa → /capas (one-time batch, backward-compat)
 
 **B) Update NCQ → Reference CAPA**
+
 - NCQ.capa.capaId becomes FK to /capas/{capaId}
 - Keep nested fields for backward-compat (legacy queries still work)
 - When nested CAPA is updated, trigger sync to /capas doc
 
 **C) Link Risk → CAPA**
+
 - Risk.tratamento.capaIds holds array of CAPA ids
 - When Risk.status transitions (open → mitigating), update linked CAPA status (planejata → em_execucao)
 - When CAPA verifies efficacy, update Risk.status (mitigating → fechado)
 
 **D) Cloud Function: createCAPAFromRisk + createCAPAFromNCQ**
+
 - `createCAPAFromRisk`: Risk management identifies treatment → creates CAPA + links bidirectionally
 - `createCAPAFromNCQ`: Auditor finds NC → creates CAPA (or reuses existing if identical action) + links bidirectionally
 - Both callables enforce linkage policy (riskIds OR ncqId)
 
 **E) Query helpers**
+
 - `getCAPAsForRisk(riskId)`: returns array of /capas linked via riskIds
 - `getCAPAsForNCQ(ncqId)`: returns /capas linked via ncqId
 - `getCAPALinkedRisksAndNCQs(capaId)`: returns {risks, ncqs} for CAPA detail view
@@ -276,6 +287,7 @@ Validation (server-side):
 ### 3. Backward Compatibility (v1.3 → v1.4)
 
 **Migration strategy:**
+
 ```
 1. Phase 8 Week 1: Deploy schema (new /capas collection is empty)
 2. Week 2: Cloud Function `migrateLegacyCAPAs` (batch)
@@ -290,6 +302,7 @@ Validation (server-side):
 ```
 
 **Data integrity:**
+
 - Nested NCQ.capa fields remain populated (no deletion) for audit trail.
 - /capas is source of truth going forward.
 - If auditor asks "show me all CAPAs", query `/capas` (not nao-conformidades).
@@ -297,11 +310,13 @@ Validation (server-side):
 ### 4. Regulatory Alignment (RDC 978 Art. 86)
 
 **Risk Management components:**
+
 1. ✅ Identification: Risk register (FMEA-Lite, ADR-0016)
 2. ✅ Assessment: P×S×D scoring (ADR-0016)
 3. ✅ Treatment: CAPA (planned → implemented → verified) — **THIS ADR**
 
 **RDC 978 Art. 86 audit trail:**
+
 ```
 Auditor asks: "Show me how you managed risk 'Equipment Downtime'?"
 Answer (with ADR-0015):
@@ -332,10 +347,12 @@ Timeline (with signatures):
 Keep v1.3 model (CAPA inside NCQ). Don't create top-level CAPA collection.
 
 **Pros:**
+
 - Minimal change (1–2 days implementation).
 - v1.3 NCQs stay unchanged.
 
 **Cons:**
+
 - Risk → Treatment relationship is implicit (Risk mentions "see NCQ X for CAPA"). Auditor must know to ask.
 - If 1 Risk triggers multiple corrective actions, forcing 1 CAPA per NCQ is unnatural.
 - Doesn't align with RDC 978 Art. 86 (which lists Risk → Treatment as explicit requirement).
@@ -347,9 +364,11 @@ Keep v1.3 model (CAPA inside NCQ). Don't create top-level CAPA collection.
 Create /capas, link to Risks only (NCQs are separate concern).
 
 **Pros:**
+
 - Clear Risk → CAPA → Verification chain (RDC 978 Art. 86).
 
 **Cons:**
+
 - NCQ findings (from audits) can't directly link to corrective actions. Workflow is broken.
 - Auditor finds NC, wants to see "what action are we taking?" Can't query directly.
 

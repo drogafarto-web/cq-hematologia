@@ -28,56 +28,65 @@
 ## 6 BLOCKERS (resolve before any "Phase 5 complete" claim)
 
 ### BLOCKER 1: Empty HMAC signatures in criticos module
+
 **File:** `functions/src/modules/criticos/index.ts` lines 200, 364, 488
 **Issue:** `hash: ''` literal — violates ADR-0017, RDC 978 Art. 128, Firestore rule `validSignature` (`hash.size() == 64`)
 **Impact:** Either (a) Firestore rules accept empty hash = security regression, or (b) writes silently fail = functional regression
 **Fix:** Restore `generateChainHash()` calls in all 4 signature emission sites. Add unit test `signature.hash.length === 64`
 
 ### BLOCKER 2: "OCR for Art. 167" does not exist
+
 **Reality:** `classifyStripGemini.ts` does **RDT serology classification** (HIV/dengue/syphilis/COVID/HCG → R/NR), NOT laudo OCR
 **Doc reference:** `PHASE_5_RDC_CRITICAL_VIOLATIONS.md` line 405 — Art. 167 fields 10–12 explicitly deferred to Phase 6
 **Fix:** Stop crediting Task 05-03/04 to Art. 167. Phase 5 = IA Strip Classifier only.
 
 ### BLOCKER 3: LGPD Art. 9 not addressed for AI processing
+
 **Issue:** Patient strip images sent base64 to `generativelanguage.googleapis.com` (Google Gemini) with:
+
 - No DPIA addendum specific to Gemini Vision
 - No Art. 33 international transfer legal basis documented
 - No Art. 7/11 legal basis update
 - No consent capture, no purpose limitation, no retention rule
-**Impact:** Regulatory blocker independent of DICQ scoring
-**Fix:** Build LGPD Art. 9 DPIA addendum + amend POL-LGPD-001 + RT/DPO sign-off **before** strip rollout
+  **Impact:** Regulatory blocker independent of DICQ scoring
+  **Fix:** Build LGPD Art. 9 DPIA addendum + amend POL-LGPD-001 + RT/DPO sign-off **before** strip rollout
 
 ### BLOCKER 4: Critical Values UI is a placeholder
+
 **File:** `src/features/criticos/CriticosPlaceholder.tsx` ships text "Phase 10-03: Em desenvolvimento"
 **Issue:** Backend works, frontend doesn't exist. No `CriticosThresholdsAdmin`, no `ComunicacaoModal`, no threshold CRUD
 **Fix:** Build the actual UI (Task 05-01 deliverable per plan)
 
 ### BLOCKER 5: Wave 0 modules status conflict (lab-apoio, turnos)
+
 **Issue:**
+
 - Root `CLAUDE.md` claims `lab-apoio` + `turnos` "Em prod 2026-05-07"
 - Module `CLAUDE.md` files claim T5–T10 pending (deploy + claim provisioning)
-**Impact:** Audit cannot proceed on contradictory truth
-**Fix:** Verify via `firebase functions:list`. If T9–T10 not done, demote rows to "In dev"
+  **Impact:** Audit cannot proceed on contradictory truth
+  **Fix:** Verify via `firebase functions:list`. If T9–T10 not done, demote rows to "In dev"
 
 ### BLOCKER 6: DICQ 78.5% → 82%+ projection unsupported
+
 **Issue:** Phase 5 contribution per `DICQ_CLOSURE_TRACKER_v1.4.md` depends on:
+
 - portal-rt (no implementation evidence)
 - portal-paciente (no implementation evidence)
 - NOTIVISA integration (notivisa-portal placeholder only)
-**Fix:** Don't update DICQ tracker with Phase 5 deltas until evidence aligns. Projected swing is doc-driven, not code-driven.
+  **Fix:** Don't update DICQ tracker with Phase 5 deltas until evidence aligns. Projected swing is doc-driven, not code-driven.
 
 ---
 
 ## ⚠️ WARNINGS (PARTIAL coverage)
 
-| Dimension | Issue |
-|-----------|-------|
-| RDC 978 Art. 5.7.1 (criticos <60min) | Backend present + SLA tracking ✓; UI placeholder ✗; HMAC empty hash regression ✗ |
-| RDC 978 Art. 122 (supervisor presencial) | Designation tracked ✓; checkin/checkout primitive missing ✗; rule enforcement missing ✗ |
-| RDC 978 Art. 128 (rastreabilidade) | `onContratoEventCreated` + `onTurnoEventCreated` triggers OK; criticos chain broken (BLOCKER 1) |
-| DICQ 5.7.1 | Backend logic exists; UI placeholder; signature hashes empty |
-| DICQ 4.14.7 (KPIs) | Out of scope — Phase 4 deliverable per DICQ_CLOSURE_TRACKER, not Phase 5 |
-| RDC 978 Art. 86 (PGQ) | IA dataset feedback = at best Component 6 contribution. Umbrella article is Phase 8 deliverable. Stop inflating. |
+| Dimension                                | Issue                                                                                                            |
+| ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| RDC 978 Art. 5.7.1 (criticos <60min)     | Backend present + SLA tracking ✓; UI placeholder ✗; HMAC empty hash regression ✗                                 |
+| RDC 978 Art. 122 (supervisor presencial) | Designation tracked ✓; checkin/checkout primitive missing ✗; rule enforcement missing ✗                          |
+| RDC 978 Art. 128 (rastreabilidade)       | `onContratoEventCreated` + `onTurnoEventCreated` triggers OK; criticos chain broken (BLOCKER 1)                  |
+| DICQ 5.7.1                               | Backend logic exists; UI placeholder; signature hashes empty                                                     |
+| DICQ 4.14.7 (KPIs)                       | Out of scope — Phase 4 deliverable per DICQ_CLOSURE_TRACKER, not Phase 5                                         |
+| RDC 978 Art. 86 (PGQ)                    | IA dataset feedback = at best Component 6 contribution. Umbrella article is Phase 8 deliverable. Stop inflating. |
 
 ---
 
@@ -91,13 +100,13 @@
 
 ## 🔧 INFRASTRUCTURE GAPS
 
-| Component | Status | Gap |
-|-----------|--------|-----|
+| Component                           | Status  | Gap                                                                                                     |
+| ----------------------------------- | ------- | ------------------------------------------------------------------------------------------------------- |
 | AI eval framework (Promptfoo/RAGAS) | MISSING | No regression suite for `classifyStripGemini` accuracy. Confidence threshold 0.85 enforced runtime only |
-| Reference dataset | PARTIAL | Plan claims 500+ images; no labeled fixtures in repo |
-| CI eval gate | MISSING | No `npm run eval:ia`, no Promptfoo config, no CI gate |
-| PII guardrail | MISSING | Patient images flow to Gemini without redaction or consent gate |
-| Audit log error handling | PARTIAL | `.catch(() => {})` swallows errors silently — observability hole |
+| Reference dataset                   | PARTIAL | Plan claims 500+ images; no labeled fixtures in repo                                                    |
+| CI eval gate                        | MISSING | No `npm run eval:ia`, no Promptfoo config, no CI gate                                                   |
+| PII guardrail                       | MISSING | Patient images flow to Gemini without redaction or consent gate                                         |
+| Audit log error handling            | PARTIAL | `.catch(() => {})` swallows errors silently — observability hole                                        |
 
 ---
 

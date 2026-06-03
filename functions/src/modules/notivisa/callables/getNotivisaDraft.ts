@@ -58,15 +58,13 @@ type GetNotivisaDraftInput = z.infer<typeof getNotivisaDraftInputSchema>;
 type GetNotivisaDraftOutput = z.infer<typeof getNotivisaDraftOutputSchema>;
 type GetNotivisaDraftError = z.infer<typeof getNotivisaDraftErrorSchema>;
 
-export const getNotivisaDraft = functions.region('southamerica-east1').onCall(
-  async (request): Promise<GetNotivisaDraftOutput | GetNotivisaDraftError> => {
+export const getNotivisaDraft = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<GetNotivisaDraftOutput | GetNotivisaDraftError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = getNotivisaDraftInputSchema.parse(request.data);
@@ -76,12 +74,7 @@ export const getNotivisaDraft = functions.region('southamerica-east1').onCall(
       const db = admin.firestore();
 
       // ========== 2. Authorization check ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         return {
@@ -117,11 +110,7 @@ export const getNotivisaDraft = functions.region('southamerica-east1').onCall(
       }
 
       // ========== 4. Fetch audit log ==========
-      const auditSnap = await draftRef
-        .collection('auditLog')
-        .orderBy('ts', 'desc')
-        .limit(50)
-        .get();
+      const auditSnap = await draftRef.collection('auditLog').orderBy('ts', 'desc').limit(50).get();
 
       const auditLog = auditSnap.docs.map((doc) => ({
         id: doc.id,
@@ -188,5 +177,4 @@ export const getNotivisaDraft = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error fetching draft',
       };
     }
-  }
-);
+  });

@@ -89,13 +89,19 @@ export async function computeChainHash(
   const keyBuffer = new TextEncoder().encode(labId);
 
   // HMAC-SHA256
-  const key = await crypto.subtle.importKey('raw', keyBuffer, { name: 'HMAC', hash: 'SHA-256' }, false, [
-    'sign',
-  ]);
+  const key = await crypto.subtle.importKey(
+    'raw',
+    keyBuffer,
+    { name: 'HMAC', hash: 'SHA-256' },
+    false,
+    ['sign'],
+  );
   const hashBuffer = await crypto.subtle.sign('HMAC', key, messageBuffer);
 
   // Return as hex string
-  return Array.from(new Uint8Array(hashBuffer)).map((b) => b.toString(16).padStart(2, '0')).join('');
+  return Array.from(new Uint8Array(hashBuffer))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
 }
 
 // ─── Upload ─────────────────────────────────────────────────────────────────────
@@ -129,7 +135,14 @@ export async function uploadCertificate(
   const fileBuffer = await file.arrayBuffer();
 
   // Compute chain-hash
-  const chainHashValue = await computeChainHash(fileBuffer, labId, equipId, file.name, operatorId, now);
+  const chainHashValue = await computeChainHash(
+    fileBuffer,
+    labId,
+    equipId,
+    file.name,
+    operatorId,
+    now,
+  );
 
   // Upload to Cloud Storage
   const storagePath = `calibracao/${labId}/${equipId}/${certId}`;
@@ -185,9 +198,7 @@ export async function uploadCertificate(
  * Get download URL for certificate from Cloud Storage.
  * In production, integrity verification happens server-side (Cloud Function).
  */
-export async function getDownloadUrl(
-  cert: CertificateUpload,
-): Promise<string> {
+export async function getDownloadUrl(cert: CertificateUpload): Promise<string> {
   const fileRef = storageRef(storage, cert.storagePath);
   return getDownloadURL(fileRef);
 }

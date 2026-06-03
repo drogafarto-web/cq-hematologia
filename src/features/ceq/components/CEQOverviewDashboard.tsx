@@ -7,7 +7,11 @@
  */
 
 import { useState, useRef } from 'react';
-import { useCEQOverview, type CEQEspecialidadeSummary, type CEQNaoConformeItem } from '../hooks/useCEQOverview';
+import {
+  useCEQOverview,
+  type CEQEspecialidadeSummary,
+  type CEQNaoConformeItem,
+} from '../hooks/useCEQOverview';
 import { useAppStore } from '../../../store/useAppStore';
 import { useNCs } from '../../sgq/naoConformidade/useNCs';
 import CAPAWorkflow from '../../sgq/naoConformidade/components/CAPAWorkflow';
@@ -17,7 +21,20 @@ import type { NaoConformidade } from '../../sgq/types/NaoConformidade';
 
 function formatMonth(m: string): string {
   const [y, mo] = m.split('-');
-  const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
+  const meses = [
+    'Jan',
+    'Fev',
+    'Mar',
+    'Abr',
+    'Mai',
+    'Jun',
+    'Jul',
+    'Ago',
+    'Set',
+    'Out',
+    'Nov',
+    'Dez',
+  ];
   return `${meses[parseInt(mo) - 1]}/${y.slice(2)}`;
 }
 
@@ -36,13 +53,23 @@ function conceitoBadge(c: 'B' | 'A' | 'I') {
 
 /* ─── Stat Card ───────────────────────────────────────────────────────────── */
 
-function StatCard({ label, value, sub, accent }: {
-  label: string; value: string | number; sub?: string;
+function StatCard({
+  label,
+  value,
+  sub,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  sub?: string;
   accent: 'teal' | 'emerald' | 'amber' | 'red' | 'violet';
 }) {
   const dot = {
-    teal: 'bg-teal-400', emerald: 'bg-emerald-400',
-    amber: 'bg-amber-400', red: 'bg-red-400', violet: 'bg-violet-400',
+    teal: 'bg-teal-400',
+    emerald: 'bg-emerald-400',
+    amber: 'bg-amber-400',
+    red: 'bg-red-400',
+    violet: 'bg-violet-400',
   }[accent];
 
   return (
@@ -59,9 +86,13 @@ function StatCard({ label, value, sub, accent }: {
 
 /* ─── Trend Chart (simple bar chart) ──────────────────────────────────────── */
 
-function TrendChart({ data }: { data: { month: string; avgZScore: number; satisfatorios: number; total: number }[] }) {
+function TrendChart({
+  data,
+}: {
+  data: { month: string; avgZScore: number; satisfatorios: number; total: number }[];
+}) {
   if (data.length === 0) return null;
-  const maxZ = Math.max(...data.map(d => d.avgZScore), 3);
+  const maxZ = Math.max(...data.map((d) => d.avgZScore), 3);
 
   return (
     <div className="bg-white/[0.02] border border-white/[0.06] rounded-xl p-5">
@@ -69,13 +100,19 @@ function TrendChart({ data }: { data: { month: string; avgZScore: number; satisf
         Tendência Z-Score Médio (|Z|)
       </h3>
       <div className="flex items-end gap-1.5 h-32">
-        {data.map(d => {
+        {data.map((d) => {
           const pct = Math.min((d.avgZScore / maxZ) * 100, 100);
-          const color = d.avgZScore < 2 ? 'bg-emerald-400' : d.avgZScore < 3 ? 'bg-amber-400' : 'bg-red-400';
+          const color =
+            d.avgZScore < 2 ? 'bg-emerald-400' : d.avgZScore < 3 ? 'bg-amber-400' : 'bg-red-400';
           return (
             <div key={d.month} className="flex-1 flex flex-col items-center gap-1">
-              <span className="text-[9px] tabular-nums text-white/40">{d.avgZScore.toFixed(1)}</span>
-              <div className="w-full bg-white/[0.04] rounded-t-sm overflow-hidden" style={{ height: '100px' }}>
+              <span className="text-[9px] tabular-nums text-white/40">
+                {d.avgZScore.toFixed(1)}
+              </span>
+              <div
+                className="w-full bg-white/[0.04] rounded-t-sm overflow-hidden"
+                style={{ height: '100px' }}
+              >
                 <div
                   className={`w-full rounded-t-sm transition-all ${color}`}
                   style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }}
@@ -88,9 +125,15 @@ function TrendChart({ data }: { data: { month: string; avgZScore: number; satisf
       </div>
       {/* Reference lines legend */}
       <div className="flex items-center gap-4 mt-3 text-[10px] text-white/30">
-        <span className="flex items-center gap-1"><span className="w-2 h-0.5 bg-emerald-400 rounded" /> |Z| &lt; 2</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-0.5 bg-amber-400 rounded" /> 2 ≤ |Z| &lt; 3</span>
-        <span className="flex items-center gap-1"><span className="w-2 h-0.5 bg-red-400 rounded" /> |Z| ≥ 3</span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-0.5 bg-emerald-400 rounded" /> |Z| &lt; 2
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-0.5 bg-amber-400 rounded" /> 2 ≤ |Z| &lt; 3
+        </span>
+        <span className="flex items-center gap-1">
+          <span className="w-2 h-0.5 bg-red-400 rounded" /> |Z| ≥ 3
+        </span>
       </div>
     </div>
   );
@@ -98,7 +141,11 @@ function TrendChart({ data }: { data: { month: string; avgZScore: number; satisf
 
 /* ─── Conformidade por mês (% satisfatórios) ──────────────────────────────── */
 
-function ConformidadeChart({ data }: { data: { month: string; satisfatorios: number; total: number }[] }) {
+function ConformidadeChart({
+  data,
+}: {
+  data: { month: string; satisfatorios: number; total: number }[];
+}) {
   if (data.length === 0) return null;
 
   return (
@@ -107,13 +154,16 @@ function ConformidadeChart({ data }: { data: { month: string; satisfatorios: num
         % Conformidade por Mês
       </h3>
       <div className="flex items-end gap-1.5 h-32">
-        {data.map(d => {
+        {data.map((d) => {
           const pct = d.total > 0 ? Math.round((d.satisfatorios / d.total) * 100) : 100;
           const color = pct >= 90 ? 'bg-emerald-400' : pct >= 70 ? 'bg-amber-400' : 'bg-red-400';
           return (
             <div key={d.month} className="flex-1 flex flex-col items-center gap-1">
               <span className="text-[9px] tabular-nums text-white/40">{pct}%</span>
-              <div className="w-full bg-white/[0.04] rounded-t-sm overflow-hidden" style={{ height: '100px' }}>
+              <div
+                className="w-full bg-white/[0.04] rounded-t-sm overflow-hidden"
+                style={{ height: '100px' }}
+              >
                 <div
                   className={`w-full rounded-t-sm transition-all ${color}`}
                   style={{ height: `${pct}%`, marginTop: `${100 - pct}%` }}
@@ -153,25 +203,39 @@ function EspecialidadesTable({ data }: { data: CEQEspecialidadeSummary[] }) {
             </tr>
           </thead>
           <tbody>
-            {data.sort((a, b) => a.pctConformidade - b.pctConformidade).map(e => (
-              <tr key={e.esquema} className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors">
-                <td className="px-5 py-3 text-white/80 font-medium capitalize">
-                  {e.esquema.replace(/-/g, ' ')}
-                </td>
-                <td className="text-center px-3 py-3 text-white/50 tabular-nums">{e.rodadas}</td>
-                <td className="text-center px-3 py-3 text-white/50 tabular-nums">{e.resultados}</td>
-                <td className="text-center px-3 py-3">
-                  <span className={`tabular-nums font-medium ${
-                    e.pctConformidade >= 90 ? 'text-emerald-400' :
-                    e.pctConformidade >= 70 ? 'text-amber-400' : 'text-red-400'
-                  }`}>
-                    {e.pctConformidade}%
-                  </span>
-                </td>
-                <td className="text-center px-3 py-3 tabular-nums text-white/50">{e.worstZ.toFixed(2)}</td>
-                <td className="text-center px-3 py-3">{conceitoBadge(e.conceitoGeral)}</td>
-              </tr>
-            ))}
+            {data
+              .sort((a, b) => a.pctConformidade - b.pctConformidade)
+              .map((e) => (
+                <tr
+                  key={e.esquema}
+                  className="border-b border-white/[0.03] hover:bg-white/[0.02] transition-colors"
+                >
+                  <td className="px-5 py-3 text-white/80 font-medium capitalize">
+                    {e.esquema.replace(/-/g, ' ')}
+                  </td>
+                  <td className="text-center px-3 py-3 text-white/50 tabular-nums">{e.rodadas}</td>
+                  <td className="text-center px-3 py-3 text-white/50 tabular-nums">
+                    {e.resultados}
+                  </td>
+                  <td className="text-center px-3 py-3">
+                    <span
+                      className={`tabular-nums font-medium ${
+                        e.pctConformidade >= 90
+                          ? 'text-emerald-400'
+                          : e.pctConformidade >= 70
+                            ? 'text-amber-400'
+                            : 'text-red-400'
+                      }`}
+                    >
+                      {e.pctConformidade}%
+                    </span>
+                  </td>
+                  <td className="text-center px-3 py-3 tabular-nums text-white/50">
+                    {e.worstZ.toFixed(2)}
+                  </td>
+                  <td className="text-center px-3 py-3">{conceitoBadge(e.conceitoGeral)}</td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
@@ -216,7 +280,12 @@ function NCDrawer({
               className="p-1.5 rounded-lg text-white/40 hover:text-white/80 hover:bg-white/[0.06] transition-colors"
             >
               <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path
+                  d="M5 5l10 10M15 5L5 15"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
               </svg>
             </button>
           </div>
@@ -235,19 +304,26 @@ function NCDrawer({
               </div>
               <div>
                 <p className="text-[10px] text-white/30 uppercase">Z-Score</p>
-                <p className={`font-mono font-semibold ${Math.abs(item.zScore) >= 3 ? 'text-red-400' : 'text-amber-400'}`}>
-                  {item.zScore >= 0 ? '+' : ''}{item.zScore.toFixed(2)}
+                <p
+                  className={`font-mono font-semibold ${Math.abs(item.zScore) >= 3 ? 'text-red-400' : 'text-amber-400'}`}
+                >
+                  {item.zScore >= 0 ? '+' : ''}
+                  {item.zScore.toFixed(2)}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-white/30 uppercase">Interpretação</p>
-                <p className={`font-medium ${item.interpretacao === 'insatisfatoria' ? 'text-red-400' : 'text-amber-400'}`}>
+                <p
+                  className={`font-medium ${item.interpretacao === 'insatisfatoria' ? 'text-red-400' : 'text-amber-400'}`}
+                >
                   {item.interpretacao === 'insatisfatoria' ? 'Insatisfatório' : 'Questionável'}
                 </p>
               </div>
               <div>
                 <p className="text-[10px] text-white/30 uppercase">Rodada</p>
-                <p className="text-white/80">{item.rodada}/{item.ano}</p>
+                <p className="text-white/80">
+                  {item.rodada}/{item.ano}
+                </p>
               </div>
               <div>
                 <p className="text-[10px] text-white/30 uppercase">Especialidade</p>
@@ -280,8 +356,8 @@ function NCDrawer({
             <div className="bg-red-500/[0.06] border border-red-500/20 rounded-xl p-4 text-center">
               <p className="text-sm text-red-300 font-medium">NC ainda não criada</p>
               <p className="text-xs text-white/40 mt-1">
-                Faça upload do relatório PNCQ para gerar a NC automaticamente,
-                ou crie manualmente no módulo de Qualidade.
+                Faça upload do relatório PNCQ para gerar a NC automaticamente, ou crie manualmente
+                no módulo de Qualidade.
               </p>
             </div>
           )}
@@ -293,8 +369,14 @@ function NCDrawer({
 
 /* ─── Não Conformes Table (with NC link) ──────────────────────────────────── */
 
-function NaoConformesTable({ data, onSelectItem }: { data: CEQNaoConformeItem[]; onSelectItem: (item: CEQNaoConformeItem) => void }) {
-  const setCurrentView = useAppStore(s => s.setCurrentView);
+function NaoConformesTable({
+  data,
+  onSelectItem,
+}: {
+  data: CEQNaoConformeItem[];
+  onSelectItem: (item: CEQNaoConformeItem) => void;
+}) {
+  const setCurrentView = useAppStore((s) => s.setCurrentView);
 
   if (data.length === 0) return null;
 
@@ -330,25 +412,32 @@ function NaoConformesTable({ data, onSelectItem }: { data: CEQNaoConformeItem[];
             </tr>
           </thead>
           <tbody>
-            {data.map(item => (
+            {data.map((item) => (
               <tr
                 key={item.resultadoId}
                 onClick={() => onSelectItem(item)}
                 className="border-b border-white/[0.03] hover:bg-white/[0.04] cursor-pointer transition-colors"
               >
                 <td className="px-5 py-3 text-white/80 font-medium">{item.analyteName}</td>
-                <td className="px-3 py-3 text-white/50 capitalize">{item.esquema.replace(/-/g, ' ')}</td>
+                <td className="px-3 py-3 text-white/50 capitalize">
+                  {item.esquema.replace(/-/g, ' ')}
+                </td>
                 <td className="text-center px-3 py-3 text-white/50 tabular-nums">
                   {item.rodada}/{item.ano}
                 </td>
                 <td className="text-center px-3 py-3">
-                  <span className={`tabular-nums font-medium ${
-                    Math.abs(item.zScore) >= 3 ? 'text-red-400' : 'text-amber-400'
-                  }`}>
-                    {item.zScore >= 0 ? '+' : ''}{item.zScore.toFixed(2)}
+                  <span
+                    className={`tabular-nums font-medium ${
+                      Math.abs(item.zScore) >= 3 ? 'text-red-400' : 'text-amber-400'
+                    }`}
+                  >
+                    {item.zScore >= 0 ? '+' : ''}
+                    {item.zScore.toFixed(2)}
                   </span>
                 </td>
-                <td className="text-center px-3 py-3">{conceitoBadge(item.conceito === 'I' ? 'I' : 'A')}</td>
+                <td className="text-center px-3 py-3">
+                  {conceitoBadge(item.conceito === 'I' ? 'I' : 'A')}
+                </td>
                 <td className="text-center px-3 py-3">
                   {item.ncId ? (
                     <span className="text-[11px] px-2 py-1 rounded bg-violet-500/10 border border-violet-500/20 text-violet-400">
@@ -408,7 +497,7 @@ export function CEQOverviewDashboard() {
 
   // Find the full NC object for the selected item
   const selectedNC: NaoConformidade | null = selectedItem?.ncId
-    ? ncs.find(nc => nc.id === selectedItem.ncId) ?? null
+    ? (ncs.find((nc) => nc.id === selectedItem.ncId) ?? null)
     : null;
 
   const handleAlertClick = () => {
@@ -420,14 +509,14 @@ export function CEQOverviewDashboard() {
   };
 
   const filteredNaoConformes = showOnlyPendentes
-    ? overview.naoConformes.filter(nc => !nc.ncTratada)
+    ? overview.naoConformes.filter((nc) => !nc.ncTratada)
     : overview.naoConformes;
 
   if (overview.loading) {
     return (
       <div className="space-y-4">
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          {[1, 2, 3, 4, 5].map(i => (
+          {[1, 2, 3, 4, 5].map((i) => (
             <div key={i} className="h-24 bg-white/[0.03] rounded-xl animate-pulse" />
           ))}
         </div>
@@ -447,16 +536,35 @@ export function CEQOverviewDashboard() {
           onClick={handleAlertClick}
           className="w-full text-left flex items-start gap-3 bg-red-500/[0.08] border border-red-500/20 rounded-xl px-4 py-3 text-red-300 text-sm hover:bg-red-500/[0.12] hover:border-red-500/30 transition-colors cursor-pointer group"
         >
-          <svg width="16" height="16" viewBox="0 0 20 20" fill="none" className="shrink-0 mt-0.5" aria-hidden>
-            <path d="M10 3l7.5 13h-15L10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 20 20"
+            fill="none"
+            className="shrink-0 mt-0.5"
+            aria-hidden
+          >
+            <path
+              d="M10 3l7.5 13h-15L10 3z"
+              stroke="currentColor"
+              strokeWidth="1.5"
+              strokeLinejoin="round"
+            />
             <path d="M10 8.5v3.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
             <circle cx="10" cy="14" r="0.9" fill="currentColor" />
           </svg>
           <div className="flex-1">
-            <p className="font-medium">{overview.insatisfatoriosPendentes} resultado(s) insatisfatório(s) pendente(s) de investigação</p>
-            <p className="text-xs text-red-400/70 mt-0.5">DICQ 4.5 exige ação corretiva para resultados com |Z| ≥ 3 — clique para ver</p>
+            <p className="font-medium">
+              {overview.insatisfatoriosPendentes} resultado(s) insatisfatório(s) pendente(s) de
+              investigação
+            </p>
+            <p className="text-xs text-red-400/70 mt-0.5">
+              DICQ 4.5 exige ação corretiva para resultados com |Z| ≥ 3 — clique para ver
+            </p>
           </div>
-          <span className="text-red-400/50 group-hover:text-red-400 transition-colors shrink-0 mt-0.5">→</span>
+          <span className="text-red-400/50 group-hover:text-red-400 transition-colors shrink-0 mt-0.5">
+            →
+          </span>
         </button>
       )}
 
@@ -507,11 +615,7 @@ export function CEQOverviewDashboard() {
 
       {/* NC Drawer */}
       {selectedItem && (
-        <NCDrawer
-          item={selectedItem}
-          nc={selectedNC}
-          onClose={() => setSelectedItem(null)}
-        />
+        <NCDrawer item={selectedItem} nc={selectedNC} onClose={() => setSelectedItem(null)} />
       )}
     </div>
   );

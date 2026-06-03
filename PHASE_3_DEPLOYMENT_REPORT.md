@@ -1,4 +1,5 @@
 # Phase 3 Deployment Report
+
 **Date:** 2026-05-07  
 **Environment:** Production (`hmatologia2.web.app`)  
 **Status:** ✓ COMPLETE
@@ -12,9 +13,11 @@ Phase 3 successfully deployed to Firebase production environment. All stages com
 ## Deployment Sequence
 
 ### 1. Pre-Deploy Gate ✓
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 ```
+
 - **Result:** PASS
 - **Status:** All 7 declared secrets have real values
   - `GEMINI_API_KEY`
@@ -26,9 +29,11 @@ bash scripts/preflight-secrets-check.sh
   - `SMTP_USER`
 
 ### 2. Firestore Rules + Indexes ✓
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 ```
+
 - **Result:** SUCCESS
 - **Rules compiled:** Yes (13 warnings — all unused functions and invalid variable names in legacy code paths)
 - **Rules released:** Yes
@@ -37,9 +42,11 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 - **Notes:** 1 existing index flagged as not present in config (not deployed, requires `--force` if removal intended)
 
 ### 3. Cloud Functions ✓
+
 ```bash
 firebase deploy --only functions --project hmatologia2
 ```
+
 - **Result:** SUCCESS
 - **Functions packaged:** 1.45 MB
 - **Function count:** 78 functions
@@ -58,9 +65,11 @@ firebase deploy --only functions --project hmatologia2
 - **Quota warning:** 429 rate limit warnings for 3 functions (transient, auto-retried successfully)
 
 ### 4. Hosting ✓
+
 ```bash
 firebase deploy --only hosting --project hmatologia2
 ```
+
 - **Result:** SUCCESS
 - **Files deployed:** 36 (cached + updated)
 - **PWA cache:** Updated with latest offline-first manifest
@@ -69,9 +78,11 @@ firebase deploy --only hosting --project hmatologia2
 - **Deploy time:** ~1 minute
 
 ### 5. Web App Build ✓
+
 ```bash
 npm run build
 ```
+
 - **Result:** SUCCESS after test fixes
 - **Bundle:** Generated in `dist/`
 - **TypeScript errors fixed:**
@@ -83,16 +94,19 @@ npm run build
 ## Smoke Tests (Verification Checklist)
 
 ### Test 1: Portal Reads ✓
+
 - Portal configuration accessible from callables
 - Expected behavior: List portal-configuracao without errors
 - Status: Ready for manual verification
 
 ### Test 2: NOTIVISA Callable ✓
+
 - Event creation callable deployed as PLACEHOLDER
 - Expected behavior: Accept events, status = 'pending'
 - Status: Ready for manual verification
 
 ### Test 3: Rules-Based Access ✓
+
 - Firestore rules deployed and compiled
 - Patient access controls via RBAC (member doc)
 - Admin write permissions enabled
@@ -102,14 +116,14 @@ npm run build
 
 ## Timeline
 
-| Step | Duration | Status |
-|---|---|---|
-| Preflight gate | <1 min | ✓ PASS |
-| Firestore rules+indexes | ~2 min | ✓ SUCCESS |
-| Cloud Functions | ~8 min | ✓ SUCCESS |
-| Hosting | ~1 min | ✓ SUCCESS |
-| Web build (local) | ~2 min | ✓ SUCCESS |
-| **Total elapsed time** | ~15 min | ✓ COMPLETE |
+| Step                    | Duration | Status     |
+| ----------------------- | -------- | ---------- |
+| Preflight gate          | <1 min   | ✓ PASS     |
+| Firestore rules+indexes | ~2 min   | ✓ SUCCESS  |
+| Cloud Functions         | ~8 min   | ✓ SUCCESS  |
+| Hosting                 | ~1 min   | ✓ SUCCESS  |
+| Web build (local)       | ~2 min   | ✓ SUCCESS  |
+| **Total elapsed time**  | ~15 min  | ✓ COMPLETE |
 
 ---
 
@@ -119,6 +133,7 @@ npm run build
 **Skipped (no changes):** 72  
 **Updated:** 4  
 **Successful updates:**
+
 - `triggerLotsMigration`
 - `parseBulaBioquimica`
 - `extractFromImage`
@@ -143,6 +158,7 @@ npm run build
 - `validarSegregacao`
 
 **Deleted:**
+
 - `parseEmailReclamacao` (orphaned, removed before deploy)
 
 ---
@@ -162,11 +178,13 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 Or on Windows:
+
 ```powershell
 & scripts/monitor-cloud-logs.ps1 24 30
 ```
 
 Expected outputs:
+
 - **0–5 min:** Initial function cold-start logs
 - **5–60 min:** Steady-state operation
 - **No errors expected** in logs (rules + callables validated pre-deploy)
@@ -188,16 +206,19 @@ Note: Cloud Functions rollback requires manual Cloud Console UI access or `gclou
 ## Known Issues & Workarounds
 
 ### Issue 1: Function Quota Rate Limiting (429)
+
 - **Observed:** 3 functions hit quota limit during deploy
 - **Impact:** None — auto-retry succeeded
 - **Resolution:** Non-blocking; monitor next 24h for stability
 
 ### Issue 2: Orphaned Function Deletion
+
 - **Observed:** `parseEmailReclamacao` existed in cloud but not in source
 - **Impact:** Deploy was blocking until manual deletion
 - **Resolution:** Deleted via Firebase CLI; deploy proceeded
 
 ### Issue 3: Test TypeScript Compilation
+
 - **Observed:** 2 test type errors in phase-3-integration.test.ts
 - **Impact:** Build would have failed
 - **Resolution:** Fixed `ExameLaudo` mock data + type assertion for `logAction` call
@@ -230,4 +251,3 @@ Note: Cloud Functions rollback requires manual Cloud Console UI access or `gclou
 
 **Report generated:** 2026-05-07 10:45 UTC  
 **Next review:** 2026-05-07 15:45 UTC (post-monitoring)
-

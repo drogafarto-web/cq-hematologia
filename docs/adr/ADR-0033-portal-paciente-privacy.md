@@ -3,7 +3,7 @@
 **Date:** 2026-05-08  
 **Status:** APPROVED  
 **Phase:** Phase 4 (Portal-Paciente Wave 3.2)  
-**Compliance:** LGPD Art. 9, 11, 13, 17; RDC 978 Art. 167; DICQ 4.3  
+**Compliance:** LGPD Art. 9, 11, 13, 17; RDC 978 Art. 167; DICQ 4.3
 
 ---
 
@@ -12,6 +12,7 @@
 Patients require secure, self-service access to their laboratory results and the ability to exercise LGPD rights (access, portability, deletion). Current system has no patient-facing portal; results are delivered via email with generic links (no authentication).
 
 **Regulatory Drivers:**
+
 - LGPD Art. 9: Explicit consent required before processing sensitive health data
 - LGPD Art. 11: Right to data portability (download results in standard format)
 - LGPD Art. 13: Right to access own data
@@ -43,6 +44,7 @@ Build a **Portal-Paciente (Patient Portal) with email-link authentication, expli
 **Decision:** Stateless HMAC-signed email tokens (24h single-use) instead of patient account + OAuth.
 
 **Rationale:**
+
 - **Zero Friction:** Patient clicks link in email → auto-authenticated (no password creation)
 - **Privacy:** No permanent patient account; identity verified via email possession only
 - **Regulatory:** LGPD prefers "minimal data collection"; email link doesn't require password hash storage
@@ -52,6 +54,7 @@ Build a **Portal-Paciente (Patient Portal) with email-link authentication, expli
 **Trade-off:** Token is per-email (not per patient); same patient with multiple email addresses requires multiple links. Acceptable for laboratory use case (patient addresses rarely change mid-treatment).
 
 **HMAC Details:**
+
 ```
 token = HMAC-SHA256(
   key=HCQ_SIGNATURE_HMAC_KEY,
@@ -67,6 +70,7 @@ Validated server-side in Firestore rules: `request.auth.customClaims.emailToken 
 **Decision:** Show consent checkbox on export wizard step 1, require user action (not pre-ticked).
 
 **Rationale:**
+
 - **LGPD Art. 9:** Explicit consent for sensitive health data processing
 - **Audit Trail:** Consent action logged with timestamp + email → non-repudiation
 - **UX:** Patient sees "exporting your data" form; consent capture is integral (not hidden)
@@ -79,6 +83,7 @@ Validated server-side in Firestore rules: `request.auth.customClaims.emailToken 
 **Decision:** Firestore rules allow patient read access to `patient-results/{patientId}/results` only (not other patients' data).
 
 **Rationale:**
+
 - **Multi-Tenant Safety:** Rules enforce isolation (patient A cannot read patient B's results)
 - **Scalability:** Each patient gets own subcollection; no cross-patient queries
 - **LGPD Audit:** Read access logged per patient (if access logs required in DPIA)
@@ -90,6 +95,7 @@ Validated server-side in Firestore rules: `request.auth.customClaims.emailToken 
 **Decision:** Export (XLSX + PDF generation) runs server-side via callable, not client-side.
 
 **Rationale:**
+
 - **Security:** Patient email verified server-side before export callable runs
 - **Audit:** Export action creates immutable log entry (exportId, timestamp, email)
 - **Compliance:** LGPD Art. 11 portability requirement satisfied with server-signed export hash
@@ -102,6 +108,7 @@ Validated server-side in Firestore rules: `request.auth.customClaims.emailToken 
 **Decision:** `revokePatientConsent()` marks consent record as revoked (soft-delete), blocks future access (doesn't delete historical results).
 
 **Rationale:**
+
 - **LGPD Art. 17:** Right to deletion, but lab must preserve results for 5 years (RDC 978)
 - **Compromise:** Patient can revoke consent for future access, but historical data preserved for regulatory audit
 - **Audit Trail:** Revocation logged with timestamp (proves consent was withdrawn at specific time)
@@ -115,33 +122,36 @@ Validated server-side in Firestore rules: `request.auth.customClaims.emailToken 
 ### Collections & Rules
 
 **`patient-consents/{patientId}/records/{recordId}`**
+
 ```typescript
 interface PatientConsent {
   patientId: string;
-  recordId: string;                       // uuid v4
-  email: string;                          // normalized lowercase
+  recordId: string; // uuid v4
+  email: string; // normalized lowercase
   consentGiven: Timestamp;
   consentRevoked?: Timestamp | null;
   scope: 'result-access' | 'export' | 'ocr-processing';
-  ipAddress: string;                      // from request
-  userAgent: string;                      // from request
+  ipAddress: string; // from request
+  userAgent: string; // from request
   criadoEm: Timestamp;
   atualizadoEm: Timestamp;
 }
 ```
 
 **Rules:**
+
 - Read: Patient (via email token) OR Auditor (for DPIA audit)
 - Create: Cloud Function `recordPatientConsent` only
 - Update: Cloud Function `revokePatientConsent` only (append `consentRevoked`)
 - Delete: Never (immutable audit trail)
 
 **`patient-results/{patientId}/results/{resultId}`**
+
 ```typescript
 interface PatientResult {
   patientId: string;
-  resultId: string;                       // uuid v4
-  laudoId: string;                        // reference to actual laudo
+  resultId: string; // uuid v4
+  laudoId: string; // reference to actual laudo
   nomeExame: string;
   resultado: string | number;
   unidade: string;
@@ -154,6 +164,7 @@ interface PatientResult {
 ```
 
 **Rules:**
+
 - Read: Patient (via email token) with active consent
 - Create: Cloud Function `sync_patientResults` (batch backfill)
 - Update: Never
@@ -162,22 +173,25 @@ interface PatientResult {
 ### Cloud Function Callables
 
 **`recordPatientConsent(data)`**
+
 - Input: `{ patientId, email, scope }`
 - Output: Consent record
 - Validation: Email token must be valid (24h window)
 - Side-effect: Creates audit entry (writeAuditLog)
 
 **`revokePatientConsent(data)`**
+
 - Input: `{ consentRecordId }`
 - Output: Updated consent record (with `consentRevoked`)
 - Validation: Email token matches consent email
 - Side-effect: Sets `patientResults` `deletadoEm` to now (soft-delete)
 
 **`exportPatientData(data)`**
+
 - Input: `{ patientId, format: 'xlsx' | 'pdf', email }`
 - Output: Export task ID
 - Validation: Active consent record exists, scope includes 'export'
-- Side-effect: 
+- Side-effect:
   - Generate XLSX/PDF (Cloud Storage temporary file)
   - Send email with 7-day download link
   - Create audit entry with exportId + hash
@@ -185,55 +199,65 @@ interface PatientResult {
 ### React Components
 
 **PortalPacienteShell.tsx**
+
 - Entry point: Shows "Enter your email" form if not authenticated
 - Main: Result list, filter toolbar, export button
 
 **AuthForm.tsx**
+
 - Email input + submit
 - Calls `validateEmailToken(token)` from URL params
 - Error: "Invalid or expired link" with 24h retry hint
 
 **ResultList.tsx**
+
 - Query: `patient-results/{patientId}/results` (filtered by consent scope)
 - Sort: Newest first
 - Columns: Date, exam name, result, status (normal/critical/pending)
 - Empty state: "No results available" or "You have not granted access to your results"
 
 **ResultDetail.tsx**
+
 - Full laudo view + reference ranges
 - Actions: Add to export, revoke access
 - Error: "You no longer have permission" if consent revoked between page loads
 
 **ExportWizard.tsx** (4-step)
+
 1. Confirm consent (checkbox: "I authorize HC Quality to export my data")
 2. Select format (XLSX, PDF, or both)
 3. Confirm email
 4. Success: "Email sent; check inbox for download link (valid 7 days)"
 
 **ConsentStatus.tsx**
+
 - Shows: "Access granted [date]" or "Access revoked [date]"
 - Button: "Revoke access" → confirmation dialog → POST to callable
 
 ### Hooks
 
 **`usePatientAuth()`**
+
 - Parse email token from URL
 - Validate HMAC
 - Store in sessionStorage (not localStorage; secure)
 - Return: `{ patientId, email, isAuthenticated, error }`
 
 **`usePatientResults(filters)`**
+
 - Query: `patient-results/{patientId}/results`
 - Filter: By date range, exam type
 - Return: `[results, loading, error]`
 - Auto-check consent on mount
 
 **`useDataExport()`**
+
 - State machine: idle → selecting → confirming → exporting → done
 - Call: `exportPatientData` callable
 - Track: Export task ID, email confirmation status
 
 **`useConsentStatus()`**
+
 - Query: `patient-consents/{patientId}/records` (active = `consentRevoked == null`)
 - Return: `[isConsentActive, lastConsent, canRevoke]`
 - Refresh: Every 5s (consent can be revoked in another tab)
@@ -322,27 +346,27 @@ Patient                        Portal-Paciente            Cloud Functions       
 
 ## Risks & Mitigations
 
-| Risk | Severity | Mitigation |
-|------|----------|-----------|
-| Email token leaked (shared link) | Medium | 24h expiry + single-use; regenerate per patient request |
-| Patient revokes, then tries to access | Medium | Consent check on every read; fail-closed |
-| Export file leaked (7-day email link) | Low | HTTPS download only, unique token per email link |
-| LGPD audit: "consent not explicit enough" | Medium | Checkbox capture + audit log with proof |
+| Risk                                      | Severity | Mitigation                                              |
+| ----------------------------------------- | -------- | ------------------------------------------------------- |
+| Email token leaked (shared link)          | Medium   | 24h expiry + single-use; regenerate per patient request |
+| Patient revokes, then tries to access     | Medium   | Consent check on every read; fail-closed                |
+| Export file leaked (7-day email link)     | Low      | HTTPS download only, unique token per email link        |
+| LGPD audit: "consent not explicit enough" | Medium   | Checkbox capture + audit log with proof                 |
 
 ---
 
 ## Compliance Mapping
 
-| LGPD Article | Requirement | Implementation |
-|--------------|-------------|-----------------|
-| Art. 9 | Explicit consent for sensitive data | Checkbox on export wizard step 1 |
-| Art. 11 | Portability right | exportPatientData callable returns XLSX/PDF |
-| Art. 13 | Access right | Portal-Paciente shows all patient results |
-| Art. 17 | Deletion right | revokePatientConsent blocks future access |
+| LGPD Article | Requirement                         | Implementation                              |
+| ------------ | ----------------------------------- | ------------------------------------------- |
+| Art. 9       | Explicit consent for sensitive data | Checkbox on export wizard step 1            |
+| Art. 11      | Portability right                   | exportPatientData callable returns XLSX/PDF |
+| Art. 13      | Access right                        | Portal-Paciente shows all patient results   |
+| Art. 17      | Deletion right                      | revokePatientConsent blocks future access   |
 
-| RDC 978 Article | Requirement | Implementation |
-|-----------------|-------------|-----------------|
-| Art. 167 | Patient info delivery | Portal-Paciente + email with 24h link |
+| RDC 978 Article | Requirement           | Implementation                        |
+| --------------- | --------------------- | ------------------------------------- |
+| Art. 167        | Patient info delivery | Portal-Paciente + email with 24h link |
 
 ---
 
@@ -361,11 +385,11 @@ Patient                        Portal-Paciente            Cloud Functions       
 
 ## Sign-Off
 
-| Role | Name | Date |
-|------|------|------|
-| **Architect** | CTO | 2026-05-08 |
+| Role           | Name               | Date       |
+| -------------- | ------------------ | ---------- |
+| **Architect**  | CTO                | 2026-05-08 |
 | **Compliance** | Legal/Privacy Lead | 2026-05-08 |
-| **QA** | Test Lead | 2026-05-08 |
+| **QA**         | Test Lead          | 2026-05-08 |
 
 ---
 

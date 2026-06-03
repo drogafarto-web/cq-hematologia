@@ -1,22 +1,22 @@
-'use client'
+'use client';
 
-import { Button } from '@/components/ui/button'
+import { Button } from '@/components/ui/button';
 
-type ReportType = 'MONTHLY_QC_SUMMARY' | 'LOT_PERFORMANCE' | 'CORRECTIVE_ACTIONS' | 'EQUIPMENT'
+type ReportType = 'MONTHLY_QC_SUMMARY' | 'LOT_PERFORMANCE' | 'CORRECTIVE_ACTIONS' | 'EQUIPMENT';
 
 interface ReportFormProps {
-  selectedType: ReportType
-  onSelectType: (t: ReportType) => void
-  periodStart: string
-  periodEnd: string
-  periodPreset: string | null
-  onApplyPreset: (p: string) => void
-  onPeriodStartChange: (v: string) => void
-  onPeriodEndChange: (v: string) => void
-  scope: Record<string, string>
-  onScopeChange: (s: Record<string, string>) => void
-  isGenerating: boolean
-  onGenerate: () => void
+  selectedType: ReportType;
+  onSelectType: (t: ReportType) => void;
+  periodStart: string;
+  periodEnd: string;
+  periodPreset: string | null;
+  onApplyPreset: (p: string) => void;
+  onPeriodStartChange: (v: string) => void;
+  onPeriodEndChange: (v: string) => void;
+  scope: Record<string, string>;
+  onScopeChange: (s: Record<string, string>) => void;
+  isGenerating: boolean;
+  onGenerate: () => void;
 }
 
 const REPORT_OPTIONS: { value: ReportType; label: string; description: string }[] = [
@@ -40,14 +40,14 @@ const REPORT_OPTIONS: { value: ReportType; label: string; description: string }[
     label: 'Equipment',
     description: 'Calibration and maintenance logs',
   },
-]
+];
 
 const PERIOD_PRESETS = [
   { value: 'LAST_MONTH', label: 'Last Month' },
   { value: 'LAST_QUARTER', label: 'Last Quarter' },
   { value: 'LAST_YEAR', label: 'Last Year' },
   { value: 'CUSTOM', label: 'Custom' },
-]
+];
 
 export function ReportForm({
   selectedType,
@@ -63,9 +63,9 @@ export function ReportForm({
   isGenerating,
   onGenerate,
 }: ReportFormProps) {
-  const showCustom = periodPreset === 'CUSTOM'
-  const showAnalyzer = selectedType === 'EQUIPMENT'
-  const showAnalyte = selectedType === 'MONTHLY_QC_SUMMARY' || selectedType === 'LOT_PERFORMANCE'
+  const showCustom = periodPreset === 'CUSTOM';
+  const showAnalyzer = selectedType === 'EQUIPMENT';
+  const showAnalyte = selectedType === 'MONTHLY_QC_SUMMARY' || selectedType === 'LOT_PERFORMANCE';
 
   return (
     <div className="border border-border rounded bg-white p-6 flex flex-col gap-6">
@@ -115,7 +115,9 @@ export function ReportForm({
         {showCustom && (
           <div className="flex items-center gap-3 mt-1">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">From</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                From
+              </label>
               <input
                 type="date"
                 value={periodStart}
@@ -124,7 +126,9 @@ export function ReportForm({
               />
             </div>
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">To</label>
+              <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                To
+              </label>
               <input
                 type="date"
                 value={periodEnd}
@@ -142,7 +146,9 @@ export function ReportForm({
           <div className="flex gap-4">
             {showAnalyzer && (
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Analyzer</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                  Analyzer
+                </label>
                 <select
                   value={scope.analyzerId || ''}
                   onChange={(e) => onScopeChange({ ...scope, analyzerId: e.target.value })}
@@ -154,7 +160,9 @@ export function ReportForm({
             )}
             {showAnalyte && (
               <div className="flex flex-col gap-1">
-                <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">Analyte</label>
+                <label className="text-xs font-semibold uppercase tracking-wider text-on-surface-variant">
+                  Analyte
+                </label>
                 <select
                   value={scope.analyte || ''}
                   onChange={(e) => onScopeChange({ ...scope, analyte: e.target.value })}
@@ -177,5 +185,5 @@ export function ReportForm({
         </Button>
       </div>
     </div>
-  )
+  );
 }

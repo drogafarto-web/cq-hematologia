@@ -23,11 +23,7 @@ import {
   updateDoc,
   where,
 } from 'firebase/firestore';
-import {
-  ref as storageRef,
-  uploadBytes,
-  getDownloadURL,
-} from 'firebase/storage';
+import { ref as storageRef, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 import { db, storage } from '../../../shared/services/firebase';
 import type {
@@ -53,21 +49,11 @@ export function auditoriaGeralDoc(labId: string, auditoriaId: string) {
 }
 
 export function respostasCol(labId: string, auditoriaId: string) {
-  return collection(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/respostas`
-  );
+  return collection(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/respostas`);
 }
 
-export function respostaDoc(
-  labId: string,
-  auditoriaId: string,
-  indicadorId: string
-) {
-  return doc(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/respostas/${indicadorId}`
-  );
+export function respostaDoc(labId: string, auditoriaId: string, indicadorId: string) {
+  return doc(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/respostas/${indicadorId}`);
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -126,7 +112,7 @@ export function mapDocToResposta(snap: DocumentSnapshot): RespostaIndicador {
 export async function createAuditoria(
   labId: string,
   uid: string,
-  input: AuditoriaGeralInput
+  input: AuditoriaGeralInput,
 ): Promise<string> {
   const colRef = auditoriaGeralCol(labId);
   const newDocRef = doc(colRef);
@@ -158,7 +144,7 @@ export async function saveResposta(
   labId: string,
   auditoriaId: string,
   indicadorId: string,
-  data: Partial<Omit<RespostaIndicador, 'id'>>
+  data: Partial<Omit<RespostaIndicador, 'id'>>,
 ): Promise<void> {
   const ref = respostaDoc(labId, auditoriaId, indicadorId);
   await setDoc(ref, { ...data, respondidoEm: Timestamp.now() }, { merge: true });
@@ -175,7 +161,7 @@ export async function uploadFotoEvidencia(
   file: File,
   uid: string,
   existingFotos: FotoEvidencia[],
-  indicadorMeta?: { numero: number; indicador: string; bloco: string }
+  indicadorMeta?: { numero: number; indicador: string; bloco: string },
 ): Promise<FotoEvidencia> {
   const ext = file.name.split('.').pop() ?? 'jpg';
   const uuid = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
@@ -214,7 +200,7 @@ export async function updateAuditoriaScores(
   scoreTotal: number,
   scoresPorBloco: ScoresPorBloco,
   totalRespondidos: number,
-  totalNaoAplica: number
+  totalNaoAplica: number,
 ): Promise<void> {
   const ref = auditoriaGeralDoc(labId, auditoriaId);
   await updateDoc(ref, {
@@ -231,7 +217,7 @@ export async function updateAuditoriaScores(
 export async function updateBlocoAtual(
   labId: string,
   auditoriaId: string,
-  blocoAtual: BlocoId
+  blocoAtual: BlocoId,
 ): Promise<void> {
   const ref = auditoriaGeralDoc(labId, auditoriaId);
   await updateDoc(ref, { blocoAtual });
@@ -244,7 +230,7 @@ export async function finalizarAuditoria(
   labId: string,
   auditoriaId: string,
   scoreTotal: number,
-  scoresPorBloco: ScoresPorBloco
+  scoresPorBloco: ScoresPorBloco,
 ): Promise<void> {
   const ref = auditoriaGeralDoc(labId, auditoriaId);
   await updateDoc(ref, {
@@ -261,7 +247,7 @@ export async function finalizarAuditoria(
 export async function updateStatus(
   labId: string,
   auditoriaId: string,
-  status: AuditoriaGeral['status']
+  status: AuditoriaGeral['status'],
 ): Promise<void> {
   const ref = auditoriaGeralDoc(labId, auditoriaId);
   await updateDoc(ref, { status });
@@ -278,13 +264,13 @@ export async function updateStatus(
 export function subscribeAuditorias(
   labId: string,
   callback: (auditorias: AuditoriaGeral[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const q = query(
     auditoriaGeralCol(labId),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(50)
+    limit(50),
   );
 
   return onSnapshot(
@@ -295,7 +281,7 @@ export function subscribeAuditorias(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -306,7 +292,7 @@ export function subscribeAuditoria(
   labId: string,
   auditoriaId: string,
   callback: (auditoria: AuditoriaGeral | null) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const ref = auditoriaGeralDoc(labId, auditoriaId);
 
@@ -321,7 +307,7 @@ export function subscribeAuditoria(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -332,7 +318,7 @@ export function subscribeRespostas(
   labId: string,
   auditoriaId: string,
   callback: (respostas: RespostaIndicador[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const col = respostasCol(labId, auditoriaId);
 
@@ -344,7 +330,7 @@ export function subscribeRespostas(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }
 
@@ -353,42 +339,28 @@ export function subscribeRespostas(
 // ──────────────────────────────────────────────────────────────────────────
 
 export function planosAcaoCol(labId: string, auditoriaId: string) {
-  return collection(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao`
-  );
+  return collection(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao`);
 }
 
-export function planoAcaoDoc(
-  labId: string,
-  auditoriaId: string,
-  indicadorId: string
-) {
-  return doc(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao/${indicadorId}`
-  );
+export function planoAcaoDoc(labId: string, auditoriaId: string, indicadorId: string) {
+  return doc(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/planos-acao/${indicadorId}`);
 }
 
 export async function savePlanoAcao(
   labId: string,
   auditoriaId: string,
   indicadorId: string,
-  data: Omit<PlanoAcao, 'indicadorId' | 'criadoEm'>
+  data: Omit<PlanoAcao, 'indicadorId' | 'criadoEm'>,
 ): Promise<void> {
   const ref = planoAcaoDoc(labId, auditoriaId, indicadorId);
-  await setDoc(
-    ref,
-    { ...data, indicadorId, criadoEm: Timestamp.now() },
-    { merge: true }
-  );
+  await setDoc(ref, { ...data, indicadorId, criadoEm: Timestamp.now() }, { merge: true });
 }
 
 export function subscribePlanosAcao(
   labId: string,
   auditoriaId: string,
   callback: (planos: PlanoAcao[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const col = planosAcaoCol(labId, auditoriaId);
 
@@ -414,6 +386,6 @@ export function subscribePlanosAcao(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }

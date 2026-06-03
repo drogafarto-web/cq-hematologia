@@ -1,10 +1,4 @@
-import {
-  collection,
-  getDocs,
-  query,
-  where,
-  Timestamp,
-} from 'firebase/firestore';
+import { collection, getDocs, query, where, Timestamp } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { RoutingRule, EscalationRecipients } from '../types/threshold';
 
@@ -31,7 +25,7 @@ export async function getRoutingRules(labId: LabId): Promise<RoutingRule[]> {
   const q = query(
     routingCollection(labId),
     where('ativo', '==', true),
-    where('deletadoEm', '==', null)
+    where('deletadoEm', '==', null),
   );
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => ({
@@ -72,7 +66,7 @@ export interface CriticoDetectionResult {
 export function getEscalationRecipients(
   critico: CriticoDetectionResult,
   rules: RoutingRule[],
-  primaryRtId: string
+  primaryRtId: string,
 ): EscalationRecipients {
   // Score each rule based on specificity
   const scored = rules
@@ -150,7 +144,9 @@ function scoreRuleMatch(rule: RoutingRule, critico: CriticoDetectionResult): num
  * Merge multiple escalation sets without duplicates
  * (useful if multiple rules match at same priority)
  */
-export function mergeEscalationRecipients(recipients: EscalationRecipients[]): EscalationRecipients {
+export function mergeEscalationRecipients(
+  recipients: EscalationRecipients[],
+): EscalationRecipients {
   const merged: EscalationRecipients = {
     operadorIds: [],
     telefones: [],

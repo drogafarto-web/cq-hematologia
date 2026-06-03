@@ -78,10 +78,7 @@ async function assertAdminOfLab(
   }
   const memberSnap = await db.doc(`labs/${labId}/members/${auth.uid}`).get();
   if (!memberSnap.exists) {
-    throw new HttpsError(
-      'permission-denied',
-      'Usuário não pertence a este laboratório.',
-    );
+    throw new HttpsError('permission-denied', 'Usuário não pertence a este laboratório.');
   }
   const memberData = memberSnap.data() ?? {};
   const role = (memberData['role'] as string | undefined) ?? '';
@@ -156,10 +153,7 @@ export const consents_exportPatientList = onCall<unknown, Promise<ExportPatientL
   async (request) => {
     const parsed = ExportPatientListInputSchema.safeParse(request.data);
     if (!parsed.success) {
-      throw new HttpsError(
-        'invalid-argument',
-        `Dados inválidos: ${parsed.error.message}`,
-      );
+      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
     }
     const input: ExportPatientListInput = parsed.data;
 
@@ -170,9 +164,7 @@ export const consents_exportPatientList = onCall<unknown, Promise<ExportPatientL
     const generatedAt = Date.now();
 
     // 1. Read all patients of the lab.
-    const patientsSnap = await db
-      .collection(`labs/${input.labId}/patients`)
-      .get();
+    const patientsSnap = await db.collection(`labs/${input.labId}/patients`).get();
 
     const rows: string[] = [];
     rows.push(CSV_HEADERS.join(','));
@@ -192,10 +184,8 @@ export const consents_exportPatientList = onCall<unknown, Promise<ExportPatientL
       // 2. Lookup current consent state per patient (for idempotency).
       // One read per patient is acceptable here — backfill runs are infrequent
       // (once per lab, once per cutover) and bounded by lab roster size.
-      const consentSnap = await db
-        .doc(`consents/${input.labId}/patients/${doc.id}`)
-        .get();
-      const consent = consentSnap.exists ? consentSnap.data() ?? {} : {};
+      const consentSnap = await db.doc(`consents/${input.labId}/patients/${doc.id}`).get();
+      const consent = consentSnap.exists ? (consentSnap.data() ?? {}) : {};
 
       const identifiers = (data['identifiers'] as Record<string, unknown>) ?? {};
 

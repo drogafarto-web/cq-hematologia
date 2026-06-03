@@ -16,7 +16,13 @@ export function userId(id: string): UserId {
   return id as UserId;
 }
 
-export type ReleaseState = 'Pendente' | 'Em Revisão' | 'Liberado' | 'Auto-Liberado' | 'Comunicado' | 'Superado';
+export type ReleaseState =
+  | 'Pendente'
+  | 'Em Revisão'
+  | 'Liberado'
+  | 'Auto-Liberado'
+  | 'Comunicado'
+  | 'Superado';
 export type ExamClassification = 'rotina' | 'revisao-rt' | 'bloqueio-critico';
 
 /**
@@ -46,12 +52,14 @@ export interface Laudo {
     sexo: 'M' | 'F' | 'NI';
   };
 
-  pacienteIdade: {
-    value: number;
-    unit: 'anos' | 'meses' | 'dias';
-  } | {
-    dataNascimento: Timestamp;
-  };
+  pacienteIdade:
+    | {
+        value: number;
+        unit: 'anos' | 'meses' | 'dias';
+      }
+    | {
+        dataNascimento: Timestamp;
+      };
 
   coletaEm: Timestamp;
   emissaoEm: Timestamp;
@@ -89,7 +97,11 @@ export interface DuplaVerificacaoMetadata {
   dataHoraLeitura2?: Timestamp;
 
   divergente: boolean;
-  statusVerificacao: 'aguardando_segunda_leitura' | 'liberado_coincidente' | 'divergente_bloqueado' | 'revisado_e_liberado';
+  statusVerificacao:
+    | 'aguardando_segunda_leitura'
+    | 'liberado_coincidente'
+    | 'divergente_bloqueado'
+    | 'revisado_e_liberado';
 
   usuarioRevisao?: UserId;
   nomeUsuarioRevisao?: string;

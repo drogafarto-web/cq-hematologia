@@ -57,10 +57,7 @@ export const labApoio_createContrato = onCall<unknown, Promise<CreateContratoRes
     const inicioDate = new Date(input.vigenciaInicio);
     const fimDate = new Date(input.vigenciaFim);
     if (inicioDate >= fimDate) {
-      throw new HttpsError(
-        'invalid-argument',
-        'vigenciaFim deve ser posterior a vigenciaInicio.',
-      );
+      throw new HttpsError('invalid-argument', 'vigenciaFim deve ser posterior a vigenciaInicio.');
     }
 
     // 3. Check uniqueness (labId, cnpj) e sobreposição de vigência —

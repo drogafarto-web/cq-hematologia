@@ -4,9 +4,7 @@ import { Timestamp } from 'firebase/firestore';
 import { ComunicacaoModal } from '../components/ComunicacaoModal';
 import type { CriticosEscalacao } from '../types';
 
-const makeEscalacao = (
-  overrides: Partial<CriticosEscalacao> = {},
-): CriticosEscalacao => ({
+const makeEscalacao = (overrides: Partial<CriticosEscalacao> = {}): CriticosEscalacao => ({
   id: 'esc-123',
   labId: 'lab-1',
   laudoId: 'laudo-1',
@@ -67,16 +65,10 @@ describe('ComunicacaoModal', () => {
     const onClose = vi.fn();
     const escalacao = makeEscalacao();
     render(
-      <ComunicacaoModal
-        escalacao={escalacao}
-        onClose={onClose}
-        onAcknowledge={onAcknowledge}
-      />,
+      <ComunicacaoModal escalacao={escalacao} onClose={onClose} onAcknowledge={onAcknowledge} />,
     );
 
-    const textarea = screen.getByLabelText(
-      /notas do reconhecimento/i,
-    ) as HTMLTextAreaElement;
+    const textarea = screen.getByLabelText(/notas do reconhecimento/i) as HTMLTextAreaElement;
     fireEvent.change(textarea, { target: { value: '  Médico contatado por telefone  ' } });
 
     const confirm = screen.getByRole('button', { name: /confirmar reconhecimento/i });
@@ -96,16 +88,10 @@ describe('ComunicacaoModal', () => {
     const onAcknowledge = vi.fn().mockResolvedValue(undefined);
     const escalacao = makeEscalacao();
     render(
-      <ComunicacaoModal
-        escalacao={escalacao}
-        onClose={vi.fn()}
-        onAcknowledge={onAcknowledge}
-      />,
+      <ComunicacaoModal escalacao={escalacao} onClose={vi.fn()} onAcknowledge={onAcknowledge} />,
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /confirmar reconhecimento/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /confirmar reconhecimento/i }));
 
     await waitFor(() => expect(onAcknowledge).toHaveBeenCalled());
     expect(onAcknowledge).toHaveBeenCalledWith({
@@ -115,22 +101,14 @@ describe('ComunicacaoModal', () => {
   });
 
   it('surfaces errors from onAcknowledge without closing the modal', async () => {
-    const onAcknowledge = vi
-      .fn()
-      .mockRejectedValue(new Error('callable indisponível'));
+    const onAcknowledge = vi.fn().mockRejectedValue(new Error('callable indisponível'));
     const onClose = vi.fn();
     const escalacao = makeEscalacao();
     render(
-      <ComunicacaoModal
-        escalacao={escalacao}
-        onClose={onClose}
-        onAcknowledge={onAcknowledge}
-      />,
+      <ComunicacaoModal escalacao={escalacao} onClose={onClose} onAcknowledge={onAcknowledge} />,
     );
 
-    fireEvent.click(
-      screen.getByRole('button', { name: /confirmar reconhecimento/i }),
-    );
+    fireEvent.click(screen.getByRole('button', { name: /confirmar reconhecimento/i }));
 
     await waitFor(() => {
       expect(screen.getByRole('alert').textContent).toMatch(/indisponível/);
@@ -143,17 +121,9 @@ describe('ComunicacaoModal', () => {
       status: 'reconhecido',
       tempo_sla_ms: 5 * 60 * 1000,
     });
-    render(
-      <ComunicacaoModal
-        escalacao={escalacao}
-        onClose={vi.fn()}
-        onAcknowledge={vi.fn()}
-      />,
-    );
+    render(<ComunicacaoModal escalacao={escalacao} onClose={vi.fn()} onAcknowledge={vi.fn()} />);
 
-    expect(
-      screen.queryByRole('button', { name: /confirmar reconhecimento/i }),
-    ).toBeNull();
+    expect(screen.queryByRole('button', { name: /confirmar reconhecimento/i })).toBeNull();
     expect(screen.getByText(/já foi reconhecida/i)).toBeTruthy();
   });
 });

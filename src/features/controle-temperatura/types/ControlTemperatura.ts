@@ -176,10 +176,7 @@ export interface NaoConformidadeTemp {
   deletadoEm: Timestamp | null;
 }
 
-export type NCInput = Omit<
-  NaoConformidadeTemp,
-  'id' | 'labId' | 'dataAbertura' | 'deletadoEm'
->;
+export type NCInput = Omit<NaoConformidadeTemp, 'id' | 'labId' | 'dataAbertura' | 'deletadoEm'>;
 
 // ─── Calibração & Termômetro ──────────────────────────────────────────────────
 

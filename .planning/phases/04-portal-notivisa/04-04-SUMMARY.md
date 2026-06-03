@@ -1,14 +1,14 @@
 ---
-phase: "04"
-plan: "04"
-type: "checkpoint:human-verify"
-wave: "2"
-title: "Testing, Cloud Logs & Deployment Validation — SUMMARY"
-status: "complete"
+phase: '04'
+plan: '04'
+type: 'checkpoint:human-verify'
+wave: '2'
+title: 'Testing, Cloud Logs & Deployment Validation — SUMMARY'
+status: 'complete'
 dates:
-  start: "2026-05-27"
-  end: "2026-06-02"
-  completed: "2026-05-08"
+  start: '2026-05-27'
+  end: '2026-06-02'
+  completed: '2026-05-08'
 metrics:
   tasks: 1
   artifacts_created: 12
@@ -37,6 +37,7 @@ End-to-end testing, Cloud Logs monitoring infrastructure, and production deploym
 **All testing, monitoring, and deployment infrastructure complete and merged to main (as of 2026-05-08).**
 
 Deliverables:
+
 - 6 E2E test flows (auth, laudo view, PDF download, logout, session timeout, errors)
 - Smoke test checklist (executable, 19 manual steps)
 - Cloud Logs monitoring setup (filters, alerts, dashboards)
@@ -50,50 +51,50 @@ Deliverables:
 
 ### E2E Test Suite
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `__tests__/e2e/phase-4-critical-flows.test.ts` | 2100 | 6 critical E2E flows (auth, laudo, PDF, logout, timeout, errors) | ✅ LIVE |
-| `__tests__/e2e/phase-4-notivisa.e2e.ts` | 1500 | NOTIVISA queue E2E tests (enqueue, process, webhook) | ✅ LIVE |
-| `src/features/patient-portal/__tests__/patient-portal.test.tsx` | 850 | Unit tests (auth store, expiry, RN compliance) | ✅ LIVE |
-| `src/features/patient-portal/__tests__/error-handling.test.tsx` | 480 | Error scenario tests (invalid token, network, access denied) | ✅ LIVE |
-| `src/__tests__/e2e/phase-4-accessibility.test.ts` | 650 | WCAG AA accessibility tests (contrast, keyboard nav, screen reader) | ✅ LIVE |
-| `firestore.rules.test.ts` (portal section) | 420 | Firestore Rules validation (CPF filtering, RBAC) | ✅ LIVE |
+| File                                                            | Lines | Purpose                                                             | Status  |
+| --------------------------------------------------------------- | ----- | ------------------------------------------------------------------- | ------- |
+| `__tests__/e2e/phase-4-critical-flows.test.ts`                  | 2100  | 6 critical E2E flows (auth, laudo, PDF, logout, timeout, errors)    | ✅ LIVE |
+| `__tests__/e2e/phase-4-notivisa.e2e.ts`                         | 1500  | NOTIVISA queue E2E tests (enqueue, process, webhook)                | ✅ LIVE |
+| `src/features/patient-portal/__tests__/patient-portal.test.tsx` | 850   | Unit tests (auth store, expiry, RN compliance)                      | ✅ LIVE |
+| `src/features/patient-portal/__tests__/error-handling.test.tsx` | 480   | Error scenario tests (invalid token, network, access denied)        | ✅ LIVE |
+| `src/__tests__/e2e/phase-4-accessibility.test.ts`               | 650   | WCAG AA accessibility tests (contrast, keyboard nav, screen reader) | ✅ LIVE |
+| `firestore.rules.test.ts` (portal section)                      | 420   | Firestore Rules validation (CPF filtering, RBAC)                    | ✅ LIVE |
 
 ### Smoke Test Checklist
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `docs/PHASE4_SMOKE_TEST_CHECKLIST.md` | 180 | Executable staging validation (19 manual steps) | ✅ LIVE |
+| File                                  | Lines | Purpose                                         | Status  |
+| ------------------------------------- | ----- | ----------------------------------------------- | ------- |
+| `docs/PHASE4_SMOKE_TEST_CHECKLIST.md` | 180   | Executable staging validation (19 manual steps) | ✅ LIVE |
 
 ### Cloud Logs & Monitoring
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | 420 | 24h monitoring setup + filters + red flags | ✅ LIVE |
-| `scripts/monitor-phase4-logs.sh` | 85 | Bash script for Cloud Logs tail + metrics export | ✅ LIVE |
-| `scripts/monitor-phase4-logs.ps1` | 95 | PowerShell equivalent for Windows | ✅ LIVE |
-| `docs/CLOUD_LOGS_ALERT_POLICY.yaml` | 145 | Cloud Monitoring alert policies (P0, P1, P2) | ✅ LIVE |
+| File                                  | Lines | Purpose                                          | Status  |
+| ------------------------------------- | ----- | ------------------------------------------------ | ------- |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | 420   | 24h monitoring setup + filters + red flags       | ✅ LIVE |
+| `scripts/monitor-phase4-logs.sh`      | 85    | Bash script for Cloud Logs tail + metrics export | ✅ LIVE |
+| `scripts/monitor-phase4-logs.ps1`     | 95    | PowerShell equivalent for Windows                | ✅ LIVE |
+| `docs/CLOUD_LOGS_ALERT_POLICY.yaml`   | 145   | Cloud Monitoring alert policies (P0, P1, P2)     | ✅ LIVE |
 
 ### Deployment & Readiness
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `docs/PHASE4_DEPLOYMENT_READINESS.md` | 220 | Pre-deploy checklist (code, security, performance, monitoring) | ✅ LIVE |
-| `docs/NOTIVISA_OPERATIONS_GUIDE.md` | 320 | Ops runbook (alert response, manual procedures, troubleshooting) | ✅ LIVE |
-| `scripts/phase4-preflight-check.sh` | 120 | Pre-deploy validation (build, tests, type-check) | ✅ LIVE |
+| File                                  | Lines | Purpose                                                          | Status  |
+| ------------------------------------- | ----- | ---------------------------------------------------------------- | ------- |
+| `docs/PHASE4_DEPLOYMENT_READINESS.md` | 220   | Pre-deploy checklist (code, security, performance, monitoring)   | ✅ LIVE |
+| `docs/NOTIVISA_OPERATIONS_GUIDE.md`   | 320   | Ops runbook (alert response, manual procedures, troubleshooting) | ✅ LIVE |
+| `scripts/phase4-preflight-check.sh`   | 120   | Pre-deploy validation (build, tests, type-check)                 | ✅ LIVE |
 
 ### Staging Data Seed
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `scripts/seed-staging-phase4.ts` | 280 | Test data generation (patients, laudos, portal config) | ✅ LIVE |
+| File                             | Lines | Purpose                                                | Status  |
+| -------------------------------- | ----- | ------------------------------------------------------ | ------- |
+| `scripts/seed-staging-phase4.ts` | 280   | Test data generation (patients, laudos, portal config) | ✅ LIVE |
 
 ### Documentation
 
-| File | Lines | Purpose | Status |
-|------|-------|---------|--------|
-| `docs/PHASE4_EXECUTIVE_SUMMARY.md` | 180 | 1-page quick reference for stakeholders | ✅ LIVE |
-| `docs/PHASE4_ALERT_QUICK_REFERENCE.md` | 95 | On-call card (laminate + post at desks) | ✅ LIVE |
+| File                                   | Lines | Purpose                                 | Status  |
+| -------------------------------------- | ----- | --------------------------------------- | ------- |
+| `docs/PHASE4_EXECUTIVE_SUMMARY.md`     | 180   | 1-page quick reference for stakeholders | ✅ LIVE |
+| `docs/PHASE4_ALERT_QUICK_REFERENCE.md` | 95    | On-call card (laminate + post at desks) | ✅ LIVE |
 
 ---
 
@@ -102,6 +103,7 @@ Deliverables:
 ### E2E Flows (6 Critical)
 
 **Flow 1: Patient Portal Auth (Email Link)**
+
 ```
 Scenario 1.1: Patient receives email → clicks link → authenticates
   ✅ Patient submits email (patient@email.com)
@@ -113,7 +115,7 @@ Scenario 1.1: Patient receives email → clicks link → authenticates
   ✅ localStorage['patient_auth_token'] set
   ✅ Redirect to /portal/[labId]/laudos successful
   ✅ SessionIndicator shows "Logged in as Patient"
-  
+
 Scenario 1.2: Expired link (>7 days)
   ✅ Token with iat > 7 days old
   ✅ validatePatientToken callable rejects
@@ -141,6 +143,7 @@ Scenario 1.5: Concurrent auth (rate limit)
 ```
 
 **Flow 2: Patient Views Own Laudos**
+
 ```
 Scenario 2.1: Dashboard loads laudo list
   ✅ PatientDashboard renders
@@ -177,6 +180,7 @@ Scenario 2.4: Sort by date (newest first)
 ```
 
 **Flow 3: Patient Downloads PDF**
+
 ```
 Scenario 3.1: Patient clicks "Download PDF"
   ✅ PatientLaudoDetailPage loads laudo
@@ -206,6 +210,7 @@ Scenario 3.3: QR code validates signature
 ```
 
 **Flow 4: Patient Logs Out**
+
 ```
 Scenario 4.1: Logout clears session
   ✅ PatientSessionIndicator shows "Logout" button
@@ -224,6 +229,7 @@ Scenario 4.2: Next access requires new link
 ```
 
 **Flow 5: Session Timeout (72h expiry)**
+
 ```
 Scenario 5.1: Warning at 10 minutes remaining
   ✅ Session created (72h expiry set)
@@ -244,6 +250,7 @@ Scenario 5.2: Auto-logout at 72h
 ```
 
 **Flow 6: Error Handling**
+
 ```
 Scenario 6.1: Network error → retry available
   ✅ Network down (simulated via offline mode)
@@ -353,6 +360,7 @@ Results
 ### Filters (Pre-configured)
 
 **Error Filter (P0 - Critical):**
+
 ```
 severity >= ERROR
 resource.type = "cloud_function"
@@ -360,6 +368,7 @@ OR (resource.type = "cloud_firestore_database" AND severity >= ERROR)
 ```
 
 **Warning Filter (P1 - Important):**
+
 ```
 severity = WARNING
 (
@@ -369,6 +378,7 @@ severity = WARNING
 ```
 
 **Info Filter (P2 - Informational):**
+
 ```
 severity = INFO
 labels.source = "patient-portal"
@@ -376,23 +386,25 @@ textPayload =~ "EVENT_"
 ```
 
 **Metrics Filter:**
+
 ```
 jsonPayload.metric_type =~ "queue_depth|processing_time|submitted_total"
 ```
 
 ### Alert Policies (Cloud Monitoring)
 
-| Alert | Condition | Action |
-|-------|-----------|--------|
-| **P0 - Unhandled Exception** | ERROR logs > 0 in 5 min | Page on-call (SMS + call) |
-| **P0 - Queue Blocked** | PENDING events > 100 for 30 min | Page on-call |
-| **P1 - High Error Rate** | ERROR logs > 10 in 1h | Email + Slack |
-| **P1 - Webhook Failures** | notivisa webhook fails > 5 in 1h | Email ops |
-| **P2 - Slow Processing** | avg latency > 10s for 15 min | Log only (no alert) |
+| Alert                        | Condition                        | Action                    |
+| ---------------------------- | -------------------------------- | ------------------------- |
+| **P0 - Unhandled Exception** | ERROR logs > 0 in 5 min          | Page on-call (SMS + call) |
+| **P0 - Queue Blocked**       | PENDING events > 100 for 30 min  | Page on-call              |
+| **P1 - High Error Rate**     | ERROR logs > 10 in 1h            | Email + Slack             |
+| **P1 - Webhook Failures**    | notivisa webhook fails > 5 in 1h | Email ops                 |
+| **P2 - Slow Processing**     | avg latency > 10s for 15 min     | Log only (no alert)       |
 
 ### 24h Monitoring Protocol
 
 **Day 0 (Deploy day, 08:00–13:00 UTC):**
+
 - Step 1: Rules + Indexes deploy (08:00)
 - Step 2: Cloud Functions deploy (08:30)
 - Step 3: React hosting deploy (09:00)
@@ -402,6 +414,7 @@ jsonPayload.metric_type =~ "queue_depth|processing_time|submitted_total"
 - Action: Any ERROR → page on-call
 
 **Day 1 (24h post-deploy):**
+
 - Check: No P0 alerts
 - Check: Error rate < 1%
 - Check: Latency < 5s (p99)
@@ -411,6 +424,7 @@ jsonPayload.metric_type =~ "queue_depth|processing_time|submitted_total"
 ### Monitoring Commands
 
 **Bash (macOS/Linux):**
+
 ```bash
 bash scripts/monitor-phase4-logs.sh 24 30
 # Args: 24 (hours to monitor), 30 (interval in sec)
@@ -418,6 +432,7 @@ bash scripts/monitor-phase4-logs.sh 24 30
 ```
 
 **PowerShell (Windows):**
+
 ```powershell
 .\scripts\monitor-phase4-logs.ps1 -Hours 24 -Interval 30
 # Same functionality as Bash version
@@ -561,6 +576,7 @@ firebase deploy --only firestore:indexes --project hmatologia2
 ```
 
 **Verification:**
+
 - Rules deployed: `firebase rules:list`
 - Indexes created: Check Firebase Console → Indexes (4 items)
 
@@ -571,6 +587,7 @@ firebase deploy --only functions --project hmatologia2
 ```
 
 **Verification:**
+
 - 78 functions deployed: `firebase functions:list`
 - No deployment errors in logs
 - Cron jobs scheduled: `gcloud scheduler jobs list --location southamerica-east1`
@@ -583,6 +600,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Verification:**
+
 - Hosting updated: Check Console (last deploy time)
 - Service Worker: Check PWA manifest (sw.js updated)
 - Source maps: Verify Sentry integration (new release created)
@@ -596,6 +614,7 @@ bash scripts/monitor-phase4-logs.sh 0 2
 ```
 
 **Verification:**
+
 - Portal auth flow works end-to-end
 - No unhandled exceptions in Cloud Logs
 - Lighthouse score acceptable (>90)
@@ -617,6 +636,7 @@ bash scripts/monitor-phase4-logs.sh 0 2
 **Time to Respond:** <5 minutes
 
 **Steps:**
+
 1. Page on-call engineer (SMS + call)
 2. Check Cloud Logs filter: `severity >= ERROR`
 3. Identify error:
@@ -641,19 +661,23 @@ bash scripts/monitor-phase4-logs.sh 0 2
 **Time to Respond:** <15 minutes
 
 **Steps:**
+
 1. Check queue status:
+
    ```bash
    firebase firestore:document get labs/lab-1/notivisa-outbox/metadata
    # See: totalProcessed, totalFailed, lastProcessedAt
    ```
 
 2. Check cron job:
+
    ```bash
    gcloud scheduler jobs describe notivisa-queue-processor --location southamerica-east1
    # Check: Next execution time, last execution status
    ```
 
 3. Check Cloud Logs:
+
    ```bash
    gcloud logging read "labels.source='notivisa-queue'" --limit=50 --format=json
    ```
@@ -665,11 +689,13 @@ bash scripts/monitor-phase4-logs.sh 0 2
    - **Rate limited:** Wait for rate window to reset
 
 5. If cron failed:
+
    ```bash
    gcloud functions call notivisaQueueProcessor --region southamerica-east1
    ```
 
 6. Monitor queue drain:
+
    ```bash
    bash scripts/monitor-phase4-logs.sh 1 5
    # Watch: PENDING count decrease as processor runs
@@ -685,13 +711,16 @@ bash scripts/monitor-phase4-logs.sh 0 2
 **Time to Respond:** <30 minutes
 
 **Steps:**
+
 1. Check webhook logs:
+
    ```bash
    gcloud logging read "labels.source='notivisa-webhook'" --limit=20
    # Look for: "signature validation failed"
    ```
 
 2. Verify webhook secret:
+
    ```bash
    gcloud secrets versions list notivisa-webhook-secret
    # Compare with NOTIVISA portal value
@@ -703,6 +732,7 @@ bash scripts/monitor-phase4-logs.sh 0 2
    - Update Firebase Secrets Manager once confirmed
 
 4. Test webhook receiver:
+
    ```bash
    curl -X POST https://hmatologia2.web.app/api/notivisa/webhook \
      -H "X-NOTIVISA-Signature: [test-signature]" \
@@ -721,9 +751,10 @@ bash scripts/monitor-phase4-logs.sh 0 2
 
 **Found during:** E2E test execution  
 **Issue:** Session timeout tests flaky due to timer precision in vitest  
-**Fix:** Added `vi.useFakeTimers()` + `vi.advanceTimersByTime()` for deterministic timing  
+**Fix:** Added `vi.useFakeTimers()` + `vi.advanceTimersByTime()` for deterministic timing
 
 **Files modified:**
+
 - `src/features/patient-portal/__tests__/patient-portal.test.tsx` (added afterEach)
 - `__tests__/e2e/phase-4-critical-flows.test.ts` (timer setup)
 
@@ -758,13 +789,13 @@ bash scripts/monitor-phase4-logs.sh 0 2
 
 ## Commits Summary
 
-| Commit | Message | Files |
-|--------|---------|-------|
-| 79c554e | feat(smoke-tests): Add Phase 4 E2E smoke test suite with automation | E2E tests |
-| 54195e3 | docs(phase-4): E2E test suite summary | documentation |
-| a8a5b1a | test(phase-4): E2E test suite — 22 critical scenarios | tests |
-| (new) | docs(04-04): Testing + Cloud Logs deployment validation — summary | summary |
-| (new) | deployment-ready: Phase 4 production deployment checklist | checklist |
+| Commit  | Message                                                             | Files         |
+| ------- | ------------------------------------------------------------------- | ------------- |
+| 79c554e | feat(smoke-tests): Add Phase 4 E2E smoke test suite with automation | E2E tests     |
+| 54195e3 | docs(phase-4): E2E test suite summary                               | documentation |
+| a8a5b1a | test(phase-4): E2E test suite — 22 critical scenarios               | tests         |
+| (new)   | docs(04-04): Testing + Cloud Logs deployment validation — summary   | summary       |
+| (new)   | deployment-ready: Phase 4 production deployment checklist           | checklist     |
 
 ---
 
@@ -772,15 +803,16 @@ bash scripts/monitor-phase4-logs.sh 0 2
 
 **Plan 04-04: COMPLETE and READY FOR DEPLOYMENT**
 
-| Role | Status | Date |
-|------|--------|------|
-| QA | ✅ All 135 tests pass | 2026-05-28 |
-| DevOps | ✅ Cloud Logs + alerts configured | 2026-05-28 |
-| Security | ✅ Rules validated + reviewed | 2026-05-08 |
-| CTO | ✅ Readiness checklist approved | 2026-05-08 |
+| Role     | Status                            | Date       |
+| -------- | --------------------------------- | ---------- |
+| QA       | ✅ All 135 tests pass             | 2026-05-28 |
+| DevOps   | ✅ Cloud Logs + alerts configured | 2026-05-28 |
+| Security | ✅ Rules validated + reviewed     | 2026-05-08 |
+| CTO      | ✅ Readiness checklist approved   | 2026-05-08 |
 
 **Checkpoint Type:** human-verify  
-**What to verify:** 
+**What to verify:**
+
 1. Run smoke test checklist (45 min)
 2. Monitor Cloud Logs for 24h post-deploy
 3. Check error rate <1%
@@ -812,6 +844,7 @@ bash scripts/monitor-phase4-logs.sh 0 2
 ### Phase 5 Kickoff (May 22)
 
 Conditional on Phase 4 <1% error rate:
+
 - Phase 5 (Satisfação Portal) begins
 - Dependencies met: Portal auth + NOTIVISA queue ✅
 - New scope: NPS survey + feedback + trending

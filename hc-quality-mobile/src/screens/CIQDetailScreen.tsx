@@ -73,8 +73,7 @@ export function CIQDetailScreen({ route, navigation }: CIQDetailScreenProps): Re
     } catch (err: any) {
       // callFunction auto-queues on network failure
       // so we inform the user it will sync later
-      const isNetworkError =
-        err.code === 'unavailable' || err.message?.includes('network');
+      const isNetworkError = err.code === 'unavailable' || err.message?.includes('network');
 
       if (isNetworkError) {
         setSubmittedOffline(true);
@@ -82,7 +81,7 @@ export function CIQDetailScreen({ route, navigation }: CIQDetailScreenProps): Re
         Alert.alert(
           'Salvo offline',
           'Sem conexão no momento. O comentário será enviado automaticamente quando o dispositivo reconectar.',
-          [{ text: 'OK', onPress: () => navigation.goBack() }]
+          [{ text: 'OK', onPress: () => navigation.goBack() }],
         );
       } else {
         Alert.alert('Erro', err.message || 'Falha ao enviar comentário.');

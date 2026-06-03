@@ -3,7 +3,7 @@
 **Purpose:** Verify that incident response procedures work before they are needed.  
 **Frequency:** Quarterly (every 3 months) + after any major deploy  
 **Duration:** 4–6 hours (can be split across days)  
-**Owner:** DevOps + QA + CTO  
+**Owner:** DevOps + QA + CTO
 
 ---
 
@@ -59,6 +59,7 @@ gcloud logging write hcq-drill-log \
 ```
 
 **Triage team actions:**
+
 - [ ] Receive alert / discover log entry
 - [ ] Post to `#incident-drill-2026-05-07`: "Suspicious reads detected"
 - [ ] Check GCP Cloud Status for false-positive regional issues
@@ -96,6 +97,7 @@ gcloud logging read "jsonPayload.sourceIp = '203.0.113.45'" \
 ```
 
 **Documenting investigation:**
+
 - [ ] Copy query results to incident Slack thread
 - [ ] Screenshot Cloud Logs (for post-mortem)
 - [ ] Update spreadsheet: affected collections + record counts
@@ -111,7 +113,7 @@ gcloud logging read "jsonPayload.sourceIp = '203.0.113.45'" \
 - [ ] Deploy temporary rule blocking that IP (if applicable):
   ```javascript
   match /pacientes/{labId}/{rest=**} {
-    allow read: if request.auth.uid != null && 
+    allow read: if request.auth.uid != null &&
                    request.sourceIp != "203.0.113.45";
   }
   ```
@@ -121,15 +123,16 @@ gcloud logging read "jsonPayload.sourceIp = '203.0.113.45'" \
 
 - [ ] Draft customer notification email (copy-paste from Section 3.2 of playbook)
 - [ ] Review for accuracy:
-   - [ ] Correct date/time of detection
-   - [ ] Correct scope (number of patients)
-   - [ ] Correct fields exposed
-   - [ ] Clear next steps for customer
+  - [ ] Correct date/time of detection
+  - [ ] Correct scope (number of patients)
+  - [ ] Correct fields exposed
+  - [ ] Clear next steps for customer
 - [ ] Save as Google Doc / Slack message (do NOT send)
 
 ### Phase 6: Validation & Close
 
 **Drill success criteria:**
+
 - [ ] Evidence fully preserved in GCS + Slack thread
 - [ ] Suspicious activity contained (rule deployed, credentials rotated)
 - [ ] Customer notification drafted + reviewed
@@ -137,6 +140,7 @@ gcloud logging read "jsonPayload.sourceIp = '203.0.113.45'" \
 - [ ] Timeline captures all actions with timestamps
 
 **Post-drill checklist:**
+
 - [ ] Team debriefs: what worked? what was slow? (15 min)
 - [ ] Update playbook if gaps found
 - [ ] Create Jira ticket for any tool improvements
@@ -171,6 +175,7 @@ firebase deploy --only firestore:rules --project hmatologia2-staging
 ```
 
 **Simulate monitoring alert:**
+
 - [ ] Cloud Functions: 100% error rate in staging logs
 - [ ] Post to `#incident-drill-2026-05-07`: `[P0] System outage — all writes failing`
 
@@ -193,6 +198,7 @@ git log -p --follow -n 5 -- firestore.rules | head -50
 ```
 
 **Decision point (documented in Slack):**
+
 - [ ] Identified breaking change: recent rules deploy
 - [ ] Rollback candidate: commit `abc123def` (last known good)
 - [ ] CTO approval: "Roll back to abc123"
@@ -266,11 +272,13 @@ gcloud logging read "severity >= ERROR" --project=hmatologia2-staging --limit=50
 ### Phase 7: Post-Incident (15 minutes)
 
 **Root cause & preventive action:**
+
 - [ ] Why did broken rules get deployed? (Inadequate pre-deploy testing?)
 - [ ] Create Jira ticket: "Add pre-deploy rules validation test"
 - [ ] Create Jira ticket: "Require peer review of firestore.rules before merge"
 
 **Post-drill success criteria:**
+
 - [ ] Rollback completed in <15 min
 - [ ] All smoke tests pass
 - [ ] Evidence preserved (git diff, log snapshot)
@@ -303,10 +311,13 @@ gcloud firestore update projects/hmatologia2-staging/databases/\(default\)/docum
 ### Phase 2: Detection (10 minutes)
 
 **Simulate monitoring alert:**
+
 - [ ] Run chain-hash validator:
+
   ```bash
   npm run validate:chain-hash -- --project=hmatologia2-staging --sample-size=100
   ```
+
   Expected output: `FAIL: Chain broken at doc [laudo-corrupt]. Hash mismatch.`
 
 - [ ] Post to `#incident-drill-2026-05-07`: `[P1] Data corruption detected — laudo documents`
@@ -338,6 +349,7 @@ gcloud logging read "resource.type=cloud_function" \
 ### Phase 4: Decision (5 minutes)
 
 **Incident commander decision (documented in Slack):**
+
 - [ ] Corruption is isolated to <10 docs → can patch in-place
 - [ ] Corruption is widespread (>50 docs) → restore from backup
 - [ ] In drill: assume widespread corruption → proceed to restore
@@ -441,6 +453,7 @@ npm run validate:chain-hash -- \
 ### Phase 8: Post-Incident (10 minutes)
 
 **Root cause analysis:**
+
 - [ ] Why did function write invalid data?
 - [ ] Were tests insufficient?
 - [ ] Create preventive actions:
@@ -458,6 +471,7 @@ npm run validate:chain-hash -- \
 ### Phase 1: Receive Request (5 minutes)
 
 **Simulate request:**
+
 ```bash
 # Create fake LGPD request in staging
 curl -X POST https://[staging-url]/api/lgpd/request \
@@ -567,6 +581,7 @@ gcloud firestore query --project=hmatologia2-staging audit-logs \
 ### Phase 6: Post-Incident (5 minutes)
 
 **Success criteria:**
+
 - [ ] Request processed within 30-day SLA
 - [ ] Audit trail complete
 - [ ] Patient data no longer accessible
@@ -731,6 +746,7 @@ gcloud firestore query --project=hmatologia2-staging audit-violations \
 - [ ] Increase monitoring (if detection was slow)
 
 **Example actions:**
+
 - "Add alert for chain-hash validation failure" (Jira ticket: ops-123)
 - "Document the Firestore export command in runbook" (Playbook update)
 - "CTO availability: revise on-call schedule for weekend coverage" (HR action)
@@ -741,16 +757,16 @@ gcloud firestore query --project=hmatologia2-staging audit-violations \
 
 ### Quarterly Schedule
 
-| Quarter | Month | Drill | Owner |
-|---------|-------|-------|-------|
-| Q1 2026 | Jan | #1 (Data Breach) | Security |
-| Q1 2026 | Feb | #2 (Outage + Rollback) | DevOps |
-| Q1 2026 | Mar | #3 (Data Corruption) | DBA |
-| Q2 2026 | Apr | #4 (LGPD Compliance) | Compliance |
-| Q2 2026 | May | #5 (Security — Rotation) | Security |
-| Q3 2026 | Jul | #1 (repeat) | Security |
-| Q3 2026 | Aug | #2 (repeat) | DevOps |
-| ... | ... | ... | ... |
+| Quarter | Month | Drill                    | Owner      |
+| ------- | ----- | ------------------------ | ---------- |
+| Q1 2026 | Jan   | #1 (Data Breach)         | Security   |
+| Q1 2026 | Feb   | #2 (Outage + Rollback)   | DevOps     |
+| Q1 2026 | Mar   | #3 (Data Corruption)     | DBA        |
+| Q2 2026 | Apr   | #4 (LGPD Compliance)     | Compliance |
+| Q2 2026 | May   | #5 (Security — Rotation) | Security   |
+| Q3 2026 | Jul   | #1 (repeat)              | Security   |
+| Q3 2026 | Aug   | #2 (repeat)              | DevOps     |
+| ...     | ...   | ...                      | ...        |
 
 ### Compliance Verification
 
@@ -762,8 +778,9 @@ gcloud firestore query --project=hmatologia2-staging audit-violations \
 - [ ] Executive summary prepared for RDC 978 audit file
 
 **Sign-off:**
-- CTO: _______________  Date: ___________
-- Compliance: _______________  Date: ___________
+
+- CTO: ******\_\_\_****** Date: ****\_\_\_****
+- Compliance: ******\_\_\_****** Date: ****\_\_\_****
 
 ---
 

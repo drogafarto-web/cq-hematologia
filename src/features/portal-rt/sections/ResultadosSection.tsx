@@ -92,16 +92,19 @@ function ProgressSteps({ status }: { status: ResultadoStatus }) {
             <div className="flex flex-col items-center gap-1">
               <div
                 className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium
-                  ${isCompleted
-                    ? 'bg-emerald-500 text-white'
-                    : isCurrent
-                      ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.primary}`
-                      : `${PortalRTTokens.bg.card} ${PortalRTTokens.text.tertiary}`
+                  ${
+                    isCompleted
+                      ? 'bg-emerald-500 text-white'
+                      : isCurrent
+                        ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.primary}`
+                        : `${PortalRTTokens.bg.card} ${PortalRTTokens.text.tertiary}`
                   }`}
               >
                 {isCompleted ? '✓' : idx + 1}
               </div>
-              <p className={`text-xs ${isCompleted ? PortalRTTokens.text.secondary : PortalRTTokens.text.tertiary}`}>
+              <p
+                className={`text-xs ${isCompleted ? PortalRTTokens.text.secondary : PortalRTTokens.text.tertiary}`}
+              >
                 {step.label}
               </p>
             </div>
@@ -162,9 +165,7 @@ function ResultadoCard({ resultado, onSign, onRetry, isProcessing }: ResultadoCa
             <p className={`font-medium ${PortalRTTokens.text.primary} truncate`}>
               {resultado.pacienteName}
             </p>
-            <p className={`text-sm ${PortalRTTokens.text.secondary} truncate`}>
-              {resultado.teste}
-            </p>
+            <p className={`text-sm ${PortalRTTokens.text.secondary} truncate`}>{resultado.teste}</p>
           </div>
           <StatusBadge status={resultado.status} />
         </div>
@@ -202,9 +203,10 @@ function ResultadoCard({ resultado, onSign, onRetry, isProcessing }: ResultadoCa
               onClick={handleSign}
               disabled={isLoading || isProcessing}
               className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                ${isLoading || isProcessing
-                  ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                  : `bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30`
+                ${
+                  isLoading || isProcessing
+                    ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                    : `bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30`
                 }`}
             >
               {isLoading ? 'Assinando...' : 'Assinar'}
@@ -217,9 +219,10 @@ function ResultadoCard({ resultado, onSign, onRetry, isProcessing }: ResultadoCa
               onClick={handleRetry}
               disabled={isLoading || isProcessing}
               className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                ${isLoading || isProcessing
-                  ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                  : `bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30`
+                ${
+                  isLoading || isProcessing
+                    ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                    : `bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 border border-amber-500/30`
                 }`}
             >
               {isLoading ? 'Reenviando...' : 'Reenviar'}
@@ -230,9 +233,10 @@ function ResultadoCard({ resultado, onSign, onRetry, isProcessing }: ResultadoCa
             type="button"
             disabled={isProcessing}
             className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-              ${isProcessing
-                ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                : `bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 border border-violet-500/30`
+              ${
+                isProcessing
+                  ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                  : `bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 border border-violet-500/30`
               }`}
           >
             Visualizar
@@ -347,8 +351,8 @@ export function ResultadosSection({ labId, onActionComplete }: ResultadosSection
                 signedAt: Date.now(),
                 notivisaSubmittedAt: Date.now(),
               }
-            : r
-        )
+            : r,
+        ),
       );
       onActionComplete?.();
     } finally {
@@ -369,8 +373,8 @@ export function ResultadosSection({ labId, onActionComplete }: ResultadosSection
                 notivisaSubmittedAt: Date.now(),
                 errorMessage: undefined,
               }
-            : r
-        )
+            : r,
+        ),
       );
       onActionComplete?.();
     } finally {
@@ -397,38 +401,54 @@ export function ResultadosSection({ labId, onActionComplete }: ResultadosSection
     <PortalSection title="Resultados" subtitle="Testes processados e laudos">
       {/* Stats header */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
             Aguardando OCR
           </p>
-          <p className={`text-xl font-semibold ${stats.pendingOcr > 0 ? 'text-blue-400' : PortalRTTokens.text.primary}`}>
+          <p
+            className={`text-xl font-semibold ${stats.pendingOcr > 0 ? 'text-blue-400' : PortalRTTokens.text.primary}`}
+          >
             {stats.pendingOcr}
           </p>
         </div>
 
-        <div className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
             Assinatura RT
           </p>
-          <p className={`text-xl font-semibold ${stats.waitingRt > 0 ? 'text-amber-400' : PortalRTTokens.text.primary}`}>
+          <p
+            className={`text-xl font-semibold ${stats.waitingRt > 0 ? 'text-amber-400' : PortalRTTokens.text.primary}`}
+          >
             {stats.waitingRt}
           </p>
         </div>
 
-        <div className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
             Enviados
           </p>
-          <p className={`text-xl font-semibold ${stats.submitted > 0 ? 'text-emerald-400' : PortalRTTokens.text.primary}`}>
+          <p
+            className={`text-xl font-semibold ${stats.submitted > 0 ? 'text-emerald-400' : PortalRTTokens.text.primary}`}
+          >
             {stats.submitted}
           </p>
         </div>
 
-        <div className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-3 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
             Falhas
           </p>
-          <p className={`text-xl font-semibold ${stats.failed > 0 ? 'text-rose-400' : PortalRTTokens.text.primary}`}>
+          <p
+            className={`text-xl font-semibold ${stats.failed > 0 ? 'text-rose-400' : PortalRTTokens.text.primary}`}
+          >
             {stats.failed}
           </p>
         </div>
@@ -436,7 +456,9 @@ export function ResultadosSection({ labId, onActionComplete }: ResultadosSection
 
       {/* Resultados list */}
       {resultados.length === 0 ? (
-        <div className={`p-12 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}>
+        <div
+          className={`p-12 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}
+        >
           <p className={`font-medium ${PortalRTTokens.text.primary} mb-1`}>
             Nenhum resultado para exibir
           </p>

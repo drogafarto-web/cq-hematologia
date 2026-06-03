@@ -10,6 +10,7 @@
 ## Purpose
 
 This document formalizes performance patterns already established in the codebase. Every pattern has:
+
 - **What:** The pattern name and why it matters
 - **Where:** Codebase examples
 - **How:** Implementation steps
@@ -27,6 +28,7 @@ Large route components (>50KB) must be code-split into separate chunks. Prevents
 ### Why
 
 Main shell bundle (`src/app/layout.tsx` + route list) is currently ~362 KB gzip. Every eager import adds to this. Code-splitting ensures:
+
 - New routes don't inflate the critical path
 - Users see fast initial load, then lazy-load route chunks on-demand
 - Lighthouse LCP stays <2.5s
@@ -46,7 +48,7 @@ import { lazy, Suspense } from 'react';
 const AnalyticsHub = lazy(() => import('src/features/analytics/components/AnalyticsHub'));
 
 // In route config:
-<Route 
+<Route
   path="/features/analytics"
   element={
     <Suspense fallback={<Skeleton variant="dashboard" />}>
@@ -57,6 +59,7 @@ const AnalyticsHub = lazy(() => import('src/features/analytics/components/Analyt
 ```
 
 **Bundling config (vite.config.ts):**
+
 ```typescript
 manualChunks(id) {
   if (id.includes('node_modules/xlsx')) return 'vendor-xlsx';
@@ -68,11 +71,11 @@ manualChunks(id) {
 
 ### Metrics
 
-| Metric | Without split | With split |
-|--------|---------------|-----------|
-| Main bundle | +50KB | 0 KB (moved to chunk) |
+| Metric          | Without split   | With split            |
+| --------------- | --------------- | --------------------- |
+| Main bundle     | +50KB           | 0 KB (moved to chunk) |
 | Route load time | <100ms (cached) | ~200-400ms first load |
-| LCP impact | +400-600ms | negligible |
+| LCP impact      | +400-600ms      | negligible            |
 
 ### Anti-pattern ❌
 
@@ -84,6 +87,7 @@ export const routes = [
   { path: '/features/analytics', element: <AnalyticsHub /> },
 ];
 ```
+
 This adds 50KB to main bundle → LCP regression.
 
 ---
@@ -122,7 +126,7 @@ export function useColaboradores(labId: LabId) {
     const q = query(
       collection(db, 'educacaoContinuada', labId, 'colaboradores'),
       where('deletadoEm', '==', null),
-      orderBy('nome')
+      orderBy('nome'),
     );
 
     // Subscribe
@@ -130,14 +134,14 @@ export function useColaboradores(labId: LabId) {
       q,
       (snapshot) => {
         const docs = snapshot.docs
-          .map(doc => ({ id: doc.id, ...doc.data() } as Colaborador))
-          .filter(c => !c.deletadoEm);
+          .map((doc) => ({ id: doc.id, ...doc.data() }) as Colaborador)
+          .filter((c) => !c.deletadoEm);
         setColaboradores(docs);
       },
       (err) => {
         console.error('useColaboradores subscription failed:', err);
         setError(err as Error);
-      }
+      },
     );
 
     // ⚠️ CRITICAL: Cleanup unsubscribe on unmount
@@ -150,11 +154,11 @@ export function useColaboradores(labId: LabId) {
 
 ### Metrics
 
-| Scenario | Impact |
-|----------|--------|
-| 1 listener, 1-hour session | ~1 MB memory, ~100 reads/hour |
+| Scenario                          | Impact                          |
+| --------------------------------- | ------------------------------- |
+| 1 listener, 1-hour session        | ~1 MB memory, ~100 reads/hour   |
 | 10 leaked listeners, same session | ~10 MB memory, ~1000 reads/hour |
-| 100 users × 10 leaked listeners | ~10 GB memory, massive billing |
+| 100 users × 10 leaked listeners   | ~10 GB memory, massive billing  |
 
 ### Anti-pattern ❌
 
@@ -162,11 +166,12 @@ export function useColaboradores(labId: LabId) {
 // WRONG: no cleanup
 useEffect(() => {
   onSnapshot(collection(db, 'items'), (snap) => {
-    setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+    setItems(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   });
   // Missing: return () => unsubscribe()
 }, []);
 ```
+
 Creates new listener on every render. After 10 renders, 10 active listeners.
 
 ---
@@ -202,10 +207,10 @@ export function useChartData(labId: LabId, equipmentId?: string) {
     const poll = async () => {
       try {
         const freshData = await fetchChartData(labId, equipmentId);
-        
+
         // Compute hash of fresh data
         const newHash = hashChartData(freshData);
-        
+
         // Guard: only update state if data changed
         if (newHash !== lastFetchHashRef.current) {
           setChartData(freshData);
@@ -241,11 +246,11 @@ function hashChartData(data: ChartData): string {
 
 ### Metrics
 
-| Scenario | Re-renders / 60s | React work |
-|----------|-----------------|-----------|
-| No guard (poll every 30s) | 120 (2 per poll, even if data same) | High |
-| With guard (data usually stable) | ~20 (new data 1× per 3 minutes) | Low |
-| Improvement | -83% | Significant |
+| Scenario                         | Re-renders / 60s                    | React work  |
+| -------------------------------- | ----------------------------------- | ----------- |
+| No guard (poll every 30s)        | 120 (2 per poll, even if data same) | High        |
+| With guard (data usually stable) | ~20 (new data 1× per 3 minutes)     | Low         |
+| Improvement                      | -83%                                | Significant |
 
 ### Anti-pattern ❌
 
@@ -286,10 +291,10 @@ const pollExportJobs = async () => {
   const q = query(
     collection(db, 'labs', labId, 'export-jobs'),
     where('status', 'in', ['pending', 'processing']),
-    orderBy('createdAt', 'desc')
+    orderBy('createdAt', 'desc'),
   );
   const snapshot = await getDocs(q); // One-shot read
-  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+  return snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
 };
 
 // Then: setInterval(() => pollExportJobs().then(setJobs), 2000)
@@ -344,10 +349,10 @@ const handleGenerateExport = async (format: 'xlsx' | 'pdf') => {
 
 ### Bundle impact
 
-| Strategy | Main bundle | Dedicated chunk |
-|----------|-------------|-----------------|
-| Static `import xlsx` | +300 KB | — |
-| Dynamic `await import('xlsx')` | 0 KB | 300 KB (loaded on demand) |
+| Strategy                       | Main bundle | Dedicated chunk           |
+| ------------------------------ | ----------- | ------------------------- |
+| Static `import xlsx`           | +300 KB     | —                         |
+| Dynamic `await import('xlsx')` | 0 KB        | 300 KB (loaded on demand) |
 
 ---
 
@@ -357,15 +362,16 @@ const handleGenerateExport = async (format: 'xlsx' | 'pdf') => {
 
 Three key Web Vitals must stay within thresholds:
 
-| Metric | Target | Hard limit |
-|--------|--------|-----------|
-| **LCP** (Largest Contentful Paint) | <2.0s | 2.5s (Lighthouse FAILS if ≥2.5s) |
+| Metric                              | Target | Hard limit                               |
+| ----------------------------------- | ------ | ---------------------------------------- |
+| **LCP** (Largest Contentful Paint)  | <2.0s  | 2.5s (Lighthouse FAILS if ≥2.5s)         |
 | **INP** (Interaction to Next Paint) | <200ms | — (no hard fail, but <300ms recommended) |
-| **CLS** (Cumulative Layout Shift) | <0.05 | 0.1 (Lighthouse FAILS if ≥0.1) |
+| **CLS** (Cumulative Layout Shift)   | <0.05  | 0.1 (Lighthouse FAILS if ≥0.1)           |
 
 ### Why
 
 These metrics correlate with user experience:
+
 - **LCP**: "When is the main content visible?" Fast LCP = site feels responsive.
 - **INP**: "When do I see response to my click?" Slow INP = unresponsive buttons, sluggish forms.
 - **CLS**: "Does content jump around?" High CLS = broken usability, especially on mobile.
@@ -375,14 +381,17 @@ Lab system context: Operators running CIQ runs + generating reports need fast, r
 ### How to measure
 
 1. **Local (Lighthouse CLI):**
+
    ```bash
    npm run lighthouse -- --config-path=lighthouse.config.js https://hmatologia2.web.app/hub
    ```
 
 2. **CI (Lighthouse CI):**
+
    ```bash
    npm run lighthouse:ci
    ```
+
    Compares current score against baseline. Fails if LCP degraded >10%, INP degraded >15%.
 
 3. **Production (Firebase Performance Monitoring):**
@@ -397,8 +406,8 @@ Lab system context: Operators running CIQ runs + generating reports need fast, r
 <img src="/hero-image-4mb.jpg" alt="Hero" />
 
 // CORRECT: Optimize + lazy-load
-<img 
-  src="/hero-image-optimized.webp" 
+<img
+  src="/hero-image-optimized.webp"
   alt="Hero"
   loading="lazy"
   width="1200" height="600"

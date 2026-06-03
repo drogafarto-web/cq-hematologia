@@ -1,32 +1,32 @@
-'use client'
+'use client';
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 
 export interface TimelineEntry {
-  type: 'created' | 'status_change' | 'update'
-  description: string
-  timestamp: string
+  type: 'created' | 'status_change' | 'update';
+  description: string;
+  timestamp: string;
 }
 
 interface CATimelineProps {
-  entries: TimelineEntry[]
+  entries: TimelineEntry[];
 }
 
 const dotColors: Record<string, string> = {
   created: 'bg-primary',
   status_change: 'bg-warning',
   update: 'bg-on-surface-variant',
-}
+};
 
 function formatTimestamp(ts: string) {
-  const d = new Date(ts)
+  const d = new Date(ts);
   return d.toLocaleString('pt-BR', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
     hour: '2-digit',
     minute: '2-digit',
-  })
+  });
 }
 
 export function CATimeline({ entries }: CATimelineProps) {
@@ -35,12 +35,12 @@ export function CATimeline({ entries }: CATimelineProps) {
       <div className="text-center text-on-surface-variant py-8 text-sm">
         No timeline entries available.
       </div>
-    )
+    );
   }
 
   const sorted = [...entries].sort(
     (a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime(),
-  )
+  );
 
   return (
     <div className="flex flex-col gap-0">
@@ -59,5 +59,5 @@ export function CATimeline({ entries }: CATimelineProps) {
         </div>
       ))}
     </div>
-  )
+  );
 }

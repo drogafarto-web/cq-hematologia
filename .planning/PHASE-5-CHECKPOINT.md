@@ -44,15 +44,15 @@ status: PHASE_5_EXECUTING
 
 ## Current State (Snapshot)
 
-| Component | Value |
-|---|---|
-| **Active Phase** | Phase 5 (criticos escalation + IA training) |
-| **Subagents** | 4 (waves 1-2) |
-| **Progress** | ~10% (2-3 days executed, 4-6 days remaining) |
-| **Est. Completion** | 2026-05-14 |
-| **Cascade Status** | ARMED (Phases 6-9 queued) |
-| **Monitoring** | Auto (polling every 5 min) |
-| **Human Intervention** | NOT REQUIRED |
+| Component              | Value                                        |
+| ---------------------- | -------------------------------------------- |
+| **Active Phase**       | Phase 5 (criticos escalation + IA training)  |
+| **Subagents**          | 4 (waves 1-2)                                |
+| **Progress**           | ~10% (2-3 days executed, 4-6 days remaining) |
+| **Est. Completion**    | 2026-05-14                                   |
+| **Cascade Status**     | ARMED (Phases 6-9 queued)                    |
+| **Monitoring**         | Auto (polling every 5 min)                   |
+| **Human Intervention** | NOT REQUIRED                                 |
 
 ---
 
@@ -60,12 +60,12 @@ status: PHASE_5_EXECUTING
 
 ### Plans in Progress
 
-| Plan | Task | Subagent | Est. Completion |
-|---|---|---|---|
-| 05-01 | Criticos escalation engine (SMS + email + SLA) | Agent 5-1 | 2026-05-13 |
-| 05-02 | IA training dataset (500+ immunology strips) | Agent 5-2 | 2026-05-13 |
-| 05-03 | Gemini Vision integration + inference | Agent 5-2 | 2026-05-13 |
-| 05-04 | E2E tests (escalation, SMS, audit trail) | Agent 5-3 | 2026-05-14 |
+| Plan  | Task                                           | Subagent  | Est. Completion |
+| ----- | ---------------------------------------------- | --------- | --------------- |
+| 05-01 | Criticos escalation engine (SMS + email + SLA) | Agent 5-1 | 2026-05-13      |
+| 05-02 | IA training dataset (500+ immunology strips)   | Agent 5-2 | 2026-05-13      |
+| 05-03 | Gemini Vision integration + inference          | Agent 5-2 | 2026-05-13      |
+| 05-04 | E2E tests (escalation, SMS, audit trail)       | Agent 5-3 | 2026-05-14      |
 
 ### Expected Deliverables
 
@@ -75,7 +75,7 @@ status: PHASE_5_EXECUTING
 ✅ 100+ unit tests (comprehensive coverage)  
 ✅ 8 E2E specs (critical escalation flows)  
 ✅ Cloud Logs: 0 errors, <3% warnings  
-✅ DICQ gain: +3–5 points (target: 81–83%)  
+✅ DICQ gain: +3–5 points (target: 81–83%)
 
 ---
 
@@ -86,9 +86,10 @@ status: PHASE_5_EXECUTING
 **Status:** 📋 QUEUED  
 **Trigger:** Automatic when Phase 5 ✅ COMPLETE (est. 2026-05-14 12:00 UTC)  
 **Duration:** ~14 days  
-**Plans:** 4 (06-01, 06-02, 06-03, 06-04)  
+**Plans:** 4 (06-01, 06-02, 06-03, 06-04)
 
 **Deliverables:**
+
 - CAPA workflow schema (initiation → root cause → corrective actions)
 - CAPA UI (dark-first, WCAG AA)
 - 12 legacy findings backfill + closure
@@ -103,9 +104,10 @@ status: PHASE_5_EXECUTING
 **Status:** 📋 QUEUED  
 **Trigger:** Automatic when Phase 6 ✅ COMPLETE (est. 2026-05-28 12:00 UTC)  
 **Duration:** ~14 days  
-**Plans:** 4 (07-01, 07-02, 07-03, 07-04)  
+**Plans:** 4 (07-01, 07-02, 07-03, 07-04)
 
 **Deliverables:**
+
 - Audit plan scheduler (DICQ 4.4, RDC 978 Art. 81)
 - NCR (non-conformance record) generator
 - Evidence attachment framework
@@ -120,9 +122,10 @@ status: PHASE_5_EXECUTING
 **Status:** 📋 QUEUED  
 **Trigger:** Automatic when Phase 7 ✅ COMPLETE (est. 2026-06-11 12:00 UTC)  
 **Duration:** ~14 days  
-**Plans:** 3 (08-01, 08-02, 08-03)  
+**Plans:** 3 (08-01, 08-02, 08-03)
 
 **Deliverables:**
+
 - CAPA closure ceremony (12 findings → final sign-off)
 - Effectiveness review + trending
 - Post-implementation verification
@@ -137,9 +140,10 @@ status: PHASE_5_EXECUTING
 **Status:** 📋 QUEUED  
 **Trigger:** Automatic when Phase 8 ✅ COMPLETE (est. 2026-06-25 12:00 UTC)  
 **Duration:** ~14 days  
-**Plans:** 5 (09-01, 09-02, 09-03, 09-04, 09-05)  
+**Plans:** 5 (09-01, 09-02, 09-03, 09-04, 09-05)
 
 **Deliverables:**
+
 - DICQ documentation gap closure (blocks A–J, final polish)
 - Bioquímica z-score + CEQ interlaboratorial analysis
 - Mobile analytics + responsive refinement
@@ -158,6 +162,7 @@ grep "^| \*\*Phase [5-9]" .planning/STATE.md | tail -5
 ```
 
 Expected output (shows all active/queued phases):
+
 ```
 | **Phase 5** | 🔄 EXECUTING | 2026-05-14 (est.) |
 | **Phase 6** | 📋 QUEUED | TBD |
@@ -202,11 +207,13 @@ Register-ScheduledTask -Action $action -Trigger $trigger -TaskName "v1.4-Cascade
 ### Option B: Manual Start in Terminal
 
 **Windows (PowerShell):**
+
 ```powershell
 pwsh .\scripts\v1.4-cascade-orchestrator.ps1 &
 ```
 
 **macOS/Linux (Bash):**
+
 ```bash
 bash ./scripts/v1.4-cascade-orchestrator.sh &
 ```
@@ -221,7 +228,7 @@ Cascade will still work without polling script — phases will auto-trigger via 
 
 ### When Phase 5 Completes (Est. 2026-05-14)
 
-1. ✅ All 05-*.SUMMARY.md files written
+1. ✅ All 05-\*.SUMMARY.md files written
 2. ✅ Tests pass (100+ unit + 8 E2E)
 3. ✅ Cloud Logs green
 4. ✅ STATE.md updated: `| **Phase 5** | ✅ COMPLETE |`
@@ -291,15 +298,15 @@ bash ./scripts/v1.4-cascade-orchestrator.sh &  # Restart polling
 
 ## Key Files (Reference)
 
-| File | Purpose | Status |
-|---|---|---|
-| `.planning/v1.4-CASCADE-ORCHESTRATOR.md` | Architecture blueprint | ✅ Created |
-| `.planning/ORCHESTRATOR_LOG.md` | Event log (auto-updated) | ✅ Created |
-| `.planning/v1.4-CASCADE-EXECUTION-GUIDE.md` | Monitoring guide | ✅ Created |
-| `.planning/v1.4-AUTOMATION-SETUP-COMPLETE.md` | Quick reference | ✅ Created |
-| `scripts/v1.4-cascade-orchestrator.ps1` | Windows polling script | ✅ Created |
-| `scripts/v1.4-cascade-orchestrator.sh` | macOS/Linux polling script | ✅ Created |
-| `.planning/STATE.md` | Phase status (polls read this) | ✅ Updated |
+| File                                          | Purpose                        | Status     |
+| --------------------------------------------- | ------------------------------ | ---------- |
+| `.planning/v1.4-CASCADE-ORCHESTRATOR.md`      | Architecture blueprint         | ✅ Created |
+| `.planning/ORCHESTRATOR_LOG.md`               | Event log (auto-updated)       | ✅ Created |
+| `.planning/v1.4-CASCADE-EXECUTION-GUIDE.md`   | Monitoring guide               | ✅ Created |
+| `.planning/v1.4-AUTOMATION-SETUP-COMPLETE.md` | Quick reference                | ✅ Created |
+| `scripts/v1.4-cascade-orchestrator.ps1`       | Windows polling script         | ✅ Created |
+| `scripts/v1.4-cascade-orchestrator.sh`        | macOS/Linux polling script     | ✅ Created |
+| `.planning/STATE.md`                          | Phase status (polls read this) | ✅ Updated |
 
 ---
 
@@ -364,4 +371,4 @@ You can sleep soundly. 🌙
 **Checkpoint created:** 2026-05-08T16:45:00Z  
 **Status:** ✅ READY FOR AUTONOMOUS EXECUTION  
 **Next milestone:** Phase 9 complete (est. 2026-07-09)  
-**Your involvement:** Optional (fully autonomous)  
+**Your involvement:** Optional (fully autonomous)

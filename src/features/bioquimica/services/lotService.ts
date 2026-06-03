@@ -84,11 +84,7 @@ export function subscribeActiveLotForEquipment(
   callback: (lot: ControlMaterial | null) => void,
 ): Unsubscribe {
   const lotsRef = getLotsRef(labId);
-  const q = query(
-    lotsRef,
-    where('deletadoEm', '==', null),
-    where('emUso', '==', true),
-  );
+  const q = query(lotsRef, where('deletadoEm', '==', null), where('emUso', '==', true));
 
   return onSnapshot(q, (snap) => {
     let activeLot: ControlMaterial | null = null;
@@ -107,10 +103,7 @@ export function subscribeActiveLotForEquipment(
 /**
  * Create lote avulso — manual entry with 1-3 levels and manual stats
  */
-export async function createLotAvulso(
-  labId: string,
-  input: CreateLotAvulsoInput,
-): Promise<string> {
+export async function createLotAvulso(labId: string, input: CreateLotAvulsoInput): Promise<string> {
   const lotId = doc(getLotsRef(labId)).id;
 
   // Flatten niveis.manufacturerStats into analitoId -> nivelId -> stats
@@ -166,9 +159,7 @@ export async function createLotSemBula(
     origem: 'sem-bula-7d',
     bulaPendente: true,
     manufacturerStats: null,
-    niveis: [
-      { id: 'nivel1', nome: 'Nível 1' },
-    ],
+    niveis: [{ id: 'nivel1', nome: 'Nível 1' }],
     criadoEm: serverTimestamp() as any,
     deletadoEm: null,
   };
@@ -196,10 +187,7 @@ export async function setLotEmUso(
 /**
  * Mark lot as archived (end of life, replaced by newer lot)
  */
-export async function setLotDisponivel(
-  labId: string,
-  lotId: string,
-): Promise<void> {
+export async function setLotDisponivel(labId: string, lotId: string): Promise<void> {
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
     archivedAt: serverTimestamp(),
@@ -212,10 +200,7 @@ export async function setLotDisponivel(
  * Soft-delete a lot (RN-06: never hard-delete)
  * Mark deletadoEm timestamp
  */
-export async function softDeleteLot(
-  labId: string,
-  lotId: string,
-): Promise<void> {
+export async function softDeleteLot(labId: string, lotId: string): Promise<void> {
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
     deletadoEm: serverTimestamp(),
@@ -225,10 +210,7 @@ export async function softDeleteLot(
 /**
  * Restore a deleted lot (revert deletadoEm)
  */
-export async function restoreLot(
-  labId: string,
-  lotId: string,
-): Promise<void> {
+export async function restoreLot(labId: string, lotId: string): Promise<void> {
   const lotRef = getLotDocRef(labId, lotId);
   await updateDoc(lotRef, {
     deletadoEm: null,

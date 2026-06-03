@@ -64,13 +64,13 @@ src/features/turnos/
 
 ## Eliminação de Redundâncias
 
-| Arquivo removido de personnel/ | Destino |
-|---|---|
-| `components/EscalaTab.tsx` | Reescrito em `turnos/components/EscalaTab.tsx` |
-| `hooks/useEscalas.ts` | Movido para `turnos/hooks/useEscalas.ts` |
-| `services/escalaService.ts` | Movido para `turnos/services/escalaService.ts` |
-| `types/Escala.ts` | Movido para `turnos/types/Escala.ts` |
-| Referência em `PersonnelDashboard.tsx` | Removida |
+| Arquivo removido de personnel/         | Destino                                        |
+| -------------------------------------- | ---------------------------------------------- |
+| `components/EscalaTab.tsx`             | Reescrito em `turnos/components/EscalaTab.tsx` |
+| `hooks/useEscalas.ts`                  | Movido para `turnos/hooks/useEscalas.ts`       |
+| `services/escalaService.ts`            | Movido para `turnos/services/escalaService.ts` |
+| `types/Escala.ts`                      | Movido para `turnos/types/Escala.ts`           |
+| Referência em `PersonnelDashboard.tsx` | Removida                                       |
 
 ### Tipo unificado
 
@@ -85,18 +85,18 @@ O tipo `Turno` de `Escala.ts` (que era `'manha'|'tarde'|'noite'|'integral'`) pas
 
 ## Firestore
 
-| Coleção | Uso | Mudança |
-|---|---|---|
-| `labs/{labId}/turnos/` | Turnos efetivos | Nenhuma |
-| `personnel/{labId}/escalas/` | Escalas planejadas | Nenhuma (path mantido) |
-| `labs/{labId}/turnos-config/escala-padrao` | Template semanal | NOVO |
+| Coleção                                    | Uso                | Mudança                |
+| ------------------------------------------ | ------------------ | ---------------------- |
+| `labs/{labId}/turnos/`                     | Turnos efetivos    | Nenhuma                |
+| `personnel/{labId}/escalas/`               | Escalas planejadas | Nenhuma (path mantido) |
+| `labs/{labId}/turnos-config/escala-padrao` | Template semanal   | NOVO                   |
 
 ### Schema: Escala Padrão (Firestore)
 
 ```typescript
 interface EscalaPadrao {
   labId: string;
-  diasAtivos: number[];  // 0=Seg..6=Dom
+  diasAtivos: number[]; // 0=Seg..6=Dom
   turnos: {
     periodo: Periodo;
     colaboradores: { id: string; nome: string; cargo: string }[];
@@ -104,7 +104,7 @@ interface EscalaPadrao {
     rtSubstitutoPresente: boolean;
   }[];
   updatedAt: Timestamp;
-  updatedBy: string;  // uid
+  updatedBy: string; // uid
 }
 ```
 
@@ -112,13 +112,13 @@ interface EscalaPadrao {
 
 ## Cloud Functions (novos callables)
 
-| Callable | Input | Ação |
-|---|---|---|
-| `turnos_createEscala` | `{ labId, data, periodo, colaboradores, rtPresente, rtSubstitutoPresente, observacoes? }` | Cria doc em `personnel/{labId}/escalas/` |
-| `turnos_updateEscala` | `{ labId, escalaId, ...fields }` | Atualiza escala existente |
-| `turnos_softDeleteEscala` | `{ labId, escalaId }` | Marca `deletadoEm` |
-| `turnos_saveEscalaPadrao` | `{ labId, diasAtivos, turnos }` | Upsert em `turnos-config/escala-padrao` |
-| `turnos_applyEscalaPadrao` | `{ labId, weekStartISO }` | Batch create escalas para dias sem cobertura |
+| Callable                   | Input                                                                                     | Ação                                         |
+| -------------------------- | ----------------------------------------------------------------------------------------- | -------------------------------------------- |
+| `turnos_createEscala`      | `{ labId, data, periodo, colaboradores, rtPresente, rtSubstitutoPresente, observacoes? }` | Cria doc em `personnel/{labId}/escalas/`     |
+| `turnos_updateEscala`      | `{ labId, escalaId, ...fields }`                                                          | Atualiza escala existente                    |
+| `turnos_softDeleteEscala`  | `{ labId, escalaId }`                                                                     | Marca `deletadoEm`                           |
+| `turnos_saveEscalaPadrao`  | `{ labId, diasAtivos, turnos }`                                                           | Upsert em `turnos-config/escala-padrao`      |
+| `turnos_applyEscalaPadrao` | `{ labId, weekStartISO }`                                                                 | Batch create escalas para dias sem cobertura |
 
 Todas validam: auth, membership, payload (Zod).
 

@@ -65,15 +65,13 @@ const RESULT_EXPIRATION_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
 
 // ─── Main Callable ──────────────────────────────────────────────────────────
 
-export const updateResultStatus = functions.region('southamerica-east1').onCall(
-  async (request): Promise<UpdateResultStatusOutput | UpdateResultStatusError> => {
+export const updateResultStatus = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<UpdateResultStatusOutput | UpdateResultStatusError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = UpdateResultStatusInputSchema.parse(request.data);
@@ -127,8 +125,7 @@ export const updateResultStatus = functions.region('southamerica-east1').onCall(
         return {
           ok: false,
           code: 'SUPERVISOR_ROLE_REQUIRED',
-          message:
-            'Only RT (Responsible Technician) or admin can review/release results',
+          message: 'Only RT (Responsible Technician) or admin can review/release results',
         };
       }
 
@@ -215,9 +212,7 @@ export const updateResultStatus = functions.region('southamerica-east1').onCall(
       });
 
       // Add immutable audit log entry
-      const auditRef = submissionRef
-        .collection('auditLog')
-        .doc(auditEntry.id);
+      const auditRef = submissionRef.collection('auditLog').doc(auditEntry.id);
       batch.set(auditRef, auditEntry);
 
       // Add lab-wide audit trail entry
@@ -274,5 +269,4 @@ export const updateResultStatus = functions.region('southamerica-east1').onCall(
         message: error.message || 'Error updating result status',
       };
     }
-  }
-);
+  });

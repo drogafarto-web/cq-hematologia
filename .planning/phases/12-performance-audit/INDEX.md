@@ -3,7 +3,7 @@
 **Status:** Planning Complete  
 **Kickoff:** 2026-05-20  
 **Duration:** 1.5 weeks (May 20 → Jun 2)  
-**Target Deploy:** 2026-06-02  
+**Target Deploy:** 2026-06-02
 
 ---
 
@@ -44,7 +44,7 @@
    - Optimization opportunities identified
 
 5. **[../../../docs/STREAM-C-BUNDLE-ANALYSIS.md](../../../docs/STREAM-C-BUNDLE-ANALYSIS.md)** — Bundle breakdown
-   - Current chunk breakdown (vendor-*, module-*)
+   - Current chunk breakdown (vendor-_, module-_)
    - Bundle visualizer setup
    - Known heavy dependencies
    - Code-splitting strategy
@@ -80,7 +80,7 @@
     - Uploads report to temporary storage
 
 11. **[../../../vite.config.ts](../../../vite.config.ts)** (excerpt) — Bundle configuration
-    - Manual chunk splits (vendor-*, module-*)
+    - Manual chunk splits (vendor-_, module-_)
     - PWA service worker config
     - Bundle visualizer setup (ANALYZE=true)
     - Chunk size warning limits
@@ -90,6 +90,7 @@
 ## Phase 12 at a Glance
 
 ### Objectives
+
 1. Enforce Web Vitals targets (LCP <2.0s, INP <200ms, CLS <0.05)
 2. Keep bundle size ≤400 KB main shell, ≤150 KB per module
 3. Optimize critical journeys (laudo form <1.5s, CIQ run <1.2s, Levey-Jennings <500ms)
@@ -99,6 +100,7 @@
 7. Set up weekly baseline monitoring (Google Sheets + GitHub Actions)
 
 ### Success Criteria
+
 - ✅ All critical routes meet Web Vitals targets
 - ✅ Bundle size stays within limits (verified via `npm run analyze`)
 - ✅ Lighthouse CI gates active and passing (performance ≥0.85)
@@ -109,27 +111,29 @@
 
 ### Key Metrics
 
-| Metric | Target | Hard Limit |
-|--------|--------|-----------|
-| LCP (desktop) | <2.0s | 2.5s |
-| LCP (mobile) | <2.0s | 2.5s |
-| INP | <200ms | — |
-| CLS | <0.05 | 0.1 |
-| TBT | <200ms | 300ms |
-| Bundle (main) | 362 KB | 400 KB |
-| Bundle (total) | 850 KB | — |
-| Lighthouse Performance | ≥0.85 | — |
-| Firestore p99 | <500ms | — |
+| Metric                 | Target | Hard Limit |
+| ---------------------- | ------ | ---------- |
+| LCP (desktop)          | <2.0s  | 2.5s       |
+| LCP (mobile)           | <2.0s  | 2.5s       |
+| INP                    | <200ms | —          |
+| CLS                    | <0.05  | 0.1        |
+| TBT                    | <200ms | 300ms      |
+| Bundle (main)          | 362 KB | 400 KB     |
+| Bundle (total)         | 850 KB | —          |
+| Lighthouse Performance | ≥0.85  | —          |
+| Firestore p99          | <500ms | —          |
 
 ### Task Breakdown (4 Parallel Tracks)
 
 **Track 1: Bundle & Lighthouse** (Agent 1, ~3 days)
+
 - Audit bundle sizes
 - Update lighthouserc.js thresholds
 - Extend GitHub Actions (multi-URL)
 - Document pre-merge checklist
 
 **Track 2: Runtime Optimization** (Agent 2, ~4 days)
+
 - Profile laudo form (skeleton + prefetch)
 - Profile CIQ run form (schema lazy-load)
 - Profile Levey-Jennings (memoization)
@@ -137,6 +141,7 @@
 - Implement fastest wins
 
 **Track 3: Database & Mobile** (Agent 3, ~3 days)
+
 - N+1 query audit
 - Firestore p99 baseline capture
 - Touch target audit
@@ -144,6 +149,7 @@
 - Slow network testing
 
 **Track 4: Monitoring & Gates** (Agent 4, ~2 days)
+
 - Weekly baseline monitoring script
 - Google Sheets dashboard
 - Regression detection
@@ -178,6 +184,7 @@ After Phase 12 deploy on 2026-06-02:
 ✅ All v1.4 Phase 4 routes (Portal Auth) pre-audited for Web Vitals
 
 Phase 4 (Portal Auth + NOTIVISA, 2026-05-20 start) will inherit:
+
 - Performance testing procedures
 - Bundle size guardrails
 - Lighthouse CI gates

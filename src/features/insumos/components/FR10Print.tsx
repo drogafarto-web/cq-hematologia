@@ -121,7 +121,17 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
             onClick={() => handlePrint()}
             className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-xs font-medium bg-violet-600 text-white hover:bg-violet-500 transition-colors"
           >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <svg
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden
+            >
               <path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2" />
               <path d="M6 14h12v8H6z" />
             </svg>
@@ -239,9 +249,7 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
                       <tr
                         key={row.aberturaMovId}
                         className={`text-slate-800 ${
-                          isGroupStart
-                            ? 'border-t border-slate-400'
-                            : 'border-t border-slate-200'
+                          isGroupStart ? 'border-t border-slate-400' : 'border-t border-slate-200'
                         }`}
                       >
                         <td className="py-1.5 pr-1 whitespace-nowrap font-mono">
@@ -320,8 +328,8 @@ export function FR10Print({ payload, hash, onClose }: FR10PrintProps) {
                   <div className="text-[8px] text-slate-500 leading-tight">
                     Este documento foi gerado digitalmente pelo sistema hc quality. Cada linha
                     corresponde a uma movimentação registrada no Firestore com assinatura
-                    criptográfica individual. O QR ao lado permite auditor externo validar o
-                    hash deste documento contra a base de dados do laboratório.
+                    criptográfica individual. O QR ao lado permite auditor externo validar o hash
+                    deste documento contra a base de dados do laboratório.
                     <br />
                     Compliance: RDC 978/2025 Art.128 · ISO 15189:2022 cl. 6.5.3 · PALC 2021/2025 ·
                     RDC 786/2023 art. 42.

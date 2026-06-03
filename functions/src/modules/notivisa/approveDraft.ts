@@ -14,10 +14,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-import {
-  assertNotivisaAccess,
-  notivisaDraftsCol,
-} from './validators';
+import { assertNotivisaAccess, notivisaDraftsCol } from './validators';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
 const ApproveDraftInputSchema = z.object({

@@ -30,7 +30,9 @@ export function AuditorProfileCard({ auditor, compact = false }: AuditorProfileC
           <p className="text-sm font-medium text-white truncate">{auditor.nome}</p>
           <p className="text-xs text-white/50">{auditor.registroProfissional}</p>
         </div>
-        <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
+        <span
+          className={`px-2 py-0.5 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
+        >
           {statusStyle.label}
         </span>
       </div>
@@ -49,7 +51,9 @@ export function AuditorProfileCard({ auditor, compact = false }: AuditorProfileC
           <p className="text-sm text-white/50">{auditor.formacaoAcademica}</p>
           <p className="text-xs text-white/40">{auditor.registroProfissional}</p>
         </div>
-        <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}>
+        <span
+          className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusStyle.bg} ${statusStyle.text}`}
+        >
           {statusStyle.label}
         </span>
       </div>
@@ -61,11 +65,15 @@ export function AuditorProfileCard({ auditor, compact = false }: AuditorProfileC
           <p className="text-xs text-white/50">Auditorias</p>
         </div>
         <div className="text-center p-2 rounded-lg bg-white/5">
-          <p className="text-lg font-bold text-white">{auditor.certificacoes.filter(c => c.status === 'vigente').length}</p>
+          <p className="text-lg font-bold text-white">
+            {auditor.certificacoes.filter((c) => c.status === 'vigente').length}
+          </p>
           <p className="text-xs text-white/50">Certificações</p>
         </div>
         <div className="text-center p-2 rounded-lg bg-white/5">
-          <p className="text-lg font-bold text-white">{auditor.escoposAutorizados.filter(s => s.autorizado).length}</p>
+          <p className="text-lg font-bold text-white">
+            {auditor.escoposAutorizados.filter((s) => s.autorizado).length}
+          </p>
           <p className="text-xs text-white/50">Escopos</p>
         </div>
       </div>

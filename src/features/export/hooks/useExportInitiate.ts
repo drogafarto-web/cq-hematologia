@@ -23,28 +23,23 @@ export function useExportInitiate(): UseExportInitiateReturn {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = useCallback(
-    async (request: ExportRequest): Promise<ExportInitiateResponse> => {
-      setLoading(true);
-      setError(null);
+  const submit = useCallback(async (request: ExportRequest): Promise<ExportInitiateResponse> => {
+    setLoading(true);
+    setError(null);
 
-      try {
-        const result = await initiateExportCallable(request);
-        return result.data;
-      } catch (err: unknown) {
-        const message =
-          err instanceof Error
-            ? err.message
-            : 'Falha ao iniciar exportação. Tente novamente.';
-        setError(message);
-        console.error('[Export] initiateExport failed:', err);
-        throw new Error(message);
-      } finally {
-        setLoading(false);
-      }
-    },
-    [],
-  );
+    try {
+      const result = await initiateExportCallable(request);
+      return result.data;
+    } catch (err: unknown) {
+      const message =
+        err instanceof Error ? err.message : 'Falha ao iniciar exportação. Tente novamente.';
+      setError(message);
+      console.error('[Export] initiateExport failed:', err);
+      throw new Error(message);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   const clearError = useCallback(() => setError(null), []);
 

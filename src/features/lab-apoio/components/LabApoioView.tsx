@@ -17,7 +17,9 @@ import { VigenciaAlertBanner } from './VigenciaAlertBanner';
 export function LabApoioView() {
   const { contratos, loading, error } = useLabApoio();
   const expiryBins = useExpiryAlerts(contratos);
-  const [activeTab, setActiveTab] = useState<'contratos' | 'avaliacoes' | 'vencimentos'>('contratos');
+  const [activeTab, setActiveTab] = useState<'contratos' | 'avaliacoes' | 'vencimentos'>(
+    'contratos',
+  );
 
   if (error) {
     return (
@@ -31,7 +33,11 @@ export function LabApoioView() {
   const vencendo60d = expiryBins['60d'].length;
   const vencidos = expiryBins.expired.length;
   const semAvaliacaoAnual = contratos.filter(
-    (c) => c.ativo && c.deletadoEm === null && c.proximaAvaliacaoEm && new Date(c.proximaAvaliacaoEm.toDate()).getTime() < Date.now()
+    (c) =>
+      c.ativo &&
+      c.deletadoEm === null &&
+      c.proximaAvaliacaoEm &&
+      new Date(c.proximaAvaliacaoEm.toDate()).getTime() < Date.now(),
   ).length;
 
   return (
@@ -59,7 +65,9 @@ export function LabApoioView() {
           <span className="text-2xl font-bold text-red-500">{vencidos}</span>
         </div>
         <div className="flex flex-col">
-          <span className="text-xs text-amber-500 uppercase tracking-wide">Sem Avaliação Anual</span>
+          <span className="text-xs text-amber-500 uppercase tracking-wide">
+            Sem Avaliação Anual
+          </span>
           <span className="text-2xl font-bold text-amber-500">{semAvaliacaoAnual}</span>
         </div>
       </div>

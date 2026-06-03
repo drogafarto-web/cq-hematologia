@@ -88,11 +88,7 @@ export const ct_commitLeitura = onCall<unknown, Promise<CommitLeituraResult>>(
     }
 
     // 2. Deriva foraDosLimites (RN-01)
-    const avaliacao = avaliarForaDosLimites(
-      input.temperaturaAtual,
-      input.umidade,
-      limites,
-    );
+    const avaliacao = avaliarForaDosLimites(input.temperaturaAtual, input.umidade, limites);
 
     // 3. Gera assinaturas server-side
     const nowTs = admin.firestore.Timestamp.now();

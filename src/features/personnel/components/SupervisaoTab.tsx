@@ -124,7 +124,13 @@ export function SupervisaoTab(): React.ReactElement {
           onClick={() => setShowForm(true)}
           className="inline-flex items-center gap-1.5 rounded-xl bg-violet-600 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-violet-700"
         >
-          <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+          <svg
+            className="h-3.5 w-3.5"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            strokeWidth={2}
+          >
             <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
           </svg>
           Nova Supervisão
@@ -147,7 +153,9 @@ export function SupervisaoTab(): React.ReactElement {
             >
               <option value="">Selecionar...</option>
               {sortedColabs.map((c) => (
-                <option key={c.id} value={c.id}>{c.nome}</option>
+                <option key={c.id} value={c.id}>
+                  {c.nome}
+                </option>
               ))}
             </select>
           </div>
@@ -191,14 +199,18 @@ export function SupervisaoTab(): React.ReactElement {
       )}
 
       {emSupervisao.map((sup) => {
-        const progress = sup.checklistTotal.length > 0
-          ? (sup.checklistConcluido.length / sup.checklistTotal.length) * 100
-          : 0;
+        const progress =
+          sup.checklistTotal.length > 0
+            ? (sup.checklistConcluido.length / sup.checklistTotal.length) * 100
+            : 0;
         const days = getDaysInSupervision(sup.dataInicioSupervisao);
         const allDone = sup.checklistConcluido.length === sup.checklistTotal.length;
 
         return (
-          <div key={sup.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3">
+          <div
+            key={sup.id}
+            className="rounded-xl border border-white/10 bg-white/[0.03] p-4 space-y-3"
+          >
             <div className="flex items-start justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-white">{sup.colaboradorNome}</p>
@@ -231,7 +243,9 @@ export function SupervisaoTab(): React.ReactElement {
             <div className="space-y-1">
               <div className="flex items-center justify-between text-xs text-white/50">
                 <span>Progresso</span>
-                <span>{sup.checklistConcluido.length}/{sup.checklistTotal.length}</span>
+                <span>
+                  {sup.checklistConcluido.length}/{sup.checklistTotal.length}
+                </span>
               </div>
               <div className="h-2 w-full overflow-hidden rounded-full bg-white/10">
                 <div
@@ -264,9 +278,7 @@ export function SupervisaoTab(): React.ReactElement {
               })}
             </div>
 
-            {sup.observacoes && (
-              <p className="text-xs text-white/40 italic">{sup.observacoes}</p>
-            )}
+            {sup.observacoes && <p className="text-xs text-white/40 italic">{sup.observacoes}</p>}
           </div>
         );
       })}
@@ -278,7 +290,10 @@ export function SupervisaoTab(): React.ReactElement {
             Liberados ({liberados.length})
           </h4>
           {liberados.map((sup) => (
-            <div key={sup.id} className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3">
+            <div
+              key={sup.id}
+              className="flex items-center justify-between rounded-lg border border-emerald-500/20 bg-emerald-500/5 px-4 py-3"
+            >
               <div>
                 <p className="text-sm font-medium text-white/80">{sup.colaboradorNome}</p>
                 <p className="text-xs text-white/40">

@@ -1,7 +1,7 @@
 ---
-title: "Task #28 — NOTIVISA Sandbox Environment Configuration Delivery"
-date: "2026-05-07"
-status: "COMPLETE"
+title: 'Task #28 — NOTIVISA Sandbox Environment Configuration Delivery'
+date: '2026-05-07'
+status: 'COMPLETE'
 ---
 
 # Task #28 — NOTIVISA Sandbox Environment Configuration Delivery
@@ -19,6 +19,7 @@ status: "COMPLETE"
 **File:** `docs/NOTIVISA_SANDBOX_ENVIRONMENT_SETUP.md` (1,200 lines)
 
 **Contents:**
+
 - Part 1: Firebase Secret Manager setup (4 secrets)
 - Part 2: Environment variables (.env.sandbox) with 30+ configuration options
 - Part 3: Sandbox portal API connectivity tests (Bash + PowerShell)
@@ -29,6 +30,7 @@ status: "COMPLETE"
 - Implementation checklist (10 pre-Phase 4 items)
 
 **Coverage:**
+
 - RDC 978 Art. 6º §1 (NOTIVISA notification)
 - Portaria 204/2016 (99 notifiable diseases)
 - DICQ 4.4 (audit trail + compliance)
@@ -70,13 +72,15 @@ firebase deploy --only functions:notivisaDraftCreate,functions:notivisaQueueProc
 ### 3. ✅ Connectivity Test Scripts
 
 **Files:**
+
 - `scripts/test-notivisa-sandbox-connectivity.sh` (Bash, 60 lines)
 - `scripts/test-notivisa-sandbox-connectivity.ps1` (PowerShell, 65 lines)
 
 **Tests performed:**
+
 1. Health check (HTTP 200 response)
 2. API key format validation (length > 20 chars)
-3. Endpoint URL format validation (https://.*notivisa)
+3. Endpoint URL format validation (https://.\*notivisa)
 
 **Usage:**
 
@@ -89,6 +93,7 @@ bash scripts/test-notivisa-sandbox-connectivity.sh
 ```
 
 **Expected output (all 3 tests pass):**
+
 ```
 ═══════════════════════════════════════════════════════════════
 NOTIVISA Sandbox Connectivity Tests
@@ -112,11 +117,13 @@ NOTIVISA Sandbox Connectivity Tests
 **Approach:** Test payload submission with 3 reference diseases
 
 **Test payloads (from existing code):**
+
 - Syphilis (MS code: 99078)
 - Dengue (MS code: 99001)
 - HIV (MS code: 99088)
 
 **Validation coverage:**
+
 - Portaria 204/2016 Art. 6º §1 mandatory fields (15 fields)
 - CPF masking (anonymization)
 - Timestamp format (ISO 8601 UTC)
@@ -125,6 +132,7 @@ NOTIVISA Sandbox Connectivity Tests
 - Error handling (validation, rate limits, retries)
 
 **Test results expected:**
+
 ```
 [Test 1/3] Submitting syphilis payload...
 ✓ syphilis: submitted successfully (HTTP 202)
@@ -149,6 +157,7 @@ Results: 3 passed, 0 failed (2341ms)
 **Procedures documented:**
 
 #### Annual Rotation (12-month cycle)
+
 - Step 1: Prepare (4 weeks before expiry)
 - Step 2: Test new credentials (2-3 weeks)
 - Step 3: Promote to production (1 week before expiry)
@@ -156,18 +165,21 @@ Results: 3 passed, 0 failed (2341ms)
 - Step 5: Document & archive
 
 **Timeline example:**
+
 - Start: 4 weeks before 2027-05-07
 - Receive credentials: 2-3 weeks after request
 - Promote: 1 week before expiry
 - Complete: 2027-05-07
 
 #### Emergency Revocation (< 15 minutes)
+
 - Immediate actions (revoke, delete, stop functions)
 - Notify stakeholders (ops, cto, compliance)
 - Recovery path (request emergency replacement from ANVISA)
 - Rollback procedure (restore previous version)
 
 #### Post-Rotation Validation
+
 - Smoke tests
 - Firestore audit check
 - Alert monitoring
@@ -185,8 +197,8 @@ Results: 3 passed, 0 failed (2341ms)
 // functions/src/modules/notivisa/config/endpointSelector.ts
 
 export async function getNotivisaEndpoint(
-  env: 'sandbox' | 'production'
-): Promise<NotivisaEndpointConfig>
+  env: 'sandbox' | 'production',
+): Promise<NotivisaEndpointConfig>;
 
 // v1.4: Always sandbox
 // v1.5+: Configurable (production with certificate, fallback to sandbox)
@@ -198,6 +210,7 @@ export async function getNotivisaEndpoint(
 ```
 
 **Configuration in firebase.json:**
+
 ```json
 {
   "functions": {
@@ -216,6 +229,7 @@ export async function getNotivisaEndpoint(
 ```
 
 **v1.5 Production Readiness (Architecture only):**
+
 - Endpoint selector designed (no code changes to v1.4)
 - Certificate provisioning track (parallel legal process)
 - mTLS authentication pattern documented
@@ -228,9 +242,11 @@ export async function getNotivisaEndpoint(
 **Created files:**
 
 #### `.env.sandbox` (template with 30+ variables)
+
 Location: `C:\hc quality\.env.sandbox`
 
 Variables:
+
 - Firebase config (API key, project ID, storage bucket, etc.)
 - NOTIVISA sandbox credentials (API key, endpoint URL)
 - Lab identification (CNPJ, registration ID)
@@ -278,6 +294,7 @@ Variables:
    - ✓ NOTIVISA_SANDBOX_ENVIRONMENT_SETUP.md exists
 
 **Usage:**
+
 ```bash
 bash scripts/validate-notivisa-sandbox-readiness.sh
 ```
@@ -477,13 +494,10 @@ Issued by ANVISA      Initiated             repeats
 
 1. `docs/NOTIVISA_SANDBOX_ENVIRONMENT_SETUP.md` (1,200 lines)
    - Complete setup guide with all parts
-   
 2. `docs/NOTIVISA_CREDENTIAL_ROTATION_PROCEDURES.md` (400 lines)
    - Annual rotation + emergency revocation procedures
-   
 3. `docs/NOTIVISA_SANDBOX_QUICK_SETUP_GUIDE.md` (300 lines)
    - Copy-paste commands for Phase 4 implementation
-   
 4. `.env.sandbox` (template, 80 lines)
    - 30+ configuration variables with defaults
 
@@ -491,10 +505,8 @@ Issued by ANVISA      Initiated             repeats
 
 1. `scripts/test-notivisa-sandbox-connectivity.sh` (60 lines, Bash)
    - Connectivity validation (3 tests)
-   
 2. `scripts/test-notivisa-sandbox-connectivity.ps1` (65 lines, PowerShell)
    - Connectivity validation (Windows)
-   
 3. `scripts/validate-notivisa-sandbox-readiness.sh` (200 lines, Bash)
    - Pre-Phase 4 checklist (8 items)
 
@@ -511,7 +523,7 @@ Issued by ANVISA      Initiated             repeats
 - **ADR-0021:** NOTIVISA Queue & Retry Pattern
 - **ADR-0026:** NOTIVISA Queue Processing (Async Append-Only)
 - **v1.4_NOTIVISA_SANDBOX_SETUP.md:** Government API Onboarding (Part 1-7)
-- `.claude/rules/notivisa-firestore-rules.md:** Firestore security rules
+- `.claude/rules/notivisa-firestore-rules.md:\*\* Firestore security rules
 
 ---
 
@@ -539,6 +551,7 @@ Issued by ANVISA      Initiated             repeats
 7. Proceed to Phase 4 UI/workflow testing
 
 **Questions/issues?**
+
 - Connectivity: See `NOTIVISA_SANDBOX_ENVIRONMENT_SETUP.md` Part 7 (Troubleshooting)
 - Credentials: See `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md` Part 1 (Government Registration)
 - Rotation: See `docs/NOTIVISA_CREDENTIAL_ROTATION_PROCEDURES.md`

@@ -4,7 +4,7 @@ const APP_URL = 'https://hmatologia2.web.app';
 const EMAIL = 'drogafarto@gmail.com';
 const PASSWORD = '12345678';
 
-test.describe('Auditoria Geral — Smoke Test', () => {
+test.describe('Auditoria Geral ï¿½ Smoke Test', () => {
   test.use({ actionTimeout: 15000 });
 
   test.beforeEach(async ({ page }) => {
@@ -23,26 +23,29 @@ test.describe('Auditoria Geral — Smoke Test', () => {
     await page.waitForTimeout(2000);
   });
 
-  test('1. Renderizacao Guiado — 12 blocos sem tela branca', async ({ page }) => {
+  test('1. Renderizacao Guiado ï¿½ 12 blocos sem tela branca', async ({ page }) => {
     await page.locator('button:has-text("LABCLIN TESTE QA")').click();
     await page.waitForTimeout(3000);
-    
+
     const blocks = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L'];
     for (const block of blocks) {
       await page.evaluate((letter) => {
         const btns = document.querySelectorAll('aside button');
-        const target = Array.from(btns).find(b => b.innerText.startsWith(letter + '\n'));
+        const target = Array.from(btns).find((b) => b.innerText.startsWith(letter + '\n'));
         if (target) target.click();
       }, block);
       await page.waitForTimeout(2000);
-      
+
       const hasScore = await page.evaluate(() => {
         const btns = document.querySelectorAll('button');
-        return Array.from(btns).some(b =>
-          /^[0-5]/.test(b.textContent.trim()) && b.textContent.trim().length > 10 && !b.closest('aside')
+        return Array.from(btns).some(
+          (b) =>
+            /^[0-5]/.test(b.textContent.trim()) &&
+            b.textContent.trim().length > 10 &&
+            !b.closest('aside'),
         );
       });
-      
+
       expect(hasScore).toBeTruthy();
     }
   });
@@ -51,13 +54,13 @@ test.describe('Auditoria Geral — Smoke Test', () => {
     await page.locator('button:has-text("LABCLIN TESTE QA")').click();
     await page.waitForTimeout(3000);
 
-    await page.locator('button[aria-label="Marcar como Não Conforme"]').click();
+    await page.locator('button[aria-label="Marcar como Nï¿½o Conforme"]').click();
     await page.waitForTimeout(500);
 
     const obsField = page.locator('textarea[placeholder*="Justifique"]');
     await expect(obsField).toBeVisible();
 
-    const nextBtn = page.locator('button:has-text("Próximo")').last();
+    const nextBtn = page.locator('button:has-text("Prï¿½ximo")').last();
     await expect(nextBtn).toBeDisabled();
 
     await obsField.fill('Justificativa de teste');
@@ -93,11 +96,12 @@ test.describe('Auditoria Geral — Smoke Test', () => {
     await page.waitForTimeout(2000);
 
     const errorConsole = await page.evaluate(() => {
-      const entries = performance.getEntriesByType('resource')
-        .filter(e => e.name.includes('firebasestorage') && e.duration > 0);
+      const entries = performance
+        .getEntriesByType('resource')
+        .filter((e) => e.name.includes('firebasestorage') && e.duration > 0);
       return entries.length;
     });
-    
+
     expect(errorConsole).toBeDefined();
   });
 });

@@ -55,19 +55,29 @@ export const ReviewRunModal: React.FC<ReviewRunModalProps> = ({
   }
 
   const hasRejectViolations = Object.values(run.violations || {}).some((anaViolations) =>
-    Object.values(anaViolations).some((violations: any) =>
-      Array.isArray(violations) && violations.some((v) => v.severity === 'reject')
-    )
+    Object.values(anaViolations).some(
+      (violations: any) =>
+        Array.isArray(violations) && violations.some((v) => v.severity === 'reject'),
+    ),
   );
 
   return (
-    <div className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50" role="presentation">
-      <div className="bg-[#141417] border border-white/[0.09] rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-xl" role="dialog" aria-labelledby="review-modal-title">
+    <div
+      className="fixed inset-0 bg-black/60 flex items-center justify-center p-4 z-50"
+      role="presentation"
+    >
+      <div
+        className="bg-[#141417] border border-white/[0.09] rounded-xl max-w-2xl w-full max-h-[80vh] overflow-y-auto shadow-xl"
+        role="dialog"
+        aria-labelledby="review-modal-title"
+      >
         {/* Header */}
         <div className="sticky top-0 bg-white/[0.02] border-b border-white/[0.09] px-6 py-4">
           <div className="flex justify-between items-start">
             <div>
-              <h2 id="review-modal-title" className="text-lg font-semibold text-white/90">Revisão de Corrida</h2>
+              <h2 id="review-modal-title" className="text-lg font-semibold text-white/90">
+                Revisão de Corrida
+              </h2>
               <p className="text-xs text-white/40 mt-1">
                 {new Date(run.criadoEm.toMillis()).toLocaleString('pt-BR')}
               </p>
@@ -106,13 +116,25 @@ export const ReviewRunModal: React.FC<ReviewRunModalProps> = ({
           <div>
             <h3 className="text-sm font-semibold text-white/90 mb-3">Resultados</h3>
             <div className="overflow-x-auto rounded-lg border border-white/[0.09]">
-              <table className="w-full text-xs" role="table" aria-label="Resultados detalhados da corrida">
+              <table
+                className="w-full text-xs"
+                role="table"
+                aria-label="Resultados detalhados da corrida"
+              >
                 <thead>
                   <tr className="border-b border-white/[0.09] bg-white/[0.02]">
-                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">Analito</th>
-                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">Nível</th>
-                    <th className="text-right px-3 py-2.5 text-white/40 font-medium" scope="col">Valor</th>
-                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">Status</th>
+                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">
+                      Analito
+                    </th>
+                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">
+                      Nível
+                    </th>
+                    <th className="text-right px-3 py-2.5 text-white/40 font-medium" scope="col">
+                      Valor
+                    </th>
+                    <th className="text-left px-3 py-2.5 text-white/40 font-medium" scope="col">
+                      Status
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-white/[0.05]">
@@ -157,10 +179,14 @@ export const ReviewRunModal: React.FC<ReviewRunModalProps> = ({
             aria-live="polite"
           >
             <p className="text-xs text-white/40 mb-1.5">Sugestão do sistema:</p>
-            <p className={`text-sm font-semibold ${
-              hasRejectViolations ? 'text-red-300' : 'text-emerald-300'
-            }`}>
-              {hasRejectViolations ? '⚠ Rejeitada — violação(ões) detectada(s)' : '✓ Aprovada — dentro da conformidade'}
+            <p
+              className={`text-sm font-semibold ${
+                hasRejectViolations ? 'text-red-300' : 'text-emerald-300'
+              }`}
+            >
+              {hasRejectViolations
+                ? '⚠ Rejeitada — violação(ões) detectada(s)'
+                : '✓ Aprovada — dentro da conformidade'}
             </p>
           </div>
         </div>

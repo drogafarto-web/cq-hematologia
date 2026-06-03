@@ -2,12 +2,12 @@
 
 **Callables Overview**
 
-| # | Name | Purpose | Compliance | Key Params |
-|---|------|---------|-----------|-----------|
-| 5 | `updateResultStatus` | Mark result reviewed/released | RDC 978 Art. 122 | submissionId, action, signature |
-| 6 | `fetchTestResults` | Retrieve results with pagination | RDC 978 Art. 66 | filters, pageSize, pageToken |
-| 7 | `validateAuthorization` | Check permissions & config | DICQ 4.1.2.5 | labId |
-| 8 | `logAuditTrail` | Immutable event logging | DICQ 4.4 | eventType, resourceId, details |
+| #   | Name                    | Purpose                          | Compliance       | Key Params                      |
+| --- | ----------------------- | -------------------------------- | ---------------- | ------------------------------- |
+| 5   | `updateResultStatus`    | Mark result reviewed/released    | RDC 978 Art. 122 | submissionId, action, signature |
+| 6   | `fetchTestResults`      | Retrieve results with pagination | RDC 978 Art. 66  | filters, pageSize, pageToken    |
+| 7   | `validateAuthorization` | Check permissions & config       | DICQ 4.1.2.5     | labId                           |
+| 8   | `logAuditTrail`         | Immutable event logging          | DICQ 4.4         | eventType, resourceId, details  |
 
 ---
 
@@ -44,7 +44,7 @@ PERMISSION_DENIED | SUPERVISOR_ROLE_REQUIRED | SUBMISSION_EXPIRED | INTERNAL_ERR
 ✅ State machine validation (received → reviewed → released)  
 ✅ RT/admin role enforcement  
 ✅ 7-day expiration check  
-✅ Atomic batch writes (status + 2 audit logs)  
+✅ Atomic batch writes (status + 2 audit logs)
 
 ---
 
@@ -101,7 +101,7 @@ PERMISSION_DENIED | INVALID_FILTER | PORTAL_UNAVAILABLE | INVALID_PAGE_TOKEN | I
 ✅ Cursor-based pagination  
 ✅ Multi-field filtering  
 ✅ 30-second query timeout  
-✅ Soft-delete filter applied  
+✅ Soft-delete filter applied
 
 ---
 
@@ -150,6 +150,7 @@ UNAUTHENTICATED | PERMISSION_DENIED | LAB_NOT_FOUND | INTERNAL_ERROR
 ```
 
 **Role Permission Matrix:**
+
 - `operator` → [read, write, submit]
 - `RT` → [read, write, submit, review, release, audit]
 - `admin` → [read, write, submit, review, release, audit, config]
@@ -159,7 +160,7 @@ UNAUTHENTICATED | PERMISSION_DENIED | LAB_NOT_FOUND | INTERNAL_ERROR
 ✅ RBAC with 7 permissions  
 ✅ 9 feature flags  
 ✅ Portal connectivity check  
-✅ Detailed diagnostics  
+✅ Detailed diagnostics
 
 ---
 
@@ -207,13 +208,14 @@ PERMISSION_GRANTED | PERMISSION_REVOKED | SYSTEM_EVENT
 ✅ SHA-256 cryptographic hashing  
 ✅ Chain-of-custody linking  
 ✅ Idempotency via transaction  
-✅ Chain integrity verification  
+✅ Chain integrity verification
 
 ---
 
 ## Common Patterns
 
 ### Pattern 1: Update Result Status (Workflow)
+
 ```typescript
 // Step 1: Validate Authorization
 const auth = await validateAuthorization({ labId });
@@ -224,7 +226,7 @@ const reviewed = await updateResultStatus({
   labId,
   submissionId,
   action: 'review',
-  signature: signature
+  signature: signature,
 });
 
 // Step 3: Log the action
@@ -232,7 +234,7 @@ await logAuditTrail({
   labId,
   eventType: 'RESULT_REVIEWED',
   resourceId: submissionId,
-  signature: signature
+  signature: signature,
 });
 
 // Step 4: Mark as Released
@@ -240,11 +242,12 @@ const released = await updateResultStatus({
   labId,
   submissionId,
   action: 'release',
-  signature: signature
+  signature: signature,
 });
 ```
 
 ### Pattern 2: Fetch & Display Results
+
 ```typescript
 // Step 1: Check authorization
 const auth = await validateAuthorization({ labId });
@@ -253,7 +256,7 @@ const auth = await validateAuthorization({ labId });
 const page1 = await fetchTestResults({
   labId,
   filters: { status: 'released' },
-  pageSize: 20
+  pageSize: 20,
 });
 
 // Step 3: Get next page if needed
@@ -262,7 +265,7 @@ if (page1.pageInfo.hasMore) {
     labId,
     filters: { status: 'released' },
     pageSize: 20,
-    pageToken: page1.pageInfo.nextPageToken
+    pageToken: page1.pageInfo.nextPageToken,
   });
 }
 
@@ -272,11 +275,12 @@ await logAuditTrail({
   eventType: 'DATA_ACCESS',
   resourceId: 'batch-fetch',
   details: { resultsCount: page1.results.length },
-  signature: signature
+  signature: signature,
 });
 ```
 
 ### Pattern 3: Audit Logging
+
 ```typescript
 // For any significant event:
 await logAuditTrail({
@@ -302,31 +306,35 @@ await logAuditTrail({
 ## Error Handling Cheat Sheet
 
 ### updateResultStatus
-| Error | Cause | Fix |
-|-------|-------|-----|
-| SUBMISSION_NOT_FOUND | ID doesn't exist | Verify submissionId from list |
-| INVALID_STATUS_TRANSITION | Wrong state | Check current status first |
-| SUPERVISOR_ROLE_REQUIRED | Not RT/admin | Escalate to supervisor |
-| SUBMISSION_EXPIRED | Older than 7 days | Archive instead |
+
+| Error                     | Cause             | Fix                           |
+| ------------------------- | ----------------- | ----------------------------- |
+| SUBMISSION_NOT_FOUND      | ID doesn't exist  | Verify submissionId from list |
+| INVALID_STATUS_TRANSITION | Wrong state       | Check current status first    |
+| SUPERVISOR_ROLE_REQUIRED  | Not RT/admin      | Escalate to supervisor        |
+| SUBMISSION_EXPIRED        | Older than 7 days | Archive instead               |
 
 ### fetchTestResults
-| Error | Cause | Fix |
-|-------|-------|-----|
-| INVALID_PAGE_TOKEN | Token expired | Request page 1 again |
-| INVALID_FILTER | Bad filter syntax | Check dateRange values |
-| PERMISSION_DENIED | No NOTIVISA access | Contact admin |
+
+| Error              | Cause              | Fix                    |
+| ------------------ | ------------------ | ---------------------- |
+| INVALID_PAGE_TOKEN | Token expired      | Request page 1 again   |
+| INVALID_FILTER     | Bad filter syntax  | Check dateRange values |
+| PERMISSION_DENIED  | No NOTIVISA access | Contact admin          |
 
 ### validateAuthorization
-| Error | Cause | Fix |
-|-------|-------|-----|
+
+| Error             | Cause          | Fix                  |
+| ----------------- | -------------- | -------------------- |
 | PERMISSION_DENIED | Not lab member | Ask admin to add you |
-| LAB_NOT_FOUND | Lab ID wrong | Verify lab exists |
+| LAB_NOT_FOUND     | Lab ID wrong   | Verify lab exists    |
 
 ### logAuditTrail
-| Error | Cause | Fix |
-|-------|-------|-----|
-| INVALID_SIGNATURE | operatorId ≠ uid | Regenerate with correct ID |
-| CHAIN_VERIFICATION_FAILED | Data corrupted | Contact support |
+
+| Error                     | Cause            | Fix                        |
+| ------------------------- | ---------------- | -------------------------- |
+| INVALID_SIGNATURE         | operatorId ≠ uid | Regenerate with correct ID |
+| CHAIN_VERIFICATION_FAILED | Data corrupted   | Contact support            |
 
 ---
 
@@ -385,12 +393,12 @@ firebase deploy --only functions --project hmatologia2
 
 ## Performance Targets
 
-| Callable | Latency | Throughput | Notes |
-|----------|---------|-----------|-------|
-| updateResultStatus | <500ms | Unlimited | Single doc update |
-| fetchTestResults | <3s (30s max) | 20 results/page | Query timeout at 30s |
-| validateAuthorization | <200ms | Unlimited | 2 doc reads |
-| logAuditTrail | <1s | Unlimited | Transaction-based |
+| Callable              | Latency       | Throughput      | Notes                |
+| --------------------- | ------------- | --------------- | -------------------- |
+| updateResultStatus    | <500ms        | Unlimited       | Single doc update    |
+| fetchTestResults      | <3s (30s max) | 20 results/page | Query timeout at 30s |
+| validateAuthorization | <200ms        | Unlimited       | 2 doc reads          |
+| logAuditTrail         | <1s           | Unlimited       | Transaction-based    |
 
 ---
 
@@ -400,5 +408,4 @@ firebase deploy --only functions --project hmatologia2
 📦 **Deliverables:** `DELIVERABLES_PHASE4_5-8.md`  
 ✅ **Validators:** `../validators.ts`  
 🧪 **Tests:** `*test.ts` files (64 test stubs)  
-📋 **Callables 1-4:** See `DELIVERABLES.md` & `IMPLEMENTATION_GUIDE.md`  
-
+📋 **Callables 1-4:** See `DELIVERABLES.md` & `IMPLEMENTATION_GUIDE.md`

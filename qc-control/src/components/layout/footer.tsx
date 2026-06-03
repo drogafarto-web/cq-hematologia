@@ -1,5 +1,5 @@
 interface FooterProps {
-  children?: React.ReactNode
+  children?: React.ReactNode;
 }
 
 export function Footer({ children }: FooterProps) {
@@ -12,5 +12,5 @@ export function Footer({ children }: FooterProps) {
         <span className="hover:text-primary cursor-pointer">Export Excel</span>
       </div>
     </footer>
-  )
+  );
 }

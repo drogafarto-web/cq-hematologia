@@ -13,7 +13,13 @@ export enum NCSeveridade {
 
 export type NCOrigem = 'auditoria' | 'modulo' | 'cliente' | 'interno';
 
-export type CAPAStatus = 'nao_iniciada' | 'investigacao' | 'acao' | 'eficacia' | 'fechada' | 'reaberta';
+export type CAPAStatus =
+  | 'nao_iniciada'
+  | 'investigacao'
+  | 'acao'
+  | 'eficacia'
+  | 'fechada'
+  | 'reaberta';
 
 export interface CAPAHistoricoEntry {
   estado: CAPAStatus;

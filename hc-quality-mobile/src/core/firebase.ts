@@ -4,7 +4,7 @@ import {
   getAuth,
   setPersistence,
   // @ts-ignore - react-native exports
-  ReactNativeAsyncStorage
+  ReactNativeAsyncStorage,
 } from 'firebase/auth';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 import { getFunctions, connectFunctionsEmulator } from 'firebase/functions';

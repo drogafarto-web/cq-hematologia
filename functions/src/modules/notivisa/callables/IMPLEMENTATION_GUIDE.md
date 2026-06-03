@@ -11,11 +11,13 @@ This document describes the implementation of four Cloud Function callables for 
 ## Callables Implemented
 
 ### 1. `authenticatePortal`
+
 **File:** `authenticatePortal.ts`
 
 **Purpose:** Authenticate with the NOTIVISA portal and create a session token.
 
 **Input Schema:**
+
 ```typescript
 {
   labId: string;              // Required: Lab identifier
@@ -26,6 +28,7 @@ This document describes the implementation of four Cloud Function callables for 
 ```
 
 **Output (Success):**
+
 ```typescript
 {
   ok: true;
@@ -37,6 +40,7 @@ This document describes the implementation of four Cloud Function callables for 
 ```
 
 **Output (Error):**
+
 ```typescript
 {
   ok: false;
@@ -55,6 +59,7 @@ This document describes the implementation of four Cloud Function callables for 
 ```
 
 **Key Features:**
+
 - Multi-factor authentication support (optional per lab config)
 - Session creation with 1-hour expiration
 - Audit logging of all login attempts
@@ -62,12 +67,13 @@ This document describes the implementation of four Cloud Function callables for 
 - PII protection in logs (masks CPF/credentials)
 
 **Example Usage:**
+
 ```javascript
 const result = await firebase.functions().httpsCallable('authenticatePortal')({
   labId: 'lab-abc',
   portalUsername: 'operator001',
   portalPassword: 'securePassword123',
-  mfaCode: '123456' // If required
+  mfaCode: '123456', // If required
 });
 
 if (result.data.ok) {
@@ -77,6 +83,7 @@ if (result.data.ok) {
 ```
 
 **Firestore Collections Modified:**
+
 - `notivisa-sessions/{labId}/sessions/{sessionId}` — Session metadata
 - `notivisa-audit-logs/{labId}/logins/{timestamp}` — Login audit trail
 - `notivisa-audit-logs/{labId}/login-attempts/{timestamp}` — Failed attempts
@@ -84,11 +91,13 @@ if (result.data.ok) {
 ---
 
 ### 2. `getPatientData`
+
 **File:** `getPatientData.ts`
 
 **Purpose:** Retrieve patient demographics and laudo (test result) data with validation.
 
 **Input Schema:**
+
 ```typescript
 {
   labId: string;              // Required: Lab identifier
@@ -98,6 +107,7 @@ if (result.data.ok) {
 ```
 
 **Output (Success):**
+
 ```typescript
 {
   ok: true;
@@ -130,6 +140,7 @@ if (result.data.ok) {
 ```
 
 **Output (Error):**
+
 ```typescript
 {
   ok: false;
@@ -146,6 +157,7 @@ if (result.data.ok) {
 ```
 
 **Key Features:**
+
 - Comprehensive data completeness validation
 - Support for latest laudo or specific ID lookup
 - Detailed error reporting of missing fields
@@ -153,10 +165,11 @@ if (result.data.ok) {
 - No PII exposure in error messages
 
 **Example Usage:**
+
 ```javascript
 const result = await firebase.functions().httpsCallable('getPatientData')({
   labId: 'lab-abc',
-  pacienteCpf: '12345678901'
+  pacienteCpf: '12345678901',
 });
 
 if (result.data.ok && result.data.readyForSubmission) {
@@ -167,16 +180,19 @@ if (result.data.ok && result.data.readyForSubmission) {
 ```
 
 **Firestore Collections Modified:**
+
 - `notivisa-audit-logs/{labId}/data-access/{timestamp}` — Data access audit trail
 
 ---
 
 ### 3. `submitRequisition`
+
 **File:** `submitRequisition.ts`
 
 **Purpose:** Submit a lab requisition to the NOTIVISA portal and enqueue for polling.
 
 **Input Schema:**
+
 ```typescript
 {
   labId: string;              // Required: Lab identifier
@@ -204,6 +220,7 @@ if (result.data.ok && result.data.readyForSubmission) {
 ```
 
 **Output (Success):**
+
 ```typescript
 {
   ok: true;
@@ -215,6 +232,7 @@ if (result.data.ok && result.data.readyForSubmission) {
 ```
 
 **Output (Error):**
+
 ```typescript
 {
   ok: false;
@@ -233,6 +251,7 @@ if (result.data.ok && result.data.readyForSubmission) {
 ```
 
 **Key Features:**
+
 - Duplicate submission detection (idempotency)
 - Rate limiting (20 submissions per hour per lab)
 - Graceful degradation (queues if portal unavailable)
@@ -241,13 +260,14 @@ if (result.data.ok && result.data.readyForSubmission) {
 - Optional idempotency token support
 
 **Example Usage:**
+
 ```javascript
 const result = await firebase.functions().httpsCallable('submitRequisition')({
   labId: 'lab-abc',
   pacienteCpf: '12345678901',
   laudoId: 'laudo-123',
   authSessionId: sessionId,
-  notivisaPayload: payloadFromGetPatientData
+  notivisaPayload: payloadFromGetPatientData,
 });
 
 if (result.data.ok) {
@@ -257,6 +277,7 @@ if (result.data.ok) {
 ```
 
 **Firestore Collections Modified:**
+
 - `notivisa-requisitions/{labId}/submissions/{requisitionId}` — Submission record
 - `notivisa-requisitions/{labId}/submissions/{requisitionId}/auditLog/{timestamp}` — Status changes
 - `notivisa-sessions/{labId}/sessions/{sessionId}` — Last activity update
@@ -264,11 +285,13 @@ if (result.data.ok) {
 ---
 
 ### 4. `trackSampleStatus`
+
 **File:** `trackSampleStatus.ts`
 
 **Purpose:** Poll NOTIVISA portal for submission status and update records.
 
 **Input Schema:**
+
 ```typescript
 {
   labId: string;              // Required: Lab identifier
@@ -278,6 +301,7 @@ if (result.data.ok) {
 ```
 
 **Output (Success):**
+
 ```typescript
 {
   ok: true;
@@ -305,6 +329,7 @@ if (result.data.ok) {
 ```
 
 **Output (Error):**
+
 ```typescript
 {
   ok: false;
@@ -321,6 +346,7 @@ if (result.data.ok) {
 ```
 
 **Key Features:**
+
 - Optional session validation
 - Automatic 24-hour polling timeout
 - Terminal state detection (no polling for final states)
@@ -331,16 +357,17 @@ if (result.data.ok) {
 - 5-minute polling interval between checks
 
 **Example Usage:**
+
 ```javascript
 // Poll until completion
 const poll = setInterval(async () => {
   const result = await firebase.functions().httpsCallable('trackSampleStatus')({
     labId: 'lab-abc',
-    requisitionId: requisitionId
+    requisitionId: requisitionId,
   });
 
   console.log('Status:', result.data.status);
-  
+
   if (!result.data.nextCheckAt) {
     // Terminal state reached
     clearInterval(poll);
@@ -353,6 +380,7 @@ const poll = setInterval(async () => {
 ```
 
 **Firestore Collections Modified:**
+
 - `notivisa-requisitions/{labId}/submissions/{requisitionId}` — Status update
 - `notivisa-requisitions/{labId}/submissions/{requisitionId}/auditLog/{timestamp}` — Status history
 
@@ -361,7 +389,9 @@ const poll = setInterval(async () => {
 ## Architecture Patterns
 
 ### Authorization Model
+
 All callables follow the pattern:
+
 1. **Authentication check** — `request.auth` must exist
 2. **Module claim validation** — `auth.token.modules.notivisa === true`
 3. **Lab membership check** — User in `labs/{labId}/members/{uid}` (active)
@@ -369,19 +399,23 @@ All callables follow the pattern:
 See `validators.ts` and `assertNotivisaAccess()` for implementation.
 
 ### Error Handling
+
 - **Input validation errors** → `INTERNAL_ERROR` with validation message
 - **Firestore errors** → logged, user sees generic `INTERNAL_ERROR`
 - **Portal API errors** → graceful degradation (queued for retry)
 - **Auth errors** → appropriate HTTP error thrown (unauthenticated/permission-denied)
 
 ### Audit Trail Strategy
+
 Every callable creates audit log entries:
+
 - **Entry location:** `notivisa-audit-logs/{labId}/<action-type>/{timestamp}`
 - **Immutable:** Created via batch, never updated
 - **PII masking:** CPF masked to first 3 digits in logs
 - **Action types:** PORTAL_LOGIN, PATIENT_DATA_RETRIEVED, SUBMITTED, STATUS_UPDATED
 
 ### Rate Limiting
+
 - **Submit endpoint:** 20 requests per hour per lab
 - **Portal authentication:** No limit (but 6-digit MFA prevents brute-force)
 - **Status tracking:** No limit (polling is read-only)
@@ -393,6 +427,7 @@ Every callable creates audit log entries:
 Each callable has a comprehensive test suite covering:
 
 ### authenticatePortal.test.ts
+
 - ✅ Successful authentication (with/without MFA)
 - ✅ Validation of credentials and MFA codes
 - ✅ Session creation and expiration
@@ -401,6 +436,7 @@ Each callable has a comprehensive test suite covering:
 - ✅ Input validation (labId, username/password length)
 
 ### getPatientData.test.ts
+
 - ✅ Successful data retrieval
 - ✅ Latest vs. specific laudo lookup
 - ✅ Missing field detection (patient + laudo)
@@ -409,6 +445,7 @@ Each callable has a comprehensive test suite covering:
 - ✅ Audit logging with CPF masking
 
 ### submitRequisition.test.ts
+
 - ✅ Successful submission (queued or submitted)
 - ✅ Portal unavailable → queue for retry
 - ✅ Duplicate detection
@@ -418,6 +455,7 @@ Each callable has a comprehensive test suite covering:
 - ✅ Audit trail creation
 
 ### trackSampleStatus.test.ts
+
 - ✅ Status polling and updates
 - ✅ Terminal state detection
 - ✅ 24-hour timeout
@@ -427,6 +465,7 @@ Each callable has a comprehensive test suite covering:
 - ✅ Details/attempts tracking
 
 **Run tests:**
+
 ```bash
 cd functions
 npm test -- notivisa
@@ -439,6 +478,7 @@ npm test -- notivisa
 Before deploying to production:
 
 ### Pre-Deployment
+
 - [ ] All tests passing locally (`npm test`)
 - [ ] Type-check clean (`npm run build`)
 - [ ] Environmental secrets provisioned:
@@ -452,6 +492,7 @@ Before deploying to production:
 - [ ] Firestore indexes created (see rules doc)
 
 ### Deployment Order
+
 1. Deploy Firestore rules + indexes (gates access)
 2. Deploy Cloud Functions
 3. Provision module claim (`modules.notivisa = true`) for pilot users
@@ -460,6 +501,7 @@ Before deploying to production:
 6. Promote to production users
 
 ### Post-Deployment
+
 - [ ] Monitor Cloud Logs for errors
 - [ ] Check Firestore audit trails for unusual patterns
 - [ ] Verify session creation/expiration working
@@ -471,11 +513,13 @@ Before deploying to production:
 ## Security Considerations
 
 ### Authentication & Authorization
+
 - All callables require Firebase auth + notivisa module claim
 - Session tokens expire after 1 hour (configurable)
 - MFA support (TOTP/SMS-ready, mockable for sandbox)
 
 ### Data Protection
+
 - Patient CPF masked in logs (first 3 digits only)
 - Session tokens base64-encoded (not plaintext)
 - Payload hash (SHA-256) stored in audit log
@@ -483,11 +527,13 @@ Before deploying to production:
 - Credentials encrypted at-rest in Firestore rules validation
 
 ### Rate Limiting
+
 - 20 submissions per hour per lab (prevents abuse)
 - 6-digit MFA prevents brute-force (if enabled)
 - Duplicate detection prevents accidental double-submission
 
 ### Audit Trail
+
 - Immutable audit logs (created only, never updated)
 - All actions timestamped and operator-identified
 - Portal protocol numbers tracked end-to-end
@@ -498,9 +544,11 @@ Before deploying to production:
 ## API Integration
 
 ### Portal API Expectations
+
 In `submitToNotivisaPortal()` and `pollNotivisaPortal()`, the mock implementation is provided. For production integration:
 
 **Submission:**
+
 ```
 POST /api/v1/notificacoes
 Authorization: Bearer {authToken}
@@ -519,6 +567,7 @@ Response:
 ```
 
 **Status Poll:**
+
 ```
 GET /api/v1/notificacoes/{protocolNumber}
 Authorization: Bearer {authToken}
@@ -538,25 +587,30 @@ Replace mock implementations in `authenticatePortal.ts` and `submitRequisition.t
 ## Troubleshooting
 
 ### "PERMISSION_DENIED: User does not have NOTIVISA access"
+
 - Verify user has `modules.notivisa = true` custom claim
 - Check lab membership: `labs/{labId}/members/{uid}` with active=true
 
 ### "SESSION_EXPIRED"
+
 - Session tokens expire after 1 hour
 - Call `authenticatePortal` again to get new session
 - Consider increasing `SESSION_DURATION_MS` in production
 
 ### "RATE_LIMITED"
+
 - Lab has submitted 20+ requisitions in the past hour
 - Wait until earliest submission is >1 hour old
 - Or contact admin to increase limit in codebase
 
 ### "DUPLICATE_SUBMISSION"
+
 - This laudo+CPF combination already submitted
 - Check `notivisa-requisitions/{labId}/submissions` for existing record
 - Idempotency: re-calling `submitRequisition` with same data returns success
 
 ### Portal errors in `trackSampleStatus`
+
 - Circuit breaker: if portal unreachable, continues with last known status
 - Check Cloud Logs for detailed error from portal API
 - Polling automatically times out after 24 hours

@@ -39,9 +39,7 @@ test.describe('F-IM-04 — Bancada de Imunoensaios · visualização', () => {
     await page.waitForTimeout(1500);
 
     // ─── 1. Header com título + contador ──────────────────────────────────
-    await expect(
-      page.getByRole('heading', { name: 'Bancada de Imunoensaios' }),
-    ).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Bancada de Imunoensaios' })).toBeVisible();
 
     // Subtitle traz o resumo de setups (formato: "N setup(s) vinculado(s)…")
     const subtitle = page.locator('text=/\\d+ setup/i').first();
@@ -58,9 +56,7 @@ test.describe('F-IM-04 — Bancada de Imunoensaios · visualização', () => {
 
     // ─── 4. Pelo menos 1 card de setup (oficial OR validação) ─────────────
     // Cada card de setup contém label "Setup Oficial" ou "Em Validação"
-    const setupLabels = page.locator(
-      'text=/Setup Oficial|Em Validação/',
-    );
+    const setupLabels = page.locator('text=/Setup Oficial|Em Validação/');
     const setupCount = await setupLabels.count();
     console.log(`Setups vinculados na Bancada: ${setupCount}`);
     expect(setupCount).toBeGreaterThan(0);
@@ -82,10 +78,7 @@ test.describe('F-IM-04 — Bancada de Imunoensaios · visualização', () => {
 
     // Filtra erros conhecidos não-bloqueantes (PWA, fonts, etc)
     const criticos = consoleErrors.filter(
-      (e) =>
-        !e.includes('favicon') &&
-        !e.includes('PWA') &&
-        !e.includes('manifest'),
+      (e) => !e.includes('favicon') && !e.includes('PWA') && !e.includes('manifest'),
     );
     if (criticos.length > 0) {
       console.warn('Console errors detectados:', criticos);

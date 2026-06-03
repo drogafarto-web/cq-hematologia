@@ -36,7 +36,9 @@ const mockData = {
 };
 
 describe('Attempt Service', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('salva tentativa com sucesso', async () => {
     vi.mocked(firestore.addDoc).mockResolvedValueOnce({ id: 'att-001' } as any);

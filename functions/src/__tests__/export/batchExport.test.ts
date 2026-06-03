@@ -135,7 +135,9 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'pdf-compliance'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
+    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(
+      request,
+    );
 
     expect(result).toMatchObject({
       jobIds: expect.any(Array),
@@ -190,7 +192,14 @@ describe('batchExport', () => {
   });
 
   it('rejects with invalid-argument when formats.length > MAX_BATCH_FORMATS', async () => {
-    const tooManyFormats = ['xlsx-ciq', 'xlsx-nc', 'pdf-compliance', 'csv-audit', 'xlsx-ciq', 'xlsx-nc'];
+    const tooManyFormats = [
+      'xlsx-ciq',
+      'xlsx-nc',
+      'pdf-compliance',
+      'csv-audit',
+      'xlsx-ciq',
+      'xlsx-nc',
+    ];
     const request = makeRequest({
       labId: 'lab-123',
       formats: tooManyFormats,
@@ -221,7 +230,10 @@ describe('batchExport', () => {
   });
 
   it('rejects with unauthenticated when auth is null', async () => {
-    const request = { auth: null, data: { labId: 'lab-123', formats: ['xlsx-ciq'], dateRange: VALID_DATE_RANGE } };
+    const request = {
+      auth: null,
+      data: { labId: 'lab-123', formats: ['xlsx-ciq'], dateRange: VALID_DATE_RANGE },
+    };
 
     await expect(
       (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request),
@@ -265,7 +277,9 @@ describe('batchExport', () => {
     const formats = ['xlsx-ciq', 'xlsx-nc', 'csv-audit'] as const;
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
-    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(request);
+    const result = await (batchExport as unknown as (req: MockRequest) => Promise<unknown>)(
+      request,
+    );
     const response = result as { jobIds: string[]; batchId: string };
 
     const setCalls = mockBatch.set.mock.calls;
@@ -275,7 +289,7 @@ describe('batchExport', () => {
   });
 
   it('accepts exactly MAX_BATCH_FORMATS formats', async () => {
-    const formats = Array(MAX_BATCH_FORMATS).fill('xlsx-ciq') as ('xlsx-ciq')[];
+    const formats = Array(MAX_BATCH_FORMATS).fill('xlsx-ciq') as 'xlsx-ciq'[];
     const request = makeRequest({ labId: 'lab-123', formats, dateRange: VALID_DATE_RANGE });
 
     // Should not throw

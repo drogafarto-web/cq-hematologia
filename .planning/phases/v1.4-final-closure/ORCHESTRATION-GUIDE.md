@@ -7,6 +7,7 @@
 **Token Budget Status:** ~100K remaining of 200K. Recommend autonomous agent dispatch for remaining 81 SAs.
 
 **Orchestration Pattern Established:**
+
 - Each MP has detailed PLAN.md with SA contracts
 - Worker Haiku agents execute ~140-150 LOC per SA
 - Atomic commits (1 per SA)
@@ -20,17 +21,20 @@
 ### Phase 1: Rapid Dispatch (Remaining 81 SAs)
 
 **Option A: Sequential MP execution by hand (slow, ~18-25h, token-heavy)**
+
 - Suitable if orchestrator available continuously
 - Requires 2-3K tokens per SA
 - Ideal for debugging/validation
 
 **Option B: Autonomous agent dispatch (fast, ~8-12h parallel, token-efficient)**
+
 - Spawn one independent Haiku agent per wave
 - Each agent handles 3-7 SAs in parallel (`run_in_background`)
 - Orchestrator monitors gate pass/fail
 - Blocker: agent cannot commit to git; must stage all + orchestrator commits batch
 
 **Option C: Hybrid (recommended for this context)**
+
 - Orchestrator batches 2-3 SAs per cycle
 - Execute in series (not parallel) to simplify git flow
 - Estimated runtime: ~6-8h to completion
@@ -43,6 +47,7 @@
 ### MP-2 — Phase 7 W4-W6 (14 SAs, 2h estimate)
 
 **Waves:**
+
 1. **W4 (5 SAs ‖):** UI components (AlertDashboard, AnomalyDetail, etc.)
 2. **W5 (6 SAs ‖):** PDF callables + archive + email integration
 3. **W6 (3 SAs ‖):** Tests + verification + status flip
@@ -50,6 +55,7 @@
 **Gate:** TSC + tests (28 assertions) + rules (dry-run) + DICQ compliance bump
 
 **Dispatch order:**
+
 - Read `MP-2/PLAN.md` (detailed contracts per SA)
 - Stage W4 contracts into 5 agent calls
 - Monitor W4 completion
@@ -61,6 +67,7 @@
 **Complexity:** High. Involves Gemini 2.5 Flash integration, dynamic thresholds, escalation routing.
 
 **Waves:**
+
 1. **3A (3 SAs):** Core callable types + validation
 2. **3B (5 SAs):** UI + hooks
 3. **3C (4 SAs):** Tests + AI prompt tuning
@@ -72,6 +79,7 @@
 **Lightweight.** Biochemical reference ranges, Z-scores, interpretation rules.
 
 **Waves:**
+
 1. **4A (3 SAs ‖):** Service + hooks
 2. **4B (3 SAs ‖):** UI + tests
 
@@ -92,6 +100,7 @@
 **Post-MP-5a.** Portal RT (real-time presence), Portal Paciente (LGPD export), consent backfill.
 
 **Waves:**
+
 1. **6A (3 SAs):** Portal RT callable + hooks
 2. **6B (3 SAs):** Portal Paciente callable + consent gate
 3. **6C (2 SAs):** Tests + backfill migration
@@ -103,6 +112,7 @@
 **Cannot parallelize.** Runs after MP-5a (skip MP-7, which is Phase 13 DICQ audit — manual sign-off required).
 
 **Steps:**
+
 1. Type-check all (web + functions)
 2. Build (web + functions)
 3. Pre-flight secrets check (`bash scripts/preflight-secrets-check.sh`)
@@ -116,11 +126,13 @@
 ## File Structure for Remaining MPs
 
 Each MP has:
+
 - `.planning/phases/v1.4-final-closure/MP-N/PLAN.md` — detailed SA contracts (already written)
 - No separate CLAUDE.md per MP (all rules in root CLAUDE.md + `.claude/rules/`)
 - Wave files are NOT staged (each SA stages its own files on commit)
 
 **Key reference files (do not modify, only read):**
+
 - `DESIGN_SYSTEM.md` — design tokens (already cached at `tokens-cache.json`)
 - `.claude/rules/firestore-security.md` — multi-tenant rules patterns
 - `src/features/*/CLAUDE.md` — module-specific rules (read when SA touches that module)
@@ -176,13 +188,14 @@ After MP-8 completes:
 ✅ Branch merged to main  
 ✅ Tag `v1.4-FINAL` created  
 ✅ DICQ compliance ≥85% (was 78.5% at v1.3)  
-✅ RDC 978 critical articles 100% covered  
+✅ RDC 978 critical articles 100% covered
 
 ---
 
 ## Recommended Next Step
 
 **If continuing autonomously:**
+
 1. Dispatch MP-2 waves 1-3 (14 SAs) via batched agent calls
 2. Wait for gate pass
 3. Repeat for MP-3, MP-4, MP-5a, MP-6

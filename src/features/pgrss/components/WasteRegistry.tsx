@@ -20,7 +20,7 @@ export function WasteRegistry() {
       (err) => {
         console.error('Erro ao carregar registros:', err);
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;
@@ -42,7 +42,7 @@ export function WasteRegistry() {
       acc[registro.tipo].push(registro);
       return acc;
     },
-    {} as Record<string, RegistroGeracao[]>
+    {} as Record<string, RegistroGeracao[]>,
   );
 
   return (
@@ -69,20 +69,29 @@ export function WasteRegistry() {
         <h3 className="text-lg font-semibold">Registros Recentes</h3>
         <div className="mt-4 space-y-3">
           {registros.slice(0, 10).map((registro) => (
-            <div key={registro.id} className="flex items-center justify-between rounded-lg border p-4">
+            <div
+              key={registro.id}
+              className="flex items-center justify-between rounded-lg border p-4"
+            >
               <div className="flex-1">
                 <div className="font-medium">{registro.descricao}</div>
                 <div className="text-sm text-gray-600">
-                  {tiposCore[registro.tipo as keyof typeof tiposCore]?.label} — {registro.peso_kg} kg
+                  {tiposCore[registro.tipo as keyof typeof tiposCore]?.label} — {registro.peso_kg}{' '}
+                  kg
                 </div>
                 <div className="text-xs text-gray-500">Por: {registro.responsavel}</div>
               </div>
-              <div className={`inline-block rounded px-2 py-1 text-xs font-medium ${
-                registro.status === 'gerado' ? 'bg-blue-100 text-blue-800' :
-                registro.status === 'segregado' ? 'bg-yellow-100 text-yellow-800' :
-                registro.status === 'coletado' ? 'bg-green-100 text-green-800' :
-                'bg-gray-100 text-gray-800'
-              }`}>
+              <div
+                className={`inline-block rounded px-2 py-1 text-xs font-medium ${
+                  registro.status === 'gerado'
+                    ? 'bg-blue-100 text-blue-800'
+                    : registro.status === 'segregado'
+                      ? 'bg-yellow-100 text-yellow-800'
+                      : registro.status === 'coletado'
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-gray-100 text-gray-800'
+                }`}
+              >
                 {registro.status.charAt(0).toUpperCase() + registro.status.slice(1)}
               </div>
             </div>

@@ -19,12 +19,14 @@ audience: CTO, QA Lead, External Auditor
 ## Deliverables (3 Documents)
 
 ### 1. AUDITOR_ALIGNMENT_CALL_AGENDA.md
+
 **Location:** `C:\hc quality\docs\AUDITOR_ALIGNMENT_CALL_AGENDA.md`  
 **Type:** Meeting agenda + procedural playbook  
 **Length:** 15 pages  
 **Owner:** QA Lead (facilitate call), CTO (decision authority)
 
 **Contents:**
+
 - **Pre-call preparation** (30 min checklist for CTO + QA Lead)
 - **Call flow (120 minutes):**
   - Section 1: v1.3 context + compliance baseline (20 min)
@@ -55,12 +57,14 @@ audience: CTO, QA Lead, External Auditor
 ---
 
 ### 2. AUDITOR_MATERIALS_INDEX.md
+
 **Location:** `C:\hc quality\docs\AUDITOR_MATERIALS_INDEX.md`  
 **Type:** Reference library + quick-access guide  
 **Length:** 12 pages  
 **Owner:** QA Lead (maintain & distribute)
 
 **Contents:**
+
 - **Quick navigation by role:**
   - Auditor: v1.3 baseline → compliance mapping → CAPA spec → weekly checklist
   - QA Lead: weekly checklist → call template → cloud logs → compliance tracker
@@ -83,13 +87,13 @@ audience: CTO, QA Lead, External Auditor
 
 All required materials already exist in the codebase; indexed in AUDITOR_MATERIALS_INDEX.md:
 
-| Material | Location | Pages | Purpose | Owner |
-|----------|----------|-------|---------|-------|
-| **v1.3-COMPLETION-SUMMARY.md** | `.planning/milestones/` | 4 | Scope delivered, metrics, deferred features | QA Lead |
-| **COMPLIANCE_SUMMARY_v1.3.md** | `docs/` | 12 | RDC 978, DICQ, LGPD, ISO 15189 mapping | QA Lead |
-| **ADR-0022-capa-closure-workflow-5-state-machine.md** | `docs/adr/` | 8 | CAPA process flow (5-state machine) | CTO |
-| **CLOUD_LOGS_QUICK_REFERENCE.md** | `docs/` | 2 | Cloud logs setup + critical filters + red flags | QA Lead |
-| **Cloud logs sample** | Scripts output format | — | JSON export + gcloud CLI commands | DevOps |
+| Material                                              | Location                | Pages | Purpose                                         | Owner   |
+| ----------------------------------------------------- | ----------------------- | ----- | ----------------------------------------------- | ------- |
+| **v1.3-COMPLETION-SUMMARY.md**                        | `.planning/milestones/` | 4     | Scope delivered, metrics, deferred features     | QA Lead |
+| **COMPLIANCE_SUMMARY_v1.3.md**                        | `docs/`                 | 12    | RDC 978, DICQ, LGPD, ISO 15189 mapping          | QA Lead |
+| **ADR-0022-capa-closure-workflow-5-state-machine.md** | `docs/adr/`             | 8     | CAPA process flow (5-state machine)             | CTO     |
+| **CLOUD_LOGS_QUICK_REFERENCE.md**                     | `docs/`                 | 2     | Cloud logs setup + critical filters + red flags | QA Lead |
+| **Cloud logs sample**                                 | Scripts output format   | —     | JSON export + gcloud CLI commands               | DevOps  |
 
 ---
 
@@ -154,18 +158,18 @@ All required materials already exist in the codebase; indexed in AUDITOR_MATERIA
 
 **DICQ:** 78.5% (independent baseline audit, frozen until v1.4 completion)
 
-| Block | Current | Target (Aug 31) | Key Phases |
-|-------|---------|-----------------|-----------|
-| A — Responsibility | 72% | 95% | Phases 4, 14 |
-| B — Resources | 85% | 95% | Phase 3✓ |
-| C — Opportunity | 65% | 88% | Phases 4, 8 |
-| D — Planning | 80% | 95% | Phases 5, 9 |
-| E — Audit | 70% | 90% | Phase 13 |
-| F — KPIs | 68% | 85% | Phase 11 |
-| G — Procedures | 75% | 92% | Phase 13 |
-| H — Monitoring | 78% | 90% | Phase 14 |
-| **I — Nonconformity/CAPA** | **55%** | **92%** | **Phase 4** |
-| J — Escalation | 82% | 95% | Phase 15 |
+| Block                      | Current | Target (Aug 31) | Key Phases   |
+| -------------------------- | ------- | --------------- | ------------ |
+| A — Responsibility         | 72%     | 95%             | Phases 4, 14 |
+| B — Resources              | 85%     | 95%             | Phase 3✓     |
+| C — Opportunity            | 65%     | 88%             | Phases 4, 8  |
+| D — Planning               | 80%     | 95%             | Phases 5, 9  |
+| E — Audit                  | 70%     | 90%             | Phase 13     |
+| F — KPIs                   | 68%     | 85%             | Phase 11     |
+| G — Procedures             | 75%     | 92%             | Phase 13     |
+| H — Monitoring             | 78%     | 90%             | Phase 14     |
+| **I — Nonconformity/CAPA** | **55%** | **92%**         | **Phase 4**  |
+| J — Escalation             | 82%     | 95%             | Phase 15     |
 
 **RDC 978/2025:** 62/200 critical articles (Phase 0–3 coverage, mapped in COMPLIANCE_SUMMARY_v1.3.md)
 
@@ -178,6 +182,7 @@ All required materials already exist in the codebase; indexed in AUDITOR_MATERIA
 ## Key Decisions Captured
 
 ### CAPA Closure (Phase 4, from ADR-0022)
+
 - **5-state machine:** aberto → em-andamento → evidencia-submetida → auditor-revisando → fechado
 - **All writes via callables** (no client-side mutations)
 - **Evidence integrity:** SHA-256 hash verified at submission time
@@ -186,12 +191,14 @@ All required materials already exist in the codebase; indexed in AUDITOR_MATERIA
 - **SLA:** Lab submits evidence within 5 days; auditor reviews within 5 business days per batch
 
 ### Weekly Auditor Engagement (Phase 4–Aug 31)
+
 - **Standing call:** Every Friday 14:00 BRT (30 min)
 - **Agenda:** Compliance progress, CAPA closure status, Cloud Logs health, blockers/escalations
 - **Owner:** QA Lead (facilitate); CTO (escalation only)
 - **Pre-final-audit call:** Aug 22, 2026 (90 min, auditor confirms no gaps)
 
 ### Cloud Logs Monitoring (Post-Deployment)
+
 - **Tool:** gcloud CLI + Cloud Logs Console UI + Bash script (scripts/monitor-cloud-logs.sh)
 - **Auditor access:** IAM Viewer role (read-only, no deploy authority)
 - **Critical filters:** All errors, functions, permissions, hosting, timeouts (provided in CLOUD_LOGS_QUICK_REFERENCE.md)
@@ -219,26 +226,31 @@ C:\hc quality\docs\
 ## Next Steps (Action Items)
 
 **Week of 2026-05-07 (this week):**
+
 - [ ] **CTO:** Confirm Phase 4 kickoff date (May 20) + announce to team
 - [ ] **QA Lead:** Send alignment call invite (scope: auditor + QA Lead + CTO + Lab Director)
 - [ ] **QA Lead:** Prepare link to shared Google Drive folder (pending CTO approval)
 
 **Before alignment call (2026-05-13 or 2026-05-15, TBD):**
+
 - [ ] **CTO:** Set up GCP IAM for auditor (Viewer role on hmatologia2 project)
 - [ ] **QA Lead:** Create shared folder in Google Drive + add auditor with read-only access
 - [ ] **Lab Director:** Confirm attendance + provide contact info for auditor
 
 **During alignment call:**
+
 - [ ] **Follow AUDITOR_ALIGNMENT_CALL_AGENDA.md (120 min, Sections 1–6)**
 - [ ] **Record Zoom call (with auditor consent)**
 - [ ] **Collect signed alignment memo**
 
 **After alignment call (<24 hours):**
+
 - [ ] **QA Lead:** Send alignment summary email + action item list
 - [ ] **CTO:** Provide CAPA legacy data (12 Riopomba CAPAs)
 - [ ] **QA Lead:** Confirm Friday standing call schedule (May 15 or May 22 kickoff)
 
 **Before Phase 4 kickoff (May 20):**
+
 - [ ] **CTO:** Finalize CAPA Cloud Function specs (feedback from ADR-0022 review)
 - [ ] **QA Lead:** Prepare CAPA tracking dashboard UI (demo in Week 1 of Phase 4)
 - [ ] **Lab Director:** Collect CAPA evidence coordinator assignment
@@ -248,9 +260,9 @@ C:\hc quality\docs\
 ## Sign-Off
 
 **Prepared by:** Agent (Claude Code, Haiku 4.5)  
-**QA Lead review pending:** _______________  
-**CTO approval pending:** _______________  
-**Ready for distribution:** _______________  
+**QA Lead review pending:** ******\_\_\_******  
+**CTO approval pending:** ******\_\_\_******  
+**Ready for distribution:** ******\_\_\_******
 
 **Document prepared:** 2026-05-07T15:00:00Z  
 **Expected use:** Week of 2026-05-13 (auditor alignment call)  

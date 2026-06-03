@@ -39,10 +39,7 @@ export async function sha256(input: string): Promise<string> {
  * @param payload Dados a hashear
  * @returns Promise<SHA-256 de 64 caracteres hexadecimais>
  */
-export async function calculateChainHash(
-  prevChainHash: string,
-  payload: any
-): Promise<string> {
+export async function calculateChainHash(prevChainHash: string, payload: any): Promise<string> {
   const canonical = canonicalizePayload(payload);
   const combined = prevChainHash + canonical;
   return sha256(combined);

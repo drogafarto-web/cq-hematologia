@@ -45,13 +45,7 @@ interface FormState {
 }
 
 const DEFAULT_OPERATORS = ['op-001', 'op-002', 'op-003', 'op-004', 'op-005'];
-const DEFAULT_MODULES = [
-  'analyzer',
-  'coagulacao',
-  'ciq-imuno',
-  'insumos',
-  'controle-temperatura',
-];
+const DEFAULT_MODULES = ['analyzer', 'coagulacao', 'ciq-imuno', 'insumos', 'controle-temperatura'];
 
 export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderProps) {
   const contextLabId = useActiveLabId();
@@ -207,9 +201,7 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
           <React.Fragment key={s}>
             <div
               className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-colors ${
-                step >= s
-                  ? 'bg-violet-600 text-white'
-                  : 'bg-white/10 text-white/50'
+                step >= s ? 'bg-violet-600 text-white' : 'bg-white/10 text-white/50'
               }`}
             >
               {s}
@@ -412,9 +404,7 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
           {/* Validation Error */}
           {step === 2 && !isStep2Valid() && (
             <div className="rounded bg-red-600/20 border border-red-600/30 p-3 mt-4">
-              <p className="text-xs text-red-400">
-                Selecione ao menos uma opção de conteúdo
-              </p>
+              <p className="text-xs text-red-400">Selecione ao menos uma opção de conteúdo</p>
             </div>
           )}
         </fieldset>
@@ -467,7 +457,8 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
             <ul className="text-xs text-white/70 space-y-1">
               <li>• Período: {periodPreview()}</li>
               <li>
-                • Conteúdo: {[
+                • Conteúdo:{' '}
+                {[
                   formState.includeAnomalies && 'Anomalias',
                   formState.includeCompliance && 'Conformidade',
                 ]
@@ -477,9 +468,7 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
               {formState.operatorIds.length > 0 && (
                 <li>• Operadores: {formState.operatorIds.join(', ')}</li>
               )}
-              {formState.modules.length > 0 && (
-                <li>• Módulos: {formState.modules.join(', ')}</li>
-              )}
+              {formState.modules.length > 0 && <li>• Módulos: {formState.modules.join(', ')}</li>}
               <li>• Formato: {formState.format.toUpperCase()}</li>
             </ul>
           </div>
@@ -507,10 +496,7 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
         {step < 3 ? (
           <button
             onClick={handleNext}
-            disabled={
-              (step === 1 && !isStep1Valid()) ||
-              (step === 2 && !isStep2Valid())
-            }
+            disabled={(step === 1 && !isStep1Valid()) || (step === 2 && !isStep2Valid())}
             className="px-6 py-2 rounded-lg bg-violet-600 text-white text-sm hover:bg-violet-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors focus:outline-none focus:ring-2 focus:ring-violet-500"
             aria-label={`Avançar para o passo ${step + 1}`}
           >
@@ -529,9 +515,7 @@ export function ReportBuilder({ labId: propLabId, onComplete }: ReportBuilderPro
       </div>
 
       {/* Step Counter */}
-      <div className="text-xs text-white/50 text-center">
-        Passo {step} de 3
-      </div>
+      <div className="text-xs text-white/50 text-center">Passo {step} de 3</div>
     </div>
   );
 }

@@ -11,12 +11,13 @@ interface AuditorSelectorProps {
 }
 
 export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelectorProps) {
-  const { auditores, qualifiedAuditors, loading, getImpediment, getValidation } = useAuditorQualification(labId);
+  const { auditores, qualifiedAuditors, loading, getImpediment, getValidation } =
+    useAuditorQualification(labId);
   const [selected, setSelected] = useState<string[]>([]);
   const [liderId, setLiderId] = useState<string>('');
 
   const auditorList = useMemo(() => {
-    return auditores.map(a => ({
+    return auditores.map((a) => ({
       ...a,
       impediment: getImpediment(a.id, blocoAuditado),
       validation: getValidation(a.id),
@@ -24,9 +25,9 @@ export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelec
   }, [auditores, blocoAuditado, getImpediment, getValidation]);
 
   const handleToggle = (auditorId: string) => {
-    setSelected(prev => {
+    setSelected((prev) => {
       const next = prev.includes(auditorId)
-        ? prev.filter(id => id !== auditorId)
+        ? prev.filter((id) => id !== auditorId)
         : [...prev, auditorId];
       if (!next.includes(liderId)) setLiderId(next[0] || '');
       onSelect(next, next.includes(liderId) ? liderId : next[0] || '');
@@ -42,7 +43,7 @@ export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelec
   if (loading) {
     return (
       <div className="space-y-3">
-        {[1, 2, 3].map(i => (
+        {[1, 2, 3].map((i) => (
           <div key={i} className="animate-pulse h-16 bg-white/5 rounded-lg" />
         ))}
       </div>
@@ -78,8 +79,8 @@ export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelec
                 isBlocked
                   ? 'bg-white/3 border-white/5 opacity-60'
                   : isSelected
-                  ? 'bg-blue-500/10 border-blue-500/30'
-                  : 'bg-white/5 border-white/10 hover:border-white/20'
+                    ? 'bg-blue-500/10 border-blue-500/30'
+                    : 'bg-white/5 border-white/10 hover:border-white/20'
               }`}
             >
               <div className="flex items-center gap-3">
@@ -96,8 +97,18 @@ export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelec
                   aria-label={`Selecionar ${auditor.nome}`}
                 >
                   {isSelected && (
-                    <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    <svg
+                      className="w-3 h-3 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={3}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                   )}
                 </button>
@@ -105,7 +116,9 @@ export function AuditorSelector({ labId, blocoAuditado, onSelect }: AuditorSelec
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-white truncate">{auditor.nome}</p>
-                  <p className="text-xs text-white/50">{auditor.registroProfissional} · {auditor.totalAuditoriasRealizadas} auditorias</p>
+                  <p className="text-xs text-white/50">
+                    {auditor.registroProfissional} · {auditor.totalAuditoriasRealizadas} auditorias
+                  </p>
                 </div>
 
                 {/* Líder badge */}

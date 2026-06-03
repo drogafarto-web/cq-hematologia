@@ -65,10 +65,7 @@ function FilterSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <label
-        htmlFor={id}
-        className="text-xs text-white/40 whitespace-nowrap"
-      >
+      <label htmlFor={id} className="text-xs text-white/40 whitespace-nowrap">
         {label}
       </label>
       <div className="relative">

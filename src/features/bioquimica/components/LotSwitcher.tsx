@@ -100,7 +100,9 @@ export function LotSwitcher({ lotId, onClose, onSwitch }: LotSwitcherProps) {
 
           <div className="rounded-lg bg-blue-500/10 border border-blue-500/20 p-3.5">
             <p className="text-xs text-blue-300/80">
-              Trocar lote requer assinatura do operador. O novo lote será marcado como ativo para {targetLot.equipmentIds.length} equipamento{targetLot.equipmentIds.length !== 1 ? 's' : ''}.
+              Trocar lote requer assinatura do operador. O novo lote será marcado como ativo para{' '}
+              {targetLot.equipmentIds.length} equipamento
+              {targetLot.equipmentIds.length !== 1 ? 's' : ''}.
             </p>
           </div>
 

@@ -82,24 +82,24 @@ All scripts are located in `scripts/` and support both Bash (Linux/macOS) and Po
 
 #### Backup Management
 
-| Script | Platform | Purpose | Usage |
-|---|---|---|---|
-| `backup-full.sh` | Bash | On-demand full backup | `bash scripts/backup-full.sh [project]` |
-| `backup-status.sh` | Bash | Check current backup status | `bash scripts/backup-status.sh [project]` |
-| `backup-status.ps1` | PowerShell | Backup status (Windows) | `.\scripts\backup-status.ps1 -Project "hmatologia2"` |
-| `backup-test.sh` | Bash | Monthly restore validation test | `bash scripts/backup-test.sh` |
+| Script              | Platform   | Purpose                         | Usage                                                |
+| ------------------- | ---------- | ------------------------------- | ---------------------------------------------------- |
+| `backup-full.sh`    | Bash       | On-demand full backup           | `bash scripts/backup-full.sh [project]`              |
+| `backup-status.sh`  | Bash       | Check current backup status     | `bash scripts/backup-status.sh [project]`            |
+| `backup-status.ps1` | PowerShell | Backup status (Windows)         | `.\scripts\backup-status.ps1 -Project "hmatologia2"` |
+| `backup-test.sh`    | Bash       | Monthly restore validation test | `bash scripts/backup-test.sh`                        |
 
 #### Recovery Operations
 
-| Script | Platform | Purpose | Usage |
-|---|---|---|---|
-| `restore-pitr.sh` | Bash | Point-in-time recovery from GCP backup | `bash scripts/restore-pitr.sh <timestamp> [staging\|prod]` |
+| Script            | Platform | Purpose                                | Usage                                                      |
+| ----------------- | -------- | -------------------------------------- | ---------------------------------------------------------- |
+| `restore-pitr.sh` | Bash     | Point-in-time recovery from GCP backup | `bash scripts/restore-pitr.sh <timestamp> [staging\|prod]` |
 
 #### Validation
 
-| Script | Platform | Purpose | Usage |
-|---|---|---|---|
-| `verify-chain-hash.sh` | Bash | Chain-hash integrity verification | `bash scripts/verify-chain-hash.sh [project] [sample-size]` |
+| Script                 | Platform | Purpose                           | Usage                                                       |
+| ---------------------- | -------- | --------------------------------- | ----------------------------------------------------------- |
+| `verify-chain-hash.sh` | Bash     | Chain-hash integrity verification | `bash scripts/verify-chain-hash.sh [project] [sample-size]` |
 
 ---
 
@@ -128,30 +128,30 @@ All backups: 7-year retention + immutable GCS locks
 
 ## Key Metrics
 
-| Metric | Value | Compliance Target |
-|---|---|---|
-| **RPO** (Recovery Point Objective) | < 24 hours | RDC 978 Art. 115 ✓ |
-| **RTO** (Recovery Time Objective) | 2-4 hours | DICQ 4.2 ✓ |
-| **PITR Window** | 35 days | GCP managed ✓ |
-| **Backup Retention** | 7 years | Immutable locks ✓ |
-| **Daily Backup** | 00:00 UTC off-peak | Operational ✓ |
-| **Weekly Backup** | Sunday 02:00 UTC | Operational ✓ |
-| **Monthly Archive** | 1st day 03:00 UTC | Operational ✓ |
-| **Restore Test** | Monthly (1st Friday) | DICQ 4.2.3 ✓ |
-| **DR Drill** | Quarterly | DICQ 4.2.3 ✓ |
+| Metric                             | Value                | Compliance Target  |
+| ---------------------------------- | -------------------- | ------------------ |
+| **RPO** (Recovery Point Objective) | < 24 hours           | RDC 978 Art. 115 ✓ |
+| **RTO** (Recovery Time Objective)  | 2-4 hours            | DICQ 4.2 ✓         |
+| **PITR Window**                    | 35 days              | GCP managed ✓      |
+| **Backup Retention**               | 7 years              | Immutable locks ✓  |
+| **Daily Backup**                   | 00:00 UTC off-peak   | Operational ✓      |
+| **Weekly Backup**                  | Sunday 02:00 UTC     | Operational ✓      |
+| **Monthly Archive**                | 1st day 03:00 UTC    | Operational ✓      |
+| **Restore Test**                   | Monthly (1st Friday) | DICQ 4.2.3 ✓       |
+| **DR Drill**                       | Quarterly            | DICQ 4.2.3 ✓       |
 
 ---
 
 ## Compliance Status
 
-| Standard | Coverage | Evidence |
-|---|---|---|
-| **RDC 978 Art. 115** (Backup & Retenção) | ✓ Complete | BACKUP_DISASTER_RECOVERY_PLAN.md § 1-2 |
-| **RDC 978 Art. 119** (Audit Trail) | ✓ Immutable 5y | Audit collections (no soft-delete) |
-| **DICQ 4.2** (Gestão de Dados) | ✓ Complete | Procedures + testing schedule |
-| **DICQ 4.2.3** (Testing) | ✓ Monthly + Quarterly | BACKUP_OPERATIONAL_CHECKLIST.md |
-| **LGPD Art. 12** (Data Subject Rights) | ✓ Export + soft-delete | Service layer + 6mo grace |
-| **ISO 15189** (Clinical Lab) | ✓ 5-year retention | Laudo collection retention |
+| Standard                                 | Coverage               | Evidence                               |
+| ---------------------------------------- | ---------------------- | -------------------------------------- |
+| **RDC 978 Art. 115** (Backup & Retenção) | ✓ Complete             | BACKUP_DISASTER_RECOVERY_PLAN.md § 1-2 |
+| **RDC 978 Art. 119** (Audit Trail)       | ✓ Immutable 5y         | Audit collections (no soft-delete)     |
+| **DICQ 4.2** (Gestão de Dados)           | ✓ Complete             | Procedures + testing schedule          |
+| **DICQ 4.2.3** (Testing)                 | ✓ Monthly + Quarterly  | BACKUP_OPERATIONAL_CHECKLIST.md        |
+| **LGPD Art. 12** (Data Subject Rights)   | ✓ Export + soft-delete | Service layer + 6mo grace              |
+| **ISO 15189** (Clinical Lab)             | ✓ 5-year retention     | Laudo collection retention             |
 
 ---
 
@@ -209,6 +209,7 @@ bash scripts/verify-chain-hash.sh hmatologia2-staging 100
 ## Deployment Checklist (Phase 3)
 
 - [ ] **GCS Setup** (run once)
+
   ```bash
   gsutil mb -p hmatologia2 -l southamerica-east1 gs://hc-quality-backups/
   gsutil retention set 2557d gs://hc-quality-backups/
@@ -228,6 +229,7 @@ bash scripts/verify-chain-hash.sh hmatologia2-staging 100
   - Create job `backup-monthly` (03:00 UTC 1st)
 
 - [ ] **Validation** (post-deploy)
+
   ```bash
   bash scripts/backup-status.sh hmatologia2
   bash scripts/backup-test.sh
@@ -242,24 +244,24 @@ bash scripts/verify-chain-hash.sh hmatologia2-staging 100
 
 ## Testing Schedule
 
-| Frequency | Owner | Duration | Next Date |
-|---|---|---|---|
-| **Daily** | DevOps | 5 min | Every day 00:15 UTC |
-| **Weekly** | Tech Lead | 30 min | Every Sunday 02:30 UTC |
-| **Monthly** (Restore Test) | Tech Lead | 2 hours | 2026-06-07 (1st Friday) |
-| **Quarterly** (DR Drill) | CTO | 4 hours | 2026-06-01 |
-| **Annual** (Compliance Audit) | Security | 1 day | 2027-05-07 |
+| Frequency                     | Owner     | Duration | Next Date               |
+| ----------------------------- | --------- | -------- | ----------------------- |
+| **Daily**                     | DevOps    | 5 min    | Every day 00:15 UTC     |
+| **Weekly**                    | Tech Lead | 30 min   | Every Sunday 02:30 UTC  |
+| **Monthly** (Restore Test)    | Tech Lead | 2 hours  | 2026-06-07 (1st Friday) |
+| **Quarterly** (DR Drill)      | CTO       | 4 hours  | 2026-06-01              |
+| **Annual** (Compliance Audit) | Security  | 1 day    | 2027-05-07              |
 
 ---
 
 ## Contact Information
 
-| Role | On-Call | Email | Slack |
-|---|---|---|---|
-| **CTO** | 24/7 | — | @cto |
-| **Tech Lead** | Business hours + on-call | — | @tech-lead |
-| **DevOps** | 24/7 | — | @devops |
-| **Security Officer** | On-demand | — | @security |
+| Role                 | On-Call                  | Email | Slack      |
+| -------------------- | ------------------------ | ----- | ---------- |
+| **CTO**              | 24/7                     | —     | @cto       |
+| **Tech Lead**        | Business hours + on-call | —     | @tech-lead |
+| **DevOps**           | 24/7                     | —     | @devops    |
+| **Security Officer** | On-demand                | —     | @security  |
 
 **Escalation:** Tech Lead → CTO → Security Officer → GCP Support
 
@@ -267,12 +269,12 @@ bash scripts/verify-chain-hash.sh hmatologia2-staging 100
 
 ## Incident Response Quick Reference
 
-| Scenario | RTO | Runbook | Action |
-|---|---|---|---|
-| **Data Corruption** | 2h | DR_PLAN.md Scenario 1 | Restore from daily backup |
-| **Region Outage** | 4h | DR_PLAN.md Scenario 2 | Failover to secondary region |
-| **Compromised Creds** | 1h | DR_PLAN.md Scenario 3 | Rotate key + check audit |
-| **Ransomware** | 24h | DR_PLAN.md Scenario 4 | Isolate → forensics → restore |
+| Scenario              | RTO | Runbook               | Action                        |
+| --------------------- | --- | --------------------- | ----------------------------- |
+| **Data Corruption**   | 2h  | DR_PLAN.md Scenario 1 | Restore from daily backup     |
+| **Region Outage**     | 4h  | DR_PLAN.md Scenario 2 | Failover to secondary region  |
+| **Compromised Creds** | 1h  | DR_PLAN.md Scenario 3 | Rotate key + check audit      |
+| **Ransomware**        | 24h | DR_PLAN.md Scenario 4 | Isolate → forensics → restore |
 
 ---
 
@@ -303,17 +305,20 @@ hc quality/
 ## Support & Questions
 
 For operational issues:
+
 1. Check `BACKUP_OPERATIONAL_CHECKLIST.md` § Incident Response
 2. Review relevant runbook in `DR_RUNBOOKS.md`
 3. Run `bash scripts/backup-status.sh` to diagnose
 4. Escalate to on-call Tech Lead if needed
 
 For planning/compliance:
+
 1. See `BACKUP_SUMMARY_FOR_PHASE_3.md` § Compliance Mapping
 2. Review `BACKUP_DISASTER_RECOVERY_PLAN.md` § 1-2 (Retention & Strategy)
 3. Contact CTO for approvals
 
 For implementation:
+
 1. See `BACKUP_DISASTER_RECOVERY_PLAN.md` § 3 (Implementation)
 2. See `BACKUP_SUMMARY_FOR_PHASE_3.md` § Phase 3 Integration
 3. Contact DevOps for setup

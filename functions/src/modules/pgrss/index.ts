@@ -1,1 +1,6 @@
-export { registrarGeracao, registrarColeta, validarSegregacao, gerarRelatorioMensal } from './pgrss';
+export {
+  registrarGeracao,
+  registrarColeta,
+  validarSegregacao,
+  gerarRelatorioMensal,
+} from './pgrss';

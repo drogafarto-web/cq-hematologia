@@ -13,9 +13,7 @@ export interface CompetenciasExecucaoPanelProps {
   onClose: () => void;
 }
 
-type Step =
-  | { mode: 'list' }
-  | { mode: 'form'; colaboradorId: string };
+type Step = { mode: 'list' } | { mode: 'form'; colaboradorId: string };
 
 /**
  * Painel de avaliação de competências individuais (ISO 15189:2022 cl. 6.2.4)
@@ -27,10 +25,7 @@ type Step =
  * Cada submissão é um commit atomic independente (o hook `registrar` já cobre
  * isso). Fechar o painel no meio não deixa estado parcial inconsistente.
  */
-export function CompetenciasExecucaoPanel({
-  execucao,
-  onClose,
-}: CompetenciasExecucaoPanelProps) {
+export function CompetenciasExecucaoPanel({ execucao, onClose }: CompetenciasExecucaoPanelProps) {
   const [step, setStep] = useState<Step>({ mode: 'list' });
 
   const { participantes, isLoading: loadingP } = useParticipantes({
@@ -45,10 +40,7 @@ export function CompetenciasExecucaoPanel({
     return t?.titulo ?? 'Treinamento removido';
   }, [treinamentos, execucao.treinamentoId]);
 
-  const presentes = useMemo(
-    () => participantes.filter((p) => p.presente),
-    [participantes],
-  );
+  const presentes = useMemo(() => participantes.filter((p) => p.presente), [participantes]);
 
   const colabMap = useMemo(() => {
     const m = new Map<string, Colaborador>();
@@ -107,10 +99,7 @@ export function CompetenciasExecucaoPanel({
             const colab = colabMap.get(p.colaboradorId);
             const avaliado = avaliadosSet.has(p.colaboradorId);
             return (
-              <li
-                key={p.id}
-                className="flex items-center justify-between gap-3 px-4 py-3"
-              >
+              <li key={p.id} className="flex items-center justify-between gap-3 px-4 py-3">
                 <div className="flex min-w-0 flex-col">
                   <span className="truncate text-sm font-medium text-slate-100">
                     {colab?.nome ?? 'Colaborador removido'}
@@ -166,7 +155,10 @@ function SkeletonList({ rows }: { rows: number }) {
   return (
     <div className="flex flex-col gap-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+        <div
+          key={i}
+          className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40"
+        />
       ))}
     </div>
   );

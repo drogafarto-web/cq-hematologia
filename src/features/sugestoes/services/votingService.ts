@@ -67,15 +67,7 @@ export function subscribeSugestoesRanked(
     const votes = await Promise.all(
       baseRows.map(async (row) => {
         try {
-          const voteRef = doc(
-            db,
-            'labs',
-            labId,
-            'sugestoes',
-            row.id,
-            'votes',
-            uid,
-          );
+          const voteRef = doc(db, 'labs', labId, 'sugestoes', row.id, 'votes', uid);
           const voteSnap = await getDoc(voteRef);
           if (!voteSnap.exists()) return 'cleared' as VoteDirection;
           const v = voteSnap.data() as DocumentData;

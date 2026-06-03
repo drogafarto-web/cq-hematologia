@@ -42,7 +42,10 @@ export async function debugFirestoreConnection(
     return report;
   } catch (e: unknown) {
     const code =
-      typeof e === 'object' && e !== null && 'code' in e && typeof (e as { code: string }).code === 'string'
+      typeof e === 'object' &&
+      e !== null &&
+      'code' in e &&
+      typeof (e as { code: string }).code === 'string'
         ? (e as { code: string }).code
         : 'unknown';
     const report: DebugFirestoreConnectionReport = {

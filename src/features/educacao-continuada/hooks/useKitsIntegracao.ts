@@ -25,9 +25,7 @@ export interface UseKitsIntegracaoResult {
  * Hook de kits de integração — sequências ordenadas de templates por cargo
  * (ex: "Kit Biomédico Júnior"). Fase 6.
  */
-export function useKitsIntegracao(
-  options: SubscribeKitsOptions = {},
-): UseKitsIntegracaoResult {
+export function useKitsIntegracao(options: SubscribeKitsOptions = {}): UseKitsIntegracaoResult {
   const labId = useActiveLabId();
   const { includeDeleted = false, somenteAtivos = false } = options;
 

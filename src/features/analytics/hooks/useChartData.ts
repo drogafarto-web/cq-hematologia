@@ -70,8 +70,7 @@ export function useChartData() {
       for (const bucket of AGE_BUCKETS) {
         // Distribute module NC count proportionally across age buckets
         // (In a real system, per-module age data would come from aggregate)
-        const bucketRatio = aggregate.ncAgeBuckets[bucket] /
-          Math.max(1, aggregate.openNCs);
+        const bucketRatio = aggregate.ncAgeBuckets[bucket] / Math.max(1, aggregate.openNCs);
         cells.push({
           moduleSlug: slug,
           moduleLabel: formatModuleLabel(slug),

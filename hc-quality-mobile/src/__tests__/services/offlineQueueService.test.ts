@@ -22,42 +22,34 @@ beforeEach(() => {
   // Reset mock storage
   Object.keys(mockStorage).forEach((k) => delete mockStorage[k]);
 
-  (AsyncStorage.getItem as jest.Mock).mockImplementation(
-    (key: string) => Promise.resolve(mockStorage[key] ?? null)
+  (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) =>
+    Promise.resolve(mockStorage[key] ?? null),
   );
 
-  (AsyncStorage.setItem as jest.Mock).mockImplementation(
-    (key: string, value: string) => {
-      mockStorage[key] = value;
-      return Promise.resolve();
-    }
-  );
+  (AsyncStorage.setItem as jest.Mock).mockImplementation((key: string, value: string) => {
+    mockStorage[key] = value;
+    return Promise.resolve();
+  });
 
-  (AsyncStorage.removeItem as jest.Mock).mockImplementation(
-    (key: string) => {
-      delete mockStorage[key];
-      return Promise.resolve();
-    }
-  );
+  (AsyncStorage.removeItem as jest.Mock).mockImplementation((key: string) => {
+    delete mockStorage[key];
+    return Promise.resolve();
+  });
 
   jest.clearAllMocks();
 
   // Re-bind mocks after clearAllMocks
-  (AsyncStorage.getItem as jest.Mock).mockImplementation(
-    (key: string) => Promise.resolve(mockStorage[key] ?? null)
+  (AsyncStorage.getItem as jest.Mock).mockImplementation((key: string) =>
+    Promise.resolve(mockStorage[key] ?? null),
   );
-  (AsyncStorage.setItem as jest.Mock).mockImplementation(
-    (key: string, value: string) => {
-      mockStorage[key] = value;
-      return Promise.resolve();
-    }
-  );
-  (AsyncStorage.removeItem as jest.Mock).mockImplementation(
-    (key: string) => {
-      delete mockStorage[key];
-      return Promise.resolve();
-    }
-  );
+  (AsyncStorage.setItem as jest.Mock).mockImplementation((key: string, value: string) => {
+    mockStorage[key] = value;
+    return Promise.resolve();
+  });
+  (AsyncStorage.removeItem as jest.Mock).mockImplementation((key: string) => {
+    delete mockStorage[key];
+    return Promise.resolve();
+  });
 });
 
 describe('offlineQueueService — enqueueAction', () => {

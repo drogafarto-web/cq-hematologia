@@ -2,10 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { subscribePresenca } from '../services/turnosService';
-import {
-  callSupervisorCheckin,
-  callSupervisorCheckout,
-} from '../services/turnosCallables';
+import { callSupervisorCheckin, callSupervisorCheckout } from '../services/turnosCallables';
 import type { Turno, TurnoPresenca } from '../types/Turno';
 
 export interface UseSupervisorPresencaResult {
@@ -31,7 +28,9 @@ export interface UseSupervisorPresencaResult {
  *   - exposes `checkIn` / `checkOut` mutations that call the corresponding callables
  *   - derives ergonomic flags for UI gating
  */
-export function useSupervisorPresenca(turno: Turno | null | undefined): UseSupervisorPresencaResult {
+export function useSupervisorPresenca(
+  turno: Turno | null | undefined,
+): UseSupervisorPresencaResult {
   const labId = useActiveLabId();
   const user = useUser();
 
@@ -69,14 +68,10 @@ export function useSupervisorPresenca(turno: Turno | null | undefined): UseSuper
 
   const callerUid = user?.uid ?? null;
 
-  const isDesignatedSupervisor = Boolean(
-    callerUid && turno && turno.supervisorId === callerUid,
-  );
+  const isDesignatedSupervisor = Boolean(callerUid && turno && turno.supervisorId === callerUid);
 
   const isCheckedIn = Boolean(
-    presenca?.status === 'active' &&
-      callerUid &&
-      presenca?.supervisorAtivo?.uid === callerUid,
+    presenca?.status === 'active' && callerUid && presenca?.supervisorAtivo?.uid === callerUid,
   );
 
   const checkIn = useCallback(async () => {

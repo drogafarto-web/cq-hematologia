@@ -23,16 +23,28 @@ mockOnSnapshot.mockImplementation((q: unknown, onNext: (s: any) => void) => {
 });
 
 jest.mock('firebase/firestore', () => ({
-  collection: (...args: any[]) => { mockCollection(...args); return {}; },
-  query: (...args: any[]) => { mockQuery(...args); return {}; },
-  where: (...args: any[]) => { mockWhere(...args); return {}; },
-  orderBy: (...args: any[]) => { mockOrderBy(...args); return {}; },
+  collection: (...args: any[]) => {
+    mockCollection(...args);
+    return {};
+  },
+  query: (...args: any[]) => {
+    mockQuery(...args);
+    return {};
+  },
+  where: (...args: any[]) => {
+    mockWhere(...args);
+    return {};
+  },
+  orderBy: (...args: any[]) => {
+    mockOrderBy(...args);
+    return {};
+  },
   onSnapshot: (q: any, onNext: any) => mockOnSnapshot(q, onNext),
 }));
 
 jest.mock('../../store/useAuthStore', () => ({
   useAuthStore: jest.fn((selector: (s: any) => any) =>
-    selector({ user: null, activeLabId: 'lab-test', loading: false })
+    selector({ user: null, activeLabId: 'lab-test', loading: false }),
   ),
 }));
 

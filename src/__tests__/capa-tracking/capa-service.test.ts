@@ -72,15 +72,13 @@ describe('CAPA Service', () => {
       vi.mocked(getDoc).mockResolvedValue(mockSnap as any);
 
       // Import and test — this is a module-level import
-      const capaService = await import(
-        '../../features/capa-tracking/services/capaService'
-      ).then((m) => m.default || m.getCapaById);
+      const capaService = await import('../../features/capa-tracking/services/capaService').then(
+        (m) => m.default || m.getCapaById,
+      );
 
       // Since we can't easily call the service due to the module structure,
       // we'll test the helper function directly
-      const { daysRemaining } = await import(
-        '../../features/capa-tracking/types'
-      );
+      const { daysRemaining } = await import('../../features/capa-tracking/types');
 
       const days = daysRemaining(deadline);
       expect(days).toBeGreaterThanOrEqual(9);
@@ -339,9 +337,7 @@ describe('CAPA Service', () => {
       ];
 
       // Sort by deadline ascending
-      const sorted = [...capas].sort(
-        (a, b) => a.deadlineDate - b.deadlineDate,
-      );
+      const sorted = [...capas].sort((a, b) => a.deadlineDate - b.deadlineDate);
       expect(sorted[0].daysRemaining).toBeLessThan(sorted[1].daysRemaining);
     });
   });
@@ -491,9 +487,7 @@ describe('CAPA Service', () => {
       const now = Date.now();
       const deadline = now + 10 * 24 * 60 * 60 * 1000; // 10 days
 
-      const { daysRemaining } = await import(
-        '../../features/capa-tracking/types'
-      );
+      const { daysRemaining } = await import('../../features/capa-tracking/types');
 
       // First calculation
       const days1 = daysRemaining(deadline);

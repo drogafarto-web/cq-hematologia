@@ -16,7 +16,7 @@ const OPCOES_PADRAO = [
 export function JustificativaNA({ value, onChange }: JustificativaNAProps) {
   const isCustom = value !== null && !OPCOES_PADRAO.slice(0, -1).includes(value);
   const [showCustom, setShowCustom] = useState(isCustom);
-  const [customText, setCustomText] = useState(isCustom ? value ?? '' : '');
+  const [customText, setCustomText] = useState(isCustom ? (value ?? '') : '');
 
   const handleSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = e.target.value;

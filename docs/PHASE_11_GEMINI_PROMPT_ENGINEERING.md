@@ -33,9 +33,9 @@ All prompts follow the same 5-section pattern for consistency and A/B testing cl
 ### 1.2 System Context (Identical Across All Kits)
 
 ```
-You are a clinical diagnostics expert analyzing rapid diagnostic test (RDT) 
-images for quality assurance purposes. Your role is to classify test results 
-with high accuracy and confidence, supporting laboratory internal quality 
+You are a clinical diagnostics expert analyzing rapid diagnostic test (RDT)
+images for quality assurance purposes. Your role is to classify test results
+with high accuracy and confidence, supporting laboratory internal quality
 control (CIQ) workflows.
 
 Classification categories:
@@ -52,6 +52,7 @@ You are optimized for:
 ```
 
 **Why this works**:
+
 - Positions Gemini as an expert, not a generic classifier
 - Defines the 4-class system explicitly (INDETERMINATE replaces vague "unclear")
 - Prioritizes sensitivity for clinical safety
@@ -150,11 +151,11 @@ OUTPUT (JSON): [same schema as Variant A]
 
 #### A/B Testing Plan (HIV)
 
-| Variant | Focus | Expected accuracy | Confidence distribution |
-|---------|-------|-------------------|------------------------|
-| A | Descriptive, natural language decision | 83–86% | Modal 0.78–0.92 |
-| B | Structured checklist + decision tree | 84–87% | Modal 0.82–0.94 |
-| C | Comparative intensity assessment | 82–85% | Modal 0.75–0.90 |
+| Variant | Focus                                  | Expected accuracy | Confidence distribution |
+| ------- | -------------------------------------- | ----------------- | ----------------------- |
+| A       | Descriptive, natural language decision | 83–86%            | Modal 0.78–0.92         |
+| B       | Structured checklist + decision tree   | 84–87%            | Modal 0.82–0.94         |
+| C       | Comparative intensity assessment       | 82–85%            | Modal 0.75–0.90         |
 
 **Winner selection criterion**: Variant with highest sensitivity (true positive rate) on Phase 11 dataset, secondary: highest specificity on negatives.
 
@@ -245,8 +246,8 @@ CLASSIFICATION:
 3. INVALID: No control line → test invalid
 4. INDETERMINATE: Test line very faint but control clear → recommend confirmatory test
 
-CLINICAL NOTE: Syphilis tests often have high specificity (few false positives) 
-but moderate sensitivity. Faint lines should be treated as INDETERMINATE 
+CLINICAL NOTE: Syphilis tests often have high specificity (few false positives)
+but moderate sensitivity. Faint lines should be treated as INDETERMINATE
 and referred for confirmatory test (FTA-ABS, TP-PA).
 
 OUTPUT (JSON):
@@ -285,7 +286,7 @@ CLASSIFICATION:
 3. INVALID: No control line → test unreliable
 4. INDETERMINATE: Test line faint but control clear → likely positive but low viral load
 
-CLINICAL CONTEXT: 
+CLINICAL CONTEXT:
 - Antigen tests are rapid but less sensitive than RT-PCR
 - Faint line = low viral load = still potentially infectious
 - Negative test with symptoms = consider RT-PCR
@@ -359,15 +360,16 @@ CONFIDENCE CALIBRATION:
 
 ### 3.1 Global Threshold Recommendations
 
-| Confidence Range | Action | Rationale |
-|------------------|--------|-----------|
-| ≥0.90 | CLASSIFY automatically | High confidence, minimal review |
-| 0.80–0.89 | CLASSIFY + flag for 10% audit | Good confidence, sample-audit for QC |
-| 0.70–0.79 | CLASSIFY + mandatory operator review | Borderline, requires human confirmation |
-| 0.60–0.69 | INDETERMINATE (if not already) + repeat test | Low confidence; repeat advised |
-| <0.60 | REJECT + repeat test | Too ambiguous; do not report |
+| Confidence Range | Action                                       | Rationale                               |
+| ---------------- | -------------------------------------------- | --------------------------------------- |
+| ≥0.90            | CLASSIFY automatically                       | High confidence, minimal review         |
+| 0.80–0.89        | CLASSIFY + flag for 10% audit                | Good confidence, sample-audit for QC    |
+| 0.70–0.79        | CLASSIFY + mandatory operator review         | Borderline, requires human confirmation |
+| 0.60–0.69        | INDETERMINATE (if not already) + repeat test | Low confidence; repeat advised          |
+| <0.60            | REJECT + repeat test                         | Too ambiguous; do not report            |
 
 **Recommended operating threshold**: **0.85**
+
 - Gives 90–99% accuracy on validation set (Phase 11 baseline)
 - Aligns with clinical lab QC standards
 - Minimizes false negatives (sensitivity >92%)
@@ -375,13 +377,13 @@ CONFIDENCE CALIBRATION:
 
 ### 3.2 Per-Kit Thresholds (Initial)
 
-| Kit | Recommended threshold | Expected accuracy | Notes |
-|-----|----------------------|-------------------|-------|
-| HIV | 0.85 | 87–88% | High sensitivity essential; faint lines = INDETERMINATE |
-| Dengue | 0.85 | 85–86% | IgM/IgG dual line makes it trickier |
-| Syphilis | 0.88 | 86–87% | High specificity; fewer false positives |
-| COVID | 0.83 | 84–85% | Viral load impacts line intensity; lower threshold |
-| HCG | 0.86 | 87–88% | Intensity = HCG level; faint = early pregnancy |
+| Kit      | Recommended threshold | Expected accuracy | Notes                                                   |
+| -------- | --------------------- | ----------------- | ------------------------------------------------------- |
+| HIV      | 0.85                  | 87–88%            | High sensitivity essential; faint lines = INDETERMINATE |
+| Dengue   | 0.85                  | 85–86%            | IgM/IgG dual line makes it trickier                     |
+| Syphilis | 0.88                  | 86–87%            | High specificity; fewer false positives                 |
+| COVID    | 0.83                  | 84–85%            | Viral load impacts line intensity; lower threshold      |
+| HCG      | 0.86                  | 87–88%            | Intensity = HCG level; faint = early pregnancy          |
 
 **Rationale**: Syphilis threshold higher (fewer equivocal cases); COVID lower (viral load confounds intensity).
 
@@ -420,7 +422,7 @@ CONFIDENCE CALIBRATION:
 ```json
 {
   "result": "INVALID",
-  "confidence": 0.10,
+  "confidence": 0.1,
   "reasoning": "Test strip cropped; control line not fully visible",
   "qualityIssues": ["cropped", "incomplete_strip"],
   "recommendedAction": "REJECT — entire strip must be in frame"
@@ -473,27 +475,27 @@ Add client-side validation before sending to Gemini to reduce API calls:
 
 ```typescript
 interface ImageValidationResult {
-  isValid: boolean
-  errors: string[]
+  isValid: boolean;
+  errors: string[];
 }
 
 function validateImageBeforeGemini(image: File | Blob): ImageValidationResult {
-  const errors: string[] = []
-  
+  const errors: string[] = [];
+
   // File size check
-  if (image.size > 2_000_000) errors.push("Image exceeds 2MB")
-  if (image.size < 10_000) errors.push("Image too small (<10KB)")
-  
+  if (image.size > 2_000_000) errors.push('Image exceeds 2MB');
+  if (image.size < 10_000) errors.push('Image too small (<10KB)');
+
   // MIME type check
-  if (image.type !== 'image/jpeg') errors.push("Only JPEG images accepted")
-  
+  if (image.type !== 'image/jpeg') errors.push('Only JPEG images accepted');
+
   // Dimension check (via FileReader on client)
   // This requires image metadata parsing — skip for now, catch in Gemini response
-  
+
   return {
     isValid: errors.length === 0,
-    errors
-  }
+    errors,
+  };
 }
 ```
 
@@ -504,36 +506,42 @@ function validateImageBeforeGemini(image: File | Blob): ImageValidationResult {
 ### 5.1 Zod Schema
 
 ```typescript
-import { z } from 'zod'
+import { z } from 'zod';
 
-export const GeminiRDTResponseSchema = z.object({
-  result: z.enum(['POSITIVE', 'NEGATIVE', 'INVALID', 'INDETERMINATE']),
-  confidence: z.number().min(0).max(1),
-  
-  reasoning: z.string().max(500),
-  
-  bandVisibility: z.object({
-    controlLine: z.enum(['clear', 'faint', 'absent']),
-    testLine: z.enum(['clear', 'faint', 'absent', 'ambiguous']).optional(),
-  }).optional(),
-  
-  detailedResult: z.object({
-    isMLine: z.enum(['absent', 'faint', 'clear']).optional(),
-    isGLine: z.enum(['absent', 'faint', 'clear']).optional(),
-    controlLine: z.enum(['absent', 'faint', 'clear']),
-  }).optional(),
-  
-  viralLoad: z.enum(['high', 'moderate', 'absent', 'indeterminate']).optional(),
-  estimatedHCGLevel: z.enum(['high', 'moderate', 'low', 'absent']).optional(),
-  
-  clinicalInterpretation: z.string().max(200).optional(),
-  clinicalRecommendation: z.string().max(300).optional(),
-  
-  qualityIssues: z.array(z.string()).optional(),
-  recommendedAction: z.enum(['CLASSIFY', 'REPEAT', 'REJECT']),
-}).strict()
+export const GeminiRDTResponseSchema = z
+  .object({
+    result: z.enum(['POSITIVE', 'NEGATIVE', 'INVALID', 'INDETERMINATE']),
+    confidence: z.number().min(0).max(1),
 
-export type GeminiRDTResponse = z.infer<typeof GeminiRDTResponseSchema>
+    reasoning: z.string().max(500),
+
+    bandVisibility: z
+      .object({
+        controlLine: z.enum(['clear', 'faint', 'absent']),
+        testLine: z.enum(['clear', 'faint', 'absent', 'ambiguous']).optional(),
+      })
+      .optional(),
+
+    detailedResult: z
+      .object({
+        isMLine: z.enum(['absent', 'faint', 'clear']).optional(),
+        isGLine: z.enum(['absent', 'faint', 'clear']).optional(),
+        controlLine: z.enum(['absent', 'faint', 'clear']),
+      })
+      .optional(),
+
+    viralLoad: z.enum(['high', 'moderate', 'absent', 'indeterminate']).optional(),
+    estimatedHCGLevel: z.enum(['high', 'moderate', 'low', 'absent']).optional(),
+
+    clinicalInterpretation: z.string().max(200).optional(),
+    clinicalRecommendation: z.string().max(300).optional(),
+
+    qualityIssues: z.array(z.string()).optional(),
+    recommendedAction: z.enum(['CLASSIFY', 'REPEAT', 'REJECT']),
+  })
+  .strict();
+
+export type GeminiRDTResponse = z.infer<typeof GeminiRDTResponseSchema>;
 ```
 
 ### 5.2 Response Validation in Callable
@@ -542,15 +550,15 @@ export type GeminiRDTResponse = z.infer<typeof GeminiRDTResponseSchema>
 export const analyzeLapisWithGemini = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
-    const { imageUrl, testKitType } = data
-    
+    const { imageUrl, testKitType } = data;
+
     // Call Gemini with prompt (variant TBD from A/B test results)
-    const geminiRaw = await callGeminiVisionAPI(imageUrl, testKitType)
-    
+    const geminiRaw = await callGeminiVisionAPI(imageUrl, testKitType);
+
     // Parse response
-    let parsed: GeminiRDTResponse
+    let parsed: GeminiRDTResponse;
     try {
-      parsed = GeminiRDTResponseSchema.parse(JSON.parse(geminiRaw))
+      parsed = GeminiRDTResponseSchema.parse(JSON.parse(geminiRaw));
     } catch (e) {
       return {
         result: 'INVALID',
@@ -558,20 +566,20 @@ export const analyzeLapisWithGemini = functions
         reasoning: 'Gemini response parsing failed; malformed JSON or schema mismatch',
         qualityIssues: ['gemini_response_error'],
         recommendedAction: 'REJECT',
-      }
+      };
     }
-    
+
     // Confidence threshold check
     if (parsed.confidence < OPERATING_THRESHOLD) {
       return {
         ...parsed,
         result: parsed.result === 'INVALID' ? 'INVALID' : 'INDETERMINATE',
         recommendedAction: 'REPEAT',
-      }
+      };
     }
-    
-    return parsed
-  })
+
+    return parsed;
+  });
 ```
 
 ---
@@ -584,22 +592,22 @@ For each kit, deploy 3 variants to a subset of labs (25% of traffic) and track:
 
 ```typescript
 interface ABTestConfig {
-  kitType: 'hiv' | 'dengue' | 'syphilis' | 'covid' | 'hcg'
+  kitType: 'hiv' | 'dengue' | 'syphilis' | 'covid' | 'hcg';
   variants: {
-    variantId: 'A' | 'B' | 'C'
-    prompt: string
-    rolloutPercentage: 25  // 25% of requests
-  }[]
+    variantId: 'A' | 'B' | 'C';
+    prompt: string;
+    rolloutPercentage: 25; // 25% of requests
+  }[];
   metrics: {
-    accuracy: number       // vs manual RT classification
-    sensitivity: number    // true positive rate
-    specificity: number    // true negative rate
-    avgConfidence: number
-    falsePositiveRate: number
-    falseNegativeRate: number
-  }
-  sampleSize: number       // min 100 images per variant
-  durationDays: number     // 7–10 days
+    accuracy: number; // vs manual RT classification
+    sensitivity: number; // true positive rate
+    specificity: number; // true negative rate
+    avgConfidence: number;
+    falsePositiveRate: number;
+    falseNegativeRate: number;
+  };
+  sampleSize: number; // min 100 images per variant
+  durationDays: number; // 7–10 days
 }
 ```
 
@@ -608,43 +616,37 @@ interface ABTestConfig {
 ```typescript
 function calculateAccuracy(
   predictions: GeminiRDTResponse[],
-  manualLabels: ('POSITIVE' | 'NEGATIVE' | 'INVALID' | 'INDETERMINATE')[]
+  manualLabels: ('POSITIVE' | 'NEGATIVE' | 'INVALID' | 'INDETERMINATE')[],
 ): number {
-  const correct = predictions.filter((p, i) => p.result === manualLabels[i]).length
-  return correct / predictions.length
+  const correct = predictions.filter((p, i) => p.result === manualLabels[i]).length;
+  return correct / predictions.length;
 }
 
-function calculateSensitivity(
-  predictions: GeminiRDTResponse[],
-  manualLabels: string[]
-): number {
+function calculateSensitivity(predictions: GeminiRDTResponse[], manualLabels: string[]): number {
   const truePositives = predictions.filter(
-    (p, i) => p.result === 'POSITIVE' && manualLabels[i] === 'POSITIVE'
-  ).length
-  const actualPositives = manualLabels.filter(l => l === 'POSITIVE').length
-  return truePositives / actualPositives
+    (p, i) => p.result === 'POSITIVE' && manualLabels[i] === 'POSITIVE',
+  ).length;
+  const actualPositives = manualLabels.filter((l) => l === 'POSITIVE').length;
+  return truePositives / actualPositives;
 }
 
-function calculateSpecificity(
-  predictions: GeminiRDTResponse[],
-  manualLabels: string[]
-): number {
+function calculateSpecificity(predictions: GeminiRDTResponse[], manualLabels: string[]): number {
   const trueNegatives = predictions.filter(
-    (p, i) => p.result === 'NEGATIVE' && manualLabels[i] === 'NEGATIVE'
-  ).length
-  const actualNegatives = manualLabels.filter(l => l === 'NEGATIVE').length
-  return trueNegatives / actualNegatives
+    (p, i) => p.result === 'NEGATIVE' && manualLabels[i] === 'NEGATIVE',
+  ).length;
+  const actualNegatives = manualLabels.filter((l) => l === 'NEGATIVE').length;
+  return trueNegatives / actualNegatives;
 }
 ```
 
 ### 6.3 Winner Selection Criteria
 
-| Priority | Criterion | Weight |
-|----------|-----------|--------|
-| 1 | Sensitivity (minimize false negatives) | 40% |
-| 2 | Accuracy (overall correctness) | 30% |
-| 3 | Specificity (minimize false positives) | 20% |
-| 4 | Avg confidence (calibration) | 10% |
+| Priority | Criterion                              | Weight |
+| -------- | -------------------------------------- | ------ |
+| 1        | Sensitivity (minimize false negatives) | 40%    |
+| 2        | Accuracy (overall correctness)         | 30%    |
+| 3        | Specificity (minimize false positives) | 20%    |
+| 4        | Avg confidence (calibration)           | 10%    |
 
 **Winning variant** = highest weighted score. In case of tie, choose the variant with lowest implementation complexity.
 
@@ -657,6 +659,7 @@ function calculateSpecificity(
 For each kit, plot a histogram of Gemini confidence scores:
 
 **HIV (Variant A expectation)**:
+
 ```
 Confidence | Count | Percentage
 0.90–1.00  |  45   | 45% (clear positives & negatives)
@@ -667,6 +670,7 @@ Confidence | Count | Percentage
 ```
 
 **COVID (lower threshold kit)**:
+
 ```
 Confidence | Count | Percentage
 0.85–1.00  |  40   | 40%
@@ -678,10 +682,12 @@ Confidence | Count | Percentage
 ### 7.2 Confidence vs Accuracy Curve
 
 Plot per-kit: for each confidence threshold (0.50–1.00 in 0.05 increments), calculate:
+
 - Number of images above threshold
 - Accuracy of those images
 
 **Expected curve shape**:
+
 ```
 Accuracy
   |     ╱────────
@@ -721,6 +727,7 @@ Add 1–2 example images + expected outputs to prompt (increases token usage but
 ### 8.3 Temperature Setting
 
 Use `temperature = 0.0` (deterministic) for Gemini calls:
+
 - Clinical results must be reproducible
 - Randomness introduces noise
 - Calibrated confidence already provides uncertainty quantification
@@ -758,6 +765,7 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 **Input**: Image of HIV RDT with clear test line and control line
 
 **Gemini Response** (Variant A):
+
 ```json
 {
   "result": "POSITIVE",
@@ -777,6 +785,7 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 **Input**: Dengue RDT with only control line
 
 **Gemini Response**:
+
 ```json
 {
   "result": "NEGATIVE",
@@ -798,6 +807,7 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 **Input**: COVID Ag test with very faint test line
 
 **Gemini Response**:
+
 ```json
 {
   "result": "INDETERMINATE",
@@ -819,6 +829,7 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 **Input**: HCG test with no visible control line
 
 **Gemini Response**:
+
 ```json
 {
   "result": "INVALID",
@@ -840,38 +851,38 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 
 ### 11.1 Gemini 2.5 Flash Baseline (Literature + Internal Testing)
 
-| Metric | Expected range | Target for Phase 11 |
-|--------|-----------------|---------------------|
-| **Overall accuracy** | 84–89% | 85–88% |
-| **Sensitivity (HIV)** | 85–92% | 88–92% |
-| **Specificity (HIV)** | 84–90% | 86–90% |
-| **False negative rate** | 3–8% | <5% (critical) |
-| **False positive rate** | 5–10% | <8% |
-| **Operator review rate** (confidence <0.85) | 20–35% | ~25% |
+| Metric                                      | Expected range | Target for Phase 11 |
+| ------------------------------------------- | -------------- | ------------------- |
+| **Overall accuracy**                        | 84–89%         | 85–88%              |
+| **Sensitivity (HIV)**                       | 85–92%         | 88–92%              |
+| **Specificity (HIV)**                       | 84–90%         | 86–90%              |
+| **False negative rate**                     | 3–8%           | <5% (critical)      |
+| **False positive rate**                     | 5–10%          | <8%                 |
+| **Operator review rate** (confidence <0.85) | 20–35%         | ~25%                |
 
 **Rationale**: Gemini 2.5 Flash is not trained on medical imaging. Accuracy floor ~85% is typical for zero-shot classification of RDTs. Phase 12 prompt improvements + fine-tuning should reach 92–95%.
 
 ### 11.2 Per-Kit Accuracy Targets
 
-| Kit | Zero-shot accuracy | With threshold tuning | Notes |
-|-----|--------------------|-----------------------|-------|
-| HIV | 86–88% | 87–89% | Highest accuracy; clear binary outcome |
-| Dengue | 82–85% | 84–87% | Dual-line complexity |
-| Syphilis | 85–88% | 86–89% | High specificity, rare false positives |
-| COVID | 80–84% | 83–86% | Viral load introduces variability |
-| HCG | 85–88% | 87–89% | Intensity = quantity; well-defined |
+| Kit      | Zero-shot accuracy | With threshold tuning | Notes                                  |
+| -------- | ------------------ | --------------------- | -------------------------------------- |
+| HIV      | 86–88%             | 87–89%                | Highest accuracy; clear binary outcome |
+| Dengue   | 82–85%             | 84–87%                | Dual-line complexity                   |
+| Syphilis | 85–88%             | 86–89%                | High specificity, rare false positives |
+| COVID    | 80–84%             | 83–86%                | Viral load introduces variability      |
+| HCG      | 85–88%             | 87–89%                | Intensity = quantity; well-defined     |
 
 ---
 
 ## 12. Risk & Mitigation
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| **Low accuracy** (below 85%) | Results unreliable; operator burden high | A/B test all variants; threshold tuning; fast iteration to Phase 12 |
-| **Confidence miscalibration** | Over-confident on faint cases | Track confidence vs accuracy curves; audit borderline cases |
-| **Gemini API rate limits** | Batch processing delayed | Use batch API for post-hoc analysis; real-time via callable |
-| **Image quality degradation** (poor lighting, old cameras) | Accuracy drops significantly | Implement pre-gemini validation; camera setup guide for labs |
-| **False negatives on edge cases** | Missed positive results (clinical risk) | Sensitivity KPI non-negotiable; lower threshold if needed |
+| Risk                                                       | Impact                                   | Mitigation                                                          |
+| ---------------------------------------------------------- | ---------------------------------------- | ------------------------------------------------------------------- |
+| **Low accuracy** (below 85%)                               | Results unreliable; operator burden high | A/B test all variants; threshold tuning; fast iteration to Phase 12 |
+| **Confidence miscalibration**                              | Over-confident on faint cases            | Track confidence vs accuracy curves; audit borderline cases         |
+| **Gemini API rate limits**                                 | Batch processing delayed                 | Use batch API for post-hoc analysis; real-time via callable         |
+| **Image quality degradation** (poor lighting, old cameras) | Accuracy drops significantly             | Implement pre-gemini validation; camera setup guide for labs        |
+| **False negatives on edge cases**                          | Missed positive results (clinical risk)  | Sensitivity KPI non-negotiable; lower threshold if needed           |
 
 ---
 
@@ -905,48 +916,51 @@ Use `temperature = 0.0` (deterministic) for Gemini calls:
 
 ## Appendix: Gemini Vision API Call Example
 
-```typescript
-import { GoogleGenerativeAI } from '@google/generative-ai'
+````typescript
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY)
+const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 async function callGeminiVisionAPI(
   imageUrl: string,
-  testKitType: 'hiv' | 'dengue' | 'syphilis' | 'covid' | 'hcg'
+  testKitType: 'hiv' | 'dengue' | 'syphilis' | 'covid' | 'hcg',
 ): Promise<string> {
-  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-  
+  const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' });
+
   // Fetch image and convert to base64 (or use direct URL if supported)
-  const imageData = await fetch(imageUrl).then(r => r.arrayBuffer())
-  const base64 = Buffer.from(imageData).toString('base64')
-  
-  const prompt = getPromptForKit(testKitType) // Returns Variant A prompt
-  
-  const result = await model.generateContent([
-    {
-      inlineData: {
-        mimeType: 'image/jpeg',
-        data: base64,
+  const imageData = await fetch(imageUrl).then((r) => r.arrayBuffer());
+  const base64 = Buffer.from(imageData).toString('base64');
+
+  const prompt = getPromptForKit(testKitType); // Returns Variant A prompt
+
+  const result = await model.generateContent(
+    [
+      {
+        inlineData: {
+          mimeType: 'image/jpeg',
+          data: base64,
+        },
       },
-    },
+      {
+        text: prompt,
+      },
+    ],
     {
-      text: prompt,
+      temperature: 0.0,
+      maxOutputTokens: 1024,
     },
-  ], {
-    temperature: 0.0,
-    maxOutputTokens: 1024,
-  })
-  
-  const response = result.response
-  const text = response.text()
-  
+  );
+
+  const response = result.response;
+  const text = response.text();
+
   // Extract JSON from response (handle markdown code blocks)
-  const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/)
-  if (!jsonMatch?.[1]) throw new Error('No JSON found in Gemini response')
-  
-  return jsonMatch[1]
+  const jsonMatch = text.match(/```json\n([\s\S]*?)\n```/) || text.match(/({[\s\S]*})/);
+  if (!jsonMatch?.[1]) throw new Error('No JSON found in Gemini response');
+
+  return jsonMatch[1];
 }
-```
+````
 
 ---
 

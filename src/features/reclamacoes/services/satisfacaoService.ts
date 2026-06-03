@@ -33,12 +33,9 @@ export function subscribeToNPSRespostas(
     limit?: number;
   },
   onUpdate?: (respostas: NPSResposta[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
-  const constraints: any[] = [
-    where('labId', '==', labId),
-    orderBy('respondidoEm', 'desc'),
-  ];
+  const constraints: any[] = [where('labId', '==', labId), orderBy('respondidoEm', 'desc')];
 
   if (filters?.origem) {
     constraints.push(where('origem', '==', filters.origem));
@@ -48,10 +45,7 @@ export function subscribeToNPSRespostas(
     constraints.push(limit(filters.limit));
   }
 
-  const q = query(
-    collection(db, 'labs', labId, 'satisfacao-respostas'),
-    ...constraints
-  );
+  const q = query(collection(db, 'labs', labId, 'satisfacao-respostas'), ...constraints);
 
   return onSnapshot(
     q,
@@ -65,7 +59,7 @@ export function subscribeToNPSRespostas(
     (error) => {
       console.error('Error subscribing to NPS respostas:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -74,7 +68,7 @@ export function subscribeToNPSRespostas(
  */
 export async function getNPSResposta(
   labId: string,
-  respostaId: string
+  respostaId: string,
 ): Promise<NPSResposta | null> {
   const docRef = doc(db, 'labs', labId, 'satisfacao-respostas', respostaId);
   const snapshot = await getDoc(docRef);
@@ -92,14 +86,14 @@ export async function getNPSResposta(
 export async function getNPSRespostasByOrigem(
   labId: string,
   origem: OrigemNPS,
-  limitCount = 500
+  limitCount = 500,
 ): Promise<NPSResposta[]> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
     where('labId', '==', labId),
     where('origem', '==', origem),
     orderBy('respondidoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -117,13 +111,13 @@ export async function getNPSRespostasByOrigem(
  */
 export async function getNPSRespostasParaReclamacao(
   labId: string,
-  reclamacaoId: string
+  reclamacaoId: string,
 ): Promise<NPSResposta[]> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
     where('labId', '==', labId),
     where('reclamacaoId', '==', reclamacaoId),
-    orderBy('respondidoEm', 'desc')
+    orderBy('respondidoEm', 'desc'),
   );
 
   const snapshot = await getDocs(q);
@@ -141,13 +135,13 @@ export async function getNPSRespostasParaReclamacao(
  */
 export async function getNPSRespostasParaCampanha(
   labId: string,
-  trimestre: string
+  trimestre: string,
 ): Promise<NPSResposta[]> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
     where('labId', '==', labId),
     where('trimestreRecurring', '==', trimestre),
-    orderBy('respondidoEm', 'desc')
+    orderBy('respondidoEm', 'desc'),
   );
 
   const snapshot = await getDocs(q);
@@ -166,9 +160,7 @@ export async function getNPSRespostasParaCampanha(
  *
  * @returns NPS score (-100 to +100)
  */
-export async function calcularNPSScore(
-  respostas: NPSResposta[]
-): Promise<number> {
+export async function calcularNPSScore(respostas: NPSResposta[]): Promise<number> {
   if (respostas.length === 0) return 0;
 
   const detratores = respostas.filter((r) => r.nota < 7).length;
@@ -185,7 +177,7 @@ export async function calcularNPSScore(
  */
 export async function getNPSDistribution(
   labId: string,
-  origem?: OrigemNPS
+  origem?: OrigemNPS,
 ): Promise<{
   detratores: number;
   neutros: number;
@@ -197,10 +189,7 @@ export async function getNPSDistribution(
     constraints.push(where('origem', '==', origem));
   }
 
-  const q = query(
-    collection(db, 'labs', labId, 'satisfacao-respostas'),
-    ...constraints
-  );
+  const q = query(collection(db, 'labs', labId, 'satisfacao-respostas'), ...constraints);
 
   const snapshot = await getDocs(q);
   const respostas: NPSResposta[] = [];
@@ -223,12 +212,12 @@ export async function getNPSDistribution(
 export function subscribeToCalmpanhas(
   labId: string,
   onUpdate?: (campanhas: CampanhaSatisfacao[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-campanhas'),
     where('labId', '==', labId),
-    orderBy('dataInicio', 'desc')
+    orderBy('dataInicio', 'desc'),
   );
 
   return onSnapshot(
@@ -243,7 +232,7 @@ export function subscribeToCalmpanhas(
     (error) => {
       console.error('Error subscribing to campanhas:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -252,7 +241,7 @@ export function subscribeToCalmpanhas(
  */
 export async function getCampanha(
   labId: string,
-  campanhaId: string
+  campanhaId: string,
 ): Promise<CampanhaSatisfacao | null> {
   const docRef = doc(db, 'labs', labId, 'satisfacao-campanhas', campanhaId);
   const snapshot = await getDoc(docRef);
@@ -269,13 +258,13 @@ export async function getCampanha(
  */
 export async function getCampanhasByStatus(
   labId: string,
-  status: 'ativa' | 'encerrada' | 'processando'
+  status: 'ativa' | 'encerrada' | 'processando',
 ): Promise<CampanhaSatisfacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-campanhas'),
     where('labId', '==', labId),
     where('status', '==', status),
-    orderBy('dataInicio', 'desc')
+    orderBy('dataInicio', 'desc'),
   );
 
   const snapshot = await getDocs(q);
@@ -291,13 +280,11 @@ export async function getCampanhasByStatus(
 /**
  * Get NPS responses that are not yet anonymized
  */
-export async function getNPSRespostasNaoAnonimizadas(
-  labId: string
-): Promise<NPSResposta[]> {
+export async function getNPSRespostasNaoAnonimizadas(labId: string): Promise<NPSResposta[]> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
     where('labId', '==', labId),
-    where('anonimizadoEm', '==', null)
+    where('anonimizadoEm', '==', null),
   );
 
   const snapshot = await getDocs(q);
@@ -315,7 +302,7 @@ export async function getNPSRespostasNaoAnonimizadas(
  */
 export async function getNPSRespostasDueForAnonymization(
   labId: string,
-  daysSinceResponse = 90
+  daysSinceResponse = 90,
 ): Promise<NPSResposta[]> {
   const cutoffDate = new Date();
   cutoffDate.setDate(cutoffDate.getDate() - daysSinceResponse);
@@ -324,7 +311,7 @@ export async function getNPSRespostasDueForAnonymization(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
     where('labId', '==', labId),
     where('respondidoEm', '<', Timestamp.fromDate(cutoffDate)),
-    where('anonimizadoEm', '==', null)
+    where('anonimizadoEm', '==', null),
   );
 
   const snapshot = await getDocs(q);
@@ -343,7 +330,7 @@ export async function getNPSRespostasDueForAnonymization(
 export async function countNPSRespostas(labId: string): Promise<number> {
   const q = query(
     collection(db, 'labs', labId, 'satisfacao-respostas'),
-    where('labId', '==', labId)
+    where('labId', '==', labId),
   );
 
   const snapshot = await getDocs(q);

@@ -18,7 +18,10 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ labId })
 
   const { analitos = [], loading: analytosLoading = false } = useAnalitos();
   const { equipamentos = [], loading: equipamentosLoading = false } = useEquipamentos();
-  const { runs = [] } = useRuns(labId, selectedEquipamento ? { equipmentId: selectedEquipamento } : undefined);
+  const { runs = [] } = useRuns(
+    labId,
+    selectedEquipamento ? { equipmentId: selectedEquipamento } : undefined,
+  );
 
   // Set default selections
   React.useEffect(() => {
@@ -68,9 +71,7 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ labId })
   const totalRuns = runs.length;
   const approvedRuns = runs.filter((r) => r.status === 'Aprovada').length;
   const approvalRate = totalRuns > 0 ? ((approvedRuns / totalRuns) * 100).toFixed(1) : '—';
-  const runsWithViolations = runs.filter(
-    (r) => Object.keys(r.violations || {}).length > 0
-  ).length;
+  const runsWithViolations = runs.filter((r) => Object.keys(r.violations || {}).length > 0).length;
 
   return (
     <div className="space-y-6">
@@ -213,11 +214,11 @@ export const AnalyticsDashboard: React.FC<AnalyticsDashboardProps> = ({ labId })
                     </td>
                     <td className="px-3 py-2 text-slate-400">{run.equipmentId}</td>
                     <td className="px-3 py-2">
-                      <span className={`text-xs font-medium ${
-                        run.status === 'Aprovada'
-                          ? 'text-green-400/80'
-                          : 'text-red-400/80'
-                      }`}>
+                      <span
+                        className={`text-xs font-medium ${
+                          run.status === 'Aprovada' ? 'text-green-400/80' : 'text-red-400/80'
+                        }`}
+                      >
                         {run.status === 'Aprovada' ? '✓ Aprovada' : '✗ Rejeitada'}
                       </span>
                     </td>

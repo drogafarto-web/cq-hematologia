@@ -14,6 +14,7 @@
 Build **validation guardrails** for NOTIVISA submissions — ensuring drafts meet government format requirements before leaving the lab system. This is analogous to Wave 1's Promptfoo eval for `ia-strip` (Gemini validation), but for NOTIVISA payloads (government API validation).
 
 **Key deliverables:**
+
 1. Zod schema + validation logic (CPF, dates, exam codes, business rules)
 2. Audit trail validation (RDC 978 Art. 204 compliance)
 3. Business rule checks (duplicate detection, gap enforcement)
@@ -27,11 +28,13 @@ Build **validation guardrails** for NOTIVISA submissions — ensuring drafts mee
 ## Problem Statement
 
 **Current State:**
+
 - NOTIVISA draft payloads created by W3-3 callables
 - No pre-submission validation (errors caught only after government API call)
 - Government rejects malformed requests → retry loops, compliance gaps
 
 **Risk:**
+
 - Invalid CPF submitted to government → audit violation
 - Future dates in results → government API rejection
 - Duplicate payloads → duplicate notifications
@@ -39,6 +42,7 @@ Build **validation guardrails** for NOTIVISA submissions — ensuring drafts mee
 - No audit trail → compliance audit failure
 
 **Solution:**
+
 - Fail-safe validation before dispatch
 - Clear error messages for RT/auditor remediation
 - Complete audit trail (HMAC chain per ADR-0017)
@@ -75,6 +79,7 @@ Build **validation guardrails** for NOTIVISA submissions — ensuring drafts mee
 ```
 
 **Validation rules:**
+
 - CPF format: 11 digits
 - CPF checksum: Mod-11 algorithm (reject all-same-digit)
 - Date coherence: signature_date >= result_date
@@ -121,11 +126,13 @@ RT can override with force=true (logged as notivisa-override-submission-gap)
 ### 4. Audit Trail Validation (RDC 978 Art. 204)
 
 **Chain integrity:**
+
 - Every audit log entry signed with HMAC (operatorId, timestamp, prevHash)
 - Order: DRAFT_CREATED → DRAFT_APPROVED → DRAFT_SUBMITTED
 - DRAFT_REVOKED requires reason ≥10 chars (LGPD Art. 11)
 
 **Validation checks:**
+
 - All entries have signatures
 - Hash chain unbroken (each entry verifies previous hash)
 - Required events in correct order
@@ -160,31 +167,31 @@ functions/.github/workflows/
 
 ### Unit Tests (guardrails.test.ts — 18+ tests)
 
-| Suite | Tests | Coverage |
-|-------|-------|----------|
-| CPF Validation | 5 | Format, checksum, all-same-digits, formatting, edge cases |
-| Payload Schema | 7 | Valid payload, CPF error, future date, no results, operator CPF, date coherence, stale signature |
-| Exam Codes | 3 | Valid codes, unregistered, override handling |
-| Duplicate Detection | 2 | Hash consistency, variance detection |
-| Business Rules | 1 | Gap checks, overrides |
-| Audit Trail | 3 | Chain validation, required events, revocation reason |
-| Edge Cases | 6 | Null fields, large numbers, long names, boundaries, coded values, panels |
-| **Total** | **27** | — |
+| Suite               | Tests  | Coverage                                                                                         |
+| ------------------- | ------ | ------------------------------------------------------------------------------------------------ |
+| CPF Validation      | 5      | Format, checksum, all-same-digits, formatting, edge cases                                        |
+| Payload Schema      | 7      | Valid payload, CPF error, future date, no results, operator CPF, date coherence, stale signature |
+| Exam Codes          | 3      | Valid codes, unregistered, override handling                                                     |
+| Duplicate Detection | 2      | Hash consistency, variance detection                                                             |
+| Business Rules      | 1      | Gap checks, overrides                                                                            |
+| Audit Trail         | 3      | Chain validation, required events, revocation reason                                             |
+| Edge Cases          | 6      | Null fields, large numbers, long names, boundaries, coded values, panels                         |
+| **Total**           | **27** | —                                                                                                |
 
 ### Eval Fixtures (notivisaEvalConfig.yaml — 10 payloads)
 
-| Fixture | Status | Purpose |
-|---------|--------|---------|
-| fixture-001-valid-hemoglobin | ✓ Valid | Baseline: single numeric result |
-| fixture-002-invalid-cpf-checksum | ✗ Invalid | CPF validation: checksum failure |
+| Fixture                            | Status    | Purpose                                  |
+| ---------------------------------- | --------- | ---------------------------------------- |
+| fixture-001-valid-hemoglobin       | ✓ Valid   | Baseline: single numeric result          |
+| fixture-002-invalid-cpf-checksum   | ✗ Invalid | CPF validation: checksum failure         |
 | fixture-003-unregistered-exam-code | ⚠ Warning | Exam code: not in ANVISA, allow override |
-| fixture-004-future-result-date | ✗ Invalid | Date validation: reject future |
-| fixture-005-multiple-results | ✓ Valid | Panel: multiple tests |
-| fixture-006-stale-signature | ⚠ Warning | Signature: >7 days old, warn RT |
-| fixture-007-coded-result-negative | ✓ Valid | Qualitative: negative result |
-| fixture-008-coded-result-reagent | ✓ Valid | Qualitative: Portuguese reagente |
-| fixture-009-unusual-coded-value | ⚠ Warning | Coded value: non-standard code |
-| fixture-010-operator-cpf-invalid | ✗ Invalid | Operator CPF: checksum failure |
+| fixture-004-future-result-date     | ✗ Invalid | Date validation: reject future           |
+| fixture-005-multiple-results       | ✓ Valid   | Panel: multiple tests                    |
+| fixture-006-stale-signature        | ⚠ Warning | Signature: >7 days old, warn RT          |
+| fixture-007-coded-result-negative  | ✓ Valid   | Qualitative: negative result             |
+| fixture-008-coded-result-reagent   | ✓ Valid   | Qualitative: Portuguese reagente         |
+| fixture-009-unusual-coded-value    | ⚠ Warning | Coded value: non-standard code           |
+| fixture-010-operator-cpf-invalid   | ✗ Invalid | Operator CPF: checksum failure           |
 
 **Pass criteria:** ≥95% (9/10 fixtures)
 
@@ -207,22 +214,21 @@ functions/.github/workflows/
 
 ```typescript
 // In submitNotivisaDraft callable (W3-3)
-const validationResult = await validateNotivisaPayload(
-  payload,
-  { labId, db, forceExamCode }
-);
+const validationResult = await validateNotivisaPayload(payload, { labId, db, forceExamCode });
 
 if (!validationResult.valid) {
   // Log errors in audit trail
   await writeNotivisaAuditLog(db, labId, draftId, {
     eventType: 'SUBMISSION_VALIDATION_FAILED',
     operatorId: uid,
-    details: { errors: validationResult.errors }
+    details: { errors: validationResult.errors },
   });
-  
+
   // Return error to Portal-RT
-  throw new HttpsError('failed-precondition', 
-    `Submission blocked: ${validationResult.errors[0].message}`);
+  throw new HttpsError(
+    'failed-precondition',
+    `Submission blocked: ${validationResult.errors[0].message}`,
+  );
 }
 
 // If validation passed: continue to HTTP dispatch
@@ -235,16 +241,16 @@ const response = await httpClient.submit(payload);
 
 ```tsx
 // UI: Show validation warnings + override option
-{validationResult.warnings.length > 0 && (
-  <WarningDialog>
-    {validationResult.warnings.map(w => (
-      <li key={w.code}>{w.message}</li>
-    ))}
-    <Button onClick={() => submitWithForce(true)}>
-      Override & Submit
-    </Button>
-  </WarningDialog>
-)}
+{
+  validationResult.warnings.length > 0 && (
+    <WarningDialog>
+      {validationResult.warnings.map((w) => (
+        <li key={w.code}>{w.message}</li>
+      ))}
+      <Button onClick={() => submitWithForce(true)}>Override & Submit</Button>
+    </WarningDialog>
+  );
+}
 ```
 
 ---
@@ -264,14 +270,14 @@ const response = await httpClient.submit(payload);
 
 ## Success Metrics
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| Test Pass Rate | 100% | `npm test guardrails.test.ts` |
-| Fixture Pass Rate | ≥95% | `bash run-eval.sh` |
-| Error Detection Accuracy | 100% | All intentionally invalid fixtures rejected |
-| False Negative Rate | 0% | No valid payloads incorrectly blocked |
-| Audit Trail Chain Integrity | 100% | HMAC verification |
-| ANVISA Code Coverage | 50+ codes | Initial bootstrap (updated as gov provides) |
+| Metric                      | Target    | Measurement                                 |
+| --------------------------- | --------- | ------------------------------------------- |
+| Test Pass Rate              | 100%      | `npm test guardrails.test.ts`               |
+| Fixture Pass Rate           | ≥95%      | `bash run-eval.sh`                          |
+| Error Detection Accuracy    | 100%      | All intentionally invalid fixtures rejected |
+| False Negative Rate         | 0%        | No valid payloads incorrectly blocked       |
+| Audit Trail Chain Integrity | 100%      | HMAC verification                           |
+| ANVISA Code Coverage        | 50+ codes | Initial bootstrap (updated as gov provides) |
 
 ---
 
@@ -286,12 +292,12 @@ const response = await httpClient.submit(payload);
 
 ## Risk Mitigation
 
-| Risk | Mitigation |
-|------|-----------|
-| Validation too strict | Warning flag (not error) for business rules; override with `force=true` |
-| ANVISA codes outdated | Stub with 50 common tests; fallback override; document update process |
-| Audit trail chain breaks | Unit tests verify chain integrity; Firestore transactions ensure atomicity |
-| CPF validation bug | Real Mod-11 checksum (standard algorithm); test with known valid/invalid CPFs |
+| Risk                     | Mitigation                                                                    |
+| ------------------------ | ----------------------------------------------------------------------------- |
+| Validation too strict    | Warning flag (not error) for business rules; override with `force=true`       |
+| ANVISA codes outdated    | Stub with 50 common tests; fallback override; document update process         |
+| Audit trail chain breaks | Unit tests verify chain integrity; Firestore transactions ensure atomicity    |
+| CPF validation bug       | Real Mod-11 checksum (standard algorithm); test with known valid/invalid CPFs |
 
 ---
 
@@ -312,11 +318,13 @@ const response = await httpClient.submit(payload);
 ## Documentation & Handoff
 
 **For next wave (Portal-RT override UI):**
+
 - Override dialog wireframe
 - Warning codes + user-facing messages
 - Logging location for override events
 
 **For Phase 4 (Government Sandbox):**
+
 - Updated ANVISA code registry (gov will provide)
 - Test payload generator (for sandbox calls)
 

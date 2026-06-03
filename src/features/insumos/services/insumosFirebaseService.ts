@@ -86,9 +86,18 @@ type DerivedFields =
   | 'lastRunAt';
 
 export type CreateInsumoPayload =
-  | (Omit<InsumoControle, DerivedFields> & { createdBy: string; modulos?: InsumoControle['modulos'] })
-  | (Omit<InsumoReagente, DerivedFields> & { createdBy: string; modulos?: InsumoReagente['modulos'] })
-  | (Omit<InsumoTiraUro, DerivedFields> & { createdBy: string; modulos?: InsumoTiraUro['modulos'] });
+  | (Omit<InsumoControle, DerivedFields> & {
+      createdBy: string;
+      modulos?: InsumoControle['modulos'];
+    })
+  | (Omit<InsumoReagente, DerivedFields> & {
+      createdBy: string;
+      modulos?: InsumoReagente['modulos'];
+    })
+  | (Omit<InsumoTiraUro, DerivedFields> & {
+      createdBy: string;
+      modulos?: InsumoTiraUro['modulos'];
+    });
 
 /**
  * Campos editáveis pós-criação ("secundários"). Lote/fabricante/validade/
@@ -164,10 +173,7 @@ function filterByText(insumos: Insumo[], needle: string): Insumo[] {
  *
  * @returns ID gerado (UUID v4).
  */
-export async function createInsumo(
-  labId: string,
-  payload: CreateInsumoPayload,
-): Promise<string> {
+export async function createInsumo(labId: string, payload: CreateInsumoPayload): Promise<string> {
   try {
     const id = crypto.randomUUID();
     const validadeDate = payload.validade.toDate();
@@ -239,7 +245,15 @@ export async function updateInsumo(
   labId: string,
   insumoId: string,
   patch: UpdateInsumoPayload,
-  current: Pick<Insumo, 'validade' | 'dataAbertura' | 'diasEstabilidadeAbertura' | 'nomeComercial' | 'registroAnvisa' | 'notaFiscalId'>,
+  current: Pick<
+    Insumo,
+    | 'validade'
+    | 'dataAbertura'
+    | 'diasEstabilidadeAbertura'
+    | 'nomeComercial'
+    | 'registroAnvisa'
+    | 'notaFiscalId'
+  >,
   operadorId: string,
   operadorName: string,
 ): Promise<void> {
@@ -568,10 +582,7 @@ type MovimentacaoInput = Omit<
  * com o estado "principal" do insumo é aceitável em failure-isolated call
  * (abrir/fechar/descartar). Retry fica a cargo do usuário.
  */
-async function logMovimentacao(
-  labId: string,
-  input: MovimentacaoInput,
-): Promise<void> {
+async function logMovimentacao(labId: string, input: MovimentacaoInput): Promise<void> {
   const id = crypto.randomUUID();
   const clientTimestamp = new Date().toISOString();
   const payloadSignature = await computeMovimentacaoSignature({
@@ -608,7 +619,8 @@ export function subscribeToMovimentacoes(
     (snap) => {
       onData(
         snap.docs.map(
-          (d) => ({ id: d.id, ...(d.data() as Omit<InsumoMovimentacao, 'id'>) }) as InsumoMovimentacao,
+          (d) =>
+            ({ id: d.id, ...(d.data() as Omit<InsumoMovimentacao, 'id'>) }) as InsumoMovimentacao,
         ),
       );
     },
@@ -644,9 +656,7 @@ export async function incrementInsumoRunCount(
     // Não relança — falha em incrementar não deve reverter um run já salvo.
     // Log pra observabilidade; operador segue rotina.
     console.warn(
-      `[insumos][incrementRunCount] falha: ${
-        err instanceof Error ? err.message : String(err)
-      }`,
+      `[insumos][incrementRunCount] falha: ${err instanceof Error ? err.message : String(err)}`,
     );
   }
 }
@@ -863,8 +873,15 @@ export async function rotateInsumoLote(
     examCode?: string;
   },
 ): Promise<void> {
-  const { oldInsumoId, newInsumoId, newAlreadyActive, newInsumo, operadorId, operadorName, examCode } =
-    params;
+  const {
+    oldInsumoId,
+    newInsumoId,
+    newAlreadyActive,
+    newInsumo,
+    operadorId,
+    operadorName,
+    examCode,
+  } = params;
 
   // Fluxo 1: Se examCode é fornecido, delega para transaction atômica com rastreabilidade Worklab
   if (examCode && newInsumo) {
@@ -923,9 +940,7 @@ export async function findAtivoDoMesmoProduto(
   } catch (err) {
     // Erro aqui não deve reverter a criação do novo lote — retorna null e
     // segue. UI apenas pula a sugestão de rotação.
-    console.warn(
-      `[insumos][findAtivo] falha: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    console.warn(`[insumos][findAtivo] falha: ${err instanceof Error ? err.message : String(err)}`);
     return null;
   }
 }
@@ -936,9 +951,7 @@ export async function findAtivoDoMesmoProduto(
  */
 export async function getInsumoOnce(labId: string, insumoId: string): Promise<Insumo | null> {
   try {
-    const snap = await getDocs(
-      query(insumosCol(labId), where('__name__', '==', insumoId)),
-    );
+    const snap = await getDocs(query(insumosCol(labId), where('__name__', '==', insumoId)));
     if (snap.empty) return null;
     const d = snap.docs[0];
     return { id: d.id, ...(d.data() as Omit<Insumo, 'id'>) } as Insumo;

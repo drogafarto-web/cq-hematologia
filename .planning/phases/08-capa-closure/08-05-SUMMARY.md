@@ -1,6 +1,6 @@
 ---
 phase: 08-capa-closure
-plan: "05"
+plan: '05'
 wave: 4
 type: summary
 timestamp: 2026-05-09T20:15:00Z
@@ -23,6 +23,7 @@ Implemented 9 dark-first React components for CAPA closure workflow, equipment c
 ### File Structure Created
 
 **CAPA Tracking (5 components):**
+
 ```
 src/features/capa-tracking/components/
 ├── CAPAListView.tsx              ✅ Filterable table (150 LOC)
@@ -33,12 +34,14 @@ src/features/capa-tracking/components/
 ```
 
 **Calibration (1 component):**
+
 ```
 src/features/calibracao/components/
 └── CalibracaoList.tsx            ✅ Equipment table with status badges (150 LOC)
 ```
 
 **Personnel (2 components):**
+
 ```
 src/features/personnel/
 ├── cargos/components/
@@ -48,6 +51,7 @@ src/features/personnel/
 ```
 
 **Management Review (1 component):**
+
 ```
 src/features/management-review/components/
 └── ManagementReviewMeeting.tsx   ✅ Annual review form (15 entries) (150 LOC)
@@ -59,17 +63,17 @@ src/features/management-review/components/
 
 ## Commits
 
-| # | SA | Commit | Message | Lines |
-|----|----|----|---------|-------|
-| 1 | SA-27 | 2236763 | CAPAListView — filterable table | 150 |
-| 2 | SA-28 | 2236763 | CAPADetailPanel — state history panel | 120 |
-| 3 | SA-29 | 2236763 | CapaEvidenceUpload — drag-drop modal | 180 |
-| 4 | SA-30 | 2236763 | AuditorRFIForm — RFI submission | 90 |
-| 5 | SA-31 | 2236763 | CapaAuditorSignOff — batch sign-off | 180 |
-| 6 | SA-32 | 2236763 | CalibracaoList — equipment table | 150 |
-| 7 | SA-33 | 2236763 | CargosOrgChart — org chart tree | 140 |
-| 8 | SA-34 | 2236763 | DesignacoesList — role cards | 120 |
-| 9 | SA-35 | 2236763 | ManagementReviewMeeting — form | 150 |
+| #   | SA    | Commit  | Message                               | Lines |
+| --- | ----- | ------- | ------------------------------------- | ----- |
+| 1   | SA-27 | 2236763 | CAPAListView — filterable table       | 150   |
+| 2   | SA-28 | 2236763 | CAPADetailPanel — state history panel | 120   |
+| 3   | SA-29 | 2236763 | CapaEvidenceUpload — drag-drop modal  | 180   |
+| 4   | SA-30 | 2236763 | AuditorRFIForm — RFI submission       | 90    |
+| 5   | SA-31 | 2236763 | CapaAuditorSignOff — batch sign-off   | 180   |
+| 6   | SA-32 | 2236763 | CalibracaoList — equipment table      | 150   |
+| 7   | SA-33 | 2236763 | CargosOrgChart — org chart tree       | 140   |
+| 8   | SA-34 | 2236763 | DesignacoesList — role cards          | 120   |
+| 9   | SA-35 | 2236763 | ManagementReviewMeeting — form        | 150   |
 
 **Meta:** All components committed in single atomic commit (9 files, 3,429 insertions).
 
@@ -80,6 +84,7 @@ src/features/management-review/components/
 ### SA-27: CAPAListView
 
 **Features:**
+
 - Filter bar: `all | open | in-progress | evidence-submitted | auditor-reviewing | closed`
 - Table columns: Achado ID | Título | Estado | Dias restantes | Severidade | Ação
 - Deadline color coding: red <7d, amber <14d, emerald ≥14d
@@ -94,6 +99,7 @@ src/features/management-review/components/
 ### SA-28: CAPADetailPanel
 
 **Features:**
+
 - Back button navigation
 - Header: title + badge + days remaining color-coded
 - State history timeline (immutable append-only)
@@ -108,6 +114,7 @@ src/features/management-review/components/
 ### SA-29: CapaEvidenceUpload
 
 **Features:**
+
 - Drag-drop file area + file picker button
 - File type validation (PDF, PNG, JPEG, TXT)
 - File size validation (max 10 MB)
@@ -123,6 +130,7 @@ src/features/management-review/components/
 ### SA-30: AuditorRFIForm
 
 **Features:**
+
 - Question textarea (10-2000 chars, counter display)
 - Due date picker (default +7 days, validation)
 - Form validation (question length, date in future)
@@ -137,6 +145,7 @@ src/features/management-review/components/
 ### SA-31: CapaAuditorSignOff
 
 **Features:**
+
 - Warning box: "Ação irreversível"
 - Auditor name (prefilled from auth)
 - Auditor firm input
@@ -152,6 +161,7 @@ src/features/management-review/components/
 ### SA-32: CalibracaoList
 
 **Features:**
+
 - Status summary badges (overdue count red, warning count amber)
 - Table: Equipamento | Última calibração | Próxima | Status | Upload button
 - Status colors: emerald (in-date), amber (30d warning), orange (7d warning), red (overdue), gray (out-of-service)
@@ -166,6 +176,7 @@ src/features/management-review/components/
 ### SA-33: CargosOrgChart
 
 **Features:**
+
 - Tree view: hierarchical visualization (Diretor → RT → Técnicos)
 - List toggle (responsive, collapses in mobile <640px)
 - Sector badge colors (Direção purple, Análise blue, Coleta teal, Qualidade emerald)
@@ -181,6 +192,7 @@ src/features/management-review/components/
 ### SA-34: DesignacoesList
 
 **Features:**
+
 - 3 cards layout: RT | Gerente de Qualidade | Diretor
 - Each card shows: designado | desde | expira
 - Validity badge: active (emerald), expiring (amber), expired (red)
@@ -196,6 +208,7 @@ src/features/management-review/components/
 ### SA-35: ManagementReviewMeeting
 
 **Features:**
+
 - Year + meeting date inputs
 - Participant checkboxes (RT, GQ, Diretor, Supervisores)
 - Aggregate data button (placeholder for callable)
@@ -215,6 +228,7 @@ src/features/management-review/components/
 ### Dark-First Design (CLAUDE.md requirement)
 
 All components use:
+
 - Background: `bg-white/X` for layering (white/5, white/10, white/20, etc.)
 - Text: `text-white` (primary), `text-slate-300` (secondary), `text-slate-400` (muted)
 - Accents: `violet-500` (primary action), `emerald-500`/`amber-500`/`red-500` (semantic)
@@ -304,6 +318,7 @@ All components use:
 **Status:** ✅ Components compile without errors (own code).
 
 **Pre-existing issues in codebase (not caused by Wave 4):**
+
 - `calibracao` service type mismatches (equipmentName vs equipName, etc.)
 - `capa-tracking` service Timestamp vs number inconsistencies
 - `personnel` service type name mismatches (CargoPermissions, DesignacaoType exports missing)
@@ -350,6 +365,7 @@ These are pre-existing schema/service layer issues not introduced by Wave 4 UI c
 ## What Comes Next
 
 **Integration (Wave 4 continuation or Wave 5):**
+
 1. Wire components to actual callables (once Wave 3 CF deployed)
 2. Add unit tests (jest + React Testing Library)
 3. Integration tests with Firestore emulator
@@ -357,6 +373,7 @@ These are pre-existing schema/service layer issues not introduced by Wave 4 UI c
 5. Route integration (AppRouter lazy-loads, Module Hub tiles)
 
 **Design Polish (Phase 9+):**
+
 1. Animated transitions between states
 2. Toast notifications (success/error)
 3. Undo/retry for failed operations

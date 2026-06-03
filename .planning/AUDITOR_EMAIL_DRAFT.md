@@ -49,6 +49,7 @@ Os seguintes artefatos estão prontos para auditoria:
 ### Solicitação de Alinhamento
 
 Gostaríamos de agendar uma call de alinhamento entre **13 e 17 de maio** para:
+
 1. Revisar os artefatos de compliance (DICQ/RDC/LGPD)
 2. Validar fluxos de CAPA (entrada → análise → ação → verificação)
 3. Confirmar critérios de aceite para Phase 8 Plans 05–07
@@ -82,6 +83,7 @@ Phone: [phone]
 ---
 
 **Attachments (opcional):**
+
 - v1.3-COMPLETION-SUMMARY.pdf
 - COMPLIANCE_SUMMARY_v1.3.pdf
 

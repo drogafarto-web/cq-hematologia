@@ -3,7 +3,12 @@ import { useActiveLabId } from '../../../store/useAuthStore';
 import { toast } from '../../../shared/store/useToastStore';
 import { callSaveEscalaPadrao } from '../services/turnosCallables';
 import { useEscalaPadrao } from '../hooks/useEscalaPadrao';
-import { PERIODO_LABEL, type EscalaColaborador, type EscalaPadraoTurno, type Periodo } from '../types/Escala';
+import {
+  PERIODO_LABEL,
+  type EscalaColaborador,
+  type EscalaPadraoTurno,
+  type Periodo,
+} from '../types/Escala';
 
 const DIAS_SEMANA = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 const PERIODOS: Periodo[] = ['manha', 'tarde', 'noite', 'integral', 'plantao'];
@@ -77,7 +82,10 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
     >
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="font-semibold" style={{ fontSize: '14px', color: 'var(--text-strong, #fff)' }}>
+          <h3
+            className="font-semibold"
+            style={{ fontSize: '14px', color: 'var(--text-strong, #fff)' }}
+          >
             Escala Padrão Semanal
           </h3>
           <p style={{ fontSize: '12px', color: 'var(--text-muted, #94A3B8)' }}>
@@ -110,7 +118,9 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
               className="rounded-md px-2.5 py-1.5 font-medium transition-colors"
               style={{
                 fontSize: '12px',
-                background: diasAtivos.includes(idx) ? 'var(--accent-600, #2563EB)' : 'var(--surface-muted, #161B23)',
+                background: diasAtivos.includes(idx)
+                  ? 'var(--accent-600, #2563EB)'
+                  : 'var(--surface-muted, #161B23)',
                 color: diasAtivos.includes(idx) ? '#fff' : 'var(--text-faint, #64748B)',
                 border: `1px solid ${diasAtivos.includes(idx) ? 'transparent' : 'var(--border-soft, rgba(255,255,255,0.06))'}`,
               }}
@@ -126,7 +136,11 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
         <div className="space-y-1.5">
           <label
             className="block font-semibold uppercase"
-            style={{ fontSize: '10px', letterSpacing: '0.06em', color: 'var(--text-faint, #64748B)' }}
+            style={{
+              fontSize: '10px',
+              letterSpacing: '0.06em',
+              color: 'var(--text-faint, #64748B)',
+            }}
           >
             Turnos configurados
           </label>
@@ -137,17 +151,29 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
               style={{ background: 'var(--surface-muted, #161B23)' }}
             >
               <div className="flex items-center gap-2">
-                <span style={{ fontSize: '12px', fontWeight: 500, color: 'var(--accent-400, #60A5FA)' }}>
+                <span
+                  style={{ fontSize: '12px', fontWeight: 500, color: 'var(--accent-400, #60A5FA)' }}
+                >
                   {PERIODO_LABEL[t.periodo]}
                 </span>
                 <span style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}>
                   {t.colaboradores.map((c) => c.nome).join(', ')}
                 </span>
                 {t.rtPresente && (
-                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'var(--success-500, #10B981)' }}>RT</span>
+                  <span
+                    style={{
+                      fontSize: '9px',
+                      fontWeight: 600,
+                      color: 'var(--success-500, #10B981)',
+                    }}
+                  >
+                    RT
+                  </span>
                 )}
                 {t.rtSubstitutoPresente && (
-                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(16,185,129,0.7)' }}>Sub</span>
+                  <span style={{ fontSize: '9px', fontWeight: 600, color: 'rgba(16,185,129,0.7)' }}>
+                    Sub
+                  </span>
                 )}
               </div>
               <button
@@ -186,7 +212,9 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
             }}
           >
             {PERIODOS.map((p) => (
-              <option key={p} value={p}>{PERIODO_LABEL[p]}</option>
+              <option key={p} value={p}>
+                {PERIODO_LABEL[p]}
+              </option>
             ))}
           </select>
           <input
@@ -202,12 +230,28 @@ export function EscalaPadraoPanel({ onClose }: EscalaPadraoPanelProps) {
               color: 'var(--text-body, rgba(255,255,255,0.82))',
             }}
           />
-          <label className="flex items-center gap-1 cursor-pointer" style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}>
-            <input type="checkbox" checked={newRt} onChange={(e) => setNewRt(e.target.checked)} className="h-3.5 w-3.5 rounded accent-emerald-500" />
+          <label
+            className="flex items-center gap-1 cursor-pointer"
+            style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}
+          >
+            <input
+              type="checkbox"
+              checked={newRt}
+              onChange={(e) => setNewRt(e.target.checked)}
+              className="h-3.5 w-3.5 rounded accent-emerald-500"
+            />
             RT
           </label>
-          <label className="flex items-center gap-1 cursor-pointer" style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}>
-            <input type="checkbox" checked={newSub} onChange={(e) => setNewSub(e.target.checked)} className="h-3.5 w-3.5 rounded accent-emerald-500" />
+          <label
+            className="flex items-center gap-1 cursor-pointer"
+            style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}
+          >
+            <input
+              type="checkbox"
+              checked={newSub}
+              onChange={(e) => setNewSub(e.target.checked)}
+              className="h-3.5 w-3.5 rounded accent-emerald-500"
+            />
             Sub
           </label>
           <button

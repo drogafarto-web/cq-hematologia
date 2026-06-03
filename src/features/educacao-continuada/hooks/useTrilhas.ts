@@ -9,10 +9,7 @@ import {
   updateTrilha,
   type SubscribeTrilhasOptions,
 } from '../services/ecFirebaseService';
-import type {
-  TrilhaAprendizado,
-  TrilhaAprendizadoInput,
-} from '../types/EducacaoContinuada';
+import type { TrilhaAprendizado, TrilhaAprendizadoInput } from '../types/EducacaoContinuada';
 
 export interface UseTrilhasResult {
   trilhas: TrilhaAprendizado[];

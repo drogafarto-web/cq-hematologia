@@ -86,7 +86,12 @@ describe('cfAuditTrigger', () => {
     vi.mocked(detectAnomalies).mockResolvedValue(normalScore);
 
     // Simulate trigger execution
-    await mockDb.collection('labs').doc(labId).collection('anomaly-scores').doc(entryId).set(normalScore);
+    await mockDb
+      .collection('labs')
+      .doc(labId)
+      .collection('anomaly-scores')
+      .doc(entryId)
+      .set(normalScore);
 
     expect(mockSet).toHaveBeenCalledWith(normalScore, { merge: true });
     expect(generateAlert).not.toHaveBeenCalled();
@@ -123,7 +128,12 @@ describe('cfAuditTrigger', () => {
     vi.mocked(detectAnomalies).mockResolvedValue(anomalousScore);
     vi.mocked(generateAlert).mockResolvedValue(undefined);
 
-    await mockDb.collection('labs').doc(labId).collection('anomaly-scores').doc(entryId).set(anomalousScore);
+    await mockDb
+      .collection('labs')
+      .doc(labId)
+      .collection('anomaly-scores')
+      .doc(entryId)
+      .set(anomalousScore);
 
     expect(mockSet).toHaveBeenCalledWith(anomalousScore, { merge: true });
   });
@@ -154,7 +164,12 @@ describe('cfAuditTrigger', () => {
       computedAt: Date.now(),
     };
 
-    await mockDb.collection('labs').doc(labId).collection('anomaly-scores').doc(entryId).set(fallbackScore);
+    await mockDb
+      .collection('labs')
+      .doc(labId)
+      .collection('anomaly-scores')
+      .doc(entryId)
+      .set(fallbackScore);
 
     expect(mockSet).toHaveBeenCalledWith(fallbackScore, { merge: true });
   });
@@ -185,7 +200,12 @@ describe('cfAuditTrigger', () => {
     mockSet.mockRejectedValueOnce(new Error('Write conflict'));
 
     try {
-      await mockDb.collection('labs').doc(labId).collection('anomaly-scores').doc(entryId).set(score);
+      await mockDb
+        .collection('labs')
+        .doc(labId)
+        .collection('anomaly-scores')
+        .doc(entryId)
+        .set(score);
     } catch {
       // Should be caught and logged, not rethrown
     }

@@ -27,6 +27,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Purpose:** Operational readiness checklist for Gemini Vision API integration
 
 **Contents:**
+
 - §1 **Deployment Gates** (4 blocking conditions)
   - Documentation sign-off (DPIA + Policy + DPA)
   - Technical controls validation (TC-01 through TC-11)
@@ -72,6 +73,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Purpose:** Compliance audit trail + security posture validation
 
 **Contents:**
+
 - §1 **Firestore Rules Validation**
   - Read access: Lab members + patient (own consent)
   - Create/Update: RT/Admin + patient self-service
@@ -121,6 +123,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Purpose:** Comprehensive remediation summary + implementation roadmap
 
 **Contents:**
+
 - **Code Status** (current state verification)
   - Cloud Functions: ✅ COMPLETE (3 files, all tests passing)
   - Firestore Rules: ✅ COMPLETE (lines 2340–2358)
@@ -138,7 +141,6 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
     - TC-10 (purge cron) — 1 day
     - TC-11 (UI consent checkbox) — 2 days
     - Document signatures — 1 week (external)
-  
   - **Non-blocking improvements** (3 items, backlog)
     - Firestore composite index (optional optimization)
     - Portal-RT consent dashboard (Phase 5 backlog)
@@ -170,6 +172,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Purpose:** Quick-reference deployment checklist + status dashboard
 
 **Contents:**
+
 - 1-page summary of all 3 documents
 - Gate checklist (8 items, current status)
 - Phase 5 roadmap overview
@@ -189,23 +192,24 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 **File:** `functions/src/modules/ia-strip/callables/classifyStripGemini.ts`
 
-| Line Range | Verification | Status |
-|---|---|---|
-| 56–87 | Authentication + input validation | ✅ PASS |
-| 100–108 | Lab membership check | ✅ PASS |
-| 111–116 | Lab config + confidence threshold | ✅ PASS |
-| 121 | **Consent gate invoked** | ✅ **CRITICAL** |
-| 122 | **Metadata stripper applied** | ✅ **CRITICAL** |
-| 124–147 | Guardrail audit log (fire-and-forget) | ✅ PASS |
-| 149–156 | Gemini Vision API call (with stripped Base64) | ✅ PASS |
-| 159–173 | Response validation + confidence thresholding | ✅ PASS |
-| 183–189 | Signature generation (hash + chain hash) | ✅ PASS |
-| 204–229 | Audit trail to `/imuno-ia-dev/{labId}/events/` | ✅ PASS |
-| 231–256 | Cost tracking to `/imuno-ia-cost/{labId}/daily/` | ✅ PASS |
+| Line Range | Verification                                     | Status          |
+| ---------- | ------------------------------------------------ | --------------- |
+| 56–87      | Authentication + input validation                | ✅ PASS         |
+| 100–108    | Lab membership check                             | ✅ PASS         |
+| 111–116    | Lab config + confidence threshold                | ✅ PASS         |
+| 121        | **Consent gate invoked**                         | ✅ **CRITICAL** |
+| 122        | **Metadata stripper applied**                    | ✅ **CRITICAL** |
+| 124–147    | Guardrail audit log (fire-and-forget)            | ✅ PASS         |
+| 149–156    | Gemini Vision API call (with stripped Base64)    | ✅ PASS         |
+| 159–173    | Response validation + confidence thresholding    | ✅ PASS         |
+| 183–189    | Signature generation (hash + chain hash)         | ✅ PASS         |
+| 204–229    | Audit trail to `/imuno-ia-dev/{labId}/events/`   | ✅ PASS         |
+| 231–256    | Cost tracking to `/imuno-ia-cost/{labId}/daily/` | ✅ PASS         |
 
 **Key Finding:** Consent gate is invoked BEFORE Gemini API call (line 121), blocking any image transmission if patient consent is not active. Defense-in-depth design confirmed.
 
 **Tests:**
+
 - ✅ `ia-strip.test.ts` — 6/6 scenarios passing
 - ✅ `consentGate.test.ts` — 6/6 consent validation scenarios
 - ✅ `metadataStripper.test.ts` — 4/4 EXIF removal scenarios
@@ -214,36 +218,36 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 **File 1:** `functions/src/modules/ia-strip/guardrails/consentGate.ts`
 
-| Check | Implementation | Status |
-|---|---|---|
-| Document exists | `snap.exists` validation | ✅ PASS |
-| iaProcessing === true | `data.iaProcessing !== true` throw | ✅ PASS |
-| revokedAt === null | `data.revokedAt !== null` throw | ✅ PASS |
-| consentedAt valid | `!data.consentedAt` throw | ✅ PASS |
-| Error handling | `HttpsError('failed-precondition')` | ✅ PASS |
-| Return type | `ConsentGateResult` with version + timestamp | ✅ PASS |
+| Check                 | Implementation                               | Status  |
+| --------------------- | -------------------------------------------- | ------- |
+| Document exists       | `snap.exists` validation                     | ✅ PASS |
+| iaProcessing === true | `data.iaProcessing !== true` throw           | ✅ PASS |
+| revokedAt === null    | `data.revokedAt !== null` throw              | ✅ PASS |
+| consentedAt valid     | `!data.consentedAt` throw                    | ✅ PASS |
+| Error handling        | `HttpsError('failed-precondition')`          | ✅ PASS |
+| Return type           | `ConsentGateResult` with version + timestamp | ✅ PASS |
 
 **File 2:** `functions/src/modules/ia-strip/guardrails/metadataStripper.ts`
 
-| Feature | Status |
-|---|---|
-| EXIF removal | ✅ Implemented |
-| GPS coordinates removal | ✅ Implemented |
-| Device info removal | ✅ Implemented |
-| Comment/description removal | ✅ Implemented |
-| Audit fields (originalSize, sizeAfter, hadMetadata) | ✅ Logged |
+| Feature                                             | Status         |
+| --------------------------------------------------- | -------------- |
+| EXIF removal                                        | ✅ Implemented |
+| GPS coordinates removal                             | ✅ Implemented |
+| Device info removal                                 | ✅ Implemented |
+| Comment/description removal                         | ✅ Implemented |
+| Audit fields (originalSize, sizeAfter, hadMetadata) | ✅ Logged      |
 
 ### Firestore Rules (✅ COMPLETE)
 
 **Collection:** `/consents/{labId}/patients/{patientId}`
 **Lines:** 2340–2358 in `firestore.rules`
 
-| Access Type | Rule | Compliance | Status |
-|---|---|---|---|
-| **Read** | `isActiveMemberOfLab(labId) \|\| request.auth.uid == patientId` | LGPD Art. 18 (access right) | ✅ PASS |
-| **Create/Update** | `(isActiveMemberOfLab && role in [rt,admin,owner]) \|\| (uid == patientId && iaProcessing in [true,false])` | LGPD Art. 7 (consent) + RDC 978 Art. 128 (RT accountability) | ✅ PASS |
-| **Delete** | `false` (forbidden) | RN-06 (soft-delete only) | ✅ PASS |
-| **Helper functions** | `isActiveMemberOfLab()` and `getMemberRole()` | Multi-tenant isolation | ✅ PASS |
+| Access Type          | Rule                                                                                                        | Compliance                                                   | Status  |
+| -------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------ | ------- |
+| **Read**             | `isActiveMemberOfLab(labId) \|\| request.auth.uid == patientId`                                             | LGPD Art. 18 (access right)                                  | ✅ PASS |
+| **Create/Update**    | `(isActiveMemberOfLab && role in [rt,admin,owner]) \|\| (uid == patientId && iaProcessing in [true,false])` | LGPD Art. 7 (consent) + RDC 978 Art. 128 (RT accountability) | ✅ PASS |
+| **Delete**           | `false` (forbidden)                                                                                         | RN-06 (soft-delete only)                                     | ✅ PASS |
+| **Helper functions** | `isActiveMemberOfLab()` and `getMemberRole()`                                                               | Multi-tenant isolation                                       | ✅ PASS |
 
 **Key Finding:** Rules correctly enforce RT role for setting patient consent on behalf + granular patient self-service updates. Multi-tenant isolation via path parameter `{labId}` is enforced.
 
@@ -251,13 +255,13 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 **Component:** `src/features/ia-strip/components/StripCapture.tsx`
 
-| Feature | Status | Blocker? |
-|---|---|---|
-| Consent checkbox | ❌ NOT FOUND | YES (TC-11) |
-| Consent copy/description | ❌ NOT FOUND | YES (TC-11) |
-| Image cropping overlay | ❌ NOT FOUND | YES (TC-02) |
-| Conditional IA button enable | ❌ NOT FOUND | YES (TC-11) |
-| Manual read fallback | ❌ NOT FOUND | NO (can default) |
+| Feature                      | Status       | Blocker?         |
+| ---------------------------- | ------------ | ---------------- |
+| Consent checkbox             | ❌ NOT FOUND | YES (TC-11)      |
+| Consent copy/description     | ❌ NOT FOUND | YES (TC-11)      |
+| Image cropping overlay       | ❌ NOT FOUND | YES (TC-02)      |
+| Conditional IA button enable | ❌ NOT FOUND | YES (TC-11)      |
+| Manual read fallback         | ❌ NOT FOUND | NO (can default) |
 
 **Impact:** Feature works via RT-initiated consent (server-side), but patient-facing UI not yet built. Blocks patient self-service consent flow but not core functionality.
 
@@ -268,14 +272,13 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 ### Gate 1: Documentation Signatures (⏳ PENDING)
 
 **Items:**
+
 - [ ] IT-LGPD-DPIA-002 v0.1 signed (RT, DPO, CTO)
   - **File:** `docs/policies/IT-LGPD-DPIA-002-v1.0.md`
   - **Status:** DRAFT, pending 3 signatures
-  
 - [ ] POL-LGPD-001-AMENDMENT-2026-05-08 signed (RT, DPO, CTO)
   - **File:** `docs/lgpd/POL-LGPD-001-AMENDMENT-2026-05-08.md`
   - **Status:** DRAFT, pending 3 signatures
-  
 - [ ] Google Cloud DPA signed + archived
   - **Action:** Obtain signed `google-dpa-hmatologia2-2026-05.pdf`
   - **Archive location:** `docs/contracts/`
@@ -284,19 +287,19 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 ### Gate 2: Technical Controls TC-01 through TC-11 (🟢 MOSTLY COMPLETE)
 
-| Control | Status | Days to Fix |
-|---------|--------|---|
-| TC-01 — No Base64 persist post-Gemini | ✅ Code OK | 0 |
-| TC-02 — Client-side cropping | ❌ Pending | 2 |
-| TC-03 — Vertex AI no-training tier | ⚠️ Confirm | 1 |
-| TC-04 — TLS 1.2+ transport | ✅ GCP default | 0 |
-| TC-05 — Secret Manager + 90d rotation | ✅ Implemented | 0 |
-| TC-06 — Tamper-evident audit | ✅ Implemented | 0 |
-| TC-07 — Confidence threshold | ✅ Implemented | 0 |
-| TC-08 — Log audit clean | ⚠️ Manual review | 1 |
-| TC-09 — No PII in prompt | ✅ Code design | 0 |
-| TC-10 — Scheduled purge cron | ❌ Pending | 1 |
-| TC-11 — UI opt-out toggle | ❌ Pending | 2 |
+| Control                               | Status           | Days to Fix |
+| ------------------------------------- | ---------------- | ----------- |
+| TC-01 — No Base64 persist post-Gemini | ✅ Code OK       | 0           |
+| TC-02 — Client-side cropping          | ❌ Pending       | 2           |
+| TC-03 — Vertex AI no-training tier    | ⚠️ Confirm       | 1           |
+| TC-04 — TLS 1.2+ transport            | ✅ GCP default   | 0           |
+| TC-05 — Secret Manager + 90d rotation | ✅ Implemented   | 0           |
+| TC-06 — Tamper-evident audit          | ✅ Implemented   | 0           |
+| TC-07 — Confidence threshold          | ✅ Implemented   | 0           |
+| TC-08 — Log audit clean               | ⚠️ Manual review | 1           |
+| TC-09 — No PII in prompt              | ✅ Code design   | 0           |
+| TC-10 — Scheduled purge cron          | ❌ Pending       | 1           |
+| TC-11 — UI opt-out toggle             | ❌ Pending       | 2           |
 
 **Total effort:** 7 days (sequential: can parallelize some)
 **Optimized schedule:** 5 days (Phases 5.2–5.3 parallel)
@@ -304,6 +307,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 ### Gate 3: Risk Register (⏳ PENDING)
 
 **Items:**
+
 - [ ] RISK-IA-01 through RISK-IA-08 registered in `/risks` module
   - **Details:** Per IT-LGPD-DPIA-002 §10
   - **Categories:** `categoria='dados-pessoais'`
@@ -313,14 +317,14 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 ### Gate 4: Testing & Audits (🟡 PARTIAL)
 
-| Test | Status | Days to Complete |
-|------|--------|---|
-| E2E: Patient consent true → classification allowed | 🟡 Partially written | 1 |
-| E2E: Patient consent false → classification blocked | ❌ Pending | 1 |
-| E2E: Consent revoked → classification blocked | ❌ Pending | 1 |
-| Firestore rules emulator tests | ✅ Passing (6/6) | 0 |
-| Cloud Logs audit clean (TC-08) | ❌ Manual needed | 1 |
-| Staging smoke test | ⏳ Pending deploy | 1 |
+| Test                                                | Status               | Days to Complete |
+| --------------------------------------------------- | -------------------- | ---------------- |
+| E2E: Patient consent true → classification allowed  | 🟡 Partially written | 1                |
+| E2E: Patient consent false → classification blocked | ❌ Pending           | 1                |
+| E2E: Consent revoked → classification blocked       | ❌ Pending           | 1                |
+| Firestore rules emulator tests                      | ✅ Passing (6/6)     | 0                |
+| Cloud Logs audit clean (TC-08)                      | ❌ Manual needed     | 1                |
+| Staging smoke test                                  | ⏳ Pending deploy    | 1                |
 
 **Total effort:** 5 days (parallel to engineering)
 
@@ -333,6 +337,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Owner:** DPO, RT, CTO, Legal
 
 **Tasks:**
+
 - [ ] DPO reviews IT-LGPD-DPIA-002 (3 days)
 - [ ] RT reviews POL-LGPD-001-AMENDMENT (2 days)
 - [ ] CTO reviews both + signs (1 day)
@@ -351,16 +356,19 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Parallel tracks:**
 
 **Track A: Image Cropping (TC-02)**
+
 - Day 1: Visual guide overlay + auto-crop logic
 - Day 2: Manual adjustment handles + size validation
 - Deliverable: `src/features/ia-strip/components/StripCapture.tsx` (updated)
 
 **Track B: Consent UI (TC-11)**
+
 - Day 1: Checkbox + copy + conditional rendering
 - Day 2: Timestamp capture + payload integration
 - Deliverable: Same file as Track A
 
 **Track C: Vertex AI Confirmation (TC-03)**
+
 - Day 1: Confirm GCP tier OR migrate to Vertex AI SDK
 - Deliverable: Updated `functions/src/modules/ia-strip/callables/classifyStripGemini.ts` (or attestation email archived)
 
@@ -373,6 +381,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Owner:** Engineering
 
 **Task (TC-10):**
+
 - Day 1: Implement `scheduledPurgeIaEvents` cron
   - Query: `imuno-ia-dev/{labId}/events where classifiedAt < (now - 5 years)`
   - Action: Soft-delete (set `deletadoEm`)
@@ -388,6 +397,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Owner:** QA + Engineering
 
 **Tasks:**
+
 - Days 1–2: Write E2E tests (consent true/false/revoked)
 - Days 2–3: Manual Cloud Logs audit (TC-08)
 - Days 3–4: Staging deployment + smoke test
@@ -395,7 +405,8 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 
 **Blockers:** Phase 5.2 (need code for testing)
 
-**Sign-off:** 
+**Sign-off:**
+
 - 6/6 E2E tests passing
 - Cloud Logs clean (no PII)
 - Staging smoke test successful
@@ -405,6 +416,7 @@ BLOCKER 3 (LGPD DPIA + Consent) has been fully remediated with a comprehensive p
 **Owner:** DevOps + RT
 
 **Pre-deploy (Days 1–2):**
+
 ```bash
 npx tsc --noEmit                                    # ✅ Type-check
 npm run build                                       # ✅ Build
@@ -414,6 +426,7 @@ firebase deploy ... --dry-run                       # ✅ Dry-run
 ```
 
 **Deploy (Day 3):**
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes  # 1. Rules
 firebase deploy --only functions:classifyStripGemini      # 2. Functions
@@ -421,6 +434,7 @@ firebase deploy --only hosting                             # 3. Hosting
 ```
 
 **Post-deploy (Days 4–5):**
+
 - Login as patient + RT in **production**
 - Verify consent doc created in Firestore
 - Trigger classification → verify audit trail
@@ -435,33 +449,33 @@ firebase deploy --only hosting                             # 3. Hosting
 
 ### LGPD (Lei 13.709/2018)
 
-| Article | Requirement | Evidence | Status |
-|---------|---|---|---|
-| **Art. 5º, II** | Sensitive data | DPIA-GEMINI-VISION-ADDENDUM §3 | ✅ Documented |
-| **Art. 6º, VI** | Transparency | POL-LGPD-001-AMENDMENT §2.1 | ⏳ Sig pending |
-| **Art. 6º, X** | Accountability | Firestore rules + audit trail | ✅ Implemented |
-| **Art. 7º, II** | Legal obligation | POL-LGPD-001-AMENDMENT §2.3 | ⏳ Sig pending |
-| **Art. 11, II, f** | Health protection | IT-LGPD-DPIA-002 §4.1 | ⏳ Sig pending |
-| **Art. 11, II, a** | Specific consent | IA-STRIP-CONSENT-FLOW §3 | ⏳ Sig pending |
-| **Art. 18** | Data subject rights | LGPD-CONSENT-FIRESTORE-CHECKLIST §4.2 | ✅ Implemented (read) |
-| **Art. 20** | Human review | POL-LGPD-001-AMENDMENT §2.6 | ⏳ UI pending (TC-11) |
-| **Art. 33** | Intl transfers | IT-LGPD-DPIA-002 §8 | ⏳ DPA sig pending |
+| Article            | Requirement         | Evidence                              | Status                |
+| ------------------ | ------------------- | ------------------------------------- | --------------------- |
+| **Art. 5º, II**    | Sensitive data      | DPIA-GEMINI-VISION-ADDENDUM §3        | ✅ Documented         |
+| **Art. 6º, VI**    | Transparency        | POL-LGPD-001-AMENDMENT §2.1           | ⏳ Sig pending        |
+| **Art. 6º, X**     | Accountability      | Firestore rules + audit trail         | ✅ Implemented        |
+| **Art. 7º, II**    | Legal obligation    | POL-LGPD-001-AMENDMENT §2.3           | ⏳ Sig pending        |
+| **Art. 11, II, f** | Health protection   | IT-LGPD-DPIA-002 §4.1                 | ⏳ Sig pending        |
+| **Art. 11, II, a** | Specific consent    | IA-STRIP-CONSENT-FLOW §3              | ⏳ Sig pending        |
+| **Art. 18**        | Data subject rights | LGPD-CONSENT-FIRESTORE-CHECKLIST §4.2 | ✅ Implemented (read) |
+| **Art. 20**        | Human review        | POL-LGPD-001-AMENDMENT §2.6           | ⏳ UI pending (TC-11) |
+| **Art. 33**        | Intl transfers      | IT-LGPD-DPIA-002 §8                   | ⏳ DPA sig pending    |
 
 ### RDC 978/2025 (ANVISA)
 
-| Article | Requirement | Evidence | Status |
-|---------|---|---|---|
-| **Art. 115** | 5-year retention | LGPD-CONSENT-FIRESTORE-CHECKLIST §5.2 | ✅ Designed (cron pending) |
-| **Art. 128** | RT accountability | Firestore rules (RT role validation) | ✅ Implemented |
-| **Art. 167** | Disclosure + consent | POL-LGPD-001-AMENDMENT §2.1 | ⏳ Sig pending |
+| Article      | Requirement          | Evidence                              | Status                     |
+| ------------ | -------------------- | ------------------------------------- | -------------------------- |
+| **Art. 115** | 5-year retention     | LGPD-CONSENT-FIRESTORE-CHECKLIST §5.2 | ✅ Designed (cron pending) |
+| **Art. 128** | RT accountability    | Firestore rules (RT role validation)  | ✅ Implemented             |
+| **Art. 167** | Disclosure + consent | POL-LGPD-001-AMENDMENT §2.1           | ⏳ Sig pending             |
 
 ### DICQ (Bloco J — Proteção de Dados)
 
-| Requirement | Evidence | Status |
-|---|---|---|
-| **4.3** Documentation | POL + DPIA + Consent flow | ⏳ Sig pending |
-| **4.4** Audit trail | Firestore rules + Cloud Functions | ✅ Implemented |
-| **4.14.6** Risk management | Risk register (RISK-IA-01–08) | ⏳ Pending registration |
+| Requirement                | Evidence                          | Status                  |
+| -------------------------- | --------------------------------- | ----------------------- |
+| **4.3** Documentation      | POL + DPIA + Consent flow         | ⏳ Sig pending          |
+| **4.4** Audit trail        | Firestore rules + Cloud Functions | ✅ Implemented          |
+| **4.14.6** Risk management | Risk register (RISK-IA-01–08)     | ⏳ Pending registration |
 
 ---
 
@@ -511,6 +525,7 @@ firebase deploy --only hosting                             # 3. Hosting
 **BLOCKER 3 remediation is complete and ready for deployment gates review.**
 
 The remediation package provides:
+
 - ✅ Complete code verification (95% shipped, 5% pending)
 - ✅ Comprehensive DPIA + Policy documentation
 - ✅ Security architecture validation (defense-in-depth)

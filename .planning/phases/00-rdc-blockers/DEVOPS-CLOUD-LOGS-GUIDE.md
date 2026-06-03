@@ -24,12 +24,14 @@ Run in separate terminals, one per plan. Each monitor runs for 24 hours continuo
 #### Plan 00-01 (turnos)
 
 **macOS/Linux:**
+
 ```bash
 # Terminal 1
 bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 # Terminal 1
 & '.\scripts\monitor-cloud-logs.ps1' -Duration 24 -Interval 30 | Tee-Object -FilePath '.planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md'
@@ -38,12 +40,14 @@ bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-0
 #### Plan 00-02 (LGPD)
 
 **macOS/Linux:**
+
 ```bash
 # Terminal 2
 bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-02-cloud-logs-day1.md
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 # Terminal 2
 & '.\scripts\monitor-cloud-logs.ps1' -Duration 24 -Interval 30 | Tee-Object -FilePath '.planning/phases/00-rdc-blockers/00-02-cloud-logs-day1.md'
@@ -52,12 +56,14 @@ bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-0
 #### Plan 00-03 (lab-apoio)
 
 **macOS/Linux:**
+
 ```bash
 # Terminal 3
 bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-03-cloud-logs-day1.md
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 # Terminal 3
 & '.\scripts\monitor-cloud-logs.ps1' -Duration 24 -Interval 30 | Tee-Object -FilePath '.planning/phases/00-rdc-blockers/00-03-cloud-logs-day1.md'
@@ -66,18 +72,21 @@ bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-0
 #### Plan 00-04 (risks)
 
 **macOS/Linux:**
+
 ```bash
 # Terminal 4
 bash scripts/monitor-cloud-logs.sh 24 30 > .planning/phases/00-rdc-blockers/00-04-cloud-logs-day1.md
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 # Terminal 4
 & '.\scripts\monitor-cloud-logs.ps1' -Duration 24 -Interval 30 | Tee-Object -FilePath '.planning/phases/00-rdc-blockers/00-04-cloud-logs-day1.md'
 ```
 
 **Note:** Scripts run in background. Monitor progress with tail or Get-Content:
+
 ```bash
 tail -f .planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md
 ```
@@ -89,6 +98,7 @@ tail -f .planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md
 Watch for these signals in real-time (check outputs every 2–4 hours):
 
 **Green lights (✅):**
+
 - No errors in function execution (0 errors from `turnos_*`, `labApoio_*`, `risks_*`, `lgpd_scheduledAnnualReview`)
 - No Firestore permission errors (rules enforced correctly)
 - No Storage errors (PDF uploads in lab-apoio succeed)
@@ -96,11 +106,13 @@ Watch for these signals in real-time (check outputs every 2–4 hours):
 - Latencies <500ms for callables, <2s for cron jobs
 
 **Yellow flags (⚠️):**
+
 - High latencies (>1s) — may indicate cold starts or resource constraints
 - Occasional timeouts — document frequency
 - Permission warnings — check DL-1 rules implementation
 
 **Red flags (❌):**
+
 - Persistent errors across multiple invocations
 - Firestore quota errors (`RESOURCE_EXHAUSTED`)
 - Storage permission denials
@@ -111,17 +123,20 @@ Watch for these signals in real-time (check outputs every 2–4 hours):
 ### 3. Review Generated Reports
 
 Each script produces an `.md` file with automated analysis:
+
 - **Summary:** error count, warning count, execution totals
 - **Timeline:** event breakdown by hour
 - **Recommendations:** anomalies and tuning suggestions
 
 **Expected output (sample):**
+
 ```markdown
 # Cloud Logs Report — Phase 0 Plan 00-01 (turnos)
 
 Duration: 24h (2026-05-07 14:00 UTC → 2026-05-08 14:00 UTC)
 
 Functions:
+
 - turnos_createTurno
 - turnos_updateTurno
 - turnos_softDeleteTurno
@@ -129,6 +144,7 @@ Functions:
 - onTurnoEventCreated
 
 ## Execution Summary
+
 - Successful calls: 47
 - Failed calls: 0
 - Errors: 0
@@ -137,13 +153,15 @@ Functions:
 - Max latency: 1,240ms
 
 ## Timeline
-| Hour | Calls | Avg Latency | Errors | Status |
-|------|-------|-------------|--------|--------|
-| 14:00–15:00 UTC | 8 | 95ms | 0 | ✅ |
-| 15:00–16:00 UTC | 7 | 142ms | 0 | ✅ |
-| ... | ... | ... | ... | ... |
+
+| Hour            | Calls | Avg Latency | Errors | Status |
+| --------------- | ----- | ----------- | ------ | ------ |
+| 14:00–15:00 UTC | 8     | 95ms        | 0      | ✅     |
+| 15:00–16:00 UTC | 7     | 142ms       | 0      | ✅     |
+| ...             | ...   | ...         | ...    | ...    |
 
 ## Recommendation
+
 No anomalies detected. Production ready. ✅
 ```
 
@@ -167,8 +185,10 @@ Once all 4 reports complete (24h monitoring + ~1h for processing = ~25h elapsed)
 3. **Archive reports** (already saved automatically)
 
 4. **Update Phase 0 Closure** in `.planning/STATE.md`:
+
    ```markdown
    ## Phase 0: COMPLETE ✅
+
    - Cloud Logs: 4/4 plans monitored 24h, all green
    - Functions: All 4 deployments stable
    - Estimated DICQ delta: +4–5 points (78.5% → 82–83%)
@@ -187,12 +207,14 @@ Once all 4 reports complete (24h monitoring + ~1h for processing = ~25h elapsed)
 ### Script fails to run
 
 **Check gcloud authentication:**
+
 ```bash
 gcloud auth list
 gcloud config get-value project  # Should be: hmatologia2
 ```
 
 **Verify script path:**
+
 ```bash
 ls -la scripts/monitor-cloud-logs.sh   # macOS/Linux
 ls -Recurse scripts\monitor-cloud-logs.ps1  # Windows
@@ -201,39 +223,47 @@ ls -Recurse scripts\monitor-cloud-logs.ps1  # Windows
 ### No logs appearing
 
 **Check function names in filter:**
+
 - Deployed functions should include: `turnos_*`, `labApoio_*`, `risks_*`, `lgpd_*`
 
 **Verify functions deployed successfully:**
+
 ```bash
 firebase deploy --list --project hmatologia2
 # Check for all 4 plan functions in the list
 ```
 
 **Check region:**
+
 - All Phase 0 functions deployed to `southamerica-east1`
 - Filter in monitoring script must match
 
 ### High error rates
 
 **Check Firestore rules:**
+
 - Verify DL-1 enforcement rules compiled correctly
 - Test rule with `firebase emulators:start` locally
 
 **Check function environment variables:**
+
 - API keys, Firebase service account, Gemini key (for lab-apoio PDFs)
 - Review in Firebase Console → Functions → Environment
 
 **Check Storage permissions:**
+
 - PDF upload paths must match Security Rules (lab-apoio module)
 - Verify service account has `storage.buckets.get` + `storage.objects.create`
 
 **Check scheduler configuration:**
+
 - Verify cron strings are valid: `gcloud scheduler jobs list --location=southamerica-east1`
 - Expected: 4 jobs (lgpd, lab-apoio, risks, and one backup)
 
 ### Disk space or log file size
 
 **If .md files grow large (>100 MB):**
+
 ```bash
 # Compress completed report
 gzip .planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md
@@ -260,6 +290,7 @@ Copy this into `.planning/STATE.md` after all 4 reports are green:
 **Date:** 2026-05-[XX] (24h window)
 
 **Reports:**
+
 - ✅ 00-01 (turnos): 0 errors, 47 calls, avg 127ms
 - ✅ 00-02 (LGPD): [summary here]
 - ✅ 00-03 (lab-apoio): [summary here]

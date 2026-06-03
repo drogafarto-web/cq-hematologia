@@ -15,11 +15,7 @@ import type { Timestamp } from '../../../shared/services/firebase';
 
 export type CategoriaCompetencia = 'analito' | 'equipamento' | 'procedimento';
 
-export type NivelCompetencia =
-  | 'nao_habilitado'
-  | 'em_treinamento'
-  | 'habilitado'
-  | 'especialista';
+export type NivelCompetencia = 'nao_habilitado' | 'em_treinamento' | 'habilitado' | 'especialista';
 
 export const NIVEL_LABEL: Record<NivelCompetencia, string> = {
   nao_habilitado: 'Não habilitado',

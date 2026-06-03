@@ -48,7 +48,7 @@ export function watchSupervisoes(
   return onSnapshot(
     q,
     (snap) => {
-      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() } as SupervisaoRegistro));
+      const items = snap.docs.map((d) => ({ id: d.id, ...d.data() }) as SupervisaoRegistro);
       callback(items);
     },
     (err) => {
@@ -60,10 +60,7 @@ export function watchSupervisoes(
 
 // ─── Create ─────────────────────────────────────────────────────────────────
 
-export async function createSupervisao(
-  labId: LabId,
-  input: SupervisaoInput,
-): Promise<string> {
+export async function createSupervisao(labId: LabId, input: SupervisaoInput): Promise<string> {
   const ref = doc(supervisoesCol(labId));
   await setDoc(ref, {
     ...input,
@@ -81,7 +78,9 @@ export async function createSupervisao(
 export async function updateSupervisao(
   labId: LabId,
   id: string,
-  updates: Partial<Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>>,
+  updates: Partial<
+    Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>
+  >,
 ): Promise<void> {
   const ref = doc(supervisoesCol(labId), id);
   await updateDoc(ref, {
@@ -92,10 +91,7 @@ export async function updateSupervisao(
 
 // ─── Soft Delete ────────────────────────────────────────────────────────────
 
-export async function softDeleteSupervisao(
-  labId: LabId,
-  id: string,
-): Promise<void> {
+export async function softDeleteSupervisao(labId: LabId, id: string): Promise<void> {
   const ref = doc(supervisoesCol(labId), id);
   await updateDoc(ref, {
     deletadoEm: Timestamp.now(),

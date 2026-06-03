@@ -15,8 +15,13 @@ import type { ControlMaterial } from '../types';
 function TrashIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2 4h10M5.5 4V2.5a1 1 0 011-1h1a1 1 0 011 1V4M2 4v7.5a1 1 0 001 1h8a1 1 0 001-1V4M5 7v4M7 7v4M9 7v4"
-        stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 4h10M5.5 4V2.5a1 1 0 011-1h1a1 1 0 011 1V4M2 4v7.5a1 1 0 001 1h8a1 1 0 001-1V4M5 7v4M7 7v4M9 7v4"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -24,8 +29,13 @@ function TrashIcon() {
 function RestoreIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2 7a5 5 0 0110 0M12 7V4h-3"
-        stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 7a5 5 0 0110 0M12 7V4h-3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -33,8 +43,13 @@ function RestoreIcon() {
 function SwapIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-      <path d="M2 4h6v2M12 10H6v-2M2 4l1.5 1.5M12 10l-1.5-1.5"
-        stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 4h6v2M12 10H6v-2M2 4l1.5 1.5M12 10l-1.5-1.5"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -130,7 +145,14 @@ export function LotManager({ onLotCreated }: LotManagerProps) {
               <p className="text-sm text-white/40">Nenhum lote em uso</p>
             </div>
           ) : (
-            lotsEmUso.map((lot) => <LotCard key={lot.id} lot={lot} onDelete={handleDelete} loading={deletingId === lot.id} />)
+            lotsEmUso.map((lot) => (
+              <LotCard
+                key={lot.id}
+                lot={lot}
+                onDelete={handleDelete}
+                loading={deletingId === lot.id}
+              />
+            ))
           ))}
 
         {tab === 'disponiveis' &&
@@ -140,13 +162,14 @@ export function LotManager({ onLotCreated }: LotManagerProps) {
             </div>
           ) : (
             lotsDisponiveis.map((lot) => (
-              <div key={lot.id} className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5">
+              <div
+                key={lot.id}
+                className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white/90 font-medium">{lot.lote}</p>
-                    <p className="text-xs text-white/40 mt-1">
-                      Fornecedor: {lot.fornecedor}
-                    </p>
+                    <p className="text-xs text-white/40 mt-1">Fornecedor: {lot.fornecedor}</p>
                   </div>
                   <button
                     onClick={() => handleMarkDisponivel(lot.id)}
@@ -169,7 +192,10 @@ export function LotManager({ onLotCreated }: LotManagerProps) {
             </div>
           ) : (
             lotsHistorico.map((lot) => (
-              <div key={lot.id} className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5 opacity-60">
+              <div
+                key={lot.id}
+                className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3.5 opacity-60"
+              >
                 <div className="flex items-center justify-between gap-3">
                   <div className="flex-1 min-w-0">
                     <p className="text-sm text-white/60">{lot.lote}</p>
@@ -214,7 +240,9 @@ interface LotCardProps {
 function LotCard({ lot, onDelete, loading }: LotCardProps) {
   const today = new Date();
   const validadeDate = lot.validade instanceof Date ? lot.validade : lot.validade.toDate?.();
-  const expiresIn = validadeDate ? Math.ceil((validadeDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)) : 0;
+  const expiresIn = validadeDate
+    ? Math.ceil((validadeDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+    : 0;
   const isExpiringSoon = expiresIn <= 7 && expiresIn > 0;
   const isExpired = expiresIn <= 0;
 

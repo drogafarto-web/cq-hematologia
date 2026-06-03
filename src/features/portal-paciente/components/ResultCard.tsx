@@ -43,14 +43,14 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onViewDetails })
       {/* Header: Exam name + Status badge */}
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="flex-1 min-w-0">
-          <h3 className="text-sm font-medium text-white/95 truncate">
-            {result.examName}
-          </h3>
+          <h3 className="text-sm font-medium text-white/95 truncate">{result.examName}</h3>
           <p className="text-xs text-white/50 mt-1">
             Coleta: {new Date(result.examDate.toDate()).toLocaleDateString('pt-BR')}
           </p>
         </div>
-        <div className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap ${status.badge}`}>
+        <div
+          className={`px-2.5 py-1 rounded text-xs font-medium whitespace-nowrap ${status.badge}`}
+        >
           {status.label}
         </div>
       </div>
@@ -59,17 +59,11 @@ export const ResultCard: React.FC<ResultCardProps> = ({ result, onViewDetails })
       {result.resultValue && (
         <div className="mb-3 p-3 bg-white/3 rounded border border-white/5">
           <div className="flex items-baseline gap-2">
-            <span className="text-lg font-semibold text-white/95">
-              {result.resultValue}
-            </span>
-            {result.unit && (
-              <span className="text-xs text-white/60">{result.unit}</span>
-            )}
+            <span className="text-lg font-semibold text-white/95">{result.resultValue}</span>
+            {result.unit && <span className="text-xs text-white/60">{result.unit}</span>}
           </div>
           {result.referenceRange && (
-            <p className="text-xs text-white/50 mt-1">
-              Ref. {result.referenceRange}
-            </p>
+            <p className="text-xs text-white/50 mt-1">Ref. {result.referenceRange}</p>
           )}
         </div>
       )}

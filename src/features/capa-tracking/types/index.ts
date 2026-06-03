@@ -14,11 +14,21 @@
 // ──────────────────────────────────────────────────────────────────────────
 
 // English status per plan spec
-export type CapaStateNew = 'open' | 'in-progress' | 'evidence-submitted' | 'auditor-reviewing' | 'closed';
+export type CapaStateNew =
+  | 'open'
+  | 'in-progress'
+  | 'evidence-submitted'
+  | 'auditor-reviewing'
+  | 'closed';
 export type CapaSeverityNew = 'critical' | 'major' | 'minor';
 
 // Portuguese status for backward compatibility with components
-export type CapaStateLegacy = 'aberto' | 'em-andamento' | 'evidencia-submetida' | 'auditor-revisando' | 'fechado';
+export type CapaStateLegacy =
+  | 'aberto'
+  | 'em-andamento'
+  | 'evidencia-submetida'
+  | 'auditor-revisando'
+  | 'fechado';
 export type CapaSeverityLegacy = 'critica' | 'alta' | 'media';
 
 // Union types for public API (components don't distinguish)
@@ -110,19 +120,31 @@ export interface CapaDocument {
 // Helpers puros
 export function isValidStateTransition(from: CapaState, to: CapaState): boolean {
   // Normalize to English for comparison
-  const normalizedFrom = from === 'aberto' ? 'open'
-    : from === 'em-andamento' ? 'in-progress'
-    : from === 'evidencia-submetida' ? 'evidence-submitted'
-    : from === 'auditor-revisando' ? 'auditor-reviewing'
-    : from === 'fechado' ? 'closed'
-    : from;
+  const normalizedFrom =
+    from === 'aberto'
+      ? 'open'
+      : from === 'em-andamento'
+        ? 'in-progress'
+        : from === 'evidencia-submetida'
+          ? 'evidence-submitted'
+          : from === 'auditor-revisando'
+            ? 'auditor-reviewing'
+            : from === 'fechado'
+              ? 'closed'
+              : from;
 
-  const normalizedTo = to === 'aberto' ? 'open'
-    : to === 'em-andamento' ? 'in-progress'
-    : to === 'evidencia-submetida' ? 'evidence-submitted'
-    : to === 'auditor-revisando' ? 'auditor-reviewing'
-    : to === 'fechado' ? 'closed'
-    : to;
+  const normalizedTo =
+    to === 'aberto'
+      ? 'open'
+      : to === 'em-andamento'
+        ? 'in-progress'
+        : to === 'evidencia-submetida'
+          ? 'evidence-submitted'
+          : to === 'auditor-revisando'
+            ? 'auditor-reviewing'
+            : to === 'fechado'
+              ? 'closed'
+              : to;
 
   // closed não tem transições válidas
   if (normalizedFrom === 'closed') return false;
@@ -130,11 +152,11 @@ export function isValidStateTransition(from: CapaState, to: CapaState): boolean 
   if (normalizedFrom === 'auditor-reviewing' && normalizedTo === 'in-progress') return true;
   // Caso geral: transições sequenciais conforme estado atual
   const validNext: Record<CapaStateNew, CapaStateNew[]> = {
-    'open': ['in-progress'],
+    open: ['in-progress'],
     'in-progress': ['evidence-submitted'],
     'evidence-submitted': ['auditor-reviewing'],
     'auditor-reviewing': ['closed', 'in-progress'],
-    'closed': []
+    closed: [],
   };
   return validNext[normalizedFrom as CapaStateNew]?.includes(normalizedTo as CapaStateNew) ?? false;
 }

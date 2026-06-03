@@ -14,8 +14,9 @@ compliance_target: 88%+ (v1.4)
 HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-ready baseline. However, to reach **premium standing (85%+) before external audit (Oct 2026)**, v1.4 must close strategic gaps across 10 DICQ blocks.
 
 **Key Finding:** Four blocks drive 70% of the remaining gap:
+
 - **Block B** (Gestão Documental): 65% → 92% (+27 pts) — already high-ROI with SGD foundation
-- **Block D** (Qualidade & Compliance): 60% → 85% (+25 pts) — risk management + audit cycle infrastructure  
+- **Block D** (Qualidade & Compliance): 60% → 85% (+25 pts) — risk management + audit cycle infrastructure
 - **Block G** (Pós-Analítico & Laudos): 70% → 92% (+22 pts) — patient portal + critical values
 - **Block C** (Pessoal): 80% → 92% (+12 pts) — unified dossier + supervisor presence
 
@@ -25,19 +26,19 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 
 ## 1. Conformance Matrix — All Blocks (A–J)
 
-| Block | Title | v1.3 % | v1.4 Target | Gap | Driver Requirements | v1.4 Phases | Effort | Confidence |
-|-------|-------|--------|------------|-----|---------------------|------------|--------|------------|
-| **A** | Governance & Direction | 78% | 92% | +14 | Governance policy + management review + formal designations | 0, 4, 9, 13 | M | 🟡 Medium |
-| **B** | Document Management (SGD) | 65% | 92% | +27 ⭐ | Master List + hierarchy + approval workflow + Riopomba migration | 3, 9 | M | ✅ High |
-| **C** | Personnel | 80% | 92% | +12 | Unified dossier (5.1.9) + supervisor presence + competency assessment | 0, 4, 9 | L | 🟡 Medium |
-| **D** | Quality & Compliance | 60% | 85% | +25 ⭐ | Risk management + internal audit cycle + indicators dashboard | 0, 1, 4, 7, 9, 12 | L | 🟡 Medium |
-| **E** | Pre-Analytical | 64% | 75% | +11 | Collection + transport + sample reception/rejection SOP | 6 | S | 🟡 Medium |
-| **F** | Analytical | 92% | 95% | +3 | Method validation + measurement uncertainty + CEQ annual review | 10 | S | ✅ High |
-| **G** | Post-Analytical & Reports | 70% | 92% | +22 ⭐ | Patient portal + critical values + NOTIVISA + PGRSS | 5, 6, 8, 9 | M | ✅ High |
-| **H** | Resources (Equipment/Reagents/Support) | 75% | 88% | +13 | Calibration + lab support contracts (RDC blocker) + maintenance | 0, 8, 9, 10 | M | 🟡 Medium |
-| **I** | Environment & Facilities | 64% | 80% | +16 | Environmental monitoring + biosafety + infection prevention | 9 | M | 🟡 Medium |
-| **J** | Continuity & Confidentiality | 70% | 78% | +8 | LGPD formal policy + disaster recovery (already live) | 0, 1 | S | ✅ High |
-| **Weighted Average** | — | 78.5% | **~88.5%** | **+10** | — | — | — | — |
+| Block                | Title                                  | v1.3 % | v1.4 Target | Gap     | Driver Requirements                                                   | v1.4 Phases       | Effort | Confidence |
+| -------------------- | -------------------------------------- | ------ | ----------- | ------- | --------------------------------------------------------------------- | ----------------- | ------ | ---------- |
+| **A**                | Governance & Direction                 | 78%    | 92%         | +14     | Governance policy + management review + formal designations           | 0, 4, 9, 13       | M      | 🟡 Medium  |
+| **B**                | Document Management (SGD)              | 65%    | 92%         | +27 ⭐  | Master List + hierarchy + approval workflow + Riopomba migration      | 3, 9              | M      | ✅ High    |
+| **C**                | Personnel                              | 80%    | 92%         | +12     | Unified dossier (5.1.9) + supervisor presence + competency assessment | 0, 4, 9           | L      | 🟡 Medium  |
+| **D**                | Quality & Compliance                   | 60%    | 85%         | +25 ⭐  | Risk management + internal audit cycle + indicators dashboard         | 0, 1, 4, 7, 9, 12 | L      | 🟡 Medium  |
+| **E**                | Pre-Analytical                         | 64%    | 75%         | +11     | Collection + transport + sample reception/rejection SOP               | 6                 | S      | 🟡 Medium  |
+| **F**                | Analytical                             | 92%    | 95%         | +3      | Method validation + measurement uncertainty + CEQ annual review       | 10                | S      | ✅ High    |
+| **G**                | Post-Analytical & Reports              | 70%    | 92%         | +22 ⭐  | Patient portal + critical values + NOTIVISA + PGRSS                   | 5, 6, 8, 9        | M      | ✅ High    |
+| **H**                | Resources (Equipment/Reagents/Support) | 75%    | 88%         | +13     | Calibration + lab support contracts (RDC blocker) + maintenance       | 0, 8, 9, 10       | M      | 🟡 Medium  |
+| **I**                | Environment & Facilities               | 64%    | 80%         | +16     | Environmental monitoring + biosafety + infection prevention           | 9                 | M      | 🟡 Medium  |
+| **J**                | Continuity & Confidentiality           | 70%    | 78%         | +8      | LGPD formal policy + disaster recovery (already live)                 | 0, 1              | S      | ✅ High    |
+| **Weighted Average** | —                                      | 78.5%  | **~88.5%**  | **+10** | —                                                                     | —                 | —      | —          |
 
 **Legend:** S = Small (1–3 days), M = Medium (1–2 weeks), L = Large (2–3 weeks)
 
@@ -50,6 +51,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State:** Persona roles exist; policy documents missing.
 
 **DICQ Gaps (v1.3 → v1.4):**
+
 - **4.1.1.2** Legal person (CNES, operational permit, council registration) — 🔴 Missing
 - **4.1.1.3** Guiding principles (Mission/Vision/Values) + ethics code + whistleblower hotline — 🔴 Missing
 - **4.1.2.3** Quality policy (formal document, lab-wide publication) — 🔴 Missing
@@ -57,6 +59,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **4.15** Management review (critical analysis, 15 mandatory inputs: complaints, CAPA, audits, KPIs, training, resources) — 🔴 Missing
 
 **Phases Closing Gaps:**
+
 - **Phase 0** (RDC Art. 77 blocker): Legal docs upload module + supervisor presence designation (NEW-A1, NEW-A3)
 - **Phase 9**: Governance norteadores templates in SGD + ethics code + org chart with substitutes (NEW-A2)
 - **Phase 13–14**: Management review automation (REQ-413) — aggregate data from NC, CAPA, audit, indicators
@@ -74,11 +77,13 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State (v1.3):** SGD module live with Drive importer; 80 Riopomba docs migrated. Hierarchy MQ→PQ→IT→FR→POL implemented.
 
 **DICQ Gaps:**
+
 - **4.2.2.2** Quality Manual (formal ISO 15189 template, approved) — 🟡 Partial
 - **4.3 (full)** Document hierarchy, versioning, approval workflow, distribution tracking, obsolete control — 🟡 Partial (workflows exist; approval gate incomplete)
 - **4.3 (digital + physical control)** Electronic certificates + distribution records + version seals — 🟡 Partial
 
 **v1.4 Deliverables:**
+
 - **Phase 3** (refactor): Finalize approval workflow in SGD UI (draft → review → approved → obsolete)
 - **Phase 9** (hardening): Quality Manual template + completeness audit (20 DICQ-required sections), distribution tracking with read confirmations
 
@@ -88,7 +93,8 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 
 **Estimated Effort:** M (1–2 weeks template + audit)
 
-**Notes on Orphan Resolution:** 
+**Notes on Orphan Resolution:**
+
 - Orphan 4.1.1.2 (legal docs) assigned to NEW-A1 (Phase 0)
 - Orphan 4.1.1.3 (norteadores) assigned to NEW-A2 (Phase 9)
 
@@ -99,6 +105,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State:** Employee records scattered; roles defined; training module live (educacao-continuada).
 
 **DICQ Gaps (critical: 5.1.9 — Unified Dossier):**
+
 - **5.1.1** Personnel management policy (document in SGD) — 🔴 Missing
 - **5.1.3** Job descriptions (detailed, authority, substitutes) — 🔴 Missing
 - **5.1.4** Onboarding checklist (integration of new employees) — 🔴 Missing
@@ -110,6 +117,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **5.1.11** Well-being, stress management, violence prevention (stretch goal) — 🔴 Missing
 
 **Critical Path: REQ-403 (Personnel Dossiè — 5.1.9)**
+
 - **Phase 0** (skeleton): Create unified dossier UI structure; supervisor presence designation (RDC Art. 122 blocker)
 - **Phase 9** (full): Backfill historical records; add job descriptions, onboarding checklists, competency forms, performance assessments
 
@@ -126,6 +134,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State (v1.3):** NC + CAPA tracking exists; audit trail live; KPIs module live.
 
 **DICQ Gaps:**
+
 - **4.8** Complaint handling (trending + closure loop + linkage to CAPA) — 🟡 Partial (v1.3 has intake; trending deferred)
 - **4.10** Corrective action (root cause + efficacy verification) — 🟡 Partial (12 v1.3 CAPAs need closure in Phase 4)
 - **4.11** Preventive action (proactive, process-based) — 🔴 Missing (deferred to v1.5)
@@ -141,6 +150,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **4.14.8** External organization evaluations (records, assessments) — 🔴 **ORPHAN resolved** (NEW-D2, Phase 9)
 
 **v1.4 Delivery Sequence:**
+
 - **Phase 0:** Risk management skeleton (FMEA matrix template, NPR calculator, ADR-0009)
 - **Phase 1:** Indicators dashboard (pre/analytic/pós with targets + trends)
 - **Phase 4:** CAPA closure (12 findings efficacy verified by auditor); Risk management full spec
@@ -161,6 +171,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State (v1.3):** Sample control exists; temperature monitoring live.
 
 **DICQ Gaps:**
+
 - **5.4.2** Patient information (exam catalog, preparation instructions) — 🔴 Deferred to v1.5 (patient portal out of scope)
 - **5.4.3** Patient registration + exam request (LIS-light) — ⚪ Out of scope (assumed external LIS)
 - **5.4.4** Collection (instructions, collector ID, traceability) — 🔴 Missing (REQ-404, Phase 6)
@@ -169,6 +180,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **5.4.7** Pre-analytical handling, preparation, storage — 🔴 Missing (Phase 6)
 
 **Phases Closing Gaps (Phase 6 — Coleta + Transporte):**
+
 - `coleta` module: collection instructions + barcode + mobile UI
 - `transporte-amostras`: transport SLA + temperature integration + delivery confirmation
 - Rejection SOP in SGD + auto-NC creation
@@ -187,6 +199,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State:** Strongest block. All CIQ modules live (Hema, Coag, Uro, Imuno, Bioquímica). Westgard rules + Levey-Jennings charts deployed.
 
 **DICQ Gaps (refinements):**
+
 - **5.5.1.2** Pre-use verification (formal records per module) — 🟡 Partial
 - **5.5.1.3** Validation of non-standard methods (CLSI template + status) — 🔴 Missing (REQ-405, Phase 10)
 - **5.5.1.4** Measurement uncertainty (calculation + reporting) — 🔴 Missing (REQ-405, Phase 10)
@@ -196,6 +209,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **5.6.4** Equipment/method comparability (multi-instrument) — 🔴 Stretch (Phase 10 if capacity)
 
 **Phase 10 Deliverables:**
+
 - Method validation templates (CLSI EP15 reference)
 - Measurement uncertainty calculator + dashboard
 - Biological reference intervals review UI
@@ -215,6 +229,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State (v1.3):** Liberação state machine live; RT signature functional.
 
 **DICQ Gaps:**
+
 - **5.7.1** Critical review before release (analysis workflow) — 🔴 Missing (REQ-415, Phase 5)
 - **5.7.2** Critical values (alert + physician communication + registration) — 🔴 Missing (SMS/email/Twilio, Phase 6)
 - **5.7.3** Compulsory notification (Portaria 204 MS + NOTIVISA API) — 🔴 Missing (REQ-410, Phase 8)
@@ -225,6 +240,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **5.9.3** Report review history (immutable, RT-signed) — 🟡 Partial (audit chain exists; add portal physician view Phase 5)
 
 **v1.4 Sequence:**
+
 - **Phase 5** (Liberação + Críticos partial): Patient portal MVP + physician read-only portal + audit log download
 - **Phase 6** (Valores críticos): Critical value rules + SMS/email escalation + acknowledge workflow + SLA tracking
 - **Phase 8** (NOTIVISA): Integration with gov API + Portaria 204 (notifiable diseases) + RT approval gate + audit trail
@@ -243,6 +259,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 **Current State:** Equipment + supplies modules live; fornecedores module live. Temperature monitoring via controle-temperatura.
 
 **DICQ Gaps:**
+
 - **4.5** Laboratory support contracts (minimum 6 contractual clauses per RDC Art. 36–39) — 🔴 **RDC BLOCKER** (NEW-H1, Phase 0)
 - **4.5.2** Support lab report (faithful transcription, traceability) — 🔴 Missing (Phase 0, Phase 9 formalization)
 - **5.3.1.4** Calibration + metrological traceability (certificate upload + alerts) — 🔴 Missing (REQ-408, Phase 9)
@@ -252,6 +269,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 - **5.3.2.3** Acceptance test for batch/formulation changes — 🟡 Partial (Phase 10 lot expiry validator extension)
 
 **Critical: Phase 0 Must Deliver NEW-H1 (Lab Apoio Contracts)**
+
 - Contract template (6 clauses: capacity, turnaround, quality, contingency, audit right, liability)
 - Legal review + RT approval workflow
 - Monitoring dashboard (services active, SLA compliance, audit trail)
@@ -259,6 +277,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance** — exceeding the 75% audit-
 RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without this.
 
 **v1.4 Phases:**
+
 - **Phase 0:** Lab support contract module (NEW-H1) — RDC blocker
 - **Phase 8:** Tecnovigilância integration to NOTIVISA
 - **Phase 9:** Calibration certificate management (upload + alert + metrological chain)
@@ -275,11 +294,13 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 **Current State (v1.3):** Controle-temperatura module live (ISO 14644 particle counting mentioned but not fully implemented).
 
 **DICQ Gaps:**
+
 - **5.2.6** Environmental monitoring (temperature + humidity + air quality) — 🟡 Partial (temperature live; humidity + particle counting incomplete)
 - **5.2.7** Accessibility, equity, food safety — ⚪ Out of software (document + policy)
 - **5.2.8** Infection prevention program (protocols + training + indicators) — 🔴 Missing (POPs + biosseguranca integration, Phase 9)
 
 **Phase 9 Deliverables:**
+
 - Expand controle-temperatura to include humidity + particle counting (ISO 14644, NB1–NB4 classification)
 - Infection prevention POPs in SGD (handwashing, PPE, sterilization, surface cleaning)
 - Biosseguranca module + risk area mapping + inspector checklist integration
@@ -296,10 +317,12 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 **Current State (v1.3):** Disaster recovery (v1.2) live; audit chain (v1.3) immutable + HMAC-signed.
 
 **DICQ Gaps:**
+
 - **5.10.1** Patient confidentiality (access control + audit log + LGPD policy) — 🟡 Partial (rules strong; policy document TBD)
 - **5.10.3** Disaster recovery plan (periodic testing) — ✅ Covered (v1.2, no change needed)
 
 **Phase 0 + Phase 1:**
+
 - LGPD formal policy document in SGD (Art. 8 data processing terms, Art. 38 data breach notification, Art. 18 right to access, Art. 17 right to deletion)
 - Disclosure of RDC Art. 77 compliance (information security plan)
 - Pre-deploy secret status check (ADR-0018 gate)
@@ -316,26 +339,28 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 
 **Phases delivering the largest compliance jumps:**
 
-| Phase | Focus | Blocks Improved | Compliance Δ | Critical |
-|-------|-------|-----------------|--------------|----------|
-| **Phase 0** | RDC blockers (turnos, LGPD, lab-apoio, risks skeleton) | A, C, D, H, J | +3–4 pts | 🔴 YES (RDC Art. 36–39, 77, 122) |
-| **Phase 1** | LGPD full + indicators skeleton | A, D, J | +1–2 pts | 🟡 Medium |
-| **Phase 4** | CAPA closure + risk mgmt full | A, D | +2–3 pts | 🔴 YES (auditor interaction) |
-| **Phase 5** | Patient portal + critical review | G | +3–4 pts | 🟡 Medium |
-| **Phase 6** | Collection + transport + critical values | E, G | +2–3 pts | 🟡 Medium |
-| **Phase 7** | Reclamações trending + satisfaction | D | +1–2 pts | 🟡 Low |
-| **Phase 8** | NOTIVISA + tecnovigilância | G, H | +2–3 pts | 🟡 Medium |
-| **Phase 9** | Documentation hardening (Personnel full, SGD MQ, audit cycle, PGRSS, calibração, biossegurança) | A, B, C, D, G, H, I | +6–8 pts | 🔴 YES (Phase 9 is the documentation blockbuster) |
-| **Phase 10** | Method validation + CEQ + maintenance | F, H | +2–3 pts | 🟡 Low |
-| **Phase 12** | Indicators full + improvement plans | D | +1–2 pts | 🟡 Low |
-| **Phase 13** | Pre-audit + management review planning | A, D | +1–2 pts | 🟡 Low |
+| Phase        | Focus                                                                                           | Blocks Improved     | Compliance Δ | Critical                                          |
+| ------------ | ----------------------------------------------------------------------------------------------- | ------------------- | ------------ | ------------------------------------------------- |
+| **Phase 0**  | RDC blockers (turnos, LGPD, lab-apoio, risks skeleton)                                          | A, C, D, H, J       | +3–4 pts     | 🔴 YES (RDC Art. 36–39, 77, 122)                  |
+| **Phase 1**  | LGPD full + indicators skeleton                                                                 | A, D, J             | +1–2 pts     | 🟡 Medium                                         |
+| **Phase 4**  | CAPA closure + risk mgmt full                                                                   | A, D                | +2–3 pts     | 🔴 YES (auditor interaction)                      |
+| **Phase 5**  | Patient portal + critical review                                                                | G                   | +3–4 pts     | 🟡 Medium                                         |
+| **Phase 6**  | Collection + transport + critical values                                                        | E, G                | +2–3 pts     | 🟡 Medium                                         |
+| **Phase 7**  | Reclamações trending + satisfaction                                                             | D                   | +1–2 pts     | 🟡 Low                                            |
+| **Phase 8**  | NOTIVISA + tecnovigilância                                                                      | G, H                | +2–3 pts     | 🟡 Medium                                         |
+| **Phase 9**  | Documentation hardening (Personnel full, SGD MQ, audit cycle, PGRSS, calibração, biossegurança) | A, B, C, D, G, H, I | +6–8 pts     | 🔴 YES (Phase 9 is the documentation blockbuster) |
+| **Phase 10** | Method validation + CEQ + maintenance                                                           | F, H                | +2–3 pts     | 🟡 Low                                            |
+| **Phase 12** | Indicators full + improvement plans                                                             | D                   | +1–2 pts     | 🟡 Low                                            |
+| **Phase 13** | Pre-audit + management review planning                                                          | A, D                | +1–2 pts     | 🟡 Low                                            |
 
 **Lower Bound Scenario (Phase 4 delayed 2 weeks):**
+
 - Skip Phase 4 auditor interaction; proceed with available CAPAs.
 - Result: ~86% (miss management review feedback loop + some risk controls).
 - Still audit-ready but weaker governance story.
 
 **Upper Bound Scenario (all phases on-time + Phase 10 multi-instrument):**
+
 - All gaps closed + stretch goals (Phase 9 well-being, Phase 10 equipment comparability).
 - Result: ~92%.
 - Premium standing, defensible to external auditors.
@@ -394,11 +419,11 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 
 ## 5. Effort & Timeline Summary
 
-| Effort Tier | Phases | Est. Duration | Compliance Δ | Blockers |
-|-------------|--------|----------------|--------------|----------|
-| **Small (1–3 days each)** | 0 (partial), 1, 10, 12, 13 | 3–4 weeks | +5–6 pts | Phase 0 must start immediately |
-| **Medium (1–2 weeks each)** | 0 (full), 4, 5, 6, 7, 8, 9 (partial), 13 | 8–10 weeks | +8–10 pts | Phase 4 auditor RFI timing unpredictable |
-| **Large (2–3 weeks)** | 9 (full), 3 (if refactor needed) | 6–8 weeks | +4–5 pts | Phase 9 documentation scope must be tightly scoped |
+| Effort Tier                 | Phases                                   | Est. Duration | Compliance Δ | Blockers                                           |
+| --------------------------- | ---------------------------------------- | ------------- | ------------ | -------------------------------------------------- |
+| **Small (1–3 days each)**   | 0 (partial), 1, 10, 12, 13               | 3–4 weeks     | +5–6 pts     | Phase 0 must start immediately                     |
+| **Medium (1–2 weeks each)** | 0 (full), 4, 5, 6, 7, 8, 9 (partial), 13 | 8–10 weeks    | +8–10 pts    | Phase 4 auditor RFI timing unpredictable           |
+| **Large (2–3 weeks)**       | 9 (full), 3 (if refactor needed)         | 6–8 weeks     | +4–5 pts     | Phase 9 documentation scope must be tightly scoped |
 
 **Total v1.4 Runway:** 19 weeks (mid-May → end of September)
 
@@ -410,13 +435,13 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 
 ## 6. Top 5 Quick-Win Opportunities (Under 1 week, +8 pts)
 
-| Opportunity | Block | Phase | Effort | ROI | Deliverable |
-|-------------|-------|-------|--------|-----|-------------|
-| **LGPD Policy Document** | J | 0–1 | 1 day | High | Template in SGD + RDC Art. 77 compliance statement |
-| **Lab Apoio Contract Template** | H | 0 | 2 days | High | 6-clause contract + legal checklist |
-| **Risks FMEA Skeleton** | D | 0 | 2 days | High | Matrix template (P×S×D, NPR calc) + instructions |
-| **Legal Docs Capture Module** | A | 0 | 1 day | Medium | Upload form + expiry alerts (CNES, permits, licenses) |
-| **Supervisor Presence Registry** | C | 0 | 2 days | High | Shift log (date, supervisor, sign-off) — RDC Art. 122 |
+| Opportunity                      | Block | Phase | Effort | ROI    | Deliverable                                           |
+| -------------------------------- | ----- | ----- | ------ | ------ | ----------------------------------------------------- |
+| **LGPD Policy Document**         | J     | 0–1   | 1 day  | High   | Template in SGD + RDC Art. 77 compliance statement    |
+| **Lab Apoio Contract Template**  | H     | 0     | 2 days | High   | 6-clause contract + legal checklist                   |
+| **Risks FMEA Skeleton**          | D     | 0     | 2 days | High   | Matrix template (P×S×D, NPR calc) + instructions      |
+| **Legal Docs Capture Module**    | A     | 0     | 1 day  | Medium | Upload form + expiry alerts (CNES, permits, licenses) |
+| **Supervisor Presence Registry** | C     | 0     | 2 days | High   | Shift log (date, supervisor, sign-off) — RDC Art. 122 |
 
 **Cumulative Effort:** ~8 days (1 week sprint)
 
@@ -428,15 +453,16 @@ RDC Arts. 36–39 (support labs) are inspector requirements. Cannot ship without
 
 ## 7. Key Risks to 85%+ Target
 
-| Risk | Phase(s) | Probability | Impact | Mitigation |
-|------|----------|-------------|--------|-----------|
-| **Phase 4 Auditor RFI delays** (CAPA closure feedback loop) | 4 | 🟡 Medium (40%) | 🔴 High (−2 pts) | Weekly async gate + pre-scheduled calls. Parallelize with Phase 5. |
-| **Phase 9 scope creep** (50+ governance docs) | 9 | 🟡 Medium (50%) | 🟠 Medium (−3 pts) | Lock scope to DICQ-essential items only. Pre-review templates. |
-| **Personnel Dossiè data migration** (records scattered) | 0, 9 | 🟠 Medium–High (60%) | 🔴 High (−4 pts) | Phase 0: Design backfill job. Phase 9: Execute with data quality audit. |
-| **Phase 0 RDC blocker slippage** (4 items in 7 days) | 0 | 🟡 Medium (30%) | 🔴 High (audit-ready threshold missed) | Double-assign Phase 0. Pre-draft templates week before Phase 0 start. |
-| **NOTIVISA gov API rate-limits** (Phase 8 integration) | 8 | 🟢 Low (20%) | 🟠 Medium (−1 pt) | Contact gov API team early. Implement queue + retry logic. |
+| Risk                                                        | Phase(s) | Probability          | Impact                                 | Mitigation                                                              |
+| ----------------------------------------------------------- | -------- | -------------------- | -------------------------------------- | ----------------------------------------------------------------------- |
+| **Phase 4 Auditor RFI delays** (CAPA closure feedback loop) | 4        | 🟡 Medium (40%)      | 🔴 High (−2 pts)                       | Weekly async gate + pre-scheduled calls. Parallelize with Phase 5.      |
+| **Phase 9 scope creep** (50+ governance docs)               | 9        | 🟡 Medium (50%)      | 🟠 Medium (−3 pts)                     | Lock scope to DICQ-essential items only. Pre-review templates.          |
+| **Personnel Dossiè data migration** (records scattered)     | 0, 9     | 🟠 Medium–High (60%) | 🔴 High (−4 pts)                       | Phase 0: Design backfill job. Phase 9: Execute with data quality audit. |
+| **Phase 0 RDC blocker slippage** (4 items in 7 days)        | 0        | 🟡 Medium (30%)      | 🔴 High (audit-ready threshold missed) | Double-assign Phase 0. Pre-draft templates week before Phase 0 start.   |
+| **NOTIVISA gov API rate-limits** (Phase 8 integration)      | 8        | 🟢 Low (20%)         | 🟠 Medium (−1 pt)                      | Contact gov API team early. Implement queue + retry logic.              |
 
 **Overall Confidence:** 🟡 **Medium (75% prob of 85%+)**
+
 - High confidence blocks: B, F, G, J (all >90% likely)
 - Medium confidence blocks: A, D, H (all 60–80% likely)
 - Risk blocks: C (data migration), D (auditor timing)

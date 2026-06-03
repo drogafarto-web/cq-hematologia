@@ -71,26 +71,26 @@ W6 — Verification     [1 SA]                      deps: W5
 
 ## Compliance Mapping
 
-| Requisito | Wave | Subagente |
-|-----------|------|-----------|
+| Requisito                                     | Wave  | Subagente   |
+| --------------------------------------------- | ----- | ----------- |
 | RDC 978 5.3 — Audit trail who/what/when/where | W0–W1 | SA-02/03/05 |
-| RDC 978 Art. 107 — Revisões periódicas | W3–W5 | SA-14/19 |
-| DICQ 4.4 — Trilha de auditoria + anomalias | W2 | SA-09/10 |
-| DICQ 4.4 — Investigação de NC | W3–W4 | SA-11/16/17 |
+| RDC 978 Art. 107 — Revisões periódicas        | W3–W5 | SA-14/19    |
+| DICQ 4.4 — Trilha de auditoria + anomalias    | W2    | SA-09/10    |
+| DICQ 4.4 — Investigação de NC                 | W3–W4 | SA-11/16/17 |
 
 ---
 
 ## Planos de execução
 
-| Plano | Wave | SAs | Dependência |
-|-------|------|-----|-------------|
-| 07-01 | W0 — Foundation | SA-01/02/03/04 | nenhuma |
-| 07-02 | W1 — Core Infra | SA-05/06/07/08 | 07-01 |
-| 07-03 | W2 — Logic Layer | SA-09/10 | 07-02 |
-| 07-04 | W3 — Functions+Hooks | SA-11/12/13/14/15 | 07-03 |
-| 07-05 | W4 — UI Components | SA-16/17/18 | 07-04 |
-| 07-06 | W5 — Integration | SA-19/20/21 | 07-05 |
-| 07-07 | W6 — Verification Gate | SA-22 | 07-06 |
+| Plano | Wave                   | SAs               | Dependência |
+| ----- | ---------------------- | ----------------- | ----------- |
+| 07-01 | W0 — Foundation        | SA-01/02/03/04    | nenhuma     |
+| 07-02 | W1 — Core Infra        | SA-05/06/07/08    | 07-01       |
+| 07-03 | W2 — Logic Layer       | SA-09/10          | 07-02       |
+| 07-04 | W3 — Functions+Hooks   | SA-11/12/13/14/15 | 07-03       |
+| 07-05 | W4 — UI Components     | SA-16/17/18       | 07-04       |
+| 07-06 | W5 — Integration       | SA-19/20/21       | 07-05       |
+| 07-07 | W6 — Verification Gate | SA-22             | 07-06       |
 
 ---
 
@@ -135,15 +135,15 @@ grep -c "audit-trail\|audit-alerts" firestore.rules  # ≥2
 
 ### Metrics
 
-| Metric | Target | Achieved |
-|--------|--------|----------|
-| Commits | 14 | ✅ 14 |
-| TSC errors | 0 | ✅ 0 |
-| Tests passing | 23+ | ✅ 72 (23 new + 49 prior) |
-| Bundle delta | <30 KB | ✅ +18 KB |
-| Main chunk | ≤450 KB | ✅ 378 KB |
-| CORS callables | 3 | ✅ 3 (SA-16/17/19) |
-| Compliance | RDC 978 + DICQ | ✅ 100% critical articles |
+| Metric         | Target         | Achieved                  |
+| -------------- | -------------- | ------------------------- |
+| Commits        | 14             | ✅ 14                     |
+| TSC errors     | 0              | ✅ 0                      |
+| Tests passing  | 23+            | ✅ 72 (23 new + 49 prior) |
+| Bundle delta   | <30 KB         | ✅ +18 KB                 |
+| Main chunk     | ≤450 KB        | ✅ 378 KB                 |
+| CORS callables | 3              | ✅ 3 (SA-16/17/19)        |
+| Compliance     | RDC 978 + DICQ | ✅ 100% critical articles |
 
 ### Deployment Ready
 

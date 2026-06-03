@@ -2,7 +2,7 @@
 
 **Updated:** 2026-05-07  
 **Owner:** Performance Team  
-**Phase:** 12 — Performance Optimization  
+**Phase:** 12 — Performance Optimization
 
 ---
 
@@ -27,6 +27,7 @@ This index tracks performance baseline captures across HC Quality versions. Each
 **Document:** [`docs/PERFORMANCE_BASELINE_2026-05.md`](./PERFORMANCE_BASELINE_2026-05.md)
 
 **Metrics Captured:**
+
 - Lighthouse CI on 5 critical routes (desktop + mobile)
 - Real User Monitoring via CrUX API (28-day aggregate)
 - Bundle size breakdown (gzip + brotli)
@@ -34,6 +35,7 @@ This index tracks performance baseline captures across HC Quality versions. Each
 - PDF export timing (50-page generation)
 
 **Key Findings:**
+
 - All Web Vitals within target thresholds
 - Main shell: 362 KB gzip (target: <400 KB) ✓
 - LCP: 1.8s desktop / 2.1s mobile ✓
@@ -90,6 +92,7 @@ node scripts/generate-v14-baseline.mjs --dir ./baselines
 ```
 
 **Expected Output:**
+
 ```
 v1.4_BASELINE.json
 ├── web_vitals (Lighthouse + CrUX)
@@ -105,21 +108,21 @@ v1.4_BASELINE.json
 
 ### Core Baseline Files
 
-| File | Purpose | Updated |
-|------|---------|---------|
-| `PERFORMANCE_BASELINE_2026-05.md` | v1.3 reference baseline | 2026-05-06 |
-| `v1.4_PERFORMANCE_BASELINE_CAPTURE.md` | Step-by-step capture guide | **2026-05-07** |
-| `PERFORMANCE_BASELINE_INDEX.md` | This index | **2026-05-07** |
-| `v1.4_BASELINE.json` | Consolidated v1.4 metrics (auto-generated) | — |
+| File                                   | Purpose                                    | Updated        |
+| -------------------------------------- | ------------------------------------------ | -------------- |
+| `PERFORMANCE_BASELINE_2026-05.md`      | v1.3 reference baseline                    | 2026-05-06     |
+| `v1.4_PERFORMANCE_BASELINE_CAPTURE.md` | Step-by-step capture guide                 | **2026-05-07** |
+| `PERFORMANCE_BASELINE_INDEX.md`        | This index                                 | **2026-05-07** |
+| `v1.4_BASELINE.json`                   | Consolidated v1.4 metrics (auto-generated) | —              |
 
 ### Supporting Documentation
 
-| File | Purpose |
-|------|---------|
-| `PERFORMANCE_PATTERNS.md` | Architecture patterns for optimization |
-| `PERFORMANCE_MONITORING_GUIDE.md` | Production monitoring setup |
-| `.claude/rules/performance.md` | Code-level performance rules |
-| `.github/workflows/lighthouse-ci.yml` | Automated Lighthouse CI pipeline |
+| File                                  | Purpose                                |
+| ------------------------------------- | -------------------------------------- |
+| `PERFORMANCE_PATTERNS.md`             | Architecture patterns for optimization |
+| `PERFORMANCE_MONITORING_GUIDE.md`     | Production monitoring setup            |
+| `.claude/rules/performance.md`        | Code-level performance rules           |
+| `.github/workflows/lighthouse-ci.yml` | Automated Lighthouse CI pipeline       |
 
 ### Raw Measurement Files (in `docs/baselines/`)
 
@@ -137,14 +140,14 @@ baselines/
 
 ## Regression Thresholds
 
-| Metric | Alert Threshold | Hard Limit | Action |
-|--------|-----------------|-----------|--------|
-| **LCP** | >10% increase | 2.5s | Block merge if exceeded |
-| **INP** | >15% increase | 200ms | Block merge if exceeded |
-| **CLS** | >20% increase | 0.1 | Block merge if exceeded |
-| **Bundle (gzip)** | >8% increase | 400KB main shell | Review before merge |
-| **Firestore p99** | >20% increase | 500ms | Investigate query inefficiency |
-| **PDF export TTI** | >15% increase | 3.0s | Block Cloud Function deploy |
+| Metric             | Alert Threshold | Hard Limit       | Action                         |
+| ------------------ | --------------- | ---------------- | ------------------------------ |
+| **LCP**            | >10% increase   | 2.5s             | Block merge if exceeded        |
+| **INP**            | >15% increase   | 200ms            | Block merge if exceeded        |
+| **CLS**            | >20% increase   | 0.1              | Block merge if exceeded        |
+| **Bundle (gzip)**  | >8% increase    | 400KB main shell | Review before merge            |
+| **Firestore p99**  | >20% increase   | 500ms            | Investigate query inefficiency |
+| **PDF export TTI** | >15% increase   | 3.0s             | Block Cloud Function deploy    |
 
 **Enforcement:** Lighthouse CI automatically blocks PRs that exceed thresholds. Manual approval required for exceptions.
 
@@ -156,34 +159,38 @@ Once v1.4 baseline is captured, Phase 12 work will focus on:
 
 ### Performance Goals
 
-| Metric | v1.3 Baseline | v1.4 Target | Improvement |
-|--------|---------------|-------------|-------------|
-| LCP (desktop) | 1.8s | <1.5s | -16.7% |
-| LCP (mobile) | 2.1s | <1.8s | -14.3% |
-| Main shell (gzip) | 362 KB | <320 KB | -11.6% |
-| Bundle total (gzip) | 1,456 KB | <1,400 KB | -3.8% |
-| Firestore p99 | 245ms | <200ms | -18.4% |
-| PDF export (50pp) | 2.4s | <2.1s | -12.5% |
+| Metric              | v1.3 Baseline | v1.4 Target | Improvement |
+| ------------------- | ------------- | ----------- | ----------- |
+| LCP (desktop)       | 1.8s          | <1.5s       | -16.7%      |
+| LCP (mobile)        | 2.1s          | <1.8s       | -14.3%      |
+| Main shell (gzip)   | 362 KB        | <320 KB     | -11.6%      |
+| Bundle total (gzip) | 1,456 KB      | <1,400 KB   | -3.8%       |
+| Firestore p99       | 245ms         | <200ms      | -18.4%      |
+| PDF export (50pp)   | 2.4s          | <2.1s       | -12.5%      |
 
 ### Optimization Initiatives
 
 **Code-Level:**
+
 - Tree-shake unused Firebase modules
 - Lazy-load `recharts` (charting library)
 - Code-split analytics route (already done, verify)
 - Defer non-critical CSS
 
 **Caching:**
+
 - Extend service worker cache TTL (PWA optimization)
 - Add `stale-while-revalidate` for static assets
 - Cache Firestore query results (Zustand + IndexedDB)
 
 **Network:**
+
 - Enable Brotli compression (Firebase Hosting)
 - Pre-connect to Firebase domain
 - Reduce Firestore query round-trips (batch reads)
 
 **Backend:**
+
 - Index composite Firestore queries
 - Add Cloud Function memory bump (512MB → 1GB)
 - Optimize PDF generation pipeline (parallel page rendering)
@@ -222,11 +229,13 @@ npm run generate-performance-report -- \
 ### Real User Monitoring (RUM)
 
 **Active Services:**
+
 - Sentry: `https://labclin.sentry.io/projects/javascript-react/`
 - Firebase Performance: `https://console.firebase.google.com/project/hmatologia2/performance`
 - CrUX API: `https://chromeuxreport.googleapis.com/`
 
 **Alert Conditions:**
+
 - LCP degrades >15% month-over-month → page speed alert
 - INP > 200ms for >5% of users → interaction slowdown alert
 - Firestore reads > p99 baseline → query optimization needed
@@ -239,6 +248,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 Monitors for:
+
 - Function latency > 5s
 - Firestore quota exceeded
 - PDF generation errors
@@ -283,6 +293,7 @@ Monitors for:
 ### Q: What happens if v1.4 performs worse?
 
 **A:** Investigate before shipping. Common causes:
+
 - New dependency added (check bundle size)
 - Firebase query unindexed (check Cloud Logs)
 - CSS/JavaScript not minified (check build config)
@@ -292,12 +303,12 @@ Monitors for:
 
 ## Contacts & Escalation
 
-| Role | Responsibility | Contact |
-|------|-----------------|---------|
-| **Performance Owner** | Baseline capture, Phase 12 planning | CTO |
-| **Frontend Lead** | Bundle size, code-level optimization | Frontend Team |
-| **Backend Lead** | Firestore optimization, Cloud Functions | Backend Team |
-| **DevOps Lead** | Infrastructure, caching, CDN | DevOps Team |
+| Role                  | Responsibility                          | Contact       |
+| --------------------- | --------------------------------------- | ------------- |
+| **Performance Owner** | Baseline capture, Phase 12 planning     | CTO           |
+| **Frontend Lead**     | Bundle size, code-level optimization    | Frontend Team |
+| **Backend Lead**      | Firestore optimization, Cloud Functions | Backend Team  |
+| **DevOps Lead**       | Infrastructure, caching, CDN            | DevOps Team   |
 
 ---
 

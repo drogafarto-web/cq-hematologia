@@ -11,7 +11,7 @@ import {
   mockNotivisaPayload,
   mockLaudoMissingCPF,
   mockPacienteMissingCPF,
-  mockLaudoEmptyResultados
+  mockLaudoEmptyResultados,
 } from '../fixtures/notivisa-payloads';
 
 describe('NOTIVISA Module', () => {

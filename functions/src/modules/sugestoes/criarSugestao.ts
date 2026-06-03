@@ -41,7 +41,7 @@ export const criarSugestao = onCall<CriarSugestaoInput>(
         if (!isMember) {
           throw new functions.https.HttpsError(
             'permission-denied',
-            'Usuário não é membro do laboratório'
+            'Usuário não é membro do laboratório',
           );
         }
         autorId = request.auth.uid;
@@ -51,7 +51,7 @@ export const criarSugestao = onCall<CriarSugestaoInput>(
         if (!input.recaptchaToken) {
           throw new functions.https.HttpsError(
             'invalid-argument',
-            'reCAPTCHA token é obrigatório para pacientes'
+            'reCAPTCHA token é obrigatório para pacientes',
           );
         }
 
@@ -68,7 +68,7 @@ export const criarSugestao = onCall<CriarSugestaoInput>(
           descricao: input.descricao,
           categoria: input.categoria,
           autorId,
-        })
+        }),
       );
 
       // Check for duplicate (within 1 hour window)
@@ -146,5 +146,5 @@ export const criarSugestao = onCall<CriarSugestaoInput>(
 
       throw new functions.https.HttpsError('internal', 'Erro ao criar sugestão');
     }
-  }
+  },
 );

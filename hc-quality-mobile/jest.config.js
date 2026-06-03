@@ -1,12 +1,15 @@
 module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    '^.+\\.(js|jsx|ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react',
-        esModuleInterop: true,
+    '^.+\\.(js|jsx|ts|tsx)$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          jsx: 'react',
+          esModuleInterop: true,
+        },
       },
-    }],
+    ],
   },
   testMatch: ['**/__tests__/**/*.test.(ts|tsx|js)'],
   moduleNameMapper: {
@@ -15,9 +18,5 @@ module.exports = {
   testEnvironment: 'node',
   testPathIgnorePatterns: ['/node_modules/', '/build/'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
-  collectCoverageFrom: [
-    'src/**/*.{ts,tsx}',
-    '!src/**/*.d.ts',
-    '!src/**/__tests__/**',
-  ],
+  collectCoverageFrom: ['src/**/*.{ts,tsx}', '!src/**/*.d.ts', '!src/**/__tests__/**'],
 };

@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  ActivityIndicator,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, ScrollView, ActivityIndicator, StyleSheet } from 'react-native';
 import { useOpenNCs } from '../hooks/useOpenNCs';
 import { NCCard } from '../components/NCCard';
 import { OfflineIndicator } from '../components/OfflineIndicator';
@@ -64,9 +58,7 @@ export function NCScreen({ navigation }: NCScreenProps): React.JSX.Element {
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyIcon}>✓</Text>
               <Text style={styles.emptyTitle}>Nenhuma NC aberta</Text>
-              <Text style={styles.emptySubtitle}>
-                Todas as não-conformidades foram resolvidas
-              </Text>
+              <Text style={styles.emptySubtitle}>Todas as não-conformidades foram resolvidas</Text>
             </View>
           ) : null}
 

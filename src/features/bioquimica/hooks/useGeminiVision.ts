@@ -52,10 +52,7 @@ export function useGeminiVision(): UseGeminiVisionApi {
       setState({ isParsing: true });
 
       try {
-        const callable = httpsCallable<any, OCRParsedResult>(
-          functions,
-          'parseAnalyteStripImage'
-        );
+        const callable = httpsCallable<any, OCRParsedResult>(functions, 'parseAnalyteStripImage');
 
         const result = await callable({
           labId,
@@ -77,7 +74,7 @@ export function useGeminiVision(): UseGeminiVisionApi {
         throw err;
       }
     },
-    [labId]
+    [labId],
   );
 
   const reset = useCallback(() => {

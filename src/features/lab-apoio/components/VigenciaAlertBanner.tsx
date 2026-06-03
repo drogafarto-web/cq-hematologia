@@ -83,7 +83,11 @@ export function VigenciaAlertBanner({ contratos }: VigenciaAlertBannerProps) {
         {lines.map((line) => (
           <li
             key={line.key}
-            className={line.expired ? 'text-red-300/95 marker:text-red-400' : 'text-amber-100/95 marker:text-amber-400'}
+            className={
+              line.expired
+                ? 'text-red-300/95 marker:text-red-400'
+                : 'text-amber-100/95 marker:text-amber-400'
+            }
           >
             {line.text}
           </li>

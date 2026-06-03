@@ -105,8 +105,11 @@ export interface ConfusionMatrix {
   total: number;
   correct: number;
   incorrect: number;
-  byClassification: Record<Classification, {
-    count: number;
-    correct: number;
-  }>;
+  byClassification: Record<
+    Classification,
+    {
+      count: number;
+      correct: number;
+    }
+  >;
 }

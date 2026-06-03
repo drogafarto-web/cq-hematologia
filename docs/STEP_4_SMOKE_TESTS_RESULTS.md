@@ -19,15 +19,15 @@ owner: CTO (drogafarto)
 
 HC Quality v1.3 production deployment completed 2026-05-07. Comprehensive smoke test validation executed across all critical user flows, compliance modules, and regression checks. **All 19 test steps PASSED** with zero blocking issues. System ready for 24h production monitoring and next 48h operational acceptance.
 
-| Category | Result | Status |
-|----------|--------|--------|
-| **Critical Flows Tested** | 5/5 ✓ | ✅ PASS |
-| **Documentation Modules** | 3/3 ✓ | ✅ PASS |
-| **Compliance Checks** | 6/6 ✓ | ✅ PASS |
-| **Performance Baseline** | All targets met | ✅ PASS |
-| **Error Handling** | 3/3 scenarios | ✅ PASS |
-| **Regression Check** | 5/5 modules | ✅ PASS |
-| **Infrastructure Readiness** | 9/9 checks | ✅ PASS |
+| Category                     | Result          | Status  |
+| ---------------------------- | --------------- | ------- |
+| **Critical Flows Tested**    | 5/5 ✓           | ✅ PASS |
+| **Documentation Modules**    | 3/3 ✓           | ✅ PASS |
+| **Compliance Checks**        | 6/6 ✓           | ✅ PASS |
+| **Performance Baseline**     | All targets met | ✅ PASS |
+| **Error Handling**           | 3/3 scenarios   | ✅ PASS |
+| **Regression Check**         | 5/5 modules     | ✅ PASS |
+| **Infrastructure Readiness** | 9/9 checks      | ✅ PASS |
 
 **Final Recommendation:** ✅ **DEPLOY TO PRODUCTION** — No blockers detected
 
@@ -40,6 +40,7 @@ HC Quality v1.3 production deployment completed 2026-05-07. Comprehensive smoke 
 All prerequisite infrastructure checks completed successfully:
 
 #### Cloud Functions Status
+
 - **Functions Deployed:** 32/32 ✅
 - **Region:** `southamerica-east1`
 - **Status:** All ACTIVE (green checkmarks in Firebase Console)
@@ -52,6 +53,7 @@ All prerequisite infrastructure checks completed successfully:
   - Support: 2 functions (management review, admin operations)
 
 #### Firestore Rules Status
+
 - **Rules Deployed:** ✅ ACTIVE (commit ae3babd)
 - **Security Audit:** 5/5 spot-checks PASSED (see `docs/FIRESTORE_RULES_SPOT_CHECK_RESULTS.md`)
 - **Multi-Tenant Isolation:** Enforced via `labId` in all paths
@@ -59,12 +61,14 @@ All prerequisite infrastructure checks completed successfully:
 - **Immutable Collections:** TraceabilityEvent append-only enforcement
 
 #### Hosting Status
+
 - **URL:** https://hmatologia2.web.app ✅ LIVE
 - **Build:** TypeScript 0 errors, Vite build clean
 - **PWA:** Service Worker registered, autoUpdate mode enabled
 - **CDN:** Global distribution via Firebase Hosting
 
 #### Test Lab Prepared
+
 - **Lab ID:** `riopomba` (designated test environment)
 - **Lab Status:** Active and enabled
 - **Bioquímica Data:** 16 analitos seeded (GLI, URE, CRE, TGO, TGP, FA, GGT, BT-D, BT-I, CT, HDL, LDL, TG, Na, K, Cl, Ca)
@@ -79,16 +83,18 @@ All prerequisite infrastructure checks completed successfully:
 **Objective:** Validate CIQ quantitative workflow from bula parsing through chart visualization and compliance signature verification.
 
 ### Step 1.1: Load Bioquímica Module
+
 - **URL:** `https://hmatologia2.web.app/bioquimica`
 - **Expected:** Page loads <3s, 16+ analitos visible
 - **Result:** ✅ **PASS**
-- **Evidence:** 
+- **Evidence:**
   - Module loads with seed function auto-triggered on first access
   - 16 core analitos visible: GLI, URE, CRE, TGO, TGP, FA, GGT, BT-D, BT-I, CT, HDL, LDL, TG, Na, K, Cl
   - Plus 1 bonus: Ca (total 17)
   - DevTools Console: 0 red ERROR messages
 
 ### Step 1.2: Upload & Parse Bula PDF (Gemini 2.5 Flash)
+
 - **Function:** `parseBulaBioquimica` Cloud Function
 - **Expected:** Parse <35s, extract Lote, Validade, Fornecedor, Níveis, analito stats
 - **Result:** ✅ **PASS**
@@ -100,6 +106,7 @@ All prerequisite infrastructure checks completed successfully:
   - Stats table shows: analito, Nível, Média, SD columns
 
 ### Step 1.3: Create CIQ Lot
+
 - **Function:** Firestore write via Zustand hook + validation
 - **Expected:** Lot created in `/labs/riopomba/bioquimica/root/lots/`
 - **Result:** ✅ **PASS**
@@ -111,6 +118,7 @@ All prerequisite infrastructure checks completed successfully:
   - Audit entry created (RDC 978 Art. 184)
 
 ### Step 1.4: Record a QC Run
+
 - **Function:** `recordRunBioquimica` Cloud Function (signed)
 - **Expected:** Run recorded with chainHash (64-char hex), signature valid
 - **Result:** ✅ **PASS**
@@ -125,6 +133,7 @@ All prerequisite infrastructure checks completed successfully:
   - Network tab: POST request to `recordRunBioquimica`, status 200, <2s response
 
 ### Step 1.5: View Levey-Jennings Chart
+
 - **Component:** Interactive chart with Westgard control rules
 - **Expected:** Chart renders with data point at y=0 (mean), control lines (±1σ, ±2σ, ±3σ)
 - **Result:** ✅ **PASS**
@@ -141,6 +150,7 @@ All prerequisite infrastructure checks completed successfully:
   - Network: 1–2 GET requests for chart data, status 200
 
 ### Step 1.6: Verify Signature (ChainHash) — RDC 978 Art. 184 Compliance
+
 - **Validation:** Hash format, operatorId attribution, timestamp authenticity
 - **Expected:** Hash 64-char hex, operatorId matches auth, ts recent
 - **Result:** ✅ **PASS**
@@ -164,14 +174,14 @@ All prerequisite infrastructure checks completed successfully:
 
 **Smoke Test 1 Summary:**
 
-| Step | Component | Status | Evidence |
-|------|-----------|--------|----------|
-| 1.1 | Load Analitos (16+ visible) | ✅ PASS | Module loads, seed data rendered |
-| 1.2 | Parse Bula (Gemini, <35s) | ✅ PASS | Function responds, stats extracted |
-| 1.3 | Create Lot | ✅ PASS | Lot in Firestore, status `EM USO` |
-| 1.4 | Record Run (chainHash present) | ✅ PASS | Signature object in response |
-| 1.5 | Levey-Jennings Chart | ✅ PASS | Chart renders, data point visible, lines correct |
-| 1.6 | Verify Signature | ✅ PASS | Hash 64-char hex, operatorId valid, ts recent |
+| Step | Component                      | Status  | Evidence                                         |
+| ---- | ------------------------------ | ------- | ------------------------------------------------ |
+| 1.1  | Load Analitos (16+ visible)    | ✅ PASS | Module loads, seed data rendered                 |
+| 1.2  | Parse Bula (Gemini, <35s)      | ✅ PASS | Function responds, stats extracted               |
+| 1.3  | Create Lot                     | ✅ PASS | Lot in Firestore, status `EM USO`                |
+| 1.4  | Record Run (chainHash present) | ✅ PASS | Signature object in response                     |
+| 1.5  | Levey-Jennings Chart           | ✅ PASS | Chart renders, data point visible, lines correct |
+| 1.6  | Verify Signature               | ✅ PASS | Hash 64-char hex, operatorId valid, ts recent    |
 
 **Overall Smoke 1 Result:** ✅ **PASS** | Time: 10 min | Failed Steps: None
 
@@ -182,6 +192,7 @@ All prerequisite infrastructure checks completed successfully:
 **Objective:** Validate document management workflow from OAuth through batch import, publication, and full-text search.
 
 ### Step 2.1: Navigate to SGD
+
 - **URL:** `https://hmatologia2.web.app/sgd` (or `/sgq` routing variant)
 - **Expected:** Page loads, "Master List" visible, no 404
 - **Result:** ✅ **PASS**
@@ -193,6 +204,7 @@ All prerequisite infrastructure checks completed successfully:
   - DevTools Console: 0 red ERROR messages
 
 ### Step 2.2: Click Import Button & See OAuth Form
+
 - **Component:** DriveImporter wizard (4-step flow)
 - **Expected:** Modal shows "Conectar ao Google Drive" button
 - **Result:** ✅ **PASS**
@@ -205,6 +217,7 @@ All prerequisite infrastructure checks completed successfully:
   - DevTools Console: 0 red errors
 
 ### Step 2.3: Authorize Google Drive (OAuth)
+
 - **Flow:** Google consent screen popup, scope request, callback handling
 - **Expected:** Popup opens, user grants read scope, wizard advances to Step 2
 - **Result:** ✅ **PASS**
@@ -221,6 +234,7 @@ All prerequisite infrastructure checks completed successfully:
   - DevTools Console: 0 red errors
 
 ### Step 2.4: List Documents from Drive Folder
+
 - **Function:** `listarDocsDrive` Cloud Function (backend)
 - **Expected:** 5 test documents listed in table
 - **Result:** ✅ **PASS**
@@ -241,6 +255,7 @@ All prerequisite infrastructure checks completed successfully:
   - Console: 0 red errors
 
 ### Step 2.5: Preview 3+ Documents
+
 - **Feature:** Document preview modal (PDF/Google Docs viewer)
 - **Expected:** 3 documents previewed without error, content renders <3s each
 - **Result:** ✅ **PASS**
@@ -263,6 +278,7 @@ All prerequisite infrastructure checks completed successfully:
   - **Count:** 3+ documents previewed successfully
 
 ### Step 2.6: Batch Import All 5 Documents
+
 - **Function:** `aprovarBatchImport` Cloud Function
 - **Expected:** All 5 documents imported, status `rascunho`, success message
 - **Result:** ✅ **PASS**
@@ -289,58 +305,63 @@ All prerequisite infrastructure checks completed successfully:
   - Console: 0 red errors
 
 ### Step 2.7: Publish Documents & Verify Search
+
 - **Functions:** Document status transition + full-text search
 - **Expected:** All 5 published (status `vigente`), search works
 - **Result:** ✅ **PASS**
 - **Evidence:**
 
 **Part A — Navigate to List:**
-  - Click "Ver Documentos" (or navigate to `/sgd` or `/sgq/lista-mestra`)
-  - Page shows table with 5 imported documents
-  - All 5 show status **`rascunho`** (gray badge, draft)
+
+- Click "Ver Documentos" (or navigate to `/sgd` or `/sgq/lista-mestra`)
+- Page shows table with 5 imported documents
+- All 5 show status **`rascunho`** (gray badge, draft)
 
 **Part B — Publish Documents:**
-  - Click first document row (MQ-001) or "..." menu for that row
-  - Click "Publicar", "Aprovar para Vigência", or "Publish" option
-  - Confirmation modal: "Tem certeza? Publicar este documento?"
-  - Click "Sim, publicar" or "Confirmar"
-  - Modal closes; status changes to **`vigente`** (green badge)
-  - Repeat for remaining 4 documents (PQ-002, IT-003, FR-004, POL-005)
-  - **After publishing all 5:**
-    - All 5 rows show status **`vigente`** ✓
-    - Each row displays: Código, Título, Tipo, Status (vigente)
-    - Network: 5 PATCH requests (status update) + 5 POST requests (audit log), all 200
-    - Each transition <3s
+
+- Click first document row (MQ-001) or "..." menu for that row
+- Click "Publicar", "Aprovar para Vigência", or "Publish" option
+- Confirmation modal: "Tem certeza? Publicar este documento?"
+- Click "Sim, publicar" or "Confirmar"
+- Modal closes; status changes to **`vigente`** (green badge)
+- Repeat for remaining 4 documents (PQ-002, IT-003, FR-004, POL-005)
+- **After publishing all 5:**
+  - All 5 rows show status **`vigente`** ✓
+  - Each row displays: Código, Título, Tipo, Status (vigente)
+  - Network: 5 PATCH requests (status update) + 5 POST requests (audit log), all 200
+  - Each transition <3s
 
 **Part C — Search & Filter:**
-  - At table top, locate search box (labeled "Pesquisar..." or 🔍)
-  - Click and type: `MQ`
-  - Table filters to **1 document: MQ-001** ✓
-  - Clear search (delete text or click X)
-  - Table shows all 5 again
-  - Type: `Procedimento`
-  - Table filters to **1 document: PQ-002 Procedimento de Coleta** ✓
-  - **Search validation:**
-    - Real-time response (<500ms)
-    - Searches title, código, other fields
-    - Case-insensitive: "mq" finds "MQ-001" ✓
-    - Clear quickly: <1s response when text deleted
+
+- At table top, locate search box (labeled "Pesquisar..." or 🔍)
+- Click and type: `MQ`
+- Table filters to **1 document: MQ-001** ✓
+- Clear search (delete text or click X)
+- Table shows all 5 again
+- Type: `Procedimento`
+- Table filters to **1 document: PQ-002 Procedimento de Coleta** ✓
+- **Search validation:**
+  - Real-time response (<500ms)
+  - Searches title, código, other fields
+  - Case-insensitive: "mq" finds "MQ-001" ✓
+  - Clear quickly: <1s response when text deleted
 
 **Part D — Compliance Audit:**
-  - Each published document creates audit trail entry (RDC 978 Art. 184)
-  - `criadoEm`, `deletadoEm` (soft delete only), and audit fields present
+
+- Each published document creates audit trail entry (RDC 978 Art. 184)
+- `criadoEm`, `deletadoEm` (soft delete only), and audit fields present
 
 **Smoke Test 2 Summary:**
 
-| Step | Component | Status | Evidence |
-|------|-----------|--------|----------|
-| 2.1 | Navigate to SGD | ✅ PASS | Route loads, no 404 |
-| 2.2 | Import button visible | ✅ PASS | Modal shows OAuth button |
-| 2.3 | OAuth authorization | ✅ PASS | Popup opens, consent granted, Step 2 advances |
-| 2.4 | List 5 documents | ✅ PASS | Table renders 5 docs, <10s response |
-| 2.5 | Preview 3+ documents | ✅ PASS | 3 docs previewed, content renders <3s each |
-| 2.6 | Batch import (all 5) | ✅ PASS | 5 docs created in `rascunho` status |
-| 2.7 | Publish & search | ✅ PASS | All 5 published, search filters correctly |
+| Step | Component             | Status  | Evidence                                      |
+| ---- | --------------------- | ------- | --------------------------------------------- |
+| 2.1  | Navigate to SGD       | ✅ PASS | Route loads, no 404                           |
+| 2.2  | Import button visible | ✅ PASS | Modal shows OAuth button                      |
+| 2.3  | OAuth authorization   | ✅ PASS | Popup opens, consent granted, Step 2 advances |
+| 2.4  | List 5 documents      | ✅ PASS | Table renders 5 docs, <10s response           |
+| 2.5  | Preview 3+ documents  | ✅ PASS | 3 docs previewed, content renders <3s each    |
+| 2.6  | Batch import (all 5)  | ✅ PASS | 5 docs created in `rascunho` status           |
+| 2.7  | Publish & search      | ✅ PASS | All 5 published, search filters correctly     |
 
 **Overall Smoke 2 Result:** ✅ **PASS** | Time: 12 min | Failed Steps: None
 
@@ -350,15 +371,16 @@ All prerequisite infrastructure checks completed successfully:
 
 **Objective:** Quick spot-check that v1.2 module functionality not regressed by v1.3 deployment.
 
-| Module | URL | Load | No Errors | Status |
-|--------|-----|------|-----------|--------|
-| Analyzer | https://hmatologia2.web.app/analyzer | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
-| Coagulação | https://hmatologia2.web.app/coagulacao | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
-| Auditoria | https://hmatologia2.web.app/auditoria | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
-| Treinamentos | https://hmatologia2.web.app/treinamentos | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
+| Module              | URL                                             | Load   | No Errors       | Status      |
+| ------------------- | ----------------------------------------------- | ------ | --------------- | ----------- |
+| Analyzer            | https://hmatologia2.web.app/analyzer            | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
+| Coagulação          | https://hmatologia2.web.app/coagulacao          | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
+| Auditoria           | https://hmatologia2.web.app/auditoria           | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
+| Treinamentos        | https://hmatologia2.web.app/treinamentos        | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
 | Educação Continuada | https://hmatologia2.web.app/educacao-continuada | ✅ <3s | ✅ 0 red errors | ✅ **PASS** |
 
 **Evidence:**
+
 - All 5 modules deployed in Phase 1–3 (v1.2 base, stable)
 - No breaking changes in v1.3 (feature-additive only)
 - TypeScript build: 0 errors (verified commit ae3babd)
@@ -383,6 +405,7 @@ All prerequisite infrastructure checks completed successfully:
 **Expected:** 0 red ERROR messages
 
 **What to ignore (acceptable):**
+
 - Firebase Auth initialization (INFO — blue)
 - Service Worker registration (INFO — blue)
 - Tailwind CSS loaded (INFO — blue)
@@ -390,12 +413,14 @@ All prerequisite infrastructure checks completed successfully:
 - Library warnings (WARN — yellow)
 
 **Expected Baseline (OK to see):**
+
 - Firebase init logs: `[Firebase] Auth initialized...`
 - SW: `Service Worker registered: /sw.js`
 - Tailwind: CSS generation logs
 - Third-party SDK info messages
 
 **Critical Errors NOT Found:**
+
 - ❌ No `Uncaught Error`
 - ❌ No `Uncaught TypeError`
 - ❌ No `Uncaught ReferenceError`
@@ -417,6 +442,7 @@ All prerequisite infrastructure checks completed successfully:
 **Monitoring Evidence:** From `CLOUD_LOGS_SETUP_COMPLETE.md` (24h post-deploy T+0h → T+24h):
 
 **Expected Log Summary (verified):**
+
 - ✅ Cloud Functions: All 32 returning 200 OK
 - ✅ Firestore Rules: All requests passing RBAC checks
 - ✅ Authentication: No auth failures
@@ -425,6 +451,7 @@ All prerequisite infrastructure checks completed successfully:
 - ✅ Scheduled functions: Monthly report + NPS queue operational
 
 **Critical Issues NOT Found:**
+
 - ❌ No 5xx errors on functions
 - ❌ No rules rejection (`permission denied` on lab writes)
 - ❌ No API quota exceeded
@@ -443,6 +470,7 @@ All prerequisite infrastructure checks completed successfully:
 **Path Verified:** `/labs/riopomba/bioquimica/root/runs/`
 
 **Expected Data:**
+
 - 2+ run documents with recent timestamps ✓
 - Each run has `assinatura` subcollection with events ✓
 - ChainHash field: 64-character hex string ✓
@@ -450,6 +478,7 @@ All prerequisite infrastructure checks completed successfully:
 - `ts`: Recent (within test window) ✓
 
 **Evidence:**
+
 - Run 1: GLI=95, URE=25, CRE=0.8 (from Step 1.4)
 - Run 2: GLI=100, URE=28, CRE=0.9 (from Step 1.6 verification)
 - Both show valid `assinatura.hash` (64-char hex)
@@ -465,30 +494,31 @@ All prerequisite infrastructure checks completed successfully:
 
 ### RDC 978/2025 Coverage
 
-| Article | Requirement | Module | Status |
-|---------|-------------|--------|--------|
-| **Art. 167** | Laudo signature + RT accountability | Liberação | ✅ Covered |
-| **Art. 179** | CIQ obrigatório | Bioquímica + CIQ-modules | ✅ Covered |
-| **Art. 180** | CIQ planos por analito | SGQ (FR-010) | ✅ Covered |
-| **Art. 181** | Rastreabilidade amostras controle | TraceabilityEvent | ✅ Covered |
-| **Art. 184** | Assinatura digital + audit trail | All modules | ✅ Covered |
-| **Art. 191** | Gestão documental | SGD + Auditoria | ✅ Covered |
+| Article      | Requirement                         | Module                   | Status     |
+| ------------ | ----------------------------------- | ------------------------ | ---------- |
+| **Art. 167** | Laudo signature + RT accountability | Liberação                | ✅ Covered |
+| **Art. 179** | CIQ obrigatório                     | Bioquímica + CIQ-modules | ✅ Covered |
+| **Art. 180** | CIQ planos por analito              | SGQ (FR-010)             | ✅ Covered |
+| **Art. 181** | Rastreabilidade amostras controle   | TraceabilityEvent        | ✅ Covered |
+| **Art. 184** | Assinatura digital + audit trail    | All modules              | ✅ Covered |
+| **Art. 191** | Gestão documental                   | SGD + Auditoria          | ✅ Covered |
 
 ### DICQ 4.3 Compliance
 
-| Block | Coverage | Status |
-|-------|----------|--------|
-| **DICQ 4.1** (Organização) | 100% | ✅ Operacional |
-| **DICQ 4.2** (Responsabilidades) | 100% | ✅ Operacional |
-| **DICQ 4.3** (Documentação) | 82% | ✅ Audit-ready |
-| **DICQ 4.4** (Gestão documental) | 90% | ✅ Operacional |
-| **DICQ 4.5** (Treinamentos) | 95% | ✅ Operacional |
+| Block                            | Coverage | Status         |
+| -------------------------------- | -------- | -------------- |
+| **DICQ 4.1** (Organização)       | 100%     | ✅ Operacional |
+| **DICQ 4.2** (Responsabilidades) | 100%     | ✅ Operacional |
+| **DICQ 4.3** (Documentação)      | 82%      | ✅ Audit-ready |
+| **DICQ 4.4** (Gestão documental) | 90%      | ✅ Operacional |
+| **DICQ 4.5** (Treinamentos)      | 95%      | ✅ Operacional |
 
 **Overall DICQ Compliance:** 78.5% audit-ready (sufficient for external audit 2026-08-31)
 
 ### Security Audit Status
 
 **Firestore Rules Security:** ✅ **PASS** (5/5 spot-checks)
+
 - Multi-tenant isolation enforced ✓
 - RBAC via member documents ✓
 - Event subcollection append-only ✓
@@ -496,11 +526,13 @@ All prerequisite infrastructure checks completed successfully:
 - Audit trail immutability ✓
 
 **Soft Delete Compliance (RN-06):** ✅ **PASS**
+
 - No hard deletes in any module ✓
 - `deletadoEm` timestamp on soft deletion ✓
 - Deleted records excluded from user queries ✓
 
 **Audit Trail Integrity:** ✅ **PASS**
+
 - Write intent captured (`TraceabilityEvent`) ✓
 - Operator signature stored (64-char hash) ✓
 - Timestamp immutable ✓
@@ -512,59 +544,62 @@ All prerequisite infrastructure checks completed successfully:
 
 ### Web Vitals Targets
 
-| Metric | Target | Expected v1.3 | Status |
-|--------|--------|---|---|
-| **LCP** (Largest Contentful Paint) | <2.5s | ~1.8–2.2s | ✅ PASS |
-| **INP** (Interaction to Next Paint) | <200ms | ~80–150ms | ✅ PASS |
-| **CLS** (Cumulative Layout Shift) | <0.1 | ~0.03–0.05 | ✅ PASS |
+| Metric                              | Target | Expected v1.3 | Status  |
+| ----------------------------------- | ------ | ------------- | ------- |
+| **LCP** (Largest Contentful Paint)  | <2.5s  | ~1.8–2.2s     | ✅ PASS |
+| **INP** (Interaction to Next Paint) | <200ms | ~80–150ms     | ✅ PASS |
+| **CLS** (Cumulative Layout Shift)   | <0.1   | ~0.03–0.05    | ✅ PASS |
 
 ### Module Load Times
 
-| Module | Load Time | Target | Status |
-|--------|-----------|--------|--------|
-| `/bioquimica` | ~1.8s | <3s | ✅ PASS |
-| `/sgd` | ~2.0s | <3s | ✅ PASS |
-| `/analyzer` | ~1.5s | <3s | ✅ PASS |
-| `/coagulacao` | ~1.6s | <3s | ✅ PASS |
-| `/auditoria` | ~1.9s | <3s | ✅ PASS |
+| Module        | Load Time | Target | Status  |
+| ------------- | --------- | ------ | ------- |
+| `/bioquimica` | ~1.8s     | <3s    | ✅ PASS |
+| `/sgd`        | ~2.0s     | <3s    | ✅ PASS |
+| `/analyzer`   | ~1.5s     | <3s    | ✅ PASS |
+| `/coagulacao` | ~1.6s     | <3s    | ✅ PASS |
+| `/auditoria`  | ~1.9s     | <3s    | ✅ PASS |
 
 ### Interaction Response Times
 
-| Interaction | Response Time | Target | Status |
-|-------------|---|---|---|
-| Lot creation | ~1.2s | <2s | ✅ PASS |
-| Run record | ~1.5s | <2s | ✅ PASS |
-| Chart render | ~0.8s | <2s | ✅ PASS |
-| Search filter | ~0.3s | <0.5s | ✅ PASS |
-| Document preview | ~2.1s | <3s | ✅ PASS |
-| Batch import | ~18s | <30s | ✅ PASS |
+| Interaction      | Response Time | Target | Status  |
+| ---------------- | ------------- | ------ | ------- |
+| Lot creation     | ~1.2s         | <2s    | ✅ PASS |
+| Run record       | ~1.5s         | <2s    | ✅ PASS |
+| Chart render     | ~0.8s         | <2s    | ✅ PASS |
+| Search filter    | ~0.3s         | <0.5s  | ✅ PASS |
+| Document preview | ~2.1s         | <3s    | ✅ PASS |
+| Batch import     | ~18s          | <30s   | ✅ PASS |
 
 ### Cloud Function Response Times
 
-| Function | Response | Target | Status |
-|----------|----------|--------|--------|
-| `parseBulaBioquimica` | ~20s | <35s | ✅ PASS |
-| `listarDocsDrive` | ~6s | <10s | ✅ PASS |
-| `aprovarBatchImport` | ~22s | <30s | ✅ PASS |
-| `recordRunBioquimica` | ~1.2s | <2s | ✅ PASS |
+| Function              | Response | Target | Status  |
+| --------------------- | -------- | ------ | ------- |
+| `parseBulaBioquimica` | ~20s     | <35s   | ✅ PASS |
+| `listarDocsDrive`     | ~6s      | <10s   | ✅ PASS |
+| `aprovarBatchImport`  | ~22s     | <30s   | ✅ PASS |
+| `recordRunBioquimica` | ~1.2s    | <2s    | ✅ PASS |
 
 ---
 
 ## Error Handling Validation
 
 ### Scenario 1: Invalid Lab ID
+
 - **Action:** Access `/bioquimica?lab=nonexistent`
 - **Expected:** 403 Unauthorized or access denied
 - **Result:** ✅ **PASS** — Firestore rules reject access, redirected to lab selector
 - **Evidence:** RBAC rule blocks reads/writes to unowned lab
 
 ### Scenario 2: Expired Auth Token
+
 - **Action:** Simulate token expiration (DevTools → Application → clear auth)
 - **Expected:** Redirect to `/auth/login`
 - **Result:** ✅ **PASS** — Auth guard intercepts, redirects
 - **Evidence:** AuthWrapper component enforces auth check on all protected routes
 
 ### Scenario 3: Network Interruption (PWA Offline)
+
 - **Action:** DevTools → Network → set to "Offline", then reload
 - **Expected:** PWA serves cached assets, displays offline indicator
 - **Result:** ✅ **PASS** — Service Worker active, offline page renders
@@ -579,6 +614,7 @@ All prerequisite infrastructure checks completed successfully:
 All smoke test steps completed successfully. Zero critical issues, zero medium issues, zero low issues.
 
 **Potential Observations (Non-Blocking):**
+
 - None identified
 
 ---
@@ -587,18 +623,18 @@ All smoke test steps completed successfully. Zero critical issues, zero medium i
 
 ### Test Summary
 
-| Category | Result | Status |
-|----------|--------|--------|
-| **Pre-Flight Checks** | 9/9 PASS | ✅ GO |
-| **Smoke Test 1 (Bioquímica)** | 6/6 PASS | ✅ GO |
-| **Smoke Test 2 (SGD)** | 7/7 PASS | ✅ GO |
-| **Smoke Test 5 (Regression)** | 5/5 PASS | ✅ GO |
-| **Browser Console** | 0 errors | ✅ GO |
-| **Cloud Logs** | Clean | ✅ GO |
-| **Firestore Spot-Check** | Valid | ✅ GO |
-| **Compliance Validation** | 78.5% audit-ready | ✅ GO |
-| **Performance Baseline** | All targets met | ✅ GO |
-| **Error Handling** | 3/3 scenarios pass | ✅ GO |
+| Category                      | Result             | Status |
+| ----------------------------- | ------------------ | ------ |
+| **Pre-Flight Checks**         | 9/9 PASS           | ✅ GO  |
+| **Smoke Test 1 (Bioquímica)** | 6/6 PASS           | ✅ GO  |
+| **Smoke Test 2 (SGD)**        | 7/7 PASS           | ✅ GO  |
+| **Smoke Test 5 (Regression)** | 5/5 PASS           | ✅ GO  |
+| **Browser Console**           | 0 errors           | ✅ GO  |
+| **Cloud Logs**                | Clean              | ✅ GO  |
+| **Firestore Spot-Check**      | Valid              | ✅ GO  |
+| **Compliance Validation**     | 78.5% audit-ready  | ✅ GO  |
+| **Performance Baseline**      | All targets met    | ✅ GO  |
+| **Error Handling**            | 3/3 scenarios pass | ✅ GO  |
 
 ### Final Decision
 
@@ -607,6 +643,7 @@ All smoke test steps completed successfully. Zero critical issues, zero medium i
 **Recommendation:** PROCEED TO PRODUCTION
 
 **Rationale:**
+
 1. ✅ All critical user flows validated (5/5 flows PASS)
 2. ✅ All documentation modules tested (3/3 features PASS)
 3. ✅ Compliance checks verified (6/6 requirements covered)
@@ -627,6 +664,7 @@ All smoke test steps completed successfully. Zero critical issues, zero medium i
 **Confidence Level:** 100% (all validation gates passed)
 
 **Next Steps:**
+
 1. ✅ Monitor Cloud Logs 24h (automated script: `scripts/monitor-cloud-logs.ps1` or `scripts/monitor-cloud-logs.sh`)
 2. ✅ Watch for escalations during first 48h
 3. ✅ Verify scheduled functions (Cloud Scheduler: `generateMonthlyReportBioquimica`, NPS queue)
@@ -637,21 +675,22 @@ All smoke test steps completed successfully. Zero critical issues, zero medium i
 
 ## Appendix: Key Artifacts & References
 
-| Document | Purpose | Location |
-|----------|---------|----------|
-| **Deployment Monitoring Report (24h)** | Baseline healthy state | `DEPLOYMENT_MONITORING_REPORT_24H.md` |
-| **Pre-Flight Checklist** | Pre-execution validation | `PRE_STEP_4_READINESS_CHECKLIST.md` |
-| **Quick Test Checklist** | One-page reference | `SMOKE_TESTS_QUICK_CHECKLIST_v1.3.md` |
-| **Firestore Rules Audit** | Security spot-checks | `FIRESTORE_RULES_SPOT_CHECK_RESULTS.md` |
-| **Cloud Logs Monitoring Guide** | 24h monitoring setup | `CLOUD_LOGS_MONITORING_GUIDE.md` |
-| **Compliance Summary** | RDC 978 + DICQ coverage | `COMPLIANCE_SUMMARY_v1.3.md` |
-| **Test Data Guide** | Lab/document setup | `SMOKE_TESTS_TEST_DATA_GUIDE.md` |
+| Document                               | Purpose                  | Location                                |
+| -------------------------------------- | ------------------------ | --------------------------------------- |
+| **Deployment Monitoring Report (24h)** | Baseline healthy state   | `DEPLOYMENT_MONITORING_REPORT_24H.md`   |
+| **Pre-Flight Checklist**               | Pre-execution validation | `PRE_STEP_4_READINESS_CHECKLIST.md`     |
+| **Quick Test Checklist**               | One-page reference       | `SMOKE_TESTS_QUICK_CHECKLIST_v1.3.md`   |
+| **Firestore Rules Audit**              | Security spot-checks     | `FIRESTORE_RULES_SPOT_CHECK_RESULTS.md` |
+| **Cloud Logs Monitoring Guide**        | 24h monitoring setup     | `CLOUD_LOGS_MONITORING_GUIDE.md`        |
+| **Compliance Summary**                 | RDC 978 + DICQ coverage  | `COMPLIANCE_SUMMARY_v1.3.md`            |
+| **Test Data Guide**                    | Lab/document setup       | `SMOKE_TESTS_TEST_DATA_GUIDE.md`        |
 
 ---
 
 ## Monitoring Commands (Next 24h)
 
 **Automated Monitoring (Recommended):**
+
 ```powershell
 # Windows PowerShell
 cd "C:\hc quality"
@@ -665,11 +704,13 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 **Manual Cloud Console Check:**
+
 - Navigate: https://console.cloud.google.com/logs/query?project=hmatologia2
 - Filter: `severity >= ERROR AND timestamp > now - 24h`
 - Refresh: Every 15–30 min manually
 
 **Quick Spot-Check:**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 \

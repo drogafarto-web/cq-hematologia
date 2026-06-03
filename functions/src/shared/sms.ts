@@ -33,12 +33,10 @@ export interface PacienteInput {
 export const smsTemplate = (
   critico: CriticoInput,
   lab: LabInput,
-  paciente: PacienteInput
+  paciente: PacienteInput,
 ): string => {
   // Truncate patient name to 20 chars if present
-  const patientDisplay = paciente.nome
-    ? paciente.nome.substring(0, 20)
-    : 'Paciente';
+  const patientDisplay = paciente.nome ? paciente.nome.substring(0, 20) : 'Paciente';
 
   // Build base message
   const baseMessage = `ALERTA: Resultado crítico para ${patientDisplay}. ${critico.analito.toUpperCase()} = ${critico.valor} (ref: ${critico.referencia}). ${lab.nomeAbreviado}.`;
@@ -71,10 +69,7 @@ export const validateSmsLength = (message: string, maxLength: number = 160): boo
 /**
  * Generate email subject for critical value escalation
  */
-export const emailSubjectCritico = (
-  analito: string,
-  lab: LabInput
-): string => {
+export const emailSubjectCritico = (analito: string, lab: LabInput): string => {
   return `CRÍTICO: ${analito.toUpperCase()} - ${lab.nomeAbreviado}`;
 };
 
@@ -85,7 +80,7 @@ export const emailBodyCritico = (
   critico: CriticoInput,
   lab: LabInput,
   paciente: PacienteInput,
-  timestamp: Date = new Date()
+  timestamp: Date = new Date(),
 ): string => {
   return `
 Resultado Crítico Detectado

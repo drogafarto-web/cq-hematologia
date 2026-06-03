@@ -10,17 +10,17 @@
 
 ## Visão geral
 
-| Spine | Dono (módulo) | Coleção Firestore | Consumidores | Status |
-|---|---|---|---|---|
-| **Pessoa/Operador** | Gestão de Pessoas | `/users` + `/labs/{labId}/members` + `/labs/{labId}/qualificacoes` *(novo)* | TODOS | parcial — falta qualificações/treinamentos |
-| **Fornecedor** | Compras | `/labs/{labId}/fornecedores` | Lote, NF | placeholder (Fase E) |
-| **Nota Fiscal** | Compras | `/labs/{labId}/notas-fiscais` | Lote | placeholder (Fase E) |
-| **Lote rastreável** | Estoque/Insumos | `/labs/{labId}/insumos` (atual) | CIQ, Imuno, Bioquímica, Hemato, Coag, Uroanálise, CT | **existe; falta vínculo NF + Fornecedor** |
-| **Movimentação assinada** | infra (chain-hash) | `/labs/{labId}/insumo-movimentacoes` | Estoque, Auditoria | live (Onda 0c) |
-| **Equipamento** | Equipamentos | `/labs/{labId}/equipamentos` | módulos técnicos, CT, calibração | placeholder (Fase D) |
-| **POP / Documento vigente** | Documentos da Qualidade | `/labs/{labId}/pops` *(novo)* | módulos técnicos referenciam POP em uso na corrida | **a construir** |
-| **Não-Conformidade (NC/CAPA)** | Qualidade | `/labs/{labId}/nao-conformidades` *(novo)* | qualquer módulo abre; Qualidade trata | **a construir** |
-| **Audit log assinado** | infra | `/labs/{labId}/ciq-audit` + `/auditLogs` | TODOS, sem exceção | live |
+| Spine                          | Dono (módulo)           | Coleção Firestore                                                           | Consumidores                                         | Status                                     |
+| ------------------------------ | ----------------------- | --------------------------------------------------------------------------- | ---------------------------------------------------- | ------------------------------------------ |
+| **Pessoa/Operador**            | Gestão de Pessoas       | `/users` + `/labs/{labId}/members` + `/labs/{labId}/qualificacoes` _(novo)_ | TODOS                                                | parcial — falta qualificações/treinamentos |
+| **Fornecedor**                 | Compras                 | `/labs/{labId}/fornecedores`                                                | Lote, NF                                             | placeholder (Fase E)                       |
+| **Nota Fiscal**                | Compras                 | `/labs/{labId}/notas-fiscais`                                               | Lote                                                 | placeholder (Fase E)                       |
+| **Lote rastreável**            | Estoque/Insumos         | `/labs/{labId}/insumos` (atual)                                             | CIQ, Imuno, Bioquímica, Hemato, Coag, Uroanálise, CT | **existe; falta vínculo NF + Fornecedor**  |
+| **Movimentação assinada**      | infra (chain-hash)      | `/labs/{labId}/insumo-movimentacoes`                                        | Estoque, Auditoria                                   | live (Onda 0c)                             |
+| **Equipamento**                | Equipamentos            | `/labs/{labId}/equipamentos`                                                | módulos técnicos, CT, calibração                     | placeholder (Fase D)                       |
+| **POP / Documento vigente**    | Documentos da Qualidade | `/labs/{labId}/pops` _(novo)_                                               | módulos técnicos referenciam POP em uso na corrida   | **a construir**                            |
+| **Não-Conformidade (NC/CAPA)** | Qualidade               | `/labs/{labId}/nao-conformidades` _(novo)_                                  | qualquer módulo abre; Qualidade trata                | **a construir**                            |
+| **Audit log assinado**         | infra                   | `/labs/{labId}/ciq-audit` + `/auditLogs`                                    | TODOS, sem exceção                                   | live                                       |
 
 ---
 
@@ -37,10 +37,10 @@ type User = {
   uid: string;
   email: string;
   nome: string;
-  cpfHash: string;          // SHA-256, nunca raw (LGPD)
+  cpfHash: string; // SHA-256, nunca raw (LGPD)
   status: 'ativo' | 'afastado' | 'desligado';
   // refs
-  labsAtivos: string[];     // labIds onde tem member doc ativo
+  labsAtivos: string[]; // labIds onde tem member doc ativo
 };
 
 // /labs/{labId}/members/{uid} (já existe — completar)
@@ -48,34 +48,45 @@ type Member = {
   uid: string;
   role: 'owner' | 'admin' | 'analista' | 'tecnico' | 'leitor';
   active: boolean;
-  cargo: string;            // "Biomédica RT", "Técnica em análises", etc
-  conselhoProfissional?: { sigla: 'CRBM'|'CRF'|'CRM'|'CRBio'; numero: string; uf: string };
+  cargo: string; // "Biomédica RT", "Técnica em análises", etc
+  conselhoProfissional?: { sigla: 'CRBM' | 'CRF' | 'CRM' | 'CRBio'; numero: string; uf: string };
   responsavelTecnico?: boolean; // RT do lab — único por lab
 };
 
 // /labs/{labId}/qualificacoes/{qualId} (novo)
 type Qualificacao = {
-  uid: string;              // FK Member
+  uid: string; // FK Member
   tipo: 'treinamento' | 'capacitacao' | 'reciclagem';
-  modulosLiberados: ('hematologia'|'imunologia'|'coagulacao'|'uroanalise'|'bioquimica'|'compras'|'estoque')[];
-  evidenciaUrl?: string;    // certificado, ata
+  modulosLiberados: (
+    | 'hematologia'
+    | 'imunologia'
+    | 'coagulacao'
+    | 'uroanalise'
+    | 'bioquimica'
+    | 'compras'
+    | 'estoque'
+  )[];
+  evidenciaUrl?: string; // certificado, ata
   validoDe: Timestamp;
-  validoAte?: Timestamp;    // null = sem expiração
-  liberadoPor: string;      // uid do RT que liberou
-  hmac: string;             // assinatura
+  validoAte?: Timestamp; // null = sem expiração
+  liberadoPor: string; // uid do RT que liberou
+  hmac: string; // assinatura
 };
 ```
 
 ### Invariantes
+
 - `responsavelTecnico: true` é único por lab (rule + função de transação).
 - Toda ação técnica registrada em qualquer módulo carrega `operadorId` **e** valida `member.active === true` no momento da escrita.
 - Liberação em módulo X exige `qualificacoes` ativa cobrindo X. CF valida; UI bloqueia preventivamente.
 
 ### Como outros módulos consomem
+
 ```ts
 // Em qualquer doc de resultado/movimento:
 { operadorId: uid, operadorAssinaturaTs: serverTimestamp() }
 ```
+
 **Nunca** copiar nome/cargo no doc consumidor. Só `operadorId`. UI resolve via cache.
 
 ---
@@ -93,21 +104,34 @@ type Fornecedor = {
   id: string;
   razaoSocial: string;
   nomeFantasia?: string;
-  cnpj: string;             // formato com máscara salva normalizada
+  cnpj: string; // formato com máscara salva normalizada
   inscricaoEstadual?: string;
   // qualificação
   status: 'pendente' | 'qualificado' | 'suspenso' | 'desqualificado';
   qualificadoEm?: Timestamp;
-  qualificadoPor?: string;  // uid
+  qualificadoPor?: string; // uid
   proximaRequalificacao?: Timestamp; // tipicamente +12m
-  evidencias: { tipo: 'alvara'|'licenca-sanitaria'|'iso'|'certificado-fabricante'|'avaliacao'; url: string; validade?: Timestamp }[];
-  categoriasFornecidas: ('reagente'|'controle'|'calibrador'|'consumivel'|'epi'|'servico-calibracao'|'servico-manutencao')[];
+  evidencias: {
+    tipo: 'alvara' | 'licenca-sanitaria' | 'iso' | 'certificado-fabricante' | 'avaliacao';
+    url: string;
+    validade?: Timestamp;
+  }[];
+  categoriasFornecidas: (
+    | 'reagente'
+    | 'controle'
+    | 'calibrador'
+    | 'consumivel'
+    | 'epi'
+    | 'servico-calibracao'
+    | 'servico-manutencao'
+  )[];
   contato: { email: string; telefone: string; responsavel: string };
   observacoes?: string;
 };
 ```
 
 ### Invariantes
+
 - `status === 'qualificado'` requer pelo menos uma `evidencia` válida (data > now) por categoria fornecida.
 - Compra (NF) só é registrável contra fornecedor qualificado **na data da emissão**. Histórico de status é append-only em `/fornecedores/{id}/historico`.
 
@@ -126,23 +150,23 @@ type NotaFiscal = {
   id: string;
   numero: string;
   serie?: string;
-  chaveAcesso?: string;     // 44 dígitos NFe — útil para evitar duplicidade
-  fornecedorId: string;     // FK
+  chaveAcesso?: string; // 44 dígitos NFe — útil para evitar duplicidade
+  fornecedorId: string; // FK
   dataEmissao: Timestamp;
   dataRecebimento: Timestamp;
-  recebidoPor: string;      // uid
+  recebidoPor: string; // uid
   // conferência no recebimento
   conferenciaOk: boolean;
   desviosObservados?: string;
-  ncId?: string;            // se conferência falhou, FK para NC aberta
+  ncId?: string; // se conferência falhou, FK para NC aberta
   // conteúdo
   itens: NFItem[];
   valorTotal: number;
-  arquivoUrl?: string;      // PDF/XML armazenado
+  arquivoUrl?: string; // PDF/XML armazenado
 };
 
 type NFItem = {
-  produtoInsumoId: string;  // FK /produtos-insumos
+  produtoInsumoId: string; // FK /produtos-insumos
   quantidade: number;
   unidade: string;
   valorUnitario: number;
@@ -150,11 +174,12 @@ type NFItem = {
   numeroLoteFabricante: string;
   validade: Timestamp;
   // após criar Lote, popula:
-  loteIdGerado?: string;    // FK /insumos
+  loteIdGerado?: string; // FK /insumos
 };
 ```
 
 ### Invariantes
+
 - Não-duplicidade por `(fornecedorId, numero, serie)` ou `chaveAcesso`.
 - Toda criação de Lote físico em `/insumos` deve referenciar `notaFiscalId` + `nfItemIndex`. Sem NF = não há entrada legal no estoque.
 
@@ -171,28 +196,35 @@ type NFItem = {
 // /labs/{labId}/insumos/{loteId}
 type Insumo = {
   id: string;
-  produtoInsumoId: string;     // FK catálogo
-  numeroLote: string;          // do fabricante
+  produtoInsumoId: string; // FK catálogo
+  numeroLote: string; // do fabricante
   // NOVO — rastreabilidade
-  notaFiscalId: string;        // FK obrigatório (após Fase E)
+  notaFiscalId: string; // FK obrigatório (após Fase E)
   nfItemIndex: number;
-  fornecedorId: string;        // denormalizado para query rápida; auditável vs NF
+  fornecedorId: string; // denormalizado para query rápida; auditável vs NF
   // já existe
   validade: Timestamp;
   diasEstabPosAbertura?: number; // bug conhecido — ver memória
   status: 'em-uso' | 'reserva' | 'descartado' | 'esgotado' | 'quarentena';
   recebidoEm: Timestamp;
   abertoEm?: Timestamp;
-  abertoPor?: string;          // uid
+  abertoPor?: string; // uid
   esgotadoEm?: Timestamp;
   // rastreabilidade reversa (consumo)
-  modulosUtilizadores: ('hematologia'|'imunologia'|'coagulacao'|'uroanalise'|'bioquimica')[];
+  modulosUtilizadores: (
+    | 'hematologia'
+    | 'imunologia'
+    | 'coagulacao'
+    | 'uroanalise'
+    | 'bioquimica'
+  )[];
 };
 ```
 
 ### Movimentações = chain-hash sagrada
 
 Toda mudança de estado vira evento em `/insumo-movimentacoes` com HMAC + prev_hash. Tipos:
+
 - `recebimento` (origem: NF)
 - `abertura` (carrega `operadorId`, condições)
 - `consumo-em-corrida` (FK runId, moduleId)
@@ -236,6 +268,7 @@ type EquipamentoEvent =
 ```
 
 ### Invariantes
+
 - Resultado em qualquer módulo que emita laudo carrega `equipamentoId` no momento da corrida.
 - `status !== 'ativo'` bloqueia uso; UI e CF validam.
 
@@ -272,6 +305,7 @@ type POPVersao = {
 ```
 
 ### Como módulos consomem
+
 Toda corrida/laudo grava `{ popId, popVersaoId, popHash }` — congela a versão usada. Mesmo que o POP seja revisto amanhã, o resultado de hoje aponta para a versão exata.
 
 ---
@@ -287,11 +321,17 @@ Toda corrida/laudo grava `{ popId, popVersaoId, popHash }` — congela a versão
 // /labs/{labId}/nao-conformidades/{ncId}
 type NaoConformidade = {
   id: string;
-  codigo: string;           // "NC-2026-042"
-  origem: 'recebimento-nf' | 'ciq-fora-controle' | 'auditoria-interna' | 'reclamacao' | 'manutencao' | 'outro';
+  codigo: string; // "NC-2026-042"
+  origem:
+    | 'recebimento-nf'
+    | 'ciq-fora-controle'
+    | 'auditoria-interna'
+    | 'reclamacao'
+    | 'manutencao'
+    | 'outro';
   // FK para o que disparou
   origemRef?: { tipo: string; id: string }; // ex: { tipo: 'NF', id: 'nf_xyz' }
-  abertaPor: string;        // uid
+  abertaPor: string; // uid
   abertaEm: Timestamp;
   modulo: string;
   severidade: 'baixa' | 'media' | 'alta' | 'critica';
@@ -300,13 +340,29 @@ type NaoConformidade = {
   // CAPA
   acoesImediatas?: string;
   causaRaiz?: string;
-  acaoCorretiva?: { descricao: string; responsavelUid: string; prazo: Timestamp; concluidaEm?: Timestamp };
-  acaoPreventiva?: { descricao: string; responsavelUid: string; prazo: Timestamp; concluidaEm?: Timestamp };
-  eficaciaAvaliada?: { em: Timestamp; por: string; resultado: 'eficaz'|'ineficaz'; reabriu: boolean };
+  acaoCorretiva?: {
+    descricao: string;
+    responsavelUid: string;
+    prazo: Timestamp;
+    concluidaEm?: Timestamp;
+  };
+  acaoPreventiva?: {
+    descricao: string;
+    responsavelUid: string;
+    prazo: Timestamp;
+    concluidaEm?: Timestamp;
+  };
+  eficaciaAvaliada?: {
+    em: Timestamp;
+    por: string;
+    resultado: 'eficaz' | 'ineficaz';
+    reabriu: boolean;
+  };
 };
 ```
 
 ### Invariantes
+
 - NC crítica em CIQ pode bloquear liberação de laudos do módulo até resolução (gate de UI + rule server-side).
 - Audit chain (`/ciq-audit` ou equivalente) registra cada transição de status.
 
@@ -318,7 +374,9 @@ type NaoConformidade = {
 **Já existe:** `/auditLogs` (root) + `/labs/{labId}/ciq-audit` + `/labs/{labId}/insumo-movimentacoes`.
 
 ### Padrão obrigatório para módulos novos
+
 Todo módulo sensível precisa do **mesmo padrão**:
+
 1. Cliente cria doc com `status: 'pending'` + payload.
 2. CF de trigger (onCreate) calcula `prev_hash` (último doc selado da chain), aplica HMAC, sela com `status: 'sealed'` + `chainHash`.
 3. Rule garante `pending → sealed` só via CF (`request.auth == null` ou marker via custom claim de service).
@@ -331,6 +389,7 @@ Implementação de referência: [`functions/src/insumos/`](../../functions/src/i
 ## Padrões de cross-module reference
 
 ### Regra 1 — sempre por ID
+
 ```ts
 // ❌ ERRADO
 { operador: { uid, nome: 'João', cargo: 'Biomédico' } }
@@ -340,22 +399,27 @@ Implementação de referência: [`functions/src/insumos/`](../../functions/src/i
 ```
 
 ### Regra 2 — denormalização só se for invariante histórica
+
 Se o consumidor precisa "congelar" estado no momento da escrita (ex: nome do reagente impresso no laudo do passado, mesmo que o produto seja renomeado), salve **explicitamente** como snapshot:
+
 ```ts
 {
   produtoInsumoId: 'pi_xyz',
   produtoSnapshot: { nome: 'Anti-A 5mL', fabricante: 'Lab X' } // congelado intencionalmente
 }
 ```
+
 Documentar no schema **por que** é snapshot. Sem doc, é bug.
 
 ### Regra 3 — coleções comuns ficam em root ou em `/labs/{labId}`?
+
 - Se compartilhada entre labs (ex: `/users`, catálogo global de produtos): root.
 - Se específica do lab: `/labs/{labId}/...` (default — multi-tenant).
 
 Ver [paths-map.md](paths-map.md) e [firestore-model.md](firestore-model.md) para padrão atual.
 
 ### Regra 4 — toda escrita sensível registra evento
+
 Não é opcional. Se o dado importa para auditoria/rastreabilidade, escreva o evento na chain ANTES (ou junto via transaction) da escrita do estado. Estado sem evento = inauditável.
 
 ---
@@ -363,10 +427,12 @@ Não é opcional. Se o dado importa para auditoria/rastreabilidade, escreva o ev
 ## Quando criar uma nova spine
 
 Pergunta-teste: **3+ módulos vão referenciar essa entidade**, ou a entidade tem **regulamentação própria de retenção/auditoria**?
+
 - Sim → spine. Aplica padrão deste doc.
 - Não → fica encapsulada dentro do módulo dono.
 
-
 ---
+
 ## 🔗 Conexões Centrais
+
 - [[HC_Quality]]

@@ -1,4 +1,5 @@
 # Fluxo Operacional de Consentimento, Limitação de Finalidade, Opt-Out e Retenção
+
 ## Módulo IA-Strip (classificação assistida por Google Gemini Vision)
 
 **Documento:** IA-STRIP-CONSENT-FLOW v0.1
@@ -25,14 +26,14 @@ Este documento descreve **onde** o consentimento é capturado, **como** a finali
 
 ## 2. Aplicabilidade
 
-| Item | Valor |
-| --- | --- |
-| Módulo do sistema | `ia-strip` |
-| Callable | `classifyStripGemini` (Cloud Function, região `southamerica-east1`) |
-| Tipos de teste cobertos | HIV, Dengue (IgM/IgG), Sífilis, COVID-19 (Antígeno), HCG |
-| Perfis impactados | Pacientes (titulares de dados sensíveis), Operadores laboratoriais, RT, DPO |
-| Hipótese legal primária | Art. 11, II, "f" — tutela da saúde |
-| Hipótese legal complementar | Art. 11, II, "a" — consentimento específico (reforço) |
+| Item                        | Valor                                                                       |
+| --------------------------- | --------------------------------------------------------------------------- |
+| Módulo do sistema           | `ia-strip`                                                                  |
+| Callable                    | `classifyStripGemini` (Cloud Function, região `southamerica-east1`)         |
+| Tipos de teste cobertos     | HIV, Dengue (IgM/IgG), Sífilis, COVID-19 (Antígeno), HCG                    |
+| Perfis impactados           | Pacientes (titulares de dados sensíveis), Operadores laboratoriais, RT, DPO |
+| Hipótese legal primária     | Art. 11, II, "f" — tutela da saúde                                          |
+| Hipótese legal complementar | Art. 11, II, "a" — consentimento específico (reforço)                       |
 
 ---
 
@@ -44,7 +45,7 @@ Este documento descreve **onde** o consentimento é capturado, **como** a finali
 
 **Cláusula a incluir (texto-base obrigatório):**
 
-> *"Autorizo o Laboratório Clínico Riopomba a tratar meus dados pessoais e dados pessoais sensíveis (saúde) para a execução dos exames solicitados e para fins de leitura assistida por Inteligência Artificial em testes rápidos, quando aplicável. Estou ciente de que, na leitura assistida por IA, a imagem da área reativa do meu teste pode ser transmitida ao operador Google LLC, com servidores nos Estados Unidos da América, sob cláusulas contratuais padrão de proteção de dados, sem persistência da imagem após a inferência e sem uso para treinamento de modelos. Estou ciente de que posso recusar o processamento por IA mantendo a leitura exclusivamente manual, sem qualquer prejuízo ao meu atendimento."*
+> _"Autorizo o Laboratório Clínico Riopomba a tratar meus dados pessoais e dados pessoais sensíveis (saúde) para a execução dos exames solicitados e para fins de leitura assistida por Inteligência Artificial em testes rápidos, quando aplicável. Estou ciente de que, na leitura assistida por IA, a imagem da área reativa do meu teste pode ser transmitida ao operador Google LLC, com servidores nos Estados Unidos da América, sob cláusulas contratuais padrão de proteção de dados, sem persistência da imagem após a inferência e sem uso para treinamento de modelos. Estou ciente de que posso recusar o processamento por IA mantendo a leitura exclusivamente manual, sem qualquer prejuízo ao meu atendimento."_
 
 **Persistência:** Documento físico assinado + escaneamento em `docs-pacientes/{labId}/{pacienteId}/tcle-vYYYY-MM-DD.pdf` + flag `consenteIA: true|false` no documento do paciente.
 
@@ -67,6 +68,7 @@ Este documento descreve **onde** o consentimento é capturado, **como** a finali
 ```
 
 **Regras:**
+
 - Default: **opt-in explícito** (checkbox **não pré-marcado**).
 - Se `consenteIA === false` no cadastro: o botão "Classificar com IA" fica desabilitado por design.
 - O timestamp do consentimento específico é gravado em `imuno-ia-dev/{labId}/events/{captureId}.consentTs`.
@@ -77,7 +79,7 @@ Este documento descreve **onde** o consentimento é capturado, **como** a finali
 
 **Texto mínimo:**
 
-> *"Aviso ao paciente: este laboratório utiliza Inteligência Artificial (Google Gemini) como ferramenta auxiliar de leitura em alguns testes rápidos. A imagem do seu teste pode ser enviada ao Google nos EUA, com proteções contratuais e sem armazenamento permanente. Você pode recusar essa análise a qualquer momento, mantendo leitura exclusivamente manual. Dúvidas: dpo@labclin-riopomba.com.br"*
+> _"Aviso ao paciente: este laboratório utiliza Inteligência Artificial (Google Gemini) como ferramenta auxiliar de leitura em alguns testes rápidos. A imagem do seu teste pode ser enviada ao Google nos EUA, com proteções contratuais e sem armazenamento permanente. Você pode recusar essa análise a qualquer momento, mantendo leitura exclusivamente manual. Dúvidas: dpo@labclin-riopomba.com.br"_
 
 ---
 
@@ -142,14 +144,14 @@ A tela de histórico do paciente exibe, para cada strip processado:
 
 ## 6. Retenção e Eliminação
 
-| Artefato | Retenção | Eliminação |
-| --- | --- | --- |
-| Imagem Base64 (durante a inferência) | ≤30s em RAM da Cloud Function | Garbage collected pelo runtime; **nunca persiste** |
-| Documento `imuno-ia-dev/{labId}/events/{captureId}` (sem imagem) | 5 anos a partir de `classifiedAt` (alinhado a RDC 978 Art. 115) | Soft-delete via cron `scheduledPurgeIaEvents` (TC-10, pendente) |
-| `imuno-ia-cost/{labId}/daily/{YYYY-MM-DD}` (custo agregado, sem PII) | 7 anos | Soft-delete por cron contábil |
-| Cloud Logging (sem imagem; somente metadados operacionais) | 90 dias (default GCP) | Auto-rotated por GCP |
-| Resposta retida pela Google | **Zero retenção** (cláusula no-training do GCP DPA) | Confirmado contratualmente (TC-03) |
-| Audit trail de consentimento | 5 anos | Soft-delete acompanha purga do evento |
+| Artefato                                                             | Retenção                                                        | Eliminação                                                      |
+| -------------------------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
+| Imagem Base64 (durante a inferência)                                 | ≤30s em RAM da Cloud Function                                   | Garbage collected pelo runtime; **nunca persiste**              |
+| Documento `imuno-ia-dev/{labId}/events/{captureId}` (sem imagem)     | 5 anos a partir de `classifiedAt` (alinhado a RDC 978 Art. 115) | Soft-delete via cron `scheduledPurgeIaEvents` (TC-10, pendente) |
+| `imuno-ia-cost/{labId}/daily/{YYYY-MM-DD}` (custo agregado, sem PII) | 7 anos                                                          | Soft-delete por cron contábil                                   |
+| Cloud Logging (sem imagem; somente metadados operacionais)           | 90 dias (default GCP)                                           | Auto-rotated por GCP                                            |
+| Resposta retida pela Google                                          | **Zero retenção** (cláusula no-training do GCP DPA)             | Confirmado contratualmente (TC-03)                              |
+| Audit trail de consentimento                                         | 5 anos                                                          | Soft-delete acompanha purga do evento                           |
 
 ### 6.1. Cron de purga (TC-10 — pendente implementação)
 
@@ -165,58 +167,58 @@ Definição funcional do `scheduledPurgeIaEvents` (a ser implementado em `functi
 
 ## 7. Direitos do Titular — Operacionalização
 
-| Direito | Canal | SLA |
-| --- | --- | --- |
-| Confirmação e acesso (Art. 18, I e II) | dpo@labclin-riopomba.com.br | 15 dias |
-| Correção (Art. 18, III) | DPO + RT | 15 dias |
-| Anonimização / bloqueio / eliminação (Art. 18, IV) | DPO | 15 dias (sujeito a dever legal de retenção) |
-| Portabilidade (Art. 18, V) | Portal do Paciente (Phase 13) ou DPO | 15 dias |
-| Eliminação dos dados tratados com consentimento (Art. 18, VI) | DPO | 15 dias (sujeito a Art. 16) |
-| Revisão de decisão automatizada (Art. 20) | DPO + RT | 5 dias úteis |
-| Recusa pontual de processamento por IA | UI de captura | Imediato |
-| Revogação global do consentimento de IA | TCLE atualizado ou DPO | 1 dia útil |
+| Direito                                                       | Canal                                | SLA                                         |
+| ------------------------------------------------------------- | ------------------------------------ | ------------------------------------------- |
+| Confirmação e acesso (Art. 18, I e II)                        | dpo@labclin-riopomba.com.br          | 15 dias                                     |
+| Correção (Art. 18, III)                                       | DPO + RT                             | 15 dias                                     |
+| Anonimização / bloqueio / eliminação (Art. 18, IV)            | DPO                                  | 15 dias (sujeito a dever legal de retenção) |
+| Portabilidade (Art. 18, V)                                    | Portal do Paciente (Phase 13) ou DPO | 15 dias                                     |
+| Eliminação dos dados tratados com consentimento (Art. 18, VI) | DPO                                  | 15 dias (sujeito a Art. 16)                 |
+| Revisão de decisão automatizada (Art. 20)                     | DPO + RT                             | 5 dias úteis                                |
+| Recusa pontual de processamento por IA                        | UI de captura                        | Imediato                                    |
+| Revogação global do consentimento de IA                       | TCLE atualizado ou DPO               | 1 dia útil                                  |
 
 ---
 
 ## 8. Responsabilidades
 
-| Papel | Responsabilidades |
-| --- | --- |
-| **RT (Direção Técnica)** | Aprovar este fluxo; revisar anualmente; supervisionar revisão humana de classificações |
-| **DPO** | Atender solicitações de titulares; monitorar conformidade; revisar audit trail mensalmente; manter contato com ANPD |
-| **CTO / Engenharia** | Implementar e manter os controles TC-01 a TC-11 da DPIA; garantir secrets e DPA Google ativos |
-| **Operadores laboratoriais** | Apresentar consentimento específico em cada captura; revisar resultados de baixa confiança; nunca burlar o opt-out |
-| **Recepção / Cadastro** | Coletar TCLE assinado e digitalizar no momento da admissão |
+| Papel                        | Responsabilidades                                                                                                   |
+| ---------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **RT (Direção Técnica)**     | Aprovar este fluxo; revisar anualmente; supervisionar revisão humana de classificações                              |
+| **DPO**                      | Atender solicitações de titulares; monitorar conformidade; revisar audit trail mensalmente; manter contato com ANPD |
+| **CTO / Engenharia**         | Implementar e manter os controles TC-01 a TC-11 da DPIA; garantir secrets e DPA Google ativos                       |
+| **Operadores laboratoriais** | Apresentar consentimento específico em cada captura; revisar resultados de baixa confiança; nunca burlar o opt-out  |
+| **Recepção / Cadastro**      | Coletar TCLE assinado e digitalizar no momento da admissão                                                          |
 
 ---
 
 ## 9. Métricas e Monitoramento
 
-| Métrica | Frequência | Owner | Alerta |
-| --- | --- | --- | --- |
-| Taxa de opt-out de IA por paciente | Mensal | DPO | >30% requer revisão da clareza do TCLE |
-| Acurácia da IA por tipo de teste | Mensal | RT | Acurácia <85% requer reavaliação do prompt |
-| Volume de classificações por laboratório | Diário | CTO | Spike >2x baseline requer investigação |
-| Solicitações de Art. 18 envolvendo IA | Mensal | DPO | Qualquer >0 requer atualização do registro |
-| Eventos `imuno-ia-dev` purgados pelo cron | Mensal | DPO | Falha do cron >1d é incidente |
-| Gaps de consentimento (`consentTs == null` em events) | Diário | CTO | Qualquer ocorrência é INCIDENTE — bloquear módulo |
+| Métrica                                               | Frequência | Owner | Alerta                                            |
+| ----------------------------------------------------- | ---------- | ----- | ------------------------------------------------- |
+| Taxa de opt-out de IA por paciente                    | Mensal     | DPO   | >30% requer revisão da clareza do TCLE            |
+| Acurácia da IA por tipo de teste                      | Mensal     | RT    | Acurácia <85% requer reavaliação do prompt        |
+| Volume de classificações por laboratório              | Diário     | CTO   | Spike >2x baseline requer investigação            |
+| Solicitações de Art. 18 envolvendo IA                 | Mensal     | DPO   | Qualquer >0 requer atualização do registro        |
+| Eventos `imuno-ia-dev` purgados pelo cron             | Mensal     | DPO   | Falha do cron >1d é incidente                     |
+| Gaps de consentimento (`consentTs == null` em events) | Diário     | CTO   | Qualquer ocorrência é INCIDENTE — bloquear módulo |
 
 ---
 
 ## 10. Plano de Implementação (gates)
 
-| Etapa | Entregável | Owner | Status |
-| --- | --- | --- | --- |
-| 1 | Aprovar e assinar este fluxo + DPIA + Aditamento POL | RT + DPO + CTO | ⏳ DRAFT |
-| 2 | Implementar TC-02 (cropping client-side) em `StripCapture.tsx` | Eng. front-end | ❌ Pendente |
-| 3 | Confirmar tier no-training Vertex AI **OU** assinar DPA Google com cláusula no-training | CTO + Jurídico | ❌ Pendente |
-| 4 | Implementar TC-10 (cron `scheduledPurgeIaEvents`) | Eng. backend | ❌ Pendente |
-| 5 | Implementar TC-11 (UI de opt-out na captura) | Eng. front-end | ❌ Pendente |
-| 6 | Atualizar TCLE físico com cláusula de IA (item 3.1) | DPO + RH | ❌ Pendente |
-| 7 | Treinamento dos operadores via módulo `treinamentos` | RT + RH | ❌ Pendente |
-| 8 | Cartaz físico nos pontos de coleta | DPO + comunicação | ❌ Pendente |
-| 9 | Smoke test em produção com paciente fictício | RT + Eng. | ❌ Pendente |
-| 10 | Habilitar feature flag `iaStripEnabled` para Riopomba | CTO | ❌ Pendente (BLOCKER) |
+| Etapa | Entregável                                                                              | Owner             | Status                |
+| ----- | --------------------------------------------------------------------------------------- | ----------------- | --------------------- |
+| 1     | Aprovar e assinar este fluxo + DPIA + Aditamento POL                                    | RT + DPO + CTO    | ⏳ DRAFT              |
+| 2     | Implementar TC-02 (cropping client-side) em `StripCapture.tsx`                          | Eng. front-end    | ❌ Pendente           |
+| 3     | Confirmar tier no-training Vertex AI **OU** assinar DPA Google com cláusula no-training | CTO + Jurídico    | ❌ Pendente           |
+| 4     | Implementar TC-10 (cron `scheduledPurgeIaEvents`)                                       | Eng. backend      | ❌ Pendente           |
+| 5     | Implementar TC-11 (UI de opt-out na captura)                                            | Eng. front-end    | ❌ Pendente           |
+| 6     | Atualizar TCLE físico com cláusula de IA (item 3.1)                                     | DPO + RH          | ❌ Pendente           |
+| 7     | Treinamento dos operadores via módulo `treinamentos`                                    | RT + RH           | ❌ Pendente           |
+| 8     | Cartaz físico nos pontos de coleta                                                      | DPO + comunicação | ❌ Pendente           |
+| 9     | Smoke test em produção com paciente fictício                                            | RT + Eng.         | ❌ Pendente           |
+| 10    | Habilitar feature flag `iaStripEnabled` para Riopomba                                   | CTO               | ❌ Pendente (BLOCKER) |
 
 ---
 
@@ -224,19 +226,19 @@ Definição funcional do `scheduledPurgeIaEvents` (a ser implementado em `functi
 
 > **AVISO:** As assinaturas abaixo são exigência formal. **Sem todas, este fluxo permanece em DRAFT e o módulo `ia-strip` não pode ser ativado em produção com dados de pacientes.**
 
-| Papel | Nome | Assinatura | Data |
-| --- | --- | --- | --- |
-| Responsável Técnico (RT) | [PREENCHER] | __________ | ____/____/____ |
-| Encarregado de Proteção de Dados (DPO) | [PREENCHER] | __________ | ____/____/____ |
-| Diretor de Tecnologia (CTO) | [PREENCHER] | __________ | ____/____/____ |
+| Papel                                  | Nome        | Assinatura   | Data                   |
+| -------------------------------------- | ----------- | ------------ | ---------------------- |
+| Responsável Técnico (RT)               | [PREENCHER] | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
+| Encarregado de Proteção de Dados (DPO) | [PREENCHER] | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
+| Diretor de Tecnologia (CTO)            | [PREENCHER] | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
 
 ---
 
 ## 12. Histórico de Revisões
 
-| Versão | Data | Status | Mudança |
-| --- | --- | --- | --- |
-| 0.1 | 2026-05-08 | DRAFT | Emissão inicial — fluxo operacional do consentimento, opt-out e retenção. |
+| Versão | Data       | Status | Mudança                                                                   |
+| ------ | ---------- | ------ | ------------------------------------------------------------------------- |
+| 0.1    | 2026-05-08 | DRAFT  | Emissão inicial — fluxo operacional do consentimento, opt-out e retenção. |
 
 ---
 

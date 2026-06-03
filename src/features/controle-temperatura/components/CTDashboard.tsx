@@ -8,16 +8,8 @@ import { useLeituras } from '../hooks/useLeituras';
 import { useLeiturasPrevistas } from '../hooks/useLeiturasPrevistas';
 import { useNCs } from '../hooks/useNCs';
 import { useTermometros } from '../hooks/useTermometros';
-import type {
-  CardStatusEquipamento,
-  EquipamentoMonitorado,
-} from '../types/ControlTemperatura';
-import {
-  ActivityIcon,
-  AlertTriangleIcon,
-  ClockIcon,
-  ServerIcon,
-} from './_icons';
+import type { CardStatusEquipamento, EquipamentoMonitorado } from '../types/ControlTemperatura';
+import { ActivityIcon, AlertTriangleIcon, ClockIcon, ServerIcon } from './_icons';
 import {
   borderForStatusCard,
   Button,
@@ -56,20 +48,16 @@ export function CTDashboard() {
   const { dispositivos } = useDispositivosIoT();
   const { proximosAVencer } = useTermometros();
 
-  const {
-    cards,
-    totalNCsAbertas,
-    totalPendentesHoje,
-    percentualConformidadeGlobal,
-  } = useCTIndicadores({
-    equipamentos,
-    leituras,
-    previstas,
-    ncs,
-    dispositivos,
-    inicioPeriodo: inicio,
-    fimPeriodo: fim,
-  });
+  const { cards, totalNCsAbertas, totalPendentesHoje, percentualConformidadeGlobal } =
+    useCTIndicadores({
+      equipamentos,
+      leituras,
+      previstas,
+      ncs,
+      dispositivos,
+      inicioPeriodo: inicio,
+      fimPeriodo: fim,
+    });
 
   const dispositivosOffline = dispositivos.filter((d) => d.ativo && !d.online).length;
   const [leituraRapida, setLeituraRapida] = useState<EquipamentoMonitorado | null>(null);
@@ -159,7 +147,8 @@ function SummaryKpi({
         : tone === 'amber'
           ? 'bg-amber-100 text-amber-600'
           : 'bg-slate-100 text-slate-600';
-  const valueCls = tone === 'rose' ? 'text-rose-600' : tone === 'amber' ? 'text-amber-600' : 'text-slate-800';
+  const valueCls =
+    tone === 'rose' ? 'text-rose-600' : tone === 'amber' ? 'text-amber-600' : 'text-slate-800';
   return (
     <div className="flex items-center justify-between rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div>
@@ -182,11 +171,12 @@ function EquipamentoCard({
 }) {
   const { equipamento, ultimaLeitura, dispositivo, ncsAbertas, statusCard, motivo } = card;
   const borderTop = borderForStatusCard(statusCard);
-  const tempCls =
-    statusCard === 'vermelho' ? 'text-rose-600' : 'text-slate-800';
+  const tempCls = statusCard === 'vermelho' ? 'text-rose-600' : 'text-slate-800';
 
   return (
-    <div className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm border-t-4 ${borderTop}`}>
+    <div
+      className={`rounded-xl border border-slate-200 bg-white p-5 shadow-sm border-t-4 ${borderTop}`}
+    >
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h4 className="text-base font-semibold leading-tight text-slate-800">

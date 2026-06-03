@@ -18,7 +18,7 @@ const TARGET_LOT_IDS = [
   '796388e5-8c3e-4415-b6a4-3f34a8a04528', // N 04862025 PNCQ
   '81ec231c-2ff4-4933-9777-523692be16d6', // P 04862025 PNCQ
   'ce612564-fa43-4ce7-8e90-d341b2aa69b7', // P 05842025 PNCQ
-  'daff28d7-24a4-44b0-b230-3101e2088da3'  // N URIC 05842025 PNCQ
+  'daff28d7-24a4-44b0-b230-3101e2088da3', // N URIC 05842025 PNCQ
 ];
 
 // Determine if we are running in dry-run or apply mode
@@ -44,7 +44,7 @@ async function main() {
     labId: LAB_ID,
     actorUid: ACTOR_UID,
     mode: isApply ? 'apply' : 'dry-run',
-    lots: []
+    lots: [],
   };
 
   // 3. Fetch all target lots and their runs
@@ -67,19 +67,19 @@ async function main() {
     // Fetch runs
     const runsSnap = await lotRef.collection('runs').get();
     console.log(`  - Runs found in subcollection: ${runsSnap.size}`);
-    
+
     const lotBackup = {
       id: lotId,
       data: lotData,
-      runs: []
+      runs: [],
     };
 
-    runsSnap.forEach(runDoc => {
+    runsSnap.forEach((runDoc) => {
       const runData = runDoc.data();
       console.log(`    * Run ID: ${runDoc.id} | SignedBy: ${runData.createdByName || 'N/A'}`);
       lotBackup.runs.push({
         id: runDoc.id,
-        data: runData
+        data: runData,
       });
     });
 
@@ -107,7 +107,7 @@ async function main() {
   // 5. Execute deletion if --apply is set
   if (isApply) {
     console.log(`🚀 Executing destructive deletions & audit log registrations...`);
-    
+
     for (const lotEntry of backupData.lots) {
       const lotId = lotEntry.id;
       const lotData = lotEntry.data;
@@ -115,7 +115,11 @@ async function main() {
 
       const lotRef = db.collection('labs').doc(LAB_ID).collection('ciq-uroanalise').doc(lotId);
       const auditUuid = randomUUID();
-      const auditRef = db.collection('labs').doc(LAB_ID).collection('ciq-uroanalise-audit').doc(auditUuid);
+      const auditRef = db
+        .collection('labs')
+        .doc(LAB_ID)
+        .collection('ciq-uroanalise-audit')
+        .doc(auditUuid);
 
       console.log(`Processing deletion for Lot: ${lotId}`);
 
@@ -128,24 +132,24 @@ async function main() {
           nivel: lotData.nivel || 'N/A',
           loteControle: lotData.loteControle || 'N/A',
           runCount: lotData.runCount ?? 0,
-          validadeControle: lotData.validadeControle || 'N/A'
+          validadeControle: lotData.validadeControle || 'N/A',
         },
         metadata: {
           scriptExecution: true,
-          backupPath: backupPath
+          backupPath: backupPath,
         },
-        createdAt: Timestamp.now()
+        createdAt: Timestamp.now(),
       };
 
       // Perform atomic batch delete of runs + lot + audit set
       const batch = db.batch();
-      
+
       // Set audit log
       batch.set(auditRef, auditPayload);
       console.log(`  + Queued Audit Log: ciq-uroanalise-audit/${auditUuid}`);
 
       // Delete runs
-      runs.forEach(run => {
+      runs.forEach((run) => {
         const runRef = lotRef.collection('runs').doc(run.id);
         batch.delete(runRef);
         console.log(`  - Queued delete for run: ${run.id}`);
@@ -162,12 +166,14 @@ async function main() {
 
     console.log('✅ ALL OPERATIONS COMPLETED SUCCESSFULLY!');
   } else {
-    console.log('🔍 DRY-RUN mode complete. No deletions or audit logs were committed to Firestore.');
+    console.log(
+      '🔍 DRY-RUN mode complete. No deletions or audit logs were committed to Firestore.',
+    );
     console.log('To execute the deletion and audit log generation, run with --apply.');
   }
 }
 
-main().catch(error => {
+main().catch((error) => {
   console.error('❌ Script execution failed:', error);
   process.exit(1);
 });

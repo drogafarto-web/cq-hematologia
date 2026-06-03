@@ -104,9 +104,7 @@ export async function runQueueOnce(
     }
 
     if (outcome.ok) {
-      const archiveRef = db
-        .collection(`notivisa-outbox/${event.labId}/archives`)
-        .doc();
+      const archiveRef = db.collection(`notivisa-outbox/${event.labId}/archives`).doc();
       const batch = db.batch();
       batch.update(doc.ref, {
         status: 'acknowledged',

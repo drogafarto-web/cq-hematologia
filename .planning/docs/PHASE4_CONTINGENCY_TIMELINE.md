@@ -30,15 +30,16 @@ This document defines **three contingency scenarios** with recovery timelines, s
 
 ## Baseline Timeline (Reference)
 
-| Phase | Kickoff | Deploy | Duration | DICQ Gain | RDC Coverage |
-|-------|---------|--------|----------|-----------|--------------|
-| Phase 4 | 2026-05-20 | 2026-06-02 | 2.5w | +5% (85% target) | Arts. 6, 115–117, 167, 204 |
-| Phase 5 | 2026-06-09 | 2026-06-30 | 3w | +3% (88% target) | Arts. 7, 9, 18 |
-| Phase 6–7 | 2026-07-01 | 2026-07-14 | parallel | +2% (90% target) | —— |
-| Phase 8 | 2026-07-15 | 2026-08-15 | 4w (CAPA) | +1–2% (91–92%) | Arts. 5.3, 118–125 |
-| **Auditor Audit** | —— | **2026-08-31** | —— | **Target: 85%+** | **100% critical RDC** |
+| Phase             | Kickoff    | Deploy         | Duration  | DICQ Gain        | RDC Coverage               |
+| ----------------- | ---------- | -------------- | --------- | ---------------- | -------------------------- |
+| Phase 4           | 2026-05-20 | 2026-06-02     | 2.5w      | +5% (85% target) | Arts. 6, 115–117, 167, 204 |
+| Phase 5           | 2026-06-09 | 2026-06-30     | 3w        | +3% (88% target) | Arts. 7, 9, 18             |
+| Phase 6–7         | 2026-07-01 | 2026-07-14     | parallel  | +2% (90% target) | ——                         |
+| Phase 8           | 2026-07-15 | 2026-08-15     | 4w (CAPA) | +1–2% (91–92%)   | Arts. 5.3, 118–125         |
+| **Auditor Audit** | ——         | **2026-08-31** | ——        | **Target: 85%+** | **100% critical RDC**      |
 
 **Baseline assumes:**
+
 - Phase 4 no slips
 - Phase 5 uncompressed (3 weeks)
 - Phase 8 CAPA closure (4 weeks, 12 findings)
@@ -51,17 +52,18 @@ This document defines **three contingency scenarios** with recovery timelines, s
 
 ### Timeline Impact
 
-| Phase | Baseline | Slip A | Adjustment | Notes |
-|-------|----------|--------|------------|-------|
-| Phase 4 | 2026-06-02 | 2026-06-16 | +14 days | Standard slip; root causes: external dep, integration rework, security audit |
-| Phase 5 | 2026-06-09 | 2026-06-23 | +14 days (1-week compressed) | Kickoff delayed; scope trimmed from 3w → 2w (SMS/email + basic escalation, defer IA v1.1) |
-| Phase 6–7 | 2026-07-01 | 2026-07-07 | +6 days (no slip, overlaps Phase 5 tail) | Parallel execution absorbs Phase 5 compression |
-| Phase 8 | 2026-07-15 | 2026-07-21 | +6 days | 4-week CAPA starts 2026-07-21, ends 2026-08-18 (13 days before auditor deadline) |
-| **Auditor Audit** | **2026-08-31** | **2026-08-31** | **0 days** | **On time; 13-day buffer remains** |
+| Phase             | Baseline       | Slip A         | Adjustment                               | Notes                                                                                     |
+| ----------------- | -------------- | -------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Phase 4           | 2026-06-02     | 2026-06-16     | +14 days                                 | Standard slip; root causes: external dep, integration rework, security audit              |
+| Phase 5           | 2026-06-09     | 2026-06-23     | +14 days (1-week compressed)             | Kickoff delayed; scope trimmed from 3w → 2w (SMS/email + basic escalation, defer IA v1.1) |
+| Phase 6–7         | 2026-07-01     | 2026-07-07     | +6 days (no slip, overlaps Phase 5 tail) | Parallel execution absorbs Phase 5 compression                                            |
+| Phase 8           | 2026-07-15     | 2026-07-21     | +6 days                                  | 4-week CAPA starts 2026-07-21, ends 2026-08-18 (13 days before auditor deadline)          |
+| **Auditor Audit** | **2026-08-31** | **2026-08-31** | **0 days**                               | **On time; 13-day buffer remains**                                                        |
 
 ### Go/No-Go Criteria
 
 **Proceed to Phase 5 (Compressed) if:**
+
 - Phase 4 deploy 2026-06-16 ✓
 - Unit tests 738/738 baseline passed (zero regressions)
 - E2E: All 8 critical flows PASS (auth → laudo → sign → audit trail)
@@ -72,11 +74,13 @@ This document defines **three contingency scenarios** with recovery timelines, s
 - No CVEs in dependencies (security scan)
 
 **DICQ Achievement:**
+
 - Phase 4: +3% → 81.5% (reduced from +5% due to Phase 5 trim)
 - Phase 5 (compressed): +2% → 83.5%
 - Phase 8 (CAPA): +1.5% → 85% (meets baseline target)
 
 **RDC 978 Achievement:**
+
 - Phase 4: Arts. 6, 167, 204 ✓
 - Phase 5: Arts. 115–117 (basic escalation) ✓
 - Phase 8: Arts. 5.3, 118–125 ✓
@@ -169,32 +173,36 @@ Best regards,
 
 ### Timeline Impact
 
-| Phase | Baseline | Slip B | Adjustment | Notes |
-|-------|----------|--------|------------|-------|
-| Phase 4 | 2026-06-02 | 2026-06-23 | +21 days | Significant delay; external blocker or major refactor |
-| Phase 5 | 2026-06-09 | 2026-06-23 | +14 days (2-week compressed) | Scope further trimmed: SMS-only escalation, defer email + SLA |
-| Phase 6–7 | 2026-07-01 | 2026-07-07 | +6 days (parallel Phase 5, overlaps starting 2026-07-07) | No slip; absorption via parallelization |
-| Phase 8 | 2026-07-15 | 2026-07-21 | +6 days | 4-week CAPA starts 2026-07-21, ends 2026-08-18 (still 13-day buffer, but tight) |
-| **Auditor Audit** | **2026-08-31** | **2026-08-31** | **0 days (CRITICAL)** | **On auditor timeline; zero buffer for RFI delays** |
+| Phase             | Baseline       | Slip B         | Adjustment                                               | Notes                                                                           |
+| ----------------- | -------------- | -------------- | -------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Phase 4           | 2026-06-02     | 2026-06-23     | +21 days                                                 | Significant delay; external blocker or major refactor                           |
+| Phase 5           | 2026-06-09     | 2026-06-23     | +14 days (2-week compressed)                             | Scope further trimmed: SMS-only escalation, defer email + SLA                   |
+| Phase 6–7         | 2026-07-01     | 2026-07-07     | +6 days (parallel Phase 5, overlaps starting 2026-07-07) | No slip; absorption via parallelization                                         |
+| Phase 8           | 2026-07-15     | 2026-07-21     | +6 days                                                  | 4-week CAPA starts 2026-07-21, ends 2026-08-18 (still 13-day buffer, but tight) |
+| **Auditor Audit** | **2026-08-31** | **2026-08-31** | **0 days (CRITICAL)**                                    | **On auditor timeline; zero buffer for RFI delays**                             |
 
 ### Go/No-Go Criteria
 
 **Proceed if Phase 4 delivers both:**
+
 1. Core NOTIVISA queue (100% Art. 6 §1 compliance)
 2. Portal auth + draft editing (RT access, laudo review)
 
 **Defer to Phase 4.1 (post-audit):**
+
 - Portal signature UI (can be manual RT signature initially)
 - Access logging (can be audit trail only, not real-time dashboard)
 - Advanced portal search/filtering
 
 **DICQ Achievement:**
+
 - Phase 4: +2% → 80.5% (minimal features, core compliance only)
 - Phase 5 (2-week compressed): +1.5% → 82% (SMS escalation only)
 - Phase 6–7: +1.5% → 83.5%
 - Phase 8: +1.5% → 85% (borderline; RDC 100%, DICQ 85% target achieved via compression)
 
 **RDC 978 Achievement:**
+
 - Phase 4: Arts. 6, 204 (NOTIVISA + audit trail) ✓
 - Phase 5: Arts. 115, 117 (basic escalation, SMS only) ✓
 - Phase 8: Arts. 5.3, 118–125 (CAPA) ✓
@@ -320,13 +328,13 @@ Best regards,
 
 ### Timeline Impact
 
-| Phase | Baseline | Slip C | Notes |
-|-------|----------|--------|-------|
-| Phase 4 | 2026-06-02 | 2026-07-07+ | 35+ days late; unacceptable |
-| Phase 5 | 2026-06-09 | **DEFERRED to v1.4.1** | Post-audit |
-| Phase 6–7 | 2026-07-01 | **DEFERRED to v1.4.1** | Post-audit |
-| Phase 8 | 2026-07-15 | 2026-07-21 → 2026-08-18 | CAPA execution + findings closure only |
-| **Auditor Audit** | **2026-08-31** | **2026-08-31** | **Audit occurs; Phase 5+ deferred** |
+| Phase             | Baseline       | Slip C                  | Notes                                  |
+| ----------------- | -------------- | ----------------------- | -------------------------------------- |
+| Phase 4           | 2026-06-02     | 2026-07-07+             | 35+ days late; unacceptable            |
+| Phase 5           | 2026-06-09     | **DEFERRED to v1.4.1**  | Post-audit                             |
+| Phase 6–7         | 2026-07-01     | **DEFERRED to v1.4.1**  | Post-audit                             |
+| Phase 8           | 2026-07-15     | 2026-07-21 → 2026-08-18 | CAPA execution + findings closure only |
+| **Auditor Audit** | **2026-08-31** | **2026-08-31**          | **Audit occurs; Phase 5+ deferred**    |
 
 ### Status: Unacceptable
 
@@ -345,6 +353,7 @@ If Phase 4 is not tracking to 2026-06-16 (Scenario A) by Day 14, **escalate to C
 **If Scenario C is chosen:**
 
 **Audit v1.4 delivers:**
+
 - Phase 0 (RDC blockers): ✓ Deployed 2026-05-07
 - Phase 8 (CAPA closure, 12 findings): ✓ 2026-07-21 → 2026-08-18
 - DICQ: ~81% (Phase 0 + Phase 8 only; Phases 4–7 deferred)
@@ -352,6 +361,7 @@ If Phase 4 is not tracking to 2026-06-16 (Scenario A) by Day 14, **escalate to C
 - Auditor sign-off on Phase 4–7 deferral to v1.4.1
 
 **v1.4.1 (Post-Audit) Phases:**
+
 - Phase 4: Portal auth + NOTIVISA (2026-09-01 → 2026-09-15, target deploy 2026-09-20)
 - Phase 5: Critical escalation + IA dataset (2026-09-20 → 2026-10-10)
 - Phase 6–7: Liberación + reclamações (2026-10-10 → 2026-10-25)
@@ -369,6 +379,7 @@ If Phase 4 is not tracking to 2026-06-16 (Scenario A) by Day 14, **escalate to C
 
 2. **Formal Deferral Announcement (Day 15)**
    - Email to auditor + stakeholders:
+
      ```
      Subject: Phase 4–7 DEFERRED to v1.4.1 (Post-Audit) — v1.4 Audit Readiness Revised
 
@@ -478,6 +489,7 @@ Is Phase 4 trending to deploy ≤2026-06-16?
 ```
 
 **Trigger for escalation call with auditor:**
+
 - Day 10 Phase 4: If slip likelihood >50%, schedule pre-alignment call
 - Day 14 Phase 4: If trending past 2026-06-23, move to Scenario C discussion
 
@@ -487,41 +499,41 @@ Is Phase 4 trending to deploy ≤2026-06-16?
 
 ### Scenario A Success (2-week slip, on-time audit)
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Phase 4 deploy | 2026-06-16 | Trackable |
-| Phase 5 compressed | 2 weeks (2w) | Trackable |
-| E2E flows (Phase 4) | 8/8 PASS | Go-gate |
-| Cloud Logs (24h) | 0 errors, <5% warnings | Go-gate |
-| NOTIVISA queue (48h) | 100% events processed | Go-gate |
-| Phase 8 CAPA complete | 2026-08-18 (13-day buffer) | Trackable |
-| Auditor audit date | 2026-08-31 (no slip) | Fixed |
-| DICQ achieved | 83.5–85% | Acceptable |
-| RDC critical coverage | 100% | Go-gate |
+| Metric                | Target                     | Status     |
+| --------------------- | -------------------------- | ---------- |
+| Phase 4 deploy        | 2026-06-16                 | Trackable  |
+| Phase 5 compressed    | 2 weeks (2w)               | Trackable  |
+| E2E flows (Phase 4)   | 8/8 PASS                   | Go-gate    |
+| Cloud Logs (24h)      | 0 errors, <5% warnings     | Go-gate    |
+| NOTIVISA queue (48h)  | 100% events processed      | Go-gate    |
+| Phase 8 CAPA complete | 2026-08-18 (13-day buffer) | Trackable  |
+| Auditor audit date    | 2026-08-31 (no slip)       | Fixed      |
+| DICQ achieved         | 83.5–85%                   | Acceptable |
+| RDC critical coverage | 100%                       | Go-gate    |
 
 ### Scenario B Success (3-week slip, tight buffer)
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Phase 4 MVP deploy | 2026-06-23 | Trackable |
-| Phase 5 ultra-compressed | 2 weeks (2w), SMS-only | Trackable |
-| NOTIVISA queue | 100% events | Go-gate |
-| Phase 8 CAPA complete | 2026-08-18 (9-day buffer CRITICAL) | Trackable |
-| RFI SLA | 3 business days (auditor-approved) | Trackable |
-| Auditor audit date | 2026-08-31 (no slip) | Fixed |
-| DICQ achieved | 82% (RDC unaffected) | Acceptable |
-| RDC critical coverage | 100% (email escalation deferred) | Acceptable |
+| Metric                   | Target                             | Status     |
+| ------------------------ | ---------------------------------- | ---------- |
+| Phase 4 MVP deploy       | 2026-06-23                         | Trackable  |
+| Phase 5 ultra-compressed | 2 weeks (2w), SMS-only             | Trackable  |
+| NOTIVISA queue           | 100% events                        | Go-gate    |
+| Phase 8 CAPA complete    | 2026-08-18 (9-day buffer CRITICAL) | Trackable  |
+| RFI SLA                  | 3 business days (auditor-approved) | Trackable  |
+| Auditor audit date       | 2026-08-31 (no slip)               | Fixed      |
+| DICQ achieved            | 82% (RDC unaffected)               | Acceptable |
+| RDC critical coverage    | 100% (email escalation deferred)   | Acceptable |
 
 ### Scenario C Success (Deferral, post-audit)
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| v1.4 audit scope | Phase 0 + Phase 8 only | Fixed |
-| Phase 8 CAPA complete | 2026-08-18 (standard) | Trackable |
-| Auditor pre-approval | Deferred Phase 4–7 acceptable | Required |
-| v1.4 audit | 2026-08-31 (81% DICQ, 95% RDC) | Fixed |
-| v1.4.1 post-audit | 2026-10-31 (92% DICQ, 100% RDC) | Target |
-| Phases 4–7 complete | 2026-10-25 | Trackable |
+| Metric                | Target                          | Status    |
+| --------------------- | ------------------------------- | --------- |
+| v1.4 audit scope      | Phase 0 + Phase 8 only          | Fixed     |
+| Phase 8 CAPA complete | 2026-08-18 (standard)           | Trackable |
+| Auditor pre-approval  | Deferred Phase 4–7 acceptable   | Required  |
+| v1.4 audit            | 2026-08-31 (81% DICQ, 95% RDC)  | Fixed     |
+| v1.4.1 post-audit     | 2026-10-31 (92% DICQ, 100% RDC) | Target    |
+| Phases 4–7 complete   | 2026-10-25                      | Trackable |
 
 ---
 
@@ -564,32 +576,32 @@ Is Phase 4 trending to deploy ≤2026-06-16?
 
 **Historical basis:** v1.3 Phase 9 (bioquímica) slipped 1 week (external dependency on Westgard rules). Phase 2 (planning) slipped 3 days (underestimated artifact depth).
 
-| Scenario | Probability | Trigger |
-|----------|-------------|---------|
-| No slip (on 2026-06-02) | 60% | Mitigated Phase 3 schema; NOTIVISA API stable; team familiar with portal code |
-| Scenario A (2w slip) | 25% | NOTIVISA API rate limits / RT portal UX rework / security audit extension |
-| Scenario B (3w slip) | 12% | Third-party API unavailable 2w / internal schema flaw requiring redesign |
-| Scenario C (>3w slip) | 3% | Cascading dependency failure / unforecast regulatory change / key team member unavailable |
+| Scenario                | Probability | Trigger                                                                                   |
+| ----------------------- | ----------- | ----------------------------------------------------------------------------------------- |
+| No slip (on 2026-06-02) | 60%         | Mitigated Phase 3 schema; NOTIVISA API stable; team familiar with portal code             |
+| Scenario A (2w slip)    | 25%         | NOTIVISA API rate limits / RT portal UX rework / security audit extension                 |
+| Scenario B (3w slip)    | 12%         | Third-party API unavailable 2w / internal schema flaw requiring redesign                  |
+| Scenario C (>3w slip)   | 3%          | Cascading dependency failure / unforecast regulatory change / key team member unavailable |
 
 ### Impact of Phase 4 Slip on Audit Readiness
 
-| Scenario | DICQ Impact | RDC Impact | Auditor Timeline | Risk Level |
-|----------|-------------|-----------|------------------|-----------|
-| No slip | +5% (85%) | 100% critical | On schedule | Low |
-| Scenario A | +3% (81.5% → compressed 5 achieves 85%) | 100% critical | 13-day buffer | Low |
-| Scenario B | +2% (80.5% → compressed achieves 85%) | 100% critical (email deferred) | 9-day buffer | Medium |
-| Scenario C | Deferred to post-audit (81% v1.4) | 95% critical | On schedule (Phase 0+8 only) | Medium |
+| Scenario   | DICQ Impact                             | RDC Impact                     | Auditor Timeline             | Risk Level |
+| ---------- | --------------------------------------- | ------------------------------ | ---------------------------- | ---------- |
+| No slip    | +5% (85%)                               | 100% critical                  | On schedule                  | Low        |
+| Scenario A | +3% (81.5% → compressed 5 achieves 85%) | 100% critical                  | 13-day buffer                | Low        |
+| Scenario B | +2% (80.5% → compressed achieves 85%)   | 100% critical (email deferred) | 9-day buffer                 | Medium     |
+| Scenario C | Deferred to post-audit (81% v1.4)       | 95% critical                   | On schedule (Phase 0+8 only) | Medium     |
 
 ---
 
 ## Communication Cadence
 
-| Audience | Channel | Frequency | Message |
-|----------|---------|-----------|---------|
-| **Auditor** | Email + call | Pre-alignment (W1), then weekly Fridays | Phase progress + RFI cycles + timeline adherence |
-| **CTO + Team** | Slack #v1.4-phase4 | Daily (standup) + weekly (review) | Status, blockers, escalation |
-| **Lab Director** | Email | Milestone completion + scenario triggers | Audit readiness, risk posture |
-| **Finance** | Email | Scenario C only (deferral costs) | Budget impact of post-audit release |
+| Audience         | Channel            | Frequency                                | Message                                          |
+| ---------------- | ------------------ | ---------------------------------------- | ------------------------------------------------ |
+| **Auditor**      | Email + call       | Pre-alignment (W1), then weekly Fridays  | Phase progress + RFI cycles + timeline adherence |
+| **CTO + Team**   | Slack #v1.4-phase4 | Daily (standup) + weekly (review)        | Status, blockers, escalation                     |
+| **Lab Director** | Email              | Milestone completion + scenario triggers | Audit readiness, risk posture                    |
+| **Finance**      | Email              | Scenario C only (deferral costs)         | Budget impact of post-audit release              |
 
 ---
 

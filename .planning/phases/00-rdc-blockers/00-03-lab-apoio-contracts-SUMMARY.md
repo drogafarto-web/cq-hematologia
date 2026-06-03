@@ -21,12 +21,14 @@ Support lab contract management (CNPJ + AVS vigência + exames terceirizados + a
 All callables implemented, rules committed, hooks + UI scaffolded, module governance documented. Provision script created. Ready for T10 (deploy + 24h Cloud Logs).
 
 **T9 Status:** ✅ Complete
+
 - Provision script generalized: `functions/scripts/provision-modules-claims.mjs` created
 - Supports `--module lab-apoio` flag for targeted provisioning
 - Dry-run + apply modes with full audit logging
 - Ready to execute post-deployment verification
 
 **T10 Status:** 🔄 In Progress
+
 - Deployment readiness document created: `.planning/phases/00-rdc-blockers/00-03-DEPLOYMENT-READINESS.md`
 - Pre-deployment checks: ✅ All green (TSC clean, build passing, rules valid, functions ready)
 - Deployment sequence documented: rules → functions → hosting → smoke tests → Cloud Logs monitoring
@@ -35,11 +37,13 @@ All callables implemented, rules committed, hooks + UI scaffolded, module govern
 ## Deliverables
 
 ### Types & Services (T1)
+
 - ✅ `src/features/lab-apoio/types/LabApoio.ts` — Contrato, ContratoInput, ExameItem, Certificacao, AvaliacaoPeriodica, LabApoioAuditEvent (8 types)
 - ✅ `src/features/lab-apoio/types/shared_refs.ts` — LabId, UserId type brands
 - ✅ `src/features/lab-apoio/services/labApoioService.ts` — subscribeContratos, getContrato, getContratoAuditTrail (read-only, mirrors turnos pattern)
 
 ### Validators & Callables (T2–T4)
+
 - ✅ `functions/src/modules/labApoio/validators.ts` — validateCNPJ (Mod-11), validateAVS, 6 Zod schemas (Create, Update, SoftDelete, Avaliacao, Upload)
 - ✅ `functions/src/modules/labApoio/signatureCanonical.ts` — generateContratoSignatureServer (canonical over labId, cnpj, vigencia)
 - ✅ `functions/src/modules/labApoio/createContrato.ts` — DL-1 callable, CNPJ validation, uniqueness check (labId, cnpj), server-side signature + atomic batch
@@ -51,6 +55,7 @@ All callables implemented, rules committed, hooks + UI scaffolded, module govern
 - ✅ `functions/src/modules/labApoio/onContratoEventCreated.ts` — Firestore v2 trigger, computes chainHash = SHA-256(prevChainHash || eventPayload)
 
 ### Hooks & Components (T6)
+
 - ✅ `src/features/lab-apoio/hooks/useLabApoio.ts` — subscribe + 5 mutations (create, update, delete, avaliacao, upload)
 - ✅ `src/features/lab-apoio/hooks/useExpiryAlerts.ts` — derives 7d/30d/60d/expired bins client-side
 - ✅ `src/features/lab-apoio/components/LabApoioView.tsx` — topbar + KPI strip + 3-tab nav (Contratos, Avaliações, Vencimentos)
@@ -60,24 +65,29 @@ All callables implemented, rules committed, hooks + UI scaffolded, module govern
 - ✅ `src/features/lab-apoio/components/VencimentosWidget.tsx` — countdown badges (red <7d, amber <30d, yellow <60d)
 
 ### Rules & Indexes (T7)
+
 - ✅ `firestore.rules` — lab-apoio/{contratoId} block, DL-1 enforcement (create/update/delete: if false), events subcollection append-only
-- ✅ `storage.rules` — labs/{labId}/lab-apoio/{contratoId}/*.pdf block, PDF-only, <10MB, admin/owner write (mirrors educacaoContinuada pattern)
+- ✅ `storage.rules` — labs/{labId}/lab-apoio/{contratoId}/\*.pdf block, PDF-only, <10MB, admin/owner write (mirrors educacaoContinuada pattern)
 - ✅ `firestore.indexes.json` — 2 composite indexes (labId+ativo+vigenciaFim and +criticidade)
 
 ### Documentation (T8)
+
 - ✅ `src/features/lab-apoio/CLAUDE.md` — module governance, RN-LABAPOIO-01..07, dependencies, status, dever de atualização
 - ✅ `CLAUDE.md` (root) — lab-apoio row added to "Módulos em produção" table
 
 ## Testing & Verification
 
 ### Type Safety
+
 - ✅ `npx tsc --noEmit` clean (web) — no lab-apoio errors
 - ✅ `cd functions && npm run build` compiles without lab-apoio-specific errors
 
 ### Unit Tests
+
 - ✅ `functions/test/labApoio/cnpj.test.mjs` — 12 test cases (8 CNPJ valid/invalid, 4 AVS valid/invalid) — green in emulator
 
 ### Acceptance Criteria Progress
+
 1. ✅ Lab apoio contracts registered with full metadata (CNPJ + AVS + vigência + exames + certificações)
 2. ✅ Contract documents uploaded (PDF, max 10MB) and linked
 3. ✅ Auditor can list active contracts with expiring vigências highlighted (60d / 30d / 7d / expired bins) — `useExpiryAlerts` implements this
@@ -90,6 +100,7 @@ All callables implemented, rules committed, hooks + UI scaffolded, module govern
 ## Deviations from Plan
 
 ### None
+
 Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functionality gaps, no architectural blockers encountered.
 
 ## Compliance Notes
@@ -108,6 +119,7 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
 ## T10 Deployment Plan (Final Steps)
 
 **Prerequisites Met:**
+
 - ✅ TypeScript clean (web + functions)
 - ✅ Build passing (26.88s, feature-lab-apoio chunk created)
 - ✅ Firestore rules + Storage rules staged
@@ -118,17 +130,20 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
 **T10 Execution Sequence:**
 
 1. **Provision Module Claims (local, pre-deploy):**
+
    ```bash
    node functions/scripts/provision-modules-claims.mjs --module lab-apoio --apply \
      --reason "Provisionamento do claim Lab Apoio (lab-apoio) pós-deploy 00-03 Phase 0"
    ```
 
 2. **Deploy Firestore Rules + Indexes:**
+
    ```bash
    firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
    ```
 
 3. **Deploy Cloud Functions (lab-apoio module):**
+
    ```bash
    firebase deploy --only \
      "functions:labApoio_createContrato,functions:labApoio_updateContrato,functions:labApoio_softDeleteContrato,functions:labApoio_registrarAvaliacaoPeriodica,functions:labApoio_uploadContratoAnexo,functions:labApoio_checkExpiry,functions:onContratoEventCreated" \
@@ -136,6 +151,7 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
    ```
 
 4. **Deploy Hosting:**
+
    ```bash
    firebase deploy --only hosting --project hmatologia2
    ```
@@ -158,6 +174,7 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
 ## Key Files Changed
 
 ### New Files (25)
+
 - `src/features/lab-apoio/{types,services,hooks,components}/*.ts(x)` — 15 files
 - `functions/src/modules/labApoio/*.ts` — 7 files
 - `functions/test/labApoio/*.mjs` — 1 file
@@ -165,6 +182,7 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
 - `.planning/phases/00-rdc-blockers/00-03-lab-apoio-contracts-SUMMARY.md` — 1 file
 
 ### Modified Files (4)
+
 - `firestore.rules` — lab-apoio block + events subcollection
 - `storage.rules` — labs/{labId}/lab-apoio PDF upload block
 - `firestore.indexes.json` — 2 composite indexes
@@ -173,22 +191,22 @@ Plan executed exactly as written. No auto-fix bugs, no Rule 2 critical functiona
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| Phase | 0 (RDC Blockers) |
-| Plan | 00-03 |
-| Depends On | 00-01 (Wave 1 complete ✅) |
-| Duration | ~13 hours (T1–T9 execution, T10 staged) |
-| Tasks Completed | 9/10 (T10 deployment in progress) |
-| Commits | 10 (T1–T9 + 2 supporting docs) |
-| LOC (Functions) | ~1,200 (validators + 6 callables + 1 trigger + 1 cron) |
-| LOC (Web) | ~1,400 (types + services + hooks + 5 components) |
-| LOC (Provision Script) | ~267 (generalized provision-modules-claims.mjs) |
-| Test Coverage | 12 unit tests (CNPJ validators) + emulator rules tests |
-| Type Safety | TSC clean (web + functions) |
-| Build Status | ✅ Passing (26.88s build time, feature-lab-apoio chunk <5KB delta) |
-| Compliance | RDC 978 Arts. 36–39 ✅ · DICQ 4.14.8 ✅ · P0-R1 Risk Mitigation ✅ |
-| Deployment Status | Ready (pre-checks all green, artifact staging complete) |
+| Metric                 | Value                                                              |
+| ---------------------- | ------------------------------------------------------------------ |
+| Phase                  | 0 (RDC Blockers)                                                   |
+| Plan                   | 00-03                                                              |
+| Depends On             | 00-01 (Wave 1 complete ✅)                                         |
+| Duration               | ~13 hours (T1–T9 execution, T10 staged)                            |
+| Tasks Completed        | 9/10 (T10 deployment in progress)                                  |
+| Commits                | 10 (T1–T9 + 2 supporting docs)                                     |
+| LOC (Functions)        | ~1,200 (validators + 6 callables + 1 trigger + 1 cron)             |
+| LOC (Web)              | ~1,400 (types + services + hooks + 5 components)                   |
+| LOC (Provision Script) | ~267 (generalized provision-modules-claims.mjs)                    |
+| Test Coverage          | 12 unit tests (CNPJ validators) + emulator rules tests             |
+| Type Safety            | TSC clean (web + functions)                                        |
+| Build Status           | ✅ Passing (26.88s build time, feature-lab-apoio chunk <5KB delta) |
+| Compliance             | RDC 978 Arts. 36–39 ✅ · DICQ 4.14.8 ✅ · P0-R1 Risk Mitigation ✅ |
+| Deployment Status      | Ready (pre-checks all green, artifact staging complete)            |
 
 ## Self-Check (T1–T9)
 

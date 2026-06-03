@@ -14,6 +14,7 @@
 **Depende de:** —
 
 **O que fazer:**
+
 1. Criar diretório `src/features/pre-pos-analitico/types/`.
 2. Criar `Amostra.ts` com:
    - `AmostraStatus` type (6 valores: coletada/recebida/em_processamento/concluida/rejeitada/descartada)
@@ -37,12 +38,14 @@
 Adicionar blocos para:
 
 `/labs/{labId}/amostras/{amostraId}`:
+
 - `read`: isActiveMemberOfLab(labId)
 - `create`: **false** (somente callable pode criar)
 - `update`: **false** (somente callable)
 - `delete`: **false**
 
 `/labs/{labId}/amostras/{amostraId}/events/{eventId}`:
+
 - `read`: isActiveMemberOfLab(labId)
 - `create`: isActiveMemberOfLab(labId) (callable usa admin SDK — mas deixar read para hook)
 - `update`: **false**
@@ -60,6 +63,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-02
 
 **O que fazer:**
+
 1. Callable com Zod: `{ material, volume?, dataColeta, exameConfigId?, insumoLoteId?, pacienteId?, observacoes? }`.
 2. Validar chamador é membro ativo.
 3. Criar doc em `/labs/{labId}/amostras/{uuid}` com `status: 'coletada'`, `coletadoPor: uid`, `coletadoPorNome` (buscar do doc do usuário).
@@ -78,6 +82,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-03
 
 **O que fazer:**
+
 1. Callable com Zod: `{ amostraId, logicalSignature }`.
 2. Verificar status atual é `coletada` (rejeitar se não for).
 3. `update` para `status: 'recebida'`, `dataRecebimento: now`.
@@ -95,6 +100,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-04
 
 **O que fazer:**
+
 1. Callable com Zod: `{ amostraId, motivoRejeicao: MotivoRejeicao, observacoes?, logicalSignature }`.
 2. `motivoRejeicao` é **obrigatório** — rejeitar se ausente.
 3. Verificar status ≠ `concluida`, `descartada` (não se pode rejeitar amostra já descartada).
@@ -113,6 +119,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-04
 
 **O que fazer:**
+
 1. Callable com Zod: `{ amostraId, observacoes? }`.
 2. Verificar status ≠ `descartada`.
 3. `update` para `status: 'descartada'`.
@@ -130,6 +137,7 @@ Adicionar blocos para:
 **Depende de:** —
 
 **O que fazer:**
+
 1. Ler o arquivo antes de editar.
 2. Adicionar campos opcionais (não quebrar retrocompatibilidade):
    - `nivelCritico?: { min?: number; max?: number; unidade?: string }`
@@ -150,6 +158,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-01, T-PA-07
 
 **O que fazer:**
+
 1. Ler o arquivo antes de editar.
 2. Adicionar campos opcionais a `ExameLaudo`:
    - `amostraId?: string`
@@ -172,11 +181,13 @@ Adicionar blocos para:
 **O que fazer:**
 
 `useAmostras`:
+
 1. `onSnapshot` em `/labs/{labId}/amostras` com filtros opcionais: `status?: AmostraStatus`, `dataInicio?`, `dataFim?`.
 2. Retorna `{ amostras: Amostra[], loading, error }`.
 3. Ordena por `criadoEm desc`.
 
 `useAmostra`:
+
 1. `onSnapshot` em documento único + subcoleção `events` (query separada).
 2. Retorna `{ amostra: Amostra | null, eventos: AmostraEvento[], loading, error }`.
 
@@ -192,6 +203,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-01
 
 **O que fazer:**
+
 1. Componente simples: recebe `status: AmostraStatus` e renderiza badge colorido.
 2. Mapeamento de cores:
    - `coletada` → cinza
@@ -214,6 +226,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-01, T-PA-09
 
 **O que fazer:**
+
 1. Recebe `eventos: AmostraEvento[]` como prop.
 2. Ordena por `ts` asc.
 3. Renderiza linha do tempo vertical com:
@@ -234,6 +247,7 @@ Adicionar blocos para:
 **Depende de:** T-PA-09, T-PA-10
 
 **O que fazer:**
+
 1. Tabela com colunas: ID, material, status (badge), data coleta, exame, ações.
 2. Filtros: por status e por intervalo de data.
 3. Ao clicar em linha, abrir detalhe com `AmostraTimeline`.

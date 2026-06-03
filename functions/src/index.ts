@@ -219,10 +219,7 @@ export {
 //   rtPresenceCheckin               — RT check-in (starts 8h session, hasActiveRT=true)
 //   rtPresenceCheckout              — RT check-out (ends session, hasActiveRT=false)
 //   Chain-hashed audit trail /rt-presenca-events with integrity validation (RN-PRESENCA-05)
-export {
-  rtPresenceCheckin,
-  rtPresenceCheckout,
-} from './modules/rt-presence/index';
+export { rtPresenceCheckin, rtPresenceCheckout } from './modules/rt-presence/index';
 
 // ─── lab-apoio module (Phase 0 / Plan 00-03 — RDC 978 Arts. 36–39) ────────────
 // Support lab contracts (CNPJ + AVS habilitação + vigência + exames + annual eval).
@@ -474,10 +471,7 @@ export { criarQualificacao } from './modules/pessoas/qualificacao';
 export { revogarQualificacao } from './modules/pessoas/revogarQualificacao';
 
 // ─── compras module — nota fiscal intake + recebimento ────────────────────────
-export {
-  criarNotaFiscal,
-  confirmarRecebimento,
-} from './modules/compras/notaFiscal';
+export { criarNotaFiscal, confirmarRecebimento } from './modules/compras/notaFiscal';
 
 // ─── personnel module (Phase 8 — Cargos + Designações) ────────────────────────
 // Job descriptions (Cargos) + organizational designations (GQ/RT/Diretor) with
@@ -497,10 +491,7 @@ export { seedBioquimicaDefaults } from './modules/bioquimica/seedBioquimicaDefau
 // Management review system with 15 mandatory sections, data aggregation, and signatures.
 // generateReviewTemplate: pre-populate review form with live data from 7 collections
 // submitReview: validate 15 sections and create signed review
-export {
-  generateReviewTemplate,
-  submitReview,
-} from './modules/management-review/index';
+export { generateReviewTemplate, submitReview } from './modules/management-review/index';
 
 // ─── notivisa module (Phase 4+/8+ — NOTIVISA RDC 978 Art. 66) ──────────────────
 // NOTIVISA queue processor for disease notification (Anvisa integration).
@@ -603,10 +594,7 @@ export {
 // ─── nps module (MP-6 / v1.4-final-closure) ─────────────────────────────────
 // Anonymous-OK NPS submission (patientToken idempotency) + cycle aggregation.
 // LGPD: followUp content NEVER hits Cloud Logs.
-export {
-  submitNPS,
-  aggregateNPSCycle,
-} from './modules/nps/submitNPS';
+export { submitNPS, aggregateNPSCycle } from './modules/nps/submitNPS';
 
 // ─── satisfacao module (Phase 11 — NPS surveys) ────────────────────────────────
 // NPS post-resolution, quarterly campaigns, response anonymization (LGPD).
@@ -1197,14 +1185,14 @@ const GEMINI_DIRECT = 'gemini-3.1-flash-image-preview';
 // novo (ex: DeepSeek-VL, Pixtral 2) entrar em produção. Ordem dos patterns
 // não importa — a ordenação é por preço.
 const VISION_MODEL_WHITELIST_PATTERNS: RegExp[] = [
-  /^qwen\/qwen.*-vl[-/]/i,           // Qwen VL family (qwen-vl-plus, qwen3-vl-*, etc.)
-  /^qwen\/qwen3\.5-plus/i,           // Qwen3.5 Plus (multimodal text+image+video)
-  /^qwen\/qwen3\.6.*plus/i,          // Qwen3.6 Plus quando ficar multimodal
-  /^google\/gemini-(?:2|2\.5|3)/i,   // Gemini 2.x e 3.x (vision nativo)
+  /^qwen\/qwen.*-vl[-/]/i, // Qwen VL family (qwen-vl-plus, qwen3-vl-*, etc.)
+  /^qwen\/qwen3\.5-plus/i, // Qwen3.5 Plus (multimodal text+image+video)
+  /^qwen\/qwen3\.6.*plus/i, // Qwen3.6 Plus quando ficar multimodal
+  /^google\/gemini-(?:2|2\.5|3)/i, // Gemini 2.x e 3.x (vision nativo)
   /^anthropic\/claude-(?:3|sonnet|haiku|opus)/i, // Claude 3+ com vision
-  /^openai\/gpt-4o/i,                // GPT-4o e variantes
-  /^deepseek\/deepseek-vl/i,         // DeepSeek VL (quando disponível)
-  /^mistralai\/pixtral-/i,           // Pixtral (Mistral vision)
+  /^openai\/gpt-4o/i, // GPT-4o e variantes
+  /^deepseek\/deepseek-vl/i, // DeepSeek VL (quando disponível)
+  /^mistralai\/pixtral-/i, // Pixtral (Mistral vision)
 ];
 
 // Limite de sanidade: rejeitar modelos com custo médio > $5/1M tokens
@@ -1228,7 +1216,7 @@ interface ORCatalogModel {
 
 interface RankedVisionModel {
   id: string;
-  promptCost: number;     // USD per token
+  promptCost: number; // USD per token
   completionCost: number; // USD per token
   avgCost: number;
 }
@@ -1263,9 +1251,14 @@ function isWhitelistedFamily(id: string): boolean {
 
 /** Lista de fallback hardcoded — usada quando catálogo OpenRouter está fora do ar. */
 const STATIC_FALLBACK_MODELS: RankedVisionModel[] = [
-  { id: 'google/gemini-2.0-flash-001',         promptCost: 1e-7,  completionCost: 4e-7,  avgCost: 2.5e-7 },
-  { id: 'qwen/qwen3-vl-235b-a22b-instruct',    promptCost: 2e-7,  completionCost: 8.8e-7, avgCost: 5.4e-7 },
-  { id: 'qwen/qwen3.5-plus',                   promptCost: 4e-7,  completionCost: 2.4e-6, avgCost: 1.4e-6 },
+  { id: 'google/gemini-2.0-flash-001', promptCost: 1e-7, completionCost: 4e-7, avgCost: 2.5e-7 },
+  {
+    id: 'qwen/qwen3-vl-235b-a22b-instruct',
+    promptCost: 2e-7,
+    completionCost: 8.8e-7,
+    avgCost: 5.4e-7,
+  },
+  { id: 'qwen/qwen3.5-plus', promptCost: 4e-7, completionCost: 2.4e-6, avgCost: 1.4e-6 },
 ];
 
 async function fetchVisionModelsRanked(openRouterKey: string): Promise<RankedVisionModel[]> {
@@ -1300,14 +1293,22 @@ async function fetchVisionModelsRanked(openRouterKey: string): Promise<RankedVis
     ranked.sort((a, b) => a.avgCost - b.avgCost);
 
     if (ranked.length === 0) {
-      console.warn('⚠️ Catálogo OpenRouter retornou zero modelos elegíveis. Usando fallback estático.');
-      CATALOG_CACHE = { models: STATIC_FALLBACK_MODELS, expires: Date.now() + CATALOG_CACHE_TTL_MS };
+      console.warn(
+        '⚠️ Catálogo OpenRouter retornou zero modelos elegíveis. Usando fallback estático.',
+      );
+      CATALOG_CACHE = {
+        models: STATIC_FALLBACK_MODELS,
+        expires: Date.now() + CATALOG_CACHE_TTL_MS,
+      };
       return STATIC_FALLBACK_MODELS;
     }
 
     console.log(
       `📚 Catálogo OpenRouter: ${ranked.length} modelos vision elegíveis. Top 3: ` +
-        ranked.slice(0, 3).map((m) => `${m.id} ($${(m.avgCost * 1e6).toFixed(3)}/1M)`).join(', '),
+        ranked
+          .slice(0, 3)
+          .map((m) => `${m.id} ($${(m.avgCost * 1e6).toFixed(3)}/1M)`)
+          .join(', '),
     );
     CATALOG_CACHE = { models: ranked, expires: Date.now() + CATALOG_CACHE_TTL_MS };
     return ranked;
@@ -1341,7 +1342,9 @@ interface OpenRouterChatResponse {
 // proteção tenta 3 estratégias antes de desistir, por isso o cliente nunca mais
 // vê "Expected ',' or '}' after property value in JSON at position N".
 // Incidente original: 2026-04-27 — corrida Yumizen H550 abortou no JSON.parse cru.
-function safeParseAIJson(rawText: string): { ok: true; data: unknown } | { ok: false; reason: string; raw: string } {
+function safeParseAIJson(
+  rawText: string,
+): { ok: true; data: unknown } | { ok: false; reason: string; raw: string } {
   if (!rawText || !rawText.trim()) {
     return { ok: false, reason: 'resposta vazia', raw: rawText };
   }
@@ -1381,9 +1384,24 @@ function safeParseAIJson(rawText: string): { ok: true; data: unknown } | { ok: f
 // com o schema — eliminando ~95% dos casos de JSON inválido.
 
 const ANALYTE_KEYS = [
-  'RBC', 'HGB', 'HCT', 'MCV', 'MCH', 'MCHC', 'RDW',
-  'PLT', 'MPV', 'PDW', 'PCT',
-  'WBC', 'NEU#', 'LYM#', 'MON#', 'EOS#', 'BAS#', 'NLR',
+  'RBC',
+  'HGB',
+  'HCT',
+  'MCV',
+  'MCH',
+  'MCHC',
+  'RDW',
+  'PLT',
+  'MPV',
+  'PDW',
+  'PCT',
+  'WBC',
+  'NEU#',
+  'LYM#',
+  'MON#',
+  'EOS#',
+  'BAS#',
+  'NLR',
 ] as const;
 
 function buildOcrResponseSchema() {
@@ -1771,10 +1789,11 @@ export const extractFromImage = onCall(
     const repaired = safeParseAIJson(rawText);
     if (!repaired.ok) {
       // Log técnico fica no servidor; usuário vê mensagem amigável.
-      console.error(
-        '❌ extractFromImage: JSON irrecuperável da IA',
-        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
-      );
+      console.error('❌ extractFromImage: JSON irrecuperável da IA', {
+        reason: repaired.reason,
+        rawHead: repaired.raw.slice(0, 600),
+        rawTail: repaired.raw.slice(-200),
+      });
       throw new HttpsError(
         'internal',
         'A leitura automática falhou. Tente outra foto (boa iluminação, tela inteira no enquadramento, sem reflexo).',
@@ -1896,14 +1915,12 @@ Responda APENAS com JSON válido, sem markdown, sem explicações:
 
     const repaired = safeParseAIJson(rawText);
     if (!repaired.ok) {
-      console.error(
-        '❌ analyzeImmunoStrip: JSON irrecuperável da IA',
-        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
-      );
-      throw new HttpsError(
-        'internal',
-        'A leitura automática do strip falhou. Tente outra foto.',
-      );
+      console.error('❌ analyzeImmunoStrip: JSON irrecuperável da IA', {
+        reason: repaired.reason,
+        rawHead: repaired.raw.slice(0, 600),
+        rawTail: repaired.raw.slice(-200),
+      });
+      throw new HttpsError('internal', 'A leitura automática do strip falhou. Tente outra foto.');
     }
 
     const validation = STRIP_RESULT_SCHEMA.safeParse(repaired.data);
@@ -2053,10 +2070,11 @@ export const extractFromBula = onCall(
 
     const repaired = safeParseAIJson(rawText);
     if (!repaired.ok) {
-      console.error(
-        '❌ extractFromBula: JSON irrecuperável da IA',
-        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
-      );
+      console.error('❌ extractFromBula: JSON irrecuperável da IA', {
+        reason: repaired.reason,
+        rawHead: repaired.raw.slice(0, 600),
+        rawTail: repaired.raw.slice(-200),
+      });
       throw new HttpsError(
         'internal',
         'A leitura automática da bula falhou. Tente outro arquivo ou versão do PDF.',
@@ -2066,10 +2084,7 @@ export const extractFromBula = onCall(
     const validation = BulaResponseSchema.safeParse(repaired.data);
     if (!validation.success) {
       console.error('❌ Erro de validação Bula (Zod):', validation.error.format());
-      throw new HttpsError(
-        'internal',
-        'A IA respondeu fora do formato esperado. Tente outro PDF.',
-      );
+      throw new HttpsError('internal', 'A IA respondeu fora do formato esperado. Tente outro PDF.');
     }
 
     return validation.data;
@@ -2281,22 +2296,17 @@ Responda APENAS com JSON válido, sem markdown:
     });
 
     if (!rawText.trim()) {
-      throw new HttpsError(
-        'internal',
-        'Não consegui ler a tira. Tente outra foto.',
-      );
+      throw new HttpsError('internal', 'Não consegui ler a tira. Tente outra foto.');
     }
 
     const repaired = safeParseAIJson(rawText);
     if (!repaired.ok) {
-      console.error(
-        '❌ parseUrinaTira: JSON irrecuperável da IA',
-        { reason: repaired.reason, rawHead: repaired.raw.slice(0, 600), rawTail: repaired.raw.slice(-200) },
-      );
-      throw new HttpsError(
-        'internal',
-        'A leitura automática da tira falhou. Tente outra foto.',
-      );
+      console.error('❌ parseUrinaTira: JSON irrecuperável da IA', {
+        reason: repaired.reason,
+        rawHead: repaired.raw.slice(0, 600),
+        rawTail: repaired.raw.slice(-200),
+      });
+      throw new HttpsError('internal', 'A leitura automática da tira falhou. Tente outra foto.');
     }
 
     const validation = URO_OCR_RESULT_SCHEMA.safeParse(repaired.data);
@@ -2350,10 +2360,7 @@ export {
 // (ia-strip guardrail) which refuses Gemini calls without an active consent
 // record. Re-capture merges scopes and clears `revokedAt`. Revocation keeps
 // the document (audit trail) and only sets `revokedAt`.
-export {
-  recordPatientConsent,
-  revokePatientConsent,
-} from './modules/consents/index';
+export { recordPatientConsent, revokePatientConsent } from './modules/consents/index';
 
 // ─── consents migration (Wave 2 Agent 6 — backfill tooling) ──────────────────
 // Admin-only callables for inventory + bulk consent capture from paper TCLE.
@@ -2416,11 +2423,16 @@ Não invente dados — sugira exemplos realistas baseados no contexto fornecido.
 
     const response = await genAI.models.generateContent({
       model: 'gemini-2.5-flash',
-      contents: [{ role: 'user', parts: [{ text: `${systemPrompt}\n\nContexto:\n${context}\n\nInstrução:\n${prompt}` }] }],
+      contents: [
+        {
+          role: 'user',
+          parts: [{ text: `${systemPrompt}\n\nContexto:\n${context}\n\nInstrução:\n${prompt}` }],
+        },
+      ],
       config: { maxOutputTokens: 1500, temperature: 0.7 },
     });
 
     const text = response.text ?? '';
     return { text };
-  }
+  },
 );

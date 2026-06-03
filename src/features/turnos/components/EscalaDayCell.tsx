@@ -10,7 +10,15 @@ interface EscalaDayCellProps {
   onEdit: (escala: EscalaDiaria) => void;
 }
 
-export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAdd, onEdit }: EscalaDayCellProps) {
+export function EscalaDayCell({
+  day,
+  dayLabel,
+  escalas,
+  isMissing,
+  isToday,
+  onAdd,
+  onEdit,
+}: EscalaDayCellProps) {
   const dayNum = day.getDate();
 
   return (
@@ -32,7 +40,11 @@ export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAd
         <div className="flex items-center gap-1.5">
           <span
             className="font-semibold uppercase"
-            style={{ fontSize: '10px', letterSpacing: '0.06em', color: 'var(--text-faint, #64748B)' }}
+            style={{
+              fontSize: '10px',
+              letterSpacing: '0.06em',
+              color: 'var(--text-faint, #64748B)',
+            }}
           >
             {dayLabel}
           </span>
@@ -50,9 +62,7 @@ export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAd
         <span
           className="h-2 w-2 rounded-full"
           style={{
-            background: isMissing
-              ? 'var(--danger-500, #EF4444)'
-              : 'var(--success-500, #10B981)',
+            background: isMissing ? 'var(--danger-500, #EF4444)' : 'var(--success-500, #10B981)',
           }}
           title={isMissing ? 'Sem cobertura RT' : 'RT presente'}
           aria-label={isMissing ? 'Sem cobertura RT' : 'RT presente'}
@@ -90,7 +100,12 @@ export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAd
               {escala.rtPresente && (
                 <span
                   className="rounded px-1 py-0.5"
-                  style={{ fontSize: '9px', fontWeight: 600, background: 'rgba(16,185,129,0.15)', color: 'var(--success-500, #10B981)' }}
+                  style={{
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    background: 'rgba(16,185,129,0.15)',
+                    color: 'var(--success-500, #10B981)',
+                  }}
                 >
                   RT
                 </span>
@@ -98,7 +113,12 @@ export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAd
               {escala.rtSubstitutoPresente && (
                 <span
                   className="rounded px-1 py-0.5"
-                  style={{ fontSize: '9px', fontWeight: 600, background: 'rgba(16,185,129,0.10)', color: 'rgba(16,185,129,0.7)' }}
+                  style={{
+                    fontSize: '9px',
+                    fontWeight: 600,
+                    background: 'rgba(16,185,129,0.10)',
+                    color: 'rgba(16,185,129,0.7)',
+                  }}
                 >
                   Sub
                 </span>
@@ -121,7 +141,13 @@ export function EscalaDayCell({ day, dayLabel, escalas, isMissing, isToday, onAd
         }}
         aria-label={`Adicionar escala em ${dayLabel} ${dayNum}`}
       >
-        <svg className="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+        <svg
+          className="h-3 w-3"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+          strokeWidth={2}
+        >
           <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
         </svg>
         Adicionar

@@ -25,18 +25,18 @@ HC Quality is a **multi-tenant laboratory information system** handling sensitiv
 
 ## 1. OWASP Top 10 Mapping (Applicable Vectors)
 
-| OWASP Category | Status | Finding | Severity |
-|---|---|---|---|
-| **A1: Broken Access Control** | PASS | Role-based access (RBAC) + multi-tenant isolation via labId | — |
-| **A2: Cryptographic Failures** | PASS | HMAC-SHA256 signatures, server-side salt | — |
-| **A3: Injection** | PASS | Zod validation on all payloads; no `eval`/`innerHTML` | — |
-| **A4: Insecure Design** | WARN | Public HTTP endpoints lack rate limiting (cloud-level mitigates) | M1 |
-| **A5: Security Misconfiguration** | PASS | Rules follow ADR-0005 (strict); claims provisioning enforced | — |
-| **A6: Vulnerable & Outdated Components** | PASS | Dependencies current (Firebase 12, Zod 3, Node 22) | — |
-| **A7: Identification & Authentication** | PASS | Firebase Auth + custom claims (modules, isSuperAdmin) | — |
-| **A8: Data Integrity Failures** | PASS | Chain-hash (cryptoAudit) + signature on writes | — |
-| **A9: Logging & Monitoring** | WARN | Audit logs created; no real-time alerting on anomalies | M2 |
-| **A10: SSRF** | N/A | No external service integration in scope | — |
+| OWASP Category                           | Status | Finding                                                          | Severity |
+| ---------------------------------------- | ------ | ---------------------------------------------------------------- | -------- |
+| **A1: Broken Access Control**            | PASS   | Role-based access (RBAC) + multi-tenant isolation via labId      | —        |
+| **A2: Cryptographic Failures**           | PASS   | HMAC-SHA256 signatures, server-side salt                         | —        |
+| **A3: Injection**                        | PASS   | Zod validation on all payloads; no `eval`/`innerHTML`            | —        |
+| **A4: Insecure Design**                  | WARN   | Public HTTP endpoints lack rate limiting (cloud-level mitigates) | M1       |
+| **A5: Security Misconfiguration**        | PASS   | Rules follow ADR-0005 (strict); claims provisioning enforced     | —        |
+| **A6: Vulnerable & Outdated Components** | PASS   | Dependencies current (Firebase 12, Zod 3, Node 22)               | —        |
+| **A7: Identification & Authentication**  | PASS   | Firebase Auth + custom claims (modules, isSuperAdmin)            | —        |
+| **A8: Data Integrity Failures**          | PASS   | Chain-hash (cryptoAudit) + signature on writes                   | —        |
+| **A9: Logging & Monitoring**             | WARN   | Audit logs created; no real-time alerting on anomalies           | M2       |
+| **A10: SSRF**                            | N/A    | No external service integration in scope                         | —        |
 
 **Key Strength:** Rules enforce **three-layered auth** (`isAuthenticated` → `isActiveMemberOfLab` → `hasModuleAccess`). Prevents both cross-tenant reads and privilege escalation within same tenant.
 
@@ -53,6 +53,7 @@ HC Quality is a **multi-tenant laboratory information system** handling sensitiv
 - **Confidence:** HIGH — rule structure prevents horizontal escalation.
 
 **Evidence:**
+
 ```firestore
 match /labs/{labId} {
   allow get: if isSuperAdmin() || isActiveMemberOfLab(labId);
@@ -69,6 +70,7 @@ match /labs/{labId} {
 - **Finding:** One behavioral gap — RT can update CIQ runs (operational), but RT **cannot make CIQ decision** without promotion to admin. Design is intentional per ADR-0002.
 
 **Evidence (CIQ-Imuno):**
+
 ```firestore
 allow update: if (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) ||
   (isActiveMemberOfLab(labId) &&
@@ -106,7 +108,8 @@ allow update: if (isActiveMemberOfLab(labId) && isAdminOrOwner(labId)) ||
 - **Risk:** Programmer error could bypass soft-delete via direct Firestore API (Firestore Emulator or manual console access).
 - **Mitigation:** Client-side service layer + admin oversight. For next phase, consider trigger-based hard-delete block.
 
-**Recommendation (L1):** Add programmatic rule to reject deletes on regulatory collections (ciq-*, lotsMigration):
+**Recommendation (L1):** Add programmatic rule to reject deletes on regulatory collections (ciq-\*, lotsMigration):
+
 ```firestore
 match /ciq-imuno/{lotId} {
   allow delete: if false; // Explicitly block hard deletes
@@ -129,6 +132,7 @@ match /ciq-imuno/{lotId} {
 **Risk:** Brute-force attack on device token hash (feasible only if token entropy is low). Low likelihood given SHA-256 + Firebase quotas.
 
 **Recommendation (M2 — 30-day roadmap):**
+
 1. Add application-level rate limiting via Redis/Memstore (optional, low priority).
 2. Audit device token generation (ensure high entropy).
 3. Log all token validation failures to alert on brute-force patterns.
@@ -148,6 +152,7 @@ match /ciq-imuno/{lotId} {
   - `ct_commitLeitura` — validates claim + re-reads limits server-side.
 
 **Implementation Sample (educacao-continuada/commitExecucaoRealizada):**
+
 ```typescript
 export const ec_commitExecucaoRealizada = onCall(
   { region: 'southamerica-east1' },
@@ -156,7 +161,7 @@ export const ec_commitExecucaoRealizada = onCall(
     const labId = request.data.labId as string;
     if (!labId) throw new HttpsError('invalid-argument', 'labId required');
     // ... role check + batch write
-  }
+  },
 );
 ```
 
@@ -185,6 +190,7 @@ export const ec_commitExecucaoRealizada = onCall(
 **Current Mitigation:** Firestore `writeBatch()` ops are atomic; Cloud Tasks for async jobs have built-in backoff.
 
 **Recommendation (M3 — 60-day roadmap):**
+
 1. Add Firestore-based rate-limit counters (e.g., `rateLimits/{uid}` with increment + TTL).
 2. Alternative: Integrate Cloud Tasks with rate-limiting per queue.
 3. Monitor Cloud Logging for callable invocation spikes.
@@ -211,7 +217,7 @@ export const ec_commitExecucaoRealizada = onCall(
 - **No Sanitization Needed:** NOTIVISA payload contains clinical data (analito, valor, referencia) — no HTML/script injection risk. Data is JSON-serialized, not rendered.
 - **CPF Handling:** CPF is **passed through unencrypted** to NOTIVISA payload (Art. 6º NOTIVISA spec requires plaintext). Encryption at transit (HTTPS) and in rest (Firestore encryption) assumed.
 
-**Concern (Low Risk, L3):** CPF is not masked in logs. 
+**Concern (Low Risk, L3):** CPF is not masked in logs.
 **Mitigation:** Recommended at logging policy level (not a code issue).
 
 ### 4.2 SMS Template (src/shared/sms.ts)
@@ -282,12 +288,13 @@ export const ec_commitExecucaoRealizada = onCall(
   - `pacientes` collection (master)
   - `resultados.paciente_cpf` in NOTIVISA payloads
   - `assinador.cpf` in signatures
-  
+
   No explicit deletion procedure when patient exercises right to erasure.
 
 **Gap (M4 — LGPD Art. 18):** System lacks formal **data deletion cascade** for LGPD requests. Current practice relies on manual admin action (disable patient record + soft-delete linkages).
 
 **Recommendation (M4 — 60-day roadmap):**
+
 1. Create Cloud Function `lgpd_erasureCascade(patientId, labId)` that:
    - Soft-deletes patient record
    - Anonymizes CPF in NOTIVISA payloads (truncate to `XXX-***-**XX`)
@@ -309,6 +316,7 @@ export const ec_commitExecucaoRealizada = onCall(
 - **Compliance:** RDC 978 Art. 127.3 (tamper-evident audit log) satisfied.
 
 **Test Coverage:** `src/modules/audit/cryptoAudit.test.ts` validates:
+
 - HMAC mismatch detection
 - Hash chain continuity
 - Signature verification
@@ -322,6 +330,7 @@ export const ec_commitExecucaoRealizada = onCall(
 - **Detection:** Chain-hash validation would have caught corrupted signatures in real-time (if configured).
 
 **Recommendation (L6):** Enable **real-time alerting** on chain validation failures:
+
 ```yaml
 # Cloud Logging alert policy
 resource.type = "cloud_function"
@@ -351,6 +360,7 @@ AND jsonPayload.chainValidationFailed = true
 - **Mitigation:** Firebase Cloud Functions quotas limit concurrency; collectionGroup query + hash lookup is O(n) slow.
 
 **Recommendation (M5 — 30-day roadmap):**
+
 1. Audit device token generation — ensure 128+ bits of entropy (e.g., `crypto.randomBytes(16).toString('hex')`).
 2. Implement application-level rate limiting on `registrarLeituraIoT` (max 1000 requests/hour per lab).
 3. Log token validation failures; alert on >10 failures/minute per lab.
@@ -381,45 +391,47 @@ AND jsonPayload.chainValidationFailed = true
 ## 8. Vulnerabilities Summary
 
 ### Critical (0)
+
 None identified.
 
 ### High (0)
+
 None identified.
 
 ### Medium (5)
 
-| ID | Category | Title | Description | Mitigation | ETA |
-|---|---|---|---|---|---|
-| **M1** | Cryptographic Failures | Legacy Client-Side Signatures | Educação continuada migration window (2026-04-24) may have edge cases | Callable auth check + re-validation | Done (2026-05-01) |
-| **M2** | Insecure Design | Public HTTP Endpoints — No Rate Limiting | `validateFR10`, `registrarLeituraIoT`, `validarCertificadoEc` lack per-user limits | Firebase quotas mitigate; app-level optional | 2026-06-07 (60d) |
-| **M3** | Insecure Design | Missing Rate Limiting on Callables | 193 callable functions have no per-user throttle | Firestore counter-based limiter; backlog | 2026-06-07 (60d) |
-| **M4** | Data Integrity Failures | LGPD Right to Erasure Not Automated | Manual admin action required; no cascade deletion | Create `lgpd_erasureCascade` callable + consent UI | 2026-06-21 (45d) |
-| **M5** | Cryptographic Failures | Device Token Entropy Unknown (IoT) | Device tokens must be 128+ bits; generation not audited | Audit token generation; implement app-level rate limit | 2026-05-21 (14d) |
+| ID     | Category                | Title                                    | Description                                                                        | Mitigation                                             | ETA               |
+| ------ | ----------------------- | ---------------------------------------- | ---------------------------------------------------------------------------------- | ------------------------------------------------------ | ----------------- |
+| **M1** | Cryptographic Failures  | Legacy Client-Side Signatures            | Educação continuada migration window (2026-04-24) may have edge cases              | Callable auth check + re-validation                    | Done (2026-05-01) |
+| **M2** | Insecure Design         | Public HTTP Endpoints — No Rate Limiting | `validateFR10`, `registrarLeituraIoT`, `validarCertificadoEc` lack per-user limits | Firebase quotas mitigate; app-level optional           | 2026-06-07 (60d)  |
+| **M3** | Insecure Design         | Missing Rate Limiting on Callables       | 193 callable functions have no per-user throttle                                   | Firestore counter-based limiter; backlog               | 2026-06-07 (60d)  |
+| **M4** | Data Integrity Failures | LGPD Right to Erasure Not Automated      | Manual admin action required; no cascade deletion                                  | Create `lgpd_erasureCascade` callable + consent UI     | 2026-06-21 (45d)  |
+| **M5** | Cryptographic Failures  | Device Token Entropy Unknown (IoT)       | Device tokens must be 128+ bits; generation not audited                            | Audit token generation; implement app-level rate limit | 2026-05-21 (14d)  |
 
 ### Low (5)
 
-| ID | Category | Title | Description | Mitigation | ETA |
-|---|---|---|---|---|---|
-| **L1** | Insecure Design | Soft-Delete Not Enforced in Rules | Programmer error could bypass soft-delete | Add explicit rule `allow delete: if false` | 2026-05-21 (14d) |
-| **L2** | Vulnerable Components | Legacy Validators (Non-Zod) | 5 modules use manual `typeof` checks | Migrate to Zod 3 | 2026-06-07 (30d, backlog) |
-| **L3** | Logging & Monitoring | CPF Logged in Error Cases | PII may appear in Cloud Logs | Review logging policy; mask sensitive fields | 2026-05-21 (14d) |
-| **L4** | Insecure Design | Draft Lock Not Persisted | Offline concurrent edits possible | Persist lock to Firestore subcollection | 2026-06-21 (45d, Phase 3.4) |
-| **L5** | Logging & Monitoring | Secret Manager Access Not Monitored | No alerting on non-routine secret reads | Enable Cloud Audit Logs + alert policy | 2026-05-21 (14d) |
-| **L6** | Detection & Response | Chain Validation Not Real-Time Alerting | Tamper detection via batch job only | Configure Cloud Logging alert on failures | 2026-05-21 (14d) |
+| ID     | Category              | Title                                   | Description                               | Mitigation                                   | ETA                         |
+| ------ | --------------------- | --------------------------------------- | ----------------------------------------- | -------------------------------------------- | --------------------------- |
+| **L1** | Insecure Design       | Soft-Delete Not Enforced in Rules       | Programmer error could bypass soft-delete | Add explicit rule `allow delete: if false`   | 2026-05-21 (14d)            |
+| **L2** | Vulnerable Components | Legacy Validators (Non-Zod)             | 5 modules use manual `typeof` checks      | Migrate to Zod 3                             | 2026-06-07 (30d, backlog)   |
+| **L3** | Logging & Monitoring  | CPF Logged in Error Cases               | PII may appear in Cloud Logs              | Review logging policy; mask sensitive fields | 2026-05-21 (14d)            |
+| **L4** | Insecure Design       | Draft Lock Not Persisted                | Offline concurrent edits possible         | Persist lock to Firestore subcollection      | 2026-06-21 (45d, Phase 3.4) |
+| **L5** | Logging & Monitoring  | Secret Manager Access Not Monitored     | No alerting on non-routine secret reads   | Enable Cloud Audit Logs + alert policy       | 2026-05-21 (14d)            |
+| **L6** | Detection & Response  | Chain Validation Not Real-Time Alerting | Tamper detection via batch job only       | Configure Cloud Logging alert on failures    | 2026-05-21 (14d)            |
 
 ---
 
 ## 9. Compliance Mapping — RDC 978 Art. 5 (Data Protection)
 
-| RDC Requirement | Status | Evidence |
-|---|---|---|
-| **Art. 5.1** — Data confidentiality (restrict access) | ✅ PASS | RBAC rules + multi-tenant isolation + auth checks on 193 callables |
-| **Art. 5.2** — Data integrity (prevent unauthorized modification) | ✅ PASS | Chain-hash + immutable audit collections + signature validation |
-| **Art. 5.3** — Data availability (prevent loss/destruction) | ✅ PASS | Firestore PITR + daily email backup + GCS export (firestoreBackup module) |
-| **Art. 5.3.1** — Encryption in transit | ✅ PASS | HTTPS/TLS enforced on all endpoints |
-| **Art. 5.3.2** — Encryption at rest | ✅ PASS | Google-managed 256-bit AES on Firestore + Cloud Storage |
-| **Art. 5.4** — Audit trail (tamper-evident) | ✅ PASS | HMAC-SHA256 chain, scheduled validation, append-only collections |
-| **Art. 5.5** — Incident response | ⚠️ PARTIAL | ADR-0017 remediated; real-time alerting recommended (M4) |
+| RDC Requirement                                                   | Status     | Evidence                                                                  |
+| ----------------------------------------------------------------- | ---------- | ------------------------------------------------------------------------- |
+| **Art. 5.1** — Data confidentiality (restrict access)             | ✅ PASS    | RBAC rules + multi-tenant isolation + auth checks on 193 callables        |
+| **Art. 5.2** — Data integrity (prevent unauthorized modification) | ✅ PASS    | Chain-hash + immutable audit collections + signature validation           |
+| **Art. 5.3** — Data availability (prevent loss/destruction)       | ✅ PASS    | Firestore PITR + daily email backup + GCS export (firestoreBackup module) |
+| **Art. 5.3.1** — Encryption in transit                            | ✅ PASS    | HTTPS/TLS enforced on all endpoints                                       |
+| **Art. 5.3.2** — Encryption at rest                               | ✅ PASS    | Google-managed 256-bit AES on Firestore + Cloud Storage                   |
+| **Art. 5.4** — Audit trail (tamper-evident)                       | ✅ PASS    | HMAC-SHA256 chain, scheduled validation, append-only collections          |
+| **Art. 5.5** — Incident response                                  | ⚠️ PARTIAL | ADR-0017 remediated; real-time alerting recommended (M4)                  |
 
 **Overall:** System is **RDC 978 Art. 5 compliant** with strategic gaps (LGPD cascade, rate limiting) that do not block certification.
 
@@ -428,6 +440,7 @@ None identified.
 ## 10. Remediation Roadmap (30/60/90-day)
 
 ### Immediate (14 days — by 2026-05-21)
+
 - [ ] **M5 (IoT):** Audit device token entropy; document generation procedure
 - [ ] **L1 (Soft Delete):** Add `allow delete: if false` to regulatory collections
 - [ ] **L3 (Logging):** Review Cloud Logs for CPF PII; add masking policy
@@ -435,6 +448,7 @@ None identified.
 - [ ] **L6 (Real-Time Alerts):** Configure Cloud Logging policy for chain validation failures
 
 ### Short-term (30–45 days — by 2026-06-07 / 2026-06-21)
+
 - [ ] **M2 (Rate Limiting — HTTP):** Implement Firestore-based counters for public endpoints
 - [ ] **M3 (Rate Limiting — Callables):** Add per-user throttle to 193 callable functions
 - [ ] **M4 (LGPD):** Build `lgpd_erasureCascade` callable + retention policy doc
@@ -442,6 +456,7 @@ None identified.
 - [ ] **L4 (Draft Lock):** Persist lock to Firestore; update rules
 
 ### Long-term (backlog — post-Phase 3)
+
 - [ ] Implement real-time Secret Manager audit logging (ops-driven)
 - [ ] Add consent management UI (lgpd module)
 - [ ] Document incident response playbook
@@ -468,12 +483,12 @@ Before Phase 3 production deployment, verify:
 
 ## 12. Sign-Off
 
-| Role | Name | Date | Status |
-|---|---|---|---|
-| Security Auditor | Claude Agent | 2026-05-07 | ✅ REVIEWED |
-| Development Lead | (pending) | — | ⏳ REVIEW |
-| Compliance Officer | (pending) | — | ⏳ REVIEW |
-| CTO | (pending) | — | ⏳ APPROVAL |
+| Role               | Name         | Date       | Status      |
+| ------------------ | ------------ | ---------- | ----------- |
+| Security Auditor   | Claude Agent | 2026-05-07 | ✅ REVIEWED |
+| Development Lead   | (pending)    | —          | ⏳ REVIEW   |
+| Compliance Officer | (pending)    | —          | ⏳ REVIEW   |
+| CTO                | (pending)    | —          | ⏳ APPROVAL |
 
 **Go/No-Go Decision:** **GO** — Deploy Phase 3 with 30-day remediation roadmap. System is RDC 978 Art. 5 compliant; identified gaps are strategic (LGPD automation, rate limiting) and do not block certification.
 
@@ -488,4 +503,3 @@ Before Phase 3 production deployment, verify:
 - **firestore-security.md:** Multi-tenant isolation + callable pattern
 - **RDC 978/2025:** Art. 5 (Data Protection), Art. 127 (Audit Trail)
 - **LGPD (Lei 13.709/2018):** Arts. 6, 7, 18 (Lawfulness, Transparency, Right to Erasure)
-

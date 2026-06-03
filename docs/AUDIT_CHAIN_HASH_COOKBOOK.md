@@ -23,7 +23,7 @@ export const YOUR_MODULE_HMAC_SECRET = defineSecret('YOUR_MODULE_HMAC_SECRET');
 
 /**
  * Perform an operation that requires audit chain
- * 
+ *
  * Compliance: RDC 978 Art. 128, DICQ 4.4
  */
 export const yourOperation = functions.onCall(
@@ -34,20 +34,14 @@ export const yourOperation = functions.onCall(
   async (request) => {
     // 1. Validate auth
     if (!request.auth) {
-      throw new functions.HttpsError(
-        'unauthenticated',
-        'Authentication required'
-      );
+      throw new functions.HttpsError('unauthenticated', 'Authentication required');
     }
 
     const { labId, operationData } = request.data;
 
     // 2. Validate input
     if (!labId || !operationData) {
-      throw new functions.HttpsError(
-        'invalid-argument',
-        'labId and operationData required'
-      );
+      throw new functions.HttpsError('invalid-argument', 'labId and operationData required');
     }
 
     // 3. Perform your domain operation
@@ -80,7 +74,7 @@ export const yourOperation = functions.onCall(
     });
 
     return { success: true, id: docRef.id };
-  }
+  },
 );
 ```
 
@@ -103,7 +97,7 @@ async function auditOperation(
   labId: string,
   operatorId: string,
   operation: string,
-  payload: Record<string, unknown>
+  payload: Record<string, unknown>,
 ): Promise<void> {
   const result = await writeChainedAudit({
     collectionPath: `/labs/${labId}/your-collection`,
@@ -188,10 +182,10 @@ const db = admin.firestore();
 
 /**
  * ONE-TIME SCRIPT: backfill chain hashes for existing records
- * 
+ *
  * Usage (admin CLI):
  *   node -r ts-node/register functions/src/modules/your-module/migrateToChainAudit.ts
- * 
+ *
  * Safety: reads existing records, writes to *new* chain collection.
  *         old audit-log remains untouched.
  */
@@ -226,7 +220,7 @@ async function migrateToChainAudit() {
             originalDocId: recordDoc.id,
             // Include fields relevant to auditor
           },
-          YOUR_MODULE_HMAC_SECRET.value()
+          YOUR_MODULE_HMAC_SECRET.value(),
         );
 
         // Mark record as migrated (idempotent)
@@ -246,9 +240,7 @@ async function migrateToChainAudit() {
       }
     }
 
-    console.log(
-      `[${labId}] chained ${chainCount}/${records.size} records`
-    );
+    console.log(`[${labId}] chained ${chainCount}/${records.size} records`);
   }
 
   console.log('Migration complete');
@@ -278,7 +270,7 @@ const db = admin.firestore();
 
 /**
  * Feature flag: enable chain-audit rollout by percentage
- * 
+ *
  * Deployment strategy:
  *   Day 1: USE_CHAIN_AUDIT_PCT = 5  (5% of operations)
  *   Day 3: USE_CHAIN_AUDIT_PCT = 25 (25%)
@@ -324,7 +316,7 @@ export const yourOperation = functions.onCall(async (request) => {
       {
         docId: docRef.id,
       },
-      request.auth.uid
+      request.auth.uid,
     ).catch(() => {}); // Non-blocking
   }
 
@@ -520,16 +512,14 @@ main().catch((err) => {
 
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 import * as admin from 'firebase-admin';
-import {
-  validateChainIntegrity,
-} from '../audit/cryptoAudit';
+import { validateChainIntegrity } from '../audit/cryptoAudit';
 import { YOUR_MODULE_HMAC_SECRET } from './secrets';
 
 const db = admin.firestore();
 
 /**
  * Scheduled validation: every 6 hours
- * 
+ *
  * Compliance: RDC 978 Art. 128 requires continuous audit integrity verification
  */
 export const validateYourCollectionChainScheduled = onSchedule(
@@ -551,10 +541,7 @@ export const validateYourCollectionChainScheduled = onSchedule(
       const collectionPath = `/labs/${labId}/your-collection`;
 
       try {
-        const result = await validateChainIntegrity(
-          collectionPath,
-          secret
-        );
+        const result = await validateChainIntegrity(collectionPath, secret);
 
         results.push({
           labId,
@@ -607,7 +594,7 @@ export const validateYourCollectionChainScheduled = onSchedule(
       totalViolations,
       reportSize: results.length,
     });
-  }
+  },
 );
 ```
 
@@ -615,15 +602,15 @@ export const validateYourCollectionChainScheduled = onSchedule(
 
 ## Quick reference: common mistakes
 
-| Mistake | Problem | Fix |
-|---|---|---|
-| Writing failure marker into chain target | Breaks `previousHash` continuity | Always use `failureMarkerCollectionPath()` to derive sibling |
-| `await` in tight loop without batching | Slow, quota spike | Batch with `writeBatch` or use a queue |
-| Checking chain result in hot path | Blocks user on audit latency | Fire-and-forget; never `await writeChainedAudit` before returning to user |
-| Rotating HMAC secret without migration | Old entries unverifiable | Follow ADR-0017 pattern: baseline reset + disclosure |
-| Validating chain only on read | Breach undetected for days | Run periodic validation job (every 6 hours minimum) |
-| No index on `timestamp` in chain collection | Chain queries slow (>1s for 10k docs) | Add composite index per **Firestore Indexes** section |
-| Omitting sensitive data from audit | Insufficient context | Include domain fields (IDs, amounts, operationTypes), omit secrets (passwords, API keys) |
+| Mistake                                     | Problem                               | Fix                                                                                      |
+| ------------------------------------------- | ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Writing failure marker into chain target    | Breaks `previousHash` continuity      | Always use `failureMarkerCollectionPath()` to derive sibling                             |
+| `await` in tight loop without batching      | Slow, quota spike                     | Batch with `writeBatch` or use a queue                                                   |
+| Checking chain result in hot path           | Blocks user on audit latency          | Fire-and-forget; never `await writeChainedAudit` before returning to user                |
+| Rotating HMAC secret without migration      | Old entries unverifiable              | Follow ADR-0017 pattern: baseline reset + disclosure                                     |
+| Validating chain only on read               | Breach undetected for days            | Run periodic validation job (every 6 hours minimum)                                      |
+| No index on `timestamp` in chain collection | Chain queries slow (>1s for 10k docs) | Add composite index per **Firestore Indexes** section                                    |
+| Omitting sensitive data from audit          | Insufficient context                  | Include domain fields (IDs, amounts, operationTypes), omit secrets (passwords, API keys) |
 
 ---
 

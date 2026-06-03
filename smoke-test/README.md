@@ -3,6 +3,7 @@
 Este projeto contém testes de fumaça (smoke tests) puros em Playwright para o sistema HC Quality.
 
 ## Estrutura
+
 - `specs/`: Arquivos de teste (.spec.ts)
 - `fixtures/`: Helpers de autenticação, nomes e utilitários
 - `playwright.config.ts`: Configuração global (screenshots em falha, traces em retry)
@@ -10,6 +11,7 @@ Este projeto contém testes de fumaça (smoke tests) puros em Playwright para o 
 ## Como rodar
 
 1. **Instalar dependências**:
+
    ```bash
    npm install
    npx playwright install chromium
@@ -28,6 +30,7 @@ Este projeto contém testes de fumaça (smoke tests) puros em Playwright para o 
    ```
 
 ## Princípios
+
 - **Determinismo**: Seletores exatos baseados no `PROMPT_CIQ_IMUNO.md`.
 - **Isolamento**: Dados criados usam prefixo `SMOKE_`.
 - **Manutenibilidade**: LLM atua apenas como depurador em caso de falha, sugerindo patches para os arquivos `.spec.ts`.

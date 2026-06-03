@@ -99,7 +99,10 @@ function getTsxFiles(dir: string): string[] {
     const entries = fs.readdirSync(current, { withFileTypes: true });
     for (const entry of entries) {
       const full = path.join(current, entry.name);
-      if (entry.isDirectory() && !['node_modules', '.git', 'build', 'android', 'ios'].includes(entry.name)) {
+      if (
+        entry.isDirectory() &&
+        !['node_modules', '.git', 'build', 'android', 'ios'].includes(entry.name)
+      ) {
         walk(full);
       } else if (entry.isFile() && (entry.name.endsWith('.tsx') || entry.name.endsWith('.ts'))) {
         results.push(full);
@@ -173,7 +176,8 @@ function analyzeBlock(block: string, lineNum: number, filePath: string, issues: 
       line: lineNum,
       severity: 'HIGH',
       checkId: 'TOUCH-LABEL',
-      description: 'TouchableOpacity/Pressable missing accessibilityLabel — screen readers cannot describe this element',
+      description:
+        'TouchableOpacity/Pressable missing accessibilityLabel — screen readers cannot describe this element',
       fix: 'Add accessibilityLabel="Descriptive action text" prop',
     });
   }
@@ -211,7 +215,8 @@ function checkTextInputs(lines: string[], filePath: string): A11yIssue[] {
             line: inputStart,
             severity: 'HIGH',
             checkId: 'INPUT-LABEL',
-            description: 'TextInput missing accessibilityLabel — screen readers announce "text field" with no context',
+            description:
+              'TextInput missing accessibilityLabel — screen readers announce "text field" with no context',
             fix: 'Add accessibilityLabel="Field description" to the TextInput',
           });
         }
@@ -397,7 +402,7 @@ function main() {
         `**Fix:** ${issue.fix}`,
         '',
         '---',
-        ''
+        '',
       );
     }
   } else {

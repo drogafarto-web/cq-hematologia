@@ -19,13 +19,13 @@ A forensic Cloud Logs sweep at 00:30 BRT exposed that `HCQ_SIGNATURE_HMAC_KEY` h
 
 5 distinct error classes surfaced across 200 sampled ERROR events:
 
-| # | Issue | Severity | Count |
-|---|---|---|---|
-| 1 | `insumo-movimentacoes` index direction wrong (declared ASC, query is DESC) → `onInsumoMovimentacaoCreate` chainHash failing | BLOCKING | 56 in 48h |
-| 2 | `sgq-documentos` composite index missing → `lgpd_scheduledAnnualReview` 100% failure rate | BLOCKING | every cron tick |
-| 3 | `risks` composite index missing → `risks_scheduledReview` 100% failure rate | BLOCKING | every cron tick |
-| 4 | 256 MiB default exceeded across 7 scheduled functions | DEGRADING | 11 hits |
-| 5 | `validateChainIntegrityScheduled` reading `process.env.HCQ_SIGNATURE_HMAC_KEY` instead of `defineSecret().value()` → crashed every 24h | DEGRADING | 1 in window |
+| #   | Issue                                                                                                                                  | Severity  | Count           |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------- | --------- | --------------- |
+| 1   | `insumo-movimentacoes` index direction wrong (declared ASC, query is DESC) → `onInsumoMovimentacaoCreate` chainHash failing            | BLOCKING  | 56 in 48h       |
+| 2   | `sgq-documentos` composite index missing → `lgpd_scheduledAnnualReview` 100% failure rate                                              | BLOCKING  | every cron tick |
+| 3   | `risks` composite index missing → `risks_scheduledReview` 100% failure rate                                                            | BLOCKING  | every cron tick |
+| 4   | 256 MiB default exceeded across 7 scheduled functions                                                                                  | DEGRADING | 11 hits         |
+| 5   | `validateChainIntegrityScheduled` reading `process.env.HCQ_SIGNATURE_HMAC_KEY` instead of `defineSecret().value()` → crashed every 24h | DEGRADING | 1 in window     |
 
 The chain-integrity verifier crashing was the trail that led to the wider HMAC discovery. Pulling on that thread surfaced the `PENDING_SET_*` placeholder, which turned a "fix the env var" task into a 15-day baseline-reset incident.
 
@@ -40,17 +40,18 @@ The chain-integrity verifier crashing was the trail that led to the wider HMAC d
 **Decision:** **Strategy (b) — Baseline Reset.** Rotate to a fresh `openssl rand -hex 32` secret. Do **not** re-sign historical records. Mark records written 2026-04-22 → 2026-05-07 as the **pre-rotation baseline** and write a synthetic `chain-baseline-reset` event of type `informational` to the `audit-violations` collection. Forward-going `validateChainIntegrityScheduled` runs treat the rotation timestamp as the chain origin (`previousHash = null`).
 
 Rejected alternatives:
+
 - (a) **Re-sign with old + new HMAC, transition window** — rejected because the old key is now publicly disclosed in the ADR itself; re-signing with a known key adds ceremony without restoring any cryptographic property.
 - (c) **Defer decision, set new key only** — rejected because it leaves an undocumented inconsistency a future auditor would treat as a much larger finding than a documented baseline reset.
 
 **Compliance impact (disclosed in the ADR, not papered over):**
 
-| Standard | Clause | Window impact |
-|---|---|---|
-| RDC 786/2023 | Art. 21 (rastreabilidade tamper-evident) | Forgeable signatures + zero verification runs |
-| RDC 978/2025 | Art. 5.3, 86, 122 | Audit trail not cryptographically defensible; chain validator inert |
-| DICQ v4.3 | 4.4 (registros íntegros) | Scheduled integrity check produced no OK result since 2026-04-22 |
-| Lei 13.787/2018 | Art. 6 (assinatura eletrônica) | Logical signatures within window not non-repudiable |
+| Standard        | Clause                                   | Window impact                                                       |
+| --------------- | ---------------------------------------- | ------------------------------------------------------------------- |
+| RDC 786/2023    | Art. 21 (rastreabilidade tamper-evident) | Forgeable signatures + zero verification runs                       |
+| RDC 978/2025    | Art. 5.3, 86, 122                        | Audit trail not cryptographically defensible; chain validator inert |
+| DICQ v4.3       | 4.4 (registros íntegros)                 | Scheduled integrity check produced no OK result since 2026-04-22    |
+| Lei 13.787/2018 | Art. 6 (assinatura eletrônica)           | Logical signatures within window not non-repudiable                 |
 
 **Operational steps executed:**
 
@@ -102,13 +103,13 @@ Without the gate, both would have shipped silently the same way `HCQ_SIGNATURE_H
 
 All five composite indexes added to `firestore.indexes.json` and deployed via `firebase deploy --only firestore:indexes --project hmatologia2`. Sources: `cloud-logs-sweep-2026-05-07.md`, `post-deploy-health-2026-05-07-runtime.md`.
 
-| # | Collection group | Fields (order) | Unblocks | Commit |
-|---|---|---|---|---|
-| 1 | `lgpd-solicitacoes` (CG) | `status:A, data_prazo:A` | LGPD SLA cleanup cron | `7a7736e` |
-| 2 | `sgq-documentos` | `codigo:A, status:A` | `lgpd_scheduledAnnualReview` (was 100% fail) | `c9f3232` |
-| 3 | `risks` | `deletadoEm:A, reviewDate:A, status:A` | `risks_scheduledReview` (was 100% fail) | `c9f3232` |
-| 4 | `insumo-movimentacoes` | `insumoId:A, timestamp:D` (replaces ASC) | `onInsumoMovimentacaoCreate` chainHash query (`.orderBy('timestamp','desc')` in `chainHash.ts:76`) | `223aa5c` |
-| 5 | `records` (CG) | `deletadoEm:A, status:A, __name__:A` | `aggregateAnalytics` (existing index had reversed field order — Firestore composite indexes are field-order-sensitive) | `243682e` |
+| #   | Collection group         | Fields (order)                           | Unblocks                                                                                                               | Commit    |
+| --- | ------------------------ | ---------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- | --------- |
+| 1   | `lgpd-solicitacoes` (CG) | `status:A, data_prazo:A`                 | LGPD SLA cleanup cron                                                                                                  | `7a7736e` |
+| 2   | `sgq-documentos`         | `codigo:A, status:A`                     | `lgpd_scheduledAnnualReview` (was 100% fail)                                                                           | `c9f3232` |
+| 3   | `risks`                  | `deletadoEm:A, reviewDate:A, status:A`   | `risks_scheduledReview` (was 100% fail)                                                                                | `c9f3232` |
+| 4   | `insumo-movimentacoes`   | `insumoId:A, timestamp:D` (replaces ASC) | `onInsumoMovimentacaoCreate` chainHash query (`.orderBy('timestamp','desc')` in `chainHash.ts:76`)                     | `223aa5c` |
+| 5   | `records` (CG)           | `deletadoEm:A, status:A, __name__:A`     | `aggregateAnalytics` (existing index had reversed field order — Firestore composite indexes are field-order-sensitive) | `243682e` |
 
 **Final state per `post-deploy-health-2026-05-07-runtime.md` 08:19 UTC verification:** all 5 indexes `READY` (4 confirmed in initial sweep, 1 added later for `records`). Total composite indexes in project: 77.
 
@@ -145,13 +146,13 @@ Commit `5d824cc` bumped 7 of these preemptively; `aggregateAnalytics` was a sepa
 
 **Module-by-module list:**
 
-| Module | File | Callables wired into `index.ts` |
-|---|---|---|
-| `qualidade/auditTrail.ts` | (file never imported in `index.ts`) | `logAction`, `getAuditTrail`, `validateChain`, `generateComplianceReport` |
-| `qualidade/capaWorkflow.ts` | (file never imported) | `investigarNC`, `executarAcaoCorretiva`, `verificarEficacia` |
-| `pessoas/qualificacao.ts` | (no barrel; file never imported) | `criarQualificacao` |
-| `compras/notaFiscal.ts` | (no barrel; file never imported) | `criarNotaFiscal`, `confirmarRecebimento` |
-| `equipamentos/equipamentos.ts` | (in barrel but omitted from destructure at `index.ts:328-331`) | `registrarManutencao` |
+| Module                         | File                                                           | Callables wired into `index.ts`                                           |
+| ------------------------------ | -------------------------------------------------------------- | ------------------------------------------------------------------------- |
+| `qualidade/auditTrail.ts`      | (file never imported in `index.ts`)                            | `logAction`, `getAuditTrail`, `validateChain`, `generateComplianceReport` |
+| `qualidade/capaWorkflow.ts`    | (file never imported)                                          | `investigarNC`, `executarAcaoCorretiva`, `verificarEficacia`              |
+| `pessoas/qualificacao.ts`      | (no barrel; file never imported)                               | `criarQualificacao`                                                       |
+| `compras/notaFiscal.ts`        | (no barrel; file never imported)                               | `criarNotaFiscal`, `confirmarRecebimento`                                 |
+| `equipamentos/equipamentos.ts` | (in barrel but omitted from destructure at `index.ts:328-331`) | `registrarManutencao`                                                     |
 
 **Triage outcome (`orphan-callables-triage-2026-05-07.md`):**
 
@@ -222,6 +223,7 @@ PDF-generation functions imported puppeteer at module top level. Cold-start cost
 - 1 orphan index detected in Firestore: `insumo-movimentacoes (insumoId ASC, timestamp ASC)` — replaced by the corrected DESC variant. Needs `--force` to delete or can be left as harmless legacy.
 
 Functions deploys for the day batched in two waves (~25 redeployed):
+
 1. ADR-0017 cohort (signature bindings + audit/qualidade/equipamentos/procedimentos/pessoas/compras callables) — observed Cloud Run admin write throttling at 60 writes/min default.
 2. Memory bumps + secret rebinds (post-Gemini provisioning + post-Resend removal).
 
@@ -229,95 +231,95 @@ Functions deploys for the day batched in two waves (~25 redeployed):
 
 ## Commits (chronological, 2026-05-07 only)
 
-| SHA | Time (BRT) | Subject | Phase |
-|-----|-----------|---------|-------|
-| `dd85970` | 00:26 | feat(00-01-turnos): T8-T10 prep — root CLAUDE.md + provision claims + firestore rules + TurnoForm fixes | (carry-over) |
-| `35d5631` | 00:27 | docs(00-01-turnos): deployment readiness report | (carry-over) |
-| `3a75859` | 00:29 | feat(00-04-risks): T1 — author ADR-0016 FMEA-lite methodology | (carry-over) |
-| `8ed9603` | 00:30 | feat(00-03-lab-apoio): T1 scaffold types + service | (carry-over) |
-| `7f5b8a0` | 00:32 | feat(00-03-lab-apoio): T2 callable scaffold + CNPJ validator | (carry-over) |
-| `8d8a3e5` | 00:32 | feat(00-04-risks): T2 — scaffold types + service + NPR helpers | (carry-over) |
-| `cc7f77a` | 00:33 | feat(00-03-lab-apoio): T3 create + softDelete + audit trigger | (carry-over) |
-| `6cecd82` | 00:33 | feat(00-04-risks): T3 — callable scaffold | (carry-over) |
-| `784ff29` | 00:34 | feat(00-03-lab-apoio): T4 remaining callables + expiry cron | (carry-over) |
-| `8daae73` | 00:35 | feat(00-03-lab-apoio): T6 hooks + UI components | (carry-over) |
-| `0fc73a5` | 00:35 | feat(00-04-risks): T4 — createRisk + softDeleteRisk + audit trigger | (carry-over) |
-| `fe5f3a9` | 00:36 | feat(00-04-risks): T5 — updateRisk + registrarRevisao callables | (carry-over) |
-| `00c1ee4` | 00:36 | feat(00-04-risks): T6 — scheduled review cron | (carry-over) |
-| `39cc0ac` | 00:37 | docs(00-03-lab-apoio): T8 module CLAUDE.md | (carry-over) |
-| `4cd50a5` | 00:37 | feat(00-04-risks): T8 — Firestore rules + composite indexes | (carry-over) |
-| `0cad94a` | 00:38 | docs: 00-03 SUMMARY | (carry-over) |
-| `98a6895` | 00:39 | feat(00-04-risks): T9 — shell integration | (carry-over) |
-| `e0a834e` | 00:40 | feat(00-04-risks): T10 — module CLAUDE.md | (carry-over) |
-| `359d5c0` | 00:41 | docs(00-04-risks): execution status report | (carry-over) |
-| `824231b` | 00:56 | fix(types): resolve TS errors in lab-apoio callables | (carry-over) |
-| `6ce1c27` | 01:01 | chore(00-03-lab-apoio): provision-modules-claims.mjs script | (carry-over) |
-| `ad80a0e` | 01:01 | feat(00-04-risks): T11 — extend provisionModulesClaims | (carry-over) |
-| `f613d09` | 01:02 | docs(00-03-lab-apoio): T9-T10 deployment readiness checklist | (carry-over) |
-| `0479a35` | 01:03 | docs(00-03-lab-apoio): SUMMARY for T9 + T10 staging | (carry-over) |
-| `dfe2fd7` | 01:13 | docs(00-04-risks): T11 deploy complete + cloud-logs day-1 | (carry-over) |
-| `7c86e0d` | 01:23 | docs(plan-00-01): Turnos smoke test | (carry-over) |
-| `c1b19ab` | 01:32 | docs: Plan 00-02 CTO manual PDF conversion complete | (carry-over) |
-| **`cc6aa3b`** | **01:34** | **fix(audit,qualidade,equipamentos,procedimentos,pessoas,compras): bind HCQ_SIGNATURE_HMAC_KEY to all signing functions** | **Phase 2 (ADR-0017)** |
-| **`c50cb96`** | **01:35** | **fix(management-review): consolidate chain hash secret + remove default-secret fallback** | **Phase 2 (ADR-0017)** |
-| **`7a7736e`** | **01:35** | **fix(lgpd): add composite index for solicitacoes SLA cleanup cron** | **Phase 4 (index #1)** |
-| **`f9a96f3`** | **01:35** | **docs(adr): ADR-0017 HMAC signature baseline reset** | **Phase 2 (ADR-0017)** |
-| `93b33bb` | 01:41 | docs(phase-0): Plan 00-02 RT Manual Gate COMPLETE | (carry-over) |
-| `408eb5b` | 01:43 | docs: Phase 0 completion checkpoint | (carry-over) |
-| **`94e0097`** | **07:55** | **fix(analytics): bump aggregateAnalytics memory to 512MiB** | **Phase 5 (memory bump)** |
-| **`c9f3232`** | **07:58** | **fix(indexes): add composite indexes for sgq-documentos + risks scheduled queries** | **Phase 4 (indexes #2 #3)** |
-| **`b8a3f61`** | **08:06** | **feat(deploy-gate): add preflight secret-status check (ADR-0018)** | **Phase 3 (ADR-0018)** |
-| **`223aa5c`** | **08:08** | **fix(indexes): correct insumo-movimentacoes timestamp direction (DESC for chainHash query)** | **Phase 4 (index #4)** |
-| `af898a2` | 08:11 | docs(phase-0): CLOSURE REPORT | (carry-over) |
-| **`5d824cc`** | **08:13** | **fix(functions): preemptively bump 7 scheduled functions to 512MiB** | **Phase 5 (memory bumps)** |
-| `ad693ad` | 08:18 | docs: PROJECT.md — v1.3 final metrics | (carry-over) |
-| `dd0dd49` | 08:18 | docs(phase-0): Cloud Logs health check | (carry-over) |
-| `cca9bec` | 08:18 | docs(phase-0): SIGN-OFF MEMO | (carry-over) |
-| **`37639e7`** | **08:19** | **feat(functions): wire 11 missing callables to index.ts (residual ADR-0017 cleanup)** | **Phase 6 (ghost callables)** |
-| `7ce8055` | 08:20 | docs(phase-1): kickoff v1.3 stabilization | (carry-over) |
-| `a8f4bf0` | 08:21 | docs(phase-1): execution complete | (carry-over) |
-| `32bcf3d` | 08:21 | chore(v1.3): archive phases 08-12 to milestones | (carry-over) |
-| `ebf3382` | 08:22 | docs(phase-1): EXECUTION SUMMARY | (carry-over) |
-| `10acee0` | 08:26 | docs(v1.4): dependency matrix | (carry-over) |
-| `f93fcb5` | 08:26 | docs(v1.4): roadmap readiness audit | (carry-over) |
-| `63f193e` | 08:26 | docs(v1.4): RDC 978 compliance matrix | (carry-over) |
-| `fa7bd28` | 08:27 | docs(v1.4): DICQ gap analysis | (carry-over) |
-| `0e8d0bb` | 08:27 | docs(v1.4): requirements deep-dive | (carry-over) |
-| `8045527` | 08:27 | docs(phase-0b): auditor pre-alignment strategy | (carry-over) |
-| `211a193` | 08:28 | docs(phase-0b): auditor pre-alignment quick reference | (carry-over) |
-| `288d0ac` | 08:28 | docs(v1.4): risk register deep-dive | (carry-over) |
-| `74b177f` | 08:28 | docs(phase-2): planning v1.4 | (carry-over) |
-| `86967cc` | 08:32 | docs(phase-2): COMPLETE | (carry-over) |
-| **`243682e`** | **09:31** | **fix(indexes): add records collection-group index for analytics aggregator** | **Phase 4 (index #5)** |
-| `e08a2ea` | 09:40 | docs(phase-3.1): Firestore Schema v1.4 | (carry-over) |
-| **`ae8e705`** | **09:47** | **refactor(email): consolidate on SMTP via shared helper, drop Resend from listed callers** | **Phase 7 (SMTP consolidation)** |
-| `448a95a` | 09:50 | perf(phase-3): capture performance baseline pre-deploy | (carry-over) |
-| `67aa3c5` | 09:54 | docs: PHASE_3_HANDBOOK.md | (carry-over) |
-| **`b96df21`** | **10:04** | **fix(rules): correct v1.4 path arity in 4 collections (Wave 2 pre-deploy fix)** | **Phase 8 (rules path arity)** |
-| **`4d00db6`** | **10:07** | **Phase 3 Complete — Schema Extensions (v1.4)** | **Phase 8 (test fixes swept in)** |
-| `08cacb8` | 10:08 | docs(e2e-tests): append resolution to rules failure taxonomy (27/28 green) | Phase 8 |
-| **`bb37e91`** | **10:14** | **refactor(email): finish Resend → SMTP migration, drop dependency** | **Phase 7 (final Resend removal)** |
-| **`e579903`** | **10:19** | **fix(tests): resolve 5 false-positive failures in rules E2E suite** | **Phase 8 (test fixes)** |
-| **`264ebe2`** | **10:20** | **perf(functions): lazy-load puppeteer to cut cold-start bloat** | **Phase 9 (latent fixes)** |
-| **`6617f8c`** | **10:20** | **fix(functions): replace client SDK with Admin SDK in shared/laudo.ts** | **Phase 9 (latent fixes)** |
+| SHA           | Time (BRT) | Subject                                                                                                                   | Phase                              |
+| ------------- | ---------- | ------------------------------------------------------------------------------------------------------------------------- | ---------------------------------- |
+| `dd85970`     | 00:26      | feat(00-01-turnos): T8-T10 prep — root CLAUDE.md + provision claims + firestore rules + TurnoForm fixes                   | (carry-over)                       |
+| `35d5631`     | 00:27      | docs(00-01-turnos): deployment readiness report                                                                           | (carry-over)                       |
+| `3a75859`     | 00:29      | feat(00-04-risks): T1 — author ADR-0016 FMEA-lite methodology                                                             | (carry-over)                       |
+| `8ed9603`     | 00:30      | feat(00-03-lab-apoio): T1 scaffold types + service                                                                        | (carry-over)                       |
+| `7f5b8a0`     | 00:32      | feat(00-03-lab-apoio): T2 callable scaffold + CNPJ validator                                                              | (carry-over)                       |
+| `8d8a3e5`     | 00:32      | feat(00-04-risks): T2 — scaffold types + service + NPR helpers                                                            | (carry-over)                       |
+| `cc7f77a`     | 00:33      | feat(00-03-lab-apoio): T3 create + softDelete + audit trigger                                                             | (carry-over)                       |
+| `6cecd82`     | 00:33      | feat(00-04-risks): T3 — callable scaffold                                                                                 | (carry-over)                       |
+| `784ff29`     | 00:34      | feat(00-03-lab-apoio): T4 remaining callables + expiry cron                                                               | (carry-over)                       |
+| `8daae73`     | 00:35      | feat(00-03-lab-apoio): T6 hooks + UI components                                                                           | (carry-over)                       |
+| `0fc73a5`     | 00:35      | feat(00-04-risks): T4 — createRisk + softDeleteRisk + audit trigger                                                       | (carry-over)                       |
+| `fe5f3a9`     | 00:36      | feat(00-04-risks): T5 — updateRisk + registrarRevisao callables                                                           | (carry-over)                       |
+| `00c1ee4`     | 00:36      | feat(00-04-risks): T6 — scheduled review cron                                                                             | (carry-over)                       |
+| `39cc0ac`     | 00:37      | docs(00-03-lab-apoio): T8 module CLAUDE.md                                                                                | (carry-over)                       |
+| `4cd50a5`     | 00:37      | feat(00-04-risks): T8 — Firestore rules + composite indexes                                                               | (carry-over)                       |
+| `0cad94a`     | 00:38      | docs: 00-03 SUMMARY                                                                                                       | (carry-over)                       |
+| `98a6895`     | 00:39      | feat(00-04-risks): T9 — shell integration                                                                                 | (carry-over)                       |
+| `e0a834e`     | 00:40      | feat(00-04-risks): T10 — module CLAUDE.md                                                                                 | (carry-over)                       |
+| `359d5c0`     | 00:41      | docs(00-04-risks): execution status report                                                                                | (carry-over)                       |
+| `824231b`     | 00:56      | fix(types): resolve TS errors in lab-apoio callables                                                                      | (carry-over)                       |
+| `6ce1c27`     | 01:01      | chore(00-03-lab-apoio): provision-modules-claims.mjs script                                                               | (carry-over)                       |
+| `ad80a0e`     | 01:01      | feat(00-04-risks): T11 — extend provisionModulesClaims                                                                    | (carry-over)                       |
+| `f613d09`     | 01:02      | docs(00-03-lab-apoio): T9-T10 deployment readiness checklist                                                              | (carry-over)                       |
+| `0479a35`     | 01:03      | docs(00-03-lab-apoio): SUMMARY for T9 + T10 staging                                                                       | (carry-over)                       |
+| `dfe2fd7`     | 01:13      | docs(00-04-risks): T11 deploy complete + cloud-logs day-1                                                                 | (carry-over)                       |
+| `7c86e0d`     | 01:23      | docs(plan-00-01): Turnos smoke test                                                                                       | (carry-over)                       |
+| `c1b19ab`     | 01:32      | docs: Plan 00-02 CTO manual PDF conversion complete                                                                       | (carry-over)                       |
+| **`cc6aa3b`** | **01:34**  | **fix(audit,qualidade,equipamentos,procedimentos,pessoas,compras): bind HCQ_SIGNATURE_HMAC_KEY to all signing functions** | **Phase 2 (ADR-0017)**             |
+| **`c50cb96`** | **01:35**  | **fix(management-review): consolidate chain hash secret + remove default-secret fallback**                                | **Phase 2 (ADR-0017)**             |
+| **`7a7736e`** | **01:35**  | **fix(lgpd): add composite index for solicitacoes SLA cleanup cron**                                                      | **Phase 4 (index #1)**             |
+| **`f9a96f3`** | **01:35**  | **docs(adr): ADR-0017 HMAC signature baseline reset**                                                                     | **Phase 2 (ADR-0017)**             |
+| `93b33bb`     | 01:41      | docs(phase-0): Plan 00-02 RT Manual Gate COMPLETE                                                                         | (carry-over)                       |
+| `408eb5b`     | 01:43      | docs: Phase 0 completion checkpoint                                                                                       | (carry-over)                       |
+| **`94e0097`** | **07:55**  | **fix(analytics): bump aggregateAnalytics memory to 512MiB**                                                              | **Phase 5 (memory bump)**          |
+| **`c9f3232`** | **07:58**  | **fix(indexes): add composite indexes for sgq-documentos + risks scheduled queries**                                      | **Phase 4 (indexes #2 #3)**        |
+| **`b8a3f61`** | **08:06**  | **feat(deploy-gate): add preflight secret-status check (ADR-0018)**                                                       | **Phase 3 (ADR-0018)**             |
+| **`223aa5c`** | **08:08**  | **fix(indexes): correct insumo-movimentacoes timestamp direction (DESC for chainHash query)**                             | **Phase 4 (index #4)**             |
+| `af898a2`     | 08:11      | docs(phase-0): CLOSURE REPORT                                                                                             | (carry-over)                       |
+| **`5d824cc`** | **08:13**  | **fix(functions): preemptively bump 7 scheduled functions to 512MiB**                                                     | **Phase 5 (memory bumps)**         |
+| `ad693ad`     | 08:18      | docs: PROJECT.md — v1.3 final metrics                                                                                     | (carry-over)                       |
+| `dd0dd49`     | 08:18      | docs(phase-0): Cloud Logs health check                                                                                    | (carry-over)                       |
+| `cca9bec`     | 08:18      | docs(phase-0): SIGN-OFF MEMO                                                                                              | (carry-over)                       |
+| **`37639e7`** | **08:19**  | **feat(functions): wire 11 missing callables to index.ts (residual ADR-0017 cleanup)**                                    | **Phase 6 (ghost callables)**      |
+| `7ce8055`     | 08:20      | docs(phase-1): kickoff v1.3 stabilization                                                                                 | (carry-over)                       |
+| `a8f4bf0`     | 08:21      | docs(phase-1): execution complete                                                                                         | (carry-over)                       |
+| `32bcf3d`     | 08:21      | chore(v1.3): archive phases 08-12 to milestones                                                                           | (carry-over)                       |
+| `ebf3382`     | 08:22      | docs(phase-1): EXECUTION SUMMARY                                                                                          | (carry-over)                       |
+| `10acee0`     | 08:26      | docs(v1.4): dependency matrix                                                                                             | (carry-over)                       |
+| `f93fcb5`     | 08:26      | docs(v1.4): roadmap readiness audit                                                                                       | (carry-over)                       |
+| `63f193e`     | 08:26      | docs(v1.4): RDC 978 compliance matrix                                                                                     | (carry-over)                       |
+| `fa7bd28`     | 08:27      | docs(v1.4): DICQ gap analysis                                                                                             | (carry-over)                       |
+| `0e8d0bb`     | 08:27      | docs(v1.4): requirements deep-dive                                                                                        | (carry-over)                       |
+| `8045527`     | 08:27      | docs(phase-0b): auditor pre-alignment strategy                                                                            | (carry-over)                       |
+| `211a193`     | 08:28      | docs(phase-0b): auditor pre-alignment quick reference                                                                     | (carry-over)                       |
+| `288d0ac`     | 08:28      | docs(v1.4): risk register deep-dive                                                                                       | (carry-over)                       |
+| `74b177f`     | 08:28      | docs(phase-2): planning v1.4                                                                                              | (carry-over)                       |
+| `86967cc`     | 08:32      | docs(phase-2): COMPLETE                                                                                                   | (carry-over)                       |
+| **`243682e`** | **09:31**  | **fix(indexes): add records collection-group index for analytics aggregator**                                             | **Phase 4 (index #5)**             |
+| `e08a2ea`     | 09:40      | docs(phase-3.1): Firestore Schema v1.4                                                                                    | (carry-over)                       |
+| **`ae8e705`** | **09:47**  | **refactor(email): consolidate on SMTP via shared helper, drop Resend from listed callers**                               | **Phase 7 (SMTP consolidation)**   |
+| `448a95a`     | 09:50      | perf(phase-3): capture performance baseline pre-deploy                                                                    | (carry-over)                       |
+| `67aa3c5`     | 09:54      | docs: PHASE_3_HANDBOOK.md                                                                                                 | (carry-over)                       |
+| **`b96df21`** | **10:04**  | **fix(rules): correct v1.4 path arity in 4 collections (Wave 2 pre-deploy fix)**                                          | **Phase 8 (rules path arity)**     |
+| **`4d00db6`** | **10:07**  | **Phase 3 Complete — Schema Extensions (v1.4)**                                                                           | **Phase 8 (test fixes swept in)**  |
+| `08cacb8`     | 10:08      | docs(e2e-tests): append resolution to rules failure taxonomy (27/28 green)                                                | Phase 8                            |
+| **`bb37e91`** | **10:14**  | **refactor(email): finish Resend → SMTP migration, drop dependency**                                                      | **Phase 7 (final Resend removal)** |
+| **`e579903`** | **10:19**  | **fix(tests): resolve 5 false-positive failures in rules E2E suite**                                                      | **Phase 8 (test fixes)**           |
+| **`264ebe2`** | **10:20**  | **perf(functions): lazy-load puppeteer to cut cold-start bloat**                                                          | **Phase 9 (latent fixes)**         |
+| **`6617f8c`** | **10:20**  | **fix(functions): replace client SDK with Admin SDK in shared/laudo.ts**                                                  | **Phase 9 (latent fixes)**         |
 
-**Bold rows = remediation-session commits.** Non-bold = parallel v1.3/v1.4 planning + 00-* RDC blockers carrying over from 2026-05-06 sessions.
+**Bold rows = remediation-session commits.** Non-bold = parallel v1.3/v1.4 planning + 00-\* RDC blockers carrying over from 2026-05-06 sessions.
 
 ---
 
 ## Production state at end of session
 
-| Surface | Status |
-|---------|--------|
-| TSC (functions + web) | clean |
-| Preflight gate (ADR-0018) | 7/7 secrets real |
-| Tests E2E (rules + helpers) | 23/23 |
-| Tests E2E (full suite) | 27/28 (1 skip — NOTIVISA index `CREATING`) |
-| Indexes (5 new) | 4 `READY`, 1 `CREATING` (NOTIVISA `(labId, status, createdAt)`) |
-| Functions deploy | ~25 redeployed today |
-| Rules deploy | landed via `b96df21` (v1.4 path arity fix) |
-| HMAC chain integrity | baseline reset documented (ADR-0017); rotation key 64-char hex; `validateChainIntegrityScheduled` next cycle pending |
-| Audit trail | synthetic `chain-baseline-reset` event in `auditLogs` (manual Firestore Console verification per post-deploy report) |
+| Surface                     | Status                                                                                                               |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| TSC (functions + web)       | clean                                                                                                                |
+| Preflight gate (ADR-0018)   | 7/7 secrets real                                                                                                     |
+| Tests E2E (rules + helpers) | 23/23                                                                                                                |
+| Tests E2E (full suite)      | 27/28 (1 skip — NOTIVISA index `CREATING`)                                                                           |
+| Indexes (5 new)             | 4 `READY`, 1 `CREATING` (NOTIVISA `(labId, status, createdAt)`)                                                      |
+| Functions deploy            | ~25 redeployed today                                                                                                 |
+| Rules deploy                | landed via `b96df21` (v1.4 path arity fix)                                                                           |
+| HMAC chain integrity        | baseline reset documented (ADR-0017); rotation key 64-char hex; `validateChainIntegrityScheduled` next cycle pending |
+| Audit trail                 | synthetic `chain-baseline-reset` event in `auditLogs` (manual Firestore Console verification per post-deploy report) |
 
 ---
 
@@ -363,10 +365,12 @@ Functions deploys for the day batched in two waves (~25 redeployed):
 ## References
 
 ### ADRs
+
 - [`docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`](../../docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md)
 - [`docs/adr/ADR-0018-deploy-gate-secret-status-check.md`](../../docs/adr/ADR-0018-deploy-gate-secret-status-check.md)
 
 ### Reports
+
 - [`cloud-logs-sweep-2026-05-07.md`](./cloud-logs-sweep-2026-05-07.md) — forensic 48h sweep, 5 issue classes
 - [`function-deploy-reconciliation-2026-05-07.md`](./function-deploy-reconciliation-2026-05-07.md) — 11 ghost callables root cause
 - [`post-deploy-verification-2026-05-07.md`](./post-deploy-verification-2026-05-07.md) — 6 checks (4 PASS / 1 PARTIAL / 1 MANUAL)
@@ -379,6 +383,7 @@ Functions deploys for the day batched in two waves (~25 redeployed):
 - [`cloud-run-quota-request-2026-05-07.md`](./cloud-run-quota-request-2026-05-07.md) — 600 writes/min request, pre-filled
 
 ### Commits (remediation core)
+
 - `cc6aa3b` `c50cb96` `7a7736e` `f9a96f3` — ADR-0017 batch
 - `94e0097` `c9f3232` `b8a3f61` `223aa5c` `5d824cc` — pre-08:30 BRT batch (analytics, indexes, deploy gate)
 - `37639e7` — 11 callables wired
@@ -388,6 +393,7 @@ Functions deploys for the day batched in two waves (~25 redeployed):
 - `264ebe2` `6617f8c` — latent code-quality
 
 ### Obsidian
+
 - `01_Projetos/HC_Quality_Roadmap.md` — pending: append Phase 0 (RDC blockers) + ADR-0017/0018 entries
 - `01_Projetos/HC_Quality_Decisoes_Abertas.md` — pending: close "HMAC binding hygiene" item; add "v1.4.1 hotfix scope (5 callables)"
 - `01_Projetos/HC_Quality_Compliance_DICQ.md` — pending: update §4.4 with chain-baseline-reset disclosure cross-reference

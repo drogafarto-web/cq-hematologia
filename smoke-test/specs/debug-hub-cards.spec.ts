@@ -8,10 +8,9 @@ test('debug hub', async ({ page }) => {
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', pass);
   await page.click('button:has-text("Entrar")');
-  await page.waitForFunction(
-    () => !document.querySelector('input[type="password"]'),
-    { timeout: 30000 }
-  );
+  await page.waitForFunction(() => !document.querySelector('input[type="password"]'), {
+    timeout: 30000,
+  });
   await page.waitForTimeout(3000);
 
   const buttons = await page.evaluate(() => {

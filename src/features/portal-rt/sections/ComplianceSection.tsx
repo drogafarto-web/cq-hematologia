@@ -44,17 +44,21 @@ export interface TrainingAlert {
 
 // ─── Progress bar ─────────────────────────────────────────────────────────────
 
-function ProgressBar({ percentage, size = 'md' }: { percentage: number; size?: 'sm' | 'md' | 'lg' }) {
+function ProgressBar({
+  percentage,
+  size = 'md',
+}: {
+  percentage: number;
+  size?: 'sm' | 'md' | 'lg';
+}) {
   const heights = { sm: 'h-1.5', md: 'h-2', lg: 'h-3' };
   const statusColor =
-    percentage >= 90
-      ? 'bg-emerald-500'
-      : percentage >= 70
-        ? 'bg-amber-500'
-        : 'bg-rose-500';
+    percentage >= 90 ? 'bg-emerald-500' : percentage >= 70 ? 'bg-amber-500' : 'bg-rose-500';
 
   return (
-    <div className={`w-full ${heights[size]} rounded-full ${PortalRTTokens.bg.interactive} overflow-hidden`}>
+    <div
+      className={`w-full ${heights[size]} rounded-full ${PortalRTTokens.bg.interactive} overflow-hidden`}
+    >
       <div
         className={`h-full ${statusColor} transition-all duration-300`}
         style={{ width: `${Math.min(percentage, 100)}%` }}
@@ -79,7 +83,9 @@ function DICQItemCard({ item }: { item: DICQItem }) {
   };
 
   return (
-    <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-start justify-between gap-4`}>
+    <div
+      className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} flex items-start justify-between gap-4`}
+    >
       <div className="flex-1">
         <div className="flex items-start gap-2 mb-1">
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide`}>
@@ -114,7 +120,9 @@ function RiskItemCard({ item }: { item: RiskItem }) {
   };
 
   return (
-    <div className={`p-4 rounded-lg border ${PortalRTTokens.border.default} ${severityBg[item.severidade]}`}>
+    <div
+      className={`p-4 rounded-lg border ${PortalRTTokens.border.default} ${severityBg[item.severidade]}`}
+    >
       <div className="flex items-start justify-between gap-4 mb-2">
         <p className={`font-medium ${PortalRTTokens.text.primary}`}>{item.titulo}</p>
         <span className={`text-sm font-semibold ${severityColor[item.severidade]}`}>
@@ -318,7 +326,9 @@ export function ComplianceSection({ labId }: ComplianceSectionProps) {
               </p>
             </div>
             <div className="text-right">
-              <p className={`text-2xl font-semibold ${dicqPercentage >= 90 ? 'text-emerald-400' : dicqPercentage >= 70 ? 'text-amber-400' : 'text-rose-400'}`}>
+              <p
+                className={`text-2xl font-semibold ${dicqPercentage >= 90 ? 'text-emerald-400' : dicqPercentage >= 70 ? 'text-amber-400' : 'text-rose-400'}`}
+              >
                 {dicqPercentage}%
               </p>
             </div>
@@ -367,7 +377,9 @@ export function ComplianceSection({ labId }: ComplianceSectionProps) {
         </div>
 
         {trainingAlerts.length === 0 ? (
-          <div className={`p-6 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}>
+          <div
+            className={`p-6 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}
+          >
             <p className={`text-sm ${PortalRTTokens.text.secondary}`}>
               Nenhum treinamento vencendo
             </p>
@@ -383,7 +395,9 @@ export function ComplianceSection({ labId }: ComplianceSectionProps) {
 
       {/* Summary cards */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
             Auditorias
           </p>
@@ -391,7 +405,9 @@ export function ComplianceSection({ labId }: ComplianceSectionProps) {
           <p className={`text-xs ${PortalRTTokens.text.tertiary} mt-1`}>neste período</p>
         </div>
 
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
             Não Conformidades
           </p>
@@ -399,7 +415,9 @@ export function ComplianceSection({ labId }: ComplianceSectionProps) {
           <p className={`text-xs ${PortalRTTokens.text.tertiary} mt-1`}>aguardando ação</p>
         </div>
 
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
           <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
             Próxima Auditoria
           </p>

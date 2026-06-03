@@ -16,7 +16,12 @@
  */
 
 import * as admin from 'firebase-admin';
-import type { AuditEntry, BaselineStats, AnomalyDimension, DimensionScore } from '../types/anomalyTypes';
+import type {
+  AuditEntry,
+  BaselineStats,
+  AnomalyDimension,
+  DimensionScore,
+} from '../types/anomalyTypes';
 
 const db = admin.firestore();
 
@@ -30,7 +35,7 @@ export interface AnomalyDetectionResult {
 const DIMENSION_WEIGHTS: Record<AnomalyDimension, number> = {
   operation_rarity: 0.25,
   time_anomaly: 0.15,
-  result_rarity: 0.20,
+  result_rarity: 0.2,
   velocity: 0.25,
   module_jump: 0.15,
 };
@@ -40,7 +45,7 @@ const DIMENSION_WEIGHTS: Record<AnomalyDimension, number> = {
  */
 export async function detectAnomalies(
   entry: AuditEntry,
-  baseline: BaselineStats
+  baseline: BaselineStats,
 ): Promise<AnomalyDetectionResult> {
   const dimensions: DimensionScore[] = [];
   const flags: string[] = [];
@@ -71,10 +76,8 @@ export async function detectAnomalies(
   if (moduleJump.score >= 80) flags.push('rapid_module_switch');
 
   // Weighted average
-  const overall = dimensions.reduce(
-    (sum, d) => sum + d.score * (DIMENSION_WEIGHTS[d.dimension] || 0.2),
-    0
-  ) / 100;
+  const overall =
+    dimensions.reduce((sum, d) => sum + d.score * (DIMENSION_WEIGHTS[d.dimension] || 0.2), 0) / 100;
 
   return {
     entryId: entry.id,
@@ -243,7 +246,7 @@ async function scoreModuleJump(entry: AuditEntry): Promise<DimensionScore> {
  */
 export async function getOperatorBaseline(
   labId: string,
-  operatorId: string
+  operatorId: string,
 ): Promise<BaselineStats> {
   try {
     const baselineDoc = await db

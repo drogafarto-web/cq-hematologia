@@ -8,14 +8,7 @@
  * Multi-tenant: all operations require explicit labId parameter.
  */
 
-import {
-  collection,
-  query,
-  orderBy,
-  limit,
-  getDocs,
-  Timestamp,
-} from 'firebase/firestore';
+import { collection, query, orderBy, limit, getDocs, Timestamp } from 'firebase/firestore';
 
 import { db } from '../../../shared/services/firebase';
 
@@ -210,7 +203,12 @@ function inferStatus(data: Record<string, unknown>): EvidenciaAgregada['status']
   const statusLower = status.toLowerCase();
   if (statusLower.includes('vencid') || statusLower.includes('expirad')) return 'vencido';
   if (statusLower.includes('pendent') || statusLower.includes('aberto')) return 'pendente';
-  if (statusLower.includes('vigent') || statusLower.includes('ativo') || statusLower.includes('conforme')) return 'vigente';
+  if (
+    statusLower.includes('vigent') ||
+    statusLower.includes('ativo') ||
+    statusLower.includes('conforme')
+  )
+    return 'vigente';
 
   return 'vigente';
 }
@@ -220,11 +218,26 @@ function inferStatus(data: Record<string, unknown>): EvidenciaAgregada['status']
  */
 function extractDate(data: Record<string, unknown>): Date {
   const dateFields = [
-    'dataRegistro', 'dataCriacao', 'criadoEm', 'dataPublicacao',
-    'dataRealizacao', 'dataCalibracao', 'dataAvaliacao', 'dataAbertura',
-    'dataLeitura', 'dataAnalise', 'dataNotificacao', 'dataConsentimento',
-    'dataLiberacao', 'dataContrato', 'dataReuniao', 'dataManutencao',
-    'dataIdentificacao', 'dataAdmissao', 'createdAt', 'updatedAt',
+    'dataRegistro',
+    'dataCriacao',
+    'criadoEm',
+    'dataPublicacao',
+    'dataRealizacao',
+    'dataCalibracao',
+    'dataAvaliacao',
+    'dataAbertura',
+    'dataLeitura',
+    'dataAnalise',
+    'dataNotificacao',
+    'dataConsentimento',
+    'dataLiberacao',
+    'dataContrato',
+    'dataReuniao',
+    'dataManutencao',
+    'dataIdentificacao',
+    'dataAdmissao',
+    'createdAt',
+    'updatedAt',
   ];
 
   for (const field of dateFields) {
@@ -247,7 +260,16 @@ function extractDate(data: Record<string, unknown>): Date {
  * Extract a human-readable title from document data.
  */
 function extractTitulo(data: Record<string, unknown>, moduloOrigem: string): string {
-  const titleFields = ['titulo', 'nome', 'descricao', 'analito', 'exame', 'tipo', 'laboratorio', 'titular'];
+  const titleFields = [
+    'titulo',
+    'nome',
+    'descricao',
+    'analito',
+    'exame',
+    'tipo',
+    'laboratorio',
+    'titular',
+  ];
   for (const field of titleFields) {
     const value = data[field];
     if (typeof value === 'string' && value.trim().length > 0) {
@@ -279,7 +301,7 @@ function buildLinkDireto(moduloOrigem: string, docId: string, labId: string): st
  */
 export async function fetchEvidenciasParaIndicador(
   labId: string,
-  indicadorId: string
+  indicadorId: string,
 ): Promise<EvidenciaAgregada[]> {
   const mapping = MODULE_MAPPINGS[indicadorId];
   if (!mapping) {
@@ -290,11 +312,7 @@ export async function fetchEvidenciasParaIndicador(
 
   try {
     const colRef = collection(db, collectionPathResolved);
-    const q = query(
-      colRef,
-      orderBy('criadoEm', 'desc'),
-      limit(10)
-    );
+    const q = query(colRef, orderBy('criadoEm', 'desc'), limit(10));
 
     const snapshot = await getDocs(q);
 
@@ -321,7 +339,7 @@ export async function fetchEvidenciasParaIndicador(
   } catch (error) {
     console.error(
       `[EvidenceAggregator] Erro ao buscar evidências para indicador "${indicadorId}":`,
-      error
+      error,
     );
     return [];
   }
@@ -335,7 +353,7 @@ export async function fetchEvidenciasParaIndicador(
  */
 export async function fetchAllEvidencias(
   labId: string,
-  indicadorIds: string[]
+  indicadorIds: string[],
 ): Promise<Record<string, EvidenciaAgregada[]>> {
   const results: Record<string, EvidenciaAgregada[]> = {};
 

@@ -14,7 +14,7 @@ Phase 12 baseline capture is 100% complete. All 6 required metrics captured from
 
 1. **Web Vitals (Lighthouse CI)** — All routes PASS
    - LCP: 1.8s (desktop) / 2.1s (mobile)
-   - INP: 85ms / 120ms  
+   - INP: 85ms / 120ms
    - CLS: 0.05 / 0.08
    - Performance Score: 92 / 88
 
@@ -45,14 +45,14 @@ Phase 12 baseline capture is 100% complete. All 6 required metrics captured from
 
 ## Regression Thresholds (Phase 12 Alert Gates)
 
-| Metric | Baseline | +10% Alert | Hard Blocker |
-|--------|----------|-----------|-------------|
-| LCP | 1.8s | >1.98s | >2.5s |
-| INP | 85ms | >97.75ms | >200ms |
-| CLS | 0.05 | >0.06 | >0.1 |
-| Bundle | 399 KB | >431 KB | >440 KB |
-| Firestore p99 | 245ms | >269ms | >500ms |
-| PDF export | 2.4s | >2.64s | >10s |
+| Metric        | Baseline | +10% Alert | Hard Blocker |
+| ------------- | -------- | ---------- | ------------ |
+| LCP           | 1.8s     | >1.98s     | >2.5s        |
+| INP           | 85ms     | >97.75ms   | >200ms       |
+| CLS           | 0.05     | >0.06      | >0.1         |
+| Bundle        | 399 KB   | >431 KB    | >440 KB      |
+| Firestore p99 | 245ms    | >269ms     | >500ms       |
+| PDF export    | 2.4s     | >2.64s     | >10s         |
 
 ---
 
@@ -79,6 +79,7 @@ Phase 12 baseline capture is 100% complete. All 6 required metrics captured from
 ### Multi-URL Audit Extension
 
 Extend from 1 route to 6 critical routes:
+
 - https://hmatologia2.web.app/
 - https://hmatologia2.web.app/hub
 - https://hmatologia2.web.app/features/analytics
@@ -113,7 +114,7 @@ npm test -- --run                               # Unit tests
 ## Sign-Off
 
 - Date: 2026-05-07
-- Status: Complete  
+- Status: Complete
 - v1.3 Live: Yes (Phase 0-3 complete)
 - Tests Passing: 738/738
 - Regression Thresholds: Active

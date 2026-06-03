@@ -47,13 +47,16 @@ export async function storeOTP(email: string, otp: string): Promise<string> {
   // Schedule deletion after 10 minutes (Cloud Tasks would be better for production,
   // but for now we rely on the client respecting expirasEm)
   // In production, use Cloud Tasks or Firebase Scheduler for cleanup
-  setTimeout(async () => {
-    try {
-      await db.doc(`otps/${otpToken}`).delete();
-    } catch {
-      // Ignore errors on cleanup
-    }
-  }, 10 * 60 * 1000);
+  setTimeout(
+    async () => {
+      try {
+        await db.doc(`otps/${otpToken}`).delete();
+      } catch {
+        // Ignore errors on cleanup
+      }
+    },
+    10 * 60 * 1000,
+  );
 
   return otpToken;
 }
@@ -98,11 +101,9 @@ export async function validateOTP(otpToken: string, otp: string): Promise<boolea
  */
 export async function incrementOTPAttempts(otpToken: string): Promise<void> {
   try {
-    await db
-      .doc(`otps/${otpToken}`)
-      .update({
-        tentativas: admin.firestore.FieldValue.increment(1),
-      });
+    await db.doc(`otps/${otpToken}`).update({
+      tentativas: admin.firestore.FieldValue.increment(1),
+    });
   } catch {
     // Ignore errors
   }

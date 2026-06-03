@@ -87,9 +87,7 @@ export const ec_onColaboradorCreated = onDocumentCreated(
         continue;
       }
 
-      const progressoRef = db
-        .collection(`educacaoContinuada/${labId}/progressosTrilha`)
-        .doc();
+      const progressoRef = db.collection(`educacaoContinuada/${labId}/progressosTrilha`).doc();
       await progressoRef.set({
         labId,
         colaboradorId,

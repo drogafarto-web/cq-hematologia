@@ -54,7 +54,12 @@ function OrgChartNodeComponent({ node }: { node: OrgChartNode }): React.ReactEle
               viewBox="0 0 24 24"
               stroke="currentColor"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 14l-7 7m0 0l-7-7m7 7V3"
+              />
             </svg>
           </button>
         )}
@@ -90,7 +95,10 @@ function DesignacaoDetail({
   onClose: () => void;
 }): React.ReactElement {
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
       <div
         className="max-h-96 w-full max-w-md overflow-y-auto rounded-lg bg-[#1a1a1d] p-6"
         onClick={(e) => e.stopPropagation()}
@@ -99,7 +107,12 @@ function DesignacaoDetail({
           <h2 className="text-lg font-semibold text-white">Designação</h2>
           <button onClick={onClose} className="text-white/60 hover:text-white">
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>

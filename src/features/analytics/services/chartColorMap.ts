@@ -18,15 +18,15 @@
 
 export const CHART_COLORS = {
   /** Valid runs, compliance above threshold, certified training */
-  valid: '#10b981',       // emerald-500
+  valid: '#10b981', // emerald-500
   /** Warning state — approaching limit, expiring soon */
-  warning: '#f59e0b',     // amber-500
+  warning: '#f59e0b', // amber-500
   /** Critical — out of control, expired, past 3SD */
-  critical: '#ef4444',    // red-500
+  critical: '#ef4444', // red-500
   /** Neutral KPI — trend lines, processed hours, misc */
-  neutral: '#8b5cf6',     // violet-500
+  neutral: '#8b5cf6', // violet-500
   /** Secondary metric — invalid runs, rework */
-  secondary: '#f97316',   // orange-500
+  secondary: '#f97316', // orange-500
   /** Muted — grid, reference areas */
   muted: '#ffffff1a',
   /** Subtle — secondary reference lines */
@@ -43,7 +43,7 @@ export const LJ_COLORS = {
   /** Data point — invalid/rejected run */
   pointInvalid: CHART_COLORS.critical,
   /** Connecting line between observations */
-  line: '#8b5cf6',         // violet-500
+  line: '#8b5cf6', // violet-500
   /** Mean line */
   mean: '#ffffff80',
   /** ±2SD warning band fill */

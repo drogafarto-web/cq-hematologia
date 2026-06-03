@@ -9,10 +9,7 @@ export type {
 } from './Equipamento';
 export type { ManutencaoPreventiva, ManutencaoStatus } from './ManutencaoPreventiva';
 export type { EquipamentoUso } from './EquipamentoUso';
-export type {
-  EquipamentoDocumento,
-  DocumentoTipo,
-} from './EquipamentoDocumento';
+export type { EquipamentoDocumento, DocumentoTipo } from './EquipamentoDocumento';
 export {
   DOCUMENTO_TIPO_LABEL,
   ALLOWED_MIME_TYPES,

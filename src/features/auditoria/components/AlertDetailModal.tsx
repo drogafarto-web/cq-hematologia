@@ -82,9 +82,7 @@ export default function AlertDetailModal({
       onAcknowledged?.(alert.id);
       onClose();
     } catch (error) {
-      setAcknowledgeError(
-        error instanceof Error ? error.message : 'Erro ao reconhecer alerta'
-      );
+      setAcknowledgeError(error instanceof Error ? error.message : 'Erro ao reconhecer alerta');
       setIsAcknowledging(false);
     }
   };
@@ -217,11 +215,7 @@ export default function AlertDetailModal({
           >
             {isAcknowledging ? (
               <span className="flex items-center gap-2">
-                <svg
-                  className="w-3 h-3 animate-spin"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
+                <svg className="w-3 h-3 animate-spin" fill="none" viewBox="0 0 24 24">
                   <circle
                     className="opacity-25"
                     cx="12"

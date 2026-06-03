@@ -8,7 +8,14 @@
  */
 
 import { useEffect, useState } from 'react';
-import { onSnapshot, query, where, orderBy, collectionGroup, db } from '../../../shared/services/firebase';
+import {
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+  collectionGroup,
+  db,
+} from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -37,7 +44,7 @@ export interface AnomalyAlertsState {
 export interface AnomalyAlertsFilterOptions {
   severity?: AlertSeverity | AlertSeverity[];
   from?: number; // ms epoch
-  to?: number;   // ms epoch
+  to?: number; // ms epoch
 }
 
 // ─── Hook ────────────────────────────────────────────────────────────────────
@@ -59,15 +66,11 @@ export function useAnomalyAlerts(
     }
 
     // Build where clause array
-    const whereConditions: Parameters<typeof where>[] = [
-      ['labId', '==', labId] as const,
-    ];
+    const whereConditions: Parameters<typeof where>[] = [['labId', '==', labId] as const];
 
     // Severity filter (single or multiple)
     if (filters?.severity) {
-      const severities = Array.isArray(filters.severity)
-        ? filters.severity
-        : [filters.severity];
+      const severities = Array.isArray(filters.severity) ? filters.severity : [filters.severity];
       if (severities.length > 0) {
         whereConditions.push(['severity', 'in', severities] as const);
       }

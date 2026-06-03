@@ -10,7 +10,11 @@
 import { https } from 'firebase-functions';
 import { admin, db } from '../../firebase';
 import { createHash } from 'crypto';
-import type { SignDesignacaoPayload, SignDesignacaoResult, LogicalSignature } from '../../../src/features/personnel/types';
+import type {
+  SignDesignacaoPayload,
+  SignDesignacaoResult,
+  LogicalSignature,
+} from '../../../src/features/personnel/types';
 
 /**
  * Generate LogicalSignature (SHA-256 hash + operatorId + timestamp).
@@ -18,7 +22,7 @@ import type { SignDesignacaoPayload, SignDesignacaoResult, LogicalSignature } fr
 function generateLogicalSignature(
   payload: SignDesignacaoPayload,
   operatorId: string,
-  ts: number
+  ts: number,
 ): LogicalSignature {
   const input = `${payload.labId}|${payload.cargoId}|${payload.pessoaId}|${payload.pessoaNome}|${operatorId}|${ts}`;
   const hash = createHash('sha256').update(input).digest('hex');
@@ -62,13 +66,20 @@ export const signDesignacao = https.onCall(async (data: unknown, context) => {
   const roleCheck = ['admin', 'owner', 'rt'].includes(memberSnap.data()?.role);
 
   if (!moduleAccess && !roleCheck) {
-    throw new https.HttpsError('permission-denied', 'User does not have permission to sign designações');
+    throw new https.HttpsError(
+      'permission-denied',
+      'User does not have permission to sign designações',
+    );
   }
 
   const now = Date.now();
   const signature = generateLogicalSignature(payload, operatorId, now);
 
-  const designacaoId = db.collection('personnel').doc(payload.labId).collection('designacoes').doc().id;
+  const designacaoId = db
+    .collection('personnel')
+    .doc(payload.labId)
+    .collection('designacoes')
+    .doc().id;
   const designacaoRef = db
     .collection('personnel')
     .doc(payload.labId)
@@ -81,9 +92,7 @@ export const signDesignacao = https.onCall(async (data: unknown, context) => {
     pessoaId: payload.pessoaId,
     pessoaNome: payload.pessoaNome,
     dataInicio: admin.firestore.Timestamp.fromMillis(payload.dataInicio),
-    dataFim: payload.dataFim
-      ? admin.firestore.Timestamp.fromMillis(payload.dataFim)
-      : null,
+    dataFim: payload.dataFim ? admin.firestore.Timestamp.fromMillis(payload.dataFim) : null,
     descricaoAutoridade: payload.descricaoAutoridade,
     successorId: payload.successorId || null,
     chainHash: {

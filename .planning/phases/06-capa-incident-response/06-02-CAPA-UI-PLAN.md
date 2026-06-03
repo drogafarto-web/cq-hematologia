@@ -1,89 +1,88 @@
 ---
-phase: "06-capa-incident-response"
-plan: "02"
-type: "execute"
+phase: '06-capa-incident-response'
+plan: '02'
+type: 'execute'
 wave: 2
-depends_on: ["06-01"]
+depends_on: ['06-01']
 files_modified:
-  - "src/features/sgq/capa/hooks/useCAPAList.ts"
-  - "src/features/sgq/capa/hooks/useCAPADetail.ts"
-  - "src/features/sgq/capa/components/CAPAListView.tsx"
-  - "src/features/sgq/capa/components/CAPADetailView.tsx"
-  - "src/features/sgq/capa/components/CAPAForm.tsx"
-  - "src/features/sgq/capa/components/ActionCard.tsx"
-  - "src/features/sgq/capa/components/VerificationForm.tsx"
-  - "src/features/sgq/capa/pages/CAPAHome.tsx"
-  - "src/routes.tsx"
+  - 'src/features/sgq/capa/hooks/useCAPAList.ts'
+  - 'src/features/sgq/capa/hooks/useCAPADetail.ts'
+  - 'src/features/sgq/capa/components/CAPAListView.tsx'
+  - 'src/features/sgq/capa/components/CAPADetailView.tsx'
+  - 'src/features/sgq/capa/components/CAPAForm.tsx'
+  - 'src/features/sgq/capa/components/ActionCard.tsx'
+  - 'src/features/sgq/capa/components/VerificationForm.tsx'
+  - 'src/features/sgq/capa/pages/CAPAHome.tsx'
+  - 'src/routes.tsx'
 
 autonomous: false
-requirements: ["RDC-978-ART-99", "DICQ-4.14.2", "WCAG-AA"]
+requirements: ['RDC-978-ART-99', 'DICQ-4.14.2', 'WCAG-AA']
 
 must_haves:
   truths:
-    - "User can navigate to /capa and see list of all CAPAs (filtered by status: aberta/em-tratamento/verificada/fechada)"
-    - "User can click CAPA to view details: finding, assigned actions, verification history, audit trail"
-    - "RT can create new CAPA via form: titulo, descricao, prioridade, dataPrazo"
-    - "RT can assign corrective actions to users with dueDate and evidence tracking"
-    - "RT can verify actions after completion (efetiva/não-efetiva) and auto-close if verified"
-    - "All state changes appear in audit trail visible on detail page"
-    - "Dark-first UI (Tailwind dark mode) with accessible buttons, forms, tables"
-    - "WCAG AA compliance: contrast ≥4.5:1, focus visible, keyboard navigation functional"
+    - 'User can navigate to /capa and see list of all CAPAs (filtered by status: aberta/em-tratamento/verificada/fechada)'
+    - 'User can click CAPA to view details: finding, assigned actions, verification history, audit trail'
+    - 'RT can create new CAPA via form: titulo, descricao, prioridade, dataPrazo'
+    - 'RT can assign corrective actions to users with dueDate and evidence tracking'
+    - 'RT can verify actions after completion (efetiva/não-efetiva) and auto-close if verified'
+    - 'All state changes appear in audit trail visible on detail page'
+    - 'Dark-first UI (Tailwind dark mode) with accessible buttons, forms, tables'
+    - 'WCAG AA compliance: contrast ≥4.5:1, focus visible, keyboard navigation functional'
 
   artifacts:
-    - path: "src/features/sgq/capa/hooks/useCAPAList.ts"
-      provides: "Hook for listing CAPAs with filtering (status, assignee)"
-      exports: ["useCAPAList"]
+    - path: 'src/features/sgq/capa/hooks/useCAPAList.ts'
+      provides: 'Hook for listing CAPAs with filtering (status, assignee)'
+      exports: ['useCAPAList']
       uses_subscribe: true
 
-    - path: "src/features/sgq/capa/hooks/useCAPADetail.ts"
-      provides: "Hook for loading single CAPA + subcollections (actions, verifications) with realtime updates"
-      exports: ["useCAPADetail"]
+    - path: 'src/features/sgq/capa/hooks/useCAPADetail.ts'
+      provides: 'Hook for loading single CAPA + subcollections (actions, verifications) with realtime updates'
+      exports: ['useCAPADetail']
 
-    - path: "src/features/sgq/capa/components/CAPAListView.tsx"
-      provides: "Table view of all CAPAs with status badges, due dates, assignee names; sortable by status/due date"
-      contains: "export default CAPAListView"
+    - path: 'src/features/sgq/capa/components/CAPAListView.tsx'
+      provides: 'Table view of all CAPAs with status badges, due dates, assignee names; sortable by status/due date'
+      contains: 'export default CAPAListView'
       world_class: true
 
-    - path: "src/features/sgq/capa/components/CAPADetailView.tsx"
-      provides: "Detail page: finding summary, actions section, verification section, audit trail history"
-      contains: "export default CAPADetailView"
+    - path: 'src/features/sgq/capa/components/CAPADetailView.tsx'
+      provides: 'Detail page: finding summary, actions section, verification section, audit trail history'
+      contains: 'export default CAPADetailView'
 
-    - path: "src/features/sgq/capa/components/CAPAForm.tsx"
-      provides: "Modal/drawer form for RT to create new CAPA with validation"
-      exports: ["CAPAForm"]
+    - path: 'src/features/sgq/capa/components/CAPAForm.tsx'
+      provides: 'Modal/drawer form for RT to create new CAPA with validation'
+      exports: ['CAPAForm']
 
-    - path: "src/features/sgq/capa/components/ActionCard.tsx"
-      provides: "Card component for single CAPA action with status, assignee, due date, evidence links"
-      exports: ["ActionCard"]
+    - path: 'src/features/sgq/capa/components/ActionCard.tsx'
+      provides: 'Card component for single CAPA action with status, assignee, due date, evidence links'
+      exports: ['ActionCard']
 
-    - path: "src/features/sgq/capa/components/VerificationForm.tsx"
-      provides: "Form for RT to submit verification (resultado, notas, evidencia links)"
-      exports: ["VerificationForm"]
+    - path: 'src/features/sgq/capa/components/VerificationForm.tsx'
+      provides: 'Form for RT to submit verification (resultado, notas, evidencia links)'
+      exports: ['VerificationForm']
 
-    - path: "src/features/sgq/capa/pages/CAPAHome.tsx"
-      provides: "Top-level page for CAPA module: list view + create button + filters"
-      contains: "export default CAPAHome"
+    - path: 'src/features/sgq/capa/pages/CAPAHome.tsx'
+      provides: 'Top-level page for CAPA module: list view + create button + filters'
+      contains: 'export default CAPAHome'
 
-    - path: "src/routes.tsx"
-      provides: "Routes definition for /capa and /capa/:capaId"
+    - path: 'src/routes.tsx'
+      provides: 'Routes definition for /capa and /capa/:capaId'
       must_contain: "path: '/capa'"
 
   key_links:
-    - from: "src/features/sgq/capa/pages/CAPAHome.tsx"
-      to: "src/features/sgq/capa/components/CAPAListView.tsx"
-      via: "useCAPAList hook invocation"
-      pattern: "useCAPAList"
+    - from: 'src/features/sgq/capa/pages/CAPAHome.tsx'
+      to: 'src/features/sgq/capa/components/CAPAListView.tsx'
+      via: 'useCAPAList hook invocation'
+      pattern: 'useCAPAList'
 
-    - from: "src/features/sgq/capa/components/CAPAListView.tsx"
-      to: "src/features/sgq/capa/components/CAPADetailView.tsx"
-      via: "Click CAPA row → navigate to /capa/{capaId}"
-      pattern: "navigate.*capaId"
+    - from: 'src/features/sgq/capa/components/CAPAListView.tsx'
+      to: 'src/features/sgq/capa/components/CAPADetailView.tsx'
+      via: 'Click CAPA row → navigate to /capa/{capaId}'
+      pattern: 'navigate.*capaId'
 
-    - from: "src/features/sgq/capa/components/CAPADetailView.tsx"
-      to: "src/features/sgq/capa/services/capaService.ts"
-      via: "Calls updateCAPAStatus, assignCAPA, verifyCAPA from service"
+    - from: 'src/features/sgq/capa/components/CAPADetailView.tsx'
+      to: 'src/features/sgq/capa/services/capaService.ts'
+      via: 'Calls updateCAPAStatus, assignCAPA, verifyCAPA from service'
       pattern: "capaService\\.(update|assign|verify)"
-
 ---
 
 <objective>
@@ -92,13 +91,14 @@ Build dark-first, world-class UI for CAPA lifecycle management. Users can create
 **Purpose:** Operationalize CAPA tracking for lab operators and RT. Must integrate with 06-01 schema/callables seamlessly.
 
 **Output:**
+
 - List view (filterable, sortable, real-time)
 - Detail view with action cards + verification form
 - Create CAPA form with validation
 - Audit trail display on detail page
 - Dark-first design matching v1.3 conventions (Apple/Linear reference)
 - WCAG AA compliance verified
-</objective>
+  </objective>
 
 <execution_context>
 @$HOME/.claude/get-shit-done/workflows/execute-plan.md
@@ -113,6 +113,7 @@ Build dark-first, world-class UI for CAPA lifecycle management. Users can create
 @.planning/phases/06-capa-incident-response/06-01-CAPA-SCHEMA-PLAN.md
 
 # Design system reference
+
 - Dark-first theme: bg-[#141417], text-white/90, accents violet-500 + emerald-500
 - Typography: Geist Sans (or system sans-serif), kerning intentional
 - Spacing: 4px grid (p-1, p-2, p-4, p-6, p-8)
@@ -120,11 +121,12 @@ Build dark-first, world-class UI for CAPA lifecycle management. Users can create
 - Buttons: primary (violet-600 hover:violet-700), secondary (white/10), danger (red-600)
 
 # WCAG AA targets
+
 - Text contrast: 4.5:1 normal text, 3:1 large text (18pt+)
 - Focus visible on all interactive elements
 - Keyboard navigation: Tab + Enter sufficient to operate all features
 - Color not sole means of conveying info (status uses icon + color + text label)
-</context>
+  </context>
 
 <tasks>
 
@@ -139,25 +141,27 @@ export function useCAPAList(labId: string, options?: {status?: string; assigneeI
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    // Subscribe to CAPAs via service
-    const unsubscribe = subscribeCAPAs(labId, options).on(
-      (data) => {
-        setCapas(data);
-        setLoading(false);
-      },
-      (err) => {
-        setError(err.message);
-        setLoading(false);
-      }
-    );
+useEffect(() => {
+// Subscribe to CAPAs via service
+const unsubscribe = subscribeCAPAs(labId, options).on(
+(data) => {
+setCapas(data);
+setLoading(false);
+},
+(err) => {
+setError(err.message);
+setLoading(false);
+}
+);
 
     return () => unsubscribe();
-  }, [labId, options]);
 
-  return { capas, loading, error };
+}, [labId, options]);
+
+return { capas, loading, error };
 }
-```
+
+````
 
 Features:
 - Filters by status and/or assigneeId (optional)
@@ -192,18 +196,19 @@ export function useCAPADetail(labId: string, capaId: string) {
 
   return { capa, acoes, verificacoes, auditTrail, loading };
 }
-```
+````
 
 Per project conventions:
+
 - Use existing capaService for all calls (no direct Firestore)
 - Cleanup on unmount (return unsubscribe from useEffect)
 - Error state optional (details page will show error boundary)
   </action>
   <verify>
-    <automated>npm run build -- src/features/sgq/capa/hooks/*.ts && grep -c "export function use" src/features/sgq/capa/hooks/useCAPAList.ts</automated>
+  <automated>npm run build -- src/features/sgq/capa/hooks/\*.ts && grep -c "export function use" src/features/sgq/capa/hooks/useCAPAList.ts</automated>
   </verify>
   <done>Both hooks export, subscribe functions integrated, cleanup handlers present</done>
-</task>
+  </task>
 
 <task type="auto">
   <name>Task 2: Implement CAPAListView component (table with filters, sorting, dark-first design)</name>
@@ -212,11 +217,13 @@ Per project conventions:
 Build world-class table component per design system:
 
 **Layout:**
+
 - Header: "CAPA Management" title + "Create CAPA" button (violet-600)
 - Filter bar: dropdown (status), dropdown (assignee), button (clear filters)
 - Table: columns [ID, Titulo, Status, Assignee, Prazo, Actions]
 
 **Styling (dark-first):**
+
 - Header: bg-[#141417], text-white/90, border-b border-white/10
 - Table rows: bg-white/[0.02], hover:bg-white/[0.04], no background flickering
 - Status badge: icon + text (aberta=red, em-tratamento=yellow, verificada=blue, fechada=green)
@@ -224,6 +231,7 @@ Build world-class table component per design system:
 - Contrast check: badge text ≥4.5:1 against background
 
 **Functionality:**
+
 1. Load CAPAs via useCAPAList hook
 2. Render loading spinner (or skeleton row)
 3. Table rows click → navigate to /capa/{capaId}
@@ -231,6 +239,7 @@ Build world-class table component per design system:
 5. Sorting: click column header (only Prazo, Status) → local sort state
 
 **Accessibility (WCAG AA):**
+
 - `<table>` with `<th scope="col">` headers
 - Focus ring visible on all interactive elements (focus:ring-2 ring-violet-500)
 - Alt text on status badges (e.g., aria-label="Status: aberta (open)")
@@ -238,14 +247,15 @@ Build world-class table component per design system:
 - No color-only status indication (icon + text + color)
 
 **Example markup:**
+
 ```tsx
 <div className="flex flex-col gap-4 p-6 bg-[#141417]">
   <h1 className="text-2xl font-semibold text-white">CAPA Management</h1>
-  
+
   <div className="flex gap-2">
-    <select 
-      value={filters.status} 
-      onChange={(e) => setFilters({...filters, status: e.target.value})}
+    <select
+      value={filters.status}
+      onChange={(e) => setFilters({ ...filters, status: e.target.value })}
       className="px-3 py-2 bg-white/5 text-white border border-white/10 rounded"
     >
       <option value="">All statuses</option>
@@ -253,29 +263,35 @@ Build world-class table component per design system:
       <option value="em-tratamento">In Treatment</option>
       {/* ... */}
     </select>
-    
-    <button 
+
+    <button
       onClick={() => navigate('/capa/create')}
       className="px-4 py-2 bg-violet-600 hover:bg-violet-700 text-white rounded focus:ring-2 ring-offset-2"
     >
       Create CAPA
     </button>
   </div>
-  
+
   <table className="w-full border-collapse">
     <thead>
       <tr className="border-b border-white/10">
-        <th scope="col" className="text-left p-3 font-semibold text-white/70">ID</th>
-        <th scope="col" className="text-left p-3 font-semibold text-white/70">Title</th>
-        <th scope="col" className="text-left p-3 font-semibold text-white/70">Status</th>
+        <th scope="col" className="text-left p-3 font-semibold text-white/70">
+          ID
+        </th>
+        <th scope="col" className="text-left p-3 font-semibold text-white/70">
+          Title
+        </th>
+        <th scope="col" className="text-left p-3 font-semibold text-white/70">
+          Status
+        </th>
         {/* ... */}
       </tr>
     </thead>
     <tbody>
-      {capas.map(capa => (
+      {capas.map((capa) => (
         <tr key={capa.id} className="border-b border-white/[0.05] hover:bg-white/[0.04]">
           <td className="p-3">
-            <Link 
+            <Link
               to={`/capa/${capa.id}`}
               className="text-violet-500 hover:text-violet-400 underline focus:ring-2 ring-violet-500"
             >
@@ -295,15 +311,16 @@ Build world-class table component per design system:
 ```
 
 **Error/Loading states:**
+
 - Loading: show 5 skeleton rows (Skeleton component from common)
 - Error: show error alert with "Retry" button
 - Empty: "No CAPAs. Create one to get started."
   </action>
   <verify>
-    <automated>npm run build -- src/features/sgq/capa/components/CAPAListView.tsx && grep -c "export default" src/features/sgq/capa/components/CAPAListView.tsx</automated>
+  <automated>npm run build -- src/features/sgq/capa/components/CAPAListView.tsx && grep -c "export default" src/features/sgq/capa/components/CAPAListView.tsx</automated>
   </verify>
   <done>Component renders, dark-first styling applied, accessibility attributes present</done>
-</task>
+  </task>
 
 <task type="auto">
   <name>Task 3: Implement CAPADetailView with actions section, verification form, audit trail</name>
@@ -345,6 +362,7 @@ Build world-class table component per design system:
 ```
 
 **CAPADetailView.tsx:**
+
 - Load via useCAPADetail hook
 - Display finding summary (titulo, descricao, createdBy, priority, dataPrazo)
 - Render list of ActionCards (map acoes)
@@ -353,6 +371,7 @@ Build world-class table component per design system:
 - Status transitions via button (if RT: "Mark Complete", "Close CAPA")
 
 **ActionCard.tsx:**
+
 - Display single acao with tipo badge (corretiva/preventiva)
 - Show assignee name, due date
 - Show status badge (aberta/concluida/vencida)
@@ -361,6 +380,7 @@ Build world-class table component per design system:
 - If RT and action complete: allow verification
 
 **VerificationForm.tsx:**
+
 - Dropdown: resultado (efetiva/não-efetiva/parcialmente-efetiva)
 - Textarea: notas
 - File upload area: evidence (links to drive/S3)
@@ -369,12 +389,14 @@ Build world-class table component per design system:
 - Success message + auto-close CAPA if efetiva
 
 **Dark-first styling:**
+
 - Card: bg-white/[0.02], border border-white/10, p-4
 - Buttons: primary (violet), secondary (white/10), danger (red-600)
 - Typography: heading-3 (18pt), body (14pt), caption (12pt/white-70)
 - Spacing: consistent 4px grid
 
 **Accessibility:**
+
 - Headings hierarchy (h1 → h3)
 - Form fields have labels + aria-describedby
 - Buttons have aria-label if icon-only
@@ -382,10 +404,10 @@ Build world-class table component per design system:
 - Keyboard: Tab navigation functional, Enter submits forms
   </action>
   <verify>
-    <automated>npm run build -- src/features/sgq/capa/components/CAPADetailView.tsx src/features/sgq/capa/components/ActionCard.tsx src/features/sgq/capa/components/VerificationForm.tsx && grep -c "export" src/features/sgq/capa/components/ActionCard.tsx</automated>
+  <automated>npm run build -- src/features/sgq/capa/components/CAPADetailView.tsx src/features/sgq/capa/components/ActionCard.tsx src/features/sgq/capa/components/VerificationForm.tsx && grep -c "export" src/features/sgq/capa/components/ActionCard.tsx</automated>
   </verify>
   <done>All 3 components render, dark-first styles applied, form integration working</done>
-</task>
+  </task>
 
 <task type="checkpoint:human-verify" gate="blocking">
   <what-built>
@@ -422,13 +444,14 @@ export default function CAPAHome() {
   const { labId } = useLabContext();
   const { capas, loading } = useCAPAList(labId);
 
-  return (
-    <div className="min-h-screen bg-[#141417] text-white p-6">
-      <CAPAListView />
-    </div>
-  );
+return (
+<div className="min-h-screen bg-[#141417] text-white p-6">
+<CAPAListView />
+</div>
+);
 }
-```
+
+````
 
 **Update src/routes.tsx:**
 Add route definitions (use existing router config pattern from other modules):
@@ -447,18 +470,21 @@ Add route definitions (use existing router config pattern from other modules):
     },
   ],
 }
-```
+````
 
 **Integration into hub/navigation:**
+
 - Add "CAPA" tile to /hub module list (if hub exists; link to /capa)
 - Add CAPA to SGQ sidebar (if sidebar exists)
 
 **Test:**
+
 ```bash
 npm run dev
 # Navigate to http://localhost:5173/capa
 # Verify routes load correctly
 ```
+
   </action>
   <verify>
     <automated>grep -c "path: '/capa'" src/routes.tsx && npm run build 2>&1 | grep -i "error" | grep -v "node_modules" || echo "no errors"</automated>
@@ -469,22 +495,23 @@ npm run dev
 </tasks>
 
 <threat_model>
+
 ## Trust Boundaries
 
-| Boundary | Description |
-|----------|-------------|
-| User input (form) | CAPA form accepts user title, description, priority; must validate server-side via callable |
-| CAPA state display | Detail view renders current CAPA status; updates real-time via subscription |
-| Audit trail visibility | Audit entries are read-only on client; Rules enforce read permission (RT/admin only) |
+| Boundary               | Description                                                                                 |
+| ---------------------- | ------------------------------------------------------------------------------------------- |
+| User input (form)      | CAPA form accepts user title, description, priority; must validate server-side via callable |
+| CAPA state display     | Detail view renders current CAPA status; updates real-time via subscription                 |
+| Audit trail visibility | Audit entries are read-only on client; Rules enforce read permission (RT/admin only)        |
 
 ## STRIDE Threat Register
 
-| Threat ID | Category | Component | Disposition | Mitigation Plan |
-|-----------|----------|-----------|-------------|-----------------|
-| T-06-07 | Tampering | UI modifies CAPA directly | mitigate | All form submissions go through service → callable; client cannot write to Firestore |
-| T-06-08 | Information Disclosure | Non-RT user views all CAPAs | mitigate | Rules filter query results by role; list view only shows CAPAs visible to user |
-| T-06-09 | Elevation of Privilege | Regular user assigns CAPA to self | mitigate | Callable validates assignee role; only RT can assign; UI disables button for non-RT |
-| T-06-10 | Denial of Service | User spams "Create CAPA" | mitigate | Cloud Function rate limiting (future); UI shows "creating..." state to prevent double-click |
+| Threat ID | Category               | Component                         | Disposition | Mitigation Plan                                                                             |
+| --------- | ---------------------- | --------------------------------- | ----------- | ------------------------------------------------------------------------------------------- |
+| T-06-07   | Tampering              | UI modifies CAPA directly         | mitigate    | All form submissions go through service → callable; client cannot write to Firestore        |
+| T-06-08   | Information Disclosure | Non-RT user views all CAPAs       | mitigate    | Rules filter query results by role; list view only shows CAPAs visible to user              |
+| T-06-09   | Elevation of Privilege | Regular user assigns CAPA to self | mitigate    | Callable validates assignee role; only RT can assign; UI disables button for non-RT         |
+| T-06-10   | Denial of Service      | User spams "Create CAPA"          | mitigate    | Cloud Function rate limiting (future); UI shows "creating..." state to prevent double-click |
 
 </threat_model>
 
@@ -492,32 +519,38 @@ npm run dev
 **Phase Gate (before moving to 06-03 Incident Response):**
 
 1. All components build without TS errors
+
    ```bash
    npm run build -- src/features/sgq/capa
    ```
 
 2. List view loads and displays CAPAs
+
    ```bash
    npm run dev
    # Navigate to /capa, verify table renders
    ```
 
 3. Detail view loads CAPA + actions + verifications
+
    ```bash
    # Click CAPA from list, verify detail page loads all sections
    ```
 
 4. Forms submit correctly (no client-side Firestore write attempts)
+
    ```bash
    # Submit CAPA form, check Cloud Functions logs show createCAPA called
    ```
 
 5. Keyboard navigation functional (Tab + Enter)
+
    ```bash
    # Tab through list, open detail, Tab through buttons, press Enter
    ```
 
 6. Contrast ≥4.5:1 (Chrome DevTools Accessibility panel)
+
    ```bash
    # Right-click element, Inspect, go to Accessibility panel, check contrast
    ```
@@ -531,6 +564,7 @@ npm run dev
 </verification>
 
 <success_criteria>
+
 - All 8 React components render without errors
 - List view shows all CAPAs with real-time updates (filter by status working)
 - Detail view displays finding, actions, verification form, audit trail
@@ -540,7 +574,7 @@ npm run dev
 - Routes wired and accessible (/capa, /capa/{capaId}, /capa/create)
 - No build errors, no TS errors
 - Checkpoint approval required before proceeding to 06-03
-</success_criteria>
+  </success_criteria>
 
 <output>
 After completion, create `.planning/phases/06-capa-incident-response/06-02-PLAN-SUMMARY.md` documenting:

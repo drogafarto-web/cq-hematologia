@@ -51,15 +51,13 @@ type AuthenticatePortalError = z.infer<typeof authenticatePortalErrorSchema>;
 const SESSION_DURATION_MS = 3600000; // 1 hour
 const MFA_REQUIRED_MARKER = 'MFA_REQUIRED';
 
-export const authenticatePortal = functions.region('southamerica-east1').onCall(
-  async (request): Promise<AuthenticatePortalOutput | AuthenticatePortalError> => {
+export const authenticatePortal = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<AuthenticatePortalOutput | AuthenticatePortalError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = authenticatePortalInputSchema.parse(request.data);
@@ -106,7 +104,7 @@ export const authenticatePortal = functions.region('southamerica-east1').onCall(
       const credentialsValid = await validateNotivisaCredentials(
         labId,
         portalUsername,
-        portalPassword
+        portalPassword,
       );
 
       if (!credentialsValid) {
@@ -182,11 +180,7 @@ export const authenticatePortal = functions.region('southamerica-east1').onCall(
 
       // Log successful authentication
       batch.set(
-        db
-          .collection('notivisa-audit-logs')
-          .doc(labId)
-          .collection('logins')
-          .doc(`${now}`),
+        db.collection('notivisa-audit-logs').doc(labId).collection('logins').doc(`${now}`),
         {
           action: 'PORTAL_LOGIN',
           operatorId: uid,
@@ -197,7 +191,7 @@ export const authenticatePortal = functions.region('southamerica-east1').onCall(
           details: {
             success: true,
           },
-        }
+        },
       );
 
       await batch.commit();
@@ -237,8 +231,7 @@ export const authenticatePortal = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error during authentication',
       };
     }
-  }
-);
+  });
 
 /**
  * Validate NOTIVISA portal credentials
@@ -247,7 +240,7 @@ export const authenticatePortal = functions.region('southamerica-east1').onCall(
 async function validateNotivisaCredentials(
   labId: string,
   username: string,
-  password: string
+  password: string,
 ): Promise<boolean> {
   try {
     const db = admin.firestore();
@@ -296,7 +289,7 @@ function generateAuthToken(
   labId: string,
   uid: string,
   sessionId: string,
-  expiresAt: number
+  expiresAt: number,
 ): string {
   // Mock token generation
   // In production, would create JWT with RSA signature
@@ -307,7 +300,7 @@ function generateAuthToken(
       sessionId,
       iat: Date.now(),
       exp: expiresAt,
-    })
+    }),
   ).toString('base64');
 
   return `notivisa.${payload}.signature`;
@@ -321,7 +314,7 @@ async function logAuthAttempt(
   labId: string,
   uid: string,
   status: string,
-  details: Record<string, unknown>
+  details: Record<string, unknown>,
 ): Promise<void> {
   try {
     await db

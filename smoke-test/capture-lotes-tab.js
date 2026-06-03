@@ -23,7 +23,9 @@ const PASS = process.env.RT_PASSWORD || '12345678';
     await emailField.fill(EMAIL);
     await page.locator('input[type="password"]').fill(PASS);
     await page.click('button:has-text("Entrar")');
-    await page.waitForFunction(() => !document.querySelector('input[type="password"]'), { timeout: 30000 });
+    await page.waitForFunction(() => !document.querySelector('input[type="password"]'), {
+      timeout: 30000,
+    });
     await page.waitForTimeout(2000);
   }
 

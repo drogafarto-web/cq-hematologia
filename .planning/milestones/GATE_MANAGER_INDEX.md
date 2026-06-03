@@ -18,9 +18,11 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 ## 📋 Core Documents (Read in Order)
 
 ### 1. Main Framework (START HERE)
+
 **File:** `v1.4_DEPLOYMENT_GATE_FRAMEWORK.md`  
 **Size:** 50 KB  
 **Sections:**
+
 - Gate architecture overview (19 gates: 4 wave + 15 phase)
 - Wave-level gates (4 gates with full checklists)
 - Phase-level gates (15 gates with scope + checklists)
@@ -36,9 +38,11 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 ---
 
 ### 2. Quick Reference Guide
+
 **File:** `GATE_MANAGER_QUICK_REFERENCE.md`  
 **Size:** 14 KB  
 **Sections:**
+
 - When to validate each gate (date + action)
 - Gate validation checklist (abbreviated, 10 items per gate)
 - Blocker resolution process (4-step escalation)
@@ -59,9 +63,11 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 ---
 
 ### 3. Dependency Map (Visual Reference)
+
 **File:** `GATE_DEPENDENCY_MAP.md`  
 **Size:** 25 KB  
 **Sections:**
+
 - Complete execution flow (ASCII art with all 19 gates)
 - Parallel execution windows (3 windows: 4–7, 8–12, 13–15)
 - Critical path bottlenecks (Phase 4, 8, 12, Wave 2)
@@ -79,6 +85,7 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 ## 📊 Supporting Data Files
 
 ### 4. Gate Sign-Off Register (Master Audit Trail)
+
 **File:** `GATE_SIGN_OFF_REGISTER.csv`  
 **Format:** CSV (import to spreadsheet)  
 **Columns:** Phase | Gate_Name | Status | Start_Date | Target_Deploy_Date | % Complete | Primary_Owner | CTO_Signature | Sign_Off_Date | Blockers_Count | Critical_Blockers | Next_Review_Date | Notes
@@ -90,6 +97,7 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 ---
 
 ### 5. Real-Time Status Dashboard (Live Tracking)
+
 **File:** `GATE_STATUS_DASHBOARD.csv`  
 **Format:** CSV (import to spreadsheet or auto-update script)  
 **Columns:** Phase | Gate_Name | Status | Start_Date | Target_Deploy | % Complete | Blockers_Active | Blocker_Details | Primary_Owner | Last_Updated | Next_Review_ETA | Critical_Path | Notes
@@ -171,20 +179,20 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 
 ## 📅 Critical Dates (Don't Miss)
 
-| Date | Event | Gate | Owner | Action |
-|---|---|---|---|---|
-| **2026-05-20** | Phase 4 Kickoff | — | Agent 1–4 | Start development |
-| **2026-06-02** | Phase 4 Deploy (GATE) | Phase 4 | CTO | Validate + approve |
-| **2026-06-02** | Wave 1 Gate Decision | Wave 1 | CTO | All 4 phases must PASS |
-| **2026-06-15** | Phase 8 CAPA Kickoff | — | CTO | Start auditor alignment |
-| **2026-08-02** | Phase 12 Deploy | Phase 12 | CTO | Validate + approve |
-| **2026-08-05** | CAPA Auditor Ceremony (HARD DEADLINE) | Phase 8 | Auditor | Sign-off findings F-01–F-07 |
-| **2026-08-31** | Phase 8–12 ALL GATES + Wave 2 Gate | Wave 2 | CTO | Final approval for Phase 13 |
-| **2026-08-31** | External Audit Window (v1.4 validation) | Go-Live | Auditor | ANVISA readiness review |
-| **2026-09-30** | Phase 13 Deploy | Phase 13 | CTO | Multi-tenant validation |
-| **2026-10-31** | Phase 14 Deploy (ISO 15189 audit) | Phase 14 | CTO | Audit trail + compliance |
-| **2026-11-30** | Phase 15 Deploy + Wave 3 Gate | Wave 3 | CTO | v2 planning complete |
-| **2026-11-30** | GO-LIVE GATE FINAL DECISION | Go-Live | CTO | Production release authority |
+| Date           | Event                                   | Gate     | Owner     | Action                       |
+| -------------- | --------------------------------------- | -------- | --------- | ---------------------------- |
+| **2026-05-20** | Phase 4 Kickoff                         | —        | Agent 1–4 | Start development            |
+| **2026-06-02** | Phase 4 Deploy (GATE)                   | Phase 4  | CTO       | Validate + approve           |
+| **2026-06-02** | Wave 1 Gate Decision                    | Wave 1   | CTO       | All 4 phases must PASS       |
+| **2026-06-15** | Phase 8 CAPA Kickoff                    | —        | CTO       | Start auditor alignment      |
+| **2026-08-02** | Phase 12 Deploy                         | Phase 12 | CTO       | Validate + approve           |
+| **2026-08-05** | CAPA Auditor Ceremony (HARD DEADLINE)   | Phase 8  | Auditor   | Sign-off findings F-01–F-07  |
+| **2026-08-31** | Phase 8–12 ALL GATES + Wave 2 Gate      | Wave 2   | CTO       | Final approval for Phase 13  |
+| **2026-08-31** | External Audit Window (v1.4 validation) | Go-Live  | Auditor   | ANVISA readiness review      |
+| **2026-09-30** | Phase 13 Deploy                         | Phase 13 | CTO       | Multi-tenant validation      |
+| **2026-10-31** | Phase 14 Deploy (ISO 15189 audit)       | Phase 14 | CTO       | Audit trail + compliance     |
+| **2026-11-30** | Phase 15 Deploy + Wave 3 Gate           | Wave 3   | CTO       | v2 planning complete         |
+| **2026-11-30** | GO-LIVE GATE FINAL DECISION             | Go-Live  | CTO       | Production release authority |
 
 ---
 
@@ -205,12 +213,12 @@ audience: Phase executors, CTO, QA lead, Tech lead, external auditor
 
 ## 📞 Contact Reference
 
-| Role | Name | Title | Phone | Email | Slack |
-|---|---|---|---|---|---|
-| **CTO** | drogafarto | Founder + CTO | [phone] | drogafarto@gmail.com | @cto |
-| **Wave Coordinator** | TBD | Project Manager | [phone] | [email] | — |
-| **External Auditor** | TBD | ANVISA Auditor | [phone] | [email] | — |
-| **Gate Manager** | TBD | Deployment Manager | [phone] | [email] | — |
+| Role                 | Name       | Title              | Phone   | Email                | Slack |
+| -------------------- | ---------- | ------------------ | ------- | -------------------- | ----- |
+| **CTO**              | drogafarto | Founder + CTO      | [phone] | drogafarto@gmail.com | @cto  |
+| **Wave Coordinator** | TBD        | Project Manager    | [phone] | [email]              | —     |
+| **External Auditor** | TBD        | ANVISA Auditor     | [phone] | [email]              | —     |
+| **Gate Manager**     | TBD        | Deployment Manager | [phone] | [email]              | —     |
 
 **Note:** Fill in contact details before 2026-05-20 Phase 4 kickoff.
 
@@ -274,19 +282,19 @@ Before Phase 4 kickoff (2026-05-20), verify:
 
 ## 🎯 Success Metrics (v1.4 Complete)
 
-| Metric | Target | Owner |
-|---|---|---|
-| **All 19 gates PASS** | 100% | CTO |
-| **DICQ conformance** | ≥88% | Compliance officer |
-| **RDC 978 critical articles** | 100% (Arts. 6, 115, 117, 167, 204) | Auditor |
-| **E2E test coverage** | 32/32 per wave, 128+ total | QA lead |
-| **Cloud Logs clean** | 0 CRITICAL sustained in 24h | Tech lead |
-| **Bundle health** | Main chunk ≤400 KB gzip | Tech lead |
-| **Web Vitals** | LCP <2.5s, INP <200ms, CLS <0.1 | Tech lead |
-| **Auditor pre-alignment** | 8 meetings completed, 0 red flags | CTO + Auditor |
-| **CAPA closure** | 7 findings signed off by 2026-08-05 | Auditor |
-| **Penetration test** | <3 medium findings, all high/critical remediated | Security team |
-| **External audit ready** | System passes pre-audit review | Auditor |
+| Metric                        | Target                                           | Owner              |
+| ----------------------------- | ------------------------------------------------ | ------------------ |
+| **All 19 gates PASS**         | 100%                                             | CTO                |
+| **DICQ conformance**          | ≥88%                                             | Compliance officer |
+| **RDC 978 critical articles** | 100% (Arts. 6, 115, 117, 167, 204)               | Auditor            |
+| **E2E test coverage**         | 32/32 per wave, 128+ total                       | QA lead            |
+| **Cloud Logs clean**          | 0 CRITICAL sustained in 24h                      | Tech lead          |
+| **Bundle health**             | Main chunk ≤400 KB gzip                          | Tech lead          |
+| **Web Vitals**                | LCP <2.5s, INP <200ms, CLS <0.1                  | Tech lead          |
+| **Auditor pre-alignment**     | 8 meetings completed, 0 red flags                | CTO + Auditor      |
+| **CAPA closure**              | 7 findings signed off by 2026-08-05              | Auditor            |
+| **Penetration test**          | <3 medium findings, all high/critical remediated | Security team      |
+| **External audit ready**      | System passes pre-audit review                   | Auditor            |
 
 ---
 

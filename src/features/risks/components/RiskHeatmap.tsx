@@ -30,13 +30,40 @@ export interface RiskHeatmapProps {
   readonly onCellClick?: (risks: Risk[]) => void;
 }
 
-function zoneColor(p: number, s: number): { bg: string; border: string; text: string; glow: string } {
+function zoneColor(
+  p: number,
+  s: number,
+): { bg: string; border: string; text: string; glow: string } {
   const score = p * s;
-  if (score <= 4) return { bg: 'bg-emerald-500/15', border: 'border-emerald-500/30', text: 'text-emerald-200', glow: '' };
-  if (score <= 9) return { bg: 'bg-lime-500/15', border: 'border-lime-500/30', text: 'text-lime-200', glow: '' };
-  if (score <= 12) return { bg: 'bg-yellow-500/15', border: 'border-yellow-500/30', text: 'text-yellow-200', glow: '' };
-  if (score <= 16) return { bg: 'bg-orange-500/20', border: 'border-orange-500/40', text: 'text-orange-200', glow: 'shadow-orange-500/10 shadow-sm' };
-  return { bg: 'bg-red-500/25', border: 'border-red-500/50', text: 'text-red-100', glow: 'shadow-red-500/20 shadow-md' };
+  if (score <= 4)
+    return {
+      bg: 'bg-emerald-500/15',
+      border: 'border-emerald-500/30',
+      text: 'text-emerald-200',
+      glow: '',
+    };
+  if (score <= 9)
+    return { bg: 'bg-lime-500/15', border: 'border-lime-500/30', text: 'text-lime-200', glow: '' };
+  if (score <= 12)
+    return {
+      bg: 'bg-yellow-500/15',
+      border: 'border-yellow-500/30',
+      text: 'text-yellow-200',
+      glow: '',
+    };
+  if (score <= 16)
+    return {
+      bg: 'bg-orange-500/20',
+      border: 'border-orange-500/40',
+      text: 'text-orange-200',
+      glow: 'shadow-orange-500/10 shadow-sm',
+    };
+  return {
+    bg: 'bg-red-500/25',
+    border: 'border-red-500/50',
+    text: 'text-red-100',
+    glow: 'shadow-red-500/20 shadow-md',
+  };
 }
 
 function zoneLabel(p: number, s: number): string {
@@ -63,13 +90,16 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks, onCellClick }) 
     return { byCell: map, totalActive: active.length };
   }, [risks]);
 
-  const handleCellClick = useCallback((p: number, s: number) => {
-    const key = `${p}-${s}`;
-    const cellRisks = byCell.get(key) ?? [];
-    if (cellRisks.length > 0 && onCellClick) {
-      onCellClick(cellRisks);
-    }
-  }, [byCell, onCellClick]);
+  const handleCellClick = useCallback(
+    (p: number, s: number) => {
+      const key = `${p}-${s}`;
+      const cellRisks = byCell.get(key) ?? [];
+      if (cellRisks.length > 0 && onCellClick) {
+        onCellClick(cellRisks);
+      }
+    },
+    [byCell, onCellClick],
+  );
 
   const hoveredRisks = useMemo(() => {
     if (!hoveredCell) return null;
@@ -77,7 +107,10 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks, onCellClick }) 
   }, [hoveredCell, byCell]);
 
   return (
-    <section className="rounded-xl border border-white/10 bg-[#0d0d10] p-5" aria-labelledby="risk-heatmap-title">
+    <section
+      className="rounded-xl border border-white/10 bg-[#0d0d10] p-5"
+      aria-labelledby="risk-heatmap-title"
+    >
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 id="risk-heatmap-title" className="text-sm font-semibold text-white">
@@ -135,11 +168,10 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks, onCellClick }) 
             {/* Rows */}
             {P_AXIS.map((p) => (
               <React.Fragment key={`row-${p}`}>
-                <div
-                  className="flex items-center justify-end pr-2 gap-1"
-                  role="rowheader"
-                >
-                  <span className="text-[9px] text-white/30 hidden md:block text-right">{P_LABELS[p]}</span>
+                <div className="flex items-center justify-end pr-2 gap-1" role="rowheader">
+                  <span className="text-[9px] text-white/30 hidden md:block text-right">
+                    {P_LABELS[p]}
+                  </span>
                   <span className="text-[10px] font-medium text-white/60 w-3 text-right">{p}</span>
                 </div>
                 {S_AXIS.map((s) => {
@@ -176,10 +208,15 @@ export const RiskHeatmap: React.FC<RiskHeatmapProps> = ({ risks, onCellClick }) 
                         <span className="text-[10px] opacity-40">—</span>
                       )}
                       {count > 0 && (
-                        <div className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
-                          p * s > 16 ? 'bg-red-400 animate-pulse' :
-                          p * s > 12 ? 'bg-orange-400' : 'bg-transparent'
-                        }`} />
+                        <div
+                          className={`absolute -top-0.5 -right-0.5 w-2 h-2 rounded-full ${
+                            p * s > 16
+                              ? 'bg-red-400 animate-pulse'
+                              : p * s > 12
+                                ? 'bg-orange-400'
+                                : 'bg-transparent'
+                          }`}
+                        />
                       )}
                     </div>
                   );

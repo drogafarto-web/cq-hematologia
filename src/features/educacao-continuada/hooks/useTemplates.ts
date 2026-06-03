@@ -9,10 +9,7 @@ import {
   updateTemplate,
   type SubscribeTemplatesOptions,
 } from '../services/ecFirebaseService';
-import type {
-  TemplateTreinamento,
-  TemplateTreinamentoInput,
-} from '../types/EducacaoContinuada';
+import type { TemplateTreinamento, TemplateTreinamentoInput } from '../types/EducacaoContinuada';
 
 export interface UseTemplatesResult {
   templates: TemplateTreinamento[];

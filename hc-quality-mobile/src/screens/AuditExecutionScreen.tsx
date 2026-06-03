@@ -1,15 +1,12 @@
 import React, { useState, useCallback, useMemo, useRef } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  Platform,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, StyleSheet, Platform } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme/darkTheme';
 import { ProgressHeader, FilterChip } from '../components/audit/ProgressHeader';
-import { ChecklistItemCard, ChecklistItem, ResponseType } from '../components/audit/ChecklistItemCard';
+import {
+  ChecklistItemCard,
+  ChecklistItem,
+  ResponseType,
+} from '../components/audit/ChecklistItemCard';
 import { FindingSheet, Finding, Severity } from '../components/audit/FindingSheet';
 
 interface AuditExecutionScreenProps {
@@ -64,10 +61,7 @@ export function AuditExecutionScreen({
 
   const flatListRef = useRef<FlatList>(null);
 
-  const respondedCount = useMemo(
-    () => items.filter((i) => i.response !== null).length,
-    [items]
-  );
+  const respondedCount = useMemo(() => items.filter((i) => i.response !== null).length, [items]);
 
   const filteredItems = useMemo(() => {
     switch (activeFilter) {
@@ -85,9 +79,7 @@ export function AuditExecutionScreen({
   const allResponded = respondedCount === items.length;
 
   const setResponse = useCallback((itemId: string, response: ResponseType) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === itemId ? { ...item, response } : item))
-    );
+    setItems((prev) => prev.map((item) => (item.id === itemId ? { ...item, response } : item)));
     // Trigger haptic feedback placeholder
     if (Platform.OS === 'ios' || Platform.OS === 'android') {
       // expo-haptics or react-native-haptic-feedback would be called here
@@ -157,7 +149,7 @@ export function AuditExecutionScreen({
         setCurrentIndex(idx);
       }
     },
-    [filteredItems]
+    [filteredItems],
   );
 
   const handleToggleExpand = useCallback((itemId: string) => {
@@ -182,7 +174,7 @@ export function AuditExecutionScreen({
         setCurrentIndex((prev) => prev + 1);
       }
     },
-    [pendingNCItemId, setResponse, currentIndex, filteredItems.length]
+    [pendingNCItemId, setResponse, currentIndex, filteredItems.length],
   );
 
   const handleFinalize = useCallback(() => {
@@ -205,7 +197,7 @@ export function AuditExecutionScreen({
         onToggleExpand={handleToggleExpand}
       />
     ),
-    [handleItemPress, expandedId, handleToggleExpand]
+    [handleItemPress, expandedId, handleToggleExpand],
   );
 
   const keyExtractor = useCallback((item: ChecklistItem) => item.id, []);
@@ -216,7 +208,7 @@ export function AuditExecutionScreen({
       offset: 80 * index,
       index,
     }),
-    []
+    [],
   );
 
   return (
@@ -263,9 +255,7 @@ export function AuditExecutionScreen({
               accessibilityRole="button"
               accessibilityLabel="Item anterior"
             >
-              <Text style={[styles.navText, currentIndex === 0 && styles.navTextDisabled]}>
-                ←
-              </Text>
+              <Text style={[styles.navText, currentIndex === 0 && styles.navTextDisabled]}>←</Text>
             </TouchableOpacity>
 
             <TouchableOpacity

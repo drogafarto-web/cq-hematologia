@@ -107,9 +107,7 @@ export function RootNavigator(): React.JSX.Element {
   // Activate offline sync at app root — processes queue on reconnect
   const { isOnline } = useOfflineSync();
 
-  const [navStack, setNavStack] = React.useState<NavigationState[]>([
-    { screen: 'Home' },
-  ]);
+  const [navStack, setNavStack] = React.useState<NavigationState[]>([{ screen: 'Home' }]);
 
   const currentState = navStack[navStack.length - 1];
 
@@ -148,7 +146,12 @@ export function RootNavigator(): React.JSX.Element {
       case 'CIQDetail':
         return (
           <CIQDetailScreen
-            route={{ params: { runId: currentState.params?.runId ?? '', equipmentId: currentState.params?.equipmentId } }}
+            route={{
+              params: {
+                runId: currentState.params?.runId ?? '',
+                equipmentId: currentState.params?.equipmentId,
+              },
+            }}
             navigation={navigation}
           />
         );
@@ -157,7 +160,12 @@ export function RootNavigator(): React.JSX.Element {
       case 'NCDetail':
         return (
           <NCDetailScreen
-            route={{ params: { ncId: currentState.params?.ncId ?? '', description: currentState.params?.description } }}
+            route={{
+              params: {
+                ncId: currentState.params?.ncId ?? '',
+                description: currentState.params?.description,
+              },
+            }}
             navigation={navigation}
           />
         );

@@ -5,6 +5,7 @@ Definição de papéis, responsabilidades e limites de cada sub-agente especiali
 ## Modelo Base
 
 **DeepSeek V4 Flash** — escolhido por:
+
 - Excelente em TypeScript, React, Prisma
 - Rápido em iterações de código
 - Bom em seguir schemas estritos
@@ -12,17 +13,17 @@ Definição de papéis, responsabilidades e limites de cada sub-agente especiali
 
 ## Agentes Disponíveis
 
-| # | Nome | Especialidade | Ondas que atende |
-|---|------|---------------|-------------------|
-| 1 | @arch-agent | Arquitetura e decisões técnicas | Cross-cutting |
-| 2 | @db-agent | Prisma, migrations, queries SQL | 1 |
-| 3 | @auth-agent | Auth.js, middleware, JWT | 2 |
-| 4 | @ui-agent | Componentes React + Tailwind | 3, 4, 5, 6, 7, 8 |
-| 5 | @api-agent | API routes, Zod validation | 4, 5, 6, 7 |
-| 6 | @pdf-agent | Geração de PDF e Excel | 8 |
-| 7 | @test-agent | Vitest (unit) + Playwright (E2E) | 9 |
-| 8 | @devops-agent | Docker, Vercel, GitHub Actions, CI/CD | 0, 10 |
-| 9 | @docs-agent | README, API docs, CHANGELOG | 10 |
+| #   | Nome          | Especialidade                         | Ondas que atende |
+| --- | ------------- | ------------------------------------- | ---------------- |
+| 1   | @arch-agent   | Arquitetura e decisões técnicas       | Cross-cutting    |
+| 2   | @db-agent     | Prisma, migrations, queries SQL       | 1                |
+| 3   | @auth-agent   | Auth.js, middleware, JWT              | 2                |
+| 4   | @ui-agent     | Componentes React + Tailwind          | 3, 4, 5, 6, 7, 8 |
+| 5   | @api-agent    | API routes, Zod validation            | 4, 5, 6, 7       |
+| 6   | @pdf-agent    | Geração de PDF e Excel                | 8                |
+| 7   | @test-agent   | Vitest (unit) + Playwright (E2E)      | 9                |
+| 8   | @devops-agent | Docker, Vercel, GitHub Actions, CI/CD | 0, 10            |
+| 9   | @docs-agent   | README, API docs, CHANGELOG           | 10               |
 
 ---
 
@@ -31,17 +32,20 @@ Definição de papéis, responsabilidades e limites de cada sub-agente especiali
 **Escopo**: decisões técnicas cross-cutting, revisão de código, troubleshooting.
 
 **Quando invocar**:
+
 - Conflito de abordagem entre dois agentes
 - Dúvida sobre trade-off (ex: "devo usar transaction aqui?")
 - Bug complexo que atravessa camadas
 - Refactoring decisions
 
 **O que NÃO faz**:
+
 - Escrever código de implementação
 - Rodar migrations
 - Deploy
 
 **Contexto que deve receber sempre**:
+
 ```
 @arch-agent, você é o arquiteto técnico do projeto QC Control.
 Stack: Next.js 14 App Router + TypeScript strict + Prisma + PostgreSQL + Tailwind.
@@ -55,6 +59,7 @@ Pergunta: [insira questão]
 ```
 
 **Princípios que guia**:
+
 - Simplicidade > Abstração
 - Código legível > Código inteligente
 - Typesafe em tudo
@@ -69,11 +74,13 @@ Pergunta: [insira questão]
 **Quando invocar**: Onda 1.
 
 **O que NÃO faz**:
+
 - UI
 - API routes (deixa para @api-agent)
 - Migrations de produção sem revisão
 
 **Contexto fixo em todo prompt**:
+
 ```
 @db-agent, você trabalha SO no schema Prisma e queries do QC Control.
 Stack: Prisma 5 + PostgreSQL 16.
@@ -87,11 +94,13 @@ Tarefa: [insira tarefa]
 ```
 
 **Entrega esperada**:
+
 - Código completo do schema.prisma (não diffs)
 - SQL de migrations quando necessário (arquivo .sql manual)
 - Seeds em TypeScript (Prisma seed convention)
 
 **Validações que agente deve fazer sozinho**:
+
 - Rode `npx prisma format` antes de entregar
 - Valide que todo `@relation` tem `fields` e `references` definidos
 - Todos os `Decimal` usam `@db.Decimal(10, 4)` para precisão
@@ -105,11 +114,13 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Onda 2.
 
 **O que NÃO faz**:
+
 - Permissões granulares (não tem role-based access, simplificado)
 - 2FA
 - OAuth social (apenas credentials)
 
 **Contexto fixo**:
+
 ```
 @auth-agent, você cuida de autenticação do QC Control.
 Stack: NextAuth.js v5 beta + JWT strategy + Prisma adapter.
@@ -133,11 +144,13 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Ondas 3, 4, 5, 6, 7, 8.
 
 **O que NÃO faz**:
+
 - API routes
 - Database
 - Tests
 
 **Contexto fixo**:
+
 ```
 @ui-agent, você é o engenheiro frontend do QC Control.
 Stack: Next.js 14 App Router + React Server Components + Tailwind 3 + Geist fonts.
@@ -157,6 +170,7 @@ Tarefa: [insira tarefa]
 ```
 
 **Entrega esperada**:
+
 - Componente React completo (com 'use client' quando necessário)
 - TypeScript types explícitos (não `any`)
 - Tailwind apenas (não CSS-in-JS, não styled-components)
@@ -171,11 +185,13 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Ondas 4, 5, 6, 7.
 
 **O que NÃO faz**:
+
 - UI
 - Migrations de schema
 - Auth (isso é do @auth-agent)
 
 **Contexto fixo**:
+
 ```
 @api-agent, você é o engenheiro backend do QC Control.
 Stack: Next.js API routes (Route Handlers) + Zod validation + Prisma 5.
@@ -191,6 +207,7 @@ Tarefa: [insira tarefa]
 ```
 
 **Padrão de entrega**:
+
 ```ts
 // src/app/api/qc/route.ts
 import { auth } from '@/lib/auth';
@@ -230,6 +247,7 @@ export async function POST(req: Request) {
 **Quando invocar**: Onda 8.
 
 **Contexto fixo**:
+
 ```
 @pdf-agent, você cuida de geração de reports do QC Control.
 Stack: @react-pdf/renderer (PDF) + ExcelJS (Excel).
@@ -254,6 +272,7 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Onda 9.
 
 **Contexto fixo**:
+
 ```
 @test-agent, você é o engenheiro de QA do QC Control.
 Stack: Vitest (unit/integration) + Playwright (E2E).
@@ -276,6 +295,7 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Ondas 0, 10.
 
 **Contexto fixo**:
+
 ```
 @devops-agent, você cuida de infra e CI/CD do QC Control.
 Stack: Docker (postgres local) + Vercel (deploy) + NeonDB (prod postgres) + GitHub Actions.
@@ -298,6 +318,7 @@ Tarefa: [insira tarefa]
 **Quando invocar**: Onda 10.
 
 **Contexto fixo**:
+
 ```
 @docs-agent, você é responsável por documentação do QC Control.
 Linguagem: Português BR + Inglês técnico (código, CLI).
@@ -350,23 +371,28 @@ Quando um agente termina sua tarefa e outro começa:
 ## Handoff: @{agente-anterior} → @{novo-agente}
 
 ### Concluído
+
 - [Lista de tarefas feitas]
 - [Commits relevantes]
 
 ### Estado do código
+
 - [Onde estão os arquivos chave]
 - [O que mudou na estrutura]
 
 ### Conhecido issues
+
 - [Limitações ou TODOs deixados]
 
 ### Expectativa do próximo agente
+
 - [O que o novo agente precisa saber]
 ```
 
 ## Escalação
 
 Se qualquer sub-agente encontrar:
+
 - **Dúvida sobre regra de negócio** → escala para @arch-agent
 - **Dúvida sobre legislação** → escala para @arch-agent (consulta PALC/DICQ)
 - **Bug complexo** → escala para @arch-agent

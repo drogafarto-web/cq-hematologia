@@ -12,11 +12,7 @@
 
 import { describe, it, before, after } from 'node:test';
 import assert from 'node:assert';
-import {
-  initializeApp,
-  cert,
-  deleteApp,
-} from 'firebase-admin/app';
+import { initializeApp, cert, deleteApp } from 'firebase-admin/app';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getAuth } from 'firebase-admin/auth';
 import { getFunctions } from 'firebase-admin/functions';
@@ -60,7 +56,7 @@ describe('Wave 3 — Audit PDF Export', () => {
     return result.data.auditoriaId;
   }).timeout(testTimeout);
 
-  it('should install checklist template', async function() {
+  it('should install checklist template', async function () {
     const auditoriaId = await this.parent.tests[0].result;
     const installTemplate = functions.httpsCallable('installChecklistTemplate');
 
@@ -73,12 +69,18 @@ describe('Wave 3 — Audit PDF Export', () => {
     assert.ok(result.data.success);
     assert.ok(result.data.sessaoId);
     assert.equal(result.data.itemsCreated, 115); // ~115 DICQ items
-    console.log('✓ Checklist installed:', result.data.sessaoId, 'with', result.data.itemsCreated, 'items');
+    console.log(
+      '✓ Checklist installed:',
+      result.data.sessaoId,
+      'with',
+      result.data.itemsCreated,
+      'items',
+    );
 
     return { auditoriaId, sessaoId: result.data.sessaoId };
   }).timeout(testTimeout);
 
-  it('should register achado with severity crítica', async function() {
+  it('should register achado with severity crítica', async function () {
     const context = await this.parent.tests[1].result;
     const { auditoriaId, sessaoId } = context;
 
@@ -103,7 +105,7 @@ describe('Wave 3 — Audit PDF Export', () => {
     return { ...context, achadoId: result.data.achadoId, ncId: result.data.ncId };
   }).timeout(testTimeout);
 
-  it('should generate audit PDF <10MB', async function() {
+  it('should generate audit PDF <10MB', async function () {
     const context = await this.parent.tests[2].result;
     const { auditoriaId, sessaoId } = context;
 
@@ -129,7 +131,7 @@ describe('Wave 3 — Audit PDF Export', () => {
     return { ...context, pdfUrl: result.data.pdfUrl, pdfSizeMB };
   }).timeout(testTimeout);
 
-  it('should verify PDF structure via download', async function() {
+  it('should verify PDF structure via download', async function () {
     const context = await this.parent.tests[3].result;
     const { pdfUrl } = context;
 

@@ -11,11 +11,11 @@ O navegador ou uma **extensão** (uBlock, AdGuard, Privacy Badger, Brave Shields
 
 O HC Quality passa a **classificar** o erro do listener com uma sonda unary e a distinguir:
 
-| Situação | Significado provável |
-|----------|----------------------|
+| Situação                                                             | Significado provável                                      |
+| -------------------------------------------------------------------- | --------------------------------------------------------- |
 | Listener `permission-denied` + unary **OK** + `modules.ceq === true` | Suspeita forte de **bloqueio de transporte** / WebChannel |
-| Listener + unary **permission-denied** | **Regras** ou **claims** / membership |
-| Unary falha com outro código | Rede, índice, regra, etc. |
+| Listener + unary **permission-denied**                               | **Regras** ou **claims** / membership                     |
+| Unary falha com outro código                                         | Rede, índice, regra, etc.                                 |
 
 ## Checklist rápido (utilizador)
 

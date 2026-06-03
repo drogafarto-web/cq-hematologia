@@ -21,7 +21,7 @@ export interface OCRUploadModalProps {
   onClose: () => void;
   expectedAnalytes: AnalitoId[];
   onAccept: (report: OCRValidationReport, imageStoragePath: string) => void;
-  consentToken: string;  // patient consent — caller must obtain before opening
+  consentToken: string; // patient consent — caller must obtain before opening
 }
 
 // ─── States ────────────────────────────────────────────────────────────────
@@ -48,19 +48,16 @@ export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element {
     dragOverRef.current = false;
   }, []);
 
-  const handleDrop = useCallback(
-    (e: React.DragEvent) => {
-      e.preventDefault();
-      dragOverRef.current = false;
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    dragOverRef.current = false;
 
-      const files = e.dataTransfer.files;
-      if (files && files.length > 0) {
-        const file = files[0];
-        handleFileSelect(file);
-      }
-    },
-    []
-  );
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+      handleFileSelect(file);
+    }
+  }, []);
 
   const handleFileSelect = useCallback((file: File) => {
     // Validate file type
@@ -103,7 +100,7 @@ export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element {
         setState('error');
       }
     },
-    [ocrValidation, expectedAnalytes, consentToken]
+    [ocrValidation, expectedAnalytes, consentToken],
   );
 
   const handleAccept = useCallback(() => {
@@ -133,10 +130,7 @@ export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element {
     >
       <div className="w-full max-w-md rounded-2xl border border-white/10 bg-[#1a1a1f] p-6">
         {/* Header */}
-        <h2
-          id="ocr-modal-title"
-          className="text-xl font-medium tracking-tight text-white"
-        >
+        <h2 id="ocr-modal-title" className="text-xl font-medium tracking-tight text-white">
           Upload Analyte Strip
         </h2>
 
@@ -153,9 +147,7 @@ export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element {
                   : 'border-white/20 hover:border-white/30'
               }`}
             >
-              <p className="text-sm text-white/70">
-                Drag image here or click to browse
-              </p>
+              <p className="text-sm text-white/70">Drag image here or click to browse</p>
               <input
                 type="file"
                 accept="image/png,image/jpeg,image/webp"
@@ -183,9 +175,7 @@ export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element {
         {state === 'preview' && ocrValidation.validation && (
           <div className="mt-4 space-y-4">
             <div className="space-y-2">
-              <h3 className="text-sm font-medium text-white/70">
-                Found Analytes
-              </h3>
+              <h3 className="text-sm font-medium text-white/70">Found Analytes</h3>
               <div className="space-y-1">
                 {ocrValidation.parsed?.analytes.map((a, i) => (
                   <div

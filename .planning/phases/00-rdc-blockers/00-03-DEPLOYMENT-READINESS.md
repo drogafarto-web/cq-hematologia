@@ -12,7 +12,7 @@
 ### TypeScript & Build Verification
 
 - [x] Web TypeScript clean: `npx tsc --noEmit` — no errors
-- [x] Functions TypeScript clean: `cd functions && npx tsc --noEmit` — no errors  
+- [x] Functions TypeScript clean: `cd functions && npx tsc --noEmit` — no errors
 - [x] Web build successful: `npm run build` — 26.88s, all modules bundled
 - [x] Feature chunk created: `feature-lab-apoio` in manualChunks
 - [x] Main bundle delta: <5KB gzip vs. Wave 1 baseline (lazy route + chunking verified)
@@ -25,7 +25,7 @@
 - [x] Firestore + Storage rules emulator: rule syntax valid
 - [x] No TypeScript errors in lab-apoio callables (T2–T4 output)
 - [x] No duplicate module names in functions/src/index.ts
-- [x] All 8 functions callable exports present: labApoio_{create,update,softDelete,registrarAvaliacaoPeriodica,uploadContratoAnexo,checkExpiry} + onContratoEventCreated
+- [x] All 8 functions callable exports present: labApoio\_{create,update,softDelete,registrarAvaliacaoPeriodica,uploadContratoAnexo,checkExpiry} + onContratoEventCreated
 
 ### Rules & Indexes
 
@@ -60,6 +60,7 @@ node functions/scripts/provision-modules-claims.mjs --module lab-apoio
 ```
 
 Expected output:
+
 - Scans Firebase Auth users
 - Lists users with labIds
 - Reports: X users without labs (skipped), Y already have all modules, Z need update for lab-apoio
@@ -74,6 +75,7 @@ node functions/scripts/provision-modules-claims.mjs --module lab-apoio --apply \
 ```
 
 Expected output:
+
 - Progress bar: `progresso: Z/Z`
 - Audit log entry created in `auditLogs` collection
 - Each user's custom claim `modules['lab-apoio'] = true` set
@@ -82,6 +84,7 @@ Expected output:
 ### Verification
 
 After apply, users must:
+
 1. **Logout + login** OR
 2. Call `getIdToken(true)` to refresh ID token with new claims
 
@@ -115,6 +118,7 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 ```
 
 **Expected logs:**
+
 ```
 i  deploying firestore
 ✔  firestore:rules - updated successfully
@@ -123,6 +127,7 @@ Deploy complete!
 ```
 
 **Verification:**
+
 - Navigate to [Firebase Console > Firestore > Rules](https://console.firebase.google.com/project/hmatologia2/firestore/rules)
 - Navigate to [Firestore > Indexes](https://console.firebase.google.com/project/hmatologia2/firestore/indexes)
 - Confirm 2 new composite indexes are visible (status: "Enabled" or "Creating")
@@ -141,6 +146,7 @@ firebase deploy --only "functions:labApoio*,functions:onContratoEventCreated" --
 ```
 
 **Expected logs:**
+
 ```
 i  deploying functions
 ✔  functions[labApoio_createContrato]: Successful update operation.
@@ -154,6 +160,7 @@ Deploy complete!
 ```
 
 **Verification:**
+
 - Navigate to [Firebase Console > Functions](https://console.firebase.google.com/project/hmatologia2/functions/list)
 - Confirm 7 new functions are visible with status "OK" (green checkmark)
 - Click each function to verify:
@@ -168,6 +175,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Expected logs:**
+
 ```
 i  deploying hosting
 ✔  hosting[hmatologia2]: file upload complete
@@ -178,6 +186,7 @@ URL: https://hmatologia2.web.app
 ```
 
 **⚠️ IMPORTANT:** After hosting deploy, users must **hard-reload** (Ctrl+Shift+R / Cmd+Shift+R) to see the new bundle:
+
 - Service Worker has `autoUpdate: true` enabled
 - Old bundle stays in user's cache until hard reload
 - New functionality (lab-apoio feature) will not appear until hard reload
@@ -247,17 +256,20 @@ bash scripts/monitor-cloud-logs.sh 24 30
 **Monitoring window:** T+0 (deploy complete) → T+24h  
 **Interval:** Poll every 30 seconds (or custom interval)  
 **Output:**
+
 - Console: real-time streaming logs
 - File: `docs/MONITORING_REPORT_*.md` (auto-generated after 24h)
 - JSON: `docs/monitoring-export-*.json` (for post-analysis)
 
 **Expected baseline:**
+
 - 0 errors in lab-apoio functions (or only expected validation failures)
 - 0 "Permission Denied" errors (rules properly deployed)
 - 0 timeout errors
 - <0.1% error rate overall
 
 **Red flags to investigate:**
+
 - "Cloud Functions exited with status code 500" — callable crashed (check logs in Console)
 - "FAILED_PRECONDITION" — data validation error (check input in smoke test)
 - "NOT_FOUND" — missing collection/document (check Firestore structure)
@@ -270,6 +282,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 **If deployment fails (very unlikely given pre-deploy checks):**
 
 1. **Revert Firestore rules (10s):**
+
    ```bash
    git revert <commit-sha-of-rules-change>
    firebase deploy --only firestore:rules --project hmatologia2
@@ -290,31 +303,33 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 ## Summary of Artifacts to Deploy
 
-| Category | File | Count | Status |
-|----------|------|-------|--------|
-| **Rules** | firestore.rules | 1 | ✅ Modified (lab-apoio block added) |
-| **Indexes** | firestore.indexes.json | 1 | ✅ Modified (2 indexes added) |
-| **Storage** | storage.rules | 1 | ✅ Modified (PDF upload rules) |
-| **Functions** | functions/src/modules/labApoio/*.ts | 8 | ✅ New (scaffold, validators, 6 callables, 1 trigger, 1 cron) |
-| **Functions** | functions/src/index.ts | 1 | ✅ Modified (7 exports added) |
-| **Web** | src/features/lab-apoio/** | 18 | ✅ New (types, services, hooks, 5 components) |
-| **Web** | vite.config.ts | 1 | ✅ Modified (manualChunks) |
-| **Web** | src/AppRouter.tsx | 1 | ✅ Modified (lazy route) |
-| **Web** | src/types/index.ts | 1 | ✅ Modified (View union) |
-| **Web** | src/features/hub/ModuleHub.tsx | 1 | ✅ Modified (tile) |
-| **Web** | CLAUDE.md (root) | 1 | ✅ Modified (module row) |
-| **Documentation** | src/features/lab-apoio/CLAUDE.md | 1 | ✅ New (module governance) |
+| Category          | File                                 | Count | Status                                                        |
+| ----------------- | ------------------------------------ | ----- | ------------------------------------------------------------- |
+| **Rules**         | firestore.rules                      | 1     | ✅ Modified (lab-apoio block added)                           |
+| **Indexes**       | firestore.indexes.json               | 1     | ✅ Modified (2 indexes added)                                 |
+| **Storage**       | storage.rules                        | 1     | ✅ Modified (PDF upload rules)                                |
+| **Functions**     | functions/src/modules/labApoio/\*.ts | 8     | ✅ New (scaffold, validators, 6 callables, 1 trigger, 1 cron) |
+| **Functions**     | functions/src/index.ts               | 1     | ✅ Modified (7 exports added)                                 |
+| **Web**           | src/features/lab-apoio/\*\*          | 18    | ✅ New (types, services, hooks, 5 components)                 |
+| **Web**           | vite.config.ts                       | 1     | ✅ Modified (manualChunks)                                    |
+| **Web**           | src/AppRouter.tsx                    | 1     | ✅ Modified (lazy route)                                      |
+| **Web**           | src/types/index.ts                   | 1     | ✅ Modified (View union)                                      |
+| **Web**           | src/features/hub/ModuleHub.tsx       | 1     | ✅ Modified (tile)                                            |
+| **Web**           | CLAUDE.md (root)                     | 1     | ✅ Modified (module row)                                      |
+| **Documentation** | src/features/lab-apoio/CLAUDE.md     | 1     | ✅ New (module governance)                                    |
 
 ---
 
 ## Post-Deployment Tasks
 
 **Immediate (within 2h of deploy):**
+
 1. ✅ Hard reload + smoke tests (T10 step 5)
 2. ✅ Cloud Logs monitoring starts (T10 step 6)
 3. ✅ Obsidian checkbox: 4.14.8 → `[x]` (manual post-deploy)
 
 **Follow-up (Phase 1):**
+
 - Email infrastructure integration (`checkExpiry` → actual email send)
 - Legal review of contract template (scheduled Week 2)
 - Shell integration verification (lazy route + Hub tile + AppRouter)

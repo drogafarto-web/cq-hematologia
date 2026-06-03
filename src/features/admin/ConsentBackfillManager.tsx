@@ -73,21 +73,15 @@ function Phase1Inventory({ stats, isLoading, onExportCsv }: Phase1Props) {
   return (
     <div className="space-y-6">
       <div className="p-4 bg-white/2 rounded-lg border border-white/5">
-        <h3 className="text-sm font-semibold text-white/90 mb-4">
-          Estatísticas do inventário
-        </h3>
+        <h3 className="text-sm font-semibold text-white/90 mb-4">Estatísticas do inventário</h3>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="p-3 bg-white/1 rounded-lg">
             <p className="text-xs text-white/50">Pacientes ativos</p>
-            <p className="text-2xl font-semibold text-white mt-1">
-              {stats?.inventoryCount ?? '—'}
-            </p>
+            <p className="text-2xl font-semibold text-white mt-1">{stats?.inventoryCount ?? '—'}</p>
           </div>
           <div className="p-3 bg-white/1 rounded-lg">
             <p className="text-xs text-white/50">Com consentimento</p>
-            <p className="text-2xl font-semibold text-white mt-1">
-              {stats?.consentedCount ?? '—'}
-            </p>
+            <p className="text-2xl font-semibold text-white mt-1">{stats?.consentedCount ?? '—'}</p>
           </div>
           <div className="p-3 bg-white/1 rounded-lg">
             <p className="text-xs text-white/50">Sem consentimento</p>
@@ -157,7 +151,9 @@ interface BatchEntry {
 
 interface Phase3Props {
   isLoading: boolean;
-  onBatchSubmit: (entries: BatchEntry[]) => Promise<{ ok: boolean; succeeded: number; failed: number }>;
+  onBatchSubmit: (
+    entries: BatchEntry[],
+  ) => Promise<{ ok: boolean; succeeded: number; failed: number }>;
 }
 
 function Phase3BatchUpload({ isLoading, onBatchSubmit }: Phase3Props) {
@@ -277,9 +273,7 @@ function Phase3BatchUpload({ isLoading, onBatchSubmit }: Phase3Props) {
       <div className="space-y-4">
         <div className="p-4 bg-white/2 rounded-lg border border-white/5 space-y-3">
           <div>
-            <label className="block text-sm font-medium text-white/90 mb-2">
-              Data de início
-            </label>
+            <label className="block text-sm font-medium text-white/90 mb-2">Data de início</label>
             <input
               type="date"
               value={dateRange.start}
@@ -288,9 +282,7 @@ function Phase3BatchUpload({ isLoading, onBatchSubmit }: Phase3Props) {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-white/90 mb-2">
-              Data de fim
-            </label>
+            <label className="block text-sm font-medium text-white/90 mb-2">Data de fim</label>
             <input
               type="date"
               value={dateRange.end}
@@ -345,9 +337,7 @@ function Phase3BatchUpload({ isLoading, onBatchSubmit }: Phase3Props) {
           <label className="cursor-pointer">
             <div className="text-white/70 text-sm font-medium">
               {csvFile ? (
-                <>
-                  ✓ {csvFile.name}
-                </>
+                <>✓ {csvFile.name}</>
               ) : (
                 <>
                   Clique ou arraste o arquivo CSV aqui
@@ -550,14 +540,8 @@ function PhaseStepper({ current, onPhaseSelect }: PhaseStepperProps) {
 
 export function ConsentBackfillManager() {
   const labId = useActiveLabId();
-  const {
-    currentPhase,
-    stats,
-    isLoading,
-    exportPatientList,
-    submitBatch,
-    setCurrentPhase,
-  } = useConsentBackfillPhases(labId);
+  const { currentPhase, stats, isLoading, exportPatientList, submitBatch, setCurrentPhase } =
+    useConsentBackfillPhases(labId);
 
   if (!labId) {
     return (

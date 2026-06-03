@@ -17,18 +17,21 @@ Phase 6 browser-test gate is **deferred** (no MCP browser configured in this ses
 ## Files shipped
 
 ### Primitives (Phase 1)
+
 - `src/features/uroanalise/components/UroStatusBar.tsx` — 56 LOC
 - `src/features/uroanalise/components/UroInputField.tsx` — 145 LOC
 - `src/features/uroanalise/components/UroButtonToggle.tsx` — 95 LOC
 - `src/features/uroanalise/components/UroAnalyteRow.tsx` — 110 LOC
 
 ### Form section (Phase 2)
+
 - `src/features/uroanalise/components/UroFormIdentificationSection.tsx` — 264 LOC
 - `src/features/uroanalise/components/UroQuantitativoRow.tsx` — 181 LOC
 - `src/features/uroanalise/components/UroFormFooterSection.tsx` — 374 LOC
 - `src/features/uroanalise/components/UroanaliseFormRedesigned.tsx` — 320 LOC
 
 ### Navigation + Audit (Phases 3 + 4)
+
 - `src/features/uroanalise/components/UroLotSidebar.tsx` — 488 LOC
 - `src/features/uroanalise/components/UroBreadcrumbHeader.tsx` — 302 LOC
 - `src/features/uroanalise/components/UroMobileTabBar.tsx` — 188 LOC
@@ -37,6 +40,7 @@ Phase 6 browser-test gate is **deferred** (no MCP browser configured in this ses
 - `src/features/uroanalise/components/UroComplianceChecklist.tsx` — 269 LOC
 
 ### Integration shell
+
 - `src/features/uroanalise/components/UroanaliseRedesignedShell.tsx` — 290 LOC
 
 **Total: 15 files, ~3,837 LOC.** All dark-first, all WCAG AA, zero new dependencies.
@@ -54,10 +58,12 @@ Phase 6 browser-test gate is **deferred** (no MCP browser configured in this ses
 Two parallel audit agents reviewed all 15 files:
 
 ### Anti-patterns + design brief audit (`.planning/uroanalise-redesign-AUDIT.md`)
+
 - Verdict: **PASS_WITH_NOTES**
 - Critical fixes applied: 2 em-dash placeholders in `UroAuditTable` replaced with text; 1 unsanctioned shadow on `UroButtonToggle` selected state removed; Amber Scarcity violation in `UroBreadcrumbHeader` (nivel P pill) corrected.
 
 ### A11y + responsive + states audit (`.planning/uroanalise-redesign-A11Y-AUDIT.md`)
+
 - Verdict: **PASS_WITH_NOTES**
 - Critical fixes applied: invalid Tailwind opacity tokens (`/12`, `/8`) rewritten as arbitrary values (`/[0.12]`, `/[0.08]`); invalid `aria-pressed` on tab role removed; focus trap added to `UroAuditTrailDrawer` (Tab cycles within dialog, Shift+Tab respected); status bar timestamp memoized with 60s refresh interval (was re-rendering per keystroke); `motion-reduce:animate-none` added to all 6 `animate-pulse` instances.
 
@@ -84,6 +90,7 @@ The conversation environment does not have an MCP browser configured. The follow
 5. **Operator timing test** — measure entry-to-save latency for a complete urinalysis run; design brief target is <90 seconds.
 
 Recommended path to close this gate:
+
 - Run `npm run dev` locally and navigate to a route that mounts `UroanaliseRedesignedShell` (currently no route binds it; see Integration below).
 - Or invoke `/ultrareview` for an automated multi-agent visual review of the branch.
 
@@ -112,10 +119,11 @@ import { UroanaliseRedesignedShell } from './components/UroanaliseRedesignedShel
   onBulkSign={bulkSignMutation.mutate}
   complianceItems={computeComplianceFromLot(selectedLot)}
   auditTrailEvents={trailEvents}
-/>
+/>;
 ```
 
 Wiring tasks (estimated 2-3 hours):
+
 1. Map `UroanaliseLot` to `UroLotSidebarItem` (1:1 fields).
 2. Map `UroanaliseRun` to `UroAuditRow` (compute `desviosCount` from `analitosNaoConformes`).
 3. Compute `complianceItems` from lot state (validade, decisão RT, NOTIVISA status, etc.).
@@ -137,13 +145,13 @@ Decide before integration so wiring is one-shot, not a refactor.
 
 ## Roadmap status
 
-| Phase | Description | Status |
-|-------|-------------|--------|
-| 1 | Components Base | DELIVERED |
-| 2 | Run Entry Form Redesign | DELIVERED |
-| 3 | Lot List & Navigation | DELIVERED |
-| 4 | Audit View & Compliance | DELIVERED |
-| 5 | Responsive & Polish | DELIVERED |
-| 6 | Browser Testing & Iterate | PARTIAL — automated audits passed, live browser verification deferred |
+| Phase | Description               | Status                                                                |
+| ----- | ------------------------- | --------------------------------------------------------------------- |
+| 1     | Components Base           | DELIVERED                                                             |
+| 2     | Run Entry Form Redesign   | DELIVERED                                                             |
+| 3     | Lot List & Navigation     | DELIVERED                                                             |
+| 4     | Audit View & Compliance   | DELIVERED                                                             |
+| 5     | Responsive & Polish       | DELIVERED                                                             |
+| 6     | Browser Testing & Iterate | PARTIAL — automated audits passed, live browser verification deferred |
 
 End of summary.

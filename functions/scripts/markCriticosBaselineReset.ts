@@ -205,9 +205,7 @@ async function main(): Promise<void> {
   console.log(JSON.stringify(totals, null, 2));
 
   if (dryRun && totals.flagged > 0) {
-    console.log(
-      '\nDry-run complete. Re-run with --confirm to mark the flagged documents.',
-    );
+    console.log('\nDry-run complete. Re-run with --confirm to mark the flagged documents.');
   } else if (!dryRun && totals.flagged > 0) {
     console.log('\nMarking complete. Documents now carry signatureBaselineReset=true.');
   } else {

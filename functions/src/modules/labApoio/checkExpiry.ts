@@ -54,7 +54,9 @@ export const labApoio_checkExpiry = onSchedule(
       for (const contratoDoc of contratosSnap.docs) {
         const contrato = contratoDoc.data();
         const vigenciaFim = new Date(contrato.vigenciaFim as string);
-        const daysUntil = Math.floor((vigenciaFim.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
+        const daysUntil = Math.floor(
+          (vigenciaFim.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+        );
 
         // Check each threshold
         for (const threshold of thresholds) {
@@ -75,9 +77,13 @@ export const labApoio_checkExpiry = onSchedule(
             const existingNotif = await db
               .collection(`labs/${labId}/notifications`)
               .where('idempotencyKey', '==', idempotencyKey)
-              .where('timestamp', '>=', admin.firestore.Timestamp.fromDate(
-                new Date(now.getTime() - 24 * 60 * 60 * 1000), // Last 24h
-              ))
+              .where(
+                'timestamp',
+                '>=',
+                admin.firestore.Timestamp.fromDate(
+                  new Date(now.getTime() - 24 * 60 * 60 * 1000), // Last 24h
+                ),
+              )
               .limit(1)
               .get();
 
@@ -99,7 +105,9 @@ export const labApoio_checkExpiry = onSchedule(
               notificationsCreated++;
 
               // TODO: Send email via emailBackup module or logging
-              console.log(`[LABAPOIO_EXPIRY] Created notification for ${labId}/${contratoDoc.id}: ${threshold}d threshold`);
+              console.log(
+                `[LABAPOIO_EXPIRY] Created notification for ${labId}/${contratoDoc.id}: ${threshold}d threshold`,
+              );
             }
           }
         }

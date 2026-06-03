@@ -17,7 +17,7 @@ const BatchSaveResponsesInput = z.object({
         resposta: z.enum(['conforme', 'nao-conforme', 'N/A']),
         severidade: z.string().optional(),
         observacao: z.string().max(2000).optional(),
-      })
+      }),
     )
     .min(1, 'Pelo menos uma resposta é obrigatória')
     .max(500, 'Máximo de 500 respostas por batch'),
@@ -123,7 +123,7 @@ export const batchSaveResponses = onCall(
       // Update session counters
       batch.update(sessaoRef, {
         itensConforme: admin.firestore.FieldValue.increment(totalConforme),
-        'itensNãoConforme': admin.firestore.FieldValue.increment(totalNaoConforme),
+        itensNãoConforme: admin.firestore.FieldValue.increment(totalNaoConforme),
         itensNA: admin.firestore.FieldValue.increment(totalNA),
         updatedAt: admin.firestore.FieldValue.serverTimestamp(),
         updatedBy: operatorId,
@@ -140,5 +140,5 @@ export const batchSaveResponses = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao salvar respostas em batch');
     }
-  }
+  },
 );

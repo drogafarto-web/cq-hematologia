@@ -35,20 +35,20 @@ Phase 8 está em execução em outra janela. Phases 9, 10, 11, 12 já têm plann
 
 ## Decisões CTO travadas no discuss-phase (2026-05-06)
 
-| Decisão | Valor | Fonte |
-|---------|-------|-------|
-| Arquitetura | **Extensão do SGQ existente** (não novo módulo) | AskUserQuestion |
-| Drive auth | OAuth browser + preview obrigatório RT | AskUserQuestion |
-| Versionamento | Flat v1.0 + Drive URL como referência | AskUserQuestion |
-| LD | Dinâmica via módulo Pessoal (Phase 8) | Inferido (best practice) |
-| Aprovação RT | Obrigatória pre-vigente | Inferido (DICQ 4.3 explícito) |
-| Multi-tenant | Per-lab desde dia 1 (`labId` enforced) | Inferido (Labclin tem 3 unidades + outros labs futuros) |
-| Sync nightly | Defer v1.4 (big-bang migration) | Inferido (simplifica MVP) |
-| 15 tipos documento | Locked (LM-01 source of truth) | Síntese Obsidian |
-| 17 setores Riopomba | Locked (LM-01 source) | Síntese Obsidian |
-| FRs em Forms | Linkados via URL (não snapshot) | Síntese Obsidian |
-| Documentos externos | LM-02 separado (referências) | Síntese Obsidian |
-| Defer v1.4 | Sync nightly, generalização importer, histórico Drive completo | Backlog |
+| Decisão             | Valor                                                          | Fonte                                                   |
+| ------------------- | -------------------------------------------------------------- | ------------------------------------------------------- |
+| Arquitetura         | **Extensão do SGQ existente** (não novo módulo)                | AskUserQuestion                                         |
+| Drive auth          | OAuth browser + preview obrigatório RT                         | AskUserQuestion                                         |
+| Versionamento       | Flat v1.0 + Drive URL como referência                          | AskUserQuestion                                         |
+| LD                  | Dinâmica via módulo Pessoal (Phase 8)                          | Inferido (best practice)                                |
+| Aprovação RT        | Obrigatória pre-vigente                                        | Inferido (DICQ 4.3 explícito)                           |
+| Multi-tenant        | Per-lab desde dia 1 (`labId` enforced)                         | Inferido (Labclin tem 3 unidades + outros labs futuros) |
+| Sync nightly        | Defer v1.4 (big-bang migration)                                | Inferido (simplifica MVP)                               |
+| 15 tipos documento  | Locked (LM-01 source of truth)                                 | Síntese Obsidian                                        |
+| 17 setores Riopomba | Locked (LM-01 source)                                          | Síntese Obsidian                                        |
+| FRs em Forms        | Linkados via URL (não snapshot)                                | Síntese Obsidian                                        |
+| Documentos externos | LM-02 separado (referências)                                   | Síntese Obsidian                                        |
+| Defer v1.4          | Sync nightly, generalização importer, histórico Drive completo | Backlog                                                 |
 
 ---
 
@@ -62,6 +62,7 @@ Phase 8 está em execução em outra janela. Phases 9, 10, 11, 12 já têm plann
 - **DICQ baseline impact:** 71.3% → ≥76% (+5-8 pontos no Block B só)
 
 Arquivos Obsidian consumidos:
+
 - `HC_Quality_Labclin_Drive_Inventory.md` (CRITICAL — inventário completo)
 - `HC_Quality_QMS_Index_2026-04-27.md`
 - `HC_Quality_Compliance_DICQ.md` (Block B)
@@ -120,6 +121,7 @@ Mesma estratégia das Phases 9, 10, 11.
 ## Notas de qualidade
 
 Padrão world-class aplicado:
+
 - 4 perguntas críticas via AskUserQuestion (3 respondidas + 4ª inferida com base em CLAUDE.md ditames)
 - Síntese Obsidian estruturada com inventário completo Drive Riopomba
 - 6 PLAN.md com `must_haves`, `key_links`, `deviation_protocol`, `post_plan_gates`
@@ -138,20 +140,20 @@ Não shipei nada de mediano. Cada PLAN.md está executável.
 
 ## Phase 12 vs Phases 9/10/11 (comparação)
 
-| Aspecto | Phase 9 | Phase 10 | Phase 11 | Phase 12 |
-|---------|---------|----------|----------|----------|
-| Tipo | CIQ analítico | Pós-analítico | Feedback Loop | **Gestão Documental** |
-| Surfaces | 1 | 3 | 4 | **4 (estende SGQ)** |
-| Auth externa | Não | Sim (médico) | Sim (paciente) | **Não (interno)** |
-| Migração de dados real | Não | Não | Não | **Sim (~80 docs Riopomba)** |
-| Integração externa | Worklab read | Resend | Resend + Gemini | **Google Drive API + Sheets** |
-| Plans | 5 | 7 | 8 | **6** |
-| Duração | 8 sem | 12.5 sem | 12.5 sem | **9 sem** |
-| Risk profile | Médio | Alto | Alto | **Médio (mas migração tem risco operacional)** |
-| Compliance | RDC 978 179-180 | RDC 978 167+184-191 | DICQ 4.8/4.14.x + LGPD | **RDC 978 117 + DICQ Block B** |
-| Time | Eng A+B | Eng C+D | Eng E+F | **Eng G+H** |
-| Diferenciação mercado | Médio | Alto | **Muito alto** (lacuna) | Médio (commodity) |
-| Valor concreto Riopomba | Médio | Alto | Médio | **MUITO ALTO** (migração concreta) |
+| Aspecto                 | Phase 9         | Phase 10            | Phase 11                | Phase 12                                       |
+| ----------------------- | --------------- | ------------------- | ----------------------- | ---------------------------------------------- |
+| Tipo                    | CIQ analítico   | Pós-analítico       | Feedback Loop           | **Gestão Documental**                          |
+| Surfaces                | 1               | 3                   | 4                       | **4 (estende SGQ)**                            |
+| Auth externa            | Não             | Sim (médico)        | Sim (paciente)          | **Não (interno)**                              |
+| Migração de dados real  | Não             | Não                 | Não                     | **Sim (~80 docs Riopomba)**                    |
+| Integração externa      | Worklab read    | Resend              | Resend + Gemini         | **Google Drive API + Sheets**                  |
+| Plans                   | 5               | 7                   | 8                       | **6**                                          |
+| Duração                 | 8 sem           | 12.5 sem            | 12.5 sem                | **9 sem**                                      |
+| Risk profile            | Médio           | Alto                | Alto                    | **Médio (mas migração tem risco operacional)** |
+| Compliance              | RDC 978 179-180 | RDC 978 167+184-191 | DICQ 4.8/4.14.x + LGPD  | **RDC 978 117 + DICQ Block B**                 |
+| Time                    | Eng A+B         | Eng C+D             | Eng E+F                 | **Eng G+H**                                    |
+| Diferenciação mercado   | Médio           | Alto                | **Muito alto** (lacuna) | Médio (commodity)                              |
+| Valor concreto Riopomba | Médio           | Alto                | Médio                   | **MUITO ALTO** (migração concreta)             |
 
 Phase 12 é a única do v1.3 com **migração de dados real**. Riopomba para de operar no Drive e vira HC Quality nativo. É a diferença entre "lab adopted HC Quality" e "lab uses HC Quality as system of record". Estratégico para case study + selling point para outros labs.
 
@@ -170,6 +172,7 @@ Phase 12 (SGD + Drive Importer Riopomba)    [planejada — ready]
 ```
 
 **v1.3 Stream B (Phases 9-12) totalmente planejado.** Quando todas as 4 phases concluírem:
+
 - 25 → 32+ módulos em produção (depending count)
 - DICQ baseline Riopomba: 71.3% → estimado ≥85%
 - CAPA closure: 11/12 (NC-011 deferido v1.4)

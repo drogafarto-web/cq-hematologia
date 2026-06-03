@@ -54,10 +54,7 @@ export function subscribeReclamacoes(
 
   constraints.push(orderBy('createdAt', 'desc'));
 
-  const q = query(
-    collection(db, 'labs', labId, 'reclamacoes'),
-    ...constraints,
-  );
+  const q = query(collection(db, 'labs', labId, 'reclamacoes'), ...constraints);
 
   return onSnapshot(q, (snap) => {
     const rows: Reclamacao[] = [];
@@ -81,10 +78,7 @@ export function subscribeReclamacoes(
   });
 }
 
-export async function getReclamacao(
-  labId: string,
-  id: string,
-): Promise<Reclamacao | undefined> {
+export async function getReclamacao(labId: string, id: string): Promise<Reclamacao | undefined> {
   const ref = doc(db, 'labs', labId, 'reclamacoes', id);
   const snap = await getDoc(ref);
   if (!snap.exists()) return undefined;

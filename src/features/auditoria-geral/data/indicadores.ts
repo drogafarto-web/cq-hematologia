@@ -1,7 +1,7 @@
 import type { Indicador } from '../types';
 import niveisData from './niveis.json';
 
-const raw: Omit<Indicador, "niveis">[] = [
+const raw: Omit<Indicador, 'niveis'>[] = [
   {
     id: 'fr044-01',
     numero: 1,
@@ -325,7 +325,8 @@ const raw: Omit<Indicador, "niveis">[] = [
   {
     id: 'fr044-33',
     numero: 33,
-    indicador: 'Procedimentos documentados que orientam as atividades dos serviços que executam EAC',
+    indicador:
+      'Procedimentos documentados que orientam as atividades dos serviços que executam EAC',
     bloco: 'H',
     categoria: 'procedimentos-rastreabilidade',
     marcoRegulatorio: 'Art. 112 da RDC 978/2025.',

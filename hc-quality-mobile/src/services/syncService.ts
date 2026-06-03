@@ -2,7 +2,12 @@
 import { httpsCallable } from 'firebase/functions';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { functions, storage } from '../core/firebase';
-import { useAuditOfflineStore, ChecklistResponse, OfflineAchado, OfflineEvidence } from '../store/useAuditOfflineStore';
+import {
+  useAuditOfflineStore,
+  ChecklistResponse,
+  OfflineAchado,
+  OfflineEvidence,
+} from '../store/useAuditOfflineStore';
 
 export interface SyncResult {
   success: boolean;
@@ -28,7 +33,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = MAX_RETRIES): Promis
       return await fn();
     } catch (error) {
       if (attempt === retries - 1) throw error;
-      await new Promise(resolve => setTimeout(resolve, RETRY_DELAYS[attempt]));
+      await new Promise((resolve) => setTimeout(resolve, RETRY_DELAYS[attempt]));
     }
   }
   throw new Error('Max retries exceeded');
@@ -75,7 +80,13 @@ export class SyncService {
   async syncNow(): Promise<SyncResult> {
     const store = useAuditOfflineStore.getState();
     if (store.syncInProgress || !this.isOnline) {
-      return { success: false, responsesSynced: 0, achadosSynced: 0, evidencesSynced: 0, errors: ['Sync already in progress or offline'] };
+      return {
+        success: false,
+        responsesSynced: 0,
+        achadosSynced: 0,
+        evidencesSynced: 0,
+        errors: ['Sync already in progress or offline'],
+      };
     }
 
     store.setSyncInProgress(true);
@@ -90,7 +101,13 @@ export class SyncService {
       const { labId, currentAuditoriaId, currentSessionId } = store;
 
       if (!labId || !currentAuditoriaId || !currentSessionId) {
-        return { success: true, responsesSynced: 0, achadosSynced: 0, evidencesSynced: 0, errors: [] };
+        return {
+          success: true,
+          responsesSynced: 0,
+          achadosSynced: 0,
+          evidencesSynced: 0,
+          errors: [],
+        };
       }
 
       // Sync responses in batch
@@ -102,15 +119,15 @@ export class SyncService {
               labId,
               auditoriaId: currentAuditoriaId,
               sessaoId: currentSessionId,
-              responses: responses.map(r => ({
+              responses: responses.map((r) => ({
                 itemId: r.itemId,
                 resposta: r.resposta,
                 severidade: r.severidade,
                 observacao: r.observacao,
               })),
-            })
+            }),
           );
-          responses.forEach(r => store.markResponseSynced(r.itemId));
+          responses.forEach((r) => store.markResponseSynced(r.itemId));
           responsesSynced = responses.length;
         } catch (err: any) {
           errors.push(`Responses: ${err.message}`);
@@ -147,7 +164,7 @@ export class SyncService {
               itemId: achado.itemId,
               descricao: achado.descricao,
               severidade: achado.severidade,
-            })
+            }),
           );
           store.markAchadoSynced(achado.id);
           achadosSynced++;
@@ -163,7 +180,13 @@ export class SyncService {
       this.emitStatus();
     }
 
-    return { success: errors.length === 0, responsesSynced, achadosSynced, evidencesSynced, errors };
+    return {
+      success: errors.length === 0,
+      responsesSynced,
+      achadosSynced,
+      evidencesSynced,
+      errors,
+    };
   }
 
   getSyncStatus(): SyncStatus {

@@ -29,7 +29,7 @@ const metrics: QueryMetric[] = [];
 
 export const profileQuery = async <T>(
   operation: string,
-  fn: () => Promise<T> | (() => void)
+  fn: () => Promise<T> | (() => void),
 ): Promise<T | undefined> => {
   const startTime = performance.now();
   const timestamp = new Date().toISOString();
@@ -44,7 +44,7 @@ export const profileQuery = async <T>(
 
     if (warn) {
       console.warn(
-        `⚠️ [Firestore] Slow query: "${operation}" took ${duration.toFixed(0)}ms (threshold: ${WARN_THRESHOLD_MS}ms)`
+        `⚠️ [Firestore] Slow query: "${operation}" took ${duration.toFixed(0)}ms (threshold: ${WARN_THRESHOLD_MS}ms)`,
       );
     } else if (import.meta.env.VITE_DEBUG_FIRESTORE === 'true') {
       console.log(`✓ [Firestore] "${operation}": ${duration.toFixed(0)}ms`);
@@ -73,7 +73,7 @@ export const getProfilerStats = () => {
 
   const totalTime = metrics.reduce((sum, m) => sum + m.duration, 0);
   const avgDuration = totalTime / metrics.length;
-  const slowQueries = metrics.filter(m => m.warn).length;
+  const slowQueries = metrics.filter((m) => m.warn).length;
 
   return {
     count: metrics.length,
@@ -98,6 +98,6 @@ export const logProfilerMetrics = () => {
   const stats = getProfilerStats();
   console.table(stats.metrics);
   console.log(
-    `Summary: ${stats.count} queries, avg ${stats.avgDuration}ms, ${stats.slowQueries} slow`
+    `Summary: ${stats.count} queries, avg ${stats.avgDuration}ms, ${stats.slowQueries} slow`,
   );
 };

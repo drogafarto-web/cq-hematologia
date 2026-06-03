@@ -20,7 +20,10 @@ export type CeqAccessValidationReport = {
   notes: string[];
 };
 
-async function probeParticipacoesUnary(db: Firestore, labId: string): Promise<FirestoreUnaryProbeResult> {
+async function probeParticipacoesUnary(
+  db: Firestore,
+  labId: string,
+): Promise<FirestoreUnaryProbeResult> {
   const q = query(
     collection(db, 'labs', labId, 'ceq-participacoes'),
     where('ativo', '==', true),
@@ -89,7 +92,9 @@ export async function validateCeqAccess(params: {
     );
   }
   if (unaryParticipacoes.status === 'ok' && authReport.modulesCeq === true) {
-    notes.push('Token com CEQ e leitura unary OK: se o listener falhar, suspeite de bloqueio WebChannel/extensão.');
+    notes.push(
+      'Token com CEQ e leitura unary OK: se o listener falhar, suspeite de bloqueio WebChannel/extensão.',
+    );
   }
 
   return {

@@ -57,6 +57,8 @@ export async function saveVHSExam(
   sig1: string,
   uid: string,
   sig2?: string,
+  sigVal1?: string,
+  sigVal2?: string,
 ): Promise<string> {
   const leitura1 = toLeitura(input.leitura1, sig1);
 
@@ -77,21 +79,42 @@ export async function saveVHSExam(
     },
   };
 
-  if (input.leitura2 && sig2) {
-    const leitura2 = toLeitura(input.leitura2, sig2);
-    const delta = calcDivergencia(leitura1.valor, leitura2.valor);
-    const status = delta > VHS_TOLERANCIA_MM_H ? 'divergente' : 'liberado';
-
-    base.leitura2 = leitura2;
-    base.divergencia = delta;
-    base.status = status;
-
-    if (status === 'liberado') {
-      base.liberadoEm = serverTimestamp();
-      base.liberadoPor = uid;
+  if (input.isValidationActive) {
+    base.isValidationActive = true;
+    if (input.leitura2 && sig2) {
+      base.leitura2 = toLeitura(input.leitura2, sig2);
     }
+    if (input.validacaoLeitura1 && sigVal1) {
+      base.validacaoLeitura1 = toLeitura(input.validacaoLeitura1, sigVal1);
+    }
+    if (input.validacaoLeitura2 && sigVal2) {
+      base.validacaoLeitura2 = toLeitura(input.validacaoLeitura2, sigVal2);
+    }
+    base.status = 'liberado';
+    base.liberadoEm = serverTimestamp();
+    base.liberadoPor = uid;
   } else {
-    base.status = 'pendente';
+    // Se a dupla checagem opcional não estiver ativa, os campos de validação são enviados como null (ou simplesmente não incluídos)
+    base.isValidationActive = null;
+    base.validacaoLeitura1 = null;
+    base.validacaoLeitura2 = null;
+
+    if (input.leitura2 && sig2) {
+      const leitura2 = toLeitura(input.leitura2, sig2);
+      const delta = calcDivergencia(leitura1.valor, leitura2.valor);
+      const status = delta > VHS_TOLERANCIA_MM_H ? 'divergente' : 'liberado';
+
+      base.leitura2 = leitura2;
+      base.divergencia = delta;
+      base.status = status;
+
+      if (status === 'liberado') {
+        base.liberadoEm = serverTimestamp();
+        base.liberadoPor = uid;
+      }
+    } else {
+      base.status = 'pendente';
+    }
   }
 
   const ref = await addDoc(vhsCollection(labId), base);

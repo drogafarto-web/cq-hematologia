@@ -3,7 +3,7 @@ stream: C
 phase: 2
 title: Batch 1/2 Hardening & Performance Audit
 status: PARTIAL
-assessed_date: "2026-05-05"
+assessed_date: '2026-05-05'
 phases_complete:
   - CI infrastructure (Lighthouse CI workflow + config)
 phases_partial:
@@ -39,12 +39,14 @@ Uses `LHCI_GITHUB_APP_TOKEN` secret for GitHub App integration.
 **`lighthouserc.js`** — EXISTS  
 Targets production URL `https://hmatologia2.web.app` with 3 runs.  
 Assert thresholds configured:
+
 - Performance ≥ 0.85 (warn)
 - Accessibility ≥ 0.9 (warn)
 - FCP ≤ 2,000ms, LCP ≤ 2,500ms, TBT ≤ 300ms, CLS ≤ 0.1 (all warn)
 
 **Firestore indexes (partial)** — EXISTS IN `firestore.indexes.json`  
 Stream C specified 5 required composite indexes. Current `firestore.indexes.json` has:
+
 - `naoConformidades (labId + dataAbertura DESC)` — present (covers NC query)
 - `treinamentos (ativo + titulo)` — present but missing `operadorId + data DESC` pattern
 - Missing: `pops (labId + deletadoEm + criadoEm DESC)`
@@ -73,20 +75,21 @@ Plan Phase 4.1 specifies custom traces (`pops_list_load`, `nc_open_dialog`, `aud
 
 ## Status by Phase
 
-| Phase | Deliverable | Status | Evidence |
-|-------|-------------|--------|----------|
-| CI Infrastructure | lighthouse-ci.yml + lighthouserc.js | COMPLETE | Files exist with correct thresholds |
-| Phase 1 — Bundle Analysis | Identify + fix xlsx/pdf.worker conflicts | NOT STARTED | No bundle fix commits found |
-| Phase 2 — Web Vitals Baseline | Profiling + React optimization | NOT STARTED | No profiling artifacts |
-| Phase 3 — Firestore Indexing | 5 composite indexes created | PARTIAL | 1-2 of 5 Stream C indexes present |
-| Phase 4 — Monitoring & Alerts | Firebase Perf Monitoring + custom traces | NOT STARTED | No implementation evidence |
-| Phase 5 — Pattern Docs | PERFORMANCE_PATTERNS.md + performance.md rule | NOT STARTED | Files do not exist |
+| Phase                         | Deliverable                                   | Status      | Evidence                            |
+| ----------------------------- | --------------------------------------------- | ----------- | ----------------------------------- |
+| CI Infrastructure             | lighthouse-ci.yml + lighthouserc.js           | COMPLETE    | Files exist with correct thresholds |
+| Phase 1 — Bundle Analysis     | Identify + fix xlsx/pdf.worker conflicts      | NOT STARTED | No bundle fix commits found         |
+| Phase 2 — Web Vitals Baseline | Profiling + React optimization                | NOT STARTED | No profiling artifacts              |
+| Phase 3 — Firestore Indexing  | 5 composite indexes created                   | PARTIAL     | 1-2 of 5 Stream C indexes present   |
+| Phase 4 — Monitoring & Alerts | Firebase Perf Monitoring + custom traces      | NOT STARTED | No implementation evidence          |
+| Phase 5 — Pattern Docs        | PERFORMANCE_PATTERNS.md + performance.md rule | NOT STARTED | Files do not exist                  |
 
 ---
 
 ## What Remains for Stream C Completion
 
 ### Concrete File Deliverables (Claude can create)
+
 1. `docs/PERFORMANCE_PATTERNS.md` — document known bottlenecks, query patterns, optimization recipes
 2. `.claude/rules/performance.md` — enforced rule file for future module development
 3. Missing Firestore indexes in `firestore.indexes.json`:
@@ -96,12 +99,14 @@ Plan Phase 4.1 specifies custom traces (`pops_list_load`, `nc_open_dialog`, `aud
    - `treinamentos (labId + operadorId + data DESC)` (current index missing operadorId)
 
 ### Human-Execute Steps (Require Runtime Access)
+
 - Bundle profiling + `xlsx`/`pdf.worker` optimization (requires build + DevTools measurement)
 - Firebase Performance Monitoring custom traces setup (requires Firebase Console + SDK instrumentation)
 - Alert threshold configuration (requires Firebase Console)
 - React DevTools Profiler sessions for each module
 
 ### Lighthouse CI Gate
+
 The `lighthouserc.js` uses `warn` (not `error`) for all assertions — so the CI does not currently block deploys on performance regression. Per Stream C success criteria, this should be a hard gate. Consider changing `warn` → `error` for LCP and Performance score once a baseline run passes.
 
 ---
@@ -111,6 +116,7 @@ The `lighthouserc.js` uses `warn` (not `error`) for all assertions — so the CI
 Stream C is a 6-week audit plan created 2026-05-05 and marked `in-progress`. Given that Phase 3.2 and 3.3 are now complete (per STATE.md), Stream C optimization work was likely deprioritized in favor of feature delivery. The Lighthouse CI workflow running weekly provides ongoing visibility, but without the pattern docs and monitoring setup, regressions may go undetected.
 
 The two highest-impact gaps:
+
 1. **`xlsx` static/dynamic conflict** — both `educacao-continuada` and `controle-temperatura` import xlsx; if one uses dynamic import and one uses static, the bundle pays twice (~500KB gzip). This is the single largest bundle reduction opportunity.
 2. **Missing `.claude/rules/performance.md`** — without an enforced rule, new modules (Phase 3.x) may repeat patterns that Stream C was meant to prevent.
 

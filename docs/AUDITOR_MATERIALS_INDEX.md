@@ -21,35 +21,37 @@ status: Ready for distribution
 ## Quick Navigation by Role
 
 ### For External Auditor (Compliance Lead)
+
 **Start here → Use in order:**
 
 1. **AUDITOR_ALIGNMENT_CALL_AGENDA.md** (this meeting)
    - 120-min call flow + materials overview
-   - *When to use:* Before/during alignment call
+   - _When to use:_ Before/during alignment call
 
 2. **COMPLIANCE_SUMMARY_v1.3.md** (12 pages)
    - RDC 978 article mapping, DICQ block scores, LGPD inventory, ISO 15189 alignment
-   - *When to use:* Detailed audit trail reference; verify v1.3 baseline (78.5%)
+   - _When to use:_ Detailed audit trail reference; verify v1.3 baseline (78.5%)
 
 3. **v1.3-COMPLETION-SUMMARY.md** (4 pages)
    - What shipped, what deferred, metrics, known issues resolved
-   - *When to use:* Quick overview of v1.3 scope + scope boundaries
+   - _When to use:_ Quick overview of v1.3 scope + scope boundaries
 
 4. **v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md** (12 pages)
    - Weekly compliance matrix, DICQ roadmap, RDC article phased coverage, CAPA closure schedule
-   - *When to use:* Weekly Friday calls (13:30 BRT review before 14:00 call); track progress
+   - _When to use:_ Weekly Friday calls (13:30 BRT review before 14:00 call); track progress
 
 5. **ADR-0022-capa-closure-workflow-5-state-machine.md** (8 pages)
    - CAPA state machine technical spec; Cloud Function callables; Firestore schema; audit trail design
-   - *When to use:* Deep-dive into Phase 4 CAPA implementation; verify against code before sign-off
+   - _When to use:_ Deep-dive into Phase 4 CAPA implementation; verify against code before sign-off
 
 6. **CLOUD_LOGS_QUICK_REFERENCE.md** (2 pages)
    - Cloud Logs setup, critical filters, red flags, emergency procedures
-   - *When to use:* Spot-check production health; emergency troubleshooting
+   - _When to use:_ Spot-check production health; emergency troubleshooting
 
 ---
 
 ### For QA Lead (Liaison)
+
 **Maintain these weekly:**
 
 1. **v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md** (update every Friday 14:00 BRT)
@@ -68,6 +70,7 @@ status: Ready for distribution
 ---
 
 ### For CTO (Technical Authority)
+
 **Use for Phase 4 delivery + design decisions:**
 
 1. **ADR-0022-capa-closure-workflow-5-state-machine.md** (design specification)
@@ -91,50 +94,55 @@ status: Ready for distribution
 ## Materials by Category
 
 ### 1. Compliance Audit Documents
-*For auditor verification + sign-off*
 
-| Document | Pages | Purpose | Owner | Update Freq |
-|----------|-------|---------|-------|-------------|
-| **COMPLIANCE_SUMMARY_v1.3.md** | 12 | v1.3 RDC/DICQ/LGPD/ISO mapping; audit-ready baseline | QA Lead | Never (frozen at v1.3) |
-| **v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md** | 12 | Weekly progress tracker; RDC article roadmap; CAPA closure schedule | QA Lead | Every Friday |
-| **AUDITOR_ALIGNMENT_CALL_AGENDA.md** | 15 | Alignment call template; action items; contact list | QA Lead | Before each call |
-| **Weekly Cloud Logs Summary** | 1 | Error count + types + resolution status (JSON export) | QA Lead | Every Friday 13:30 BRT |
+_For auditor verification + sign-off_
+
+| Document                                 | Pages | Purpose                                                             | Owner   | Update Freq            |
+| ---------------------------------------- | ----- | ------------------------------------------------------------------- | ------- | ---------------------- |
+| **COMPLIANCE_SUMMARY_v1.3.md**           | 12    | v1.3 RDC/DICQ/LGPD/ISO mapping; audit-ready baseline                | QA Lead | Never (frozen at v1.3) |
+| **v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md** | 12    | Weekly progress tracker; RDC article roadmap; CAPA closure schedule | QA Lead | Every Friday           |
+| **AUDITOR_ALIGNMENT_CALL_AGENDA.md**     | 15    | Alignment call template; action items; contact list                 | QA Lead | Before each call       |
+| **Weekly Cloud Logs Summary**            | 1     | Error count + types + resolution status (JSON export)               | QA Lead | Every Friday 13:30 BRT |
 
 ### 2. Technical Specifications & Architecture
-*For code audits + design reviews*
 
-| Document | Pages | Purpose | Owner | Update Freq |
-|----------|-------|---------|-------|-------------|
-| **ADR-0022-capa-closure-workflow-5-state-machine.md** | 8 | CAPA state machine spec; callables; Firestore schema; audit trail design | CTO | Locked (Phase 4 design) |
-| **ARCHITECTURE_v1.3.md** | 10 | System patterns; multi-tenant isolation; auth; compliance rules | CTO | Archived (v1.3 reference) |
-| **FIRESTORE-RULES-BACKUP.md** | 5 | v1.3 rules export (backup); can be compared to git HEAD | DevOps | On deployment |
-| **CAPA-FIRESTORE-RULES-BLOCK.md** | 3 | Phase 4 CAPA collection rules (generated from ADR-0022) | CTO | Before Phase 4 deploy |
+_For code audits + design reviews_
+
+| Document                                              | Pages | Purpose                                                                  | Owner  | Update Freq               |
+| ----------------------------------------------------- | ----- | ------------------------------------------------------------------------ | ------ | ------------------------- |
+| **ADR-0022-capa-closure-workflow-5-state-machine.md** | 8     | CAPA state machine spec; callables; Firestore schema; audit trail design | CTO    | Locked (Phase 4 design)   |
+| **ARCHITECTURE_v1.3.md**                              | 10    | System patterns; multi-tenant isolation; auth; compliance rules          | CTO    | Archived (v1.3 reference) |
+| **FIRESTORE-RULES-BACKUP.md**                         | 5     | v1.3 rules export (backup); can be compared to git HEAD                  | DevOps | On deployment             |
+| **CAPA-FIRESTORE-RULES-BLOCK.md**                     | 3     | Phase 4 CAPA collection rules (generated from ADR-0022)                  | CTO    | Before Phase 4 deploy     |
 
 ### 3. Operational Procedures
-*For lab + auditor execution*
 
-| Document | Pages | Purpose | Owner | Update Freq |
-|----------|-------|---------|-------|-------------|
-| **CLOUD_LOGS_QUICK_REFERENCE.md** | 2 | One-min setup; critical filters; red flags; emergency rollback | QA Lead | As needed |
-| **CAPA_EVIDENCE_SUBMISSION_SOP.md** | 3 | Lab workflow for submitting CAPA evidence; deadline; checklist | Lab Director | Before Phase 4 |
-| **AUDITOR_REVIEW_RUNBOOK.md** | 3 | Auditor workflow for CAPA approval/rejection; UI navigation | QA Lead | Before Phase 4 |
-| **PHASE_4_DEPLOYMENT_CHECKLIST.md** | 4 | Pre/during/post-deploy tasks; sign-off | DevOps | Before Phase 4 deploy |
+_For lab + auditor execution_
+
+| Document                            | Pages | Purpose                                                        | Owner        | Update Freq           |
+| ----------------------------------- | ----- | -------------------------------------------------------------- | ------------ | --------------------- |
+| **CLOUD_LOGS_QUICK_REFERENCE.md**   | 2     | One-min setup; critical filters; red flags; emergency rollback | QA Lead      | As needed             |
+| **CAPA_EVIDENCE_SUBMISSION_SOP.md** | 3     | Lab workflow for submitting CAPA evidence; deadline; checklist | Lab Director | Before Phase 4        |
+| **AUDITOR_REVIEW_RUNBOOK.md**       | 3     | Auditor workflow for CAPA approval/rejection; UI navigation    | QA Lead      | Before Phase 4        |
+| **PHASE_4_DEPLOYMENT_CHECKLIST.md** | 4     | Pre/during/post-deploy tasks; sign-off                         | DevOps       | Before Phase 4 deploy |
 
 ### 4. v1.3 Snapshot (Archived Reference)
-*For baseline comparison + historical tracking*
 
-| Document | Pages | Purpose | Use Case |
-|----------|-------|---------|----------|
-| **v1.3-COMPLETION-SUMMARY.md** | 4 | What shipped, what deferred, scope boundaries, metrics | "What's in v1.3?" |
-| **v1.3-DEPLOYMENT_LOG.md** | 2 | Deployment date/time, environment, build status, post-deploy monitoring | Deployment history |
-| **v1.3-ARCHIVE.md** | 2 | Consolidated summary of v1.3 (1-pager) | Executive summary |
-| **DEPLOY_ROADMAP_v1.3.md** | 5 | v1.3 deployment procedures; will be adapted for v1.4 | Deployment procedures (template) |
+_For baseline comparison + historical tracking_
+
+| Document                       | Pages | Purpose                                                                 | Use Case                         |
+| ------------------------------ | ----- | ----------------------------------------------------------------------- | -------------------------------- |
+| **v1.3-COMPLETION-SUMMARY.md** | 4     | What shipped, what deferred, scope boundaries, metrics                  | "What's in v1.3?"                |
+| **v1.3-DEPLOYMENT_LOG.md**     | 2     | Deployment date/time, environment, build status, post-deploy monitoring | Deployment history               |
+| **v1.3-ARCHIVE.md**            | 2     | Consolidated summary of v1.3 (1-pager)                                  | Executive summary                |
+| **DEPLOY_ROADMAP_v1.3.md**     | 5     | v1.3 deployment procedures; will be adapted for v1.4                    | Deployment procedures (template) |
 
 ---
 
 ## Access & Update Schedule
 
 ### Google Drive Folder Structure
+
 ```
 /Auditor Materials (v1.3 + v1.4)/
 ├── Compliance/
@@ -159,28 +167,32 @@ status: Ready for distribution
 ```
 
 ### Update Schedule
-| Document | Owner | Frequency | Deadline | Notification |
-|----------|-------|-----------|----------|--------------|
-| v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md | QA Lead | Weekly | Friday 14:00 BRT | Email + calendar |
-| Weekly Cloud Logs Summary | QA Lead | Weekly | Friday 13:30 BRT | Email |
-| CAPA tracking rows | QA Lead | As phases complete | Real-time | Friday call |
-| ADR-0022 (CAPA design) | CTO | Locked (design phase) | Before Phase 4 deploy | One-time approval |
-| CAPA-FIRESTORE-RULES-BLOCK.md | CTO | Before Phase 4 deploy | May 19 | Email |
-| AUDITOR_REVIEW_RUNBOOK.md | QA Lead | Before Phase 4 deploy | May 19 | Email |
+
+| Document                             | Owner   | Frequency             | Deadline              | Notification      |
+| ------------------------------------ | ------- | --------------------- | --------------------- | ----------------- |
+| v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md | QA Lead | Weekly                | Friday 14:00 BRT      | Email + calendar  |
+| Weekly Cloud Logs Summary            | QA Lead | Weekly                | Friday 13:30 BRT      | Email             |
+| CAPA tracking rows                   | QA Lead | As phases complete    | Real-time             | Friday call       |
+| ADR-0022 (CAPA design)               | CTO     | Locked (design phase) | Before Phase 4 deploy | One-time approval |
+| CAPA-FIRESTORE-RULES-BLOCK.md        | CTO     | Before Phase 4 deploy | May 19                | Email             |
+| AUDITOR_REVIEW_RUNBOOK.md            | QA Lead | Before Phase 4 deploy | May 19                | Email             |
 
 ---
 
 ## Reference Documents by Phase
 
 ### v1.3 (Complete & Live — 2026-05-07)
+
 **Status:** Production live; auditor baseline established.
 
 **Must-Read (compliance verification):**
+
 - ✅ COMPLIANCE_SUMMARY_v1.3.md (78.5% DICQ baseline)
 - ✅ v1.3-COMPLETION-SUMMARY.md (scope boundaries)
 - ✅ ARCHITECTURE_v1.3.md (security patterns)
 
 **Archive (reference only):**
+
 - v1.3-DEPLOYMENT_LOG.md
 - v1.3-ARCHIVE.md
 - DEPLOY_ROADMAP_v1.3.md
@@ -188,14 +200,17 @@ status: Ready for distribution
 ---
 
 ### v1.4 Phase 4 (Kickoff May 20 — Due May 28)
+
 **Status:** Roadmap locked; implementation in progress.
 
 **Must-Read (Phase 4 implementation):**
+
 - ADR-0022-capa-closure-workflow-5-state-machine.md (design spec)
 - v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md (weekly progress)
 - CAPA-FIRESTORE-RULES-BLOCK.md (rules spec, generated Week 1)
 
 **Generated during Phase 4 (Week 1–2):**
+
 - CAPA_EVIDENCE_SUBMISSION_SOP.md (lab procedure)
 - AUDITOR_REVIEW_RUNBOOK.md (auditor UI workflow)
 - PHASE_4_DEPLOYMENT_CHECKLIST.md (pre-deploy tasks)
@@ -203,13 +218,16 @@ status: Ready for distribution
 ---
 
 ### v1.4 Phases 5–15 (May 27 — Aug 31)
+
 **Status:** RDC article rollout + DICQ block polishing.
 
 **Weekly Updates (every Friday):**
+
 - v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md (row updates for phases in flight)
 - Cloud Logs Summary (production health)
 
 **Phase Completion Deliverables (as phases complete):**
+
 - RDC 978 article verification (per phase)
 - DICQ block audit (per phase)
 - Compliance regression test results
@@ -219,16 +237,19 @@ status: Ready for distribution
 ## How to Request Changes
 
 **If auditor needs additional materials:**
+
 1. Email QA Lead + CTO with specific request
 2. Response SLA: 24 hours for simple docs; 1 week for new specifications
 3. Track requests in shared Google Doc (link provided in kickoff call)
 
 **If compliance gap discovered:**
+
 1. Log in v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md as "gap" + date
 2. Email CTO for remediation plan
 3. CTO responds within 48 hours with mitigation strategy
 
 **If production issue found (Cloud Logs):**
+
 1. Screenshot error + timestamp
 2. Email QA Lead + CTO immediately (P0 handling)
 3. Follow CLOUD_LOGS_QUICK_REFERENCE.md emergency rollback procedures
@@ -248,21 +269,23 @@ status: Ready for distribution
 
 ## Contact Directory
 
-| Role | Name | Email | Phone | Availability |
-|------|------|-------|-------|--------------|
-| External Auditor | [Name] | [auditor@firm.com] | [+55-XX-XXXX-XXXX] | 09:00–18:00 BRT |
-| QA Lead (Liaison) | [Name] | [qa@lab.com] | [+55-XX-XXXX-XXXX] | 09:00–18:00 BRT |
-| CTO | [CTO Name] | drogafarto@gmail.com | [+55-XX-XXXX-XXXX] | 10:00–19:00 BRT (escalation) |
-| Lab Director | [Name] | [director@lab.com] | [+55-XX-XXXX-XXXX] | 08:00–19:00 BRT |
+| Role              | Name       | Email                | Phone              | Availability                 |
+| ----------------- | ---------- | -------------------- | ------------------ | ---------------------------- |
+| External Auditor  | [Name]     | [auditor@firm.com]   | [+55-XX-XXXX-XXXX] | 09:00–18:00 BRT              |
+| QA Lead (Liaison) | [Name]     | [qa@lab.com]         | [+55-XX-XXXX-XXXX] | 09:00–18:00 BRT              |
+| CTO               | [CTO Name] | drogafarto@gmail.com | [+55-XX-XXXX-XXXX] | 10:00–19:00 BRT (escalation) |
+| Lab Director      | [Name]     | [director@lab.com]   | [+55-XX-XXXX-XXXX] | 08:00–19:00 BRT              |
 
 ---
 
 ## Appendix: Document Summaries
 
 ### COMPLIANCE_SUMMARY_v1.3.md
+
 **Length:** 12 pages | **Owner:** QA Lead | **Freezing:** Yes (v1.3 locked)
 
 **Key sections:**
+
 - RDC 978 coverage per critical article (Arts. 167, 179–180, 181, 183, 184–191)
 - DICQ Blocks A–J with percentages (current 78.5%)
 - LGPD inventory (62% coverage, pending Phase 4+)
@@ -275,9 +298,11 @@ status: Ready for distribution
 ---
 
 ### ADR-0022-capa-closure-workflow-5-state-machine.md
+
 **Length:** 8 pages | **Owner:** CTO | **Freezing:** Yes (design locked)
 
 **Key sections:**
+
 - Problem statement (audit trail gaps, premature closures, evidence loss)
 - 5-state machine: aberto → em-andamento → evidencia-submetida → auditor-revisando → fechado
 - 7 Cloud Function callables (create, start, submit, approve, reject, soft-delete)
@@ -290,9 +315,11 @@ status: Ready for distribution
 ---
 
 ### v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md
+
 **Length:** 12 pages | **Owner:** QA Lead | **Freezing:** No (updated Fridays)
 
 **Key sections:**
+
 - Executive summary (v1.4 mission, pre-alignment confirmations)
 - Weekly compliance matrix (Baseline → Current → Target → Owner → Status)
 - DICQ block-by-block progress (A–J, roadmap Phases 4–15)
@@ -305,9 +332,11 @@ status: Ready for distribution
 ---
 
 ### CLOUD_LOGS_QUICK_REFERENCE.md
+
 **Length:** 2 pages | **Owner:** QA Lead | **Freezing:** No (as-needed updates)
 
 **Key sections:**
+
 - One-minute setup (gcloud config, filter templates)
 - Three monitoring approaches (Cloud Console, gcloud CLI, Bash script)
 - Critical filters (errors, functions, permissions, hosting, timeouts)
@@ -319,9 +348,11 @@ status: Ready for distribution
 ---
 
 ### v1.3-COMPLETION-SUMMARY.md
+
 **Length:** 4 pages | **Owner:** QA Lead | **Freezing:** Yes (v1.3 archived)
 
 **Key sections:**
+
 - Executive summary (TL;DR: v1.3 delivered 4 new modules + CAPA closure infrastructure + Riopomba migration)
 - Scope delivered (Phase 8–12 with status)
 - Deferred to v1.4 (NC-011, Phase 10 Plans 04–07, Phase 11 Plans 06–08)
@@ -335,9 +366,9 @@ status: Ready for distribution
 
 ## Revision History
 
-| Date | Version | Changes | Author |
-|------|---------|---------|--------|
-| 2026-05-07 | 1.0 | Initial index created for alignment call | QA Lead |
+| Date       | Version | Changes                                  | Author  |
+| ---------- | ------- | ---------------------------------------- | ------- |
+| 2026-05-07 | 1.0     | Initial index created for alignment call | QA Lead |
 
 ---
 

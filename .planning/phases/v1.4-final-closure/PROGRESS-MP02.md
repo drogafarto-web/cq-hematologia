@@ -14,15 +14,16 @@
 
 ### Wave W4 — UI Components (5 SAs)
 
-| SA | File | LOC | Status |
-|----|------|-----|--------|
-| SA-11 | AlertDashboard.tsx | 210 | ✅ |
-| SA-12 | AlertDetailModal.tsx | 249 | ✅ |
-| SA-13 | ReportViewer.tsx | 249 | ✅ |
-| SA-14 | AnomalyTimeline.tsx | 205 | ✅ |
-| SA-15 | RuleBasedAlertList.tsx | 250 | ✅ |
+| SA    | File                   | LOC | Status |
+| ----- | ---------------------- | --- | ------ |
+| SA-11 | AlertDashboard.tsx     | 210 | ✅     |
+| SA-12 | AlertDetailModal.tsx   | 249 | ✅     |
+| SA-13 | ReportViewer.tsx       | 249 | ✅     |
+| SA-14 | AnomalyTimeline.tsx    | 205 | ✅     |
+| SA-15 | RuleBasedAlertList.tsx | 250 | ✅     |
 
 **Features:**
+
 - Dark-first design (bg-[#141417], white/alpha text, violet-500 accents)
 - WCAG AA compliant (focus-visible rings, aria-label on icons, contrast checks)
 - No external icon/chart libs (inline SVG, CSS grid heatmap)
@@ -30,18 +31,20 @@
 - Responsive layout (4px grid spacing, mobile-friendly)
 
 **Hook Infrastructure:**
+
 - useAnomalyAlerts.ts — real-time alert subscription with multi-dimension filtering
 
 ### Wave W5 — PDF/Archive/Email (4 SAs)
 
-| SA | File | Type | Status |
-|----|------|------|--------|
-| SA-16 | generateReportPDF.ts | Cloud Function | ✅ |
-| SA-17 | archiveAuditReport.ts | onCall v2 + onSchedule v2 | ✅ |
-| SA-18 | exportSourceRegistry.ts | Service module | ✅ |
-| SA-19 | emailAuditReport.ts | onCall v2 (Secrets) | ✅ |
+| SA    | File                    | Type                      | Status |
+| ----- | ----------------------- | ------------------------- | ------ |
+| SA-16 | generateReportPDF.ts    | Cloud Function            | ✅     |
+| SA-17 | archiveAuditReport.ts   | onCall v2 + onSchedule v2 | ✅     |
+| SA-18 | exportSourceRegistry.ts | Service module            | ✅     |
+| SA-19 | emailAuditReport.ts     | onCall v2 (Secrets)       | ✅     |
 
 **Features:**
+
 - Puppeteer-based PDF generation with cover page + executive summary + per-rule sections
 - Monthly archive cron (03:00 Sao Paulo time on month 1st)
 - Cryptographic integrity (SHA-256 hash + LogicalSignature per record)
@@ -49,6 +52,7 @@
 - SMTP email delivery with nodemailer (Secrets Manager: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS)
 
 **All callables:**
+
 - ✅ `cors: true` + `region: 'southamerica-east1'`
 - ✅ Auth guard (lab membership + role checks)
 - ✅ Zod input validation
@@ -56,20 +60,22 @@
 
 ### Wave W6 — Tests + Documentation (5 SAs)
 
-| SA | File | Type | Tests | Status |
-|----|------|------|-------|--------|
-| SA-20 | alertDashboard.test.tsx | Unit | 8 + jest-axe | ✅ |
-| SA-21 | anomalyDetection.test.ts | Unit | 10 | ✅ |
-| SA-22 | reportPDF.test.ts | Integration | 5+ | ✅ |
-| SA-23 | 07-VERIFICATION.md | Doc | — | ✅ |
-| SA-24 | PHASE-7-OVERVIEW.md + CLAUDE.md | Status | — | ✅ |
+| SA    | File                            | Type        | Tests        | Status |
+| ----- | ------------------------------- | ----------- | ------------ | ------ |
+| SA-20 | alertDashboard.test.tsx         | Unit        | 8 + jest-axe | ✅     |
+| SA-21 | anomalyDetection.test.ts        | Unit        | 10           | ✅     |
+| SA-22 | reportPDF.test.ts               | Integration | 5+           | ✅     |
+| SA-23 | 07-VERIFICATION.md              | Doc         | —            | ✅     |
+| SA-24 | PHASE-7-OVERVIEW.md + CLAUDE.md | Status      | —            | ✅     |
 
 **Test Coverage:**
+
 - AlertDashboard: empty state, loading, error, filtering (severity + date), sort order, badge colors, detail flow, a11y
 - AnomalyDetection: z-score (>3σ, <2σ), trend (5 consecutive, min sample), threshold (hard breach), severity escalation, lab scoping, empty baseline, idempotence, edge cases
 - ReportPDF: snapshot matching, cover page elements, executive summary, per-rule sections, empty report fallback, determinism
 
 **Verification Gate:**
+
 - TSC: 0 errors (web + functions)
 - Tests: 72 total (23 new W6 + 49 prior W0-W3)
 - CORS: 3/3 callables have `cors: true`
@@ -130,20 +136,21 @@ d24590e  feat(MP-2-W4-SA-11): AlertDashboard — filter + severity-coded list (h
 
 ## Compliance Coverage
 
-| Regulation | Article | W4-W6 Evidence | Status |
-|------------|---------|---|--------|
-| **RDC 978** | 5.3 (Audit trail who/what/when/where) | AlertDashboard surfaces severity + scope + timestamp + user via email-log | ✅ |
-| **RDC 978** | Art. 107 (Periodic audits) | archiveAuditReportsMonthly runs monthly; ReportViewer displays historical data | ✅ |
-| **RDC 978** | Art. 128 (RT responsibilities) | emailAuditReport defaults to RT role members; portal-rt presence from Phase 4 | ✅ |
-| **RDC 978** | Art. 167 (Patient data access) | Portal-paciente from Phase 4; laudo-ocr consent gate | ✅ |
-| **DICQ 4.4** | Trilha de auditoria | AlertDashboard + RuleBasedAlertList index labId; no cross-tenant reads | ✅ |
-| **DICQ 4.4** | Investigação de NC | AlertDetailModal "Reconhecer" callable logs to email-log with uid+ts | ✅ |
+| Regulation   | Article                               | W4-W6 Evidence                                                                 | Status |
+| ------------ | ------------------------------------- | ------------------------------------------------------------------------------ | ------ |
+| **RDC 978**  | 5.3 (Audit trail who/what/when/where) | AlertDashboard surfaces severity + scope + timestamp + user via email-log      | ✅     |
+| **RDC 978**  | Art. 107 (Periodic audits)            | archiveAuditReportsMonthly runs monthly; ReportViewer displays historical data | ✅     |
+| **RDC 978**  | Art. 128 (RT responsibilities)        | emailAuditReport defaults to RT role members; portal-rt presence from Phase 4  | ✅     |
+| **RDC 978**  | Art. 167 (Patient data access)        | Portal-paciente from Phase 4; laudo-ocr consent gate                           | ✅     |
+| **DICQ 4.4** | Trilha de auditoria                   | AlertDashboard + RuleBasedAlertList index labId; no cross-tenant reads         | ✅     |
+| **DICQ 4.4** | Investigação de NC                    | AlertDetailModal "Reconhecer" callable logs to email-log with uid+ts           | ✅     |
 
 ---
 
 ## Deployment Checklist
 
 **Pre-merge:**
+
 - [ ] Code review (this report is auto-generated; manual review of PLAN.md logic)
 - [ ] Run verification gate:
   ```bash
@@ -156,12 +163,14 @@ d24590e  feat(MP-2-W4-SA-11): AlertDashboard — filter + severity-coded list (h
   ```
 
 **Pre-functions deploy:**
+
 - [ ] Confirm SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS are set in Firebase Secret Manager
 - [ ] Update firestore.rules with `auditoria-archive` append-only block (if not present)
 
 **Deploy order:**
+
 1. `firebase deploy --only firestore:rules,firestore:indexes` (add archive block)
-2. `firebase deploy --only functions` (functions/src/modules/auditoria/*)
+2. `firebase deploy --only functions` (functions/src/modules/auditoria/\*)
 3. `firebase deploy --only hosting` (new UI components)
 4. Hard reload browser (PWA service worker updates)
 
@@ -178,18 +187,18 @@ d24590e  feat(MP-2-W4-SA-11): AlertDashboard — filter + severity-coded list (h
 
 ## Quality Metrics
 
-| Metric | Target | Achieved | Status |
-|--------|--------|----------|--------|
-| SAs completed | 14 | 14 | ✅ |
-| Commits | 14 | 14 | ✅ |
-| TSC errors | 0 | 0 | ✅ |
-| Tests passing | 72 | 72 | ✅ |
-| Test coverage (W6) | 20+ | 23 | ✅ |
-| Bundle delta | <30 KB | +18 KB | ✅ |
-| Main chunk limit | ≤450 KB | 378 KB | ✅ |
-| A11y passes | jest-axe | ✅ | ✅ |
-| Compliance coverage | RDC + DICQ | 100% | ✅ |
-| Zero gates | Human interventions | 0 | ✅ |
+| Metric              | Target              | Achieved | Status |
+| ------------------- | ------------------- | -------- | ------ |
+| SAs completed       | 14                  | 14       | ✅     |
+| Commits             | 14                  | 14       | ✅     |
+| TSC errors          | 0                   | 0        | ✅     |
+| Tests passing       | 72                  | 72       | ✅     |
+| Test coverage (W6)  | 20+                 | 23       | ✅     |
+| Bundle delta        | <30 KB              | +18 KB   | ✅     |
+| Main chunk limit    | ≤450 KB             | 378 KB   | ✅     |
+| A11y passes         | jest-axe            | ✅       | ✅     |
+| Compliance coverage | RDC + DICQ          | 100%     | ✅     |
+| Zero gates          | Human interventions | 0        | ✅     |
 
 ---
 

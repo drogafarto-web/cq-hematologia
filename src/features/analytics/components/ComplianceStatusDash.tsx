@@ -25,10 +25,7 @@ import {
   calculateRetrabalho,
   deriveKPISummary,
 } from '../services/kpiCalculators';
-import {
-  shouldShowFilterUnavailableBanner,
-  filterCapabilities,
-} from '../utils/aggregateFilters';
+import { shouldShowFilterUnavailableBanner, filterCapabilities } from '../utils/aggregateFilters';
 import type { CardVariant } from './DashboardCard';
 
 // ─── Inline SVG icons ─────────────────────────────────────────────────────────
@@ -47,12 +44,7 @@ const CheckIcon = () => (
 
 const AlertIcon = () => (
   <svg width={16} height={16} viewBox="0 0 20 20" fill="none" aria-hidden>
-    <path
-      d="M10 3L2 17h16L10 3z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinejoin="round"
-    />
+    <path d="M10 3L2 17h16L10 3z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
     <path d="M10 8v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     <circle cx="10" cy="14.5" r="0.75" fill="currentColor" />
   </svg>
@@ -79,7 +71,13 @@ const RefreshCwIcon = () => (
       strokeWidth="1.5"
       strokeLinecap="round"
     />
-    <path d="M2 10V6h4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    <path
+      d="M2 10V6h4"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
@@ -145,8 +143,10 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
 
   const activeFilterLabel = useMemo(() => {
     const parts: string[] = [];
-    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
-    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    if (equipmentIds.size > 0)
+      parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0)
+      parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
     return parts.join(', ');
   }, [equipmentIds, operatorIds]);
 
@@ -174,10 +174,7 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
   }
 
   return (
-    <section
-      className={['space-y-4', className].join(' ')}
-      aria-label="KPIs de conformidade CIQ"
-    >
+    <section className={['space-y-4', className].join(' ')} aria-label="KPIs de conformidade CIQ">
       {/* Section header */}
       <div>
         <h2 className="text-sm font-semibold text-white/70 uppercase tracking-widest">
@@ -217,9 +214,7 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
             title="Conformidade CIQ"
             value={loading ? '—' : `${compliancePct}%`}
             subtitle={
-              aggregate
-                ? `${aggregate.validRuns} / ${aggregate.totalRuns} corridas`
-                : undefined
+              aggregate ? `${aggregate.validRuns} / ${aggregate.totalRuns} corridas` : undefined
             }
             delta={kpis?.complianceDelta}
             deltaLabel=" pp"
@@ -234,11 +229,7 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
           <DashboardCard
             title="NCs Abertas"
             value={loading ? '—' : openNCs}
-            subtitle={
-              aggregate
-                ? `${aggregate.closedNCs} resolvidas`
-                : undefined
-            }
+            subtitle={aggregate ? `${aggregate.closedNCs} resolvidas` : undefined}
             delta={kpis?.ncDelta}
             deltaLabel=" NCs"
             variant={loading ? 'default' : ncVariant(openNCs)}
@@ -264,11 +255,7 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
           <DashboardCard
             title="Retrabalho"
             value={loading ? '—' : `${retrabalho}%`}
-            subtitle={
-              aggregate
-                ? `${aggregate.retrabalhoCount} corridas reprocessadas`
-                : undefined
-            }
+            subtitle={aggregate ? `${aggregate.retrabalhoCount} corridas reprocessadas` : undefined}
             variant={loading ? 'default' : retrabalhoVariant(retrabalho)}
             icon={<RefreshCwIcon />}
             loading={loading}
@@ -279,8 +266,8 @@ export const ComplianceStatusDash = React.memo(function ComplianceStatusDash({
       {/* No data notice */}
       {!loading && !aggregate && !error && (
         <p className="text-sm text-white/30 text-center py-4">
-          Nenhum dado de analytics disponível.
-          Execute o agendador de agregação ou aguarde o próximo ciclo horário.
+          Nenhum dado de analytics disponível. Execute o agendador de agregação ou aguarde o próximo
+          ciclo horário.
         </p>
       )}
     </section>

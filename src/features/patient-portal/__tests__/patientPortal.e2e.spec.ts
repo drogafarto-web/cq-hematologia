@@ -53,7 +53,8 @@ describe('Patient Portal Auth Flow', () => {
 
 describe('Patient Portal Token Verification', () => {
   it('validates token on link click', () => {
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjoxMDAwMDAwMDAwMDAwfQ.sig';
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjoxMDAwMDAwMDAwMDAwfQ.sig';
     cy.visit(`http://localhost:5173/portal/auth/link?token=${token}&lab=lab1`);
 
     cy.contains('Verifying').should('be.visible');
@@ -72,7 +73,8 @@ describe('Patient Portal Token Verification', () => {
   });
 
   it('shows error for expired token', () => {
-    const expiredToken = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjowfQ.sig';
+    const expiredToken =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjowfQ.sig';
     cy.visit(`http://localhost:5173/portal/auth/link?token=${expiredToken}&lab=lab1`);
 
     cy.contains('Token expired').should('be.visible');
@@ -88,14 +90,18 @@ describe('Patient Portal Token Verification', () => {
 describe('Patient Dashboard', () => {
   beforeEach(() => {
     cy.visit('http://localhost:5173/portal/auth');
-    const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjoxMDAwMDAwMDAwMDAwfQ.sig';
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
-    }));
+    const token =
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJwYXRpZW50SWQiOiJwYXQxIiwibGFiSWQiOiJsYWIxIiwiZXhwaXJlc0F0IjoxMDAwMDAwMDAwMDAwfQ.sig';
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: new Date(Date.now() + 72 * 60 * 60 * 1000).toISOString(),
+      }),
+    );
     cy.visit('http://localhost:5173/portal/dashboard');
   });
 
@@ -145,13 +151,16 @@ describe('Patient Session Indicator', () => {
   beforeEach(() => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
     const expiryTime = new Date(Date.now() + 30 * 60 * 1000); // 30 minutes from now
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: expiryTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: expiryTime.toISOString(),
+      }),
+    );
     cy.visit('http://localhost:5173/portal/dashboard');
   });
 
@@ -162,13 +171,16 @@ describe('Patient Session Indicator', () => {
   it('shows warning at 10 minutes', () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
     const expiryTime = new Date(Date.now() + 9 * 60 * 1000); // 9 minutes
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: expiryTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: expiryTime.toISOString(),
+      }),
+    );
     cy.reload();
     cy.contains('Session expires in').should('be.visible');
   });
@@ -176,13 +188,16 @@ describe('Patient Session Indicator', () => {
   it('auto-logs out on expiry', () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
     const expiredTime = new Date(Date.now() - 1000); // Expired
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: expiredTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: expiredTime.toISOString(),
+      }),
+    );
     cy.reload();
     cy.url().should('include', '/portal/auth');
   });
@@ -198,13 +213,16 @@ describe('Patient Portal Auth Guard', () => {
   it('redirects to /portal/auth when session expired', () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
     const expiredTime = new Date(Date.now() - 1000);
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: expiredTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: expiredTime.toISOString(),
+      }),
+    );
     cy.visit('http://localhost:5173/portal/dashboard');
     cy.url().should('include', '/portal/auth');
   });
@@ -212,13 +230,16 @@ describe('Patient Portal Auth Guard', () => {
   it('allows access with valid session', () => {
     const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.test';
     const futureTime = new Date(Date.now() + 72 * 60 * 60 * 1000);
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: futureTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: futureTime.toISOString(),
+      }),
+    );
     cy.visit('http://localhost:5173/portal/dashboard');
     cy.contains('Laboratory').should('be.visible');
   });
@@ -241,13 +262,16 @@ describe('Patient Portal Mobile Responsiveness', () => {
   it('dashboard is mobile responsive', () => {
     const token = 'test';
     const futureTime = new Date(Date.now() + 72 * 60 * 60 * 1000);
-    localStorage.setItem('patient_portal_session', JSON.stringify({
-      token,
-      patientId: 'pat1',
-      labId: 'lab1',
-      email: 'patient@example.com',
-      expiresAt: futureTime.toISOString(),
-    }));
+    localStorage.setItem(
+      'patient_portal_session',
+      JSON.stringify({
+        token,
+        patientId: 'pat1',
+        labId: 'lab1',
+        email: 'patient@example.com',
+        expiresAt: futureTime.toISOString(),
+      }),
+    );
     cy.visit('http://localhost:5173/portal/dashboard');
     cy.get('button').contains('Download PDF').should('be.visible');
   });

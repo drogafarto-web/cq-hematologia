@@ -35,16 +35,16 @@ function coerceJob(data: DocumentData): ExportJob {
     startDate: data.startDate?.toDate?.() ?? new Date(data.startDate),
     endDate: data.endDate?.toDate?.() ?? new Date(data.endDate),
     expiresAt: data.expiresAt
-      ? data.expiresAt?.toDate?.() ?? new Date(data.expiresAt)
+      ? (data.expiresAt?.toDate?.() ?? new Date(data.expiresAt))
       : undefined,
     generatedAt: data.generatedAt
-      ? data.generatedAt?.toDate?.() ?? new Date(data.generatedAt)
+      ? (data.generatedAt?.toDate?.() ?? new Date(data.generatedAt))
       : undefined,
     startedAt: data.startedAt
-      ? data.startedAt?.toDate?.() ?? new Date(data.startedAt)
+      ? (data.startedAt?.toDate?.() ?? new Date(data.startedAt))
       : undefined,
     completedAt: data.completedAt
-      ? data.completedAt?.toDate?.() ?? new Date(data.completedAt)
+      ? (data.completedAt?.toDate?.() ?? new Date(data.completedAt))
       : undefined,
   };
 }
@@ -66,10 +66,7 @@ function formatSubmittedAt(date: Date): string {
   });
 }
 
-export function ExportQueueView({
-  labId,
-  maxItems = 20,
-}: ExportQueueViewProps) {
+export function ExportQueueView({ labId, maxItems = 20 }: ExportQueueViewProps) {
   const [jobs, setJobs] = useState<ExportJob[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -162,9 +159,7 @@ export function ExportQueueView({
         </div>
         <div>
           <p className="text-sm font-medium text-white/40">Nenhuma exportação</p>
-          <p className="mt-0.5 text-xs text-white/25">
-            Exportações geradas aparecerão aqui
-          </p>
+          <p className="mt-0.5 text-xs text-white/25">Exportações geradas aparecerão aqui</p>
         </div>
       </div>
     );
@@ -177,16 +172,14 @@ export function ExportQueueView({
         <table className="w-full text-left">
           <thead>
             <tr className="border-b border-white/[0.06] bg-white/[0.03]">
-              {['Formato', 'Período', 'Enviado em', 'Status', 'Tamanho', 'Ação'].map(
-                (col) => (
-                  <th
-                    key={col}
-                    className="px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-white/30"
-                  >
-                    {col}
-                  </th>
-                ),
-              )}
+              {['Formato', 'Período', 'Enviado em', 'Status', 'Tamanho', 'Ação'].map((col) => (
+                <th
+                  key={col}
+                  className="px-4 py-3 text-[11px] font-semibold uppercase tracking-widest text-white/30"
+                >
+                  {col}
+                </th>
+              ))}
             </tr>
           </thead>
           <tbody className="divide-y divide-white/[0.04]">
@@ -275,9 +268,7 @@ function MobileJobCard({ job }: { job: ExportJob }) {
         </p>
       </div>
       <div className="shrink-0">
-        {job.status === 'completed' ? (
-          <DownloadButton job={job} />
-        ) : null}
+        {job.status === 'completed' ? <DownloadButton job={job} /> : null}
       </div>
     </div>
   );

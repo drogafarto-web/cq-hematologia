@@ -9,9 +9,11 @@
 ## Document Map
 
 ### 1. **CAPA_PROCESS.md** (Main Reference)
+
 **File:** `C:\hc quality\docs\CAPA_PROCESS.md` (2,117 lines)
 
 **Content:**
+
 - Executive summary (why CAPAs matter, compliance context)
 - 5-state machine workflow (ABERTO → EM-ANDAMENTO → EVIDENCIA-SUBMETIDA → AUDITOR-REVISANDO → FECHADO)
 - Detailed process phases (Phase 1–5 with responsibilities, validations, field updates)
@@ -28,9 +30,11 @@
 ---
 
 ### 2. **CAPA_PROCESS_QUICK_REFERENCE.md** (Print & Laminate)
+
 **File:** `C:\hc quality\docs\CAPA_PROCESS_QUICK_REFERENCE.md`
 
 **Content:**
+
 - 5-state machine (visual flowchart)
 - Key dates & deadlines (timeline targets)
 - Who does what (role responsibilities matrix)
@@ -49,9 +53,11 @@
 ### 3. **Architectural Decisions (ADRs)**
 
 #### **ADR-0022: CAPA Closure Workflow (5-State Machine)**
+
 **File:** `C:\hc quality\docs\adr\ADR-0022-capa-closure-workflow-5-state-machine.md`
 
 **Covers:**
+
 - Why we chose 5-state machine (vs flat flags, vs event sourcing)
 - State definitions + transitions + guards
 - RDC 978 Art. 147 compliance mapping
@@ -64,9 +70,11 @@
 ---
 
 #### **ADR-0015: CAPA vs Risk vs NCQ Integration**
+
 **File:** `C:\hc quality\docs\adr\ADR-0015-capa-risk-ncq-integration.md`
 
 **Covers:**
+
 - Hybrid architecture decision: CAPA as top-level collection (vs nested in NCQ)
 - Linkage policy: CAPA must link to ≥1 Risk OR NCQ (never orphan)
 - Backward compatibility with v1.3 nested CAPAs
@@ -79,9 +87,11 @@
 ---
 
 #### **ADR-0003: Non-Conformidade Global Spine + CAPA Workflow**
+
 **File:** `C:\hc quality\docs\adr\0003-nao-conformidade-capa.md`
 
 **Covers:**
+
 - v1.3 CAPA workflow (nested in NCQ, 5-state machine)
 - Blocking gates (critical NCs block operations)
 - CAPA workflow helpers (investigarNC, executarAcaoCorretiva, verificarEficacia)
@@ -96,9 +106,11 @@
 ### 4. **Type Definitions & Services**
 
 #### **CAPA Types**
+
 **File:** `C:\hc quality\src\features\capa-tracking\types\index.ts`
 
 **Defines:**
+
 - `CAPA` interface (all fields: RCA, action, evidence, transitions)
 - `CAPAStatus` union type (5 states)
 - `CAPAPriority` (critica, alta, media, estendida)
@@ -110,9 +122,11 @@
 ---
 
 #### **CAPA Service Layer**
+
 **File:** `C:\hc quality\src\features\capa-tracking\services\capaService.ts`
 
 **Provides:**
+
 - `getCAPA(labId, capaId)` — fetch single CAPA
 - `watchCAPAs(labId, callback)` — real-time subscription (Firestore listener)
 - `updateCAPAStatus(labId, capaId, patch)` — update CAPA fields (service only, no validation)
@@ -128,6 +142,7 @@
 **File:** `C:\hc quality\src\features\capa-tracking\components/`
 
 **Components:**
+
 - `CAPADashboard.tsx` — main UI (grid, sort by deadline/status, summary counts)
 - `CAPAStatusBadge.tsx` — 5-state color-coded status display
 - `CAPADeadlineIndicator.tsx` — deadline countdown (with tabular-nums)
@@ -141,6 +156,7 @@
 **File:** `C:\hc quality\src\features\capa-tracking\hooks/`
 
 **Hooks:**
+
 - `useCAPAs(labId)` — subscribe to all active CAPAs, compute deadline status
 - `useCAPADeadlineMonitor(labId)` — polling hook (60s interval, meta-diff guard)
 
@@ -149,9 +165,11 @@
 ### 7. **Compliance & Regulatory**
 
 #### **RDC 978 Compliance Matrix**
+
 **File:** `C:\hc quality\docs\RDC_978_COMPLIANCE_MATRIX_v1.4_ROADMAP.md`
 
 **Maps:**
+
 - RDC 978 Art. 86 (Risk Management) → Phase 0
 - RDC 978 Art. 147 (CAPA) → Phase 4 (this task)
 - RDC 978 Art. 105 (5-year retention) → implementation detail
@@ -159,9 +177,11 @@
 ---
 
 #### **DICQ Gap Analysis**
+
 **File:** `C:\hc quality\docs\DICQ_GAP_ANALYSIS_v1.4.md`
 
 **Maps:**
+
 - DICQ 4.1.2.4 (Ações de Correção) → CAPA module
 - DICQ 4.14 (Gestão de Risco) → Risk module + CAPA linkage
 
@@ -170,9 +190,11 @@
 ### 8. **Implementation Notes**
 
 #### **CAPA Module CLAUDE.md**
+
 **File:** `C:\hc quality\src\features\capa-tracking\CLAUDE.md`
 
 **Covers:**
+
 - Module scope (only this folder, dependencies allowed)
 - Multi-tenant path structure (`/labs/{labId}/capaWorkflow/{capaId}`)
 - Inviolable rules (RN-06, LogicalSignature, state machine, soft-delete)
@@ -255,6 +277,7 @@ src/features/capa-tracking/ (implementation)
 ## Phase 8 Deliverables (This Task)
 
 ✅ **Complete CAPA_PROCESS.md** (2,117 lines)
+
 - Entry → Analysis → Action → Verification → Sign-Off
 - RDC 978 Art. 105 mapping
 - Audit trail specs (chainHash, immutability)
@@ -263,12 +286,14 @@ src/features/capa-tracking/ (implementation)
 - Error handling + escalation
 
 ✅ **Complete CAPA_PROCESS_QUICK_REFERENCE.md** (print-friendly)
+
 - 5-state flowchart
 - Role matrix
 - RDC 978 checklist
 - Escalation paths
 
 ✅ **Integration with existing docs**
+
 - ADR-0022 (state machine) — complete
 - ADR-0015 (CAPA architecture) — complete
 - Types/services (src/features/capa-tracking/) — Wave 1 complete
@@ -309,4 +334,4 @@ src/features/capa-tracking/ (implementation)
 
 ---
 
-*All documents in this collection are ACTIVE and ready for Phase 4 implementation. Print CAPA_PROCESS_QUICK_REFERENCE.md for lab desk reference.*
+_All documents in this collection are ACTIVE and ready for Phase 4 implementation. Print CAPA_PROCESS_QUICK_REFERENCE.md for lab desk reference._

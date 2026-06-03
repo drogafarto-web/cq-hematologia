@@ -71,9 +71,7 @@ export const onRiskEventCreated = onDocumentCreated(
       changes: eventData.changes ? JSON.stringify(eventData.changes) : '',
     });
 
-    const dataToHash = prevChainHash
-      ? `${prevChainHash}|${canonicalPayload}`
-      : canonicalPayload;
+    const dataToHash = prevChainHash ? `${prevChainHash}|${canonicalPayload}` : canonicalPayload;
 
     const chainHash = sha256Hex(dataToHash);
 

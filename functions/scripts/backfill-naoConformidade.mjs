@@ -197,7 +197,7 @@ async function backfillLab(labId) {
                 _path: `${source.path}/${parentDoc.id}/${source.subcollection}/${subDoc.id}`,
               },
               labId,
-              numero
+              numero,
             );
 
             // Compute HMAC
@@ -215,7 +215,7 @@ async function backfillLab(labId) {
                 status: globalNC.status,
                 statusHistory: globalNC.statusHistory,
               },
-              secret
+              secret,
             );
             globalNC.previousHash = previousHash;
 
@@ -242,7 +242,7 @@ async function backfillLab(labId) {
               _path: `${source.path}/${doc.id}`,
             },
             labId,
-            numero
+            numero,
           );
 
           // Compute HMAC
@@ -260,7 +260,7 @@ async function backfillLab(labId) {
               status: globalNC.status,
               statusHistory: globalNC.statusHistory,
             },
-            secret
+            secret,
           );
           globalNC.previousHash = previousHash;
 

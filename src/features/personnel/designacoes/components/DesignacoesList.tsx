@@ -16,14 +16,27 @@ interface DesignacoesListProps {}
 type CargoKey = DesignacaoType;
 
 const CARGO_LABELS: Record<CargoKey, { label: string; color: string }> = {
-  'responsavel-tecnico': { label: 'Responsável Técnico', color: 'bg-purple-500/10 border-purple-500/30' },
-  'gerente-qualidade': { label: 'Gerente de Qualidade', color: 'bg-emerald-500/10 border-emerald-500/30' },
+  'responsavel-tecnico': {
+    label: 'Responsável Técnico',
+    color: 'bg-purple-500/10 border-purple-500/30',
+  },
+  'gerente-qualidade': {
+    label: 'Gerente de Qualidade',
+    color: 'bg-emerald-500/10 border-emerald-500/30',
+  },
   'diretor-laboratorio': { label: 'Diretor', color: 'bg-blue-500/10 border-blue-500/30' },
 };
 
 function PrintIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <polyline points="6 9 6 2 18 2 18 9" />
       <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2" />
       <rect x="6" y="14" width="12" height="8" />
@@ -33,7 +46,14 @@ function PrintIcon() {
 
 function PlusIcon() {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+    <svg
+      width="16"
+      height="16"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
       <path d="M12 5v14M5 12h14" />
     </svg>
   );
@@ -44,7 +64,8 @@ function getValidityStatus(expiryDate: number | null): {
   label: string;
   color: string;
 } {
-  if (!expiryDate) return { status: 'active', label: 'Sem validade', color: 'bg-slate-500/20 text-slate-300' };
+  if (!expiryDate)
+    return { status: 'active', label: 'Sem validade', color: 'bg-slate-500/20 text-slate-300' };
 
   const now = Date.now();
   const daysUntilExpiry = Math.floor((expiryDate - now) / (1000 * 60 * 60 * 24));
@@ -53,7 +74,11 @@ function getValidityStatus(expiryDate: number | null): {
     return { status: 'expired', label: 'Expirada', color: 'bg-red-500/20 text-red-300' };
   }
   if (daysUntilExpiry < 30) {
-    return { status: 'expiring', label: `Expira em ${daysUntilExpiry}d`, color: 'bg-amber-500/20 text-amber-300' };
+    return {
+      status: 'expiring',
+      label: `Expira em ${daysUntilExpiry}d`,
+      color: 'bg-amber-500/20 text-amber-300',
+    };
   }
   return { status: 'active', label: 'Ativa', color: 'bg-emerald-500/20 text-emerald-300' };
 }
@@ -81,9 +106,7 @@ function DesignacaoCard({
     <div className={`border rounded-lg p-5 ${roleInfo.color}`}>
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white">
-          {roleInfo.label}
-        </h3>
+        <h3 className="text-sm font-semibold text-white">{roleInfo.label}</h3>
         {designation && validity && (
           <span className={`px-2 py-0.5 rounded-full text-[10px] font-medium ${validity.color}`}>
             {validity.label}
@@ -102,9 +125,7 @@ function DesignacaoCard({
           {/* Name */}
           <div>
             <p className="text-xs text-slate-400 mb-1">Designado</p>
-            <p className="text-sm font-medium text-white">
-              {designation.personName}
-            </p>
+            <p className="text-sm font-medium text-white">{designation.personName}</p>
           </div>
 
           {/* Dates */}
@@ -220,13 +241,20 @@ export function DesignacoesList({}: DesignacoesListProps) {
       {/* Summary */}
       <div className="flex items-center gap-4 px-4 py-3 bg-white/2 rounded-lg border border-white/5 text-xs text-slate-400">
         <span>
-          Ativas: <span className="font-semibold text-slate-200">{designacoes.filter((d) => !d.deletedAt).length}</span>
+          Ativas:{' '}
+          <span className="font-semibold text-slate-200">
+            {designacoes.filter((d) => !d.deletedAt).length}
+          </span>
         </span>
         <span className="text-white/20">·</span>
         <span>
           Vencidas:{' '}
           <span className="font-semibold text-red-400">
-            {designacoes.filter((d) => !d.deletedAt && d.dataExpiracao && d.dataExpiracao < Date.now()).length}
+            {
+              designacoes.filter(
+                (d) => !d.deletedAt && d.dataExpiracao && d.dataExpiracao < Date.now(),
+              ).length
+            }
           </span>
         </span>
       </div>
@@ -273,7 +301,10 @@ export function DesignacoesList({}: DesignacoesListProps) {
                   .filter((d) => !d.deletedAt && d.dataExpiracao && d.dataExpiracao < Date.now())
                   .slice(0, 5)
                   .map((d, i) => (
-                    <tr key={i} className="border-t border-white/5 hover:bg-white/2 transition-colors">
+                    <tr
+                      key={i}
+                      className="border-t border-white/5 hover:bg-white/2 transition-colors"
+                    >
                       <td className="px-4 py-2 text-slate-200 font-medium">
                         {CARGO_LABELS[d.type as CargoKey]?.label || d.type}
                       </td>

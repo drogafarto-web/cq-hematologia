@@ -41,10 +41,7 @@ export const criticosConfig_updateThreshold = onCall(
     try {
       input = UpdateThresholdInputSchema.parse({ labId, ...payload });
     } catch (error: any) {
-      throw new HttpsError(
-        'invalid-argument',
-        `Entrada inválida: ${error.message}`,
-      );
+      throw new HttpsError('invalid-argument', `Entrada inválida: ${error.message}`);
     }
 
     const db = admin.firestore();
@@ -96,18 +93,22 @@ export const criticosConfig_updateThreshold = onCall(
     }
 
     // ─── Re-validate bounds against the merged final state ───────────────────
-    const finalLow = updates.lowThreshold !== undefined
-      ? (updates.lowThreshold as number | null)
-      : (existing.lowThreshold as number | null);
-    const finalHigh = updates.highThreshold !== undefined
-      ? (updates.highThreshold as number | null)
-      : (existing.highThreshold as number | null);
-    const finalPLow = updates.panicLow !== undefined
-      ? (updates.panicLow as number | null)
-      : (existing.panicLow as number | null);
-    const finalPHigh = updates.panicHigh !== undefined
-      ? (updates.panicHigh as number | null)
-      : (existing.panicHigh as number | null);
+    const finalLow =
+      updates.lowThreshold !== undefined
+        ? (updates.lowThreshold as number | null)
+        : (existing.lowThreshold as number | null);
+    const finalHigh =
+      updates.highThreshold !== undefined
+        ? (updates.highThreshold as number | null)
+        : (existing.highThreshold as number | null);
+    const finalPLow =
+      updates.panicLow !== undefined
+        ? (updates.panicLow as number | null)
+        : (existing.panicLow as number | null);
+    const finalPHigh =
+      updates.panicHigh !== undefined
+        ? (updates.panicHigh as number | null)
+        : (existing.panicHigh as number | null);
 
     if (finalLow !== null && finalHigh !== null && finalLow > finalHigh) {
       throw new HttpsError('invalid-argument', 'lowThreshold deve ser ≤ highThreshold.');
@@ -121,9 +122,7 @@ export const criticosConfig_updateThreshold = onCall(
     if (finalPLow !== null && finalPHigh !== null && finalPLow > finalPHigh) {
       throw new HttpsError('invalid-argument', 'panicLow deve ser ≤ panicHigh.');
     }
-    if (
-      finalLow === null && finalHigh === null && finalPLow === null && finalPHigh === null
-    ) {
+    if (finalLow === null && finalHigh === null && finalPLow === null && finalPHigh === null) {
       throw new HttpsError(
         'invalid-argument',
         'Threshold não pode ficar sem nenhum limite definido.',

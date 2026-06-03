@@ -45,11 +45,7 @@ interface FormState extends Omit<RiskInput, 'processo' | 'categoria'> {
   categoria: string; // allow empty during edit
 }
 
-export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
-  labId,
-  onSuccess,
-  onCancel,
-}) => {
+export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({ labId, onSuccess, onCancel }) => {
   const [form, setForm] = useState<FormState>({
     codigo: '',
     descricao: '',
@@ -87,11 +83,8 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
     return () => document.removeEventListener('keydown', onKey);
   }, [onCancel]);
 
-  const handleChange = (
-    field: keyof RiskInput,
-    value: string | number
-  ) => {
-    setForm(prev => ({ ...prev, [field]: value }));
+  const handleChange = (field: keyof RiskInput, value: string | number) => {
+    setForm((prev) => ({ ...prev, [field]: value }));
     setError(null);
   };
 
@@ -179,10 +172,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
         className="bg-[#0f1115] border border-white/10 rounded-2xl w-full max-w-md shadow-2xl p-6 modal-spring"
         onClick={(e) => e.stopPropagation()}
       >
-        <h2
-          id="create-risk-title"
-          className="text-xl font-bold text-white mb-4"
-        >
+        <h2 id="create-risk-title" className="text-xl font-bold text-white mb-4">
           Novo Risco
         </h2>
 
@@ -195,7 +185,10 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Template opcional */}
           <div>
-            <label htmlFor="risk-template-select" className="block text-sm font-medium text-white/70 mb-1.5">
+            <label
+              htmlFor="risk-template-select"
+              className="block text-sm font-medium text-white/70 mb-1.5"
+            >
               Usar template
             </label>
             <select
@@ -217,9 +210,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
           {/* Código */}
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">
-              Código *
-            </label>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Código *</label>
             <input
               ref={codigoRef}
               type="text"
@@ -233,9 +224,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
           {/* Descrição */}
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">
-              Descrição *
-            </label>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Descrição *</label>
             <textarea
               value={form.descricao || ''}
               onChange={(e) => handleChange('descricao', e.target.value)}
@@ -278,9 +267,7 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
           {/* Responsável */}
           <div>
-            <label className="block text-sm font-medium text-white/70 mb-1.5">
-              Responsável
-            </label>
+            <label className="block text-sm font-medium text-white/70 mb-1.5">Responsável</label>
             <input
               type="text"
               value={(form as any).responsavel || ''}
@@ -293,7 +280,10 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
           {/* Processo */}
           <div>
-            <label htmlFor="processo-select" className="block text-sm font-medium text-white/70 mb-1.5">
+            <label
+              htmlFor="processo-select"
+              className="block text-sm font-medium text-white/70 mb-1.5"
+            >
               Processo *
             </label>
             <select
@@ -317,7 +307,10 @@ export const CreateRiskModal: React.FC<CreateRiskModalProps> = ({
 
           {/* Categoria */}
           <div>
-            <label htmlFor="categoria-select" className="block text-sm font-medium text-white/70 mb-1.5">
+            <label
+              htmlFor="categoria-select"
+              className="block text-sm font-medium text-white/70 mb-1.5"
+            >
               Categoria *
             </label>
             <select

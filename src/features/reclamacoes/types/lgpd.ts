@@ -10,16 +10,16 @@ import type { LogicalSignature } from './reclamacao';
 
 /** LGPD legal basis for processing */
 export type BaseLegal =
-  | 'obrigacao-legal'     // legal requirement (RDC 978 retention)
-  | 'consentimento'       // explicit consent
+  | 'obrigacao-legal' // legal requirement (RDC 978 retention)
+  | 'consentimento' // explicit consent
   | 'legitimo-interesse'; // legitimate interest (service improvement)
 
 /** Data subject request types (Art. 18) */
 export type TipoLgpdRequest =
-  | 'acessar-dados'       // export my data
-  | 'retificar-dados'     // correct my data
-  | 'excluir-dados'       // delete my data (anonimization)
-  | 'portabilidade';      // data portability
+  | 'acessar-dados' // export my data
+  | 'retificar-dados' // correct my data
+  | 'excluir-dados' // delete my data (anonimization)
+  | 'portabilidade'; // data portability
 
 export type StatusLgpdRequest = 'pendente' | 'processando' | 'concluido' | 'rejeitado';
 
@@ -28,11 +28,11 @@ export interface LgpdRequest {
   // ─── Identity ────────────────────────────────────────────────────────────
   id: string;
   labId: string;
-  pacienteId: string;     // who is making the request
+  pacienteId: string; // who is making the request
 
   // ─── Request Details ────────────────────────────────────────────────────
   tipo: TipoLgpdRequest;
-  descricao?: string;     // optional user message
+  descricao?: string; // optional user message
   status: StatusLgpdRequest;
   motivoRejeicao?: string; // if rejected
 
@@ -40,10 +40,10 @@ export interface LgpdRequest {
   criadoEm: Timestamp;
   processadoEm?: Timestamp;
   processadoPor?: string; // admin userId
-  prazoDias: number;      // 15 dias úteis standard
+  prazoDias: number; // 15 dias úteis standard
 
   // ─── Delivery ───────────────────────────────────────────────────────────
-  exportUrl?: string;     // Cloud Storage link (expires in 7 days)
+  exportUrl?: string; // Cloud Storage link (expires in 7 days)
   exportFormatosDisponiveis: ('json' | 'csv' | 'pdf')[]; // default ['json', 'pdf']
   downloadedEm?: Timestamp;
 
@@ -56,23 +56,23 @@ export interface LgpdRequest {
 export interface LgpdAuditLog {
   id: string;
   labId: string;
-  pacienteId?: string;    // null if system-level operation
+  pacienteId?: string; // null if system-level operation
 
   // ─── Operation Details ──────────────────────────────────────────────────
   acao: 'ler' | 'escrever' | 'deletar' | 'anonimizar' | 'exportar';
-  recurso: string;        // 'reclamacoes', 'satisfacao-respostas', 'sugestoes', etc.
-  documentoId?: string;   // which document
-  operadoPor: string;     // userId (system = 'SYSTEM_CRON')
+  recurso: string; // 'reclamacoes', 'satisfacao-respostas', 'sugestoes', etc.
+  documentoId?: string; // which document
+  operadoPor: string; // userId (system = 'SYSTEM_CRON')
 
   // ─── Justification ──────────────────────────────────────────────────────
-  motivo: string;         // why was this operation performed?
+  motivo: string; // why was this operation performed?
   baseLegal?: BaseLegal;
 
   // ─── Details (redacted for privacy) ──────────────────────────────────────
   dadosAfetados: {
-    campos: string[];     // which fields were touched
+    campos: string[]; // which fields were touched
     quantidadeRegistros: number;
-    hash?: string;        // anonymized hash of data affected (for audit)
+    hash?: string; // anonymized hash of data affected (for audit)
   };
 
   // ─── Timestamp ───────────────────────────────────────────────────────────
@@ -90,10 +90,10 @@ export interface ReclamacaoAnonimizada {
   pacienteIdHash?: string;
 
   // ─── Content (PII filtered) ────────────────────────────────────────────
-  descricao: string;      // "*** redacted ***" or filtered version
+  descricao: string; // "*** redacted ***" or filtered version
   comunicacoes: {
     tipo: string;
-    conteudo: string;     // anonymized
+    conteudo: string; // anonymized
     em: Timestamp;
   }[];
 
@@ -133,11 +133,11 @@ export interface NPSRespostaAnonimizada {
   respondidoEm: Timestamp;
 
   // ─── PII removed ────────────────────────────────────────────────────────
-  pacienteId?: null;      // explicitly null after anonymization
-  cpfHash?: null;         // explicitly null
+  pacienteId?: null; // explicitly null after anonymization
+  cpfHash?: null; // explicitly null
 
   // ─── Optional feedback (may have PII) ────────────────────────────────────
-  comentario?: string;    // redacted if contained PII
+  comentario?: string; // redacted if contained PII
   comentarioOriginalHash?: string; // for integrity checking
 
   // ─── Anonymization ──────────────────────────────────────────────────────
@@ -160,7 +160,7 @@ export interface DadosPacienteLgpd {
   reclamacoes: {
     total: number;
     porStatus: Record<string, number>;
-    registros: any[];     // full complaint objects (with signature)
+    registros: any[]; // full complaint objects (with signature)
   };
 
   // ─── NPS Responses ──────────────────────────────────────────────────────
@@ -198,7 +198,4 @@ export type CreateLgpdRequestInput = Omit<
   'id' | 'labId' | 'criadoEm' | 'deletadoEm' | 'signature' | 'status' | 'exportUrl'
 >;
 
-export type CreateLgpdAuditLogInput = Omit<
-  LgpdAuditLog,
-  'id' | 'labId' | 'em'
->;
+export type CreateLgpdAuditLogInput = Omit<LgpdAuditLog, 'id' | 'labId' | 'em'>;

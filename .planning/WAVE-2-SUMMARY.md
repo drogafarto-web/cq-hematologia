@@ -10,9 +10,11 @@
 ## Deliverables Created
 
 ### 1. naoConformidade.ts (Cloud Functions)
+
 **Location:** `functions/src/modules/qualidade/naoConformidade.ts`
 **Lines:** 340  
 **Functions:**
+
 - `openNaoConformidade()` — Callable to create new NC
   - Generates NC numero (NC-{YYYY}-{seq})
   - Sets `bloqueiaOperacoes=true` for critical severity
@@ -28,15 +30,18 @@
   - Fast O(1) check for gates
 
 **Features:**
+
 - Input validation (origem, severidade, required fields)
 - Chain integrity: `previousHash` links NCs in sequence
 - Audit trail: Every operation logged to ADR 0005
 - Error handling: Clear messages for invalid transitions
 
 ### 2. capaWorkflow.ts (CAPA State Machine Helpers)
+
 **Location:** `functions/src/modules/qualidade/capaWorkflow.ts`
 **Lines:** 305  
 **Functions:**
+
 - `investigarNC()` — Start investigation, transition: aberta → investig
 - `concluirInvestigacao()` — Record root cause findings
 - `executarAcaoCorretiva()` — Plan corrective action, transition: investig → correcao
@@ -46,6 +51,7 @@
 - `cancelarNC()` — Cancel NC (supervisor only)
 
 **Features:**
+
 - State machine enforcement (validates all transitions)
 - Atomic updates (all CAPA data updated in single transaction)
 - HMAC signing on every step via ADR 0005
@@ -53,17 +59,21 @@
 - Efficacy-based closure: only `eficaz` closes the NC
 
 ### 3. index.ts (Module Exports)
+
 **Location:** `functions/src/modules/qualidade/index.ts`
 **Lines:** 30  
 **Exports:**
+
 - All Cloud Callables
 - All CAPA workflow helpers
 - All TypeScript types + interfaces
 
 ### 4. naoConformidade.test.ts (Unit Tests)
+
 **Location:** `functions/src/modules/qualidade/naoConformidade.test.ts`
 **Lines:** 380  
 **Test Coverage:** 8+ unit test cases
+
 - NC creation (numero format, metadata, blocking flag)
 - Status transitions (valid + invalid sequences)
 - CAPA workflow (full lifecycle aberta → investigacao → correcao → verif_eficacia → fechada)
@@ -74,9 +84,11 @@
 **Target Coverage:** >80%
 
 ### 5. integration.test.ts (E2E Tests)
+
 **Location:** `functions/src/modules/qualidade/integration.test.ts`
 **Lines:** 250  
 **Test Scenarios:**
+
 - E2E: Insumo expired → NC opened → operations blocked → investigated → corrected → verified → closed
 - Multiple NCs: Only critical blocks operations
 - Closure scenarios: Efficacy determines final state
@@ -88,12 +100,14 @@
 ## Integration with ADR 0005
 
 **HMAC Signing:**
+
 - Every NC creation signed via `signAuditEntry()` from cryptoAudit module
 - Every status transition signed + recorded in `statusHistory[]`
 - Every CAPA step (investigacao, acaoCorretiva, verificacaoEficacia) logged to audit trail
 - `previousHash` chains all NCs in order (prevents reordering)
 
 **Audit Trail Collection:**
+
 - Path: `labs/{labId}/nao-conformidades/audit-trail`
 - Each entry records operation + payload + HMAC
 - Immutable (no updates, only creates)
@@ -103,24 +117,28 @@
 ## Design Decisions
 
 ### 1. Why Callable Endpoints (Not direct Firestore)?
+
 - **Authorization:** Can enforce RT-only gate in Cloud Function
 - **Atomicity:** Multiple collections updated in single CF (no split-brain)
 - **Validation:** Business logic validates transitions before write
 - **Audit trail:** CF can guarantee audit entry is created alongside NC update
 
 ### 2. Why statusHistory Array (Not separate collection)?
+
 - **Atomicity:** NC + history always in sync (no race conditions)
 - **Queryability:** `where('statusHistory', 'array-contains', {...})` works in Firestore
 - **Size:** Array grows slowly (avg 5-10 entries per NC lifecycle)
 - **Immutability:** Each entry HMAC-signed, cannot be edited post-creation
 
 ### 3. Why checkNCs() as separate helper?
+
 - **Reusability:** Same function used across all 7 modules
 - **Testability:** Can test blocking logic independently
 - **Performance:** Single Firestore query, can be cached
 - **Fail-open:** On error, returns `hasCriticalNCs=false` (operations proceed, logged to error collection)
 
 ### 4. Why CAPA helpers in separate file?
+
 - **Separation of concerns:** NC core logic (create/update) separate from workflow (investigacao → acao → verif)
 - **Composability:** Can call individual steps or chain them
 - **Testing:** Each step tested in isolation
@@ -131,6 +149,7 @@
 ## Type Changes (From Wave 1 Design)
 
 The types.ts file was auto-formatted by the build system. Key changes:
+
 - `NCOrigem` renamed to `NCOrigin` (cosmetic)
 - Interface names simplified (e.g., `StatusHistoryEntry` → `NCStatusHistoryEntry`)
 - Optional field names cleaned up (Timestamp unions removed, now just `Timestamp`)
@@ -143,12 +162,12 @@ The types.ts file was auto-formatted by the build system. Key changes:
 ## Testing Strategy
 
 ### Unit Tests (naoConformidade.test.ts)
+
 1. **NC Creation**
    - Numero generation (correct format, sequence increment)
    - Blocking flag set correctly per severity
    - aberta metadata recorded
    - statusHistory initialized with HMAC
-   
 2. **Status Transitions**
    - Valid transitions allowed
    - Invalid transitions rejected
@@ -162,6 +181,7 @@ The types.ts file was auto-formatted by the build system. Key changes:
    - checkNCs excludes closed NCs
 
 ### Integration Tests (integration.test.ts)
+
 1. **Full Lifecycle**
    - Open critical NC in Insumo module
    - checkNCs blocks operations
@@ -231,6 +251,7 @@ if (ncCheck.hasCriticalNCs) {
 **Ready for:** `git commit -m "ADR 0003 Wave 2: Cloud Functions + validators"`
 
 **Files to stage:**
+
 - `functions/src/modules/qualidade/naoConformidade.ts` ✓
 - `functions/src/modules/qualidade/capaWorkflow.ts` ✓
 - `functions/src/modules/qualidade/index.ts` ✓

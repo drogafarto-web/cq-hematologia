@@ -70,10 +70,7 @@ export type NotivisaPayload = z.infer<typeof notivisaPayloadSchema>;
  *
  * @throws Error if validation fails
  */
-export async function buildNotivisaPayload(
-  laudo: LaudoDoc,
-  lab: LabDoc,
-): Promise<NotivisaPayload> {
+export async function buildNotivisaPayload(laudo: LaudoDoc, lab: LabDoc): Promise<NotivisaPayload> {
   // Validation checks
   if (laudo.deletadoEm) {
     throw new Error('Cannot submit deleted laudo');

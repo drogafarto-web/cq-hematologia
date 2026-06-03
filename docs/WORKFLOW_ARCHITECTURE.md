@@ -175,34 +175,36 @@ Duration: ~2 min per check run
 
 ### Pre-Deploy Gate (7 Checks)
 
-| # | Check | Tool | Command | Fail = Block |
-|---|-------|------|---------|--------------|
-| 1 | Type-check | TypeScript | `npm run typecheck` | ✅ Yes |
-| 2 | Lint | ESLint | `npm run lint` | ✅ Yes |
-| 3 | Unit tests | Vitest | `npm run test:unit` | ✅ Yes |
-| 4 | App build | Vite | `npm run build` | ✅ Yes |
-| 5 | Functions build | TypeScript | `cd functions && npm run build` | ✅ Yes |
-| 6 | Rules syntax | Firebase CLI | `firebase deploy --dry-run` | ✅ Yes |
-| 7 | Secrets status | Bash + Firebase CLI | `bash scripts/preflight-secrets-check.sh` | ✅ Yes (if functions changed) |
+| #   | Check           | Tool                | Command                                   | Fail = Block                  |
+| --- | --------------- | ------------------- | ----------------------------------------- | ----------------------------- |
+| 1   | Type-check      | TypeScript          | `npm run typecheck`                       | ✅ Yes                        |
+| 2   | Lint            | ESLint              | `npm run lint`                            | ✅ Yes                        |
+| 3   | Unit tests      | Vitest              | `npm run test:unit`                       | ✅ Yes                        |
+| 4   | App build       | Vite                | `npm run build`                           | ✅ Yes                        |
+| 5   | Functions build | TypeScript          | `cd functions && npm run build`           | ✅ Yes                        |
+| 6   | Rules syntax    | Firebase CLI        | `firebase deploy --dry-run`               | ✅ Yes                        |
+| 7   | Secrets status  | Bash + Firebase CLI | `bash scripts/preflight-secrets-check.sh` | ✅ Yes (if functions changed) |
 
 **Exit behavior**: First failure stops gate, no deploy proceeds
 
 **Baseline tolerances** (may be adjusted):
+
 - Lint: 88 warnings pre-existing (reported but non-blocking)
 - Coverage: 274 test baseline (improvements tracked)
 - Bundle: Main chunk 362 KB (per performance.md)
 
 ### Merge Protection Gate (PR Only)
 
-| # | Check | Tool | Command | Fail = Block PR |
-|---|-------|------|---------|-----------------|
-| 1 | Type-check | TypeScript | `npm run typecheck` | ✅ Yes |
-| 2 | Lint | ESLint | `npm run lint` | ✅ Yes |
-| 3 | Unit tests | Vitest | `npm run test:unit` | ✅ Yes |
-| 4 | Coverage | Vitest + lcov-reporter | `npm run test:coverage` | ✅ Yes (≥80%) |
-| 5 | Bundle size | du + gzip | `npm run build` | ✅ Yes (<420 KB) |
+| #   | Check       | Tool                   | Command                 | Fail = Block PR  |
+| --- | ----------- | ---------------------- | ----------------------- | ---------------- |
+| 1   | Type-check  | TypeScript             | `npm run typecheck`     | ✅ Yes           |
+| 2   | Lint        | ESLint                 | `npm run lint`          | ✅ Yes           |
+| 3   | Unit tests  | Vitest                 | `npm run test:unit`     | ✅ Yes           |
+| 4   | Coverage    | Vitest + lcov-reporter | `npm run test:coverage` | ✅ Yes (≥80%)    |
+| 5   | Bundle size | du + gzip              | `npm run build`         | ✅ Yes (<420 KB) |
 
 **Additional PR checks** (not in workflow):
+
 - 1 approval from reviewer (GitHub setting)
 - Conversations resolved (GitHub setting)
 - Branches up-to-date (GitHub setting)
@@ -289,7 +291,7 @@ Duration: 60 min (auto-detectable errors flagged earlier if severe)
 Failure: Warns in summary; may indicate rollback needed
 Skippable: Yes, via toggle (not recommended)
 
-Output: 
+Output:
   ├─ .planning/CLOUD_LOGS_REPORT.md
   ├─ .planning/CLOUD_LOGS_ERRORS.json
   └─ Artifact: post-deploy-logs-<sha>
@@ -398,7 +400,7 @@ git push
 # Wait for auto-deploy (Rules + Functions only auto-rollback)
 
 # Option 2: Hosting-only rollback
-git checkout HEAD~1 -- src/ 
+git checkout HEAD~1 -- src/
 npm run build
 firebase deploy --only hosting --project hmatologia2 --token $FIREBASE_TOKEN
 
@@ -416,6 +418,7 @@ firebase deploy --only functions --project hmatologia2 --token $FIREBASE_TOKEN
 ### GitHub Actions UI
 
 **Live during deploy**:
+
 ```
 Actions tab → phase-3-deploy workflow → Latest run
   ├─ Pre-Deploy Gate (running)
@@ -453,6 +456,7 @@ staging-test-logs
 ### Firebase Console
 
 **Real-time monitoring**:
+
 - https://console.firebase.google.com/project/hmatologia2/functions
 - https://console.firebase.google.com/project/hmatologia2/hosting
 - https://console.firebase.google.com/project/hmatologia2/firestore/rules
@@ -460,6 +464,7 @@ staging-test-logs
 ### Google Cloud Logs
 
 **Historical analysis** (30-day retention):
+
 ```bash
 gcloud logging read \
   'severity>=ERROR AND timestamp>"2026-05-07T12:00:00Z"' \
@@ -475,14 +480,14 @@ gcloud logging read \
 
 **Deployment audit trail** (required for accreditation):
 
-| Requirement | Stored Where | Retention |
-|-------------|--------------|-----------|
-| Who deployed | GitHub Actions log (git.commit.author) | 90 days |
-| When deployed | GitHub Actions timestamp | 90 days |
-| What changed | Git commit diff | Indefinite (in repo) |
-| Pre-checks | GitHub status check results | 90 days |
-| Post-validation | Cloud Logs + artifacts | 30 days |
-| Approval | GitHub PR review + approval | Indefinite |
+| Requirement     | Stored Where                           | Retention            |
+| --------------- | -------------------------------------- | -------------------- |
+| Who deployed    | GitHub Actions log (git.commit.author) | 90 days              |
+| When deployed   | GitHub Actions timestamp               | 90 days              |
+| What changed    | Git commit diff                        | Indefinite (in repo) |
+| Pre-checks      | GitHub status check results            | 90 days              |
+| Post-validation | Cloud Logs + artifacts                 | 30 days              |
+| Approval        | GitHub PR review + approval            | Indefinite           |
 
 ### Export Audit Trail
 
@@ -505,23 +510,23 @@ gh run view <run-id> --json jobs,conclusion
 
 ### Deployment Duration (SLO)
 
-| Stage | Target | Hard Limit |
-|-------|--------|-----------|
-| Pre-deploy gate | <5 min | 10 min |
-| Rules deploy | <2 min | 5 min |
-| Functions deploy | <5 min | 15 min |
-| Hosting deploy | <2 min | 5 min |
-| Smoke tests | <3 min | 5 min |
-| Cloud Logs (1h) | 60 min | 65 min |
-| **Total** | **~20 min** | **40 min** |
+| Stage            | Target      | Hard Limit |
+| ---------------- | ----------- | ---------- |
+| Pre-deploy gate  | <5 min      | 10 min     |
+| Rules deploy     | <2 min      | 5 min      |
+| Functions deploy | <5 min      | 15 min     |
+| Hosting deploy   | <2 min      | 5 min      |
+| Smoke tests      | <3 min      | 5 min      |
+| Cloud Logs (1h)  | 60 min      | 65 min     |
+| **Total**        | **~20 min** | **40 min** |
 
 ### Error Rate (SLO)
 
-| Metric | Target |
-|--------|--------|
-| Deploy success rate | >98% |
+| Metric                   | Target                       |
+| ------------------------ | ---------------------------- |
+| Deploy success rate      | >98%                         |
 | Pre-gate false negatives | <1% (catches >99% of issues) |
-| Rollback success rate | 100% (manual control) |
+| Rollback success rate    | 100% (manual control)        |
 
 ---
 
@@ -534,7 +539,7 @@ gh run view <run-id> --json jobs,conclusion
 
 - name: My Custom Check
   run: npm run my:check
-  continue-on-error: false  # Set to true if non-blocking
+  continue-on-error: false # Set to true if non-blocking
 ```
 
 ### Adding New Deployment Stage
@@ -556,7 +561,7 @@ post-deploy-verification:
   steps:
     - name: My Custom Validation
       run: bash scripts/my-post-deploy-check.sh
-      continue-on-error: true  # Non-blocking
+      continue-on-error: true # Non-blocking
 ```
 
 ---
@@ -583,4 +588,3 @@ A: No, gates are mandatory. Only smoke tests + monitoring can be skipped (via to
 **Generated**: 2026-05-07  
 **For**: HC Quality Phase 3+  
 **Architecture version**: 1.0
-

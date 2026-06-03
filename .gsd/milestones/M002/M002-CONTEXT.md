@@ -17,11 +17,11 @@
 
 ### Entidades
 
-| Entidade | Propósito | Collection Path |
-|----------|-----------|-----------------|
-| `ControlOperacional` | Controle físico (saco) — RT configura | `labs/{labId}/control-operacional/{id}` |
-| `Attempt` | Tentativa de medição CIQ — operador executa | `labs/{labId}/attempts/{id}` |
-| `RTAction` | Decisão do RT (aprovar/rejeitar/NOTIVISA) | `labs/{labId}/rt-actions/{id}` |
+| Entidade             | Propósito                                   | Collection Path                         |
+| -------------------- | ------------------------------------------- | --------------------------------------- |
+| `ControlOperacional` | Controle físico (saco) — RT configura       | `labs/{labId}/control-operacional/{id}` |
+| `Attempt`            | Tentativa de medição CIQ — operador executa | `labs/{labId}/attempts/{id}`            |
+| `RTAction`           | Decisão do RT (aprovar/rejeitar/NOTIVISA)   | `labs/{labId}/rt-actions/{id}`          |
 
 ### Eventos (timeline narrativa)
 
@@ -87,41 +87,41 @@ __tests__/
 
 ## Commits (cronológico)
 
-| Hash | Descrição |
-|------|-----------|
-| `0f12792` | Implementação completa Waves A-G |
-| `6ab0c52` | Levey-Jennings charts + auto-registration cards |
-| `5fc3c02` | Redesign visual Clinical Instrument — paleta premium isolada |
+| Hash      | Descrição                                                                  |
+| --------- | -------------------------------------------------------------------------- |
+| `0f12792` | Implementação completa Waves A-G                                           |
+| `6ab0c52` | Levey-Jennings charts + auto-registration cards                            |
+| `5fc3c02` | Redesign visual Clinical Instrument — paleta premium isolada               |
 | `8fd00a8` | Quick links para registrar novo lote reagente ou equipamento do ControlHub |
-| `640f824` | Contrast fix + inline swap insumo ativo + runs subcollection rule |
+| `640f824` | Contrast fix + inline swap insumo ativo + runs subcollection rule          |
 
 ---
 
 ## Waves (todas completas)
 
-| Wave | Escopo | Status |
-|------|--------|--------|
-| A | ControlOperacional — types, service, hook, rules | Done |
-| B | Attempt — types, service, hooks, signature | Done |
-| C | RTAction — types, service, hooks, rules | Done |
-| D | UI Operador — form, schema, view, routes | Done |
-| E | UI RT — panel, list, modals, routes | Done |
-| F | Auditoria — audit script, smoke E2E | Done |
-| G | Deploy — report, tag, merge | Done |
+| Wave | Escopo                                           | Status |
+| ---- | ------------------------------------------------ | ------ |
+| A    | ControlOperacional — types, service, hook, rules | Done   |
+| B    | Attempt — types, service, hooks, signature       | Done   |
+| C    | RTAction — types, service, hooks, rules          | Done   |
+| D    | UI Operador — form, schema, view, routes         | Done   |
+| E    | UI RT — panel, list, modals, routes              | Done   |
+| F    | Auditoria — audit script, smoke E2E              | Done   |
+| G    | Deploy — report, tag, merge                      | Done   |
 
 ---
 
 ## Métricas de Qualidade
 
-| Métrica | Valor | Alvo |
-|---------|-------|------|
-| Entidades | 3 | <= 3 |
-| Eventos | 3 | <= 3 |
-| Campos operacionais | 6 | <= 6 |
-| Arquivos src | 31 | <= 35 |
-| Linhas totais src | ~950 | <= 3000 |
-| Testes unitários | 16 | >= 8 |
-| Anti-patterns | 0 | 0 |
+| Métrica             | Valor | Alvo    |
+| ------------------- | ----- | ------- |
+| Entidades           | 3     | <= 3    |
+| Eventos             | 3     | <= 3    |
+| Campos operacionais | 6     | <= 6    |
+| Arquivos src        | 31    | <= 35   |
+| Linhas totais src   | ~950  | <= 3000 |
+| Testes unitários    | 16    | >= 8    |
+| Anti-patterns       | 0     | 0       |
 
 ---
 
@@ -139,13 +139,13 @@ __tests__/
 
 ## Compliance
 
-| Norma | Artigos cobertos |
-|-------|-----------------|
-| RDC 978/2025 | Arts. 167, 179, 180, 183 |
-| CLSI C24-A3 | 6 regras Westgard |
-| CLSI H47-A2 | Coagulação específica |
-| DICQ | Seção 2.4 (CIQ) |
-| LGPD | Art. 9 (consentimento para dados de saúde) |
+| Norma        | Artigos cobertos                           |
+| ------------ | ------------------------------------------ |
+| RDC 978/2025 | Arts. 167, 179, 180, 183                   |
+| CLSI C24-A3  | 6 regras Westgard                          |
+| CLSI H47-A2  | Coagulação específica                      |
+| DICQ         | Seção 2.4 (CIQ)                            |
+| LGPD         | Art. 9 (consentimento para dados de saúde) |
 
 ---
 

@@ -102,7 +102,11 @@ export const generateAuditoriaSummary = onCall(
       });
       const summary = result.text;
 
-      logger.info('generateAuditoriaSummary success', { labId, auditoriaId, summaryLength: summary.length });
+      logger.info('generateAuditoriaSummary success', {
+        labId,
+        auditoriaId,
+        summaryLength: summary.length,
+      });
 
       return { summary };
     } catch (err: unknown) {

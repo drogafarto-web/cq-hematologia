@@ -157,13 +157,10 @@ Relatório gerado automaticamente`;
 
     // Trigger download
     const element = document.createElement('a');
-    element.setAttribute(
-      'href',
-      'data:text/plain;charset=utf-8,' + encodeURIComponent(reportText)
-    );
+    element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(reportText));
     element.setAttribute(
       'download',
-      `auditoria-validacao-${labId}-${new Date().toISOString().split('T')[0]}.txt`
+      `auditoria-validacao-${labId}-${new Date().toISOString().split('T')[0]}.txt`,
     );
     document.body.appendChild(element);
     element.click();
@@ -262,9 +259,7 @@ Relatório gerado automaticamente`;
                   </div>
                   <div className="text-center">
                     <p className="text-base font-semibold text-red-400">Trilha quebrada</p>
-                    <p className="text-xs text-white/60 mt-2">
-                      Violação detectada no documento:
-                    </p>
+                    <p className="text-xs text-white/60 mt-2">Violação detectada no documento:</p>
                     {state.result.firstViolation && (
                       <div className="mt-3 p-3 rounded bg-red-500/10 border border-red-500/20 text-left">
                         <p className="text-xs font-mono text-red-300 break-all">
@@ -286,8 +281,7 @@ Relatório gerado automaticamente`;
         <div className="px-6 py-4 border-t border-white/10 space-y-3">
           {state.lastCheckTime && (
             <p className="text-xs text-white/50 text-center">
-              Última verificação:{' '}
-              {new Date(state.lastCheckTime).toLocaleTimeString('pt-BR')}
+              Última verificação: {new Date(state.lastCheckTime).toLocaleTimeString('pt-BR')}
             </p>
           )}
 

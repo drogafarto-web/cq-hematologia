@@ -18,11 +18,7 @@ const MODULOS = [
   'uroanalise-qf',
 ];
 
-export default function CreatePOPModal({
-  isOpen,
-  onClose,
-  onSuccess,
-}: CreatePOPModalProps) {
+export default function CreatePOPModal({ isOpen, onClose, onSuccess }: CreatePOPModalProps) {
   const labId = useActiveLabId();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

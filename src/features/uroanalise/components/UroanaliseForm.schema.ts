@@ -60,6 +60,13 @@ const ResultadosEsperadosSchema = z.object({
   densidade: z.object({ min: z.number(), max: z.number() }).optional(),
 });
 
+const ExpectedValueConfigSchema = z.object({
+  tipo: z.enum(['faixa_cruzes', 'numerico', 'nominal']),
+  min: z.number().optional(),
+  max: z.number().optional(),
+  valores: z.array(z.string()).optional(),
+});
+
 const ResultadosSchema = z.object({
   urobilinogenio: UroFieldAuditadoCategoricoSchema.optional(),
   glicose: UroFieldAuditadoCategoricoSchema.optional(),
@@ -127,6 +134,9 @@ export const UroanaliseFormSchema = z
 
     /** Resultados esperados do material de controle (derivados do nível ou custom). */
     resultadosEsperadosRun: ResultadosEsperadosSchema,
+
+    /** Regras de validação dinâmicas por analito. */
+    expectedValuesRun: z.record(ExpectedValueConfigSchema).optional(),
 
     // ── Ação corretiva ────────────────────────────────────────────────────────
     acaoCorretiva: z.string().optional(),

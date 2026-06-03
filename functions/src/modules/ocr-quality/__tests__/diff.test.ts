@@ -23,9 +23,7 @@ const ocrSnap = (
   geminiModel: 'gemini-2.5-flash',
 });
 
-const finalSnap = (
-  fields: Array<{ name: string; value: string }>,
-): FinalResultSnapshot => ({
+const finalSnap = (fields: Array<{ name: string; value: string }>): FinalResultSnapshot => ({
   fields,
   finalisedBy: 'op-rt-1',
   finalisedAt: 1_700_000_000_000,
@@ -141,10 +139,7 @@ describe('diffFields', () => {
   });
 
   it('skips malformed fields without a name', () => {
-    const ocr = ocrSnap([
-      { name: 'WBC', value: '7.2' },
-      { name: '', value: 'ignored' } as any,
-    ]);
+    const ocr = ocrSnap([{ name: 'WBC', value: '7.2' }, { name: '', value: 'ignored' } as any]);
     const fin = finalSnap([{ name: 'WBC', value: '7.2' }]);
     const d = diffFields(ocr, fin);
     expect(d.totalFields).toBe(1);

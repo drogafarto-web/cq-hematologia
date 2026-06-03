@@ -38,25 +38,25 @@ import type { Timestamp } from 'firebase/firestore';
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
 export type TipoDocumento =
-  | 'MQ'     // Manual da Qualidade
-  | 'CDC'    // Código de Ética e Conduta
-  | 'DC'     // Descrição de Cargos (DICQ 4.5 — cargos definidos)
-  | 'PQ'     // Procedimento da Qualidade (substituiu o termo antigo "POP")
+  | 'MQ' // Manual da Qualidade
+  | 'CDC' // Código de Ética e Conduta
+  | 'DC' // Descrição de Cargos (DICQ 4.5 — cargos definidos)
+  | 'PQ' // Procedimento da Qualidade (substituiu o termo antigo "POP")
   | 'PQ-ANA' // Procedimento da Qualidade - Analitos
   | 'PQ-EQP' // Procedimento da Qualidade - Equipamentos
-  | 'IT'     // Instrução de Trabalho (procedimento técnico de bancada/setor)
-  | 'ITA'    // Instrução Técnica Analítica
-  | 'FR'     // Formulário / Registro
-  | 'POL'    // Política
-  | 'LM'     // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
-  | 'EXT'    // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
-  | 'ATA'    // Ata de Reunião (DICQ 4.4 — registros de reuniões da qualidade)
-  | 'RAI';   // Relatório de Auditoria Interna (DICQ 4.14 — evidência de auditoria)
+  | 'IT' // Instrução de Trabalho (procedimento técnico de bancada/setor)
+  | 'ITA' // Instrução Técnica Analítica
+  | 'FR' // Formulário / Registro
+  | 'POL' // Política
+  | 'LM' // Lista Mestra (meta-documento — LM-01, LM-02, LM-03)
+  | 'EXT' // Documento Externo (RDC ANVISA, ABNT NBR, bulas, FISPQs)
+  | 'ATA' // Ata de Reunião (DICQ 4.4 — registros de reuniões da qualidade)
+  | 'RAI'; // Relatório de Auditoria Interna (DICQ 4.14 — evidência de auditoria)
 
 export type StatusDocumento =
-  | 'em_revisao'  // Em rascunho — não é evidência ainda
-  | 'vigente'     // Em uso oficial — auditor olha aqui
-  | 'obsoleto';   // Substituído/expirado — preservado para trilha
+  | 'em_revisao' // Em rascunho — não é evidência ainda
+  | 'vigente' // Em uso oficial — auditor olha aqui
+  | 'obsoleto'; // Substituído/expirado — preservado para trilha
 
 export const TIPO_LABEL: Record<TipoDocumento, string> = {
   MQ: 'Manual da Qualidade',
@@ -359,10 +359,7 @@ export function isProximoVencimento(
  * existentes do mesmo tipo; helper extrai o maior número e retorna +1
  * com padding. Não é único garantido — service valida no servidor.
  */
-export function sugerirProximoCodigo(
-  tipo: TipoDocumento,
-  existentes: Documento[],
-): string {
+export function sugerirProximoCodigo(tipo: TipoDocumento, existentes: Documento[]): string {
   const prefix = `${tipo}-`;
   const numeros = existentes
     .filter((d) => d.codigo.startsWith(prefix))

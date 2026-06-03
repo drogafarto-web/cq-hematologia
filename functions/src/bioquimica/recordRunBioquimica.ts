@@ -61,7 +61,7 @@ interface RecordRunBioquimicaOutput {
 async function isActiveMemberOfLab(
   uid: string,
   labId: string,
-  db: admin.firestore.Firestore
+  db: admin.firestore.Firestore,
 ): Promise<boolean> {
   try {
     const memberDoc = await db.doc(`labs/${labId}/members/${uid}`).get();
@@ -92,10 +92,7 @@ export const recordRunBioquimica = onCall(async (request) => {
   // Check membership
   const isMember = await isActiveMemberOfLab(uid, labId, db);
   if (!isMember) {
-    throw new HttpsError(
-      'permission-denied',
-      'User is not an active member of this lab'
-    );
+    throw new HttpsError('permission-denied', 'User is not an active member of this lab');
   }
 
   // ─── Load Lot + Analito Metadata ──────────────────────────────────────────
@@ -108,12 +105,10 @@ export const recordRunBioquimica = onCall(async (request) => {
     }
 
     const analitoPromises = analitoIds.map((id) =>
-      db.doc(`labs/${labId}/bioquimica/root/analitos/${id}`).get()
+      db.doc(`labs/${labId}/bioquimica/root/analitos/${id}`).get(),
     );
     const analitoSnapshots = await Promise.all(analitoPromises);
-    analitos = analitoSnapshots
-      .map((snap) => snap.data())
-      .filter((a): a is any => !!a);
+    analitos = analitoSnapshots.map((snap) => snap.data()).filter((a): a is any => !!a);
 
     if (analitos.length !== analitoIds.length) {
       throw new HttpsError('invalid-argument', 'One or more analitos not found');
@@ -146,7 +141,7 @@ export const recordRunBioquimica = onCall(async (request) => {
             ...v,
             analitoId: analito.id,
             nivelId,
-          }))
+          })),
         );
       }
     }

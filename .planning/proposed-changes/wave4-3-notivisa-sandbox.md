@@ -14,6 +14,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
 ### Deliverables Completed
 
 #### 1. Sandbox Setup Script (`scripts/notivisa-sandbox-setup.mjs`)
+
 - **Lines of Code:** 280 LOC
 - **Features:**
   - Interactive credential input (prompts for API key + endpoint URL)
@@ -29,6 +30,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
   ```
 
 #### 2. Integration Test Suite (`functions/src/modules/notivisa/__tests__/integration-sandbox.test.ts`)
+
 - **Lines of Code:** 420 LOC
 - **Test Count:** 18 tests covering:
   - Valid submission workflow (Test 1)
@@ -47,6 +49,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
   ```
 
 #### 3. Test Fixtures (`functions/src/modules/notivisa/__tests__/fixtures/sandbox-test-payloads.ts`)
+
 - **Payload Count:** 6 realistic test payloads
   1. **syphilis_normal** — Single VDRL result (baseline)
   2. **hiv_critical** — Multiple critical values (CD4 + viral load)
@@ -67,6 +70,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
   ```
 
 #### 4. Sandbox Inspection Script (`scripts/notivisa-sandbox-inspect.mjs`)
+
 - **Lines of Code:** 160 LOC
 - **Features:**
   - Query Firestore drafts by status (draft, sealed, submitted, acknowledged, failed, validation_error, rate_limited)
@@ -82,6 +86,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
   ```
 
 #### 5. GitHub Actions Workflow (`functions/.github/workflows/notivisa-sandbox-test.yml`)
+
 - **Type:** Manual dispatch (not automatic on commits)
 - **Purpose:** Sandbox-only integration testing in CI/CD
 - **Steps:**
@@ -102,6 +107,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
 - **Next Step:** Add secrets to GitHub Actions environment
 
 #### 6. Documentation Update (`docs/v1.4_NOTIVISA_SANDBOX_SETUP.md`)
+
 - **Expanded Sections:**
   - Wave 4 Agent 3 setup automation
   - Integration test suite overview (18 tests)
@@ -133,6 +139,7 @@ Wave 4 Agent 3 delivered comprehensive sandbox setup automation and 18-test inte
 Before Phase 4 Task 04-03 kickoff (2026-05-20):
 
 1. **Run locally:**
+
    ```bash
    cd /c/hc\ quality
    npm run test -- --testNamePattern="integration-sandbox"
@@ -140,6 +147,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
    ```
 
 2. **Setup sandbox credentials:**
+
    ```bash
    node scripts/notivisa-sandbox-setup.mjs --dry-run
    # Review output, then:
@@ -193,24 +201,31 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
 ## Technical Decisions
 
 ### 1. Sandbox Setup as Separate Script (not embedded in functions)
+
 **Rationale:** Setup is one-time DevOps task, separate from application code. Using Node.js (not bash) ensures cross-platform compatibility (Windows/macOS/Linux).
 
 ### 2. Mock-based Integration Tests (no real API calls)
+
 **Rationale:**
+
 - ANVISA sandbox may be temporarily offline or rate-limited
 - Tests must be fast + deterministic (CI/CD runs, local development)
 - Real sandbox submission tested separately in smoke tests (Phase 4 Task 04-04)
 - Mocks verify retry logic + error handling without flaky external dependencies
 
 ### 3. Firestore-based Inspection (not Cloud Logs)
+
 **Rationale:**
+
 - Cloud Logs query takes 30-60s to filter results
 - Firestore direct query <1s response
 - Easier for ops to spot-check individual drafts
 - Complements Cloud Logs (which capture real-time errors)
 
 ### 4. GitHub Actions Manual Trigger (not automatic on commits)
+
 **Rationale:**
+
 - Sandbox tests should not block main CI (unrelated to feature branches)
 - Reduces API call volume to ANVISA sandbox
 - Ops can trigger on-demand for validation
@@ -221,6 +236,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
 ## Known Limitations & Future Work
 
 ### v1.4 Scope (Current)
+
 - ✅ Sandbox credentials provisioning
 - ✅ 18 integration tests (mocked)
 - ✅ 6 test payload fixtures
@@ -228,6 +244,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
 - ✅ GitHub Actions CI/CD setup
 
 ### v1.5 (Production, deferred)
+
 - 🔄 Real sandbox submission (Phase 4 Task 04-04, ~May 15)
 - 🔄 Digital certificate provisioning (legal track, 4-6 weeks)
 - 🔄 Production API endpoint integration
@@ -235,6 +252,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
 - 🔄 Rate limit backoff tuning (based on sandbox testing)
 
 ### Edge Cases Not Covered in v1.4
+
 - Sandbox API response parsing (assumes government API returns expected schema)
 - Webhook handler for ANVISA -> HC Quality callbacks (Phase 5)
 - Batch submission retry (single draft only in v1.4)
@@ -290,6 +308,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
    - Record in secure location: `NOTIVISA_SANDBOX_KEY`, `NOTIVISA_SANDBOX_URL`
 
 2. **Run Setup Script**
+
    ```bash
    cd /c/hc\ quality
    export NOTIVISA_SANDBOX_KEY="from-anvisa-email"
@@ -298,6 +317,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
    ```
 
 3. **Verify Integration Tests**
+
    ```bash
    cd functions
    npm run test -- --testNamePattern="integration-sandbox"
@@ -305,6 +325,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
    ```
 
 4. **Deploy Functions**
+
    ```bash
    cd /c/hc\ quality
    npx tsc --noEmit
@@ -313,6 +334,7 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
    ```
 
 5. **Monitor Sandbox Queue**
+
    ```bash
    node scripts/notivisa-sandbox-inspect.mjs --lab lab-001
    ```
@@ -338,22 +360,26 @@ Before Phase 4 Task 04-03 kickoff (2026-05-20):
 ## Compliance & Security Notes
 
 ### Multi-tenant Safety
+
 - All scripts validate `labId` parameter
 - Firestore rules restrict sandbox queue access to lab members
 - No lab data leakage across tenants in inspection results
 
 ### Secret Management
+
 - NOTIVISA credentials stored in Firebase Secrets Manager (not environment, not code)
-- GitHub Actions secrets use environment masking (`***)
+- GitHub Actions secrets use environment masking (`\*\*\*)
 - Setup script does not log full API key (truncated in output)
 - No credentials in Git history or artifacts
 
 ### PII Protection
+
 - Test payloads use obfuscated CPF (real format, not real people)
 - Inspection script logs CPF-masked values only
 - Audit trail immutable (soft-delete only)
 
 ### Audit Trail
+
 - Every submission logged to `auditLogs` collection
 - Immutable write (no update after creation)
 - Operator ID + timestamp recorded

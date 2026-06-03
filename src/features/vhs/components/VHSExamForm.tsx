@@ -46,17 +46,31 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
   const [l2LeituraEm, setL2LeituraEm] = useState(toDateTimeLocal(new Date()));
   const [l2Valor, setL2Valor] = useState('');
 
+  // ── Dupla Checagem (Opcional) ────────────────────────────────────────────
+  const [isValidationActive, setIsValidationActive] = useState(false);
+  const [val1Responsavel, setVal1Responsavel] = useState('');
+  const [val1LeituraEm, setVal1LeituraEm] = useState(toDateTimeLocal(new Date()));
+  const [val1Valor, setVal1Valor] = useState('');
+  const [val2Responsavel, setVal2Responsavel] = useState('');
+  const [val2LeituraEm, setVal2LeituraEm] = useState(toDateTimeLocal(new Date()));
+  const [val2Valor, setVal2Valor] = useState('');
+
   // ── Observações ──────────────────────────────────────────────────────────
   const [observacoes, setObservacoes] = useState('');
 
   // ── Delta preview ────────────────────────────────────────────────────────
   const parsedL1 = parseFloat(l1Valor);
   const parsedL2 = parseFloat(l2Valor);
-  const hasBothValues = showL2 && !Number.isNaN(parsedL1) && !Number.isNaN(parsedL2);
+  const hasBothValues = (showL2 || isValidationActive) && !Number.isNaN(parsedL1) && !Number.isNaN(parsedL2);
   const deltaPreview = hasBothValues ? buildDeltaPreview(parsedL1, parsedL2) : null;
 
   // ── canSubmit ────────────────────────────────────────────────────────────
-  const canSubmit = amostraId.trim().length > 0 && l1Valor !== '' && !saveLoading;
+  const canSubmit =
+    amostraId.trim().length > 0 &&
+    l1Valor !== '' &&
+    (!isValidationActive && !showL2 ? true : l2Valor !== '') &&
+    (!isValidationActive ? true : val1Valor !== '' && val2Valor !== '') &&
+    !saveLoading;
 
   // ── Reset ────────────────────────────────────────────────────────────────
   function resetForm() {
@@ -73,6 +87,15 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
     setL2LeituraEm(toDateTimeLocal(new Date()));
     setL2Valor('');
     setObservacoes('');
+
+    // Reset validation state
+    setIsValidationActive(false);
+    setVal1Responsavel('');
+    setVal1LeituraEm(toDateTimeLocal(new Date()));
+    setVal1Valor('');
+    setVal2Responsavel('');
+    setVal2LeituraEm(toDateTimeLocal(new Date()));
+    setVal2Valor('');
   }
 
   // ── Submit ───────────────────────────────────────────────────────────────
@@ -89,13 +112,35 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
     };
 
     let leitura2: VHSLeituraInput | undefined;
-    if (showL2 && l2Valor !== '') {
+    if (isValidationActive || (showL2 && l2Valor !== '')) {
       const v2 = parseFloat(l2Valor);
       if (Number.isNaN(v2) || v2 < 0 || v2 > 200) return;
       leitura2 = {
         valor: v2,
         responsavelNome: l2Responsavel.trim(),
         leituraEm: fromDateTimeLocal(l2LeituraEm),
+      };
+    }
+
+    let validacaoLeitura1: VHSLeituraInput | undefined;
+    let validacaoLeitura2: VHSLeituraInput | undefined;
+
+    if (isValidationActive) {
+      const val1 = parseFloat(val1Valor);
+      const val2 = parseFloat(val2Valor);
+      if (Number.isNaN(val1) || val1 < 0 || val1 > 200) return;
+      if (Number.isNaN(val2) || val2 < 0 || val2 > 200) return;
+
+      validacaoLeitura1 = {
+        valor: val1,
+        responsavelNome: val1Responsavel.trim(),
+        leituraEm: fromDateTimeLocal(val1LeituraEm),
+      };
+
+      validacaoLeitura2 = {
+        valor: val2,
+        responsavelNome: val2Responsavel.trim(),
+        leituraEm: fromDateTimeLocal(val2LeituraEm),
       };
     }
 
@@ -108,6 +153,9 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
       observacoes: observacoes.trim() || undefined,
       leitura1,
       leitura2,
+      isValidationActive,
+      validacaoLeitura1,
+      validacaoLeitura2,
     };
 
     const examId = await saveExam(input);
@@ -352,9 +400,42 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
             </div>
           </div>
 
+          {/* ── Header Leituras com Gatilho de Dupla Checagem ───────────────── */}
+          <div className="flex items-center justify-between pt-2">
+            <h3 className="text-sm font-semibold text-zinc-200 uppercase tracking-wide">
+              Dados das Leituras
+            </h3>
+            <button
+              type="button"
+              onClick={() => setIsValidationActive(!isValidationActive)}
+              className={`inline-flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-all ${
+                isValidationActive
+                  ? 'bg-rose-500/10 border-rose-500/30 text-rose-400'
+                  : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300'
+              }`}
+              title="Ativar dupla checagem opcional (validação de 1ª e 2ª hora para amostra marcadora)"
+            >
+              <svg
+                width="14"
+                height="14"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                {isValidationActive && <path d="m9 11 2 2 4-4" />}
+              </svg>
+              {isValidationActive ? 'Dupla Checagem Ativa' : 'Dupla Checagem'}
+            </button>
+          </div>
+
           {/* ── Leitura 1 section ─────────────────────────────────────────── */}
           {renderLeituraSection({
-            title: 'Leitura 1',
+            title: isValidationActive ? 'Leitura Inicial 1ª Hora' : 'Leitura 1',
             prefix: 'l1',
             responsavel: l1Responsavel,
             onChangeResponsavel: setL1Responsavel,
@@ -366,21 +447,23 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
           })}
 
           {/* ── Toggle Leitura 2 ─────────────────────────────────────────── */}
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={toggleL2}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/40 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
-            >
-              {showL2 ? '− Remover Leitura 2' : '+ Adicionar Leitura 2'}
-            </button>
-          </div>
+          {!isValidationActive && (
+            <div className="flex justify-center">
+              <button
+                type="button"
+                onClick={toggleL2}
+                className="inline-flex items-center gap-1.5 rounded-lg border border-zinc-700 bg-zinc-800/40 px-4 py-2 text-sm font-medium text-zinc-300 transition-colors hover:border-zinc-600 hover:text-zinc-100"
+              >
+                {showL2 ? '− Remover Leitura 2' : '+ Adicionar Leitura 2'}
+              </button>
+            </div>
+          )}
 
           {/* ── Leitura 2 section ─────────────────────────────────────────── */}
-          {showL2 && (
+          {(showL2 || isValidationActive) && (
             <>
               {renderLeituraSection({
-                title: 'Leitura 2',
+                title: isValidationActive ? 'Leitura Inicial 2ª Hora' : 'Leitura 2',
                 prefix: 'l2',
                 responsavel: l2Responsavel,
                 onChangeResponsavel: setL2Responsavel,
@@ -388,6 +471,7 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
                 onChangeLeituraEm: setL2LeituraEm,
                 valor: l2Valor,
                 onChangeValor: setL2Valor,
+                required: isValidationActive,
               })}
 
               {/* ── Delta preview ────────────────────────────────────────── */}
@@ -416,6 +500,39 @@ export function VHSExamForm({ labId, onSuccess }: VHSExamFormProps) {
                 </div>
               )}
             </>
+          )}
+
+          {/* ── Seção de Validação (Dupla Checagem) ───────────────────────── */}
+          {isValidationActive && (
+            <div className="space-y-4 pt-2 border-t border-zinc-800/80">
+              <div className="rounded-xl border border-rose-500/20 bg-rose-500/5 p-4 space-y-4">
+                <h3 className="text-sm font-semibold text-rose-400">Validação (Dupla Checagem)</h3>
+
+                {renderLeituraSection({
+                  title: 'Validação 1ª Hora',
+                  prefix: 'val1',
+                  responsavel: val1Responsavel,
+                  onChangeResponsavel: setVal1Responsavel,
+                  leituraEm: val1LeituraEm,
+                  onChangeLeituraEm: setVal1LeituraEm,
+                  valor: val1Valor,
+                  onChangeValor: setVal1Valor,
+                  required: true,
+                })}
+
+                {renderLeituraSection({
+                  title: 'Validação 2ª Hora',
+                  prefix: 'val2',
+                  responsavel: val2Responsavel,
+                  onChangeResponsavel: setVal2Responsavel,
+                  leituraEm: val2LeituraEm,
+                  onChangeLeituraEm: setVal2LeituraEm,
+                  valor: val2Valor,
+                  onChangeValor: setVal2Valor,
+                  required: true,
+                })}
+              </div>
+            </div>
           )}
 
           {/* ── Observações ──────────────────────────────────────────────── */}

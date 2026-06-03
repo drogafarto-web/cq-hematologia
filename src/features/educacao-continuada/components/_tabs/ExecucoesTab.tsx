@@ -12,10 +12,7 @@ import type {
   ExecucaoStatus,
   Treinamento,
 } from '../../types/EducacaoContinuada';
-import type {
-  ParticipanteRelatorio,
-  RelatorioFR001,
-} from '../../services/ecExportService';
+import type { ParticipanteRelatorio, RelatorioFR001 } from '../../services/ecExportService';
 
 import { AvaliacaoEficaciaForm } from '../AvaliacaoEficaciaForm';
 import { CompetenciasExecucaoPanel } from '../CompetenciasExecucaoPanel';
@@ -30,10 +27,7 @@ type Panel =
   | { mode: 'avaliar-competencia'; execucao: Execucao }
   | { mode: 'relatorio-fr001'; payload: RelatorioFR001 };
 
-const STATUS_BADGE: Record<
-  ExecucaoStatus,
-  { label: string; cls: string }
-> = {
+const STATUS_BADGE: Record<ExecucaoStatus, { label: string; cls: string }> = {
   planejado: {
     label: 'Planejada',
     cls: 'border-slate-700 bg-slate-800/40 text-slate-300',
@@ -99,8 +93,7 @@ export function ExecucoesTab() {
         return { colaborador, presente: p.presente };
       })
       .filter((p): p is ParticipanteRelatorio => p !== null);
-    const avaliacaoEficacia =
-      avaliacoesEficacia.find((a) => a.execucaoId === execucao.id) ?? null;
+    const avaliacaoEficacia = avaliacoesEficacia.find((a) => a.execucaoId === execucao.id) ?? null;
     const avaliacoesCompetenciaDaExec = avaliacoesCompetencia.filter(
       (a) => a.execucaoId === execucao.id,
     );
@@ -128,7 +121,9 @@ export function ExecucoesTab() {
       <header className="flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold text-slate-100">Execuções</h2>
-          <p className="text-sm text-slate-400">Registro FR-001 — ciclo de vida das sessões de treinamento.</p>
+          <p className="text-sm text-slate-400">
+            Registro FR-001 — ciclo de vida das sessões de treinamento.
+          </p>
         </div>
         <button
           type="button"
@@ -141,10 +136,18 @@ export function ExecucoesTab() {
 
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
         <div className="relative flex-1">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" aria-hidden>
+          <span
+            className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"
+            aria-hidden
+          >
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <circle cx="7" cy="7" r="4.5" stroke="currentColor" strokeWidth="1.4" />
-              <path d="M13.5 13.5L10.5 10.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              <path
+                d="M13.5 13.5L10.5 10.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
             </svg>
           </span>
           <input
@@ -192,12 +195,15 @@ export function ExecucoesTab() {
                   </span>
                   <span className="text-xs text-slate-500">
                     Planejada: {e.dataPlanejada.toDate().toLocaleDateString('pt-BR')}
-                    {e.dataAplicacao && ` · Aplicada: ${e.dataAplicacao.toDate().toLocaleDateString('pt-BR')}`}
+                    {e.dataAplicacao &&
+                      ` · Aplicada: ${e.dataAplicacao.toDate().toLocaleDateString('pt-BR')}`}
                     {e.ministrante && ` · Ministrante: ${e.ministrante}`}
                   </span>
                 </div>
                 <div className="flex shrink-0 items-center gap-2">
-                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${status.cls}`}>
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${status.cls}`}
+                  >
                     {status.label}
                   </span>
                   <button
@@ -269,10 +275,7 @@ export function ExecucoesTab() {
       )}
 
       {panel.mode === 'relatorio-fr001' && (
-        <ECRelatorioPrint
-          payload={panel.payload}
-          onClose={() => setPanel({ mode: 'closed' })}
-        />
+        <ECRelatorioPrint payload={panel.payload} onClose={() => setPanel({ mode: 'closed' })} />
       )}
     </div>
   );
@@ -280,13 +283,7 @@ export function ExecucoesTab() {
 
 // ─── Shared internals ─────────────────────────────────────────────────────────
 
-function FormPanel({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
+function FormPanel({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-40 flex">
       <button
@@ -310,7 +307,10 @@ function SkeletonList({ rows }: { rows: number }) {
   return (
     <div className="flex flex-col gap-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+        <div
+          key={i}
+          className="h-14 animate-pulse rounded border border-slate-800 bg-slate-900/40"
+        />
       ))}
     </div>
   );

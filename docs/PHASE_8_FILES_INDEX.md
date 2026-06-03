@@ -12,6 +12,7 @@
 All 6 Cloud Function callables + infrastructure for NOTIVISA (RDC 978 Art. 66) integration deployed. Ready for Phase 4 kickoff and 8-day deployment wave starting 2026-06-02.
 
 **Deliverables:**
+
 - ✅ 6 production-ready callables (~2,500 LOC)
 - ✅ 1 scheduled cron job (5-min polling)
 - ✅ Firestore rules + indexes for 3 collections
@@ -83,17 +84,18 @@ docs/adr/
 
 ### 1. Core Callables (HTTPS Cloud Functions)
 
-| File | Purpose | LOC | Spec |
-|------|---------|-----|------|
-| `submitNotivisa.ts` | Gateway: draft → queue | 250 | 1 in CALLABLES.md |
-| `notivisaDraftCreate.ts` | Auto-draft from laudo | 240 | 2 in CALLABLES.md |
-| `getNotivisaDraft.ts` | Fetch + audit log | 150 | 4 in CALLABLES.md |
-| `rejectNotivisaDraft.ts` | RT rejection gate | 180 | 5 in CALLABLES.md |
-| `listNotivisaOutbox.ts` | Auditor export | 200 | 6 in CALLABLES.md |
+| File                     | Purpose                | LOC | Spec              |
+| ------------------------ | ---------------------- | --- | ----------------- |
+| `submitNotivisa.ts`      | Gateway: draft → queue | 250 | 1 in CALLABLES.md |
+| `notivisaDraftCreate.ts` | Auto-draft from laudo  | 240 | 2 in CALLABLES.md |
+| `getNotivisaDraft.ts`    | Fetch + audit log      | 150 | 4 in CALLABLES.md |
+| `rejectNotivisaDraft.ts` | RT rejection gate      | 180 | 5 in CALLABLES.md |
+| `listNotivisaOutbox.ts`  | Auditor export         | 200 | 6 in CALLABLES.md |
 
 **Total:** 1,020 LOC
 
 **Key features (all callables):**
+
 - ✅ Zod schema validation
 - ✅ Multi-tenant authorization
 - ✅ Error handling (8 codes per callable)
@@ -105,11 +107,12 @@ docs/adr/
 
 ### 2. Scheduled Job (Cloud Scheduler)
 
-| File | Purpose | Schedule | LOC | Spec |
-|------|---------|----------|-----|------|
+| File                     | Purpose              | Schedule    | LOC | Spec              |
+| ------------------------ | -------------------- | ----------- | --- | ----------------- |
 | `notivisaStatusCheck.ts` | Poll gov API + retry | Every 5 min | 270 | 3 in CALLABLES.md |
 
 **Features:**
+
 - ✅ Exponential backoff (5 tiers)
 - ✅ Network error handling
 - ✅ Immutable audit logging
@@ -120,12 +123,13 @@ docs/adr/
 
 ### 3. Shared Utilities
 
-| File | Purpose | LOC | Used by |
-|------|---------|-----|---------|
+| File             | Purpose                         | LOC | Used by                |
+| ---------------- | ------------------------------- | --- | ---------------------- |
 | `cryptoaudit.ts` | Logical signatures + chain hash | 100 | All 6 callables + cron |
-| `notivisa.ts` | Zod schema + formatter | 95 | All callables |
+| `notivisa.ts`    | Zod schema + formatter          | 95  | All callables          |
 
 **Key exports:**
+
 - `generateLogicalSignature(uid, payload, prevHash?) → LogicalSignature`
 - `verifyLogicalSignature(sig, payload, prevHash?) → boolean`
 - `notivisaPayloadSchema` (Zod)
@@ -135,11 +139,12 @@ docs/adr/
 
 ### 4. Tests
 
-| File | Tests | LOC | Coverage |
-|------|-------|-----|----------|
+| File                   | Tests            | LOC | Coverage             |
+| ---------------------- | ---------------- | --- | -------------------- |
 | `notivisa-e2e.test.ts` | 8 critical flows | 350 | All callables + cron |
 
 **Test flows:**
+
 1. ✅ Draft creation
 2. ✅ RT approval + enqueue
 3. ✅ Audit trail immutability
@@ -155,18 +160,20 @@ docs/adr/
 
 ### 5. Firestore Rules & Indexes
 
-| Item | File | Purpose |
-|------|------|---------|
-| Rules | `notivisa-firestore-rules.md` | Security rules for 3 collections |
-| Indexes | (in rules file) | 4 composite indexes |
-| Helpers | (in rules file) | `isActiveMemberOfLab()`, `isAdminOrOwner()` |
+| Item    | File                          | Purpose                                     |
+| ------- | ----------------------------- | ------------------------------------------- |
+| Rules   | `notivisa-firestore-rules.md` | Security rules for 3 collections            |
+| Indexes | (in rules file)               | 4 composite indexes                         |
+| Helpers | (in rules file)               | `isActiveMemberOfLab()`, `isAdminOrOwner()` |
 
 **Collections:**
+
 - `notivisa-drafts/{labId}/drafts/{draftId}` (RT read/write)
 - `notivisa-queue/{labId}/events/{eventId}` (RT read, CF write)
 - `notivisa-outbox/{labId}/archives/{archiveId}` (Auditor read)
 
 **Indexes:**
+
 1. `notivisa-drafts`: `status + criadoEm` (listing)
 2. `notivisa-drafts`: `laudoId + status` (idempotency check)
 3. `notivisa-queue`: `status + nextRetry` (polling)
@@ -178,28 +185,28 @@ docs/adr/
 
 #### Technical Specs
 
-| File | Purpose | Audience | LOC |
-|------|---------|----------|-----|
-| `PHASE_8_DETAILED_PLAN.md` | Full specification (1,500 LOC) | Engineers | 1,500 |
-| `PHASE_8_NOTIVISA_CALLABLES.md` | Callable specs (6 + error handling) | Engineers | 900 |
-| `PHASE_8_FILES_INDEX.md` | This file (file location guide) | Everyone | — |
+| File                            | Purpose                             | Audience  | LOC   |
+| ------------------------------- | ----------------------------------- | --------- | ----- |
+| `PHASE_8_DETAILED_PLAN.md`      | Full specification (1,500 LOC)      | Engineers | 1,500 |
+| `PHASE_8_NOTIVISA_CALLABLES.md` | Callable specs (6 + error handling) | Engineers | 900   |
+| `PHASE_8_FILES_INDEX.md`        | This file (file location guide)     | Everyone  | —     |
 
 #### Operational Docs
 
-| File | Purpose | Audience | LOC |
-|------|---------|----------|-----|
-| `PHASE_8_DEPLOYMENT_CHECKLIST.md` | 8-day deployment wave | DevOps + QA | 600 |
-| `PHASE_8_EXECUTION_SUMMARY.md` | Executive summary + timeline | Project leads | 500 |
-| `NOTIVISA_OPERATIONAL_QUICK_REFERENCE.md` | Quick reference card | RT + Auditor + DevOps | 400 |
-| `v1.4_NOTIVISA_SANDBOX_SETUP.md` | Government onboarding | Legal + DevOps | 1,200 |
+| File                                      | Purpose                      | Audience              | LOC   |
+| ----------------------------------------- | ---------------------------- | --------------------- | ----- |
+| `PHASE_8_DEPLOYMENT_CHECKLIST.md`         | 8-day deployment wave        | DevOps + QA           | 600   |
+| `PHASE_8_EXECUTION_SUMMARY.md`            | Executive summary + timeline | Project leads         | 500   |
+| `NOTIVISA_OPERATIONAL_QUICK_REFERENCE.md` | Quick reference card         | RT + Auditor + DevOps | 400   |
+| `v1.4_NOTIVISA_SANDBOX_SETUP.md`          | Government onboarding        | Legal + DevOps        | 1,200 |
 
 #### Architecture Decisions
 
-| Document | Status | Version |
-|----------|--------|---------|
+| Document | Status      | Version                        |
+| -------- | ----------- | ------------------------------ |
 | ADR-0014 | ✅ Accepted | v1.4 sandbox → v1.5 production |
-| ADR-0021 | ✅ Accepted | Queue + retry pattern |
-| ADR-0026 | ✅ Accepted | Async queue processing |
+| ADR-0021 | ✅ Accepted | Queue + retry pattern          |
+| ADR-0026 | ✅ Accepted | Async queue processing         |
 
 ---
 
@@ -217,12 +224,14 @@ docs/adr/
 ### Deployment Wave (2026-06-02 to 2026-06-16)
 
 **Day 1:** Deploy Firestore rules + indexes
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 # Verify: Firebase Console → Rules tab (NOTIVISA blocks visible)
 ```
 
 **Day 2:** Deploy Cloud Functions
+
 ```bash
 bash scripts/preflight-secrets-check.sh  # MANDATORY
 firebase deploy --only functions:notivisa* --project hmatologia2
@@ -232,12 +241,14 @@ firebase deploy --only functions:notivisa* --project hmatologia2
 **Day 3:** Deploy RT portal UI
 
 **Days 4–5:** E2E testing (8 flows)
+
 ```bash
 npm test -- __tests__/integration/notivisa-e2e.test.ts
 # PASS: 8/8 tests
 ```
 
 **Day 6:** Cloud Logs monitoring (24h)
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # PASS: 0 errors, <3% warnings
@@ -325,6 +336,7 @@ gcloud scheduler jobs create pubsub notivisa-polling \
 ```
 
 Or via Firebase Console:
+
 - Cloud Scheduler → Create Job
 - Name: `notivisa-polling`
 - Schedule: `*/5 * * * *` (every 5 minutes)
@@ -336,9 +348,9 @@ Or via Firebase Console:
 
 ## Version History
 
-| Version | Date | Status | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-05-07 | ✅ COMPLETE | All 6 callables + infrastructure |
+| Version | Date       | Status      | Changes                          |
+| ------- | ---------- | ----------- | -------------------------------- |
+| 1.0     | 2026-05-07 | ✅ COMPLETE | All 6 callables + infrastructure |
 
 ---
 

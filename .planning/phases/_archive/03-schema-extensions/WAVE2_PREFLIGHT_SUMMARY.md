@@ -13,13 +13,13 @@
 
 **5 new match blocks + 2 helper functions**
 
-| Block | Purpose | Helper | Status |
-|-------|---------|--------|--------|
-| 1. `/portal-configuracao/{docId}` | Patient portal branding | (uses existing helpers) | ✅ Ready |
-| 2. `/notivisa-outbox/events/{docId}` | NOTIVISA event queue | `validateNotivisaPayload()` | ✅ **ALREADY DEFINED** |
-| 3. `/criticos-escalacoes/escalacoes/{docId}` | Critical escalations | (uses existing helpers) | ✅ Ready |
-| 4. `/imuno-ias-dev/images/{docId}` | IA training dataset | (uses existing helpers) | ✅ Ready |
-| 5. `/laudos-draft/rascunhos/{docId}` | Draft editing with locks | `validateDraftLock()` | ✅ **ALREADY DEFINED** |
+| Block                                        | Purpose                  | Helper                      | Status                 |
+| -------------------------------------------- | ------------------------ | --------------------------- | ---------------------- |
+| 1. `/portal-configuracao/{docId}`            | Patient portal branding  | (uses existing helpers)     | ✅ Ready               |
+| 2. `/notivisa-outbox/events/{docId}`         | NOTIVISA event queue     | `validateNotivisaPayload()` | ✅ **ALREADY DEFINED** |
+| 3. `/criticos-escalacoes/escalacoes/{docId}` | Critical escalations     | (uses existing helpers)     | ✅ Ready               |
+| 4. `/imuno-ias-dev/images/{docId}`           | IA training dataset      | (uses existing helpers)     | ✅ Ready               |
+| 5. `/laudos-draft/rascunhos/{docId}`         | Draft editing with locks | `validateDraftLock()`       | ✅ **ALREADY DEFINED** |
 
 **Key Finding:** Both helper functions are already present in `firestore.rules` at lines 78-91. No new helpers need to be written.
 
@@ -27,13 +27,13 @@
 
 **4 utility modules + 18 unit tests**
 
-| Module | Purpose | LOC | Tests | Status |
-|--------|---------|-----|-------|--------|
-| `notivisa.ts` | NOTIVISA payload formatter + validator | 100 | 3 | ✅ Ready |
-| `sms.ts` | SMS template for critical alerts | 80 | 4 | ✅ Ready |
-| `laudo.ts` | Draft state machine + lock manager | 120 | 5 | ✅ Ready |
-| `ia.ts` | IA strip image Zod schema validator | 150 | 6 | ✅ Ready |
-| **Total** | | ~450 | 18 | ✅ Ready |
+| Module        | Purpose                                | LOC  | Tests | Status   |
+| ------------- | -------------------------------------- | ---- | ----- | -------- |
+| `notivisa.ts` | NOTIVISA payload formatter + validator | 100  | 3     | ✅ Ready |
+| `sms.ts`      | SMS template for critical alerts       | 80   | 4     | ✅ Ready |
+| `laudo.ts`    | Draft state machine + lock manager     | 120  | 5     | ✅ Ready |
+| `ia.ts`       | IA strip image Zod schema validator    | 150  | 6     | ✅ Ready |
+| **Total**     |                                        | ~450 | 18    | ✅ Ready |
 
 ---
 
@@ -42,6 +42,7 @@
 ### ✅ Firestore Rules
 
 **Existing Helpers — 0 Conflicts**
+
 ```
 isAuthenticated() ........................ ✅ Compatible
 isActiveMemberOfLab(labId) .............. ✅ Compatible
@@ -54,12 +55,14 @@ isAdminOrRT(labId) ..................... ✅ Compatible (Phase 3.2)
 ```
 
 **New Helpers — Already Present**
+
 ```
 validateNotivisaPayload(payload) ........ ✅ Verified at Line 79
 validateDraftLock(d) .................... ✅ Verified at Line 88
 ```
 
 **Path Conflicts — 0 Duplicates**
+
 ```
 /portal-configuracao .................... ✅ New path
 /notivisa-outbox/events ................ ✅ New path
@@ -73,15 +76,17 @@ validateDraftLock(d) .................... ✅ Verified at Line 88
 ### ✅ Cloud Functions
 
 **Directory Structure — Ready**
+
 ```
-functions/src/shared/ 
+functions/src/shared/
   ├── 12 existing modules ............... ✅ No changes needed
   └── [Wave 2 will add 4 new] ........... ✅ No conflicts
-functions/__tests__/ 
+functions/__tests__/
   └── fixtures/ ......................... ✅ Already has notivisa-payloads.ts
 ```
 
 **TypeScript Configuration — Ready**
+
 ```
 tsconfig.json
   ├── Strict mode enabled ............... ✅ Verified
@@ -91,6 +96,7 @@ tsconfig.json
 ```
 
 **Dependencies — All Present**
+
 ```
 zod@3.25.76 ............................ ✅ Already installed
 typescript@5.9.3 ...................... ✅ Already installed
@@ -99,6 +105,7 @@ node@22 .............................. ✅ Runtime ready
 ```
 
 **No Circular Dependencies**
+
 ```
 notivisa.ts → (no cross-imports) ....... ✅ Standalone
 sms.ts → (no cross-imports) ........... ✅ Standalone
@@ -110,15 +117,15 @@ ia.ts → zod only ...................... ✅ Standalone
 
 ## Risk Assessment
 
-| Category | Risk | Probability | Status |
-|----------|------|-------------|--------|
-| **Rules Syntax** | Typo in new blocks | Low | ✅ Mitigated via emulator test |
-| **Functions Build** | TypeScript errors | Low | ✅ Strict mode catches early |
-| **Circular Imports** | Module A imports B imports A | Very Low | ✅ New modules are leaf nodes |
-| **Index Build** | Firestore indexes take hours | Low | ✅ Monitored, non-blocking |
-| **Deployment Order** | Rules before functions | Low | ✅ Documented in playbook |
-| **Data Isolation** | Patient data leaks via new rules | Low | ✅ Helper functions reviewed |
-| **Existing Regression** | New rules break existing writes | Low | ✅ No existing rules modified |
+| Category                | Risk                             | Probability | Status                         |
+| ----------------------- | -------------------------------- | ----------- | ------------------------------ |
+| **Rules Syntax**        | Typo in new blocks               | Low         | ✅ Mitigated via emulator test |
+| **Functions Build**     | TypeScript errors                | Low         | ✅ Strict mode catches early   |
+| **Circular Imports**    | Module A imports B imports A     | Very Low    | ✅ New modules are leaf nodes  |
+| **Index Build**         | Firestore indexes take hours     | Low         | ✅ Monitored, non-blocking     |
+| **Deployment Order**    | Rules before functions           | Low         | ✅ Documented in playbook      |
+| **Data Isolation**      | Patient data leaks via new rules | Low         | ✅ Helper functions reviewed   |
+| **Existing Regression** | New rules break existing writes  | Low         | ✅ No existing rules modified  |
 
 **Overall Risk Level:** 🟢 **LOW** (0 blockers, 0 dependencies on other teams, 0 breaking changes)
 
@@ -190,14 +197,14 @@ Task 03-02 (Rules — CTO)
   ☐ Security audit passed (no privilege escalation paths)
   ☐ Helper functions validated (already in file at L79, L88)
   ☐ Emulator test passed locally
-  
+
 Task 03-03 (Functions — Stream D Engineer)
   ☐ Implemented 4 helper modules in src/shared/
   ☐ 18/18 unit tests passing
   ☐ Coverage ≥80% per module
   ☐ npm run build returns 0
   ☐ No circular imports detected
-  
+
 Wave 2 Integration
   ☐ Confirmed 0 blockers
   ☐ Deploy order verified (Rules → Functions)
@@ -314,18 +321,21 @@ git push origin main
 ✅ Wave 2 is successful when:
 
 1. **Rules deployed without errors**
+
    ```bash
    firebase deploy --only firestore:rules --project hmatologia2
    # Output: "Deployment successful!"
    ```
 
 2. **Functions helpers compile clean**
+
    ```bash
    cd functions && npm run build
    # Output: "0 errors"
    ```
 
 3. **All 18 tests pass**
+
    ```bash
    npm test -- src/shared
    # Output: "18 passed"
@@ -391,11 +401,11 @@ firebase deploy --only functions --project hmatologia2
 
 ## Sign-Off
 
-| Role | Name | Date | Status |
-|------|------|------|--------|
-| **CTO** | (User) | 2026-05-07 | ⏳ Pending approval |
-| **Stream A** (Rules) | (TBD) | (TBD) | ⏳ Pending assignment |
-| **Stream D** (Functions) | (TBD) | (TBD) | ⏳ Pending assignment |
+| Role                     | Name   | Date       | Status                |
+| ------------------------ | ------ | ---------- | --------------------- |
+| **CTO**                  | (User) | 2026-05-07 | ⏳ Pending approval   |
+| **Stream A** (Rules)     | (TBD)  | (TBD)      | ⏳ Pending assignment |
+| **Stream D** (Functions) | (TBD)  | (TBD)      | ⏳ Pending assignment |
 
 ---
 

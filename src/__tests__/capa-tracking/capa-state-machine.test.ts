@@ -24,15 +24,11 @@ describe('CAPA State Machine', () => {
     });
 
     it('should allow in-progress → evidence-submitted', () => {
-      expect(isValidStateTransition('in-progress', 'evidence-submitted')).toBe(
-        true,
-      );
+      expect(isValidStateTransition('in-progress', 'evidence-submitted')).toBe(true);
     });
 
     it('should allow evidence-submitted → auditor-reviewing', () => {
-      expect(
-        isValidStateTransition('evidence-submitted', 'auditor-reviewing'),
-      ).toBe(true);
+      expect(isValidStateTransition('evidence-submitted', 'auditor-reviewing')).toBe(true);
     });
 
     it('should allow auditor-reviewing → closed', () => {
@@ -40,9 +36,7 @@ describe('CAPA State Machine', () => {
     });
 
     it('should allow auditor-reviewing → in-progress (rejection cycle)', () => {
-      expect(isValidStateTransition('auditor-reviewing', 'in-progress')).toBe(
-        true,
-      );
+      expect(isValidStateTransition('auditor-reviewing', 'in-progress')).toBe(true);
     });
 
     it('should reject open → evidence-submitted (skip state)', () => {
@@ -62,17 +56,13 @@ describe('CAPA State Machine', () => {
     });
 
     it('should reject in-progress → auditor-reviewing (skip state)', () => {
-      expect(isValidStateTransition('in-progress', 'auditor-reviewing')).toBe(
-        false,
-      );
+      expect(isValidStateTransition('in-progress', 'auditor-reviewing')).toBe(false);
     });
 
     it('should reject closed → any state (terminal)', () => {
       expect(isValidStateTransition('closed', 'open')).toBe(false);
       expect(isValidStateTransition('closed', 'in-progress')).toBe(false);
-      expect(isValidStateTransition('closed', 'evidence-submitted')).toBe(
-        false,
-      );
+      expect(isValidStateTransition('closed', 'evidence-submitted')).toBe(false);
       expect(isValidStateTransition('closed', 'auditor-reviewing')).toBe(false);
       expect(isValidStateTransition('closed', 'closed')).toBe(false);
     });
@@ -82,15 +72,11 @@ describe('CAPA State Machine', () => {
     });
 
     it('should reject evidence-submitted → in-progress', () => {
-      expect(isValidStateTransition('evidence-submitted', 'in-progress')).toBe(
-        false,
-      );
+      expect(isValidStateTransition('evidence-submitted', 'in-progress')).toBe(false);
     });
 
     it('should reject evidence-submitted → closed (must go through auditor-reviewing)', () => {
-      expect(isValidStateTransition('evidence-submitted', 'closed')).toBe(
-        false,
-      );
+      expect(isValidStateTransition('evidence-submitted', 'closed')).toBe(false);
     });
   });
 
@@ -153,7 +139,8 @@ describe('CAPA State Machine', () => {
         createdAt: now,
         createdBy: 'user-123',
         rootCause: 'This is a test root cause description that is at least 50 characters long.',
-        correctiveAction: 'This is a corrective action description that is at least 50 characters long.',
+        correctiveAction:
+          'This is a corrective action description that is at least 50 characters long.',
         deadlineDate: deadline,
         evidence: [],
         rfiLog: [],
@@ -263,7 +250,8 @@ describe('CAPA State Machine', () => {
         createdAt: Date.now(),
         createdBy: 'user-123',
         rootCause: 'This is a test root cause description that is at least 50 characters long.',
-        correctiveAction: 'This is a corrective action description that is at least 50 characters long.',
+        correctiveAction:
+          'This is a corrective action description that is at least 50 characters long.',
         deadlineDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
         evidence: [],
         rfiLog: [],
@@ -291,7 +279,8 @@ describe('CAPA State Machine', () => {
         createdAt: Date.now(),
         createdBy: 'user-123',
         rootCause: 'This is a test root cause description that is at least 50 characters long.',
-        correctiveAction: 'This is a corrective action description that is at least 50 characters long.',
+        correctiveAction:
+          'This is a corrective action description that is at least 50 characters long.',
         deadlineDate: Date.now() + 30 * 24 * 60 * 60 * 1000,
         evidence: [],
         rfiLog: [],

@@ -48,25 +48,25 @@ function DashboardCard({ title, metric, icon }: DashboardCardProps) {
     <PortalCard className="flex flex-col gap-4">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide`}>
+          <p
+            className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide`}
+          >
             {title}
           </p>
         </div>
-        {icon && <div className={`${statusColor[metric.status || 'success']} flex-shrink-0`}>{icon}</div>}
+        {icon && (
+          <div className={`${statusColor[metric.status || 'success']} flex-shrink-0`}>{icon}</div>
+        )}
       </div>
 
       <div className="space-y-2">
-        <p className={`text-3xl font-semibold ${PortalRTTokens.text.primary}`}>
-          {metric.value}
-        </p>
+        <p className={`text-3xl font-semibold ${PortalRTTokens.text.primary}`}>{metric.value}</p>
         {metric.trendValue && (
           <div className="flex items-center gap-2">
             <span className={`text-xs ${statusColor[metric.status || 'success']}`}>
               {metric.trend === 'up' && '↑'}
               {metric.trend === 'down' && '↓'}
-              {metric.trend === 'stable' && '→'}
-              {' '}
-              {metric.trendValue}
+              {metric.trend === 'stable' && '→'} {metric.trendValue}
             </span>
             <PortalTextSecondary className="text-xs">últimas 24h</PortalTextSecondary>
           </div>
@@ -172,7 +172,14 @@ export function DashboardSection({ labId }: DashboardSectionProps) {
           title="Críticos Pendentes"
           metric={metrics.pending}
           icon={
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <circle cx="10" cy="10" r="9" />
               <line x1="10" y1="6" x2="10" y2="10" />
               <line x1="10" y1="14" x2="10.01" y2="14" />
@@ -184,7 +191,14 @@ export function DashboardSection({ labId }: DashboardSectionProps) {
           title="Reconhecidos 24h"
           metric={metrics.acknowledged}
           icon={
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path d="M10 2c-4.4 0-8 3.6-8 8s3.6 8 8 8 8-3.6 8-8-3.6-8-8-8zm0 14c-3.3 0-6-2.7-6-6s2.7-6 6-6 6 2.7 6 6-2.7 6-6 6z" />
               <polyline points="7 10 9 12 13 8" />
             </svg>
@@ -195,7 +209,14 @@ export function DashboardSection({ labId }: DashboardSectionProps) {
           title="Escalações Semana"
           metric={metrics.escalations}
           icon={
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path d="M3 17l2-6h2l-2 6M15 17l2-6h-2l-2-6" />
               <polyline points="10 2 15 6 10 10 5 6 10 2" />
             </svg>
@@ -206,7 +227,14 @@ export function DashboardSection({ labId }: DashboardSectionProps) {
           title="Saúde do Sistema"
           metric={metrics.health}
           icon={
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 20 20"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="1.5"
+            >
               <path d="M10 18c-4.4 0-8-3.6-8-8s3.6-8 8-8 8 3.6 8 8-3.6 8-8 8z" />
               <polyline points="8 10 9.5 11.5 12 9" />
             </svg>
@@ -216,33 +244,51 @@ export function DashboardSection({ labId }: DashboardSectionProps) {
 
       {/* Quick stats row */}
       <div className="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
-          <p className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
+          <p
+            className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}
+          >
             Taxa Conformidade
           </p>
           <div className="flex items-end gap-2">
             <span className={`text-2xl font-semibold ${PortalRTTokens.text.primary}`}>98.2%</span>
-            <PortalBadge variant="success" className="mb-0.5">+1.2%</PortalBadge>
+            <PortalBadge variant="success" className="mb-0.5">
+              +1.2%
+            </PortalBadge>
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
-          <p className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
+          <p
+            className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}
+          >
             Testes em Fila
           </p>
           <div className="flex items-end gap-2">
             <span className={`text-2xl font-semibold ${PortalRTTokens.text.primary}`}>24</span>
-            <PortalBadge variant="info" className="mb-0.5">processando</PortalBadge>
+            <PortalBadge variant="info" className="mb-0.5">
+              processando
+            </PortalBadge>
           </div>
         </div>
 
-        <div className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}>
-          <p className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}>
+        <div
+          className={`p-4 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default}`}
+        >
+          <p
+            className={`text-xs font-medium ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-2`}
+          >
             Tempo Médio RT
           </p>
           <div className="flex items-end gap-2">
             <span className={`text-2xl font-semibold ${PortalRTTokens.text.primary}`}>2.4m</span>
-            <PortalBadge variant="success" className="mb-0.5">−0.6m</PortalBadge>
+            <PortalBadge variant="success" className="mb-0.5">
+              −0.6m
+            </PortalBadge>
           </div>
         </div>
       </div>

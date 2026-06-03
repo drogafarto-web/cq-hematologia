@@ -10,7 +10,7 @@ export interface CEQParticipacaoInput {
   programaNome: string;
   analitoIds: string[];
   dataInicio: string; // ISO date
-  dataFim?: string;  // ISO date, optional
+  dataFim?: string; // ISO date, optional
   [key: string]: unknown;
 }
 

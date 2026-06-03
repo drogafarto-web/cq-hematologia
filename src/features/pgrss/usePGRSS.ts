@@ -12,7 +12,13 @@ export function usePGRSS() {
   const labId = useActiveLabId();
 
   const registrarGeracao = useCallback(
-    async (tipo: string, descricao: string, peso_kg: number, responsavel: string, observacoes?: string) => {
+    async (
+      tipo: string,
+      descricao: string,
+      peso_kg: number,
+      responsavel: string,
+      observacoes?: string,
+    ) => {
       if (!labId) throw new Error('Lab ID não configurado');
 
       const fn = httpsCallable<any, any>(functions, 'registrarGeracao');
@@ -27,11 +33,16 @@ export function usePGRSS() {
 
       return result.data;
     },
-    [labId]
+    [labId],
   );
 
   const registrarColeta = useCallback(
-    async (empresa_coletora: string, registroGeracaoIds: string[], peso_total_kg: number, comprovante_url?: string) => {
+    async (
+      empresa_coletora: string,
+      registroGeracaoIds: string[],
+      peso_total_kg: number,
+      comprovante_url?: string,
+    ) => {
       if (!labId) throw new Error('Lab ID não configurado');
 
       const fn = httpsCallable<any, any>(functions, 'registrarColeta');
@@ -45,7 +56,7 @@ export function usePGRSS() {
 
       return result.data;
     },
-    [labId]
+    [labId],
   );
 
   const validarSegregacao = useCallback(async () => {
@@ -62,7 +73,7 @@ export function usePGRSS() {
       if (!labId) return () => {};
       return subscribeGeracoes(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToColetas = useCallback(
@@ -70,7 +81,7 @@ export function usePGRSS() {
       if (!labId) return () => {};
       return subscribeColetas(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   return {

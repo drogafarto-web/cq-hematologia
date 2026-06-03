@@ -30,7 +30,10 @@ export interface EscalaDiaria {
   readonly deletadoEm: Timestamp | null;
 }
 
-export type EscalaDiariaInput = Omit<EscalaDiaria, 'id' | 'labId' | 'criadoEm' | 'updatedAt' | 'deletadoEm'>;
+export type EscalaDiariaInput = Omit<
+  EscalaDiaria,
+  'id' | 'labId' | 'criadoEm' | 'updatedAt' | 'deletadoEm'
+>;
 
 export const TURNO_LABEL: Record<Turno, string> = {
   manha: 'Manhã',

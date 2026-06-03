@@ -21,38 +21,39 @@ interface CAPAListViewProps {
   onCAPASelect?: (capaId: string) => void;
 }
 
-const STATUS_STYLES: Record<CAPAStatus, { bg: string; text: string; icon: string; label: string }> = {
-  aberta: {
-    bg: 'bg-red-900/20 border-red-700/50',
-    text: 'text-red-200',
-    icon: '●',
-    label: 'Aberta',
-  },
-  'em-tratamento': {
-    bg: 'bg-amber-900/20 border-amber-700/50',
-    text: 'text-amber-200',
-    icon: '◐',
-    label: 'Em Tratamento',
-  },
-  verificada: {
-    bg: 'bg-blue-900/20 border-blue-700/50',
-    text: 'text-blue-200',
-    icon: '◐',
-    label: 'Verificada',
-  },
-  fechada: {
-    bg: 'bg-emerald-900/20 border-emerald-700/50',
-    text: 'text-emerald-200',
-    icon: '✓',
-    label: 'Fechada',
-  },
-  cancelada: {
-    bg: 'bg-gray-900/20 border-gray-700/50',
-    text: 'text-gray-200',
-    icon: '✕',
-    label: 'Cancelada',
-  },
-};
+const STATUS_STYLES: Record<CAPAStatus, { bg: string; text: string; icon: string; label: string }> =
+  {
+    aberta: {
+      bg: 'bg-red-900/20 border-red-700/50',
+      text: 'text-red-200',
+      icon: '●',
+      label: 'Aberta',
+    },
+    'em-tratamento': {
+      bg: 'bg-amber-900/20 border-amber-700/50',
+      text: 'text-amber-200',
+      icon: '◐',
+      label: 'Em Tratamento',
+    },
+    verificada: {
+      bg: 'bg-blue-900/20 border-blue-700/50',
+      text: 'text-blue-200',
+      icon: '◐',
+      label: 'Verificada',
+    },
+    fechada: {
+      bg: 'bg-emerald-900/20 border-emerald-700/50',
+      text: 'text-emerald-200',
+      icon: '✓',
+      label: 'Fechada',
+    },
+    cancelada: {
+      bg: 'bg-gray-900/20 border-gray-700/50',
+      text: 'text-gray-200',
+      icon: '✕',
+      label: 'Cancelada',
+    },
+  };
 
 const PRIORITY_LABELS: Record<number, string> = {
   1: '▁ Baixa',
@@ -65,11 +66,21 @@ const PRIORITY_LABELS: Record<number, string> = {
 function SkeletonRow() {
   return (
     <tr className="border-b border-white/[0.05] hover:bg-white/[0.04]">
-      <td className="p-3"><div className="h-4 bg-white/10 rounded w-16 animate-pulse" /></td>
-      <td className="p-3"><div className="h-4 bg-white/10 rounded w-32 animate-pulse" /></td>
-      <td className="p-3"><div className="h-4 bg-white/10 rounded w-24 animate-pulse" /></td>
-      <td className="p-3"><div className="h-4 bg-white/10 rounded w-20 animate-pulse" /></td>
-      <td className="p-3"><div className="h-4 bg-white/10 rounded w-20 animate-pulse" /></td>
+      <td className="p-3">
+        <div className="h-4 bg-white/10 rounded w-16 animate-pulse" />
+      </td>
+      <td className="p-3">
+        <div className="h-4 bg-white/10 rounded w-32 animate-pulse" />
+      </td>
+      <td className="p-3">
+        <div className="h-4 bg-white/10 rounded w-24 animate-pulse" />
+      </td>
+      <td className="p-3">
+        <div className="h-4 bg-white/10 rounded w-20 animate-pulse" />
+      </td>
+      <td className="p-3">
+        <div className="h-4 bg-white/10 rounded w-20 animate-pulse" />
+      </td>
     </tr>
   );
 }
@@ -230,7 +241,13 @@ export default function CAPAListView({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && handleSort('status')}
-                  aria-sort={sortBy === 'status' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
+                  aria-sort={
+                    sortBy === 'status'
+                      ? sortOrder === 'asc'
+                        ? 'ascending'
+                        : 'descending'
+                      : 'none'
+                  }
                 >
                   Status {sortBy === 'status' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
@@ -244,7 +261,9 @@ export default function CAPAListView({
                   role="button"
                   tabIndex={0}
                   onKeyDown={(e) => e.key === 'Enter' && handleSort('prazo')}
-                  aria-sort={sortBy === 'prazo' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'}
+                  aria-sort={
+                    sortBy === 'prazo' ? (sortOrder === 'asc' ? 'ascending' : 'descending') : 'none'
+                  }
                 >
                   Prazo {sortBy === 'prazo' && (sortOrder === 'asc' ? '↑' : '↓')}
                 </th>
@@ -289,7 +308,9 @@ export default function CAPAListView({
                           <span>{statusStyle.label}</span>
                         </span>
                       </td>
-                      <td className="p-3 text-white/80 text-sm">{PRIORITY_LABELS[capa.prioridade]}</td>
+                      <td className="p-3 text-white/80 text-sm">
+                        {PRIORITY_LABELS[capa.prioridade]}
+                      </td>
                       <td className="p-3 text-white/80 text-sm">{formatDate(capa.dataPrazo)}</td>
                     </tr>
                   );

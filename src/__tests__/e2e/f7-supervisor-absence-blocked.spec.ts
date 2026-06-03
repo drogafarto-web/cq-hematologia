@@ -103,7 +103,7 @@ describe('F7: Supervisor Absence CIQ Block (Fail-Safe)', () => {
       clickElement(checkInLink);
 
       // Assert: Redirected to check-in
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
       expect(window.location.pathname).toContain('/turnos');
     });
   });
@@ -119,12 +119,14 @@ describe('F7: Supervisor Absence CIQ Block (Fail-Safe)', () => {
       vi.mock('firebase/firestore', () => ({
         onSnapshot: vi.fn((query, callback) => {
           callback({
-            docs: supervisorActive ? [
-              {
-                id: 'rt_checked_in',
-                data: () => ({ status: 'active', checkedInAt: Timestamp.now() }),
-              },
-            ] : [],
+            docs: supervisorActive
+              ? [
+                  {
+                    id: 'rt_checked_in',
+                    data: () => ({ status: 'active', checkedInAt: Timestamp.now() }),
+                  },
+                ]
+              : [],
             empty: !supervisorActive,
           });
           return vi.fn(); // unsubscribe
@@ -144,7 +146,7 @@ describe('F7: Supervisor Absence CIQ Block (Fail-Safe)', () => {
       supervisorActive = false;
 
       // Trigger listener update
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // Assert: Form immediately disabled after logout
       expect(submitBtn?.getAttribute('disabled')).toBe('true');
@@ -172,12 +174,14 @@ describe('F7: Supervisor Absence CIQ Block (Fail-Safe)', () => {
       vi.mock('firebase/firestore', () => ({
         onSnapshot: vi.fn((query, callback) => {
           callback({
-            docs: supervisorActive ? [
-              {
-                id: testRt.uid,
-                data: () => ({ status: 'active', checkedInAt: Timestamp.now() }),
-              },
-            ] : [],
+            docs: supervisorActive
+              ? [
+                  {
+                    id: testRt.uid,
+                    data: () => ({ status: 'active', checkedInAt: Timestamp.now() }),
+                  },
+                ]
+              : [],
             empty: !supervisorActive,
           });
           return vi.fn(); // unsubscribe
@@ -195,7 +199,7 @@ describe('F7: Supervisor Absence CIQ Block (Fail-Safe)', () => {
 
       // Simulate: Supervisor checks in (realtime update)
       supervisorActive = true;
-      await new Promise(r => setTimeout(r, 500));
+      await new Promise((r) => setTimeout(r, 500));
 
       // Assert: Form re-enabled
       submitBtn = getElementByTestId('btn-submit-run');
@@ -269,12 +273,14 @@ function seedRtUser(rtId: string, labId: string) {
 
 async function generateAuthToken(user: any): Promise<string> {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -304,7 +310,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }

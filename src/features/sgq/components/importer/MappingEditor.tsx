@@ -12,17 +12,11 @@ export interface MappingEditorProps {
   onError: (error: string) => void;
 }
 
-export function MappingEditor({
-  labId,
-  onNext,
-  onError,
-}: MappingEditorProps) {
+export function MappingEditor({ labId, onNext, onError }: MappingEditorProps) {
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium text-white mb-2">
-          Revisar e editar classificações
-        </h3>
+        <h3 className="text-base font-medium text-white mb-2">Revisar e editar classificações</h3>
         <p className="text-sm text-neutral-400">
           Você pode editar o tipo, setor e outros metadados de cada documento.
         </p>

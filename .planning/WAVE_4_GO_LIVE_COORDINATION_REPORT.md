@@ -1,8 +1,8 @@
 ---
-title: "Wave 4 (Phases 12-15) — Go-Live Coordination Report"
-date: "2026-05-07"
-status: "FINAL — READY FOR GO-LIVE"
-coordinator: "Claude Code (Release Manager)"
+title: 'Wave 4 (Phases 12-15) — Go-Live Coordination Report'
+date: '2026-05-07'
+status: 'FINAL — READY FOR GO-LIVE'
+coordinator: 'Claude Code (Release Manager)'
 ---
 
 # Wave 4 (Phases 12-15) — Final Go-Live Coordination Report
@@ -24,6 +24,7 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 - **Phase 15** — v1.4 Launch & Post-Deploy Monitoring (3 days, end of Aug)
 
 **Current Status:**
+
 - ✅ Phase 0–3 (100% complete)
 - ✅ Phase 12 planning complete (detailed plan + monitoring setup)
 - ✅ Phase 14 planning complete (7 audit streams, all checklists)
@@ -31,6 +32,7 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 - 📋 Phase 4–11 execution planned (awaiting kickoff 2026-05-20)
 
 **Key Metrics:**
+
 - DICQ Compliance Trajectory: 78.5% (v1.3) → 82%+ (Phase 4) → 88%+ (Phase 14) → 90%+ (Phase 15)
 - RDC 978 Coverage: 100% critical articles
 - Modules in Production: 35 (Phase 0 complete)
@@ -48,12 +50,12 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Deliverables
 
-| Document | Location | Status | Lines |
-|----------|----------|--------|-------|
-| PHASE_12_DETAILED_PLAN.md | `.planning/phases/12-performance-audit/` | ✅ Complete | 1,200+ |
-| PHASE_12_MONITORING_RUNBOOK.md | `docs/` | ✅ Complete | 350+ |
-| PERFORMANCE_BASELINE_2026-05.md | `docs/` | ✅ Complete | 250+ |
-| PHASE_12_MONITORING_INDEX.md | `.planning/phases/12-performance-audit/` | ✅ Complete | 180+ |
+| Document                        | Location                                 | Status      | Lines  |
+| ------------------------------- | ---------------------------------------- | ----------- | ------ |
+| PHASE_12_DETAILED_PLAN.md       | `.planning/phases/12-performance-audit/` | ✅ Complete | 1,200+ |
+| PHASE_12_MONITORING_RUNBOOK.md  | `docs/`                                  | ✅ Complete | 350+   |
+| PERFORMANCE_BASELINE_2026-05.md | `docs/`                                  | ✅ Complete | 250+   |
+| PHASE_12_MONITORING_INDEX.md    | `.planning/phases/12-performance-audit/` | ✅ Complete | 180+   |
 
 ### Key Objectives
 
@@ -75,12 +77,12 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Task Breakdown (4 Parallel Tracks)
 
-| Track | Owner | Duration | Status |
-|-------|-------|----------|--------|
-| Bundle & Lighthouse | Agent 1 | 3 days | ✅ Plan ready |
-| Runtime Optimization | Agent 2 | 4 days | ✅ Plan ready |
-| Database & Mobile | Agent 3 | 3 days | ✅ Plan ready |
-| Monitoring & Gates | Agent 4 | 2 days | ✅ Plan ready |
+| Track                | Owner   | Duration | Status        |
+| -------------------- | ------- | -------- | ------------- |
+| Bundle & Lighthouse  | Agent 1 | 3 days   | ✅ Plan ready |
+| Runtime Optimization | Agent 2 | 4 days   | ✅ Plan ready |
+| Database & Mobile    | Agent 3 | 3 days   | ✅ Plan ready |
+| Monitoring & Gates   | Agent 4 | 2 days   | ✅ Plan ready |
 
 ### Pre-Phase 12 Checklist
 
@@ -103,13 +105,13 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Deliverables
 
-| Document | Location | Status |
-|----------|----------|--------|
-| PHASE_4_KICKOFF_CHECKLIST.md | root | ✅ Complete |
-| PHASE_4_READINESS_FINAL_SUMMARY.md | root | ✅ Complete |
-| PHASE_4_QUICK_REFERENCE.md | `docs/` | ✅ Complete |
-| PHASE_4_KICKOFF_INDEX.md | `.planning/` | ✅ Complete |
-| Phase 4 Overview | `.planning/phases/04-portal-notivisa/` | ✅ Complete |
+| Document                           | Location                               | Status      |
+| ---------------------------------- | -------------------------------------- | ----------- |
+| PHASE_4_KICKOFF_CHECKLIST.md       | root                                   | ✅ Complete |
+| PHASE_4_READINESS_FINAL_SUMMARY.md | root                                   | ✅ Complete |
+| PHASE_4_QUICK_REFERENCE.md         | `docs/`                                | ✅ Complete |
+| PHASE_4_KICKOFF_INDEX.md           | `.planning/`                           | ✅ Complete |
+| Phase 4 Overview                   | `.planning/phases/04-portal-notivisa/` | ✅ Complete |
 
 ### Key Deliverables
 
@@ -120,26 +122,26 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Readiness Status
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Planning approval | ✅ COMPLETE | PHASE_4_READINESS_FINAL_SUMMARY.md signed |
-| Infrastructure | ✅ READY | 5 schema collections deployed, 8 functions scaffolded |
-| Kickoff documentation | ✅ COMPLETE | 4 docs, 1,520+ lines |
-| Risk mitigation | ✅ COMPLETE | 3.5/10 risk, all mitigations documented |
-| Team capacity | ✅ CONFIRMED | 3.5 FTE × 2.5 weeks |
-| Compliance mapping | ✅ COMPLETE | RDC 978 Arts. 6, 115, 204 + LGPD 38 |
+| Item                  | Status       | Evidence                                              |
+| --------------------- | ------------ | ----------------------------------------------------- |
+| Planning approval     | ✅ COMPLETE  | PHASE_4_READINESS_FINAL_SUMMARY.md signed             |
+| Infrastructure        | ✅ READY     | 5 schema collections deployed, 8 functions scaffolded |
+| Kickoff documentation | ✅ COMPLETE  | 4 docs, 1,520+ lines                                  |
+| Risk mitigation       | ✅ COMPLETE  | 3.5/10 risk, all mitigations documented               |
+| Team capacity         | ✅ CONFIRMED | 3.5 FTE × 2.5 weeks                                   |
+| Compliance mapping    | ✅ COMPLETE  | RDC 978 Arts. 6, 115, 204 + LGPD 38                   |
 
 ### Go/No-Go Gate Criteria
 
-| Criterion | Target | Achieved | Evidence |
-|-----------|--------|----------|----------|
-| Phase 3 production health | Error rate <5% | ✅ YES | Smoke tests 19/19 pass |
-| Planning approval | Scope locked | ✅ YES | PHASE_4_READINESS_FINAL_SUMMARY.md |
-| Infrastructure ready | 5 collections live | ✅ YES | Rules + Indexes deployed |
-| Team assigned | 3.5 FTE confirmed | ✅ YES | Resource allocation confirmed |
-| Documentation complete | 4 docs, >1,000 lines | ✅ YES | All docs ready for distribution |
-| Risk mitigation | Top 5 risks mitigated | ✅ YES | Contingency procedures documented |
-| Compliance verified | RDC + DICQ mapped | ✅ YES | Phase 4 DICQ +2–4 points planned |
+| Criterion                 | Target                | Achieved | Evidence                           |
+| ------------------------- | --------------------- | -------- | ---------------------------------- |
+| Phase 3 production health | Error rate <5%        | ✅ YES   | Smoke tests 19/19 pass             |
+| Planning approval         | Scope locked          | ✅ YES   | PHASE_4_READINESS_FINAL_SUMMARY.md |
+| Infrastructure ready      | 5 collections live    | ✅ YES   | Rules + Indexes deployed           |
+| Team assigned             | 3.5 FTE confirmed     | ✅ YES   | Resource allocation confirmed      |
+| Documentation complete    | 4 docs, >1,000 lines  | ✅ YES   | All docs ready for distribution    |
+| Risk mitigation           | Top 5 risks mitigated | ✅ YES   | Contingency procedures documented  |
+| Compliance verified       | RDC + DICQ mapped     | ✅ YES   | Phase 4 DICQ +2–4 points planned   |
 
 **VERDICT: ✅ GO FOR PHASE 4 KICKOFF (2026-05-20)**
 
@@ -154,24 +156,24 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Deliverables
 
-| Document | Location | Status | Lines |
-|----------|----------|--------|-------|
-| PHASE_14_DETAILED_PLAN.md | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 2,200+ |
-| PHASE_14_EXECUTION_SUMMARY.md | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 350+ |
-| PHASE_14_ARTIFACTS_INDEX.md | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 600+ |
-| Supporting audit checklists | `docs/` | ✅ Complete | 1,000+ |
+| Document                      | Location                                             | Status      | Lines  |
+| ----------------------------- | ---------------------------------------------------- | ----------- | ------ |
+| PHASE_14_DETAILED_PLAN.md     | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 2,200+ |
+| PHASE_14_EXECUTION_SUMMARY.md | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 350+   |
+| PHASE_14_ARTIFACTS_INDEX.md   | `.planning/phases/14-pre-launch-security-stability/` | ✅ Complete | 600+   |
+| Supporting audit checklists   | `docs/`                                              | ✅ Complete | 1,000+ |
 
 ### 7 Audit Streams
 
-| Stream | Owner | Days | Pass/Fail Criteria | Status |
-|--------|-------|------|-------------------|--------|
-| **1. Security Audit** | Sec. Eng. | 2 | 0 critical vulns | ✅ Plan ready |
-| **2. Dependency Audit** | Tech Lead | 2 | 0 deprecated packages | ✅ Plan ready |
-| **3. Smoke Tests** | QA | 1 | 125/125 tests pass (100%) | ✅ Plan ready |
-| **4. Staging Deploy** | Ops | 1 | Zero errors, < 5 min rollback | ✅ Plan ready |
-| **5. Load Testing** | Tech Lead | 1 | p99 <2.5s, <1% error rate | ✅ Plan ready |
-| **6. Playbook & Incident Response** | Ops | 1 | 8 runbooks reviewed, tested | ✅ Plan ready |
-| **7. CTO Sign-Off** | CTO | 0.5 | All 6 streams GREEN | ✅ Plan ready |
+| Stream                              | Owner     | Days | Pass/Fail Criteria            | Status        |
+| ----------------------------------- | --------- | ---- | ----------------------------- | ------------- |
+| **1. Security Audit**               | Sec. Eng. | 2    | 0 critical vulns              | ✅ Plan ready |
+| **2. Dependency Audit**             | Tech Lead | 2    | 0 deprecated packages         | ✅ Plan ready |
+| **3. Smoke Tests**                  | QA        | 1    | 125/125 tests pass (100%)     | ✅ Plan ready |
+| **4. Staging Deploy**               | Ops       | 1    | Zero errors, < 5 min rollback | ✅ Plan ready |
+| **5. Load Testing**                 | Tech Lead | 1    | p99 <2.5s, <1% error rate     | ✅ Plan ready |
+| **6. Playbook & Incident Response** | Ops       | 1    | 8 runbooks reviewed, tested   | ✅ Plan ready |
+| **7. CTO Sign-Off**                 | CTO       | 0.5  | All 6 streams GREEN           | ✅ Plan ready |
 
 ### Success Criteria (All Must Be ✓)
 
@@ -197,21 +199,21 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 
 ### Deliverables
 
-| Document | Location | Status | Lines |
-|----------|----------|--------|-------|
-| PHASE_15_DETAILED_PLAN.md | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 1,200+ |
-| PHASE_15_EXECUTIVE_SUMMARY.md | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 300+ |
-| PHASE_15_DEPLOYMENT_CHECKLIST.md | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 400+ |
-| PHASE_15_PHASE_OVERVIEW.md | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 250+ |
+| Document                         | Location                                 | Status      | Lines  |
+| -------------------------------- | ---------------------------------------- | ----------- | ------ |
+| PHASE_15_DETAILED_PLAN.md        | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 1,200+ |
+| PHASE_15_EXECUTIVE_SUMMARY.md    | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 300+   |
+| PHASE_15_DEPLOYMENT_CHECKLIST.md | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 400+   |
+| PHASE_15_PHASE_OVERVIEW.md       | `.planning/phases/15-launch-monitoring/` | ✅ Complete | 250+   |
 
 ### 4-Step Deployment Sequence
 
-| Step | Task | Duration | Owner | Validation |
-|------|------|----------|-------|-----------|
-| **Step 1** | Firestore Rules + Indexes | 30 min | DevOps | No auth errors, rules tests pass |
-| **Step 2** | Cloud Functions deploy | 40 min | DevOps | All 78 functions warm + healthy |
-| **Step 3** | Hosting deploy (React app) | 30 min | DevOps | App loads, no 404s |
-| **Step 4** | Production smoke tests | 45 min | QA | 8/8 test cases pass |
+| Step       | Task                       | Duration | Owner  | Validation                       |
+| ---------- | -------------------------- | -------- | ------ | -------------------------------- |
+| **Step 1** | Firestore Rules + Indexes  | 30 min   | DevOps | No auth errors, rules tests pass |
+| **Step 2** | Cloud Functions deploy     | 40 min   | DevOps | All 78 functions warm + healthy  |
+| **Step 3** | Hosting deploy (React app) | 30 min   | DevOps | App loads, no 404s               |
+| **Step 4** | Production smoke tests     | 45 min   | QA     | 8/8 test cases pass              |
 
 **Total Active Time: 2h 25 min**
 
@@ -235,6 +237,7 @@ Wave 4 consists of the final execution and go-live phases for v1.4:
 ### Rollback Procedure
 
 If critical issue during Phase 15:
+
 ```
 git reset --hard [STABLE_COMMIT]
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
@@ -251,17 +254,17 @@ firebase deploy --only hosting --project hmatologia2
 
 **Completion Status:**
 
-| Phase | Status | Key Achievement | Dependency |
-|-------|--------|-----------------|------------|
-| **Phase 0** | ✅ LIVE (2026-05-07) | 4 RDC blockers | Phase 1 |
-| **Phase 1** | ✅ LIVE (2026-05-07) | Smoke tests + baseline | Phase 2 |
-| **Phase 2** | ✅ LIVE (2026-05-07) | Planning complete + 9 docs | Phase 3 |
-| **Phase 3** | ✅ LIVE (2026-05-07) | 5 schema + 78 functions | Phase 4 |
-| **Phase 4** | 📋 READY (2026-05-20) | Portal + NOTIVISA | Phase 5 |
-| **Phase 5** | 📋 PLANNED (2026-06-09) | Critical values + IA | Phase 6 |
-| **Phase 12** | 📋 READY (2026-05-20) | Performance audit | Production |
-| **Phase 14** | 📋 READY (2026-08-24) | Security audit | Phase 15 |
-| **Phase 15** | 📋 READY (2026-08-31) | Go-live | Production |
+| Phase        | Status                  | Key Achievement            | Dependency |
+| ------------ | ----------------------- | -------------------------- | ---------- |
+| **Phase 0**  | ✅ LIVE (2026-05-07)    | 4 RDC blockers             | Phase 1    |
+| **Phase 1**  | ✅ LIVE (2026-05-07)    | Smoke tests + baseline     | Phase 2    |
+| **Phase 2**  | ✅ LIVE (2026-05-07)    | Planning complete + 9 docs | Phase 3    |
+| **Phase 3**  | ✅ LIVE (2026-05-07)    | 5 schema + 78 functions    | Phase 4    |
+| **Phase 4**  | 📋 READY (2026-05-20)   | Portal + NOTIVISA          | Phase 5    |
+| **Phase 5**  | 📋 PLANNED (2026-06-09) | Critical values + IA       | Phase 6    |
+| **Phase 12** | 📋 READY (2026-05-20)   | Performance audit          | Production |
+| **Phase 14** | 📋 READY (2026-08-24)   | Security audit             | Phase 15   |
+| **Phase 15** | 📋 READY (2026-08-31)   | Go-live                    | Production |
 
 ### End-to-End Testing (Patient Flow)
 
@@ -280,13 +283,13 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 **DICQ Progression:**
 
-| Milestone | Phase | Target | Evidence |
-|-----------|-------|--------|----------|
-| **Baseline** | v1.3 | 78.5% | v1.3 ARCHIVE.md |
-| **+2–4 pts** | Phase 4 | 80–82% | Portal auth + NOTIVISA |
-| **+3–5 pts** | Phase 5 | 83–87% | Critical values + audit |
-| **+2–3 pts** | Phase 6–8 | 88%+ | CAPA + Auditoria |
-| **Final Target** | Phase 14 | 90%+ | Pre-launch audit + sign-off |
+| Milestone        | Phase     | Target | Evidence                    |
+| ---------------- | --------- | ------ | --------------------------- |
+| **Baseline**     | v1.3      | 78.5%  | v1.3 ARCHIVE.md             |
+| **+2–4 pts**     | Phase 4   | 80–82% | Portal auth + NOTIVISA      |
+| **+3–5 pts**     | Phase 5   | 83–87% | Critical values + audit     |
+| **+2–3 pts**     | Phase 6–8 | 88%+   | CAPA + Auditoria            |
+| **Final Target** | Phase 14  | 90%+   | Pre-launch audit + sign-off |
 
 **RDC 978 Coverage:** 100% of critical articles (Arts. 5.3, 6º, 36–39, 86, 115, 117, 147, 167, 179–191, 204)
 
@@ -301,12 +304,12 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 ### Severity Matrix
 
-| Severity | Impact | SLA | Escalation |
-|----------|--------|-----|------------|
-| 🟢 **GREEN** | <1% users, <15 min SLA | <1h response | Page primary on-call |
-| 🟡 **YELLOW** | 1–10% users, 15m–1h SLA | <15 min response | Page primary + secondary |
-| 🔴 **RED** | >10% users or audit affected | <5 min response | All hands + CTO |
-| ⚫ **BLACK** | Data loss/breach/fraud | <2 min | All leadership + legal |
+| Severity      | Impact                       | SLA              | Escalation               |
+| ------------- | ---------------------------- | ---------------- | ------------------------ |
+| 🟢 **GREEN**  | <1% users, <15 min SLA       | <1h response     | Page primary on-call     |
+| 🟡 **YELLOW** | 1–10% users, 15m–1h SLA      | <15 min response | Page primary + secondary |
+| 🔴 **RED**    | >10% users or audit affected | <5 min response  | All hands + CTO          |
+| ⚫ **BLACK**  | Data loss/breach/fraud       | <2 min           | All leadership + legal   |
 
 ### On-Call Rotation
 
@@ -348,21 +351,21 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 ### SLO Definitions
 
-| SLO | Target | Budget | Alert Threshold |
-|-----|--------|--------|-----------------|
-| **Availability** | 99.5% uptime | 4.32 h/month | 99.65% (70% budget) |
-| **Performance (P99)** | <3 seconds | 1.5% requests | 2.5s yellow / 3.0s red |
-| **Error Rate** | <0.1% | 50k errors/month | 0.1% sustained 5 min |
-| **Audit Trail** | 100% capture | 0 tolerance | <100% = immediate red |
+| SLO                   | Target       | Budget           | Alert Threshold        |
+| --------------------- | ------------ | ---------------- | ---------------------- |
+| **Availability**      | 99.5% uptime | 4.32 h/month     | 99.65% (70% budget)    |
+| **Performance (P99)** | <3 seconds   | 1.5% requests    | 2.5s yellow / 3.0s red |
+| **Error Rate**        | <0.1%        | 50k errors/month | 0.1% sustained 5 min   |
+| **Audit Trail**       | 100% capture | 0 tolerance      | <100% = immediate red  |
 
 ### 4-Phase Rollout
 
-| Phase | Window | Owner | Status |
-|-------|--------|-------|--------|
-| Phase 1 (Setup) | Day 1 (30 min) | DevOps Lead | ✅ Ready |
-| Phase 2 (Verification) | Week 1 (daily) | Team Lead | ✅ Ready |
-| Phase 3 (Weekly Reviews) | Week 2+ (Mondays) | Rotating member | ✅ Ready |
-| Phase 4 (Monthly Reporting) | Month 2+ (month-end) | DevOps + CTO | ✅ Ready |
+| Phase                       | Window               | Owner           | Status   |
+| --------------------------- | -------------------- | --------------- | -------- |
+| Phase 1 (Setup)             | Day 1 (30 min)       | DevOps Lead     | ✅ Ready |
+| Phase 2 (Verification)      | Week 1 (daily)       | Team Lead       | ✅ Ready |
+| Phase 3 (Weekly Reviews)    | Week 2+ (Mondays)    | Rotating member | ✅ Ready |
+| Phase 4 (Monthly Reporting) | Month 2+ (month-end) | DevOps + CTO    | ✅ Ready |
 
 ---
 
@@ -405,44 +408,44 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 ### Phase 12 Risks (Performance Audit)
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Bundle regression | Medium | Low | Weekly baseline monitoring | ✅ Planned |
-| N+1 query discovery | Medium | Medium | Firestore profiler + audit | ✅ Planned |
-| Mobile optimization gaps | Low | Medium | DevTools audit + testing | ✅ Planned |
-| Lighthouse CI false positives | Low | Low | Threshold tuning + review | ✅ Planned |
+| Risk                          | Severity | Likelihood | Mitigation                 | Status     |
+| ----------------------------- | -------- | ---------- | -------------------------- | ---------- |
+| Bundle regression             | Medium   | Low        | Weekly baseline monitoring | ✅ Planned |
+| N+1 query discovery           | Medium   | Medium     | Firestore profiler + audit | ✅ Planned |
+| Mobile optimization gaps      | Low      | Medium     | DevTools audit + testing   | ✅ Planned |
+| Lighthouse CI false positives | Low      | Low        | Threshold tuning + review  | ✅ Planned |
 
 **Overall Risk:** 2.5/10 (LOW)
 
 ### Phase 4 Risks (Portal + NOTIVISA)
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| SMTP provisioning delay | Medium | Low | Fallback email service | ✅ Planned |
-| NOTIVISA API rate limits | Medium | Low | Exponential backoff + queue | ✅ Designed |
-| Email link expiry edge cases | Low | Medium | Test matrix + SLA monitoring | ✅ Planned |
-| Twilio SMS failures | Low | Low | Graceful fallback + retry | ✅ Designed |
+| Risk                         | Severity | Likelihood | Mitigation                   | Status      |
+| ---------------------------- | -------- | ---------- | ---------------------------- | ----------- |
+| SMTP provisioning delay      | Medium   | Low        | Fallback email service       | ✅ Planned  |
+| NOTIVISA API rate limits     | Medium   | Low        | Exponential backoff + queue  | ✅ Designed |
+| Email link expiry edge cases | Low      | Medium     | Test matrix + SLA monitoring | ✅ Planned  |
+| Twilio SMS failures          | Low      | Low        | Graceful fallback + retry    | ✅ Designed |
 
 **Overall Risk:** 3.5/10 (LOW)
 
 ### Phase 14 Risks (Security Audit)
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Critical vulnerability discovered | High | Low | Rollback procedure + patch | ✅ Planned |
-| Load test reveals bottleneck | Medium | Medium | 1-week contingency window | ✅ Planned |
-| Smoke test flakiness | Low | Medium | Rerun + investigate | ✅ Planned |
+| Risk                              | Severity | Likelihood | Mitigation                 | Status     |
+| --------------------------------- | -------- | ---------- | -------------------------- | ---------- |
+| Critical vulnerability discovered | High     | Low        | Rollback procedure + patch | ✅ Planned |
+| Load test reveals bottleneck      | Medium   | Medium     | 1-week contingency window  | ✅ Planned |
+| Smoke test flakiness              | Low      | Medium     | Rerun + investigate        | ✅ Planned |
 
 **Overall Risk:** 3.0/10 (LOW)
 
 ### Phase 15 Risks (Launch & Monitoring)
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Deploy step timeout | Medium | Low | Rollback procedure | ✅ Tested |
-| Cloud Logs overwhelm | Low | Low | Log retention extension | ✅ Planned |
-| Real-world validation failure | Medium | Low | Fallback to smoke tests | ✅ Planned |
-| Post-deploy P0 incident | High | Low | <5 min SLA + rollback ready | ✅ Planned |
+| Risk                          | Severity | Likelihood | Mitigation                  | Status     |
+| ----------------------------- | -------- | ---------- | --------------------------- | ---------- |
+| Deploy step timeout           | Medium   | Low        | Rollback procedure          | ✅ Tested  |
+| Cloud Logs overwhelm          | Low      | Low        | Log retention extension     | ✅ Planned |
+| Real-world validation failure | Medium   | Low        | Fallback to smoke tests     | ✅ Planned |
+| Post-deploy P0 incident       | High     | Low        | <5 min SLA + rollback ready | ✅ Planned |
 
 **Overall Risk:** 3.0/10 (LOW)
 
@@ -454,18 +457,18 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 **Blocks Addressed in Phases 12–15:**
 
-| Block | Phase | Target | Evidence |
-|-------|-------|--------|----------|
-| **A. Quality Management System** | 0–4 | 85%+ | Portal auth + NOTIVISA |
-| **B. Personnel** | 0–11 | 90%+ | Training + audit trail |
-| **C. Quality Risk Management** | 0, 6–8 | 88%+ | FMEA + CAPA |
-| **D. Equipment** | 12 | 80%+ | Performance audit |
-| **E. Reagents & Materials** | v1.3 | 75% | Existing |
-| **F. Pre-analytical Phase** | 5 | 85%+ | Critical values |
-| **G. Analytical Phase** | 9–10 | 90%+ | Westgard + OCR |
-| **H. Post-analytical** | 4–11 | 85%+ | Portal feedback |
-| **I. Customer Relations** | 11 | 85%+ | Patient portal |
-| **J. Operations** | 0, 14 | 90%+ | Incident response |
+| Block                            | Phase  | Target | Evidence               |
+| -------------------------------- | ------ | ------ | ---------------------- |
+| **A. Quality Management System** | 0–4    | 85%+   | Portal auth + NOTIVISA |
+| **B. Personnel**                 | 0–11   | 90%+   | Training + audit trail |
+| **C. Quality Risk Management**   | 0, 6–8 | 88%+   | FMEA + CAPA            |
+| **D. Equipment**                 | 12     | 80%+   | Performance audit      |
+| **E. Reagents & Materials**      | v1.3   | 75%    | Existing               |
+| **F. Pre-analytical Phase**      | 5      | 85%+   | Critical values        |
+| **G. Analytical Phase**          | 9–10   | 90%+   | Westgard + OCR         |
+| **H. Post-analytical**           | 4–11   | 85%+   | Portal feedback        |
+| **I. Customer Relations**        | 11     | 85%+   | Patient portal         |
+| **J. Operations**                | 0, 14  | 90%+   | Incident response      |
 
 **v1.4 Final Target:** 90%+ DICQ (up from 78.5% v1.3)
 
@@ -473,20 +476,20 @@ Status: ✅ **PLAN READY** (test during Phase 15)
 
 **Critical Articles Status:**
 
-| Article | Phase | Topic | Status |
-|---------|-------|-------|--------|
-| Art. 5.3 | 0 | Event reporting | ✅ LIVE |
-| Art. 6º §1 | 4 | NOTIVISA queue | ✅ PLANNED |
-| Arts. 36–39 | 0 | Lab support contracts | ✅ LIVE |
-| Art. 77 | 0 | LGPD consent | ✅ LIVE |
-| Art. 86 | 0 | Risk management | ✅ LIVE |
-| Art. 115 | 4 | Authentication | ✅ PLANNED |
-| Art. 117 | 0 | Equipment supervision | ✅ LIVE |
-| Art. 122 | 0 | Shift supervision | ✅ LIVE |
-| Art. 147 | 8 | CAPA procedures | ✅ PLANNED |
-| Art. 167 | 4 | Result critical values | ✅ PLANNED |
-| Arts. 179–191 | 5 | Test validation | ✅ PLANNED |
-| Art. 204 | 4 | Electronic records | ✅ PLANNED |
+| Article       | Phase | Topic                  | Status     |
+| ------------- | ----- | ---------------------- | ---------- |
+| Art. 5.3      | 0     | Event reporting        | ✅ LIVE    |
+| Art. 6º §1    | 4     | NOTIVISA queue         | ✅ PLANNED |
+| Arts. 36–39   | 0     | Lab support contracts  | ✅ LIVE    |
+| Art. 77       | 0     | LGPD consent           | ✅ LIVE    |
+| Art. 86       | 0     | Risk management        | ✅ LIVE    |
+| Art. 115      | 4     | Authentication         | ✅ PLANNED |
+| Art. 117      | 0     | Equipment supervision  | ✅ LIVE    |
+| Art. 122      | 0     | Shift supervision      | ✅ LIVE    |
+| Art. 147      | 8     | CAPA procedures        | ✅ PLANNED |
+| Art. 167      | 4     | Result critical values | ✅ PLANNED |
+| Arts. 179–191 | 5     | Test validation        | ✅ PLANNED |
+| Art. 204      | 4     | Electronic records     | ✅ PLANNED |
 
 **Coverage:** 100% critical articles mapped
 
@@ -561,7 +564,7 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 - [ ] Zero performance regressions from v1.3
 - [ ] Mobile/tablet optimization verified
 - [ ] All critical routes meet Web Vitals targets
-- [ ] CTO approval: _____________________ (signature)
+- [ ] CTO approval: **********\_********** (signature)
 
 ### Phase 4 Sign-Off
 
@@ -574,7 +577,7 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 - [ ] RDC 978 Arts. 115, 204 implemented
 - [ ] Smoke tests: 8/8 passing
 - [ ] Load tests: p99 <2.5s, <1% error rate
-- [ ] CTO approval: _____________________ (signature)
+- [ ] CTO approval: **********\_********** (signature)
 
 ### Phase 14 Sign-Off
 
@@ -588,8 +591,8 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 - [ ] Playbook reviewed: 8 runbooks approved
 - [ ] DICQ compliance: ≥88%
 - [ ] RDC 978 coverage: 100%
-- [ ] CTO approval: _____________________ (signature)
-- [ ] Auditor approval: _____________________ (signature)
+- [ ] CTO approval: **********\_********** (signature)
+- [ ] Auditor approval: **********\_********** (signature)
 
 ### Phase 15 Sign-Off
 
@@ -604,8 +607,8 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 - [ ] Metrics captured: DICQ 88%+, RDC 100%, Web Vitals green
 - [ ] Deployment log: Complete and archived
 - [ ] Lessons learned: Documented
-- [ ] CTO approval: _____________________ (signature)
-- [ ] Auditor approval: _____________________ (signature)
+- [ ] CTO approval: **********\_********** (signature)
+- [ ] Auditor approval: **********\_********** (signature)
 
 ---
 
@@ -613,12 +616,12 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 
 ### All 4 Phases Status
 
-| Phase | Planning | Execution | Testing | Compliance | Sign-Off |
-|-------|----------|-----------|---------|-----------|----------|
-| **Phase 12** | ✅ COMPLETE | 🔜 May 20 | 🔜 Jun 2 | ✅ Planned | 🔜 Jun 2 |
-| **Phase 4** | ✅ COMPLETE | 🔜 May 20 | 🔜 Jun 2 | ✅ Planned | 🔜 Jun 2 |
+| Phase        | Planning    | Execution | Testing   | Compliance | Sign-Off  |
+| ------------ | ----------- | --------- | --------- | ---------- | --------- |
+| **Phase 12** | ✅ COMPLETE | 🔜 May 20 | 🔜 Jun 2  | ✅ Planned | 🔜 Jun 2  |
+| **Phase 4**  | ✅ COMPLETE | 🔜 May 20 | 🔜 Jun 2  | ✅ Planned | 🔜 Jun 2  |
 | **Phase 14** | ✅ COMPLETE | 🔜 Aug 24 | 🔜 Aug 31 | ✅ Planned | 🔜 Aug 31 |
-| **Phase 15** | ✅ COMPLETE | 🔜 Aug 31 | 🔜 Sep 2 | ✅ Planned | 🔜 Sep 2 |
+| **Phase 15** | ✅ COMPLETE | 🔜 Aug 31 | 🔜 Sep 2  | ✅ Planned | 🔜 Sep 2  |
 
 ### Overall Status: ✅ **READY FOR EXECUTION**
 
@@ -694,18 +697,21 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 ### A. Document Index
 
 **Phase Planning Documents:**
+
 - `.planning/phases/12-performance-audit/PHASE_12_DETAILED_PLAN.md` — 1,200+ lines
 - `.planning/phases/04-portal-notivisa/PHASE_4_KICKOFF_CHECKLIST.md` — 450+ lines
 - `.planning/phases/14-pre-launch-security-stability/PHASE_14_DETAILED_PLAN.md` — 2,200+ lines
 - `.planning/phases/15-launch-monitoring/PHASE_15_DETAILED_PLAN.md` — 1,200+ lines
 
 **Operational Documents:**
+
 - `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` — On-call + runbooks
 - `.planning/SLO_TRACKING_MANIFEST.md` — Monitoring setup
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — 24h post-deploy
 - `docs/CLOUD_LOGS_QUICK_REFERENCE.md` — Command reference
 
 **Compliance & Risk:**
+
 - `.planning/v1.4-RISK-MITIGATION-MATRIX.md` — Risk register
 - `.planning/milestones/v1.4-DICQ-COVERAGE-MATRIX.md` — Compliance mapping
 - `.planning/milestones/v1.4-RDC-978-COMPLIANCE-MATRIX.md` — Regulatory mapping
@@ -716,7 +722,7 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 **CTO:** [Name] (drogafarto@gmail.com)  
 **Auditor:** [Name] (TBD)  
 **DevOps Lead:** [Name] (TBD)  
-**QA Lead:** [Name] (TBD)  
+**QA Lead:** [Name] (TBD)
 
 ---
 
@@ -749,11 +755,11 @@ Week 2     Auditor alignment call #2 (RFI closeout)
 
 Before Phase 4 kickoff, the following approvals are required:
 
-- [ ] CTO: Reviewed all Phase 4 documentation — _____________________ (signature)
-- [ ] CTO: Approved Phase 4 kickoff (2026-05-20) — _____________________ (signature)
-- [ ] CTO: Authorized Phase 15 deployment (2026-08-31) — _____________________ (signature)
-- [ ] Auditor: Reviewed compliance mapping — _____________________ (signature)
-- [ ] Auditor: Authorized Phase 15 deployment (2026-08-31) — _____________________ (signature)
+- [ ] CTO: Reviewed all Phase 4 documentation — **********\_********** (signature)
+- [ ] CTO: Approved Phase 4 kickoff (2026-05-20) — **********\_********** (signature)
+- [ ] CTO: Authorized Phase 15 deployment (2026-08-31) — **********\_********** (signature)
+- [ ] Auditor: Reviewed compliance mapping — **********\_********** (signature)
+- [ ] Auditor: Authorized Phase 15 deployment (2026-08-31) — **********\_********** (signature)
 
 ---
 

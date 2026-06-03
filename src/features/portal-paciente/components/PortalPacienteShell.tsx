@@ -52,11 +52,7 @@ export const PortalPacienteShell: React.FC<PortalPacienteShellProps> = ({
   return (
     <div className="min-h-screen bg-[#141417]">
       {/* Navigation */}
-      <PortalPacienteNav
-        patientName={patientName}
-        labName={labName}
-        onLogout={onLogout}
-      />
+      <PortalPacienteNav patientName={patientName} labName={labName} onLogout={onLogout} />
 
       {/* Main content */}
       <main className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
@@ -87,9 +83,7 @@ export const PortalPacienteShell: React.FC<PortalPacienteShellProps> = ({
 
         {/* Section 2: Consentimentos */}
         <section>
-          <h2 className="text-xl font-semibold text-white/95 mb-6">
-            Consentimentos
-          </h2>
+          <h2 className="text-xl font-semibold text-white/95 mb-6">Consentimentos</h2>
 
           <ConsentimentosSection
             labId={labId}

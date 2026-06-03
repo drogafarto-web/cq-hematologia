@@ -41,7 +41,7 @@ const EscalacaoRequestSchema = z.object({
 async function sendSMS(
   fromNumber: string,
   toNumber: string,
-  body: string
+  body: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const response = await axios.post(
@@ -57,7 +57,7 @@ async function sendSMS(
           password: TWILIO_AUTH_TOKEN.value(),
         },
         timeout: 5000,
-      }
+      },
     );
 
     return {
@@ -77,7 +77,7 @@ async function sendSMS(
 async function sendEmail(
   toEmail: string,
   subject: string,
-  html: string
+  html: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const transporter = nodemailer.createTransport({
@@ -114,7 +114,7 @@ async function sendEmail(
 async function escalateCase(
   labId: string,
   caseId: string,
-  db: admin.firestore.Firestore
+  db: admin.firestore.Firestore,
 ): Promise<{ delivered: string[]; elapsedMs: number; slaBreached: boolean }> {
   const db_instance = db;
   const caseRef = db_instance
@@ -250,7 +250,7 @@ export const fsmEscalacao = onCall(
     } catch (err: any) {
       throw new HttpsError('internal', err.message || 'Escalation failed');
     }
-  }
+  },
 );
 
 // ─── Cron: fsmEscalacaoSweep (every minute) ────────────────────────────────
@@ -276,10 +276,7 @@ export const fsmEscalacaoSweep = onSchedule(
         labsScanned++;
 
         // Query CRITICO cases
-        const casesRef = db
-          .collection('labs')
-          .doc(labId)
-          .collection('criticos-fsm-cases');
+        const casesRef = db.collection('labs').doc(labId).collection('criticos-fsm-cases');
 
         const criticoCasesSnap = await casesRef
           .where('currentState', '==', 'CRITICO')
@@ -315,5 +312,5 @@ export const fsmEscalacaoSweep = onSchedule(
     } catch (err) {
       console.error('FSM escalation sweep error:', err);
     }
-  }
+  },
 );

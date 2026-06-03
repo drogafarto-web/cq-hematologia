@@ -33,12 +33,7 @@ interface AlertDrillDownProps {
   onDismiss?: (alertId: string, reason: string) => Promise<void>;
 }
 
-export function AlertDrillDown({
-  alert,
-  open,
-  onClose,
-  onDismiss,
-}: AlertDrillDownProps) {
+export function AlertDrillDown({ alert, open, onClose, onDismiss }: AlertDrillDownProps) {
   const [dismissing, setDismissing] = useState(false);
   const [dismissError, setDismissError] = useState<string | null>(null);
   const [showInvestigateForm, setShowInvestigateForm] = useState(false);
@@ -186,15 +181,10 @@ export function AlertDrillDown({
           {/* Header */}
           <div className="flex justify-between items-start p-6 border-b border-white/10">
             <div>
-              <h2
-                id="drill-down-title"
-                className="text-xl font-semibold text-white"
-              >
+              <h2 id="drill-down-title" className="text-xl font-semibold text-white">
                 Investigar Anomalia
               </h2>
-              <p className="text-sm text-white/60 mt-1">
-                ID: {alert.id.substring(0, 8)}
-              </p>
+              <p className="text-sm text-white/60 mt-1">ID: {alert.id.substring(0, 8)}</p>
             </div>
             <button
               onClick={onClose}
@@ -284,7 +274,7 @@ export function AlertDrillDown({
                       timestamp: formatTimestamp(alert.createdAt),
                     },
                     null,
-                    2
+                    2,
                   )}
                 </pre>
               </div>
@@ -302,10 +292,7 @@ export function AlertDrillDown({
 
             {/* Error Alert */}
             {dismissError && (
-              <div
-                className="rounded-lg border border-red-500/30 bg-red-500/10 p-4"
-                role="alert"
-              >
+              <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4" role="alert">
                 <p className="text-sm text-red-400">{dismissError}</p>
               </div>
             )}
@@ -317,12 +304,17 @@ export function AlertDrillDown({
 
                 {investigateSuccess ? (
                   <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
-                    <p className="text-sm text-emerald-400 font-medium">Investigação registrada com sucesso</p>
+                    <p className="text-sm text-emerald-400 font-medium">
+                      Investigação registrada com sucesso
+                    </p>
                   </div>
                 ) : (
                   <>
                     <div className="space-y-2">
-                      <label htmlFor="conclusion" className="text-xs font-medium text-white/70 block">
+                      <label
+                        htmlFor="conclusion"
+                        className="text-xs font-medium text-white/70 block"
+                      >
                         Conclusão *
                       </label>
                       <textarea
@@ -356,7 +348,9 @@ export function AlertDrillDown({
                         onChange={(e) => setNcGenerated(e.target.checked)}
                         className="w-4 h-4 accent-violet-500 rounded"
                       />
-                      <span className="text-sm text-white/80">Gerar Não Conformidade automaticamente</span>
+                      <span className="text-sm text-white/80">
+                        Gerar Não Conformidade automaticamente
+                      </span>
                     </label>
 
                     {investigateError && (

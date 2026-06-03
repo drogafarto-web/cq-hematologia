@@ -3,13 +3,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  getFirestore,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { collection, getFirestore, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import type { AvaliacaoFornecedor } from '../types/AvaliacaoFornecedor';
@@ -20,7 +14,9 @@ export interface UseAvaliacoesFornecedorResult {
   error: Error | null;
 }
 
-export function useAvaliacoesFornecedor(fornecedorId: string | null): UseAvaliacoesFornecedorResult {
+export function useAvaliacoesFornecedor(
+  fornecedorId: string | null,
+): UseAvaliacoesFornecedorResult {
   const labId = useActiveLabId();
   const [avaliacoes, setAvaliacoes] = useState<AvaliacaoFornecedor[]>([]);
   const [loading, setLoading] = useState(true);

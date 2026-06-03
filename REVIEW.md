@@ -49,6 +49,7 @@ Both modules implement multi-tenant isolation, soft-delete patterns, and RDC 978
 **Severity:** CRITICAL
 **Issue:**
 The audit log write at line 114 writes to a global `auditLogs` collection without multi-tenant scoping:
+
 ```javascript
 db.collection('auditLogs')
   .add({
@@ -65,6 +66,7 @@ db.collection('auditLogs')
 An attacker with access to Lab A can craft a cascade call, triggering an audit log write. The log is unscoped, allowing Lab A users to query logs from Lab B via `collectionGroup('auditLogs')` or direct access if Firestore rules don't restrict it.
 
 **Fix:**
+
 ```javascript
 // Replace lines 114-128 with scoped write:
 db.collection('auditLogs')
@@ -97,16 +99,17 @@ OR check Firestore rules for global `auditLogs` collection — if it exists with
 The signature payload at line 106 sends `dataHora: dataHoraTs.toMillis()` (a JavaScript number), but the server-side signature algorithm in `signatureCanonical.ts:27-32` and the web-side algorithm in `ctSignatureService.ts:20-28` both use `JSON.stringify` which serializes numbers identically. However, there is an **implicit type contract violation**:
 
 Line 106-114:
+
 ```typescript
 const assinaturaLeitura: LogicalSignature = generateCtSignatureServer(
   uid,
   {
     equipamentoId: input.equipamentoId,
-    dataHora: dataHoraTs.toMillis(),  // ← number (epoch ms)
+    dataHora: dataHoraTs.toMillis(), // ← number (epoch ms)
     temperaturaAtual: input.temperaturaAtual,
     temperaturaMax: input.temperaturaMax,
     temperaturaMin: input.temperaturaMin,
-    umidade: input.umidade ?? -1,    // ← -1 for undefined!
+    umidade: input.umidade ?? -1, // ← -1 for undefined!
   },
   nowTs,
 );
@@ -117,6 +120,7 @@ The field `umidade` is set to `-1` when undefined. This is not documented in the
 **Risk:** RDC 978 audit trail breaks. Compliance officer trying to validate assinatura integrity against the hash will find a mismatch.
 
 **Fix:**
+
 ```typescript
 // Option A: Use null instead of -1 in the signature payload
 const assinaturaLeitura: LogicalSignature = generateCtSignatureServer(
@@ -154,6 +158,7 @@ The cascade soft-deletes the `Execucao` + `Participantes` + `AvaliacoesEficacia`
 **This is now violated.** The callable DOES cascade-delete evaluations, but there is no logic to **restore them if the cascade fails partway through**. Firestore batch writes are atomic up to 500 operations, but the cascade makes no guarantee about partial restoration.
 
 Consider:
+
 1. Batch starts. Execução marked deleted. ✓
 2. 100 Participantes marked deleted. ✓
 3. 150 AvaliacoesEficacia marked deleted. ✓
@@ -169,6 +174,7 @@ The **inconsistency is already committed** — if a future feature needs to rest
 **Additional issue:** The `competenciaAtivas.filter()` at line 91 is performed AFTER the parallel queries. If a new competência is inserted between the parallel fetch and the batch write, it is silently skipped. For execuções with >160 documents, Firestore may timeout during the `where` queries, but the function continues assuming complete data.
 
 **Fix:**
+
 ```typescript
 // Option A: Remove cascade deletion of evaluations (revert to documented behavior)
 // Only soft-delete the Execucao and Participantes
@@ -232,6 +238,7 @@ The comment says "IoT pode ter marcado" — but IoT should NEVER mark a previsã
 **Risk:** False positives in alerts ("Leitura prevista nunca foi realizada" when it was, just not linked).
 
 **Fix:**
+
 ```typescript
 // Option A: Throw error if previsão doesn't exist
 if (input.leituraPrevistaId) {
@@ -242,7 +249,7 @@ if (input.leituraPrevistaId) {
   if (!previstaSnap.exists || previstaSnap.data()?.['deletadoEm'] !== null) {
     throw new HttpsError(
       'not-found',
-      `Leitura prevista ${input.leituraPrevistaId} não encontrada ou arquivada.`
+      `Leitura prevista ${input.leituraPrevistaId} não encontrada ou arquivada.`,
     );
   }
   batch.update(previstaRef, {
@@ -293,7 +300,7 @@ const totalWrites =
 if (totalWrites > 500) {
   throw new HttpsError(
     'resource-exhausted',
-    `Execução tem ${totalWrites - 1} dependentes — excede limite de 500 writes per batch...`
+    `Execução tem ${totalWrites - 1} dependentes — excede limite de 500 writes per batch...`,
   );
 }
 ```
@@ -302,12 +309,14 @@ if (totalWrites > 500) {
 
 Additionally, there is **no pre-flight check** before launching the cascade. A user could call the function with an execução ID, the function fetches 3 collections in parallel, and only after all data is loaded does it check `if (totalWrites > 500)`. This is inefficient and violates defense-in-depth.
 
-**Risk:** 
+**Risk:**
+
 - Function crashes on very large execuções (10k+ evaluations).
 - No graceful degradation (no option to split into chunks, no warning before committing).
 - The error message at line 100 mentions "Dividir em chunks fica como débito" but provides no path forward for users.
 
 **Fix:**
+
 ```typescript
 // Pre-flight check before launching parallel queries
 const execSnap = await execRef.get();
@@ -326,7 +335,7 @@ const MAX_DOCS_PER_COLLECTION = 250; // Conservative limit (leaves headroom)
 const [participantesSnap, eficaciaSnap, competenciaSnap] = await Promise.all([
   ecCollection(db, labId, 'participantes')
     .where('execucaoId', '==', execucaoId)
-    .limit(MAX_DOCS_PER_COLLECTION + 1)  // +1 to detect overflow
+    .limit(MAX_DOCS_PER_COLLECTION + 1) // +1 to detect overflow
     .get(),
   ecCollection(db, labId, 'avaliacoesEficacia')
     .where('execucaoId', '==', execucaoId)
@@ -342,20 +351,18 @@ const [participantesSnap, eficaciaSnap, competenciaSnap] = await Promise.all([
 if (participantesSnap.docs.length > MAX_DOCS_PER_COLLECTION) {
   throw new HttpsError(
     'resource-exhausted',
-    'Execução tem demasiados participantes para arquivamento em um batch. Contate o administrador.'
+    'Execução tem demasiados participantes para arquivamento em um batch. Contate o administrador.',
   );
 }
 if (eficaciaSnap.docs.length > MAX_DOCS_PER_COLLECTION) {
   throw new HttpsError(
     'resource-exhausted',
-    'Execução tem demasiadas avaliações de eficácia. Contate o administrador.'
+    'Execução tem demasiadas avaliações de eficácia. Contate o administrador.',
   );
 }
 // ... same for competenciaSnap
 
-const participantesAtivos = participantesSnap.docs.filter(
-  (d) => d.data()?.['deletadoEm'] === null,
-);
+const participantesAtivos = participantesSnap.docs.filter((d) => d.data()?.['deletadoEm'] === null);
 // ... rest of logic
 ```
 
@@ -383,6 +390,7 @@ The function returns `ok: true` **regardless of whether the audit log was writte
 **Risk:** Audit trail gaps go unnoticed. Compliance reports will be incomplete.
 
 **Fix:**
+
 ```typescript
 // Replace lines 185-201 with:
 admin
@@ -439,6 +447,7 @@ Additionally, the rule does not check that the `hash` is **non-empty after strin
 **Risk:** Low in practice (server-side callable generation prevents this in production), but violates the "defense-in-depth" principle. A future migration away from callables or a client-side bypass would leave this gap.
 
 **Fix:**
+
 ```firestore
 // Option A: Add regex validation (if Firestore rules support it)
 function validSignature(d) {
@@ -454,8 +463,8 @@ function validSignature(d) {
 
 // Option B: Comment explaining the limitation (if regex unavailable)
 // Note: Hash format is validated by server-side callable generation.
-// Client-side can theoretically forge 64-char non-hex strings, but 
-// signature verification will fail + rules prevent create/update without 
+// Client-side can theoretically forge 64-char non-hex strings, but
+// signature verification will fail + rules prevent create/update without
 // calling the callable first. Defense-in-depth via rules alone is incomplete
 // — rely on callable enforcement.
 ```
@@ -476,6 +485,7 @@ The callable validates via `assertCtAccess(request.auth, input.labId)`, which ch
 **Risk:** User submits a leitura after lab-switch, gets permission error, assumes a system bug. No recovery path in UX.
 
 **Fix:**
+
 ```typescript
 // In useSaveLeitura.ts, add a guard before the try block:
 const save = useCallback(
@@ -486,24 +496,24 @@ const save = useCallback(
   ): Promise<{ leituraId: string; ncId: string | null }> => {
     if (!labId) throw new Error('Sem lab ativo.');
     if (!user?.uid) throw new Error('Usuário não autenticado.');
-    
+
     // NEW: Capture lab at time of submission
     const submissionLabId = labId;
-    
+
     // ... rest of logic ...
-    
+
     try {
       const payload: CommitLeituraWireInput = {
-        labId: submissionLabId,  // Use captured value, not re-read labId
+        labId: submissionLabId, // Use captured value, not re-read labId
         // ... rest
       };
       // ...
     } catch (e) {
       const err = e instanceof Error ? e : new Error(String(e));
-      
+
       // Check if error is due to lab change
       if (err.message?.includes('permission-denied')) {
-        const currentLabId = useActiveLabId();  // Re-read in error handler
+        const currentLabId = useActiveLabId(); // Re-read in error handler
         if (currentLabId !== submissionLabId) {
           setError(new Error('Contexto do lab mudou durante o envio. Tente novamente.'));
         } else {
@@ -516,7 +526,7 @@ const save = useCallback(
     }
     // ...
   },
-  [labId, user?.uid]
+  [labId, user?.uid],
 );
 ```
 
@@ -530,6 +540,7 @@ const save = useCallback(
 Educacao-Continuada has comprehensive unit tests (`functions/test/educacaoContinuada/canonical.test.mjs` with 5 test cases covering signature generation, verification, and round-trip). Controle-Temperatura has **zero test files** for the `ct_commitLeitura` callable.
 
 The callable implements critical RDC 978 logic:
+
 - Assinatura generation (must match web-side verification)
 - RN-01 enforcement (out-of-bounds detection)
 - RN-02 authentication (operatorId binding)
@@ -541,6 +552,7 @@ Without tests, regressions could be deployed silently.
 
 **Fix:**
 Create `functions/test/controleTemperatura/commitLeitura.test.mjs` with cases:
+
 ```javascript
 // Pseudo-code
 test('ct_commitLeitura — signature bate com ctSignatureService', () => {
@@ -578,11 +590,13 @@ test('ct_commitLeitura — cross-lab rejection', () => {
 Per CLAUDE.md (line 55), the callable `ec_softDeleteExecucaoCascade` is implemented but **marked `⚠️ Não deployado ainda — requer ack CTO`**. The code exists in the repository but is not exported in `functions/src/index.ts` with a production deploy.
 
 Checking `functions/src/index.ts` line 174 confirms it IS exported:
+
 ```javascript
 ec_softDeleteExecucaoCascade,
 ```
 
 This is **inconsistent with the CLAUDE.md documentation**. Either:
+
 1. The code was deployed but CLAUDE.md wasn't updated, OR
 2. The code is in the repo but the export/deploy is pending
 
@@ -603,23 +617,23 @@ Clarify in CLAUDE.md whether the callable is deployed. If deployed, mark as ✅.
 
 ### RDC 978/2025 Checklist
 
-| Requirement | Status | Evidence |
-|---|---|---|
-| **Assinatura obrigatória** (5.2.4) | ✅ Implemented | `ct_commitLeitura` + `ecSignatureService.ts` generate server-side with operatorId binding |
-| **Hash validation** (formato 64 chars) | ✅ In rules | `firestore.rules` lines 656-661, 841-847 validate hash.size() == 64 |
-| **operatorId == request.auth.uid** | ✅ Enforced | Validators check uid + rules validate operatorId == request.auth.uid |
-| **Soft-delete only** (5.2.5 — without prejudice to audit trail) | ✅ Implemented | RN-07 enforced; no `deleteDoc` calls in services |
-| **Multi-tenant isolation** | ⚠️ **BROKEN** | Audit logs in EC cascade bypass multi-tenant scoping (CR-01) |
-| **5-year retention** (7.4.4) | ✅ Implemented | `deletadoEm` field preserved; no hard deletes |
-| **Timestamp authenticity** | ⚠️ **GAP** | Signature umidade handling inconsistent (CR-02) |
+| Requirement                                                     | Status         | Evidence                                                                                  |
+| --------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------- |
+| **Assinatura obrigatória** (5.2.4)                              | ✅ Implemented | `ct_commitLeitura` + `ecSignatureService.ts` generate server-side with operatorId binding |
+| **Hash validation** (formato 64 chars)                          | ✅ In rules    | `firestore.rules` lines 656-661, 841-847 validate hash.size() == 64                       |
+| **operatorId == request.auth.uid**                              | ✅ Enforced    | Validators check uid + rules validate operatorId == request.auth.uid                      |
+| **Soft-delete only** (5.2.5 — without prejudice to audit trail) | ✅ Implemented | RN-07 enforced; no `deleteDoc` calls in services                                          |
+| **Multi-tenant isolation**                                      | ⚠️ **BROKEN**  | Audit logs in EC cascade bypass multi-tenant scoping (CR-01)                              |
+| **5-year retention** (7.4.4)                                    | ✅ Implemented | `deletadoEm` field preserved; no hard deletes                                             |
+| **Timestamp authenticity**                                      | ⚠️ **GAP**     | Signature umidade handling inconsistent (CR-02)                                           |
 
 ### ISO 15189:2022 Alignment
 
-| Clause | Module | Status | Gap |
-|---|---|---|---|
-| **6.2.4** (Avaliação de competência) | EC | ✅ | `CompetenciasExecucaoPanel` collects competência evaluation |
-| **5.3** (Controle de ambiente) | CT | ✅ | FR-11 leituras + limites; equipamentos monitorados |
-| **5.3.1** (Metrologia) | CT | ⚠️ | RN-09 (calibração histórico) implemented but not callable-gated |
+| Clause                               | Module | Status | Gap                                                             |
+| ------------------------------------ | ------ | ------ | --------------------------------------------------------------- |
+| **6.2.4** (Avaliação de competência) | EC     | ✅     | `CompetenciasExecucaoPanel` collects competência evaluation     |
+| **5.3** (Controle de ambiente)       | CT     | ✅     | FR-11 leituras + limites; equipamentos monitorados              |
+| **5.3.1** (Metrologia)               | CT     | ⚠️     | RN-09 (calibração histórico) implemented but not callable-gated |
 
 ---
 

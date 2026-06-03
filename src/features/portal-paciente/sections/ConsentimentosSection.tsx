@@ -63,7 +63,7 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
       (error) => {
         console.error('Error fetching consents:', error);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -109,9 +109,7 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
             >
               {/* Header */}
               <button
-                onClick={() =>
-                  setExpandedId(expandedId === consent.id ? null : consent.id)
-                }
+                onClick={() => setExpandedId(expandedId === consent.id ? null : consent.id)}
                 className="w-full px-4 py-4 flex items-start justify-between gap-3 hover:bg-white/3 transition-colors"
               >
                 <div className="text-left flex-1 min-w-0">
@@ -120,22 +118,19 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
                       {consent.scope.map((s) => scopeLabels[s]).join(', ')}
                     </h3>
                     <span className="inline-flex items-center px-2 py-1 rounded bg-emerald-500/12 border border-emerald-500/30">
-                      <span className="text-xs font-medium text-emerald-400">
-                        ✓ Ativo
-                      </span>
+                      <span className="text-xs font-medium text-emerald-400">✓ Ativo</span>
                     </span>
                   </div>
                   <p className="text-xs text-white/50">
                     Consentido em{' '}
-                    {new Date(consent.consentedAt.toDate()).toLocaleDateString(
-                      'pt-BR',
-                      { year: 'numeric', month: 'long', day: 'numeric' }
-                    )}
+                    {new Date(consent.consentedAt.toDate()).toLocaleDateString('pt-BR', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric',
+                    })}
                   </p>
                 </div>
-                <span className="text-white/50">
-                  {expandedId === consent.id ? '−' : '+'}
-                </span>
+                <span className="text-white/50">{expandedId === consent.id ? '−' : '+'}</span>
               </button>
 
               {/* Expanded content */}
@@ -150,12 +145,8 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
                           key={scope}
                           className="p-3 rounded-lg bg-white/3 border border-white/5"
                         >
-                          <p className="text-sm font-medium text-white/95">
-                            {scopeLabels[scope]}
-                          </p>
-                          <p className="text-xs text-white/60 mt-1">
-                            {scopeDescriptions[scope]}
-                          </p>
+                          <p className="text-sm font-medium text-white/95">{scopeLabels[scope]}</p>
+                          <p className="text-xs text-white/60 mt-1">{scopeDescriptions[scope]}</p>
                         </div>
                       ))}
                     </div>
@@ -185,9 +176,7 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
                         disabled={revoking[consent.id]}
                         className="mt-3 w-full px-4 py-2 text-sm font-medium bg-red-600/20 hover:bg-red-600/30 text-red-300 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed border border-red-500/20"
                       >
-                        {revoking[consent.id]
-                          ? 'Revogando...'
-                          : 'Revogar consentimento'}
+                        {revoking[consent.id] ? 'Revogando...' : 'Revogar consentimento'}
                       </button>
                     </div>
                   )}
@@ -209,8 +198,7 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
       ) : (
         <div className="p-8 rounded-lg border border-white/8 bg-white/2 text-center">
           <p className="text-sm text-white/60">
-            Nenhum consentimento ativo. Você pode autorizar processamento com IA
-            a qualquer momento.
+            Nenhum consentimento ativo. Você pode autorizar processamento com IA a qualquer momento.
           </p>
         </div>
       )}
@@ -218,9 +206,8 @@ export const ConsentimentosSection: React.FC<ConsentimentosSectionProps> = ({
       {/* LGPD Info */}
       <div className="p-4 rounded-lg bg-white/2 border border-white/8">
         <p className="text-xs text-white/70">
-          <strong>Seus direitos LGPD:</strong> Você pode revogar consentimentos a
-          qualquer momento. Revogações futuras não afetam dados já processados,
-          conforme LGPD Art. 8º, §3º.
+          <strong>Seus direitos LGPD:</strong> Você pode revogar consentimentos a qualquer momento.
+          Revogações futuras não afetam dados já processados, conforme LGPD Art. 8º, §3º.
         </p>
       </div>
     </div>

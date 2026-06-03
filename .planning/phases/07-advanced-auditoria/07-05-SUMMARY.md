@@ -1,4 +1,5 @@
 # Phase 07 — Advanced Auditoria
+
 ## Plan 05 Summary: Wave 4 (UI Components)
 
 **Status:** ✅ COMPLETE
@@ -14,9 +15,11 @@ Successfully implemented three production-grade React components for the HC Qual
 ### Artifacts Created
 
 #### SA-16: AlertCenter.tsx
+
 **File:** `src/features/qualidade/components/AlertCenter.tsx`
 
 Real-time anomaly alerts dashboard component with:
+
 - Dynamic alert subscription via `useAnomalyAlerts` hook
 - Filter by severity (critical|high|medium) and operator
 - Alert table: 6 columns (operator, timestamp, dimension, severity, action, menu)
@@ -27,6 +30,7 @@ Real-time anomaly alerts dashboard component with:
 - Error handling with retry
 
 **Design System:**
+
 - Background: `bg-[#141417]` (HC Quality dark-first)
 - Text: `text-white/80` (primary), `text-white/50` (secondary), `text-white/60` (tertiary)
 - Severity colors: Red (`red-600/20`), Orange (`orange-600/20`), Yellow (`yellow-600/20`)
@@ -35,6 +39,7 @@ Real-time anomaly alerts dashboard component with:
 - Interactions: Hover (`hover:bg-white/5`), Focus (`focus:ring-2 focus:ring-violet-500`)
 
 **Accessibility (WCAG AA):**
+
 - Contrast 4.5:1 (white/80 on #141417 ✓)
 - Keyboard navigation: Tab through rows, Enter to drill-down
 - `aria-label` on all interactive elements
@@ -42,6 +47,7 @@ Real-time anomaly alerts dashboard component with:
 - Error alerts with `role="alert"` and `aria-live="polite"`
 
 **Tests:** 10 tests, 100% passing
+
 - Render alerts from hook
 - Filter by severity (critical/high/medium)
 - Filter by operator
@@ -58,9 +64,11 @@ Real-time anomaly alerts dashboard component with:
 ---
 
 #### SA-17: AlertDrillDown.tsx
+
 **File:** `src/features/qualidade/components/AlertDrillDown.tsx`
 
 Modal component for detailed anomaly investigation with:
+
 - Modal dialog with Escape key support and focus trap
 - Alert metadata section (severity, score, operator, timestamp, status)
 - Dimension scores with horizontal bar visualization (0-100%)
@@ -71,6 +79,7 @@ Modal component for detailed anomaly investigation with:
 - Accessibility: dialog role, focus management, aria attributes
 
 **Design System:**
+
 - Modal size: 90vw, max 1000px width, max 90vh height
 - Card sections: `bg-white/5` border `border-white/10`, `rounded-lg`
 - Dimension bars: Gradient (`from-emerald-500 to-red-500`)
@@ -78,6 +87,7 @@ Modal component for detailed anomaly investigation with:
 - Footer: Actions right-aligned, emerald accent for dismiss
 
 **Accessibility (WCAG AA):**
+
 - Dialog role with `aria-modal="true"`
 - Labeled by `aria-labelledby="drill-down-title"`
 - Focus trap (body overflow hidden on open)
@@ -86,6 +96,7 @@ Modal component for detailed anomaly investigation with:
 - Screen reader: full semantic structure
 
 **Tests:** 16 tests, 100% passing
+
 - Modal not rendered when open=false
 - Modal rendered when open=true
 - Alert metadata display
@@ -105,23 +116,27 @@ Modal component for detailed anomaly investigation with:
 ---
 
 #### SA-18: ReportBuilder.tsx
+
 **File:** `src/features/qualidade/components/ReportBuilder.tsx`
 
 3-step wizard for audit report generation:
 
 **Step 1: Period Selection**
+
 - Radio options: Daily (24h), Weekly (7d), Monthly (30d), Custom
 - Custom date range support (date input with native calendar picker)
 - Preview: "O relatório incluirá entradas de [start] a [end]"
 - Validation: Period required before Next
 
 **Step 2: Filters**
+
 - Checkboxes: Include anomalies, Include compliance metrics
 - Operators: Optional multi-select (op-001...op-005)
 - Modules: Optional multi-select (analyzer, coagulacao, etc.)
 - Validation: At least one content option required
 
 **Step 3: Format & Generate**
+
 - Radio: PDF or CSV
 - Summary box: period, content, selected operators/modules, format
 - Generate button: calls `useAuditReportExport` callable
@@ -129,12 +144,14 @@ Modal component for detailed anomaly investigation with:
 - Error handling: inline error alert
 
 **Navigation:**
+
 - Back button (disabled on Step 1)
 - Next button (validation per step)
 - Progress indicator: 1→2→3 with connecting line
 - Step counter: "Passo X de 3"
 
 **Design System:**
+
 - Fieldset grouping per step
 - Form labels with descriptions
 - Checkboxes with `accent-violet-500`
@@ -143,6 +160,7 @@ Modal component for detailed anomaly investigation with:
 - Summary card: `bg-white/3` border `border-white/10`
 
 **Accessibility (WCAG AA):**
+
 - `<fieldset>` + `<legend>` for each step
 - `<label>` + `<input>` with proper associations
 - Error messages with `aria-live="polite"`
@@ -150,6 +168,7 @@ Modal component for detailed anomaly investigation with:
 - Keyboard navigation: Tab through fields
 
 **Tests:** 19 tests, 100% passing
+
 - Initial step 1 rendering
 - Period selection (daily/weekly/monthly/custom)
 - Custom date inputs
@@ -177,12 +196,14 @@ Modal component for detailed anomaly investigation with:
 ## Verification Results
 
 ### TypeScript Compilation
+
 ```
 npx tsc --noEmit
 → 0 errors ✓
 ```
 
 ### Test Suite
+
 ```
 npx vitest run src/features/qualidade/components/__tests__/{AlertCenter,AlertDrillDown,ReportBuilder}.test.tsx
 → 45 tests, 100% passing ✓
@@ -192,6 +213,7 @@ npx vitest run src/features/qualidade/components/__tests__/{AlertCenter,AlertDri
 ```
 
 ### Build
+
 ```
 npm run build
 → Success ✓
@@ -201,6 +223,7 @@ npm run build
 ```
 
 ### Dark-First Design
+
 - ✅ Background: `bg-[#141417]` throughout
 - ✅ Text hierarchy: white/80 (primary), white/60 (secondary), white/50 (tertiary)
 - ✅ Severity colors: Red, Orange, Yellow (per design system)
@@ -210,6 +233,7 @@ npm run build
 - ✅ No generic templates; all customized for HC Quality
 
 ### Accessibility (WCAG AA)
+
 - ✅ Contrast: 4.5:1 (white/80 on #141417)
 - ✅ Keyboard nav: Tab through all interactive elements
 - ✅ Screen reader: Semantic structure, aria-labels, roles
@@ -218,6 +242,7 @@ npm run build
 - ✅ Dynamic content: aria-live regions for loading/error states
 
 ### Compliance
+
 - ✅ RDC 978 Art. 107: Anomaly detection + investigation workflow
 - ✅ DICQ 4.4: Audit monitoring, reporting, drill-down investigation
 - ✅ Soft-delete only: No deleteDoc calls in dismiss action
@@ -229,6 +254,7 @@ npm run build
 ## Dependencies Met
 
 All Wave 0-3 dependencies satisfied:
+
 - ✅ **Wave 0:** Types (`anomalyTypes.ts`, `auditUI.ts`) → Used in all components
 - ✅ **Wave 1:** Services (`auditCallables.ts`, `chainValidator.ts`) → Called via hooks
 - ✅ **Wave 2:** Logic + Triggers → useAnomalyAlerts, useAuditReportExport hooks working
@@ -238,21 +264,22 @@ All Wave 0-3 dependencies satisfied:
 
 ## Code Quality Metrics
 
-| Metric | Target | Result |
-|--------|--------|--------|
-| TypeScript Errors | 0 | 0 ✓ |
-| Test Coverage | 100% | 45/45 ✓ |
-| Component LOC | <200 | SA-16: 175, SA-17: 200, SA-18: 280 ✓ |
-| Test LOC | Reasonable | ~1,100 total ✓ |
-| Dark Design | 100% | ✓ |
-| WCAG AA | 100% | ✓ |
-| Bundle Impact | <10 KB | ~8 KB (3 components) ✓ |
+| Metric            | Target     | Result                               |
+| ----------------- | ---------- | ------------------------------------ |
+| TypeScript Errors | 0          | 0 ✓                                  |
+| Test Coverage     | 100%       | 45/45 ✓                              |
+| Component LOC     | <200       | SA-16: 175, SA-17: 200, SA-18: 280 ✓ |
+| Test LOC          | Reasonable | ~1,100 total ✓                       |
+| Dark Design       | 100%       | ✓                                    |
+| WCAG AA           | 100%       | ✓                                    |
+| Bundle Impact     | <10 KB     | ~8 KB (3 components) ✓               |
 
 ---
 
 ## Design Highlights
 
 ### AlertCenter: Dark-First Real-Time Dashboard
+
 - Severity badges with color-coded backgrounds (red/orange/yellow)
 - Pagination handles 50+ alerts efficiently
 - Filter bar with operator dropdown (extracted from data)
@@ -261,6 +288,7 @@ All Wave 0-3 dependencies satisfied:
 - Action menu (investigate + dismiss) with proper focus management
 
 ### AlertDrillDown: Modal Investigation Interface
+
 - Backdrop with semi-transparent dark overlay (black/50)
 - Modal size responsive (90vw, max 1000px)
 - Dimension score bars gradient-colored for visual clarity
@@ -270,6 +298,7 @@ All Wave 0-3 dependencies satisfied:
 - Focus trap prevents accidental background interaction
 
 ### ReportBuilder: 3-Step Wizard
+
 - Progress indicator shows step completion visually
 - Each step grouped as `<fieldset>` for accessibility
 - Custom date picker for flexible period selection
@@ -283,10 +312,10 @@ All Wave 0-3 dependencies satisfied:
 ## Integration Points
 
 Components integrate with:
+
 1. **useAnomalyAlerts** hook → AlertCenter
    - Real-time subscription to `/labs/{labId}/audit-alerts`
    - Dismiss action calls `dismissAuditAlert` callable
-   
 2. **useAuditReportExport** hook → ReportBuilder
    - Calls `generateAuditReport` CF callable
    - Returns report metadata + download URL
@@ -324,6 +353,7 @@ Components integrate with:
 ## Files Modified / Created
 
 ### New Files (Created)
+
 - `src/features/qualidade/components/AlertCenter.tsx` (175 LOC)
 - `src/features/qualidade/components/__tests__/AlertCenter.test.tsx` (330 LOC)
 - `src/features/qualidade/components/AlertDrillDown.tsx` (200 LOC)
@@ -332,6 +362,7 @@ Components integrate with:
 - `src/features/qualidade/components/__tests__/ReportBuilder.test.tsx` (360 LOC)
 
 ### Existing Files (Not Modified)
+
 - `src/features/qualidade/types/anomalyTypes.ts` (Wave 0)
 - `src/features/qualidade/hooks/useAnomalyAlerts.ts` (Wave 3)
 - `src/features/qualidade/hooks/useAuditReportExport.ts` (Wave 3)

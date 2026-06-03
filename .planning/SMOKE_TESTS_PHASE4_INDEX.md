@@ -14,6 +14,7 @@
    - Pass/fail criteria
 
 2. **Execute:**
+
    ```bash
    bash scripts/phase4-e2e-smoke.sh        # macOS/Linux
    .\scripts\phase4-e2e-smoke.ps1          # Windows PowerShell
@@ -56,6 +57,7 @@
 → See: [`docs/SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md`](../docs/SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md#troubleshooting)
 
 Covers:
+
 - Port conflicts
 - Java not found
 - Build failures
@@ -69,32 +71,32 @@ Covers:
 
 ### Execution (Run the Tests)
 
-| File | Purpose | Audience | Read Time |
-|---|---|---|---|
-| [`SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md`](../docs/SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md) | Complete step-by-step guide + troubleshooting | QA / DevOps (first-time) | 20 min |
-| [`SMOKE_TESTS_PHASE4_QUICK_REFERENCE.md`](../docs/SMOKE_TESTS_PHASE4_QUICK_REFERENCE.md) | One-page quick ref (print & post) | QA / DevOps (deployment day) | 5 min |
+| File                                                                                     | Purpose                                       | Audience                     | Read Time |
+| ---------------------------------------------------------------------------------------- | --------------------------------------------- | ---------------------------- | --------- |
+| [`SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md`](../docs/SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md) | Complete step-by-step guide + troubleshooting | QA / DevOps (first-time)     | 20 min    |
+| [`SMOKE_TESTS_PHASE4_QUICK_REFERENCE.md`](../docs/SMOKE_TESTS_PHASE4_QUICK_REFERENCE.md) | One-page quick ref (print & post)             | QA / DevOps (deployment day) | 5 min     |
 
 ### Planning & Checklists (Prepare & Verify)
 
-| File | Purpose | Audience | Read Time |
-|---|---|---|---|
-| [`SMOKE_TESTS_PHASE4_PRE_DEPLOYMENT_CHECKLIST.md`](../docs/SMOKE_TESTS_PHASE4_PRE_DEPLOYMENT_CHECKLIST.md) | Pre/post deployment checklists + sign-offs | DevOps / CTO | 15 min |
-| [`PHASE4_SMOKE_TEST_SUITE_SUMMARY.md`](PHASE4_SMOKE_TEST_SUITE_SUMMARY.md) | What was created + overview | Engineering Lead | 10 min |
+| File                                                                                                       | Purpose                                    | Audience         | Read Time |
+| ---------------------------------------------------------------------------------------------------------- | ------------------------------------------ | ---------------- | --------- |
+| [`SMOKE_TESTS_PHASE4_PRE_DEPLOYMENT_CHECKLIST.md`](../docs/SMOKE_TESTS_PHASE4_PRE_DEPLOYMENT_CHECKLIST.md) | Pre/post deployment checklists + sign-offs | DevOps / CTO     | 15 min    |
+| [`PHASE4_SMOKE_TEST_SUITE_SUMMARY.md`](PHASE4_SMOKE_TEST_SUITE_SUMMARY.md)                                 | What was created + overview                | Engineering Lead | 10 min    |
 
 ### Scripts (The Automation)
 
-| File | Language | Purpose | Platform |
-|---|---|---|---|
-| [`scripts/phase4-e2e-smoke.sh`](../scripts/phase4-e2e-smoke.sh) | Bash | Main automation script | macOS / Linux |
-| [`scripts/phase4-e2e-smoke.ps1`](../scripts/phase4-e2e-smoke.ps1) | PowerShell | Windows automation | Windows |
+| File                                                              | Language   | Purpose                | Platform      |
+| ----------------------------------------------------------------- | ---------- | ---------------------- | ------------- |
+| [`scripts/phase4-e2e-smoke.sh`](../scripts/phase4-e2e-smoke.sh)   | Bash       | Main automation script | macOS / Linux |
+| [`scripts/phase4-e2e-smoke.ps1`](../scripts/phase4-e2e-smoke.ps1) | PowerShell | Windows automation     | Windows       |
 
 ### Reference
 
-| File | Purpose |
-|---|---|
-| `.planning/PERFORMANCE_VALIDATION.md` | 7 performance metrics (bundle, Lighthouse, Web Vitals, latencies) |
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Post-deploy 24h monitoring setup |
-| `.planning/SMOKE_TESTS_PHASE4_INDEX.md` | This file (navigation index) |
+| File                                    | Purpose                                                           |
+| --------------------------------------- | ----------------------------------------------------------------- |
+| `.planning/PERFORMANCE_VALIDATION.md`   | 7 performance metrics (bundle, Lighthouse, Web Vitals, latencies) |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md`   | Post-deploy 24h monitoring setup                                  |
+| `.planning/SMOKE_TESTS_PHASE4_INDEX.md` | This file (navigation index)                                      |
 
 ---
 
@@ -106,6 +108,7 @@ Covers:
 **Where:** Run locally before deployment (not in production)
 
 **What it validates:**
+
 - Prerequisites (Node.js, npm, Firebase CLI, Java)
 - TypeScript clean (web + functions)
 - Production build successful
@@ -116,6 +119,7 @@ Covers:
 - Security rules enforced
 
 **Exit code:**
+
 - `0` = PASS ✅ (ready to deploy)
 - `1` = FAIL ❌ (blockers found)
 
@@ -123,15 +127,15 @@ Covers:
 
 ## 📅 Timeline for May 20
 
-| Time (UTC) | Task | Docs |
-|---|---|---|
-| 08:00 | Final pre-flight | Checklist: Step 1 |
-| 08:30 | **Run smoke test** | Execution Guide |
-| 09:15 | Review results + sign-off | Quick Ref + Checklist |
-| 09:30 | Deploy Step 1 (Rules) | Checklist: Step 2 |
-| 09:35 | Deploy Step 2 (Functions) | Checklist: Step 2 |
-| 09:45 | Deploy Step 3 (Hosting) | Checklist: Step 2 |
-| 10:00 | Go-live confirmation | Checklist: Step 3 |
+| Time (UTC) | Task                      | Docs                  |
+| ---------- | ------------------------- | --------------------- |
+| 08:00      | Final pre-flight          | Checklist: Step 1     |
+| 08:30      | **Run smoke test**        | Execution Guide       |
+| 09:15      | Review results + sign-off | Quick Ref + Checklist |
+| 09:30      | Deploy Step 1 (Rules)     | Checklist: Step 2     |
+| 09:35      | Deploy Step 2 (Functions) | Checklist: Step 2     |
+| 09:45      | Deploy Step 3 (Hosting)   | Checklist: Step 2     |
+| 10:00      | Go-live confirmation      | Checklist: Step 3     |
 
 ---
 

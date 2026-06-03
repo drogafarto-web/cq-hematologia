@@ -34,7 +34,7 @@ export function useCIQRuns() {
       q = query(
         collection(db, `labs/${labId}/runs`),
         where('deletadoEm', '==', null), // RN-06: soft delete check
-        orderBy('startedAt', 'desc')
+        orderBy('startedAt', 'desc'),
       );
     } catch (err: any) {
       setError(err.message);
@@ -56,7 +56,7 @@ export function useCIQRuns() {
       (err: any) => {
         setError(err.message);
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;

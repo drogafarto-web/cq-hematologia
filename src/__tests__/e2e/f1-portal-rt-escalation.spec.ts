@@ -96,14 +96,16 @@ describe('F1: Portal-RT Escalation Acknowledgment', () => {
 
       // Mock: Cloud Function callable response
       vi.mock('firebase/functions', () => ({
-        httpsCallable: vi.fn(() => vi.fn().mockResolvedValue({
-          data: {
-            success: true,
-            escalationId: testCriticoId,
-            reconhecidoEm: Timestamp.now().toDate(),
-            reconhecidoPor: testRtUserId,
-          },
-        })),
+        httpsCallable: vi.fn(() =>
+          vi.fn().mockResolvedValue({
+            data: {
+              success: true,
+              escalationId: testCriticoId,
+              reconhecidoEm: Timestamp.now().toDate(),
+              reconhecidoPor: testRtUserId,
+            },
+          }),
+        ),
       }));
 
       await waitForElement('[data-testid="toast-success"]');
@@ -118,7 +120,9 @@ describe('F1: Portal-RT Escalation Acknowledgment', () => {
       expect(auditEntry.ts).toBeDefined();
 
       // Assert: Escalation status updated
-      const updatedEscalation = await getFirestoreDoc(`critical-values/${testLabId}/escalations/${testCriticoId}`);
+      const updatedEscalation = await getFirestoreDoc(
+        `critical-values/${testLabId}/escalations/${testCriticoId}`,
+      );
       expect(updatedEscalation.reconhecidoPor).toBe(testRtUserId);
       expect(updatedEscalation.reconhecidoEm).toBeDefined();
     });
@@ -148,7 +152,7 @@ describe('F1: Portal-RT Escalation Acknowledgment', () => {
             if (attemptCount === 1) {
               // Simulate timeout
               return new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('Network timeout')), 100)
+                setTimeout(() => reject(new Error('Network timeout')), 100),
               );
             }
             // Second attempt succeeds
@@ -159,7 +163,7 @@ describe('F1: Portal-RT Escalation Acknowledgment', () => {
                 reconhecidoPor: testRtUserId,
               },
             });
-          })
+          }),
         ),
       }));
 
@@ -223,12 +227,14 @@ function seedTestLaudo(labId: string, options: any = {}) {
 async function generateRtAuthToken(user: any): Promise<string> {
   // Mock JWT token generation
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -259,7 +265,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }
@@ -282,6 +288,10 @@ async function getAuditLogEntry(labId: string, action: string, filters: any = {}
   };
 }
 
-async function getAuditLogEntries(labId: string, action: string, filters: any = {}): Promise<any[]> {
+async function getAuditLogEntries(
+  labId: string,
+  action: string,
+  filters: any = {},
+): Promise<any[]> {
   return [await getAuditLogEntry(labId, action, filters)];
 }

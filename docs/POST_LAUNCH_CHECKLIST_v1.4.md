@@ -1,7 +1,7 @@
 ---
-title: "Post-Launch Checklist — v1.4 (2-Week Follow-Up)"
-date: "2026-09-02"
-status: "OPERATIONAL"
+title: 'Post-Launch Checklist — v1.4 (2-Week Follow-Up)'
+date: '2026-09-02'
+status: 'OPERATIONAL'
 ---
 
 # Post-Launch Checklist
@@ -18,6 +18,7 @@ status: "OPERATIONAL"
 ### Daily Standup (08:00 UTC-3, 15 min)
 
 **Agenda:**
+
 1. Overnight metrics (error rate, latency, cost)
 2. Any P0/P1 incidents?
 3. User feedback summary
@@ -25,13 +26,13 @@ status: "OPERATIONAL"
 
 **Metrics to Review (every standup):**
 
-| Metric | Target | Trend | Status |
-|--------|--------|-------|--------|
-| Error rate | <0.1% | __ | ✓ / ✗ |
-| P99 latency | <3s | __ | ✓ / ✗ |
-| Availability | >99.5% | __ | ✓ / ✗ |
-| Audit writes | 100% | __ | ✓ / ✗ |
-| Daily cost | <$500 | __ | ✓ / ✗ |
+| Metric       | Target | Trend | Status |
+| ------------ | ------ | ----- | ------ |
+| Error rate   | <0.1%  | \_\_  | ✓ / ✗  |
+| P99 latency  | <3s    | \_\_  | ✓ / ✗  |
+| Availability | >99.5% | \_\_  | ✓ / ✗  |
+| Audit writes | 100%   | \_\_  | ✓ / ✗  |
+| Daily cost   | <$500  | \_\_  | ✓ / ✗  |
 
 ---
 
@@ -68,8 +69,9 @@ status: "OPERATIONAL"
   - **Command:** `firebase firestore:inspect --project hmatologia2 --path "audit-log/lab-001/events"` (sample 10 records)
 
 **Sign-Off (Day 1):**
+
 ```
-Engineering Lead: "System health confirmed. No critical issues. 
+Engineering Lead: "System health confirmed. No critical issues.
 Proceeding to next validation phase."
 
 Signature: ________________  Time: __:__ UTC-3
@@ -82,8 +84,8 @@ Signature: ________________  Time: __:__ UTC-3
 - [ ] **DICQ Compliance Measurement**
   - Baseline v1.3: 78.5%
   - Target Phase 4: 80–82%
-  - Actual: __% (measure within 48h)
-  - Gain: __% (should be +2–4)
+  - Actual: \_\_% (measure within 48h)
+  - Gain: \_\_% (should be +2–4)
   - Command: `firebase functions:call measureDICQCompliance --project hmatologia2` (if function exists)
 
 - [ ] **RDC 978 Coverage Verification**
@@ -182,18 +184,19 @@ Signature: ________________  Time: __:__ UTC-3
 
 **Capture Daily:**
 
-| Date | Error Rate | P99 Lat | Availability | Cost | Notes |
-|------|-----------|---------|--------------|------|-------|
-| 09-02 | 0.3% | 2.1s | 99.7% | $45 | Deployment day |
-| 09-03 | 0.08% | 1.9s | 99.8% | $38 | Normalizing |
-| 09-04 | 0.05% | 1.8s | 99.9% | $35 | Stable |
-| 09-05 | 0.04% | 1.7s | 99.95% | $32 | Feature validation |
-| 09-06 | 0.03% | 1.6s | 99.96% | $30 | Stable |
-| 09-07 | 0.02% | 1.5s | 99.97% | $28 | Excellent |
-| 09-08 | 0.01% | 1.4s | 99.98% | $26 | Peak performance |
-| 09-09 | 0.01% | 1.5s | 99.98% | $27 | Consistent |
+| Date  | Error Rate | P99 Lat | Availability | Cost | Notes              |
+| ----- | ---------- | ------- | ------------ | ---- | ------------------ |
+| 09-02 | 0.3%       | 2.1s    | 99.7%        | $45  | Deployment day     |
+| 09-03 | 0.08%      | 1.9s    | 99.8%        | $38  | Normalizing        |
+| 09-04 | 0.05%      | 1.8s    | 99.9%        | $35  | Stable             |
+| 09-05 | 0.04%      | 1.7s    | 99.95%       | $32  | Feature validation |
+| 09-06 | 0.03%      | 1.6s    | 99.96%       | $30  | Stable             |
+| 09-07 | 0.02%      | 1.5s    | 99.97%       | $28  | Excellent          |
+| 09-08 | 0.01%      | 1.4s    | 99.98%       | $26  | Peak performance   |
+| 09-09 | 0.01%      | 1.5s    | 99.98%       | $27  | Consistent         |
 
 **Analysis:**
+
 ```
 Error rate: Declining trend ✓ (baseline 0.1% → 0.01% achieved)
 Latency: Stabilizing ✓ (baseline 2.0s → 1.5s avg)
@@ -209,6 +212,7 @@ Cost: Under budget ✓ (budget $500/mo → $27/day = $810 annualized)
 
 **Cadence:** Mon / Wed / Fri  
 **Agenda:**
+
 1. Metrics trend (healthy?)
 2. Any bugs/issues?
 3. User feedback sentiment
@@ -282,24 +286,24 @@ If below target:
 
 #### RDC 978 Final Verification
 
-| Article | Requirement | Implementation | Verified? |
-|---------|------------|-----------------|-----------|
-| Art. 6º §1 | NOTIVISA | Event queue + submission | ✓ / ✗ |
-| Art. 115 | Authentication | Email-link tokens | ✓ / ✗ |
-| Art. 122 | RT supervision | Presence enforcement | ✓ / ✗ |
-| Art. 167 | Critical results | Portal notification | ✓ / ✗ |
-| Art. 204 | Electronic records | Firestore audit trail | ✓ / ✗ |
+| Article    | Requirement        | Implementation           | Verified? |
+| ---------- | ------------------ | ------------------------ | --------- |
+| Art. 6º §1 | NOTIVISA           | Event queue + submission | ✓ / ✗     |
+| Art. 115   | Authentication     | Email-link tokens        | ✓ / ✗     |
+| Art. 122   | RT supervision     | Presence enforcement     | ✓ / ✗     |
+| Art. 167   | Critical results   | Portal notification      | ✓ / ✗     |
+| Art. 204   | Electronic records | Firestore audit trail    | ✓ / ✗     |
 
 **All verified?** ✓ YES / ✗ NO  
 **Coverage:** 100% RDC critical articles ✓
 
 #### LGPD Final Verification
 
-| Article | Requirement | Implementation | Verified? |
-|---------|------------|-----------------|-----------|
-| Art. 9 | Informed consent | UI + audit trail | ✓ / ✗ |
-| Art. 18 | Right to access | Patient portal | ✓ / ✗ |
-| Art. 38 | Secure communication | Email tokens | ✓ / ✗ |
+| Article | Requirement          | Implementation   | Verified? |
+| ------- | -------------------- | ---------------- | --------- |
+| Art. 9  | Informed consent     | UI + audit trail | ✓ / ✗     |
+| Art. 18 | Right to access      | Patient portal   | ✓ / ✗     |
+| Art. 38 | Secure communication | Email tokens     | ✓ / ✗     |
 
 **All verified?** ✓ YES / ✗ NO  
 **Coverage:** 100% LGPD Phase 4 articles ✓
@@ -382,6 +386,7 @@ Rollbacks:       0 (successful deployment)
 ## Handoff to v1.5 Phase 4
 
 **Timeline:**
+
 ```
 2026-09-16 EOD   Phase 4 post-launch complete
 2026-09-17       v1.5 Phase 4 kickoff
@@ -403,16 +408,16 @@ Rollbacks:       0 (successful deployment)
 
 ## Success Criteria (End of 2 Weeks)
 
-| Criterion | Target | Achieved? |
-|-----------|--------|-----------|
-| Zero P0 incidents | 0 | ✓ / ✗ |
-| Zero rollbacks | 0 | ✓ / ✗ |
-| DICQ ≥80% | 80%+ | ✓ / ✗ |
-| RDC 100% coverage | 100% | ✓ / ✗ |
-| Latency <3s P99 | <3s | ✓ / ✗ |
-| Availability >99.5% | >99.5% | ✓ / ✗ |
-| User satisfaction | High | ✓ / ✗ |
-| Ready for v1.5 | Yes | ✓ / ✗ |
+| Criterion           | Target | Achieved? |
+| ------------------- | ------ | --------- |
+| Zero P0 incidents   | 0      | ✓ / ✗     |
+| Zero rollbacks      | 0      | ✓ / ✗     |
+| DICQ ≥80%           | 80%+   | ✓ / ✗     |
+| RDC 100% coverage   | 100%   | ✓ / ✗     |
+| Latency <3s P99     | <3s    | ✓ / ✗     |
+| Availability >99.5% | >99.5% | ✓ / ✗     |
+| User satisfaction   | High   | ✓ / ✗     |
+| Ready for v1.5      | Yes    | ✓ / ✗     |
 
 **Overall Phase 4 Status:**
 

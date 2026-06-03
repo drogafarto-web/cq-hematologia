@@ -17,11 +17,11 @@ Para validar **frontend** sem publicar em produção, o padrão suportado pelo F
 
 ## 2. O que “staging” significa aqui
 
-| Camada | Preview Channel (`hosting:channel:deploy`) | Deploy Hosting live (`deploy --only hosting`) |
-|--------|---------------------------------------------|------------------------------------------------|
-| Bundle React (`dist/`) | Novo build num URL preview | Atualiza `hmatologia2.web.app` |
-| Firestore / Rules | **Mesmo** backend de produção | Altera rules **globais** do projeto |
-| Cloud Functions | **Mesmas** functions de produção | Altera functions **globais** |
+| Camada                 | Preview Channel (`hosting:channel:deploy`) | Deploy Hosting live (`deploy --only hosting`) |
+| ---------------------- | ------------------------------------------ | --------------------------------------------- |
+| Bundle React (`dist/`) | Novo build num URL preview                 | Atualiza `hmatologia2.web.app`                |
+| Firestore / Rules      | **Mesmo** backend de produção              | Altera rules **globais** do projeto           |
+| Cloud Functions        | **Mesmas** functions de produção           | Altera functions **globais**                  |
 
 **Conclusão:** preview channel = **staging de UI** contra **backend real**. Não isola dados nem APIs.
 
@@ -56,7 +56,7 @@ firebase hosting:channel:deploy v14-staging --expires 14d --project hmatologia2
 
 ## 4. MP-8 adaptado — fluxo “staging only”
 
-1. **Executar Step 1** de `MP-8/PLAN.md` (pre-deploy gates: tsc, functions build, lint, tests, app build, bundle, preflight secrets, etc.).  
+1. **Executar Step 1** de `MP-8/PLAN.md` (pre-deploy gates: tsc, functions build, lint, tests, app build, bundle, preflight secrets, etc.).
    - Adaptar comandos **bash** do PLAN para **PowerShell** quando necessário no Windows.
 
 2. **Não executar** os Steps 2–6 do PLAN que fazem:
@@ -100,6 +100,7 @@ Substituir no prompt principal qualquer secção que proíba **todo** deploy por
 ## Deploy destino: STAGING (preview channel apenas)
 
 Após MP-6 verde e gates MP-8 Step 1 OK:
+
 - `npm run build`
 - `firebase hosting:channel:deploy v14-staging --expires 14d --project hmatologia2`
 - Documentar URL em `.planning/phases/v1.4-final-closure/AUTONOMOUS-RUN-SUMMARY.md`

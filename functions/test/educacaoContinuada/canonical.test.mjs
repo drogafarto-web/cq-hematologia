@@ -20,9 +20,8 @@ const FUNCTIONS_DIR = path.resolve(__dirname, '..', '..');
 
 const { sortedStringify, sha256Hex, generateEcSignatureServer, verifyEcSignatureServer } =
   await import(
-    pathToFileURL(
-      path.join(FUNCTIONS_DIR, 'lib/modules/educacaoContinuada/signatureCanonical.js'),
-    ).href
+    pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/educacaoContinuada/signatureCanonical.js'))
+      .href
   );
 
 const admin = await import('firebase-admin');
@@ -59,7 +58,12 @@ test('generateEcSignatureServer — formato canônico bate com algoritmo do web'
   //   dataString = JSON.stringify({ operatorId, ts: ts.toMillis(), data: sortedStringify(payload) })
   // O hash é determinístico — server e client produzem o mesmo dado o mesmo input.
   const ts = admin.default.firestore.Timestamp.fromMillis(1700000000000);
-  const payload = { execucaoId: 'exec-1', resultado: 'eficaz', dataAvaliacao: 1700000000001, fechamento: 1 };
+  const payload = {
+    execucaoId: 'exec-1',
+    resultado: 'eficaz',
+    dataAvaliacao: 1700000000001,
+    fechamento: 1,
+  };
   const sig = generateEcSignatureServer('uid-X', payload, ts);
 
   const expectedDataString = JSON.stringify({

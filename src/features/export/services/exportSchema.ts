@@ -6,12 +6,7 @@
 import { z } from 'zod';
 
 /** Status lifecycle enum */
-export const ExportJobStatusSchema = z.enum([
-  'queued',
-  'processing',
-  'completed',
-  'failed',
-]);
+export const ExportJobStatusSchema = z.enum(['queued', 'processing', 'completed', 'failed']);
 
 /** Format enum — only XLSX variants available in Phase 3.2 (PDF deferred) */
 export const ExportFormatSchema = z.enum(['xlsx', 'pdf', 'csv']);

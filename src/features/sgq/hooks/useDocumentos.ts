@@ -16,9 +16,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 
-import {
-  documentoService,
-} from '../services/documentoService';
+import { documentoService } from '../services/documentoService';
 import type {
   Documento,
   DocumentoFilters,
@@ -36,10 +34,7 @@ const TRANSITIONS: Record<StatusDocumento, StatusDocumento[]> = {
   obsoleto: [],
 };
 
-export function isTransitionAllowed(
-  from: StatusDocumento,
-  to: StatusDocumento,
-): boolean {
+export function isTransitionAllowed(from: StatusDocumento, to: StatusDocumento): boolean {
   return TRANSITIONS[from]?.includes(to) ?? false;
 }
 
@@ -59,11 +54,7 @@ export interface UseDocumentosResult {
   /** Atualiza metadata de um documento. */
   atualizar: (id: string, patch: Partial<DocumentoInput>) => Promise<void>;
   /** Transita status (com validação de transição válida). */
-  mudarStatus: (
-    id: string,
-    toStatus: StatusDocumento,
-    motivo?: string,
-  ) => Promise<void>;
+  mudarStatus: (id: string, toStatus: StatusDocumento, motivo?: string) => Promise<void>;
   /** Emite nova versão substituindo a anterior em batch atomic. */
   emitirRevisao: (anteriorId: string, novaInput: DocumentoInput) => Promise<string>;
   /** Soft-delete — só permitido em `em_revisao`. */
@@ -74,9 +65,7 @@ export interface UseDocumentosResult {
   publicar: (documentoId: string, pin: string, razao?: string) => Promise<{ pdfUrl: string }>;
 }
 
-export function useDocumentos(
-  options: UseDocumentosOptions = {},
-): UseDocumentosResult {
+export function useDocumentos(options: UseDocumentosOptions = {}): UseDocumentosResult {
   const labId = useActiveLabId();
   const user = useUser();
   const filters = options.filters ?? {};
@@ -96,14 +85,19 @@ export function useDocumentos(
     }
 
     setIsLoading(true);
-    const unsub = documentoService.subscribe(labId, filters, (docs) => {
-      setDocumentos(docs);
-      setIsLoading(false);
-      setError(null);
-    }, (err) => {
-      setError(err.message);
-      setIsLoading(false);
-    });
+    const unsub = documentoService.subscribe(
+      labId,
+      filters,
+      (docs) => {
+        setDocumentos(docs);
+        setIsLoading(false);
+        setError(null);
+      },
+      (err) => {
+        setError(err.message);
+        setIsLoading(false);
+      },
+    );
 
     return () => {
       unsub();
@@ -126,10 +120,7 @@ export function useDocumentos(
       if (!labId) throw new Error('Sem laboratório ativo.');
       if (!operator) throw new Error('Sem usuário autenticado.');
 
-      const duplicado = await documentoService.existeCodigoDuplicado(
-        labId,
-        input.codigo,
-      );
+      const duplicado = await documentoService.existeCodigoDuplicado(labId, input.codigo);
       if (duplicado) {
         throw new Error(`Código ${input.codigo} já existe neste laboratório.`);
       }
@@ -152,11 +143,7 @@ export function useDocumentos(
 
       // Se o código mudou, valida unicidade.
       if (patch.codigo) {
-        const duplicado = await documentoService.existeCodigoDuplicado(
-          labId,
-          patch.codigo,
-          id,
-        );
+        const duplicado = await documentoService.existeCodigoDuplicado(labId, patch.codigo, id);
         if (duplicado) {
           throw new Error(`Código ${patch.codigo} já existe.`);
         }
@@ -182,20 +169,13 @@ export function useDocumentos(
       if (!doc) throw new Error('Documento não encontrado.');
 
       if (!isTransitionAllowed(doc.status, toStatus)) {
-        throw new Error(
-          `Transição inválida: ${doc.status} → ${toStatus}.`,
-        );
+        throw new Error(`Transição inválida: ${doc.status} → ${toStatus}.`);
       }
 
       // Volta a rascunho ou descarte exigem motivo.
-      if (
-        (doc.status === 'vigente' && toStatus === 'em_revisao') ||
-        toStatus === 'obsoleto'
-      ) {
+      if ((doc.status === 'vigente' && toStatus === 'em_revisao') || toStatus === 'obsoleto') {
         if (!motivo || motivo.trim().length < 10) {
-          throw new Error(
-            'Motivo obrigatório (≥10 caracteres) para esta transição.',
-          );
+          throw new Error('Motivo obrigatório (≥10 caracteres) para esta transição.');
         }
       }
 
@@ -235,7 +215,8 @@ export function useDocumentos(
 
       // Impede criar segunda revisão se já existe rascunho do mesmo código
       const revisaoExistente = documentos.find(
-        (d) => d.codigo === anterior.codigo && d.status === 'em_revisao' && d.substitui === anteriorId,
+        (d) =>
+          d.codigo === anterior.codigo && d.status === 'em_revisao' && d.substitui === anteriorId,
       );
       if (revisaoExistente) {
         throw new Error(
@@ -244,9 +225,7 @@ export function useDocumentos(
       }
 
       if (novaInput.codigo !== anterior.codigo) {
-        throw new Error(
-          'Revisão deve manter o mesmo código do documento original.',
-        );
+        throw new Error('Revisão deve manter o mesmo código do documento original.');
       }
 
       try {
@@ -332,7 +311,13 @@ export function useDocumentos(
       }
 
       try {
-        const result = await documentoService.publicar(labId, documentoId, pin, (tipoAlteracao as 'major' | 'minor') ?? 'minor', razao);
+        const result = await documentoService.publicar(
+          labId,
+          documentoId,
+          pin,
+          (tipoAlteracao as 'major' | 'minor') ?? 'minor',
+          razao,
+        );
         return { pdfUrl: result.pdfUrl };
       } catch (e) {
         const msg = e instanceof Error ? e.message : 'Erro ao publicar documento.';

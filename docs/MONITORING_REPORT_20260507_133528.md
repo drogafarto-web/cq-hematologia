@@ -10,14 +10,14 @@
 
 ## Summary
 
-| Metric | Count |
-|--------|-------|
-| **Total Checks** | 48 |
-| **Check Interval** | 30m |
-| **Total Errors Found** | 0 |
-| **Function Errors** | 0 |
-| **Firestore Errors** | 0 |
-| **Hosting 5xx Errors** | 0 |
+| Metric                 | Count |
+| ---------------------- | ----- |
+| **Total Checks**       | 48    |
+| **Check Interval**     | 30m   |
+| **Total Errors Found** | 0     |
+| **Function Errors**    | 0     |
+| **Firestore Errors**   | 0     |
+| **Hosting 5xx Errors** | 0     |
 
 ---
 
@@ -48,6 +48,7 @@ No HTTP 5xx errors.
 Full error details exported to: `scripts/cloud-logs-export-20260507_133528.json`
 
 To review:
+
 ```bash
 cat "scripts/cloud-logs-export-20260507_133528.json" | jq '.[] | {timestamp, severity, textPayload}' | head -20
 ```
@@ -60,5 +61,5 @@ cat "scripts/cloud-logs-export-20260507_133528.json" | jq '.[] | {timestamp, sev
 
 ---
 
-**Report Generated:** Fri May  8 10:35:30     2026
+**Report Generated:** Fri May 8 10:35:30 2026
 **Next Steps:** Archive this report; commit to repo for audit trail.

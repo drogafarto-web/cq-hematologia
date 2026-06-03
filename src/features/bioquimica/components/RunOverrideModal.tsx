@@ -43,7 +43,9 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
       ts: Date.now(),
     };
     const canonical = JSON.stringify(payload, Object.keys(payload).sort());
-    sha256Hex(canonical).then(setHash).catch(() => setHash(''));
+    sha256Hex(canonical)
+      .then(setHash)
+      .catch(() => setHash(''));
   }, [reason, user?.uid, run.id]);
 
   const isValid = reason.length >= 20 && reason.length <= 500 && hash.length === 64;
@@ -64,9 +66,7 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
         {/* Header */}
         <div className="bg-slate-900 border-b border-slate-700 px-6 py-4">
           <h2 className="text-lg font-semibold text-amber-200">Override Auditado</h2>
-          <p className="text-xs text-slate-500 mt-1">
-            Esta ação será registrada e auditada
-          </p>
+          <p className="text-xs text-slate-500 mt-1">Esta ação será registrada e auditada</p>
         </div>
 
         {/* Content */}
@@ -101,9 +101,7 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
               maxLength={500}
               className="w-full px-3 py-2 bg-slate-900 border border-slate-700 rounded text-sm text-slate-200 placeholder-slate-600 focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500/20 resize-none h-24"
             />
-            <p className="text-xs text-slate-500 mt-1">
-              {reason.length} / 500 caracteres
-            </p>
+            <p className="text-xs text-slate-500 mt-1">{reason.length} / 500 caracteres</p>
           </div>
 
           {/* Hash signature */}
@@ -121,8 +119,11 @@ export const RunOverrideModal: React.FC<RunOverrideModalProps> = ({
           <div className="p-3 bg-slate-900/40 border border-slate-700 rounded">
             <p className="text-xs font-medium text-slate-300 mb-2">Confirmação:</p>
             <p className="text-xs text-slate-400">
-              Eu, <span className="font-semibold text-slate-300">{user?.displayName || user?.email || 'Operador'}</span>, autorizo
-              este override desta corrida com motivo documentado acima.
+              Eu,{' '}
+              <span className="font-semibold text-slate-300">
+                {user?.displayName || user?.email || 'Operador'}
+              </span>
+              , autorizo este override desta corrida com motivo documentado acima.
             </p>
           </div>
         </div>

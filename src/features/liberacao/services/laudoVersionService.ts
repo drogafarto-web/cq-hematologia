@@ -30,12 +30,12 @@ export function subscribeVersions(
   labId: LabId,
   laudoId: string,
   onData: (versions: LaudoVersion[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): () => void {
   const q = query(
     collection(db, 'labs', labId, 'laudo-versions'),
     where('laudoId', '==', laudoId),
-    orderBy('version', 'asc')
+    orderBy('version', 'asc'),
   );
 
   const unsubscribe = onSnapshot(
@@ -50,7 +50,7 @@ export function subscribeVersions(
     (error) => {
       console.error('[subscribeVersions] error:', error);
       onError?.(error);
-    }
+    },
   );
 
   return unsubscribe;
@@ -59,10 +59,7 @@ export function subscribeVersions(
 /**
  * Get versão específica
  */
-export async function getVersion(
-  labId: LabId,
-  versionId: string
-): Promise<LaudoVersion | null> {
+export async function getVersion(labId: LabId, versionId: string): Promise<LaudoVersion | null> {
   const docRef = doc(db, 'labs', labId, 'laudo-versions', versionId);
   const snapshot = await getDoc(docRef);
 
@@ -83,14 +80,14 @@ export async function getVersion(
 export async function getVersionPdfUrl(
   labId: LabId,
   laudoId: string,
-  version: number
+  version: number,
 ): Promise<string | null> {
   try {
     // Busca versão pra confirmar existência
     const q = query(
       collection(db, 'labs', labId, 'laudo-versions'),
       where('laudoId', '==', laudoId),
-      where('version', '==', version)
+      where('version', '==', version),
     );
 
     const snapshot = await (await import('firebase/firestore')).getDocs(q);
@@ -120,7 +117,7 @@ export async function getVersionPdfUrl(
 export async function downloadVersionPdf(
   labId: LabId,
   laudoId: string,
-  version: number
+  version: number,
 ): Promise<ArrayBuffer | null> {
   try {
     const path = `laudos/${labId}/${laudoId}/v${version}.pdf`;

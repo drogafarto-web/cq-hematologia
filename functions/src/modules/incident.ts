@@ -28,7 +28,7 @@ class CallableError extends Error {
   constructor(
     public code: string,
     public message: string,
-    public details?: Record<string, unknown>
+    public details?: Record<string, unknown>,
   ) {
     super(message);
     this.name = 'CallableError';
@@ -61,11 +61,12 @@ function assertAuthenticated(context: any): string {
 
 // ─── Helper: Check Lab Membership ─────────────────────────────────────────
 
-async function assertLabMember(labId: string, userId: string, requiredRole?: string): Promise<void> {
-  const memberDoc = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${userId}`)
-    .get();
+async function assertLabMember(
+  labId: string,
+  userId: string,
+  requiredRole?: string,
+): Promise<void> {
+  const memberDoc = await admin.firestore().doc(`labs/${labId}/members/${userId}`).get();
 
   if (!memberDoc.exists) {
     throw new CallableError('NOT_LAB_MEMBER', 'User is not a member of this lab');
@@ -90,75 +91,72 @@ export const createIncident = onCall(
   async (request: CallableRequest<any>) => {
     const context = request.auth;
     const data = request.data;
-      const userId = assertAuthenticated(context);
+    const userId = assertAuthenticated(context);
 
-      try {
-        // Validate input
-        const validated = CreateIncidentInputSchema.parse(data);
-        const labId = data.labId as string;
+    try {
+      // Validate input
+      const validated = CreateIncidentInputSchema.parse(data);
+      const labId = data.labId as string;
 
-        if (!labId) {
-          throw new CallableError('MISSING_LAB_ID', 'labId is required');
-        }
-
-        // Check lab membership (RT or admin only)
-        await assertLabMember(labId, userId);
-        const memberDoc = await admin
-          .firestore()
-          .doc(`labs/${labId}/members/${userId}`)
-          .get();
-        const memberRole = memberDoc.data()?.role;
-        if (!['rt', 'admin', 'auditor'].includes(memberRole)) {
-          throw new CallableError('INSUFFICIENT_ROLE', 'Only RT/admin/auditor can declare incidents');
-        }
-
-        // Create incident doc
-        const incidentsRef = admin.firestore().collection(`labs/${labId}/incidents`);
-        const incidentDocRef = incidentsRef.doc();
-
-        const now = admin.firestore.FieldValue.serverTimestamp() as any;
-        const escalationLevel = getEscalationLevelBySeverity(validated.severity);
-
-        const incident: Incident = {
-          id: incidentDocRef.id,
-          labId,
-          title: validated.title,
-          description: validated.description,
-          severity: validated.severity,
-          status: 'open',
-          startedAt: now,
-          declaredBy: userId,
-          declaredByName: memberDoc.data()?.name ?? userId,
-          declaredAt: now,
-          affectedSystems: validated.affectedSystems,
-          affectedUserCount: validated.affectedUserCount,
-          affectedFeatures: validated.affectedFeatures,
-          escalationLevel,
-          estimatedMTTR: validated.estimatedMTTR,
-          criadoEm: now,
-          criadoPor: userId,
-        };
-
-        await incidentDocRef.set(incident);
-
-        // Log to Cloud Logs for monitoring
-        console.log(
-          `[INCIDENT] ${validated.severity.toUpperCase()}: ${validated.title} (ID: ${incidentDocRef.id})`
-        );
-
-        return {
-          incidentId: incidentDocRef.id,
-        };
-      } catch (error) {
-        const err = handleError(error);
-        console.error('[createIncident] Error:', err);
-        throw new HttpsError(
-          err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
-          err.message
-        );
+      if (!labId) {
+        throw new CallableError('MISSING_LAB_ID', 'labId is required');
       }
+
+      // Check lab membership (RT or admin only)
+      await assertLabMember(labId, userId);
+      const memberDoc = await admin.firestore().doc(`labs/${labId}/members/${userId}`).get();
+      const memberRole = memberDoc.data()?.role;
+      if (!['rt', 'admin', 'auditor'].includes(memberRole)) {
+        throw new CallableError('INSUFFICIENT_ROLE', 'Only RT/admin/auditor can declare incidents');
+      }
+
+      // Create incident doc
+      const incidentsRef = admin.firestore().collection(`labs/${labId}/incidents`);
+      const incidentDocRef = incidentsRef.doc();
+
+      const now = admin.firestore.FieldValue.serverTimestamp() as any;
+      const escalationLevel = getEscalationLevelBySeverity(validated.severity);
+
+      const incident: Incident = {
+        id: incidentDocRef.id,
+        labId,
+        title: validated.title,
+        description: validated.description,
+        severity: validated.severity,
+        status: 'open',
+        startedAt: now,
+        declaredBy: userId,
+        declaredByName: memberDoc.data()?.name ?? userId,
+        declaredAt: now,
+        affectedSystems: validated.affectedSystems,
+        affectedUserCount: validated.affectedUserCount,
+        affectedFeatures: validated.affectedFeatures,
+        escalationLevel,
+        estimatedMTTR: validated.estimatedMTTR,
+        criadoEm: now,
+        criadoPor: userId,
+      };
+
+      await incidentDocRef.set(incident);
+
+      // Log to Cloud Logs for monitoring
+      console.log(
+        `[INCIDENT] ${validated.severity.toUpperCase()}: ${validated.title} (ID: ${incidentDocRef.id})`,
+      );
+
+      return {
+        incidentId: incidentDocRef.id,
+      };
+    } catch (error) {
+      const err = handleError(error);
+      console.error('[createIncident] Error:', err);
+      throw new HttpsError(
+        err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
+        err.message,
+      );
     }
-  );
+  },
+);
 
 // ─── Escalate Incident ─────────────────────────────────────────────────────
 
@@ -194,7 +192,7 @@ export const escalateIncident = onCall(
       if (!isValidSeverityEscalation(incident.severity, validated.newSeverity)) {
         throw new CallableError(
           'INVALID_ESCALATION',
-          `Cannot escalate from ${incident.severity} to ${validated.newSeverity}`
+          `Cannot escalate from ${incident.severity} to ${validated.newSeverity}`,
         );
       }
 
@@ -219,7 +217,7 @@ export const escalateIncident = onCall(
       } as IncidentAction);
 
       console.log(
-        `[INCIDENT] Escalated ${incidentId}: ${incident.severity} → ${validated.newSeverity}`
+        `[INCIDENT] Escalated ${incidentId}: ${incident.severity} → ${validated.newSeverity}`,
       );
 
       return { escalated: true };
@@ -228,10 +226,10 @@ export const escalateIncident = onCall(
       console.error('[escalateIncident] Error:', err);
       throw new HttpsError(
         err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
-        err.message
+        err.message,
       );
     }
-  }
+  },
 );
 
 // ─── Close Incident ───────────────────────────────────────────────────────
@@ -264,9 +262,7 @@ export const closeIncident = onCall(
       const incident = incidentSnap.data() as Incident;
 
       // Calculate MTTR
-      const actualMTTR = Math.floor(
-        (Date.now() - incident.startedAt.toDate().getTime()) / 60000
-      );
+      const actualMTTR = Math.floor((Date.now() - incident.startedAt.toDate().getTime()) / 60000);
 
       // Update incident
       const resolvedAt = admin.firestore.Timestamp.now();
@@ -295,7 +291,7 @@ export const closeIncident = onCall(
       console.error('[closeIncident] Error:', err);
       throw new HttpsError('internal', err.message);
     }
-  }
+  },
 );
 
 // ─── Record Post-Mortem ────────────────────────────────────────────────────
@@ -341,12 +337,14 @@ export const recordPostMortem = onCall(
         postMortemRef.add({
           ...action,
           id: postMortemRef.doc().id, // Firestore will overwrite, but include for type safety
-        } as PostMortemAction)
+        } as PostMortemAction),
       );
 
       await Promise.all(promises);
 
-      console.log(`[INCIDENT] Post-mortem recorded: ${incidentId} with ${validated.actions.length} actions`);
+      console.log(
+        `[INCIDENT] Post-mortem recorded: ${incidentId} with ${validated.actions.length} actions`,
+      );
 
       return { recorded: true };
     } catch (error) {
@@ -354,10 +352,10 @@ export const recordPostMortem = onCall(
       console.error('[recordPostMortem] Error:', err);
       throw new HttpsError(
         err.code === 'VALIDATION_ERROR' ? 'invalid-argument' : 'internal',
-        err.message
+        err.message,
       );
     }
-  }
+  },
 );
 
 // ─── Soft Delete Incident ──────────────────────────────────────────────────
@@ -400,5 +398,5 @@ export const softDeleteIncident = onCall(
       console.error('[softDeleteIncident] Error:', err);
       throw new HttpsError('internal', err.message);
     }
-  }
+  },
 );

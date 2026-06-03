@@ -9,9 +9,11 @@
 ## Documents in This Analysis
 
 ### 1. **COST_ANALYSIS_Phase3.md** (Full technical report)
+
 **Use when:** CTO/Finance needs detailed cost breakdowns, Phase 4–12 projections, unit economics, optimization roadmap.
 
 **Sections:**
+
 - Executive summary (3 bullet points)
 - Firestore storage + read/write impact (section 1.2–1.3)
 - Cloud Functions inventory + GiB-second calculations (section 2)
@@ -30,9 +32,11 @@
 ---
 
 ### 2. **COST_ANALYSIS_EXECUTIVE_SUMMARY.md** (1-page stakeholder brief)
+
 **Use when:** Board meeting, budget approval, CFO review, sales team alignment.
 
 **Sections:**
+
 - Bottom line: Phase 3 adds $11/month, scales to $85–100 by Phase 12 (3 bullet points)
 - Cost breakdown table: v1.3 ($16) → Phase 3 ($27)
 - Monthly cost by phase: Weeks 1–22 trend
@@ -50,9 +54,11 @@
 ---
 
 ### 3. **FIREBASE_COST_MONITORING_CHECKLIST.md** (Operations runbook)
+
 **Use when:** Weekly cost review, operational monitoring, troubleshooting cost anomalies, setting up GCP alerts.
 
 **Sections:**
+
 - Quick start (5 minutes): 3-step access to GCP console + alert setup
 - Weekly monitoring checklist (15 min): 7 sections with target ranges
 - Cost anomaly troubleshooting (4 scenarios):
@@ -75,30 +81,35 @@
 ## How to Use These Documents
 
 ### For CTO (Architecture + Decisions)
+
 1. **Read:** COST_ANALYSIS_Phase3.md sections 1–2 (Firestore + Functions impact)
 2. **Review:** Section 7 (unit economics) to confirm 3+ labs breakeven
 3. **Approve:** Section 8 (optimization roadmap) — assign owners + deadlines
 4. **Monitor:** Use FIREBASE_COST_MONITORING_CHECKLIST weekly
 
 ### For Finance/CFO (Budget Planning)
+
 1. **Read:** COST_ANALYSIS_EXECUTIVE_SUMMARY.md (2 min decision table)
 2. **Approve:** Budget of $50/month (Phase 3) or $100/month (Phase 12)
 3. **Set alert:** $50 threshold in GCP console (see checklist Quick Start)
 4. **Monthly review:** Use monthly cost review template in FIREBASE_COST_MONITORING_CHECKLIST.md
 
 ### For Sales/Commercial (SaaS Unit Economics)
+
 1. **Read:** COST_ANALYSIS_EXECUTIVE_SUMMARY.md section "Unit Economics"
 2. **Confirm:** Pricing of $99/lab/month = 77% margin at 5 labs, breakeven at 3 labs
 3. **Plan:** Pitch to 3+ labs by end of Phase 3 (Week 3) to hit profitability
 4. **Track:** Cost per lab = (`$27–85` ÷ lab count) + `$11–15` per lab
 
 ### For DevOps (Operational Monitoring)
+
 1. **Setup:** FIREBASE_COST_MONITORING_CHECKLIST.md Quick Start (15 min)
 2. **Weekly:** Run checklist template every Friday 10:00 UTC
 3. **Anomaly:** Jump to troubleshooting section if any metric outside target range
 4. **Escalate:** Follow 5-step escalation path if cost exceeds budget
 
 ### For Product/Engineering (Architecture Impact)
+
 1. **Read:** COST_ANALYSIS_Phase3.md sections 2 + 8 (Functions + optimizations)
 2. **Plan:** Implement optimization roadmap Week 1 (analytics polling refactor if needed)
 3. **Monitor:** Weekly checklist section 3 (Cloud Functions metrics)
@@ -110,70 +121,76 @@
 
 ### Weekly (Every Friday)
 
-| Metric | Target | Alert | Notes |
-|--------|--------|-------|-------|
-| **Total cost** | $16–27 (Phase 3) | >$40 | Month-to-date |
-| **Firestore reads** | 500k–575k/day | >750k | Analytics polling |
-| **Cloud Functions** | $4–$12 | >$20 | GiB-seconds billing |
-| **SMS sent** | 0–30/week (Phase 3) | >200 | Críticos escalation |
-| **Storage** | 16.5 GB (Phase 3) | >25 GB | App data + backups |
+| Metric              | Target              | Alert  | Notes               |
+| ------------------- | ------------------- | ------ | ------------------- |
+| **Total cost**      | $16–27 (Phase 3)    | >$40   | Month-to-date       |
+| **Firestore reads** | 500k–575k/day       | >750k  | Analytics polling   |
+| **Cloud Functions** | $4–$12              | >$20   | GiB-seconds billing |
+| **SMS sent**        | 0–30/week (Phase 3) | >200   | Críticos escalation |
+| **Storage**         | 16.5 GB (Phase 3)   | >25 GB | App data + backups  |
 
 ### Monthly (Last Friday)
 
-| Metric | Target | Action |
-|--------|--------|--------|
-| **Total cost** | $27 (Phase 3) ±10% | Variance >10%? → investigate anomaly |
-| **Functions errors** | 0% | >1% failure rate? → debug Cloud Logs |
-| **Backup size** | 165 GB | >250 GB? → check retention policy |
+| Metric               | Target             | Action                               |
+| -------------------- | ------------------ | ------------------------------------ |
+| **Total cost**       | $27 (Phase 3) ±10% | Variance >10%? → investigate anomaly |
+| **Functions errors** | 0%                 | >1% failure rate? → debug Cloud Logs |
+| **Backup size**      | 165 GB             | >250 GB? → check retention policy    |
 
 ---
 
 ## Decision Log
 
-| Decision | ADR | Status | Impact |
-|----------|-----|--------|--------|
-| Single-lab Riopomba (v1.4) | ADR-0011 | Approved | Saves ~$40/month vs multi-tenant |
-| Gemini 2.5 Flash baseline | ADR-0010 | Approved | Free tier covers Phase 3–4 IA |
-| NOTIVISA sandbox Phase 8 | ADR-0014 | Approved | Delays $20/month SMS until v1.5 |
-| Cloud Functions Node 22 | Rule: deploy-protocol.md | Approved | No multi-region; southamerica-east1 only |
-| Cost alert threshold | Recommended: $50 | Pending | Must set up in GCP console Week 1 |
-| SMS deduplication | Recommended: section 8.3 | Pending | Implement Week 4 (Phase 4) |
+| Decision                   | ADR                      | Status   | Impact                                   |
+| -------------------------- | ------------------------ | -------- | ---------------------------------------- |
+| Single-lab Riopomba (v1.4) | ADR-0011                 | Approved | Saves ~$40/month vs multi-tenant         |
+| Gemini 2.5 Flash baseline  | ADR-0010                 | Approved | Free tier covers Phase 3–4 IA            |
+| NOTIVISA sandbox Phase 8   | ADR-0014                 | Approved | Delays $20/month SMS until v1.5          |
+| Cloud Functions Node 22    | Rule: deploy-protocol.md | Approved | No multi-region; southamerica-east1 only |
+| Cost alert threshold       | Recommended: $50         | Pending  | Must set up in GCP console Week 1        |
+| SMS deduplication          | Recommended: section 8.3 | Pending  | Implement Week 4 (Phase 4)               |
 
 ---
 
 ## FAQ by Role
 
 ### "How much will Firebase cost in 12 months?"
+
 **Answer:** Start at $16/month (v1.3), grow to $85–100/month (Phase 12). Year 1 total: ~$750–1000. See EXECUTIVE_SUMMARY.md cost projection table.
 
 ### "When do we break even on infrastructure costs?"
+
 **Answer:** At 3 labs × $99/month = $297 revenue vs $105 cost = 65% margin. At 5 labs = 77% margin. See COST_ANALYSIS_Phase3.md section 7.
 
 ### "What's the biggest cost driver in Phase 3?"
+
 **Answer:** Cloud Functions (19 new functions for portals + IA) = +$4.35/month. Second: SMS escalation pilot (+$3.75/month). See EXECUTIVE_SUMMARY.md cost breakdown.
 
 ### "Can we reduce costs by turning off features?"
+
 **Answer:** Analytics polling at 30s → 60s saves $18/month. Batch NOTIVISA queue saves $5/month. Archive old events saves $10/month. See COST_ANALYSIS_Phase3.md section 8.
 
 ### "What if a lab generates 10x more data than expected?"
+
 **Answer:** Firestore reads are metered (not per-request), so cost scales linearly. Risk: $0.06/M reads could jump +$5/month if 10 labs do 10x. Set alert at $75/day. See CHECKLIST.md scenario 1.
 
 ### "Should we bill customers for data overage?"
+
 **Answer:** No. Include unlimited data in $99/month SaaS fee (data-driven product, not API-metered). If cost spike confirmed at scale, negotiate pricing tier or implement rate-limiting. See COST_ANALYSIS_Phase3.md section 7.2.
 
 ---
 
 ## Timeline of Rollout
 
-| Week | Document | Owner | Action |
-|------|----------|-------|--------|
-| Week 1 (May 7–13) | All 3 docs | CTO + Finance | Review + approve Phase 3 costs |
-| Week 1 | CHECKLIST.md | DevOps | Set up GCP alerts + weekly monitoring |
-| Week 2 | CHECKLIST.md | DevOps | First weekly cost review |
-| Week 4 | CHECKLIST.md | DevOps | Monthly cost review template completion |
-| Week 8 | COST_ANALYSIS_Phase3.md | Eng + Product | Implement optimization roadmap (polling, batch) |
-| Week 12 | COST_ANALYSIS_Phase3.md | Product + Eng | Re-forecast Phase 12 cost impact |
-| Monthly (Fridays) | CHECKLIST.md | DevOps + Finance | Standing monthly review meeting |
+| Week              | Document                | Owner            | Action                                          |
+| ----------------- | ----------------------- | ---------------- | ----------------------------------------------- |
+| Week 1 (May 7–13) | All 3 docs              | CTO + Finance    | Review + approve Phase 3 costs                  |
+| Week 1            | CHECKLIST.md            | DevOps           | Set up GCP alerts + weekly monitoring           |
+| Week 2            | CHECKLIST.md            | DevOps           | First weekly cost review                        |
+| Week 4            | CHECKLIST.md            | DevOps           | Monthly cost review template completion         |
+| Week 8            | COST_ANALYSIS_Phase3.md | Eng + Product    | Implement optimization roadmap (polling, batch) |
+| Week 12           | COST_ANALYSIS_Phase3.md | Product + Eng    | Re-forecast Phase 12 cost impact                |
+| Monthly (Fridays) | CHECKLIST.md            | DevOps + Finance | Standing monthly review meeting                 |
 
 ---
 
@@ -216,6 +233,7 @@ All 3 documents are version-controlled in `c:/hc quality/docs/`:
 ## Print-Friendly Version
 
 **For printing board materials, use:**
+
 - COST_ANALYSIS_EXECUTIVE_SUMMARY.md (2 pages)
 - FIREBASE_COST_MONITORING_CHECKLIST.md Quick Start (1 page)
 

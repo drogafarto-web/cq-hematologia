@@ -38,11 +38,7 @@ export const NPSScoreCard: React.FC<NPSScoreCardProps> = ({
         <div className="flex flex-col items-center">
           <div
             className={`text-5xl font-bold tabular-nums ${
-              nps >= 50
-                ? 'text-emerald-500'
-                : nps >= 0
-                  ? 'text-yellow-500'
-                  : 'text-red-500'
+              nps >= 50 ? 'text-emerald-500' : nps >= 0 ? 'text-yellow-500' : 'text-red-500'
             }`}
           >
             {nps}
@@ -74,9 +70,7 @@ export const NPSScoreCard: React.FC<NPSScoreCardProps> = ({
           {/* Neutros */}
           <div>
             <div className="flex justify-between items-center mb-1">
-              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Neutros
-              </span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Neutros</span>
               <span className="text-sm font-bold text-yellow-600 dark:text-yellow-400 tabular-nums">
                 {neutroPercent}%
               </span>

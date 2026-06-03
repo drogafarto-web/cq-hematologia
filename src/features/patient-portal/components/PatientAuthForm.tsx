@@ -15,11 +15,7 @@ interface PatientAuthFormProps {
   onError?: (message: string) => void;
 }
 
-export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({
-  labId,
-  onSuccess,
-  onError,
-}) => {
+export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({ labId, onSuccess, onError }) => {
   const [email, setEmail] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [response, setResponse] = useState<GenerateAuthLinkResponse | null>(null);
@@ -80,10 +76,7 @@ export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Email Input */}
       <div className="space-y-2">
-        <label
-          htmlFor="email"
-          className="block text-sm font-medium text-white/90"
-        >
+        <label htmlFor="email" className="block text-sm font-medium text-white/90">
           Email Address
         </label>
         <input
@@ -110,9 +103,7 @@ export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({
 
       {/* Attempt Counter (for UX feedback) */}
       {attempts > 0 && attempts < 5 && (
-        <p className="text-xs text-white/50">
-          Attempts: {attempts}/5
-        </p>
+        <p className="text-xs text-white/50">Attempts: {attempts}/5</p>
       )}
 
       {/* Submit Button */}
@@ -123,11 +114,7 @@ export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({
       >
         {isLoading ? (
           <span className="flex items-center justify-center gap-2">
-            <svg
-              className="w-4 h-4 animate-spin"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
+            <svg className="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
               <circle
                 cx="12"
                 cy="12"
@@ -153,9 +140,7 @@ export const PatientAuthForm: React.FC<PatientAuthFormProps> = ({
       {/* Success Message */}
       {response?.success && (
         <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-lg">
-          <p className="text-sm text-emerald-300">
-            ✓ {response.message}
-          </p>
+          <p className="text-sm text-emerald-300">✓ {response.message}</p>
         </div>
       )}
 

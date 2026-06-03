@@ -49,9 +49,9 @@ describe('hasQCValidationPending', () => {
   });
 
   it('reagente com qcValidationRequired=true retorna true', () => {
-    expect(hasQCValidationPending(reagente({ qcValidationRequired: true } as Partial<Insumo>))).toBe(
-      true,
-    );
+    expect(
+      hasQCValidationPending(reagente({ qcValidationRequired: true } as Partial<Insumo>)),
+    ).toBe(true);
   });
 
   it('reagente com qcValidationRequired=false retorna false', () => {

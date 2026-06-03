@@ -61,14 +61,15 @@ const USE_EMULATOR = !!process.env.FIRESTORE_EMULATOR_HOST;
 // ─── Logging ─────────────────────────────────────────────────────────────────
 
 function log(msg, level = 'info') {
-  const prefix = {
-    info: '📋',
-    success: '✅',
-    warn: '⚠️',
-    error: '❌',
-    action: '⚡',
-    delete: '🗑️',
-  }[level] || '📋';
+  const prefix =
+    {
+      info: '📋',
+      success: '✅',
+      warn: '⚠️',
+      error: '❌',
+      action: '⚡',
+      delete: '🗑️',
+    }[level] || '📋';
 
   console.log(`${prefix} ${msg}`);
 }
@@ -98,7 +99,9 @@ function initFirebase() {
 // ─── Main Cleanup Logic ──────────────────────────────────────────────────────
 
 async function cleanup() {
-  logSection(`Cleanup supervisor-status\nProject: ${PROJECT}\nMode: ${!DRY_RUN && CONFIRM ? 'EXECUTE' : 'DRY-RUN'}`);
+  logSection(
+    `Cleanup supervisor-status\nProject: ${PROJECT}\nMode: ${!DRY_RUN && CONFIRM ? 'EXECUTE' : 'DRY-RUN'}`,
+  );
 
   // Safety check
   if (!DRY_RUN) {
@@ -157,7 +160,11 @@ async function cleanup() {
   let notFound = 0;
 
   for (const lab of labs) {
-    const statusDocRef = db.collection('labs').doc(lab.id).collection('supervisor-status').doc('current');
+    const statusDocRef = db
+      .collection('labs')
+      .doc(lab.id)
+      .collection('supervisor-status')
+      .doc('current');
 
     try {
       const snapshot = await statusDocRef.get();

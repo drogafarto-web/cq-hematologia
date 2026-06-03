@@ -40,9 +40,7 @@ export function ConfirmStep({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium text-white mb-2">
-          Pronto para importar
-        </h3>
+        <h3 className="text-base font-medium text-white mb-2">Pronto para importar</h3>
         <p className="text-sm text-neutral-400">
           Revise o resumo e confirme a importação dos documentos.
         </p>
@@ -67,9 +65,7 @@ export function ConfirmStep({
               style={{ width: `${importProgress}%` }}
             />
           </div>
-          <p className="text-xs text-neutral-400 text-center">
-            {importProgress}% completo
-          </p>
+          <p className="text-xs text-neutral-400 text-center">{importProgress}% completo</p>
         </div>
       )}
 

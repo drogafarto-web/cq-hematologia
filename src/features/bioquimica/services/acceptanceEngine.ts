@@ -15,14 +15,14 @@ export type AcceptanceDecision = 'accept' | 'warn' | 'reject';
 
 export interface AcceptanceInput {
   westgardResult: WestgardEngineOutput;
-  interlabZScore?: InterlabZScoreOutput;       // optional — only when CEQ cycle exists
-  ocrValidation?: OCRValidationReport;         // optional — only when OCR was used
+  interlabZScore?: InterlabZScoreOutput; // optional — only when CEQ cycle exists
+  ocrValidation?: OCRValidationReport; // optional — only when OCR was used
 }
 
 export interface AcceptanceOutput {
   decision: AcceptanceDecision;
-  reasons: string[];                           // human-readable explanations
-  blockers: string[];                          // subset of reasons that drove a 'reject' verdict
+  reasons: string[]; // human-readable explanations
+  blockers: string[]; // subset of reasons that drove a 'reject' verdict
 }
 
 // ─── Main Acceptance Engine ────────────────────────────────────────────────
@@ -81,7 +81,9 @@ export function evaluateAcceptance(input: AcceptanceInput): AcceptanceOutput {
 
   // Priority 4b: Interlab z-score questionable
   if (interlabZScore && interlabZScore.classification === 'questionable') {
-    reasons.push(`Interlab z-score ${interlabZScore.zScore.toFixed(1)} classification=${interlabZScore.classification}`);
+    reasons.push(
+      `Interlab z-score ${interlabZScore.zScore.toFixed(1)} classification=${interlabZScore.classification}`,
+    );
   }
 
   // Priority 4c: OCR validation review

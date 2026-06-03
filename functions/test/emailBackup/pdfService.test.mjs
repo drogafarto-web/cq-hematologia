@@ -110,10 +110,7 @@ function extractPdfText(buffer) {
   const literals = [];
   let lm;
   while ((lm = literalRegex.exec(combinedRaw)) !== null) {
-    const esc = lm[1]
-      .replace(/\\\(/g, '(')
-      .replace(/\\\)/g, ')')
-      .replace(/\\\\/g, '\\');
+    const esc = lm[1].replace(/\\\(/g, '(').replace(/\\\)/g, ')').replace(/\\\\/g, '\\');
     if (esc.startsWith('\xfe\xff')) {
       const buf = Buffer.from(esc, 'latin1').subarray(2);
       literals.push(buf.swap16().toString('utf16le'));

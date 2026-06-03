@@ -23,16 +23,16 @@ commits: 8
 
 ### Tasks Completed: 8/8
 
-| Task | Name | Status | Commit |
-|------|------|--------|--------|
-| 1 | Build LGPD data model, types, and Firestore schema | ✓ | 1df48d1 |
-| 2 | Implement LGPD service layer and React hooks | ✓ | d896782 |
-| 3 | Build DPIA admin form component with PDF export | ✓ | 1001ab9 |
-| 4 | Build /privacidade page with version history and acceptance tracking | ✓ | 321d95f |
-| 5 | Build /exclusao-titular flow (CPF → OTP → deletion) | ✓ | db9e773 |
-| 6 | Implement Cloud Functions for PII deletion and acceptance tracking | ✓ | 89af7f3 |
-| 7 | Write E2E and unit tests for LGPD flows | ✓ | 31f8486 |
-| 8 | Fix DPIA PDF export to remove external dependency | ✓ | e0d9bf5 |
+| Task | Name                                                                 | Status | Commit  |
+| ---- | -------------------------------------------------------------------- | ------ | ------- |
+| 1    | Build LGPD data model, types, and Firestore schema                   | ✓      | 1df48d1 |
+| 2    | Implement LGPD service layer and React hooks                         | ✓      | d896782 |
+| 3    | Build DPIA admin form component with PDF export                      | ✓      | 1001ab9 |
+| 4    | Build /privacidade page with version history and acceptance tracking | ✓      | 321d95f |
+| 5    | Build /exclusao-titular flow (CPF → OTP → deletion)                  | ✓      | db9e773 |
+| 6    | Implement Cloud Functions for PII deletion and acceptance tracking   | ✓      | 89af7f3 |
+| 7    | Write E2E and unit tests for LGPD flows                              | ✓      | 31f8486 |
+| 8    | Fix DPIA PDF export to remove external dependency                    | ✓      | e0d9bf5 |
 
 ---
 
@@ -125,7 +125,7 @@ commits: 8
   - 368 lines
 
 - **Firestore Rules** (`firestore.rules`)
-  - /labs/{labId}/lgpd/** (admin-only DPIA, authenticated policy read, no hard delete)
+  - /labs/{labId}/lgpd/\*\* (admin-only DPIA, authenticated policy read, no hard delete)
   - /users/{userId}/privacyAceites (user-scoped acceptance records)
   - /otps/{otpToken} (Cloud Function read/delete only)
   - All paths enforce soft-delete only (RN-06)
@@ -183,19 +183,19 @@ commits: 8
 
 ### Threat Mitigations
 
-| Threat ID | Category | Component | Mitigation |
-|-----------|----------|-----------|-----------|
-| T-06-01 | Spoofing | deleteTitularData | OTP validation (10-min TTL, 3 attempts, 1-req/min rate limit) |
-| T-06-02 | Tampering | /privacidade acceptance | Server-side timestamp + IP logged; immutable after creation |
-| T-06-03 | Repudiation | DPIA saves | LogicalSignature (hash + operatorId + ts) on every save |
-| T-06-04 | Info Disclosure | DPIA content | Firestore rules: /lgpd/dpia readable only by admin + RT; PII zeroed on request |
-| T-06-05 | DoS | OTP generation | Rate-limited 1 OTP per email per minute; email system fails first |
-| T-06-06 | Privilege Elevation | DPIA admin access | Firestore rules enforce isAdmin() + role check; no service account elevation |
+| Threat ID | Category            | Component               | Mitigation                                                                     |
+| --------- | ------------------- | ----------------------- | ------------------------------------------------------------------------------ |
+| T-06-01   | Spoofing            | deleteTitularData       | OTP validation (10-min TTL, 3 attempts, 1-req/min rate limit)                  |
+| T-06-02   | Tampering           | /privacidade acceptance | Server-side timestamp + IP logged; immutable after creation                    |
+| T-06-03   | Repudiation         | DPIA saves              | LogicalSignature (hash + operatorId + ts) on every save                        |
+| T-06-04   | Info Disclosure     | DPIA content            | Firestore rules: /lgpd/dpia readable only by admin + RT; PII zeroed on request |
+| T-06-05   | DoS                 | OTP generation          | Rate-limited 1 OTP per email per minute; email system fails first              |
+| T-06-06   | Privilege Elevation | DPIA admin access       | Firestore rules enforce isAdmin() + role check; no service account elevation   |
 
 ### Multi-Tenant Enforcement
 
 - **labId redundancy:** All collections carry labId (defense-in-depth)
-- **Path isolation:** /labs/{labId}/lgpd/*, /users/{userId}/privacyAceites scoped to tenant
+- **Path isolation:** /labs/{labId}/lgpd/\*, /users/{userId}/privacyAceites scoped to tenant
 - **Query validation:** Service layer validates labId on every operation
 - **Cloud Function checks:** deleteTitularData validates auth context
 
@@ -217,6 +217,7 @@ commits: 8
 ### Rule 2: Auto-add missing critical functionality
 
 **PDF export approach changed:**
+
 - **Found during:** Task 3 (DPIAForm)
 - **Issue:** jsPDF not installed; adding new dependency > 50KB gzip violates performance.md
 - **Fix:** Refactored to generate printable HTML document instead
@@ -350,17 +351,17 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| Total lines of code written | 3,250+ |
-| Components created | 3 |
-| Services/utilities | 1 service + 2 hooks + 1 utility |
-| Cloud Functions | 3 callables + 1 helper |
-| Tests written | 10 (5 E2E + 5 unit) |
-| Files created | 14 |
-| Files modified | 3 (firestore.rules, firestore.indexes.json, functions/src/modules/lgpd/index.ts) |
-| Commits | 8 |
-| Execution duration | ~30 min |
+| Metric                      | Value                                                                            |
+| --------------------------- | -------------------------------------------------------------------------------- |
+| Total lines of code written | 3,250+                                                                           |
+| Components created          | 3                                                                                |
+| Services/utilities          | 1 service + 2 hooks + 1 utility                                                  |
+| Cloud Functions             | 3 callables + 1 helper                                                           |
+| Tests written               | 10 (5 E2E + 5 unit)                                                              |
+| Files created               | 14                                                                               |
+| Files modified              | 3 (firestore.rules, firestore.indexes.json, functions/src/modules/lgpd/index.ts) |
+| Commits                     | 8                                                                                |
+| Execution duration          | ~30 min                                                                          |
 
 ---
 

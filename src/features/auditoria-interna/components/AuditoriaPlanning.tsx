@@ -13,7 +13,9 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
   const user = useUser();
   const [showModal, setShowModal] = useState(false);
   const [ano, setAno] = useState(new Date().getFullYear().toString());
-  const [frequencia, setFrequencia] = useState<'anual' | 'semestral' | 'trimestral' | 'mensal'>('anual');
+  const [frequencia, setFrequencia] = useState<'anual' | 'semestral' | 'trimestral' | 'mensal'>(
+    'anual',
+  );
   const [proximaData, setProximaData] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -56,7 +58,9 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
           <p className="text-sm text-white/60 mb-2">Próxima Auditoria</p>
           <div className="text-lg font-semibold">
             {auditoriasThisYear[0]?.proximaAuditoriaPlanejada
-              ? new Date(auditoriasThisYear[0].proximaAuditoriaPlanejada.toDate()).toLocaleDateString('pt-BR')
+              ? new Date(
+                  auditoriasThisYear[0].proximaAuditoriaPlanejada.toDate(),
+                ).toLocaleDateString('pt-BR')
               : 'Não agendada'}
           </div>
         </div>
@@ -178,7 +182,10 @@ export function AuditoriaPlanning({ auditorias }: AuditoriaPlanningProps) {
               <div className="flex gap-3 pt-4">
                 <button
                   type="button"
-                  onClick={() => { setShowModal(false); setSubmitError(null); }}
+                  onClick={() => {
+                    setShowModal(false);
+                    setSubmitError(null);
+                  }}
                   className="flex-1 px-4 py-2 rounded-lg border border-white/10 hover:bg-white/5 text-white transition"
                   disabled={isSubmitting}
                 >

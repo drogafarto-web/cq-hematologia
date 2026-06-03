@@ -38,7 +38,7 @@ const laudoSchema = z.object({
       valor: z.union([z.string(), z.number()]),
       unidade: z.string(),
       referencia: z.string(),
-    })
+    }),
   ),
   assinatura: z.object({
     operatorCpf: z.string(),
@@ -71,15 +71,13 @@ type GetPatientDataInput = z.infer<typeof getPatientDataInputSchema>;
 type GetPatientDataOutput = z.infer<typeof getPatientDataOutputSchema>;
 type GetPatientDataError = z.infer<typeof getPatientDataErrorSchema>;
 
-export const getPatientData = functions.region('southamerica-east1').onCall(
-  async (request): Promise<GetPatientDataOutput | GetPatientDataError> => {
+export const getPatientData = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<GetPatientDataOutput | GetPatientDataError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = getPatientDataInputSchema.parse(request.data);
@@ -254,8 +252,7 @@ export const getPatientData = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error retrieving patient data',
       };
     }
-  }
-);
+  });
 
 /**
  * Validate patient data completeness for NOTIVISA submission

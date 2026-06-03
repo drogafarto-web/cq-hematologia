@@ -14,8 +14,10 @@ import type { CienciaResponsabilidades } from '../types/CienciaResponsabilidades
 // ─── Visual tokens ──────────────────────────────────────────────────────────
 
 const CARD_CLS = 'rounded-xl border border-white/[0.08] bg-white/[0.03] p-4';
-const BTN_PRIMARY = 'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors';
-const BTN_GHOST = 'px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors';
+const BTN_PRIMARY =
+  'inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-violet-600 hover:bg-violet-700 rounded-xl transition-colors';
+const BTN_GHOST =
+  'px-3 py-1.5 text-xs font-medium text-white/60 hover:text-white hover:bg-white/[0.06] rounded-xl transition-colors';
 
 function formatDate(ts: Timestamp): string {
   return ts.toDate().toLocaleDateString('pt-BR');
@@ -163,11 +165,7 @@ export function CienciaTab() {
                   <p className="text-sm font-medium text-white/90">{p.designacao.pessoaNome}</p>
                   <p className="text-xs text-white/50">{p.cargo.titulo}</p>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => setModalPendente(p)}
-                  className={BTN_PRIMARY}
-                >
+                <button type="button" onClick={() => setModalPendente(p)} className={BTN_PRIMARY}>
                   Registrar Ciência
                 </button>
               </div>
@@ -237,10 +235,14 @@ function CienciaRow({ ciencia }: { ciencia: CienciaResponsabilidades }) {
       {expanded && (
         <div className="mt-3 pt-3 border-t border-white/[0.06] space-y-2">
           <div>
-            <p className="text-[10px] text-white/40 uppercase tracking-wide mb-1">Responsabilidades</p>
+            <p className="text-[10px] text-white/40 uppercase tracking-wide mb-1">
+              Responsabilidades
+            </p>
             <ul className="space-y-0.5">
               {ciencia.responsabilidades.map((r, i) => (
-                <li key={i} className="text-xs text-white/60">• {r}</li>
+                <li key={i} className="text-xs text-white/60">
+                  • {r}
+                </li>
               ))}
             </ul>
           </div>
@@ -248,7 +250,9 @@ function CienciaRow({ ciencia }: { ciencia: CienciaResponsabilidades }) {
             <p className="text-[10px] text-white/40 uppercase tracking-wide mb-1">Autoridades</p>
             <ul className="space-y-0.5">
               {ciencia.autoridades.map((a, i) => (
-                <li key={i} className="text-xs text-white/60">• {a}</li>
+                <li key={i} className="text-xs text-white/60">
+                  • {a}
+                </li>
               ))}
             </ul>
           </div>

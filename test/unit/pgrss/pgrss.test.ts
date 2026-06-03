@@ -21,7 +21,9 @@ describe('PGRSS Module', () => {
       };
 
       expect(validInput.peso_kg).toBeGreaterThan(0);
-      expect(['biologico', 'quimico', 'radioativo', 'perfuro-cortante', 'comum']).toContain(validInput.tipo);
+      expect(['biologico', 'quimico', 'radioativo', 'perfuro-cortante', 'comum']).toContain(
+        validInput.tipo,
+      );
     });
 
     it('should reject invalid waste type', () => {
@@ -40,7 +42,7 @@ describe('PGRSS Module', () => {
     it('should reject zero or negative weight', () => {
       const invalidWeights = [0, -1, -10];
 
-      invalidWeights.forEach(weight => {
+      invalidWeights.forEach((weight) => {
         expect(weight).toBeLessThanOrEqual(0);
       });
     });
@@ -110,7 +112,7 @@ describe('PGRSS Module', () => {
     it('should set severity based on violation count', () => {
       const violacoes = [1, 2, 3, 4, 5];
 
-      violacoes.forEach(count => {
+      violacoes.forEach((count) => {
         const severidade = count > 3 ? 'critica' : 'grave';
         expect(['critica', 'grave']).toContain(severidade);
       });
@@ -147,7 +149,10 @@ describe('PGRSS Module', () => {
         perfuro_cortante: { peso_kg: 20, quantidade: 15 },
       };
 
-      const totalQuantidade = Object.values(tiposAcumulado).reduce((sum, t) => sum + t.quantidade, 0);
+      const totalQuantidade = Object.values(tiposAcumulado).reduce(
+        (sum, t) => sum + t.quantidade,
+        0,
+      );
       expect(totalQuantidade).toBe(30);
     });
 
@@ -164,7 +169,7 @@ describe('PGRSS Module', () => {
     });
 
     it('should validate container capacity', () => {
-      const maxCapacidade = { 'perfuro-cortante': 30, 'quimico': 100, 'biologico': 100 };
+      const maxCapacidade = { 'perfuro-cortante': 30, quimico: 100, biologico: 100 };
       expect(maxCapacidade['perfuro-cortante']).toBeLessThan(maxCapacidade['biologico']);
     });
 

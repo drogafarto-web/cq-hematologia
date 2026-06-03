@@ -133,7 +133,6 @@ import { signInWithEmail, signOut } from '../helpers/auth';
 import { testLabCredentials } from '../fixtures/credentials';
 
 test.describe('Coagulação v2 — Smoke Test', () => {
-  
   test.beforeEach(async ({ page }) => {
     await signInWithEmail(page, testLabCredentials);
     await page.goto('/coagulacao-v2');
@@ -152,27 +151,27 @@ test.describe('Coagulação v2 — Smoke Test', () => {
   // ── Wave B: Attempt ────────────────────────────────────────
   test('Operador consegue criar tentativa com ≤ 6 campos', async ({ page }) => {
     await page.click('[data-testid="new-attempt-button"]');
-    
+
     // Deve ter dropdown de controle
     await expect(page.locator('[data-testid="control-select"]')).toBeVisible();
-    
+
     // Deve ter inputs de resultados
     await page.fill('[name="resultados.atividadeProtrombinica"]', '98');
     await page.fill('[name="resultados.rni"]', '1.02');
     await page.fill('[name="resultados.ttpa"]', '33.5');
-    
+
     await page.click('[data-testid="save-attempt-button"]');
-    
+
     // Deve aparecer na timeline
     await expect(page.locator('text=AP 98%')).toBeVisible();
   });
 
   test('Textarea de ação corretiva aparece apenas com violação', async ({ page }) => {
     await page.click('[data-testid="new-attempt-button"]');
-    
+
     // Valor fora do intervalo
     await page.fill('[name="resultados.rni"]', '2.50'); // fora de 0.83-1.11
-    
+
     // Textarea deve aparecer
     await expect(page.locator('[data-testid="corrective-action"]')).toBeVisible();
   });
@@ -181,15 +180,15 @@ test.describe('Coagulação v2 — Smoke Test', () => {
   test('RT consegue aprovar tentativa', async ({ page }) => {
     // Navegar para painel RT
     await page.goto('/coagulacao-v2/rt');
-    
+
     // Selecionar tentativa pendente
     await page.click('[data-testid="attempt-item-1"]');
-    
+
     // Aprovar com motivo
     await page.click('[data-testid="approve-button"]');
     await page.fill('[data-testid="approval-reason"]', 'Dentro dos critérios');
     await page.click('[data-testid="confirm-button"]');
-    
+
     await expect(page.locator('text=Aprovada')).toBeVisible();
   });
 
@@ -197,34 +196,36 @@ test.describe('Coagulação v2 — Smoke Test', () => {
     await page.goto('/coagulacao-v2/rt');
     await page.click('[data-testid="attempt-item-with-violation"]');
     await page.click('[data-testid="notivisa-button"]');
-    
+
     await page.selectOption('[data-testid="notivisa-type"]', 'queixa_tecnica');
     await page.fill('[data-testid="notivisa-protocol"]', '2026.12345');
     await page.fill('[data-testid="notivisa-reason"]', 'Defeito de produto');
     await page.click('[data-testid="confirm-button"]');
-    
+
     await expect(page.locator('text=NOTIVISA')).toBeVisible();
   });
 
   // ── Wave D+E: UI ───────────────────────────────────────────
   test('Operador não vê termos técnicos', async ({ page }) => {
     await page.goto('/coagulacao-v2');
-    
+
     // Termos proibidos NÃO devem aparecer
     const forbidden = ['run', 'corrida', 'lote', 'workflow', 'status:', 'pendente'];
     for (const term of forbidden) {
       const count = await page.locator(`text=/${term}/i`).count();
       expect(count).toBe(0);
     }
-    
+
     // Termo permitido: "tentativa"
     await expect(page.locator('[data-testid="timeline"]')).toBeVisible();
   });
 
   test('Contador de campos expostos ≤ 6', async ({ page }) => {
     await page.click('[data-testid="new-attempt-button"]');
-    
-    const fields = await page.locator('input[type="text"], input[type="number"], select, textarea').count();
+
+    const fields = await page
+      .locator('input[type="text"], input[type="number"], select, textarea')
+      .count();
     expect(fields).toBeLessThanOrEqual(6);
   });
 
@@ -234,7 +235,7 @@ test.describe('Coagulação v2 — Smoke Test', () => {
     await page.click('[data-testid="new-attempt-button"]');
     await page.fill('[name="resultados.atividadeProtrombinica"]', '100');
     await page.click('[data-testid="save-attempt-button"]');
-    
+
     // Verificar que snapshot está na Firestore
     const firestorePage = await context.newPage();
     // Verificação indireta via API / admin
@@ -246,7 +247,7 @@ test.describe('Coagulação v2 — Smoke Test', () => {
     await page.click('[data-testid="new-attempt-button"]');
     await page.fill('[name="resultados.rni"]', '1.00');
     await page.click('[data-testid="save-attempt-button"]');
-    
+
     // Verificação indireta: RT vê detalhes
     await page.goto('/coagulacao-v2/rt');
     await expect(page.locator('[data-testid="signature-display"]')).toBeVisible();
@@ -268,6 +269,7 @@ test.describe('Coagulação v2 — Smoke Test', () => {
 **Trigger:** Smoke test em produção falha no 1º ciclo pós-deploy
 
 **Ação:**
+
 ```bash
 # Rollback de 1 commit (último deploy)
 git checkout main
@@ -305,6 +307,7 @@ git push origin main
 ```
 
 **Red flags que disparam alerta:**
+
 - `Error rate > 1%` nas funções de coag-v2
 - `Latency p95 > 2s` no save de Attempt
 - `LogicalSignature missing` em tentativa criada
@@ -380,6 +383,7 @@ docs/coag-v2/DEPLOY-REPORT-[DATE].md
 ```
 
 Contém:
+
 - Hash do commit merged
 - Métricas finais (entidades=3, eventos=3, etc)
 - Resultado dos testes
@@ -389,11 +393,13 @@ Contém:
 ### Proteção 3: Rollback documentado
 
 Se rollback acontecer:
+
 ```markdown
 docs/coag-v2/ROLLBACK-REPORT-[DATE].md
 ```
 
 Contém:
+
 - Motivo do rollback
 - Tempo de indisponibilidade (se houve)
 - Fix aplicado (ou plano de fix)

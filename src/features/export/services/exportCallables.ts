@@ -11,7 +11,5 @@ import type { ExportRequest, ExportInitiateResponse } from '../types';
  * Callable: initiateExport
  * Creates a Firestore export-job document and publishes to Pub/Sub for async processing.
  */
-export const initiateExportCallable: HttpsCallable<
-  ExportRequest,
-  ExportInitiateResponse
-> = httpsCallable(functions, 'initiateExport');
+export const initiateExportCallable: HttpsCallable<ExportRequest, ExportInitiateResponse> =
+  httpsCallable(functions, 'initiateExport');

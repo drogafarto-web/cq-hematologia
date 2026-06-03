@@ -28,11 +28,10 @@ describe('useOfflineQueue — module contract', () => {
   });
 
   it('service enqueueAction creates a string ID', async () => {
-    const id = await offlineQueueService.enqueueAction(
-      'submitCIQComment',
-      'lab-1',
-      { runId: 'r1', comments: 'test' }
-    );
+    const id = await offlineQueueService.enqueueAction('submitCIQComment', 'lab-1', {
+      runId: 'r1',
+      comments: 'test',
+    });
     expect(typeof id).toBe('string');
   });
 });
@@ -87,9 +86,6 @@ describe('offlineQueueService — dequeue and retry', () => {
 
   it('markRetry records error message', async () => {
     await offlineQueueService.markRetry('action-2', 'Connection refused');
-    expect(offlineQueueService.markRetry).toHaveBeenCalledWith(
-      'action-2',
-      'Connection refused'
-    );
+    expect(offlineQueueService.markRetry).toHaveBeenCalledWith('action-2', 'Connection refused');
   });
 });

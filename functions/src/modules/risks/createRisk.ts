@@ -16,7 +16,13 @@
 
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { CreateRiskInputSchema, validateAndComputeNPR, assertRisksAccess, risksCollection, ensureRisksLabRoot } from './validators';
+import {
+  CreateRiskInputSchema,
+  validateAndComputeNPR,
+  assertRisksAccess,
+  risksCollection,
+  ensureRisksLabRoot,
+} from './validators';
 import { generateRisksSignatureServer } from './signatureCanonical';
 
 export const risks_createRisk = onCall(
@@ -53,17 +59,13 @@ export const risks_createRisk = onCall(
     if (!existingSnap.empty) {
       throw new HttpsError(
         'failed-precondition',
-        `Código de risco "${input.codigo}" já existe neste laboratório.`
+        `Código de risco "${input.codigo}" já existe neste laboratório.`,
       );
     }
 
     // ─── NPR computation (server-side authoritative) ──────────────────────
 
-    const npr = validateAndComputeNPR(
-      input.probabilidade,
-      input.severidade,
-      input.deteccao,
-    );
+    const npr = validateAndComputeNPR(input.probabilidade, input.severidade, input.deteccao);
 
     // Derive nivel (default thresholds: baixo ≤24, medio 25–60, alto 61–99, critico ≥100)
     let nivel: 'baixo' | 'medio' | 'alto' | 'critico';
@@ -77,7 +79,7 @@ export const risks_createRisk = onCall(
     const now = admin.firestore.Timestamp.now();
     const reviewDate = new admin.firestore.Timestamp(
       now.seconds + 365 * 24 * 60 * 60,
-      now.nanoseconds
+      now.nanoseconds,
     );
 
     // ─── Generate signature ────────────────────────────────────────────────

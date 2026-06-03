@@ -18,6 +18,7 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 **Scope:** Automated detection and escalation of critical/panic-value results. Clinical validation via RDC 978 Art. 125 (critical result notification).
 
 **Deliverables:**
+
 - **Threshold CRUD Service** — `CriticosService.ts`: Create/read/update soft-delete operations for per-analyte critical thresholds. Supports pediatric + adult + pregnancy variants. Zod validation on input DTOs.
 - **Detection Engine** — `detectCriticalResults()`: Runs post-analysis, compares result value against threshold range (Westgard CLSI reference intervals), flags severity (CRITICAL/PANIC/WARNING).
 - **Escalation Callables** — `escalateCriticalResult()`: Server-side function calls log alert to `escalacoes/{labId}/queue/{eventId}`, triggers SMS/Email to RT on-call via Twilio/Resend, logs audit trail (signature + timestamp).
@@ -38,6 +39,7 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 **Scope:** Collect labeled strip images for IA model training; integrate Google Vision API for real-time classification during runs.
 
 **Deliverables:**
+
 - **Strip Upload UI** — `StripUploadForm.tsx`: Drag-and-drop image capture, 10 MP → 2 MP resize (500 KB max). Local validation (JPEG/PNG, dimensions). Chunked upload via Cloud Storage signed URLs.
 - **Dataset Service** — `DatasetService.ts`: Persist metadata to `ciq-imuno-dataset/{labId}/images/{id}` (image path, timestamp, analyte, lot, operator, QC flag, manual classification). Deduplication via SHA-256 hash.
 - **Gemini Vision Client** — `GeminiVisionService.ts`: Wrap Gemini 2.5 Flash Vision API; classify strip color bands (positive/negative/invalid). Returns JSON: `{ bands: [...], confidence: 0–1, classification: POSITIVE|NEGATIVE|INVALID, debug }`. Caching via in-memory LRU (100 entries, 1h TTL).
@@ -55,6 +57,7 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 **Scope:** Track on-call RT rosters and measure escalation response time.
 
 **Deliverables:**
+
 - **On-Call Registry** — `EscalacoesService.ts`: Manage weekly rosters (`escalacoes/{labId}/rosters/{weekId}` with operator assignments). Supports manual + iCal sync from lab calendar.
 - **Alert Routing** — Route critical alerts to current on-call operator (lookup roster, resolve contact via `labs/{labId}/members/{uid}`).
 - **Response Tracking** — Auto-log when RT acknowledges alert (SMS/Email link → Firebase Auth deeplink → `markAcknowledged(eventId)`). Calculate delta: alert time → ack time.
@@ -70,6 +73,7 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 **Scope:** Collect pre-processed laudo images for Phase 6 IA training.
 
 **Deliverables:**
+
 - Service scaffolding for laudo image collection (storage path, metadata schema)
 - Consent gate UI (patient approval for re-using laudo image for model training — LGPD Art. 9/13)
 - Manual labeling interface (operator marks sections: header, patient ID, results, signature)
@@ -81,19 +85,19 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 
 ## Testing Summary
 
-| Component | Tests | Status |
-|-----------|-------|--------|
-| Criticos Service | 20 | ✅ PASS |
-| Criticos Components | 24 | ✅ PASS |
-| CIQ-Imuno Service | 18 | ✅ PASS |
-| CIQ-Imuno Callables | 22 | ✅ PASS |
-| CIQ-Imuno Components | 26 | ✅ PASS |
-| Dataset Service | 16 | ✅ PASS |
-| Escalacoes Service | 12 | ✅ PASS |
-| Cloud Functions (callable) | 28 | ✅ PASS |
-| E2E Critical Escalation | 4 | ✅ PASS |
-| E2E Imuno Classification | 6 | ✅ PASS |
-| **TOTAL** | **142** | **✅ 100% PASS** |
+| Component                  | Tests   | Status           |
+| -------------------------- | ------- | ---------------- |
+| Criticos Service           | 20      | ✅ PASS          |
+| Criticos Components        | 24      | ✅ PASS          |
+| CIQ-Imuno Service          | 18      | ✅ PASS          |
+| CIQ-Imuno Callables        | 22      | ✅ PASS          |
+| CIQ-Imuno Components       | 26      | ✅ PASS          |
+| Dataset Service            | 16      | ✅ PASS          |
+| Escalacoes Service         | 12      | ✅ PASS          |
+| Cloud Functions (callable) | 28      | ✅ PASS          |
+| E2E Critical Escalation    | 4       | ✅ PASS          |
+| E2E Imuno Classification   | 6       | ✅ PASS          |
+| **TOTAL**                  | **142** | **✅ 100% PASS** |
 
 **Cumulative (v1.3 + Phase 0–5):** 1494+ tests passing · 0 TypeScript errors · 0 regressions
 
@@ -101,16 +105,16 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 
 ## Acceptance Criteria Verification
 
-| Criterion | Target | Actual | Status |
-|-----------|--------|--------|--------|
-| All Wave 0–5 agents completed | 27 agents | 27 agents | ✅ PASS |
-| TypeScript errors | 0 new | 0 new | ✅ PASS |
-| Test pass rate | 98% | 100% (142/142) | ✅ PASS |
-| Bundle gzip size | <430 KB | 419 KB | ✅ PASS |
-| E2E critical flows | 4+ specs | 10 specs (4+6) | ✅ PASS |
-| Firestore rules deployed | all new rules | criticos + imuno rules live | ✅ PASS |
-| Cloud Functions callable | escalation + dataset | 28 functions online | ✅ PASS |
-| Compliance sign-off | RDC + DICQ + LGPD | verified (see below) | ✅ PASS |
+| Criterion                     | Target               | Actual                      | Status  |
+| ----------------------------- | -------------------- | --------------------------- | ------- |
+| All Wave 0–5 agents completed | 27 agents            | 27 agents                   | ✅ PASS |
+| TypeScript errors             | 0 new                | 0 new                       | ✅ PASS |
+| Test pass rate                | 98%                  | 100% (142/142)              | ✅ PASS |
+| Bundle gzip size              | <430 KB              | 419 KB                      | ✅ PASS |
+| E2E critical flows            | 4+ specs             | 10 specs (4+6)              | ✅ PASS |
+| Firestore rules deployed      | all new rules        | criticos + imuno rules live | ✅ PASS |
+| Cloud Functions callable      | escalation + dataset | 28 functions online         | ✅ PASS |
+| Compliance sign-off           | RDC + DICQ + LGPD    | verified (see below)        | ✅ PASS |
 
 ---
 
@@ -118,26 +122,26 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 
 ### RDC 978/2025 (ANVISA Regulatory Standard for Lab Operations)
 
-| Article | Requirement | Phase 5 Mapping | Status |
-|---------|-------------|-----------------|--------|
+| Article      | Requirement                            | Phase 5 Mapping                         | Status      |
+| ------------ | -------------------------------------- | --------------------------------------- | ----------- |
 | **Art. 125** | Critical result notification procedure | Criticos escalation callable + RT alert | ✅ VERIFIED |
-| **Art. 128** | RT supervision + on-call roster | Escalacoes roster + on-call status UI | ✅ VERIFIED |
-| **Art. 167** | Result documentation + traceability | Dataset audit log + image persistence | ✅ VERIFIED |
+| **Art. 128** | RT supervision + on-call roster        | Escalacoes roster + on-call status UI   | ✅ VERIFIED |
+| **Art. 167** | Result documentation + traceability    | Dataset audit log + image persistence   | ✅ VERIFIED |
 
 ### DICQ (Diagnostic Internal Quality Control)
 
-| Block | Article | Requirement | Phase 5 Mapping | Status |
-|-------|---------|-------------|-----------------|--------|
-| **4.3** | 5.8.7 | Critical value workflow | Criticos detection + escalation | ✅ VERIFIED |
-| **4.4** | 4.4.3 | Escalation audit trail | EscalacaoService soft-delete + signature | ✅ VERIFIED |
-| **4.14** | 4.14.5 | Quality data collection & trending | Dataset + accuracy dashboard | ✅ VERIFIED |
+| Block    | Article | Requirement                        | Phase 5 Mapping                          | Status      |
+| -------- | ------- | ---------------------------------- | ---------------------------------------- | ----------- |
+| **4.3**  | 5.8.7   | Critical value workflow            | Criticos detection + escalation          | ✅ VERIFIED |
+| **4.4**  | 4.4.3   | Escalation audit trail             | EscalacaoService soft-delete + signature | ✅ VERIFIED |
+| **4.14** | 4.14.5  | Quality data collection & trending | Dataset + accuracy dashboard             | ✅ VERIFIED |
 
 ### LGPD (Brazilian Data Protection Law)
 
-| Article | Requirement | Phase 5 Mapping | Status |
-|---------|-------------|-----------------|--------|
-| **Art. 9** | Special category (health) processing | CIQ-Imuno dataset consent gate | ✅ VERIFIED |
-| **Art. 13** | Transparency in collection | Dataset UI discloses IA training purpose | ✅ VERIFIED |
+| Article     | Requirement                          | Phase 5 Mapping                          | Status      |
+| ----------- | ------------------------------------ | ---------------------------------------- | ----------- |
+| **Art. 9**  | Special category (health) processing | CIQ-Imuno dataset consent gate           | ✅ VERIFIED |
+| **Art. 13** | Transparency in collection           | Dataset UI discloses IA training purpose | ✅ VERIFIED |
 
 ---
 
@@ -232,17 +236,17 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 
 ## Wave Breakdown (8 Waves × 27 Agents)
 
-| Wave | Agents | Focus | Completion |
-|------|--------|-------|-----------|
-| **W0** | 3 agents | Criticos spec + rules + baseline | 2026-05-06 |
-| **W1** | 4 agents | Escalacoes roster + SLA tracking | 2026-05-07 |
-| **W2** | 3 agents | CIQ-Imuno dataset schema + UI | 2026-05-07 |
-| **W3** | 4 agents | Gemini Vision callable + integration | 2026-05-08 |
-| **W4** | 3 agents | Accuracy dashboard + PDF export | 2026-05-08 |
-| **W5** | 3 agents | E2E tests (critical escalation + imuno) | 2026-05-08 |
-| **W6** | 2 agents | Verification gate (TS errors, bundle, tests) | 2026-05-09 |
-| **W7** | 2 agents | Prep deployment + rollback runbook | 2026-05-09 |
-| **W8** | 1 agent | Final sync + tag + sign-off | TBD (manual trigger) |
+| Wave   | Agents   | Focus                                        | Completion           |
+| ------ | -------- | -------------------------------------------- | -------------------- |
+| **W0** | 3 agents | Criticos spec + rules + baseline             | 2026-05-06           |
+| **W1** | 4 agents | Escalacoes roster + SLA tracking             | 2026-05-07           |
+| **W2** | 3 agents | CIQ-Imuno dataset schema + UI                | 2026-05-07           |
+| **W3** | 4 agents | Gemini Vision callable + integration         | 2026-05-08           |
+| **W4** | 3 agents | Accuracy dashboard + PDF export              | 2026-05-08           |
+| **W5** | 3 agents | E2E tests (critical escalation + imuno)      | 2026-05-08           |
+| **W6** | 2 agents | Verification gate (TS errors, bundle, tests) | 2026-05-09           |
+| **W7** | 2 agents | Prep deployment + rollback runbook           | 2026-05-09           |
+| **W8** | 1 agent  | Final sync + tag + sign-off                  | TBD (manual trigger) |
 
 ---
 
@@ -262,6 +266,6 @@ Phase 5 delivered production-ready critical escalation infrastructure (Criticos 
 
 **Delivery Lead:** Wave 6, Agent 3 (W6-A3)  
 **Verification Gate:** PASSED (2026-05-09 11:22 UTC)  
-**Status:** ✅ Ready for Phase 6 pre-launch validation (2026-05-22 kickoff)  
+**Status:** ✅ Ready for Phase 6 pre-launch validation (2026-05-22 kickoff)
 
 All acceptance criteria met. No blocking issues. 4 modules production-ready. 1494+ tests passing. Compliance verified (RDC 978, DICQ, LGPD). Ready to advance.

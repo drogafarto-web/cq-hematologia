@@ -195,10 +195,7 @@ export interface ExclusaoTitularRequest {
   cpf: string;
 
   /** Reason for deletion request */
-  motivo:
-    | 'Exclusão solicitada pelo titular'
-    | 'Fim da relação contratual'
-    | 'Outro';
+  motivo: 'Exclusão solicitada pelo titular' | 'Fim da relação contratual' | 'Outro';
 
   /** Request status */
   status: 'pendente' | 'verificacao_otp' | 'confirmado' | 'processado';

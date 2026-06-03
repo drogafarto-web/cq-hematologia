@@ -1,10 +1,10 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Modal } from '@/components/ui/modal'
-import { Input } from '@/components/ui/input'
-import { Select } from '@/components/ui/select'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { Modal } from '@/components/ui/modal';
+import { Input } from '@/components/ui/input';
+import { Select } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 
 const analytes = [
   { value: 'PT-INR', label: 'PT-INR' },
@@ -12,49 +12,49 @@ const analytes = [
   { value: 'Fibrinogen', label: 'Fibrinogen' },
   { value: 'TT', label: 'TT' },
   { value: 'D-Dimer', label: 'D-Dimer' },
-]
+];
 
 interface PncqImportModalProps {
-  open: boolean
-  onClose: () => void
-  analyzers: any[]
-  onImported: (data: any) => void
+  open: boolean;
+  onClose: () => void;
+  analyzers: any[];
+  onImported: (data: any) => void;
 }
 
 export function PncqImportModal({ open, onClose, onImported }: PncqImportModalProps) {
-  const [referenceNumber, setReferenceNumber] = useState('')
-  const [analyte, setAnalyte] = useState('')
-  const [fetching, setFetching] = useState(false)
-  const [preview, setPreview] = useState<any | null>(null)
-  const [error, setError] = useState('')
+  const [referenceNumber, setReferenceNumber] = useState('');
+  const [analyte, setAnalyte] = useState('');
+  const [fetching, setFetching] = useState(false);
+  const [preview, setPreview] = useState<any | null>(null);
+  const [error, setError] = useState('');
 
   const handleFetch = async () => {
-    if (!analyte) return
-    setFetching(true)
-    setError('')
+    if (!analyte) return;
+    setFetching(true);
+    setError('');
     try {
       const res = await fetch('/api/lots/import-pncq', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ analyte, referenceNumber: referenceNumber || undefined }),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (json.success) {
-        setPreview(json.data)
+        setPreview(json.data);
       } else {
-        setError(json.error?.message || 'Fetch failed')
+        setError(json.error?.message || 'Fetch failed');
       }
     } catch {
-      setError('Failed to connect to PNCQ service')
+      setError('Failed to connect to PNCQ service');
     } finally {
-      setFetching(false)
+      setFetching(false);
     }
-  }
+  };
 
   const handleConfirm = () => {
-    onImported(preview)
-    onClose()
-  }
+    onImported(preview);
+    onClose();
+  };
 
   return (
     <Modal open={open} onClose={onClose} title="Import from PNCQ">
@@ -93,8 +93,7 @@ export function PncqImportModal({ open, onClose, onImported }: PncqImportModalPr
                 <span className="text-on-surface-variant">Analyte:</span> {preview.analyte}
               </div>
               <div>
-                <span className="text-on-surface-variant">Target Mean:</span>{' '}
-                {preview.targetMean}
+                <span className="text-on-surface-variant">Target Mean:</span> {preview.targetMean}
               </div>
               <div>
                 <span className="text-on-surface-variant">SD:</span> {preview.sd}
@@ -116,5 +115,5 @@ export function PncqImportModal({ open, onClose, onImported }: PncqImportModalPr
         )}
       </div>
     </Modal>
-  )
+  );
 }

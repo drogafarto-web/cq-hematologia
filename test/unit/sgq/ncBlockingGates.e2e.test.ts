@@ -153,13 +153,7 @@ describe('ADR 0003 Wave 5 — NC Blocking Gates E2E', () => {
     });
 
     it('should handle invalid module ID', () => {
-      const validModules = [
-        'equipamento',
-        'procedimentos',
-        'pessoas',
-        'auditoria',
-        'treinamentos',
-      ];
+      const validModules = ['equipamento', 'procedimentos', 'pessoas', 'auditoria', 'treinamentos'];
       const invalidModule = 'nonexistent-module';
       expect(validModules).not.toContain(invalidModule);
     });

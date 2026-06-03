@@ -81,7 +81,6 @@ try {
   console.log(`   Módulo: ${modulo}`);
   console.log(`   Reagente ativo: APPT REAGENTE 7281/26`);
   console.log(`   ID do insumo: ${insumoId}\n`);
-
 } catch (err) {
   console.error('❌ Erro ao vincular:');
   console.error('   Mensagem:', err.message);

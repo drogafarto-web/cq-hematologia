@@ -42,25 +42,25 @@ Apple, Airbnb, Linear, Stripe, Vercel. Dark-first. Tipografia editorial. Sensibi
 
 Sistema CIQ (Controle Interno de Qualidade) laboratorial em produção: **https://hmatologia2.web.app**.
 
-| Item | Valor |
-|---|---|
-| Root | `c:/hc quality/` |
-| Firebase | `hmatologia2` (southamerica-east1) |
-| Stack | React 19 + Vite 6 + Tailwind 4 + Zustand; Functions Node 22 (migrado 2026-04-24) |
-| Router | Custom via `useAppStore.currentView` (NÃO React Router) |
-| Staging | **Não existe** — cada deploy em prod é canário |
-| Package manager | npm |
-| Compliance | RDC 978 ANVISA + DICQ + LGPD |
+| Item            | Valor                                                                            |
+| --------------- | -------------------------------------------------------------------------------- |
+| Root            | `c:/hc quality/`                                                                 |
+| Firebase        | `hmatologia2` (southamerica-east1)                                               |
+| Stack           | React 19 + Vite 6 + Tailwind 4 + Zustand; Functions Node 22 (migrado 2026-04-24) |
+| Router          | Custom via `useAppStore.currentView` (NÃO React Router)                          |
+| Staging         | **Não existe** — cada deploy em prod é canário                                   |
+| Package manager | npm                                                                              |
+| Compliance      | RDC 978 ANVISA + DICQ + LGPD                                                     |
 
 ### 🚀 Projetos Satélites Ativos (Espaço Viva)
 
 Gerenciados no mesmo ecossistema de desenvolvimento e publicação:
 
-* **espacoviva-planos-experimento:** Landing page de rascunho do modelo de negócios da Musculação Premium ([Site Oficial](https://espacoviva-planos-experimento.netlify.app)).
-  * *Localização:* `C:\hc quality\espacoviva-planos-experimento\`
-  * *Deploy/Publicação:* Vinculado ao Netlify ID `472c3563-e745-426a-8738-fc6aeb37d036`. Para atualizar em produção, execute `netlify deploy --prod` dentro da pasta.
-* **espaco-viva:** Website institucional ([meuespacoviva.com.br](https://meuespacoviva.com.br)), vinculado ao repositório GitHub `drogafarto-web/viva-espaco-flow`.
-* **espacoviva:** Servidor Debian de áudio 24/7 (instalado em hardware Mac mini local na academia) e painel local, vinculado ao repositório `espacoviva-deploy`.
+- **espacoviva-planos-experimento:** Landing page de rascunho do modelo de negócios da Musculação Premium ([Site Oficial](https://espacoviva-planos-experimento.netlify.app)).
+  - _Localização:_ `C:\hc quality\espacoviva-planos-experimento\`
+  - _Deploy/Publicação:_ Vinculado ao Netlify ID `472c3563-e745-426a-8738-fc6aeb37d036`. Para atualizar em produção, execute `netlify deploy --prod` dentro da pasta.
+- **espaco-viva:** Website institucional ([meuespacoviva.com.br](https://meuespacoviva.com.br)), vinculado ao repositório GitHub `drogafarto-web/viva-espaco-flow`.
+- **espacoviva:** Servidor Debian de áudio 24/7 (instalado em hardware Mac mini local na academia) e painel local, vinculado ao repositório `espacoviva-deploy`.
 
 ---
 
@@ -119,18 +119,19 @@ Resuma em 5 linhas: (1) Ondas deployadas vs pendentes, (2) secret HMAC setado?, 
 
 Em **Cursor**: digite `/` no chat e selecione. Em **Claude Code**: skill correspondente. Em **Codex CLI**: cite o playbook explicitamente.
 
-| Comando | Cursor | Claude Code | O que faz |
-|---|---|---|---|
-| `/status` | ✅ `.cursor/commands/status.md` | "status" textual | Reporte 5-linhas: ondas, secret HMAC, rules strict, triggers, próximo bloco |
-| `/engineer` | ✅ `.cursor/commands/engineer.md` | `/hm-engineer` | Validação code world-class — segurança, arquitetura, performance, custo, resiliência |
-| `/designer` | ✅ `.cursor/commands/designer.md` | `/hm-designer` | Validação UI — sofisticação, pixel perfect, dark-first |
-| `/qa` | ✅ `.cursor/commands/qa.md` | `/hm-qa` | Testes + gaps + infra + integridade dados + custo |
-| `/spec-module` | ✅ `.cursor/commands/spec-module.md` | (manual) | Novo módulo/feature grande: contexto → mini-spec → plano → fatias → revisão (boas práticas Cursor) |
-| `/composer-executor` | ✅ `.cursor/commands/composer-executor.md` | (manual) | Composer 2: executor de tarefas pequenas, mini-spec obrigatória, uma etapa por vez, baixo risco |
+| Comando              | Cursor                                     | Claude Code      | O que faz                                                                                          |
+| -------------------- | ------------------------------------------ | ---------------- | -------------------------------------------------------------------------------------------------- |
+| `/status`            | ✅ `.cursor/commands/status.md`            | "status" textual | Reporte 5-linhas: ondas, secret HMAC, rules strict, triggers, próximo bloco                        |
+| `/engineer`          | ✅ `.cursor/commands/engineer.md`          | `/hm-engineer`   | Validação code world-class — segurança, arquitetura, performance, custo, resiliência               |
+| `/designer`          | ✅ `.cursor/commands/designer.md`          | `/hm-designer`   | Validação UI — sofisticação, pixel perfect, dark-first                                             |
+| `/qa`                | ✅ `.cursor/commands/qa.md`                | `/hm-qa`         | Testes + gaps + infra + integridade dados + custo                                                  |
+| `/spec-module`       | ✅ `.cursor/commands/spec-module.md`       | (manual)         | Novo módulo/feature grande: contexto → mini-spec → plano → fatias → revisão (boas práticas Cursor) |
+| `/composer-executor` | ✅ `.cursor/commands/composer-executor.md` | (manual)         | Composer 2: executor de tarefas pequenas, mini-spec obrigatória, uma etapa por vez, baixo risco    |
 
-**Spec → fatias → Composer 2:** o texto para colar no Composer (prompt-base de 7 passos, versão longa e *prompt de bolso*) mora em [`.cursor/commands/composer-executor.md`](.cursor/commands/composer-executor.md); regras condicionais em `.cursor/rules/44-composer-executor.mdc` e `.cursor/rules/45-spec-module.mdc`.
+**Spec → fatias → Composer 2:** o texto para colar no Composer (prompt-base de 7 passos, versão longa e _prompt de bolso_) mora em [`.cursor/commands/composer-executor.md`](.cursor/commands/composer-executor.md); regras condicionais em `.cursor/rules/44-composer-executor.mdc` e `.cursor/rules/45-spec-module.mdc`.
 
 Playbooks-fonte:
+
 - [docs/playbooks/engineer-validation.md](docs/playbooks/engineer-validation.md)
 - [docs/playbooks/designer-validation.md](docs/playbooks/designer-validation.md)
 - [docs/playbooks/qa-validation.md](docs/playbooks/qa-validation.md)

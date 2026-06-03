@@ -61,7 +61,7 @@ export function LeituraRapidaForm({
   const [erro, setErro] = useState<string | null>(null);
 
   const tempNumber = parseNumber(temperatura);
-  const umidadeNumber = umidade.trim() === '' ? undefined : parseNumber(umidade) ?? undefined;
+  const umidadeNumber = umidade.trim() === '' ? undefined : (parseNumber(umidade) ?? undefined);
   const avaliacao = useMemo(() => {
     if (tempNumber === null) return { fora: false, violado: null as null | string };
     return avaliarForaDosLimites(tempNumber, umidadeNumber, equipamento.limites);

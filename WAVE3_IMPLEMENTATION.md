@@ -11,6 +11,7 @@
 **Location**: `functions/src/modules/auditoria/generatePDF.ts`
 
 **Features**:
+
 - Puppeteer-based server-side rendering (HTML → PDF)
 - 2GiB memory, 300s timeout for large reports
 - Generates comprehensive audit report including:
@@ -22,6 +23,7 @@
   - Conformance statistics (conforme/não-conforme/N/A percentages)
 
 **PDF Specifications**:
+
 - Format: A4, 20mm margins
 - Size limit: <10MB (validated server-side, RDC 978 compliance)
 - Cloud Storage path: `audits/{labId}/{auditoriaId}/relatorio-{sessaoId}-{date}.pdf`
@@ -29,6 +31,7 @@
 - Audit log: captured in `auditLogs` collection
 
 **HTML Rendering**:
+
 - Dark-first color scheme (matches UI reference)
 - Semantic structure with section breaks
 - Responsive layout for printing
@@ -39,6 +42,7 @@
 **Location**: `src/features/auditoria-interna/hooks/useAuditReportExport.ts`
 
 **API**:
+
 ```typescript
 export function useAuditReportExport(): UseAuditReportExportResult {
   exportPDF: (auditoriaId, sessaoId) => Promise<{ pdfUrl, filename }>
@@ -50,6 +54,7 @@ export function useAuditReportExport(): UseAuditReportExportResult {
 ```
 
 **Usage**:
+
 ```typescript
 const { exportPDF, downloadPDF, isLoading, error } = useAuditReportExport();
 
@@ -64,6 +69,7 @@ const handleExport = async (auditoriaId, sessaoId) => {
 **Location**: `src/features/auditoria-interna/components/AuditoriasList.tsx`
 
 **Features**:
+
 - "Ver Detalhes" button expands audit history items
 - Shows sessions available for export
 - "Exportar PDF" button per session
@@ -74,10 +80,12 @@ const handleExport = async (auditoriaId, sessaoId) => {
 ### 4. Wiring
 
 **Functions Index**: `functions/src/index.ts`
+
 - Added `generateAuditReportPDF` to auditoria module exports
 - Documented in comment block with Puppeteer + RDC 978 compliance note
 
 **Hooks Index**: `src/features/auditoria-interna/hooks/index.ts`
+
 - Created to export all hooks (useAuditorias, useSessao, useAchadoMutation, useAuditReportExport)
 
 ## E2E Test
@@ -85,6 +93,7 @@ const handleExport = async (auditoriaId, sessaoId) => {
 **Location**: `smoke-test-openclaw/wave3-audit-pdf-e2e.test.mjs`
 
 **Test Flow**:
+
 1. ✅ Create auditoria (ano=2026, frequencia=anual)
 2. ✅ Install DICQ checklist template (~115 items)
 3. ✅ Register achado (severidade=crítica) → auto-triggers NC creation
@@ -93,6 +102,7 @@ const handleExport = async (auditoriaId, sessaoId) => {
 6. ✅ Download PDF + validate magic number (%PDF)
 
 **Expected Results**:
+
 - PDF size: 2-5MB typical for ~115 items + findings
 - Generation time: 5-15s (Puppeteer cold start + rendering)
 - All fields populated correctly
@@ -101,24 +111,28 @@ const handleExport = async (auditoriaId, sessaoId) => {
 ## Technical Details
 
 ### Puppeteer Configuration
+
 - Headless mode: 'new'
 - Args: --no-sandbox, --disable-setuid-sandbox
 - Memory: 2GiB (sufficient for large reports)
 - Timeout: 300s
 
 ### PDF Size Optimization
+
 - Inline CSS (no external stylesheets)
 - No images or binary assets
 - Structured HTML hierarchy
 - Font subsetting via Puppeteer
 
 ### Cloud Storage
+
 - Bucket: `hmatologia2.appspot.com`
 - Path: `audits/{labId}/{auditoriaId}/relatorio-{sessaoId}-{date}.pdf`
 - Metadata: labId, auditoriaId, sessaoId, generatedAt
 - Signed URL: 7-day expiry
 
 ### Compliance
+
 - RDC 978/2025: Audit trail in Firestore (`auditLogs`)
 - DICQ 1.3: All checklist items (~115) included
 - Multi-tenant: labId scoping enforced at callable level
@@ -127,11 +141,13 @@ const handleExport = async (auditoriaId, sessaoId) => {
 ## Next Steps for Production
 
 ### Before Deploy
+
 1. **Type check**: `cd functions && npm run build`
 2. **Functions test** (optional): `npm test` if E2E enabled
 3. **Manual smoke test**: generate 1 audit PDF → download → inspect
 
 ### Deploy Commands
+
 ```bash
 # 1. Type-check
 npx tsc --noEmit
@@ -147,6 +163,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 ### Post-Deploy Validation
+
 1. Hard reload UI (Ctrl+Shift+R)
 2. Navigate to Auditoria > Histórico
 3. Click "Ver Detalhes" on a finalized audit

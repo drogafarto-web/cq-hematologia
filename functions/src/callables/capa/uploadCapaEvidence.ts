@@ -17,7 +17,10 @@ import { z } from 'zod';
 import { v4 as uuid } from 'uuid';
 
 const logicalSignatureSchema = z.object({
-  hash: z.string().length(64, 'hash must be 64 hex characters').regex(/^[a-f0-9]{64}$/),
+  hash: z
+    .string()
+    .length(64, 'hash must be 64 hex characters')
+    .regex(/^[a-f0-9]{64}$/),
   operatorId: z.string().min(1),
   ts: z.number().int(),
 });
@@ -29,7 +32,10 @@ const uploadCapaEvidenceInputSchema = z.object({
   fileSize: z.number().int().max(10_485_760, 'File size max 10MB'),
   mimeType: z.enum(['application/pdf', 'image/png', 'image/jpeg', 'text/plain']),
   storagePath: z.string().min(1, 'storagePath required'),
-  hash: z.string().length(64, 'hash must be 64 hex characters').regex(/^[a-f0-9]{64}$/),
+  hash: z
+    .string()
+    .length(64, 'hash must be 64 hex characters')
+    .regex(/^[a-f0-9]{64}$/),
   signature: logicalSignatureSchema,
   description: z.string().optional(),
 });
@@ -50,7 +56,17 @@ export const uploadCapaEvidence = onCall<
     }
 
     const input = uploadCapaEvidenceInputSchema.parse(request.data);
-    const { labId, capaId, fileName, fileSize, mimeType, storagePath, hash, signature, description } = input;
+    const {
+      labId,
+      capaId,
+      fileName,
+      fileSize,
+      mimeType,
+      storagePath,
+      hash,
+      signature,
+      description,
+    } = input;
     const uid = request.auth.uid;
 
     // ========== 2. Validate signature operatorId matches request.auth.uid ==========
@@ -64,23 +80,14 @@ export const uploadCapaEvidence = onCall<
     const db = admin.firestore();
 
     // ========== 3. Authorization check ==========
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', `User is not a member of lab ${labId}`);
     }
 
     // ========== 4. Fetch current CAPA ==========
-    const capaRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('capa-tracking')
-      .doc(capaId);
+    const capaRef = db.collection('labs').doc(labId).collection('capa-tracking').doc(capaId);
 
     const capaSnap = await capaRef.get();
 
@@ -157,5 +164,5 @@ export const uploadCapaEvidence = onCall<
     );
 
     return { evidenceId };
-  }
+  },
 );

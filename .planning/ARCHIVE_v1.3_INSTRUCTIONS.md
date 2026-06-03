@@ -88,6 +88,7 @@ git status
 ```
 
 Should show:
+
 - `.planning/STATE.md` (modified)
 - `.planning/PROJECT.md` (modified)
 - `.planning/MILESTONES.md` (modified)
@@ -135,4 +136,3 @@ After archival:
 
 **Instructions created:** 2026-05-07 20:45 UTC  
 **To execute:** Run the PowerShell or bash commands in **Step 2**, then Steps 3–5.
-

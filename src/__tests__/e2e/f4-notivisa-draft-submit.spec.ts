@@ -39,9 +39,7 @@ describe('F4: NOTIVISA Draft Submit & Queue Processing', () => {
       const testLaudo = seedTestLaudo(testLabId, testLaudoId, {
         patientId: 'pat_notivisa_001',
         status: 'finalizado',
-        resultados: [
-          { analito: 'WBC', valor: 15.2, referencia: '4.5-11 K/uL' },
-        ],
+        resultados: [{ analito: 'WBC', valor: 15.2, referencia: '4.5-11 K/uL' }],
       });
 
       // Action: Auth
@@ -121,7 +119,8 @@ describe('F4: NOTIVISA Draft Submit & Queue Processing', () => {
                 queueId: 'queue_' + Math.random().toString(36).substr(2, 9),
                 apiResponse: {
                   statusCode: '200',
-                  receiptCode: 'ANVISA-REC-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
+                  receiptCode:
+                    'ANVISA-REC-' + Math.random().toString(36).substr(2, 5).toUpperCase(),
                 },
               },
             });
@@ -137,7 +136,7 @@ describe('F4: NOTIVISA Draft Submit & Queue Processing', () => {
       expect(receiptEl?.textContent).toContain('ANVISA-REC');
 
       // Action: Poll queue for status
-      await new Promise(r => setTimeout(r, 500)); // Simulate polling interval
+      await new Promise((r) => setTimeout(r, 500)); // Simulate polling interval
 
       // Mock: Queue status check
       vi.mock('firebase/functions', () => ({
@@ -340,12 +339,14 @@ function seedQueueDraft(labId: string, draftId: string, options: any = {}) {
 
 async function generateRtAuthToken(user: any): Promise<string> {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -376,7 +377,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }
@@ -390,6 +391,10 @@ async function getAuditLogEntry(labId: string, action: string, filters: any = {}
   };
 }
 
-async function getAuditLogEntries(labId: string, action: string, filters: any = {}): Promise<any[]> {
+async function getAuditLogEntries(
+  labId: string,
+  action: string,
+  filters: any = {},
+): Promise<any[]> {
   return [await getAuditLogEntry(labId, action, filters)];
 }

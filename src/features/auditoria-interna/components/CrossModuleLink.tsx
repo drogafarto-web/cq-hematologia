@@ -45,9 +45,7 @@ export function CrossModuleLink({ moduloOrigem, linkDireto, titulo }: CrossModul
       className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 transition-all text-xs group"
       aria-label={`Navegar para ${moduleInfo.label}`}
     >
-      <span className={`font-medium ${moduleInfo.color}`}>
-        {titulo || moduleInfo.label}
-      </span>
+      <span className={`font-medium ${moduleInfo.color}`}>{titulo || moduleInfo.label}</span>
       <ExternalLink className="w-3 h-3 text-white/40 group-hover:text-white/70 transition-colors" />
     </button>
   );

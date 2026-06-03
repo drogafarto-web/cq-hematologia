@@ -78,17 +78,19 @@ async function expectError(call, expectedCode, scenario) {
   if (json.error?.status === expectedCode) {
     record(scenario, true, `code=${expectedCode}`);
   } else {
-    record(
-      scenario,
-      false,
-      `expected error code=${expectedCode}, got ${JSON.stringify(json)}`,
-    );
+    record(scenario, false, `expected error code=${expectedCode}, got ${JSON.stringify(json)}`);
   }
 }
 
 async function expectOk(call, scenario) {
   const { json } = await call;
-  if (json.result?.ok === true || json.result?.signatures || json.result?.execucaoId || json.result?.avaliacaoId || json.result?.novaExecucaoId) {
+  if (
+    json.result?.ok === true ||
+    json.result?.signatures ||
+    json.result?.execucaoId ||
+    json.result?.avaliacaoId ||
+    json.result?.novaExecucaoId
+  ) {
     record(scenario, true);
     return json.result;
   }

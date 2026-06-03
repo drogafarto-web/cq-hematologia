@@ -20,7 +20,7 @@ export interface LogicalSignature {
 export function generateLogicalSignature(
   operatorId: string,
   payload: any,
-  prevHash?: string
+  prevHash?: string,
 ): LogicalSignature {
   const canonical = JSON.stringify(payload, Object.keys(payload).sort());
   const hashInput = prevHash ? `${prevHash}${canonical}` : canonical;
@@ -43,7 +43,7 @@ export function generateLogicalSignature(
 export function verifyLogicalSignature(
   signature: LogicalSignature,
   payload: any,
-  prevHash?: string
+  prevHash?: string,
 ): boolean {
   try {
     // Regenerate hash
@@ -77,7 +77,7 @@ export function verifyChainHash(
     hash: string;
     prevHash?: string;
     payload: any;
-  }>
+  }>,
 ): boolean {
   let currentHash = '';
 
@@ -110,8 +110,5 @@ export function generateHmac(payload: any, secret: string): string {
  */
 export function verifyHmac(payload: any, hmac: string, secret: string): boolean {
   const expectedHmac = generateHmac(payload, secret);
-  return crypto.timingSafeEqual(
-    Buffer.from(hmac),
-    Buffer.from(expectedHmac)
-  );
+  return crypto.timingSafeEqual(Buffer.from(hmac), Buffer.from(expectedHmac));
 }

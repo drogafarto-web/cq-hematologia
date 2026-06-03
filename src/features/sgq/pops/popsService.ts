@@ -39,7 +39,7 @@ export function subscribePOPs(
     q,
     (snap) => {
       const pops = snap.docs
-        .map((d) => ({ id: d.id, ...d.data() } as POP))
+        .map((d) => ({ id: d.id, ...d.data() }) as POP)
         .filter((pop) => {
           if (filters.status) {
             const versaoAtiva = pop.versoes?.find((v) => v.status === 'ativa');
@@ -48,8 +48,7 @@ export function subscribePOPs(
           if (filters.busca) {
             const search = filters.busca.toLowerCase();
             return (
-              pop.nome.toLowerCase().includes(search) ||
-              pop.codigo.toLowerCase().includes(search)
+              pop.nome.toLowerCase().includes(search) || pop.codigo.toLowerCase().includes(search)
             );
           }
           return true;
@@ -110,17 +109,14 @@ export async function softDeletePOP(labId: string, popId: string): Promise<void>
 
 // ─── Search POPs by codigo ────────────────────────────────────────────────
 
-export async function searchPOPByCode(
-  labId: string,
-  codigo: string,
-): Promise<POP | null> {
+export async function searchPOPByCode(labId: string, codigo: string): Promise<POP | null> {
   const q = query(
     popsCollection(labId),
     where('codigo', '==', codigo),
     where('deletadoEm', '==', null),
   );
   const snap = await getDocs(q);
-  return snap.empty ? null : { id: snap.docs[0].id, ...snap.docs[0].data() } as POP;
+  return snap.empty ? null : ({ id: snap.docs[0].id, ...snap.docs[0].data() } as POP);
 }
 
 // ─── Get POPs by modulo ────────────────────────────────────────────────────
@@ -132,7 +128,7 @@ export async function getPOPsByModulo(labId: string, modulo: string): Promise<PO
     where('deletadoEm', '==', null),
   );
   const snap = await getDocs(q);
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as POP));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as POP);
 }
 
 // ─── Create POP Version (via Cloud Function callable) ────────────────────────

@@ -14,13 +14,19 @@ import { chromium } from 'playwright';
   await page.waitForTimeout(5000);
 
   // Click on Uroanalise in the sidebar
-  const uroLink = page.locator('nav a, nav button, aside a, aside button, [role="navigation"] a').filter({ hasText: /Uroan/i }).first();
+  const uroLink = page
+    .locator('nav a, nav button, aside a, aside button, [role="navigation"] a')
+    .filter({ hasText: /Uroan/i })
+    .first();
   if (await uroLink.isVisible({ timeout: 5000 }).catch(() => false)) {
     await uroLink.click();
     console.log('Clicked Uroanalise sidebar link');
   } else {
     // Fallback: click the tile in the hub
-    const uroTile = page.locator('div, a, button').filter({ hasText: /Uroan.lise/i }).first();
+    const uroTile = page
+      .locator('div, a, button')
+      .filter({ hasText: /Uroan.lise/i })
+      .first();
     await uroTile.click();
     console.log('Clicked Uroanalise tile');
   }
@@ -29,7 +35,10 @@ import { chromium } from 'playwright';
   console.log('Uro page screenshot taken. URL:', page.url());
 
   // Click "+ Nova corrida" button
-  const novaBtn = page.locator('button').filter({ hasText: /Nova corrida/i }).first();
+  const novaBtn = page
+    .locator('button')
+    .filter({ hasText: /Nova corrida/i })
+    .first();
   if (await novaBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
     await novaBtn.click();
     await page.waitForTimeout(3000);
@@ -50,7 +59,7 @@ import { chromium } from 'playwright';
   // Find densidade input by its id
   let found = false;
   const densInput = page.locator('#resultado-densidade');
-  if (await densInput.count() > 0) {
+  if ((await densInput.count()) > 0) {
     await densInput.scrollIntoViewIfNeeded();
     await densInput.fill('1020');
     await densInput.press('Tab');
@@ -65,7 +74,7 @@ import { chromium } from 'playwright';
   // Fallback: data-analito (redesigned form)
   if (!found) {
     const densRow = page.locator('[data-analito="densidade"]');
-    if (await densRow.count() > 0) {
+    if ((await densRow.count()) > 0) {
       const inp = densRow.locator('input').first();
       await inp.scrollIntoViewIfNeeded();
       await inp.fill('1020');
@@ -84,15 +93,18 @@ import { chromium } from 'playwright';
     const total = await allInputs.count();
     for (let i = 0; i < Math.min(total, 20); i++) {
       const inp = allInputs.nth(i);
-      const id = await inp.getAttribute('id') || '';
-      const type = await inp.getAttribute('type') || 'text';
-      const ph = await inp.getAttribute('placeholder') || '';
+      const id = (await inp.getAttribute('id')) || '';
+      const type = (await inp.getAttribute('type')) || 'text';
+      const ph = (await inp.getAttribute('placeholder')) || '';
       console.log(`  [${i}] id="${id}" type=${type} placeholder="${ph}"`);
     }
   }
 
   await page.waitForTimeout(2000);
-  await page.screenshot({ path: 'C:/hc quality/smoke-test/screenshots/densidade-1020-result.png', fullPage: true });
+  await page.screenshot({
+    path: 'C:/hc quality/smoke-test/screenshots/densidade-1020-result.png',
+    fullPage: true,
+  });
 
   console.log('Done! Screenshot saved. Found:', found);
   await browser.close();

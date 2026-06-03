@@ -7,10 +7,7 @@
 import type { Timestamp } from 'firebase/firestore';
 import type { LogicalSignature } from '../../educacao-continuada/types/_shared_refs';
 
-export type ResultadoAvaliacaoFornecedor =
-  | 'aprovado'
-  | 'aprovado_com_ressalva'
-  | 'reprovado';
+export type ResultadoAvaliacaoFornecedor = 'aprovado' | 'aprovado_com_ressalva' | 'reprovado';
 
 export interface CriteriosAvaliadosFornecedor {
   prazoEntrega: boolean;

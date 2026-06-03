@@ -44,7 +44,7 @@ export function useLotesEmUso(): ControlMaterial[] {
   return lotes.filter(
     (l) =>
       l.deletadoEm === null &&
-      (!l.archivedAt) &&
+      !l.archivedAt &&
       l.validade &&
       (l.validade instanceof Date ? l.validade : l.validade.toDate?.()) > now,
   );
@@ -65,11 +65,7 @@ export function useLotesHistorico(): ControlMaterial[] {
   const { lotes } = useLotes();
   const now = new Date();
 
-  return lotes.filter(
-    (l) =>
-      l.deletadoEm !== null ||
-      l.archivedAt !== undefined,
-  );
+  return lotes.filter((l) => l.deletadoEm !== null || l.archivedAt !== undefined);
 }
 
 /**

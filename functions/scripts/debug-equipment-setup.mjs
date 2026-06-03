@@ -72,11 +72,7 @@ try {
 
   // 4. Listar todos setups
   console.log('\n4️⃣  Todos EquipmentSetups:');
-  const setupsSnap = await db
-    .collection('labs')
-    .doc(labId)
-    .collection('equipment-setups')
-    .get();
+  const setupsSnap = await db.collection('labs').doc(labId).collection('equipment-setups').get();
 
   console.log(`   Total: ${setupsSnap.size}`);
   setupsSnap.docs.forEach((doc) => {
@@ -87,7 +83,6 @@ try {
   });
 
   console.log('\n');
-
 } catch (err) {
   console.error('❌ Erro:');
   console.error('   Mensagem:', err.message);

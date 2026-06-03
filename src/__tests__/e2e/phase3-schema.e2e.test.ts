@@ -55,9 +55,7 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
       updatedBy: 'test-operator-001',
     };
 
-    const docRef = db.doc(
-      `labs/${testLabId}/portal-configuracao/${portalConfigId}`
-    );
+    const docRef = db.doc(`labs/${testLabId}/portal-configuracao/${portalConfigId}`);
 
     // ─── Write ────────────────────────────────────────────────────────────
     await docRef.set(portalConfig);
@@ -172,9 +170,7 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
       createdAt: Timestamp.now(),
     };
 
-    const docRef = db.doc(
-      `labs/${testLabId}/criticos-escalacoes/${escalacaoId}`
-    );
+    const docRef = db.doc(`labs/${testLabId}/criticos-escalacoes/${escalacaoId}`);
 
     // ─── Write ────────────────────────────────────────────────────────────
     await docRef.set(escalacao);
@@ -230,9 +226,7 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
       createdAt: Timestamp.now(),
     };
 
-    const docRef = db.doc(
-      `labs/${testLabId}/imuno-ias-dev/${imageId}`
-    );
+    const docRef = db.doc(`labs/${testLabId}/imuno-ias-dev/${imageId}`);
 
     // ─── Write ────────────────────────────────────────────────────────────
     await docRef.set(stripImage);
@@ -270,14 +264,10 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
     const rtUid = 'rt-user-001';
     const lockDurationMs = 3600000; // 1 hour
 
-    const draftRef = db.doc(
-      `labs/${testLabId}/laudos-draft/${draftId}`
-    );
+    const draftRef = db.doc(`labs/${testLabId}/laudos-draft/${draftId}`);
 
     // ─── State 1: Create draft in EDITING state ────────────────────────────
-    const lockExpiryTs = Timestamp.fromDate(
-      new Date(Date.now() + lockDurationMs)
-    );
+    const lockExpiryTs = Timestamp.fromDate(new Date(Date.now() + lockDurationMs));
 
     const initialDraft = {
       laudo_id: laudoId,
@@ -308,9 +298,7 @@ describe('Phase 3 Schema Validation (03-01, 03-02, 03-03)', () => {
     expect(snapshot.data()?.version).toBe(1);
 
     // ─── State 2: Transition to LOCKED (another RT opens same draft) ────────
-    const conflictingLock = Timestamp.fromDate(
-      new Date(Date.now() + lockDurationMs)
-    );
+    const conflictingLock = Timestamp.fromDate(new Date(Date.now() + lockDurationMs));
 
     await draftRef.update({
       status: 'LOCKED',

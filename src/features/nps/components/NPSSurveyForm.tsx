@@ -10,10 +10,7 @@
 
 import * as React from 'react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import {
-  functions,
-  httpsCallable,
-} from '../../../shared/services/firebase';
+import { functions, httpsCallable } from '../../../shared/services/firebase';
 import { classifyNPSScore } from '../types';
 
 export interface NPSSurveyFormProps {
@@ -56,18 +53,14 @@ export function NPSSurveyForm({
     return () => m.removeEventListener('change', onChange);
   }, []);
 
-  const category = useMemo(
-    () => (score === null ? null : classifyNPSScore(score)),
-    [score],
-  );
+  const category = useMemo(() => (score === null ? null : classifyNPSScore(score)), [score]);
 
   const followUpRequired = score !== null && score <= 6;
   const canSubmit =
     score !== null &&
     submitState.kind === 'idle' &&
     (!followUpRequired ||
-      (followUp.trim().length >= MIN_FOLLOW_UP &&
-        followUp.length <= MAX_FOLLOW_UP));
+      (followUp.trim().length >= MIN_FOLLOW_UP && followUp.length <= MAX_FOLLOW_UP));
 
   const onSubmit = useCallback(async () => {
     if (score === null) return;
@@ -77,16 +70,10 @@ export function NPSSurveyForm({
         labId,
         cycleId,
         score,
-        followUp:
-          followUpRequired && followUp.trim().length > 0
-            ? followUp.trim()
-            : undefined,
+        followUp: followUpRequired && followUp.trim().length > 0 ? followUp.trim() : undefined,
         patientToken,
       };
-      const fn = httpsCallable<typeof payload, { responseId: string }>(
-        functions,
-        'submitNPS',
-      );
+      const fn = httpsCallable<typeof payload, { responseId: string }>(functions, 'submitNPS');
       const res = await fn(payload);
       const id = res.data?.responseId;
       if (!id) throw new Error('Resposta inválida do servidor');
@@ -99,25 +86,14 @@ export function NPSSurveyForm({
           : 'Não foi possível enviar sua resposta. Tente novamente.';
       setSubmitState({ kind: 'error', message });
     }
-  }, [
-    score,
-    labId,
-    cycleId,
-    followUp,
-    followUpRequired,
-    patientToken,
-    onSubmitted,
-  ]);
+  }, [score, labId, cycleId, followUp, followUpRequired, patientToken, onSubmitted]);
 
   if (submitState.kind === 'success') {
     return (
       <div className="bg-[#141417] rounded-2xl p-8 border border-white/10 max-w-xl mx-auto text-center">
-        <h2 className="text-xl font-medium tracking-tight text-white">
-          Obrigado pelo feedback
-        </h2>
+        <h2 className="text-xl font-medium tracking-tight text-white">Obrigado pelo feedback</h2>
         <p className="mt-2 text-sm text-white/60 leading-relaxed">
-          Sua percepção foi registrada e ajudará a calibrar nossas próximas
-          melhorias.
+          Sua percepção foi registrada e ajudará a calibrar nossas próximas melhorias.
         </p>
       </div>
     );
@@ -131,16 +107,12 @@ export function NPSSurveyForm({
       }}
       className="bg-[#141417] rounded-2xl p-8 border border-white/10 max-w-xl mx-auto"
     >
-      <h2
-        id={groupId}
-        className="text-xl font-medium tracking-tight text-white text-center mb-2"
-      >
-        Em uma escala de 0 a 10, qual a probabilidade de você recomendar este
-        laboratório a um amigo ou colega?
+      <h2 id={groupId} className="text-xl font-medium tracking-tight text-white text-center mb-2">
+        Em uma escala de 0 a 10, qual a probabilidade de você recomendar este laboratório a um amigo
+        ou colega?
       </h2>
       <p className="text-sm text-white/60 text-center mb-8">
-        Sua resposta é anônima por padrão e ajuda a melhorar a qualidade do
-        atendimento.
+        Sua resposta é anônima por padrão e ajuda a melhorar a qualidade do atendimento.
       </p>
 
       <div
@@ -152,8 +124,7 @@ export function NPSSurveyForm({
           const active = score === v;
           const baseClass =
             'w-12 h-12 rounded-xl border text-base tabular-nums flex items-center justify-center';
-          const idleClass =
-            'bg-white/5 border-white/10 text-white/80 hover:bg-white/10';
+          const idleClass = 'bg-white/5 border-white/10 text-white/80 hover:bg-white/10';
           const activeBg = !active
             ? ''
             : v <= 6
@@ -186,31 +157,15 @@ export function NPSSurveyForm({
       </div>
 
       {category && (
-        <p
-          aria-live="polite"
-          className="mt-4 text-center text-xs text-white/50"
-        >
-          Você marcou{' '}
-          <span className="text-white tabular-nums font-medium">{score}</span> ·{' '}
-          {category === 'detractor'
-            ? 'Detrator'
-            : category === 'passive'
-              ? 'Neutro'
-              : 'Promotor'}
+        <p aria-live="polite" className="mt-4 text-center text-xs text-white/50">
+          Você marcou <span className="text-white tabular-nums font-medium">{score}</span> ·{' '}
+          {category === 'detractor' ? 'Detrator' : category === 'passive' ? 'Neutro' : 'Promotor'}
         </p>
       )}
 
       {followUpRequired && (
-        <div
-          className={[
-            'mt-6',
-            reducedMotion ? '' : 'transition-all duration-200',
-          ].join(' ')}
-        >
-          <label
-            htmlFor={followUpId}
-            className="block text-sm text-white/80 mb-2"
-          >
+        <div className={['mt-6', reducedMotion ? '' : 'transition-all duration-200'].join(' ')}>
+          <label htmlFor={followUpId} className="block text-sm text-white/80 mb-2">
             O que poderíamos melhorar?
           </label>
           <textarea

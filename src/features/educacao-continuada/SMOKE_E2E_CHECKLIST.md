@@ -69,7 +69,12 @@ Tempo estimado: **45–60 min** ininterruptos. Chrome/Edge com DevTools aberto.
 - (Opcional — requer UI mais evoluída para TesteForm) Submeter teste via callable manual no console:
   ```js
   const fn = firebase.functions('southamerica-east1').httpsCallable('ec_submeterTeste');
-  await fn({ labId: 'SEU_LAB', execucaoId: '...', colaboradorId: '...', respostas: [{questaoId: '...', opcaoId: 'opt-1'}] });
+  await fn({
+    labId: 'SEU_LAB',
+    execucaoId: '...',
+    colaboradorId: '...',
+    respostas: [{ questaoId: '...', opcaoId: 'opt-1' }],
+  });
   ```
 
 ### 6. Certificado + QR público (Fase 9)

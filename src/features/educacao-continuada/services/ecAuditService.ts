@@ -13,13 +13,7 @@
  * coleção (backlog pós-Fase 9).
  */
 
-import {
-  addDoc,
-  collection,
-  db,
-  serverTimestamp,
-  auth,
-} from '../../../shared/services/firebase';
+import { addDoc, collection, db, serverTimestamp, auth } from '../../../shared/services/firebase';
 import type { LabId } from '../types/_shared_refs';
 
 export type AuditAction =

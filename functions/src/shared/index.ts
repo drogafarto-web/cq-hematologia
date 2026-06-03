@@ -7,7 +7,7 @@ export {
   validateNotivisaPayload,
   type NotivisaPayload,
   type LaudoInput,
-  type PacienteInput
+  type PacienteInput,
 } from './notivisa';
 
 export {
@@ -17,7 +17,7 @@ export {
   validateSmsLength,
   type CriticoInput,
   type LabInput,
-  type PacienteInput as SmsPacienteInput
+  type PacienteInput as SmsPacienteInput,
 } from './sms';
 
 export {
@@ -25,7 +25,7 @@ export {
   createLaudoDraftManager,
   type DraftLock,
   type DraftStatus,
-  type DraftContent
+  type DraftContent,
 } from './laudo';
 
 export {
@@ -38,5 +38,5 @@ export {
   getConfidenceCategory,
   iaStripValidator,
   type StripImage,
-  type StripFeedback
+  type StripFeedback,
 } from './ia';

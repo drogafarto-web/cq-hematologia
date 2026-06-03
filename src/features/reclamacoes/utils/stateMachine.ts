@@ -1,4 +1,10 @@
-export type ReclamacaoStatus = 'Nova' | 'Analisando' | 'RCA' | 'Resolvida' | 'Comunicada' | 'Fechada';
+export type ReclamacaoStatus =
+  | 'Nova'
+  | 'Analisando'
+  | 'RCA'
+  | 'Resolvida'
+  | 'Comunicada'
+  | 'Fechada';
 
 const transicoes: Record<ReclamacaoStatus, ReclamacaoStatus[]> = {
   Nova: ['Analisando'],
@@ -11,7 +17,7 @@ const transicoes: Record<ReclamacaoStatus, ReclamacaoStatus[]> = {
 
 export function validateTransition(
   statusAtual: ReclamacaoStatus,
-  novoStatus: ReclamacaoStatus
+  novoStatus: ReclamacaoStatus,
 ): boolean {
   return transicoes[statusAtual]?.includes(novoStatus) ?? false;
 }

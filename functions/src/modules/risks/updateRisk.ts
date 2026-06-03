@@ -10,7 +10,12 @@
 
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import { UpdateRiskInputSchema, validateAndComputeNPR, assertRisksAccess, risksCollection } from './validators';
+import {
+  UpdateRiskInputSchema,
+  validateAndComputeNPR,
+  assertRisksAccess,
+  risksCollection,
+} from './validators';
 import { generateRisksSignatureServer } from './signatureCanonical';
 
 export const risks_updateRisk = onCall(
@@ -136,10 +141,7 @@ export const risks_updateRisk = onCall(
     }
 
     if (Object.keys(updates).length === 0) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Nenhuma mudança para aplicar.'
-      );
+      throw new HttpsError('failed-precondition', 'Nenhuma mudança para aplicar.');
     }
 
     // ─── Generate new signature + atomic batch ──────────────────────────────

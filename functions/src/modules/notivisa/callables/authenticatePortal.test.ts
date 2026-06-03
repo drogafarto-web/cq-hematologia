@@ -71,11 +71,7 @@ describe('authenticatePortal', () => {
         data: () => ({ active: true, role: 'RT' }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(memberDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(memberDocMock);
 
       // Mock portal config
       const configDocMock = {
@@ -86,11 +82,7 @@ describe('authenticatePortal', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling authenticatePortal
       const result = await authenticatePortal(request as CallableRequest<any>);
@@ -128,11 +120,7 @@ describe('authenticatePortal', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling with valid MFA code
       const result = await authenticatePortal(request as CallableRequest<any>);
@@ -204,11 +192,7 @@ describe('authenticatePortal', () => {
         data: () => ({ requiresMfa: true }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling without MFA code
       const result = await authenticatePortal(request as CallableRequest<any>);
@@ -237,11 +221,7 @@ describe('authenticatePortal', () => {
         exists: false,
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling with unconfigured lab
       const result = await authenticatePortal(request as CallableRequest<any>);
@@ -297,11 +277,7 @@ describe('authenticatePortal', () => {
         data: () => ({ portalUrl: 'https://notivisa.inca.gov.br', requiresMfa: false }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling authenticatePortal
       await authenticatePortal(request as CallableRequest<any>);
@@ -313,7 +289,7 @@ describe('authenticatePortal', () => {
           status: 'active',
           createdAt: expect.any(Number),
           expiresAt: expect.any(Number),
-        })
+        }),
       );
     });
 
@@ -337,11 +313,7 @@ describe('authenticatePortal', () => {
         data: () => ({ portalUrl: 'https://notivisa.inca.gov.br', requiresMfa: false }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(configDocMock);
+      mockDb.collection().doc().collection().doc().get = jest.fn().mockResolvedValue(configDocMock);
 
       // WHEN: Calling authenticatePortal
       await authenticatePortal(request as CallableRequest<any>);
@@ -352,7 +324,7 @@ describe('authenticatePortal', () => {
         expect.objectContaining({
           action: 'PORTAL_LOGIN',
           operatorId: 'user123',
-        })
+        }),
       );
     });
   });

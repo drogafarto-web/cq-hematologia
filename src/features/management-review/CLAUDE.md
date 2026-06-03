@@ -6,6 +6,7 @@
 Implements DICQ 4.15 "Análise Crítica pela Direção" (Annual Direction Critical Analysis) — mandatory annual leadership review with 15 documented sections, data aggregation from operational systems, and cryptographic signature.
 
 **Requirement Mapping:**
+
 - `CAPA-01` — NC-001 closure (management review POP formalizes audit process)
 - `DICQ 4.15` — all 15 sections present + signed
 - `DICQ 4.14` — linkage to Internal Audit (auditoria-interna) module
@@ -94,6 +95,7 @@ src/features/management-review/
 → Parallel pulls from 7 collections → Pre-populate Sections 1-7 with `sourceData`
 
 **Data Sources:**
+
 1. `labs/{labId}/auditoria-interna` → Section 1 (audit count, findings, closure rate)
 2. `labs/{labId}/naoConformidades` → Section 2 (NC status counts)
 3. `labs/{labId}/capa` → Section 2 (CAPA status counts)
@@ -113,9 +115,9 @@ All reviews are signed with HMAC-SHA256 chain-hash:
 
 ```typescript
 interface LogicalSignature {
-  hash: string;        // HMAC-SHA256 (exactly 64 chars)
-  operatorId: string;  // uid of director who submitted
-  ts: Timestamp;       // moment of submission
+  hash: string; // HMAC-SHA256 (exactly 64 chars)
+  operatorId: string; // uid of director who submitted
+  ts: Timestamp; // moment of submission
 }
 ```
 
@@ -128,6 +130,7 @@ interface LogicalSignature {
 ## Multi-Tenant Scoping
 
 All collections follow the pattern:
+
 - Path: `labs/{labId}/management-reviews/{id}`
 - Payload includes redundant `labId` field (ensures no cross-tenant leak)
 - Service layer validates `labId` match on every read/write
@@ -153,6 +156,7 @@ All queries filter: `where('deletedAt', '==', null)`
 **Auth:** User must be active lab member
 
 **Input:**
+
 ```typescript
 {
   labId: string;
@@ -161,6 +165,7 @@ All queries filter: `where('deletedAt', '==', null)`
 ```
 
 **Output:**
+
 ```typescript
 {
   success: boolean;
@@ -182,6 +187,7 @@ All queries filter: `where('deletedAt', '==', null)`
 **Auth:** User must be active lab member (director-level enforcement is client-side hint; server validates minimum attendees)
 
 **Input:**
+
 ```typescript
 {
   labId: string;
@@ -196,11 +202,13 @@ All queries filter: `where('deletedAt', '==', null)`
 ```
 
 **Validation:**
+
 1. All 15 sections must have non-empty content
 2. Director + Quality Manager + at least 1 other participant (minimum 3 total)
 3. No duplicate review for same year/lab in submitted/approved status
 
 **Output:**
+
 ```typescript
 {
   success: boolean;
@@ -211,6 +219,7 @@ All queries filter: `where('deletedAt', '==', null)`
 ```
 
 **Side Effects:**
+
 - Creates ManagementReview document with `status='submitted'`
 - Generates LogicalSignature (HMAC-SHA256)
 - Updates linked Atas to set `managementReviewId`
@@ -222,30 +231,37 @@ All queries filter: `where('deletedAt', '==', null)`
 ## Integration Points
 
 ### With auditoria-interna (Phase 5)
+
 - Section 1 pulls audit findings from internal audit module
 - Link: Review can trigger new audit cycle
 
 ### With naoConformidades + capa (Phase 5)
+
 - Section 2 aggregates NC/CAPA counts
 - Link: CAPA closure triggers by review date
 
 ### With indicators (Phase 3.1 KPIs)
+
 - Section 3 pulls KPI trends
 - Source: last 12 months of indicator readings
 
 ### With reclamacoes (Phase 12)
+
 - Section 4 pulls complaint counts
 - Source: customer feedback collection
 
 ### With treinamentos (Phase 3.3)
+
 - Section 5 pulls training completion rates
 - Source: personnel training records
 
 ### With equipamentos + calibracao (Phase 2)
+
 - Section 6 pulls equipment status + calibration compliance
 - Source: equipment and calibration records
 
 ### With fornecedores (Phase 2)
+
 - Section 7 pulls supplier names + active status
 - Source: vendor/supplier database
 
@@ -285,12 +301,14 @@ match /labs/{labId}/management-review-atas/{ataId} {
 ## Dependencies
 
 **Required (must be deployed first):**
+
 - Phase 2: equipamentos, fornecedores
 - Phase 3.1: indicators (KPIs)
 - Phase 3.3: treinamentos
 - Phase 5: auditoria-interna, naoConformidades, capa
 
 **Optional (nice-to-have):**
+
 - Phase 12: reclamacoes (customer feedback; if not available, section 4 shows empty)
 
 ---
@@ -307,17 +325,20 @@ match /labs/{labId}/management-review-atas/{ataId} {
 ## Testing Strategy
 
 **Unit Tests:**
+
 - `managementReviewService.test.ts` — CRUD, soft-delete, year filtering
 - `reviewTemplateService.test.ts` — data aggregation from 8 sources, graceful degradation
 - `useManagementReview.test.ts` — subscription + year organization
 - `useReviewTemplate.test.ts` — caching, error handling
 
 **Integration Tests:**
+
 - `generateReviewTemplate.test.ts` — CF with 5+ scenarios (all collections present, missing collections, auth errors)
 - `submitReview.test.ts` — CF with 5+ scenarios (all 15 sections, partial sections, duplicate year, auth)
 - `management-review-rules.test.ts` — Firestore rules (deny direct writes, allow reads)
 
 **E2E Tests:**
+
 - `management-review.e2e.test.ts` — full user journey:
   1. Open review form
   2. Auto-populated data visible
@@ -342,6 +363,7 @@ match /labs/{labId}/management-review-atas/{ataId} {
 ## Compliance Evidence
 
 When audited on DICQ 4.15:
+
 - Open `/hub` → Management Review tile
 - Navigate to Histórico tab
 - Select any completed review

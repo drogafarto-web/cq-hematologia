@@ -12,8 +12,17 @@
  */
 
 import React, { useMemo, useCallback, useEffect, useState } from 'react';
-import { CriticosThreshold, CriticosThresholdInput, CriticosThresholdInputSchema } from '../types/threshold';
-import { getThresholds, createThreshold, updateThreshold, softDeleteThreshold } from '../services/thresholdService';
+import {
+  CriticosThreshold,
+  CriticosThresholdInput,
+  CriticosThresholdInputSchema,
+} from '../types/threshold';
+import {
+  getThresholds,
+  createThreshold,
+  updateThreshold,
+  softDeleteThreshold,
+} from '../services/thresholdService';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { ZodError } from 'zod';
 
@@ -67,7 +76,8 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
         const data = await getThresholds(labId);
         setThresholds(data);
       } catch (error) {
-        const err = error instanceof Error ? error : new Error('Falha ao carregar limites críticos');
+        const err =
+          error instanceof Error ? error : new Error('Falha ao carregar limites críticos');
         onError?.(err);
       } finally {
         setIsLoading(false);
@@ -85,9 +95,7 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       result = result.filter(
-        (t) =>
-          t.analitoNome.toLowerCase().includes(q) ||
-          t.analitoId.toLowerCase().includes(q),
+        (t) => t.analitoNome.toLowerCase().includes(q) || t.analitoId.toLowerCase().includes(q),
       );
     }
 
@@ -201,48 +209,54 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
   }, [labId, user, validateForm, editingId, formData, onError]);
 
   // Handle soft-delete
-  const handleDelete = useCallback(async (id: string) => {
-    if (!labId || !user) return;
+  const handleDelete = useCallback(
+    async (id: string) => {
+      if (!labId || !user) return;
 
-    setIsSaving(true);
-    try {
-      await softDeleteThreshold(labId, id, user.uid, user.email || 'unknown');
+      setIsSaving(true);
+      try {
+        await softDeleteThreshold(labId, id, user.uid, user.email || 'unknown');
 
-      // Reload thresholds
-      const updated = await getThresholds(labId);
-      setThresholds(updated);
-      setDeleteConfirmId(null);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Falha ao deletar limite crítico');
-      onError?.(err);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [labId, user, onError]);
+        // Reload thresholds
+        const updated = await getThresholds(labId);
+        setThresholds(updated);
+        setDeleteConfirmId(null);
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error('Falha ao deletar limite crítico');
+        onError?.(err);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [labId, user, onError],
+  );
 
   // Toggle active status
-  const handleToggleActive = useCallback(async (threshold: CriticosThreshold) => {
-    if (!labId || !user) return;
+  const handleToggleActive = useCallback(
+    async (threshold: CriticosThreshold) => {
+      if (!labId || !user) return;
 
-    setIsSaving(true);
-    try {
-      await updateThreshold(
-        labId,
-        threshold.id,
-        { ...threshold, ativo: !threshold.ativo },
-        user.uid,
-      );
+      setIsSaving(true);
+      try {
+        await updateThreshold(
+          labId,
+          threshold.id,
+          { ...threshold, ativo: !threshold.ativo },
+          user.uid,
+        );
 
-      // Reload thresholds
-      const updated = await getThresholds(labId);
-      setThresholds(updated);
-    } catch (error) {
-      const err = error instanceof Error ? error : new Error('Falha ao atualizar status');
-      onError?.(err);
-    } finally {
-      setIsSaving(false);
-    }
-  }, [labId, user, onError]);
+        // Reload thresholds
+        const updated = await getThresholds(labId);
+        setThresholds(updated);
+      } catch (error) {
+        const err = error instanceof Error ? error : new Error('Falha ao atualizar status');
+        onError?.(err);
+      } finally {
+        setIsSaving(false);
+      }
+    },
+    [labId, user, onError],
+  );
 
   if (isLoading) {
     return (
@@ -279,7 +293,10 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
       {/* Search and Filter Bar */}
       <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
         <div className="flex-1">
-          <label htmlFor="search-thresholds" className="block text-xs font-medium text-white/70 mb-2">
+          <label
+            htmlFor="search-thresholds"
+            className="block text-xs font-medium text-white/70 mb-2"
+          >
             Buscar por nome ou ID do analito
           </label>
           <input
@@ -333,11 +350,7 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
                   tabIndex={0}
                   role="button"
                   aria-sort={
-                    sortField === field
-                      ? sortDir === 'asc'
-                        ? 'ascending'
-                        : 'descending'
-                      : 'none'
+                    sortField === field ? (sortDir === 'asc' ? 'ascending' : 'descending') : 'none'
                   }
                 >
                   {field === 'analitoNome' && 'Analito'}
@@ -520,7 +533,10 @@ function ThresholdModal({
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="th-analitoId" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+              <label
+                htmlFor="th-analitoId"
+                className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+              >
                 ID do Analito
               </label>
               <input
@@ -541,7 +557,10 @@ function ThresholdModal({
             </div>
 
             <div>
-              <label htmlFor="th-analitoNome" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+              <label
+                htmlFor="th-analitoNome"
+                className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+              >
                 Nome do Analito
               </label>
               <input
@@ -563,7 +582,10 @@ function ThresholdModal({
           </div>
 
           <div>
-            <label htmlFor="th-unidade" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+            <label
+              htmlFor="th-unidade"
+              className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+            >
               Unidade de Medida
             </label>
             <input
@@ -644,7 +666,10 @@ function ThresholdModal({
           </div>
 
           <div>
-            <label htmlFor="th-severidade" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+            <label
+              htmlFor="th-severidade"
+              className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+            >
               Nível de Severidade
             </label>
             <select
@@ -677,7 +702,10 @@ function ThresholdModal({
               </p>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label htmlFor="th-age-min" className="block text-white/70 text-xs font-medium mb-1">
+                  <label
+                    htmlFor="th-age-min"
+                    className="block text-white/70 text-xs font-medium mb-1"
+                  >
                     Idade Mínima (anos)
                   </label>
                   <input
@@ -700,7 +728,10 @@ function ThresholdModal({
                   />
                 </div>
                 <div>
-                  <label htmlFor="th-age-max" className="block text-white/70 text-xs font-medium mb-1">
+                  <label
+                    htmlFor="th-age-max"
+                    className="block text-white/70 text-xs font-medium mb-1"
+                  >
                     Idade Máxima (anos)
                   </label>
                   <input
@@ -798,7 +829,12 @@ interface DeleteConfirmationModalProps {
   onCancel: () => void;
 }
 
-function DeleteConfirmationModal({ isOpen, isSaving, onConfirm, onCancel }: DeleteConfirmationModalProps) {
+function DeleteConfirmationModal({
+  isOpen,
+  isSaving,
+  onConfirm,
+  onCancel,
+}: DeleteConfirmationModalProps) {
   if (!isOpen) return null;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -819,7 +855,8 @@ function DeleteConfirmationModal({ isOpen, isSaving, onConfirm, onCancel }: Dele
             Remover limite crítico?
           </h3>
           <p className="text-white/70 text-sm mb-6">
-            Esta ação não pode ser desfeita. O limite será marcado como deletado no audit trail (RDC 978 Art. 128).
+            Esta ação não pode ser desfeita. O limite será marcado como deletado no audit trail (RDC
+            978 Art. 128).
           </p>
         </div>
 

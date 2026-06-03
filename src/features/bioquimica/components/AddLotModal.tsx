@@ -188,11 +188,7 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
           {/* Bula path */}
           {tab === 'bula' && (
             <div className="space-y-5">
-              <BulaProcessor
-                lotId="temp"
-                onApplySuccess={onClose}
-                onCancel={onClose}
-              />
+              <BulaProcessor lotId="temp" onApplySuccess={onClose} onCancel={onClose} />
             </div>
           )}
 
@@ -200,7 +196,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
           {tab === 'sem-bula' && (
             <div className="space-y-5">
               <div>
-                <label htmlFor="lot-num-sem-bula" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                <label
+                  htmlFor="lot-num-sem-bula"
+                  className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                >
                   Número do lote
                   <span className="text-red-400/70 ml-0.5">*</span>
                 </label>
@@ -216,7 +215,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="val-sem-bula" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                  <label
+                    htmlFor="val-sem-bula"
+                    className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                  >
                     Validade <span className="text-red-400/70">*</span>
                   </label>
                   <input
@@ -228,7 +230,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                   />
                 </div>
                 <div>
-                  <label htmlFor="forn-sem-bula" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                  <label
+                    htmlFor="forn-sem-bula"
+                    className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                  >
                     Fornecedor <span className="text-red-400/70">*</span>
                   </label>
                   <input
@@ -242,17 +247,15 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                 </div>
               </div>
 
-              <EquipamentoMultiselect
-                selectedIds={equipmentIds}
-                onChange={setEquipmentIds}
-              />
+              <EquipamentoMultiselect selectedIds={equipmentIds} onChange={setEquipmentIds} />
 
               <div className="rounded-xl bg-amber-500/10 border border-amber-500/20 p-3.5 flex gap-3">
                 <div className="text-amber-400 mt-0.5">
                   <AlertIcon />
                 </div>
                 <p className="text-xs text-amber-300/80">
-                  Você tem 7 dias para anexar a bula. Após esse prazo, novas runs ficarão bloqueadas.
+                  Você tem 7 dias para anexar a bula. Após esse prazo, novas runs ficarão
+                  bloqueadas.
                 </p>
               </div>
 
@@ -286,7 +289,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
           {tab === 'avulso' && (
             <div className="space-y-5">
               <div>
-                <label htmlFor="lot-num-avulso" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                <label
+                  htmlFor="lot-num-avulso"
+                  className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                >
                   Número do lote <span className="text-red-400/70">*</span>
                 </label>
                 <input
@@ -301,7 +307,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="val-avulso" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                  <label
+                    htmlFor="val-avulso"
+                    className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                  >
                     Validade <span className="text-red-400/70">*</span>
                   </label>
                   <input
@@ -313,7 +322,10 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                   />
                 </div>
                 <div>
-                  <label htmlFor="forn-avulso" className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5">
+                  <label
+                    htmlFor="forn-avulso"
+                    className="block text-xs font-medium text-white/45 mb-1.5 ml-0.5"
+                  >
                     Fornecedor <span className="text-red-400/70">*</span>
                   </label>
                   <input
@@ -327,10 +339,7 @@ export function AddLotModal({ onClose, onLotCreated }: AddLotModalProps) {
                 </div>
               </div>
 
-              <EquipamentoMultiselect
-                selectedIds={equipmentIds}
-                onChange={setEquipmentIds}
-              />
+              <EquipamentoMultiselect selectedIds={equipmentIds} onChange={setEquipmentIds} />
 
               <div className="rounded-xl bg-blue-500/10 border border-blue-500/20 p-3.5 text-xs text-blue-300/80">
                 Modo avulso usa estatística manual. Recomendado apenas em emergência.

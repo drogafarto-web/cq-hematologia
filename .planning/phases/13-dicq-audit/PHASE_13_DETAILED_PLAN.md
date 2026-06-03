@@ -1,13 +1,13 @@
 ---
 phase: 13
-title: "DICQ Final Audit + RDC 978 Compliance Verification"
+title: 'DICQ Final Audit + RDC 978 Compliance Verification'
 status: planning
 period_start: 2026-05-20
 period_end: 2026-06-10
 duration_weeks: 3
-target_dicq_compliance: "≥88%"
-target_rdc_coverage: "100% (critical articles)"
-audit_scope: "DICQ blocks A-J + RDC 978 Arts. 117, 167, 179-191, 204"
+target_dicq_compliance: '≥88%'
+target_rdc_coverage: '100% (critical articles)'
+audit_scope: 'DICQ blocks A-J + RDC 978 Arts. 117, 167, 179-191, 204'
 ---
 
 # Phase 13 — DICQ Final Audit + RDC 978 Compliance Verification
@@ -15,6 +15,7 @@ audit_scope: "DICQ blocks A-J + RDC 978 Arts. 117, 167, 179-191, 204"
 **Objective:** Conduct comprehensive DICQ conformance audit mapping all 40+ requirements to implementation status, verify RDC 978 critical articles (100%), identify gaps (target ≥88% DICQ), and deliver compliance-ready sign-off report.
 
 **Success Criteria:**
+
 - DICQ conformance ≥88% (baseline 78.5% → target +9.5 pts)
 - RDC 978 critical articles 100% covered (Arts. 117, 167, 179-191, 204)
 - All gap remediation complete + documented
@@ -33,6 +34,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 5. **Signing off** compliance report for pre-external-audit readiness
 
 **Key Deliverables:**
+
 - `PHASE_13_DICQ_CONFORMANCE_MATRIX.md` — 40+ blocks A-J mapped to modules + status + evidence
 - `PHASE_13_RDC_978_CRITICAL_ARTICLES_VERIFICATION.md` — Arts. 117, 167, 179-191, 204 audit trail
 - `PHASE_13_GAP_REMEDIATION_PLAN.md` — specific fixes for identified deficiencies
@@ -87,6 +89,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 4.1.1.2, 4.1.1.3, 4.1.2.3, 4.1.2.4, 4.15
 
 **Audit Steps:**
+
 1. Verify: Legal person docs (CNES, operational permit) → labSettings module + audit trail
 2. Verify: Guiding principles (Mission/Vision/Values) → sgq/norteadores collection
 3. Verify: Quality policy → sgq/policies collection + approval workflow
@@ -94,18 +97,21 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 5. Verify: Management review → quarterly aggregation of complaints, CAPA, audits, KPIs, training, resources
 
 **Evidence Locations:**
+
 - `src/features/labSettings/services/` (legal docs upload/storage)
 - `src/features/sgq/` (norteadores, policies, approval workflow)
 - `src/features/management-review/` (aggregation logic)
 - `firestore.rules` (labId + approval rules)
 
 **Gap Assessment:**
+
 - [ ] Legal docs UI complete? (Storage + expiry alerts)
 - [ ] Norteadores templates live in SGD?
 - [ ] Management review callable aggregates 15+ inputs?
 - [ ] All modules soft-delete only (no hard delete)?
 
-**Remediation if gaps found:** 
+**Remediation if gaps found:**
+
 - Create legal-docs module skeleton (UI + storage)
 - Add norteadores templates to SGD seed
 - Implement mgmt-review aggregation callable
@@ -117,6 +123,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 4.2.2.2, 4.3 (full)
 
 **Audit Steps:**
+
 1. Verify: Quality Manual → sgd module + version control + approval chain
 2. Verify: Document hierarchy → MQ/PQ/IT/FR/POL classification live
 3. Verify: Approval workflow → draft → review → approved → obsolete states
@@ -124,18 +131,21 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 5. Verify: Riopomba migration → 80 docs + metadata integrity
 
 **Evidence Locations:**
+
 - `src/features/sgd/` (Master List + approval UI)
 - `src/features/sgq/` (QM template, policies)
 - Firestore: `/labs/{labId}/sgq-documentos/` + approval workflow
 - Drive importer logs (Riopomba migration audit trail)
 
 **Gap Assessment:**
+
 - [ ] QM template has all 20 DICQ-required sections?
 - [ ] Approval workflow UI complete (all 4 states)?
 - [ ] Distribution tracking shows read confirmations?
 - [ ] Riopomba docs all searchable + version-locked?
 
 **Remediation if gaps found:**
+
 - Populate QM template with 20-section standard
 - Add approval UI if missing
 - Run distribution audit trail verification
@@ -147,6 +157,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.1.1, 5.1.3–5.1.11
 
 **Audit Steps:**
+
 1. Verify: Personnel management policy → sgd/policies collection
 2. Verify: Job descriptions → personnel/cargos + authority matrix
 3. Verify: Onboarding checklist → personnel/onboarding collection
@@ -155,17 +166,20 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 6. Verify: Unified dossier (5.1.9) → consolidated record (qualifications + training + competency + performance)
 
 **Evidence Locations:**
+
 - `src/features/personnel/` (cargos, designacoes, competencia, avaliacao-desempenho)
 - `src/features/educacao-continuada/` (training + competency tracking)
 - Firestore: `/labs/{labId}/personnel/` collection hierarchy
 
 **Gap Assessment:**
+
 - [ ] Personnel policy document in SGD?
 - [ ] Job descriptions complete (minimum 10 roles)?
 - [ ] Onboarding checklist has ≥8 items (induction, safety, training plan, etc.)?
 - [ ] Dossier UI consolidates all 4 data sources into one employee record view?
 
 **Remediation if gaps found:**
+
 - Add personnel management policy to SGD
 - Create job description template + populate for all roles
 - Implement unified dossier view (data aggregation query)
@@ -177,6 +191,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 4.8, 4.10–4.14
 
 **Audit Steps:**
+
 1. Verify: Complaint handling → reclamacoes module + trending + closure loop to CAPA
 2. Verify: CAPA tracking → capa-tracking module + root cause + efficacy verification
 3. Verify: Records control → 5-year retention rules enforced in Firestore
@@ -185,6 +200,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 6. Verify: Quality indicators → kpis module (pre/analytic/pós + targets + trends)
 
 **Evidence Locations:**
+
 - `src/features/reclamacoes/` (intake + trending)
 - `src/features/capa-tracking/` (root cause template, efficacy form)
 - `src/features/auditoria-interna/` (checklist builder, finding linkage)
@@ -193,6 +209,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 - Firestore rules: retention validation per collection
 
 **Gap Assessment:**
+
 - [ ] Complaint trending dashboard live (auto-aggregation of like-complaints)?
 - [ ] CAPA closure form includes efficacy verification (re-test or evidence)?
 - [ ] Internal audit checklist has ≥40 items (DICQ-aligned)?
@@ -200,6 +217,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 - [ ] KPI dashboard has targets + trend lines?
 
 **Remediation if gaps found:**
+
 - Create complaint trending query + dashboard
 - Add efficacy verification form to CAPA
 - Implement internal audit checklist builder
@@ -213,24 +231,28 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.4.2–5.4.7
 
 **Audit Steps:**
+
 1. Verify: Collection instructions → exam catalog + preparation SOP
 2. Verify: Sample reception/rejection → acceptance criteria + NC linkage
 3. Verify: Transport conditions → temperature monitoring + integrity checking
 4. Verify: Pre-analytical handling → storage + preservation SOP
 
 **Evidence Locations:**
+
 - `src/features/educacao-continuada/` (exam prep instructions)
 - `src/features/lots/` (sample reception + rejection state)
 - `src/features/controle-temperatura/` (transport monitoring)
 - Firestore: `/labs/{labId}/samples/` + status transitions
 
 **Gap Assessment:**
+
 - [ ] Exam catalog has collection instructions + prep procedures?
 - [ ] Rejection criteria UI complete (visual checklist)?
 - [ ] Temperature module integrated to transport workflow?
 - [ ] NC auto-created on rejection?
 
 **Remediation if gaps found:**
+
 - Populate exam catalog with prep instructions for top 20 analytes
 - Implement rejection checklist UI (visual flow)
 - Ensure temperature sensor linked to transport module
@@ -242,6 +264,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.5–5.6
 
 **Audit Steps:**
+
 1. Verify: Method validation → bioquimica module + CLSI reference documentation
 2. Verify: Measurement uncertainty → calculator + documentation
 3. Verify: Pre-use verification → formal checklist per module
@@ -249,17 +272,20 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 5. Verify: CEQ evaluation → annual report + corrective action
 
 **Evidence Locations:**
+
 - `src/features/bioquimica/` (Westgard rules, method seed)
 - `src/features/ceq/` (annual report callable)
 - Firestore: `/labs/{labId}/bioquimica/metodos/` + validation docs
 
 **Gap Assessment:**
+
 - [ ] Method validation certificates documented per module?
 - [ ] Measurement uncertainty calculator present + tested?
 - [ ] Pre-use verification form live for all CIQ modules?
 - [ ] CEQ annual report auto-generated (callable)?
 
 **Remediation if gaps found:**
+
 - Create method validation template + populate for 20+ analytes
 - Implement measurement uncertainty calculator (CLSI formula)
 - Create pre-use verification form template
@@ -272,6 +298,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.7–5.9
 
 **Audit Steps:**
+
 1. Verify: Critical review → liberacao module state machine (RT review before release)
 2. Verify: Critical values → auto-detection + physician notification (SMS/email)
 3. Verify: Compulsory notification → NOTIVISA integration (Portaria 204)
@@ -279,6 +306,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 5. Verify: Report release → authorization + secure transmission + verbal communication log
 
 **Evidence Locations:**
+
 - `src/features/liberacao/` (state machine, RT signature)
 - `src/features/criticos/` (escalation logic, email callable)
 - `src/features/notivisa-outbox/` (submission queue, RT approval)
@@ -286,6 +314,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 - `src/features/patient-portal/` (secure release, download auth)
 
 **Gap Assessment:**
+
 - [ ] Liberacao state machine enforces RT review before release?
 - [ ] Critical values auto-alert via email (configurable threshold per analyte)?
 - [ ] NOTIVISA submission includes Portaria 204 compliance?
@@ -293,6 +322,7 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 - [ ] Patient portal release form complete + downloadable?
 
 **Remediation if gaps found:**
+
 - Implement critical value email escalation (sendGrid/Twilio)
 - Verify NOTIVISA payload structure matches gov spec
 - Create PGRSS tracking UI (storage → disposal → receipt)
@@ -305,24 +335,28 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 4.5, 5.3
 
 **Audit Steps:**
+
 1. Verify: Lab support contracts → lab-apoio module (6 clauses per RDC Arts. 36–39)
 2. Verify: Calibration → equipment certification + metrological chain
 3. Verify: Maintenance → preventive plan + work orders + closure audit
 4. Verify: Adverse events → tecnovigilância (NOTIVISA integration)
 
 **Evidence Locations:**
+
 - `src/features/lab-apoio/` (contract template, SLA monitoring)
 - `src/features/calibracao/` (certificate upload, alert system)
 - `src/features/equipamentos/` (maintenance schedule, work order)
 - `src/features/notivisa-outbox/` (tecnovigilância submission)
 
 **Gap Assessment:**
+
 - [ ] Lab support contract template has 6 mandatory clauses?
 - [ ] Calibration certificate upload + expiry alert working?
 - [ ] Equipment maintenance schedule + work order tracking live?
 - [ ] Adverse event reporting integrated to NOTIVISA?
 
 **Remediation if gaps found:**
+
 - Create/review lab-apoio contract template (6 clauses: capacity, QA, audit right, etc.)
 - Implement calibration expiry alert (push notification)
 - Create equipment maintenance work order UI
@@ -335,22 +369,26 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.2.6–5.2.8
 
 **Audit Steps:**
+
 1. Verify: Environmental monitoring → temperature + humidity + air quality (ISO 14644)
 2. Verify: Infection prevention → POPs + training + incident tracking
 3. Verify: Biosafety → area classification (NB1–NB4) + equipment + protocols
 
 **Evidence Locations:**
+
 - `src/features/controle-temperatura/` (temperature + humidity logging)
 - `src/features/biosseguranca/` (area classification, NB mapping)
 - `src/features/pops/` (infection prevention SOP)
 
 **Gap Assessment:**
+
 - [ ] Temperature + humidity dual logging live?
 - [ ] Biosafety areas mapped with NB classification?
 - [ ] Infection prevention POPs in SGD?
 - [ ] Training records linked to biosseguranca module?
 
 **Remediation if gaps found:**
+
 - Extend controle-temperatura to log humidity (sensor + dashboard)
 - Create biosafety area mapping UI (floor plan + NB1–NB4 zones)
 - Add infection prevention POPs to SGD
@@ -363,23 +401,27 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 **DICQ Sections:** 5.10
 
 **Audit Steps:**
+
 1. Verify: Patient confidentiality → Firestore Rules + LGPD policy
 2. Verify: Access control → auth module + member-based RBAC
 3. Verify: Disaster recovery → backup + restore procedure + testing
 4. Verify: Data breach notification → incident response plan + SOP
 
 **Evidence Locations:**
+
 - `firestore.rules` (multi-tenant + member access rules)
 - `src/features/lgpd/` (privacy policy, consent tracking)
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` (disaster recovery testing)
 
 **Gap Assessment:**
+
 - [ ] Firestore rules enforce multi-tenant isolation (labId checks)?
 - [ ] LGPD policy document complete (Art. 8 data processing, Art. 17 deletion, etc.)?
 - [ ] Disaster recovery tested in last 90 days?
 - [ ] Data breach notification SOP documented in sgd/policies?
 
 **Remediation if gaps found:**
+
 - Add LGPD policy document to SGD
 - Run disaster recovery drill (backup → restore → verify on staging)
 - Create data breach response checklist
@@ -390,19 +432,19 @@ HC Quality v1.3 achieved **78.5% DICQ conformance**, exceeding the 75% audit-rea
 
 After completing each block, populate this table:
 
-| Block | Title | v1.3 % | Post-Audit % | Gap? | Evidence | Remediation |
-|-------|-------|--------|--------------|------|----------|-------------|
-| A | Governance | 78% | ? | — | labSettings, sgq | — |
-| B | Document Management | 65% | ? | — | sgd, sgq | — |
-| C | Personnel | 80% | ? | — | personnel, educacao | — |
-| D | Quality & Compliance | 60% | ? | — | reclamacoes, capa-tracking | — |
-| E | Pre-Analytical | 64% | ? | — | educacao-continuada, lots | — |
-| F | Analytical | 92% | ? | — | bioquimica, ceq | — |
-| G | Post-Analytical | 70% | ? | — | liberacao, criticos, pgrss | — |
-| H | Resources | 75% | ? | — | lab-apoio, calibracao, equipamentos | — |
-| I | Environment | 64% | ? | — | controle-temperatura, biosseguranca | — |
-| J | Continuity | 70% | ? | — | lgpd, auth, disaster-recovery | — |
-| **TOTAL** | — | **78.5%** | **?** | **+9.5** | — | — |
+| Block     | Title                | v1.3 %    | Post-Audit % | Gap?     | Evidence                            | Remediation |
+| --------- | -------------------- | --------- | ------------ | -------- | ----------------------------------- | ----------- |
+| A         | Governance           | 78%       | ?            | —        | labSettings, sgq                    | —           |
+| B         | Document Management  | 65%       | ?            | —        | sgd, sgq                            | —           |
+| C         | Personnel            | 80%       | ?            | —        | personnel, educacao                 | —           |
+| D         | Quality & Compliance | 60%       | ?            | —        | reclamacoes, capa-tracking          | —           |
+| E         | Pre-Analytical       | 64%       | ?            | —        | educacao-continuada, lots           | —           |
+| F         | Analytical           | 92%       | ?            | —        | bioquimica, ceq                     | —           |
+| G         | Post-Analytical      | 70%       | ?            | —        | liberacao, criticos, pgrss          | —           |
+| H         | Resources            | 75%       | ?            | —        | lab-apoio, calibracao, equipamentos | —           |
+| I         | Environment          | 64%       | ?            | —        | controle-temperatura, biosseguranca | —           |
+| J         | Continuity           | 70%       | ?            | —        | lgpd, auth, disaster-recovery       | —           |
+| **TOTAL** | —                    | **78.5%** | **?**        | **+9.5** | —                                   | —           |
 
 ---
 
@@ -419,6 +461,7 @@ After completing each block, populate this table:
 **Requirement:** Laboratório deve manter registros de dados que justifiquem resultados comunicados, com rastreabilidade ponta-a-ponta.
 
 **Evidence Checklist:**
+
 - [ ] ADR-0012 (LogicalSignature) implemented
 - [ ] HMAC chain-hash present on: insumo-movimentacoes, capa events, notivisa submissions, personnel quals, equipment calibrations, laudo releases
 - [ ] Firestore rules enforce immutability (sealed docs cannot be updated)
@@ -427,6 +470,7 @@ After completing each block, populate this table:
 - [ ] Monthly secret rotation procedure documented
 
 **Code Locations:**
+
 ```
 - src/shared/logicalSignature.ts
 - firestore.rules (sealing rules per collection)
@@ -444,6 +488,7 @@ After completing each block, populate this table:
 **Requirement:** Laudo clínico assinado por RT habilitado com referências e interpretação.
 
 **Evidence Checklist:**
+
 - [ ] Laudo entity includes: `rtNome`, `rtRegistro`, `cnes`, `labName`, exam codes, patient data
 - [ ] RT signature via LogicalSignature (hash + timestamp + operatorId)
 - [ ] Firestore rules enforce RT-only finalization (assertRTAccess)
@@ -452,6 +497,7 @@ After completing each block, populate this table:
 - [ ] Soft-delete only (no hard delete of laudos)
 
 **Code Locations:**
+
 ```
 - src/features/liberacao/types/laudo.ts
 - src/features/liberacao/services/laudoService.ts
@@ -468,6 +514,7 @@ After completing each block, populate this table:
 **Requirement:** Laboratório deve executar Controle Interno da Qualidade de acordo com RDC 306.
 
 **Evidence Checklist:**
+
 - [ ] Bioquimica module live (17+ analitos, Westgard CLSI rules)
 - [ ] CIQ modules for: coagulacao, ciq-imuno, uroanalise
 - [ ] ControlMaterial tracking via lotes collection
@@ -476,6 +523,7 @@ After completing each block, populate this table:
 - [ ] Firestore rules prevent non-CIQ access without control material
 
 **Code Locations:**
+
 ```
 - src/features/bioquimica/
 - src/features/coagulacao/
@@ -494,6 +542,7 @@ After completing each block, populate this table:
 **Requirement:** Laboratório deve ter planos de CIQ por analito/equipamento.
 
 **Evidence Checklist:**
+
 - [ ] Bula parser extracts método, CV alvo, biological range
 - [ ] CIQ Plan template in SGD (document code `fr-010-plano-ciq`)
 - [ ] Per-lab customization UI ready
@@ -501,6 +550,7 @@ After completing each block, populate this table:
 - [ ] Multi-instrument traceability via TraceabilityEvent logs
 
 **Code Locations:**
+
 ```
 - src/features/bioquimica/services/analyteService.ts (seed + CV targets)
 - src/features/bulaparser/ (extraction logic)
@@ -517,6 +567,7 @@ After completing each block, populate this table:
 **Requirement:** Rastreabilidade completa desde recebimento até descarte.
 
 **Evidence Checklist:**
+
 - [ ] TraceabilityEvent collection (append-only, immutable)
 - [ ] Fields: `labId`, `equipmentId`, `type`, `examCodeAtChange`, `timestamp`, `registeredBy`
 - [ ] Event types documented: `reagent_change`, `control_run`, `calibration`, `maintenance`, `disposal`
@@ -524,6 +575,7 @@ After completing each block, populate this table:
 - [ ] HMAC signature validation on sealing
 
 **Code Locations:**
+
 ```
 - src/features/traceability/types/traceabilityEvent.ts
 - src/features/traceability/services/traceabilityService.ts
@@ -539,6 +591,7 @@ After completing each block, populate this table:
 **Requirement:** Laboratório deve estabelecer valores críticos e impedir liberação sem revisão RT.
 
 **Evidence Checklist:**
+
 - [ ] `detectarCriticos()` function identifies results exceeding thresholds
 - [ ] `Laudo.criticoFlag` blocks auto-release
 - [ ] `complianceOverride` records reason for override
@@ -547,6 +600,7 @@ After completing each block, populate this table:
 - [ ] Physician notification (email/SMS) on critical value detection
 
 **Code Locations:**
+
 ```
 - src/features/criticos/services/criticoService.ts
 - src/features/criticos/hooks/useDetectCriticos.ts
@@ -563,6 +617,7 @@ After completing each block, populate this table:
 **Requirement:** NC com severidade crítica → email alert + log + escalação.
 
 **Evidence Checklist:**
+
 - [ ] `naoConformidades` collection with severity levels (low, medium, high, critical)
 - [ ] `criarNaoConformidade()` callable detects severity and auto-escalates
 - [ ] Email notification via Cloud Task (CF-triggered)
@@ -572,6 +627,7 @@ After completing each block, populate this table:
 - [ ] NC trending dashboard + root cause tracking
 
 **Code Locations:**
+
 ```
 - src/features/qualidade/types/naoConformidade.ts
 - src/features/qualidade/services/qualidadeService.ts
@@ -589,6 +645,7 @@ After completing each block, populate this table:
 **Requirement:** Laboratório deve garantir integridade de dados; exclusão de registros proibida.
 
 **Evidence Checklist:**
+
 - [ ] All collections use soft-delete pattern (status field: `vigente`, `deletado`)
 - [ ] Firestore rules block `deleteDoc()` calls (callable-enforced only)
 - [ ] Soft-delete timestamps recorded (who, when)
@@ -596,6 +653,7 @@ After completing each block, populate this table:
 - [ ] 5-year retention enforced per collection
 
 **Code Locations:**
+
 ```
 - firestore.rules (delete() protection)
 - src/shared/softDelete.ts (helper functions)
@@ -608,17 +666,17 @@ After completing each block, populate this table:
 
 ### RDC 978 Summary Verification Table
 
-| Article | Title | Status | Evidence | Blocker? |
-|---------|-------|--------|----------|----------|
-| 117 | Audit Trail | ✅ or 🔴 | ADR-0012 + code | — |
-| 167 | Laudos | ✅ or 🔴 | liberacao module | — |
-| 179 | CIQ | ✅ or 🔴 | bioquimica + others | — |
-| 180 | Planos | ✅ or 🔴 | bulaparser + sgq | — |
-| 181 | Rastreabilidade | ✅ or 🔴 | traceability module | — |
-| 183 | Críticos | ✅ or 🔴 | criticos module | — |
-| 184–191 | NC + Escalação | ✅ or 🔴 | qualidade module | — |
-| 204 | Soft-Delete | ✅ or 🔴 | firestore.rules | — |
-| **TOTAL** | — | **?/8** | — | — |
+| Article   | Title           | Status   | Evidence            | Blocker? |
+| --------- | --------------- | -------- | ------------------- | -------- |
+| 117       | Audit Trail     | ✅ or 🔴 | ADR-0012 + code     | —        |
+| 167       | Laudos          | ✅ or 🔴 | liberacao module    | —        |
+| 179       | CIQ             | ✅ or 🔴 | bioquimica + others | —        |
+| 180       | Planos          | ✅ or 🔴 | bulaparser + sgq    | —        |
+| 181       | Rastreabilidade | ✅ or 🔴 | traceability module | —        |
+| 183       | Críticos        | ✅ or 🔴 | criticos module     | —        |
+| 184–191   | NC + Escalação  | ✅ or 🔴 | qualidade module    | —        |
+| 204       | Soft-Delete     | ✅ or 🔴 | firestore.rules     | —        |
+| **TOTAL** | —               | **?/8**  | —                   | —        |
 
 ---
 
@@ -662,6 +720,7 @@ After completing each block, populate this table:
 **Target State:** Single consolidated dossier view (qualifications + training + competency + performance)
 
 **Fix Plan:**
+
 1. Create `src/features/personnel/components/DossierView.tsx` (aggregates 4 data sources)
 2. Add composite Firestore query: `getPersonnelDossier(labId, employeeId)`
 3. Test: E2E verify dossier loads all 4 sections + timestamps match
@@ -746,14 +805,14 @@ After completing each block, populate this table:
 
 ## Timeline & Milestones
 
-| Date | Milestone | Owner | Status |
-|------|-----------|-------|--------|
-| 2026-05-20 | Phase 13 kickoff + Task 1 (read docs) | Auditor | Planned |
-| 2026-05-22 | Task 2 (DICQ audit) complete | Auditor | Planned |
+| Date       | Milestone                              | Owner   | Status  |
+| ---------- | -------------------------------------- | ------- | ------- |
+| 2026-05-20 | Phase 13 kickoff + Task 1 (read docs)  | Auditor | Planned |
+| 2026-05-22 | Task 2 (DICQ audit) complete           | Auditor | Planned |
 | 2026-05-24 | Task 3 (RDC 978 verification) complete | Auditor | Planned |
-| 2026-05-27 | Task 4 (gap remediation) complete | Eng A/B | Planned |
-| 2026-06-03 | Task 5 (compliance report + sign-off) | CTO | Planned |
-| 2026-06-10 | Phase 13 complete + staging verified | Auditor | Planned |
+| 2026-05-27 | Task 4 (gap remediation) complete      | Eng A/B | Planned |
+| 2026-06-03 | Task 5 (compliance report + sign-off)  | CTO     | Planned |
+| 2026-06-10 | Phase 13 complete + staging verified   | Auditor | Planned |
 
 ---
 

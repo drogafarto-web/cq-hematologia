@@ -12,6 +12,7 @@
 Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal infrastructure, real-time presence, NOTIVISA integration, laudo OCR, patient consent backfill, Cloud Logs monitoring, performance validation, E2E testing, bootstrap automation, and security hardening. All modules are deployed to production with comprehensive audit trails, RBAC enforcement, and regulatory compliance (RDC 978 Art. 6, 22, 128, 167; LGPD Art. 9/11; DICQ 4.1.2.7, 4.3, 4.4).
 
 **Key Metrics:**
+
 - 45 commits delivered
 - 8 E2E specs, 42 smoke test scenarios, 150+ unit tests
 - Bundle size stable (362 KB main chunk)
@@ -28,6 +29,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Dark-first RT operational dashboard with critical value escalation, laudo review, and real-time presence indicators.
 
 **Deliverables:**
+
 - UI Shell: Nav, sidebar, filter toolbar, empty states
 - Firestore collections: `portal-rt-state/{labId}/dashboards`, `critical-values/{labId}/escalations`
 - Cloud Function callables: `portal_rt_createDashboard`, `portal_rt_updateDashboard`, `critical_notifyEscalation`
@@ -46,6 +48,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** LGPD-compliant patient portal for test result viewing, data export, and consent management.
 
 **Deliverables:**
+
 - Email link authentication (HMAC token, 24h expiry) — ADR-0015, ADR-0024
 - UI: Result list, detail view, export wizard, consent status
 - Firestore collections: `patient-results/{patientId}/results`, `patient-consents/{patientId}/records`
@@ -65,6 +68,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** NOTIVISA (Anvisa adverse event reporting) integration with sandbox testing, draft workflow, and queue-based submission.
 
 **Deliverables:**
+
 - HTTP client: `NotivisaClient` for sandbox environment (gov provisioning 3–5 days)
 - Draft lifecycle: Create → Review → Submit → Queue → Archive
 - Firestore collections: `notivisa-drafts/{labId}/drafts`, `notivisa-queue/{labId}/events`, `notivisa-outbox/{labId}/archives`
@@ -86,6 +90,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Enforce RDC 978 Art. 22 requirement that all operational runs must have active RT supervision.
 
 **Deliverables:**
+
 - Firestore collection: `supervisor-status/{labId}/status`
 - Hook: `useSupervisorStatus()` with real-time polling
 - Rules gate: `hasActiveSupervisor()` function blocks run creation if no RT online
@@ -104,6 +109,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Automated OCR of laudo strips via Gemini Vision with consent gate and manual fallback.
 
 **Deliverables:**
+
 - Service: `laudoOcrService` (Gemini Vision + consent gate + cache)
 - Hook: `useLaudoOcr()` with fallback to manual entry
 - Cloud Function callable: `ocr_processLaudo`
@@ -122,6 +128,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Migrate historical laudo data to explicit consent model for existing patients.
 
 **Deliverables:**
+
 - Cloud Function: `consent_backfillHistorical` (batch migration, idempotent)
 - Firestore collection: `patient-consents/{patientId}/records`
 - Migration log: `migration-consent-backfill-2026-05-08.log`
@@ -138,6 +145,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** 24-hour Cloud Logs monitoring suite for production alerting and incident response.
 
 **Deliverables:**
+
 - Guide: [`docs/CLOUD_LOGS_MONITORING_GUIDE.md`](CLOUD_LOGS_MONITORING_GUIDE.md) (setup + filters + red flags)
 - Quick ref: [`docs/CLOUD_LOGS_QUICK_REFERENCE.md`](CLOUD_LOGS_QUICK_REFERENCE.md) (cheat sheet)
 - Scripts: `scripts/monitor-cloud-logs.sh` (Bash/Linux) + `scripts/monitor-cloud-logs.ps1` (PowerShell/Windows)
@@ -156,6 +164,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Automated bundle size, Lighthouse, Web Vitals, auth latency, laudo load, queue processing, and rules latency validation.
 
 **Deliverables:**
+
 - Orchestrator: `scripts/phase4-validation-orchestrator.js`
 - 7 metrics with pass/fail gates:
   1. **Bundle size:** main <365 KB, vendor <250 KB ✅ (main 362 KB)
@@ -179,6 +188,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** 8 E2E specs covering critical paths: auth, portal-rt, portal-paciente, laudo OCR, NOTIVISA draft, RT presence.
 
 **Deliverables:**
+
 - Specs: `e2e/specs/critical-flows.spec.ts` (8 scenarios, 42 total steps)
   1. Patient email auth → view result → request data export
   2. RT login → view critical value escalation → acknowledge
@@ -203,6 +213,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 **Scope:** Automated prereq setup for Phase 4 features (supervisor status, consent records, NOTIVISA config).
 
 **Deliverables:**
+
 - Script: `scripts/bootstrap-phase4.sh` (idempotent)
   - Create `supervisor-status/{labId}/status` with offline marker
   - Initialize `patient-consents/{patientId}` collection for backfilled laudos
@@ -220,25 +231,25 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 
 ### RDC 978 (Anvisa Clinical Laboratory Regulation)
 
-| Article | Requirement | Implemented | Module | Status |
-|---------|-------------|-------------|--------|--------|
-| Art. 6 | Regulatory notification (adverse events) | NOTIVISA draft + queue | notivisa | ✅ Phase 4 |
-| Art. 22 | Daily RT supervision of operations | RT presence gate | rt-presence | ✅ Phase 4 |
-| Art. 36–39 | Lab partnership contracts | lab-apoio module | lab-apoio | ✅ Phase 3 |
-| Art. 86 | Risk management (FMEA) | risks module | risks | ✅ Phase 3 |
-| Art. 122 | Supervisor presence on all runs | hasActiveSupervisor() gate | runs | ✅ Phase 4 |
-| Art. 128 | RT responsibility for results | portal-rt module | portal-rt | ✅ Phase 4 |
-| Art. 167 | Patient information delivery | portal-paciente, laudo-ocr | portal-paciente, laudo-ocr | ✅ Phase 4 |
+| Article    | Requirement                              | Implemented                | Module                     | Status     |
+| ---------- | ---------------------------------------- | -------------------------- | -------------------------- | ---------- |
+| Art. 6     | Regulatory notification (adverse events) | NOTIVISA draft + queue     | notivisa                   | ✅ Phase 4 |
+| Art. 22    | Daily RT supervision of operations       | RT presence gate           | rt-presence                | ✅ Phase 4 |
+| Art. 36–39 | Lab partnership contracts                | lab-apoio module           | lab-apoio                  | ✅ Phase 3 |
+| Art. 86    | Risk management (FMEA)                   | risks module               | risks                      | ✅ Phase 3 |
+| Art. 122   | Supervisor presence on all runs          | hasActiveSupervisor() gate | runs                       | ✅ Phase 4 |
+| Art. 128   | RT responsibility for results            | portal-rt module           | portal-rt                  | ✅ Phase 4 |
+| Art. 167   | Patient information delivery             | portal-paciente, laudo-ocr | portal-paciente, laudo-ocr | ✅ Phase 4 |
 
 **Coverage:** 100% of critical articles (Arts. 6, 22, 36–39, 86, 122, 128, 167)
 
 ### LGPD (Brazilian General Data Protection Law)
 
-| Article | Requirement | Implemented | Module | Status |
-|---------|-------------|-------------|--------|--------|
-| Art. 9 | Explicit consent for sensitive data | recordPatientConsent callable | portal-paciente | ✅ Phase 4 |
-| Art. 11 | Right to data portability | exportPatientData callable | portal-paciente | ✅ Phase 4 |
-| Art. 13 | Right to access own data | patient email link auth | portal-paciente | ✅ Phase 4 |
+| Article | Requirement                          | Implemented                   | Module          | Status     |
+| ------- | ------------------------------------ | ----------------------------- | --------------- | ---------- |
+| Art. 9  | Explicit consent for sensitive data  | recordPatientConsent callable | portal-paciente | ✅ Phase 4 |
+| Art. 11 | Right to data portability            | exportPatientData callable    | portal-paciente | ✅ Phase 4 |
+| Art. 13 | Right to access own data             | patient email link auth       | portal-paciente | ✅ Phase 4 |
 | Art. 17 | Right to deletion (with audit trail) | revokePatientConsent callable | portal-paciente | ✅ Phase 4 |
 
 **Coverage:** 100% of patient rights (Arts. 9, 11, 13, 17)  
@@ -246,11 +257,11 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 
 ### DICQ (ANVISA Clinical Laboratory Quality Manual)
 
-| Block | Requirement | Modules | Status |
-|-------|-------------|---------|--------|
-| 4.1.2.7 | Turnos supervisor documentation | turnos, rt-presence | ✅ Phase 4 |
-| 4.3 | Quality documentation (SOP versioning, training) | sgq, pops, treinamentos | ✅ Phase 3 |
-| 4.4 | Audit trail (write intent + read consent) | auditoria, cloud-logs | ✅ Phase 4 |
+| Block   | Requirement                                      | Modules                 | Status     |
+| ------- | ------------------------------------------------ | ----------------------- | ---------- |
+| 4.1.2.7 | Turnos supervisor documentation                  | turnos, rt-presence     | ✅ Phase 4 |
+| 4.3     | Quality documentation (SOP versioning, training) | sgq, pops, treinamentos | ✅ Phase 3 |
+| 4.4     | Audit trail (write intent + read consent)        | auditoria, cloud-logs   | ✅ Phase 4 |
 
 **Overall Compliance:** 78.5% (up from 76% Phase 3)  
 **Target for Phase 5:** 85% (add bioquimica, ceq advanced analytics)
@@ -278,47 +289,55 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ### E2E Smoke Tests (42 scenarios)
 
 **Session 1 — Auth & Portal Access (6 scenarios)**
+
 - Patient email link validation
 - Email token expiry after 24h
 - Portal-Paciente load + error states
 - RT login + nav
 
 **Session 2 — Portal-RT Operations (8 scenarios)**
+
 - Critical value escalation display
 - Acknowledge + resolve flow
 - Dashboard filter persistence
 - Batch escalation actions
 
 **Session 3 — Laudo OCR & Consent (7 scenarios)**
+
 - OCR trigger on laudo entry
 - Consent gate prevents image upload without record
 - Manual override workflow
 - Consent revocation reflects immediately
 
 **Session 4 — NOTIVISA Workflow (6 scenarios)**
+
 - Draft creation from laudo
 - RT review + approve
 - Queue submission + polling
 - Archive on completion
 
 **Session 5 — Supervision & Presence (5 scenarios)**
+
 - RT offline → run creation blocked
 - Multiple RTs → escalation count updates
 - Supervisor badge in nav
 - Fallback when RT goes offline mid-run
 
 **Session 6 — Data Export & LGPD (4 scenarios)**
+
 - Patient data export wizard
 - Email delivery + expiry
 - Audit log records export action
 - Consent revocation blocks future exports
 
 **Session 7 — Cloud Logs & Monitoring (3 scenarios)**
+
 - Rules rejection triggers alert
 - High latency detection
 - Alert resolution in dashboard
 
 **Session 8 — Integration & Rollback (2 scenarios)**
+
 - Simultaneous multi-tenant requests (isolation verified)
 - Phase rollback test (portal-rt disabled → no 403s)
 
@@ -328,22 +347,22 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 
 ## Performance Metrics (vs. Targets)
 
-| Metric | Target | Measured | Status | Notes |
-|--------|--------|----------|--------|-------|
-| **Bundle Size** | | | | |
-| Main chunk | <365 KB | 362 KB | ✅ | +0 KB from Phase 3 |
-| Vendor chunk | <250 KB | 247 KB | ✅ | −3 KB (portal deps optimized) |
-| **Lighthouse (performance)** | >90 | 94 | ✅ | LCP driver: Firestore listener init |
-| **Web Vitals** | | | | |
-| LCP | <2.0s | 1.8s | ✅ | 100ms faster than Phase 3 |
-| INP | <200ms | 156ms | ✅ | Modal interactions optimized |
-| CLS | <0.05 | 0.032 | ✅ | Skeleton loading prevents shift |
-| **Auth Latency** | | | | |
-| Cold start | <500ms | 340ms | ✅ | Email token validation cached |
-| Warm cache | <100ms | 85ms | ✅ | Firebase session persistence |
-| **Laudo Load** | <1.5s | 1.2s | ✅ | Concurrent Firestore + OCR |
-| **NOTIVISA Queue** | <5s per event | 3.1s avg | ✅ | HTTP retry policy (3×) |
-| **Rules Validation** | <100ms | 42ms avg | ✅ | Compound index optimization |
+| Metric                       | Target        | Measured | Status | Notes                               |
+| ---------------------------- | ------------- | -------- | ------ | ----------------------------------- |
+| **Bundle Size**              |               |          |        |                                     |
+| Main chunk                   | <365 KB       | 362 KB   | ✅     | +0 KB from Phase 3                  |
+| Vendor chunk                 | <250 KB       | 247 KB   | ✅     | −3 KB (portal deps optimized)       |
+| **Lighthouse (performance)** | >90           | 94       | ✅     | LCP driver: Firestore listener init |
+| **Web Vitals**               |               |          |        |                                     |
+| LCP                          | <2.0s         | 1.8s     | ✅     | 100ms faster than Phase 3           |
+| INP                          | <200ms        | 156ms    | ✅     | Modal interactions optimized        |
+| CLS                          | <0.05         | 0.032    | ✅     | Skeleton loading prevents shift     |
+| **Auth Latency**             |               |          |        |                                     |
+| Cold start                   | <500ms        | 340ms    | ✅     | Email token validation cached       |
+| Warm cache                   | <100ms        | 85ms     | ✅     | Firebase session persistence        |
+| **Laudo Load**               | <1.5s         | 1.2s     | ✅     | Concurrent Firestore + OCR          |
+| **NOTIVISA Queue**           | <5s per event | 3.1s avg | ✅     | HTTP retry policy (3×)              |
+| **Rules Validation**         | <100ms        | 42ms avg | ✅     | Compound index optimization         |
 
 **Regression Check:** No regressions from Phase 3. All metrics within SLA.
 
@@ -354,6 +373,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ### Audit Logging
 
 **Implementation:** `writeAuditLog()` helper (Phase 3) extended to 4 new sites:
+
 - Portal-RT: escalation acknowledge action
 - Portal-Paciente: data export request
 - Laudo OCR: consent gate decision
@@ -366,6 +386,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ### HMAC Baseline Extension
 
 **ADR-0030 approved:** Extended HMAC baseline reset (ADR-0017 from 2026-05-07) to include `criticos` chain:
+
 - `criticosConfig` creation/update signed
 - `criticosThreshold` entries signed
 - `criticosEscalation` acknowledgement signed
@@ -375,6 +396,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ### Rules Enforcement
 
 **Firestore Rules Deployed (Phase 4):**
+
 - `portal-rt-state/{labId}/dashboards` — RT-only reads/writes via callable
 - `critical-values/{labId}/escalations` — RT-only, immutable archive
 - `patient-consents/{labId}/{patientId}` — Per-patient reads via email token
@@ -387,6 +409,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ### Secrets Management
 
 **Pre-Deployment Verification:** `scripts/preflight-secrets-check.sh` (mandatory gate)
+
 - `HCQ_SIGNATURE_HMAC_KEY` set and 64 chars
 - `GEMINI_API_KEY` set (for laudo OCR)
 - `NOTIVISA_API_KEY` set (sandbox)
@@ -503,6 +526,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 ## Artifacts
 
 ### Documentation
+
 - Phase 4 Completion Summary (this file)
 - 3 ADRs: ADR-0032, ADR-0033, ADR-0034
 - Deployment Runbook Index
@@ -512,6 +536,7 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 - Tech Debt Tracker
 
 ### Code
+
 - Portal-RT: 8 components, 3 hooks, 2 services, 12 tests
 - Portal-Paciente: 6 components, 2 hooks, 1 service, 8 tests
 - NOTIVISA v1.4: HTTP client, 4 callables, 3 collections, 6 tests
@@ -522,12 +547,14 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 - Bootstrap: Deployment scripts, pre-flight checks, dry-run mode
 
 ### Tests
+
 - 150+ unit tests (100% passing)
 - 8 E2E specs (100% passing, 42 scenarios)
 - Performance validation: 7 metrics, all passing
 - Smoke test checklist: 42 scenarios documented
 
 ### Scripts
+
 - `scripts/bootstrap-phase4.sh` — Deployment prerequisites
 - `scripts/phase4-validation.sh` — Performance gating
 - `scripts/preflight-secrets-check.sh` — Pre-deploy secrets verification
@@ -537,12 +564,12 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 
 ## Sign-Off
 
-| Role | Name | Date | Signature |
-|------|------|------|-----------|
-| **CTO** | Founder | 2026-05-08 | ✅ Approved |
-| **Compliance** | Security Lead | 2026-05-08 | ✅ Approved |
-| **QA** | Test Lead | 2026-05-08 | ✅ Approved |
-| **DevOps** | Deployment Lead | 2026-05-08 | ✅ Approved |
+| Role           | Name            | Date       | Signature   |
+| -------------- | --------------- | ---------- | ----------- |
+| **CTO**        | Founder         | 2026-05-08 | ✅ Approved |
+| **Compliance** | Security Lead   | 2026-05-08 | ✅ Approved |
+| **QA**         | Test Lead       | 2026-05-08 | ✅ Approved |
+| **DevOps**     | Deployment Lead | 2026-05-08 | ✅ Approved |
 
 **Phase 4 Completion Status: ✅ APPROVED FOR PRODUCTION**
 
@@ -550,6 +577,6 @@ Phase 4 delivered 10 concurrent workstreams (Wave 3 agents 1-10) spanning Portal
 
 ## Revision History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-05-08 | Initial completion summary |
+| Version | Date       | Changes                    |
+| ------- | ---------- | -------------------------- |
+| 1.0     | 2026-05-08 | Initial completion summary |

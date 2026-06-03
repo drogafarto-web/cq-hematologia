@@ -33,14 +33,15 @@ export function TurnosShell() {
         <div className="mx-auto max-w-7xl px-8 pt-6 pb-0">
           <h1
             className="font-semibold"
-            style={{ fontSize: '20px', letterSpacing: '-0.02em', color: 'var(--text-strong, #fff)' }}
+            style={{
+              fontSize: '20px',
+              letterSpacing: '-0.02em',
+              color: 'var(--text-strong, #fff)',
+            }}
           >
             Turnos e Supervisão
           </h1>
-          <p
-            className="mt-1"
-            style={{ fontSize: '13px', color: 'var(--text-muted, #94A3B8)' }}
-          >
+          <p className="mt-1" style={{ fontSize: '13px', color: 'var(--text-muted, #94A3B8)' }}>
             RDC 978 Art. 122 · Planejamento e registro de cobertura RT
           </p>
 
@@ -60,7 +61,10 @@ export function TurnosShell() {
                 aria-hidden="true"
               />
               <p style={{ fontSize: '13px', color: 'rgba(239, 68, 68, 0.9)' }}>
-                <span className="font-medium">{alertasCount} dia{alertasCount !== 1 ? 's' : ''}</span> sem cobertura RT nesta semana.
+                <span className="font-medium">
+                  {alertasCount} dia{alertasCount !== 1 ? 's' : ''}
+                </span>{' '}
+                sem cobertura RT nesta semana.
               </p>
             </div>
           )}
@@ -78,9 +82,10 @@ export function TurnosShell() {
                 style={{
                   fontSize: '13px',
                   fontWeight: 500,
-                  color: activeTab === tab.id
-                    ? 'var(--text-strong, #fff)'
-                    : 'var(--text-muted, #94A3B8)',
+                  color:
+                    activeTab === tab.id
+                      ? 'var(--text-strong, #fff)'
+                      : 'var(--text-muted, #94A3B8)',
                 }}
               >
                 <span>{tab.label}</span>
@@ -90,12 +95,12 @@ export function TurnosShell() {
                     style={{
                       fontSize: '11px',
                       fontWeight: 500,
-                      background: activeTab === tab.id
-                        ? 'rgba(37, 99, 235, 0.15)'
-                        : 'rgba(255,255,255,0.06)',
-                      color: activeTab === tab.id
-                        ? 'var(--accent-400, #60A5FA)'
-                        : 'var(--text-faint, #64748B)',
+                      background:
+                        activeTab === tab.id ? 'rgba(37, 99, 235, 0.15)' : 'rgba(255,255,255,0.06)',
+                      color:
+                        activeTab === tab.id
+                          ? 'var(--accent-400, #60A5FA)'
+                          : 'var(--text-faint, #64748B)',
                     }}
                   >
                     {tab.count}

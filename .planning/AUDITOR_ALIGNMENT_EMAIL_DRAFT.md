@@ -34,6 +34,7 @@ We are now executing **v1.4**, a 14-week roadmap targeting **≥88% DICQ complia
 5. **Q&A + Action Items (5 min):** Confirm next checkpoint (Week 3 of Phase 0), comms channel
 
 **What we'll send you in advance:**
+
 - v1.4 Auditor Briefing (14 pages, complete roadmap)
 - v1.4 DICQ Coverage Matrix (block-by-block compliance mapping)
 - v1.4 RDC 978 Coverage Matrix (article-by-article mapping)
@@ -42,6 +43,7 @@ We are now executing **v1.4**, a 14-week roadmap targeting **≥88% DICQ complia
 - Phase 0 RDC Blockers Plan (supervisor registry, LGPD policy, lab support contracts, risk management)
 
 **Key checkpoint dates:**
+
 - May 13–17: Alignment call (90 min, Zoom)
 - May 28 – Jun 30: Phase 4 CAPA evidence weekly review (Fridays, 30 min)
 - Aug 5–30: Phase 13 pre-audit matrix review (audit-readiness confirmation)
@@ -49,6 +51,7 @@ We are now executing **v1.4**, a 14-week roadmap targeting **≥88% DICQ complia
 - Oct 15: External audit execution
 
 **Open questions for the call:**
+
 1. Is `LogicalSignature` (SHA-256 hash + operatorId + timestamp) acceptable as digital signature equivalent for DICQ 4.4 / RDC 978 evidence?
 2. Is `chainHash` (event-chained audit trail with HMAC baseline reset on May 7) sufficient for tamper-evidence, or do you require notarization/external timestamp authority?
 3. Document retention: Firestore native + cold-archive to Cloud Storage (5-year per RDC 978), or different preference?
@@ -78,4 +81,3 @@ drogafarto@gmail.com
 - **Customization required:** Insert auditor name, email, phone
 - **Follow-up:** If no response within 3 days, escalate to lab compliance officer or SBAC representative
 - **Document versioning:** Update "Last Updated" in briefing before sending
-

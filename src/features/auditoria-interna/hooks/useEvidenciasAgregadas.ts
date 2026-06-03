@@ -74,7 +74,7 @@ export interface UseEvidenciasAgregadasResult {
  */
 export function useEvidenciasAgregadas(
   indicadorId: string,
-  labId: string
+  labId: string,
 ): UseEvidenciasAgregadasResult {
   const [evidencias, setEvidencias] = useState<EvidenciaAgregada[]>([]);
   const [loading, setLoading] = useState(false);
@@ -134,7 +134,7 @@ export function useEvidenciasAgregadas(
         }
       }
     },
-    [labId, indicadorId]
+    [labId, indicadorId],
   );
 
   // Fetch on mount and when dependencies change

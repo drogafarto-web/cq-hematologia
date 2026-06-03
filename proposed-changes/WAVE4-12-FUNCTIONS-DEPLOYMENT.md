@@ -19,43 +19,43 @@
 
 ### 1. Code Fixes & Build Validation
 
-| Task | Status | Details |
-|------|--------|---------|
-| Fix `laudoOCRExtractor.ts` template literal | ✅ | Lines 245–332: Escaped backticks in JSON examples |
-| Fix Gemini API call (inlineData format) | ✅ | Updated to match v2.5 Flash API |
-| Fix fetch timeout (AbortController) | ✅ | Node 22 doesn't support `timeout` in RequestInit |
-| Add `labApoio_generateContractTemplate` export | ✅ | labApoio/index.ts now exports contractTemplate |
-| Fix memory options (`1GB` → `1GiB`) | ✅ | extractLaudoFieldsCallable, saveLaudoFieldsManuallyCallable |
-| Fix boolean comparison (`!memberData?.status === 'active'`) | ✅ | Changed to `memberData?.status !== 'active'` |
-| Fix LogicalSignature import (signature.ts → cryptoaudit.ts) | ✅ | ocr-quality/types.ts |
-| TypeScript build clean | ✅ | `npx tsc --noEmit` passes (0 errors) |
-| Build succeeds | ✅ | `npm run build` produces `lib/` output |
+| Task                                                        | Status | Details                                                     |
+| ----------------------------------------------------------- | ------ | ----------------------------------------------------------- |
+| Fix `laudoOCRExtractor.ts` template literal                 | ✅     | Lines 245–332: Escaped backticks in JSON examples           |
+| Fix Gemini API call (inlineData format)                     | ✅     | Updated to match v2.5 Flash API                             |
+| Fix fetch timeout (AbortController)                         | ✅     | Node 22 doesn't support `timeout` in RequestInit            |
+| Add `labApoio_generateContractTemplate` export              | ✅     | labApoio/index.ts now exports contractTemplate              |
+| Fix memory options (`1GB` → `1GiB`)                         | ✅     | extractLaudoFieldsCallable, saveLaudoFieldsManuallyCallable |
+| Fix boolean comparison (`!memberData?.status === 'active'`) | ✅     | Changed to `memberData?.status !== 'active'`                |
+| Fix LogicalSignature import (signature.ts → cryptoaudit.ts) | ✅     | ocr-quality/types.ts                                        |
+| TypeScript build clean                                      | ✅     | `npx tsc --noEmit` passes (0 errors)                        |
+| Build succeeds                                              | ✅     | `npm run build` produces `lib/` output                      |
 
 ### 2. Preflight Checks
 
-| Check | Status | Result |
-|-------|--------|--------|
-| Secrets provisioned | ✅ | 14/14 secrets (GEMINI, TWILIO, RESEND, NOTIVISA, etc.) |
-| Functions exports | ✅ | 78+ functions re-exported from index.ts |
-| TypeScript clean | ✅ | No compilation errors |
-| npm audit | ⚠️ | 2 high, 1 critical (pre-existing, non-blocking) |
-| Package.json deps | ✅ | firebase-functions, google-generative-ai, etc. |
-| tsconfig.json | ✅ | Test files excluded from build |
+| Check               | Status | Result                                                 |
+| ------------------- | ------ | ------------------------------------------------------ |
+| Secrets provisioned | ✅     | 14/14 secrets (GEMINI, TWILIO, RESEND, NOTIVISA, etc.) |
+| Functions exports   | ✅     | 78+ functions re-exported from index.ts                |
+| TypeScript clean    | ✅     | No compilation errors                                  |
+| npm audit           | ⚠️     | 2 high, 1 critical (pre-existing, non-blocking)        |
+| Package.json deps   | ✅     | firebase-functions, google-generative-ai, etc.         |
+| tsconfig.json       | ✅     | Test files excluded from build                         |
 
 ### 3. Deployment Scripts Created
 
-| Script | Lines | Purpose |
-|--------|-------|---------|
-| `scripts/preflight-functions-check.sh` | 138 | Validates TS compile, index.ts exports, npm deps |
-| `scripts/deploy-functions.sh` | 240 | Orchestrates phased function deployment (3 phases) |
-| `scripts/preflight-secrets-check.sh` | (existing) | Gate: verify all secrets are provisioned |
+| Script                                 | Lines      | Purpose                                            |
+| -------------------------------------- | ---------- | -------------------------------------------------- |
+| `scripts/preflight-functions-check.sh` | 138        | Validates TS compile, index.ts exports, npm deps   |
+| `scripts/deploy-functions.sh`          | 240        | Orchestrates phased function deployment (3 phases) |
+| `scripts/preflight-secrets-check.sh`   | (existing) | Gate: verify all secrets are provisioned           |
 
 ### 4. Documentation Created
 
-| Document | Purpose |
-|----------|---------|
-| `docs/DEPLOY_RUNBOOK_FUNCTIONS_v1.4.md` | Step-by-step deploy guide (45 min), troubleshooting, rollback |
-| `proposed-changes/WAVE4-12-FUNCTIONS-DEPLOYMENT.md` | This sign-off document |
+| Document                                            | Purpose                                                       |
+| --------------------------------------------------- | ------------------------------------------------------------- |
+| `docs/DEPLOY_RUNBOOK_FUNCTIONS_v1.4.md`             | Step-by-step deploy guide (45 min), troubleshooting, rollback |
+| `proposed-changes/WAVE4-12-FUNCTIONS-DEPLOYMENT.md` | This sign-off document                                        |
 
 ### 5. Index.ts Exports Verified
 
@@ -190,21 +190,22 @@ firebase deploy --only functions:barCallable --project hmatologia2
 
 ## Key Metrics
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Functions ready | 78+ | ✅ 78+ |
-| Build time | <30 min | ✅ ~15 min |
-| Preflight checks | 100% pass | ✅ 100% |
-| Secrets provisioned | 100% | ✅ 14/14 |
-| TypeScript errors | 0 | ✅ 0 |
-| TSC clean | Yes | ✅ Yes |
-| Exports in index.ts | All | ✅ All |
+| Metric              | Target    | Status     |
+| ------------------- | --------- | ---------- |
+| Functions ready     | 78+       | ✅ 78+     |
+| Build time          | <30 min   | ✅ ~15 min |
+| Preflight checks    | 100% pass | ✅ 100%    |
+| Secrets provisioned | 100%      | ✅ 14/14   |
+| TypeScript errors   | 0         | ✅ 0       |
+| TSC clean           | Yes       | ✅ Yes     |
+| Exports in index.ts | All       | ✅ All     |
 
 ---
 
 ## Files Modified/Created
 
 ### Modified
+
 - `functions/src/modules/laudo-ocr/laudoOCRExtractor.ts` — Fixed template literal (JSON formatting)
 - `functions/src/modules/laudo-ocr/laudoOCRExtractor.ts` — Fixed Gemini API call + fetch timeout
 - `functions/src/modules/laudo-ocr/callables/extractLaudoFieldsCallable.ts` — Fixed memory option, boolean check
@@ -213,12 +214,14 @@ firebase deploy --only functions:barCallable --project hmatologia2
 - `functions/src/modules/ocr-quality/types.ts` — Fixed LogicalSignature import
 
 ### Created
+
 - `scripts/preflight-functions-check.sh` — Validation script (138 lines)
 - `scripts/deploy-functions.sh` — Deployment orchestrator (240 lines)
 - `docs/DEPLOY_RUNBOOK_FUNCTIONS_v1.4.md` — Runbook (260 lines)
 - `proposed-changes/WAVE4-12-FUNCTIONS-DEPLOYMENT.md` — This sign-off
 
 ### Unchanged (Pre-Existing)
+
 - `scripts/preflight-secrets-check.sh` — Existing gate (all secrets pass)
 - `firebase.json` — Cloud Functions config
 - `functions/tsconfig.json` — TypeScript config
@@ -231,6 +234,7 @@ firebase deploy --only functions:barCallable --project hmatologia2
 **Readiness Assessment:** 🟢 READY FOR PRODUCTION DEPLOYMENT
 
 **Prerequisites Met:**
+
 - [x] Firestore rules deployed
 - [x] All secrets provisioned
 - [x] TypeScript compiles cleanly

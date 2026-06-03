@@ -22,12 +22,12 @@ The Firebase Secret Manager entry for `HCQ_SIGNATURE_HMAC_KEY` returned the lite
 
 ### Compliance impact
 
-| Standard | Clause | Impact |
-|---|---|---|
-| RDC 786/2023 | Art. 21 (rastreabilidade tamper-evident) | Window of forgeable signatures + zero verification runs |
-| RDC 978/2025 | Art. 5.3, Art. 86, Art. 122 | Audit trail not cryptographically defensible; chain validator inert |
-| DICQ v4.3 | 4.4 (registros íntegros) | Scheduled integrity check has not produced an OK result since 2026-04-22 |
-| Lei 13.787/2018 | Art. 6 (assinatura eletrônica) | Logical signatures within window are not non-repudiable |
+| Standard        | Clause                                   | Impact                                                                   |
+| --------------- | ---------------------------------------- | ------------------------------------------------------------------------ |
+| RDC 786/2023    | Art. 21 (rastreabilidade tamper-evident) | Window of forgeable signatures + zero verification runs                  |
+| RDC 978/2025    | Art. 5.3, Art. 86, Art. 122              | Audit trail not cryptographically defensible; chain validator inert      |
+| DICQ v4.3       | 4.4 (registros íntegros)                 | Scheduled integrity check has not produced an OK result since 2026-04-22 |
+| Lei 13.787/2018 | Art. 6 (assinatura eletrônica)           | Logical signatures within window are not non-repudiable                  |
 
 ---
 
@@ -41,9 +41,9 @@ We adopt **strategy (b) — Baseline Reset** (per the discussion held 2026-05-07
    - Declare the secret in their `onCall` / `onSchedule` / `onDocumentWritten` options block: `secrets: [HCQ_SIGNATURE_HMAC_KEY]`.
    - Read the value via `HCQ_SIGNATURE_HMAC_KEY.value()` instead of `process.env.HCQ_SIGNATURE_HMAC_KEY`.
    - Remove all silent fallbacks (`|| 'dev-key'`, `|| 'default-secret'`) and fail-fast with a 500.
-3. **No re-signing of historical records.** Records written between 2026-04-22 and the rotation timestamp are left in place, marked implicitly as belonging to the **pre-rotation baseline**. Their signatures are *not* recomputed.
+3. **No re-signing of historical records.** Records written between 2026-04-22 and the rotation timestamp are left in place, marked implicitly as belonging to the **pre-rotation baseline**. Their signatures are _not_ recomputed.
 4. The rotation timestamp itself is recorded in `audit-violations` collection as a synthetic event of type `chain-baseline-reset` with severity `informational`, citing this ADR.
-5. Forward-going `validateChainIntegrityScheduled` runs treat the rotation timestamp as the chain origin (`previousHash = null`). Pre-rotation entries are *not* iterated through the chain-validator loop; they are *not* removed.
+5. Forward-going `validateChainIntegrityScheduled` runs treat the rotation timestamp as the chain origin (`previousHash = null`). Pre-rotation entries are _not_ iterated through the chain-validator loop; they are _not_ removed.
 6. If an inspector or internal audit asks about the pre-rotation window, we present this ADR and the synthetic violation entry as the disclosure. We **do not** claim integrity guarantees for that window.
 
 ### Rejected alternatives

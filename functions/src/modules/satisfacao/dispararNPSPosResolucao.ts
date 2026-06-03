@@ -74,5 +74,5 @@ export const dispararNPSPosResolucao = onDocumentUpdated(
       console.error(`[NPS] Error sending NPS email:`, error);
       throw error;
     }
-  }
+  },
 );

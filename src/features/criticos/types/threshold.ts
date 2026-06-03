@@ -562,36 +562,39 @@ export const CriticosThresholdSchema = z.object({
   deletadoEm: timestamp.or(z.null()),
 });
 
-export const CriticosThresholdInputSchema = z.object({
-  analitoId: uuid,
-  analitoNome: z.string().min(1),
-  unidade: z.string().min(1),
-  min: z.number().or(z.null()),
-  max: z.number().or(z.null()),
-  alwaysCritico: z.boolean().optional(),
-  neverCritico: z.boolean().optional(),
-  severidade: z.enum(['alta', 'baixa']),
-  condicional: z
-    .object({
-      idadeMin: z.number().int().min(0).optional(),
-      idadeMax: z.number().int().min(0).optional(),
-      sexo: z.enum(['M', 'F']).optional(),
-    })
-    .optional(),
-  ativo: z.boolean(),
-  criadoPor: z.string().optional(),
-}).refine(
-  (data) => data.min !== null || data.max !== null,
-  { message: 'At least min or max must be specified', path: ['min'] }
-).refine(
-  (data) => {
-    if (data.min !== null && data.max !== null) {
-      return data.min < data.max;
-    }
-    return true;
-  },
-  { message: 'min must be less than max', path: ['min'] }
-);
+export const CriticosThresholdInputSchema = z
+  .object({
+    analitoId: uuid,
+    analitoNome: z.string().min(1),
+    unidade: z.string().min(1),
+    min: z.number().or(z.null()),
+    max: z.number().or(z.null()),
+    alwaysCritico: z.boolean().optional(),
+    neverCritico: z.boolean().optional(),
+    severidade: z.enum(['alta', 'baixa']),
+    condicional: z
+      .object({
+        idadeMin: z.number().int().min(0).optional(),
+        idadeMax: z.number().int().min(0).optional(),
+        sexo: z.enum(['M', 'F']).optional(),
+      })
+      .optional(),
+    ativo: z.boolean(),
+    criadoPor: z.string().optional(),
+  })
+  .refine((data) => data.min !== null || data.max !== null, {
+    message: 'At least min or max must be specified',
+    path: ['min'],
+  })
+  .refine(
+    (data) => {
+      if (data.min !== null && data.max !== null) {
+        return data.min < data.max;
+      }
+      return true;
+    },
+    { message: 'min must be less than max', path: ['min'] },
+  );
 
 // CriticosEscalacaoAttempt schema
 export const CriticosEscalacaoAttemptSchema = z.object({
@@ -741,7 +744,7 @@ export const CriticosConfigSchema = z.object({
     z.object({
       analitoId: uuid,
       condicao: z.string().min(1),
-    })
+    }),
   ),
   twilioNumberRegional: z.string().min(1),
   emailTemplateId: uuid.optional(),
@@ -841,14 +844,12 @@ export interface MP3CriticoThreshold {
  */
 export function classifySeverity(
   valor: number,
-  threshold: MP3CriticoThreshold
+  threshold: MP3CriticoThreshold,
 ): 'low' | 'medium' | 'high' | 'panic' | null {
   // Check panic range first (highest priority)
   if (threshold.faixaPanico) {
-    const inPanicMin =
-      threshold.faixaPanico.min === null || valor >= threshold.faixaPanico.min;
-    const inPanicMax =
-      threshold.faixaPanico.max === null || valor <= threshold.faixaPanico.max;
+    const inPanicMin = threshold.faixaPanico.min === null || valor >= threshold.faixaPanico.min;
+    const inPanicMax = threshold.faixaPanico.max === null || valor <= threshold.faixaPanico.max;
     if (inPanicMin && inPanicMax) {
       return 'panic';
     }
@@ -856,10 +857,8 @@ export function classifySeverity(
 
   // Check critical range
   if (threshold.faixaCritica) {
-    const inCritMin =
-      threshold.faixaCritica.min === null || valor >= threshold.faixaCritica.min;
-    const inCritMax =
-      threshold.faixaCritica.max === null || valor <= threshold.faixaCritica.max;
+    const inCritMin = threshold.faixaCritica.min === null || valor >= threshold.faixaCritica.min;
+    const inCritMax = threshold.faixaCritica.max === null || valor <= threshold.faixaCritica.max;
     if (inCritMin && inCritMax) {
       // Return default severity, ensuring it's medium or high
       const severity = threshold.severityDefault;

@@ -8,21 +8,11 @@
 
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
-import {
-  HCQ_SIGNATURE_HMAC_KEY,
-  computeHmac,
-  verify,
-} from './verifier';
-import {
-  extractMovimentacaoCanonicalFields,
-  extractRunCanonicalFields,
-} from './canonical';
+import { HCQ_SIGNATURE_HMAC_KEY, computeHmac, verify } from './verifier';
+import { extractMovimentacaoCanonicalFields, extractRunCanonicalFields } from './canonical';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 
-async function logDivergence(
-  kind: string,
-  detail: Record<string, unknown>,
-): Promise<void> {
+async function logDivergence(kind: string, detail: Record<string, unknown>): Promise<void> {
   // Routes through resilient writeAuditLog (retry + fallback) instead of a
   // raw .add() — divergences are tamper signals; losing one is unacceptable.
   await writeAuditLog({

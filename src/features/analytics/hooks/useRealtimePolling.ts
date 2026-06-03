@@ -43,10 +43,7 @@ let _lastKnownRefreshAt: string | null = null;
  * @param labId Active lab ID
  * @param resetState If true, resets the lastKnown diff state (for test isolation)
  */
-export async function checkForUpdatesTestOnly(
-  labId: string,
-  resetState = false,
-): Promise<void> {
+export async function checkForUpdatesTestOnly(labId: string, resetState = false): Promise<void> {
   if (resetState) {
     _lastKnownRefreshAt = null;
   }
@@ -82,11 +79,12 @@ export async function checkForUpdatesTestOnly(
     // Update Zustand metadata
     const store = useAnalyticsStore.getState();
     const tsRaw0 = rawTs as { toDate?: () => Date } | Date | null | undefined;
-    const coercedDate = tsRaw0 && typeof (tsRaw0 as { toDate?: unknown }).toDate === 'function'
-      ? (tsRaw0 as { toDate: () => Date }).toDate()
-      : tsRaw0 instanceof Date
-      ? tsRaw0
-      : null;
+    const coercedDate =
+      tsRaw0 && typeof (tsRaw0 as { toDate?: unknown }).toDate === 'function'
+        ? (tsRaw0 as { toDate: () => Date }).toDate()
+        : tsRaw0 instanceof Date
+          ? tsRaw0
+          : null;
     if (coercedDate) {
       store.setMetadata(
         store.metadata
@@ -162,11 +160,12 @@ export function useRealtimePolling(): RealtimePollingState {
 
         const store = useAnalyticsStore.getState();
         const tsRaw = rawTs as { toDate?: () => Date } | Date | null | undefined;
-        const coercedDate = tsRaw && typeof (tsRaw as { toDate?: unknown }).toDate === 'function'
-          ? (tsRaw as { toDate: () => Date }).toDate()
-          : tsRaw instanceof Date
-          ? tsRaw
-          : null;
+        const coercedDate =
+          tsRaw && typeof (tsRaw as { toDate?: unknown }).toDate === 'function'
+            ? (tsRaw as { toDate: () => Date }).toDate()
+            : tsRaw instanceof Date
+              ? tsRaw
+              : null;
         if (coercedDate) {
           store.setMetadata(
             store.metadata

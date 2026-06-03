@@ -167,23 +167,11 @@ function TabPanel({
 }) {
   if (tab !== activeTab) return null;
   return (
-    <div
-      role="tabpanel"
-      id={`panel-${tab}`}
-      aria-labelledby={`tab-${tab}`}
-    >
-      {tab === 'compliance' && (
-        <ComplianceStatusDash activeFilters={activeFilters} />
-      )}
-      {tab === 'trends' && (
-        <CIQTrendsDash activeFilters={activeFilters} />
-      )}
-      {tab === 'nc-heatmap' && (
-        <NCHeatmapDash activeFilters={activeFilters} />
-      )}
-      {tab === 'training' && (
-        <TrainingMatrixDash activeFilters={activeFilters} />
-      )}
+    <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+      {tab === 'compliance' && <ComplianceStatusDash activeFilters={activeFilters} />}
+      {tab === 'trends' && <CIQTrendsDash activeFilters={activeFilters} />}
+      {tab === 'nc-heatmap' && <NCHeatmapDash activeFilters={activeFilters} />}
+      {tab === 'training' && <TrainingMatrixDash activeFilters={activeFilters} />}
     </div>
   );
 }
@@ -201,12 +189,7 @@ function SpinnerIcon({ className = '' }: { className?: string }) {
       className={['animate-spin', className].join(' ')}
       style={{ animationDuration: '700ms' }}
     >
-      <path
-        d="M17 10a7 7 0 1 1-7-7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M17 10a7 7 0 1 1-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }
@@ -239,10 +222,9 @@ function StalenessIndicator({ isPolling, lastCheckedAt, nextCheckIn }: Staleness
     >
       {/* Cache staleness */}
       <div
-        className={[
-          'flex items-center gap-1.5',
-          isStale ? 'text-amber-400' : 'text-white/30',
-        ].join(' ')}
+        className={['flex items-center gap-1.5', isStale ? 'text-amber-400' : 'text-white/30'].join(
+          ' ',
+        )}
       >
         <span
           className={[
@@ -290,16 +272,16 @@ export function AnalyticsHub() {
   const [activeTab, setActiveTab] = useState<TabId>('compliance');
 
   // Memoized active filter state to pass to dashboards
-  const activeFilters = React.useMemo<ActiveFilters>(() => ({
-    equipmentIds: equipmentFilter.selectedIds,
-    operatorIds: operatorFilter.selectedIds,
-  }), [equipmentFilter.selectedIds, operatorFilter.selectedIds]);
+  const activeFilters = React.useMemo<ActiveFilters>(
+    () => ({
+      equipmentIds: equipmentFilter.selectedIds,
+      operatorIds: operatorFilter.selectedIds,
+    }),
+    [equipmentFilter.selectedIds, operatorFilter.selectedIds],
+  );
 
   return (
-    <main
-      className="min-h-screen bg-[#141417] text-white"
-      aria-label="Analytics Dashboard"
-    >
+    <main className="min-h-screen bg-[#141417] text-white" aria-label="Analytics Dashboard">
       {/* ── Page header ───────────────────────────────────────────────────── */}
       <header className="border-b border-white/8 px-4 sm:px-6 pt-8 pb-0">
         <div className="max-w-screen-xl mx-auto">
@@ -330,9 +312,7 @@ export function AnalyticsHub() {
                 </svg>
                 Voltar
               </button>
-              <h1 className="text-xl font-semibold text-white tracking-tight">
-                Analytics CIQ
-              </h1>
+              <h1 className="text-xl font-semibold text-white tracking-tight">Analytics CIQ</h1>
               <p className="text-sm text-white/40 mt-0.5">
                 Indicadores de qualidade consolidados — atualização horária
               </p>
@@ -347,12 +327,14 @@ export function AnalyticsHub() {
                 dashboardType={TAB_TO_DASHBOARD_TYPE[activeTab]}
                 dateRange={dateRange.range}
                 filters={{
-                  equipmentIds: equipmentFilter.selectedIds.size > 0
-                    ? Array.from(equipmentFilter.selectedIds)
-                    : undefined,
-                  operatorIds: operatorFilter.selectedIds.size > 0
-                    ? Array.from(operatorFilter.selectedIds)
-                    : undefined,
+                  equipmentIds:
+                    equipmentFilter.selectedIds.size > 0
+                      ? Array.from(equipmentFilter.selectedIds)
+                      : undefined,
+                  operatorIds:
+                    operatorFilter.selectedIds.size > 0
+                      ? Array.from(operatorFilter.selectedIds)
+                      : undefined,
                 }}
               />
               <RefreshButton />
@@ -367,19 +349,12 @@ export function AnalyticsHub() {
               setCustomRange={dateRange.setCustomRange}
             />
             <div className="w-px h-4 bg-white/10 hidden sm:block" aria-hidden />
-            <FilterBar
-              equipment={equipmentFilter}
-              operators={operatorFilter}
-            />
+            <FilterBar equipment={equipmentFilter} operators={operatorFilter} />
           </div>
 
           {/* ── Tab bar ─────────────────────────────────────────────────── */}
           <nav aria-label="Dashboard sections">
-            <ol
-              role="tablist"
-              aria-label="Abas do dashboard"
-              className="flex items-end gap-0.5"
-            >
+            <ol role="tablist" aria-label="Abas do dashboard" className="flex items-end gap-0.5">
               {TABS.map((tab) => {
                 const isActive = tab.id === activeTab;
                 return (
@@ -415,12 +390,7 @@ export function AnalyticsHub() {
       {/* ── Tab content ───────────────────────────────────────────────────── */}
       <div className="max-w-screen-xl mx-auto px-4 sm:px-6 py-6">
         {TABS.map((tab) => (
-          <TabPanel
-            key={tab.id}
-            tab={tab.id}
-            activeTab={activeTab}
-            activeFilters={activeFilters}
-          />
+          <TabPanel key={tab.id} tab={tab.id} activeTab={activeTab} activeFilters={activeFilters} />
         ))}
       </div>
     </main>

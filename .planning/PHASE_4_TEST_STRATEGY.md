@@ -11,7 +11,8 @@ owner: QA Lead
 
 **Objective:** Establish comprehensive test coverage for Phase 4 deliverables (Portal Auth Callables, NOTIVISA Queue Processor, Portal UI, E2E Flows) with regression gates and performance baselines.
 
-**Success Criteria:** 
+**Success Criteria:**
+
 - Unit coverage: 85% functions, 70% branches (callables + helpers)
 - E2E critical flows: 5/5 PASS (100%)
 - Smoke test: Exit code 0 (all systems ready)
@@ -41,6 +42,7 @@ owner: QA Lead
 ```
 
 **Implementation pattern:**
+
 ```typescript
 // functions/src/modules/portals/__tests__/generatePatientAuthLink.test.ts
 import { describe, it, expect, beforeEach, afterEach } from '@jest/globals';
@@ -50,12 +52,12 @@ import { EmailServiceMock } from '../../../__tests__/mocks/emailService';
 
 describe('generatePatientAuthLink', () => {
   let emailMock: EmailServiceMock;
-  
+
   beforeEach(() => {
     emailMock = new EmailServiceMock();
     jest.spyOn(emailService, 'send').mockImplementation(emailMock.send);
   });
-  
+
   afterEach(() => {
     jest.clearAllMocks();
   });
@@ -63,9 +65,9 @@ describe('generatePatientAuthLink', () => {
   it('generates valid auth token for registered patient', async () => {
     const result = await generatePatientAuthLink(
       { data: { patientId: 'pat-001', labId: 'lab-001', email: 'patient@test.com' } },
-      mockContext()
+      mockContext(),
     );
-    
+
     expect(result.token).toMatch(/^[a-f0-9]{64}$/); // HMAC token
     expect(result.expiresAt).toBeGreaterThan(Date.now());
     expect(result.ttlSeconds).toBe(86400); // 24 hours
@@ -75,29 +77,29 @@ describe('generatePatientAuthLink', () => {
     await expect(
       generatePatientAuthLink(
         { data: { patientId: 'pat-001', labId: 'lab-001', email: 'invalid@' } },
-        mockContext()
-      )
+        mockContext(),
+      ),
     ).rejects.toThrow('Invalid email format');
   });
 
   it('enforces rate limit: 5 requests per 60s', async () => {
     const patientId = 'pat-001';
-    
+
     // First 5 should succeed
     for (let i = 0; i < 5; i++) {
       const result = await generatePatientAuthLink(
         { data: { patientId, labId: 'lab-001', email: 'patient@test.com' } },
-        mockContext(i)
+        mockContext(i),
       );
       expect(result.token).toBeTruthy();
     }
-    
+
     // 6th should fail
     await expect(
       generatePatientAuthLink(
         { data: { patientId, labId: 'lab-001', email: 'patient@test.com' } },
-        mockContext(5)
-      )
+        mockContext(5),
+      ),
     ).rejects.toThrow('Rate limit exceeded');
   });
 });
@@ -185,6 +187,7 @@ describe('generatePatientAuthLink', () => {
 ```
 
 **Implementation pattern:**
+
 ```typescript
 // functions/src/__tests__/integration/notivisa-rules.test.ts
 import { describe, it, expect } from '@jest/globals';
@@ -197,7 +200,7 @@ describe('Firestore Rules: NOTIVISA Collections', () => {
     testEnv = await initializeTestEnvironment({
       projectId: 'hmatologia2',
       firebaseJson: require('../../../firestore.json'),
-      rulesContent: fs.readFileSync('./firestore.rules', 'utf-8')
+      rulesContent: fs.readFileSync('./firestore.rules', 'utf-8'),
     });
   });
 
@@ -206,35 +209,37 @@ describe('Firestore Rules: NOTIVISA Collections', () => {
   });
 
   it('RT user can read draft forms for their lab', async () => {
-    const db = testEnv.authenticatedContext('rt-001', {
-      lab_id: 'lab-001',
-      role: 'RT'
-    }).firestore();
+    const db = testEnv
+      .authenticatedContext('rt-001', {
+        lab_id: 'lab-001',
+        role: 'RT',
+      })
+      .firestore();
 
-    await expect(
-      db.collection('notivisa-drafts/lab-001/drafts').get()
-    ).toAllow();
+    await expect(db.collection('notivisa-drafts/lab-001/drafts').get()).toAllow();
   });
 
   it('Patient cannot access NOTIVISA collections', async () => {
-    const db = testEnv.authenticatedContext('patient-001', {
-      lab_id: 'lab-001',
-      role: 'PATIENT'
-    }).firestore();
+    const db = testEnv
+      .authenticatedContext('patient-001', {
+        lab_id: 'lab-001',
+        role: 'PATIENT',
+      })
+      .firestore();
 
-    await expect(
-      db.collection('notivisa-drafts/lab-001/drafts').get()
-    ).toBeDenied();
+    await expect(db.collection('notivisa-drafts/lab-001/drafts').get()).toBeDenied();
   });
 
   it('Cross-lab access is blocked', async () => {
-    const db = testEnv.authenticatedContext('rt-002', {
-      lab_id: 'lab-002',
-      role: 'RT'
-    }).firestore();
+    const db = testEnv
+      .authenticatedContext('rt-002', {
+        lab_id: 'lab-002',
+        role: 'RT',
+      })
+      .firestore();
 
     await expect(
-      db.collection('notivisa-drafts/lab-001/drafts').get() // Different lab
+      db.collection('notivisa-drafts/lab-001/drafts').get(), // Different lab
     ).toBeDenied();
   });
 });
@@ -270,6 +275,7 @@ describe('Firestore Rules: NOTIVISA Collections', () => {
 #### Flow 1: Patient Email Link → Portal Auth → View Own Laudos
 
 **Scenario:**
+
 ```
 Given: Patient receives email with magic link
 When: Patient clicks link in email
@@ -289,6 +295,7 @@ Test steps:
 ```
 
 **Assertions:**
+
 ```typescript
 expect(page.url()).toContain('/portal/laudos');
 expect(laudoList.length).toBeGreaterThan(0);
@@ -304,6 +311,7 @@ expect(pdfBytes).toContain('%PDF-1.4'); // Valid PDF
 #### Flow 2: RT Creates Portal Auth Token → Sends Email → Tracks Delivery
 
 **Scenario:**
+
 ```
 Given: RT user logged in to medical portal
 When: RT clicks "Generate patient access link"
@@ -324,12 +332,11 @@ Test steps:
 ```
 
 **Assertions:**
+
 ```typescript
 expect(queueEntry.status).toBe('sent');
 expect(queueEntry.deliveryStatus).toBe('accepted');
-expect(auditLog.entries).toContainEqual(
-  expect.objectContaining({ action: 'LINK_GENERATED' })
-);
+expect(auditLog.entries).toContainEqual(expect.objectContaining({ action: 'LINK_GENERATED' }));
 ```
 
 **File:** `e2e/phase4/flow-02-rt-portal-auth.spec.ts`
@@ -339,6 +346,7 @@ expect(auditLog.entries).toContainEqual(
 #### Flow 3: Auditor Logs In → Reviews NOTIVISA Queue → Marks Entry
 
 **Scenario:**
+
 ```
 Given: Auditor user has active session
 When: Auditor navigates to NOTIVISA queue dashboard
@@ -358,6 +366,7 @@ Test steps:
 ```
 
 **Assertions:**
+
 ```typescript
 expect(queueEntries[0].status).toBe('pending');
 await page.click('button:has-text("Mark reviewed")');
@@ -372,6 +381,7 @@ expect(updatedEntry.reviewedBy).toBe(auditorId);
 #### Flow 4: NOTIVISA Queue Processor Runs → Submission Succeeds → Audit Log Updated
 
 **Scenario:**
+
 ```
 Given: Queue has pending entries (created by submitLaudoToNotivisa)
 When: processNotivisaQueue() cron runs (every 5 min in staging)
@@ -389,11 +399,12 @@ Test steps:
 ```
 
 **Assertions:**
+
 ```typescript
 expect(queueEntry.status).toBe('acknowledged');
 expect(queueEntry.retryCount).toBeLessThanOrEqual(3);
-expect(auditLogs.filter(a => a.action.includes('SUBMIT'))).toHaveLength(1);
-expect(auditLogs.filter(a => a.action.includes('SUCCESS'))).toHaveLength(1);
+expect(auditLogs.filter((a) => a.action.includes('SUBMIT'))).toHaveLength(1);
+expect(auditLogs.filter((a) => a.action.includes('SUCCESS'))).toHaveLength(1);
 ```
 
 **File:** `e2e/phase4/flow-04-notivisa-processor.spec.ts`
@@ -403,6 +414,7 @@ expect(auditLogs.filter(a => a.action.includes('SUCCESS'))).toHaveLength(1);
 #### Flow 5: Portal Auth Session Expires → Patient Logged Out → Re-auth Required
 
 **Scenario:**
+
 ```
 Given: Patient has valid session (token TTL 24h)
 When: Token expires
@@ -422,6 +434,7 @@ Test steps:
 ```
 
 **Assertions:**
+
 ```typescript
 expect(page.url()).toContain('/portal/laudos');
 await advanceTimeInTests(25 * 3600 * 1000); // 25 hours
@@ -490,6 +503,7 @@ export default defineConfig({
 ```
 
 **Global Setup:** `e2e/global-setup.ts`
+
 ```typescript
 import { chromium, expect } from '@playwright/test';
 
@@ -502,6 +516,7 @@ export default async () => {
 ```
 
 **Run command:**
+
 ```bash
 npm run e2e:phase4  # Runs all 5 critical flows
 ```
@@ -519,6 +534,7 @@ Automated validation of end-to-end system readiness before go-live. Exit code 0 
 **File:** `scripts/phase4-smoke-test.sh` (macOS/Linux) or `scripts/phase4-smoke-test.ps1` (Windows)
 
 **Invocation:**
+
 ```bash
 # macOS/Linux
 bash scripts/phase4-smoke-test.sh
@@ -600,7 +616,7 @@ Assertion: firebase.auth().currentUser.uid === 'pat-smoke-001'
 Call: GET /api/laudos?patientId=pat-smoke-001
 Headers: { Authorization: 'Bearer {idToken}' }
 Expected output: Array of laudos
-Assertion: 
+Assertion:
   - Array length > 0
   - All laudos have patientId === 'pat-smoke-001'
   - Each laudo has assinatura (signature)
@@ -737,6 +753,7 @@ exit 0
 **Failure action:** PR comment + block merge
 
 **Check:**
+
 ```bash
 npm run build
 ls -la dist/assets/index-*.js | awk '{print $5}' | xargs -I {} sh -c 'echo "Main chunk: {} bytes"; \
@@ -748,11 +765,13 @@ ls -la dist/assets/index-*.js | awk '{print $5}' | xargs -I {} sh -c 'echo "Main
 ### 4.2 Web Vitals Gate
 
 **Baseline:**
+
 - LCP: 2.2s (tolerance: ±10% = 1.98–2.42s)
 - INP: 150ms (tolerance: ±15% = 127–172ms)
 - CLS: 0.05 (tolerance: ±100% = 0–0.1)
 
 **Check:** Lighthouse CI (automated on deploy)
+
 ```bash
 npm run lighthouse:ci -- --upload-artifacts
 ```
@@ -767,6 +786,7 @@ npm run lighthouse:ci -- --upload-artifacts
 **Tolerance:** 0 regressions (must maintain 738+ pass count)
 
 **Check:**
+
 ```bash
 npm run test -- --coverage
 # Expected: ≥738 tests passing, 0 failed
@@ -782,6 +802,7 @@ npm run test -- --coverage
 **Target Phase 4:** 5/5 critical flows PASS
 
 **Check:**
+
 ```bash
 npm run e2e:phase4
 # Expected: 5 passed, 0 failed
@@ -797,6 +818,7 @@ npm run e2e:phase4
 **Measurement:** Cloud Logs analysis (automated post-deploy)
 
 **Check:**
+
 ```bash
 firebase functions:logs read generatePatientAuthLink --limit 1000 \
   | grep -o '"executionTime":"[0-9]*' | awk -F: '{print $2}' | sort -n | tail -50 | head -1
@@ -831,7 +853,7 @@ export const testLabs = [
       { uid: 'rt-smoke-001', role: 'RT', status: 'active' },
       { uid: 'auditor-smoke-001', role: 'AUDITOR', status: 'active' },
       { uid: 'patient-smoke-001', role: 'PATIENT', status: 'active' },
-    ]
+    ],
   },
   // ... 9 additional test labs (total 10)
 ];
@@ -863,12 +885,14 @@ export const testLaudos = [
     patientId: 'pat-e2e-001',
     labId: 'lab-e2e-001',
     resultadoEm: 1714982400000,
-    resultados: [/* 5–10 analytes per laudo */],
+    resultados: [
+      /* 5–10 analytes per laudo */
+    ],
     assinatura: {
       operatorId: 'rt-e2e-001',
       hash: 'a1b2c3...', // 64-char HMAC
-      ts: 1714982400000
-    }
+      ts: 1714982400000,
+    },
   },
   // ... 99 additional laudos (total 100)
 ];
@@ -884,7 +908,9 @@ export const notiVisaPayloads = [
     laudo_id: 'laudo-e2e-001',
     paciente_cpf: '12345678901',
     data_resultado: 1714982400000,
-    resultados: [/* malformed, valid, edge cases */],
+    resultados: [
+      /* malformed, valid, edge cases */
+    ],
   },
   // ... 29 additional payloads (total 30)
   // Includes: valid, missing CPF, invalid signature, timeout scenarios
@@ -916,11 +942,14 @@ firebase emulators:exec --only firestore "
 **Format:** Auto-generated post-test-run
 
 **Content:**
+
 ```markdown
 # Phase 4 Coverage Dashboard
+
 Generated: 2026-06-02T18:30:00Z
 
 ## Unit Tests
+
 - Portal Auth Callables: 12/12 PASS (100%)
 - NOTIVISA Callables: 16/16 PASS (100%)
 - Firestore Rules: 8/8 PASS (100%)
@@ -929,25 +958,29 @@ Generated: 2026-06-02T18:30:00Z
 - **Code Coverage:** 87% functions, 72% branches
 
 ## E2E Tests (Critical Flows)
+
 1. Patient Email Link → Portal Auth → View Laudos: ✓ PASS
 2. RT Creates Token → Sends Email → Tracks Delivery: ✓ PASS
 3. Auditor Reviews NOTIVISA Queue: ✓ PASS
 4. NOTIVISA Queue Processor Runs: ✓ PASS
 5. Portal Auth Session Expires: ✓ PASS
-**Critical Flows:** 5/5 PASS (100%)
+   **Critical Flows:** 5/5 PASS (100%)
 
 ## E2E Tests (Non-Critical Flows)
+
 6. Concurrent Auth Attempts → Rate Limit: ✓ PASS
 7. Link Resend: ✓ PASS
 8. Error States: ✓ PASS
-**Non-Critical Flows:** 3/3 PASS (100%)
+   **Non-Critical Flows:** 3/3 PASS (100%)
 
 ## Smoke Test
+
 **Status:** ✓ PASS (Exit Code 0)
 **Duration:** 5m 23s
 **Checks Passed:** 10/10
 
 ## Regression Gates
+
 - Bundle Size: 371 KB (baseline 362 KB, +2.5% — PASS)
 - LCP: 2.1s (baseline 2.2s, -4.5% — PASS)
 - INP: 148ms (baseline 150ms, -1.3% — PASS)
@@ -964,13 +997,13 @@ Generated: 2026-06-02T18:30:00Z
 
 ### Week 1 (May 20–26): Callable Implementation + Unit Tests
 
-| Day | Task | Owner | Deliverable |
-|-----|------|-------|-------------|
-| Mon 20 | Portal auth callables (3 stubs) | Eng A | `generatePatientAuthLink`, `verifyPatientAuthToken`, `listLaudosForPatient` |
-| Tue 21 | Unit tests for callables (12 tests) | Eng A | 12/12 tests passing, 95% coverage |
-| Wed 22 | NOTIVISA callables (3 stubs) | Eng B | `submitLaudoToNotivisa`, `processNotivisaQueue`, `updateQueueEntry` |
-| Thu 23 | Unit tests for NOTIVISA (16 tests) | Eng B | 16/16 tests passing, 90% coverage |
-| Fri 24 | Rules tests (8 tests) + email tests (4) | Eng C | 12/12 tests passing, 100% coverage |
+| Day    | Task                                    | Owner | Deliverable                                                                 |
+| ------ | --------------------------------------- | ----- | --------------------------------------------------------------------------- |
+| Mon 20 | Portal auth callables (3 stubs)         | Eng A | `generatePatientAuthLink`, `verifyPatientAuthToken`, `listLaudosForPatient` |
+| Tue 21 | Unit tests for callables (12 tests)     | Eng A | 12/12 tests passing, 95% coverage                                           |
+| Wed 22 | NOTIVISA callables (3 stubs)            | Eng B | `submitLaudoToNotivisa`, `processNotivisaQueue`, `updateQueueEntry`         |
+| Thu 23 | Unit tests for NOTIVISA (16 tests)      | Eng B | 16/16 tests passing, 90% coverage                                           |
+| Fri 24 | Rules tests (8 tests) + email tests (4) | Eng C | 12/12 tests passing, 100% coverage                                          |
 
 **Gate:** 40/40 unit tests PASS before Week 2
 
@@ -978,13 +1011,13 @@ Generated: 2026-06-02T18:30:00Z
 
 ### Week 2 (May 27–Jun 2): E2E Tests + Smoke Test
 
-| Day | Task | Owner | Deliverable |
-|-----|------|-------|-------------|
-| Mon 27 | E2E framework setup (Playwright config) | Eng D | `e2e/playwright.config.ts`, global setup/teardown |
-| Tue 28 | E2E Flow 1–2 (Patient link, RT portal) | Eng D | 2 flows PASS |
-| Wed 29 | E2E Flow 3–4 (Auditor queue, processor) | Eng D | 4 flows PASS |
-| Thu 30 | E2E Flow 5 + non-critical flows 6–8 | Eng D | 8 flows total, 5 critical PASS |
-| Fri 31 | Smoke test script + regression gates | QA Lead | Smoke test exit code 0, gates all PASS |
+| Day    | Task                                    | Owner   | Deliverable                                       |
+| ------ | --------------------------------------- | ------- | ------------------------------------------------- |
+| Mon 27 | E2E framework setup (Playwright config) | Eng D   | `e2e/playwright.config.ts`, global setup/teardown |
+| Tue 28 | E2E Flow 1–2 (Patient link, RT portal)  | Eng D   | 2 flows PASS                                      |
+| Wed 29 | E2E Flow 3–4 (Auditor queue, processor) | Eng D   | 4 flows PASS                                      |
+| Thu 30 | E2E Flow 5 + non-critical flows 6–8     | Eng D   | 8 flows total, 5 critical PASS                    |
+| Fri 31 | Smoke test script + regression gates    | QA Lead | Smoke test exit code 0, gates all PASS            |
 
 **Gate:** 5/5 critical E2E flows PASS before deploy
 
@@ -992,13 +1025,13 @@ Generated: 2026-06-02T18:30:00Z
 
 ### Deployment Week (Jun 2): Pre-Deploy Validation
 
-| Day | Task | Owner | Gate |
-|-----|------|-------|------|
-| Sun Jun 1 (evening) | Final smoke test run (manual) | QA Lead | Smoke test exit code 0 |
-| Mon Jun 2 (morning) | Code freeze + final type-check | Eng A | `npm run tsc --noEmit` green |
-| Mon Jun 2 (10am) | Deploy rules + functions + hosting | DevOps | All 3 deploy steps succeed |
-| Mon Jun 2 (11am) | Cloud Logs verification (24h) | QA Lead | Monitor script running, <5% warning rate |
-| Mon Jun 2 (3pm) | Smoke test in production | QA Lead | Smoke test exit code 0 on live |
+| Day                 | Task                               | Owner   | Gate                                     |
+| ------------------- | ---------------------------------- | ------- | ---------------------------------------- |
+| Sun Jun 1 (evening) | Final smoke test run (manual)      | QA Lead | Smoke test exit code 0                   |
+| Mon Jun 2 (morning) | Code freeze + final type-check     | Eng A   | `npm run tsc --noEmit` green             |
+| Mon Jun 2 (10am)    | Deploy rules + functions + hosting | DevOps  | All 3 deploy steps succeed               |
+| Mon Jun 2 (11am)    | Cloud Logs verification (24h)      | QA Lead | Monitor script running, <5% warning rate |
+| Mon Jun 2 (3pm)     | Smoke test in production           | QA Lead | Smoke test exit code 0 on live           |
 
 ---
 
@@ -1007,17 +1040,21 @@ Generated: 2026-06-02T18:30:00Z
 ### Phase 4 Test Strategy Success = ALL of:
 
 ✓ **Unit Coverage:**
+
 - 40/40 unit tests PASS (12 + 16 + 8 + 4)
 - Coverage: 85%+ functions, 70%+ branches
 
 ✓ **E2E Coverage:**
+
 - 5/5 critical flows PASS (100%)
 - 3/3 non-critical flows PASS (preferred)
 
 ✓ **Smoke Test:**
+
 - Exit code 0 (all 10 checks PASS)
 
 ✓ **Regression Gates:**
+
 - Bundle size: ≤380 KB (baseline + 5%)
 - LCP: <2.5s (±10% baseline)
 - INP: <200ms (±15% baseline)
@@ -1025,6 +1062,7 @@ Generated: 2026-06-02T18:30:00Z
 - Auth latency: <500ms p95
 
 ✓ **Test Data:**
+
 - 10 test labs seeded
 - 50 test patients seeded
 - 100 test laudos seeded
@@ -1032,11 +1070,11 @@ Generated: 2026-06-02T18:30:00Z
 
 ### Sign-Off
 
-| Role | Name | Sign-Off |
-|------|------|----------|
-| QA Lead | — | Validates coverage report |
-| Test Owner | — | Approves test strategy |
-| CTO | — | Approves compliance + risk assessment |
+| Role       | Name | Sign-Off                              |
+| ---------- | ---- | ------------------------------------- |
+| QA Lead    | —    | Validates coverage report             |
+| Test Owner | —    | Approves test strategy                |
+| CTO        | —    | Approves compliance + risk assessment |
 
 ---
 
@@ -1096,10 +1134,13 @@ export async function clearFirestore(db: Firestore) {
 ```typescript
 export async function setupTestLab(page: Page, labId: string) {
   const db = initializeApp(firebaseConfig).firestore();
-  await db.collection('labs').doc(labId).set({
-    name: `Test Lab ${labId}`,
-    criadoEm: Timestamp.now(),
-  });
+  await db
+    .collection('labs')
+    .doc(labId)
+    .set({
+      name: `Test Lab ${labId}`,
+      criadoEm: Timestamp.now(),
+    });
   return { db, labId };
 }
 
@@ -1144,6 +1185,7 @@ jobs:
 ### B.2 Performance Metrics
 
 **Cloud Monitoring dashboards:**
+
 - Auth callables duration (p50, p95)
 - Queue processor throughput (events/min)
 - Firestore read/write latency
@@ -1154,6 +1196,7 @@ jobs:
 ## Conclusion
 
 Phase 4 test strategy ensures:
+
 1. **40/40 unit tests** validate callables, rules, helpers
 2. **5/5 critical E2E flows** prove end-to-end functionality
 3. **Smoke test (exit code 0)** confirms production readiness

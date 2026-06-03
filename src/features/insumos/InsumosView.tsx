@@ -16,11 +16,7 @@ import { useActiveLab, useUser, useUserRole } from '../../store/useAuthStore';
 import { useAppStore } from '../../store/useAppStore';
 import { useInsumos } from './hooks/useInsumos';
 import { useProdutos } from './hooks/useProdutos';
-import {
-  closeInsumo,
-  descartarInsumo,
-  openInsumo,
-} from './services/insumosFirebaseService';
+import { closeInsumo, descartarInsumo, openInsumo } from './services/insumosFirebaseService';
 import { NovoLoteModal } from './components/NovoLoteModal';
 import { FR10ExportModal } from './components/FR10ExportModal';
 import { CatalogoProdutosView } from './components/CatalogoProdutosView';
@@ -141,9 +137,7 @@ export function InsumosView() {
         `Catálogo importado — ${result.totalCriados} novo(s), ${result.totalExistentes} já existia(m).`,
       );
     } catch (err) {
-      setImportSummary(
-        `Erro ao importar: ${err instanceof Error ? err.message : 'desconhecido'}`,
-      );
+      setImportSummary(`Erro ao importar: ${err instanceof Error ? err.message : 'desconhecido'}`);
     } finally {
       setImportingTemplate(null);
     }
@@ -195,10 +189,7 @@ export function InsumosView() {
           </span>
         </button>
         {canMutate && (
-          <ImportCatalogoMenu
-            importing={importingTemplate}
-            onImport={handleImportTemplate}
-          />
+          <ImportCatalogoMenu importing={importingTemplate} onImport={handleImportTemplate} />
         )}
       </header>
 
@@ -217,10 +208,7 @@ export function InsumosView() {
           >
             Catálogo de produtos
           </TabButton>
-          <TabButton
-            active={mainTab === 'fornecedores'}
-            onClick={() => setMainTab('fornecedores')}
-          >
+          <TabButton active={mainTab === 'fornecedores'} onClick={() => setMainTab('fornecedores')}>
             Fornecedores
           </TabButton>
           <TabButton active={mainTab === 'lotes'} onClick={() => setMainTab('lotes')}>
@@ -255,11 +243,7 @@ export function InsumosView() {
         )}
 
         {mainTab === 'lotes' && (
-          <LotesTable
-            labId={activeLab.id}
-            canMutate={canMutate}
-            operadorName={operadorName}
-          />
+          <LotesTable labId={activeLab.id} canMutate={canMutate} operadorName={operadorName} />
         )}
       </main>
 
@@ -384,7 +368,8 @@ function LotesTable({
       // Prioriza pinned (setupType non-null) sobre não-pinned. Se ambos pinned,
       // mantém o primeiro encontrado (estável).
       const isPinned = l.setupType === 'principal' || l.setupType === 'validacao_paralela';
-      const curPinned = cur && (cur.setupType === 'principal' || cur.setupType === 'validacao_paralela');
+      const curPinned =
+        cur && (cur.setupType === 'principal' || cur.setupType === 'validacao_paralela');
       if (!cur || (isPinned && !curPinned)) m.set(l.loteControle, l);
     }
     return m;
@@ -594,8 +579,8 @@ function LotesTable({
               {qcPendingCount} insumo{qcPendingCount > 1 ? 's' : ''} com CQ pendente de validação
             </p>
             <p className="text-[11px] text-amber-600/80 dark:text-amber-400/70 mt-0.5 leading-snug">
-              Reagentes e tiras recém-abertos precisam ser validados por uma corrida de CQ
-              aprovada antes de entrar em rotina — CLSI EP26-A · RDC 978/2025 Art.128.
+              Reagentes e tiras recém-abertos precisam ser validados por uma corrida de CQ aprovada
+              antes de entrar em rotina — CLSI EP26-A · RDC 978/2025 Art.128.
             </p>
           </div>
         </div>
@@ -625,8 +610,8 @@ function LotesTable({
           </div>
         ) : (
           insumos.map((i) => {
-            const nota = i.notaFiscalId ? notaById.get(i.notaFiscalId) ?? null : null;
-            const fornecedor = nota ? fornecedorById.get(nota.fornecedorId) ?? null : null;
+            const nota = i.notaFiscalId ? (notaById.get(i.notaFiscalId) ?? null) : null;
+            const fornecedor = nota ? (fornecedorById.get(nota.fornecedorId) ?? null) : null;
             const ciqLot = ciqLotByLote.get(i.lote) ?? null;
             return (
               <InsumoRow
@@ -749,8 +734,11 @@ function InsumoRow({
   // são alvo do botão "Disponibilizar" — controles entram automaticamente
   // como slot do kit no ManualKitPicker quando o reagente roda. Tira-uro fica
   // de fora (PR2). status='descartado'/'segregado' não devem oferecer pin.
-  const isReagenteImuno = insumo.tipo === 'reagente' && (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
-  const ciqIsPinned = ciqLot?.setupType === 'principal' || ciqLot?.setupType === 'validacao_paralela';
+  const isReagenteImuno =
+    insumo.tipo === 'reagente' &&
+    (insumo.modulos?.includes('imunologia') || insumo.modulo === 'imunologia');
+  const ciqIsPinned =
+    ciqLot?.setupType === 'principal' || ciqLot?.setupType === 'validacao_paralela';
   const canDisponibilizar =
     isReagenteImuno &&
     !ciqIsPinned &&
@@ -785,7 +773,9 @@ function InsumoRow({
             </span>
           )}
           {isImunoQualifiable && qcStatus === 'aprovado' && (
-            <span className={`${CHIP} bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300`}>
+            <span
+              className={`${CHIP} bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300`}
+            >
               Qualificado
             </span>
           )}
@@ -877,16 +867,20 @@ function InsumoRow({
             Disponibilizar p/ corrida
           </button>
         )}
-        {canMutate && isImunoQualifiable && qcStatus !== 'aprovado' && qcStatus !== 'reprovado' && insumo.status === 'ativo' && (
-          <button
-            type="button"
-            onClick={() => onAprovarImuno(insumo)}
-            className={`${BUTTON_GHOST} text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300`}
-            title="Abre o modal de qualificação formal — checklist + evidência analítica + assinatura digital RT (RDC 978/2025 Art.128)"
-          >
-            Qualificar lote
-          </button>
-        )}
+        {canMutate &&
+          isImunoQualifiable &&
+          qcStatus !== 'aprovado' &&
+          qcStatus !== 'reprovado' &&
+          insumo.status === 'ativo' && (
+            <button
+              type="button"
+              onClick={() => onAprovarImuno(insumo)}
+              className={`${BUTTON_GHOST} text-emerald-600 dark:text-emerald-400 hover:text-emerald-700 dark:hover:text-emerald-300`}
+              title="Abre o modal de qualificação formal — checklist + evidência analítica + assinatura digital RT (RDC 978/2025 Art.128)"
+            >
+              Qualificar lote
+            </button>
+          )}
         {canMutate && isLacrado && (
           <button
             type="button"

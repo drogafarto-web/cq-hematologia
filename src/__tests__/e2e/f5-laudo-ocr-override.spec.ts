@@ -48,7 +48,9 @@ describe('F5: Laudo OCR Extraction & Manual Override', () => {
 
       // Mock: Upload IA strip image
       const mockImageFile = new File(['fake image'], 'strip.jpg', { type: 'image/jpeg' });
-      const fileInput = document.querySelector('[data-testid="input-ia-strip"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        '[data-testid="input-ia-strip"]',
+      ) as HTMLInputElement;
       if (fileInput) {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(mockImageFile);
@@ -153,7 +155,9 @@ describe('F5: Laudo OCR Extraction & Manual Override', () => {
 
       // Mock: Upload image
       const mockImageFile = new File(['corrupted'], 'strip.jpg', { type: 'image/jpeg' });
-      const fileInput = document.querySelector('[data-testid="input-ia-strip"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        '[data-testid="input-ia-strip"]',
+      ) as HTMLInputElement;
       if (fileInput) {
         const dataTransfer = new DataTransfer();
         dataTransfer.items.add(mockImageFile);
@@ -230,7 +234,9 @@ describe('F5: Laudo OCR Extraction & Manual Override', () => {
       await waitForElement('[data-testid="form-laudo-entry"]');
 
       // Mock: Upload image
-      const fileInput = document.querySelector('[data-testid="input-ia-strip"]') as HTMLInputElement;
+      const fileInput = document.querySelector(
+        '[data-testid="input-ia-strip"]',
+      ) as HTMLInputElement;
       const mockImageFile = new File(['blurry'], 'strip.jpg', { type: 'image/jpeg' });
       const dataTransfer = new DataTransfer();
       dataTransfer.items.add(mockImageFile);
@@ -306,12 +312,14 @@ function seedTestLaudo(labId: string, laudoId: string, options: any = {}) {
 
 async function generateRtAuthToken(user: any): Promise<string> {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -342,7 +350,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }

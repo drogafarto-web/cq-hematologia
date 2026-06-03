@@ -12,6 +12,7 @@
 This guide enables **local Firestore testing** for Phase 3 schema validation, rules verification, and multi-tenant isolation. The emulator runs on your machine with test data, allowing offline development and rapid iteration on rules, indexes, and data model changes.
 
 **Key capabilities:**
+
 - Local Firestore instance (port 8080) with UI (port 4000)
 - Seed 3 test labs with realistic data structure
 - Validate security rules before deployment
@@ -46,21 +47,25 @@ This guide enables **local Firestore testing** for Phase 3 schema validation, ru
 ### 1. Start the emulator
 
 **macOS / Linux:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh start
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command start
 ```
 
 This will:
+
 - Start Firestore on `localhost:8080`
 - Start emulator UI on `http://localhost:4000`
 - Wait for readiness check
 
 **Expected output:**
+
 ```
 ✓ Loaded .env.emulator
 ✓ firebase-tools found
@@ -79,16 +84,19 @@ Waiting for emulator to start...
 In a **new terminal** (keep emulator running):
 
 **macOS / Linux:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh seed
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command seed
 ```
 
 This will:
+
 - Create 3 test labs: `TEST-LAB-001`, `TEST-LAB-002`, `TEST-LAB-003`
 - Seed portal configs with branding
 - Add sample NOTIVISA events
@@ -96,6 +104,7 @@ This will:
 - Populate sample CIQ data (runs, insumos, equipamentos, etc.)
 
 **Expected output:**
+
 ```
 ✓ Loaded .env.emulator
 ============================================================
@@ -134,11 +143,13 @@ Open http://localhost:4000 in your browser. You should see:
 ### `start` — Launch Firestore emulator
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh start
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command start
 ```
@@ -146,6 +157,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 Starts the Firestore emulator. Blocks until stopped (Ctrl+C).
 
 **Options:**
+
 - Port override: Edit `.env.emulator` → `FIRESTORE_EMULATOR_PORT`
 - UI override: Edit `.env.emulator` → `FIREBASE_EMULATOR_UI_PORT`
 
@@ -154,11 +166,13 @@ Starts the Firestore emulator. Blocks until stopped (Ctrl+C).
 ### `seed` — Populate test data
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh seed
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command seed
 ```
@@ -166,6 +180,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 Creates test labs and populates them with sample data. Uses `scripts/seed-staging-data.mjs`.
 
 **Customization:**
+
 - Change lab IDs: Edit `.env.emulator` → `TEST_LAB_IDS`
 - Modify seed logic: Edit `scripts/seed-staging-data.mjs`
 
@@ -174,11 +189,13 @@ Creates test labs and populates them with sample data. Uses `scripts/seed-stagin
 ### `test` — Run rules validation
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh test
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command test
 ```
@@ -186,11 +203,13 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 Runs the configured rules test suite (`npm run test:rules`) against the emulator.
 
 **Prerequisites:**
+
 - `npm run test:rules` must be configured in `package.json`
 - Emulator must be running
 - Test files in `__tests__/firestore.rules.test.ts` (or per your config)
 
 **Test coverage checklist:**
+
 - [ ] Multi-tenant isolation: `labId` path enforcement
 - [ ] RBAC: member role validation (`admin`, `owner`, `rt`, `operador`, `patient`)
 - [ ] Soft delete: `deletadoEm == null` filtering
@@ -203,11 +222,13 @@ Runs the configured rules test suite (`npm run test:rules`) against the emulator
 ### `clean` — Reset emulator data
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh clean
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command clean
 ```
@@ -215,6 +236,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 Deletes all emulator data and stops the running emulator. Backs up the current state before cleaning.
 
 **Safety:**
+
 - Previous state backed up to `.firebase/emulator-backups/pre-clean-<timestamp>`
 - Useful for regression testing (seed → test → clean → restore)
 
@@ -223,11 +245,13 @@ Deletes all emulator data and stops the running emulator. Backs up the current s
 ### `restore` — Load from backup
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh restore <backup-name>
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command restore -BackupName "<backup-name>"
 ```
@@ -235,6 +259,7 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 Restores the emulator to a previously saved state.
 
 **Example:**
+
 ```bash
 # List available backups
 ls .firebase/emulator-backups
@@ -248,6 +273,7 @@ bash scripts/firestore-emulator-setup.sh restore pre-clean-1715066400
 ### `logs` — Stream emulator logs
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh logs
 ```
@@ -259,11 +285,13 @@ Shows live logs from the running emulator (tail -f style). Press Ctrl+C to stop.
 ### `help` — Show usage
 
 **Bash:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh help
 ```
 
 **PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command help
 ```
@@ -276,23 +304,25 @@ Displays command reference and examples.
 
 ### `.env.emulator` variables
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `FIREBASE_PROJECT_ID` | `hmatologia2` | Project ID for emulation |
-| `FIRESTORE_EMULATOR_PORT` | `8080` | Firestore listener port |
-| `FIREBASE_EMULATOR_UI_PORT` | `4000` | Emulator UI port |
-| `TEST_LAB_IDS` | `TEST-LAB-001,TEST-LAB-002,TEST-LAB-003` | Labs to seed (comma-separated) |
-| `SEED_DATA_DIR` | `.firebase/emulator-backups` | Backup directory |
+| Variable                    | Default                                  | Purpose                        |
+| --------------------------- | ---------------------------------------- | ------------------------------ |
+| `FIREBASE_PROJECT_ID`       | `hmatologia2`                            | Project ID for emulation       |
+| `FIRESTORE_EMULATOR_PORT`   | `8080`                                   | Firestore listener port        |
+| `FIREBASE_EMULATOR_UI_PORT` | `4000`                                   | Emulator UI port               |
+| `TEST_LAB_IDS`              | `TEST-LAB-001,TEST-LAB-002,TEST-LAB-003` | Labs to seed (comma-separated) |
+| `SEED_DATA_DIR`             | `.firebase/emulator-backups`             | Backup directory               |
 
 **Override in session:**
 
 Bash:
+
 ```bash
 export TEST_LAB_IDS="LAB-A,LAB-B"
 bash scripts/firestore-emulator-setup.sh seed
 ```
 
 PowerShell:
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command seed -LabIds "LAB-A,LAB-B"
 ```
@@ -300,12 +330,14 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -C
 ### Rules testing configuration
 
 Add to `package.json` under `scripts`:
+
 ```json
 "test:rules": "firebase emulators:exec 'npm run test:rules:exec' --only firestore",
 "test:rules:exec": "jest --config jest.firestore.config.js"
 ```
 
 Test file example (`__tests__/firestore.rules.test.ts`):
+
 ```typescript
 describe('Firestore Rules — Multi-tenant', () => {
   it('should deny read of labs from different labId', async () => {
@@ -388,19 +420,22 @@ open http://localhost:4000
 Another emulator or service is using the port. Options:
 
 1. **Use different port:**
+
    ```bash
    # Edit .env.emulator
    FIRESTORE_EMULATOR_PORT=8081
    ```
 
 2. **Kill process on port:**
-   
+
    macOS / Linux:
+
    ```bash
    lsof -ti:8080 | xargs kill -9
    ```
-   
+
    Windows (PowerShell):
+
    ```powershell
    Get-NetTCPConnection -LocalPort 8080 | ForEach-Object { taskkill /PID $_.OwningProcess -Force }
    ```
@@ -425,11 +460,13 @@ bash scripts/firestore-emulator-setup.sh seed
 ### "Rules tests fail but rules work in UI"
 
 Check:
+
 1. Emulator is running (`localhost:8080` accessible)
 2. `FIRESTORE_EMULATOR_HOST` env var is set by script
 3. Test file has correct `initializeFirestore` with emulator settings
 
 Example test setup:
+
 ```typescript
 import { initializeFirestore, connectFirestoreEmulator } from 'firebase/firestore';
 
@@ -440,20 +477,23 @@ connectFirestoreEmulator(db, 'localhost', 8080);
 ### "Emulator starts but seeding hangs"
 
 1. Check network: `nc -zv localhost 8080` (Unix) or PowerShell:
+
    ```powershell
    Test-NetConnection -ComputerName localhost -Port 8080
    ```
 
 2. Check logs:
+
    ```bash
    bash scripts/firestore-emulator-setup.sh logs
    ```
 
 3. Restart:
+
    ```bash
    # Kill emulator
    pkill -f "firebase emulators:start"
-   
+
    # Clean and start fresh
    bash scripts/firestore-emulator-setup.sh clean
    bash scripts/firestore-emulator-setup.sh start
@@ -462,11 +502,13 @@ connectFirestoreEmulator(db, 'localhost', 8080);
 ### "Backup/restore not working"
 
 Ensure `.firebase/emulator-backups` directory exists:
+
 ```bash
 mkdir -p .firebase/emulator-backups
 ```
 
 List backups:
+
 ```bash
 ls -la .firebase/emulator-backups
 ```
@@ -534,13 +576,13 @@ fi
 
 ### Emulator Performance
 
-| Operation | Typical time | Notes |
-|-----------|--------------|-------|
-| Start emulator | ~2-3s | First run may be slower |
-| Seed 3 labs | ~5-8s | Includes 100+ documents |
-| Rules test run | ~3-5s | Depends on test count |
-| Backup | ~1-2s | Stores to `.firebase/` |
-| Restore | ~2-3s | Imports from backup |
+| Operation      | Typical time | Notes                   |
+| -------------- | ------------ | ----------------------- |
+| Start emulator | ~2-3s        | First run may be slower |
+| Seed 3 labs    | ~5-8s        | Includes 100+ documents |
+| Rules test run | ~3-5s        | Depends on test count   |
+| Backup         | ~1-2s        | Stores to `.firebase/`  |
+| Restore        | ~2-3s        | Imports from backup     |
 
 ### Data Limits
 
@@ -556,6 +598,7 @@ fi
 - **With 100K docs:** ~800 MB
 
 Monitor:
+
 ```bash
 ps aux | grep firebase
 ```

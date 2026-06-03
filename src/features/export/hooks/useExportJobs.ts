@@ -17,7 +17,7 @@ import { ExportJob } from '../types';
  */
 export function useExportJob(
   labId: string,
-  jobId: string
+  jobId: string,
 ): {
   job: ExportJob | null;
   loading: boolean;
@@ -36,13 +36,7 @@ export function useExportJob(
     setLoading(true);
     setError(null);
 
-    const jobRef = doc(
-      db,
-      'labs',
-      labId,
-      'export-jobs',
-      jobId
-    );
+    const jobRef = doc(db, 'labs', labId, 'export-jobs', jobId);
 
     const unsubscribe = onSnapshot(
       jobRef,
@@ -66,7 +60,7 @@ export function useExportJob(
         console.error('[Export] Error loading job:', err);
         setError(err.message || 'Failed to load job');
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;

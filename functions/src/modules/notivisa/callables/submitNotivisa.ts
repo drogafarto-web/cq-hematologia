@@ -17,11 +17,13 @@ import { LogicalSignature, verifyLogicalSignature } from '../../../shared/crypto
 const submitNotivisaInputSchema = z.object({
   labId: z.string().min(1, 'labId required'),
   draftId: z.string().min(1, 'draftId required'),
-  rtApprovalSignature: z.object({
-    hash: z.string().length(64, 'hash must be 64-char hex'),
-    operatorId: z.string().min(1),
-    ts: z.number().int().positive(),
-  }).optional(),
+  rtApprovalSignature: z
+    .object({
+      hash: z.string().length(64, 'hash must be 64-char hex'),
+      operatorId: z.string().min(1),
+      ts: z.number().int().positive(),
+    })
+    .optional(),
   idempotencyToken: z.string().uuid().optional(),
 });
 
@@ -54,15 +56,13 @@ type SubmitNotivisaError = z.infer<typeof submitNotivisaErrorSchema>;
 const RATE_LIMIT_PER_HOUR = 10;
 const POLL_INTERVAL_MS = 300000; // 5 minutes
 
-export const submitNotivisa = functions.region('southamerica-east1').onCall(
-  async (request): Promise<SubmitNotivisaOutput | SubmitNotivisaError> => {
+export const submitNotivisa = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<SubmitNotivisaOutput | SubmitNotivisaError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = submitNotivisaInputSchema.parse(request.data);
@@ -72,26 +72,22 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
       const db = admin.firestore();
 
       // ========== 2. Authorization check ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          `User is not a member of lab ${labId}`
+          `User is not a member of lab ${labId}`,
         );
       }
 
       const memberRole = memberDoc.data()?.role;
-      const isRTOrAuditor = memberRole === 'RT' || memberRole === 'AUDITOR' || memberRole === 'admin';
+      const isRTOrAuditor =
+        memberRole === 'RT' || memberRole === 'AUDITOR' || memberRole === 'admin';
       if (!isRTOrAuditor) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          `User role ${memberRole} cannot submit NOTIVISA drafts (requires RT or AUDITOR)`
+          `User role ${memberRole} cannot submit NOTIVISA drafts (requires RT or AUDITOR)`,
         );
       }
 
@@ -200,10 +196,7 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
       }
 
       // ========== 7. Enqueue notification ==========
-      const queueRef = db
-        .collection('notivisa-queue')
-        .doc(labId)
-        .collection('events');
+      const queueRef = db.collection('notivisa-queue').doc(labId).collection('events');
 
       const newEventId = queueRef.doc().id;
       const now = Date.now();
@@ -227,19 +220,16 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
       });
 
       // Create audit log entry
-      batch.set(
-        draftRef.collection('auditLog').doc(`${now}`),
-        {
-          action: 'SUBMITTED',
-          operatorId: uid,
-          ts: now,
-          details: {
-            eventId: newEventId,
-            pacienteCpf: draftData.payload?.paciente_cpf || '***',
-            idempotencyToken: idempotencyToken || null,
-          },
-        }
-      );
+      batch.set(draftRef.collection('auditLog').doc(`${now}`), {
+        action: 'SUBMITTED',
+        operatorId: uid,
+        ts: now,
+        details: {
+          eventId: newEventId,
+          pacienteCpf: draftData.payload?.paciente_cpf || '***',
+          idempotencyToken: idempotencyToken || null,
+        },
+      });
 
       // Update draft status to submitted
       batch.update(draftRef, {
@@ -285,5 +275,4 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error during submission',
       };
     }
-  }
-);
+  });

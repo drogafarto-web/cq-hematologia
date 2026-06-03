@@ -9,6 +9,7 @@
 ## Core Deliverables
 
 ### 1. Execution Log
+
 **File:** `docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md`
 
 Phase 1 (dry-run) and Phase 2 (apply) execution results. Verification checklist. Pre-deployment validation summary. Rollback plan.
@@ -18,6 +19,7 @@ Phase 1 (dry-run) and Phase 2 (apply) execution results. Verification checklist.
 ---
 
 ### 2. Verification UI Component
+
 **File:** `src/features/admin/SupervisorStatusBootstrapVerifier.tsx`
 
 React component for real-time monitoring of bootstrap state. Firestore onSnapshot listeners. Status matrix with lab IDs, hasActiveSupervisor badges (green/yellow), timestamps. Admin action buttons (reset, toggle). Error + loading states.
@@ -27,6 +29,7 @@ React component for real-time monitoring of bootstrap state. Firestore onSnapsho
 ---
 
 ### 3. Test Suite
+
 **File:** `scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs`
 
 8 comprehensive tests covering: dry-run mode, apply mode, lab filtering, idempotency, error handling, rollback, document structure, project/environment handling.
@@ -36,6 +39,7 @@ React component for real-time monitoring of bootstrap state. Firestore onSnapsho
 ---
 
 ### 4. Deployment Checklist (STEP 0)
+
 **File:** `docs/DEPLOY_CHECKLIST_v1.4_STEP0.md`
 
 Pre-deployment gate document. Step-by-step instructions (0a dry-run, 0b apply, 0c validate). Critical order dependency (bootstrap before rules). Idempotency & rollback. Testing instructions. Next gate (STEP 1: Deploy rules).
@@ -45,6 +49,7 @@ Pre-deployment gate document. Step-by-step instructions (0a dry-run, 0b apply, 0
 ---
 
 ### 5. Sign-Off Document
+
 **File:** `proposed-changes/wave4-10-bootstrap-execution.md`
 
 Comprehensive sign-off with all task details. Artifacts created, verification results, gate checklist (all passed), RDC 978 compliance impact, deployment gate status.
@@ -56,6 +61,7 @@ Comprehensive sign-off with all task details. Artifacts created, verification re
 ## Supporting Documents
 
 ### Summary
+
 **File:** `proposed-changes/WAVE4-10-SUMMARY.txt`
 
 High-level summary of mission, execution results, artifacts, key validation checkpoints, order dependency, RDC 978 compliance.
@@ -65,6 +71,7 @@ High-level summary of mission, execution results, artifacts, key validation chec
 ---
 
 ### Final Report
+
 **File:** `WAVE4-10-FINAL-REPORT.md`
 
 Comprehensive final report with executive summary, tasks completed, artifacts, verification checklist, RDC 978 compliance, deployment gate status, file summary, sign-off.
@@ -76,6 +83,7 @@ Comprehensive final report with executive summary, tasks completed, artifacts, v
 ## Referenced Files (Not Modified)
 
 ### Bootstrap Script (from Wave 3)
+
 **File:** `scripts/bootstrap-supervisor-status.mjs`
 
 Pre-existing script (created by Wave 3). Reviewed and executed by this agent.
@@ -85,6 +93,7 @@ Pre-existing script (created by Wave 3). Reviewed and executed by this agent.
 ---
 
 ### Firestore Rules
+
 **File:** `firestore.rules`
 
 Rules exist in code (lines 1860-1866, 104-120) but NOT yet deployed. Gating on hasActiveSupervisor() helper.
@@ -96,18 +105,21 @@ Rules exist in code (lines 1860-1866, 104-120) but NOT yet deployed. Gating on h
 ## Reading Order
 
 ### For Deployment Team (STEP 1)
+
 1. Start: `docs/DEPLOY_CHECKLIST_v1.4_STEP0.md` — understand gate structure
 2. Verify: `docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md` — confirm execution success
 3. Review: `proposed-changes/wave4-10-bootstrap-execution.md` — gate checklist
 4. Next: Execute STEP 1 command at bottom of checklist
 
 ### For Engineers (Integration)
+
 1. Start: `proposed-changes/WAVE4-10-SUMMARY.txt` — quick overview
 2. Deep dive: `proposed-changes/wave4-10-bootstrap-execution.md` — full details
 3. UI: `src/features/admin/SupervisorStatusBootstrapVerifier.tsx` — implement verification dashboard
 4. Tests: `scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs` — understand test coverage
 
 ### For QA/Auditors
+
 1. Start: `WAVE4-10-FINAL-REPORT.md` — executive summary
 2. Verify: `docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md` — execution evidence
 3. Compliance: `proposed-changes/wave4-10-bootstrap-execution.md` section "RDC 978 Compliance Impact"
@@ -130,6 +142,7 @@ Rules exist in code (lines 1860-1866, 104-120) but NOT yet deployed. Gating on h
 ## Critical Constraint
 
 **Order Dependency (MUST be followed):**
+
 ```
 STEP 0: Bootstrap supervisor-status docs (THIS AGENT - COMPLETE)
 STEP 1: Deploy Firestore rules (NEXT AGENT - Wave 4 Agent 11)
@@ -138,6 +151,7 @@ STEP 3: E2E smoke test (Future - Phase 13)
 ```
 
 If STEP 1 (rules) deploys before STEP 0 (bootstrap):
+
 - Bootstrap fails (rules block supervisor-status creates)
 - Labs become inaccessible
 - CIQ runs fail (doc missing -> rule fails closed)
@@ -149,6 +163,7 @@ If STEP 1 (rules) deploys before STEP 0 (bootstrap):
 **For Wave 4 Agent 11:**
 
 Prerequisites (all met from STEP 0):
+
 - Bootstrap complete
 - Docs persisted in Firestore
 - Verification UI ready
@@ -156,11 +171,13 @@ Prerequisites (all met from STEP 0):
 - No errors in logs
 
 Command:
+
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 Expected result:
+
 - supervisor-status collection now callable-only
 - hasActiveSupervisor() helper active
 - CIQ run creates gated on hasActiveSupervisor(labId)
@@ -172,12 +189,12 @@ Expected result:
 
 **RDC 978 Article 122 — Active Supervisor Enforcement**
 
-| Component | Phase | Status | Details |
-|-----------|-------|--------|---------|
-| Supervisor-status doc | STEP 0 | ✅ DONE | Bootstrap creates doc per lab |
-| hasActiveSupervisor toggle | Phase 12 | ⏭️ NEXT | Callables for check-in/check-out |
-| CIQ run gating | STEP 1 | ⏭️ NEXT | Rules gate writes on hasActiveSupervisor() |
-| Audit trail | Phase 13 | ⏭️ FUTURE | Audit log for supervisor status changes |
+| Component                  | Phase    | Status    | Details                                    |
+| -------------------------- | -------- | --------- | ------------------------------------------ |
+| Supervisor-status doc      | STEP 0   | ✅ DONE   | Bootstrap creates doc per lab              |
+| hasActiveSupervisor toggle | Phase 12 | ⏭️ NEXT   | Callables for check-in/check-out           |
+| CIQ run gating             | STEP 1   | ⏭️ NEXT   | Rules gate writes on hasActiveSupervisor() |
+| Audit trail                | Phase 13 | ⏭️ FUTURE | Audit log for supervisor status changes    |
 
 Bootstrap enables infrastructure. Rules deployment (STEP 1) activates enforcement.
 

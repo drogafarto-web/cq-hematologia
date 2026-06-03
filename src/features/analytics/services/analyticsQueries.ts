@@ -10,20 +10,17 @@ import { db, doc, collection } from '../../../shared/services/firebase';
 // ─── Path constants ───────────────────────────────────────────────────────────
 
 /** Base path for all analytics data under a lab */
-const analyticsBase = (labId: string) =>
-  `labs/${labId}/analytics`;
+const analyticsBase = (labId: string) => `labs/${labId}/analytics`;
 
 /** Firestore document ref: CIQ compliance metrics cache */
 export const ciqComplianceRef = (labId: string) =>
   doc(db, analyticsBase(labId), 'cache', 'metrics', 'ciqCompliance');
 
 /** Firestore document ref: analytics metadata (refresh time, staleness) */
-export const analyticsMetaRef = (labId: string) =>
-  doc(db, analyticsBase(labId), 'meta');
+export const analyticsMetaRef = (labId: string) => doc(db, analyticsBase(labId), 'meta');
 
 /** Firestore document ref: NC heatmap cache */
-export const ncHeatmapRef = (labId: string) =>
-  doc(db, analyticsBase(labId), 'cache', 'ncHeatmap');
+export const ncHeatmapRef = (labId: string) => doc(db, analyticsBase(labId), 'cache', 'ncHeatmap');
 
 /** Firestore document ref: training matrix cache */
 export const trainingMatrixRef = (labId: string) =>

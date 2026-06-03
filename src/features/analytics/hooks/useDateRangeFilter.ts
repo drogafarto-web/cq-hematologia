@@ -42,7 +42,7 @@ function subDays(date: Date, days: number): Date {
 const PRESET_DAYS: Record<Exclude<DatePreset, 'custom'>, number> = {
   '30d': 30,
   '90d': 90,
-  '1y':  365,
+  '1y': 365,
 };
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────

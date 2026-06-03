@@ -46,9 +46,7 @@ export function canonicalStringify(value: unknown): string {
 // Cada função retorna um objeto só com os campos que entram na assinatura.
 // Mudar um extrator = mudar versão de protocolo = invalidar assinaturas antigas.
 
-export function extractRunCanonicalFields(
-  doc: Record<string, unknown>,
-): Record<string, unknown> {
+export function extractRunCanonicalFields(doc: Record<string, unknown>): Record<string, unknown> {
   return {
     __v: SIGNATURE_PROTOCOL_VERSION,
     labId: doc['labId'] ?? null,

@@ -36,12 +36,7 @@ export type {
 } from './reclamacao';
 
 // ─── RCA Domain ────────────────────────────────────────────────────────────────
-export type {
-  RCAValidationResult,
-  RCAHeuristicResult,
-  RCATemplate,
-  RCAEngine,
-} from './rca';
+export type { RCAValidationResult, RCAHeuristicResult, RCATemplate, RCAEngine } from './rca';
 
 // ─── Suggestion Domain ─────────────────────────────────────────────────────────
 export type {

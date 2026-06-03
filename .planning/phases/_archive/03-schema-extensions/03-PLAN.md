@@ -1,9 +1,9 @@
 ---
 phase: 3
-title: "Schema Extensions & Cross-Cutting Prep"
-period: "2026-05-07 → 2026-05-14 (1 week)"
-owner: "Stream A + Stream D"
-objective: "Deploy all Firestore schema changes, rules extensions, shared utilities for Phases 4–12"
+title: 'Schema Extensions & Cross-Cutting Prep'
+period: '2026-05-07 → 2026-05-14 (1 week)'
+owner: 'Stream A + Stream D'
+objective: 'Deploy all Firestore schema changes, rules extensions, shared utilities for Phases 4–12'
 status: in-progress
 target_date: 2026-05-14
 last_updated: 2026-05-07
@@ -21,12 +21,12 @@ last_updated: 2026-05-07
 
 ## REQ Mapping → Tasks
 
-| REQ | Task | Description | Owner | Duration |
-|-----|------|-------------|-------|----------|
-| REQ-3.1 | 03-01 | Firestore Schema v1.4 (5 collections + indexes) | Agent 1 | 2 days |
-| REQ-3.2 | 03-02 | Firestore Rules v1.4 (portal + notivisa gates) | Agent 2 | 1.5 days |
-| REQ-3.3 | 03-03 | Shared Helpers (4 modules: notivisa, SMS, laudo, IA) | Agent 3 | 1.5 days |
-| REQ-3.4 | 03-04 | Cloud Functions base structure (module skeletons) | Agent 4 | 1 day |
+| REQ     | Task  | Description                                            | Owner   | Duration |
+| ------- | ----- | ------------------------------------------------------ | ------- | -------- |
+| REQ-3.1 | 03-01 | Firestore Schema v1.4 (5 collections + indexes)        | Agent 1 | 2 days   |
+| REQ-3.2 | 03-02 | Firestore Rules v1.4 (portal + notivisa gates)         | Agent 2 | 1.5 days |
+| REQ-3.3 | 03-03 | Shared Helpers (4 modules: notivisa, SMS, laudo, IA)   | Agent 3 | 1.5 days |
+| REQ-3.4 | 03-04 | Cloud Functions base structure (module skeletons)      | Agent 4 | 1 day    |
 | REQ-3.5 | 03-04 | Test infrastructure (portal + IA + notivisa callables) | Agent 4 | 1.5 days |
 
 **Total effort:** ~7 agent-days across 5 days → 40% parallel efficiency
@@ -36,11 +36,13 @@ last_updated: 2026-05-07
 ## Task Breakdown (4 Agents, Single Shot)
 
 ### **Task 03-01: Firestore Schema v1.4 Extensions** (Agent 1)
+
 **Owner:** Stream D (DB engineer)  
 **Duration:** 2 days  
-**Status:** Ready to start  
+**Status:** Ready to start
 
 **Deliverables:**
+
 1. **portal-configuracao/{labId}/** — Patient portal branding (colors, logo, terms)
    - Fields: `logoCdnUrl`, `primaryColor`, `secondaryColor`, `labelLaudo`, `labelPaciente`, `termsHTML`, `privacyHTML`, `updatedAt`
    - Indexes: `labId` (already exists), no new indexes needed
@@ -58,15 +60,18 @@ last_updated: 2026-05-07
    - Indexes: `labId`, `laudo_id`, `locked_until_ts`
 
 **Firestore indexes to create:**
+
 - `notivisa-outbox`: `(labId, status, createdAt)` composite
 - `criticos-escalacoes`: `(labId, createdAt)` composite
 - `imuno-ias-dev`: `(labId, model_version, createdAt)` composite
 
 **Artifacts:**
+
 - `SCHEMA_v1.4.md` (full schema snapshot, comments for each collection)
 - Firebase Console index creation script (or manual verification checklist)
 
 **Verification:**
+
 ```bash
 npm run firestore:schema-validate
 # Should pass all 5 collections, all indexes
@@ -78,11 +83,13 @@ npm run firestore:schema-validate
 ---
 
 ### **Task 03-02: Firestore Rules v1.4** (Agent 2)
+
 **Owner:** Stream A (Rules auditor, CTO)  
 **Duration:** 1.5 days  
-**Status:** Ready after 03-01  
+**Status:** Ready after 03-01
 
 **Deliverables:**
+
 1. **Portal access rules** — Patients read `portal-configuracao` + `laudos` (published only), write nothing
    - Match: `/labs/{labId}/portal-configuracao/{configDoc}`
    - Allow: `read if isPatient(labId) && isOwnLaudo(laudo_id)`
@@ -109,15 +116,18 @@ npm run firestore:schema-validate
    - Allow: `read if isMemberOfLab(labId) || isPatient(labId)`
 
 **Firestore Rules diff:**
+
 - Add 5 new match blocks (~150 lines)
 - Add helper function `validateNotivisaPayload()` (~20 lines)
 - Add helper function `validateDraftLock()` (~15 lines)
 
 **Artifacts:**
+
 - `firestore.rules` (updated full file)
 - `docs/RULES_v1.4_DIFF.md` (change summary, auditor-ready)
 
 **Verification:**
+
 ```bash
 npm run test:rules
 # Should pass all 18 role-based rules tests + new 5 portal tests
@@ -129,27 +139,31 @@ npm run test:rules
 ---
 
 ### **Task 03-03: Shared Helpers & Utilities** (Agent 3)
+
 **Owner:** Stream D (Backend eng)  
 **Duration:** 1.5 days  
-**Status:** Ready to start (independent)  
+**Status:** Ready to start (independent)
 
 **Deliverables:**
 
 1. **`src/shared/notivisa.ts`** (100 lines)
+
    ```typescript
    export const notivisaFormatter = (laudo: Laudo): NotivisaPayload
    // Art. 6º §1 format: estrutura obrigatória + Art. 17 assinatura format
    ```
 
 2. **`src/shared/sms.ts`** (80 lines)
+
    ```typescript
    export const smsTemplate = (critico: Critico, lab: Lab): string
    // "Resultado crítico para {paciente}: {analito} = {valor} ({ref})..."
    ```
 
 3. **`src/shared/laudo.ts`** (120 lines)
+
    ```typescript
-   export const laudoDraftManager = new DraftStateMachine()
+   export const laudoDraftManager = new DraftStateMachine();
    // Transactional lock: create draft → RT edits → publish → archive
    ```
 
@@ -164,10 +178,12 @@ npm run test:rules
    ```
 
 **Artifacts:**
+
 - 4 new `.ts` files in `src/shared/`
 - `src/shared/__tests__/` with unit tests (≥80% coverage)
 
 **Verification:**
+
 ```bash
 npm run test -- src/shared
 npm run typecheck
@@ -180,9 +196,10 @@ npm run typecheck
 ---
 
 ### **Task 03-04: Cloud Functions Base Structure + Tests** (Agent 4)
+
 **Owner:** Stream A (DevOps, CTO)  
 **Duration:** 2.5 days  
-**Status:** Ready after 03-01 + 03-03  
+**Status:** Ready after 03-01 + 03-03
 
 **Deliverables:**
 
@@ -204,11 +221,13 @@ npm run typecheck
    - `iaStripUpload.ts` — return mock classification
 
 **Artifacts:**
+
 - `functions/src/modules/*/index.ts` (4 directories, 20 lines each)
 - `functions/src/__tests__/integration/` (3 test suites, 50 lines each)
 - `functions/package.json` (verify all dependencies present)
 
 **Verification:**
+
 ```bash
 cd functions && npm run test
 cd functions && npm run typecheck
@@ -234,6 +253,7 @@ cd functions && npm run build
 ```
 
 **Parallel opportunities:**
+
 - 03-01 and 03-03 can run in parallel (no dependencies)
 - 03-02 waits for 03-01 only
 - 03-04 waits for 03-01 + 03-03
@@ -244,33 +264,34 @@ cd functions && npm run build
 
 ## Success Criteria
 
-| Criterion | Verification | Owner |
-|-----------|--------------|-------|
-| All 5 collections exist in Firestore | Console or `npm run firestore:schema-validate` | Agent 1 |
-| All indexes created | Firestore Console (check build status) | Agent 1 |
-| 0 TypeScript errors | `npm run typecheck` in both src/ and functions/ | All |
-| Rules audit passing | `npm run test:rules` (18 existing + 5 new tests) | Agent 2 |
-| Helper unit tests ≥80% coverage | `npm run test -- src/shared` | Agent 3 |
-| Functions build successful | `cd functions && npm run build` | Agent 4 |
-| Staging deployment successful | `firebase deploy --only functions,firestore --to staging` | DevOps |
-| 0 P0 Firestore errors in Cloud Logs | Dashboard check after 1h staging deploy | DevOps |
+| Criterion                            | Verification                                              | Owner   |
+| ------------------------------------ | --------------------------------------------------------- | ------- |
+| All 5 collections exist in Firestore | Console or `npm run firestore:schema-validate`            | Agent 1 |
+| All indexes created                  | Firestore Console (check build status)                    | Agent 1 |
+| 0 TypeScript errors                  | `npm run typecheck` in both src/ and functions/           | All     |
+| Rules audit passing                  | `npm run test:rules` (18 existing + 5 new tests)          | Agent 2 |
+| Helper unit tests ≥80% coverage      | `npm run test -- src/shared`                              | Agent 3 |
+| Functions build successful           | `cd functions && npm run build`                           | Agent 4 |
+| Staging deployment successful        | `firebase deploy --only functions,firestore --to staging` | DevOps  |
+| 0 P0 Firestore errors in Cloud Logs  | Dashboard check after 1h staging deploy                   | DevOps  |
 
 ---
 
 ## Risk Mitigation
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| Index build timeout (>30min) | Low | Phase blocked 30m | Create indexes 3 days before, monitor build |
-| Rules complexity introduces security gap | Medium | Audit blocker | Rules audit (Agent 2) + peer review by CTO |
-| Helper API too broad, leaks sensitive data | Low | Security finding | Zod schemas + unit tests validate constraints |
-| Functions build fails due to missing deps | Low | Blocking | npm install before 03-04 starts |
+| Risk                                       | Likelihood | Impact            | Mitigation                                    |
+| ------------------------------------------ | ---------- | ----------------- | --------------------------------------------- |
+| Index build timeout (>30min)               | Low        | Phase blocked 30m | Create indexes 3 days before, monitor build   |
+| Rules complexity introduces security gap   | Medium     | Audit blocker     | Rules audit (Agent 2) + peer review by CTO    |
+| Helper API too broad, leaks sensitive data | Low        | Security finding  | Zod schemas + unit tests validate constraints |
+| Functions build fails due to missing deps  | Low        | Blocking          | npm install before 03-04 starts               |
 
 ---
 
 ## Rollback Plan
 
 **If any task fails:**
+
 1. **Schema (03-01):** Revert collections in Firestore Console, re-index from baseline
 2. **Rules (03-02):** `git checkout firestore.rules`, redeploy baseline rules
 3. **Helpers (03-03):** `git checkout src/shared`, re-run tests on baseline
@@ -283,6 +304,7 @@ cd functions && npm run build
 ## Handoff to Phase 4
 
 Upon Phase 3 completion:
+
 - SCHEMA_v1.4.md circulated to all teams
 - Shared helpers imported in all Phase 4 tasks
 - Cloud Functions skeletons provide the scaffold for NOTIVISA, Portal, Críticos

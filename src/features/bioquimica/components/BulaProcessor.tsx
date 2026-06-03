@@ -274,7 +274,8 @@ export function BulaProcessor({ lotId, onApplySuccess, onCancel }: BulaProcessor
           {niveis?.map((nivel, idx) => (
             <div key={idx} className="rounded-lg border border-white/[0.09] bg-white/[0.02] p-3">
               <p className="text-xs font-medium text-white/60 mb-2">
-                Nível {nivel.level} • {Object.keys(manufacturerStats?.[`nivel${nivel.level}`] || {}).length} analitos
+                Nível {nivel.level} •{' '}
+                {Object.keys(manufacturerStats?.[`nivel${nivel.level}`] || {}).length} analitos
               </p>
 
               <div className="grid grid-cols-3 gap-2 text-[11px]">
@@ -286,8 +287,12 @@ export function BulaProcessor({ lotId, onApplySuccess, onCancel }: BulaProcessor
                   ([analito, stats]) => (
                     <React.Fragment key={analito}>
                       <span className="text-white/70 truncate">{analito}</span>
-                      <span className="text-white/60 text-right tabular-nums">{stats.mean.toFixed(2)}</span>
-                      <span className="text-white/60 text-right tabular-nums">{stats.sd.toFixed(2)}</span>
+                      <span className="text-white/60 text-right tabular-nums">
+                        {stats.mean.toFixed(2)}
+                      </span>
+                      <span className="text-white/60 text-right tabular-nums">
+                        {stats.sd.toFixed(2)}
+                      </span>
                     </React.Fragment>
                   ),
                 )}

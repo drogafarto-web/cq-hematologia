@@ -19,6 +19,7 @@ Execute Stream C Week 2 deliverables: Web Vitals baseline measurement and Fireba
 **File:** `src/lib/web-vitals.ts`
 
 **Metrics implemented:**
+
 - **LCP (Largest Contentful Paint)** — Target: <2.5s
   - Measures when largest visible content element is painted
   - Uses PerformanceObserver for real-time collection
@@ -43,6 +44,7 @@ Execute Stream C Week 2 deliverables: Web Vitals baseline measurement and Fireba
   - Uses Navigation Timing API
 
 **Features:**
+
 - Automatic collection via PerformanceObserver API
 - Real-time reporting to Firebase Performance Monitoring
 - Development mode console logging
@@ -51,6 +53,7 @@ Execute Stream C Week 2 deliverables: Web Vitals baseline measurement and Fireba
 - Unique metric IDs for deduplication
 
 **Integration:**
+
 - Initialized in `src/App.tsx` via `useEffect`
 - No breaking changes to existing code
 - Compatible with existing Sentry integration
@@ -63,14 +66,14 @@ Execute Stream C Week 2 deliverables: Web Vitals baseline measurement and Fireba
 
 **Alert thresholds configured:**
 
-| Metric | Warning | Critical | Action |
-|--------|---------|----------|--------|
-| **LCP** | 2500ms | 3000ms | Page load performance |
-| **INP** | 200ms | 300ms | Interaction latency |
-| **CLS** | 0.1 | 0.25 | Layout stability |
-| **List Load** | 1000ms | 1500ms | Module load times |
-| **Dialog Open** | 500ms | 1000ms | Interaction speed |
-| **Firestore Query** | 500ms | 1000ms | Backend latency |
+| Metric              | Warning | Critical | Action                |
+| ------------------- | ------- | -------- | --------------------- |
+| **LCP**             | 2500ms  | 3000ms   | Page load performance |
+| **INP**             | 200ms   | 300ms    | Interaction latency   |
+| **CLS**             | 0.1     | 0.25     | Layout stability      |
+| **List Load**       | 1000ms  | 1500ms   | Module load times     |
+| **Dialog Open**     | 500ms   | 1000ms   | Interaction speed     |
+| **Firestore Query** | 500ms   | 1000ms   | Backend latency       |
 
 **Module-specific configuration:**
 
@@ -85,6 +88,7 @@ MODULE_METRICS = {
 ```
 
 **Features:**
+
 - Automatic metric threshold checking
 - Alert level determination (warning/critical)
 - Environment variable configuration
@@ -93,6 +97,7 @@ MODULE_METRICS = {
 - 30-day data retention
 
 **Status:**
+
 - Firebase Performance Monitoring library available in project
 - Configured but not yet sending data (needs manual app load test)
 - Ready for console dashboard setup
@@ -104,6 +109,7 @@ MODULE_METRICS = {
 **File:** `src/lib/performance-tracing.ts`
 
 **PerformanceTrace class:**
+
 - Manual trace creation and management
 - Custom metric recording
 - Custom attribute recording
@@ -112,6 +118,7 @@ MODULE_METRICS = {
 - Development logging
 
 **Helper functions:**
+
 - `traceAsync()` — Trace async operations with error handling
 - `traceSync()` — Trace sync operations
 - `traceFirestoreQuery()` — Specialized Firestore tracing
@@ -119,6 +126,7 @@ MODULE_METRICS = {
 **Standard trace names (15 total):**
 
 **List Loading:**
+
 - `pops_list_load`
 - `nc_list_load`
 - `auditoria_list_load`
@@ -126,32 +134,38 @@ MODULE_METRICS = {
 - `biosseguranca_areas_load`
 
 **Dialog/Form:**
+
 - `nc_open_dialog`
 - `pop_open_dialog`
 - `audit_open_dialog`
 - `training_open_dialog`
 
 **Submission:**
+
 - `nc_create_submit`
 - `pop_create_submit`
 - `audit_checklist_submit`
 
 **Rendering:**
+
 - `audit_checklist_render`
 - `nc_list_render`
 - `pops_list_render`
 
 **Data Operations:**
+
 - `firestore_query`
 - `firestore_write`
 - `firestore_delete`
 
 **Auth:**
+
 - `auth_state_change`
 - `auth_login`
 - `auth_logout`
 
 **Features:**
+
 - Metric aggregation for dashboards
 - Performance monitoring data collection
 - Development mode logging
@@ -164,15 +178,16 @@ MODULE_METRICS = {
 
 **Hooks provided:**
 
-| Hook | Purpose | Features |
-|------|---------|----------|
-| `usePerformanceTrace()` | Generic tracing | Auto-stop, custom callback, metrics |
-| `useListTrace()` | List rendering | Item count tracking, rendered item counter |
-| `useDataFetchTrace()` | Data fetching | Latency measurement, error tracking |
-| `useInteractionTrace()` | User interactions | Dialog/form tracing |
-| `useFirestoreQueryTrace()` | Query performance | Latency, result count, error tracking |
+| Hook                       | Purpose           | Features                                   |
+| -------------------------- | ----------------- | ------------------------------------------ |
+| `usePerformanceTrace()`    | Generic tracing   | Auto-stop, custom callback, metrics        |
+| `useListTrace()`           | List rendering    | Item count tracking, rendered item counter |
+| `useDataFetchTrace()`      | Data fetching     | Latency measurement, error tracking        |
+| `useInteractionTrace()`    | User interactions | Dialog/form tracing                        |
+| `useFirestoreQueryTrace()` | Query performance | Latency, result count, error tracking      |
 
 **Features:**
+
 - Automatic component unmount cleanup
 - Real-time metric recording
 - Callback on trace completion
@@ -207,6 +222,7 @@ function POPsList() {
 **File:** `docs/STREAM-C-PERFORMANCE-BASELINE.md`
 
 **Contains:**
+
 - Objective and targets
 - Infrastructure overview
 - Target modules (5 modules)
@@ -216,6 +232,7 @@ function POPsList() {
 - Next steps for Week 2
 
 **Features:**
+
 - Complete measurement process documented
 - Console commands for manual testing
 - Firebase setup instructions
@@ -229,6 +246,7 @@ function POPsList() {
 **File:** `docs/STREAM-C-FIREBASE-SETUP.md`
 
 **Contains:**
+
 - Firebase Performance Monitoring status
 - Console configuration steps
 - Real-time monitoring setup
@@ -238,6 +256,7 @@ function POPsList() {
 - Common troubleshooting
 
 **Features:**
+
 - Step-by-step Firebase Console instructions
 - Manual Firebase Monitoring API usage
 - Cloud Monitoring dashboard examples
@@ -251,6 +270,7 @@ function POPsList() {
 **File:** `docs/STREAM-C-TESTING-GUIDE.md`
 
 **Contains:**
+
 - Quick start instructions
 - Per-module testing procedures
 - Advanced testing (Lighthouse, DevTools Profiler, Network)
@@ -260,6 +280,7 @@ function POPsList() {
 - Automated testing with Lighthouse CI
 
 **Features:**
+
 - Console commands for each module
 - Expected metric ranges
 - Issue categorization (high LCP, INP, CLS)
@@ -274,6 +295,7 @@ function POPsList() {
 **File:** `docs/STREAM-C-WEB-VITALS-FINDINGS.md`
 
 **Contains:**
+
 - Executive summary
 - Infrastructure status
 - Integration points
@@ -286,6 +308,7 @@ function POPsList() {
 - Next actions (Week 2-5)
 
 **Status:**
+
 - Infrastructure: ✓ COMPLETE
 - Data collection: Pending manual testing
 - Bottleneck identification: Pending testing
@@ -296,21 +319,25 @@ function POPsList() {
 ## Integration Summary
 
 ### Files Created
+
 - `src/lib/web-vitals.ts` (316 lines)
 - `src/lib/performance-tracing.ts` (259 lines)
 - `src/lib/usePerformanceTrace.ts` (272 lines)
 - `src/lib/firebase-performance.ts` (195 lines)
 
 ### Files Modified
+
 - `src/App.tsx` — Added Web Vitals initialization
 
 ### Documentation
+
 - `docs/STREAM-C-PERFORMANCE-BASELINE.md`
 - `docs/STREAM-C-FIREBASE-SETUP.md`
 - `docs/STREAM-C-TESTING-GUIDE.md`
 - `docs/STREAM-C-WEB-VITALS-FINDINGS.md`
 
 ### Total Lines of Code
+
 - Implementation: 1,042 lines
 - Documentation: ~2,500 lines
 - Total: ~3,500 lines
@@ -376,12 +403,14 @@ function POPsList() {
 ### Phase 1: Baseline (Week 2) ✓ COMPLETE (Infrastructure)
 
 **Deliverables:**
+
 - [x] Measurement infrastructure deployed
 - [x] Testing procedures documented
 - [ ] Manual measurements taken (Next step)
 - [ ] Firebase dashboard created (Next step)
 
 **Success criteria:**
+
 - [x] Web Vitals automatically collected
 - [x] Firebase Performance Monitoring configured
 - [x] Custom traces defined for all modules
@@ -394,15 +423,16 @@ function POPsList() {
 
 **Target metrics per module:**
 
-| Module | LCP Target | INP Target | CLS Target |
-|--------|-----------|-----------|-----------|
-| POPs | <2.5s | <200ms | <0.1 |
-| NC | <2.5s | <200ms | <0.1 |
-| Auditoria | <2.5s | <200ms | <0.1 |
-| Treinamentos | <2.5s | <200ms | <0.1 |
-| Biosseguranca | <2.5s | <200ms | <0.1 |
+| Module        | LCP Target | INP Target | CLS Target |
+| ------------- | ---------- | ---------- | ---------- |
+| POPs          | <2.5s      | <200ms     | <0.1       |
+| NC            | <2.5s      | <200ms     | <0.1       |
+| Auditoria     | <2.5s      | <200ms     | <0.1       |
+| Treinamentos  | <2.5s      | <200ms     | <0.1       |
+| Biosseguranca | <2.5s      | <200ms     | <0.1       |
 
 **Testing procedure:**
+
 1. Open production (hmatologia2.web.app)
 2. Login with test account
 3. Navigate to module
@@ -416,6 +446,7 @@ function POPsList() {
 ### Phase 3: Optimization (Week 3-4) - Pending
 
 **Expected bottlenecks to address:**
+
 1. Firestore query latency → Create missing indexes
 2. React re-renders → Apply React.memo
 3. Bundle size → Adjust code-splitting
@@ -427,6 +458,7 @@ function POPsList() {
 ### Phase 4: Monitoring & Alerts (Week 4-5) - Pending
 
 **Production monitoring setup:**
+
 - Firebase Console dashboard
 - Cloud Monitoring custom dashboards
 - Alert thresholds configured
@@ -437,6 +469,7 @@ function POPsList() {
 ## Key Achievements
 
 ### Code Quality
+
 - Full TypeScript compilation (new files)
 - No breaking changes to existing code
 - Comprehensive error handling
@@ -444,6 +477,7 @@ function POPsList() {
 - Production-ready implementation
 
 ### Documentation
+
 - Complete measurement procedures
 - Firebase setup guide
 - Testing guide with step-by-step instructions
@@ -451,6 +485,7 @@ function POPsList() {
 - Effort estimation for optimization
 
 ### Architecture
+
 - Modular design (separate concerns)
 - Composable React hooks
 - Firebase integration ready
@@ -458,6 +493,7 @@ function POPsList() {
 - Compatible with existing systems
 
 ### Performance
+
 - Minimal overhead (PerformanceObserver only)
 - Efficient metric aggregation
 - Lazy trace initialization
@@ -492,12 +528,14 @@ function POPsList() {
 ## Success Metrics
 
 ### Week 2 Targets
+
 - [x] Infrastructure deployed (100%)
 - [x] Documentation complete (100%)
 - [ ] Baseline metrics (0% - pending manual testing)
 - [ ] Firebase dashboard (0% - pending console setup)
 
 ### Overall Stream C Targets (6 weeks)
+
 - **Main bundle:** <800 KB gzip
 - **LCP:** <2.5s on all modules
 - **INP:** <200ms on all interactions
@@ -512,26 +550,29 @@ function POPsList() {
 ## Files Summary
 
 ### Source Code (4 files, 1,042 lines)
-| File | Lines | Purpose |
-|------|-------|---------|
-| web-vitals.ts | 316 | Core Web Vitals measurement |
-| performance-tracing.ts | 259 | Custom trace library |
-| usePerformanceTrace.ts | 272 | React hooks |
-| firebase-performance.ts | 195 | Firebase configuration |
+
+| File                    | Lines | Purpose                     |
+| ----------------------- | ----- | --------------------------- |
+| web-vitals.ts           | 316   | Core Web Vitals measurement |
+| performance-tracing.ts  | 259   | Custom trace library        |
+| usePerformanceTrace.ts  | 272   | React hooks                 |
+| firebase-performance.ts | 195   | Firebase configuration      |
 
 ### Documentation (4 files, ~2,500 lines)
-| File | Purpose |
-|------|---------|
+
+| File                             | Purpose                    |
+| -------------------------------- | -------------------------- |
 | STREAM-C-PERFORMANCE-BASELINE.md | Baseline targets & process |
-| STREAM-C-FIREBASE-SETUP.md | Firebase console guide |
-| STREAM-C-TESTING-GUIDE.md | Manual testing procedures |
-| STREAM-C-WEB-VITALS-FINDINGS.md | Status & analysis |
+| STREAM-C-FIREBASE-SETUP.md       | Firebase console guide     |
+| STREAM-C-TESTING-GUIDE.md        | Manual testing procedures  |
+| STREAM-C-WEB-VITALS-FINDINGS.md  | Status & analysis          |
 
 ---
 
 ## Commit History
 
 **Commit:** Main implementation
+
 - Web Vitals library
 - Performance tracing library
 - React hooks

@@ -26,6 +26,7 @@
 **Affected tests (9):**
 
 `phase3-rules.e2e.test.ts`:
+
 - Test 1: Portal rules allow patient to read published laudo (cleanup-only failure — see Cluster B for the primary failure of this test)
 - Test 2: NOTIVISA rules allow RT to create and server to update — `db.doc("labs/X/notivisa-outbox/events/eventId")`
 - Test 3: Critical escalation rules enforce role-based access — `db.doc("labs/X/criticos-escalacoes/escalacoes/escalacaoId")`
@@ -33,12 +34,14 @@
 - Test 5: Laudo draft lock rules enforce pessimistic concurrency — `db.doc("labs/X/laudos-draft/rascunhos/draftId")`
 
 `phase3-schema.e2e.test.ts`:
+
 - Test 2: NOTIVISA outbox index query succeeds — `db.collection("labs/X/notivisa-outbox/events")` (treats it as a collection — opposite arity error)
 - Test 3: Critical escalation write succeeds with complete schema — `db.doc("labs/X/criticos-escalacoes/escalacoes/escalacaoId")`
 - Test 4: IA strip image metadata write succeeds with model version — `db.doc("labs/X/imuno-ias-dev/images/imageId")`
 - Test 5: Laudo draft state transitions work correctly — `db.doc("labs/X/laudos-draft/rascunhos/draftId")`
 
 **Common pattern:** Every test treats paths shaped `labs/{labId}/<collection>/<fixedSubName>/<docId>` as either a document (5 segments → odd → invalid for `db.doc`) or as a collection (5 segments → odd → valid as collection but the test wraps it as a doc and vice versa). The Admin SDK throws synchronously:
+
 - `"...documentPath" must point to a document, but was "..."`. **Your path does not contain an even number of components.**
 - `"...collectionPath" must point to a collection, but was "..."`. **Your path does not contain an odd number of components.**
 
@@ -65,6 +68,7 @@ Either way, this is a **mirrored bug**: rules and tests are wrong **in the same 
 ### Cluster B — Cross-package Timestamp instance mismatch (1 failure, partial)
 
 **Affected tests (1):**
+
 - `phase3-rules.e2e.test.ts` Test 1 — Portal rules allow patient to read published laudo
 
 **Common pattern:** Test imports `Timestamp` from `firebase/firestore` (client SDK) and writes it via `admin.firestore().doc(...).set({assinatura: { ts: Timestamp.now() }})`. Admin SDK throws:
@@ -85,6 +89,7 @@ the same NPM package.
 ### Cluster C — afterEach cleanup uses Cluster A bad path (1 secondary failure)
 
 **Affected tests (1):**
+
 - `phase3-rules.e2e.test.ts` `afterEach` (counted by vitest as additional failure on Test 1; Test 1 thus shows 2 errors)
 
 **Common pattern:** `afterEach` line 426-440 lists `labs/${testLabId}/notivisa-outbox/events` etc. as collection paths to clean. Even after Test 1's body succeeds, cleanup throws on the same arity error.
@@ -97,18 +102,18 @@ the same NPM package.
 
 ## Raw failure data
 
-| # | File | Test | Path used | Op (SDK) | Auth | Error type | Error snippet |
-|---|------|------|-----------|----------|------|------------|---------------|
-| 1 | phase3-rules | Test 1 Portal | `labs/X/laudos/laudoId` | `set` (admin) | Admin (no rules check) | Cross-pkg Timestamp | `Detected an object of type "Timestamp" that doesn't match the expected instance` |
-| 2 | phase3-rules | Test 1 cleanup | `labs/X/notivisa-outbox/events` | `db.collection().get()` | Admin | Path arity | `collectionPath ... does not contain an odd number of components` |
-| 3 | phase3-rules | Test 2 NOTIVISA | `labs/X/notivisa-outbox/events/eventId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 4 | phase3-rules | Test 3 Crit Escal | `labs/X/criticos-escalacoes/escalacoes/escId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 5 | phase3-rules | Test 4 IA Strip | `labs/X/imuno-ias-dev/images/imgId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 6 | phase3-rules | Test 5 Draft Lock | `labs/X/laudos-draft/rascunhos/draftId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 7 | phase3-schema | Test 2 NOTIVISA index | `labs/X/notivisa-outbox/events` | `db.collection()` | Admin | Path arity | `collectionPath ... does not contain an odd number of components` |
-| 8 | phase3-schema | Test 3 Crit Escal | `labs/X/criticos-escalacoes/escalacoes/escId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 9 | phase3-schema | Test 4 IA Strip | `labs/X/imuno-ias-dev/images/imgId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
-| 10 | phase3-schema | Test 5 Draft Lock | `labs/X/laudos-draft/rascunhos/draftId` | `db.doc()` | Admin | Path arity | `documentPath ... does not contain an even number of components` |
+| #   | File          | Test                  | Path used                                     | Op (SDK)                | Auth                   | Error type          | Error snippet                                                                     |
+| --- | ------------- | --------------------- | --------------------------------------------- | ----------------------- | ---------------------- | ------------------- | --------------------------------------------------------------------------------- |
+| 1   | phase3-rules  | Test 1 Portal         | `labs/X/laudos/laudoId`                       | `set` (admin)           | Admin (no rules check) | Cross-pkg Timestamp | `Detected an object of type "Timestamp" that doesn't match the expected instance` |
+| 2   | phase3-rules  | Test 1 cleanup        | `labs/X/notivisa-outbox/events`               | `db.collection().get()` | Admin                  | Path arity          | `collectionPath ... does not contain an odd number of components`                 |
+| 3   | phase3-rules  | Test 2 NOTIVISA       | `labs/X/notivisa-outbox/events/eventId`       | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 4   | phase3-rules  | Test 3 Crit Escal     | `labs/X/criticos-escalacoes/escalacoes/escId` | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 5   | phase3-rules  | Test 4 IA Strip       | `labs/X/imuno-ias-dev/images/imgId`           | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 6   | phase3-rules  | Test 5 Draft Lock     | `labs/X/laudos-draft/rascunhos/draftId`       | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 7   | phase3-schema | Test 2 NOTIVISA index | `labs/X/notivisa-outbox/events`               | `db.collection()`       | Admin                  | Path arity          | `collectionPath ... does not contain an odd number of components`                 |
+| 8   | phase3-schema | Test 3 Crit Escal     | `labs/X/criticos-escalacoes/escalacoes/escId` | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 9   | phase3-schema | Test 4 IA Strip       | `labs/X/imuno-ias-dev/images/imgId`           | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
+| 10  | phase3-schema | Test 5 Draft Lock     | `labs/X/laudos-draft/rascunhos/draftId`       | `db.doc()`              | Admin                  | Path arity          | `documentPath ... does not contain an even number of components`                  |
 
 **Note on auth column**: every test runs through `firebase-admin` Admin SDK with no token. Admin SDK ignores rules entirely. None of these tests would catch a real rules regression — they only catch **schema/path shape**. This is itself a finding.
 
@@ -134,12 +139,14 @@ the same NPM package.
 5. **Strongly recommend a separate follow-up**: rewrite these as actual rules tests using `@firebase/rules-unit-testing` against the local emulator. As-is, they verify nothing about security rules. This is a documentation/labeling defect — they are named `*-rules.e2e.test.ts` but never exercise rules.
 
 ## Resolution — 2026-05-07 10:08
+
 - Tests after fix: **27/28 passing** (was 30/40 → 9 of 10 fixed)
 - Remaining failures: **1** — `phase3-schema.e2e.test.ts > Test 2 NOTIVISA outbox index query` fails with `FAILED_PRECONDITION: The query requires an index`. Test code is correct (now uses `(labId, status, createdAt)` with `labId` field on docs to match the declared index in `firestore.indexes.json` line 666). The composite index just isn't deployed to live Firestore yet. **Resolution: deploy `firestore:indexes`** (`firebase deploy --only firestore:indexes --project hmatologia2`). Not done by this agent per "no deploy without explicit approval" constraint.
 - Commits: rules **`b96df21`** (parallel agent — 4-segment path arity fix), tests **`4d00db6`** (this agent's edits swept into the larger "Phase 3 Complete" commit by the orchestrator: Timestamp import → admin SDK + path drops + labId field add + cleanup hook drops)
 - Deploy ready: **NO** — needs `firebase deploy --only firestore:indexes` to clear the last test failure. Rules commit (`b96df21`) is independently deploy-ready (`firebase deploy --only firestore:rules`) once user gives the go.
 
 ### Cluster D (NEW) — Composite index not deployed
+
 - **Affected tests (1)**: `phase3-schema.e2e.test.ts > Test 2`
 - **Root cause**: Index `(labId, status, createdAt)` for `notivisa-outbox` is declared in `firestore.indexes.json:665-673` but not yet deployed to project `hmatologia2`. After Cluster A path fix, the collection path resolved correctly but the query (originally `where status + orderBy createdAt`) did not match any deployed index. Test was updated to add `labId` filter + field (codebase convention requires redundant `labId` in payload anyway — root CLAUDE.md), so it now matches the declared index shape exactly. Deploying the index is the only remaining step.
 - **Fix scope**: 1 deploy command. No code change.

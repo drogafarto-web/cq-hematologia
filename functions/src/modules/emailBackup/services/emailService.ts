@@ -69,9 +69,7 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
   const totalBytes = attachments.reduce((s, a) => s + a.content.byteLength, 0);
   // Conservative 10MB cap — most SMTP providers reject larger attachments.
   if (totalBytes > 10 * 1024 * 1024) {
-    throw new Error(
-      `[sendBackupEmail] total attachments size ${totalBytes}B exceeds 10MB limit`,
-    );
+    throw new Error(`[sendBackupEmail] total attachments size ${totalBytes}B exceeds 10MB limit`);
   }
 
   const subject = buildSubject(report, elevatedSubject ?? null);
@@ -93,16 +91,12 @@ export async function sendBackupEmail(opts: SendBackupEmailOptions): Promise<voi
 
 // ─── Subject Builder ──────────────────────────────────────────────────────────
 
-function buildSubject(
-  report: BackupReport,
-  elevatedSubject: 'critico' | 'atencao' | null,
-): string {
+function buildSubject(report: BackupReport, elevatedSubject: 'critico' | 'atencao' | null): string {
   const stalenessCritical = report.stalenessAlerts.some((a) => a.level === 'critical');
   const stalenessWarning = report.stalenessAlerts.some((a) => a.level === 'warning');
 
   const hasCritical = stalenessCritical || elevatedSubject === 'critico';
-  const hasWarning =
-    !hasCritical && (stalenessWarning || elevatedSubject === 'atencao');
+  const hasWarning = !hasCritical && (stalenessWarning || elevatedSubject === 'atencao');
 
   const dateStr = new Date(report.generatedAt).toLocaleDateString('pt-BR', {
     timeZone: 'America/Sao_Paulo',
@@ -118,9 +112,7 @@ function buildSubject(
     return `[CRÍTICO] HC Quality — ${subjectCause} — ${report.labName} — ${dateStr}`;
   }
   if (hasWarning) {
-    const subjectCause = stalenessWarning
-      ? 'Inatividade detectada'
-      : 'Atenção no CIQ';
+    const subjectCause = stalenessWarning ? 'Inatividade detectada' : 'Atenção no CIQ';
     return `[ATENÇÃO] HC Quality — ${subjectCause} — ${report.labName} — ${dateStr}`;
   }
 
@@ -270,9 +262,7 @@ function buildHtmlBody(
 
 // ─── Operacional block (HTML) ────────────────────────────────────────────────
 
-function buildOperacionalBlock(
-  operacional: SendBackupEmailOptions['operacionalSummary'],
-): string {
+function buildOperacionalBlock(operacional: SendBackupEmailOptions['operacionalSummary']): string {
   if (!operacional) return '';
   const statusColor =
     operacional.status === 'critico'
@@ -287,9 +277,7 @@ function buildOperacionalBlock(
         ? 'ATENÇÃO'
         : 'OK';
   const approvalStr =
-    operacional.globalApprovalRate !== null
-      ? `${operacional.globalApprovalRate.toFixed(1)}%`
-      : '—';
+    operacional.globalApprovalRate !== null ? `${operacional.globalApprovalRate.toFixed(1)}%` : '—';
   return `
     <div style="border:1px solid #2a2a2a;border-radius:8px;padding:16px;margin-bottom:20px;background:#101010">
       <table style="width:100%;border-collapse:collapse;margin-bottom:12px" role="presentation">

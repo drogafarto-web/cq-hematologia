@@ -26,8 +26,6 @@
   },
   "combiner": "OR",
   "enabled": true,
-  "notificationChannels": [
-    "projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG"
-  ],
+  "notificationChannels": ["projects/hmatologia2/notificationChannels/PLACEHOLDER_ONCALL_ENG"],
   "severity": "WARNING"
 }

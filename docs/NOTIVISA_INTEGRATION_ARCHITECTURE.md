@@ -16,6 +16,7 @@ HC Quality v1.4 implements **NOTIVISA (Notificação Imediata de Vítima de Viol
 2. **Phase 12+ (Aug–Sept 2026):** Production NOTIVISA — real Anvisa API integration, async queue processing, webhook acknowledgment, idempotent retries.
 
 This document covers:
+
 - **Architectural overview** (client → Cloud Functions → Portal API → Anvisa)
 - **All 8 callable specs** with I/O schemas
 - **Async queue pattern** (append-only outbox, exponential backoff)
@@ -89,11 +90,11 @@ This document covers:
 
 ### Phase Breakdown
 
-| Phase | Timeline | Scope | Status |
-|-------|----------|-------|--------|
-| **Phase 4** (NOTIVISA Sandbox Setup) | May 20–June 30, 2026 | Form generation, draft approval, mock queue, audit export | In Scope |
-| **Phase 8** (NOTIVISA Production Config) | July 1–July 31, 2026 | Real API endpoint config, certificate provisioning, webhook setup | Dependent on Phase 4 |
-| **Phase 12** (NOTIVISA Production Integration) | Aug 1–Sept 15, 2026 | Real API submission, idempotent retries, production deployment | Deferred (certificate lead time) |
+| Phase                                          | Timeline             | Scope                                                             | Status                           |
+| ---------------------------------------------- | -------------------- | ----------------------------------------------------------------- | -------------------------------- |
+| **Phase 4** (NOTIVISA Sandbox Setup)           | May 20–June 30, 2026 | Form generation, draft approval, mock queue, audit export         | In Scope                         |
+| **Phase 8** (NOTIVISA Production Config)       | July 1–July 31, 2026 | Real API endpoint config, certificate provisioning, webhook setup | Dependent on Phase 4             |
+| **Phase 12** (NOTIVISA Production Integration) | Aug 1–Sept 15, 2026  | Real API submission, idempotent retries, production deployment    | Deferred (certificate lead time) |
 
 ---
 
@@ -207,10 +208,10 @@ User (RT / Lab Admin)
 ```typescript
 {
   ok: true;
-  draftId: string;                  // Firestore doc ID
-  status: 'draft';                  // Immutable status
-  payload: NotivisaPayload;         // Full NOTIVISA payload (Art. 6º §1)
-  createdAt: number;                // Unix timestamp
+  draftId: string; // Firestore doc ID
+  status: 'draft'; // Immutable status
+  payload: NotivisaPayload; // Full NOTIVISA payload (Art. 6º §1)
+  createdAt: number; // Unix timestamp
 }
 ```
 
@@ -225,6 +226,7 @@ User (RT / Lab Admin)
 ```
 
 **Side Effects:**
+
 - Creates `/notivisa-drafts/{labId}/drafts/{draftId}`
 - Appends audit log entry (action: 'CREATED')
 - Logs to Cloud Logging with labId, draftId, source
@@ -297,10 +299,10 @@ User (RT / Lab Admin)
   labId: string;
   draftId: string;
   signature: {
-    hash: string;                   // SHA-256(payload) — HMAC-signed by client
-    operatorId: string;             // request.auth.uid
-    ts: number;                     // Unix timestamp of approval
-  };
+    hash: string; // SHA-256(payload) — HMAC-signed by client
+    operatorId: string; // request.auth.uid
+    ts: number; // Unix timestamp of approval
+  }
 }
 ```
 
@@ -313,7 +315,7 @@ User (RT / Lab Admin)
   status: 'approved';
   approvedBy: string;
   approvedAt: number;
-  chainHash: string;                // Cumulative HMAC over status + timestamp
+  chainHash: string; // Cumulative HMAC over status + timestamp
 }
 ```
 
@@ -322,12 +324,17 @@ User (RT / Lab Admin)
 ```typescript
 {
   ok: false;
-  code: 'UNAUTHORIZED' | 'DRAFT_NOT_FOUND' | 'INVALID_STATUS' | 'SIGNATURE_INVALID' | 'INTERNAL_ERROR';
+  code: 'UNAUTHORIZED' |
+    'DRAFT_NOT_FOUND' |
+    'INVALID_STATUS' |
+    'SIGNATURE_INVALID' |
+    'INTERNAL_ERROR';
   message: string;
 }
 ```
 
 **Side Effects:**
+
 - Updates `/notivisa-drafts/{labId}/drafts/{draftId}` → status = 'approved'
 - Appends audit log entry (action: 'APPROVED', signature recorded)
 - Generates chainHash per ADR-0012 (RDC 978 audit trail)
@@ -358,10 +365,10 @@ User (RT / Lab Admin)
 ```typescript
 {
   ok: true;
-  entryId: string;                  // Outbox entry ID
+  entryId: string; // Outbox entry ID
   status: 'pending';
-  notificationDeadline: number;     // Unix timestamp (resultDate + 24h)
-  nextRetryTime: number;            // When first submission attempt will be made
+  notificationDeadline: number; // Unix timestamp (resultDate + 24h)
+  nextRetryTime: number; // When first submission attempt will be made
 }
 ```
 
@@ -376,6 +383,7 @@ User (RT / Lab Admin)
 ```
 
 **Side Effects:**
+
 - Creates `/labs/{labId}/notivisa-outbox/{entryId}`
 - Sets status = 'pending', submissionAttempts = []
 - Updates draft status → 'submitted'
@@ -398,8 +406,8 @@ User (RT / Lab Admin)
 ```typescript
 {
   labId: string;
-  daysBack: number;                 // How many days to export (default 90, max 365)
-  format: 'csv' | 'json' | 'both';  // Export format (default 'both')
+  daysBack: number; // How many days to export (default 90, max 365)
+  format: 'csv' | 'json' | 'both'; // Export format (default 'both')
 }
 ```
 
@@ -408,11 +416,11 @@ User (RT / Lab Admin)
 ```typescript
 {
   ok: true;
-  archiveId: string;                // Archive doc ID
-  exportedAt: number;               // Unix timestamp of export
-  recordCount: number;              // Entries included
-  formats: Array<'csv' | 'json'>;   // Actual formats created
-  expiresAt: number;                // Archive expires after 90 days
+  archiveId: string; // Archive doc ID
+  exportedAt: number; // Unix timestamp of export
+  recordCount: number; // Entries included
+  formats: Array<'csv' | 'json'>; // Actual formats created
+  expiresAt: number; // Archive expires after 90 days
 }
 ```
 
@@ -427,12 +435,14 @@ User (RT / Lab Admin)
 ```
 
 **Side Effects:**
+
 - Creates immutable archive doc in `/labs/{labId}/notivisa-outbox/_archives/exports/{archiveId}`
 - Stores CSV + JSON file contents in subcollection (if <1MB each)
 - Appends audit log entry (action: 'CREATED', exportedBy, recordCount)
 - Archive immutable — cannot be modified or deleted
 
 **Data Included:**
+
 - archiveId, diseaseCode, patientAnon, resultValue, resultDate, status
 - receiptCode (from Anvisa), submissionAttempts count, createdAt
 - Sensitive data masked (patient name anonymized)
@@ -467,7 +477,7 @@ User (RT / Lab Admin)
   ok: true;
   entryId: string;
   deletedAt: number;
-  deletedBy: string;                // operatorId who initiated deletion
+  deletedBy: string; // operatorId who initiated deletion
 }
 ```
 
@@ -476,12 +486,18 @@ User (RT / Lab Admin)
 ```typescript
 {
   ok: false;
-  code: 'UNAUTHORIZED' | 'ENTRY_NOT_FOUND' | 'ENTRY_ALREADY_DELETED' | 'ALREADY_SUBMITTED' | 'INVALID_PAYLOAD' | 'INTERNAL_ERROR';
+  code: 'UNAUTHORIZED' |
+    'ENTRY_NOT_FOUND' |
+    'ENTRY_ALREADY_DELETED' |
+    'ALREADY_SUBMITTED' |
+    'INVALID_PAYLOAD' |
+    'INTERNAL_ERROR';
   message: string;
 }
 ```
 
 **Side Effects:**
+
 - Updates entry status → 'deleted'
 - Appends audit log entry (action: 'SOFT_DELETED', reason, notes, previousStatus)
 - If entry was already submitted to Anvisa (status='acknowledged'): logs warning, proceeds with deletion (audit trail preserved)
@@ -527,6 +543,7 @@ User (RT / Lab Admin)
 **Status Code:** 200 OK (always, to prevent Anvisa retry storms)
 
 **Side Effects:**
+
 - Finds entry by idempotencyKey across all labs
 - Updates `/labs/{labId}/notivisa-outbox/{entryId}` → status = 'acknowledged'
 - Records anvisa_eventId, anvisa_acknowledgedAt, receiptNumber, rejectionCode (if error)
@@ -534,11 +551,13 @@ User (RT / Lab Admin)
 - Logs to Cloud Logging
 
 **Error Handling:**
+
 - Missing signature → 401 Unauthorized (Anvisa sees it and retries)
 - Payload validation fails → 200 OK (acknowledge to prevent retry)
 - Entry not found → 200 OK (acknowledge; edge case)
 
 **Signature Verification:**
+
 ```
 HMAC-SHA256(JSON.stringify(payload), ANVISA_WEBHOOK_SECRET)
 Header: x-anvisa-signature (hex-encoded)
@@ -602,6 +621,7 @@ Constant-time comparison required (prevent timing attacks)
 **Side Effects:** None (read-only).
 
 **Composite Index Required:**
+
 ```
 /labs/{labId}/notivisa-outbox
 - fields: [status ASC, createdAt DESC]
@@ -624,7 +644,7 @@ Constant-time comparison required (prevent timing attacks)
   id: string;                       // Firestore doc ID
   labId: string;                    // Tenant ID (redundant)
   laudoId: string;                  // Reference to result
-  
+
   // Form payload (Art. 6º §1)
   payload: {
     versao: string;                 // "1.0"
@@ -643,10 +663,10 @@ Constant-time comparison required (prevent timing attacks)
       data_assinatura: number;
     };
   };
-  
+
   // Approval workflow
   status: 'draft' | 'approved' | 'submitted' | 'rejected' | 'deleted';
-  
+
   // Context (from crítico detector if applicable)
   criticoContext?: {
     detectadoEm: number;
@@ -654,7 +674,7 @@ Constant-time comparison required (prevent timing attacks)
     valor: number;
     severidade: 'alta' | 'baixa';
   };
-  
+
   // Audit
   pacienteCpf: string;              // Indexed for fast lookup
   criadoEm: Timestamp;
@@ -663,6 +683,7 @@ Constant-time comparison required (prevent timing attacks)
 ```
 
 **Indexes:**
+
 ```yaml
 - collection: /notivisa-drafts/{labId}/drafts
   fields:
@@ -705,7 +726,7 @@ Constant-time comparison required (prevent timing attacks)
   id: string;
   labId: string;
   laudoId: string;                  // Reference to result
-  
+
   // Disease & patient
   diseaseCode: string;              // MS Portaria code (e.g., '99078' = syphilis)
   diseaseName: string;
@@ -714,18 +735,18 @@ Constant-time comparison required (prevent timing attacks)
     dateOfBirth: Timestamp;
     gender: 'M' | 'F' | 'outro';
   };
-  
+
   // Result
   resultValue: string;              // "positivo", "negativo", "reagente", etc.
   resultDate: Timestamp;
   testMethod?: string;
-  
+
   // SLA
   notificationDeadline: Timestamp;  // resultDate + 24h (RDC 978 Art. 66)
-  
+
   // State machine
   status: 'pending' | 'submitted' | 'acknowledged' | 'failed-permanent' | 'deleted';
-  
+
   // Submission attempts (append-only log)
   submissionAttempts: Array<{
     attempt: number;                // 1, 2, 3, ... (max 5)
@@ -740,25 +761,25 @@ Constant-time comparison required (prevent timing attacks)
     receiptCode?: string;           // From Anvisa (on success)
     roundTripMs?: number;           // API latency
   }>;
-  
+
   // Anvisa integration (Phase 12+)
   receiptCodeFromAnvisa?: string;   // Primary receipt code
   anvisa_eventId?: string;          // Anvisa event ID
   idempotencyKey?: string;          // SHA-256(labId:diseaseCode:patientId:resultDate)
-  
+
   // Escalation (if past deadline or permanent failure)
   escalatedToSupervisor?: boolean;
   escalationTs?: Timestamp;
   escalationMotivo?: 'deadline-passed' | 'permanent-failure' | 'max-retries-exceeded';
   supervisorId?: string;
-  
+
   // Soft delete (RN-06)
   status: 'deleted';                // If deleted
   deletedAt?: Timestamp;
   deletedBy?: string;
   deletionReason?: 'duplicate' | 'incorrect-patient' | 'false-positive' | 'test-entry' | 'other';
   deletionNotes?: string;
-  
+
   // Audit
   criadoEm: Timestamp;
   criadoPor: string;                // operatorId or 'system'
@@ -766,6 +787,7 @@ Constant-time comparison required (prevent timing attacks)
 ```
 
 **Indexes:**
+
 ```yaml
 - collection: /labs/{labId}/notivisa-outbox
   fields:
@@ -800,12 +822,12 @@ Constant-time comparison required (prevent timing attacks)
     status: 'success' | 'failed';
     errorCode?: string;
     isRetryable?: boolean;
-    
+
     // For SOFT_DELETED:
     reason: string;
     notes?: string;
     previousStatus: string;
-    
+
     // For ESCALATION:
     motivo: string;
     deadline: Timestamp;
@@ -826,17 +848,17 @@ Constant-time comparison required (prevent timing attacks)
   // Archive metadata
   id: string;
   labId: string;
-  exportedBy: string;               // operatorId (AUDITOR)
+  exportedBy: string; // operatorId (AUDITOR)
   exportedAt: Timestamp;
-  expiresAt: Timestamp;             // Auto-delete after 90 days
-  
+  expiresAt: Timestamp; // Auto-delete after 90 days
+
   // Export parameters
   daysBack: number;
   recordCount: number;
   formats: Array<'csv' | 'json'>;
   csvSize: number;
   jsonSize: number;
-  status: 'ready';                  // Only value; immutable
+  status: 'ready'; // Only value; immutable
 }
 ```
 
@@ -844,7 +866,7 @@ Constant-time comparison required (prevent timing attacks)
 
 ```typescript
 {
-  content: string;                  // Full CSV or JSON (if <1MB)
+  content: string; // Full CSV or JSON (if <1MB)
   mimeType: 'text/csv' | 'application/json';
   size: number;
 }
@@ -861,7 +883,7 @@ Constant-time comparison required (prevent timing attacks)
     recordCount: number;
     formats: Array<string>;
     daysBack: number;
-  };
+  }
 }
 ```
 
@@ -910,20 +932,20 @@ IF attemptCount >= 5:
 IF attemptCount > 0:
   lastAttempt = entry.submissionAttempts[attemptCount - 1]
   nextRetryTime = backoffSchedule[attemptCount] (see below)
-  
+
   IF now < lastAttempt.ts + nextRetryTime:
     → Continue (not yet time)
 ```
 
 #### Step 3: Exponential Backoff Schedule
 
-| Attempt | Backoff Interval | Next Window |
-|---------|------------------|-------------|
-| 1 | 0 min (immediate) | T+0 |
-| 2 | 1 min | T+1 |
-| 3 | 5 min | T+6 |
-| 4 | 15 min | T+21 |
-| 5 | 45 min | T+66 |
+| Attempt | Backoff Interval  | Next Window |
+| ------- | ----------------- | ----------- |
+| 1       | 0 min (immediate) | T+0         |
+| 2       | 1 min             | T+1         |
+| 3       | 5 min             | T+6         |
+| 4       | 15 min            | T+21        |
+| 5       | 45 min            | T+66        |
 
 After attempt 5 fails: status → 'failed-permanent', escalate.
 
@@ -947,12 +969,12 @@ IF result.success:
 
 ELSE:
   isRetryable = result.isRetryable ?? true
-  
+
   IF isRetryable AND attemptCount < 4:
     → Append submissionAttempt { status: 'failed', error: {...} }
     → Status remains 'pending' (retry on next cycle)
     → Log retryable failure
-  
+
   ELSE:
     → Append submissionAttempt { status: 'failed', error: {...} }
     → Update status → 'failed-permanent'
@@ -1028,6 +1050,7 @@ IF status = 'failed-permanent':
 ```
 
 **Alert Content:**
+
 ```
 [NOTIVISA] ESCALATION REQUIRED
 
@@ -1059,6 +1082,7 @@ IF notificationDeadline < now AND status IN ['pending', 'submitted']:
 #### For Permanent Failure (Validation Error)
 
 **Supervisor Steps:**
+
 1. Review entry details (payload, error message)
 2. Identify issue (e.g., malformed CPF, missing field)
 3. Contact RT: "Fix payload and resubmit"
@@ -1069,6 +1093,7 @@ IF notificationDeadline < now AND status IN ['pending', 'submitted']:
 #### For Transient Failure (Network Down)
 
 **Automatic Recovery:**
+
 - Processor retries with exponential backoff
 - No manual intervention needed
 - If still pending after 24h: escalate supervisor (past deadline)
@@ -1076,6 +1101,7 @@ IF notificationDeadline < now AND status IN ['pending', 'submitted']:
 #### For Certificate Expiration (401 Auth)
 
 **Supervisor Steps (Phase 12+):**
+
 1. Receive alert: "Unauthorized (cert expired)"
 2. Contact Security/Ops: "Renew Anvisa certificate"
 3. New certificate provisioned, uploaded to Secret Manager
@@ -1109,10 +1135,7 @@ if (!request.auth) {
 }
 
 // Role-based checks:
-const memberDoc = await db
-  .collection('labs').doc(labId)
-  .collection('members').doc(uid)
-  .get();
+const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
 const role = memberDoc.data()?.role;
 
@@ -1146,8 +1169,8 @@ Scope: User identity + custom claims (role, labId)
 ```typescript
 // Admin sets custom claims (one-time setup per user)
 await admin.auth().setCustomUserClaims(uid, {
-  role: 'RT',           // RT, AUDITOR, admin, owner, etc.
-  labIds: ['lab-1'],    // Which labs user can access
+  role: 'RT', // RT, AUDITOR, admin, owner, etc.
+  labIds: ['lab-1'], // Which labs user can access
 });
 
 // Callable checks claims
@@ -1173,7 +1196,7 @@ before submitNotivisa():
     where: ['criadoEm', '>', now() - 1h],
     select: ['id']
   }
-  
+
   IF recent.length >= 50:
     throw HttpsError('resource-exhausted', 'Rate limit exceeded')
 ```
@@ -1194,10 +1217,7 @@ Per processor cycle (5 min):
 ```typescript
 // Client: sign approval with operator CPF + timestamp
 const message = JSON.stringify({ draftId, operatorId, ts });
-const signature = crypto
-  .createHmac('sha256', HCQ_SIGNATURE_HMAC_KEY)
-  .update(message)
-  .digest('hex');
+const signature = crypto.createHmac('sha256', HCQ_SIGNATURE_HMAC_KEY).update(message).digest('hex');
 
 // Server: verify signature
 function verifySignature(message: string, signature: string): boolean {
@@ -1205,7 +1225,7 @@ function verifySignature(message: string, signature: string): boolean {
     .createHmac('sha256', HCQ_SIGNATURE_HMAC_KEY)
     .update(message)
     .digest('hex');
-  
+
   // Constant-time comparison (prevent timing attacks)
   return computed.length === signature.length && computed === signature;
 }
@@ -1219,10 +1239,7 @@ function verifySignature(message: string, signature: string): boolean {
 
 const signature = req.headers['x-anvisa-signature'];
 const payload = JSON.stringify(req.body);
-const computed = crypto
-  .createHmac('sha256', ANVISA_WEBHOOK_SECRET)
-  .update(payload)
-  .digest('hex');
+const computed = crypto.createHmac('sha256', ANVISA_WEBHOOK_SECRET).update(payload).digest('hex');
 
 if (!secureCompare(computed, signature)) {
   res.status(401).json({ error: 'Unauthorized' });
@@ -1274,6 +1291,7 @@ $ bash scripts/preflight-secrets-check.sh
 **RDC 978 Art. 66:** Laboratórios devem notificar ao Ministério da Saúde (ANVISA/NOTIVISA) qualquer resultado positivo para doenças notificáveis dentro de **24 horas** da aprovação do resultado.
 
 **99 Doenças Notificáveis** (Portaria 204/2016 MS):
+
 - Sífilis (adquirida, gestacional, congênita)
 - HIV
 - Tuberculose
@@ -1281,13 +1299,14 @@ $ bash scripts/preflight-secrets-check.sh
 - Dengue (em gestante)
 - Febre amarela
 - Rubéola (em gestante)
-- + 91 others
+- - 91 others
 
 ### HC Quality Compliance Evidence
 
 #### Phase 4 (Sandbox Form Generation)
 
 **Evidence 1: Form Generation**
+
 ```
 ✓ notivisaDraftCreate callable generates NOTIVISA Art. 6º §1 payload
 ✓ Zod validation ensures 15 mandatory fields present
@@ -1296,6 +1315,7 @@ $ bash scripts/preflight-secrets-check.sh
 ```
 
 **Evidence 2: RT Approval Process**
+
 ```
 ✓ RT reviews draft in UI (read-only view of payload)
 ✓ RT clicks "Approve" → approveNotivisaDraft() callable
@@ -1305,6 +1325,7 @@ $ bash scripts/preflight-secrets-check.sh
 ```
 
 **Evidence 3: 24h Deadline Tracking**
+
 ```
 ✓ notificationDeadline = resultDate + 24h (set in submitNotivisa)
 ✓ Scheduled processor queries entries with deadline ≤ now()
@@ -1313,6 +1334,7 @@ $ bash scripts/preflight-secrets-check.sh
 ```
 
 **Evidence 4: Export for Auditor**
+
 ```
 ✓ notivisaExportArchive callable (AUDITOR role only)
 ✓ Generates immutable CSV + JSON archive
@@ -1324,6 +1346,7 @@ $ bash scripts/preflight-secrets-check.sh
 #### Phase 12+ (Production API Submission)
 
 **Evidence 5: Real API Integration**
+
 ```
 ✓ Scheduled processor calls real Anvisa SOAP API (Phase 12+)
 ✓ Payload signed with lab certificate (X.509 client auth)
@@ -1332,6 +1355,7 @@ $ bash scripts/preflight-secrets-check.sh
 ```
 
 **Evidence 6: Idempotent Retries**
+
 ```
 ✓ idempotencyKey = SHA-256(labId:diseaseCode:patientId:resultDate)
 ✓ Anvisa API respects idempotency (no duplicates on retry)
@@ -1339,6 +1363,7 @@ $ bash scripts/preflight-secrets-check.sh
 ```
 
 **Evidence 7: Webhook Acknowledgment**
+
 ```
 ✓ Anvisa sends webhook callback with eventId + receiptNumber
 ✓ Signature verified (HMAC-SHA256 over payload)
@@ -1367,7 +1392,7 @@ auditLog:
     operatorId: rt-maria-123
     details:
       signature: {hash: "abc...", chainHash: "def..."}
-      
+
 [3] SUBMISSION_ATTEMPT (2026-05-07T10:20:00Z)
     action: SUBMISSION_ATTEMPT
     attempt: 1
@@ -1393,12 +1418,14 @@ Every action immutable, timestamped, operator-tracked (operatorId = request.auth
 **Implementation:**
 
 1. **Append-Only Audit Log**
+
    ```
    Cannot update/delete auditLog entries.
    Firestore rules: allow create (with validSignature), deny update/delete.
    ```
 
 2. **Soft Delete Only**
+
    ```
    NOTIVISA entries never hard-deleted.
    Soft delete appends auditLog entry with reason + timestamp.
@@ -1415,6 +1442,7 @@ Every action immutable, timestamped, operator-tracked (operatorId = request.auth
 ### DICQ 4.4 — Audit Trail Completeness
 
 **Requirement:** Every action on regulated data must have:
+
 - **Who** (operator ID / system)
 - **When** (timestamp)
 - **What** (action taken)
@@ -1423,14 +1451,14 @@ Every action immutable, timestamped, operator-tracked (operatorId = request.auth
 
 **Mapping to NOTIVISA Operations:**
 
-| Action | Who | When | What | Why | Result |
-|--------|-----|------|------|-----|--------|
-| Draft creation | operatorId / system | ts (Timestamp) | status='draft' | Source: critico_detector or manual_ui | draftId + payload |
-| RT approval | operatorId (RT) | ts | status='approved' + signature | Regulatory requirement (Art. 66) | chainHash |
-| Submit to queue | operatorId (RT/admin) | ts | status='pending' | Move to async processing | entryId + deadline |
-| Submission attempt | system | ts | submissionAttempt record | Scheduled processor cycle | success/failed + error |
-| Deadline escalation | system | ts | escalatedToSupervisor=true | Past 24h deadline | SMS + email alert |
-| Soft delete | operatorId (admin) | ts | status='deleted' | reason (duplicate, false-positive, etc.) | deletedAt + deletionReason |
+| Action              | Who                   | When           | What                          | Why                                      | Result                     |
+| ------------------- | --------------------- | -------------- | ----------------------------- | ---------------------------------------- | -------------------------- |
+| Draft creation      | operatorId / system   | ts (Timestamp) | status='draft'                | Source: critico_detector or manual_ui    | draftId + payload          |
+| RT approval         | operatorId (RT)       | ts             | status='approved' + signature | Regulatory requirement (Art. 66)         | chainHash                  |
+| Submit to queue     | operatorId (RT/admin) | ts             | status='pending'              | Move to async processing                 | entryId + deadline         |
+| Submission attempt  | system                | ts             | submissionAttempt record      | Scheduled processor cycle                | success/failed + error     |
+| Deadline escalation | system                | ts             | escalatedToSupervisor=true    | Past 24h deadline                        | SMS + email alert          |
+| Soft delete         | operatorId (admin)    | ts             | status='deleted'              | reason (duplicate, false-positive, etc.) | deletedAt + deletionReason |
 
 ### DICQ 4.1.2 — Operator Tracking
 

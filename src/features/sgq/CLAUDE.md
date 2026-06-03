@@ -36,7 +36,7 @@ labs/{labId}/
 └── sgq-documentos-audit/{id}      DocumentoAuditEvent (append-only)
 ```
 
-## Regras invioláveis (RN-SGQ-*)
+## Regras invioláveis (RN-SGQ-\*)
 
 - **RN-SGQ-01** — Código único por lab (entre não-deletados). Validado no hook
   via `existeCodigoDuplicado` antes de cada criar/atualizar.

@@ -33,16 +33,10 @@ function makeDocRef(path: string) {
   return {
     path,
     id: path.split('/').pop() || 'unknown',
-    get: jest.fn(() =>
-      Promise.resolve(
-        docStore.get(path) ?? { exists: false, data: () => ({}) },
-      ),
-    ),
+    get: jest.fn(() => Promise.resolve(docStore.get(path) ?? { exists: false, data: () => ({}) })),
     set: jest.fn(() => Promise.resolve()),
     update: jest.fn(() => Promise.resolve()),
-    collection: jest.fn((subPath: string) =>
-      makeColRef(`${path}/${subPath}`),
-    ),
+    collection: jest.fn((subPath: string) => makeColRef(`${path}/${subPath}`)),
   };
 }
 
@@ -90,25 +84,28 @@ const mockDb = {
 jest.mock('firebase-admin', () => ({
   __esModule: true,
   ...jest.requireActual<object>('firebase-admin'),
-  firestore: Object.assign(jest.fn(() => mockDb), {
-    Timestamp: {
-      now: () => ({
-        toMillis: () => 1_700_000_000_000,
-        toDate: () => new Date(1_700_000_000_000),
-      }),
-      fromDate: (date: Date) => ({
-        toMillis: () => date.getTime(),
-        toDate: () => date,
-      }),
-      fromMillis: (ms: number) => ({
-        toMillis: () => ms,
-        toDate: () => new Date(ms),
-      }),
+  firestore: Object.assign(
+    jest.fn(() => mockDb),
+    {
+      Timestamp: {
+        now: () => ({
+          toMillis: () => 1_700_000_000_000,
+          toDate: () => new Date(1_700_000_000_000),
+        }),
+        fromDate: (date: Date) => ({
+          toMillis: () => date.getTime(),
+          toDate: () => date,
+        }),
+        fromMillis: (ms: number) => ({
+          toMillis: () => ms,
+          toDate: () => new Date(ms),
+        }),
+      },
+      FieldValue: {
+        serverTimestamp: () => '__SERVER_TS__',
+      },
     },
-    FieldValue: {
-      serverTimestamp: () => '__SERVER_TS__',
-    },
-  }),
+  ),
 }));
 
 // ─── Callables under test (imported for type reference) ──────────────────────
@@ -258,8 +255,7 @@ describe('createPlanoAcao', () => {
 
   it('valida descricao válida >= 20 caracteres', () => {
     void buildAuthedRequest(OPERATOR_UID, {});
-    const valid =
-      'Plano de ação com descrição suficientemente longa e válida para auditoria';
+    const valid = 'Plano de ação com descrição suficientemente longa e válida para auditoria';
     expect(valid.length).toBeGreaterThanOrEqual(20);
   });
 
@@ -278,8 +274,7 @@ describe('createPlanoAcao', () => {
     const input = {
       labId: LAB_ID,
       achadoId: ACHADO_ID,
-      descricao:
-        'Plano de ação corretivo implementar medidas preventivas no setor de bioquímica',
+      descricao: 'Plano de ação corretivo implementar medidas preventivas no setor de bioquímica',
       responsavel: OPERATOR_UID,
       prazo: new Date().toISOString(),
     };
@@ -400,9 +395,7 @@ describe('createReAuditoria', () => {
     const ncsPath = `labs/${LAB_ID}/naoConformidades`;
     const existingNCs = collectionDocs.get(ncsPath) ?? [];
     const closedNCs = existingNCs.filter(
-      (nc) =>
-        nc.data().auditoriaId === AUDITORIA_ID &&
-        nc.data().status === 'fechada',
+      (nc) => nc.data().auditoriaId === AUDITORIA_ID && nc.data().status === 'fechada',
     );
 
     expect(closedNCs.length).toBe(0);
@@ -545,11 +538,7 @@ describe('Signature Hash Consistency', () => {
 
     const sortedKeys = Object.keys(payload).sort();
     const canonicalJson =
-      '{' +
-      sortedKeys
-        .map((k) => `"${k}":${JSON.stringify((payload as any)[k])}`)
-        .join(',') +
-      '}';
+      '{' + sortedKeys.map((k) => `"${k}":${JSON.stringify((payload as any)[k])}`).join(',') + '}';
 
     const hash1 = createHash('sha256').update(canonicalJson).digest('hex');
     const hash2 = createHash('sha256').update(canonicalJson).digest('hex');

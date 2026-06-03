@@ -46,9 +46,7 @@ export const generateMonthlyReportBioquimica = onSchedule(
         }
       }
 
-      logger.info(
-        `[bioquimica] Generating monthly reports for ${uniqueLabIds.size} labs`
-      );
+      logger.info(`[bioquimica] Generating monthly reports for ${uniqueLabIds.size} labs`);
 
       for (const labId of uniqueLabIds) {
         await generateReportForLab(labId, db);
@@ -56,16 +54,13 @@ export const generateMonthlyReportBioquimica = onSchedule(
     } catch (err) {
       logger.error('[bioquimica] Monthly report generation failed:', err);
     }
-  }
+  },
 );
 
 /**
  * Generate report for a single lab
  */
-async function generateReportForLab(
-  labId: string,
-  db: admin.firestore.Firestore
-): Promise<void> {
+async function generateReportForLab(labId: string, db: admin.firestore.Firestore): Promise<void> {
   const now = new Date();
   const currentYear = now.getFullYear();
   const currentMonth = now.getMonth();
@@ -88,9 +83,7 @@ async function generateReportForLab(
     const runs = runsSnapshot.docs.map((doc: any) => doc.data());
 
     if (runs.length === 0) {
-      logger.info(
-        `[bioquimica] No runs for lab ${labId} in ${reportMonth + 1}/${reportYear}`
-      );
+      logger.info(`[bioquimica] No runs for lab ${labId} in ${reportMonth + 1}/${reportYear}`);
       return;
     }
 
@@ -98,33 +91,23 @@ async function generateReportForLab(
     const totalRuns = runs.length;
     const approvedRuns = runs.filter((r: any) => r.status === 'Aprovada').length;
     const approvalRate = ((approvedRuns / totalRuns) * 100).toFixed(1);
-    const runsWithViolations = runs.filter(
-      (r: any) => (r.violations || []).length > 0
-    ).length;
+    const runsWithViolations = runs.filter((r: any) => (r.violations || []).length > 0).length;
 
     // Generate PDF (simplified text report for MVP)
-    const reportContent = generateReportPDF(
-      labId,
-      reportMonth,
-      reportYear,
-      {
-        totalRuns,
-        approvedRuns,
-        approvalRate: parseFloat(approvalRate),
-        runsWithViolations,
-      }
-    );
+    const reportContent = generateReportPDF(labId, reportMonth, reportYear, {
+      totalRuns,
+      approvedRuns,
+      approvalRate: parseFloat(approvalRate),
+      runsWithViolations,
+    });
 
     logger.info(
       `[bioquimica] Report generated for lab ${labId}: ${(reportMonth + 1)
         .toString()
-        .padStart(2, '0')}-${reportYear} (${reportContent.length} bytes)`
+        .padStart(2, '0')}-${reportYear} (${reportContent.length} bytes)`,
     );
   } catch (err) {
-    logger.error(
-      `[bioquimica] Failed to generate report for lab ${labId}:`,
-      err
-    );
+    logger.error(`[bioquimica] Failed to generate report for lab ${labId}:`, err);
   }
 }
 
@@ -141,7 +124,7 @@ function generateReportPDF(
     approvedRuns: number;
     approvalRate: number;
     runsWithViolations: number;
-  }
+  },
 ): Buffer {
   const monthName = new Date(year, month).toLocaleDateString('pt-BR', {
     month: 'long',

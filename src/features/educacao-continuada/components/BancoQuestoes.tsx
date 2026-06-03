@@ -15,9 +15,7 @@ export interface BancoQuestoesProps {
   onClose: () => void;
 }
 
-type Panel =
-  | { mode: 'list' }
-  | { mode: 'create'; templateId: string };
+type Panel = { mode: 'list' } | { mode: 'create'; templateId: string };
 
 const TIPO_OPTIONS: Array<{ value: TipoQuestao; label: string }> = [
   { value: 'multipla_escolha', label: 'Múltipla escolha' },
@@ -229,8 +227,7 @@ function NovaQuestaoForm({
   };
 
   const addOpcao = () => setOpcoes((prev) => [...prev, { texto: '', correta: false }]);
-  const removeOpcao = (idx: number) =>
-    setOpcoes((prev) => prev.filter((_, i) => i !== idx));
+  const removeOpcao = (idx: number) => setOpcoes((prev) => prev.filter((_, i) => i !== idx));
   const updateOpcao = (idx: number, patch: Partial<OpcaoQuestaoInput>) =>
     setOpcoes((prev) => prev.map((o, i) => (i === idx ? { ...o, ...patch } : o)));
 
@@ -281,7 +278,10 @@ function NovaQuestaoForm({
       </div>
 
       {tipo === 'dissertativa' ? (
-        <Field id="q-gabarito" label="Gabarito/referência (opcional — não é visível ao colaborador)">
+        <Field
+          id="q-gabarito"
+          label="Gabarito/referência (opcional — não é visível ao colaborador)"
+        >
           <textarea
             id="q-gabarito"
             value={gabaritoTexto}
@@ -345,7 +345,10 @@ function NovaQuestaoForm({
       )}
 
       {submitErr && (
-        <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+        <p
+          role="alert"
+          className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+        >
           {submitErr}
         </p>
       )}

@@ -121,10 +121,7 @@ test('generateLaudoPDF: storage path follows convention', () => {
 // ─── validarLaudoPublico HTTPS endpoint contract ───────────────────────────
 
 test('validarLaudoPublico: parses /api/validar-laudo/{id}/v{N} from path', () => {
-  const examples = [
-    '/api/validar-laudo/laudo123/v1',
-    '/validar-laudo/laudo123/v3?h=abc',
-  ];
+  const examples = ['/api/validar-laudo/laudo123/v1', '/validar-laudo/laudo123/v3?h=abc'];
   for (const url of examples) {
     const match = url.match(/validar-laudo\/([^/]+)\/v(\d+)/);
     assert.ok(match, `URL ${url} must match`);
@@ -207,8 +204,7 @@ test('QR code: error correction level M, 120px width, B/W', () => {
 });
 
 test('QR URL contains laudoId, version, and hash prefix', () => {
-  const url =
-    'https://hmatologia2.web.app/api/validar-laudo/laudo123/v2?h=abc12345';
+  const url = 'https://hmatologia2.web.app/api/validar-laudo/laudo123/v2?h=abc12345';
   assert.match(url, /validar-laudo\/[^/]+\/v\d+/);
   assert.match(url, /\?h=[a-f0-9]{8}$/);
 });

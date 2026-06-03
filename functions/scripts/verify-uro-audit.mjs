@@ -13,8 +13,8 @@ async function run() {
   console.log(`=== Querying ciq-uroanalise-audit for Lab: ${LAB_ID} ===`);
   const snap = await db.collection('labs').doc(LAB_ID).collection('ciq-uroanalise-audit').get();
   console.log(`Found ${snap.size} audit logs:`);
-  
-  snap.forEach(doc => {
+
+  snap.forEach((doc) => {
     const data = doc.data();
     console.log(`\nAudit ID: ${doc.id}`);
     console.log(`  - Action: ${data.action}`);
@@ -22,7 +22,9 @@ async function run() {
     console.log(`  - Actor UID: ${data.actorUid}`);
     console.log(`  - Lot Snapshot: ${JSON.stringify(data.lotSnapshot)}`);
     console.log(`  - Metadata: ${JSON.stringify(data.metadata)}`);
-    console.log(`  - CreatedAt: ${data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt}`);
+    console.log(
+      `  - CreatedAt: ${data.createdAt?.toDate ? data.createdAt.toDate().toISOString() : data.createdAt}`,
+    );
   });
 }
 

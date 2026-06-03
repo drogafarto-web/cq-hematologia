@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-07  
 **Commit:** 38245bb (feat(firestore): Phase 4 patient portal rules + indexes)  
-**Status:** ✅ Complete — Ready for deployment  
+**Status:** ✅ Complete — Ready for deployment
 
 ---
 
@@ -19,6 +19,7 @@ Comprehensive Firestore security rules implementation for Phase 4 Patient Portal
 **Added 4 new rule blocks (lines 1929-2006):**
 
 #### `/laudos/{laudoId}` — Global Patient Laudo Directory
+
 - **Read:** Portal patients (own laudos) OR RT/Admin of owning lab
 - **Write:** Cloud Function callables only
 - **Compliance:** RDC 978 Arts. 184, 191
@@ -37,6 +38,7 @@ match /laudos/{laudoId} {
 ```
 
 #### `/labs/{labId}/patients/{patientId}` — Patient Directory
+
 - **Read:** RT/Admin of lab only (minimal PII: name, DOB, phone)
 - **Write:** Cloud Function callables only
 - **Compliance:** RDC 978 Art. 164
@@ -53,6 +55,7 @@ match /labs/{labId}/patients/{patientId} {
 ```
 
 #### `/patient-auth-sessions/{sessionId}` — Portal Sessions
+
 - **Read:** Own session only (patientId == uid)
 - **Write:** Cloud Function callables only (verifyPatientOTP)
 - **Compliance:** RDC 978 Art. 165, RDC 786 Art. 59
@@ -68,6 +71,7 @@ match /patient-auth-sessions/{sessionId} {
 ```
 
 #### `/patient-nps-feedback/{feedbackId}` — NPS Surveys
+
 - **Read:** Auditors of owning lab only
 - **Create:** Portal patients only
 - **Update/Delete:** Cloud Function callables only (soft-delete)
@@ -124,6 +128,7 @@ match /patient-nps-feedback/{feedbackId} {
 ### 3. Deployment Scripts
 
 #### Bash Script: `scripts/deploy-phase4-patient-portal-rules.sh`
+
 - Validates rule syntax via emulator
 - Deploys to staging (optional but recommended)
 - Prompts for production confirmation
@@ -131,17 +136,20 @@ match /patient-nps-feedback/{feedbackId} {
 - Provides 7 smoke test commands
 
 **Usage:**
+
 ```bash
 bash scripts/deploy-phase4-patient-portal-rules.sh [project] [staging-project] [--skip-staging]
 ```
 
 #### PowerShell Script: `scripts/deploy-phase4-patient-portal-rules.ps1`
+
 - Windows-compatible variant
 - Same flow as bash version
 - Color-coded output
 - Confirmation prompts for safety
 
 **Usage:**
+
 ```powershell
 .\scripts\deploy-phase4-patient-portal-rules.ps1 -Project hmatologia2 -StagingProject hcquality-staging -SkipStaging
 ```
@@ -151,6 +159,7 @@ bash scripts/deploy-phase4-patient-portal-rules.sh [project] [staging-project] [
 ### 4. Documentation
 
 #### `docs/PHASE4_PATIENT_PORTAL_RULES_DEPLOYMENT.md` — Full Deployment Guide
+
 - Pre-deployment checklist (8 items)
 - Rule syntax validation via emulator
 - Staging deployment procedure
@@ -166,6 +175,7 @@ bash scripts/deploy-phase4-patient-portal-rules.sh [project] [staging-project] [
 **Target Audience:** Ops/Deployment engineers
 
 #### `docs/PATIENT_PORTAL_RULES_QUICK_REFERENCE.md` — 1-Page Reference Card
+
 - Rule summary table (collections × permissions)
 - Deploy commands (validate, staging, prod)
 - 7 smoke tests (copy-paste format)
@@ -180,33 +190,37 @@ bash scripts/deploy-phase4-patient-portal-rules.sh [project] [staging-project] [
 
 ## Compliance Mapping
 
-| Regulation | Article | Requirement | Implementation |
-|---|---|---|---|
-| RDC 978 | 164 | Patient data access control | `/labs/{labId}/patients` read RT/admin only |
-| RDC 978 | 165 | Restricted access to PII | `/patient-auth-sessions` encrypted CPF, read own only |
-| RDC 978 | 184 | Critical value communication | `/laudos` global, immutable after creation |
-| RDC 978 | 191 | Laudo storage + patient feedback | `/laudos` + `/patient-nps-feedback` soft-delete only |
-| RDC 786 | 59 | Session authentication + audit | Cloud Functions generate sessions, immutable; TTL expiry |
-| LGPD | 8-14 | Data processing, erasure rights | Soft-delete pattern; audit trail via Cloud Logs |
+| Regulation | Article | Requirement                      | Implementation                                           |
+| ---------- | ------- | -------------------------------- | -------------------------------------------------------- |
+| RDC 978    | 164     | Patient data access control      | `/labs/{labId}/patients` read RT/admin only              |
+| RDC 978    | 165     | Restricted access to PII         | `/patient-auth-sessions` encrypted CPF, read own only    |
+| RDC 978    | 184     | Critical value communication     | `/laudos` global, immutable after creation               |
+| RDC 978    | 191     | Laudo storage + patient feedback | `/laudos` + `/patient-nps-feedback` soft-delete only     |
+| RDC 786    | 59      | Session authentication + audit   | Cloud Functions generate sessions, immutable; TTL expiry |
+| LGPD       | 8-14    | Data processing, erasure rights  | Soft-delete pattern; audit trail via Cloud Logs          |
 
 ---
 
 ## Testing Strategy
 
 ### Emulator Validation (Pre-Deploy)
+
 ```bash
 firebase emulators:start --only firestore --project hmatologia2
 npm test -- --testPathPattern="firestore.rules" --testNamePattern="patient-portal"
 ```
 
 ### Staging (Optional, Recommended)
+
 - Deploy to `hcquality-staging`
 - Wait 2–5 min for indexes
 - Spot-check 2–3 smoke tests
 - Verify zero rule rejections in Cloud Logs
 
 ### Production Smoke Tests (Post-Deploy)
+
 7 tests covering:
+
 1. Patient reads own laudo ✓
 2. RT reads all lab laudos ✓
 3. Cross-lab user denied ❌
@@ -235,6 +249,7 @@ npm test -- --testPathPattern="firestore.rules" --testNamePattern="patient-porta
 ## Deployment Workflow
 
 ### Step 1: Pre-Deployment Validation
+
 ```bash
 npx tsc --noEmit
 npm test
@@ -245,6 +260,7 @@ firebase emulators:start --only firestore --project hmatologia2
 ```
 
 ### Step 2: Staging (Recommended)
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes \
   --project hcquality-staging --force
@@ -253,20 +269,24 @@ firebase deploy --only firestore:rules,firestore:indexes \
 ```
 
 ### Step 3: Production Deploy
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes \
   --project hmatologia2 --force
 ```
 
 ### Step 4: Index Monitoring
+
 - Monitor at: https://console.firebase.google.com/project/hmatologia2/firestore/indexes
 - All three indexes should be "Ready" within 2–5 minutes
 
 ### Step 5: Smoke Tests
+
 - Run all 7 tests (see Quick Reference card)
 - Log results in sign-off template
 
 ### Step 6: Cloud Logs Monitoring
+
 ```bash
 gcloud logging read "resource.type=cloud_firestore AND severity>=WARNING" \
   --project=hmatologia2 --limit=20
@@ -292,17 +312,18 @@ The following helper functions are already defined in `firestore.rules` and used
 
 The following Cloud Functions must exist and use Admin SDK to write to these collections:
 
-| Function | Collection | Purpose |
-|---|---|---|
-| `criarLaudo` | `/laudos` | Create new patient laudo with validation |
-| `liberarLaudo` | `/laudos` | Update status to 'liberado' (RT approval) |
-| `retificar` | `/laudos` | Create immutable v2/v3 version on correction |
-| `verifyPatientOTP` | `/patient-auth-sessions` | Create session on OTP verification |
-| `submitNPSFeedback` | `/patient-nps-feedback` | Create NPS survey response |
-| `softDeleteLaudo` | `/laudos` | Mark deletadoEm for LGPD erasure |
-| `softDeleteSession` | `/patient-auth-sessions` | Expire session (alternative to TTL) |
+| Function            | Collection               | Purpose                                      |
+| ------------------- | ------------------------ | -------------------------------------------- |
+| `criarLaudo`        | `/laudos`                | Create new patient laudo with validation     |
+| `liberarLaudo`      | `/laudos`                | Update status to 'liberado' (RT approval)    |
+| `retificar`         | `/laudos`                | Create immutable v2/v3 version on correction |
+| `verifyPatientOTP`  | `/patient-auth-sessions` | Create session on OTP verification           |
+| `submitNPSFeedback` | `/patient-nps-feedback`  | Create NPS survey response                   |
+| `softDeleteLaudo`   | `/laudos`                | Mark deletadoEm for LGPD erasure             |
+| `softDeleteSession` | `/patient-auth-sessions` | Expire session (alternative to TTL)          |
 
 All functions must:
+
 1. Validate caller via `isActiveMemberOfLab` + role
 2. Generate `LogicalSignature` server-side (not client)
 3. Write via `writeBatch` for atomicity
@@ -315,6 +336,7 @@ All functions must:
 If production shows unexpected permission errors:
 
 ### Quick Rollback
+
 ```bash
 git log --oneline | head -5
 git revert 38245bb
@@ -322,6 +344,7 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2 -
 ```
 
 ### Investigation Steps
+
 1. Check Cloud Logs for specific rule rejection pattern
 2. Verify caller auth token structure (especially `portal` claim)
 3. Confirm labId matches in multi-tenant reads
@@ -332,15 +355,15 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2 -
 
 ## Files Modified/Created
 
-| Path | Type | Change | Lines |
-|---|---|---|---|
-| `firestore.rules` | Modified | +4 rule blocks | 1929–2006 |
-| `firestore.indexes.json` | Modified | +3 indexes | 743–768 |
-| `scripts/deploy-phase4-patient-portal-rules.sh` | Created | Bash deployment script | 73 |
-| `scripts/deploy-phase4-patient-portal-rules.ps1` | Created | PowerShell deployment script | 89 |
-| `docs/PHASE4_PATIENT_PORTAL_RULES_DEPLOYMENT.md` | Created | Full deployment guide | 459 |
-| `docs/PATIENT_PORTAL_RULES_QUICK_REFERENCE.md` | Created | 1-page reference card | 119 |
-| `docs/PHASE4_PATIENT_PORTAL_RULES_IMPLEMENTATION_SUMMARY.md` | Created | This file | — |
+| Path                                                         | Type     | Change                       | Lines     |
+| ------------------------------------------------------------ | -------- | ---------------------------- | --------- |
+| `firestore.rules`                                            | Modified | +4 rule blocks               | 1929–2006 |
+| `firestore.indexes.json`                                     | Modified | +3 indexes                   | 743–768   |
+| `scripts/deploy-phase4-patient-portal-rules.sh`              | Created  | Bash deployment script       | 73        |
+| `scripts/deploy-phase4-patient-portal-rules.ps1`             | Created  | PowerShell deployment script | 89        |
+| `docs/PHASE4_PATIENT_PORTAL_RULES_DEPLOYMENT.md`             | Created  | Full deployment guide        | 459       |
+| `docs/PATIENT_PORTAL_RULES_QUICK_REFERENCE.md`               | Created  | 1-page reference card        | 119       |
+| `docs/PHASE4_PATIENT_PORTAL_RULES_IMPLEMENTATION_SUMMARY.md` | Created  | This file                    | —         |
 
 ---
 
@@ -379,27 +402,30 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2 -
 ## Regulatory Compliance Summary
 
 ### RDC 978/2021 (Lab Accreditation)
+
 - ✅ Art. 164: Patient data access control (rule: RT/admin only)
 - ✅ Art. 165: Restricted PII access (rule: own session only, encrypted CPF)
 - ✅ Art. 184: Critical value communication (immutable laudo)
 - ✅ Art. 191: Laudo storage + patient feedback (soft-delete pattern)
 
 ### RDC 786/2023 (Digital Security)
+
 - ✅ Art. 59: Session authentication + audit trail (Cloud Functions + immutable sessions)
 
 ### LGPD (Data Privacy)
+
 - ✅ Arts. 8-14: Data processing, subject rights (soft-delete + audit logs)
 
 ---
 
 ## Sign-Off
 
-| Role | Name | Signature | Date |
-|---|---|---|---|
-| Architecture | Claude Haiku | ✓ | 2026-05-07 |
-| Security | [To be reviewed] | [ ] | [ ] |
-| Ops | [To be assigned] | [ ] | [ ] |
-| Compliance | [To be assigned] | [ ] | [ ] |
+| Role         | Name             | Signature | Date       |
+| ------------ | ---------------- | --------- | ---------- |
+| Architecture | Claude Haiku     | ✓         | 2026-05-07 |
+| Security     | [To be reviewed] | [ ]       | [ ]        |
+| Ops          | [To be assigned] | [ ]       | [ ]        |
+| Compliance   | [To be assigned] | [ ]       | [ ]        |
 
 ---
 

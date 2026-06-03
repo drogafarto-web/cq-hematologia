@@ -22,10 +22,7 @@ export interface NCBlockingCheckResult {
  * Returns: { blocked: true, blockingNC } if critical NC found
  *          { blocked: false } if clear to proceed
  */
-export async function checkNCs(
-  labId: string,
-  moduloId: string
-): Promise<NCBlockingCheckResult> {
+export async function checkNCs(labId: string, moduloId: string): Promise<NCBlockingCheckResult> {
   try {
     const snapshot = await db
       .collection(`labs/${labId}/naoConformidades`)
@@ -62,7 +59,10 @@ export const openNaoConformidade = onCall(
     const { labId, titulo, descricao, categoria, severidade, origem } = request.data;
 
     if (!labId || !titulo || !descricao || !severidade) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, titulo, descricao, severidade');
+      throw new HttpsError(
+        'invalid-argument',
+        'Campos obrigatórios: labId, titulo, descricao, severidade',
+      );
     }
 
     // Gate: severidade CRITICA bloqueia operação
@@ -99,7 +99,7 @@ export const openNaoConformidade = onCall(
           request.auth.uid,
           `nc.aberta.${numero}`,
           nc,
-          secret
+          secret,
         );
         (nc as any).hmac = hmac.hmac;
       }
@@ -115,7 +115,7 @@ export const openNaoConformidade = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao abrir NC');
     }
-  }
+  },
 );
 
 export const updateNaoConformidade = onCall(
@@ -160,7 +160,7 @@ export const updateNaoConformidade = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao atualizar NC');
     }
-  }
+  },
 );
 
 export const addAcao = onCall(
@@ -173,7 +173,10 @@ export const addAcao = onCall(
     const { labId, ncId, descricao, responsavel, dataPlanejada } = request.data;
 
     if (!labId || !ncId || !descricao || !responsavel) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, ncId, descricao, responsavel');
+      throw new HttpsError(
+        'invalid-argument',
+        'Campos obrigatórios: labId, ncId, descricao, responsavel',
+      );
     }
 
     try {
@@ -217,5 +220,5 @@ export const addAcao = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao adicionar ação');
     }
-  }
+  },
 );

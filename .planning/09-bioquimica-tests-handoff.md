@@ -10,6 +10,7 @@ status: paused-at-context-scoping
 ## Scope
 
 Generate comprehensive unit tests for 4 phases to improve code coverage:
+
 - **Phase 9 (Bioquímica):** 80%+ target, 50+ test specs
 - **Phase 10 (Liberação):** 75%+ target, 30+ test specs
 - **Phase 11 (Reclamações):** 75%+ target, 26+ test specs
@@ -24,22 +25,26 @@ Generate comprehensive unit tests for 4 phases to improve code coverage:
 ### Identified Target Service Files (11 total)
 
 **Phase 9 (Bioquímica) — 4 services:**
+
 1. `src/features/bioquimica/services/bioquimicaService.ts`
 2. `src/features/bioquimica/services/analitoService.ts`
 3. `src/features/bioquimica/services/bulaService.ts`
 4. `src/features/bioquimica/services/lotService.ts`
 
 **Phase 10 (Liberação) — 3 services:**
+
 1. `src/features/liberacao/services/laudoService.ts`
 2. `src/features/liberacao/services/laudoVersionService.ts`
 3. `src/features/liberacao/services/exameConfigService.ts`
 
 **Phase 11 (Reclamações) — 3 services:**
+
 1. `src/features/reclamacoes/services/reclamacaoService.ts`
 2. `src/features/reclamacoes/services/satisfacaoService.ts`
 3. `src/features/reclamacoes/services/sugestaoService.ts`
 
 **Phase 12 (SGD) — 1 service:**
+
 1. `src/features/sgd/services/sgdService.ts`
 
 ### Existing Test Files (3 in Bioquímica)
@@ -74,6 +79,7 @@ Generate comprehensive unit tests for 4 phases to improve code coverage:
    - CRUD, multi-tenant isolation, soft-delete, filtering
 
 Existing files to extend:
+
 - **westgardRulesCLSI.test.ts** — Add 10+ edge cases (all 4 rules)
 - **statsHelpers.test.ts** — Add 5+ outlier/edge cases
 
@@ -148,6 +154,7 @@ npm run test:unit    # Verify all pass
 ## Context Notes
 
 This is a high-confidence, mechanical work session. Each service gets:
+
 - **CRUD tests** (create, read, update, soft-delete)
 - **Multi-tenant isolation tests** (labId verification, RN-06 enforcement)
 - **Edge case tests** (null values, empty arrays, boundary conditions)

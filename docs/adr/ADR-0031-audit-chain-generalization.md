@@ -83,6 +83,7 @@ No code changes to the helper — it's already correct. Documentation describes 
 ### 6. Reference in CLAUDE.md and rule files
 
 Update:
+
 - **`CLAUDE.md`** — add links to pattern docs in "Convenções invioláveis" section
 - **`.claude/rules/firestore-security.md`** — clarify when chain-audit rules are needed
 - **Feature module `CLAUDE.md` files** — mention pattern if module uses chain auditing
@@ -108,6 +109,7 @@ Modules adopting chain-audit can now:
 - Leverage `validate-audit-chains.mjs` for auditor workflows
 
 **Projected adoption:**
+
 - **Phase 4 (May 20):** NOTIVISA likely uses chain audit for submission events
 - **Phase 6–7 (May–June):** Risk management (riscos) + Biosecurity (biosseguranca) + Critical values (criticos)
 - **Phase 8–9:** Lab support contracts (lab-apoio), process variations
@@ -129,13 +131,13 @@ No blockers; modules can adopt independently.
 
 ## Trade-offs
 
-| Aspect | Choice | Rationale |
-|---|---|---|
-| Code vs. docs | Docs only, no helper changes | Helper is already proven (Wave 2). Documentation enables reuse without code churn. |
-| Generalization scope | Full coverage: 3 scenarios + 4 docs | Comprehensive enough for parallel Phase 4–9 adoption; narrow enough to avoid gold-plating. |
-| Cookbook templates | Copy-paste ready, real-world | Engineers prefer concrete examples over abstract patterns. Three scenarios cover 80% of use cases. |
-| Validation script | Standalone Node.js, not CF | On-demand auditor tool is more trustworthy than automated script (auditor controls when it runs). |
-| Indexes | Explicit, not auto-created | Firestore rules are law; explicit indexes make performance contracts clear. |
+| Aspect               | Choice                              | Rationale                                                                                          |
+| -------------------- | ----------------------------------- | -------------------------------------------------------------------------------------------------- |
+| Code vs. docs        | Docs only, no helper changes        | Helper is already proven (Wave 2). Documentation enables reuse without code churn.                 |
+| Generalization scope | Full coverage: 3 scenarios + 4 docs | Comprehensive enough for parallel Phase 4–9 adoption; narrow enough to avoid gold-plating.         |
+| Cookbook templates   | Copy-paste ready, real-world        | Engineers prefer concrete examples over abstract patterns. Three scenarios cover 80% of use cases. |
+| Validation script    | Standalone Node.js, not CF          | On-demand auditor tool is more trustworthy than automated script (auditor controls when it runs).  |
+| Indexes              | Explicit, not auto-created          | Firestore rules are law; explicit indexes make performance contracts clear.                        |
 
 ---
 
@@ -160,24 +162,24 @@ Rejected. Auditors are technical; CLI tools + JSON reports are sufficient for Ph
 
 ## Compliance alignment
 
-| Standard | Article | Requirement | Satisfied by | Evidence |
-|---|---|---|---|---|
-| RDC 978 | Art. 128 | Audit trail of scientific documentation | Chain HMAC pattern | `validateChainIntegrity()` detects tampering |
-| DICQ | 4.4 | Traceability of audit records | `previousHash` link + `operadorId` | Chain continuity proves no records deleted |
-| DICQ | 4.4.1 | Immutability | SHA256 continuity | Hash mismatch = tampering detected |
-| DICQ | 4.4.2 | Operator identity | `operadorId == request.auth.uid` | Bound to Firebase Auth claim at write time |
+| Standard | Article  | Requirement                             | Satisfied by                       | Evidence                                     |
+| -------- | -------- | --------------------------------------- | ---------------------------------- | -------------------------------------------- |
+| RDC 978  | Art. 128 | Audit trail of scientific documentation | Chain HMAC pattern                 | `validateChainIntegrity()` detects tampering |
+| DICQ     | 4.4      | Traceability of audit records           | `previousHash` link + `operadorId` | Chain continuity proves no records deleted   |
+| DICQ     | 4.4.1    | Immutability                            | SHA256 continuity                  | Hash mismatch = tampering detected           |
+| DICQ     | 4.4.2    | Operator identity                       | `operadorId == request.auth.uid`   | Bound to Firebase Auth claim at write time   |
 
 ---
 
 ## Implementation roadmap
 
-| Milestone | Task | Owner | Timeline |
-|---|---|---|---|
-| **This commit** | Publish 4 docs + ADR-0031 | Wave 3 Agent 8 | 2026-05-08 |
-| **Phase 4 prep** | Link from `v1.4-KICKOFF-SUMMARY.md` | CTO | 2026-05-10 |
-| **NOTIVISA Phase 4** | Implement chain audit for submission events; reference cookbook | Wave 4 | 2026-05-20+ |
-| **Phase 6+ onboarding** | New module team reads pattern doc + cookbook; implements per template | Module lead | Per phase schedule |
-| **Phase 5 validation** | Extend `validateChainIntegrityScheduled` to include criticos | Wave 5 | 2026-05 |
+| Milestone               | Task                                                                  | Owner          | Timeline           |
+| ----------------------- | --------------------------------------------------------------------- | -------------- | ------------------ |
+| **This commit**         | Publish 4 docs + ADR-0031                                             | Wave 3 Agent 8 | 2026-05-08         |
+| **Phase 4 prep**        | Link from `v1.4-KICKOFF-SUMMARY.md`                                   | CTO            | 2026-05-10         |
+| **NOTIVISA Phase 4**    | Implement chain audit for submission events; reference cookbook       | Wave 4         | 2026-05-20+        |
+| **Phase 6+ onboarding** | New module team reads pattern doc + cookbook; implements per template | Module lead    | Per phase schedule |
+| **Phase 5 validation**  | Extend `validateChainIntegrityScheduled` to include criticos          | Wave 5         | 2026-05            |
 
 ---
 

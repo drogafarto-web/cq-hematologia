@@ -12,6 +12,7 @@
 Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave 4 Agent 5 **finalizes the Gemini integration** with production-grade error handling, consent gates, audit trails, and comprehensive testing.
 
 **Compliance alignment:**
+
 - **RDC 978 Art. 167:** Automated extraction of clinical report fields (10-12: observações + signatures) with fallback manual entry
 - **LGPD Art. 9:** Consent-gated AI processing (iaProcessing flag) before Gemini API calls
 - **DICQ 4.3:** Versioned, signed, traceable extractions with operator attribution
@@ -23,6 +24,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 ### 1. Functions Layer — Backend Integration
 
 #### `functions/src/modules/laudo-ocr/laudoOCRExtractor.ts` (Finalized)
+
 - ✅ **Gemini 2.5 Vision orchestrator** with Portuguese language extraction prompt
 - ✅ **Consent gate enforcement** (LGPD Art. 9)
   - Validates `consents/{labId}/patients/{patientId}.iaProcessing == true` before API call
@@ -41,12 +43,14 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
   - Non-blocking audit writes (don't fail extraction if audit fails)
 
 **Key improvements from Wave 3 scaffold:**
+
 - Portuguese prompt now includes detailed bounding box instructions (0-100% coordinates)
 - RDC 978 Art. 167 reference embedded in prompt
 - Response validation before Firestore storage
 - Error handling allows fallback to manual entry
 
 #### `functions/src/modules/laudo-ocr/callables/extractLaudoFieldsCallable.ts` (Finalized)
+
 - ✅ 60s timeout (Gemini Vision can take 3-5s per image)
 - ✅ Lab membership verification (RT/admin/auditor only)
 - ✅ Laudo existence check before processing
@@ -57,6 +61,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
   - Allows RT to override with manual entry if OCR fails
 
 #### `functions/src/modules/laudo-ocr/callables/saveLaudoFieldsManuallyCallable.ts` (Finalized)
+
 - ✅ Fallback manual entry when OCR fails
 - ✅ Field 10 (Observações) — mandatory
 - ✅ Field 11/12 optional (signature notes)
@@ -68,7 +73,9 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 ### 2. Frontend Layer — RT Portal Components
 
 #### `src/features/portal-rt/components/LaudoOCROverlay.tsx` (NEW, 280 LOC)
+
 **Visual verification component for RT review:**
+
 - ✅ Canvas-based bounding box renderer
   - Overlays detected signature regions on laudo image
   - Color-coded by confidence: green (high) → amber (medium) → red (low)
@@ -79,11 +86,13 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 - ✅ Confidence badges (high/medium/low)
 - ✅ Manual edit triggers for each field
 - ✅ Confirmation workflow with approval checkbox
-- ✅ Dark mode support (Tailwind class dark:*)
+- ✅ Dark mode support (Tailwind class dark:\*)
 - ✅ Responsive layout (max-w-4xl)
 
 #### `src/features/portal-rt/components/LaudoManualOverrideForm.tsx` (NEW, 200 LOC)
+
 **Manual entry fallback form:**
+
 - ✅ Field 10 (Observações) — required, 2000 char limit
 - ✅ Field 11 (RT signature) — optional checkbox + notes (500 char)
 - ✅ Field 12 (Director signature + date) — optional + ISO date picker
@@ -99,6 +108,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 #### `functions/src/modules/laudo-ocr/__tests__/integration.test.ts` (NEW, 19+ tests)
 
 **Consent gate tests (6 tests):**
+
 - ✅ Pass: active consent, iaProcessing=true
 - ✅ Pass: consent optional if patientId not provided
 - ✅ Pass: re-consent after revocation (revokedAt=null)
@@ -107,11 +117,13 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 - ✅ Fail: consent revoked (revokedAt!=null)
 
 **Gemini happy path (3 tests):**
+
 - ✅ Extract all three fields with high confidence
 - ✅ Track latency + token usage
 - ✅ Validate response against schema before storage
 
 **Gemini timeout/failure (3 tests):**
+
 - ✅ Timeout >60s triggers error
 - ✅ Returns allowManualEntry=true on API failure
 - ✅ Handles image fetch failures (403, 404, etc.)
@@ -120,6 +132,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 - ✅ Handles missing GEMINI_API_KEY
 
 **Manual override (4 tests):**
+
 - ✅ RT can manually enter field10 if OCR fails
 - ✅ Field10 required (cannot be empty)
 - ✅ Field11/12 optional with metadata capture
@@ -127,6 +140,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 - ✅ Audit log captures manual entry with operator attribution
 
 **Signature detection edge cases (3 tests):**
+
 - ✅ Low-confidence faint signature (medium/low)
 - ✅ Bounding box percentages within 0-100
 - ✅ Missing signatures detected=false
@@ -134,6 +148,7 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 - ✅ Date format conversion (DD/MM/YYYY → ISO 8601)
 
 **Authorization + Audit (3+ tests):**
+
 - ✅ Lab membership required
 - ✅ RT role authorized
 - ✅ Unauthenticated requests rejected
@@ -144,11 +159,13 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 #### `functions/eval/laudo-ocr/` (Promptfoo eval suite)
 
 **Config:** `promptfooconfig.yaml`
+
 - ✅ 5 test scenarios
 - ✅ 90% pass-rate gate
 - ✅ Historical comparison tracking
 
 **Fixtures (8 JSON files):**
+
 1. `good_laudo_1.json` — clear signatures, high confidence
 2. `good_laudo_2.json` — observações + both sigs + date
 3. `poor_sig_rt.json` — faint RT signature (medium confidence)
@@ -163,21 +180,22 @@ Wave 3 designed the laudo OCR architecture (types, validators, extractors). Wave
 #### `firestore.rules` (Additions)
 
 **Collection: `/laudos/{labId}/extractions/{laudoId}`**
+
 ```firestore
 match /laudos/{labId}/extractions/{laudoId} {
   // Read: RT, Auditor, Admin, Owner with lab membership
   allow read: if isActiveMemberOfLab(labId) &&
               (getMemberRole(labId) in ['rt', 'auditor', 'admin', 'owner']);
-  
+
   // Create: Cloud Functions only (callable server-side writes)
   allow create: if false;
-  
+
   // Update: Cloud Functions only (create new extraction, don't update old)
   allow update: if false;
-  
+
   // Delete: never (immutable audit trail — RDC 978)
   allow delete: if false;
-  
+
   // Audit subcollection (immutable event log)
   match /auditLog/{logId} {
     allow read: if parent.read;
@@ -188,23 +206,25 @@ match /laudos/{labId}/extractions/{laudoId} {
 ```
 
 **Collection: `/consents/{labId}/patients/{patientId}`**
+
 ```firestore
 match /consents/{labId}/patients/{patientId} {
   // Read: Patient (own), RT, Admin, Auditor in lab
   allow read: if isActiveMemberOfLab(labId) ||
               (request.auth.uid == patientId);
-  
+
   // Create/Update: Patient via portal OR RT/Admin on their behalf
   allow create, update: if (isActiveMemberOfLab(labId) &&
                            getMemberRole(labId) in ['rt', 'admin', 'owner']) ||
                           (request.auth.uid == patientId);
-  
+
   // Delete: never (consent history immutable)
   allow delete: if false;
 }
 ```
 
 **Key design principles:**
+
 - ✅ Client cannot write extractions (Cloud Function exclusive)
 - ✅ Consent immutable after capture (LGPD compliance)
 - ✅ Immutable extraction audit trail (RDC 978)
@@ -228,6 +248,7 @@ match /consents/{labId}/patients/{patientId} {
 ### 5. Types & Validators (Wave 3 enhanced)
 
 #### `functions/src/modules/laudo-ocr/types.ts`
+
 - ✅ BoundingBox (0-100% percentages)
 - ✅ Field10, Field11, Field12 schemas (Zod)
 - ✅ LaudoExtractedFields (Firestore-stored format)
@@ -236,6 +257,7 @@ match /consents/{labId}/patients/{patientId} {
 - ✅ LaudoOCRAuditEntry
 
 #### `functions/src/modules/laudo-ocr/validators.ts`
+
 - ✅ validateField10() — required non-empty
 - ✅ validateField11() — advisory (not required)
 - ✅ validateField12() — advisory (not required)
@@ -246,43 +268,43 @@ match /consents/{labId}/patients/{patientId} {
 
 ## RDC 978 Art. 167 Compliance
 
-| Requirement | Implementation | Status |
-|---|---|---|
-| Field 10 (Observações) — mandatory | `validateField10()` enforces non-empty | ✅ |
-| Field 11 (RT signature) — detection | Gemini Vision + bounding box overlay | ✅ |
-| Field 12 (Director signature + date) — detection | Gemini Vision + date extraction (ISO 8601) | ✅ |
-| Fallback manual entry | `saveLaudoFieldsManuallyCallable` | ✅ |
-| Audit trail — operator attribution | `extractedBy`, `source` (auto/manual) | ✅ |
-| Immutable extraction history | Firestore rules: `allow delete: if false` | ✅ |
-| Soft-delete only (RN-06) | Not applicable (no deletion allowed) | ✅ |
+| Requirement                                      | Implementation                             | Status |
+| ------------------------------------------------ | ------------------------------------------ | ------ |
+| Field 10 (Observações) — mandatory               | `validateField10()` enforces non-empty     | ✅     |
+| Field 11 (RT signature) — detection              | Gemini Vision + bounding box overlay       | ✅     |
+| Field 12 (Director signature + date) — detection | Gemini Vision + date extraction (ISO 8601) | ✅     |
+| Fallback manual entry                            | `saveLaudoFieldsManuallyCallable`          | ✅     |
+| Audit trail — operator attribution               | `extractedBy`, `source` (auto/manual)      | ✅     |
+| Immutable extraction history                     | Firestore rules: `allow delete: if false`  | ✅     |
+| Soft-delete only (RN-06)                         | Not applicable (no deletion allowed)       | ✅     |
 
 ---
 
 ## LGPD Art. 9 Compliance (AI Processing Consent)
 
-| Requirement | Implementation | Status |
-|---|---|---|
-| Explicit opt-in before AI processing | `consentGate()` checks iaProcessing=true | ✅ |
-| Consent immutable after capture | Firestore rules: `allow delete: if false` | ✅ |
-| Revocation supported | revokedAt timestamp in consent doc | ✅ |
-| Audit trail — who consented, when | capturedBy, consentedAt in consent doc | ✅ |
+| Requirement                          | Implementation                            | Status |
+| ------------------------------------ | ----------------------------------------- | ------ |
+| Explicit opt-in before AI processing | `consentGate()` checks iaProcessing=true  | ✅     |
+| Consent immutable after capture      | Firestore rules: `allow delete: if false` | ✅     |
+| Revocation supported                 | revokedAt timestamp in consent doc        | ✅     |
+| Audit trail — who consented, when    | capturedBy, consentedAt in consent doc    | ✅     |
 
 ---
 
 ## Production Safeguards
 
-| Safeguard | Implementation | Status |
-|---|---|---|
-| **Gemini API timeout** | 60s callable timeout + 30s fetch timeout | ✅ |
-| **Image fetch timeout** | 30s AbortController | ✅ |
-| **Temperature 0.1** | Deterministic extraction, minimal hallucinations | ✅ |
-| **Response validation** | Zod schema parse before storage | ✅ |
-| **JSON repair** | jsonrepair fallback for malformed responses | ✅ |
-| **Latency tracking** | geminiLatencyMs in extraction + audit | ✅ |
-| **Error fallback** | allowManualEntry=true on Gemini failure | ✅ |
-| **Non-blocking audits** | Audit failures don't block extraction | ✅ |
-| **Consent gate** | Required before Gemini API call | ✅ |
-| **MIME type detection** | Auto-detect PDF vs. image from URL/header | ✅ |
+| Safeguard               | Implementation                                   | Status |
+| ----------------------- | ------------------------------------------------ | ------ |
+| **Gemini API timeout**  | 60s callable timeout + 30s fetch timeout         | ✅     |
+| **Image fetch timeout** | 30s AbortController                              | ✅     |
+| **Temperature 0.1**     | Deterministic extraction, minimal hallucinations | ✅     |
+| **Response validation** | Zod schema parse before storage                  | ✅     |
+| **JSON repair**         | jsonrepair fallback for malformed responses      | ✅     |
+| **Latency tracking**    | geminiLatencyMs in extraction + audit            | ✅     |
+| **Error fallback**      | allowManualEntry=true on Gemini failure          | ✅     |
+| **Non-blocking audits** | Audit failures don't block extraction            | ✅     |
+| **Consent gate**        | Required before Gemini API call                  | ✅     |
+| **MIME type detection** | Auto-detect PDF vs. image from URL/header        | ✅     |
 
 ---
 
@@ -300,11 +322,13 @@ match /consents/{labId}/patients/{patientId} {
 ### Deploy Order (Sequential)
 
 1. **Firestore Rules + Indexes**
+
    ```bash
    firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
    ```
 
 2. **Cloud Functions**
+
    ```bash
    firebase deploy --only functions:extractLaudoFieldsCallable,functions:saveLaudoFieldsManuallyCallable --project hmatologia2
    ```
@@ -357,17 +381,20 @@ C:\hc quality\
 ## Test Summary
 
 **Unit + Integration Tests:**
+
 - Wave 3 tests: 12 (validators + extractor scaffold)
 - Wave 4 tests: 19 (integration + edge cases)
 - **Total: 31 tests** (all passing before deploy)
 
 **Eval Suite:**
+
 - Scenarios: 5 (good, poor-sig-rt, poor-sig-dir, missing-obs, no-sigs)
 - Fixtures: 6 JSON files
 - Gate: ≥90% pass rate
 - Command: `npm run eval:laudo-ocr` (not yet in package.json, add to scripts)
 
 **Pre-deploy verification:**
+
 ```bash
 cd functions
 npm run build
@@ -417,8 +444,7 @@ npm run eval:laudo-ocr                   # Promptfoo suite (≥90% gate)
 ✅ **Fallback manual entry** — RDC 978 Art. 167 aligned  
 ✅ **Comprehensive testing** — 31 tests + eval suite  
 ✅ **Firestore rules + indexes** — deployed  
-✅ **RT UI components** — dark-first, WCAG AA  
+✅ **RT UI components** — dark-first, WCAG AA
 
 **Status:** Ready for Phase 6 deployment (2026-05-20)  
 **Blocked by:** GEMINI_API_KEY provisioning (3-5 day gov SLA for production key)
-

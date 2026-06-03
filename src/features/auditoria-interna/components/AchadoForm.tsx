@@ -80,11 +80,7 @@ export function AchadoForm({ itemId, severity, onSave, auditoriaId, sessaoId }: 
             {evidencias.map((ev, i) => (
               <div key={i} className="flex items-center space-x-2 p-2 bg-white/5 rounded">
                 {ev.startsWith('data:image') && (
-                  <img
-                    src={ev}
-                    alt={`Evidence ${i}`}
-                    className="w-12 h-12 rounded object-cover"
-                  />
+                  <img src={ev} alt={`Evidence ${i}`} className="w-12 h-12 rounded object-cover" />
                 )}
                 <span className="text-sm text-white/60 flex-1">Evidência {i + 1}</span>
                 <button

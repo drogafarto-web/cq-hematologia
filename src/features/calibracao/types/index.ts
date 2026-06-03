@@ -15,7 +15,12 @@ export interface LogicalSignature {
 }
 
 // New English status (per Phase 8 plan spec)
-export type CalibracaoStatusNew = 'in-date' | 'warning-30d' | 'warning-7d' | 'overdue' | 'out-of-service';
+export type CalibracaoStatusNew =
+  | 'in-date'
+  | 'warning-30d'
+  | 'warning-7d'
+  | 'overdue'
+  | 'out-of-service';
 
 // Legacy Portuguese status (for backward compatibility with components)
 export type CalibracaoStatusLegacy = 'no-prazo' | 'em-risco' | 'vencido';
@@ -54,7 +59,7 @@ export interface CalibracaoRecord {
   id: string;
   labId: string;
   equipamentoId: string;
-  equipId: string;  // Alias for equipamentoId (for components)
+  equipId: string; // Alias for equipamentoId (for components)
   equipName: string;
   equipSerial?: string;
   calibrationMethod: 'in-house' | 'external-provider';
@@ -68,7 +73,7 @@ export interface CalibracaoRecord {
   statusUpdatedAt: number;
   alertsSent: { days: number; sentAt: number }[];
   createdAt: number | Timestamp;
-  criadoEm?: Timestamp;  // Legacy alias
+  criadoEm?: Timestamp; // Legacy alias
   createdBy: string;
   deletedAt?: number;
   // Required legacy fields for component compatibility
@@ -94,7 +99,8 @@ export interface CalibracaoAlert {
 
 export function calculateCalibracaoStatus(nextDueDate: number | Timestamp): CalibracaoStatusNew {
   const now = Date.now();
-  const dueTime = typeof nextDueDate === 'number' ? nextDueDate : nextDueDate.toMillis?.() ?? Date.now();
+  const dueTime =
+    typeof nextDueDate === 'number' ? nextDueDate : (nextDueDate.toMillis?.() ?? Date.now());
   const daysUntilDue = (dueTime - now) / (1000 * 60 * 60 * 24);
 
   if (daysUntilDue < 0) return 'overdue';

@@ -7,10 +7,4 @@ export { default as ManagementReviewDashboard } from './components/ManagementRev
 export { useManagementReview, useFetchManagementReview } from './hooks/useManagementReview';
 export { useReviewTemplate } from './hooks/useReviewTemplate';
 export { useAtas, useAtasForReview } from './hooks/useAtas';
-export type {
-  ManagementReview,
-  ReviewEntry,
-  ReviewTemplate,
-  Ata,
-  LogicalSignature
-} from './types';
+export type { ManagementReview, ReviewEntry, ReviewTemplate, Ata, LogicalSignature } from './types';

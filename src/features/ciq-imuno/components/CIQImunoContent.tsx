@@ -1002,463 +1002,463 @@ export function CIQImunoContent({
 
       {/* ── Active lot detail ──────────────────────────────────────────────── */}
       <div className="flex-1 min-w-0 space-y-4">
-      {/* Page header */}
-      {activeLot && (
-        <div className="flex items-end gap-4 mb-2">
-          <div>
-            <div className="flex items-center gap-2.5 flex-wrap">
-              <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
-                {activeLot.testType}
-              </h1>
-              <LotStatusBadge status={activeLot.lotStatus} />
-              <ValidityBadge isoDate={activeLot.validadeControle} label="Controle" />
-              {(activeLot.setupType === 'principal' ||
-                activeLot.setupType === 'validacao_paralela') && (
-                <span
-                  className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-                    activeLot.setupType === 'principal'
-                      ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
-                      : 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400'
-                  }`}
-                >
-                  <PinIcon />
-                  {activeLot.setupType === 'principal' ? 'Setup Oficial' : 'Em Validação'}
-                </span>
-              )}
+        {/* Page header */}
+        {activeLot && (
+          <div className="flex items-end gap-4 mb-2">
+            <div>
+              <div className="flex items-center gap-2.5 flex-wrap">
+                <h1 className="text-2xl font-bold text-slate-900 dark:text-white tracking-tight">
+                  {activeLot.testType}
+                </h1>
+                <LotStatusBadge status={activeLot.lotStatus} />
+                <ValidityBadge isoDate={activeLot.validadeControle} label="Controle" />
+                {(activeLot.setupType === 'principal' ||
+                  activeLot.setupType === 'validacao_paralela') && (
+                  <span
+                    className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+                      activeLot.setupType === 'principal'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400'
+                        : 'bg-blue-50 dark:bg-blue-500/10 border-blue-200 dark:border-blue-500/30 text-blue-700 dark:text-blue-400'
+                    }`}
+                  >
+                    <PinIcon />
+                    {activeLot.setupType === 'principal' ? 'Setup Oficial' : 'Em Validação'}
+                  </span>
+                )}
+              </div>
+              <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
+                {activeLot.loteControle} · Val. {activeLot.validadeControle}
+              </p>
             </div>
-            <p className="text-sm text-slate-500 dark:text-slate-400 mt-1.5 font-mono">
-              {activeLot.loteControle} · Val. {activeLot.validadeControle}
-            </p>
-          </div>
-          <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
-            {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'A' && (
-              <button
-                type="button"
-                onClick={() => handleLotDecision('A')}
-                disabled={decidingLot}
-                className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-medium bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 disabled:opacity-40 transition-all"
-              >
-                <CheckIcon /> Aprovar lote
-              </button>
-            )}
-            {canDecide &&
-              runs.length > 0 &&
-              activeLot.ciqDecision !== 'Rejeitado' &&
-              activeLot.ciqDecision !== 'A' && (
+            <div className="ml-auto flex items-center gap-2 flex-wrap justify-end">
+              {canDecide && runs.length > 0 && activeLot.ciqDecision !== 'A' && (
                 <button
                   type="button"
-                  onClick={() => handleLotDecision('Rejeitado')}
+                  onClick={() => handleLotDecision('A')}
                   disabled={decidingLot}
-                  className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-medium bg-red-50 dark:bg-red-500/[0.07] border border-red-200 dark:border-red-400/25 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/[0.15] disabled:opacity-40 transition-all"
+                  className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-medium bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/30 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/20 disabled:opacity-40 transition-all"
                 >
-                  <BanIcon /> Reprovar lote
+                  <CheckIcon /> Aprovar lote
                 </button>
               )}
-            {canDecide && (
-              <>
-                {activeLot.setupType === 'principal' ||
-                activeLot.setupType === 'validacao_paralela' ? (
+              {canDecide &&
+                runs.length > 0 &&
+                activeLot.ciqDecision !== 'Rejeitado' &&
+                activeLot.ciqDecision !== 'A' && (
                   <button
                     type="button"
-                    onClick={() => setUnpinningLot(activeLot)}
-                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-500/[0.07] border border-amber-200 dark:border-amber-400/25 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/[0.15] transition-colors"
+                    onClick={() => handleLotDecision('Rejeitado')}
+                    disabled={decidingLot}
+                    className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg text-sm font-medium bg-red-50 dark:bg-red-500/[0.07] border border-red-200 dark:border-red-400/25 text-red-600 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-500/[0.15] disabled:opacity-40 transition-all"
                   >
-                    <PinOffIcon /> Desvincular
+                    <BanIcon /> Reprovar lote
                   </button>
-                ) : (
+                )}
+              {canDecide && (
+                <>
+                  {activeLot.setupType === 'principal' ||
+                  activeLot.setupType === 'validacao_paralela' ? (
+                    <button
+                      type="button"
+                      onClick={() => setUnpinningLot(activeLot)}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-amber-50 dark:bg-amber-500/[0.07] border border-amber-200 dark:border-amber-400/25 text-amber-700 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-500/[0.15] transition-colors"
+                    >
+                      <PinOffIcon /> Desvincular
+                    </button>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPinErr(null);
+                        setPinningLot(activeLot);
+                      }}
+                      className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-emerald-50 dark:bg-emerald-500/[0.07] border border-emerald-200 dark:border-emerald-400/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/[0.15] transition-colors"
+                    >
+                      <PinIcon /> Vincular
+                    </button>
+                  )}
                   <button
                     type="button"
                     onClick={() => {
-                      setPinErr(null);
-                      setPinningLot(activeLot);
+                      setSaveLotErr(null);
+                      setEditingLot(activeLot);
                     }}
-                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-emerald-50 dark:bg-emerald-500/[0.07] border border-emerald-200 dark:border-emerald-400/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-500/[0.15] transition-colors"
+                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
                   >
-                    <PinIcon /> Vincular
+                    <EditIcon /> Editar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setDeleteErr(null);
+                      setDeletingLot(activeLot);
+                    }}
+                    className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-red-200 dark:border-red-400/25 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.07] transition-colors"
+                  >
+                    <TrashIcon /> Excluir
+                  </button>
+                </>
+              )}
+              {runs.length > 0 && (
+                <>
+                  <button
+                    type="button"
+                    onClick={() => setShowPrint(true)}
+                    className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
+                  >
+                    <PrintIcon /> Relatório PDF
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleExportCSV}
+                    className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
+                  >
+                    <DownloadIcon /> FR-036 CSV
+                  </button>
+                </>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* KPI cards */}
+        {runs.length > 0 && activeLot && (
+          <CIQIndicadores runs={runs} lotStatus={activeLot.lotStatus} />
+        )}
+
+        {/* Decision badge */}
+        {activeLot?.ciqDecision && (
+          <div
+            className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm ${
+              activeLot.ciqDecision === 'A'
+                ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
+                : 'bg-red-50 dark:bg-red-500/[0.06] border-red-200 dark:border-red-400/20 text-red-700 dark:text-red-400'
+            }`}
+          >
+            <span
+              className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeLot.ciqDecision === 'A' ? 'bg-emerald-500' : 'bg-red-500'}`}
+            />
+            <span className="font-semibold">
+              Decisão formal: {activeLot.ciqDecision === 'A' ? 'Aprovado' : 'Reprovado'}
+            </span>
+            {activeLot.decisionBy && <span className="text-xs opacity-60">· RT registrado</span>}
+          </div>
+        )}
+
+        {/* Errors */}
+        {(decisionErr || exportErr) && (
+          <p className="text-xs text-red-500 dark:text-red-400">{decisionErr ?? exportErr}</p>
+        )}
+
+        {/* Westgard alerts */}
+        {runs.length > 0 && <WestgardAlertsPanel runs={runs} />}
+
+        {/* Validity banner — alerta proativo de vencimento do controle ou reagente */}
+        {activeLot && <ValidityBanner validadeControle={activeLot.validadeControle} runs={runs} />}
+
+        {/* Runs table */}
+        {runsLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <svg
+              className="animate-spin w-4 h-4 text-slate-300 dark:text-white/20"
+              viewBox="0 0 24 24"
+              fill="none"
+            >
+              <circle
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeOpacity="0.25"
+              />
+              <path
+                d="M22 12a10 10 0 00-10-10"
+                stroke="currentColor"
+                strokeWidth="3"
+                strokeLinecap="round"
+              />
+            </svg>
+          </div>
+        ) : runs.length === 0 ? (
+          <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl p-8 text-center shadow-sm">
+            <p className="text-sm text-slate-400 dark:text-slate-500">
+              Nenhuma corrida registrada neste lote.
+            </p>
+            <button
+              type="button"
+              onClick={() => {
+                setFormError(null);
+                setShowForm(true);
+              }}
+              className="mt-3 inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
+            >
+              <PlusIcon /> Registrar corrida
+            </button>
+          </div>
+        ) : (
+          <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm dark:shadow-none">
+            <table className="w-full text-sm border-collapse">
+              <thead>
+                <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.06]">
+                  {[
+                    { label: 'Código', cls: 'hidden md:table-cell' },
+                    { label: 'Data', cls: '' },
+                    { label: 'Lote Reagente', cls: 'hidden lg:table-cell' },
+                    { label: 'Resultado', cls: '' },
+                    { label: 'Conformidade', cls: '' },
+                    { label: 'Westgard', cls: '' },
+                    { label: 'Assinatura', cls: 'hidden sm:table-cell' },
+                    { label: '', cls: '' },
+                  ].map((h, i) => (
+                    <th
+                      key={i}
+                      className={`px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 ${h.cls}`}
+                    >
+                      {h.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {[...runs].reverse().map((run) => (
+                  <RunRow key={run.id} run={run} onShowQR={setQRRun} />
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+
+        {/* Modal: Nova corrida */}
+        {showForm && (
+          <Modal
+            title={formPrefill ? 'Registrar corrida (lote vinculado)' : 'Registrar corrida'}
+            onClose={() => {
+              setShowForm(false);
+              setFormPrefill(null);
+            }}
+          >
+            {formError && (
+              <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/[0.07] border border-red-200 dark:border-red-400/20 text-xs text-red-600 dark:text-red-400">
+                {formError}
+              </div>
+            )}
+            <CIQImunoForm
+              onSave={handleSave}
+              isSaving={isSaving}
+              onCancel={() => {
+                setShowForm(false);
+                setFormPrefill(null);
+              }}
+              {...(formPrefill && { prefillFromLot: formPrefill })}
+            />
+          </Modal>
+        )}
+
+        {/* Modal: Cadastrar Insumo (spine) — pré-filtra módulo imunologia */}
+        {showCadastrarInsumo && labId && (
+          <NovoLoteModal
+            labId={labId}
+            initialModulo="imunologia"
+            onClose={() => setShowCadastrarInsumo(false)}
+          />
+        )}
+
+        {/* Relatório PDF */}
+        {showPrint && activeLot && (
+          <CIQRelatorioPrint lot={activeLot} runs={runs} onClose={() => setShowPrint(false)} />
+        )}
+
+        {/* Modal: Editar lote */}
+        {editingLot && (
+          <Modal title="Editar lote" onClose={() => setEditingLot(null)}>
+            <EditLotForm
+              lot={editingLot}
+              isSaving={isSavingLot}
+              error={saveLotErr}
+              onSave={handleEditLotSave}
+              onCancel={() => setEditingLot(null)}
+            />
+          </Modal>
+        )}
+
+        {/* Modal: Confirmar exclusão */}
+        {deletingLot && (
+          <Modal title="Excluir lote" onClose={() => !isDeleting && setDeletingLot(null)}>
+            <div className="space-y-4">
+              <div className="rounded-xl border border-red-200 dark:border-red-400/20 bg-red-50 dark:bg-red-500/[0.06] px-4 py-3.5">
+                <p className="text-sm font-semibold text-red-700 dark:text-red-400">
+                  Esta operação é irreversível
+                </p>
+                <p className="text-xs text-slate-500 dark:text-white/40 leading-relaxed mt-1.5">
+                  O lote{' '}
+                  <span className="font-medium text-slate-700 dark:text-white/70">
+                    {deletingLot.testType}
+                  </span>{' '}
+                  ({deletingLot.loteControle}) e todas as suas{' '}
+                  <span className="font-medium text-slate-700 dark:text-white/70">
+                    {deletingLot.runCount} corrida{deletingLot.runCount !== 1 ? 's' : ''}
+                  </span>{' '}
+                  serão excluídos permanentemente e registrados no audit trail.
+                </p>
+              </div>
+              {deleteErr && <p className="text-xs text-red-500 dark:text-red-400">{deleteErr}</p>}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setDeletingLot(null)}
+                  disabled={isDeleting}
+                  className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleDeleteLot}
+                  disabled={isDeleting}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-red-500 hover:bg-red-600 text-white disabled:opacity-40 transition-colors"
+                >
+                  {isDeleting ? (
+                    <>
+                      <SpinnerIcon /> Excluindo…
+                    </>
+                  ) : (
+                    <>
+                      <TrashIcon /> Excluir lote
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+          </Modal>
+        )}
+
+        {/* Modal: Vincular lote */}
+        {pinningLot && (
+          <Modal title="Vincular à bancada" onClose={() => !isPinning && setPinningLot(null)}>
+            <div className="space-y-4">
+              <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
+                <RowDetail label="Teste" value={pinningLot.testType} />
+                <RowDetail label="Lote" value={pinningLot.loteControle} />
+                <RowDetail label="Validade" value={pinningLot.validadeControle} />
+              </div>
+              <p className="text-xs text-slate-500 dark:text-white/50 leading-relaxed">
+                Vincular um lote à bancada destrava registro de corridas para esse lote sem precisar
+                selecioná-lo manualmente. Toda mudança fica registrada no histórico do lote (RDC
+                786).
+              </p>
+              {pinningLot.ciqDecision !== 'A' && (
+                <div className="rounded-xl border border-blue-200 dark:border-blue-400/20 bg-blue-50 dark:bg-blue-500/[0.06] px-4 py-3 text-xs text-blue-700 dark:text-blue-400">
+                  Este lote ainda não foi aprovado pelo RT — apenas vinculação{' '}
+                  <span className="font-medium">Em validação</span> está disponível. Corridas
+                  registradas serão classificadas como validação até o lote ser aprovado.
+                </div>
+              )}
+              {pinErr && <p className="text-xs text-red-500 dark:text-red-400">{pinErr}</p>}
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setPinningLot(null)}
+                  disabled={isPinning}
+                  className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
+                >
+                  Cancelar
+                </button>
+                {pinningLot.ciqDecision === 'A' && (
+                  <button
+                    type="button"
+                    onClick={() => handlePinLot('principal')}
+                    disabled={isPinning}
+                    className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-40 transition-colors"
+                  >
+                    {isPinning ? <SpinnerIcon /> : <PinIcon />} Setup oficial
                   </button>
                 )}
                 <button
                   type="button"
-                  onClick={() => {
-                    setSaveLotErr(null);
-                    setEditingLot(activeLot);
-                  }}
-                  className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <EditIcon /> Editar
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setDeleteErr(null);
-                    setDeletingLot(activeLot);
-                  }}
-                  className="inline-flex items-center gap-2 h-9 px-3 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-red-200 dark:border-red-400/25 text-red-500 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/[0.07] transition-colors"
-                >
-                  <TrashIcon /> Excluir
-                </button>
-              </>
-            )}
-            {runs.length > 0 && (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setShowPrint(true)}
-                  className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <PrintIcon /> Relatório PDF
-                </button>
-                <button
-                  type="button"
-                  onClick={handleExportCSV}
-                  className="inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-white dark:bg-white/[0.05] border border-slate-200 dark:border-white/10 text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.08] transition-colors"
-                >
-                  <DownloadIcon /> FR-036 CSV
-                </button>
-              </>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* KPI cards */}
-      {runs.length > 0 && activeLot && (
-        <CIQIndicadores runs={runs} lotStatus={activeLot.lotStatus} />
-      )}
-
-      {/* Decision badge */}
-      {activeLot?.ciqDecision && (
-        <div
-          className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border text-sm ${
-            activeLot.ciqDecision === 'A'
-              ? 'bg-emerald-50 dark:bg-emerald-500/[0.06] border-emerald-200 dark:border-emerald-500/20 text-emerald-700 dark:text-emerald-400'
-              : 'bg-red-50 dark:bg-red-500/[0.06] border-red-200 dark:border-red-400/20 text-red-700 dark:text-red-400'
-          }`}
-        >
-          <span
-            className={`w-1.5 h-1.5 rounded-full shrink-0 ${activeLot.ciqDecision === 'A' ? 'bg-emerald-500' : 'bg-red-500'}`}
-          />
-          <span className="font-semibold">
-            Decisão formal: {activeLot.ciqDecision === 'A' ? 'Aprovado' : 'Reprovado'}
-          </span>
-          {activeLot.decisionBy && <span className="text-xs opacity-60">· RT registrado</span>}
-        </div>
-      )}
-
-      {/* Errors */}
-      {(decisionErr || exportErr) && (
-        <p className="text-xs text-red-500 dark:text-red-400">{decisionErr ?? exportErr}</p>
-      )}
-
-      {/* Westgard alerts */}
-      {runs.length > 0 && <WestgardAlertsPanel runs={runs} />}
-
-      {/* Validity banner — alerta proativo de vencimento do controle ou reagente */}
-      {activeLot && <ValidityBanner validadeControle={activeLot.validadeControle} runs={runs} />}
-
-      {/* Runs table */}
-      {runsLoading ? (
-        <div className="flex items-center justify-center py-12">
-          <svg
-            className="animate-spin w-4 h-4 text-slate-300 dark:text-white/20"
-            viewBox="0 0 24 24"
-            fill="none"
-          >
-            <circle
-              cx="12"
-              cy="12"
-              r="10"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeOpacity="0.25"
-            />
-            <path
-              d="M22 12a10 10 0 00-10-10"
-              stroke="currentColor"
-              strokeWidth="3"
-              strokeLinecap="round"
-            />
-          </svg>
-        </div>
-      ) : runs.length === 0 ? (
-        <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl p-8 text-center shadow-sm">
-          <p className="text-sm text-slate-400 dark:text-slate-500">
-            Nenhuma corrida registrada neste lote.
-          </p>
-          <button
-            type="button"
-            onClick={() => {
-              setFormError(null);
-              setShowForm(true);
-            }}
-            className="mt-3 inline-flex items-center gap-2 h-9 px-3.5 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white transition-colors"
-          >
-            <PlusIcon /> Registrar corrida
-          </button>
-        </div>
-      ) : (
-        <div className="bg-white dark:bg-white/[0.03] border border-slate-200 dark:border-white/[0.06] rounded-xl overflow-hidden shadow-sm dark:shadow-none">
-          <table className="w-full text-sm border-collapse">
-            <thead>
-              <tr className="bg-slate-50 dark:bg-white/[0.02] border-b border-slate-200 dark:border-white/[0.06]">
-                {[
-                  { label: 'Código', cls: 'hidden md:table-cell' },
-                  { label: 'Data', cls: '' },
-                  { label: 'Lote Reagente', cls: 'hidden lg:table-cell' },
-                  { label: 'Resultado', cls: '' },
-                  { label: 'Conformidade', cls: '' },
-                  { label: 'Westgard', cls: '' },
-                  { label: 'Assinatura', cls: 'hidden sm:table-cell' },
-                  { label: '', cls: '' },
-                ].map((h, i) => (
-                  <th
-                    key={i}
-                    className={`px-4 py-2.5 text-left text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500 ${h.cls}`}
-                  >
-                    {h.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {[...runs].reverse().map((run) => (
-                <RunRow key={run.id} run={run} onShowQR={setQRRun} />
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {/* Modal: Nova corrida */}
-      {showForm && (
-        <Modal
-          title={formPrefill ? 'Registrar corrida (lote vinculado)' : 'Registrar corrida'}
-          onClose={() => {
-            setShowForm(false);
-            setFormPrefill(null);
-          }}
-        >
-          {formError && (
-            <div className="mb-4 px-4 py-3 rounded-xl bg-red-50 dark:bg-red-500/[0.07] border border-red-200 dark:border-red-400/20 text-xs text-red-600 dark:text-red-400">
-              {formError}
-            </div>
-          )}
-          <CIQImunoForm
-            onSave={handleSave}
-            isSaving={isSaving}
-            onCancel={() => {
-              setShowForm(false);
-              setFormPrefill(null);
-            }}
-            {...(formPrefill && { prefillFromLot: formPrefill })}
-          />
-        </Modal>
-      )}
-
-      {/* Modal: Cadastrar Insumo (spine) — pré-filtra módulo imunologia */}
-      {showCadastrarInsumo && labId && (
-        <NovoLoteModal
-          labId={labId}
-          initialModulo="imunologia"
-          onClose={() => setShowCadastrarInsumo(false)}
-        />
-      )}
-
-      {/* Relatório PDF */}
-      {showPrint && activeLot && (
-        <CIQRelatorioPrint lot={activeLot} runs={runs} onClose={() => setShowPrint(false)} />
-      )}
-
-      {/* Modal: Editar lote */}
-      {editingLot && (
-        <Modal title="Editar lote" onClose={() => setEditingLot(null)}>
-          <EditLotForm
-            lot={editingLot}
-            isSaving={isSavingLot}
-            error={saveLotErr}
-            onSave={handleEditLotSave}
-            onCancel={() => setEditingLot(null)}
-          />
-        </Modal>
-      )}
-
-      {/* Modal: Confirmar exclusão */}
-      {deletingLot && (
-        <Modal title="Excluir lote" onClose={() => !isDeleting && setDeletingLot(null)}>
-          <div className="space-y-4">
-            <div className="rounded-xl border border-red-200 dark:border-red-400/20 bg-red-50 dark:bg-red-500/[0.06] px-4 py-3.5">
-              <p className="text-sm font-semibold text-red-700 dark:text-red-400">
-                Esta operação é irreversível
-              </p>
-              <p className="text-xs text-slate-500 dark:text-white/40 leading-relaxed mt-1.5">
-                O lote{' '}
-                <span className="font-medium text-slate-700 dark:text-white/70">
-                  {deletingLot.testType}
-                </span>{' '}
-                ({deletingLot.loteControle}) e todas as suas{' '}
-                <span className="font-medium text-slate-700 dark:text-white/70">
-                  {deletingLot.runCount} corrida{deletingLot.runCount !== 1 ? 's' : ''}
-                </span>{' '}
-                serão excluídos permanentemente e registrados no audit trail.
-              </p>
-            </div>
-            {deleteErr && <p className="text-xs text-red-500 dark:text-red-400">{deleteErr}</p>}
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setDeletingLot(null)}
-                disabled={isDeleting}
-                className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleDeleteLot}
-                disabled={isDeleting}
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-red-500 hover:bg-red-600 text-white disabled:opacity-40 transition-colors"
-              >
-                {isDeleting ? (
-                  <>
-                    <SpinnerIcon /> Excluindo…
-                  </>
-                ) : (
-                  <>
-                    <TrashIcon /> Excluir lote
-                  </>
-                )}
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
-
-      {/* Modal: Vincular lote */}
-      {pinningLot && (
-        <Modal title="Vincular à bancada" onClose={() => !isPinning && setPinningLot(null)}>
-          <div className="space-y-4">
-            <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
-              <RowDetail label="Teste" value={pinningLot.testType} />
-              <RowDetail label="Lote" value={pinningLot.loteControle} />
-              <RowDetail label="Validade" value={pinningLot.validadeControle} />
-            </div>
-            <p className="text-xs text-slate-500 dark:text-white/50 leading-relaxed">
-              Vincular um lote à bancada destrava registro de corridas para esse lote sem
-              precisar selecioná-lo manualmente. Toda mudança fica registrada no histórico do
-              lote (RDC 786).
-            </p>
-            {pinningLot.ciqDecision !== 'A' && (
-              <div className="rounded-xl border border-blue-200 dark:border-blue-400/20 bg-blue-50 dark:bg-blue-500/[0.06] px-4 py-3 text-xs text-blue-700 dark:text-blue-400">
-                Este lote ainda não foi aprovado pelo RT — apenas vinculação{' '}
-                <span className="font-medium">Em validação</span> está disponível. Corridas
-                registradas serão classificadas como validação até o lote ser aprovado.
-              </div>
-            )}
-            {pinErr && <p className="text-xs text-red-500 dark:text-red-400">{pinErr}</p>}
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setPinningLot(null)}
-                disabled={isPinning}
-                className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
-              >
-                Cancelar
-              </button>
-              {pinningLot.ciqDecision === 'A' && (
-                <button
-                  type="button"
-                  onClick={() => handlePinLot('principal')}
+                  onClick={() => handlePinLot('validacao_paralela')}
                   disabled={isPinning}
-                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-emerald-500 hover:bg-emerald-600 text-white disabled:opacity-40 transition-colors"
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-40 transition-colors"
                 >
-                  {isPinning ? <SpinnerIcon /> : <PinIcon />} Setup oficial
+                  {isPinning ? <SpinnerIcon /> : <PinIcon />} Em validação
                 </button>
-              )}
-              <button
-                type="button"
-                onClick={() => handlePinLot('validacao_paralela')}
-                disabled={isPinning}
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-blue-500 hover:bg-blue-600 text-white disabled:opacity-40 transition-colors"
-              >
-                {isPinning ? <SpinnerIcon /> : <PinIcon />} Em validação
-              </button>
+              </div>
             </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        )}
 
-      {/* Modal: Desvincular lote */}
-      {unpinningLot && (
-        <Modal
-          title="Desvincular da bancada"
-          onClose={() => !isUnpinning && setUnpinningLot(null)}
-        >
-          <div className="space-y-4">
-            <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
-              <RowDetail label="Teste" value={unpinningLot.testType} />
-              <RowDetail label="Lote" value={unpinningLot.loteControle} />
+        {/* Modal: Desvincular lote */}
+        {unpinningLot && (
+          <Modal
+            title="Desvincular da bancada"
+            onClose={() => !isUnpinning && setUnpinningLot(null)}
+          >
+            <div className="space-y-4">
+              <div className="rounded-lg border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.02] px-4 py-3 space-y-1">
+                <RowDetail label="Teste" value={unpinningLot.testType} />
+                <RowDetail label="Lote" value={unpinningLot.loteControle} />
+              </div>
+              <p className="text-xs text-slate-500 dark:text-white/50">
+                O lote permanece no estoque com o histórico de corridas intacto. Ação registrada no
+                histórico do lote.
+              </p>
+              <div className="flex justify-end gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setUnpinningLot(null)}
+                  disabled={isUnpinning}
+                  className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="button"
+                  onClick={handleUnpinLot}
+                  disabled={isUnpinning}
+                  className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-40 transition-colors"
+                >
+                  {isUnpinning ? <SpinnerIcon /> : <PinOffIcon />} Desvincular
+                </button>
+              </div>
             </div>
-            <p className="text-xs text-slate-500 dark:text-white/50">
-              O lote permanece no estoque com o histórico de corridas intacto. Ação registrada
-              no histórico do lote.
-            </p>
-            <div className="flex justify-end gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setUnpinningLot(null)}
-                disabled={isUnpinning}
-                className="h-9 px-4 rounded-lg text-sm text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.10] hover:bg-slate-50 dark:hover:bg-white/[0.05] disabled:opacity-40 transition-all"
-              >
-                Cancelar
-              </button>
-              <button
-                type="button"
-                onClick={handleUnpinLot}
-                disabled={isUnpinning}
-                className="inline-flex items-center gap-2 h-9 px-4 rounded-lg text-sm font-medium bg-amber-500 hover:bg-amber-600 text-white disabled:opacity-40 transition-colors"
-              >
-                {isUnpinning ? <SpinnerIcon /> : <PinOffIcon />} Desvincular
-              </button>
-            </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        )}
 
-      {/* Modal: QR de auditoria */}
-      {qrRun && activeLot && (
-        <Modal title="QR Code de auditoria" onClose={() => setQRRun(null)}>
-          <div className="flex flex-col items-center gap-4">
-            <CIQAuditor run={qrRun} lotId={activeLot.id} size={160} />
-            <div className="w-full rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.03] p-4 space-y-2 text-xs">
-              <RowDetail label="Teste" value={qrRun.testType} />
-              <RowDetail label="Data" value={qrRun.dataRealizacao} />
-              <RowDetail
-                label="Resultado"
-                value={qrRun.resultadoObtido === 'R' ? 'Reagente' : 'Não Reagente'}
-              />
-              <RowDetail label="Operador" value={qrRun.operatorName} />
-              <RowDetail
-                label="Assinatura"
-                value={qrRun.logicalSignature ? `${qrRun.logicalSignature.slice(0, 16)}…` : '—'}
-                mono
-              />
+        {/* Modal: QR de auditoria */}
+        {qrRun && activeLot && (
+          <Modal title="QR Code de auditoria" onClose={() => setQRRun(null)}>
+            <div className="flex flex-col items-center gap-4">
+              <CIQAuditor run={qrRun} lotId={activeLot.id} size={160} />
+              <div className="w-full rounded-xl border border-slate-100 dark:border-white/[0.07] bg-slate-50 dark:bg-white/[0.03] p-4 space-y-2 text-xs">
+                <RowDetail label="Teste" value={qrRun.testType} />
+                <RowDetail label="Data" value={qrRun.dataRealizacao} />
+                <RowDetail
+                  label="Resultado"
+                  value={qrRun.resultadoObtido === 'R' ? 'Reagente' : 'Não Reagente'}
+                />
+                <RowDetail label="Operador" value={qrRun.operatorName} />
+                <RowDetail
+                  label="Assinatura"
+                  value={qrRun.logicalSignature ? `${qrRun.logicalSignature.slice(0, 16)}…` : '—'}
+                  mono
+                />
+              </div>
             </div>
-          </div>
-        </Modal>
-      )}
+          </Modal>
+        )}
 
-      {/* Decisão formal de lote — reauth + justificativa + audit imutável */}
-      {pendingDecision && activeLot && user && (
-        <LotDecisionModal
-          open
-          decision={pendingDecision}
-          lot={activeLot}
-          runs={runs}
-          actorUid={user.uid}
-          actorName={user.displayName ?? user.email ?? 'Responsável Técnico'}
-          onClose={() => setPendingDecision(null)}
-        />
-      )}
+        {/* Decisão formal de lote — reauth + justificativa + audit imutável */}
+        {pendingDecision && activeLot && user && (
+          <LotDecisionModal
+            open
+            decision={pendingDecision}
+            lot={activeLot}
+            runs={runs}
+            actorUid={user.uid}
+            actorName={user.displayName ?? user.email ?? 'Responsável Técnico'}
+            onClose={() => setPendingDecision(null)}
+          />
+        )}
       </div>
     </div>
   );

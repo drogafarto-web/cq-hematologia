@@ -66,7 +66,6 @@ describe('Batch 1: notivisaDraftCreate', () => {
   //   ✓ Invalid CPF
   //   ✓ Missing fields
   //   ✓ Multiple resultados
-
   // Signature determinism (4 tests)
   //   ✓ Same input = same hash
   //   ✓ Different payload = different hash
@@ -85,7 +84,6 @@ describe('Batch 1: approveNotivisaDraft', () => {
   //   ✓ Valid signature format
   //   ✓ Hash length validation
   //   ✓ Required fields
-
   // Signature verification (4 tests)
   //   ✓ Hash format (hex, 64 chars)
   //   ✓ Timestamp expiry (5 min window)
@@ -101,10 +99,8 @@ describe('Batch 1: submitNotivisaDraft', () => {
   // Schema validation (5 tests)
   //   ✓ Required fields (labId, draftId)
   //   ✓ Optional signature
-
   // Response masking (2 tests)
   //   ✓ CPF masked (***8901)
-
   // Audit trail & queue (3 tests)
   //   ✓ Audit log immutability
   //   ✓ Queue event status
@@ -128,6 +124,7 @@ describe('Batch 1: rejectNotivisaDraft', () => {
 Validates queue polling, exponential backoff, and failure handling.
 
 **Exponential Backoff Schedule:**
+
 - Attempt 1: 0 min (immediate)
 - Attempt 2: 1 min
 - Attempt 3: 5 min
@@ -140,14 +137,11 @@ describe('Batch 2: notivisaQueueProcessor', () => {
   // Entry detection & ordering (2 tests)
   //   ✓ Finds pending entries
   //   ✓ Processes in creation order
-
   // Backoff (4 tests)
   //   ✓ Correct schedule
   //   ✓ Max 5 attempts enforced
-
   // Idempotency (2 tests)
   //   ✓ No duplicate SOAP calls
-
   // Failure handling (3 tests)
   //   ✓ Retryable (5xx) increments attempt
   //   ✓ Permanent (4xx) fails immediately
@@ -165,12 +159,10 @@ describe('Batch 2: notivisaWebhookHandler', () => {
   //   ✓ Valid HMAC-SHA256
   //   ✓ Constant-time comparison
   //   ✓ HTTP method validation (POST only)
-
   // Entry processing (3 tests)
   //   ✓ Idempotency via idempotencyKey
   //   ✓ Status update to acknowledged
   //   ✓ Webhook log subcollection
-
   // Error handling (3 tests)
   //   ✓ Invalid signature → 401
   //   ✓ Malformed JSON → 400
@@ -187,18 +179,14 @@ describe('Batch 2: notivisaExportArchive', () => {
   // Permissions (4 tests)
   //   ✓ Auditor/admin can export
   //   ✓ Others cannot (403)
-
   // Filtering (3 tests)
   //   ✓ 90-day window
   //   ✓ CSV + JSON formats
-
   // File splitting (2 tests)
   //   ✓ >100 entries → sub-files
-
   // Metadata & immutability (3 tests)
   //   ✓ exportedBy, expiresAt
   //   ✓ Cannot re-export same ID
-
   // Performance (1 test)
   //   ✓ 1000+ entries in <5s
 });
@@ -213,12 +201,10 @@ describe('Batch 2: notivisaSoftDelete', () => {
   // Permissions (3 tests)
   //   ✓ Admin only
   //   ✓ Permission denied → 403
-
   // Logic (4 tests)
   //   ✓ Stores status, deletedAt, deletedBy
   //   ✓ Reason enum validation
   //   ✓ Idempotent
-
   // Query filtering (2 tests)
   //   ✓ Firestore: deletedAt == null
 });
@@ -234,31 +220,25 @@ describe('NOTIVISA Integration Tests', () => {
   //   ✓ Create → Approve → Submit → Process → Acknowledge
   //   ✓ Audit trail captures all transitions
   //   ✓ Atomic Firestore writes
-
   // Error recovery (4 tests)
   //   ✓ Transient error retry
   //   ✓ Permanent error fail-fast
   //   ✓ Exponential backoff
   //   ✓ 24h escalation
-
   // Concurrency (3 tests)
   //   ✓ First submission wins
   //   ✓ First webhook wins
   //   ✓ Rate limiting
-
   // Data integrity (3 tests)
   //   ✓ CPF consistency
   //   ✓ Payload immutability
   //   ✓ Signature validation
-
   // Performance (3 tests)
   //   ✓ Draft creation <500ms
   //   ✓ Batch processing <5s
   //   ✓ Webhook <100ms
-
   // Smoke test seeding (1 test)
   //   ✓ 10 labs + 50 drafts
-
   // Rollback (1 test)
   //   ✓ Draft rejection, submission rollback
 });
@@ -272,10 +252,10 @@ The `__mocks__/soapClient.ts` provides a mock NOTIVISA SOAP API for Phase 4 test
 
 ```typescript
 enum SoapMockScenario {
-  SUCCESS = 'success',                  // 200 OK + receipt code
+  SUCCESS = 'success', // 200 OK + receipt code
   VALIDATION_ERROR = 'validation-error', // 400 Bad Request
-  TIMEOUT = 'timeout',                  // 504 Gateway Timeout
-  NETWORK_DOWN = 'network-down',        // ECONNREFUSED
+  TIMEOUT = 'timeout', // 504 Gateway Timeout
+  NETWORK_DOWN = 'network-down', // ECONNREFUSED
   MALFORMED_RESPONSE = 'malformed-response', // 5xx + invalid XML
 }
 ```
@@ -340,12 +320,12 @@ gcloud functions logs read --limit 100 --region southamerica-east1
 
 ## Phase Roadmap
 
-| Phase | Scope | Status |
-|-------|-------|--------|
-| Phase 4 (2026-05-20) | Sandbox mock API, all callables tested | ✓ Complete |
-| Phase 8 | SMS/email escalation, supervisor portal | Pending |
-| Phase 12 | Real SOAP API + mTLS cert, production integration | Pending |
-| Phase 13 | WebSocket real-time updates, analytics | Pending |
+| Phase                | Scope                                             | Status     |
+| -------------------- | ------------------------------------------------- | ---------- |
+| Phase 4 (2026-05-20) | Sandbox mock API, all callables tested            | ✓ Complete |
+| Phase 8              | SMS/email escalation, supervisor portal           | Pending    |
+| Phase 12             | Real SOAP API + mTLS cert, production integration | Pending    |
+| Phase 13             | WebSocket real-time updates, analytics            | Pending    |
 
 ## Known Limitations (Phase 4)
 

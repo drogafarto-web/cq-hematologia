@@ -14,11 +14,11 @@ import type { Timestamp } from 'firebase/firestore';
  * Five dimensions of anomaly detection
  */
 export type AnomalyDimension =
-  | 'operation_rarity'      // This operator doesn't typically do this action
-  | 'time_anomaly'          // Operation outside normal operating hours
-  | 'result_rarity'         // Result (pass/fail) deviates from historical pattern
-  | 'velocity'              // Burst of operations (e.g., 50 results in 5 min)
-  | 'module_jump';          // Operator switching modules unusually fast
+  | 'operation_rarity' // This operator doesn't typically do this action
+  | 'time_anomaly' // Operation outside normal operating hours
+  | 'result_rarity' // Result (pass/fail) deviates from historical pattern
+  | 'velocity' // Burst of operations (e.g., 50 results in 5 min)
+  | 'module_jump'; // Operator switching modules unusually fast
 
 /**
  * Score for a single dimension
@@ -26,8 +26,8 @@ export type AnomalyDimension =
  */
 export interface DimensionScore {
   dimension: AnomalyDimension;
-  score: number;           // 0-100
-  evidence: string;        // Human-readable explanation
+  score: number; // 0-100
+  evidence: string; // Human-readable explanation
 }
 
 /**
@@ -35,13 +35,13 @@ export interface DimensionScore {
  * Computed server-side from baseline model + current observation
  */
 export interface AnomalyScore {
-  entryId: string;         // Audit trail entry ID
-  labId: string;           // Multi-tenant isolation
-  operatorId: string;      // Which operator triggered it
-  overallScore: number;    // 0-100, weighted average of dimensions
+  entryId: string; // Audit trail entry ID
+  labId: string; // Multi-tenant isolation
+  operatorId: string; // Which operator triggered it
+  overallScore: number; // 0-100, weighted average of dimensions
   dimensions: DimensionScore[];
-  computedAt: number;      // Timestamp (ms) when computed
-  aiInsight?: string;      // Optional Gemini 2.5 Flash generated summary
+  computedAt: number; // Timestamp (ms) when computed
+  aiInsight?: string; // Optional Gemini 2.5 Flash generated summary
 }
 
 /**
@@ -51,11 +51,11 @@ export interface AnomalyScore {
 export interface BaselineModel {
   labId: string;
   operatorId: string;
-  operationCounts: Record<string, number>;  // actionType -> count
-  moduleFrequency: Record<string, number>;  // moduleId -> count
-  hourlyPattern: number[];                  // [0-23] distribution of operations by hour
-  totalEntries: number;                     // Total ops in baseline window
-  lastUpdatedAt: number;                    // Timestamp (ms)
+  operationCounts: Record<string, number>; // actionType -> count
+  moduleFrequency: Record<string, number>; // moduleId -> count
+  hourlyPattern: number[]; // [0-23] distribution of operations by hour
+  totalEntries: number; // Total ops in baseline window
+  lastUpdatedAt: number; // Timestamp (ms)
 }
 
 /**
@@ -75,14 +75,14 @@ export type AlertStatus = 'active' | 'investigating' | 'dismissed' | 'resolved';
 export interface AuditAlert {
   id: string;
   labId: string;
-  anomalyScore: AnomalyScore;  // Full context of the anomaly
-  severity: AlertSeverity;      // critical|high|medium
-  status: AlertStatus;          // active|dismissed|resolved
-  routedTo: string[];           // userIds of RT/auditor who can see this
-  createdAt: number;            // Timestamp (ms)
-  dismissedAt?: number;         // When marked dismissed
-  dismissedBy?: string;         // userId who dismissed it
-  dismissReason?: string;       // Optional context: "false positive", "investigated", etc.
+  anomalyScore: AnomalyScore; // Full context of the anomaly
+  severity: AlertSeverity; // critical|high|medium
+  status: AlertStatus; // active|dismissed|resolved
+  routedTo: string[]; // userIds of RT/auditor who can see this
+  createdAt: number; // Timestamp (ms)
+  dismissedAt?: number; // When marked dismissed
+  dismissedBy?: string; // userId who dismissed it
+  dismissReason?: string; // Optional context: "false positive", "investigated", etc.
 }
 
 /**
@@ -101,12 +101,12 @@ export type ReportFormat = 'pdf' | 'csv';
 export interface ReportFilter {
   labId: string;
   period: ReportPeriod;
-  startDate?: Date;              // For custom period
-  endDate?: Date;                // For custom period
-  modules?: string[];            // Filter by module IDs
-  operatorIds?: string[];        // Filter by operator UIDs
-  includeAnomalies: boolean;     // Include anomaly score summary
-  includeCompliance: boolean;    // Include RDC 978 / DICQ compliance score
+  startDate?: Date; // For custom period
+  endDate?: Date; // For custom period
+  modules?: string[]; // Filter by module IDs
+  operatorIds?: string[]; // Filter by operator UIDs
+  includeAnomalies: boolean; // Include anomaly score summary
+  includeCompliance: boolean; // Include RDC 978 / DICQ compliance score
 }
 
 /**
@@ -125,8 +125,8 @@ export interface AuditReport {
       high: number;
       medium: number;
     };
-    complianceScore: number;     // 0-100 based on RDC 978 / DICQ coverage
+    complianceScore: number; // 0-100 based on RDC 978 / DICQ coverage
   };
-  generatedAt: number;           // Timestamp (ms)
-  downloadUrl?: string;          // GCS signed URL for PDF/CSV blob
+  generatedAt: number; // Timestamp (ms)
+  downloadUrl?: string; // GCS signed URL for PDF/CSV blob
 }

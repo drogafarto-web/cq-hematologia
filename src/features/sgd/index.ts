@@ -1,6 +1,13 @@
-export { SGDView } from './SGDView'
-export { SGDViewer } from './components/SGDViewer'
-export { DriveImporterWizard } from './components/DriveImporterWizard'
-export { sgdService } from './services/sgdService'
-export { useSGDDocumentos, useSGDDocumento, useSGDAuditEvents } from './hooks/useSGDDocumentos'
-export type { SGDDocumento, DriveFile, ImportJob, DICABloco, LinkSuggestion, ModuleLink } from './types/SGDDocumento'
+export { SGDView } from './SGDView';
+export { SGDViewer } from './components/SGDViewer';
+export { DriveImporterWizard } from './components/DriveImporterWizard';
+export { sgdService } from './services/sgdService';
+export { useSGDDocumentos, useSGDDocumento, useSGDAuditEvents } from './hooks/useSGDDocumentos';
+export type {
+  SGDDocumento,
+  DriveFile,
+  ImportJob,
+  DICABloco,
+  LinkSuggestion,
+  ModuleLink,
+} from './types/SGDDocumento';

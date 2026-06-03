@@ -55,8 +55,7 @@ function sexLabel(value: Sex): string {
 }
 
 export function CriticosThresholdsAdmin() {
-  const { thresholds, isLoading, error, create, update, refresh } =
-    useCriticosThresholds();
+  const { thresholds, isLoading, error, create, update, refresh } = useCriticosThresholds();
 
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<CriticosThresholdRecord | null>(null);
@@ -78,19 +77,13 @@ export function CriticosThresholdsAdmin() {
     <div className="space-y-6">
       <header className="flex items-end justify-between">
         <div>
-          <h2 className="text-[15px] font-semibold tracking-tight text-white">
-            Limites críticos
-          </h2>
+          <h2 className="text-[15px] font-semibold tracking-tight text-white">Limites críticos</h2>
           <p className="mt-1 text-xs text-white/50">
-            Configuração por analito · faixa etária · sexo. Editável apenas por
-            RT, admin ou owner. Auditado automaticamente.
+            Configuração por analito · faixa etária · sexo. Editável apenas por RT, admin ou owner.
+            Auditado automaticamente.
           </p>
         </div>
-        <Button
-          variant="primary"
-          onClick={openCreate}
-          aria-label="Adicionar threshold"
-        >
+        <Button variant="primary" onClick={openCreate} aria-label="Adicionar threshold">
           <IconPlus />
           Novo threshold
         </Button>
@@ -167,28 +160,18 @@ function ThresholdGrid({
               >
                 <td className="px-4 py-3 align-top">
                   <div className="font-medium text-white">{t.analyteName}</div>
-                  <div className="font-mono text-[11px] text-white/40">
-                    {t.analyteId}
-                  </div>
+                  <div className="font-mono text-[11px] text-white/40">{t.analyteId}</div>
                 </td>
-                <td className="px-4 py-3 align-top text-white/70">
-                  {ageLabel(t.ageGroup)}
-                </td>
-                <td className="px-4 py-3 align-top text-white/70">
-                  {sexLabel(t.sex)}
-                </td>
-                <td className="px-4 py-3 text-right align-top">
-                  {fmt(t.panicLow, 'panic')}
-                </td>
+                <td className="px-4 py-3 align-top text-white/70">{ageLabel(t.ageGroup)}</td>
+                <td className="px-4 py-3 align-top text-white/70">{sexLabel(t.sex)}</td>
+                <td className="px-4 py-3 text-right align-top">{fmt(t.panicLow, 'panic')}</td>
                 <td className="px-4 py-3 text-right align-top">
                   {fmt(t.lowThreshold, 'critical')}
                 </td>
                 <td className="px-4 py-3 text-right align-top">
                   {fmt(t.highThreshold, 'critical')}
                 </td>
-                <td className="px-4 py-3 text-right align-top">
-                  {fmt(t.panicHigh, 'panic')}
-                </td>
+                <td className="px-4 py-3 text-right align-top">{fmt(t.panicHigh, 'panic')}</td>
                 <td className="px-4 py-3 align-top text-white/60">{t.unit}</td>
                 <td className="px-4 py-3 align-top text-right">
                   <button
@@ -226,12 +209,10 @@ function EmptyState({ onCreate }: { onCreate: () => void }) {
       <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-violet-500/10 text-violet-300">
         <IconPlus className="h-5 w-5" />
       </div>
-      <p className="mt-4 text-sm font-medium text-white">
-        Nenhum threshold configurado
-      </p>
+      <p className="mt-4 text-sm font-medium text-white">Nenhum threshold configurado</p>
       <p className="mt-1 text-xs text-white/50">
-        Defina os limites críticos por analito para que o sistema dispare
-        comunicação automática quando um resultado violar o intervalo.
+        Defina os limites críticos por analito para que o sistema dispare comunicação automática
+        quando um resultado violar o intervalo.
       </p>
       <div className="mt-6">
         <Button variant="primary" onClick={onCreate}>
@@ -275,12 +256,7 @@ interface FormState {
   notas: string;
 }
 
-function ThresholdEditor({
-  existing,
-  onClose,
-  onCreate,
-  onUpdate,
-}: EditorProps) {
+function ThresholdEditor({ existing, onClose, onCreate, onUpdate }: EditorProps) {
   const isEdit = existing !== null;
 
   const initial: FormState = useMemo(() => {
@@ -337,13 +313,10 @@ function ThresholdEditor({
           thresholdId: existing.id,
           unit: form.unit !== existing.unit ? form.unit : undefined,
           notas: form.notas === (existing.notas ?? '') ? undefined : form.notas || null,
-          panicLow: form.panicLow === '' ? null : parseNum(form.panicLow) ?? null,
-          lowThreshold:
-            form.lowThreshold === '' ? null : parseNum(form.lowThreshold) ?? null,
-          highThreshold:
-            form.highThreshold === '' ? null : parseNum(form.highThreshold) ?? null,
-          panicHigh:
-            form.panicHigh === '' ? null : parseNum(form.panicHigh) ?? null,
+          panicLow: form.panicLow === '' ? null : (parseNum(form.panicLow) ?? null),
+          lowThreshold: form.lowThreshold === '' ? null : (parseNum(form.lowThreshold) ?? null),
+          highThreshold: form.highThreshold === '' ? null : (parseNum(form.highThreshold) ?? null),
+          panicHigh: form.panicHigh === '' ? null : (parseNum(form.panicHigh) ?? null),
         };
         await onUpdate(updateInput);
       } else {
@@ -384,10 +357,7 @@ function ThresholdEditor({
         className="w-full max-w-xl rounded-xl border border-white/[0.08] bg-[#141417] shadow-[0_24px_60px_-12px_rgba(0,0,0,0.6)]"
       >
         <header className="flex items-center justify-between border-b border-white/[0.06] px-6 py-4">
-          <h3
-            id="th-editor-title"
-            className="text-[15px] font-semibold tracking-tight text-white"
-          >
+          <h3 id="th-editor-title" className="text-[15px] font-semibold tracking-tight text-white">
             {isEdit ? 'Editar threshold' : 'Novo threshold'}
           </h3>
           <button
@@ -405,9 +375,7 @@ function ThresholdEditor({
             <Field
               label="ID do analito"
               htmlFor="th-analyteId"
-              hint={
-                isEdit ? 'Imutável após criação' : 'Ex.: K, NA, GLU. Sem espaços.'
-              }
+              hint={isEdit ? 'Imutável após criação' : 'Ex.: K, NA, GLU. Sem espaços.'}
             >
               <input
                 id="th-analyteId"

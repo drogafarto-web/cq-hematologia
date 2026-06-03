@@ -160,9 +160,10 @@ export function computeCoagWestgard(
       const value = run.resultados[analyteId];
       const customMean = customStats?.mean?.[analyteId];
       const customSd = customStats?.sd?.[analyteId];
-      const stats = (customMean !== undefined && customSd !== undefined)
-        ? { mean: customMean, sd: customSd }
-        : getCoagStats(analyteId, nivel);
+      const stats =
+        customMean !== undefined && customSd !== undefined
+          ? { mean: customMean, sd: customSd }
+          : getCoagStats(analyteId, nivel);
       const history = historyByAnalyte[analyteId] ?? [];
 
       // Filtra apenas as regras configuradas para este analito

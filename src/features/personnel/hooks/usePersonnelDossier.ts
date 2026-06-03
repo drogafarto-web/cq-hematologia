@@ -6,7 +6,10 @@ import { useCallback, useEffect, useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
 import type { LabId, PersonnelDossier, PersonnelDossierEditable } from '../types';
-import { subscribePersonnelDossier, upsertPersonnelDossier } from '../services/personnelDossierService';
+import {
+  subscribePersonnelDossier,
+  upsertPersonnelDossier,
+} from '../services/personnelDossierService';
 
 interface UsePersonnelDossierResult {
   dossier: PersonnelDossier | null;

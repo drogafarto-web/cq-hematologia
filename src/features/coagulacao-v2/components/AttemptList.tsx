@@ -14,11 +14,17 @@ export function AttemptList({ labId, onAprovar, onRejeitar, onNotivisa }: Attemp
   const { attempts, isLoading } = useAttempts(labId);
 
   if (isLoading) {
-    return <div className="py-8 text-center text-sm text-[var(--cl-text-muted)]">Carregando...</div>;
+    return (
+      <div className="py-8 text-center text-sm text-[var(--cl-text-muted)]">Carregando...</div>
+    );
   }
 
   if (attempts.length === 0) {
-    return <div className="py-8 text-center text-sm text-[var(--cl-text-faint)]">Nenhuma tentativa registrada</div>;
+    return (
+      <div className="py-8 text-center text-sm text-[var(--cl-text-faint)]">
+        Nenhuma tentativa registrada
+      </div>
+    );
   }
 
   return (
@@ -29,7 +35,9 @@ export function AttemptList({ labId, onAprovar, onRejeitar, onNotivisa }: Attemp
           className="flex items-center justify-between rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] px-4 py-3"
         >
           <div className="flex items-center gap-4">
-            <span className="font-mono text-sm text-[var(--cl-text-faint)]">#{att.id.slice(0, 6)}</span>
+            <span className="font-mono text-sm text-[var(--cl-text-faint)]">
+              #{att.id.slice(0, 6)}
+            </span>
             <span className="text-sm text-[var(--cl-text-body)]">{att.controlOperacionalId}</span>
             <div className="flex gap-3 font-mono text-xs tabular-nums text-[var(--cl-text-muted)]">
               <span>AP {att.resultados.atividadeProtrombinica}%</span>

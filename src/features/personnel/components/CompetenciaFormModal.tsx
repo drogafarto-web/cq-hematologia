@@ -42,7 +42,9 @@ export function CompetenciaFormModal({
   const labId = useActiveLabId();
   const user = useUser();
 
-  const [colaboradorId, setColaboradorId] = useState(editing?.colaboradorId || prefilledColaboradorId || '');
+  const [colaboradorId, setColaboradorId] = useState(
+    editing?.colaboradorId || prefilledColaboradorId || '',
+  );
   const [colaboradorNome, setColaboradorNome] = useState(editing?.colaboradorNome || '');
   const [categoria, setCategoria] = useState<CategoriaCompetencia>(editing?.categoria || 'analito');
   const [itemId, setItemId] = useState(editing?.itemId || prefilledItemId || '');
@@ -61,8 +63,14 @@ export function CompetenciaFormModal({
   const handleSubmit = useCallback(async () => {
     if (!labId || !user) return;
 
-    if (!colaboradorNome.trim()) { setError('Nome do colaborador obrigatorio.'); return; }
-    if (!itemNome.trim()) { setError('Nome do item obrigatorio.'); return; }
+    if (!colaboradorNome.trim()) {
+      setError('Nome do colaborador obrigatorio.');
+      return;
+    }
+    if (!itemNome.trim()) {
+      setError('Nome do item obrigatorio.');
+      return;
+    }
 
     setError(null);
     setSubmitting(true);
@@ -91,7 +99,21 @@ export function CompetenciaFormModal({
     } finally {
       setSubmitting(false);
     }
-  }, [labId, user, colaboradorId, colaboradorNome, categoria, itemId, itemNome, nivel, dataUltimaAvaliacao, dataProximaAvaliacao, evidencia, editing, onSaved]);
+  }, [
+    labId,
+    user,
+    colaboradorId,
+    colaboradorNome,
+    categoria,
+    itemId,
+    itemNome,
+    nivel,
+    dataUltimaAvaliacao,
+    dataProximaAvaliacao,
+    evidencia,
+    editing,
+    onSaved,
+  ]);
 
   const handleDelete = useCallback(async () => {
     if (!labId || !editing) return;
@@ -122,7 +144,9 @@ export function CompetenciaFormModal({
           {/* Colaborador */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Colaborador (nome) *</label>
+              <label className="block text-xs font-medium text-white/50 mb-1">
+                Colaborador (nome) *
+              </label>
               <input
                 type="text"
                 value={colaboradorNome}
@@ -177,14 +201,26 @@ export function CompetenciaFormModal({
 
           {/* Nivel */}
           <div>
-            <label className="block text-xs font-medium text-white/50 mb-2">Nivel de competencia *</label>
+            <label className="block text-xs font-medium text-white/50 mb-2">
+              Nivel de competencia *
+            </label>
             <div className="grid grid-cols-2 gap-2">
-              {(['nao_habilitado', 'em_treinamento', 'habilitado', 'especialista'] as NivelCompetencia[]).map((n) => (
-                <label key={n} className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
-                  nivel === n
-                    ? 'border-violet-500/50 bg-violet-500/10'
-                    : 'border-white/[0.08] bg-white/[0.02] hover:border-white/[0.15]'
-                }`}>
+              {(
+                [
+                  'nao_habilitado',
+                  'em_treinamento',
+                  'habilitado',
+                  'especialista',
+                ] as NivelCompetencia[]
+              ).map((n) => (
+                <label
+                  key={n}
+                  className={`flex items-center gap-2 p-2.5 rounded-lg border cursor-pointer transition-all ${
+                    nivel === n
+                      ? 'border-violet-500/50 bg-violet-500/10'
+                      : 'border-white/[0.08] bg-white/[0.02] hover:border-white/[0.15]'
+                  }`}
+                >
                   <input
                     type="radio"
                     name="nivel"
@@ -203,7 +239,9 @@ export function CompetenciaFormModal({
           {/* Datas */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Ultima avaliacao</label>
+              <label className="block text-xs font-medium text-white/50 mb-1">
+                Ultima avaliacao
+              </label>
               <input
                 type="date"
                 value={dataUltimaAvaliacao}
@@ -213,7 +251,9 @@ export function CompetenciaFormModal({
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-white/50 mb-1">Proxima avaliacao</label>
+              <label className="block text-xs font-medium text-white/50 mb-1">
+                Proxima avaliacao
+              </label>
               <input
                 type="date"
                 value={dataProximaAvaliacao}
@@ -226,7 +266,9 @@ export function CompetenciaFormModal({
 
           {/* Evidencia */}
           <div>
-            <label className="block text-xs font-medium text-white/50 mb-1">Evidencia (texto ou URL)</label>
+            <label className="block text-xs font-medium text-white/50 mb-1">
+              Evidencia (texto ou URL)
+            </label>
             <textarea
               value={evidencia}
               onChange={(e) => setEvidencia(e.target.value)}
@@ -238,7 +280,9 @@ export function CompetenciaFormModal({
           </div>
 
           {error && (
-            <p className="text-xs text-red-400" role="alert">{error}</p>
+            <p className="text-xs text-red-400" role="alert">
+              {error}
+            </p>
           )}
         </div>
 

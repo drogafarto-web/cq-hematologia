@@ -102,25 +102,22 @@ export const scheduledVerifyBackupIntegrity = onSchedule(
 
     const ok = missingDates.length === 0 && failures.length === 0;
 
-    await db
-      .collection('firestore-backup-alerts')
-      .doc(today.toISOString().slice(0, 10))
-      .set({
-        windowDays: WINDOW_DAYS,
-        ok,
-        missingDates,
-        failures,
-        checkedCount: checked.length,
-        runAt: admin.firestore.Timestamp.now(),
-        projectId: PROJECT_ID,
-      });
+    await db.collection('firestore-backup-alerts').doc(today.toISOString().slice(0, 10)).set({
+      windowDays: WINDOW_DAYS,
+      ok,
+      missingDates,
+      failures,
+      checkedCount: checked.length,
+      runAt: admin.firestore.Timestamp.now(),
+      projectId: PROJECT_ID,
+    });
 
     if (!ok) {
       // ERROR severity in Cloud Logging — hooks alerting later.
-      console.error(
-        '[verifyBackupIntegrity] ALERT — backup window has gaps or failures.',
-        { missingDates, failures },
-      );
+      console.error('[verifyBackupIntegrity] ALERT — backup window has gaps or failures.', {
+        missingDates,
+        failures,
+      });
       throw new Error(
         `Backup integrity FAILED: ${missingDates.length} missing, ${failures.length} failed (last ${WINDOW_DAYS}d)`,
       );

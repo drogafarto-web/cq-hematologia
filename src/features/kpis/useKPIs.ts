@@ -14,7 +14,7 @@ export function useKPIs() {
       if (!labId) return () => {};
       return subscribeLatestKPI(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToKPIHistory = useCallback(
@@ -22,7 +22,7 @@ export function useKPIs() {
       if (!labId) return () => {};
       return subscribeKPIHistory(labId, days, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToAlerts = useCallback(
@@ -30,7 +30,7 @@ export function useKPIs() {
       if (!labId) return () => {};
       return subscribeActiveAlerts(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   return {

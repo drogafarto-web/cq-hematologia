@@ -38,7 +38,7 @@ class SugestaoService {
       status?: string;
       ordenarPor?: 'votos' | 'recencia';
       limit?: number;
-    }
+    },
   ): Promise<Sugestao[]> {
     const constraints: QueryConstraint[] = [
       where('labId', '==', labId),
@@ -72,7 +72,7 @@ class SugestaoService {
         ({
           id: doc.id,
           ...doc.data(),
-        } as Sugestao)
+        }) as Sugestao,
     );
 
     if (filters?.limit) {

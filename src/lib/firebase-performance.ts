@@ -113,7 +113,7 @@ export function reportCustomMetric(traceName: string, metricName: string, value:
  */
 export function checkMetricThreshold(
   metricName: string,
-  value: number
+  value: number,
 ): 'warning' | 'critical' | null {
   const warningKey = `${metricName}_WARNING` as keyof typeof PERFORMANCE_ALERT_THRESHOLDS;
   const criticalKey = `${metricName}_CRITICAL` as keyof typeof PERFORMANCE_ALERT_THRESHOLDS;

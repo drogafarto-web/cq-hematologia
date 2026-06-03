@@ -36,11 +36,7 @@ import { z } from 'zod';
 import { randomUUID } from 'crypto';
 
 import { writeAuditLog } from '../../../shared/audit/writeAuditLog';
-import {
-  ConsentScopeSchema,
-  consentDocRef,
-  ensureConsentsLabRoot,
-} from '../validators';
+import { ConsentScopeSchema, consentDocRef, ensureConsentsLabRoot } from '../validators';
 
 // ─── Schema ──────────────────────────────────────────────────────────────────
 
@@ -82,10 +78,7 @@ const BatchRecordConsentInputSchema = z.object({
   /** Default consentVersion applied when an entry omits it. */
   defaultConsentVersion: ConsentVersionSchema.default('lgpd-v1'),
   /** Default scope applied when an entry omits it. */
-  defaultScope: z
-    .array(ConsentScopeSchema)
-    .min(1)
-    .default(['ia-strip']),
+  defaultScope: z.array(ConsentScopeSchema).min(1).default(['ia-strip']),
   entries: z
     .array(BatchEntrySchema)
     .min(1, 'entries não pode ser vazio')
@@ -167,13 +160,8 @@ async function processEntry(
   }
 
   // 2. capturedBy is an active member.
-  const capturedBySnap = await db
-    .doc(`labs/${labId}/members/${entry.capturedBy}`)
-    .get();
-  if (
-    !capturedBySnap.exists ||
-    capturedBySnap.data()?.['active'] !== true
-  ) {
+  const capturedBySnap = await db.doc(`labs/${labId}/members/${entry.capturedBy}`).get();
+  if (!capturedBySnap.exists || capturedBySnap.data()?.['active'] !== true) {
     return {
       patientId: entry.patientId,
       ok: false,
@@ -210,8 +198,7 @@ async function processEntry(
   // 5. Upsert consent doc — same shape as recordPatientConsent.
   const ref = consentDocRef(db, labId, entry.patientId);
   const existingSnap = await ref.get();
-  const existingScope =
-    (existingSnap.data()?.['scope'] as string[] | undefined) ?? [];
+  const existingScope = (existingSnap.data()?.['scope'] as string[] | undefined) ?? [];
   const entryScope = entry.scope ?? defaults.scope;
   const mergedScope = Array.from(new Set([...existingScope, ...entryScope]));
 
@@ -244,7 +231,9 @@ async function processEntry(
     scope: mergedScope,
     lastUpdated: admin.firestore.FieldValue.serverTimestamp(),
     paperTrail: [...existingPaperTrail, paperTrailEntry],
-    source: existingSnap.exists ? existingSnap.data()?.['source'] ?? 'batch-backfill' : 'batch-backfill',
+    source: existingSnap.exists
+      ? (existingSnap.data()?.['source'] ?? 'batch-backfill')
+      : 'batch-backfill',
   };
 
   try {
@@ -268,10 +257,7 @@ export const consents_batchRecordConsent = onCall<unknown, Promise<BatchRecordCo
   async (request) => {
     const parsed = BatchRecordConsentInputSchema.safeParse(request.data);
     if (!parsed.success) {
-      throw new HttpsError(
-        'invalid-argument',
-        `Dados inválidos: ${parsed.error.message}`,
-      );
+      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
     }
     const input: BatchRecordConsentInput = parsed.data;
 

@@ -37,8 +37,7 @@ import type {
 } from '../types/CEQ';
 // ─── Collection Refs ─────────────────────────────────────────────────────────
 
-const getCEQParticipacaoRef = (labId: string) =>
-  collection(db, 'labs', labId, 'ceq-participacoes');
+const getCEQParticipacaoRef = (labId: string) => collection(db, 'labs', labId, 'ceq-participacoes');
 const getCEQAmostraRef = (labId: string) => collection(db, 'labs', labId, 'ceq-amostras');
 const getCEQResultadoRef = (labId: string) => collection(db, 'labs', labId, 'ceq-resultados');
 

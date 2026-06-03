@@ -11,8 +11,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-export const CT_ACCESS_DENIED_MSG =
-  'Sem permissão para este módulo — contate o administrador.';
+export const CT_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
 
 interface AuthDataLite {
   uid: string;
@@ -28,10 +27,7 @@ interface AuthDataLite {
  * Falhas viram `permission-denied` com mensagem padronizada + log
  * `[CT_ACCESS_DENIED]` em Cloud Logging.
  */
-export async function assertCtAccess(
-  auth: AuthDataLite | undefined,
-  labId: string,
-): Promise<void> {
+export async function assertCtAccess(auth: AuthDataLite | undefined, labId: string): Promise<void> {
   if (!auth) {
     throw new HttpsError('unauthenticated', 'Autenticação necessária.');
   }
@@ -50,10 +46,7 @@ export async function assertCtAccess(
     throw new HttpsError('permission-denied', CT_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[CT_ACCESS_DENIED]', {
       uid,
@@ -85,10 +78,7 @@ export function ctCollection(
   return db.collection(`controleTemperatura/${labId}/${name}`);
 }
 
-export async function ensureCtLabRoot(
-  db: admin.firestore.Firestore,
-  labId: string,
-): Promise<void> {
+export async function ensureCtLabRoot(db: admin.firestore.Firestore, labId: string): Promise<void> {
   const ref = ctLabRoot(db, labId);
   const snap = await ref.get();
   if (!snap.exists) {

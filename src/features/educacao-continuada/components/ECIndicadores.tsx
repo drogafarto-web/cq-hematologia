@@ -65,9 +65,8 @@ export function ECIndicadores({ ano = new Date().getFullYear() }: ECIndicadoresP
   const totalRealizadas = execucoesAno.filter((e) => e.status === 'realizado').length;
   const totalAdiadas = execucoesAno.filter((e) => e.status === 'adiado').length;
   const totalCanceladas = execucoesAno.filter((e) => e.status === 'cancelado').length;
-  const percRealizacao = totalExecPlanejadas > 0
-    ? Math.round((totalRealizadas / totalExecPlanejadas) * 100)
-    : 0;
+  const percRealizacao =
+    totalExecPlanejadas > 0 ? Math.round((totalRealizadas / totalExecPlanejadas) * 100) : 0;
 
   const eficazes = avaliacoesEficaciaAno.filter((a) => a.resultado === 'eficaz').length;
   const ineficazes = avaliacoesEficaciaAno.filter((a) => a.resultado === 'ineficaz').length;
@@ -77,13 +76,13 @@ export function ECIndicadores({ ano = new Date().getFullYear() }: ECIndicadoresP
   const ineficazesFechadas = avaliacoesEficaciaAno.filter(
     (a) => a.resultado === 'ineficaz' && a.dataFechamento !== null,
   );
-  const tempoMedioFechamentoMs = ineficazesFechadas.length > 0
-    ? ineficazesFechadas.reduce(
-        (sum, a) =>
-          sum + ((a.dataFechamento?.toMillis() ?? 0) - a.dataAvaliacao.toMillis()),
-        0,
-      ) / ineficazesFechadas.length
-    : 0;
+  const tempoMedioFechamentoMs =
+    ineficazesFechadas.length > 0
+      ? ineficazesFechadas.reduce(
+          (sum, a) => sum + ((a.dataFechamento?.toMillis() ?? 0) - a.dataAvaliacao.toMillis()),
+          0,
+        ) / ineficazesFechadas.length
+      : 0;
   const tempoMedioFechamentoDias = Math.round(tempoMedioFechamentoMs / (24 * 60 * 60 * 1000));
 
   const aprovados = avaliacoesCompetenciaAno.filter((a) => a.resultado === 'aprovado').length;
@@ -142,9 +141,7 @@ export function ECIndicadores({ ano = new Date().getFullYear() }: ECIndicadoresP
         />
         <MetricCard
           label="Fechamento FR-013"
-          value={
-            ineficazesFechadas.length > 0 ? `${tempoMedioFechamentoDias} d` : '—'
-          }
+          value={ineficazesFechadas.length > 0 ? `${tempoMedioFechamentoDias} d` : '—'}
           hint={
             ineficazesFechadas.length > 0
               ? `tempo médio em ${ineficazesFechadas.length} casos`
@@ -161,7 +158,9 @@ export function ECIndicadores({ ano = new Date().getFullYear() }: ECIndicadoresP
           label="Alertas"
           value={String(alertasIminentes.length + alertasVencidos.length)}
           hint={`${alertasVencidos.length} vencidos · ${alertasIminentes.length} iminentes`}
-          accent={alertasVencidos.length > 0 ? 'red' : alertasIminentes.length > 0 ? 'amber' : 'slate'}
+          accent={
+            alertasVencidos.length > 0 ? 'red' : alertasIminentes.length > 0 ? 'amber' : 'slate'
+          }
         />
       </div>
     </div>

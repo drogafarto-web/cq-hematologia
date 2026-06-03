@@ -23,16 +23,16 @@ export interface CIQComplianceMetrics {
   closedNCs: number;
 
   // Derived percentages
-  compliancePercent: number;    // (validRuns / totalRuns) * 100
-  ncResolutionRate: number;     // (closedNCs / (openNCs + closedNCs)) * 100
+  compliancePercent: number; // (validRuns / totalRuns) * 100
+  ncResolutionRate: number; // (closedNCs / (openNCs + closedNCs)) * 100
 
   // Timing
-  avgResolutionDays: number;    // average days from NC creation to closure
-  avgProcessingHours: number;   // average time from run creation to signing
+  avgResolutionDays: number; // average days from NC creation to closure
+  avgProcessingHours: number; // average time from run creation to signing
 
   // Metadata
-  computedAt: Date | null;      // timestamp of last aggregation
-  dataAsOf: Date | null;        // as-of timestamp for snapshot
+  computedAt: Date | null; // timestamp of last aggregation
+  dataAsOf: Date | null; // as-of timestamp for snapshot
 }
 
 /**
@@ -47,7 +47,7 @@ export interface AnalyticsMetadata {
   refreshIntervalMinutes: number; // typically 60
   isCached: boolean;
   cacheExpiresAt?: Date | null;
-  staleWarningMinutes?: number;   // warn if data >30min old
+  staleWarningMinutes?: number; // warn if data >30min old
 }
 
 /**
@@ -60,8 +60,8 @@ export interface AnalyticsQueryFilter {
   labId: string;
   startDate?: Date;
   endDate?: Date;
-  equipmentId?: string;          // Phase 3.2
-  operatorId?: string;           // Phase 3.2
+  equipmentId?: string; // Phase 3.2
+  operatorId?: string; // Phase 3.2
 }
 
 /**

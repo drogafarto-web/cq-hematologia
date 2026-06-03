@@ -14,11 +14,7 @@ interface LabApoioAvaliacaoProps {
   onCancel?: () => void;
 }
 
-export function LabApoioAvaliacao({
-  contratoNome,
-  onSubmit,
-  onCancel,
-}: LabApoioAvaliacaoProps) {
+export function LabApoioAvaliacao({ contratoNome, onSubmit, onCancel }: LabApoioAvaliacaoProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({

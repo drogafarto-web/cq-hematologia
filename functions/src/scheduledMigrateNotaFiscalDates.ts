@@ -38,11 +38,7 @@ export const scheduledMigrateNotaFiscalDates = functions.onSchedule(
           const { dataEmissao } = data;
 
           // Skip if already Timestamp (has _seconds field)
-          if (
-            dataEmissao &&
-            typeof dataEmissao === 'object' &&
-            '_seconds' in dataEmissao
-          ) {
+          if (dataEmissao && typeof dataEmissao === 'object' && '_seconds' in dataEmissao) {
             totalSkipped++;
             continue;
           }
@@ -51,27 +47,24 @@ export const scheduledMigrateNotaFiscalDates = functions.onSchedule(
           if (typeof dataEmissao === 'string') {
             try {
               const timestamp = admin.firestore.Timestamp.fromDate(
-                new Date(`${dataEmissao}T00:00:00`)
+                new Date(`${dataEmissao}T00:00:00`),
               );
               await notaDoc.ref.update({ dataEmissao: timestamp });
               totalMigrated++;
             } catch (err) {
               totalFailed++;
-              console.error(
-                `Failed to convert ${notaDoc.id} (${dataEmissao}):`,
-                err
-              );
+              console.error(`Failed to convert ${notaDoc.id} (${dataEmissao}):`, err);
             }
           }
         }
       }
 
       console.log(
-        `[scheduledMigrateNotaFiscalDates] Complete: ${totalMigrated} migrated, ${totalFailed} failed, ${totalSkipped} skipped`
+        `[scheduledMigrateNotaFiscalDates] Complete: ${totalMigrated} migrated, ${totalFailed} failed, ${totalSkipped} skipped`,
       );
     } catch (err) {
       console.error('[scheduledMigrateNotaFiscalDates] Error:', err);
       throw err;
     }
-  }
+  },
 );

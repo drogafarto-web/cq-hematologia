@@ -42,14 +42,11 @@ import { incrementVersao } from '../types/Documento';
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
-const colDocs = (labId: string) =>
-  collection(db, 'labs', labId, 'sgq-documentos');
+const colDocs = (labId: string) => collection(db, 'labs', labId, 'sgq-documentos');
 
-const colAudit = (labId: string) =>
-  collection(db, 'labs', labId, 'sgq-documentos-audit');
+const colAudit = (labId: string) => collection(db, 'labs', labId, 'sgq-documentos-audit');
 
-const docRef = (labId: string, id: string) =>
-  doc(db, 'labs', labId, 'sgq-documentos', id);
+const docRef = (labId: string, id: string) => doc(db, 'labs', labId, 'sgq-documentos', id);
 
 // ─── Mapping ─────────────────────────────────────────────────────────────────
 
@@ -344,11 +341,7 @@ export interface SoftDeleteArgs {
  * publicados — não permitir delete em `vigente`/`obsoleto` (auditor precisa
  * da trilha completa). Validação no hook.
  */
-export async function softDeleteDocumento({
-  labId,
-  id,
-  operator,
-}: SoftDeleteArgs): Promise<void> {
+export async function softDeleteDocumento({ labId, id, operator }: SoftDeleteArgs): Promise<void> {
   const now = serverTimestamp();
   const batch = writeBatch(db);
 
@@ -381,39 +374,37 @@ export function subscribeDocumentos(
   onError?: (err: Error) => void,
 ): () => void {
   // Sem orderBy composto — ordenação no client. Mantém indexação simples.
-  const q = query(
-    colDocs(labId),
-    where('deletadoEm', '==', null),
-    orderBy('criadoEm', 'desc'),
+  const q = query(colDocs(labId), where('deletadoEm', '==', null), orderBy('criadoEm', 'desc'));
+
+  return onSnapshot(
+    q,
+    (snap) => {
+      const all = snap.docs.map((d) => mapSnapshot(d.id, labId, d.data() as DocumentoSnapshot));
+
+      const filtered = all.filter((doc) => {
+        // Filtro por tipo
+        if (filters.tipo) {
+          const tipos = Array.isArray(filters.tipo) ? filters.tipo : [filters.tipo];
+          if (!tipos.includes(doc.tipo)) return false;
+        }
+
+        // Filtro por status
+        if (filters.status) {
+          const statuses = Array.isArray(filters.status) ? filters.status : [filters.status];
+          if (!statuses.includes(doc.status)) return false;
+        } else if (!filters.includeObsoletos) {
+          if (doc.status === 'obsoleto') return false;
+        }
+
+        return true;
+      });
+
+      callback(filtered);
+    },
+    (err) => {
+      onError?.(err);
+    },
   );
-
-  return onSnapshot(q, (snap) => {
-    const all = snap.docs.map((d) =>
-      mapSnapshot(d.id, labId, d.data() as DocumentoSnapshot),
-    );
-
-    const filtered = all.filter((doc) => {
-      // Filtro por tipo
-      if (filters.tipo) {
-        const tipos = Array.isArray(filters.tipo) ? filters.tipo : [filters.tipo];
-        if (!tipos.includes(doc.tipo)) return false;
-      }
-
-      // Filtro por status
-      if (filters.status) {
-        const statuses = Array.isArray(filters.status) ? filters.status : [filters.status];
-        if (!statuses.includes(doc.status)) return false;
-      } else if (!filters.includeObsoletos) {
-        if (doc.status === 'obsoleto') return false;
-      }
-
-      return true;
-    });
-
-    callback(filtered);
-  }, (err) => {
-    onError?.(err);
-  });
 }
 
 // ─── Validação de unicidade ──────────────────────────────────────────────────
@@ -427,11 +418,7 @@ export async function existeCodigoDuplicado(
   codigo: string,
   excludeId?: string,
 ): Promise<boolean> {
-  const q = query(
-    colDocs(labId),
-    where('codigo', '==', codigo),
-    where('deletadoEm', '==', null),
-  );
+  const q = query(colDocs(labId), where('codigo', '==', codigo), where('deletadoEm', '==', null));
   const snap = await getDocs(q);
   return snap.docs.some((d) => d.id !== excludeId);
 }
@@ -505,15 +492,19 @@ export function subscribeAuditDocumento(
     orderBy('timestamp', 'desc'),
   );
 
-  return onSnapshot(q, (snap) => {
-    const events = snap.docs.map((d) => ({
-      id: d.id,
-      ...(d.data() as Omit<DocumentoAuditEvent, 'id'>),
-    }));
-    callback(events);
-  }, (err) => {
-    onError?.(err);
-  });
+  return onSnapshot(
+    q,
+    (snap) => {
+      const events = snap.docs.map((d) => ({
+        id: d.id,
+        ...(d.data() as Omit<DocumentoAuditEvent, 'id'>),
+      }));
+      callback(events);
+    },
+    (err) => {
+      onError?.(err);
+    },
+  );
 }
 
 // ─── Google Docs integration ────────────────────────────────────────────────

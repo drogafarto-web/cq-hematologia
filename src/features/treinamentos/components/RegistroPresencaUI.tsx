@@ -10,16 +10,19 @@ export function RegistroPresencaUI({ treinamento }: RegistroPresencaUIProps) {
   const { registrarPresenca } = useTreinamentos();
   const [loading, setLoading] = useState(false);
 
-  const handleTogglePresenca = useCallback(async (participanteId: string, presente: boolean) => {
-    setLoading(true);
-    try {
-      await registrarPresenca(treinamento.id, participanteId, !presente);
-    } catch (err) {
-      console.error('Erro ao registrar presença:', err);
-    } finally {
-      setLoading(false);
-    }
-  }, [registrarPresenca, treinamento.id]);
+  const handleTogglePresenca = useCallback(
+    async (participanteId: string, presente: boolean) => {
+      setLoading(true);
+      try {
+        await registrarPresenca(treinamento.id, participanteId, !presente);
+      } catch (err) {
+        console.error('Erro ao registrar presença:', err);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [registrarPresenca, treinamento.id],
+  );
 
   return (
     <div className="space-y-4">

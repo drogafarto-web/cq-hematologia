@@ -13,6 +13,7 @@
 ### Core Entities
 
 **POP Interface:**
+
 - `id`, `labId`, `nome`, `codigo` (e.g., "POP-HEM-001")
 - **Content:** `conteudo` {markdown, pdfUrl, versaoDocumento}
 - **Versioning:** `versoes[]` (array of POPVersao)
@@ -21,6 +22,7 @@
 - **Scope:** `modulos[]` (which modules use: ['hematologia', 'imunologia'])
 
 **POPVersao Interface (Immutable after RT Signature):**
+
 - `numero` (string: "1.0", "1.1", "2.0")
 - `dataVigenciaInicio`, `dataVigenciaFim` (versioning window)
 - `hashConteudo` (SHA-256 of markdown/PDF, immutable)
@@ -31,10 +33,12 @@
 - `motivo_obsolescencia` (why marked obsolete)
 
 **POPVersaoRef (Immutable Reference in Runs):**
+
 - `popId`, `popVersaoNumero` (e.g., "1.1")
 - `assinadaPor`, `dataAssinatura` (denormalized for audit)
 
 **TreinamentoPOP (In Qualificacao Array):**
+
 - `popId`, `popVersaoNumero`
 - `dataConcluso`, `validoAte` (training expiration)
 - `certificado_url` (optional proof)
@@ -50,6 +54,7 @@ v1.0  (Initial release) → v1.1 (minor update) → v1.2 → v2.0 (major revisio
 ```
 
 **Rules:**
+
 - Operator can create new draft version (stored as `em_revisao`)
 - RT signs → version becomes `ativa`, previous `ativa` → `obsoleta`
 - Old `ativa` version remains queryable (immutable) for historical runs
@@ -57,6 +62,7 @@ v1.0  (Initial release) → v1.1 (minor update) → v1.2 → v2.0 (major revisio
 - Old operators can finish work on old version, but new work requires retraining
 
 **Auto-Obsolescence:**
+
 ```
 POP v1.0 (ativa)
    ↓ (RT signs v1.1)
@@ -72,11 +78,9 @@ POP v1.1 (ativa)    ← New operators must train on this
 
 1. **POP Released** (RT signs v1.1)
    - System notifies operators: "New POP v1.1 released. Training deadline: 30 days"
-   
-2. **Operator Completes Training** 
+2. **Operator Completes Training**
    - Record added to `Qualificacao.treinamentosPOP[]`
    - Entry: {popId, popVersaoNumero: "1.1", dataConcluso, validoAte: now+24months}
-   
 3. **Operator Uses POP in Run**
    - Check: `canOperadorUsarPOP(labId, uid, popId, "1.1")`
    - Verify training record exists + not expired
@@ -91,10 +95,12 @@ POP v1.1 (ativa)    ← New operators must train on this
 ### Enforcement Levels
 
 **Strict Mode (Recommended):**
+
 - Operator MUST be trained on current `ativa` version
 - Cannot use `obsoleta` versions
 
 **Grace Period (Optional, Weeks 1-4):**
+
 - Operators can use old or new version (dual-mode)
 - Messaging: "Please complete training on v1.1 by X date"
 
@@ -104,15 +110,16 @@ POP v1.1 (ativa)    ← New operators must train on this
 
 Each module adds `popValidator.checkTrainingValid()` before **run save**:
 
-| Module | Before Save | On Success | On Failure |
-|--------|-------------|-----------|-----------|
+| Module          | Before Save                                | On Success                           | On Failure                      |
+| --------------- | ------------------------------------------ | ------------------------------------ | ------------------------------- |
 | **Hematologia** | Check operator trained on current POP v{X} | Save run + denormalize popReferencia | Throw error "Training required" |
-| **Imunologia** | Same | Same | Same |
-| **Coagulacao** | Same | Same | Same |
-| **Uroanalise** | Same | Same | Same |
-| **Bioquimica** | Same | Same | Same |
+| **Imunologia**  | Same                                       | Same                                 | Same                            |
+| **Coagulacao**  | Same                                       | Same                                 | Same                            |
+| **Uroanalise**  | Same                                       | Same                                 | Same                            |
+| **Bioquimica**  | Same                                       | Same                                 | Same                            |
 
 **Denormalization in Run Doc:**
+
 ```typescript
 interface CIQRun {
   // ... existing fields ...
@@ -132,6 +139,7 @@ This is **immutable after creation** — links run to exact POP version used.
 ## Backfill Strategy (Retroactive POP Wire-In)
 
 ### Current State
+
 - 10,000+ existing CIQ runs (Hematologia, Imunologia, etc)
 - No `popReferencia` (POPs didn't exist in schema)
 - Runs reference procedures informally (operator knew which POP to use)
@@ -153,6 +161,7 @@ This is **immutable after creation** — links run to exact POP version used.
 ```
 
 **Safety Measures:**
+
 - Dry-run first on sample (1,000 runs)
 - This is denormalization only (no delete, no modify existing fields)
 - Operators can have null popReferencia for legacy runs (acceptable)
@@ -166,11 +175,11 @@ This is **immutable after creation** — links run to exact POP version used.
 match /labs/{labId}/pops/{popId} {
   // Read: anyone can view POPs
   allow read: if request.auth.uid != null;
-  
+
   // Create: admin/RT can create draft POPs
   allow create: if request.auth.uid != null &&
                    request.auth.token.admin == true;
-  
+
   // Update: RT can update (for new versions, set status, etc)
   allow update: if request.auth.uid != null &&
                    request.auth.token.responsavelTecnico == true;
@@ -178,9 +187,9 @@ match /labs/{labId}/pops/{popId} {
   // Versoes subcollection (immutable after RT signature)
   match /versoes/{vId} {
     allow read: if request.auth.uid != null;
-    
+
     allow create: if request.auth.uid != null;
-    
+
     allow update: if request.auth.uid != null &&
                      request.auth.token.responsavelTecnico == true &&
                      (request.resource.data.status == 'obsoleta' ||

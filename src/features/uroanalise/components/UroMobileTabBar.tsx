@@ -182,12 +182,7 @@ export const UroMobileTabBar = memo(function UroMobileTabBar({
     >
       <div className={`grid ${columnsClass}`}>
         {tabs.map((tab) => (
-          <TabButton
-            key={tab.key}
-            tab={tab}
-            isActive={tab.key === activeTab}
-            onSelect={onChange}
-          />
+          <TabButton key={tab.key} tab={tab} isActive={tab.key === activeTab} onSelect={onChange} />
         ))}
       </div>
     </nav>

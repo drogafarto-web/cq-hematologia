@@ -10,10 +10,7 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import {
-  countInsumosByProduto,
-  deleteProduto,
-} from '../services/produtoInsumoService';
+import { countInsumosByProduto, deleteProduto } from '../services/produtoInsumoService';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 
 interface ConfirmDeleteProdutoModalProps {
@@ -101,9 +98,9 @@ export function ConfirmDeleteProdutoModal({
             <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/30 text-xs text-amber-700 dark:text-amber-300 leading-relaxed">
               <p className="font-semibold mb-1">Exclusão bloqueada</p>
               <p>
-                {lotesCount} {lotesCount === 1 ? 'lote vinculado' : 'lotes vinculados'} a
-                este produto. Descarte ou remova os lotes primeiro pra preservar a cadeia
-                de rastreabilidade.
+                {lotesCount} {lotesCount === 1 ? 'lote vinculado' : 'lotes vinculados'} a este
+                produto. Descarte ou remova os lotes primeiro pra preservar a cadeia de
+                rastreabilidade.
               </p>
             </div>
           )}
@@ -113,8 +110,8 @@ export function ConfirmDeleteProdutoModal({
               <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/30 text-xs text-red-700 dark:text-red-300 leading-relaxed">
                 <p className="font-semibold mb-1">Ação permanente</p>
                 <p>
-                  O produto será removido definitivamente do catálogo. Nenhum lote está
-                  vinculado — operação segura em termos de integridade.
+                  O produto será removido definitivamente do catálogo. Nenhum lote está vinculado —
+                  operação segura em termos de integridade.
                 </p>
               </div>
 
@@ -131,8 +128,8 @@ export function ConfirmDeleteProdutoModal({
                   className="mt-0.5 w-4 h-4 rounded border-slate-300 dark:border-white/20 text-red-600 focus:ring-red-500"
                 />
                 <span className="text-xs text-slate-700 dark:text-white/70 leading-relaxed">
-                  Confirmo que quero excluir <strong>{produto.nomeComercial}</strong> do
-                  catálogo deste lab.
+                  Confirmo que quero excluir <strong>{produto.nomeComercial}</strong> do catálogo
+                  deste lab.
                 </span>
               </label>
             </>

@@ -1,8 +1,8 @@
 ---
 phase: 07-advanced-auditoria
-plan: "04"
+plan: '04'
 wave: 3
-label: "Functions and Hooks — COMPLETE"
+label: 'Functions and Hooks — COMPLETE'
 status: complete
 date: 2026-05-09T12:00:00Z
 ---
@@ -32,6 +32,7 @@ Firestore trigger that fires on creation of audit trail entries. Detects anomali
 - **LOC:** 112
 
 **Tests:** `functions/src/modules/qualidade/__tests__/cfAuditTrigger.test.ts`
+
 - Normal entry (no anomaly) ✅
 - Anomalous entry (score >= 0.85) ✅
 - Missing baseline (graceful degradation) ✅
@@ -57,6 +58,7 @@ React hook for real-time anomaly alerts dashboard. Subscribes to active alerts a
 - **LOC:** 99
 
 **Tests:** `src/features/qualidade/__tests__/useAnomalyAlerts.test.ts`
+
 - Subscribe to active alerts ✅
 - Real-time updates ✅
 - Dismiss alert via callable ✅
@@ -79,6 +81,7 @@ Server-side NLP summarization via Gemini 2.5 Flash for audit findings. Generates
 - **LOC:** 96
 
 **Tests:** `functions/src/shared/__tests__/nlpSummarizer.test.ts`
+
 - Successful Gemini summary ✅
 - Timeout → fallback ✅
 - Gemini error → fallback ✅
@@ -107,6 +110,7 @@ Callable Cloud Function for on-demand audit report generation. Aggregates audit 
 - **LOC:** 154
 
 **Tests:** `functions/src/modules/qualidade/__tests__/reportGenerator.test.ts`
+
 - Successful report generation ✅
 - Auth validation (unauthenticated) ✅
 - Role check (non-auditor rejection) ✅
@@ -133,6 +137,7 @@ React hook for on-demand report generation and download. Calls `generateAuditRep
 - **LOC:** 132
 
 **Tests:** `src/features/qualidade/__tests__/useAuditReportExport.test.ts`
+
 - Interface definition ✅
 - Default state initialization ✅
 - ReportFilter validation ✅
@@ -145,12 +150,14 @@ React hook for on-demand report generation and download. Calls `generateAuditRep
 ## Verification Results
 
 ### Type Checking
+
 ```bash
 npx tsc --noEmit
 ✅ 0 errors
 ```
 
 ### Build
+
 ```bash
 npm run build
 ✅ Build successful (36.18s)
@@ -161,26 +168,31 @@ npm run build
 ### Tests
 
 **SA-11 cfAuditTrigger.test.ts:**
+
 ```
 ✅ 5 tests passed
 ```
 
 **SA-12 useAnomalyAlerts.test.ts:**
+
 ```
 ✅ 5 tests passed
 ```
 
 **SA-13 nlpSummarizer.test.ts:**
+
 ```
 ✅ 5 tests passed
 ```
 
 **SA-14 reportGenerator.test.ts:**
+
 ```
 ✅ 5 tests passed
 ```
 
 **SA-15 useAuditReportExport.test.ts:**
+
 ```
 ✅ 6 tests passed
 ```
@@ -192,18 +204,22 @@ npm run build
 ## Architecture Summary
 
 ### Cloud Functions (Wave 3)
+
 - **cfAuditTrigger:** Firestore trigger → anomaly detection + alert generation
 - **reportGenerator:** Callable → audit report with NLP summary + export
 - Both handle graceful errors; never block audit trail persistence
 
 ### React Hooks (Wave 3)
+
 - **useAnomalyAlerts:** Real-time dashboard for active alerts + dismiss action
 - **useAuditReportExport:** Report generation + download trigger
 
 ### Shared Functions (Wave 3)
+
 - **nlpSummarizer:** Gemini-powered PT-BR summaries with template fallback
 
 ### Integration
+
 - Triggers feed into callable functions
 - Callables exposed to React hooks via `httpsCallable`
 - Download via Blob + `<a>` element
@@ -212,20 +228,21 @@ npm run build
 
 ## Compliance Coverage
 
-| Requirement | SA | Status |
-|---|---|---|
-| RDC 978 Art. 107 — Anomalies | SA-11, SA-14 | ✅ |
-| RDC 978 Art. 107 — Trail audit | SA-14, SA-15 | ✅ |
-| DICQ 4.4 — Monitoring | SA-11, SA-12 | ✅ |
-| DICQ 4.4 — Reporting | SA-14, SA-15 | ✅ |
-| PT-BR documentation | SA-13 | ✅ |
-| Graceful error handling | SA-11, SA-13 | ✅ |
+| Requirement                    | SA           | Status |
+| ------------------------------ | ------------ | ------ |
+| RDC 978 Art. 107 — Anomalies   | SA-11, SA-14 | ✅     |
+| RDC 978 Art. 107 — Trail audit | SA-14, SA-15 | ✅     |
+| DICQ 4.4 — Monitoring          | SA-11, SA-12 | ✅     |
+| DICQ 4.4 — Reporting           | SA-14, SA-15 | ✅     |
+| PT-BR documentation            | SA-13        | ✅     |
+| Graceful error handling        | SA-11, SA-13 | ✅     |
 
 ---
 
 ## Deliverables
 
 ### Files Created
+
 - `functions/src/modules/qualidade/cfAuditTrigger.ts` (112 LOC)
 - `functions/src/modules/qualidade/__tests__/cfAuditTrigger.test.ts` (165 LOC)
 - `src/features/qualidade/hooks/useAnomalyAlerts.ts` (99 LOC)
@@ -240,6 +257,7 @@ npm run build
 **Total:** 10 files, 1,297 LOC, 26 tests
 
 ### Architecture Conformance
+
 - All SAs ≤ 200 LOC ✅
 - All functions regional (southamerica-east1) ✅
 - Haiku-first design (simple, focused) ✅

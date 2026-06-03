@@ -6,10 +6,28 @@
  */
 
 export type TipoDocumento =
-  | 'MQ' | 'CDC' | 'PQ' | 'PQ-ANA' | 'PQ-EQP' | 'IT' | 'ITA' | 'FR' | 'POL'
-  | 'DC' | 'LM' | 'EXT'
-  | 'ROP' | 'AP' | 'EP' | 'DOC' | 'REL'
-  | 'CER' | 'AUD' | 'REC' | 'FORM' | 'OUT';
+  | 'MQ'
+  | 'CDC'
+  | 'PQ'
+  | 'PQ-ANA'
+  | 'PQ-EQP'
+  | 'IT'
+  | 'ITA'
+  | 'FR'
+  | 'POL'
+  | 'DC'
+  | 'LM'
+  | 'EXT'
+  | 'ROP'
+  | 'AP'
+  | 'EP'
+  | 'DOC'
+  | 'REL'
+  | 'CER'
+  | 'AUD'
+  | 'REC'
+  | 'FORM'
+  | 'OUT';
 
 interface TipoDocumentoBadgeProps {
   tipo: TipoDocumento;
@@ -18,18 +36,21 @@ interface TipoDocumentoBadgeProps {
   tooltip?: boolean;
 }
 
-const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; description: string }> = {
-  'MQ': {
+const TIPO_CONFIG: Record<
+  TipoDocumento,
+  { label: string; colorClass: string; description: string }
+> = {
+  MQ: {
     label: 'MQ',
     colorClass: 'bg-yellow-700/90 text-yellow-100',
     description: 'Manual da Qualidade',
   },
-  'CDC': {
+  CDC: {
     label: 'CDC',
     colorClass: 'bg-amber-600/90 text-amber-100',
     description: 'Código de Ética e Conduta',
   },
-  'PQ': {
+  PQ: {
     label: 'PQ',
     colorClass: 'bg-blue-700/90 text-blue-100',
     description: 'Procedimento de Qualidade',
@@ -44,87 +65,87 @@ const TIPO_CONFIG: Record<TipoDocumento, { label: string; colorClass: string; de
     colorClass: 'bg-cyan-700/90 text-cyan-100',
     description: 'Procedimento da Qualidade - Equipamentos',
   },
-  'IT': {
+  IT: {
     label: 'IT',
     colorClass: 'bg-emerald-700/90 text-emerald-100',
     description: 'Instrução Técnica',
   },
-  'ITA': {
+  ITA: {
     label: 'ITA',
     colorClass: 'bg-indigo-700/90 text-indigo-100',
     description: 'Instrução Técnica Analítica',
   },
-  'FR': {
+  FR: {
     label: 'FR',
     colorClass: 'bg-orange-700/90 text-orange-100',
     description: 'Formulário/Registro',
   },
-  'POL': {
+  POL: {
     label: 'POL',
     colorClass: 'bg-purple-700/90 text-purple-100',
     description: 'Política',
   },
-  'DC': {
+  DC: {
     label: 'DC',
     colorClass: 'bg-slate-700/90 text-slate-100',
     description: 'Descrição de Cargos',
   },
-  'LM': {
+  LM: {
     label: 'LM',
     colorClass: 'bg-fuchsia-700/90 text-fuchsia-100',
     description: 'Lista Mestra',
   },
-  'EXT': {
+  EXT: {
     label: 'EXT',
     colorClass: 'bg-slate-600/90 text-slate-200',
     description: 'Documento Externo',
   },
-  'ROP': {
+  ROP: {
     label: 'ROP',
     colorClass: 'bg-indigo-600/90 text-indigo-100',
     description: 'Relatório Operacional',
   },
-  'AP': {
+  AP: {
     label: 'AP',
     colorClass: 'bg-rose-700/90 text-rose-100',
     description: 'Análise de Processo',
   },
-  'EP': {
+  EP: {
     label: 'EP',
     colorClass: 'bg-teal-700/90 text-teal-100',
     description: 'Evidência de Processo',
   },
-  'DOC': {
+  DOC: {
     label: 'DOC',
     colorClass: 'bg-gray-700/90 text-gray-100',
     description: 'Documento Geral',
   },
-  'REL': {
+  REL: {
     label: 'REL',
     colorClass: 'bg-violet-700/90 text-violet-100',
     description: 'Relatório',
   },
-  'CER': {
+  CER: {
     label: 'CER',
     colorClass: 'bg-amber-700/90 text-amber-100',
     description: 'Certificado',
   },
-  'AUD': {
+  AUD: {
     label: 'AUD',
     colorClass: 'bg-teal-600/90 text-teal-100',
     description: 'Auditoria',
   },
-  'REC': {
+  REC: {
     label: 'REC',
     colorClass: 'bg-lime-700/90 text-lime-100',
     description: 'Recomendação',
   },
-  'FORM': {
+  FORM: {
     label: 'FORM',
     colorClass: 'bg-pink-700/90 text-pink-100',
     description: 'Formulário',
   },
-  'OUT': {
+  OUT: {
     label: 'OUT',
     colorClass: 'bg-neutral-600/90 text-neutral-200',
     description: 'Outro',
@@ -157,10 +178,7 @@ export function TipoDocumentoBadge({
   if (!tooltip) return badge;
 
   return (
-    <div
-      className="group relative inline-block"
-      title={config.description}
-    >
+    <div className="group relative inline-block" title={config.description}>
       {badge}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
         <div className="bg-[#141417] text-white text-xs rounded px-2 py-1 whitespace-nowrap border border-white/10 shadow-lg">

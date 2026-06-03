@@ -75,7 +75,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
       };
       reader.readAsDataURL(f);
     },
-    [validateFile]
+    [validateFile],
   );
 
   // Drag handlers
@@ -102,7 +102,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
         handleFileSelect(files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   // Handle click-to-select
@@ -116,7 +116,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
         handleFileSelect(e.target.files[0]);
       }
     },
-    [handleFileSelect]
+    [handleFileSelect],
   );
 
   // Call Gemini parser
@@ -150,9 +150,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
           setResult(response.data);
           onParsed?.(response.data);
         } catch (err: any) {
-          setError(
-            err.message || 'Falha ao analisar imagem via Gemini'
-          );
+          setError(err.message || 'Falha ao analisar imagem via Gemini');
         } finally {
           setIsLoading(false);
         }
@@ -172,9 +170,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
   }, [preview]);
 
   // Respect prefers-reduced-motion
-  const supportsReducedMotion = window.matchMedia(
-    '(prefers-reduced-motion: reduce)'
-  ).matches;
+  const supportsReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   return (
     <div className="space-y-4">
@@ -211,9 +207,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
               <p className="text-white font-medium">Arrastar tira imunológica aqui</p>
               <p className="text-white/50 text-sm mt-1">ou clicar para selecionar</p>
             </div>
-            <p className="text-white/40 text-xs">
-              PNG ou JPEG, máximo {MAX_FILE_SIZE_MB} MB
-            </p>
+            <p className="text-white/40 text-xs">PNG ou JPEG, máximo {MAX_FILE_SIZE_MB} MB</p>
           </div>
           <input
             ref={fileInputRef}
@@ -241,8 +235,7 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
               <span className="font-medium">Arquivo:</span> {file.name}
             </p>
             <p className="text-white/70 text-sm">
-              <span className="font-medium">Tamanho:</span>{' '}
-              {(file.size / 1024).toFixed(1)} KB
+              <span className="font-medium">Tamanho:</span> {(file.size / 1024).toFixed(1)} KB
             </p>
           </div>
         </div>
@@ -284,12 +277,8 @@ export default function IAStripUpload({ labId, expectedAnalytes, onParsed }: Pro
       {result && (
         <div className="space-y-4">
           <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/10 p-4">
-            <p className="text-emerald-300 text-sm font-medium">
-              ✓ Análise concluída com sucesso
-            </p>
-            <p className="text-white/50 text-xs mt-1">
-              Modelo: {result.modelVersion}
-            </p>
+            <p className="text-emerald-300 text-sm font-medium">✓ Análise concluída com sucesso</p>
+            <p className="text-white/50 text-xs mt-1">Modelo: {result.modelVersion}</p>
           </div>
 
           {/* Results table */}

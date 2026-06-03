@@ -68,9 +68,7 @@ export function IndicadoresTab() {
 
       <ECIndicadores ano={ano} />
 
-      {relatorio && (
-        <ECRelatorioPrint payload={relatorio} onClose={() => setRelatorio(null)} />
-      )}
+      {relatorio && <ECRelatorioPrint payload={relatorio} onClose={() => setRelatorio(null)} />}
     </div>
   );
 }

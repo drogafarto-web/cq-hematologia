@@ -6,7 +6,11 @@
  */
 
 import React, { useEffect, useState } from 'react';
-import { initializePatientAuthStore, usePatientSession, useIsTokenExpired } from './hooks/usePatientAuthStore';
+import {
+  initializePatientAuthStore,
+  usePatientSession,
+  useIsTokenExpired,
+} from './hooks/usePatientAuthStore';
 import { PortalAuthLink } from './components/PortalAuthLink';
 import { PatientAuthForm } from './components/PatientAuthForm';
 import { PatientDashboard } from './components/PatientDashboard';

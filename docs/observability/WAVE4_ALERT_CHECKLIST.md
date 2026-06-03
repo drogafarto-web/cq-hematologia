@@ -9,14 +9,14 @@
 
 ## Policy Activation Status
 
-| Policy | Name | Severity | Status | Notification Channels | Notes |
-|--------|------|----------|--------|----------------------|-------|
-| **A1** | Audit log fallback engaged | WARNING | **ACTIVE** | oncall-eng (Slack) | Fires when writeAuditLog fails >3× in 1h. RDC 978 Art. 128 compliance. |
-| **A2** | Críticos SLA breach | ERROR | **PENDING** | rt-clinical, oncall-eng | Requires `criticosSlaProbe` custom metric from Wave 3. Draft policy at `A2-criticos-sla.json`. |
-| **A3** | IA-strip consent gate violation | ERROR | **ACTIVE** | dpo, rt-clinical (Slack) | Fires when consentGate rejects request (no LGPD consent). LGPD Art. 9 compliance. |
-| **A4** | HMAC chain break | CRITICAL | **ACTIVE** | cto, rt-clinical (PagerDuty) | Single occurrence = P0 incident. RDC 978 Art. 128 + ADR-0017 compliance. 5-min CTO ack SLA. |
-| **A5** | Twilio SMS failure rate | WARNING | **PENDING** | oncall-eng | Requires `twilio_sms_failures` + `twilio_sms_attempts` log-based metrics from Wave 3. |
-| **A6** | Gemini call without consent | CRITICAL | **PENDING** | dpo, cto | Belt-and-suspenders to A3. Requires `geminiEgressAudit` custom metric from Wave 3. LGPD Art. 9 + Art. 48. |
+| Policy | Name                            | Severity | Status      | Notification Channels        | Notes                                                                                                     |
+| ------ | ------------------------------- | -------- | ----------- | ---------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **A1** | Audit log fallback engaged      | WARNING  | **ACTIVE**  | oncall-eng (Slack)           | Fires when writeAuditLog fails >3× in 1h. RDC 978 Art. 128 compliance.                                    |
+| **A2** | Críticos SLA breach             | ERROR    | **PENDING** | rt-clinical, oncall-eng      | Requires `criticosSlaProbe` custom metric from Wave 3. Draft policy at `A2-criticos-sla.json`.            |
+| **A3** | IA-strip consent gate violation | ERROR    | **ACTIVE**  | dpo, rt-clinical (Slack)     | Fires when consentGate rejects request (no LGPD consent). LGPD Art. 9 compliance.                         |
+| **A4** | HMAC chain break                | CRITICAL | **ACTIVE**  | cto, rt-clinical (PagerDuty) | Single occurrence = P0 incident. RDC 978 Art. 128 + ADR-0017 compliance. 5-min CTO ack SLA.               |
+| **A5** | Twilio SMS failure rate         | WARNING  | **PENDING** | oncall-eng                   | Requires `twilio_sms_failures` + `twilio_sms_attempts` log-based metrics from Wave 3.                     |
+| **A6** | Gemini call without consent     | CRITICAL | **PENDING** | dpo, cto                     | Belt-and-suspenders to A3. Requires `geminiEgressAudit` custom metric from Wave 3. LGPD Art. 9 + Art. 48. |
 
 ---
 
@@ -26,7 +26,7 @@
 
 - [ ] Slack channel `#alerts-prod` (or equivalent) — must exist
 - [ ] Slack channel for RT clinical escalations
-- [ ] Slack channel for DPO escalations  
+- [ ] Slack channel for DPO escalations
 - [ ] PagerDuty integration for CTO (on-call)
 
 **If channels don't exist, create them first:**
@@ -118,21 +118,25 @@ gcloud alpha monitoring policies describe <policy-name> --project=hmatologia2 | 
 For each policy, paste its log filter into Cloud Logs Explorer and verify results:
 
 **A1 filter:**
+
 ```
 resource.type="cloud_function" AND resource.labels.region="southamerica-east1" AND severity="ERROR" AND textPayload:"[writeAuditLog] FAILED after retries"
 ```
 
 **A3 filter:**
+
 ```
 resource.type="cloud_function" AND resource.labels.function_name="classifyStripGemini" AND severity="ERROR" AND (textPayload:"consent-not-captured" OR jsonPayload.message:"consent-not-captured")
 ```
 
 **A4 filter:**
+
 ```
 resource.type="cloud_function" AND severity="ERROR" AND (textPayload:"[generateChainHash] previous hash mismatch" OR textPayload:"[verifyChainHash] mismatch" OR textPayload:"chain-hash-mismatch")
 ```
 
 If no logs appear, either:
+
 - The functions haven't been invoked yet (expected in early staging)
 - The filter syntax is wrong (see Cloud Logs Explorer for exact syntax)
 - The severity/resource labels don't match (debug with `gcloud logging read`)
@@ -140,17 +144,20 @@ If no logs appear, either:
 ### 4. Test alert firing (manual)
 
 For **A1** (audit log fallback):
+
 - Trigger a write failure in one of the audit logging functions
 - Check Cloud Logs for the error pattern within 2-5 minutes
 - Verify notification appears in Slack
 
 For **A3** (consent gate):
+
 - Call the `classifyStripGemini` function WITHOUT capturing LGPD consent first
 - Verify `consentGate` throws `HttpsError('failed-precondition', 'consent-not-captured')`
 - Check Cloud Logs for the error pattern
 - Verify notification appears in Slack
 
 For **A4** (HMAC chain break):
+
 - **DO NOT trigger manually** (it would indicate tampering).
 - This alert is verified only when actual audit writes occur naturally in production.
 - If it fires, immediate escalation to CTO required (see runbook).
@@ -281,6 +288,6 @@ gcloud alpha monitoring policies update <policy-name> \
 **Activation Date:** 2026-05-08  
 **Agent:** Wave 4 Agent 7  
 **Status:** A1, A3, A4 activated and verified  
-**Pending:** A2, A5, A6 (waiting for Wave 3 metrics)  
+**Pending:** A2, A5, A6 (waiting for Wave 3 metrics)
 
 See `proposed-changes/wave4-7-cloud-logs-alerts.md` for full deployment report.

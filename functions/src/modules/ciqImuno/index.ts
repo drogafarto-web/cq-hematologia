@@ -18,10 +18,7 @@ export {
   type RecommendedAction,
 } from './classifyStripGemini';
 
-export {
-  recordManualOverride,
-  flagForManualReview,
-} from './confidenceValidation';
+export { recordManualOverride, flagForManualReview } from './confidenceValidation';
 
 export {
   calculateAccuracy,
@@ -31,13 +28,9 @@ export {
   type TestKit,
 } from './accuracyCalculator';
 
-export {
-  collectIADataset,
-} from './collectIADataset';
+export { collectIADataset } from './collectIADataset';
 
-export {
-  handleMLTeamFeedback,
-} from './handleMLTeamFeedback';
+export { handleMLTeamFeedback } from './handleMLTeamFeedback';
 
 export {
   classifyStripImage,

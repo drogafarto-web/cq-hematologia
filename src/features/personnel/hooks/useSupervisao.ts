@@ -20,7 +20,12 @@ export interface UseSupervisaoResult {
   loading: boolean;
   error: Error | null;
   create: (input: SupervisaoInput) => Promise<string>;
-  update: (id: string, updates: Partial<Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>>) => Promise<void>;
+  update: (
+    id: string,
+    updates: Partial<
+      Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>
+    >,
+  ) => Promise<void>;
   remove: (id: string) => Promise<void>;
 }
 
@@ -64,7 +69,12 @@ export function useSupervisao(): UseSupervisaoResult {
   );
 
   const update = useCallback(
-    async (id: string, updates: Partial<Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>>) => {
+    async (
+      id: string,
+      updates: Partial<
+        Pick<SupervisaoRegistro, 'status' | 'checklistConcluido' | 'dataLiberacao' | 'observacoes'>
+      >,
+    ) => {
       if (!labId) throw new Error('Lab não selecionado.');
       return updateSupervisao(labId, id, updates);
     },

@@ -28,10 +28,7 @@ export function useInsumos(filters: InsumoFilters = {}): UseInsumosResult {
 
   // Serializa filtros para usar como dep de useEffect — evita re-subscribe
   // sempre que o caller constrói um novo literal de objeto por render.
-  const filterKey = useMemo(
-    () => JSON.stringify(filters),
-    [filters],
-  );
+  const filterKey = useMemo(() => JSON.stringify(filters), [filters]);
 
   // Guard + subscription pattern — ver useCIQLots para justificativa.
   /* eslint-disable react-hooks/set-state-in-effect */

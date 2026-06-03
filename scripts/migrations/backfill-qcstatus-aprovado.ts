@@ -170,24 +170,18 @@ async function main() {
     const adrContent = fs.readFileSync(adrPath, 'utf8');
     const previewHash = sha256File(args.previewFile);
     if (!adrContent.includes(previewHash)) {
-      console.error(
-        `SHA-256 do preview (${previewHash}) não encontrado no ADR. Abort.`,
-      );
+      console.error(`SHA-256 do preview (${previewHash}) não encontrado no ADR. Abort.`);
       process.exit(1);
     }
     ownerInfo = await verifyOwner(args.ownerUid);
-    console.log(
-      `[backfill] verificações OK · adr=${adrPath} · ownerRole=${ownerInfo.role}`,
-    );
+    console.log(`[backfill] verificações OK · adr=${adrPath} · ownerRole=${ownerInfo.role}`);
   }
 
   const adrSHA256 = fs.existsSync(adrPath) ? sha256File(adrPath) : '';
 
   // ── Coleta candidatos ─────────────────────────────────────────────────────
   console.log(`[backfill] lendo insumos lab=${args.labId}…`);
-  const insumosSnap = await db
-    .collection(`labs/${args.labId}/insumos`)
-    .get();
+  const insumosSnap = await db.collection(`labs/${args.labId}/insumos`).get();
 
   const entries: PreviewEntry[] = [];
 
@@ -286,8 +280,10 @@ async function main() {
     fs.appendFileSync(file, `\n// sha256:${hash}\n`);
     console.log(`[backfill][dry-run] preview gravado em ${file}`);
     console.log(`[backfill][dry-run] sha256:${hash}`);
-    console.log(`[backfill][dry-run] Total ${baseLog.summary.total}; ` +
-      `migrate=${baseLog.summary.migrate}; skipped=${baseLog.summary.skipped}`);
+    console.log(
+      `[backfill][dry-run] Total ${baseLog.summary.total}; ` +
+        `migrate=${baseLog.summary.migrate}; skipped=${baseLog.summary.skipped}`,
+    );
     return;
   }
 
@@ -346,10 +342,7 @@ async function main() {
   }
 
   const file = `migration-log-${args.labId}-${todayStr()}.applied.json`;
-  fs.writeFileSync(
-    file,
-    JSON.stringify({ ...baseLog, applied, runMode: 'apply' }, null, 2),
-  );
+  fs.writeFileSync(file, JSON.stringify({ ...baseLog, applied, runMode: 'apply' }, null, 2));
   console.log(`[backfill][apply] gravado ${applied} qualificações migradas`);
   console.log(`[backfill][apply] log em ${file}`);
 }

@@ -61,14 +61,13 @@ export function ListaMestraTable({
   const filtered = useMemo(() => {
     let result = [...documentos];
 
-    if (filters.tipo) result = result.filter(d => d.tipo === filters.tipo);
-    if (filters.status) result = result.filter(d => d.status === filters.status);
-    if (filters.setor) result = result.filter(d => d.setoresLD.includes(filters.setor || ''));
+    if (filters.tipo) result = result.filter((d) => d.tipo === filters.tipo);
+    if (filters.status) result = result.filter((d) => d.status === filters.status);
+    if (filters.setor) result = result.filter((d) => d.setoresLD.includes(filters.setor || ''));
     if (filters.searchText) {
       const q = filters.searchText.toLowerCase();
-      result = result.filter(d =>
-        d.codigo.toLowerCase().includes(q) ||
-        d.titulo.toLowerCase().includes(q)
+      result = result.filter(
+        (d) => d.codigo.toLowerCase().includes(q) || d.titulo.toLowerCase().includes(q),
       );
     }
 
@@ -76,7 +75,7 @@ export function ListaMestraTable({
       const now = new Date();
       const daysAgo = filters.period === '7d' ? 7 : filters.period === '30d' ? 30 : 90;
       const cutoff = new Date(now.getTime() - daysAgo * 24 * 60 * 60 * 1000);
-      result = result.filter(d => d.ultimaAtualizacao >= cutoff);
+      result = result.filter((d) => d.ultimaAtualizacao >= cutoff);
     }
 
     return result.sort((a, b) => b.ultimaAtualizacao.getTime() - a.ultimaAtualizacao.getTime());
@@ -85,7 +84,7 @@ export function ListaMestraTable({
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginatedDocs = filtered.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
+    currentPage * ITEMS_PER_PAGE,
   );
 
   if (loading) {
@@ -119,14 +118,30 @@ export function ListaMestraTable({
         <table className="w-full text-sm">
           <thead>
             <tr className="bg-white/5 border-b border-white/10">
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Código</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Tipo</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Título</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Status</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-white/70 uppercase tracking-wide">Vers.</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Distribuído</th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">Última Atualização</th>
-              <th className="px-4 py-3 text-center text-xs font-semibold text-white/70 uppercase tracking-wide">Ação</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Código
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Tipo
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Título
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Status
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Vers.
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Distribuído
+              </th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Última Atualização
+              </th>
+              <th className="px-4 py-3 text-center text-xs font-semibold text-white/70 uppercase tracking-wide">
+                Ação
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -136,7 +151,9 @@ export function ListaMestraTable({
                 className="border-b border-white/5 hover:bg-white/[0.03] transition-colors duration-150 cursor-pointer"
                 onClick={() => onDocumentClick?.(doc.id)}
               >
-                <td className="px-4 py-3 text-white font-mono text-xs tabular-nums">{doc.codigo ?? ''}</td>
+                <td className="px-4 py-3 text-white font-mono text-xs tabular-nums">
+                  {doc.codigo ?? ''}
+                </td>
                 <td className="px-4 py-3">
                   <TipoDocumentoBadge tipo={doc.tipo as any} showLabel tooltip />
                 </td>
@@ -144,12 +161,17 @@ export function ListaMestraTable({
                 <td className="px-4 py-3">
                   <StatusVigenciaBadge status={doc.status} showLabel tooltip={false} />
                 </td>
-                <td className="px-4 py-3 text-white text-center font-mono tabular-nums">v{doc.versao}</td>
+                <td className="px-4 py-3 text-white text-center font-mono tabular-nums">
+                  v{doc.versao}
+                </td>
                 <td className="px-4 py-3 text-white text-xs">
                   {doc.setoresLD.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
-                      {doc.setoresLD.slice(0, 2).map(s => (
-                        <span key={s} className="inline-block bg-white/10 px-2 py-1 rounded text-xs">
+                      {doc.setoresLD.slice(0, 2).map((s) => (
+                        <span
+                          key={s}
+                          className="inline-block bg-white/10 px-2 py-1 rounded text-xs"
+                        >
                           {s.split(' ')[0]}
                         </span>
                       ))}

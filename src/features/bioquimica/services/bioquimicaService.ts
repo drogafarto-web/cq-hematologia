@@ -43,14 +43,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type {
-  Analito,
-  ControlMaterial,
-  EquipmentId,
-  LabId,
-  Run,
-  UserId,
-} from '../types';
+import type { Analito, ControlMaterial, EquipmentId, LabId, Run, UserId } from '../types';
 
 // ─── Paths ─────────────────────────────────────────────────────────────────
 
@@ -77,8 +70,7 @@ const configDoc = (labId: LabId, singleton = 'main'): DocumentReference =>
 const analitoDoc = (labId: LabId, analitoId: string): DocumentReference =>
   doc(analitosCol(labId), analitoId);
 
-const lotDoc = (labId: LabId, lotId: string): DocumentReference =>
-  doc(lotesCol(labId), lotId);
+const lotDoc = (labId: LabId, lotId: string): DocumentReference => doc(lotesCol(labId), lotId);
 
 /**
  * Garante que o doc raiz `/labs/{labId}/bioquimica/root` existe antes de
@@ -90,11 +82,7 @@ const lotDoc = (labId: LabId, lotId: string): DocumentReference =>
  * abaixo de `/labs/{labId}/bioquimica/{document=**}` uniformemente.
  */
 export async function ensureBioquimicaRoot(labId: LabId): Promise<void> {
-  await setDoc(
-    bioquimicaRoot(labId),
-    { labId, module: BIOQUIMICA_SEGMENT },
-    { merge: true },
-  );
+  await setDoc(bioquimicaRoot(labId), { labId, module: BIOQUIMICA_SEGMENT }, { merge: true });
 }
 
 // ─── Mapping snapshot → entidade ──────────────────────────────────────────
@@ -283,10 +271,7 @@ export async function softDeleteLot(
 
 // ─── Single-doc reads ─────────────────────────────────────────────────────
 
-export async function getAnalito(
-  labId: LabId,
-  analitoId: string,
-): Promise<Analito | null> {
+export async function getAnalito(labId: LabId, analitoId: string): Promise<Analito | null> {
   const snap = await getDoc(analitoDoc(labId, analitoId));
   if (!snap.exists()) return null;
   const a = mapAnalito(snap as QueryDocumentSnapshot);
@@ -294,10 +279,7 @@ export async function getAnalito(
   return a;
 }
 
-export async function getLot(
-  labId: LabId,
-  lotId: string,
-): Promise<ControlMaterial | null> {
+export async function getLot(labId: LabId, lotId: string): Promise<ControlMaterial | null> {
   const snap = await getDoc(lotDoc(labId, lotId));
   if (!snap.exists()) return null;
   const l = mapControlMaterial(snap as QueryDocumentSnapshot);

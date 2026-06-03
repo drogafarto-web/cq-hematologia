@@ -32,8 +32,7 @@ describe('queryCIQCompliance aggregation logic', () => {
       { status: 'invalid', deletadoEm: null },
     ];
 
-    const validCount = mockDocs
-      .filter((d) => d.deletadoEm === null && d.status === 'valid').length;
+    const validCount = mockDocs.filter((d) => d.deletadoEm === null && d.status === 'valid').length;
     expect(validCount).toBe(1);
   });
 

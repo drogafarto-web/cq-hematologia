@@ -190,7 +190,9 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
     if (googleDocId && doc.substitui) {
       try {
         const accessToken = await getAccessToken(data.labId, userId);
-        const prevDocSnap = await db.doc(`/labs/${data.labId}/sgq-documentos/${doc.substitui}`).get();
+        const prevDocSnap = await db
+          .doc(`/labs/${data.labId}/sgq-documentos/${doc.substitui}`)
+          .get();
         const prevGoogleDocId = prevDocSnap.data()?.googleDocId;
 
         if (prevGoogleDocId) {
@@ -304,7 +306,14 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
         logger.warn('OAuth token unavailable for GDoc update post-publication', {
           documentoId: data.documentoId,
         });
-        return { success: true, pdfUrl, pdfHash, versao: novaVersao, publicadoEm: now.toDate().toISOString(), diffPercent };
+        return {
+          success: true,
+          pdfUrl,
+          pdfHash,
+          versao: novaVersao,
+          publicadoEm: now.toDate().toISOString(),
+          diffPercent,
+        };
       }
 
       try {
@@ -351,9 +360,7 @@ export const publicarDocumento = onCall<PublicarDocumentoInput>(
       // Revoke edit access (best-effort)
       try {
         const membersSnap = await db.collection(`/labs/${data.labId}/members`).get();
-        const emails = membersSnap.docs
-          .map((m) => m.data().email as string)
-          .filter(Boolean);
+        const emails = membersSnap.docs.map((m) => m.data().email as string).filter(Boolean);
 
         if (emails.length > 0) {
           const token = await getAccessToken(data.labId, userId);

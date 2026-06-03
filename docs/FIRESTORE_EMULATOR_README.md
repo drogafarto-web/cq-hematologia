@@ -9,12 +9,12 @@
 
 ## Quick Navigation
 
-| Need | Document | Time |
-|------|----------|------|
-| **Fast start** | [FIRESTORE_EMULATOR_QUICK_REFERENCE.md](./FIRESTORE_EMULATOR_QUICK_REFERENCE.md) | 2 min |
-| **Full guide** | [FIRESTORE_EMULATOR_GUIDE.md](./FIRESTORE_EMULATOR_GUIDE.md) | 15 min |
-| **CI/CD setup** | [FIRESTORE_EMULATOR_CI_INTEGRATION.md](./FIRESTORE_EMULATOR_CI_INTEGRATION.md) | 10 min |
-| **Test examples** | [FIRESTORE_RULES_TEST_EXAMPLE.md](./FIRESTORE_RULES_TEST_EXAMPLE.md) | 20 min |
+| Need              | Document                                                                         | Time   |
+| ----------------- | -------------------------------------------------------------------------------- | ------ |
+| **Fast start**    | [FIRESTORE_EMULATOR_QUICK_REFERENCE.md](./FIRESTORE_EMULATOR_QUICK_REFERENCE.md) | 2 min  |
+| **Full guide**    | [FIRESTORE_EMULATOR_GUIDE.md](./FIRESTORE_EMULATOR_GUIDE.md)                     | 15 min |
+| **CI/CD setup**   | [FIRESTORE_EMULATOR_CI_INTEGRATION.md](./FIRESTORE_EMULATOR_CI_INTEGRATION.md)   | 10 min |
+| **Test examples** | [FIRESTORE_RULES_TEST_EXAMPLE.md](./FIRESTORE_RULES_TEST_EXAMPLE.md)             | 20 min |
 
 ---
 
@@ -89,11 +89,13 @@ npm --version    # 9+
 ### Start Emulator
 
 **macOS / Linux:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh start
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1
 ```
@@ -103,11 +105,13 @@ powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1
 In a new terminal:
 
 **macOS / Linux:**
+
 ```bash
 bash scripts/firestore-emulator-setup.sh seed
 ```
 
 **Windows PowerShell:**
+
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts/firestore-emulator-setup.ps1 -Command seed
 ```
@@ -127,7 +131,7 @@ Open http://localhost:4000 in your browser.
 ✓ Loads `firestore.rules` for security validation  
 ✓ Loads `firestore.indexes.json` for query optimization  
 ✓ Stores all data in `.firebase/` (ephemeral)  
-✓ Supports backup/restore for snapshots  
+✓ Supports backup/restore for snapshots
 
 ### What the Setup Scripts Do
 
@@ -137,11 +141,12 @@ Open http://localhost:4000 in your browser.
 ✓ Seed 3 test labs with realistic data  
 ✓ Run rules validation tests  
 ✓ Manage backups and restoration  
-✓ Provide cleanup and reset  
+✓ Provide cleanup and reset
 
 ### Test Data Structure
 
 Each lab includes:
+
 - Lab document + metadata
 - 3-5 test users (admin, operator, patient, RT)
 - 10-20 CIQ runs (coagulation, immunology, biochemistry)
@@ -247,14 +252,14 @@ npm run test:rules
 
 ## Troubleshooting Checklist
 
-| Issue | Solution |
-|-------|----------|
-| **Port 8080 in use** | Use different port: `FIRESTORE_EMULATOR_PORT=8081 bash scripts/...` |
-| **firebase-tools not found** | `npm install -g firebase-tools` |
-| **Seed script fails** | Check emulator running: `nc -zv localhost 8080` |
-| **Rules tests fail** | Emulator running? `npm run test:rules` configured? |
-| **Backup/restore broken** | Create dir: `mkdir -p .firebase/emulator-backups` |
-| **Emulator stuck** | Kill: `pkill -f "firebase emulators:start"` |
+| Issue                        | Solution                                                            |
+| ---------------------------- | ------------------------------------------------------------------- |
+| **Port 8080 in use**         | Use different port: `FIRESTORE_EMULATOR_PORT=8081 bash scripts/...` |
+| **firebase-tools not found** | `npm install -g firebase-tools`                                     |
+| **Seed script fails**        | Check emulator running: `nc -zv localhost 8080`                     |
+| **Rules tests fail**         | Emulator running? `npm run test:rules` configured?                  |
+| **Backup/restore broken**    | Create dir: `mkdir -p .firebase/emulator-backups`                   |
+| **Emulator stuck**           | Kill: `pkill -f "firebase emulators:start"`                         |
 
 ---
 
@@ -287,29 +292,33 @@ C:\hc quality\
 ## Integration Points
 
 ### GitHub Actions
+
 See **FIRESTORE_EMULATOR_CI_INTEGRATION.md** for ready-to-use workflows.
 
 ### Local Git Hooks
+
 Pre-commit and pre-push hooks available for automatic validation.
 
 ### Docker
+
 Dockerfile example provided for containerized emulator.
 
 ### NPM Scripts
+
 Ensure `npm run test:rules` is configured in `package.json`.
 
 ---
 
 ## Performance
 
-| Operation | Time | Notes |
-|-----------|------|-------|
-| Start emulator | 2-3s | First run slower |
-| Seed 3 labs | 5-8s | ~150 documents |
+| Operation      | Time | Notes                 |
+| -------------- | ---- | --------------------- |
+| Start emulator | 2-3s | First run slower      |
+| Seed 3 labs    | 5-8s | ~150 documents        |
 | Rules test run | 3-5s | Depends on test count |
-| Backup | 1-2s | To disk |
-| Restore | 2-3s | From disk |
-| Clean | 1s | Delete all data |
+| Backup         | 1-2s | To disk               |
+| Restore        | 2-3s | From disk             |
+| Clean          | 1s   | Delete all data       |
 
 Memory usage: 150MB baseline → 300MB with 10K docs.
 
@@ -328,6 +337,7 @@ Memory usage: 150MB baseline → 300MB with 10K docs.
 ## Support
 
 For issues:
+
 1. Check **Troubleshooting** section in [FIRESTORE_EMULATOR_GUIDE.md](./FIRESTORE_EMULATOR_GUIDE.md)
 2. Review script output: `bash scripts/firestore-emulator-setup.sh logs`
 3. Check Firebase docs: https://firebase.google.com/docs/emulator-suite
@@ -337,11 +347,11 @@ For issues:
 
 ## Version Info
 
-| Component | Version | Status |
-|-----------|---------|--------|
-| Firestore Rules | 2 | Stable |
-| Phase | 3 | Live |
-| Generated | 2026-05-07 | Current |
+| Component       | Version    | Status  |
+| --------------- | ---------- | ------- |
+| Firestore Rules | 2          | Stable  |
+| Phase           | 3          | Live    |
+| Generated       | 2026-05-07 | Current |
 
 ---
 

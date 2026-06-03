@@ -32,7 +32,9 @@ export default function AuditoriaView() {
     return (
       <div className="min-h-screen bg-slate-50 dark:bg-[#0c0c0c] flex items-center justify-center p-4">
         <div className="text-center">
-          <p className="text-slate-600 dark:text-white/40 mb-2">Carregando contexto do laboratório...</p>
+          <p className="text-slate-600 dark:text-white/40 mb-2">
+            Carregando contexto do laboratório...
+          </p>
         </div>
       </div>
     );
@@ -96,13 +98,9 @@ export default function AuditoriaView() {
             </div>
           )}
 
-          {activeTab === 'conformidade' && (
-            <ComplianceTab labId={labId} />
-          )}
+          {activeTab === 'conformidade' && <ComplianceTab labId={labId} />}
 
-          {activeTab === 'integracoes' && (
-            <IntegrationsTab labId={labId} />
-          )}
+          {activeTab === 'integracoes' && <IntegrationsTab labId={labId} />}
 
           {activeTab === 'relatorios' && (
             <div className="bg-white dark:bg-[#141417] rounded-xl border border-slate-200 dark:border-white/[0.08] p-6">
@@ -114,18 +112,30 @@ export default function AuditoriaView() {
         {/* Info Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="bg-white dark:bg-[#141417] rounded-lg border border-slate-200 dark:border-white/[0.08] p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">Compliance Audit Trail</p>
+            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">
+              Compliance Audit Trail
+            </p>
             <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-2">RDC 978</p>
-            <p className="text-xs text-slate-500 dark:text-white/30 mt-1">Art. 107 — Detecção de anomalias</p>
+            <p className="text-xs text-slate-500 dark:text-white/30 mt-1">
+              Art. 107 — Detecção de anomalias
+            </p>
           </div>
           <div className="bg-white dark:bg-[#141417] rounded-lg border border-slate-200 dark:border-white/[0.08] p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">DICQ Mapping</p>
+            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">
+              DICQ Mapping
+            </p>
             <p className="text-2xl font-semibold text-slate-900 dark:text-white mt-2">4.4</p>
-            <p className="text-xs text-slate-500 dark:text-white/30 mt-1">Audit monitoring + compliance</p>
+            <p className="text-xs text-slate-500 dark:text-white/30 mt-1">
+              Audit monitoring + compliance
+            </p>
           </div>
           <div className="bg-white dark:bg-[#141417] rounded-lg border border-slate-200 dark:border-white/[0.08] p-4">
-            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">Operador</p>
-            <p className="text-sm font-semibold text-slate-900 dark:text-white mt-2 truncate">{user?.displayName || user?.email || 'Anônimo'}</p>
+            <p className="text-xs font-medium text-slate-600 dark:text-white/50 uppercase tracking-wide">
+              Operador
+            </p>
+            <p className="text-sm font-semibold text-slate-900 dark:text-white mt-2 truncate">
+              {user?.displayName || user?.email || 'Anônimo'}
+            </p>
             <p className="text-xs text-slate-500 dark:text-white/30 mt-1">Contexto: {labId}</p>
           </div>
         </div>

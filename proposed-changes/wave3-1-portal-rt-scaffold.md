@@ -12,6 +12,7 @@
 This document proposes the foundational Firestore rules and indexes for the Portal-RT module (Phase 4 focus: RT operational dashboard). The scaffold itself is feature-complete (shell + nav + tests); these rules define data access boundaries for future phases.
 
 **Key decisions:**
+
 - Rules block created but **not deployed** until Phase 4.2 (when critical-values module goes live)
 - Three collections: `portal-rt-state/{labId}/dashboards`, `critical-values/{labId}/escalations`, `portal-rt-audit/{labId}/events`
 - All writes via Cloud Function callable (server-side signature + server-side timestamp)
@@ -26,11 +27,12 @@ This document proposes the foundational Firestore rules and indexes for the Port
 **Purpose:** Persistent dashboard layout, filter preferences, bookmarks.
 
 **Payload:**
+
 ```typescript
 interface PortalRTDashboard {
   labId: string;
-  dashboardId: string;        // e.g., "main-dashboard"
-  rtId: string;                // operator UID
+  dashboardId: string; // e.g., "main-dashboard"
+  rtId: string; // operator UID
   layout: 'default' | 'custom';
   filters: {
     equipamentoId?: string;
@@ -44,6 +46,7 @@ interface PortalRTDashboard {
 ```
 
 **Access:**
+
 - **Read:** RT of lab, Admin, Auditor
 - **Create:** Cloud Function `portal_rt_createDashboard` (server-side only)
 - **Update:** Cloud Function `portal_rt_updateDashboard` (server-side only)
@@ -54,15 +57,16 @@ interface PortalRTDashboard {
 **Purpose:** Critical value alerts awaiting RT approval/action.
 
 **Payload:**
+
 ```typescript
 interface CriticalValueEscalation {
   labId: string;
   escalationId: string;
-  laudoId: string;              // reference to result
+  laudoId: string; // reference to result
   patientId: string;
   criticidade: 'low' | 'medium' | 'high' | 'critical';
   status: 'pending' | 'acknowledged' | 'resolved' | 'delegated';
-  assignedTo?: string;          // RT UID or supervisor
+  assignedTo?: string; // RT UID or supervisor
   notificacao: {
     enviada: Timestamp;
     lida?: Timestamp;
@@ -75,6 +79,7 @@ interface CriticalValueEscalation {
 ```
 
 **Access:**
+
 - **Read:** RT of lab, Admin, Supervisor (RDC 978 Art. 122), Auditor
 - **Create:** Cloud Function `critical_notifyEscalation` (server-side only)
 - **Update:** Cloud Function `critical_acknowledgeEscalation` (RT action)
@@ -87,11 +92,12 @@ interface CriticalValueEscalation {
 **Purpose:** Audit trail of RT actions (view, approve, acknowledge, escalate).
 
 **Payload:**
+
 ```typescript
 interface PortalRTAuditEvent {
   labId: string;
   eventId: string;
-  rtId: string;                 // operator
+  rtId: string; // operator
   action: 'view' | 'approve' | 'acknowledge' | 'escalate' | 'delegate';
   targetType: 'laudo' | 'escalation' | 'dashboard';
   targetId: string;
@@ -102,6 +108,7 @@ interface PortalRTAuditEvent {
 ```
 
 **Access:**
+
 - **Read:** RT of lab (own events only), Admin, Auditor
 - **Create:** Cloud Function `portal_rt_auditLog` (server-side, called on every RT action)
 - **Update:** Never

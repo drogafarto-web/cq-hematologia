@@ -16,23 +16,26 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 ✓ RT user exists with proper RBAC claims  
 ✓ Lab: `labclin-riopomba` initialized and active  
 ✓ Firebase Firestore rules deployed  
-✓ documentoService layer tested and operational  
+✓ documentoService layer tested and operational
 
 ## Execution Steps
 
 ### Step 1: RT Login to Production
 
 **Action:** RT navigates to https://hmatologia2.web.app and authenticates
+
 - Email: `[RT_EMAIL]`
 - Password: `[RT_PASSWORD]`
 - MFA: Approve if prompted
 
 **Expected Outcome:**
+
 - Hub dashboard loads (tiles visible)
 - RT identity confirmed in top-right navbar
 - "Gestão Documental" tile accessible
 
 **Verification:**
+
 ```
 ✓ URL: https://hmatologia2.web.app/#/hub
 ✓ User role: RT (displayed in navbar or user menu)
@@ -47,28 +50,30 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 
 **Form Submission:**
 
-| Field | Value |
-|-------|-------|
-| **Tipo** | POL (Política) |
-| **Código** | POL-LGPD-001 |
-| **Título** | Política de Privacidade e Proteção de Dados (LGPD) |
-| **Versão** | 1 (auto, read-only) |
-| **URL** | [PDF link from drive or storage] |
-| **Autoridade Emitente** | [RT Name], CRBM-[Number] |
-| **Data Emissão** | 2026-05-07 |
-| **Data Revisão** | 2026-05-07 |
-| **Próxima Revisão** | 2027-05-07 |
-| **Status** | em_revisao (default) |
-| **Observações** | Aprovada por RT em 2026-05-07. Atende RDC 978 Art. 77. |
+| Field                   | Value                                                  |
+| ----------------------- | ------------------------------------------------------ |
+| **Tipo**                | POL (Política)                                         |
+| **Código**              | POL-LGPD-001                                           |
+| **Título**              | Política de Privacidade e Proteção de Dados (LGPD)     |
+| **Versão**              | 1 (auto, read-only)                                    |
+| **URL**                 | [PDF link from drive or storage]                       |
+| **Autoridade Emitente** | [RT Name], CRBM-[Number]                               |
+| **Data Emissão**        | 2026-05-07                                             |
+| **Data Revisão**        | 2026-05-07                                             |
+| **Próxima Revisão**     | 2027-05-07                                             |
+| **Status**              | em_revisao (default)                                   |
+| **Observações**         | Aprovada por RT em 2026-05-07. Atende RDC 978 Art. 77. |
 
 **Click "Salvar"**
 
 **Expected Outcome:**
+
 - Modal closes
 - Document appears in SGQ list with amber badge "em revisão"
 - Document ID generated and stored
 
 **Verification:**
+
 ```
 ✓ Document visible in list
 ✓ Status badge: "em revisão" (amber color)
@@ -77,6 +82,7 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 ```
 
 **Firestore Path:**
+
 ```
 /labs/labclin-riopomba/sgq-documentos/{documentoId}
 ```
@@ -91,20 +97,22 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 
 **Form Submission:**
 
-| Field | Value |
-|-------|-------|
-| **Status (current)** | em_revisao |
-| **Status (target)** | vigente |
-| **Motivo** | Aprovada por RT em 2026-05-07 após revisão de compliance |
+| Field                | Value                                                    |
+| -------------------- | -------------------------------------------------------- |
+| **Status (current)** | em_revisao                                               |
+| **Status (target)**  | vigente                                                  |
+| **Motivo**           | Aprovada por RT em 2026-05-07 após revisão de compliance |
 
 **Click "Confirmar Transição"**
 
 **Expected Outcome:**
+
 - Document status updated to `vigente`
 - Badge color changes to emerald ✓
 - Audit trail event recorded
 
 **Verification:**
+
 ```
 ✓ Document list shows POL-LGPD-001 with green badge "vigente"
 ✓ Document detail shows status: vigente
@@ -112,6 +120,7 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 ```
 
 **Firestore Audit Event:**
+
 ```
 /labs/labclin-riopomba/sgq-documentos-audit/{auditId}
   type: "status-changed"
@@ -130,27 +139,29 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 
 **Form Submission:**
 
-| Field | Value |
-|-------|-------|
-| **Tipo** | IT (Instrução de Trabalho) |
-| **Código** | IT-LGPD-DPIA-001 |
-| **Título** | Template de DPIA (Data Protection Impact Assessment) |
-| **Versão** | 1 (auto, read-only) |
-| **URL** | [PDF link from drive or storage] |
-| **Autoridade Emitente** | [RT Name], CRBM-[Number] |
-| **Data Emissão** | 2026-05-07 |
-| **Data Revisão** | 2026-05-07 |
-| **Próxima Revisão** | 2027-05-07 |
-| **Status** | em_revisao (default) |
-| **Observações** | Template DPIA. Atende LGPD e RDC 978 Art. 77. |
+| Field                   | Value                                                |
+| ----------------------- | ---------------------------------------------------- |
+| **Tipo**                | IT (Instrução de Trabalho)                           |
+| **Código**              | IT-LGPD-DPIA-001                                     |
+| **Título**              | Template de DPIA (Data Protection Impact Assessment) |
+| **Versão**              | 1 (auto, read-only)                                  |
+| **URL**                 | [PDF link from drive or storage]                     |
+| **Autoridade Emitente** | [RT Name], CRBM-[Number]                             |
+| **Data Emissão**        | 2026-05-07                                           |
+| **Data Revisão**        | 2026-05-07                                           |
+| **Próxima Revisão**     | 2027-05-07                                           |
+| **Status**              | em_revisao (default)                                 |
+| **Observações**         | Template DPIA. Atende LGPD e RDC 978 Art. 77.        |
 
 **Click "Salvar"**
 
 **Expected Outcome:**
+
 - Document appears in SGQ list with amber badge "em revisão"
 - Document ID generated
 
 **Verification:**
+
 ```
 ✓ Document visible in list
 ✓ Status badge: "em revisão" (amber color)
@@ -168,20 +179,22 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 
 **Form Submission:**
 
-| Field | Value |
-|-------|-------|
-| **Status (current)** | em_revisao |
-| **Status (target)** | vigente |
-| **Motivo** | Aprovada por RT em 2026-05-07 após revisão de compliance |
+| Field                | Value                                                    |
+| -------------------- | -------------------------------------------------------- |
+| **Status (current)** | em_revisao                                               |
+| **Status (target)**  | vigente                                                  |
+| **Motivo**           | Aprovada por RT em 2026-05-07 após revisão de compliance |
 
 **Click "Confirmar Transição"**
 
 **Expected Outcome:**
+
 - Document status updated to `vigente`
 - Badge changes to emerald ✓
 - Audit event recorded
 
 **Verification:**
+
 ```
 ✓ Document list shows IT-LGPD-DPIA-001 with green badge "vigente"
 ✓ Document detail shows status: vigente
@@ -196,14 +209,17 @@ Validate that the **Responsável Técnico (RT)** can manually create and manage 
 **Expected Outcome:**
 
 Both documents visible:
+
 - POL-LGPD-001 · Política de Privacidade... · v1 · **Vigente** ✓
 - IT-LGPD-DPIA-001 · Template de DPIA... · v1 · **Vigente** ✓
 
 **DocumentosObrigatoriosBadge Display:**
+
 - Component shows 2 obligatory LGPD documents with emerald status
 - Badge summary: "2 Políticas LGPD — Vigentes"
 
 **Verification Checklist:**
+
 ```
 ✓ Both documents visible in list
 ✓ Both with "Vigente" status badge (emerald color)
@@ -221,6 +237,7 @@ Both documents visible:
 **Navigation:** Firestore Console → Project hmatologia2 → Firestore Database
 
 **Query Path:**
+
 ```
 Collection: labs > labclin-riopomba > sgq-documentos-audit
 Filter: codigoSnapshot in ['POL-LGPD-001', 'IT-LGPD-DPIA-001']
@@ -263,6 +280,7 @@ Filter: codigoSnapshot in ['POL-LGPD-001', 'IT-LGPD-DPIA-001']
    - timestamp: `2026-05-07T...` (latest)
 
 **Verification Checklist:**
+
 ```
 ✓ Exactly 4 audit events found
 ✓ 2 events type="created"
@@ -303,16 +321,16 @@ Filter: codigoSnapshot in ['POL-LGPD-001', 'IT-LGPD-DPIA-001']
 
 ## Timeline
 
-| Step | Duration | Cumulative |
-|------|----------|-----------|
-| Step 1: Login | 1 min | 1 min |
-| Step 2: Create POL-LGPD-001 | 2 min | 3 min |
-| Step 3: Transition to vigente | 1 min | 4 min |
-| Step 4: Create IT-LGPD-DPIA-001 | 2 min | 6 min |
-| Step 5: Transition to vigente | 1 min | 7 min |
-| Step 6: Verify list & badges | 2 min | 9 min |
-| Step 7: Verify audit trail | 3 min | 12 min |
-| **Total** | — | **~12 minutes** |
+| Step                            | Duration | Cumulative      |
+| ------------------------------- | -------- | --------------- |
+| Step 1: Login                   | 1 min    | 1 min           |
+| Step 2: Create POL-LGPD-001     | 2 min    | 3 min           |
+| Step 3: Transition to vigente   | 1 min    | 4 min           |
+| Step 4: Create IT-LGPD-DPIA-001 | 2 min    | 6 min           |
+| Step 5: Transition to vigente   | 1 min    | 7 min           |
+| Step 6: Verify list & badges    | 2 min    | 9 min           |
+| Step 7: Verify audit trail      | 3 min    | 12 min          |
+| **Total**                       | —        | **~12 minutes** |
 
 ---
 

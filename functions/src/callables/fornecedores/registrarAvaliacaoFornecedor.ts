@@ -75,7 +75,10 @@ async function assertActiveLabMemberOrSuperAdmin(
   }
 }
 
-export const registrarAvaliacaoFornecedor = onCall<unknown, Promise<{ ok: true; avaliacaoId: string }>>(
+export const registrarAvaliacaoFornecedor = onCall<
+  unknown,
+  Promise<{ ok: true; avaliacaoId: string }>
+>(
   { region: 'southamerica-east1', cors: true },
   async (request): Promise<{ ok: true; avaliacaoId: string }> => {
     if (!request.auth) {
@@ -136,7 +139,7 @@ export const registrarAvaliacaoFornecedor = onCall<unknown, Promise<{ ok: true; 
     const lastEventQ = await eventsCol.orderBy('timestamp', 'desc').limit(1).get();
     const prevHash = lastEventQ.empty
       ? null
-      : (lastEventQ.docs[0].data()['chainHash'] as string | undefined) ?? null;
+      : ((lastEventQ.docs[0].data()['chainHash'] as string | undefined) ?? null);
 
     const eventCanon = JSON.stringify({
       tipo: 'fornecedor_avaliacao_periodica',

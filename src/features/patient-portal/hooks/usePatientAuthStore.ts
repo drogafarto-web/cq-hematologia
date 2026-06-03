@@ -41,15 +41,17 @@ const STORAGE_KEY_LAB_ID = 'lab_id';
 const STORAGE_KEY_EXPIRES_AT = 'patient_auth_expires_at';
 
 function persistSession(session: PatientSession): void {
-  localStorage.setItem(STORAGE_KEY_SESSION, JSON.stringify({
-    token: session.token,
-    patientId: session.patientId,
-    labId: session.labId,
-    email: session.email,
-    expiresAt: session.expiresAt instanceof Date
-      ? session.expiresAt.toISOString()
-      : session.expiresAt,
-  }));
+  localStorage.setItem(
+    STORAGE_KEY_SESSION,
+    JSON.stringify({
+      token: session.token,
+      patientId: session.patientId,
+      labId: session.labId,
+      email: session.email,
+      expiresAt:
+        session.expiresAt instanceof Date ? session.expiresAt.toISOString() : session.expiresAt,
+    }),
+  );
 }
 
 function clearPersistedSession(): void {
@@ -96,13 +98,22 @@ export const usePatientAuthStore = create<PatientAuthState>((set, get) => ({
 
   clearAuth: () => {
     clearPersistedSession();
-    set({ session: null, token: null, patientId: null, labId: null, email: null, expiresAt: null, error: null, isExpired: true, remainingMs: null });
+    set({
+      session: null,
+      token: null,
+      patientId: null,
+      labId: null,
+      email: null,
+      expiresAt: null,
+      error: null,
+      isExpired: true,
+      remainingMs: null,
+    });
   },
 
   setSession: (session: PatientSession) => {
-    const expiresAtMs = session.expiresAt instanceof Date
-      ? session.expiresAt.getTime()
-      : Number(session.expiresAt);
+    const expiresAtMs =
+      session.expiresAt instanceof Date ? session.expiresAt.getTime() : Number(session.expiresAt);
     if (Date.now() >= expiresAtMs) {
       set({ session: null, error: 'Token expired' });
       return;
@@ -131,9 +142,9 @@ export const usePatientAuthStore = create<PatientAuthState>((set, get) => ({
   checkExpiry: () => {
     const state = get();
     const expiresAtMs = state.session
-      ? (state.session.expiresAt instanceof Date
+      ? state.session.expiresAt instanceof Date
         ? state.session.expiresAt.getTime()
-        : Number(state.session.expiresAt))
+        : Number(state.session.expiresAt)
       : state.expiresAt;
     if (!expiresAtMs) {
       set({ isExpired: true, remainingMs: 0 });
@@ -149,9 +160,10 @@ export const usePatientAuthStore = create<PatientAuthState>((set, get) => ({
     const state = get();
     // Prefer session.expiresAt (Date-typed) for precision
     if (state.session?.expiresAt) {
-      const ms = state.session.expiresAt instanceof Date
-        ? state.session.expiresAt.getTime()
-        : Number(state.session.expiresAt);
+      const ms =
+        state.session.expiresAt instanceof Date
+          ? state.session.expiresAt.getTime()
+          : Number(state.session.expiresAt);
       return Date.now() >= ms;
     }
     if (!state.expiresAt) return true;
@@ -162,9 +174,9 @@ export const usePatientAuthStore = create<PatientAuthState>((set, get) => ({
     const state = get();
     // Prefer session.expiresAt (Date-typed)
     const expiresAtMs = state.session?.expiresAt
-      ? (state.session.expiresAt instanceof Date
+      ? state.session.expiresAt instanceof Date
         ? state.session.expiresAt.getTime()
-        : Number(state.session.expiresAt))
+        : Number(state.session.expiresAt)
       : state.expiresAt;
     if (!expiresAtMs) return 0;
     return Math.max(0, expiresAtMs - Date.now());
@@ -189,26 +201,19 @@ export const usePatientSession = (): PatientSession | null => {
 };
 
 // Atomic selectors
-export const usePatientToken = () =>
-  usePatientAuthStore((s) => s.token);
+export const usePatientToken = () => usePatientAuthStore((s) => s.token);
 
-export const usePatientId = () =>
-  usePatientAuthStore((s) => s.patientId);
+export const usePatientId = () => usePatientAuthStore((s) => s.patientId);
 
-export const usePatientLabId = () =>
-  usePatientAuthStore((s) => s.labId);
+export const usePatientLabId = () => usePatientAuthStore((s) => s.labId);
 
-export const usePatientAuthLoading = () =>
-  usePatientAuthStore((s) => s.isLoading);
+export const usePatientAuthLoading = () => usePatientAuthStore((s) => s.isLoading);
 
-export const usePatientAuthError = () =>
-  usePatientAuthStore((s) => s.error);
+export const usePatientAuthError = () => usePatientAuthStore((s) => s.error);
 
-export const useIsTokenExpired = () =>
-  usePatientAuthStore((s) => s.isExpired);
+export const useIsTokenExpired = () => usePatientAuthStore((s) => s.isExpired);
 
-export const usePatientTimeRemaining = () =>
-  usePatientAuthStore((s) => s.remainingMs);
+export const usePatientTimeRemaining = () => usePatientAuthStore((s) => s.remainingMs);
 
 // Initialize store from localStorage on app load
 export const initializePatientAuthStore = () => {

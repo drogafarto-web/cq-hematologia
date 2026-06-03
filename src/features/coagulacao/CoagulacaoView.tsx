@@ -230,11 +230,7 @@ function Topbar({
       </div>
 
       <div className="ml-auto flex items-center gap-3">
-        <CoagLotSwitcher
-          lots={lots}
-          activeLot={activeLot}
-          onSelect={(id) => setActiveLotId(id)}
-        />
+        <CoagLotSwitcher lots={lots} activeLot={activeLot} onSelect={(id) => setActiveLotId(id)} />
         <span className="font-mono text-[10px] px-2 py-0.5 rounded-full bg-rose-50 dark:bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-200 dark:border-rose-500/20 hidden sm:inline-flex">
           RDC 302/2005
         </span>
@@ -320,12 +316,7 @@ export function CoagulacaoView() {
       const selected = lots.find((l) => l.id === userSelectedLotId);
       if (selected) return selected;
     }
-    return (
-      findCurrentLotByNivel(lots, 'I') ??
-      currentLots[0] ??
-      lots[0] ??
-      null
-    );
+    return findCurrentLotByNivel(lots, 'I') ?? currentLots[0] ?? lots[0] ?? null;
   }, [lots, userSelectedLotId, currentLots]);
 
   const activeLotId = activeLot?.id ?? null;
@@ -359,10 +350,7 @@ export function CoagulacaoView() {
           isSuperAdmin={isSuperAdmin}
         />
 
-        <EquipmentSetupBar
-          module="coagulacao"
-          onEditSetup={() => setCurrentView('insumos')}
-        />
+        <EquipmentSetupBar module="coagulacao" onEditSetup={() => setCurrentView('insumos')} />
 
         <main className="flex-1 overflow-y-auto">
           <div className="max-w-[1400px] w-full mx-auto px-8 py-6 pb-10">

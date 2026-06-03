@@ -16,44 +16,47 @@ The Portal Paciente (Patient Portal) launches in Phase 4 with general features (
 
 ## Architectural Responsibility Map
 
-| Capability | Primary Tier | Secondary Tier | Rationale |
-|------------|-------------|----------------|-----------|
-| Patient authentication (portal link) | Frontend Server (SSR) | API/Backend (token validation) | Portal runs on public domain; session issued by callable + verified in middleware |
-| Complaint intake form | Browser/Client | Frontend Server | Form data submitted to callable; server-side validation + signature + NC trigger |
-| NPS survey delivery | API/Backend (callables) | Browser (email link click) | Callable generates token + sends email; patient clicks link → browser renders survey form |
-| NPS response capture | Browser/Client | API/Backend (storage) | Patient answers form; callable submits response + validates token + stores in `satisfacao-respostas` |
-| Suggestion voting | Browser/Client | API/Backend (aggregation) | Local voting UI; callable increments vote count + generates ranking aggregate |
-| Compliance audit trail | API/Backend (callables) | Database (rules) | Every patient interaction logged: complaint created, NPS opened, response submitted, vote cast |
-| Feedback trending (dashboard) | Backend (aggregation) | Browser (visualization) | Pre-aggregated via Firestore query (status + dateRange); charted in admin dashboard |
+| Capability                           | Primary Tier            | Secondary Tier                 | Rationale                                                                                            |
+| ------------------------------------ | ----------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------- |
+| Patient authentication (portal link) | Frontend Server (SSR)   | API/Backend (token validation) | Portal runs on public domain; session issued by callable + verified in middleware                    |
+| Complaint intake form                | Browser/Client          | Frontend Server                | Form data submitted to callable; server-side validation + signature + NC trigger                     |
+| NPS survey delivery                  | API/Backend (callables) | Browser (email link click)     | Callable generates token + sends email; patient clicks link → browser renders survey form            |
+| NPS response capture                 | Browser/Client          | API/Backend (storage)          | Patient answers form; callable submits response + validates token + stores in `satisfacao-respostas` |
+| Suggestion voting                    | Browser/Client          | API/Backend (aggregation)      | Local voting UI; callable increments vote count + generates ranking aggregate                        |
+| Compliance audit trail               | API/Backend (callables) | Database (rules)               | Every patient interaction logged: complaint created, NPS opened, response submitted, vote cast       |
+| Feedback trending (dashboard)        | Backend (aggregation)   | Browser (visualization)        | Pre-aggregated via Firestore query (status + dateRange); charted in admin dashboard                  |
 
 ---
 
 ## Standard Stack
 
 ### Core
-| Library | Version | Purpose | Why Standard |
-|---------|---------|---------|--------------|
-| React 19 | 19.0.0 | Portal UI components | [VERIFIED: npm registry] Already shipping in main app |
-| Firebase 12 | 12.x | Auth tokens, Realtime DB | [VERIFIED: npm registry] v1→v2 migration complete Phase 3 |
-| Zustand 5 | 5.x | Portal state (patient context) | [VERIFIED: npm registry] Existing pattern, lightweight |
-| Zod 3 | 3.x | Input validation (forms) | [VERIFIED: npm registry] Already mandatory in callables |
-| TailwindCSS | Latest | Dark-first responsive design | [VERIFIED: existing codebase] All Phase 2+ modules use Tailwind |
+
+| Library     | Version | Purpose                        | Why Standard                                                    |
+| ----------- | ------- | ------------------------------ | --------------------------------------------------------------- |
+| React 19    | 19.0.0  | Portal UI components           | [VERIFIED: npm registry] Already shipping in main app           |
+| Firebase 12 | 12.x    | Auth tokens, Realtime DB       | [VERIFIED: npm registry] v1→v2 migration complete Phase 3       |
+| Zustand 5   | 5.x     | Portal state (patient context) | [VERIFIED: npm registry] Existing pattern, lightweight          |
+| Zod 3       | 3.x     | Input validation (forms)       | [VERIFIED: npm registry] Already mandatory in callables         |
+| TailwindCSS | Latest  | Dark-first responsive design   | [VERIFIED: existing codebase] All Phase 2+ modules use Tailwind |
 
 ### Supporting Libraries for Phase 11 Phase 2
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| `react-hook-form` | 7.x | Form state management | [CITED: npm] Lightweight, integrates w/ Zod schema validation |
-| `date-fns` | 3.x | Date formatting (NPS "valid until", "resolved on") | [CITED: npm] Existing dependency, already in project |
-| `recharts` | 2.x | Trending charts (complaints/month, NPS distribution) | [VERIFIED: npm] Already used in analytics module for Levey-Jennings |
-| `emailjs-com` / Resend | Latest | Email delivery validation (optional fallback) | [CITED: CLAUDE.md] Resend already integrated for inbound email parsing; SMTP via `shared/email/smtpClient` |
+
+| Library                | Version | Purpose                                              | When to Use                                                                                                |
+| ---------------------- | ------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| `react-hook-form`      | 7.x     | Form state management                                | [CITED: npm] Lightweight, integrates w/ Zod schema validation                                              |
+| `date-fns`             | 3.x     | Date formatting (NPS "valid until", "resolved on")   | [CITED: npm] Existing dependency, already in project                                                       |
+| `recharts`             | 2.x     | Trending charts (complaints/month, NPS distribution) | [VERIFIED: npm] Already used in analytics module for Levey-Jennings                                        |
+| `emailjs-com` / Resend | Latest  | Email delivery validation (optional fallback)        | [CITED: CLAUDE.md] Resend already integrated for inbound email parsing; SMTP via `shared/email/smtpClient` |
 
 ### Alternatives Considered
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Email-only NPS delivery | SMS (Twilio) + WhatsApp (Meta) | SMS deferred to Phase 5 (Critical Values Escalation); WhatsApp deferred v1.4.1 pending Meta approval |
-| Patient auth via email token | LIS single sign-on | No LIS integration Phase 4; email-link fallback with 72h expiry (noted as risk in v1.4-ROADMAP) |
-| In-browser suggestion voting | Server-side aggregation only | In-browser ✅ reduces round-trips; server validates vote uniqueness via `satisfacao-respostas/{pacienteId}/votes/{sugestaoId}` |
-| Anonymous complaints | Identification required (CPF) | RFC-01 (RN-16): MVP forbids anon; v1.4.1 may unlock if LGPD audit approves pseudonymization |
+
+| Instead of                   | Could Use                      | Tradeoff                                                                                                                       |
+| ---------------------------- | ------------------------------ | ------------------------------------------------------------------------------------------------------------------------------ |
+| Email-only NPS delivery      | SMS (Twilio) + WhatsApp (Meta) | SMS deferred to Phase 5 (Critical Values Escalation); WhatsApp deferred v1.4.1 pending Meta approval                           |
+| Patient auth via email token | LIS single sign-on             | No LIS integration Phase 4; email-link fallback with 72h expiry (noted as risk in v1.4-ROADMAP)                                |
+| In-browser suggestion voting | Server-side aggregation only   | In-browser ✅ reduces round-trips; server validates vote uniqueness via `satisfacao-respostas/{pacienteId}/votes/{sugestaoId}` |
+| Anonymous complaints         | Identification required (CPF)  | RFC-01 (RN-16): MVP forbids anon; v1.4.1 may unlock if LGPD audit approves pseudonymization                                    |
 
 **Installation:** Already in place for Phase 11 Phase 1. Phase 2 adds no new npm deps.
 
@@ -132,6 +135,7 @@ src/features/patient-portal/
 **When to use:** Any public-facing survey that must be accessible without creating a user account (e.g., NPS post-resolution, post-service satisfaction).
 
 **Example:**
+
 ```typescript
 // Source: Phase 11 Phase 1 dispararNPSPosResolucao.ts (verified in codebase)
 
@@ -184,7 +188,7 @@ export const respondNPS = onCall<{ token: string; score: number; feedback?: stri
 
     // Update reclamacao status → Fechada (if triggered)
     // TODO: implement conditional close (after 7d NPS window or manual RT approval)
-  }
+  },
 );
 ```
 
@@ -195,6 +199,7 @@ export const respondNPS = onCall<{ token: string; score: number; feedback?: stri
 **When to use:** When complaint source can be either (lab patient portal) or (external referral, walk-in patient).
 
 **Example:**
+
 ```typescript
 // Frontend: ComplaintForm.tsx
 interface ComplaintFormProps {
@@ -299,6 +304,7 @@ export const submitComplaintPatient = onCall<ComplaintPayload>(
 **When to use:** Gamification of improvement suggestions; no auth barrier to participation.
 
 **Example:**
+
 ```typescript
 // Frontend: SuggestionBrowser.tsx
 export function SuggestionBrowser({ labId }: { labId: string }) {
@@ -410,14 +416,14 @@ export function useSuggestionTrending(labId: string) {
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Patient authentication | Custom JWT handling | Firebase Auth + email-link token | Firebase handles token refresh, revocation, GDPR-safe operations. Custom crypto introduces reuse/expiry bugs. |
-| Email delivery + retry | Homemade nodemailer wrapper | Resend (existing) + Pub/Sub dead-letter queue | Resend has built-in retry, bounce handling, compliance headers. Manual retry logic drifts from best practices. |
-| Complaint severity classification | Regex-based keyword matching | `severityClassifier.ts` from Phase 11 Phase 1 + optional Gemini upgrade | Phase 1 classifier covers 95% of cases. Gemini can be added Phase 4 if volume justifies cost. Regex is rigid. |
-| Survey response anonymization | Manual cron script | Existing `anonimizarRespostas` Pub/Sub trigger | Phase 1 already has this. Reuse, don't fork. |
-| Trending aggregation (top 10 suggestions) | Client-side `Array.sort()` | Firestore query + server-side `orderBy` + `limit` | 1000+ suggestions on client = memory thrash. Always push sorting to database. |
-| Form validation | Hand-written regex + error messages | Zod schema + react-hook-form integration | Zod catches 80% of bugs (type mismatch, missing fields, wrong format). Hand-writing validation is error-prone. |
+| Problem                                   | Don't Build                         | Use Instead                                                             | Why                                                                                                            |
+| ----------------------------------------- | ----------------------------------- | ----------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
+| Patient authentication                    | Custom JWT handling                 | Firebase Auth + email-link token                                        | Firebase handles token refresh, revocation, GDPR-safe operations. Custom crypto introduces reuse/expiry bugs.  |
+| Email delivery + retry                    | Homemade nodemailer wrapper         | Resend (existing) + Pub/Sub dead-letter queue                           | Resend has built-in retry, bounce handling, compliance headers. Manual retry logic drifts from best practices. |
+| Complaint severity classification         | Regex-based keyword matching        | `severityClassifier.ts` from Phase 11 Phase 1 + optional Gemini upgrade | Phase 1 classifier covers 95% of cases. Gemini can be added Phase 4 if volume justifies cost. Regex is rigid.  |
+| Survey response anonymization             | Manual cron script                  | Existing `anonimizarRespostas` Pub/Sub trigger                          | Phase 1 already has this. Reuse, don't fork.                                                                   |
+| Trending aggregation (top 10 suggestions) | Client-side `Array.sort()`          | Firestore query + server-side `orderBy` + `limit`                       | 1000+ suggestions on client = memory thrash. Always push sorting to database.                                  |
+| Form validation                           | Hand-written regex + error messages | Zod schema + react-hook-form integration                                | Zod catches 80% of bugs (type mismatch, missing fields, wrong format). Hand-writing validation is error-prone. |
 
 **Key insight:** Phase 11 Phase 1 built the "back office" (RT reviews, NC triggers, NPS sends). Phase 2 is the "front office" (patient intake). Don't duplicate logic — inject patient forms via new callables that reuse Phase 1 engines.
 
@@ -428,6 +434,7 @@ export function useSuggestionTrending(labId: string) {
 > Not a greenfield phase — Phase 11 Phase 1 (v1.3) is in production. Phase 2 extends schema + callables.
 
 **Stored data:**
+
 - `labs/{labId}/reclamacoes/` — existing in production, adding patient-sourced complaints
 - `labs/{labId}/satisfacao-respostas/` — existing from NPS phase 1, Phase 2 adds public form responses
 - `labs/{labId}/sugestoes/` — existing from phase 1, Phase 2 adds patient voting
@@ -436,10 +443,12 @@ export function useSuggestionTrending(labId: string) {
 **No data migration needed:** Phase 1 schema supports patient fields. Patient intake form just populates existing documnts via new callable paths.
 
 **Live service config:**
+
 - Sendgrid/SMTP credentials — already provisioned Phase 1 (all secrets in Cloud Secret Manager, preflight-check.sh validates)
 - reCAPTCHA v3 site key — must provision for public complaint form (deferred if not available, fallback to rate-limit-by-IP)
 
 **Build artifacts:**
+
 - React components (new): `ComplaintForm.tsx`, `NPSSurvey.tsx`, `SuggestionForm.tsx`, `SuggestionBrowser.tsx` — no build-time impact
 
 ---
@@ -452,7 +461,8 @@ export function useSuggestionTrending(labId: string) {
 
 **Why it happens:** form accepts free-text CPF. Two patients enter the same CPF with different formatting (one with dots, one without). Email address (not CPF) should be the primary identifier for notifications.
 
-**How to avoid:** 
+**How to avoid:**
+
 1. In `submitComplaintPatient` callable, normalize CPF: `cpf.replace(/\D/g, '')` (digits only)
 2. Primary key for email lookup is `reclamacao.email`, not `pacienteId`. Store both: `{ pacienteId: '12345678900', email: 'patient@example.com' }`
 3. Validate email format at intake (Zod schema already does this)
@@ -466,6 +476,7 @@ export function useSuggestionTrending(labId: string) {
 **Why it happens:** Token TTL is 14 days, but token generation uses server clock. If server clock drifts or test data has synthetic tokens with wrong timestamps, token validation fails mid-survey.
 
 **How to avoid:**
+
 1. Generate token with `Timestamp.now()` (not hardcoded date)
 2. In `respondNPS`, allow 5-minute clock skew: `decoded.iat > Date.now() + 5min`
 3. Test tokens should use real `Timestamp.now()`, not mocked dates
@@ -480,6 +491,7 @@ export function useSuggestionTrending(labId: string) {
 **Why it happens:** Client-side deduplication via localStorage is not enforced server-side. Transaction does `get` → `update` but doesn't check existing votes subcollection.
 
 **How to avoid:**
+
 1. In `votarSugestao` callable, add check before increment:
    ```typescript
    const votesSnap = await tx.get(db.doc(`labs/${labId}/sugestoes/${sugestaoId}/votos/${voterId}`));
@@ -499,6 +511,7 @@ export function useSuggestionTrending(labId: string) {
 **Why it happens:** Categories defined in two places: frontend form `select` options and backend schema/rules. No single source of truth.
 
 **How to avoid:**
+
 1. Define category enum in `src/types/complaints.ts`: `export const COMPLAINT_CATEGORIES = [...]`
 2. Import in both form + dashboard components
 3. In callable, validate input against enum: `z.enum(COMPLAINT_CATEGORIES)`
@@ -513,6 +526,7 @@ export function useSuggestionTrending(labId: string) {
 **Why it happens:** Rules assume only RT + Qualidade read complaints. Public form contradicts that — now anon/patient-faced data is accessible.
 
 **How to avoid:**
+
 1. Firestore rules: `allow read: if request.auth.uid == resource.data.pacienteId || isActiveMemberOfLab(...)` — patient can only see own complaints, staff sees all
 2. If public submission, complaint stores PII — flag as sensitive in LGPD audit
 3. Test rules in emulator: anon user tries `getDoc(labs/xxx/reclamacoes/other-patient-id)` → must fail
@@ -574,7 +588,7 @@ export const submitComplaintPatient = onCall<ComplaintPayload>(
       const signature = generateLogicalSignature(
         { ...input, cpf: cpfNormalized, severidade },
         request.auth?.uid || 'system', // system for anon patient
-        admin.firestore.Timestamp.now()
+        admin.firestore.Timestamp.now(),
       );
 
       // Create reclamacao
@@ -600,7 +614,7 @@ export const submitComplaintPatient = onCall<ComplaintPayload>(
         await createNCDraft(
           input.labId,
           reclamacaoRef.id,
-          `Reclamação entrada: ${input.descricao.substring(0, 100)}`
+          `Reclamação entrada: ${input.descricao.substring(0, 100)}`,
         );
       }
 
@@ -631,7 +645,7 @@ export const submitComplaintPatient = onCall<ComplaintPayload>(
       console.error('[submitComplaintPatient]', error);
       throw new functions.https.HttpsError('internal', 'Falha ao submeter reclamação');
     }
-  }
+  },
 );
 ```
 
@@ -680,27 +694,28 @@ export function useNPSSubmit() {
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Internal-only complaint intake (RT forms) | Patient portal + callable-backed form | Phase 11 Phase 1 → 2 | Closes feedback loop: patient can self-report, no intermediary |
-| Email-only NPS delivery | Token-gated public survey (phase 2) + SMS/WhatsApp (phase 5) | Phase 11 Phase 1 → 2 | Higher response rates; customer engagement improves |
-| Manual suggestion tracking (emails, spreadsheets) | Gamified public voting + trending dashboard (phase 2) | Phase 11 Phase 1 → 2 | Transparency + community engagement; easily identifies high-impact improvements |
-| Anonymous complaints discouraged (RN-16 forbids) | Anonymous deferred v1.4.1 pending audit (pseudonymization via hash) | Phase 11 Phase 1 locked | LGPD compliance first; customer comfort second. Unlock once audit approves. |
+| Old Approach                                      | Current Approach                                                    | When Changed            | Impact                                                                          |
+| ------------------------------------------------- | ------------------------------------------------------------------- | ----------------------- | ------------------------------------------------------------------------------- |
+| Internal-only complaint intake (RT forms)         | Patient portal + callable-backed form                               | Phase 11 Phase 1 → 2    | Closes feedback loop: patient can self-report, no intermediary                  |
+| Email-only NPS delivery                           | Token-gated public survey (phase 2) + SMS/WhatsApp (phase 5)        | Phase 11 Phase 1 → 2    | Higher response rates; customer engagement improves                             |
+| Manual suggestion tracking (emails, spreadsheets) | Gamified public voting + trending dashboard (phase 2)               | Phase 11 Phase 1 → 2    | Transparency + community engagement; easily identifies high-impact improvements |
+| Anonymous complaints discouraged (RN-16 forbids)  | Anonymous deferred v1.4.1 pending audit (pseudonymization via hash) | Phase 11 Phase 1 locked | LGPD compliance first; customer comfort second. Unlock once audit approves.     |
 
 **Deprecated features:**
+
 - **Client-side `reclamacaoService.create()`** — deprecated after Phase 11 Phase 2. All patient-facing writes go via callable. Client service kept 1 sprint for fallback, then removed. [CITED: CLAUDE.md rule: "Escrita regulatória via Cloud Function callable"]
 
 ---
 
 ## Assumptions Log
 
-| # | Claim | Section | Risk if Wrong |
-|---|-------|---------|---------------|
-| A1 | reCAPTCHA v3 site key provisioned in Cloud Secret Manager | Pattern 2 (Complaint Intake) | Public form will have no bot protection; spam complaints inflate complaint volume. Mitigation: fallback to rate-limit-by-IP (slower). |
-| A2 | Email address is reliable patient identifier (vs. CPF alone) | Pitfall 1 (Email Format) | NPS/confirmation emails undeliverable if only CPF stored. **Decision:** store both; use email for notifications. |
-| A3 | Suggestion voting without auth (localStorage-only deduplication) is acceptable MVP | Pattern 3 (Voting) | Multi-device duplicate votes possible. **Decision:** acceptable v1.4; upgrade to server-side dedup v1.4.1 if adoption high. |
-| A4 | Phase 4 portal launches before Phase 11 Phase 2 executes | Architecture | Patient portal UI doesn't exist yet; Phase 11 Phase 2 assumes portal shell ready. **Dependency:** Phase 4 must deliver patient-portal routes before phase 11.2 starts. |
-| A5 | Sendgrid/SMTP credentials remain valid through phase 11.2 deployment | Standard Stack | Email delivery fails silently if secrets rotated without redeploy. **Mitig:** preflight-secrets-check.sh runs pre-deploy. |
+| #   | Claim                                                                              | Section                      | Risk if Wrong                                                                                                                                                          |
+| --- | ---------------------------------------------------------------------------------- | ---------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| A1  | reCAPTCHA v3 site key provisioned in Cloud Secret Manager                          | Pattern 2 (Complaint Intake) | Public form will have no bot protection; spam complaints inflate complaint volume. Mitigation: fallback to rate-limit-by-IP (slower).                                  |
+| A2  | Email address is reliable patient identifier (vs. CPF alone)                       | Pitfall 1 (Email Format)     | NPS/confirmation emails undeliverable if only CPF stored. **Decision:** store both; use email for notifications.                                                       |
+| A3  | Suggestion voting without auth (localStorage-only deduplication) is acceptable MVP | Pattern 3 (Voting)           | Multi-device duplicate votes possible. **Decision:** acceptable v1.4; upgrade to server-side dedup v1.4.1 if adoption high.                                            |
+| A4  | Phase 4 portal launches before Phase 11 Phase 2 executes                           | Architecture                 | Patient portal UI doesn't exist yet; Phase 11 Phase 2 assumes portal shell ready. **Dependency:** Phase 4 must deliver patient-portal routes before phase 11.2 starts. |
+| A5  | Sendgrid/SMTP credentials remain valid through phase 11.2 deployment               | Standard Stack               | Email delivery fails silently if secrets rotated without redeploy. **Mitig:** preflight-secrets-check.sh runs pre-deploy.                                              |
 
 ---
 
@@ -730,16 +745,17 @@ export function useNPSSubmit() {
 
 ## Environment Availability
 
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Firebase Auth | Patient token validation | ✓ | v12 | — |
-| Firestore | Complaint + NPS data store | ✓ | v12 | — |
-| SMTP/Sendgrid | Email delivery (NPS + confirmation) | ✓ | Provisioned Phase 1 | nodemailer fallback (slower) |
-| reCAPTCHA v3 | Public complaint form bot protection | ⏳ Pending provision | latest | Rate-limit-by-IP (weaker) |
-| Cloud Functions | Callable functions (submit, vote, respond) | ✓ | Node 22 | — |
-| Cloud Secret Manager | Store SMTP credentials + reCAPTCHA key | ✓ | — | — |
+| Dependency           | Required By                                | Available            | Version             | Fallback                     |
+| -------------------- | ------------------------------------------ | -------------------- | ------------------- | ---------------------------- |
+| Firebase Auth        | Patient token validation                   | ✓                    | v12                 | —                            |
+| Firestore            | Complaint + NPS data store                 | ✓                    | v12                 | —                            |
+| SMTP/Sendgrid        | Email delivery (NPS + confirmation)        | ✓                    | Provisioned Phase 1 | nodemailer fallback (slower) |
+| reCAPTCHA v3         | Public complaint form bot protection       | ⏳ Pending provision | latest              | Rate-limit-by-IP (weaker)    |
+| Cloud Functions      | Callable functions (submit, vote, respond) | ✓                    | Node 22             | —                            |
+| Cloud Secret Manager | Store SMTP credentials + reCAPTCHA key     | ✓                    | —                   | —                            |
 
 **Missing dependencies with fallback:**
+
 - reCAPTCHA: Phase 11 Phase 2 can launch without it; public form uses IP rate limiting only.
 
 ---
@@ -749,31 +765,35 @@ export function useNPSSubmit() {
 **Validation enabled** (workflow.nyquist_validation not set to false in .planning/config.json — treating as enabled).
 
 ### Test Framework
-| Property | Value |
-|----------|-------|
-| Framework | Jest + Firestore emulator |
-| Config file | `jest.config.js` (root) + `functions/jest.config.js` |
-| Quick run command | `npm test -- --testNamePattern="reclamacoes\|satisfacao\|sugestoes" --bail` |
-| Full suite command | `npm test` |
+
+| Property           | Value                                                                       |
+| ------------------ | --------------------------------------------------------------------------- |
+| Framework          | Jest + Firestore emulator                                                   |
+| Config file        | `jest.config.js` (root) + `functions/jest.config.js`                        |
+| Quick run command  | `npm test -- --testNamePattern="reclamacoes\|satisfacao\|sugestoes" --bail` |
+| Full suite command | `npm test`                                                                  |
 
 ### Phase Requirements → Test Map
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| REQ-414 (Complaints + NPS) | Patient submits complaint via callable | integration | `npm test -- functions/src/modules/reclamacoes/submitComplaintPatient.test.ts -x` | ✅ (Phase 1) |
-| REQ-414 (Complaints + NPS) | NPS email fires on Resolvida status change | integration | `npm test -- functions/src/modules/satisfacao/dispararNPSPosResolucao.test.ts -x` | ✅ (Phase 1) |
-| REQ-414 (Complaints + NPS) | Patient responds NPS with token | integration | `npm test -- functions/src/modules/satisfacao/respondNPS.test.ts -x` | ❌ Phase 2 gap |
-| REQ-414 (Suggestions) | Patient submits suggestion | integration | `npm test -- functions/src/modules/sugestoes/criarSugestao.test.ts -x` | ✅ (Phase 1) |
-| NEW: Suggestion voting | Patient votes on suggestion (idempotent) | integration | `npm test -- functions/src/modules/sugestoes/votarSugestao.test.ts -x` | ❌ Phase 2 gap |
-| NEW: Form validation (complaint intake) | ComplaintForm zod schema validation | unit | `npm test -- src/features/patient-portal/hooks/useComplaintSubmit.test.ts -x` | ❌ Phase 2 gap |
-| NEW: Form validation (NPS survey) | NPSSurvey component + token validation | unit | `npm test -- src/features/patient-portal/hooks/useNPSSubmit.test.ts -x` | ❌ Phase 2 gap |
-| NEW: Patient complaint access (Firestore rules) | Patient can read own complaints only | integration | `npm test -- firestore.rules.test.ts -x` (new test: anon user cannot read other patient complaints) | ❌ Phase 2 gap |
+
+| Req ID                                          | Behavior                                   | Test Type   | Automated Command                                                                                   | File Exists?   |
+| ----------------------------------------------- | ------------------------------------------ | ----------- | --------------------------------------------------------------------------------------------------- | -------------- |
+| REQ-414 (Complaints + NPS)                      | Patient submits complaint via callable     | integration | `npm test -- functions/src/modules/reclamacoes/submitComplaintPatient.test.ts -x`                   | ✅ (Phase 1)   |
+| REQ-414 (Complaints + NPS)                      | NPS email fires on Resolvida status change | integration | `npm test -- functions/src/modules/satisfacao/dispararNPSPosResolucao.test.ts -x`                   | ✅ (Phase 1)   |
+| REQ-414 (Complaints + NPS)                      | Patient responds NPS with token            | integration | `npm test -- functions/src/modules/satisfacao/respondNPS.test.ts -x`                                | ❌ Phase 2 gap |
+| REQ-414 (Suggestions)                           | Patient submits suggestion                 | integration | `npm test -- functions/src/modules/sugestoes/criarSugestao.test.ts -x`                              | ✅ (Phase 1)   |
+| NEW: Suggestion voting                          | Patient votes on suggestion (idempotent)   | integration | `npm test -- functions/src/modules/sugestoes/votarSugestao.test.ts -x`                              | ❌ Phase 2 gap |
+| NEW: Form validation (complaint intake)         | ComplaintForm zod schema validation        | unit        | `npm test -- src/features/patient-portal/hooks/useComplaintSubmit.test.ts -x`                       | ❌ Phase 2 gap |
+| NEW: Form validation (NPS survey)               | NPSSurvey component + token validation     | unit        | `npm test -- src/features/patient-portal/hooks/useNPSSubmit.test.ts -x`                             | ❌ Phase 2 gap |
+| NEW: Patient complaint access (Firestore rules) | Patient can read own complaints only       | integration | `npm test -- firestore.rules.test.ts -x` (new test: anon user cannot read other patient complaints) | ❌ Phase 2 gap |
 
 ### Sampling Rate
+
 - **Per task commit:** `npm test -- --testNamePattern="reclamacoes\|satisfacao\|sugestoes" --bail` (quick pass/fail on Phase 11 modules)
 - **Per wave merge:** `npm test` (full suite, including Phase 1 regression check)
 - **Phase gate:** Full suite green + manual E2E spot-check (patient submits complaint → NPS email sent → patient responds) before `/gsd-verify-work`
 
 ### Wave 0 Gaps
+
 - [ ] `functions/src/modules/satisfacao/respondNPS.test.ts` — covers token validation + pacienteId anonymization (>90d cron trigger)
 - [ ] `functions/src/modules/sugestoes/votarSugestao.test.ts` — covers vote idempotency + concurrent votes (stress test: 10 concurrent `votarSugestao` calls for same suggestion)
 - [ ] `src/features/patient-portal/hooks/useComplaintSubmit.test.ts` — zod validation + reCAPTCHA mocking
@@ -781,7 +801,7 @@ export function useNPSSubmit() {
 - [ ] `firestore.rules.test.ts` extension — rule for `allow read` on patient's own complaints (new rule needed: anon users cannot read any complaints)
 - [ ] E2E flow test (Detox, Phase 11 Phase 2 Plan 04): patient submits complaint via portal → system creates doc → RT marks Resolvida → NPS email sent → patient clicks link → responds NPS → reclamacao.status → Fechada
 
-*Note: Phase 1 has 15+ existing tests for reclamacoes/satisfacao/sugestoes; Phase 2 adds 6 new tests above.*
+_Note: Phase 1 has 15+ existing tests for reclamacoes/satisfacao/sugestoes; Phase 2 adds 6 new tests above._
 
 ---
 
@@ -791,27 +811,28 @@ export function useNPSSubmit() {
 
 ### Applicable ASVS Categories
 
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| V2 Authentication | yes | Firebase Auth token (patient portal) + email-link (NPS survey token) |
-| V3 Session Management | yes | Token valid 14 days (NPS), configurable refresh for portal session |
-| V4 Access Control | yes | Firestore rules: patient reads own complaints only; RT/Qualidade see all |
-| V5 Input Validation | yes | Zod schema validation on complaint intake (email, CPF, description); reCAPTCHA v3 bot check |
-| V6 Cryptography | yes | Complaint signature via `generateLogicalSignature` (SHA256 hash, operatorId, ts); email-link token via Firebase JWT |
+| ASVS Category         | Applies | Standard Control                                                                                                    |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------- |
+| V2 Authentication     | yes     | Firebase Auth token (patient portal) + email-link (NPS survey token)                                                |
+| V3 Session Management | yes     | Token valid 14 days (NPS), configurable refresh for portal session                                                  |
+| V4 Access Control     | yes     | Firestore rules: patient reads own complaints only; RT/Qualidade see all                                            |
+| V5 Input Validation   | yes     | Zod schema validation on complaint intake (email, CPF, description); reCAPTCHA v3 bot check                         |
+| V6 Cryptography       | yes     | Complaint signature via `generateLogicalSignature` (SHA256 hash, operatorId, ts); email-link token via Firebase JWT |
 
 ### Known Threat Patterns for {stack}
 
-| Pattern | STRIDE | Standard Mitigation |
-|---------|--------|---------------------|
-| Patient submits complaint with another patient's CPF (identity spoofing) | Spoofing | Validate CPF format; email confirmation required before status change (Phase 2 future). For MVP, trust patient-provided CPF + LGPD audit trail log. |
-| Bot spam: complaint form flooded with junk | Tampering / DoS | reCAPTCHA v3 score check; fallback IP rate-limit (5/hour per IP) |
-| Patient guesses NPS token (14-day valid) | Spoofing | Firebase JWT validation; token is cryptographically signed. Brute-force infeasible (256-bit entropy). Log failed token attempts. |
-| Patient divulges NPS link to another person (survey hijacking) | Spoofing | NPS response stored with `respondedAt` timestamp; if second response received after first, flag in audit trail. Manual RT review. Not auto-blocked (UX friction). |
-| Staff member reads other patient's complaint in Firestore console | Escalation | Firestore rules enforce `pacienteId == auth.uid || isActiveMemberOfLab`. Non-members cannot read even via console (fail-safe). Audit logs every read attempt. |
-| Email intercepted mid-transit (NPS link theft) | Eavesdropping | Email sent over TLS (SMTP + reCAPTCHA-validated origin); link valid 14 days (time window for patient to respond). No secrets in URL, only opaque token. |
-| LGPD deletion request delayed (retention >5 years) | Violation | RDC 978 Art. 115 = 5-year minimum retention. LGPD Art. 18 = access on request. Callable `exportarMeusDadosLgpd` + `solicitarExclusaoLgpd` implemented Phase 1. |
+| Pattern                                                                  | STRIDE          | Standard Mitigation                                                                                                                                               |
+| ------------------------------------------------------------------------ | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------- | --- | ---------------------------------------------------------------------------------------------------------- |
+| Patient submits complaint with another patient's CPF (identity spoofing) | Spoofing        | Validate CPF format; email confirmation required before status change (Phase 2 future). For MVP, trust patient-provided CPF + LGPD audit trail log.               |
+| Bot spam: complaint form flooded with junk                               | Tampering / DoS | reCAPTCHA v3 score check; fallback IP rate-limit (5/hour per IP)                                                                                                  |
+| Patient guesses NPS token (14-day valid)                                 | Spoofing        | Firebase JWT validation; token is cryptographically signed. Brute-force infeasible (256-bit entropy). Log failed token attempts.                                  |
+| Patient divulges NPS link to another person (survey hijacking)           | Spoofing        | NPS response stored with `respondedAt` timestamp; if second response received after first, flag in audit trail. Manual RT review. Not auto-blocked (UX friction). |
+| Staff member reads other patient's complaint in Firestore console        | Escalation      | Firestore rules enforce `pacienteId == auth.uid                                                                                                                   |     | isActiveMemberOfLab`. Non-members cannot read even via console (fail-safe). Audit logs every read attempt. |
+| Email intercepted mid-transit (NPS link theft)                           | Eavesdropping   | Email sent over TLS (SMTP + reCAPTCHA-validated origin); link valid 14 days (time window for patient to respond). No secrets in URL, only opaque token.           |
+| LGPD deletion request delayed (retention >5 years)                       | Violation       | RDC 978 Art. 115 = 5-year minimum retention. LGPD Art. 18 = access on request. Callable `exportarMeusDadosLgpd` + `solicitarExclusaoLgpd` implemented Phase 1.    |
 
 **Hardened decisions:**
+
 1. **No anon complaints v1.4** — CPF identification mandatory (RN-16), LGPD Art. 18 compliance.
 2. **Soft-delete only** — `deletadoEm` timestamp, never `deleteDoc` (RN-06, audit trail preservation).
 3. **Server-side signature** — callable generates `LogicalSignature`, client cannot forge (ADR-0001).
@@ -822,17 +843,20 @@ export function useNPSSubmit() {
 ## Sources
 
 ### Primary (HIGH confidence)
+
 - [VERIFIED: codebase] — Phase 11 Phase 1 `src/features/reclamacoes/CLAUDE.md` + Phase 1 functions already deployed (dispararNPSPosResolucao, transitarReclamacao, criarSugestao)
 - [CITED: .planning/milestones/v1.4-REQUIREMENTS.md REQ-414] — "Reclamações + Satisfação (Bloco 2, extend existing)" — 13–16 pts, Phase 3 assignment
 - [CITED: CLAUDE.md root § Convenções invioláveis] — RN-06 (soft-delete), RN-11 (signature), multi-tenant paths
 - [VERIFIED: codebase firestore.rules] — Existing multi-tenant read/write rules pattern
 
 ### Secondary (MEDIUM confidence)
+
 - [CITED: .planning/milestones/v1.4-ROADMAP.md Phase 5] — Critical values escalation (SMS/WhatsApp deferred); Phase 4 patient portal; NOTIVISA Art. 6º
 - [CITED: Obsidian_Brain/HC_Quality_Compliance_DICQ.md] — DICQ 4.8 (complaint workflow), 4.14.3 (satisfaction), 4.14.4 (suggestions)
 - [CITED: Obsidian_Brain/HC_Quality_RDC_978_2025_Resumo.md Art. 115–117] — 5-year retention, documentation, PGQ components
 
 ### Tertiary (LOW confidence)
+
 - [ASSUMED] reCAPTCHA v3 credentials provisioned — deferred v1.4.1 if not available
 - [ASSUMED] Phase 4 Portal Paciente launches before Phase 11 Phase 2 — no hard confirmation in roadmap; Phase 2 planning assumes portal shell ready
 
@@ -841,6 +865,7 @@ export function useNPSSubmit() {
 ## Metadata
 
 **Confidence breakdown:**
+
 - **Standard stack:** HIGH — Phase 11 Phase 1 live, Firebase + React proven. No new deps.
 - **Architecture:** HIGH — Phase 11 Phase 1 design locked, extends via callables (proven pattern).
 - **Compliance (RDC 978 + DICQ):** HIGH — verified in Obsidian compliance spine + ADRs.
@@ -851,8 +876,8 @@ export function useNPSSubmit() {
 **Valid until:** 2026-05-21 (2 weeks — Phase 11 Phase 2 planning starts 2026-05-13, assumes no major DICQ/RDC changes)
 
 **Risks requiring validation before execution:**
+
 1. Phase 4 portal delays → Phase 11 Phase 2 can still execute (callables are backend-only), but no UI to test
 2. reCAPTCHA v3 key not provisioned → fallback to IP rate-limiting only
 3. NPS token generation clock-skew issues → requires careful testing in emulator + staging
 4. Suggestion vote spam at scale (1000+ suggestions) → current client-side dedup insufficient; upgrade v1.4.1
-

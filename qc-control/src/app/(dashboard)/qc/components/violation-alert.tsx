@@ -1,40 +1,40 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 interface Violation {
-  rule: string
-  isWarning: boolean
-  isReject: boolean
-  sdDistance: number
+  rule: string;
+  isWarning: boolean;
+  isReject: boolean;
+  sdDistance: number;
 }
 
 interface Run {
-  id: string
-  value: number
-  sdDistance: number
-  ruleViolated: string | null
-  justification: string | null
+  id: string;
+  value: number;
+  sdDistance: number;
+  ruleViolated: string | null;
+  justification: string | null;
 }
 
 interface ViolationAlertProps {
-  violation: Violation
-  run: Run
-  onRelease: (justification: string) => void
+  violation: Violation;
+  run: Run;
+  onRelease: (justification: string) => void;
 }
 
 export function ViolationAlert({ violation, run, onRelease }: ViolationAlertProps) {
-  const [justification, setJustification] = useState('')
-  const [showPanel, setShowPanel] = useState(false)
-  const [submitting, setSubmitting] = useState(false)
+  const [justification, setJustification] = useState('');
+  const [showPanel, setShowPanel] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   async function handleRelease() {
-    if (justification.length < 10) return
-    setSubmitting(true)
-    await onRelease(justification)
-    setSubmitting(false)
-    setShowPanel(false)
-    setJustification('')
+    if (justification.length < 10) return;
+    setSubmitting(true);
+    await onRelease(justification);
+    setSubmitting(false);
+    setShowPanel(false);
+    setJustification('');
   }
 
   return (
@@ -43,9 +43,7 @@ export function ViolationAlert({ violation, run, onRelease }: ViolationAlertProp
         <div className="flex items-center gap-3">
           <span className="text-error text-lg font-bold">!</span>
           <div>
-            <p className="text-sm font-semibold text-error">
-              Rule Violation: {violation.rule}
-            </p>
+            <p className="text-sm font-semibold text-error">Rule Violation: {violation.rule}</p>
             <p className="text-xs text-error/80">
               SD Distance: {violation.sdDistance.toFixed(2)} — Justification required
             </p>
@@ -110,5 +108,5 @@ export function ViolationAlert({ violation, run, onRelease }: ViolationAlertProp
         </div>
       )}
     </>
-  )
+  );
 }

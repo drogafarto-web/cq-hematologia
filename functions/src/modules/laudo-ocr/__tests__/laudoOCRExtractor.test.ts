@@ -8,12 +8,7 @@ import * as admin from 'firebase-admin';
 import { HttpsError } from 'firebase-functions/v2/https';
 import { extractLaudoFields } from '../laudoOCRExtractor';
 import { validateLaudoExtraction, getExtractionReviewLevel } from '../validators';
-import {
-  Field10,
-  Field11,
-  Field12,
-  LaudoExtractedFields,
-} from '../types';
+import { Field10, Field11, Field12, LaudoExtractedFields } from '../types';
 
 // Mock Firestore
 const mockFirestore = {
@@ -255,7 +250,7 @@ describe('Laudo OCR Extractor', () => {
   describe('Error handling', () => {
     it('should throw HttpsError if storageUrl is invalid', () => {
       expect(() => {
-        if (!('https://'.includes('invalid-url'))) {
+        if (!'https://'.includes('invalid-url')) {
           throw new HttpsError('invalid-argument', 'Invalid laudoPdfUrl');
         }
       }).toThrow(HttpsError);

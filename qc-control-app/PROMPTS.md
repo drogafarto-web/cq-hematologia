@@ -11,6 +11,7 @@ Prompts otimizados para o modelo DeepSeek V4 Flash, organizados por onda. Copie/
 5. **Se errar**, faça rollback e repita com prompt mais específico
 
 DeepSeek V4 Flash performa melhor com:
+
 - Contexto completo (sempre envie schema + código atual)
 - Exemplos de código esperado
 - Instruções passo-a-passo
@@ -100,8 +101,10 @@ ENTREGÁVEIS ESPERADOS (entregue código completo de cada):
 ENTREGUE cada arquivo separadamente, com path completo no topo de cada um. Exemplo:
 
 ```
+
 // src/app/layout.tsx
 [...código...]
+
 ```
 
 Depois me dê os comandos finais de validação (npm run dev, npm run lint, etc).
@@ -1003,6 +1006,7 @@ Qual opção escolher e por quê? Considere:
 Use este checklist para validar cada onda antes de ir para próxima:
 
 ### Onda 0 ✅
+
 - [ ] `npm run dev` roda sem erros
 - [ ] `docker compose up` sobe Postgres em 5432
 - [ ] `npx prisma --help` funciona
@@ -1010,6 +1014,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit feito: "chore: scaffold"
 
 ### Onda 1 ✅
+
 - [ ] `npx prisma migrate dev` cria tabelas
 - [ ] `npx prisma db seed` popula dados
 - [ ] `npx prisma studio` mostra tables
@@ -1017,6 +1022,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat(db): schema + seeds"
 
 ### Onda 2 ✅
+
 - [ ] `/login` renderiza
 - [ ] Login funciona com analyst@lab.test / lab123
 - [ ] `/qc` sem auth → redirect `/login`
@@ -1024,6 +1030,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat(auth): nextauth"
 
 ### Onda 3 ✅
+
 - [ ] Todos primitivos renderizam em página teste
 - [ ] Header + nav funcionais
 - [ ] `/qc` renderiza layout + LeveyJennings (dummy data)
@@ -1031,6 +1038,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat(ui): design system + layout"
 
 ### Onda 4 ✅
+
 - [ ] `/qc` mostra chart real
 - [ ] Quick add cria run
 - [ ] Violação força justificativa
@@ -1039,6 +1047,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat: QC Control screen"
 
 ### Onda 5 ✅
+
 - [ ] CRUD lots funcional
 - [ ] Audit log gravado por campo
 - [ ] Archive funciona
@@ -1046,6 +1055,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat: Lot Management"
 
 ### Onda 6 ✅
+
 - [ ] CRUD CA funcional
 - [ ] Auto-numbering CA-YYYY-NNNN
 - [ ] State machine valida transições
@@ -1053,12 +1063,14 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat: Corrective Actions"
 
 ### Onda 7 ✅
+
 - [ ] CRUD analyzers
 - [ ] Calibration e Maintenance logs
 - [ ] Status derivado correto
 - [ ] Commit: "feat: Analyzer Management"
 
 ### Onda 8 ✅
+
 - [ ] 4 types de reports geram PDF
 - [ ] Excel exports funcionam
 - [ ] Preview funciona
@@ -1066,6 +1078,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "feat: Reports"
 
 ### Onda 9 ✅
+
 - [ ] `npm test` passa tudo
 - [ ] `npx playwright test` passa E2E
 - [ ] Coverage >80% em /lib
@@ -1073,6 +1086,7 @@ Use este checklist para validar cada onda antes de ir para próxima:
 - [ ] Commit: "test: full coverage"
 
 ### Onda 10 ✅
+
 - [ ] Vercel deploy ok
 - [ ] NeonDB provisioned
 - [ ] README completo

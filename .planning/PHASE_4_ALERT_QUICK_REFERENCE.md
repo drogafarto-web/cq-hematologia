@@ -94,6 +94,7 @@
 ## Critical Commands (Copy-Paste Ready)
 
 ### Auth Failures Triage
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function" AND severity>=ERROR AND \
@@ -103,6 +104,7 @@ gcloud logging read \
 ```
 
 ### NOTIVISA Queue Status
+
 ```bash
 gcloud firestore documents list \
   --collection-ids=notivisa-queue \
@@ -111,6 +113,7 @@ gcloud firestore documents list \
 ```
 
 ### Firestore Rule Rejections
+
 ```bash
 gcloud logging read \
   'resource.type="firestore" AND textPayload=~".*Permission.*denied.*"' \
@@ -119,6 +122,7 @@ gcloud logging read \
 ```
 
 ### Email Delivery Rate
+
 ```bash
 gcloud logging read \
   "resource.type='cloud_function' AND \
@@ -129,6 +133,7 @@ gcloud logging read \
 ```
 
 ### Function Latency p95
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function"' \
@@ -143,15 +148,16 @@ gcloud logging read \
 
 ## Runbook Quick Links
 
-| Alert | Runbook | Path |
-|-------|---------|------|
-| **Portal Auth Failures** | auth-failures | `.planning/runbooks/phase-4-auth-failures.md` |
-| **NOTIVISA Queue Stuck** | notivisa-queue | `.planning/runbooks/phase-4-notivisa-queue.md` |
-| **Firestore Rules Rejections** | firestore-rules | `.planning/runbooks/phase-4-firestore-rules.md` |
-| **Email Delivery Failure** | email-delivery | `.planning/runbooks/phase-4-email-delivery.md` |
-| **Function Latency** | function-latency | `.planning/runbooks/phase-4-function-latency.md` |
+| Alert                          | Runbook          | Path                                             |
+| ------------------------------ | ---------------- | ------------------------------------------------ |
+| **Portal Auth Failures**       | auth-failures    | `.planning/runbooks/phase-4-auth-failures.md`    |
+| **NOTIVISA Queue Stuck**       | notivisa-queue   | `.planning/runbooks/phase-4-notivisa-queue.md`   |
+| **Firestore Rules Rejections** | firestore-rules  | `.planning/runbooks/phase-4-firestore-rules.md`  |
+| **Email Delivery Failure**     | email-delivery   | `.planning/runbooks/phase-4-email-delivery.md`   |
+| **Function Latency**           | function-latency | `.planning/runbooks/phase-4-function-latency.md` |
 
 **Quick Access:**
+
 1. Read alert message in Slack
 2. Identify severity (P1/P2/P3)
 3. Find matching row in table above
@@ -171,6 +177,7 @@ gcloud logging read \
 - [ ] Tried all troubleshooting in relevant section
 
 **ACTION:** Page CTO immediately
+
 ```bash
 # Send SMS to CTO
 echo "P1 Alert: [Alert Name] unresolved >30min. Executing runbook steps but need guidance. Check Slack #production-alerts"
@@ -183,6 +190,7 @@ echo "P1 Alert: [Alert Name] unresolved >30min. Executing runbook steps but need
 - [ ] Manual intervention considered (rollback, soft-delete, etc.)
 
 **ACTION:** Prepare rollback decision
+
 - Check last stable version (v1.3 portal-disabled)
 - Contact CTO for authority to rollback
 - Execute rollback if approved
@@ -194,6 +202,7 @@ echo "P1 Alert: [Alert Name] unresolved >30min. Executing runbook steps but need
 - [ ] Mass access attempts (DDoS pattern)
 
 **ACTION:** Page CTO + Security team immediately
+
 - Stop all user operations (possible breach)
 - Preserve audit trail (no deletions)
 - Begin forensics
@@ -203,17 +212,20 @@ echo "P1 Alert: [Alert Name] unresolved >30min. Executing runbook steps but need
 ## Dashboard Access
 
 **Primary Dashboard (check every 5 min during incident):**
+
 ```
 GCP Cloud Monitoring → Dashboards → "HC Quality — Production System Health"
 ```
 
 **Key Metrics to Watch:**
+
 - Cloud Functions Error Rate (target: <0.1%)
 - Firestore Quota Usage (target: <50%)
 - Portal Auth Latency p95 (target: <1.5s)
 - NOTIVISA Queue Pending (target: 0)
 
 **All 4 Dashboards:**
+
 1. **Portal Auth Health** — Token gen, email delivery, session count, latency
 2. **NOTIVISA Queue Health** — Queue status, submission rate, webhook ACK, processor cron
 3. **Firestore Access Patterns** — Patient/RT reads, rule rejections, access heatmap
@@ -224,25 +236,30 @@ GCP Cloud Monitoring → Dashboards → "HC Quality — Production System Health
 ## Contact Cheat Sheet
 
 **PRIMARY ON-CALL** (Mon–Fri 9am–5pm, + on-call rotation)
+
 - SMS/Voice Pager: [configured in on-call system]
 - Slack: @on-call-primary
 - Timezone: UTC
 
 **SECONDARY ON-CALL** (backup if primary unavailable)
+
 - SMS/Voice Pager: [configured in on-call system]
 - Slack: @on-call-secondary
 - Timezone: UTC
 
 **CTO** (for P0/P1 unresolved >30min)
+
 - Email: [from v1.4-INCIDENT_RESPONSE_CONTACTS.md]
 - SMS: [from on-call system]
 - Slack: @CTO
 
 **SUPPORT MANAGER** (for email/portal issues)
+
 - Slack: #support-operations
 - Email: [from v1.4-INCIDENT_RESPONSE_CONTACTS.md]
 
 **SECURITY TEAM** (for access control incidents)
+
 - Slack: #security
 - Email: [from v1.4-INCIDENT_RESPONSE_CONTACTS.md]
 
@@ -283,15 +300,16 @@ Post-Incident:
 
 ## Common False Positives
 
-| Alert | False Positive Cause | Fix |
-|-------|---------------------|-----|
-| Auth Failures | Cold start latency | Exclude first 2 min after deploy |
-| NOTIVISA Queue | Slow gov API (normal) | Increase timeout threshold |
-| Firestore Rejections | Expected rejections (viewer accessing admin) | Refine filter to exclude expected patterns |
-| Email Delivery | Normal temporary SendGrid hiccup | Increase failure rate threshold to >30% |
-| Function Latency | Cold start (expected) | Monitor warm execution only (skip first 10 min) |
+| Alert                | False Positive Cause                         | Fix                                             |
+| -------------------- | -------------------------------------------- | ----------------------------------------------- |
+| Auth Failures        | Cold start latency                           | Exclude first 2 min after deploy                |
+| NOTIVISA Queue       | Slow gov API (normal)                        | Increase timeout threshold                      |
+| Firestore Rejections | Expected rejections (viewer accessing admin) | Refine filter to exclude expected patterns      |
+| Email Delivery       | Normal temporary SendGrid hiccup             | Increase failure rate threshold to >30%         |
+| Function Latency     | Cold start (expected)                        | Monitor warm execution only (skip first 10 min) |
 
 **If alert fires repeatedly for same false positive:**
+
 1. Document in runbook
 2. Request threshold adjustment
 3. Update alert policy in GCP Console

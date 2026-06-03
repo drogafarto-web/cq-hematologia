@@ -38,6 +38,7 @@
 ### 8 min: Create Alerts (4 policies × 2 min each)
 
 **Alert 1: Availability (70% budget)**
+
 - [ ] Cloud Monitoring → **Alert Policies** → **Create Policy**
 - [ ] Name: `HC Quality Availability Budget 70%`
 - [ ] Metric: `compute.googleapis.com | uptime`
@@ -47,6 +48,7 @@
 - [ ] **Create**
 
 **Alert 2: Performance (P99 >2.5s)**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Latency P99 >2.5s`
 - [ ] Metric: `cloudfunctions.googleapis.com | function/execution_times`
@@ -57,6 +59,7 @@
 - [ ] **Create**
 
 **Alert 3: Error Rate (>0.1%)**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Error Rate >0.1%`
 - [ ] Metric: `logging.googleapis.com | user_defined_metric`
@@ -66,6 +69,7 @@
 - [ ] **Create**
 
 **Alert 4: Audit Trail (<100%)**
+
 - [ ] **Create Policy**
 - [ ] Name: `HC Quality Audit Trail Capture <100%`
 - [ ] Metric: `logging.googleapis.com | audit_trail_capture_rate`
@@ -77,6 +81,7 @@
 ### 5 min: Setup Custom Metrics
 
 **Error Rate Metric:**
+
 - [ ] Logs Explorer → **Create Metric**
 - [ ] Filter: `severity=ERROR AND (resource.type="cloud_function" OR resource.type="cloud_run")`
 - [ ] Metric Name: `error_rate_percent`
@@ -84,12 +89,14 @@
 - [ ] **Create**
 
 **Audit Trail Metric:**
+
 - [ ] **Create Metric**
 - [ ] Filter: `resource.type="cloud_firestore" AND resource.namespace="audit-trail"`
 - [ ] Metric Name: `audit_trail_events_captured`
 - [ ] **Create**
 
 **Expected Writes Metric:**
+
 - [ ] **Create Metric**
 - [ ] Filter: `resource.type="cloud_firestore" AND jsonPayload.operation="create"`
 - [ ] Metric Name: `audit_trail_expected_writes`
@@ -105,6 +112,7 @@
 - [ ] **Create**
 
 OR (manual alternative):
+
 - [ ] Add recurring Slack reminder: `/remind #observability "SLO weekly review" every Monday at 09:00 UTC`
 
 ---
@@ -138,13 +146,14 @@ OR (manual alternative):
    - [ ] Error rate stable?
 3. [ ] Take screenshot
 4. [ ] Post to Slack #observability:
+
    ```
    **SLO Weekly Review — [Date]**
-   
+
    Availability: 99.94% ✅ | Performance: 2.1s P99 ✅ | Error Rate: 0.003% ✅ | Audit Trail: 100% ✅
-   
+
    Trend: Stable | Incidents: 0 | Budget Remaining: 3.2h
-   
+
    [screenshot]
    ```
 
@@ -163,9 +172,9 @@ OR (manual alternative):
    - [ ] Incident RCA (if any)
    - [ ] Budget consumed
 3. [ ] Get sign-offs:
-   - [ ] DevOps Lead: ______ Date: ______
-   - [ ] CTO: ______ Date: ______
-   - [ ] Auditor: ______ Date: ______
+   - [ ] DevOps Lead: **\_\_** Date: **\_\_**
+   - [ ] CTO: **\_\_** Date: **\_\_**
+   - [ ] Auditor: **\_\_** Date: **\_\_**
 4. [ ] Save to `.planning/reports/SLO_REPORT_[YYYY-MM].md`
 5. [ ] Upload to auditor system (or Slack #compliance)
 
@@ -204,42 +213,45 @@ OR (manual alternative):
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Dashboard shows "No data" | Wait 5 min, refresh. Metrics take time to populate. |
-| Alert never fires even though error rate is high | Verify custom metric exists in Logs Explorer. Recreate if needed. |
-| Slack notifications not arriving | Check notification channel config in Alert Policy. Test manually. |
-| P99 latency showing 0ms | Check that functions have executed at least once this hour. Cold-start may delay first data point. |
-| Audit trail capture stuck at 0% | Ensure audit functions are writing to `audit-trail` subcollection. Check `docs/adr/ADR-0012` for schema. |
+| Issue                                            | Fix                                                                                                      |
+| ------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| Dashboard shows "No data"                        | Wait 5 min, refresh. Metrics take time to populate.                                                      |
+| Alert never fires even though error rate is high | Verify custom metric exists in Logs Explorer. Recreate if needed.                                        |
+| Slack notifications not arriving                 | Check notification channel config in Alert Policy. Test manually.                                        |
+| P99 latency showing 0ms                          | Check that functions have executed at least once this hour. Cold-start may delay first data point.       |
+| Audit trail capture stuck at 0%                  | Ensure audit functions are writing to `audit-trail` subcollection. Check `docs/adr/ADR-0012` for schema. |
 
 ---
 
 ## Files Reference
 
-| File | Purpose |
-|------|---------|
-| `.planning/docs/SLO_TRACKING_SETUP.md` | Full specification (read once) |
-| `.planning/dashboard-json/SLO_TRACKING_DASHBOARD.json` | Dashboard import JSON |
-| `.planning/docs/SLO_TRACKING_QUICKSTART.md` | This checklist |
-| `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` | Monthly report template |
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | How to debug logs if alerts fire |
-| `docs/DR_PLAN.md` | Incident response playbook |
+| File                                                   | Purpose                          |
+| ------------------------------------------------------ | -------------------------------- |
+| `.planning/docs/SLO_TRACKING_SETUP.md`                 | Full specification (read once)   |
+| `.planning/dashboard-json/SLO_TRACKING_DASHBOARD.json` | Dashboard import JSON            |
+| `.planning/docs/SLO_TRACKING_QUICKSTART.md`            | This checklist                   |
+| `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md`        | Monthly report template          |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md`                  | How to debug logs if alerts fire |
+| `docs/DR_PLAN.md`                                      | Incident response playbook       |
 
 ---
 
 ## Rollout Phases
 
 **Phase 1 (Week 1):**
+
 - [ ] Setup dashboard + 4 alerts
 - [ ] Team briefing on Slack #observability
 - [ ] Oncall engineer briefed on escalation
 
 **Phase 2 (Week 2–4):**
+
 - [ ] Daily checks (catch and fix any false positives)
 - [ ] First weekly review
 - [ ] First monthly report
 
 **Phase 3 (Month 2+):**
+
 - [ ] SLO tracking becomes standard ops
 - [ ] Monthly reports to auditor
 - [ ] Quarterly review of alert thresholds (tune if needed)
@@ -248,14 +260,15 @@ OR (manual alternative):
 
 ## Sign-Off
 
-- **Setup Owner:** ________________ Date: ________
-- **CTO Review:** ________________ Date: ________
-- **Ops Lead Acknowledgment:** ________________ Date: ________
+- **Setup Owner:** ******\_\_\_\_****** Date: **\_\_\_\_**
+- **CTO Review:** ******\_\_\_\_****** Date: **\_\_\_\_**
+- **Ops Lead Acknowledgment:** ******\_\_\_\_****** Date: **\_\_\_\_**
 
 Ready to deploy: [ ] Yes [ ] No
 
 If not ready, note blockers:
-_________________________________________________________________
+
+---
 
 ---
 

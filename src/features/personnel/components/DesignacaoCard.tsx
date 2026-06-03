@@ -75,12 +75,16 @@ export function DesignacaoCard({ designacaoId }: DesignacaoCardProps): React.Rea
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="text-xs font-semibold uppercase text-white/40">Data Início</div>
-          <div className="mt-1 text-white tabular-nums">{startDate.toLocaleDateString('pt-BR')}</div>
+          <div className="mt-1 text-white tabular-nums">
+            {startDate.toLocaleDateString('pt-BR')}
+          </div>
         </div>
         {endDate && (
           <div>
             <div className="text-xs font-semibold uppercase text-white/40">Data Fim</div>
-            <div className="mt-1 text-white tabular-nums">{endDate.toLocaleDateString('pt-BR')}</div>
+            <div className="mt-1 text-white tabular-nums">
+              {endDate.toLocaleDateString('pt-BR')}
+            </div>
           </div>
         )}
       </div>
@@ -88,7 +92,9 @@ export function DesignacaoCard({ designacaoId }: DesignacaoCardProps): React.Rea
       {/* Authority */}
       <div>
         <div className="text-xs font-semibold uppercase text-white/40">Autoridade</div>
-        <div className="mt-1 max-h-24 overflow-y-auto text-white/80 text-justify">{designacao.descricaoAutoridade}</div>
+        <div className="mt-1 max-h-24 overflow-y-auto text-white/80 text-justify">
+          {designacao.descricaoAutoridade}
+        </div>
       </div>
 
       {/* Signature */}

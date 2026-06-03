@@ -3,12 +3,7 @@
  * Phase 6: Validate extracted fields + warn on missing signatures
  */
 
-import {
-  LaudoExtractedFields,
-  Field10,
-  Field11,
-  Field12,
-} from './types';
+import { LaudoExtractedFields, Field10, Field11, Field12 } from './types';
 
 /**
  * Validate field 10 (Observações) — required.
@@ -23,15 +18,11 @@ export function validateField10(field10: Field10): boolean {
  * Returns { isValid: true, warnings: [] } if not detected but allows manual entry.
  * Only fails if field11 object is malformed.
  */
-export function validateField11(
-  field11: Field11
-): { isValid: boolean; warnings: string[] } {
+export function validateField11(field11: Field11): { isValid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
   if (!field11.detected) {
-    warnings.push(
-      'RT signature not detected — manual entry or verification recommended'
-    );
+    warnings.push('RT signature not detected — manual entry or verification recommended');
   }
 
   if (field11.detected && !field11.boundingBox) {
@@ -45,15 +36,11 @@ export function validateField11(
  * Validate field 12 (Director signature + date) — advisory.
  * Similar to field 11: warns if not detected but allows fallback.
  */
-export function validateField12(
-  field12: Field12
-): { isValid: boolean; warnings: string[] } {
+export function validateField12(field12: Field12): { isValid: boolean; warnings: string[] } {
   const warnings: string[] = [];
 
   if (!field12.detected) {
-    warnings.push(
-      'Director signature not detected — manual entry or verification recommended'
-    );
+    warnings.push('Director signature not detected — manual entry or verification recommended');
   }
 
   if (field12.detected && !field12.boundingBox) {
@@ -78,9 +65,10 @@ export function validateField12(
  * - ok=true if field10 is valid (allows manual entry for signatures)
  * - ok=false only if field10 is empty or object is malformed
  */
-export function validateLaudoExtraction(
-  extraction: LaudoExtractedFields
-): { ok: boolean; warnings: string[] } {
+export function validateLaudoExtraction(extraction: LaudoExtractedFields): {
+  ok: boolean;
+  warnings: string[];
+} {
   const warnings: string[] = [];
 
   // Validate field 10 (required)
@@ -108,7 +96,7 @@ export function validateLaudoExtraction(
  * Returns 'manual-review' if any advisory warning exists.
  */
 export function getExtractionReviewLevel(
-  extraction: LaudoExtractedFields
+  extraction: LaudoExtractedFields,
 ): 'auto' | 'manual-review' {
   const validation = validateLaudoExtraction(extraction);
 

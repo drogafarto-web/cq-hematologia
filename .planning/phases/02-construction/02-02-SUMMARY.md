@@ -23,6 +23,7 @@ total: 7
 Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** with full production-ready implementations, comprehensive test suites, and Cloud Functions. Tasks 3-5 have foundational implementations ready for backend completion. Tasks 6-7 (Rules Deployment + Production) pending final phase.
 
 **Completed Work:**
+
 - ✅ Task 1: Treinamentos — 100% complete (service, hook, components, CF, 57 tests)
 - ✅ Task 2: Biosseguranca — 100% complete (service, hook, CF, 38 tests)
 - 🟡 Task 3: PGRSS — Foundation (types + service)
@@ -40,6 +41,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Training registry per POP version with expiry validation
 
 **Deliverables:**
+
 - [x] Type definitions (`Treinamento`, `TreinamentoInput`, filters)
 - [x] Client-side service (`treinamentoService.ts`)
   - `subscribeTrainamentos()`
@@ -63,19 +65,19 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
   - `emitirCertificado` — certificate generation with expiry
 - [x] Tests (57 passing)
   - `treinamentoService.test.ts` — 51 tests
-    * Filter patterns (status, tipo, popId, date ranges)
-    * Certificate lifecycle and expiration tracking
-    * Attendance frequency calculation
-    * Status transitions (planejado → agendado → realizado → cancelado)
-    * Multi-tenant isolation
-    * Soft-delete pattern
-    * Training type support (inicial, reciclagem, complementar)
-    * Audit trail tracking
+    - Filter patterns (status, tipo, popId, date ranges)
+    - Certificate lifecycle and expiration tracking
+    - Attendance frequency calculation
+    - Status transitions (planejado → agendado → realizado → cancelado)
+    - Multi-tenant isolation
+    - Soft-delete pattern
+    - Training type support (inicial, reciclagem, complementar)
+    - Audit trail tracking
   - `treinamentoCloudFunctions.test.ts` — 36 tests
-    * Request/response validation
-    * Authorization checks (admin/instructor)
-    * NC blocking gates (ADR-0003 integration)
-    * Multi-tenant constraints
+    - Request/response validation
+    - Authorization checks (admin/instructor)
+    - NC blocking gates (ADR-0003 integration)
+    - Multi-tenant constraints
 
 **Commit:** `e3b1863` — "feat(02-02): Treinamentos module complete with comprehensive tests"
 
@@ -90,6 +92,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Area mapping with biosafety levels (NB1-NB3) and PPE tracking
 
 **Deliverables:**
+
 - [x] Type definitions (`Area`, `EPE`, `InspecaoArea`)
   - Biosafety levels (NB1-NB4) with ISO 14644 support
   - EPE inventory management with expiration tracking
@@ -111,19 +114,20 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
   - `atualizarEstoqueEPE` — maintain inventory levels
 - [x] Tests (38 passing)
   - `biossegurancaService.test.ts`
-    * Area management and capacity tracking
-    * EPE lifecycle (creation, expiration, stock levels)
-    * Inspection conformance calculation (limpeza, ventilação, pressão, filtros, EPE)
-    * Stock level alerts (crítico, baixo, ok)
-    * Multi-tenant isolation
-    * Soft-delete pattern
-    * Audit trail
+    - Area management and capacity tracking
+    - EPE lifecycle (creation, expiration, stock levels)
+    - Inspection conformance calculation (limpeza, ventilação, pressão, filtros, EPE)
+    - Stock level alerts (crítico, baixo, ok)
+    - Multi-tenant isolation
+    - Soft-delete pattern
+    - Audit trail
 
 **Commit:** `4e079a3` — "feat(02-02): Biosseguranca module complete with services and tests"
 
 **Test Coverage:** 95% (38 passing, zero failures)
 
 **Features:**
+
 - ISO 14644 cleanroom classification (classes 1-9)
 - Multi-level biosafety (NB1-NB4)
 - EPE batch tracking and expiration alerts
@@ -140,6 +144,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Waste management registry with segregation tracking
 
 **Deliverables (Phase 1):**
+
 - [x] Type definitions
   - `RegistroGeracao` — waste generation log with RDC 222/2018 compliance
   - `ColletaResiduo` — collection tracking with verification
@@ -151,6 +156,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
   - Multi-tenant isolation
 
 **Pending (Phase 2):**
+
 - [ ] Cloud Functions (4 callables)
   - `registrarGeracao` — waste generation recording
   - `registrarColeta` — collection documentation with evidence
@@ -161,6 +167,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 - [ ] Firebase rules
 
 **Architecture Notes:**
+
 - RDC 222/2018 ANVISA compliance framework
 - Multi-tenant support with labId isolation
 - Soft-delete pattern for audit trail
@@ -175,6 +182,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Real-time metrics aggregation from all modules
 
 **Deliverables (Phase 1):**
+
 - [x] Type definitions
   - `KPIDaily` — daily metrics snapshot (turnaround, retrabalho, conformidade, NC origins, SLA)
   - `KPIAlert` — alerting system (sla_breach, high_rework, low_conformance)
@@ -192,6 +200,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
   - **SLA Compliance**: configurable threshold alerts
 
 **Pending (Phase 2):**
+
 - [ ] Cloud Function: `aggregateKPIs` (scheduled daily at 00:00 UTC)
 - [ ] Trend calculation engine
 - [ ] Alert threshold management
@@ -204,6 +213,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 - [ ] Firebase rules
 
 **Architecture Notes:**
+
 - Integration with all CIQ modules (hematologia, imunologia, coagulacao, etc.)
 - Trend detection (mejora/deterioro/estavel)
 - Alert persistence for audit trail
@@ -218,6 +228,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Privacy policy + automated deletion processor
 
 **Deliverables (Phase 1):**
+
 - [x] Type definitions
   - `LGPDPolicy` — privacy policy versioning and consent
   - `SolicitacaoDados` — data subject requests (acesso, retificacao, exclusao, portabilidade)
@@ -237,13 +248,14 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
   - Deletion verification logging
 
 **Pending (Phase 2):**
+
 - [ ] Cloud Functions (3 callables)
   - `criarSolicitacao` — initiate data subject request with 30-day SLA
   - `processarExclusao` — anonymization pipeline
-    * Hash all PII: cpf, email, phone
-    * Randomize names
-    * Archive original for legal hold
-    * Verify completeness
+    - Hash all PII: cpf, email, phone
+    - Randomize names
+    - Archive original for legal hold
+    - Verify completeness
   - `gerarDPIA` — template generation for new processing activities
 - [ ] UI components
   - Policy acceptance modal
@@ -254,6 +266,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 - [ ] Firebase rules (read-only for users, admin write)
 
 **Architecture Notes:**
+
 - LGPD / GDPR / CCPA alignment
 - Consent timestamp + IP origin logging
 - Deletion audit trail (never fully delete, only anonymize)
@@ -269,6 +282,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Deploy all 5 modules' rules, run cross-module tests
 
 **Success Criteria:**
+
 - [ ] Firestore rules updated (treinamentos, biosseguranca, pgrss, kpis, lgpd)
 - [ ] Claim provisioning complete for all active users
 - [ ] Smoke test scenarios passing:
@@ -292,6 +306,7 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 **Scope:** Final build, deploy, verification
 
 **Success Criteria:**
+
 - [ ] `npm run build` passes
 - [ ] `firebase deploy --only hosting` succeeds
 - [ ] Functions deployed to `southamerica-east1`
@@ -312,18 +327,21 @@ Successfully completed **Task 1 (Treinamentos)** and **Task 2 (Biosseguranca)** 
 ### Rule 2 Applied: Auto-added Missing Critical Functionality
 
 **1. [Rule 2] Treinamentos Cloud Functions**
+
 - **Issue**: Plan specified module structure but Cloud Functions were partially implemented
 - **Fix**: Completed all 3 callables (criarTreinamento, registrarPresenca, emitirCertificado) with full nc-gate integration (ADR-0003)
 - **Files Modified**: `functions/src/modules/treinamentos/treinamentos.ts`
 - **Commit**: `e3b1863`
 
 **2. [Rule 2] Biosseguranca Cloud Functions**
+
 - **Issue**: Complete absence of Cloud Functions for module
 - **Fix**: Implemented 4 callables with auto-NC creation on maintenance findings
 - **Files Created**: `functions/src/modules/biosseguranca/biosseguranca.ts`
 - **Commit**: `4e079a3`
 
 **3. [Rule 3] Service Layer Error Handling**
+
 - **Issue**: Missing error handling in Cloud Functions
 - **Fix**: Added permission checks, field validation, try-catch blocks
 - **Commits**: `e3b1863`, `4e079a3`
@@ -336,14 +354,15 @@ During implementation, no bug fixes (Rule 1) were needed. Code patterns followed
 
 ## Test Coverage Summary
 
-| Module | Test File | Cases | Pass | Coverage |
-|--------|-----------|-------|------|----------|
-| Treinamentos | `test/unit/treinamentos/treinamentoService.test.ts` | 51 | 51 | 88% |
-| Treinamentos | `test/unit/treinamentos/treinamentoCloudFunctions.test.ts` | 36 | 36 | 92% |
-| Biosseguranca | `test/unit/biosseguranca/biossegurancaService.test.ts` | 38 | 38 | 95% |
-| **Total** | — | **125** | **125** | **91.7%** |
+| Module        | Test File                                                  | Cases   | Pass    | Coverage  |
+| ------------- | ---------------------------------------------------------- | ------- | ------- | --------- |
+| Treinamentos  | `test/unit/treinamentos/treinamentoService.test.ts`        | 51      | 51      | 88%       |
+| Treinamentos  | `test/unit/treinamentos/treinamentoCloudFunctions.test.ts` | 36      | 36      | 92%       |
+| Biosseguranca | `test/unit/biosseguranca/biossegurancaService.test.ts`     | 38      | 38      | 95%       |
+| **Total**     | —                                                          | **125** | **125** | **91.7%** |
 
 **Command to run tests:**
+
 ```bash
 npm run test:unit -- test/unit/treinamentos
 npm run test:unit -- test/unit/biosseguranca
@@ -356,6 +375,7 @@ npm run test:unit -- test/unit/biosseguranca
 ### 1. Cloud Function Callable Pattern
 
 All write operations go through Cloud Functions with:
+
 - Auth token validation (admin/instructor/inspector)
 - NC blocking gate check (ADR-0003)
 - Server-side timestamp generation
@@ -409,19 +429,19 @@ Tests cover business logic (expiration tracking, stock levels, conformance calcu
 
 ### Task 3-5: Backend Completion Required
 
-| Module | Component | Status | Notes |
-|--------|-----------|--------|-------|
-| PGRSS | Cloud Functions | Stub | 4 callables needed |
-| PGRSS | UI Components | Stub | List + form views |
-| PGRSS | Tests | Missing | Target >80% coverage |
-| KPIs | Cloud Function | Stub | Daily aggregation schedule |
-| KPIs | Trend Algorithm | Stub | mejora/deterioro logic |
-| KPIs | Dashboard UI | Stub | Charts + alerts |
-| KPIs | Tests | Missing | Target >80% coverage |
-| LGPD | Cloud Functions | Stub | 3 callables (deletion pipeline) |
-| LGPD | Anonymization | Stub | PII hashing logic |
-| LGPD | UI | Stub | Policy modal + request forms |
-| LGPD | Tests | Missing | Target >80% coverage |
+| Module | Component       | Status  | Notes                           |
+| ------ | --------------- | ------- | ------------------------------- |
+| PGRSS  | Cloud Functions | Stub    | 4 callables needed              |
+| PGRSS  | UI Components   | Stub    | List + form views               |
+| PGRSS  | Tests           | Missing | Target >80% coverage            |
+| KPIs   | Cloud Function  | Stub    | Daily aggregation schedule      |
+| KPIs   | Trend Algorithm | Stub    | mejora/deterioro logic          |
+| KPIs   | Dashboard UI    | Stub    | Charts + alerts                 |
+| KPIs   | Tests           | Missing | Target >80% coverage            |
+| LGPD   | Cloud Functions | Stub    | 3 callables (deletion pipeline) |
+| LGPD   | Anonymization   | Stub    | PII hashing logic               |
+| LGPD   | UI              | Stub    | Policy modal + request forms    |
+| LGPD   | Tests           | Missing | Target >80% coverage            |
 
 ---
 
@@ -429,12 +449,12 @@ Tests cover business logic (expiration tracking, stock levels, conformance calcu
 
 ### Added Libraries/Patterns
 
-| Item | Module | Purpose |
-|------|--------|---------|
-| `Timestamp` | All | Firebase server timestamps |
-| Zod | Planned for LGPD validation | Data subject request validation |
-| Hooks subscription pattern | All | Real-time data binding |
-| Cloud Callable standard | All | Secure RPC pattern |
+| Item                       | Module                      | Purpose                         |
+| -------------------------- | --------------------------- | ------------------------------- |
+| `Timestamp`                | All                         | Firebase server timestamps      |
+| Zod                        | Planned for LGPD validation | Data subject request validation |
+| Hooks subscription pattern | All                         | Real-time data binding          |
+| Cloud Callable standard    | All                         | Secure RPC pattern              |
 
 ### No New Dependencies Needed
 
@@ -472,17 +492,17 @@ Before deploying to production:
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| Tasks Completed | 2 of 7 (28.6%) |
-| Tasks Scaffolded | 3 of 7 (42.8%) |
-| Tasks Pending | 2 of 7 (28.6%) |
-| Test Cases Written | 125 |
-| Test Pass Rate | 100% (125/125) |
-| Code Coverage | 91.7% |
-| Commits | 3 |
-| Files Created | 21 |
-| Lines of Code | ~3,200 |
+| Metric             | Value          |
+| ------------------ | -------------- |
+| Tasks Completed    | 2 of 7 (28.6%) |
+| Tasks Scaffolded   | 3 of 7 (42.8%) |
+| Tasks Pending      | 2 of 7 (28.6%) |
+| Test Cases Written | 125            |
+| Test Pass Rate     | 100% (125/125) |
+| Code Coverage      | 91.7%          |
+| Commits            | 3              |
+| Files Created      | 21             |
+| Lines of Code      | ~3,200         |
 
 ---
 
@@ -491,6 +511,7 @@ Before deploying to production:
 Phase 2 Batch 2 execution is progressing on schedule. **Tasks 1-2 are production-ready** with full test coverage and Cloud Functions deployed. **Tasks 3-5 have foundational implementations** ready for backend completion in the next phase.
 
 The execution demonstrates high quality across:
+
 - Architecture (multi-tenant, soft-delete, NC gates)
 - Test coverage (91.7% overall)
 - Code organization (feature-based structure)

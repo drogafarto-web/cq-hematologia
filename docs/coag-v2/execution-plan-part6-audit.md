@@ -44,89 +44,95 @@
 
 **Data:** YYYY-MM-DD
 **Arquivo(s) auditado(s):**
+
 - `path/to/file1.ts` (142 linhas)
 - `path/to/file2.ts` (89 linhas)
 
 ## 1. Validação de Contrato
 
 ### Entidades detectadas
-| Entidade | No contrato? | Status |
-|----------|--------------|--------|
-| ControlOperacional | ✅ | OK |
-| Attempt | ✅ | OK |
-| ExtraEntity | ❌ | **REJEITADO** |
+
+| Entidade           | No contrato? | Status        |
+| ------------------ | ------------ | ------------- |
+| ControlOperacional | ✅           | OK            |
+| Attempt            | ✅           | OK            |
+| ExtraEntity        | ❌           | **REJEITADO** |
 
 ### Campos detectados
-| Entidade | Campos | No contrato? | Status |
-|----------|--------|--------------|--------|
-| Attempt | resultados | ✅ | OK |
-| Attempt | timestampExtra | ❌ | **REJEITADO** |
+
+| Entidade | Campos         | No contrato? | Status        |
+| -------- | -------------- | ------------ | ------------- |
+| Attempt  | resultados     | ✅           | OK            |
+| Attempt  | timestampExtra | ❌           | **REJEITADO** |
 
 ### Eventos detectados
-| Evento | No contrato? | Status |
-|--------|--------------|--------|
-| attempt.criado | ✅ | OK |
-| custom.event | ❌ | **REJEITADO** |
+
+| Evento         | No contrato? | Status        |
+| -------------- | ------------ | ------------- |
+| attempt.criado | ✅           | OK            |
+| custom.event   | ❌           | **REJEITADO** |
 
 ## 2. Métricas de Complexidade
 
-| Métrica | Alvo | Valor | Status |
-|---------|------|-------|--------|
-| Linhas totais | ≤ 500 | 312 | ✅ |
-| Maior hook | ≤ 200 | 145 | ✅ |
-| Maior componente | ≤ 300 | 0 (N/A) | ✅ |
-| Ciclomática máx | ≤ 8 | 4 | ✅ |
-| Profundidade máx | ≤ 3 | 2 | ✅ |
-| useState por hook | ≤ 2 | 2 | ✅ |
-| Comentários (%) | ≤ 30% | 12% | ✅ |
+| Métrica           | Alvo  | Valor   | Status |
+| ----------------- | ----- | ------- | ------ |
+| Linhas totais     | ≤ 500 | 312     | ✅     |
+| Maior hook        | ≤ 200 | 145     | ✅     |
+| Maior componente  | ≤ 300 | 0 (N/A) | ✅     |
+| Ciclomática máx   | ≤ 8   | 4       | ✅     |
+| Profundidade máx  | ≤ 3   | 2       | ✅     |
+| useState por hook | ≤ 2   | 2       | ✅     |
+| Comentários (%)   | ≤ 30% | 12%     | ✅     |
 
 ## 3. Anti-Patterns Detectados
 
-| Pattern | Status |
-|---------|--------|
-| Repository pattern | ✅ Não encontrado |
-| Factory function | ✅ Não encontrado |
-| Wrapper sem valor | ✅ Não encontrado |
-| Console.log | ✅ Não encontrado |
-| `any` type | ✅ Não encontrado |
-| Estado redundante | ✅ Não encontrado |
-| Hook gigante (>8 exports) | ✅ Não encontrado |
-| Terms proibidos (UI) | ✅ Não encontrados |
+| Pattern                   | Status             |
+| ------------------------- | ------------------ |
+| Repository pattern        | ✅ Não encontrado  |
+| Factory function          | ✅ Não encontrado  |
+| Wrapper sem valor         | ✅ Não encontrado  |
+| Console.log               | ✅ Não encontrado  |
+| `any` type                | ✅ Não encontrado  |
+| Estado redundante         | ✅ Não encontrado  |
+| Hook gigante (>8 exports) | ✅ Não encontrado  |
+| Terms proibidos (UI)      | ✅ Não encontrados |
 
 ## 4. Imports e Dependências
 
-| Import | Permitido? | Status |
-|--------|------------|--------|
-| `firebase/firestore` | ✅ | OK |
-| `react` | ✅ | OK |
-| `../../coagulacao/hooks/useCoagWestgard` | ✅ | OK |
-| `../../hematologia/services/xxx` | ❌ | **REJEITADO** |
+| Import                                   | Permitido? | Status        |
+| ---------------------------------------- | ---------- | ------------- |
+| `firebase/firestore`                     | ✅         | OK            |
+| `react`                                  | ✅         | OK            |
+| `../../coagulacao/hooks/useCoagWestgard` | ✅         | OK            |
+| `../../hematologia/services/xxx`         | ❌         | **REJEITADO** |
 
 ## 5. Testes
 
-| Teste | Status |
-|-------|--------|
-| `createAttempt` happy path | ✅ Pass |
-| `createAttempt` error path | ✅ Pass |
+| Teste                       | Status         |
+| --------------------------- | -------------- |
+| `createAttempt` happy path  | ✅ Pass        |
+| `createAttempt` error path  | ✅ Pass        |
 | `computeWestgard` integrado | ⚠️ Não escrito |
 
 ## 6. Cross-Module Impact
 
-| Módulo | Afetado? | Status |
-|--------|----------|--------|
-| Hematologia | ❌ | OK |
-| Uroanálise | ❌ | OK |
-| Imunologia | ❌ | OK |
-| Insumos (spine) | ❌ | OK |
+| Módulo          | Afetado? | Status |
+| --------------- | -------- | ------ |
+| Hematologia     | ❌       | OK     |
+| Uroanálise      | ❌       | OK     |
+| Imunologia      | ❌       | OK     |
+| Insumos (spine) | ❌       | OK     |
 
 ## 7. Conclusão
 
 **STATUS:** ✅ APROVADO / ❌ REJEITADO / ⚠️ APROVADO COM PENDÊNCIAS
 
 **Pendências (se houver):**
+
 - Escrever teste de `computeWestgard` integrado
 
 **Ação:**
+
 - Integrador pode prosseguir com merge após resolver pendência
 ```
 
@@ -306,15 +312,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Run architectural audit
         run: |
           chmod +x scripts/audit-coag-v2.sh
           ./scripts/audit-coag-v2.sh ${{ github.event.pull_request.head.ref }}
-      
+
       - name: Run vitest
         run: npx vitest run src/features/coagulacao-v2/
-      
+
       - name: Type check
         run: npx tsc --noEmit --project tsconfig.json | grep coagulacao-v2
 ```

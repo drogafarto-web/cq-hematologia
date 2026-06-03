@@ -131,7 +131,6 @@ waves: 3 sequential waves
 - [ ] Build functions: `cd functions && npm run build`
   - [ ] Zero TypeScript errors
   - [ ] Zero ESLint warnings (or documented baseline)
-  
 - [ ] Test locally: `firebase emulators:start`
   - [ ] All 18 callable tests PASS
   - [ ] All 4 integration tests PASS
@@ -202,49 +201,41 @@ waves: 3 sequential waves
     - Action: Trigger handleCriticalResult()
     - Assert: Draft exists in notivisa-outbox, status='draft', chartHash length=64
     - Cleanup: Delete test lab + drafts
-  
   - [ ] **E2E-02: RT approval workflow + signature sealing**
     - Precondition: Draft in status='draft'
     - Action: Call approveNotivisaDraft() as RT
     - Assert: Status='approved', approvedBy set, chainHash updated, audit log created
     - Cleanup: Delete draft
-  
   - [ ] **E2E-03: Audit trail immutability**
     - Precondition: Draft with approval history
     - Action: Try to update audit log via Firestore rules
     - Assert: Rules reject (permission-denied)
     - Cleanup: Delete draft
-  
   - [ ] **E2E-04: RT rejection with reason**
     - Precondition: Draft in status='draft'
     - Action: Call rejectNotivisaDraft() with reason
     - Assert: Status='rejected', rejectionReason set, chainHash updated
     - Cleanup: Delete draft
-  
   - [ ] **E2E-05: PDF export of approved draft**
     - Precondition: Approved draft in Firestore
     - Action: Call generateNotivisaPDF()
     - Assert: PDF buffer valid, contains disease name + approval info + audit trail
     - Cleanup: None (PDF is ephemeral)
-  
   - [ ] **E2E-06: Disease code validation (reject invalid codes)**
     - Precondition: Attempt draft creation with code='00000' (not in Portaria 204)
     - Action: Call notivisaDraftCreate()
     - Assert: Callable throws 'invalid-argument' error
     - Cleanup: Verify no draft created
-  
   - [ ] **E2E-07: Notification deadline calculation (resultDate + 24h)**
     - Precondition: Draft with resultDate='2026-06-10T14:30:00Z'
     - Action: Call notivisaDraftCreate()
     - Assert: notificationDeadline='2026-06-11T14:30:00Z' (within 1s tolerance)
     - Cleanup: Delete draft
-  
   - [ ] **E2E-08: Auth guard (only RT can approve)**
     - Precondition: Operador user (non-RT)
     - Action: Call approveNotivisaDraft() as Operador
     - Assert: Callable throws 'permission-denied' error
     - Cleanup: Delete draft
-  
 
 - [ ] Run E2E suite locally
   - [ ] Target: 8/8 PASS
@@ -258,12 +249,10 @@ waves: 3 sequential waves
     - Precondition: Phase 6 criticos-escalacoes with syphilis positive result
     - Action: Record critical result
     - Assert: NOTIVISA draft auto-created, RT notified
-  
   - [ ] **Integration-02: Non-notifiable disease does NOT create NOTIVISA draft**
     - Precondition: Phase 6 criticos-escalacoes with dengue-negative result
     - Action: Record critical result
     - Assert: No draft created, no notification sent
-  
   - [ ] **Integration-03: RT portal shows NOTIVISA queue alongside Laudos**
     - Precondition: RT logged into portal
     - Action: Navigate to NOTIVISA queue
@@ -370,18 +359,18 @@ waves: 3 sequential waves
 
 **All of the following must be TRUE to proceed to production:**
 
-| Item | Target | Status |
-|------|--------|--------|
-| E2E test suite | 8/8 PASS | ⏳ |
-| Integration tests | 3/3 PASS | ⏳ |
-| Cloud Logs (24h) | 0 errors | ⏳ |
-| Firestore rules validation | 5/5 patterns OK | ⏳ |
-| Code review | CTO sign-off | ⏳ |
-| Security review | 0 findings | ⏳ |
-| Performance review | <1s avg latency | ⏳ |
-| Accessibility review | WCAG AA pass | ⏳ |
-| Bundle size | No regression | ⏳ |
-| Base test suite | 738/738 PASS (no regressions) | ⏳ |
+| Item                       | Target                        | Status |
+| -------------------------- | ----------------------------- | ------ |
+| E2E test suite             | 8/8 PASS                      | ⏳     |
+| Integration tests          | 3/3 PASS                      | ⏳     |
+| Cloud Logs (24h)           | 0 errors                      | ⏳     |
+| Firestore rules validation | 5/5 patterns OK               | ⏳     |
+| Code review                | CTO sign-off                  | ⏳     |
+| Security review            | 0 findings                    | ⏳     |
+| Performance review         | <1s avg latency               | ⏳     |
+| Accessibility review       | WCAG AA pass                  | ⏳     |
+| Bundle size                | No regression                 | ⏳     |
+| Base test suite            | 738/738 PASS (no regressions) | ⏳     |
 
 ---
 
@@ -409,7 +398,7 @@ Phase 8 is COMPLETE when:
 ✅ RT portal UI live + WCAG AA compliant  
 ✅ PDF export functional + auditable  
 ✅ DICQ baseline +4–5 points verified  
-✅ RDC 978 Art. 66 addressed (form generation) + v1.5 plan documented  
+✅ RDC 978 Art. 66 addressed (form generation) + v1.5 plan documented
 
 ---
 

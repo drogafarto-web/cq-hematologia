@@ -35,9 +35,7 @@ function openingDaysAgo(insumo: Insumo | null): number | null {
   return Math.max(0, Math.floor(ms / 86_400_000));
 }
 
-function slotStatus(
-  i: Insumo | null,
-): { label: string; cls: string } | null {
+function slotStatus(i: Insumo | null): { label: string; cls: string } | null {
   if (!i) return null;
   const v = validadeStatus(i.validadeReal.toDate());
   if (v === 'expired') {
@@ -64,15 +62,7 @@ function slotStatus(
   };
 }
 
-function SlotChip({
-  icon,
-  label,
-  insumo,
-}: {
-  icon: string;
-  label: string;
-  insumo: Insumo | null;
-}) {
+function SlotChip({ icon, label, insumo }: { icon: string; label: string; insumo: Insumo | null }) {
   const status = slotStatus(insumo);
   if (!insumo) {
     return (
@@ -96,19 +86,13 @@ function SlotChip({
         {icon}
       </span>
       <span className="text-slate-500 dark:text-white/40">{label}:</span>
-      <span className="font-medium text-slate-900 dark:text-white/90">
-        {insumo.nomeComercial}
-      </span>
+      <span className="font-medium text-slate-900 dark:text-white/90">{insumo.nomeComercial}</span>
       <span className="text-slate-400 dark:text-white/30">· Lote {insumo.lote}</span>
       {runCount > 0 && (
-        <span className="text-slate-400 dark:text-white/30">
-          · {runCount} corridas
-        </span>
+        <span className="text-slate-400 dark:text-white/30">· {runCount} corridas</span>
       )}
       {openDays !== null && (
-        <span className="text-slate-400 dark:text-white/30">
-          · aberto há {openDays}d
-        </span>
+        <span className="text-slate-400 dark:text-white/30">· aberto há {openDays}d</span>
       )}
       {status && (
         <span
@@ -126,9 +110,9 @@ export function EquipmentSetupBar({ module, onEditSetup }: EquipmentSetupBarProp
   const { insumos } = useInsumos({ status: 'ativo' });
 
   const byId = new Map(insumos.map((i) => [i.id, i]));
-  const reagente = setup?.activeReagenteId ? byId.get(setup.activeReagenteId) ?? null : null;
-  const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
-  const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
+  const reagente = setup?.activeReagenteId ? (byId.get(setup.activeReagenteId) ?? null) : null;
+  const controle = setup?.activeControleId ? (byId.get(setup.activeControleId) ?? null) : null;
+  const tira = setup?.activeTiraUroId ? (byId.get(setup.activeTiraUroId) ?? null) : null;
 
   const equipamentoName =
     setup?.equipamentoName ?? DEFAULT_EQUIPAMENTO_POR_MODULO[module]?.name ?? module;

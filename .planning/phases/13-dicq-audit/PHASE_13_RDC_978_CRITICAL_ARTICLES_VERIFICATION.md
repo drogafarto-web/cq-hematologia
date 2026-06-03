@@ -1,9 +1,9 @@
 ---
-title: "Phase 13 — RDC 978/2025 Critical Articles Verification"
+title: 'Phase 13 — RDC 978/2025 Critical Articles Verification'
 date: 2026-05-07
 version: 1.0
-regulation: "RDC 978 (ANVISA, 2025)"
-audit_scope: "Arts. 117, 167, 179-191, 204"
+regulation: 'RDC 978 (ANVISA, 2025)'
+audit_scope: 'Arts. 117, 167, 179-191, 204'
 ---
 
 # Phase 13 — RDC 978/2025 Critical Articles Verification Report
@@ -36,23 +36,20 @@ audit_scope: "Arts. 117, 167, 179-191, 204"
 // src/shared/logicalSignature.ts
 
 export interface LogicalSignature {
-  hash: string;           // SHA-256 HMAC (64-char hex)
-  operatorId: string;     // request.auth.uid (immutable)
-  ts: number;             // Firestore server timestamp (unix epoch)
-  prevHash?: string;      // Link to previous event in chain
+  hash: string; // SHA-256 HMAC (64-char hex)
+  operatorId: string; // request.auth.uid (immutable)
+  ts: number; // Firestore server timestamp (unix epoch)
+  prevHash?: string; // Link to previous event in chain
 }
 
 export async function sealDocument(
   payload: any,
   prevHash: string | null,
-  secret: string
+  secret: string,
 ): Promise<LogicalSignature> {
-  const hashInput = `${prevHash || ""}_${JSON.stringify(payload)}_${secret}`;
-  const hash = crypto
-    .createHmac("sha256", secret)
-    .update(hashInput)
-    .digest("hex");
-  
+  const hashInput = `${prevHash || ''}_${JSON.stringify(payload)}_${secret}`;
+  const hash = crypto.createHmac('sha256', secret).update(hashInput).digest('hex');
+
   return {
     hash,
     operatorId: context.auth.uid,
@@ -72,17 +69,17 @@ match /labs/{labId}/audit-events/{eventId} {
   // Client can only create with status='pending'
   allow create: if request.resource.data.status == 'pending'
     && request.resource.data.get('chainHash', null) == null;
-  
+
   // Cloud Function transitions pending → sealed
   allow update: if request.auth.uid == null  // service context only
     && resource.data.status == 'pending'
     && request.resource.data.status == 'sealed'
     && request.resource.data.chainHash.size() == 64
     && request.resource.data.operatorId is string;
-  
+
   // Once sealed, immutable
   allow update: if resource.data.status == 'sealed' => false;
-  
+
   // No hard-delete allowed
   allow delete: if false;
 }
@@ -92,14 +89,14 @@ match /labs/{labId}/audit-events/{eventId} {
 
 **3. Event Collections Using LogicalSignature**
 
-| Collection | Events | Status | Code Location |
-|---|---|---|---|
-| `/labs/{labId}/insumo-movimentacoes/` | Reagent movement, status change | ✅ Live (v1.3) | `functions/src/callables/sealInsumoPendingMovement.ts` |
-| `/labs/{labId}/capa-events/` | CAPA open → investigation → verification → closed | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealCapaEvent.ts` |
-| `/labs/{labId}/notivisa-submissions/` | NOTIVISA draft → approved → submitted | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealNotivisaEvent.ts` |
-| `/labs/{labId}/personnel-quals/` | Personnel CV update → verified → approved | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealQualification.ts` |
-| `/labs/{labId}/calibracao-events/` | Equipment cert received → validated → scheduled | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealCalibrationEvent.ts` |
-| `/labs/{labId}/laudo-releases/` | Laudo draft → RT-reviewed → released → archived | ✅ Live (v1.3) | `functions/src/callables/releaseLabResult.ts` |
+| Collection                            | Events                                            | Status               | Code Location                                          |
+| ------------------------------------- | ------------------------------------------------- | -------------------- | ------------------------------------------------------ |
+| `/labs/{labId}/insumo-movimentacoes/` | Reagent movement, status change                   | ✅ Live (v1.3)       | `functions/src/callables/sealInsumoPendingMovement.ts` |
+| `/labs/{labId}/capa-events/`          | CAPA open → investigation → verification → closed | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealCapaEvent.ts`             |
+| `/labs/{labId}/notivisa-submissions/` | NOTIVISA draft → approved → submitted             | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealNotivisaEvent.ts`         |
+| `/labs/{labId}/personnel-quals/`      | Personnel CV update → verified → approved         | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealQualification.ts`         |
+| `/labs/{labId}/calibracao-events/`    | Equipment cert received → validated → scheduled   | ✅ Scaffolded (v1.3) | `functions/src/v1.4-base/sealCalibrationEvent.ts`      |
+| `/labs/{labId}/laudo-releases/`       | Laudo draft → RT-reviewed → released → archived   | ✅ Live (v1.3)       | `functions/src/callables/releaseLabResult.ts`          |
 
 **4. Audit Trail Verification Callable**
 
@@ -108,7 +105,7 @@ match /labs/{labId}/audit-events/{eventId} {
 
 export const verifyChainIntegrity = onCall(async (request) => {
   const { labId, collection, startDocId, endDocId } = request.data;
-  
+
   const docs = await admin
     .firestore()
     .collection(`/labs/${labId}/${collection}`)
@@ -116,14 +113,14 @@ export const verifyChainIntegrity = onCall(async (request) => {
     .where(admin.firestore.FieldPath.documentId(), '>=', startDocId)
     .where(admin.firestore.FieldPath.documentId(), '<=', endDocId)
     .get();
-  
+
   let prevHash = null;
   const report = [];
-  
+
   for (const doc of docs.docs) {
     const { chainHash, operatorId, ts, ...payload } = doc.data();
     const expectedHash = computeHash(prevHash, payload, secret);
-    
+
     const status = expectedHash === chainHash ? 'VALID' : 'TAMPERED';
     report.push({
       docId: doc.id,
@@ -132,15 +129,15 @@ export const verifyChainIntegrity = onCall(async (request) => {
       status,
       chainHash,
     });
-    
+
     if (status === 'TAMPERED') break;
     prevHash = chainHash;
   }
-  
+
   return {
     collection,
     docsChecked: docs.docs.length,
-    integrityStatus: report.every(r => r.status === 'VALID') ? 'VALID' : 'TAMPERED',
+    integrityStatus: report.every((r) => r.status === 'VALID') ? 'VALID' : 'TAMPERED',
     report,
   };
 });
@@ -199,49 +196,49 @@ export interface Laudo {
   // Identifiers
   id: string;
   labId: string;
-  
+
   // RT Information
-  rtNome: string;              // RT full name (from personnel record)
-  rtRegistro: string;          // CRM or CFMV number
-  rtSpecialty?: string;        // Hematologia, Bioquímica, etc.
-  
+  rtNome: string; // RT full name (from personnel record)
+  rtRegistro: string; // CRM or CFMV number
+  rtSpecialty?: string; // Hematologia, Bioquímica, etc.
+
   // Lab Information
-  cnes: string;                // CNES code
+  cnes: string; // CNES code
   labName: string;
-  
+
   // Patient Information
-  patientId: string;           // Unique patient identifier
+  patientId: string; // Unique patient identifier
   patientName: string;
   patientAge: number;
   patientSex: 'M' | 'F' | 'O';
-  
+
   // Exam Information
-  examDate: number;            // Unix timestamp
-  resultDate: number;          // When result became available
+  examDate: number; // Unix timestamp
+  resultDate: number; // When result became available
   exams: Array<{
-    examCode: string;          // LOINC or local code
+    examCode: string; // LOINC or local code
     examName: string;
     result: string;
     unit: string;
     referenceRange: string;
     interpretation?: 'normal' | 'low' | 'high' | 'critical';
   }>;
-  
+
   // Clinical Interpretation
-  interpretation: string;      // RT's comments
-  criticoFlag: boolean;        // If true, blocks auto-release
+  interpretation: string; // RT's comments
+  criticoFlag: boolean; // If true, blocks auto-release
   recommendations?: string;
-  
+
   // Signature & Approval
   signature: LogicalSignature; // From ADR-0012
   releaseStatus: 'draft' | 'review' | 'released' | 'archived';
   releaseTimestamp?: number;
   releaseMethod?: 'patient-portal' | 'physician-portal' | 'manual-delivery';
-  
+
   // Audit
   criadoEm: number;
   criadoPor: string;
-  deletadoEm?: number;         // Soft-delete timestamp (if applicable)
+  deletadoEm?: number; // Soft-delete timestamp (if applicable)
 }
 ```
 
@@ -256,21 +253,21 @@ match /labs/{labId}/laudos/{laudoId} {
   allow update: if request.auth.uid == resource.data.criadoPor
     && hasRTAccess(labId)
     && request.resource.data.releaseStatus == 'review';
-  
+
   // Service context (Cloud Function) can seal (review → released)
   allow update: if request.auth.uid == null  // service context
     && resource.data.releaseStatus == 'review'
     && request.resource.data.releaseStatus == 'released'
     && request.resource.data.signature.hash.size() == 64;
-  
+
   // Once released, immutable (except soft-delete)
   allow update: if resource.data.releaseStatus == 'released'
     && request.resource.data.releaseStatus == 'released';
-  
+
   // Soft-delete allowed (mark deletadoEm)
   allow update: if request.auth.uid == null  // admin delete via callable
     && request.resource.data.deletadoEm != null;
-  
+
   // No hard-delete
   allow delete: if false;
 }
@@ -291,48 +288,39 @@ function hasRTAccess(labId) {
 export const releaseLabResult = onCall(async (request) => {
   const { labId, laudoId, rtApprovalCode } = request.data;
   const rtId = request.auth.uid;
-  
+
   // 1. Verify RT access
-  const member = await admin
-    .firestore()
-    .doc(`/labs/${labId}/members/${rtId}`)
-    .get();
-  
+  const member = await admin.firestore().doc(`/labs/${labId}/members/${rtId}`).get();
+
   if (!member.exists || member.data().role !== 'RT') {
     throw new HttpsError('permission-denied', 'Only RT can release laudos');
   }
-  
+
   // 2. Fetch laudo (must be in review state)
-  const laudo = await admin
-    .firestore()
-    .doc(`/labs/${labId}/laudos/${laudoId}`)
-    .get();
-  
+  const laudo = await admin.firestore().doc(`/labs/${labId}/laudos/${laudoId}`).get();
+
   if (!laudo.exists || laudo.data().releaseStatus !== 'review') {
     throw new HttpsError('failed-precondition', 'Laudo not in review state');
   }
-  
+
   // 3. Seal with LogicalSignature
   const signature = await sealDocument(
     laudo.data(),
-    null,  // No previous hash (first seal on this laudo)
-    secret
+    null, // No previous hash (first seal on this laudo)
+    secret,
   );
-  
+
   // 4. Update laudo → released
-  await admin
-    .firestore()
-    .doc(`/labs/${labId}/laudos/${laudoId}`)
-    .update({
-      releaseStatus: 'released',
-      signature,
-      releaseTimestamp: admin.firestore.FieldValue.serverTimestamp(),
-    });
-  
+  await admin.firestore().doc(`/labs/${labId}/laudos/${laudoId}`).update({
+    releaseStatus: 'released',
+    signature,
+    releaseTimestamp: admin.firestore.FieldValue.serverTimestamp(),
+  });
+
   // 5. Trigger secure transmission (patient portal download, physician notification, etc.)
   await sendToPatientsPortal(labId, laudoId);
   await notifyPhysician(labId, laudoId);
-  
+
   return { success: true, releaseTimestamp: signature.ts };
 });
 ```
@@ -389,14 +377,15 @@ export const releaseLabResult = onCall(async (request) => {
 
 **1. CIQ Modules Deployed (v1.3)**
 
-| Module | Analytes | Westgard Rules | Status |
-|--------|----------|---|---|
-| `bioquimica` | 17 seed (glucose, ALT, AST, creatinine, etc.) | ✅ 1-2s, 1-3s, 2-2s, R-4s | Live |
-| `coagulacao` | PT, aPTT, Fibrinogen | ✅ 2-2s, R-4s | Live |
-| `ciq-imuno` | RPR, Anti-HCV, HBsAg | ✅ 1-2s, 1-3s | Live |
-| `uroanalise` | Glucose, Protein, RBC | ✅ 1-2s, 2-2s | Live |
+| Module       | Analytes                                      | Westgard Rules            | Status |
+| ------------ | --------------------------------------------- | ------------------------- | ------ |
+| `bioquimica` | 17 seed (glucose, ALT, AST, creatinine, etc.) | ✅ 1-2s, 1-3s, 2-2s, R-4s | Live   |
+| `coagulacao` | PT, aPTT, Fibrinogen                          | ✅ 2-2s, R-4s             | Live   |
+| `ciq-imuno`  | RPR, Anti-HCV, HBsAg                          | ✅ 1-2s, 1-3s             | Live   |
+| `uroanalise` | Glucose, Protein, RBC                         | ✅ 1-2s, 2-2s             | Live   |
 
-**Code Location:** 
+**Code Location:**
+
 ```
 - src/features/bioquimica/
 - src/features/coagulacao/
@@ -412,28 +401,28 @@ export const releaseLabResult = onCall(async (request) => {
 export interface ControlMaterial {
   id: string;
   labId: string;
-  
+
   // Product Info
-  catalogId: string;         // Reference to product catalog
-  name: string;              // e.g., "Wiener Multi-Chem Control Level 1"
+  catalogId: string; // Reference to product catalog
+  name: string; // e.g., "Wiener Multi-Chem Control Level 1"
   lotNumber: string;
-  expiryDate: number;        // Unix timestamp
-  
+  expiryDate: number; // Unix timestamp
+
   // Storage
   storageCondition: 'room-temp' | '2-8°C' | '-20°C' | '-80°C';
-  storageLocation: string;   // e.g., "Ref B-205"
-  
+  storageLocation: string; // e.g., "Ref B-205"
+
   // Opening Tracking
   openingDate?: number;
-  stabilityDaysPostOpen: number;  // Manufacturer spec
-  
+  stabilityDaysPostOpen: number; // Manufacturer spec
+
   // QC Assignment
-  assignedToAnalytes: string[];   // e.g., ["glucose", "ALT"]
+  assignedToAnalytes: string[]; // e.g., ["glucose", "ALT"]
   controlLevel: 'L1' | 'L2' | 'L3';
-  
+
   // Alerts
   lastAlertedEm?: number;
-  expiryAlertDays: number;   // Default 7 days before expiry
+  expiryAlertDays: number; // Default 7 days before expiry
 }
 ```
 
@@ -453,10 +442,10 @@ export interface WestgardRule {
 export function evaluateWestgardRules(
   controlRuns: ControlRun[],
   mean: number,
-  sd: number
+  sd: number,
 ): WestgardRule[] {
   const rules: WestgardRule[] = [];
-  
+
   // 1-2s: Single value exceeds 2 SD
   if (controlRuns.length >= 1) {
     const latest = controlRuns[controlRuns.length - 1];
@@ -468,7 +457,7 @@ export function evaluateWestgardRules(
       });
     }
   }
-  
+
   // 1-3s: Single value exceeds 3 SD
   if (controlRuns.length >= 1) {
     const latest = controlRuns[controlRuns.length - 1];
@@ -480,7 +469,7 @@ export function evaluateWestgardRules(
       });
     }
   }
-  
+
   // 2-2s: Two consecutive values exceed 2 SD on same side
   if (controlRuns.length >= 2) {
     const last2 = controlRuns.slice(-2);
@@ -496,7 +485,7 @@ export function evaluateWestgardRules(
       });
     }
   }
-  
+
   // R-4s: Range between two consecutive values exceeds 4 SD
   if (controlRuns.length >= 2) {
     const last2 = controlRuns.slice(-2);
@@ -509,12 +498,14 @@ export function evaluateWestgardRules(
       });
     }
   }
-  
+
   // 4-1s: Four consecutive values exceed 1 SD on same side
   if (controlRuns.length >= 4) {
     const last4 = controlRuns.slice(-4);
-    if (last4.every(run => (run.result - mean) > 1 * sd) ||
-        last4.every(run => (run.result - mean) < -1 * sd)) {
+    if (
+      last4.every((run) => run.result - mean > 1 * sd) ||
+      last4.every((run) => run.result - mean < -1 * sd)
+    ) {
       rules.push({
         name: '4-1s',
         isViolated: true,
@@ -522,7 +513,7 @@ export function evaluateWestgardRules(
       });
     }
   }
-  
+
   return rules;
 }
 ```
@@ -537,25 +528,30 @@ Document code: `fr-010-plano-ciq`
 # Plano de CIQ — [Analyte Name]
 
 ## Analyte Information
+
 - LOINC Code: [Code]
 - Method: [Method Name]
 - Equipment: [Equipment List]
 
 ## Control Material
+
 - Product: [Control Name]
 - Lot Requirement: [Specification]
 - Storage: [Temperature]
 
 ## Westgard Rules
+
 - Primary: 1-2s, 1-3s, 2-2s, R-4s
 - Frequency: Daily, Level 2
 
 ## Acceptance Range
+
 - Mean: [Value]
 - SD: [Value]
 - Acceptance: Mean ± 2 SD
 
 ## Out-of-Control Action
+
 1. Stop reporting patient results
 2. Investigate (instrument, reagent, calibration)
 3. Document corrective action
@@ -563,6 +559,7 @@ Document code: `fr-010-plano-ciq`
 5. Resume when verified
 
 ## Trending & Review
+
 - Monthly: Review 20 last QC runs
 - Quarterly: Recalculate mean/SD if >5% drift
 - Annual: Review for changing methodology
@@ -578,31 +575,28 @@ Document code: `fr-010-plano-ciq`
 export function useDetectOutOfControl(
   analysisId: string,
   analyteCode: string,
-  analyzeDate: number
+  analyzeDate: number,
 ) {
-  const qcStatus = useQuery(
-    ['qc-status', analyteCode],
-    async () => {
-      // Fetch last 20 QC runs for analyte
-      const runs = await getLastQCRuns(analyteCode, 20);
-      
-      // Evaluate Westgard rules
-      const rules = evaluateWestgardRules(runs);
-      
-      // Check if any rule violated
-      if (rules.some(r => r.isViolated)) {
-        return {
-          outOfControl: true,
-          violatedRules: rules.filter(r => r.isViolated),
-          blockAnalysisResults: true,
-          escalation: 'CRITICAL',
-        };
-      }
-      
-      return { outOfControl: false };
+  const qcStatus = useQuery(['qc-status', analyteCode], async () => {
+    // Fetch last 20 QC runs for analyte
+    const runs = await getLastQCRuns(analyteCode, 20);
+
+    // Evaluate Westgard rules
+    const rules = evaluateWestgardRules(runs);
+
+    // Check if any rule violated
+    if (rules.some((r) => r.isViolated)) {
+      return {
+        outOfControl: true,
+        violatedRules: rules.filter((r) => r.isViolated),
+        blockAnalysisResults: true,
+        escalation: 'CRITICAL',
+      };
     }
-  );
-  
+
+    return { outOfControl: false };
+  });
+
   return qcStatus;
 }
 ```
@@ -641,31 +635,29 @@ export interface ExtractedPlanData {
   analyteName: string;
   loinc?: string;
   method: string;
-  
+
   // Coefficient of Variation
-  cvTarget: number;        // Manufacturer spec (e.g., 2.5%)
-  cvAcceptable: number;    // Lab acceptable limit (usually CV target + 1%)
-  
+  cvTarget: number; // Manufacturer spec (e.g., 2.5%)
+  cvAcceptable: number; // Lab acceptable limit (usually CV target + 1%)
+
   // Biological Reference Interval
   biologicalReferenceRange: {
     min: number;
     max: number;
     unit: string;
-    population?: string;   // e.g., "adult males"
+    population?: string; // e.g., "adult males"
   };
-  
+
   // Control Material Specs
   controlMaterialSpecs: string;
   storageTemperature: string;
-  
+
   // Safety & Performance
   interferences?: string;
   limitations?: string;
 }
 
-export async function extractPlanFromBula(
-  bula: PdFile
-): Promise<ExtractedPlanData> {
+export async function extractPlanFromBula(bula: PdFile): Promise<ExtractedPlanData> {
   // Uses OCR (Gemini) to parse technical package insert
   // Extracts: method name, CV, reference range, control specs
   return extracted;
@@ -685,38 +677,38 @@ Document: `fr-010-plano-ciq` (referenced in Block G)
 
 export function PlanCustomizer({ analyteId }: Props) {
   const [plan, setPlan] = useState<CIQPlan>(defaultPlan);
-  
+
   return (
     <div>
       {/* Display extracted data from bula */}
       <Section label="Method">
         <Input value={plan.method} readOnly />
       </Section>
-      
+
       {/* Allow lab to customize acceptance ranges */}
       <Section label="CV Acceptance">
-        <Input 
+        <Input
           label="Max CV %"
           value={plan.cvAcceptable}
           onChange={(v) => setPlan({ ...plan, cvAcceptable: v })}
         />
       </Section>
-      
+
       {/* Link to control materials */}
       <Section label="Control Materials">
-        <ControlMaterialSelector 
+        <ControlMaterialSelector
           onSelect={(cm) => setPlan({ ...plan, controlMaterials: [...plan.controlMaterials, cm] })}
         />
       </Section>
-      
+
       {/* Westgard rules assignment */}
       <Section label="Westgard Rules">
-        <RuleSelector 
+        <RuleSelector
           selected={plan.westgardRules}
           onSelect={(rules) => setPlan({ ...plan, westgardRules: rules })}
         />
       </Section>
-      
+
       <Button onClick={() => savePlan(analyteId, plan)}>Save Plan</Button>
     </div>
   );
@@ -754,30 +746,30 @@ export function PlanCustomizer({ analyteId }: Props) {
 export interface TraceabilityEvent {
   id: string;
   labId: string;
-  
+
   // Event Type
   type: 'reagent_change' | 'control_run' | 'calibration' | 'maintenance' | 'disposal';
-  
+
   // Resource
   equipmentId: string;
-  examCodeAtChange?: string;    // Which exam was affected (e.g., "glucose")
-  
+  examCodeAtChange?: string; // Which exam was affected (e.g., "glucose")
+
   // Event Details
-  description: string;           // "Changed reagent lot ABC123"
+  description: string; // "Changed reagent lot ABC123"
   lotNumber?: string;
   expiryDate?: number;
   storageTemperature?: string;
-  
+
   // Operator & Signature
-  registeredBy: string;          // operatorId from auth.uid
-  signature: LogicalSignature;   // From ADR-0012
-  timestamp: number;             // Server-side timestamp
-  
+  registeredBy: string; // operatorId from auth.uid
+  signature: LogicalSignature; // From ADR-0012
+  timestamp: number; // Server-side timestamp
+
   // Metadata
-  nextCalibrationDue?: number;   // For calibration events
-  disposalMethod?: string;       // For disposal events ("incineration", "chemical", etc.)
-  disposalContractor?: string;   // Third-party contractor ID
-  disposalReceipt?: string;      // Proof of disposal
+  nextCalibrationDue?: number; // For calibration events
+  disposalMethod?: string; // For disposal events ("incineration", "chemical", etc.)
+  disposalContractor?: string; // Third-party contractor ID
+  disposalReceipt?: string; // Proof of disposal
 }
 ```
 
@@ -800,13 +792,13 @@ match /labs/{labId}/traceability-events/{eventId} {
 
 **3. Event Types & Tracking**
 
-| Event Type | Triggers | Data Captured | Owner |
-|---|---|---|---|
-| `reagent_change` | Reagent replacement | lotNumber, expiryDate, storageTemp | Tech |
-| `control_run` | QC execution | result, Westgard status | Tech |
-| `calibration` | Equipment cal. | certificate, next-due date | Tech |
-| `maintenance` | Preventive/corrective | maintenance type, work order | Tech |
-| `disposal` | Sample/reagent disposal | method, contractor, receipt | Admin |
+| Event Type       | Triggers                | Data Captured                      | Owner |
+| ---------------- | ----------------------- | ---------------------------------- | ----- |
+| `reagent_change` | Reagent replacement     | lotNumber, expiryDate, storageTemp | Tech  |
+| `control_run`    | QC execution            | result, Westgard status            | Tech  |
+| `calibration`    | Equipment cal.          | certificate, next-due date         | Tech  |
+| `maintenance`    | Preventive/corrective   | maintenance type, work order       | Tech  |
+| `disposal`       | Sample/reagent disposal | method, contractor, receipt        | Admin |
 
 **Code Location:** `functions/src/triggers/` (per-event CF triggers)
 
@@ -817,7 +809,7 @@ match /labs/{labId}/traceability-events/{eventId} {
 
 export const generateTraceabilityReport = onCall(async (request) => {
   const { labId, equipmentId, startDate, endDate } = request.data;
-  
+
   const events = await admin
     .firestore()
     .collection(`/labs/${labId}/traceability-events`)
@@ -826,20 +818,20 @@ export const generateTraceabilityReport = onCall(async (request) => {
     .where('timestamp', '<=', endDate)
     .orderBy('timestamp')
     .get();
-  
+
   // Generate PDF report
   const report = {
     equipment: equipmentId,
     dateRange: { startDate, endDate },
-    events: events.docs.map(doc => ({
+    events: events.docs.map((doc) => ({
       date: new Date(doc.data().timestamp).toISOString(),
       type: doc.data().type,
       description: doc.data().description,
       operator: doc.data().registeredBy,
-      signature: doc.data().signature.hash.substring(0, 8) + '...',  // abbreviated
+      signature: doc.data().signature.hash.substring(0, 8) + '...', // abbreviated
     })),
   };
-  
+
   return generatePDF(report);
 });
 ```
@@ -877,31 +869,31 @@ export interface CriticalValue {
   id: string;
   labId: string;
   analyteCode: string;
-  
+
   // Thresholds (lab-configurable)
   criticalLow?: number;
   criticalHigh?: number;
-  
+
   // Actions on detection
-  blockResultRelease: boolean;   // Default: true
-  notifyPhysician: boolean;      // Default: true
-  notifyRT: boolean;             // Default: true
-  notifyLab: boolean;            // Default: true
+  blockResultRelease: boolean; // Default: true
+  notifyPhysician: boolean; // Default: true
+  notifyRT: boolean; // Default: true
+  notifyLab: boolean; // Default: true
 }
 
 export function detectarCriticos(
   result: AnalysisResult,
-  criticalValueConfig: CriticalValue
+  criticalValueConfig: CriticalValue,
 ): boolean {
   const { value } = result;
-  
+
   if (criticalValueConfig.criticalHigh && value > criticalValueConfig.criticalHigh) {
     return true;
   }
   if (criticalValueConfig.criticalLow && value < criticalValueConfig.criticalLow) {
     return true;
   }
-  
+
   return false;
 }
 ```
@@ -915,11 +907,11 @@ export function detectarCriticos(
 
 export function useLaudoRelease(laudoId: string) {
   const [isCritical, setIsCritical] = useState(false);
-  
+
   useEffect(() => {
     const checkCritical = async () => {
       const laudo = await getLaudo(laudoId);
-      
+
       // Check each exam for critical values
       for (const exam of laudo.exams) {
         const config = await getCriticalValueConfig(exam.examCode);
@@ -928,13 +920,13 @@ export function useLaudoRelease(laudoId: string) {
           return;
         }
       }
-      
+
       setIsCritical(false);
     };
-    
+
     checkCritical();
   }, [laudoId]);
-  
+
   return (
     <div>
       {isCritical && (
@@ -942,8 +934,8 @@ export function useLaudoRelease(laudoId: string) {
           ⚠️ Critical values detected. RT review required before release.
         </Alert>
       )}
-      
-      <Button 
+
+      <Button
         onClick={releaseLaudo}
         disabled={isCritical}  // Cannot release if critical
       >
@@ -966,11 +958,11 @@ export const escalateCriticalValue = onDocumentCreated(
   async (event) => {
     const escalacao = event.data.data();
     const { labId, analyteCode, patientId, result, criticoType } = escalacao;
-    
+
     // Fetch contacts
     const rtContacts = await getLabRTContacts(labId);
     const physicianId = await getPatientPhysician(patientId);
-    
+
     // Prepare message
     const message = `
       CRITICAL VALUE ALERT
@@ -981,7 +973,7 @@ export const escalateCriticalValue = onDocumentCreated(
       
       Action required: RT review before release.
     `;
-    
+
     // Send email to all RTs
     for (const rt of rtContacts) {
       await sendEmail({
@@ -990,7 +982,7 @@ export const escalateCriticalValue = onDocumentCreated(
         body: message,
       });
     }
-    
+
     // Send SMS to on-call RT (if configured)
     const oncallRT = await getOncallRT(labId);
     if (oncallRT) {
@@ -999,16 +991,16 @@ export const escalateCriticalValue = onDocumentCreated(
         message: `CRITICAL: ${analyteCode} = ${result}. Pt ${patientId}. Check portal.`,
       });
     }
-    
+
     // Log escalation
     await logEscalation({
       labId,
       escalacaoId,
-      notifiedRTs: rtContacts.map(r => r.id),
+      notifiedRTs: rtContacts.map((r) => r.id),
       notifiedPhysician: physicianId,
       timestamp: admin.firestore.FieldValue.serverTimestamp(),
     });
-  }
+  },
 );
 ```
 
@@ -1024,22 +1016,22 @@ export const escalateCriticalValue = onDocumentCreated(
 export interface NaoConformidade {
   id: string;
   labId: string;
-  
+
   // Intake
   descricao: string;
   severidade: 'baixa' | 'média' | 'alta' | 'crítica';
   categoria: 'processo' | 'equipment' | 'pessoal' | 'documentation';
-  
+
   // Operator Info
   reportadoPor: string;
   dataDenuncia: number;
-  
+
   // Status Tracking
   status: 'aberta' | 'investigacao' | 'planejada' | 'implementada' | 'verificada' | 'fechada';
-  
+
   // CAPA Link
-  capaId?: string;           // Linked corrective action
-  
+  capaId?: string; // Linked corrective action
+
   // Audit Trail
   signature: LogicalSignature;
   criadoEm: number;
@@ -1057,15 +1049,12 @@ export interface NaoConformidade {
 export const criarNaoConformidade = onCall(async (request) => {
   const { labId, descricao, severidade, categoria } = request.data;
   const userId = request.auth.uid;
-  
+
   // 1. Create NC doc
-  const ncRef = admin
-    .firestore()
-    .collection(`/labs/${labId}/nao-conformidades`)
-    .doc();
-  
+  const ncRef = admin.firestore().collection(`/labs/${labId}/nao-conformidades`).doc();
+
   const signature = await sealDocument(request.data, null, secret);
-  
+
   await ncRef.set({
     ...request.data,
     reportadoPor: userId,
@@ -1073,28 +1062,28 @@ export const criarNaoConformidade = onCall(async (request) => {
     status: 'aberta',
     signature,
   });
-  
+
   // 2. Auto-escalate if critical
   if (severidade === 'crítica') {
     // Send email to quality manager + lab director
     const mgr = await getQualityManager(labId);
     const dir = await getLabDirector(labId);
-    
+
     await sendEmail({
       to: [mgr.email, dir.email],
       subject: '🚨 CRITICAL NON-CONFORMANCE REPORTED',
       body: `NC ID: ${ncRef.id}\n${descricao}`,
     });
-    
+
     // Create task ticket
     await createTaskTicket({
       labId,
       ncId: ncRef.id,
-      dueDate: now + 24 * 60 * 60 * 1000,  // 24h deadline
+      dueDate: now + 24 * 60 * 60 * 1000, // 24h deadline
       priority: 'critical',
     });
   }
-  
+
   return { ncId: ncRef.id };
 });
 ```
@@ -1108,37 +1097,37 @@ export const criarNaoConformidade = onCall(async (request) => {
 
 export function useCapaFromNC(ncId: string) {
   const [capa, setCapa] = useState(null);
-  
+
   useEffect(() => {
     // On NC creation, auto-create CAPA skeleton
     const createCapaSkeleton = async () => {
       const nc = await getNaoConformidade(ncId);
-      
+
       const capaSkeleton = {
         laborId: nc.labId,
         naoConformidadeId: ncId,
         descricaoProblema: nc.descricao,
-        status: 'aberta',  // CAPA is initially open
+        status: 'aberta', // CAPA is initially open
         criadoEm: admin.firestore.FieldValue.serverTimestamp(),
       };
-      
+
       const capaRef = await admin
         .firestore()
         .collection(`/labs/${nc.labId}/capa-tracking`)
         .add(capaSkeleton);
-      
+
       // Link NC back to CAPA
       await admin
         .firestore()
         .doc(`/labs/${nc.labId}/nao-conformidades/${ncId}`)
         .update({ capaId: capaRef.id });
-      
+
       setCapa({ id: capaRef.id, ...capaSkeleton });
     };
-    
+
     createCapaSkeleton();
   }, [ncId]);
-  
+
   return capa;
 }
 ```
@@ -1176,7 +1165,7 @@ export function useCapaFromNC(ncId: string) {
 
 export async function softDeleteDocument(
   docRef: admin.firestore.DocumentReference,
-  reason?: string
+  reason?: string,
 ) {
   return docRef.update({
     deletadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -1184,9 +1173,7 @@ export async function softDeleteDocument(
   });
 }
 
-export async function restoreDocument(
-  docRef: admin.firestore.DocumentReference
-) {
+export async function restoreDocument(docRef: admin.firestore.DocumentReference) {
   return docRef.update({
     deletadoEm: admin.firestore.FieldValue.delete(),
   });
@@ -1202,7 +1189,7 @@ export async function restoreDocument(
 match /labs/{labId}/{document=**} {
   // Hard-delete always blocked
   allow delete: if false;
-  
+
   // Soft-delete via update (add deletadoEm timestamp)
   allow update: if request.resource.data.deletadoEm != null
     && !('createdAt' in request.resource.data);  // Cannot tamper audit fields
@@ -1216,41 +1203,38 @@ match /labs/{labId}/{document=**} {
 ```typescript
 // functions/src/crons/enforceDataRetention.ts
 
-export const enforceDataRetention = onSchedule(
-  'every 1 hours',
-  async (context) => {
-    const config = {
-      'laudos': 5 * 365 * 24 * 60 * 60 * 1000,       // 5 years
-      'nao-conformidades': 5 * 365 * 24 * 60 * 60 * 1000,
-      'capa-tracking': 5 * 365 * 24 * 60 * 60 * 1000,
-      'audit-events': 10 * 365 * 24 * 60 * 60 * 1000, // 10 years (extras)
-      'patient-data': 7 * 365 * 24 * 60 * 60 * 1000,  // 7 years (LGPD + medical)
-    };
-    
-    for (const [collection, retentionMs] of Object.entries(config)) {
-      const cutoffTime = Date.now() - retentionMs;
-      
-      const toPurge = await admin
-        .firestore()
-        .collectionGroup(collection)
-        .where('deletadoEm', '<', cutoffTime)
-        .limit(1000)  // Batch
-        .get();
-      
-      for (const doc of toPurge.docs) {
-        // Anonymize sensitive fields before archiving
-        await doc.ref.update({
-          anonimizadoEm: admin.firestore.FieldValue.serverTimestamp(),
-          patientName: 'REDACTED',
-          patientId: 'REDACTED',
-        });
-        
-        // Export to Cold Storage (GCS) for compliance archive
-        await exportToColdStorage(doc.data());
-      }
+export const enforceDataRetention = onSchedule('every 1 hours', async (context) => {
+  const config = {
+    laudos: 5 * 365 * 24 * 60 * 60 * 1000, // 5 years
+    'nao-conformidades': 5 * 365 * 24 * 60 * 60 * 1000,
+    'capa-tracking': 5 * 365 * 24 * 60 * 60 * 1000,
+    'audit-events': 10 * 365 * 24 * 60 * 60 * 1000, // 10 years (extras)
+    'patient-data': 7 * 365 * 24 * 60 * 60 * 1000, // 7 years (LGPD + medical)
+  };
+
+  for (const [collection, retentionMs] of Object.entries(config)) {
+    const cutoffTime = Date.now() - retentionMs;
+
+    const toPurge = await admin
+      .firestore()
+      .collectionGroup(collection)
+      .where('deletadoEm', '<', cutoffTime)
+      .limit(1000) // Batch
+      .get();
+
+    for (const doc of toPurge.docs) {
+      // Anonymize sensitive fields before archiving
+      await doc.ref.update({
+        anonimizadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        patientName: 'REDACTED',
+        patientId: 'REDACTED',
+      });
+
+      // Export to Cold Storage (GCS) for compliance archive
+      await exportToColdStorage(doc.data());
     }
   }
-);
+});
 ```
 
 **Code Location:** `functions/src/crons/enforceDataRetention.ts`
@@ -1261,10 +1245,7 @@ Once a document is soft-deleted, its audit trail (LogicalSignature events) remai
 
 ```typescript
 // Query soft-deleted documents + their event trail
-const deletedDoc = await admin
-  .firestore()
-  .doc(`/labs/{labId}/laudos/{laudoId}`)
-  .get();
+const deletedDoc = await admin.firestore().doc(`/labs/{labId}/laudos/{laudoId}`).get();
 
 const events = await admin
   .firestore()
@@ -1273,7 +1254,10 @@ const events = await admin
   .get();
 
 console.log('Deleted doc:', deletedDoc.data());
-console.log('Event trail still intact:', events.docs.map(d => d.data()));
+console.log(
+  'Event trail still intact:',
+  events.docs.map((d) => d.data()),
+);
 ```
 
 ### Verification Checklist
@@ -1295,16 +1279,16 @@ console.log('Event trail still intact:', events.docs.map(d => d.data()));
 
 ## Summary: RDC 978 Critical Articles Verification
 
-| Article | Requirement | Status | Evidence | Blocker |
-|---------|---|---|---|---|
-| **117** | Audit Trail (LogicalSignature) | ✅ VERIFIED | ADR-0012 + sealing rules | — |
-| **167** | Laudo + RT Signature | ✅ VERIFIED | liberacao module + state machine | — |
-| **179** | CIQ Mandatory | ✅ VERIFIED | bioquimica + 4 modules | — |
-| **180** | CIQ Plans | ✅ VERIFIED | bulaparser + sgq templates | — |
-| **181** | Rastreabilidade Amostras | ✅ VERIFIED | traceability append-only logs | — |
-| **183–191** | Críticos + NC Management | ✅ VERIFIED | criticos + qualidade modules | — |
-| **204** | Soft-Delete Only | ✅ VERIFIED | firestore.rules enforcement | — |
-| **TOTAL** | — | **✅ 8/8** | — | — |
+| Article     | Requirement                    | Status      | Evidence                         | Blocker |
+| ----------- | ------------------------------ | ----------- | -------------------------------- | ------- |
+| **117**     | Audit Trail (LogicalSignature) | ✅ VERIFIED | ADR-0012 + sealing rules         | —       |
+| **167**     | Laudo + RT Signature           | ✅ VERIFIED | liberacao module + state machine | —       |
+| **179**     | CIQ Mandatory                  | ✅ VERIFIED | bioquimica + 4 modules           | —       |
+| **180**     | CIQ Plans                      | ✅ VERIFIED | bulaparser + sgq templates       | —       |
+| **181**     | Rastreabilidade Amostras       | ✅ VERIFIED | traceability append-only logs    | —       |
+| **183–191** | Críticos + NC Management       | ✅ VERIFIED | criticos + qualidade modules     | —       |
+| **204**     | Soft-Delete Only               | ✅ VERIFIED | firestore.rules enforcement      | —       |
+| **TOTAL**   | —                              | **✅ 8/8**  | —                                | —       |
 
 ---
 

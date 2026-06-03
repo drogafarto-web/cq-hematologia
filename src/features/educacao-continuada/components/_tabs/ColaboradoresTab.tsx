@@ -80,7 +80,9 @@ export function ColaboradoresTab() {
       <header className="flex flex-col gap-1 sm:flex-row sm:items-end sm:justify-between">
         <div className="flex flex-col gap-1">
           <h2 className="text-xl font-semibold text-slate-100">Colaboradores</h2>
-          <p className="text-sm text-slate-400">Cadastro e histórico — prontuário individual acessível por clique.</p>
+          <p className="text-sm text-slate-400">
+            Cadastro e histórico — prontuário individual acessível por clique.
+          </p>
         </div>
         <div className="flex items-center gap-3">
           <label className="flex items-center gap-2 text-xs text-slate-400 select-none">
@@ -158,7 +160,9 @@ export function ColaboradoresTab() {
                       )}
                     </div>
                   </div>
-                  <p className="text-xs text-slate-500">{c.cargo} · {c.setor}</p>
+                  <p className="text-xs text-slate-500">
+                    {c.cargo} · {c.setor}
+                  </p>
                 </button>
               </li>
             );
@@ -249,7 +253,10 @@ function SkeletonList({ rows }: { rows: number }) {
   return (
     <div className="grid grid-cols-1 gap-2 md:grid-cols-2">
       {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="h-16 animate-pulse rounded-lg border border-slate-800 bg-slate-900/40" />
+        <div
+          key={i}
+          className="h-16 animate-pulse rounded-lg border border-slate-800 bg-slate-900/40"
+        />
       ))}
     </div>
   );

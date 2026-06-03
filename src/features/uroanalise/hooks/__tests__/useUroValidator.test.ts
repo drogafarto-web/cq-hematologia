@@ -31,4 +31,19 @@ describe('validateUroResultado criteria validation', () => {
     expect(validateUroResultado('ph', 7.0, 'P')).toBe(true);
     expect(validateUroResultado('ph', 8.0, 'P')).toBe(true);
   });
+
+  it('should validate dynamically using expectedConfig', () => {
+    // Numeric
+    expect(validateUroResultado('ph', 6.5, 'P', { tipo: 'numerico', min: 6.0, max: 7.0 })).toBe(true);
+    expect(validateUroResultado('ph', 7.5, 'P', { tipo: 'numerico', min: 6.0, max: 7.0 })).toBe(false);
+
+    // Crosses
+    expect(validateUroResultado('glicose', '2+', 'P', { tipo: 'faixa_cruzes', min: 1, max: 3 })).toBe(true);
+    expect(validateUroResultado('glicose', '4+', 'P', { tipo: 'faixa_cruzes', min: 1, max: 3 })).toBe(false);
+    expect(validateUroResultado('glicose', 'NEGATIVO', 'P', { tipo: 'faixa_cruzes', min: 1, max: 3 })).toBe(false);
+
+    // Nominal
+    expect(validateUroResultado('nitrito', 'PRESENTE', 'P', { tipo: 'nominal', valores: ['PRESENTE'] })).toBe(true);
+    expect(validateUroResultado('nitrito', 'NEGATIVO', 'P', { tipo: 'nominal', valores: ['PRESENTE'] })).toBe(false);
+  });
 });

@@ -1,12 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
-import {
-  View,
-  Text,
-  FlatList,
-  TouchableOpacity,
-  RefreshControl,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, RefreshControl, StyleSheet } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme/darkTheme';
 
 type AuditStatus = 'planejada' | 'em_execucao' | 'finalizada';
@@ -35,9 +28,9 @@ const STATUS_CONFIG: Record<AuditStatus, { label: string; color: string; bg: str
 };
 
 const TAB_TO_STATUS: Record<TabFilter, AuditStatus> = {
-  'Planejadas': 'planejada',
+  Planejadas: 'planejada',
   'Em Execução': 'em_execucao',
-  'Finalizadas': 'finalizada',
+  Finalizadas: 'finalizada',
 };
 
 const TABS: TabFilter[] = ['Planejadas', 'Em Execução', 'Finalizadas'];
@@ -80,7 +73,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
 
   const filteredAudits = useMemo(
     () => audits.filter((a) => a.status === TAB_TO_STATUS[activeTab]),
-    [audits, activeTab]
+    [audits, activeTab],
   );
 
   const onRefresh = useCallback(() => {
@@ -96,7 +89,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
         navigation.navigate('AuditExecution', { auditId: audit.id });
       }
     },
-    [navigation]
+    [navigation],
   );
 
   const handleNewAudit = useCallback(() => {
@@ -123,9 +116,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
               {item.title}
             </Text>
             <View style={[styles.statusBadge, { backgroundColor: statusCfg.bg }]}>
-              <Text style={[styles.statusText, { color: statusCfg.color }]}>
-                {statusCfg.label}
-              </Text>
+              <Text style={[styles.statusText, { color: statusCfg.color }]}>{statusCfg.label}</Text>
             </View>
           </View>
 
@@ -133,9 +124,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
 
           <View style={styles.progressRow}>
             <View style={styles.progressBarBg}>
-              <View
-                style={[styles.progressBarFill, { width: `${item.progress}%` }]}
-              />
+              <View style={[styles.progressBarFill, { width: `${item.progress}%` }]} />
             </View>
             <Text style={styles.progressText}>{item.progress}%</Text>
           </View>
@@ -146,7 +135,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
         </TouchableOpacity>
       );
     },
-    [handleAuditPress]
+    [handleAuditPress],
   );
 
   const keyExtractor = useCallback((item: AuditSession) => item.id, []);
@@ -165,9 +154,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={tab}
             >
-              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>
-                {tab}
-              </Text>
+              <Text style={[styles.tabText, isActive && styles.tabTextActive]}>{tab}</Text>
             </TouchableOpacity>
           );
         })}
@@ -189,9 +176,7 @@ export function AuditListScreen({ navigation }: AuditListScreenProps): React.JSX
         }
         ListEmptyComponent={
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>
-              Nenhuma auditoria {activeTab.toLowerCase()}
-            </Text>
+            <Text style={styles.emptyText}>Nenhuma auditoria {activeTab.toLowerCase()}</Text>
           </View>
         }
       />

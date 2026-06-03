@@ -7,6 +7,7 @@
 ## Infrastructure (3 min)
 
 ### Firebase Console — Cloud Functions
+
 - [ ] All 32 functions show ACTIVE status
   - Go to: `console.firebase.google.com` → hmatologia2 → Cloud Functions
   - Expected: Green ACTIVE badge on every function
@@ -14,18 +15,21 @@
   - ⏱️ 60 sec
 
 ### Firebase Console — Firestore Rules
+
 - [ ] Rules deployed within last 30 minutes
   - Go to: Firestore → Rules tab
   - Expected: `.deployed` timestamp shows recent timestamp
   - ⏱️ 20 sec
 
 ### Firebase Console — Firestore Indexes
+
 - [ ] All composite indexes ENABLED
   - Go to: Firestore → Indexes tab
   - Expected: ≥25 indexes, all ENABLED (no CREATING or ERROR)
   - ⏱️ 20 sec
 
 ### Hosting — Web App Load
+
 - [ ] https://hmatologia2.web.app loads without 5xx
   - Open in test browser
   - Expected: App shell renders (logo/nav visible)
@@ -37,12 +41,14 @@
 ## Test Lab Setup (1 min)
 
 ### Riopomba Lab Active
+
 - [ ] Lab document exists and is active
   - Firestore: `/labs/riopomba`
   - Expected: Document exists, `active: true`
   - ⏱️ 30 sec
 
 ### Test Data Exists
+
 - [ ] Bioquímica materials ≥5
   - Firestore: `/labs/riopomba/bioquimica-materials/`
   - Expected: ≥5 materials in collection
@@ -56,6 +62,7 @@
 ## Monitoring Setup (1 min)
 
 ### Cloud Logs Monitor
+
 - [ ] Start background log monitor
   - Windows PowerShell: `.\scripts\monitor-cloud-logs.ps1 -Hours 1 -IntervalMinutes 5`
   - macOS/Linux bash: `bash scripts/monitor-cloud-logs.sh 1 5`
@@ -63,6 +70,7 @@
   - ⏱️ 30 sec
 
 ### DevTools Ready
+
 - [ ] Open DevTools in test browser
   - Press **F12** → Console tab
   - Run: Clear console (`Ctrl+L` or button)
@@ -74,7 +82,8 @@
 ## Timing & Readiness
 
 ### Checkpoint
-- [ ] Note start time: \_\_ : \_\_ 
+
+- [ ] Note start time: \_\_ : \_\_
   - Allocate **90 min** for execution (30 min core + monitoring + buffer)
 - [ ] All items above are ✅
 
@@ -87,6 +96,7 @@
 
 **If ANY check ❌**  
 → **STOP** — Do not proceed. Troubleshoot:
+
 1. Refresh Firebase console (2–3 sec)
 2. Check Firestore path typo (3 sec)
 3. Verify lab name matches exactly: `riopomba` (not `Riopomba`)

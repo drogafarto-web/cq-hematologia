@@ -151,7 +151,7 @@ class LaudoDraftManager {
   async acquireLock(
     laudoId: string,
     rtUid: string,
-    lockDurationMs: number = 3600000
+    lockDurationMs: number = 3600000,
   ): Promise<DraftLock> {
     const draftId = `draft-${laudoId}`;
     const existingLock = this.locks.get(draftId);
@@ -268,10 +268,7 @@ const validateStripImage = (data: unknown): StripImage => {
   }
 
   // Validate classesDetected
-  if (
-    !Array.isArray(obj.classesDetected) ||
-    obj.classesDetected.length === 0
-  ) {
+  if (!Array.isArray(obj.classesDetected) || obj.classesDetected.length === 0) {
     throw new Error('classesDetected must be non-empty array');
   }
 
@@ -294,10 +291,7 @@ const validateStripImage = (data: unknown): StripImage => {
   // Validate feedback (optional but if present, must be complete)
   if (obj.feedback) {
     const feedback = obj.feedback as Record<string, unknown>;
-    if (
-      !Array.isArray(feedback.classes) ||
-      typeof feedback.correctedBy !== 'string'
-    ) {
+    if (!Array.isArray(feedback.classes) || typeof feedback.correctedBy !== 'string') {
       throw new Error('feedback must have classes and correctedBy if present');
     }
   }
@@ -556,9 +550,9 @@ describe('Phase 3 Helpers & Utilities (03-03)', () => {
       await manager.acquireLock('laudo-002', 'rt-user-001');
 
       // RT 2 tries to acquire same lock
-      await expect(
-        manager.acquireLock('laudo-002', 'rt-user-002')
-      ).rejects.toThrow('locked by another RT');
+      await expect(manager.acquireLock('laudo-002', 'rt-user-002')).rejects.toThrow(
+        'locked by another RT',
+      );
     });
 
     it('Test 3.3: Release lock', async () => {
@@ -574,9 +568,7 @@ describe('Phase 3 Helpers & Utilities (03-03)', () => {
       const lock = await manager.acquireLock('laudo-004', 'rt-user-001');
 
       // Publish should succeed (in real impl, merges and archives)
-      await expect(
-        manager.publish(lock.draftId, 'rt-user-001')
-      ).resolves.toBeUndefined();
+      await expect(manager.publish(lock.draftId, 'rt-user-001')).resolves.toBeUndefined();
 
       // Lock should be released
       const currentLock = manager.getCurrentLock(lock.draftId);
@@ -587,9 +579,9 @@ describe('Phase 3 Helpers & Utilities (03-03)', () => {
       const lock = await manager.acquireLock('laudo-005', 'rt-user-001');
 
       // Different RT tries to publish
-      await expect(
-        manager.publish(lock.draftId, 'rt-user-999')
-      ).rejects.toThrow('Only lock owner can publish');
+      await expect(manager.publish(lock.draftId, 'rt-user-999')).rejects.toThrow(
+        'Only lock owner can publish',
+      );
     });
   });
 

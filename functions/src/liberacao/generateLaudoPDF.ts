@@ -65,10 +65,7 @@ interface GenerateLaudoPDFResult {
 }
 
 async function assertActiveMember(labId: string, uid: string): Promise<void> {
-  const snap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const snap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!snap.exists || snap.data()?.['active'] !== true) {
     throw new HttpsError('permission-denied', 'Caller is not an active member of the lab.');
   }
@@ -100,7 +97,10 @@ async function fetchLaudoAndVersion(
     .get();
 
   if (versionsSnap.empty) {
-    throw new HttpsError('not-found', `Versão ${targetVersion} de laudo ${laudoId} não encontrada.`);
+    throw new HttpsError(
+      'not-found',
+      `Versão ${targetVersion} de laudo ${laudoId} não encontrada.`,
+    );
   }
 
   const version = versionsSnap.docs[0].data() as LaudoVersion;
@@ -203,15 +203,12 @@ export const generateLaudoPDF = onCall<unknown, Promise<GenerateLaudoPDFResult>>
     // can be retried, so we don't block the response if this fails.
     try {
       const versionDocId = (version as LaudoVersion & { _docId: string })._docId;
-      await admin
-        .firestore()
-        .doc(`labs/${input.labId}/laudo-versions/${versionDocId}`)
-        .update({
-          pdfUrl: upload.gsUrl,
-          pdfStoragePath: upload.storagePath,
-          pdfHash,
-          pdfGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
-        });
+      await admin.firestore().doc(`labs/${input.labId}/laudo-versions/${versionDocId}`).update({
+        pdfUrl: upload.gsUrl,
+        pdfStoragePath: upload.storagePath,
+        pdfHash,
+        pdfGeneratedAt: admin.firestore.FieldValue.serverTimestamp(),
+      });
     } catch (err) {
       console.error('[generateLaudoPDF] failed to write pdfUrl back', err);
     }

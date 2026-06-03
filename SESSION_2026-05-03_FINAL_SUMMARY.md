@@ -9,6 +9,7 @@
 ## What Shipped ✅
 
 ### Session 1: Phase 2 Unblock
+
 - ✅ Backfill chainhash (10 sealed) + notaFiscal (14 linked) + pop-reference (0 runs)
 - ✅ E2E smoke test infrastructure (6 specs: 3 critical paths created)
 - ✅ Hosting deployed (hmatologia2.web.app live with Phase 1)
@@ -16,6 +17,7 @@
 - ✅ Commit: dd82a87
 
 ### Session 2: Batch 1 Kickoff (THIS SESSION)
+
 - ✅ ADR-0008 + ADR-0009 architected via `/gsd-plan-phase`
 - ✅ Plan file: `sequential-jingling-toast.md` (5 ordered tasks + estimates)
 - ✅ **Task 1 COMPLETE**: CF exports (recordarTreinamentoPOP + addAcao)
@@ -38,6 +40,7 @@
 **Build status**: 🟢 Green (Task 1 complete, Task 2 reverted to keep build stable)
 
 **Next session entry point:**
+
 ```bash
 # Read context
 cat TASK2_NC_SCHEMA_DETAILED_TODO.md
@@ -58,14 +61,14 @@ firebase deploy --only functions  # After Task 2 green
 
 ## Batch 1 Execution Status
 
-| Task | Status | Time | Blocker |
-|------|--------|------|---------|
-| 1 — CF exports | ✅ DONE | 30min | — |
-| 2 — NC schema | ⏳ TODO | 30min-2h | Types match |
-| 3 — POPs UI | Ready | 4-6h | Task 2 done |
-| 4 — Auditoria UI + NC wiring | Ready | 5-7h | Task 2 done |
-| 5 — ADR-0007 doc | Ready | 1-2h | Anytime |
-| **TOTAL** | **1.5 weeks** | — | **Sequential** |
+| Task                         | Status        | Time     | Blocker        |
+| ---------------------------- | ------------- | -------- | -------------- |
+| 1 — CF exports               | ✅ DONE       | 30min    | —              |
+| 2 — NC schema                | ⏳ TODO       | 30min-2h | Types match    |
+| 3 — POPs UI                  | Ready         | 4-6h     | Task 2 done    |
+| 4 — Auditoria UI + NC wiring | Ready         | 5-7h     | Task 2 done    |
+| 5 — ADR-0007 doc             | Ready         | 1-2h     | Anytime        |
+| **TOTAL**                    | **1.5 weeks** | —        | **Sequential** |
 
 ---
 
@@ -82,7 +85,7 @@ firebase deploy --only functions  # After Task 2 green
 
 ❌ Don't start Tasks 3-5 until Task 2 is green (they depend on NC schema)  
 ❌ Don't deploy without `firebase deploy --only functions` first (callables need export)  
-❌ Don't skip ADR-0007 — document the decision, even if briefly  
+❌ Don't skip ADR-0007 — document the decision, even if briefly
 
 ---
 

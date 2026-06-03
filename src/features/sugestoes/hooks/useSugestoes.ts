@@ -50,7 +50,7 @@ export function useSugestoes(labId: LabId, options?: UseSugestoesOptions) {
             ({
               id: doc.id,
               ...doc.data(),
-            } as Sugestao)
+            }) as Sugestao,
         );
 
         setSugestoes(data);
@@ -59,7 +59,7 @@ export function useSugestoes(labId: LabId, options?: UseSugestoesOptions) {
       (err) => {
         setError(err);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();

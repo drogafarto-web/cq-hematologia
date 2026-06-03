@@ -25,17 +25,11 @@ import type { Achado, TipoAchado, VerificacaoEficacia } from '../types';
 // ──────────────────────────────────────────────────────────────────────────
 
 export function achadosCol(labId: string, auditoriaId: string) {
-  return collection(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/achados`
-  );
+  return collection(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/achados`);
 }
 
 export function achadoDoc(labId: string, auditoriaId: string, achadoId: string) {
-  return doc(
-    db,
-    `auditoria-geral/${labId}/auditorias/${auditoriaId}/achados/${achadoId}`
-  );
+  return doc(db, `auditoria-geral/${labId}/auditorias/${auditoriaId}/achados/${achadoId}`);
 }
 
 // ──────────────────────────────────────────────────────────────────────────
@@ -45,7 +39,7 @@ export function achadoDoc(labId: string, auditoriaId: string, achadoId: string) 
 export async function createAchado(
   labId: string,
   auditoriaId: string,
-  data: Omit<Achado, 'id' | 'criadoEm'>
+  data: Omit<Achado, 'id' | 'criadoEm'>,
 ): Promise<string> {
   const colRef = achadosCol(labId, auditoriaId);
   const newRef = doc(colRef);
@@ -60,7 +54,7 @@ export async function updateAchado(
   labId: string,
   auditoriaId: string,
   achadoId: string,
-  data: Partial<Omit<Achado, 'id' | 'criadoEm' | 'criadoPor'>>
+  data: Partial<Omit<Achado, 'id' | 'criadoEm' | 'criadoPor'>>,
 ): Promise<void> {
   const ref = achadoDoc(labId, auditoriaId, achadoId);
   await updateDoc(ref, data);
@@ -70,7 +64,7 @@ export async function saveVerificacaoEficacia(
   labId: string,
   auditoriaId: string,
   achadoId: string,
-  verificacao: VerificacaoEficacia
+  verificacao: VerificacaoEficacia,
 ): Promise<void> {
   const ref = achadoDoc(labId, auditoriaId, achadoId);
   await updateDoc(ref, {
@@ -86,8 +80,15 @@ export async function saveVerificacaoEficacia(
 export async function gerarAchadosAutomaticos(
   labId: string,
   auditoriaId: string,
-  respostas: { numero: number; indicador: string; bloco: string; score: number | null; naoAplica: boolean; observacoes: string }[],
-  uid: string
+  respostas: {
+    numero: number;
+    indicador: string;
+    bloco: string;
+    score: number | null;
+    naoAplica: boolean;
+    observacoes: string;
+  }[],
+  uid: string,
 ): Promise<number> {
   let count = 0;
 
@@ -132,7 +133,7 @@ export function subscribeAchados(
   labId: string,
   auditoriaId: string,
   callback: (achados: Achado[]) => void,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const q = query(achadosCol(labId, auditoriaId), orderBy('criadoEm', 'desc'));
 
@@ -147,6 +148,6 @@ export function subscribeAchados(
     },
     (err) => {
       if (onError) onError(err as Error);
-    }
+    },
   );
 }

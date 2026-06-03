@@ -115,12 +115,12 @@ describe('consentGate', () => {
 
   it('throws when labId or patientId is missing', async () => {
     const fs = makeFirestore({});
-    await expect(
-      consentGate({ labId: '', patientId, firestore: fs })
-    ).rejects.toMatchObject({ code: 'failed-precondition' });
-    await expect(
-      consentGate({ labId, patientId: '', firestore: fs })
-    ).rejects.toMatchObject({ code: 'failed-precondition' });
+    await expect(consentGate({ labId: '', patientId, firestore: fs })).rejects.toMatchObject({
+      code: 'failed-precondition',
+    });
+    await expect(consentGate({ labId, patientId: '', firestore: fs })).rejects.toMatchObject({
+      code: 'failed-precondition',
+    });
   });
 
   it('treats undefined revokedAt the same as null (active consent)', async () => {

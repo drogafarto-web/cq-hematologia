@@ -1,7 +1,7 @@
 ---
-title: "Phase 15 Deployment Checklist — Quick Reference"
+title: 'Phase 15 Deployment Checklist — Quick Reference'
 date: 2026-05-07
-purpose: "Print & use during live deployment"
+purpose: 'Print & use during live deployment'
 ---
 
 # Phase 15 Deployment Checklist — Quick Reference
@@ -34,15 +34,19 @@ purpose: "Print & use during live deployment"
 ### Pre-Deploy (5 min)
 
 Terminal 1 — Type-check:
+
 ```bash
 npx tsc --noEmit
 ```
+
 - [ ] Output: `0 errors` ✓
 
 Terminal 2 — Rules validation:
+
 ```bash
 firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ```
+
 - [ ] Output: Shows rule blocks OR "no changes" ✓
 
 **GATE:** Both green? → Proceed. Red? → Escalate, do NOT deploy.
@@ -54,6 +58,7 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 gcloud firestore export gs://hmatologia2-backups/rules-backup-$(date +%Y%m%d_%H%M%S)/ \
   --project hmatologia2 --async
 ```
+
 - [ ] Command executed ✓
 
 ### Deploy Rules (10 min)
@@ -61,6 +66,7 @@ gcloud firestore export gs://hmatologia2-backups/rules-backup-$(date +%Y%m%d_%H%
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
+
 - [ ] Output: `Deploy complete!` ✓
 - [ ] New collections visible in GCP Console: Firestore → Rules ✓
 - [ ] Screenshot taken ✓
@@ -70,6 +76,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ```bash
 firebase deploy --only firestore:indexes --project hmatologia2
 ```
+
 - [ ] Output: `Deployment complete!` ✓
 - [ ] ~25 new indexes building in background (OK if still building) ✓
 
@@ -80,6 +87,7 @@ gcloud logging read \
   "resource.type=cloud_firestore AND severity=ERROR AND text:\"Permission denied\"" \
   --limit=10 --project hmatologia2 --format=json | jq length
 ```
+
 - [ ] Output: `0` ✓
 
 **GATE:** All checks pass? → Proceed to Step 2. Error detected? → Revert rules, escalate.
@@ -93,12 +101,15 @@ gcloud logging read \
 ### Pre-Deploy Security Gate (5 min)
 
 **MANDATORY:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 ```
+
 - [ ] Output: `exit code 0` (green) ✓
 
 If exit code 1 (red):
+
 - [ ] Note missing secrets from output
 - [ ] Run: `firebase functions:secrets:set [SECRET_NAME]` for each
 - [ ] Paste value from 1Password, confirm
@@ -111,6 +122,7 @@ cd functions
 npx tsc --noEmit
 npm run build
 ```
+
 - [ ] Output: `0 errors` ✓
 - [ ] Output: `Successfully compiled X functions` ✓
 
@@ -119,11 +131,13 @@ npm run build
 ```bash
 firebase deploy --only functions --project hmatologia2 --region southamerica-east1
 ```
+
 - [ ] Output: Lists 50+ function names ✓
 - [ ] All functions have ✅ checkmark (no ❌) ✓
 - [ ] Output: `Deploy complete!` ✓
 
 **GCP Console Verification:**
+
 - [ ] Cloud Functions page shows ~50 new functions ✓
 - [ ] All status = `OK` (green) ✓
 - [ ] No ERROR state ✓
@@ -139,6 +153,7 @@ curl -X POST https://southamerica-east1-hmatologia2.cloudfunctions.net/notivisa-
   -H "Content-Type: application/json" \
   -d '{"labId": "test-lab", "dryRun": true}'
 ```
+
 - [ ] Response: 200 OR 400 (NOT 500/502) ✓
 
 ```bash
@@ -148,6 +163,7 @@ curl -X POST https://southamerica-east1-hmatologia2.cloudfunctions.net/portal-co
   -H "Content-Type: application/json" \
   -d '{"labId": "test-lab", "dryRun": true}'
 ```
+
 - [ ] Response: 200 OR 400 (NOT 500/502) ✓
 
 ```bash
@@ -155,6 +171,7 @@ curl -X POST https://southamerica-east1-hmatologia2.cloudfunctions.net/portal-co
 gcloud pubsub subscriptions list --project hmatologia2 --format=json | \
   jq '.[] | .name' | grep -E "(exports|nps-recurring)"
 ```
+
 - [ ] Output: Shows subscriptions ✓
 
 **GATE:** All 3 tests pass? → Proceed to Step 3. Any 500/502? → Escalate, investigate.
@@ -175,6 +192,7 @@ npm run build
 # Check sizes
 ls -lh dist/ | head -20
 ```
+
 - [ ] Type-check: `0 errors` ✓
 - [ ] Build output: `✓ built in XXs` ✓
 - [ ] Bundle sizes sanity (no file >1 MB) ✓
@@ -184,11 +202,13 @@ ls -lh dist/ | head -20
 ```bash
 firebase deploy --only hosting --project hmatologia2
 ```
+
 - [ ] Output: `Deploy complete!` ✓
 - [ ] Output shows Hosting URL: `https://hmatologia2.web.app` ✓
 - [ ] Output shows ~XXX files deployed ✓
 
 **GCP Console Verification:**
+
 - [ ] Hosting tab shows latest deploy timestamp (matches current time) ✓
 - [ ] Status: green ✓
 
@@ -202,7 +222,7 @@ firebase deploy --only hosting --project hmatologia2
 
 2. **Cache Verification:**
    - DevTools → Storage → Cache
-   - [ ] New cache entry appears (e.g., "v1.4-*") ✓
+   - [ ] New cache entry appears (e.g., "v1.4-\*") ✓
 
 3. **Offline Test:**
    - DevTools → Network → toggle "Offline"
@@ -314,11 +334,13 @@ firebase deploy --only hosting --project hmatologia2
 ### Web Vitals Spot-Check
 
 In DevTools Console, run:
+
 ```javascript
-web.vitals.getCLS()  // Expected: <0.1
-web.vitals.getINP()  // Expected: <200ms
-web.vitals.getLCP()  // Expected: <2.5s
+web.vitals.getCLS(); // Expected: <0.1
+web.vitals.getINP(); // Expected: <200ms
+web.vitals.getLCP(); // Expected: <2.5s
 ```
+
 - [ ] All within target ✓
 
 **GATE:** 8/8 tests pass? → Proceed to 48h Monitoring. Any fail? → Escalate, investigate.
@@ -442,13 +464,13 @@ firebase deploy --only hosting --project hmatologia2
 
 ## ESCALATION CONTACTS
 
-| Role | Name | Email | Phone |
-|------|------|-------|-------|
-| CTO | — | — | — |
-| DevOps Lead | — | — | — |
-| QA Lead | — | — | — |
-| On-Call Engineer | — | — | — |
-| Auditor | — | — | — |
+| Role             | Name | Email | Phone |
+| ---------------- | ---- | ----- | ----- |
+| CTO              | —    | —     | —     |
+| DevOps Lead      | —    | —     | —     |
+| QA Lead          | —    | —     | —     |
+| On-Call Engineer | —    | —     | —     |
+| Auditor          | —    | —     | —     |
 
 ---
 

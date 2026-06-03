@@ -25,12 +25,14 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 **Target Date:** 2026-05-20
 
 **Deliverables:**
+
 - [x] Email sent to external DICQ/SBPC/ML CAP auditor
 - [x] Auditor replied with availability window
 - [x] Initial call date scheduled (2026-06-09 or 2026-06-16 option offered)
 - [x] Auditor confirmed receipt of technical overview (`PHASE_8_NOTIVISA_CALLABLES.md`)
 
 **Exit Criteria:**
+
 ```
 ✅ Auditor email acknowledged
 ✅ Call date tentatively confirmed
@@ -43,15 +45,16 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 
 **Verification Items:**
 
-| Item | Status | Verification |
-|------|--------|---|
-| Government registration submitted (NOTIVISA) | ☐ | ANVISA credentials received OR on-track for 2026-06-02 |
-| Firestore rules + indexes deployed | ☐ | `firebase deploy --only firestore:rules,firestore:indexes` ✓ |
-| Cloud Functions build clean | ☐ | `npm run build` passes, 6 callables + 1 cron ready |
-| Test suite green | ☐ | `npm test -- notivisa` passes, 8/8 E2E flows covered |
-| Cloud Logs baseline established | ☐ | 24h v1.3 monitoring complete, error rate <1% confirmed |
+| Item                                         | Status | Verification                                                 |
+| -------------------------------------------- | ------ | ------------------------------------------------------------ |
+| Government registration submitted (NOTIVISA) | ☐      | ANVISA credentials received OR on-track for 2026-06-02       |
+| Firestore rules + indexes deployed           | ☐      | `firebase deploy --only firestore:rules,firestore:indexes` ✓ |
+| Cloud Functions build clean                  | ☐      | `npm run build` passes, 6 callables + 1 cron ready           |
+| Test suite green                             | ☐      | `npm test -- notivisa` passes, 8/8 E2E flows covered         |
+| Cloud Logs baseline established              | ☐      | 24h v1.3 monitoring complete, error rate <1% confirmed       |
 
 **Exit Criteria:**
+
 ```
 ✅ Government registration on-track
 ✅ All pre-deployment verification items checked
@@ -69,6 +72,7 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 - QA Lead: "Evidence collection complete + ready for external review"
 
 **Exit Criteria:**
+
 ```
 ✅ Lab director briefing email sent + acknowledged
 ✅ RT confirmation received (signature/timestamp)
@@ -86,6 +90,7 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 **Artifact:** `PHASE_8_COMPLIANCE_MATRIX.md`
 
 **Contents Verified:**
+
 - [ ] 115 DICQ items fully mapped
 - [ ] RDC 978 articles (117, 122, 167, 179–191, 204, 6º) cross-referenced
 - [ ] HC Quality modules linked with evidence
@@ -95,12 +100,14 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 - [ ] DICQ compliance gain projection (78.5% → 83–85%) documented
 
 **Auditor Review Status:**
+
 - [ ] Matrix sent to auditor (2026-06-16)
 - [ ] Auditor acknowledged receipt
 - [ ] Auditor questions received (if any): [list]
 - [ ] Auditor confirmed: "Matrix acceptable" (2026-07-20)
 
 **Exit Criteria:**
+
 ```
 ✅ Compliance matrix complete + sent
 ✅ Auditor confirms 115/115 items mapped
@@ -116,19 +123,20 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 
 **Articles Validated:**
 
-| Article | Topic | HC Quality Evidence | Auditor Status |
-|---------|-------|---|---|
-| 117 | Lab Director Role | admin.labSettings | ✅ Confirmed |
-| 122 | RT + Shift Supervision | turnos (Phase 0) | ✅ Confirmed |
-| 167 | Internal Audit | auditoria + sgd (Phase 0) | ✅ Confirmed |
-| 173 | Data Security + Multi-tenancy | firestore.rules + lgpd | ✅ Confirmed |
-| 179–191 | Quality Manual + Records | sgq + sgd (Phase 0) | ✅ Confirmed |
-| 204 | Logical Signature (Audit Trail) | LogicalSignature (cryptoaudit.ts) | ✅ Confirmed |
-| 5.3 | Audit Trail (Read Intent + Write Consent) | auditoria.audit-log | ✅ Confirmed |
-| 6º | Government Notification (NOTIVISA) | notivisa (Phase 8 delivery) | ⏳ Phase 8 execution |
-| 36–39 | Lab-Apoio (Third-Party Labs) | lab-apoio (Phase 0) | ✅ Confirmed |
+| Article | Topic                                     | HC Quality Evidence               | Auditor Status       |
+| ------- | ----------------------------------------- | --------------------------------- | -------------------- |
+| 117     | Lab Director Role                         | admin.labSettings                 | ✅ Confirmed         |
+| 122     | RT + Shift Supervision                    | turnos (Phase 0)                  | ✅ Confirmed         |
+| 167     | Internal Audit                            | auditoria + sgd (Phase 0)         | ✅ Confirmed         |
+| 173     | Data Security + Multi-tenancy             | firestore.rules + lgpd            | ✅ Confirmed         |
+| 179–191 | Quality Manual + Records                  | sgq + sgd (Phase 0)               | ✅ Confirmed         |
+| 204     | Logical Signature (Audit Trail)           | LogicalSignature (cryptoaudit.ts) | ✅ Confirmed         |
+| 5.3     | Audit Trail (Read Intent + Write Consent) | auditoria.audit-log               | ✅ Confirmed         |
+| 6º      | Government Notification (NOTIVISA)        | notivisa (Phase 8 delivery)       | ⏳ Phase 8 execution |
+| 36–39   | Lab-Apoio (Third-Party Labs)              | lab-apoio (Phase 0)               | ✅ Confirmed         |
 
 **Exit Criteria:**
+
 ```
 ✅ All critical RDC 978 articles covered (100%)
 ✅ Auditor confirms no gaps
@@ -143,16 +151,17 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 
 **Components Reviewed:**
 
-| Component | Status | Auditor Sign-Off |
-|-----------|--------|---|
-| 6 Cloud Functions callables | ✅ | Reviewed + approved |
-| Firestore rules (3 collections) | ✅ | Security audit pass |
-| Audit trail (LogicalSignature chains) | ✅ | Immutability verified |
-| E2E test suite (8 flows) | ✅ | Coverage confirmed |
-| Rate limiting (10/hour per lab) | ✅ | DDoS mitigation adequate |
-| Idempotency pattern (UUID tokens) | ✅ | Duplicate submission safety verified |
+| Component                             | Status | Auditor Sign-Off                     |
+| ------------------------------------- | ------ | ------------------------------------ |
+| 6 Cloud Functions callables           | ✅     | Reviewed + approved                  |
+| Firestore rules (3 collections)       | ✅     | Security audit pass                  |
+| Audit trail (LogicalSignature chains) | ✅     | Immutability verified                |
+| E2E test suite (8 flows)              | ✅     | Coverage confirmed                   |
+| Rate limiting (10/hour per lab)       | ✅     | DDoS mitigation adequate             |
+| Idempotency pattern (UUID tokens)     | ✅     | Duplicate submission safety verified |
 
 **Exit Criteria:**
+
 ```
 ✅ All 6 callables reviewed + approved
 ✅ Firestore security audit passed (0 P0/P1 findings)
@@ -166,13 +175,13 @@ Each gate has clear entry/exit criteria. All three must be green before v1.4 is 
 
 **Blocks Validated:**
 
-| Block | Focus | DICQ Compliance | Phase 8 Role |
-|-------|-------|---|---|
-| **A** | Organization | 80% (with Phase 0 turnos, risks, lab-apoio) | NC remedials tracked (A-004, A-006) |
-| **B** | Resources | 87% (with Phase 0 training + environment) | Equipment calibration backlog noted (remedial) |
-| **C** | Processes | 83% (with Phase 8 NOTIVISA + Phase 10 criticos) | NOTIVISA (C-016) + CAPA closure (Phase 8 deliverable) |
-| **D** | Analytical Quality | 83% (with Phase 9 bioquimica trending) | CAPA effectiveness (D-012) — Phase 8 execution |
-| **E** | Compliance | 80% (with Phase 8 external audit + Phase 9 feedback) | External audit (E-002) + NOTIVISA reporting (E-014) |
+| Block | Focus              | DICQ Compliance                                      | Phase 8 Role                                          |
+| ----- | ------------------ | ---------------------------------------------------- | ----------------------------------------------------- |
+| **A** | Organization       | 80% (with Phase 0 turnos, risks, lab-apoio)          | NC remedials tracked (A-004, A-006)                   |
+| **B** | Resources          | 87% (with Phase 0 training + environment)            | Equipment calibration backlog noted (remedial)        |
+| **C** | Processes          | 83% (with Phase 8 NOTIVISA + Phase 10 criticos)      | NOTIVISA (C-016) + CAPA closure (Phase 8 deliverable) |
+| **D** | Analytical Quality | 83% (with Phase 9 bioquimica trending)               | CAPA effectiveness (D-012) — Phase 8 execution        |
+| **E** | Compliance         | 80% (with Phase 8 external audit + Phase 9 feedback) | External audit (E-002) + NOTIVISA reporting (E-014)   |
 
 **DICQ Gain Projection:**
 
@@ -186,6 +195,7 @@ Auditor Confirmation:       "Target realistic ✓"
 ```
 
 **Exit Criteria:**
+
 ```
 ✅ All 5 DICQ blocks reviewed
 ✅ Compliance gain (78.5% → 83–85%) validated
@@ -199,17 +209,18 @@ Auditor Confirmation:       "Target realistic ✓"
 
 **Security Review Items:**
 
-| Item | Validation | Auditor Sign-Off |
-|------|-----------|---|
-| Firestore multi-tenant isolation | `/notivisa-drafts/{labId}/drafts/{draftId}` + `isActiveMemberOfLab` guard | ✅ |
-| NOTIVISA draft rules (CF-only creation) | Client cannot write directly to drafts | ✅ |
-| NOTIVISA queue rules (CF-only updates) | Queue status changes via Cloud Function only | ✅ |
-| Audit trail immutability | Subcollection append-only, no delete allowed | ✅ |
-| LogicalSignature chain validation | SHA256 hash, 64-char output, previous-hash input | ✅ |
-| RDC 978 Art. 204 compliance | Signature includes operatorId + timestamp + payload hash | ✅ |
-| LGPD Art. 173–175 coverage | Data security, privacy policy, deletion audit trail | ✅ |
+| Item                                    | Validation                                                                | Auditor Sign-Off |
+| --------------------------------------- | ------------------------------------------------------------------------- | ---------------- |
+| Firestore multi-tenant isolation        | `/notivisa-drafts/{labId}/drafts/{draftId}` + `isActiveMemberOfLab` guard | ✅               |
+| NOTIVISA draft rules (CF-only creation) | Client cannot write directly to drafts                                    | ✅               |
+| NOTIVISA queue rules (CF-only updates)  | Queue status changes via Cloud Function only                              | ✅               |
+| Audit trail immutability                | Subcollection append-only, no delete allowed                              | ✅               |
+| LogicalSignature chain validation       | SHA256 hash, 64-char output, previous-hash input                          | ✅               |
+| RDC 978 Art. 204 compliance             | Signature includes operatorId + timestamp + payload hash                  | ✅               |
+| LGPD Art. 173–175 coverage              | Data security, privacy policy, deletion audit trail                       | ✅               |
 
 **Exit Criteria:**
+
 ```
 ✅ Zero P0 findings (security audit)
 ✅ Zero P1 findings (privacy audit)
@@ -283,6 +294,7 @@ Attendees:
 - [ ] Technical credentials ready (staging server, test accounts)
 
 **Exit Criteria:**
+
 ```
 ✅ Auditor attended call
 ✅ All agenda items discussed
@@ -308,7 +320,7 @@ Phase 8 External Compliance Validation — APPROVED
 
 Dear [Lab Director / CTO],
 
-I have completed the external compliance validation for HC Quality 
+I have completed the external compliance validation for HC Quality
 Phase 8 (NOTIVISA Integration). The following items have been confirmed:
 
 ✅ DICQ Compliance Matrix: 115/115 items validated
@@ -321,15 +333,15 @@ Phase 8 (NOTIVISA Integration). The following items have been confirmed:
 Phase 8 Status: COMPLETE ✓
 
 Expected DICQ Compliance: 83–85% (v1.4 target realistic)
-External Audit Readiness: Approved for formal accreditation body 
+External Audit Readiness: Approved for formal accreditation body
                           submission (target 2026-08-31)
 
 Outstanding Items:
 - NC-2026-001 (Alvará Sanitário): Monitor remediation proof
 - NC-2026-002 (RT Signature): Confirm new signature received
 
-Recommendation: 
-  Approved for v1.4 production release with documented 
+Recommendation:
+  Approved for v1.4 production release with documented
   non-conformance remediation pathway.
 
 [Auditor Signature]
@@ -340,11 +352,12 @@ Recommendation:
 
 **Documentation of Sign-Off:**
 
-- [ ] Email received + archived (date: ______)
+- [ ] Email received + archived (date: **\_\_**)
 - [ ] Email copied to PROJECT.md (Phase 8 completion entry)
 - [ ] Email attached to Phase 8 sign-off report
 
 **Exit Criteria:**
+
 ```
 ✅ Auditor formal sign-off email received
 ✅ Email archived in .planning/auditor-approvals/
@@ -382,6 +395,7 @@ Recommendation:
    - Call recording (if permitted by auditor)
 
 **Exit Criteria:**
+
 ```
 ✅ PHASE_8_SIGN_OFF.md created + approved
 ✅ PROJECT.md updated with completion status
@@ -457,15 +471,15 @@ FINAL PHASE 8 STATUS: ✅ COMPLETE (2026-08-05)
 2026-05-28 ─────► Gate A2: Deployment readiness verified
 2026-06-02 ─────► Gate A3: Internal stakeholders aligned
                    (Phase 8 technical execution begins)
-                   
+
 2026-06-16 ─────► Gate B1: Compliance matrix sent
 2026-07-20 ─────► Gate B2–B5: Artifact validation complete
                    (Auditor review window: 2–4 weeks)
-                   
+
 2026-07-27 ─────► Gate C1: Auditor call (option 1)
    OR
 2026-08-02 ─────► Gate C1: Auditor call (option 2)
-                   
+
 2026-08-05 ─────► Gate C2: Sign-off email received
                    Gate C3: Documentation archived
                    ✅ PHASE 8 COMPLETE
@@ -503,11 +517,11 @@ FINAL PHASE 8 STATUS: ✅ COMPLETE (2026-08-05)
 
 ## Authority & Approval Chain
 
-| Gate | Primary Approver | Secondary Approvers | Notes |
-|------|---|---|---|
-| **A** | CTO | Lab Director, RT, QA Lead | Stakeholder alignment |
-| **B** | Auditor | CTO, QA Lead | Technical validation |
-| **C** | Auditor (Formal) | CTO, Lab Director | External compliance seal |
+| Gate  | Primary Approver | Secondary Approvers       | Notes                    |
+| ----- | ---------------- | ------------------------- | ------------------------ |
+| **A** | CTO              | Lab Director, RT, QA Lead | Stakeholder alignment    |
+| **B** | Auditor          | CTO, QA Lead              | Technical validation     |
+| **C** | Auditor (Formal) | CTO, Lab Director         | External compliance seal |
 
 ---
 
@@ -533,17 +547,20 @@ FINAL PHASE 8 STATUS: ✅ COMPLETE (2026-08-05)
 ## Document References
 
 **Gate A (Auditor Engagement):**
+
 - `PHASE_8_FINAL_COMPLETION_CHECKLIST.md` (this file references this)
 - `docs/PHASE_8_DEPLOYMENT_CHECKLIST.md` (pre-deployment verification)
 - `docs/PHASE_8_NOTIVISA_CALLABLES.md` (technical specs)
 
 **Gate B (Artifact Validation):**
+
 - `PHASE_8_COMPLIANCE_MATRIX.md` (115 DICQ items + RDC 978 mapping)
 - `PHASE_8_RDC_978_MAPPING.md` (article-by-article validation)
 - `docs/COMPLIANCE_SUMMARY_v1.3.md` (baseline)
 - `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md` (government onboarding)
 
 **Gate C (Sign-Off Ceremony):**
+
 - `PHASE_8_SIGN_OFF.md` (to create post-call)
 - `PROJECT.md` (v1.4 milestone update)
 - Auditor email (formal approval)
@@ -596,17 +613,20 @@ FINAL PHASE 8 STATUS: ✅ COMPLETE (2026-08-05)
 ## Next Actions (Immediate)
 
 **By 2026-05-20:**
+
 1. Draft Gate A1 auditor email (copy template from PHASE_8_FINAL_COMPLETION_CHECKLIST.md)
 2. Identify auditor contact (DICQ/SBPC/ML CAP)
 3. Send email + request reply
 4. Book tentative call slot (2026-06-09 or 2026-06-16)
 
 **By 2026-05-28:**
+
 1. Verify deployment readiness (Gate A2 checklist)
 2. Confirm government registration status
 3. Final test suite run (8/8 E2E flows)
 
 **By 2026-06-02:**
+
 1. Phase 8 technical execution begins
 2. Stakeholder alignment confirmed (Gate A3)
 3. Compliance matrix ready for distribution

@@ -17,6 +17,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Purpose:** Comprehensive execution guide for Compliance Lead and Phase 13 team.
 
 **Sections:**
+
 1. **Block-by-Block DICQ Audit Checklist** (40+ items across 10 blocks A–J)
    - Detailed audit steps per requirement
    - Expected evidence artifacts (PDFs, JSON, CSV, screenshots)
@@ -66,6 +67,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Purpose:** Day-by-day actionable checklist for Compliance Lead and QA team.
 
 **Includes:**
+
 - **Pre-Phase (May 12):** Documentation review, team prep, system access, directory setup
 - **Week 1 (Mon–Fri):** Blocks A–H audit, evidence collection per day
 - **Week 2 (Mon–Fri):** Blocks I–J, remediation, evidence packaging, pre-call prep
@@ -80,6 +82,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Purpose:** Quick reference summary of key metrics, deliverables, and team allocation.
 
 **Contains:**
+
 - Overview + success criteria
 - Key deliverables list (audit checklist, evidence framework, RDC mapping, JSON template, remediation tree, auditor briefing, pre-call prep, timeline)
 - Audit scope per block (10 blocks, 40+ items)
@@ -100,47 +103,52 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 
 ## Key Metrics at a Glance
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| **Timeline** | 10 working days (May 13–24, 2026) | 🟡 Tight, achievable |
-| **Compliance Baseline (v1.3)** | 78.5% | ✅ Baseline confirmed |
-| **Compliance Target (v1.4)** | 88.0% | 🟡 Achievable (85–92% range) |
-| **DICQ Blocks to Audit** | 10 (A–J) | ✅ Complete coverage |
-| **Sub-items to Verify** | 40+ | ✅ Detailed checklist ready |
-| **RDC Articles Mapped** | 15/15 (100%) | ✅ Complete coverage |
-| **Evidence Artifacts** | 40+ files | ✅ Directory structure ready |
-| **Team Hours Required** | 68 hours | 🟡 Needs allocation |
-| **Remediation Items (Expected)** | P0: 2–5 / P1: 3–7 | 🟡 TBD (Phase 13 discovery) |
+| Metric                           | Value                             | Status                       |
+| -------------------------------- | --------------------------------- | ---------------------------- |
+| **Timeline**                     | 10 working days (May 13–24, 2026) | 🟡 Tight, achievable         |
+| **Compliance Baseline (v1.3)**   | 78.5%                             | ✅ Baseline confirmed        |
+| **Compliance Target (v1.4)**     | 88.0%                             | 🟡 Achievable (85–92% range) |
+| **DICQ Blocks to Audit**         | 10 (A–J)                          | ✅ Complete coverage         |
+| **Sub-items to Verify**          | 40+                               | ✅ Detailed checklist ready  |
+| **RDC Articles Mapped**          | 15/15 (100%)                      | ✅ Complete coverage         |
+| **Evidence Artifacts**           | 40+ files                         | ✅ Directory structure ready |
+| **Team Hours Required**          | 68 hours                          | 🟡 Needs allocation          |
+| **Remediation Items (Expected)** | P0: 2–5 / P1: 3–7                 | 🟡 TBD (Phase 13 discovery)  |
 
 ---
 
 ## How to Use These Documents
 
 ### For Compliance Lead
+
 1. **Start:** Read **PHASE_13_DETAILED_PLAN.md** cover-to-cover (2 hrs)
 2. **Prepare:** Use **PHASE_13_QUICK_START_CHECKLIST.md** to set up pre-phase (May 12)
 3. **Execute:** Follow checklist day-by-day (Week 1–2)
 4. **Deliver:** Compile evidence package + compliance snapshot + auditor briefing
 
 ### For QA Lead
+
 1. **Start:** Review block audit steps in **PHASE_13_DETAILED_PLAN.md** (relevant blocks only)
 2. **Prepare:** Screenshot SOP + spot-check test cases (May 12)
 3. **Execute:** Follow QA tasks in **PHASE_13_QUICK_START_CHECKLIST.md** (day-by-day)
 4. **Deliver:** Evidence artifacts (PDFs, JSONs, CSVs, screenshots)
 
 ### For Module Leads (10 people)
+
 1. **Start:** Read your block section in **PHASE_13_DETAILED_PLAN.md** (1 hr)
 2. **Prepare:** Data staging + test accounts ready (May 12)
 3. **Execute:** Respond to Compliance/QA requests; provide system access; explain design choices
 4. **Deliver:** Module-specific evidence artifacts + auditor Q&A talking points
 
 ### For CTO / RT
+
 1. **Start:** Skim **PHASE_13_EXECUTION_SUMMARY.txt** + key sections of main plan (45 min)
 2. **Review:** Weekly summaries from Compliance Lead (Friday EODs)
 3. **Approve:** Remediation log (P0/P1 decisions)
 4. **Sign-Off:** Compliance snapshot + go/no-go for external audit
 
 ### For External Auditor (Reference Only)
+
 - **Auditor Briefing PDF** (generated from Section 6 of main plan)
 - **Evidence Package** (`docs/PHASE_13_EVIDENCE/` directory)
 - **Compliance Snapshot JSON** (dashboard metrics)
@@ -150,6 +158,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 ## Critical Paths (Manage These Closely)
 
 ### Phase 0 RDC Blockers (Must-Have)
+
 - `lab-apoio` (support lab contracts, 6 clauses) — RDC Arts. 36–39
 - `turnos` supervisor presence — RDC Art. 122
 - `lgpd-policy` skeleton — RDC Art. 77
@@ -158,6 +167,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Impact:** Without Phase 0, cannot pass RDC audit. These are **audit prerequisites**, not nice-to-have features.
 
 ### Phase 4 CAPA Closure (Auditor Interaction)
+
 - 12 findings closure verification with external auditor RFI
 - Impacts Block D compliance significantly
 - **Risk:** Auditor delays can cascade to Phase 9, 13
@@ -165,6 +175,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Mitigation:** Async email gate + weekly calls + parallel Phase 5 work
 
 ### Phase 9 Documentation Breadth (Highest Volume)
+
 - 50+ governance items (Manual Qualidade, Norteadores, Org Chart, SOPs, etc.)
 - Impacts Blocks A, B, C, D, G, H, I (7 blocks)
 - **Risk:** Scope creep; documentation inconsistency
@@ -172,6 +183,7 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 **Mitigation:** Pre-write templates; scope to DICQ-essential items only; 2-day buffer
 
 ### Personnel Dossiè Data Migration (Critical Path Item)
+
 - Records scattered across EC module, auth, turnos, biosseguranca
 - Phase 1 backfill job is mandatory (data completeness audit needed)
 - **Risk:** Incomplete migration; audit failure on C.1
@@ -182,37 +194,42 @@ This directory contains the complete execution plan for **Phase 13 of HC Quality
 
 ## Compliance Confidence Assessment
 
-| Block | v1.3 % | v1.4 Target | Δ | Confidence | Owner |
-|-------|--------|-------------|---|------------|----|
-| **A** Governança | 78% | 92% | +14 | 🟡 Medium | Phase 13 (management review deferred to Phase 14) |
-| **B** SGD | 65% | 92% | +27 | ✅ High | Phase 9 (foundation solid) |
-| **C** Pessoal | 80% | 92% | +12 | 🟡 Medium | Phase 1+9 (data migration risk) |
-| **D** Qualidade | 60% | 85% | +25 | 🟡 Medium | Phase 4+9 (auditor RFI dependency) |
-| **E** Pré-Analítico | 64% | 75% | +11 | 🟡 Medium | Phase 6 (coleta/transporte operational) |
-| **F** Analítico | 92% | 95% | +3 | ✅ High | Phase 10 (already strong) |
-| **G** Pós-Analítico | 70% | 92% | +22 | ✅ High | Phase 5–9 (portal + critical values + NOTIVISA) |
-| **H** Recursos | 75% | 88% | +13 | 🟡 Medium | Phase 0+9–10 (lab-apoio RDC blocker) |
-| **I** Ambiente | 64% | 80% | +16 | 🟡 Medium | Phase 9 (IoT firmware dependency) |
-| **J** Continuidade | 70% | 78% | +8 | ✅ High | Phase 0–1 (policy) + maintenance (DR) |
-| **WEIGHTED AVG** | 78.5% | **88.0%** | **+9.5** | **🟡 75%** | Multi-phase |
+| Block               | v1.3 % | v1.4 Target | Δ        | Confidence | Owner                                             |
+| ------------------- | ------ | ----------- | -------- | ---------- | ------------------------------------------------- |
+| **A** Governança    | 78%    | 92%         | +14      | 🟡 Medium  | Phase 13 (management review deferred to Phase 14) |
+| **B** SGD           | 65%    | 92%         | +27      | ✅ High    | Phase 9 (foundation solid)                        |
+| **C** Pessoal       | 80%    | 92%         | +12      | 🟡 Medium  | Phase 1+9 (data migration risk)                   |
+| **D** Qualidade     | 60%    | 85%         | +25      | 🟡 Medium  | Phase 4+9 (auditor RFI dependency)                |
+| **E** Pré-Analítico | 64%    | 75%         | +11      | 🟡 Medium  | Phase 6 (coleta/transporte operational)           |
+| **F** Analítico     | 92%    | 95%         | +3       | ✅ High    | Phase 10 (already strong)                         |
+| **G** Pós-Analítico | 70%    | 92%         | +22      | ✅ High    | Phase 5–9 (portal + critical values + NOTIVISA)   |
+| **H** Recursos      | 75%    | 88%         | +13      | 🟡 Medium  | Phase 0+9–10 (lab-apoio RDC blocker)              |
+| **I** Ambiente      | 64%    | 80%         | +16      | 🟡 Medium  | Phase 9 (IoT firmware dependency)                 |
+| **J** Continuidade  | 70%    | 78%         | +8       | ✅ High    | Phase 0–1 (policy) + maintenance (DR)             |
+| **WEIGHTED AVG**    | 78.5%  | **88.0%**   | **+9.5** | **🟡 75%** | Multi-phase                                       |
 
 ---
 
 ## Key Decisions (Rationale for Auditor Discussion)
 
 ### 1. Why is Management Review (4.15) Phase 13 → Phase 14?
+
 **Rationale:** Template + auto-aggregation live Phase 13. First ata scheduled Q3 2026 post-launch. Auditor can observe first review if available; Phase 13 validates infrastructure.
 
 ### 2. Why defer Patient Catalog + Consent (5.4.2) to v1.5?
+
 **Rationale:** Phase 5 covers critical path (portal auth + download + critical values alert). Patient catalog (exam info, prep instructions) is informational; can be email-based until portal phase 2. RDC doesn't mandate online catalog, only "patient information."
 
 ### 3. Why defer Staff Well-Being (5.1.11) to v1.5?
+
 **Rationale:** Classified as "stretch goal" in DICQ (ISO 15189 recommendation, not mandate). Phase 9 covers core personnel (qualifications, training, competency, performance). Well-being surveys deferred pending HR process design.
 
 ### 4. Why Lab Apoio (4.5) is RDC Blocker in Phase 0?
+
 **Rationale:** RDC Arts. 36–39 explicitly require support lab contracts. Inspector will ask for 6-clause contract on first visit. No lab passes without this. Phase 0 non-negotiable.
 
 ### 5. Why NOTIVISA (5.7.3) Phase 8 not earlier?
+
 **Rationale:** Portaria 204 (notifiable disease list) + gov API integration require careful testing. Phase 5–6 prioritize patient portal + critical values. Fallback: manual NOTIVISA submission (documented SOP) if API integration delayed.
 
 ---
@@ -273,9 +290,9 @@ A: v1.3 set precedent at 78.5% (audit-ready). v1.4 target 88% is stretch but ach
 
 ## Version History
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-05-07 | Phase 13 Planning Agent | Initial plan creation |
+| Version | Date       | Author                  | Changes               |
+| ------- | ---------- | ----------------------- | --------------------- |
+| 1.0     | 2026-05-07 | Phase 13 Planning Agent | Initial plan creation |
 
 ---
 

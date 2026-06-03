@@ -13,6 +13,7 @@ Waves 2–4 implemented a chain-HMAC audit pattern for Invoice and Critical Valu
 **This task:** Formalize the pattern as a reusable **system pattern** with comprehensive documentation (pattern guide, cookbook, indexes, validation), enabling future modules (NOTIVISA, riscos, biosseguranca, lab-apoio) to adopt it independently.
 
 **Deliverables:**
+
 - 4 documentation files (pattern guide, cookbook, indexes, validation script guide)
 - 1 ADR (ADR-0031 — Audit Chain Generalization)
 - No code changes
@@ -32,6 +33,7 @@ Waves 2–4 implemented a chain-HMAC audit pattern for Invoice and Critical Valu
 **Purpose:** Comprehensive pattern guide for engineers implementing chain-audit features.
 
 **Covers:**
+
 - When to use (RDC 978 Art. 128, DICQ 4.4, tamper detection requirements)
 - How it works (visual chain diagram, cryptographic flow, validation semantics)
 - API reference (`writeChainedAudit()`, `validateChainIntegrity()`)
@@ -77,6 +79,7 @@ Waves 2–4 implemented a chain-HMAC audit pattern for Invoice and Critical Valu
 **Purpose:** Firestore index requirements for chain-audit collections.
 
 **Covers:**
+
 - Single-field indexes for `getPreviousHashInCollection()` queries
 - Composite indexes for failure-marker range queries
 - JSON configuration ready to paste into `firestore.indexes.json`
@@ -95,6 +98,7 @@ Waves 2–4 implemented a chain-HMAC audit pattern for Invoice and Critical Valu
 **Purpose:** Guide to standalone validation script (`scripts/validate-audit-chains.mjs`) for verifying chain integrity.
 
 **Covers:**
+
 - Quick start (5 commands)
 - Setup (service account credentials)
 - Usage patterns (daily, weekly, incident response)
@@ -116,6 +120,7 @@ Waves 2–4 implemented a chain-HMAC audit pattern for Invoice and Critical Valu
 **Purpose:** Architecture Decision Record formalizing the chain-audit pattern as a reusable system pattern.
 
 **Covers:**
+
 - Decision summary (formalize + generalize)
 - Consequences (training impact, compliance alignment)
 - Alternatives considered (5 rejected alternatives)
@@ -137,6 +142,7 @@ NOTIVISA submissions will likely need chain-audit (RDC 978 Art. 128). Current si
 ### Enable parallel adoption (Phase 5–9)
 
 Multiple modules (riscos, biosseguranca, lab-apoio, criticos enhancements) need chain-audit. Without documentation, each team would:
+
 - Reverse-engineer from notaFiscal
 - Miss the failure-marker sibling pattern
 - Forget to add Firestore indexes
@@ -183,6 +189,7 @@ Audit committee asks: "Is the chain-hash approach production-ready for all our a
 ### Phase 4 (2026-05-20)
 
 NOTIVISA team:
+
 - Reads `PATTERNS_AUDIT_CHAIN_HASH.md` (30 min)
 - Copies template from `AUDIT_CHAIN_HASH_COOKBOOK.md` (Scenario 1A)
 - Implements chain-audit for submission events
@@ -191,6 +198,7 @@ NOTIVISA team:
 ### Phase 5 (2026-05-28)
 
 Risk management team:
+
 - Reads pattern guide (30 min)
 - Evaluates: does my module need chain-audit? (RDC 978 Art. 128?)
 - If yes: copy template + implement per cookbook
@@ -199,6 +207,7 @@ Risk management team:
 ### Phase 6+ (2026-06+)
 
 Each new module:
+
 - Pattern guide → decision → adoption (if applicable)
 - Parallel development on chain-audit features
 - Cross-team review standardized via cookbook patterns

@@ -45,7 +45,8 @@ export const onHematologiaRunComplianceCheck = onDocumentCreated(
     const { labId, lotId, runId } = event.params;
     const db = admin.firestore();
 
-    const hasOverride = run['complianceOverride'] !== undefined && run['complianceOverride'] !== null;
+    const hasOverride =
+      run['complianceOverride'] !== undefined && run['complianceOverride'] !== null;
     const reagentesIds = Array.isArray(run['reagentesInsumoIds'])
       ? (run['reagentesInsumoIds'] as string[])
       : [];

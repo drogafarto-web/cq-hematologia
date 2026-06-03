@@ -9,6 +9,7 @@
 **Duration**: 7–10 days (T-7 to post-call deliverables)
 
 **Success Criteria**:
+
 - ✅ Auditor verbal confirmation of Phase 0 scope (RDC blockers sufficient)
 - ✅ DICQ 88% target agreed + timeline (audit-ready 2026-08-15)
 - ✅ Evidence standards locked (LogicalSignature, chainHash, SGD naming)
@@ -16,6 +17,7 @@
 - ✅ Signed minutes + auditor pre-approval email archived
 
 **Stakeholders**:
+
 - **Internal**: CTO, QA Lead, RT (Labclin compliance officer)
 - **External**: SBAC/DICQ auditor (1–2 auditor team lead + specialist)
 - **Backup**: External regulatory consultant (if primary auditor unavailable)
@@ -29,6 +31,7 @@
 ### T-7 Days: Identify & Schedule
 
 **Tasks:**
+
 1. **Auditor identification**
    - Primary: Labclin compliance officer (RT) + designated SBAC/DICQ auditor lead
    - Contact method: formal letter on lab letterhead requesting 90-min sync call
@@ -53,6 +56,7 @@
 ### T-5 Days: Artifact Sharing & Internal Prep
 
 **Tasks:**
+
 1. **Share read-only access** to artifacts (Google Drive folder or GitHub wiki)
    - Create "HC Quality v1.4 — Auditor Alignment" shared folder
    - Email auditor with 5-day pre-read window
@@ -91,6 +95,7 @@
 - Note recording (if agreed) for minutes
 
 **Talking Points:**
+
 - "HC Quality is a SaaS CIQ platform. v1.3 deployed 5 days ago with 78.5% DICQ coverage. v1.4 targets 88%+ and audit readiness by Aug 15."
 - "This call confirms you agree with the scope. Phase 0 starts today (4 RDC blockers). Phase 1 (CAPA) is blocked waiting for your sign-off on evidence standards."
 
@@ -169,6 +174,7 @@
 2. **DICQ Target — 78.5% → 88%+**
 
    **By Block Progression:**
+
    ```
    Bloco A: 78% → 92% (Norteadores + Governança formalizada + Management Review)
    Bloco B: 65% → 92% (SGD finalized — Lista Mestra + versioning + distribuição)
@@ -180,7 +186,7 @@
    Bloco H: 75% → 88% (Lab apoio + calibração)
    Bloco I: 64% → 80% (Monitoramento ambiental)
    Bloco J: 70% → 78% (LGPD + segurança)
-   
+
    Weighted Avg: 78.5% → ~88.5%
    ```
 
@@ -190,7 +196,6 @@
    - Conservative estimate; actual target 88–92%
 
 3. **RDC 978 Mandatory Coverage**
-
    - v1.3 addressed: Arts. 117, 167, 179–191 (7 articles, all mandatory for CIQ operation)
    - Phase 0 addresses: Arts. 36–39 (lab apoio), 77 (LGPD), 86 (riscos), 122 (supervisão)
    - Remaining Phase 1+ (not RDC blockers, but DICQ drivers):
@@ -201,15 +206,15 @@
 
 4. **Key Dependencies & Dates**
 
-   | Milestone | Date | Owner | Gate |
-   |-----------|------|-------|------|
-   | Phase 0 complete | May 16 (Day 9) | Stream A+B | Callable deployment + smoke tests |
-   | Auditor RFI SLA locked | May 10 (this call + 1d) | Auditor | Written confirmation |
-   | Phase 1 kickoff | May 17 | Stream A | Auditor pre-approval |
-   | Wave 1 complete | May 31 | All streams | Requirements final |
-   | Wave 2 kickoff | Jun 2 | All streams | No RDC blockers |
-   | Audit prep target | Aug 15 | Stream A | All phases 1–9 complete + smoke tests |
-   | External audit | Oct/Nov 2026 | Auditor | DICQ ≥88% + RDC 100% |
+   | Milestone              | Date                    | Owner       | Gate                                  |
+   | ---------------------- | ----------------------- | ----------- | ------------------------------------- |
+   | Phase 0 complete       | May 16 (Day 9)          | Stream A+B  | Callable deployment + smoke tests     |
+   | Auditor RFI SLA locked | May 10 (this call + 1d) | Auditor     | Written confirmation                  |
+   | Phase 1 kickoff        | May 17                  | Stream A    | Auditor pre-approval                  |
+   | Wave 1 complete        | May 31                  | All streams | Requirements final                    |
+   | Wave 2 kickoff         | Jun 2                   | All streams | No RDC blockers                       |
+   | Audit prep target      | Aug 15                  | Stream A    | All phases 1–9 complete + smoke tests |
+   | External audit         | Oct/Nov 2026            | Auditor     | DICQ ≥88% + RDC 100%                  |
 
 5. **Deferred Items (What is NOT in v1.4 and Why)**
    - Multi-tenant v2: deferred to v1.5 (currently single-lab; architecture scalable)
@@ -233,6 +238,7 @@ This is the **critical technical alignment**. Show samples, discuss edge cases, 
 1. **Digital Signature Equivalent: LogicalSignature Format**
 
    **Current Implementation** (v1.3, in production):
+
    ```
    LogicalSignature {
      hash: "sha256(canonical_json(event) + previous_hash)",
@@ -243,12 +249,12 @@ This is the **critical technical alignment**. Show samples, discuss edge cases, 
 
    **Auditor Questions & Answers (pre-drafted):**
 
-   | Q | Answer | Rationale |
-   |---|--------|-----------|
-   | Is LogicalSignature acceptable for DICQ 4.4? | Yes, per RDC 978 §5.3 (tamper-evident audit trail). Equivalent to digital signature if coupled with chainHash integrity check. | Non-repudiation via operatorId (employee ID in system); immutability via SHA-256 chain. |
-   | Do you need biometric signature? | Current: password-protected + LogicalSignature. Biometric upgrade in v1.5 (mobile auth). For regulatory data today, password + hash = sufficient. | DICQ doesn't mandate biometric; RDC 978 §5.3 says "legible operator identification" — operatorId meets this. |
-   | External notarization (timestamp authority)? | Not required for internal audit trail (compliance baseline). External signing for laudos shared with patients (Phase 5) uses timestamp API. | DICQ focuses on internal lab audit trail integrity, not external certification. Scaling decision if NOTIVISA prod adds constraint. |
-   | Can auditor trust Firestore native timestamp? | Yes. Firestore server-side timestamps are cryptographically secure, part of Google Cloud's audit trail, and accepted by ISO 27001 auditors. | We don't manipulate the timestamp on client; it's server-set. |
+   | Q                                             | Answer                                                                                                                                            | Rationale                                                                                                                          |
+   | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+   | Is LogicalSignature acceptable for DICQ 4.4?  | Yes, per RDC 978 §5.3 (tamper-evident audit trail). Equivalent to digital signature if coupled with chainHash integrity check.                    | Non-repudiation via operatorId (employee ID in system); immutability via SHA-256 chain.                                            |
+   | Do you need biometric signature?              | Current: password-protected + LogicalSignature. Biometric upgrade in v1.5 (mobile auth). For regulatory data today, password + hash = sufficient. | DICQ doesn't mandate biometric; RDC 978 §5.3 says "legible operator identification" — operatorId meets this.                       |
+   | External notarization (timestamp authority)?  | Not required for internal audit trail (compliance baseline). External signing for laudos shared with patients (Phase 5) uses timestamp API.       | DICQ focuses on internal lab audit trail integrity, not external certification. Scaling decision if NOTIVISA prod adds constraint. |
+   | Can auditor trust Firestore native timestamp? | Yes. Firestore server-side timestamps are cryptographically secure, part of Google Cloud's audit trail, and accepted by ISO 27001 auditors.       | We don't manipulate the timestamp on client; it's server-set.                                                                      |
 
    **Show Live Sample:**
    - Open a signed laudo PDF → show LogicalSignature in metadata
@@ -258,6 +264,7 @@ This is the **critical technical alignment**. Show samples, discuss edge cases, 
 2. **Audit Trail Immutability: ChainHash Protocol**
 
    **Current Implementation** (v1.3):
+
    ```
    event[0]: { ..., hash: SHA256(json(event[0])) }
    event[1]: { ..., hash: SHA256(json(event[1]) + hash[0]) }
@@ -266,17 +273,18 @@ This is the **critical technical alignment**. Show samples, discuss edge cases, 
 
    **Auditor Questions:**
 
-   | Q | Answer | Evidence |
-   |---|--------|----------|
-   | Is Firestore `delete` ever allowed? | NO. RN-06 (soft-delete only). Deleted documents remain with `deletadoEm` timestamp + reason. | Firestore rules block `delete` operation. |
-   | Can operator modify historical events? | NO. Firestore rules block write to event[n] if n < current. Events are append-only. | Rules: `allow write: if !exists(resource.data)` (create-only). |
-   | If firestore.rules are compromised? | Catastrophic but same risk as any audit system. Mitigation: rules reviewed externally (this call), Cloud Audit Logs backup to Cloud Storage (cold archive), quarterly security review. | Rule files in source control, gated deploy process, 24h monitoring post-deploy. |
+   | Q                                      | Answer                                                                                                                                                                                 | Evidence                                                                        |
+   | -------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+   | Is Firestore `delete` ever allowed?    | NO. RN-06 (soft-delete only). Deleted documents remain with `deletadoEm` timestamp + reason.                                                                                           | Firestore rules block `delete` operation.                                       |
+   | Can operator modify historical events? | NO. Firestore rules block write to event[n] if n < current. Events are append-only.                                                                                                    | Rules: `allow write: if !exists(resource.data)` (create-only).                  |
+   | If firestore.rules are compromised?    | Catastrophic but same risk as any audit system. Mitigation: rules reviewed externally (this call), Cloud Audit Logs backup to Cloud Storage (cold archive), quarterly security review. | Rule files in source control, gated deploy process, 24h monitoring post-deploy. |
 
    **Auditor Decision**: "ChainHash + append-only rules acceptable as tamper-evidence? ✓ or needs adjustment?"
 
 3. **Document Versioning (SGD Naming Convention)**
 
    **Current Scheme** (v1.3):
+
    ```
    MQ-HMATOLOGIA-2026-05-07-v1.0-APPROVED.pdf
    PQ-COLETA-SANGUE-2026-05-07-v1.1-REVIEW.pdf
@@ -370,31 +378,30 @@ Lock the operational protocol for the next 22 weeks. This prevents scope creep +
 
    ```
    # RFI-XXX: [Short Title]
-   
+
    **Date Submitted**: 2026-05-15
    **Due By**: 2026-05-22 (5 business days standard)
    **Requirement ID**: REQ-401 / DICQ 4.12
    **Phase**: Phase 4
    **Priority**: 🔴 Critical | 🟡 High | 🟢 Normal
-   
+
    ## Question
    [Specific auditor question or evidence request]
-   
+
    ## Background
    [Why this matters + context]
-   
+
    ## Evidence Attached
    [Links to artifacts / production samples / spec docs]
-   
+
    ## Decision Needed
    [What approval/clarification would unblock us?]
-   
+
    ## Proposer Response (for auditor)
    [Our answer — filled by CTO/QA Lead before sending]
    ```
 
 3. **SLA: 5 Business Days**
-
    - **Standard**: RFI submitted Mon → response by next Mon EOD
    - **Urgent** (🔴): RFI submitted Mon → response by Wed EOD (3 days)
    - **Extension** (by mutual agreement): written request + new date
@@ -407,7 +414,6 @@ Lock the operational protocol for the next 22 weeks. This prevents scope creep +
    **Auditor Comfort?** "Can you commit to 5-day response SLA? If not, what's your capacity?"
 
 4. **Batch Frequency**
-
    - **Recommended**: Weekly digest on Sunday EOD (batches ~3–5 RFIs per week)
    - **Rationale**: Reduces notification overhead; auditor can batch review
    - **Exception**: 🔴 Critical items (blocking Phase entry) submitted + flagged separately with 2-day SLA
@@ -418,7 +424,6 @@ Lock the operational protocol for the next 22 weeks. This prevents scope creep +
    - [ ] Biweekly 30-min sync call (auditor leads RFI discussion + decisions together)
 
 5. **RFI Archive & Decision Log**
-
    - All RFIs + responses archived in SGD (historical record for external auditors in Oct)
    - Decision log published weekly: "RFI-001: ✅ ACCEPTED | RFI-002: 🟡 CONDITIONAL | RFI-003: ⏸️ DEFERRED"
    - Auditor signs off on decision log (email confirmation sufficient)
@@ -451,7 +456,6 @@ Reaffirm the target + confirm auditor's confidence in the plan.
    - [ ] IA OCR (Phase 8) unreliable (mitigated: Gemini Vision baseline, fine-tuning deferred)
 
 2. **External Audit Window: Oct/Nov 2026**
-
    - **Audit-ready date**: Aug 15, 2026 (70 days before external audit)
    - **Auditor notification**: Aug 1 (30 days pre-audit notice per DICQ contract)
    - **Evidence prep**: Aug 15–Sep 30 (auditor review of artifacts, any pre-audit RFIs)
@@ -461,7 +465,6 @@ Reaffirm the target + confirm auditor's confidence in the plan.
    **Labclin Milestone**: "We'll have software 100% ready by Aug 15. You'll have 6 weeks to review + ask pre-audit RFIs."
 
 3. **What "Audit-Ready" Means**
-
    - ✅ All 25+ modules deployed + live in production
    - ✅ 88%+ DICQ coverage (every block ≥75%, most ≥90%)
    - ✅ 100% RDC mandatory articles covered
@@ -538,6 +541,7 @@ Reaffirm the target + confirm auditor's confidence in the plan.
 ## Post-Call Deliverables (T+1 Day)
 
 ### 1. Meeting Minutes (QA Lead)
+
 - **File**: `.planning/phases/02-AUDITOR-PRE-ALIGNMENT-STRATEGY-MINUTES.md`
 - **Contents**:
   - Attendees + date + duration
@@ -554,6 +558,7 @@ Reaffirm the target + confirm auditor's confidence in the plan.
   - Next checkpoint: May 31 (30-min sync)
 
 ### 2. Auditor Pre-Approval Email (CTO sends, auditor confirms)
+
 - **Email subject**: `HC Quality v1.4 — Auditor Pre-Alignment Confirmed`
 - **Body** (short, 5–7 bullets):
   - ✅ Auditor confirms Phase 0 scope (4 RDC blockers) sufficient
@@ -565,10 +570,12 @@ Reaffirm the target + confirm auditor's confidence in the plan.
 - **Auditor action**: Reply "Confirmed" or provide corrections within 24h
 
 ### 3. Update PROJECT.md & STATE.md (CTO)
+
 - **PROJECT.md**: Add section "Auditor Alignment"
+
   ```
   ## Auditor Pre-Alignment (Phase 0b)
-  
+
   **Status**: ✅ COMPLETE (May 10, 2026)
   **Auditor**: [Name] ([Organization])
   **Key Decision**: LogicalSignature + chainHash accepted as tamper-evidence
@@ -594,11 +601,13 @@ Reaffirm the target + confirm auditor's confidence in the plan.
   ```
 
 ### 4. DICQ Coverage Matrix Update (QA Lead)
+
 - Add "Auditor Interpretation" column to `.planning/milestones/v1.4-DICQ-COVERAGE-MATRIX.md`
 - Fill in any auditor-specific guidance (e.g., "LogicalSignature is acceptable for 4.4 per auditor May 10 call")
 - Cross-reference RFI archive (RFI-001 = LogicalSignature decision, etc.)
 
 ### 5. Risk Register Update (QA Lead)
+
 - Mark **RISK-402** (auditor unavailable) as **RESOLVED**
 - Add **RISK-403** (evidence standards conflict mid-phase) with LOW probability (locked today)
 - Document contingency (async RFI for any Phase 1+ conflicts)
@@ -621,68 +630,76 @@ Reaffirm the target + confirm auditor's confidence in the plan.
 ## Alignment Confirmations
 
 **1. Phase 0 Scope (RDC Blockers)**
+
 - [ ] ✅ Auditor confirms: 4 RDC blockers (turnos, LGPD, lab-apoio, risks) are sufficient to unlock Phase 1
 - [ ] ✅ Auditor confirms: soft-delete + audit trail handling is RDC-compliant
 
-**Comment**: _____________________________
+**Comment**: **************\_**************
 
 ---
 
 **2. DICQ 88% Target + Timeline**
+
 - [ ] ✅ Auditor agrees: DICQ 78.5% → 88%+ is achievable by Aug 15
 - [ ] ✅ Auditor agrees: external audit Oct/Nov 2026 timeline acceptable
 - [ ] ✅ Auditor confirms: no DICQ articles will be re-interpreted post-Phase 0 that would invalidate Phase 0 work
 
-**Comment**: _____________________________
+**Comment**: **************\_**************
 
 ---
 
 **3. Evidence Standards Locked**
 
 **3.1 LogicalSignature (Digital Signature Equivalent)**
+
 - [ ] ✅ Auditor accepts: LogicalSignature { hash: SHA256, operatorId, ts } as tamper-evidence
 - [ ] 🟡 Conditional: Auditor requests [specify adjustment: biometric?, external timestamp authority?]
 - [ ] 🔴 Rejected: Auditor requires [specify alternative approach]
 
-**Auditor Condition**: _____________________________
+**Auditor Condition**: **************\_**************
 
 ---
 
 **3.2 ChainHash + Append-Only Audit Trail**
+
 - [ ] ✅ Auditor accepts: chainHash integrity + Firestore append-only rules as immutability guarantee
 - [ ] 🟡 Conditional: Auditor requires additional safeguard [specify: cold archive, quarterly verification, etc.]
 - [ ] 🔴 Rejected: Auditor requires [specify alternative]
 
-**Auditor Condition**: _____________________________
+**Auditor Condition**: **************\_**************
 
 ---
 
 **3.3 SGD Document Versioning**
+
 - [ ] ✅ Auditor accepts: DICQ naming (type-name-date-version-status) + semver (v1.0, v1.1)
 - [ ] 🟡 Conditional: Auditor prefers [specify: date format, version scheme, etc.]
 
-**Auditor Condition**: _____________________________
+**Auditor Condition**: **************\_**************
 
 ---
 
 **3.4 Data Retention & Auditor Access**
+
 - [ ] ✅ Auditor accepts: 5-year hot storage (Firestore) + 7-year cold archive (Cloud Storage)
 - [ ] ✅ Auditor accepts: read-only GCP service account for auditor use during audit window
 - [ ] 🟡 Conditional: Auditor requests [specify: export format, access frequency, etc.]
 
-**Auditor Condition**: _____________________________
+**Auditor Condition**: **************\_**************
 
 ---
 
 **3.5 RT (Responsible Technician) Signature**
+
 - [ ] ✅ Auditor accepts: password-protected LogicalSignature (biometric upgrade in v1.5)
 - [ ] 🟡 Conditional: Auditor requires [specify: certificate-based signature, multi-factor auth, etc.]
 
-**Auditor Condition**: _____________________________
+**Auditor Condition**: **************\_**************
 
 ---
 
 **4. RFI Cadence & SLA**
+
 - [ ] ✅ Auditor commits to **5 business day SLA** for RFI responses
   - Standard: RFI submitted Mon → response by Fri EOD
   - Urgent (🔴): RFI submitted Mon → response by Wed EOD
@@ -690,36 +707,37 @@ Reaffirm the target + confirm auditor's confidence in the plan.
 - [ ] ✅ Auditor prefers: **[Weekly Digest | Ad-Hoc | Biweekly Sync Call]**
 - [ ] ✅ RFI submission channel: SGD folder `AUDITOR-RFI-INBOX` + email notification
 
-**Auditor Signature**: _________________________ **Date**: _________
+**Auditor Signature**: ************\_************ **Date**: ****\_****
 
 ---
 
 **5. No Blocking Concerns**
+
 - [ ] ✅ Auditor confirms: no show-stoppers identified that would block Phase 0 or Phase 1 entry
 - [ ] 🟡 Caution: Auditor flags [specify risk items to monitor closely]
 - [ ] 🔴 Critical Issue: [describe blocker + required remediation]
 
-**Auditor Comment**: _____________________________
+**Auditor Comment**: **************\_**************
 
 ---
 
 ## Next Checkpoints
 
-| Date | Duration | Owner | Topic |
-|------|----------|-------|-------|
-| May 31, 2026 | 30 min | CTO + Auditor | Wave 1 completion review + Wave 2 preview |
-| Jun 30, 2026 | 30 min | CTO + Auditor | Phase 2–3 summary + any mid-stream RFIs |
-| Aug 1, 2026 | 60 min | CTO + Auditor | Audit prep final review (30 days pre-audit notice) |
+| Date         | Duration | Owner         | Topic                                              |
+| ------------ | -------- | ------------- | -------------------------------------------------- |
+| May 31, 2026 | 30 min   | CTO + Auditor | Wave 1 completion review + Wave 2 preview          |
+| Jun 30, 2026 | 30 min   | CTO + Auditor | Phase 2–3 summary + any mid-stream RFIs            |
+| Aug 1, 2026  | 60 min   | CTO + Auditor | Audit prep final review (30 days pre-audit notice) |
 
 ---
 
 ## Authority & Approval
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| **Auditor Lead** | _________________ | _________________ | ______ |
-| **Labclin CTO** | _________________ | _________________ | ______ |
-| **Labclin QA Lead** | _________________ | _________________ | ______ |
+| Role                | Name               | Signature          | Date     |
+| ------------------- | ------------------ | ------------------ | -------- |
+| **Auditor Lead**    | ********\_******** | ********\_******** | **\_\_** |
+| **Labclin CTO**     | ********\_******** | ********\_******** | **\_\_** |
+| **Labclin QA Lead** | ********\_******** | ********\_******** | **\_\_** |
 
 ---
 
@@ -727,11 +745,11 @@ Reaffirm the target + confirm auditor's confidence in the plan.
 
 [Auditor + CTO room for additional comments / decisions / exceptions]
 
-_________________________________________________
+---
 
-_________________________________________________
+---
 
-_________________________________________________
+---
 ```
 
 ---
@@ -777,30 +795,30 @@ _________________________________________________
 
 ## Success Metrics
 
-| Metric | Target | Verification |
-|--------|--------|--------------|
-| Auditor meeting scheduled | May 10 (within Week 1) | Calendar invite confirmed by auditor |
-| Meeting executed | 60–90 min sync | Notes + recording archived |
-| LogicalSignature acceptance | ✅ Confirmed or adjusted | Minutes state auditor decision |
-| Evidence standards locked | All 5 items (sig, chain, version, retention, RT) | Sign-off template completed |
-| RFI SLA agreed | 5 business days | Written confirmation email |
-| Phase 0 scope approved | Auditor verbal confirmation | Email + sign-off template |
-| DICQ 88% timeline accepted | Aug 15 audit-ready | Auditor acknowledges in minutes |
-| No blocking concerns | Auditor confirms | "No show-stoppers" statement in sign-off |
-| Next checkpoint scheduled | May 31 | Calendar invite sent |
-| Phase 1 kickoff approved | May 17 | Auditor pre-approval email received |
+| Metric                      | Target                                           | Verification                             |
+| --------------------------- | ------------------------------------------------ | ---------------------------------------- |
+| Auditor meeting scheduled   | May 10 (within Week 1)                           | Calendar invite confirmed by auditor     |
+| Meeting executed            | 60–90 min sync                                   | Notes + recording archived               |
+| LogicalSignature acceptance | ✅ Confirmed or adjusted                         | Minutes state auditor decision           |
+| Evidence standards locked   | All 5 items (sig, chain, version, retention, RT) | Sign-off template completed              |
+| RFI SLA agreed              | 5 business days                                  | Written confirmation email               |
+| Phase 0 scope approved      | Auditor verbal confirmation                      | Email + sign-off template                |
+| DICQ 88% timeline accepted  | Aug 15 audit-ready                               | Auditor acknowledges in minutes          |
+| No blocking concerns        | Auditor confirms                                 | "No show-stoppers" statement in sign-off |
+| Next checkpoint scheduled   | May 31                                           | Calendar invite sent                     |
+| Phase 1 kickoff approved    | May 17                                           | Auditor pre-approval email received      |
 
 ---
 
 ## Risk & Mitigation
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|-----------|
-| Auditor rejects LogicalSignature format | Critical — 5+ modules affected, rework 2+ weeks | Low | External consultant pre-review, document auditor expectations in writing before Phase 0 |
-| RFI SLA slips (>5 days) | High — Phase gates delayed | Medium | Weekly escalation call (CTO direct); external consultant backup |
-| Auditor interprets DICQ conservatively (adds requirements) | Medium — Phase scope inflates | Medium | Lock all RFI responses in DICQ matrix "Auditor Interpretation" column; re-baseline after each RFI |
-| Mid-phase auditor availability drops (illness, turnover) | High — communication breaks | Low | 30-min weekly async digest (email) + 2nd auditor contact identified upfront |
-| External audit dates shift (Oct → Jan) | Medium — timeline pressure reduced | Low | Clarify during call; if shift happens, recalibrate Phase 9–13 timeline |
+| Risk                                                       | Impact                                          | Probability | Mitigation                                                                                        |
+| ---------------------------------------------------------- | ----------------------------------------------- | ----------- | ------------------------------------------------------------------------------------------------- |
+| Auditor rejects LogicalSignature format                    | Critical — 5+ modules affected, rework 2+ weeks | Low         | External consultant pre-review, document auditor expectations in writing before Phase 0           |
+| RFI SLA slips (>5 days)                                    | High — Phase gates delayed                      | Medium      | Weekly escalation call (CTO direct); external consultant backup                                   |
+| Auditor interprets DICQ conservatively (adds requirements) | Medium — Phase scope inflates                   | Medium      | Lock all RFI responses in DICQ matrix "Auditor Interpretation" column; re-baseline after each RFI |
+| Mid-phase auditor availability drops (illness, turnover)   | High — communication breaks                     | Low         | 30-min weekly async digest (email) + 2nd auditor contact identified upfront                       |
+| External audit dates shift (Oct → Jan)                     | Medium — timeline pressure reduced              | Low         | Clarify during call; if shift happens, recalibrate Phase 9–13 timeline                            |
 
 ---
 

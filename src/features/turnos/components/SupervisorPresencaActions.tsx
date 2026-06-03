@@ -23,9 +23,7 @@ export function SupervisorPresencaActions({ turno }: SupervisorPresencaActionsPr
     checkIn,
     checkOut,
   } = useSupervisorPresenca(turno);
-  const [feedback, setFeedback] = useState<{ kind: 'ok' | 'err'; msg: string } | null>(
-    null,
-  );
+  const [feedback, setFeedback] = useState<{ kind: 'ok' | 'err'; msg: string } | null>(null);
 
   const status = presenca?.status ?? 'awaiting';
   const closed = status === 'closed';
@@ -105,9 +103,7 @@ export function SupervisorPresencaActions({ turno }: SupervisorPresencaActionsPr
 
   // awaiting / absent — only the designated supervisor sees the check-in button
   if (!isDesignatedSupervisor) {
-    return (
-      <span className="text-[11px] text-slate-500">Aguardando supervisor designado</span>
-    );
+    return <span className="text-[11px] text-slate-500">Aguardando supervisor designado</span>;
   }
 
   return (

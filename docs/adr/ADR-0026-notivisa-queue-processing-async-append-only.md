@@ -15,12 +15,14 @@ RDC 978 Art. 66 requires notification of reportable diseases to Ministério da S
 v1.4 Phase 8 (ADR-0014) implements NOTIVISA form generation (sandbox); Phase 12+ will integrate with real Anvisa API. Challenge: **how to handle API failures gracefully without losing submissions?**
 
 **Failure scenarios:**
+
 1. Anvisa API is down (gov servers, unreliable).
 2. Network latency (Anvisa slow; timeout after 30 sec).
 3. Form validation fails (missing field, wrong format).
 4. Lab certificate expires (authentication fails; requires manual renewal).
 
 Without proper queue handling, risk of:
+
 - **Lost notifications:** form generated but not submitted (auditor sees no receipt).
 - **Duplicate submissions:** retry logic causes same form to be submitted 3× (Anvisa sees duplicates).
 - **No visibility:** operator has no way to check "was this form submitted?" or "why did it fail?".
@@ -57,7 +59,7 @@ Phase 8 (Sandbox):
 1. Form generated: entry created with status='pending'
    submissionAttempts = []
 
-2. RT approves form in UI: 
+2. RT approves form in UI:
    → appendAttempt({ ts, attempt: 1, method: 'mock-submit', status: 'mocked', result: 'OK' })
    → status → 'acknowledged' (sandbox treats all as success)
 
@@ -85,37 +87,37 @@ Phase 12+ (Real API):
 interface NotivisaOutboxEntry {
   id: string;
   labId: string;
-  
+
   // Link to result
   laudoId: string;
   resultadoId: string;
-  
+
   // Disease info
   diseaseCode: string; // MS Portaria code (e.g., '99078' = syphilis)
   diseaseName: string;
-  
+
   // Anonymized patient data
   patientData: {
     name_anon: string; // anonymized: "Paciente 1234"
     dateOfBirth: Timestamp;
     gender: 'M' | 'F' | 'outro';
   };
-  
+
   // Result details
   resultValue: string; // "positivo", "negativo", "reagente", etc.
   resultDate: Timestamp; // date result was generated
   testMethod?: string; // method used (e.g., "PCR", "ELISA")
-  
+
   // SLA
   notificationDeadline: Timestamp; // resultDate + 24h
-  
+
   // State machine (main)
   status: 'pending' | 'submitted' | 'acknowledged' | 'failed-permanent';
-  
+
   // Anvisa integration (Phase 12+)
   receiptCodeFromAnvisa?: string;
   anvisa_eventId?: string;
-  
+
   // Attempt history (append-only)
   submissionAttempts: Array<{
     attempt: number; // 1, 2, 3, ... (max 5)
@@ -130,18 +132,18 @@ interface NotivisaOutboxEntry {
     receiptCode?: string; // Anvisa receipt ID (if success)
     roundTripMs?: number; // latency of API call
   }>;
-  
+
   // Escalation (if past deadline)
   escalatedToSupervisor?: boolean;
   escalationTs?: Timestamp;
   escalationMotivo?: 'deadline-passed' | 'permanent-failure';
   supervisorId?: string;
-  
+
   // Manual override
   overrideStatus?: string; // if supervisor manually marks resolved
   overrideTs?: Timestamp;
   overridePor?: string;
-  
+
   // Audit
   criadoEm: Timestamp;
   criadoPor: string; // operatorId or system
@@ -196,7 +198,9 @@ export const processNotivisaQueueScheduled = onSchedule(
 
         // Exponential backoff: 1m → 5m → 15m → 45m → 120m between attempts
         const backoffMinutes = [1, 5, 15, 45, 120][attemptNum - 1] || 120;
-        const nextRetryTime = new Date(lastAttempt.ts.toDate().getTime() + backoffMinutes * 60 * 1000);
+        const nextRetryTime = new Date(
+          lastAttempt.ts.toDate().getTime() + backoffMinutes * 60 * 1000,
+        );
 
         if (lastAttempt && nextRetryTime > new Date()) {
           // Not yet time to retry
@@ -248,7 +252,9 @@ export const processNotivisaQueueScheduled = onSchedule(
               submissionAttempts: admin.firestore.FieldValue.arrayUnion(newAttempt),
               // status remains 'pending'
             });
-            console.log(`[NOTIVISA] Retryable failure: ${entryDoc.id} (attempt ${attemptNum}/${5})`);
+            console.log(
+              `[NOTIVISA] Retryable failure: ${entryDoc.id} (attempt ${attemptNum}/${5})`,
+            );
           } else {
             // Non-retryable error (4xx) or max retries hit
             await entryDoc.ref.update({
@@ -285,7 +291,7 @@ export const processNotivisaQueueScheduled = onSchedule(
         await notifySupervsorOfNotivisaFailure(labId, data);
       }
     }
-  }
+  },
 );
 ```
 
@@ -359,7 +365,7 @@ export const handleAnvisaWebhook = onRequest(
 
     // Not found (edge case); acknowledge anyway so Anvisa doesn't retry
     res.status(200).send({ received: true });
-  }
+  },
 );
 ```
 
@@ -379,21 +385,25 @@ export const handleAnvisaWebhook = onRequest(
 ## Alternatives Considered
 
 ### A. Sync HTTP call (no queue)
+
 **Pros:** simpler code; result known immediately.  
 **Cons:** RDC 978 requires 24h submission; sync call blocks RT workflow (unacceptable UX); if Anvisa slow, RT waits (bad).  
 **Rejected:** violates UX + regulatory timeline.
 
 ### B. Message queue (RabbitMQ / Google Pub/Sub)
+
 **Pros:** proven, battle-tested queue pattern; guaranteed delivery.  
 **Cons:** adds operational complexity (another service to run); extra cost (PubSub); overkill for low-volume notivisa (5–10 forms/day).  
 **Rejected:** Firestore outbox pattern sufficient for v1.4 scale.
 
 ### C. Scheduled processor with hardcoded retry (no backoff)
+
 **Pros:** simpler implementation.  
 **Cons:** if Anvisa is overloaded, tight retries make it worse (stampede effect); risk of exceeding rate limits.  
 **Rejected:** exponential backoff is essential for resilience.
 
 ### D. No queue; manual submission
+
 **Pros:** no automation complexity.  
 **Cons:** RT must manually export form + submit to Anvisa portal (labor-intensive; error-prone); no audit trail of automation.  
 **Rejected:** defeats Phase 8 purpose (automate form generation).

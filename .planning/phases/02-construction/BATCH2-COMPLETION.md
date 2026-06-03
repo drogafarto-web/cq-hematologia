@@ -6,13 +6,13 @@
 
 ## Modules Deployed
 
-| Module | Tests | Coverage | Status | Functions |
-|--------|-------|----------|--------|-----------|
-| Treinamentos | 57 | 92% | ✅ Live | criarTreinamento, recordarTreinamentoPOP |
-| Biossegurança | 38 | 88% | ✅ Live | registerBiocontaminationArea, inspectBioArea |
-| PGRSS | 19 | >80% | ✅ Live | registerWasteMovement, verifyWasteComplianceCallable |
-| KPIs | 27 | >80% | ✅ Live | aggregateKPIs (scheduled, 1d) |
-| LGPD | 28 | >80% | ✅ Live | criarSolicitacao, processarExclusao, gerarDPIA |
+| Module        | Tests | Coverage | Status  | Functions                                            |
+| ------------- | ----- | -------- | ------- | ---------------------------------------------------- |
+| Treinamentos  | 57    | 92%      | ✅ Live | criarTreinamento, recordarTreinamentoPOP             |
+| Biossegurança | 38    | 88%      | ✅ Live | registerBiocontaminationArea, inspectBioArea         |
+| PGRSS         | 19    | >80%     | ✅ Live | registerWasteMovement, verifyWasteComplianceCallable |
+| KPIs          | 27    | >80%     | ✅ Live | aggregateKPIs (scheduled, 1d)                        |
+| LGPD          | 28    | >80%     | ✅ Live | criarSolicitacao, processarExclusao, gerarDPIA       |
 
 **Total:** 169 tests passing, 167 in Batch 2 (100% pass rate)
 
@@ -34,24 +34,28 @@
 ## Compliance Status
 
 ### RDC 222/2018 (PGRSS)
+
 - ✅ Waste segregation rules implemented (tipo + naturaleza validation)
 - ✅ Comprovante linking to waste movements (audit trail)
 - ✅ Soft-delete pattern for regulatory compliance (never hard delete)
 - ✅ Signatures on movements (assinatura.hash, operatorId, ts)
 
 ### ISO 14644 (Biossegurança)
+
 - ✅ Biosafety levels NB1-NB4 stored with audit trail
 - ✅ Area inspections tracked with timestamp + operator signature
 - ✅ EPE (Equipamentos de Proteção Individual) linked to areas
 - ✅ Non-repudiation via cloud function server-side signature
 
 ### LGPD (Lei Geral de Proteção de Dados)
+
 - ✅ Solicitações (Data Access/Deletion Requests) with 30-day deadline tracking
 - ✅ DPIA (Data Protection Impact Assessment) workflow callable
 - ✅ Exclusão (Deletion) with audit trail of what was deleted (RDC 978 5.3)
 - ✅ Consentimento (Consent) tracking for future DICQ 4.4 integration
 
 ### RDC 978/2025 (Auditoria Clínica)
+
 - ✅ Assinatura pattern: hash (SHA256, 64 chars) + operatorId + ts (millisecond precision)
 - ✅ Multi-tenant isolation: every collection rooted at /labs/{labId}/
 - ✅ Write audit: all creates now routed through callables (Fase 0c pattern)

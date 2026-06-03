@@ -37,12 +37,7 @@ export const investigateAuditAlert = onCall(
     }
 
     // Validate membership + role
-    const memberDoc = await db
-      .collection('labs')
-      .doc(labId)
-      .collection('members')
-      .doc(uid)
-      .get();
+    const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
     if (!memberDoc.exists) {
       throw new HttpsError('permission-denied', 'Usuário não é membro deste laboratório.');
@@ -57,11 +52,7 @@ export const investigateAuditAlert = onCall(
     }
 
     // Fetch alert
-    const alertRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('audit-alerts')
-      .doc(alertId);
+    const alertRef = db.collection('labs').doc(labId).collection('audit-alerts').doc(alertId);
 
     const alertDoc = await alertRef.get();
 
@@ -141,5 +132,5 @@ export const investigateAuditAlert = onCall(
       investigationId: investigationRef.id,
       ncId,
     };
-  }
+  },
 );

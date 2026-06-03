@@ -53,15 +53,13 @@ type SubmitRequisitionError = z.infer<typeof submitRequisitionErrorSchema>;
 const POLLING_INTERVAL_MS = 300000; // 5 minutes
 const RATE_LIMIT_PER_HOUR = 20;
 
-export const submitRequisition = functions.region('southamerica-east1').onCall(
-  async (request): Promise<SubmitRequisitionOutput | SubmitRequisitionError> => {
+export const submitRequisition = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<SubmitRequisitionOutput | SubmitRequisitionError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = submitRequisitionInputSchema.parse(request.data);
@@ -173,7 +171,7 @@ export const submitRequisition = functions.region('southamerica-east1').onCall(
         const submitResult = await submitToNotivisaPortal(
           labId,
           sessionData.authToken,
-          notivisaPayload
+          notivisaPayload,
         );
 
         if (submitResult.success) {
@@ -227,32 +225,25 @@ export const submitRequisition = functions.region('southamerica-east1').onCall(
       });
 
       // Create audit log entry
-      batch.set(
-        submissionRef.collection('auditLog').doc(`${now}`),
-        {
-          action: 'SUBMITTED',
-          operatorId: uid,
-          ts: now,
-          status: portalStatus,
-          protocolNumber: protocolNumber || null,
-          details: {
-            sessionId: authSessionId,
-            payloadHash: hashPayload(notivisaPayload),
-          },
-        }
-      );
+      batch.set(submissionRef.collection('auditLog').doc(`${now}`), {
+        action: 'SUBMITTED',
+        operatorId: uid,
+        ts: now,
+        status: portalStatus,
+        protocolNumber: protocolNumber || null,
+        details: {
+          sessionId: authSessionId,
+          payloadHash: hashPayload(notivisaPayload),
+        },
+      });
 
       // Update session last activity
       batch.update(
-        db
-          .collection('notivisa-sessions')
-          .doc(labId)
-          .collection('sessions')
-          .doc(authSessionId),
+        db.collection('notivisa-sessions').doc(labId).collection('sessions').doc(authSessionId),
         {
           lastActivityAt: now,
           lastSubmissionId: requisitionId,
-        }
+        },
       );
 
       await batch.commit();
@@ -294,8 +285,7 @@ export const submitRequisition = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error submitting requisition',
       };
     }
-  }
-);
+  });
 
 /**
  * Submit requisition to NOTIVISA portal API
@@ -304,7 +294,7 @@ export const submitRequisition = functions.region('southamerica-east1').onCall(
 async function submitToNotivisaPortal(
   labId: string,
   authToken: string,
-  payload: any
+  payload: any,
 ): Promise<{
   success: boolean;
   protocolNumber?: string;
@@ -345,9 +335,5 @@ async function submitToNotivisaPortal(
  */
 function hashPayload(payload: any): string {
   const crypto = require('crypto');
-  return crypto
-    .createHash('sha256')
-    .update(JSON.stringify(payload))
-    .digest('hex')
-    .substring(0, 16);
+  return crypto.createHash('sha256').update(JSON.stringify(payload)).digest('hex').substring(0, 16);
 }

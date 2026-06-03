@@ -10,6 +10,7 @@
 Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 10-day push across Portal infrastructure, real-time presence, NOTIVISA integration, laudo OCR, patient consent backfill, Cloud Logs monitoring, performance validation, E2E testing, bootstrap automation, and security hardening.
 
 **Key Statistics:**
+
 - **45 commits delivered**
 - **10 concurrent Wave agents**
 - **250+ new tests** (unit + E2E)
@@ -146,6 +147,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Phase Completion & Roadmap
 
 📄 **[`docs/PHASE_4_COMPLETION_SUMMARY.md`](../docs/PHASE_4_COMPLETION_SUMMARY.md)**
+
 - Executive summary, feature inventory, compliance mapping
 - Test summary (150+ tests, 42 scenarios)
 - Performance metrics vs. targets (all passing)
@@ -155,6 +157,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### ADRs (Architecture Decision Records)
 
 📄 **[`docs/adr/ADR-0032-portal-rt-design.md`](../docs/adr/ADR-0032-portal-rt-design.md)**
+
 - **Title:** Portal-RT Design: Dark-First Operational Dashboard
 - **Decision:** Real-time Firestore updates, fail-closed escalations, server-side writes
 - **Rationale:** RDC 978 Art. 128 (RT result responsibility), DICQ 4.1.2.7 (supervisor presence)
@@ -162,6 +165,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - **Status:** Approved Phase 4
 
 📄 **[`docs/adr/ADR-0033-portal-paciente-privacy.md`](../docs/adr/ADR-0033-portal-paciente-privacy.md)**
+
 - **Title:** Portal-Paciente Privacy Model: Email Link Auth + Explicit Consent
 - **Decision:** HMAC-signed email tokens (24h expiry), per-patient reads, consent capture before export
 - **Rationale:** LGPD Art. 9/11 (consent + portability), RDC 978 Art. 167 (patient info delivery)
@@ -169,6 +173,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - **Status:** Approved Phase 4
 
 📄 **[`docs/adr/ADR-0034-laudo-ocr-strategy.md`](../docs/adr/ADR-0034-laudo-ocr-strategy.md)**
+
 - **Title:** Laudo OCR Strategy: Gemini Vision + Consent Gate + Manual Fallback
 - **Decision:** Consent check before image egress, automatic fallback to manual entry, vision classification for QA
 - **Rationale:** RDC 978 Art. 167 (result capture), LGPD Art. 9 (consent before processing)
@@ -178,6 +183,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Deployment & Operational Guides
 
 📄 **[`docs/DEPLOY_RUNBOOK_INDEX_v1.4.md`](../docs/DEPLOY_RUNBOOK_INDEX_v1.4.md)**
+
 - Links to phase-specific runbooks (rules, functions, hosting)
 - Prerequisites checklist (bootstrap done, secrets set, tests passing)
 - Go-live sequence: rules → functions → hosting
@@ -185,17 +191,20 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - Contact tree for incident response
 
 📄 **[`docs/COMPLIANCE_CHECKLIST_v1.4.md`](../docs/COMPLIANCE_CHECKLIST_v1.4.md)**
+
 - RDC 978 articles: all 7 critical articles mapped to code/documentation
 - LGPD: consent capture (Art. 9), portability (Art. 11), access (Art. 13), deletion (Art. 17)
 - DICQ blocks: 4.1.2.7 (turnos supervisor), 4.3 (documentation), 4.4 (audit trail)
 - 100% coverage of critical requirements
 
 📄 **[`docs/RISK_ASSESSMENT_v1.4.md`](../docs/RISK_ASSESSMENT_v1.4.md)**
+
 - Known risks: NOTIVISA legacy coexistence, DPIA draft status, bootstrap order
 - Mitigations: Migration plan Phase 6, DPIA v2.0 sign-off Phase 5, idempotent scripts
 - Residual risk: Low (all critical mitigated)
 
 📄 **[`docs/CUSTOMER_MIGRATION_v1.3_TO_v1.4.md`](../docs/CUSTOMER_MIGRATION_v1.3_TO_v1.4.md)**
+
 - No breaking changes (Phase 4 additive only)
 - New capabilities: Portals for RT + Patient, NOTIVISA sandbox, laudo OCR, RT presence
 - Action items: None required (automatic); opt-in for new features
@@ -204,6 +213,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Technical Debt & Known Issues
 
 📄 **[`docs/TECH_DEBT_v1.4.md`](../docs/TECH_DEBT_v1.4.md)**
+
 - Wave 3-9 pre-existing: `functions/src/modules/notivisa-legacy/**` 149 TS errors (Phase 6 hard delete)
 - Wave 3-10 pre-existing: `functions/src/modules/ocr-quality/types.ts` + `labApoio/contractTemplate.ts` exports pending
 - NOTIVISA legacy coexistence (migration plan in Wave 3.6)
@@ -217,6 +227,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Portal-RT (`src/features/portal-rt/`)
 
 **Components:**
+
 - `PortalRTShell.tsx` — Main layout, dark-first design
 - `RtNav.tsx` — Navigation with escalation count badge
 - `EscalationList.tsx` — Real-time escalation feed
@@ -227,11 +238,13 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - `ErrorBoundary.tsx` — Error handling
 
 **Hooks:**
+
 - `usePortalRTNav()` — Real-time escalation count + nav state
 - `useEscalationFeed()` — Filtered escalation list (onSnapshot)
 - `useDashboardSettings()` — Persistence layer
 
 **Services:**
+
 - `portalRtService.ts` — CRUD for dashboards + escalations (client-side reads only)
 - `portalRtCallable.ts` — Wrapper for server-side callables
 
@@ -244,6 +257,7 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Portal-Paciente (`src/features/portal-paciente/`)
 
 **Components:**
+
 - `PortalPacienteShell.tsx` — Main layout, patient-specific branding
 - `AuthForm.tsx` — Email input + token validation
 - `ResultList.tsx` — Laudo list with date/equipment filters
@@ -254,12 +268,14 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - `SkeletonLoader.tsx` — Loading state
 
 **Hooks:**
+
 - `usePatientAuth()` — Email token validation, session persistence
 - `usePatientResults()` — Firestore query with consent gate
 - `useDataExport()` — Export wizard state management
 - `useConsentStatus()` — Retrieve current consent record
 
 **Services:**
+
 - `patientAuthService.ts` — Token generation + validation
 - `patientPortalService.ts` — Patient data reads
 - `patientExportCallable.ts` — Wrapper for export callable
@@ -273,22 +289,26 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### NOTIVISA v1.4 (`src/features/notivisa/` + `functions/src/modules/notivisa/`)
 
 **HTTP Client:**
+
 - `NotivisaClient.ts` — Sandbox endpoint, retry logic (3× exponential backoff), timeout handling
 - `NotivisaRequest.ts` — Payload builder, validation
 - `NotivisaResponse.ts` — Response parser, error handling
 
 **Cloud Callables:**
+
 - `notivisa_createDraft()` — Initialize draft from laudo
 - `notivisa_submitDraft()` — RT approval + queue submission
 - `notivisa_pollQueue()` — Async polling for submission status
 - `notivisa_archiveEvent()` — Move processed event to archive
 
 **Firestore Collections:**
+
 - `notivisa-drafts/{labId}/drafts/{draftId}` — Drafts in review
 - `notivisa-queue/{labId}/events/{eventId}` — Append-only submission queue
 - `notivisa-outbox/{labId}/archives/{archiveId}` — Processed events archive
 
 **UI Components:**
+
 - `NotivisaDraftWizard.tsx` — Create + review + submit flow
 - `QueueStatus.tsx` — Real-time queue polling display
 - `ArchiveViewer.tsx` — Completed submissions
@@ -304,17 +324,21 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Laudo OCR (`src/features/laudo-ocr/` + `functions/src/modules/ocr/`)
 
 **Service:**
+
 - `laudoOcrService.ts` — Gemini Vision API wrapper, consent gate, cache (1h TTL)
 - `ocrResultParser.ts` — Response parsing + value extraction
 - `ocrFallback.ts` — Manual entry fallback UI
 
 **Hook:**
+
 - `useLaudoOcr()` — State machine: idle → loading → success/error → fallback
 
 **Cloud Callable:**
+
 - `ocr_processLaudo()` — Gemini Vision call (server-side), signature + consent check
 
 **UI Component:**
+
 - `OcrConsent.tsx` — Inline consent capture before OCR trigger
 - `LaudoOcrWidget.tsx` — Strip image upload + result display
 - `ManualOverride.tsx` — Fallback form
@@ -328,12 +352,15 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### RT Presence (`src/features/runs/` + `firestore.rules`)
 
 **Service:**
+
 - `supervisorStatusService.ts` — Read supervisor status, polling hook
 
 **Hook:**
+
 - `useSupervisorStatus()` — Real-time status + gate check
 
 **Rules Gate:**
+
 - `hasActiveSupervisor(labId)` — Checks `supervisor-status/{labId}/status.isOnline == true`
 
 **Tests:** 5 unit tests (status polling, gate enforcement, offline handling)
@@ -345,9 +372,11 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Patient Consent Backfill (`functions/src/modules/lgpd/`)
 
 **Cloud Function:**
+
 - `consent_backfillHistorical()` — Batch migration, idempotent, creates retroactive consent records
 
 **Firestore Collection:**
+
 - `patient-consents/{patientId}/records/{recordId}` — Consent audit trail
 
 **Tests:** 10 unit tests (idempotence, migration verification, consent query)
@@ -361,11 +390,13 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Cloud Logs Monitoring (Scripts + Guides)
 
 **Guides:**
+
 - [`docs/CLOUD_LOGS_MONITORING_GUIDE.md`](../docs/CLOUD_LOGS_MONITORING_GUIDE.md) — 24h setup + filters
 - [`docs/CLOUD_LOGS_QUICK_REFERENCE.md`](../docs/CLOUD_LOGS_QUICK_REFERENCE.md) — Cheat sheet
 - [`docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md`](../docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md) — Pre/during/post tasks
 
 **Scripts:**
+
 - `scripts/monitor-cloud-logs.sh` — Bash/Linux automated monitoring
 - `scripts/monitor-cloud-logs.ps1` — PowerShell/Windows automated monitoring
 
@@ -378,13 +409,16 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Performance Validation (Scripts + Orchestrator)
 
 **Orchestrator:**
+
 - `scripts/phase4-validation-orchestrator.js` — Runs all 7 metrics, gate enforcement
 
 **Test Commands:**
+
 - `scripts/phase4-validation.sh` — Bash version
 - `scripts/phase4-validation.ps1` — PowerShell version
 
 **Metrics (all passing):**
+
 1. Bundle size: main 362 KB (<365 KB) ✅
 2. Lighthouse: performance 94 (>90) ✅
 3. Web Vitals: LCP 1.8s (<2.0s), INP 156ms (<200ms), CLS 0.032 (<0.05) ✅
@@ -400,14 +434,17 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 ### Bootstrap Automation (Scripts)
 
 **Main Script:**
+
 - `scripts/bootstrap-phase4.sh` — Creates supervisor-status, patient-consents, notivisa-config
 - Options: `--dry-run`, `--quiet`
 - Idempotent: safe to re-run
 
 **Environment:**
+
 - `scripts/bootstrap-phase4.env` — Configuration (labId, endpoints)
 
 **Pre-flight:**
+
 - `scripts/preflight-secrets-check.sh` — Verifies HCQ_SIGNATURE_HMAC_KEY, GEMINI_API_KEY, NOTIVISA_API_KEY
 
 **Tests:** 4 unit tests (idempotence, dry-run mode, error handling)
@@ -418,33 +455,33 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 
 ### Unit Tests (150+)
 
-| Module | Count | Status |
-|--------|-------|--------|
-| Portal-RT | 12 | ✅ Passing |
-| Portal-Paciente | 8 | ✅ Passing |
-| NOTIVISA | 6 | ✅ Passing |
-| Laudo OCR | 7 | ✅ Passing |
-| RT Presence | 5 | ✅ Passing |
-| Consent Backfill | 10 | ✅ Passing |
-| Cloud Logs | 8 | ✅ Passing |
-| Performance Orchestrator | 6 | ✅ Passing |
-| Bootstrap | 4 | ✅ Passing |
-| Pre-existing (no regressions) | 81+ | ✅ Passing |
-| **Total** | **150+** | **✅ 100% Pass** |
+| Module                        | Count    | Status           |
+| ----------------------------- | -------- | ---------------- |
+| Portal-RT                     | 12       | ✅ Passing       |
+| Portal-Paciente               | 8        | ✅ Passing       |
+| NOTIVISA                      | 6        | ✅ Passing       |
+| Laudo OCR                     | 7        | ✅ Passing       |
+| RT Presence                   | 5        | ✅ Passing       |
+| Consent Backfill              | 10       | ✅ Passing       |
+| Cloud Logs                    | 8        | ✅ Passing       |
+| Performance Orchestrator      | 6        | ✅ Passing       |
+| Bootstrap                     | 4        | ✅ Passing       |
+| Pre-existing (no regressions) | 81+      | ✅ Passing       |
+| **Total**                     | **150+** | **✅ 100% Pass** |
 
 ### E2E Specs (8 total, 42 scenarios)
 
-| Spec | Scenarios | Status |
-|------|-----------|--------|
-| Patient email auth + portal access | 6 | ✅ Passing |
-| Portal-RT escalation workflow | 8 | ✅ Passing |
-| Laudo OCR + consent gate | 7 | ✅ Passing |
-| NOTIVISA draft → submit → queue | 6 | ✅ Passing |
-| RT presence enforcement | 5 | ✅ Passing |
-| Data export + LGPD | 4 | ✅ Passing |
-| Cloud Logs monitoring | 3 | ✅ Passing |
-| Integration + rollback | 2 | ✅ Passing |
-| **Total** | **42** | **✅ 100% Pass** |
+| Spec                               | Scenarios | Status           |
+| ---------------------------------- | --------- | ---------------- |
+| Patient email auth + portal access | 6         | ✅ Passing       |
+| Portal-RT escalation workflow      | 8         | ✅ Passing       |
+| Laudo OCR + consent gate           | 7         | ✅ Passing       |
+| NOTIVISA draft → submit → queue    | 6         | ✅ Passing       |
+| RT presence enforcement            | 5         | ✅ Passing       |
+| Data export + LGPD                 | 4         | ✅ Passing       |
+| Cloud Logs monitoring              | 3         | ✅ Passing       |
+| Integration + rollback             | 2         | ✅ Passing       |
+| **Total**                          | **42**    | **✅ 100% Pass** |
 
 ---
 
@@ -472,29 +509,31 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 
 ## Performance Summary (vs. Targets)
 
-| Metric | Target | Measured | Status |
-|--------|--------|----------|--------|
-| Main bundle | <365 KB | 362 KB | ✅ |
-| Lighthouse perf | >90 | 94 | ✅ |
-| LCP | <2.0s | 1.8s | ✅ |
-| INP | <200ms | 156ms | ✅ |
-| CLS | <0.05 | 0.032 | ✅ |
-| Auth latency | <500ms cold | 340ms | ✅ |
-| Laudo load | <1.5s | 1.2s | ✅ |
-| NOTIVISA queue | <5s | 3.1s avg | ✅ |
-| Rules latency | <100ms | 42ms avg | ✅ |
+| Metric          | Target      | Measured | Status |
+| --------------- | ----------- | -------- | ------ |
+| Main bundle     | <365 KB     | 362 KB   | ✅     |
+| Lighthouse perf | >90         | 94       | ✅     |
+| LCP             | <2.0s       | 1.8s     | ✅     |
+| INP             | <200ms      | 156ms    | ✅     |
+| CLS             | <0.05       | 0.032    | ✅     |
+| Auth latency    | <500ms cold | 340ms    | ✅     |
+| Laudo load      | <1.5s       | 1.2s     | ✅     |
+| NOTIVISA queue  | <5s         | 3.1s avg | ✅     |
+| Rules latency   | <100ms      | 42ms avg | ✅     |
 
 ---
 
 ## Metrics & Statistics
 
 **Deliverables:**
+
 - 45 commits
 - 10 concurrent Wave agents
 - 3 new ADRs
 - 12+ documentation files
 
 **Code:**
+
 - 50+ new components (React)
 - 15+ new hooks
 - 10+ new services
@@ -502,12 +541,14 @@ Wave 4 delivered 10 concurrent agent streams (Phase 4 Agent 1–10) in a single 
 - 4 new Firestore collections
 
 **Tests:**
+
 - 150+ unit tests (100% passing)
 - 8 E2E specs, 42 scenarios (100% passing)
 - 7 performance metrics (all passing)
 - 42 smoke test scenarios (all passing)
 
 **Compliance:**
+
 - RDC 978: 4/7 critical articles (100% coverage)
 - LGPD: 4/4 patient rights (100% coverage)
 - DICQ: 3/4 compliance blocks (78.5% overall)

@@ -220,9 +220,7 @@ function scoreText(text: string, patterns: SeverityPattern[]): number {
  * 5. If tie, favor higher severity
  * 6. Fallback: 'media' if no matches
  */
-export function classificarSeveridadeHeuristica(
-  descricao: string
-): {
+export function classificarSeveridadeHeuristica(descricao: string): {
   severidade: SeveridadeReclamacao;
   confianca: number;
   matchedKeywords: string[];
@@ -247,21 +245,21 @@ export function classificarSeveridadeHeuristica(
   if (altaScore > mediaScore && altaScore > baixaScore) {
     selectedSeveridade = 'alta';
     confianca = altaScore;
-    matchedKeywords = ALTA_PATTERNS
-      .filter((p) => scoreText(descricao, [p]) > 0)
-      .flatMap((p) => p.keywords);
+    matchedKeywords = ALTA_PATTERNS.filter((p) => scoreText(descricao, [p]) > 0).flatMap(
+      (p) => p.keywords,
+    );
   } else if (mediaScore > baixaScore) {
     selectedSeveridade = 'media';
     confianca = mediaScore;
-    matchedKeywords = MEDIA_PATTERNS
-      .filter((p) => scoreText(descricao, [p]) > 0)
-      .flatMap((p) => p.keywords);
+    matchedKeywords = MEDIA_PATTERNS.filter((p) => scoreText(descricao, [p]) > 0).flatMap(
+      (p) => p.keywords,
+    );
   } else if (baixaScore > 0) {
     selectedSeveridade = 'baixa';
     confianca = baixaScore;
-    matchedKeywords = BAIXA_PATTERNS
-      .filter((p) => scoreText(descricao, [p]) > 0)
-      .flatMap((p) => p.keywords);
+    matchedKeywords = BAIXA_PATTERNS.filter((p) => scoreText(descricao, [p]) > 0).flatMap(
+      (p) => p.keywords,
+    );
   } else {
     // No matches: default to media (neutral fallback)
     selectedSeveridade = 'media';
@@ -279,9 +277,7 @@ export function classificarSeveridadeHeuristica(
 /**
  * Batch classify multiple complaints
  */
-export function classificarLote(
-  descricoes: string[]
-): Array<{
+export function classificarLote(descricoes: string[]): Array<{
   descricao: string;
   severidade: SeveridadeReclamacao;
   confianca: number;
@@ -298,7 +294,7 @@ export function classificarLote(
  */
 export function shouldTriggerNCAutocreate(
   severidade: SeveridadeReclamacao,
-  descricao: string
+  descricao: string,
 ): boolean {
   return severidade === 'alta' && descricao.trim().length >= 100;
 }

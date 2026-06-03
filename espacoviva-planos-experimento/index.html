@@ -1,591 +1,689 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Espaço Viva — Musculação Premium, Saúde & Ritmo | Rio Pomba/MG</title>
-  <meta name="description" content="Musculação premium com a cor e energia do Espaço Viva. Planos especiais individuais, familiares e empresariais.">
-  
-  <!-- Typography & Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-  
-  <style>
-    :root {
-      --bg: #03001e;
-      --card-bg: rgba(255, 255, 255, 0.02);
-      --card-border: rgba(255, 255, 255, 0.06);
-      --accent: #8b5cf6;
-      --accent-hover: #7c3aed;
-      --accent-glow: rgba(139, 92, 246, 0.3);
-      --secondary: #ec4899;
-      --text: #ffffff;
-      --text-dim: #9ca3af;
-      --success: #10b981;
-    }
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Espaço Viva — Musculação Premium, Saúde & Ritmo | Rio Pomba/MG</title>
+    <meta
+      name="description"
+      content="Musculação premium com a cor e energia do Espaço Viva. Planos especiais individuais, familiares e empresariais."
+    />
 
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-      font-family: 'Outfit', sans-serif;
-    }
+    <!-- Typography & Icons -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
 
-    body {
-      background: var(--bg);
-      background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, var(--bg) 80%);
-      color: var(--text);
-      min-height: 100vh;
-      overflow-x: hidden;
-      line-height: 1.6;
-    }
+    <style>
+      :root {
+        --bg: #03001e;
+        --card-bg: rgba(255, 255, 255, 0.02);
+        --card-border: rgba(255, 255, 255, 0.06);
+        --accent: #8b5cf6;
+        --accent-hover: #7c3aed;
+        --accent-glow: rgba(139, 92, 246, 0.3);
+        --secondary: #ec4899;
+        --text: #ffffff;
+        --text-dim: #9ca3af;
+        --success: #10b981;
+      }
 
-    /* Header & Navigation */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 24px 8%;
-      border-bottom: 1px solid var(--card-border);
-      backdrop-filter: blur(12px);
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Outfit', sans-serif;
+      }
 
-    .logo {
-      font-size: 24px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      background: linear-gradient(to right, #ffffff, var(--accent));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      text-decoration: none;
-    }
+      body {
+        background: var(--bg);
+        background: radial-gradient(circle at 50% -20%, #1e1b4b 0%, var(--bg) 80%);
+        color: var(--text);
+        min-height: 100vh;
+        overflow-x: hidden;
+        line-height: 1.6;
+      }
 
-    nav {
-      display: flex;
-      gap: 32px;
-      align-items: center;
-    }
+      /* Header & Navigation */
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px 8%;
+        border-bottom: 1px solid var(--card-border);
+        backdrop-filter: blur(12px);
+        position: sticky;
+        top: 0;
+        z-index: 100;
+      }
 
-    nav a {
-      color: var(--text-dim);
-      text-decoration: none;
-      font-size: 15px;
-      font-weight: 500;
-      transition: color 0.3s;
-    }
+      .logo {
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        background: linear-gradient(to right, #ffffff, var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-decoration: none;
+      }
 
-    nav a:hover {
-      color: var(--text);
-    }
+      nav {
+        display: flex;
+        gap: 32px;
+        align-items: center;
+      }
 
-    .btn-nav {
-      background: var(--accent);
-      color: white;
-      padding: 10px 20px;
-      border-radius: 50px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      box-shadow: 0 0 15px var(--accent-glow);
-      transition: all 0.3s ease;
-      text-decoration: none;
-      display: inline-block;
-    }
+      nav a {
+        color: var(--text-dim);
+        text-decoration: none;
+        font-size: 15px;
+        font-weight: 500;
+        transition: color 0.3s;
+      }
 
-    .btn-nav:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 0 25px var(--accent-glow);
-      color: white;
-    }
+      nav a:hover {
+        color: var(--text);
+      }
 
-    /* Hero Section */
-    .hero {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 100px 8% 80px;
-      max-width: 900px;
-      margin: 0 auto;
-    }
+      .btn-nav {
+        background: var(--accent);
+        color: white;
+        padding: 10px 20px;
+        border-radius: 50px;
+        font-weight: 600;
+        border: none;
+        cursor: pointer;
+        box-shadow: 0 0 15px var(--accent-glow);
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+      }
 
-    .badge {
-      background: rgba(139, 92, 246, 0.15);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      color: #a78bfa;
-      padding: 6px 16px;
-      border-radius: 50px;
-      font-size: 13px;
-      font-weight: 700;
-      text-transform: uppercase;
-      margin-bottom: 24px;
-      letter-spacing: 1px;
-    }
+      .btn-nav:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 0 25px var(--accent-glow);
+        color: white;
+      }
 
-    .hero h1 {
-      font-size: 64px;
-      font-weight: 800;
-      line-height: 1.1;
-      letter-spacing: -2px;
-      margin-bottom: 24px;
-    }
+      /* Hero Section */
+      .hero {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 100px 8% 80px;
+        max-width: 900px;
+        margin: 0 auto;
+      }
 
-    .hero h1 span {
-      background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
+      .badge {
+        background: rgba(139, 92, 246, 0.15);
+        border: 1px solid rgba(139, 92, 246, 0.3);
+        color: #a78bfa;
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 13px;
+        font-weight: 700;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+        letter-spacing: 1px;
+      }
 
-    .hero p {
-      font-size: 20px;
-      color: var(--text-dim);
-      margin-bottom: 40px;
-      max-width: 650px;
-    }
+      .hero h1 {
+        font-size: 64px;
+        font-weight: 800;
+        line-height: 1.1;
+        letter-spacing: -2px;
+        margin-bottom: 24px;
+      }
 
-    .hero-buttons {
-      display: flex;
-      gap: 20px;
-    }
+      .hero h1 span {
+        background: linear-gradient(135deg, #ffffff 0%, var(--accent) 50%, var(--secondary) 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
 
-    .btn-primary {
-      background: var(--accent);
-      color: white;
-      padding: 16px 36px;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      text-decoration: none;
-      box-shadow: 0 0 20px var(--accent-glow);
-      transition: all 0.3s;
-    }
+      .hero p {
+        font-size: 20px;
+        color: var(--text-dim);
+        margin-bottom: 40px;
+        max-width: 650px;
+      }
 
-    .btn-primary:hover {
-      background: var(--accent-hover);
-      transform: translateY(-2px);
-      box-shadow: 0 0 30px var(--accent-glow);
-    }
+      .hero-buttons {
+        display: flex;
+        gap: 20px;
+      }
 
-    .btn-secondary {
-      background: transparent;
-      color: white;
-      padding: 16px 36px;
-      border-radius: 50px;
-      font-size: 16px;
-      font-weight: 700;
-      text-decoration: none;
-      border: 1px solid var(--card-border);
-      transition: all 0.3s;
-    }
+      .btn-primary {
+        background: var(--accent);
+        color: white;
+        padding: 16px 36px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        box-shadow: 0 0 20px var(--accent-glow);
+        transition: all 0.3s;
+      }
 
-    .btn-secondary:hover {
-      background: rgba(255, 255, 255, 0.05);
-      border-color: var(--text-dim);
-    }
+      .btn-primary:hover {
+        background: var(--accent-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px var(--accent-glow);
+      }
 
-    /* Container Standard */
-    .section-container {
-      padding: 80px 8%;
-      max-width: 1200px;
-      margin: 0 auto;
-    }
+      .btn-secondary {
+        background: transparent;
+        color: white;
+        padding: 16px 36px;
+        border-radius: 50px;
+        font-size: 16px;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid var(--card-border);
+        transition: all 0.3s;
+      }
 
-    .section-title {
-      font-size: 36px;
-      font-weight: 800;
-      letter-spacing: -1px;
-      text-align: center;
-      margin-bottom: 48px;
-    }
+      .btn-secondary:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--text-dim);
+      }
 
-    /* Card Layout - Plan */
-    .plan-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 48px;
-      max-width: 500px;
-      margin: 0 auto;
-      backdrop-filter: blur(12px);
-      text-align: center;
-      position: relative;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    }
+      /* Container Standard */
+      .section-container {
+        padding: 80px 8%;
+        max-width: 1200px;
+        margin: 0 auto;
+      }
 
-    .plan-card::after {
-      content: '';
-      position: absolute;
-      top: -1px;
-      left: 10%;
-      right: 10%;
-      height: 1px;
-      background: linear-gradient(to right, transparent, var(--accent), transparent);
-    }
+      .section-title {
+        font-size: 36px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        text-align: center;
+        margin-bottom: 48px;
+      }
 
-    .plan-tag {
-      position: absolute;
-      top: -15px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
-      color: white;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 6px 20px;
-      border-radius: 50px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
+      /* Card Layout - Plan */
+      .plan-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 48px;
+        max-width: 500px;
+        margin: 0 auto;
+        backdrop-filter: blur(12px);
+        text-align: center;
+        position: relative;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      }
 
-    .price {
-      font-size: 64px;
-      font-weight: 800;
-      margin: 24px 0 12px;
-      letter-spacing: -2px;
-    }
+      .plan-card::after {
+        content: '';
+        position: absolute;
+        top: -1px;
+        left: 10%;
+        right: 10%;
+        height: 1px;
+        background: linear-gradient(to right, transparent, var(--accent), transparent);
+      }
 
-    .price span {
-      font-size: 18px;
-      color: var(--text-dim);
-      font-weight: 500;
-      letter-spacing: 0;
-    }
+      .plan-tag {
+        position: absolute;
+        top: -15px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: linear-gradient(135deg, var(--accent) 0%, var(--secondary) 100%);
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 6px 20px;
+        border-radius: 50px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+      }
 
-    .plan-features {
-      list-style: none;
-      text-align: left;
-      margin: 32px 0 40px;
-    }
+      .price {
+        font-size: 64px;
+        font-weight: 800;
+        margin: 24px 0 12px;
+        letter-spacing: -2px;
+      }
 
-    .plan-features li {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 16px;
-      color: var(--text-dim);
-      margin-bottom: 16px;
-    }
+      .price span {
+        font-size: 18px;
+        color: var(--text-dim);
+        font-weight: 500;
+        letter-spacing: 0;
+      }
 
-    .plan-features li::before {
-      content: '✓';
-      color: var(--success);
-      font-weight: 800;
-      font-size: 18px;
-    }
+      .plan-features {
+        list-style: none;
+        text-align: left;
+        margin: 32px 0 40px;
+      }
 
-    /* Concept Section */
-    .concept {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
+      .plan-features li {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 16px;
+        color: var(--text-dim);
+        margin-bottom: 16px;
+      }
 
-    .concept-text h2 {
-      font-size: 40px;
-      font-weight: 800;
-      line-height: 1.2;
-      margin-bottom: 24px;
-      letter-spacing: -1px;
-    }
+      .plan-features li::before {
+        content: '✓';
+        color: var(--success);
+        font-weight: 800;
+        font-size: 18px;
+      }
 
-    .concept-text p {
-      color: var(--text-dim);
-      font-size: 18px;
-      margin-bottom: 20px;
-    }
+      /* Concept Section */
+      .concept {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 60px;
+        align-items: center;
+      }
 
-    .dj-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--card-border);
-      padding: 8px 16px;
-      border-radius: 50px;
-      font-size: 14px;
-      margin-right: 12px;
-      margin-top: 12px;
-    }
+      .concept-text h2 {
+        font-size: 40px;
+        font-weight: 800;
+        line-height: 1.2;
+        margin-bottom: 24px;
+        letter-spacing: -1px;
+      }
 
-    .dj-badge strong {
-      color: var(--accent);
-    }
+      .concept-text p {
+        color: var(--text-dim);
+        font-size: 18px;
+        margin-bottom: 20px;
+      }
 
-    .visual-placeholder {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      height: 350px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 40px;
-    }
+      .dj-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--card-border);
+        padding: 8px 16px;
+        border-radius: 50px;
+        font-size: 14px;
+        margin-right: 12px;
+        margin-top: 12px;
+      }
 
-    /* Grid Features */
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 30px;
-      margin-top: 40px;
-    }
+      .dj-badge strong {
+        color: var(--accent);
+      }
 
-    .feature-card {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 32px;
-      transition: all 0.3s;
-    }
+      .visual-placeholder {
+        background: linear-gradient(
+          135deg,
+          rgba(139, 92, 246, 0.1) 0%,
+          rgba(236, 72, 153, 0.1) 100%
+        );
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        height: 350px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 40px;
+      }
 
-    .feature-card:hover {
-      border-color: rgba(139, 92, 246, 0.3);
-      background: rgba(255, 255, 255, 0.03);
-    }
+      /* Grid Features */
+      .features-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+        margin-top: 40px;
+      }
 
-    .feature-card h4 {
-      font-size: 20px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
+      .feature-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 20px;
+        padding: 32px;
+        transition: all 0.3s;
+      }
 
-    .feature-card p {
-      color: var(--text-dim);
-      font-size: 15px;
-    }
+      .feature-card:hover {
+        border-color: rgba(139, 92, 246, 0.3);
+        background: rgba(255, 255, 255, 0.03);
+      }
 
-    /* Referral Banner */
-    .referral {
-      background: linear-gradient(135deg, rgba(139, 92, 246, 0.08) 0%, rgba(236, 72, 153, 0.08) 100%);
-      border: 1px solid var(--card-border);
-      border-radius: 24px;
-      padding: 60px;
-      text-align: center;
-      position: relative;
-      overflow: hidden;
-    }
+      .feature-card h4 {
+        font-size: 20px;
+        font-weight: 700;
+        margin-bottom: 12px;
+      }
 
-    .referral-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 30px;
-      margin: 40px 0;
-    }
+      .feature-card p {
+        color: var(--text-dim);
+        font-size: 15px;
+      }
 
-    .referral-step {
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      padding: 24px;
-      border-radius: 16px;
-    }
+      /* Referral Banner */
+      .referral {
+        background: linear-gradient(
+          135deg,
+          rgba(139, 92, 246, 0.08) 0%,
+          rgba(236, 72, 153, 0.08) 100%
+        );
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        padding: 60px;
+        text-align: center;
+        position: relative;
+        overflow: hidden;
+      }
 
-    .referral-step h5 {
-      font-size: 16px;
-      font-weight: 700;
-      margin-bottom: 8px;
-      color: var(--accent);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
+      .referral-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 30px;
+        margin: 40px 0;
+      }
 
-    .referral-step p {
-      font-size: 15px;
-      color: var(--text-dim);
-    }
+      .referral-step {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        padding: 24px;
+        border-radius: 16px;
+      }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--card-border);
-      padding: 60px 8% 40px;
-      text-align: center;
-    }
+      .referral-step h5 {
+        font-size: 16px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        color: var(--accent);
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
 
-    .footer-logo {
-      font-size: 24px;
-      font-weight: 800;
-      margin-bottom: 16px;
-      display: inline-block;
-      color: white;
-      text-decoration: none;
-    }
+      .referral-step p {
+        font-size: 15px;
+        color: var(--text-dim);
+      }
 
-    .footer-contact {
-      color: var(--text-dim);
-      font-size: 15px;
-      margin-bottom: 32px;
-    }
+      /* Footer */
+      footer {
+        border-top: 1px solid var(--card-border);
+        padding: 60px 8% 40px;
+        text-align: center;
+      }
 
-    .footer-links {
-      display: flex;
-      justify-content: center;
-      gap: 30px;
-      margin-bottom: 32px;
-    }
+      .footer-logo {
+        font-size: 24px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        display: inline-block;
+        color: white;
+        text-decoration: none;
+      }
 
-    .footer-links a {
-      color: var(--text-dim);
-      text-decoration: none;
-      transition: color 0.3s;
-    }
+      .footer-contact {
+        color: var(--text-dim);
+        font-size: 15px;
+        margin-bottom: 32px;
+      }
 
-    .footer-links a:hover {
-      color: white;
-    }
+      .footer-links {
+        display: flex;
+        justify-content: center;
+        gap: 30px;
+        margin-bottom: 32px;
+      }
 
-    .copyright {
-      font-size: 13px;
-      color: rgba(255, 255, 255, 0.2);
-    }
+      .footer-links a {
+        color: var(--text-dim);
+        text-decoration: none;
+        transition: color 0.3s;
+      }
 
-    /* Responsive */
-    @media (max-width: 900px) {
-      .hero h1 { font-size: 48px; }
-      .concept { grid-template-columns: 1fr; gap: 40px; }
-      .referral-grid { grid-template-columns: 1fr; }
-      .features-grid { grid-template-columns: 1fr; }
-      header { padding: 20px 4%; }
-      nav { display: none; }
-    }
-  </style>
-</head>
-<body>
+      .footer-links a:hover {
+        color: white;
+      }
 
-  <!-- Navigation -->
-  <header>
-    <a href="#" class="logo">ESPAÇO VIVA</a>
-    <nav>
-      <a href="#espaco">O Espaço</a>
-      <a href="#ritmo">Conceito Ritmo</a>
-      <a href="#diferenciais">Diferenciais</a>
-      <a href="https://wa.me/553235712172?text=Quero%20conhecer%20o%20novo%20espaço%20de%20musculação" class="btn-nav">Agendar Visita</a>
-    </nav>
-  </header>
+      .copyright {
+        font-size: 13px;
+        color: rgba(255, 255, 255, 0.2);
+      }
 
-  <!-- Hero Section -->
-  <section class="hero">
-    <div class="badge">Novidade em Rio Pomba</div>
-    <h1>Treino com <span>propósito.</span></h1>
-    <p>Musculação de alto padrão com equipamentos novos, acompanhamento profissional e trilha sonora inteligente que eleva sua performance física ao máximo.</p>
-    <div class="hero-buttons">
-      <a href="https://wa.me/553235712172?text=Quero%20garantir%20minha%20vaga" class="btn-primary">Garantir minha vaga</a>
-      <a href="#espaco" class="btn-secondary">Conhecer o espaço</a>
-    </div>
-  </section>
+      /* Responsive */
+      @media (max-width: 900px) {
+        .hero h1 {
+          font-size: 48px;
+        }
+        .concept {
+          grid-template-columns: 1fr;
+          gap: 40px;
+        }
+        .referral-grid {
+          grid-template-columns: 1fr;
+        }
+        .features-grid {
+          grid-template-columns: 1fr;
+        }
+        header {
+          padding: 20px 4%;
+        }
+        nav {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Navigation -->
+    <header>
+      <a href="#" class="logo">ESPAÇO VIVA</a>
+      <nav>
+        <a href="#espaco">O Espaço</a>
+        <a href="#ritmo">Conceito Ritmo</a>
+        <a href="#diferenciais">Diferenciais</a>
+        <a
+          href="https://wa.me/553235712172?text=Quero%20conhecer%20o%20novo%20espaço%20de%20musculação"
+          class="btn-nav"
+          >Agendar Visita</a
+        >
+      </nav>
+    </header>
 
-  <!-- Pricing Plan -->
-  <section id="planos" class="section-container">
-    <div class="plan-card">
-      <div class="plan-tag">Destaque</div>
-      <h2>Plano Trimestral</h2>
-      <div class="price">R$ 149<span>/mês</span></div>
-      <ul class="plan-features">
-        <li>Acesso ilimitado ao salão de musculação</li>
-        <li>Avaliação corporal com bioimpedância inclusa</li>
-        <li>Ficha de treino exclusiva no app Espaço Viva</li>
-        <li>Acompanhamento profissional permanente na sala</li>
-      </ul>
-      <a href="https://wa.me/553235712172?text=Quero%20garantir%20minha%20vaga%20no%20Plano%20Trimestral" class="btn-primary" style="display: block; width: 100%; text-align: center;">Contratar Trimestral · R$ 149</a>
-    </div>
-  </section>
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="badge">Novidade em Rio Pomba</div>
+      <h1>Treino com <span>propósito.</span></h1>
+      <p>
+        Musculação de alto padrão com equipamentos novos, acompanhamento profissional e trilha
+        sonora inteligente que eleva sua performance física ao máximo.
+      </p>
+      <div class="hero-buttons">
+        <a
+          href="https://wa.me/553235712172?text=Quero%20garantir%20minha%20vaga"
+          class="btn-primary"
+          >Garantir minha vaga</a
+        >
+        <a href="#espaco" class="btn-secondary">Conhecer o espaço</a>
+      </div>
+    </section>
 
-  <!-- Concept Section -->
-  <section id="ritmo" class="section-container">
-    <div class="concept">
-      <div class="concept-text">
-        <h2>Música inteligente.<br>Mais repetições.</h2>
-        <p>O som do nosso salão dita o ritmo do seu treino. Desenvolvemos uma inteligência de áudio integrada que ajusta os batimentos musicais de forma 100% dinâmica.</p>
-        <p>Diferentes DJs virtuais assumem o controle das batidas com base no perfil ideal do treino que você precisa realizar:</p>
-        <div class="dj-badges">
-          <div class="dj-badge">🐺 <strong>Fenrir</strong> · Intensidade Extrema</div>
-          <div class="dj-badge">🌸 <strong>Kore</strong> · Foco Concentrado</div>
-          <div class="dj-badge">🔱 <strong>Titan</strong> · Imersão Profunda</div>
+    <!-- Pricing Plan -->
+    <section id="planos" class="section-container">
+      <div class="plan-card">
+        <div class="plan-tag">Destaque</div>
+        <h2>Plano Trimestral</h2>
+        <div class="price">R$ 149<span>/mês</span></div>
+        <ul class="plan-features">
+          <li>Acesso ilimitado ao salão de musculação</li>
+          <li>Avaliação corporal com bioimpedância inclusa</li>
+          <li>Ficha de treino exclusiva no app Espaço Viva</li>
+          <li>Acompanhamento profissional permanente na sala</li>
+        </ul>
+        <a
+          href="https://wa.me/553235712172?text=Quero%20garantir%20minha%20vaga%20no%20Plano%20Trimestral"
+          class="btn-primary"
+          style="display: block; width: 100%; text-align: center"
+          >Contratar Trimestral · R$ 149</a
+        >
+      </div>
+    </section>
+
+    <!-- Concept Section -->
+    <section id="ritmo" class="section-container">
+      <div class="concept">
+        <div class="concept-text">
+          <h2>Música inteligente.<br />Mais repetições.</h2>
+          <p>
+            O som do nosso salão dita o ritmo do seu treino. Desenvolvemos uma inteligência de áudio
+            integrada que ajusta os batimentos musicais de forma 100% dinâmica.
+          </p>
+          <p>
+            Diferentes DJs virtuais assumem o controle das batidas com base no perfil ideal do
+            treino que você precisa realizar:
+          </p>
+          <div class="dj-badges">
+            <div class="dj-badge">🐺 <strong>Fenrir</strong> · Intensidade Extrema</div>
+            <div class="dj-badge">🌸 <strong>Kore</strong> · Foco Concentrado</div>
+            <div class="dj-badge">🔱 <strong>Titan</strong> · Imersão Profunda</div>
+          </div>
+        </div>
+        <div class="visual-placeholder" id="espaco">
+          <div>
+            <h3 style="font-size: 24px; margin-bottom: 12px">
+              Aparelhos Novos para Alta Performance
+            </h3>
+            <p style="font-size: 15px; color: var(--text-dim)">
+              A nova área de musculação do Espaço Viva foi desenvolvida com foco em biomecânica e
+              ergonomia. O melhor maquinário de força e condicionamento cardiovascular de Rio
+              Pomba/MG.
+            </p>
+            <p style="font-size: 13px; color: var(--accent); margin-top: 16px; font-weight: 600">
+              Amplo · Climatizado · Som Integrado
+            </p>
+          </div>
         </div>
       </div>
-      <div class="visual-placeholder" id="espaco">
-        <div>
-          <h3 style="font-size: 24px; margin-bottom: 12px;">Aparelhos Novos para Alta Performance</h3>
-          <p style="font-size: 15px; color: var(--text-dim);">A nova área de musculação do Espaço Viva foi desenvolvida com foco em biomecânica e ergonomia. O melhor maquinário de força e condicionamento cardiovascular de Rio Pomba/MG.</p>
-          <p style="font-size: 13px; color: var(--accent); margin-top: 16px; font-weight: 600;">Amplo · Climatizado · Som Integrado</p>
+    </section>
+
+    <!-- Grid Features -->
+    <section id="diferenciais" class="section-container">
+      <h2 class="section-title">A estrutura mais completa de Rio Pomba.</h2>
+      <div class="features-grid">
+        <div class="feature-card">
+          <h4>📱 Ficha Digital & App</h4>
+          <p>
+            Visualize suas séries, cargas, repetições e tempos de descanso direto na tela do
+            celular. Evolução rastreável e sem fichas de papel.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>👤 Reconhecimento Facial</h4>
+          <p>
+            Check-in extremamente ágil e sem toques na portaria através da catraca integrada facial.
+            Fluidez e alta segurança.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🎧 Sonorização com DJs</h4>
+          <p>
+            Trilhas sonoras exclusivas organizadas e sincronizadas por BPM (batidas por minuto) para
+            estimular o seu rendimento.
+          </p>
+        </div>
+        <div class="feature-card">
+          <h4>🚿 Duchas Aquecidas</h4>
+          <p>
+            Vestiários limpos, higienizados e de alto padrão, equipados com duchas quentes para o
+            seu conforto máximo pós-treino.
+          </p>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <!-- Grid Features -->
-  <section id="diferenciais" class="section-container">
-    <h2 class="section-title">A estrutura mais completa de Rio Pomba.</h2>
-    <div class="features-grid">
-      <div class="feature-card">
-        <h4>📱 Ficha Digital & App</h4>
-        <p>Visualize suas séries, cargas, repetições e tempos de descanso direto na tela do celular. Evolução rastreável e sem fichas de papel.</p>
-      </div>
-      <div class="feature-card">
-        <h4>👤 Reconhecimento Facial</h4>
-        <p>Check-in extremamente ágil e sem toques na portaria através da catraca integrada facial. Fluidez e alta segurança.</p>
-      </div>
-      <div class="feature-card">
-        <h4>🎧 Sonorização com DJs</h4>
-        <p>Trilhas sonoras exclusivas organizadas e sincronizadas por BPM (batidas por minuto) para estimular o seu rendimento.</p>
-      </div>
-      <div class="feature-card">
-        <h4>🚿 Duchas Aquecidas</h4>
-        <p>Vestiários limpos, higienizados e de alto padrão, equipados com duchas quentes para o seu conforto máximo pós-treino.</p>
-      </div>
-    </div>
-  </section>
+    <!-- Referral Program -->
+    <section class="section-container">
+      <div class="referral">
+        <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 12px">
+          Indique um amigo & ganhe desconto
+        </h2>
+        <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto 30px">
+          A melhor companhia para o treino é quem você escolhe. Convide seus amigos para treinar no
+          Espaço Viva e ganhem vantagens mútuas.
+        </p>
 
-  <!-- Referral Program -->
-  <section class="section-container">
-    <div class="referral">
-      <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 12px;">Indique um amigo & ganhe desconto</h2>
-      <p style="color: var(--text-dim); max-width: 600px; margin: 0 auto 30px;">A melhor companhia para o treino é quem você escolhe. Convide seus amigos para treinar no Espaço Viva e ganhem vantagens mútuas.</p>
-      
-      <div class="referral-grid">
-        <div class="referral-step">
-          <h5>1. Compartilhe</h5>
-          <p>Envie o seu convite exclusivo gerado no aplicativo para seu amigo.</p>
+        <div class="referral-grid">
+          <div class="referral-step">
+            <h5>1. Compartilhe</h5>
+            <p>Envie o seu convite exclusivo gerado no aplicativo para seu amigo.</p>
+          </div>
+          <div class="referral-step">
+            <h5>2. Amigo Ganha</h5>
+            <p>Seu amigo indicado ganha 50% de desconto na primeira fatura do plano.</p>
+          </div>
+          <div class="referral-step">
+            <h5>3. Você Ganha</h5>
+            <p>Você ganha 20% de desconto cumulativo na sua próxima mensalidade.</p>
+          </div>
         </div>
-        <div class="referral-step">
-          <h5>2. Amigo Ganha</h5>
-          <p>Seu amigo indicado ganha 50% de desconto na primeira fatura do plano.</p>
-        </div>
-        <div class="referral-step">
-          <h5>3. Você Ganha</h5>
-          <p>Você ganha 20% de desconto cumulativo na sua próxima mensalidade.</p>
-        </div>
+
+        <a
+          href="https://wa.me/553235712172?text=Quero%20indicar%20um%20amigo%20para%20ganhar%20desconto%20no%20Espaço%20Viva"
+          class="btn-primary"
+          >Indicar no WhatsApp</a
+        >
       </div>
-      
-      <a href="https://wa.me/553235712172?text=Quero%20indicar%20um%20amigo%20para%20ganhar%20desconto%20no%20Espaço%20Viva" class="btn-primary">Indicar no WhatsApp</a>
-    </div>
-  </section>
+    </section>
 
-  <!-- Call to Action -->
-  <section class="section-container" style="text-align: center; border-top: 1px solid var(--card-border); padding-top: 100px;">
-    <h2 style="font-size: 44px; font-weight: 800; margin-bottom: 16px;">Pronto para começar?</h2>
-    <p style="color: var(--text-dim); font-size: 18px; margin-bottom: 40px; max-width: 600px; margin-left: auto; margin-right: auto;">Agende uma visita e faça uma aula experimental de musculação por nossa conta. Descubra um novo padrão em saúde.</p>
-    <a href="https://wa.me/553235712172?text=Quero%20agendar%20minha%20aula%20experimental%20gratuita%20de%20musculação" class="btn-primary" style="font-size: 18px; padding: 18px 48px;">Aula Experimental Grátis</a>
-  </section>
+    <!-- Call to Action -->
+    <section
+      class="section-container"
+      style="text-align: center; border-top: 1px solid var(--card-border); padding-top: 100px"
+    >
+      <h2 style="font-size: 44px; font-weight: 800; margin-bottom: 16px">Pronto para começar?</h2>
+      <p
+        style="
+          color: var(--text-dim);
+          font-size: 18px;
+          margin-bottom: 40px;
+          max-width: 600px;
+          margin-left: auto;
+          margin-right: auto;
+        "
+      >
+        Agende uma visita e faça uma aula experimental de musculação por nossa conta. Descubra um
+        novo padrão em saúde.
+      </p>
+      <a
+        href="https://wa.me/553235712172?text=Quero%20agendar%20minha%20aula%20experimental%20gratuita%20de%20musculação"
+        class="btn-primary"
+        style="font-size: 18px; padding: 18px 48px"
+        >Aula Experimental Grátis</a
+      >
+    </section>
 
-  <!-- Footer -->
-  <footer>
-    <a href="#" class="footer-logo">ESPAÇO VIVA</a>
-    <p class="footer-contact">
-      Rua Péricles de Queiroz, 48 — Centro, Rio Pomba/MG<br>
-      Telefone/WhatsApp: (32) 3571-2172
-    </p>
-    <div class="footer-links">
-      <a href="https://www.instagram.com/espacovivaclinica/">Instagram</a>
-      <a href="https://www.facebook.com/espacovivamg/">Facebook</a>
-      <a href="https://wa.me/553235712172">WhatsApp</a>
-    </div>
-    <p class="copyright">© 2026 Espaço Viva. Todos os direitos reservados. Musculação de Alto Padrão.</p>
-  </footer>
-
-</body>
+    <!-- Footer -->
+    <footer>
+      <a href="#" class="footer-logo">ESPAÇO VIVA</a>
+      <p class="footer-contact">
+        Rua Péricles de Queiroz, 48 — Centro, Rio Pomba/MG<br />
+        Telefone/WhatsApp: (32) 3571-2172
+      </p>
+      <div class="footer-links">
+        <a href="https://www.instagram.com/espacovivaclinica/">Instagram</a>
+        <a href="https://www.facebook.com/espacovivamg/">Facebook</a>
+        <a href="https://wa.me/553235712172">WhatsApp</a>
+      </div>
+      <p class="copyright">
+        © 2026 Espaço Viva. Todos os direitos reservados. Musculação de Alto Padrão.
+      </p>
+    </footer>
+  </body>
 </html>

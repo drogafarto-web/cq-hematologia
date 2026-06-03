@@ -101,9 +101,7 @@ function buildMeta(labId) {
     lastRefreshAt: admin.firestore.FieldValue.serverTimestamp(),
     refreshIntervalMinutes: 60,
     isCached: true,
-    cacheExpiresAt: admin.firestore.Timestamp.fromMillis(
-      Date.now() + 60 * 60 * 1000,
-    ),
+    cacheExpiresAt: admin.firestore.Timestamp.fromMillis(Date.now() + 60 * 60 * 1000),
     staleWarningMinutes: 90,
   };
 }
@@ -114,25 +112,24 @@ async function seedLab(labId) {
   const aggregate = buildAggregate(labId);
   const meta = buildMeta(labId);
 
-  const aggregateRef = db.doc(
-    `labs/${labId}/analytics/cache/metrics/ciqCompliance`,
-  );
+  const aggregateRef = db.doc(`labs/${labId}/analytics/cache/metrics/ciqCompliance`);
   const metaRef = db.doc(`labs/${labId}/analytics/meta`);
 
   if (dryRun) {
     console.log(`\n[DRY-RUN] Would write to lab ${labId}:`);
     console.log(`  ├─ ${aggregateRef.path}`);
-    console.log(`  │  └─ compliance ${aggregate.compliancePercent}% · ${aggregate.totalRuns} runs · ${aggregate.openNCs} open NCs`);
+    console.log(
+      `  │  └─ compliance ${aggregate.compliancePercent}% · ${aggregate.totalRuns} runs · ${aggregate.openNCs} open NCs`,
+    );
     console.log(`  └─ ${metaRef.path}`);
     return;
   }
 
-  await Promise.all([
-    aggregateRef.set(aggregate),
-    metaRef.set(meta),
-  ]);
+  await Promise.all([aggregateRef.set(aggregate), metaRef.set(meta)]);
 
-  console.log(`✓ ${labId}  compliance=${aggregate.compliancePercent}%  runs=${aggregate.totalRuns}  openNCs=${aggregate.openNCs}`);
+  console.log(
+    `✓ ${labId}  compliance=${aggregate.compliancePercent}%  runs=${aggregate.totalRuns}  openNCs=${aggregate.openNCs}`,
+  );
 }
 
 // ─── Main ─────────────────────────────────────────────────────────────────────

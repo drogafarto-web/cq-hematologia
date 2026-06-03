@@ -11,13 +11,13 @@ Sistema de Controle de Qualidade para laboratório de coagulação, atendendo RD
 
 ## Estrutura de Telas
 
-| # | Arquivo | Propósito | Frequência de uso |
-|---|---------|-----------|-------------------|
-| 1 | `01-qc-control.html` | Registro diário + chart + quick add | 5-10×/dia |
-| 2 | `02-lot-management.html` | Cadastro de lotes de controle | 1-2×/mês |
-| 3 | `03-corrective-actions.html` | Gestão de não conformidades | 1-2×/semana |
-| 4 | `04-analyzer-management.html` | Equipamentos + calibração + manutenção | 1-3×/semana |
-| 5 | `05-reports.html` | Relatórios para auditoria/acreditação | 2-4×/mês |
+| #   | Arquivo                       | Propósito                              | Frequência de uso |
+| --- | ----------------------------- | -------------------------------------- | ----------------- |
+| 1   | `01-qc-control.html`          | Registro diário + chart + quick add    | 5-10×/dia         |
+| 2   | `02-lot-management.html`      | Cadastro de lotes de controle          | 1-2×/mês          |
+| 3   | `03-corrective-actions.html`  | Gestão de não conformidades            | 1-2×/semana       |
+| 4   | `04-analyzer-management.html` | Equipamentos + calibração + manutenção | 1-3×/semana       |
+| 5   | `05-reports.html`             | Relatórios para auditoria/acreditação  | 2-4×/mês          |
 
 ## Fluxo do Operador (Tela 1)
 
@@ -33,6 +33,7 @@ Sistema de Controle de Qualidade para laboratório de coagulação, atendendo RD
 ## Design System
 
 Ver `DESIGN-SYSTEM.md` para:
+
 - Tokens de cor (primary: `#004787`)
 - Tipografia (Geist Sans + Geist Mono)
 - Espaçamento, radius, border
@@ -42,11 +43,13 @@ Ver `DESIGN-SYSTEM.md` para:
 ## Legislação Atendida
 
 ### RDC 302 / PALC
+
 - ✅ Registro diário de controles com data, lote, resultado
 - ✅ Justificativa obrigatória para liberação com violação
 - ✅ L1 (normal) + L2 (anormal/terapêutico) para coagulação
 
 ### DICQ (Manual de Acreditação)
+
 - ✅ Rastreabilidade: lote → reagente → analyzer → operador
 - ✅ Regras Westgard aplicadas (1-2S, 1-3S, 2-2S, R-4S, 4-1S, 10X)
 - ✅ Histórico de edições visível (quem alterou o quê)
@@ -55,6 +58,7 @@ Ver `DESIGN-SYSTEM.md` para:
 - ✅ Relatórios imutáveis gerados para auditoria
 
 ### ISO 15189
+
 - ✅ Gestão de não conformidades estruturada (investigation + action + verification)
 - ✅ Importação PNCQ de ranges-alvo
 - ✅ Registros preservados (archive, nunca delete)
@@ -76,6 +80,7 @@ Abra qualquer `.html` no navegador. Todos independentes usando Tailwind CDN + Ge
 ## Coagulação: 2 níveis apenas
 
 Diferente de bioquímica (3 níveis), coagulação usa:
+
 - **Level 1**: normal (within reference range)
 - **Level 2**: anormal / terapêutico (prolongado, ex: INR 2.0-3.0)
 

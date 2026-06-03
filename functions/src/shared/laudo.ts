@@ -53,11 +53,9 @@ export class LaudoDraftManager {
     labId: string,
     laudoId: string,
     rtUid: string,
-    lockDuration: number = this.defaultLockDuration
+    lockDuration: number = this.defaultLockDuration,
   ): Promise<DraftLock> {
-    const draftRef = this.db.doc(
-      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
-    );
+    const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
 
     try {
       const snapshot = await draftRef.get();
@@ -67,13 +65,9 @@ export class LaudoDraftManager {
       if (snapshot.exists) {
         const data = snapshot.data() as Partial<DraftLock> | undefined;
         // Check if locked by another user
-        if (
-          data?.lockedUntil &&
-          data.lockedUntil > now &&
-          data.lockedBy !== rtUid
-        ) {
+        if (data?.lockedUntil && data.lockedUntil > now && data.lockedBy !== rtUid) {
           throw new Error(
-            `Draft locked by ${data.lockedBy} until ${new Date(data.lockedUntil).toISOString()}`
+            `Draft locked by ${data.lockedBy} until ${new Date(data.lockedUntil).toISOString()}`,
           );
         }
       }
@@ -85,13 +79,15 @@ export class LaudoDraftManager {
         lockedUntil: lockUntil,
         version: ((snapshot.data() as Partial<DraftLock>)?.version ?? 0) + 1,
         status: 'EDITING',
-        createdAt: now
+        createdAt: now,
       };
 
       await draftRef.set(lock);
       return lock;
     } catch (error) {
-      throw new Error(`Failed to acquire lock: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to acquire lock: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -103,14 +99,8 @@ export class LaudoDraftManager {
    * @param rtUid Operator UID
    * @throws Error if not lock owner
    */
-  async releaseLock(
-    labId: string,
-    laudoId: string,
-    rtUid: string
-  ): Promise<void> {
-    const draftRef = this.db.doc(
-      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
-    );
+  async releaseLock(labId: string, laudoId: string, rtUid: string): Promise<void> {
+    const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
 
     try {
       const snapshot = await draftRef.get();
@@ -125,10 +115,12 @@ export class LaudoDraftManager {
 
       await draftRef.update({
         lockedUntil: null,
-        status: 'EMPTY'
+        status: 'EMPTY',
       });
     } catch (error) {
-      throw new Error(`Failed to release lock: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to release lock: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -144,11 +136,9 @@ export class LaudoDraftManager {
     labId: string,
     laudoId: string,
     rtUid: string,
-    content: Record<string, unknown>
+    content: Record<string, unknown>,
   ): Promise<void> {
-    const draftRef = this.db.doc(
-      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
-    );
+    const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
 
     try {
       const snapshot = await draftRef.get();
@@ -161,10 +151,12 @@ export class LaudoDraftManager {
       await draftRef.update({
         contentJson: content,
         editedBy: rtUid,
-        editedAt: Date.now()
+        editedAt: Date.now(),
       });
     } catch (error) {
-      throw new Error(`Failed to update draft: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to update draft: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -177,14 +169,8 @@ export class LaudoDraftManager {
    * @param rtUid Operator UID
    * @returns Published laudo ID
    */
-  async publishDraft(
-    labId: string,
-    laudoId: string,
-    rtUid: string
-  ): Promise<string> {
-    const draftRef = this.db.doc(
-      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
-    );
+  async publishDraft(labId: string, laudoId: string, rtUid: string): Promise<string> {
+    const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
 
     try {
       const snapshot = await draftRef.get();
@@ -192,7 +178,9 @@ export class LaudoDraftManager {
         throw new Error('Draft not found');
       }
 
-      const data = snapshot.data() as Partial<DraftLock> & { contentJson?: Record<string, unknown> };
+      const data = snapshot.data() as Partial<DraftLock> & {
+        contentJson?: Record<string, unknown>;
+      };
       if (data.lockedBy !== rtUid) {
         throw new Error('Only lock owner can publish');
       }
@@ -201,12 +189,14 @@ export class LaudoDraftManager {
       await draftRef.update({
         status: 'PUBLISHED',
         publishedAt: Date.now(),
-        publishedBy: rtUid
+        publishedBy: rtUid,
       });
 
       return laudoId;
     } catch (error) {
-      throw new Error(`Failed to publish draft: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to publish draft: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
@@ -218,17 +208,17 @@ export class LaudoDraftManager {
    * @param laudoId Laudo identifier
    */
   async archiveDraft(labId: string, laudoId: string): Promise<void> {
-    const draftRef = this.db.doc(
-      `labs/${labId}/laudos-draft/rascunhos/${laudoId}`
-    );
+    const draftRef = this.db.doc(`labs/${labId}/laudos-draft/rascunhos/${laudoId}`);
 
     try {
       await draftRef.update({
         status: 'ARCHIVED',
-        archivedAt: Date.now()
+        archivedAt: Date.now(),
       });
     } catch (error) {
-      throw new Error(`Failed to archive draft: ${error instanceof Error ? error.message : String(error)}`);
+      throw new Error(
+        `Failed to archive draft: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 

@@ -48,13 +48,10 @@ const formSchema = z
     severityDefault: z.enum(['low', 'medium', 'high', 'panic'] as const),
     ativo: z.boolean(),
   })
-  .refine(
-    (data) => data.faixaCritica.min !== null || data.faixaCritica.max !== null,
-    {
-      message: 'Faixa crítica deve ter pelo menos um limite',
-      path: ['faixaCritica'],
-    }
-  )
+  .refine((data) => data.faixaCritica.min !== null || data.faixaCritica.max !== null, {
+    message: 'Faixa crítica deve ter pelo menos um limite',
+    path: ['faixaCritica'],
+  })
   .refine(
     (data) => {
       const { min, max } = data.faixaCritica;
@@ -64,7 +61,7 @@ const formSchema = z
     {
       message: 'Mínimo deve ser menor que máximo',
       path: ['faixaCritica'],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -75,7 +72,7 @@ const formSchema = z
     {
       message: 'Mínimo deve ser menor que máximo',
       path: ['faixaPanico'],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -87,7 +84,7 @@ const formSchema = z
     {
       message: 'Pânico mín deve ser ≤ crítico mín',
       path: ['faixaPanico'],
-    }
+    },
   )
   .refine(
     (data) => {
@@ -99,7 +96,7 @@ const formSchema = z
     {
       message: 'Crítico máx deve ser ≤ pânico máx',
       path: ['faixaCritica'],
-    }
+    },
   );
 
 export default function CriticosThresholdsForm({
@@ -167,16 +164,12 @@ export default function CriticosThresholdsForm({
       delete newErrors[field];
       setErrors(newErrors);
     },
-    [errors]
+    [errors],
   );
 
   // Handle range changes
   const handleRangeChange = useCallback(
-    (
-      range: 'faixaCritica' | 'faixaPanico',
-      bound: 'min' | 'max',
-      value: number | null
-    ) => {
+    (range: 'faixaCritica' | 'faixaPanico', bound: 'min' | 'max', value: number | null) => {
       setFormData((prev) => ({
         ...prev,
         [range]: {
@@ -189,7 +182,7 @@ export default function CriticosThresholdsForm({
       delete newErrors[range];
       setErrors(newErrors);
     },
-    [errors]
+    [errors],
   );
 
   // Handle submit
@@ -228,7 +221,7 @@ export default function CriticosThresholdsForm({
         setIsLoading(false);
       }
     },
-    [validateForm, labId, user, initial, onSaved]
+    [validateForm, labId, user, initial, onSaved],
   );
 
   return (
@@ -246,7 +239,10 @@ export default function CriticosThresholdsForm({
       {/* Analito selection row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label htmlFor="analitoId" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+          <label
+            htmlFor="analitoId"
+            className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+          >
             ID do Analito
           </label>
           <input
@@ -267,7 +263,10 @@ export default function CriticosThresholdsForm({
         </div>
 
         <div>
-          <label htmlFor="analitoNome" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+          <label
+            htmlFor="analitoNome"
+            className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+          >
             Nome do Analito
           </label>
           <input
@@ -290,7 +289,10 @@ export default function CriticosThresholdsForm({
 
       {/* Unit */}
       <div>
-        <label htmlFor="unidade" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+        <label
+          htmlFor="unidade"
+          className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+        >
           Unidade de Medida
         </label>
         <input
@@ -317,7 +319,10 @@ export default function CriticosThresholdsForm({
         </p>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="faixaCritica-min" className="block text-white/70 text-xs font-medium mb-2">
+            <label
+              htmlFor="faixaCritica-min"
+              className="block text-white/70 text-xs font-medium mb-2"
+            >
               Mínimo
             </label>
             <input
@@ -329,7 +334,7 @@ export default function CriticosThresholdsForm({
                 handleRangeChange(
                   'faixaCritica',
                   'min',
-                  e.target.value ? parseFloat(e.target.value) : null
+                  e.target.value ? parseFloat(e.target.value) : null,
                 )
               }
               disabled={isLoading}
@@ -338,7 +343,10 @@ export default function CriticosThresholdsForm({
             />
           </div>
           <div>
-            <label htmlFor="faixaCritica-max" className="block text-white/70 text-xs font-medium mb-2">
+            <label
+              htmlFor="faixaCritica-max"
+              className="block text-white/70 text-xs font-medium mb-2"
+            >
               Máximo
             </label>
             <input
@@ -350,7 +358,7 @@ export default function CriticosThresholdsForm({
                 handleRangeChange(
                   'faixaCritica',
                   'max',
-                  e.target.value ? parseFloat(e.target.value) : null
+                  e.target.value ? parseFloat(e.target.value) : null,
                 )
               }
               disabled={isLoading}
@@ -373,7 +381,10 @@ export default function CriticosThresholdsForm({
         </p>
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label htmlFor="faixaPanico-min" className="block text-white/70 text-xs font-medium mb-2">
+            <label
+              htmlFor="faixaPanico-min"
+              className="block text-white/70 text-xs font-medium mb-2"
+            >
               Mínimo
             </label>
             <input
@@ -385,7 +396,7 @@ export default function CriticosThresholdsForm({
                 handleRangeChange(
                   'faixaPanico',
                   'min',
-                  e.target.value ? parseFloat(e.target.value) : null
+                  e.target.value ? parseFloat(e.target.value) : null,
                 )
               }
               disabled={isLoading}
@@ -394,7 +405,10 @@ export default function CriticosThresholdsForm({
             />
           </div>
           <div>
-            <label htmlFor="faixaPanico-max" className="block text-white/70 text-xs font-medium mb-2">
+            <label
+              htmlFor="faixaPanico-max"
+              className="block text-white/70 text-xs font-medium mb-2"
+            >
               Máximo
             </label>
             <input
@@ -406,7 +420,7 @@ export default function CriticosThresholdsForm({
                 handleRangeChange(
                   'faixaPanico',
                   'max',
-                  e.target.value ? parseFloat(e.target.value) : null
+                  e.target.value ? parseFloat(e.target.value) : null,
                 )
               }
               disabled={isLoading}
@@ -424,7 +438,10 @@ export default function CriticosThresholdsForm({
 
       {/* Severity default */}
       <div>
-        <label htmlFor="severityDefault" className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide">
+        <label
+          htmlFor="severityDefault"
+          className="block text-white/70 text-xs font-medium mb-2 uppercase tracking-wide"
+        >
           Severidade Padrão (na faixa crítica)
         </label>
         <select
@@ -454,7 +471,10 @@ export default function CriticosThresholdsForm({
           disabled={isLoading}
           className="w-4 h-4 rounded bg-white/10 border-white/20 text-violet-600 cursor-pointer disabled:opacity-50"
         />
-        <label htmlFor="ativo" className="text-white/70 text-sm cursor-pointer flex items-center gap-2">
+        <label
+          htmlFor="ativo"
+          className="text-white/70 text-sm cursor-pointer flex items-center gap-2"
+        >
           Ativo
           <span className="text-xs text-white/40">(desativados não disparam detecção)</span>
         </label>

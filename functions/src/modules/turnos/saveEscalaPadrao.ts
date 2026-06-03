@@ -1,11 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-import {
-  assertTurnosAccess,
-  escalaPadraoDoc,
-  SaveEscalaPadraoInputSchema,
-} from './validators';
+import { assertTurnosAccess, escalaPadraoDoc, SaveEscalaPadraoInputSchema } from './validators';
 
 interface SaveEscalaPadraoResult {
   ok: true;
@@ -26,13 +22,16 @@ export const turnos_saveEscalaPadrao = onCall<unknown, Promise<SaveEscalaPadraoR
 
     const ref = escalaPadraoDoc(db, input.labId);
 
-    await ref.set({
-      labId: input.labId,
-      diasAtivos: input.diasAtivos,
-      turnos: input.turnos,
-      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
-      updatedBy: uid,
-    }, { merge: false });
+    await ref.set(
+      {
+        labId: input.labId,
+        diasAtivos: input.diasAtivos,
+        turnos: input.turnos,
+        updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+        updatedBy: uid,
+      },
+      { merge: false },
+    );
 
     return { ok: true };
   },

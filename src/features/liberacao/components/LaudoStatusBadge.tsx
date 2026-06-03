@@ -71,12 +71,8 @@ export function LaudoStatusBadge({
       {badge}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-white/95 text-slate-900 text-xs rounded-lg p-3 w-48 z-50 shadow-lg">
         <p className="font-semibold mb-1">{label}</p>
-        <p className="text-slate-700">
-          {lastTransitionInfo.ts.toLocaleString('pt-BR')}
-        </p>
-        <p className="text-slate-700">
-          Operador: {lastTransitionInfo.operador}
-        </p>
+        <p className="text-slate-700">{lastTransitionInfo.ts.toLocaleString('pt-BR')}</p>
+        <p className="text-slate-700">Operador: {lastTransitionInfo.operador}</p>
       </div>
     </div>
   );

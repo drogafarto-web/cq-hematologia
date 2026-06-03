@@ -144,7 +144,7 @@ describe('deriveKPISummary', () => {
     const prior = makeAggregate({ validRuns: 85, totalRuns: 100, openNCs: 5 });
     const summary = deriveKPISummary(current, prior);
     expect(summary.complianceDelta).toBe(5); // 90 - 85
-    expect(summary.ncDelta).toBe(-2);         // 3 - 5
+    expect(summary.ncDelta).toBe(-2); // 3 - 5
   });
 
   it('has no delta fields when prior is not provided', () => {

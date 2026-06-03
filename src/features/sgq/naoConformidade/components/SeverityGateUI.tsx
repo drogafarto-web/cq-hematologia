@@ -18,11 +18,11 @@ export default function SeverityGateUI({ nc }: SeverityGateUIProps) {
   const bloqueada = isBloqueada(nc);
 
   return (
-    <div className={`p-4 border rounded-lg ${
-      bloqueada
-        ? 'bg-red-500/10 border-red-500/30'
-        : 'bg-emerald-500/10 border-emerald-500/30'
-    }`}>
+    <div
+      className={`p-4 border rounded-lg ${
+        bloqueada ? 'bg-red-500/10 border-red-500/30' : 'bg-emerald-500/10 border-emerald-500/30'
+      }`}
+    >
       <div className="flex items-start gap-3">
         {bloqueada ? (
           <span className="text-red-400 flex-shrink-0 mt-0.5 text-lg">🔒</span>

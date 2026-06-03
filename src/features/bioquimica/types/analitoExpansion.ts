@@ -14,15 +14,15 @@ import type { AnalitoId } from './_shared_refs';
 // ─── Analyte Categories ───────────────────────────────────────────────────
 
 export type AnalitoCategory =
-  | 'enzimologia'      // ALT, AST, GGT, ALP, CK, LDH, amilase, lipase
-  | 'lipidograma'      // colesterol total, HDL, LDL, triglicerídeos
-  | 'glicemia'         // glicose jejum, hemoglobina-glicada
-  | 'função-renal'     // ureia, creatinina, ácido-úrico
-  | 'função-hepática'  // bilirrubinas, albumina, proteínas-totais
-  | 'eletrólitos'      // sódio, potássio, cloreto, cálcio, fósforo, magnésio
-  | 'hormonal'         // TSH, T4-livre, cortisol, ferritina, vitamina-B12, vitamina-D
-  | 'cardíaco'         // troponina-I, CK-MB, mioglobina, NT-proBNP
-  | 'inflamação'       // PCR, VHS
+  | 'enzimologia' // ALT, AST, GGT, ALP, CK, LDH, amilase, lipase
+  | 'lipidograma' // colesterol total, HDL, LDL, triglicerídeos
+  | 'glicemia' // glicose jejum, hemoglobina-glicada
+  | 'função-renal' // ureia, creatinina, ácido-úrico
+  | 'função-hepática' // bilirrubinas, albumina, proteínas-totais
+  | 'eletrólitos' // sódio, potássio, cloreto, cálcio, fósforo, magnésio
+  | 'hormonal' // TSH, T4-livre, cortisol, ferritina, vitamina-B12, vitamina-D
+  | 'cardíaco' // troponina-I, CK-MB, mioglobina, NT-proBNP
+  | 'inflamação' // PCR, VHS
   | 'metabolismo-ósseo'; // fosfatase-alcalina, vitamina-D, PTH
 
 // ─── Expanded Analyte Metadata ────────────────────────────────────────────
@@ -30,13 +30,13 @@ export type AnalitoCategory =
 export interface AnalitoExpandedMetadata {
   id: AnalitoId;
   category: AnalitoCategory;
-  unit: string;            // 'mg/dL' | 'U/L' | 'ng/mL' | etc — string livre, validada server-side
+  unit: string; // 'mg/dL' | 'U/L' | 'ng/mL' | etc — string livre, validada server-side
   refRangeLow: number;
   refRangeHigh: number;
   refRangeUnit: 'adult-male' | 'adult-female' | 'pediatric' | 'unisex';
   expectedMethods: string[]; // canonical methods e.g. ['enzymatic-uv', 'colorimetric-photometric']
   alternativeNames: string[]; // fuzzy match aliases — e.g. ['ALT', 'TGP', 'alanina-aminotransferase']
-  loincCode?: string;        // optional LOINC for interlab comparison
+  loincCode?: string; // optional LOINC for interlab comparison
 }
 
 // ─── Constants ─────────────────────────────────────────────────────────────

@@ -22,11 +22,7 @@ import {
   firestoreErrorMessage,
 } from '../../../shared/services/firebase';
 import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
-import type {
-  CriticoRouteRule,
-  NotificationChannel,
-  CriticoSeverity,
-} from '../types';
+import type { CriticoRouteRule, NotificationChannel, CriticoSeverity } from '../types';
 import { db } from '../../../shared/services/firebase';
 import { z } from 'zod';
 
@@ -144,11 +140,11 @@ export async function getRoutingForLab(labId: string): Promise<CriticoRouteRule[
     const q = query(
       routingCollection(labId),
       where('deletadoEm', '==', null),
-      where('ativo', '==', true)
+      where('ativo', '==', true),
     );
     const snap = await getDocs(q);
     const rules = snap.docs.map(
-      (d) => ({ id: d.id, ...(d.data() as Omit<CriticoRouteRule, 'id'>) }) as CriticoRouteRule
+      (d) => ({ id: d.id, ...(d.data() as Omit<CriticoRouteRule, 'id'>) }) as CriticoRouteRule,
     );
 
     // Cache for 30s
@@ -163,7 +159,6 @@ export async function getRoutingForLab(labId: string): Promise<CriticoRouteRule[
   }
 }
 
-
 /**
  * Resolve notification channels for a critical alert.
  * Matches by (analitoId + severity) first, then falls back to severity-only.
@@ -177,16 +172,14 @@ export async function getRoutingForLab(labId: string): Promise<CriticoRouteRule[
 export async function resolveChannelsForAlert(
   labId: string,
   analitoId: string,
-  severity: CriticoSeverity
+  severity: CriticoSeverity,
 ): Promise<NotificationChannel[]> {
   try {
     const labRules = await getRoutingForLab(labId);
     const defaults = getDefaultRouting();
 
     // Try most-specific rule first: analitoId + severity match
-    const specificRule = labRules.find(
-      (r) => r.analitoId === analitoId && r.severity === severity
-    );
+    const specificRule = labRules.find((r) => r.analitoId === analitoId && r.severity === severity);
     if (specificRule) {
       return specificRule.channels.sort((a, b) => a.fallbackOrder - b.fallbackOrder);
     }
@@ -219,7 +212,7 @@ export async function resolveChannelsForAlert(
  */
 export async function upsertRouteRule(
   labId: string,
-  rule: Omit<CriticoRouteRule, 'id' | 'labId'>
+  rule: Omit<CriticoRouteRule, 'id' | 'labId'>,
 ): Promise<string> {
   try {
     // Validate input

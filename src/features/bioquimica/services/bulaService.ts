@@ -9,10 +9,7 @@
 
 import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../shared/services/firebase';
-import type {
-  BulaParseResult,
-  ControlMaterial,
-} from '../types';
+import type { BulaParseResult, ControlMaterial } from '../types';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -60,10 +57,7 @@ const applyBulaToLotCallable = httpsCallable<ApplyBulaPayload, ApplyBulaResponse
  * - Rate limit (60/min/lab)
  * - Invalid response format
  */
-export async function processBula(
-  labId: string,
-  pdfFile: File,
-): Promise<BulaParseResult> {
+export async function processBula(labId: string, pdfFile: File): Promise<BulaParseResult> {
   // Validate client-side
   if (!pdfFile.type.includes('pdf')) {
     throw new Error('Arquivo deve ser um PDF válido');

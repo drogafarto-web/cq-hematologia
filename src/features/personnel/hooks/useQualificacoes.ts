@@ -42,7 +42,7 @@ export function useQualificacoes({ operadorId }: UseQualificacoesOptions = {}) {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();

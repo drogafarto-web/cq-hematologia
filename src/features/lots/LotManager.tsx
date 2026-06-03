@@ -602,7 +602,12 @@ export function LotManager({
               className={`text-slate-400 transition-transform ${showHistorico ? 'rotate-180' : ''}`}
               aria-hidden
             >
-              <path d="M2 4l3 3 3-3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+              <path
+                d="M2 4l3 3 3-3"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
           {showHistorico && (
@@ -629,9 +634,7 @@ export function LotManager({
       </div>
 
       {showAdd && <AddLotModal onAdd={onAdd} onClose={onCloseAdd} onApplyBula={onApplyBula} />}
-      {showSemBula && (
-        <CadastroSemBulaModal onAdd={onAdd} onClose={() => setShowSemBula(false)} />
-      )}
+      {showSemBula && <CadastroSemBulaModal onAdd={onAdd} onClose={() => setShowSemBula(false)} />}
     </>
   );
 }

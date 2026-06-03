@@ -30,7 +30,7 @@ describe('ChainValidatorModal', () => {
 
   it('should render nothing when closed', () => {
     const { container } = render(
-      <ChainValidatorModal open={false} labId={mockLabId} onClose={() => {}} />
+      <ChainValidatorModal open={false} labId={mockLabId} onClose={() => {}} />,
     );
     expect(container.firstChild).toBeNull();
   });
@@ -42,9 +42,7 @@ describe('ChainValidatorModal', () => {
       lastCheckTime: Date.now(),
     } as any);
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(auditCallables.callValidateChain).toHaveBeenCalledWith({ labId: mockLabId });
@@ -58,9 +56,7 @@ describe('ChainValidatorModal', () => {
       lastCheckTime: Date.now(),
     } as any);
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Trilha íntegra')).toBeInTheDocument();
@@ -80,9 +76,7 @@ describe('ChainValidatorModal', () => {
       lastCheckTime: Date.now(),
     } as any);
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Trilha quebrada')).toBeInTheDocument();
@@ -98,9 +92,7 @@ describe('ChainValidatorModal', () => {
       lastCheckTime: Date.now(),
     } as any);
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={mockOnClose} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={mockOnClose} />);
 
     await waitFor(() => {
       expect(screen.getByText('Trilha íntegra')).toBeInTheDocument();
@@ -113,13 +105,9 @@ describe('ChainValidatorModal', () => {
   });
 
   it('should handle errors gracefully', async () => {
-    vi.mocked(auditCallables.callValidateChain).mockRejectedValue(
-      new Error('Conexão falhou')
-    );
+    vi.mocked(auditCallables.callValidateChain).mockRejectedValue(new Error('Conexão falhou'));
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Conexão falhou')).toBeInTheDocument();
@@ -135,9 +123,7 @@ describe('ChainValidatorModal', () => {
         lastCheckTime: Date.now(),
       } as any);
 
-    render(
-      <ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />
-    );
+    render(<ChainValidatorModal open={true} labId={mockLabId} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Network error')).toBeInTheDocument();

@@ -95,12 +95,8 @@ export function checkWestgardCLSI(input: WestgardCheckInput): WestgardViolation[
 /**
  * Suggest run status based on violations
  */
-export function suggestStatus(
-  violations: WestgardViolation[]
-): 'Aprovada' | 'Rejeitada' {
-  return violations.some((v) => v.severity === 'reject')
-    ? 'Rejeitada'
-    : 'Aprovada';
+export function suggestStatus(violations: WestgardViolation[]): 'Aprovada' | 'Rejeitada' {
+  return violations.some((v) => v.severity === 'reject') ? 'Rejeitada' : 'Aprovada';
 }
 
 /**
@@ -127,7 +123,7 @@ export function checkAdvancedRules(
   current: WestgardCheckInput['current'],
   history: WestgardCheckInput['history'],
   stats: WestgardCheckInput['stats'],
-  config: AdvancedRuleConfig
+  config: AdvancedRuleConfig,
 ): WestgardViolation[] {
   // Placeholder for v1.4
   return [];

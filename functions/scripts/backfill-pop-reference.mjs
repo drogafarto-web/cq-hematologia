@@ -29,7 +29,7 @@ import process from 'process';
 const labIdArg = process.argv.find((arg) => arg.startsWith('--labId='))?.split('=')[1] || 'default';
 const limitArg = parseInt(
   process.argv.find((arg) => arg.startsWith('--limit='))?.split('=')[1] || '1000000',
-  10
+  10,
 );
 const dryRun = process.argv.includes('--dry-run');
 
@@ -93,7 +93,7 @@ async function wasOperadorTreinadoEmData(labId, uid, popId, popVersaoNumero, tar
       const treinamentos = qual.treinamentosPOP || [];
 
       const treino = treinamentos.find(
-        (t) => t.popId === popId && t.popVersaoNumero === popVersaoNumero
+        (t) => t.popId === popId && t.popVersaoNumero === popVersaoNumero,
       );
 
       if (treino) {
@@ -149,11 +149,7 @@ async function determinePOPReferencia(labId, run, operadorUid) {
 
         if (dataConcluso <= runTimestamp && validoAte >= runTimestamp) {
           // Verify POP version was still active
-          const activeVersao = await findActivePOPVersionOnDate(
-            labId,
-            treino.popId,
-            runTimestamp
-          );
+          const activeVersao = await findActivePOPVersionOnDate(labId, treino.popId, runTimestamp);
 
           if (activeVersao === treino.popVersaoNumero) {
             return {
@@ -243,7 +239,7 @@ async function backfillLabPOPReferences(labId) {
       }
 
       console.log(
-        `    ✓ ${modulo}: ${runsSnap.size} runs (wired: ${stats.wiredPOPs}, uncovered: ${stats.uncovered})`
+        `    ✓ ${modulo}: ${runsSnap.size} runs (wired: ${stats.wiredPOPs}, uncovered: ${stats.uncovered})`,
       );
     } catch (error) {
       if (error.code !== 'FAILED_PRECONDITION') {
@@ -261,7 +257,7 @@ async function backfillLabPOPReferences(labId) {
   console.log(`     • Already Wired: ${stats.alreadyWired}`);
   console.log(`     • Uncovered: ${stats.uncovered}`);
   console.log(
-    `     • Coverage: ${stats.totalRuns > 0 ? (((stats.wiredPOPs + stats.alreadyWired) / stats.totalRuns) * 100).toFixed(2) : 0}%`
+    `     • Coverage: ${stats.totalRuns > 0 ? (((stats.wiredPOPs + stats.alreadyWired) / stats.totalRuns) * 100).toFixed(2) : 0}%`,
   );
   console.log(`     • Errors: ${stats.errors}`);
 
@@ -293,10 +289,10 @@ async function main() {
 
       console.log(`\n✅ POP Reference Backfill Complete (All Labs)`);
       console.log(
-        `   • Total Runs: ${totalStats.totalRuns} | Wired: ${totalStats.wiredPOPs} | Already: ${totalStats.alreadyWired} | Uncovered: ${totalStats.uncovered}`
+        `   • Total Runs: ${totalStats.totalRuns} | Wired: ${totalStats.wiredPOPs} | Already: ${totalStats.alreadyWired} | Uncovered: ${totalStats.uncovered}`,
       );
       console.log(
-        `   • Overall Coverage: ${totalStats.totalRuns > 0 ? (((totalStats.wiredPOPs + totalStats.alreadyWired) / totalStats.totalRuns) * 100).toFixed(2) : 0}%`
+        `   • Overall Coverage: ${totalStats.totalRuns > 0 ? (((totalStats.wiredPOPs + totalStats.alreadyWired) / totalStats.totalRuns) * 100).toFixed(2) : 0}%`,
       );
     } else {
       // Single lab

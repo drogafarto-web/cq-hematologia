@@ -44,11 +44,13 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 **Approach:** Train proprietary model on 500+ images before v1.4 launch.
 
 **Pros:**
+
 - Higher accuracy (91–95% expected)
 - No ongoing API costs
 - Complete control over model
 
 **Cons:**
+
 - Timeline slip: 3–4 weeks
 - Requires data collection upfront (slips v1.4 by 1 month)
 - Higher compute cost to train
@@ -63,11 +65,13 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 **Approach:** No automation; RT enters classification manually for every strip.
 
 **Pros:**
+
 - 100% accuracy by definition
 - No external dependencies
 - No API costs
 
 **Cons:**
+
 - Zero automation benefit
 - Operational overhead scales with volume
 - Defeats purpose of the IA module
@@ -80,12 +84,14 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 ### Option 3: Gemini baseline + fine-tune in v1.5 ✅ SELECTED
 
 **Approach:**
+
 - Phase 5 (v1.4): Deploy Gemini baseline with confidence threshold
 - Phase 5 Task 05-04: Collect and export verified dataset monthly
 - Phase 11 (v1.5 planning): Analyze dataset, fine-tune proprietary model
 - Phase 12+: Deploy fine-tuned model, retire Gemini
 
 **Pros:**
+
 - Fast v1.4 launch (88% accuracy sufficient for validation)
 - Real production data informs fine-tuning
 - Lower cost: Gemini API << proprietary training compute
@@ -93,11 +99,13 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 - Feedback loop aligns with DICQ 5.8.7
 
 **Cons:**
+
 - 12% error rate in v1.4 (mitigated: confidence threshold + manual override)
 - Dependency on Gemini API (Google outage risk)
 - Requires manual verdicts for training signal
 
 **Mitigation:**
+
 - Confidence threshold 0.85 → only high-confidence results auto-saved
 - RT override always available → manual review for low confidence
 - Cost cap: monitor Gemini API spend weekly
@@ -112,12 +120,14 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 ### Phase 5 (v1.4) — Baseline & Dataset Collection
 
 **Task 05-03 (COMPLETE):**
+
 - `classifyStripGemini` callable (Gemini 2.5 Flash)
 - Confidence threshold validation
 - Manual override logging
 - Cost tracking
 
 **Task 05-04 (THIS TASK):**
+
 - Accuracy calculation engine
 - Monthly dataset export (JSON)
 - CSV export for ML team
@@ -125,6 +135,7 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 - ADR-0016 documentation
 
 **Deliverables:**
+
 - Baseline accuracy: 88% (Gemini Vision)
 - 500+ image dataset structure in place
 - Export pipeline ready for ML team
@@ -134,6 +145,7 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 ### Phase 11 (v1.5 Planning) — Fine-Tuning
 
 **Planning phase only (no implementation):**
+
 - Analyze Phase 5 dataset (n=500–2000 images)
 - Evaluate fine-tuning approaches:
   - Custom TensorFlow/PyTorch model
@@ -143,6 +155,7 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 - Timeline for deployment
 
 **Projected Phase 12+ (v1.5 Implementation):**
+
 - Train fine-tuned model (4–6 weeks)
 - A/B test (old Gemini vs. new model)
 - Deploy proprietary model
@@ -170,34 +183,34 @@ Rapid diagnostic test (RDT) strips for HIV, Dengue, Syphilis, COVID, and HCG req
 
 ### Mitigations
 
-| Risk | Mitigation | Owner | Status |
-|---|---|---|---|
-| High error rate | Confidence threshold 0.85; RT override | Backend | ✅ Implemented |
-| Gemini API outage | Fallback to 100% manual mode | DevOps | TBD Phase 11 |
-| Low manual verdict rate | RT training + incentives | Operations | TBD Phase 5 |
-| Dataset quality | Audit sample verdicts; random QC | Backend | TBD Phase 11 |
+| Risk                    | Mitigation                             | Owner      | Status         |
+| ----------------------- | -------------------------------------- | ---------- | -------------- |
+| High error rate         | Confidence threshold 0.85; RT override | Backend    | ✅ Implemented |
+| Gemini API outage       | Fallback to 100% manual mode           | DevOps     | TBD Phase 11   |
+| Low manual verdict rate | RT training + incentives               | Operations | TBD Phase 5    |
+| Dataset quality         | Audit sample verdicts; random QC       | Backend    | TBD Phase 11   |
 
 ---
 
 ## Compliance Alignment
 
-| Regulation | Article | Requirement | Implementation |
-|---|---|---|---|
-| RDC 978 | 167 | Manual verification for classified results | Confidence threshold; RT override always available |
-| DICQ | 5.8.7 | Feedback loop for IA validation | Monthly dataset export; accuracy tracked |
-| DICQ | 4.4.3 | Audit trail for automated decisions | `imuno-ias-dev` collection + timestamps |
+| Regulation | Article | Requirement                                | Implementation                                     |
+| ---------- | ------- | ------------------------------------------ | -------------------------------------------------- |
+| RDC 978    | 167     | Manual verification for classified results | Confidence threshold; RT override always available |
+| DICQ       | 5.8.7   | Feedback loop for IA validation            | Monthly dataset export; accuracy tracked           |
+| DICQ       | 4.4.3   | Audit trail for automated decisions        | `imuno-ias-dev` collection + timestamps            |
 
 ---
 
 ## Key Metrics (v1.4 Baseline)
 
-| Metric | Target | Actual | Status |
-|---|---|---|---|
-| Overall accuracy | ≥88% | 88% (Gemini) | ✅ |
-| Confidence ≥0.85 | ≥90% | 92% | ✅ |
-| Manual override rate | <15% | ~12% | ✅ |
-| API cost / day | <$5 | $2–3 | ✅ |
-| Dataset size (monthly) | ≥100 | TBD Phase 5 | 🔄 |
+| Metric                 | Target | Actual       | Status |
+| ---------------------- | ------ | ------------ | ------ |
+| Overall accuracy       | ≥88%   | 88% (Gemini) | ✅     |
+| Confidence ≥0.85       | ≥90%   | 92%          | ✅     |
+| Manual override rate   | <15%   | ~12%         | ✅     |
+| API cost / day         | <$5    | $2–3         | ✅     |
+| Dataset size (monthly) | ≥100   | TBD Phase 5  | 🔄     |
 
 ---
 

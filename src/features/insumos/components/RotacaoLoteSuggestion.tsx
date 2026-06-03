@@ -18,7 +18,10 @@ import type { Insumo } from '../types/Insumo';
 
 interface RotacaoLoteSuggestionProps {
   labId: string;
-  novoInsumo: Pick<Insumo, 'id' | 'nomeComercial' | 'lote' | 'validade' | 'diasEstabilidadeAbertura' | 'tipo' | 'status'>;
+  novoInsumo: Pick<
+    Insumo,
+    'id' | 'nomeComercial' | 'lote' | 'validade' | 'diasEstabilidadeAbertura' | 'tipo' | 'status'
+  >;
   loteAnterior: Pick<Insumo, 'id' | 'nomeComercial' | 'lote' | 'validadeReal'>;
   examCode?: string;
   onFinish: () => void;

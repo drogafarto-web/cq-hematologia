@@ -213,11 +213,7 @@ function validate(state: FormState): FormErrors {
   return errors;
 }
 
-export function TreinamentoForm({
-  treinamento,
-  onSaved,
-  onCancel,
-}: TreinamentoFormProps) {
+export function TreinamentoForm({ treinamento, onSaved, onCancel }: TreinamentoFormProps) {
   const { create, update } = useTreinamentos();
   const { templates } = useTemplates({ somenteAtivos: true });
   const { colaboradores } = useColaboradores({ somenteAtivos: true });
@@ -515,10 +511,7 @@ export function TreinamentoForm({
       )}
 
       {mostraColaboradorAlvo && (
-        <Field
-          id="treinamento-colab-alvo"
-          label="Colaborador alvo (opcional)"
-        >
+        <Field id="treinamento-colab-alvo" label="Colaborador alvo (opcional)">
           <select
             id="treinamento-colab-alvo"
             value={state.colaboradorAlvoId ?? ''}
@@ -541,10 +534,7 @@ export function TreinamentoForm({
       )}
 
       {mostraPopVersao && (
-        <Field
-          id="treinamento-pop"
-          label="POP / MRT (versão)"
-        >
+        <Field id="treinamento-pop" label="POP / MRT (versão)">
           <input
             id="treinamento-pop"
             type="text"
@@ -559,10 +549,7 @@ export function TreinamentoForm({
       )}
 
       {mostraEquipamento && (
-        <Field
-          id="treinamento-equip"
-          label="Equipamento (nome/identificação)"
-        >
+        <Field id="treinamento-equip" label="Equipamento (nome/identificação)">
           <input
             id="treinamento-equip"
             type="text"
@@ -668,8 +655,8 @@ export function TreinamentoForm({
             className={inputClass(Boolean(errors.certificadoExternoUrl))}
           />
           <p className="mt-1 text-xs text-slate-500">
-            Upload para Firebase Storage é suportado pela infraestrutura (Fase 6) — por ora,
-            informe URL pública. Upload inline fica como melhoria futura.
+            Upload para Firebase Storage é suportado pela infraestrutura (Fase 6) — por ora, informe
+            URL pública. Upload inline fica como melhoria futura.
           </p>
         </Field>
       )}

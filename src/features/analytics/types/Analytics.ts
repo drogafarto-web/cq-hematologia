@@ -18,12 +18,12 @@ export interface AnalyticsAggregate {
   totalRuns: number;
   validRuns: number;
   invalidRuns: number;
-  compliancePercent: number;        // 0–100
+  compliancePercent: number; // 0–100
 
   // Non-conformities
   openNCs: number;
   closedNCs: number;
-  ncResolutionRate: number;         // 0–100
+  ncResolutionRate: number; // 0–100
   avgResolutionDays: number;
 
   // Processing
@@ -31,7 +31,7 @@ export interface AnalyticsAggregate {
 
   // Retrabalho (rework — runs flagged for reprocessing)
   retrabalhoCount: number;
-  retrabalhoPercent: number;        // (retrabalhoCount / totalRuns) * 100
+  retrabalhoPercent: number; // (retrabalhoCount / totalRuns) * 100
 
   // NC by module: module slug → count of open NCs
   ncByModule: Record<string, number>;
@@ -75,11 +75,11 @@ export interface CIQRunObservation {
   timestamp: Date;
   equipmentId: string;
   equipmentLabel: string;
-  analyte: string;          // e.g. "WBC", "RBC", "HGB"
+  analyte: string; // e.g. "WBC", "RBC", "HGB"
   value: number;
-  mean: number;             // expected mean for this control level
-  sd: number;               // expected SD for this control level
-  zScore: number;           // (value - mean) / sd
+  mean: number; // expected mean for this control level
+  sd: number; // expected SD for this control level
+  zScore: number; // (value - mean) / sd
   isValid: boolean;
 }
 
@@ -91,10 +91,10 @@ export interface CIQTrendData {
   unit: string;
   mean: number;
   sd: number;
-  upperWarning: number;     // mean + 2*sd
-  lowerWarning: number;     // mean - 2*sd
-  upperControl: number;     // mean + 3*sd
-  lowerControl: number;     // mean - 3*sd
+  upperWarning: number; // mean + 2*sd
+  lowerWarning: number; // mean - 2*sd
+  upperControl: number; // mean + 3*sd
+  lowerControl: number; // mean - 3*sd
   observations: CIQRunObservation[];
 }
 

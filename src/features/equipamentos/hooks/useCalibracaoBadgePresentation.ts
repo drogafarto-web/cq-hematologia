@@ -11,7 +11,9 @@ export interface CalibracaoBadgePresentation {
   toneClasses: string;
 }
 
-export function useCalibracaoBadgePresentation(calibracaoStatus: CalibracaoStatus): CalibracaoBadgePresentation {
+export function useCalibracaoBadgePresentation(
+  calibracaoStatus: CalibracaoStatus,
+): CalibracaoBadgePresentation {
   return useMemo(() => {
     switch (calibracaoStatus) {
       case 'vencida':

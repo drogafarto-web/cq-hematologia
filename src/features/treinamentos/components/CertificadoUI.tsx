@@ -32,7 +32,8 @@ export function CertificadoUI({ treinamento }: CertificadoUIProps) {
 
   if (treinamento.certificado) {
     const diasRestantes = Math.ceil(
-      (treinamento.certificado.validoAte.toDate().getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24),
+      (treinamento.certificado.validoAte.toDate().getTime() - new Date().getTime()) /
+        (1000 * 60 * 60 * 24),
     );
 
     return (
@@ -44,12 +45,17 @@ export function CertificadoUI({ treinamento }: CertificadoUIProps) {
         <div className="grid grid-cols-2 gap-3">
           <div>
             <p className="text-xs text-gray-400">Emitido em</p>
-            <p className="text-sm text-gray-300">{treinamento.certificado.emitidoEm.toDate().toLocaleDateString('pt-BR')}</p>
+            <p className="text-sm text-gray-300">
+              {treinamento.certificado.emitidoEm.toDate().toLocaleDateString('pt-BR')}
+            </p>
           </div>
           <div>
             <p className="text-xs text-gray-400">Válido até</p>
-            <p className={`text-sm font-medium ${diasRestantes < 30 ? 'text-orange-400' : 'text-emerald-400'}`}>
-              {treinamento.certificado.validoAte.toDate().toLocaleDateString('pt-BR')} ({diasRestantes} dias)
+            <p
+              className={`text-sm font-medium ${diasRestantes < 30 ? 'text-orange-400' : 'text-emerald-400'}`}
+            >
+              {treinamento.certificado.validoAte.toDate().toLocaleDateString('pt-BR')} (
+              {diasRestantes} dias)
             </p>
           </div>
         </div>

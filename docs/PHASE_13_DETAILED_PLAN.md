@@ -18,6 +18,7 @@ compliance_target: ≥88% (v1.4)
 **Timeline:** 10 working days (1.5 weeks) — assume Phases 0–12 complete and documented
 
 **Success Criteria:**
+
 1. ✅ Block-by-block DICQ audit confirms ≥88% conformance (vs. baseline 78.5%)
 2. ✅ Evidence collection complete (screenshots, PDFs, audit trail exports)
 3. ✅ RDC 978 mandatory articles 100% addressed
@@ -27,6 +28,7 @@ compliance_target: ≥88% (v1.4)
 7. ✅ Pre-approval call preparation complete
 
 **Owners:**
+
 - **Compliance Lead:** Phase 13 orchestrator (15 hrs/week)
 - **Module Leads:** Evidence collection + spot-check verification (10 hrs each)
 - **QA Lead:** Test case execution + screenshot capture (20 hrs)
@@ -38,9 +40,11 @@ compliance_target: ≥88% (v1.4)
 ## 1. Block-by-Block DICQ Audit Checklist
 
 ### Purpose
+
 Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Identify any residual gaps and assign to Phase 14 or v1.4.1.
 
 ### Methodology
+
 - **Manual + Automated:** Screenshots + exports from production/staging
 - **Data validation:** Spot-check 5–10 records per module
 - **Audit trail review:** HMAC signatures, timestamps, operator IDs
@@ -51,9 +55,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block A: Governança & Direção (78% → 92% Target)
 
 #### A.1 Pessoa Jurídica (4.1.1.2)
+
 **Requirement:** CNES, operational permits, council registrations documented and current.
 **v1.4 Implementation:** `labSettings/legal-docs` module (NEW-A1)
 **Audit Steps:**
+
 1. [ ] Navigate to `labSettings` → Legal Documents section
 2. [ ] Verify all 4 required docs present: CNES, Alvará, Conselho, CNPJ
 3. [ ] Check expiry dates; alert system active for 30-day warnings
@@ -62,9 +68,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 6. **Evidence:** `evidence/A1-legal-docs-screenshot.png`, `evidence/A1-legal-docs-audit-log.json`
 
 #### A.2 Norteadores + Código Ética (4.1.1.3, 4.1.2.3, 4.1.2.4)
+
 **Requirement:** Mission, Vision, Values, Ethics Code, Quality Policy published and accessible.
 **v1.4 Implementation:** `governance/norteadores` in SGD (Phase 9 + Phase 13)
 **Audit Steps:**
+
 1. [ ] Open SGD module → Governance section
 2. [ ] Verify all 5 documents present and versioned:
    - Missão
@@ -79,9 +87,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/A2-governance-docs-list.png`, `evidence/A2-governance-version-history.json`
 
 #### A.3 Designações Formais (4.1.1.4, 4.1.2.5, 4.1.2.7)
+
 **Requirement:** Lab Director, QA Manager, substitutes formally designated and documented.
 **v1.4 Implementation:** `personnel/designacoes` (Phase 9) + `personnel/org-chart`
 **Audit Steps:**
+
 1. [ ] Navigate to `personnel/designacoes`
 2. [ ] Verify all role designations present:
    - Lab Director (name, date, RT signature)
@@ -95,9 +105,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/A3-org-chart-screenshot.png`, `evidence/A3-designacoes-audit-trail.json`
 
 #### A.4 Análise Crítica da Direção (4.15)
+
 **Requirement:** Formal management review with 15 mandatory inputs (complaints, NC, CAPA, audits, training, resources, risks, indicators, changes, compliance, etc.)
 **v1.4 Implementation:** `management-review` module (Phase 13 + Phase 14)
 **Audit Steps:**
+
 1. [ ] Navigate to `management-review` dashboard
 2. [ ] Verify management review template configured with all 15 inputs:
    - [ ] Auditoria interna findings + trends
@@ -126,12 +138,13 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/A4-management-review-template.json`, `evidence/A4-latest-management-review-ata.pdf`
 
 #### Block A Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| A.1 Legal docs | 🔴 Missing | NEW-A1 module screenshot + log | [ ] | Expiry alert active? |
-| A.2 Norteadores | 🔴 Missing | SGD governance list + versions | [ ] | All 5 docs approved? |
-| A.3 Designações | 🟡 Partial | Org chart + designacoes + signatures | [ ] | Substitutes documented? |
-| A.4 Management Review | 🔴 Missing | Template + 15-point checklist + latest ata | [ ] | Auto-aggregation working? |
+
+| Item                  | v1.3 Status | v1.4 Evidence                              | Pass | Notes                     |
+| --------------------- | ----------- | ------------------------------------------ | ---- | ------------------------- |
+| A.1 Legal docs        | 🔴 Missing  | NEW-A1 module screenshot + log             | [ ]  | Expiry alert active?      |
+| A.2 Norteadores       | 🔴 Missing  | SGD governance list + versions             | [ ]  | All 5 docs approved?      |
+| A.3 Designações       | 🟡 Partial  | Org chart + designacoes + signatures       | [ ]  | Substitutes documented?   |
+| A.4 Management Review | 🔴 Missing  | Template + 15-point checklist + latest ata | [ ]  | Auto-aggregation working? |
 
 **Target Coverage:** 92% (was 78%) = **+14 pts**
 **Projected Pass Rate:** 🟡 Medium (85%+) — depends on Phase 9/13 completion
@@ -141,9 +154,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block B: Gestão Documental / SGD (65% → 92% Target)
 
 #### B.1 Manual da Qualidade (4.2.2.2)
+
 **Requirement:** ISO 15189-aligned Quality Manual with scope, roles, procedures, clinical requirements.
 **v1.4 Implementation:** `docs/manual-qualidade` (Phase 9) in SGD
 **Audit Steps:**
+
 1. [ ] Open SGD → Governance → Manual da Qualidade
 2. [ ] Verify document structure (ISO 15189 template):
    - [ ] 4.1 — Laboratório information (name, director, location)
@@ -163,9 +178,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/B1-manual-qualidade.pdf` (with version metadata)
 
 #### B.2 Lista Mestra Hierárquica (4.3)
+
 **Requirement:** Master list of all documents (MQ, PQ, IT, FR, POL, POPs) with version, status, distribuição.
 **v1.4 Implementation:** `sgd/lista-mestra` (Phase 3 + Phase 9)
 **Audit Steps:**
+
 1. [ ] Navigate to SGD → Lista Mestra
 2. [ ] Verify all documents categorized and listed:
    - [ ] MQ (Manual Qualidade) — 1 doc
@@ -190,9 +207,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/B2-lista-mestra-full-export.csv`, `evidence/B2-lista-mestra-screenshot.png`
 
 #### B.3 Controle de Documentos Eletrônicos (4.3)
+
 **Requirement:** Electronic docs have version seal (PDF), download audit log, secure distribution with receipt.
 **v1.4 Implementation:** SGD upgrade (Phase 3) + email integration (Phase 9)
 **Audit Steps:**
+
 1. [ ] Open a sample document in SGD (e.g., MQ or a PQ)
 2. [ ] Verify PDF download includes:
    - [ ] Version stamp (v1.0, date, author)
@@ -212,11 +231,12 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/B3-document-download-audit.json`, `evidence/B3-sealed-pdf-sample.pdf`
 
 #### Block B Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| B.1 Manual Qualidade | 🔴 Missing | PDF + metadata | [ ] | All 10 sections complete? |
-| B.2 Lista Mestra | 🟡 Partial | CSV export + screenshot | [ ] | Obsolescence tracking works? |
-| B.3 Controle Eletrônico | 🟡 Partial | PDF seal sample + download audit log | [ ] | Distribution receipts captured? |
+
+| Item                    | v1.3 Status | v1.4 Evidence                        | Pass | Notes                           |
+| ----------------------- | ----------- | ------------------------------------ | ---- | ------------------------------- |
+| B.1 Manual Qualidade    | 🔴 Missing  | PDF + metadata                       | [ ]  | All 10 sections complete?       |
+| B.2 Lista Mestra        | 🟡 Partial  | CSV export + screenshot              | [ ]  | Obsolescence tracking works?    |
+| B.3 Controle Eletrônico | 🟡 Partial  | PDF seal sample + download audit log | [ ]  | Distribution receipts captured? |
 
 **Target Coverage:** 92% (was 65%) = **+27 pts** ⭐ HIGHEST SINGLE JUMP
 **Projected Pass Rate:** ✅ High (90%+) — SGD foundation solid
@@ -226,9 +246,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block C: Pessoal (80% → 92% Target)
 
 #### C.1 Dossiê Unificado (5.1.9) — CRITICAL PATH
+
 **Requirement:** One source of truth per employee: qualifications, training, competencies, performance, biosecurity.
 **v1.4 Implementation:** `personnel/dossie` (Phase 1 skeleton + Phase 9 full)
 **Audit Steps:**
+
 1. [ ] Navigate to `personnel` → Dossiê de Colaboradores
 2. [ ] Select 3 random employees; verify each has complete dossiê with:
    - [ ] **Qualificação:** CV, professional licenses (CREA, CNAS, etc.), registration numbers, expiry dates
@@ -245,15 +267,18 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 5. [ ] Check audit trail: all changes logged with timestamp + modifier identity
 6. [ ] Export 1 complete dossiè (PDF) as evidence
 7. **Evidence:** `evidence/C1-dossie-sample-employee.pdf`, `evidence/C1-dossie-completeness-audit.json`
-**Risk Assessment:**
+   **Risk Assessment:**
+
 - 🟡 **Data Migration Risk:** v1.3 records may be incomplete. Phase 1 backfill should have filled gaps.
   - If >10% of dossiês have missing EC records: mark as 🟡 Partial
   - If <10%: mark as ✅ Covered
 
 #### C.2 Política de Pessoal (5.1.1)
+
 **Requirement:** Formal personnel management policy (recruitment, training, development, performance, wellbeing).
 **v1.4 Implementation:** `docs/personnel-policy` in SGD
 **Audit Steps:**
+
 1. [ ] Open SGD → Policies → Personnel Policy
 2. [ ] Verify policy structure (10–20 pages, covering):
    - [ ] Recruitment + onboarding process
@@ -273,9 +298,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/C2-personnel-policy.pdf`
 
 #### C.3 Designações de Cargos & Substitutos (4.1.2.5, 4.1.2.7)
+
 **Requirement:** Job descriptions with authority limits, responsibilities, substitutes during absence.
 **v1.4 Implementation:** `personnel/cargos` + `personnel/designacoes`
 **Audit Steps:**
+
 1. [ ] Open `personnel/cargos` (Cargo Descriptions)
 2. [ ] Verify all critical roles have detailed descriptions:
    - [ ] Lab Director
@@ -295,9 +322,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/C3-job-descriptions.pdf`, `evidence/C3-org-chart-with-subs.json`
 
 #### C.4 Avaliação de Competência & Desempenho (5.1.6, 5.1.7, 5.1.8)
+
 **Requirement:** Post-training assessment + annual performance review + EC efficacy measurement.
 **v1.4 Implementation:** `personnel/competencia` (upgraded) + EC extension
 **Audit Steps:**
+
 1. [ ] Open `personnel/competencia` (Competency Assessments)
 2. [ ] Sample 3 employees with recent training:
    - [ ] Verify post-training assessment within 30 days of training
@@ -317,12 +346,13 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/C4-competency-assessments-sample.json`, `evidence/C4-performance-reviews-sample.json`
 
 #### Block C Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| C.1 Dossiê unificado | 🔴 Missing | Sample dossiê (PDF) + completeness audit | [ ] | Data migration >90% complete? |
-| C.2 Política Pessoal | 🔴 Missing | Policy PDF + approval | [ ] | All 10 sections covered? |
-| C.3 Designações/Cargos | 🟡 Partial | Job descriptions + org chart + substitutes | [ ] | All critical roles have subs? |
-| C.4 Competência/Desempenho | 🔴 Missing | Competency assessments + performance reviews | [ ] | EC linked to assessment? |
+
+| Item                       | v1.3 Status | v1.4 Evidence                                | Pass | Notes                         |
+| -------------------------- | ----------- | -------------------------------------------- | ---- | ----------------------------- |
+| C.1 Dossiê unificado       | 🔴 Missing  | Sample dossiê (PDF) + completeness audit     | [ ]  | Data migration >90% complete? |
+| C.2 Política Pessoal       | 🔴 Missing  | Policy PDF + approval                        | [ ]  | All 10 sections covered?      |
+| C.3 Designações/Cargos     | 🟡 Partial  | Job descriptions + org chart + substitutes   | [ ]  | All critical roles have subs? |
+| C.4 Competência/Desempenho | 🔴 Missing  | Competency assessments + performance reviews | [ ]  | EC linked to assessment?      |
 
 **Target Coverage:** 92% (was 80%) = **+12 pts**
 **Projected Pass Rate:** 🟡 Medium (75%+) — data migration is key dependency
@@ -332,9 +362,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block D: Qualidade & Compliance Operacional (60% → 85% Target)
 
 #### D.1 Gestão de Riscos FMEA-Lite (4.14.6)
+
 **Requirement:** Probability × Severity × Detection matrix (NPR 1–125), controls, monitoring, annual review.
 **v1.4 Implementation:** `risks` module (Phase 0 skeleton + Phase 4 full)
 **Audit Steps:**
+
 1. [ ] Open `risks` module
 2. [ ] Verify FMEA matrix configured:
    - [ ] 5×5 scale: Probability (1–5), Severity (1–5), Detection (1–5)
@@ -354,9 +386,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/D1-risk-register-fmea.json`, `evidence/D1-risk-matrix-screenshot.png`
 
 #### D.2 Auditoria Interna (4.14.5) — NEW-D1
+
 **Requirement:** Formal internal audit cycle with DICQ checklist, findings, NC linkage, trending.
 **v1.4 Implementation:** `auditoria-interna` module (Phase 9)
 **Audit Steps:**
+
 1. [ ] Open `auditoria-interna` module
 2. [ ] Verify audit program structure:
    - [ ] Annual audit plan (schedule per DICQ block: A–J)
@@ -380,9 +414,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/D2-audit-checklist-template.json`, `evidence/D2-latest-audit-report.pdf`
 
 #### D.3 Indicadores de Qualidade (4.12, 4.14.7)
+
 **Requirement:** KPIs for pre/analytic/post with targets, trends, SLA tracking.
 **v1.4 Implementation:** `indicators` module (Phase 1 + Phase 12)
 **Audit Steps:**
+
 1. [ ] Open `indicators` dashboard
 2. [ ] Verify KPI coverage (minimum 15 KPIs across phases):
    - **Pre-analytic:** Collection time to analysis, sample rejection rate (%), retest rate (%)
@@ -405,9 +441,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/D3-indicators-dashboard-screenshot.png`, `evidence/D3-kpi-data-export.csv`
 
 #### D.4 Gestão de Não-Conformidades (4.9)
+
 **Requirement:** NC identification, root cause analysis, trending, linkage to CAPA.
 **v1.4 Implementation:** Existing module (maintenance) + integration to auditoria-interna + indicators
 **Audit Steps:**
+
 1. [ ] Open `non-conformidades` (or `capa` module's NC tab)
 2. [ ] Sample 5 recent NCs (last 30 days):
    - [ ] Source identified (audit, customer complaint, internal check, test failure, etc.)
@@ -428,12 +466,13 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 6. **Evidence:** `evidence/D4-nc-register-sample.json`, `evidence/D4-nc-trending.png`
 
 #### Block D Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| D.1 FMEA-Lite Riscos | 🔴 Missing | Risk register matrix (JSON) | [ ] | 20+ risks identified? NPR >40 has action? |
-| D.2 Auditoria Interna | 🔴 Missing | Audit checklist + latest report | [ ] | Annual plan in place? Findings NC-linked? |
-| D.3 Indicadores | 🔴 Missing | Dashboard screenshot + KPI data | [ ] | 15+ KPIs with targets? Trending visible? |
-| D.4 NC (maintenance) | ✅ Existing | NC trending + closure audit | [ ] | Major NC closed <30d? |
+
+| Item                  | v1.3 Status | v1.4 Evidence                   | Pass | Notes                                     |
+| --------------------- | ----------- | ------------------------------- | ---- | ----------------------------------------- |
+| D.1 FMEA-Lite Riscos  | 🔴 Missing  | Risk register matrix (JSON)     | [ ]  | 20+ risks identified? NPR >40 has action? |
+| D.2 Auditoria Interna | 🔴 Missing  | Audit checklist + latest report | [ ]  | Annual plan in place? Findings NC-linked? |
+| D.3 Indicadores       | 🔴 Missing  | Dashboard screenshot + KPI data | [ ]  | 15+ KPIs with targets? Trending visible?  |
+| D.4 NC (maintenance)  | ✅ Existing | NC trending + closure audit     | [ ]  | Major NC closed <30d?                     |
 
 **Target Coverage:** 85% (was 60%) = **+25 pts** ⭐ SECOND-HIGHEST JUMP
 **Projected Pass Rate:** 🟡 Medium (70%+) — depends on Phase 4 (CAPA closure) + Phase 9 (auditoria-interna) completion
@@ -443,9 +482,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block E: Pré-Analítico (64% → 75% Target)
 
 #### E.1 Coleta (5.4.4)
+
 **Requirement:** Collection instructions, collector ID, barcode, photo proof, acceptance criteria.
 **v1.4 Implementation:** `coleta` module (Phase 6)
 **Audit Steps:**
+
 1. [ ] Open `coleta` module
 2. [ ] Verify collection SOP accessible:
    - [ ] General instructions (patient prep, timing, tube type, volume, etc.)
@@ -475,9 +516,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/E1-coleta-mobile-form-screenshot.png`, `evidence/E1-coleta-sample-records.json`
 
 #### E.2 Transporte (5.4.5)
+
 **Requirement:** Transport time limits, temperature monitoring, integrity checks, delivery confirmation.
 **v1.4 Implementation:** `transporte-amostras` + `controle-temperatura` integration (Phase 6)
 **Audit Steps:**
+
 1. [ ] Open `transporte-amostras` module
 2. [ ] Verify transport SOP:
    - [ ] Maximum time from collection to analysis (e.g., 4 hrs for most analytes)
@@ -501,10 +544,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/E2-transport-log-sample.json`, `evidence/E2-temperature-excursion-sample.png`
 
 #### Block E Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| E.1 Coleta | 🔴 Missing | Mobile form screenshot + sample records | [ ] | Photos captured? Rejection criteria implemented? |
-| E.2 Transporte | 🔴 Missing | Transport log + temperature data | [ ] | Cold chain monitored? SLA alerts active? |
+
+| Item           | v1.3 Status | v1.4 Evidence                           | Pass | Notes                                            |
+| -------------- | ----------- | --------------------------------------- | ---- | ------------------------------------------------ |
+| E.1 Coleta     | 🔴 Missing  | Mobile form screenshot + sample records | [ ]  | Photos captured? Rejection criteria implemented? |
+| E.2 Transporte | 🔴 Missing  | Transport log + temperature data        | [ ]  | Cold chain monitored? SLA alerts active?         |
 
 **Target Coverage:** 75% (was 64%) = **+11 pts**
 **Projected Pass Rate:** 🟡 Medium (75%+) — operational, depends on Phase 6 delivery
@@ -514,9 +558,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block F: Analítico (92% → 95% Target)
 
 #### F.1 Validação de Métodos (5.5.1.3)
+
 **Requirement:** CLSI-based validation for non-standard or modified analytical methods.
 **v1.4 Implementation:** `validacao-metodos` templates in SGD (Phase 10)
 **Audit Steps:**
+
 1. [ ] Open SGD → Procedures → Method Validation Templates
 2. [ ] Identify all "non-standard" methods in lab (custom assays, home-brew, modified procedures)
 3. [ ] For each non-standard method, verify in SGD:
@@ -534,9 +580,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/F1-method-validation-template.json`, `evidence/F1-validation-report-samples.pdf`
 
 #### F.2 Incerteza de Medição (5.5.1.4)
+
 **Requirement:** Measurement uncertainty calculation per analyte (GUM/CLSI), reported on patient results if applicable.
 **v1.4 Implementation:** `incerteza-medicao` calculator + templates (Phase 10)
 **Audit Steps:**
+
 1. [ ] Open `incerteza-medicao` module (if deployed) or SGD → Analytical Procedures
 2. [ ] Verify measurement uncertainty approach:
    - [ ] GUM (ISO 21748) or CLSI methodology documented
@@ -554,9 +602,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/F2-uncertainty-calculations.json`, `evidence/F2-patient-report-sample.pdf`
 
 #### F.3 Avaliação Periódica CEQ (5.6.3.4)
+
 **Requirement:** Annual CEQ review with z-score analysis, corrective actions if |z| > 2.
 **v1.4 Implementation:** `ceq` module upgraded + auto-reporting (Phase 10)
 **Audit Steps:**
+
 1. [ ] Open `ceq` module → Annual Reports
 2. [ ] Verify latest CEQ annual report (if Phase 10 complete):
    - [ ] Program(s) participated (e.g., CONTROLLAB, SBAC)
@@ -578,11 +628,12 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/F3-ceq-annual-report.pdf`, `evidence/F3-ceq-corrective-actions.json`
 
 #### Block F Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| F.1 Validação Métodos | 🔴 Missing | Template + 2 validation reports (PDF) | [ ] | All non-standard methods validated? |
-| F.2 Incerteza Medição | 🔴 Missing | Uncertainty calculations (5 analytes) | [ ] | GUM/CLSI approach documented? |
-| F.3 CEQ Annual Review | 🔴 Missing | Annual CEQ report + corrective actions | [ ] | |z| > 2 addressed? |
+
+| Item                  | v1.3 Status | v1.4 Evidence                          | Pass | Notes                               |
+| --------------------- | ----------- | -------------------------------------- | ---- | ----------------------------------- | --- | -------------- |
+| F.1 Validação Métodos | 🔴 Missing  | Template + 2 validation reports (PDF)  | [ ]  | All non-standard methods validated? |
+| F.2 Incerteza Medição | 🔴 Missing  | Uncertainty calculations (5 analytes)  | [ ]  | GUM/CLSI approach documented?       |
+| F.3 CEQ Annual Review | 🔴 Missing  | Annual CEQ report + corrective actions | [ ]  |                                     | z   | > 2 addressed? |
 
 **Target Coverage:** 95% (was 92%) = **+3 pts** (incremental, block already strong)
 **Projected Pass Rate:** ✅ High (95%+) — foundation solid, Phase 10 refinements
@@ -592,9 +643,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block G: Pós-Analítico & Laudos (70% → 92% Target)
 
 #### G.1 Patient Portal & Liberação (5.7.1, 5.9.1)
+
 **Requirement:** Secure online portal for patient/physician to download results; audit log of access.
 **v1.4 Implementation:** `patient-portal` (Phase 5) + `liberacao-laudos` workflow
 **Audit Steps:**
+
 1. [ ] Access patient portal (as test user)
 2. [ ] Verify authentication:
    - [ ] OAuth login (Google, email, etc.) OR
@@ -623,9 +676,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 9. **Evidence:** `evidence/G1-portal-login-screenshot.png`, `evidence/G1-download-audit-log.json`, `evidence/G1-report-pdf-sample.pdf`
 
 #### G.2 Valores Críticos (5.7.2)
+
 **Requirement:** Automatic alert for critical values; escalation to physician; SLA tracking (e.g., RT notified <15 min).
 **v1.4 Implementation:** `valores-criticos` module (Phase 6)
 **Audit Steps:**
+
 1. [ ] Open `valores-criticos` module
 2. [ ] Verify critical value thresholds configured per analyte:
    - [ ] Glucose: >400 mg/dL, <40 mg/dL
@@ -654,9 +709,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/G2-critical-value-log-sample.json`, `evidence/G2-alert-template-screenshot.png`, `evidence/G2-sla-report.csv`
 
 #### G.3 NOTIVISA & Tecnovigilância (5.7.3)
+
 **Requirement:** Reporting of notifiable diseases/adverse events to ANVISA via NOTIVISA system.
 **v1.4 Implementation:** `notivisa-outbox` module (Phase 8)
 **Audit Steps:**
+
 1. [ ] Open `notivisa-outbox` module
 2. [ ] Verify event intake form:
    - [ ] Notifiable disease list (from Portaria 204 MS)
@@ -683,11 +740,12 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/G3-notivisa-form-template.json`, `evidence/G3-sample-submission-gov-response.pdf`
 
 #### Block G Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| G.1 Patient Portal | 🔴 Missing | Portal screenshot + download audit log | [ ] | All report fields per RDC? |
-| G.2 Valores Críticos | 🔴 Missing | Critical value log + alert template | [ ] | SLA <15 min average? |
-| G.3 NOTIVISA | 🔴 Missing | NOTIVISA form template + gov response sample | [ ] | API submissions working? |
+
+| Item                 | v1.3 Status | v1.4 Evidence                                | Pass | Notes                      |
+| -------------------- | ----------- | -------------------------------------------- | ---- | -------------------------- |
+| G.1 Patient Portal   | 🔴 Missing  | Portal screenshot + download audit log       | [ ]  | All report fields per RDC? |
+| G.2 Valores Críticos | 🔴 Missing  | Critical value log + alert template          | [ ]  | SLA <15 min average?       |
+| G.3 NOTIVISA         | 🔴 Missing  | NOTIVISA form template + gov response sample | [ ]  | API submissions working?   |
 
 **Target Coverage:** 92% (was 70%) = **+22 pts** ⭐ THIRD-HIGHEST JUMP
 **Projected Pass Rate:** ✅ High (85%+) — Phases 5–8 planned, Phase 5 critical path
@@ -697,9 +755,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block H: Recursos (75% → 88% Target)
 
 #### H.1 Laboratórios de Apoio (4.5) — RDC CRITICAL
+
 **Requirement:** Support lab contracts with 6 mandatory clauses (RDC Arts. 36–39).
 **v1.4 Implementation:** `lab-apoio` module (Phase 0 — RDC BLOCKER)
 **Audit Steps:**
+
 1. [ ] Open `lab-apoio` module (or `fornecedores` if integrated)
 2. [ ] Verify all support labs registered:
    - [ ] Name, CNPJ, location
@@ -729,9 +789,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/H1-support-lab-list.json`, `evidence/H1-support-lab-contract-samples.pdf`
 
 #### H.2 Calibração (5.3.1.4)
+
 **Requirement:** Equipment calibration certificates; metrological traceability; upcoming recalibration alerts.
 **v1.4 Implementation:** `equipamentos/{id}/calibracao` subcollection (Phase 9)
 **Audit Steps:**
+
 1. [ ] Open `equipamentos` module
 2. [ ] Select 3 active analyzers (e.g., hematology, chemistry, coagulation instruments)
 3. [ ] For each, verify calibration sub-section:
@@ -755,9 +817,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/H2-calibration-list.json`, `evidence/H2-sample-calibration-cert.pdf`
 
 #### H.3 Manutenção (5.3.1.5)
+
 **Requirement:** Preventive maintenance schedule; corrective maintenance logs; equipment status (in use / out of service).
 **v1.4 Implementation:** `equipamentos/{id}/manutencoes` subcollection (Phase 10)
 **Audit Steps:**
+
 1. [ ] Open `equipamentos` module
 2. [ ] Select 2 instruments; verify maintenance sub-section:
    - [ ] Preventive maintenance plan (schedule, frequency, responsible technician)
@@ -785,11 +849,12 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/H3-maintenance-schedule.json`, `evidence/H3-cm-log-sample.json`
 
 #### Block H Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| H.1 Lab Apoio (RDC CRITICAL) | 🔴 Missing | Contract list + 2 sample contracts | [ ] | All 6 clauses present? Monitoring in place? |
-| H.2 Calibração | 🔴 Missing | Calibration list + certificate samples | [ ] | Expiry alerts active? No instruments OOC? |
-| H.3 Manutenção | 🟡 Partial | PM schedule + CM log | [ ] | PMs on schedule? CMs documented? |
+
+| Item                         | v1.3 Status | v1.4 Evidence                          | Pass | Notes                                       |
+| ---------------------------- | ----------- | -------------------------------------- | ---- | ------------------------------------------- |
+| H.1 Lab Apoio (RDC CRITICAL) | 🔴 Missing  | Contract list + 2 sample contracts     | [ ]  | All 6 clauses present? Monitoring in place? |
+| H.2 Calibração               | 🔴 Missing  | Calibration list + certificate samples | [ ]  | Expiry alerts active? No instruments OOC?   |
+| H.3 Manutenção               | 🟡 Partial  | PM schedule + CM log                   | [ ]  | PMs on schedule? CMs documented?            |
 
 **Target Coverage:** 88% (was 75%) = **+13 pts**
 **Projected Pass Rate:** 🟡 Medium (80%+) — H.1 Phase 0 critical, H.2/H.3 Phase 9–10
@@ -799,9 +864,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block I: Acomodações & Ambiente (64% → 80% Target)
 
 #### I.1 Monitoramento Ambiental (5.2.6)
+
 **Requirement:** Temperature + Humidity + Air quality (particle count ISO 14644); continuous monitoring; alerts.
 **v1.4 Implementation:** `controle-temperatura` upgraded + particle counting option (Phase 9)
 **Audit Steps:**
+
 1. [ ] Open `controle-temperatura` module
 2. [ ] Verify environmental parameters monitored:
    - [ ] Temperature (all zones: pre-analytic, analytic, storage)
@@ -831,9 +898,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 9. **Evidence:** `evidence/I1-temperature-humidity-dashboard.png`, `evidence/I1-temperature-trend-30days.csv`
 
 #### I.2 Programa Prevenção Infecções (5.2.8)
+
 **Requirement:** Cleaning + disinfection SOP; staff training; incident tracking; effectiveness verification.
 **v1.4 Implementation:** `biosseguranca` module + `programa-infeccoes` POPs in SGD (Phase 9)
 **Audit Steps:**
+
 1. [ ] Open SGD → Biossegurança → Infection Prevention Policy
 2. [ ] Verify POP structure:
    - [ ] General housekeeping (daily cleaning schedule, responsible staff)
@@ -864,10 +933,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/I2-infection-prevention-pops.pdf`, `evidence/I2-cleaning-checklist-sample.json`
 
 #### Block I Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| I.1 Monitoramento Ambiental | 🟡 Partial | Temperature/humidity dashboard + 30-day trend | [ ] | Particle counting deployed? Humidity alerts? |
-| I.2 Programa Infecções | 🔴 Missing | Infection prevention POPs + cleaning checklist | [ ] | Staff trained? Cleaning logs complete? |
+
+| Item                        | v1.3 Status | v1.4 Evidence                                  | Pass | Notes                                        |
+| --------------------------- | ----------- | ---------------------------------------------- | ---- | -------------------------------------------- |
+| I.1 Monitoramento Ambiental | 🟡 Partial  | Temperature/humidity dashboard + 30-day trend  | [ ]  | Particle counting deployed? Humidity alerts? |
+| I.2 Programa Infecções      | 🔴 Missing  | Infection prevention POPs + cleaning checklist | [ ]  | Staff trained? Cleaning logs complete?       |
 
 **Target Coverage:** 80% (was 64%) = **+16 pts**
 **Projected Pass Rate:** 🟡 Medium (75%+) — depends on Phase 9 completion
@@ -877,9 +947,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 ### Block J: Continuidade & Confidencialidade (70% → 78% Target)
 
 #### J.1 LGPD Policy Formal (5.10.1)
+
 **Requirement:** Privacy policy, data processing terms, patient rights (access, correction, deletion), breach notification plan.
 **v1.4 Implementation:** `lgpd-policy` in SGD (Phase 0 skeleton + Phase 1 formal)
 **Audit Steps:**
+
 1. [ ] Open SGD → Policies → LGPD Privacy Policy
 2. [ ] Verify policy covers LGPD Articles:
    - [ ] **Art. 8 (Data Processing):** Lawful basis, data categories, retention periods
@@ -907,9 +979,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 8. **Evidence:** `evidence/J1-lgpd-policy.pdf`, `evidence/J1-rights-exercicio-workflow.png`
 
 #### J.2 Disaster Recovery (5.10.3)
+
 **Requirement:** DR plan tested annually; RTO/RPO defined; backup validation; failover procedures.
 **v1.4 Implementation:** Existing (v1.2) — maintenance only
 **Audit Steps:**
+
 1. [ ] Open disaster recovery documentation (SGD or IT runbook)
 2. [ ] Verify DR plan elements:
    - [ ] RTO (Recovery Time Objective): e.g., "4 hours to restore lab operations"
@@ -933,10 +1007,11 @@ Confirm v1.4 coverage against all 10 DICQ blocks (A–J) using live system. Iden
 7. **Evidence:** `evidence/J2-dr-plan.pdf`, `evidence/J2-backup-verification-log.json`
 
 #### Block J Summary — Audit Checklist
-| Item | v1.3 Status | v1.4 Evidence | Pass | Notes |
-|------|------------|---------------|------|-------|
-| J.1 LGPD Policy | 🟡 Partial | LGPD policy PDF + rights exercício workflow | [ ] | All LGPD articles covered? |
-| J.2 DR Plan | ✅ Existing | DR plan + latest backup log + drill report | [ ] | Annual drill completed? RTO/RPO defined? |
+
+| Item            | v1.3 Status | v1.4 Evidence                               | Pass | Notes                                    |
+| --------------- | ----------- | ------------------------------------------- | ---- | ---------------------------------------- |
+| J.1 LGPD Policy | 🟡 Partial  | LGPD policy PDF + rights exercício workflow | [ ]  | All LGPD articles covered?               |
+| J.2 DR Plan     | ✅ Existing | DR plan + latest backup log + drill report  | [ ]  | Annual drill completed? RTO/RPO defined? |
 
 **Target Coverage:** 78% (was 70%) = **+8 pts**
 **Projected Pass Rate:** ✅ High (90%+) — maintenance only
@@ -1024,6 +1099,7 @@ evidence/
 ```
 
 ### Key Deliverables (Evidence to Export)
+
 - ✅ All PDFs (policies, contracts, reports) — **Word-for-word export from system**
 - ✅ JSON exports (audit logs, configurations) — **For auditor technical review**
 - ✅ CSV exports (data tables, KPI trends) — **For trend analysis**
@@ -1034,41 +1110,43 @@ evidence/
 ## 3. RDC 978 Mandatory Articles Mapping
 
 ### Purpose
+
 Verify that all RDC 978 articles applicable to HC Quality are addressed in v1.4 evidence.
 
 ### RDC 978 Art-by-Art Checklist
 
 #### Arts. 1–30 (Administrative & Organization)
 
-| Article | Subject | v1.4 Evidence | Pass | Status |
-|---------|---------|--------------|------|--------|
-| **Art. 36–39** | Laboratórios de apoio (support lab contracts) | H1-support-lab-contracts.pdf | [ ] | Phase 0 (RDC CRITICAL) |
-| **Art. 49** | Política da Qualidade (quality policy + objectives) | A2-governance + B1-manual-qualidade | [ ] | Phase 1 + 9 |
-| **Art. 50** | Análise Crítica Direção (management review, annual) | A4-management-review-ata.pdf | [ ] | Phase 13–14 |
-| **Art. 77** | LGPD compliance (confidentiality, data protection) | J1-lgpd-policy.pdf | [ ] | Phase 0 + 1 |
+| Article        | Subject                                             | v1.4 Evidence                       | Pass | Status                 |
+| -------------- | --------------------------------------------------- | ----------------------------------- | ---- | ---------------------- |
+| **Art. 36–39** | Laboratórios de apoio (support lab contracts)       | H1-support-lab-contracts.pdf        | [ ]  | Phase 0 (RDC CRITICAL) |
+| **Art. 49**    | Política da Qualidade (quality policy + objectives) | A2-governance + B1-manual-qualidade | [ ]  | Phase 1 + 9            |
+| **Art. 50**    | Análise Crítica Direção (management review, annual) | A4-management-review-ata.pdf        | [ ]  | Phase 13–14            |
+| **Art. 77**    | LGPD compliance (confidentiality, data protection)  | J1-lgpd-policy.pdf                  | [ ]  | Phase 0 + 1            |
 
 #### Arts. 105–130 (Technical Requirements)
 
-| Article | Subject | v1.4 Evidence | Pass | Status |
-|---------|---------|--------------|------|--------|
-| **Art. 105** | Registros e documentos (records + document control, 5-yr retention) | B2-lista-mestra + B3-download-audit | [ ] | Phase 3 + 9 |
-| **Art. 108** | Direitos do paciente (patient rights, consent) | J1-lgpd-policy | [ ] | Phase 1 |
-| **Art. 113–114** | Identificação e transporte amostra (specimen ID + transport tracking) | E1-coleta + E2-transport-log | [ ] | Phase 6 |
-| **Art. 115** | Registros retenção (5-yr retention rule) | B2-lista-mestra version control | [ ] | Phase 9 |
-| **Art. 119** | Equipamentos calibração e manutenção (equipment calibration + maintenance) | H2-calibration-list + H3-maintenance-log | [ ] | Phase 9 + 10 |
-| **Art. 120** | Acomodações condições ambientais (environment monitoring) | I1-temperature-humidity-dashboard | [ ] | Phase 9 |
-| **Art. 122** | Supervisor presencial (on-site supervisor per shift) | A3-org-chart (turnos supervisor) | [ ] | Phase 0 |
-| **Art. 124** | Continuidade operacional (disaster recovery plan) | J2-dr-plan.pdf | [ ] | Maintenance |
-| **Art. 167** | Resultados críticos notificação (critical values alert + physician notification) | G2-critical-value-log + alert-template | [ ] | Phase 6 |
-| **Art. 176** | CEQ/EQA participação (external quality assurance) | F3-ceq-annual-report | [ ] | Phase 10 |
+| Article          | Subject                                                                          | v1.4 Evidence                            | Pass | Status       |
+| ---------------- | -------------------------------------------------------------------------------- | ---------------------------------------- | ---- | ------------ |
+| **Art. 105**     | Registros e documentos (records + document control, 5-yr retention)              | B2-lista-mestra + B3-download-audit      | [ ]  | Phase 3 + 9  |
+| **Art. 108**     | Direitos do paciente (patient rights, consent)                                   | J1-lgpd-policy                           | [ ]  | Phase 1      |
+| **Art. 113–114** | Identificação e transporte amostra (specimen ID + transport tracking)            | E1-coleta + E2-transport-log             | [ ]  | Phase 6      |
+| **Art. 115**     | Registros retenção (5-yr retention rule)                                         | B2-lista-mestra version control          | [ ]  | Phase 9      |
+| **Art. 119**     | Equipamentos calibração e manutenção (equipment calibration + maintenance)       | H2-calibration-list + H3-maintenance-log | [ ]  | Phase 9 + 10 |
+| **Art. 120**     | Acomodações condições ambientais (environment monitoring)                        | I1-temperature-humidity-dashboard        | [ ]  | Phase 9      |
+| **Art. 122**     | Supervisor presencial (on-site supervisor per shift)                             | A3-org-chart (turnos supervisor)         | [ ]  | Phase 0      |
+| **Art. 124**     | Continuidade operacional (disaster recovery plan)                                | J2-dr-plan.pdf                           | [ ]  | Maintenance  |
+| **Art. 167**     | Resultados críticos notificação (critical values alert + physician notification) | G2-critical-value-log + alert-template   | [ ]  | Phase 6      |
+| **Art. 176**     | CEQ/EQA participação (external quality assurance)                                | F3-ceq-annual-report                     | [ ]  | Phase 10     |
 
 #### Arts. 204+ (Notifications & Regulatory)
 
-| Article | Subject | v1.4 Evidence | Pass | Status |
-|---------|---------|--------------|------|--------|
-| **Art. 204 / Portaria 204** | NOTIVISA notificação (notifiable diseases reporting) | G3-notivisa-form + gov-response | [ ] | Phase 8 |
+| Article                     | Subject                                              | v1.4 Evidence                   | Pass | Status  |
+| --------------------------- | ---------------------------------------------------- | ------------------------------- | ---- | ------- |
+| **Art. 204 / Portaria 204** | NOTIVISA notificação (notifiable diseases reporting) | G3-notivisa-form + gov-response | [ ]  | Phase 8 |
 
 ### RDC 978 Compliance Summary
+
 - **Total RDC articles applicable to software:** 15 (Arts. 36–39, 49–50, 77, 105, 108, 113–115, 119–120, 122, 124, 167, 176, 204)
 - **v1.4 Planned Coverage:** 15/15 (100%)
 - **Critical Path Articles (Phase 0 RDC Blockers):** Arts. 36–39 (lab apoio), 77 (LGPD), 122 (supervisor)
@@ -1078,6 +1156,7 @@ Verify that all RDC 978 articles applicable to HC Quality are addressed in v1.4 
 ## 4. Compliance Snapshot — Structured JSON
 
 ### Purpose
+
 Metrics dashboard feed for executive reporting + auditor briefing.
 
 ### Template: `compliance-snapshot-v1.4.json`
@@ -1232,6 +1311,7 @@ Metrics dashboard feed for executive reporting + auditor briefing.
 ## 5. Remediation Planning (P0 + P1)
 
 ### Purpose
+
 Identify any residual gaps found during Phase 13 audit; assign to P0 (immediate fix, pre-audit) or P1 (defer to v1.4.1 post-audit).
 
 ### Template: Remediation Decision Tree
@@ -1260,17 +1340,18 @@ IF gap found in Block {A–J}
 
 ### Example Remediation Items (Template)
 
-| Gap | Block | Severity | P0 or P1 | Fix | Owner | Timeline | Notes |
-|-----|-------|----------|----------|-----|-------|----------|-------|
-| **E.g.: EC efficacy records incomplete** | C | 🟠 MAJOR | P0 | Backfill EC post-test results from paper forms into module | Personnel Lead | 1 day | Data migration from v1.3 records |
-| **E.g.: Management Review template not configured** | A | 🔴 CRITICAL | P0 | Populate all 15 fields in management-review module + configure auto-aggregation | Compliance Lead | <1 day | Required for Phase 13 audit closure |
-| **E.g.: Risk assessment incomplete (only 15 of 20 risks identified)** | D | 🟡 MINOR | P1 | Expand FMEA matrix with additional process risks + NPR re-scoring | QA Lead | v1.4.1 | Document in v1.4.1 remediation log |
+| Gap                                                                   | Block | Severity    | P0 or P1 | Fix                                                                             | Owner           | Timeline | Notes                               |
+| --------------------------------------------------------------------- | ----- | ----------- | -------- | ------------------------------------------------------------------------------- | --------------- | -------- | ----------------------------------- |
+| **E.g.: EC efficacy records incomplete**                              | C     | 🟠 MAJOR    | P0       | Backfill EC post-test results from paper forms into module                      | Personnel Lead  | 1 day    | Data migration from v1.3 records    |
+| **E.g.: Management Review template not configured**                   | A     | 🔴 CRITICAL | P0       | Populate all 15 fields in management-review module + configure auto-aggregation | Compliance Lead | <1 day   | Required for Phase 13 audit closure |
+| **E.g.: Risk assessment incomplete (only 15 of 20 risks identified)** | D     | 🟡 MINOR    | P1       | Expand FMEA matrix with additional process risks + NPR re-scoring               | QA Lead         | v1.4.1   | Document in v1.4.1 remediation log  |
 
 ---
 
 ## 6. Auditor Briefing Materials
 
 ### Objectives
+
 - **What changed v1.3 → v1.4:** Summarize phase deliverables, module launches, compliance jumps
 - **Module-by-module compliance map:** Show RDC/DICQ coverage per module
 - **Known gaps + remediation plan:** Transparent about any P0/P1 items
@@ -1286,6 +1367,7 @@ IF gap found in Block {A–J}
 HC Quality improved DICQ conformance from **78.5% (v1.3)** to **≥88% (v1.4)** through structured phase execution (Phases 0–12 complete; Phase 13 pre-audit in progress). Compliance investment focused on 4 high-gap blocks: B (SGD, +27 pts), D (Quality, +25 pts), G (Post-analytic, +22 pts), A (Governance, +14 pts).
 
 **Key Achievements:**
+
 - ✅ All Phase 0 RDC blockers shipped (lab-apoio, turnos supervisor, LGPD skeleton)
 - ✅ 25 new modules deployed across v1.4 (13 in Phases 0–9; 7 in Phases 10–13; 5 deferred to v1.5)
 - ✅ 13 orphan DICQ items resolved (100% addressed; 77% fully resolved)
@@ -1311,9 +1393,11 @@ HC Quality improved DICQ conformance from **78.5% (v1.3)** to **≥88% (v1.4)** 
 ## Known Gaps + Remediation
 
 ### P0 (Immediate — Phase 13 closure)
+
 [List any critical gaps found + fix timeline]
 
 ### P1 (Defer to v1.4.1)
+
 [List minor gaps + v1.4.1 timeline]
 
 ---
@@ -1321,12 +1405,12 @@ HC Quality improved DICQ conformance from **78.5% (v1.3)** to **≥88% (v1.4)** 
 ## Decision Framework
 
 ### Why Coleta/Patient Portal Phase 5–6 and not earlier?
+
 RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launch since results can be released via email until portal ready.
 
 [Similar decision explanations for other deferred/deferred-to-v1.5 items]
 
 ---
-
 ```
 
 ---
@@ -1334,6 +1418,7 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 ## 7. Pre-Approval Call Preparation
 
 ### Objective
+
 30-min call with CTO + RT + Compliance Lead before auditor visit to align on findings, remediation strategy, and Q&A talking points.
 
 ### Agenda (30 minutes)
@@ -1359,6 +1444,7 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
    - Next step: Auditor scheduling
 
 ### Checklist — Pre-Call Preparation
+
 - [ ] All Phase 13 audit results compiled in JSON (DICQ_AUDIT_RESULTS.json)
 - [ ] Remediation log finalized (P0 completed; P1 documented)
 - [ ] Auditor briefing PDF ready (printed + digital)
@@ -1373,28 +1459,33 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 ### Week 1 (Days 1–5)
 
 **Monday:** Kickoff + Block A audit
+
 - [ ] Open live system + staging environment
 - [ ] Block A walkthrough: governança, norteadores, designações, management review
 - [ ] Screenshot capture + audit log exports
 - [ ] Identify any gaps in A.1–A.4
 
 **Tuesday:** Block B audit
+
 - [ ] SGD walkthrough: Manual, Lista Mestra, document control
 - [ ] PDF sealing + download audit verification
 - [ ] Export evidence artifacts
 
 **Wednesday:** Blocks C + D audit
+
 - [ ] Personnel dossiè spot-check (3 employees, completeness)
 - [ ] Risk register + auditoria interna module verification
 - [ ] Indicators dashboard + KPI data export
 - [ ] NC trending + CAPA linkage
 
 **Thursday:** Blocks E + F audit
+
 - [ ] Coleta mobile form + sample records review
 - [ ] Transport log + temperature monitoring verification
 - [ ] Method validation + CEQ report sampling
 
 **Friday:** Blocks G + H audit
+
 - [ ] Patient portal login + download audit log
 - [ ] Critical values alerts + NOTIVISA integration
 - [ ] Support lab contracts + calibration certs
@@ -1403,21 +1494,25 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 ### Week 2 (Days 6–10)
 
 **Monday:** Blocks I + J audit
+
 - [ ] Temperature/humidity dashboard + cleaning checklist
 - [ ] LGPD policy + disaster recovery plan
 - [ ] Final gap assessment
 
 **Tuesday–Wednesday:** Remediation + re-audit
+
 - [ ] Fix any P0 items identified
 - [ ] Re-audit blocks with gaps
 - [ ] Compile final remediation log (P0 + P1)
 
 **Thursday:** Evidence package + JSON snapshot
+
 - [ ] Organize all artifacts into directory structure
 - [ ] Generate DICQ_AUDIT_RESULTS.json
 - [ ] Spot-check for completeness
 
 **Friday:** Auditor briefing + pre-call
+
 - [ ] Finalize auditor briefing PDF
 - [ ] Schedule pre-approval call with CTO/RT
 - [ ] Deliver evidence package to CTO
@@ -1427,27 +1522,32 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 ## Success Criteria — Phase 13 Completion
 
 ✅ **Audit Checklist 100% Complete**
+
 - All 10 blocks audited (A–J)
 - All block-level scores recorded (% conformance)
 - All evidence artifacts exported (PDFs, JSON, CSV, screenshots)
 
 ✅ **Remediation Plan Finalized**
+
 - P0 items (if any): fixed + re-verified
 - P1 items: documented + v1.4.1 timeline committed
 - Sign-off: RT approval on remediation log
 
 ✅ **Auditor Materials Ready**
+
 - Briefing PDF with module map + decision framework
 - Evidence package (organized, spot-checked)
 - Pre-call scheduled + attendees confirmed
 
 ✅ **Compliance Snapshot JSON**
+
 - DICQ block scores populated
 - RDC article mapping 100% (15/15)
 - Orphan resolution summary confirmed
 - Phase 13 findings + recommendations documented
 
 ✅ **Internal Sign-Off**
+
 - CTO + RT sign off on ≥88% target (achieved, at-risk, or miss)
 - Compliance lead certifies evidence integrity
 - Pre-approval call completed successfully
@@ -1458,17 +1558,18 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 
 ### Phase 13 Audit Roles + Responsibilities
 
-| Role | Responsibility | Hours | Deliverable |
-|------|---|------|------|
-| **Compliance Lead** | Orchestrate Phase 13; block-by-block audit; evidence org; auditor briefing | 15 | DICQ_AUDIT_RESULTS.json + briefing PDF |
-| **QA Lead** | Execute test cases; screenshot capture; data spot-check; gap identification | 20 | Screenshots + spot-check findings |
-| **Module Leads (10)** | Support block audits (provide system access, data queries, explanation of design choices) | 10 each | Evidence artifacts per module |
-| **IT/DevOps** | Log exports; audit trail queries; backup verification; DR drill report | 5 | Log files + audit trail exports |
-| **RT (Responsável Técnico)** | Review phase 13 findings; approve remediation plan; sign-off on final compliance snapshot | 3 | Signatures on remediation log + sign-off |
+| Role                         | Responsibility                                                                            | Hours   | Deliverable                              |
+| ---------------------------- | ----------------------------------------------------------------------------------------- | ------- | ---------------------------------------- |
+| **Compliance Lead**          | Orchestrate Phase 13; block-by-block audit; evidence org; auditor briefing                | 15      | DICQ_AUDIT_RESULTS.json + briefing PDF   |
+| **QA Lead**                  | Execute test cases; screenshot capture; data spot-check; gap identification               | 20      | Screenshots + spot-check findings        |
+| **Module Leads (10)**        | Support block audits (provide system access, data queries, explanation of design choices) | 10 each | Evidence artifacts per module            |
+| **IT/DevOps**                | Log exports; audit trail queries; backup verification; DR drill report                    | 5       | Log files + audit trail exports          |
+| **RT (Responsável Técnico)** | Review phase 13 findings; approve remediation plan; sign-off on final compliance snapshot | 3       | Signatures on remediation log + sign-off |
 
 ### Evidence Export SOP
 
 **For each evidence artifact:**
+
 1. [ ] Query live system (production or staging, documented)
 2. [ ] Export to file (PDF, JSON, CSV, or PNG screenshot)
 3. [ ] Validate file integrity (non-empty, correct format, readable)
@@ -1495,4 +1596,3 @@ RDC Art. 113 (collection traceability) is foundational; PHR can defer post-launc
 **Date:** 2026-05-07 (template creation)  
 **Status:** Ready for Phase 13 execution  
 **Next:** Phase 13 kickoff (Week of 2026-05-13)
-

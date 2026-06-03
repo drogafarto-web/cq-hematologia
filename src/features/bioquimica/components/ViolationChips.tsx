@@ -16,16 +16,9 @@ const severityDotColors = {
   reject: 'bg-red-500',
 };
 
-export const ViolationChips: React.FC<ViolationChipsProps> = ({
-  violations,
-  onHighlight,
-}) => {
+export const ViolationChips: React.FC<ViolationChipsProps> = ({ violations, onHighlight }) => {
   if (violations.length === 0) {
-    return (
-      <span className="text-xs text-green-400/80">
-        ✓ Sem violações
-      </span>
-    );
+    return <span className="text-xs text-green-400/80">✓ Sem violações</span>;
   }
 
   return (

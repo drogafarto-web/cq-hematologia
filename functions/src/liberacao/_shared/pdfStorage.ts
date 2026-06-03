@@ -27,11 +27,7 @@ function getBucket() {
   return admin.storage().bucket(DEFAULT_BUCKET);
 }
 
-export function laudoStoragePath(
-  labId: string,
-  laudoId: string,
-  version: number,
-): string {
+export function laudoStoragePath(labId: string, laudoId: string, version: number): string {
   return `laudos/${labId}/${laudoId}/v${version}.pdf`;
 }
 

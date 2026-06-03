@@ -18,11 +18,7 @@ import {
   SubmitNotivisaDraftInputSchema,
   RejectNotivisaDraftInputSchema,
 } from '../validators';
-import {
-  sha256Hex,
-  sortedStringify,
-  generateNotivisaSignatureServer,
-} from '../signatureCanonical';
+import { sha256Hex, sortedStringify, generateNotivisaSignatureServer } from '../signatureCanonical';
 
 // ─────────────────────────────────────────────────────────────────────────
 // NOTIVISA BATCH 1 — DRAFT CREATE (12 tests)
@@ -147,9 +143,7 @@ describe('Batch 1: notivisaDraftCreate', () => {
           laudo_id: 'laudo-456',
           paciente_cpf: '12345678901',
           data_resultado: 1714945200,
-          resultados: [
-            { analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' },
-          ],
+          resultados: [{ analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' }],
           assinador: {
             cpf: '11144455566',
             nome: 'Dr. Silva',
@@ -170,9 +164,7 @@ describe('Batch 1: notivisaDraftCreate', () => {
           laudo_id: 'laudo-456',
           paciente_cpf: '12345678901',
           data_resultado: 1714945200,
-          resultados: [
-            { analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' },
-          ],
+          resultados: [{ analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' }],
           assinador: {
             cpf: '11144455566',
             nome: 'Dr. Silva',
@@ -204,9 +196,7 @@ describe('Batch 1: notivisaDraftCreate', () => {
           laudo_id: 'laudo-456',
           paciente_cpf: '12345678901',
           data_resultado: -1, // Invalid: not positive
-          resultados: [
-            { analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' },
-          ],
+          resultados: [{ analito: 'Test', valor: 'value', unidade: 'u', referencia: 'ref' }],
           assinador: {
             cpf: '11144455566',
             nome: 'Dr. Silva',
@@ -229,9 +219,19 @@ describe('Batch 1: notivisaDraftCreate', () => {
           paciente_cpf: '12345678901',
           data_resultado: 1714945200,
           resultados: [
-            { analito: 'Sífilis', valor: 'Positivo', unidade: 'qualitativo', referencia: 'Negativo' },
+            {
+              analito: 'Sífilis',
+              valor: 'Positivo',
+              unidade: 'qualitativo',
+              referencia: 'Negativo',
+            },
             { analito: 'HIV', valor: 'Negativo', unidade: 'qualitativo', referencia: 'Negativo' },
-            { analito: 'Hepatite B', valor: 'Negativo', unidade: 'qualitativo', referencia: 'Negativo' },
+            {
+              analito: 'Hepatite B',
+              valor: 'Negativo',
+              unidade: 'qualitativo',
+              referencia: 'Negativo',
+            },
           ],
           assinador: {
             cpf: '11144455566',

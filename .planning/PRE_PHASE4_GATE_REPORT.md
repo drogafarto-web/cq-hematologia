@@ -1,10 +1,10 @@
 ---
-title: "Pre-Phase 4 Gate Readiness Report"
-date: "2026-05-07"
-version: "1.0"
-status: "Final — Ready for Execution"
-owner: "CTO / Agent Coordination"
-next_review: "2026-05-13 (Phase 4 kickoff − 7 days)"
+title: 'Pre-Phase 4 Gate Readiness Report'
+date: '2026-05-07'
+version: '1.0'
+status: 'Final — Ready for Execution'
+owner: 'CTO / Agent Coordination'
+next_review: '2026-05-13 (Phase 4 kickoff − 7 days)'
 ---
 
 # Pre-Phase 4 Gate Readiness Report
@@ -13,16 +13,17 @@ next_review: "2026-05-13 (Phase 4 kickoff − 7 days)"
 
 HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 critical pre-requisites**. Status as of **2026-05-07 23:59 UTC**:
 
-| Prerequisite | Status | Owner | Action | Deadline |
-|---|---|---|---|---|
-| **1. Auditor pre-alignment call** | 🔴 **BLOCKED** | Lab Director + RT | Schedule weekly syncs starting 2026-05-13 | 2026-05-13 |
-| **2. NOTIVISA sandbox credentials** | 🔴 **BLOCKED** | NOTIVISA vendor | Receive API key + endpoint URL; store in Secrets Manager | 2026-05-16 |
-| **3. Twilio account + phone numbers** | 🔴 **BLOCKED** | Twilio vendor | Non-blocking for Phase 4; soft-blocker for Phase 5 (2026-06-09) | 2026-05-20 |
-| **4. Cloud Monitoring setup** | 🟢 **READY** | CTO / Ops | Deployed (v1.3 ongoing); Phase 4 extends with NOTIVISA metrics | 2026-05-20 |
-| **5. Resource allocation (Agent 3 + 4)** | 🟡 **CONDITIONAL** | Engineering Manager | Confirm 2 full-time agents + 1 QA engineer available | 2026-05-13 |
-| **6. On-call rotation (Phase 4+)** | 🟡 **CONDITIONAL** | CTO / Ops | Plan 4-week escalation rotation starting 2026-06-02 | 2026-06-01 |
+| Prerequisite                             | Status             | Owner               | Action                                                          | Deadline   |
+| ---------------------------------------- | ------------------ | ------------------- | --------------------------------------------------------------- | ---------- |
+| **1. Auditor pre-alignment call**        | 🔴 **BLOCKED**     | Lab Director + RT   | Schedule weekly syncs starting 2026-05-13                       | 2026-05-13 |
+| **2. NOTIVISA sandbox credentials**      | 🔴 **BLOCKED**     | NOTIVISA vendor     | Receive API key + endpoint URL; store in Secrets Manager        | 2026-05-16 |
+| **3. Twilio account + phone numbers**    | 🔴 **BLOCKED**     | Twilio vendor       | Non-blocking for Phase 4; soft-blocker for Phase 5 (2026-06-09) | 2026-05-20 |
+| **4. Cloud Monitoring setup**            | 🟢 **READY**       | CTO / Ops           | Deployed (v1.3 ongoing); Phase 4 extends with NOTIVISA metrics  | 2026-05-20 |
+| **5. Resource allocation (Agent 3 + 4)** | 🟡 **CONDITIONAL** | Engineering Manager | Confirm 2 full-time agents + 1 QA engineer available            | 2026-05-13 |
+| **6. On-call rotation (Phase 4+)**       | 🟡 **CONDITIONAL** | CTO / Ops           | Plan 4-week escalation rotation starting 2026-06-02             | 2026-06-01 |
 
 **GO/NO-GO Decision Criteria:**
+
 - ✅ Prerequisite 1 + 2 + 4 = **MUST be complete by 2026-05-19 23:59 UTC** to launch Phase 4
 - ⚠️ Prerequisites 5 + 6 = Soft blockers (can proceed with mitigations if allocation confirmed)
 - ⚠️ Prerequisite 3 = Non-blocking for Phase 4; soft-blocker for Phase 5 (defer SMS to Phase 5.1 if needed)
@@ -39,12 +40,12 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Item | Status | Notes |
-|---|---|---|
-| Auditor contact identified | ❓ TBD | Need lab director to identify ANVISA contact |
-| Weekly call cadence scheduled | ❌ Not scheduled | Recommend: Mondays 10:00 AM BRT |
-| Call agenda template | ✅ Ready | See Appendix A |
-| Pre-alignment briefing slides | ⏳ Phase 5 (not Phase 4) | Phase 8 scope; can defer 2 weeks |
+| Item                          | Status                   | Notes                                        |
+| ----------------------------- | ------------------------ | -------------------------------------------- |
+| Auditor contact identified    | ❓ TBD                   | Need lab director to identify ANVISA contact |
+| Weekly call cadence scheduled | ❌ Not scheduled         | Recommend: Mondays 10:00 AM BRT              |
+| Call agenda template          | ✅ Ready                 | See Appendix A                               |
+| Pre-alignment briefing slides | ⏳ Phase 5 (not Phase 4) | Phase 8 scope; can defer 2 weeks             |
 
 **Action Items:**
 
@@ -79,14 +80,14 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Item | Status | Details |
-|---|---|---|
-| Registration form submitted to ANVISA | ⏳ Pending | Submission target: 2026-05-10 (3 days away) |
-| Sandbox credentials received | ❌ Not received | Expected by 2026-05-15 (5 days away) |
-| Credentials stored in Secrets Manager | ❌ Not done | Will execute upon receipt |
-| API documentation (v3.0) received | ❌ Not received | Expected with credentials |
-| Rate limits documented | ❌ Not documented | Will document upon receipt |
-| Sandbox connectivity tested | ❌ Not tested | Will test with cURL upon receipt |
+| Item                                  | Status            | Details                                     |
+| ------------------------------------- | ----------------- | ------------------------------------------- |
+| Registration form submitted to ANVISA | ⏳ Pending        | Submission target: 2026-05-10 (3 days away) |
+| Sandbox credentials received          | ❌ Not received   | Expected by 2026-05-15 (5 days away)        |
+| Credentials stored in Secrets Manager | ❌ Not done       | Will execute upon receipt                   |
+| API documentation (v3.0) received     | ❌ Not received   | Expected with credentials                   |
+| Rate limits documented                | ❌ Not documented | Will document upon receipt                  |
+| Sandbox connectivity tested           | ❌ Not tested     | Will test with cURL upon receipt            |
 
 **Action Items — Registration Submission (Due 2026-05-10):**
 
@@ -138,6 +139,7 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 - 🔴 **If credentials incomplete (missing auth method, rate limits):** CTO requests clarification email same day; plan 24h turnaround
 
 **Mitigation if Credentials Unavailable by 2026-05-19:**
+
 - Phase 4 can proceed with **mock NOTIVISA API** (simulated responses in Cloud Functions)
 - Real sandbox testing deferred to Phase 4.2 (week 2)
 - Production submission **blocked until Phase 8** (scheduled June 2026+)
@@ -151,13 +153,13 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Item | Status | Details |
-|---|---|---|
-| Twilio account provisioned | ❌ Not initiated | Expected: 2026-05-15 (same-day typical) |
-| Brazil phone numbers x2 | ❌ Not initiated | Expected: 2026-05-20 (2–3 business day lead time) |
-| SMS service enabled | ❌ Not initiated | Enabled upon account activation |
-| Spending limit configured | ⏳ Phase 5-01 | Budget: ~$75/month ($900 annually) |
-| Rate limits confirmed | ⏳ Phase 5-01 | TBD by Twilio (typically 1–10 SMS/sec) |
+| Item                       | Status           | Details                                           |
+| -------------------------- | ---------------- | ------------------------------------------------- |
+| Twilio account provisioned | ❌ Not initiated | Expected: 2026-05-15 (same-day typical)           |
+| Brazil phone numbers x2    | ❌ Not initiated | Expected: 2026-05-20 (2–3 business day lead time) |
+| SMS service enabled        | ❌ Not initiated | Enabled upon account activation                   |
+| Spending limit configured  | ⏳ Phase 5-01    | Budget: ~$75/month ($900 annually)                |
+| Rate limits confirmed      | ⏳ Phase 5-01    | TBD by Twilio (typically 1–10 SMS/sec)            |
 
 **Action Items:**
 
@@ -191,6 +193,7 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 - ⚠️ **Phase 5 soft-blocked** if Twilio numbers delayed >1 week past 2026-05-20
 
 **Mitigation if Twilio Delays:**
+
 - Use email-only escalation in Phase 4 + Phase 5.0
 - Continue SMS testing with test numbers (CTO's mobile for dev)
 - Promote SMS to production (Phase 5.1) once numbers active
@@ -204,14 +207,14 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Item | Status | Details |
-|---|---|---|
-| Cloud Monitoring API enabled | ✅ Live | Verified 2026-05-07 |
-| Dashboard: "HC Quality — System Health" | ✅ Live | 8 widgets: LCP, INP, CLS, TBT, error rate, requests/sec, uptime |
-| Dashboard: "HC Quality — Firestore" | ✅ Live | 5 widgets: reads, writes, latency, quota usage, document count |
-| Alerts configured | ✅ Live | 12+ alerts: LCP >2.5s, error rate >5%, quota >80%, etc. |
-| Slack integration | ✅ Live | #hc-quality-ops receiving alerts 24/7 |
-| Escalation path (L1 → L2 → L3) | ✅ Documented | See on-call rotation below |
+| Item                                    | Status        | Details                                                         |
+| --------------------------------------- | ------------- | --------------------------------------------------------------- |
+| Cloud Monitoring API enabled            | ✅ Live       | Verified 2026-05-07                                             |
+| Dashboard: "HC Quality — System Health" | ✅ Live       | 8 widgets: LCP, INP, CLS, TBT, error rate, requests/sec, uptime |
+| Dashboard: "HC Quality — Firestore"     | ✅ Live       | 5 widgets: reads, writes, latency, quota usage, document count  |
+| Alerts configured                       | ✅ Live       | 12+ alerts: LCP >2.5s, error rate >5%, quota >80%, etc.         |
+| Slack integration                       | ✅ Live       | #hc-quality-ops receiving alerts 24/7                           |
+| Escalation path (L1 → L2 → L3)          | ✅ Documented | See on-call rotation below                                      |
 
 **Phase 4 Extensions Needed:**
 
@@ -238,12 +241,12 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Resource | Assigned | Availability | Notes |
-|---|---|---|---|
-| **Agent 3** (NOTIVISA owner) | TBD | ? | Estimated 80 hrs (design + implementation + testing) |
-| **Agent 4** (QA + integration) | TBD | ? | Estimated 40 hrs (E2E testing + performance benchmarking) |
-| **QA Engineer** (smoke tests) | TBD | ? | Estimated 20 hrs (manual testing + compliance checks) |
-| **CTO** (oversight + escalation) | Assumed available | ? | Estimated 12 hrs (code review + vendor coordination) |
+| Resource                         | Assigned          | Availability | Notes                                                     |
+| -------------------------------- | ----------------- | ------------ | --------------------------------------------------------- |
+| **Agent 3** (NOTIVISA owner)     | TBD               | ?            | Estimated 80 hrs (design + implementation + testing)      |
+| **Agent 4** (QA + integration)   | TBD               | ?            | Estimated 40 hrs (E2E testing + performance benchmarking) |
+| **QA Engineer** (smoke tests)    | TBD               | ?            | Estimated 20 hrs (manual testing + compliance checks)     |
+| **CTO** (oversight + escalation) | Assumed available | ?            | Estimated 12 hrs (code review + vendor coordination)      |
 
 **Expected Workload:**
 
@@ -294,13 +297,13 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 **Status:**
 
-| Item | Status | Details |
-|---|---|---|
-| Rotation schedule drafted | ❌ Not started | Expected format: 1-week cycles, 3 engineers |
-| Engineer availability confirmed | ❌ TBD | Need 4–5 engineers for rotation pool |
-| Escalation procedures documented | ⏳ Partial | Severity matrix exists; runbooks in progress |
-| PagerDuty integration | ❌ Not configured | Optional but recommended |
-| Incident command authority | ⏳ Partial | CTO designated; L2/L3 escalation TBD |
+| Item                             | Status            | Details                                      |
+| -------------------------------- | ----------------- | -------------------------------------------- |
+| Rotation schedule drafted        | ❌ Not started    | Expected format: 1-week cycles, 3 engineers  |
+| Engineer availability confirmed  | ❌ TBD            | Need 4–5 engineers for rotation pool         |
+| Escalation procedures documented | ⏳ Partial        | Severity matrix exists; runbooks in progress |
+| PagerDuty integration            | ❌ Not configured | Optional but recommended                     |
+| Incident command authority       | ⏳ Partial        | CTO designated; L2/L3 escalation TBD         |
 
 **Action Items — Planning (Due 2026-05-19):**
 
@@ -345,14 +348,14 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 
 ### Risk Register (Updated 2026-05-07)
 
-| Risk | Probability | Impact | Mitigation | Owner | Status |
-|------|-----------|--------|-----------|-------|--------|
-| **R1: NOTIVISA credential delay** | Medium (3/10) | **HIGH (8/10)** | CTO escalates immediately to ANVISA hotline; use mock API fallback | CTO | 🟡 Active |
-| **R2: API schema mismatch** | Low (2/10) | **HIGH (8/10)** | Validate schema in unit tests; coordinate with vendor within 4h | Agent 3 | 🟡 Active |
-| **R3: Twilio provisioning delay** | Low (2/10) | **MEDIUM (6/10)** | Use email-only escalation; SMS deferred to Phase 5 | CTO | 🟡 Active |
-| **R4: Firestore quota exceeded** | Very Low (1/10) | **HIGH (8/10)** | Monitor at 80% threshold; implement backpressure; scale if needed | Ops | 🟢 Monitored |
-| **R5: Engineer unavailability** | Low (2/10) | **MEDIUM (6/10)** | Defer Phase 4 by 1 week; confirm resources by 2026-05-10 | Eng Manager | 🟡 Active |
-| **R6: Auditor unavailable for pre-alignment** | Very Low (1/10) | **MEDIUM (6/10)** | Escalate to ANVISA regional office; propose async updates | Lab Director | 🟡 Active |
+| Risk                                          | Probability     | Impact            | Mitigation                                                         | Owner        | Status       |
+| --------------------------------------------- | --------------- | ----------------- | ------------------------------------------------------------------ | ------------ | ------------ |
+| **R1: NOTIVISA credential delay**             | Medium (3/10)   | **HIGH (8/10)**   | CTO escalates immediately to ANVISA hotline; use mock API fallback | CTO          | 🟡 Active    |
+| **R2: API schema mismatch**                   | Low (2/10)      | **HIGH (8/10)**   | Validate schema in unit tests; coordinate with vendor within 4h    | Agent 3      | 🟡 Active    |
+| **R3: Twilio provisioning delay**             | Low (2/10)      | **MEDIUM (6/10)** | Use email-only escalation; SMS deferred to Phase 5                 | CTO          | 🟡 Active    |
+| **R4: Firestore quota exceeded**              | Very Low (1/10) | **HIGH (8/10)**   | Monitor at 80% threshold; implement backpressure; scale if needed  | Ops          | 🟢 Monitored |
+| **R5: Engineer unavailability**               | Low (2/10)      | **MEDIUM (6/10)** | Defer Phase 4 by 1 week; confirm resources by 2026-05-10           | Eng Manager  | 🟡 Active    |
+| **R6: Auditor unavailable for pre-alignment** | Very Low (1/10) | **MEDIUM (6/10)** | Escalate to ANVISA regional office; propose async updates          | Lab Director | 🟡 Active    |
 
 **Risk Escalation Triggers:**
 
@@ -413,7 +416,6 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 - [ ] NOTIVISA-specific monitoring dashboard
   - Expected by: 2026-05-22 (Phase 4 week 1)
   - Responsible: Agent 3
-  
 - [ ] Ops runbook (NOTIVISA operations)
   - Expected by: 2026-05-19
   - Responsible: CTO
@@ -432,28 +434,33 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 ### Hard Gates (Must Pass to Proceed)
 
 **Gate 1: Auditor Pre-Alignment Scheduled**
+
 - [ ] Auditor contact identified by 2026-05-10
 - [ ] First call scheduled for 2026-05-13 10:00 AM BRT
 - **Status:** 🔴 **ACTION REQUIRED** (Lab Director responsibility)
 
 **Gate 2: NOTIVISA Sandbox Credentials Received**
+
 - [ ] Registration submitted to ANVISA by 2026-05-10
 - [ ] Credentials received + tested by 2026-05-16
 - [ ] Stored in Secrets Manager by 2026-05-17
 - **Status:** 🔴 **PENDING** (external vendor; CTO follow-up required)
 
 **Gate 3: No P0 Security Findings in Last 7 Days**
+
 - [ ] Cloud Logs reviewed for errors + warnings (2026-04-30 to 2026-05-07)
 - [ ] No unpatched CVEs in dependencies
 - [ ] No HMAC chain breaks (ADR-0017 remediation verified)
 - **Status:** 🟢 **PASS** (verified 2026-05-07)
 
 **Gate 4: TypeScript Compilation Clean**
+
 - [ ] `npx tsc --noEmit` = 0 errors, <100 warnings
 - [ ] `npm run lint` baseline 88 warnings maintained
 - **Status:** 🟢 **PASS** (verified 2026-05-07)
 
 **Gate 5: Unit Tests Baseline Maintained**
+
 - [ ] `npm run test` ≥738 passing (Phase 3 baseline)
 - [ ] Zero regressions vs. Phase 3
 - **Status:** 🟢 **PASS** (27/28 emulator tests passing; 1 non-blocking timing issue)
@@ -461,18 +468,21 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 ### Soft Gates (Recommended but Deferrable)
 
 **Gate 6: Resource Allocation Confirmed**
+
 - [ ] Agent 3 availability confirmed by 2026-05-10
 - [ ] Agent 4 availability confirmed by 2026-05-10
 - [ ] QA engineer allocated by 2026-05-10
 - **Status:** 🟡 **CONDITIONAL** (Manager confirmation required)
 
 **Gate 7: On-Call Rotation Planned**
+
 - [ ] Rotation schedule drafted by 2026-05-19
 - [ ] Engineers recruited by 2026-05-19
 - [ ] Escalation procedures documented by 2026-05-19
 - **Status:** 🟡 **CONDITIONAL** (CTO planning required)
 
 **Gate 8: Twilio Account Provisioned (Phase 5 blocker)**
+
 - [ ] Account created by 2026-05-15
 - [ ] Brazil phone numbers ordered by 2026-05-16
 - [ ] Expected arrival by 2026-05-20
@@ -485,7 +495,7 @@ HC Quality v1.4 Phase 4 (NOTIVISA Integration, 2026-05-20 kickoff) has **6 criti
 ```
 Phase 4 GO Decision (2026-05-19 11:59 PM UTC):
 
-IF (Gate 1 = PASS) AND (Gate 2 = PASS) AND (Gate 3 = PASS) 
+IF (Gate 1 = PASS) AND (Gate 2 = PASS) AND (Gate 3 = PASS)
    AND (Gate 4 = PASS) AND (Gate 5 = PASS) THEN
     IF (Gate 6 = PASS) AND (Gate 7 = PASS) THEN
         PHASE_4_GO = "STRONG GO" ✅
@@ -501,12 +511,12 @@ END IF
 
 **Current Status (2026-05-07):** 🟡 **CONDITIONAL GO** with the following action items due by 2026-05-10:
 
-| Item | Deadline | Owner | Status |
-|------|----------|-------|--------|
-| Auditor contact identified | 2026-05-10 | Lab Director | 🔴 ACTION |
-| NOTIVISA registration submitted | 2026-05-10 | CTO | 🔴 ACTION |
-| Resource allocation confirmed | 2026-05-10 | Eng Manager | 🟡 CONDITIONAL |
-| Twilio account initiated | 2026-05-10 | CTO | 🟡 CONDITIONAL |
+| Item                            | Deadline   | Owner        | Status         |
+| ------------------------------- | ---------- | ------------ | -------------- |
+| Auditor contact identified      | 2026-05-10 | Lab Director | 🔴 ACTION      |
+| NOTIVISA registration submitted | 2026-05-10 | CTO          | 🔴 ACTION      |
+| Resource allocation confirmed   | 2026-05-10 | Eng Manager  | 🟡 CONDITIONAL |
+| Twilio account initiated        | 2026-05-10 | CTO          | 🟡 CONDITIONAL |
 
 ---
 
@@ -515,19 +525,23 @@ END IF
 ### Week of 2026-05-06 to 2026-05-12 (Pre-Kickoff)
 
 **Monday 2026-05-06 (Today)**
+
 - This report finalized + shared with stakeholders
 - Kickoff meeting scheduled for Tuesday
 
 **Tuesday 2026-05-07 (Today)**
+
 - Stakeholder review of this report
 - Action items assigned + owners confirmed
 - Lab Director: Identify auditor contact (email audit@anvisa.gov.br for referral if needed)
 
 **Wednesday 2026-05-08 to Thursday 2026-05-09**
+
 - Lab Director + RT: Compile corporate documentation (CNPJ, RT credentials, authorization letter)
 - CTO: Prepare NOTIVISA registration form + coordinate with lab director for signature
 
 **Friday 2026-05-10**
+
 - ✅ Auditor contact identified + passed to CTO
 - ✅ NOTIVISA registration form signed + submitted to ANVISA
 - ✅ Twilio account provisioning initiated (or decision deferred to Phase 5)
@@ -535,16 +549,19 @@ END IF
 - Engineering Manager: Assign Agent 3 + Agent 4 to Phase 4
 
 **Monday 2026-05-13**
+
 - 🟢 **First auditor pre-alignment call (10:00 AM BRT)**
   - Attendees: Lab Director, RT, CTO, Agent 3, Auditor
   - Agenda: v1.3 closure, Phase 4 scope, risk register, Q&A
 
 **Tuesday 2026-05-14 to Thursday 2026-05-16**
+
 - CTO: Monitor email from ANVISA for NOTIVISA credentials + API documentation
   - If received: Store in Secrets Manager + notify Agent 3
   - If NOT received by end of Thursday: CTO escalates via phone
 
 **Friday 2026-05-17**
+
 - Agent 3: Validate NOTIVISA integration with sandbox credentials (if received)
   - Run unit tests + E2E test
   - Document any schema/signature mismatches
@@ -555,29 +572,35 @@ END IF
 ### Week of 2026-05-13 to 2026-05-19 (Final Readiness)
 
 **Monday 2026-05-13**
+
 - Second auditor call (10:00 AM BRT)
 - Review: NOTIVISA credential status + Phase 4 kickoff readiness
 
 **Tuesday 2026-05-14 to Wednesday 2026-05-15**
+
 - If Twilio account available: Initiate Brazil phone number provisioning
 - CTO: Finalize on-call rotation + engineer recruitment
 
 **Thursday 2026-05-16**
+
 - Agent 3 + Agent 4: Final code review + test execution
   - `npm run build` passes with no errors
   - `npm run test` passes with 738+ baseline maintained
   - Firestore Rules deployed (notivisa collection rules)
 
 **Friday 2026-05-17**
+
 - Engineering Manager: Final resource confirmation email to CTO
 - CTO: Document NOTIVISA API endpoint + rate limits in ops runbook
 
 **Monday 2026-05-19 (Phase 4 Kickoff − 1 Day)**
+
 - Final go/no-go decision point
 - Review all gates vs. decision framework (Part 4)
 - Send decision email to auditor + stakeholders by 5:00 PM BRT
 
 **Tuesday 2026-05-20 (Phase 4 Kickoff Day!)**
+
 - 🚀 **PHASE 4 OFFICIALLY LAUNCHES**
 - Agent 3 + Agent 4 begin Phase 4-01 (Portal auth + schema finalization)
 - Auditor on standby for questions
@@ -628,6 +651,7 @@ END IF
 6. **Q&A** (5 min)
 
 **Pre-Call Materials (send to auditor by 2026-05-12):**
+
 - This pre-gate report (PRE_PHASE4_GATE_REPORT.md)
 - Integration dependency matrix (INTEGRATION_DEPENDENCY_MATRIX.md)
 - Risk register (docs/NOTIVISA_RISK_REGISTER.md)
@@ -640,6 +664,7 @@ END IF
 See: `/docs/NOTIVISA_REGISTRATION_CHECKLIST.md` (24 items, full government registration path)
 
 **Key deadlines from registration checklist:**
+
 - Item 1: Identify ANVISA office → **2026-05-08**
 - Item 15: Submit registration form → **2026-05-10**
 - Item 16: Receive credentials → **2026-05-15 (est.)**
@@ -652,6 +677,7 @@ See: `/docs/NOTIVISA_REGISTRATION_CHECKLIST.md` (24 items, full government regis
 See: `/docs/INTEGRATION_DEPENDENCY_MATRIX.md` (detailed vendor + infrastructure dependencies)
 
 **Key takeaways:**
+
 - Phase 4 hard-blocked by: NOTIVISA credentials + auditor pre-alignment
 - Phase 4 soft-blocked by: Cloud Tasks queue creation (15 min gcloud command)
 - Phase 5 hard-blocked by: Twilio account + Brazil phone numbers
@@ -663,11 +689,11 @@ See: `/docs/INTEGRATION_DEPENDENCY_MATRIX.md` (detailed vendor + infrastructure 
 
 **To be populated by CTO:**
 
-| Vendor | Contact Name | Email | Phone | Region |
-|--------|--------------|-------|-------|--------|
-| NOTIVISA (ANVISA) | [TBD] | support-notivisa@anvisa.gov.br | 0800 642 9782 | Brazil (BRT) |
-| Twilio | [TBD] | support@twilio.com | 1-844-TWILIO-1 | US/Global |
-| SendGrid | [Existing] | support@sendgrid.com | — | US-EST |
+| Vendor            | Contact Name | Email                          | Phone          | Region       |
+| ----------------- | ------------ | ------------------------------ | -------------- | ------------ |
+| NOTIVISA (ANVISA) | [TBD]        | support-notivisa@anvisa.gov.br | 0800 642 9782  | Brazil (BRT) |
+| Twilio            | [TBD]        | support@twilio.com             | 1-844-TWILIO-1 | US/Global    |
+| SendGrid          | [Existing]   | support@sendgrid.com           | —              | US-EST       |
 
 ---
 
@@ -675,15 +701,15 @@ See: `/docs/INTEGRATION_DEPENDENCY_MATRIX.md` (detailed vendor + infrastructure 
 
 ### Stakeholder Sign-Off (To Be Collected by 2026-05-10)
 
-| Role | Name | Email | Status | Date |
-|------|------|-------|--------|------|
-| Lab Director | [Name] | [email] | ⏳ Pending | — |
-| RT (Responsável Técnico) | [Name] | [email] | ⏳ Pending | — |
-| CTO | [Name] | [email] | ⏳ Pending | — |
-| Compliance Officer | [Name] | [email] | ⏳ Pending | — |
-| Engineering Manager | [Name] | [email] | ⏳ Pending | — |
-| Ops Lead | [Name] | [email] | ⏳ Pending | — |
-| ANVISA Auditor | [Name] | [email] | ⏳ Pending (when assigned) | — |
+| Role                     | Name   | Email   | Status                     | Date |
+| ------------------------ | ------ | ------- | -------------------------- | ---- |
+| Lab Director             | [Name] | [email] | ⏳ Pending                 | —    |
+| RT (Responsável Técnico) | [Name] | [email] | ⏳ Pending                 | —    |
+| CTO                      | [Name] | [email] | ⏳ Pending                 | —    |
+| Compliance Officer       | [Name] | [email] | ⏳ Pending                 | —    |
+| Engineering Manager      | [Name] | [email] | ⏳ Pending                 | —    |
+| Ops Lead                 | [Name] | [email] | ⏳ Pending                 | —    |
+| ANVISA Auditor           | [Name] | [email] | ⏳ Pending (when assigned) | —    |
 
 **Signature** = "I acknowledge the prerequisites, risks, and timeline. I commit to the action items assigned to my role."
 
@@ -694,6 +720,7 @@ See: `/docs/INTEGRATION_DEPENDENCY_MATRIX.md` (detailed vendor + infrastructure 
 **Decision Required by:** 2026-05-10 EOD
 
 **Questions to Answer:**
+
 1. ✅ Can you identify the ANVISA auditor contact by 2026-05-08? (If no: escalate to ANVISA hotline)
 2. ✅ Can RT + finance prepare NOTIVISA registration documents by 2026-05-09? (Required for 2026-05-10 submission)
 3. ✅ Can you authorize $50–100/month for Twilio SMS (estimated $75/month, non-blocking Phase 4)?
@@ -702,6 +729,7 @@ See: `/docs/INTEGRATION_DEPENDENCY_MATRIX.md` (detailed vendor + infrastructure 
 **If YES to all:** Phase 4 kickoff **2026-05-20 is ON TRACK**.
 
 **If NO to any:**
+
 - ❌ To Q1: Escalate to ANVISA directly; propose alternate contact
 - ❌ To Q2: Delay Phase 4 by 1 week (to 2026-05-27 kickoff)
 - ⚠️ To Q3: Proceed with email-only escalation; SMS deferred to Phase 5 (no cost impact for Phase 4)

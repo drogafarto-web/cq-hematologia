@@ -83,7 +83,9 @@ describe('DateRangePickerBar', () => {
     const { container } = render(<DateRangePickerBar {...props} />);
     // Date inputs have role "textbox" in some JSDOM versions but not in others;
     // query by attribute to be reliable.
-    const dateInputs = container.querySelectorAll('input[type="date"]') as NodeListOf<HTMLInputElement>;
+    const dateInputs = container.querySelectorAll(
+      'input[type="date"]',
+    ) as NodeListOf<HTMLInputElement>;
     expect(dateInputs.length).toBe(2);
     fireEvent.change(dateInputs[0], { target: { value: '2026-03-01' } });
     expect(props.setCustomRange).toHaveBeenCalled();

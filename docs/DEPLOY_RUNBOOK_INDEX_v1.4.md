@@ -24,6 +24,7 @@
 - [x] Bootstrap scripts run idempotently
 
 **Gate Command:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh && npm run build && npm test
 ```
@@ -37,11 +38,13 @@ bash scripts/preflight-secrets-check.sh && npm run build && npm test
 **Purpose:** Apply new rule gates for Portal-RT, Portal-Paciente, NOTIVISA, RT-presence, Laudo-OCR.
 
 **Command:**
+
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 **Validation:**
+
 ```bash
 # Dry-run first (no changes)
 firebase deploy --only firestore:rules --dry-run --project hmatologia2
@@ -53,6 +56,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 **Post-Deploy Checks:**
+
 - [ ] Console: https://console.firebase.google.com/project/hmatologia2/firestore/rules
   - Look for: No errors in rule viewer
   - Expected: Green checkmark on all rules blocks
@@ -70,6 +74,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 **Purpose:** Deploy new callables for Portal-RT, Portal-Paciente, NOTIVISA, Laudo-OCR, consent backfill.
 
 **Pre-Deploy:**
+
 ```bash
 cd functions
 npm install
@@ -78,6 +83,7 @@ npm test
 ```
 
 **Expected Output:**
+
 ```
 PASS  src/modules/portal-rt/*.test.ts
 PASS  src/modules/portal-paciente/*.test.ts
@@ -90,6 +96,7 @@ Tests:       150+ passed, 150+ total
 ```
 
 **Deploy:**
+
 ```bash
 firebase deploy --only functions --project hmatologia2 --force
 ```
@@ -97,6 +104,7 @@ firebase deploy --only functions --project hmatologia2 --force
 **Why `--force`:** Skips interactive prompts (CI/CD automation).
 
 **Expected Output:**
+
 ```
 i  deploying functions
 ⠙  functions: Waiting for operation to complete...
@@ -111,6 +119,7 @@ i  deploying functions
 ```
 
 **Post-Deploy Checks:**
+
 - [ ] Cloud Functions Dashboard: https://console.cloud.google.com/functions?project=hmatologia2
   - Expected: All functions show "OK" (green checkmark)
   - No timeout or 503 errors
@@ -125,6 +134,7 @@ i  deploying functions
   ```
 
 **Monitor:** Watch Cloud Logs for 5 minutes
+
 ```bash
 gcloud functions logs read portal_rt_createDashboard --limit 50 --project hmatologia2
 ```
@@ -138,17 +148,20 @@ gcloud functions logs read portal_rt_createDashboard --limit 50 --project hmatol
 **Purpose:** Deploy updated web bundle with Portal-RT, Portal-Paciente UX + updated hooks.
 
 **Pre-Deploy:**
+
 ```bash
 npm run build
 # Expected: ✔ built in 45s, main: 362 KB, vendor: 247 KB
 ```
 
 **Deploy:**
+
 ```bash
 firebase deploy --only hosting --project hmatologia2
 ```
 
 **Expected Output:**
+
 ```
 i  deploying hosting
 ✔  hosting[hmatologia2]: file upload complete
@@ -160,6 +173,7 @@ Hosting URL: https://hmatologia2.web.app
 ```
 
 **Post-Deploy Checks:**
+
 - [ ] Smoke Test: https://hmatologia2.web.app
   - Expected: Hub loads, Portal-RT tile visible, Portal-Paciente tile visible
   - LCP <2s (measure with Lighthouse)
@@ -171,6 +185,7 @@ Hosting URL: https://hmatologia2.web.app
   - Expected: Email auth form visible
 
 **Monitor:** Lighthouse CI
+
 ```bash
 npm run lighthouse -- https://hmatologia2.web.app
 # Expected: performance >90, LCP <2.0s
@@ -183,6 +198,7 @@ npm run lighthouse -- https://hmatologia2.web.app
 ## Post-Deploy Monitoring (24h)
 
 **Automated Script:**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # Watches Cloud Logs for 24h, reports every 30 min
@@ -198,6 +214,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 **Red Line:** >1% error rate (pause deployments, investigate)
 
 **Command:**
+
 ```bash
 gcloud logging read 'severity="ERROR" AND timestamp>="2026-05-08T00:00:00Z"' \
   --project=hmatologia2 --limit=100 --format=json | grep severity | wc -l
@@ -211,6 +228,7 @@ gcloud logging read 'severity="ERROR" AND timestamp>="2026-05-08T00:00:00Z"' \
 **Red Line:** >20 instances/hour (possible bottleneck)
 
 **Command:**
+
 ```bash
 gcloud logging read 'httpRequest.latency > 5000' \
   --project=hmatologia2 --limit=100 --format=json | jq '.[] | .httpRequest.latency'
@@ -224,6 +242,7 @@ gcloud logging read 'httpRequest.latency > 5000' \
 **Red Line:** >100/hour (possible rule syntax error)
 
 **Command:**
+
 ```bash
 gcloud logging read '"Denied by Firestore Security Rules"' \
   --project=hmatologia2 --limit=100
@@ -238,6 +257,7 @@ gcloud logging read '"Denied by Firestore Security Rules"' \
 **Scenario:** Critical bug found post-deploy, revert everything.
 
 **Steps:**
+
 ```bash
 # 1. Revert Git commits (Phase 4 is commit b2e415b)
 git revert HEAD~0..b2e415b  # or use reset if not yet pushed
@@ -252,6 +272,7 @@ bash scripts/monitor-cloud-logs.sh 30 5
 ```
 
 **Validation:**
+
 - [ ] Portal-RT unavailable (tile grayed out) OR shows error
 - [ ] Portal-Paciente unavailable
 - [ ] NOTIVISA drafts hidden
@@ -295,16 +316,16 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 **CTO (Deployment Authority):** [Fill in contact]  
 **Infrastructure Lead:** [Fill in contact]  
-**On-Call Rotation:** [Fill in schedule]  
+**On-Call Rotation:** [Fill in schedule]
 
 ### Escalation Matrix
 
-| Severity | Example | Owner | ETA | Escalate |
-|----------|---------|-------|-----|----------|
-| 🟢 Green | Latency +10% | Eng | <1h | After 2h |
-| 🟡 Yellow | Error rate 0.5% | Eng | <30m | After 1h |
-| 🔴 Red | Error rate >5% OR Portal-RT down | Eng + CTO | <15m | After 30m |
-| ⚫ Black | Data loss OR DICQ breach | All Hands | <5m | Immediate |
+| Severity  | Example                          | Owner     | ETA  | Escalate  |
+| --------- | -------------------------------- | --------- | ---- | --------- |
+| 🟢 Green  | Latency +10%                     | Eng       | <1h  | After 2h  |
+| 🟡 Yellow | Error rate 0.5%                  | Eng       | <30m | After 1h  |
+| 🔴 Red    | Error rate >5% OR Portal-RT down | Eng + CTO | <15m | After 30m |
+| ⚫ Black  | Data loss OR DICQ breach         | All Hands | <5m  | Immediate |
 
 ---
 
@@ -341,7 +362,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 **Deployment Started:** 2026-05-08 09:00 PT  
 **Rules Deployed:** 2026-05-08 09:05 PT  
 **Functions Deployed:** 2026-05-08 09:15 PT  
-**Hosting Deployed:** 2026-05-08 09:20 PT  
+**Hosting Deployed:** 2026-05-08 09:20 PT
 
 ## Post-Deploy Validation
 
@@ -361,7 +382,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 **Deployment Lead:** [Name] — 2026-05-08 09:30 PT  
 **QA Lead:** [Name] — 2026-05-08 09:35 PT  
-**CTO:** [Name] — 2026-05-08 09:40 PT  
+**CTO:** [Name] — 2026-05-08 09:40 PT
 
 **Status:** ✅ APPROVED FOR PRODUCTION
 ```

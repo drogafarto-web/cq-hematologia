@@ -26,7 +26,7 @@ export interface QCModuleStats {
   approved: number;
   rejected: number;
   pending: number;
-  approvalRate: number;        // 0..100, 1 casa decimal
+  approvalRate: number; // 0..100, 1 casa decimal
   approvalRate7d: number | null;
   approvalRate30d: number;
   trendDeltaPp: number | null; // 7d − 30d, em pontos percentuais (negativo = caindo)
@@ -40,7 +40,7 @@ export interface OperatorRankingEntry {
   runsProcessed: number;
   rejections: number;
   rejectionRate: number; // 0..100
-  isOutlier: boolean;    // > média + 2σ do lab
+  isOutlier: boolean; // > média + 2σ do lab
 }
 
 export interface ProblematicLotEntry {

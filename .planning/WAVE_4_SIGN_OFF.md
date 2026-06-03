@@ -1,7 +1,7 @@
 ---
-title: "Wave 4 (Phases 12-15) — Final Sign-Off Document"
-date: "2026-05-07T22:45:00Z"
-status: "PENDING CTO APPROVAL"
+title: 'Wave 4 (Phases 12-15) — Final Sign-Off Document'
+date: '2026-05-07T22:45:00Z'
+status: 'PENDING CTO APPROVAL'
 ---
 
 # Wave 4 (Phases 12-15) — Final Sign-Off Document
@@ -19,14 +19,14 @@ status: "PENDING CTO APPROVAL"
 
 **Status:** ✅ **PLANNING COMPLETE**
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Detailed plan | ✅ | PHASE_12_DETAILED_PLAN.md (1,200+ lines) |
-| Monitoring runbook | ✅ | PHASE_12_MONITORING_RUNBOOK.md (350+ lines) |
-| Performance baseline | ✅ | v1.3-PERFORMANCE_BASELINE.md (captured) |
-| Success criteria | ✅ | 7 criteria defined, all measurable |
-| Risk mitigation | ✅ | 4 risks identified, all mitigated |
-| Team capacity | ✅ | 4 parallel tracks, all assigned |
+| Item                 | Status | Evidence                                    |
+| -------------------- | ------ | ------------------------------------------- |
+| Detailed plan        | ✅     | PHASE_12_DETAILED_PLAN.md (1,200+ lines)    |
+| Monitoring runbook   | ✅     | PHASE_12_MONITORING_RUNBOOK.md (350+ lines) |
+| Performance baseline | ✅     | v1.3-PERFORMANCE_BASELINE.md (captured)     |
+| Success criteria     | ✅     | 7 criteria defined, all measurable          |
+| Risk mitigation      | ✅     | 4 risks identified, all mitigated           |
+| Team capacity        | ✅     | 4 parallel tracks, all assigned             |
 
 **Blockers:** NONE  
 **Dependencies:** Phase 3 production health (✅ LIVE)  
@@ -40,15 +40,15 @@ status: "PENDING CTO APPROVAL"
 
 **Status:** ✅ **PLANNING COMPLETE — READY FOR KICKOFF**
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Kickoff checklist | ✅ | PHASE_4_KICKOFF_CHECKLIST.md (450+ lines) |
-| Readiness summary | ✅ | PHASE_4_READINESS_FINAL_SUMMARY.md (400+ lines) |
-| Quick reference | ✅ | PHASE_4_QUICK_REFERENCE.md (320+ lines) |
-| Infrastructure | ✅ | 5 collections + 8 functions scaffolded |
-| Compliance mapping | ✅ | RDC 978 Arts. 6, 115, 204 + LGPD 38 |
-| Risk assessment | ✅ | 3.5/10 LOW, all mitigations documented |
-| Team assignment | ✅ | 3.5 FTE × 2.5 weeks confirmed |
+| Item               | Status | Evidence                                        |
+| ------------------ | ------ | ----------------------------------------------- |
+| Kickoff checklist  | ✅     | PHASE_4_KICKOFF_CHECKLIST.md (450+ lines)       |
+| Readiness summary  | ✅     | PHASE_4_READINESS_FINAL_SUMMARY.md (400+ lines) |
+| Quick reference    | ✅     | PHASE_4_QUICK_REFERENCE.md (320+ lines)         |
+| Infrastructure     | ✅     | 5 collections + 8 functions scaffolded          |
+| Compliance mapping | ✅     | RDC 978 Arts. 6, 115, 204 + LGPD 38             |
+| Risk assessment    | ✅     | 3.5/10 LOW, all mitigations documented          |
+| Team assignment    | ✅     | 3.5 FTE × 2.5 weeks confirmed                   |
 
 **Blockers:** NONE  
 **Dependencies:** Phase 3 complete (✅ LIVE)  
@@ -63,15 +63,15 @@ status: "PENDING CTO APPROVAL"
 
 **Status:** ✅ **PLANNING COMPLETE**
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Detailed plan | ✅ | PHASE_14_DETAILED_PLAN.md (2,200+ lines) |
-| 7 audit streams | ✅ | Security, dependencies, smoke, staging, load, playbook, sign-off |
-| Execution summary | ✅ | PHASE_14_EXECUTION_SUMMARY.md (350+ lines) |
-| Artifact index | ✅ | PHASE_14_ARTIFACTS_INDEX.md (600+ lines) |
-| Success criteria | ✅ | 8 criteria defined (all must be ✓) |
-| Team roles | ✅ | Sec. eng., tech lead, QA, ops, CTO assigned |
-| Critical path | ✅ | 3.5 days (can extend to 7 if issues found) |
+| Item              | Status | Evidence                                                         |
+| ----------------- | ------ | ---------------------------------------------------------------- |
+| Detailed plan     | ✅     | PHASE_14_DETAILED_PLAN.md (2,200+ lines)                         |
+| 7 audit streams   | ✅     | Security, dependencies, smoke, staging, load, playbook, sign-off |
+| Execution summary | ✅     | PHASE_14_EXECUTION_SUMMARY.md (350+ lines)                       |
+| Artifact index    | ✅     | PHASE_14_ARTIFACTS_INDEX.md (600+ lines)                         |
+| Success criteria  | ✅     | 8 criteria defined (all must be ✓)                               |
+| Team roles        | ✅     | Sec. eng., tech lead, QA, ops, CTO assigned                      |
+| Critical path     | ✅     | 3.5 days (can extend to 7 if issues found)                       |
 
 **Blockers:** NONE  
 **Dependencies:** Phases 4–13 merged to main (✅ expected Aug 23)  
@@ -86,16 +86,16 @@ status: "PENDING CTO APPROVAL"
 
 **Status:** ✅ **PLANNING COMPLETE**
 
-| Item | Status | Evidence |
-|------|--------|----------|
-| Deployment plan | ✅ | PHASE_15_DETAILED_PLAN.md (1,200+ lines) |
-| Deployment checklist | ✅ | PHASE_15_DEPLOYMENT_CHECKLIST.md (400+ lines) |
-| Executive summary | ✅ | PHASE_15_EXECUTIVE_SUMMARY.md (300+ lines) |
-| 4-step procedure | ✅ | Rules, functions, hosting, smoke tests (2h 25 min) |
-| 48h monitoring | ✅ | Automated script + manual spot-checks |
-| Success criteria | ✅ | 7 criteria (0 P0 incidents required) |
-| Rollback procedure | ✅ | Tested, <5–30 min recovery |
-| Team roles | ✅ | DevOps, QA, on-call, CTO assigned |
+| Item                 | Status | Evidence                                           |
+| -------------------- | ------ | -------------------------------------------------- |
+| Deployment plan      | ✅     | PHASE_15_DETAILED_PLAN.md (1,200+ lines)           |
+| Deployment checklist | ✅     | PHASE_15_DEPLOYMENT_CHECKLIST.md (400+ lines)      |
+| Executive summary    | ✅     | PHASE_15_EXECUTIVE_SUMMARY.md (300+ lines)         |
+| 4-step procedure     | ✅     | Rules, functions, hosting, smoke tests (2h 25 min) |
+| 48h monitoring       | ✅     | Automated script + manual spot-checks              |
+| Success criteria     | ✅     | 7 criteria (0 P0 incidents required)               |
+| Rollback procedure   | ✅     | Tested, <5–30 min recovery                         |
+| Team roles           | ✅     | DevOps, QA, on-call, CTO assigned                  |
 
 **Blockers:** NONE  
 **Dependencies:** Phase 14 sign-off (✅ expected Aug 31 19:00)  
@@ -110,42 +110,42 @@ status: "PENDING CTO APPROVAL"
 
 ### DICQ Compliance Trajectory
 
-| Milestone | Phase | Target | Path to 90%+ |
-|-----------|-------|--------|-------------|
-| v1.3 Baseline | — | 78.5% | ✅ Captured |
-| Phase 4 Gate | 4 | 82% | ✅ Planned (+2–4 pts) |
-| Phase 14 Gate | 14 | 88% | ✅ Planned (+4–6 pts) |
-| **Final Target** | **15** | **90%+** | ✅ Expected |
+| Milestone        | Phase  | Target   | Path to 90%+          |
+| ---------------- | ------ | -------- | --------------------- |
+| v1.3 Baseline    | —      | 78.5%    | ✅ Captured           |
+| Phase 4 Gate     | 4      | 82%      | ✅ Planned (+2–4 pts) |
+| Phase 14 Gate    | 14     | 88%      | ✅ Planned (+4–6 pts) |
+| **Final Target** | **15** | **90%+** | ✅ Expected           |
 
 **Status:** ✅ Compliance roadmap verified. All blocks A–J addressed in phases.
 
 ### RDC 978/2025 Coverage
 
-| Article | Phase | Topic | Status |
-|---------|-------|-------|--------|
-| Art. 5.3 | 0 | Event reporting | ✅ LIVE |
-| Art. 6º §1 | 4 | NOTIVISA | ✅ Planned |
-| Arts. 36–39 | 0 | Lab support | ✅ LIVE |
-| Art. 77 | 0 | LGPD | ✅ LIVE |
-| Art. 86 | 0 | Risk management | ✅ LIVE |
-| Art. 115 | 4 | Authentication | ✅ Planned |
-| Art. 117 | 0 | Supervision | ✅ LIVE |
-| Art. 122 | 0 | Shift registry | ✅ LIVE |
-| Art. 147 | 8 | CAPA | ✅ Planned |
-| Art. 167 | 4 | Critical values | ✅ Planned |
-| Arts. 179–191 | 5 | Test validation | ✅ Planned |
-| Art. 204 | 4 | Records | ✅ Planned |
+| Article       | Phase | Topic           | Status     |
+| ------------- | ----- | --------------- | ---------- |
+| Art. 5.3      | 0     | Event reporting | ✅ LIVE    |
+| Art. 6º §1    | 4     | NOTIVISA        | ✅ Planned |
+| Arts. 36–39   | 0     | Lab support     | ✅ LIVE    |
+| Art. 77       | 0     | LGPD            | ✅ LIVE    |
+| Art. 86       | 0     | Risk management | ✅ LIVE    |
+| Art. 115      | 4     | Authentication  | ✅ Planned |
+| Art. 117      | 0     | Supervision     | ✅ LIVE    |
+| Art. 122      | 0     | Shift registry  | ✅ LIVE    |
+| Art. 147      | 8     | CAPA            | ✅ Planned |
+| Art. 167      | 4     | Critical values | ✅ Planned |
+| Arts. 179–191 | 5     | Test validation | ✅ Planned |
+| Art. 204      | 4     | Records         | ✅ Planned |
 
 **Status:** ✅ 100% RDC 978 critical articles mapped and addressed.
 
 ### LGPD Alignment
 
-| Article | Phase | Topic | Status |
-|---------|-------|-------|--------|
-| Art. 9 | 4 | Consent management | ✅ Email-link auth |
-| Art. 18 | 11 | Right to access | ✅ Patient portal |
-| Art. 38 | 4 | Secure communication | ✅ Email tokens |
-| DPIA | 0 | Data impact | ✅ IT-LGPD-DPIA-001 |
+| Article | Phase | Topic                | Status              |
+| ------- | ----- | -------------------- | ------------------- |
+| Art. 9  | 4     | Consent management   | ✅ Email-link auth  |
+| Art. 18 | 11    | Right to access      | ✅ Patient portal   |
+| Art. 38 | 4     | Secure communication | ✅ Email tokens     |
+| DPIA    | 0     | Data impact          | ✅ IT-LGPD-DPIA-001 |
 
 **Status:** ✅ LGPD articles 9, 18, 38 + DPIA implemented in phases.
 
@@ -155,41 +155,41 @@ status: "PENDING CTO APPROVAL"
 
 ### Phase 12 Risk Profile
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Bundle regression | Medium | Low | Weekly monitoring | ✅ Planned |
-| N+1 query discovery | Medium | Medium | Profiler + audit | ✅ Planned |
-| Mobile gaps | Low | Medium | DevTools audit | ✅ Planned |
+| Risk                | Severity | Likelihood | Mitigation        | Status     |
+| ------------------- | -------- | ---------- | ----------------- | ---------- |
+| Bundle regression   | Medium   | Low        | Weekly monitoring | ✅ Planned |
+| N+1 query discovery | Medium   | Medium     | Profiler + audit  | ✅ Planned |
+| Mobile gaps         | Low      | Medium     | DevTools audit    | ✅ Planned |
 
 **Overall:** 2.5/10 (LOW)
 
 ### Phase 4 Risk Profile
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| SMTP provisioning delay | Medium | Low | Fallback service | ✅ Planned |
-| NOTIVISA rate limits | Medium | Low | Exponential backoff | ✅ Designed |
-| Email edge cases | Low | Medium | Test matrix | ✅ Planned |
+| Risk                    | Severity | Likelihood | Mitigation          | Status      |
+| ----------------------- | -------- | ---------- | ------------------- | ----------- |
+| SMTP provisioning delay | Medium   | Low        | Fallback service    | ✅ Planned  |
+| NOTIVISA rate limits    | Medium   | Low        | Exponential backoff | ✅ Designed |
+| Email edge cases        | Low      | Medium     | Test matrix         | ✅ Planned  |
 
 **Overall:** 3.5/10 (LOW)
 
 ### Phase 14 Risk Profile
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Critical vulnerability | High | Low | Rollback + patch | ✅ Tested |
-| Load test bottleneck | Medium | Medium | 1-week contingency | ✅ Planned |
-| Smoke test flakiness | Low | Medium | Rerun + investigate | ✅ Planned |
+| Risk                   | Severity | Likelihood | Mitigation          | Status     |
+| ---------------------- | -------- | ---------- | ------------------- | ---------- |
+| Critical vulnerability | High     | Low        | Rollback + patch    | ✅ Tested  |
+| Load test bottleneck   | Medium   | Medium     | 1-week contingency  | ✅ Planned |
+| Smoke test flakiness   | Low      | Medium     | Rerun + investigate | ✅ Planned |
 
 **Overall:** 3.0/10 (LOW)
 
 ### Phase 15 Risk Profile
 
-| Risk | Severity | Likelihood | Mitigation | Status |
-|------|----------|-----------|-----------|--------|
-| Deploy step timeout | Medium | Low | Rollback procedure | ✅ Tested |
-| Cloud Logs overwhelm | Low | Low | Retention extension | ✅ Planned |
-| Real-world validation fail | Medium | Low | Fallback to smoke | ✅ Planned |
+| Risk                       | Severity | Likelihood | Mitigation          | Status     |
+| -------------------------- | -------- | ---------- | ------------------- | ---------- |
+| Deploy step timeout        | Medium   | Low        | Rollback procedure  | ✅ Tested  |
+| Cloud Logs overwhelm       | Low      | Low        | Retention extension | ✅ Planned |
+| Real-world validation fail | Medium   | Low        | Fallback to smoke   | ✅ Planned |
 
 **Overall:** 3.0/10 (LOW)
 
@@ -201,29 +201,29 @@ status: "PENDING CTO APPROVAL"
 
 ### Incident Response Infrastructure
 
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| Severity matrix | ✅ | 4 levels (GREEN/YELLOW/RED/BLACK) defined |
-| On-call rotation | ✅ | 4-week schedule, 24/7 coverage ready |
-| Runbooks | ✅ | 10 indexed, decision trees documented |
-| Communication templates | ✅ | 4 templates (activation, update, resolution, close) |
-| Contact tree | 📋 | Structure complete, awaiting names/numbers |
-| Slack channels | 📋 | Need creation (#on-call-paging, #production-emergency) |
-| Mock incident drill | 📋 | Team training required before launch |
+| Component               | Status | Evidence                                               |
+| ----------------------- | ------ | ------------------------------------------------------ |
+| Severity matrix         | ✅     | 4 levels (GREEN/YELLOW/RED/BLACK) defined              |
+| On-call rotation        | ✅     | 4-week schedule, 24/7 coverage ready                   |
+| Runbooks                | ✅     | 10 indexed, decision trees documented                  |
+| Communication templates | ✅     | 4 templates (activation, update, resolution, close)    |
+| Contact tree            | 📋     | Structure complete, awaiting names/numbers             |
+| Slack channels          | 📋     | Need creation (#on-call-paging, #production-emergency) |
+| Mock incident drill     | 📋     | Team training required before launch                   |
 
 **Status:** 95% ready. CTO to populate contact tree before Phase 4 kickoff.
 
 ### SLO & Monitoring Infrastructure
 
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| SLO definitions | ✅ | 4 SLOs (availability, performance, error rate, audit) |
-| Alert policies | ✅ | Thresholds defined and tested |
-| Cloud Logs setup | ✅ | Retention extended, filters ready |
-| 48h monitoring script | ✅ | Bash + PowerShell, ready to execute |
-| Weekly baseline | ✅ | Monday 08:00 UTC, automated |
-| Dashboard import | ✅ | JSON ready, Cloud Monitoring integration |
-| Monthly reporting | ✅ | Template ready, fillable format |
+| Component             | Status | Evidence                                              |
+| --------------------- | ------ | ----------------------------------------------------- |
+| SLO definitions       | ✅     | 4 SLOs (availability, performance, error rate, audit) |
+| Alert policies        | ✅     | Thresholds defined and tested                         |
+| Cloud Logs setup      | ✅     | Retention extended, filters ready                     |
+| 48h monitoring script | ✅     | Bash + PowerShell, ready to execute                   |
+| Weekly baseline       | ✅     | Monday 08:00 UTC, automated                           |
+| Dashboard import      | ✅     | JSON ready, Cloud Monitoring integration              |
+| Monthly reporting     | ✅     | Template ready, fillable format                       |
 
 **Status:** 100% ready. Can deploy Day 1 of Phase 15.
 
@@ -233,36 +233,36 @@ status: "PENDING CTO APPROVAL"
 
 ### Planning Documents (Complete)
 
-| Document | Location | Lines | Status |
-|----------|----------|-------|--------|
-| Phase 12 Plan | `.planning/phases/12-performance-audit/` | 1,200+ | ✅ |
-| Phase 4 Checklist | `root` | 450+ | ✅ |
-| Phase 14 Plan | `.planning/phases/14-pre-launch-security-stability/` | 2,200+ | ✅ |
-| Phase 15 Plan | `.planning/phases/15-launch-monitoring/` | 1,200+ | ✅ |
+| Document          | Location                                             | Lines  | Status |
+| ----------------- | ---------------------------------------------------- | ------ | ------ |
+| Phase 12 Plan     | `.planning/phases/12-performance-audit/`             | 1,200+ | ✅     |
+| Phase 4 Checklist | `root`                                               | 450+   | ✅     |
+| Phase 14 Plan     | `.planning/phases/14-pre-launch-security-stability/` | 2,200+ | ✅     |
+| Phase 15 Plan     | `.planning/phases/15-launch-monitoring/`             | 1,200+ | ✅     |
 
 **Total:** 4,050+ lines of execution plans
 
 ### Operational Documents (Complete)
 
-| Document | Status | Owner |
-|----------|--------|-------|
-| Incident Response Contacts | ✅ | CTO (contact tree TBD) |
-| SLO Tracking Manifest | ✅ | DevOps |
-| Cloud Logs Monitoring Guide | ✅ | DevOps |
-| Performance Baseline | ✅ | CTO |
-| Risk Register | ✅ | CTO |
-| DICQ Coverage Matrix | ✅ | CTO |
-| RDC 978 Matrix | ✅ | CTO |
+| Document                    | Status | Owner                  |
+| --------------------------- | ------ | ---------------------- |
+| Incident Response Contacts  | ✅     | CTO (contact tree TBD) |
+| SLO Tracking Manifest       | ✅     | DevOps                 |
+| Cloud Logs Monitoring Guide | ✅     | DevOps                 |
+| Performance Baseline        | ✅     | CTO                    |
+| Risk Register               | ✅     | CTO                    |
+| DICQ Coverage Matrix        | ✅     | CTO                    |
+| RDC 978 Matrix              | ✅     | CTO                    |
 
 **Total:** 7 operational docs, production-ready
 
 ### Support Documents (Complete)
 
-| Document | Status |
-|----------|--------|
-| WAVE_4_GO_LIVE_COORDINATION_REPORT.md | ✅ 3,000+ lines |
-| GO_LIVE_EXECUTIVE_SUMMARY.md | ✅ 500+ lines |
-| WAVE_4_SIGN_OFF.md | ✅ This document |
+| Document                              | Status           |
+| ------------------------------------- | ---------------- |
+| WAVE_4_GO_LIVE_COORDINATION_REPORT.md | ✅ 3,000+ lines  |
+| GO_LIVE_EXECUTIVE_SUMMARY.md          | ✅ 500+ lines    |
+| WAVE_4_SIGN_OFF.md                    | ✅ This document |
 
 ---
 
@@ -485,12 +485,12 @@ AUDITOR SIGN-OFF
 
 ✅ **ALL PHASES READY FOR EXECUTION**
 
-| Phase | Planning | Infrastructure | Compliance | Operational | Ready |
-|-------|----------|-----------------|-----------|-------------|-------|
-| **Phase 12** | ✅ | ✅ | ✅ | ✅ | ✅ YES |
-| **Phase 4** | ✅ | ✅ | ✅ | ✅ | ✅ YES |
-| **Phase 14** | ✅ | ✅ | ✅ | ✅ | ✅ YES |
-| **Phase 15** | ✅ | ✅ | ✅ | ✅ | ✅ YES |
+| Phase        | Planning | Infrastructure | Compliance | Operational | Ready  |
+| ------------ | -------- | -------------- | ---------- | ----------- | ------ |
+| **Phase 12** | ✅       | ✅             | ✅         | ✅          | ✅ YES |
+| **Phase 4**  | ✅       | ✅             | ✅         | ✅          | ✅ YES |
+| **Phase 14** | ✅       | ✅             | ✅         | ✅          | ✅ YES |
+| **Phase 15** | ✅       | ✅             | ✅         | ✅          | ✅ YES |
 
 **Overall Status: ✅ APPROVED FOR GO-LIVE**
 
@@ -510,7 +510,7 @@ I certify that all phases are planned, all prerequisites are met, all risk mitig
 
 **Signature:** Claude Haiku 4.5 (Automated)  
 **Date:** 2026-05-07 22:45 UTC  
-**Title:** Wave 4 Release Manager  
+**Title:** Wave 4 Release Manager
 
 ---
 
@@ -518,8 +518,8 @@ I certify that all phases are planned, all prerequisites are met, all risk mitig
 
 I have reviewed all 4 phase plans and operational documentation. I approve v1.4 Phase 4 kickoff (2026-05-20) and authorize Phase 15 production deployment (2026-08-31).
 
-**Signature:** _____________________ (CTO)  
-**Date:** _____ (before 2026-05-19 EOB)  
+**Signature:** **********\_********** (CTO)  
+**Date:** **\_** (before 2026-05-19 EOB)  
 **Approval:** [ ] YES | [ ] NO | [ ] DEFER
 
 ---
@@ -528,8 +528,8 @@ I have reviewed all 4 phase plans and operational documentation. I approve v1.4 
 
 I have reviewed the compliance mapping (DICQ, RDC 978, LGPD) and approve Phase 4 architecture (ADRs 0022–0026). I will review Phase 14 audit results before authorizing Phase 15 deployment.
 
-**Signature:** _____________________ (Auditor)  
-**Date:** _____ (before 2026-08-31 19:00 UTC)  
+**Signature:** **********\_********** (Auditor)  
+**Date:** **\_** (before 2026-08-31 19:00 UTC)  
 **Approval:** [ ] YES | [ ] NO | [ ] CONDITIONS
 
 ---
@@ -549,6 +549,7 @@ I have reviewed the compliance mapping (DICQ, RDC 978, LGPD) and approve Phase 4
 
 **This document:** `.planning/WAVE_4_SIGN_OFF.md`  
 **Companion docs:**
+
 - `.planning/WAVE_4_GO_LIVE_COORDINATION_REPORT.md` (full 50+ page report)
 - `.planning/GO_LIVE_EXECUTIVE_SUMMARY.md` (executive brief)
 - `.planning/phases/12-performance-audit/PHASE_12_DETAILED_PLAN.md`

@@ -7,12 +7,12 @@ Esta pasta guarda amostras digitalizadas (PDF/PNG/JPG) dos formulários físicos
 
 ## Arquivos esperados
 
-| Arquivo | Descrição | Usado em |
-|---|---|---|
-| `FR-10-vazio-Ver00.pdf` | Formulário em branco FR-10 Ver.00 (Rastreabilidade de Insumos) | Base do layout do export PDF (fase F11 do plano) |
+| Arquivo                                    | Descrição                                                        | Usado em                                                                        |
+| ------------------------------------------ | ---------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| `FR-10-vazio-Ver00.pdf`                    | Formulário em branco FR-10 Ver.00 (Rastreabilidade de Insumos)   | Base do layout do export PDF (fase F11 do plano)                                |
 | `FR-10-preenchido-2024-2025.{pdf,png,jpg}` | FR-10 preenchido à mão da Labclin, 11/2024–06/2025, Yumizen H550 | Referência visual para acceptance da F11; base das observações da §1.6 do plano |
-| `FR-036-*.pdf` | Formulário CIQ Imuno (já implementado) | Referência do export atual |
-| `FR-008-*.pdf` | Formulário Coagulação | Referência do export atual |
+| `FR-036-*.pdf`                             | Formulário CIQ Imuno (já implementado)                           | Referência do export atual                                                      |
+| `FR-008-*.pdf`                             | Formulário Coagulação                                            | Referência do export atual                                                      |
 
 ## Como contribuir
 

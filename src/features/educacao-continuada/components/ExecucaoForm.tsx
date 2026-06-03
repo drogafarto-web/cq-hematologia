@@ -2,10 +2,7 @@ import { useMemo, useState, type FormEvent } from 'react';
 
 import { Timestamp, functions, httpsCallable } from '../../../shared/services/firebase';
 import { useExecucoes } from '../hooks/useExecucoes';
-import {
-  useSaveExecucao,
-  type PresencaInput,
-} from '../hooks/useSaveExecucao';
+import { useSaveExecucao, type PresencaInput } from '../hooks/useSaveExecucao';
 import { useTreinamentos } from '../hooks/useTreinamentos';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 
@@ -18,11 +15,7 @@ interface MintResp {
   signatures: Array<{ hash: string; operatorId: string; tsMillis: number }>;
 }
 const callMintSignature = httpsCallable<MintWire, MintResp>(functions, 'ec_mintSignature');
-import type {
-  Execucao,
-  ExecucaoStatus,
-  Treinamento,
-} from '../types/EducacaoContinuada';
+import type { Execucao, ExecucaoStatus, Treinamento } from '../types/EducacaoContinuada';
 
 import { Field, inputClass, selectClass } from './_formPrimitives';
 import { ParticipantesModal } from './ParticipantesModal';
@@ -128,10 +121,7 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
     [treinamentos, state.treinamentoId],
   );
 
-  const totalPresentes = useMemo(
-    () => presencas.filter((p) => p.presente).length,
-    [presencas],
-  );
+  const totalPresentes = useMemo(() => presencas.filter((p) => p.presente).length, [presencas]);
 
   const handleChange = <K extends keyof FormState>(key: K, value: FormState[K]): void => {
     setState((prev) => ({ ...prev, [key]: value }));
@@ -150,12 +140,14 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
     if (!state.dataAplicacao) errs.dataAplicacao = 'Data da aplicação é obrigatória.';
     if (state.ministrante.trim().length === 0) errs.ministrante = 'Ministrante é obrigatório.';
     if (state.pauta.trim().length === 0) errs.pauta = 'Pauta é obrigatória.';
-    if (totalPresentes === 0) errs.participantes = 'RN-03: registre ao menos 1 participante presente.';
+    if (totalPresentes === 0)
+      errs.participantes = 'RN-03: registre ao menos 1 participante presente.';
   };
 
   const validateAdiado = (errs: FormErrors): void => {
     if (!state.novaDataPlanejada) errs.novaDataPlanejada = 'Informe a nova data planejada.';
-    if (state.motivoAdiamento.trim().length === 0) errs.motivoAdiamento = 'Informe o motivo do adiamento.';
+    if (state.motivoAdiamento.trim().length === 0)
+      errs.motivoAdiamento = 'Informe o motivo do adiamento.';
     const original = dateInputToTs(state.dataPlanejada);
     const nova = dateInputToTs(state.novaDataPlanejada);
     if (original && nova && nova.toMillis() <= original.toMillis()) {
@@ -281,12 +273,7 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
           </p>
         </header>
 
-        <Field
-          id="execucao-treinamento"
-          label="Treinamento"
-          required
-          error={errors.treinamentoId}
-        >
+        <Field id="execucao-treinamento" label="Treinamento" required error={errors.treinamentoId}>
           <select
             id="execucao-treinamento"
             value={state.treinamentoId}
@@ -305,7 +292,12 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
         </Field>
 
         <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
-          <Field id="execucao-data-planejada" label="Data planejada" required error={errors.dataPlanejada}>
+          <Field
+            id="execucao-data-planejada"
+            label="Data planejada"
+            required
+            error={errors.dataPlanejada}
+          >
             <input
               id="execucao-data-planejada"
               type="date"
@@ -346,7 +338,12 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
               Registro da realização
             </h3>
 
-            <Field id="execucao-data-aplicacao" label="Data da aplicação" required error={errors.dataAplicacao}>
+            <Field
+              id="execucao-data-aplicacao"
+              label="Data da aplicação"
+              required
+              error={errors.dataAplicacao}
+            >
               <input
                 id="execucao-data-aplicacao"
                 type="date"
@@ -358,7 +355,12 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
               />
             </Field>
 
-            <Field id="execucao-ministrante" label="Ministrante" required error={errors.ministrante}>
+            <Field
+              id="execucao-ministrante"
+              label="Ministrante"
+              required
+              error={errors.ministrante}
+            >
               <input
                 id="execucao-ministrante"
                 type="text"
@@ -407,11 +409,16 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
               Reagendamento — RN-01
             </h3>
             <p className="text-xs text-amber-200/70">
-              Marcará esta execução como adiada e criará uma nova execução
-              planejada automaticamente, mantendo o histórico.
+              Marcará esta execução como adiada e criará uma nova execução planejada
+              automaticamente, mantendo o histórico.
             </p>
 
-            <Field id="execucao-nova-data" label="Nova data planejada" required error={errors.novaDataPlanejada}>
+            <Field
+              id="execucao-nova-data"
+              label="Nova data planejada"
+              required
+              error={errors.novaDataPlanejada}
+            >
               <input
                 id="execucao-nova-data"
                 type="date"
@@ -423,7 +430,12 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
               />
             </Field>
 
-            <Field id="execucao-motivo" label="Motivo do adiamento" required error={errors.motivoAdiamento}>
+            <Field
+              id="execucao-motivo"
+              label="Motivo do adiamento"
+              required
+              error={errors.motivoAdiamento}
+            >
               <textarea
                 id="execucao-motivo"
                 value={state.motivoAdiamento}
@@ -438,7 +450,10 @@ export function ExecucaoForm({ execucao, onSaved, onCancel }: ExecucaoFormProps)
         )}
 
         {errors.submit && (
-          <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+          <p
+            role="alert"
+            className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+          >
             {errors.submit}
           </p>
         )}
@@ -483,4 +498,3 @@ function submitLabel(status: ExecucaoStatus, isEditing: boolean): string {
   if (status === 'cancelado') return 'Cancelar execução';
   return isEditing ? 'Salvar alterações' : 'Criar execução';
 }
-

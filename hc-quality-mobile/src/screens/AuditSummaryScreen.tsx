@@ -1,11 +1,5 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-} from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, StyleSheet } from 'react-native';
 import { colors, spacing, typography, borderRadius } from '../theme/darkTheme';
 import { Severity } from '../components/audit/FindingSheet';
 
@@ -44,12 +38,7 @@ export function AuditSummaryScreen({
   navigation,
   route,
 }: AuditSummaryScreenProps): React.JSX.Element {
-  const {
-    totalItems = 57,
-    conformeCount = 45,
-    ncCount = 8,
-    naCount = 4,
-  } = route.params;
+  const { totalItems = 57, conformeCount = 45, ncCount = 8, naCount = 4 } = route.params;
 
   const findingsList: FindingSummary[] = useMemo(() => {
     if (route.params.findings) {
@@ -61,22 +50,30 @@ export function AuditSummaryScreen({
     }
     // Mock findings for display
     return [
-      { id: '1', description: 'Reagente vencido na bancada de bioquímica', severity: 'grave' as Severity },
-      { id: '2', description: 'Ausência de registro de temperatura às 14h', severity: 'moderada' as Severity },
-      { id: '3', description: 'EPI sem identificação do colaborador', severity: 'leve' as Severity },
+      {
+        id: '1',
+        description: 'Reagente vencido na bancada de bioquímica',
+        severity: 'grave' as Severity,
+      },
+      {
+        id: '2',
+        description: 'Ausência de registro de temperatura às 14h',
+        severity: 'moderada' as Severity,
+      },
+      {
+        id: '3',
+        description: 'EPI sem identificação do colaborador',
+        severity: 'leve' as Severity,
+      },
     ];
   }, [route.params.findings]);
 
   const respondedItems = conformeCount + ncCount + naCount;
-  const score = respondedItems > 0
-    ? Math.round((conformeCount / (conformeCount + ncCount)) * 100)
-    : 0;
+  const score =
+    respondedItems > 0 ? Math.round((conformeCount / (conformeCount + ncCount)) * 100) : 0;
 
-  const scoreColor = score >= 80
-    ? colors.accent.emerald
-    : score >= 60
-      ? colors.accent.amber
-      : colors.accent.red;
+  const scoreColor =
+    score >= 80 ? colors.accent.emerald : score >= 60 ? colors.accent.amber : colors.accent.red;
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
@@ -117,9 +114,7 @@ export function AuditSummaryScreen({
 
       {/* Findings list */}
       <View style={styles.findingsSection}>
-        <Text style={styles.sectionTitle}>
-          Achados ({findingsList.length})
-        </Text>
+        <Text style={styles.sectionTitle}>Achados ({findingsList.length})</Text>
         {findingsList.length === 0 ? (
           <Text style={styles.noFindings}>Nenhuma não conformidade registrada</Text>
         ) : (

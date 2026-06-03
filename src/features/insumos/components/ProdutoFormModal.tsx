@@ -95,7 +95,13 @@ const MODULO_LABEL: Record<InsumoModulo, string> = {
   bioquimica: 'Bioquímica',
 };
 
-const MODULOS: InsumoModulo[] = ['hematologia', 'coagulacao', 'uroanalise', 'imunologia', 'bioquimica'];
+const MODULOS: InsumoModulo[] = [
+  'hematologia',
+  'coagulacao',
+  'uroanalise',
+  'imunologia',
+  'bioquimica',
+];
 
 // ─── Componentes Auxiliares ───────────────────────────────────────────────────
 
@@ -120,11 +126,9 @@ function NivelControleField({
   const opcoes = moduloPrimario
     ? niveisDoModulo(moduloPrimario)
     : (NIVEIS_QUANTITATIVOS as ReadonlyArray<InsumoNivel>);
-  
-  const labelTexto = isImuno
-    ? 'Polaridade default (controle)'
-    : 'Nível default (controle)';
-  
+
+  const labelTexto = isImuno ? 'Polaridade default (controle)' : 'Nível default (controle)';
+
   const labelOpcao: Record<InsumoNivel, string> = {
     normal: 'Normal',
     patologico: 'Patológico',
@@ -135,7 +139,8 @@ function NivelControleField({
   };
 
   // Evita React warning: se o nível salvo for incompatível com as opções, reseta para vazio
-  const selectValue = nivelDefault && !opcoes.includes(nivelDefault as InsumoNivel) ? '' : nivelDefault;
+  const selectValue =
+    nivelDefault && !opcoes.includes(nivelDefault as InsumoNivel) ? '' : nivelDefault;
 
   return (
     <Field
@@ -193,9 +198,7 @@ export function ProdutoFormModal({
   const [diasEstabilidadeAberturaDefault, setDias] = useState<number | ''>(
     produto?.diasEstabilidadeAberturaDefault ?? '',
   );
-  const [nivelDefault, setNivelDefault] = useState<InsumoNivel | ''>(
-    produto?.nivelDefault ?? '',
-  );
+  const [nivelDefault, setNivelDefault] = useState<InsumoNivel | ''>(produto?.nivelDefault ?? '');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -243,10 +246,7 @@ export function ProdutoFormModal({
   // Nomes legados selecionados que não correspondem a nenhum equipamento
   // atualmente cadastrado — preserva valores criados antes de a feature
   // de equipamentos existir. Exibidos como chips separados com flag "livre".
-  const nomesDoLab = useMemo(
-    () => new Set(labEquipamentos.map((e) => e.name)),
-    [labEquipamentos],
-  );
+  const nomesDoLab = useMemo(() => new Set(labEquipamentos.map((e) => e.name)), [labEquipamentos]);
   const equipamentosLivresSelecionados = useMemo(
     () => equipamentosSelecionados.filter((n) => !nomesDoLab.has(n)),
     [equipamentosSelecionados, nomesDoLab],
@@ -311,8 +311,7 @@ export function ProdutoFormModal({
           codigoFabricante: codigoFabricante.trim() || null,
           funcaoTecnica: funcaoTecnica.trim() || null,
           registroAnvisa: registroAnvisa.trim() || null,
-          equipamentosCompativeis:
-            equipamentosArr.length > 0 ? equipamentosArr : null,
+          equipamentosCompativeis: equipamentosArr.length > 0 ? equipamentosArr : null,
           diasEstabilidadeAberturaDefault:
             typeof diasEstabilidadeAberturaDefault === 'number'
               ? diasEstabilidadeAberturaDefault
@@ -400,7 +399,12 @@ export function ProdutoFormModal({
             className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 dark:text-white/40 dark:hover:text-white/80 hover:bg-slate-100 dark:hover:bg-white/[0.05] transition-all"
           >
             <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
-              <path d="M3 3l8 8M11 3l-8 8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M3 3l8 8M11 3l-8 8"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
           </button>
         </div>
@@ -433,7 +437,11 @@ export function ProdutoFormModal({
                     }
                   `}
                 >
-                  {t === 'reagente' ? 'Reagente' : t === 'controle' ? 'Controle' : 'Tira (uroanálise)'}
+                  {t === 'reagente'
+                    ? 'Reagente'
+                    : t === 'controle'
+                      ? 'Controle'
+                      : 'Tira (uroanálise)'}
                 </button>
               ))}
             </div>
@@ -681,7 +689,9 @@ export function ProdutoFormModal({
                 min={0}
                 max={365}
                 className={INPUT_CLS}
-                value={diasEstabilidadeAberturaDefault === '' ? '' : diasEstabilidadeAberturaDefault}
+                value={
+                  diasEstabilidadeAberturaDefault === '' ? '' : diasEstabilidadeAberturaDefault
+                }
                 onChange={(e) => {
                   const v = e.target.value;
                   setDias(v === '' ? '' : Math.max(0, Math.min(365, Number(v))));
@@ -718,11 +728,7 @@ export function ProdutoFormModal({
               disabled={submitting}
               className="px-5 h-10 rounded-xl bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 text-white text-sm font-medium"
             >
-              {submitting
-                ? 'Salvando…'
-                : isEdit
-                  ? 'Salvar alterações'
-                  : 'Cadastrar produto'}
+              {submitting ? 'Salvando…' : isEdit ? 'Salvar alterações' : 'Cadastrar produto'}
             </button>
           </div>
         </form>

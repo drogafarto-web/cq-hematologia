@@ -3,13 +3,14 @@
 **Document ID:** IRC-COMPLIANCE-001  
 **Version:** 1.0  
 **Effective Date:** 2026-05-07  
-**Classification:** DICQ 4.4 (Gestão de documentação + Rastreabilidade)  
+**Classification:** DICQ 4.4 (Gestão de documentação + Rastreabilidade)
 
 ---
 
 ## Executive Summary
 
 This document maps incident response procedures in the Incident Response Playbook to regulatory requirements in:
+
 - **RDC 978/2025** — ANVISA regulation for clinical laboratories
 - **Lei 13.709/2018 (LGPD)** — Brazilian Data Protection Law
 - **DICQ v4.3** — ISO 15189 Competency Accreditation Program
@@ -23,18 +24,20 @@ This document maps incident response procedures in the Incident Response Playboo
 ### RDC 978 Art. 5 — Gestão de Qualidade (Quality Management)
 
 **Requirement:**
+
 > "O Laboratório Clínico deve estabelecer e manter documentada uma política de qualidade que garanta a confiabilidade dos resultados, a segurança do paciente e a rastreabilidade das operações. Incidentes de segurança e conformidade devem ser documentados, investigados e resolvidos dentro de prazos regulamentares."
 
 **Mapping to Playbook:**
 
-| Playbook Section | RDC 978 Compliance | Evidence |
-|---|---|---|
+| Playbook Section                        | RDC 978 Compliance                                      | Evidence                                                                 |
+| --------------------------------------- | ------------------------------------------------------- | ------------------------------------------------------------------------ |
 | **Section 1 — Incident Classification** | Art. 5: Incidents must be classified by impact and risk | Severity matrix (P0/P1/P2) with patient safety + regulatory implications |
-| **Section 2.4 — Investigation** | Art. 5: Root cause analysis required | Investigation checklist + evidence collection procedures |
-| **Section 3.5 — Post-Mortem** | Art. 5: Findings must be documented | Post-mortem template with RCA + preventive actions |
-| **Section 6 — Compliance Checklist** | Art. 5: Audit trail immutable | Evidence preservation in GCS + signing |
+| **Section 2.4 — Investigation**         | Art. 5: Root cause analysis required                    | Investigation checklist + evidence collection procedures                 |
+| **Section 3.5 — Post-Mortem**           | Art. 5: Findings must be documented                     | Post-mortem template with RCA + preventive actions                       |
+| **Section 6 — Compliance Checklist**    | Art. 5: Audit trail immutable                           | Evidence preservation in GCS + signing                                   |
 
 **Evidence Required for Auditor:**
+
 - Incident log with date/time/severity
 - Investigation file with root cause analysis
 - Post-mortem report with preventive actions
@@ -45,18 +48,20 @@ This document maps incident response procedures in the Incident Response Playboo
 ### RDC 978 Art. 86 — Rastreabilidade (Traceability)
 
 **Requirement:**
+
 > "Todas as operações com resultados de exames, laudos e registros críticos devem ser rastreáveis. Incluindo: quem fez, quando, o quê, por quê (indicação), assinatura eletrônica com data/hora."
 
 **Mapping to Playbook:**
 
-| Incident Type | Art. 86 Impact | Playbook Response |
-|---|---|---|
-| **Data Corruption** | Rastreabilidade quebrada (compromised audit trail) | Section 2.6.3: Chain-hash validation, backup restore, audit trail repair |
-| **Unauthorized Access** | Reads not logged (breach of who-accessed-what) | Section 2.6.1: Evidence preservation, Firestore audit log export |
-| **System Outage** | Operations not recorded during downtime | Section 2.6.2: Downtime window documented, no data loss claim, RTO target |
-| **Chain Hash Invalid** | Signatures forged or tampered | Section 4.3: Rule evaluation trace, signature verification test |
+| Incident Type           | Art. 86 Impact                                     | Playbook Response                                                         |
+| ----------------------- | -------------------------------------------------- | ------------------------------------------------------------------------- |
+| **Data Corruption**     | Rastreabilidade quebrada (compromised audit trail) | Section 2.6.3: Chain-hash validation, backup restore, audit trail repair  |
+| **Unauthorized Access** | Reads not logged (breach of who-accessed-what)     | Section 2.6.1: Evidence preservation, Firestore audit log export          |
+| **System Outage**       | Operations not recorded during downtime            | Section 2.6.2: Downtime window documented, no data loss claim, RTO target |
+| **Chain Hash Invalid**  | Signatures forged or tampered                      | Section 4.3: Rule evaluation trace, signature verification test           |
 
 **Auditor Checklist:**
+
 - [ ] Audit trail for all operations ≥12 months old (per Art. 115)
 - [ ] Chain-hash verification script running periodically
 - [ ] Incident logs show who investigated + when
@@ -67,18 +72,20 @@ This document maps incident response procedures in the Incident Response Playboo
 ### RDC 978 Art. 122 — Supervisão de Atividades (Supervision)
 
 **Requirement:**
+
 > "Supervisão contínua das operações laboratoriais, incluindo monitoramento de incidentes, registros de não-conformidade, rastreabilidade de pessoal."
 
 **Mapping to Playbook:**
 
-| Playbook Section | Art. 122 Compliance | Frequency |
-|---|---|---|
-| **Section 2 — Incident Response Workflow** | Supervision: timely detection + escalation | Real-time monitoring (continuous) |
-| **Cloud Logs Monitoring** | Art. 122: Continuous system monitoring | 24h post-deployment + ongoing (docs/CLOUD_LOGS_MONITORING_GUIDE.md) |
-| **Section 5.1 — Hotfix vs Rollback** | Art. 122: Documented decision-making | Per-incident decision tree |
-| **Section 6 — Compliance Checklist** | Art. 122: Post-incident improvement tracking | 30-day review cycle |
+| Playbook Section                           | Art. 122 Compliance                          | Frequency                                                           |
+| ------------------------------------------ | -------------------------------------------- | ------------------------------------------------------------------- |
+| **Section 2 — Incident Response Workflow** | Supervision: timely detection + escalation   | Real-time monitoring (continuous)                                   |
+| **Cloud Logs Monitoring**                  | Art. 122: Continuous system monitoring       | 24h post-deployment + ongoing (docs/CLOUD_LOGS_MONITORING_GUIDE.md) |
+| **Section 5.1 — Hotfix vs Rollback**       | Art. 122: Documented decision-making         | Per-incident decision tree                                          |
+| **Section 6 — Compliance Checklist**       | Art. 122: Post-incident improvement tracking | 30-day review cycle                                                 |
 
 **Evidence Required:**
+
 - Cloud Monitoring alerts (configured + logged)
 - On-call schedule (coverage matrix)
 - Incident response time logs (detection → escalation → resolution)
@@ -91,17 +98,19 @@ This document maps incident response procedures in the Incident Response Playboo
 ### LGPD Art. 18 — Direito de Acesso (Access Right)
 
 **Requirement:**
+
 > "O titular dos dados tem direito de acessar seus dados pessoais coletados. O controlador deve fornecer cópia dentro de 30 dias."
 
 **Mapping to Playbook:**
 
-| Incident Type | Art. 18 Scenario | Playbook Response |
-|---|---|---|
-| **Compliance Violation** | LGPD request not processed in time | Section 2.6.4: Immediate remediation + deadline verification |
-| **Data Corruption** | Export request returns corrupted data | Section 2.6.3: Restore from backup before sending export |
-| **Data Breach** | Unauthorized accessed request export | Section 2.6.1: Notify requester of breach |
+| Incident Type            | Art. 18 Scenario                      | Playbook Response                                            |
+| ------------------------ | ------------------------------------- | ------------------------------------------------------------ |
+| **Compliance Violation** | LGPD request not processed in time    | Section 2.6.4: Immediate remediation + deadline verification |
+| **Data Corruption**      | Export request returns corrupted data | Section 2.6.3: Restore from backup before sending export     |
+| **Data Breach**          | Unauthorized accessed request export  | Section 2.6.1: Notify requester of breach                    |
 
 **Evidence Required:**
+
 - LGPD request tracking: received date, response date, deadline (30 days)
 - Export file manifest (list of fields provided)
 - Audit log showing request processing steps
@@ -112,16 +121,17 @@ This document maps incident response procedures in the Incident Response Playboo
 ### LGPD Art. 34 — Notificação de Incidente (Breach Notification)
 
 **Requirement:**
+
 > "Em caso de incidente de segurança com potencial risco ao titular de dados, o controlador deve notificar: (1) os titulares, (2) a ANPD, (3) órgãos públicos (ANVISA se saúde)."  
 > **Deadline:** 72 hours from detection of confirmed breach
 
 **Mapping to Playbook:**
 
-| Incident Type | Art. 34 Trigger | Playbook Section | Notification |
-|---|---|---|---|
-| **Data Breach** | Patient PII or health records exposed | Section 2.6.1 | Yes: customer + ANPD + ANVISA (if >100 patients) |
-| **Unauthorized Access** | Attacker accessed sensitive data | Section 2.5 | Yes: evidence investigation required |
-| **Credential Compromise** | Secret leaked (potential for exfiltration) | Section 2.6.5 | Only if data exfiltration confirmed |
+| Incident Type             | Art. 34 Trigger                            | Playbook Section | Notification                                     |
+| ------------------------- | ------------------------------------------ | ---------------- | ------------------------------------------------ |
+| **Data Breach**           | Patient PII or health records exposed      | Section 2.6.1    | Yes: customer + ANPD + ANVISA (if >100 patients) |
+| **Unauthorized Access**   | Attacker accessed sensitive data           | Section 2.5      | Yes: evidence investigation required             |
+| **Credential Compromise** | Secret leaked (potential for exfiltration) | Section 2.6.5    | Only if data exfiltration confirmed              |
 
 **Notification Procedure:**
 
@@ -146,6 +156,7 @@ Breach Detected (timestamp T)
 ```
 
 **Evidence Required:**
+
 - Breach detection log (timestamp, who detected, evidence)
 - Investigation findings (scope confirmed, root cause)
 - Customer notification (template + list of recipients)
@@ -157,15 +168,16 @@ Breach Detected (timestamp T)
 ### LGPD Art. 35 — Direito de Exclusão (Deletion Right)
 
 **Requirement:**
+
 > "O titular tem direito a solicitar exclusão de seus dados ('direito ao esquecimento'). O controlador deve cumprir em até 30 dias, exceto se há base legal para retenção (compliance com RDC 978)."
 
 **Mapping to Playbook:**
 
-| Scenario | Art. 35 Compliance | Playbook Section |
-|---|---|---|
-| **Patient requests deletion** | Soft-delete within 30 days | Section 2.6.4: LGPD remediation workflow |
-| **Soft-delete overdue** | Incident if not completed in time | Section 1.4: Compliance violation classification |
-| **Legal hold exception** | Patient data retained for DICQ 4.3 (5-year retention) | ADR-0006 (Pessoa-Qualificacoes LGPD) |
+| Scenario                      | Art. 35 Compliance                                    | Playbook Section                                 |
+| ----------------------------- | ----------------------------------------------------- | ------------------------------------------------ |
+| **Patient requests deletion** | Soft-delete within 30 days                            | Section 2.6.4: LGPD remediation workflow         |
+| **Soft-delete overdue**       | Incident if not completed in time                     | Section 1.4: Compliance violation classification |
+| **Legal hold exception**      | Patient data retained for DICQ 4.3 (5-year retention) | ADR-0006 (Pessoa-Qualificacoes LGPD)             |
 
 **Deletion Procedure (from Drill 4):**
 
@@ -187,6 +199,7 @@ Deletion Request (T=0)
 ```
 
 **Evidence Required:**
+
 - Deletion request log (received date, patient ID)
 - Processing timeline (steps taken, completion date)
 - Audit trail showing soft-delete execution
@@ -200,18 +213,20 @@ Deletion Request (T=0)
 ### DICQ 4.1.2 — Qualidade e Competência (Quality & Competence)
 
 **Requirement 4.1.2.7:**
+
 > "Organização deve estabelecer mecanismo para monitoramento e supervisão contínua de suas operações laboratoriais. Incluindo sistema de alerta para falhas críticas."
 
 **Mapping to Playbook:**
 
-| Playbook Component | DICQ 4.1.2.7 Compliance |
-|---|---|
-| **Section 2 — Incident Response Workflow** | Monitoring + escalation = continuous supervision |
-| **Cloud Logs Monitoring** | Automated alerts for errors + anomalies |
-| **Section 5.1 — Hotfix Decision** | Documented decision-making process (quality = proof of system) |
-| **Drill Program (every 3 months)** | Proof that system works + team is trained |
+| Playbook Component                         | DICQ 4.1.2.7 Compliance                                        |
+| ------------------------------------------ | -------------------------------------------------------------- |
+| **Section 2 — Incident Response Workflow** | Monitoring + escalation = continuous supervision               |
+| **Cloud Logs Monitoring**                  | Automated alerts for errors + anomalies                        |
+| **Section 5.1 — Hotfix Decision**          | Documented decision-making process (quality = proof of system) |
+| **Drill Program (every 3 months)**         | Proof that system works + team is trained                      |
 
 **Auditor Evidence:**
+
 - Monitoring dashboard screenshots (errors/latency/load)
 - Alert configuration (rules, thresholds, recipients)
 - On-call schedule + escalation matrix
@@ -222,19 +237,21 @@ Deletion Request (T=0)
 ### DICQ 4.3 — Documentação (Documentation)
 
 **Requirement:**
+
 > "Registros de qualidade, não-conformidade, auditorias internas, incidentes de segurança e medidas corretivas devem ser mantidos, acessíveis para inspeção."
 
 **Mapping to Playbook:**
 
-| Playbook Artifact | DICQ 4.3 Classification |
-|---|---|
+| Playbook Artifact                 | DICQ 4.3 Classification                          |
+| --------------------------------- | ------------------------------------------------ |
 | Incident log (date/time/severity) | Management Review Record (entrada de reunião CQ) |
-| Investigation findings | Quality Assurance Record (evidência de análise) |
-| Post-mortem report | Corrective Action (CAPA) trigger |
-| Evidence archive (logs/snapshots) | Quality Record (retention ≥5 years) |
-| Drill results | Training Record (competency verification) |
+| Investigation findings            | Quality Assurance Record (evidência de análise)  |
+| Post-mortem report                | Corrective Action (CAPA) trigger                 |
+| Evidence archive (logs/snapshots) | Quality Record (retention ≥5 years)              |
+| Drill results                     | Training Record (competency verification)        |
 
 **Retention Policy:**
+
 - **Active incidents:** Archive in `docs/incidents/` with full evidence
 - **Closed incidents:** Archive in `docs/incidents/closed/` + backup to GCS
 - **Retention period:** 5 years minimum (per RDC 978 Art. 115 + DICQ 4.3)
@@ -245,18 +262,20 @@ Deletion Request (T=0)
 ### DICQ 4.4 — Registros Íntegros (Data Integrity)
 
 **Requirement:**
+
 > "Registros clínicos e de qualidade devem ser íntegros, rastreáveis e imutáveis. Alterações devem ser auditadas. Assinaturas eletrônicas devem ser verificáveis."
 
 **Mapping to Playbook:**
 
-| Incident Type | DICQ 4.4 Compliance | Remediation |
-|---|---|---|
-| **Data Corruption** | Integrity compromised | Section 2.6.3: Restore from backup, validate chain-hash |
-| **Chain Hash Invalid** | Signature verification failed | Section 4.3: Rule evaluation trace, HMAC re-verification |
-| **Audit Trail Tampered** | Immutability violated | Section 3.2: Export to immutable storage (GCS), cryptographic proof |
-| **HMAC Secret Leaked** | Signature forgery possible | Section 2.6.5: Rotate secret, baseline reset, document pre-rotation window |
+| Incident Type            | DICQ 4.4 Compliance           | Remediation                                                                |
+| ------------------------ | ----------------------------- | -------------------------------------------------------------------------- |
+| **Data Corruption**      | Integrity compromised         | Section 2.6.3: Restore from backup, validate chain-hash                    |
+| **Chain Hash Invalid**   | Signature verification failed | Section 4.3: Rule evaluation trace, HMAC re-verification                   |
+| **Audit Trail Tampered** | Immutability violated         | Section 3.2: Export to immutable storage (GCS), cryptographic proof        |
+| **HMAC Secret Leaked**   | Signature forgery possible    | Section 2.6.5: Rotate secret, baseline reset, document pre-rotation window |
 
 **Auditor Checklist:**
+
 - [ ] Chain-hash validator runs regularly + results logged
 - [ ] Incident log itself is immutable (in GCS, not editable)
 - [ ] All deletions marked as soft-delete (not hard-deleted)
@@ -268,18 +287,20 @@ Deletion Request (T=0)
 ### DICQ 4.14.6 — Gestão de Riscos (Risk Management)
 
 **Requirement:**
+
 > "Laboratório deve identificar e gerenciar riscos operacionais, incluindo incidentes de segurança. FMEA ou análise similar deve documentar: Probability, Severity, Detection ability, Preventive measures."
 
 **Mapping to Playbook:**
 
-| Phase | DICQ 4.14.6 Compliance |
-|---|---|
+| Phase                  | DICQ 4.14.6 Compliance                                |
+| ---------------------- | ----------------------------------------------------- |
 | **Incident Detection** | Severity matrix (P0/P1/P2) = Risk severity assessment |
-| **Investigation** | Root cause analysis = FMEA P (Probability) |
-| **Prevention** | Preventive actions = Risk mitigation measures |
-| **Drill Program** | Detection capability verification (part of audit) |
+| **Investigation**      | Root cause analysis = FMEA P (Probability)            |
+| **Prevention**         | Preventive actions = Risk mitigation measures         |
+| **Drill Program**      | Detection capability verification (part of audit)     |
 
 **Risk Register Update:**
+
 - After each incident, update `docs/RISK_REGISTER.md`
 - Add row: `Incident [date] — [type] — [P×S×D score] — Mitigation: [ticket]`
 - Quarterly review: Are preventive actions reducing incident rate?
@@ -293,6 +314,7 @@ Deletion Request (T=0)
 **Ask:** "Show me your incident response procedures"
 
 **You show:**
+
 ```
 docs/INCIDENT_RESPONSE_PLAYBOOK.md
 ├─ Section 1: Incident classification (maps to Art. 5 quality management)
@@ -305,6 +327,7 @@ docs/INCIDENT_RESPONSE_PLAYBOOK.md
 **Ask:** "How do you verify chain-hash integrity?"
 
 **You show:**
+
 ```
 - Cloud Function: validateChainIntegrityScheduled (runs 2x daily)
 - Results logged: `audit-violations` collection
@@ -315,6 +338,7 @@ docs/INCIDENT_RESPONSE_PLAYBOOK.md
 **Ask:** "What happens if someone tries to forge a signature?"
 
 **You show:**
+
 ```
 - Firestore rules: validate HMAC signature on critical writes
 - Secret management: HCQ_SIGNATURE_HMAC_KEY in Secret Manager
@@ -329,6 +353,7 @@ docs/INCIDENT_RESPONSE_PLAYBOOK.md
 **Ask:** "Show me your data breach notification procedures"
 
 **You show:**
+
 ```
 docs/INCIDENT_RESPONSE_PLAYBOOK.md
 ├─ Section 1.1: Data Breach classification
@@ -341,6 +366,7 @@ docs/INCIDENT_RESPONSE_PLAYBOOK.md
 **Ask:** "How do you track deletion requests?"
 
 **You show:**
+
 ```
 - Request tracking: /lgpd-requests/{labId}/{requestId} collection
 - Audit log: eventType = "GDPR_DELETION", with timestamps
@@ -351,6 +377,7 @@ docs/INCIDENT_RESPONSE_PLAYBOOK.md
 **Ask:** "What is your 72-hour breach notification process?"
 
 **You show:**
+
 ```
 Section 2.3 (Escalation) + Section 3.3 (Notification templates)
 Timeline:
@@ -367,6 +394,7 @@ Proof: Incident logs + ANPD submission receipts (docs/incidents/*)
 **Ask:** "How do you ensure data integrity? Show me your controls."
 
 **You show:**
+
 ```
 1. Preventive: Firestore rules validate payload + HMAC on writes
 2. Detective: validateChainIntegrityScheduled runs 2x daily
@@ -378,6 +406,7 @@ Evidence: Chain validator logs + last 3 drill reports
 **Ask:** "Show me your incident documentation from the past 12 months"
 
 **You show:**
+
 ```
 docs/incidents/
 ├─ INC-2026-04-15-001.md (outage, resolved via rollback)
@@ -395,6 +424,7 @@ Each includes:
 **Ask:** "How do you know your incident response system works?"
 
 **You show:**
+
 ```
 Quarterly drills: docs/INCIDENT_RESPONSE_VALIDATION_CHECKLIST.md
 ├─ Drill #1: Data Breach (Q1, Q3, etc.)
@@ -410,11 +440,13 @@ Post-mortem for each: action items + completion proof
 ## 5. Evidence Preservation Requirements
 
 **By Law (RDC 978 + LGPD):**
+
 - Incident investigations must be preserved for ≥5 years
 - Audit trail must be immutable (hash-protected or in append-only storage)
 - Evidence cannot be altered retroactively
 
 **By Technical Best Practice:**
+
 - Cloud Logs exports → GCS (immutable, versioned)
 - Firestore backups → separate project (read-only)
 - Git commits → signed (GPG), pushed to remote (cannot rewrite history)
@@ -467,41 +499,49 @@ Incident Discovery (T=0)
 # Incident Report — [INC-YYYY-MM-DD-###]
 
 ## Regulatory Classification
+
 - RDC 978 Art. 5? **YES** (Quality Management incident)
 - RDC 978 Art. 86? **YES** (Rastreabilidade impact)
 - LGPD Art. 34? **YES/NO** (Breach notification required)
 - DICQ 4.4? **YES** (Data integrity question)
 
 ## Executive Summary
+
 [1 paragraph overview]
 
 ## Timeline
-| Time (UTC) | Event | Responsible |
-| --- | --- | --- |
-| [time] | Detection | [name] |
-| [time] | Investigation | [name] |
-| [time] | Remediation | [name] |
-| [time] | Closure | [name] |
+
+| Time (UTC) | Event         | Responsible |
+| ---------- | ------------- | ----------- |
+| [time]     | Detection     | [name]      |
+| [time]     | Investigation | [name]      |
+| [time]     | Remediation   | [name]      |
+| [time]     | Closure       | [name]      |
 
 ## Root Cause (RDC 978 Art. 5 requirement)
+
 [Description of why incident occurred]
 
 ## Regulatory Notifications (RDC 978 Art. 5 + LGPD Art. 34)
+
 - [ ] Customer notified: [date/time]
 - [ ] ANPD notified: [date/time] (if breach)
 - [ ] ANVISA notified: [date/time] (if safety impact)
 
 ## Data Integrity Verification (DICQ 4.4 requirement)
+
 - Chain-hash validation: [date] — 50 documents sampled — PASS/FAIL
 - Audit trail integrity: [date] — reviewed — OK/ISSUES
 
 ## Preventive Actions (RDC 978 Art. 5 requirement)
-| Action | Jira Ticket | Owner | Due Date |
-| --- | --- | --- | --- |
-| [action] | [ticket] | [owner] | [date] |
+
+| Action   | Jira Ticket | Owner   | Due Date |
+| -------- | ----------- | ------- | -------- |
+| [action] | [ticket]    | [owner] | [date]   |
 
 ## Compliance Officer Approval
-Signature: _____________ Date: _________
+
+Signature: ******\_****** Date: ****\_****
 ```
 
 ---
@@ -509,12 +549,14 @@ Signature: _____________ Date: _________
 ## 8. Document Governance
 
 **Responsibility:**
+
 - **Incident Response Playbook:** Updated by CTO after each incident (lessons learned)
 - **Validation Checklist:** Executed quarterly by QA + DevOps
 - **Compliance Mapping:** Updated annually or when regulations change
 - **Evidence Archive:** Managed by Compliance Officer (retention policy enforced)
 
 **Review Cycles:**
+
 - **Immediate:** After P0 incidents (within 10 days)
 - **Quarterly:** After drill cycle (every 3 months)
 - **Annually:** Before accreditation audits (DICQ, ANVISA)
@@ -524,4 +566,4 @@ Signature: _____________ Date: _________
 
 **Document Owner:** CTO + Compliance Officer  
 **Next Review:** 2026-11-07  
-**Classification:** DICQ 4.4 / RDC 978 Art. 5 / LGPD Art. 34–35  
+**Classification:** DICQ 4.4 / RDC 978 Art. 5 / LGPD Art. 34–35

@@ -40,9 +40,7 @@ export const submitNPSResposta = onCall<NPSRespostaInput>(
       // Rate limit per IP (SECURITY_AUDIT.md #18): 10/min for public endpoints.
       // NPS is anonymous-via-token, so IP is the only stable identifier.
       const clientIp =
-        (request.rawRequest?.headers?.['x-forwarded-for'] as string)
-          ?.split(',')[0]
-          ?.trim() ||
+        (request.rawRequest?.headers?.['x-forwarded-for'] as string)?.split(',')[0]?.trim() ||
         request.rawRequest?.ip ||
         'unknown';
 
@@ -126,5 +124,5 @@ export const submitNPSResposta = onCall<NPSRespostaInput>(
 
       throw new functions.https.HttpsError('internal', 'Erro ao submeter resposta');
     }
-  }
+  },
 );

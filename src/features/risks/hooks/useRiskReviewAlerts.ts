@@ -38,9 +38,7 @@ export interface UseRiskReviewAlertsResult {
   readonly error: Error | null;
 }
 
-export function useRiskReviewAlerts(
-  labId: string | null | undefined,
-): UseRiskReviewAlertsResult {
+export function useRiskReviewAlerts(labId: string | null | undefined): UseRiskReviewAlertsResult {
   const [risks, setRisks] = useState<Risk[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

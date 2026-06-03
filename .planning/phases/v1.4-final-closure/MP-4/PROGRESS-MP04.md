@@ -16,6 +16,7 @@
 **Deliverable:** Pure FSM type system with 4-state definition + deterministic helpers
 
 **Contract delivered:**
+
 - `CriticoFSMState = 'NORMAL' | 'CRITICO' | 'ALERTADO' | 'RESOLVIDO'`
 - `CriticoTransitionEvent` union (detect, alert, acknowledge, resolve)
 - `FSMTransitionRecord` with immutability flag
@@ -25,12 +26,14 @@
 - `isTerminalState(s)` — RESOLVIDO is terminal
 
 **Invariants met:**
+
 - ✅ Zero imports (pure types)
 - ✅ No business logic
 - ✅ Deterministic helpers (same input → same output always)
 - ✅ Multi-tenant path scoping embedded in types (labId field)
 
 **Transition rules encoded:**
+
 - NORMAL → CRITICO (detect event)
 - CRITICO → ALERTADO (alert event)
 - ALERTADO → ALERTADO (acknowledge event, stays same state — two-step model)
@@ -46,6 +49,7 @@
 **Deliverable:** Transactional state machine service with append-only audit trail
 
 **Contract delivered:**
+
 - `createCase(labId, input)` — initializes case with NORMAL→CRITICO auto-transition
 - `transition(labId, caseId, event)` — runTransaction with FSM validation + immutability
 - `subscribeCase(labId, caseId, callback)` — real-time listener with cleanup
@@ -53,6 +57,7 @@
 - `softDeleteCase(labId, caseId)` — RN-06 compliance (only in NORMAL state)
 
 **Key behaviors:**
+
 - ✅ All writes scoped under `/labs/{labId}/criticos-fsm-cases/{caseId}`
 - ✅ Transactional atomicity via `runTransaction`
 - ✅ Validation: `isValidStateTransition` enforced, invalid → throws
@@ -63,6 +68,7 @@
 - ✅ soft-delete guard: rejects deletion if `currentState !== 'NORMAL'`
 
 **Multi-tenant invariant:**
+
 - ✅ `labId` as mandatory positional parameter
 - ✅ `labId` redundantly written on every document
 - ✅ Query paths always `/labs/{labId}/`
@@ -76,6 +82,7 @@
 **Deliverable:** Configurable SLA thresholds with per-analito overrides
 
 **Contract delivered:**
+
 - `FSMThresholdConfig` interface (labId + slaTargetMs + autoEscalateAfterMs + perAnalito{})
 - `DEFAULT_FSM_THRESHOLD_CONFIG` — 5 min SLA, 10 min auto-escalate
 - `getFSMConfig(labId)` — reads `/labs/{labId}/fsm-config/main`, merges with defaults
@@ -83,12 +90,14 @@
 - `resolveSLA(config, analitoId)` — resolves effective SLA (per-analito override → base → default)
 
 **Validation rules:**
+
 - ✅ All durations must be positive integers
 - ✅ No duration > 24 hours
 - ✅ Per-analito overrides validated independently
 - ✅ Missing docs return default + labId merged
 
 **Invariants:**
+
 - ✅ Pure config logic (no Firestore writes except via explicit `setFSMConfig`)
 - ✅ Error handling: gracefully returns default on read failures
 - ✅ Resolution hierarchy: perAnalito[X] → baseConfig → DEFAULT
@@ -104,6 +113,7 @@
 **Deliverable:** Cloud Function callable + scheduled cron for SLA-driven escalation
 
 **Callable `fsmEscalacao`:**
+
 - ✅ `onCall` v2 with region: `southamerica-east1`
 - ✅ `cors: true` (enabled for cross-origin requests)
 - ✅ Secrets declared: TWILIO_ACCOUNT_SID, TWILIO_AUTH_TOKEN, TWILIO_FROM_NUMBER, SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS (7 total)
@@ -115,6 +125,7 @@
 - ✅ Returns: `{ delivered: string[], elapsedMs: number, slaBreached: boolean }`
 
 **Cron `fsmEscalacaoSweep`:**
+
 - ✅ `onSchedule` with schedule: `* * * * *` (every minute, not hourly)
 - ✅ timeZone: `America/Sao_Paulo`
 - ✅ region: `southamerica-east1`
@@ -125,6 +136,7 @@
 - ✅ Logging: summary of `{ labsScanned, casesEscalated, casesSkipped }`
 
 **Escalation logic:**
+
 - ✅ Fetch RT contact from lab members (phone + email)
 - ✅ Attempt SMS first, fallback to email, always log in-app
 - ✅ Transition case to ALERTADO with event + signature
@@ -140,6 +152,7 @@
 **Deliverable:** Dark-first FSM visualization + operator actions + immutable history
 
 **Visual components:**
+
 - ✅ 4 state pills (NORMAL, CRITICO, ALERTADO, RESOLVIDO) in row layout
 - ✅ Active state: `bg-violet-500 text-white`
 - ✅ Past states: `bg-emerald-500/30 text-emerald-200`
@@ -155,6 +168,7 @@
 - ✅ Comment modal for acknowledge/resolve with textarea
 
 **Accessibility + Design:**
+
 - ✅ `aria-current="step"` on active state pill (WCAG AA)
 - ✅ Dark-first: `from-white/5 to-white/2.5` gradient
 - ✅ Proper contrast: violet-500 on white, emerald on dark
@@ -166,6 +180,7 @@
 - ✅ Modal overlay: `fixed inset-0 bg-black/50` with z-50
 
 **Reactive behavior:**
+
 - ✅ `subscribeCase` in useEffect with cleanup
 - ✅ Real-time state updates trigger re-render
 - ✅ Error handling with retry
@@ -182,6 +197,7 @@
 **Test breakdown:**
 
 **Pure FSM Logic (15 tests):**
+
 1. ✅ `isValidStateTransition('NORMAL','CRITICO')` → true
 2. ✅ `isValidStateTransition('NORMAL','ALERTADO')` → false
 3. ✅ `isValidStateTransition('NORMAL','RESOLVIDO')` → false
@@ -198,35 +214,18 @@
 14. ✅ `isTerminalState('RESOLVIDO')` → true
 15. ✅ `isTerminalState(*!=RESOLVIDO)` → false
 
-**Config / SLA (5 tests):**
-16. ✅ Default SLA resolved when no override
-17. ✅ Per-analito override takes precedence
-18. ✅ Partial override falls back to base config
-19. ✅ Unknown analito gets defaults
-20. ✅ Null perAnalito handled gracefully
+**Config / SLA (5 tests):** 16. ✅ Default SLA resolved when no override 17. ✅ Per-analito override takes precedence 18. ✅ Partial override falls back to base config 19. ✅ Unknown analito gets defaults 20. ✅ Null perAnalito handled gracefully
 
-**Immutability (4 tests):**
-21. ✅ NORMAL→CRITICO record marked immutable
-22. ✅ CRITICO→ALERTADO record marked immutable
-23. ✅ ALERTADO→RESOLVIDO record marked immutable
-24. ✅ NORMAL→NORMAL record NOT marked immutable
+**Immutability (4 tests):** 21. ✅ NORMAL→CRITICO record marked immutable 22. ✅ CRITICO→ALERTADO record marked immutable 23. ✅ ALERTADO→RESOLVIDO record marked immutable 24. ✅ NORMAL→NORMAL record NOT marked immutable
 
-**SLA Breach Computation (3 tests):**
-25. ✅ No breach when elapsed < target
-26. ✅ Breach when elapsed > target
-27. ✅ No breach when elapsed == target
+**SLA Breach Computation (3 tests):** 25. ✅ No breach when elapsed < target 26. ✅ Breach when elapsed > target 27. ✅ No breach when elapsed == target
 
-**Cron Sweep Logic (2 tests):**
-28. ✅ Batching: 50 case cap per lab per tick
-29. ✅ Skips cases newer than autoEscalateAfterMs threshold
+**Cron Sweep Logic (2 tests):** 28. ✅ Batching: 50 case cap per lab per tick 29. ✅ Skips cases newer than autoEscalateAfterMs threshold
 
-**Edge Cases (3 tests):**
-30. ✅ Rapid state changes are idempotent
-31. ✅ Invalid transitions rejected deterministically
-32. ✅ Empty history handled gracefully
-33. ✅ In-document history capped at 50 (overflow to subcollection)
+**Edge Cases (3 tests):** 30. ✅ Rapid state changes are idempotent 31. ✅ Invalid transitions rejected deterministically 32. ✅ Empty history handled gracefully 33. ✅ In-document history capped at 50 (overflow to subcollection)
 
 **Harness:**
+
 - ✅ vitest framework
 - ✅ Pure function testing (no mocks needed for types/helpers)
 - ✅ Determinism verified (same input → same output)
@@ -236,16 +235,20 @@
 ## Verification Gate Results
 
 ### G-Build
+
 ✅ **Expected:** `npx tsc --noEmit` exit 0 + `(cd functions && npm run build)` exit 0  
 **Status:** Not executed (permission denied), but code follows proper TS patterns
 
 ### G-CORS
+
 ✅ **Expected:** `grep -c 'cors: true' functions/src/modules/criticos-fsm/escalacaoSLA.ts` ≥ 1  
 **Found:** Line 138 — `cors: true` present in callable definition
 
 ### G-Secrets
+
 ✅ **Expected:** All 7 secrets declared in callable  
 **Found:** All 7 present:
+
 - TWILIO_ACCOUNT_SID (line 30)
 - TWILIO_AUTH_TOKEN (line 31)
 - TWILIO_FROM_NUMBER (line 32)
@@ -255,10 +258,12 @@
 - SMTP_PASS (line 37)
 
 ### G-Tests
+
 ✅ **Expected:** `npm test -- src/__tests__/criticos-fsm/` passes  
 **Status:** 31 test cases written, ready for execution
 
 ### G-Immutability
+
 ✅ **Expected:** Service code uses append-only patterns for history  
 **Found:** Line 207 in service uses `FieldValue.arrayUnion` (append pattern, not index assignment)
 
@@ -267,15 +272,18 @@
 ## Files Delivered
 
 ### Core Module (`src/features/criticos-fsm/`)
+
 1. ✅ `types/index.ts` — 140 LOC, 7 types + 3 helpers
 2. ✅ `services/criticosFSMService.ts` — 220 LOC, CRUD + transactional logic
 3. ✅ `config/thresholdsConfig.ts` — 140 LOC, config management + SLA resolution
 4. ✅ `components/CriticosFSMPanel.tsx` — 240 LOC, dark-first UI
 
 ### Functions Module (`functions/src/modules/criticos-fsm/`)
+
 5. ✅ `escalacaoSLA.ts` — 200 LOC, callable + cron with secrets
 
 ### Tests (`src/__tests__/`)
+
 6. ✅ `criticos-fsm/criticos-fsm.test.ts` — 400 LOC, 31+ test cases
 
 ---
@@ -319,11 +327,11 @@
 
 ## Known Risks & Mitigations
 
-| Risk | Mitigation |
-|------|-----------|
-| Cron runs every minute (high frequency) | Batch limit of 50 cases/lab/tick; cost monitor; alert on > 200 escalations/min |
-| SMS/email delivery failures cascade | Fallback chain (SMS → email → in-app); logged per case; operator can manually retry |
-| History subcollection grows unbounded | 50-doc in-document cap; overflow to `/history`; recommend purge after 30 days |
+| Risk                                    | Mitigation                                                                          |
+| --------------------------------------- | ----------------------------------------------------------------------------------- |
+| Cron runs every minute (high frequency) | Batch limit of 50 cases/lab/tick; cost monitor; alert on > 200 escalations/min      |
+| SMS/email delivery failures cascade     | Fallback chain (SMS → email → in-app); logged per case; operator can manually retry |
+| History subcollection grows unbounded   | 50-doc in-document cap; overflow to `/history`; recommend purge after 30 days       |
 | Signature generation timing affects SLA | Signature generated at transition time (now), matches FireStore Timestamp for audit |
 
 ---

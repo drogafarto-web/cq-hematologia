@@ -57,10 +57,17 @@ export function CoberturaTab() {
       <div className="space-y-4">
         <div className="grid grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-20 animate-pulse rounded-lg" style={{ background: 'var(--surface-muted, #161B23)' }} />
+            <div
+              key={i}
+              className="h-20 animate-pulse rounded-lg"
+              style={{ background: 'var(--surface-muted, #161B23)' }}
+            />
           ))}
         </div>
-        <div className="h-40 animate-pulse rounded-lg" style={{ background: 'var(--surface-muted, #161B23)' }} />
+        <div
+          className="h-40 animate-pulse rounded-lg"
+          style={{ background: 'var(--surface-muted, #161B23)' }}
+        />
       </div>
     );
   }
@@ -73,7 +80,14 @@ export function CoberturaTab() {
           { label: 'Total 90d', value: stats.total, color: 'var(--accent-600, #2563EB)' },
           { label: 'Registrados', value: stats.registered, color: 'var(--success-500, #10B981)' },
           { label: 'Inferidos', value: stats.inferred, color: 'var(--warning-500, #F59E0B)' },
-          { label: 'Cobertura', value: `${stats.coveragePercent}%`, color: stats.coveragePercent >= 80 ? 'var(--success-500, #10B981)' : 'var(--danger-500, #EF4444)' },
+          {
+            label: 'Cobertura',
+            value: `${stats.coveragePercent}%`,
+            color:
+              stats.coveragePercent >= 80
+                ? 'var(--success-500, #10B981)'
+                : 'var(--danger-500, #EF4444)',
+          },
         ].map((kpi) => (
           <div
             key={kpi.label}
@@ -89,7 +103,11 @@ export function CoberturaTab() {
             />
             <p
               className="font-semibold uppercase"
-              style={{ fontSize: '10px', letterSpacing: '0.06em', color: 'var(--text-faint, #64748B)' }}
+              style={{
+                fontSize: '10px',
+                letterSpacing: '0.06em',
+                color: 'var(--text-faint, #64748B)',
+              }}
             >
               {kpi.label}
             </p>
@@ -139,7 +157,9 @@ export function CoberturaTab() {
           ].map((item) => (
             <div key={item.label} className="flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-sm" style={{ background: item.color }} />
-              <span style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}>{item.label}</span>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted, #94A3B8)' }}>
+                {item.label}
+              </span>
             </div>
           ))}
         </div>

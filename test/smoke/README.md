@@ -49,6 +49,7 @@ npm run test:smoke:staging
 ## What Each Suite Tests
 
 ### 03.1 Mobile Smoke Tests
+
 - [ ] Firebase auth initializes without errors
 - [ ] Auth store persists token in localStorage
 - [ ] Auth state hydrates correctly on page reload
@@ -57,11 +58,13 @@ npm run test:smoke:staging
 - [ ] TypeScript types for auth, navigation, state
 
 **Run alone:**
+
 ```bash
 npm run test:smoke -- 03.1-mobile
 ```
 
 ### 03.1 Analytics Smoke Tests
+
 - [ ] Cloud Function compiles with proper signature
 - [ ] Aggregation query executes <2 seconds
 - [ ] Zustand cache stores metrics correctly
@@ -70,11 +73,13 @@ npm run test:smoke -- 03.1-mobile
 - [ ] Metrics consistency (compliance ≤ 100%, valid + invalid = total)
 
 **Run alone:**
+
 ```bash
 npm run test:smoke -- 03.1-analytics
 ```
 
 ### 03.1 Export Smoke Tests
+
 - [ ] Export job created in Firestore
 - [ ] Pub/Sub message enqueued for processing
 - [ ] XLSX generation completes <5 seconds
@@ -83,11 +88,13 @@ npm run test:smoke -- 03.1-analytics
 - [ ] File size and duration formatting
 
 **Run alone:**
+
 ```bash
 npm run test:smoke -- 03.1-export
 ```
 
 ### 02-03 CEQ Smoke Tests
+
 - [ ] Z-score calculation: test vectors |Z|<2, |Z|=2.5, |Z|≥3
 - [ ] |Z| ≥ 3 creates NC with `severidade='grave'`
 - [ ] NC with `bloqueiaOperacoes=true`
@@ -96,6 +103,7 @@ npm run test:smoke -- 03.1-export
 - [ ] Real-world PT scenarios (hemoglobin, glucose, creatinine)
 
 **Run alone:**
+
 ```bash
 npm run test:smoke -- 02-03-ceq
 ```
@@ -103,6 +111,7 @@ npm run test:smoke -- 02-03-ceq
 **Test Coverage:** 35+ test vectors across satisfactory, questionable, and unsatisfactory ranges, plus edge cases.
 
 ### 02-03 Batch 3 Smoke Tests
+
 - [ ] CIQ Bio schema validates
 - [ ] `popId` + `equipId` gates enforce constraints
 - [ ] CEQ auto-NC blocks CIQ Bio run creation
@@ -111,6 +120,7 @@ npm run test:smoke -- 02-03-ceq
 - [ ] Soft-delete (no hard deletes)
 
 **Run alone:**
+
 ```bash
 npm run test:smoke -- 02-03-batch3
 ```
@@ -173,14 +183,14 @@ npm run test:smoke -- --reporter=verbose | grep -i slow
 
 ## Performance Targets
 
-| Component | Target | Tested |
-|-----------|--------|--------|
-| Z-score calculation | <1ms | ✓ |
-| Analytics aggregation query | <2s | ✓ |
-| Analytics callable (cached) | <100ms | ✓ |
-| XLSX generation | <5s | ✓ |
-| Firebase auth init | <100ms | ✓ |
-| Auth state hydration | <200ms | ✓ |
+| Component                   | Target | Tested |
+| --------------------------- | ------ | ------ |
+| Z-score calculation         | <1ms   | ✓      |
+| Analytics aggregation query | <2s    | ✓      |
+| Analytics callable (cached) | <100ms | ✓      |
+| XLSX generation             | <5s    | ✓      |
+| Firebase auth init          | <100ms | ✓      |
+| Auth state hydration        | <200ms | ✓      |
 
 ## Adding New Smoke Tests
 
@@ -211,12 +221,14 @@ describe('New Feature Smoke Tests', () => {
 ### GitHub Actions
 
 Smoke tests run automatically on:
+
 - Push to `develop` branch
 - Pull request to `main`
 
 **Workflow:** `.github/workflows/smoke-tests.yml`
 
 Output:
+
 - JUnit XML report (`test-results.xml`)
 - Coverage badge
 - Fail on <80% coverage or any test failure

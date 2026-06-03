@@ -11,8 +11,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-export const RISKS_ACCESS_DENIED_MSG =
-  'Sem permissão para este módulo — contate o administrador.';
+export const RISKS_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
 
 interface AuthDataLite {
   uid: string;
@@ -32,10 +31,7 @@ export async function assertRisksAdminOrOwner(
   }
   const uid = auth.uid;
   const ts = new Date().toISOString();
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   const role = memberSnap.data()?.['role'] as string | undefined;
   if (role !== 'admin' && role !== 'owner') {
     console.error('[RISKS_ADMIN_REQUIRED]', { uid, labId, role, ts });
@@ -77,10 +73,7 @@ export async function assertRisksAccess(
     throw new HttpsError('permission-denied', RISKS_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[RISKS_ACCESS_DENIED]', {
       uid,
@@ -98,10 +91,7 @@ export function risksLabRoot(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}`);
 }
 
-export function risksCollection(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function risksCollection(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`labs/${labId}/risks`);
 }
 
@@ -163,14 +153,18 @@ export const CreateRiskInputSchema = z.object({
   eficacia: z.enum(['pendente', 'eficaz', 'parcial', 'ineficaz']).optional(),
   tratamento: z.object({
     estrategia: EstrategiaSchema,
-    acoes: z.array(z.object({
-      id: z.string(),
-      criadoEm: z.any(), // Timestamp
-      descricao: z.string(),
-      prazo: z.any(), // Timestamp
-      owner: z.string(),
-      status: z.enum(['planejada', 'em_andamento', 'concluida']),
-    })).default([]),
+    acoes: z
+      .array(
+        z.object({
+          id: z.string(),
+          criadoEm: z.any(), // Timestamp
+          descricao: z.string(),
+          prazo: z.any(), // Timestamp
+          owner: z.string(),
+          status: z.enum(['planejada', 'em_andamento', 'concluida']),
+        }),
+      )
+      .default([]),
     observacoes: z.string().optional(),
   }),
 });
@@ -193,11 +187,13 @@ export const UpdateRiskInputSchema = z.object({
   setor: z.string().max(100).optional(),
   evidencias: z.array(z.string()).optional(),
   eficacia: z.enum(['pendente', 'eficaz', 'parcial', 'ineficaz']).optional(),
-  tratamento: z.object({
-    estrategia: EstrategiaSchema.optional(),
-    acoes: z.array(z.any()).optional(),
-    observacoes: z.string().optional(),
-  }).optional(),
+  tratamento: z
+    .object({
+      estrategia: EstrategiaSchema.optional(),
+      acoes: z.array(z.any()).optional(),
+      observacoes: z.string().optional(),
+    })
+    .optional(),
 });
 
 export type UpdateRiskInput = z.infer<typeof UpdateRiskInputSchema>;

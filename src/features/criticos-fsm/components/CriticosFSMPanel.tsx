@@ -69,11 +69,7 @@ function StatePills({ currentState }: { currentState: CriticoFSMState }) {
             <div
               className={`
                 w-8 h-1 rounded transition-colors duration-150
-                ${
-                  isReached(states[idx + 1])
-                    ? 'bg-emerald-500/50'
-                    : 'bg-white/10'
-                }
+                ${isReached(states[idx + 1]) ? 'bg-emerald-500/50' : 'bg-white/10'}
               `}
               aria-hidden="true"
             />
@@ -192,7 +188,7 @@ export default function CriticosFSMPanel({
       (err) => {
         setError(err.message);
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;
@@ -391,11 +387,7 @@ export default function CriticosFSMPanel({
                 Cancelar
               </button>
               <button
-                onClick={
-                  showCommentModal === 'acknowledge'
-                    ? handleAcknowledge
-                    : handleResolve
-                }
+                onClick={showCommentModal === 'acknowledge' ? handleAcknowledge : handleResolve}
                 disabled={transitioning}
                 className="px-3 py-1.5 rounded text-sm bg-violet-500 text-white hover:bg-violet-600 disabled:opacity-50"
               >

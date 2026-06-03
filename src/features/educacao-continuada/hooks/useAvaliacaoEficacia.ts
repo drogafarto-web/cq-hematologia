@@ -8,10 +8,7 @@ import {
   type SubscribeAvaliacoesEficaciaOptions,
 } from '../services/ecFirebaseService';
 import { functions, httpsCallable, Timestamp } from '../../../shared/services/firebase';
-import type {
-  AvaliacaoEficacia,
-  AvaliacaoEficaciaInput,
-} from '../types/EducacaoContinuada';
+import type { AvaliacaoEficacia, AvaliacaoEficaciaInput } from '../types/EducacaoContinuada';
 
 export interface RegistrarAvaliacaoEficaciaParams {
   execucaoId: string;

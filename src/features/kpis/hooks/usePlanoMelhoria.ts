@@ -14,7 +14,12 @@ import {
 
 import { db } from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import type { AcaoMelhoria, AcaoMelhoriaStatus, PlanoMelhoria, PlanoMelhoriaStatus } from '../types/PlanoMelhoria';
+import type {
+  AcaoMelhoria,
+  AcaoMelhoriaStatus,
+  PlanoMelhoria,
+  PlanoMelhoriaStatus,
+} from '../types/PlanoMelhoria';
 
 const PLANO_STATUS_SET: ReadonlySet<PlanoMelhoriaStatus> = new Set([
   'rascunho',
@@ -106,7 +111,11 @@ function mapPlanoFromSnap(labId: string, snap: DocumentSnapshot): PlanoMelhoria 
   return plano;
 }
 
-function mapAcaoDoc(labId: string, planoId: string, doc: QueryDocumentSnapshot): AcaoMelhoria | null {
+function mapAcaoDoc(
+  labId: string,
+  planoId: string,
+  doc: QueryDocumentSnapshot,
+): AcaoMelhoria | null {
   const raw = doc.data();
   const descricao = typeof raw.descricao === 'string' ? raw.descricao : '';
   const responsavelId = typeof raw.responsavelId === 'string' ? raw.responsavelId : '';

@@ -52,7 +52,7 @@ export const investigarNC = onCall(
         request.auth.uid,
         `nc.investigate.${nc.codigo}`,
         updateData,
-        secret
+        secret,
       );
 
       updateData.hmac = signedEntry.hmac;
@@ -64,7 +64,7 @@ export const investigarNC = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro na investigação');
     }
-  }
+  },
 );
 
 export const executarAcaoCorretiva = onCall(
@@ -77,7 +77,10 @@ export const executarAcaoCorretiva = onCall(
     const { labId, ncId, descricao, dataPrevista } = request.data;
 
     if (!labId || !ncId || !descricao || !dataPrevista) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, ncId, descricao, dataPrevista');
+      throw new HttpsError(
+        'invalid-argument',
+        'Campos obrigatórios: labId, ncId, descricao, dataPrevista',
+      );
     }
 
     try {
@@ -113,7 +116,7 @@ export const executarAcaoCorretiva = onCall(
         request.auth.uid,
         `nc.acaoCorretiva.${nc.codigo}`,
         updateData,
-        secret
+        secret,
       );
 
       updateData.hmac = signedEntry.hmac;
@@ -125,7 +128,7 @@ export const executarAcaoCorretiva = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro na ação corretiva');
     }
-  }
+  },
 );
 
 export const verificarEficacia = onCall(
@@ -142,7 +145,10 @@ export const verificarEficacia = onCall(
     }
 
     if (!['eficaz', 'ineficaz', 'nao_concluida'].includes(resultado)) {
-      throw new HttpsError('invalid-argument', 'Resultado deve ser eficaz, ineficaz ou nao_concluida');
+      throw new HttpsError(
+        'invalid-argument',
+        'Resultado deve ser eficaz, ineficaz ou nao_concluida',
+      );
     }
 
     try {
@@ -158,7 +164,8 @@ export const verificarEficacia = onCall(
 
       const nc = ncSnap.data() as NaoConformidade;
 
-      const novoCapaStatus = resultado === 'eficaz' ? 'fechada' : resultado === 'ineficaz' ? 'investigacao' : 'eficacia';
+      const novoCapaStatus =
+        resultado === 'eficaz' ? 'fechada' : resultado === 'ineficaz' ? 'investigacao' : 'eficacia';
 
       const updateData: Partial<NaoConformidade> = {
         capaStatus: novoCapaStatus,
@@ -180,7 +187,7 @@ export const verificarEficacia = onCall(
         request.auth.uid,
         `nc.verificaEficacia.${nc.codigo}`,
         updateData,
-        secret
+        secret,
       );
 
       updateData.hmac = signedEntry.hmac;
@@ -192,5 +199,5 @@ export const verificarEficacia = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro na verificação de eficacia');
     }
-  }
+  },
 );

@@ -213,6 +213,7 @@
 ## File Changes Summary
 
 **New files (already created in Waves 1-2):**
+
 - `functions/src/modules/qualidade/types.ts` (85 lines)
 - `functions/src/modules/qualidade/naoConformidade.ts` (340 lines)
 - `functions/src/modules/qualidade/capaWorkflow.ts` (305 lines)
@@ -223,6 +224,7 @@
 - `docs/adr/0003-nao-conformidade-capa.md` (400+ lines)
 
 **Files modified (Wave 3, ~90 lines total):**
+
 - `functions/src/modules/insumo/insumo.ts` (+15 lines, imports + gate call)
 - `functions/src/modules/equipamento/equipamento.ts` (+12 lines)
 - `functions/src/modules/qualidade/runs.ts` (+15 lines)
@@ -238,15 +240,15 @@
 
 ## Testing Strategy
 
-| Phase | Test Type | Coverage | Gate |
-|-------|-----------|----------|------|
-| Wave 3 | Backfill validation | Spot-check 5 docs | Continue to Wave 4 |
-| Wave 4 | Unit tests | >80% via naoConformidade.test.ts | Pass or fix |
-| Wave 4 | Integration tests | Full lifecycle E2E | Pass or fix |
-| Wave 4 | Per-module smoke | 7 flows (1 per module) | All green |
-| Wave 4 | Chain integrity | Validator runs on NCs | 0 breaks |
-| Wave 5 | Production smoke | Manual UI flow | User approval |
-| Wave 5 | 24h monitoring | Metrics + logs | No escalations |
+| Phase  | Test Type           | Coverage                         | Gate               |
+| ------ | ------------------- | -------------------------------- | ------------------ |
+| Wave 3 | Backfill validation | Spot-check 5 docs                | Continue to Wave 4 |
+| Wave 4 | Unit tests          | >80% via naoConformidade.test.ts | Pass or fix        |
+| Wave 4 | Integration tests   | Full lifecycle E2E               | Pass or fix        |
+| Wave 4 | Per-module smoke    | 7 flows (1 per module)           | All green          |
+| Wave 4 | Chain integrity     | Validator runs on NCs            | 0 breaks           |
+| Wave 5 | Production smoke    | Manual UI flow                   | User approval      |
+| Wave 5 | 24h monitoring      | Metrics + logs                   | No escalations     |
 
 ---
 
@@ -263,13 +265,13 @@
 
 ## Risk Mitigation
 
-| Risk | Severity | Mitigation |
-|------|----------|-----------|
-| Backfill incompleteness | Medium | Dry-run before real run; spot-check 5 docs; verify counts |
-| Rule deployment breaks access | High | Test in emulator first; deploy rules before functions |
-| NC gates block legitimate ops | High | Smoke test per-module; verify only critical NCs block; test closure unblocks |
-| HMAC validation fails | Medium | Chain validator runs hourly; alert if >0 breaks; rollback procedure ready |
-| Latency regression | Low | Monitor openNaoConformidade latency; expected <100ms |
+| Risk                          | Severity | Mitigation                                                                   |
+| ----------------------------- | -------- | ---------------------------------------------------------------------------- |
+| Backfill incompleteness       | Medium   | Dry-run before real run; spot-check 5 docs; verify counts                    |
+| Rule deployment breaks access | High     | Test in emulator first; deploy rules before functions                        |
+| NC gates block legitimate ops | High     | Smoke test per-module; verify only critical NCs block; test closure unblocks |
+| HMAC validation fails         | Medium   | Chain validator runs hourly; alert if >0 breaks; rollback procedure ready    |
+| Latency regression            | Low      | Monitor openNaoConformidade latency; expected <100ms                         |
 
 ---
 
@@ -306,4 +308,3 @@
 ---
 
 **Ready to execute.** Estimated 5-6 days for Waves 3-5. All code from Waves 1-2 is committed and tested.
-

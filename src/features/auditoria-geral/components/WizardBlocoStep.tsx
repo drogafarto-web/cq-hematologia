@@ -20,19 +20,32 @@ function getItemStatus(numero: number, respostas: RespostaIndicador[]) {
 }
 
 const STATUS_BADGE: Record<string, { label: string; classes: string }> = {
-  pendente: { label: '○', classes: 'bg-slate-100 text-slate-400 dark:bg-white/[0.04] dark:text-white/30' },
-  respondido: { label: '✓', classes: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400' },
+  pendente: {
+    label: '○',
+    classes: 'bg-slate-100 text-slate-400 dark:bg-white/[0.04] dark:text-white/30',
+  },
+  respondido: {
+    label: '✓',
+    classes: 'bg-emerald-100 text-emerald-600 dark:bg-emerald-500/20 dark:text-emerald-400',
+  },
   nc: { label: '!', classes: 'bg-red-100 text-red-600 dark:bg-red-500/20 dark:text-red-400' },
-  na: { label: '—', classes: 'bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400' },
+  na: {
+    label: '—',
+    classes: 'bg-violet-100 text-violet-600 dark:bg-violet-500/20 dark:text-violet-400',
+  },
 };
 
-export function WizardBlocoStep({ bloco, respostas, labId, auditoriaId, readonly = false }: WizardBlocoStepProps) {
-  const indicadoresDoBloco = INDICADORES.filter((ind) =>
-    bloco.indicadores.includes(ind.numero)
-  );
+export function WizardBlocoStep({
+  bloco,
+  respostas,
+  labId,
+  auditoriaId,
+  readonly = false,
+}: WizardBlocoStepProps) {
+  const indicadoresDoBloco = INDICADORES.filter((ind) => bloco.indicadores.includes(ind.numero));
 
   const respondidos = indicadoresDoBloco.filter((ind) =>
-    respostas.some((r) => r.numero === ind.numero && (r.score !== null || r.naoAplica))
+    respostas.some((r) => r.numero === ind.numero && (r.score !== null || r.naoAplica)),
   ).length;
 
   return (

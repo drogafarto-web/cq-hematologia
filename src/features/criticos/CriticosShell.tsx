@@ -44,18 +44,13 @@ export default function CriticosShell() {
                 Comunicação de resultados críticos
               </h1>
               <p className="mt-1 max-w-2xl text-sm text-white/50">
-                Detecção, escalação e reconhecimento de valores que exigem
-                comunicação imediata ao médico solicitante. Conformidade RDC
-                978/2025 Art. 5.7.1 e DICQ 4.3.
+                Detecção, escalação e reconhecimento de valores que exigem comunicação imediata ao
+                médico solicitante. Conformidade RDC 978/2025 Art. 5.7.1 e DICQ 4.3.
               </p>
             </div>
           </div>
 
-          <nav
-            role="tablist"
-            aria-label="Seções do módulo Críticos"
-            className="mt-6 flex gap-1"
-          >
+          <nav role="tablist" aria-label="Seções do módulo Críticos" className="mt-6 flex gap-1">
             {TABS.map((t) => {
               const active = t.id === tab;
               return (
@@ -99,11 +94,7 @@ export default function CriticosShell() {
           aria-labelledby={`tab-trigger-${tab}`}
           className="motion-safe:animate-[fadeIn_180ms_ease-out]"
         >
-          {tab === 'escalacoes' ? (
-            <CriticosEscalacaoList />
-          ) : (
-            <CriticosThresholdsAdmin />
-          )}
+          {tab === 'escalacoes' ? <CriticosEscalacaoList /> : <CriticosThresholdsAdmin />}
         </div>
       </main>
 

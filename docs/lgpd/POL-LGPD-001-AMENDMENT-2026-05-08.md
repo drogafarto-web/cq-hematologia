@@ -1,4 +1,5 @@
 # Aditamento à Política de Privacidade e Proteção de Dados Pessoais (POL-LGPD-001)
+
 ## Inclusão de Tratamento por Inteligência Artificial Generativa (Google Gemini Vision)
 
 **Documento:** POL-LGPD-001-AMENDMENT-2026-05-08 v0.1
@@ -105,9 +106,9 @@ A introdução do módulo `ia-strip` — que envia imagens de strips de teste r�
 
 ## 3. Documentos Correlatos Emitidos Concomitantemente
 
-| Documento | Versão | Status | Função |
-| --- | --- | --- | --- |
-| **IT-LGPD-DPIA-002** | 0.1 DRAFT | Pendente assinatura | DPIA específica para o tratamento por Gemini Vision |
+| Documento                    | Versão    | Status              | Função                                                              |
+| ---------------------------- | --------- | ------------------- | ------------------------------------------------------------------- |
+| **IT-LGPD-DPIA-002**         | 0.1 DRAFT | Pendente assinatura | DPIA específica para o tratamento por Gemini Vision                 |
 | **IA-STRIP-CONSENT-FLOW.md** | 0.1 DRAFT | Pendente assinatura | Documento operacional do fluxo de consentimento, opt-out e retenção |
 
 A vigência deste Aditamento depende da aprovação conjunta dos três documentos.
@@ -131,19 +132,19 @@ A vigência deste Aditamento depende da aprovação conjunta dos três documento
 
 > **AVISO:** As assinaturas abaixo são exigência formal. **Sem todas as três, este Aditamento permanece em DRAFT e o módulo `ia-strip` não pode ser ativado em produção com dados de pacientes.**
 
-| Papel | Nome | Registro Profissional | Assinatura | Data |
-| --- | --- | --- | --- | --- |
-| Responsável Técnico (RT) — Direção Técnica | [PREENCHER] | CRBM/CRF/CRM ___________ | __________ | ____/____/____ |
-| Encarregado de Proteção de Dados (DPO) | [PREENCHER] | — | __________ | ____/____/____ |
-| Diretor de Tecnologia (CTO) | [PREENCHER] | — | __________ | ____/____/____ |
+| Papel                                      | Nome        | Registro Profissional       | Assinatura   | Data                   |
+| ------------------------------------------ | ----------- | --------------------------- | ------------ | ---------------------- |
+| Responsável Técnico (RT) — Direção Técnica | [PREENCHER] | CRBM/CRF/CRM ****\_\_\_**** | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
+| Encarregado de Proteção de Dados (DPO)     | [PREENCHER] | —                           | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
+| Diretor de Tecnologia (CTO)                | [PREENCHER] | —                           | ****\_\_**** | \_**\_/\_\_**/\_\_\_\_ |
 
 ---
 
 ## 6. Histórico de Revisões
 
-| Versão | Data | Status | Mudança |
-| --- | --- | --- | --- |
-| 0.1 | 2026-05-08 | DRAFT | Emissão inicial. Pendente assinatura RT + DPO + CTO. |
+| Versão | Data       | Status | Mudança                                              |
+| ------ | ---------- | ------ | ---------------------------------------------------- |
+| 0.1    | 2026-05-08 | DRAFT  | Emissão inicial. Pendente assinatura RT + DPO + CTO. |
 
 ---
 

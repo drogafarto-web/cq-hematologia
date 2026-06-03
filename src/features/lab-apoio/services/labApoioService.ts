@@ -144,17 +144,17 @@ export function subscribeContratos(
           // Vencendo nos próximos 90 dias
           if (vencendo) {
             const daysUntil = Math.floor(
-              (new Date(c.vigenciaFim).getTime() - new Date(now).getTime()) /
-                (1000 * 60 * 60 * 24),
+              (new Date(c.vigenciaFim).getTime() - new Date(now).getTime()) / (1000 * 60 * 60 * 24),
             );
             if (daysUntil > 90 || daysUntil < 0) return false;
           }
 
           // Sem avaliação anual em dia
           if (semavaliacaoAnual && c.proximaAvaliacaoEm) {
-            const proximaAvalTs = typeof c.proximaAvaliacaoEm === 'object' && 'toDate' in c.proximaAvaliacaoEm
-              ? c.proximaAvaliacaoEm.toDate()
-              : new Date(c.proximaAvaliacaoEm as any);
+            const proximaAvalTs =
+              typeof c.proximaAvaliacaoEm === 'object' && 'toDate' in c.proximaAvaliacaoEm
+                ? c.proximaAvaliacaoEm.toDate()
+                : new Date(c.proximaAvaliacaoEm as any);
             if (proximaAvalTs.getTime() > new Date(now).getTime()) {
               return false;
             }
@@ -226,14 +226,15 @@ export function unwrapCallableError(error: unknown): Error {
  * Stub for lazy-loading callable wrappers.
  * Real implementations are httpsCallable in useLabApoio hook.
  */
-export async function labApoio_createContrato(
-  labId: LabId,
-  input: any,
-): Promise<{ id: string }> {
+export async function labApoio_createContrato(labId: LabId, input: any): Promise<{ id: string }> {
   throw new Error('Not implemented in service; use useLabApoio.createContrato');
 }
 
-export async function labApoio_updateContrato(labId: LabId, contratoId: string, input: any): Promise<void> {
+export async function labApoio_updateContrato(
+  labId: LabId,
+  contratoId: string,
+  input: any,
+): Promise<void> {
   throw new Error('Not implemented in service; use useLabApoio.updateContrato');
 }
 

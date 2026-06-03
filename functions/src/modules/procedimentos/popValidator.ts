@@ -7,7 +7,7 @@ export async function canOperadorUsarPOP(
   labId: string,
   uid: string,
   popId: string,
-  popVersaoNumero: string
+  popVersaoNumero: string,
 ): Promise<{ allowed: boolean; reason?: string }> {
   try {
     // Get POP to verify it exists and version is ativa
@@ -17,7 +17,9 @@ export async function canOperadorUsarPOP(
     }
 
     const pop = popSnap.data() as POP;
-    const versaoAtiva = pop.versoes.find(v => v.numero === popVersaoNumero && v.status === 'ativa');
+    const versaoAtiva = pop.versoes.find(
+      (v) => v.numero === popVersaoNumero && v.status === 'ativa',
+    );
 
     if (!versaoAtiva) {
       return { allowed: false, reason: `POP v${popVersaoNumero} não está ativa` };
@@ -38,7 +40,7 @@ export async function canOperadorUsarPOP(
       const treinamentos = qual.treinamentosPOP || [];
 
       const trainRecord = treinamentos.find(
-        (t: any) => t.popId === popId && t.popVersaoNumero === popVersaoNumero
+        (t: any) => t.popId === popId && t.popVersaoNumero === popVersaoNumero,
       );
 
       if (!trainRecord) continue;
@@ -62,7 +64,7 @@ export async function canOperadorUsarPOP(
 export async function checkTrainingValid(
   labId: string,
   uid: string,
-  modulo: string
+  modulo: string,
 ): Promise<{ valid: boolean; blockingReason?: string }> {
   try {
     // Get current ativa POP for module
@@ -77,7 +79,7 @@ export async function checkTrainingValid(
 
     for (const popDoc of popsSnap.docs) {
       const pop = popDoc.data() as POP;
-      const ativaPop = pop.versoes.find(v => v.status === 'ativa');
+      const ativaPop = pop.versoes.find((v) => v.status === 'ativa');
 
       if (!ativaPop) continue;
 
@@ -100,7 +102,7 @@ export async function getActivePOPVersion(labId: string, popId: string): Promise
     if (!popSnap.exists) return null;
 
     const pop = popSnap.data() as POP;
-    const ativaPop = pop.versoes.find(v => v.status === 'ativa');
+    const ativaPop = pop.versoes.find((v) => v.status === 'ativa');
     return ativaPop?.numero || null;
   } catch (error) {
     console.error('Error getting active POP version:', error);

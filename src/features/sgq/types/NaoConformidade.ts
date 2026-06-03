@@ -157,10 +157,7 @@ export function isCAPACompleta(nc: NaoConformidade): boolean {
   return nc.capaStatus === 'fechada';
 }
 
-export function diasAteVencimento(
-  nc: NaoConformidade,
-  now: Date = new Date(),
-): number | null {
+export function diasAteVencimento(nc: NaoConformidade, now: Date = new Date()): number | null {
   if (!nc.prazoClosure) return null;
   const diff = nc.prazoClosure.toDate().getTime() - now.getTime();
   return Math.ceil(diff / (1000 * 60 * 60 * 24));

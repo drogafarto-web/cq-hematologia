@@ -29,22 +29,17 @@ try {
     // CNPJ fictício válido para teste (11.222.333/0001-81)
     const cnpjTeste = '11222333000181';
 
-    await db
-      .collection('labs')
-      .doc(labId)
-      .collection('fornecedores')
-      .doc(fornecedorId)
-      .set({
-        id: fornecedorId,
-        labId,
-        razaoSocial: 'APPT',
-        nomeFantasia: 'APPT Reagentes',
-        cnpj: cnpjTeste,
-        inscricaoEstadual: 'isento',
-        ativo: true,
-        createdAt: admin.firestore.Timestamp.now(),
-        createdBy: userId,
-      });
+    await db.collection('labs').doc(labId).collection('fornecedores').doc(fornecedorId).set({
+      id: fornecedorId,
+      labId,
+      razaoSocial: 'APPT',
+      nomeFantasia: 'APPT Reagentes',
+      cnpj: cnpjTeste,
+      inscricaoEstadual: 'isento',
+      ativo: true,
+      createdAt: admin.firestore.Timestamp.now(),
+      createdBy: userId,
+    });
     console.log('   ✅ Fornecedor criado: APPT');
   } else {
     fornecedorId = fornecedoresSnap.docs[0].id;
@@ -81,16 +76,11 @@ try {
 
   // Passo 3: Atualizar insumo para referenciar a nota fiscal
   console.log('\n   Vinculando insumo à nota fiscal...');
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('insumos')
-    .doc(insumoId)
-    .update({
-      notaFiscalId: notaId,
-      updatedAt: admin.firestore.Timestamp.now(),
-      updatedBy: userId,
-    });
+  await db.collection('labs').doc(labId).collection('insumos').doc(insumoId).update({
+    notaFiscalId: notaId,
+    updatedAt: admin.firestore.Timestamp.now(),
+    updatedBy: userId,
+  });
 
   console.log('   ✅ Insumo atualizado com notaFiscalId');
 
@@ -99,7 +89,6 @@ try {
   console.log(`   Nota Fiscal: 10123 (${notaId})`);
   console.log(`   Insumo: APPT REAGENTE (${insumoId})`);
   console.log(`   Associação: Insumo → NF 10123 → Fornecedor APPT\n`);
-
 } catch (err) {
   console.error('❌ Erro:');
   console.error('   Código:', err.code);

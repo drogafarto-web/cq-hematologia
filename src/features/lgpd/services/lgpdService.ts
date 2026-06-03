@@ -27,13 +27,7 @@ import {
 import { httpsCallable } from 'firebase/functions';
 
 import { db, functions } from '../../../shared/services/firebase';
-import type {
-  DPIA,
-  PolicyVersion,
-  PrivacyAceite,
-  LogicalSignature,
-  OTPRecord,
-} from '../types';
+import type { DPIA, PolicyVersion, PrivacyAceite, LogicalSignature, OTPRecord } from '../types';
 
 // ──────────────────────────────────────────────────────────────────────────
 // Path helpers (multi-tenant)
@@ -211,11 +205,7 @@ export function subscribeCurrentPolicy(
  * Get all policy versions (for history view)
  */
 export async function getAllPolicyVersions(labId: string): Promise<PolicyVersion[]> {
-  const q = query(
-    policasCol(labId),
-    where('deletadoEm', '==', null),
-    orderBy('criadoEm', 'desc'),
-  );
+  const q = query(policasCol(labId), where('deletadoEm', '==', null), orderBy('criadoEm', 'desc'));
 
   const snap = await getDocs(q);
   return snap.docs.map(mapDocToPolicyVersion);
@@ -256,11 +246,7 @@ export async function getUserCurrentAcceptance(
   userId: string,
   policyVersionId: string,
 ): Promise<PrivacyAceite | null> {
-  const q = query(
-    aceitesCol(userId),
-    where('policyVersionId', '==', policyVersionId),
-    limit(1),
-  );
+  const q = query(aceitesCol(userId), where('policyVersionId', '==', policyVersionId), limit(1));
 
   const snap = await getDocs(q);
   if (snap.empty) return null;
@@ -284,10 +270,7 @@ export async function getUserAllAceites(userId: string): Promise<PrivacyAceite[]
  * Request OTP for titular exclusion flow
  * Sends OTP to provided email via Cloud Function callable
  */
-export async function sendOTP(
-  email: string,
-  labName: string,
-): Promise<{ otpToken: string }> {
+export async function sendOTP(email: string, labName: string): Promise<{ otpToken: string }> {
   const callable = httpsCallable(functions, 'sendOTP');
   const result: any = await callable({ email, labName });
   return {

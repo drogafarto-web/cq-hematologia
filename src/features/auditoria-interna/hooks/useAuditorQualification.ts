@@ -23,23 +23,23 @@ export function useAuditorQualification(labId: string) {
 
   const getImpediment = useCallback(
     (auditorId: string, bloco: string): AuditorImpediment | null => {
-      const auditor = auditores.find(a => a.id === auditorId);
+      const auditor = auditores.find((a) => a.id === auditorId);
       if (!auditor) return null;
       return checkImpediment(auditor, bloco);
     },
-    [auditores]
+    [auditores],
   );
 
   const getValidation = useCallback(
     (auditorId: string) => {
-      const auditor = auditores.find(a => a.id === auditorId);
+      const auditor = auditores.find((a) => a.id === auditorId);
       if (!auditor) return { valid: false, issues: ['Auditor não encontrado'] };
       return validateQualification(auditor);
     },
-    [auditores]
+    [auditores],
   );
 
-  const qualifiedAuditors = auditores.filter(a => {
+  const qualifiedAuditors = auditores.filter((a) => {
     const { valid } = validateQualification(a);
     return valid && a.status === 'ativo';
   });

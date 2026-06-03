@@ -28,6 +28,7 @@ Complete these in order. Each step builds on the previous.
 **Read:** `c:/hc quality/docs/PHASE_3_HANDBOOK.md` (sections 1–4)
 
 **Key takeaways:**
+
 - 5 new Firestore collections (portal config, NOTIVISA queue, critical escalations, IA training, draft management)
 - Multi-tenant isolation: all paths follow `/<collection>/{labId}/<sub>`
 - Rules enforce RBAC via member doc + module claims
@@ -35,6 +36,7 @@ Complete these in order. Each step builds on the previous.
 - Audit trail: append-only, immutable per RDC 978 Art. 5
 
 **Do this now:**
+
 1. Skim the "Firestore Collections API Reference" section in PHASE_3_HANDBOOK.md
 2. Find `firestore.json` in root — note the region setting
 3. Note the 3 new helper modules mentioned in "Wave 3: Shared Helpers"
@@ -176,6 +178,7 @@ npm run test:smoke
 ```
 
 Should pass ~12–18 tests covering:
+
 - Auth (user can log in, claims are provisioned)
 - Firestore rules (multi-tenant isolation, RBAC)
 - Helper validation (NOTIVISA payload, CPF masking, HMAC chain)
@@ -213,10 +216,12 @@ Every collection follows this structure:
 ```
 
 **Defense-in-depth:** Payload includes `labId` **twice**:
+
 1. In document path: `labs/{labId}/...`
 2. In document content: `{ labId, ... }`
 
 This prevents:
+
 - A malicious admin from "moving" their write to another lab
 - Firestore rules are enforced at path level
 - Service layer validates `payload.labId == pathLabId`
@@ -245,6 +250,7 @@ Laudos (results) go through this state:
 ```
 
 Rules enforce:
+
 - **DRAFT + locked by user X**: only X can update (pessimistic lock)
 - **DRAFT + lock expired (>2h)**: admin can force-unlock + audit
 - **PUBLISHED**: never update (`allow update: if false`)
@@ -274,22 +280,22 @@ export const notivisaEventCreate = onCall(
   { region: 'southamerica-east1', secrets: ['NOTIVISA_KEY'] },
   async (req, ctx) => {
     const { labId, laudo_id, patient_cpf } = req.data;
-    
+
     // 1. Validate claims
     if (!ctx.auth) throw new HttpsError('unauthenticated', 'Not logged in');
     if (ctx.auth.token.modules.notivisa !== true) {
       throw new HttpsError('permission-denied', 'No notivisa access');
     }
-    
+
     // 2. Validate payload
     const parsed = NotivisaEventSchema.parse({
       laudo_id, patient_cpf, ...
     });
-    
+
     // 3. Atomic write with server signature
     const batch = db.batch();
     const eventRef = db.collection('labs').doc(labId).collection('notivisa-outbox').doc();
-    
+
     const signature = {
       hash: crypto
         .createHmac('sha256', process.env.NOTIVISA_KEY!)
@@ -298,7 +304,7 @@ export const notivisaEventCreate = onCall(
       operatorId: ctx.auth.uid,
       ts: admin.firestore.Timestamp.now(),
     };
-    
+
     batch.set(eventRef, {
       labId,
       ...parsed,
@@ -306,7 +312,7 @@ export const notivisaEventCreate = onCall(
       status: 'PENDING',
       attempts: 0,
     });
-    
+
     // 4. Audit log
     batch.set(
       db.collection('labs').doc(labId).collection('auditLogs').doc(),
@@ -317,7 +323,7 @@ export const notivisaEventCreate = onCall(
         timestamp: admin.firestore.Timestamp.now(),
       }
     );
-    
+
     await batch.commit();
     return { eventId: eventRef.id };
   }
@@ -336,18 +342,18 @@ export const notivisaEventCreate = onCall(
 match /labs/{labId}/notivisa-outbox/events/{eventId} {
   // Read: Active member + module claim
   allow read: if isActiveMemberOfLab(labId) && hasModuleAccess('notivisa');
-  
+
   // Create: Only via Cloud Function (pessimistic block)
   allow create: if false;
-  
+
   // Update: Only if unlocked + owned by user (pessimistic lock pattern)
   allow update: if isActiveMemberOfLab(labId)
     && (resource.data.lock == null || resource.data.lock.uid == request.auth.uid)
     && request.resource.data.labId == labId;
-  
+
   // Delete: Hard delete never
   allow delete: if false;
-  
+
   // Subcollections (audit trail): append-only
   match /auditLog/{logId} {
     allow read: if isActiveMemberOfLab(labId);
@@ -367,6 +373,7 @@ match /labs/{labId}/notivisa-outbox/events/{eventId} {
 **What it does:** Lab branding, UI theming, custom labels for patients.
 
 **Key files:**
+
 - `src/features/portal/services/portalConfigService.ts` — CRUD
 - `functions/src/modules/portal/portalConfigUpdate.ts` — Callable for admin writes
 - `firestore.rules` line ~380 — rules block
@@ -380,7 +387,7 @@ match /labs/{labId}/notivisa-outbox/events/{eventId} {
 ```typescript
 // Get portal config for display
 const config = await getPortalConfig('labclin-riopomba');
-console.log(config.primaryColor);  // "#7c3aed"
+console.log(config.primaryColor); // "#7c3aed"
 
 // Update branding (admin only, via callable)
 await functions.httpsCallable('portalConfigUpdate')({
@@ -396,6 +403,7 @@ await functions.httpsCallable('portalConfigUpdate')({
 **What it does:** Queue regulatory notifications to Brazilian NOTIVISA system (RDC 978 Art. 6º).
 
 **Key files:**
+
 - `functions/src/modules/notivisa/notivisaEventCreate.ts` — Receive from result system
 - `functions/src/modules/notivisa/notivisaEventSend.ts` — Scheduled poller (every 15 min)
 - `functions/src/helpers/notivisaValidator.ts` — Zod schema (11 required fields)
@@ -421,7 +429,7 @@ db.collection('labs')
   .collection('events')
   .where('status', '==', 'FAILED')
   .where('attempts', '>=', 3)
-  .get()
+  .get();
 
 // Force retry
 await functions.httpsCallable('notivisaEventRetry')({
@@ -437,6 +445,7 @@ await functions.httpsCallable('notivisaEventRetry')({
 **What it does:** Critical value alerts. When a result exceeds safe limits, SMS/email escalation to operator.
 
 **Key files:**
+
 - `src/features/criticos/types/CriticoEscalacao.ts` — schema (thresholds per exame)
 - `functions/src/modules/criticos/escalarValorCritico.ts` — Callable triggered by result publish
 - `functions/src/modules/criticos/sendSmsEscalacao.ts` — SMS routing via Resend
@@ -447,10 +456,10 @@ await functions.httpsCallable('notivisaEventRetry')({
 ```typescript
 interface CriticoEscalacao {
   labId: LabId;
-  exame: string;           // e.g., "hemoglobina"
-  limiteMin: number;       // Lower bound
-  limiteMax: number;       // Upper bound
-  escalarPara: string[];   // Array of user IDs or lab alerts
+  exame: string; // e.g., "hemoglobina"
+  limiteMin: number; // Lower bound
+  limiteMax: number; // Upper bound
+  escalarPara: string[]; // Array of user IDs or lab alerts
   metodoEscalacao: 'SMS' | 'EMAIL' | 'AMBOS';
   ativo: boolean;
   criadoEm: Timestamp;
@@ -492,6 +501,7 @@ DRAFT (locked)  → [operator releases]  → UNLOCKED  → [RT publishes]  → P
 **Lock timeout:** 2 hours (admin can force-unlock after expiry)
 
 **Key files:**
+
 - `src/features/laudos/services/laudoDraftService.ts` — Lock acquire/release
 - `functions/src/modules/laudos/acquireLaudoDraftLock.ts` — Callable
 - `functions/src/modules/laudos/forceClearExpiredLock.ts` — Admin utility
@@ -505,7 +515,7 @@ Scenario: Operator A locked draft 1h ago, then disconnected.
 
 Command:
   const isExpired = (lockTs) => Date.now() - lockTs > 2 * 60 * 60 * 1000;
-  
+
   if (isExpired(draft.lock.ts)) {
     await functions.httpsCallable('forceClearExpiredLock')({
       labId: 'labclin-riopomba',
@@ -529,6 +539,7 @@ Command:
 **Data retained:** Exam values + OCR confidence scores, NOT patient ID/CPF/name.
 
 **Key files:**
+
 - `src/features/analyzer/services/analyzerService.ts` — Capture OCR result
 - `functions/src/helpers/iaMetadataStripper.ts` — PII removal
 - `functions/src/modules/ias/recordTrainingData.ts` — Server write
@@ -565,21 +576,22 @@ Command:
 
 ```typescript
 const db = getFirestore();
-const thresholds = await getDocs(
-  collection(db, 'labs', 'labclin-riopomba', 'criticos-escalacoes')
-);
-thresholds.forEach(doc => console.log(doc.data()));
+const thresholds = await getDocs(collection(db, 'labs', 'labclin-riopomba', 'criticos-escalacoes'));
+thresholds.forEach((doc) => console.log(doc.data()));
 ```
 
 2. **Create new threshold via callable:**
 
 ```typescript
 const functions = getFunctions();
-const result = await httpsCallable(functions, 'criarCriticoEscalacao')({
+const result = await httpsCallable(
+  functions,
+  'criarCriticoEscalacao',
+)({
   labId: 'labclin-riopomba',
   exame: 'hemoglobina',
-  limiteMin: 5.0,           // Critical low
-  limiteMax: 20.0,          // Critical high
+  limiteMin: 5.0, // Critical low
+  limiteMax: 20.0, // Critical high
   escalarPara: ['diretor@lab.com.br'],
   metodoEscalacao: 'SMS',
   ativo: true,
@@ -596,6 +608,7 @@ firebase functions:log --only escalarValorCritico --project hmatologia2 --tail
 ```
 
 You should see:
+
 ```
 escalarValorCritico: Valor crítico detectado: hemoglobina=4.8, limite=[5.0, 20.0]
 escalarValorCritico: SMS enviado para diretor@lab.com.br
@@ -629,7 +642,10 @@ if (lock) {
 ```typescript
 const functions = getFunctions();
 if (Date.now() - lock.ts.toDate().getTime() > 2 * 60 * 60 * 1000) {
-  await httpsCallable(functions, 'forceClearExpiredLock')({
+  await httpsCallable(
+    functions,
+    'forceClearExpiredLock',
+  )({
     labId: 'labclin-riopomba',
     laudoId: 'laudo-456',
     reason: 'Operator disconnected; timeout 2h exceeded',
@@ -641,7 +657,10 @@ if (Date.now() - lock.ts.toDate().getTime() > 2 * 60 * 60 * 1000) {
 3. **Re-acquire lock:**
 
 ```typescript
-await httpsCallable(functions, 'acquireLaudoDraftLock')({
+await httpsCallable(
+  functions,
+  'acquireLaudoDraftLock',
+)({
   labId: 'labclin-riopomba',
   laudoId: 'laudo-456',
 });
@@ -708,16 +727,16 @@ describe('notivisaValidator', () => {
       reference_range: { min: 12, max: 16 },
       // ... other fields
     };
-    
+
     expect(() => NotivisaEventSchema.parse(payload)).not.toThrow();
   });
 
   it('rejects invalid CPF', () => {
     const payload = {
       // ... same as above
-      patient_cpf: '123',  // Only 3 digits
+      patient_cpf: '123', // Only 3 digits
     };
-    
+
     expect(() => NotivisaEventSchema.parse(payload)).toThrow();
   });
 });
@@ -730,6 +749,7 @@ npm run test -- notivisaValidator.test.ts
 ```
 
 Expected output:
+
 ```
  ✓ notivisaValidator › accepts valid NOTIVISA payload
  ✓ notivisaValidator › rejects invalid CPF
@@ -780,6 +800,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 Wait for confirmation:
+
 ```
 Deploy complete!
 ```
@@ -823,13 +844,13 @@ firebase functions:call forceClearExpiredLock \
 
 ```typescript
 // Sanitize before submitting
-const cpfClean = cpf.replace(/\D/g, '');  // Remove non-digits
+const cpfClean = cpf.replace(/\D/g, ''); // Remove non-digits
 if (cpfClean.length !== 11) {
   throw new Error('CPF must be exactly 11 digits');
 }
 
 await functions.httpsCallable('notivisaEventCreate')({
-  patient_cpf: cpfClean,  // Pass clean version
+  patient_cpf: cpfClean, // Pass clean version
   // ...
 });
 ```
@@ -920,10 +941,10 @@ Error: Cloud Function timed out after 60 seconds
 
 ```typescript
 export const myLongFunction = onCall(
-  { region: 'southamerica-east1', timeoutSeconds: 300 },  // 5 min
+  { region: 'southamerica-east1', timeoutSeconds: 300 }, // 5 min
   async (request) => {
     // ... long operation
-  }
+  },
 );
 ```
 
@@ -933,42 +954,46 @@ export const myLongFunction = onCall(
 
 ### Key Documentation
 
-| Document | Purpose |
-|---|---|
-| [`c:/hc quality/docs/PHASE_3_HANDBOOK.md`](../PHASE_3_HANDBOOK.md) | Complete schema + rules reference |
-| [`c:/hc quality/firestore.rules`](../../firestore.rules) | Security rules (searchable by module name) |
-| [`c:/hc quality/docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`](../adr/ADR-0017-hmac-baseline-reset-2026-05-07.md) | HMAC signature history + incident report |
-| [`c:/hc quality/docs/adr/ADR-0018-deploy-gate-secret-status-check.md`](../adr/ADR-0018-deploy-gate-secret-status-check.md) | Pre-deploy secret validation |
-| [`c:/hc quality/.claude/rules/deploy-protocol.md`](../../.claude/rules/deploy-protocol.md) | Deploy order + PWA caching |
-| [`c:/hc quality/.claude/rules/firestore-security.md`](../../.claude/rules/firestore-security.md) | Multi-tenant invariants + callable pattern |
+| Document                                                                                                                   | Purpose                                    |
+| -------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------ |
+| [`c:/hc quality/docs/PHASE_3_HANDBOOK.md`](../PHASE_3_HANDBOOK.md)                                                         | Complete schema + rules reference          |
+| [`c:/hc quality/firestore.rules`](../../firestore.rules)                                                                   | Security rules (searchable by module name) |
+| [`c:/hc quality/docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md`](../adr/ADR-0017-hmac-baseline-reset-2026-05-07.md)   | HMAC signature history + incident report   |
+| [`c:/hc quality/docs/adr/ADR-0018-deploy-gate-secret-status-check.md`](../adr/ADR-0018-deploy-gate-secret-status-check.md) | Pre-deploy secret validation               |
+| [`c:/hc quality/.claude/rules/deploy-protocol.md`](../../.claude/rules/deploy-protocol.md)                                 | Deploy order + PWA caching                 |
+| [`c:/hc quality/.claude/rules/firestore-security.md`](../../.claude/rules/firestore-security.md)                           | Multi-tenant invariants + callable pattern |
 
 ### RDC 978 / DICQ / Compliance
 
-| Regulation | Applies To | Link |
-|---|---|---|
+| Regulation         | Applies To             | Link                                                                                                                                                         |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | RDC 978 Art. 6º §1 | NOTIVISA notifications | [`C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md`](C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md) |
-| RDC 978 Art. 17 | IA competency data | Same |
-| DICQ 4.3 | Document control | [`C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md`](C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md) |
-| DICQ 4.4 | Audit trail | Same |
+| RDC 978 Art. 17    | IA competency data     | Same                                                                                                                                                         |
+| DICQ 4.3           | Document control       | [`C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md`](C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md)         |
+| DICQ 4.4           | Audit trail            | Same                                                                                                                                                         |
 
 ### Escalation Path
 
 **Level 1 — Self-resolve (docs + tests):**
+
 - Read PHASE_3_HANDBOOK.md section 8 (Troubleshooting)
 - Run `npm run test -- <module>.test.ts` to verify your code
 - Check emulator logs: http://localhost:4000 → Logs tab
 
 **Level 2 — Team help (Slack #phase-3):**
+
 - Rules not matching expected behavior → ask for rules review
 - Cloud Function timeout → ask for timeout increase (requires CTO ack)
 - Multi-tenant isolation unclear → code review in PR
 
 **Level 3 — CTO escalation (drogafarto@gmail.com):**
+
 - Compliance question (RDC 978, DICQ)
 - Security incident (rules bypass, data leak, HMAC collision)
 - Architecture change needed (new collection, schema breaking change)
 
 **Before escalating, provide:**
+
 1. **What**: Clear description of the issue
 2. **Where**: File paths + line numbers
 3. **Expected**: What should happen
@@ -996,6 +1021,7 @@ If any of these feel unclear, re-read the relevant section or ask on Slack.
 ---
 
 **Version History:**
+
 - **2026-05-07**: Initial creation, Phase 3 complete
 - Last updated: 2026-05-07
 

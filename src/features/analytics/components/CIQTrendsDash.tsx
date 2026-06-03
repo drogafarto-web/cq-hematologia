@@ -84,16 +84,13 @@ function LJTooltip({ active, payload, label }: CustomTooltipProps) {
       role="tooltip"
     >
       <p className="text-white/50 mb-1.5">{label}</p>
-      <p className="font-semibold tabular-nums text-white">
-        Valor: {point.value.toFixed(3)}
-      </p>
+      <p className="font-semibold tabular-nums text-white">Valor: {point.value.toFixed(3)}</p>
       <p className="text-white/50">Média: {point.mean.toFixed(3)}</p>
       <p className="text-white/50">
-        z-score: {((point.value - point.mean) / ((point.upperWarning - point.mean) / 2)).toFixed(2)}σ
+        z-score: {((point.value - point.mean) / ((point.upperWarning - point.mean) / 2)).toFixed(2)}
+        σ
       </p>
-      <p
-        className={['mt-1.5 font-medium', valid ? 'text-emerald-400' : 'text-red-400'].join(' ')}
-      >
+      <p className={['mt-1.5 font-medium', valid ? 'text-emerald-400' : 'text-red-400'].join(' ')}>
         {valid ? 'Conforme' : 'Não conforme'}
       </p>
     </div>
@@ -144,8 +141,10 @@ export const CIQTrendsDash = React.memo(function CIQTrendsDash({
 
   const activeFilterLabel = useMemo(() => {
     const parts: string[] = [];
-    if (equipmentIds.size > 0) parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
-    if (operatorIds.size > 0) parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
+    if (equipmentIds.size > 0)
+      parts.push(`${equipmentIds.size} equipamento${equipmentIds.size > 1 ? 's' : ''}`);
+    if (operatorIds.size > 0)
+      parts.push(`${operatorIds.size} operador${operatorIds.size > 1 ? 'es' : ''}`);
     return parts.join(', ');
   }, [equipmentIds, operatorIds]);
 
@@ -206,21 +205,14 @@ export const CIQTrendsDash = React.memo(function CIQTrendsDash({
 
       {/* Partial filter notice — trends aggregate doesn't carry per-operator breakdown */}
       {showPartialNotice && (
-        <FilterUnavailableBanner
-          reason={partialReason}
-          activeFilterLabel={activeFilterLabel}
-        />
+        <FilterUnavailableBanner reason={partialReason} activeFilterLabel={activeFilterLabel} />
       )}
 
       {/* Chart */}
       <div className="w-full aspect-[4/3] md:aspect-[16/9] rounded-xl border border-white/8 bg-white/[0.02] p-4">
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={ljChartData} margin={{ top: 8, right: 8, bottom: 0, left: -8 }}>
-            <CartesianGrid
-              strokeDasharray="3 3"
-              stroke="#ffffff0a"
-              vertical={false}
-            />
+            <CartesianGrid strokeDasharray="3 3" stroke="#ffffff0a" vertical={false} />
 
             <XAxis
               dataKey="label"

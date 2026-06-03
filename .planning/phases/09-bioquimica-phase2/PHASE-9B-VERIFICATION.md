@@ -81,23 +81,23 @@
 
 ## DICQ 4.3 Mapping
 
-| DICQ Clause | Requirement | SA | Status |
-|---|---|---|---|
-| 5.5.1.1 | CIQ planning (analyte selection, categories, metadata) | SA-43, SA-45 | ✅ Covered |
-| 5.6.2 | Westgard rules + decisioning | SA-44, SA-47, SA-48, SA-59 | ✅ Covered |
-| 5.6.3.1 | Rejection criteria + acceptance engine | SA-53, SA-60 | ✅ Covered |
-| 5.6.4 | Interlaboratorial comparison (z-score, CEQ) | SA-50, SA-60, SA-63 | ✅ Covered |
+| DICQ Clause | Requirement                                            | SA                         | Status     |
+| ----------- | ------------------------------------------------------ | -------------------------- | ---------- |
+| 5.5.1.1     | CIQ planning (analyte selection, categories, metadata) | SA-43, SA-45               | ✅ Covered |
+| 5.6.2       | Westgard rules + decisioning                           | SA-44, SA-47, SA-48, SA-59 | ✅ Covered |
+| 5.6.3.1     | Rejection criteria + acceptance engine                 | SA-53, SA-60               | ✅ Covered |
+| 5.6.4       | Interlaboratorial comparison (z-score, CEQ)            | SA-50, SA-60, SA-63        | ✅ Covered |
 
 ---
 
 ## RDC 978/2025 Mapping
 
-| Article | Requirement | SA | Compliance |
-|---|---|---|---|
-| 167 | Laudo digital integrity (OCR + signature) | SA-51, SA-56, SA-57 | ✅ RN-Signature validated |
-| 179 | CIQ obrigatório (required) | SA-43..SA-50 | ✅ Analyte catalog + rules |
-| 180 | Plano de controle (control plan) | SA-45 | ✅ 50+ analyte seed |
-| 183 | CIQ por troca de lote (per lot change) | SA-57 | ✅ Callable validates lotId |
+| Article | Requirement                               | SA                  | Compliance                  |
+| ------- | ----------------------------------------- | ------------------- | --------------------------- |
+| 167     | Laudo digital integrity (OCR + signature) | SA-51, SA-56, SA-57 | ✅ RN-Signature validated   |
+| 179     | CIQ obrigatório (required)                | SA-43..SA-50        | ✅ Analyte catalog + rules  |
+| 180     | Plano de controle (control plan)          | SA-45               | ✅ 50+ analyte seed         |
+| 183     | CIQ por troca de lote (per lot change)    | SA-57               | ✅ Callable validates lotId |
 
 ---
 
@@ -120,9 +120,10 @@
 
 ## OCR Accuracy
 
-*Manual validation on 10 sample lab strips ≥ 92% accurate analyte extraction*
+_Manual validation on 10 sample lab strips ≥ 92% accurate analyte extraction_
 
 **Status:** ⏳ Pending (to be completed by RT during UAT Phase 5)
+
 - Placeholder: stub mode generates fixture data
 - Real Gemini Vision integration: deferred to Phase 5 post-UAT
 - Expected: >92% accuracy on standard lab report formats (Riopomba, Lablab, etc.)
@@ -132,9 +133,11 @@
 ## Firestore Rules Updates (if any)
 
 **Applicable collections added:**
+
 - None in Phase 9b (bioquimica collections already defined in Phase 9a)
 
 **Rules verification:**
+
 - `/labs/{labId}/bioquimica/root/runs/{runId}` — callable-only (RN-06)
 - `/labs/{labId}/bioquimica/root/audit/{logId}` — append-only
 
@@ -145,6 +148,7 @@
 **Modules touched:** bioquimica only (isolated per module-protection.md)
 
 **Dependencies confirmed:**
+
 - `src/shared/services/firebase.ts` ✅
 - `src/store/useAuthStore.ts` ✅
 - `src/types/index.ts` — no new View entries needed
@@ -171,6 +175,7 @@
 **Baseline (v1.4 Phase 4):** 362 KB gzip (main chunk)
 
 **Expected delta (Phase 9b additions):**
+
 - Type files: ~2 KB
 - Westgard engine + helpers: ~4 KB
 - Fuzzy match + z-score: ~3 KB
@@ -182,6 +187,7 @@
 ## Performance Regression Check
 
 **Critical metrics:**
+
 - LCP: <2.5s (no OCR = no client-side regression)
 - INP: <200ms (OCR modal interaction: measured at ~150ms in stub mode)
 - CLS: <0.1 (OCRUploadModal uses fixed positioning, no layout shift)
@@ -194,18 +200,22 @@
 ## Security Audit
 
 ### Multi-Tenancy
+
 - [x] All CRUD operations check `labId` redundantly (path + payload)
 - [x] Callables (SA-51, SA-57) validate `isActiveMemberOfLab(labId)` stub
 
 ### Signature Validation
+
 - [x] RN-LogicalSignature: `hash (64 hex) + operatorId (== auth.uid) + ts (timestamp)`
 - [x] SA-57 callable validates: `signature.operatorId === request.auth.uid`
 
 ### Soft Delete Only
+
 - [x] No `deleteDoc` calls in new code
 - [x] All services reuse pattern from bioquimicaService
 
 ### CORS & Secrets
+
 - [x] SA-51: `cors: true`, `secrets: [GEMINI_API_KEY]`
 - [x] SA-57: `cors: true`, `secrets: [GEMINI_API_KEY]`
 
@@ -227,17 +237,18 @@
 
 ## Sign-Off
 
-| Role | Name | Date | Notes |
-|---|---|---|---|
-| **Module Owner** | *(bioquimica)* | **2026-05-09** | SAs 43–64 complete, 48/48 tests ✅ |
-| **CTO** | *(drogafartogit)* | **[pending]** | Ready for production Phase 5 UAT |
-| **QA Lead** | *(hc-quality)* | **[pending]** | Ready for E2E + manual OCR validation |
+| Role             | Name              | Date           | Notes                                 |
+| ---------------- | ----------------- | -------------- | ------------------------------------- |
+| **Module Owner** | _(bioquimica)_    | **2026-05-09** | SAs 43–64 complete, 48/48 tests ✅    |
+| **CTO**          | _(drogafartogit)_ | **[pending]**  | Ready for production Phase 5 UAT      |
+| **QA Lead**      | _(hc-quality)_    | **[pending]**  | Ready for E2E + manual OCR validation |
 
 ---
 
 ## Known Issues & Deferred Work
 
 ### Phase 9b Complete
+
 - ✅ CLSI 8-rule Westgard engine (client + server stubs)
 - ✅ Fuzzy matching (Levenshtein + alias table)
 - ✅ Interlaboratorial z-score calculator
@@ -250,6 +261,7 @@
 - ✅ Documentation + guides
 
 ### Deferred to Phase 5 (UAT + Production)
+
 - ⏳ Full Gemini Vision integration (stub mode active)
 - ⏳ Server-side Westgard engine hydration from Firestore
 - ⏳ CEQ cycle active peer stats (integration with ceq module)

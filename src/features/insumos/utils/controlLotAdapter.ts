@@ -7,12 +7,7 @@
 
 import { Timestamp } from 'firebase/firestore';
 import { doc, setDoc, db } from '../../../shared/services/firebase';
-import type {
-  ControlLot,
-  Run,
-  ManufacturerStats,
-  InternalStats,
-} from '../../../types';
+import type { ControlLot, Run, ManufacturerStats, InternalStats } from '../../../types';
 import type { InsumoControle, InsumoNivel, InsumoModulo } from '../types/Insumo';
 
 // ─── ControlLot.level (1|2|3) ↔ InsumoControle.nivel (categórico) ─────────────
@@ -61,10 +56,7 @@ export function nivelToBulaLevel(nivel: InsumoNivel): 1 | 2 | 3 {
  * @param insumo  InsumoControle desserializado.
  * @param runs    Corridas associadas (lidas separadamente da sub-coleção).
  */
-export function controlLotFromInsumoControle(
-  insumo: InsumoControle,
-  runs: Run[] = [],
-): ControlLot {
+export function controlLotFromInsumoControle(insumo: InsumoControle, runs: Run[] = []): ControlLot {
   return {
     id: insumo.id,
     labId: insumo.labId,
@@ -75,8 +67,7 @@ export function controlLotFromInsumoControle(
     level: insumo.bulaLevel ?? nivelToBulaLevel(insumo.nivel),
     startDate: insumo.startDate ? insumo.startDate.toDate() : insumo.createdAt.toDate(),
     expiryDate: insumo.validade.toDate(),
-    requiredAnalytes:
-      insumo.requiredAnalytes ?? Object.keys(insumo.stats ?? {}),
+    requiredAnalytes: insumo.requiredAnalytes ?? Object.keys(insumo.stats ?? {}),
     manufacturerStats: (insumo.stats ?? {}) as ManufacturerStats,
     statistics: (insumo.internalStats ?? null) as InternalStats | null,
     runs,
@@ -207,4 +198,3 @@ export async function replicateControlLotToInsumos(
   await setDoc(ref, writeData);
   return lot.id;
 }
-

@@ -8,11 +8,11 @@
 
 ## Token storage
 
-| Token | Where | Encryption at rest | Expiry |
-| --- | --- | --- | --- |
-| `refresh_token` | `/labs/{labId}/sgq-oauth-tokens/{userId}.refreshToken` | GCP Firestore default (AES-256, Google-managed keys) | Until user revokes via Drive consent screen |
-| `access_token` | `/labs/{labId}/sgq-oauth-tokens/{userId}.accessToken` (cache) | GCP Firestore default | `expiresAt` absolute Timestamp; refreshed when < 5 min remaining |
-| OAuth state token | `/labs/{labId}/sgq-oauth-pending/{stateHex}` | GCP Firestore default | 10 min TTL, deleted on first validation |
+| Token             | Where                                                         | Encryption at rest                                   | Expiry                                                           |
+| ----------------- | ------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------- |
+| `refresh_token`   | `/labs/{labId}/sgq-oauth-tokens/{userId}.refreshToken`        | GCP Firestore default (AES-256, Google-managed keys) | Until user revokes via Drive consent screen                      |
+| `access_token`    | `/labs/{labId}/sgq-oauth-tokens/{userId}.accessToken` (cache) | GCP Firestore default                                | `expiresAt` absolute Timestamp; refreshed when < 5 min remaining |
+| OAuth state token | `/labs/{labId}/sgq-oauth-pending/{stateHex}`                  | GCP Firestore default                                | 10 min TTL, deleted on first validation                          |
 
 ### Why Firestore (interim) instead of Secret Manager
 
@@ -44,13 +44,13 @@ the access token + expiresIn ms.
 
 ## Rotation policy
 
-| Event | Action |
-| --- | --- |
-| Access token < 5 min from expiry | Auto-refresh on next `getAccessToken()` call; cache new access token + new `expiresAt` |
-| User revokes access in Google account | Next refresh fails → caller sees error → web app prompts re-authorization |
-| Refresh token suspected compromised | Manual: `firebase firestore:delete labs/{labId}/sgq-oauth-tokens/{userId}` then user re-authorizes |
-| Suspicious activity (e.g., > 3 refresh failures in 1 hour) | TODO Sprint 2: alerting hook on `sgq-oauth-logs` event = `oauth-refresh-failed` |
-| Quarterly key rotation (CMEK) | If CMEK enabled, follow [Cloud KMS rotation docs](https://cloud.google.com/kms/docs/rotating-keys); 90-day rotation cadence default |
+| Event                                                      | Action                                                                                                                              |
+| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| Access token < 5 min from expiry                           | Auto-refresh on next `getAccessToken()` call; cache new access token + new `expiresAt`                                              |
+| User revokes access in Google account                      | Next refresh fails → caller sees error → web app prompts re-authorization                                                           |
+| Refresh token suspected compromised                        | Manual: `firebase firestore:delete labs/{labId}/sgq-oauth-tokens/{userId}` then user re-authorizes                                  |
+| Suspicious activity (e.g., > 3 refresh failures in 1 hour) | TODO Sprint 2: alerting hook on `sgq-oauth-logs` event = `oauth-refresh-failed`                                                     |
+| Quarterly key rotation (CMEK)                              | If CMEK enabled, follow [Cloud KMS rotation docs](https://cloud.google.com/kms/docs/rotating-keys); 90-day rotation cadence default |
 
 ## State token (CSRF) lifecycle
 
@@ -72,25 +72,25 @@ the access token + expiresIn ms.
 
 All written to `/labs/{labId}/sgq-oauth-logs`:
 
-| event | When | Fields |
-| --- | --- | --- |
-| `oauth-tokens-granted` | Successful code → token exchange | userId, expiresAt, timestamp |
-| `oauth-token-refreshed` | Successful refresh from refresh_token | userId, expiresAt, timestamp |
-| `oauth-state-invalid` | Any state validation failure | userId, reason, statePrefix, stateSuffix, timestamp |
-| `oauth-authorized` | Successful end-to-end OAuth flow | userId, expiresIn, ipAddress, timestamp |
+| event                   | When                                  | Fields                                              |
+| ----------------------- | ------------------------------------- | --------------------------------------------------- |
+| `oauth-tokens-granted`  | Successful code → token exchange      | userId, expiresAt, timestamp                        |
+| `oauth-token-refreshed` | Successful refresh from refresh_token | userId, expiresAt, timestamp                        |
+| `oauth-state-invalid`   | Any state validation failure          | userId, reason, statePrefix, stateSuffix, timestamp |
+| `oauth-authorized`      | Successful end-to-end OAuth flow      | userId, expiresIn, ipAddress, timestamp             |
 
 ## Threat model (post-fix)
 
-| Threat | Mitigation |
-| --- | --- |
-| CSRF on callback | State token (256 bits) + tenant binding + 10 min TTL + one-time use |
-| Cross-tenant hijack via labId/userId tampering | State doc binds labId+userId; mismatch → reject + log |
-| Replay of stale OAuth callback | State deleted on first use; `expiresAt < now` rejected |
-| Refresh token leak via function return value | `getAccessToken()` never returns refresh token |
-| Brute-force callback (DOS / state-guessing) | Per-IP 10/min rate limit; 256-bit state space defeats guessing |
-| State token observable in logs | Logger writes only first/last 4 chars |
-| Headers / framing attacks | X-Frame-Options DENY, CSP, HSTS, X-Content-Type-Options |
-| Stale access token cached past expiry | Refresh-on-read with 5 min margin; absolute Timestamp not relative |
+| Threat                                         | Mitigation                                                          |
+| ---------------------------------------------- | ------------------------------------------------------------------- |
+| CSRF on callback                               | State token (256 bits) + tenant binding + 10 min TTL + one-time use |
+| Cross-tenant hijack via labId/userId tampering | State doc binds labId+userId; mismatch → reject + log               |
+| Replay of stale OAuth callback                 | State deleted on first use; `expiresAt < now` rejected              |
+| Refresh token leak via function return value   | `getAccessToken()` never returns refresh token                      |
+| Brute-force callback (DOS / state-guessing)    | Per-IP 10/min rate limit; 256-bit state space defeats guessing      |
+| State token observable in logs                 | Logger writes only first/last 4 chars                               |
+| Headers / framing attacks                      | X-Frame-Options DENY, CSP, HSTS, X-Content-Type-Options             |
+| Stale access token cached past expiry          | Refresh-on-read with 5 min margin; absolute Timestamp not relative  |
 
 ## Open follow-ups (deferred from SECURITY_AUDIT.md)
 

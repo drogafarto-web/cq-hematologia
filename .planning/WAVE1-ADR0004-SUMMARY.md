@@ -15,6 +15,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
 ## Files Created
 
 ### 1. **docs/adr/0004-pop-versioning.md** (Design Document)
+
 - **Size:** ~600 lines
 - **Content:**
   - Problem statement (V-004, V-011: POP traceability, training enforcement)
@@ -28,6 +29,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
   - Risk mitigation table
 
 ### 2. **functions/src/modules/procedimentos/types.ts**
+
 - **Size:** ~300 lines
 - **Interfaces:**
   - `POP` — Root procedure document
@@ -39,6 +41,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
   - `POPValidationResult` — Validator output
 
 ### 3. **functions/src/modules/procedimentos/pop.ts**
+
 - **Size:** ~350 lines
 - **Cloud Functions (Callables):**
   - `createPOP()` — Create new POP document
@@ -62,6 +65,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
     - Creates audit entry
 
 ### 4. **functions/src/modules/procedimentos/popValidator.ts**
+
 - **Size:** ~350 lines
 - **Utility Functions:**
   - `canOperadorUsarPOP()` — Check if operator trained on version
@@ -80,6 +84,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
   - `getMissingPOPTrainings()` — Find gaps in operator training
 
 ### 5. **functions/src/modules/procedimentos/index.ts**
+
 - **Size:** ~15 lines
 - **Exports:** All functions, validators, types
 
@@ -88,6 +93,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
 ## Schema Design Finalized
 
 ### POP Document Structure
+
 ```
 /labs/{labId}/pops/{popId}
 ├── id, labId, nome, codigo
@@ -100,6 +106,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
 ```
 
 ### POPVersao (Subcollection)
+
 ```
 /labs/{labId}/pops/{popId}/versoes/{versionId}
 ├── numero: "1.0", "1.1", "2.0"
@@ -113,6 +120,7 @@ Wave 1 establishes the complete design and schema for POP (Procedimento Operacio
 ```
 
 ### Qualificacao Extension (ADR 0006)
+
 ```
 treinamentosPOP: [
   {
@@ -124,6 +132,7 @@ treinamentosPOP: [
 ```
 
 ### CIQ Run Denormalization
+
 ```
 // In Hematologia, Imunologia, etc. run docs:
 popReferencia?: {
@@ -139,14 +148,17 @@ popReferencia?: {
 ## Versioning Strategy Defined
 
 **Auto-increment logic:**
+
 - **Minor (v1.0 → v1.1):** Bug fixes, clarifications (backward compatible)
 - **Major (v1.1 → v2.0):** Breaking changes, new equipment (retraining required)
 
 **Obsolescence:**
+
 - When RT signs v1.1, all other v1.x versions auto-marked `obsoleta`
 - Operators can ONLY use versions with status=`ativa`
 
 **Training Validity:**
+
 - Initial training: indefinite (until explicit revocation)
 - Reciclagem: expires after `periodicidadeMeses` (e.g., 24 months)
 
@@ -155,6 +167,7 @@ popReferencia?: {
 ## Training Gate Logic
 
 **Before CIQ run save:**
+
 1. Call `canOperadorUsarPOP(labId, uid, popId, popVersaoAtual)`
 2. Validator checks:
    - Operator has Qualificacao with matching training
@@ -191,6 +204,7 @@ match /labs/{labId}/pops/{popId}/versoes/{vId} {
 **Script:** `functions/scripts/backfill-pop-reference.mjs` (Wave 3)
 
 **Approach:**
+
 1. Query all CIQ runs (Hematologia, Imunologia, etc.)
 2. For each run:
    - Identify likely POP via operator's training records at time of run
@@ -203,14 +217,14 @@ match /labs/{labId}/pops/{popId}/versoes/{vId} {
 
 ## Design Decisions Made
 
-| Decision | Rationale |
-|----------|-----------|
-| Subcollection for versoes | Versioning immutability; easy to query all versions; clean separation |
-| Denormalization in runs | Historical immutability; audit trail; no FK traversal on reports |
-| Auto-obsolescence on RT sign | Prevents accidental use of old versions; simple enforcement |
-| Training in Qualificacao[] | Reuses ADR 0006 structure; single source of truth for operator skills |
-| Minor/Major versioning | Allows non-breaking updates (v1.1) without retraining; major version = retraining required |
-| HMAC signature via ADR 0005 | Cryptographic audit trail; compliant with chain hash pattern |
+| Decision                     | Rationale                                                                                  |
+| ---------------------------- | ------------------------------------------------------------------------------------------ |
+| Subcollection for versoes    | Versioning immutability; easy to query all versions; clean separation                      |
+| Denormalization in runs      | Historical immutability; audit trail; no FK traversal on reports                           |
+| Auto-obsolescence on RT sign | Prevents accidental use of old versions; simple enforcement                                |
+| Training in Qualificacao[]   | Reuses ADR 0006 structure; single source of truth for operator skills                      |
+| Minor/Major versioning       | Allows non-breaking updates (v1.1) without retraining; major version = retraining required |
+| HMAC signature via ADR 0005  | Cryptographic audit trail; compliant with chain hash pattern                               |
 
 ---
 
@@ -219,17 +233,19 @@ match /labs/{labId}/pops/{popId}/versoes/{vId} {
 Each of 5 modules (Hematologia, Imunologia, Coagulacao, Uroanalise, Bioquimica) needs:
 
 1. **Before run save:**
+
    ```typescript
    await popValidator.checkTrainingValid(labId, uid, popId, popVersaoNumero);
    ```
 
 2. **On run save:**
+
    ```typescript
    run.popReferencia = {
      popId,
      popVersaoNumero,
      assinadaPor: popVersion.assinadaPor.uid,
-     dataAssinatura: popVersion.assinadaPor.timestamp
+     dataAssinatura: popVersion.assinadaPor.timestamp,
    };
    ```
 
@@ -243,12 +259,12 @@ Each of 5 modules (Hematologia, Imunologia, Coagulacao, Uroanalise, Bioquimica) 
 
 ## Risk Assessment & Mitigations
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| Backfill infers wrong POP | Medium | High | Dry-run on test lab; manual 5% sample audit |
-| RT signature bottleneck | Low | Medium | Pre-bulk sign common POPs; dashboard |
-| Training record search slow | Low | Medium | Index Qualificacao.treinamentosPOP; UI search |
-| Large dataset timeout (>10k runs) | Low | Medium | Batch in 1k waves; checkpoint each |
+| Risk                              | Likelihood | Impact | Mitigation                                    |
+| --------------------------------- | ---------- | ------ | --------------------------------------------- |
+| Backfill infers wrong POP         | Medium     | High   | Dry-run on test lab; manual 5% sample audit   |
+| RT signature bottleneck           | Low        | Medium | Pre-bulk sign common POPs; dashboard          |
+| Training record search slow       | Low        | Medium | Index Qualificacao.treinamentosPOP; UI search |
+| Large dataset timeout (>10k runs) | Low        | Medium | Batch in 1k waves; checkpoint each            |
 
 ---
 
@@ -331,15 +347,18 @@ Before Wave 2 can proceed, validate:
 ## References
 
 **ADRs:**
+
 - ADR 0004: This document (0004-pop-versioning.md)
 - ADR 0005: HMAC/crypto helper (referenced for signatures)
 - ADR 0006: Qualificacao (extended with treinamentosPOP[])
 
 **Compliance:**
+
 - RDC 978 § 8.5.5: Pessoal treinado e qualificado
 - RDC 978 § 8.5.6: Registros de treinamento
 
 **Related Violations Closed:**
+
 - V-004: POP versioning + RT signature
 - V-011: Operator training tracking + enforcement
 

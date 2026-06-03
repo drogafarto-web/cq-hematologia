@@ -50,19 +50,14 @@ if (apply) {
     process.exit(2);
   }
   if (!reason || reason.trim().length < MIN_REASON_LENGTH) {
-    console.error(
-      `\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`,
-    );
+    console.error(`\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`);
     process.exit(2);
   }
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-const projectId =
-  process.env.GOOGLE_CLOUD_PROJECT ??
-  process.env.GCLOUD_PROJECT ??
-  'hmatologia2';
+const projectId = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? 'hmatologia2';
 
 admin.initializeApp({ projectId });
 
@@ -107,16 +102,13 @@ for (const chunk of chunks) {
   const refs = chunk.map((u) => db.doc(`users/${u.uid}`));
   const snaps = await db.getAll(...refs);
   for (const snap of snaps) {
-    firestoreStates.set(
-      snap.id,
-      snap.exists ? (snap.data() ?? null) : null,
-    );
+    firestoreStates.set(snap.id, snap.exists ? (snap.data() ?? null) : null);
   }
 }
 
 // Diffs
 const diffs = users.map((u) => {
-  const claims = (u.customClaims ?? {});
+  const claims = u.customClaims ?? {};
   const firestore = firestoreStates.get(u.uid);
   const claimSa = claims.isSuperAdmin === true;
   const firestoreSa = firestore?.isSuperAdmin === true;
@@ -176,10 +168,7 @@ for (const d of toPromote) {
     });
 
     // Firestore
-    await db.doc(`users/${d.uid}`).set(
-      { isSuperAdmin: true },
-      { merge: true },
-    );
+    await db.doc(`users/${d.uid}`).set({ isSuperAdmin: true }, { merge: true });
 
     // Custom claim (merge com existentes)
     const existing = await getExistingClaims(d.uid);
@@ -219,9 +208,7 @@ console.log(`\n\n✅ concluído`);
 console.log(`   promovidos: ${done}`);
 console.log(`   falhas:     ${failed}`);
 console.log(`   grantId:    ${grantId}`);
-console.log(
-  `   snapshot:   temp/superadmin-grant/snapshots (${done} docs)\n`,
-);
+console.log(`   snapshot:   temp/superadmin-grant/snapshots (${done} docs)\n`);
 console.log(
   `💡 usuários precisam fazer logout+login OU chamar getIdToken(true) pra ver o claim atualizado.\n`,
 );

@@ -24,10 +24,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type {
-  CalibracaoRecord,
-  CalibracaoStatus,
-} from '../types';
+import type { CalibracaoRecord, CalibracaoStatus } from '../types';
 import type { LabId } from '../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -42,9 +39,14 @@ const calibracaoDoc = (labId: LabId, id: string): DocumentReference =>
 
 function mapCalibracaoRecord(snap: QueryDocumentSnapshot): CalibracaoRecord {
   const d = snap.data() as any;
-  const nextDueTime = typeof d.nextDueDate === 'number' ? d.nextDueDate : d.nextDueDate?.toMillis?.() ?? 0;
-  const lastCalibTime = typeof d.lastCalibrationDate === 'number' ? d.lastCalibrationDate : d.lastCalibrationDate?.toMillis?.() ?? 0;
-  const uploadedAtTime = typeof d.uploadedAt === 'number' ? d.uploadedAt : d.uploadedAt?.toMillis?.() ?? 0;
+  const nextDueTime =
+    typeof d.nextDueDate === 'number' ? d.nextDueDate : (d.nextDueDate?.toMillis?.() ?? 0);
+  const lastCalibTime =
+    typeof d.lastCalibrationDate === 'number'
+      ? d.lastCalibrationDate
+      : (d.lastCalibrationDate?.toMillis?.() ?? 0);
+  const uploadedAtTime =
+    typeof d.uploadedAt === 'number' ? d.uploadedAt : (d.uploadedAt?.toMillis?.() ?? 0);
 
   return {
     id: snap.id,
@@ -82,7 +84,10 @@ function mapCalibracaoRecord(snap: QueryDocumentSnapshot): CalibracaoRecord {
 /**
  * Get a single calibration record by ID.
  */
-export async function getCalibracaoById(labId: LabId, id: string): Promise<CalibracaoRecord | null> {
+export async function getCalibracaoById(
+  labId: LabId,
+  id: string,
+): Promise<CalibracaoRecord | null> {
   const snap = await getDoc(calibracaoDoc(labId, id));
   if (!snap.exists()) return null;
   return mapCalibracaoRecord(snap);
@@ -102,9 +107,7 @@ export function subscribeToCalibracoes(
   return onSnapshot(
     q,
     (snapshot) => {
-      const records = snapshot.docs
-        .map(mapCalibracaoRecord)
-        .filter((rec) => !rec.deletedAt);
+      const records = snapshot.docs.map(mapCalibracaoRecord).filter((rec) => !rec.deletedAt);
       onUpdate(records);
     },
     (err) => {
@@ -116,7 +119,10 @@ export function subscribeToCalibracoes(
 /**
  * Get audit report for a specific equipment's calibration history.
  */
-export async function getCalibracaoAuditReport(labId: LabId, equipamentoId: string): Promise<CalibracaoRecord[]> {
+export async function getCalibracaoAuditReport(
+  labId: LabId,
+  equipamentoId: string,
+): Promise<CalibracaoRecord[]> {
   const q = query(
     calibracaoCol(labId),
     where('equipamentoId', '==', equipamentoId),

@@ -40,7 +40,9 @@ export function AuditTrailView() {
             <p className="text-[10px] font-bold tracking-widest uppercase text-emerald-400/80">
               Conformidade
             </p>
-            <h1 className="text-2xl font-semibold tracking-tight text-white">Auditoria — Trilha de Eventos</h1>
+            <h1 className="text-2xl font-semibold tracking-tight text-white">
+              Auditoria — Trilha de Eventos
+            </h1>
           </div>
           <p className="text-sm text-white/40 mt-1">
             RDC 978 Art. 5.3 · DICQ 4.4 — Eventos com assinatura criptográfica e validação de cadeia
@@ -49,7 +51,10 @@ export function AuditTrailView() {
       </header>
 
       {/* ─── Breadcrumb ───────────────────────────────────────────────────── */}
-      <nav className="max-w-6xl mx-auto px-6 py-3 text-xs text-white/40 flex gap-2" aria-label="Breadcrumb">
+      <nav
+        className="max-w-6xl mx-auto px-6 py-3 text-xs text-white/40 flex gap-2"
+        aria-label="Breadcrumb"
+      >
         <span>Dashboard</span>
         <span>›</span>
         <span>Auditoria</span>

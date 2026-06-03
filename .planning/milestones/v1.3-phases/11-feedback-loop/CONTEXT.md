@@ -12,6 +12,7 @@
 Feedback loop completo para o HC Quality cobrindo 3 itens DICQ em phase combinada: reclamações com RCA estruturado + satisfação NPS + sugestões. Multi-canal de entrada (6 canais, incluindo deep link no app de laudos Worklab), classificação automática via Gemini IA com aprovação RT, integração automatizada com módulo NC existente (severity alta cria NC draft), portal cliente externo onde paciente acompanha status de reclamações e sugestões, trending dashboard com Pareto e indicadores específicos para Análise Crítica Direção (DICQ 4.15).
 
 4 surfaces deployadas:
+
 - `/reclamacoes` (interno — RT + Qualidade)
 - `/satisfacao` (admin de pesquisas NPS)
 - `/sugestoes` (interno + público)
@@ -44,6 +45,7 @@ Plus integração externa via deep link parametrizado para Worklab LIS embed seu
 ### Locked (CTO via discuss-phase 2026-05-06)
 
 #### 1. Canais de entrada de reclamação (6 canais)
+
 1. **Web form interno** (`/reclamacoes/nova`) — recepção cadastra reclamação por telefone/balcão
 2. **Web form público** (`/portal-paciente/reclamacao/nova`) — paciente acessa direto sem login (gera token anti-spam via reCAPTCHA)
 3. **Email parser** (`reclamacoes@hmatologia2.web.app`) — Cloud Function recebe via SendGrid Inbound Parse OU Resend Inbound (preferir Resend por já estar no stack)
@@ -54,6 +56,7 @@ Plus integração externa via deep link parametrizado para Worklab LIS embed seu
 **Identificação obrigatória:** Reclamação requer CPF + nome + email/telefone. Reclamação anônima NÃO permitida no MVP (impede LGPD compliance + dispar NC + comunicação resolução). Anonimização ocorre apenas em análise agregada após 90 dias.
 
 #### 2. Schema central — Reclamacao
+
 ```typescript
 export interface Reclamacao {
   id: string;
@@ -67,48 +70,70 @@ export interface Reclamacao {
     consentimentoLgpd: { aceito: boolean; em: Timestamp; ipAddress: string; userAgent: string };
   };
   // Origem
-  canalEntrada: 'web-interno' | 'web-publico' | 'email' | 'telefone' | 'qr-laudo' | 'worklab-deep-link';
-  origemDados: { source: string; metadata: Record<string, any> };  // ex: examCode + laudoId
+  canalEntrada:
+    | 'web-interno'
+    | 'web-publico'
+    | 'email'
+    | 'telefone'
+    | 'qr-laudo'
+    | 'worklab-deep-link';
+  origemDados: { source: string; metadata: Record<string, any> }; // ex: examCode + laudoId
   recebidoEm: Timestamp;
   // Conteúdo
-  descricao: string;             // texto livre original
+  descricao: string; // texto livre original
   anexos: { storageUrl: string; mimeType: string; size: number }[];
   // Classificação (IA + RT)
-  classificacaoAuto?: ClassificacaoAuto;  // sugestão Gemini
+  classificacaoAuto?: ClassificacaoAuto; // sugestão Gemini
   classificacao: {
-    tipo: 'laudo-errado' | 'demora' | 'atendimento' | 'valor-cobrado' | 'amostra-hemolisada' | 'outro';
+    tipo:
+      | 'laudo-errado'
+      | 'demora'
+      | 'atendimento'
+      | 'valor-cobrado'
+      | 'amostra-hemolisada'
+      | 'outro';
     severidade: 'alta' | 'media' | 'baixa';
-    areaResponsavel: 'analitico' | 'pre-analitico' | 'pos-analitico' | 'comercial' | 'recepcao' | 'outro';
+    areaResponsavel:
+      | 'analitico'
+      | 'pre-analitico'
+      | 'pos-analitico'
+      | 'comercial'
+      | 'recepcao'
+      | 'outro';
     aprovadoPor: UserId;
     aprovadoEm: Timestamp;
   };
   // Workflow
   status: 'Nova' | 'Analisando' | 'RCA' | 'Resolvida' | 'Comunicada' | 'Fechada';
-  slaPrazo: Timestamp;            // 30 dias do recebidoEm (CDC)
-  responsavelId: UserId;           // RT ou Qualidade designado
+  slaPrazo: Timestamp; // 30 dias do recebidoEm (CDC)
+  responsavelId: UserId; // RT ou Qualidade designado
   // RCA (preenchido durante Analisando → RCA)
   rcaFiveWhys?: RCAFiveWhys;
   acoesCorretivas?: AcaoCorretiva[];
   // NC vinculada (se severity alta)
-  ncId?: string;                   // referência ao módulo NC existente
+  ncId?: string; // referência ao módulo NC existente
   ncStatus?: 'draft' | 'aprovada' | 'rejeitada';
   // Resolução
   resolucao?: {
     descricao: string;
-    eficacia: { verificadaEm: Timestamp; verificadaPor: UserId; resultado: 'eficaz' | 'parcial' | 'ineficaz' };
+    eficacia: {
+      verificadaEm: Timestamp;
+      verificadaPor: UserId;
+      resultado: 'eficaz' | 'parcial' | 'ineficaz';
+    };
   };
   resolvidoEm?: Timestamp;
   // Comunicação
-  comunicacoes: ComunicacaoCliente[];   // emails enviados, status delivery
+  comunicacoes: ComunicacaoCliente[]; // emails enviados, status delivery
   // NPS pós-resolução
   npsResposta?: NPSResposta;
   // LGPD
-  anonimizadoEm?: Timestamp;       // após 90d ou request
+  anonimizadoEm?: Timestamp; // após 90d ou request
   // Audit
   signature: LogicalSignature;
   chainHash: string;
   criadoEm: Timestamp;
-  deletadoEm: Timestamp | null;    // soft-delete (audit)
+  deletadoEm: Timestamp | null; // soft-delete (audit)
 }
 
 export interface RCAFiveWhys {
@@ -123,20 +148,22 @@ export interface ClassificacaoAuto {
   tipoSugerido: string;
   severidadeSugerida: string;
   areaSugerida: string;
-  confidence: number;              // 0-1
-  modeloVersao: string;            // 'gemini-2.5-flash@2026-06'
-  rawResponse: string;             // raw output Gemini para audit
+  confidence: number; // 0-1
+  modeloVersao: string; // 'gemini-2.5-flash@2026-06'
+  rawResponse: string; // raw output Gemini para audit
   geradoEm: Timestamp;
 }
 ```
 
 #### 3. RCA — 5 Whys integrado
+
 - UI: 5 inputs sequenciais; cada resposta vira pergunta do próximo nível
 - Validação: pelo menos 3 níveis preenchidos antes de submit
 - Causa raiz: campo livre; pode-se sugerir baseado em respostas (heurística)
 - Persistência: snapshot imutável após submit; edits criam nova versão
 
 #### 4. NC auto-trigger
+
 - Severity 'alta' → trigger Cloud Function cria NC draft no módulo `naoconformidades`
 - NC inclui: link para reclamação, RCA inicial, sugestão de CAPA baseada em casos similares (heurística simples no MVP, IA em v1.4)
 - RT recebe alerta no dashboard: "1 NC draft pendente de aprovação"
@@ -144,8 +171,10 @@ export interface ClassificacaoAuto {
 - Idempotência: hash da reclamação + tipo previne duplicatas
 
 #### 5. Classificação automática Gemini
+
 - Modelo: `gemini-2.5-flash` (já no stack via `@google/genai`)
 - Prompt estruturado:
+
   ```
   Você é assistente de qualidade laboratorial. Classifique a reclamação abaixo:
 
@@ -164,12 +193,15 @@ export interface ClassificacaoAuto {
   Severidade média: demora >7 dias, valor cobrado errado.
   Severidade baixa: sugestões de melhoria, comentários gerais.
   ```
+
 - RT vê sugestão + edit → aprovação cria classificação final
 - Métrica: % aceite (target ≥80%); rejeições alimentam fine-tuning futuro
 - Fallback: se Gemini falha (timeout, erro), reclamação fica `Nova` sem classificação automática (RT classifica manual)
 
 #### 6. NPS — Pós-resolução + recurring trimestral
+
 **Pós-resolução:**
+
 - Trigger: quando reclamação muda para `Resolvida`
 - Email automático via Resend: "Sua reclamação foi resolvida. Como ficou sua experiência?"
 - Link único (token) → `/portal-paciente/nps/{token}`
@@ -177,6 +209,7 @@ export interface ClassificacaoAuto {
 - Token expira em 14 dias
 
 **Recurring trimestral:**
+
 - Cron Pub/Sub Scheduler: trimestral (15 de jan, abr, jul, out)
 - Segmenta: pacientes que tiveram pelo menos 1 laudo nos últimos 12 meses
 - Email batch via Resend: 1000 emails/min rate limit
@@ -184,24 +217,26 @@ export interface ClassificacaoAuto {
 - Anonimização automática: respostas atribuídas a `respostaId` (uuid), não a CPF
 
 **Schema NPSResposta:**
+
 ```typescript
 export interface NPSResposta {
   id: string;
   labId: LabId;
-  pacienteId?: string;              // null após anonimização (90d)
+  pacienteId?: string; // null após anonimização (90d)
   origem: 'pos-resolucao' | 'recurring-trimestral';
-  reclamacaoId?: string;            // se pós-resolução
-  trimestreRecurring?: string;      // '2026-Q1' se recurring
-  nota: number;                     // 0-10
-  categoria: 'detrator' | 'neutro' | 'promotor';   // 0-6 / 7-8 / 9-10
+  reclamacaoId?: string; // se pós-resolução
+  trimestreRecurring?: string; // '2026-Q1' se recurring
+  nota: number; // 0-10
+  categoria: 'detrator' | 'neutro' | 'promotor'; // 0-6 / 7-8 / 9-10
   comentario?: string;
   respondidoEm: Timestamp;
-  ipHash: string;                   // anti-spam, não-PII
+  ipHash: string; // anti-spam, não-PII
   anonimizadoEm?: Timestamp;
 }
 ```
 
 #### 7. Sugestões — módulo separado
+
 - Surface `/sugestoes`:
   - Interno (colaboradores autenticados): web form + lista
   - Público (paciente via portal): web form simples
@@ -221,6 +256,7 @@ export interface NPSResposta {
 - Notificação ao autor por email a cada status change
 
 #### 8. Portal cliente — `/portal-paciente`
+
 - Auth externa: CPF + senha
 - Onboarding: paciente cadastra senha após primeiro contato (lab convida via email após cadastro de exame, OU paciente se cadastra direto via portal público)
 - Custom claim: `paciente: true` + `cpf: string`
@@ -235,6 +271,7 @@ export interface NPSResposta {
 - LGPD: tela "Meus Dados" — exportar registro completo, solicitar exclusão (anonimização)
 
 #### 9. Trending dashboard — `/reclamacoes/insights`
+
 - KPIs principais:
   - **NPS evolução** (line chart trimestral; alvo industria saúde: ≥40)
   - **Taxa reclamações/mês** (bar chart, segmentada por tipo)
@@ -246,6 +283,7 @@ export interface NPSResposta {
 - Exportação: PDF (via Puppeteer, replica pattern auditoria) + JSON (para Management-Review module Phase 8)
 
 #### 10. Integração 4.15 Análise Crítica Direção (Phase 8 module)
+
 - Phase 8 cria módulo `management-review` com 15 entradas obrigatórias
 - Phase 11 alimenta 4 dessas entradas:
   - Satisfação cliente (NPS evolução + comentários relevantes)
@@ -255,6 +293,7 @@ export interface NPSResposta {
 - Integração: callable `exportarParaAnaliseCritica(labId, periodoInicio, periodoFim)` retorna JSON estruturado
 
 #### 11. LGPD framework
+
 - **Base legal:**
   - Reclamações: obrigação legal (RDC 978 retenção 5a) + consentimento explícito para coleta
   - NPS: legítimo interesse (melhoria do serviço) + opt-out claro
@@ -289,6 +328,7 @@ export interface NPSResposta {
 ```
 
 **Indexes principais:**
+
 - reclamacoes: `(labId, status, criadoEm DESC)`
 - reclamacoes: `(labId, severidade, status, criadoEm DESC)`
 - reclamacoes: `(labId, pacienteId, criadoEm DESC)`
@@ -297,29 +337,30 @@ export interface NPSResposta {
 
 #### 13. Cloud Functions (callable, region southamerica-east1)
 
-| Function | Propósito |
-|----------|-----------|
-| `criarReclamacao` | Callable: paciente/recepção cria reclamação; dispara classificação Gemini + NC auto |
-| `classificarReclamacaoIA` | Internal: Gemini classifica + retorna sugestão |
-| `aprovarClassificacao` | Callable RT: aprova/edita sugestão Gemini |
-| `criarNCDraft` | Internal trigger: severity alta → NC draft em `naoconformidades` |
-| `transitarReclamacao` | Callable: muda status com signature; valida transição |
-| `enviarComunicacaoReclamante` | Callable: email Resend a cada status change |
-| `dispararNPSPosResolucao` | Trigger onUpdate: status → Resolvida → email NPS |
-| `dispararNPSRecurring` | Cron trimestral: batch email |
-| `submitNPSResposta` | Callable público (token-based): paciente responde |
-| `anonimizarRespostas` | Cron daily: anonimiza respostas >90d |
-| `criarSugestao` | Callable: cria sugestão (interno ou público) |
-| `transitarSugestao` | Callable: aberta → analisada → implementada/rejeitada |
-| `parseEmailReclamacao` | HTTPS endpoint: Resend Inbound parser |
-| `convidarPaciente` | Callable: lab convida paciente para portal |
-| `aceitarConvitePaciente` | Callable: paciente cria senha + custom claim |
-| `exportarMeusDadosLgpd` | Callable: gera JSON + PDF dos dados do paciente |
-| `solicitarExclusaoLgpd` | Callable: cria request de exclusão |
-| `exportarParaAnaliseCritica` | Callable: JSON para Management-Review (Phase 8) |
-| `gerarRelatorioInsightsPDF` | Callable: PDF do dashboard trending |
+| Function                      | Propósito                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| `criarReclamacao`             | Callable: paciente/recepção cria reclamação; dispara classificação Gemini + NC auto |
+| `classificarReclamacaoIA`     | Internal: Gemini classifica + retorna sugestão                                      |
+| `aprovarClassificacao`        | Callable RT: aprova/edita sugestão Gemini                                           |
+| `criarNCDraft`                | Internal trigger: severity alta → NC draft em `naoconformidades`                    |
+| `transitarReclamacao`         | Callable: muda status com signature; valida transição                               |
+| `enviarComunicacaoReclamante` | Callable: email Resend a cada status change                                         |
+| `dispararNPSPosResolucao`     | Trigger onUpdate: status → Resolvida → email NPS                                    |
+| `dispararNPSRecurring`        | Cron trimestral: batch email                                                        |
+| `submitNPSResposta`           | Callable público (token-based): paciente responde                                   |
+| `anonimizarRespostas`         | Cron daily: anonimiza respostas >90d                                                |
+| `criarSugestao`               | Callable: cria sugestão (interno ou público)                                        |
+| `transitarSugestao`           | Callable: aberta → analisada → implementada/rejeitada                               |
+| `parseEmailReclamacao`        | HTTPS endpoint: Resend Inbound parser                                               |
+| `convidarPaciente`            | Callable: lab convida paciente para portal                                          |
+| `aceitarConvitePaciente`      | Callable: paciente cria senha + custom claim                                        |
+| `exportarMeusDadosLgpd`       | Callable: gera JSON + PDF dos dados do paciente                                     |
+| `solicitarExclusaoLgpd`       | Callable: cria request de exclusão                                                  |
+| `exportarParaAnaliseCritica`  | Callable: JSON para Management-Review (Phase 8)                                     |
+| `gerarRelatorioInsightsPDF`   | Callable: PDF do dashboard trending                                                 |
 
 #### 14. Roteamento
+
 - `/reclamacoes` — dashboard interno (RT + Qualidade)
 - `/reclamacoes/nova` — recepção cadastra (interno)
 - `/reclamacoes/{id}` — detalhe + RCA + ações
@@ -333,6 +374,7 @@ export interface NPSResposta {
 - `/portal-paciente/meus-dados` — LGPD direito de acesso
 
 #### 15. Bundles
+
 ```typescript
 manualChunks: {
   'module-reclamacoes': ['./src/features/reclamacoes'],
@@ -354,9 +396,11 @@ manualChunks: {
 </decisions>
 
 <canonical_refs>
+
 ## Canonical References
 
 ### Estratégico (Obsidian)
+
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Compliance_DICQ.md` — 4.8, 4.14.3, 4.14.4, 4.14.6, 4.15
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_RDC_978_2025_Resumo.md` — Arts. 86, 115, 117
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Checklist_Auditoria.md` — 4.8, 4.14.x, 4.15
@@ -366,11 +410,13 @@ manualChunks: {
 - `C:\Users\labcl\Obsidian_Brain\01_Projetos\HC_Quality_Zero_Acreditacao\` — Módulo 1.9 (template PNCQ)
 
 ### LGPD/Lei
+
 - LGPD Lei 13.709/18 — Arts. 7, 8, 9, 11, 18
 - CDC Lei 8.078/90 — Arts. 6, 26
 - ANPD Guia Orientativo
 
 ### Código vivo
+
 - `src/features/auditoria/` — pattern checklist + achados + status workflow
 - `src/features/educacao-continuada/` — pesquisa de satisfação (referência NPS)
 - `src/features/portal-medico/` (Plan 10-05) — pattern auth externa (REPLICAR)
@@ -379,12 +425,14 @@ manualChunks: {
 - `src/features/management-review/` (Phase 8 plan 04) — destino de exportarParaAnaliseCritica
 
 ### ADRs
+
 - ADR 0001 (audit chain)
 - ADR 0002 (multi-tenant)
 - ADR 0010 (portal externo Plan 10) — replicar pattern para portal-paciente
 - ADR 0011 (a criar): feedback loop architecture + LGPD framework
 
 ### Skills
+
 - `hcq-firestore-rules-generator` — bloco rules
 - `hcq-deploy-gates` — gate pré-merge
 - `hm-a11y` — audit AA portal externo
@@ -398,30 +446,35 @@ manualChunks: {
 ## Phase-Specific Constraints
 
 ### Bundle budget
+
 - `module-reclamacoes`: ≤180KB gzip (RCA UI + dashboard)
 - `module-satisfacao`: ≤80KB gzip
 - `module-sugestoes`: ≤80KB gzip
 - `module-portal-paciente`: ≤140KB gzip (auth + 4 surfaces internas)
 
 ### Firestore custos
+
 - Riopomba volume: ~50 reclamações/mês + ~200 NPS/trimestre + ~30 sugestões/mês
 - Reads alvo: ≤4 reads/segundo por usuário ativo
 - Writes: 1 reclamação = ~5 docs (reclamação + version + audit + comunicação + NC draft se alta)
 - onSnapshot: máx 4 listeners por usuário ativo
 
 ### Cloud Function quotas
+
 - `classificarReclamacaoIA`: ≤5s p99 (Gemini)
 - `dispararNPSRecurring`: até 5min p99 (batch ~5000 emails); usa Pub/Sub para fan-out
 - `enviarComunicacaoReclamante`: ≤3s p99
 - Rate limit `parseEmailReclamacao`: validação Resend signature + 100 emails/h por domain
 
 ### Web Vitals targets
+
 - `/reclamacoes`: LCP <2.5s, INP <200ms, CLS <0.1
 - `/reclamacoes/insights`: LCP <3s aceitável (charts Pareto pesados)
 - `/portal-paciente`: LCP <2.5s, INP <200ms (paciente espera rapidez)
 - `/portal-paciente/reclamacao/nova`: LCP <2s (form público crítico)
 
 ### Threat model
+
 - **T1: Reclamação spam via web público** — mitigação: reCAPTCHA v3 + rate limit por IP (5/h) + email confirmation
 - **T2: Cross-tenant leak (paciente vê reclamação de outro paciente)** — mitigação: rule `pacienteId == request.auth.uid`
 - **T3: Worklab deep link com CPF leaked em URL** — mitigação: token-based em vez de CPF claro; `?token=XXX` resolve para CPF server-side
@@ -433,23 +486,27 @@ manualChunks: {
 - **T9: NC auto-criação spam (atacante cria 1000 reclamações severity alta)** — mitigação: rate limit 10 reclamações/h por reclamante; severity alta requer >100 chars descricao
 
 ### LGPD compliance enforcement
+
 - Toda escrita em PII cria entry em `lgpd-audit/{logId}`: `{ uid, action: 'read'|'write'|'delete', resource, motivo, em }`
 - Cron `anonimizarRespostas` daily às 03:00 BRT
 - Cron `processarLgpdRequests` daily: notifica admin de requests pendentes >7d
 - Hard limit retenção 5a: cron `deletarReclamacoesAntigas` mensal (audit log preservado, PII removido)
 
 ### Performance profile
+
 - Volumes Riopomba: ~50 reclamações/mês manageable
 - Picos: trimestral com NPS recurring (até 5000 emails em batch — usa Pub/Sub queue)
 - Caching: lista de tipos/categorias (cached 1h)
 
 ### Localization
+
 - pt-BR em toda UI
 - Templates email em pt-BR
 - Datas: DD/MM/YYYY HH:mm
 - Tempo SLA: contado em dias úteis (CDC interpretado conservadoramente)
 
 ### Email transacional (Resend, já no stack)
+
 - Templates novos:
   - `reclamacao-recebida` — confirmação ao reclamante
   - `reclamacao-status-update` — a cada transição

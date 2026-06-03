@@ -120,7 +120,9 @@ export function DPIAForm({ labId }: DPIAFormProps) {
         <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
           <div className="flex justify-between items-start mb-6">
             <div>
-              <h1 className="text-3xl font-semibold mb-2">Avaliação de Impacto à Proteção de Dados</h1>
+              <h1 className="text-3xl font-semibold mb-2">
+                Avaliação de Impacto à Proteção de Dados
+              </h1>
               {dpia && (
                 <p className="text-white/60">
                   Versão {dpia.versao} • Atualizado em{' '}
@@ -403,9 +405,7 @@ export function DPIAForm({ labId }: DPIAFormProps) {
             ))}
           </div>
           <button
-            onClick={() =>
-              setMedidas([...medidas, { medida: '', responsavel: '', prazo: '' }])
-            }
+            onClick={() => setMedidas([...medidas, { medida: '', responsavel: '', prazo: '' }])}
             className="text-violet-400 hover:text-violet-300 text-sm font-medium"
           >
             + Adicionar medida

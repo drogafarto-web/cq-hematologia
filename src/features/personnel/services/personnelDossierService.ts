@@ -7,7 +7,12 @@
 
 import { z } from 'zod';
 
-import type { CertificacaoRegistro, LabId, PersonnelDossier, PersonnelDossierEditable } from '../types';
+import type {
+  CertificacaoRegistro,
+  LabId,
+  PersonnelDossier,
+  PersonnelDossierEditable,
+} from '../types';
 import {
   db,
   doc,

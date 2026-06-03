@@ -33,7 +33,8 @@ export const dispararNPSRecurring = onSchedule(
 
         // Query: pacientes with active results in last 90d
         // (Using a simple approach: get from patient portal or results collection)
-        const pacientesSnap = await db.collectionGroup('pacientes')
+        const pacientesSnap = await db
+          .collectionGroup('pacientes')
           .where('labId', '==', labId)
           .where('ultimoExameCm', '>=', ninetyDaysAgo)
           .limit(1000)
@@ -73,7 +74,7 @@ export const dispararNPSRecurring = onSchedule(
       console.error(`[NPS Recurring] Error:`, error);
       throw error;
     }
-  }
+  },
 );
 
 /**

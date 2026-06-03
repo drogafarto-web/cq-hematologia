@@ -71,7 +71,7 @@ async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean>
 async function fetchAuditData(
   labId: string,
   auditoriaId: string,
-  sessaoId: string
+  sessaoId: string,
 ): Promise<{
   auditoria: Auditoria;
   sessao: Sessao;
@@ -81,9 +81,13 @@ async function fetchAuditData(
   const [audSnap, sessSnap, itemsSnap, achadosSnap] = await Promise.all([
     db.collection(`labs/${labId}/auditorias-internas`).doc(auditoriaId).get(),
     db.collection(`labs/${labId}/auditorias-internas/${auditoriaId}/sessoes`).doc(sessaoId).get(),
-    db.collection(`labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/checklist-items`)
+    db
+      .collection(
+        `labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/checklist-items`,
+      )
       .get(),
-    db.collection(`labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/achados`)
+    db
+      .collection(`labs/${labId}/auditorias-internas/${auditoriaId}/sessoes/${sessaoId}/achados`)
       .get(),
   ]);
 
@@ -104,7 +108,7 @@ function generateHTML(
   sessao: Sessao,
   checklistItems: ChecklistItem[],
   achados: Achado[],
-  labName: string
+  labName: string,
 ): string {
   const formatDate = (ts: any) => {
     if (!ts) return 'N/A';
@@ -125,9 +129,8 @@ function generateHTML(
   const conforme = checklistItems.filter((i) => i.resposta === 'conforme').length;
   const naoConforme = checklistItems.filter((i) => i.resposta === 'não-conforme').length;
   const na = checklistItems.filter((i) => i.resposta === 'N/A').length;
-  const conformidadePercentual = checklistItems.length > 0
-    ? ((conforme / checklistItems.length) * 100).toFixed(1)
-    : 'N/A';
+  const conformidadePercentual =
+    checklistItems.length > 0 ? ((conforme / checklistItems.length) * 100).toFixed(1) : 'N/A';
 
   // Group achados by severity (FR-043-T3)
   const achadosPorSeveridade = {
@@ -548,7 +551,7 @@ function generateHTML(
             <div class="checklist-item-descricao">${item.descricao}</div>
             ${item.observacoes ? `<div class="checklist-item-obs">Obs: ${item.observacoes}</div>` : ''}
           </div>
-        `
+        `,
           )
           .join('')}
       </div>
@@ -580,7 +583,7 @@ function generateHTML(
                 <span>Registrado por: ${achado.criadoPor}</span>
               </div>
             </div>
-          `
+          `,
             )
             .join('')}
         </div>
@@ -607,7 +610,7 @@ function generateHTML(
                 <span>Registrado por: ${achado.criadoPor}</span>
               </div>
             </div>
-          `
+          `,
             )
             .join('')}
         </div>
@@ -634,7 +637,7 @@ function generateHTML(
                 <span>Registrado por: ${achado.criadoPor}</span>
               </div>
             </div>
-          `
+          `,
             )
             .join('')}
         </div>
@@ -661,7 +664,7 @@ function generateHTML(
                 <span>Registrado por: ${achado.criadoPor}</span>
               </div>
             </div>
-          `
+          `,
             )
             .join('')}
         </div>
@@ -688,7 +691,7 @@ function generateHTML(
                 <span>Registrado por: ${achado.criadoPor}</span>
               </div>
             </div>
-          `
+          `,
             )
             .join('')}
         </div>
@@ -757,7 +760,7 @@ export const generateInternalAuditReportPDF = onCall(
       const { auditoria, sessao, checklistItems, achados } = await fetchAuditData(
         input.labId,
         input.auditoriaId,
-        input.sessaoId
+        input.sessaoId,
       );
 
       // Get lab name
@@ -795,7 +798,7 @@ export const generateInternalAuditReportPDF = onCall(
       if (pdfSizeMB > 10) {
         throw new HttpsError(
           'resource-exhausted',
-          `PDF size (${pdfSizeMB.toFixed(2)}MB) exceeds 10MB limit`
+          `PDF size (${pdfSizeMB.toFixed(2)}MB) exceeds 10MB limit`,
         );
       }
 
@@ -851,5 +854,5 @@ export const generateInternalAuditReportPDF = onCall(
         await browser.close();
       }
     }
-  }
+  },
 );

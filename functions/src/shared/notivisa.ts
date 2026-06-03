@@ -15,14 +15,14 @@ export const notivisaPayloadSchema = z.object({
       analito: z.string().min(1),
       valor: z.union([z.number(), z.string()]),
       unidade: z.string().min(1),
-      referencia: z.string()
-    })
+      referencia: z.string(),
+    }),
   ),
   assinador: z.object({
     cpf: z.string().regex(/^\d{11}$/, 'Invalid operator CPF'),
     nome: z.string().min(1),
-    data_assinatura: z.number().int().positive()
-  })
+    data_assinatura: z.number().int().positive(),
+  }),
 });
 
 export type NotivisaPayload = z.infer<typeof notivisaPayloadSchema>;
@@ -69,17 +69,17 @@ export const notivisaFormatter = (laudo: LaudoInput, paciente: PacienteInput): N
     laudo_id: laudo.id,
     paciente_cpf: paciente.cpf,
     data_resultado: laudo.resultadoEm,
-    resultados: laudo.resultados.map(r => ({
+    resultados: laudo.resultados.map((r) => ({
       analito: r.analito,
       valor: r.valor,
       unidade: r.unidade,
-      referencia: r.referencia
+      referencia: r.referencia,
     })),
     assinador: {
       cpf: laudo.assinatura.operatorCpf,
       nome: paciente.nome,
-      data_assinatura: laudo.assinatura.ts
-    }
+      data_assinatura: laudo.assinatura.ts,
+    },
   };
 
   // Validate against schema

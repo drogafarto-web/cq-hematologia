@@ -103,7 +103,9 @@ export class NotivisaMockSoapClient {
   /**
    * Route to appropriate mock response
    */
-  private getResponseForScenario(request: NotivisaSoapRequest): Omit<NotivisaSoapResponse, 'roundTripMs'> {
+  private getResponseForScenario(
+    request: NotivisaSoapRequest,
+  ): Omit<NotivisaSoapResponse, 'roundTripMs'> {
     switch (this.scenario) {
       case SoapMockScenario.SUCCESS:
         return this.successResponse(request);
@@ -244,7 +246,7 @@ export class NotivisaMockSoapClient {
  */
 export function createMockSoapClient(
   scenario: SoapMockScenario = SoapMockScenario.SUCCESS,
-  latencyMs: number = 100
+  latencyMs: number = 100,
 ): NotivisaMockSoapClient {
   return new NotivisaMockSoapClient(scenario, latencyMs);
 }

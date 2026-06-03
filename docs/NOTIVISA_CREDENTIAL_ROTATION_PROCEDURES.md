@@ -1,9 +1,9 @@
 ---
-title: "NOTIVISA Credential Rotation & Emergency Procedures"
-date_created: "2026-05-07"
-version: "1.0"
-status: "Active"
-audience: "DevOps + Security + Operations"
+title: 'NOTIVISA Credential Rotation & Emergency Procedures'
+date_created: '2026-05-07'
+version: '1.0'
+status: 'Active'
+audience: 'DevOps + Security + Operations'
 ---
 
 # NOTIVISA Credential Rotation & Emergency Procedures
@@ -28,24 +28,24 @@ Complete procedures for managing NOTIVISA sandbox and production credentials thr
 
 ### Timeline
 
-| Phase | Date | Action | Status |
-|-------|------|--------|--------|
-| **Initial Provisioning** | 2026-05-07 | ANVISA sandbox credentials issued | Pending |
-| **First Rotation** | 2027-05-07 | Annual renewal | Scheduled |
-| **Second Rotation** | 2028-05-07 | Annual renewal | Future |
-| **Production Onboarding** | 2026-11-01+ | Certificate + prod credentials provisioned | v1.5+ |
+| Phase                     | Date        | Action                                     | Status    |
+| ------------------------- | ----------- | ------------------------------------------ | --------- |
+| **Initial Provisioning**  | 2026-05-07  | ANVISA sandbox credentials issued          | Pending   |
+| **First Rotation**        | 2027-05-07  | Annual renewal                             | Scheduled |
+| **Second Rotation**       | 2028-05-07  | Annual renewal                             | Future    |
+| **Production Onboarding** | 2026-11-01+ | Certificate + prod credentials provisioned | v1.5+     |
 
 ### Credential Types
 
-| Credential | Type | Rotation Frequency | Storage | Usage |
-|-----------|------|-------------------|---------|-------|
-| **NOTIVISA_SANDBOX_API_KEY** | API Key (alphanumeric) | Annual (May) | Firebase Secrets Manager | Sandbox submission |
-| **NOTIVISA_SANDBOX_ENDPOINT** | URL | On-change (rare) | Firebase config + .env.sandbox | Sandbox API routing |
-| **NOTIVISA_LAB_CNPJ** | Business ID | Never (fixed) | Firebase Secrets Manager | Lab identification |
-| **NOTIVISA_REGISTRATION_ID** | Reference ID | Never | Firebase Secrets Manager | Support/debugging |
-| **NOTIVISA_PROD_API_KEY** (v1.5+) | API Key | Annual | Firebase Secrets Manager | Production submission |
-| **NOTIVISA_CERT_PFX** (v1.5+) | Digital certificate | Annual | Firebase Secrets Manager | mTLS auth |
-| **NOTIVISA_CERT_PASSWORD** (v1.5+) | Certificate passphrase | Annual | Firebase Secrets Manager | Certificate unlock |
+| Credential                         | Type                   | Rotation Frequency | Storage                        | Usage                 |
+| ---------------------------------- | ---------------------- | ------------------ | ------------------------------ | --------------------- |
+| **NOTIVISA_SANDBOX_API_KEY**       | API Key (alphanumeric) | Annual (May)       | Firebase Secrets Manager       | Sandbox submission    |
+| **NOTIVISA_SANDBOX_ENDPOINT**      | URL                    | On-change (rare)   | Firebase config + .env.sandbox | Sandbox API routing   |
+| **NOTIVISA_LAB_CNPJ**              | Business ID            | Never (fixed)      | Firebase Secrets Manager       | Lab identification    |
+| **NOTIVISA_REGISTRATION_ID**       | Reference ID           | Never              | Firebase Secrets Manager       | Support/debugging     |
+| **NOTIVISA_PROD_API_KEY** (v1.5+)  | API Key                | Annual             | Firebase Secrets Manager       | Production submission |
+| **NOTIVISA_CERT_PFX** (v1.5+)      | Digital certificate    | Annual             | Firebase Secrets Manager       | mTLS auth             |
+| **NOTIVISA_CERT_PASSWORD** (v1.5+) | Certificate passphrase | Annual             | Firebase Secrets Manager       | Certificate unlock    |
 
 ---
 
@@ -113,6 +113,7 @@ EOF
 **2.1 Receive credentials from ANVISA**
 
 Expect email containing:
+
 - New API Key (alphanumeric, ~32 characters)
 - Confirmation of sandbox endpoint URL (should be same as current)
 - Optional: Certificate thumbprint (if upgrading to mTLS)

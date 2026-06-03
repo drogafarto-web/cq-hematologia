@@ -52,7 +52,7 @@ node scripts/validate-audit-chains.mjs --all-collections --project hmatologia2 -
 Exit code: 1 (chain breaches detected)
 ```
 
-**JSON report (chain-validation-*.json):**
+**JSON report (chain-validation-\*.json):**
 
 ```json
 [
@@ -182,31 +182,34 @@ node scripts/validate-audit-chains.mjs \
 
 ### Global options
 
-| Flag | Type | Default | Description |
-|---|---|---|---|
-| `--project` | string | *required* | Firebase project ID (e.g., `hmatologia2`) |
-| `--collection` | string | *optional* | Single collection to validate; omit for all |
-| `--lab` | string | *optional* | Single lab to validate; omit for all labs |
-| `--export-json` | string | *optional* | Write detailed report to JSON file |
-| `--all-collections` | boolean | false | Validate all known chain collections (notas-fiscais, criticos-log-eventos, etc.) |
-| `--all-labs` | boolean | false | Validate all labs in Firestore |
-| `--include-stats` | boolean | false | Include performance stats (duration, throughput) |
-| `--include-violations-detail` | boolean | false | Include full violation details (verbose, large files) |
-| `--secret` | string | *optional* | HMAC secret for verification (auto-loaded from Functions config if not provided) |
+| Flag                          | Type    | Default    | Description                                                                      |
+| ----------------------------- | ------- | ---------- | -------------------------------------------------------------------------------- |
+| `--project`                   | string  | _required_ | Firebase project ID (e.g., `hmatologia2`)                                        |
+| `--collection`                | string  | _optional_ | Single collection to validate; omit for all                                      |
+| `--lab`                       | string  | _optional_ | Single lab to validate; omit for all labs                                        |
+| `--export-json`               | string  | _optional_ | Write detailed report to JSON file                                               |
+| `--all-collections`           | boolean | false      | Validate all known chain collections (notas-fiscais, criticos-log-eventos, etc.) |
+| `--all-labs`                  | boolean | false      | Validate all labs in Firestore                                                   |
+| `--include-stats`             | boolean | false      | Include performance stats (duration, throughput)                                 |
+| `--include-violations-detail` | boolean | false      | Include full violation details (verbose, large files)                            |
+| `--secret`                    | string  | _optional_ | HMAC secret for verification (auto-loaded from Functions config if not provided) |
 
 ### Examples
 
 **Single collection, all labs:**
+
 ```bash
 node scripts/validate-audit-chains.mjs --collection notas-fiscais --project hmatologia2
 ```
 
 **Single lab, all collections:**
+
 ```bash
 node scripts/validate-audit-chains.mjs --lab lab-1 --project hmatologia2
 ```
 
 **All collections, all labs, full report:**
+
 ```bash
 node scripts/validate-audit-chains.mjs \
   --all-collections \
@@ -218,6 +221,7 @@ node scripts/validate-audit-chains.mjs \
 ```
 
 **Single collection, specific lab, with export:**
+
 ```bash
 node scripts/validate-audit-chains.mjs \
   --collection criticos-log-eventos \
@@ -355,7 +359,7 @@ export const validateChainsDaily = onSchedule(
         reportUrl: `gs://hmatologia2/reports/chains-${Date.now()}.json`,
       });
     }
-  }
+  },
 );
 ```
 
@@ -424,12 +428,12 @@ Error: Collection not found: /labs/lab-1/your-new-collection
 
 Validation time scales with collection size:
 
-| Collection Size | Time | Notes |
-|---|---|---|
-| 0–1K documents | 1–5s | Single lab |
-| 1K–10K documents | 5–15s | Single lab |
-| 10K–100K documents | 30s–2min | Single lab |
-| 100K+ documents | 2–10min | Single lab; may need pagination |
+| Collection Size    | Time     | Notes                           |
+| ------------------ | -------- | ------------------------------- |
+| 0–1K documents     | 1–5s     | Single lab                      |
+| 1K–10K documents   | 5–15s    | Single lab                      |
+| 10K–100K documents | 30s–2min | Single lab                      |
+| 100K+ documents    | 2–10min  | Single lab; may need pagination |
 
 Validating all labs simultaneously: multiply by number of active labs (typical: 20–50 labs).
 

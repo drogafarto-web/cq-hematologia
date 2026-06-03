@@ -50,58 +50,71 @@ Every Friday 10:00 UTC:
 ## Week of [DATE]
 
 ### 1. Cost Summary
-- [ ] Firestore: $____ (target range $0.33–$0.50)
-- [ ] Cloud Functions: $____ (target $4–$12)
-- [ ] Cloud Storage: $____ (target $3–$5)
-- [ ] SMS (Twilio): $____ (target $0–$5)
-- [ ] Total: $____ (target $15–$25 Phase 3, $75–$100 Phase 12)
+
+- [ ] Firestore: $\_\_\_\_ (target range $0.33–$0.50)
+- [ ] Cloud Functions: $\_\_\_\_ (target $4–$12)
+- [ ] Cloud Storage: $\_\_\_\_ (target $3–$5)
+- [ ] SMS (Twilio): $\_\_\_\_ (target $0–$5)
+- [ ] Total: $\_\_\_\_ (target $15–$25 Phase 3, $75–$100 Phase 12)
 
 ### 2. Firestore Metrics
-- [ ] Reads/day: __________ (baseline 500k → Phase 3 target 575k)
-- [ ] Writes/day: __________ (baseline 50k → Phase 3 target 55k)
-- [ ] Storage: __________ GB (baseline 15 GB, Phase 3 target 16.5 GB)
-- [ ] Index count: __________ (baseline 42, Phase 3 target 50)
+
+- [ ] Reads/day: ****\_\_**** (baseline 500k → Phase 3 target 575k)
+- [ ] Writes/day: ****\_\_**** (baseline 50k → Phase 3 target 55k)
+- [ ] Storage: ****\_\_**** GB (baseline 15 GB, Phase 3 target 16.5 GB)
+- [ ] Index count: ****\_\_**** (baseline 42, Phase 3 target 50)
 - **Alert if:** Reads spike >750k/day OR storage >20 GB OR writes >75k/day
 
 ### 3. Cloud Functions
-- [ ] Invocations/day: __________ (Phase 3 target +25k/day)
-- [ ] Failed functions: __________ (target 0)
-- [ ] Timeout errors: __________ (target 0)
-- [ ] Max function duration: __________ ms (target <10s for all except Puppeteer)
+
+- [ ] Invocations/day: ****\_\_**** (Phase 3 target +25k/day)
+- [ ] Failed functions: ****\_\_**** (target 0)
+- [ ] Timeout errors: ****\_\_**** (target 0)
+- [ ] Max function duration: ****\_\_**** ms (target <10s for all except Puppeteer)
 - **Alert if:** >5 timeout errors OR >1% failure rate
 
 ### 4. Cloud Storage
-- [ ] Bucket size: __________ GB
-  - App data: __________ GB (target +0.5 GB Phase 3)
-  - Backups: __________ GB (target 165 GB, monthly rotation)
+
+- [ ] Bucket size: ****\_\_**** GB
+  - App data: ****\_\_**** GB (target +0.5 GB Phase 3)
+  - Backups: ****\_\_**** GB (target 165 GB, monthly rotation)
 - **Alert if:** >30 GB OR backup not running
 
 ### 5. Twilio SMS
-- [ ] SMS sent this week: __________ (Phase 3 target 30, Phase 6 target 200)
-- [ ] Cost: $__________ (Phase 3 target <$1/week)
+
+- [ ] SMS sent this week: ****\_\_**** (Phase 3 target 30, Phase 6 target 200)
+- [ ] Cost: $****\_\_**** (Phase 3 target <$1/week)
 - **Alert if:** >200 SMS/week OR cost >$50/month
 
 ### 6. Performance Metrics
-- [ ] Web Vitals LCP: __________ ms (target <2500 ms)
-- [ ] Web Vitals CLS: __________ (target <0.1)
-- [ ] Cloud Functions P95 latency: __________ ms
+
+- [ ] Web Vitals LCP: ****\_\_**** ms (target <2500 ms)
+- [ ] Web Vitals CLS: ****\_\_**** (target <0.1)
+- [ ] Cloud Functions P95 latency: ****\_\_**** ms
 - **Alert if:** LCP >3000 ms OR CLS >0.15
 
 ### 7. Risk Check
+
 - [ ] No secrets in `PENDING_SET_*` state
 - [ ] No orphaned functions/indexes
 - [ ] No leaked credentials in logs
-- [ ] Cloud Logs errors: __________ (target 0)
+- [ ] Cloud Logs errors: ****\_\_**** (target 0)
 
 ### Notes & Action Items
+
 - [ ] Any anomalies found? Document below:
-  ```
-  [Notes]
-  ```
+```
+
+[Notes]
+
+```
 - [ ] Action items for next week?
-  ```
-  [Actions]
-  ```
+```
+
+[Actions]
+
+```
+
 ```
 
 ---
@@ -111,6 +124,7 @@ Every Friday 10:00 UTC:
 ### Scenario 1: Firestore reads spike >750k/day
 
 **Likely causes:**
+
 1. Analytics polling at 10s interval instead of 30s (most common)
 2. New module with unoptimized queries (N+1 queries)
 3. DDoS / spider bots crawling portal links
@@ -136,6 +150,7 @@ gcloud logging read "resource.type=cloud_function AND protoPayload.request.query
 ```
 
 **Mitigation:**
+
 - Increase polling interval from 30s → 60s (halves reads)
 - Batch queries: instead of `for each run in runs { query events }`, do `collectionGroup query once`
 - Implement client-side caching (localStorage + TTL)
@@ -146,6 +161,7 @@ gcloud logging read "resource.type=cloud_function AND protoPayload.request.query
 ### Scenario 2: Cloud Functions cost spike $8→$20/month
 
 **Likely causes:**
+
 1. New Puppeteer function generating many PDFs (each: 512 MiB, 5s = high GiB-seconds)
 2. Scheduled function invocation frequency increased
 3. Memory allocation bumped without necessity
@@ -167,6 +183,7 @@ gcloud logging read "resource.type=cloud_function AND jsonPayload.function=~gene
 ```
 
 **Mitigation:**
+
 - Defer Puppeteer to Phase 5 (if causing spike now)
 - Reduce memory from 512 → 256 MiB for callables (auto-scales)
 - Implement PDF caching: store rendered PDFs in Cloud Storage, serve from cache if <24h old
@@ -177,6 +194,7 @@ gcloud logging read "resource.type=cloud_function AND jsonPayload.function=~gene
 ### Scenario 3: SMS bill $3.75→$15/month (4x spike)
 
 **Likely causes:**
+
 1. Críticos escalation triggered for every analyte in every run (not just true critical values)
 2. Test data in production (batch SMS during testing)
 3. Twilio webhook misconfigured, sending duplicates
@@ -198,6 +216,7 @@ gcloud logging read "resource.type=cloud_function AND jsonPayload.function=escal
 ```
 
 **Mitigation:**
+
 - Add 1-hour cooldown per analyte (don't re-alert if alert sent in last 60 min)
 - Validate critical values against Westgard rules BEFORE escalating (prevent false positives)
 - Test escalation in staging only; use test Twilio account for dev
@@ -208,6 +227,7 @@ gcloud logging read "resource.type=cloud_function AND jsonPayload.function=escal
 ### Scenario 4: Storage bill $3.63→$10/month (unexpected spike)
 
 **Likely causes:**
+
 1. Firestore backups accumulating (should auto-delete after 30 days)
 2. IA dataset images not being cleaned up
 3. Portal PDF cache never expires
@@ -230,6 +250,7 @@ gsutil du -s -h gs://hmatologia2.appspot.com/labs/labclin-riopomba/imuno-ias-dev
 ```
 
 **Mitigation:**
+
 - Set lifecycle policy: **delete objects >90 days old** (automatic)
 - Cap IA dataset at 1 GB; delete images below accuracy threshold
 - Implement portal PDF cache expiry: delete rendered PDFs >24h old
@@ -245,42 +266,48 @@ gsutil du -s -h gs://hmatologia2.appspot.com/labs/labclin-riopomba/imuno-ias-dev
 # Firebase Cost Review — [MONTH YEAR]
 
 ## Summary
-- **Total cost:** $______
+
+- **Total cost:** $**\_\_**
 - **Budget:** $50 (Phase 3) / $100 (Phase 12)
-- **Variance:** ±_____% (target: ±10%)
-- **Month-over-month:** $___ (+/- from last month)
+- **Variance:** ±**\_**% (target: ±10%)
+- **Month-over-month:** $\_\_\_ (+/- from last month)
 
 ## Breakdown
-| Service | Target | Actual | Variance | OK? |
-|---------|--------|--------|----------|-----|
-| Firestore | $0.50 | $____ | ___% | ☐ |
-| Functions | $8 | $____ | ___% | ☐ |
-| Storage | $3.63 | $____ | ___% | ☐ |
-| SMS | $3.75 | $____ | ___% | ☐ |
-| Monitoring | $2.50 | $____ | ___% | ☐ |
-| **Total** | **$18.38** | **$____** | **____%** | **☐** |
+
+| Service    | Target     | Actual        | Variance      | OK?   |
+| ---------- | ---------- | ------------- | ------------- | ----- |
+| Firestore  | $0.50      | $\_\_\_\_     | \_\_\_%       | ☐     |
+| Functions  | $8         | $\_\_\_\_     | \_\_\_%       | ☐     |
+| Storage    | $3.63      | $\_\_\_\_     | \_\_\_%       | ☐     |
+| SMS        | $3.75      | $\_\_\_\_     | \_\_\_%       | ☐     |
+| Monitoring | $2.50      | $\_\_\_\_     | \_\_\_%       | ☐     |
+| **Total**  | **$18.38** | **$\_\_\_\_** | **\_\_\_\_%** | **☐** |
 
 ## Anomalies Found
+
 - ☐ None
-- ☐ Yes, describe: _____
+- ☐ Yes, describe: **\_**
 
 ## Actions Taken
-1. ______
-2. ______
-3. ______
+
+1. ***
+2. ***
+3. ***
 
 ## Forecast (next 3 months)
-- June: $____
-- July: $____
-- August: $____
+
+- June: $\_\_\_\_
+- July: $\_\_\_\_
+- August: $\_\_\_\_
 
 ## Approval
+
 - [ ] CTO sign-off
 - [ ] Finance sign-off
-- [ ] Escalations (if >15% variance): _____
+- [ ] Escalations (if >15% variance): **\_**
 
-**Reviewed by:** ___________  
-**Date:** ___________
+**Reviewed by:** ****\_\_\_****  
+**Date:** ****\_\_\_****
 ```
 
 ---
@@ -370,6 +397,7 @@ echo "Next scheduled cost review: Next Friday 10:00 UTC"
 4. **Week 4:** Verify cost normalized; update forecast
 
 **If cost spike is customer-driven (e.g., new lab with 10x higher usage):**
+
 - Negotiate higher SaaS fee (from $99 → $199/month)
 - Implement rate-limiting per lab
 - Add on-demand pricing tier (e.g., $0.05 per 1k reads for power users)
@@ -378,8 +406,8 @@ echo "Next scheduled cost review: Next Friday 10:00 UTC"
 
 ## Version History
 
-| Ver | Date | Author | Changes |
-|-----|------|--------|---------|
+| Ver | Date       | Author       | Changes                                        |
+| --- | ---------- | ------------ | ---------------------------------------------- |
 | 1.0 | 2026-05-07 | Claude Agent | Initial monitoring checklist + troubleshooting |
 
 **Next review:** 2026-06-07  

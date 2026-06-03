@@ -363,7 +363,7 @@ function generateHTML(
             <td>${alert.shortDescription}</td>
             <td><span class="severity-${alert.severity}">${alert.severity}</span></td>
           </tr>
-        `
+        `,
             )
             .join('')}
         </tbody>
@@ -372,7 +372,7 @@ function generateHTML(
           : '<p style="color:#999; font-size:12px;">Nenhum alerta neste período</p>'
       }
     </div>
-    `
+    `,
       )
       .join('')}
 
@@ -477,7 +477,8 @@ export const generateAuditReportPDF = onCall(
       // Verify size
       const pdfSizeMB = (pdfBuffer.length / 1024 / 1024).toFixed(2);
       if (Number(pdfSizeMB) > 25) {
-        throw new HttpsError('resource-exhausted',
+        throw new HttpsError(
+          'resource-exhausted',
           `PDF exceeds 25MB limit: ${pdfSizeMB}MB. Use Firebase Storage signed URL instead.`,
         );
       }

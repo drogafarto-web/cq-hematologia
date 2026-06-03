@@ -16,7 +16,7 @@ interface NPSScore {
 
 export function useNPSScore(
   labId: LabId,
-  filters?: { origem?: 'pos-reclamacao' | 'trimestral' }
+  filters?: { origem?: 'pos-reclamacao' | 'trimestral' },
 ): NPSScore {
   const [respostas, setRespostas] = useState<NPSResposta[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -28,10 +28,7 @@ export function useNPSScore(
       return;
     }
 
-    const constraints = [
-      where('labId', '==', labId),
-      orderBy('respondidoEm', 'desc'),
-    ];
+    const constraints = [where('labId', '==', labId), orderBy('respondidoEm', 'desc')];
 
     if (filters?.origem) {
       constraints.push(where('origem', '==', filters.origem));
@@ -42,10 +39,13 @@ export function useNPSScore(
     const unsubscribe = onSnapshot(
       q,
       (snap) => {
-        const data = snap.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        } as NPSResposta));
+        const data = snap.docs.map(
+          (doc) =>
+            ({
+              id: doc.id,
+              ...doc.data(),
+            }) as NPSResposta,
+        );
 
         setRespostas(data);
         setIsLoading(false);
@@ -53,7 +53,7 @@ export function useNPSScore(
       (err) => {
         setError(err);
         setIsLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();

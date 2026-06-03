@@ -22,8 +22,7 @@ interface LeveyJenningsChartProps {
   onPointClick?: (point: ChartPoint) => void;
 }
 
-const prefersReducedMotion = () =>
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+const prefersReducedMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 export const LeveyJenningsChart: React.FC<LeveyJenningsChartProps> = ({
   data,
@@ -52,7 +51,9 @@ export const LeveyJenningsChart: React.FC<LeveyJenningsChartProps> = ({
       <div className="flex items-center justify-center w-full h-64 bg-slate-900/30 rounded-lg border border-slate-700">
         <div className="text-center">
           <p className="text-slate-400 text-sm">Sem dados de runs para este analito</p>
-          <p className="text-xs text-slate-500 mt-1">{analitoName} - {nivelName}</p>
+          <p className="text-xs text-slate-500 mt-1">
+            {analitoName} - {nivelName}
+          </p>
         </div>
       </div>
     );
@@ -71,15 +72,14 @@ export const LeveyJenningsChart: React.FC<LeveyJenningsChartProps> = ({
           {analitoName} - {nivelName}
         </h3>
         <div className="text-xs text-slate-500">
-          Fonte: {data.statsSource === 'manufacturer' ? 'Bula do Fabricante' : 'Estatística Interna'} · N={data.points.length}
+          Fonte:{' '}
+          {data.statsSource === 'manufacturer' ? 'Bula do Fabricante' : 'Estatística Interna'} · N=
+          {data.points.length}
         </div>
       </div>
 
       <ResponsiveContainer width="100%" height={300}>
-        <ScatterChart
-          margin={{ top: 20, right: 20, bottom: 20, left: 60 }}
-          data={chartData}
-        >
+        <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 60 }} data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke="#334155" />
           <XAxis
             type="number"
@@ -168,12 +168,7 @@ export const LeveyJenningsChart: React.FC<LeveyJenningsChartProps> = ({
             }}
           >
             {chartData.map((point, index) => (
-              <Scatter
-                key={index}
-                data={[point]}
-                fill={getPointColor(point)}
-                shape="circle"
-              />
+              <Scatter key={index} data={[point]} fill={getPointColor(point)} shape="circle" />
             ))}
           </Scatter>
         </ScatterChart>

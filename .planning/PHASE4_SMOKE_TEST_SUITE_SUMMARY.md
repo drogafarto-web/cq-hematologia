@@ -41,41 +41,49 @@ A production-ready E2E smoke test suite for Phase 4 pre-deployment validation. *
 ## 8-Stage Pipeline
 
 ### Stage 1: Prerequisites Check
+
 - Node.js 18+, npm 9+
 - Firebase CLI, Java 11+
 - npm dependencies installed
 
 ### Stage 2: TypeScript + Build
+
 - Web app: `npm run typecheck` (0 errors)
 - Production build: `npm run build`
 - Cloud Functions: `npm run typecheck` + `npm run build`
 
 ### Stage 3: Bundle Size Validation
+
 - Main shell: <365 KB (v1.3: 362 KB)
 - Total JS: <2.0 MB
 - Verifies headroom preserved
 
 ### Stage 4: Firebase Emulator + Test Data
+
 - Starts Firestore + Functions emulator
 - Waits for ready signal
 - Seeds test data
 
 ### Stage 5: Dev Server + E2E Tests
+
 - Starts dev server (Vite)
 - Runs 22 E2E tests
 - Reports pass/fail + counts
 
 ### Stage 6: Lighthouse Audits
+
 - 5 critical routes: `/`, `/hub`, `/auth/login`, `/bioquimica/runs`, `/analytics`
 - Verifies avg ≥87/100
 - Calculates average score
 
 ### Stage 7: Security & Rules Validation
+
 - Tests Firestore security rules
 - Verifies unauthenticated reads denied (HTTP 403)
 - Validates rule enforcement
 
 ### Stage 8: Summary & Sign-Off
+
 - Counts passed/failed/warnings
 - Determines PASS (exit 0) or FAIL (exit 1)
 - Exports text + JSON reports
@@ -84,24 +92,26 @@ A production-ready E2E smoke test suite for Phase 4 pre-deployment validation. *
 
 ## Key Metrics
 
-| Metric | v1.3 Baseline | Phase 4 Target | Hard Limit |
-|---|---|---|---|
-| **Bundle (main)** | 362 KB | ≤365 KB | 380 KB |
-| **Lighthouse avg** | 91/100 | ≥87/100 | <82/100 = FAIL |
-| **E2E Tests** | — | 22/22 passing | <22 = FAIL |
-| **TypeScript errors** | 0 | 0 | >0 = FAIL |
-| **Firestore rules** | Enforced | Enforced | Unauthenticated access = FAIL |
+| Metric                | v1.3 Baseline | Phase 4 Target | Hard Limit                    |
+| --------------------- | ------------- | -------------- | ----------------------------- |
+| **Bundle (main)**     | 362 KB        | ≤365 KB        | 380 KB                        |
+| **Lighthouse avg**    | 91/100        | ≥87/100        | <82/100 = FAIL                |
+| **E2E Tests**         | —             | 22/22 passing  | <22 = FAIL                    |
+| **TypeScript errors** | 0             | 0              | >0 = FAIL                     |
+| **Firestore rules**   | Enforced      | Enforced       | Unauthenticated access = FAIL |
 
 ---
 
 ## Usage
 
 ### macOS / Linux
+
 ```bash
 bash scripts/phase4-e2e-smoke.sh
 ```
 
 ### Windows (PowerShell)
+
 ```powershell
 .\scripts\phase4-e2e-smoke.ps1
 ```
@@ -110,6 +120,7 @@ bash scripts/phase4-e2e-smoke.sh
 **Exit code:** 0 = PASS ✅ · 1 = FAIL ❌
 
 ### Output Files
+
 - `.planning/SMOKE_TEST_RESULTS_May_*.txt` (human-readable)
 - `.planning/SMOKE_TEST_RESULTS_May_*.json` (machine-readable for CI)
 
@@ -117,15 +128,15 @@ bash scripts/phase4-e2e-smoke.sh
 
 ## Deployment Timeline
 
-| Time (UTC) | Task | Owner |
-|---|---|---|
-| 2026-05-20 08:00 | Final pre-flight | DevOps |
-| 2026-05-20 08:30 | Run smoke test | QA |
-| 2026-05-20 09:15 | Review + CTO sign-off | CTO |
-| 2026-05-20 09:30 | Deploy Step 1 (Rules) | DevOps |
+| Time (UTC)       | Task                      | Owner  |
+| ---------------- | ------------------------- | ------ |
+| 2026-05-20 08:00 | Final pre-flight          | DevOps |
+| 2026-05-20 08:30 | Run smoke test            | QA     |
+| 2026-05-20 09:15 | Review + CTO sign-off     | CTO    |
+| 2026-05-20 09:30 | Deploy Step 1 (Rules)     | DevOps |
 | 2026-05-20 09:35 | Deploy Step 2 (Functions) | DevOps |
-| 2026-05-20 09:45 | Deploy Step 3 (Hosting) | DevOps |
-| 2026-05-20 10:00 | Go-live confirmation | CTO |
+| 2026-05-20 09:45 | Deploy Step 3 (Hosting)   | DevOps |
+| 2026-05-20 10:00 | Go-live confirmation      | CTO    |
 
 ---
 
@@ -157,19 +168,25 @@ bash scripts/phase4-e2e-smoke.sh
 ## Documentation
 
 ### For QA / DevOps (Execution)
+
 → **docs/SMOKE_TESTS_PHASE4_EXECUTION_GUIDE.md**
+
 - Full step-by-step guide
 - Troubleshooting section
 - 4,000+ words
 
 ### For Deployment Day (Quick Reference)
+
 → **docs/SMOKE_TESTS_PHASE4_QUICK_REFERENCE.md**
+
 - Print & post at desk
 - One-page summary
 - Quick fixes table
 
 ### For Pre/Post Deployment (Planning)
+
 → **docs/SMOKE_TESTS_PHASE4_PRE_DEPLOYMENT_CHECKLIST.md**
+
 - Pre-flight checklist
 - Execution checklist
 - Post-deployment health checks
@@ -179,21 +196,22 @@ bash scripts/phase4-e2e-smoke.sh
 
 ## Benefits Over Manual Tests
 
-| Aspect | Manual | Automated (New) |
-|---|---|---|
-| **Time** | 2–3 hours | ~45 minutes |
-| **Consistency** | ⚠️ Variable | ✅ Deterministic |
-| **Error-prone** | ❌ Yes (human) | ✅ No (script) |
-| **Reproducibility** | ⚠️ Hard to repeat | ✅ Exact same every run |
-| **CI/CD Integration** | ❌ No | ✅ Yes (exit code) |
-| **Audit Trail** | ⚠️ Notes only | ✅ JSON export |
-| **Coverage** | 5 manual flows | 22 E2E tests + 7 metrics |
+| Aspect                | Manual            | Automated (New)          |
+| --------------------- | ----------------- | ------------------------ |
+| **Time**              | 2–3 hours         | ~45 minutes              |
+| **Consistency**       | ⚠️ Variable       | ✅ Deterministic         |
+| **Error-prone**       | ❌ Yes (human)    | ✅ No (script)           |
+| **Reproducibility**   | ⚠️ Hard to repeat | ✅ Exact same every run  |
+| **CI/CD Integration** | ❌ No             | ✅ Yes (exit code)       |
+| **Audit Trail**       | ⚠️ Notes only     | ✅ JSON export           |
+| **Coverage**          | 5 manual flows    | 22 E2E tests + 7 metrics |
 
 ---
 
 ## Comparison with v1.3 Manual Tests
 
 **v1.3 Approach (SMOKE_TESTS_v1.3.md):**
+
 - 5 manual flows (Bioquímica, SGD, Reclamações, Liberação, Regression)
 - Tester clicks UI manually
 - 30–45 minutes
@@ -201,6 +219,7 @@ bash scripts/phase4-e2e-smoke.sh
 - Pass/fail judgment by human observation
 
 **Phase 4 Automated Suite (NEW):**
+
 - 22 E2E tests + 7 metrics
 - Fully scripted, zero manual UI clicks
 - ~45 minutes (same time, more coverage)
@@ -213,6 +232,7 @@ bash scripts/phase4-e2e-smoke.sh
 ## Migration Path for Manual Tests
 
 The v1.3 manual smoke tests in `SMOKE_TESTS_v1.3.md` are still valid for:
+
 - Post-deployment UAT (user acceptance testing)
 - Regression testing of specific modules
 - Manual validation of edge cases

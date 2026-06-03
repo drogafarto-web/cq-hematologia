@@ -125,10 +125,7 @@ const BoundingBoxCanvas: React.FC<{
 
   return (
     <div className="relative w-full bg-gray-100 rounded-lg overflow-hidden">
-      <canvas
-        ref={canvasRef as any}
-        className="w-full h-auto block"
-      />
+      <canvas ref={canvasRef as any} className="w-full h-auto block" />
       {!imageLoaded && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/20">
           <p className="text-white text-sm">Carregando imagem...</p>
@@ -204,9 +201,7 @@ const FieldSummary: React.FC<{
         {content ? (
           <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">{content}</p>
         ) : (
-          <p className="text-sm text-gray-500 dark:text-gray-400 italic">
-            Sem conteúdo extraído
-          </p>
+          <p className="text-sm text-gray-500 dark:text-gray-400 italic">Sem conteúdo extraído</p>
         )}
       </div>
 
@@ -262,7 +257,8 @@ export const LaudoOCROverlay: React.FC<LaudoOCROverlayProps> = ({
           Visualização de Detecção
         </h3>
         <p className="text-sm text-gray-600 dark:text-gray-400">
-          As caixas destacam os campos extraídos. Verde = alta confiança, Laranja = média, Vermelho = baixa.
+          As caixas destacam os campos extraídos. Verde = alta confiança, Laranja = média, Vermelho
+          = baixa.
         </p>
         <BoundingBoxCanvas imageUrl={imageUrl} boxes={boxes} canvasRef={canvasRef} />
       </div>

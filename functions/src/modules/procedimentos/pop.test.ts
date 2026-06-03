@@ -205,7 +205,7 @@ describe('ADR 0004 — POP Versionado', () => {
       expect(pop.versoes[0].dataVigenciaInicio).toBeDefined();
       expect(pop.versoes[0].dataVigenciaFim).toBeDefined();
       expect(pop.versoes[0].dataVigenciaInicio.toDate().getTime()).toBeLessThan(
-        pop.versoes[0].dataVigenciaFim.toDate().getTime()
+        pop.versoes[0].dataVigenciaFim.toDate().getTime(),
       );
     });
   });
@@ -217,10 +217,7 @@ describe('ADR 0004 — POP Versionado', () => {
         pdfUrl: 'https://...',
       };
 
-      const hash = crypto
-        .createHash('sha256')
-        .update(JSON.stringify(conteudo))
-        .digest('hex');
+      const hash = crypto.createHash('sha256').update(JSON.stringify(conteudo)).digest('hex');
 
       expect(hash).toMatch(/^[a-f0-9]{64}$/);
     });
@@ -228,15 +225,9 @@ describe('ADR 0004 — POP Versionado', () => {
     it('should compute hash deterministically', () => {
       const conteudo = { markdown: '# Test', pdfUrl: 'url' };
 
-      const hash1 = crypto
-        .createHash('sha256')
-        .update(JSON.stringify(conteudo))
-        .digest('hex');
+      const hash1 = crypto.createHash('sha256').update(JSON.stringify(conteudo)).digest('hex');
 
-      const hash2 = crypto
-        .createHash('sha256')
-        .update(JSON.stringify(conteudo))
-        .digest('hex');
+      const hash2 = crypto.createHash('sha256').update(JSON.stringify(conteudo)).digest('hex');
 
       expect(hash1).toBe(hash2);
     });
@@ -245,15 +236,9 @@ describe('ADR 0004 — POP Versionado', () => {
       const content1 = { markdown: '# Version 1' };
       const content2 = { markdown: '# Version 2' };
 
-      const hash1 = crypto
-        .createHash('sha256')
-        .update(JSON.stringify(content1))
-        .digest('hex');
+      const hash1 = crypto.createHash('sha256').update(JSON.stringify(content1)).digest('hex');
 
-      const hash2 = crypto
-        .createHash('sha256')
-        .update(JSON.stringify(content2))
-        .digest('hex');
+      const hash2 = crypto.createHash('sha256').update(JSON.stringify(content2)).digest('hex');
 
       expect(hash1).not.toBe(hash2);
     });
@@ -448,10 +433,8 @@ describe('ADR 0004 — POP Versionado', () => {
         },
       ];
 
-      const ativCount = versions.filter(v => v.status === 'ativa').length;
-      const hasObsoleta = versions.some(
-        v => v.status === 'obsoleta' && v.motivo_obsolescencia
-      );
+      const ativCount = versions.filter((v) => v.status === 'ativa').length;
+      const hasObsoleta = versions.some((v) => v.status === 'obsoleta' && v.motivo_obsolescencia);
 
       expect(ativCount).toBe(1);
       expect(hasObsoleta).toBe(true);
@@ -495,12 +478,8 @@ describe('ADR 0004 — POP Versionado', () => {
         },
       ];
 
-      const v1_ativa = versions.filter(
-        v => v.numero.startsWith('1.') && v.status === 'ativa'
-      );
-      const v2_ativa = versions.filter(
-        v => v.numero.startsWith('2.') && v.status === 'ativa'
-      );
+      const v1_ativa = versions.filter((v) => v.numero.startsWith('1.') && v.status === 'ativa');
+      const v2_ativa = versions.filter((v) => v.numero.startsWith('2.') && v.status === 'ativa');
 
       expect(v1_ativa.length).toBe(1);
       expect(v2_ativa.length).toBe(1);
@@ -514,9 +493,7 @@ describe('ADR 0004 — POP Versionado', () => {
         treinamentosPOP: [createMockTrainingRecord({ popId: 'pop-001' })],
       };
 
-      const trainRecord = qualificacao.treinamentosPOP.find(
-        t => t.popId === 'pop-001'
-      );
+      const trainRecord = qualificacao.treinamentosPOP.find((t) => t.popId === 'pop-001');
       const allowed = trainRecord && new Date() <= new Date(trainRecord.validoAte);
 
       expect(allowed).toBe(true);
@@ -525,12 +502,10 @@ describe('ADR 0004 — POP Versionado', () => {
     it('canOperadorUsarPOP should block if operator not trained', () => {
       const qualificacao = {
         uid: mockOperadorId,
-        treinamentosPOP: [] as Array<{popId: string; popVersaoNumero: string; validoAte: any}>, // No training
+        treinamentosPOP: [] as Array<{ popId: string; popVersaoNumero: string; validoAte: any }>, // No training
       };
 
-      const trainRecord = qualificacao.treinamentosPOP.find(
-        t => t.popId === 'pop-001'
-      );
+      const trainRecord = qualificacao.treinamentosPOP.find((t) => t.popId === 'pop-001');
       const allowed = !!trainRecord;
 
       expect(allowed).toBe(false);
@@ -550,9 +525,7 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       };
 
-      const trainRecord = qualificacao.treinamentosPOP.find(
-        t => t.popId === 'pop-001'
-      );
+      const trainRecord = qualificacao.treinamentosPOP.find((t) => t.popId === 'pop-001');
       const allowed = trainRecord && new Date() <= new Date(trainRecord.validoAte);
 
       expect(allowed).toBe(false);
@@ -579,9 +552,7 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       });
 
-      const versaoAtiva = pop.versoes.find(
-        v => v.numero === '1.0' && v.status === 'ativa'
-      );
+      const versaoAtiva = pop.versoes.find((v) => v.numero === '1.0' && v.status === 'ativa');
 
       expect(versaoAtiva).toBeUndefined();
     });
@@ -613,10 +584,13 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       };
 
-      const allTrained = popsInModule.every(pop => {
-        const ativVersion = pop.versoes.find(v => v.status === 'ativa');
-        return ativVersion && operadorTraining.treinamentosPOP.some(
-          t => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero
+      const allTrained = popsInModule.every((pop) => {
+        const ativVersion = pop.versoes.find((v) => v.status === 'ativa');
+        return (
+          ativVersion &&
+          operadorTraining.treinamentosPOP.some(
+            (t) => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero,
+          )
         );
       });
 
@@ -638,10 +612,13 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       };
 
-      const allTrained = popsInModule.every(pop => {
-        const ativVersion = pop.versoes.find(v => v.status === 'ativa');
-        return ativVersion && operadorTraining.treinamentosPOP.some(
-          t => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero
+      const allTrained = popsInModule.every((pop) => {
+        const ativVersion = pop.versoes.find((v) => v.status === 'ativa');
+        return (
+          ativVersion &&
+          operadorTraining.treinamentosPOP.some(
+            (t) => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero,
+          )
         );
       });
 
@@ -681,12 +658,12 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       };
 
-      const allValid = popsInModule.every(pop => {
-        const ativVersion = pop.versoes.find(v => v.status === 'ativa');
+      const allValid = popsInModule.every((pop) => {
+        const ativVersion = pop.versoes.find((v) => v.status === 'ativa');
         if (!ativVersion) return true;
 
         const trainRecord = operadorTraining.treinamentosPOP.find(
-          t => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero
+          (t) => t.popId === pop.id && t.popVersaoNumero === ativVersion.numero,
         );
 
         return trainRecord && new Date() <= new Date(trainRecord.validoAte);
@@ -838,8 +815,8 @@ describe('ADR 0004 — POP Versionado', () => {
       expect(trainRecord.validoAte).toBeDefined();
 
       // 7. Verify operator can use POP
-      const canUse = trainRecord.popVersaoNumero === '1.1' &&
-                     new Date() <= new Date(trainRecord.validoAte);
+      const canUse =
+        trainRecord.popVersaoNumero === '1.1' && new Date() <= new Date(trainRecord.validoAte);
       expect(canUse).toBe(true);
     });
 
@@ -864,7 +841,7 @@ describe('ADR 0004 — POP Versionado', () => {
         ],
       });
 
-      const ativaVersion = pop.versoes.find(v => v.status === 'ativa');
+      const ativaVersion = pop.versoes.find((v) => v.status === 'ativa');
       expect(ativaVersion).toBeUndefined();
     });
   });
@@ -924,7 +901,7 @@ describe('ADR 0004 — POP Versionado', () => {
       versions[0].motivo_obsolescencia = `Substituída por v${v1_1.numero}`;
       versions.push(v1_1);
 
-      const ativasCount = versions.filter(v => v.status === 'ativa').length;
+      const ativasCount = versions.filter((v) => v.status === 'ativa').length;
       expect(ativasCount).toBe(1);
       expect(versions[0].status).toBe('obsoleta');
       expect(versions[1].status).toBe('ativa');

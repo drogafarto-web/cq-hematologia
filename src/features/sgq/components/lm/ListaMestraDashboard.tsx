@@ -46,7 +46,7 @@ export function ListaMestraDashboard({
 
   // KPI calculations
   const kpis = useMemo(() => {
-    const filtered = documentos.filter(d => {
+    const filtered = documentos.filter((d) => {
       if (filters.tipo) return d.tipo === filters.tipo;
       if (filters.status) return d.status === filters.status;
       if (filters.setor) return d.setoresLD.includes(filters.setor);
@@ -55,10 +55,10 @@ export function ListaMestraDashboard({
 
     return {
       total: documentos.length,
-      vigentes: documentos.filter(d => d.status === 'vigente').length,
-      emRevisao: documentos.filter(d => d.status === 'em-revisao').length,
-      rascunhos: documentos.filter(d => d.status === 'draft').length,
-      obsoletos: documentos.filter(d => d.status === 'obsoleto').length,
+      vigentes: documentos.filter((d) => d.status === 'vigente').length,
+      emRevisao: documentos.filter((d) => d.status === 'em-revisao').length,
+      rascunhos: documentos.filter((d) => d.status === 'draft').length,
+      obsoletos: documentos.filter((d) => d.status === 'obsoleto').length,
       filtrados: filtered.length,
     };
   }, [documentos, filters]);
@@ -68,30 +68,50 @@ export function ListaMestraDashboard({
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold text-white">Lista Mestra</h2>
-        <p className="text-white/60 text-sm mt-1">Catálogo centralizado de documentos da qualidade</p>
+        <p className="text-white/60 text-sm mt-1">
+          Catálogo centralizado de documentos da qualidade
+        </p>
       </div>
 
       {/* KPI Cards */}
       <div className="flex flex-wrap gap-2">
         <div className={KPI_CARD_CLASS}>
           <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">Total</div>
-          <div className="text-2xl font-bold text-white mt-1 font-mono tabular-nums">{kpis.total}</div>
+          <div className="text-2xl font-bold text-white mt-1 font-mono tabular-nums">
+            {kpis.total}
+          </div>
         </div>
         <div className={KPI_CARD_CLASS}>
-          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">Vigentes</div>
-          <div className="text-2xl font-bold text-emerald-400 mt-1 font-mono tabular-nums">{kpis.vigentes}</div>
+          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">
+            Vigentes
+          </div>
+          <div className="text-2xl font-bold text-emerald-400 mt-1 font-mono tabular-nums">
+            {kpis.vigentes}
+          </div>
         </div>
         <div className={KPI_CARD_CLASS}>
-          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">Em Revisão</div>
-          <div className="text-2xl font-bold text-amber-400 mt-1 font-mono tabular-nums">{kpis.emRevisao}</div>
+          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">
+            Em Revisão
+          </div>
+          <div className="text-2xl font-bold text-amber-400 mt-1 font-mono tabular-nums">
+            {kpis.emRevisao}
+          </div>
         </div>
         <div className={KPI_CARD_CLASS}>
-          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">Rascunhos</div>
-          <div className="text-2xl font-bold text-slate-400 mt-1 font-mono tabular-nums">{kpis.rascunhos}</div>
+          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">
+            Rascunhos
+          </div>
+          <div className="text-2xl font-bold text-slate-400 mt-1 font-mono tabular-nums">
+            {kpis.rascunhos}
+          </div>
         </div>
         <div className={KPI_CARD_CLASS}>
-          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">Obsoletos</div>
-          <div className="text-2xl font-bold text-red-400 mt-1 font-mono tabular-nums">{kpis.obsoletos}</div>
+          <div className="text-xs text-white/60 uppercase font-semibold tracking-wide">
+            Obsoletos
+          </div>
+          <div className="text-2xl font-bold text-red-400 mt-1 font-mono tabular-nums">
+            {kpis.obsoletos}
+          </div>
         </div>
       </div>
 

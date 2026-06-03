@@ -24,14 +24,14 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 
 ### New Features (Additive)
 
-| Feature | Module | Capability | Opt-In? |
-|---------|--------|-----------|---------|
-| Portal-RT dashboard | portal-rt | Real-time escalation feed, critical value alerts, RT approval workflow | Yes (lab admin enables) |
-| Portal-Paciente | portal-paciente | Patients view results + export data via email link | Yes (lab admin invites patients) |
-| Laudo-OCR | laudo-ocr | Automatic strip image → parsed result values | Yes (operators opt-in per strip) |
-| NOTIVISA v1.4 | notivisa | Draft → submit adverse event to government (sandbox) | Yes (lab admin enables + gov account) |
-| RT Presence enforcement | rt-presence | Blocks runs if no active supervisor on shift | Yes (lab admin configures shifts) |
-| Cloud Logs monitoring | cloud-logs | 24h post-deploy observability + alert policies | Automatic (DevOps only) |
+| Feature                 | Module          | Capability                                                             | Opt-In?                               |
+| ----------------------- | --------------- | ---------------------------------------------------------------------- | ------------------------------------- |
+| Portal-RT dashboard     | portal-rt       | Real-time escalation feed, critical value alerts, RT approval workflow | Yes (lab admin enables)               |
+| Portal-Paciente         | portal-paciente | Patients view results + export data via email link                     | Yes (lab admin invites patients)      |
+| Laudo-OCR               | laudo-ocr       | Automatic strip image → parsed result values                           | Yes (operators opt-in per strip)      |
+| NOTIVISA v1.4           | notivisa        | Draft → submit adverse event to government (sandbox)                   | Yes (lab admin enables + gov account) |
+| RT Presence enforcement | rt-presence     | Blocks runs if no active supervisor on shift                           | Yes (lab admin configures shifts)     |
+| Cloud Logs monitoring   | cloud-logs      | 24h post-deploy observability + alert policies                         | Automatic (DevOps only)               |
 
 ### Unchanged Features (v1.3 Compatibility)
 
@@ -45,6 +45,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 ### Database Schema Changes
 
 **New Collections (added, not modified):**
+
 - `portal-rt-state/{labId}/dashboards`
 - `critical-values/{labId}/escalations`
 - `portal-rt-audit/{labId}/events`
@@ -56,6 +57,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 - `supervisor-status/{labId}/status`
 
 **Modified Collections:**
+
 - `runs/{labId}/runs` — New rule gate: `hasActiveSupervisor(labId)` (blocks creation if no active RT)
 - `auditoria/{labId}/logs` — 4 new audit entry types (portal-rt action, portal-paciente export, laudo-ocr decision, notivisa submission)
 
@@ -81,6 +83,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Benefit:** RTs get real-time escalation feed (reduce email volume, faster response time)
 
 **Setup:**
+
 1. Log in as Lab Admin → Settings → Portal-RT
 2. Enable toggle: "Activate Portal-RT for this lab"
 3. Invite RTs to `/portal-rt` (they'll see escalation dashboard)
@@ -95,6 +98,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Benefit:** Patients can access own results + download XLSX/PDF (LGPD compliance)
 
 **Setup:**
+
 1. Log in as Lab Admin → Settings → Portal-Paciente
 2. Enable toggle: "Allow patient portal access"
 3. Configure: Default patient email template (System will auto-generate email links)
@@ -112,6 +116,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Benefit:** Lab staff upload strip image → values auto-filled in form (cut entry time 5 min → 30 sec)
 
 **Setup:**
+
 1. Log in as Lab Admin → Settings → Laudo-OCR
 2. Enable toggle: "Use automatic strip image recognition"
 3. Train staff: "Take clear photo of strip + upload; verify values before saving"
@@ -121,7 +126,8 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 
 **Rollback:** Can disable anytime (manual entry always available)
 
-**Notes:** 
+**Notes:**
+
 - Gemini Vision API calls cost included in system (no extra charge)
 - Patient consent required before image is sent to Google (LGPD gate)
 
@@ -130,11 +136,13 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Benefit:** Draft adverse events → submit to ANVISA via government sandbox (Phase 6: production)
 
 **Setup:**
+
 1. **Phase 4 (Now):** Portal-NOTIVISA available in sandbox mode
 2. **Phase 5 (2026-05-22):** Lab contacts ANVISA for production account
 3. **Phase 6 (2026-06-12):** Connect production account → go live
 
 **Phase 4 Actions:**
+
 1. Lab Admin → Settings → NOTIVISA
 2. Enable toggle: "Use NOTIVISA reporting (sandbox mode)"
 3. Test: Create sample adverse event draft + review workflow
@@ -149,6 +157,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Benefit:** Runs automatically blocked if no RT on shift (regulatory compliance)
 
 **Setup:**
+
 1. Log in as Lab Admin → Settings → Turnos (shift configuration)
 2. Create shift records: Who is RT on which hours
 3. Enable toggle: "Enforce RT presence on all runs"
@@ -181,12 +190,12 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 
 ### What Requires Manual Config
 
-| Item | Action | Timeline |
-|------|--------|----------|
-| Portal-RT escalation rules | Admin defines: which results = escalation | 30 min |
-| Patient consent backfill | Automatic (8,247 laudos → default-allow) | Automatic |
-| NOTIVISA gov account | Lab contacts ANVISA for production account | 3–5 days |
-| RT shift configuration | Already done Phase 3; just enable gate | 5 min |
+| Item                       | Action                                     | Timeline  |
+| -------------------------- | ------------------------------------------ | --------- |
+| Portal-RT escalation rules | Admin defines: which results = escalation  | 30 min    |
+| Patient consent backfill   | Automatic (8,247 laudos → default-allow)   | Automatic |
+| NOTIVISA gov account       | Lab contacts ANVISA for production account | 3–5 days  |
+| RT shift configuration     | Already done Phase 3; just enable gate     | 5 min     |
 
 ---
 
@@ -267,6 +276,7 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 **Scenario:** Post-deploy, critical bug found in Portal-RT that breaks production.
 
 **Steps:**
+
 1. Lab Admin: Disable Portal-RT toggle (Settings → Portal-RT → off)
 2. Users: Portal-RT tile disappears from nav; escalations queued locally
 3. Engineering: Fix + redeploy
@@ -295,15 +305,15 @@ v1.4 is a **non-breaking feature release**. All v1.3 data, workflows, and integr
 
 ## Timeline
 
-| Date | Event | Status |
-|------|-------|--------|
-| 2026-05-08 | Phase 4 development complete | ✅ Done |
-| 2026-05-15 | Phase 5 UAT begins | → Next |
-| 2026-05-20 | v1.4 deployed to production (planned) | → |
-| 2026-05-20 | Customer notifications sent | → |
-| 2026-05-22 | Phase 5 UAT complete; customer sign-off | → |
-| 2026-05-29 | DPIA v2.0 executive sign-off | → |
-| 2026-06-05 | Phase 5 production go-live (final) | → |
+| Date       | Event                                   | Status  |
+| ---------- | --------------------------------------- | ------- |
+| 2026-05-08 | Phase 4 development complete            | ✅ Done |
+| 2026-05-15 | Phase 5 UAT begins                      | → Next  |
+| 2026-05-20 | v1.4 deployed to production (planned)   | →       |
+| 2026-05-20 | Customer notifications sent             | →       |
+| 2026-05-22 | Phase 5 UAT complete; customer sign-off | →       |
+| 2026-05-29 | DPIA v2.0 executive sign-off            | →       |
+| 2026-06-05 | Phase 5 production go-live (final)      | →       |
 
 ---
 

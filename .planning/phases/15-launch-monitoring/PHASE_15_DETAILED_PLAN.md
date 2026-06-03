@@ -1,11 +1,11 @@
 ---
 phase: 15
-name: "v1.4 Launch & Post-Deploy Monitoring"
+name: 'v1.4 Launch & Post-Deploy Monitoring'
 status: planning
 period_start: 2026-05-07
 period_end: 2026-05-09
 duration_days: 3
-dependencies: "Phase 14 complete, CTO authorization, on-call engineer identified"
+dependencies: 'Phase 14 complete, CTO authorization, on-call engineer identified'
 success_criteria:
   - Production deployment sequence executed without blocker
   - 48h cloud logs monitoring complete with zero P0 errors
@@ -57,6 +57,7 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ```
 
 **Gate:** Both checks must pass. If either fails:
+
 - Document error in war-room
 - Escalate to CTO
 - Do NOT proceed to deploy
@@ -83,6 +84,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 **Validation:** Spot-check in GCP Console:
+
 - Navigate to Firestore → Rules
 - Confirm new collections visible (if applicable): `portal-configuracao`, `notivisa-outbox`, `criticos-escalacoes`, `imuno-ias-dev`, `laudos-draft`
 - Take screenshot for audit log
@@ -96,6 +98,7 @@ firebase deploy --only firestore:indexes --project hmatologia2
 ```
 
 **Validation in GCP:**
+
 - Firestore → Indexes tab
 - Filter by Status = "Building" or "Enabled"
 - Confirm ~25 new composite indexes appear
@@ -133,6 +136,7 @@ bash scripts/preflight-secrets-check.sh
 ```
 
 **If secrets pending:**
+
 ```bash
 # Example output shows:
 # PENDING_SET_GEMINI_API_KEY — run: firebase functions:secrets:set GEMINI_API_KEY
@@ -173,11 +177,13 @@ firebase deploy --only functions:portal-* --project hmatologia2
 ```
 
 **Watch deployment output:**
+
 - Log lines show function names + memory/timeout config
 - Any `ERROR: function X failed to deploy` → DO NOT CONTINUE
 - Expected: 50+ functions appear, all with ✅ checkmark
 
 **Verify in GCP Console:**
+
 - Cloud Functions page → Region `southamerica-east1`
 - Filter by `created_after: 2026-05-07T20:00:00Z`
 - Confirm ~50 new functions + 0 in ERROR state
@@ -247,6 +253,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Verification in Firebase Console:**
+
 - Go to Hosting tab
 - Confirm latest deploy timestamp matches current time
 - Verify 0 errors in Hosting Logs (green status)
@@ -317,6 +324,7 @@ firebase deploy --only hosting --project hmatologia2
    - Verify: `severity=INFO` + `"status":"sent"` in logs
 
 **SMS Validation (if Twilio provisioned):**
+
 - Check test phone (RT on-call) for SMS: "HC Quality: Glicose 500 mg/dL é valor crítico. Paciente [ID]. Hora: [timestamp]."
 - If SMS not received: Check `criticos-escalacoes/` collection for log entry + Twilio webhook status
 
@@ -422,6 +430,7 @@ web.vitals.getLCP(); // Expected: <2.5s
 **Owner:** QA Lead + CTO (async email)
 
 Checklist to finalize:
+
 - [ ] All 4 steps deployed successfully
 - [ ] No P0 errors in Cloud Logs (Step 1–4 window)
 - [ ] Smoke tests passing (8 test cases complete)
@@ -446,7 +455,8 @@ bash scripts/monitor-cloud-logs.sh 48 30  # 48 hours, 30-min interval checks
 .\scripts\monitor-cloud-logs.ps1 -Hours 48 -IntervalMinutes 30
 ```
 
-**Output:** 
+**Output:**
+
 - Real-time console output with ERROR/WARNING summary per 30-min window
 - JSON export: `scripts/cloud-logs-export-YYYYMMDD_HHMMSS.json`
 - Markdown report: `docs/MONITORING_REPORT_YYYYMMDD_HHMMSS.md`
@@ -456,12 +466,14 @@ bash scripts/monitor-cloud-logs.sh 48 30  # 48 hours, 30-min interval checks
 #### 4.1 Cloud Functions Errors
 
 **Primary filter:**
+
 ```
 resource.type="cloud_function"
 AND severity >= ERROR
 ```
 
 **Red-flag keywords to grep for:**
+
 - `"Exceeded timeout"`
 - `"undefined is not a function"`
 - `"Permission denied"`
@@ -472,6 +484,7 @@ AND severity >= ERROR
 **Expected:** <5 errors per 50,000 invocations (~0.01% error rate)
 
 **Action on detection:**
+
 1. Note timestamp + function name
 2. Check if related to known cold-start (first invocation = slower, not error)
 3. If recurring: escalate to on-call engineer, post to war room
@@ -480,6 +493,7 @@ AND severity >= ERROR
 #### 4.2 Firestore Quota & Throttling
 
 **Filter:**
+
 ```
 resource.type="cloud_firestore"
 AND text:("Request rate exceeded" OR "Quota exceeded")
@@ -488,6 +502,7 @@ AND text:("Request rate exceeded" OR "Quota exceeded")
 **Expected:** 0–2 warnings per 24h window (acceptable during load spikes)
 
 **Action:**
+
 - Log timestamp + collection name
 - If sustained rate-limit (>10 per hour), investigate:
   - Check if Drive importer running (high write volume expected)
@@ -497,6 +512,7 @@ AND text:("Request rate exceeded" OR "Quota exceeded")
 #### 4.3 Firestore Permission Errors
 
 **Filter:**
+
 ```
 resource.type="cloud_firestore"
 AND text:"Permission denied"
@@ -505,6 +521,7 @@ AND text:"Permission denied"
 **Expected:** 0 (v1.4 rules reviewed + tested)
 
 **Action on detection:**
+
 - IMMEDIATE escalation to DevOps + CTO
 - Revert rules if blocking legitimate traffic
 - Post incident notification to war room
@@ -512,6 +529,7 @@ AND text:"Permission denied"
 #### 4.4 NOTIVISA Function Errors
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND resource.labels.function_name="notivisa-send"
@@ -521,6 +539,7 @@ AND severity >= ERROR
 **Expected:** 0 errors (critical value notification must not fail)
 
 **Action:**
+
 - Any NOTIVISA error = P0 incident
 - Escalate immediately
 - Check Twilio webhook logs (if SMS-backed)
@@ -529,6 +548,7 @@ AND severity >= ERROR
 #### 4.5 Gemini API Errors (IA/OCR)
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND text:"gemini" OR text:"GEMINI"
@@ -538,6 +558,7 @@ AND severity >= ERROR
 **Expected:** <10 errors per 48h (IA foundation may have edge cases)
 
 **Action:**
+
 - Log error signature (bad input, API limit, timeout)
 - Document for v1.4.1 post-launch patch
 - Non-blocking for v1.4 closure (Phase 15 is monitoring, not fixing)
@@ -545,6 +566,7 @@ AND severity >= ERROR
 #### 4.6 Cold Start Latency
 
 **Filter (informational, not blocker):**
+
 ```
 resource.type="cloud_function"
 AND text:"cold start" OR text:"initialization"
@@ -557,6 +579,7 @@ AND text:"cold start" OR text:"initialization"
 #### 4.7 SMS/Email Escalation Logs
 
 **Filter:**
+
 ```
 resource.type="cloud_function"
 AND (text:"sms" OR text:"email")
@@ -566,23 +589,24 @@ AND severity >= WARNING
 **Expected:** <5 warnings per 48h
 
 **Action:**
+
 - Warning ≠ failure (function may retry internally)
 - Only escalate if associated with ERROR or manual RT complaint
 - Log for KPI tracking (SMS delivery %)
 
 ### Spot-Check Schedule (On-Call Rotation)
 
-| Time Window | Check | Owner |
-|---|---|---|
-| 2026-05-07 23:00 UTC | Full review of Step 4 smoke test logs | QA Lead |
-| 2026-05-08 00:00 UTC | Functions cold-start phase (expect high invocation) | Engineer #1 |
-| 2026-05-08 06:00 UTC | Morning traffic baseline | Engineer #2 |
-| 2026-05-08 12:00 UTC | Mid-day review + aggregated report | QA Lead |
-| 2026-05-08 18:00 UTC | Evening traffic check | Engineer #1 |
-| 2026-05-09 00:00 UTC | Night shift baseline | Engineer #2 |
-| 2026-05-09 06:00 UTC | Pre-closure review | QA Lead |
-| 2026-05-09 12:00 UTC | Final 12h summary | Engineer #1 |
-| 2026-05-09 22:00 UTC | Closure + report generation | QA Lead + DevOps |
+| Time Window          | Check                                               | Owner            |
+| -------------------- | --------------------------------------------------- | ---------------- |
+| 2026-05-07 23:00 UTC | Full review of Step 4 smoke test logs               | QA Lead          |
+| 2026-05-08 00:00 UTC | Functions cold-start phase (expect high invocation) | Engineer #1      |
+| 2026-05-08 06:00 UTC | Morning traffic baseline                            | Engineer #2      |
+| 2026-05-08 12:00 UTC | Mid-day review + aggregated report                  | QA Lead          |
+| 2026-05-08 18:00 UTC | Evening traffic check                               | Engineer #1      |
+| 2026-05-09 00:00 UTC | Night shift baseline                                | Engineer #2      |
+| 2026-05-09 06:00 UTC | Pre-closure review                                  | QA Lead          |
+| 2026-05-09 12:00 UTC | Final 12h summary                                   | Engineer #1      |
+| 2026-05-09 22:00 UTC | Closure + report generation                         | QA Lead + DevOps |
 
 ### War Room Communication Template
 
@@ -685,25 +709,25 @@ AND severity >= WARNING
   "date": "2026-05-09T22:00:00Z",
   "dicq_blocks": {
     "A_governance": 78,
-    "B_document_mgmt": 65,  // SGD migrated 80 Riopomba docs
+    "B_document_mgmt": 65, // SGD migrated 80 Riopomba docs
     "C_personnel": 80,
     "D_environment": 58,
     "E_pre_analytical": 64,
-    "F_analytical": 92,      // Bioquímica complete
+    "F_analytical": 92, // Bioquímica complete
     "G_post_analytical": 78, // Liberação partial (Phase 10 partial)
     "H_quality_assurance": 82,
-    "I_laudos_release": 50,  // State machine + RT sig (PDF deferred to v1.4.1)
+    "I_laudos_release": 50, // State machine + RT sig (PDF deferred to v1.4.1)
     "J_continuity": 70
   },
-  "total_compliance": "78.5%",  // v1.3 baseline + v1.4 gains
+  "total_compliance": "78.5%", // v1.3 baseline + v1.4 gains
   "rdc_978_coverage": {
-    "article_117": "✓ complete",     // SGD
-    "article_167": "✓ complete",     // Laudo doc
-    "article_179": "✓ complete",     // CIQ
-    "article_180": "✓ complete",     // CIQ QC
-    "article_181": "✓ complete",     // Traceability
-    "article_184": "✓ complete",     // Critical values
-    "article_185_to_191": "🟡 80%"   // NOTIVISA (SMS/Twilio pending)
+    "article_117": "✓ complete", // SGD
+    "article_167": "✓ complete", // Laudo doc
+    "article_179": "✓ complete", // CIQ
+    "article_180": "✓ complete", // CIQ QC
+    "article_181": "✓ complete", // Traceability
+    "article_184": "✓ complete", // Critical values
+    "article_185_to_191": "🟡 80%" // NOTIVISA (SMS/Twilio pending)
   }
 }
 ```
@@ -783,7 +807,7 @@ gcloud firestore query \
 **Timeline:** <5 minutes to acknowledge
 
 1. **Immediate:** War room notified + on-call engineer paged
-2. **Action:** 
+2. **Action:**
    - Stop deploy monitoring (secondary)
    - Isolate root cause (Cloud Logs, function logs, rules)
    - Attempt fix on main branch + test on staging
@@ -802,7 +826,7 @@ gcloud firestore query \
 
 **Timeline:** <2 hours to resolve or mitigate
 
-1. **Action:** 
+1. **Action:**
    - Log incident details to war room + Obsidian incident tracker
    - Attempt hotfix on main (do NOT deploy during 48h monitoring unless critical)
    - Monitor if self-healing (rate limits often auto-recover)
@@ -813,7 +837,8 @@ gcloud firestore query \
 
 **Examples:** Single function timeout, transient OAuth error, slow loading module
 
-**Action:** 
+**Action:**
+
 - Document in monitoring report
 - Plan fix for v1.4.1 patch
 - No immediate action required
@@ -866,20 +891,20 @@ result: success
 
 ## Timeline
 
-| Step | Start | End | Duration | Status |
-|------|-------|-----|----------|--------|
-| Pre-checks | 20:00 | 20:00 | — | ✓ Pass |
-| Rules + Indexes | 20:00 | 20:30 | 30 min | ✓ Deploy OK |
-| Functions (50+) | 20:35 | 21:15 | 40 min | ✓ Deploy OK |
-| Hosting | 21:15 | 21:45 | 30 min | ✓ Deploy OK |
-| Smoke Tests | 21:45 | 22:30 | 45 min | ✓ All pass |
+| Step            | Start | End   | Duration | Status      |
+| --------------- | ----- | ----- | -------- | ----------- |
+| Pre-checks      | 20:00 | 20:00 | —        | ✓ Pass      |
+| Rules + Indexes | 20:00 | 20:30 | 30 min   | ✓ Deploy OK |
+| Functions (50+) | 20:35 | 21:15 | 40 min   | ✓ Deploy OK |
+| Hosting         | 21:15 | 21:45 | 30 min   | ✓ Deploy OK |
+| Smoke Tests     | 21:45 | 22:30 | 45 min   | ✓ All pass  |
 
 ## Post-Deploy Monitoring
 
-| Window | Period | Status | Notes |
-|--------|--------|--------|-------|
-| 0–24h | 2026-05-07 22:30 → 2026-05-08 22:30 | ✓ Healthy | <5 errors in logs |
-| 24–48h | 2026-05-08 22:30 → 2026-05-09 22:30 | ✓ Healthy | 0 P0 incidents |
+| Window | Period                              | Status    | Notes             |
+| ------ | ----------------------------------- | --------- | ----------------- |
+| 0–24h  | 2026-05-07 22:30 → 2026-05-08 22:30 | ✓ Healthy | <5 errors in logs |
+| 24–48h | 2026-05-08 22:30 → 2026-05-09 22:30 | ✓ Healthy | 0 P0 incidents    |
 
 ## Metrics Captured
 
@@ -891,9 +916,9 @@ result: success
 
 ## Incidents
 
-| ID | Severity | Description | Resolution | Time |
-|----|----------|-------------|------------|------|
-| — | — | None | — | — |
+| ID  | Severity | Description | Resolution | Time |
+| --- | -------- | ----------- | ---------- | ---- |
+| —   | —        | None        | —          | —    |
 
 ## Sign-Offs
 
@@ -923,6 +948,7 @@ cp scripts/cloud-logs-export-*.json docs/v1.4-cloud-logs-export.json
 ## v1.4 — LIVE (2026-05-07)
 
 **Completion:** 100% (Phase 15 deployment + monitoring)
+
 - ✓ Step 1: Rules + Indexes (30 min)
 - ✓ Step 2: Functions deploy (40 min)
 - ✓ Step 3: Hosting deploy (30 min)
@@ -930,11 +956,13 @@ cp scripts/cloud-logs-export-*.json docs/v1.4-cloud-logs-export.json
 - ✓ Post-deploy: 48h monitoring (0 P0 incidents)
 
 **Metrics:**
+
 - DICQ: 78–82% (up from 71.3% v1.3)
 - RDC 978: 90%+ coverage
 - Audit readiness: Ready for Phase 4 CAPA closure
 
 **Next Wave (v1.4 Phases 4–15):**
+
 - Phase 4: CAPA closure (auditor-led, starts 2026-05-20)
 - Phase 5–12: Compliance closure + portal expansion + IA foundation
 - Phase 13–15: Final polish + audit prep + v1.5 roadmap
@@ -1070,7 +1098,7 @@ Ready for Phase 4 (v1.4 CAPA Closure) kickoff: 2026-05-20
 ```
 Subject: HC Quality v1.4 Deployment Acknowledgment
 
-Thank you for the comprehensive Phase 15 execution summary. 
+Thank you for the comprehensive Phase 15 execution summary.
 
 Compliance status v1.4 (post-deploy):
 - ✓ DICQ Blocks B (SGD), F (Bioquímica) advanced
@@ -1139,14 +1167,14 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Key Contacts & Escalation
 
-| Role | Name | Email | Phone |
-|------|------|-------|-------|
-| CTO | [Name] | [email] | [phone] |
-| DevOps Lead | [Name] | [email] | [phone] |
-| QA Lead | [Name] | [email] | [phone] |
-| On-Call Engineer | [Name] | [email] | [phone] |
-| Auditor | [Name] | [email] | [phone] |
-| Firestore Support | Google Cloud | support@google.com | N/A |
+| Role              | Name         | Email              | Phone   |
+| ----------------- | ------------ | ------------------ | ------- |
+| CTO               | [Name]       | [email]            | [phone] |
+| DevOps Lead       | [Name]       | [email]            | [phone] |
+| QA Lead           | [Name]       | [email]            | [phone] |
+| On-Call Engineer  | [Name]       | [email]            | [phone] |
+| Auditor           | [Name]       | [email]            | [phone] |
+| Firestore Support | Google Cloud | support@google.com | N/A     |
 
 ---
 

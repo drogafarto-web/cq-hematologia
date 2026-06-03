@@ -17,6 +17,7 @@ Você é QA engineer senior. Execute um smoke test end-to-end do **HC Quality** 
 **Contexto**: router custom via Zustand (não URL-based), navegação por cliques em botões com labels pt-BR. Login exige email verificado. Após login, ModuleHub mostra botões: Hematologia, Coagulação, Uroanálise, CIQ-Imuno, Importar bula PDF, Relatórios, Insumos, Configurações, Super Admin. Feedback via toast auto-dismiss 3.5s (seletor: `[role=alert]`).
 
 **Políticas**:
+
 - NUNCA delete nada
 - Cria apenas dados com prefix `SMOKE_`
 - Não confirme operações em dados reais — tire screenshot do modal e clique Cancelar
@@ -41,13 +42,14 @@ Você é QA engineer senior. Execute um smoke test end-to-end do **HC Quality** 
 **F07 Coagulação read-only**: abre view, screenshot. Se houver lote, abre detalhes e screenshot. Nenhuma ação destrutiva.
 
 **F08 Insumos — cria mock (BLOQUEADOR)**: Insumos → aba Produtos → "Novo Produto" → preencha:
+
 - Módulo: hematologia
 - Tipo: controle
 - Fabricante: `SMOKE_Bio-Rad`
 - Nome Comercial: `SMOKE_Multiqual Test`
 - Estabilidade: 30
 - Nível Default: 2
-Salva. Valida toast "Produto criado" ou equivalente. Screenshot `f08-produto.png`.
+  Salva. Valida toast "Produto criado" ou equivalente. Screenshot `f08-produto.png`.
 
 Aba Lotes → "+ Lote" → Produto = o recém-criado → Lote = `SMOKE-LOT-${Date.now()}` → Data Vencimento = +180d. Salva. Screenshot `f08-lote.png`.
 
@@ -64,11 +66,13 @@ Aba Lotes → "+ Lote" → Produto = o recém-criado → Lote = `SMOKE-LOT-${Dat
 **F14 Backup config**: Configurações → seção Backup Diário. Valida existência de toggle "habilitado", inputs de emails, menção a "relatório operacional" ou "anexo operacional" (evidência da nova feature Onda recente). Screenshot.
 
 **Negativos**:
+
 - N01: login com senha errada → espera toast de erro amigável, não crash
 - N02: upload .txt renomeado .jpg num campo de run → espera erro controlado
 - N03: "Novo Produto" → submit vazio → espera validação inline bloquear
 
 **Ao final** grave `$OUTPUT_DIR/REPORT.md` com:
+
 - Sumário: total, passou, falhou, bloqueado
 - Por fluxo: status, duração, screenshot path, assertions count, notas
 - Links pros screenshots
@@ -78,6 +82,7 @@ Aba Lotes → "+ Lote" → Produto = o recém-criado → Lote = `SMOKE-LOT-${Dat
 Exit code: 0 se todos bloqueadores passaram; 1 caso contrário.
 
 Imprima no terminal ao final:
+
 ```
 SMOKE OK / FAIL
 passou=X falhou=Y bloqueado=Z

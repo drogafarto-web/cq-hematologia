@@ -24,8 +24,26 @@ interface NCConfig {
 }
 
 const DEFAULT_CONFIG: NCConfig = {
-  setores: ['Hematologia', 'Bioquímica', 'Coagulação', 'Uroanálise', 'Imunologia', 'Microbiologia', 'Recepção', 'Coleta', 'Administrativo'],
-  origens: ['Auditoria interna', 'Reclamação de cliente', 'Controle de qualidade', 'Desvio de processo', 'Inspeção', 'Evento adverso', 'Indicador fora da meta'],
+  setores: [
+    'Hematologia',
+    'Bioquímica',
+    'Coagulação',
+    'Uroanálise',
+    'Imunologia',
+    'Microbiologia',
+    'Recepção',
+    'Coleta',
+    'Administrativo',
+  ],
+  origens: [
+    'Auditoria interna',
+    'Reclamação de cliente',
+    'Controle de qualidade',
+    'Desvio de processo',
+    'Inspeção',
+    'Evento adverso',
+    'Indicador fora da meta',
+  ],
   prazos: { critica: 7, grave: 15, moderada: 30, leve: 60 },
 };
 
@@ -35,16 +53,18 @@ function useNCConfig(labId: string | null): NCConfig {
   useEffect(() => {
     if (!labId) return;
     const configRef = doc(db, 'labs', labId, 'nc-config', 'settings');
-    getDoc(configRef).then((snap) => {
-      if (snap.exists()) {
-        const data = snap.data() as Partial<NCConfig>;
-        setConfig({
-          setores: data.setores || DEFAULT_CONFIG.setores,
-          origens: data.origens || DEFAULT_CONFIG.origens,
-          prazos: data.prazos || DEFAULT_CONFIG.prazos,
-        });
-      }
-    }).catch(() => {});
+    getDoc(configRef)
+      .then((snap) => {
+        if (snap.exists()) {
+          const data = snap.data() as Partial<NCConfig>;
+          setConfig({
+            setores: data.setores || DEFAULT_CONFIG.setores,
+            origens: data.origens || DEFAULT_CONFIG.origens,
+            prazos: data.prazos || DEFAULT_CONFIG.prazos,
+          });
+        }
+      })
+      .catch(() => {});
   }, [labId]);
 
   return config;
@@ -73,7 +93,13 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
   // Auto-suggest deadline based on priority + configured prazos
   useEffect(() => {
     if (dataPrazo) return; // don't override manual selection
-    const prazoMap: Record<number, string> = { 5: 'critica', 4: 'grave', 3: 'moderada', 2: 'leve', 1: 'leve' };
+    const prazoMap: Record<number, string> = {
+      5: 'critica',
+      4: 'grave',
+      3: 'moderada',
+      2: 'leve',
+      1: 'leve',
+    };
     const key = prazoMap[prioridade];
     const dias = ncConfig.prazos[key] ?? 30;
     const target = new Date();
@@ -220,9 +246,13 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
             className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
             disabled={isSubmitting}
           >
-            <option value="" disabled>Selecione o setor</option>
+            <option value="" disabled>
+              Selecione o setor
+            </option>
             {ncConfig.setores.map((s) => (
-              <option key={s} value={s}>{s}</option>
+              <option key={s} value={s}>
+                {s}
+              </option>
             ))}
           </select>
         </div>
@@ -238,9 +268,13 @@ export default function CAPAForm({ onSuccess, onCancel }: CAPAFormProps) {
             className="px-3 py-2 bg-white/5 border border-white/10 rounded text-white focus:ring-2 focus:ring-violet-500 focus:border-transparent"
             disabled={isSubmitting}
           >
-            <option value="" disabled>Selecione a origem</option>
+            <option value="" disabled>
+              Selecione a origem
+            </option>
             {ncConfig.origens.map((o) => (
-              <option key={o} value={o}>{o}</option>
+              <option key={o} value={o}>
+                {o}
+              </option>
             ))}
           </select>
         </div>

@@ -9,16 +9,8 @@
  */
 
 import * as React from 'react';
-import {
-  useCallback,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
-import {
-  functions,
-  httpsCallable,
-} from '../../../shared/services/firebase';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { functions, httpsCallable } from '../../../shared/services/firebase';
 import {
   RCA_QUESTION_TEMPLATES,
   type RCAFiveWhys,
@@ -63,12 +55,10 @@ export function RCAFiveWhysWorkflow({
   }, []);
 
   // Hydrate from initialState (server-supplied authoritative answers).
-  const [levels, setLevels] = useState<Record<LevelKey, LevelLocalState>>(
-    () => buildInitial(initialState),
+  const [levels, setLevels] = useState<Record<LevelKey, LevelLocalState>>(() =>
+    buildInitial(initialState),
   );
-  const [rootCause, setRootCause] = useState<string>(
-    initialState?.rootCause ?? '',
-  );
+  const [rootCause, setRootCause] = useState<string>(initialState?.rootCause ?? '');
   const [completing, setCompleting] = useState(false);
   const [completeError, setCompleteError] = useState<string | undefined>();
   const [conflictBanner, setConflictBanner] = useState(false);
@@ -102,23 +92,15 @@ export function RCAFiveWhysWorkflow({
 
   const allLevelsAnswered = useMemo(
     () =>
-      ([1, 2, 3, 4, 5] as LevelKey[]).every(
-        (l) => levels[l].answer.trim().length >= MIN_ANSWER,
-      ),
+      ([1, 2, 3, 4, 5] as LevelKey[]).every((l) => levels[l].answer.trim().length >= MIN_ANSWER),
     [levels],
   );
 
-  const canComplete =
-    allLevelsAnswered &&
-    rootCause.trim().length >= MIN_ROOT_CAUSE &&
-    !completing;
+  const canComplete = allLevelsAnswered && rootCause.trim().length >= MIN_ROOT_CAUSE && !completing;
 
-  const setLevelField = useCallback(
-    (level: LevelKey, patch: Partial<LevelLocalState>) => {
-      setLevels((prev) => ({ ...prev, [level]: { ...prev[level], ...patch } }));
-    },
-    [],
-  );
+  const setLevelField = useCallback((level: LevelKey, patch: Partial<LevelLocalState>) => {
+    setLevels((prev) => ({ ...prev, [level]: { ...prev[level], ...patch } }));
+  }, []);
 
   const isLevelUnlocked = useCallback(
     (level: LevelKey) => {
@@ -154,8 +136,7 @@ export function RCAFiveWhysWorkflow({
         });
         setLevelField(level, { saving: false, savedAt: Date.now() });
       } catch (err) {
-        const message =
-          err instanceof Error ? err.message : 'Falha ao salvar';
+        const message = err instanceof Error ? err.message : 'Falha ao salvar';
         setLevelField(level, { saving: false, error: message });
       }
     },
@@ -184,8 +165,7 @@ export function RCAFiveWhysWorkflow({
       });
       onCompleted(rootCause.trim());
     } catch (err) {
-      const message =
-        err instanceof Error ? err.message : 'Não foi possível concluir o RCA';
+      const message = err instanceof Error ? err.message : 'Não foi possível concluir o RCA';
       setCompleteError(message);
     } finally {
       setCompleting(false);
@@ -195,12 +175,10 @@ export function RCAFiveWhysWorkflow({
   return (
     <div className="bg-[#141417] rounded-2xl p-6 border border-white/10 max-w-3xl mx-auto">
       <header className="mb-6">
-        <h2 className="text-xl font-medium tracking-tight text-white">
-          Análise Cinco Porquês
-        </h2>
+        <h2 className="text-xl font-medium tracking-tight text-white">Análise Cinco Porquês</h2>
         <p className="text-sm text-white/60 mt-1 leading-relaxed">
-          Cada nível desbloqueia o próximo após uma resposta substancial.
-          Salvamos automaticamente ao sair do campo.
+          Cada nível desbloqueia o próximo após uma resposta substancial. Salvamos automaticamente
+          ao sair do campo.
         </p>
       </header>
 
@@ -209,8 +187,8 @@ export function RCAFiveWhysWorkflow({
           role="status"
           className="mb-5 text-xs text-amber-200 bg-amber-500/10 border border-amber-500/30 rounded-lg px-3 py-2"
         >
-          Outras alterações foram detectadas — recarregamos o formulário.
-          Verifique antes de prosseguir.
+          Outras alterações foram detectadas — recarregamos o formulário. Verifique antes de
+          prosseguir.
         </div>
       )}
 
@@ -267,12 +245,8 @@ export function RCAFiveWhysWorkflow({
               />
 
               <div className="mt-1.5 flex items-center justify-between text-xs">
-                <span className="text-white/40 tabular-nums">
-                  {state.answer.length} caracteres
-                </span>
-                {state.saving && (
-                  <span className="text-white/50">Salvando…</span>
-                )}
+                <span className="text-white/40 tabular-nums">{state.answer.length} caracteres</span>
+                {state.saving && <span className="text-white/50">Salvando…</span>}
                 {!state.saving && state.savedAt && !state.error && (
                   <span className="text-emerald-400 tabular-nums">
                     Salvo {formatTime(state.savedAt)}
@@ -296,12 +270,10 @@ export function RCAFiveWhysWorkflow({
             reducedMotion ? '' : 'transition-all duration-200',
           ].join(' ')}
         >
-          <h3 className="text-base font-medium text-white">
-            Causa raiz identificada
-          </h3>
+          <h3 className="text-base font-medium text-white">Causa raiz identificada</h3>
           <p className="text-xs text-white/55 mt-1 leading-relaxed">
-            Formalize a causa raiz que será encadeada à eventual ação corretiva
-            (CAPA). Mínimo {MIN_ROOT_CAUSE} caracteres.
+            Formalize a causa raiz que será encadeada à eventual ação corretiva (CAPA). Mínimo{' '}
+            {MIN_ROOT_CAUSE} caracteres.
           </p>
           <textarea
             rows={3}
@@ -374,9 +346,7 @@ function QuestionInline({
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
 
-function buildInitial(
-  initial?: RCAFiveWhys,
-): Record<LevelKey, LevelLocalState> {
+function buildInitial(initial?: RCAFiveWhys): Record<LevelKey, LevelLocalState> {
   const byLevel = new Map<LevelKey, RCAFiveWhysAnswer>();
   for (const a of initial?.answers ?? []) {
     byLevel.set(a.level as LevelKey, a);
@@ -425,7 +395,5 @@ function bufferToHex(buf: ArrayBuffer): string {
 
 function formatTime(ms: number): string {
   const d = new Date(ms);
-  return `${String(d.getHours()).padStart(2, '0')}:${String(
-    d.getMinutes(),
-  ).padStart(2, '0')}`;
+  return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
 }

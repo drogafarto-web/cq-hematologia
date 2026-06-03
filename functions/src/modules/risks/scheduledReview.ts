@@ -37,9 +37,7 @@ export const scheduledReview = onSchedule(
       const riskId = doc.id;
       const idempotencyKey = `${riskId}-annual-${today}`;
 
-      const notifRef = db.doc(
-        `labs/${labId}/notifications/${idempotencyKey}`
-      );
+      const notifRef = db.doc(`labs/${labId}/notifications/${idempotencyKey}`);
       const notifSnap = await notifRef.get();
 
       if (!notifSnap.exists) {
@@ -54,7 +52,7 @@ export const scheduledReview = onSchedule(
             createdAt: now,
             read: false,
           },
-          { merge: true }
+          { merge: true },
         );
         console.log('[RISK_REVIEW_DUE_ANNUAL]', { riskId, labId });
       }
@@ -83,9 +81,7 @@ export const scheduledReview = onSchedule(
         const riskId = doc.id;
         const idempotencyKey = `${riskId}-monthly-${monthKey}`;
 
-        const notifRef = db.doc(
-          `labs/${labId}/notifications/${idempotencyKey}`
-        );
+        const notifRef = db.doc(`labs/${labId}/notifications/${idempotencyKey}`);
         const notifSnap = await notifRef.get();
 
         if (!notifSnap.exists) {
@@ -100,7 +96,7 @@ export const scheduledReview = onSchedule(
               createdAt: now,
               read: false,
             },
-            { merge: true }
+            { merge: true },
           );
           console.log('[RISK_REVIEW_DUE_MONTHLY]', { riskId, labId, npr: risk.npr });
         }

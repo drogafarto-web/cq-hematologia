@@ -5,14 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  getFirestore,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { collection, getFirestore, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 import type { ManutencaoPreventiva } from '../types/ManutencaoPreventiva';
 
@@ -27,7 +20,10 @@ export interface UseManutencoesResult {
   error: string | null;
 }
 
-export function useManutencoes({ labId, equipamentoId }: UseManutencoesParams): UseManutencoesResult {
+export function useManutencoes({
+  labId,
+  equipamentoId,
+}: UseManutencoesParams): UseManutencoesResult {
   const [manutencoes, setManutencoes] = useState<ManutencaoPreventiva[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

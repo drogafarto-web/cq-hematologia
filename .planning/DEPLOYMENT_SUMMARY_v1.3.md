@@ -1,8 +1,8 @@
 ---
-title: "v1.3 Deployment Summary"
-date: "2026-05-07"
-version: "1.3"
-status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
+title: 'v1.3 Deployment Summary'
+date: '2026-05-07'
+version: '1.3'
+status: 'COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)'
 ---
 
 # v1.3 Deployment Summary
@@ -10,7 +10,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Deployment Date:** 2026-05-07  
 **Duration:** 3+ hours (Step 1–3), ongoing  
 **Status:** Steps 1+3 LIVE ✅ | Step 2 LIVE ✅ | Step 4–6 PENDING ⏳  
-**Go/No-Go:** PENDING smoke tests  
+**Go/No-Go:** PENDING smoke tests
 
 ---
 
@@ -20,9 +20,10 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 
 **Deployed:** 73 hard-delete blocks across regulatory collections  
 **Status:** Rules published 2026-05-06 00:32:25 UTC  
-**Verification:** Firebase Console Rules tab confirms timestamp  
+**Verification:** Firebase Console Rules tab confirms timestamp
 
 **Collections Protected:**
+
 - `/ciq-imuno/{labId}/**` — immutable control runs
 - `/ciq-coagulacao/{labId}/**` — immutable coagulation runs
 - `/reclamacoes/{labId}/**` — soft-delete only
@@ -31,6 +32,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 - `/lgpd/**` — soft-delete only
 
 **Audit Trail Impact:**
+
 - RDC 978 Art. 5.3 (document retention) — SATISFIED
 - DICQ 4.4 (audit trail) — SATISFIED
 
@@ -41,9 +43,10 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Deployed:** 32 functions wired + live in production  
 **Region:** southamerica-east1  
 **Node Version:** Node 22  
-**Status:** All functions GREEN in Cloud Console  
+**Status:** All functions GREEN in Cloud Console
 
 **Function Batches:**
+
 1. **Bioquímica** (6 functions)
    - `parseBulaBioquimica` — Gemini OCR for analito plans
    - `seedBioquimicaDefaults` — 17 analito seed data
@@ -89,6 +92,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
    - `syncSGDChanges` — Real-time sync
 
 **Environment Variables (Verified):**
+
 - ✅ GEMINI_API_KEY
 - ✅ RESEND_API_KEY
 - ✅ DRIVE_OAUTH_CLIENT_ID
@@ -96,6 +100,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 - ✅ TWILIO_ACCOUNT_SID (for SMS escalation)
 
 **Validation:**
+
 - All functions compiled without errors (TypeScript 5.8)
 - All functions have rate limiting configured
 - All functions have error handling + Cloud Logging
@@ -107,15 +112,17 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 
 **Deployed:** React 19 + Vite 6 + PWA  
 **URL:** https://hmatologia2.web.app  
-**Status:** Hosting live, hashed assets deployed  
+**Status:** Hosting live, hashed assets deployed
 
 **Build Artifacts:**
+
 - Main bundle: 362 KB gzip (0 ts errors)
 - Service Worker: Auto-updated via `registerType: 'autoUpdate'`
 - Manifest: PWA-compliant, installable
 - Routes: 4 new routes wired (bioquimica, liberacao, reclamacoes, sgd)
 
 **Verification:**
+
 - [ ] DevTools → Application → Service Worker (timestamp updated)
 - [ ] Address bar → Install app button visible
 - [ ] Routes respond <3s LCP
@@ -125,12 +132,12 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 
 ## Compliance Achievements
 
-| Framework | Coverage | Status | Change |
-|-----------|----------|--------|--------|
-| **DICQ 4.3** | 78.5% | ✅ AUDIT-READY | +7.2 pts |
-| **RDC 978** | 8/11 critical articles | ✅ COVERED | Art. 167, 179–191 |
-| **LGPD** | 100% | ✅ COMPLETE | Privacy + audit + exclusion |
-| **ISO 15189** | Framework | ✅ IN PLACE | Management system |
+| Framework     | Coverage               | Status         | Change                      |
+| ------------- | ---------------------- | -------------- | --------------------------- |
+| **DICQ 4.3**  | 78.5%                  | ✅ AUDIT-READY | +7.2 pts                    |
+| **RDC 978**   | 8/11 critical articles | ✅ COVERED     | Art. 167, 179–191           |
+| **LGPD**      | 100%                   | ✅ COMPLETE    | Privacy + audit + exclusion |
+| **ISO 15189** | Framework              | ✅ IN PLACE    | Management system           |
 
 ### RDC 978 Articles Live (2026-05-07)
 
@@ -140,7 +147,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 ✅ **Art. 181** — Sample traceability (TraceabilityEvent logs)  
 ✅ **Art. 183** — Critical values (framework, thresholds config pending Phase 13)  
 ✅ **Art. 184–191** — Complaint handling (Reclamações module)  
-✅ **Art. 5.3** — Document retention (soft-delete + audit trail)  
+✅ **Art. 5.3** — Document retention (soft-delete + audit trail)
 
 ### DICQ 4.3 Blocks Coverage
 
@@ -151,7 +158,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 ✅ **Block E** — Personnel (qualifications + training)  
 ✅ **Block F** — Process controls (CIQ modules)  
 ✅ **Block G** — Non-conformance (complaint + CAPA workflow)  
-🟡 **Block H** — Improvement (audit trail infrastructure, optimization pending)  
+🟡 **Block H** — Improvement (audit trail infrastructure, optimization pending)
 
 ---
 
@@ -160,28 +167,33 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Status:** ✅ GREEN (5/5 spot-checks PASSED)
 
 ### Soft-Delete Enforcement
+
 - 73 hard-delete blocks confirmed across regulatory collections
 - All audit trails immutable (`deletadoEm` field only)
 - RDC 978 Art. 5.3 compliance verified
 
 ### Signature Validation
+
 - LogicalSignature: SHA-256 (64 hex chars) + operatorId + timestamp
 - Callable-only writes enforced on Laudos, Reclamações, Bioquímica
 - Chain-of-custody validation (`computeChainHash()`)
 
 ### LGPD Consent
+
 - Mandatory consent capture in Reclamações (`consentimentoLgpd.aceito = true`)
 - IP + UserAgent logged (capped lengths, no injection risk)
 - LGPD audit logs written to `/lgpd-audit/` collection
 - Zod validation: `.strict()` + unknown keys rejected
 
 ### Rate Limiting
+
 - Public endpoints: 10/min per IP
 - Authenticated callables: 60/min per uid (Reclamações), 100/min (others)
 - Storage: Firestore `/_system/rate-limits/`
 - Fail-open on Firestore error (don't block on infra failure)
 
 ### OAuth CSRF
+
 - Not applicable in Phase 1.3 (Drive OAuth callback not in scope)
 - Future pattern: store random `state` in transient Firestore doc, verify on callback
 
@@ -192,6 +204,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 ### Step 4 — Smoke Tests (⏳ PENDING)
 
 **Scenarios to execute:**
+
 1. Bioquímica (seed analito, run control, verify Levey-Jennings)
 2. SGD Drive importer (upload docs, verify hierarchy)
 3. Reclamações (submit complaint, verify LGPD audit)
@@ -204,6 +217,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 ### Step 5 — Cloud Logs 24h (⏳ TODAY + TOMORROW)
 
 **Filters to monitor:**
+
 - `resource.type="cloud_function"` AND `severity>="ERROR"`
 - `resource.type="cloud_function"` AND `jsonPayload.billingCost > X`
 - Rate-limit spike detection
@@ -217,6 +231,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 ### Step 6 — Final Sign-Off (⏳ AFTER STEPS 4–5)
 
 **Sign-offs required:**
+
 - [ ] CTO (overall approval)
 - [ ] Auditor (compliance confirmation)
 - [ ] QA (smoke tests GREEN)
@@ -233,7 +248,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Total documents created:** 28+  
 **Total pages:** ~1,800 (PDF equivalent)  
 **Time to review all:** 4–6 hours (depending on role)  
-**Time to execute (deployment + tests):** 3–5 hours  
+**Time to execute (deployment + tests):** 3–5 hours
 
 ### Master Documents
 
@@ -279,47 +294,43 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 
 ## Key Metrics
 
-| Metric | Target | Actual | Status |
-|--------|--------|--------|--------|
-| **TypeScript Errors** | 0 | 0 | ✅ |
-| **Test Pass Rate** | 95% | 100% (738/738) | ✅ |
-| **Security Spot-Checks** | PASS | 5/5 PASS | ✅ |
-| **Hard-Delete Blocks** | ≥70 | 73 | ✅ |
-| **DICQ Coverage** | ≥75% | 78.5% | ✅ |
-| **RDC 978 Critical Articles** | All critical | 8/11 | ✅ |
-| **LGPD** | 100% | 100% | ✅ |
-| **Functions Deployed** | 32 | 32 | ✅ |
-| **Rules Live** | Yes | Yes | ✅ |
-| **Hosting Live** | Yes | Yes | ✅ |
-| **Smoke Tests** | PASS | ⏳ PENDING | — |
-| **Cloud Logs 24h** | GREEN | ⏳ PENDING | — |
-| **Go-Live Sign-Off** | ✅ | ⏳ PENDING | — |
+| Metric                        | Target       | Actual         | Status |
+| ----------------------------- | ------------ | -------------- | ------ |
+| **TypeScript Errors**         | 0            | 0              | ✅     |
+| **Test Pass Rate**            | 95%          | 100% (738/738) | ✅     |
+| **Security Spot-Checks**      | PASS         | 5/5 PASS       | ✅     |
+| **Hard-Delete Blocks**        | ≥70          | 73             | ✅     |
+| **DICQ Coverage**             | ≥75%         | 78.5%          | ✅     |
+| **RDC 978 Critical Articles** | All critical | 8/11           | ✅     |
+| **LGPD**                      | 100%         | 100%           | ✅     |
+| **Functions Deployed**        | 32           | 32             | ✅     |
+| **Rules Live**                | Yes          | Yes            | ✅     |
+| **Hosting Live**              | Yes          | Yes            | ✅     |
+| **Smoke Tests**               | PASS         | ⏳ PENDING     | —      |
+| **Cloud Logs 24h**            | GREEN        | ⏳ PENDING     | —      |
+| **Go-Live Sign-Off**          | ✅           | ⏳ PENDING     | —      |
 
 ---
 
 ## Critical Path (Next 48 Hours)
 
 **TODAY (2026-05-07):**
+
 1. Execute smoke tests (Step 4) — ~1 hour
 2. Monitor Cloud Logs (Step 5 setup) — ~30 min
 3. Verify Firestore indexes — ~5 min
 4. Stakeholder notification (GO/NO-GO decision)
 
-**TOMORROW (2026-05-08):**
-5. Continue Cloud Logs monitoring (24h window)
-6. Audit trail spot-check (5 logs)
-7. Cloud Logs summary export (CSV)
+**TOMORROW (2026-05-08):** 5. Continue Cloud Logs monitoring (24h window) 6. Audit trail spot-check (5 logs) 7. Cloud Logs summary export (CSV)
 
-**END OF WEEK (2026-05-10):**
-8. Final sign-off + archive
-9. Tag git `v1.3-DEPLOYED`
-10. Production SLA active (3 engineers on-call)
+**END OF WEEK (2026-05-10):** 8. Final sign-off + archive 9. Tag git `v1.3-DEPLOYED` 10. Production SLA active (3 engineers on-call)
 
 ---
 
 ## Go/No-Go Criteria
 
 **✅ GO** if:
+
 - [ ] All 4 smoke tests PASS
 - [ ] Cloud Logs: 0 new ERROR/CRITICAL
 - [ ] Firestore indexes: All "Ready" (no "Error")
@@ -329,6 +340,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 - [ ] Compliance: ≥75% DICQ (actual: 78.5%)
 
 **🔴 NO-GO** if:
+
 - [ ] Any smoke test FAILS
 - [ ] New ERROR in Cloud Logs post-deploy
 - [ ] Firestore index ERROR after 60 min
@@ -384,6 +396,7 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Timeline:** 2026-05-08 → 2026-05-31 (3-week observation)
 
 **Focus Areas:**
+
 1. DICQ Block H (Improvement) — add performance metrics + trending
 2. Critical value thresholds — complete configuration
 3. External audit preparation (target 2026-08-31)
@@ -394,4 +407,3 @@ status: "COMPLETE (Step 1–3 LIVE, Step 4–6 PENDING)"
 **Status:** Step 1–3 LIVE ✅ | Step 4–6 PENDING ⏳  
 **Next Review:** After smoke tests complete (today)  
 **Archive:** docs/archive/v1.3_DEPLOYMENT_SUMMARY_ARCHIVE.md (post-deploy)
-

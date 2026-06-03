@@ -65,14 +65,15 @@ const USE_EMULATOR = !!process.env.FIRESTORE_EMULATOR_HOST;
 // ─── Logging ─────────────────────────────────────────────────────────────────
 
 function log(msg, level = 'info') {
-  const prefix = {
-    info: '📋',
-    success: '✅',
-    warn: '⚠️',
-    error: '❌',
-    action: '⚡',
-    skip: '⊘',
-  }[level] || '📋';
+  const prefix =
+    {
+      info: '📋',
+      success: '✅',
+      warn: '⚠️',
+      error: '❌',
+      action: '⚡',
+      skip: '⊘',
+    }[level] || '📋';
 
   console.log(`${prefix} ${msg}`);
 }
@@ -102,7 +103,9 @@ function initFirebase() {
 // ─── Main Bootstrap Logic ────────────────────────────────────────────────────
 
 async function bootstrap() {
-  logSection(`Bootstrap supervisor-status\nProject: ${PROJECT}\nMode: ${DRY_RUN ? 'DRY-RUN' : 'EXECUTE'}\nEmulator: ${USE_EMULATOR ? 'yes' : 'no'}`);
+  logSection(
+    `Bootstrap supervisor-status\nProject: ${PROJECT}\nMode: ${DRY_RUN ? 'DRY-RUN' : 'EXECUTE'}\nEmulator: ${USE_EMULATOR ? 'yes' : 'no'}`,
+  );
 
   if (!DRY_RUN && !USE_EMULATOR) {
     log('⚠️  Production mode. Ensure you have Firebase credentials:', 'warn');
@@ -160,7 +163,11 @@ async function bootstrap() {
 
   for (const lab of labs) {
     const statusDocPath = `supervisor-status/current`;
-    const statusDocRef = db.collection('labs').doc(lab.id).collection('supervisor-status').doc('current');
+    const statusDocRef = db
+      .collection('labs')
+      .doc(lab.id)
+      .collection('supervisor-status')
+      .doc('current');
 
     try {
       const snapshot = await statusDocRef.get();

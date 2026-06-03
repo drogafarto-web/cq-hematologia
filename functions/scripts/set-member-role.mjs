@@ -34,7 +34,9 @@ function getArg(name) {
 const VALID_ROLES = ['owner', 'admin', 'member'];
 
 if (!labId || !uid || !role) {
-  console.error('\nUso: node scripts/set-member-role.mjs --lab <labId> --uid <uid> --role <role> [--apply]\n');
+  console.error(
+    '\nUso: node scripts/set-member-role.mjs --lab <labId> --uid <uid> --role <role> [--apply]\n',
+  );
   process.exit(2);
 }
 if (!VALID_ROLES.includes(role)) {

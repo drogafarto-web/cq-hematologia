@@ -19,32 +19,36 @@ System for notifying the Brazilian Ministry of Health (MS) of critical lab resul
 ## How it Works (User Journey)
 
 ### Step 1: Critical Result Detected
+
 - Patient result released (e.g., syphilis positive)
 - If disease is on Portaria 204 list → NOTIVISA draft auto-created
 - RT notified via email + UI badge
 
 ### Step 2: RT Reviews Draft
+
 - RT logs in → sees "NOTIVISA Approval Required" badge
 - Opens draft panel (shows patient initials, disease, test method, result)
 - Reviews clinical details + deadline (24h from result)
 
 ### Step 3: RT Approves or Rejects
+
 - **Approve:** RT clicks "Approve for Submission"
   - Draft sealed with cryptographic signature
   - Enqueued for government submission
   - Status: `submitted` → awaiting acknowledgment
-  
 - **Reject:** RT clicks "Reject"
   - Provides reason (min 10 chars)
   - Draft marked as `rejected` (cannot be resubmitted)
   - Audit log records reason
 
 ### Step 4: Status Polling (Automatic)
+
 - Every 5 minutes, system polls government API
 - If response: status updated (acknowledged/rejected)
 - RT sees status in UI in near-real-time
 
 ### Step 5: Audit Export
+
 - Auditor exports NOTIVISA submissions (CSV/JSON/XLSX)
 - Includes: date, disease, status, operator, government response
 - Ready for regulatory inspection
@@ -54,7 +58,9 @@ System for notifying the Brazilian Ministry of Health (MS) of critical lab resul
 ## Key Concepts
 
 ### Notifiable Diseases
+
 99 diseases per Portaria 204/2016. Examples:
+
 - Dengue (all forms, especially in pregnancy)
 - Syphilis (acquired, congenital, in pregnancy)
 - HIV/AIDS
@@ -65,12 +71,15 @@ System for notifying the Brazilian Ministry of Health (MS) of critical lab resul
 Full list in lab config; can be enabled/disabled per lab.
 
 ### Patient Anonymization
+
 - Only patient **initials** stored (e.g., "JD")
-- CPF **masked** in audit log (e.g., "123.456.789-**")
+- CPF **masked** in audit log (e.g., "123.456.789-\*\*")
 - Full CPF encrypted in payload (LGPD Art. 9)
 
 ### Audit Trail
+
 Every action logged immutably:
+
 - WHO: operator UID
 - WHAT: action (created, approved, rejected, submitted)
 - WHEN: Unix timestamp
@@ -79,6 +88,7 @@ Every action logged immutably:
 **Cannot be modified or deleted** (Firestore rules + RDC 978 Art. 204)
 
 ### Deadlines
+
 - **Notification deadline:** 24 hours from result release
 - **UI alert:** Red badge if <1 day remaining
 - **System timeout:** Draft automatically marked `failed` if not submitted within SLA
@@ -92,6 +102,7 @@ Every action logged immutably:
 **UI:** Dashboard → "NOTIVISA Approval Required" → Click draft
 
 **Or manually:**
+
 1. Firebase Console → Firestore
 2. Collections → `notivisa-drafts` → select lab ID
 3. Find draft by laudoId
@@ -120,6 +131,7 @@ Every action logged immutably:
 ### Task 4: Monitor Status
 
 **In RT UI:**
+
 - Drafts show real-time status badge
 - Color coding:
   - **Yellow:** Pending approval
@@ -127,6 +139,7 @@ Every action logged immutably:
   - **Red:** Rejected or failed
 
 **In Cloud Logs (DevOps):**
+
 ```bash
 gcloud functions logs read notivisaStatusCheck --limit 50 --follow
 # Shows polling results, retries, errors
@@ -137,11 +150,13 @@ gcloud functions logs read notivisaStatusCheck --limit 50 --follow
 **Auditor UI:** Auditor Dashboard → "NOTIVISA Outbox"
 
 Filters:
+
 - Date range (result date)
 - Status (submitted, acknowledged, rejected, failed)
 - Operator (RT name)
 
 **Export:**
+
 - Click "Export" → Choose format (CSV/JSON/XLSX)
 - Download file (24-hour signed URL)
 - Contains all submission + response details
@@ -154,7 +169,8 @@ Filters:
 
 **Cause:** Lab doesn't have notifiable disease enabled
 
-**Fix:** 
+**Fix:**
+
 1. Lab Admin → Settings → NOTIVISA → Enable disease codes
 2. Re-release result (triggers draft creation)
 
@@ -165,6 +181,7 @@ Filters:
 **Cause:** Draft in `draft` status, not `approved`
 
 **Fix:**
+
 1. RT reviews + approves draft first
 2. Then `submitNotivisa()` succeeds
 
@@ -175,6 +192,7 @@ Filters:
 **Cause:** >10 submissions in 1 hour
 
 **Fix:**
+
 1. Wait 1 hour for window to reset
 2. Stagger submissions (max 10/hour/lab)
 3. Contact DevOps if limit needs adjustment
@@ -186,6 +204,7 @@ Filters:
 **Cause:** Approval signature tampered with or expired (>5 min)
 
 **Fix:**
+
 1. Reject draft + re-approve
 2. Use fresh signature (generated at approval time)
 
@@ -196,11 +215,13 @@ Filters:
 **Cause:** ANVISA sandbox down or network issue
 
 **Fix:**
+
 1. System retries automatically (exponential backoff)
 2. Check ANVISA status: https://portalanvisa.gov.br/status
 3. DevOps: verify credentials in Secrets Manager
 
 **Retry timeline:**
+
 - Attempt 1: +1 min
 - Attempt 2: +5 min
 - Attempt 3: +30 min
@@ -216,17 +237,20 @@ Filters:
 ### Deploy NOTIVISA (First Time)
 
 **Pre-flight check:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 # Output must be green (NOTIVISA_SANDBOX_API_KEY set)
 ```
 
 **Deploy order:**
+
 1. Rules + indexes: `firebase deploy --only firestore:rules,firestore:indexes`
 2. Functions: `firebase deploy --only functions:notivisa*`
 3. Hosting: `firebase deploy --only hosting`
 
 **Verify:**
+
 ```bash
 firebase functions:list --project hmatologia2
 # Should show: submitNotivisa, notivisaDraftCreate, getNotivisaDraft, etc.
@@ -251,13 +275,13 @@ firebase firestore:query "notivisa-queue/{labId}/events" --where createdAt >= "$
 
 ### Alert Response
 
-| Alert | Severity | Action |
-|-------|----------|--------|
-| API unreachable (3 consecutive failures) | P1 | Check ANVISA status; verify API key; escalate |
-| Validation error persists >24h | P2 | Contact RT; audit signature; redeploy if needed |
-| Rate limit exceeded (>3x/day) | P2 | Review lab submission frequency; adjust config if ok |
-| Queue backed up (>50 pending) | P2 | Check polling cron logs; restart if crashed |
-| Signature verification failures | P1 | Security incident; audit for tampering; soft-delete if needed |
+| Alert                                    | Severity | Action                                                        |
+| ---------------------------------------- | -------- | ------------------------------------------------------------- |
+| API unreachable (3 consecutive failures) | P1       | Check ANVISA status; verify API key; escalate                 |
+| Validation error persists >24h           | P2       | Contact RT; audit signature; redeploy if needed               |
+| Rate limit exceeded (>3x/day)            | P2       | Review lab submission frequency; adjust config if ok          |
+| Queue backed up (>50 pending)            | P2       | Check polling cron logs; restart if crashed                   |
+| Signature verification failures          | P1       | Security incident; audit for tampering; soft-delete if needed |
 
 ---
 
@@ -281,11 +305,13 @@ firebase deploy --only firestore:rules --project hmatologia2
 ## Contact & Escalation
 
 ### RT Support
+
 - Email: `rt-team@lab.com` (example)
 - Slack: `#notivisa-alerts`
 - On-call: See deployment checklist contact tree
 
 ### DevOps Escalation
+
 - If alerts persist >15 min: Page on-call engineer
 - If government API is down: Contact ANVISA (contact via portal)
 - If signature failures: Security team review
@@ -315,13 +341,13 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 ## Regulations (TL;DR)
 
-| Acronym | Full Name | Requirement |
-|---------|-----------|-------------|
-| **RDC 978** | ANVISA Clinical Lab Regulation | Notify MS of critical results (Art. 66) |
-| **Portaria 204/2016** | MS Notifiable Diseases | 99 diseases + mandatory fields (Art. 6º) |
-| **DICQ 4.3–4.4** | ISO 15189 Quality Management | Documented procedures + adverse event management |
-| **LGPD** | Brazilian Data Privacy Law | Anonymization + audit trail (Arts. 9, 18) |
-| **Lei 14.063/2020** | Digital Signature Law | Electronic signatures valid (used in sealing) |
+| Acronym               | Full Name                      | Requirement                                      |
+| --------------------- | ------------------------------ | ------------------------------------------------ |
+| **RDC 978**           | ANVISA Clinical Lab Regulation | Notify MS of critical results (Art. 66)          |
+| **Portaria 204/2016** | MS Notifiable Diseases         | 99 diseases + mandatory fields (Art. 6º)         |
+| **DICQ 4.3–4.4**      | ISO 15189 Quality Management   | Documented procedures + adverse event management |
+| **LGPD**              | Brazilian Data Privacy Law     | Anonymization + audit trail (Arts. 9, 18)        |
+| **Lei 14.063/2020**   | Digital Signature Law          | Electronic signatures valid (used in sealing)    |
 
 ---
 

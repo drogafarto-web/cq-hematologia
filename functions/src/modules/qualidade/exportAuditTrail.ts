@@ -57,14 +57,24 @@ function generateCSV(entries: QualidadeAuditEntry[], signature: LogicalSignature
   const bom = '﻿';
 
   // Header row
-  const header = ['Data', 'Módulo', 'Operador', 'Operador ID', 'Ação', 'Resultado', 'Hash (64 chars)', 'Timestamp ISO'];
+  const header = [
+    'Data',
+    'Módulo',
+    'Operador',
+    'Operador ID',
+    'Ação',
+    'Resultado',
+    'Hash (64 chars)',
+    'Timestamp ISO',
+  ];
   lines.push(header.map(escapeCSV).join(','));
 
   // Data rows
   for (const entry of entries) {
-    const timestamp = entry.timestamp instanceof admin.firestore.Timestamp
-      ? entry.timestamp.toDate()
-      : new Date(entry.timestamp as any);
+    const timestamp =
+      entry.timestamp instanceof admin.firestore.Timestamp
+        ? entry.timestamp.toDate()
+        : new Date(entry.timestamp as any);
 
     const row = [
       timestamp.toLocaleDateString('pt-BR'),
@@ -141,14 +151,20 @@ async function generatePDF(
     pdf
       .fontSize(9)
       .font('Helvetica')
-      .text(`Data de exportação: ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR')}`, {
-        align: 'left',
-      });
+      .text(
+        `Data de exportação: ${now.toLocaleDateString('pt-BR')} ${now.toLocaleTimeString('pt-BR')}`,
+        {
+          align: 'left',
+        },
+      );
 
     if (dateStart && dateEnd) {
-      pdf.text(`Período: ${dateStart.toLocaleDateString('pt-BR')} a ${dateEnd.toLocaleDateString('pt-BR')}`, {
-        align: 'left',
-      });
+      pdf.text(
+        `Período: ${dateStart.toLocaleDateString('pt-BR')} a ${dateEnd.toLocaleDateString('pt-BR')}`,
+        {
+          align: 'left',
+        },
+      );
     }
 
     pdf.text(`Total de entradas: ${entries.length}`, { align: 'left' });
@@ -196,9 +212,10 @@ async function generatePDF(
     // Table rows
     pdf.fontSize(7).font('Helvetica');
     for (const entry of entries) {
-      const timestamp = entry.timestamp instanceof admin.firestore.Timestamp
-        ? entry.timestamp.toDate()
-        : new Date(entry.timestamp as any);
+      const timestamp =
+        entry.timestamp instanceof admin.firestore.Timestamp
+          ? entry.timestamp.toDate()
+          : new Date(entry.timestamp as any);
 
       const rowY = pdf.y;
       const rowHeight = 12;
@@ -231,7 +248,10 @@ async function generatePDF(
         height: rowHeight,
       });
       x += colWidths.hash;
-      pdf.text(timestamp.toISOString(), x, rowY, { width: colWidths.timestamp - 5, height: rowHeight });
+      pdf.text(timestamp.toISOString(), x, rowY, {
+        width: colWidths.timestamp - 5,
+        height: rowHeight,
+      });
 
       pdf.moveDown(1.2);
     }
@@ -248,18 +268,26 @@ async function generatePDF(
 
     // ─── Footer ───
     pdf.fontSize(6).font('Helvetica').fillColor('#999999');
-    pdf.text('Este relatório é confidencial e foi assinado digitalmente conforme RDC 978 Art. 5.3.', 40, pdf.page.height - 40, {
-      align: 'center',
-      width: 500,
-    });
+    pdf.text(
+      'Este relatório é confidencial e foi assinado digitalmente conforme RDC 978 Art. 5.3.',
+      40,
+      pdf.page.height - 40,
+      {
+        align: 'center',
+        width: 500,
+      },
+    );
 
     // Add page numbers
     const pages = pdf.bufferedPageRange().count;
     for (let i = 0; i < pages; i++) {
       pdf.switchToPage(i);
-      pdf.fontSize(8).fillColor('#999999').text(`Página ${i + 1} de ${pages}`, 40, pdf.page.height - 20, {
-        align: 'center',
-      });
+      pdf
+        .fontSize(8)
+        .fillColor('#999999')
+        .text(`Página ${i + 1} de ${pages}`, 40, pdf.page.height - 20, {
+          align: 'center',
+        });
     }
 
     pdf.end();
@@ -269,11 +297,7 @@ async function generatePDF(
 /**
  * Upload file to Cloud Storage and return signed URL
  */
-async function uploadToStorage(
-  labId: string,
-  filename: string,
-  content: Buffer,
-): Promise<string> {
+async function uploadToStorage(labId: string, filename: string, content: Buffer): Promise<string> {
   const bucket = storage.bucket(BUCKET);
   const file = bucket.file(`audit-exports/${labId}/${filename}`);
 

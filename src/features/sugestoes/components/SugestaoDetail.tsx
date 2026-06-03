@@ -21,9 +21,7 @@ export const SugestaoDetail: React.FC<SugestaoDetailProps> = ({ sugestao, onClos
 
       {/* Content */}
       <div className="bg-white dark:bg-[#1f2937] rounded-lg p-8 border border-gray-200 dark:border-gray-700">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">
-          {sugestao.titulo}
-        </h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-white mb-4">{sugestao.titulo}</h1>
 
         <div className="flex gap-2 mb-6">
           <span className="px-3 py-1 text-sm rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400">
@@ -48,9 +46,7 @@ export const SugestaoDetail: React.FC<SugestaoDetailProps> = ({ sugestao, onClos
 
         {sugestao.motivo && (
           <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg mb-6">
-            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-              Motivo
-            </p>
+            <p className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">Motivo</p>
             <p className="text-gray-600 dark:text-gray-400">{sugestao.motivo}</p>
           </div>
         )}

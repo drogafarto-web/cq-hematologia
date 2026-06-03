@@ -51,10 +51,8 @@ export interface ConfirmarRecebimentoPayload {
 
 // ─── Lazy-loaded callables ──────────────────────────────────────────────────
 
-let _callCriarNotaFiscal: HttpsCallable<
-  CriarNotaFiscalPayload,
-  CallCriarNotaFiscalResult
-> | null = null;
+let _callCriarNotaFiscal: HttpsCallable<CriarNotaFiscalPayload, CallCriarNotaFiscalResult> | null =
+  null;
 let _callConfirmarRecebimento: HttpsCallable<
   ConfirmarRecebimentoPayload,
   CallConfirmarRecebimentoResult

@@ -1,4 +1,5 @@
 # Data Protection Impact Assessment (DPIA)
+
 ## Template de Avaliação de Impacto de Proteção de Dados
 
 **Documento:** IT-LGPD-DPIA-001 v1.0  
@@ -6,7 +7,7 @@
 **Última Revisão:** [DATA_REVISAO]  
 **Próxima Revisão:** [PROXIMA_REVISAO]  
 **Autoridade Emitente:** [PREENCHER ANTES DE PUBLICAR - RT/Diretor Técnico]  
-**Status:** Vigente  
+**Status:** Vigente
 
 ---
 
@@ -33,6 +34,7 @@ Este template destina-se a ser preenchido para:
 3. **Avaliações periódicas** (anual ou quando solicitado)
 
 Exemplos de ativações:
+
 - Implementação de novo sistema de gestão de laudos
 - Integração com plataforma externa de análise
 - Mudança de provedor de nuvem
@@ -54,7 +56,7 @@ Para o tratamento sendo avaliado, identificar:
 - [ ] Dados de profissionais (credenciais, CRBM, CRFA)
 - [ ] Dados de navegação/sistemas (IP, logs de acesso)
 - [ ] Dados de localização
-- [ ] Outro: ___________________________
+- [ ] Outro: ************\_\_\_************
 
 ### 2.2 Categorias de Titulares
 
@@ -63,13 +65,13 @@ Para o tratamento sendo avaliado, identificar:
 - [ ] Colaboradores do laboratório
 - [ ] Fornecedores
 - [ ] Representantes legais de menores
-- [ ] Outro: ___________________________
+- [ ] Outro: ************\_\_\_************
 
 ### 2.3 Volume Estimado de Dados
 
-- Total de registros: ________________
-- Taxa de crescimento: ________________
-- Período de retenção: ________________
+- Total de registros: ******\_\_\_\_******
+- Taxa de crescimento: ******\_\_\_\_******
+- Período de retenção: ******\_\_\_\_******
 
 ---
 
@@ -77,17 +79,17 @@ Para o tratamento sendo avaliado, identificar:
 
 Para cada finalidade de tratamento, documentar:
 
-| Finalidade | Base Legal | Consentimento Necessário? | Terceiros Envolvidos |
-|---|---|---|---|
-| Realização de exames laboratoriais | Art. 7º II (obrigação legal RDC 978) | Não | — |
-| Emissão de laudos ao solicitante | Art. 7º II (obrigação legal) | Não | Médicos/hospitais |
-| Faturamento e cobrança | Art. 7º II (obrigação legal) | Não | Operadoras de saúde |
-| Controle de qualidade interno | Art. 7º II (DICQ 4.3) | Não | — |
-| Auditoria interna e externa | Art. 7º II (conformidade) | Não | Auditores |
-| Conformidade regulatória (ANVISA) | Art. 7º II (obrigação legal) | Não | ANVISA, Vigilância |
-| Pesquisa clínica (se aplicável) | Art. 7º (consentimento) | **SIM** | Instituições de pesquisa |
-| Gestão de RH (colaboradores) | Art. 7º II + Art. 7º III | Não/Sim | — |
-| Outro: | | | |
+| Finalidade                         | Base Legal                           | Consentimento Necessário? | Terceiros Envolvidos     |
+| ---------------------------------- | ------------------------------------ | ------------------------- | ------------------------ |
+| Realização de exames laboratoriais | Art. 7º II (obrigação legal RDC 978) | Não                       | —                        |
+| Emissão de laudos ao solicitante   | Art. 7º II (obrigação legal)         | Não                       | Médicos/hospitais        |
+| Faturamento e cobrança             | Art. 7º II (obrigação legal)         | Não                       | Operadoras de saúde      |
+| Controle de qualidade interno      | Art. 7º II (DICQ 4.3)                | Não                       | —                        |
+| Auditoria interna e externa        | Art. 7º II (conformidade)            | Não                       | Auditores                |
+| Conformidade regulatória (ANVISA)  | Art. 7º II (obrigação legal)         | Não                       | ANVISA, Vigilância       |
+| Pesquisa clínica (se aplicável)    | Art. 7º (consentimento)              | **SIM**                   | Instituições de pesquisa |
+| Gestão de RH (colaboradores)       | Art. 7º II + Art. 7º III             | Não/Sim                   | —                        |
+| Outro:                             |                                      |                           |                          |
 
 ---
 
@@ -100,55 +102,55 @@ Avaliar cada categoria conforme: **Probabilidade × Impacto = Risco**
 #### A. Riscos de Confidencialidade (Vazamento Não-Autorizado)
 
 - **R-C1:** Acesso não-autorizado a dados clínicos sensíveis
-  - Probabilidade: _____ (Baixa/Média/Alta)
-  - Impacto: _____ (Baixo/Médio/Alto)
-  - Evidência: _____________
+  - Probabilidade: **\_** (Baixa/Média/Alta)
+  - Impacto: **\_** (Baixo/Médio/Alto)
+  - Evidência: ******\_******
 
 - **R-C2:** Interceção de dados em trânsito
-  - Probabilidade: _____ 
-  - Impacto: _____
-  - Evidência: _____________
+  - Probabilidade: **\_**
+  - Impacto: **\_**
+  - Evidência: ******\_******
 
 - **R-C3:** Exposição por colaborador malicioso
-  - Probabilidade: _____
-  - Impacto: _____
-  - Evidência: _____________
+  - Probabilidade: **\_**
+  - Impacto: **\_**
+  - Evidência: ******\_******
 
 #### B. Riscos de Integridade (Modificação Não-Autorizada)
 
 - **R-I1:** Alteração de resultados de exames
-  - Probabilidade: _____
+  - Probabilidade: **\_**
   - Impacto: **CRÍTICO** (afeta diagnóstico)
-  - Evidência: _____________
+  - Evidência: ******\_******
 
 - **R-I2:** Modificação de audit trail
-  - Probabilidade: _____
+  - Probabilidade: **\_**
   - Impacto: **CRÍTICO** (invalida conformidade)
-  - Evidência: _____________
+  - Evidência: ******\_******
 
 #### C. Riscos de Disponibilidade
 
 - **R-A1:** Indisponibilidade do sistema
-  - Probabilidade: _____
-  - Impacto: _____
-  - Evidência: _____________
+  - Probabilidade: **\_**
+  - Impacto: **\_**
+  - Evidência: ******\_******
 
 - **R-A2:** Perda de dados por backup falho
-  - Probabilidade: _____
-  - Impacto: _____
-  - Evidência: _____________
+  - Probabilidade: **\_**
+  - Impacto: **\_**
+  - Evidência: ******\_******
 
 #### D. Riscos de Conformidade Regulatória
 
 - **R-Reg1:** Não conformidade com RDC 978 (retenção de 5 anos)
-  - Probabilidade: _____
+  - Probabilidade: **\_**
   - Impacto: **CRÍTICO** (auditoria falha)
-  - Evidência: _____________
+  - Evidência: ******\_******
 
 - **R-Reg2:** Violação de direitos do titular (acesso negado)
-  - Probabilidade: _____
-  - Impacto: _____
-  - Evidência: _____________
+  - Probabilidade: **\_**
+  - Impacto: **\_**
+  - Evidência: ******\_******
 
 ### 4.2 Referência a FMEA e Análises Complementares
 
@@ -177,7 +179,7 @@ Para cada risco identificado na Seção 4, documentar as medidas implementadas:
 - [ ] Isolamento de ambiente (dev/prod)
 - [ ] Rate limiting e detecção de anomalias
 - [ ] Validação de entrada em todos os endpoints
-- [ ] Outra: _____________
+- [ ] Outra: ******\_******
 
 ### 5.2 Medidas Organizacionais
 
@@ -190,18 +192,18 @@ Para cada risco identificado na Seção 4, documentar as medidas implementadas:
 - [ ] Designação de Data Protection Officer (DPO)
 - [ ] Avaliação de terceiros (processadores de dados)
 - [ ] Documentação de contrato de processamento (Art. 28 LGPD)
-- [ ] Outra: _____________
+- [ ] Outra: ******\_******
 
 ### 5.3 Efetividade das Medidas
 
 Após implementação, avaliar:
 
-| Risco | Medida | Redução de Risco | Status |
-|---|---|---|---|
-| R-C1 | Audit trail + MFA | 80% | Implementado ✓ |
-| R-I1 | Validação de hash + assinatura | 95% | Implementado ✓ |
-| R-I2 | Coleção append-only | 100% | Implementado ✓ |
-| R-Reg1 | Retenção automática 5 anos | 90% | Implementado ✓ |
+| Risco  | Medida                         | Redução de Risco | Status         |
+| ------ | ------------------------------ | ---------------- | -------------- |
+| R-C1   | Audit trail + MFA              | 80%              | Implementado ✓ |
+| R-I1   | Validação de hash + assinatura | 95%              | Implementado ✓ |
+| R-I2   | Coleção append-only            | 100%             | Implementado ✓ |
+| R-Reg1 | Retenção automática 5 anos     | 90%              | Implementado ✓ |
 
 ---
 
@@ -209,35 +211,35 @@ Após implementação, avaliar:
 
 ### 6.1 Proprietário do Tratamento
 
-- **Nome:** _________________________________
-- **Cargo:** _________________________________
-- **Data:** _________________________________
-- **Assinatura:** _____________________________
+- **Nome:** ****************\_****************
+- **Cargo:** ****************\_****************
+- **Data:** ****************\_****************
+- **Assinatura:** **************\_**************
 
 ### 6.2 Revisor de Conformidade / Encarregado de Proteção de Dados
 
 - **Nome:** [PREENCHER ANTES DE PUBLICAR - DPO]
 - **Cargo:** Encarregado de Proteção de Dados
-- **Data de Revisão:** _______________________
-- **Observações:** ___________________________
-- **Assinatura:** _____________________________
+- **Data de Revisão:** **********\_\_\_**********
+- **Observações:** ************\_\_\_************
+- **Assinatura:** **************\_**************
 
 ### 6.3 Aprovação pelo Gestor/Diretor Técnico
 
 - **Nome:** [PREENCHER ANTES DE PUBLICAR - RT]
 - **Cargo:** Responsável Técnico / Diretor
-- **Data de Aprovação:** ______________________
-- **Assinatura:** _____________________________
+- **Data de Aprovação:** **********\_\_**********
+- **Assinatura:** **************\_**************
 
 ---
 
 ## 7. Histórico de Revisões
 
-| Versão | Data | Revisor | Mudanças |
-|---|---|---|---|
-| 1.0 | [DATA_EMISSAO] | [PREENCHER] | Criação inicial |
-| 1.1 | [TBD] | DPO | Inclusão de análise FMEA (ADR-0016) |
-| | | | |
+| Versão | Data           | Revisor     | Mudanças                            |
+| ------ | -------------- | ----------- | ----------------------------------- |
+| 1.0    | [DATA_EMISSAO] | [PREENCHER] | Criação inicial                     |
+| 1.1    | [TBD]          | DPO         | Inclusão de análise FMEA (ADR-0016) |
+|        |                |             |                                     |
 
 ---
 
@@ -246,6 +248,7 @@ Após implementação, avaliar:
 **Data de Próxima Revisão:** [PROXIMA_REVISAO] (365 dias)
 
 Esta DPIA será revisada:
+
 - Anualmente (conforme cronograma acima), OU
 - Quando mudanças significativas no tratamento forem implementadas, OU
 - Quando requisitado pela ANPD ou autoridades reguladoras
@@ -275,4 +278,4 @@ Esta DPIA será revisada:
 
 **Documento Confidencial — Uso Interno**
 
-*Para dúvidas ou sugestões sobre esta DPIA, contatar o Encarregado de Proteção de Dados (DPO).*
+_Para dúvidas ou sugestões sobre esta DPIA, contatar o Encarregado de Proteção de Dados (DPO)._

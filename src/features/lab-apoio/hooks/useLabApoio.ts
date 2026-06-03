@@ -12,7 +12,13 @@ import { httpsCallable } from 'firebase/functions';
 import { functions } from '../../../shared/services/firebase';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { subscribeContratos, unwrapCallableError, type LabId } from '../services/labApoioService';
-import type { Contrato, ContratoInput, ContratoUpdateInput, AvaliacaoPeriodica, UserId } from '../types/LabApoio';
+import type {
+  Contrato,
+  ContratoInput,
+  ContratoUpdateInput,
+  AvaliacaoPeriodica,
+  UserId,
+} from '../types/LabApoio';
 
 interface UseLabApoioOptions {
   somenteAtivos?: boolean;
@@ -77,10 +83,7 @@ export function useLabApoio(options: UseLabApoioOptions = {}) {
     async (contratoId: string, input: ContratoUpdateInput): Promise<void> => {
       if (!labId || !user) throw new Error('Not authenticated or no active lab');
       try {
-        const callable = httpsCallable<any, { ok: boolean }>(
-          functions,
-          'labApoio_updateContrato',
-        );
+        const callable = httpsCallable<any, { ok: boolean }>(functions, 'labApoio_updateContrato');
         await callable({ labId, contratoId, ...input });
       } catch (err) {
         throw unwrapCallableError(err);

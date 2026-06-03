@@ -129,8 +129,8 @@ export function KitIntegracaoForm({ kit, onSaved, onCancel }: KitIntegracaoFormP
           {isEditing ? 'Editar kit de integração' : 'Novo kit de integração'}
         </h2>
         <p className="text-sm text-slate-400">
-          Sequência ordenada de templates por cargo (ex: "Kit Biomédico Júnior"). A
-          ordem da lista é a ordem sugerida de aplicação.
+          Sequência ordenada de templates por cargo (ex: "Kit Biomédico Júnior"). A ordem da lista é
+          a ordem sugerida de aplicação.
         </p>
       </header>
 
@@ -232,9 +232,7 @@ export function KitIntegracaoForm({ kit, onSaved, onCancel }: KitIntegracaoFormP
 
         {disponiveis.length > 0 && (
           <div className="flex flex-col gap-2 border-t border-slate-800 pt-3">
-            <p className="text-xs uppercase tracking-wider text-slate-500">
-              Adicionar template
-            </p>
+            <p className="text-xs uppercase tracking-wider text-slate-500">Adicionar template</p>
             <div className="flex flex-wrap gap-1.5">
               {disponiveis.map((t) => (
                 <button
@@ -309,9 +307,7 @@ function IconButton({
   const base =
     'flex h-7 w-7 items-center justify-center rounded text-base transition-colors disabled:cursor-not-allowed disabled:opacity-40';
   const intentCls =
-    intent === 'danger'
-      ? 'text-red-400 hover:bg-red-500/10'
-      : 'text-slate-300 hover:bg-slate-800';
+    intent === 'danger' ? 'text-red-400 hover:bg-red-500/10' : 'text-slate-300 hover:bg-slate-800';
   return (
     <button
       type="button"

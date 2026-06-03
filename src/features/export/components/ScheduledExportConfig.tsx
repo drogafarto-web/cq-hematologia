@@ -33,15 +33,8 @@ interface ScheduledExportConfigProps {
 }
 
 export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
-  const {
-    config,
-    updateConfig,
-    saveConfig,
-    isSaving,
-    lastRunAt,
-    saveError,
-    isSaved,
-  } = useScheduledExport(labId);
+  const { config, updateConfig, saveConfig, isSaving, lastRunAt, saveError, isSaved } =
+    useScheduledExport(labId);
 
   const toggleId = useId();
   const emailId = useId();
@@ -62,8 +55,8 @@ export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
       <div>
         <h2 className="text-sm font-semibold text-white">Exportação automática semanal</h2>
         <p className="mt-1 text-xs text-white/40 leading-relaxed">
-          Configure o HC Quality para gerar e entregar exportações automaticamente toda semana,
-          sem intervenção manual.
+          Configure o HC Quality para gerar e entregar exportações automaticamente toda semana, sem
+          intervenção manual.
         </p>
       </div>
 
@@ -71,9 +64,7 @@ export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
       <div className="flex items-center justify-between rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-3">
         <div>
           <p className="text-sm font-medium text-white/80">Ativar exportação automática</p>
-          <p className="mt-0.5 text-xs text-white/35">
-            Executa toda domingo às 02:00 UTC
-          </p>
+          <p className="mt-0.5 text-xs text-white/35">Executa toda domingo às 02:00 UTC</p>
         </div>
         <button
           type="button"
@@ -131,9 +122,7 @@ export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
             <p className="text-xs text-white/30">
               Última execução:{' '}
               <span className="text-white/50">
-                {formatRelativeTime(lastRunAt)}
-                {' '}
-                ({lastRunAt.toLocaleDateString('pt-BR')})
+                {formatRelativeTime(lastRunAt)} ({lastRunAt.toLocaleDateString('pt-BR')})
               </span>
             </p>
           </div>
@@ -158,9 +147,7 @@ export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
       <div className="space-y-2">
         <label htmlFor={emailId} className="block text-sm font-medium text-white/60">
           Email de entrega
-          {config.enabled && (
-            <span className="ml-1 text-xs text-red-400/70">*</span>
-          )}
+          {config.enabled && <span className="ml-1 text-xs text-red-400/70">*</span>}
         </label>
 
         <input
@@ -219,17 +206,15 @@ export function ScheduledExportConfig({ labId }: ScheduledExportConfigProps) {
         )}
 
         {isSaved && !isSaving && !saveError && (
-          <p className="text-xs text-emerald-400 text-center">
-            Configuração salva com sucesso.
-          </p>
+          <p className="text-xs text-emerald-400 text-center">Configuração salva com sucesso.</p>
         )}
       </div>
 
       {/* Info footer */}
       <p className="text-[11px] text-white/20 leading-relaxed">
-        Os arquivos gerados ficam disponíveis por 7 dias no link enviado por email.
-        As exportações automáticas usam os mesmos controles de acesso e trilha de auditoria
-        das exportações manuais (RDC 978/2025 Art. 128).
+        Os arquivos gerados ficam disponíveis por 7 dias no link enviado por email. As exportações
+        automáticas usam os mesmos controles de acesso e trilha de auditoria das exportações manuais
+        (RDC 978/2025 Art. 128).
       </p>
     </div>
   );

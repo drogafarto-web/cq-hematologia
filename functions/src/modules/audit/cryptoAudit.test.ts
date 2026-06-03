@@ -1,11 +1,7 @@
 // @ts-ignore
 import { describe, it, expect } from '@jest/globals';
 import * as crypto from 'crypto';
-import {
-  computeHmac,
-  hashData,
-  verifyAuditEntry,
-} from './cryptoAudit';
+import { computeHmac, hashData, verifyAuditEntry } from './cryptoAudit';
 import { AuditEntry } from './types';
 
 describe('cryptoAudit', () => {

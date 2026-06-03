@@ -53,7 +53,7 @@ export interface EscalateResponse {
 async function sendSMS(
   fromNumber: string,
   toNumber: string,
-  body: string
+  body: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const response = await axios.post(
@@ -69,7 +69,7 @@ async function sendSMS(
           password: TWILIO_AUTH_TOKEN.value(),
         },
         timeout: 5000,
-      }
+      },
     );
 
     return {
@@ -89,7 +89,7 @@ async function sendSMS(
 async function sendEmail(
   toEmail: string,
   subject: string,
-  html: string
+  html: string,
 ): Promise<{ success: boolean; messageId?: string; error?: string }> {
   try {
     const transporter = nodemailer.createTransport({
@@ -129,7 +129,7 @@ async function createInAppNotification(
   userId: string,
   title: string,
   body: string,
-  labId: string
+  labId: string,
 ): Promise<{ success: boolean; notifId?: string; error?: string }> {
   try {
     const notifId = admin.firestore().collection('_').doc().id;
@@ -178,7 +178,12 @@ export const escalateCritico = onCall(
       const { labId, alertId } = EscalateRequestSchema.parse(request.data);
 
       // Verify user is member of lab
-      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(request.auth.uid).get();
+      const memberDoc = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('members')
+        .doc(request.auth.uid)
+        .get();
       if (!memberDoc.exists) {
         throw new HttpsError('permission-denied', 'Not a member of this lab');
       }
@@ -216,14 +221,14 @@ export const escalateCritico = onCall(
 
         if (channel.type === 'sms') {
           const body = `[HC Quality] CRÍTICO ${alert.analitoId}=${alert.valor} em ${new Date(
-            alert.detectedAt
+            alert.detectedAt,
           ).toLocaleTimeString('pt-BR')}. Acessar app.`;
           result = await sendSMS(TWILIO_FROM_NUMBER.value(), channel.target, body);
         } else if (channel.type === 'email') {
           result = await sendEmail(
             channel.target,
             '[HC Quality] Alerta de Valor Crítico',
-            `<p>Analito: ${alert.analitoId}</p><p>Valor: ${alert.valor}</p><p>Severity: ${alert.severity}</p>`
+            `<p>Analito: ${alert.analitoId}</p><p>Valor: ${alert.valor}</p><p>Severity: ${alert.severity}</p>`,
           );
         } else {
           // in-app
@@ -231,7 +236,7 @@ export const escalateCritico = onCall(
             channel.target,
             `Alerta Crítico: ${alert.analitoId}`,
             `Valor crítico detectado: ${alert.valor}`,
-            labId
+            labId,
           );
         }
 
@@ -263,5 +268,5 @@ export const escalateCritico = onCall(
       console.error('[escalateCritico] Error:', err);
       throw new HttpsError('internal', 'Escalation failed');
     }
-  }
+  },
 );

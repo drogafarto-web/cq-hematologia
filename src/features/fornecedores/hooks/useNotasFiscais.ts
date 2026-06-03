@@ -4,10 +4,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  subscribeToNotasFiscais,
-  type NotaFiscalFilters,
-} from '../services/notaFiscalService';
+import { subscribeToNotasFiscais, type NotaFiscalFilters } from '../services/notaFiscalService';
 import type { NotaFiscal } from '../types/NotaFiscal';
 
 interface UseNotasFiscaisResult {

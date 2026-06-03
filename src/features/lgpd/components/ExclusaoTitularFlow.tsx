@@ -18,7 +18,13 @@ import React, { useState, useEffect } from 'react';
 import { sendOTP, deleteTitularData } from '../services/lgpdService';
 import { useUser } from '../../../store/useAuthStore';
 
-type Step = 'cpf-input' | 'otp-verification' | 'final-confirmation' | 'processing' | 'success' | 'error';
+type Step =
+  | 'cpf-input'
+  | 'otp-verification'
+  | 'final-confirmation'
+  | 'processing'
+  | 'success'
+  | 'error';
 
 interface ExclusaoTitularFlowProps {
   labId: string;
@@ -99,9 +105,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
       setOtpCountdown(300); // 5 minutes
       setCurrentStep('otp-verification');
     } catch (err) {
-      setProcessError(
-        err instanceof Error ? err.message : 'Erro ao enviar código OTP',
-      );
+      setProcessError(err instanceof Error ? err.message : 'Erro ao enviar código OTP');
     } finally {
       setOtpSending(false);
     }
@@ -136,9 +140,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
       setOtp(''); // Clear previous OTP input
       setOtpCountdown(300);
     } catch (err) {
-      setProcessError(
-        err instanceof Error ? err.message : 'Erro ao reenviar código OTP',
-      );
+      setProcessError(err instanceof Error ? err.message : 'Erro ao reenviar código OTP');
     } finally {
       setOtpResend(false);
     }
@@ -180,9 +182,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
         window.location.href = '/';
       }, 3000);
     } catch (err) {
-      setProcessError(
-        err instanceof Error ? err.message : 'Erro ao processar exclusão',
-      );
+      setProcessError(err instanceof Error ? err.message : 'Erro ao processar exclusão');
       setCurrentStep('error');
     } finally {
       setIsProcessing(false);
@@ -200,9 +200,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
           {/* Header */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold">Solicitar Exclusão de Dados</h1>
-            <p className="text-white/60 text-sm">
-              LGPD Art. 18 — Direito do Titular à Exclusão
-            </p>
+            <p className="text-white/60 text-sm">LGPD Art. 18 — Direito do Titular à Exclusão</p>
           </div>
 
           {/* Form */}
@@ -210,8 +208,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
             {/* Warning */}
             <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-lg">
               <p className="text-sm text-red-200">
-                ⚠ Esta ação é irreversível. Seus dados pessoais serão permanentemente
-                deletados.
+                ⚠ Esta ação é irreversível. Seus dados pessoais serão permanentemente deletados.
               </p>
             </div>
 
@@ -225,9 +222,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
                 placeholder="000.000.000-00"
                 className="w-full px-4 py-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:outline-none focus:border-violet-500"
               />
-              {cpf && !isValidCPF(cpf) && (
-                <p className="text-xs text-red-400">CPF inválido</p>
-              )}
+              {cpf && !isValidCPF(cpf) && <p className="text-xs text-red-400">CPF inválido</p>}
             </div>
 
             {/* Reason Dropdown */}
@@ -241,9 +236,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
                 <option value="Exclusão solicitada pelo titular">
                   Exclusão solicitada pelo titular
                 </option>
-                <option value="Fim da relação contratual">
-                  Fim da relação contratual
-                </option>
+                <option value="Fim da relação contratual">Fim da relação contratual</option>
                 <option value="Outro">Outro</option>
               </select>
             </div>
@@ -280,9 +273,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
           {/* Header */}
           <div className="space-y-2">
             <h1 className="text-2xl font-semibold">Verificar Email</h1>
-            <p className="text-white/60 text-sm">
-              Enviamos um código de 6 dígitos para {otpEmail}
-            </p>
+            <p className="text-white/60 text-sm">Enviamos um código de 6 dígitos para {otpEmail}</p>
           </div>
 
           {/* Form */}
@@ -303,9 +294,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
             {/* Resend */}
             <div className="text-center">
               {otpCountdown > 0 ? (
-                <p className="text-sm text-white/60">
-                  Reenviar código em {otpCountdown}s
-                </p>
+                <p className="text-sm text-white/60">Reenviar código em {otpCountdown}s</p>
               ) : (
                 <button
                   onClick={handleResendOTP}
@@ -417,7 +406,14 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
           <div className="flex justify-center">
             <div className="animate-spin">
               <svg className="w-12 h-12 text-violet-500" viewBox="0 0 24 24" fill="none">
-                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" opacity="0.25" />
+                <circle
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  opacity="0.25"
+                />
                 <path
                   d="M22 12a10 10 0 00-10-10"
                   stroke="currentColor"
@@ -466,9 +462,7 @@ export function ExclusaoTitularFlow({ labId }: ExclusaoTitularFlowProps) {
 
           {/* Auto-logout message */}
           <div className="p-4 bg-white/5 rounded-lg border border-white/10">
-            <p className="text-sm text-white/60">
-              Você será desconectado em alguns segundos...
-            </p>
+            <p className="text-sm text-white/60">Você será desconectado em alguns segundos...</p>
           </div>
         </div>
       </div>

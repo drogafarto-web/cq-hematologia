@@ -6,16 +6,11 @@ import {
   doc,
   getDoc,
   Timestamp,
-  QueryConstraint
+  QueryConstraint,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import { callGenerateComplianceReport } from '../../qualidade/services/auditCallables';
-import {
-  ReviewTemplate,
-  createEmptyReviewTemplate,
-  ReviewEntry,
-  REVIEW_SECTIONS
-} from '../types';
+import { ReviewTemplate, createEmptyReviewTemplate, ReviewEntry, REVIEW_SECTIONS } from '../types';
 
 /**
  * ReviewTemplateService
@@ -51,10 +46,7 @@ interface DataSources {
  * @param year - Review year
  * @returns ReviewTemplate with sourceData filled in
  */
-export async function generateReviewTemplate(
-  labId: string,
-  year: number
-): Promise<ReviewTemplate> {
+export async function generateReviewTemplate(labId: string, year: number): Promise<ReviewTemplate> {
   const template = createEmptyReviewTemplate(year);
   const warnings: string[] = [];
 
@@ -71,7 +63,7 @@ export async function generateReviewTemplate(
       customerFeedback,
       personnelCompetency,
       infrastructure,
-      supplierPerformance
+      supplierPerformance,
     ] = await Promise.all([
       pullAuditResults(labId, yearStart, yearEnd).catch((e) => {
         warnings.push('Auditoria Interna (Compliance Report) not accessible');
@@ -100,16 +92,16 @@ export async function generateReviewTemplate(
       pullSupplierPerformance(labId).catch((e) => {
         warnings.push('Fornecedores collection not accessible');
         return {};
-      })
+      }),
     ]);
 
     // Populate each section with aggregated data
-    template.entries[0].sourceData = auditResults;     // Section 1
-    template.entries[1].sourceData = ncCapaStatus;    // Section 2
-    template.entries[2].sourceData = kpiTrends;       // Section 3
+    template.entries[0].sourceData = auditResults; // Section 1
+    template.entries[1].sourceData = ncCapaStatus; // Section 2
+    template.entries[2].sourceData = kpiTrends; // Section 3
     template.entries[3].sourceData = customerFeedback; // Section 4
     template.entries[4].sourceData = personnelCompetency; // Section 5
-    template.entries[5].sourceData = infrastructure;   // Section 6
+    template.entries[5].sourceData = infrastructure; // Section 6
     template.entries[6].sourceData = supplierPerformance; // Section 7
     // Sections 8-14: manual entry only (no system data source)
     // Section 15: attendees + signature (populated by form)
@@ -131,12 +123,12 @@ export async function generateReviewTemplate(
 async function pullAuditResults(
   labId: string,
   yearStart: number,
-  yearEnd: number
+  yearEnd: number,
 ): Promise<Record<string, any>> {
   const result = await callGenerateComplianceReport({
     labId,
     dataInicio: yearStart,
-    dataFim: yearEnd
+    dataFim: yearEnd,
   });
 
   if (!result.success) {
@@ -152,7 +144,7 @@ async function pullAuditResults(
     avisos: result.stats.avisos,
     validaChain: result.validaChain,
     chainViolationCount: result.chainViolations?.length || 0,
-    chainViolations: result.chainViolations || []
+    chainViolations: result.chainViolations || [],
   };
 }
 
@@ -165,7 +157,7 @@ async function pullNCCapaStatus(labId: string): Promise<Record<string, any>> {
 
   const [ncSnapshot, capaSnapshot] = await Promise.all([
     getDocs(query(ncPath, where('deletedAt', '==', null))),
-    getDocs(query(capaPath, where('deletedAt', '==', null)))
+    getDocs(query(capaPath, where('deletedAt', '==', null))),
   ]);
 
   const ncByStatus = { open: 0, closed: 0, onHold: 0 };
@@ -195,7 +187,7 @@ async function pullNCCapaStatus(labId: string): Promise<Record<string, any>> {
     capaClosed: capaByStatus.closed,
     capaOverdue: capaByStatus.overdue,
     totalNC: ncByStatus.open + ncByStatus.closed + ncByStatus.onHold,
-    totalCapa: capaByStatus.open + capaByStatus.closed + capaByStatus.overdue
+    totalCapa: capaByStatus.open + capaByStatus.closed + capaByStatus.overdue,
   };
 }
 
@@ -218,14 +210,14 @@ async function pullKPITrends(labId: string): Promise<Record<string, any>> {
     kpiData[month].push({
       name: indicator.nome,
       value: indicator.valor,
-      target: indicator.meta
+      target: indicator.meta,
     });
   });
 
   return {
     monthCount: Object.keys(kpiData).length,
     indicators: kpiData,
-    lastUpdated: Timestamp.now().toDate().toISOString()
+    lastUpdated: Timestamp.now().toDate().toISOString(),
   };
 }
 
@@ -259,7 +251,7 @@ async function pullCustomerFeedback(labId: string): Promise<Record<string, any>>
     openComplaints: openCount,
     closedComplaints: closedCount,
     byType,
-    closureRate: totalComplaints > 0 ? ((closedCount / totalComplaints) * 100).toFixed(1) : 'N/A'
+    closureRate: totalComplaints > 0 ? ((closedCount / totalComplaints) * 100).toFixed(1) : 'N/A',
   };
 }
 
@@ -287,8 +279,9 @@ async function pullPersonnelCompetency(labId: string): Promise<Record<string, an
   return {
     totalTrainings,
     completedTrainings: completedCount,
-    competencyRate: totalTrainings > 0 ? ((completedCount / totalTrainings) * 100).toFixed(1) : 'N/A',
-    byRole
+    competencyRate:
+      totalTrainings > 0 ? ((completedCount / totalTrainings) * 100).toFixed(1) : 'N/A',
+    byRole,
   };
 }
 
@@ -301,7 +294,7 @@ async function pullInfrastructure(labId: string): Promise<Record<string, any>> {
 
   const [equipSnapshot, calibSnapshot] = await Promise.all([
     getDocs(query(equipPath, where('deletedAt', '==', null))),
-    getDocs(query(calibPath, where('deletedAt', '==', null)))
+    getDocs(query(calibPath, where('deletedAt', '==', null))),
   ]);
 
   let totalEquipment = 0;
@@ -333,9 +326,8 @@ async function pullInfrastructure(labId: string): Promise<Record<string, any>> {
     equipmentStatus,
     totalCalibrations: calibratedCount,
     overdueCalibrations: overdueCalibration,
-    calibrationCompliance: totalEquipment > 0
-      ? ((calibratedCount / totalEquipment) * 100).toFixed(1)
-      : 'N/A'
+    calibrationCompliance:
+      totalEquipment > 0 ? ((calibratedCount / totalEquipment) * 100).toFixed(1) : 'N/A',
   };
 }
 
@@ -360,7 +352,7 @@ async function pullSupplierPerformance(labId: string): Promise<Record<string, an
       id: doc.id,
       nome: supplier.nome,
       status: supplier.status,
-      ultimaAvaliacao: supplier.ultimaAvaliacao?.toDate?.() || null
+      ultimaAvaliacao: supplier.ultimaAvaliacao?.toDate?.() || null,
     });
 
     if (supplier.status === 'active') activeCount++;
@@ -372,18 +364,15 @@ async function pullSupplierPerformance(labId: string): Promise<Record<string, an
     suppliers: suppliers.map((s) => ({
       name: s.nome,
       status: s.status,
-      lastEvaluation: s.ultimaAvaliacao?.toISOString?.() || 'Never'
-    }))
+      lastEvaluation: s.ultimaAvaliacao?.toISOString?.() || 'Never',
+    })),
   };
 }
 
 /**
  * Helper: Aggregate array by property
  */
-function aggregateBy(
-  items: any[],
-  key: string
-): Record<string, number> {
+function aggregateBy(items: any[], key: string): Record<string, number> {
   const result: Record<string, number> = {};
   items.forEach((item) => {
     const value = item[key] || 'unknown';

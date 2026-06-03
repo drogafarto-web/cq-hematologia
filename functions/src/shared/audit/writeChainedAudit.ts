@@ -42,15 +42,12 @@ export interface ChainedAuditPayload {
   secret: string;
 }
 
-export type WriteChainedAuditResult =
-  | { ok: true; id: string }
-  | { ok: false; error: string };
+export type WriteChainedAuditResult = { ok: true; id: string } | { ok: false; error: string };
 
 const MAX_ATTEMPTS = 3;
 const BACKOFF_MS = [100, 400, 1500];
 
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Compute the sibling failure-marker collection path for a given chain target.
@@ -91,10 +88,7 @@ export async function writeChainedAudit(
         entry.secret,
       );
       // signAuditEntry assigns id after firestore.add(); narrow for caller.
-      const id =
-        typeof signed.id === 'string' && signed.id.length > 0
-          ? signed.id
-          : '';
+      const id = typeof signed.id === 'string' && signed.id.length > 0 ? signed.id : '';
       return { ok: true, id };
     } catch (err) {
       lastError = err;
@@ -104,8 +98,7 @@ export async function writeChainedAudit(
     }
   }
 
-  const errorMsg =
-    lastError instanceof Error ? lastError.message : String(lastError);
+  const errorMsg = lastError instanceof Error ? lastError.message : String(lastError);
 
   // eslint-disable-next-line no-console
   console.error('[writeChainedAudit] FAILED after retries', {
@@ -121,16 +114,12 @@ export async function writeChainedAudit(
   try {
     siblingPath = failureMarkerCollectionPath(entry.collectionPath);
   } catch (pathErr) {
-    const pathErrMsg =
-      pathErr instanceof Error ? pathErr.message : String(pathErr);
+    const pathErrMsg = pathErr instanceof Error ? pathErr.message : String(pathErr);
     // eslint-disable-next-line no-console
-    console.error(
-      '[writeChainedAudit] CRITICAL: cannot derive sibling path for marker',
-      {
-        collectionPath: entry.collectionPath,
-        error: pathErrMsg,
-      },
-    );
+    console.error('[writeChainedAudit] CRITICAL: cannot derive sibling path for marker', {
+      collectionPath: entry.collectionPath,
+      error: pathErrMsg,
+    });
     return { ok: false, error: errorMsg };
   }
 
@@ -145,18 +134,14 @@ export async function writeChainedAudit(
       recordedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
   } catch (markerErr) {
-    const markerMsg =
-      markerErr instanceof Error ? markerErr.message : String(markerErr);
+    const markerMsg = markerErr instanceof Error ? markerErr.message : String(markerErr);
     // eslint-disable-next-line no-console
-    console.error(
-      '[writeChainedAudit] CRITICAL: sibling marker write also failed',
-      {
-        collectionPath: entry.collectionPath,
-        siblingPath,
-        operation: entry.operation,
-        error: markerMsg,
-      },
-    );
+    console.error('[writeChainedAudit] CRITICAL: sibling marker write also failed', {
+      collectionPath: entry.collectionPath,
+      siblingPath,
+      operation: entry.operation,
+      error: markerMsg,
+    });
   }
 
   return { ok: false, error: errorMsg };

@@ -35,26 +35,28 @@ quando Phase 8 atingir milestone (ou quando o CTO escolher), basta promover esta
 
 ## Decisões CTO travadas no discuss-phase (2026-05-06)
 
-| Decisão | Valor | Fonte |
-|---------|-------|-------|
-| Westgard | Subset CLSI (1-2s warn, 1-3s, 2-2s, R-4s reject) | AskUserQuestion |
-| Painel analitos | 16-17 seed + UI admin para edição/cadastro pelo lab | AskUserQuestion |
-| Multi-instrumento | Dia 1 (via `/equipamentos`) | AskUserQuestion |
-| Stats source | Bula PDF (Gemini Vision) + Interna (após N=20) com toggle | AskUserQuestion |
-| Rastreabilidade | Worklab append-only (`examCodeAtChange` manual no MVP) | AskUserQuestion |
-| Defer | CEQ (Importador PNCQ v1.4), Comparabilidade DICQ 5.6.4 (v1.4 com 2+ equipos prod), LIS integration externa (v1.4 spike) | AskUserQuestion |
+| Decisão           | Valor                                                                                                                   | Fonte           |
+| ----------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------- |
+| Westgard          | Subset CLSI (1-2s warn, 1-3s, 2-2s, R-4s reject)                                                                        | AskUserQuestion |
+| Painel analitos   | 16-17 seed + UI admin para edição/cadastro pelo lab                                                                     | AskUserQuestion |
+| Multi-instrumento | Dia 1 (via `/equipamentos`)                                                                                             | AskUserQuestion |
+| Stats source      | Bula PDF (Gemini Vision) + Interna (após N=20) com toggle                                                               | AskUserQuestion |
+| Rastreabilidade   | Worklab append-only (`examCodeAtChange` manual no MVP)                                                                  | AskUserQuestion |
+| Defer             | CEQ (Importador PNCQ v1.4), Comparabilidade DICQ 5.6.4 (v1.4 com 2+ equipos prod), LIS integration externa (v1.4 spike) | AskUserQuestion |
 
 ---
 
 ## Contexto Obsidian consumido
 
 Síntese do sub-agente de pesquisa retornou (resumido):
+
 - **Hematologia é o template canônico** — replicar pattern (BulaProcessor, AddLotModal, LotManager, ReviewRunModal, PreFlightCheck, validateReagentesForRun, subscribeToState)
 - **RDC 978/2025 Arts. 179-180**: CIQ obrigatório em todos analitos quantitativos (Phase 9 responde diretamente)
 - **DICQ Bloco F**: 5.5.1.1, 5.5.2, 5.6.2, 5.6.4 cobertos; 5.6.4 (comparabilidade) parcial
 - **Anti-padrões hema documentados** transcritos para CONTEXT.md gotchas (não ler runs 1-a-1, evitar `where != deletadoEm`, dupla fonte de verdade `confirmedId`/`activeLotId`, Westgard suspenso em lote `bulaPendente`, `complianceOverride` snapshot imutável, chainHash server-side, soft-delete only)
 
 Arquivos Obsidian consumidos (canonical refs em CONTEXT.md):
+
 - `HC_Quality_Modulo_Hematologia_2026-04-29.md`
 - `HC_Quality_RDC_978_2025_Resumo.md`
 - `HC_Quality_Compliance_DICQ.md`
@@ -68,6 +70,7 @@ Arquivos Obsidian consumidos (canonical refs em CONTEXT.md):
 ### Opção A — Wave 1 começa em paralelo a Phase 8 plan 03 (recomendado)
 
 Plan 09-01 (Schema + Service) é independente de Phase 8 (não toca calibração, personnel ou management-review). Pode rodar enquanto:
+
 - Phase 8 plan 02 (Calibração) atinge ≥50% → Eng A liberado para começar 09-01
 - Plan 09-02 segue após 09-01 com ~3 dias overlap (após types prontos)
 
@@ -133,6 +136,7 @@ mv .planning/v1.3-REQUIREMENTS.md .planning/REQUIREMENTS.md
 ## Notas de qualidade
 
 Padrão world-class aplicado em todo o planning:
+
 - Decisões fundamentadas em síntese Obsidian (não inventei priorities)
 - Cada PLAN tem `must_haves`, `key_links`, `deviation_protocol`, `post_plan_gates`
 - Threat model T1-T5 documentado em CONTEXT.md

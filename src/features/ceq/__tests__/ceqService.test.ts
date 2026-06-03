@@ -109,7 +109,7 @@ describe('CEQService', () => {
     });
 
     it('handles decimal values', () => {
-      const result = calcularZScore(5.67, 5.50, 0.15);
+      const result = calcularZScore(5.67, 5.5, 0.15);
       expect(result.zScore).toBeCloseTo(1.133, 2);
       expect(result.interpretacao).toBe('satisfatoria');
     });

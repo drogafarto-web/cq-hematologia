@@ -110,9 +110,9 @@ export function CTRelatorioPrint({ payload, onClose }: CTRelatorioPrintProps) {
               </table>
 
               <div className="mb-4 text-xs font-bold">
-                Obs.: Valores fora dos limites de aceitabilidade são sinalizados com "*"; as
-                ações adotadas estão registradas abaixo. Células com "J" indicam leitura
-                justificada; "—" indica leitura não realizada.
+                Obs.: Valores fora dos limites de aceitabilidade são sinalizados com "*"; as ações
+                adotadas estão registradas abaixo. Células com "J" indicam leitura justificada; "—"
+                indica leitura não realizada.
               </div>
 
               {payload.ncs.length > 0 ? (
@@ -161,21 +161,24 @@ export function CTRelatorioPrint({ payload, onClose }: CTRelatorioPrintProps) {
               </div>
               {payload.termometro ? (
                 <div className="avoid-break mt-3 rounded border border-slate-300 bg-slate-50 p-2 text-[10px] leading-snug text-slate-700">
-                  <p className="font-bold">Rastreabilidade metrológica — ISO 15189:2022 cl. 5.3.1</p>
+                  <p className="font-bold">
+                    Rastreabilidade metrológica — ISO 15189:2022 cl. 5.3.1
+                  </p>
                   <p>
-                    Termômetro: <span className="font-mono">{payload.termometro.numeroSerie}</span>
-                    {' '}| {payload.termometro.modelo} | Incerteza: ±{payload.termometro.incertezaMedicao}°C
+                    Termômetro: <span className="font-mono">{payload.termometro.numeroSerie}</span>{' '}
+                    | {payload.termometro.modelo} | Incerteza: ±
+                    {payload.termometro.incertezaMedicao}°C
                   </p>
                   <p>
                     Certificado:{' '}
                     <span className="font-mono">
                       {payload.termometro.calibracaoAtual.numeroCertificado}
-                    </span>
-                    {' '}(v{payload.termometro.calibracaoAtual.versao}) | Válido até:{' '}
+                    </span>{' '}
+                    (v{payload.termometro.calibracaoAtual.versao}) | Válido até:{' '}
                     {payload.termometro.calibracaoAtual.dataValidade
                       .toDate()
-                      .toLocaleDateString('pt-BR')}
-                    {' '}| Emitido por {payload.termometro.calibracaoAtual.laboratorioCalibrador}
+                      .toLocaleDateString('pt-BR')}{' '}
+                    | Emitido por {payload.termometro.calibracaoAtual.laboratorioCalibrador}
                   </p>
                 </div>
               ) : null}
@@ -183,9 +186,8 @@ export function CTRelatorioPrint({ payload, onClose }: CTRelatorioPrintProps) {
               <div className="mt-1 flex justify-between text-[10px] text-slate-500">
                 <span>PQ-06 — Gestão de Materiais</span>
                 <span>
-                  Emitido por HC Quality em{' '}
-                  {payload.emitidoEm.toDate().toLocaleString('pt-BR')} • Hash:{' '}
-                  {payload.hashDocumento.slice(0, 16)}…
+                  Emitido por HC Quality em {payload.emitidoEm.toDate().toLocaleString('pt-BR')} •
+                  Hash: {payload.hashDocumento.slice(0, 16)}…
                 </span>
               </div>
             </div>
@@ -211,7 +213,12 @@ function FR11Header({
   termometro: string;
   mes: number;
   ano: number;
-  limites: { temperaturaMin: number; temperaturaMax: number; umidadeMin?: number; umidadeMax?: number };
+  limites: {
+    temperaturaMin: number;
+    temperaturaMax: number;
+    umidadeMin?: number;
+    umidadeMax?: number;
+  };
 }) {
   return (
     <>
@@ -242,8 +249,8 @@ function FR11Header({
           <span className="font-bold">Equipamento:</span> {equipamento}
         </div>
         <div className="p-2">
-          <span className="font-bold">Aceitabilidade:</span>{' '}
-          {limites.temperaturaMin.toFixed(1)}°C a {limites.temperaturaMax.toFixed(1)}°C
+          <span className="font-bold">Aceitabilidade:</span> {limites.temperaturaMin.toFixed(1)}°C a{' '}
+          {limites.temperaturaMax.toFixed(1)}°C
           {limites.umidadeMin !== undefined && limites.umidadeMax !== undefined
             ? ` • ${limites.umidadeMin}% a ${limites.umidadeMax}%`
             : ''}

@@ -83,7 +83,7 @@ export function validateTransition(
   from: ReleaseState,
   to: ReleaseState,
   role: string,
-  ctx?: { hasComunicado: boolean }
+  ctx?: { hasComunicado: boolean },
 ): ValidateTransitionResult {
   // Busca transição definida
   const transition = TRANSITIONS.find((t) => t.from === from && t.to === to);
@@ -104,15 +104,10 @@ export function validateTransition(
   }
 
   // Validação customizada se necessário
-  if (
-    to === 'Superado' &&
-    from !== 'Comunicado' &&
-    ctx?.hasComunicado
-  ) {
+  if (to === 'Superado' && from !== 'Comunicado' && ctx?.hasComunicado) {
     return {
       allowed: false,
-      reason:
-        'Laudo comunicado precisa transição via Comunicado → Superado (manter sequência)',
+      reason: 'Laudo comunicado precisa transição via Comunicado → Superado (manter sequência)',
     };
   }
 
@@ -128,11 +123,9 @@ export function validateTransition(
  * @returns Array de estados permitidos
  */
 export function nextStates(from: ReleaseState, role: string): ReleaseState[] {
-  return TRANSITIONS.filter(
-    (t) =>
-      t.from === from &&
-      t.allowedRoles.includes(role as any)
-  ).map((t) => t.to);
+  return TRANSITIONS.filter((t) => t.from === from && t.allowedRoles.includes(role as any)).map(
+    (t) => t.to,
+  );
 }
 
 /**
@@ -154,7 +147,7 @@ export function stateLabel(state: ReleaseState): string {
  * Cor semântica para estado
  */
 export function stateColor(
-  state: ReleaseState
+  state: ReleaseState,
 ): 'gray' | 'yellow' | 'green' | 'violet' | 'emerald' | 'slate' {
   const colors: Record<ReleaseState, string> = {
     Pendente: 'gray',

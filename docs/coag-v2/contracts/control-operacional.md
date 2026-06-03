@@ -14,11 +14,11 @@ import type { CoagAnalyteId } from '../../coagulacao/types/_shared_refs';
 
 /**
  * ControlOperacional — controle físico usado no dia a dia.
- * 
+ *
  * Conceito: "saco de controle" — não é o lote químico.
  * Operador vê apenas o nome (ex: "Controle Normal").
  * Nível, lote, fabricante — metadados invisíveis ao operador.
- * 
+ *
  * Firestore path: labs/{labId}/control-operacional/{id}
  * Compliance: RDC 978/2025 · RDC 302/2005 · CLSI H47-A2
  */
@@ -26,19 +26,19 @@ export interface ControlOperacional {
   // ── Identificação simples ──────────────────────────────────
   id: string;
   labId: string;
-  nome: string;                                // "Controle Normal" | "Controle Patológico"
-  nivel: 'I' | 'II';                           // Propriedade — operador não vê
+  nome: string; // "Controle Normal" | "Controle Patológico"
+  nivel: 'I' | 'II'; // Propriedade — operador não vê
 
   // ── Vínculo com insumo e equipamento ───────────────────────
-  insumoId: string;                            // referência ao Insumo
-  equipamentoId: string;                       // ex: "clotimer-duo-001"
+  insumoId: string; // referência ao Insumo
+  equipamentoId: string; // ex: "clotimer-duo-001"
 
   // ── Configuração prévia (RT faz) ───────────────────────────
-  mean: Record<CoagAnalyteId, number>;         // média da bula
-  sd: Record<CoagAnalyteId, number>;           // SD da bula
-  loteControle: string;                        // número do lote — operador não vê
-  fabricanteControle: string;                  // operador não vê
-  validadeControle: string;                    // YYYY-MM-DD — operador não vê
+  mean: Record<CoagAnalyteId, number>; // média da bula
+  sd: Record<CoagAnalyteId, number>; // SD da bula
+  loteControle: string; // número do lote — operador não vê
+  fabricanteControle: string; // operador não vê
+  validadeControle: string; // YYYY-MM-DD — operador não vê
 
   // ── Status operacional (invisível para operador) ───────────
   status: 'ativo' | 'pausado' | 'aposentado';
@@ -110,10 +110,7 @@ export async function updateControlOperacional(
 ): Promise<void>;
 
 /** Soft-delete: marca como 'aposentado'. */
-export async function deleteControlOperacional(
-  labId: string,
-  id: string,
-): Promise<void>;
+export async function deleteControlOperacional(labId: string, id: string): Promise<void>;
 ```
 
 ---
@@ -137,23 +134,23 @@ export function useControlOperacional(labId: string): UseControlOperacionalResul
 
 ## Campos Obrigatórios no Firestore
 
-| Campo | Tipo | Obrigatório | Default | Imutável |
-|-------|------|-------------|---------|----------|
-| `id` | string | ✅ | `doc().id` | ✅ |
-| `labId` | string | ✅ | passado | ✅ |
-| `nome` | string | ✅ | — | ❌ |
-| `nivel` | `'I' \| 'II'` | ✅ | — | ❌ |
-| `insumoId` | string | ✅ | — | ❌ |
-| `equipamentoId` | string | ✅ | — | ❌ |
-| `mean` | `Record<CoagAnalyteId, number>` | ✅ | — | ❌ |
-| `sd` | `Record<CoagAnalyteId, number>` | ✅ | — | ❌ |
-| `loteControle` | string | ✅ | — | ❌ |
-| `fabricanteControle` | string | ✅ | — | ❌ |
-| `validadeControle` | string | ✅ | — | ❌ |
-| `status` | `'ativo' \| 'pausado' \| 'aposentado'` | ✅ | `'ativo'` | ❌ |
-| `criadoEm` | Timestamp | ✅ | `serverTimestamp()` | ✅ |
-| `criadoPor` | string | ✅ | `request.auth.uid` | ✅ |
-| `atualizadoEm` | Timestamp | ✅ | `serverTimestamp()` | ❌ |
+| Campo                | Tipo                                   | Obrigatório | Default             | Imutável |
+| -------------------- | -------------------------------------- | ----------- | ------------------- | -------- |
+| `id`                 | string                                 | ✅          | `doc().id`          | ✅       |
+| `labId`              | string                                 | ✅          | passado             | ✅       |
+| `nome`               | string                                 | ✅          | —                   | ❌       |
+| `nivel`              | `'I' \| 'II'`                          | ✅          | —                   | ❌       |
+| `insumoId`           | string                                 | ✅          | —                   | ❌       |
+| `equipamentoId`      | string                                 | ✅          | —                   | ❌       |
+| `mean`               | `Record<CoagAnalyteId, number>`        | ✅          | —                   | ❌       |
+| `sd`                 | `Record<CoagAnalyteId, number>`        | ✅          | —                   | ❌       |
+| `loteControle`       | string                                 | ✅          | —                   | ❌       |
+| `fabricanteControle` | string                                 | ✅          | —                   | ❌       |
+| `validadeControle`   | string                                 | ✅          | —                   | ❌       |
+| `status`             | `'ativo' \| 'pausado' \| 'aposentado'` | ✅          | `'ativo'`           | ❌       |
+| `criadoEm`           | Timestamp                              | ✅          | `serverTimestamp()` | ✅       |
+| `criadoPor`          | string                                 | ✅          | `request.auth.uid`  | ✅       |
+| `atualizadoEm`       | Timestamp                              | ✅          | `serverTimestamp()` | ❌       |
 
 ---
 

@@ -61,27 +61,43 @@ function TrashIcon() {
 function CheckIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
-      <path d="M2 8.5l3.5 3.5L14 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M2 8.5l3.5 3.5L14 4"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
 
 function LoaderIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden className="animate-spin">
-      <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="1.5" fill="none" strokeDasharray="8 12" />
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 16 16"
+      fill="none"
+      aria-hidden
+      className="animate-spin"
+    >
+      <circle
+        cx="8"
+        cy="8"
+        r="6"
+        stroke="currentColor"
+        strokeWidth="1.5"
+        fill="none"
+        strokeDasharray="8 12"
+      />
     </svg>
   );
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export function PresencaPanel({
-  auditoriaId,
-  sessaoId,
-  reuniao,
-  onSuccess,
-}: PresencaPanelProps) {
+export function PresencaPanel({ auditoriaId, sessaoId, reuniao, onSuccess }: PresencaPanelProps) {
   const labId = useActiveLabId();
   const [participantes, setParticipantes] = useState<Participante[]>([
     { id: crypto.randomUUID(), nome: '', papel: 'auditor' },
@@ -104,7 +120,8 @@ export function PresencaPanel({
 
     // Check mandatory roles
     const papaisPresentos = new Set(participantes.map((p) => p.papel));
-    const obrigatorios = reuniao === 'abertura' ? PAPEIS_OBRIGATORIOS_ABERTURA : PAPEIS_OBRIGATORIOS_ENCERRAMENTO;
+    const obrigatorios =
+      reuniao === 'abertura' ? PAPEIS_OBRIGATORIOS_ABERTURA : PAPEIS_OBRIGATORIOS_ENCERRAMENTO;
     const faltantes = obrigatorios.filter((p) => !papaisPresentos.has(p));
 
     if (faltantes.length > 0) {
@@ -169,10 +186,7 @@ export function PresencaPanel({
   }
 
   function handleAddRow() {
-    setParticipantes([
-      ...participantes,
-      { id: crypto.randomUUID(), nome: '', papel: 'auditor' },
-    ]);
+    setParticipantes([...participantes, { id: crypto.randomUUID(), nome: '', papel: 'auditor' }]);
   }
 
   function handleRemoveRow(id: string) {
@@ -182,15 +196,11 @@ export function PresencaPanel({
   }
 
   function handleNomeChange(id: string, valor: string) {
-    setParticipantes(
-      participantes.map((p) => (p.id === id ? { ...p, nome: valor } : p)),
-    );
+    setParticipantes(participantes.map((p) => (p.id === id ? { ...p, nome: valor } : p)));
   }
 
   function handlePapelChange(id: string, valor: Papel) {
-    setParticipantes(
-      participantes.map((p) => (p.id === id ? { ...p, papel: valor } : p)),
-    );
+    setParticipantes(participantes.map((p) => (p.id === id ? { ...p, papel: valor } : p)));
   }
 
   // ── Formatters ──────────────────────────────────────────────────────────────
@@ -309,9 +319,7 @@ export function PresencaPanel({
       >
         {loading && <LoaderIcon />}
         {success && <CheckIcon />}
-        <span>
-          {loading ? 'Registrando...' : success ? 'Registrado' : 'Confirmar e Assinar'}
-        </span>
+        <span>{loading ? 'Registrando...' : success ? 'Registrado' : 'Confirmar e Assinar'}</span>
       </button>
     </div>
   );

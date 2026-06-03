@@ -32,7 +32,7 @@ export function subscribeToSugestoes(
     limit?: number;
   },
   onUpdate?: (sugestoes: Sugestao[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const constraints: any[] = [
     where('labId', '==', labId),
@@ -49,10 +49,7 @@ export function subscribeToSugestoes(
     constraints.push(limit(filters.limit));
   }
 
-  const q = query(
-    collection(db, 'labs', labId, 'sugestoes'),
-    ...constraints
-  );
+  const q = query(collection(db, 'labs', labId, 'sugestoes'), ...constraints);
 
   return onSnapshot(
     q,
@@ -66,7 +63,7 @@ export function subscribeToSugestoes(
     (error) => {
       console.error('Error subscribing to sugestoes:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -77,7 +74,7 @@ export function subscribeToSugestao(
   labId: string,
   sugestaoId: string,
   onUpdate?: (sugestao: Sugestao | null) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const docRef = doc(db, 'labs', labId, 'sugestoes', sugestaoId);
 
@@ -93,17 +90,14 @@ export function subscribeToSugestao(
     (error) => {
       console.error('Error subscribing to sugestao:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
 /**
  * Get single suggestion (one-time read)
  */
-export async function getSugestao(
-  labId: string,
-  sugestaoId: string
-): Promise<Sugestao | null> {
+export async function getSugestao(labId: string, sugestaoId: string): Promise<Sugestao | null> {
   const docRef = doc(db, 'labs', labId, 'sugestoes', sugestaoId);
   const snapshot = await getDoc(docRef);
 
@@ -120,7 +114,7 @@ export async function getSugestao(
 export async function getSugestoesByStatus(
   labId: string,
   status: StatusSugestao,
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Sugestao[]> {
   const q = query(
     collection(db, 'labs', labId, 'sugestoes'),
@@ -129,7 +123,7 @@ export async function getSugestoesByStatus(
     where('deletadoEm', '==', null),
     orderBy('votos', 'desc'),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -148,7 +142,7 @@ export async function getSugestoesByStatus(
 export async function getSugestoesByCategoria(
   labId: string,
   categoria: string,
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Sugestao[]> {
   const q = query(
     collection(db, 'labs', labId, 'sugestoes'),
@@ -157,7 +151,7 @@ export async function getSugestoesByCategoria(
     where('deletadoEm', '==', null),
     orderBy('votos', 'desc'),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -173,16 +167,13 @@ export async function getSugestoesByCategoria(
 /**
  * Get top-voted suggestions (community features)
  */
-export async function getTopVotedSugestoes(
-  labId: string,
-  limitCount = 20
-): Promise<Sugestao[]> {
+export async function getTopVotedSugestoes(labId: string, limitCount = 20): Promise<Sugestao[]> {
   const q = query(
     collection(db, 'labs', labId, 'sugestoes'),
     where('labId', '==', labId),
     where('deletadoEm', '==', null),
     orderBy('votos', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -201,7 +192,7 @@ export async function getTopVotedSugestoes(
 export async function getSugestoesByAutor(
   labId: string,
   autorId: string,
-  limitCount = 50
+  limitCount = 50,
 ): Promise<Sugestao[]> {
   const q = query(
     collection(db, 'labs', labId, 'sugestoes'),
@@ -209,7 +200,7 @@ export async function getSugestoesByAutor(
     where('autorId', '==', autorId),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -227,13 +218,13 @@ export async function getSugestoesByAutor(
  */
 export async function countSugestoesByStatus(
   labId: string,
-  status: StatusSugestao
+  status: StatusSugestao,
 ): Promise<number> {
   const q = query(
     collection(db, 'labs', labId, 'sugestoes'),
     where('labId', '==', labId),
     where('status', '==', status),
-    where('deletadoEm', '==', null)
+    where('deletadoEm', '==', null),
   );
 
   const snapshot = await getDocs(q);

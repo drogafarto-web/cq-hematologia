@@ -56,15 +56,13 @@ describe('AlertDrillDown', () => {
 
   it('should not render when open is false', () => {
     const { container } = render(
-      <AlertDrillDown alert={mockAlert} open={false} onClose={() => {}} />
+      <AlertDrillDown alert={mockAlert} open={false} onClose={() => {}} />,
     );
     expect(container.firstChild).toBeNull();
   });
 
   it('should render modal when open is true', async () => {
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Investigar Anomalia')).toBeInTheDocument();
@@ -72,9 +70,7 @@ describe('AlertDrillDown', () => {
   });
 
   it('should render alert metadata', async () => {
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Informações da Anomalia')).toBeInTheDocument();
@@ -85,9 +81,7 @@ describe('AlertDrillDown', () => {
   });
 
   it('should render all dimension scores with bars', async () => {
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Dimensões de Anomalia')).toBeInTheDocument();
@@ -102,14 +96,12 @@ describe('AlertDrillDown', () => {
   });
 
   it('should render NLP summary when aiInsight is provided', async () => {
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Análise de IA')).toBeInTheDocument();
       expect(
-        screen.getByText('This operator performed an unusual action at an unusual time.')
+        screen.getByText('This operator performed an unusual action at an unusual time.'),
       ).toBeInTheDocument();
     });
   });
@@ -123,9 +115,7 @@ describe('AlertDrillDown', () => {
       },
     };
 
-    render(
-      <AlertDrillDown alert={alertWithoutInsight} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={alertWithoutInsight} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.queryByText('Análise de IA')).not.toBeInTheDocument();
@@ -135,9 +125,7 @@ describe('AlertDrillDown', () => {
   it('should call onClose when close button is clicked', async () => {
     const mockOnClose = vi.fn();
 
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />);
 
     await waitFor(() => {
       expect(screen.getByText('Investigar Anomalia')).toBeInTheDocument();
@@ -152,9 +140,7 @@ describe('AlertDrillDown', () => {
   it('should call onClose when Fechar button is clicked', async () => {
     const mockOnClose = vi.fn();
 
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />);
 
     await waitFor(() => {
       expect(screen.getByText('Investigar Anomalia')).toBeInTheDocument();
@@ -176,7 +162,7 @@ describe('AlertDrillDown', () => {
         open={true}
         onClose={mockOnClose}
         onDismiss={mockOnDismiss}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -201,7 +187,7 @@ describe('AlertDrillDown', () => {
         open={true}
         onClose={mockOnClose}
         onDismiss={mockOnDismiss}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -218,9 +204,7 @@ describe('AlertDrillDown', () => {
 
   it('should display error when dismiss fails', async () => {
     const mockOnClose = vi.fn();
-    const mockOnDismiss = vi.fn().mockRejectedValue(
-      new Error('Falha ao descartar')
-    );
+    const mockOnDismiss = vi.fn().mockRejectedValue(new Error('Falha ao descartar'));
 
     render(
       <AlertDrillDown
@@ -228,7 +212,7 @@ describe('AlertDrillDown', () => {
         open={true}
         onClose={mockOnClose}
         onDismiss={mockOnDismiss}
-      />
+      />,
     );
 
     await waitFor(() => {
@@ -255,12 +239,7 @@ describe('AlertDrillDown', () => {
     const mockOnDismiss = vi.fn(() => dismissPromise);
 
     render(
-      <AlertDrillDown
-        alert={mockAlert}
-        open={true}
-        onClose={() => {}}
-        onDismiss={mockOnDismiss}
-      />
+      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} onDismiss={mockOnDismiss} />,
     );
 
     await waitFor(() => {
@@ -284,9 +263,7 @@ describe('AlertDrillDown', () => {
       severity: 'high' as const,
     };
 
-    render(
-      <AlertDrillDown alert={highSeverityAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={highSeverityAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Alta')).toBeInTheDocument();
@@ -299,9 +276,7 @@ describe('AlertDrillDown', () => {
       severity: 'medium' as const,
     };
 
-    render(
-      <AlertDrillDown alert={mediumSeverityAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mediumSeverityAlert} open={true} onClose={() => {}} />);
 
     await waitFor(() => {
       expect(screen.getByText('Média')).toBeInTheDocument();
@@ -309,9 +284,7 @@ describe('AlertDrillDown', () => {
   });
 
   it('should render modal with correct aria attributes', async () => {
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={() => {}} />);
 
     const modal = screen.getByRole('dialog');
     expect(modal).toHaveAttribute('aria-modal', 'true');
@@ -321,9 +294,7 @@ describe('AlertDrillDown', () => {
   it('should have backdrop that calls onClose when clicked', async () => {
     const mockOnClose = vi.fn();
 
-    render(
-      <AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />
-    );
+    render(<AlertDrillDown alert={mockAlert} open={true} onClose={mockOnClose} />);
 
     await waitFor(() => {
       expect(screen.getByText('Investigar Anomalia')).toBeInTheDocument();

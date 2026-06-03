@@ -1,9 +1,11 @@
 # RT Manual Step-by-Step: Create LGPD Policy Documents in SGQ
 
 ## Task
+
 Create 2 SGQ documents (POL-LGPD-001, IT-LGPD-DPIA-001) and transition to `vigente` status.
 
 **Prerequisites:**
+
 - RT login session (use real RT account, not admin)
 - PDF URLs from CTO (from previous step: PDF conversion + upload)
 - Access to production hmatologia2.web.app
@@ -23,6 +25,7 @@ Create 2 SGQ documents (POL-LGPD-001, IT-LGPD-DPIA-001) and transition to `vigen
 **Navigate:** SGQView → "Novo Documento" button
 
 **Fill form:**
+
 - **Tipo:** POL (Política)
 - **Código:** POL-LGPD-001
 - **Título:** Política de Privacidade e Proteção de Dados (LGPD)
@@ -48,13 +51,15 @@ Create 2 SGQ documents (POL-LGPD-001, IT-LGPD-DPIA-001) and transition to `vigen
 5. Add motivo (reason): "Aprovada por RT em [data] após revisão de compliance"
 6. **Save**
 
-**Verify:** 
+**Verify:**
+
 - Document list shows POL-LGPD-001 with green badge "vigente"
 - Audit trail (Firestore): 2 events visible (created + status-changed)
 
 ### 4. Create Document: IT-LGPD-DPIA-001
 
 **Repeat steps 2–3 with:**
+
 - **Tipo:** IT (Instrução de Trabalho)
 - **Código:** IT-LGPD-DPIA-001
 - **Título:** Template de DPIA (Data Protection Impact Assessment)
@@ -69,12 +74,14 @@ Create 2 SGQ documents (POL-LGPD-001, IT-LGPD-DPIA-001) and transition to `vigen
 ### 5. Verification
 
 **Checklist:**
+
 - [ ] POL-LGPD-001 visible in SGQView list (emerald vigente badge)
 - [ ] IT-LGPD-DPIA-001 visible in SGQView list (emerald vigente badge)
 - [ ] DocumentosObrigatoriosBadge shows both docs with emerald status (top of SGQView)
 - [ ] Firestore audit trail: 4 events total (2 docs × 2 events each: created + status-changed)
 
 **Command to verify audit trail (Firestore console):**
+
 ```
 Collection: /labs/labclin-riopomba/sgq-documentos-audit
 Filter: codigo in ['POL-LGPD-001', 'IT-LGPD-DPIA-001']

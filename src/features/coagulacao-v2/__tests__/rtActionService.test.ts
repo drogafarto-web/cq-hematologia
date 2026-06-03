@@ -23,7 +23,9 @@ import * as controlService from '../services/controlOperacionalService';
 const labId = 'lab-test-001';
 
 describe('RTAction Service', () => {
-  beforeEach(() => { vi.clearAllMocks(); });
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
 
   it('cria RTAction de aprovação com sucesso', async () => {
     vi.mocked(firestore.addDoc).mockResolvedValueOnce({ id: 'rt-001' } as any);
@@ -35,7 +37,9 @@ describe('RTAction Service', () => {
     });
 
     expect(result.id).toBe('rt-001');
-    expect(controlService.updateControlOperacional).toHaveBeenCalledWith(labId, 'co-001', { status: 'ativo' });
+    expect(controlService.updateControlOperacional).toHaveBeenCalledWith(labId, 'co-001', {
+      status: 'ativo',
+    });
   });
 
   it('cria RTAction de rejeição com sucesso', async () => {
@@ -48,7 +52,9 @@ describe('RTAction Service', () => {
     });
 
     expect(result.id).toBe('rt-002');
-    expect(controlService.updateControlOperacional).toHaveBeenCalledWith(labId, 'co-001', { status: 'pausado' });
+    expect(controlService.updateControlOperacional).toHaveBeenCalledWith(labId, 'co-001', {
+      status: 'pausado',
+    });
   });
 
   it('cria RTAction de NOTIVISA', async () => {

@@ -41,65 +41,68 @@ functions/src/modules/ceq/
 ## Data Model
 
 ### CEQParticipacao
+
 **Collection:** `/labs/{labId}/ceq-participacoes/{participacaoId}`
 
 Represents enrollment in a PT program scheme (e.g., "Hematologia Básica" from Controllab).
 
 ```typescript
 interface CEQParticipacao {
-  provedorId: string;           // 'controllab', 'eqa-provider-x'
-  provedorNome: string;         // Display name
-  esquema: string;              // 'hematologia-basica', 'bioquimica-rotina'
-  dataInicio: Date;             // Enrollment start
-  dataFim?: Date;               // Enrollment end (if suspended)
+  provedorId: string; // 'controllab', 'eqa-provider-x'
+  provedorNome: string; // Display name
+  esquema: string; // 'hematologia-basica', 'bioquimica-rotina'
+  dataInicio: Date; // Enrollment start
+  dataFim?: Date; // Enrollment end (if suspended)
   frequencia: 'mensal' | 'bimestral' | 'trimestral' | 'anual';
-  analitosParticipados: string[];  // Analyte IDs enrolled
-  ativo: boolean;               // Active participation flag
+  analitosParticipados: string[]; // Analyte IDs enrolled
+  ativo: boolean; // Active participation flag
 }
 ```
 
 ### CEQAmostra
+
 **Collection:** `/labs/{labId}/ceq-amostras/{amostraId}`
 
 Represents a physical sample received from PT provider in a specific round.
 
 ```typescript
 interface CEQAmostra {
-  ceqParticipacaoId: string;    // FK to CEQParticipacao
-  rodada: number;               // Round number (e.g., 5)
-  ano: number;                  // Year (e.g., 2026)
-  dataRecepcao: Date;           // When lab received it
+  ceqParticipacaoId: string; // FK to CEQParticipacao
+  rodada: number; // Round number (e.g., 5)
+  ano: number; // Year (e.g., 2026)
+  dataRecepcao: Date; // When lab received it
   status: 'recebida' | 'em_analise' | 'resultado_lancado' | 'processada';
 }
 ```
 
 ### CEQResultado
+
 **Collection:** `/labs/{labId}/ceq-resultados/{resultadoId}`
 
 Represents one analyte result for one sample with Z-score calculation.
 
 ```typescript
 interface CEQResultado {
-  ceqAmostraId: string;         // FK to sample
-  ceqParticipacaoId: string;    // FK to enrollment
-  analyteId: string;            // Which analyte (e.g., 'hb')
-  analyteName: string;          // 'Hemoglobin'
-  
+  ceqAmostraId: string; // FK to sample
+  ceqParticipacaoId: string; // FK to enrollment
+  analyteId: string; // Which analyte (e.g., 'hb')
+  analyteName: string; // 'Hemoglobin'
+
   // What we measured
-  valorObtido: number;          // Our result
-  unidade: string;              // Unit (e.g., 'g/dL')
-  
+  valorObtido: number; // Our result
+  unidade: string; // Unit (e.g., 'g/dL')
+
   // Provider reference
-  valorReferencia: number;      // Provider's reference value
-  desvioEstimado: number;       // Provider's estimated SD
-  
+  valorReferencia: number; // Provider's reference value
+  desvioEstimado: number; // Provider's estimated SD
+
   // Calculation
-  zScore: number;               // (valorObtido - valorReferencia) / desvioEstimado
+  zScore: number; // (valorObtido - valorReferencia) / desvioEstimado
   interpretacao: 'satisfatoria' | 'questionavel' | 'insatisfatoria';
-  
+
   // NC integration
-  ncAutomaticaCriadaId?: string;  // FK to NaoConformidade if |Z| >= 3
-  temNCGrave?: boolean;           // Flag for |Z| >= 3
+  ncAutomaticaCriadaId?: string; // FK to NaoConformidade if |Z| >= 3
+  temNCGrave?: boolean; // Flag for |Z| >= 3
 }
 ```
 
@@ -110,11 +113,13 @@ interface CEQResultado {
 **Formula:** Z = (ValueObtained - ValueReference) / SD
 
 **Interpretation (ISO 13528:2015):**
+
 - |Z| < 2: **Satisfactory** (acceptable) ✓
 - 2 ≤ |Z| < 3: **Questionable** (warning) ⚠️
 - |Z| ≥ 3: **Unsatisfactory** (rejection) 🚨 → AUTO-NC
 
 When |Z| ≥ 3, Cloud Function automatically creates a critical NC with:
+
 - `severidade: 'grave'`
 - `bloqueiaOperacoes: true` (blocks lab operations until resolved)
 - `origem: 'controle'`
@@ -127,6 +132,7 @@ When |Z| ≥ 3, Cloud Function automatically creates a critical NC with:
 **Trigger:** Cloud Function `lacarCEQResultado()` creates CEQResultado
 
 **Flow:**
+
 1. Client calculates Z-score (validation only)
 2. Client calls `lancarCEQResultado()`
 3. Cloud Function validates Z-score server-side
@@ -138,6 +144,7 @@ When |Z| ≥ 3, Cloud Function automatically creates a critical NC with:
 5. Updates CEQAmostra status to `resultado_lancado`
 
 **Example NC Created:**
+
 ```
 Número: NC-2026-0042
 Origem: controle (CEQ)
@@ -148,6 +155,7 @@ bloqueiaOperacoes: true
 ```
 
 **Unblocking:** Lab must complete NC CAPA workflow:
+
 1. Investigação (investigate root cause)
 2. Ação Corretiva (plan + execute corrective action)
 3. Verificação Eficácia (verify fix worked)
@@ -160,50 +168,50 @@ bloqueiaOperacoes: true
 ### Client-Side Service
 
 **Create Participation:**
+
 ```typescript
 const participacao = await criarCEQParticipacao(
   labId,
   { provedorId, esquema, dataInicio, frequencia, analitosParticipados },
-  uid
+  uid,
 );
 ```
 
 **Receive Sample:**
+
 ```typescript
 const amostra = await receberCEQAmostra(
   labId,
   { ceqParticipacaoId, rodada, ano, dataRecepcao },
-  uid
+  uid,
 );
 ```
 
 **Record Result (triggers auto-NC if |Z| ≥ 3):**
+
 ```typescript
 const resultado = await lancarCEQResultado(
   labId,
   { ceqAmostraId, analyteId, analyteName, valorObtido, unidade, valorReferencia, desvioEstimado },
-  uid
+  uid,
 );
 // resultado.temNCGrave will be true if |Z| >= 3
 // resultado.ncAutomaticaCriadaId will contain NC ID
 ```
 
 **Calculate Z-Score (client-side):**
+
 ```typescript
-const { zScore, interpretacao } = calcularZScore(
-  valorObtido,
-  valorReferencia,
-  desvioEstimado
-);
+const { zScore, interpretacao } = calcularZScore(valorObtido, valorReferencia, desvioEstimado);
 ```
 
 ### React Hook
 
 ```typescript
 const {
-  participacoes,        // Active PT enrollments
-  amostras,            // Samples for selected enrollment
-  resultados,          // Results for selected sample
+  participacoes, // Active PT enrollments
+  amostras, // Samples for selected enrollment
+  resultados, // Results for selected sample
   selectedParticipacao,
   selectedAmostra,
   loading,
@@ -220,6 +228,7 @@ const {
 ## Cloud Functions
 
 ### createCEQParticipacao()
+
 **Callable**  
 Creates new PT program enrollment
 
@@ -232,6 +241,7 @@ const response = await firebase.functions().httpsCallable('createCEQParticipacao
 ```
 
 ### receiveCEQAmostra()
+
 **Callable**  
 Record sample receipt
 
@@ -247,6 +257,7 @@ const response = await firebase.functions().httpsCallable('receiveCEQAmostra')({
 ```
 
 ### lacarCEQResultado()
+
 **Callable**  
 Record result + calculate Z-score + auto-create NC
 
@@ -273,6 +284,7 @@ const response = await firebase.functions().httpsCallable('lacarCEQResultado')({
 ```
 
 ### onCEQResultadoValidado() [Trigger]
+
 Auto-updates CEQAmostra status to `processada` when all its resultados are validated.
 
 ---
@@ -280,9 +292,11 @@ Auto-updates CEQAmostra status to `processada` when all its resultados are valid
 ## Testing
 
 ### Service Tests
+
 **File:** `src/features/ceq/__tests__/ceqService.test.ts`
 
 Coverage: Z-score calculation, interpretacao logic, NC creation thresholds
+
 - ✓ Satisfactory results (|Z| < 2)
 - ✓ Questionable results (2 ≤ |Z| < 3)
 - ✓ Unsatisfactory results (|Z| ≥ 3)
@@ -291,9 +305,11 @@ Coverage: Z-score calculation, interpretacao logic, NC creation thresholds
 - ✓ NC creation logic (threshold >= 3)
 
 ### Cloud Function Tests
+
 **File:** `functions/src/modules/ceq/ceq.test.ts`
 
 Coverage: Server-side Z-score validation, NC number generation
+
 - ✓ Z-score calculation (server-side)
 - ✓ NC auto-creation trigger (|Z| ≥ 3)
 - ✓ NC number format (NC-{YYYY}-{seq})
@@ -307,12 +323,15 @@ Coverage: Server-side Z-score validation, NC number generation
 ## Integration Points
 
 ### 1. NC Module (ADR 0003)
+
 When |Z| ≥ 3, CEQ automatically creates critical NC via `functions/src/modules/qualidade/naoConformidade.ts::openNaoConformidade()`.
 
 ### 2. Chart Module
+
 Reuses Levey-Jennings chart pattern from `chart/LeveyJenningsChart.tsx` for Z-score visualization (future enhancement).
 
 ### 3. Audit Trail (ADR 0005)
+
 CEQ operations logged via audit module when HMAC signatures enabled.
 
 ---
@@ -369,6 +388,7 @@ match /labs/{labId}/ceq-resultados/{resultadoId} {
 ## Compliance
 
 **RDC 978/2025:**
+
 - ✓ PT participation documented (CEQParticipacao)
 - ✓ Results recorded with reference values (CEQResultado)
 - ✓ Z-score calculation per ISO 13528:2015

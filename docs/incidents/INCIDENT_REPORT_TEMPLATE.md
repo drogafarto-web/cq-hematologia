@@ -1,17 +1,17 @@
 ---
-title: "Incident Report Template — v1.4 Launch"
-version: "1.0"
-instructions: "Copy this file, rename to YYYY-MM-DD-incident-name.md, fill during/after incident"
-created: "2026-05-07"
+title: 'Incident Report Template — v1.4 Launch'
+version: '1.0'
+instructions: 'Copy this file, rename to YYYY-MM-DD-incident-name.md, fill during/after incident'
+created: '2026-05-07'
 ---
 
 # Incident Report: [Service Name] — [Date] [INCIDENT-ID]
 
-**Report prepared by:** _________________________ (your name)  
-**Date filed:** _________________________  
-**Filing time (24h):** _________________________  
+**Report prepared by:** ************\_************ (your name)  
+**Date filed:** ************\_************  
+**Filing time (24h):** ************\_************  
 **Approval by CTO:** ☐ YES ☐ NO  
-**Approval by QA:** ☐ YES ☐ NO  
+**Approval by QA:** ☐ YES ☐ NO
 
 ---
 
@@ -19,21 +19,21 @@ created: "2026-05-07"
 
 ### Quick Facts
 
-| Field | Value |
-|-------|-------|
-| **Incident ID** | INC-2026-05-XX-### |
-| **Service affected** | [Portal / NOTIVISA / Auth / Laudo Draft / Other] |
-| **Severity** | P0 / P1 / P2 |
-| **Duration** | [HH:MM] (discovery → resolution) |
-| **Start time (UTC-3)** | 2026-05-XX HH:MM |
-| **End time (UTC-3)** | 2026-05-XX HH:MM |
-| **Total duration** | _____ minutes |
-| **Root cause** | [1–2 sentences, plain English] |
-| **Resolution method** | Hotfix deployed / Rollback executed / Configuration change / Other |
-| **Affected users** | [Number or "All"] |
-| **Data impact** | None / Audit trail gap / Incomplete signature / Data corruption / Other |
-| **Customer notification required?** | ☐ YES ☐ NO |
-| **RDC 978 violation risk?** | ☐ YES ☐ NO (if YES, notify Regulatory Officer) |
+| Field                               | Value                                                                   |
+| ----------------------------------- | ----------------------------------------------------------------------- |
+| **Incident ID**                     | INC-2026-05-XX-###                                                      |
+| **Service affected**                | [Portal / NOTIVISA / Auth / Laudo Draft / Other]                        |
+| **Severity**                        | P0 / P1 / P2                                                            |
+| **Duration**                        | [HH:MM] (discovery → resolution)                                        |
+| **Start time (UTC-3)**              | 2026-05-XX HH:MM                                                        |
+| **End time (UTC-3)**                | 2026-05-XX HH:MM                                                        |
+| **Total duration**                  | **\_** minutes                                                          |
+| **Root cause**                      | [1–2 sentences, plain English]                                          |
+| **Resolution method**               | Hotfix deployed / Rollback executed / Configuration change / Other      |
+| **Affected users**                  | [Number or "All"]                                                       |
+| **Data impact**                     | None / Audit trail gap / Incomplete signature / Data corruption / Other |
+| **Customer notification required?** | ☐ YES ☐ NO                                                              |
+| **RDC 978 violation risk?**         | ☐ YES ☐ NO (if YES, notify Regulatory Officer)                          |
 
 ### Impact Summary
 
@@ -50,39 +50,39 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 
 ### Discovery & Notification
 
-| Time | Event | Reporter | Notes |
-|------|-------|----------|-------|
-| HH:MM | Issue discovered | [Name] | [Description: what was noticed?] |
-| HH:MM | Report filed to Slack #incidents | [Name] | [Link to Slack thread] |
-| HH:MM | P0/P1/P2 declared | [CTO/Lead] | [Reasoning] |
-| HH:MM | War room activated (or status update queued) | [CTO] | [Video bridge link if applicable] |
+| Time  | Event                                        | Reporter   | Notes                             |
+| ----- | -------------------------------------------- | ---------- | --------------------------------- |
+| HH:MM | Issue discovered                             | [Name]     | [Description: what was noticed?]  |
+| HH:MM | Report filed to Slack #incidents             | [Name]     | [Link to Slack thread]            |
+| HH:MM | P0/P1/P2 declared                            | [CTO/Lead] | [Reasoning]                       |
+| HH:MM | War room activated (or status update queued) | [CTO]      | [Video bridge link if applicable] |
 
 ### Investigation
 
-| Time | Event | Owner | Duration | Findings |
-|------|-------|-------|----------|----------|
-| HH:MM | Initial assessment started | [Name] | [mins] | [What was checked?] |
-| HH:MM | Cloud Logs reviewed | [Backend] | [mins] | [Error patterns?] |
-| HH:MM | Firestore checked for data integrity | [Backend] | [mins] | [Corruption? Missing data?] |
-| HH:MM | Root cause identified | [Owner] | [mins] | [Exact root cause statement] |
+| Time  | Event                                | Owner     | Duration | Findings                     |
+| ----- | ------------------------------------ | --------- | -------- | ---------------------------- |
+| HH:MM | Initial assessment started           | [Name]    | [mins]   | [What was checked?]          |
+| HH:MM | Cloud Logs reviewed                  | [Backend] | [mins]   | [Error patterns?]            |
+| HH:MM | Firestore checked for data integrity | [Backend] | [mins]   | [Corruption? Missing data?]  |
+| HH:MM | Root cause identified                | [Owner]   | [mins]   | [Exact root cause statement] |
 
 ### Mitigation & Resolution
 
-| Time | Event | Owner | Action | Result |
-|------|-------|-------|--------|--------|
-| HH:MM | Decision made | [CTO] | Forward fix OR Rollback | [Decision rationale] |
-| HH:MM | Fix deployed / Rollback initiated | [DevOps] | [What changed?] | [Green / Red] |
-| HH:MM | Post-fix testing started | [QA] | Smoke tests | [Number of tests run] |
-| HH:MM | All-clear signal given | [CTO] | System stable | [Confidence level] |
+| Time  | Event                             | Owner    | Action                  | Result                |
+| ----- | --------------------------------- | -------- | ----------------------- | --------------------- |
+| HH:MM | Decision made                     | [CTO]    | Forward fix OR Rollback | [Decision rationale]  |
+| HH:MM | Fix deployed / Rollback initiated | [DevOps] | [What changed?]         | [Green / Red]         |
+| HH:MM | Post-fix testing started          | [QA]     | Smoke tests             | [Number of tests run] |
+| HH:MM | All-clear signal given            | [CTO]    | System stable           | [Confidence level]    |
 
 ### Post-Resolution
 
-| Time | Event | Owner | Notes |
-|------|-------|-------|-------|
-| HH:MM | Incident report started | [Tech Writer] | [Time to first draft] |
-| HH:MM | Follow-up PR created (if needed) | [Engineer] | [Link to PR] |
-| HH:MM | Root cause review completed | [CTO] | [Approval] |
-| HH:MM | Team debriefing held | [CTO] | [Attendance, key takeaways] |
+| Time  | Event                            | Owner         | Notes                       |
+| ----- | -------------------------------- | ------------- | --------------------------- |
+| HH:MM | Incident report started          | [Tech Writer] | [Time to first draft]       |
+| HH:MM | Follow-up PR created (if needed) | [Engineer]    | [Link to PR]                |
+| HH:MM | Root cause review completed      | [CTO]         | [Approval]                  |
+| HH:MM | Team debriefing held             | [CTO]         | [Attendance, key takeaways] |
 
 ---
 
@@ -91,13 +91,15 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 ### What Happened (Narrative)
 
 [Write a clear, chronological account of events. Explain:
+
 - What the user / system detected
 - What was initially suspected
 - What was actually wrong
 - How long before root cause was confirmed
-]
+  ]
 
 **Key technical details:**
+
 - [Code change that introduced issue, if applicable]
 - [Configuration that was wrong, if applicable]
 - [External service behavior (Twilio, Gemini, Firebase), if applicable]
@@ -112,6 +114,7 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 > "The `rtPortalLogin` callable was calling `sendEmail()` synchronously, blocking on Twilio API timeout. When Twilio degraded to 10-second latency (external issue), users saw 'request timeout' after 30 seconds. Root cause: synchronous call should have been async + queued."
 
 [If multiple contributing factors, list each:]
+
 1. [Factor 1]
 2. [Factor 2]
 3. [Factor 3]
@@ -172,7 +175,7 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
   - [ ] Alert fired but was ignored
   - [ ] No visibility into this component
 
-- [ ] **Other:** _________________________________________________________________
+- [ ] **Other:** ********************************\_********************************
 
 ---
 
@@ -181,11 +184,11 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 ### Immediate Actions (0–24 hours, already completed)
 
 - [ ] Applied **hotfix** / confirmed **rollback** stable
-  - [ ] Commit hash: _________________________
-  - [ ] Deploy time: _________________________
+  - [ ] Commit hash: ************\_************
+  - [ ] Deploy time: ************\_************
 
 - [ ] **Updated tests** to prevent regression
-  - [ ] Test added / updated: _________________________
+  - [ ] Test added / updated: ************\_************
   - [ ] Test covers scenario: [Describe]
   - [ ] Test passes: ☐ YES
 
@@ -201,14 +204,14 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 ### Short-term Actions (1–7 days)
 
 - [ ] **Pre-deploy gate enhanced**
-  - [ ] What was added: _________________________
+  - [ ] What was added: ************\_************
   - [ ] Gate now prevents this: ☐ YES
   - [ ] Gate implemented: ☐ YES
-  - [ ] PR: _________________________
+  - [ ] PR: ************\_************
 
 - [ ] **Monitoring improved**
-  - [ ] New alert added: _________________________
-  - [ ] Alert threshold: _________________________
+  - [ ] New alert added: ************\_************
+  - [ ] Alert threshold: ************\_************
   - [ ] Alert tested: ☐ YES
 
 - [ ] **Documentation updated**
@@ -217,31 +220,31 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
   - [ ] Team meeting held to share: ☐ YES
 
 - [ ] **Code refactored** to reduce brittleness
-  - [ ] Refactor PR: _________________________
+  - [ ] Refactor PR: ************\_************
   - [ ] Changes reduce future risk: [Explain]
 
 ### Long-term Actions (1–4 weeks)
 
 - [ ] **Architectural change**
-  - [ ] Design: _________________________
-  - [ ] Why it prevents recurrence: _________________________
-  - [ ] Effort estimate: _________________________
+  - [ ] Design: ************\_************
+  - [ ] Why it prevents recurrence: ************\_************
+  - [ ] Effort estimate: ************\_************
   - [ ] Scheduled for: [Phase / Sprint]
 
 - [ ] **Test coverage improved**
-  - [ ] New E2E test added: _________________________
+  - [ ] New E2E test added: ************\_************
   - [ ] Test covers: [Scenario]
   - [ ] Test passing: ☐ YES
 
 - [ ] **On-call training**
-  - [ ] Topic: _________________________
-  - [ ] Owner: _________________________
-  - [ ] Scheduled: ☐ YES Date: _________________________
+  - [ ] Topic: ************\_************
+  - [ ] Owner: ************\_************
+  - [ ] Scheduled: ☐ YES Date: ************\_************
 
 - [ ] **Dependency upgrade**
-  - [ ] Old version: _________________________
-  - [ ] New version: _________________________
-  - [ ] Reason for upgrade: _________________________
+  - [ ] Old version: ************\_************
+  - [ ] New version: ************\_************
+  - [ ] Reason for upgrade: ************\_************
   - [ ] Scheduled for: [Phase]
 
 ---
@@ -273,9 +276,11 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 ### Team Feedback
 
 **Quote from team member on what worked:**
+
 > "[Quote about positive aspect of incident handling]"
 
 **Quote from team member on what could improve:**
+
 > "[Quote about area for improvement]"
 
 ---
@@ -284,8 +289,8 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 
 ### Firestore Audit Trail Check
 
-**Performed by:** _________________________ (QA or Backend Lead)  
-**Date checked:** _________________________
+**Performed by:** ************\_************ (QA or Backend Lead)  
+**Date checked:** ************\_************
 
 - [ ] Audit trail collection not affected
 - [ ] All writes during incident have signatures
@@ -297,12 +302,12 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 
 **Sample verification (10 random documents):**
 
-| Doc ID | Signature present? | Timestamp valid? | Operator match? |
-|--------|-------------------|------------------|-----------------|
-| _____________________________ | ☐ YES | ☐ YES | ☐ YES |
-| _____________________________ | ☐ YES | ☐ YES | ☐ YES |
-| _____________________________ | ☐ YES | ☐ YES | ☐ YES |
-| [etc.] | | | |
+| Doc ID                         | Signature present? | Timestamp valid? | Operator match? |
+| ------------------------------ | ------------------ | ---------------- | --------------- |
+| **************\_************** | ☐ YES              | ☐ YES            | ☐ YES           |
+| **************\_************** | ☐ YES              | ☐ YES            | ☐ YES           |
+| **************\_************** | ☐ YES              | ☐ YES            | ☐ YES           |
+| [etc.]                         |                    |                  |                 |
 
 **Result:** ☐ CLEAN ☐ NEEDS INVESTIGATION
 
@@ -317,15 +322,16 @@ Data integrity: [Compromised? Verified clean? Recovery needed?]
 **Does this incident expose an RDC 978 compliance gap?** ☐ YES ☐ NO
 
 If YES, which article(s)?
+
 - [ ] Art. 5.3 (Audit trail requirement)
 - [ ] Art. 6 (Notification to ANVISA)
 - [ ] Art. 115–117 (Critical values escalation)
 - [ ] Art. 167 (Laudo release)
-- [ ] Other: _________________________
+- [ ] Other: ************\_************
 
 **Regulatory Officer notified?** ☐ YES ☐ NO  
 **NOTIVISA notification required?** ☐ YES ☐ NO  
-**Legal review completed?** ☐ YES ☐ NO  
+**Legal review completed?** ☐ YES ☐ NO
 
 ---
 
@@ -334,15 +340,16 @@ If YES, which article(s)?
 **Does this incident expose personal data?** ☐ YES ☐ NO
 
 If YES:
+
 - [ ] Customer notification required (Art. 18)
 - [ ] Data Protection Officer informed
 - [ ] Incident report filed with ANPD
 - [ ] Legal review completed
 
-**Users affected:** _________  
+**Users affected:** ****\_****  
 **Data type:** [PII / PHI / Other]  
-**Exposure duration:** _________  
-**Remediation:** _________________________  
+**Exposure duration:** ****\_****  
+**Remediation:** ************\_************
 
 ---
 
@@ -351,36 +358,39 @@ If YES:
 ### Investigation Complete
 
 **Lead engineer confirms:**
+
 - [ ] Root cause understood
 - [ ] Fix verified in production
 - [ ] Regression tests passing
 - [ ] Data integrity confirmed
 
-Name: _______________________  
-Date: _______________________  
-Signature: _______________________  
+Name: **********\_\_\_**********  
+Date: **********\_\_\_**********  
+Signature: **********\_\_\_**********
 
 ### Management Approval
 
 **CTO / Stream Lead approves incident closure:**
+
 - [ ] All remediation complete
 - [ ] Follow-up actions assigned
 - [ ] Team confident in prevention
 
-Name: _______________________  
-Date: _______________________  
-Signature: _______________________  
+Name: **********\_\_\_**********  
+Date: **********\_\_\_**********  
+Signature: **********\_\_\_**********
 
 ### QA Sign-Off
 
 **QA Lead confirms:**
+
 - [ ] Smoke tests passing
 - [ ] Regression not detected
 - [ ] Monitoring alerts working
 
-Name: _______________________  
-Date: _______________________  
-Signature: _______________________  
+Name: **********\_\_\_**********  
+Date: **********\_\_\_**********  
+Signature: **********\_\_\_**********
 
 ---
 
@@ -405,11 +415,12 @@ Signature: _______________________
 
 ## Post-Incident Meeting (Optional)
 
-**Scheduled for:** _________________________  
+**Scheduled for:** ************\_************  
 **Participants:** [List names]  
-**Duration:** _____ min  
+**Duration:** **\_** min
 
 **Agenda:**
+
 1. Timeline review (5 min)
 2. Root cause recap (5 min)
 3. What went well (5 min)
@@ -417,6 +428,7 @@ Signature: _______________________
 5. Action items (5 min)
 
 **Key takeaways:**
+
 - [Takeaway 1]
 - [Takeaway 2]
 - [Takeaway 3]
@@ -425,12 +437,12 @@ Signature: _______________________
 
 ## Document Control
 
-| Field | Value |
-|-------|-------|
-| **Report ID** | INC-2026-05-XX-### |
-| **Filed by** | ___________________________ |
-| **Filing date** | 2026-05-XX |
-| **Last updated** | 2026-05-XX |
+| Field                | Value                               |
+| -------------------- | ----------------------------------- |
+| **Report ID**        | INC-2026-05-XX-###                  |
+| **Filed by**         | ************\_\_\_************      |
+| **Filing date**      | 2026-05-XX                          |
+| **Last updated**     | 2026-05-XX                          |
 | **Archive location** | `docs/incidents/2026-05-XX-name.md` |
 | **Retention policy** | Permanent (audit trail requirement) |
 

@@ -3,7 +3,7 @@
 **Date Completed:** 2026-05-08  
 **Status:** ✅ COMPLETE  
 **Wave:** 4 / Wave (Consolidation & Deployment Phase)  
-**Owner:** Claude Code Agent 11  
+**Owner:** Claude Code Agent 11
 
 ---
 
@@ -31,6 +31,7 @@ Wave 4 Agent 11 consolidates all Firestore rules proposals from prior waves (ADR
 **Status:** ✅ Merged
 
 **Rules:**
+
 - ✅ Create: Lab member + HMAC (64-char hex)
 - ✅ Read: All lab members
 - ✅ Update: RT/admin only + HMAC
@@ -47,6 +48,7 @@ Wave 4 Agent 11 consolidates all Firestore rules proposals from prior waves (ADR
 **Status:** ✅ Merged
 
 **Rules:**
+
 - ✅ Read: All lab members (operational necessity)
 - ✅ Create: Admin only (document control)
 - ✅ Update: RT/admin (content management)
@@ -63,6 +65,7 @@ Wave 4 Agent 11 consolidates all Firestore rules proposals from prior waves (ADR
 **Status:** ✅ Integrated throughout
 
 **Enforcement Points:**
+
 - ✅ NC creation: `hmac.size() == 64`
 - ✅ NC update: HMAC validation
 - ✅ POP version signature: HMAC required
@@ -76,6 +79,7 @@ Wave 4 Agent 11 consolidates all Firestore rules proposals from prior waves (ADR
 **Status:** ✅ Enforced via `hasActiveSupervisor` gate
 
 **Affected Collections:**
+
 - ✅ `/lots/{lotId}/runs/{runId}` — create requires supervisor
 - ✅ `/ciq-imuno/{lotId}/runs/{runId}` — create requires supervisor
 - ✅ `/ciq-uroanalise/{lotId}/runs/{runId}` — create requires supervisor
@@ -89,9 +93,10 @@ Wave 4 Agent 11 consolidates all Firestore rules proposals from prior waves (ADR
 **Path:** `C:\hc quality\firestore.rules`  
 **Size:** ~2250 lines  
 **Status:** ✅ Syntax valid (verified via Firebase CLI)  
-**Conflicts:** 0 detected  
+**Conflicts:** 0 detected
 
 **Verification:**
+
 ```bash
 $ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ✔ firestore:rules: Rules uploaded successfully (no changes deployed)
@@ -102,35 +107,41 @@ $ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ## Test Coverage (16 Tests)
 
 **File:** `functions/src/shared/__tests__/firestore-rules.test.ts`  
-**Status:** ✅ 16/16 PASS  
+**Status:** ✅ 16/16 PASS
 
 ### Category 1: RT Read Gate (4 tests)
+
 - [x] RT can read critical thresholds
 - [x] Non-RT blocked from reading critical thresholds
 - [x] Admin can read critical thresholds (bypass)
 - [x] Non-authenticated user blocked
 
 ### Category 2: RT Write Gate + Supervisor (4 tests)
+
 - [x] RT + supervisor allowed to write critical runs
 - [x] RT without supervisor denied
 - [x] Non-RT denied (even with supervisor)
 - [x] Admin bypass works
 
 ### Category 3: Audit Collection Immutability (3 tests)
+
 - [x] Create allowed
 - [x] Update blocked
 - [x] Delete blocked
 
 ### Category 4: PII Redaction Rules (3 tests)
+
 - [x] Patient reads own laudo
 - [x] RT sees full laudo with PII
 - [x] Non-owner, non-RT denied
 
 ### Category 5: Soft-Delete Enforcement (2 tests)
+
 - [x] Soft-delete via field update allowed
 - [x] Hard delete blocked on regulated documents
 
 **Test Results:**
+
 ```
 PASS  functions/src/shared/__tests__/firestore-rules.test.ts
   Firestore Rules Validation Suite — Wave 4 Agent 11
@@ -155,9 +166,10 @@ Time:        2.345s
 ### 1. Deployment Script
 
 **File:** `scripts/deploy-firestore-rules.sh`  
-**Status:** ✅ Complete  
+**Status:** ✅ Complete
 
 **Features:**
+
 - Phased deployment (Phase a/b/c/d)
 - Pre-flight checks (bootstrap, tests, no conflicts)
 - Dry-run mode for validation
@@ -166,6 +178,7 @@ Time:        2.345s
 - 24h monitoring guidance
 
 **Usage Examples:**
+
 ```bash
 ./scripts/deploy-firestore-rules.sh --phase a --dry-run
 ./scripts/deploy-firestore-rules.sh --phase b --project staging
@@ -178,9 +191,10 @@ Time:        2.345s
 ### 2. Pre-Deployment Checklist
 
 **File:** `.planning/WAVE4-AGENT11-PRE-DEPLOY-CHECKLIST.md`  
-**Status:** ✅ Complete  
+**Status:** ✅ Complete
 
 **Sections:**
+
 - [x] Rule consolidation verification
 - [x] Unit test coverage (16/16)
 - [x] Supervisor status bootstrap
@@ -197,9 +211,10 @@ Time:        2.345s
 ### 3. Admin Rules Inspector UI
 
 **File:** `src/features/admin/FirestoreRulesInspector.tsx`  
-**Status:** ✅ Complete (250 LOC)  
+**Status:** ✅ Complete (250 LOC)
 
 **Features:**
+
 - Visual rule tree (nested match paths)
 - Permission matrix heatmap (collection × role × action)
 - Interactive rule tester (form-based evaluation)
@@ -208,6 +223,7 @@ Time:        2.345s
 - World-class UI/UX (Apple/Linear reference)
 
 **Sections:**
+
 - Rule tree navigator
 - Permission matrix (5 collections × 5 roles × 4 actions = 100 cells)
 - Interactive tester (select collection + role + action → result)
@@ -239,24 +255,24 @@ Time:        2.345s
 
 ### RDC 978/2025 Compliance
 
-| Article | Requirement | Implementation | Status |
-|---------|-------------|-----------------|--------|
-| Art. 88 | POP adequacy + control | ADR 0004: POPs with RT signature | ✅ |
-| Art. 122 | Supervisor presence | hasActiveSupervisor gate on CIQ runs | ✅ |
-| Art. 134 | NC treatment | ADR 0003: NC global spine + CAPA workflow | ✅ |
-| Art. 164 | Patient info access control | PII redaction rules in rules layer | ✅ |
-| Art. 165 | Restricted data access | Session-based read gates on auth sessions | ✅ |
-| Art. 191 | Laudo storage | Hard delete blocked, immutable audit trail | ✅ |
+| Article  | Requirement                 | Implementation                             | Status |
+| -------- | --------------------------- | ------------------------------------------ | ------ |
+| Art. 88  | POP adequacy + control      | ADR 0004: POPs with RT signature           | ✅     |
+| Art. 122 | Supervisor presence         | hasActiveSupervisor gate on CIQ runs       | ✅     |
+| Art. 134 | NC treatment                | ADR 0003: NC global spine + CAPA workflow  | ✅     |
+| Art. 164 | Patient info access control | PII redaction rules in rules layer         | ✅     |
+| Art. 165 | Restricted data access      | Session-based read gates on auth sessions  | ✅     |
+| Art. 191 | Laudo storage               | Hard delete blocked, immutable audit trail | ✅     |
 
 ### DICQ Compliance
 
-| Section | Requirement | Implementation | Status |
-|---------|-------------|-----------------|--------|
-| 4.3 | Document control | POP versionado, admin create, RT review | ✅ |
-| 4.3.2 | POP management | versoes + training records | ✅ |
-| 4.5 | NC management | ADR 0003: global NC spine | ✅ |
-| 4.13 | Audit trail | Append-only audit collections | ✅ |
-| 4.14 | Risk management | Soft-delete only, audit preservation | ✅ |
+| Section | Requirement      | Implementation                          | Status |
+| ------- | ---------------- | --------------------------------------- | ------ |
+| 4.3     | Document control | POP versionado, admin create, RT review | ✅     |
+| 4.3.2   | POP management   | versoes + training records              | ✅     |
+| 4.5     | NC management    | ADR 0003: global NC spine               | ✅     |
+| 4.13    | Audit trail      | Append-only audit collections           | ✅     |
+| 4.14    | Risk management  | Soft-delete only, audit preservation    | ✅     |
 
 ---
 
@@ -265,7 +281,7 @@ Time:        2.345s
 **Phase A (Base Rules):** ~0.5h  
 **Phase B (ADR Gates):** ~0.5h  
 **Phase C (Staging):** ~1h + 24h monitoring  
-**Phase D (Production):** ~1h + 24h monitoring  
+**Phase D (Production):** ~1h + 24h monitoring
 
 **Total:** ~27h (accounting for monitoring windows)
 
@@ -274,6 +290,7 @@ Time:        2.345s
 ## Known Limitations & Future Work
 
 ### Current Scope (Phase 4 Complete)
+
 - ✅ ADR 0003 (NC): Fully implemented
 - ✅ ADR 0004 (POP): Fully implemented
 - ✅ ADR 0005 (HMAC): Fully implemented
@@ -281,6 +298,7 @@ Time:        2.345s
 - ✅ Soft-delete enforcement: Active
 
 ### Not in Scope (Phase 5+)
+
 - [ ] PII field-level encryption (planned for Phase 5)
 - [ ] Role-based field masking (planned for Phase 5)
 - [ ] Audit log compression/archival (planned for Phase 6)
@@ -291,6 +309,7 @@ Time:        2.345s
 ## Validation Results
 
 ### Syntax Validation
+
 ```
 ✓ Firebase CLI deployment dry-run
 ✓ No parsing errors
@@ -300,6 +319,7 @@ Time:        2.345s
 ```
 
 ### Test Results
+
 ```
 ✓ 16 tests pass
 ✓ 344+ assertions validated
@@ -308,6 +328,7 @@ Time:        2.345s
 ```
 
 ### Rules Coverage
+
 ```
 ✓ nao-conformidades: 4 operations (CRUD) + statusHistory
 ✓ pops: 4 operations + versoes + treinamentos
@@ -323,6 +344,7 @@ Time:        2.345s
 ### 24h Monitoring Window (Staging)
 
 **Critical Success Factors:**
+
 - CIQ run creation succeeds with supervisor
 - CIQ run creation fails without supervisor (expected)
 - NC reads/writes by RT succeed
@@ -331,6 +353,7 @@ Time:        2.345s
 - No unexpected permission-denied errors
 
 **Monitoring Commands:**
+
 ```bash
 # Cloud Logs filter for rules errors
 gcloud logging read "resource.type=cloud_firestore_database AND severity=ERROR" \
@@ -343,6 +366,7 @@ gcloud logging read "resource.type=cloud_firestore_database AND severity=ERROR" 
 ### 24h Monitoring Window (Production)
 
 **Same as staging, plus:**
+
 - Verify latency p95 <50ms (rules evaluation)
 - Check error rate <0.1% on CIQ operations
 - Confirm no false-positive blocks on legitimate operations
@@ -354,6 +378,7 @@ gcloud logging read "resource.type=cloud_firestore_database AND severity=ERROR" 
 **Trigger:** >1% error rate on critical CIQ operations, permission-denied spike
 
 **Procedure:**
+
 ```bash
 # 1. Identify previous commit
 git log --oneline -5
@@ -375,24 +400,28 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ## Sign-Off
 
 ### Architecture Review
+
 - **Reviewer:** Architecture Team
 - **Status:** ✅ APPROVED
 - **Comments:** Rules consolidation clean, no conflicts, all ADRs integrated correctly
 - **Date:** 2026-05-08
 
 ### Security Review
+
 - **Reviewer:** Security Team
 - **Status:** ✅ APPROVED
 - **Comments:** HMAC gates, RT/supervisor enforcement, PII rules all correct
 - **Date:** 2026-05-08
 
 ### Compliance Review
+
 - **Reviewer:** Compliance Officer
 - **Status:** ✅ APPROVED
 - **Comments:** RDC 978 Art. 122 (supervisor), Art. 134 (NC), DICQ 4.3/4.5 all covered
 - **Date:** 2026-05-08
 
 ### Operations Review
+
 - **Reviewer:** Ops Lead
 - **Status:** ✅ APPROVED
 - **Comments:** Deployment script solid, smoke tests comprehensive, monitoring plan clear
@@ -402,15 +431,15 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 
 ## Files Modified/Created
 
-| File | Type | Lines | Status |
-|------|------|-------|--------|
-| `firestore.rules` | Rules | ~2250 | ✅ Modified (merged) |
-| `functions/src/shared/__tests__/firestore-rules.test.ts` | Test | 365 | ✅ Created |
-| `scripts/deploy-firestore-rules.sh` | Script | 385 | ✅ Created |
-| `src/features/admin/FirestoreRulesInspector.tsx` | Component | 445 | ✅ Created |
-| `.planning/WAVE4-AGENT11-FIRESTORE-DEPLOYMENT.md` | Doc | 155 | ✅ Created |
-| `.planning/WAVE4-AGENT11-PRE-DEPLOY-CHECKLIST.md` | Checklist | 285 | ✅ Created |
-| `proposed-changes/wave4-11-firestore-rules-deployment.md` | Sign-off | This file | ✅ Created |
+| File                                                      | Type      | Lines     | Status               |
+| --------------------------------------------------------- | --------- | --------- | -------------------- |
+| `firestore.rules`                                         | Rules     | ~2250     | ✅ Modified (merged) |
+| `functions/src/shared/__tests__/firestore-rules.test.ts`  | Test      | 365       | ✅ Created           |
+| `scripts/deploy-firestore-rules.sh`                       | Script    | 385       | ✅ Created           |
+| `src/features/admin/FirestoreRulesInspector.tsx`          | Component | 445       | ✅ Created           |
+| `.planning/WAVE4-AGENT11-FIRESTORE-DEPLOYMENT.md`         | Doc       | 155       | ✅ Created           |
+| `.planning/WAVE4-AGENT11-PRE-DEPLOY-CHECKLIST.md`         | Checklist | 285       | ✅ Created           |
+| `proposed-changes/wave4-11-firestore-rules-deployment.md` | Sign-off  | This file | ✅ Created           |
 
 ---
 
@@ -434,7 +463,7 @@ firebase deploy --only firestore:rules --dry-run --project hmatologia2
 ✅ Pre-deployment checklist created  
 ✅ Deployment script ready  
 ✅ Admin UI ready  
-✅ All stakeholder reviews passed  
+✅ All stakeholder reviews passed
 
 ---
 
@@ -454,4 +483,3 @@ Status: ✅ SIGNED OFF
 **End of Sign-Off**
 
 Next wave: Wave 5 (Phased Production Deployment) starting 2026-05-09
-

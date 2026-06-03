@@ -66,7 +66,7 @@ export function listAvailableTemplates(): TemplateMetadata[] {
  */
 export async function installTemplate(
   labId: string,
-  templateId: string
+  templateId: string,
 ): Promise<{ sessaoId: string; itemsCreated: number }> {
   const callable = httpsCallable(functions, 'installChecklistTemplate');
 
@@ -100,7 +100,7 @@ export function filterTemplateItems(
     bloco?: string;
     categoria?: string;
     applicableOnly?: boolean;
-  }
+  },
 ): TemplateChecklist['itens'] {
   const template = getTemplateById(templateId);
   let items = template.itens;

@@ -8,10 +8,10 @@ interface NCCardProps {
 }
 
 const STATUS_COLOR: Record<NC['status'], string> = {
-  open: '#ef4444',        // red-500 — urgent
+  open: '#ef4444', // red-500 — urgent
   investigating: '#f59e0b', // amber-500 — in progress
-  resolved: '#10b981',    // emerald-500
-  closed: '#6b7280',      // gray-500
+  resolved: '#10b981', // emerald-500
+  closed: '#6b7280', // gray-500
 };
 
 const STATUS_LABEL: Record<NC['status'], string> = {

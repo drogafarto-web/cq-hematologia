@@ -42,7 +42,7 @@ npm run build && npx tsc --noEmit
 ### Service: PortalAuthService
 
 ```typescript
-import { 
+import {
   createPortalSession,
   getPortalSession,
   updatePortalSessionToken,
@@ -92,16 +92,17 @@ try {
     // Handle: STATE_MISMATCH | INVALID_CODE | TOKEN_EXCHANGE_FAILED | etc
   } else {
     // Success response
-    const { sessionId, firebaseToken, expiresAt, professionalName, professionalRole } = response.data;
-    
+    const { sessionId, firebaseToken, expiresAt, professionalName, professionalRole } =
+      response.data;
+
     // Store token
     localStorage.setItem('portalToken', firebaseToken);
     localStorage.setItem('portalSessionId', sessionId);
     localStorage.setItem('portalExpiresAt', expiresAt);
-    
+
     // Sign in with custom token
     await signInWithCustomToken(auth, firebaseToken);
-    
+
     // Redirect
     window.location.href = '/portal/dashboard';
   }
@@ -115,9 +116,9 @@ try {
 ## OAuth Flow (One-liner)
 
 ```
-Login → generateOAuthState() → redirect to NOTIVISA IDP 
-→ User authorizes → IDP redirects with code 
-→ Call authenticatePortal(code) → Session created 
+Login → generateOAuthState() → redirect to NOTIVISA IDP
+→ User authorizes → IDP redirects with code
+→ Call authenticatePortal(code) → Session created
 → Custom token issued → Store token → Redirect to portal
 ```
 
@@ -150,16 +151,16 @@ Login → generateOAuthState() → redirect to NOTIVISA IDP
 
 ## Error Codes
 
-| Code | Cause | Action |
-|---|---|---|
-| `INVALID_INPUT` | Validation failed | Check input parameters |
-| `STATE_MISMATCH` | CSRF attack or expired | Restart login flow |
-| `INVALID_CODE` | Code invalid/expired | Request new code from IDP |
-| `TOKEN_EXCHANGE_FAILED` | IDP unreachable | Retry after 30s |
-| `INVALID_TOKEN` | idToken claims invalid | Contact NOTIVISA support |
-| `LAB_NOT_FOUND` | Lab not configured | Configure notivisaLabCode |
-| `USER_NOT_FOUND` | Firebase user creation failed | Retry or contact support |
-| `INTERNAL_ERROR` | Unexpected server error | Check Cloud Logs |
+| Code                    | Cause                         | Action                    |
+| ----------------------- | ----------------------------- | ------------------------- |
+| `INVALID_INPUT`         | Validation failed             | Check input parameters    |
+| `STATE_MISMATCH`        | CSRF attack or expired        | Restart login flow        |
+| `INVALID_CODE`          | Code invalid/expired          | Request new code from IDP |
+| `TOKEN_EXCHANGE_FAILED` | IDP unreachable               | Retry after 30s           |
+| `INVALID_TOKEN`         | idToken claims invalid        | Contact NOTIVISA support  |
+| `LAB_NOT_FOUND`         | Lab not configured            | Configure notivisaLabCode |
+| `USER_NOT_FOUND`        | Firebase user creation failed | Retry or contact support  |
+| `INTERNAL_ERROR`        | Unexpected server error       | Check Cloud Logs          |
 
 ---
 
@@ -228,12 +229,12 @@ const events = await getPortalSessionAudit(labId, sessionId);
 
 ## Performance Targets
 
-| Operation | Target | How to Monitor |
-|---|---|---|
-| OAuth exchange | <2 sec | Cloud Logs (authenticatePortal duration) |
-| Token refresh | <1 sec | Cloud Logs (refreshPortalToken duration) |
-| Session lookup | <100 ms | Firestore Console (latency) |
-| Token validation | <50 ms | Client-side (Date.now() - start) |
+| Operation        | Target  | How to Monitor                           |
+| ---------------- | ------- | ---------------------------------------- |
+| OAuth exchange   | <2 sec  | Cloud Logs (authenticatePortal duration) |
+| Token refresh    | <1 sec  | Cloud Logs (refreshPortalToken duration) |
+| Session lookup   | <100 ms | Firestore Console (latency)              |
+| Token validation | <50 ms  | Client-side (Date.now() - start)         |
 
 ---
 
@@ -252,6 +253,7 @@ const events = await getPortalSessionAudit(labId, sessionId);
 ## Common Issues
 
 **"OAuth state parameter invalid"**
+
 ```
 → State doc not found or expired (>10 min)
 → Check notivisa-portal-oauth-state collection
@@ -259,6 +261,7 @@ const events = await getPortalSessionAudit(labId, sessionId);
 ```
 
 **"Failed to exchange authorization code"**
+
 ```
 → NOTIVISA IDP unreachable or OAuth credentials invalid
 → Check NOTIVISA_OAUTH_CLIENT_SECRET in Secret Manager
@@ -267,6 +270,7 @@ const events = await getPortalSessionAudit(labId, sessionId);
 ```
 
 **"Lab not found / not configured"**
+
 ```
 → labId not in Firestore or missing notivisaLabCode
 → Verify lab exists: firebase firestore:documents get labs/{labId}
@@ -274,6 +278,7 @@ const events = await getPortalSessionAudit(labId, sessionId);
 ```
 
 **"Session expired"**
+
 ```
 → expiresAt < now()
 → Check NOTIVISA IDP token TTL (expiresIn value)

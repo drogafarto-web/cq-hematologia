@@ -143,8 +143,15 @@ export async function generateTreinamentosTemplate(): Promise<ArrayBuffer> {
   const wsData = [header, ...exemplos];
   const ws = XLSX.utils.aoa_to_sheet(wsData);
   ws['!cols'] = [
-    { wch: 40 }, { wch: 40 }, { wch: 10 }, { wch: 15 },
-    { wch: 18 }, { wch: 20 }, { wch: 14 }, { wch: 8 }, { wch: 42 },
+    { wch: 40 },
+    { wch: 40 },
+    { wch: 10 },
+    { wch: 15 },
+    { wch: 18 },
+    { wch: 20 },
+    { wch: 14 },
+    { wch: 8 },
+    { wch: 42 },
   ];
 
   const instrData = [
@@ -261,9 +268,7 @@ function parseAtivo(raw: unknown): boolean | null {
 }
 
 function isEmptyRow(row: Record<string, unknown>): boolean {
-  return Object.values(row).every(
-    (v) => v === undefined || v === null || String(v).trim() === '',
-  );
+  return Object.values(row).every((v) => v === undefined || v === null || String(v).trim() === '');
 }
 
 /**
@@ -341,9 +346,7 @@ function parseDatasPlanejadas(raw: unknown): { dates: Date[]; invalid: string[] 
   return { dates, invalid };
 }
 
-export async function parseTreinamentosXlsx(
-  file: File,
-): Promise<TreinamentoParseResult> {
+export async function parseTreinamentosXlsx(file: File): Promise<TreinamentoParseResult> {
   const XLSX = await loadXlsx();
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array' });
@@ -439,8 +442,7 @@ export async function parseTreinamentosXlsx(
         linha,
         coluna: COLUNAS.periodicidade,
         valor: row[COLUNAS.periodicidade],
-        mensagem:
-          'Periodicidade inválida. Use: Mensal, Bimestral, Trimestral, Semestral ou Anual.',
+        mensagem: 'Periodicidade inválida. Use: Mensal, Bimestral, Trimestral, Semestral ou Anual.',
       });
     }
 
@@ -571,9 +573,7 @@ export async function downloadColaboradoresTemplate(
   URL.revokeObjectURL(url);
 }
 
-export async function parseColaboradoresXlsx(
-  file: File,
-): Promise<ParseResult<ColaboradorInput>> {
+export async function parseColaboradoresXlsx(file: File): Promise<ParseResult<ColaboradorInput>> {
   const XLSX = await loadXlsx();
   const buffer = await file.arrayBuffer();
   const wb = XLSX.read(buffer, { type: 'array' });

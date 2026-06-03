@@ -44,8 +44,7 @@ function makeFirestore(snapByPath: Record<string, FakeSnap>): any {
   return {
     doc(path: string) {
       return {
-        get: async () =>
-          snapByPath[path] ?? { exists: false, data: () => undefined },
+        get: async () => snapByPath[path] ?? { exists: false, data: () => undefined },
       };
     },
   };
@@ -66,32 +65,32 @@ describe('assertConsentsWriteAccess', () => {
 
   it('throws unauthenticated when auth is undefined', async () => {
     const fs = makeFirestore({});
-    await expect(
-      assertConsentsWriteAccess(undefined, labId, fs),
-    ).rejects.toMatchObject({ code: 'unauthenticated' });
+    await expect(assertConsentsWriteAccess(undefined, labId, fs)).rejects.toMatchObject({
+      code: 'unauthenticated',
+    });
   });
 
   it('throws invalid-argument when labId is missing', async () => {
     const fs = makeFirestore({});
-    await expect(
-      assertConsentsWriteAccess({ uid }, '' as any, fs),
-    ).rejects.toMatchObject({ code: 'invalid-argument' });
+    await expect(assertConsentsWriteAccess({ uid }, '' as any, fs)).rejects.toMatchObject({
+      code: 'invalid-argument',
+    });
   });
 
   it('throws permission-denied when member doc is absent', async () => {
     const fs = makeFirestore({});
-    await expect(
-      assertConsentsWriteAccess({ uid }, labId, fs),
-    ).rejects.toMatchObject({ code: 'permission-denied' });
+    await expect(assertConsentsWriteAccess({ uid }, labId, fs)).rejects.toMatchObject({
+      code: 'permission-denied',
+    });
   });
 
   it('throws permission-denied when member exists but is inactive', async () => {
     const fs = makeFirestore({
       [memberPath]: { exists: true, data: () => ({ active: false }) },
     });
-    await expect(
-      assertConsentsWriteAccess({ uid }, labId, fs),
-    ).rejects.toMatchObject({ code: 'permission-denied' });
+    await expect(assertConsentsWriteAccess({ uid }, labId, fs)).rejects.toMatchObject({
+      code: 'permission-denied',
+    });
   });
 
   it('throws permission-denied when caller belongs to a different lab', async () => {
@@ -102,9 +101,9 @@ describe('assertConsentsWriteAccess', () => {
         data: () => ({ active: true }),
       },
     });
-    await expect(
-      assertConsentsWriteAccess({ uid }, labId, fs),
-    ).rejects.toMatchObject({ code: 'permission-denied' });
+    await expect(assertConsentsWriteAccess({ uid }, labId, fs)).rejects.toMatchObject({
+      code: 'permission-denied',
+    });
   });
 });
 
@@ -148,9 +147,7 @@ describe('RecordConsentInputSchema', () => {
   });
 
   it('rejects missing consentVersion', () => {
-    expect(() =>
-      RecordConsentInputSchema.parse({ labId, patientId: 'pat-1' }),
-    ).toThrow();
+    expect(() => RecordConsentInputSchema.parse({ labId, patientId: 'pat-1' })).toThrow();
   });
 
   it('rejects empty scope array', () => {
@@ -205,9 +202,7 @@ describe('RevokeConsentInputSchema', () => {
   });
 
   it('rejects missing labId', () => {
-    expect(() =>
-      RevokeConsentInputSchema.parse({ patientId: 'pat-1' }),
-    ).toThrow();
+    expect(() => RevokeConsentInputSchema.parse({ patientId: 'pat-1' })).toThrow();
   });
 
   it('rejects missing patientId', () => {

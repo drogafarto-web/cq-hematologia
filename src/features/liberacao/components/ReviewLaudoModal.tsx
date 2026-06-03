@@ -61,19 +61,25 @@ function ExamesTable({ exames }: { exames: Laudo['exames'] }) {
               </td>
               <td className="p-3 text-center">
                 {exame.duplaVerificacao && (
-                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
-                    exame.duplaVerificacao.statusVerificacao === 'aguardando_segunda_leitura'
-                      ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
-                      : exame.duplaVerificacao.statusVerificacao === 'divergente_bloqueado'
-                      ? 'bg-red-500/10 text-red-400 border border-red-500/20'
-                      : exame.duplaVerificacao.statusVerificacao === 'liberado_coincidente'
-                      ? 'bg-green-500/10 text-green-400 border border-green-500/20'
-                      : 'bg-green-500/20 text-green-300 border border-green-500/30'
-                  }`}>
-                    {exame.duplaVerificacao.statusVerificacao === 'aguardando_segunda_leitura' && '⏳ 2ª Leitura Pendente'}
-                    {exame.duplaVerificacao.statusVerificacao === 'divergente_bloqueado' && '🚨 Divergente'}
-                    {exame.duplaVerificacao.statusVerificacao === 'liberado_coincidente' && '✅ Verificado'}
-                    {exame.duplaVerificacao.statusVerificacao === 'revisado_e_liberado' && '✅ Revisado'}
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold ${
+                      exame.duplaVerificacao.statusVerificacao === 'aguardando_segunda_leitura'
+                        ? 'bg-yellow-500/10 text-yellow-400 border border-yellow-500/20'
+                        : exame.duplaVerificacao.statusVerificacao === 'divergente_bloqueado'
+                          ? 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          : exame.duplaVerificacao.statusVerificacao === 'liberado_coincidente'
+                            ? 'bg-green-500/10 text-green-400 border border-green-500/20'
+                            : 'bg-green-500/20 text-green-300 border border-green-500/30'
+                    }`}
+                  >
+                    {exame.duplaVerificacao.statusVerificacao === 'aguardando_segunda_leitura' &&
+                      '⏳ 2ª Leitura Pendente'}
+                    {exame.duplaVerificacao.statusVerificacao === 'divergente_bloqueado' &&
+                      '🚨 Divergente'}
+                    {exame.duplaVerificacao.statusVerificacao === 'liberado_coincidente' &&
+                      '✅ Verificado'}
+                    {exame.duplaVerificacao.statusVerificacao === 'revisado_e_liberado' &&
+                      '✅ Revisado'}
                   </span>
                 )}
               </td>
@@ -104,13 +110,17 @@ function AutoReleaseStatus({ info }: { info?: ReviewLaudoModalProps['autoRelease
   if (!info) return null;
 
   return (
-    <div className={`border rounded-lg p-4 ${
-      info.shouldAutoRelease
-        ? 'border-violet-500/30 bg-violet-500/5'
-        : 'border-yellow-500/30 bg-yellow-500/5'
-    }`}>
+    <div
+      className={`border rounded-lg p-4 ${
+        info.shouldAutoRelease
+          ? 'border-violet-500/30 bg-violet-500/5'
+          : 'border-yellow-500/30 bg-yellow-500/5'
+      }`}
+    >
       <div className="flex items-start gap-3">
-        <div className={`text-xl ${info.shouldAutoRelease ? 'text-violet-400' : 'text-yellow-400'}`}>
+        <div
+          className={`text-xl ${info.shouldAutoRelease ? 'text-violet-400' : 'text-yellow-400'}`}
+        >
           {info.shouldAutoRelease ? '🤖' : '🔒'}
         </div>
         <div className="flex-1">
@@ -121,7 +131,9 @@ function AutoReleaseStatus({ info }: { info?: ReviewLaudoModalProps['autoRelease
           {info.blockers.length > 0 && (
             <div className="mt-2 space-y-1">
               {info.blockers.map((blocker, idx) => (
-                <p key={idx} className="text-xs text-white/60">• {blocker}</p>
+                <p key={idx} className="text-xs text-white/60">
+                  • {blocker}
+                </p>
               ))}
             </div>
           )}
@@ -206,11 +218,19 @@ export function ReviewLaudoModal({
                 <div className="space-y-2 text-sm">
                   <p className="text-white/90 font-medium">{laudo.paciente.nome}</p>
                   <p className="text-white/60">
-                    Idade: {typeof laudo.pacienteIdade === 'object' && 'value' in laudo.pacienteIdade
+                    Idade:{' '}
+                    {typeof laudo.pacienteIdade === 'object' && 'value' in laudo.pacienteIdade
                       ? `${laudo.pacienteIdade.value} ${laudo.pacienteIdade.unit}`
                       : '—'}
                   </p>
-                  <p className="text-white/60">Sexo: {laudo.paciente.sexo === 'M' ? 'Masculino' : laudo.paciente.sexo === 'F' ? 'Feminino' : 'Não informado'}</p>
+                  <p className="text-white/60">
+                    Sexo:{' '}
+                    {laudo.paciente.sexo === 'M'
+                      ? 'Masculino'
+                      : laudo.paciente.sexo === 'F'
+                        ? 'Feminino'
+                        : 'Não informado'}
+                  </p>
                 </div>
               </div>
 
@@ -228,13 +248,17 @@ export function ReviewLaudoModal({
             {/* Seção 2: Datas */}
             <div className="grid grid-cols-2 gap-6 border-y border-white/10 py-6">
               <div>
-                <h4 className="text-xs text-white/60 font-medium uppercase tracking-wider mb-2">Data/Hora da Coleta</h4>
+                <h4 className="text-xs text-white/60 font-medium uppercase tracking-wider mb-2">
+                  Data/Hora da Coleta
+                </h4>
                 <p className="text-sm text-white/90">
                   {laudo.coletaEm.toDate?.().toLocaleString('pt-BR')}
                 </p>
               </div>
               <div>
-                <h4 className="text-xs text-white/60 font-medium uppercase tracking-wider mb-2">Data/Hora da Emissão</h4>
+                <h4 className="text-xs text-white/60 font-medium uppercase tracking-wider mb-2">
+                  Data/Hora da Emissão
+                </h4>
                 <p className="text-sm text-white/90">
                   {laudo.emissaoEm.toDate?.().toLocaleString('pt-BR')}
                 </p>

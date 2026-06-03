@@ -60,9 +60,7 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
     const uid = request.auth!.uid;
 
     // 1b. Rate limit per uid (SECURITY_AUDIT.md #18): 100/min for authenticated.
-    const { enforceAuthenticatedRateLimit } = await import(
-      '../shared/rateLimit'
-    );
+    const { enforceAuthenticatedRateLimit } = await import('../shared/rateLimit');
     const rl = await enforceAuthenticatedRateLimit(uid, 'criarLaudo', 100);
     if (!rl.allowed) {
       throw new HttpsError(
@@ -105,14 +103,9 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
     const rtMember = rtSnap.docs[0].data();
 
     // 5. Lê paciente (se armazenado localmente)
-    const pacienteSnap = await db
-      .doc(`labs/${labId}/pacientes/${pacienteId}`)
-      .get();
+    const pacienteSnap = await db.doc(`labs/${labId}/pacientes/${pacienteId}`).get();
     if (!pacienteSnap.exists) {
-      throw new HttpsError(
-        'not-found',
-        'Paciente não encontrado. Verifique integração Worklab.',
-      );
+      throw new HttpsError('not-found', 'Paciente não encontrado. Verifique integração Worklab.');
     }
     const pacienteData = pacienteSnap.data()!;
 
@@ -121,9 +114,7 @@ export const criarLaudo = onCall<unknown, Promise<CriarLaudoResult>>(
       .collection(`labs/${labId}/exames-config`)
       .where('deletadoEm', '==', null)
       .get();
-    const examesConfigMap = new Map(
-      examesConfigSnap.docs.map((doc) => [doc.id, doc.data()]),
-    );
+    const examesConfigMap = new Map(examesConfigSnap.docs.map((doc) => [doc.id, doc.data()]));
 
     // 7. Lê thresholds para detecção de críticos (se houver)
     const criticosSnap = await db

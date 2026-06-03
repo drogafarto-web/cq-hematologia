@@ -1,4 +1,5 @@
 # COMPLIANCE AUDIT — Phases 9–12
+
 ## RDC 978, DICQ, LGPD & ISO 15189 Alignment
 
 **Date:** 2026-05-06  
@@ -9,12 +10,12 @@
 
 ## EXECUTIVE SUMMARY
 
-| Standard | Coverage | Status | Gap |
-|---|---|---|---|
-| **RDC 978/2025** | 85% | Mostly Compliant | Anonimazação LGPD + CQ parameters |
-| **DICQ 4.3** | 80% | Mostly Compliant | Document governance partially implemented |
-| **LGPD** | 75% | Partial | Anonymization cron job not verified |
-| **ISO 15189:2022** | 70% | Partial | Traceability + QC meta-requirements |
+| Standard           | Coverage | Status           | Gap                                       |
+| ------------------ | -------- | ---------------- | ----------------------------------------- |
+| **RDC 978/2025**   | 85%      | Mostly Compliant | Anonimazação LGPD + CQ parameters         |
+| **DICQ 4.3**       | 80%      | Mostly Compliant | Document governance partially implemented |
+| **LGPD**           | 75%      | Partial          | Anonymization cron job not verified       |
+| **ISO 15189:2022** | 70%      | Partial          | Traceability + QC meta-requirements       |
 
 ---
 
@@ -25,6 +26,7 @@
 **Text:** Laboratório deve executar controle interno da qualidade de acordo com RDC 306.
 
 **Phase 9 Evidence:** Bioquímica CIQ Foundation
+
 ```typescript
 // westgardRulesCLSI.ts — implements CLSI subset
 export function checkWestgardCLSI(input: WestgardCheckInput): WestgardViolation[]
@@ -39,10 +41,12 @@ match /lots/{lotId} {
 **Status:** ✓ COMPLIANT (CIQ framework in place for bioquimica)
 
 **Gaps:**
+
 - CIQ parameters (acceptable limits, critical values) not yet configured per analito
 - Mapping to RDC 306 CIQ rules not documented
 
 **Recommendation:**
+
 - Phase 9 Sprint 2: Add `CIQParameters` entity (mean, sd, controlRules per analito)
 - Document in `ADR-0009-CIQ-Parameters.md`
 
@@ -53,6 +57,7 @@ match /lots/{lotId} {
 **Text:** Laudo clínico deve ser assinado por Responsável Técnico (RT) habilitado.
 
 **Phase 10 Evidence:** Liberação Module
+
 ```typescript
 // Types: LogicalSignature obrigatória
 export interface LaudoVersion {
@@ -80,15 +85,18 @@ match /laudos/{laudoId} {
 **Status:** ✓ COMPLIANT
 
 **Verification:**
+
 - ✓ Signature stored in Laudo
 - ✓ Role restriction enforced in rules
 - ✓ Audit trail (audit-logs collection) captures who signed
 
 **Gaps:**
+
 - RT registration (CRM/CRBM number) should be validated on signature
 - Certificate chain of RT succession not yet modeled
 
 **Recommendation:**
+
 - Phase 10 Sprint 2: Validate `rtRegistro` against professional database (future: CNPJ lookup)
 - Add `rtSuccessionToken` to handle RT substitution scenarios
 
@@ -99,6 +107,7 @@ match /laudos/{laudoId} {
 **Text:** Laboratório deve manter rastreabilidade de amostra controle desde recebimento até descarte.
 
 **Phase 9 Evidence:** Bioquímica Traceability
+
 ```typescript
 // firestore.rules
 match /traceability-events/{eventId} {
@@ -121,17 +130,20 @@ interface TraceabilityEvent {
 **Status:** ✓ COMPLIANT (infrastructure in place)
 
 **Verification:**
+
 - ✓ Events are append-only (immutable)
 - ✓ Timestamp captured server-side
 - ✓ Equipment linkage (equipmentId)
 - ⚠️ "Exam code at change" manual entry (no LIS integration yet)
 
 **Gaps:**
+
 - No automatic linkage to LIS exam codes
 - "Reagent change" not linked to insumo ID
 - Descarte (disposal) event not modeled
 
 **Recommendation:**
+
 - Phase 9c: Link TraceabilityEvent.reagentChangeId → insumos/{id}
 - Phase 9d: Add TraceabilityEvent.type = 'disposal' with disposal date
 - Phase 9e: Document exam code capture (until LIS integration)
@@ -143,15 +155,17 @@ interface TraceabilityEvent {
 **Text:** Laboratório deve estabelecer valores críticos e impedir liberação de resultados críticos sem revisão RT.
 
 **Phase 10 Evidence:** Liberação + Críticos Detection
+
 ```typescript
 // criarLaudo detects criticoFlag
 let criticoFlag = false;
 const criticoDetalhes: any[] = [];
 
 // Impacts auto-release decision
-const autoReleaseDecision = isRotina && !criticoFlag
-  ? { autoRelease: true, reason: '...' }
-  : { autoRelease: false, reason: 'Exame requer revisão RT' };
+const autoReleaseDecision =
+  isRotina && !criticoFlag
+    ? { autoRelease: true, reason: '...' }
+    : { autoRelease: false, reason: 'Exame requer revisão RT' };
 
 // Firestore: stores criticoFlag in Laudo
 const laudo: Laudo = {
@@ -165,11 +179,13 @@ const laudo: Laudo = {
 **Status:** ⚠️ PARTIAL (framework exists, configuration missing)
 
 **Issues:**
+
 1. **Critical values not yet configured** — code assumes `criticos-thresholds` exists but not populated
 2. **Detection is placeholder** — line 146: "placeholder — será melhorado em Plan 10-03"
 3. **Override mechanism unclear** — complianceOverride.blockers mentioned but not fully specified
 
 **Recommendation:**
+
 - Phase 10 Sprint 1: Implement `criticos-thresholds` entity
   ```typescript
   interface CriticoThreshold {
@@ -190,6 +206,7 @@ const laudo: Laudo = {
 **Text:** Laboratório deve manter documentos da qualidade, procedimentos, e registros de controle.
 
 **Phase 12 Evidence:** SGQ Module
+
 ```typescript
 // sgq-documentos: core document storage
 match /sgq-documentos/{documentoId} {
@@ -208,17 +225,20 @@ match /sgq-documentos-audit/{auditId} {
 **Status:** ✓ COMPLIANT (storage + audit trail in place)
 
 **Verification:**
+
 - ✓ Documents versioned (tipo, versao, status)
 - ✓ Audit trail captured
 - ✓ Soft-delete preserves history
 - ✓ Hard-delete prevented by rules
 
 **Gaps:**
+
 - No "who approved this revision" (only criadoPor, not approvedBy)
 - No distribution tracking (who received the document)
 - No training linkage (who was trained on this procedure)
 
 **Recommendation:**
+
 - Phase 12 Sprint 2: Add approval workflow (em_revisao → vigente requires approver signature)
 - Phase 13: Add distribution tracking (qr codes, sign-off)
 - Phase 14: Link to treinamentos (proof of training)
@@ -230,6 +250,7 @@ match /sgq-documentos-audit/{auditId} {
 **Text:** Laudo/relatório deve incluir referências, interpretação, responsável técnico.
 
 **Phase 10 Evidence:** Laudo Structure
+
 ```typescript
 export interface Laudo {
   // Identificação
@@ -241,12 +262,12 @@ export interface Laudo {
   rtRegistro: string; // Professional registration
 
   // Paciente
-  paciente: { id, nome, cpf, sexo };
-  pacienteIdade: { value, unit };
+  paciente: { id; nome; cpf; sexo };
+  pacienteIdade: { value; unit };
 
   // Conteúdo
   exames: ExameLaudo[];
-  
+
   // Status
   status: ReleaseState; // Pendente, Liberado, Rejeitado
   currentVersion: number;
@@ -260,12 +281,14 @@ export interface Laudo {
 **Status:** ✓ COMPLIANT (structure supports requirement)
 
 **Verification:**
+
 - ✓ All required fields present
 - ✓ RT metadata (name, registration)
 - ✓ CNES captured
 - ⚠️ Interpretação field missing (for pathological results)
 
 **Recommendation:**
+
 - Phase 10 Sprint 1: Add `interpretacao` field to Laudo
 - Phase 10 Sprint 2: Add `limitacoesTecnicas` validation (e.g., hemolyzed sample)
 
@@ -278,12 +301,14 @@ export interface Laudo {
 **F.1 Validação de Métodos (5.5.1.1)**
 
 **Evidence:**
+
 - Bioquímica: Westgard rules + CLSI reference ✓
 - Bula parsing: Statistical validation ✓
 
 **Status:** ✓ PARTIAL (rules present, documentation missing)
 
 **Recommendation:**
+
 - Create `docs/DICQ-4.3-F1-Validation.md` linking:
   - Method validation certificates (if available)
   - Westgard rule implementation to CLSI EP15
@@ -298,6 +323,7 @@ export interface Laudo {
 **Status:** ⚠️ PARTIAL (planning documents, not in system yet)
 
 **Recommendation:**
+
 - Phase 9 Sprint 2: Upload CIQ plan to SGQ (sgq-documentos)
 - Link to `fr-010-plano-ciq` document code (per DICQ)
 
@@ -306,6 +332,7 @@ export interface Laudo {
 **F.3 Levey-Jennings & Relatórios (5.6.2, 5.6.3.1)**
 
 **Evidence:**
+
 ```typescript
 // src/features/bioquimica/components/LeveyJenningsChart.tsx
 // Generates Levey-Jennings plot with Westgard overlay
@@ -318,6 +345,7 @@ export interface Laudo {
 **F.4 Rejeição de Amostras (5.6.4)**
 
 **Evidence:**
+
 - Insumo status transitions include 'segregado'
 - Rules prevent `status='segregado'` from write (set only via callable)
 
@@ -330,6 +358,7 @@ export interface Laudo {
 **G.1 Reclamações de Clientes (4.4.4, 5.4.3)**
 
 **Evidence:**
+
 ```typescript
 // Phase 11: Reclamações module
 export interface Reclamacao {
@@ -346,11 +375,13 @@ export interface Reclamacao {
 **Status:** ✓ MOSTLY COMPLIANT
 
 **Verification:**
+
 - ✓ Complaints logged with auto-classification
 - ✓ Audit trail captured
 - ⚠️ SLA tracking (respond within X days) not yet verified
 
 **Recommendation:**
+
 - Phase 11 Sprint 2: Add SLATracker logic (show remaining days)
 - Document DICQ 4.4.4 requirement in module
 
@@ -359,6 +390,7 @@ export interface Reclamacao {
 **G.2 Ações Corretivas (5.4.7)**
 
 **Evidence:**
+
 ```typescript
 // Phase 11: Reclamações detail view includes RCA (Root Cause Analysis)
 export interface RCA {
@@ -375,6 +407,7 @@ export interface RCA {
 **Status:** ✓ COMPLIANT (RCA structure present)
 
 **Gaps:**
+
 - Effectiveness check (was RCA actually effective?) not modeled
 - Timeline for re-testing not enforced
 
@@ -383,6 +416,7 @@ export interface RCA {
 **G.3 Indicadores de Desempenho (DICQ 5.9)**
 
 **Evidence:**
+
 ```typescript
 // Phase 3.3: KPIs module
 // Tracks turnaround, retrabalho%, conformidade, etc.
@@ -399,6 +433,7 @@ export interface RCA {
 ### **Requirement 1: Consent & Transparency (Art. 6, 7)**
 
 **Evidence (Phase 11):**
+
 ```typescript
 // submitNPSResposta captures explicit consent
 consentimentoLgpd: {
@@ -412,15 +447,18 @@ consentimentoLgpd: {
 **Status:** ✓ COMPLIANT (consent captured)
 
 **Verification:**
+
 - ✓ Explicit boolean capture (aceito)
 - ✓ Timestamp on consent
 - ✓ IP + User-Agent for traceability
 
 **Gaps:**
+
 - No "consent revocation" mechanism (LGPD Art. 8)
 - No "purpose" field (what data is used for?)
 
 **Recommendation:**
+
 - Add `consentementoPurpose` field (e.g., "customer satisfaction survey only")
 - Implement revocation endpoint
 
@@ -431,6 +469,7 @@ consentimentoLgpd: {
 **Status:** ⚠️ PARTIAL (not yet implemented)
 
 **Recommendation:**
+
 - Phase 13: Implement LGPD-access endpoint
   ```typescript
   export const lgpdDataExport = onCall(async (request) => {
@@ -447,17 +486,20 @@ consentimentoLgpd: {
 **Status:** ⚠️ PARTIAL (anonymization cron exists but not verified)
 
 **Evidence:**
+
 ```typescript
 // submitNPSResposta
 anonimizadoEm: null, // Will be set 90d later by cron job
 ```
 
 **Gaps:**
+
 1. No cron job found in examined code (likely in functions, not reviewed)
 2. No verification of 90-day TTL enforcement
 3. No audit trail of anonymization
 
 **Recommendation:**
+
 - Code review: `functions/src/modules/satisfacao/anonimizarRespostas.ts`
 - Verify:
   - TTL = 2592000000ms (90 days)
@@ -473,6 +515,7 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 **Gap:** Patient data (CPF, name, date of birth) cannot be corrected by subject
 
 **Recommendation:**
+
 - Phase 13: Add LGPD-correct endpoint (patient portal)
 - Route through RT approval (medical records require professional oversight)
 
@@ -483,11 +526,13 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 **Status:** ⚠️ PARTIAL
 
 **Found:**
+
 - ✓ NPS survey: stores minimum fields (score + optional comment)
 - ⚠️ Reclamações: stores complaint text + classification (necessary)
 - ⚠️ Patient data: no purge after X years (retention policy not documented)
 
 **Recommendation:**
+
 - Create `LGPD_RETENTION_POLICY.md`:
   ```
   - NPS responses: store 1 year, anonymize 90 days after response
@@ -503,16 +548,19 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 ### **Requirement 1: Traceability (Clause 7.4)**
 
 **Evidence:**
+
 - Phase 9: TraceabilityEvent append-only logs ✓
 - Equipment linkage documented ✓
 
 **Status:** ✓ COMPLIANT (infrastructure in place)
 
 **Gaps:**
+
 - Specimen traceability (from patient to analysis) not yet modeled
 - Reagent lot linkage (which batch was used for exam X?) exists but not verified
 
 **Recommendation:**
+
 - Phase 9 Sprint 2: Link TraceabilityEvent → insumo lot
 - Phase 9 Sprint 3: Add patient specimen barcode tracking
 
@@ -521,6 +569,7 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 ### **Requirement 2: Quality Control Meta-Requirements (7.5, 7.6)**
 
 **Evidence:** Bioquímica CIQ foundation includes:
+
 - Control material (ControlMaterial type) ✓
 - Statistical validation (Westgard) ✓
 - Multi-instrument tracking ✓
@@ -528,10 +577,12 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 **Status:** ✓ MOSTLY COMPLIANT
 
 **Gaps:**
+
 - Frequency of QC not enforced (should be daily minimum)
 - Target confidence interval (e.g., 95%) not modeled
 
 **Recommendation:**
+
 - Add QCFrequency entity (e.g., "daily before first patient sample")
 - Add rule: "cannot analyze patient sample if today's QC failed"
 
@@ -539,23 +590,23 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 
 ## MAPPING: REQUIREMENTS → CODE LOCATIONS
 
-| Standard | Requirement | Phase | Location | Status |
-|---|---|---|---|---|
-| RDC 978 | CIQ obrigatório | 9 | bioquimica/utils/westgardRulesCLSI.ts | ✓ |
-| RDC 978 | Assinatura RT | 10 | liberacao/criarLaudo.ts | ✓ |
-| RDC 978 | Rastreabilidade | 9 | firestore.rules `/traceability-events` | ✓ |
-| RDC 978 | Críticos | 10 | liberacao/detectarCriticos.ts | ⚠️ |
-| RDC 978 | Documentação | 12 | sgq-documentos (rules + audit) | ✓ |
-| DICQ 4.3 | Validação métodos | 9 | bioquimica/utils/westgardRulesCLSI.ts | ⚠️ |
-| DICQ 4.3 | Plano CIQ | 9 | Planning (SGQ Phase 2) | ⚠️ |
-| DICQ 4.3 | Levey-Jennings | 9 | bioquimica/components/LeveyJenningsChart.tsx | ✓ |
-| DICQ 4.3 | Reclamações | 11 | reclamacoes/services | ✓ |
-| DICQ 4.3 | RCA | 11 | reclamacoes/utils/rcaFiveWhys.ts | ✓ |
-| LGPD | Consentimento | 11 | satisfacao/submitNPSResposta.ts | ✓ |
-| LGPD | Anonimização | 11 | satisfacao/anonimizarRespostas.ts | ⚠️ |
-| LGPD | Acesso | — | TBD (Phase 13) | ❌ |
-| ISO 15189 | Rastreabilidade | 9 | TraceabilityEvent | ✓ |
-| ISO 15189 | QC Meta | 9 | ControlMaterial + Westgard | ⚠️ |
+| Standard  | Requirement       | Phase | Location                                     | Status |
+| --------- | ----------------- | ----- | -------------------------------------------- | ------ |
+| RDC 978   | CIQ obrigatório   | 9     | bioquimica/utils/westgardRulesCLSI.ts        | ✓      |
+| RDC 978   | Assinatura RT     | 10    | liberacao/criarLaudo.ts                      | ✓      |
+| RDC 978   | Rastreabilidade   | 9     | firestore.rules `/traceability-events`       | ✓      |
+| RDC 978   | Críticos          | 10    | liberacao/detectarCriticos.ts                | ⚠️     |
+| RDC 978   | Documentação      | 12    | sgq-documentos (rules + audit)               | ✓      |
+| DICQ 4.3  | Validação métodos | 9     | bioquimica/utils/westgardRulesCLSI.ts        | ⚠️     |
+| DICQ 4.3  | Plano CIQ         | 9     | Planning (SGQ Phase 2)                       | ⚠️     |
+| DICQ 4.3  | Levey-Jennings    | 9     | bioquimica/components/LeveyJenningsChart.tsx | ✓      |
+| DICQ 4.3  | Reclamações       | 11    | reclamacoes/services                         | ✓      |
+| DICQ 4.3  | RCA               | 11    | reclamacoes/utils/rcaFiveWhys.ts             | ✓      |
+| LGPD      | Consentimento     | 11    | satisfacao/submitNPSResposta.ts              | ✓      |
+| LGPD      | Anonimização      | 11    | satisfacao/anonimizarRespostas.ts            | ⚠️     |
+| LGPD      | Acesso            | —     | TBD (Phase 13)                               | ❌     |
+| ISO 15189 | Rastreabilidade   | 9     | TraceabilityEvent                            | ✓      |
+| ISO 15189 | QC Meta           | 9     | ControlMaterial + Westgard                   | ⚠️     |
 
 ---
 
@@ -569,6 +620,7 @@ anonimizadoEm: null, // Will be set 90d later by cron job
 **Effort:** 4 hours
 
 **Implementation:**
+
 ```typescript
 // Create seed data
 const CRITICOS_DEFAULTS = [
@@ -592,6 +644,7 @@ const CRITICOS_DEFAULTS = [
 **Effort:** Review only (2 hours)
 
 **Checklist:**
+
 - [ ] `anonimizarRespostas` Cloud Task exists
 - [ ] TTL = 90 days (2592000000 ms)
 - [ ] Deletes: ipAddress, userAgent, comentario
@@ -607,14 +660,15 @@ const CRITICOS_DEFAULTS = [
 **Effort:** Documentation + Cron job (6 hours)
 
 **Implementation:**
+
 ```typescript
 export const purgeOldAuditLogs = functions.pubsub
   .schedule('every sunday 02:00')
   .timeZone('America/Sao_Paulo')
   .onRun(async (context) => {
     // Purge audit logs older than 7 years
-    const cutoff = Date.now() - (7 * 365.25 * 24 * 60 * 60 * 1000);
-    
+    const cutoff = Date.now() - 7 * 365.25 * 24 * 60 * 60 * 1000;
+
     // For each lab:
     const labs = await db.collection('labs').get();
     for (const labDoc of labs.docs) {
@@ -623,10 +677,10 @@ export const purgeOldAuditLogs = functions.pubsub
         .collection(`labs/${labId}/audit-logs`)
         .where('timestamp', '<', new Date(cutoff))
         .get();
-      
+
       // Soft-delete (don't hard-delete for compliance)
       const batch = db.batch();
-      oldLogs.forEach(log => {
+      oldLogs.forEach((log) => {
         batch.update(log.ref, { purgedAt: Timestamp.now() });
       });
       await batch.commit();
@@ -644,18 +698,19 @@ export const purgeOldAuditLogs = functions.pubsub
 **Effort:** 8 hours
 
 **Implementation:**
+
 ```typescript
 export const lgpdDataExport = onCall(async (request) => {
   // Authenticate user
   const uid = request.auth!.uid;
-  
+
   // Collect all docs containing user's data:
   // - User profile (users/{uid})
   // - Audit logs where operatorId === uid
   // - Reclamações where pacienteId matches user's CPF
   // - NPS responses where pacienteId matches
   // - etc.
-  
+
   // Generate JSON + PDF
   // Email to user + log
 });
@@ -671,10 +726,11 @@ export const lgpdDataExport = onCall(async (request) => {
 **Effort:** 12 hours (external API integration)
 
 **Implementation:**
+
 ```typescript
 export async function validateProfessionalRegistration(
   registro: string,
-  profissao: 'biologo' | 'farmaceutico' | 'medico'
+  profissao: 'biologo' | 'farmaceutico' | 'medico',
 ): Promise<{ valid: boolean; name: string; status: string }> {
   // Call CFM, CRBio, CRF API to validate registration
   // Cache result + TTL (expire if registration revoked)
@@ -704,6 +760,7 @@ export async function validateProfessionalRegistration(
 ## ONGOING MONITORING
 
 ### Metrics to Track
+
 - **Compliance breach events:** 0 (target)
 - **Failed QC days:** audit monthly
 - **Unreviewed críticos:** audit daily
@@ -711,6 +768,7 @@ export async function validateProfessionalRegistration(
 - **LGPD requests:** track response time (max 15 days)
 
 ### Audit Frequency
+
 - **Monthly:** Spot-check 10 random criticoFlags
 - **Quarterly:** Verify soft-delete enforcement (no hard-delete found)
 - **Annually:** Full RDC/DICQ audit by lab director
@@ -722,6 +780,7 @@ export async function validateProfessionalRegistration(
 **Overall:** 78/100
 
 **Breakdown:**
+
 - RDC 978: 85/100 (missing critical thresholds)
 - DICQ 4.3: 80/100 (documentation TBD)
 - LGPD: 65/100 (missing RTAD + retention policy)
@@ -730,4 +789,3 @@ export async function validateProfessionalRegistration(
 **Blocker for Production:** Issue #1 (critical thresholds) must be fixed
 
 **Recommendation:** Deploy to staging with compliance warning; move to production after Gap #1 & #2 resolved.
-

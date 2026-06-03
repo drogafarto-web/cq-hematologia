@@ -12,10 +12,10 @@ function getBlocoStats(bloco: BlocoMeta, respostas: RespostaIndicador[]) {
   const indicadores = INDICADORES.filter((ind) => bloco.indicadores.includes(ind.numero));
   const total = indicadores.length;
   const respondidos = indicadores.filter((ind) =>
-    respostas.some((r) => r.numero === ind.numero && (r.score !== null || r.naoAplica))
+    respostas.some((r) => r.numero === ind.numero && (r.score !== null || r.naoAplica)),
   ).length;
   const naoConformes = indicadores.filter((ind) =>
-    respostas.some((r) => r.numero === ind.numero && r.critica === 'NÃO CONFORME')
+    respostas.some((r) => r.numero === ind.numero && r.critica === 'NÃO CONFORME'),
   ).length;
   return { total, respondidos, naoConformes };
 }
@@ -60,11 +60,13 @@ export function SidebarBlocos({ currentBlocoIndex, respostas, onSelectBloco }: S
               >
                 {bloco.id}
               </span>
-              <span className={`text-xs truncate ${
-                isCurrent
-                  ? 'font-medium text-violet-700 dark:text-violet-400'
-                  : 'text-slate-600 dark:text-white/60'
-              }`}>
+              <span
+                className={`text-xs truncate ${
+                  isCurrent
+                    ? 'font-medium text-violet-700 dark:text-violet-400'
+                    : 'text-slate-600 dark:text-white/60'
+                }`}
+              >
                 {bloco.nome}
               </span>
             </div>

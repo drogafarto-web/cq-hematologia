@@ -12,7 +12,23 @@ import { TipoDocumentoBadge } from './TipoDocumentoBadge';
 import { StatusVigenciaBadge } from './StatusVigenciaBadge';
 import { SETORES_MATRIZ, UNIDADES, ALL_SETORES } from '../distribuicao/DistribuicaoMatrix';
 
-const TIPOS: TipoDocumento[] = ['MQ', 'PQ', 'IT', 'FR', 'POL', 'ROP', 'AP', 'EP', 'DOC', 'REL', 'CER', 'AUD', 'REC', 'FORM', 'OUT'];
+const TIPOS: TipoDocumento[] = [
+  'MQ',
+  'PQ',
+  'IT',
+  'FR',
+  'POL',
+  'ROP',
+  'AP',
+  'EP',
+  'DOC',
+  'REL',
+  'CER',
+  'AUD',
+  'REC',
+  'FORM',
+  'OUT',
+];
 const STATUSES: StatusVigencia[] = ['draft', 'em-revisao', 'vigente', 'obsoleto'];
 
 interface ListaMestraFiltersProps {
@@ -30,24 +46,29 @@ export interface FilterState {
 export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps) {
   const [filters, setFiltersState] = useState<FilterState>({});
 
-  const updateFilter = useCallback((key: keyof FilterState, value: any) => {
-    const newFilters = { ...filters, [key]: value };
-    setFiltersState(newFilters);
-    onFiltersChange(newFilters);
-  }, [filters, onFiltersChange]);
+  const updateFilter = useCallback(
+    (key: keyof FilterState, value: any) => {
+      const newFilters = { ...filters, [key]: value };
+      setFiltersState(newFilters);
+      onFiltersChange(newFilters);
+    },
+    [filters, onFiltersChange],
+  );
 
   const clearFilters = useCallback(() => {
     setFiltersState({});
     onFiltersChange({});
   }, [onFiltersChange]);
 
-  const hasActiveFilters = Object.values(filters).some(v => v && v !== 'all');
+  const hasActiveFilters = Object.values(filters).some((v) => v && v !== 'all');
 
   return (
     <div className="space-y-4 p-4 bg-white/5 rounded-lg border border-white/10">
       {/* Search */}
       <div>
-        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">Buscar</label>
+        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+          Buscar
+        </label>
         <input
           type="text"
           placeholder="Código ou título..."
@@ -66,17 +87,21 @@ export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps)
           className="mt-2 w-full px-3 py-2 bg-[#141417] border border-white/10 rounded-lg text-white text-sm focus:outline-none focus:ring-2 focus:ring-violet-500/50"
         >
           <option value="">Todos os tipos</option>
-          {TIPOS.map(tipo => (
-            <option key={tipo} value={tipo}>{tipo}</option>
+          {TIPOS.map((tipo) => (
+            <option key={tipo} value={tipo}>
+              {tipo}
+            </option>
           ))}
         </select>
       </div>
 
       {/* Status */}
       <div>
-        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">Status</label>
+        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+          Status
+        </label>
         <div className="mt-2 space-y-2">
-          {STATUSES.map(status => (
+          {STATUSES.map((status) => (
             <label key={status} className="flex items-center gap-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -92,7 +117,9 @@ export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps)
 
       {/* Setor */}
       <div>
-        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">Setor de Distribuição</label>
+        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+          Setor de Distribuição
+        </label>
         <select
           value={filters.setor || ''}
           onChange={(e) => updateFilter('setor', e.target.value || undefined)}
@@ -100,13 +127,17 @@ export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps)
         >
           <option value="">Todos os setores</option>
           <optgroup label="Matriz">
-            {SETORES_MATRIZ.map(setor => (
-              <option key={setor} value={setor}>{setor}</option>
+            {SETORES_MATRIZ.map((setor) => (
+              <option key={setor} value={setor}>
+                {setor}
+              </option>
             ))}
           </optgroup>
           <optgroup label="Unidades">
-            {UNIDADES.map(setor => (
-              <option key={setor} value={setor}>{setor}</option>
+            {UNIDADES.map((setor) => (
+              <option key={setor} value={setor}>
+                {setor}
+              </option>
             ))}
           </optgroup>
         </select>
@@ -114,7 +145,9 @@ export function ListaMestraFilters({ onFiltersChange }: ListaMestraFiltersProps)
 
       {/* Period */}
       <div>
-        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">Período</label>
+        <label className="text-xs font-semibold text-white/60 uppercase tracking-wide">
+          Período
+        </label>
         <select
           value={filters.period || 'all'}
           onChange={(e) => updateFilter('period', e.target.value as FilterState['period'])}

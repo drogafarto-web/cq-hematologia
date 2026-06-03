@@ -76,7 +76,7 @@ export function subscribeQualificacoes(
   labId: LabId,
   callback: (qualificacoes: Qualificacao[]) => void,
   operadorId?: UserId,
-  onError?: (err: Error) => void
+  onError?: (err: Error) => void,
 ): Unsubscribe {
   const col = qualificacoesCol(labId);
 
@@ -92,14 +92,14 @@ export function subscribeQualificacoes(
     q,
     (snapshot) => {
       const qualificacoes = snapshot.docs.map((doc) =>
-        snapshotToQualificacao({ ...doc.data(), id: doc.id })
+        snapshotToQualificacao({ ...doc.data(), id: doc.id }),
       );
       callback(qualificacoes);
     },
     (err) => {
       const error = new Error(err instanceof Error ? err.message : 'Erro ao buscar qualificações');
       onError?.(error);
-    }
+    },
   );
 }
 
@@ -107,10 +107,7 @@ export function subscribeQualificacoes(
  * Soft-delete a qualificação.
  * Sets deletadoEm to current timestamp (RN-06).
  */
-export async function softDeleteQualificacao(
-  labId: LabId,
-  qualificacaoId: string
-): Promise<void> {
+export async function softDeleteQualificacao(labId: LabId, qualificacaoId: string): Promise<void> {
   await ensureLabRoot(labId);
 
   const docRef = doc(db, `labs/${labId}/${COLLECTION_NAME}/${qualificacaoId}`);
@@ -125,7 +122,7 @@ export async function softDeleteQualificacao(
  */
 export async function getQualificacao(
   labId: LabId,
-  qualificacaoId: string
+  qualificacaoId: string,
 ): Promise<Qualificacao | null> {
   await ensureLabRoot(labId);
 
@@ -142,7 +139,7 @@ export async function getQualificacao(
  */
 export async function getQualificacoesByOperador(
   labId: LabId,
-  operadorId: UserId
+  operadorId: UserId,
 ): Promise<Qualificacao[]> {
   await ensureLabRoot(labId);
 
@@ -165,4 +162,3 @@ export async function getQualificacoes(labId: LabId): Promise<Qualificacao[]> {
   const snapshot = await getDocs(q);
   return snapshot.docs.map((doc) => snapshotToQualificacao({ ...doc.data(), id: doc.id }));
 }
-

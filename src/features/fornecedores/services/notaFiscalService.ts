@@ -36,7 +36,10 @@ function notaRef(labId: string, notaId: string) {
   return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.NOTAS_FISCAIS, notaId);
 }
 
-export type CreateNotaFiscalPayload = Omit<NotaFiscal, 'id' | 'labId' | 'createdAt' | 'createdBy'> & {
+export type CreateNotaFiscalPayload = Omit<
+  NotaFiscal,
+  'id' | 'labId' | 'createdAt' | 'createdBy'
+> & {
   createdBy: string;
 };
 
@@ -135,10 +138,7 @@ export async function deleteNotaFiscal(labId: string, notaId: string): Promise<v
   }
 }
 
-export async function getNotaFiscalOnce(
-  labId: string,
-  notaId: string,
-): Promise<NotaFiscal | null> {
+export async function getNotaFiscalOnce(labId: string, notaId: string): Promise<NotaFiscal | null> {
   try {
     const snap = await getDoc(notaRef(labId, notaId));
     if (!snap.exists()) return null;
@@ -151,10 +151,7 @@ export async function getNotaFiscalOnce(
 /**
  * Conta lotes (Insumos) vinculados à nota fiscal — gate antes de delete.
  */
-export async function countInsumosByNota(
-  labId: string,
-  notaId: string,
-): Promise<number> {
+export async function countInsumosByNota(labId: string, notaId: string): Promise<number> {
   try {
     const insumosCol = collection(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.INSUMOS);
     const q = query(insumosCol, where('notaFiscalId', '==', notaId));

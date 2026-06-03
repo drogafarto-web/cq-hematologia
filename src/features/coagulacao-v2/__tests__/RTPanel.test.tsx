@@ -8,7 +8,12 @@ vi.mock('../../../store/useAuthStore', () => ({
 vi.mock('../hooks/useAttempts', () => ({
   useAttempts: () => ({
     attempts: [
-      { id: 'att-001', controlOperacionalId: 'co-001', resultados: { atividadeProtrombinica: 98, rni: 1.02, ttpa: 33.5 }, conformidade: 'A' },
+      {
+        id: 'att-001',
+        controlOperacionalId: 'co-001',
+        resultados: { atividadeProtrombinica: 98, rni: 1.02, ttpa: 33.5 },
+        conformidade: 'A',
+      },
     ],
     isLoading: false,
     error: null,

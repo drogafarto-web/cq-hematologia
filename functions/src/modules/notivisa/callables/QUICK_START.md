@@ -6,7 +6,7 @@
 
 ```
 authenticatePortal     → Portal login, session creation, MFA
-getPatientData         → Fetch patient + test result with validation  
+getPatientData         → Fetch patient + test result with validation
 submitRequisition      → Submit to NOTIVISA, enqueue for polling
 trackSampleStatus      → Poll for status updates, handle timeouts
 ```
@@ -18,17 +18,20 @@ trackSampleStatus      → Poll for status updates, handle timeouts
 ## Quick Deploy Checklist
 
 1. **Check TypeScript compiles:**
+
    ```bash
    cd functions
    npm run build
    ```
 
 2. **Run tests locally:**
+
    ```bash
    npm test -- notivisa
    ```
 
 3. **Deploy functions:**
+
    ```bash
    firebase deploy --only functions:authenticatePortal \
                             functions:getPatientData \
@@ -47,22 +50,20 @@ trackSampleStatus      → Poll for status updates, handle timeouts
 
 ```typescript
 // 1. Authenticate
-const auth = await firebase.functions()
-  .httpsCallable('authenticatePortal')({
-    labId: 'lab-abc',
-    portalUsername: 'operator001',
-    portalPassword: 'securePassword123',
-    mfaCode: '123456' // if required
-  });
+const auth = await firebase.functions().httpsCallable('authenticatePortal')({
+  labId: 'lab-abc',
+  portalUsername: 'operator001',
+  portalPassword: 'securePassword123',
+  mfaCode: '123456', // if required
+});
 
 const { sessionId, authToken } = auth.data;
 
 // 2. Get patient data
-const patient = await firebase.functions()
-  .httpsCallable('getPatientData')({
-    labId: 'lab-abc',
-    pacienteCpf: '12345678901'
-  });
+const patient = await firebase.functions().httpsCallable('getPatientData')({
+  labId: 'lab-abc',
+  pacienteCpf: '12345678901',
+});
 
 if (!patient.data.readyForSubmission) {
   console.log('Missing fields:', patient.data.missingFields);
@@ -70,38 +71,36 @@ if (!patient.data.readyForSubmission) {
 }
 
 // 3. Submit
-const submission = await firebase.functions()
-  .httpsCallable('submitRequisition')({
-    labId: 'lab-abc',
-    pacienteCpf: '12345678901',
-    laudoId: patient.data.laudo.id,
-    authSessionId: sessionId,
-    notivisaPayload: {
-      versao: '1.0',
-      laudo_id: patient.data.laudo.id,
-      paciente_cpf: '12345678901',
-      data_resultado: patient.data.laudo.resultadoEm,
-      resultados: patient.data.laudo.resultados,
-      assinador: {
-        cpf: patient.data.laudo.assinatura.operatorCpf,
-        nome: patient.data.laudo.assinatura.operatorNome,
-        data_assinatura: patient.data.laudo.assinatura.ts
-      }
-    }
-  });
+const submission = await firebase.functions().httpsCallable('submitRequisition')({
+  labId: 'lab-abc',
+  pacienteCpf: '12345678901',
+  laudoId: patient.data.laudo.id,
+  authSessionId: sessionId,
+  notivisaPayload: {
+    versao: '1.0',
+    laudo_id: patient.data.laudo.id,
+    paciente_cpf: '12345678901',
+    data_resultado: patient.data.laudo.resultadoEm,
+    resultados: patient.data.laudo.resultados,
+    assinador: {
+      cpf: patient.data.laudo.assinatura.operatorCpf,
+      nome: patient.data.laudo.assinatura.operatorNome,
+      data_assinatura: patient.data.laudo.assinatura.ts,
+    },
+  },
+});
 
 const { requisitionId, nextCheckAt } = submission.data;
 
 // 4. Poll for status
 const pollInterval = setInterval(async () => {
-  const status = await firebase.functions()
-    .httpsCallable('trackSampleStatus')({
-      labId: 'lab-abc',
-      requisitionId
-    });
+  const status = await firebase.functions().httpsCallable('trackSampleStatus')({
+    labId: 'lab-abc',
+    requisitionId,
+  });
 
   console.log('Status:', status.data.status);
-  
+
   if (!status.data.nextCheckAt) {
     clearInterval(pollInterval);
     console.log('Complete!');
@@ -139,37 +138,41 @@ callables/
 ## Error Codes Cheat Sheet
 
 ### authenticatePortal
-| Code | Fix |
-|------|-----|
-| `INVALID_CREDENTIALS` | Check username/password |
-| `MFA_REQUIRED` | Provide 6-digit code |
-| `MFA_INVALID` | Verify code format/generation |
+
+| Code                    | Fix                                             |
+| ----------------------- | ----------------------------------------------- |
+| `INVALID_CREDENTIALS`   | Check username/password                         |
+| `MFA_REQUIRED`          | Provide 6-digit code                            |
+| `MFA_INVALID`           | Verify code format/generation                   |
 | `PORTAL_CONFIG_MISSING` | Admin: configure `labs/{labId}/notivisa-config` |
-| `PERMISSION_DENIED` | Admin: add custom claim `modules.notivisa=true` |
+| `PERMISSION_DENIED`     | Admin: add custom claim `modules.notivisa=true` |
 
 ### getPatientData
-| Code | Fix |
-|------|-----|
-| `PATIENT_NOT_FOUND` | Verify CPF exists in database |
-| `LAUDO_NOT_FOUND` | Verify patient has test results |
-| `INCOMPLETE_DATA` | Fill in missing fields (see `missingFields`) |
+
+| Code                | Fix                                             |
+| ------------------- | ----------------------------------------------- |
+| `PATIENT_NOT_FOUND` | Verify CPF exists in database                   |
+| `LAUDO_NOT_FOUND`   | Verify patient has test results                 |
+| `INCOMPLETE_DATA`   | Fill in missing fields (see `missingFields`)    |
 | `PERMISSION_DENIED` | Admin: add custom claim `modules.notivisa=true` |
 
 ### submitRequisition
-| Code | Fix |
-|------|-----|
-| `INVALID_SESSION` | Re-authenticate with `authenticatePortal` |
-| `SESSION_EXPIRED` | Re-authenticate (1-hour expiration) |
-| `DUPLICATE_SUBMISSION` | Laudo already submitted—check `requisitionId` |
-| `RATE_LIMITED` | Wait 1+ hour before retrying |
-| `PERMISSION_DENIED` | Admin: add custom claim `modules.notivisa=true` |
+
+| Code                   | Fix                                             |
+| ---------------------- | ----------------------------------------------- |
+| `INVALID_SESSION`      | Re-authenticate with `authenticatePortal`       |
+| `SESSION_EXPIRED`      | Re-authenticate (1-hour expiration)             |
+| `DUPLICATE_SUBMISSION` | Laudo already submitted—check `requisitionId`   |
+| `RATE_LIMITED`         | Wait 1+ hour before retrying                    |
+| `PERMISSION_DENIED`    | Admin: add custom claim `modules.notivisa=true` |
 
 ### trackSampleStatus
-| Code | Fix |
-|------|-----|
+
+| Code                    | Fix                                             |
+| ----------------------- | ----------------------------------------------- |
 | `REQUISITION_NOT_FOUND` | Verify `requisitionId` from `submitRequisition` |
-| `SESSION_EXPIRED` | Optional—re-authenticate to continue polling |
-| `PERMISSION_DENIED` | Admin: add custom claim `modules.notivisa=true` |
+| `SESSION_EXPIRED`       | Optional—re-authenticate to continue polling    |
+| `PERMISSION_DENIED`     | Admin: add custom claim `modules.notivisa=true` |
 
 ---
 
@@ -193,11 +196,13 @@ Every operation creates an immutable log entry in `notivisa-audit-logs/{labId}/`
 ## Testing Locally
 
 ### Run all NOTIVISA tests:
+
 ```bash
 npm test -- notivisa
 ```
 
 ### Run specific callable tests:
+
 ```bash
 npm test -- authenticatePortal.test
 npm test -- getPatientData.test
@@ -206,6 +211,7 @@ npm test -- trackSampleStatus.test
 ```
 
 ### Run with coverage:
+
 ```bash
 npm test -- --coverage notivisa
 ```

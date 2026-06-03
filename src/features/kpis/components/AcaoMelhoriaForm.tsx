@@ -142,7 +142,10 @@ export function AcaoMelhoriaForm({ labId, planoId, onSuccess, onCancel }: AcaoMe
       ) : null}
       <form onSubmit={(ev) => void handleSubmit(ev)} className="mt-4 space-y-3">
         <div>
-          <label htmlFor="acao-desc" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+          <label
+            htmlFor="acao-desc"
+            className="block text-xs font-medium uppercase tracking-wide text-white/50"
+          >
             Descrição
           </label>
           <textarea
@@ -157,7 +160,10 @@ export function AcaoMelhoriaForm({ labId, planoId, onSuccess, onCancel }: AcaoMe
           />
         </div>
         <div>
-          <label htmlFor="acao-resp" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+          <label
+            htmlFor="acao-resp"
+            className="block text-xs font-medium uppercase tracking-wide text-white/50"
+          >
             Responsável
           </label>
           <select
@@ -177,7 +183,10 @@ export function AcaoMelhoriaForm({ labId, planoId, onSuccess, onCancel }: AcaoMe
           </select>
         </div>
         <div>
-          <label htmlFor="acao-prazo" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+          <label
+            htmlFor="acao-prazo"
+            className="block text-xs font-medium uppercase tracking-wide text-white/50"
+          >
             Prazo
           </label>
           <input
@@ -190,7 +199,10 @@ export function AcaoMelhoriaForm({ labId, planoId, onSuccess, onCancel }: AcaoMe
           />
         </div>
         <div>
-          <label htmlFor="acao-evid" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+          <label
+            htmlFor="acao-evid"
+            className="block text-xs font-medium uppercase tracking-wide text-white/50"
+          >
             Evidência (opcional)
           </label>
           <textarea

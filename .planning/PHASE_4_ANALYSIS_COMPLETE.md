@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-07 23:59 UTC  
 **Task:** Identify 22 Phase 4 commits ready for merge to main (May 19)  
-**Result:** ✅ COMPLETE — 29 commits staged, zero conflicts, merge gate ready  
+**Result:** ✅ COMPLETE — 29 commits staged, zero conflicts, merge gate ready
 
 ---
 
@@ -24,6 +24,7 @@
 **Purpose:** Detailed technical merge readiness document
 
 **Contents:**
+
 - ✅ Commit summary by category (code, tests, docs, firestore rules)
 - ✅ Phase 4 code commits (15 total) with RDC coverage + status
 - ✅ Phase 4 infrastructure commits (14 total) with descriptions
@@ -45,6 +46,7 @@
 **Purpose:** Executive summary + sign-off template
 
 **Contents:**
+
 - ✅ Executive summary (29 commits, zero conflicts, ready for 2026-05-19)
 - ✅ Commit breakdown (8 features, 3 tests, 4 fixes, 14 docs)
 - ✅ Conflict analysis (zero expected, file-by-file impact)
@@ -66,6 +68,7 @@
 ### 3. `.planning/STATE.md` (updated)
 
 **Changes:**
+
 - Phase 4 status changed from "📋 PLANNED" to "📋 MERGE-READY"
 - Added Phase 4 progress detail (code commits, merge gate date, reference doc)
 - Updated overall progress: 40% → 43%
@@ -77,6 +80,7 @@
 ### Code Commits (15)
 
 **Features (8):**
+
 1. f4081cd — NOTIVISA Batch 1 callables (ADR-0026)
 2. f0ddf5e — NOTIVISA Batch 2 callables (queue + webhook)
 3. f2599e0 — Patient portal auth UI (email-link HMAC flow)
@@ -86,21 +90,16 @@
 7. f513a1d — Error handling + accessibility
 8. ceaff6b — Personnel cleanup (CargoForm imports)
 
-**Fixes (4):**
-9. 006e0f0 — E2E suite TypeScript safety
-10. 0021269 — Test file rename for Vitest
-11. 3067271 — Patient portal auth store alignment
-12. 36342b9 — Firestore hasRole() helper
+**Fixes (4):** 9. 006e0f0 — E2E suite TypeScript safety 10. 0021269 — Test file rename for Vitest 11. 3067271 — Patient portal auth store alignment 12. 36342b9 — Firestore hasRole() helper
 
-**Infrastructure (2):**
-13. 3587351 — tsconfig path aliases
-14. 1de2a32 — TEMP coagulacao MVP access (rollback 2026-06)
+**Infrastructure (2):** 13. 3587351 — tsconfig path aliases 14. 1de2a32 — TEMP coagulacao MVP access (rollback 2026-06)
 
 **Tests:** Counted in features (a8a5b1a, f513a1d, f2599e0 include test suites)
 
 ### Documentation Commits (14)
 
 **Planning (11):**
+
 1. 90cb495 — Phase 4 final testing plan
 2. 62cf4c7 — NOTIVISA backend architecture
 3. b45273c — Government API sandbox setup
@@ -122,6 +121,7 @@
 **Expected merge conflicts:** 0
 
 **Why:**
+
 - New module (patient-portal) isolated from existing code
 - Firestore rules changes additive (coagulacao + portal rules, separate match blocks)
 - Documentation-only commits (append-only)
@@ -133,13 +133,13 @@
 
 ## Deployment Readiness
 
-| Step | Status | Commits | Time |
-|------|--------|---------|------|
-| Rules deploy | ✅ Ready | 38245bb, 1de2a32 | 3 min |
-| Functions deploy | ✅ Ready | f4081cd, f0ddf5e, 3587351 | 5 min |
-| Hosting deploy | ✅ Ready | f2599e0, f513a1d, 98905df + tests | 4 min |
-| Smoke tests | ✅ Ready | a8a5b1a (22 scenarios) | 15 min |
-| Monitoring | ✅ Ready | 8c968a0 (Cloud Logs setup) | 24h |
+| Step             | Status   | Commits                           | Time   |
+| ---------------- | -------- | --------------------------------- | ------ |
+| Rules deploy     | ✅ Ready | 38245bb, 1de2a32                  | 3 min  |
+| Functions deploy | ✅ Ready | f4081cd, f0ddf5e, 3587351         | 5 min  |
+| Hosting deploy   | ✅ Ready | f2599e0, f513a1d, 98905df + tests | 4 min  |
+| Smoke tests      | ✅ Ready | a8a5b1a (22 scenarios)            | 15 min |
+| Monitoring       | ✅ Ready | 8c968a0 (Cloud Logs setup)        | 24h    |
 
 **Total:** ~30 min automated + 24h monitoring
 
@@ -147,12 +147,12 @@
 
 ## RDC 978 Compliance Coverage (Phase 4)
 
-| Article | Requirement | Phase 4 Coverage | Status |
-|---------|-------------|------------------|--------|
-| 117 | CAPA (Corrective Action) | e85b289 (CAPA scaffold) | ✅ Phase 8 scaffold |
-| 167 | Notification | f4081cd, f0ddf5e (NOTIVISA) | ✅ Callables live |
-| 179 | Audit trail | ADR-0026 + functions | ✅ Immutable events |
-| 191 | Soft delete | f0ddf5e (soft-delete callable) | ✅ Compliance ready |
+| Article | Requirement              | Phase 4 Coverage               | Status              |
+| ------- | ------------------------ | ------------------------------ | ------------------- |
+| 117     | CAPA (Corrective Action) | e85b289 (CAPA scaffold)        | ✅ Phase 8 scaffold |
+| 167     | Notification             | f4081cd, f0ddf5e (NOTIVISA)    | ✅ Callables live   |
+| 179     | Audit trail              | ADR-0026 + functions           | ✅ Immutable events |
+| 191     | Soft delete              | f0ddf5e (soft-delete callable) | ✅ Compliance ready |
 
 ---
 
@@ -161,6 +161,7 @@
 ### Pre-Merge (2026-05-19 morning)
 
 1. **Code validation**
+
    ```bash
    npm run typecheck        # Zero TS errors
    npm test                 # 738+ unit tests PASS
@@ -169,6 +170,7 @@
    ```
 
 2. **Security check**
+
    ```bash
    scripts/preflight-secrets-check.sh  # Zero hardcoded secrets
    firebase deploy --dry-run           # Firestore rules syntax check
@@ -183,6 +185,7 @@
 ### Merge Execution (2026-05-19 afternoon)
 
 4. **Execute merge**
+
    ```bash
    git merge --no-ff -m "feat(phase-4): Portal auth + NOTIVISA integration — 29 commits merged
 
@@ -191,10 +194,10 @@
    - Zero conflicts; RDC 978 coverage: Arts. 117, 167, 179, 191
    - Deployment sequence: rules → functions → hosting
    - Pre-merge checklist: PASSED
-   
+
    Merge gate: .planning/PHASE_4_MERGE_GATE_SUMMARY.txt
    Detailed: .planning/PHASE_4_COMMITS_READY_TO_MERGE.md
-   
+
    Sign-off: [CTO name] [date]"
    ```
 
@@ -206,16 +209,19 @@
 ### Post-Merge Deployment (2026-05-20)
 
 6. **Deploy Step 1: Firestore rules**
+
    ```bash
    firebase deploy --only firestore:rules --project hmatologia2
    ```
 
 7. **Deploy Step 2: Functions**
+
    ```bash
    firebase deploy --only functions --project hmatologia2
    ```
 
 8. **Deploy Step 3: Hosting**
+
    ```bash
    firebase deploy --only hosting --project hmatologia2
    ```
@@ -229,34 +235,38 @@
 
 ## Risk Assessment
 
-| Category | Risk Level | Rationale |
-|----------|-----------|-----------|
-| **Deployment** | LOW | All tests pass; firestore rules isolated per collection |
-| **Compliance** | LOW | RDC 978 coverage complete; DICQ mapping verified |
-| **Operations** | LOW | Incident runbooks ready; Cloud Logs monitoring configured |
-| **Performance** | NONE | Bundle size OK (lazy-loaded module); firestore indexed |
-| **Overall** | LOW | Clean merge expected; rollback simple (git revert + hosting rollback) |
+| Category        | Risk Level | Rationale                                                             |
+| --------------- | ---------- | --------------------------------------------------------------------- |
+| **Deployment**  | LOW        | All tests pass; firestore rules isolated per collection               |
+| **Compliance**  | LOW        | RDC 978 coverage complete; DICQ mapping verified                      |
+| **Operations**  | LOW        | Incident runbooks ready; Cloud Logs monitoring configured             |
+| **Performance** | NONE       | Bundle size OK (lazy-loaded module); firestore indexed                |
+| **Overall**     | LOW        | Clean merge expected; rollback simple (git revert + hosting rollback) |
 
 ---
 
 ## Documentation References
 
 **Merge readiness:**
+
 - `.planning/PHASE_4_COMMITS_READY_TO_MERGE.md` ← Detailed technical reference
 - `.planning/PHASE_4_MERGE_GATE_SUMMARY.txt` ← Executive summary + sign-off
 
 **Phase 4 specification:**
+
 - `.planning/phases/04-portal-notivisa/04-01-PLAN.md` (auth portal)
 - `.planning/phases/04-portal-notivisa/04-02-PLAN.md` (NOTIVISA integration)
 - `.planning/phases/04-portal-notivisa/04-04-PLAN.md` (testing + readiness)
 
 **Architecture + compliance:**
+
 - `docs/adr/ADR-0024-patient-portal-email-link-auth-hmac-tokens.md`
 - `docs/adr/ADR-0026-notivisa-queue-processing-async-append-only.md`
 - `docs/v1.4_NOTIVISA_SANDBOX_SETUP.md`
 - `.planning/v1.4-AUDITOR-COMPLIANCE-CHECKLIST.md`
 
 **Operational:**
+
 - `.planning/PHASE_4_ROLLBACK_PROCEDURES.md`
 - `.planning/PHASE_4_MONITORING_DEPLOYMENT_SUMMARY.txt`
 - `scripts/monitor-cloud-logs.ps1`
@@ -266,11 +276,11 @@
 
 ## Sign-Off Status
 
-| Stakeholder | Status | Date |
-|-------------|--------|------|
-| Engineering Lead | ⏳ Pending | 2026-05-19 |
-| CTO/Architect | ⏳ Pending | 2026-05-19 |
-| Ops/DevOps | ⏳ Pending | 2026-05-19 |
+| Stakeholder      | Status                   | Date       |
+| ---------------- | ------------------------ | ---------- |
+| Engineering Lead | ⏳ Pending               | 2026-05-19 |
+| CTO/Architect    | ⏳ Pending               | 2026-05-19 |
+| Ops/DevOps       | ⏳ Pending               | 2026-05-19 |
 | External Auditor | ⏳ Pending (if required) | 2026-05-19 |
 
 **Template:** Use PHASE_4_MERGE_GATE_SUMMARY.txt stakeholder sign-off section

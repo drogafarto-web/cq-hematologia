@@ -26,10 +26,7 @@ import {
   getDownloadURL,
 } from '../../../shared/services/firebase';
 import type { Unsubscribe, UploadTaskSnapshot } from '../../../shared/services/firebase';
-import type {
-  EquipamentoDocumento,
-  DocumentoTipo,
-} from '../types/EquipamentoDocumento';
+import type { EquipamentoDocumento, DocumentoTipo } from '../types/EquipamentoDocumento';
 import { ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES } from '../types/EquipamentoDocumento';
 
 // ─── Path helpers ─────────────────────────────────────────────────────────────

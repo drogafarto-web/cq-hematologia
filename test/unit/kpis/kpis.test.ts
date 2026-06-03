@@ -18,7 +18,7 @@ describe('KPIs Module', () => {
         { criadoMs: 0, liberadoMs: 4 * 60 * 60 * 1000 }, // 4h
       ];
 
-      const turnaroundHoras = runs.map(r => (r.liberadoMs - r.criadoMs) / (1000 * 60 * 60));
+      const turnaroundHoras = runs.map((r) => (r.liberadoMs - r.criadoMs) / (1000 * 60 * 60));
       const media = turnaroundHoras.reduce((a, b) => a + b) / turnaroundHoras.length;
 
       expect(media).toBe(3); // average of 2, 3, 4
@@ -89,7 +89,7 @@ describe('KPIs Module', () => {
         { popId: null, equipId: 'e3', operadorId: 'o3' }, // não-conforme
       ];
 
-      const conformes = runs.filter(r => r.popId && r.equipId && r.operadorId);
+      const conformes = runs.filter((r) => r.popId && r.equipId && r.operadorId);
       expect(conformes.length).toBe(2);
     });
 
@@ -178,7 +178,7 @@ describe('KPIs Module', () => {
 
     it('should iterate all labs', () => {
       const labs = ['lab-001', 'lab-002', 'lab-003'];
-      labs.forEach(labId => {
+      labs.forEach((labId) => {
         expect(labId).toMatch(/^lab-/);
       });
     });

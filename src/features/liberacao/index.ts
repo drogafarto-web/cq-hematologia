@@ -4,7 +4,12 @@
 export { default } from './LiberacaoPlaceholder';
 
 export * from './types';
-export { subscribeLaudos, getLaudo, getLaudoLatestVersion, softDeleteLaudo } from './services/laudoService';
+export {
+  subscribeLaudos,
+  getLaudo,
+  getLaudoLatestVersion,
+  softDeleteLaudo,
+} from './services/laudoService';
 export {
   subscribeVersions,
   getVersion,
@@ -18,18 +23,19 @@ export {
   updateExameConfig,
   softDeleteExameConfig,
 } from './services/exameConfigService';
-export { useLaudos, useExameConfigs, useExameConfigByCode, useLaudoVersions, usePDFUrl } from './hooks';
+export {
+  useLaudos,
+  useExameConfigs,
+  useExameConfigByCode,
+  useLaudoVersions,
+  usePDFUrl,
+} from './hooks';
 export {
   generateLaudoPDF as generateLaudoPDFViaCallable,
   downloadLaudoPDF,
 } from './services/pdfService';
 export type { GenerateLaudoPDFInput, GenerateLaudoPDFResult } from './services/pdfService';
-export {
-  validateTransition,
-  nextStates,
-  stateLabel,
-  stateColor,
-} from './utils/stateMachine';
+export { validateTransition, nextStates, stateLabel, stateColor } from './utils/stateMachine';
 export { classifyExame, shouldAutoRelease } from './utils/exameClassifier';
 export {
   calculateChainHash,

@@ -6,50 +6,58 @@ Plan **03-02** (Phase 3.2, Wave 2 — `Stream A — Rules Auditor (CTO)`) added 
 
 ## Commits in scope
 
-| SHA | Date | Subject | Touches v1.4 rules? |
-|-----|------|---------|---------------------|
-| `4cd50a5` | 2026-05-07 | feat(00-04-risks): T8 — Firestore rules + composite indexes | NO (adds `risks/{riskId}` block at line 591 only) |
-| `fe5f3a9` | 2026-05-07 | feat(00-04-risks): T5 — updateRisk + registrarRevisao callables | NO |
-| `dd85970` | 2026-05-07 | feat(00-01-turnos): T8-T10 prep — provision claims + firestore rules | NO |
-| `e5aa6d1` | 2026-05-07 | feat(11-feedback-loop): Firestore Rules + Cloud Functions Callables | NO |
-| **(uncommitted, working tree)** | 2026-05-07 | Stream A "03-02" — v1.4 helpers + 5 match blocks | **YES — this is the entire Wave 2 delta** |
+| SHA                             | Date       | Subject                                                              | Touches v1.4 rules?                               |
+| ------------------------------- | ---------- | -------------------------------------------------------------------- | ------------------------------------------------- |
+| `4cd50a5`                       | 2026-05-07 | feat(00-04-risks): T8 — Firestore rules + composite indexes          | NO (adds `risks/{riskId}` block at line 591 only) |
+| `fe5f3a9`                       | 2026-05-07 | feat(00-04-risks): T5 — updateRisk + registrarRevisao callables      | NO                                                |
+| `dd85970`                       | 2026-05-07 | feat(00-01-turnos): T8-T10 prep — provision claims + firestore rules | NO                                                |
+| `e5aa6d1`                       | 2026-05-07 | feat(11-feedback-loop): Firestore Rules + Cloud Functions Callables  | NO                                                |
+| **(uncommitted, working tree)** | 2026-05-07 | Stream A "03-02" — v1.4 helpers + 5 match blocks                     | **YES — this is the entire Wave 2 delta**         |
 
 The v1.4 helper functions (`isServer`, `isPatient`, `isAdminOrRT`, `validateNotivisaPayload`, `validateDraftLock`, lines 59–91) and the five match blocks (lines 1935–1986) appear **only** in `git diff HEAD -- firestore.rules`. There is no commit hash that contains them. Every "Wave 2" rules change is in the staging area, never committed.
 
 ## Changes by collection
 
-All five blocks are *new additions* — no pre-existing rule was tightened or loosened. The bug is therefore not "Wave 2 broke rule X" — it is **"Wave 2 introduced X with a path shape that does not exist in Firestore."**
+All five blocks are _new additions_ — no pre-existing rule was tightened or loosened. The bug is therefore not "Wave 2 broke rule X" — it is **"Wave 2 introduced X with a path shape that does not exist in Firestore."**
 
 ### `labs/{labId}/portal-configuracao/{docId}` — NEW block
+
 **Old:** (no rule)
 **New:**
+
 ```
 match /portal-configuracao/{docId} {
   allow read: if isPatient(labId) || isActiveMemberOfLab(labId);
   allow write: if isAdminOrRT(labId) && request.resource.data.updatedBy == request.auth.uid;
 }
 ```
+
 **Type:** new-block + new-validator (`isPatient`, `isAdminOrRT`).
 **Path arity (rules engine):** `databases/.../labs/{labId}/portal-configuracao/{docId}` — 6 segments → valid even-arity document. ✅
 **Likely test impact:** Test 1 of `phase3-schema.e2e.test.ts` (Portal config write) — fails on **Cluster B** (Timestamp cross-package mismatch) but the path itself is valid. This block is the only one of the five that obeys the codebase convention `/labs/{labId}/<col>/{docId}`.
 **Spec match:** YES.
 
 ### `labs/{labId}/laudos/{laudoId}` — patient read clause
+
 **Old:** Existing block; member-only read.
 **New (planned in 03-02-PLAN.md, line 44):**
+
 ```
 allow read: if isPatient(labId)
   && resource.data.paciente_id == request.auth.uid
   && resource.data.publicado == true;
 ```
+
 **Type:** loosened (adds an `OR` patient-read path).
 **Working-tree status:** **NOT IMPLEMENTED.** The diff against `HEAD` for the existing `match /laudos/{laudoId}` block shows zero changes. The spec calls for an additional patient-read clause; the rules file never got it. This is a **silent missed deliverable** of the Wave-2 plan.
 **Likely test impact:** Test 1 of `phase3-rules.e2e.test.ts` (Portal Patient Read) writes via Admin SDK so rules are bypassed; the test fails on a Timestamp-class issue, not on this missing clause. But once the test moves to a real-rules runner the patient read will fail closed.
 **Spec match:** NO — clause missing.
 
 ### `labs/{labId}/notivisa-outbox/events/{docId}` — NEW block (BROKEN)
+
 **Old:** (no rule)
 **New:**
+
 ```
 match /notivisa-outbox/events/{docId} {
   allow create: if isAdminOrRT(labId) && validateNotivisaPayload(request.resource.data);
@@ -58,14 +66,17 @@ match /notivisa-outbox/events/{docId} {
   allow delete: if false;
 }
 ```
+
 **Type:** new-block + new-validator + **path-arity bug**.
 **Path arity (rules engine):** `match /notivisa-outbox/events/{docId}` inside `match /labs/{labId}` produces a target path `databases/.../labs/{labId}/notivisa-outbox/events/{docId}` — that's 7 segments after `documents/`, which is **odd** → only matches collections, not documents. `allow create/read/update` on a collection match is meaningless for write/get operations. Effectively this block matches no real document.
 **Likely test impact:** **Tests 2 of `phase3-rules.e2e.test.ts`, Test 2 of `phase3-schema.e2e.test.ts`, plus the `afterEach` cleanup of `phase3-rules` (which iterates `notivisa-outbox/events`) — fail synchronously in the Admin SDK before any RPC**, with `documentPath ... does not contain an even number of components` (when called via `db.doc()`) or `collectionPath ... does not contain an odd number of components` (when called via `db.collection()` on the same string). The tests mirror the same mental model as the rules; both treat `notivisa-outbox/events/{docId}` as a 4-segment thing under `labs/{labId}`, which is invalid in both directions.
 **Spec match:** PARTIAL — the spec literally specifies the broken path (`/labs/{labId}/notivisa-outbox/events/{docId}`, 03-02-PLAN.md line 52); the implementer copied it verbatim. The bug is in the spec.
 
 ### `labs/{labId}/criticos-escalacoes/escalacoes/{docId}` — NEW block (BROKEN)
+
 **Old:** (no rule)
 **New:**
+
 ```
 match /criticos-escalacoes/escalacoes/{docId} {
   allow create: if isAdminOrRT(labId);
@@ -74,26 +85,32 @@ match /criticos-escalacoes/escalacoes/{docId} {
   allow delete: if false;
 }
 ```
+
 **Type:** new-block + same path-arity bug as NOTIVISA.
 **Likely test impact:** Test 3 of `phase3-rules.e2e.test.ts`, Test 3 of `phase3-schema.e2e.test.ts` — same `documentPath ... must point to a document` synchronous throw. Cannot reach a network call.
 **Spec match:** PARTIAL — bug copied from spec.
 
 ### `labs/{labId}/imuno-ias-dev/images/{docId}` — NEW block (BROKEN)
+
 **Old:** (no rule)
 **New:**
+
 ```
 match /imuno-ias-dev/images/{docId} {
   allow read, write: if isServer() || isAdminOrRT(labId);
   allow delete: if false;
 }
 ```
+
 **Type:** new-block + same path-arity bug.
 **Likely test impact:** Test 4 of `phase3-rules.e2e.test.ts`, Test 4 of `phase3-schema.e2e.test.ts` — same path arity throw.
 **Spec match:** PARTIAL — bug copied from spec.
 
 ### `labs/{labId}/laudos-draft/rascunhos/{docId}` — NEW block (BROKEN)
+
 **Old:** (no rule)
 **New:**
+
 ```
 match /laudos-draft/rascunhos/{docId} {
   allow create, write: if isAdminOrRT(labId) && validateDraftLock(request.resource.data);
@@ -101,19 +118,21 @@ match /laudos-draft/rascunhos/{docId} {
   allow delete: if false;
 }
 ```
+
 **Type:** new-block + same path-arity bug + signature drift on validator.
 **Validator drift:** The spec defines `validateDraftLock(request)` and reads `request.resource.data.locked_until_ts`; the implementation defines `validateDraftLock(d)` and reads `d.locked_until_ts`, then is called with `validateDraftLock(request.resource.data)`. The end-state behaviour is correct (the data argument lookup is direct), but the spec's signature was changed without note.
 **Likely test impact:** Test 5 of `phase3-rules.e2e.test.ts`, Test 5 of `phase3-schema.e2e.test.ts` — same path arity throw.
 **Spec match:** PARTIAL — path bug + silent signature change.
 
 ### Helpers (lines 59–91)
-| Helper | Spec | Implementation | Drift |
-|---|---|---|---|
-| `isServer()` | "checks for server token or Admin SDK context" | `request.auth.token.server == true \|\| request.auth.uid == null && request.auth.token.aud == 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit'` | **Operator-precedence bug.** `||` binds looser than `&&`, so the expression parses as `A || (B && C)` — fine for the intended logic, but the second branch requires `auth.uid == null` AND a specific `aud`; in practice most Admin SDK calls have `request.auth == null` entirely (not `request.auth.uid == null` with a non-null token), so the second branch is mostly dead. `isServer()` will return false for real Admin SDK writes. Minor — for now the rules are never actually evaluated by the failing tests. |
-| `isPatient(labId)` | `isActiveMemberOfLab() && role == "patient"` | matches | none |
-| `isAdminOrRT(labId)` | `role in ["admin", "owner", "rt"]` | matches (logical OR form) | none |
-| `validateNotivisaPayload(payload)` | `status in ['PENDING','SENT','FAILED']` | adds `'DELIVERED'` to the allowed set | minor expansion (not blocking, but undocumented) |
-| `validateDraftLock(d)` | spec uses `request.resource.data.locked_until_ts` | uses `d.locked_until_ts` | signature change (caller passes `request.resource.data`); behaviourally equivalent |
+
+| Helper                             | Spec                                              | Implementation                                                                                                                                                                             | Drift                                                                              |
+| ---------------------------------- | ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------- | --- | ------------------------------------------------------ | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `isServer()`                       | "checks for server token or Admin SDK context"    | `request.auth.token.server == true \|\| request.auth.uid == null && request.auth.token.aud == 'https://identitytoolkit.googleapis.com/google.identity.identitytoolkit.v1.IdentityToolkit'` | **Operator-precedence bug.** `                                                     |     | `binds looser than`&&`, so the expression parses as `A |     | (B && C)`— fine for the intended logic, but the second branch requires`auth.uid == null`AND a specific`aud`; in practice most Admin SDK calls have `request.auth == null`entirely (not`request.auth.uid == null`with a non-null token), so the second branch is mostly dead.`isServer()` will return false for real Admin SDK writes. Minor — for now the rules are never actually evaluated by the failing tests. |
+| `isPatient(labId)`                 | `isActiveMemberOfLab() && role == "patient"`      | matches                                                                                                                                                                                    | none                                                                               |
+| `isAdminOrRT(labId)`               | `role in ["admin", "owner", "rt"]`                | matches (logical OR form)                                                                                                                                                                  | none                                                                               |
+| `validateNotivisaPayload(payload)` | `status in ['PENDING','SENT','FAILED']`           | adds `'DELIVERED'` to the allowed set                                                                                                                                                      | minor expansion (not blocking, but undocumented)                                   |
+| `validateDraftLock(d)`             | spec uses `request.resource.data.locked_until_ts` | uses `d.locked_until_ts`                                                                                                                                                                   | signature change (caller passes `request.resource.data`); behaviourally equivalent |
 
 ## Suspicious changes (potential bugs)
 

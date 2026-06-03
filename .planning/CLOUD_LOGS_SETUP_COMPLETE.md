@@ -11,6 +11,7 @@
 Complete 24-hour Cloud Logs post-deployment monitoring solution created and integrated into v1.3 deployment workflow.
 
 **What was created:**
+
 - 6 comprehensive documentation files
 - 2 automated monitoring scripts (Bash + PowerShell)
 - Integration with root `CLAUDE.md`
@@ -89,32 +90,38 @@ Complete 24-hour Cloud Logs post-deployment monitoring solution created and inte
 ### Three Monitoring Options (User Choice)
 
 **Option A: Automated (Recommended)**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # or
 .\scripts\monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30
 ```
+
 - Runs unattended for 24h
 - Auto-generates report + JSON export
 - No manual intervention
 
 **Option B: Cloud Console (Visual)**
+
 - Open Cloud Logging UI
 - Manually refresh every 15–30 min
 - Visual context, passive monitoring
 
 **Option C: CLI Spot-Checks**
+
 - Run `gcloud logging read ...` every 2h (12 checks)
 - Quick, lightweight
 
 ### Key Features
 
 **Monitoring Coverage:**
+
 - Cloud Functions (runtime errors, timeouts)
 - Firestore (permission errors, rate limits, document size)
 - Hosting / Cloud Run (HTTP 5xx errors)
 
 **Red Flags (Escalate Immediately):**
+
 - Timeout errors → async handler issue
 - Permission denied → rules regression
 - 502/503 sustained → hosting failure
@@ -122,6 +129,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 - Document too large → data model overflow
 
 **Output:**
+
 - Auto-generated report: `docs/MONITORING_REPORT_<timestamp>.md`
 - Error export: `scripts/cloud-logs-export-<timestamp>.json`
 - Manual sign-off: `docs/SIGN_OFF_CLOUD_LOGS_<date>.md` (template provided)
@@ -131,10 +139,12 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ## How to Use
 
 ### Before Deployment (Read These)
+
 1. **`docs/DEPLOYMENT_QUICK_START.md`** (2 min) — copy to screen
 2. **`docs/CLOUD_LOGS_QUICK_REFERENCE.md`** (3 min) — bookmark
 
 ### During Deployment (Run This)
+
 **Terminal 1:** Type-check + build (5 min)
 **Terminal 2:** Deploy functions + hosting (7 min)
 **Terminal 3:** Start monitoring in parallel (24h background)
@@ -146,6 +156,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 ### After Deployment (24h later)
+
 1. Review auto-generated report: `docs/MONITORING_REPORT_*.md`
 2. Create manual sign-off (template in `CLOUD_LOGS_MONITORING_GUIDE.md`)
 3. Commit to git: `git add docs/MONITORING_REPORT_* && git commit -m "..."`
@@ -155,9 +166,12 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ## Integration Points
 
 ### Root `CLAUDE.md`
+
 Updated with new section:
+
 ```markdown
 **Post-Deployment Monitoring (v1.3+):**
+
 - CLOUD_LOGS_MONITORING_GUIDE.md — full setup
 - CLOUD_LOGS_QUICK_REFERENCE.md — TL;DR
 - ... (5 more links)
@@ -166,9 +180,11 @@ Use: bash scripts/monitor-cloud-logs.sh 24 30 after Step 2 deploy.
 ```
 
 ### Deploy Protocol (`.claude/rules/deploy-protocol.md`)
+
 Referenced in workflow documentation. Monitoring is Step 4 (24h background after Steps 1–3).
 
 ### Project `.planning/`
+
 Added: `DEPLOYMENT_MONITORING_WORKFLOW.md` — complete workflow from type-check through sign-off.
 
 ---
@@ -218,34 +234,37 @@ Setup is complete when:
 
 ## Usage Statistics
 
-| Metric | Value |
-|--------|-------|
-| Documentation files | 6 |
-| Scripts | 2 |
-| Total lines of code | ~4,500 |
-| Estimated read time | 45 min (thorough) |
-| Estimated read time | 5 min (quick start) |
-| Monitoring duration | 24h (background) |
-| Active deployment time | ~17 min |
-| Active sign-off time | ~15 min |
+| Metric                 | Value               |
+| ---------------------- | ------------------- |
+| Documentation files    | 6                   |
+| Scripts                | 2                   |
+| Total lines of code    | ~4,500              |
+| Estimated read time    | 45 min (thorough)   |
+| Estimated read time    | 5 min (quick start) |
+| Monitoring duration    | 24h (background)    |
+| Active deployment time | ~17 min             |
+| Active sign-off time   | ~15 min             |
 
 ---
 
 ## Key Highlights
 
 ### For Deployers
+
 - **3-terminal setup is easy:** Copy `DEPLOYMENT_QUICK_START.md` to screen
 - **Monitoring is automatic:** Script runs unattended for 24h
 - **Sign-off is simple:** Template provided, ~15 min to complete
 - **Red flags are clear:** Table in `CLOUD_LOGS_QUICK_REFERENCE.md` (reference anytime)
 
 ### For Project Leads
+
 - **Workflow is documented:** Complete Steps 1–5 in `DEPLOYMENT_MONITORING_WORKFLOW.md`
 - **Escalation is clear:** Decision tree included
 - **Non-blocking:** Deploy succeeds/fails independently of monitoring
 - **Audit trail:** All reports committed to git
 
 ### For CTOs / Technical Leads
+
 - **Comprehensive coverage:** Functions, Firestore, Hosting all monitored
 - **Smart defaults:** 24h monitoring with 30-min spot-checks
 - **Extensible:** Scripts can be modified for different intervals/filters
@@ -302,15 +321,18 @@ Setup is complete when:
 ## Support & Escalation
 
 **Questions?**
+
 - Read `docs/CLOUD_LOGS_MONITORING_GUIDE.md` sections 2–5
 - Check FAQ in `docs/CLOUD_LOGS_MONITORING_SETUP_SUMMARY.md`
 
 **Red flags found?**
+
 - Check `docs/CLOUD_LOGS_QUICK_REFERENCE.md` red flags table
 - Screenshot + timestamp
 - Message CTO (@drogafarto)
 
 **Issues with automation?**
+
 - See "Troubleshooting" in `docs/CLOUD_LOGS_MONITORING_GUIDE.md` section 8
 - Common: gcloud not found, project mismatch, jq missing
 - All have solutions documented

@@ -5,8 +5,8 @@ label: Bioquímica Phase 2 — Westgard CLSI 8 + Gemini OCR + Z-score interlabor
 type: execute
 model: haiku
 escalation_model: sonnet
-depends_on: ["MP-4"]
-parallel_with: ["MP-5b", "MP-5c"]
+depends_on: ['MP-4']
+parallel_with: ['MP-5b', 'MP-5c']
 autonomous: true
 human_gates: 0
 total_subagents: 22
@@ -23,6 +23,7 @@ estimated_runtime: 4h
 **Compliance hooks:** RDC 978/2025 Arts. 179–183 · DICQ 4.3 Bloco F (5.5.1, 5.6.2, 5.6.3.1, 5.6.4) · CLSI EP15 + Westgard Multirule 1981 · LGPD Art. 9 (gate de consentimento OCR).
 
 **Wave dependency graph:**
+
 ```
 W0 (types + seeds)             4 SAs ‖
   └─> W1 (engines)              4 SAs ‖
@@ -34,6 +35,7 @@ W0 (types + seeds)             4 SAs ‖
 ```
 
 **Existing canonical files to read:**
+
 - `src/features/bioquimica/types/westgard.ts` — current 4-rule subset (subset CLSI). Must NOT delete; extend.
 - `src/features/bioquimica/types/_shared_refs.ts` — `AnalitoId`, `NivelId`.
 - `src/features/bioquimica/services/bioquimicaService.ts` — thin-service pattern reference.
@@ -60,27 +62,27 @@ Type extensions for the analyte catalog. Zero logic — types only.
 import type { AnalitoId } from './_shared_refs';
 
 export type AnalitoCategory =
-  | 'enzimologia'      // ALT, AST, GGT, ALP, CK, LDH, amilase, lipase
-  | 'lipidograma'      // colesterol total, HDL, LDL, triglicerídeos
-  | 'glicemia'         // glicose jejum, hemoglobina-glicada
-  | 'função-renal'     // ureia, creatinina, ácido-úrico
-  | 'função-hepática'  // bilirrubinas, albumina, proteínas-totais
-  | 'eletrólitos'      // sódio, potássio, cloreto, cálcio, fósforo, magnésio
-  | 'hormonal'         // TSH, T4-livre, cortisol, ferritina, vitamina-B12, vitamina-D
-  | 'cardíaco'         // troponina-I, CK-MB, mioglobina, NT-proBNP
-  | 'inflamação'       // PCR, VHS
+  | 'enzimologia' // ALT, AST, GGT, ALP, CK, LDH, amilase, lipase
+  | 'lipidograma' // colesterol total, HDL, LDL, triglicerídeos
+  | 'glicemia' // glicose jejum, hemoglobina-glicada
+  | 'função-renal' // ureia, creatinina, ácido-úrico
+  | 'função-hepática' // bilirrubinas, albumina, proteínas-totais
+  | 'eletrólitos' // sódio, potássio, cloreto, cálcio, fósforo, magnésio
+  | 'hormonal' // TSH, T4-livre, cortisol, ferritina, vitamina-B12, vitamina-D
+  | 'cardíaco' // troponina-I, CK-MB, mioglobina, NT-proBNP
+  | 'inflamação' // PCR, VHS
   | 'metabolismo-ósseo'; // fosfatase-alcalina, vitamina-D, PTH
 
 export interface AnalitoExpandedMetadata {
   id: AnalitoId;
   category: AnalitoCategory;
-  unit: string;            // 'mg/dL' | 'U/L' | 'ng/mL' | etc — string livre, validada server-side
+  unit: string; // 'mg/dL' | 'U/L' | 'ng/mL' | etc — string livre, validada server-side
   refRangeLow: number;
   refRangeHigh: number;
   refRangeUnit: 'adult-male' | 'adult-female' | 'pediatric' | 'unisex';
   expectedMethods: string[]; // canonical methods e.g. ['enzymatic-uv', 'colorimetric-photometric']
   alternativeNames: string[]; // fuzzy match aliases — e.g. ['ALT', 'TGP', 'alanina-aminotransferase']
-  loincCode?: string;        // optional LOINC for interlab comparison
+  loincCode?: string; // optional LOINC for interlab comparison
 }
 
 export const ANALITO_CATEGORIES: readonly AnalitoCategory[];
@@ -89,6 +91,7 @@ export function isExpandedAnalito(id: string): boolean;
 ```
 
 **Invariantes:**
+
 - 0 lógica de negócio — apenas tipos + 1 helper puro `isExpandedAnalito` (consulta lista hardcoded).
 - Sem imports externos.
 - `ANALITO_CATEGORIES` é `as const`.
@@ -109,14 +112,14 @@ Full CLSI Multirule 1981 type definitions. Replaces the legacy 4-rule subset by 
 
 ```typescript
 export type WestgardRuleCLSI8 =
-  | '1-3s'   // 1 result > ±3 SD → reject
-  | '2-2s'   // 2 consecutive same-side > ±2 SD → reject
-  | 'R-4s'   // range between 2 consecutive runs > 4 SD → reject
-  | '4-1s'   // 4 consecutive results > ±1 SD same side → reject
-  | '10x'    // 10 consecutive same-side from mean → reject
-  | '7T'     // 7 consecutive trending up or down → reject
-  | '8x'     // 8 consecutive same-side from mean → warn
-  | '12x';   // 12 consecutive same-side from mean → warn
+  | '1-3s' // 1 result > ±3 SD → reject
+  | '2-2s' // 2 consecutive same-side > ±2 SD → reject
+  | 'R-4s' // range between 2 consecutive runs > 4 SD → reject
+  | '4-1s' // 4 consecutive results > ±1 SD same side → reject
+  | '10x' // 10 consecutive same-side from mean → reject
+  | '7T' // 7 consecutive trending up or down → reject
+  | '8x' // 8 consecutive same-side from mean → warn
+  | '12x'; // 12 consecutive same-side from mean → warn
 
 export type WestgardSeverityCLSI8 = 'warn' | 'reject';
 
@@ -128,7 +131,7 @@ export interface WestgardObservation {
   value: number;
   mean: number;
   sd: number;
-  zScore: number;     // (value - mean) / sd
+  zScore: number; // (value - mean) / sd
   ts: number;
 }
 
@@ -136,8 +139,8 @@ export interface WestgardViolationCLSI8 {
   rule: WestgardRuleCLSI8;
   severity: WestgardSeverityCLSI8;
   detectedAt: number;
-  windowRuns: string[];   // runIds participating in the violation window
-  description: string;    // human-readable, e.g. "1 result at +3.2 SD (rule 1-3s)"
+  windowRuns: string[]; // runIds participating in the violation window
+  description: string; // human-readable, e.g. "1 result at +3.2 SD (rule 1-3s)"
 }
 
 export interface WestgardRuleConfigCLSI8 {
@@ -152,6 +155,7 @@ export function isRejectRule(rule: WestgardRuleCLSI8): boolean;
 ```
 
 **Invariantes:**
+
 - `CLSI8_DEFAULTS` segue tabela CLSI EP15: `1-3s`, `2-2s`, `R-4s`, `4-1s`, `10x`, `7T` → reject; `8x`, `12x` → warn.
 - 0 lógica de detecção (vai para `westgardEngine.ts` em W1).
 - Sem imports além do próprio `_shared_refs` se necessário.
@@ -185,6 +189,7 @@ Expanded seed dataset with 50+ analytes covering 10 categories.
 ```
 
 **Coverage required (50+ entries):**
+
 - Enzimologia (8): ALT, AST, GGT, ALP, CK, LDH, amilase, lipase
 - Lipidograma (4): colesterol-total, HDL, LDL, triglicerídeos
 - Glicemia (2): glicose-jejum, hemoglobina-glicada
@@ -197,6 +202,7 @@ Expanded seed dataset with 50+ analytes covering 10 categories.
 - Metabolismo ósseo (2): fosfatase-alcalina, PTH
 
 **Invariantes:**
+
 - File is pure JSON (no comments, no trailing commas).
 - Each entry validates against `AnalitoExpandedMetadata` (will be enforced by SA-58 sanity test).
 - `alternativeNames` MUST contain the canonical Portuguese name + standard 2-4 char abbreviations (ALT, TSH, etc).
@@ -217,40 +223,41 @@ Types for Gemini Vision OCR parsing pipeline. Zero logic.
 ```typescript
 import type { AnalitoId } from './_shared_refs';
 
-export type OCRConfidence = 'high' | 'medium' | 'low';  // ≥0.85 / 0.6–0.85 / <0.6
+export type OCRConfidence = 'high' | 'medium' | 'low'; // ≥0.85 / 0.6–0.85 / <0.6
 
 export interface OCRParsedAnalyte {
-  rawName: string;            // exatamente como apareceu no laudo OCR
+  rawName: string; // exatamente como apareceu no laudo OCR
   matchedAnalitoId?: AnalitoId; // post fuzzy-match (SA-49)
   matchConfidence: OCRConfidence;
-  rawValue: string;           // e.g. "84.3" or "<0.01"
-  parsedValue?: number;       // post numeric parse; undefined se não numérico
-  rawUnit?: string;           // e.g. "U/L"
+  rawValue: string; // e.g. "84.3" or "<0.01"
+  parsedValue?: number; // post numeric parse; undefined se não numérico
+  rawUnit?: string; // e.g. "U/L"
   unitMatched: boolean;
 }
 
 export interface OCRParsedResult {
   imageStoragePath: string;
-  imageHash: string;          // SHA-256 (64 hex)
+  imageHash: string; // SHA-256 (64 hex)
   parsedAt: number;
   geminiModel: 'gemini-2.5-flash' | 'gemini-2.0-flash';
-  rawText: string;            // full OCR text (may be redacted before storage)
+  rawText: string; // full OCR text (may be redacted before storage)
   analytes: OCRParsedAnalyte[];
   overallConfidence: OCRConfidence;
-  warnings: string[];         // e.g. "image rotated 90°", "partial occlusion bottom-left"
+  warnings: string[]; // e.g. "image rotated 90°", "partial occlusion bottom-left"
 }
 
 export interface OCRValidationReport {
   parsedResultId: string;
-  expectedAnalytes: AnalitoId[];   // analytes the run is configured for
+  expectedAnalytes: AnalitoId[]; // analytes the run is configured for
   matched: AnalitoId[];
-  unmatched: AnalitoId[];          // expected but missing in OCR
-  unexpected: string[];            // OCR found names not in expected set
+  unmatched: AnalitoId[]; // expected but missing in OCR
+  unexpected: string[]; // OCR found names not in expected set
   validationSeverity: 'accept' | 'review' | 'reject';
 }
 ```
 
 **Invariantes:**
+
 - 0 lógica.
 - Sem imports externos além de `_shared_refs`.
 
@@ -283,7 +290,7 @@ import type {
 } from '../types/westgardCLSI';
 
 export interface WestgardEngineInput {
-  windowObservations: WestgardObservation[];  // ordered by ts ASC, oldest first
+  windowObservations: WestgardObservation[]; // ordered by ts ASC, oldest first
   rulesConfig: WestgardRuleConfigCLSI8[];
 }
 
@@ -307,6 +314,7 @@ export function detect_12x(obs: WestgardObservation[]): WestgardViolationCLSI8[]
 ```
 
 **Invariantes (CLSI EP15 conformant):**
+
 - `detect_1_3s`: any obs with `|zScore| > 3` triggers reject.
 - `detect_2_2s`: 2 consecutive same-side `|zScore| > 2` (both > +2 OR both < -2). Window = 2.
 - `detect_R_4s`: pair where `(max(z) - min(z)) > 4` and signs differ. Window = 2.
@@ -345,7 +353,7 @@ export interface ServerWestgardInput {
   equipmentId: string;
   nivelId: string;
   newObservation: WestgardObservation;
-  windowSize?: number;  // default 12 (max needed for 12x rule)
+  windowSize?: number; // default 12 (max needed for 12x rule)
 }
 
 export interface ServerWestgardOutput {
@@ -356,11 +364,12 @@ export interface ServerWestgardOutput {
 
 export async function evaluateWestgardServer(
   db: FirebaseFirestore.Firestore,
-  input: ServerWestgardInput
+  input: ServerWestgardInput,
 ): Promise<ServerWestgardOutput>;
 ```
 
 **Invariantes:**
+
 - Lê últimos `windowSize` observations de `labs/{labId}/bioquimica/root/runs` filtrados por `analitoId + equipmentId + nivelId` ordenados `ts DESC`, depois reverte para ASC.
 - Lê `rulesConfig` de `labs/{labId}/bioquimica/root/config/{singleton}` (default ativa todas as 8 regras CLSI).
 - Reusa lógica de detecção via duplicate-port (não importa de `src/` no functions runtime — copiar funções puras do SA-47 inline ou via shared `functions/src/shared/westgardCLSIShared.ts` se já criado em outra wave).
@@ -390,19 +399,20 @@ export interface FuzzyMatchResult {
   matchedId?: AnalitoId;
   confidence: OCRConfidence;
   matchedVia: 'exact' | 'alias' | 'levenshtein' | 'none';
-  distance?: number;  // Levenshtein distance if used
+  distance?: number; // Levenshtein distance if used
 }
 
 export function fuzzyMatchAnalyte(
   rawName: string,
-  catalog: AnalitoExpandedMetadata[]
+  catalog: AnalitoExpandedMetadata[],
 ): FuzzyMatchResult;
 
 export function levenshteinDistance(a: string, b: string): number;
-export function normalizeAnalyteName(s: string): string;  // lowercase, strip accents, collapse spaces
+export function normalizeAnalyteName(s: string): string; // lowercase, strip accents, collapse spaces
 ```
 
 **Invariantes:**
+
 - `normalizeAnalyteName`: lowercase, NFKD diacritic strip, collapse whitespace, trim, replace `[/\-_]` with space.
 - Matching tier order:
   1. Exact match against `catalog[i].id` after normalize → `confidence: 'high'`, `matchedVia: 'exact'`.
@@ -432,8 +442,8 @@ export interface InterlabPeerStats {
   analitoId: AnalitoId;
   peerCount: number;
   peerMean: number;
-  peerSD: number;       // group SD across peer labs
-  cycleId: string;      // e.g. "2026-Q2"
+  peerSD: number; // group SD across peer labs
+  cycleId: string; // e.g. "2026-Q2"
   source: 'ceq-provider' | 'internal-aggregate';
 }
 
@@ -449,10 +459,15 @@ export interface InterlabZScoreOutput {
 }
 
 export function calculateInterlabZScore(input: InterlabZScoreInput): InterlabZScoreOutput;
-export function aggregatePeerStats(values: number[], cycleId: string, analitoId: AnalitoId): InterlabPeerStats;
+export function aggregatePeerStats(
+  values: number[],
+  cycleId: string,
+  analitoId: AnalitoId,
+): InterlabPeerStats;
 ```
 
 **Invariantes:**
+
 - `calculateInterlabZScore`: `z = (labResultValue - peerMean) / peerSD`. Lança `Error('peerSD must be > 0')` se `peerSD <= 0`.
 - Classification: `|z| ≤ 2` → `'satisfactory'`; `|z| ≤ 3` → `'questionable'`; else `'unsatisfactory'`.
 - `aggregatePeerStats`: rejeita arrays com `length < 5` (lança `Error('insufficient peer count: minimum 5')`); calcula mean + sample SD (n-1).
@@ -487,7 +502,7 @@ export const parseAnalyteStripImage: ReturnType<typeof onCall>;
 // Internal helper exported for testing
 export async function callGeminiVision(
   imageBase64: string,
-  mimeType: 'image/jpeg' | 'image/png' | 'image/webp'
+  mimeType: 'image/jpeg' | 'image/png' | 'image/webp',
 ): Promise<{ rawText: string; warnings: string[] }>;
 ```
 
@@ -495,6 +510,7 @@ export async function callGeminiVision(
 **Output shape:** `OCRParsedResult` (W0 SA-46)
 
 **Invariantes:**
+
 - `onCall({ region: 'southamerica-east1', cors: true, secrets: ['GEMINI_API_KEY'], memory: '512MiB', timeoutSeconds: 120 })`.
 - Auth required: rejeita `unauthenticated` se `!request.auth`.
 - `isActiveMemberOfLab(labId)` mandatory (RT/admin/operator role).
@@ -532,6 +548,7 @@ export function validateOCRResult(args: {
 ```
 
 **Invariantes:**
+
 - Para cada `expectedAnalytes[i]`: verificar se existe `parsed.analytes[j].matchedAnalitoId === expectedAnalytes[i]` com `matchConfidence !== 'low'`.
 - `unmatched` = expected sem match high/medium.
 - `unexpected` = analytes parseados com `matchedAnalitoId` fora de `expectedAnalytes`.
@@ -564,25 +581,27 @@ export type AcceptanceDecision = 'accept' | 'warn' | 'reject';
 
 export interface AcceptanceInput {
   westgardResult: WestgardEngineOutput;
-  interlabZScore?: InterlabZScoreOutput;       // optional — only when CEQ cycle exists
-  ocrValidation?: OCRValidationReport;         // optional — only when OCR was used
+  interlabZScore?: InterlabZScoreOutput; // optional — only when CEQ cycle exists
+  ocrValidation?: OCRValidationReport; // optional — only when OCR was used
 }
 
 export interface AcceptanceOutput {
   decision: AcceptanceDecision;
-  reasons: string[];                           // human-readable, e.g. ["Westgard 1-3s reject", "interlab z=3.4 unsatisfactory"]
-  blockers: string[];                          // subset of reasons that drove a 'reject' verdict
+  reasons: string[]; // human-readable, e.g. ["Westgard 1-3s reject", "interlab z=3.4 unsatisfactory"]
+  blockers: string[]; // subset of reasons that drove a 'reject' verdict
 }
 
 export function evaluateAcceptance(input: AcceptanceInput): AcceptanceOutput;
 ```
 
 **Invariantes (priority order):**
+
 1. Se `westgardResult.rejectCount > 0` → `'reject'`. Adicionar 1 reason por violation.
 2. Se `interlabZScore?.classification === 'unsatisfactory'` → `'reject'`. Reason: `"interlab z=X classification=unsatisfactory"`.
 3. Se `ocrValidation?.validationSeverity === 'reject'` → `'reject'`. Reason: `"OCR validation rejected: N unmatched"`.
 4. Senão se qualquer warn (`westgardResult.warnCount > 0`, `interlabZScore.classification === 'questionable'`, `ocrValidation.validationSeverity === 'review'`) → `'warn'`.
 5. Senão → `'accept'`.
+
 - Pure function. Lista `reasons` ordenada por prioridade acima.
 - `blockers` = subset de `reasons` que causaram `'reject'` (vazia se `decision !== 'reject'`).
 
@@ -630,6 +649,7 @@ export function useGeminiVision(): UseGeminiVisionApi;
 ```
 
 **Invariantes:**
+
 - Importa `httpsCallable` de `firebase/functions` apontando para a região `southamerica-east1`.
 - Callable name `parseAnalyteStripImage`.
 - `useActiveLabId()` injetado automaticamente no payload (operador não passa labId explicitamente).
@@ -672,6 +692,7 @@ export function useOCRValidation(): UseOCRValidationApi;
 ```
 
 **Invariantes:**
+
 - Internamente compõe `useGeminiVision` (SA-54) + `validateOCRResult` (W2 SA-52) + lê catálogo via `useAnalitos` (já existe).
 - Aplica `fuzzyMatchAnalyte` (W1 SA-49) sobre cada `parsed.analytes[i].rawName` antes de chamar `validateOCRResult`.
 - `reset()` zera todos os campos.
@@ -700,13 +721,14 @@ export interface OCRUploadModalProps {
   onClose: () => void;
   expectedAnalytes: AnalitoId[];
   onAccept: (report: OCRValidationReport, imageStoragePath: string) => void;
-  consentToken: string;  // patient consent — caller must obtain before opening
+  consentToken: string; // patient consent — caller must obtain before opening
 }
 
 export function OCRUploadModal(props: OCRUploadModalProps): JSX.Element;
 ```
 
 **Invariantes (UX + visual):**
+
 - Usa `bg-[#141417]` overlay, `bg-[#1a1a1f]` modal body, `border border-white/10`, `rounded-2xl`.
 - Tipografia editorial: title `text-xl font-medium tracking-tight`, body `text-sm text-white/70`.
 - Espaçamento 4px-grid: `p-6`, gaps `gap-4`.
@@ -752,6 +774,7 @@ export const submitBioquimicaRunWithOCR: ReturnType<typeof onCall>;
 **Output:** `{ acceptance: AcceptanceOutput; ocrReport: OCRValidationReport; westgardViolations: WestgardViolationCLSI8[]; runDocPath: string }`
 
 **Invariantes:**
+
 - `onCall({ region: 'southamerica-east1', cors: true, secrets: ['GEMINI_API_KEY'], memory: '1GiB', timeoutSeconds: 180 })`.
 - Auth + `isActiveMemberOfLab(labId)`.
 - `signature.operatorId === request.auth.uid` (Threat T2).
@@ -784,17 +807,26 @@ Integration guide for operators using the OCR-driven run workflow.
 # Bioquímica Phase 2 — OCR Integration Guide
 
 ## Pré-requisitos
+
 ## Fluxo do operador (5 passos)
+
 ## Requisitos LGPD (consent token)
+
 ## Decisão de aceitação (acceptance engine)
+
 ## Tratamento de OCR rejeitado
+
 ## Roteiro de teste com fixture (STUB mode)
+
 ## Limites conhecidos + fallback manual
+
 ## Métricas Cloud Logs (queries esperadas)
+
 ## Compliance map (RDC 978 Art. 167 + DICQ 4.3 Bloco F + LGPD Art. 9)
 ```
 
 **Invariantes:**
+
 - Markdown puro, sem HTML inline.
 - Exemplos de código TypeScript usando os hooks `useOCRValidation` + `useGeminiVision`.
 - 1 fluxograma ASCII no fluxo de aceitação.
@@ -820,6 +852,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 16 unit tests (2 per CLSI rule).
 
 **Coverage required:**
+
 - `detect_1_3s`: positive (z=3.5), negative (z=2.9). [2]
 - `detect_2_2s`: positive (two consec +2.3, +2.5), negative (one inside, one outside). [2]
 - `detect_R_4s`: positive (z=2.1, z=-2.3), negative (range 3.8). [2]
@@ -830,6 +863,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 - `detect_12x`: positive (12 same-side warn), negative (11). [2]
 
 **Invariantes:**
+
 - Vitest. Imports somente de `westgardEngine` (W1 SA-47) e tipos de `westgardCLSI` (W0 SA-44).
 - Cada test usa fixture mínima — sem mock de Firebase.
 - Asserts em violation count + severity + rule id.
@@ -847,12 +881,14 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 12 unit tests for acceptance decision matrix.
 
 **Coverage required:**
+
 - 4 cases isolating Westgard reject path
 - 3 cases isolating interlab z-score (unsat / question / sat)
 - 3 cases isolating OCR (reject / review / accept)
 - 2 combined cases (e.g. westgard warn + interlab unsat → reject; all clean → accept)
 
 **Invariantes:**
+
 - Vitest. Pure import of `evaluateAcceptance`. No mocks.
 - Cada test verifica `decision`, `reasons.length`, `blockers.length`.
 
@@ -869,6 +905,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 10 unit tests for OCR validation report generator.
 
 **Coverage required:**
+
 - Exact-match all expected → `'accept'`.
 - 1 unmatched → `'review'`.
 - 3 unmatched → `'reject'`.
@@ -881,6 +918,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 - Mixed result (high + medium + 1 unmatched) → `'review'`.
 
 **Invariantes:**
+
 - Vitest. Imports of `validateOCRResult` (W2 SA-52) + `fuzzyMatchAnalyte` (W1 SA-49) + types only.
 - Catalog fixture mínimo (5 analytes) inline no test.
 
@@ -897,6 +935,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 5 tests with mocked Gemini responses.
 
 **Coverage required:**
+
 - Stub mode returns canned fixture → 4 analytes parsed with high confidence.
 - Image hash matches expected SHA-256 of fixture buffer.
 - Missing `consentToken` → callable rejects `permission-denied`.
@@ -904,6 +943,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 - Gemini API error simulado → callable rejects `internal` (não vaza stack).
 
 **Invariantes:**
+
 - Vitest. Mocks de `firebase-admin` + `firebase-functions/v2/https` via `vi.mock`.
 - Stub mode habilitado via `process.env.GEMINI_API_KEY = 'STUB'` no `beforeAll`.
 - Fixture predefinida em `src/__tests__/fixtures/ocrFixture.json` (criar se não existir).
@@ -921,6 +961,7 @@ deps: W0 + W1 + W2 + W4. All 5 SAs dispatch simultaneously.
 End-to-end OCR → fuzzy match → Westgard → acceptance pipeline.
 
 **Coverage required (5 scenarios, 1 test each):**
+
 - Scenario 1: clean image, 4 expected analytes, all within 1 SD → `acceptance.decision === 'accept'`.
 - Scenario 2: clean image, 1 analyte at z=3.5 → `acceptance.decision === 'reject'` with `reasons` mentioning `1-3s`.
 - Scenario 3: 1 unmatched analyte (OCR review) + Westgard clean → `acceptance.decision === 'warn'`.
@@ -928,6 +969,7 @@ End-to-end OCR → fuzzy match → Westgard → acceptance pipeline.
 - Scenario 5: blockers populated only on reject paths.
 
 **Invariantes:**
+
 - Vitest. Stub Gemini mode. No Firestore — use in-memory fixtures.
 - Cada test compõe `useOCRValidation.validateImage` (mock) → `evaluateWestgardServer` (mock — 12 historical observations) → `evaluateAcceptance`.
 
@@ -953,11 +995,13 @@ deps: W0..W5 all green.
 # Phase 9B — Bioquímica Phase 2 Verification Gate
 
 ## Build gates
+
 - [ ] `npx tsc --noEmit` exit 0 (web)
 - [ ] `cd functions && npm run build` exit 0
 - [ ] `npm run build` (vite) exit 0; main chunk delta vs v1.4 baseline ≤ +15 KB gzip
 
 ## Test gates
+
 - [ ] SA-59 westgard.test.ts — 16 passed
 - [ ] SA-60 acceptanceEngine.test.ts — 12 passed
 - [ ] SA-61 ocrValidation.test.ts — 10 passed
@@ -966,33 +1010,39 @@ deps: W0..W5 all green.
 - [ ] **Subtotal: 48 tests passing** (target ≥ 48)
 
 ## CLSI compliance
+
 - [ ] All 8 rules implemented and unit-tested (1-3s, 2-2s, R-4s, 4-1s, 10x, 7T, 8x, 12x)
 - [ ] Server-side engine matches client-side outputs on the SA-63 fixture
 
 ## DICQ 4.3 mapping
-| DICQ clause | SA | Status |
-|---|---|---|
-| 5.5.1.1 (CIQ planning) | SA-43, SA-45 | covered |
-| 5.6.2 (Westgard rules) | SA-44, SA-47, SA-48, SA-59 | covered |
-| 5.6.3.1 (rejection criteria) | SA-53, SA-60 | covered |
-| 5.6.4 (interlab comparison) | SA-50, SA-60, SA-63 | covered |
+
+| DICQ clause                  | SA                         | Status  |
+| ---------------------------- | -------------------------- | ------- |
+| 5.5.1.1 (CIQ planning)       | SA-43, SA-45               | covered |
+| 5.6.2 (Westgard rules)       | SA-44, SA-47, SA-48, SA-59 | covered |
+| 5.6.3.1 (rejection criteria) | SA-53, SA-60               | covered |
+| 5.6.4 (interlab comparison)  | SA-50, SA-60, SA-63        | covered |
 
 ## RDC 978/2025 mapping
+
 - Art. 167 (laudo): OCR pipeline ⇒ SA-51, SA-57, SA-58
 - Art. 179 (CIQ obrigatório): SA-43..SA-50
 - Art. 183 (CIQ por troca de lote): integrates with existing lot logic — no regression
 
 ## LGPD
+
 - [ ] `consentToken` enforced in SA-51 + SA-57 (gate before processing image)
 - [ ] No `rawText` logged (audit Cloud Logs query attached)
 
 ## OCR accuracy
+
 - [ ] Manual validation on 10 sample lab strips ≥ 92% accurate analyte extraction (run by RT, output appended to this doc)
 
 ## Sign-off
-- [ ] Module owner sign-off: __________
-- [ ] CTO sign-off: __________
-- [ ] Date: __________
+
+- [ ] Module owner sign-off: ****\_\_****
+- [ ] CTO sign-off: ****\_\_****
+- [ ] Date: ****\_\_****
 ```
 
 **Files to read:** all SAs above (43..63), `.planning/phases/08-capa-closure/08-08-VERIFICATION.md` (gate document pattern).
@@ -1005,13 +1055,13 @@ deps: W0..W5 all green.
 
 ## MP-5a Master Verification Gate (post-W6)
 
-| Gate | Pass criteria |
-|------|---------------|
-| **G-Build** | `npx tsc --noEmit` exit 0 + `cd functions && npm run build` exit 0 |
-| **G-Test** | 48+ tests passing across 5 spec files; no Phase 8/9 regression |
-| **G-CORS** | `parseAnalyteStripImage` and `submitBioquimicaRunWithOCR` both have `cors:true` |
-| **G-LGPD** | `consentToken` gate present in SA-51 + SA-57 (grep enforced) |
-| **G-CLSI** | All 8 rule detectors exported from `westgardEngine.ts` (grep enforced) |
-| **G-OCR-Accuracy** | ≥92% on 10-sample manual validation (recorded in SA-64 doc) |
+| Gate               | Pass criteria                                                                   |
+| ------------------ | ------------------------------------------------------------------------------- |
+| **G-Build**        | `npx tsc --noEmit` exit 0 + `cd functions && npm run build` exit 0              |
+| **G-Test**         | 48+ tests passing across 5 spec files; no Phase 8/9 regression                  |
+| **G-CORS**         | `parseAnalyteStripImage` and `submitBioquimicaRunWithOCR` both have `cors:true` |
+| **G-LGPD**         | `consentToken` gate present in SA-51 + SA-57 (grep enforced)                    |
+| **G-CLSI**         | All 8 rule detectors exported from `westgardEngine.ts` (grep enforced)          |
+| **G-OCR-Accuracy** | ≥92% on 10-sample manual validation (recorded in SA-64 doc)                     |
 
 Failure of any gate → escalate to Sonnet 4.6 with full failing test output. Re-run wave incrementally; do NOT skip gates.

@@ -55,20 +55,20 @@ O módulo `auditoria-interna` acumulou complexidade (callables, re-auditoria, ch
 
 ### Agrupamento em 12 Blocos
 
-| Bloco | Nome | Indicadores | Qtd | Módulos HC Quality relacionados |
-|-------|------|-------------|-----|--------------------------------|
-| A | Documentação Legal e Governança | 1-5 | 5 | sgd, labSettings |
-| B | Contratos e Terceirização | 6-9 | 4 | fornecedores, lab-apoio |
-| C | Tecnologias e Equipamentos | 10-14 | 5 | equipamentos, notivisa |
-| D | Risco e Documentos | 15-16 | 2 | risks, sgd, sgq |
-| E | Pessoal e Educação | 17-19 | 3 | treinamentos, educacao-continuada |
-| F | Infraestrutura e Ambiente | 20-28 | 9 | pgrss, controle-temperatura, insumos, biosseguranca |
-| G | Sistemas e Biossegurança | 29-32 | 4 | biosseguranca |
-| H | Procedimentos e Rastreabilidade | 33-35 | 3 | sgq, pops |
-| I | Fase Pré-Analítica | 36-42 | 7 | — |
-| J | Fase Analítica | 43-48 | 6 | criticos, bioquimica |
-| K | Fase Pós-Analítica e Laudos | 49-51 | 3 | laudo-ocr |
-| L | Controle da Qualidade (CIQ/CEQ) | 52-57 | 6 | runs, ceq, lots |
+| Bloco | Nome                            | Indicadores | Qtd | Módulos HC Quality relacionados                     |
+| ----- | ------------------------------- | ----------- | --- | --------------------------------------------------- |
+| A     | Documentação Legal e Governança | 1-5         | 5   | sgd, labSettings                                    |
+| B     | Contratos e Terceirização       | 6-9         | 4   | fornecedores, lab-apoio                             |
+| C     | Tecnologias e Equipamentos      | 10-14       | 5   | equipamentos, notivisa                              |
+| D     | Risco e Documentos              | 15-16       | 2   | risks, sgd, sgq                                     |
+| E     | Pessoal e Educação              | 17-19       | 3   | treinamentos, educacao-continuada                   |
+| F     | Infraestrutura e Ambiente       | 20-28       | 9   | pgrss, controle-temperatura, insumos, biosseguranca |
+| G     | Sistemas e Biossegurança        | 29-32       | 4   | biosseguranca                                       |
+| H     | Procedimentos e Rastreabilidade | 33-35       | 3   | sgq, pops                                           |
+| I     | Fase Pré-Analítica              | 36-42       | 7   | —                                                   |
+| J     | Fase Analítica                  | 43-48       | 6   | criticos, bioquimica                                |
+| K     | Fase Pós-Analítica e Laudos     | 49-51       | 3   | laudo-ocr                                           |
+| L     | Controle da Qualidade (CIQ/CEQ) | 52-57       | 6   | runs, ceq, lots                                     |
 
 ---
 
@@ -84,28 +84,37 @@ O módulo `auditoria-interna` acumulou complexidade (callables, re-auditoria, ch
 
 ```typescript
 {
-  id: string;                    // auto-generated
-  labId: string;                 // multi-tenant (redundante)
-  titulo: string;                // ex: "Auditoria Interna 2026-S1"
+  id: string; // auto-generated
+  labId: string; // multi-tenant (redundante)
+  titulo: string; // ex: "Auditoria Interna 2026-S1"
   status: 'rascunho' | 'em_andamento' | 'finalizada';
   auditor: {
     uid: string;
     nome: string;
-  };
+  }
   dataInicio: Timestamp;
   dataFim: Timestamp | null;
-  blocoAtual: string;            // último bloco visitado (para retomar)
-  scoreTotal: number;            // 0-100 (percentual)
+  blocoAtual: string; // último bloco visitado (para retomar)
+  scoreTotal: number; // 0-100 (percentual)
   scoresPorBloco: {
-    A: number; B: number; C: number; D: number;
-    E: number; F: number; G: number; H: number;
-    I: number; J: number; K: number; L: number;
-  };
-  totalRespondidos: number;      // 0-57
-  totalNaoAplica: number;        // quantos marcados N/A
+    A: number;
+    B: number;
+    C: number;
+    D: number;
+    E: number;
+    F: number;
+    G: number;
+    H: number;
+    I: number;
+    J: number;
+    K: number;
+    L: number;
+  }
+  totalRespondidos: number; // 0-57
+  totalNaoAplica: number; // quantos marcados N/A
   criadoEm: Timestamp;
   criadoPor: string;
-  deletadoEm: Timestamp | null;  // soft-delete (RN-06)
+  deletadoEm: Timestamp | null; // soft-delete (RN-06)
 }
 ```
 
@@ -117,13 +126,13 @@ O módulo `auditoria-interna` acumulou complexidade (callables, re-auditoria, ch
 
 ```typescript
 {
-  id: string;                    // "ind-01" a "ind-57"
-  numero: number;                // 1-57
-  indicador: string;             // nome do indicador
-  bloco: string;                 // "A"-"L"
-  score: number | null;          // 0-5 ou null (não respondido)
-  naoAplica: boolean;            // true = não conta no cálculo
-  observacoes: string;           // campo livre
+  id: string; // "ind-01" a "ind-57"
+  numero: number; // 1-57
+  indicador: string; // nome do indicador
+  bloco: string; // "A"-"L"
+  score: number | null; // 0-5 ou null (não respondido)
+  naoAplica: boolean; // true = não conta no cálculo
+  observacoes: string; // campo livre
   respondidoEm: Timestamp | null;
   respondidoPor: string | null;
 }
@@ -196,7 +205,17 @@ export interface AuditoriaGeral {
 // Input para criação (sem campos auto-gerados)
 export type AuditoriaGeralInput = Omit<
   AuditoriaGeral,
-  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'scoreTotal' | 'scoresPorBloco' | 'totalRespondidos' | 'totalNaoAplica' | 'blocoAtual' | 'dataFim'
+  | 'id'
+  | 'labId'
+  | 'criadoEm'
+  | 'criadoPor'
+  | 'deletadoEm'
+  | 'scoreTotal'
+  | 'scoresPorBloco'
+  | 'totalRespondidos'
+  | 'totalNaoAplica'
+  | 'blocoAtual'
+  | 'dataFim'
 >;
 
 // Resposta individual
@@ -368,12 +387,14 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
 ## 8. COMPONENTES UI — DETALHAMENTO
 
 ### AuditoriaGeralPage.tsx
+
 - Entry point da rota `/auditoria-geral`
 - Verifica auth + labId
 - Renderiza Dashboard ou Wizard dependendo do state
 - Botão voltar ao Hub
 
 ### AuditoriasDashboard.tsx
+
 - Header com título + botão "Nova Auditoria"
 - KPIs: total auditorias, finalizadas, em andamento, score médio
 - Lista de auditorias em cards:
@@ -383,12 +404,14 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
 - Empty state quando não há auditorias
 
 ### NovaAuditoriaDialog.tsx
+
 - Modal com campos:
   - Título (sugestão automática: "Auditoria Interna YYYY-SN")
   - Auditor (dropdown com membros do lab)
 - Botão criar → chama createAuditoria → navega para wizard
 
 ### WizardAuditoria.tsx
+
 - Container principal do wizard
 - State: blocoAtual, respostas locais (otimistic)
 - Header fixo: título da auditoria + ProgressBar
@@ -397,12 +420,14 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
 - Botão "Salvar e Sair" (volta ao dashboard)
 
 ### WizardBlocoStep.tsx
+
 - Recebe: bloco metadata + indicadores do bloco + respostas
 - Header do bloco: nome, descrição, progresso (X/Y respondidos)
 - Lista de IndicadorCards
 - Scroll vertical
 
 ### IndicadorCard.tsx
+
 - Card dark com:
   - Número + nome do indicador
   - Marco regulatório (badge pequeno)
@@ -412,6 +437,7 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
   - Indicador visual de status (respondido/pendente)
 
 ### ScoreSelector.tsx
+
 - 6 botões (0-5) em linha horizontal
 - Cores graduais: 0=vermelho, 1=laranja, 2=amarelo, 3=azul, 4=verde-claro, 5=verde
 - Ao selecionar: expande descrição do nível escolhido
@@ -419,12 +445,14 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
 - Estado selecionado: botão preenchido + borda accent
 
 ### ProgressBar.tsx
+
 - Barra horizontal com 12 segmentos (blocos A-L)
 - Cada segmento: cinza (não visitado), amarelo (parcial), verde (completo)
 - Label: "Bloco X de 12 — Nome do Bloco"
 - Clicável para navegar direto a um bloco
 
 ### ResumoAuditoria.tsx
+
 - Tela final após responder todos os blocos
 - Score total grande (circular, animado)
 - ScoreBlocoChart (gráfico)
@@ -432,6 +460,7 @@ softDeleteAuditoria(labId, auditoriaId): Promise<void>
 - Botões: "Finalizar Auditoria" / "Revisar" / "Gerar PDF"
 
 ### ScoreBlocoChart.tsx
+
 - Gráfico de barras horizontais (um por bloco)
 - Cores: vermelho (<50%), amarelo (50-70%), verde (>70%)
 - Labels: nome do bloco + percentual
@@ -640,45 +669,45 @@ Continua de onde parou
 
 ### Fase 1: Foundation (paralelo — 3 agentes)
 
-| Agente | Responsabilidade | Arquivos | Verificação |
-|--------|-----------------|----------|-------------|
-| 1A | Types + Data + Utils | types/index.ts, data/indicadores.ts, data/blocos.ts, utils/scoreUtils.ts, index.ts | tsc --noEmit |
-| 1B | Service CRUD | services/auditoriaGeralService.ts | tsc --noEmit |
-| 1C | Firestore Rules | firestore.rules (adicionar bloco) | firebase rules compile |
+| Agente | Responsabilidade     | Arquivos                                                                           | Verificação            |
+| ------ | -------------------- | ---------------------------------------------------------------------------------- | ---------------------- |
+| 1A     | Types + Data + Utils | types/index.ts, data/indicadores.ts, data/blocos.ts, utils/scoreUtils.ts, index.ts | tsc --noEmit           |
+| 1B     | Service CRUD         | services/auditoriaGeralService.ts                                                  | tsc --noEmit           |
+| 1C     | Firestore Rules      | firestore.rules (adicionar bloco)                                                  | firebase rules compile |
 
 **Gate:** `npx tsc --noEmit` passa sem erros
 
 ### Fase 2: Hooks (sequencial — depende da Fase 1)
 
-| Agente | Responsabilidade | Arquivos | Verificação |
-|--------|-----------------|----------|-------------|
-| 2A | Todos os hooks | hooks/useAuditoriaGeral.ts, hooks/useAuditoriasGeral.ts, hooks/useScoreCalculator.ts | tsc --noEmit |
+| Agente | Responsabilidade | Arquivos                                                                             | Verificação  |
+| ------ | ---------------- | ------------------------------------------------------------------------------------ | ------------ |
+| 2A     | Todos os hooks   | hooks/useAuditoriaGeral.ts, hooks/useAuditoriasGeral.ts, hooks/useScoreCalculator.ts | tsc --noEmit |
 
 **Gate:** `npx tsc --noEmit` passa sem erros
 
 ### Fase 3: UI (paralelo — 3 agentes)
 
-| Agente | Responsabilidade | Arquivos | Verificação |
-|--------|-----------------|----------|-------------|
-| 3A | Page + Dashboard + Dialog | AuditoriaGeralPage.tsx, AuditoriasDashboard.tsx, NovaAuditoriaDialog.tsx | tsc --noEmit |
-| 3B | Wizard (container + step + progress) | WizardAuditoria.tsx, WizardBlocoStep.tsx, ProgressBar.tsx | tsc --noEmit |
-| 3C | Indicador + Score + Resumo + Chart | IndicadorCard.tsx, ScoreSelector.tsx, ResumoAuditoria.tsx, ScoreBlocoChart.tsx | tsc --noEmit |
+| Agente | Responsabilidade                     | Arquivos                                                                       | Verificação  |
+| ------ | ------------------------------------ | ------------------------------------------------------------------------------ | ------------ |
+| 3A     | Page + Dashboard + Dialog            | AuditoriaGeralPage.tsx, AuditoriasDashboard.tsx, NovaAuditoriaDialog.tsx       | tsc --noEmit |
+| 3B     | Wizard (container + step + progress) | WizardAuditoria.tsx, WizardBlocoStep.tsx, ProgressBar.tsx                      | tsc --noEmit |
+| 3C     | Indicador + Score + Resumo + Chart   | IndicadorCard.tsx, ScoreSelector.tsx, ResumoAuditoria.tsx, ScoreBlocoChart.tsx | tsc --noEmit |
 
 **Gate:** `npm run build` passa sem erros
 
 ### Fase 4: Routing (sequencial)
 
-| Agente | Responsabilidade | Arquivos | Verificação |
-|--------|-----------------|----------|-------------|
-| 4A | Rota + Hub tile + exports | AppRouter/AuthWrapper, constants.ts, barrel exports | npm run build + app carrega |
+| Agente | Responsabilidade          | Arquivos                                            | Verificação                 |
+| ------ | ------------------------- | --------------------------------------------------- | --------------------------- |
+| 4A     | Rota + Hub tile + exports | AppRouter/AuthWrapper, constants.ts, barrel exports | npm run build + app carrega |
 
 **Gate:** `npm run build` passa + app renderiza no browser
 
 ### Fase 5: Cloud Function PDF (independente)
 
-| Agente | Responsabilidade | Arquivos | Verificação |
-|--------|-----------------|----------|-------------|
-| 5A | PDF Generator callable | functions/src/callables/auditoriaGeral/generateAuditoriaGeralPDF.ts, functions/src/index.ts | cd functions && npx tsc --noEmit |
+| Agente | Responsabilidade       | Arquivos                                                                                    | Verificação                      |
+| ------ | ---------------------- | ------------------------------------------------------------------------------------------- | -------------------------------- |
+| 5A     | PDF Generator callable | functions/src/callables/auditoriaGeral/generateAuditoriaGeralPDF.ts, functions/src/index.ts | cd functions && npx tsc --noEmit |
 
 **Gate:** Functions compila sem erros
 
@@ -699,20 +728,20 @@ Continua de onde parou
 
 ## 14. PERMISSÕES CONCEDIDAS (execução autônoma)
 
-| Ação | Permitido |
-|------|-----------|
-| Criar/editar em `src/features/auditoria-geral/` | SIM |
-| Criar/editar em `functions/src/callables/auditoriaGeral/` | SIM |
-| Editar `functions/src/index.ts` | SIM |
-| Editar `firestore.rules` | SIM |
-| Editar router/AuthWrapper | SIM |
-| Editar `src/constants.ts` | SIM |
-| Rodar `npx tsc --noEmit` | SIM |
-| Rodar `npm run build` | SIM |
-| Rodar `firebase deploy` | SIM |
-| Instalar dependências | SIM |
-| Tocar módulo `auditoria-interna` | NAO |
-| Tocar módulos protegidos (auth, admin, shared) | NAO |
+| Ação                                                      | Permitido |
+| --------------------------------------------------------- | --------- |
+| Criar/editar em `src/features/auditoria-geral/`           | SIM       |
+| Criar/editar em `functions/src/callables/auditoriaGeral/` | SIM       |
+| Editar `functions/src/index.ts`                           | SIM       |
+| Editar `firestore.rules`                                  | SIM       |
+| Editar router/AuthWrapper                                 | SIM       |
+| Editar `src/constants.ts`                                 | SIM       |
+| Rodar `npx tsc --noEmit`                                  | SIM       |
+| Rodar `npm run build`                                     | SIM       |
+| Rodar `firebase deploy`                                   | SIM       |
+| Instalar dependências                                     | SIM       |
+| Tocar módulo `auditoria-interna`                          | NAO       |
+| Tocar módulos protegidos (auth, admin, shared)            | NAO       |
 
 ---
 
@@ -720,54 +749,54 @@ Continua de onde parou
 
 ### Onda 1 — MVP
 
-| # | Critério | Como verificar |
-|---|----------|----------------|
-| 1 | Wizard funcional com 57 indicadores em 12 blocos | Navegar todos os blocos |
-| 2 | Escala 0-5 com descrições visíveis | Clicar em cada nível, ver descrição |
-| 3 | Salvar progresso (sair e voltar) | Sair no bloco 5, reabrir, verificar respostas |
-| 4 | Score calculado por bloco e total | Responder tudo, verificar cálculo |
-| 5 | Dashboard com lista e status | Ver cards com status correto |
-| 6 | PDF executivo premium | Gerar PDF, verificar layout |
-| 7 | Design dark-first world-class | Inspeção visual |
-| 8 | Zero dependência auditoria-interna | grep import auditoria-interna = 0 |
-| 9 | Deploy sem erros | Acessar hmatologia2.web.app |
-| 10 | Multi-tenant | Testar com 2 labs diferentes |
+| #   | Critério                                         | Como verificar                                |
+| --- | ------------------------------------------------ | --------------------------------------------- |
+| 1   | Wizard funcional com 57 indicadores em 12 blocos | Navegar todos os blocos                       |
+| 2   | Escala 0-5 com descrições visíveis               | Clicar em cada nível, ver descrição           |
+| 3   | Salvar progresso (sair e voltar)                 | Sair no bloco 5, reabrir, verificar respostas |
+| 4   | Score calculado por bloco e total                | Responder tudo, verificar cálculo             |
+| 5   | Dashboard com lista e status                     | Ver cards com status correto                  |
+| 6   | PDF executivo premium                            | Gerar PDF, verificar layout                   |
+| 7   | Design dark-first world-class                    | Inspeção visual                               |
+| 8   | Zero dependência auditoria-interna               | grep import auditoria-interna = 0             |
+| 9   | Deploy sem erros                                 | Acessar hmatologia2.web.app                   |
+| 10  | Multi-tenant                                     | Testar com 2 labs diferentes                  |
 
 ### Onda 1b — NCs
 
-| # | Critério | Como verificar |
-|---|----------|----------------|
-| 11 | Botão "Abrir NC" em score ≤ 2 | Dar score 1, ver botão |
-| 12 | NC criada com origem correta | Verificar no Firestore |
-| 13 | Badge "NC Aberta" no card | Verificar visual |
-| 14 | Contador NCs no dashboard | Verificar número |
+| #   | Critério                      | Como verificar         |
+| --- | ----------------------------- | ---------------------- |
+| 11  | Botão "Abrir NC" em score ≤ 2 | Dar score 1, ver botão |
+| 12  | NC criada com origem correta  | Verificar no Firestore |
+| 13  | Badge "NC Aberta" no card     | Verificar visual       |
+| 14  | Contador NCs no dashboard     | Verificar número       |
 
 ---
 
 ## 16. RISCOS E MITIGAÇÕES
 
-| Risco | Probabilidade | Impacto | Mitigação |
-|-------|--------------|---------|-----------|
-| Arquivo indicadores.ts muito grande (57 × 6 níveis) | Alta | Baixo | Lazy load por bloco no wizard |
-| PDF timeout em functions (muitos dados) | Média | Médio | Timeout 120s, otimizar rendering |
-| Conflito de rules com regras existentes | Baixa | Alto | Bloco isolado, testar com emulator |
-| Bundle size increase | Baixa | Baixo | React.lazy na rota |
-| Perda de dados ao trocar bloco | Média | Alto | Auto-save a cada resposta |
+| Risco                                               | Probabilidade | Impacto | Mitigação                          |
+| --------------------------------------------------- | ------------- | ------- | ---------------------------------- |
+| Arquivo indicadores.ts muito grande (57 × 6 níveis) | Alta          | Baixo   | Lazy load por bloco no wizard      |
+| PDF timeout em functions (muitos dados)             | Média         | Médio   | Timeout 120s, otimizar rendering   |
+| Conflito de rules com regras existentes             | Baixa         | Alto    | Bloco isolado, testar com emulator |
+| Bundle size increase                                | Baixa         | Baixo   | React.lazy na rota                 |
+| Perda de dados ao trocar bloco                      | Média         | Alto    | Auto-save a cada resposta          |
 
 ---
 
 ## 17. CRONOGRAMA ESTIMADO
 
-| Fase | Duração estimada | Dependência |
-|------|-----------------|-------------|
-| Fase 1 (Foundation) | ~30 min | Nenhuma |
-| Fase 2 (Hooks) | ~15 min | Fase 1 |
-| Fase 3 (UI) | ~45 min | Fase 2 |
-| Fase 4 (Routing) | ~10 min | Fase 3 |
-| Fase 5 (PDF) | ~30 min | Fase 1 |
-| Fase 6 (Deploy) | ~15 min | Fases 4+5 |
-| **Total Onda 1** | **~2.5h** | — |
-| Onda 1b (NCs) | ~30 min | Onda 1 |
+| Fase                | Duração estimada | Dependência |
+| ------------------- | ---------------- | ----------- |
+| Fase 1 (Foundation) | ~30 min          | Nenhuma     |
+| Fase 2 (Hooks)      | ~15 min          | Fase 1      |
+| Fase 3 (UI)         | ~45 min          | Fase 2      |
+| Fase 4 (Routing)    | ~10 min          | Fase 3      |
+| Fase 5 (PDF)        | ~30 min          | Fase 1      |
+| Fase 6 (Deploy)     | ~15 min          | Fases 4+5   |
+| **Total Onda 1**    | **~2.5h**        | —           |
+| Onda 1b (NCs)       | ~30 min          | Onda 1      |
 
 ---
 
@@ -790,4 +819,7 @@ Continua de onde parou
 - IA summary executivo (Onda 4)
 - Offline-first (Onda futura)
 - Mobile nativo (Onda futura)
+
+```
+
 ```

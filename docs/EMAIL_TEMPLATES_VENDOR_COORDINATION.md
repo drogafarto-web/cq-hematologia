@@ -21,8 +21,8 @@
 ```
 Dear [Account Manager Name],
 
-We are integrating NOTIVISA notifications into HC Quality, our clinical quality 
-control system for Labclin. As part of Phase 4 deployment (starting 2026-05-20), 
+We are integrating NOTIVISA notifications into HC Quality, our clinical quality
+control system for Labclin. As part of Phase 4 deployment (starting 2026-05-20),
 we need to confirm sandbox environment access and API documentation.
 
 INTEGRATION TIMELINE
@@ -85,7 +85,7 @@ Please confirm receipt of this request and provide an ETA for:
 2. API documentation (target: 2026-05-16)
 3. Rate limits & SLA (target: 2026-05-17)
 
-If there are any prerequisites we must complete on our end, please advise 
+If there are any prerequisites we must complete on our end, please advise
 (e.g., account registration, contract signing, business verification).
 
 We are committed to a smooth integration and appreciate your support.
@@ -114,8 +114,8 @@ Best regards,
 ```
 Dear [Account Manager Name],
 
-We are implementing SMS-based critical value escalation in HC Quality using Twilio. 
-As part of Phase 5 deployment (starting 2026-06-09), we need to confirm account 
+We are implementing SMS-based critical value escalation in HC Quality using Twilio.
+As part of Phase 5 deployment (starting 2026-06-09), we need to confirm account
 provisioning and regional setup.
 
 INTEGRATION TIMELINE
@@ -131,7 +131,7 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - [ ] Account type: [ ] Standard [ ] Enterprise
    - [ ] Pricing plan: [ ] Pay-as-you-go [ ] Committed
    - [ ] Account status: [ ] Active [ ] Pending review [ ] Requires action
-   
+
    Action needed: Confirm account is provisioned and ready for SMS.
 
 2. Phone Numbers (Brazil / southamerica-east1)
@@ -139,8 +139,8 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - Regional requirements: Brazil (state codes: 11 SP, 21 RJ, 31 MG, or national)
    - Quantity: 2 (primary + backup)
    - Timeline for provisioning: ___
-   
-   Action needed: Provision 2 phone numbers for SMS delivery. If approval required 
+
+   Action needed: Provision 2 phone numbers for SMS delivery. If approval required
    (short codes), please advise timeline.
 
 3. SMS Messaging Service Configuration
@@ -148,7 +148,7 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - [ ] SMS in Brazil region enabled
    - [ ] Incoming webhooks configured (for delivery status callbacks)
    - [ ] Rate limits documented: ___ requests/sec, ___ requests/minute
-   
+
    Action needed: Confirm SMS service is active and ready for testing.
 
 4. Spending Controls & Billing
@@ -156,8 +156,8 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - Preferred billing model: [ ] Monthly invoice [ ] Pay-as-you-go [ ] Prepaid
    - Daily spending cap recommended: $50 (20x daily average)
    - Billing contact email: ___
-   
-   Action needed: Confirm spending limits are set. Provide billing contact for 
+
+   Action needed: Confirm spending limits are set. Provide billing contact for
    invoice questions.
 
 5. Webhook Delivery & Status Callbacks
@@ -165,7 +165,7 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - [ ] Callback retry policy documented: ___ retries, ___ interval
    - [ ] Signature validation method: [HMAC-SHA256 | Other: ___]
    - [ ] Timeout tolerance: ___
-   
+
    Action needed: Confirm webhook infrastructure is ready for integration.
 
 6. Support & SLA
@@ -173,13 +173,13 @@ IMMEDIATE REQUIREMENTS (Blockers for Phase 5 Start)
    - Support hours: ___
    - Critical issue response time SLA: ___
    - Emergency contact (for go-live issues): ___
-   
+
    Action needed: Provide 24/7 emergency contact for Phase 5 deployment window.
 
 7. WhatsApp Business API (Future Phase 5 Expansion)
    - Status: [ ] Not needed yet [ ] Evaluate for Phase 5 expansion
    - If yes: Timeline for WhatsApp business account setup: ___
-   
+
    Action needed: No action required now; provide roadmap if available.
 
 TECHNICAL CONTACT
@@ -222,7 +222,7 @@ Best regards,
 ```
 Team,
 
-Attached is our integration readiness checklist for Phase 4 (NOTIVISA) and Phase 5 
+Attached is our integration readiness checklist for Phase 4 (NOTIVISA) and Phase 5
 (Twilio SMS). Please review and confirm status on all items by EOD 2026-05-17.
 
 PHASE 4 READINESS (NOTIVISA) — Kickoff 2026-05-20
@@ -340,8 +340,8 @@ CTO — HC Quality / Labclin
 ```
 Dear SendGrid Support / Account Manager,
 
-We are using SendGrid as a fallback email delivery service for critical lab value 
-notifications (when SMS is unavailable). This is a critical compliance requirement 
+We are using SendGrid as a fallback email delivery service for critical lab value
+notifications (when SMS is unavailable). This is a critical compliance requirement
 under RDC 978 (Brazilian healthcare regulation).
 
 INTEGRATION DETAILS
@@ -369,9 +369,9 @@ Please confirm the following:
 6. [ ] Unsubscribe rate acceptable for critical alerts (typically exempt from unsubscribe)
 
 ACTION REQUIRED
-Please confirm all items above by 2026-05-16 EOD. 
+Please confirm all items above by 2026-05-16 EOD.
 
-Our integration goes live 2026-06-30. Test volume: 50–100 emails during 
+Our integration goes live 2026-06-30. Test volume: 50–100 emails during
 integration testing (May 20 – Jun 30).
 
 If there are any concerns or action items on your end, please advise immediately.
@@ -398,8 +398,8 @@ CTO — HC Quality / Labclin
 ```
 Dear [Vendor Partners],
 
-HC Quality successfully deployed NOTIVISA notification integration (Phase 4, June 2) 
-and Twilio SMS critical escalation (Phase 5, June 30). Thank you for your support 
+HC Quality successfully deployed NOTIVISA notification integration (Phase 4, June 2)
+and Twilio SMS critical escalation (Phase 5, June 30). Thank you for your support
 during integration.
 
 DEPLOYMENT SUMMARY
@@ -429,7 +429,7 @@ We have configured internal monitoring for:
 - Cost tracking (daily spend reports)
 - Customer escalation path (24/7 L1 support, CTO L2 escalation)
 
-Please reply to confirm deployment success on your end and provide 
+Please reply to confirm deployment success on your end and provide
 emergency contact information for critical issues.
 
 Production status: https://hmatologia2.web.app (internal use only)
@@ -462,12 +462,12 @@ Before sending any email template:
 
 **Email Send Log** (maintain in shared wiki or spreadsheet)
 
-| Date Sent | Recipient | Company | Email Subject | Owner | Due Response | Status | Notes |
-|-----------|-----------|---------|---------------|-------|--------------|--------|-------|
-| 2026-05-15 | [Name] | NOTIVISA | Sandbox Account Request | CTO | 2026-05-16 | Sent | Follow up if no response by 2pm |
-| 2026-05-15 | [Name] | Twilio | Integration Confirmation | CTO | 2026-05-16 | Sent | Phone numbers by 2026-05-20 |
-| 2026-05-15 | Team | Internal | Integration Readiness Gate | CTO | 2026-05-17 | Sent | Blockers check-in |
-| 2026-05-15 | [Name] | SendGrid | Fallback Confirmation | CTO | 2026-05-16 | Sent | Email SLA confirmation |
+| Date Sent  | Recipient | Company  | Email Subject              | Owner | Due Response | Status | Notes                           |
+| ---------- | --------- | -------- | -------------------------- | ----- | ------------ | ------ | ------------------------------- |
+| 2026-05-15 | [Name]    | NOTIVISA | Sandbox Account Request    | CTO   | 2026-05-16   | Sent   | Follow up if no response by 2pm |
+| 2026-05-15 | [Name]    | Twilio   | Integration Confirmation   | CTO   | 2026-05-16   | Sent   | Phone numbers by 2026-05-20     |
+| 2026-05-15 | Team      | Internal | Integration Readiness Gate | CTO   | 2026-05-17   | Sent   | Blockers check-in               |
+| 2026-05-15 | [Name]    | SendGrid | Fallback Confirmation      | CTO   | 2026-05-16   | Sent   | Email SLA confirmation          |
 
 ---
 
@@ -475,11 +475,11 @@ Before sending any email template:
 
 If vendor does not respond by deadline:
 
-| Vendor | No Response By | Escalation Action | Contact | Timeline |
-|--------|----------------|-------------------|---------|----------|
-| NOTIVISA | 2026-05-16 2pm | Phone call to account manager | [Phone] | Immediate |
-| Twilio | 2026-05-16 2pm | Phone call to account manager; alternative: web chat | [Phone] | Immediate |
-| SendGrid | 2026-05-16 2pm | Email escalation + web portal support ticket | n/a | Next business day |
+| Vendor   | No Response By | Escalation Action                                    | Contact | Timeline          |
+| -------- | -------------- | ---------------------------------------------------- | ------- | ----------------- |
+| NOTIVISA | 2026-05-16 2pm | Phone call to account manager                        | [Phone] | Immediate         |
+| Twilio   | 2026-05-16 2pm | Phone call to account manager; alternative: web chat | [Phone] | Immediate         |
+| SendGrid | 2026-05-16 2pm | Email escalation + web portal support ticket         | n/a     | Next business day |
 
 ---
 

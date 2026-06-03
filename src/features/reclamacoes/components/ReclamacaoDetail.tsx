@@ -211,7 +211,12 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-[#0c0c0c] flex items-center justify-center">
         <div className="animate-spin">
-          <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-8 h-8 text-blue-600"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4" />
           </svg>
         </div>
@@ -242,7 +247,9 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
               Reclamação #{id.slice(-6)}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
-              {new Date(reclamacao.criadoEm?.toDate?.() || reclamacao.criadoEm).toLocaleDateString('pt-BR')}
+              {new Date(reclamacao.criadoEm?.toDate?.() || reclamacao.criadoEm).toLocaleDateString(
+                'pt-BR',
+              )}
             </p>
           </div>
           <div className="flex flex-col gap-2 items-end">
@@ -270,11 +277,15 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
               <div className="space-y-3">
                 <div>
                   <label className="text-sm text-gray-600 dark:text-gray-400">Nome</label>
-                  <p className="font-medium text-gray-900 dark:text-white">{reclamacao.reclamante.nome}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {reclamacao.reclamante.nome}
+                  </p>
                 </div>
                 <div>
                   <label className="text-sm text-gray-600 dark:text-gray-400">CPF</label>
-                  <p className="font-medium text-gray-900 dark:text-white">{reclamacao.reclamante.cpf}</p>
+                  <p className="font-medium text-gray-900 dark:text-white">
+                    {reclamacao.reclamante.cpf}
+                  </p>
                 </div>
                 {reclamacao.reclamante.email && (
                   <div>
@@ -307,13 +318,15 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
                 <span className="px-3 py-1.5 text-xs rounded-full bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400 font-medium">
                   Canal: {reclamacao.canalEntrada}
                 </span>
-                <span className={`px-3 py-1.5 text-xs rounded-full font-medium ${
-                  reclamacao.severidade === 'alta'
-                    ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                    : reclamacao.severidade === 'media'
-                      ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
-                      : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                }`}>
+                <span
+                  className={`px-3 py-1.5 text-xs rounded-full font-medium ${
+                    reclamacao.severidade === 'alta'
+                      ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                      : reclamacao.severidade === 'media'
+                        ? 'bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-400'
+                        : 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                  }`}
+                >
                   Severidade: {reclamacao.severidade}
                 </span>
               </div>
@@ -339,7 +352,9 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
                     </p>
                   </div>
                   <div className="col-span-2">
-                    <label className="text-sm text-gray-600 dark:text-gray-400">Área Responsável</label>
+                    <label className="text-sm text-gray-600 dark:text-gray-400">
+                      Área Responsável
+                    </label>
                     <p className="font-medium text-gray-900 dark:text-white">
                       {reclamacao.classificacaoAuto.areaResponsavel}
                     </p>
@@ -389,11 +404,7 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
                   )}
                 </div>
                 {showRCAForm ? (
-                  <RCAFiveWhysForm
-                    labId={labId}
-                    reclamacaoId={id}
-                    onSubmit={handleRCASubmit}
-                  />
+                  <RCAFiveWhysForm labId={labId} reclamacaoId={id} onSubmit={handleRCASubmit} />
                 ) : (
                   <button
                     onClick={() => setShowRCAForm(true)}
@@ -424,10 +435,7 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
                   Registrar Resolução
                 </h2>
                 {showResolutionForm || !reclamacao.resolucao ? (
-                  <ResolucaoForm
-                    reclamacaoId={id}
-                    onSubmit={handleResolutionSubmit}
-                  />
+                  <ResolucaoForm reclamacaoId={id} onSubmit={handleResolutionSubmit} />
                 ) : (
                   <div className="space-y-3">
                     <p className="text-gray-700 dark:text-gray-300">
@@ -456,9 +464,7 @@ export const ReclamacaoDetail: React.FC<ReclamacaoDetailProps> = ({ id }) => {
           {/* Right: Actions panel */}
           <div className="space-y-4">
             <div className="bg-white dark:bg-[#1f2937] border border-gray-200 dark:border-gray-700 rounded-lg p-6 sticky top-6">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                Ações
-              </h3>
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Ações</h3>
               <div className="space-y-2">
                 <button
                   onClick={() => setShowStatusModal(true)}

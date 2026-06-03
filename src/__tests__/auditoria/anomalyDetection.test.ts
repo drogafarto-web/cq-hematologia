@@ -40,10 +40,7 @@ interface AnomalyAlert {
 /**
  * Z-score detector: flags values > 3 SD from mean
  */
-function detectZScoreAnomaly(
-  value: number,
-  baseline: BaselineStats,
-): AnomalyAlert | null {
+function detectZScoreAnomaly(value: number, baseline: BaselineStats): AnomalyAlert | null {
   if (baseline.stdDev === 0) return null;
 
   const zScore = Math.abs((value - baseline.mean) / baseline.stdDev);
@@ -97,10 +94,7 @@ function detectTrendAnomaly(values: number[]): AnomalyAlert | null {
 /**
  * Threshold detector: hard breach regardless of variance
  */
-function detectThresholdAnomaly(
-  value: number,
-  threshold: number,
-): AnomalyAlert | null {
+function detectThresholdAnomaly(value: number, threshold: number): AnomalyAlert | null {
   if (value > threshold) {
     return {
       id: crypto.randomUUID(),
@@ -121,9 +115,7 @@ function escalateSeverity(alerts: AnomalyAlert[]): AnomalyAlert[] {
   const mediumCount = alerts.filter((a) => a.severity === 'medium').length;
 
   if (mediumCount >= 3) {
-    return alerts.map((a) =>
-      a.severity === 'medium' ? { ...a, severity: 'high' as const } : a,
-    );
+    return alerts.map((a) => (a.severity === 'medium' ? { ...a, severity: 'high' as const } : a));
   }
 
   return alerts;
@@ -273,14 +265,8 @@ describe('anomalyDetector', () => {
   it('produces deterministic IDs for same input (idempotence)', () => {
     const input = { labId: 'lab-1', value: 100, timestamp: 1000 };
 
-    const hash1 = crypto
-      .createHash('sha256')
-      .update(JSON.stringify(input))
-      .digest('hex');
-    const hash2 = crypto
-      .createHash('sha256')
-      .update(JSON.stringify(input))
-      .digest('hex');
+    const hash1 = crypto.createHash('sha256').update(JSON.stringify(input)).digest('hex');
+    const hash2 = crypto.createHash('sha256').update(JSON.stringify(input)).digest('hex');
 
     expect(hash1).toBe(hash2);
   });

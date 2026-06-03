@@ -3,7 +3,7 @@
 **Date:** 2026-05-08  
 **Status:** APPROVED  
 **Phase:** Phase 4 (Portal-RT Wave 3.1)  
-**Compliance:** RDC 978 Art. 128, DICQ 4.1.2.7  
+**Compliance:** RDC 978 Art. 128, DICQ 4.1.2.7
 
 ---
 
@@ -12,6 +12,7 @@
 Responsible Technicians (RTs) require real-time visibility into critical laboratory operations: pending result reviews, critical value escalations, quality issues, and supervisor presence. Current system lacks a dedicated RT dashboard, forcing RTs to navigate generic hub or use separate tools (Slack, email) for notifications.
 
 **Regulatory Drivers:**
+
 - RDC 978 Art. 128: RT is legally responsible for result review + validation
 - DICQ 4.1.2.7: Documented supervisor presence and operational oversight required daily
 - v1.4 Scope: Enable Portal-RT + Portal-Paciente as twin entry points (RT + Patient)
@@ -26,7 +27,7 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 2. **Data Flow:** Cloud Function callables for all mutations (server-side signature + timestamp)
 3. **Access Control:** RT + Admin only, role-gated via `hasRole('rt') && isActiveMemberOfLab(labId)`
 4. **Failure Mode:** Fail-closed (no escalation read if rules reject, silent error state with retry)
-5. **Collections:** 
+5. **Collections:**
    - `portal-rt-state/{labId}/dashboards` — Dashboard layout + filters
    - `critical-values/{labId}/escalations` — Escalation queue (append-only until resolved)
    - `portal-rt-audit/{labId}/events` — Audit trail of RT actions
@@ -40,6 +41,7 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 **Decision:** Firestore `onSnapshot` listeners instead of HTTP polling or REST API.
 
 **Rationale:**
+
 - **Latency:** Sub-second updates (100–500ms typical) vs. 30s polling overhead
 - **Regulatory:** RDC 978 Art. 128 requires immediate RT visibility into critical results
 - **Cost:** Persistent connection cheaper than polling endpoints every 30s across 100 labs
@@ -52,6 +54,7 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 **Decision:** All Portal-RT mutations (dashboard update, escalation acknowledge) via Cloud Function callables, never direct Firestore writes.
 
 **Rationale:**
+
 - **Signature:** Every RT action (acknowledge, resolve) gets HMAC signature (ADR-0005) + operatorId + timestamp → immutable audit trail
 - **Regulatory:** RDC 978 Art. 128 requires non-repudiation (proof of who reviewed result, when)
 - **Atomicity:** Multi-document updates (escalation status + audit entry) via writeBatch on function
@@ -64,6 +67,7 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 **Decision:** If Firestore rules reject Portal-RT read, show error state + retry button (not blank escalation list).
 
 **Rationale:**
+
 - **Safety:** RT never sees "empty list" if rules block occurred (false negative = patient safety risk)
 - **Audit:** Error state logged with rejection reason
 - **UX:** Explicit signal to RT: "something is wrong, contact admin" instead of silent failure
@@ -75,6 +79,7 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 **Decision:** Portal-RT uses dark theme (`bg-[#141417]`, white/90 text) by default, not light theme.
 
 **Rationale:**
+
 - **Reference:** Linear, Stripe, GitHub (dark-first operational dashboards)
 - **Lab Environment:** Most labs use dark dashboards during operational hours (reduced eye strain, 24/7 operations)
 - **Accessibility:** Dark background + white text (9:1 contrast) exceeds WCAG AAA (7:1 required)
@@ -87,11 +92,12 @@ Build a **dark-first, real-time Portal-RT dashboard** with the following charact
 ### Collections & Rules
 
 **`portal-rt-state/{labId}/dashboards/{dashboardId}`**
+
 ```typescript
 interface PortalRTDashboard {
   labId: string;
-  dashboardId: string;                    // e.g., "main-dashboard"
-  rtId: string;                           // operator UID
+  dashboardId: string; // e.g., "main-dashboard"
+  rtId: string; // operator UID
   layout: 'default' | 'custom';
   filters: {
     equipamentoId?: string;
@@ -105,12 +111,14 @@ interface PortalRTDashboard {
 ```
 
 **Rules:**
+
 - Read: `isActiveMemberOfLab(labId) && hasRole('rt')`
 - Create: Cloud Function only
 - Update: Cloud Function only
 - Delete: Never (soft-delete via callable)
 
 **`critical-values/{labId}/escalations/{escalationId}`**
+
 ```typescript
 interface CriticalValueEscalation {
   labId: string;
@@ -132,12 +140,14 @@ interface CriticalValueEscalation {
 ```
 
 **Rules:**
+
 - Read: RT or Admin or Auditor (audit trail access)
 - Create: Cloud Function only
 - Update: Cloud Function (acknowledge/resolve) only
 - Delete: Never (soft-delete only)
 
 **`portal-rt-audit/{labId}/events/{eventId}`**
+
 ```typescript
 interface PortalRTAuditEvent {
   labId: string;
@@ -147,13 +157,14 @@ interface PortalRTAuditEvent {
   targetType: 'laudo' | 'escalation' | 'dashboard';
   targetId: string;
   details: Record<string, unknown>;
-  hmac: string;                           // ADR-0005 signature
+  hmac: string; // ADR-0005 signature
   criadoEm: Timestamp;
   deletadoEm: Timestamp | null;
 }
 ```
 
 **Rules:**
+
 - Read: Auditor only (immutable audit trail)
 - Create: Cloud Function only
 - Update/Delete: Never
@@ -161,18 +172,21 @@ interface PortalRTAuditEvent {
 ### Cloud Function Callables
 
 **`portal_rt_createDashboard(data)`**
+
 - Input: `{ dashboardId, layout, filters }`
 - Output: Dashboard document
 - Validation: `hasRole('rt')`, `labId` from request context
 - Signature: HMAC on (dashboardId + layout)
 
 **`portal_rt_updateDashboard(data)`**
+
 - Input: `{ dashboardId, filters }`
 - Output: Updated dashboard
 - Validation: RT is owner of dashboard OR admin
 - Signature: HMAC on (dashboardId + filters)
 
 **`critical_acknowledgeEscalation(data)`**
+
 - Input: `{ escalationId, assignedTo? }`
 - Output: Updated escalation
 - Validation: RT or Admin
@@ -182,22 +196,26 @@ interface PortalRTAuditEvent {
 ### React Components (Dark-First)
 
 **PortalRTShell.tsx**
+
 - Layout: Sidebar nav + main content area
 - Dark theme: `bg-[#141417]` background, `text-white/90`
 - Responsive: Sidebar collapses to drawer on mobile
 
 **RtNav.tsx**
+
 - Escalation count badge (updates real-time via `useEscalationFeed`)
 - Links to dashboards, escalations, settings
 - User menu (profile, logout)
 
 **EscalationList.tsx**
+
 - Real-time feed via `onSnapshot`
 - Sort by: `notificacao.enviada` (newest first)
 - Filter: `criticidade`, `status`
 - Empty state: "No escalations" message + last-check timestamp
 
 **EscalationDetail.tsx**
+
 - Full escalation + related laudo preview
 - Actions: Acknowledge, Resolve, Delegate to colleague
 - Audit trail: Show prior actions + timestamps
@@ -205,17 +223,20 @@ interface PortalRTAuditEvent {
 ### Hooks
 
 **`usePortalRTNav()`**
+
 - Real-time escalation count
 - `pending` status filter
 - Unsubscribe on unmount (cleanup leak)
 
 **`useEscalationFeed(filters)`**
+
 - `onSnapshot` query: `status in ['pending', 'acknowledged']`
 - Filter: By `criticidade`, `equipamentoId`, date range
 - Returns: `[escalations, loading, error]`
 - Cleanup: Returns unsubscribe function
 
 **`useDashboardSettings(dashboardId)`**
+
 - Persist filters + layout to Firestore
 - Debounce: 1s (prevent every keystroke from writing)
 
@@ -275,12 +296,12 @@ interface PortalRTAuditEvent {
 
 ## Risks & Mitigations
 
-| Risk | Severity | Mitigation |
-|------|----------|-----------|
-| Firestore listener leak (memory) | High | Return unsubscribe from hook; test cleanup |
-| Rules reject RT read (false negative) | High | Fail-closed with error state; explicit retry button |
-| Escalation count stale due to cloud lag | Medium | Add "last-updated" timestamp; TTL 5s for manual refresh |
-| HMAC signature cost (every acknowledge) | Low | Function cached; signature computed once server-side |
+| Risk                                    | Severity | Mitigation                                              |
+| --------------------------------------- | -------- | ------------------------------------------------------- |
+| Firestore listener leak (memory)        | High     | Return unsubscribe from hook; test cleanup              |
+| Rules reject RT read (false negative)   | High     | Fail-closed with error state; explicit retry button     |
+| Escalation count stale due to cloud lag | Medium   | Add "last-updated" timestamp; TTL 5s for manual refresh |
+| HMAC signature cost (every acknowledge) | Low      | Function cached; signature computed once server-side    |
 
 ---
 
@@ -299,11 +320,11 @@ interface PortalRTAuditEvent {
 
 ## Sign-Off
 
-| Role | Name | Date |
-|------|------|------|
-| **Architect** | CTO | 2026-05-08 |
+| Role           | Name          | Date       |
+| -------------- | ------------- | ---------- |
+| **Architect**  | CTO           | 2026-05-08 |
 | **Compliance** | Security Lead | 2026-05-08 |
-| **QA** | Test Lead | 2026-05-08 |
+| **QA**         | Test Lead     | 2026-05-08 |
 
 ---
 

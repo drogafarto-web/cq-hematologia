@@ -8,39 +8,46 @@
 ## Fase 1: Implementação Core (COMPLETA — 25/05/2026)
 
 ### Wave A — ControlOperacional
+
 - [x] Types + Firestore service + hook real-time
 - [x] Firestore rules (match block)
 - [x] 5 testes unitários
 
 ### Wave B — Attempt
+
 - [x] Types + service (save/get/list)
 - [x] useAttemptSave (Westgard + snapshot + signature)
 - [x] buildSignaturePayload (SHA-256)
 - [x] 3 testes unitários
 
 ### Wave C — RTAction
+
 - [x] Types (3 payloads: aprovar/rejeitar/notivisa)
 - [x] Service + hooks (create + list by target)
 - [x] Firestore rules
 - [x] 4 testes unitários
 
 ### Wave D — UI Operador
+
 - [x] AttemptForm + Zod schema
 - [x] CoagulacaoV2View (view principal)
 - [x] ResultInput + ConformityBadge
 - [x] Rotas lazy no AuthWrapper + entrada no ModuleHub
 
 ### Wave E — UI RT
+
 - [x] RTPanel com KPIs
 - [x] AttemptList com badges
 - [x] ActionModal + NotivisaModal
 - [x] 2 testes RTPanel
 
 ### Wave F — Auditoria
+
 - [x] Script audit-coag-v2.sh
 - [x] Smoke E2E spec (Playwright)
 
 ### Wave G — Deploy
+
 - [x] Deploy report documentado
 - [x] TypeScript compila
 - [x] Testes passam

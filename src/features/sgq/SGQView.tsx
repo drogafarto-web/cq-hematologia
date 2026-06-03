@@ -69,9 +69,7 @@ export function SGQView() {
     const vigentes = documentos.filter((d) => d.status === 'vigente');
     const emRevisao = documentos.filter((d) => d.status === 'em_revisao');
     const vencidos = vigentes.filter((d) => isVencido(d));
-    const proximos = vigentes.filter(
-      (d) => !isVencido(d) && isProximoVencimento(d),
-    );
+    const proximos = vigentes.filter((d) => !isVencido(d) && isProximoVencimento(d));
     return {
       total: documentos.filter((d) => d.status !== 'obsoleto').length,
       vigentes: vigentes.length,
@@ -94,7 +92,10 @@ export function SGQView() {
   const handleAutorizarDrive = useCallback(async () => {
     if (!labId) return;
     try {
-      const callable = httpsCallable<{ labId: string }, { authUrl: string }>(functions, 'iniciarOAuthDrive');
+      const callable = httpsCallable<{ labId: string }, { authUrl: string }>(
+        functions,
+        'iniciarOAuthDrive',
+      );
       const result = await callable({ labId });
       window.open(result.data.authUrl, '_blank');
     } catch (e) {
@@ -109,10 +110,7 @@ export function SGQView() {
 
   // ── Handlers ────────────────────────────────────────────────────────────
 
-  const handleSubmit = async (
-    input: DocumentoInput,
-    mode: 'criar' | 'editar' | 'revisao',
-  ) => {
+  const handleSubmit = async (input: DocumentoInput, mode: 'criar' | 'editar' | 'revisao') => {
     setErro(null);
     if (mode === 'criar') {
       await criar(input);
@@ -126,25 +124,28 @@ export function SGQView() {
     }
   };
 
-  const handleMudarStatus = useCallback((doc: Documento, toStatus: StatusDocumento) => {
-    // Publicação direta (em_revisao → vigente) não exige motivo.
-    if (doc.status === 'em_revisao' && toStatus === 'vigente') {
-      mudarStatus(doc.id, toStatus).catch((e) => {
-        setErro(e instanceof Error ? e.message : 'Erro ao publicar.');
+  const handleMudarStatus = useCallback(
+    (doc: Documento, toStatus: StatusDocumento) => {
+      // Publicação direta (em_revisao → vigente) não exige motivo.
+      if (doc.status === 'em_revisao' && toStatus === 'vigente') {
+        mudarStatus(doc.id, toStatus).catch((e) => {
+          setErro(e instanceof Error ? e.message : 'Erro ao publicar.');
+        });
+        return;
+      }
+      // Demais transições (volta a rascunho, descontinuação) abrem confirmação.
+      setMotivoConfirmacao('');
+      setConfirmacao({
+        doc,
+        toStatus,
+        motivoPlaceholder:
+          toStatus === 'obsoleto'
+            ? 'Motivo da descontinuação (≥10 caracteres)…'
+            : 'Motivo da volta a rascunho (≥10 caracteres)…',
       });
-      return;
-    }
-    // Demais transições (volta a rascunho, descontinuação) abrem confirmação.
-    setMotivoConfirmacao('');
-    setConfirmacao({
-      doc,
-      toStatus,
-      motivoPlaceholder:
-        toStatus === 'obsoleto'
-          ? 'Motivo da descontinuação (≥10 caracteres)…'
-          : 'Motivo da volta a rascunho (≥10 caracteres)…',
-    });
-  }, [mudarStatus]);
+    },
+    [mudarStatus],
+  );
 
   const confirmarMudancaStatus = async () => {
     if (!confirmacao) return;
@@ -157,17 +158,20 @@ export function SGQView() {
     }
   };
 
-  const handleRemover = useCallback(async (doc: Documento) => {
-    setErro(null);
-    if (!confirm(`Remover ${doc.codigo} (rascunho)? Esta ação é reversível via auditoria.`)) {
-      return;
-    }
-    try {
-      await remover(doc.id);
-    } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Erro ao remover.');
-    }
-  }, [remover]);
+  const handleRemover = useCallback(
+    async (doc: Documento) => {
+      setErro(null);
+      if (!confirm(`Remover ${doc.codigo} (rascunho)? Esta ação é reversível via auditoria.`)) {
+        return;
+      }
+      try {
+        await remover(doc.id);
+      } catch (e) {
+        setErro(e instanceof Error ? e.message : 'Erro ao remover.');
+      }
+    },
+    [remover],
+  );
 
   return (
     <div className="min-h-screen bg-[#0B0F14] text-white">
@@ -239,27 +243,27 @@ export function SGQView() {
 
       <main className="max-w-7xl mx-auto px-6 py-6 space-y-6">
         {tab === 'documentos' && (
-        <>
-        {/* ── KPIs ──────────────────────────────────────────────────── */}
-        <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-          <Kpi label="Documentos" value={kpis.total} />
-          <Kpi label="Vigentes" value={kpis.vigentes} tone="emerald" />
-          <Kpi label="Em revisão" value={kpis.emRevisao} tone="slate" />
-          <Kpi
-            label="Próximos do prazo"
-            value={kpis.proximos}
-            tone={kpis.proximos > 0 ? 'amber' : 'slate'}
-          />
-          <Kpi
-            label="Vencidos"
-            value={kpis.vencidos}
-            tone={kpis.vencidos > 0 ? 'red' : 'slate'}
-          />
-        </div>
+          <>
+            {/* ── KPIs ──────────────────────────────────────────────────── */}
+            <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <Kpi label="Documentos" value={kpis.total} />
+              <Kpi label="Vigentes" value={kpis.vigentes} tone="emerald" />
+              <Kpi label="Em revisão" value={kpis.emRevisao} tone="slate" />
+              <Kpi
+                label="Próximos do prazo"
+                value={kpis.proximos}
+                tone={kpis.proximos > 0 ? 'amber' : 'slate'}
+              />
+              <Kpi
+                label="Vencidos"
+                value={kpis.vencidos}
+                tone={kpis.vencidos > 0 ? 'red' : 'slate'}
+              />
+            </div>
 
-        {/* ── Documentos Obrigatórios (LGPD) ─────────────────────── */}
-        <DocumentosObrigatoriosBadge />
-        </>
+            {/* ── Documentos Obrigatórios (LGPD) ─────────────────────── */}
+            <DocumentosObrigatoriosBadge />
+          </>
         )}
 
         {/* ── Aviso de bootstrapping ───────────────────────────────── */}
@@ -269,55 +273,57 @@ export function SGQView() {
               Comece pela base da pirâmide documental
             </h3>
             <p className="text-xs text-white/60 mt-1.5 leading-relaxed">
-              Auditor DICQ pede 3 evidências para 4.3: hierarquia documental,
-              controle de versão e segregação de obsoletos. O caminho recomendado:
+              Auditor DICQ pede 3 evidências para 4.3: hierarquia documental, controle de versão e
+              segregação de obsoletos. O caminho recomendado:
             </p>
             <ol className="text-xs text-white/55 mt-3 space-y-1.5 list-decimal list-inside">
               <li>
-                <span className="text-emerald-300 font-mono">MQ-001</span> Manual da Qualidade — escopo, política, estrutura.
+                <span className="text-emerald-300 font-mono">MQ-001</span> Manual da Qualidade —
+                escopo, política, estrutura.
               </li>
               <li>
-                <span className="text-emerald-300 font-mono">PQ-001</span> Procedimento de elaboração e aprovação de documentos.
+                <span className="text-emerald-300 font-mono">PQ-001</span> Procedimento de
+                elaboração e aprovação de documentos.
               </li>
               <li>
-                <span className="text-emerald-300 font-mono">PQ-002</span> Política de retenção e descarte (cobre 4.13).
+                <span className="text-emerald-300 font-mono">PQ-002</span> Política de retenção e
+                descarte (cobre 4.13).
               </li>
-              <li>
-                ITs (Instruções de Trabalho) por módulo analítico, conforme rotina.
-              </li>
+              <li>ITs (Instruções de Trabalho) por módulo analítico, conforme rotina.</li>
             </ol>
           </div>
         )}
 
         {tab === 'documentos' && (
-        <>
-        {erro && (
-          <div role="alert" className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300">
-            {erro}
-          </div>
+          <>
+            {erro && (
+              <div
+                role="alert"
+                className="rounded-md border border-red-500/30 bg-red-500/10 px-3 py-2 text-xs text-red-300"
+              >
+                {erro}
+              </div>
+            )}
+
+            {/* ── Lista mestra ─────────────────────────────────────────── */}
+            <DocumentosListView
+              documentos={documentosFiltrados}
+              isLoading={isLoading}
+              filtroTipo={filtroTipo}
+              filtroStatus={filtroStatus}
+              incluirObsoletos={incluirObsoletos}
+              onFiltroTipo={setFiltroTipo}
+              onFiltroStatus={setFiltroStatus}
+              onToggleObsoletos={handleToggleObsoletos}
+              onEditar={setEditando}
+              onRevisar={setRevisaoDe}
+              onMudarStatus={handleMudarStatus}
+              onRemover={handleRemover}
+            />
+          </>
         )}
 
-        {/* ── Lista mestra ─────────────────────────────────────────── */}
-        <DocumentosListView
-          documentos={documentosFiltrados}
-          isLoading={isLoading}
-          filtroTipo={filtroTipo}
-          filtroStatus={filtroStatus}
-          incluirObsoletos={incluirObsoletos}
-          onFiltroTipo={setFiltroTipo}
-          onFiltroStatus={setFiltroStatus}
-          onToggleObsoletos={handleToggleObsoletos}
-          onEditar={setEditando}
-          onRevisar={setRevisaoDe}
-          onMudarStatus={handleMudarStatus}
-          onRemover={handleRemover}
-        />
-        </>
-        )}
-
-        {tab === 'procedimentos' && (
-          <POPsList />
-        )}
+        {tab === 'procedimentos' && <POPsList />}
       </main>
 
       {/* ── Modais ─────────────────────────────────────────────────── */}
@@ -335,11 +341,7 @@ export function SGQView() {
         />
       )}
 
-      {importing && (
-        <ImportarLM01Modal
-          onClose={() => setImporting(false)}
-        />
-      )}
+      {importing && <ImportarLM01Modal onClose={() => setImporting(false)} />}
 
       {/* ── Confirmação de mudança de status com motivo ───────────── */}
       {confirmacao && (
@@ -394,15 +396,7 @@ export function SGQView() {
 
 type KpiTone = 'emerald' | 'amber' | 'red' | 'slate';
 
-function Kpi({
-  label,
-  value,
-  tone = 'slate',
-}: {
-  label: string;
-  value: number;
-  tone?: KpiTone;
-}) {
+function Kpi({ label, value, tone = 'slate' }: { label: string; value: number; tone?: KpiTone }) {
   const palette: Record<KpiTone, string> = {
     emerald: 'border-emerald-500/20 bg-emerald-500/[0.06] text-emerald-300',
     amber: 'border-amber-500/20 bg-amber-500/[0.06] text-amber-300',
@@ -412,9 +406,7 @@ function Kpi({
 
   return (
     <div className={`rounded-xl border p-4 ${palette[tone]}`}>
-      <p className="text-[10px] uppercase tracking-wider font-semibold opacity-80">
-        {label}
-      </p>
+      <p className="text-[10px] uppercase tracking-wider font-semibold opacity-80">{label}</p>
       <p className="text-2xl font-semibold mt-1 tabular-nums">{value}</p>
     </div>
   );

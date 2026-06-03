@@ -9,11 +9,7 @@
 Create `__tests__/firestore.rules.test.ts`:
 
 ```typescript
-import {
-  initializeFirestore,
-  connectFirestoreEmulator,
-  getFirestore,
-} from 'firebase/firestore';
+import { initializeFirestore, connectFirestoreEmulator, getFirestore } from 'firebase/firestore';
 import {
   initializeAuth,
   connectAuthEmulator,
@@ -87,30 +83,36 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should allow read of own lab data', async () => {
-      const db = env.authenticatedContext('user-a', {
-        labIds: ['TENANT-A'],
-        modules: { hub: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-a', {
+          labIds: ['TENANT-A'],
+          modules: { hub: true },
+        })
+        .firestore();
 
       const docRef = db.collection('labs').doc('TENANT-A');
       await assertSucceeds(docRef.get());
     });
 
     it('should DENY read of other lab data', async () => {
-      const db = env.authenticatedContext('user-a', {
-        labIds: ['TENANT-A'],
-        modules: { hub: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-a', {
+          labIds: ['TENANT-A'],
+          modules: { hub: true },
+        })
+        .firestore();
 
       const docRef = db.collection('labs').doc('TENANT-B');
       await assertFails(docRef.get());
     });
 
     it('should DENY write to other lab subcollection', async () => {
-      const db = env.authenticatedContext('user-a', {
-        labIds: ['TENANT-A'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-a', {
+          labIds: ['TENANT-A'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('TENANT-B').collection('runs').doc('run-1');
       await assertFails(
@@ -118,24 +120,26 @@ describe('Firestore Rules — Phase 3', () => {
           labId: 'TENANT-B',
           testType: 'coagulacao',
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
     it('should enforce labId match in payload', async () => {
-      const db = env.authenticatedContext('user-a', {
-        labIds: ['TENANT-A'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-a', {
+          labIds: ['TENANT-A'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       // Try to write with mismatched labId
       const runRef = db.collection('labs').doc('TENANT-A').collection('runs').doc('run-1');
       await assertFails(
         runRef.set({
-          labId: 'TENANT-B',  // ← Mismatch! Should fail
+          labId: 'TENANT-B', // ← Mismatch! Should fail
           testType: 'coagulacao',
           criadoEm: new Date(),
-        })
+        }),
       );
     });
   });
@@ -181,34 +185,36 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should allow admin to update lab settings', async () => {
-      const db = env.authenticatedContext('admin-user', {
-        labIds: ['LAB-RBAC'],
-        modules: { labSettings: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('admin-user', {
+          labIds: ['LAB-RBAC'],
+          modules: { labSettings: true },
+        })
+        .firestore();
 
       const configRef = db.collection('labs').doc('LAB-RBAC').collection('config').doc('main');
-      await assertSucceeds(
-        configRef.set({ labId: 'LAB-RBAC', setting: 'value' }, { merge: true })
-      );
+      await assertSucceeds(configRef.set({ labId: 'LAB-RBAC', setting: 'value' }, { merge: true }));
     });
 
     it('should DENY operator from updating lab settings', async () => {
-      const db = env.authenticatedContext('operator-user', {
-        labIds: ['LAB-RBAC'],
-        modules: { labSettings: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('operator-user', {
+          labIds: ['LAB-RBAC'],
+          modules: { labSettings: true },
+        })
+        .firestore();
 
       const configRef = db.collection('labs').doc('LAB-RBAC').collection('config').doc('main');
-      await assertFails(
-        configRef.set({ labId: 'LAB-RBAC', setting: 'value' }, { merge: true })
-      );
+      await assertFails(configRef.set({ labId: 'LAB-RBAC', setting: 'value' }, { merge: true }));
     });
 
     it('should DENY patient from creating runs', async () => {
-      const db = env.authenticatedContext('patient-user', {
-        labIds: ['LAB-RBAC'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('patient-user', {
+          labIds: ['LAB-RBAC'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-RBAC').collection('runs').doc('run-1');
       await assertFails(
@@ -216,7 +222,7 @@ describe('Firestore Rules — Phase 3', () => {
           labId: 'LAB-RBAC',
           testType: 'coagulacao',
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
@@ -233,10 +239,12 @@ describe('Firestore Rules — Phase 3', () => {
       });
 
       // Patient reads
-      const db = env.authenticatedContext('patient-user', {
-        labIds: ['LAB-RBAC'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('patient-user', {
+          labIds: ['LAB-RBAC'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-RBAC').collection('runs').doc('run-1');
       await assertSucceeds(runRef.get());
@@ -261,20 +269,27 @@ describe('Firestore Rules — Phase 3', () => {
         });
 
         // Soft-deleted run
-        await db.collection('labs').doc('LAB-DEL').collection('runs').doc('run-deleted').set({
-          labId: 'LAB-DEL',
-          testType: 'coagulacao',
-          criadoEm: new Date(Date.now() - 86400000),
-          deletadoEm: new Date(),
-        });
+        await db
+          .collection('labs')
+          .doc('LAB-DEL')
+          .collection('runs')
+          .doc('run-deleted')
+          .set({
+            labId: 'LAB-DEL',
+            testType: 'coagulacao',
+            criadoEm: new Date(Date.now() - 86400000),
+            deletadoEm: new Date(),
+          });
       });
     });
 
     it('should allow read of active runs (deletadoEm == null)', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-DEL'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-DEL'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-DEL').collection('runs').doc('run-active');
       await assertSucceeds(runRef.get());
@@ -282,10 +297,12 @@ describe('Firestore Rules — Phase 3', () => {
 
     it('should NOT filter soft-deleted runs at rules level (client responsibility)', async () => {
       // Rules don't hide soft-deleted docs — client filters them
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-DEL'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-DEL'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-DEL').collection('runs').doc('run-deleted');
       // This succeeds at rules level; client filters in app logic
@@ -293,22 +310,24 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should allow admin to update deletadoEm for soft delete', async () => {
-      const db = env.authenticatedContext('admin-user', {
-        labIds: ['LAB-DEL'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('admin-user', {
+          labIds: ['LAB-DEL'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-DEL').collection('runs').doc('run-active');
-      await assertSucceeds(
-        runRef.update({ deletadoEm: new Date() })
-      );
+      await assertSucceeds(runRef.update({ deletadoEm: new Date() }));
     });
 
     it('should DENY hard delete', async () => {
-      const db = env.authenticatedContext('admin-user', {
-        labIds: ['LAB-DEL'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('admin-user', {
+          labIds: ['LAB-DEL'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-DEL').collection('runs').doc('run-active');
       await assertFails(runRef.delete());
@@ -348,39 +367,39 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should allow edit of unlocked draft', async () => {
-      const db = env.authenticatedContext('user-b', {
-        labIds: ['LAB-LOCK'],
-        modules: { laudos: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-b', {
+          labIds: ['LAB-LOCK'],
+          modules: { laudos: true },
+        })
+        .firestore();
 
       const draftRef = db.collection('labs').doc('LAB-LOCK').collection('drafts').doc('draft-1');
-      await assertSucceeds(
-        draftRef.update({ conteudo: 'Updated by user-b' })
-      );
+      await assertSucceeds(draftRef.update({ conteudo: 'Updated by user-b' }));
     });
 
     it('should DENY edit of draft locked by another user', async () => {
-      const db = env.authenticatedContext('user-b', {
-        labIds: ['LAB-LOCK'],
-        modules: { laudos: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-b', {
+          labIds: ['LAB-LOCK'],
+          modules: { laudos: true },
+        })
+        .firestore();
 
       const draftRef = db.collection('labs').doc('LAB-LOCK').collection('drafts').doc('draft-2');
-      await assertFails(
-        draftRef.update({ conteudo: 'User-b tries to edit locked draft' })
-      );
+      await assertFails(draftRef.update({ conteudo: 'User-b tries to edit locked draft' }));
     });
 
     it('should allow edit of draft locked by SAME user', async () => {
-      const db = env.authenticatedContext('user-a', {
-        labIds: ['LAB-LOCK'],
-        modules: { laudos: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-a', {
+          labIds: ['LAB-LOCK'],
+          modules: { laudos: true },
+        })
+        .firestore();
 
       const draftRef = db.collection('labs').doc('LAB-LOCK').collection('drafts').doc('draft-2');
-      await assertSucceeds(
-        draftRef.update({ conteudo: 'User-a updates their own lock' })
-      );
+      await assertSucceeds(draftRef.update({ conteudo: 'User-a updates their own lock' }));
     });
   });
 
@@ -390,10 +409,12 @@ describe('Firestore Rules — Phase 3', () => {
 
   describe('Signature Validation — assinatura Block', () => {
     it('should DENY create run without signature', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-SIG'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-SIG'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-SIG').collection('runs').doc('run-1');
       await assertFails(
@@ -402,15 +423,17 @@ describe('Firestore Rules — Phase 3', () => {
           testType: 'coagulacao',
           // Missing assinatura block
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
     it('should DENY signature with invalid hash length', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-SIG'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-SIG'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const runRef = db.collection('labs').doc('LAB-SIG').collection('runs').doc('run-1');
       await assertFails(
@@ -418,20 +441,22 @@ describe('Firestore Rules — Phase 3', () => {
           labId: 'LAB-SIG',
           testType: 'coagulacao',
           assinatura: {
-            hash: 'too-short',  // ← Not 64 chars!
+            hash: 'too-short', // ← Not 64 chars!
             operatorId: 'user-1',
             ts: new Date(),
           },
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
     it('should DENY signature with mismatched operatorId', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-SIG'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-SIG'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const validHash = 'a'.repeat(64); // Valid 64-char hash
       const runRef = db.collection('labs').doc('LAB-SIG').collection('runs').doc('run-1');
@@ -441,19 +466,21 @@ describe('Firestore Rules — Phase 3', () => {
           testType: 'coagulacao',
           assinatura: {
             hash: validHash,
-            operatorId: 'user-2',  // ← Mismatch! Signed by different user
+            operatorId: 'user-2', // ← Mismatch! Signed by different user
             ts: new Date(),
           },
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
     it('should allow valid signature', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-SIG'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-SIG'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const validHash = 'a'.repeat(64);
       const runRef = db.collection('labs').doc('LAB-SIG').collection('runs').doc('run-1');
@@ -463,11 +490,11 @@ describe('Firestore Rules — Phase 3', () => {
           testType: 'coagulacao',
           assinatura: {
             hash: validHash,
-            operatorId: 'user-1',  // ← Matches auth.uid
+            operatorId: 'user-1', // ← Matches auth.uid
             ts: new Date(),
           },
           criadoEm: new Date(),
-        })
+        }),
       );
     });
   });
@@ -507,10 +534,12 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should allow create event', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-EVT'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-EVT'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const eventRef = db
         .collection('labs')
@@ -526,15 +555,17 @@ describe('Firestore Rules — Phase 3', () => {
           runId: 'run-1',
           tipo: 'revisao-tecnica',
           criadoEm: new Date(),
-        })
+        }),
       );
     });
 
     it('should DENY update of event', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-EVT'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-EVT'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const eventRef = db
         .collection('labs')
@@ -548,10 +579,12 @@ describe('Firestore Rules — Phase 3', () => {
     });
 
     it('should DENY delete of event', async () => {
-      const db = env.authenticatedContext('user-1', {
-        labIds: ['LAB-EVT'],
-        modules: { runs: true },
-      }).firestore();
+      const db = env
+        .authenticatedContext('user-1', {
+          labIds: ['LAB-EVT'],
+          modules: { runs: true },
+        })
+        .firestore();
 
       const eventRef = db
         .collection('labs')
@@ -589,12 +622,8 @@ module.exports = {
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
   },
-  collectCoverageFrom: [
-    'firestore.rules',
-  ],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-  ],
+  collectCoverageFrom: ['firestore.rules'],
+  coveragePathIgnorePatterns: ['/node_modules/'],
 };
 ```
 
@@ -620,16 +649,16 @@ npm run test:rules -- --watch
 
 ## Key Testing Patterns
 
-| Pattern | Usage | Example |
-|---------|-------|---------|
-| **`assertSucceeds()`** | Expect operation to pass | Admin can update settings |
-| **`assertFails()`** | Expect operation to be denied | Patient cannot create runs |
-| **`env.authenticatedContext()`** | Simulate signed-in user | Mock `user-1` with `labIds` claim |
-| **`env.withSecurityRulesDisabled()`** | Setup without rules | Create test data |
-| **`doc.get()`** | Read single document | Verify RBAC on read |
-| **`collection.add()`** | Create with auto ID | Test write validation |
-| **`doc.update()`** | Partial update | Test field-level rules |
-| **`doc.delete()`** | Delete document | Test immutability rules |
+| Pattern                               | Usage                         | Example                           |
+| ------------------------------------- | ----------------------------- | --------------------------------- |
+| **`assertSucceeds()`**                | Expect operation to pass      | Admin can update settings         |
+| **`assertFails()`**                   | Expect operation to be denied | Patient cannot create runs        |
+| **`env.authenticatedContext()`**      | Simulate signed-in user       | Mock `user-1` with `labIds` claim |
+| **`env.withSecurityRulesDisabled()`** | Setup without rules           | Create test data                  |
+| **`doc.get()`**                       | Read single document          | Verify RBAC on read               |
+| **`collection.add()`**                | Create with auto ID           | Test write validation             |
+| **`doc.update()`**                    | Partial update                | Test field-level rules            |
+| **`doc.delete()`**                    | Delete document               | Test immutability rules           |
 
 ---
 

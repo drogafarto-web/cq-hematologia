@@ -8,17 +8,17 @@ Project: `hmatologia2` · Region: `southamerica-east1` · Source: gcloud + Cloud
 
 All target indexes are `READY`. Total composite indexes in project: **77**.
 
-| Collection group | Fields (order) | State |
-|---|---|---|
-| `risks` | `labId:A, deletadoEm:A, status:A, npr:D, __name__:D` | READY |
-| `risks` | `labId:A, deletadoEm:A, reviewDate:A, __name__:A` | READY |
-| `risks` | `deletadoEm:A, reviewDate:A, status:A, __name__:A` (CG) | READY |
-| `sgq-documentos` | `codigo:A, status:A, __name__:A` | READY |
-| `lgpd` | `criadoEm:D, deletadoEm:A, __name__:A` | READY |
-| `lgpd-solicitacoes` | `status:A, data_prazo:A, __name__:A` | READY |
-| `insumo-movimentacoes` | `insumoId:A, timestamp:D, __name__:D` | READY |
-| `insumo-movimentacoes` | `insumoId:A, timestamp:A, __name__:A` | READY |
-| `records` | `status:A, deletadoEm:A, __name__:A` | READY (but **wrong order** — see below) |
+| Collection group       | Fields (order)                                          | State                                   |
+| ---------------------- | ------------------------------------------------------- | --------------------------------------- |
+| `risks`                | `labId:A, deletadoEm:A, status:A, npr:D, __name__:D`    | READY                                   |
+| `risks`                | `labId:A, deletadoEm:A, reviewDate:A, __name__:A`       | READY                                   |
+| `risks`                | `deletadoEm:A, reviewDate:A, status:A, __name__:A` (CG) | READY                                   |
+| `sgq-documentos`       | `codigo:A, status:A, __name__:A`                        | READY                                   |
+| `lgpd`                 | `criadoEm:D, deletadoEm:A, __name__:A`                  | READY                                   |
+| `lgpd-solicitacoes`    | `status:A, data_prazo:A, __name__:A`                    | READY                                   |
+| `insumo-movimentacoes` | `insumoId:A, timestamp:D, __name__:D`                   | READY                                   |
+| `insumo-movimentacoes` | `insumoId:A, timestamp:A, __name__:A`                   | READY                                   |
+| `records`              | `status:A, deletadoEm:A, __name__:A`                    | READY (but **wrong order** — see below) |
 
 Verification: `gcloud firestore indexes composite list --project=hmatologia2`.
 
@@ -26,13 +26,13 @@ Verification: `gcloud firestore indexes composite list --project=hmatologia2`.
 
 ## Functions verified
 
-| Function | Memory | Secrets | Last run | Status |
-|---|---|---|---|---|
-| `aggregateAnalytics` | **512 MiB** ✅ (bump applied) | — | 2026-05-07 11:01:01 UTC | ⚠️ no memory error, but FAILED_PRECONDITION on `records` index |
-| `onInsumoMovimentacaoCreate` | 256 MiB | — | No invocations in last 12h (no triggers fired) | ✅ no errors observed; index DESC deployed and READY |
-| `validateChainIntegrityScheduled` | 256 MiB | `HCQ_SIGNATURE_HMAC_KEY` (v7) ✅ bound | Next scheduled run pending | ✅ secret confirmed in `serviceConfig.secretEnvironmentVariables` |
-| `lgpd_scheduledAnnualReview` | n/a verified | n/a | Scheduled (12h+) | ✅ index deployed READY |
-| `scheduledReview` (risks) | n/a verified | n/a | Scheduled (12h+) | ✅ indexes deployed READY |
+| Function                          | Memory                        | Secrets                                | Last run                                       | Status                                                            |
+| --------------------------------- | ----------------------------- | -------------------------------------- | ---------------------------------------------- | ----------------------------------------------------------------- |
+| `aggregateAnalytics`              | **512 MiB** ✅ (bump applied) | —                                      | 2026-05-07 11:01:01 UTC                        | ⚠️ no memory error, but FAILED_PRECONDITION on `records` index    |
+| `onInsumoMovimentacaoCreate`      | 256 MiB                       | —                                      | No invocations in last 12h (no triggers fired) | ✅ no errors observed; index DESC deployed and READY              |
+| `validateChainIntegrityScheduled` | 256 MiB                       | `HCQ_SIGNATURE_HMAC_KEY` (v7) ✅ bound | Next scheduled run pending                     | ✅ secret confirmed in `serviceConfig.secretEnvironmentVariables` |
+| `lgpd_scheduledAnnualReview`      | n/a verified                  | n/a                                    | Scheduled (12h+)                               | ✅ index deployed READY                                           |
+| `scheduledReview` (risks)         | n/a verified                  | n/a                                    | Scheduled (12h+)                               | ✅ indexes deployed READY                                         |
 
 ---
 
@@ -55,13 +55,13 @@ No `onInsumoMovimentacaoCreate` errors in last 12h. The DESC index fix is in pla
 
 ⚠️ **Pending — 2 follow-ups required before declaring stable**
 
-| Status | Item |
-|---|---|
-| ✅ | `aggregateAnalytics` 512 MiB bump confirmed working — no memory errors at 11:01 (was failing at 10:01) |
-| ✅ | `validateChainIntegrityScheduled` has `HCQ_SIGNATURE_HMAC_KEY` v7 bound at runtime |
-| ✅ | All target indexes (`risks` ×3, `sgq-documentos`, `lgpd`, `lgpd-solicitacoes`, `insumo-movimentacoes` ×2) `READY` |
-| ✅ | `onInsumoMovimentacaoCreate` DESC index `READY`; no error logs |
-| ❌ | **NEW**: `aggregateAnalytics` blocked by missing `records` collectionGroup index (`deletadoEm:A, status:A, __name__:A`). Existing index has reversed field order — add new entry to `firestore.indexes.json`. Aggregation produced 0/1 labs succeeded at 11:01. |
-| ❌ | **NEW**: `ec-scheduledalertasvencimento` exceeding 256 MiB (259 MiB used at 11:00). Apply same 512 MiB bump pattern. |
+| Status | Item                                                                                                                                                                                                                                                            |
+| ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ✅     | `aggregateAnalytics` 512 MiB bump confirmed working — no memory errors at 11:01 (was failing at 10:01)                                                                                                                                                          |
+| ✅     | `validateChainIntegrityScheduled` has `HCQ_SIGNATURE_HMAC_KEY` v7 bound at runtime                                                                                                                                                                              |
+| ✅     | All target indexes (`risks` ×3, `sgq-documentos`, `lgpd`, `lgpd-solicitacoes`, `insumo-movimentacoes` ×2) `READY`                                                                                                                                               |
+| ✅     | `onInsumoMovimentacaoCreate` DESC index `READY`; no error logs                                                                                                                                                                                                  |
+| ❌     | **NEW**: `aggregateAnalytics` blocked by missing `records` collectionGroup index (`deletadoEm:A, status:A, __name__:A`). Existing index has reversed field order — add new entry to `firestore.indexes.json`. Aggregation produced 0/1 labs succeeded at 11:01. |
+| ❌     | **NEW**: `ec-scheduledalertasvencimento` exceeding 256 MiB (259 MiB used at 11:00). Apply same 512 MiB bump pattern.                                                                                                                                            |
 
 **Net delta vs. start of day:** the two original bugs (analytics OOM, insumo index) are resolved; one new index requirement and one analogous OOM in a sibling function surfaced. Action needed before next hourly tick (next analytics run: ~12:01 UTC).

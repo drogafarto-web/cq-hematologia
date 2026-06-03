@@ -106,10 +106,7 @@ export const approveNotivisaDraft = onCall<unknown, Promise<ApproveNotivisaDraft
 
     const draftData = draftSnap.data();
     if (draftData?.['status'] !== 'draft') {
-      throw new HttpsError(
-        'failed-precondition',
-        'Rascunho não está em estado draft.',
-      );
+      throw new HttpsError('failed-precondition', 'Rascunho não está em estado draft.');
     }
 
     if (draftData?.['deletadoEm'] !== null) {

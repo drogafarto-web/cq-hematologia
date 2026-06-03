@@ -32,7 +32,8 @@ export const QUALITY_TOOL_LABELS: Record<QualityToolType, string> = {
 
 export const QUALITY_TOOL_DESCRIPTIONS: Record<QualityToolType, string> = {
   'cinco-porques': 'Pergunte "Por quê?" iterativamente até encontrar a causa raiz',
-  ishikawa: 'Mapeie causas por categoria: Mão de obra, Método, Material, Máquina, Meio ambiente, Medição',
+  ishikawa:
+    'Mapeie causas por categoria: Mão de obra, Método, Material, Máquina, Meio ambiente, Medição',
   '5w2h': 'Estruture ações: O quê, Por quê, Onde, Quando, Quem, Como, Quanto custa',
   pdca: 'Ciclo Plan-Do-Check-Act para melhoria contínua',
   pareto: 'Priorize causas pela regra 80/20 (frequência x impacto)',
@@ -64,7 +65,13 @@ export interface CincosPorquesData {
 
 // ─── Ishikawa (6M) ──────────────────────────────────────────────────────────
 
-export type IshikawaCategoria = 'mao-de-obra' | 'metodo' | 'material' | 'maquina' | 'meio-ambiente' | 'medicao';
+export type IshikawaCategoria =
+  | 'mao-de-obra'
+  | 'metodo'
+  | 'material'
+  | 'maquina'
+  | 'meio-ambiente'
+  | 'medicao';
 
 export const ISHIKAWA_CATEGORIAS: Record<IshikawaCategoria, string> = {
   'mao-de-obra': 'Mão de Obra',

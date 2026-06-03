@@ -71,7 +71,7 @@ describe('Wave 2 — acknowledgeEscalacao Twilio decoupling', () => {
     // eslint-disable-next-line @typescript-eslint/no-require-imports
     require('../index');
     const cachedTwilio = Object.keys(require.cache).filter((k) =>
-      k.replace(/\\/g, '/').includes('/node_modules/twilio/')
+      k.replace(/\\/g, '/').includes('/node_modules/twilio/'),
     );
     expect(cachedTwilio).toEqual([]);
   });

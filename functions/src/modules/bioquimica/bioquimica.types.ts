@@ -46,15 +46,7 @@ export interface OCRValidationReport {
 
 // ─── Westgard CLSI8 (from types/westgardCLSI.ts) ────────────────────────
 
-export type WestgardRuleCLSI8 =
-  | '1-3s'
-  | '2-2s'
-  | 'R-4s'
-  | '4-1s'
-  | '10x'
-  | '7T'
-  | '8x'
-  | '12x';
+export type WestgardRuleCLSI8 = '1-3s' | '2-2s' | 'R-4s' | '4-1s' | '10x' | '7T' | '8x' | '12x';
 
 export type WestgardSeverityCLSI8 = 'warn' | 'reject';
 

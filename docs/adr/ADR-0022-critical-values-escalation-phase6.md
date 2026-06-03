@@ -10,11 +10,13 @@
 ## Problem Statement
 
 Lab results containing critical values require immediate escalation to physicians and RTs per:
+
 - **RDC 978/2025 Art. 128** — Ações corretivas para resultados críticos
 - **DICQ 4.3** — Documentação de ações sobre resultados críticos
 - **ISO 15189:2022 5.8.7** — Communication of critical results
 
 Current state (v1.3):
+
 - Críticos detected but not escalated
 - No SLA tracking for physician acknowledgment
 - No audit trail for compliance
@@ -63,6 +65,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ### Why This Architecture?
 
 **Multi-Tenant:** Each lab has own thresholds + escalacao history
+
 ```
 /labs/{labId}/criticos-thresholds/{id}      (RT configures ranges)
 /labs/{labId}/criticos-escalacoes/{id}      (System writes, RT reads)
@@ -70,21 +73,25 @@ Implement Phase 6 (Critical Values Escalation) with:
 ```
 
 **Immutable Audit Trail:** Regulatory requirement
+
 - `criticos-escalacoes` created once, never deleted
 - `criticos-log-eventos` append-only (ADR-0012 pattern)
 - Each event: `{ timestamp, operadorId, assinatura }`
 
 **Callables (not client-side writes):** Defense-in-depth
+
 - Client: `registerCriticoDetection(...)` → function validates + creates docs
 - Firestore rule: `allow create: if false` (Cloud Function Admin SDK only)
 - SLA polling: cron trigger (5-min interval, idempotent)
 
 **SMS vs Email:** Primary + fallback
+
 - SMS preferred (immediate, portable, no client setup)
 - Email fallback if SMS fails >10min (delivery guarantee)
 - Both logged in escalacao array with attempt #, status, provider_messageId
 
 **Twilio (not Firebase SendGrid):** SMS delivery is the requirement
+
 - Firebase SendGrid: email only
 - Twilio: SMS + delivery tracking + webhook callbacks
 - Regional São Paulo number (local prefix for Brazilian physicians)
@@ -96,6 +103,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ### Phase 6 Scope
 
 **INCLUDED (Implemented):**
+
 - ✅ Firestore schema + rules + indexes
 - ✅ SMS escalation (Twilio)
 - ✅ Email fallback (template ready, sending stubbed)
@@ -107,6 +115,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 - ✅ Unit tests (18 specs)
 
 **DEFERRED (Phase 7+):**
+
 - 🔲 Physician portal (web/SMS acknowledgment)
 - 🔲 NOTIVISA API submission (Phase 8)
 - 🔲 ChainHash continuity (ADR-0012 phase 6b)
@@ -116,6 +125,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ### Firestore Collections
 
 **`criticos-thresholds`** — Per-lab threshold config (mutable)
+
 ```typescript
 {
   id, labId,
@@ -130,6 +140,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ```
 
 **`criticos-escalacoes`** — Master escalation log (immutable)
+
 ```typescript
 {
   id, labId,
@@ -155,6 +166,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ```
 
 **`criticos-log-eventos`** — Append-only audit trail
+
 ```typescript
 {
   id, labId,
@@ -172,6 +184,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 #### 1. `registerCriticoDetection(request)`
 
 **Input:** Client POST from bioquimica laudo save
+
 ```typescript
 {
   labId, laudoId, laudoVersion,
@@ -183,6 +196,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 ```
 
 **Logic:**
+
 1. Validate input (Zod schema)
 2. Fetch `labSettings.criticos` → check ativo + slaMinutosTarget
 3. Create escalacao doc (status='enviado')
@@ -196,6 +210,7 @@ Implement Phase 6 (Critical Values Escalation) with:
 8. Return escalacaoId + channel status
 
 **Output:**
+
 ```typescript
 {
   success: boolean,
@@ -209,11 +224,13 @@ Implement Phase 6 (Critical Values Escalation) with:
 #### 2. `acknowledgeEscalacao(request)`
 
 **Input:**
+
 ```typescript
 {labId, escalacaoId, acknowledgedBy, method: 'portal_web'|'webhook_twilio'|'manual_rt'}
 ```
 
 **Logic:**
+
 1. Fetch escalacao, validate status='enviado'
 2. Calculate tempo_sla_ms (now - criadoEm)
 3. Determine sla_status ('em_prazo' if < target, 'vencido' if ≥ target)
@@ -221,13 +238,17 @@ Implement Phase 6 (Critical Values Escalation) with:
 5. Log event: 'reconhecimento_manual'
 
 **Output:**
+
 ```typescript
-{success, escalacaoId, status, tempoSlaMs, slaStatus}
+{
+  (success, escalacaoId, status, tempoSlaMs, slaStatus);
+}
 ```
 
 #### 3. `escalacaoCriticos()` — Cron (every 5 min)
 
 **Logic:**
+
 1. List all labs (or scan labId)
 2. For each lab, query `criticos-escalacoes` WHERE status='enviado'
 3. For each escalacao:
@@ -245,12 +266,14 @@ Implement Phase 6 (Critical Values Escalation) with:
 #### 4. `escalacaoCriticos_webhook()` — Twilio callback
 
 **Request from Twilio:**
+
 ```
 POST /escalacaoCriticos_webhook
 {MessageSid: "SM...", MessageStatus: "delivered"|"failed"|"undelivered"}
 ```
 
 **Logic:**
+
 1. Find escalacao by provider_messageId (MessageSid)
 2. Update escalacao.escalacoes[0].status = MessageStatus
 3. Log event: 'sms_delivered' or 'sms_failed'
@@ -343,6 +366,7 @@ Ref: {laudoId_8chars}
 - Error handling (2 tests)
 
 **Run:**
+
 ```bash
 cd functions
 npm test -- criticos.test.ts
@@ -369,25 +393,25 @@ firebase emulators:exec --only firestore "npm test"
 
 ### RDC 978/2025
 
-| Article | Requirement | Implementation | Status |
-|---------|-------------|-----------------|--------|
-| Art. 6º | NOTIVISA reportable conditions | notivisa-outbox drafts | ✅ Phase 6 |
-| Art. 58 | NOTIVISA submission | Callable ready, manual submit | ⏳ Phase 8 |
+| Article  | Requirement                    | Implementation                     | Status     |
+| -------- | ------------------------------ | ---------------------------------- | ---------- |
+| Art. 6º  | NOTIVISA reportable conditions | notivisa-outbox drafts             | ✅ Phase 6 |
+| Art. 58  | NOTIVISA submission            | Callable ready, manual submit      | ⏳ Phase 8 |
 | Art. 128 | Ações corretivas / audit trail | criticos-log-eventos (append-only) | ✅ Phase 6 |
 
 ### DICQ 4.3
 
-| Section | Requirement | Implementation | Status |
-|---------|-------------|-----------------|--------|
-| 4.3.1 | Ações sobre críticos | SMS escalation automatic | ✅ Phase 6 |
-| 4.3.2 | Rastreabilidade | Audit trail (log events) | ✅ Phase 6 |
-| 4.3.3 | SLA targets | Configurable, tracked, alerted | ✅ Phase 6 |
+| Section | Requirement          | Implementation                 | Status     |
+| ------- | -------------------- | ------------------------------ | ---------- |
+| 4.3.1   | Ações sobre críticos | SMS escalation automatic       | ✅ Phase 6 |
+| 4.3.2   | Rastreabilidade      | Audit trail (log events)       | ✅ Phase 6 |
+| 4.3.3   | SLA targets          | Configurable, tracked, alerted | ✅ Phase 6 |
 
 ### ISO 15189:2022
 
-| Section | Requirement | Implementation | Status |
-|---------|-------------|-----------------|--------|
-| 5.8.7 | Communication of critical results | SMS + email + portal (Phase 7) | ✅ Phase 6 |
+| Section | Requirement                       | Implementation                 | Status     |
+| ------- | --------------------------------- | ------------------------------ | ---------- |
+| 5.8.7   | Communication of critical results | SMS + email + portal (Phase 7) | ✅ Phase 6 |
 
 ---
 
@@ -402,6 +426,7 @@ firebase emulators:exec --only firestore "npm test"
 ### Rollback
 
 If issues post-deploy:
+
 1. Disable `escalacaoCriticos` cron (Firebase Console)
 2. Keep escalacao docs intact (append-only = safe)
 3. Deploy previous function code
@@ -456,13 +481,13 @@ If issues post-deploy:
 
 ## Risks & Mitigation
 
-| Risk | Mitigation |
-|------|-----------|
-| SMS rate limiting | Twilio account quota set high; batch sends deferred to Phase 7+ |
-| Invalid phone numbers | E.164 validation; email fallback; RT manual retry |
-| Cron hangs | Timeout 5min; monitoring via Cloud Logs |
-| False positives | Thresholds configurable per lab; alert fatigue study post-deploy |
-| Data loss | Firestore append-only; PITR enabled; daily backups |
+| Risk                  | Mitigation                                                       |
+| --------------------- | ---------------------------------------------------------------- |
+| SMS rate limiting     | Twilio account quota set high; batch sends deferred to Phase 7+  |
+| Invalid phone numbers | E.164 validation; email fallback; RT manual retry                |
+| Cron hangs            | Timeout 5min; monitoring via Cloud Logs                          |
+| False positives       | Thresholds configurable per lab; alert fatigue study post-deploy |
+| Data loss             | Firestore append-only; PITR enabled; daily backups               |
 
 ---
 
@@ -478,11 +503,11 @@ If issues post-deploy:
 
 ## Approval
 
-| Role | Name | Date | Status |
-|------|------|------|--------|
-| CTO | [Pending] | — | Awaiting Twilio account confirmation |
-| Security | [Pending] | — | Rules review pending |
-| Compliance | [Pending] | — | RDC 978 audit trail verification pending |
+| Role       | Name      | Date | Status                                   |
+| ---------- | --------- | ---- | ---------------------------------------- |
+| CTO        | [Pending] | —    | Awaiting Twilio account confirmation     |
+| Security   | [Pending] | —    | Rules review pending                     |
+| Compliance | [Pending] | —    | RDC 978 audit trail verification pending |
 
 ---
 

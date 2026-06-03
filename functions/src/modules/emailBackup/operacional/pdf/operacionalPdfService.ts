@@ -15,11 +15,7 @@ import {
   type PdfEnvironment,
 } from '../../services/pdf/layout';
 import type { OperacionalReport } from '../types';
-import {
-  drawKpiGrid,
-  drawStatusPill,
-  themeForStatus,
-} from './components';
+import { drawKpiGrid, drawStatusPill, themeForStatus } from './components';
 import { renderQcSection } from './qcSection';
 import { renderRastreabilidadeSection } from './rastreabilidadeSection';
 import { renderAuditSection } from './auditSection';
@@ -112,11 +108,7 @@ function renderCoverPage(
     .font(Fonts.regular)
     .fontSize(9)
     .fillColor(COLOR.textMuted)
-    .text(
-      'Decisões QC · Rastreabilidade · Audit Log',
-      margin,
-      42 + headerOffset,
-    );
+    .text('Decisões QC · Rastreabilidade · Audit Log', margin, 42 + headerOffset);
 
   doc
     .moveTo(margin, 62 + headerOffset)
@@ -138,21 +130,12 @@ function renderCoverPage(
     .font(Fonts.regular)
     .fontSize(13)
     .fillColor(COLOR.textMuted)
-    .text(
-      'Instrumento de decisão diária do responsável técnico',
-      margin,
-      118 + headerOffset,
-      { characterSpacing: -0.1 },
-    );
+    .text('Instrumento de decisão diária do responsável técnico', margin, 118 + headerOffset, {
+      characterSpacing: -0.1,
+    });
 
   // Pill de status global — grande, ancorada no canto direito
-  drawStatusPill(
-    doc,
-    margin + contentWidth,
-    92 + headerOffset,
-    report.globalStatus,
-    'right',
-  );
+  drawStatusPill(doc, margin + contentWidth, 92 + headerOffset, report.globalStatus, 'right');
 
   // Card do laboratório
   const cardY = 165 + headerOffset;
@@ -237,15 +220,11 @@ function renderCoverPage(
 
   // Período
   const periodY = cardY + cardHeight + 20;
-  doc
-    .font(Fonts.bold)
-    .fontSize(8)
-    .fillColor(COLOR.textMuted)
-    .text('PERÍODO', margin, periodY, {
-      width: contentWidth,
-      align: 'center',
-      characterSpacing: 0.5,
-    });
+  doc.font(Fonts.bold).fontSize(8).fillColor(COLOR.textMuted).text('PERÍODO', margin, periodY, {
+    width: contentWidth,
+    align: 'center',
+    characterSpacing: 0.5,
+  });
 
   doc
     .font(Fonts.bold)
@@ -284,13 +263,10 @@ function renderCoverPage(
     {
       label: 'Alertas críticos',
       value: String(
-        report.rastreabilidade.alertsCount.critical +
-          report.auditLog.bySeverity.critical,
+        report.rastreabilidade.alertsCount.critical + report.auditLog.bySeverity.critical,
       ),
       valueColor:
-        report.rastreabilidade.alertsCount.critical +
-          report.auditLog.bySeverity.critical ===
-        0
+        report.rastreabilidade.alertsCount.critical + report.auditLog.bySeverity.critical === 0
           ? COLOR.success
           : COLOR.danger,
     },
@@ -515,11 +491,7 @@ function renderIntegrityPage(
     ['Período início', formatDateBR(report.periodStart), false],
     ['Período fim', formatDateBR(report.periodEnd), false],
     ['Gerado em', formatDateTimeBR(report.generatedAt), false],
-    [
-      'Status global',
-      themeForStatus(report.globalStatus).label,
-      report.globalStatus !== 'ok',
-    ],
+    ['Status global', themeForStatus(report.globalStatus).label, report.globalStatus !== 'ok'],
     [
       'Corridas CIQ',
       `${report.qcDecisions.totalRuns} (aprov. ${report.qcDecisions.totalApproved} / rejeit. ${report.qcDecisions.totalRejected})`,

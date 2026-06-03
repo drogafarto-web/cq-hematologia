@@ -17,8 +17,10 @@
 ### 1. TypeScript Implementation Files (4 files, ~1,400 LOC)
 
 #### `updateResultStatus.ts` (241 lines)
+
 **Purpose:** Mark NOTIVISA results as reviewed/released  
 **Key Components:**
+
 - Status transition state machine (received → reviewed → released)
 - RT/admin role enforcement
 - 7-day expiration check
@@ -28,6 +30,7 @@
 **Compliance:** RDC 978 Art. 122, DICQ 4.1.2.7
 
 **Error Codes (7):**
+
 - SUBMISSION_NOT_FOUND
 - INVALID_STATUS_TRANSITION
 - INVALID_SIGNATURE
@@ -37,8 +40,10 @@
 - INTERNAL_ERROR
 
 #### `fetchTestResults.ts` (309 lines)
+
 **Purpose:** Retrieve completed test results with filtering & pagination  
 **Key Components:**
+
 - Cursor-based pagination (base64-encoded tokens)
 - Multi-field filtering (status, date range, CPF, submission ID)
 - Client-side PII filtering (CPF not indexed)
@@ -49,6 +54,7 @@
 **Compliance:** RDC 978 Art. 66, DICQ 4.3
 
 **Error Codes (5):**
+
 - PERMISSION_DENIED
 - INVALID_FILTER
 - PORTAL_UNAVAILABLE
@@ -56,8 +62,10 @@
 - INTERNAL_ERROR
 
 #### `validateAuthorization.ts` (295 lines)
+
 **Purpose:** Check NOTIVISA permissions and portal configuration  
 **Key Components:**
+
 - RBAC with 7 granular permissions (read, write, submit, review, release, audit, config)
 - Role-permission matrix (operator, RT, admin, owner)
 - 9 feature flags for frontend UI state management
@@ -68,14 +76,17 @@
 **Compliance:** RDC 978 Art. 66, DICQ 4.1.2.5
 
 **Error Codes (4):**
+
 - UNAUTHENTICATED
 - PERMISSION_DENIED
 - LAB_NOT_FOUND
 - INTERNAL_ERROR
 
 #### `logAuditTrail.ts` (296 lines)
+
 **Purpose:** Immutable event logging with cryptographic integrity  
 **Key Components:**
+
 - SHA-256 hash computation of all event fields
 - Chain-of-custody linking (previousHash)
 - 15 standard event types
@@ -86,6 +97,7 @@
 **Compliance:** RDC 978 Art. 122, DICQ 4.4 § Trilha de Auditoria
 
 **Error Codes (7):**
+
 - INVALID_EVENT_TYPE
 - INVALID_SIGNATURE
 - PERMISSION_DENIED
@@ -101,7 +113,9 @@
 ### 2. Unit Test Files (4 files, ~800 LOC)
 
 #### `updateResultStatus.test.ts` (93 lines)
+
 **15 test stubs** covering:
+
 - Status transitions (received → reviewed → released)
 - Role validation (RT, admin, operator)
 - Signature verification
@@ -111,7 +125,9 @@
 - Edge cases
 
 #### `fetchTestResults.test.ts` (109 lines)
+
 **16 test stubs** covering:
+
 - Pagination & page token handling
 - Filtering (status, date range, CPF, submissionId)
 - Query performance & timeout
@@ -120,7 +136,9 @@
 - Data format validation
 
 #### `validateAuthorization.test.ts` (108 lines)
+
 **17 test stubs** covering:
+
 - RBAC enforcement (5 role types)
 - Permission mapping
 - Feature flags (3 tests)
@@ -129,7 +147,9 @@
 - Audit logging
 
 #### `logAuditTrail.test.ts` (105 lines)
+
 **16 test stubs** covering:
+
 - Event logging & hashing
 - Chain verification & integrity
 - Signature & timestamp validation
@@ -144,7 +164,9 @@
 ### 3. Documentation Files
 
 #### `IMPLEMENTATION_GUIDE_PHASE4_5-8.md` (600+ lines)
+
 Complete reference covering:
+
 - **Callable Specifications** (8 sections)
   - Input/output schemas for all 4 callables
   - Error codes with recovery instructions
@@ -178,6 +200,7 @@ Complete reference covering:
 - **References** (5 external links)
 
 #### `DELIVERABLES_PHASE4_5-8.md` (this file)
+
 Complete inventory of all deliverables with technical specs
 
 ---
@@ -185,6 +208,7 @@ Complete inventory of all deliverables with technical specs
 ## Technical Specifications
 
 ### Stack
+
 - **Language:** TypeScript 5.8 (strict mode)
 - **Runtime:** Node.js 22 (southamerica-east1 region)
 - **Framework:** Firebase Cloud Functions v2
@@ -193,6 +217,7 @@ Complete inventory of all deliverables with technical specs
 - **Logging:** firebase-functions logger
 
 ### Code Quality
+
 - ✅ 100% TypeScript (no `any` types)
 - ✅ Zod validation on all inputs
 - ✅ 7 error codes average per callable
@@ -202,12 +227,14 @@ Complete inventory of all deliverables with technical specs
 - ✅ Graceful degradation (fallbacks where applicable)
 
 ### Performance Characteristics
+
 - **updateResultStatus:** O(1) — single document update + 2 audit writes
 - **fetchTestResults:** O(n log n) — pagination O(1), filtering O(n)
 - **validateAuthorization:** O(2) — 2 document reads
 - **logAuditTrail:** O(log n) — transaction-based write, index update
 
 ### Firestore Collections (New)
+
 - `notivisa-requisitions/{labId}/submissions/{submissionId}/auditLog/{eventId}` — Immutable
 - `notivisa-audit-logs/{labId}/result-status-changes/{eventId}` — Immutable
 - `notivisa-audit-logs/{labId}/auth-checks/{eventId}` — Immutable
@@ -215,6 +242,7 @@ Complete inventory of all deliverables with technical specs
 - `notivisa-audit-logs/{labId}/index/{eventType}` — Counter index
 
 ### Firestore Security Rules (Required)
+
 - `notivisa-requisitions/{labId}/submissions/{submissionId}` — Update by RT/admin only
 - `notivisa-requisitions/{labId}/submissions/{submissionId}/auditLog/{eventId}` — Create-only
 - `notivisa-audit-logs/{labId}/**` — Create-only by Cloud Functions
@@ -225,15 +253,17 @@ Complete inventory of all deliverables with technical specs
 ## Feature Coverage
 
 ### updateResultStatus
+
 ✅ Status state machine (received → reviewed → released)  
 ✅ Role-based access (RT/admin only)  
 ✅ Expiration validation (7-day limit)  
 ✅ Atomic batch writes  
 ✅ Audit logging (2 entries per update)  
 ✅ Signature validation  
-✅ Error handling (7 codes)  
+✅ Error handling (7 codes)
 
 ### fetchTestResults
+
 ✅ Cursor-based pagination  
 ✅ Multi-field filtering (status, dates, CPF, ID)  
 ✅ Soft-delete filter  
@@ -241,31 +271,34 @@ Complete inventory of all deliverables with technical specs
 ✅ Result counting  
 ✅ Audit logging (data access)  
 ✅ PII protection (CPF client-side)  
-✅ Error handling (5 codes)  
+✅ Error handling (5 codes)
 
 ### validateAuthorization
+
 ✅ RBAC with 5 role types  
 ✅ 7 granular permissions  
 ✅ 9 feature flags  
 ✅ Portal connectivity check  
 ✅ Detailed diagnostics  
 ✅ Audit logging (auth checks)  
-✅ Error handling (4 codes)  
+✅ Error handling (4 codes)
 
 ### logAuditTrail
+
 ✅ Cryptographic integrity (SHA-256)  
 ✅ Chain-of-custody hashing  
 ✅ 15 event types  
 ✅ Idempotency via transaction  
 ✅ Chain verification  
 ✅ Event type indexing  
-✅ Error handling (7 codes)  
+✅ Error handling (7 codes)
 
 ---
 
 ## Testing Coverage
 
 ### Test Organization
+
 ```
 updateResultStatus.test.ts (93 LOC)
 ├── Status Transition Tests (3)
@@ -333,12 +366,14 @@ C:\hc quality\functions\src\modules\notivisa\callables\
 ### Updated Files
 
 **`INDEX.ts`** — Now exports all 8 callables:
+
 ```typescript
 export { authenticatePortal, getPatientData, submitRequisition, trackSampleStatus };
 export { updateResultStatus, fetchTestResults, validateAuthorization, logAuditTrail };
 ```
 
 **`validators.ts`** — Added 4 new input schemas:
+
 ```typescript
 export const UpdateResultStatusInputSchema = ...
 export const FetchTestResultsInputSchema = ...
@@ -349,17 +384,18 @@ export const LogAuditTrailInputSchema = ...
 ### Firestore Rules (Required Addition)
 
 Add to `firestore.rules`:
+
 ```firestore
 // Result status updates (callable 5)
 match /notivisa-requisitions/{labId}/submissions/{submissionId} {
-  allow update: if request.auth != null && 
+  allow update: if request.auth != null &&
                    hasRole(labId, request.auth.uid, 'RT', 'admin', 'owner') &&
                    request.resource.data.deletadoEm == null;
 }
 
 // Audit logs (callables 5, 7, 8)
 match /notivisa-audit-logs/{labId}/{document=**} {
-  allow read: if isActiveMemberOfLab(labId) && 
+  allow read: if isActiveMemberOfLab(labId) &&
               request.auth.token.role in ['RT', 'admin', 'auditor', 'owner'];
   allow create: if false;  // Cloud Functions only
 }
@@ -368,6 +404,7 @@ match /notivisa-audit-logs/{labId}/{document=**} {
 ### Indexes Required
 
 Create in `firestore.indexes.json`:
+
 ```json
 [
   {
@@ -393,21 +430,22 @@ Create in `firestore.indexes.json`:
 
 ## Compliance Mapping
 
-| Requirement | Callables | Evidence |
-|---|---|---|
-| RDC 978 Art. 66 (Signed Access) | All | Signature validation in all callables |
-| RDC 978 Art. 122 (Supervision) | 5, 8 | RT role enforcement, status transitions |
-| DICQ 4.1.2.5 (RBAC) | 7 | Permission mapping, role validation |
-| DICQ 4.1.2.7 (Supervision Record) | 5 | Status transition audit log |
-| DICQ 4.3 (Audit Trail) | 6, 8 | Data access logging, immutable events |
-| DICQ 4.4 (Trilha de Auditoria) | 8 | Chain verification, immutable records |
-| LGPD (PII Protection) | 6 | CPF masked in audit logs |
+| Requirement                       | Callables | Evidence                                |
+| --------------------------------- | --------- | --------------------------------------- |
+| RDC 978 Art. 66 (Signed Access)   | All       | Signature validation in all callables   |
+| RDC 978 Art. 122 (Supervision)    | 5, 8      | RT role enforcement, status transitions |
+| DICQ 4.1.2.5 (RBAC)               | 7         | Permission mapping, role validation     |
+| DICQ 4.1.2.7 (Supervision Record) | 5         | Status transition audit log             |
+| DICQ 4.3 (Audit Trail)            | 6, 8      | Data access logging, immutable events   |
+| DICQ 4.4 (Trilha de Auditoria)    | 8         | Chain verification, immutable records   |
+| LGPD (PII Protection)             | 6         | CPF masked in audit logs                |
 
 ---
 
 ## Pre-Deployment Checklist
 
 ### Code Quality
+
 - [x] All TypeScript compiles cleanly
 - [x] No `any` types
 - [x] Zod validation on all inputs
@@ -416,12 +454,14 @@ Create in `firestore.indexes.json`:
 - [x] Code reviewed for security
 
 ### Testing
+
 - [ ] Unit tests implemented (stubs provided)
 - [ ] Unit tests passing
 - [ ] Integration tests in emulator
 - [ ] E2E tests with real Firestore rules
 
 ### Deployment
+
 - [ ] Firestore rules updated & tested
 - [ ] Firestore indexes created
 - [ ] Cloud Secrets provisioned (if needed)
@@ -430,6 +470,7 @@ Create in `firestore.indexes.json`:
 - [ ] TypeScript build clean
 
 ### Post-Deployment
+
 - [ ] Monitor Cloud Logs for 24 hours
 - [ ] Execute smoke tests (all 4 callables)
 - [ ] Verify audit trail entries created
@@ -449,18 +490,21 @@ Create in `firestore.indexes.json`:
 ## Deployment Sequence
 
 **Phase 1: Code Review & Testing** (2026-05-08 – 2026-05-13)
+
 1. Code review by team lead
 2. Implement unit tests from stubs
 3. All tests passing
 4. Security audit
 
 **Phase 2: Staging Deployment** (2026-05-13)
+
 1. Deploy Firestore rules + indexes
 2. Deploy Cloud Functions (beta flag)
 3. Pilot lab provisioning
 4. Smoke tests in staging
 
 **Phase 3: Production Deployment** (2026-05-20)
+
 1. Pre-flight check (`preflight-secrets-check.sh`)
 2. Deploy Firestore rules + indexes
 3. Deploy Cloud Functions
@@ -474,12 +518,14 @@ Create in `firestore.indexes.json`:
 **Deliverable:** Complete TypeScript implementation of 4 NOTIVISA Cloud Function callables (5-8) with comprehensive unit test stubs and world-class documentation.
 
 **Scope:**
+
 - 4 production-ready callables (1,141 LOC)
 - 4 complete test suites (64 test stubs, 415 LOC)
 - Detailed implementation guide (600+ lines)
 - All validators & schemas in place
 
 **Quality:**
+
 - ✅ 100% TypeScript, no `any` types
 - ✅ Zod validation on all inputs
 - ✅ 7 error codes average per callable
@@ -489,11 +535,13 @@ Create in `firestore.indexes.json`:
 - ✅ Firestore security rules enforced
 
 **Compliance:**
+
 - ✅ RDC 978 Art. 66, 122
 - ✅ DICQ 4.1.2.5, 4.1.2.7, 4.3, 4.4
 - ✅ LGPD PII protection
 
 **Ready for Production** after:
+
 1. Unit tests implemented and passing
 2. Firestore rules deployed
 3. Smoke tests executed
@@ -504,20 +552,22 @@ Create in `firestore.indexes.json`:
 ## Next Steps
 
 ### Immediate (This Week)
+
 1. Code review by security team
 2. Implement unit tests from stubs
 3. Test locally with emulator
 4. Create Firestore rules PR
 
 ### Short-term (Next Week)
+
 1. Deploy to staging
 2. Smoke test all 4 callables
 3. Monitor logs for errors
 4. Document any issues
 
 ### Production (2026-05-20)
+
 1. Final deployment approval
 2. Deploy rules + functions + hosting
 3. Phase-gated rollout to labs
 4. 24-hour on-call support
-

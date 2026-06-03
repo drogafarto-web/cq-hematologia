@@ -25,9 +25,9 @@ on:
   workflow_dispatch:
     inputs:
       threshold_override:
-        description: "Override accuracy threshold (0.0–1.0). Leave blank to use default."
+        description: 'Override accuracy threshold (0.0–1.0). Leave blank to use default.'
         required: false
-        default: ""
+        default: ''
   # ── Activate after sign-off ────────────────────────────────────────────────
   # pull_request:
   #   paths:
@@ -40,18 +40,18 @@ on:
 
 permissions:
   contents: read
-  pull-requests: write   # for commenting eval summary on PRs (post-activation)
+  pull-requests: write # for commenting eval summary on PRs (post-activation)
 
 env:
-  EVAL_ACCURACY_THRESHOLD: "0.85"   # matches in-code claim; revisit after baseline
-  EVAL_AMBIGUOUS_MAX_CONFIDENCE: "0.80"
-  EVAL_SCHEMA_FAILURE_MAX: "0.00"
+  EVAL_ACCURACY_THRESHOLD: '0.85' # matches in-code claim; revisit after baseline
+  EVAL_AMBIGUOUS_MAX_CONFIDENCE: '0.80'
+  EVAL_SCHEMA_FAILURE_MAX: '0.00'
 
 jobs:
   eval:
     name: Run promptfoo eval
     runs-on: ubuntu-latest
-    if: false   # ← REMOVE this line to activate (currently DRAFT)
+    if: false # ← REMOVE this line to activate (currently DRAFT)
     timeout-minutes: 20
 
     steps:
@@ -61,8 +61,8 @@ jobs:
       - name: Setup Node 22
         uses: actions/setup-node@v4
         with:
-          node-version: "22"
-          cache: "npm"
+          node-version: '22'
+          cache: 'npm'
           cache-dependency-path: functions/package-lock.json
 
       - name: Install functions deps

@@ -66,7 +66,7 @@ export class LaudoDraftManager {
   async acquireLock(
     laudoId: string,
     rtUid: string,
-    lockDuration: number = 3600000 // 1 hour
+    lockDuration: number = 3600000, // 1 hour
   ): Promise<DraftLock> {
     if (!laudoId || !rtUid) {
       throw new ValidationError('laudoId and rtUid are required');
@@ -118,7 +118,7 @@ export class LaudoDraftManager {
   async publish(
     draftId: string,
     laudoId: string,
-    rtUid: string
+    rtUid: string,
   ): Promise<{ id: string; publicado: boolean }> {
     if (!draftId || !laudoId || !rtUid) {
       throw new ValidationError('draftId, laudoId, and rtUid are required');
@@ -150,9 +150,7 @@ export class LaudoDraftManager {
 
     const now = Date.now();
     const lockedUntil =
-      draft.lockedUntil instanceof Timestamp
-        ? draft.lockedUntil.toMillis()
-        : draft.lockedUntil;
+      draft.lockedUntil instanceof Timestamp ? draft.lockedUntil.toMillis() : draft.lockedUntil;
 
     return lockedUntil > now;
   }

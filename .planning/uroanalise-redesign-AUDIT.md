@@ -27,65 +27,80 @@ These are the only user-visible em-dashes inside the 15 audited files. All other
 ## Per-file summary
 
 ### UroStatusBar.tsx
+
 [PASS] Border-top divider, status dot + label, tabular timestamp. No violations.
 
 ### UroInputField.tsx
+
 [PASS] Border-based, amber focus ring, error/disabled states, tabular-nums on numeric/right-aligned. Clean.
 
 ### UroButtonToggle.tsx
+
 [WARN] Decorative shadow on selected state (line 93). Otherwise correct: amber-tinted bg + border on selection.
 
 ### UroAnalyteRow.tsx
+
 [PASS] Grid layout, status dot, expected hint with mono+slate. `animate-pulse` on pendente dot lacks `motion-reduce` opt-out (note).
 
 ### UroQuantitativoRow.tsx
+
 [PASS] Mirrors AnalyteRow geometry. Tabular-nums on expected range. Same pulse note as above.
 
 ### UroFormIdentificationSection.tsx
+
 [PASS] Block headings, no decorative borders, expiry hint discreet, tabular-nums on numeric inputs via UroInputField.
 
 ### UroFormFooterSection.tsx
+
 [WARN] 4-Metric horizontal stack approaches hero-metric template (note above). Save CTA shadow is sanctioned.
 
 ### UroanaliseFormRedesigned.tsx
+
 [PASS] Sticky status bar with allowed `backdrop-blur-sm`. Specialist copy. Tabular-nums on summary count.
 
 ### UroLotSidebar.tsx
+
 [PASS] Status dot + nivel chip + expiry red marker. Inline SVG only. Amber confined to selected/pinned/focus.
 
 ### UroBreadcrumbHeader.tsx
+
 [WARN] Potential triple amber co-occurrence (active crumb + P nivel + assinado pill). Otherwise solid.
 
 ### UroMobileTabBar.tsx
+
 [PASS] Inline SVG icons, amber active state, badge uses amber once. Sticky `backdrop-blur-sm` allowed.
 
 ### UroAuditTable.tsx
+
 [FAIL] Visible em-dashes in NotivisaPill and SignatureCell empty states (lines 108, 123). Otherwise table is correct (true table, tabular-nums, no card-grid).
 
 ### UroAuditTrailDrawer.tsx
+
 [PASS] Drawer is the right affordance for trail-of-events. Inline SVG icons, mono hashes, motion-reduce respected.
 
 ### UroComplianceChecklist.tsx
+
 [PASS] List layout (not card-grid), inline SVG status icons, monospace reference codes, neutral pills.
 
 ### UroanaliseRedesignedShell.tsx
+
 [PASS] Three-column shell, no decorative chrome, amber underline on active tab, drawer for trail. Comments use em-dash but never reach DOM.
 
 ## Anti-pattern matrix
 
-| Anti-pattern | Files affected | Count |
-|---|---|---|
-| Side-stripe borders | — | 0 |
-| Em dashes in user-visible copy | UroAuditTable.tsx | 2 |
-| Em dashes in JSX comments only | 6 files | 11 (acceptable) |
-| Emojis (non-SVG) | — | 0 |
-| Heavy backdrop-blur (md+) | — | 0 |
-| Backdrop-blur-sm on sticky/modal | 3 files | 3 (allowed) |
-| Decorative shadows (md/lg/xl/2xl) | — | 0 |
-| Decorative shadow-sm beyond save CTA | UroButtonToggle.tsx | 1 |
-| Gradient text | — | 0 |
-| Icon libraries | — | 0 |
-| New top-level deps | — | 0 |
-| Card-grid template | — | 0 (UroFormFooterSection borderline) |
-| Modal as first thought | — | 0 (drawer used correctly) |
-| Casual tone | — | 0 |
+| Anti-pattern                         | Files affected      | Count                               |
+| ------------------------------------ | ------------------- | ----------------------------------- |
+| Side-stripe borders                  | —                   | 0                                   |
+| Em dashes in user-visible copy       | UroAuditTable.tsx   | 2                                   |
+| Em dashes in JSX comments only       | 6 files             | 11 (acceptable)                     |
+| Emojis (non-SVG)                     | —                   | 0                                   |
+| Heavy backdrop-blur (md+)            | —                   | 0                                   |
+| Backdrop-blur-sm on sticky/modal     | 3 files             | 3 (allowed)                         |
+| Decorative shadows (md/lg/xl/2xl)    | —                   | 0                                   |
+| Decorative shadow-sm beyond save CTA | UroButtonToggle.tsx | 1                                   |
+| Gradient text                        | —                   | 0                                   |
+| Icon libraries                       | —                   | 0                                   |
+| New top-level deps                   | —                   | 0                                   |
+| Card-grid template                   | —                   | 0 (UroFormFooterSection borderline) |
+| Modal as first thought               | —                   | 0 (drawer used correctly)           |
+| Casual tone                          | —                   | 0                                   |

@@ -34,7 +34,9 @@ export function getCoagSidebarHistoricalLots(
   slots: CoagNivelSidebarSlot[],
 ): CoagulacaoLot[] {
   const shownIds = new Set(
-    slots.filter((s): s is { kind: 'lot'; lot: CoagulacaoLot } => s.kind === 'lot').map((s) => s.lot.id),
+    slots
+      .filter((s): s is { kind: 'lot'; lot: CoagulacaoLot } => s.kind === 'lot')
+      .map((s) => s.lot.id),
   );
   return lots.filter((l) => !shownIds.has(l.id));
 }

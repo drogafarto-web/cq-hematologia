@@ -60,9 +60,7 @@ export const NPSResposta: React.FC<NPSRespostaProps> = ({ npsToken, labId }) => 
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-2">
           Obrigado pela sua avaliação!
         </h2>
-        <p className="text-gray-600 dark:text-gray-400">
-          Sua resposta foi registrada com sucesso.
-        </p>
+        <p className="text-gray-600 dark:text-gray-400">Sua resposta foi registrada com sucesso.</p>
       </div>
     );
   }
@@ -117,9 +115,7 @@ export const NPSResposta: React.FC<NPSRespostaProps> = ({ npsToken, labId }) => 
             className="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-[#111827] text-gray-900 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             rows={4}
           />
-          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
-            {comentario.length}/1000
-          </p>
+          <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">{comentario.length}/1000</p>
         </div>
 
         {/* LGPD consent */}

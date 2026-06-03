@@ -62,14 +62,17 @@ Create this file in the project root to define all required composite indices:
 **Path:** `/labs/{labId}/ciq-runs/{runId}/entries`
 
 **Query pattern:**
+
 ```typescript
 // Example: Count valid runs excluding deleted ones
-const validRuns = db.collectionGroup('entries')
+const validRuns = db
+  .collectionGroup('entries')
   .where('status', '==', 'VALID')
   .where('deletadoEm', '==', null);
 ```
 
 **Index definition:**
+
 ```json
 {
   "collectionGroup": "entries",
@@ -82,10 +85,12 @@ const validRuns = db.collectionGroup('entries')
 ```
 
 **Fields:**
+
 - `status` (ASCENDING): Filter entries by status (VALID, INVALID, REVIEW)
 - `deletadoEm` (DESCENDING): Exclude soft-deleted entries (RN-06 convention)
 
 **Expected query latency:**
+
 - Without index: >5s (full scan)
 - With index: <500ms (indexed lookup)
 
@@ -98,14 +103,14 @@ const validRuns = db.collectionGroup('entries')
 **Path:** `/labs/{labId}/ciq-runs`
 
 **Query pattern:**
+
 ```typescript
 // Example: Get all runs for a lab, ordered by creation date
-const runs = db.collection(`/labs/${labId}/ciq-runs`)
-  .orderBy('criadoEm', 'desc')
-  .limit(1000);
+const runs = db.collection(`/labs/${labId}/ciq-runs`).orderBy('criadoEm', 'desc').limit(1000);
 ```
 
 **Index definition:**
+
 ```json
 {
   "collectionGroup": "ciq-runs",
@@ -118,10 +123,12 @@ const runs = db.collection(`/labs/${labId}/ciq-runs`)
 ```
 
 **Fields:**
+
 - `labId` (ASCENDING): Filter by lab (multi-tenant isolation)
 - `criadoEm` (DESCENDING): Sort by creation date (newest first)
 
 **Expected query latency:**
+
 - Without index: >3s (full scan)
 - With index: <200ms (index range query)
 
@@ -134,14 +141,14 @@ const runs = db.collection(`/labs/${labId}/ciq-runs`)
 **Path:** `/labs/{labId}/export-jobs`
 
 **Query pattern:**
+
 ```typescript
 // Example: Get recent export jobs for a lab
-const jobs = db.collection(`/labs/${labId}/export-jobs`)
-  .orderBy('createdAt', 'desc')
-  .limit(10);
+const jobs = db.collection(`/labs/${labId}/export-jobs`).orderBy('createdAt', 'desc').limit(10);
 ```
 
 **Index definition:**
+
 ```json
 {
   "collectionGroup": "export-jobs",
@@ -154,10 +161,12 @@ const jobs = db.collection(`/labs/${labId}/export-jobs`)
 ```
 
 **Fields:**
+
 - `labId` (ASCENDING): Filter by lab
 - `createdAt` (DESCENDING): Sort by creation date (newest first)
 
 **Expected query latency:**
+
 - Without index: >2s (full scan)
 - With index: <150ms (index lookup)
 
@@ -170,14 +179,17 @@ const jobs = db.collection(`/labs/${labId}/export-jobs`)
 **Path:** `/labs/{labId}/analytics/cache/metrics`
 
 **Query pattern:**
+
 ```typescript
 // Example: Get most recent analytics cache for a lab
-const cache = db.collection(`/labs/${labId}/analytics/cache/metrics`)
+const cache = db
+  .collection(`/labs/${labId}/analytics/cache/metrics`)
   .orderBy('computedAt', 'desc')
   .limit(1);
 ```
 
 **Index definition:**
+
 ```json
 {
   "collectionGroup": "analytics",
@@ -190,10 +202,12 @@ const cache = db.collection(`/labs/${labId}/analytics/cache/metrics`)
 ```
 
 **Fields:**
+
 - `labId` (ASCENDING): Filter by lab
 - `computedAt` (DESCENDING): Sort by computation date (newest first)
 
 **Expected query latency:**
+
 - Without index: >1s (full scan)
 - With index: <100ms (direct lookup)
 
@@ -235,6 +249,7 @@ gcloud firestore indexes list --project=hmatologia2 --format=json
 ```
 
 Expected output:
+
 ```json
 [
   {
@@ -251,11 +266,13 @@ Expected output:
 ```
 
 **Status field values:**
+
 - `READY`: Index is enabled and ready for queries
 - `CREATING`: Index is being created (wait 2-5 minutes)
 - `DELETING`: Index is being deleted (skip if not needed)
 
 **Go/No-Go checklist:**
+
 - [ ] All 4 indices deployed
 - [ ] All indices show `state: READY`
 - [ ] Deployment time: <10 minutes total
@@ -275,7 +292,8 @@ Expected output:
 ```typescript
 // Query aggregateDaily executes this
 const startTime = Date.now();
-const entries = await db.collectionGroup('entries')
+const entries = await db
+  .collectionGroup('entries')
   .where('status', '==', 'VALID')
   .where('deletadoEm', '==', null)
   .get();
@@ -284,6 +302,7 @@ console.log(`Query latency: ${latency}ms`);
 ```
 
 **Acceptance criteria:**
+
 - [ ] P50 latency: <500ms
 - [ ] P95 latency: <1500ms
 - [ ] P99 latency: <2000ms
@@ -303,6 +322,7 @@ console.log(`Query latency: ${latency}ms`);
 4. Verify output shows latencies within acceptance criteria
 
 **If latency exceeds gate:**
+
 - ✓ Index missing: Deploy from section 1.3
 - ✓ Query not using index: Check WHERE and ORDER BY clauses match index fields
 - ✓ Too much data: Implement data pruning (soft-delete old runs)
@@ -325,6 +345,7 @@ console.log(`Poll latency: ${latency}ms`);
 ```
 
 **Acceptance criteria:**
+
 - [ ] P50 latency: <50ms
 - [ ] P95 latency: <150ms
 - [ ] P99 latency: <300ms
@@ -337,6 +358,7 @@ console.log(`Poll latency: ${latency}ms`);
 4. Verify within criteria
 
 **If latency exceeds gate:**
+
 - ✓ Firestore location: Use regional instance (southamerica-east1)
 - ✓ Network: Check emulator is on localhost (not remote)
 - ✓ Load: Reduce poll frequency if bottleneck (but 150ms is ample)
@@ -359,6 +381,7 @@ const unsubscribe = onSnapshot(cacheRef, (doc) => {
 ```
 
 **Acceptance criteria:**
+
 - [ ] First snapshot: <100ms
 - [ ] Update notifications: <50ms
 - [ ] No memory leaks (unsubscribe cleans up)
@@ -392,12 +415,14 @@ const unsubscribe = onSnapshot(cacheRef, (doc) => {
    ```
 
 **Acceptance criteria:**
+
 - [ ] Function completes in <30 seconds
 - [ ] Per-lab processing: <5 seconds per lab (scales linearly)
 - [ ] No timeout errors (function timeout: 300s)
 - [ ] No OOM errors (memory: 256MB, sufficient)
 
 **If performance fails:**
+
 - [ ] Optimize aggregation query: Use index, add date range filter
 - [ ] Batch process labs: Split into smaller batches if >20 labs
 - [ ] Cache results: Store in Firestore cache document (already done)
@@ -417,11 +442,13 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 ```
 
 **Acceptance criteria:**
+
 - [ ] Response time: <100ms
 - [ ] HTTP 200 status
 - [ ] JSON response with jobId, status, etc.
 
 **If performance fails:**
+
 - [ ] Check Cloud Function invocation time (should be <50ms)
 - [ ] Check Firestore write time (document creation <50ms)
 - [ ] Check network latency (localhost should be <10ms)
@@ -440,6 +467,7 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 4. Measure end-to-end time
 
 **Acceptance criteria:**
+
 - [ ] Data query: <10 seconds
 - [ ] XLSX generation: <20 seconds
 - [ ] Cloud Storage upload: <20 seconds
@@ -447,6 +475,7 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 - [ ] No timeout (function timeout: 540s, comfortable)
 
 **If performance fails:**
+
 - [ ] Optimize data query: Add index, filter by date range
 - [ ] Optimize XLSX generation: Stream rows instead of loading all in memory
 - [ ] Optimize Cloud Storage upload: Use multipart upload for large files
@@ -467,12 +496,14 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 4. Use iOS Profiler: Xcode → Product → Profile → App Launch
 
 **Acceptance criteria:**
+
 - [ ] Cold start: <3 seconds
 - [ ] Hot start: <1 second
 - [ ] Time to interactive: <2 seconds
 - [ ] No splash screen stuck
 
 **If performance fails:**
+
 - [ ] Check Firebase initialization: Move to `useEffect`, not render
 - [ ] Check Zustand store hydration: Verify AsyncStorage not blocking
 - [ ] Check bundle size: Ensure <5MB uncompressed
@@ -490,11 +521,13 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 3. Monitor Firestore `onSnapshot` timing
 
 **Acceptance criteria:**
+
 - [ ] Initial load: <2 seconds
 - [ ] Re-renders (after data update): <500ms
 - [ ] No UI jank (60 FPS scrolling)
 
 **If performance fails:**
+
 - [ ] Check Firestore query: Verify index used
 - [ ] Check React render: Use React Profiler, look for expensive components
 - [ ] Check AsyncStorage: Might be blocking if large cache
@@ -506,6 +539,7 @@ time curl -X POST http://localhost:5001/hmatologia2/southamerica-east1/initiateE
 **Requirement:** Polling job status doesn't impact battery or network.
 
 **Acceptance criteria:**
+
 - [ ] Poll interval: ≥2 seconds (not aggressive)
 - [ ] Firestore reads per poll: 1 document (efficient)
 - [ ] No exponential backoff (linear retry)
@@ -528,11 +562,13 @@ gzip -c dist/assets/*.js | wc -c
 ```
 
 **Acceptance criteria:**
+
 - [ ] Total dist/ size: <2MB uncompressed
 - [ ] Main JS bundle: <500KB gzip
 - [ ] Total with CSS/HTML: <850KB gzip
 
 **Breakdown (example for 800KB gzip total):**
+
 - React + Router: ~150KB
 - Firebase SDK: ~200KB
 - Zustand: ~5KB
@@ -541,6 +577,7 @@ gzip -c dist/assets/*.js | wc -c
 - Other (Tailwind, deps): ~145KB
 
 **If bundle size exceeds:**
+
 - [ ] Check for unused dependencies: `npm audit`
 - [ ] Code split by route: `React.lazy()` for feature modules
 - [ ] Lazy load images: `loading="lazy"` on `<img>`
@@ -561,6 +598,7 @@ ls -lh dist/hc-quality-mobile.ipa
 ```
 
 **Acceptance criteria:**
+
 - [ ] IPA (iOS): <30MB
 - [ ] APK (Android): <25MB
 - [ ] No unused native modules
@@ -581,6 +619,7 @@ ls -lh dist/hc-quality-mobile.ipa
 **Measurement method:**
 
 1. Use Lighthouse CI:
+
    ```bash
    npm install -g @lhci/cli@latest
    lhci autorun --config=.lightningrc.json
@@ -592,6 +631,7 @@ ls -lh dist/hc-quality-mobile.ipa
    - Check Core Web Vitals section
 
 **Acceptance criteria:**
+
 - [ ] LCP: <2.5s (should be <1.5s ideally)
 - [ ] INP: <200ms (should be <100ms ideally)
 - [ ] CLS: <0.1 (should be <0.05 ideally)
@@ -600,16 +640,19 @@ ls -lh dist/hc-quality-mobile.ipa
 **If gates fail:**
 
 **LCP >2.5s:**
+
 - [ ] Check image sizes: Serve optimized images
 - [ ] Check critical CSS: Inline above-fold CSS
 - [ ] Check JavaScript: Defer non-critical JS
 
 **INP >200ms:**
+
 - [ ] Check JavaScript execution: Profile in DevTools
 - [ ] Check layout shifts: Add `width/height` to images
 - [ ] Check input handling: Debounce event handlers
 
 **CLS >0.1:**
+
 - [ ] Check layout shifts: Use `aspect-ratio` for images
 - [ ] Check ads/embeds: Reserve space before loading
 - [ ] Check fonts: Use `font-display: swap`
@@ -628,12 +671,13 @@ ls -lh dist/hc-quality-mobile.ipa
 // Test: User logged into Lab A tries to query Lab B
 const labAToken = await loginAs('user@lab-a');
 const labBJobs = await fetch(`/api/jobs?labId=lab-b`, {
-  headers: { Authorization: `Bearer ${labAToken}` }
+  headers: { Authorization: `Bearer ${labAToken}` },
 });
 expect(labBJobs.status).toBe(403); // Forbidden
 ```
 
 **Acceptance criteria:**
+
 - [ ] Firestore rules block cross-lab reads
 - [ ] Cloud Function callables validate auth token lab scope
 - [ ] No data leaked in error messages
@@ -653,13 +697,14 @@ const response = await initiateExport({
   labId: 'lab-001',
   format: 'invalid-format',
   startDate: '2026-01-01',
-  endDate: '2026-05-04'
+  endDate: '2026-05-04',
 });
 expect(response.error).toBeDefined();
 expect(response.status).toBe(400);
 ```
 
 **Acceptance criteria:**
+
 - [ ] Format validation: whitelist ['xlsx', 'pdf', 'csv']
 - [ ] Date range validation: startDate < endDate, range <= 1 year
 - [ ] All inputs validated before use in queries
@@ -675,14 +720,19 @@ expect(response.status).toBe(400);
 
 ```typescript
 // Check URL generation code
-const url = admin.storage().bucket().file(path).getSignedUrl({
-  version: 'v4',
-  action: 'read',
-  expires: Date.now() + 7 * 24 * 60 * 60 * 1000 // 7 days
-});
+const url = admin
+  .storage()
+  .bucket()
+  .file(path)
+  .getSignedUrl({
+    version: 'v4',
+    action: 'read',
+    expires: Date.now() + 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
 ```
 
 **Acceptance criteria:**
+
 - [ ] Expiry: 7 days (604800 seconds)
 - [ ] No indefinite URLs
 - [ ] Tests verify expiry enforced
@@ -705,20 +755,20 @@ const url = admin.storage().bucket().file(path).getSignedUrl({
 
 ### 3.2 Testing Execution
 
-| Gate | Test | Target | Result | Pass/Fail |
-|------|------|--------|--------|-----------|
-| Analytics Query | <2s for 50k docs | <2000ms | — | |
-| Export Polling | <150ms per poll | <150ms | — | |
-| Cache Subscription | <100ms first | <100ms | — | |
-| Scheduled Function | <30s processing | <30000ms | — | |
-| Callable Response | <100ms response | <100ms | — | |
-| Worker Processing | <60s for 1000 rows | <60000ms | — | |
-| App Startup | <3s cold start | <3000ms | — | |
-| Analytics Load | <2s dashboard | <2000ms | — | |
-| Bundle Size (Web) | <850KB gzip | <850KB | — | |
-| LCP Score | <2.5s | <2500ms | — | |
-| INP Score | <200ms | <200ms | — | |
-| CLS Score | <0.1 | <0.1 | — | |
+| Gate               | Test               | Target   | Result | Pass/Fail |
+| ------------------ | ------------------ | -------- | ------ | --------- |
+| Analytics Query    | <2s for 50k docs   | <2000ms  | —      |           |
+| Export Polling     | <150ms per poll    | <150ms   | —      |           |
+| Cache Subscription | <100ms first       | <100ms   | —      |           |
+| Scheduled Function | <30s processing    | <30000ms | —      |           |
+| Callable Response  | <100ms response    | <100ms   | —      |           |
+| Worker Processing  | <60s for 1000 rows | <60000ms | —      |           |
+| App Startup        | <3s cold start     | <3000ms  | —      |           |
+| Analytics Load     | <2s dashboard      | <2000ms  | —      |           |
+| Bundle Size (Web)  | <850KB gzip        | <850KB   | —      |           |
+| LCP Score          | <2.5s              | <2500ms  | —      |           |
+| INP Score          | <200ms             | <200ms   | —      |           |
+| CLS Score          | <0.1               | <0.1     | —      |           |
 
 ### 3.3 Results & Sign-Off
 

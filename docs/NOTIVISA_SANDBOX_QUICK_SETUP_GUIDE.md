@@ -1,10 +1,10 @@
 ---
-title: "NOTIVISA Sandbox Quick Setup Guide"
-subtitle: "Copy-paste commands for Phase 4 implementation"
-date_created: "2026-05-07"
-version: "1.0"
-status: "Ready for Phase 4"
-audience: "DevOps Engineers + Backend Team"
+title: 'NOTIVISA Sandbox Quick Setup Guide'
+subtitle: 'Copy-paste commands for Phase 4 implementation'
+date_created: '2026-05-07'
+version: '1.0'
+status: 'Ready for Phase 4'
+audience: 'DevOps Engineers + Backend Team'
 ---
 
 # NOTIVISA Sandbox — Quick Setup Guide
@@ -285,6 +285,7 @@ bash scripts/validate-notivisa-sandbox-readiness.sh
 **Cause:** Secret not set in Firebase Secrets Manager or function not deployed with secret configuration.
 
 **Fix:**
+
 ```bash
 # 1. Verify secret exists
 gcloud secrets describe NOTIVISA_SANDBOX_API_KEY --project=hmatologia2
@@ -301,6 +302,7 @@ firebase deploy --only functions:notivisaDraftCreate --project=hmatologia2
 **Cause:** API key expired, incorrect, or endpoint URL wrong.
 
 **Fix:**
+
 ```bash
 # 1. Verify API key format
 gcloud secrets versions access latest --secret=NOTIVISA_SANDBOX_API_KEY --project=hmatologia2 | wc -c
@@ -319,6 +321,7 @@ bash scripts/test-notivisa-sandbox-connectivity.sh
 **Cause:** ANVISA sandbox API unreachable (network issue, maintenance, or firewall block).
 
 **Fix:**
+
 ```bash
 # 1. Check ANVISA status page
 # https://portalanvisa.gov.br/ (check for maintenance notices)

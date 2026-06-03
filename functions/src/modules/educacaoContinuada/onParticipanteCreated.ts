@@ -53,9 +53,7 @@ export const ec_onParticipanteCreated = onDocumentCreated(
     if (!execucaoId) {
       violations.push('execucaoId_missing');
     } else {
-      const execSnap = await db
-        .doc(`educacaoContinuada/${labId}/execucoes/${execucaoId}`)
-        .get();
+      const execSnap = await db.doc(`educacaoContinuada/${labId}/execucoes/${execucaoId}`).get();
       if (!execSnap.exists) {
         violations.push(`execucao_not_found(${execucaoId})`);
       } else {

@@ -51,13 +51,13 @@ interface AISuggestion {
 type AnalysisFn = (labId: string, indicadorId: string) => Promise<AISuggestion>;
 
 const MODULE_ANALYZERS: Record<string, AnalysisFn> = {
-  'calibracao': analyzeCalibracao,
-  'fornecedor': analyzeFornecedores,
-  'treinamento': analyzeTreinamentos,
-  'equipamento': analyzeEquipamentos,
-  'risco': analyzeRiscos,
-  'documento': analyzeDocumentos,
-  'pessoal': analyzePessoal,
+  calibracao: analyzeCalibracao,
+  fornecedor: analyzeFornecedores,
+  treinamento: analyzeTreinamentos,
+  equipamento: analyzeEquipamentos,
+  risco: analyzeRiscos,
+  documento: analyzeDocumentos,
+  pessoal: analyzePessoal,
 };
 
 function getModuleFromIndicador(indicadorId: string): string | null {
@@ -69,13 +69,13 @@ function getModuleFromIndicador(indicadorId: string): string | null {
   }
   // Fallback: try matching by DICQ bloco patterns
   const blocoMap: Record<string, string> = {
-    'a': 'pessoal',
-    'b': 'documento',
-    'c': 'equipamento',
-    'd': 'calibracao',
-    'e': 'risco',
-    'f': 'fornecedor',
-    'g': 'treinamento',
+    a: 'pessoal',
+    b: 'documento',
+    c: 'equipamento',
+    d: 'calibracao',
+    e: 'risco',
+    f: 'fornecedor',
+    g: 'treinamento',
   };
   const bloco = indicadorId.charAt(0)?.toLowerCase();
   return blocoMap[bloco] ?? null;
@@ -87,8 +87,7 @@ function getModuleFromIndicador(indicadorId: string): string | null {
 
 function monthsSince(date: Date): number {
   const now = new Date();
-  return (now.getFullYear() - date.getFullYear()) * 12 +
-    (now.getMonth() - date.getMonth());
+  return (now.getFullYear() - date.getFullYear()) * 12 + (now.getMonth() - date.getMonth());
 }
 
 function scoreToLevel(score: number): number {
@@ -100,9 +99,7 @@ function scoreToLevel(score: number): number {
   return 1;
 }
 
-function scoreToConfianca(
-  dataPoints: number
-): 'alta' | 'media' | 'baixa' {
+function scoreToConfianca(dataPoints: number): 'alta' | 'media' | 'baixa' {
   if (dataPoints >= 5) return 'alta';
   if (dataPoints >= 2) return 'media';
   return 'baixa';
@@ -112,10 +109,7 @@ function scoreToConfianca(
 // Analysis functions per module
 // ──────────────────────────────────────────────────────────────────────────
 
-async function analyzeCalibracao(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeCalibracao(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -157,9 +151,10 @@ async function analyzeCalibracao(
   const total = certSnap.size;
   const score = total > 0 ? (validCount / total) * 100 : 0;
 
-  const justificativa = expiredCount === 0
-    ? 'Todos os certificados de calibração estão dentro da validade.'
-    : `${expiredCount} de ${total} certificado(s) com validade expirada. Necessário providenciar recalibração.`;
+  const justificativa =
+    expiredCount === 0
+      ? 'Todos os certificados de calibração estão dentro da validade.'
+      : `${expiredCount} de ${total} certificado(s) com validade expirada. Necessário providenciar recalibração.`;
 
   return {
     indicadorId,
@@ -171,10 +166,7 @@ async function analyzeCalibracao(
   };
 }
 
-async function analyzeFornecedores(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeFornecedores(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -214,15 +206,16 @@ async function analyzeFornecedores(
   }
 
   dadosAnalisados.push(
-    `${evaluatedRecently} avaliado(s) nos últimos 12 meses, ${withoutEvaluation} sem avaliação`
+    `${evaluatedRecently} avaliado(s) nos últimos 12 meses, ${withoutEvaluation} sem avaliação`,
   );
 
   const total = fornSnap.size;
   const score = total > 0 ? (evaluatedRecently / total) * 100 : 0;
 
-  const justificativa = withoutEvaluation === 0 && evaluatedRecently === total
-    ? 'Todos os fornecedores possuem avaliação atualizada (< 12 meses).'
-    : `${total - evaluatedRecently} fornecedor(es) necessitam avaliação ou reavaliação.`;
+  const justificativa =
+    withoutEvaluation === 0 && evaluatedRecently === total
+      ? 'Todos os fornecedores possuem avaliação atualizada (< 12 meses).'
+      : `${total - evaluatedRecently} fornecedor(es) necessitam avaliação ou reavaliação.`;
 
   return {
     indicadorId,
@@ -234,10 +227,7 @@ async function analyzeFornecedores(
   };
 }
 
-async function analyzeTreinamentos(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeTreinamentos(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
   const currentYear = new Date().getFullYear();
@@ -255,7 +245,9 @@ async function analyzeTreinamentos(
     return dataRealizacao && dataRealizacao.getFullYear() === currentYear;
   });
 
-  dadosAnalisados.push(`${currentYearRecords.length} treinamento(s) no ano corrente (${currentYear})`);
+  dadosAnalisados.push(
+    `${currentYearRecords.length} treinamento(s) no ano corrente (${currentYear})`,
+  );
 
   if (currentYearRecords.length === 0) {
     gaps.push(`Nenhum treinamento registrado para o ano ${currentYear}`);
@@ -282,9 +274,10 @@ async function analyzeTreinamentos(
   if (currentYearRecords.length > 0) score += 30;
   if (currentYearRecords.length >= 3) score += 30;
 
-  const justificativa = gaps.length === 0
-    ? `Treinamentos registrados para ${currentYear} com plano anual vigente.`
-    : `Identificadas ${gaps.length} pendência(s) em treinamentos: ${gaps[0]}.`;
+  const justificativa =
+    gaps.length === 0
+      ? `Treinamentos registrados para ${currentYear} com plano anual vigente.`
+      : `Identificadas ${gaps.length} pendência(s) em treinamentos: ${gaps[0]}.`;
 
   return {
     indicadorId,
@@ -296,10 +289,7 @@ async function analyzeTreinamentos(
   };
 }
 
-async function analyzeEquipamentos(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeEquipamentos(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -326,8 +316,8 @@ async function analyzeEquipamentos(
 
   for (const doc of equipSnap.docs) {
     const data = doc.data();
-    const proximaManutencao = data.proximaManutencao?.toDate?.()
-      ?? data.dataProximaManutencao?.toDate?.();
+    const proximaManutencao =
+      data.proximaManutencao?.toDate?.() ?? data.dataProximaManutencao?.toDate?.();
 
     if (!proximaManutencao) {
       gaps.push(`Equipamento "${data.nome || doc.id}" sem manutenção programada`);
@@ -338,13 +328,16 @@ async function analyzeEquipamentos(
     }
   }
 
-  dadosAnalisados.push(`${compliant} com manutenção em dia, ${equipSnap.size - compliant} pendente(s)`);
+  dadosAnalisados.push(
+    `${compliant} com manutenção em dia, ${equipSnap.size - compliant} pendente(s)`,
+  );
 
   const score = equipSnap.size > 0 ? (compliant / equipSnap.size) * 100 : 0;
 
-  const justificativa = compliant === equipSnap.size
-    ? 'Todos os equipamentos possuem manutenção em dia conforme calendário.'
-    : `${equipSnap.size - compliant} equipamento(s) com manutenção atrasada ou não programada.`;
+  const justificativa =
+    compliant === equipSnap.size
+      ? 'Todos os equipamentos possuem manutenção em dia conforme calendário.'
+      : `${equipSnap.size - compliant} equipamento(s) com manutenção atrasada ou não programada.`;
 
   return {
     indicadorId,
@@ -356,10 +349,7 @@ async function analyzeEquipamentos(
   };
 }
 
-async function analyzeRiscos(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeRiscos(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -381,8 +371,7 @@ async function analyzeRiscos(
   }
 
   const riscoData = riscoSnap.docs[0].data();
-  const ultimaRevisao = riscoData.ultimaRevisao?.toDate?.()
-    ?? riscoData.dataRevisao?.toDate?.();
+  const ultimaRevisao = riscoData.ultimaRevisao?.toDate?.() ?? riscoData.dataRevisao?.toDate?.();
 
   dadosAnalisados.push('Mapa de riscos: encontrado');
 
@@ -412,9 +401,10 @@ async function analyzeRiscos(
     gaps.push(`Mapa de riscos não revisado há ${mesesDesdeRevisao} meses (> 12 meses)`);
   }
 
-  const justificativa = mesesDesdeRevisao <= 12
-    ? `Mapa de riscos revisado há ${mesesDesdeRevisao} mês(es), dentro do prazo.`
-    : `Mapa de riscos não revisado há ${mesesDesdeRevisao} meses. Necessária revisão urgente.`;
+  const justificativa =
+    mesesDesdeRevisao <= 12
+      ? `Mapa de riscos revisado há ${mesesDesdeRevisao} mês(es), dentro do prazo.`
+      : `Mapa de riscos não revisado há ${mesesDesdeRevisao} meses. Necessária revisão urgente.`;
 
   return {
     indicadorId,
@@ -426,10 +416,7 @@ async function analyzeRiscos(
   };
 }
 
-async function analyzeDocumentos(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzeDocumentos(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -456,8 +443,7 @@ async function analyzeDocumentos(
 
   for (const doc of docSnap.docs) {
     const data = doc.data();
-    const proximaRevisao = data.proximaRevisao?.toDate?.()
-      ?? data.dataProximaRevisao?.toDate?.();
+    const proximaRevisao = data.proximaRevisao?.toDate?.() ?? data.dataProximaRevisao?.toDate?.();
 
     if (!proximaRevisao) {
       gaps.push(`Documento "${data.titulo || doc.id}" sem data de próxima revisão`);
@@ -472,9 +458,10 @@ async function analyzeDocumentos(
 
   const score = docSnap.size > 0 ? (revisedOnTime / docSnap.size) * 100 : 0;
 
-  const justificativa = revisedOnTime === docSnap.size
-    ? 'Todos os documentos estão dentro do ciclo de revisão.'
-    : `${docSnap.size - revisedOnTime} documento(s) com revisão vencida ou sem data programada.`;
+  const justificativa =
+    revisedOnTime === docSnap.size
+      ? 'Todos os documentos estão dentro do ciclo de revisão.'
+      : `${docSnap.size - revisedOnTime} documento(s) com revisão vencida ou sem data programada.`;
 
   return {
     indicadorId,
@@ -486,10 +473,7 @@ async function analyzeDocumentos(
   };
 }
 
-async function analyzePessoal(
-  labId: string,
-  indicadorId: string
-): Promise<AISuggestion> {
+async function analyzePessoal(labId: string, indicadorId: string): Promise<AISuggestion> {
   const dadosAnalisados: string[] = [];
   const gaps: string[] = [];
 
@@ -543,9 +527,10 @@ async function analyzePessoal(
 
   const score = (qualified / total) * 100;
 
-  const justificativa = gaps.length === 0
-    ? 'Todos os colaboradores possuem qualificações registradas e válidas.'
-    : `${gaps.length} colaborador(es) com pendências em qualificação.`;
+  const justificativa =
+    gaps.length === 0
+      ? 'Todos os colaboradores possuem qualificações registradas e válidas.'
+      : `${gaps.length} colaborador(es) com pendências em qualificação.`;
 
   return {
     indicadorId,
@@ -608,5 +593,5 @@ export const generateAISuggestion = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao gerar sugestão');
     }
-  }
+  },
 );

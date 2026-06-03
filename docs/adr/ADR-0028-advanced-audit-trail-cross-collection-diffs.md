@@ -34,12 +34,14 @@ auditLog('result_created', {
 ```
 
 **Gaps:**
+
 - Does not capture linked data (e.g., which QC rules fired)
 - No context snapshot (e.g., lab temperature at time of write)
 - Hash is per-entry, not chained (cannot detect out-of-order tampering)
 - Does not meet RDC 978 § 5.3 requirement: "maintain complete, accurate, and reproducible record of all result actions"
 
 **RDC 978 Art. 5.3 requires:**
+
 - Audit trail that includes "actions taken on the result" (not just create/update, but business logic actions like approval, quality checks)
 - "System state at time of action" (context)
 - "Data integrity mechanisms" (hashing, chaining, immutability)
@@ -61,16 +63,16 @@ Primary audit collection: `labs/{labId}/auditLog/{entryId}` — one document per
   eventId: string; // Unique per event
   eventType: 'result_created' | 'result_approved' | 'result_reviewed' | 'qc_check_applied' | 'annotation_added';
   eventTimestamp: timestamp;
-  
+
   // Actor
   operatorUid: string;
   operatorRole: string; // 'analyst', 'RT', 'admin'
-  
+
   // Primary document changed
   primaryDocPath: string; // e.g., 'labs/lab123/laudos/456'
   primaryDocBefore: object; // Snapshot before change (or null if create)
   primaryDocAfter: object; // Snapshot after change
-  
+
   // Cross-collection impacts (diffs)
   crossCollectionDiffs: [
     {
@@ -81,7 +83,7 @@ Primary audit collection: `labs/{labId}/auditLog/{entryId}` — one document per
       };
     }
   ];
-  
+
   // Context snapshot (async, may lag by <2s)
   contextSnapshot: {
     labTemperature: number; // Celsius at time of write
@@ -91,12 +93,12 @@ Primary audit collection: `labs/{labId}/auditLog/{entryId}` — one document per
     apiVersion: string; // Client API version submitting the write
     clientIp: string; // For network-based audit trail
   };
-  
+
   // Integrity & chaining
   hash: string; // SHA256(JSON.stringify({eventId, eventTimestamp, operatorUid, primaryDocAfter, crossCollectionDiffs, contextSnapshot}))
   prevHash: string; // Hash of previous audit entry in this lab (chain)
   hashChainBroken: boolean; // Indicator if chain was tampered
-  
+
   // Regulatory fields
   rdc978_article: string; // e.g., '5.3'
   dicq_section: string; // e.g., '4.4'
@@ -132,7 +134,8 @@ export const onResultWritten = onDocumentWritten(
 
     // 2a. If approval status changed, audit QC rules that fired
     if (fieldChanges['approvalStatus']) {
-      const qcRules = await db.collection(`labs/${labId}/qc-rules-applied`)
+      const qcRules = await db
+        .collection(`labs/${labId}/qc-rules-applied`)
         .where('resultId', '==', docId)
         .orderBy('createdAt', 'desc')
         .limit(10)
@@ -154,7 +157,8 @@ export const onResultWritten = onDocumentWritten(
 
     // 2b. If annotations added, audit them
     if (fieldChanges['annotations']) {
-      const annotations = await db.collection(`labs/${labId}/result-annotations`)
+      const annotations = await db
+        .collection(`labs/${labId}/result-annotations`)
         .where('resultId', '==', docId)
         .get();
 
@@ -171,7 +175,8 @@ export const onResultWritten = onDocumentWritten(
 
     // 3. Enqueue context snapshot capture (async)
     const auditRef = db.collection(`labs/${labId}/auditLog`).doc();
-    const prevAuditDoc = await db.collection(`labs/${labId}/auditLog`)
+    const prevAuditDoc = await db
+      .collection(`labs/${labId}/auditLog`)
       .orderBy('createdAt', 'desc')
       .limit(1)
       .get();
@@ -199,12 +204,16 @@ export const onResultWritten = onDocumentWritten(
     await auditRef.set(auditPayload);
 
     // 5. Enqueue async context capture
-    await pubsub.topic('audit-context-capture').publish(Buffer.from(JSON.stringify({
-      auditDocId: auditRef.id,
-      labId,
-      primaryDocPath: change.after.ref.path,
-    })));
-  }
+    await pubsub.topic('audit-context-capture').publish(
+      Buffer.from(
+        JSON.stringify({
+          auditDocId: auditRef.id,
+          labId,
+          primaryDocPath: change.after.ref.path,
+        }),
+      ),
+    );
+  },
 );
 ```
 
@@ -224,7 +233,8 @@ export const captureContextSnapshot = onMessagePublished(
       const labConfig = await labConfigRef.get();
 
       // 2. Fetch IoT sensor data (temperature, humidity)
-      const temperatureSensor = await db.collection(`labs/${labId}/iot-sensors`)
+      const temperatureSensor = await db
+        .collection(`labs/${labId}/iot-sensors`)
         .where('type', '==', 'temperature')
         .orderBy('timestamp', 'desc')
         .limit(1)
@@ -234,7 +244,8 @@ export const captureContextSnapshot = onMessagePublished(
 
       // 3. Fetch active reagent lots
       const reagentLots = {};
-      const activeLots = await db.collection(`labs/${labId}/insumos`)
+      const activeLots = await db
+        .collection(`labs/${labId}/insumos`)
         .where('status', '==', 'active')
         .get();
       for (const lotDoc of activeLots.docs) {
@@ -245,7 +256,8 @@ export const captureContextSnapshot = onMessagePublished(
       }
 
       // 4. Fetch active shift
-      const turnoRef = await db.collection(`labs/${labId}/turnos`)
+      const turnoRef = await db
+        .collection(`labs/${labId}/turnos`)
         .where('dataInicio', '<=', new Date())
         .where('dataFim', '>=', new Date())
         .limit(1)
@@ -269,7 +281,9 @@ export const captureContextSnapshot = onMessagePublished(
       const contextSnapshot = {
         labTemperature: labTemp,
         reagentLotInUse: reagentLots,
-        activeShift: activeShift ? `${activeShift.dataInicio.toDate()} - ${activeShift.dataFim.toDate()}` : null,
+        activeShift: activeShift
+          ? `${activeShift.dataInicio.toDate()} - ${activeShift.dataFim.toDate()}`
+          : null,
         equipmentStatus,
         apiVersion: auditData.apiVersion || 'unknown',
         clientIp: null, // Captured at write time if available
@@ -290,17 +304,19 @@ export const captureContextSnapshot = onMessagePublished(
       await auditRef.update({
         contextSnapshot,
         hash,
-        hashChainBroken: auditData.prevHash && auditData.prevHash !== '' ? await verifyChain(labId, auditDocId) : false,
+        hashChainBroken:
+          auditData.prevHash && auditData.prevHash !== ''
+            ? await verifyChain(labId, auditDocId)
+            : false,
       });
 
       logger.info(`Audit context captured: ${auditDocId}`);
-
     } catch (error) {
       logger.error(`Failed to capture audit context for ${auditDocId}`, error);
       // Non-blocking: audit entry already created, just missing context
       // Will be marked as "incomplete" in compliance reports
     }
-  }
+  },
 );
 
 async function verifyChain(labId: string, auditDocId: string): Promise<boolean> {
@@ -311,7 +327,8 @@ async function verifyChain(labId: string, auditDocId: string): Promise<boolean> 
 
   if (!prevHash) return false; // First entry in chain
 
-  const prevAuditDocs = await db.collection(`labs/${labId}/auditLog`)
+  const prevAuditDocs = await db
+    .collection(`labs/${labId}/auditLog`)
     .where('hash', '==', prevHash)
     .get();
 
@@ -329,15 +346,15 @@ match /labs/{labId}/auditLog/{entryId} {
               (request.auth.token.role == 'RT' ||
                request.auth.token.role == 'AUDITOR' ||
                isAdminOrOwner(labId));
-  
+
   // Create: Cloud Function only (triggered on result writes)
   allow create: if false; // Cloud Function writes, not client
-  
+
   // Update: Cloud Function only (for hash + context snapshot)
   allow update: if request.auth.uid != null &&
                 request.resource.data.contextSnapshot != null &&
                 resource.data.eventTimestamp == request.resource.data.eventTimestamp; // Prevent timestamp spoofing
-  
+
   // Delete: never (soft-delete only)
   allow delete: if false;
 }
@@ -349,13 +366,16 @@ match /labs/{labId}/auditLog/{entryId} {
 
 ```typescript
 // Query by result ID
-const auditTrail = await db.collection(`labs/${labId}/auditLog`)
+const auditTrail = await db
+  .collection(`labs/${labId}/auditLog`)
   .where('primaryDocPath', '==', `labs/${labId}/laudos/${resultId}`)
   .orderBy('eventTimestamp', 'asc')
   .get();
 
 for (const doc of auditTrail.docs) {
-  console.log(`${doc.data().eventType} by ${doc.data().operatorUid} at ${doc.data().eventTimestamp}`);
+  console.log(
+    `${doc.data().eventType} by ${doc.data().operatorUid} at ${doc.data().eventTimestamp}`,
+  );
   console.log(`Hash: ${doc.data().hash}`);
   console.log(`Context: Lab temp = ${doc.data().contextSnapshot?.labTemperature}°C`);
 }
@@ -367,7 +387,8 @@ for (const doc of auditTrail.docs) {
 const startDate = new Date('2026-05-01');
 const endDate = new Date('2026-05-31');
 
-const auditTrail = await db.collection(`labs/${labId}/auditLog`)
+const auditTrail = await db
+  .collection(`labs/${labId}/auditLog`)
   .where('eventTimestamp', '>=', startDate)
   .where('eventTimestamp', '<=', endDate)
   .orderBy('eventTimestamp', 'asc')
@@ -380,9 +401,10 @@ const auditTrail = await db.collection(`labs/${labId}/auditLog`)
 
 ```typescript
 const qcRuleId = 'qc789';
-const impactedResults = await db.collection(`labs/${labId}/auditLog`)
+const impactedResults = await db
+  .collection(`labs/${labId}/auditLog`)
   .where('crossCollectionDiffs', 'array-contains-any', [
-    { affectedDocPath: `labs/${labId}/qc-rules-applied/${qcRuleId}` }
+    { affectedDocPath: `labs/${labId}/qc-rules-applied/${qcRuleId}` },
   ])
   .get();
 ```
@@ -421,13 +443,14 @@ Callable to generate audit trail report (for auditor review or RDC 978 inspectio
 // functions/src/modules/qualidade/generateAuditTrailReportCallable.ts
 
 export const generateAuditTrailReportCallable = onCall(
-  async (data: { labId, startDate, endDate, resultId?: string }, context) => {
+  async (data: { labId; startDate; endDate; resultId?: string }, context) => {
     // Authorization: only auditor or admin
     if (!['AUDITOR', 'admin'].includes(context.auth?.token?.role)) {
       throw new HttpsError('permission-denied', 'Only auditors can generate reports');
     }
 
-    let query: Query = db.collection(`labs/${data.labId}/auditLog`)
+    let query: Query = db
+      .collection(`labs/${data.labId}/auditLog`)
       .where('eventTimestamp', '>=', new Date(data.startDate))
       .where('eventTimestamp', '<=', new Date(data.endDate));
 
@@ -439,22 +462,26 @@ export const generateAuditTrailReportCallable = onCall(
 
     // Generate CSV
     const csv = [];
-    csv.push('Event ID,Event Type,Timestamp,Operator ID,Operator Role,Primary Doc,Field Changes,Cross-Collection Impacts,Hash,Context (Lab Temp)');
-    
+    csv.push(
+      'Event ID,Event Type,Timestamp,Operator ID,Operator Role,Primary Doc,Field Changes,Cross-Collection Impacts,Hash,Context (Lab Temp)',
+    );
+
     for (const doc of auditDocs.docs) {
       const d = doc.data();
-      csv.push([
-        d.eventId,
-        d.eventType,
-        d.eventTimestamp.toDate().toISOString(),
-        d.operatorUid,
-        d.operatorRole,
-        d.primaryDocPath,
-        Object.keys(d.fieldChanges || {}).join(';'),
-        d.crossCollectionDiffs?.length || 0,
-        d.hash,
-        d.contextSnapshot?.labTemperature || 'N/A',
-      ].join(','));
+      csv.push(
+        [
+          d.eventId,
+          d.eventType,
+          d.eventTimestamp.toDate().toISOString(),
+          d.operatorUid,
+          d.operatorRole,
+          d.primaryDocPath,
+          Object.keys(d.fieldChanges || {}).join(';'),
+          d.crossCollectionDiffs?.length || 0,
+          d.hash,
+          d.contextSnapshot?.labTemperature || 'N/A',
+        ].join(','),
+      );
     }
 
     // Upload to Cloud Storage for download
@@ -468,7 +495,7 @@ export const generateAuditTrailReportCallable = onCall(
       totalEvents: auditDocs.size,
       dateRange: `${data.startDate} to ${data.endDate}`,
     };
-  }
+  },
 );
 ```
 
@@ -477,15 +504,19 @@ export const generateAuditTrailReportCallable = onCall(
 ## Alternatives Considered
 
 **(a) Single-layer event log (current v1.3)**
+
 - **Rejected.** Lacks cross-collection context and chain verification. Does not meet RDC 978 § 5.3.
 
 **(b) Event log + manual context capture**
+
 - **Rejected.** Manual context (operator filled in form) is error-prone and not defensible for compliance audit.
 
 **(c) Event log + automatic context snapshots (what this ADR chooses)**
+
 - **Accepted.** Captures system state automatically; immutable + chained hashes; meets RDC 978 § 5.3 + DICQ 4.4.
 
 **(d) Message queue + external audit service (e.g., Splunk, Datadog)**
+
 - **Rejected.** Overkill for Phase 5; Firestore + Cloud Logs sufficient. Can migrate to external audit in Phase 10+.
 
 ---
@@ -530,12 +561,12 @@ export const generateAuditTrailReportCallable = onCall(
 
 ### Compliance
 
-| Regulation | Requirement | Mitigation |
-|---|---|---|
-| **RDC 978 Art. 5.3** | Audit trail of all result actions + system state | `auditLog` captures events + `contextSnapshot` captures lab state at time |
-| **RDC 978 Art. 5** | Immutable record integrity | Hash chaining + Firestore rules prevent updates/deletes |
-| **DICQ 4.4** | Record integrity mechanisms | SHA256 hashes + chain verification |
-| **LGPD** | PII audit trail (with consent) | `contextSnapshot` does not capture patient data; operator IDs anonymized in export |
+| Regulation           | Requirement                                      | Mitigation                                                                         |
+| -------------------- | ------------------------------------------------ | ---------------------------------------------------------------------------------- |
+| **RDC 978 Art. 5.3** | Audit trail of all result actions + system state | `auditLog` captures events + `contextSnapshot` captures lab state at time          |
+| **RDC 978 Art. 5**   | Immutable record integrity                       | Hash chaining + Firestore rules prevent updates/deletes                            |
+| **DICQ 4.4**         | Record integrity mechanisms                      | SHA256 hashes + chain verification                                                 |
+| **LGPD**             | PII audit trail (with consent)                   | `contextSnapshot` does not capture patient data; operator IDs anonymized in export |
 
 ---
 

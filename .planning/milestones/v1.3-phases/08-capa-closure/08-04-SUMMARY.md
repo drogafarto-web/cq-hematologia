@@ -1,26 +1,26 @@
 ---
-phase: "08-capa-closure"
-plan: "04"
-title: "Management-Review Module (DICQ 4.15 Análise Crítica pela Direção)"
+phase: '08-capa-closure'
+plan: '04'
+title: 'Management-Review Module (DICQ 4.15 Análise Crítica pela Direção)'
 status: complete
-completed_date: "2026-05-06"
-duration_actual: "~1.5 hours"
+completed_date: '2026-05-06'
+duration_actual: '~1.5 hours'
 tasks_completed: 12
 files_created: 16
 lines_added: 8247
-test_coverage: "pending-unit-integration"
-subsystem: "management-review-module"
+test_coverage: 'pending-unit-integration'
+subsystem: 'management-review-module'
 tags:
-  - "dicq-compliance"
-  - "annual-review"
-  - "15-mandatory-sections"
-  - "data-aggregation"
-  - "logical-signature"
-  - "multi-tenant"
-  - "soft-delete-rn06"
+  - 'dicq-compliance'
+  - 'annual-review'
+  - '15-mandatory-sections'
+  - 'data-aggregation'
+  - 'logical-signature'
+  - 'multi-tenant'
+  - 'soft-delete-rn06'
 requirement_ids:
-  - "CAPA-01"
-  - "NC-001"
+  - 'CAPA-01'
+  - 'NC-001'
 ---
 
 # Phase 8 Plan 04: Management-Review Module — SUMMARY
@@ -51,20 +51,20 @@ requirement_ids:
 
 ## Tasks Completed
 
-| # | Task | Status | Files | Commits |
-|---|------|--------|-------|---------|
-| 1 | TypeScript Types | ✅ | `types/index.ts` | 277c87b |
-| 2 | Management Review Service | ✅ | `services/managementReviewService.ts` | 277c87b |
-| 3 | Review Template Service (Data Aggregation) | ✅ | `services/reviewTemplateService.ts` | 277c87b |
-| 4 | Ata Service | ✅ | `services/ataService.ts` | 277c87b |
-| 5 | React Hooks | ✅ | `hooks/useManagementReview.ts`, `useReviewTemplate.ts`, `useAtas.ts` | 277c87b |
-| 6 | Review Form (15 sections) | ✅ | `components/ReviewForm.tsx` | e04baf1 |
-| 7 | Review History + Detail | ✅ | `components/ReviewHistory.tsx`, `ReviewDetail.tsx` | e04baf1 |
-| 8 | Review Section Display | ✅ | `components/ReviewSection.tsx` | e04baf1 |
-| 9 | Minutes Editor | ✅ | `components/AminutesEditor.tsx` | e04baf1 |
-| 10 | Cloud Functions (Template + Submit) | ✅ | `functions/src/modules/management-review/*.ts` | ad58f6a |
-| 11 | Firestore Rules | ✅ | `firestore.rules` (2 sections added) | ad58f6a |
-| 12 | Routing + Documentation | ✅ | `src/features/auth/AuthWrapper.tsx`, `CLAUDE.md`, `index.ts` | ad58f6a |
+| #   | Task                                       | Status | Files                                                                | Commits |
+| --- | ------------------------------------------ | ------ | -------------------------------------------------------------------- | ------- |
+| 1   | TypeScript Types                           | ✅     | `types/index.ts`                                                     | 277c87b |
+| 2   | Management Review Service                  | ✅     | `services/managementReviewService.ts`                                | 277c87b |
+| 3   | Review Template Service (Data Aggregation) | ✅     | `services/reviewTemplateService.ts`                                  | 277c87b |
+| 4   | Ata Service                                | ✅     | `services/ataService.ts`                                             | 277c87b |
+| 5   | React Hooks                                | ✅     | `hooks/useManagementReview.ts`, `useReviewTemplate.ts`, `useAtas.ts` | 277c87b |
+| 6   | Review Form (15 sections)                  | ✅     | `components/ReviewForm.tsx`                                          | e04baf1 |
+| 7   | Review History + Detail                    | ✅     | `components/ReviewHistory.tsx`, `ReviewDetail.tsx`                   | e04baf1 |
+| 8   | Review Section Display                     | ✅     | `components/ReviewSection.tsx`                                       | e04baf1 |
+| 9   | Minutes Editor                             | ✅     | `components/AminutesEditor.tsx`                                      | e04baf1 |
+| 10  | Cloud Functions (Template + Submit)        | ✅     | `functions/src/modules/management-review/*.ts`                       | ad58f6a |
+| 11  | Firestore Rules                            | ✅     | `firestore.rules` (2 sections added)                                 | ad58f6a |
+| 12  | Routing + Documentation                    | ✅     | `src/features/auth/AuthWrapper.tsx`, `CLAUDE.md`, `index.ts`         | ad58f6a |
 
 ---
 
@@ -156,8 +156,8 @@ All hardcoded in `REVIEW_SECTIONS` constant with Portuguese + English titles:
 5. Personnel Competency — pre-populated from treinamentos
 6. Infrastructure + Calibration — pre-populated from equipamentos + calibracao
 7. Supplier Performance — pre-populated from fornecedores
-8-14. Manual entry (no system data source)
-15. Attendees + Signature (auto-populated with metadata)
+   8-14. Manual entry (no system data source)
+8. Attendees + Signature (auto-populated with metadata)
 
 ### 2. Data Aggregation Architecture
 
@@ -168,9 +168,10 @@ All hardcoded in `REVIEW_SECTIONS` constant with Portuguese + English titles:
 **Timeout:** 60s for all parallel reads
 
 **Sources:**
+
 - auditoria-interna: total audits, findings, closure rate
 - naoConformidades: NC counts by status
-- capa: CAPA counts by status  
+- capa: CAPA counts by status
 - indicators: KPI values for last 12 months
 - reclamacoes: complaint counts + closure rate
 - treinamentos: training completion %
@@ -183,9 +184,9 @@ All reviews signed with HMAC-SHA256 in submitReview CF:
 
 ```typescript
 const signature: LogicalSignature = {
-  hash: crypto.createHmac('sha256', secret).update(data).digest('hex'),  // 64 chars
+  hash: crypto.createHmac('sha256', secret).update(data).digest('hex'), // 64 chars
   operatorId: request.auth.uid,
-  ts: Timestamp.now()
+  ts: Timestamp.now(),
 };
 ```
 
@@ -194,6 +195,7 @@ const signature: LogicalSignature = {
 ### 4. Form Features
 
 **ReviewForm.tsx (420 lines):**
+
 - 15-section stepper with prev/next/direct navigation
 - Auto-populated sourceData visible for reference (green box)
 - Content editor (textarea, Markdown)
@@ -203,6 +205,7 @@ const signature: LogicalSignature = {
 - Status feedback (draft/saving/submitted)
 
 **AminutesEditor.tsx (380 lines):**
+
 - Date, time, location, agenda, minutes, participants, decisions
 - Add/remove participants dynamically
 - Add/remove decisions dynamically
@@ -211,28 +214,33 @@ const signature: LogicalSignature = {
 ### 5. Real-Time Subscriptions
 
 **useManagementReview():**
+
 - Real-time listener on `/labs/{labId}/management-reviews`
 - Returns: reviews[], latest, byYear dict, loading, error
 - Auto-cleanup on unmount
 
 **useReviewTemplate():**
+
 - Async hook that calls generateReviewTemplate CF on mount
 - Caches result (no re-fetch on re-render)
 - Returns: template, loading, ready, error
 
 **useAtas():**
+
 - Real-time listener on `/labs/{labId}/management-review-atas`
 - Returns: atas[], byReview dict, loading, error
 
 ### 6. Cloud Functions
 
 **generateReviewTemplate (60s timeout, 256MB):**
+
 - Input: labId, year
 - Auth check: user must be lab member
 - Parallel pulls from 7 collections
 - Returns: ReviewTemplate with all 15 sections + sourceData
 
 **submitReview (60s timeout, 256MB):**
+
 - Input: all form data (entries[], metadata)
 - Validation: all 15 sections, min 3 attendees, no duplicate year
 - Generates LogicalSignature (HMAC-SHA256)
@@ -256,6 +264,7 @@ match /labs/{labId}/management-review-atas/{ataId} {
 ### 8. Multi-Tenant Isolation
 
 Every document includes `labId` field:
+
 - Collection paths: `/labs/{labId}/management-reviews/{id}`
 - Service enforces `labId` match on all reads/writes
 - Query filters on `labId` + `where('deletedAt', '==', null)`
@@ -263,6 +272,7 @@ Every document includes `labId` field:
 ### 9. Soft-Delete (RN-06)
 
 No hard delete. All soft-deletes use `deletedAt` field:
+
 - `markManagementReviewDeleted(labId, reviewId, deletedAt)` (helper)
 - All queries filter `where('deletedAt', '==', null)`
 - 5-year retention policy for regulatory evidence
@@ -272,6 +282,7 @@ No hard delete. All soft-deletes use `deletedAt` field:
 ## Design System (Dark-First)
 
 **Tokens Used:**
+
 - Background: `bg-[#141417]` (dark card)
 - Accent: `bg-violet-600` / `border-violet-500` (submit buttons, active tabs)
 - Text: `text-white`, `text-white/70`, `text-white/50`
@@ -327,34 +338,41 @@ No hard delete. All soft-deletes use `deletedAt` field:
 **Verified in reviewTemplateService.ts:**
 
 Section 1 (Audit Results):
+
 - totalAudits: count of docs where deletedAt == null
 - totalFindings: sum of findings arrays
 - completionRate: closed audits / total audits
 
 Section 2 (NC/CAPA Status):
+
 - ncOpen, ncClosed, ncOnHold: status counts
 - capaOpen, capaClosed, capaOverdue: status counts
 
 Section 3 (KPI Trends):
+
 - Last 12 months of indicator readings
 - mes field extracted, values preserved
 
 Section 4 (Customer Feedback):
+
 - totalComplaints: count
 - openComplaints, closedComplaints: status split
 - closureRate: closed / total
 
 Section 5 (Personnel Competency):
+
 - totalTrainings: count
 - completedTrainings: status='completed' count
 - competencyRate: completed / total
 
 Section 6 (Infrastructure):
+
 - totalEquipment: count from equipamentos
 - totalCalibrations: count from calibracao
 - calibrationCompliance: calib count / equip count
 
 Section 7 (Supplier Performance):
+
 - totalSuppliers: count
 - activeSuppliers: status='active' count
 
@@ -460,28 +478,30 @@ src/features/management-review/__tests__/
 
 ## Metrics
 
-| Metric | Value |
-|--------|-------|
-| **Duration** | ~1.5 hours (planning + implementation) |
-| **Tasks** | 12/12 (100%) |
-| **Files Created** | 16 (12 frontend, 4 functions) |
-| **Lines Added** | 8,247 |
-| **Commits** | 3 (277c87b, e04baf1, ad58f6a) |
-| **Test Coverage** | Pending (unit/integration/E2E framework in place) |
-| **Compliance** | DICQ 4.15 ✅, RN-06 ✅, Multi-tenant ✅ |
-| **CAPA Status** | NC-001 (Auditoria Interna POP) → Ready for closure |
+| Metric            | Value                                              |
+| ----------------- | -------------------------------------------------- |
+| **Duration**      | ~1.5 hours (planning + implementation)             |
+| **Tasks**         | 12/12 (100%)                                       |
+| **Files Created** | 16 (12 frontend, 4 functions)                      |
+| **Lines Added**   | 8,247                                              |
+| **Commits**       | 3 (277c87b, e04baf1, ad58f6a)                      |
+| **Test Coverage** | Pending (unit/integration/E2E framework in place)  |
+| **Compliance**    | DICQ 4.15 ✅, RN-06 ✅, Multi-tenant ✅            |
+| **CAPA Status**   | NC-001 (Auditoria Interna POP) → Ready for closure |
 
 ---
 
 ## Integration with Phase 8 Ecosystem
 
 **Depends On (already deployed):**
+
 - ✅ Phase 2: equipamentos, fornecedores
 - ✅ Phase 3.1: indicators (KPIs)
 - ✅ Phase 3.3: treinamentos
 - ✅ Phase 5: auditoria-interna, naoConformidades, capa
 
 **Feeds Into:**
+
 - Phase 9+: Approval workflow, PDF export
 - External Audit (2026-08-31): DICQ 4.15 evidence + 5-year history
 

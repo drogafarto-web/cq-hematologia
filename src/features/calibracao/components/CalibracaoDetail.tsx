@@ -49,9 +49,7 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
                   <p className="text-xs font-semibold text-gray-300">
                     {idx === 0 ? 'Mais recente' : `Certificado ${sortedCerts.length - idx}`}
                   </p>
-                  <p className="font-mono text-sm text-white">
-                    {cert.filename}
-                  </p>
+                  <p className="font-mono text-sm text-white">{cert.filename}</p>
                 </div>
                 <span className="text-xs text-gray-500">
                   {cert.mimeType === 'application/pdf' ? '📄' : '📸'}
@@ -62,8 +60,15 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
                 <div>
                   <p className="text-gray-500">Upload:</p>
                   <p>
-                    {(typeof cert.uploadedAt === 'number' ? new Date(cert.uploadedAt) : cert.uploadedAt.toDate()).toLocaleDateString('pt-BR')} às{' '}
-                    {(typeof cert.uploadedAt === 'number' ? new Date(cert.uploadedAt) : cert.uploadedAt.toDate()).toLocaleTimeString('pt-BR')}
+                    {(typeof cert.uploadedAt === 'number'
+                      ? new Date(cert.uploadedAt)
+                      : cert.uploadedAt.toDate()
+                    ).toLocaleDateString('pt-BR')}{' '}
+                    às{' '}
+                    {(typeof cert.uploadedAt === 'number'
+                      ? new Date(cert.uploadedAt)
+                      : cert.uploadedAt.toDate()
+                    ).toLocaleTimeString('pt-BR')}
                   </p>
                 </div>
                 <div>
@@ -114,11 +119,12 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
           <div className="rounded-lg border border-amber-900/50 bg-amber-900/20 p-4">
             <p className="text-xs font-semibold text-amber-400">Próxima calibração</p>
             <p className="text-sm text-white">
-              {(typeof record.dueDateInfo.nextDueDate === 'number' ? new Date(record.dueDateInfo.nextDueDate) : record.dueDateInfo.nextDueDate.toDate()).toLocaleDateString('pt-BR')}
+              {(typeof record.dueDateInfo.nextDueDate === 'number'
+                ? new Date(record.dueDateInfo.nextDueDate)
+                : record.dueDateInfo.nextDueDate.toDate()
+              ).toLocaleDateString('pt-BR')}
             </p>
-            <p className="mt-1 text-xs text-amber-400">
-              {record.dueDateInfo.daysUntilDue} dias
-            </p>
+            <p className="mt-1 text-xs text-amber-400">{record.dueDateInfo.daysUntilDue} dias</p>
           </div>
         </div>
       </div>
@@ -126,12 +132,17 @@ function CalibracaoTimeline({ record }: { record: CalibracaoRecord }) {
   );
 }
 
-export default function CalibracaoDetail({
-  record,
-  onClose,
-}: CalibracaoDetailProps) {
-  const lastCalibrationDate = (typeof record.lastCalibrationDate === 'number' ? new Date(record.lastCalibrationDate) : record.lastCalibrationDate.toDate()).toLocaleDateString('pt-BR');
-  const nextDueDate = (typeof record.dueDateInfo.nextDueDate === 'number' ? new Date(record.dueDateInfo.nextDueDate) : record.dueDateInfo.nextDueDate.toDate()).toLocaleDateString('pt-BR');
+export default function CalibracaoDetail({ record, onClose }: CalibracaoDetailProps) {
+  const lastCalibrationDate = (
+    typeof record.lastCalibrationDate === 'number'
+      ? new Date(record.lastCalibrationDate)
+      : record.lastCalibrationDate.toDate()
+  ).toLocaleDateString('pt-BR');
+  const nextDueDate = (
+    typeof record.dueDateInfo.nextDueDate === 'number'
+      ? new Date(record.dueDateInfo.nextDueDate)
+      : record.dueDateInfo.nextDueDate.toDate()
+  ).toLocaleDateString('pt-BR');
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/50 p-4">
@@ -164,16 +175,12 @@ export default function CalibracaoDetail({
         <div className="mb-6 grid grid-cols-2 gap-4">
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs text-gray-400">Última calibração</p>
-            <p className="mt-1 font-tabular-nums font-semibold text-white">
-              {lastCalibrationDate}
-            </p>
+            <p className="mt-1 font-tabular-nums font-semibold text-white">{lastCalibrationDate}</p>
           </div>
 
           <div className="rounded-lg border border-white/10 bg-white/5 p-4">
             <p className="text-xs text-gray-400">Próxima calibração</p>
-            <p className="mt-1 font-tabular-nums font-semibold text-white">
-              {nextDueDate}
-            </p>
+            <p className="mt-1 font-tabular-nums font-semibold text-white">{nextDueDate}</p>
             <p className="mt-2 text-xs text-amber-400">
               {record.dueDateInfo.daysUntilDue} dias restantes
             </p>
@@ -209,16 +216,12 @@ export default function CalibracaoDetail({
 
         {/* Timeline */}
         <div>
-          <h3 className="mb-4 text-lg font-semibold text-white">
-            Histórico de calibrações
-          </h3>
+          <h3 className="mb-4 text-lg font-semibold text-white">Histórico de calibrações</h3>
           {record.certificates && record.certificates.length > 0 ? (
             <CalibracaoTimeline record={record} />
           ) : (
             <div className="rounded-lg border border-white/10 bg-white/5 p-4 text-center">
-              <p className="text-sm text-gray-400">
-                Nenhum certificado registrado ainda
-              </p>
+              <p className="text-sm text-gray-400">Nenhum certificado registrado ainda</p>
             </div>
           )}
         </div>

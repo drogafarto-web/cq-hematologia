@@ -1,11 +1,11 @@
 ---
 phase: 2
-title: "v1.4 Planning Deep-Dive — Requirements Lock & Dependency Matrix"
-period: "2026-05-08 → 2026-05-10 (3 days, Week 2)"
-owner: "CTO + Stream Leads (A–D)"
-objective: "Finalize all v1.4 requirements, lock dependency graph, align auditor expectations, prep all streams for unblocked Wave 1 execution"
-status: "PLANNED"
-gate: "Phase 3 (Schema Prep) unblocked after all 6 tasks complete"
+title: 'v1.4 Planning Deep-Dive — Requirements Lock & Dependency Matrix'
+period: '2026-05-08 → 2026-05-10 (3 days, Week 2)'
+owner: 'CTO + Stream Leads (A–D)'
+objective: 'Finalize all v1.4 requirements, lock dependency graph, align auditor expectations, prep all streams for unblocked Wave 1 execution'
+status: 'PLANNED'
+gate: 'Phase 3 (Schema Prep) unblocked after all 6 tasks complete'
 ---
 
 # Phase 2 BRIEF — v1.4 Planning Deep-Dive
@@ -51,6 +51,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Objective:** Reconcile REQUIREMENTS.md (48 REQs) with ROADMAP.md (15 phases). Create canonical matrix: every REQ-ID → phase + dependencies + criticality.
 
 **Inputs:**
+
 - `.planning/milestones/v1.4-REQUIREMENTS.md` (Section 1: REQ-401–416; Section 2: v2 parking lot)
 - `.planning/milestones/v1.4-ROADMAP.md` (Phase 1–13 + Phase 0 implicit)
 - `.planning/milestones/v1.4-RISK-REGISTER.md` (RISK-401 context)
@@ -58,6 +59,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Deliverable:** `.planning/milestones/v1.4-REQ-PHASE-MATRIX.md`
 
 **Structure:**
+
 ```
 ## Section 1: REQ↔Phase Mapping Table
 
@@ -68,6 +70,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 
 **Acceptance criteria:**
+
 - ✅ All 16 REQ-IDs assigned to exactly 1 phase (no duplicates)
 - ✅ No phase assignment contradicts ROADMAP sequencing (e.g., REQ that requires Phase 3 schema not assigned before Phase 3)
 - ✅ Dependencies shown as REQ-IDs or phase prerequisites
@@ -87,6 +90,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Objective:** Formalize Phase 0 (Days 1–7, pre-Phase 1) addressing RISK-403: 4 mandatory RDC items.
 
 **Items (from RISK-403):**
+
 1. Supervisor presencial registry (RDC 978 Art. 122) — form + shift calendar integration
 2. LGPD formal policy + acceptance tracking (RDC 978 Art. 77) — SGD versioned doc
 3. Lab Apoio contracts management (RDC 978 Arts. 36–39) — contract registry + alerts
@@ -95,6 +99,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Deliverable:** `.planning/milestones/v1.4-PHASE-0-PLAN.md`
 
 **Structure:**
+
 ```
 # Phase 0 — Mandatory RDC 978 Blockers (Days 1–7, Pre-Phase 1)
 
@@ -123,6 +128,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 
 **Acceptance criteria:**
+
 - ✅ All 4 items have clear acceptance criteria
 - ✅ Effort estimate per item ≤2 days (total ≤8 days, fits in Week 1)
 - ✅ Phase 0 is explicitly shown as blocking Phase 1 kickoff
@@ -142,6 +148,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Deliverable:** `.planning/milestones/v1.4-DICQ-COVERAGE-MATRIX.md`
 
 **Structure:**
+
 ```
 # DICQ Coverage Matrix (v1.4 Planning)
 
@@ -155,6 +162,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 
 **Acceptance criteria:**
+
 - ✅ All 40+ DICQ blocks listed
 - ✅ Each block: v1.3 status (Missing / Partial / Done) → v1.4 status (Closed / In-Phase / Deferred)
 - ✅ Deferred items explicitly documented with rationale + v1.5 commitment
@@ -176,6 +184,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Deliverable:** `.planning/milestones/v1.4-RDC-COVERAGE-MATRIX.md`
 
 **Structure:**
+
 ```
 # RDC 978 Compliance Matrix (v1.4)
 
@@ -195,6 +204,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 
 **Acceptance criteria:**
+
 - ✅ All mandatory articles (117, 167, 179-191, 204) show 🟢 or 🟡 status (no 🔴 red)
 - ✅ Non-mandatory articles mapped but can be 🔴 deferred
 - ✅ v1.3 baseline % vs. v1.4 phase target shown
@@ -213,11 +223,13 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 
 **Objective:** Align with external auditor on v1.4 timeline, CAPA roadmap (Phase 4), RFI SLA, weekly standing call, and confirm compliance interpretation.
 
-**Deliverable:** 
+**Deliverable:**
+
 - Email confirmation (from auditor) of agreed timeline + SLA + interpretations
 - `v1.4-AUDITOR-ALIGNMENT-PLAN.md` (internal doc summarizing call outcomes)
 
 **Call Agenda (60 min, async or sync):**
+
 1. (5 min) v1.4 timeline: Phase 0–13, May 7 → Sep 30 (22 weeks)
 2. (10 min) Phase 4 CAPA roadmap: 12 CAPAs, expected closure date (early Aug), evidence requirements
 3. (10 min) RFI SLA: 5 business day target per CAPA + weekly standing call (Fridays, 30 min, async option available)
@@ -231,7 +243,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 # v1.4 Auditor Alignment — Outcomes
 
-**Call Date:** 2026-05-09 (Thursday, 15:00 BRT)  
+**Call Date:** 2026-05-09 (Thursday, 15:00 BRT)
 **Attendees:** CTO, QA Lead, Auditor [Name]
 
 ## Agreed Timelines
@@ -260,6 +272,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 ```
 
 **Acceptance criteria:**
+
 - ✅ Auditor verbal confirmation (recorded or emailed) of 3 items: timeline, CAPA roadmap, RFI SLA
 - ✅ Compliance interpretations documented + auditor confirms reading (email reply)
 - ✅ Weekly standing call confirmed for Fridays 2026-05-17 onwards
@@ -276,6 +289,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Objective:** Migrate RISK-401 (REQ↔Phase inconsistency), RISK-403 (4 RDC blockers), and RISK-404 (13 DICQ orphans) from Active → Mitigated status based on Phase 2 artifact outputs.
 
 **Process:**
+
 1. **RISK-401 → Mitigated:** REQ-PHASE-MATRIX.md (Task 2.1) published, CTO signed
 2. **RISK-403 → Mitigated:** PHASE-0-PLAN.md (Task 2.2) published, QA Lead signed
 3. **RISK-404 → Mitigated:** DICQ-COVERAGE-MATRIX.md (Task 2.3) published, all 13 orphans assigned
@@ -284,6 +298,7 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 **Deliverable:** Updated `.planning/milestones/v1.4-RISK-REGISTER.md` with status transitions
 
 **Acceptance criteria:**
+
 - ✅ RISK-401, 403, 404 status changed from Active → Mitigated (with date + evidence link)
 - ✅ All other 🟡 / 🟢 risks reviewed (status unchanged or new risks added)
 - ✅ Risk register versioning updated (e.g., v1.1, dated 2026-05-10)
@@ -297,15 +312,15 @@ v1.3 deployed 25 modules into production (78.5% DICQ baseline, RDC 978 100% for 
 
 ## Phase 2 Timeline
 
-| Date | Day | Task | Owner | Duration | Deliverable |
-|------|-----|------|-------|----------|-------------|
-| 2026-05-08 | Wed | 2.1 REQ↔Phase Matrix | CTO, Stream A | 4h | v1.4-REQ-PHASE-MATRIX.md |
-| 2026-05-08 | Wed | 2.2 Phase 0 Plan (afternoon) | QA Lead, Stream A | 3h | v1.4-PHASE-0-PLAN.md |
-| 2026-05-09 | Thu | 2.3 DICQ Coverage Matrix | QA Lead | 6h | v1.4-DICQ-COVERAGE-MATRIX.md |
-| 2026-05-09 | Thu | 2.4 RDC Gap Analysis | QA Lead, CTO | 4h | v1.4-RDC-COVERAGE-MATRIX.md |
-| 2026-05-09 | Thu | 2.5 Auditor Call (afternoon) | CTO, QA Lead | 1.5h | v1.4-AUDITOR-ALIGNMENT-PLAN.md |
-| 2026-05-10 | Fri | 2.6 Risk Register Update | CTO, QA Lead | 2h | Updated v1.4-RISK-REGISTER.md |
-| 2026-05-10 | Fri | CTO Sign-Off (all 6 artifacts) | CTO | 0.5h | Email approval |
+| Date       | Day | Task                           | Owner             | Duration | Deliverable                    |
+| ---------- | --- | ------------------------------ | ----------------- | -------- | ------------------------------ |
+| 2026-05-08 | Wed | 2.1 REQ↔Phase Matrix           | CTO, Stream A     | 4h       | v1.4-REQ-PHASE-MATRIX.md       |
+| 2026-05-08 | Wed | 2.2 Phase 0 Plan (afternoon)   | QA Lead, Stream A | 3h       | v1.4-PHASE-0-PLAN.md           |
+| 2026-05-09 | Thu | 2.3 DICQ Coverage Matrix       | QA Lead           | 6h       | v1.4-DICQ-COVERAGE-MATRIX.md   |
+| 2026-05-09 | Thu | 2.4 RDC Gap Analysis           | QA Lead, CTO      | 4h       | v1.4-RDC-COVERAGE-MATRIX.md    |
+| 2026-05-09 | Thu | 2.5 Auditor Call (afternoon)   | CTO, QA Lead      | 1.5h     | v1.4-AUDITOR-ALIGNMENT-PLAN.md |
+| 2026-05-10 | Fri | 2.6 Risk Register Update       | CTO, QA Lead      | 2h       | Updated v1.4-RISK-REGISTER.md  |
+| 2026-05-10 | Fri | CTO Sign-Off (all 6 artifacts) | CTO               | 0.5h     | Email approval                 |
 
 **Total effort:** 20.5 hours (3 days, 4 people)
 
@@ -330,12 +345,12 @@ If any gate criterion not met by EOD Friday, Phase 1 postponed to following Mond
 
 ## Risks & Mitigations (Phase 2 Specific)
 
-| Risk | Probability | Mitigation |
-|------|-------------|-----------|
-| REQ↔Phase reconciliation contentious | Low | CTO final call if consensus not reached in 1h of Task 2.1 |
-| Auditor unavailable Thu for pre-call | Medium | Async email confirmation option; call scheduled within 48h |
-| DICQ/RDC interpretation conflict emerges during Task 2.4 | Low | Defer ambiguous items to Phase 0 decision or escalate to auditor pre-call |
-| Phase 0 scope creep (5th RDC item added mid-discussion) | Medium | Phase 0 locked to 4 items + 8-day budget at kickoff |
+| Risk                                                     | Probability | Mitigation                                                                |
+| -------------------------------------------------------- | ----------- | ------------------------------------------------------------------------- |
+| REQ↔Phase reconciliation contentious                     | Low         | CTO final call if consensus not reached in 1h of Task 2.1                 |
+| Auditor unavailable Thu for pre-call                     | Medium      | Async email confirmation option; call scheduled within 48h                |
+| DICQ/RDC interpretation conflict emerges during Task 2.4 | Low         | Defer ambiguous items to Phase 0 decision or escalate to auditor pre-call |
+| Phase 0 scope creep (5th RDC item added mid-discussion)  | Medium      | Phase 0 locked to 4 items + 8-day budget at kickoff                       |
 
 ---
 
@@ -357,6 +372,7 @@ All Phase 2 artifacts stored in `.planning/milestones/`:
 ## Success Outcome
 
 At end of Phase 2 (EOD Friday 2026-05-10):
+
 - All 4 streams (A–D) have **unambiguous scope** for Wave 1 execution
 - **Zero REQ↔Phase contradictions** remain
 - **Phase 0 locked** (4 RDC items, 7 days, Days 1–7 of Week 1)

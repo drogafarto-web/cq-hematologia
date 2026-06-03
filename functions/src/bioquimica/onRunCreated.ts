@@ -61,15 +61,10 @@ export const onRunCreated = onDocumentCreated(
         .doc(`labs/${labId}/bioquimica/root/traceability-events/${runId}`)
         .set(traceabilityEvent);
 
-      logger.info(
-        `[bioquimica] Traceability event recorded for run ${runId} (${runData.status})`
-      );
+      logger.info(`[bioquimica] Traceability event recorded for run ${runId} (${runData.status})`);
     } catch (err) {
-      logger.error(
-        `[bioquimica] Failed to record traceability event for ${runId}:`,
-        err
-      );
+      logger.error(`[bioquimica] Failed to record traceability event for ${runId}:`, err);
       // Non-blocking: don't throw — run is already persisted
     }
-  }
+  },
 );

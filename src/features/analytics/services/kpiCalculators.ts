@@ -133,10 +133,7 @@ export function normalizeHeatmapIntensities(cells: Array<{ count: number }>): nu
  * @param computedAt Timestamp of last aggregation
  * @param thresholdMinutes Staleness threshold (default 30 min)
  */
-export function isAggregateStale(
-  computedAt: Date | null,
-  thresholdMinutes = 30,
-): boolean {
+export function isAggregateStale(computedAt: Date | null, thresholdMinutes = 30): boolean {
   if (!computedAt) return true;
   const ageMs = Date.now() - computedAt.getTime();
   return ageMs > thresholdMinutes * 60 * 1000;

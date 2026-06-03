@@ -1,13 +1,13 @@
 ---
 phase: 06-capa-incident-response
-plan: "02"
+plan: '02'
 subsystem: sgq/capa
 tags:
-  - "dark-first-ui"
-  - "wcag-aa"
-  - "real-time-data"
-  - "firestore-subscriptions"
-  - "zustand-routing"
+  - 'dark-first-ui'
+  - 'wcag-aa'
+  - 'real-time-data'
+  - 'firestore-subscriptions'
+  - 'zustand-routing'
 dependency_graph:
   requires:
     - 06-01-capa-schema (types, service, callables)
@@ -18,13 +18,13 @@ dependency_graph:
     - 06-03-incident-response (uses CAPA detail views)
 tech_stack:
   added:
-    - "React 19 presentation components"
-    - "Zustand view state management"
+    - 'React 19 presentation components'
+    - 'Zustand view state management'
   patterns:
-    - "Real-time Firestore subscriptions (onSnapshot)"
-    - "Dark-first Tailwind design with WCAG AA"
-    - "Composable component architecture"
-    - "Container/presentation split"
+    - 'Real-time Firestore subscriptions (onSnapshot)'
+    - 'Dark-first Tailwind design with WCAG AA'
+    - 'Composable component architecture'
+    - 'Container/presentation split'
 key_files:
   created:
     - src/features/sgq/capa/pages/CAPAHome.tsx (top-level integration)
@@ -32,11 +32,11 @@ key_files:
     - src/features/sgq/capa/components/CAPAListView.tsx
     - src/features/sgq/capa/components/CAPADetailView.tsx
 decisions:
-  - "Use Zustand view state instead of react-router for internal navigation"
-  - "CAPAHome manages list/detail/create views internally"
-  - "Pass callbacks (onBack, onSelect) instead of navigating imperatively"
-  - "Keep components as presentation-heavy; data fetching in hooks"
-  - "Real-time subscriptions via useCAPAList and useCAPADetail hooks"
+  - 'Use Zustand view state instead of react-router for internal navigation'
+  - 'CAPAHome manages list/detail/create views internally'
+  - 'Pass callbacks (onBack, onSelect) instead of navigating imperatively'
+  - 'Keep components as presentation-heavy; data fetching in hooks'
+  - 'Real-time subscriptions via useCAPAList and useCAPADetail hooks'
 metrics:
   duration_minutes: 45
   components_built: 5
@@ -63,6 +63,7 @@ Build dark-first, world-class React components for CAPA lifecycle management. Us
 **File:** `src/features/sgq/capa/components/CAPAListView.tsx`
 
 **Features:**
+
 - Dark-first table (bg-[#141417], text-white/90) with status filter dropdown
 - Sortable columns: Status (open/in-treatment/verified/closed/cancelled), Due date
 - Status badges with color coding and dot indicators
@@ -73,6 +74,7 @@ Build dark-first, world-class React components for CAPA lifecycle management. Us
 - 310 LOC
 
 **WCAG AA Compliance:**
+
 - Semantic `<table>` with `<th scope="col">`
 - Focus rings (ring-2 ring-violet-500) on all interactive elements
 - Keyboard navigation: Tab through rows, Enter to select
@@ -85,6 +87,7 @@ Build dark-first, world-class React components for CAPA lifecycle management. Us
 **File:** `src/features/sgq/capa/components/CAPADetailView.tsx`
 
 **Sections:**
+
 1. Finding Summary Card
 2. Actions Section with ActionCard components
 3. Verification Form
@@ -92,6 +95,7 @@ Build dark-first, world-class React components for CAPA lifecycle management. Us
 5. Back Button (navigates via callback)
 
 **Related Components:**
+
 - **ActionCard.tsx** (216 LOC)
 - **VerificationForm.tsx** (246 LOC)
 - **CAPAForm.tsx** (219 LOC)

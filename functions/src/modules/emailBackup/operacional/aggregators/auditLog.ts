@@ -1,11 +1,6 @@
 import * as admin from 'firebase-admin';
 import { createHash } from 'crypto';
-import type {
-  AuditLogSection,
-  CIQAuditEvent,
-  ChainBreak,
-  OperacionalStatus,
-} from '../types';
+import type { AuditLogSection, CIQAuditEvent, ChainBreak, OperacionalStatus } from '../types';
 
 // ─── Audit Log Aggregator ────────────────────────────────────────────────────
 //
@@ -25,7 +20,9 @@ const MAX_RECENT_TIMELINE = 120;
 const GENESIS_PREFIX = 'hcq-audit-genesis:';
 
 function genesisHash(labId: string): string {
-  return createHash('sha256').update(GENESIS_PREFIX + labId).digest('hex');
+  return createHash('sha256')
+    .update(GENESIS_PREFIX + labId)
+    .digest('hex');
 }
 
 function severityOrder(s: CIQAuditEvent['severity']): number {
@@ -59,10 +56,7 @@ function verifyChain(
   return { valid: breaks.length === 0, breaks };
 }
 
-function coerceEvent(
-  id: string,
-  data: admin.firestore.DocumentData,
-): CIQAuditEvent | null {
+function coerceEvent(id: string, data: admin.firestore.DocumentData): CIQAuditEvent | null {
   const ts = data['timestamp'];
   if (!(ts instanceof admin.firestore.Timestamp)) return null;
   const action = data['action'];
@@ -94,10 +88,7 @@ export async function aggregateAuditLog(
   to: Date,
 ): Promise<AuditLogSection> {
   // 1 probe para saber se a coleção existe / tem dados históricos
-  const anySnap = await db
-    .collection(`labs/${labId}/ciq-audit`)
-    .limit(1)
-    .get();
+  const anySnap = await db.collection(`labs/${labId}/ciq-audit`).limit(1).get();
 
   if (anySnap.empty) {
     return {

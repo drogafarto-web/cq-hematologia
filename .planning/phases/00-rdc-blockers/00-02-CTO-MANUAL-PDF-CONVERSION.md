@@ -1,13 +1,16 @@
 # CTO Manual Step-by-Step: LGPD Policy PDF Conversion
 
 ## Task
+
 Convert 2 markdown policy documents to PDF and upload to Firebase Storage.
 
 **Files to convert:**
+
 - `docs/policies/POL-LGPD-001-v1.0.md` → PDF
 - `docs/policies/IT-LGPD-DPIA-001-v1.0.md` → PDF
 
 **Destination (Firebase Storage):**
+
 - `gs://hmatologia2.appspot.com/labs/labclin-riopomba/sgq/POL-LGPD-001/v1.pdf`
 - `gs://hmatologia2.appspot.com/labs/labclin-riopomba/sgq/IT-LGPD-DPIA-001/v1.pdf`
 
@@ -21,12 +24,15 @@ Convert 2 markdown policy documents to PDF and upload to Firebase Storage.
   - Linux: `apt-get install pandoc` (Ubuntu/Debian)
 
 - **Firebase CLI** authenticated
+
   ```bash
   firebase auth:list
   ```
+
   Should show your account as logged in.
 
 - **gcloud CLI** authenticated (for signed URL generation)
+
   ```bash
   gcloud auth list
   ```
@@ -56,6 +62,7 @@ pandoc docs/policies/IT-LGPD-DPIA-001-v1.0.md \
 ```
 
 **Windows users** (PowerShell):
+
 ```powershell
 # POL-LGPD-001
 pandoc docs/policies/POL-LGPD-001-v1.0.md `
@@ -113,6 +120,7 @@ firebase storage:upload /tmp/IT-LGPD-DPIA-001-v1.0.pdf \
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 # Set project
 firebase use hmatologia2
@@ -139,6 +147,7 @@ firebase storage:upload "$env:TEMP/IT-LGPD-DPIA-001-v1.0.pdf" `
 9. Repeat for `IT-LGPD-DPIA-001/` and `IT-LGPD-DPIA-001-v1.0.pdf`
 
 **Path verification:**
+
 - `labs/labclin-riopomba/sgq/POL-LGPD-001/v1.pdf` ✓
 - `labs/labclin-riopomba/sgq/IT-LGPD-DPIA-001/v1.pdf` ✓
 
@@ -157,12 +166,14 @@ firebase storage:get-signed-url labs/labclin-riopomba/sgq/IT-LGPD-DPIA-001/v1.pd
 ```
 
 **Windows (PowerShell):**
+
 ```powershell
 firebase storage:get-signed-url "labs/labclin-riopomba/sgq/POL-LGPD-001/v1.pdf" --project hmatologia2
 firebase storage:get-signed-url "labs/labclin-riopomba/sgq/IT-LGPD-DPIA-001/v1.pdf" --project hmatologia2
 ```
 
 **Expected output:**
+
 ```
 https://firebasestorage.googleapis.com/v0/b/hmatologia2.appspot.com/o/labs%2Flabclin-riopomba%2Fsgq%2FPOL-LGPD-001%2Fv1.pdf?alt=media&token=<TOKEN>
 ```
@@ -208,14 +219,14 @@ Firebase Storage Path:
 
 ## Troubleshooting
 
-| Problem | Solution |
-|---------|----------|
-| `pandoc: command not found` | Install pandoc from https://pandoc.org/installing.html |
-| `firebase: command not found` | Run `npm install -g firebase-tools` |
-| `Error: User not authenticated` | Run `firebase login` to re-authenticate |
-| PDF upload fails with 403 | Verify you have Editor role on `hmatologia2` project (IAM) |
-| Signed URL expires | URLs are valid 7 days; regenerate with Step 3 if needed |
-| PDF appears blank in browser | Check that markdown file has valid frontmatter and formatting; retry pandoc conversion |
+| Problem                         | Solution                                                                               |
+| ------------------------------- | -------------------------------------------------------------------------------------- |
+| `pandoc: command not found`     | Install pandoc from https://pandoc.org/installing.html                                 |
+| `firebase: command not found`   | Run `npm install -g firebase-tools`                                                    |
+| `Error: User not authenticated` | Run `firebase login` to re-authenticate                                                |
+| PDF upload fails with 403       | Verify you have Editor role on `hmatologia2` project (IAM)                             |
+| Signed URL expires              | URLs are valid 7 days; regenerate with Step 3 if needed                                |
+| PDF appears blank in browser    | Check that markdown file has valid frontmatter and formatting; retry pandoc conversion |
 
 ---
 

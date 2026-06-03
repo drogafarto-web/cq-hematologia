@@ -11,13 +11,13 @@ Primeiro módulo de laudo do HC Quality. Workflow híbrido de liberação (auto-
 
 ## Decisões locked
 
-| Aspecto | Decisão | Rationale |
-|---------|---------|-----------|
-| Assinatura RT | LogicalSignature SHA-256 (ADR 0001) | Padrão HC Quality; audit chain imutável; aceita RDC 978 |
-| State machine | Híbrida por classificação exame | Auto-libera rotina; RT revisa críticos |
-| Comunicação críticos | Email (MVP) + UI registro verbal | SMS defer v1.4 (Zenvia/Twilio) |
-| Histórico versões | Retificação cria v2/v3 imutáveis | RDC 978 Art. 167 + DICQ 5.9.3 |
-| PDF | 14 campos RDC + QR validação | Defer geração para Plan 10-04 |
+| Aspecto              | Decisão                             | Rationale                                               |
+| -------------------- | ----------------------------------- | ------------------------------------------------------- |
+| Assinatura RT        | LogicalSignature SHA-256 (ADR 0001) | Padrão HC Quality; audit chain imutável; aceita RDC 978 |
+| State machine        | Híbrida por classificação exame     | Auto-libera rotina; RT revisa críticos                  |
+| Comunicação críticos | Email (MVP) + UI registro verbal    | SMS defer v1.4 (Zenvia/Twilio)                          |
+| Histórico versões    | Retificação cria v2/v3 imutáveis    | RDC 978 Art. 167 + DICQ 5.9.3                           |
+| PDF                  | 14 campos RDC + QR validação        | Defer geração para Plan 10-04                           |
 
 ## Schema Firestore
 

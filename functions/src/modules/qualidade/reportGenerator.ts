@@ -34,10 +34,7 @@ interface GenerateAuditReportRequest {
 /**
  * Validate auth claims and role
  */
-async function validateAuth(
-  labId: string,
-  uid: string | undefined,
-): Promise<void> {
+async function validateAuth(labId: string, uid: string | undefined): Promise<void> {
   if (!uid) {
     throw new HttpsError('unauthenticated', 'User not authenticated');
   }
@@ -81,9 +78,7 @@ async function aggregateMetrics(
   if (filter.period === 'custom' && filter.startDate && filter.endDate) {
     const startMs = new Date(filter.startDate).getTime();
     const endMs = new Date(filter.endDate).getTime();
-    query = query
-      .where('createdAt', '>=', startMs)
-      .where('createdAt', '<=', endMs);
+    query = query.where('createdAt', '>=', startMs).where('createdAt', '<=', endMs);
   } else {
     // Apply standard period
     const now = Date.now();
@@ -123,8 +118,7 @@ async function aggregateMetrics(
     }
 
     const moduleName =
-      alert.anomalyScore.aiInsight ||
-      `module-${alert.anomalyScore.entryId.substring(0, 4)}`;
+      alert.anomalyScore.aiInsight || `module-${alert.anomalyScore.entryId.substring(0, 4)}`;
     moduleMap.set(moduleName, (moduleMap.get(moduleName) || 0) + 1);
   });
 
@@ -134,9 +128,7 @@ async function aggregateMetrics(
     .map((entry) => entry[0]);
 
   const periodString =
-    filter.period === 'custom'
-      ? `${filter.startDate}-${filter.endDate}`
-      : filter.period;
+    filter.period === 'custom' ? `${filter.startDate}-${filter.endDate}` : filter.period;
 
   return {
     entryCount: alerts.length,
@@ -160,10 +152,7 @@ async function aggregateMetrics(
  * 4. Create report doc
  * 5. Return report ID + metadata
  */
-export const generateAuditReport = onCall<
-  GenerateAuditReportRequest,
-  Promise<AuditReport>
->(
+export const generateAuditReport = onCall<GenerateAuditReportRequest, Promise<AuditReport>>(
   {
     region: 'southamerica-east1',
     memory: '512MiB',

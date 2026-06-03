@@ -9,10 +9,7 @@ import {
   updateColaborador,
   type SubscribeColaboradoresOptions,
 } from '../services/ecFirebaseService';
-import type {
-  Colaborador,
-  ColaboradorInput,
-} from '../types/EducacaoContinuada';
+import type { Colaborador, ColaboradorInput } from '../types/EducacaoContinuada';
 
 export interface UseColaboradoresResult {
   colaboradores: Colaborador[];

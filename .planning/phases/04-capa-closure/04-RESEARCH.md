@@ -1,12 +1,12 @@
 ---
-phase: "4"
-name: "CAPA Closure & Process Execution"
-codename: "v1.4 Phase 4"
+phase: '4'
+name: 'CAPA Closure & Process Execution'
+codename: 'v1.4 Phase 4'
 duration_weeks: 3.5
-status: "planning-ready"
+status: 'planning-ready'
 created: 2026-05-07
-milestone: "v1.4"
-wave: "2"
+milestone: 'v1.4'
+wave: '2'
 ---
 
 # Phase 4: CAPA Closure & Process Execution
@@ -23,6 +23,7 @@ wave: "2"
 ## Executive Summary
 
 ### Current State (v1.3 End)
+
 - **Audit dry-run complete** (Phase 7): 115-item DICQ checklist executed
 - **12 critical findings documented** with initial CAPA placeholders
 - **DICQ baseline:** 78–82% (71.3% from formal audit)
@@ -30,6 +31,7 @@ wave: "2"
 - **Auditor pre-alignment:** Scheduled, awaiting Phase 4 start
 
 ### Deliverables (Phase 4)
+
 1. **CAPA Closure Report** — all 12 findings with root-cause analysis, corrective actions, evidence, and auditor sign-off
 2. **3 Micro-Module Completions** — calibracao, personnel/designacoes, management-review (foundations → production-ready)
 3. **CAPA Tracking Dashboard** — state machine (open → in-progress → verification → closed) with UI
@@ -37,6 +39,7 @@ wave: "2"
 5. **Compliance Artifacts** — DICQ block A/C updated baseline (est. 78–82% → 84–86%)
 
 ### Success Criteria
+
 - ✅ All 12 CAPAs transitioned to "closed" status with auditor confirmation email
 - ✅ DICQ blocks A, C, D coverage: +6–8 points (measurable via audit checklist)
 - ✅ RDC 978 Arts. 117, 181 coverage → 100%
@@ -49,24 +52,25 @@ wave: "2"
 ## CAPA Inventory & Mapping (12 Findings)
 
 ### Overview
+
 Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies identified. Each maps to DICQ block(s) + RDC article(s) + micro-module or process closure.
 
 ### CAPA Matrix
 
-| No. | Finding Title | Severity | Type | DICQ Block(s) | RDC Article(s) | Micro-Module | Effort (days) | Dependencies | Success Criteria |
-|-----|---------------|----------|------|---------------|----------------|--------------|----|---|---|
-| **NC-001** | Management Review (Análise Crítica pela Direção) missing formal structure | **Critical** | Process | A (4.15) | 86 (PGQ component 4) | `management-review` | 4 | Personnel designations (NC-003, NC-004) | Formal 15-entry meeting template created + 1 mock meeting executed |
-| **NC-002** | Equipment calibration records incomplete; no metrological traceability | **Critical** | Build | H (5.3.1.4) | 86 (componente 1) | `calibracao` | 5 | Equipment registry (v1.3 complete) | All 15 lab instruments with current/future calibration dates + alert system working |
-| **NC-003** | Personnel cargos (roles) not formally documented per DICQ 5.1.3 | **Critical** | Build | A, C (4.1.2.5, 5.1.3) | 122–127 | `personnel-cargos` | 4 | DICQ 5.1 baseline | Org chart with 8+ role definitions (analyst, supervisor, RT, QA mgr, etc.) + authority matrix |
-| **NC-004** | Designação formal de responsáveis (RT, GQ, Diretor) missing | **Critical** | Build | A, C (4.1.2.7, 5.1) | 122–127 | `personnel-designacoes` | 3 | Role definitions (NC-003) | Formal designations for RT, QA Manager, Director signed by Lab Director + audit trail |
-| **NC-005** | NOTIVISA compliance — Portaria 204 Art. 6º not implemented | **Major** | Deferred | G (5.7.3) | 167, 191 | Deferred to Phase 8 | — | Phase 6 (Críticos module) | Draft in Phase 8 |
-| **NC-006** | SGD (Sistema Gestão Documental) — List Master + distribution not versioned | **Major** | Deferred | B (4.3) | 117 | Deferred to Phase 9 (SGQ) | — | SGQ module (partial v1.3) | Full in Phase 9 |
-| **NC-007** | Pre-analytic procedure (sample collection) not documented | **Major** | Deferred | E (5.4.4, 5.4.5) | 128–131 | Deferred to Phase 9 (Coleta+Transporte) | — | controle-temperatura (v1.3 ✓) | Full in Phase 9 |
-| **NC-008** | Method validation records (linearity, accuracy, precision) incomplete | **Major** | Deferred | F (5.5.1.3, 5.5.1.4) | 86 (componente 2) | Deferred to Phase 10 | — | Analyte registry | Full in Phase 10 |
-| **NC-009** | CEQ (External QA) annual evaluation report missing for 2025 | **Major** | Build | F (5.6.3.4) | 176 (V) | `ceq-annual-report` | 3 | CEQ module (v1.3 ✓) | 2025 CEQ report generated + RT signed |
-| **NC-010** | PGRSS (Waste Management) — no collection + disposal tracking | **Major** | Deferred | E (5.7.4) | RDC 222/2018 | Deferred to Phase 10 | — | Operations module baseline | Full in Phase 10 |
-| **NC-011** | Biossegurança — areas classified (NB1–NB4) but no ISO 14644 inspection records | **Major** | Deferred | I (5.2.6) | RDC 222/2018 | Deferred to Phase 10 | — | Lab infrastructure baseline | Full in Phase 10 |
-| **NC-012** | Risk management plan — matrix present but no controls + revalidation scheduled | **Major** | Build | A, D (4.14.6) | 86 (componente 2) | `risk-management` skeleton | 3 | Risk governance framework | FMEA-lite matrix (15+ risks) × P×S×D with controls documented |
+| No.        | Finding Title                                                                  | Severity     | Type     | DICQ Block(s)         | RDC Article(s)       | Micro-Module                            | Effort (days) | Dependencies                            | Success Criteria                                                                              |
+| ---------- | ------------------------------------------------------------------------------ | ------------ | -------- | --------------------- | -------------------- | --------------------------------------- | ------------- | --------------------------------------- | --------------------------------------------------------------------------------------------- |
+| **NC-001** | Management Review (Análise Crítica pela Direção) missing formal structure      | **Critical** | Process  | A (4.15)              | 86 (PGQ component 4) | `management-review`                     | 4             | Personnel designations (NC-003, NC-004) | Formal 15-entry meeting template created + 1 mock meeting executed                            |
+| **NC-002** | Equipment calibration records incomplete; no metrological traceability         | **Critical** | Build    | H (5.3.1.4)           | 86 (componente 1)    | `calibracao`                            | 5             | Equipment registry (v1.3 complete)      | All 15 lab instruments with current/future calibration dates + alert system working           |
+| **NC-003** | Personnel cargos (roles) not formally documented per DICQ 5.1.3                | **Critical** | Build    | A, C (4.1.2.5, 5.1.3) | 122–127              | `personnel-cargos`                      | 4             | DICQ 5.1 baseline                       | Org chart with 8+ role definitions (analyst, supervisor, RT, QA mgr, etc.) + authority matrix |
+| **NC-004** | Designação formal de responsáveis (RT, GQ, Diretor) missing                    | **Critical** | Build    | A, C (4.1.2.7, 5.1)   | 122–127              | `personnel-designacoes`                 | 3             | Role definitions (NC-003)               | Formal designations for RT, QA Manager, Director signed by Lab Director + audit trail         |
+| **NC-005** | NOTIVISA compliance — Portaria 204 Art. 6º not implemented                     | **Major**    | Deferred | G (5.7.3)             | 167, 191             | Deferred to Phase 8                     | —             | Phase 6 (Críticos module)               | Draft in Phase 8                                                                              |
+| **NC-006** | SGD (Sistema Gestão Documental) — List Master + distribution not versioned     | **Major**    | Deferred | B (4.3)               | 117                  | Deferred to Phase 9 (SGQ)               | —             | SGQ module (partial v1.3)               | Full in Phase 9                                                                               |
+| **NC-007** | Pre-analytic procedure (sample collection) not documented                      | **Major**    | Deferred | E (5.4.4, 5.4.5)      | 128–131              | Deferred to Phase 9 (Coleta+Transporte) | —             | controle-temperatura (v1.3 ✓)           | Full in Phase 9                                                                               |
+| **NC-008** | Method validation records (linearity, accuracy, precision) incomplete          | **Major**    | Deferred | F (5.5.1.3, 5.5.1.4)  | 86 (componente 2)    | Deferred to Phase 10                    | —             | Analyte registry                        | Full in Phase 10                                                                              |
+| **NC-009** | CEQ (External QA) annual evaluation report missing for 2025                    | **Major**    | Build    | F (5.6.3.4)           | 176 (V)              | `ceq-annual-report`                     | 3             | CEQ module (v1.3 ✓)                     | 2025 CEQ report generated + RT signed                                                         |
+| **NC-010** | PGRSS (Waste Management) — no collection + disposal tracking                   | **Major**    | Deferred | E (5.7.4)             | RDC 222/2018         | Deferred to Phase 10                    | —             | Operations module baseline              | Full in Phase 10                                                                              |
+| **NC-011** | Biossegurança — areas classified (NB1–NB4) but no ISO 14644 inspection records | **Major**    | Deferred | I (5.2.6)             | RDC 222/2018         | Deferred to Phase 10                    | —             | Lab infrastructure baseline             | Full in Phase 10                                                                              |
+| **NC-012** | Risk management plan — matrix present but no controls + revalidation scheduled | **Major**    | Build    | A, D (4.14.6)         | 86 (componente 2)    | `risk-management` skeleton              | 3             | Risk governance framework               | FMEA-lite matrix (15+ risks) × P×S×D with controls documented                                 |
 
 ---
 
@@ -77,6 +81,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Goal:** Establish CAPA tracking infrastructure, kick off micro-module implementations, align with auditor on evidence requirements.
 
 #### Task 1.1: CAPA Tracking Dashboard Schema + Service (1.5 days)
+
 - **What:** Firestore collection `/labs/{labId}/capa-tracking/` with state machine + audit trail
 - **Deliverables:**
   - Type `CapaTracking` with fields: capaId, ncId, title, severity, state, timeline, evidence[], signatures[]
@@ -87,6 +92,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Acceptance:** CRUD operational, rules test passing, 0 type errors
 
 #### Task 1.2: Auditor RFI Workflow (async form + email gate) (1 day)
+
 - **What:** In-app form for auditor Q&A without scheduling calls; email notifications
 - **Deliverables:**
   - Form component: `AuditorRFIForm` (question, evidence needed, deadline)
@@ -97,6 +103,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Acceptance:** Form submits, email sent, response logged in Firestore
 
 #### Task 1.3: Phase 4 Micro-Modules Kickoff (1.5 days)
+
 - **What:** Scaffold + planning for NC-001, NC-002, NC-003, NC-004, NC-009, NC-012 modules
 - **Modules:**
   1. `calibracao` (NC-002) — equipment calibration + due dates + certificate storage
@@ -113,6 +120,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Acceptance:** All 6 modules have scaffolded CLAUDE.md + file structure
 
 #### Task 1.4: Auditor Pre-Alignment Call (0.5 day)
+
 - **What:** 1h call with auditor + RT to confirm Phase 4 evidence requirements
 - **Agenda:**
   1. 12 CAPA inventory review + timeline confirmation
@@ -138,6 +146,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Document equipment calibration records with metrological traceability (DICQ 5.3.1.4 + RDC Art. 86).
 
 **Scope:**
+
 - Equipment registry integration: read from `equipamentos` collection
 - Per-equipment fields:
   - `calibrationMethod` (in-house / external provider)
@@ -158,6 +167,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: state transitions, alert triggers, 0 false positives on status
 
 **Deliverables:**
+
 - `src/features/calibracao/` module (types, service, hooks, UI, callables)
 - 15 equipment records (Riopomba) with calibration dates pre-populated (historical)
 - Alert system operational (email + in-app)
@@ -165,6 +175,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - DICQ 5.3.1.4 evidence: screenshot of audit report
 
 **Evidence for NC-002:**
+
 - Screenshot of calibracao dashboard with all 15 equipment + next-due dates
 - PDF export of calibration summary
 - Demo: add new certificate + alert trigger
@@ -174,6 +185,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Formally document roles, authorities, and substitutions (DICQ 5.1.3 + RDC Arts. 122–127).
 
 **Scope:**
+
 - Roles (8+): Analyst, CIQ Supervisor, RT (Responsável Técnico), QA Manager, Director, Phlebotomist, Trainee, Support
 - Per-role fields:
   - `nome` (title)
@@ -194,6 +206,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: role creation, substitution logic, authority matrix consistency
 
 **Deliverables:**
+
 - `src/features/personnel/cargos/` module
 - 8 role definitions + org chart diagram
 - Authority matrix (RT, QA mgr, Director distinguished)
@@ -201,6 +214,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - E2E: create role → assign person → generate certificate
 
 **Evidence for NC-003:**
+
 - Org chart screenshot
 - Role authority matrix
 - PDF certificates (signed by Director)
@@ -210,6 +224,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Formal written designations for RT, QA Manager, Director (DICQ 4.1.2.7 + RDC Arts. 122–127).
 
 **Scope:**
+
 - Designações (3 mandatory):
   - `responsavel-tecnico` — Responsible technical manager (assinador de laudos)
   - `gerente-qualidade` — Quality manager (owner of 15 DICQ entry aggregation)
@@ -232,12 +247,14 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: signature validation, vigencia expiry, backup RT succession
 
 **Deliverables:**
+
 - `src/features/personnel/designacoes/` module
 - 3 designações (RT, QA mgr, Director) with historical trail
 - Printable certificates (signed by Director)
 - E2E: create designação → generate certificate → audit trail shows change
 
 **Evidence for NC-004:**
+
 - Designação certificates (PDF, signed)
 - Audit log of designations + changes
 
@@ -246,6 +263,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Annual management review meeting (DICQ 4.15) with 15 mandatory entry aggregation.
 
 **Scope:**
+
 - Annual meeting structure:
   - `dataReuniaoAnual` (ISO date)
   - `15 mandatory entries` (auto-aggregated from other modules):
@@ -277,6 +295,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: aggregation logic (all 15 entries), PDF rendering, signature immutability
 
 **Deliverables:**
+
 - `src/features/management-review/` module
 - Data aggregator helper (15-entry query builder)
 - PDF template (professional, DICQ-compliant)
@@ -284,6 +303,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - E2E: create meeting → aggregate data → sign → export PDF
 
 **Evidence for NC-001:**
+
 - Mock 2025-05 annual review PDF (all 15 entries filled)
 - Minutes + signature page
 - Audit trail of creation + signings
@@ -293,6 +313,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Annual CEQ evaluation report (DICQ 5.6.3.4 + RDC Art. 176).
 
 **Scope:**
+
 - CEQ data (from v1.3 ceq module):
   - Read all CEQ results for calendar year
   - Group by equipment × analyte
@@ -313,12 +334,14 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: z-score calculation, NC auto-creation for z>2, PDF formatting
 
 **Deliverables:**
+
 - `src/features/ceq/annual-report/` module
 - 2025 CEQ annual report (mock data: 20+ analytes, 2–3 unsatisfactory z-scores)
 - PDF export
 - E2E: generate report → show unsatisfactory findings → approve → export
 
 **Evidence for NC-009:**
+
 - 2025 CEQ annual report PDF
 - Evidence of unsatisfactory results + NC creation
 
@@ -327,6 +350,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Purpose:** Risk management plan with FMEA-lite matrix (DICQ 4.14.6 + RDC Art. 86).
 
 **Scope:**
+
 - Risk matrix:
   - **15+ risks** identified (pre-analytic, analytic, post-analytic, equipment, personnel, environment — per DICQ categories)
   - Per risk: hazard description, likelihood (1–5), severity (1–5), detectability (1–5), NPR = P×S×D
@@ -345,6 +369,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - Tests: NPR calculation, NPR > 50 (high risk) logic, revalidation triggers
 
 **Deliverables:**
+
 - `src/features/risk-management/` module
 - 15 risk definitions (lab-specific: e.g., "Hemolysis during collection", "Power outage during CIQ", "RT absent during critical result")
 - Heatmap visualization
@@ -352,6 +377,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - E2E: create risk → assign controls → trigger revalidation
 
 **Evidence for NC-012:**
+
 - Risk matrix heatmap (screenshot)
 - PDF report with 15 risks + controls
 - Demo: create new risk + control update
@@ -363,6 +389,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 **Goal:** Close all 12 CAPAs with documented evidence + auditor sign-off; deliver final compliance report.
 
 #### Task 3.1: Build NC-005–NC-012 Evidence (for Deferred CAPAs) (3 days)
+
 - **What:** Create documentation/plans for 8 deferred CAPAs; evidence that closure plan exists + timeline committed
 - **CAPAs:**
   - NC-005 (NOTIVISA) — Phase 8 plan document + mock NOTIVISA form
@@ -378,6 +405,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Evidence:** PDF folder with 8 phase plans + auditor confirmation email
 
 #### Task 3.2: CAPA Evidence Compilation & Chain-of-Custody (4 days)
+
 - **What:** Collect all evidence for 12 CAPAs, organize into audit-ready structure, verify chain integrity
 - **For each CAPA:**
   1. Root cause analysis (1-page narrative)
@@ -410,6 +438,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Tests:** hash verification (no tampering), all evidence files accessible (no broken links)
 
 #### Task 3.3: CAPA Closure Auditor Sign-Off Ceremony (1 day)
+
 - **What:** Async + optional sync with auditor to review evidence + formally close CAPAs
 - **Process:**
   1. Send auditor evidence package (PDF + supporting files)
@@ -425,6 +454,7 @@ Based on Phase 7 audit dry-run (2026-04-30), 12 critical/major non-conformancies
 - **Success:** <0 open audit questions; auditor email timestamp in Firestore
 
 #### Task 3.4: Final Compliance Report & DICQ Update (1 day)
+
 - **What:** Measure DICQ conformance post-Phase-4; document blocks A, C, D improvement
 - **Deliverables:**
   - DICQ checklist (115 items) re-scored:
@@ -494,15 +524,18 @@ NC-012 (Risk Management)
 ## Dependencies & Sequencing
 
 ### Hard Blockers (Critical Path)
+
 1. **NC-003 → NC-004 → NC-001**: Personnel roles → designations → management review
 2. **Phase 4 complete → Phase 5–7 unblocked** (Wave 2 runs parallel)
 3. **NC-009 complete → Management review input ready** (June 1 target)
 
 ### Soft Dependencies (Preferred, not blocking)
+
 - NC-002 (calibracao) prefers `equipamentos` ready (v1.3 ✓)
 - NC-012 (risk) prefers risk framework conceptualized (exists in Obsidian)
 
 ### External Dependencies
+
 - **Auditor availability** (RFI response SLA: target 24h)
 - **Riopomba document access** (Drive folder for CAPA-006 evidence prep)
 - **Personnel data** (RT + QA Mgr designations pre-agreed with lab)
@@ -513,26 +546,26 @@ NC-012 (Risk Management)
 
 ### By Micro-Module
 
-| Module | Wave | Duration | Effort Points | Complexity | Owner |
-|--------|------|----------|---------------|-----------|-------|
-| CAPA Tracking (1.1) | W1 | 1.5d | 5 | Low | Eng |
-| Auditor RFI (1.2) | W1 | 1d | 4 | Low | Eng |
-| Scaffolding (1.3) | W1 | 1.5d | 3 | Low | Eng |
-| Auditor Call (1.4) | W1 | 0.5d | 1 | Low | CTO |
-| **Wave 1 Total** | — | 4d | 13 | — | — |
-| `calibracao` (2.1) | W2 | 4–5d | 14 | Medium | Eng |
-| `personnel-cargos` (2.2) | W2 | 3–4d | 12 | Medium | Eng |
-| `personnel-designacoes` (2.3) | W2 | 2–3d | 8 | Low | Eng |
-| `management-review` (2.4) | W2 | 3–4d | 11 | Medium | Eng |
-| `ceq-annual-report` (2.5) | W2 | 2–3d | 8 | Low | Eng |
-| `risk-management` (2.6) | W2 | 2–3d | 8 | Low | Eng |
-| **Wave 2 Total** | — | 16–22d | 61 | — | — |
-| Deferred CAPA evidence (3.1) | W3 | 3d | 9 | Low | QA Mgr |
-| Evidence compilation (3.2) | W3 | 4d | 12 | Medium | QA Mgr |
-| Auditor sign-off (3.3) | W3 | 1d | 2 | Low | CTO |
-| Compliance report (3.4) | W3 | 1d | 3 | Low | CTO |
-| **Wave 3 Total** | — | 9d | 26 | — | — |
-| **Phase 4 Grand Total** | — | 29–27d | **100 pts** | — | — |
+| Module                        | Wave | Duration | Effort Points | Complexity | Owner  |
+| ----------------------------- | ---- | -------- | ------------- | ---------- | ------ |
+| CAPA Tracking (1.1)           | W1   | 1.5d     | 5             | Low        | Eng    |
+| Auditor RFI (1.2)             | W1   | 1d       | 4             | Low        | Eng    |
+| Scaffolding (1.3)             | W1   | 1.5d     | 3             | Low        | Eng    |
+| Auditor Call (1.4)            | W1   | 0.5d     | 1             | Low        | CTO    |
+| **Wave 1 Total**              | —    | 4d       | 13            | —          | —      |
+| `calibracao` (2.1)            | W2   | 4–5d     | 14            | Medium     | Eng    |
+| `personnel-cargos` (2.2)      | W2   | 3–4d     | 12            | Medium     | Eng    |
+| `personnel-designacoes` (2.3) | W2   | 2–3d     | 8             | Low        | Eng    |
+| `management-review` (2.4)     | W2   | 3–4d     | 11            | Medium     | Eng    |
+| `ceq-annual-report` (2.5)     | W2   | 2–3d     | 8             | Low        | Eng    |
+| `risk-management` (2.6)       | W2   | 2–3d     | 8             | Low        | Eng    |
+| **Wave 2 Total**              | —    | 16–22d   | 61            | —          | —      |
+| Deferred CAPA evidence (3.1)  | W3   | 3d       | 9             | Low        | QA Mgr |
+| Evidence compilation (3.2)    | W3   | 4d       | 12            | Medium     | QA Mgr |
+| Auditor sign-off (3.3)        | W3   | 1d       | 2             | Low        | CTO    |
+| Compliance report (3.4)       | W3   | 1d       | 3             | Low        | CTO    |
+| **Wave 3 Total**              | —    | 9d       | 26            | —          | —      |
+| **Phase 4 Grand Total**       | —    | 29–27d   | **100 pts**   | —          | —      |
 
 **Timeline:** 4 calendar weeks (May 20 – June 15, assuming 1 week of auditor delay buffer)
 
@@ -543,12 +576,14 @@ NC-012 (Risk Management)
 ### Phase 4 Completion (All must be ✅)
 
 **Micro-Module Quality:**
+
 - [ ] All 6 modules (calibracao, cargos, designacoes, management-review, ceq, risk) compile without TS errors
 - [ ] Firestore rules deployed + tested in emulator (0 rule violations)
 - [ ] E2E tests pass for all 6 modules (1+ test per module)
 - [ ] Performance: LCP <2.5s, INP <200ms on all UI screens (light throttle)
 
 **CAPA Closure:**
+
 - [ ] All 12 CAPAs transitioned to state = "closed" in Firestore
 - [ ] Evidence integrity: all 12 evidence packages hash-verified, 0 tampering detected
 - [ ] Auditor sign-off email received + logged (immutable timestamp)
@@ -556,12 +591,14 @@ NC-012 (Risk Management)
 - [ ] <3 audit RFI cycles needed (evidence comprehensive on first submission)
 
 **Compliance Impact:**
+
 - [ ] DICQ blocks A, C, D rescored: +6 points minimum
 - [ ] RDC Arts. 117, 181 coverage: 100% (verified by CTO spot-check, 10 items min)
 - [ ] <3 findings in re-audit spot-check (20 random DICQ items)
 - [ ] Zero P0 security findings in rules + callables (audited via `firestore-security-rules-auditor` skill)
 
 **Documentation:**
+
 - [ ] CAPA-CLOSURE-REPORT.md published (1-page summary + evidence index)
 - [ ] CAPA-CLOSURE-SIGN-OFF.pdf signed by auditor
 - [ ] Phase 4 completion summary (effort, timeline, lessons learned)
@@ -570,36 +607,37 @@ NC-012 (Risk Management)
 
 ## Risk Register & Mitigation
 
-| Risk | Severity | Probability | Impact | Mitigation |
-|------|----------|-------------|--------|-----------|
-| **Auditor RFI delays** (>7d response) | 🔴 P0 | Medium (40%) | Blocks Wave 3 by 1+ week | Async email gate (1.2) + weekly standing call + CTO escalation if >7d |
-| **Micro-module scope creep** (e.g., org chart wants full HRMS) | 🟠 P1 | Medium (35%) | Effort +20–30 pts | Lock scope in Wave 1 kickoff (1.3); extension pattern for v1.5 features |
-| **Personnel data incomplete** (RT/QA Mgr not designated in time) | 🟠 P1 | Low (20%) | Blocks NC-003/004 | Pre-align with lab in Week 1 call (1.4); use mock designations if needed |
-| **Evidence chain integrity** (broken links, missing docs) | 🔴 P0 | Low (15%) | Audit rejection | Task 3.2 hash verification + immutable audit trail (Firestore soft-delete) |
-| **Certificate upload failure** (large PDFs, network) | 🟡 P2 | Low (15%) | Blocks calibracao | Chunked upload via Cloud Storage + resume logic; max 10MB per cert |
-| **DICQ re-score underestimation** (only +2 pts, not +6) | 🟡 P2 | Medium (30%) | Phase 4 perceived as low-value | Conservative re-score early (Week 3) + adjust evidence strategy |
+| Risk                                                             | Severity | Probability  | Impact                         | Mitigation                                                                 |
+| ---------------------------------------------------------------- | -------- | ------------ | ------------------------------ | -------------------------------------------------------------------------- |
+| **Auditor RFI delays** (>7d response)                            | 🔴 P0    | Medium (40%) | Blocks Wave 3 by 1+ week       | Async email gate (1.2) + weekly standing call + CTO escalation if >7d      |
+| **Micro-module scope creep** (e.g., org chart wants full HRMS)   | 🟠 P1    | Medium (35%) | Effort +20–30 pts              | Lock scope in Wave 1 kickoff (1.3); extension pattern for v1.5 features    |
+| **Personnel data incomplete** (RT/QA Mgr not designated in time) | 🟠 P1    | Low (20%)    | Blocks NC-003/004              | Pre-align with lab in Week 1 call (1.4); use mock designations if needed   |
+| **Evidence chain integrity** (broken links, missing docs)        | 🔴 P0    | Low (15%)    | Audit rejection                | Task 3.2 hash verification + immutable audit trail (Firestore soft-delete) |
+| **Certificate upload failure** (large PDFs, network)             | 🟡 P2    | Low (15%)    | Blocks calibracao              | Chunked upload via Cloud Storage + resume logic; max 10MB per cert         |
+| **DICQ re-score underestimation** (only +2 pts, not +6)          | 🟡 P2    | Medium (30%) | Phase 4 perceived as low-value | Conservative re-score early (Week 3) + adjust evidence strategy            |
 
 ---
 
 ## Success Metrics (Quantitative)
 
-| Metric | Target | Measurement |
-|--------|--------|-------------|
-| CAPA closure rate | 100% (12/12) | Firestore state = "closed" count |
-| Auditor sign-off | 1 email confirmation | Timestamp logged in capa-tracking |
-| Evidence completeness | ≥95% (all 12 with root cause) | Audit spot-check (10 random CAPAs) |
-| RFI cycles needed | <3 | Email thread count to auditor |
-| DICQ improvement | +4–6 pts (84–86% target) | Block A/C/D re-score |
-| Time-to-auditor-response | <24h (SLA) | Email timestamp delta |
-| Module test coverage | ≥85% | Jest line coverage per module |
-| Performance regression | 0 | Lighthouse CI <2.5s LCP, <0.1 CLS |
-| Security findings | 0 P0, <2 P1 | firestore-security-rules-auditor skill |
+| Metric                   | Target                        | Measurement                            |
+| ------------------------ | ----------------------------- | -------------------------------------- |
+| CAPA closure rate        | 100% (12/12)                  | Firestore state = "closed" count       |
+| Auditor sign-off         | 1 email confirmation          | Timestamp logged in capa-tracking      |
+| Evidence completeness    | ≥95% (all 12 with root cause) | Audit spot-check (10 random CAPAs)     |
+| RFI cycles needed        | <3                            | Email thread count to auditor          |
+| DICQ improvement         | +4–6 pts (84–86% target)      | Block A/C/D re-score                   |
+| Time-to-auditor-response | <24h (SLA)                    | Email timestamp delta                  |
+| Module test coverage     | ≥85%                          | Jest line coverage per module          |
+| Performance regression   | 0                             | Lighthouse CI <2.5s LCP, <0.1 CLS      |
+| Security findings        | 0 P0, <2 P1                   | firestore-security-rules-auditor skill |
 
 ---
 
 ## Deliverables Checklist
 
 ### Code Artifacts
+
 - [ ] `src/features/calibracao/` (types, service, hooks, UI, callables) — ready for code review
 - [ ] `src/features/personnel/cargos/` — ready for code review
 - [ ] `src/features/personnel/designacoes/` — ready for code review
@@ -611,6 +649,7 @@ NC-012 (Risk Management)
 - [ ] `.firebase/firestore.rules` — v1.4 extensions (calibracao, personnel, management-review, ceq, risk) deployed + tested
 
 ### Documentation Artifacts
+
 - [ ] `CAPA-CLOSURE-REPORT.md` — 12 findings + root causes + evidence summary
 - [ ] `CAPA-CLOSURE-SIGN-OFF.pdf` — auditor signature + date
 - [ ] `Phase-4-COMPLETION-SUMMARY.md` — timeline, effort, lessons learned
@@ -619,6 +658,7 @@ NC-012 (Risk Management)
 - [ ] Each module: CLAUDE.md (rules, DICQ mapping, status)
 
 ### Evidence Artifacts
+
 - [ ] 15 equipment calibration certificates (calibracao module)
 - [ ] 8 role definitions + org chart (personnel-cargos)
 - [ ] 3 formal designations (RT, QA mgr, Director) — PDF certificates signed
@@ -628,6 +668,7 @@ NC-012 (Risk Management)
 - [ ] Phase plans for NC-005–012 (8 deferred CAPAs)
 
 ### Test Artifacts
+
 - [ ] E2E tests for all 6 modules (6+ scenarios per module, ~40 total tests)
 - [ ] Firestore rules emulator tests (membership, soft-delete, signatures)
 - [ ] Performance benchmarks (LCP, INP, CLS per module)
@@ -654,6 +695,7 @@ Phase 4 is **fully complete** when:
 ## Known Risks & Deferred Scope
 
 ### Out of Phase 4 Scope (Deferred to v1.4 Phases 5+)
+
 - **Full NOTIVISA integration** (NC-005) → Phase 8
 - **Complete SGD with List Master** (NC-006) → Phase 9
 - **Full pre-analytic procedures** (NC-007) → Phase 9
@@ -662,11 +704,13 @@ Phase 4 is **fully complete** when:
 - **Biossegurança ISO 14644** (NC-011) → Phase 10
 
 Phase 4 delivers:
+
 - **Proof of concept** for deferred modules (phase plans + mock evidence)
 - **Committed timelines** (auditor-agreed Phase 5–10 schedule)
 - **Dependency mapping** (deferred modules block each other; clear sequence)
 
 ### Phase 4 Non-Negotiables
+
 - **Micro-modules must be production-ready** (code review, tests, deployment)
 - **CAPA closure must be auditor-signed** (evidence comprehensive, no RFI turnarounds)
 - **Compliance measurement must be accurate** (DICQ re-score by external auditor, if possible, or CTO spot-check)
@@ -677,12 +721,12 @@ Phase 4 delivers:
 
 **NC-002 Calibracao Closure:**
 
-*Week 1:* RT gathers 15 equipment calibration certificates (some in Drive, some physical, some external provider PDFs).  
-*Week 2:* Eng implements calibracao module UI; RT uploads all certs via drag-drop.  
-*Week 3:* System calculates next-due dates; 3 equipment flagged "overdue" (alert triggers).  
-*Week 4:* RT receives email alerts; orders new calibrations from vendor.  
-*Week 4 (end):* All calibration dates updated; equipment status = "in-date".  
-*Sign-off:* Auditor reviews dashboard + certificate folder; confirms traceability established. "NC-002 closed."
+_Week 1:_ RT gathers 15 equipment calibration certificates (some in Drive, some physical, some external provider PDFs).  
+_Week 2:_ Eng implements calibracao module UI; RT uploads all certs via drag-drop.  
+_Week 3:_ System calculates next-due dates; 3 equipment flagged "overdue" (alert triggers).  
+_Week 4:_ RT receives email alerts; orders new calibrations from vendor.  
+_Week 4 (end):_ All calibration dates updated; equipment status = "in-date".  
+_Sign-off:_ Auditor reviews dashboard + certificate folder; confirms traceability established. "NC-002 closed."
 
 ---
 

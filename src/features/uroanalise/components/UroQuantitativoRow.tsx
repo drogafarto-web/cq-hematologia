@@ -61,8 +61,7 @@ export function UroQuantitativoRow({
 
   // Display value: empty string when null/undefined/NaN; raw number otherwise
   // (input itself uses raw number — we don't pre-format mid-edit, only display value).
-  const hasNumericValue =
-    value !== null && value !== undefined && !Number.isNaN(value);
+  const hasNumericValue = value !== null && value !== undefined && !Number.isNaN(value);
   const inputValue: string | number = hasNumericValue ? (value as number) : '';
 
   // Compute conformidade locally if not explicitly passed by caller.
@@ -70,17 +69,13 @@ export function UroQuantitativoRow({
     if (conformidade) return conformidade;
     if (!hasNumericValue || !expectedRange) return 'sem_avaliar';
     const v = value as number;
-    return v >= expectedRange.min && v <= expectedRange.max
-      ? 'conforme'
-      : 'desvio';
+    return v >= expectedRange.min && v <= expectedRange.max ? 'conforme' : 'desvio';
   }, [conformidade, hasNumericValue, value, expectedRange]);
 
   const dot = STATUS_DOT[computedConformidade];
 
   const isOcrLowConfidence =
-    origem?.startsWith('OCR_') &&
-    typeof ocrConfianca === 'number' &&
-    ocrConfianca < 0.7;
+    origem?.startsWith('OCR_') && typeof ocrConfianca === 'number' && ocrConfianca < 0.7;
 
   const formatRange = (r: { min: number; max: number }) => {
     if (r.min === r.max) return r.min.toFixed(decimals);
@@ -90,13 +85,10 @@ export function UroQuantitativoRow({
   const isOutOfRange =
     hasNumericValue &&
     expectedRange &&
-    ((value as number) < expectedRange.min ||
-      (value as number) > expectedRange.max);
+    ((value as number) < expectedRange.min || (value as number) > expectedRange.max);
 
   const errorMsg =
-    isOutOfRange && expectedRange
-      ? `fora de ${formatRange(expectedRange)}`
-      : undefined;
+    isOutOfRange && expectedRange ? `fora de ${formatRange(expectedRange)}` : undefined;
 
   const handleChange = (raw: string) => {
     if (raw === '' || raw === '-' || raw === '.') {
@@ -126,10 +118,7 @@ export function UroQuantitativoRow({
         <span className="text-sm font-medium text-slate-800 dark:text-white/85 leading-tight flex items-baseline gap-1">
           <span>{label}</span>
           {required && (
-            <span
-              className="text-red-500 dark:text-red-400 text-xs"
-              aria-label="obrigatório"
-            >
+            <span className="text-red-500 dark:text-red-400 text-xs" aria-label="obrigatório">
               *
             </span>
           )}
@@ -137,9 +126,7 @@ export function UroQuantitativoRow({
         {expectedRange && (
           <span className="text-[11px] font-mono tabular-nums text-slate-400 dark:text-white/35 leading-tight">
             esperado:{' '}
-            <span className="text-slate-500 dark:text-white/55">
-              {formatRange(expectedRange)}
-            </span>
+            <span className="text-slate-500 dark:text-white/55">{formatRange(expectedRange)}</span>
           </span>
         )}
         {isOcrLowConfidence && (

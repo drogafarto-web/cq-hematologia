@@ -104,12 +104,17 @@ export const onAuditTrailEntry = onDocumentCreated(
       });
 
       // 4. Generate alert if threshold exceeded
-      if (anomalyScore.overall >= 0.70) {
+      if (anomalyScore.overall >= 0.7) {
         try {
           await generateAlert(
-            { entryId, overall: anomalyScore.overall, dimensions: anomalyScore.dimensions, flags: [] },
+            {
+              entryId,
+              overall: anomalyScore.overall,
+              dimensions: anomalyScore.dimensions,
+              flags: [],
+            },
             labId,
-            operatorId
+            operatorId,
           );
           console.log('[cfAuditTrigger] Alert generated', {
             labId,

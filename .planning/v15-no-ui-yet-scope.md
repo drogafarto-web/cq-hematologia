@@ -33,10 +33,12 @@ Location: `src/features/qualidade/types/auditUI.ts`
 ### Decomposition
 
 #### Task 1.1: Audit Trail List View + Filters
+
 **Component:** `src/features/qualidade/components/AuditTrailList.tsx`
 **Effort:** 1.5 days
 **Dependencies:** ✅ `callGetAuditTrail`, ✅ `auditUI.ts` types
 **Acceptance Criteria:**
+
 - [x] Dark table with columns: modulo, operadorId, resultado (color-coded), timestamp, detalhes
 - [x] Sortable by timestamp (asc/desc), resultado
 - [x] Pagination: offset/limit controls, "hasMore" indicator, render pagination state
@@ -49,6 +51,7 @@ Location: `src/features/qualidade/types/auditUI.ts`
 - [x] Render 50+ entries smoothly (Lighthouse performance score >85)
 
 **Component Structure:**
+
 ```tsx
 // src/features/qualidade/components/AuditTrailList.tsx
 export function AuditTrailList() {
@@ -63,10 +66,12 @@ export function AuditTrailList() {
 ```
 
 #### Task 1.2: Chain Validator Modal
+
 **Component:** `src/features/qualidade/components/ChainValidator.tsx`
 **Effort:** 1 day
 **Dependencies:** ✅ `callValidateChain`, ✅ `ValidateChainResult` type
 **Acceptance Criteria:**
+
 - [x] Button "Verificar integridade da corrente" in console top bar
 - [x] Modal dialog shows: status badge (valid/broken), timestamp of last check
 - [x] If valid: green badge + "Cadeia íntegra" message + timestamp
@@ -78,6 +83,7 @@ export function AuditTrailList() {
 - [x] Keyboard: Esc closes modal, Enter on "Verificar agora" (accessible)
 
 **Component Structure:**
+
 ```tsx
 // src/features/qualidade/components/ChainValidator.tsx
 export function ChainValidator() {
@@ -92,15 +98,17 @@ export function ChainValidator() {
     setIsValidating(false);
   };
 
-  return <Button onClick={handleValidateNow}/> + <Modal result={result} />;
+  return <Button onClick={handleValidateNow} /> + <Modal result={result} />;
 }
 ```
 
 #### Task 1.3: Signed CSV + PDF Export
+
 **Component:** `src/features/qualidade/components/AuditExportButton.tsx`
 **Effort:** 1.5 days
 **Dependencies:** ✅ `xlsx` (already in bundle), ✅ signature types, ✅ `AuditTrailEntry[]`
 **Acceptance Criteria:**
+
 - [x] Export button in console toolbar, opens popover with CSV/PDF options
 - [x] CSV export: columns = [modulo, operadorId, resultado, timestamp, detalhes, chainHashValido]
   - Header row with metadata: exported date, filters applied, date range, lab name
@@ -117,6 +125,7 @@ export function ChainValidator() {
 - [x] Email option (mailto link or future callable) — v1.5a ships CSV/PDF only, email defers to v1.5b if needed
 
 **Component Structure:**
+
 ```tsx
 // src/features/qualidade/components/AuditExportButton.tsx
 export function AuditExportButton({ entries, filters }: Props) {
@@ -128,17 +137,24 @@ export function AuditExportButton({ entries, filters }: Props) {
     else downloadPDF(data);
   };
 
-  return <Popover><RadioGroup/><Button onClick={handleExport}/></Popover>;
+  return (
+    <Popover>
+      <RadioGroup />
+      <Button onClick={handleExport} />
+    </Popover>
+  );
 }
 ```
 
 #### Task 1.4: Route + Hub Tile + Breadcrumb
+
 **Files:**
+
 - `src/routes/AuditTrailPage.tsx` (new)
 - `src/hub/tiles/auditTrailTile.tsx` (new or update hub config)
-**Effort:** 0.5 days
-**Dependencies:** ✅ Components from 1.1–1.3, ✅ Hub shell pattern
-**Acceptance Criteria:**
+  **Effort:** 0.5 days
+  **Dependencies:** ✅ Components from 1.1–1.3, ✅ Hub shell pattern
+  **Acceptance Criteria:**
 - [x] Route `/auditoria-trail` loads `AuditTrailPage` via lazy import
 - [x] Hub tile appears in module grid (icon + title + description)
 - [x] Breadcrumb: Hub > Auditoria > Verificação de Cadeia
@@ -148,6 +164,7 @@ export function AuditExportButton({ entries, filters }: Props) {
 - [x] Lazy load: `React.lazy(() => import('...'))`
 
 **Component Structure:**
+
 ```tsx
 // src/routes/AuditTrailPage.tsx
 export default function AuditTrailPage() {
@@ -174,16 +191,17 @@ export default function AuditTrailPage() {
 
 ### Risks & Mitigations
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| `callGetAuditTrail` slow on labs with >10k entries | List render blocked | Pagination built-in; max 50 rows/page; lazy-load snapshots; Firestore indexes added (see firestore.indexes.json) |
-| Chain validation timeout (large audit logs) | Modal hangs | Server-side callable caches last result; timeout 30s → toast "Tente novamente em 1 min" |
-| CSV with 1000+ rows exceeds browser memory | Export fails silently | Batch export: if >1000 rows, chunk into multiple CSVs + zip. Fallback: stream to IndexedDB first |
-| PDF generation takes >5s | UX feels broken | Show progress bar; allow cancel; estimated time upfront |
+| Risk                                               | Impact                | Mitigation                                                                                                       |
+| -------------------------------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `callGetAuditTrail` slow on labs with >10k entries | List render blocked   | Pagination built-in; max 50 rows/page; lazy-load snapshots; Firestore indexes added (see firestore.indexes.json) |
+| Chain validation timeout (large audit logs)        | Modal hangs           | Server-side callable caches last result; timeout 30s → toast "Tente novamente em 1 min"                          |
+| CSV with 1000+ rows exceeds browser memory         | Export fails silently | Batch export: if >1000 rows, chunk into multiple CSVs + zip. Fallback: stream to IndexedDB first                 |
+| PDF generation takes >5s                           | UX feels broken       | Show progress bar; allow cancel; estimated time upfront                                                          |
 
 ### Effort: 5-6 days (1.5 + 1 + 1.5 + 0.5)
 
 ### Ready to Implement? ✅
+
 - Prerequisites: all callables + types shipped
 - Blockers: none
 - Design review: awaiting approval (reference: Apple/Linear dark UI, minimal tables)
@@ -208,8 +226,10 @@ Location: `src/features/personnel/types/` (import from existing Operator entity)
 ### UI Scope (NO-UI-YET)
 
 #### 2.1 Qualificações Tab (Operator Profile)
+
 **Comp:** `OperatorQualificacoesTab.tsx`
 **Acceptance:**
+
 - [ ] Read-only list of active qualificações for selected operator
 - [ ] Columns: tipo (module name), validoDe, validoAte, ativo (badge)
 - [ ] Inline revogação button → soft-delete callable (TODO: create revogarQualificacao callable)
@@ -219,8 +239,10 @@ Location: `src/features/personnel/types/` (import from existing Operator entity)
 **Estimate:** 4-5h
 
 #### 2.2 Create Qualificação Modal
+
 **Comp:** `CriarQualificacaoModal.tsx`
 **Acceptance:**
+
 - [ ] Form inputs:
   - operador combobox (autocomplete from educacao-continuada/{labId}/colaboradores)
   - tipo select (enum or dynamic list from server config)
@@ -233,8 +255,10 @@ Location: `src/features/personnel/types/` (import from existing Operator entity)
 **Estimate:** 5-6h
 
 #### 2.3 Revogação Callable Wrapper
+
 **File:** `src/features/personnel/services/pessoaCallables.ts` (add)
 **Acceptance:**
+
 - [ ] `callRevogarQualificacao(payload)` — soft-delete pattern
 - [ ] Payload: `{ labId, operadorId, qualificacaoId }`
 - [ ] Result: `{ ok: true }`
@@ -263,8 +287,10 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 ### UI Scope (NO-UI-YET)
 
 #### 3.1 Equipment Detail → Maintenance Tab
+
 **Comp:** `EquipamentoManutencaoTab.tsx`
 **Acceptance:**
+
 - [ ] Read-only history table: data, tipo (badge color), fornecedor, custo, pecas
 - [ ] Sortable by data (desc default — newest first)
 - [ ] Expandable row → detalhes (observacoes) + cost breakdown if applicable
@@ -272,8 +298,10 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 **Estimate:** 3-4h
 
 #### 3.2 Register Maintenance Modal
+
 **Comp:** `RegistrarManutencaoModal.tsx`
 **Acceptance:**
+
 - [ ] Form inputs:
   - tipo radio buttons (preventiva, corretiva, calibracao) — default preventiva
   - fornecedor combobox (optional, from fornecedores/{labId})
@@ -287,7 +315,9 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 **Estimate:** 5-6h
 
 #### 3.3 Calibração Special Flow
+
 **Note:** If tipo === 'calibracao', show additional fields:
+
 - certificadoUrl (upload field for certificate PDF)
 - proximaCalibracaoEm (date picker)
 - These may delegate to a separate callable (TODO: design separately if needed)
@@ -300,20 +330,22 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 
 ## Dependencies & Blockers
 
-| Feature | Depends On | Status | Notes |
-| --- | --- | --- | --- |
-| Audit Trail | `generateComplianceReport` callable | ✅ Shipped | Only getAuditTrail + validateChain remain |
-| Operator Qualificação | `educacao-continuada/{labId}/colaboradores` readable | ✅ Shipped | Combobox can filter this collection |
-| Operator Qualificação | `revogarQualificacao` callable (NEW) | ⏳ TODO | Create wrapper + server-side function |
-| Equipment Maintenance | `fornecedores/{labId}` readable | ✅ Shipped | Supplier combobox filters this |
-| Equipment Maintenance | Calibração upload (if applicable) | ⏳ DESIGN | Separate spike if needed |
+| Feature               | Depends On                                           | Status     | Notes                                     |
+| --------------------- | ---------------------------------------------------- | ---------- | ----------------------------------------- |
+| Audit Trail           | `generateComplianceReport` callable                  | ✅ Shipped | Only getAuditTrail + validateChain remain |
+| Operator Qualificação | `educacao-continuada/{labId}/colaboradores` readable | ✅ Shipped | Combobox can filter this collection       |
+| Operator Qualificação | `revogarQualificacao` callable (NEW)                 | ⏳ TODO    | Create wrapper + server-side function     |
+| Equipment Maintenance | `fornecedores/{labId}` readable                      | ✅ Shipped | Supplier combobox filters this            |
+| Equipment Maintenance | Calibração upload (if applicable)                    | ⏳ DESIGN  | Separate spike if needed                  |
 
 ---
 
 ## Phased Delivery
 
 ### Batch 1: Audit Trail Console (v1.5a)
+
 **ETA:** 1 sprint
+
 - [x] `callGetAuditTrail` callable + types
 - [x] `callValidateChain` callable + types
 - [ ] AuditTrailList component
@@ -321,14 +353,18 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 - Signed CSV export (defer PDF to batch 2 if needed)
 
 ### Batch 2: Operator Qualificações (v1.5b)
+
 **ETA:** 1 sprint (parallel with 1.5a)
+
 - [x] `callCriarQualificacao` callable + types
 - [ ] OperatorQualificacoesTab component
 - [ ] CriarQualificacaoModal component
 - [ ] `callRevogarQualificacao` callable (new)
 
 ### Batch 3: Equipment Maintenance (v1.5c)
+
 **ETA:** 1 sprint (sequential after 1.5a + 1.5b)
+
 - [x] `callRegistrarManutencao` callable + types
 - [ ] EquipamentoManutencaoTab component
 - [ ] RegistrarManutencaoModal component
@@ -339,6 +375,7 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 ## Acceptance Criteria (Per Feature)
 
 ### Feature 1 (Audit Trail)
+
 - [ ] TypeScript compiles without errors
 - [ ] Callables lazy-load and fire correctly
 - [ ] List view renders 50+ entries smoothly (performance test)
@@ -349,6 +386,7 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 - [ ] Mobile: responsive on iPhone SE (375px width)
 
 ### Feature 2 (Operator Qualificação)
+
 - [ ] TypeScript compiles without errors
 - [ ] `callCriarQualificacao` accepts valid payload, returns qualificacaoId
 - [ ] Modal validation prevents validoAte < validoDe
@@ -357,6 +395,7 @@ Location: `src/features/equipamentos/types/` (import or extend from Equipamento 
 - [ ] E2E: create qualificação → operator gains access to módulo (via rules check)
 
 ### Feature 3 (Equipment Maintenance)
+
 - [ ] TypeScript compiles without errors
 - [ ] `callRegistrarManutencao` accepts valid payload, returns manutencaoId
 - [ ] Modal validation requires tipo (others optional)
@@ -382,12 +421,12 @@ Before UI implementation, confirm:
 
 ## Known Risks & Mitigation
 
-| Risk | Impact | Mitigation |
-| --- | --- | --- |
-| Audit trail large dataset (>10k rows) | Slow list render | Pagination built-in; max 100 rows/page; lazy-load snapshots |
-| Chain validator slow on large audit logs | Timeout > 30s | Server-side caches last result; client polls status via getLastValidation (TODO if needed) |
-| Revogação callable not yet shipped | Blocks Qualificação UI | Add to same functions deploy batch; can stub w/ disabled button if needed |
-| Calibração scope creep | Unbounded timeline | Defer to separate spike if not approved in design review |
+| Risk                                     | Impact                 | Mitigation                                                                                 |
+| ---------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------ |
+| Audit trail large dataset (>10k rows)    | Slow list render       | Pagination built-in; max 100 rows/page; lazy-load snapshots                                |
+| Chain validator slow on large audit logs | Timeout > 30s          | Server-side caches last result; client polls status via getLastValidation (TODO if needed) |
+| Revogação callable not yet shipped       | Blocks Qualificação UI | Add to same functions deploy batch; can stub w/ disabled button if needed                  |
+| Calibração scope creep                   | Unbounded timeline     | Defer to separate spike if not approved in design review                                   |
 
 ---
 

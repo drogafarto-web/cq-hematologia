@@ -2,16 +2,8 @@ import { useCallback } from 'react';
 import { functions } from '../../shared/services/firebase';
 import { httpsCallable } from 'firebase/functions';
 import { useActiveLabId } from '../../store/useAuthStore';
-import {
-  subscribeSolicitacoes,
-  subscribeDPIAs,
-  subscribeLogsExclusao,
-} from './lgpdService';
-import type {
-  SolicitacaoDados,
-  DPIA,
-  LogExclusao,
-} from './types/LGPD';
+import { subscribeSolicitacoes, subscribeDPIAs, subscribeLogsExclusao } from './lgpdService';
+import type { SolicitacaoDados, DPIA, LogExclusao } from './types/LGPD';
 
 /**
  * Hook para gerenciar operações LGPD (solicitações, DPIAs, exclusão).
@@ -20,7 +12,13 @@ export function useLGPD() {
   const labId = useActiveLabId();
 
   const criarSolicitacao = useCallback(
-    async (titular_id: string, titular_nome: string, titular_email: string, tipo: 'acesso' | 'retificacao' | 'exclusao' | 'portabilidade', motivo?: string) => {
+    async (
+      titular_id: string,
+      titular_nome: string,
+      titular_email: string,
+      tipo: 'acesso' | 'retificacao' | 'exclusao' | 'portabilidade',
+      motivo?: string,
+    ) => {
       if (!labId) throw new Error('Lab ID não configurado');
 
       const fn = httpsCallable<any, any>(functions, 'criarSolicitacao');
@@ -35,7 +33,7 @@ export function useLGPD() {
 
       return result.data;
     },
-    [labId]
+    [labId],
   );
 
   const processarExclusao = useCallback(
@@ -51,11 +49,16 @@ export function useLGPD() {
 
       return result.data;
     },
-    [labId]
+    [labId],
   );
 
   const gerarDPIA = useCallback(
-    async (titulo: string, descricao: string, dados_pessoais_processados: string[], riscos_identificados: string[]) => {
+    async (
+      titulo: string,
+      descricao: string,
+      dados_pessoais_processados: string[],
+      riscos_identificados: string[],
+    ) => {
       if (!labId) throw new Error('Lab ID não configurado');
 
       const fn = httpsCallable<any, any>(functions, 'gerarDPIA');
@@ -69,7 +72,7 @@ export function useLGPD() {
 
       return result.data;
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToSolicitacoes = useCallback(
@@ -77,7 +80,7 @@ export function useLGPD() {
       if (!labId) return () => {};
       return subscribeSolicitacoes(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToDPIAs = useCallback(
@@ -85,7 +88,7 @@ export function useLGPD() {
       if (!labId) return () => {};
       return subscribeDPIAs(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   const subscribeToExclusoes = useCallback(
@@ -93,7 +96,7 @@ export function useLGPD() {
       if (!labId) return () => {};
       return subscribeLogsExclusao(labId, callback, onError);
     },
-    [labId]
+    [labId],
   );
 
   return {

@@ -54,9 +54,9 @@ describe('ReportBuilder', () => {
   it('should select daily period', async () => {
     render(<ReportBuilder />);
 
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -67,9 +67,9 @@ describe('ReportBuilder', () => {
   it('should select weekly period', async () => {
     render(<ReportBuilder />);
 
-    const weeklyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'weekly') as HTMLInputElement;
+    const weeklyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'weekly',
+    ) as HTMLInputElement;
 
     if (weeklyRadio) {
       await userEvent.click(weeklyRadio);
@@ -80,9 +80,9 @@ describe('ReportBuilder', () => {
   it('should select monthly period', async () => {
     render(<ReportBuilder />);
 
-    const monthlyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'monthly') as HTMLInputElement;
+    const monthlyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'monthly',
+    ) as HTMLInputElement;
 
     if (monthlyRadio) {
       await userEvent.click(monthlyRadio);
@@ -93,9 +93,9 @@ describe('ReportBuilder', () => {
   it('should show custom date inputs when custom period is selected', async () => {
     render(<ReportBuilder />);
 
-    const customRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'custom') as HTMLInputElement;
+    const customRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'custom',
+    ) as HTMLInputElement;
 
     if (customRadio) {
       await userEvent.click(customRadio);
@@ -114,9 +114,9 @@ describe('ReportBuilder', () => {
     expect(nextButton).toBeDisabled();
 
     // Select a period
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -130,9 +130,9 @@ describe('ReportBuilder', () => {
   it('should navigate to step 2', async () => {
     render(<ReportBuilder />);
 
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -150,9 +150,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 2
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -160,9 +160,7 @@ describe('ReportBuilder', () => {
       await userEvent.click(nextButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Incluir anomalias detectadas')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Incluir anomalias detectadas')).toBeInTheDocument();
       });
     }
   });
@@ -171,9 +169,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 2
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -181,9 +179,7 @@ describe('ReportBuilder', () => {
       await userEvent.click(nextButton);
 
       await waitFor(() => {
-        expect(
-          screen.getByText('Incluir métricas de conformidade')
-        ).toBeInTheDocument();
+        expect(screen.getByText('Incluir métricas de conformidade')).toBeInTheDocument();
       });
     }
   });
@@ -192,9 +188,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Step 1: Select period
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -220,9 +216,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 3
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -236,9 +232,9 @@ describe('ReportBuilder', () => {
       await userEvent.click(nextButton);
 
       await waitFor(() => {
-        const pdfRadio = Array.from(
-          screen.getAllByRole('radio')
-        ).find((r) => (r as HTMLInputElement).value === 'pdf') as HTMLInputElement;
+        const pdfRadio = Array.from(screen.getAllByRole('radio')).find(
+          (r) => (r as HTMLInputElement).value === 'pdf',
+        ) as HTMLInputElement;
 
         if (pdfRadio) {
           expect(pdfRadio.checked).toBe(true);
@@ -251,9 +247,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 3
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -269,15 +265,15 @@ describe('ReportBuilder', () => {
       await userEvent.click(nextButton);
 
       await waitFor(() => {
-        const csvRadio = Array.from(
-          screen.getAllByRole('radio')
-        ).find((r) => (r as HTMLInputElement).value === 'csv') as HTMLInputElement;
+        const csvRadio = Array.from(screen.getAllByRole('radio')).find(
+          (r) => (r as HTMLInputElement).value === 'csv',
+        ) as HTMLInputElement;
         expect(csvRadio).toBeInTheDocument();
       });
 
-      const csvRadio = Array.from(
-        screen.getAllByRole('radio')
-      ).find((r) => (r as HTMLInputElement).value === 'csv') as HTMLInputElement;
+      const csvRadio = Array.from(screen.getAllByRole('radio')).find(
+        (r) => (r as HTMLInputElement).value === 'csv',
+      ) as HTMLInputElement;
 
       await userEvent.click(csvRadio);
       expect(csvRadio.checked).toBe(true);
@@ -288,9 +284,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 3
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -329,9 +325,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 3
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -364,9 +360,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 3
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -389,9 +385,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 2
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -422,9 +418,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 2
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);
@@ -442,9 +438,9 @@ describe('ReportBuilder', () => {
     render(<ReportBuilder />);
 
     // Navigate to step 2
-    const dailyRadio = Array.from(
-      screen.getAllByRole('radio')
-    ).find((r) => (r as HTMLInputElement).value === 'daily') as HTMLInputElement;
+    const dailyRadio = Array.from(screen.getAllByRole('radio')).find(
+      (r) => (r as HTMLInputElement).value === 'daily',
+    ) as HTMLInputElement;
 
     if (dailyRadio) {
       await userEvent.click(dailyRadio);

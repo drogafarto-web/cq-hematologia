@@ -22,10 +22,7 @@ import { z } from 'zod';
 
 import { NotivisaHTTPClient } from '../http/client';
 import { buildNotivisaPayload } from '../http/payloadBuilder';
-import {
-  assertNotivisaAccess,
-  notivisaDraftsCol,
-} from '../validators';
+import { assertNotivisaAccess, notivisaDraftsCol } from '../validators';
 import { writeAuditLog } from '../../../shared/audit/writeAuditLog';
 import { defineSecret } from 'firebase-functions/params';
 
@@ -34,9 +31,7 @@ const submitDraftHTTPInputSchema = z.object({
   draftId: z.string().min(1),
 });
 
-export type SubmitDraftHTTPInput = z.infer<
-  typeof submitDraftHTTPInputSchema
->;
+export type SubmitDraftHTTPInput = z.infer<typeof submitDraftHTTPInputSchema>;
 
 export interface SubmitDraftHTTPSuccess {
   ok: true;
@@ -80,25 +75,15 @@ function getCredentials(mode: 'sandbox' | 'prod'): {
   }
 
   return {
-    apiKey:
-      process.env.NOTIVISA_SANDBOX_KEY || 'PENDING_SET_NOTIVISA_SANDBOX_KEY',
-    baseUrl:
-      process.env.NOTIVISA_SANDBOX_URL || 'PENDING_SET_NOTIVISA_SANDBOX_URL',
+    apiKey: process.env.NOTIVISA_SANDBOX_KEY || 'PENDING_SET_NOTIVISA_SANDBOX_KEY',
+    baseUrl: process.env.NOTIVISA_SANDBOX_URL || 'PENDING_SET_NOTIVISA_SANDBOX_URL',
   };
 }
 
-export const submitNotivisaDraftHTTP = onCall<
-  unknown,
-  Promise<SubmitDraftHTTPResult>
->(
+export const submitNotivisaDraftHTTP = onCall<unknown, Promise<SubmitDraftHTTPResult>>(
   {
     region: 'southamerica-east1',
-    secrets: [
-      notivisaSandboxKey,
-      notivisaSandboxUrl,
-      notivisaProdKey,
-      notivisaProdUrl,
-    ],
+    secrets: [notivisaSandboxKey, notivisaSandboxUrl, notivisaProdKey, notivisaProdUrl],
   },
   async (request) => {
     try {
@@ -120,9 +105,7 @@ export const submitNotivisaDraftHTTP = onCall<
       const mode = 'sandbox' as const;
 
       // 1. Fetch draft
-      const draftRef = notivisaDraftsCol(db, input.labId).doc(
-        input.draftId,
-      );
+      const draftRef = notivisaDraftsCol(db, input.labId).doc(input.draftId);
       const draftSnap = await draftRef.get();
       if (!draftSnap.exists) {
         return {
@@ -161,9 +144,7 @@ export const submitNotivisaDraftHTTP = onCall<
       // 2. Fetch laudo
       // Assuming laudos live in /labs/{labId}/laudos/{laudoId}
       // Adjust path if needed based on your schema
-      const laudoRef = db
-        .collection('laudos')
-        .doc(laudoId);
+      const laudoRef = db.collection('laudos').doc(laudoId);
       const laudoSnap = await laudoRef.get();
       if (!laudoSnap.exists) {
         return {
@@ -196,8 +177,7 @@ export const submitNotivisaDraftHTTP = onCall<
           },
         );
       } catch (err) {
-        const errorMsg =
-          err instanceof Error ? err.message : String(err);
+        const errorMsg = err instanceof Error ? err.message : String(err);
         return {
           ok: false,
           error: `Erro ao construir payload: ${errorMsg}`,
@@ -248,8 +228,7 @@ export const submitNotivisaDraftHTTP = onCall<
         submittedAt: httpResult.submittedAt,
       };
     } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : String(err);
+      const errorMsg = err instanceof Error ? err.message : String(err);
       console.error('[submitNotivisaDraftHTTP] Unexpected error:', err);
 
       return {

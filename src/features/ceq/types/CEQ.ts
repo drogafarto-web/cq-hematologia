@@ -9,8 +9,8 @@ import type { Timestamp } from 'firebase/firestore';
 
 /** ADR 0005 — logical audit signature */
 interface LogicalSignature {
-  hash: string;        // SHA-256 hex, 64 chars
-  operatorId: string;  // === request.auth.uid (Firestore rule validates)
+  hash: string; // SHA-256 hex, 64 chars
+  operatorId: string; // === request.auth.uid (Firestore rule validates)
   ts: Timestamp;
 }
 
@@ -225,7 +225,14 @@ export interface ZScoreResult {
  */
 export type CEQParticipacaoInput = Omit<
   CEQParticipacao,
-  'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'atualizadoEm' | 'atualizadoPor' | 'deletadoEm' | 'assinatura'
+  | 'id'
+  | 'labId'
+  | 'criadoEm'
+  | 'criadoPor'
+  | 'atualizadoEm'
+  | 'atualizadoPor'
+  | 'deletadoEm'
+  | 'assinatura'
 >;
 
 /**
@@ -233,7 +240,15 @@ export type CEQParticipacaoInput = Omit<
  */
 export type CEQAmostraInput = Omit<
   CEQAmostra,
-  'id' | 'labId' | 'status' | 'criadoEm' | 'criadoPor' | 'atualizadoEm' | 'atualizadoPor' | 'deletadoEm' | 'assinatura'
+  | 'id'
+  | 'labId'
+  | 'status'
+  | 'criadoEm'
+  | 'criadoPor'
+  | 'atualizadoEm'
+  | 'atualizadoPor'
+  | 'deletadoEm'
+  | 'assinatura'
 >;
 
 /**
@@ -241,5 +256,18 @@ export type CEQAmostraInput = Omit<
  */
 export type CEQResultadoInput = Omit<
   CEQResultado,
-  'id' | 'labId' | 'zScore' | 'interpretacao' | 'ncAutomaticaCriadaId' | 'ncAutomaticaCriadaEm' | 'temNCGrave' | 'status' | 'criadoEm' | 'criadoPor' | 'validadoEm' | 'validadoPor' | 'deletadoEm' | 'assinatura'
+  | 'id'
+  | 'labId'
+  | 'zScore'
+  | 'interpretacao'
+  | 'ncAutomaticaCriadaId'
+  | 'ncAutomaticaCriadaEm'
+  | 'temNCGrave'
+  | 'status'
+  | 'criadoEm'
+  | 'criadoPor'
+  | 'validadoEm'
+  | 'validadoPor'
+  | 'deletadoEm'
+  | 'assinatura'
 >;

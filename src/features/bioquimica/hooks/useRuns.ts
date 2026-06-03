@@ -1,5 +1,13 @@
 import { useEffect, useState } from 'react';
-import { query, collection, where, orderBy, Timestamp, onSnapshot, getFirestore } from 'firebase/firestore';
+import {
+  query,
+  collection,
+  where,
+  orderBy,
+  Timestamp,
+  onSnapshot,
+  getFirestore,
+} from 'firebase/firestore';
 import { Run } from '../types';
 
 interface UseRunsFilter {
@@ -40,10 +48,13 @@ export function useRuns(labId: string, filters?: UseRunsFilter): UseRunsResult {
     const unsubscribe = onSnapshot(
       q,
       (snapshot) => {
-        const data = snapshot.docs.map((doc) => ({
-          ...doc.data(),
-          id: doc.id,
-        } as Run));
+        const data = snapshot.docs.map(
+          (doc) =>
+            ({
+              ...doc.data(),
+              id: doc.id,
+            }) as Run,
+        );
 
         // Filter by status if specified
         if (filters?.statusFilter && filters.statusFilter !== 'all') {
@@ -59,7 +70,7 @@ export function useRuns(labId: string, filters?: UseRunsFilter): UseRunsResult {
       (err) => {
         setError(err as Error);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();

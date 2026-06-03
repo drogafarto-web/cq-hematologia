@@ -13,6 +13,7 @@ apply_to: Phase 6 kickoff (2026-07-01), Phase 7+ planning
 **Document Purpose:** Provide structured risk analysis + feasibility scoring for Phases 6–9 of v1.4 execution. Intended to support Phase 6 kickoff decision (2026-07-01) and inform resource allocation across parallel workstreams.
 
 **Timeline Context:**
+
 - Phase 4 (Portal + NOTIVISA): May 20 → Jun 2 ✅ (2.5 weeks)
 - Phase 5 (Critical Escalation + IA Training): Jun 9 → Jun 30 (3 weeks)
 - **Phase 6 (Liberação + Críticos Polish): Jul 1 → Jul 14 (2 weeks)** ← You are here
@@ -21,6 +22,7 @@ apply_to: Phase 6 kickoff (2026-07-01), Phase 7+ planning
 - **Phase 9 (KPI Analytics): Jul 22 → Aug 4 (2 weeks)**
 
 **Success Criteria (v1.4 Complete, Aug 31):**
+
 - DICQ compliance ≥88%
 - RDC 978 critical articles 100% covered
 - CAPA closure auditor sign-off (Aug 5)
@@ -35,12 +37,12 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 
 ### Risk Snapshot
 
-| Phase | Risk Level | Key Constraint | Feasibility | Team Size |
-|-------|------------|-----------------|-------------|-----------|
-| **Phase 6** | 2.5/10 (LOW) | PDF gen + portal external auth | 8/10 | 2 FTE |
-| **Phase 7** | 3.0/10 (LOW) | Portal paciente UX polish + trending | 8/10 | 2.5 FTE |
-| **Phase 8** | 5.0/10 (MEDIUM) | Auditor RFI cycles + CAPA evidence | 7/10 | 3 FTE (CTO-heavy) |
-| **Phase 9** | 3.5/10 (LOW-MED) | Analytics query optimization + caching | 7.5/10 | 2 FTE |
+| Phase       | Risk Level       | Key Constraint                         | Feasibility | Team Size         |
+| ----------- | ---------------- | -------------------------------------- | ----------- | ----------------- |
+| **Phase 6** | 2.5/10 (LOW)     | PDF gen + portal external auth         | 8/10        | 2 FTE             |
+| **Phase 7** | 3.0/10 (LOW)     | Portal paciente UX polish + trending   | 8/10        | 2.5 FTE           |
+| **Phase 8** | 5.0/10 (MEDIUM)  | Auditor RFI cycles + CAPA evidence     | 7/10        | 3 FTE (CTO-heavy) |
+| **Phase 9** | 3.5/10 (LOW-MED) | Analytics query optimization + caching | 7.5/10      | 2 FTE             |
 
 **Overall Score:** 3.6/10 (LOW-MEDIUM risk, well-mitigated).
 
@@ -53,6 +55,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 **Scope:** Deferred completion of Phase 10 v1.3 plans (04–07). Primarily UI + reporting + performance.
 
 **Deliverables:**
+
 1. Laudo PDF generation (CloudFunction + puppeteer) with QR validation
 2. Portal médico external access (SSO integration via `rtPortalLogin` callable from Phase 4)
 3. E2E test suite (8 critical flows: create laudo → review → sign → archive)
@@ -65,6 +68,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Complexity Analysis
 
 #### Module Scope
+
 - **Modules touched:** `liberacao`, `analyzer`, `bioquimica`, `ceq` (existing); PDF generation new
 - **Firestore writes:** 0 (read-only module, all writes via Phase 4–5 callables)
 - **Cloud Functions:** 2 new callables
@@ -76,17 +80,20 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 #### Technical Risk Factors
 
 **PDF Generation Risk: MEDIUM (mitigatable)**
+
 - Puppeteer in CloudFunction is heavyweight (memory: 1GB, timeout: 9 min default)
 - Mitigation: Async job queue pattern (already established in Phase 5 IA pipeline). Queue → polling dashboard → download.
 - Precedent: v1.3 `export` module successfully uses CF + async queue (validated in Phase 3.3)
 - Fallback: Revert to simple LaTeX or HTML-to-PDF client-side (degrades UX, adds client bundle +50KB)
 
 **Portal SSO Risk: LOW**
+
 - Reuses `rtPortalLogin` callable from Phase 4 (already tested)
 - New scope: session persistence + refresh token logic (OAuth 2.0 standard patterns)
 - Firestore collection: `laudos-draft` (exists from Phase 3), no new schema
 
 **Performance Risk: LOW-MEDIUM**
+
 - Lighthouse CI not yet integrated into merge gate (risk: regressions slip through)
 - Mitigation: `hcq-deploy-gates` skill includes Lighthouse check; pre-merge gate enforces <2.5s LCP
 - Success criteria: Phase 6 baseline establishes 362 KB gzip bundle (v1.3 existing), no growth >10%
@@ -95,14 +102,14 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 
 ### Feasibility Scoring
 
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| **Architecture clarity** | 9/10 | Reuses existing patterns (export, portal); no novel design |
-| **Dependency readiness** | 8/10 | Depends on Phase 4 (Portal auth) + Phase 3 (Schema); both complete before Phase 6 start |
-| **Team expertise** | 8/10 | PDF gen + E2E testing known territory; portal from Phase 4 team carryover |
-| **Scope lock** | 9/10 | Deferred feature, not new; scope explicit in ROADMAP Phase 10 plans |
-| **Regression risk** | 7/10 | Additive-only schema; rules changes minimal; baseline tests must green (RN-06 soft-delete audits existing tests) |
-| **Compliance fit** | 8/10 | RDC/DICQ articles well-understood; no novel interpretation |
+| Criterion                | Score | Rationale                                                                                                        |
+| ------------------------ | ----- | ---------------------------------------------------------------------------------------------------------------- |
+| **Architecture clarity** | 9/10  | Reuses existing patterns (export, portal); no novel design                                                       |
+| **Dependency readiness** | 8/10  | Depends on Phase 4 (Portal auth) + Phase 3 (Schema); both complete before Phase 6 start                          |
+| **Team expertise**       | 8/10  | PDF gen + E2E testing known territory; portal from Phase 4 team carryover                                        |
+| **Scope lock**           | 9/10  | Deferred feature, not new; scope explicit in ROADMAP Phase 10 plans                                              |
+| **Regression risk**      | 7/10  | Additive-only schema; rules changes minimal; baseline tests must green (RN-06 soft-delete audits existing tests) |
+| **Compliance fit**       | 8/10  | RDC/DICQ articles well-understood; no novel interpretation                                                       |
 
 **Phase 6 Feasibility Score: 8.2/10** ✅ (HIGH CONFIDENCE)
 
@@ -111,6 +118,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Resource & Timeline
 
 **Team Allocation:**
+
 - **Stream B (Frontend):** 1.5 FTE (Portal external UI + E2E test automation)
 - **Stream D (DevOps):** 0.5 FTE (CF deployment + Lighthouse CI setup)
 - **Total:** 2 FTE
@@ -127,6 +135,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 **Critical Path:** PDF CF → portal UI → E2E testing → Lighthouse gate. Serial with 2-day slack per task.
 
 **Unblock Criteria:**
+
 - ✅ Phase 4 deploy stable (NOTIVISA queue, portal auth callables)
 - ✅ Phase 5 IA pipeline + async queue pattern validated
 - ✅ Staging environment mirrors production schema (Phase 3 deployment complete)
@@ -137,14 +146,16 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Risk & Mitigation
 
 **RISK-601: PDF Generation Timeout or Memory Overflow (Probability: LOW, Impact: MEDIUM)**
+
 - **Trigger:** CloudFunction exceeds 9min timeout; puppeteer OOM on large datasets
-- **Mitigation:** 
+- **Mitigation:**
   - Async queue pattern (never blocking); PDF generation runs in background
   - Memory cap: 1GB (puppeteer lite config, not full Chromium)
   - Timeout: 9min default sufficient (most PDFs <1s); escalate to manual RT generation if needed
 - **Contingency:** Client-side simple PDF (no fancy styling, loses branding); fallback to HTML + print-to-PDF
 
 **RISK-602: Portal Session Drift / Token Expiry (Probability: LOW, Impact: MEDIUM)**
+
 - **Trigger:** RT logged into portal > 1h; refresh token expires; session lost
 - **Mitigation:**
   - OAuth 2.0 refresh logic (standard library, tested in Phase 4)
@@ -153,6 +164,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 - **Contingency:** Re-login required; document in Portal UX ("Session expired")
 
 **RISK-603: Lighthouse CI Regression Undetected (Probability: MEDIUM, Impact: LOW)**
+
 - **Trigger:** PR merges with >10% LCP/INP regression; gate not enforced
 - **Mitigation:**
   - Pre-merge gate via `hcq-deploy-gates` (mandatory per CLAUDE.md rules)
@@ -169,6 +181,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 **Scope:** Deferred completion of Phase 11 v1.3 plans (06–08). Patient feedback ecosystem + trending analytics.
 
 **Deliverables:**
+
 1. Portal paciente external (feedback submission + tracking)
 2. Trending dashboard (satisfaction metrics, complaints trending, trending charts)
 3. Final E2E suite (portal paciente → feedback → RT view → trending)
@@ -181,6 +194,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Complexity Analysis
 
 #### Module Scope
+
 - **Modules touched:** `reclamacoes`, `kpis` (trending), `lgpd` (anonymization); new portal layer
 - **Firestore writes:** 3–5 callables (feedback submit, RT response, anonymization)
 - **Cloud Functions:** 3 new callables
@@ -193,6 +207,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 #### Technical Risk Factors
 
 **Patient Portal Auth Risk: MEDIUM (mitigatable)**
+
 - Phase 4 already implemented `rtPortalLogin` (medical portal)
 - Patient portal uses different auth: email-link (72h expiry, per ADR-0015, explicitly v1.4 scope only, LIS deferral documented in RISK-412)
 - Complication: Email validation + link generation + token management (new code path)
@@ -200,6 +215,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 - Fallback: Disable patient feedback in v1.4, defer to v1.4.1 (breaks DICQ Block H closure, must escalate)
 
 **Trending Analytics Risk: LOW-MEDIUM**
+
 - Requires pre-computed aggregates (cannot run `.reduce()` on 10K feedback records client-side)
 - Solution: CloudFunction cron (nightly) generates `portal-paciente/{labId}/_trending/{period}` (aggregated)
 - Firestore cost: 1 write/day per lab (negligible)
@@ -207,6 +223,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 - Mitigation: Cron tested in `kpis` module already (validation cron runs daily, pattern exists)
 
 **LGPD Anonymization Risk: MEDIUM (compliance-critical)**
+
 - Feedback export must scrub patient PII (name, CPF, email, address)
 - Firestore rules must enforce: patient can only see their own feedback; export always anonymized
 - Complication: Multi-step anonymization (before export, before retention cutoff per LGPD Art. 17)
@@ -217,14 +234,14 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 
 ### Feasibility Scoring
 
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| **Architecture clarity** | 7/10 | Email-link auth is standard but new code path; trending cron reuses kpis pattern |
-| **Dependency readiness** | 8/10 | Depends on Phase 4 (callables infrastructure) + Phase 0 (LGPD anonymization); ready |
-| **Team expertise** | 8/10 | Portal work from Phase 4 + Phase 6; trending from kpis module (reference); LGPD from Phase 0 |
-| **Scope lock** | 8/10 | Deferred feature (Phase 11 v1.3); scope explicit; email-link auth locked (LIS deferred) |
-| **Regression risk** | 7/10 | Additive schema; anonymization already tested; new email-link code is isolated to auth flow |
-| **Compliance fit** | 8/10 | RDC 978 + LGPD articles covered by Phase 0 + Phase 4; feedback loop already in scope |
+| Criterion                | Score | Rationale                                                                                    |
+| ------------------------ | ----- | -------------------------------------------------------------------------------------------- |
+| **Architecture clarity** | 7/10  | Email-link auth is standard but new code path; trending cron reuses kpis pattern             |
+| **Dependency readiness** | 8/10  | Depends on Phase 4 (callables infrastructure) + Phase 0 (LGPD anonymization); ready          |
+| **Team expertise**       | 8/10  | Portal work from Phase 4 + Phase 6; trending from kpis module (reference); LGPD from Phase 0 |
+| **Scope lock**           | 8/10  | Deferred feature (Phase 11 v1.3); scope explicit; email-link auth locked (LIS deferred)      |
+| **Regression risk**      | 7/10  | Additive schema; anonymization already tested; new email-link code is isolated to auth flow  |
+| **Compliance fit**       | 8/10  | RDC 978 + LGPD articles covered by Phase 0 + Phase 4; feedback loop already in scope         |
 
 **Phase 7 Feasibility Score: 7.7/10** ✅ (HIGH CONFIDENCE with email-link scope lock)
 
@@ -233,6 +250,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Resource & Timeline
 
 **Team Allocation:**
+
 - **Stream B (Frontend):** 1.5 FTE (Portal paciente UI + E2E testing)
 - **Stream A (Callables):** 1 FTE (Feedback submission callable + anonymization integration)
 - **Total:** 2.5 FTE
@@ -251,6 +269,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 **Critical Path:** Auth → Portal UI → Feedback CF → Trending → E2E. 3-week serial with 1–2 day slack per task.
 
 **Unblock Criteria:**
+
 - ✅ Phase 6 complete (Portal infrastructure established)
 - ✅ Phase 4 callable patterns validated
 - ✅ Email service (SendGrid or Firebase Email) configured + tested
@@ -261,6 +280,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Risk & Mitigation
 
 **RISK-701: Email-Link Auth Token Generation / Validation Failure (Probability: MEDIUM, Impact: MEDIUM)**
+
 - **Trigger:** Email link expires before patient clicks; token validation fails; 404 on link click
 - **Mitigation:**
   - Token structure: HMAC-SHA256(patient_id + timestamp + salt) (same pattern as CAPA-closure evidence links, proven)
@@ -270,6 +290,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 - **Contingency:** Manual patient ID verification via phone (RT path); limit to handful per month
 
 **RISK-702: Feedback Export PII Scrubbing Incomplete (Probability: LOW, Impact: HIGH)**
+
 - **Trigger:** Export contains patient name/CPF; auditor flags LGPD violation during audit
 - **Mitigation:**
   - Firestore rule: patient cannot export raw feedback (only aggregated trending)
@@ -279,15 +300,17 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 - **Contingency:** Immediate remediation (re-export anonymized); incident report; LGPD officer notification
 
 **RISK-703: Trending Aggregation Staleness or Query Timeout (Probability: LOW, Impact: MEDIUM)**
+
 - **Trigger:** Trending dashboard shows data >24h stale; or query hangs >5s on large feedback sets
 - **Mitigation:**
   - Cron runs nightly (01:00 BRT) off-peak; generates `_trending/{period}` doc (pre-computed)
-  - Dashboard reads _trending doc directly (no query, <100ms)
+  - Dashboard reads \_trending doc directly (no query, <100ms)
   - Fallback: If cron fails, dashboard shows "data unavailable, check back later"
   - Monitoring: Cron error logged; alert if failed >2 consecutive runs
 - **Contingency:** Manual run via CF invocation (CTO triggers); backfill trending for missed day
 
 **RISK-704: Portal Paciente Scope Creep / LIS Demand (Probability: MEDIUM, Impact: HIGH)**
+
 - **Trigger:** Customer/RT requests real-time lab result sync (LIS integration) during Phase 7
 - **Mitigation:**
   - Stakeholder memo Week 1 (CTO, per RISK-412 remediation): "v1.4 = email-link auth + feedback only; LIS = v1.4.1"
@@ -306,6 +329,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 **Scope:** Close 12 internal audit findings via corrective/preventive actions. Auditor sign-off required for v1.4 launch.
 
 **Deliverables:**
+
 1. Evidence gathering + CAPA-CLOSURE-REPORT.md (12 findings × 5 artifacts = 60 documents)
 2. Management review meeting (auditor present; DICQ 4.4 compliance)
 3. Auditor sign-off ceremony (Aug 5)
@@ -317,6 +341,7 @@ Phases 6–9 bridge **module completion** (Phases 4–5 foundation) → **extern
 ### Complexity Analysis
 
 #### Module Scope
+
 - **Modules touched:** Cross-cutting (schema, rules, functions, UI from Phases 4–7)
 - **Firestore writes:** 0 (evidence gathered, submitted to auditor offline)
 - **Cloud Functions:** 0 new
@@ -356,14 +381,14 @@ However, three technical blockers exist:
 
 ### Feasibility Scoring
 
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| **Architecture clarity** | 9/10 | CAPA is documented process (RDC 978 Art. 5); not architectural |
-| **Dependency readiness** | 6/10 | Depends on Phase 4–7 technical delivery; all modules must be stable + tested before evidence gathering |
-| **Team expertise** | 7/10 | CTO leads + QA manages process; CAPA closure is new (no internal precedent, external auditor guides) |
-| **Scope lock** | 10/10 | 12 findings fixed in Phase 0; scope immutable (RDC-mandated) |
-| **Regression risk** | 10/10 | No code changes; evidence-only; zero regression risk |
-| **Compliance fit** | 8/10 | RDC 978 Art. 5.3 + DICQ 4.4 well-understood; auditor interpretation risk = LOW (pre-alignment call mitigates) |
+| Criterion                | Score | Rationale                                                                                                     |
+| ------------------------ | ----- | ------------------------------------------------------------------------------------------------------------- |
+| **Architecture clarity** | 9/10  | CAPA is documented process (RDC 978 Art. 5); not architectural                                                |
+| **Dependency readiness** | 6/10  | Depends on Phase 4–7 technical delivery; all modules must be stable + tested before evidence gathering        |
+| **Team expertise**       | 7/10  | CTO leads + QA manages process; CAPA closure is new (no internal precedent, external auditor guides)          |
+| **Scope lock**           | 10/10 | 12 findings fixed in Phase 0; scope immutable (RDC-mandated)                                                  |
+| **Regression risk**      | 10/10 | No code changes; evidence-only; zero regression risk                                                          |
+| **Compliance fit**       | 8/10  | RDC 978 Art. 5.3 + DICQ 4.4 well-understood; auditor interpretation risk = LOW (pre-alignment call mitigates) |
 
 **Phase 8 Feasibility Score: 8.3/10** ✅ (HIGH CONFIDENCE, auditor-dependent)
 
@@ -372,6 +397,7 @@ However, three technical blockers exist:
 ### Resource & Timeline
 
 **Team Allocation:**
+
 - **CTO:** 2–3 FTE (daily CAPA management + auditor communication + remediation decisions)
 - **QA Lead:** 1 FTE (evidence tracking + documentation)
 - **Stream A (Callables owner):** 0.5 FTE (on-call for any technical evidence rework)
@@ -379,17 +405,18 @@ However, three technical blockers exist:
 
 **Timeline Breakdown (4 weeks, Jun 15 → Aug 5):**
 
-| Week | Task | Owner | Dependencies |
-|------|------|-------|--------------|
-| **Week 1 (Jun 15–21)** | Pre-alignment call + evidence checklist | CTO + QA | Phase 5 not yet deployed |
-| **Week 2 (Jun 22–28)** | Phase 4 deploy stable; CAPA-01–04 evidence gathering | QA | Phase 4 complete (Jun 2) |
-| **Week 3 (Jun 29–Jul 5)** | CAPA-05–08 evidence + auditor RFI cycles (if any) | QA + Stream A | Phase 5 deploy (Jun 30) |
-| **Week 4 (Jul 6–12)** | CAPA-09–12 closure + management review prep | QA + CTO | Phase 6 stable (Jul 14) |
+| Week                       | Task                                                  | Owner         | Dependencies                |
+| -------------------------- | ----------------------------------------------------- | ------------- | --------------------------- |
+| **Week 1 (Jun 15–21)**     | Pre-alignment call + evidence checklist               | CTO + QA      | Phase 5 not yet deployed    |
+| **Week 2 (Jun 22–28)**     | Phase 4 deploy stable; CAPA-01–04 evidence gathering  | QA            | Phase 4 complete (Jun 2)    |
+| **Week 3 (Jun 29–Jul 5)**  | CAPA-05–08 evidence + auditor RFI cycles (if any)     | QA + Stream A | Phase 5 deploy (Jun 30)     |
+| **Week 4 (Jul 6–12)**      | CAPA-09–12 closure + management review prep           | QA + CTO      | Phase 6 stable (Jul 14)     |
 | **Week 5+ (Jul 13–Aug 5)** | Management review meeting + auditor sign-off ceremony | CTO + Auditor | All CAPAs evidence-complete |
 
 **Buffer:** 3-week buffer (Aug 5 deadline → Aug 31 audit) for any RFI rework.
 
 **Unblock Criteria:**
+
 - ✅ Phase 4 deploy stable (portal auth + NOTIVISA queue proven in production)
 - ✅ Phase 5 deploy stable (critical escalation + IA pipeline proven)
 - ✅ Auditor availability confirmed (weekly call scheduled; RFI SLA written)
@@ -400,6 +427,7 @@ However, three technical blockers exist:
 ### Risk & Mitigation
 
 **RISK-801: Auditor RFI Cycle Delays Closure (Probability: MEDIUM, Impact: HIGH) — RISK-402 mapped**
+
 - **Trigger:** Auditor requests additional evidence; response cycle >5 business days
 - **Mitigation:**
   - Pre-alignment call Week 1 (confirm expected evidence format + auditor review cycle SLA)
@@ -409,6 +437,7 @@ However, three technical blockers exist:
 - **SLA:** 7 business days max per RFI cycle before escalation to CTO
 
 **RISK-802: LGPD Policy Language Mismatch (Probability: LOW, Impact: HIGH)**
+
 - **Trigger:** Auditor interprets "formal LGPD policy" differently; rewrite needed
 - **Mitigation:**
   - Compliance consultant review Week 1 (external expert validates policy language)
@@ -417,6 +446,7 @@ However, three technical blockers exist:
 - **Contingency:** Policy rework sprint (1 week buffer); escalate to compliance officer + auditor if conflict
 
 **RISK-803: CAPA Evidence Gathering Incomplete (Probability: MEDIUM, Impact: MEDIUM) — RISK-407 mapped**
+
 - **Trigger:** ≥2 CAPAs missing evidence by Week 7 deadline
 - **Mitigation:**
   - Weekly checklist tracking (5 mandatory artifacts per CAPA)
@@ -426,6 +456,7 @@ However, three technical blockers exist:
 - **Contingency:** 1-week extension (delay signature to Aug 12); acceptable if gaps closure SLA met
 
 **RISK-804: CTO Context Switching / Burnout (Probability: MEDIUM, Impact: HIGH)**
+
 - **Trigger:** CTO handling 3–4 parallel workstreams (Phase 8 + auditor calls + Phase 4–7 oversight)
 - **Mitigation:**
   - QA Lead shoulders evidence gathering (CTO does policy + auditor comms only)
@@ -443,6 +474,7 @@ However, three technical blockers exist:
 **Scope:** Advanced KPI queries + performance optimization + Riopomba historical data integration.
 
 **Deliverables:**
+
 1. Multi-period KPI comparisons (e.g., "turnaround this month vs last month")
 2. Trend projection (linear forecasting for TAT + rework rate)
 3. Benchmark vs Riopomba historical data (lab-level comparison)
@@ -458,6 +490,7 @@ However, three technical blockers exist:
 ### Complexity Analysis
 
 #### Module Scope
+
 - **Modules touched:** `analytics`, `export`, `kpis` (existing, enhancement only)
 - **Firestore writes:** Pre-computed aggregates only (nightly cron, per-lab)
 - **Cloud Functions:** 2 new callables + 1 cron
@@ -470,6 +503,7 @@ However, three technical blockers exist:
 #### Technical Risk Factors
 
 **Analytics Query Performance Risk: LOW-MEDIUM (well-mitigated pattern)**
+
 - Problem: Querying 10K+ records per lab on-demand = slow Firestore read (100ms–1s)
 - Solution: Pre-compute aggregates nightly (cron writes 10–20 aggregate docs per lab)
 - Firestore cost: 1 write/day per lab per metric (~$0.06/month per lab, negligible)
@@ -478,6 +512,7 @@ However, three technical blockers exist:
 - Fallback: Revert to per-month caching (degrades real-time to 24h stale)
 
 **Trend Projection (Linear Regression) Risk: LOW**
+
 - Scope: Simple linear regression (numpy-like, no ML complexity)
 - Implementation: Pure JavaScript (ml.js library, ~20 KB gzip) or Cloud Function logic
 - Risk: Projection inaccurate for non-linear data (e.g., seasonal rework peaks)
@@ -485,6 +520,7 @@ However, three technical blockers exist:
 - Fallback: Remove projection feature; dashboard shows raw trend only
 
 **Riopomba Historical Integration Risk: MEDIUM (data quality)**
+
 - Riopomba: Legacy lab management system; 80 documents already migrated (Phase 0 SGD)
 - New scope: Import historical KPI data (TAT, rework %, conformance) for benchmarking
 - Problem: Data format unknown; historical timestamps may be inconsistent
@@ -492,6 +528,7 @@ However, three technical blockers exist:
 - Fallback: Skip Riopomba integration; benchmark against industry averages only (published CLIA/CAP data)
 
 **PDF Export Batching Risk: LOW**
+
 - Scope: Batch PDFs (e.g., "export last 30 laudos") → single ZIP
 - Implementation: CloudFunction generates PDFs async (queue), batches into ZIP
 - Risk: ZIP generation memory overflow; timeout if >100 PDFs
@@ -502,14 +539,14 @@ However, three technical blockers exist:
 
 ### Feasibility Scoring
 
-| Criterion | Score | Rationale |
-|-----------|-------|-----------|
-| **Architecture clarity** | 8/10 | Caching + aggregation patterns proven in Phase 3; trend projection is simple math |
-| **Dependency readiness** | 9/10 | `analytics` + `kpis` + `export` modules exist; only enhancements, no new modules |
-| **Team expertise** | 8/10 | Data engineering + cron patterns from Phase 3.3; trend projection = low complexity |
-| **Scope lock** | 8/10 | Enhancement phase; scope focused on performance + historical comparison |
-| **Regression risk** | 8/10 | Additive aggregates; no breaking schema changes; existing analytics unaffected |
-| **Compliance fit** | 7/10 | DICQ Block J is SLA/performance target; optimization directly maps |
+| Criterion                | Score | Rationale                                                                          |
+| ------------------------ | ----- | ---------------------------------------------------------------------------------- |
+| **Architecture clarity** | 8/10  | Caching + aggregation patterns proven in Phase 3; trend projection is simple math  |
+| **Dependency readiness** | 9/10  | `analytics` + `kpis` + `export` modules exist; only enhancements, no new modules   |
+| **Team expertise**       | 8/10  | Data engineering + cron patterns from Phase 3.3; trend projection = low complexity |
+| **Scope lock**           | 8/10  | Enhancement phase; scope focused on performance + historical comparison            |
+| **Regression risk**      | 8/10  | Additive aggregates; no breaking schema changes; existing analytics unaffected     |
+| **Compliance fit**       | 7/10  | DICQ Block J is SLA/performance target; optimization directly maps                 |
 
 **Phase 9 Feasibility Score: 8.0/10** ✅ (HIGH CONFIDENCE)
 
@@ -518,25 +555,27 @@ However, three technical blockers exist:
 ### Resource & Timeline
 
 **Team Allocation:**
+
 - **Stream D (Data/DevOps):** 1.5 FTE (caching strategy + cron + analytics queries)
 - **Stream A (Backend):** 0.5 FTE (Riopomba data import + validation)
 - **Total:** 2 FTE
 
 **Timeline Breakdown (2 weeks, Jul 22 → Aug 4):**
 
-| Task | Week 1 | Week 2 | Dependencies |
-|------|--------|--------|--------------|
-| Riopomba data analysis + import | 2 days | — | Riopomba access + export |
-| Multi-period KPI query implementation | 2 days | 2 days | Existing `kpis` module + schema review |
-| Trend projection (linear regression) | 1 day | 1 day | Statistical library (ml.js) integration |
-| Analytics caching strategy | — | 2 days | Cron pattern + Firestore aggregate schema |
-| PDF batch export | — | 2 days | Phase 6 PDF CF + CloudStorage setup |
-| Testing + performance validation | — | 2 days | Lighthouse CI + Web Vitals gate |
-| Buffer (rework) | — | 1 day | — |
+| Task                                  | Week 1 | Week 2 | Dependencies                              |
+| ------------------------------------- | ------ | ------ | ----------------------------------------- |
+| Riopomba data analysis + import       | 2 days | —      | Riopomba access + export                  |
+| Multi-period KPI query implementation | 2 days | 2 days | Existing `kpis` module + schema review    |
+| Trend projection (linear regression)  | 1 day  | 1 day  | Statistical library (ml.js) integration   |
+| Analytics caching strategy            | —      | 2 days | Cron pattern + Firestore aggregate schema |
+| PDF batch export                      | —      | 2 days | Phase 6 PDF CF + CloudStorage setup       |
+| Testing + performance validation      | —      | 2 days | Lighthouse CI + Web Vitals gate           |
+| Buffer (rework)                       | —      | 1 day  | —                                         |
 
 **Critical Path:** Riopomba import → caching strategy → KPI queries → testing. 2-week serial with 1-day slack.
 
 **Unblock Criteria:**
+
 - ✅ Phase 3 caching patterns fully documented (`kpis` module reference)
 - ✅ Riopomba access granted (export historical data)
 - ✅ ml.js library approved (lightweight, no heavy ML framework)
@@ -548,6 +587,7 @@ However, three technical blockers exist:
 ### Risk & Mitigation
 
 **RISK-901: Riopomba Data Quality / Format Mismatch (Probability: MEDIUM, Impact: MEDIUM)**
+
 - **Trigger:** Historical data has missing fields, inconsistent timestamps, or incompatible format
 - **Mitigation:**
   - Week 1 spike (data analysis): validate 1-week sample (1K records); check gaps; document format assumptions
@@ -556,14 +596,16 @@ However, three technical blockers exist:
 - **Contingency:** Manual data cleanup (1–2 days) if <10% records invalid; skip larger gaps
 
 **RISK-902: Analytics Query Timeout on Large Datasets (Probability: LOW, Impact: MEDIUM)**
+
 - **Trigger:** Multi-period query exceeds 10s timeout; dashboard hangs
 - **Mitigation:**
-  - Pre-computed aggregates (cron runs nightly, writes to _cache collection)
+  - Pre-computed aggregates (cron runs nightly, writes to \_cache collection)
   - Dashboard reads cache, not raw data (response <100ms)
   - Fallback: Single-period view only (user must select month individually)
 - **Contingency:** Increase cron frequency to 6h if stale data complaints; or switch to Redis caching
 
 **RISK-903: Trend Projection Accuracy / User Misinterpretation (Probability: MEDIUM, Impact: LOW)**
+
 - **Trigger:** Linear regression gives nonsensical forecast; user acts on bad data
 - **Mitigation:**
   - Projection disabled if R² <0.8 (not enough linearity)
@@ -572,6 +614,7 @@ However, three technical blockers exist:
 - **Contingency:** Remove projection feature entirely; keep only historical trend (no forward-looking)
 
 **RISK-904: PDF Batch Export Memory Overflow (Probability: LOW, Impact: MEDIUM)**
+
 - **Trigger:** BatchExport CloudFunction exceeds 1GB memory; timeout on 50+ PDFs
 - **Mitigation:**
   - Stream-to-Cloud Storage (never hold full ZIP in memory)
@@ -585,12 +628,12 @@ However, three technical blockers exist:
 
 ### Aggregate Risk Heatmap
 
-| Phase | Score | Risk Level | Key Constraint | Mitigation Owner |
-|-------|-------|------------|-----------------|------------------|
-| **6** | 2.5/10 | LOW | PDF gen timeout | Stream D (DevOps) |
-| **7** | 3.0/10 | LOW | Email auth token validation | Stream B (Frontend) |
-| **8** | 5.0/10 | MEDIUM | Auditor RFI cycles | CTO |
-| **9** | 3.5/10 | LOW-MEDIUM | Riopomba data quality | Stream A (Backend) |
+| Phase | Score  | Risk Level | Key Constraint              | Mitigation Owner    |
+| ----- | ------ | ---------- | --------------------------- | ------------------- |
+| **6** | 2.5/10 | LOW        | PDF gen timeout             | Stream D (DevOps)   |
+| **7** | 3.0/10 | LOW        | Email auth token validation | Stream B (Frontend) |
+| **8** | 5.0/10 | MEDIUM     | Auditor RFI cycles          | CTO                 |
+| **9** | 3.5/10 | LOW-MEDIUM | Riopomba data quality       | Stream A (Backend)  |
 
 **Aggregate Feasibility Score: 3.5/10 Risk (well-mitigated), 8.0/10 Feasibility (high confidence)**
 
@@ -600,15 +643,16 @@ However, three technical blockers exist:
 
 #### FTE by Stream (Phases 6–9)
 
-| Stream | Phase 6 | Phase 7 | Phase 8 | Phase 9 | Total | Role |
-|--------|---------|---------|---------|---------|-------|------|
-| A (Callables) | — | 1.0 | 0.5 | 0.5 | 2.0 | Callables owner + CAPA support |
-| B (Frontend) | 1.5 | 1.5 | — | — | 3.0 | Portal UI + E2E testing |
-| C (IA/Data) | — | — | — | — | 0.0 | Phase 5 carryover (IA pipeline stable) |
-| D (DevOps) | 0.5 | — | — | 1.5 | 2.0 | Infra + analytics + caching |
-| CTO | — | — | 3.0 | — | 3.0 | CAPA closure + auditor comms |
+| Stream        | Phase 6 | Phase 7 | Phase 8 | Phase 9 | Total | Role                                   |
+| ------------- | ------- | ------- | ------- | ------- | ----- | -------------------------------------- |
+| A (Callables) | —       | 1.0     | 0.5     | 0.5     | 2.0   | Callables owner + CAPA support         |
+| B (Frontend)  | 1.5     | 1.5     | —       | —       | 3.0   | Portal UI + E2E testing                |
+| C (IA/Data)   | —       | —       | —       | —       | 0.0   | Phase 5 carryover (IA pipeline stable) |
+| D (DevOps)    | 0.5     | —       | —       | 1.5     | 2.0   | Infra + analytics + caching            |
+| CTO           | —       | —       | 3.0     | —       | 3.0   | CAPA closure + auditor comms           |
 
 **Total Phase 6–9 Effort: 10 FTE-months (14 weeks)**
+
 - **Peak:** Phase 8 (Week 2–4): 3.5 concurrent FTE (CTO + QA + streams)
 - **Valley:** Phase 9 Week 1 (parallel with Phase 8 Week 3, reduced load): 2.0 FTE
 
@@ -642,14 +686,15 @@ Aug 31     v1.4 production launch + external audit ✅
 
 ### Overall Assessment
 
-| Phase | Feasibility | Risk | Team | Timeline | Confidence |
-|-------|-------------|------|------|----------|-----------|
-| **6** | 8.2/10 | 2.5/10 | 2 FTE | 2 weeks | ✅ HIGH |
-| **7** | 7.7/10 | 3.0/10 | 2.5 FTE | 3 weeks | ✅ HIGH |
-| **8** | 8.3/10 | 5.0/10 | 3.5 FTE | 4 weeks | ✅ HIGH (auditor-dependent) |
-| **9** | 8.0/10 | 3.5/10 | 2 FTE | 2 weeks | ✅ HIGH |
+| Phase | Feasibility | Risk   | Team    | Timeline | Confidence                  |
+| ----- | ----------- | ------ | ------- | -------- | --------------------------- |
+| **6** | 8.2/10      | 2.5/10 | 2 FTE   | 2 weeks  | ✅ HIGH                     |
+| **7** | 7.7/10      | 3.0/10 | 2.5 FTE | 3 weeks  | ✅ HIGH                     |
+| **8** | 8.3/10      | 5.0/10 | 3.5 FTE | 4 weeks  | ✅ HIGH (auditor-dependent) |
+| **9** | 8.0/10      | 3.5/10 | 2 FTE   | 2 weeks  | ✅ HIGH                     |
 
 **All four phases are feasible with high confidence**, contingent on:
+
 1. Phase 4–5 deployments remain stable (no major regressions)
 2. Auditor availability + RFI SLA met (Phase 8 critical path)
 3. No scope creep on Phase 6–7 (email-link auth scope lock, LIS deferred)
@@ -679,21 +724,21 @@ Aug 31     v1.4 production launch + external audit ✅
 
 ### RDC 978 Articles Closed
 
-| Phase | Articles | Status |
-|-------|----------|--------|
-| **6** | Arts. 167, 179–191 | Laudo release + CIQ quantitative reporting |
-| **7** | Arts. 115, 167, 204 | Feedback loop + portal + audit trail |
-| **8** | Arts. 5.3 (management review) | CAPA closure ceremony |
-| **9** | Art. 20 (SLA/performance) | KPI dashboard + monitoring |
+| Phase | Articles                      | Status                                     |
+| ----- | ----------------------------- | ------------------------------------------ |
+| **6** | Arts. 167, 179–191            | Laudo release + CIQ quantitative reporting |
+| **7** | Arts. 115, 167, 204           | Feedback loop + portal + audit trail       |
+| **8** | Arts. 5.3 (management review) | CAPA closure ceremony                      |
+| **9** | Art. 20 (SLA/performance)     | KPI dashboard + monitoring                 |
 
 ### DICQ Blocks Closed
 
-| Phase | Blocks | Target % |
-|-------|--------|----------|
-| **6** | Block G (pós-analítico) | +10% (78.5% → 88.5%) |
-| **7** | Block H (QA/feedback) | +8% (88.5% → 96%+) |
-| **8** | Block 4.4 (nonconformance) | Consolidates prior work |
-| **9** | Block J (continuidade) | SLA/performance monitoring |
+| Phase | Blocks                     | Target %                   |
+| ----- | -------------------------- | -------------------------- |
+| **6** | Block G (pós-analítico)    | +10% (78.5% → 88.5%)       |
+| **7** | Block H (QA/feedback)      | +8% (88.5% → 96%+)         |
+| **8** | Block 4.4 (nonconformance) | Consolidates prior work    |
+| **9** | Block J (continuidade)     | SLA/performance monitoring |
 
 **v1.4 Compliance Target: 88%+ DICQ achieved after Phase 7. Phase 8–9 consolidate + optimize.**
 
@@ -765,6 +810,7 @@ Aug 31     v1.4 production launch + external audit ✅
 ### If Phase 6 Slips (>3 days)
 
 **Action:** Extend Phase 6 end to Jul 18 (4 days slip). Compress Phase 7 to 2 weeks (Jul 19 → Aug 1).
+
 - Impact: Phase 9 start shifts to Jul 29 (6-day delay)
 - Risk: Tighter Phase 7 → increased burnout, reduced E2E test coverage
 - Escalation: CTO reviews scope for Phase 7 cutdown (remove optional E2E flows)
@@ -772,6 +818,7 @@ Aug 31     v1.4 production launch + external audit ✅
 ### If Phase 7 Slips (>3 days)
 
 **Action:** Extend Phase 7 end to Aug 3 (3-day slip). Maintain Phase 9 schedule (no change).
+
 - Impact: Phase 7 + Phase 9 overlap (3 days); OK since non-blocking
 - Risk: Frontend team stretched across both (request resource augmentation)
 - Escalation: Defer non-critical Phase 7 features (patient trending secondary, feedback submission critical)
@@ -779,6 +826,7 @@ Aug 31     v1.4 production launch + external audit ✅
 ### If Phase 8 CAPA Evidence Incomplete (>2 CAPAs missing by Week 7)
 
 **Action:** Activate Week 8 buffer (Jul 13 → Jul 19). Daily standup, evidence owner reassignment if needed.
+
 - Impact: Phase 8 sign-off shifts to Aug 12 (7-day slip)
 - Risk: 3-week buffer reduced to 2 weeks; external audit timeline unchanged
 - Escalation: CTO emergency call with auditor (confirm renegotiated deadline acceptable)
@@ -786,6 +834,7 @@ Aug 31     v1.4 production launch + external audit ✅
 ### If Phase 9 Riopomba Integration Fails (data inaccessible or corrupted)
 
 **Action:** Defer Riopomba integration. Proceed with caching + KPI queries + trend projection (80% of Phase 9 scope).
+
 - Impact: Historical benchmarking unavailable; use published industry data instead (CLIA/CAP)
 - Risk: DICQ Block J score slightly lower (~1–2 points)
 - Escalation: No escalation needed; contingency is self-contained
@@ -860,6 +909,7 @@ Aug 31     v1.4 production launch + external audit ✅
 ### Weekly Standups (Phases 6–9, Starting Jul 1)
 
 **Friday 15:00 BRT, 45 min (all streams + CTO):**
+
 1. (10 min) Risk register update (top 5 risks, new risks identified)
 2. (15 min) Phase progress (deliverables, blockers, % complete)
 3. (15 min) Cross-phase dependencies (impact on Phase 8, Phase 9)
@@ -879,6 +929,7 @@ Aug 31     v1.4 production launch + external audit ✅
 4. **Tight timeline:** 14 weeks from Phase 4 start (May 20) to v1.4 launch (Aug 31), with 3-week launch buffer (DICQ 88% by Aug 4, audit Aug 31)
 
 **Critical success factors:**
+
 - Phase 4–5 deploys stable (no major regressions)
 - Auditor RFI SLA respected (5 business days max per cycle)
 - Scope locks honored (email-link auth v1.4, LIS deferred v1.4.1)

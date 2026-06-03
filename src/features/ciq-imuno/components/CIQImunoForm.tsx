@@ -208,9 +208,7 @@ function EsperadoBadge({
     <div
       className={[
         'flex items-center justify-between gap-3 px-3.5 py-2.5 rounded-xl border',
-        isR
-          ? 'bg-emerald-500/[0.07] border-emerald-500/25'
-          : 'bg-red-500/[0.07] border-red-400/20',
+        isR ? 'bg-emerald-500/[0.07] border-emerald-500/25' : 'bg-red-500/[0.07] border-red-400/20',
       ].join(' ')}
     >
       <div className="flex items-center gap-2">
@@ -278,26 +276,27 @@ function ValidationBanner({
             </button>
           </div>
           <p className="text-[11px] text-amber-700/85 dark:text-amber-200/75 mt-0.5 leading-relaxed">
-            Bate com o esperado nos dois controles → liberado para pacientes. Diverge
-            → reprovado e bloqueado.
+            Bate com o esperado nos dois controles → liberado para pacientes. Diverge → reprovado e
+            bloqueado.
           </p>
         </div>
       </div>
       {open && (
         <div className="pl-9 pr-1 pt-1 text-[11px] text-amber-700/85 dark:text-amber-200/75 leading-relaxed border-t border-amber-500/15">
           <p className="mt-2">
-            <strong>Toda caixa nova de kit imuno precisa ser qualificada antes de uso
-            em amostras de paciente</strong> — RDC 786/2023 (rastreabilidade de
-            insumos de diagnóstico) + RDC 978/2025 Art.128 (validação de lote
-            novo de CQ). A corrida-validação é a forma documentada dessa
-            qualificação: rodar os controles positivo e negativo do próprio kit
-            e verificar que respondem como o fabricante declara.
+            <strong>
+              Toda caixa nova de kit imuno precisa ser qualificada antes de uso em amostras de
+              paciente
+            </strong>{' '}
+            — RDC 786/2023 (rastreabilidade de insumos de diagnóstico) + RDC 978/2025 Art.128
+            (validação de lote novo de CQ). A corrida-validação é a forma documentada dessa
+            qualificação: rodar os controles positivo e negativo do próprio kit e verificar que
+            respondem como o fabricante declara.
           </p>
           <p className="mt-2">
-            Se ambos baterem com o esperado, o lote é{' '}
-            <strong>liberado automaticamente</strong> e fica disponível pra rotina.
-            Qualquer divergência → <strong>lote reprovado</strong>, motivo gravado
-            em auditoria, e o lote fica bloqueado (override só com justificativa).
+            Se ambos baterem com o esperado, o lote é <strong>liberado automaticamente</strong> e
+            fica disponível pra rotina. Qualquer divergência → <strong>lote reprovado</strong>,
+            motivo gravado em auditoria, e o lote fica bloqueado (override só com justificativa).
           </p>
         </div>
       )}
@@ -727,9 +726,7 @@ export function CIQImunoForm({
   // bloqueia. `lockedFromLot` continua atuando independente quando a corrida
   // veio de um CIQImunoLot vinculado.
   const controleAutoFilled = !!manualGuard.resolved.controlePositivo;
-  const reagenteAutoFilled = isManual
-    ? !!manualGuard.resolved.reagente
-    : !!insumoGuard.reagente;
+  const reagenteAutoFilled = isManual ? !!manualGuard.resolved.reagente : !!insumoGuard.reagente;
 
   // Data de hoje formatada para exibição
   const todayFormatted = new Date().toLocaleDateString('pt-BR', {
@@ -1325,10 +1322,7 @@ export function CIQImunoForm({
                     }}
                     error={errors.resultadoObtido}
                   />
-                  <InlineConformidadeBadge
-                    esperado={esperadoPositivo}
-                    obtido={obtidoPositivo}
-                  />
+                  <InlineConformidadeBadge esperado={esperadoPositivo} obtido={obtidoPositivo} />
                 </div>
               </div>
 
@@ -1369,10 +1363,7 @@ export function CIQImunoForm({
                     }}
                     error={errors.resultadoObtidoNegativo}
                   />
-                  <InlineConformidadeBadge
-                    esperado={esperadoNegativo}
-                    obtido={obtidoNegativo}
-                  />
+                  <InlineConformidadeBadge esperado={esperadoNegativo} obtido={obtidoNegativo} />
                 </div>
               </div>
             </>
@@ -1407,9 +1398,7 @@ export function CIQImunoForm({
           {/* Aprovação — derivada automaticamente, separada do resultado */}
           {aprovacaoDerived && (
             <div>
-              <Label htmlFor="aprovacao">
-                {isManual ? 'Veredito da corrida' : 'Aprovação'}
-              </Label>
+              <Label htmlFor="aprovacao">{isManual ? 'Veredito da corrida' : 'Aprovação'}</Label>
               <ApprovalBadge conforme={!naoConforme} />
               {isManual && isValidacaoMode && (
                 <p className="text-[11px] text-slate-500 dark:text-white/40 mt-1.5 ml-0.5">
@@ -1483,26 +1472,41 @@ export function CIQImunoForm({
           </p>
           {/* Fase 3b — Prazo dinâmico: calcula horas desde dataRealizacao
               e sinaliza visualmente o tier regulatório (72h evento grave / 30d QT). */}
-          {form.dataRealizacao && (() => {
-            const [y, m, d] = form.dataRealizacao.split('-').map(Number);
-            const realizado = new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
-            const horas = Math.floor((Date.now() - realizado) / (1000 * 60 * 60));
-            if (horas < 0) return null;
-            const tier =
-              horas >= 24 * 30
-                ? { cls: 'bg-red-50 dark:bg-red-500/[0.08] border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400', label: 'Prazo de 30 dias excedido' }
-                : horas >= 72
-                  ? { cls: 'bg-amber-50 dark:bg-amber-500/[0.08] border-amber-300 dark:border-amber-500/30 text-amber-700 dark:text-amber-400', label: 'Prazo de 72h (evento grave) excedido' }
-                  : horas >= 48
-                    ? { cls: 'bg-amber-50 dark:bg-amber-500/[0.06] border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400', label: `${72 - horas}h restantes (evento grave)` }
-                    : { cls: 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400', label: `${horas}h desde a realização` };
-            return (
-              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-[11px] font-medium mb-3 ${tier.cls}`}>
-                <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
-                {tier.label}
-              </div>
-            );
-          })()}
+          {form.dataRealizacao &&
+            (() => {
+              const [y, m, d] = form.dataRealizacao.split('-').map(Number);
+              const realizado = new Date(y, m - 1, d, 0, 0, 0, 0).getTime();
+              const horas = Math.floor((Date.now() - realizado) / (1000 * 60 * 60));
+              if (horas < 0) return null;
+              const tier =
+                horas >= 24 * 30
+                  ? {
+                      cls: 'bg-red-50 dark:bg-red-500/[0.08] border-red-300 dark:border-red-500/30 text-red-700 dark:text-red-400',
+                      label: 'Prazo de 30 dias excedido',
+                    }
+                  : horas >= 72
+                    ? {
+                        cls: 'bg-amber-50 dark:bg-amber-500/[0.08] border-amber-300 dark:border-amber-500/30 text-amber-700 dark:text-amber-400',
+                        label: 'Prazo de 72h (evento grave) excedido',
+                      }
+                    : horas >= 48
+                      ? {
+                          cls: 'bg-amber-50 dark:bg-amber-500/[0.06] border-amber-200 dark:border-amber-500/20 text-amber-700 dark:text-amber-400',
+                          label: `${72 - horas}h restantes (evento grave)`,
+                        }
+                      : {
+                          cls: 'bg-blue-50 dark:bg-blue-500/[0.06] border-blue-200 dark:border-blue-500/20 text-blue-700 dark:text-blue-400',
+                          label: `${horas}h desde a realização`,
+                        };
+              return (
+                <div
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-[11px] font-medium mb-3 ${tier.cls}`}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-current shrink-0" />
+                  {tier.label}
+                </div>
+              );
+            })()}
           <div className="space-y-4">
             <div>
               <Label htmlFor="notivisaTipo">Tipo de notificação</Label>
@@ -1627,7 +1631,13 @@ export function CIQImunoForm({
               aria-hidden
               className="transition-transform group-open:rotate-90 text-slate-400 dark:text-white/30"
             >
-              <path d="M3 1.5l4 3.5-4 3.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M3 1.5l4 3.5-4 3.5"
+                stroke="currentColor"
+                strokeWidth="1.4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
             Dados adicionais
           </span>

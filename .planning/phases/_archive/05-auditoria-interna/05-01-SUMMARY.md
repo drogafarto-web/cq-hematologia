@@ -29,6 +29,7 @@ Establish the foundation for Auditoria Interna module (DICQ 1.3): type definitio
 - **TemplateChecklist**: ~115 seed items (DICQ 4.3 + RDC 978/2025 mapping)
 
 All entities include:
+
 - `labId`: multi-tenant scoping
 - `criadoEm`, `criadoPor`: immutable audit fields
 - `deletadoEm`: soft-delete flag (null = active; Timestamp = deleted)
@@ -85,6 +86,7 @@ All entities include:
    - `softDelete` calls `softDeleteAchado` service
 
 All hooks follow educacao-continuada pattern:
+
 - Guard on active lab (throw if no lab)
 - Error handling with state management
 - Cleanup on unmount
@@ -123,6 +125,7 @@ match /auditorias-internas/{auditoriaId} {
 ```
 
 **Security properties:**
+
 - ✅ All writes via callable (Fase 0b pattern)
 - ✅ Read available to any active lab member
 - ✅ Soft-delete only: client cannot hard delete
@@ -137,17 +140,18 @@ match /auditorias-internas/{auditoriaId} {
 
 Indices for efficient queries:
 
-| Collection | Fields | Use Case |
-|---|---|---|
-| auditorias-internas | (status, criadoEm DESC) | List by status, newest first |
-| auditorias-internas | (ano, status) | Audits of year Y with status X |
-| auditorias-internas | (deletadoEm, criadoEm DESC) | Soft-delete + time ordering |
-| sessoes | (status, dataInicio DESC) | Sessions by status, newest first |
-| sessoes | (deletadoEm, criadoEm) | Soft-delete tracking |
-| achados | (severidade, criadoEm DESC) | Findings: critical first, then newest |
-| achados | (statusNC, severidade) | Pending NCs by severity |
+| Collection          | Fields                      | Use Case                              |
+| ------------------- | --------------------------- | ------------------------------------- |
+| auditorias-internas | (status, criadoEm DESC)     | List by status, newest first          |
+| auditorias-internas | (ano, status)               | Audits of year Y with status X        |
+| auditorias-internas | (deletadoEm, criadoEm DESC) | Soft-delete + time ordering           |
+| sessoes             | (status, dataInicio DESC)   | Sessions by status, newest first      |
+| sessoes             | (deletadoEm, criadoEm)      | Soft-delete tracking                  |
+| achados             | (severidade, criadoEm DESC) | Findings: critical first, then newest |
+| achados             | (statusNC, severidade)      | Pending NCs by severity               |
 
 All follow Firestore Composite Indices format:
+
 ```json
 {
   "collectionGroup": "auditorias-internas",
@@ -166,22 +170,23 @@ All follow Firestore Composite Indices format:
 **File:** `src/features/auditoria-interna/data/checklistTemplates.json` (858 KB)
 
 **Template:** `dicq-4-3-rdc-978-v1`
+
 - **Name:** "DICQ 8ª Edição + RDC 978/2025"
 - **Items:** 117 DICQ requirements
 - **Blocos:** A-J (Seção 4 + Seção 5 of DICQ)
 
 **Sample items:**
 
-| Item | Descricao | Bloco | RDC Mapping |
-|---|---|---|---|
-| 4.1.1.2 | Pessoa jurídica documentada (Contrato Social, CNES, Alvará, AVCB) | A | 978:5.1 |
-| 4.1.2.7 | Designação formal do Gerente da Qualidade | A | 978:5.1 |
-| 4.3 | Hierarquia documental (MQ → PQ → IT → FR) | A | 978:5.4 |
-| 4.14.5 | Auditoria interna (periodicidade, escopo, equipe imparcial) | B | 978:5.13 |
-| 5.1.5 | Procedimento de treinamento + registros + certificados | C | 978:6.2.2 |
-| 5.3.1.4 | Procedimento de calibração + rastreabilidade metrológica | D | 978:6.4.2 |
-| 5.6.2.3 | Dados de CIQ (forma, frequência, limites, avaliação) | G | 978:6.7.2 |
-| 5.10.1 | Procedimento de confidencialidade (rules strict, audit) | J | 978:6.9.1 |
+| Item    | Descricao                                                         | Bloco | RDC Mapping |
+| ------- | ----------------------------------------------------------------- | ----- | ----------- |
+| 4.1.1.2 | Pessoa jurídica documentada (Contrato Social, CNES, Alvará, AVCB) | A     | 978:5.1     |
+| 4.1.2.7 | Designação formal do Gerente da Qualidade                         | A     | 978:5.1     |
+| 4.3     | Hierarquia documental (MQ → PQ → IT → FR)                         | A     | 978:5.4     |
+| 4.14.5  | Auditoria interna (periodicidade, escopo, equipe imparcial)       | B     | 978:5.13    |
+| 5.1.5   | Procedimento de treinamento + registros + certificados            | C     | 978:6.2.2   |
+| 5.3.1.4 | Procedimento de calibração + rastreabilidade metrológica          | D     | 978:6.4.2   |
+| 5.6.2.3 | Dados de CIQ (forma, frequência, limites, avaliação)              | G     | 978:6.7.2   |
+| 5.10.1  | Procedimento de confidencialidade (rules strict, audit)           | J     | 978:6.9.1   |
 
 **Data structure:**
 
@@ -208,6 +213,7 @@ All follow Firestore Composite Indices format:
 ```
 
 **Coverage:**
+
 - ✅ Seção 4 (14.1-4.15): Direção (39 itens)
 - ✅ Seção 5 (5.1-5.10): Técnicos (78 itens)
 - ✅ Total: 117 items, all with DICQ reference + RDC 978 mapping
@@ -228,6 +234,7 @@ All follow Firestore Composite Indices format:
 - `filterTemplateItems(templateId, { bloco?, categoria?, applicableOnly? })` — Subset queries
 
 **Pattern:**
+
 - Static JSON load (templates immutable)
 - Callable-backed installation (Phase 05-03)
 - Lazy template loading in hooks (Phase 05-02)
@@ -238,20 +245,20 @@ All follow Firestore Composite Indices format:
 
 ### Created (5 new files)
 
-| File | Lines | Purpose |
-|---|---|---|
-| `src/features/auditoria-interna/types/index.ts` | 183 | Type definitions for all entities |
-| `src/features/auditoria-interna/services/auditoriaService.ts` | 340 | CRUD + subscriptions + soft-delete |
-| `src/features/auditoria-interna/hooks/useAuditorias.ts` | 260 | React hooks for real-time binding |
-| `src/features/auditoria-interna/services/checklistTemplateService.ts` | 142 | Template loading + installation |
-| `src/features/auditoria-interna/data/checklistTemplates.json` | 858 KB | ~115 DICQ items seed data |
+| File                                                                  | Lines  | Purpose                            |
+| --------------------------------------------------------------------- | ------ | ---------------------------------- |
+| `src/features/auditoria-interna/types/index.ts`                       | 183    | Type definitions for all entities  |
+| `src/features/auditoria-interna/services/auditoriaService.ts`         | 340    | CRUD + subscriptions + soft-delete |
+| `src/features/auditoria-interna/hooks/useAuditorias.ts`               | 260    | React hooks for real-time binding  |
+| `src/features/auditoria-interna/services/checklistTemplateService.ts` | 142    | Template loading + installation    |
+| `src/features/auditoria-interna/data/checklistTemplates.json`         | 858 KB | ~115 DICQ items seed data          |
 
 ### Modified (2 existing files)
 
-| File | Changes | Impact |
-|---|---|---|
-| `firestore.rules` | +60 lines | Added auditorias-internas collection rules (callable-only writes, soft-delete) |
-| `firestore.indexes.json` | +70 lines | Added 8 composite indices for audit queries |
+| File                     | Changes   | Impact                                                                         |
+| ------------------------ | --------- | ------------------------------------------------------------------------------ |
+| `firestore.rules`        | +60 lines | Added auditorias-internas collection rules (callable-only writes, soft-delete) |
+| `firestore.indexes.json` | +70 lines | Added 8 composite indices for audit queries                                    |
 
 ## Key Architectural Decisions
 
@@ -281,9 +288,9 @@ All follow Firestore Composite Indices format:
 
 ```typescript
 interface LogicalSignature {
-  hash: string;        // SHA-256 (64 chars)
-  operatorId: string;  // request.auth.uid
-  ts: Timestamp;       // when signed
+  hash: string; // SHA-256 (64 chars)
+  operatorId: string; // request.auth.uid
+  ts: Timestamp; // when signed
 }
 ```
 
@@ -310,36 +317,40 @@ This matches educacao-continuada pattern established in Phase 0b.
 
 ## Success Criteria — All Met ✅
 
-| Criteria | Status | Evidence |
-|---|---|---|
-| Types compile without errors | ✅ | `npx tsc --noEmit --skipLibCheck` passes |
-| Service layer ready for consumption | ✅ | 7 exported functions; hooks ready for Phase 05-02 |
-| Firestore rules deployed-ready | ✅ | Syntax valid, deny-by-default, callable-only writes |
-| Indices created for queries | ✅ | 8 indices for status/time/severity queries |
-| Checklist template with ~115 items | ✅ | 117 DICQ items, all with RDC 978 mapping |
-| Multi-tenant enforced | ✅ | `/labs/{labId}` paths in all functions |
-| Soft-delete pattern consistent | ✅ | `deletadoEm: Timestamp \| null` on all entities |
-| Git diff clean | ✅ | Single commit, 2055 lines added |
+| Criteria                            | Status | Evidence                                            |
+| ----------------------------------- | ------ | --------------------------------------------------- |
+| Types compile without errors        | ✅     | `npx tsc --noEmit --skipLibCheck` passes            |
+| Service layer ready for consumption | ✅     | 7 exported functions; hooks ready for Phase 05-02   |
+| Firestore rules deployed-ready      | ✅     | Syntax valid, deny-by-default, callable-only writes |
+| Indices created for queries         | ✅     | 8 indices for status/time/severity queries          |
+| Checklist template with ~115 items  | ✅     | 117 DICQ items, all with RDC 978 mapping            |
+| Multi-tenant enforced               | ✅     | `/labs/{labId}` paths in all functions              |
+| Soft-delete pattern consistent      | ✅     | `deletadoEm: Timestamp \| null` on all entities     |
+| Git diff clean                      | ✅     | Single commit, 2055 lines added                     |
 
 ## What Phase 05-02 Consumes
 
 ### From types:
+
 - Auditoria, Sessao, ChecklistItem, Achado, LogicalSignature, TemplateChecklist
 - Status enums: StatusSessao, StatusAuditoria, SeveridadeAchado
 
 ### From service:
+
 - `subscribeAuditorias` — for audit list view
 - `subscribeSessoes` — for audit detail view
 - `subscribeChecklistItems` + `subscribeAchados` — for session execution view
 - `softDeleteAchado` — for finding deletion UI
 
 ### From hooks:
+
 - `useAuditorias` — audit list component
 - `useSessao` — session detail component
 - `useChecklistTemplate` — template selector in new session form
 - `useAchadoMutation` — finding registration form
 
 ### From template service:
+
 - `listAvailableTemplates()` — dropdown in new session form
 - `installTemplate(labId, templateId)` → calls Cloud Function (Phase 05-03)
 
@@ -358,6 +369,7 @@ This matches educacao-continuada pattern established in Phase 0b.
 ### None — Plan executed exactly as written.
 
 **Verification:**
+
 - Task 1 (types): ✅ 6 interfaces exported (Auditoria, Sessao, ChecklistItem, Achado, LogicalSignature, TemplateChecklist)
 - Task 2 (service): ✅ 7 functions (subscribe* + softDelete*)
 - Task 3 (hooks): ✅ 4 hooks (useAuditorias, useChecklistTemplate, useSessao, useAchadoMutation)
@@ -367,18 +379,18 @@ This matches educacao-continuada pattern established in Phase 0b.
 
 ## Metrics
 
-| Metric | Value |
-|---|---|
-| Duration | ~4 hours |
-| Files created | 5 |
-| Files modified | 2 |
-| Lines added | 2055 |
-| Commits | 1 |
-| TypeScript errors | 0 |
-| Soft-delete fields | On all 5 entities |
-| Checklist items | 117 (blocos A-J) |
-| Firestore rules | Callable-only, deny-by-default |
-| Composite indices | 8 (status, ano, severity, timestamps) |
+| Metric             | Value                                 |
+| ------------------ | ------------------------------------- |
+| Duration           | ~4 hours                              |
+| Files created      | 5                                     |
+| Files modified     | 2                                     |
+| Lines added        | 2055                                  |
+| Commits            | 1                                     |
+| TypeScript errors  | 0                                     |
+| Soft-delete fields | On all 5 entities                     |
+| Checklist items    | 117 (blocos A-J)                      |
+| Firestore rules    | Callable-only, deny-by-default        |
+| Composite indices  | 8 (status, ano, severity, timestamps) |
 
 ## Technical Debt
 
@@ -387,6 +399,7 @@ None identified. Foundation is production-ready for Phase 05-02 UI + Phase 05-03
 ## Next Steps
 
 **Phase 05-02 (UI Components):**
+
 - AuditoriaListView (uses useAuditorias)
 - AuditoriaDetailView (uses subscribeSessoes)
 - SessaoExecutionView (uses useSessao + useAchadoMutation)
@@ -394,6 +407,7 @@ None identified. Foundation is production-ready for Phase 05-02 UI + Phase 05-03
 - FindingRegistrationForm (uses useAchadoMutation)
 
 **Phase 05-03 (Cloud Functions):**
+
 - `registerAchado` callable (validates input, generates LogicalSignature, creates Achado)
 - `createAuditoria` callable
 - `updateAuditoria` callable
@@ -402,6 +416,7 @@ None identified. Foundation is production-ready for Phase 05-02 UI + Phase 05-03
 - `deleteAuditoria`, `deleteSessao`, `deleteAchado` callables (soft-delete + audit)
 
 **Phase 05-04+ (Reports, E2E tests, refinement):**
+
 - PDF report generation from audit findings
 - E2E test suite (5 critical flows)
 - Performance optimization if needed

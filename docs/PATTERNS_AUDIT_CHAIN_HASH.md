@@ -77,13 +77,11 @@ export interface ChainedAuditPayload {
   secret: string;
 }
 
-export type WriteChainedAuditResult =
-  | { ok: true; id: string }
-  | { ok: false; error: string };
+export type WriteChainedAuditResult = { ok: true; id: string } | { ok: false; error: string };
 
 async function writeChainedAudit(
   entry: ChainedAuditPayload,
-  firestore?: admin.firestore.Firestore
+  firestore?: admin.firestore.Firestore,
 ): Promise<WriteChainedAuditResult>;
 ```
 
@@ -130,12 +128,12 @@ Each document contains:
   operadorId: string;                    // request.auth.uid
   operation: string;                     // e.g. "notaFiscal.criada"
   payload: Record<string, unknown>;      // Domain-specific data
-  
+
   // Cryptographic chain fields
   previousHash: string | null;           // Chain link (null for first entry)
   hmac: string;                          // HMAC-SHA256 of entry (hex, 64 chars)
   hash: string;                          // SHA256 of (hmac + entry), hex, 64 chars
-  
+
   // Optional: migration fields (ADR-0017/0030)
   _migratedAt?: Timestamp;               // Baseline reset timestamp
   _legacyHash?: string;                  // Original hash before migration
@@ -152,13 +150,13 @@ When `writeChainedAudit` exhausts retries, it writes:
 
 ```typescript
 {
-  chainCollectionPath: string;            // e.g. "/labs/abc/notas-fiscais"
-  operation: string;                      // e.g. "notaFiscal.criada"
-  operadorId: string;                     // request.auth.uid
+  chainCollectionPath: string; // e.g. "/labs/abc/notas-fiscais"
+  operation: string; // e.g. "notaFiscal.criada"
+  operadorId: string; // request.auth.uid
   intendedPayload: Record<string, unknown>; // Original payload
-  error: string;                          // Truncated to 2000 chars
-  attempts: number;                       // Always 3
-  recordedAt: Timestamp;                  // Firestore server timestamp
+  error: string; // Truncated to 2000 chars
+  attempts: number; // Always 3
+  recordedAt: Timestamp; // Firestore server timestamp
 }
 ```
 
@@ -176,7 +174,7 @@ When `writeChainedAudit` exhausts retries, it writes:
 export async function validateChainIntegrity(
   collectionPath: string,
   secret: string,
-  options?: { batchSize?: number }
+  options?: { batchSize?: number },
 ): Promise<ChainValidationResult>;
 
 export interface ChainValidationResult {
@@ -199,10 +197,7 @@ export interface ChainValidationResult {
 ### Usage
 
 ```typescript
-const result = await validateChainIntegrity(
-  '/labs/lab-abc/notas-fiscais',
-  secret
-);
+const result = await validateChainIntegrity('/labs/lab-abc/notas-fiscais', secret);
 
 if (!result.valid) {
   console.error('Chain breach detected:', result.violations);
@@ -233,25 +228,27 @@ export const yourOperation = functions.onCall(
   { region: 'southamerica-east1', secrets: [YOUR_HMAC_SECRET] },
   async (request) => {
     const { labId, payload } = request.data;
-    
+
     // 1. Validate authorization, input, etc.
     if (!request.auth) throw new HttpsError('unauthenticated', '...');
-    
+
     // 2. Perform your domain operation
     const docRef = db.collection(`labs/${labId}/your-collection`).doc();
     await docRef.set({ ...payload, createdAt: serverTimestamp() });
-    
+
     // 3. Chain-audit the operation (non-blocking)
     await writeChainedAudit({
       collectionPath: `/labs/${labId}/your-collection`,
       operadorId: request.auth.uid,
       operation: 'yourModule.operationName',
-      payload: { /* what to audit */ },
+      payload: {
+        /* what to audit */
+      },
       secret: YOUR_HMAC_SECRET.value(),
     });
-    
+
     return { success: true };
-  }
+  },
 );
 ```
 
@@ -279,13 +276,13 @@ If your collection will have >1000 documents, set up a scheduled Cloud Function 
 // functions/src/modules/your-module/validateChainScheduled.ts
 export const validateYourCollectionChain = onSchedule('0 */4 * * *', async () => {
   const labs = await db.collection('labs').listDocuments();
-  
+
   for (const labDoc of labs) {
     const result = await validateChainIntegrity(
       `/labs/${labDoc.id}/your-collection`,
-      YOUR_HMAC_SECRET.value()
+      YOUR_HMAC_SECRET.value(),
     );
-    
+
     if (!result.valid) {
       await db.collection('audit-violations').add({
         collectionPath: `/labs/${labDoc.id}/your-collection`,
@@ -314,27 +311,22 @@ Add these composite indexes to `firestore.indexes.json`:
   "indexes": [
     {
       "collectionGroup": "notas-fiscais",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
+      "fields": [{ "fieldPath": "timestamp", "order": "DESCENDING" }]
     },
     {
       "collectionGroup": "criticos-log-eventos",
-      "fields": [
-        { "fieldPath": "timestamp", "order": "DESCENDING" }
-      ]
+      "fields": [{ "fieldPath": "timestamp", "order": "DESCENDING" }]
     },
     {
       "collectionGroup": "notas-fiscais-auditFailures",
-      "fields": [
-        { "fieldPath": "recordedAt", "order": "DESCENDING" }
-      ]
+      "fields": [{ "fieldPath": "recordedAt", "order": "DESCENDING" }]
     }
   ]
 }
 ```
 
 For any new chained collection:
+
 - **Query by timestamp (desc):** for `getPreviousHashInCollection` in `cryptoAudit.ts`.
 - **Query failure markers by recordedAt (desc):** for operators investigating missing audits.
 
@@ -354,13 +346,13 @@ it('generates correct chain signature', async () => {
     'user-1',
     'notaFiscal.criada',
     { numero: 'NF-001' },
-    secret
+    secret,
   );
-  
+
   expect(entry.hash).toHaveLength(64); // SHA256 hex
   expect(entry.hmac).toHaveLength(64);
   expect(entry.previousHash).toBeNull(); // First in chain
-  
+
   // Verify signature integrity
   const verified = verifyAuditEntry(entry, secret);
   expect(verified.valid).toBe(true);
@@ -368,23 +360,23 @@ it('generates correct chain signature', async () => {
 
 it('chains previous hash correctly', async () => {
   const secret = 'test-secret';
-  
+
   const entry1 = await signAuditEntry(
     '/labs/test-lab/notas-fiscais',
     'user-1',
     'notaFiscal.criada',
     { numero: 'NF-001' },
-    secret
+    secret,
   );
-  
+
   const entry2 = await signAuditEntry(
     '/labs/test-lab/notas-fiscais',
     'user-1',
     'notaFiscal.criada',
     { numero: 'NF-002' },
-    secret
+    secret,
   );
-  
+
   expect(entry2.previousHash).toBe(entry1.hash);
 });
 ```
@@ -397,18 +389,18 @@ it('detects tampered record in chain', async () => {
   const entry1 = await signAuditEntry(...);
   const entry2 = await signAuditEntry(...); // references entry1.hash
   const entry3 = await signAuditEntry(...); // references entry2.hash
-  
+
   // Tamper: modify entry2's payload
   await db.collection('/labs/test-lab/notas-fiscais')
     .doc(entry2.id)
     .update({ 'payload.numero': 'FAKE-999' });
-  
+
   // Validate: should detect tamper at entry3
   const result = await validateChainIntegrity(
     '/labs/test-lab/notas-fiscais',
     secret
   );
-  
+
   expect(result.valid).toBe(false);
   expect(result.violations[0].reason).toBe('hash-sequence-broken');
   expect(result.violations[0].docId).toBe(entry3.id);
@@ -452,11 +444,11 @@ if (failureMarkers.size > 0) {
 
 ## Compliance mapping
 
-| RDC 978 Article | DICQ Block | Satisfied by | Evidence |
-|---|---|---|---|
-| Art. 128 (Scientific & technical documentation audit) | 4.4 (Traceability) | Chain HMAC + failure markers | `validateChainIntegrity()` report |
-| Art. 128 (Tamper-proof record) | 4.4.1 (Immutability) | SHA256 continuity + `previousHash` link | Hash recomputation detects any change |
-| Art. 128 (Non-repudiation) | 4.4.2 (Operator identity) | `operadorId == request.auth.uid` at write time | Token claim in entry |
+| RDC 978 Article                                       | DICQ Block                | Satisfied by                                   | Evidence                              |
+| ----------------------------------------------------- | ------------------------- | ---------------------------------------------- | ------------------------------------- |
+| Art. 128 (Scientific & technical documentation audit) | 4.4 (Traceability)        | Chain HMAC + failure markers                   | `validateChainIntegrity()` report     |
+| Art. 128 (Tamper-proof record)                        | 4.4.1 (Immutability)      | SHA256 continuity + `previousHash` link        | Hash recomputation detects any change |
+| Art. 128 (Non-repudiation)                            | 4.4.2 (Operator identity) | `operadorId == request.auth.uid` at write time | Token claim in entry                  |
 
 ---
 

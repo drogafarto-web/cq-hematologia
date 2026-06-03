@@ -87,7 +87,7 @@ function getCallRevogarQualificacao(): HttpsCallable<
  * v1.5 NO-UI-YET: Server-side callable ready. UI (modal + list + revogação) pending.
  */
 export async function callCriarQualificacao(
-  payload: CriarQualificacaoPayload
+  payload: CriarQualificacaoPayload,
 ): Promise<CallCriarQualificacaoResult> {
   try {
     const result = await getCallCriarQualificacao()(payload);
@@ -104,7 +104,7 @@ export async function callCriarQualificacao(
  * Throws Error if qualificação not found, already revoked, or labId is not active.
  */
 export async function callRevogarQualificacao(
-  payload: RevogarQualificacaoPayload
+  payload: RevogarQualificacaoPayload,
 ): Promise<RevogarQualificacaoResult> {
   try {
     const result = await getCallRevogarQualificacao()(payload);
@@ -137,7 +137,7 @@ function translateError(error: unknown): Error {
     if (message.includes('FAILED_PRECONDITION')) {
       const match = message.match(/FAILED_PRECONDITION: (.+)/);
       return new Error(
-        match ? match[1] : 'Operação não permitida — operador pode já ter esta qualificação.'
+        match ? match[1] : 'Operação não permitida — operador pode já ter esta qualificação.',
       );
     }
     if (message.includes('INTERNAL')) {

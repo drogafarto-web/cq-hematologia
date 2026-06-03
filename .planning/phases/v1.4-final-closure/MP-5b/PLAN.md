@@ -5,8 +5,8 @@ label: Mobile Analytics — Biometric auth + offline sync + analytics dashboard
 type: execute
 model: haiku
 escalation_model: sonnet
-depends_on: ["MP-4"]
-parallel_with: ["MP-5a", "MP-5c"]
+depends_on: ['MP-4']
+parallel_with: ['MP-5a', 'MP-5c']
 autonomous: true
 human_gates: 0
 total_subagents: 5
@@ -19,6 +19,7 @@ estimated_runtime: 1h
 **Goal:** Add an analytics dashboard to `hc-quality-mobile/` (React Native + NativeWind + Detox), wired to biometric auth and an offline-first sync queue.
 
 **Stack constraints (project rules):**
+
 - React Native (Expo SDK 51+, RN 0.74+)
 - NativeWind 4 — never `StyleSheet`. Tailwind classes only.
 - Detox for E2E (already in repo, see `hc-quality-mobile/e2e/`)
@@ -26,12 +27,14 @@ estimated_runtime: 1h
 - Dark-first; respect `prefers-reduced-motion` (RN Animated.timing with `useNativeDriver`)
 
 **Wave dependency graph:**
+
 ```
 W1 (auth + sync foundation)        2 SAs ‖
   └─> W2 (engine + dashboard + e2e) 3 SAs ‖
 ```
 
 **Existing canonical files to read:**
+
 - `hc-quality-mobile/src/screens/Home.tsx` — current screen pattern.
 - `hc-quality-mobile/src/services/` — existing Firebase service wrappers if any.
 - `hc-quality-mobile/src/store/` — Zustand store (mirror of web `useAuthStore`).
@@ -54,25 +57,27 @@ Biometric authentication wrapper around `expo-local-authentication`. Face ID on 
 **Exports obrigatórios:**
 
 ```typescript
-export type BiometricCapability =
-  | 'face-id'
-  | 'touch-id'
-  | 'fingerprint'
-  | 'iris'
-  | 'none';
+export type BiometricCapability = 'face-id' | 'touch-id' | 'fingerprint' | 'iris' | 'none';
 
 export type BiometricAuthResult =
   | { ok: true; method: BiometricCapability }
-  | { ok: false; reason: 'not-enrolled' | 'cancelled' | 'lockout' | 'hardware-unavailable' | 'unknown'; native?: string };
+  | {
+      ok: false;
+      reason: 'not-enrolled' | 'cancelled' | 'lockout' | 'hardware-unavailable' | 'unknown';
+      native?: string;
+    };
 
 export async function detectBiometricCapability(): Promise<BiometricCapability>;
-export async function authenticateWithBiometrics(promptMessage: string): Promise<BiometricAuthResult>;
+export async function authenticateWithBiometrics(
+  promptMessage: string,
+): Promise<BiometricAuthResult>;
 export async function isBiometricEnrolled(): Promise<boolean>;
 export async function persistBiometricPreference(uid: string, enabled: boolean): Promise<void>;
 export async function loadBiometricPreference(uid: string): Promise<boolean>;
 ```
 
 **Invariantes:**
+
 - Usa `expo-local-authentication` (`hasHardwareAsync`, `isEnrolledAsync`, `supportedAuthenticationTypesAsync`, `authenticateAsync`).
 - Persiste preferência por `uid` em `expo-secure-store` (key: `biometric-pref:{uid}`). Nunca em AsyncStorage.
 - `authenticateWithBiometrics` passa `disableDeviceFallback: false` (permite PIN como fallback no lockout).
@@ -99,14 +104,14 @@ export type SyncOperation = 'create' | 'update' | 'softDelete';
 export type SyncStatus = 'pending' | 'syncing' | 'synced' | 'failed' | 'conflict';
 
 export interface SyncQueueItem {
-  id: string;                    // uuid
+  id: string; // uuid
   labId: string;
-  collection: string;            // e.g. 'bioquimica/runs'
+  collection: string; // e.g. 'bioquimica/runs'
   docId: string;
   operation: SyncOperation;
   payload: Record<string, unknown>;
-  payloadHash: string;           // SHA-256 hex64
-  baseVersion: number;           // server version at the time the local edit started
+  payloadHash: string; // SHA-256 hex64
+  baseVersion: number; // server version at the time the local edit started
   status: SyncStatus;
   attempts: number;
   lastAttemptAt?: number;
@@ -119,14 +124,19 @@ export interface SyncResolutionStrategy {
 }
 
 export async function initSyncDb(): Promise<void>;
-export async function enqueue(item: Omit<SyncQueueItem, 'id' | 'status' | 'attempts' | 'createdAt'>): Promise<string>;
+export async function enqueue(
+  item: Omit<SyncQueueItem, 'id' | 'status' | 'attempts' | 'createdAt'>,
+): Promise<string>;
 export async function listPending(labId: string): Promise<SyncQueueItem[]>;
-export async function processQueue(strategy: SyncResolutionStrategy): Promise<{ synced: number; failed: number; conflicts: number }>;
+export async function processQueue(
+  strategy: SyncResolutionStrategy,
+): Promise<{ synced: number; failed: number; conflicts: number }>;
 export async function clearSyncedOlderThan(ms: number): Promise<number>;
 export function isOnline(): Promise<boolean>;
 ```
 
 **Invariantes:**
+
 - Usa `expo-sqlite` (table `sync_queue` com schema acima; índice em `(labId, status, createdAt)`).
 - `processQueue` itera pending por ordem `createdAt ASC`, faz HTTP/Firestore call via callable, atualiza status atomicamente.
 - Conflito detectado quando server `version > baseVersion`. `local-wins` força overwrite com novo `baseVersion`. `remote-wins` descarta payload local e marca `synced`. `manual` deixa `status: 'conflict'` para UI resolver.
@@ -156,8 +166,8 @@ Pure-function analytics over locally-cached data: trends, alerts, KPI summary.
 
 ```typescript
 export interface KPIDataPoint {
-  date: number;          // unix ms
-  metricId: string;      // e.g. 'turnaround-min', 'retrabalho-pct'
+  date: number; // unix ms
+  metricId: string; // e.g. 'turnaround-min', 'retrabalho-pct'
   value: number;
   labId: string;
 }
@@ -167,8 +177,8 @@ export interface KPISummary {
   current: number;
   previous: number;
   deltaPct: number;
-  trend: 'up' | 'down' | 'flat';     // |deltaPct| < 2 → 'flat'
-  sparkline: number[];                // last 14 points, normalized 0..1
+  trend: 'up' | 'down' | 'flat'; // |deltaPct| < 2 → 'flat'
+  sparkline: number[]; // last 14 points, normalized 0..1
 }
 
 export interface AnalyticsAlert {
@@ -183,17 +193,21 @@ export interface AnalyticsFilters {
   labId: string;
   dateFromMs: number;
   dateToMs: number;
-  metricIds?: string[];     // empty / undefined ⇒ all metrics
+  metricIds?: string[]; // empty / undefined ⇒ all metrics
   equipmentId?: string;
   operatorId?: string;
 }
 
-export function computeKPISummaries(points: KPIDataPoint[], filters: AnalyticsFilters): KPISummary[];
+export function computeKPISummaries(
+  points: KPIDataPoint[],
+  filters: AnalyticsFilters,
+): KPISummary[];
 export function detectAnalyticsAlerts(summaries: KPISummary[]): AnalyticsAlert[];
 export function normalizeSparkline(values: number[]): number[];
 ```
 
 **Invariantes:**
+
 - Pure functions — no I/O, no Date.now().
 - `computeKPISummaries`: groupBy `metricId`, ordena por `date ASC`, current = último valor, previous = média dos N anteriores (N=7 ou comprimento total - 1).
 - `deltaPct = (current - previous) / previous * 100` (guard `previous === 0` → `deltaPct = 0` se current=0, senão Infinity → cap em ±999).
@@ -219,6 +233,7 @@ export function AnalyticsDashboard(): JSX.Element;
 ```
 
 **Invariantes (UX + visual):**
+
 - NativeWind classes only — zero `StyleSheet`.
 - Container: `flex-1 bg-[#141417]`. Safe area respected (`SafeAreaView` from `react-native-safe-area-context`).
 - Title: `text-white text-2xl font-medium tracking-tight px-6 pt-6`.
@@ -251,15 +266,26 @@ Detox E2E specs covering biometric login + analytics view + offline sync.
 
 ```typescript
 describe('Analytics + Biometric + Sync E2E', () => {
-  it('login with biometrics — happy path', async () => { /* ... */ });
-  it('login with biometrics — cancellation falls back to PIN', async () => { /* ... */ });
-  it('analytics dashboard renders KPIs after login', async () => { /* ... */ });
-  it('alert chip is tappable and navigates to detail', async () => { /* ... */ });
-  it('offline mode queues a write and syncs on reconnect', async () => { /* ... */ });
+  it('login with biometrics — happy path', async () => {
+    /* ... */
+  });
+  it('login with biometrics — cancellation falls back to PIN', async () => {
+    /* ... */
+  });
+  it('analytics dashboard renders KPIs after login', async () => {
+    /* ... */
+  });
+  it('alert chip is tappable and navigates to detail', async () => {
+    /* ... */
+  });
+  it('offline mode queues a write and syncs on reconnect', async () => {
+    /* ... */
+  });
 });
 ```
 
 **Invariantes:**
+
 - Detox `device.launchApp({ newInstance: true })` em cada test.
 - Biometric tests usam `device.setBiometricEnrollment(true)` + `device.matchFace()` (iOS) / `device.matchFinger()` (Android).
 - Offline test: `device.setURLBlacklist(['.*'])` antes de write, verifica banner "offline" visível, cria run via UI, depois `device.setURLBlacklist([])` e verifica sync.
@@ -277,14 +303,14 @@ describe('Analytics + Biometric + Sync E2E', () => {
 
 ## MP-5b Master Verification Gate
 
-| Gate | Pass criteria |
-|------|---------------|
-| **G-Build** | `cd hc-quality-mobile && npx tsc --noEmit` exit 0 |
-| **G-NativeWind** | grep `StyleSheet.create` against W2 SA-68 file → 0 hits (forbidden) |
-| **G-Detox-Compile** | `npx tsc --noEmit -p hc-quality-mobile/e2e/tsconfig.json` exit 0 |
-| **G-Detox-iOS** | Detox suite passes on iOS simulator (manual run; result appended to MP-5b SUMMARY) |
-| **G-Detox-Android** | Detox suite passes on Android emulator (manual run; result appended to MP-5b SUMMARY) |
-| **G-Biometric** | `expo-local-authentication` listed in `hc-quality-mobile/package.json` (grep enforced) |
-| **G-Offline** | `expo-sqlite` + `@react-native-community/netinfo` listed (grep enforced) |
+| Gate                | Pass criteria                                                                          |
+| ------------------- | -------------------------------------------------------------------------------------- |
+| **G-Build**         | `cd hc-quality-mobile && npx tsc --noEmit` exit 0                                      |
+| **G-NativeWind**    | grep `StyleSheet.create` against W2 SA-68 file → 0 hits (forbidden)                    |
+| **G-Detox-Compile** | `npx tsc --noEmit -p hc-quality-mobile/e2e/tsconfig.json` exit 0                       |
+| **G-Detox-iOS**     | Detox suite passes on iOS simulator (manual run; result appended to MP-5b SUMMARY)     |
+| **G-Detox-Android** | Detox suite passes on Android emulator (manual run; result appended to MP-5b SUMMARY)  |
+| **G-Biometric**     | `expo-local-authentication` listed in `hc-quality-mobile/package.json` (grep enforced) |
+| **G-Offline**       | `expo-sqlite` + `@react-native-community/netinfo` listed (grep enforced)               |
 
-Failure of any G-* compile gate → escalate to Sonnet 4.6. iOS/Android sim runs are manual gates documented in MP-8 deploy checklist.
+Failure of any G-\* compile gate → escalate to Sonnet 4.6. iOS/Android sim runs are manual gates documented in MP-8 deploy checklist.

@@ -61,12 +61,7 @@ function WarnCircle() {
   return (
     <svg width="14" height="14" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="8" cy="8" r="7" fill="currentColor" opacity="0.15" />
-      <path
-        d="M8 4.5v4M8 11.2v.4"
-        stroke="currentColor"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
+      <path d="M8 4.5v4M8 11.2v.4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
     </svg>
   );
 }
@@ -291,8 +286,8 @@ export function PreFlightCheck({
             )}
             {!reagentsCountOK && reagents.length > 0 && (
               <li>
-                ▸ Mínimo de {expectedReagents} reagentes ativos não atingido (atual:{' '}
-                {reagentsCount})
+                ▸ Mínimo de {expectedReagents} reagentes ativos não atingido (atual: {reagentsCount}
+                )
               </li>
             )}
             {reagentsExpired.length > 0 && (

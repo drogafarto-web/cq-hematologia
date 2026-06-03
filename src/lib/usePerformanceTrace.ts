@@ -44,10 +44,7 @@ export interface UsePerformanceTraceOptions {
 /**
  * Hook to trace performance of a component or operation
  */
-export function usePerformanceTrace(
-  traceName: string,
-  options: UsePerformanceTraceOptions = {}
-) {
+export function usePerformanceTrace(traceName: string, options: UsePerformanceTraceOptions = {}) {
   const {
     enabled = true,
     autoStop = true,
@@ -150,7 +147,7 @@ export function usePerformanceTrace(
 export function useListTrace(
   traceName: string,
   itemCount: number,
-  options?: UsePerformanceTraceOptions
+  options?: UsePerformanceTraceOptions,
 ) {
   const trace = usePerformanceTrace(traceName, {
     ...options,
@@ -175,10 +172,7 @@ export function useListTrace(
  * fetchTrace.recordMetric('items_loaded', data.length);
  * fetchTrace.recordMetric('latency_ms', endTime - startTime);
  */
-export function useDataFetchTrace(
-  traceName: string,
-  options?: UsePerformanceTraceOptions
-) {
+export function useDataFetchTrace(traceName: string, options?: UsePerformanceTraceOptions) {
   const startTimeRef = useRef(Date.now());
 
   const trace = usePerformanceTrace(traceName, {
@@ -214,10 +208,7 @@ export function useDataFetchTrace(
  * // ... handle interaction
  * interactionTrace.recordMetric('form_fields', fieldCount);
  */
-export function useInteractionTrace(
-  traceName: string,
-  options?: UsePerformanceTraceOptions
-) {
+export function useInteractionTrace(traceName: string, options?: UsePerformanceTraceOptions) {
   return usePerformanceTrace(traceName, {
     autoStop: true,
     ...options,
@@ -237,7 +228,7 @@ export function useFirestoreQueryTrace(
   traceName: string,
   collection: string,
   conditions: string[] = [],
-  options?: UsePerformanceTraceOptions
+  options?: UsePerformanceTraceOptions,
 ) {
   const startTimeRef = useRef(Date.now());
 

@@ -26,11 +26,11 @@ interface DashboardCardProps {
 // ─── Variant tokens ───────────────────────────────────────────────────────────
 
 const VARIANT_STYLES: Record<CardVariant, { accent: string; glow: string }> = {
-  default:  { accent: 'border-white/10',      glow: '' },
-  success:  { accent: 'border-emerald-500/30', glow: 'shadow-emerald-500/5' },
-  warning:  { accent: 'border-amber-500/30',   glow: 'shadow-amber-500/5' },
-  critical: { accent: 'border-red-500/30',     glow: 'shadow-red-500/5' },
-  neutral:  { accent: 'border-violet-500/30',  glow: 'shadow-violet-500/5' },
+  default: { accent: 'border-white/10', glow: '' },
+  success: { accent: 'border-emerald-500/30', glow: 'shadow-emerald-500/5' },
+  warning: { accent: 'border-amber-500/30', glow: 'shadow-amber-500/5' },
+  critical: { accent: 'border-red-500/30', glow: 'shadow-red-500/5' },
+  neutral: { accent: 'border-violet-500/30', glow: 'shadow-violet-500/5' },
 };
 
 const DELTA_COLOR = (d: number) =>
@@ -79,9 +79,7 @@ export const DashboardCard = React.memo(function DashboardCard({
     >
       {/* Header */}
       <header className="flex items-center justify-between mb-3">
-        <p className="text-xs font-medium tracking-wider text-white/50 uppercase">
-          {title}
-        </p>
+        <p className="text-xs font-medium tracking-wider text-white/50 uppercase">{title}</p>
         {icon && (
           <span className="text-white/30" aria-hidden>
             {icon}
@@ -90,15 +88,11 @@ export const DashboardCard = React.memo(function DashboardCard({
       </header>
 
       {/* Primary value */}
-      <p className="text-3xl font-semibold tabular-nums text-white leading-none mb-1.5">
-        {value}
-      </p>
+      <p className="text-3xl font-semibold tabular-nums text-white leading-none mb-1.5">{value}</p>
 
       {/* Subtitle + delta */}
       <footer className="flex items-center gap-2 mt-2">
-        {subtitle && (
-          <span className="text-xs text-white/40">{subtitle}</span>
-        )}
+        {subtitle && <span className="text-xs text-white/40">{subtitle}</span>}
         {hasDelta && (
           <span
             className={['text-xs font-medium tabular-nums', DELTA_COLOR(delta!)].join(' ')}

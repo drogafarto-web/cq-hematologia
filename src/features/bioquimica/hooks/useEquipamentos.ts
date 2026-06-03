@@ -26,11 +26,7 @@ export function useEquipamentos() {
 
     // Subscribe to active equipamentos for bioquímica
     const ref = collection(db, 'labs', labId, 'equipamentos');
-    const q = query(
-      ref,
-      where('ativo', '==', true),
-      where('deletadoEm', '==', null),
-    );
+    const q = query(ref, where('ativo', '==', true), where('deletadoEm', '==', null));
 
     const unsubscribe = onSnapshot(q, (snap) => {
       const items: Equipamento[] = [];

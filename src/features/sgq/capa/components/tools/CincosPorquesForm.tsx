@@ -15,12 +15,13 @@ interface Props {
   saving?: boolean;
 }
 
-const INPUT_CLS = 'w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-violet-500 focus:border-transparent';
+const INPUT_CLS =
+  'w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-violet-500 focus:border-transparent';
 
 export function CincosPorquesForm({ initialData, onSave, onCancel, saving }: Props) {
   const [problema, setProblema] = useState(initialData?.problema ?? '');
   const [porques, setPorques] = useState<{ pergunta: string; resposta: string }[]>(
-    initialData?.porques ?? [{ pergunta: 'Por que isso aconteceu?', resposta: '' }]
+    initialData?.porques ?? [{ pergunta: 'Por que isso aconteceu?', resposta: '' }],
   );
   const [causaRaiz, setCausaRaiz] = useState(initialData?.causaRaiz ?? '');
   const [evidencia, setEvidencia] = useState(initialData?.evidencia ?? '');
@@ -42,7 +43,10 @@ export function CincosPorquesForm({ initialData, onSave, onCancel, saving }: Pro
     setPorques(porques.filter((_, i) => i !== idx));
   }
 
-  const isValid = problema.trim().length >= 5 && porques.some((p) => p.resposta.trim().length > 0) && causaRaiz.trim().length >= 5;
+  const isValid =
+    problema.trim().length >= 5 &&
+    porques.some((p) => p.resposta.trim().length > 0) &&
+    causaRaiz.trim().length >= 5;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -59,7 +63,9 @@ export function CincosPorquesForm({ initialData, onSave, onCancel, saving }: Pro
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="flex items-center gap-2 pb-3 border-b border-white/10">
-        <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">?</span>
+        <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">
+          ?
+        </span>
         <h3 className="text-lg font-semibold text-white">5 Porquês</h3>
       </div>
 
@@ -105,14 +111,24 @@ export function CincosPorquesForm({ initialData, onSave, onCancel, saving }: Pro
               />
             </div>
             {porques.length > 1 && (
-              <button type="button" onClick={() => removePorque(idx)} className="text-red-400/60 hover:text-red-400 text-xs mt-2" disabled={saving}>
+              <button
+                type="button"
+                onClick={() => removePorque(idx)}
+                className="text-red-400/60 hover:text-red-400 text-xs mt-2"
+                disabled={saving}
+              >
                 ✕
               </button>
             )}
           </div>
         ))}
         {porques.length < 7 && (
-          <button type="button" onClick={addPorque} className="text-xs text-violet-400 hover:text-violet-300" disabled={saving}>
+          <button
+            type="button"
+            onClick={addPorque}
+            className="text-xs text-violet-400 hover:text-violet-300"
+            disabled={saving}
+          >
             + Adicionar mais um "Por quê?"
           </button>
         )}
@@ -145,10 +161,19 @@ export function CincosPorquesForm({ initialData, onSave, onCancel, saving }: Pro
       </div>
 
       <div className="flex gap-3 pt-4 border-t border-white/10">
-        <button type="button" onClick={onCancel} className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/[0.15] text-white rounded-lg transition-colors" disabled={saving}>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/[0.15] text-white rounded-lg transition-colors"
+          disabled={saving}
+        >
           Cancelar
         </button>
-        <button type="submit" disabled={!isValid || saving} className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors">
+        <button
+          type="submit"
+          disabled={!isValid || saving}
+          className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+        >
           {saving ? 'Salvando...' : 'Salvar análise'}
         </button>
       </div>

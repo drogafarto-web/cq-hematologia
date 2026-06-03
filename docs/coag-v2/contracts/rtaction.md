@@ -13,14 +13,14 @@ import type { Timestamp } from 'firebase/firestore';
 
 /**
  * RTAction — ação executada exclusivamente pelo Responsável Técnico.
- * 
+ *
  * Conceito: decisões técnicas que operadores NÃO tomam.
  *   - aprovar_controle → RT aprova um controle operacional
  *   - rejeitar_controle → RT rejeita um controle operacional
  *   - notificar_notivisa → RT notifica tecnovigilância sobre uma tentativa
- * 
+ *
  * Operador nunca cria RTAction. UI do RT só.
- * 
+ *
  * Firestore path: labs/{labId}/rt-actions/{id}
  * Compliance: RDC 978/2025 · RDC 67/2009 + 551/2021
  */
@@ -31,50 +31,58 @@ export interface RTAction {
   tipo: 'aprovar_controle' | 'rejeitar_controle' | 'notificar_notivisa';
 
   // ── Vínculo polimórfico ───────────────────────────────────
-  targetRef:
-    | { type: 'ControlOperacional'; id: string }
-    | { type: 'Attempt'; id: string };
+  targetRef: { type: 'ControlOperacional'; id: string } | { type: 'Attempt'; id: string };
 
   // ── Payload específico por tipo ───────────────────────────
-  payload: AprovarControlePayload
-    | RejeitarControlePayload
-    | NotificarNotivisaPayload;
+  payload: AprovarControlePayload | RejeitarControlePayload | NotificarNotivisaPayload;
 
   // ── Timeline ───────────────────────────────────────────────
   criadoEm: Timestamp;
-  criadoPor: string;                           // UID do RT (sempre admin/owner)
+  criadoPor: string; // UID do RT (sempre admin/owner)
 }
 
 // ── Payloads por tipo ───────────────────────────────────────
 
 export interface AprovarControlePayload {
   tipo: 'aprovar_controle';
-  decisao: 'A' | 'NA';                        // A = aceitável, NA = não aceitável (mas não rejeitado)
-  motivo: string;                              // obrigatório (mín 10 chars)
+  decisao: 'A' | 'NA'; // A = aceitável, NA = não aceitável (mas não rejeitado)
+  motivo: string; // obrigatório (mín 10 chars)
   // TargetRef: { type: 'ControlOperacional', id }
 }
 
 export interface RejeitarControlePayload {
   tipo: 'rejeitar_controle';
-  motivo: string;                              // obrigatório (mín 20 chars, detalhado)
-  acaoRecomendada?: string;                    // opcional: recomenda ação corretiva
+  motivo: string; // obrigatório (mín 20 chars, detalhado)
+  acaoRecomendada?: string; // opcional: recomenda ação corretiva
   // TargetRef: { type: 'ControlOperacional', id }
 }
 
 export interface NotificarNotivisaPayload {
   tipo: 'notificar_notivisa';
   notivisaTipo: 'queixa_tecnica' | 'evento_adverso';
-  notivisaProtocolo?: string;                  // obrigatório se status='notificado'
-  notivisaDataEnvio?: string;                  // YYYY-MM-DD
-  notivisaJustificativa?: string;              // obrigatório se dispensado (não aplicável aqui)
-  motivo: string;                              // obrigatório
+  notivisaProtocolo?: string; // obrigatório se status='notificado'
+  notivisaDataEnvio?: string; // YYYY-MM-DD
+  notivisaJustificativa?: string; // obrigatório se dispensado (não aplicável aqui)
+  motivo: string; // obrigatório
   // TargetRef: { type: 'Attempt', id }
 }
 
 export type RTActionInput =
-  | { tipo: 'aprovar_controle'; controlOperacionalId: string; payload: Omit<AprovarControlePayload, 'tipo'> }
-  | { tipo: 'rejeitar_controle'; controlOperacionalId: string; payload: Omit<RejeitarControlePayload, 'tipo'> }
-  | { tipo: 'notificar_notivisa'; attemptId: string; payload: Omit<NotificarNotivisaPayload, 'tipo'> };
+  | {
+      tipo: 'aprovar_controle';
+      controlOperacionalId: string;
+      payload: Omit<AprovarControlePayload, 'tipo'>;
+    }
+  | {
+      tipo: 'rejeitar_controle';
+      controlOperacionalId: string;
+      payload: Omit<RejeitarControlePayload, 'tipo'>;
+    }
+  | {
+      tipo: 'notificar_notivisa';
+      attemptId: string;
+      payload: Omit<NotificarNotivisaPayload, 'tipo'>;
+    };
 ```
 
 ---
@@ -106,12 +114,11 @@ export async function listRTActionsByTarget(
 ): Promise<RTAction[]>;
 
 /** Lista RTActions NOTIVISA pendentes (para relatório). */
-export async function listNotivisaPendentes(
-  labId: string,
-): Promise<RTAction[]>;
+export async function listNotivisaPendentes(labId: string): Promise<RTAction[]>;
 ```
 
 **⛔ NÃO:**
+
 - Não criar `updateRTAction()` — ações são imutáveis após criação
 - Não criar `deleteRTAction()` — auditoria preservada
 - Não criar "reverter RTAction" — criar nova ação de reversão se necessário
@@ -201,10 +208,10 @@ match /labs/{labId}/rt-actions/{docId} {
 
 ## Timeline Narrativa (como aparece na UI)
 
-| Tipo de RTAction | Texto na timeline |
-|------------------|-------------------|
-| `aprovar_controle` | "Controle aprovado pelo RT · DD/MM/YYYY HH:MM" |
-| `rejeitar_controle` | "Controle rejeitado pelo RT · DD/MM/YYYY HH:MM" |
+| Tipo de RTAction     | Texto na timeline                                   |
+| -------------------- | --------------------------------------------------- |
+| `aprovar_controle`   | "Controle aprovado pelo RT · DD/MM/YYYY HH:MM"      |
+| `rejeitar_controle`  | "Controle rejeitado pelo RT · DD/MM/YYYY HH:MM"     |
 | `notificar_notivisa` | "NOTIVISA notificado (queixa técnica) · DD/MM/YYYY" |
 
 ---

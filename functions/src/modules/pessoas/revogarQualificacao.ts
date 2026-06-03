@@ -30,7 +30,10 @@ export const revogarQualificacao = functions.onCall(
 
     // Input validation
     if (!labId || !operadorId || !qualificacaoId) {
-      throw new functions.HttpsError('invalid-argument', 'labId, operadorId, qualificacaoId required');
+      throw new functions.HttpsError(
+        'invalid-argument',
+        'labId, operadorId, qualificacaoId required',
+      );
     }
 
     // RT-only check
@@ -49,7 +52,7 @@ export const revogarQualificacao = functions.onCall(
     if (ncCheck.blocked) {
       throw new functions.HttpsError(
         'failed-precondition',
-        ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+        ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo',
       );
     }
 
@@ -65,10 +68,7 @@ export const revogarQualificacao = functions.onCall(
 
     // Check if already deleted
     if (qual.deletadoEm) {
-      throw new functions.HttpsError(
-        'already-exists',
-        'Qualificação já foi revogada'
-      );
+      throw new functions.HttpsError('already-exists', 'Qualificação já foi revogada');
     }
 
     // Soft delete: set deletadoEm
@@ -89,7 +89,7 @@ export const revogarQualificacao = functions.onCall(
           tipoQualificacao: qual.tipo,
         },
         'sucesso',
-        'revoke'
+        'revoke',
       );
 
       return {
@@ -99,5 +99,5 @@ export const revogarQualificacao = functions.onCall(
     } catch (error: any) {
       throw new functions.HttpsError('internal', 'Falha ao revogar qualificação');
     }
-  }
+  },
 );

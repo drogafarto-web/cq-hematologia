@@ -95,13 +95,7 @@ async function sha256Hex(input: string): Promise<string> {
 // ─── Path helpers ─────────────────────────────────────────────────────────────
 
 function emissionRef(labId: string, emissionId: string) {
-  return doc(
-    db,
-    COLLECTIONS.LABS,
-    labId,
-    SUBCOLLECTIONS.REPORT_EMISSIONS,
-    emissionId,
-  );
+  return doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.REPORT_EMISSIONS, emissionId);
 }
 
 // ─── Public API ───────────────────────────────────────────────────────────────

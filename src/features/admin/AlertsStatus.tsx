@@ -45,7 +45,8 @@ const ALERT_POLICIES: AlertPolicy[] = [
     severity: 'ERROR',
     status: 'pending',
     runbookLink: '#a2-criticos-sla-breach',
-    description: 'Exceeds 60-min SLA. Requires criticosSlaProbe metric (Wave 3). Compliance: RDC 978 Art. 5.7.1.',
+    description:
+      'Exceeds 60-min SLA. Requires criticosSlaProbe metric (Wave 3). Compliance: RDC 978 Art. 5.7.1.',
   },
   {
     id: 'A3',
@@ -63,7 +64,8 @@ const ALERT_POLICIES: AlertPolicy[] = [
     severity: 'CRITICAL',
     status: 'active',
     runbookLink: '#a4-hmac-chain-break',
-    description: 'Tamper-evident audit chain mismatch (single occurrence = P0). Compliance: RDC 978 Art. 128, ADR-0017.',
+    description:
+      'Tamper-evident audit chain mismatch (single occurrence = P0). Compliance: RDC 978 Art. 128, ADR-0017.',
   },
   {
     id: 'A5',
@@ -72,7 +74,8 @@ const ALERT_POLICIES: AlertPolicy[] = [
     severity: 'WARNING',
     status: 'pending',
     runbookLink: '#a5-twilio-sms-failure-rate',
-    description: 'SMS dispatch failures exceed 10% in 5 min. Requires log-based metrics (Wave 3). Compliance: RDC 978 Art. 5.7.1.',
+    description:
+      'SMS dispatch failures exceed 10% in 5 min. Requires log-based metrics (Wave 3). Compliance: RDC 978 Art. 5.7.1.',
   },
   {
     id: 'A6',
@@ -81,7 +84,8 @@ const ALERT_POLICIES: AlertPolicy[] = [
     severity: 'CRITICAL',
     status: 'pending',
     runbookLink: '#a6-gemini-call-without-consent',
-    description: 'Belt-and-suspenders LGPD audit. Requires geminiEgressAudit metric (Wave 3). Compliance: LGPD Art. 9 + Art. 48.',
+    description:
+      'Belt-and-suspenders LGPD audit. Requires geminiEgressAudit metric (Wave 3). Compliance: LGPD Art. 9 + Art. 48.',
   },
 ];
 
@@ -178,13 +182,15 @@ function PolicyCard({ policy }: { policy: AlertPolicy }) {
           <div className="flex items-center gap-2 mb-1">
             {getStatusIcon(policy.status)}
             <h3 className="font-semibold text-base text-gray-900">{policy.displayName}</h3>
-            <span className={`text-xs px-2 py-1 rounded ${
-              policy.severity === 'CRITICAL'
-                ? 'bg-red-700 text-white'
-                : policy.severity === 'ERROR'
-                ? 'bg-red-500 text-white'
-                : 'bg-yellow-600 text-white'
-            }`}>
+            <span
+              className={`text-xs px-2 py-1 rounded ${
+                policy.severity === 'CRITICAL'
+                  ? 'bg-red-700 text-white'
+                  : policy.severity === 'ERROR'
+                    ? 'bg-red-500 text-white'
+                    : 'bg-yellow-600 text-white'
+              }`}
+            >
               {policy.severity}
             </span>
           </div>
@@ -218,13 +224,15 @@ function PolicyCard({ policy }: { policy: AlertPolicy }) {
                 Policy
               </a>
             )}
-            <span className={`text-xs px-2 py-1 rounded ${
-              policy.status === 'active'
-                ? 'bg-emerald-100 text-emerald-700'
-                : policy.status === 'error'
-                ? 'bg-red-100 text-red-700'
-                : 'bg-amber-100 text-amber-700'
-            }`}>
+            <span
+              className={`text-xs px-2 py-1 rounded ${
+                policy.status === 'active'
+                  ? 'bg-emerald-100 text-emerald-700'
+                  : policy.status === 'error'
+                    ? 'bg-red-100 text-red-700'
+                    : 'bg-amber-100 text-amber-700'
+              }`}
+            >
               {getStatusLabel(policy.status)}
             </span>
           </div>
@@ -239,10 +247,10 @@ function PolicyCard({ policy }: { policy: AlertPolicy }) {
                 testLoading
                   ? 'bg-gray-300 text-gray-600 cursor-not-allowed'
                   : testSuccess
-                  ? 'bg-emerald-500 text-white'
-                  : testError
-                  ? 'bg-red-500 text-white'
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
+                    ? 'bg-emerald-500 text-white'
+                    : testError
+                      ? 'bg-red-500 text-white'
+                      : 'bg-blue-600 text-white hover:bg-blue-700'
               }`}
             >
               {testLoading && 'Sending...'}
@@ -250,9 +258,7 @@ function PolicyCard({ policy }: { policy: AlertPolicy }) {
               {testError && '✗ Error'}
               {!testLoading && !testSuccess && !testError && 'Send test'}
             </button>
-            {testError && (
-              <span className="text-xs text-red-600">{testError}</span>
-            )}
+            {testError && <span className="text-xs text-red-600">{testError}</span>}
           </div>
         )}
       </div>
@@ -275,12 +281,10 @@ export function AlertsStatus() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Cloud Logs Alert Policies
-        </h2>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">Cloud Logs Alert Policies</h2>
         <p className="text-gray-700 text-sm">
-          Manage Cloud Monitoring alert policies for HC Quality production. Policies A1, A3, A4
-          are active. A2, A5, A6 pending Wave 3 custom metrics.
+          Manage Cloud Monitoring alert policies for HC Quality production. Policies A1, A3, A4 are
+          active. A2, A5, A6 pending Wave 3 custom metrics.
         </p>
       </div>
 

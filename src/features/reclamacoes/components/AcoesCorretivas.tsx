@@ -54,7 +54,10 @@ export const AcoesCorretivas: React.FC<AcoesCorretivasProps> = ({
     }
   };
 
-  const handleStatusChange = async (id: string, newStatus: 'pendente' | 'concluida' | 'atrasada') => {
+  const handleStatusChange = async (
+    id: string,
+    newStatus: 'pendente' | 'concluida' | 'atrasada',
+  ) => {
     try {
       await onUpdateAcao(id, { status: newStatus });
     } catch (err) {
@@ -90,7 +93,10 @@ export const AcoesCorretivas: React.FC<AcoesCorretivasProps> = ({
 
       {/* Add Form */}
       {showForm && (
-        <form onSubmit={handleAddAcao} className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700">
+        <form
+          onSubmit={handleAddAcao}
+          className="space-y-3 p-4 bg-gray-50 dark:bg-gray-800/50 rounded-lg border border-gray-200 dark:border-gray-700"
+        >
           <div>
             <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Descrição
@@ -132,9 +138,7 @@ export const AcoesCorretivas: React.FC<AcoesCorretivasProps> = ({
             </div>
           </div>
 
-          {error && (
-            <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>
-          )}
+          {error && <div className="text-red-600 dark:text-red-400 text-sm">{error}</div>}
 
           <div className="flex gap-2">
             <button
@@ -181,10 +185,13 @@ export const AcoesCorretivas: React.FC<AcoesCorretivasProps> = ({
                 <select
                   value={acao.status}
                   onChange={(e) =>
-                    handleStatusChange(acao.id, e.target.value as 'pendente' | 'concluida' | 'atrasada')
+                    handleStatusChange(
+                      acao.id,
+                      e.target.value as 'pendente' | 'concluida' | 'atrasada',
+                    )
                   }
                   className={`px-2 py-1 text-xs rounded-full font-medium ${statusBadgeColor(
-                    acao.status
+                    acao.status,
                   )}`}
                 >
                   <option value="pendente">Pendente</option>

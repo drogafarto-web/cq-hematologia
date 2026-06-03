@@ -64,9 +64,7 @@ function Field({
       {hint && !error && (
         <p className="text-xs text-slate-400 dark:text-white/25 mt-1 ml-0.5">{hint}</p>
       )}
-      {error && (
-        <p className="text-xs text-red-500 dark:text-red-400/80 mt-1 ml-0.5">{error}</p>
-      )}
+      {error && <p className="text-xs text-red-500 dark:text-red-400/80 mt-1 ml-0.5">{error}</p>}
     </div>
   );
 }
@@ -370,10 +368,7 @@ export function InsumoFormModal({
                 className={INPUT_CLS}
                 value={form.nivel ?? ''}
                 onChange={(e) =>
-                  set(
-                    'nivel',
-                    e.target.value as 'normal' | 'patologico' | 'baixo' | 'alto',
-                  )
+                  set('nivel', e.target.value as 'normal' | 'patologico' | 'baixo' | 'alto')
                 }
               >
                 <option value="">Selecione…</option>
@@ -397,12 +392,7 @@ export function InsumoFormModal({
                 autoComplete="off"
               />
             </Field>
-            <Field
-              id="nomeComercial"
-              label="Nome comercial"
-              required
-              error={errors.nomeComercial}
-            >
+            <Field id="nomeComercial" label="Nome comercial" required error={errors.nomeComercial}>
               <input
                 id="nomeComercial"
                 className={INPUT_CLS}
@@ -504,14 +494,17 @@ export function InsumoFormModal({
           {tipo === 'tira-uro' && (
             <>
               <div className="grid grid-cols-2 gap-4">
-                <Field id="notaFiscal" label="Nota fiscal" error={errors.notaFiscal} hint="Recomendado">
+                <Field
+                  id="notaFiscal"
+                  label="Nota fiscal"
+                  error={errors.notaFiscal}
+                  hint="Recomendado"
+                >
                   <input
                     id="notaFiscal"
                     className={INPUT_CLS}
                     value={form.notaFiscal ?? ''}
-                    onChange={(e) =>
-                      set('notaFiscal', e.target.value)
-                    }
+                    onChange={(e) => set('notaFiscal', e.target.value)}
                     placeholder="ex: 000.123.456"
                     autoComplete="off"
                   />
@@ -521,19 +514,13 @@ export function InsumoFormModal({
                     id="fornecedor"
                     className={INPUT_CLS}
                     value={form.fornecedor ?? ''}
-                    onChange={(e) =>
-                      set('fornecedor', e.target.value)
-                    }
+                    onChange={(e) => set('fornecedor', e.target.value)}
                     placeholder="Distribuidor / revenda"
                     autoComplete="off"
                   />
                 </Field>
               </div>
-              <Field
-                label="Analitos incluídos"
-                required
-                error={errors.analitosIncluidos}
-              >
+              <Field label="Analitos incluídos" required error={errors.analitosIncluidos}>
                 <div className="flex flex-wrap gap-2">
                   {analitoOptions.map((a) => {
                     const selected = (form.analitosIncluidos ?? []).includes(a.id);
@@ -543,9 +530,7 @@ export function InsumoFormModal({
                         type="button"
                         onClick={() => {
                           const cur = form.analitosIncluidos ?? [];
-                          const next = selected
-                            ? cur.filter((x) => x !== a.id)
-                            : [...cur, a.id];
+                          const next = selected ? cur.filter((x) => x !== a.id) : [...cur, a.id];
                           set('analitosIncluidos', next);
                         }}
                         className={`

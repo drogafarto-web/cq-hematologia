@@ -17,7 +17,8 @@ import type { Area, EPE, InspecaoArea, BiossegurancaFilters } from './types/Bios
 
 const areasCollection = (labId: string) => collection(db, `labs/${labId}/biosseguranca-areas`);
 const epeCollection = (labId: string) => collection(db, `labs/${labId}/biosseguranca-epe`);
-const inspecoesCollection = (labId: string) => collection(db, `labs/${labId}/biosseguranca-inspecoes`);
+const inspecoesCollection = (labId: string) =>
+  collection(db, `labs/${labId}/biosseguranca-inspecoes`);
 
 // ─── Subscribe Areas ──────────────────────────────────────────────────────
 
@@ -102,7 +103,10 @@ export async function getArea(labId: string, areaId: string): Promise<Area | nul
 
 // ─── Create Area ──────────────────────────────────────────────────────────
 
-export async function createArea(labId: string, input: Omit<Area, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>): Promise<string> {
+export async function createArea(
+  labId: string,
+  input: Omit<Area, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>,
+): Promise<string> {
   const newDocRef = doc(areasCollection(labId));
 
   const areaData: Area = {
@@ -121,7 +125,11 @@ export async function createArea(labId: string, input: Omit<Area, 'id' | 'labId'
 
 // ─── Update Area ──────────────────────────────────────────────────────────
 
-export async function updateArea(labId: string, areaId: string, updates: Partial<Area>): Promise<void> {
+export async function updateArea(
+  labId: string,
+  areaId: string,
+  updates: Partial<Area>,
+): Promise<void> {
   const docRef = doc(areasCollection(labId), areaId);
   const { id, labId: _, criadoEm, criadoPor, deletadoEm, ...safeUpdates } = updates;
 
@@ -130,7 +138,10 @@ export async function updateArea(labId: string, areaId: string, updates: Partial
 
 // ─── Create EPE ───────────────────────────────────────────────────────────
 
-export async function createEPE(labId: string, input: Omit<EPE, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>): Promise<string> {
+export async function createEPE(
+  labId: string,
+  input: Omit<EPE, 'id' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm'>,
+): Promise<string> {
   const newDocRef = doc(epeCollection(labId));
 
   const epeData: EPE = {

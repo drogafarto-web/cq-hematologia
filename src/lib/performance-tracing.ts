@@ -112,7 +112,7 @@ export class PerformanceTrace {
  */
 export async function traceAsync<T>(
   traceName: string,
-  fn: (trace: PerformanceTrace) => Promise<T>
+  fn: (trace: PerformanceTrace) => Promise<T>,
 ): Promise<T> {
   const trace = new PerformanceTrace(traceName);
   try {
@@ -129,10 +129,7 @@ export async function traceAsync<T>(
 /**
  * Measures the duration of a sync operation
  */
-export function traceSync<T>(
-  traceName: string,
-  fn: (trace: PerformanceTrace) => T
-): T {
+export function traceSync<T>(traceName: string, fn: (trace: PerformanceTrace) => T): T {
   const trace = new PerformanceTrace(traceName);
   try {
     const result = fn(trace);
@@ -190,7 +187,7 @@ export const TRACE_NAMES = {
 export function traceFirestoreQuery(
   traceName: string,
   collectionName: string,
-  conditions: string[] = []
+  conditions: string[] = [],
 ): PerformanceTrace {
   const trace = new PerformanceTrace(traceName);
   trace.putAttribute('collection', collectionName);
@@ -251,7 +248,7 @@ export class PerformanceMonitor {
         metrics: this.getMetrics(),
       },
       null,
-      2
+      2,
     );
   }
 }

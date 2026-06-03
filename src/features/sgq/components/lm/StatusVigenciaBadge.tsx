@@ -14,8 +14,11 @@ interface StatusVigenciaBadgeProps {
   tooltip?: boolean;
 }
 
-const STATUS_CONFIG: Record<StatusVigencia, { label: string; colorClass: string; description: string }> = {
-  'draft': {
+const STATUS_CONFIG: Record<
+  StatusVigencia,
+  { label: string; colorClass: string; description: string }
+> = {
+  draft: {
     label: 'Rascunho',
     colorClass: 'bg-slate-700/90 text-slate-100',
     description: 'Documento em elaboração, não distribuído',
@@ -25,12 +28,12 @@ const STATUS_CONFIG: Record<StatusVigencia, { label: string; colorClass: string;
     colorClass: 'bg-amber-700/90 text-amber-100',
     description: 'Aguardando aprovação de Responsável Técnico',
   },
-  'vigente': {
+  vigente: {
     label: 'Vigente',
     colorClass: 'bg-emerald-700/90 text-emerald-100',
     description: 'Documento aprovado e em uso',
   },
-  'obsoleto': {
+  obsoleto: {
     label: 'Obsoleto',
     colorClass: 'bg-red-700/90 text-red-100',
     description: 'Documento retirado de circulação',
@@ -63,10 +66,7 @@ export function StatusVigenciaBadge({
   if (!tooltip) return badge;
 
   return (
-    <div
-      className="group relative inline-block"
-      title={config.description}
-    >
+    <div className="group relative inline-block" title={config.description}>
       {badge}
       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block z-50">
         <div className="bg-[#141417] text-white text-xs rounded px-2 py-1 whitespace-nowrap border border-white/10 shadow-lg">

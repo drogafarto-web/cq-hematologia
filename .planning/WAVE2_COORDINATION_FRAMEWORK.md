@@ -1,11 +1,11 @@
 ---
-wave: "2"
+wave: '2'
 phases: [4, 5, 6, 7]
-milestone: "v1.4"
-status: "PRE-KICKOFF"
-coordination_date: "2026-05-07"
-kickoff_date: "2026-05-20"
-go_nogo_assessment: "PENDING"
+milestone: 'v1.4'
+status: 'PRE-KICKOFF'
+coordination_date: '2026-05-07'
+kickoff_date: '2026-05-20'
+go_nogo_assessment: 'PENDING'
 ---
 
 # Wave 2 Coordination Framework — Phases 4-7 (v1.4 Operations)
@@ -22,6 +22,7 @@ go_nogo_assessment: "PENDING"
 This document establishes **coordination, monitoring, and sign-off protocols** for Wave 2 (Phases 4-7 concurrent execution). Wave 2 bridges compliance closure (Phase 8 CAPA) with feature expansion and auditor alignment.
 
 **Key objectives:**
+
 1. ✅ **Monitor status** of 4 parallel phase executors
 2. ✅ **Provision test data** (100+ mock users, audit trails, critical values) per v1.4_TEST_DATA_PROVISIONING.md
 3. ✅ **Enforce Go/No-Go gates** for each phase (compliance, testing, performance)
@@ -36,16 +37,16 @@ This document establishes **coordination, monitoring, and sign-off protocols** f
 
 ### Current State
 
-| Component | Status | Evidence |
-|-----------|--------|----------|
-| **Phase 3 (Foundation)** | ✅ COMPLETE | Deployed 2026-05-07 — 5 collections + 78 functions + rules |
-| **Phase 0-3 Planning** | ✅ COMPLETE | 9 phase plans created, 8,500+ lines |
-| **Phase 4 Kickoff Docs** | ✅ READY | 4 primary docs created, 1,520+ lines, signed off |
-| **Phase 5-7 Docs** | ✅ READY | Overviews + detailed plans available |
-| **Test Data Fixtures** | ⏳ PENDING | v1.4_TEST_DATA_PROVISIONING.md complete, fixtures awaiting provisioning |
-| **Infrastructure Setup** | ⏳ PENDING | SMTP + Cloud Tasks + NOTIVISA sandbox (pre-kickoff timeline) |
-| **Team Assignments** | ✅ READY | 3.5 FTE per phase, no PTO conflicts |
-| **Compliance Roadmap** | ✅ ALIGNED | DICQ 78.5% → target 88% by Phase 9 |
+| Component                | Status      | Evidence                                                                |
+| ------------------------ | ----------- | ----------------------------------------------------------------------- |
+| **Phase 3 (Foundation)** | ✅ COMPLETE | Deployed 2026-05-07 — 5 collections + 78 functions + rules              |
+| **Phase 0-3 Planning**   | ✅ COMPLETE | 9 phase plans created, 8,500+ lines                                     |
+| **Phase 4 Kickoff Docs** | ✅ READY    | 4 primary docs created, 1,520+ lines, signed off                        |
+| **Phase 5-7 Docs**       | ✅ READY    | Overviews + detailed plans available                                    |
+| **Test Data Fixtures**   | ⏳ PENDING  | v1.4_TEST_DATA_PROVISIONING.md complete, fixtures awaiting provisioning |
+| **Infrastructure Setup** | ⏳ PENDING  | SMTP + Cloud Tasks + NOTIVISA sandbox (pre-kickoff timeline)            |
+| **Team Assignments**     | ✅ READY    | 3.5 FTE per phase, no PTO conflicts                                     |
+| **Compliance Roadmap**   | ✅ ALIGNED  | DICQ 78.5% → target 88% by Phase 9                                      |
 
 ### Pre-Kickoff Checklist (Due 2026-05-19 EOB)
 
@@ -88,12 +89,12 @@ This document establishes **coordination, monitoring, and sign-off protocols** f
 
 ### Executor Assignment
 
-| Task | Owner | Role | FTE |
-|------|-------|------|-----|
-| **04-01** Portal auth + laudo access | Stream B Lead | Frontend | 1.0 |
-| **04-02** Portal UI components | Stream B Lead | Design + Frontend | 0.5 |
-| **04-03** NOTIVISA queue processor | Stream A Lead | Backend | 1.5 |
-| **04-04** E2E testing + Cloud Logs | Stream D Lead | QA + DevOps | 0.5 |
+| Task                                 | Owner         | Role              | FTE |
+| ------------------------------------ | ------------- | ----------------- | --- |
+| **04-01** Portal auth + laudo access | Stream B Lead | Frontend          | 1.0 |
+| **04-02** Portal UI components       | Stream B Lead | Design + Frontend | 0.5 |
+| **04-03** NOTIVISA queue processor   | Stream A Lead | Backend           | 1.5 |
+| **04-04** E2E testing + Cloud Logs   | Stream D Lead | QA + DevOps       | 0.5 |
 
 ### Pre-Execution Gates (Must Pass by 2026-05-20)
 
@@ -129,23 +130,27 @@ Gate 4-4: Team Ready
 ### Phase 4 Success Criteria (Go/No-Go)
 
 **Functional:**
+
 - [ ] Patient portal accessible via email link + valid for 7 days
 - [ ] PDF download works for all laudo types
 - [ ] NOTIVISA queue auto-enqueues on laudo publish
 - [ ] Sandbox API integration tested + no payload rejections
 
 **Performance:**
+
 - [ ] Portal LCP <2.0s, INP <200ms, CLS <0.05
 - [ ] NOTIVISA processor completes <10s per batch (10 events)
 - [ ] PDF generation <5s per laudo
 
 **Compliance:**
+
 - [ ] RDC 978 Arts. 6º §1, 167, 204 satisfied
 - [ ] All patient reads logged with CPF hash in audit trail
 - [ ] Firestore Rules enforce read isolation
 - [ ] WCAG AA verified (Axe DevTools 0 violations)
 
 **Testing:**
+
 - [ ] 38+ unit tests passing (12 portal + 20 NOTIVISA + 6 integration)
 - [ ] 6 critical E2E flows passing (staging)
 - [ ] Cloud Logs 24h clean (0 ERROR/CRITICAL)
@@ -166,12 +171,12 @@ Gate 4-4: Team Ready
 
 ### Executor Assignment
 
-| Task | Owner | Role | FTE |
-|------|-------|------|-----|
-| **05-01** Critical thresholds + SMS/email | Stream A Lead | Backend | 1.5 |
-| **05-02** Critical detection engine | Stream A Lead | Backend | 1.0 |
+| Task                                      | Owner         | Role     | FTE |
+| ----------------------------------------- | ------------- | -------- | --- |
+| **05-01** Critical thresholds + SMS/email | Stream A Lead | Backend  | 1.5 |
+| **05-02** Critical detection engine       | Stream A Lead | Backend  | 1.0 |
 | **05-03** IA strip upload + Gemini Vision | Stream B Lead | Frontend | 1.0 |
-| **05-04** IA feedback loop + versioning | Stream A Lead | Backend | 0.5 |
+| **05-04** IA feedback loop + versioning   | Stream A Lead | Backend  | 0.5 |
 
 ### Pre-Execution Gates (Must Pass by 2026-06-09)
 
@@ -204,22 +209,26 @@ Gate 5-4: Architecture Review
 ### Phase 5 Success Criteria (Go/No-Go)
 
 **Functional:**
+
 - [ ] Critical value triggers SMS/email within 2 min of result entry
 - [ ] SLA dashboard updates in real-time
 - [ ] IA strip upload + Gemini Vision OCR confidence >85%
 - [ ] Model versioning (v1.0 baseline → v1.1 experiment) functional
 
 **Performance:**
+
 - [ ] Critical detection engine <500ms latency
 - [ ] IA strip upload batch processing 100+ images/min
 - [ ] SLA dashboard queries <2s
 
 **Compliance:**
+
 - [ ] RDC 978 Arts. 115-117 (critical escalation + SLA) satisfied
 - [ ] DICQ 4.7 (IA training dataset) 100% audit trail
 - [ ] LGPD Arts. 7, 9, 18 (escalation logs + PII) verified
 
 **Testing:**
+
 - [ ] 40+ unit tests passing (critical + IA)
 - [ ] 8 critical E2E flows passing (escalation chains)
 - [ ] Cloud Logs 24h clean
@@ -267,15 +276,18 @@ Gate 6-3: Test Data Ready
 ### Phase 6 Success Criteria (Go/No-Go)
 
 **Functional:**
+
 - [ ] PDF generation <5s per laudo
 - [ ] QR codes scannable + link to portal
 - [ ] Portal médico accessible via email link (like patient portal)
 
 **Performance:**
+
 - [ ] Lighthouse score >90 desktop + mobile
 - [ ] Web Vitals within targets (LCP <2.5s, INP <200ms, CLS <0.1)
 
 **Testing:**
+
 - [ ] 8 critical E2E flows passing
 - [ ] PDF export quality verified (sample 100 laudos)
 - [ ] Cloud Logs 24h clean
@@ -325,6 +337,7 @@ Gate 7-3: Architecture Review
 ### Phase 7 Success Criteria (Go/No-Go)
 
 **Functional:**
+
 - [ ] Export Wizard 4 steps complete (format → filters → email → schedule)
 - [ ] XLSX export <30s for 1,000 results
 - [ ] PDF batch export compression >50%
@@ -332,16 +345,19 @@ Gate 7-3: Architecture Review
 - [ ] Portal paciente feedback submission + RT view working
 
 **Performance:**
+
 - [ ] Export wizard responsive on mobile (<2s transitions)
 - [ ] XLSX generation streaming (no memory bloat)
 - [ ] Email delivery batch <5s per 100 emails
 
 **Compliance:**
+
 - [ ] RDC 978 Arts. 167, 204 (export audit trail)
 - [ ] DICQ 4.15 (feedback trending) 100% audit trail
 - [ ] LGPD Arts. 5-7, 18 (consent + anonymization)
 
 **Testing:**
+
 - [ ] 35+ unit tests (export + feedback + scheduled jobs)
 - [ ] 8 critical E2E flows (export + mobile + feedback)
 - [ ] Mobile responsive verified on 3+ devices
@@ -466,28 +482,33 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 ### Phase 4 Go/No-Go (2026-06-02, pre-deploy)
 
 **Functional completeness:**
+
 - [ ] Patient portal accessible + responsive
 - [ ] PDF download all laudo types
 - [ ] NOTIVISA queue processing verified
 - [ ] Firestore Rules enforce isolation
 
 **Performance verified:**
+
 - [ ] LCP <2.0s, INP <200ms, CLS <0.05
 - [ ] No console errors on portal routes
 - [ ] NOTIVISA processor <10s per batch
 
 **Compliance verified:**
+
 - [ ] RDC 978 Arts. 6º §1, 167, 204 satisfied
 - [ ] DICQ 4.3–4.4 audit trail complete
 - [ ] LGPD Art. 18 (patient access) verified
 - [ ] Firestore Rules approved by security
 
 **Testing verified:**
+
 - [ ] 38+ unit tests passing
 - [ ] 6 critical E2E flows passing (staging)
 - [ ] Cloud Logs 24h clean (0 ERROR/CRITICAL)
 
 **Sign-offs:**
+
 - [ ] CTO approval (architecture + compliance)
 - [ ] Tech Lead approval (design + performance)
 - [ ] QA Lead approval (test coverage + Cloud Logs)
@@ -501,27 +522,32 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 ### Phase 5 Go/No-Go (2026-06-30, pre-deploy)
 
 **Functional completeness:**
+
 - [ ] SMS/email delivered <2min critical values
 - [ ] SLA dashboard 100% uptime
 - [ ] IA strip upload + Gemini Vision working
 - [ ] Model versioning (v1.0 vs v1.1) functional
 
 **Performance verified:**
+
 - [ ] Critical detection <500ms latency
 - [ ] Strip OCR confidence >85%
 - [ ] SLA queries <2s
 
 **Compliance verified:**
+
 - [ ] RDC 978 Arts. 115-117 satisfied
 - [ ] DICQ 4.7 (IA training) audit trail
 - [ ] LGPD Arts. 7, 9, 18 escalation logs
 
 **Testing verified:**
+
 - [ ] 40+ unit tests passing
 - [ ] 8 critical E2E flows passing
 - [ ] Cloud Logs 24h clean
 
 **Sign-offs:**
+
 - [ ] CTO approval
 - [ ] Tech Lead approval
 - [ ] QA Lead approval
@@ -535,20 +561,24 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 ### Phase 6 Go/No-Go (2026-07-14, pre-deploy)
 
 **Functional completeness:**
+
 - [ ] PDF generation <5s per laudo
 - [ ] QR codes scannable
 - [ ] Portal médico external access working
 
 **Performance verified:**
+
 - [ ] Lighthouse >90 desktop + mobile
 - [ ] Web Vitals within targets
 
 **Testing verified:**
+
 - [ ] 8 critical E2E flows passing
 - [ ] PDF quality verified (100 samples)
 - [ ] Cloud Logs 24h clean
 
 **Sign-offs:**
+
 - [ ] CTO approval
 - [ ] Tech Lead approval
 - [ ] QA Lead approval
@@ -560,28 +590,33 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 ### Phase 7 Go/No-Go (2026-07-28, pre-deploy)
 
 **Functional completeness:**
+
 - [ ] Export Wizard 4 steps complete
 - [ ] XLSX <30s, PDF batch compression >50%
 - [ ] Scheduled exports on cron
 - [ ] Portal paciente feedback + trending
 
 **Performance verified:**
+
 - [ ] Export wizard responsive (<2s mobile)
 - [ ] Email batch <5s per 100
 - [ ] Trending dashboard <3s load
 
 **Compliance verified:**
+
 - [ ] RDC 978 Arts. 167, 204
 - [ ] DICQ 4.15 (feedback trending)
 - [ ] LGPD Arts. 5-7, 18 (consent + anonymization)
 
 **Testing verified:**
+
 - [ ] 35+ unit tests passing
 - [ ] 8 critical E2E flows passing
 - [ ] Mobile responsive (3+ devices)
 - [ ] Cloud Logs 24h clean
 
 **Sign-offs:**
+
 - [ ] CTO approval
 - [ ] Tech Lead approval
 - [ ] QA Lead approval
@@ -607,24 +642,24 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 
 ### Test Coverage Baseline
 
-| Phase | Unit Tests | E2E Flows | Coverage % | Target % |
-|-------|----------|-----------|-----------|----------|
-| **4** | 38+ | 6 | TBD | 85%+ |
-| **5** | 40+ | 8 | TBD | 85%+ |
-| **6** | 20+ | 8 | TBD | 80%+ |
-| **7** | 35+ | 8 | TBD | 80%+ |
-| **Total** | 133+ | 30 | TBD | 83%+ |
+| Phase     | Unit Tests | E2E Flows | Coverage % | Target % |
+| --------- | ---------- | --------- | ---------- | -------- |
+| **4**     | 38+        | 6         | TBD        | 85%+     |
+| **5**     | 40+        | 8         | TBD        | 85%+     |
+| **6**     | 20+        | 8         | TBD        | 80%+     |
+| **7**     | 35+        | 8         | TBD        | 80%+     |
+| **Total** | 133+       | 30        | TBD        | 83%+     |
 
 ### Cloud Logs Baseline
 
 **Per-phase 24h post-deploy requirements:**
 
-| Metric | Phase 4 | Phase 5 | Phase 6 | Phase 7 |
-|--------|---------|---------|---------|---------|
-| ERROR count | 0 | 0 | 0 | 0 |
-| CRITICAL count | 0 | 0 | 0 | 0 |
-| WARNING rate | <5% | <5% | <5% | <5% |
-| Error types | TBD | TBD | TBD | TBD |
+| Metric         | Phase 4 | Phase 5 | Phase 6 | Phase 7 |
+| -------------- | ------- | ------- | ------- | ------- |
+| ERROR count    | 0       | 0       | 0       | 0       |
+| CRITICAL count | 0       | 0       | 0       | 0       |
+| WARNING rate   | <5%     | <5%     | <5%     | <5%     |
+| Error types    | TBD     | TBD     | TBD     | TBD     |
 
 ---
 
@@ -632,24 +667,24 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 
 ### Current Status Summary
 
-| Category | Status | Evidence | Owner |
-|----------|--------|----------|-------|
-| **Planning** | ✅ COMPLETE | 4 phase plans ready | Tech Lead |
-| **Infrastructure** | ⏳ PENDING | SMTP/Tasks/sandbox setup due 2026-05-19 | DevOps Lead |
-| **Test Data** | ⏳ PENDING | Fixtures ready, provisioning due per phase | QA Lead |
-| **Team** | ✅ READY | 3.5 FTE assigned, no conflicts | Stream Leads |
-| **Compliance** | ✅ MAPPED | RDC 978, DICQ, LGPD coverage verified | Auditor |
-| **Architecture** | ✅ APPROVED | Phase 3 deployed, Phase 4-7 designs reviewed | CTO |
-| **Documentation** | ✅ COMPLETE | Kickoff checklists, quick reference, guides ready | All |
+| Category           | Status      | Evidence                                          | Owner        |
+| ------------------ | ----------- | ------------------------------------------------- | ------------ |
+| **Planning**       | ✅ COMPLETE | 4 phase plans ready                               | Tech Lead    |
+| **Infrastructure** | ⏳ PENDING  | SMTP/Tasks/sandbox setup due 2026-05-19           | DevOps Lead  |
+| **Test Data**      | ⏳ PENDING  | Fixtures ready, provisioning due per phase        | QA Lead      |
+| **Team**           | ✅ READY    | 3.5 FTE assigned, no conflicts                    | Stream Leads |
+| **Compliance**     | ✅ MAPPED   | RDC 978, DICQ, LGPD coverage verified             | Auditor      |
+| **Architecture**   | ✅ APPROVED | Phase 3 deployed, Phase 4-7 designs reviewed      | CTO          |
+| **Documentation**  | ✅ COMPLETE | Kickoff checklists, quick reference, guides ready | All          |
 
 ### Risk Assessment (By Phase)
 
-| Phase | Risk Score | Top Risk | Mitigation |
-|-------|-----------|----------|-----------|
-| **4** | 3.5/10 | Email delivery fail | Test with staging, retry queue, fallback alert |
-| **5** | 3/10 | IA strip upload latency | Batch processing + async queue |
-| **6** | 2.5/10 | PDF generation bloat | Streaming + compression + load test |
-| **7** | 3/10 | Batch export at scale | Email job queue + scheduled retry |
+| Phase | Risk Score | Top Risk                | Mitigation                                     |
+| ----- | ---------- | ----------------------- | ---------------------------------------------- |
+| **4** | 3.5/10     | Email delivery fail     | Test with staging, retry queue, fallback alert |
+| **5** | 3/10       | IA strip upload latency | Batch processing + async queue                 |
+| **6** | 2.5/10     | PDF generation bloat    | Streaming + compression + load test            |
+| **7** | 3/10       | Batch export at scale   | Email job queue + scheduled retry              |
 
 **Overall Wave 2 risk:** 3.0/10 (LOW) — All risks have clear mitigations.
 
@@ -692,6 +727,7 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 **Duration:** 15 min  
 **Attendees:** Phase 4-7 executor + Wave 2 Lead + Tech Lead (optional)  
 **Format:**
+
 - What did I ship yesterday?
 - What's blocking me today?
 - What's my priority for tomorrow?
@@ -704,6 +740,7 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 **Duration:** 45 min  
 **Attendees:** Wave 2 Lead, Phase 4-7 leads, QA Lead, DevOps Lead, Tech Lead, CTO (optional)  
 **Agenda:**
+
 1. Phase 4-7 status by executor (3 min each)
 2. Cross-phase blockers + dependencies (5 min)
 3. Test data + infrastructure readiness (5 min)
@@ -719,6 +756,7 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 **Duration:** 45 min  
 **Attendees:** CTO, RT Lead, External Auditor  
 **Agenda:**
+
 - Week 1 (Jun 1): Portal architecture + NOTIVISA integration
 - Week 2 (Jun 8): Critical escalation + IA training demo
 - Week 3 (Jun 15): CAPA closure progress (F-01 → F-04)
@@ -734,6 +772,7 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 **Post-deploy monitoring window:** 24h per phase  
 **Alert threshold:** 0 ERROR/CRITICAL, <5% WARNING rate  
 **Actions:**
+
 - [ ] Deploy monitoring dashboard (24h tail script)
 - [ ] Configure alert policies (Slack + PagerDuty)
 - [ ] Document error signatures + remediation runbooks
@@ -744,12 +783,14 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 ### Performance Monitoring
 
 **Baseline capture (per phase):**
+
 - [ ] LCP, INP, CLS measurements (Lighthouse)
 - [ ] API latency (Cloud Trace)
 - [ ] Database query performance (Firestore metrics)
 - [ ] Bundle size (vite build report)
 
 **Regression gates:**
+
 - Abort deploy if LCP >2.5s or CLS >0.1
 - Alert if INP >200ms
 
@@ -757,6 +798,7 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 
 **Per-phase target:** 80%+ coverage  
 **Tools:**
+
 - [ ] vitest coverage report (unit tests)
 - [ ] Detox E2E flow pass rate
 - [ ] Cloud Logs error tracking
@@ -780,12 +822,12 @@ Per `v1.4_TEST_DATA_PROVISIONING.md`:
 
 ### Escalation Paths
 
-| Severity | Escalation Path | Time |
-|----------|-----------------|------|
-| **GREEN** (on-track) | Slack update daily | EOD |
-| **YELLOW** (at-risk, 3-day buffer) | Slack + daily standup | Same day |
-| **RED** (blocking, <3-day buffer) | Slack + Wave 2 Lead → Tech Lead → CTO | <2h |
-| **CRITICAL** (deploy abort) | Phone + CTO decision | Immediate |
+| Severity                           | Escalation Path                       | Time      |
+| ---------------------------------- | ------------------------------------- | --------- |
+| **GREEN** (on-track)               | Slack update daily                    | EOD       |
+| **YELLOW** (at-risk, 3-day buffer) | Slack + daily standup                 | Same day  |
+| **RED** (blocking, <3-day buffer)  | Slack + Wave 2 Lead → Tech Lead → CTO | <2h       |
+| **CRITICAL** (deploy abort)        | Phone + CTO decision                  | Immediate |
 
 ---
 

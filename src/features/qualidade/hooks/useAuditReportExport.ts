@@ -38,19 +38,16 @@ export function useAuditReportExport(): UseAuditReportExportReturn {
   const [error, setError] = useState<string | null>(null);
 
   // Call Cloud Function to generate report
-  const generate = useCallback(async (
-    filter: ReportFilter,
-    format: ReportFormat = 'pdf',
-  ) => {
+  const generate = useCallback(async (filter: ReportFilter, format: ReportFormat = 'pdf') => {
     setGenerating(true);
     setError(null);
 
     try {
       // Call generateAuditReport CF callable
-      const callable = httpsCallable<
-        { labId: string; filter: ReportFilter },
-        AuditReport
-      >(functions, 'generateAuditReportPDF');
+      const callable = httpsCallable<{ labId: string; filter: ReportFilter }, AuditReport>(
+        functions,
+        'generateAuditReportPDF',
+      );
 
       const result = await callable({
         labId: filter.labId,
@@ -59,8 +56,6 @@ export function useAuditReportExport(): UseAuditReportExportReturn {
 
       const generatedReport = result.data;
       setReport(generatedReport);
-
-
 
       // Trigger download (basic implementation)
       // In Wave 5, PDF/CSV generation will be implemented server-side

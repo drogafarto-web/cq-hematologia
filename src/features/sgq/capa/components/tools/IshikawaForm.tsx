@@ -19,7 +19,8 @@ interface Props {
   saving?: boolean;
 }
 
-const INPUT_CLS = 'w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-violet-500 focus:border-transparent';
+const INPUT_CLS =
+  'w-full px-3 py-2 bg-white/5 border border-white/10 rounded-lg text-sm text-white placeholder:text-white/30 focus:ring-2 focus:ring-violet-500 focus:border-transparent';
 
 const CATEGORIAS = Object.keys(ISHIKAWA_CATEGORIAS) as IshikawaCategoria[];
 
@@ -42,10 +43,14 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
       maquina: [''],
       'meio-ambiente': [''],
       medicao: [''],
-    }
+    },
   );
-  const [causaRaizSelecionada, setCausaRaizSelecionada] = useState(initialData?.causaRaizSelecionada ?? '');
-  const [categoriaCausaRaiz, setCategoriaCausaRaiz] = useState<IshikawaCategoria>(initialData?.categoriaCausaRaiz ?? 'metodo');
+  const [causaRaizSelecionada, setCausaRaizSelecionada] = useState(
+    initialData?.causaRaizSelecionada ?? '',
+  );
+  const [categoriaCausaRaiz, setCategoriaCausaRaiz] = useState<IshikawaCategoria>(
+    initialData?.categoriaCausaRaiz ?? 'metodo',
+  );
 
   function addCausa(cat: IshikawaCategoria) {
     setCausas({ ...causas, [cat]: [...causas[cat], ''] });
@@ -62,8 +67,12 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
     setCausas({ ...causas, [cat]: causas[cat].filter((_, i) => i !== idx) });
   }
 
-  const totalCausas = CATEGORIAS.reduce((sum, cat) => sum + causas[cat].filter((c) => c.trim()).length, 0);
-  const isValid = efeito.trim().length >= 5 && totalCausas >= 1 && causaRaizSelecionada.trim().length >= 5;
+  const totalCausas = CATEGORIAS.reduce(
+    (sum, cat) => sum + causas[cat].filter((c) => c.trim()).length,
+    0,
+  );
+  const isValid =
+    efeito.trim().length >= 5 && totalCausas >= 1 && causaRaizSelecionada.trim().length >= 5;
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -84,7 +93,9 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="flex items-center gap-2 pb-3 border-b border-white/10">
-        <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">⟨</span>
+        <span className="w-7 h-7 rounded-lg bg-violet-500/20 flex items-center justify-center text-sm font-bold text-violet-400">
+          ⟨
+        </span>
         <h3 className="text-lg font-semibold text-white">Diagrama de Ishikawa (6M)</h3>
       </div>
 
@@ -108,7 +119,10 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
         </label>
 
         {CATEGORIAS.map((cat) => (
-          <div key={cat} className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2">
+          <div
+            key={cat}
+            className="p-3 rounded-xl bg-white/[0.02] border border-white/[0.06] space-y-2"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-violet-400 uppercase tracking-wider">
                 {ISHIKAWA_CATEGORIAS[cat]}
@@ -126,13 +140,23 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
                   disabled={saving}
                 />
                 {causas[cat].length > 1 && (
-                  <button type="button" onClick={() => removeCausa(cat, idx)} className="text-red-400/60 hover:text-red-400 text-xs px-1" disabled={saving}>
+                  <button
+                    type="button"
+                    onClick={() => removeCausa(cat, idx)}
+                    className="text-red-400/60 hover:text-red-400 text-xs px-1"
+                    disabled={saving}
+                  >
                     ✕
                   </button>
                 )}
               </div>
             ))}
-            <button type="button" onClick={() => addCausa(cat)} className="text-[11px] text-violet-400/70 hover:text-violet-400" disabled={saving}>
+            <button
+              type="button"
+              onClick={() => addCausa(cat)}
+              className="text-[11px] text-violet-400/70 hover:text-violet-400"
+              disabled={saving}
+            >
               + causa
             </button>
           </div>
@@ -151,7 +175,9 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
             disabled={saving}
           >
             {CATEGORIAS.map((cat) => (
-              <option key={cat} value={cat}>{ISHIKAWA_CATEGORIAS[cat]}</option>
+              <option key={cat} value={cat}>
+                {ISHIKAWA_CATEGORIAS[cat]}
+              </option>
             ))}
           </select>
           <input
@@ -166,10 +192,19 @@ export function IshikawaForm({ initialData, onSave, onCancel, saving }: Props) {
       </div>
 
       <div className="flex gap-3 pt-4 border-t border-white/10">
-        <button type="button" onClick={onCancel} className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/[0.15] text-white rounded-lg transition-colors" disabled={saving}>
+        <button
+          type="button"
+          onClick={onCancel}
+          className="flex-1 px-4 py-2 bg-white/10 hover:bg-white/[0.15] text-white rounded-lg transition-colors"
+          disabled={saving}
+        >
           Cancelar
         </button>
-        <button type="submit" disabled={!isValid || saving} className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors">
+        <button
+          type="submit"
+          disabled={!isValid || saving}
+          className="flex-1 px-4 py-2 bg-violet-600 hover:bg-violet-700 disabled:bg-violet-600/50 disabled:cursor-not-allowed text-white rounded-lg font-medium transition-colors"
+        >
           {saving ? 'Salvando...' : 'Salvar diagrama'}
         </button>
       </div>

@@ -4,13 +4,7 @@
  * World-class, dark-first, editorial.
  */
 
-import {
-  COLOR,
-  Fonts,
-  FONT_SIZES,
-  PAGE,
-  safeBottomY,
-} from '../../services/pdf/layout';
+import { COLOR, Fonts, FONT_SIZES, PAGE, safeBottomY } from '../../services/pdf/layout';
 import type { OperacionalStatus } from '../types';
 
 // ─── Status tokens ───────────────────────────────────────────────────────────
@@ -73,11 +67,7 @@ export function drawStatusPill(
 
   doc.save();
   doc.roundedRect(originX, y, width, height, 10).fillColor(theme.bg).fill();
-  doc
-    .roundedRect(originX, y, width, height, 10)
-    .lineWidth(0.8)
-    .strokeColor(theme.border)
-    .stroke();
+  doc.roundedRect(originX, y, width, height, 10).lineWidth(0.8).strokeColor(theme.border).stroke();
   doc
     .font(Fonts.bold)
     .fontSize(fontSize)
@@ -117,15 +107,8 @@ export function drawKpiGrid(
     const card = cards[i];
     const cx = x + i * (cardW + gap);
 
-    doc
-      .roundedRect(cx, y, cardW, cardH, 6)
-      .fillColor('#131316')
-      .fill();
-    doc
-      .roundedRect(cx, y, cardW, cardH, 6)
-      .lineWidth(0.5)
-      .strokeColor(COLOR.border)
-      .stroke();
+    doc.roundedRect(cx, y, cardW, cardH, 6).fillColor('#131316').fill();
+    doc.roundedRect(cx, y, cardW, cardH, 6).lineWidth(0.5).strokeColor(COLOR.border).stroke();
 
     doc
       .font(Fonts.bold)
@@ -340,28 +323,16 @@ export function drawInfoBanner(
   tone: 'info' | 'warning' | 'critical' = 'info',
 ): number {
   const bg =
-    tone === 'critical'
-      ? COLOR.dangerBg
-      : tone === 'warning'
-        ? COLOR.warningBg
-        : '#0f1a2a';
+    tone === 'critical' ? COLOR.dangerBg : tone === 'warning' ? COLOR.warningBg : '#0f1a2a';
   const fg =
-    tone === 'critical'
-      ? COLOR.danger
-      : tone === 'warning'
-        ? COLOR.accentWarm
-        : COLOR.accent;
+    tone === 'critical' ? COLOR.danger : tone === 'warning' ? COLOR.accentWarm : COLOR.accent;
 
   doc.font(Fonts.regular).fontSize(FONT_SIZES.small);
   const msgHeight = doc.heightOfString(message, { width: width - 24, lineGap: 2 });
   const boxHeight = 20 + msgHeight + 14;
 
   doc.roundedRect(x, y, width, boxHeight, 4).fill(bg);
-  doc
-    .roundedRect(x, y, width, boxHeight, 4)
-    .lineWidth(0.5)
-    .strokeColor(fg)
-    .stroke();
+  doc.roundedRect(x, y, width, boxHeight, 4).lineWidth(0.5).strokeColor(fg).stroke();
 
   doc
     .font(Fonts.bold)
@@ -383,11 +354,7 @@ export function drawInfoBanner(
 
 // ─── Page footer (consistent with backup pdfService) ─────────────────────────
 
-export function drawPageFooter(
-  doc: PDFKit.PDFDocument,
-  leftText: string,
-  rightText: string,
-): void {
+export function drawPageFooter(doc: PDFKit.PDFDocument, leftText: string, rightText: string): void {
   const footerY = PAGE.height - 28;
   doc
     .font(Fonts.regular)

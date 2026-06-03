@@ -8,7 +8,11 @@ import { useUser } from '../../../store/useAuthStore';
 import { uploadDocumento } from '../services/documentoService';
 import type { UploadProgress } from '../services/documentoService';
 import type { DocumentoTipo } from '../types/EquipamentoDocumento';
-import { DOCUMENTO_TIPO_LABEL, ALLOWED_MIME_TYPES, MAX_FILE_SIZE_BYTES } from '../types/EquipamentoDocumento';
+import {
+  DOCUMENTO_TIPO_LABEL,
+  ALLOWED_MIME_TYPES,
+  MAX_FILE_SIZE_BYTES,
+} from '../types/EquipamentoDocumento';
 
 const INPUT_CLS = `
   w-full px-3.5 py-2.5 rounded-xl
@@ -53,23 +57,29 @@ export function DocumentoUploadModal({
   const [progress, setProgress] = useState<UploadProgress | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleDrop = useCallback((e: React.DragEvent) => {
-    e.preventDefault();
-    setDragOver(false);
-    const dropped = e.dataTransfer.files[0];
-    if (dropped) {
-      setFile(dropped);
-      if (!titulo) setTitulo(dropped.name.replace(/\.[^.]+$/, ''));
-    }
-  }, [titulo]);
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      setDragOver(false);
+      const dropped = e.dataTransfer.files[0];
+      if (dropped) {
+        setFile(dropped);
+        if (!titulo) setTitulo(dropped.name.replace(/\.[^.]+$/, ''));
+      }
+    },
+    [titulo],
+  );
 
-  const handleFileSelect = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0];
-    if (selected) {
-      setFile(selected);
-      if (!titulo) setTitulo(selected.name.replace(/\.[^.]+$/, ''));
-    }
-  }, [titulo]);
+  const handleFileSelect = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const selected = e.target.files?.[0];
+      if (selected) {
+        setFile(selected);
+        if (!titulo) setTitulo(selected.name.replace(/\.[^.]+$/, ''));
+      }
+    },
+    [titulo],
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!file || !user) return;
@@ -127,17 +137,21 @@ export function DocumentoUploadModal({
 
         <div className="px-6 py-5 space-y-4">
           <div
-            onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDragOver(true);
+            }}
             onDragLeave={() => setDragOver(false)}
             onDrop={handleDrop}
             onClick={() => fileInputRef.current?.click()}
             className={`
               relative flex flex-col items-center justify-center gap-2 p-6 rounded-xl border-2 border-dashed cursor-pointer transition-all
-              ${dragOver
-                ? 'border-violet-500 bg-violet-500/5'
-                : file
-                  ? 'border-emerald-500/50 bg-emerald-500/5'
-                  : 'border-slate-300 dark:border-white/[0.12] hover:border-violet-400'
+              ${
+                dragOver
+                  ? 'border-violet-500 bg-violet-500/5'
+                  : file
+                    ? 'border-emerald-500/50 bg-emerald-500/5'
+                    : 'border-slate-300 dark:border-white/[0.12] hover:border-violet-400'
               }
             `}
           >
@@ -151,7 +165,9 @@ export function DocumentoUploadModal({
             {file ? (
               <>
                 <span className="text-2xl">&#128196;</span>
-                <span className="text-sm font-medium text-slate-700 dark:text-white/70">{file.name}</span>
+                <span className="text-sm font-medium text-slate-700 dark:text-white/70">
+                  {file.name}
+                </span>
                 <span className="text-xs text-slate-500 dark:text-white/40">
                   {(file.size / 1024 / 1024).toFixed(2)} MB
                 </span>
@@ -177,7 +193,9 @@ export function DocumentoUploadModal({
               disabled={uploading}
             >
               {TIPOS.map((t) => (
-                <option key={t} value={t}>{DOCUMENTO_TIPO_LABEL[t]}</option>
+                <option key={t} value={t}>
+                  {DOCUMENTO_TIPO_LABEL[t]}
+                </option>
               ))}
             </select>
           </div>
@@ -225,7 +243,9 @@ export function DocumentoUploadModal({
           )}
 
           {error && (
-            <p className="text-xs text-red-600 dark:text-red-400" role="alert">{error}</p>
+            <p className="text-xs text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
           )}
         </div>
 

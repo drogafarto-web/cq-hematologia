@@ -17,7 +17,7 @@ export interface FuzzyMatchResult {
   matchedId?: AnalitoId;
   confidence: OCRConfidence;
   matchedVia: 'exact' | 'alias' | 'levenshtein' | 'none';
-  distance?: number;  // Levenshtein distance if used
+  distance?: number; // Levenshtein distance if used
 }
 
 // ─── Main Matching Function ──────────────────────────────────────────────
@@ -28,7 +28,7 @@ export interface FuzzyMatchResult {
  */
 export function fuzzyMatchAnalyte(
   rawName: string,
-  catalog: AnalitoExpandedMetadata[]
+  catalog: AnalitoExpandedMetadata[],
 ): FuzzyMatchResult {
   const normalized = normalizeAnalyteName(rawName);
 
@@ -131,9 +131,9 @@ export function levenshteinDistance(a: string, b: string): number {
     for (let i = 1; i <= a.length; i++) {
       const cost = a[i - 1] === b[j - 1] ? 0 : 1;
       matrix[j][i] = Math.min(
-        matrix[j][i - 1] + 1,      // deletion
-        matrix[j - 1][i] + 1,      // insertion
-        matrix[j - 1][i - 1] + cost // substitution
+        matrix[j][i - 1] + 1, // deletion
+        matrix[j - 1][i] + 1, // insertion
+        matrix[j - 1][i - 1] + cost, // substitution
       );
     }
   }
@@ -154,14 +154,16 @@ export function levenshteinDistance(a: string, b: string): number {
 export function normalizeAnalyteName(s: string): string {
   if (!s) return '';
 
-  return s
-    .toLowerCase()
-    // Decompose accents using NFKD
-    .normalize('NFKD')
-    .replace(/[̀-ͯ]/g, '')
-    // Replace punctuation with spaces
-    .replace(/[/\-_]/g, ' ')
-    // Collapse multiple spaces
-    .replace(/\s+/g, ' ')
-    .trim();
+  return (
+    s
+      .toLowerCase()
+      // Decompose accents using NFKD
+      .normalize('NFKD')
+      .replace(/[̀-ͯ]/g, '')
+      // Replace punctuation with spaces
+      .replace(/[/\-_]/g, ' ')
+      // Collapse multiple spaces
+      .replace(/\s+/g, ' ')
+      .trim()
+  );
 }

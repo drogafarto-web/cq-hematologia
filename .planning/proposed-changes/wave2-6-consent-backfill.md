@@ -86,6 +86,6 @@ team has a clear contract.
    rollback in Phase 4 cutover. Tracked in
    `docs/lgpd/PATIENT_CONSENT_BACKFILL_PLAN.md` §11.1. Owner: Wave 1.
 2. **Guardian fields on consent doc** — `guardian: { name, cpfHash,
-   legalBasis }`. Until v1.5 ships, lives in `paperTrail[].notes`. §11.2.
+legalBasis }`. Until v1.5 ships, lives in `paperTrail[].notes`. §11.2.
 3. **Cloud Logs alert** — daily count of `consent-not-captured` errors.
    Owner: SRE.

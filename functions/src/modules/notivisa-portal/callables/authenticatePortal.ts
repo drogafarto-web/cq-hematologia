@@ -81,281 +81,283 @@ export const authenticatePortal = functions.onCall(
   async (
     request: functions.CallableRequest<unknown>,
   ): Promise<AuthenticatePortalOutput | AuthenticatePortalError> => {
-      try {
-        // ========== 1. Validate Input ==========
-        const input = AuthenticatePortalInputSchema.parse(request.data);
-        const { labId, code, redirectUri, state } = input;
+    try {
+      // ========== 1. Validate Input ==========
+      const input = AuthenticatePortalInputSchema.parse(request.data);
+      const { labId, code, redirectUri, state } = input;
 
-        logger.info('[authenticatePortal] Starting OAuth exchange', {
+      logger.info('[authenticatePortal] Starting OAuth exchange', {
+        labId,
+        redirectUri,
+      });
+
+      // ========== 2. Validate State Parameter ==========
+      // State prevents CSRF attacks; must match what was generated for this request
+      const stateDocRef = db.collection('notivisa-portal-oauth-state').doc(state);
+      const stateSnap = await stateDocRef.get();
+
+      if (stateSnap.data() === undefined) {
+        logger.warn('[authenticatePortal] State parameter not found', {
+          state,
           labId,
-          redirectUri,
         });
-
-        // ========== 2. Validate State Parameter ==========
-        // State prevents CSRF attacks; must match what was generated for this request
-        const stateDocRef = db.collection('notivisa-portal-oauth-state').doc(state);
-        const stateSnap = await stateDocRef.get();
-
-        if (stateSnap.data() === undefined) {
-          logger.warn('[authenticatePortal] State parameter not found', {
-            state,
-            labId,
-          });
-          return {
-            ok: false,
-            code: 'STATE_MISMATCH',
-            message: 'OAuth state parameter invalid or expired',
-          };
-        }
-
-        const stateData = stateSnap.data();
-        if (!stateData) {
-          logger.warn('[authenticatePortal] State data is empty', { state, labId });
-          return {
-            ok: false,
-            code: 'STATE_MISMATCH',
-            message: 'OAuth state parameter invalid or expired',
-          };
-        }
-
-        const stateCreatedAt = stateData.createdAt;
-        if (
-          stateData.labId !== labId ||
-          stateData.redirectUri !== redirectUri ||
-          Date.now() - stateCreatedAt > 10 * 60 * 1000 // 10 minute expiry
-        ) {
-          logger.warn('[authenticatePortal] State validation failed', {
-            state,
-            labId,
-            mismatch: stateData.labId !== labId || stateData.redirectUri !== redirectUri,
-            expired: Date.now() - stateCreatedAt > 10 * 60 * 1000,
-          });
-          return {
-            ok: false,
-            code: 'STATE_MISMATCH',
-            message: 'OAuth state parameter mismatch or expired',
-          };
-        }
-
-        // Consume state (one-time use)
-        await stateDocRef.delete();
-
-        // ========== 3. Validate Lab Exists ==========
-        const labRef = db.collection('labs').doc(labId);
-        const labSnap = await labRef.get();
-
-        if (labSnap.data() === undefined) {
-          logger.warn('[authenticatePortal] Lab not found', { labId });
-          return {
-            ok: false,
-            code: 'LAB_NOT_FOUND',
-            message: `Lab ${labId} not found`,
-          };
-        }
-
-        const labData = labSnap.data();
-        if (!labData?.notivisaLabCode) {
-          logger.warn('[authenticatePortal] Lab not configured for NOTIVISA', {
-            labId,
-          });
-          return {
-            ok: false,
-            code: 'LAB_NOT_FOUND',
-            message: 'Lab is not configured for NOTIVISA portal integration',
-          };
-        }
-
-        // ========== 4. Exchange Code for Token ==========
-        if (!OAUTH_CLIENT_ID || !OAUTH_CLIENT_SECRET) {
-          logger.error('[authenticatePortal] OAuth credentials not configured');
-          return {
-            ok: false,
-            code: 'INTERNAL_ERROR',
-            message: 'Server is not configured for OAuth token exchange',
-          };
-        }
-
-        let oauthToken;
-        try {
-          oauthToken = await exchangeOAuthCode(
-            code,
-            redirectUri,
-            OAUTH_CLIENT_ID,
-            OAUTH_CLIENT_SECRET,
-          );
-        } catch (error: any) {
-          logger.error('[authenticatePortal] OAuth token exchange failed', {
-            error: error.message,
-            labId,
-          });
-          return {
-            ok: false,
-            code: 'TOKEN_EXCHANGE_FAILED',
-            message: `Failed to exchange authorization code: ${error.message}`,
-          };
-        }
-
-        // ========== 5. Validate and Parse idToken (JWT) ==========
-        let professionalInfo;
-        try {
-          professionalInfo = await parseAndValidateIdToken(oauthToken.id_token);
-        } catch (error: any) {
-          logger.error('[authenticatePortal] idToken validation failed', {
-            error: error.message,
-            labId,
-          });
-          return {
-            ok: false,
-            code: 'INVALID_TOKEN',
-            message: `Failed to validate identity token: ${error.message}`,
-          };
-        }
-
-        // ========== 6. Create or Get User in Firebase Auth ==========
-        let firebaseUser;
-        try {
-          try {
-            firebaseUser = await auth.getUserByEmail(professionalInfo.email);
-          } catch (error: any) {
-            if (error.code === 'auth/user-not-found') {
-              // Create new user (first-time OAuth)
-              firebaseUser = await auth.createUser({
-                email: professionalInfo.email,
-                displayName: professionalInfo.name,
-                disabled: false,
-              });
-
-              logger.info('[authenticatePortal] New Firebase user created', {
-                uid: firebaseUser.uid,
-                email: professionalInfo.email,
-              });
-            } else {
-              throw error;
-            }
-          }
-        } catch (error: any) {
-          logger.error('[authenticatePortal] Firebase user creation/fetch failed', {
-            error: error.message,
-            email: professionalInfo.email,
-          });
-          return {
-            ok: false,
-            code: 'USER_NOT_FOUND',
-            message: `Failed to create/retrieve user: ${error.message}`,
-          };
-        }
-
-        // ========== 7. Create Portal Session in Firestore ==========
-        const now = Date.now();
-        const sessionId = `psess_${now}_${Math.random().toString(36).substr(2, 9)}`;
-        const expiresAt = now + oauthToken.expires_in * 1000;
-
-        const sessionRef = db
-          .collection('notivisa-portal-sessions')
-          .doc(labId)
-          .collection('sessions')
-          .doc(sessionId);
-
-        const xForwardedFor = request.rawRequest.headers['x-forwarded-for'];
-        const ipAddress = (Array.isArray(xForwardedFor) ? xForwardedFor[0] : xForwardedFor)?.split(',')[0] || 'unknown';
-        const userAgent = request.rawRequest.headers['user-agent'] || 'unknown';
-
-        const sessionDoc = {
-          id: sessionId,
-          labId,
-          userId: firebaseUser.uid,
-          accessToken: oauthToken.access_token,
-          refreshToken: oauthToken.refresh_token,
-          tokenType: oauthToken.token_type,
-          scope: oauthToken.scope,
-          issuedAt: now,
-          expiresAt,
-          refreshedAt: null,
-          professionalId: professionalInfo.id,
-          professionalName: professionalInfo.name,
-          professionalEmail: professionalInfo.email,
-          professionalRole: professionalInfo.role,
-          notivisaLabCode: labData.notivisaLabCode,
-          connectedAt: now,
-          lastActivityAt: now,
-          ipAddress,
-          userAgent,
-          status: 'active',
-          errorMessage: null,
-          criadoEm: now,
-          atualizadoEm: now,
-          deletadoEm: null,
-        };
-
-        await sessionRef.set(sessionDoc);
-
-        logger.info('[authenticatePortal] Session created', {
-          sessionId,
-          labId,
-          userId: firebaseUser.uid,
-          professionalRole: professionalInfo.role,
-        });
-
-        // ========== 8. Issue Custom Firebase Token ==========
-        const customToken = await auth.createCustomToken(firebaseUser.uid, {
-          labId,
-          portalSessionId: sessionId,
-          professionalRole: professionalInfo.role,
-          portalOAuthToken: {
-            accessToken: oauthToken.access_token,
-            refreshToken: oauthToken.refresh_token,
-            expiresIn: oauthToken.expires_in,
-          },
-        });
-
-        // ========== 9. Audit Log ==========
-        const auditRef = db
-          .collection('notivisa-portal-audit')
-          .doc(labId)
-          .collection('events')
-          .doc(`audit_${now}_${Math.random().toString(36).substr(2, 9)}`);
-
-        await auditRef.set({
-          action: 'SESSION_CREATED',
-          ts: now,
-          sessionId,
-          userId: firebaseUser.uid,
-          professionalEmail: professionalInfo.email,
-          professionalRole: professionalInfo.role,
-          labId,
-          criadoEm: now,
-          deletadoEm: null,
-        });
-
         return {
-          ok: true,
-          sessionId,
-          firebaseToken: customToken,
-          expiresAt,
-          professionalName: professionalInfo.name,
-          professionalRole: professionalInfo.role,
+          ok: false,
+          code: 'STATE_MISMATCH',
+          message: 'OAuth state parameter invalid or expired',
         };
-      } catch (error: any) {
-        logger.error('[authenticatePortal] Unhandled error', {
-          error: error.message,
-          stack: error.stack,
+      }
+
+      const stateData = stateSnap.data();
+      if (!stateData) {
+        logger.warn('[authenticatePortal] State data is empty', { state, labId });
+        return {
+          ok: false,
+          code: 'STATE_MISMATCH',
+          message: 'OAuth state parameter invalid or expired',
+        };
+      }
+
+      const stateCreatedAt = stateData.createdAt;
+      if (
+        stateData.labId !== labId ||
+        stateData.redirectUri !== redirectUri ||
+        Date.now() - stateCreatedAt > 10 * 60 * 1000 // 10 minute expiry
+      ) {
+        logger.warn('[authenticatePortal] State validation failed', {
+          state,
+          labId,
+          mismatch: stateData.labId !== labId || stateData.redirectUri !== redirectUri,
+          expired: Date.now() - stateCreatedAt > 10 * 60 * 1000,
         });
+        return {
+          ok: false,
+          code: 'STATE_MISMATCH',
+          message: 'OAuth state parameter mismatch or expired',
+        };
+      }
 
-        if (error instanceof z.ZodError) {
-          return {
-            ok: false,
-            code: 'INVALID_INPUT',
-            message: error.errors[0].message,
-          };
-        }
+      // Consume state (one-time use)
+      await stateDocRef.delete();
 
+      // ========== 3. Validate Lab Exists ==========
+      const labRef = db.collection('labs').doc(labId);
+      const labSnap = await labRef.get();
+
+      if (labSnap.data() === undefined) {
+        logger.warn('[authenticatePortal] Lab not found', { labId });
+        return {
+          ok: false,
+          code: 'LAB_NOT_FOUND',
+          message: `Lab ${labId} not found`,
+        };
+      }
+
+      const labData = labSnap.data();
+      if (!labData?.notivisaLabCode) {
+        logger.warn('[authenticatePortal] Lab not configured for NOTIVISA', {
+          labId,
+        });
+        return {
+          ok: false,
+          code: 'LAB_NOT_FOUND',
+          message: 'Lab is not configured for NOTIVISA portal integration',
+        };
+      }
+
+      // ========== 4. Exchange Code for Token ==========
+      if (!OAUTH_CLIENT_ID || !OAUTH_CLIENT_SECRET) {
+        logger.error('[authenticatePortal] OAuth credentials not configured');
         return {
           ok: false,
           code: 'INTERNAL_ERROR',
-          message: 'Internal server error during OAuth authentication',
+          message: 'Server is not configured for OAuth token exchange',
         };
       }
-    },
+
+      let oauthToken;
+      try {
+        oauthToken = await exchangeOAuthCode(
+          code,
+          redirectUri,
+          OAUTH_CLIENT_ID,
+          OAUTH_CLIENT_SECRET,
+        );
+      } catch (error: any) {
+        logger.error('[authenticatePortal] OAuth token exchange failed', {
+          error: error.message,
+          labId,
+        });
+        return {
+          ok: false,
+          code: 'TOKEN_EXCHANGE_FAILED',
+          message: `Failed to exchange authorization code: ${error.message}`,
+        };
+      }
+
+      // ========== 5. Validate and Parse idToken (JWT) ==========
+      let professionalInfo;
+      try {
+        professionalInfo = await parseAndValidateIdToken(oauthToken.id_token);
+      } catch (error: any) {
+        logger.error('[authenticatePortal] idToken validation failed', {
+          error: error.message,
+          labId,
+        });
+        return {
+          ok: false,
+          code: 'INVALID_TOKEN',
+          message: `Failed to validate identity token: ${error.message}`,
+        };
+      }
+
+      // ========== 6. Create or Get User in Firebase Auth ==========
+      let firebaseUser;
+      try {
+        try {
+          firebaseUser = await auth.getUserByEmail(professionalInfo.email);
+        } catch (error: any) {
+          if (error.code === 'auth/user-not-found') {
+            // Create new user (first-time OAuth)
+            firebaseUser = await auth.createUser({
+              email: professionalInfo.email,
+              displayName: professionalInfo.name,
+              disabled: false,
+            });
+
+            logger.info('[authenticatePortal] New Firebase user created', {
+              uid: firebaseUser.uid,
+              email: professionalInfo.email,
+            });
+          } else {
+            throw error;
+          }
+        }
+      } catch (error: any) {
+        logger.error('[authenticatePortal] Firebase user creation/fetch failed', {
+          error: error.message,
+          email: professionalInfo.email,
+        });
+        return {
+          ok: false,
+          code: 'USER_NOT_FOUND',
+          message: `Failed to create/retrieve user: ${error.message}`,
+        };
+      }
+
+      // ========== 7. Create Portal Session in Firestore ==========
+      const now = Date.now();
+      const sessionId = `psess_${now}_${Math.random().toString(36).substr(2, 9)}`;
+      const expiresAt = now + oauthToken.expires_in * 1000;
+
+      const sessionRef = db
+        .collection('notivisa-portal-sessions')
+        .doc(labId)
+        .collection('sessions')
+        .doc(sessionId);
+
+      const xForwardedFor = request.rawRequest.headers['x-forwarded-for'];
+      const ipAddress =
+        (Array.isArray(xForwardedFor) ? xForwardedFor[0] : xForwardedFor)?.split(',')[0] ||
+        'unknown';
+      const userAgent = request.rawRequest.headers['user-agent'] || 'unknown';
+
+      const sessionDoc = {
+        id: sessionId,
+        labId,
+        userId: firebaseUser.uid,
+        accessToken: oauthToken.access_token,
+        refreshToken: oauthToken.refresh_token,
+        tokenType: oauthToken.token_type,
+        scope: oauthToken.scope,
+        issuedAt: now,
+        expiresAt,
+        refreshedAt: null,
+        professionalId: professionalInfo.id,
+        professionalName: professionalInfo.name,
+        professionalEmail: professionalInfo.email,
+        professionalRole: professionalInfo.role,
+        notivisaLabCode: labData.notivisaLabCode,
+        connectedAt: now,
+        lastActivityAt: now,
+        ipAddress,
+        userAgent,
+        status: 'active',
+        errorMessage: null,
+        criadoEm: now,
+        atualizadoEm: now,
+        deletadoEm: null,
+      };
+
+      await sessionRef.set(sessionDoc);
+
+      logger.info('[authenticatePortal] Session created', {
+        sessionId,
+        labId,
+        userId: firebaseUser.uid,
+        professionalRole: professionalInfo.role,
+      });
+
+      // ========== 8. Issue Custom Firebase Token ==========
+      const customToken = await auth.createCustomToken(firebaseUser.uid, {
+        labId,
+        portalSessionId: sessionId,
+        professionalRole: professionalInfo.role,
+        portalOAuthToken: {
+          accessToken: oauthToken.access_token,
+          refreshToken: oauthToken.refresh_token,
+          expiresIn: oauthToken.expires_in,
+        },
+      });
+
+      // ========== 9. Audit Log ==========
+      const auditRef = db
+        .collection('notivisa-portal-audit')
+        .doc(labId)
+        .collection('events')
+        .doc(`audit_${now}_${Math.random().toString(36).substr(2, 9)}`);
+
+      await auditRef.set({
+        action: 'SESSION_CREATED',
+        ts: now,
+        sessionId,
+        userId: firebaseUser.uid,
+        professionalEmail: professionalInfo.email,
+        professionalRole: professionalInfo.role,
+        labId,
+        criadoEm: now,
+        deletadoEm: null,
+      });
+
+      return {
+        ok: true,
+        sessionId,
+        firebaseToken: customToken,
+        expiresAt,
+        professionalName: professionalInfo.name,
+        professionalRole: professionalInfo.role,
+      };
+    } catch (error: any) {
+      logger.error('[authenticatePortal] Unhandled error', {
+        error: error.message,
+        stack: error.stack,
+      });
+
+      if (error instanceof z.ZodError) {
+        return {
+          ok: false,
+          code: 'INVALID_INPUT',
+          message: error.errors[0].message,
+        };
+      }
+
+      return {
+        ok: false,
+        code: 'INTERNAL_ERROR',
+        message: 'Internal server error during OAuth authentication',
+      };
+    }
+  },
 );
 
 // ─── OAuth Token Exchange ───────────────────────────────────────────────────
@@ -438,10 +440,9 @@ async function parseAndValidateIdToken(idToken: string): Promise<IdTokenClaims> 
   // Decode payload (base64url)
   let payload;
   try {
-    const decoded = Buffer.from(
-      parts[1].replace(/-/g, '+').replace(/_/g, '/'),
-      'base64',
-    ).toString('utf-8');
+    const decoded = Buffer.from(parts[1].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString(
+      'utf-8',
+    );
     payload = JSON.parse(decoded);
   } catch (error) {
     throw new Error('Failed to decode JWT payload');

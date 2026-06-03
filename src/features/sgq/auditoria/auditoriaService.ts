@@ -13,8 +13,7 @@ import { httpsCallable } from 'firebase/functions';
 import { db, functions } from '../../../shared/services/firebase';
 import type { Auditoria, AuditoriaFilters } from '../types/Auditoria';
 
-const auditoriaCollection = (labId: string) =>
-  collection(db, `labs/${labId}/auditorias`);
+const auditoriaCollection = (labId: string) => collection(db, `labs/${labId}/auditorias`);
 
 // ─── Subscribe ────────────────────────────────────────────────────────────
 
@@ -59,13 +58,8 @@ export function subscribeAuditorias(
 
 // ─── Get single Auditoria ─────────────────────────────────────────────────
 
-export async function getAuditoria(
-  labId: string,
-  auditoriaId: string,
-): Promise<Auditoria | null> {
-  const snap = await getDocs(
-    query(auditoriaCollection(labId), where('id', '==', auditoriaId)),
-  );
+export async function getAuditoria(labId: string, auditoriaId: string): Promise<Auditoria | null> {
+  const snap = await getDocs(query(auditoriaCollection(labId), where('id', '==', auditoriaId)));
   return snap.empty ? null : (snap.docs[0].data() as Auditoria);
 }
 
@@ -107,10 +101,7 @@ export async function getAuditoriasVencidas(labId: string): Promise<Auditoria[]>
 
 // ─── Get auditorias by escopo ──────────────────────────────────────────────
 
-export async function getAuditoriasByEscopo(
-  labId: string,
-  escopo: string,
-): Promise<Auditoria[]> {
+export async function getAuditoriasByEscopo(labId: string, escopo: string): Promise<Auditoria[]> {
   const snap = await getDocs(
     query(
       auditoriaCollection(labId),

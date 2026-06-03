@@ -39,9 +39,7 @@ export const anonimizarRespostas = onSchedule(
         const batch = db.batch();
 
         for (const respostaDoc of respostasSnap.docs) {
-          const docRef = db.doc(
-            `labs/${labId}/satisfacao-respostas/${respostaDoc.id}`
-          );
+          const docRef = db.doc(`labs/${labId}/satisfacao-respostas/${respostaDoc.id}`);
 
           batch.update(docRef, {
             pacienteId: null, // Remove patient ID
@@ -62,5 +60,5 @@ export const anonimizarRespostas = onSchedule(
       console.error('[Anonimizar] Error:', error);
       throw error;
     }
-  }
+  },
 );

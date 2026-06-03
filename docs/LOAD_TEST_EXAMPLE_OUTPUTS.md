@@ -139,27 +139,30 @@ Duration: 420s
 ## Key Metrics
 
 ### Response Times
+
 - Portal Config Reads (p95): 181ms
 - NOTIVISA Creates (p95): 378ms
 - Critical Escalations (p95): 267ms
 - Draft Locks (p95): 127ms
 
 ### Throughput
+
 - Firestore Reads: 2847
 - Firestore Writes: 687
 - Quota Exceeded: 0
 
 ### Error Rate
+
 - Total Errors: 0.2%
 
 ## SLA Assessment
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Error Rate | <5% | ✓ PASS |
-| P95 Latency | <250ms | ✓ PASS |
+| Metric           | Target | Status |
+| ---------------- | ------ | ------ |
+| Error Rate       | <5%    | ✓ PASS |
+| P95 Latency      | <250ms | ✓ PASS |
 | Portal Reads P95 | <150ms | ✗ FAIL |
-| Quota Exceeded | <10 | ✓ PASS |
+| Quota Exceeded   | <10    | ✓ PASS |
 
 ## Outputs
 
@@ -190,27 +193,30 @@ Duration: 840s
 ## Key Metrics
 
 ### Response Times
+
 - Portal Config Reads (p95): 542ms ⚠
 - NOTIVISA Creates (p95): 1.2s ⚠
 - Critical Escalations (p95): 823ms ⚠
 - Draft Locks (p95): 456ms ⚠
 
 ### Throughput
+
 - Firestore Reads: 8,247
 - Firestore Writes: 2,103
 - Quota Exceeded: 47 ⚠
 
 ### Error Rate
+
 - Total Errors: 12.3% ⚠
 
 ## SLA Assessment
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| Error Rate | <5% | ✗ FAIL |
-| P95 Latency | <250ms | ✗ FAIL |
+| Metric           | Target | Status |
+| ---------------- | ------ | ------ |
+| Error Rate       | <5%    | ✗ FAIL |
+| P95 Latency      | <250ms | ✗ FAIL |
 | Portal Reads P95 | <150ms | ✗ FAIL |
-| Quota Exceeded | <10 | ✗ FAIL |
+| Quota Exceeded   | <10    | ✗ FAIL |
 
 ## Outputs
 
@@ -233,6 +239,7 @@ Duration: 840s
 ## HTML Report Example
 
 ### Portal
+
 Se gerado com k6-reporter, exibe:
 
 ```
@@ -280,12 +287,14 @@ Se gerado com k6-reporter, exibe:
 ## Key Metrics
 
 ### Response Times
+
 - Portal Config Reads (p95): 287ms ⚠
 - NOTIVISA Creates (p95): 412ms
 - Critical Escalations (p95): 301ms
 - Draft Locks (p95): 145ms
 
 ### Error Rate
+
 - Total Errors: 2.1%
 ```
 
@@ -295,12 +304,14 @@ Se gerado com k6-reporter, exibe:
 ## Key Metrics
 
 ### Response Times
+
 - Portal Config Reads (p95): 142ms ✓ (49% melhor)
 - NOTIVISA Creates (p95): 378ms ✓ (8% melhor)
 - Critical Escalations (p95): 267ms ✓ (11% melhor)
 - Draft Locks (p95): 127ms ✓ (12% melhor)
 
 ### Error Rate
+
 - Total Errors: 0.2% ✓ (91% melhor)
 ```
 
@@ -502,7 +513,7 @@ PERFORMANCE REQUIREMENTS
    Target: <150ms
    Actual: 181ms
    Status: WITHIN TOLERANCE (±20%)
-   
+
 ☑ NOTIVISA Event Latency (P95)
    Target: <300ms
    Actual: 378ms

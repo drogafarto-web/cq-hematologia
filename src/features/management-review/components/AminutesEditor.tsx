@@ -21,8 +21,8 @@ interface AminutesEditorProps {
 
 interface AminutesFormState {
   dataReuniao: string; // ISO date string
-  horaInicio: string;   // "HH:MM"
-  horaFim: string;      // "HH:MM"
+  horaInicio: string; // "HH:MM"
+  horaFim: string; // "HH:MM"
   local: string;
   pauta: string;
   conteudo: string;
@@ -35,7 +35,7 @@ export default function AminutesEditor({
   managementReviewId = '',
   mode = 'create',
   onSave,
-  onCancel
+  onCancel,
 }: AminutesEditorProps) {
   const now = new Date();
   const defaultDate = now.toISOString().split('T')[0];
@@ -50,7 +50,7 @@ export default function AminutesEditor({
     pauta: ata?.pauta || '',
     conteudo: ata?.conteudo || '',
     participantes: ata?.participantes || [],
-    decisoes: ata?.decisoes || []
+    decisoes: ata?.decisoes || [],
   });
 
   const [participantInput, setParticipantInput] = useState('');
@@ -62,7 +62,7 @@ export default function AminutesEditor({
     if (participantInput.trim()) {
       setFormState((prev) => ({
         ...prev,
-        participantes: [...prev.participantes, participantInput.trim()]
+        participantes: [...prev.participantes, participantInput.trim()],
       }));
       setParticipantInput('');
     }
@@ -71,7 +71,7 @@ export default function AminutesEditor({
   const handleRemoveParticipant = (index: number) => {
     setFormState((prev) => ({
       ...prev,
-      participantes: prev.participantes.filter((_, i) => i !== index)
+      participantes: prev.participantes.filter((_, i) => i !== index),
     }));
   };
 
@@ -79,7 +79,7 @@ export default function AminutesEditor({
     if (decisionInput.trim()) {
       setFormState((prev) => ({
         ...prev,
-        decisoes: [...prev.decisoes, decisionInput.trim()]
+        decisoes: [...prev.decisoes, decisionInput.trim()],
       }));
       setDecisionInput('');
     }
@@ -88,7 +88,7 @@ export default function AminutesEditor({
   const handleRemoveDecision = (index: number) => {
     setFormState((prev) => ({
       ...prev,
-      decisoes: prev.decisoes.filter((_, i) => i !== index)
+      decisoes: prev.decisoes.filter((_, i) => i !== index),
     }));
   };
 
@@ -131,7 +131,7 @@ export default function AminutesEditor({
         conteudo: formState.conteudo,
         participantes: formState.participantes,
         decisoes: formState.decisoes,
-        assinado: false
+        assinado: false,
       };
 
       onSave?.(ataData as any);
@@ -154,15 +154,11 @@ export default function AminutesEditor({
       {/* Date/Time */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div>
-          <label className="block text-xs uppercase text-white/60 font-semibold mb-2">
-            Data
-          </label>
+          <label className="block text-xs uppercase text-white/60 font-semibold mb-2">Data</label>
           <input
             type="date"
             value={formState.dataReuniao}
-            onChange={(e) =>
-              setFormState((prev) => ({ ...prev, dataReuniao: e.target.value }))
-            }
+            onChange={(e) => setFormState((prev) => ({ ...prev, dataReuniao: e.target.value }))}
             disabled={isReadonly}
             className="w-full px-3 py-2 bg-[#0f0f12] border border-white/10 rounded-md text-white focus:outline-none focus:border-violet-500 disabled:opacity-50"
           />
@@ -175,9 +171,7 @@ export default function AminutesEditor({
           <input
             type="time"
             value={formState.horaInicio}
-            onChange={(e) =>
-              setFormState((prev) => ({ ...prev, horaInicio: e.target.value }))
-            }
+            onChange={(e) => setFormState((prev) => ({ ...prev, horaInicio: e.target.value }))}
             disabled={isReadonly}
             className="w-full px-3 py-2 bg-[#0f0f12] border border-white/10 rounded-md text-white focus:outline-none focus:border-violet-500 disabled:opacity-50"
           />
@@ -190,9 +184,7 @@ export default function AminutesEditor({
           <input
             type="time"
             value={formState.horaFim}
-            onChange={(e) =>
-              setFormState((prev) => ({ ...prev, horaFim: e.target.value }))
-            }
+            onChange={(e) => setFormState((prev) => ({ ...prev, horaFim: e.target.value }))}
             disabled={isReadonly}
             className="w-full px-3 py-2 bg-[#0f0f12] border border-white/10 rounded-md text-white focus:outline-none focus:border-violet-500 disabled:opacity-50"
           />
@@ -201,9 +193,7 @@ export default function AminutesEditor({
 
       {/* Local */}
       <div className="mb-6">
-        <label className="block text-xs uppercase text-white/60 font-semibold mb-2">
-          Local
-        </label>
+        <label className="block text-xs uppercase text-white/60 font-semibold mb-2">Local</label>
         <input
           type="text"
           value={formState.local}
@@ -216,9 +206,7 @@ export default function AminutesEditor({
 
       {/* Pauta */}
       <div className="mb-6">
-        <label className="block text-xs uppercase text-white/60 font-semibold mb-2">
-          Pauta
-        </label>
+        <label className="block text-xs uppercase text-white/60 font-semibold mb-2">Pauta</label>
         <textarea
           value={formState.pauta}
           onChange={(e) => setFormState((prev) => ({ ...prev, pauta: e.target.value }))}
@@ -272,7 +260,10 @@ export default function AminutesEditor({
 
         <div className="space-y-1">
           {formState.participantes.map((participant, idx) => (
-            <div key={idx} className="flex items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white">
+            <div
+              key={idx}
+              className="flex items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+            >
               <span>{participant}</span>
               {!isReadonly && (
                 <button
@@ -316,7 +307,10 @@ export default function AminutesEditor({
 
         <div className="space-y-1">
           {formState.decisoes.map((decision, idx) => (
-            <div key={idx} className="flex items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white">
+            <div
+              key={idx}
+              className="flex items-center justify-between px-3 py-2 bg-white/5 border border-white/10 rounded text-sm text-white"
+            >
               <span className="flex-1">{decision}</span>
               {!isReadonly && (
                 <button

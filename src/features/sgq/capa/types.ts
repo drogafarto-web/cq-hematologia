@@ -155,10 +155,7 @@ export const VALID_STATUS_TRANSITIONS: Record<CAPAStatus, CAPAStatus[]> = {
   cancelada: [], // Terminal state
 };
 
-export function isValidStatusTransition(
-  currentStatus: CAPAStatus,
-  newStatus: CAPAStatus
-): boolean {
+export function isValidStatusTransition(currentStatus: CAPAStatus, newStatus: CAPAStatus): boolean {
   return VALID_STATUS_TRANSITIONS[currentStatus]?.includes(newStatus) ?? false;
 }
 

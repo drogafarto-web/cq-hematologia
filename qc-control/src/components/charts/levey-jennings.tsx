@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import {
   ScatterChart,
@@ -10,42 +10,42 @@ import {
   ReferenceLine,
   ResponsiveContainer,
   Legend,
-} from 'recharts'
+} from 'recharts';
 
 interface LJDataPoint {
-  date: string
-  l1: number
-  l2: number
-  sdDist: number
-  rule?: string
+  date: string;
+  l1: number;
+  l2: number;
+  sdDist: number;
+  rule?: string;
 }
 
 interface LeveyJenningsProps {
-  data: LJDataPoint[]
-  mean: number
-  sd: number
-  width?: number
-  height?: number
+  data: LJDataPoint[];
+  mean: number;
+  sd: number;
+  width?: number;
+  height?: number;
 }
 
 function DiamondShape(props: { cx?: number; cy?: number; fill?: string }) {
-  const { cx = 0, cy = 0, fill = '#D97706' } = props
+  const { cx = 0, cy = 0, fill = '#D97706' } = props;
   return (
     <svg x={cx - 6} y={cy - 6} width={12} height={12}>
       <rect x={0} y={0} width={12} height={12} transform="rotate(45 6 6)" fill={fill} />
     </svg>
-  )
+  );
 }
 
 function ViolationDot(props: { cx?: number; cy?: number }) {
-  const { cx = 0, cy = 0 } = props
-  return <circle cx={cx} cy={cy} r={5} fill="#BA1A1A" />
+  const { cx = 0, cy = 0 } = props;
+  return <circle cx={cx} cy={cy} r={5} fill="#BA1A1A" />;
 }
 
 export function LeveyJennings({ data, mean, sd, height = 400 }: LeveyJenningsProps) {
-  const violations = data.filter((d) => d.rule)
-  const normalL1 = data.filter((d) => !d.rule)
-  const normalL2 = data.filter((d) => !d.rule)
+  const violations = data.filter((d) => d.rule);
+  const normalL1 = data.filter((d) => !d.rule);
+  const normalL2 = data.filter((d) => !d.rule);
 
   return (
     <ResponsiveContainer width="100%" height={height}>
@@ -104,5 +104,5 @@ export function LeveyJennings({ data, mean, sd, height = 400 }: LeveyJenningsPro
         />
       </ScatterChart>
     </ResponsiveContainer>
-  )
+  );
 }

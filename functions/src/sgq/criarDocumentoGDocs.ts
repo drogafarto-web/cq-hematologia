@@ -1,10 +1,6 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
-import {
-  createDocument,
-  createDocumentFromSource,
-  shareWithUsers,
-} from './_drive/docsClient';
+import { createDocument, createDocumentFromSource, shareWithUsers } from './_drive/docsClient';
 import { getAccessToken, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET } from './_drive/oauthClient';
 import { logger } from 'firebase-functions/v2';
 

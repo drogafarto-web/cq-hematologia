@@ -94,29 +94,29 @@ W7 — Verification      [1 SA]                      deps: W6
 
 ## Compliance Mapping
 
-| Requisito | Wave | Subagente |
-|-----------|------|-----------|
-| RDC 978 Art. 5.3 — CAPA management | W0–W4 | SA-01/07/08/20–24/27–31 |
-| RDC 978 Art. 86 — Gestão de riscos | W0/W4 | SA-05/35/37 |
-| RDC 978 Art. 117 — Audit trail | W1/W3 | SA-06/07/20–24 |
-| RDC 978 Art. 122–127 — Personnel | W0/W1/W4 | SA-03/04/10/11/33/34 |
-| DICQ 4.4 — CAPA + trilha | W0–W3 | SA-01/06–08/20–24 |
-| DICQ 4.15 — Management review | W0/W1/W4 | SA-05/12/19/35 |
+| Requisito                          | Wave     | Subagente               |
+| ---------------------------------- | -------- | ----------------------- |
+| RDC 978 Art. 5.3 — CAPA management | W0–W4    | SA-01/07/08/20–24/27–31 |
+| RDC 978 Art. 86 — Gestão de riscos | W0/W4    | SA-05/35/37             |
+| RDC 978 Art. 117 — Audit trail     | W1/W3    | SA-06/07/20–24          |
+| RDC 978 Art. 122–127 — Personnel   | W0/W1/W4 | SA-03/04/10/11/33/34    |
+| DICQ 4.4 — CAPA + trilha           | W0–W3    | SA-01/06–08/20–24       |
+| DICQ 4.15 — Management review      | W0/W1/W4 | SA-05/12/19/35          |
 
 ---
 
 ## Planos de execução
 
-| Plano | Wave | SAs | Dependência |
-|-------|------|-----|-------------|
-| 08-01 | W0 — Types | SA-01–05 | nenhuma |
-| 08-02 | W1 — Services + Rules | SA-06–13 | 08-01 |
-| 08-03 | W2 — Hooks | SA-14–19 | 08-02 |
-| 08-04 | W3 — Cloud Functions | SA-20–26 | 08-01 |
-| 08-05 | W4 — UI Components | SA-27–35 | 08-03 + 08-04 |
-| 08-06 | W5 — Pages + Routes | SA-36–40 | 08-05 |
-| 08-07 | W6 — Tests | SA-41–44 | 08-06 |
-| 08-08 | W7 — Verification Gate | SA-45 | 08-07 |
+| Plano | Wave                   | SAs      | Dependência   |
+| ----- | ---------------------- | -------- | ------------- |
+| 08-01 | W0 — Types             | SA-01–05 | nenhuma       |
+| 08-02 | W1 — Services + Rules  | SA-06–13 | 08-01         |
+| 08-03 | W2 — Hooks             | SA-14–19 | 08-02         |
+| 08-04 | W3 — Cloud Functions   | SA-20–26 | 08-01         |
+| 08-05 | W4 — UI Components     | SA-27–35 | 08-03 + 08-04 |
+| 08-06 | W5 — Pages + Routes    | SA-36–40 | 08-05         |
+| 08-07 | W6 — Tests             | SA-41–44 | 08-06         |
+| 08-08 | W7 — Verification Gate | SA-45    | 08-07         |
 
 ---
 

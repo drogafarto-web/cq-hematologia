@@ -29,49 +29,38 @@ export function ExportStep3({
   isLoading,
   error,
 }: ExportStep3Props) {
-  const estimatedMinutes = format ? FORMAT_ESTIMATED_MINUTES[format] ?? 2 : 2;
-  const formatLabel = format ? FORMAT_VARIANT_LABELS[format] ?? format.toUpperCase() : '—';
+  const estimatedMinutes = format ? (FORMAT_ESTIMATED_MINUTES[format] ?? 2) : 2;
+  const formatLabel = format ? (FORMAT_VARIANT_LABELS[format] ?? format.toUpperCase()) : '—';
 
   const daysDiff =
     startDate && endDate
       ? Math.ceil(
-          (new Date(endDate).getTime() - new Date(startDate).getTime()) /
-            (1000 * 60 * 60 * 24),
+          (new Date(endDate).getTime() - new Date(startDate).getTime()) / (1000 * 60 * 60 * 24),
         ) + 1
       : null;
 
   return (
     <div className="flex flex-col gap-5">
       <p className="text-sm text-white/50 leading-relaxed">
-        Revise os detalhes antes de confirmar. O arquivo será gerado em segundo
-        plano e ficará disponível para download na lista de exportações.
+        Revise os detalhes antes de confirmar. O arquivo será gerado em segundo plano e ficará
+        disponível para download na lista de exportações.
       </p>
 
       {/* Summary card */}
       <div className="rounded-xl ring-1 ring-white/10 bg-white/[0.04] divide-y divide-white/[0.06]">
-        <SummaryRow
-          label="Formato"
-          value={formatLabel}
-          highlight
-        />
+        <SummaryRow label="Formato" value={formatLabel} highlight />
         <SummaryRow
           label="Período"
           value={`${formatDisplayDate(startDate)} — ${formatDisplayDate(endDate)}`}
         />
         {daysDiff !== null && (
-          <SummaryRow
-            label="Duração"
-            value={`${daysDiff} ${daysDiff === 1 ? 'dia' : 'dias'}`}
-          />
+          <SummaryRow label="Duração" value={`${daysDiff} ${daysDiff === 1 ? 'dia' : 'dias'}`} />
         )}
         <SummaryRow
           label="Tempo estimado"
           value={`~${estimatedMinutes} minuto${estimatedMinutes !== 1 ? 's' : ''}`}
         />
-        <SummaryRow
-          label="Validade do arquivo"
-          value="7 dias após geração"
-        />
+        <SummaryRow label="Validade do arquivo" value="7 dias após geração" />
       </div>
 
       {/* Error state */}

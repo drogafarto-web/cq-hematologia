@@ -45,8 +45,7 @@ function logEvent(event: string, fields: Record<string, unknown>): void {
 function deltaFor(prev: VoteDirection, next: VoteDirection): number {
   // Map each (prev → next) combination to score delta.
   // up/down/cleared each contributes +1 / -1 / 0 to the score.
-  const value = (d: VoteDirection): number =>
-    d === 'up' ? 1 : d === 'down' ? -1 : 0;
+  const value = (d: VoteDirection): number => (d === 'up' ? 1 : d === 'down' ? -1 : 0);
   return value(next) - value(prev);
 }
 
@@ -67,17 +66,10 @@ export const voteSugestao = onCall(CALLABLE_OPTS, async (request) => {
     throw new HttpsError('invalid-argument', 'labId + sugestaoId required');
   }
   if (!['up', 'down', 'cleared'].includes(direction)) {
-    throw new HttpsError(
-      'invalid-argument',
-      'direction must be up|down|cleared',
-    );
+    throw new HttpsError('invalid-argument', 'direction must be up|down|cleared');
   }
 
-  const sugestaoRef = db()
-    .collection('labs')
-    .doc(labId)
-    .collection('sugestoes')
-    .doc(sugestaoId);
+  const sugestaoRef = db().collection('labs').doc(labId).collection('sugestoes').doc(sugestaoId);
   const voteRef = sugestaoRef.collection('votes').doc(uid);
 
   const result = await db().runTransaction(async (tx) => {
@@ -160,61 +152,49 @@ export const voteSugestao = onCall(CALLABLE_OPTS, async (request) => {
 
 const ROLES_INTERNAL = new Set(['RT', 'admin', 'owner', 'qualidade']);
 
-export const recomputeSugestaoRank = onCall(
-  CALLABLE_OPTS,
-  async (request) => {
-    const role = request.auth?.token?.role;
-    if (!request.auth?.uid) {
-      throw new HttpsError('unauthenticated', 'auth required');
-    }
-    if (typeof role !== 'string' || !ROLES_INTERNAL.has(role)) {
-      throw new HttpsError('permission-denied', 'admin role required');
-    }
+export const recomputeSugestaoRank = onCall(CALLABLE_OPTS, async (request) => {
+  const role = request.auth?.token?.role;
+  if (!request.auth?.uid) {
+    throw new HttpsError('unauthenticated', 'auth required');
+  }
+  if (typeof role !== 'string' || !ROLES_INTERNAL.has(role)) {
+    throw new HttpsError('permission-denied', 'admin role required');
+  }
 
-    const data = (request.data ?? {}) as Record<string, unknown>;
-    const labId = String(data.labId ?? '');
-    const sugestaoId =
-      typeof data.sugestaoId === 'string' && data.sugestaoId.length > 0
-        ? data.sugestaoId
-        : null;
-    if (!labId) {
-      throw new HttpsError('invalid-argument', 'labId required');
-    }
+  const data = (request.data ?? {}) as Record<string, unknown>;
+  const labId = String(data.labId ?? '');
+  const sugestaoId =
+    typeof data.sugestaoId === 'string' && data.sugestaoId.length > 0 ? data.sugestaoId : null;
+  if (!labId) {
+    throw new HttpsError('invalid-argument', 'labId required');
+  }
 
-    const sugCol = db()
-      .collection('labs')
-      .doc(labId)
-      .collection('sugestoes');
+  const sugCol = db().collection('labs').doc(labId).collection('sugestoes');
 
-    const targets = sugestaoId
-      ? [await sugCol.doc(sugestaoId).get()].filter((d) => d.exists)
-      : (await sugCol.where('deletadoEm', '==', null).get()).docs;
+  const targets = sugestaoId
+    ? [await sugCol.doc(sugestaoId).get()].filter((d) => d.exists)
+    : (await sugCol.where('deletadoEm', '==', null).get()).docs;
 
-    let updated = 0;
-    for (const sd of targets) {
-      const id = sd.id;
-      const votesSnap = await sugCol
-        .doc(id)
-        .collection('votes')
-        .where('deletedAt', '==', null)
-        .get();
-      let score = 0;
-      votesSnap.forEach((vd) => {
-        const v = vd.data() as Record<string, unknown>;
-        if (v.direction === 'up') score += 1;
-        else if (v.direction === 'down') score -= 1;
-      });
-      await sugCol.doc(id).update({ votos: score });
-      updated += 1;
-    }
-
-    logEvent('sugestao_rank_recomputed', {
-      labId,
-      sugestaoId,
-      updated,
-      actorUid: request.auth.uid,
+  let updated = 0;
+  for (const sd of targets) {
+    const id = sd.id;
+    const votesSnap = await sugCol.doc(id).collection('votes').where('deletedAt', '==', null).get();
+    let score = 0;
+    votesSnap.forEach((vd) => {
+      const v = vd.data() as Record<string, unknown>;
+      if (v.direction === 'up') score += 1;
+      else if (v.direction === 'down') score -= 1;
     });
+    await sugCol.doc(id).update({ votos: score });
+    updated += 1;
+  }
 
-    return { updated };
-  },
-);
+  logEvent('sugestao_rank_recomputed', {
+    labId,
+    sugestaoId,
+    updated,
+    actorUid: request.auth.uid,
+  });
+
+  return { updated };
+});

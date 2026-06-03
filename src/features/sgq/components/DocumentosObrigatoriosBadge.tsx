@@ -81,12 +81,7 @@ export function DocumentosObrigatoriosBadge() {
     <div className="flex flex-col gap-2">
       <div className="grid grid-cols-2 gap-2">
         {items.map((item) => (
-          <BadgeChip
-            key={item.codigo}
-            doc={item.doc}
-            label={item.label}
-            codigo={item.codigo}
-          />
+          <BadgeChip key={item.codigo} doc={item.doc} label={item.label} codigo={item.codigo} />
         ))}
       </div>
     </div>
@@ -111,7 +106,9 @@ function BadgeChip({ doc, label, codigo }: BadgeChipProps) {
   const isVigente = doc?.status === 'vigente';
   const isMissing = !doc;
 
-  const bgColor = isVigente ? 'bg-emerald-500/10 hover:bg-emerald-500/15' : 'bg-red-500/10 hover:bg-red-500/15';
+  const bgColor = isVigente
+    ? 'bg-emerald-500/10 hover:bg-emerald-500/15'
+    : 'bg-red-500/10 hover:bg-red-500/15';
   const borderColor = isVigente ? 'border-emerald-500/30' : 'border-red-500/30';
   const textColor = isVigente ? 'text-emerald-400' : 'text-red-400';
   const cursorStyle = doc ? 'cursor-pointer' : 'cursor-default';
@@ -125,9 +122,7 @@ function BadgeChip({ doc, label, codigo }: BadgeChipProps) {
         {isVigente ? (
           <>
             <CheckIcon className="w-4 h-4" />
-            <span className={`text-xs font-mono font-semibold ${textColor}`}>
-              v{doc!.versao}
-            </span>
+            <span className={`text-xs font-mono font-semibold ${textColor}`}>v{doc!.versao}</span>
           </>
         ) : (
           <>

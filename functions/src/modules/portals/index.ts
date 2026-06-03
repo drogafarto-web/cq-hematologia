@@ -10,10 +10,7 @@
  */
 
 import * as functions from 'firebase-functions/v2/https';
-import type {
-  PortalAccessResponse,
-  LaudoDownloadResponse
-} from './types';
+import type { PortalAccessResponse, LaudoDownloadResponse } from './types';
 
 /**
  * Get Portal Configuration
@@ -30,30 +27,28 @@ import type {
  * @param request Portal access request
  * @returns Portal configuration for patient UI
  */
-export const getPortalConfig = functions.onCall(
-  async (request): Promise<PortalAccessResponse> => {
-    // Phase 5: Fetch portal-configuracao for patient UI branding
-    if (!request.data?.labId) {
-      return {
-        access_granted: false,
-        message: 'Missing labId'
-      };
-    }
-
+export const getPortalConfig = functions.onCall(async (request): Promise<PortalAccessResponse> => {
+  // Phase 5: Fetch portal-configuracao for patient UI branding
+  if (!request.data?.labId) {
     return {
-      access_granted: true,
-      message: 'Portal config (Phase 5)',
-      config: {
-        labId: request.data.labId,
-        enabled: true,
-        primary_color: '#1A202C',
-        secondary_color: '#6366F1',
-        createdAt: Date.now(),
-        updatedAt: Date.now()
-      }
+      access_granted: false,
+      message: 'Missing labId',
     };
   }
-);
+
+  return {
+    access_granted: true,
+    message: 'Portal config (Phase 5)',
+    config: {
+      labId: request.data.labId,
+      enabled: true,
+      primary_color: '#1A202C',
+      secondary_color: '#6366F1',
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+    },
+  };
+});
 
 /**
  * Download Laudo as PDF
@@ -79,43 +74,39 @@ export const downloadLaudoPDF = functions.onCall(
     if (!request.data?.laudoId) {
       return {
         status: 'ERROR',
-        message: 'Missing laudoId'
+        message: 'Missing laudoId',
       };
     }
 
     return {
       status: 'PLACEHOLDER',
       message: 'Laudo PDF export (Phase 6)',
-      downloadUrl: 'https://storage.googleapis.com/example/laudo-export.pdf'
+      downloadUrl: 'https://storage.googleapis.com/example/laudo-export.pdf',
     };
-  }
+  },
 );
 
 /**
  * Verify Patient Portal Access
  * Phase 5+: Access control for portal
  */
-export const verifyPortalAccess = functions.onCall(
-  async (request): Promise<any> => {
-    // Phase 5: Implement patient access validation
-    return {
-      status: 'PLACEHOLDER',
-      message: 'Verify portal access (Phase 5)'
-    };
-  }
-);
+export const verifyPortalAccess = functions.onCall(async (request): Promise<any> => {
+  // Phase 5: Implement patient access validation
+  return {
+    status: 'PLACEHOLDER',
+    message: 'Verify portal access (Phase 5)',
+  };
+});
 
 /**
  * List Patient Laudos for Portal
  * Phase 6+: Retrieve laudo list for patient
  */
-export const listPatientLaudos = functions.onCall(
-  async (request): Promise<any> => {
-    // Phase 6: Implement laudo listing
-    return {
-      status: 'PLACEHOLDER',
-      message: 'List patient laudos (Phase 6)',
-      laudos: []
-    };
-  }
-);
+export const listPatientLaudos = functions.onCall(async (request): Promise<any> => {
+  // Phase 6: Implement laudo listing
+  return {
+    status: 'PLACEHOLDER',
+    message: 'List patient laudos (Phase 6)',
+    laudos: [],
+  };
+});

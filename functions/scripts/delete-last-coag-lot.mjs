@@ -29,15 +29,9 @@ try {
 
   console.log(`Deletando: ${lotData.loteControle} (${lotId})`);
 
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('ciq-coagulacao')
-    .doc(lotId)
-    .delete();
+  await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(lotId).delete();
 
   console.log('✅ Lote deletado com sucesso!\n');
-
 } catch (err) {
   console.error('❌ Erro ao deletar:');
   console.error('   Mensagem:', err.message);

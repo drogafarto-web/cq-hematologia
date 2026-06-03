@@ -12,11 +12,7 @@ import { validadeStatus } from './validadeReal';
 import { hasQCValidationPending } from '../types/Insumo';
 import type { Insumo } from '../types/Insumo';
 
-export type InsumoBloqueioMotivo =
-  | 'vencido'
-  | 'qc-pendente'
-  | 'imuno-nao-aprovado'
-  | 'descartado';
+export type InsumoBloqueioMotivo = 'vencido' | 'qc-pendente' | 'imuno-nao-aprovado' | 'descartado';
 
 export interface InsumoUsabilidade {
   /** true quando livre pra uso sem override. */
@@ -58,8 +54,7 @@ export function evaluateInsumoUsability(insumo: Insumo): InsumoUsabilidade {
       return {
         ok: false,
         motivo: 'imuno-nao-aprovado',
-        mensagem:
-          'Lote reprovado no CQ de insumo. Uso só permitido com override auditado.',
+        mensagem: 'Lote reprovado no CQ de insumo. Uso só permitido com override auditado.',
       };
     }
     if (insumo.qcStatus !== 'aprovado') {

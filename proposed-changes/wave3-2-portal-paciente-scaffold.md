@@ -41,6 +41,7 @@ src/features/portal-paciente/
 ### 2. Components
 
 #### PortalPacienteShell.tsx
+
 - **Layout:** Centered column (max-w-2xl), dark background (#141417)
 - **Sections:**
   1. **Meus Resultados** — Displays 3-5 mock test results via `usePatientResults`
@@ -55,12 +56,14 @@ src/features/portal-paciente/
   - LGPD notice prominently displayed
 
 #### PortalPacienteNav.tsx
+
 - Top sticky nav bar
 - Patient info (name, lab)
 - Logout button
 - Border + backdrop blur for visual hierarchy
 
 #### ResultCard.tsx
+
 - **Fields:** Exam name, result value, reference range, date, status
 - **Status badges:** ok (emerald), warning (amber), critical (red), pending (gray)
 - **Styles:**
@@ -71,6 +74,7 @@ src/features/portal-paciente/
 - **Interaction:** Optional "Ver detalhes" link (Phase 5 implementation)
 
 #### ConsentCaptureModal.tsx
+
 - **Modal anatomy:**
   - Dark overlay (bg-black/60)
   - Centered card (max-w-lg)
@@ -85,7 +89,8 @@ src/features/portal-paciente/
   - On success: closes modal, shows success banner
   - Closes on overlay click or "Recusar" button
 
-#### _ui.ts
+#### \_ui.ts
+
 - **Color tokens:** Background, surfaces, borders, text (3 levels), status colors, interactive
 - **Typography:** 6 levels (h1–caption) with editoral hierarchy
 - **Spacing:** 4px grid (0.25rem units)
@@ -97,6 +102,7 @@ src/features/portal-paciente/
 ### 3. Hooks
 
 #### usePatientResults.ts
+
 - **Returns:** `{ results, isLoading, error, totalCount }`
 - **Phase 4 Implementation:** Mocks 5 results with varied statuses
   1. Hemograma Completo (ok, 13.5 g/dL)
@@ -108,6 +114,7 @@ src/features/portal-paciente/
 - **Latency simulation:** 300ms (realistic network perception)
 
 #### usePatientConsent.ts
+
 - **Hook 1: `usePatientConsent(labId, patientId)`**
   - Real-time listener for `/consents/{labId}/patients/{patientId}`
   - Returns: `{ hasConsent, consent, isLoading, error, consentedScopes, canRevoke }`
@@ -125,23 +132,49 @@ src/features/portal-paciente/
 ```typescript
 // Core types (see types/index.ts for full definitions)
 export interface PatientResult {
-  id, labId, patientId, examName, examDate, resultDate, status,
-  resultValue?, referenceRange?, unit?, laudoId, versionId?, signatureHash?
+  id;
+  labId;
+  patientId;
+  examName;
+  examDate;
+  resultDate;
+  status;
+  resultValue?;
+  referenceRange?;
+  unit?;
+  laudoId;
+  versionId?;
+  signatureHash?;
 }
 
 export interface PatientConsent {
-  id, labId, patientId, scope: ConsentScope[], consentedAt, revokedAt,
-  ipAddress?, userAgent?, metadata?
+  id;
+  labId;
+  patientId;
+  scope: ConsentScope[];
+  consentedAt;
+  revokedAt;
+  ipAddress?;
+  userAgent?;
+  metadata?;
 }
 
 export type ConsentScope = 'ia-strip' | 'ia-laudo' | 'ia-predictive';
 
 export interface ConsentCaptureState {
-  isOpen, scope, isLoading, error?, successMessage?
+  isOpen;
+  scope;
+  isLoading;
+  error?;
+  successMessage?;
 }
 
 export interface LgpdRights {
-  accessibilityLink, portabilityLink, deletionLink, contactEmail, dpaEmail?
+  accessibilityLink;
+  portabilityLink;
+  deletionLink;
+  contactEmail;
+  dpaEmail?;
 }
 ```
 
@@ -183,6 +216,7 @@ export interface LgpdRights {
 ```
 
 Run tests:
+
 ```bash
 npm test -- src/features/portal-paciente/__tests__
 ```
@@ -198,7 +232,7 @@ Add to `firestore.rules` — **NOT YET APPLIED** (Phase 4 scaffold phase):
 match /consents/{labId}/patients/{patientId} {
   // Read: patient themselves (patientId in token claim)
   allow read: if request.auth.uid == patientId;
-  
+
   // Create/Update/Delete: Cloud Function only
   allow create, update, delete: if false;
 }
@@ -207,7 +241,7 @@ match /consents/{labId}/patients/{patientId} {
 match /labs/{labId}/results/{patientId}/{resultId} {
   // Read: patient themselves
   allow read: if request.auth.uid == patientId;
-  
+
   // Write: never (RT-created)
   allow write: if false;
 }
@@ -220,27 +254,33 @@ match /labs/{labId}/results/{patientId}/{resultId} {
 ## Design Decisions
 
 ### 1. Three-Section Dashboard
+
 **Why:** Clear information architecture. Patients see (1) their data, (2) their choices, (3) their rights.
 
 **Alternative considered:** Single "Results" view. Rejected — LGPD rights must be prominent, not buried.
 
 ### 2. Plain Language Consent Flow
+
 **Why:** Medical context demands trust. Legal jargon creates friction and reduces compliance.
 
 **Copy pattern:** "O laboratório utiliza IA para..." (not "A Organização processa dados pessoais conforme Art. 9...").
 
 ### 3. Status Badges (Not Icons Alone)
+
 **Why:** Color-blindness accessibility. Badge text ("Normal", "Alterado", "Crítico") is redundant to color signal.
 
 ### 4. Dark-First + 7:1 Contrast
+
 **Why:** Medical portals often accessed by elderly patients with vision challenges. 7:1 (WCAG AAA) vs. 4.5:1 (WCAG AA).
 
 **Colors tuned:**
+
 - Text on dark: white/95 for primary (16:1 ratio)
 - Text on surfaces: white/70 for secondary (10:1)
 - Text on white/50: barely acceptable at 7.2:1
 
 ### 5. Mock Results in Phase 4
+
 **Why:** Scaffold unblocks UI iteration. Real Firestore integration Phase 5 (data retention + permission rules more stable).
 
 **Mock data realistic:** Varied statuses, different dates, reference ranges to test formatting edge cases.
@@ -260,13 +300,13 @@ match /labs/{labId}/results/{patientId}/{resultId} {
 
 ## Compliance Mapping
 
-| Regulation | Requirement | Implementation |
-|---|---|---|
-| **LGPD Art. 9** | Explicit consent for sensitive health data processing | ConsentCaptureModal + consent record audit trail |
-| **LGPD Art. 11** | Patient right to access personal data | "Meus Direitos" placeholder (Phase 5: data download) |
-| **LGPD Art. 15** | Patient right to know data usage | Modal explains ia-strip purpose + link to POL-LGPD-001 |
-| **RDC 978 Art. 167** | Laudo fields — patient-facing | ResultCard formats display properly |
-| **DICQ 5.2–5.7** | Patient access to results | Dashboard primary UX |
+| Regulation           | Requirement                                           | Implementation                                         |
+| -------------------- | ----------------------------------------------------- | ------------------------------------------------------ |
+| **LGPD Art. 9**      | Explicit consent for sensitive health data processing | ConsentCaptureModal + consent record audit trail       |
+| **LGPD Art. 11**     | Patient right to access personal data                 | "Meus Direitos" placeholder (Phase 5: data download)   |
+| **LGPD Art. 15**     | Patient right to know data usage                      | Modal explains ia-strip purpose + link to POL-LGPD-001 |
+| **RDC 978 Art. 167** | Laudo fields — patient-facing                         | ResultCard formats display properly                    |
+| **DICQ 5.2–5.7**     | Patient access to results                             | Dashboard primary UX                                   |
 
 ---
 

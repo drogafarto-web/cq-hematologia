@@ -52,19 +52,11 @@ export function RelatorioRastreabilidadeEmUso({ labId }: { labId: string }) {
   }
 
   if (isLoading) {
-    return (
-      <div className="p-8 text-center text-slate-500">
-        Carregando lotes em uso...
-      </div>
-    );
+    return <div className="p-8 text-center text-slate-500">Carregando lotes em uso...</div>;
   }
 
   if (insumos.length === 0) {
-    return (
-      <div className="p-8 text-center text-slate-500">
-        Nenhum lote ativo no momento.
-      </div>
-    );
+    return <div className="p-8 text-center text-slate-500">Nenhum lote ativo no momento.</div>;
   }
 
   return (
@@ -111,7 +103,9 @@ export function RelatorioRastreabilidadeEmUso({ labId }: { labId: string }) {
               >
                 <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-white/90">
                   <div>{produto?.nomeComercial || i.nomeComercial}</div>
-                  <div className="text-xs text-slate-500 dark:text-white/40">{produto?.fabricante}</div>
+                  <div className="text-xs text-slate-500 dark:text-white/40">
+                    {produto?.fabricante}
+                  </div>
                 </td>
                 <td className="px-4 py-3 text-sm">
                   <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-violet-100/50 dark:bg-violet-500/10 text-violet-700 dark:text-violet-300">

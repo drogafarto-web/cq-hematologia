@@ -36,6 +36,7 @@
 4. **FR-027** (Formulário) — 1 doc
 
 **Expected outcomes**:
+
 - All 30 docs import to staging with status `draft`
 - Classification accuracy ≥85% (confidence ≥0.9)
 - LD (lista de distribuição) suggests match Riopomba sectors
@@ -123,14 +124,16 @@
 ### Migration Scope (~80 docs)
 
 **All Riopomba documents** from official LM-01:
+
 - 1 MQ
 - 25 PQ (all)
 - 30+ IT (all analyzed types)
 - 20+ FR (forms)
 - 5 DC (descriptions)
-- + EXT, POL, INF (external + policies + newsletters)
+- - EXT, POL, INF (external + policies + newsletters)
 
 **Expected outcomes**:
+
 - All 80 docs import to production with status `draft`
 - Zero duplicates on re-run (idempotency verified)
 - chainHash sequential validation OK
@@ -163,7 +166,7 @@
 
 1. **Verify import completeness**:
    - Query: `/sgq/lista-mestra` → all 80 visible + status `draft`
-   - Verify chainHash sequential (hash_n = hash(hash_{n-1} + doc_n))
+   - Verify chainHash sequential (hash*n = hash(hash*{n-1} + doc_n))
 
 2. **Smoke test 3 sectors**:
    - Sector 1 (HEMATOLOGIA): 12 docs, all in `/sgq/distribuicao` matrix
@@ -208,16 +211,19 @@
 ## Verification
 
 ### Completeness
+
 - /sgq/lista-mestra count: 80 ✓
 - Status distribution: 80 em_revisao, 0 vigente (pre-RT-approval) ✓
 - chainHash validation: all sequential ✓
 
 ### Smoke Test (3 sectors sampled)
+
 - HEMATOLOGIA: 12/12 docs, LD correct ✓
 - IMUNOLOGIA: 8/8 docs, LD correct ✓
 - COLETA: 15/15 docs, LD correct ✓
 
 ### Approval Batch (RT Bruno)
+
 - Time to approve all 80: 1h 45m ✓
 - Status after approval: 80 vigente ✓
 
@@ -227,6 +233,7 @@
 **DICQ Baseline After**: 78.5% (+7.2 points)
 
 **Closed items**:
+
 - 4.2.2.2 Lista Mestra ✓
 - 4.3 Hierarquia ✓
 - 4.3 Versionamento ✓
@@ -255,6 +262,7 @@ Riopomba operou sua Gestão Documental via Google Drive (~80 docs em LM-01).
 SGD Phase 12 transferiu tudo para HC Quality nativa com zero perda de dados.
 
 ### Before
+
 - Docs: 80 em Drive (MQ, PQ, IT, FR, etc.)
 - Master list: Google Sheets LM-01
 - Approval: Manual offline
@@ -262,6 +270,7 @@ SGD Phase 12 transferiu tudo para HC Quality nativa com zero perda de dados.
 - Setores: 17, sem sincronização automática
 
 ### After
+
 - Docs: 80 em `/labs/labclin-riopomba/sgq-documentos`
 - Master list: `/sgq/lista-mestra` (tabela dinâmica)
 - Approval: RT within system (transitarVigencia)
@@ -270,24 +279,25 @@ SGD Phase 12 transferiu tudo para HC Quality nativa com zero perda de dados.
 
 ## DICQ Impact
 
-| Bloco | Antes | Depois | Δ |
-|-------|-------|--------|---|
-| **Block B (Docs)** | 71.3% | 78.5% | +7.2 |
-| 4.2.2.2 (LM) | ❌ | ✅ | +25pts |
-| 4.3 (Hierarquia) | ❌ | ✅ | +10pts |
-| 4.3 (Versão) | ~50% | ✅ | +25pts |
-| 4.3 (Distribuição) | ❌ | ✅ | +10pts |
+| Bloco              | Antes | Depois | Δ      |
+| ------------------ | ----- | ------ | ------ |
+| **Block B (Docs)** | 71.3% | 78.5%  | +7.2   |
+| 4.2.2.2 (LM)       | ❌    | ✅     | +25pts |
+| 4.3 (Hierarquia)   | ❌    | ✅     | +10pts |
+| 4.3 (Versão)       | ~50%  | ✅     | +25pts |
+| 4.3 (Distribuição) | ❌    | ✅     | +10pts |
 
 ## Files Migrated
-
 ```
-MQ-001           1 doc
-PQ-01..PQ-25    25 docs
-IT-main         30 docs
-FR-XXX          20 docs
-DC, POL, etc.    4 docs
+
+MQ-001 1 doc
+PQ-01..PQ-25 25 docs
+IT-main 30 docs
+FR-XXX 20 docs
+DC, POL, etc. 4 docs
 ─────────────────────
-Total:          80 docs
+Total: 80 docs
+
 ```
 
 ## Risk Mitigation
@@ -312,3 +322,4 @@ Total:          80 docs
 - No downtime (staging → production, zero cutover impact)
 - RT training: 30m (same workflow as POPs)
 - Support escalation: CTO handles OAuth/Drive issues only
+```

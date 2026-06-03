@@ -11,13 +11,7 @@
  */
 
 import { useState, useEffect, useCallback } from 'react';
-import {
-  db,
-  collection,
-  query,
-  where,
-  onSnapshot,
-} from '../../../shared/services/firebase';
+import { db, collection, query, where, onSnapshot } from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
 
 // ─── Types ────────────────────────────────────────────────────────────────────

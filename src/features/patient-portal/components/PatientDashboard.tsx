@@ -64,7 +64,9 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
       blocked: 'Blocked',
     };
     return (
-      <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border $[styles[status]]`}>
+      <span
+        className={`inline-block px-3 py-1 text-xs font-medium rounded-full border $[styles[status]]`}
+      >
         {labels[status]}
       </span>
     );
@@ -156,7 +158,10 @@ export const PatientDashboard: React.FC<PatientDashboardProps> = ({
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {laudos.map((laudo) => (
-              <div key={laudo.id} className="p-6 bg-white/5 border border-white/10 rounded-lg hover:border-white/20">
+              <div
+                key={laudo.id}
+                className="p-6 bg-white/5 border border-white/10 rounded-lg hover:border-white/20"
+              >
                 <h3 className="text-lg font-semibold text-white mb-4">{laudo.exameName}</h3>
                 <div className="space-y-2 text-sm text-white/60 mb-4">
                   <div className="flex justify-between">

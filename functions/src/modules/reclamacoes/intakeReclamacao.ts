@@ -56,12 +56,7 @@ type ReclamacaoStatus =
 
 type ReclamacaoSeverity = 'low' | 'medium' | 'high' | 'critical';
 
-type ReclamacaoCanal =
-  | 'patient-portal'
-  | 'phone'
-  | 'email'
-  | 'in-person'
-  | 'social-media';
+type ReclamacaoCanal = 'patient-portal' | 'phone' | 'email' | 'in-person' | 'social-media';
 
 interface LogicalSignature {
   hash: string;
@@ -92,10 +87,7 @@ function reclamacaoCollection(labId: string) {
 }
 
 function auditLogRef(labId: string) {
-  return db()
-    .collection('labs')
-    .doc(labId)
-    .collection('reclamacoes-audit');
+  return db().collection('labs').doc(labId).collection('reclamacoes-audit');
 }
 
 function requireString(value: unknown, name: string, max = 5000): string {
@@ -122,10 +114,7 @@ function requireInternalAuth(authUid: string | undefined, role: unknown): string
   return authUid;
 }
 
-function validateSignature(
-  sig: unknown,
-  expectedOperator: string,
-): LogicalSignature {
+function validateSignature(sig: unknown, expectedOperator: string): LogicalSignature {
   if (!sig || typeof sig !== 'object') {
     throw new HttpsError('invalid-argument', 'signature required');
   }
@@ -134,10 +123,7 @@ function validateSignature(
     throw new HttpsError('invalid-argument', 'signature.hash must be sha256 hex');
   }
   if (s.operatorId !== expectedOperator) {
-    throw new HttpsError(
-      'permission-denied',
-      'signature.operatorId mismatch',
-    );
+    throw new HttpsError('permission-denied', 'signature.operatorId mismatch');
   }
   if (typeof s.ts !== 'number' || !Number.isFinite(s.ts)) {
     throw new HttpsError('invalid-argument', 'signature.ts must be number');
@@ -176,11 +162,7 @@ export const intakeReclamacao = onCall(CALLABLE_OPTS, async (request) => {
   const data = (request.data ?? {}) as Record<string, unknown>;
   const labId = requireLabId(data.labId);
   const canal = (data.canal as ReclamacaoCanal) ?? 'patient-portal';
-  if (
-    !['patient-portal', 'phone', 'email', 'in-person', 'social-media'].includes(
-      canal,
-    )
-  ) {
+  if (!['patient-portal', 'phone', 'email', 'in-person', 'social-media'].includes(canal)) {
     throw new HttpsError('invalid-argument', 'invalid canal');
   }
 
@@ -190,9 +172,7 @@ export const intakeReclamacao = onCall(CALLABLE_OPTS, async (request) => {
   }
 
   const patientName =
-    typeof data.patientName === 'string' && data.patientName.length > 0
-      ? data.patientName
-      : null;
+    typeof data.patientName === 'string' && data.patientName.length > 0 ? data.patientName : null;
   const patientContact =
     typeof data.patientContact === 'string' && data.patientContact.length > 0
       ? data.patientContact
@@ -211,10 +191,7 @@ export const intakeReclamacao = onCall(CALLABLE_OPTS, async (request) => {
 
   let signaturePatient: LogicalSignature | undefined;
   if (data.signaturePatient && request.auth?.uid) {
-    signaturePatient = validateSignature(
-      data.signaturePatient,
-      request.auth.uid,
-    );
+    signaturePatient = validateSignature(data.signaturePatient, request.auth.uid);
   }
 
   const ref = reclamacaoCollection(labId).doc();
@@ -270,8 +247,7 @@ export const triageReclamacao = onCall(CALLABLE_OPTS, async (request) => {
   if (!['triaged', 'rejected'].includes(newStatus)) {
     throw new HttpsError('invalid-argument', 'status must be triaged|rejected');
   }
-  const closingReason =
-    typeof data.closingReason === 'string' ? data.closingReason : null;
+  const closingReason = typeof data.closingReason === 'string' ? data.closingReason : null;
 
   await db().runTransaction(async (tx) => {
     const ref = reclamacaoRef(labId, reclamacaoId);
@@ -380,10 +356,7 @@ export const submitRCAAnswer = onCall(CALLABLE_OPTS, async (request) => {
   const question = requireString(data.question, 'question', 1000);
   const answer = requireString(data.answer, 'answer', 5000);
 
-  if (
-    typeof level !== 'number' ||
-    ![1, 2, 3, 4, 5].includes(level as number)
-  ) {
+  if (typeof level !== 'number' || ![1, 2, 3, 4, 5].includes(level as number)) {
     throw new HttpsError('invalid-argument', 'level must be 1..5');
   }
   if (answer.length < 10) {
@@ -396,10 +369,7 @@ export const submitRCAAnswer = onCall(CALLABLE_OPTS, async (request) => {
     if (!snap.exists) throw new HttpsError('not-found', 'reclamacao not found');
     const current = snap.data() as Record<string, unknown>;
     if (current.status !== 'rca-in-progress') {
-      throw new HttpsError(
-        'failed-precondition',
-        `RCA answer requires status 'rca-in-progress'`,
-      );
+      throw new HttpsError('failed-precondition', `RCA answer requires status 'rca-in-progress'`);
     }
     const rca = (current.rca ?? {}) as Record<string, unknown>;
     const answers = Array.isArray(rca.answers) ? [...rca.answers] : [];
@@ -407,9 +377,7 @@ export const submitRCAAnswer = onCall(CALLABLE_OPTS, async (request) => {
     // Sequence enforcement: level N can only be answered if level N-1 already
     // exists. Re-answering same level overwrites in-place (idempotent).
     const expected = answers.length + 1;
-    const overwriting = answers.find(
-      (a) => (a as RCAFiveWhysAnswer).level === level,
-    );
+    const overwriting = answers.find((a) => (a as RCAFiveWhysAnswer).level === level);
     if (!overwriting && level !== expected) {
       throw new HttpsError(
         'failed-precondition',
@@ -425,9 +393,7 @@ export const submitRCAAnswer = onCall(CALLABLE_OPTS, async (request) => {
       answeredAt: Date.now(),
     };
     const updated = overwriting
-      ? answers.map((a) =>
-          (a as RCAFiveWhysAnswer).level === level ? newAnswer : a,
-        )
+      ? answers.map((a) => ((a as RCAFiveWhysAnswer).level === level ? newAnswer : a))
       : [...answers, newAnswer];
 
     tx.update(ref, {
@@ -467,10 +433,7 @@ export const completeRCAFiveWhys = onCall(CALLABLE_OPTS, async (request) => {
     if (!snap.exists) throw new HttpsError('not-found', 'reclamacao not found');
     const current = snap.data() as Record<string, unknown>;
     if (current.status !== 'rca-in-progress') {
-      throw new HttpsError(
-        'failed-precondition',
-        `RCA complete requires status 'rca-in-progress'`,
-      );
+      throw new HttpsError('failed-precondition', `RCA complete requires status 'rca-in-progress'`);
     }
     const rca = (current.rca ?? {}) as Record<string, unknown>;
     const answers = Array.isArray(rca.answers) ? rca.answers : [];
@@ -512,10 +475,7 @@ export const closeReclamacao = onCall(CALLABLE_OPTS, async (request) => {
   const labId = requireLabId(data.labId);
   const reclamacaoId = requireString(data.reclamacaoId, 'reclamacaoId', 200);
   const closingReason = requireString(data.closingReason, 'closingReason', 2000);
-  const capaId =
-    typeof data.capaId === 'string' && data.capaId.length > 0
-      ? data.capaId
-      : null;
+  const capaId = typeof data.capaId === 'string' && data.capaId.length > 0 ? data.capaId : null;
 
   await db().runTransaction(async (tx) => {
     const ref = reclamacaoRef(labId, reclamacaoId);

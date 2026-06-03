@@ -29,10 +29,7 @@ export const DesignacaoCertificate: React.FC<DesignacaoCertificateProps> = ({
   return (
     <div className="w-full bg-white text-gray-900 print:bg-white print:text-black">
       {/* A4 Page Container: 210mm x 297mm */}
-      <div
-        className="mx-auto p-8 print:p-8"
-        style={{ width: '210mm', minHeight: '297mm' }}
-      >
+      <div className="mx-auto p-8 print:p-8" style={{ width: '210mm', minHeight: '297mm' }}>
         {/* Header */}
         <div className="text-center mb-12 pb-6 border-b-2 border-gray-300">
           <h1 className="text-3xl font-serif font-bold mb-2">Certificado de Designação</h1>
@@ -50,9 +47,7 @@ export const DesignacaoCertificate: React.FC<DesignacaoCertificateProps> = ({
           {/* Cargo */}
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-2">CARGO</p>
-            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-1">
-              {cargo.titulo}
-            </h2>
+            <h2 className="text-2xl font-serif font-bold text-gray-900 mb-1">{cargo.titulo}</h2>
             <p className="text-gray-700 italic">{cargo.descricao}</p>
           </div>
 
@@ -70,9 +65,7 @@ export const DesignacaoCertificate: React.FC<DesignacaoCertificateProps> = ({
               </div>
               <div>
                 <p className="text-gray-600 font-semibold">Válido Até</p>
-                <p className="text-gray-900">
-                  {dataFim ? formatDate(dataFim) : 'Indefinido'}
-                </p>
+                <p className="text-gray-900">{dataFim ? formatDate(dataFim) : 'Indefinido'}</p>
               </div>
             </div>
           </div>
@@ -99,23 +92,29 @@ export const DesignacaoCertificate: React.FC<DesignacaoCertificateProps> = ({
             <div className="grid grid-cols-3 gap-4 text-xs font-mono bg-gray-50 p-4 rounded-lg">
               <div>
                 <p className="text-gray-600 font-semibold mb-1">Hash (SHA-256)</p>
-                <p className="text-gray-900 break-all">{designacao.chainHash.hash.substring(0, 32)}...</p>
+                <p className="text-gray-900 break-all">
+                  {designacao.chainHash.hash.substring(0, 32)}...
+                </p>
               </div>
               <div>
                 <p className="text-gray-600 font-semibold mb-1">Operador</p>
-                <p className="text-gray-900 break-all">{designacao.chainHash.operatorId.substring(0, 16)}...</p>
+                <p className="text-gray-900 break-all">
+                  {designacao.chainHash.operatorId.substring(0, 16)}...
+                </p>
               </div>
               <div>
                 <p className="text-gray-600 font-semibold mb-1">Assinado em</p>
                 <p className="text-gray-900">
-                  {formatDateTime(new Date(designacao.chainHash.ts.toMillis?.() ?? designacao.chainHash.ts))}
+                  {formatDateTime(
+                    new Date(designacao.chainHash.ts.toMillis?.() ?? designacao.chainHash.ts),
+                  )}
                 </p>
               </div>
             </div>
 
             <p className="text-xs text-gray-500 italic">
-              Este certificado é auditável e imutável. A validação digital garante a integridade
-              e rastreabilidade conforme RDC 978 Art. 128 (Trilha de Auditoria).
+              Este certificado é auditável e imutável. A validação digital garante a integridade e
+              rastreabilidade conforme RDC 978 Art. 128 (Trilha de Auditoria).
             </p>
           </div>
         </div>
@@ -147,9 +146,7 @@ export const DesignacaoCertificate: React.FC<DesignacaoCertificateProps> = ({
             <p>
               Certificado emitido em {formatDate(dataCriacao)} | ID: {designacao.id}
             </p>
-            <p className="mt-1">
-              DICQ 4.1.2.7 · RDC 978 Art. 122 · LGPD Art. 18
-            </p>
+            <p className="mt-1">DICQ 4.1.2.7 · RDC 978 Art. 122 · LGPD Art. 18</p>
           </div>
         </div>
       </div>

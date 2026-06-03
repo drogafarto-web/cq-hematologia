@@ -69,10 +69,7 @@ function severityColor(s: CIQAuditEvent['severity']): string {
   return COLOR.textMuted;
 }
 
-export function renderAuditSection(
-  doc: PDFKit.PDFDocument,
-  report: OperacionalReport,
-): void {
+export function renderAuditSection(doc: PDFKit.PDFDocument, report: OperacionalReport): void {
   const x = PAGE.margin;
   const width = CONTENT_WIDTH;
   const section = report.auditLog;
@@ -131,15 +128,16 @@ export function renderAuditSection(
     ]) + 22;
 
   if (!section.chain.valid) {
-    y = drawInfoBanner(
-      doc,
-      x,
-      y,
-      width,
-      'Integridade comprometida',
-      `Detectada(s) ${section.chain.breaks.length} quebra(s) no hash chain. O primeiro evento divergente é ${section.chain.breaks[0]?.eventId ?? '—'}. Investigar imediatamente — tampering de audit log exige abertura de NC e auditoria completa.`,
-      'critical',
-    ) + 12;
+    y =
+      drawInfoBanner(
+        doc,
+        x,
+        y,
+        width,
+        'Integridade comprometida',
+        `Detectada(s) ${section.chain.breaks.length} quebra(s) no hash chain. O primeiro evento divergente é ${section.chain.breaks[0]?.eventId ?? '—'}. Investigar imediatamente — tampering de audit log exige abertura de NC e auditoria completa.`,
+        'critical',
+      ) + 12;
   }
 
   // Breakdown por ação (top 8)
@@ -196,11 +194,7 @@ export function renderAuditSection(
       doc.addPage();
       y = renderPageChrome(doc, true);
     }
-    doc
-      .font(Fonts.bold)
-      .fontSize(11)
-      .fillColor(COLOR.danger)
-      .text('Eventos críticos', x, y);
+    doc.font(Fonts.bold).fontSize(11).fillColor(COLOR.danger).text('Eventos críticos', x, y);
     y += 16;
 
     const columns: SimpleColumn[] = [
@@ -275,23 +269,21 @@ export function renderAuditSection(
         .font(Fonts.bold)
         .fontSize(FONT_SIZES.micro)
         .fillColor(COLOR.textPrimary)
-        .text(
-          ACTION_LABEL[e.action] ?? e.action,
-          x + 128,
-          y,
-          { width: 130, lineBreak: false, ellipsis: true },
-        );
+        .text(ACTION_LABEL[e.action] ?? e.action, x + 128, y, {
+          width: 130,
+          lineBreak: false,
+          ellipsis: true,
+        });
 
       doc
         .font(Fonts.regular)
         .fontSize(FONT_SIZES.micro)
         .fillColor(COLOR.textMuted)
-        .text(
-          `${e.actorName} · ${e.entityType}:${e.entityId.slice(0, 10)}`,
-          x + 262,
-          y,
-          { width: width - 272, lineBreak: false, ellipsis: true },
-        );
+        .text(`${e.actorName} · ${e.entityType}:${e.entityId.slice(0, 10)}`, x + 262, y, {
+          width: width - 272,
+          lineBreak: false,
+          ellipsis: true,
+        });
       y += 13;
     }
   }

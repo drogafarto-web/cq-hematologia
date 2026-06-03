@@ -21,21 +21,13 @@ import { useActiveLabId } from '../../../store/useAuthStore';
 import { subscribeToMovimentacoes } from '../services/insumosFirebaseService';
 import { subscribeToTransitions } from '../services/insumoTransitionService';
 import { useEffect, useState } from 'react';
-import type {
-  Insumo,
-  InsumoMovimentacao,
-  InsumoMovimentacaoTipo,
-} from '../types/Insumo';
+import type { Insumo, InsumoMovimentacao, InsumoMovimentacaoTipo } from '../types/Insumo';
 import type { InsumoTransition, InsumoTransitionType } from '../types/InsumoTransition';
 import type { Timestamp } from 'firebase/firestore';
 
 // ─── Event model ─────────────────────────────────────────────────────────────
 
-type TimelineEventKind =
-  | 'movimentacao'
-  | 'transition'
-  | 'creation'
-  | 'summary';
+type TimelineEventKind = 'movimentacao' | 'transition' | 'creation' | 'summary';
 
 interface TimelineEvent {
   kind: TimelineEventKind;
@@ -124,11 +116,8 @@ export function InsumoTimeline({ insumo }: InsumoTimelineProps) {
 
   useEffect(() => {
     if (!labId) return;
-    const unsubMovs = subscribeToMovimentacoes(
-      labId,
-      insumo.id,
-      setMovs,
-      (err) => setError(err.message),
+    const unsubMovs = subscribeToMovimentacoes(labId, insumo.id, setMovs, (err) =>
+      setError(err.message),
     );
     // Subscription de transitions com filtro cliente por insumoId — não há
     // index por insumoId em transitions. Custo: até maxResults*docs. Ajustável
@@ -138,9 +127,7 @@ export function InsumoTimeline({ insumo }: InsumoTimelineProps) {
       { maxResults: 200 },
       (incoming) => {
         setTransitions(
-          incoming.filter(
-            (t) => t.fromInsumoId === insumo.id || t.toInsumoId === insumo.id,
-          ),
+          incoming.filter((t) => t.fromInsumoId === insumo.id || t.toInsumoId === insumo.id),
         );
       },
       (err) => setError(err.message),
@@ -242,9 +229,7 @@ export function InsumoTimeline({ insumo }: InsumoTimelineProps) {
                 {e.title}
               </p>
               {e.subtitle && (
-                <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5">
-                  {e.subtitle}
-                </p>
+                <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5">{e.subtitle}</p>
               )}
               {e.actor && (
                 <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">

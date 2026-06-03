@@ -48,8 +48,7 @@ async function sha256Hex(payload: string): Promise<string> {
 const casesCol = (labId: string): CollectionReference =>
   collection(db, 'labs', labId, 'criticos-fsm-cases');
 
-const caseDoc = (labId: string, caseId: string): DocumentReference =>
-  doc(casesCol(labId), caseId);
+const caseDoc = (labId: string, caseId: string): DocumentReference => doc(casesCol(labId), caseId);
 
 const historyCol = (labId: string, caseId: string): CollectionReference =>
   collection(caseDoc(labId, caseId), 'history');
@@ -115,7 +114,7 @@ export async function createCase(
       event: detectEvent,
       at: now,
       operatorId: userId,
-    })
+    }),
   );
   const signature = { hash: signatureHash, operatorId: userId, ts: now };
 
@@ -178,18 +177,19 @@ export async function transition(
 
     if (!nextState || !isValidStateTransition(currentState, nextState)) {
       throw new Error(
-        `Invalid transition: ${currentState} -> ${nextState} for event ${event.type}`
+        `Invalid transition: ${currentState} -> ${nextState} for event ${event.type}`,
       );
     }
 
     const now = Date.now();
-    const operatorId = event.type === 'alert'
-      ? 'system' // cron/callable auto-escalation
-      : event.type === 'acknowledge'
-        ? event.userId
-        : event.type === 'resolve'
+    const operatorId =
+      event.type === 'alert'
+        ? 'system' // cron/callable auto-escalation
+        : event.type === 'acknowledge'
           ? event.userId
-          : 'unknown';
+          : event.type === 'resolve'
+            ? event.userId
+            : 'unknown';
 
     // Generate signature
     const signatureHash = await sha256Hex(
@@ -199,7 +199,7 @@ export async function transition(
         event,
         at: now,
         operatorId,
-      })
+      }),
     );
     const signature = { hash: signatureHash, operatorId, ts: now };
 
@@ -285,20 +285,19 @@ export interface ListCasesFilter {
  * List all cases in the lab with optional filtering.
  * Paginated client-side (assumes ≤500 docs per lab).
  */
-export async function listCases(
-  labId: string,
-  filter?: ListCasesFilter,
-): Promise<CriticoCase[]> {
+export async function listCases(labId: string, filter?: ListCasesFilter): Promise<CriticoCase[]> {
   let q = query(casesCol(labId), orderBy('detectedAt', 'desc'));
 
   if (filter?.state) {
-    q = query(casesCol(labId), where('currentState', '==', filter.state), orderBy('detectedAt', 'desc'));
+    q = query(
+      casesCol(labId),
+      where('currentState', '==', filter.state),
+      orderBy('detectedAt', 'desc'),
+    );
   }
 
   const snapshot = await getDocs(q);
-  const cases = snapshot.docs.map((snap) =>
-    mapCriticoCaseDocument(snap as QueryDocumentSnapshot)
-  );
+  const cases = snapshot.docs.map((snap) => mapCriticoCaseDocument(snap as QueryDocumentSnapshot));
 
   // Client-side filtering by date range if provided
   if (filter?.from || filter?.to) {
@@ -329,7 +328,7 @@ export async function softDeleteCase(labId: string, caseId: string): Promise<voi
 
   if (caseData.currentState !== 'NORMAL') {
     throw new Error(
-      `Cannot soft-delete case in ${caseData.currentState} state. Only NORMAL state can be deleted.`
+      `Cannot soft-delete case in ${caseData.currentState} state. Only NORMAL state can be deleted.`,
     );
   }
 

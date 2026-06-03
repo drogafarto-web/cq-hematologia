@@ -19,6 +19,7 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 **Status:** ✅ COMPLETE (2026-05-06 → 2026-05-07)
 
 **Delivered:**
+
 - **25 modules live** (all Phase 2 core modules + Phase 9 bioquímica)
 - **4 new analytical modules** (Bioquímica, Liberação partial, Reclamações+Satisfação+Sugestões partial, SGD+Drive Importer full)
 - **78 Cloud Functions** (callables, triggers, cron jobs)
@@ -29,6 +30,7 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 - **Deployment:** LIVE 2026-05-07 00:25 UTC
 
 **Deferred to v1.4** (documented with auditor):
+
 - Phase 10 Plans 04–07 (PDF generation, QR, portal médico, E2E)
 - Phase 11 Plans 06–08 (Portal paciente, trending dashboard)
 - Phase 8 Plans 05–07 (CAPA process execution, Medium/Extended closure, auditor ceremony)
@@ -38,6 +40,7 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 ## v1.3 Final Metrics (2026-05-07)
 
 **Production Delivery:**
+
 - **Modules delivered:** 25 total (20 Phase 2 core + 5 Phase 8–12 analytical)
 - **Cloud Functions:** 78 deployed (callables + triggers + cron jobs)
 - **Test coverage:** 738/738 passing (0 regressions Phase 0)
@@ -49,6 +52,7 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 - **Security audit:** GREEN (0 P0, 0 P1 findings; audit trail chain hash validated)
 
 **Phase 0 RDC Blockers (deployed in v1.3 final 24h):**
+
 - ✅ Turnos (RDC 978 Art. 122 — shift supervision with RT signature)
 - ✅ Risks (FMEA-Lite, RDC 978 Art. 86 — risk management)
 - ✅ Lab-Apoio (outsourced lab contracts, RDC 978 Arts. 36–39)
@@ -65,26 +69,31 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 **v1.4 Scope (22 weeks, 2026-05-07 → 2026-09-30):**
 
 **Wave 1 (Weeks 1–3, Starting 2026-05-07):** Stabilization + Requirements + Schema
+
 - Finalize v1.3 cloud logs baseline (24h monitoring → report)
 - Audit Phase 0 RDC blockers (turnos, risks, lab-apoio, LGPD)
 - Align with external auditor on DICQ gaps (78.5% → 85%+ path)
 - Document Phase 0 + Wave 1 learnings (ADR-0016 patterns)
 
 **Wave 2 (Weeks 4–10, estimated 2026-05-28):** Portal + Phase 10
+
 - Liberação/Críticos completion (PDF generator, portal médico, E2E)
 - Portal auth pentest + hardening
 - DICQ 4.3 Phase 10 plans (4/7)
 
 **Wave 3 (Weeks 11–16, estimated 2026-07-09):** Reclamações + Phase 11
+
 - Reclamações/Satisfação completion (portal paciente, trending dashboard)
 - DICQ 4.3 Phase 11 plans (3/8)
 
 **Wave 4 (Weeks 17–22, estimated 2026-08-20):** CAPA Closure + External Audit
+
 - CAPA process execution (Medium/Extended closure, auditor ceremony)
 - External audit readiness (RFI response, document preparation)
 - Auditor sign-off ceremony (2026-08-31 target)
 
 **Key context:**
+
 - All foundations shipped (state machine, RT signature, intake workflows)
 - Portal surfaces pentest-ready for v1.4
 - Compliance path clear (78.5% → 85%+ by external audit 2026-08-31)
@@ -110,25 +119,27 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 
 ## Milestone Timeline
 
-| Milestone | Status | Scope | Period | Archive |
-|-----------|--------|-------|--------|---------|
-| **v1.0** | ✅ Complete | Compliance hardening (Phase 1) + 20 core modules (Phase 2) | 2026-04 → 2026-05-04 | `.planning/milestones/v1.0-phases/` |
-| **v1.1** | ✅ Complete | Analytics + Export + Mobile (Phase 3.1 → 3.3) | 2026-05-04 → 2026-05-05 | `.planning/milestones/v1.1-phases/` |
-| **v1.2** | ✅ Complete | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases, 71.3% baseline | 2026-05-06 → 2026-05-06 | `.planning/milestones/v1.2-phases/` |
-| **v1.3** | ✅ Complete | CAPA Closure (partial) + Phase 0 RDC blockers + Bioquímica LIVE | 2026-05-06 → 2026-05-07 | `.planning/milestones/v1.3-phases/` |
-| **v1.4** | 🔵 In Progress | Portal completion + Phase 0 audit + Wave 1 stabilization (22 weeks, 4 waves) | 2026-05-07 → 2026-09-30 | — |
+| Milestone | Status         | Scope                                                                        | Period                  | Archive                             |
+| --------- | -------------- | ---------------------------------------------------------------------------- | ----------------------- | ----------------------------------- |
+| **v1.0**  | ✅ Complete    | Compliance hardening (Phase 1) + 20 core modules (Phase 2)                   | 2026-04 → 2026-05-04    | `.planning/milestones/v1.0-phases/` |
+| **v1.1**  | ✅ Complete    | Analytics + Export + Mobile (Phase 3.1 → 3.3)                                | 2026-05-04 → 2026-05-05 | `.planning/milestones/v1.1-phases/` |
+| **v1.2**  | ✅ Complete    | Audit Readiness (DICQ 4.3 + RDC 978) — 4 phases, 71.3% baseline              | 2026-05-06 → 2026-05-06 | `.planning/milestones/v1.2-phases/` |
+| **v1.3**  | ✅ Complete    | CAPA Closure (partial) + Phase 0 RDC blockers + Bioquímica LIVE              | 2026-05-06 → 2026-05-07 | `.planning/milestones/v1.3-phases/` |
+| **v1.4**  | 🔵 In Progress | Portal completion + Phase 0 audit + Wave 1 stabilization (22 weeks, 4 waves) | 2026-05-07 → 2026-09-30 | —                                   |
 
 ---
 
 ## Phase 2 Summary (Completed)
 
 ### Batch 1: Core Regulatory
+
 - ✅ ADR-0001 Wave 2: Audit Trail (log + get + validate + report callables)
 - ✅ ADR-0003 Wave 5: NC Blocking gates (24 E2E tests, rules strict)
 - ✅ ADR-0004 Wave 3: POPs versionamento + RT training + FR exports
 - **Result**: sgq + pops + auditoria live in production
 
 ### Batch 2: Extensions
+
 - ✅ controle-temperatura: Rules (CT-01 ✅, CT-04 ✅) + UI
 - ✅ educacao-continuada: 2 new callables (trigger + cascade)
 - **Result**: 20/20 modules live, 347/347 tests passing
@@ -138,10 +149,12 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 ## Milestone v1.2 — Audit Readiness (Current)
 
 **Documents:**
+
 - 🔵 `.planning/REQUIREMENTS.md` — escopo v1.2 (a gerar)
 - 🔵 `.planning/ROADMAP.md` — 4 phases (a gerar)
 
 **Key decisions made:**
+
 1. Norma alvo: **DICQ 4.3 + RDC 978/2025** combinados
 2. v1.1 cleanup entra como Phase 1 (TEMP-IMPLANTACAO + Stream C)
 3. Módulos analíticos novos (Bioquímica, Liberação, Críticos) ficam fora — vão pra v1.3
@@ -179,6 +192,7 @@ Implementar HC Quality como sistema world-class de gestão de qualidade laborato
 This document evolves at phase transitions and milestone boundaries.
 
 **After each phase transition** (via `/gsd-transition`):
+
 1. Requirements invalidated? → Move to Out of Scope with reason
 2. Requirements validated? → Move to Validated with phase reference
 3. New requirements emerged? → Add to Active
@@ -186,6 +200,7 @@ This document evolves at phase transitions and milestone boundaries.
 5. "What This Is" still accurate? → Update if drifted
 
 **After each milestone** (via `/gsd-complete-milestone`):
+
 1. Full review of all sections
 2. Core Value check — still the right priority?
 3. Audit Out of Scope — reasons still valid?

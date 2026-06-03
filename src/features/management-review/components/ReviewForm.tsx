@@ -10,7 +10,7 @@ import {
   ReviewEntry,
   ReviewStatus,
   REVIEW_SECTIONS,
-  LogicalSignature
+  LogicalSignature,
 } from '../types';
 import ReviewSection from './ReviewSection';
 
@@ -49,13 +49,15 @@ export default function ReviewForm({
   reviewId = null,
   mode = 'create',
   onSubmitSuccess,
-  onCancel
+  onCancel,
 }: ReviewFormProps) {
   const labId = useActiveLabId();
   const user = useUser();
-  const { template, loading: templateLoading, ready: templateReady } = useReviewTemplate(
-    new Date().getFullYear()
-  );
+  const {
+    template,
+    loading: templateLoading,
+    ready: templateReady,
+  } = useReviewTemplate(new Date().getFullYear());
   const [currentTab, setCurrentTab] = useState(0);
   const [formState, setFormState] = useState<FormState>({
     year: new Date().getFullYear(),
@@ -64,7 +66,7 @@ export default function ReviewForm({
     diretor: '',
     gerenteQualidade: '',
     outrasCargos: [],
-    status: ReviewStatus.DRAFT
+    status: ReviewStatus.DRAFT,
   });
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -77,7 +79,7 @@ export default function ReviewForm({
     if (templateReady && template.entries.length > 0) {
       setFormState((prev) => ({
         ...prev,
-        entries: template.entries
+        entries: template.entries,
       }));
     }
   }, [templateReady, template]);
@@ -101,32 +103,24 @@ export default function ReviewForm({
   }, [dirty, mode, labId]);
 
   // Update a single section entry
-  const updateSectionContent = useCallback(
-    (sectionNumber: number, newContent: string) => {
-      setFormState((prev) => ({
-        ...prev,
-        entries: prev.entries.map((entry) =>
-          entry.sectionNumber === sectionNumber
-            ? { ...entry, content: newContent }
-            : entry
-        )
-      }));
-      setDirty(true);
-    },
-    []
-  );
+  const updateSectionContent = useCallback((sectionNumber: number, newContent: string) => {
+    setFormState((prev) => ({
+      ...prev,
+      entries: prev.entries.map((entry) =>
+        entry.sectionNumber === sectionNumber ? { ...entry, content: newContent } : entry,
+      ),
+    }));
+    setDirty(true);
+  }, []);
 
   // Update metadata (participantes, diretor, etc.)
-  const updateMetadata = useCallback(
-    (field: keyof Omit<FormState, 'entries'>, value: any) => {
-      setFormState((prev) => ({
-        ...prev,
-        [field]: value
-      }));
-      setDirty(true);
-    },
-    []
-  );
+  const updateMetadata = useCallback((field: keyof Omit<FormState, 'entries'>, value: any) => {
+    setFormState((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+    setDirty(true);
+  }, []);
 
   // Validate form completeness
   const validateForm = (): boolean => {
@@ -155,7 +149,7 @@ export default function ReviewForm({
       formState.diretor,
       formState.gerenteQualidade,
       ...formState.participantes,
-      ...formState.outrasCargos
+      ...formState.outrasCargos,
     ].filter((p) => p.trim());
 
     if (allParticipants.length < 3) {
@@ -192,7 +186,7 @@ export default function ReviewForm({
         participantes: formState.participantes,
         diretor: formState.diretor,
         gerenteQualidade: formState.gerenteQualidade,
-        outrasCargos: formState.outrasCargos
+        outrasCargos: formState.outrasCargos,
       });
 
       const result = response.data as {
@@ -253,9 +247,7 @@ export default function ReviewForm({
         <h2 className="text-2xl font-semibold text-white mb-2">
           Análise Crítica pela Direção — {formState.year}
         </h2>
-        <p className="text-sm text-white/60">
-          DICQ 4.15 — Seção {currentTab + 1} de 15
-        </p>
+        <p className="text-sm text-white/60">DICQ 4.15 — Seção {currentTab + 1} de 15</p>
       </div>
 
       {/* Metadata Section */}
@@ -303,7 +295,7 @@ export default function ReviewForm({
             onChange={(e) =>
               updateMetadata(
                 'outrasCargos',
-                e.target.value.split(',').map((p) => p.trim())
+                e.target.value.split(',').map((p) => p.trim()),
               )
             }
             placeholder="Ex: Técnico de Laboratório A, Enfermeiro B"
@@ -352,25 +344,26 @@ export default function ReviewForm({
         {currentSection.number === 1 &&
           currentEntry?.sourceData?.chainViolations &&
           currentEntry.sourceData.chainViolations.length > 0 && (
-          <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-md">
-            <p className="text-xs uppercase font-semibold text-red-400 mb-2">
-              Violações de Integridade Detectadas
-            </p>
-            <p className="text-sm text-red-300 mb-3">
-              {currentEntry.sourceData.chainViolations.length} item(ns) com hash inválido detectado(s) no período
-            </p>
-            <div className="space-y-1 text-xs text-red-200">
-              {currentEntry.sourceData.chainViolations.map((violation: any, idx: number) => (
-                <div key={idx} className="flex gap-2">
-                  <span className="text-red-400">•</span>
-                  <span>
-                    <span className="font-mono">{violation.entryId}</span>: {violation.reason}
-                  </span>
-                </div>
-              ))}
+            <div className="mb-4 p-4 bg-red-500/10 border border-red-500/30 rounded-md">
+              <p className="text-xs uppercase font-semibold text-red-400 mb-2">
+                Violações de Integridade Detectadas
+              </p>
+              <p className="text-sm text-red-300 mb-3">
+                {currentEntry.sourceData.chainViolations.length} item(ns) com hash inválido
+                detectado(s) no período
+              </p>
+              <div className="space-y-1 text-xs text-red-200">
+                {currentEntry.sourceData.chainViolations.map((violation: any, idx: number) => (
+                  <div key={idx} className="flex gap-2">
+                    <span className="text-red-400">•</span>
+                    <span>
+                      <span className="font-mono">{violation.entryId}</span>: {violation.reason}
+                    </span>
+                  </div>
+                ))}
+              </div>
             </div>
-          </div>
-        )}
+          )}
 
         {/* Content Editor */}
         <textarea
@@ -382,9 +375,7 @@ export default function ReviewForm({
           className="w-full px-3 py-2 bg-[#0f0f12] border border-white/10 rounded-md text-white placeholder-white/30 focus:outline-none focus:border-violet-500 disabled:opacity-50 resize-none font-mono text-sm"
         />
 
-        <p className="text-xs text-white/50 mt-2">
-          {currentEntry?.content.length || 0} caracteres
-        </p>
+        <p className="text-xs text-white/50 mt-2">{currentEntry?.content.length || 0} caracteres</p>
       </div>
 
       {/* Errors and Messages */}

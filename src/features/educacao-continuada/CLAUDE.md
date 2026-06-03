@@ -62,9 +62,11 @@ obrigatório — não existe caminho de escrita sem tenant.
 ### Pendências restantes (ordem de prioridade)
 
 ✅ **CONCLUÍDO** (2026-05-04):
+
 - Deploy functions novas — `ec_onParticipanteCreated` + `ec_softDeleteExecucaoCascade` ✅
 
 **Débitos técnicos (MVP-aceitável):**
+
 1. **Smoke test E2E** — checklist em `SMOKE_E2E_CHECKLIST.md` (manual)
 2. **Code-split SheetJS** — bloqueado por CT (overhead ~3.2MB / 890KB gzip aceitável)
 3. Audit log em Template/Kit/Trilha (12 mutations; padrão já estabelecido)
@@ -75,6 +77,7 @@ obrigatório — não existe caminho de escrita sem tenant.
 8. Divisão em chunks do cascade (>500 writes) — débito documentado
 
 ✅ **Done (acumulado):**
+
 - ~~Cloud Function para assinatura~~ Fase 0b (2026-04-24)
 - ~~Matriz de Treinamentos~~ (2026-04-24, recorte da Fase 9)
 - ~~Fase 6 — Templates + Materiais Didáticos~~ (2026-04-24)
@@ -276,7 +279,6 @@ Migração da geração de assinatura de client-side (`crypto.subtle` em `ecSign
   adicionados em `firestore.indexes.json` (colaboradores/treinamentos com
   `ativo + nome/titulo`). **Ordem obrigatória de deploy** (documentada
   no próprio arquivo de rules):
-
   1. Estender `provisionModulesClaims` para incluir o claim `'educacao-continuada'`
   2. Rodar com `dryRun: false` em prod — grant do claim a todos os users ativos
   3. Query de verificação: `users ativos 30d sem claim 'educacao-continuada' = 0`
@@ -285,6 +287,7 @@ Migração da geração de assinatura de client-side (`crypto.subtle` em `ecSign
   Sem os passos 1-2, `hasModuleAccess('educacao-continuada')` retorna false
   para 100% dos users e o módulo fica inacessível — fail-safe intencional,
   alinhado ao padrão Onda 3 dos módulos legados.
+
 - ~~Integração com o shell~~ ✅ aplicada. Mudanças fora do módulo:
   - `src/types/index.ts` — `'educacao-continuada'` adicionado ao union `View`
   - `src/features/auth/AuthWrapper.tsx` — import + case no `AppRouter`

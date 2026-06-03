@@ -100,7 +100,13 @@ interface ExameLaudo {
   interpretacao?: string;
 }
 
-type ReleaseState = 'Pendente' | 'Em Revisão' | 'Liberado' | 'Auto-Liberado' | 'Comunicado' | 'Superado';
+type ReleaseState =
+  | 'Pendente'
+  | 'Em Revisão'
+  | 'Liberado'
+  | 'Auto-Liberado'
+  | 'Comunicado'
+  | 'Superado';
 
 interface Rascunho {
   id: string;
@@ -323,7 +329,7 @@ class MockDraftLockManager {
     laudoId: string,
     labId: LabId,
     rtUid: UserId,
-    lockDurationMs: number = 3600000
+    lockDurationMs: number = 3600000,
   ): Promise<DraftLock> {
     const draftId = `draft-${laudoId}`;
     const existing = this.locks.get(draftId);
@@ -386,7 +392,7 @@ class MockCriticoDetector {
   detectAllCriticos(
     exames: ExameLaudo[],
     thresholds: CriticoThreshold[],
-    paciente: { idade: number; sexo: 'M' | 'F' | 'NI' }
+    paciente: { idade: number; sexo: 'M' | 'F' | 'NI' },
   ) {
     const criticos: any[] = [];
 
@@ -397,7 +403,7 @@ class MockCriticoDetector {
             t.ativo &&
             t.analitoId === exame.id &&
             t.unidade === resultado.unidade &&
-            (!t.condicional?.sexo || t.condicional.sexo === paciente.sexo)
+            (!t.condicional?.sexo || t.condicional.sexo === paciente.sexo),
         );
 
         for (const t of applicable) {
@@ -411,7 +417,8 @@ class MockCriticoDetector {
               threshold: t,
               valor: resultado.value,
               severidade: t.severidade,
-              reason: resultado.value > (t.max || Infinity) ? `Acima de ${t.max}` : `Abaixo de ${t.min}`,
+              reason:
+                resultado.value > (t.max || Infinity) ? `Acima de ${t.max}` : `Abaixo de ${t.min}`,
             });
           }
         }
@@ -440,7 +447,7 @@ class MockNotivisaService {
           analito: e.nome,
           valor: r.value,
           unidade: r.unidade,
-        }))
+        })),
       ),
       assinador: {
         cpf: '123.456.789-00', // Mock
@@ -508,7 +515,7 @@ class MockSMSService {
     labId: LabId,
     criticoId: string,
     telefone: string,
-    mensagem: string
+    mensagem: string,
   ): Promise<SMSNotification> {
     const notification: SMSNotification = {
       id: `sms-${criticoId}`,
@@ -569,7 +576,7 @@ class MockAuditService {
     labId: LabId,
     action: string,
     callerUid: UserId,
-    payload: Record<string, unknown>
+    payload: Record<string, unknown>,
   ): AuditLog {
     const log: AuditLog = {
       id: `audit-${Date.now()}`,
@@ -723,11 +730,10 @@ describe('Phase 3 Cross-Module Integration (Laudo → Rascunho → Publicação 
 
       // ─ Detect critical ─
       const idade = 44; // idade do paciente (nascimento 1980)
-      const detection = criticoDetector.detectAllCriticos(
-        laudo.exames,
-        [threshold],
-        { idade, sexo: laudo.paciente.sexo }
-      );
+      const detection = criticoDetector.detectAllCriticos(laudo.exames, [threshold], {
+        idade,
+        sexo: laudo.paciente.sexo,
+      });
 
       expect(detection.hasCritico).toBe(true);
       expect(detection.criticos).toHaveLength(1);
@@ -786,7 +792,7 @@ describe('Phase 3 Cross-Module Integration (Laudo → Rascunho → Publicação 
         labId,
         criticoId,
         laudo.labTelefone,
-        `ALERTA: Resultado crítico para ${laudo.paciente.nome}. Glicose = 500.`
+        `ALERTA: Resultado crítico para ${laudo.paciente.nome}. Glicose = 500.`,
       );
 
       expect(notification.status).toBe('pending');
@@ -829,9 +835,9 @@ describe('Phase 3 Cross-Module Integration (Laudo → Rascunho → Publicação 
       expect(lock1.lockedBy.value).toBe(rt1.value);
 
       // ─ RT 2 tries to acquire same lock → blocked ─
-      await expect(
-        lockManager.acquireLock(laudo.id, labId, rt2)
-      ).rejects.toThrow('Draft is locked by another RT');
+      await expect(lockManager.acquireLock(laudo.id, labId, rt2)).rejects.toThrow(
+        'Draft is locked by another RT',
+      );
 
       // ─ RT 1 releases ─
       await lockManager.releaseLock(lock1.draftId, rt1);
@@ -912,7 +918,7 @@ describe('Phase 3 Cross-Module Integration (Laudo → Rascunho → Publicação 
         labId,
         criticoId,
         '11999999999',
-        'ALERTA: Resultado crítico'
+        'ALERTA: Resultado crítico',
       );
 
       // ─ Try send (might fail) ─

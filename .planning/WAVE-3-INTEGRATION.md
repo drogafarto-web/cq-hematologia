@@ -30,7 +30,7 @@ import { checkNCs } from '../qualidade/naoConformidade';
 
 export const createInsumo = functions.https.onCall(async (data, context) => {
   const { labId, uid, ... } = data;
-  
+
   // NEW: Check for blocking NCs
   const ncCheck = await checkNCs(labId, 'insumos'); // or 'equipamento', etc
   if (ncCheck.hasCriticalNCs) {
@@ -39,7 +39,7 @@ export const createInsumo = functions.https.onCall(async (data, context) => {
       `Operações bloqueadas: ${ncCheck.message}`
     );
   }
-  
+
   // OLD: Proceed with rest of logic
   // ... existing code ...
 });
@@ -50,19 +50,23 @@ export const createInsumo = functions.https.onCall(async (data, context) => {
 ## Module-by-Module Integration
 
 ### 1. Insumos (Lots)
+
 **File:** `functions/src/modules/insumos/index.ts`  
 **Module ID:** `'insumos'`  
 **NC Origen:** `'insumo'`  
 **Operations to Gate:**
+
 - `createInsumo()` — New lot receipt
 - `updateInsumo()` — Update lot metadata
 - `useInsumo()` (if exists) — Consume lot for test
 
 **Temporary NC Source (Backfill):**
+
 - Collection: `labs/{labId}/insumos/{loteId}/desvios`
 - Maps to: origem='insumo', origemId=loteId
 
 **Integration Points:**
+
 ```typescript
 // In index.ts or createInsumo.ts
 const ncCheck = await checkNCs(labId, 'insumos');
@@ -71,6 +75,7 @@ if (ncCheck.hasCriticalNCs) throw error;
 ```
 
 **Testing:** E2E test
+
 - Create Insumo with expired lot
 - System auto-opens NC (future: wave 3+ enhancement)
 - checkNCs returns blocking
@@ -80,25 +85,30 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 2. Equipamentos (Equipment)
+
 **File:** `functions/src/modules/equipamentos/index.ts`  
 **Module ID:** `'equipamento'`  
 **NC Origen:** `'equipamento'`  
 **Operations to Gate:**
+
 - `createEquipamento()` — Register new equipment
 - `useEquipamento()` — Use equipment for test (if method exists)
 - `calibrateEquipamento()` — Record calibration
 
 **Temporary NC Source (Backfill):**
+
 - Collection: `labs/{labId}/equipamentos/{equipId}/manutencao`
 - Maps to: origem='equipamento', origemId=equipId
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'equipamento');
 if (ncCheck.hasCriticalNCs) throw error;
 ```
 
 **Testing:** E2E test
+
 - Create NC for equipment failure (critica)
 - Try to use equipment → blocked
 - Close NC (eficaz)
@@ -107,24 +117,29 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 3. Controle de Qualidade (Quality Control)
+
 **File:** `functions/src/modules/ciqAudit/index.ts` or `qualidade/index.ts`  
 **Module ID:** `'qualidade'`  
 **NC Origen:** `'controle'`  
 **Operations to Gate:**
+
 - `createCQResult()` or `saveCQResult()` — Save QC test result
 - `approveCQResult()` — Approve QC
 
 **Temporary NC Source (Backfill):**
+
 - Collection: `labs/{labId}/controleQualidade/desvios`
 - Maps to: origem='controle', origemId=desvioId
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'qualidade');
 if (ncCheck.hasCriticalNCs) throw error;
 ```
 
 **Testing:** E2E test
+
 - Simulate QC failure
 - Open NC (grave)
 - Try to approve result → blocked
@@ -134,24 +149,29 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 4. Pessoas (Personnel/Qualifications)
+
 **File:** `functions/src/modules/pessoas/index.ts` or `insumoQualificacao/index.ts`  
 **Module ID:** `'pessoas'`  
 **NC Origen:** `'pessoas'`  
 **Operations to Gate:**
+
 - `recordQualificacao()` — Record personnel qualification
 - `runTest()` for module — If require qualification
 
 **Temporary NC Source (Backfill):**
+
 - Collection: `labs/{labId}/qualificacoes/{uid}/desvios` (if exists)
 - Maps to: origem='pessoas', origemId=uid
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'pessoas');
 if (ncCheck.hasCriticalNCs) throw error;
 ```
 
 **Testing:** E2E test
+
 - Create NC for training expiration (grave)
 - Try to run test → blocked if checking qualifications
 - Complete retraining
@@ -161,19 +181,23 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 5. POPs (Procedimentos)
+
 **File:** `functions/src/modules/procedimentos/index.ts`  
 **Module ID:** `'processo'`  
 **NC Origen:** `'processo'`  
 **Operations to Gate:**
+
 - `createPOP()` — Create procedure
 - `updatePOP()` — Update procedure
 - Maybe gate usage too (Wave 4: ADR 0004 adds this)
 
 **Temporary NC Source (Backfill):**
+
 - Collection: TBD (may not have existing NC source)
 - Will be populated by POP versioning (ADR 0004)
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'processo');
 if (ncCheck.hasCriticalNCs) throw error;
@@ -184,18 +208,22 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 6. Evoluções / Resultados (Results)
+
 **File:** `functions/src/modules/ciqAudit/index.ts` or equivalent  
 **Module ID:** `'outro'` (or could be new 'evolucao')  
 **NC Origen:** `'outro'`  
 **Operations to Gate:**
+
 - `saveResult()` — Save clinical result
 - `releaseResult()` — Release result to clinician
 
 **Temporary NC Source (Backfill):**
+
 - May not have existing NC source (new module)
 - Or could be in audit trail
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'outro');
 if (ncCheck.hasCriticalNCs) throw error;
@@ -206,18 +234,22 @@ if (ncCheck.hasCriticalNCs) throw error;
 ---
 
 ### 7. Auditoria (Audits)
+
 **File:** TBD  
 **Module ID:** `'auditoria'`  
 **NC Origen:** `'outro'` (audit findings)  
 **Operations to Gate:**
+
 - `createAuditFinding()` — Record audit finding
 - `closeAuditFinding()` — Close finding (if procedure exists)
 
 **Temporary NC Source (Backfill):**
+
 - Collection: TBD
 - May not have existing source
 
 **Integration Points:**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'auditoria');
 if (ncCheck.hasCriticalNCs) throw error;
@@ -228,6 +260,7 @@ if (ncCheck.hasCriticalNCs) throw error;
 ## Integration Checklist
 
 ### For Each Module:
+
 - [ ] Identify main function(s) that create/update data
 - [ ] Add `checkNCs()` call at function start
 - [ ] Test: Function blocks when critical NC exists
@@ -236,11 +269,13 @@ if (ncCheck.hasCriticalNCs) throw error;
 - [ ] Audit log: Include NC block event in operation log (optional but recommended)
 
 ### Cross-Module:
+
 - [ ] No conflicts between module modifications (each is independent)
 - [ ] All 7 modules tested together (E2E full scenario)
 - [ ] Blocking unblocks correctly (NC → investigacao → correcao → verif → fechada)
 
 ### Backfill:
+
 - [ ] Identify temporary NC collections in each module
 - [ ] Update backfill-naoConformidade.mjs with correct paths
 - [ ] Dry-run backfill on test lab
@@ -279,6 +314,7 @@ functions/src/modules/ciqAudit/index.ts  (or qualidade)
 **File:** `functions/scripts/backfill-naoConformidade.mjs`
 
 Verify and update sources array:
+
 ```javascript
 const sources = [
   {
@@ -299,6 +335,7 @@ const sources = [
 ```
 
 **Execution (Wave 3):**
+
 ```bash
 # Dry-run first
 node functions/scripts/backfill-naoConformidade.mjs --labId=default --dry-run
@@ -315,6 +352,7 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=all
 ## Testing Strategy (Wave 3)
 
 ### Unit Tests per Module
+
 ```typescript
 // In each module's test file
 describe('NC Integration: Module X', () => {
@@ -327,11 +365,11 @@ describe('NC Integration: Module X', () => {
       severidade: 'critica',
       ...
     });
-    
+
     // Try operation → should block
     expect(() => createInsumo({labId, ...})).toThrow(/NC Bloqueada/);
   });
-  
+
   it('should allow operation when no critical NC', async () => {
     // No NC
     const result = await createInsumo({labId, ...});
@@ -341,6 +379,7 @@ describe('NC Integration: Module X', () => {
 ```
 
 ### Integration Tests
+
 ```typescript
 // integration.test.ts for each module
 describe('E2E: Module X + NC Blocking', () => {
@@ -351,6 +390,7 @@ describe('E2E: Module X + NC Blocking', () => {
 ```
 
 ### Cross-Module Smoke Test
+
 ```typescript
 // Overall integration test
 describe('E2E: All 7 Modules + NC', () => {
@@ -366,13 +406,13 @@ describe('E2E: All 7 Modules + NC', () => {
 
 ## Risks & Mitigations
 
-| Risk | Likelihood | Mitigation |
-|------|-----------|-----------|
-| Module function signature changed | Low | Check each module's actual API before adding gate |
-| Gate breaks happy-path test | Medium | Run existing module tests after integration |
-| Backfill creates duplicate NCs | Medium | Add check for `_migratedAt` flag (idempotent) |
-| Performance: checkNCs() too slow | Low | Single Firestore query, should be <100ms |
-| Error message unclear | Medium | Include NC numero + description in error |
+| Risk                              | Likelihood | Mitigation                                        |
+| --------------------------------- | ---------- | ------------------------------------------------- |
+| Module function signature changed | Low        | Check each module's actual API before adding gate |
+| Gate breaks happy-path test       | Medium     | Run existing module tests after integration       |
+| Backfill creates duplicate NCs    | Medium     | Add check for `_migratedAt` flag (idempotent)     |
+| Performance: checkNCs() too slow  | Low        | Single Firestore query, should be <100ms          |
+| Error message unclear             | Medium     | Include NC numero + description in error          |
 
 ---
 
@@ -409,16 +449,19 @@ describe('E2E: All 7 Modules + NC', () => {
 ## Commit Strategy
 
 **Commit 1:** Backfill script + module paths audit
+
 ```bash
 git commit -m "ADR 0003 Wave 3a: Backfill script + module path audit"
 ```
 
 **Commit 2:** NC gates in all 7 modules
+
 ```bash
 git commit -m "ADR 0003 Wave 3b: Integrate checkNCs() gate into 7 modules"
 ```
 
 **Commit 3:** Tests
+
 ```bash
 git commit -m "ADR 0003 Wave 3c: Per-module + integration tests"
 ```

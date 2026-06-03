@@ -1,75 +1,77 @@
 ---
 phase: 07-feedback-portal
 type: detailed-plan
-scope: "Satisfação/Feedback Portal Integration — Patient NPS + Staff Suggestions + Trending Dashboard + Complaint Integration"
-duration: "1.5 weeks"
+scope: 'Satisfação/Feedback Portal Integration — Patient NPS + Staff Suggestions + Trending Dashboard + Complaint Integration'
+duration: '1.5 weeks'
 wave: 2
-depends_on: ["Phase 3 Complete (Foundation)", "Phase 11 Reclamacoes Foundation"]
-deliverables: [
-  "Patient feedback portal (NPS + comments)",
-  "Staff suggestions intake (web + mobile)",
-  "Trending dashboard (NPS + RCA + suggestions)",
-  "Complaint closure loop integration",
-  "Email campaign triggers (critical laudo → NPS)",
-  "Anonimização cron (>90d PII zero-out)",
-  "E2E test specs (8 tests)"
-]
-compliance: ["DICQ 4.14.3", "DICQ 4.14.4", "RDC 978 Art. 36", "LGPD Lei 13.709/18", "CDC Lei 8.078/90"]
+depends_on: ['Phase 3 Complete (Foundation)', 'Phase 11 Reclamacoes Foundation']
+deliverables:
+  [
+    'Patient feedback portal (NPS + comments)',
+    'Staff suggestions intake (web + mobile)',
+    'Trending dashboard (NPS + RCA + suggestions)',
+    'Complaint closure loop integration',
+    'Email campaign triggers (critical laudo → NPS)',
+    'Anonimização cron (>90d PII zero-out)',
+    'E2E test specs (8 tests)',
+  ]
+compliance:
+  ['DICQ 4.14.3', 'DICQ 4.14.4', 'RDC 978 Art. 36', 'LGPD Lei 13.709/18', 'CDC Lei 8.078/90']
 
 must_haves:
   truths:
-    - "Patient NPS form accepts 0–10 score + optional comment; 0–6 detrator, 7–8 neutro, 9–10 promotor per NPS standard"
-    - "NPS responses anonymized after 90d: pacienteId → null, cpfHash retained for analytics"
-    - "Staff suggestions state machine: novo → review → implementado|rejected with upvote dedup"
-    - "Trending dashboard shows NPS trend (monthly), complaint RCA word cloud, suggestion volume + implementation %"
-    - "Email trigger on laudo marked critical/urgente: 5-day delay, NPS survey link via token-based access"
-    - "Complaint closure flow visible in feedback portal: status → notification on NPS submission"
-    - "Gemini sentiment classification optional (Phase 7.2+); baseline MVP is manual classification"
-    - "All writes to satisfacao/sugestoes enforce LogicalSignature + chainHash per ADR-0001"
+    - 'Patient NPS form accepts 0–10 score + optional comment; 0–6 detrator, 7–8 neutro, 9–10 promotor per NPS standard'
+    - 'NPS responses anonymized after 90d: pacienteId → null, cpfHash retained for analytics'
+    - 'Staff suggestions state machine: novo → review → implementado|rejected with upvote dedup'
+    - 'Trending dashboard shows NPS trend (monthly), complaint RCA word cloud, suggestion volume + implementation %'
+    - 'Email trigger on laudo marked critical/urgente: 5-day delay, NPS survey link via token-based access'
+    - 'Complaint closure flow visible in feedback portal: status → notification on NPS submission'
+    - 'Gemini sentiment classification optional (Phase 7.2+); baseline MVP is manual classification'
+    - 'All writes to satisfacao/sugestoes enforce LogicalSignature + chainHash per ADR-0001'
   artifacts:
-    - path: "src/features/satisfacao/components/NPSPortalForm.tsx"
-      provides: "Patient-facing NPS form (0–10 scale, sentiment icons, comment box, reCAPTCHA v3)"
-      contains: "export const NPSPortalForm"
-    - path: "src/features/sugestoes/components/SuggestionsIntake.tsx"
-      provides: "Staff + public suggestion form (web + PWA-optimized mobile)"
-      contains: "export const SuggestionsIntake"
-    - path: "src/features/satisfacao/components/TrendingDashboard.tsx"
-      provides: "Trending analysis: NPS monthly trend, RCA wordcloud, suggestion stats"
-      contains: "export const TrendingDashboard"
-    - path: "src/features/reclamacoes/hooks/useReclamacaoClosureNotification.ts"
-      provides: "Listen to reclamacao status changes, emit NPS trigger"
-      exports: ["useReclamacaoClosureNotification"]
-    - path: "functions/src/modules/satisfacao/email-campaigns.ts"
-      provides: "Cloud Function callables for NPS email dispatch (post-laudo, recurring quarterly)"
-      exports: ["dispatchNPSPostLaudo", "dispatchNPSQuarterly"]
-    - path: "functions/src/scheduled-tasks/anonimizarRespostas.ts"
-      provides: "Pub/Sub daily cron to zero-out PII >90d old"
-      exports: "Function: anonimizarRespostas"
-    - path: "firestore.rules"
-      provides: "Security rules for satisfacao + sugestoes collections"
-      contains: "match /labs/{labId}/satisfacao-respostas, match /labs/{labId}/sugestoes"
-    - path: "firestore.indexes.json"
-      provides: "Composite indices for NPS trending + suggestion queries"
-      contains: "[nodePaths: labs/{labId}/(satisfacao-respostas|sugestoes)]"
+    - path: 'src/features/satisfacao/components/NPSPortalForm.tsx'
+      provides: 'Patient-facing NPS form (0–10 scale, sentiment icons, comment box, reCAPTCHA v3)'
+      contains: 'export const NPSPortalForm'
+    - path: 'src/features/sugestoes/components/SuggestionsIntake.tsx'
+      provides: 'Staff + public suggestion form (web + PWA-optimized mobile)'
+      contains: 'export const SuggestionsIntake'
+    - path: 'src/features/satisfacao/components/TrendingDashboard.tsx'
+      provides: 'Trending analysis: NPS monthly trend, RCA wordcloud, suggestion stats'
+      contains: 'export const TrendingDashboard'
+    - path: 'src/features/reclamacoes/hooks/useReclamacaoClosureNotification.ts'
+      provides: 'Listen to reclamacao status changes, emit NPS trigger'
+      exports: ['useReclamacaoClosureNotification']
+    - path: 'functions/src/modules/satisfacao/email-campaigns.ts'
+      provides: 'Cloud Function callables for NPS email dispatch (post-laudo, recurring quarterly)'
+      exports: ['dispatchNPSPostLaudo', 'dispatchNPSQuarterly']
+    - path: 'functions/src/scheduled-tasks/anonimizarRespostas.ts'
+      provides: 'Pub/Sub daily cron to zero-out PII >90d old'
+      exports: 'Function: anonimizarRespostas'
+    - path: 'firestore.rules'
+      provides: 'Security rules for satisfacao + sugestoes collections'
+      contains: 'match /labs/{labId}/satisfacao-respostas, match /labs/{labId}/sugestoes'
+    - path: 'firestore.indexes.json'
+      provides: 'Composite indices for NPS trending + suggestion queries'
+      contains: '[nodePaths: labs/{labId}/(satisfacao-respostas|sugestoes)]'
   key_links:
-    - from: "src/features/satisfacao/components/NPSPortalForm.tsx"
-      to: "functions/src/modules/satisfacao/email-campaigns.ts"
-      via: "submitNPSResposta callable"
-      pattern: "callable.*satisfacao.*npsResposta"
-    - from: "src/features/reclamacoes/hooks/useReclamacaoClosureNotification.ts"
-      to: "functions/src/modules/satisfacao/email-campaigns.ts"
-      via: "dispatchNPSPostLaudo trigger on Resolvida status"
-      pattern: "onUpdate.*Reclamacao.*status.*Resolvida"
-    - from: "functions/src/scheduled-tasks/anonimizarRespostas.ts"
-      to: "src/features/satisfacao/types/satisfacao.ts"
-      via: "NPSResposta.anonimizadoEm + piiMask"
-      pattern: "timestamp.*90d.*anonimizado"
-
+    - from: 'src/features/satisfacao/components/NPSPortalForm.tsx'
+      to: 'functions/src/modules/satisfacao/email-campaigns.ts'
+      via: 'submitNPSResposta callable'
+      pattern: 'callable.*satisfacao.*npsResposta'
+    - from: 'src/features/reclamacoes/hooks/useReclamacaoClosureNotification.ts'
+      to: 'functions/src/modules/satisfacao/email-campaigns.ts'
+      via: 'dispatchNPSPostLaudo trigger on Resolvida status'
+      pattern: 'onUpdate.*Reclamacao.*status.*Resolvida'
+    - from: 'functions/src/scheduled-tasks/anonimizarRespostas.ts'
+      to: 'src/features/satisfacao/types/satisfacao.ts'
+      via: 'NPSResposta.anonimizadoEm + piiMask'
+      pattern: 'timestamp.*90d.*anonimizado'
 ---
 
 ## 1. Objective
 
 Complete the feedback loop for HC Quality v1.4 Wave 2:
+
 - **Patient-centric**: Post-resolution NPS form + optional Gemini sentiment analysis
 - **Staff-engaged**: Suggestion intake with voting + implementation tracking
 - **Analytics-ready**: Monthly NPS trending, RCA root-cause word cloud, suggestion volume % implemented
@@ -81,6 +83,7 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 ## 2. Context & Dependencies
 
 ### Existing Foundation (Phase 11 — Reclamacoes)
+
 - **Reclamacao** type: complaint workflow (Nova → Analisando → RCA → Resolvida → Comunicada → Fechada)
 - **Sugestao** type: suggestion state machine (aberta → analisada → implementada|rejeitada)
 - **NPSResposta** type: 0–10 scale, origem (pos-resolucao|recurring-trimestral), anonymized after 90d
@@ -88,20 +91,22 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 - **Cloud Functions (Phase 11-03+)**: callable stubs for createReclamacao, criarSugestao, submitNPSResposta
 
 ### Design System
+
 - Dark-first, Tailwind 4 + tokens in `DESIGN_SYSTEM.md`
 - References: Linear, Stripe, Apple (sophisticated, editorial typography)
 - Tablet-responsive PWA (critical for mobile staff intake)
 - No color-only UX — icons + labels for sentiment (😠 detrator, 😐 neutro, 😊 promotor)
 
 ### Compliance Baseline
-| Standard | Requirement | Phase 7 Scope |
-|----------|-------------|---------------|
-| DICQ 4.14.3 | Customer satisfaction measurement | NPS campaign + quarterly recurring + post-resolution |
-| DICQ 4.14.4 | Suggestion/improvement feedback | Suggestion intake + status tracking + upvote |
-| RDC 978 Art. 36–39 | Complaint handling SLA (30d) | Reclamacao workflow + closure notification |
-| LGPD Art. 18 | Right to access + deletion | LgpdRequest callable + audit trail |
-| LGPD Art. 9 | Special category PII (health) | pacienteId → null after 90d; cpfHash retained |
-| CDC Lei 8.078/90 | Consumer protection | 30-day response SLA on reclamacao |
+
+| Standard           | Requirement                       | Phase 7 Scope                                        |
+| ------------------ | --------------------------------- | ---------------------------------------------------- |
+| DICQ 4.14.3        | Customer satisfaction measurement | NPS campaign + quarterly recurring + post-resolution |
+| DICQ 4.14.4        | Suggestion/improvement feedback   | Suggestion intake + status tracking + upvote         |
+| RDC 978 Art. 36–39 | Complaint handling SLA (30d)      | Reclamacao workflow + closure notification           |
+| LGPD Art. 18       | Right to access + deletion        | LgpdRequest callable + audit trail                   |
+| LGPD Art. 9        | Special category PII (health)     | pacienteId → null after 90d; cpfHash retained        |
+| CDC Lei 8.078/90   | Consumer protection               | 30-day response SLA on reclamacao                    |
 
 ---
 
@@ -110,6 +115,7 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 ### 3.1 Firestore Schema Extensions
 
 **Existing collections (reused from Phase 11):**
+
 ```
 /labs/{labId}/
   satisfacao-respostas/{respostaId}
@@ -126,6 +132,7 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 ```
 
 **New subcollections (Phase 7):**
+
 ```
 /labs/{labId}/
   satisfacao-respostas/{respostaId}/
@@ -151,18 +158,19 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 ```
 
 **Top-level analytics (read-only aggregates, computed daily):**
+
 ```
 /labs/{labId}/
   analytics-feedback/
     nps-trending/{ano-mes}/
       — mes (2026-05), npsScore, detratores, neutros, promotores
       — respondentes, taxaResposta, criadoEm
-    
+
     suggestion-stats/{ano-mes}/
       — mes, totalAberto, implementado, rejeitado, %Implementacao
       — topCategoria, volumeDescricao
       — criadoEm
-    
+
     rca-wordcloud/{ano-mes}/     [Phase 7.2+]
       — mes, topWords[] { word, count, rootCauseFreq }
       — criadoEm
@@ -171,6 +179,7 @@ Complete the feedback loop for HC Quality v1.4 Wave 2:
 ### 3.2 State Machines
 
 **Reclamacao → NPS Trigger:**
+
 ```
 Reclamacao status changes:
   Nova → [internal review] → Resolvida
@@ -187,6 +196,7 @@ Reclamacao status changes:
 ```
 
 **Sugestao Workflow (State Machine):**
+
 ```
            +─────────────────────────────────────┐
            │                                     │
@@ -214,6 +224,7 @@ Transitions:
 ```
 
 **Email Campaign Trigger (Critical Laudo → NPS):**
+
 ```
 Workflow: LauroEntity marked critical/urgente
   ↓ (Pub/Sub trigger via functions)
@@ -240,22 +251,23 @@ Workflow: LauroEntity marked critical/urgente
 
 ```typescript
 interface NPSPortalFormProps {
-  token?: string;           // token-based, no auth required
-  reclamacaoId?: string;    // if triggered from reclamacao closure
+  token?: string; // token-based, no auth required
+  reclamacaoId?: string; // if triggered from reclamacao closure
   initialFocus?: boolean;
 }
 
 interface NPSFormState {
-  nota: number;             // 0–10
-  categoria: NPSCategoria;  // derived (detrator|neutro|promotor)
+  nota: number; // 0–10
+  categoria: NPSCategoria; // derived (detrator|neutro|promotor)
   comentario: string;
-  ipHash: string;           // computed client-side for rate limiting
+  ipHash: string; // computed client-side for rate limiting
   isSubmitting: boolean;
   error?: string;
 }
 ```
 
 **UI Elements:**
+
 - **Score Selector**: 0–10 scale with visual sentiment (0–3 😠 red, 4–6 😐 yellow, 7–8 😐 blue, 9–10 😊 green)
   - Touch-friendly: 44px × 44px buttons (minimum)
   - Hover: scale + shadow + smooth transition
@@ -264,12 +276,13 @@ interface NPSFormState {
 - **Sentiment Preview**: As user types, show preview: "Detractor feedback" / "Neutral feedback" / "Promoter feedback"
 - **Submit Button**: Disabled until nota selected; loading state with spinner
 - **reCAPTCHA v3 Badge**: Bottom right (required for rate limit)
-- **Accessibility**: 
+- **Accessibility**:
   - `aria-label` on each score button ("Rate 0 — Very Dissatisfied")
   - Focus visible on all inputs
   - Keyboard navigation (0–9 keys trigger score)
 
 **Logic Flow:**
+
 1. Parse token (if provided) → extract lauroId|reclamacaoId, pacienteId (optional), labId
 2. Validate token: check expiry (7 days), HMAC signature, rate limit (5 submits/IP/day)
 3. On score change: compute categoria, update preview
@@ -280,6 +293,7 @@ interface NPSFormState {
    - Redirect to `/portal-paciente/agradecimento` (thank you page) after 2s
 
 **Gemini Integration (Phase 7.2+):**
+
 ```
 On submit (server-side callable):
   IF comentario.length > 50:
@@ -292,6 +306,7 @@ On submit (server-side callable):
 ```
 
 **Dark-mode UI (Tailwind):**
+
 ```css
 .nps-container: bg-[#141417], border-white/10
 .score-button:
@@ -311,22 +326,23 @@ On submit (server-side callable):
 ```typescript
 interface SuggestionsIntakeProps {
   labId: string;
-  userRole: 'colaborador' | 'paciente' | 'externo';  // from auth
-  anonymous?: boolean;     // if true, autorId = null (internal only)
-  mobile?: boolean;        // PWA-optimized layout
+  userRole: 'colaborador' | 'paciente' | 'externo'; // from auth
+  anonymous?: boolean; // if true, autorId = null (internal only)
+  mobile?: boolean; // PWA-optimized layout
 }
 
 interface SuggestaoFormState {
   titulo: string;
   descricao: string;
   categoria: CategoriasugestaoSugestao;
-  autorNome?: string;      // display name, not identity
+  autorNome?: string; // display name, not identity
   isSubmitting: boolean;
   error?: string;
 }
 ```
 
 **UI Elements:**
+
 - **Title Input**: 10–100 chars, required, real-time validation
 - **Category Select**: 5 options (produto|processo|ambiente|atendimento|outro) with icons
   - 🛠️ Processo, 🏭 Ambiente, 📞 Atendimento, 📦 Produto, 🔧 Outro
@@ -339,6 +355,7 @@ interface SuggestaoFormState {
   - Visual: highlight if user already upvoted
 
 **Logic Flow:**
+
 1. On submit:
    - Validate: título 10–100, descricao 50–2000, categoria selected
    - Call `criarSugestao({ titulo, descricao, categoria, autorTipo, autorId?, autorNome? })`
@@ -354,16 +371,18 @@ interface SuggestaoFormState {
    - If public: read-only, show only Implementada + top Aberta (by votos)
 
 **Mobile PWA Optimization:**
+
 - Full-screen form on mobile (no sidebar)
 - Category buttons as 2×2 grid (mobile) vs horizontal row (desktop)
 - Textarea auto-expands as user types (max height before scroll)
 - Upvote button: full-width on mobile, compact on desktop
 
 **Dark-mode UI (Tailwind):**
+
 ```css
 .form-container: bg-[#141417], border-white/10, rounded-lg
 .input: bg-white/5, border-white/10, text-white, placeholder-white/40
-.category-button: 
+.category-button:
   default: bg-white/5, text-white/60, border-white/10
   selected: bg-violet-500, text-white, shadow-violet-500/50
 .upvote-button:
@@ -411,7 +430,7 @@ interface TrendingData {
 
 3. **Suggestion Stats (Gauge + Breakdown)**
    - Gauge: "% Implementado" (0–100%)
-   - Rings: 
+   - Rings:
      - Aberta (blue): N suggestions
      - Analisada (gray): N suggestions
      - Implementada (emerald): N suggestions
@@ -425,16 +444,19 @@ interface TrendingData {
    - Color: green (<10d), yellow (10–20d), red (>30d)
 
 **Filtering:**
+
 - Date range picker: "Last 3 months" (default) | "Last 6 months" | "Last year" | custom
 - Lab filter (if multi-lab admin): select lab from dropdown
 - Category filter (suggestions): show stats for product|process|environment|service
 
 **Responsiveness:**
+
 - Desktop: 4-column grid (NPS + RCA + Suggestions + SLA)
 - Tablet: 2×2 grid
 - Mobile: stacked, full-width
 
 **Data Fetching:**
+
 ```typescript
 // Server-side aggregates (read-only, computed daily)
 subscribeToNPSTrending(labId, dateRange)
@@ -450,6 +472,7 @@ subscribeToSuggestionStats(labId, dateRange)
 ```
 
 **Dark-mode UI:**
+
 ```css
 .dashboard-container: bg-[#141417], border-white/10
 .chart: axes-white/40, grid-white/10, line-violet-500, point-fill-violet-500
@@ -468,7 +491,7 @@ subscribeToSuggestionStats(labId, dateRange)
 export function useReclamacaoClosureNotification(
   labId: string,
   reclamacaoId: string,
-  onStatusChange?: (status: StatusReclamacao) => void
+  onStatusChange?: (status: StatusReclamacao) => void,
 ): { status: StatusReclamacao; isNPSTriggered: boolean } {
   const [status, setStatus] = useState<StatusReclamacao>('Nova');
   const [isNPSTriggered, setIsNPSTriggered] = useState(false);
@@ -476,7 +499,7 @@ export function useReclamacaoClosureNotification(
   useEffect(() => {
     const unsub = subscribeToReclamacao(labId, reclamacaoId, (rec) => {
       setStatus(rec.status);
-      
+
       // Trigger NPS when Resolvida
       if (rec.status === 'Resolvida' && !isNPSTriggered) {
         // Call function: dispatchNPSPostLaudo
@@ -495,6 +518,7 @@ export function useReclamacaoClosureNotification(
 ```
 
 **Integration in Complaint Portal:**
+
 - Use hook to listen to Reclamacao status
 - Display status badge: "Nova" (gray), "Analisando" (blue), "RCA em progresso" (purple), "Resolvida" (emerald)
 - Show notification: "Your complaint has been resolved. Please rate your experience." (when status → Resolvida)
@@ -523,13 +547,16 @@ export const dispatchNPSPostLaudo = onCall<
   }
 
   // 2. Create NPS token (JWT, 7d expiry)
-  const token = jwt.sign({
-    lauroId,
-    pacienteId,
-    labId,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
-  }, process.env.NPS_TOKEN_SECRET);
+  const token = jwt.sign(
+    {
+      lauroId,
+      pacienteId,
+      labId,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 7 * 24 * 60 * 60,
+    },
+    process.env.NPS_TOKEN_SECRET,
+  );
 
   // 3. Fetch paciente email from /users/{pacienteId}
   const paciente = await getDoc(doc(db, 'users', pacienteId));
@@ -551,22 +578,19 @@ export const dispatchNPSPostLaudo = onCall<
         Avaliar Experiência
       </a>
       <p style="font-size: 12px; color: #999; margin-top: 20px;">Link expira em 7 dias.</p>
-    `
+    `,
   });
 
   // 5. Create audit log
-  await setDoc(
-    doc(db, 'labs', labId, 'feedback-audit', `nps-dispatch-${Date.now()}`),
-    {
-      tipo: 'nps-dispatch-post-laudo',
-      lauroId,
-      pacienteId,
-      tokenId: token,
-      emailDestinatario: hashEmail(emailDestinatario),
-      sentAt: Timestamp.now(),
-      operatorId: uid,
-    }
-  );
+  await setDoc(doc(db, 'labs', labId, 'feedback-audit', `nps-dispatch-${Date.now()}`), {
+    tipo: 'nps-dispatch-post-laudo',
+    lauroId,
+    pacienteId,
+    tokenId: token,
+    emailDestinatario: hashEmail(emailDestinatario),
+    sentAt: Timestamp.now(),
+    operatorId: uid,
+  });
 
   return { success: true, tokenId: token };
 });
@@ -600,7 +624,7 @@ export const submitNPSResposta = onCall<
       throw new HttpsError('invalid-argument', 'Invalid or expired token');
     }
   } else if (request.auth.uid) {
-    pacienteId = request.auth.uid;  // if auth'd patient
+    pacienteId = request.auth.uid; // if auth'd patient
   }
 
   // 3. Compute categoria
@@ -676,7 +700,7 @@ export const dispatchNPSQuarterly = onSchedule('1 0 1 1,4,7,10 *', async (contex
 
   for (const labDoc of allLabs.docs) {
     const labId = labDoc.id;
-    const trimestre = getTrimestre(new Date());  // e.g., '2026-Q2'
+    const trimestre = getTrimestre(new Date()); // e.g., '2026-Q2'
 
     // 1. Fetch config for lab
     const config = await getDoc(doc(db, 'labs', labId, 'satisfacao-config', 'campanhas'));
@@ -685,7 +709,7 @@ export const dispatchNPSQuarterly = onSchedule('1 0 1 1,4,7,10 *', async (contex
     // 2. Create CampanhaSatisfacao entry
     const now = Timestamp.now();
     const inicio = now;
-    const fim = new Timestamp(now.seconds + 30 * 24 * 60 * 60, 0);  // 30 days
+    const fim = new Timestamp(now.seconds + 30 * 24 * 60 * 60, 0); // 30 days
 
     const campanhaRef = doc(collection(db, 'labs', labId, 'satisfacao-campanhas'));
     await setDoc(campanhaRef, {
@@ -695,7 +719,7 @@ export const dispatchNPSQuarterly = onSchedule('1 0 1 1,4,7,10 *', async (contex
       dataInicio: inicio,
       dataFim: fim,
       status: 'ativa',
-      quantidadeConvidados: 0,  // updated as emails sent
+      quantidadeConvidados: 0, // updated as emails sent
       quantidadeRespostas: 0,
       npsResultado: 0,
       criadoEm: now,
@@ -706,20 +730,23 @@ export const dispatchNPSQuarterly = onSchedule('1 0 1 1,4,7,10 *', async (contex
       query(
         collection(db, 'users'),
         where('role', '==', 'paciente'),
-        where('labMemberships', 'array-contains', labId)
-      )
+        where('labMemberships', 'array-contains', labId),
+      ),
     );
 
     // 4. Send emails with token-based links
     for (const paciente of pacientes.docs) {
       const emailDestinatario = paciente.data().email;
-      const token = jwt.sign({
-        labId,
-        pacienteId: paciente.id,
-        trimestre,
-        iat: Math.floor(Date.now() / 1000),
-        exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
-      }, process.env.NPS_TOKEN_SECRET);
+      const token = jwt.sign(
+        {
+          labId,
+          pacienteId: paciente.id,
+          trimestre,
+          iat: Math.floor(Date.now() / 1000),
+          exp: Math.floor(Date.now() / 1000) + 30 * 24 * 60 * 60,
+        },
+        process.env.NPS_TOKEN_SECRET,
+      );
 
       const npsLink = `https://hmatologia2.web.app/portal-paciente/nps/${token}`;
       await resend.emails.send({
@@ -730,7 +757,7 @@ export const dispatchNPSQuarterly = onSchedule('1 0 1 1,4,7,10 *', async (contex
           <h1>Pesquisa Trimestral de Satisfação</h1>
           <p>Sua participação nos ajuda a entregar melhor qualidade.</p>
           <a href="${npsLink}">Responder Pesquisa</a>
-        `
+        `,
       });
 
       // Track invitation count
@@ -766,8 +793,8 @@ export const anonimizarRespostas = onSchedule('0 3 * * *', async (context) => {
         collection(db, 'labs', labId, 'satisfacao-respostas'),
         where('criadoEm', '<', ninetyDaysAgo),
         where('anonimizadoEm', '==', null),
-        limit(500)  // batch size
-      )
+        limit(500), // batch size
+      ),
     );
 
     for (const resposta of respostas.docs) {
@@ -788,15 +815,12 @@ export const anonimizarRespostas = onSchedule('0 3 * * *', async (context) => {
       await batch.commit();
 
       // Log operation
-      await setDoc(
-        doc(db, 'labs', labId, 'anonimizacao-audit', `anon-${Date.now()}`),
-        {
-          tipo: 'nps-anonymization',
-          quantidadeAnonimizada: respostas.docs.length,
-          dataExecucao: Timestamp.now(),
-          limiteIdade: ninetyDaysAgo,
-        }
-      );
+      await setDoc(doc(db, 'labs', labId, 'anonimizacao-audit', `anon-${Date.now()}`), {
+        tipo: 'nps-anonymization',
+        quantidadeAnonimizada: respostas.docs.length,
+        dataExecucao: Timestamp.now(),
+        limiteIdade: ninetyDaysAgo,
+      });
     }
   }
 });
@@ -830,17 +854,17 @@ service cloud.firestore {
       allow read: if
         (request.auth != null && isActiveMemberOfLab(labId)) ||
         (request.auth == null && validateNPSToken(request));
-      
+
       // Write: via callable only (server-side signature generation)
       allow write: if
         request.auth != null &&
         isActiveMemberOfLab(labId) &&
         hasRole(labId, 'RT', 'Qualidade');
-      
+
       // Create: via public callable submitNPSResposta
       allow create: if
         validateNPSPayload(request.resource.data);
-      
+
       // Delete: soft-delete only
       allow delete: if false;
 
@@ -874,17 +898,17 @@ service cloud.firestore {
     match /labs/{labId}/sugestoes/{sugestaoId} {
       // Read: available to lab members + public (view only)
       allow read: if request.auth != null && isActiveMemberOfLab(labId);
-      
+
       // Create: any lab member or public via callable
       allow create: if isActiveMemberOfLab(labId) ||
                        (request.auth == null && validatePublicSuggestao(request.resource.data));
-      
+
       // Update: staff only, state transitions
       allow update: if
         isActiveMemberOfLab(labId) &&
         (hasRole(labId, 'RT', 'Qualidade') || request.auth.uid == resource.data.autorId) &&
         validSuggestaoTransition(resource.data, request.resource.data);
-      
+
       // Delete: soft-delete only
       allow delete: if false;
 
@@ -994,11 +1018,11 @@ Scenario: Patient submits NPS via token-based link
   Given patient receives email with NPS link (token-based)
   When patient opens link in mobile browser
   Then NPS form loads with sentiment icons (0–10 scale)
-  
+
   And patient taps score 9 (promotor, green)
   And patient types comment "Excelente atendimento"
   Then comment preview shows "Promoter feedback"
-  
+
   When patient taps "Enviar Feedback"
   And reCAPTCHA v3 validates request
   Then success toast appears "Obrigado!"
@@ -1016,7 +1040,7 @@ Scenario: Authenticated patient submits NPS after laudo marked critical
   And patient has received notification "Feedback appreciated"
   When patient taps NPS link in notification
   Then NPS form pre-populates with lauroId + pacienteId
-  
+
   And patient rates 7 (neutro, yellow)
   And patient submits form
   Then reclamacao status updates to Fechada
@@ -1033,12 +1057,12 @@ Scenario: Technician submits suggestion via mobile PWA
   And app is installed as PWA (no address bar)
   When technician navigates to /sugestoes/nova
   Then form layout is full-screen, optimized for touch
-  
+
   And technician enters:
     titulo: "Upgrade reagente X para versão 2.0"
     descricao: "A nova versão melhora a sensibilidade em 15%"
     categoria: "produto" (auto-focus on touch)
-  
+
   When technician submits form
   Then success toast "Sugestão enviada!"
   And form resets
@@ -1056,7 +1080,7 @@ Scenario: Staff member upvotes suggestion, preventing duplicate votes
   When technician-A taps upvote button "👍 0"
   Then button shows "👍 1" + highlights (emerald-500)
   And votaraisPor contains technician-A's userId
-  
+
   When technician-A taps again (trying to double-vote)
   Then upvote count stays "👍 1"
   And no duplicate entry in votaraisPor
@@ -1071,10 +1095,10 @@ Scenario: Admin views NPS trending chart
   Given admin is on dashboard /satisfacao/trending
   When page loads
   Then line chart shows 3 months of NPS scores
-  
+
   When admin hovers over May 2026 point
   Then tooltip appears "May 2026: +45 (42 responses, 85% participation)"
-  
+
   When admin clicks "Last 6 months" filter
   Then chart updates to show 6-month trend
   And suggestion stats update accordingly
@@ -1089,12 +1113,12 @@ Scenario: Manager views complaint root-cause word cloud
   Given manager is on dashboard /satisfacao/trending
   When page loads
   Then word cloud displays top 20 root-cause words
-  
+
   And word size correlates with frequency:
     "Calibração" (8 occurrences) — largest
     "Reagente" (6) — medium
     "Temperatura" (3) — small
-  
+
   When manager clicks word "Calibração"
   Then list view filters to show 8 complaints with that root cause
 ```
@@ -1145,11 +1169,11 @@ describe('anonimizarRespostas Pub/Sub cron', () => {
 Scenario: Complaint marked Resolvida triggers NPS email
   Given complaint exists with status "Analisando"
   And paciente email is "user@example.com"
-  
+
   When RT clicks "Marcar Resolvida" in complaint detail
   Then HTTP callable dispatchNPSPostLaudo is invoked
   And email is sent to user@example.com with NPS link
-  
+
   And NPSResposta.origem = 'pos-resolucao'
   And NPSResposta.reclamacaoId = complaint.id
   And firestore audit log entry created
@@ -1160,24 +1184,28 @@ Scenario: Complaint marked Resolvida triggers NPS email
 ## 7. Implementation Tasks (Parallel Execution)
 
 ### Wave 1: Core Infrastructure (Week 1)
+
 - [ ] **Task 1.1**: NPSPortalForm component + reCAPTCHA v3 integration
 - [ ] **Task 1.2**: SuggestionsIntake component (web + mobile PWA optimization)
 - [ ] **Task 1.3**: TrendingDashboard component (line chart + suggestion stats)
 - [ ] **Task 1.4**: Firestore rules + indexes deployment
 
 ### Wave 2: Cloud Functions (Week 1)
+
 - [ ] **Task 2.1**: `dispatchNPSPostLaudo` callable (token generation + email)
 - [ ] **Task 2.2**: `submitNPSResposta` callable (server-side signature + Firestore write)
 - [ ] **Task 2.3**: `dispatchNPSQuarterly` Pub/Sub cron + email batch
 - [ ] **Task 2.4**: `anonimizarRespostas` scheduled cron
 
 ### Wave 3: Integrations (Week 1.5)
+
 - [ ] **Task 3.1**: useReclamacaoClosureNotification hook
 - [ ] **Task 3.2**: Email campaign trigger on critical laudo
 - [ ] **Task 3.3**: Portal page `/portal-paciente/nps/{token}` + redirect logic
 - [ ] **Task 3.4**: Suggestion state machine transitions (RT approval)
 
 ### Wave 4: Testing + Polish (Week 1.5)
+
 - [ ] **Task 4.1**: E2E tests 1–8 (Detox)
 - [ ] **Task 4.2**: Firestore rule testing (emulator)
 - [ ] **Task 4.3**: Dark-mode UI refinement + accessibility (WCAG AA)
@@ -1187,37 +1215,38 @@ Scenario: Complaint marked Resolvida triggers NPS email
 
 ## 8. Success Criteria
 
-| Criterion | Acceptance |
-|-----------|-----------|
-| **Patient NPS** | Form loads in <2s; token validates; score 0–10 accepted; comment optional; reCAPTCHA v3 passes |
-| **Suggestion Intake** | Form accepts 50–2000 chars; category select works; upvote dedup confirmed |
-| **Trending Dashboard** | Line chart renders 3-month NPS; word cloud displays top 20 words; suggestion % calculated correctly |
-| **Complaint Integration** | Complaint Resolvida → NPS email sent within 5 mins; token expires 7d; Fechada status updates |
-| **Anonimização** | Daily cron runs 03:00 BRT; pacienteId nulled for >90d old; PII filtered; audit logged |
-| **Email Delivery** | 99%+ delivery rate (Resend); bounce handling; unsubscribe honored |
-| **Security** | All writes signed (LogicalSignature); token HMAC verified; rate limit 5 NPS/IP/day; soft-delete only |
-| **Compliance** | DICQ 4.14.3/4.4 documented; RDC 978 5-year retention enforced; LGPD audit trail complete |
-| **E2E Coverage** | All 8 tests green on iOS + Android emulator; no flakes |
-| **Accessibility** | WCAG AA pass; 4.5:1 contrast ratio; keyboard nav; screen reader tested |
+| Criterion                 | Acceptance                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Patient NPS**           | Form loads in <2s; token validates; score 0–10 accepted; comment optional; reCAPTCHA v3 passes       |
+| **Suggestion Intake**     | Form accepts 50–2000 chars; category select works; upvote dedup confirmed                            |
+| **Trending Dashboard**    | Line chart renders 3-month NPS; word cloud displays top 20 words; suggestion % calculated correctly  |
+| **Complaint Integration** | Complaint Resolvida → NPS email sent within 5 mins; token expires 7d; Fechada status updates         |
+| **Anonimização**          | Daily cron runs 03:00 BRT; pacienteId nulled for >90d old; PII filtered; audit logged                |
+| **Email Delivery**        | 99%+ delivery rate (Resend); bounce handling; unsubscribe honored                                    |
+| **Security**              | All writes signed (LogicalSignature); token HMAC verified; rate limit 5 NPS/IP/day; soft-delete only |
+| **Compliance**            | DICQ 4.14.3/4.4 documented; RDC 978 5-year retention enforced; LGPD audit trail complete             |
+| **E2E Coverage**          | All 8 tests green on iOS + Android emulator; no flakes                                               |
+| **Accessibility**         | WCAG AA pass; 4.5:1 contrast ratio; keyboard nav; screen reader tested                               |
 
 ---
 
 ## 9. Known Risks & Mitigations
 
-| Risk | Mitigation |
-|------|-----------|
-| **Email delivery spam filter** | Use Resend; warm-up domain; monitor bounce rates; add SPF/DKIM records |
-| **Token expiry confusion** | Clear error message if token expired; resend invite button; 7-day expiry is generous |
+| Risk                                  | Mitigation                                                                               |
+| ------------------------------------- | ---------------------------------------------------------------------------------------- |
+| **Email delivery spam filter**        | Use Resend; warm-up domain; monitor bounce rates; add SPF/DKIM records                   |
+| **Token expiry confusion**            | Clear error message if token expired; resend invite button; 7-day expiry is generous     |
 | **Gemini hallucination on sentiment** | Phase 7.2+ optional; manual RT review fallback; confidence threshold >0.7 before storage |
-| **PII in comentario field** | Regex filter on submit; Gemini redaction (Phase 7.2); audit trail for compliance |
-| **NPS recurring saturation** | Limit to quarterly + post-resolucao; batch emails 1000/min; Pub/Sub queue |
-| **Word cloud data sparsity** | Minimum 10 RCAs before rendering; fallback to text list if sparse |
+| **PII in comentario field**           | Regex filter on submit; Gemini redaction (Phase 7.2); audit trail for compliance         |
+| **NPS recurring saturation**          | Limit to quarterly + post-resolucao; batch emails 1000/min; Pub/Sub queue                |
+| **Word cloud data sparsity**          | Minimum 10 RCAs before rendering; fallback to text list if sparse                        |
 
 ---
 
 ## 10. Rollout Plan
 
 ### Phase 7.1 (Week 1–1.2): MVP Deployment
+
 1. Deploy Firestore rules + indexes (Phase 0 approval)
 2. Deploy Cloud Functions: callables + scheduled tasks
 3. Launch NPSPortalForm (public + authenticated)
@@ -1226,6 +1255,7 @@ Scenario: Complaint marked Resolvida triggers NPS email
 6. Monitor: email delivery, error logs, token validation
 
 ### Phase 7.2 (Week 1.3–1.5): Polish + Analytics
+
 1. Deploy Gemini sentiment classification (optional)
 2. Launch TrendingDashboard with monthly NPS + RCA word cloud
 3. Refine dark-mode UI; accessibility audit
@@ -1233,6 +1263,7 @@ Scenario: Complaint marked Resolvida triggers NPS email
 5. Performance optimization: code-split /portal-paciente routes
 
 ### Phase 7.3+ (v1.4 Wave 3): Enhancements
+
 - Ishikawa diagram for RCA (visual upgrade)
 - WhatsApp notifications (deferred, Meta approval required)
 - Ouvidoria/PROCON integration (deferred)
@@ -1257,6 +1288,7 @@ Scenario: Complaint marked Resolvida triggers NPS email
 ## Appendix A: Component API Checklist
 
 ### NPSPortalForm
+
 ```typescript
 export interface NPSPortalFormProps {
   token?: string;
@@ -1269,6 +1301,7 @@ export const NPSPortalForm: React.FC<NPSPortalFormProps>;
 ```
 
 ### SuggestionsIntake
+
 ```typescript
 export interface SuggestionsIntakeProps {
   labId: string;
@@ -1281,6 +1314,7 @@ export const SuggestionsIntake: React.FC<SuggestionsIntakeProps>;
 ```
 
 ### TrendingDashboard
+
 ```typescript
 export interface TrendingDashboardProps {
   labId: string;

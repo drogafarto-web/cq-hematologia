@@ -32,12 +32,12 @@
 ```typescript
 /**
  * @deprecated Use notivisaCreateDraft instead (Wave 2-10).
- * 
+ *
  * This callable is part of the legacy NOTIVISA Batch 1 implementation.
  * It will be disabled on 2026-08-01. See:
  * - Migration guide: docs/notivisa/MIGRATION_LEGACY_TO_WAVE2.md
  * - Deprecation plan: docs/notivisa/NOTIVISA_CLEANUP_ROADMAP.md
- * 
+ *
  * For existing deployments, continue using this callable until the
  * migration window closes. New integrations should use notivisaCreateDraft.
  */
@@ -45,6 +45,7 @@ export const notivisaDraftCreate = onCall(...)
 ```
 
 **Files to update:**
+
 - `notivisaDraftCreate.ts`
 - `approveNotivisaDraft.ts`
 - `submitNotivisaDraft.ts`
@@ -58,7 +59,7 @@ export const notivisaDraftCreate = onCall(...)
 /**
  * Legacy NOTIVISA callables (Batch 1, ADR-0026 Phase 8).
  * Scheduled for deprecation 2026-08-01. Feature flag allows safe cutover.
- * 
+ *
  * Timeline:
  * - Phase 4 (May 20 → Jun 20): legacy enabled, Wave 2 preferred
  * - Phase 5 (Jun 20 → Jul 20): monitoring, conflict detection active
@@ -78,7 +79,7 @@ if (LEGACY_FEATURE_FLAG && Date.now() < LEGACY_CUTOVER_DATE.getTime()) {
   // Graceful error: cutover date passed
   console.warn(
     '[NOTIVISA] Legacy callables disabled (cutover date 2026-08-01 passed). ' +
-    'Use Wave 2 callables (notivisaCreateDraft, etc).'
+      'Use Wave 2 callables (notivisaCreateDraft, etc).',
   );
 }
 ```
@@ -171,6 +172,7 @@ HC Quality Engineering Team
 ## Current Status
 
 **As of 2026-05-20:**
+
 - Phase 4 (Kickoff) begins
 - Legacy callables deprecated but functional
 - Wave 2 is the recommended path for new integrations
@@ -194,6 +196,7 @@ gcloud functions logs read notivisaDraftCreate \
 ```
 
 **Grafana/Cloud Monitoring Dashboard:**
+
 - Metric: `count(notivisaDraftCreate invocations per day)`
 - Metric: `count(notivisaCreateDraft invocations per day)`
 - Alert: If legacy > 30% of total, notify engineering
@@ -203,7 +206,7 @@ gcloud functions logs read notivisaDraftCreate \
 **Log Message Pattern to Watch:**
 
 ```
-NOTIVISA_CONFLICT_DETECTED: Lab {labId} using both legacy and Wave 2 
+NOTIVISA_CONFLICT_DETECTED: Lab {labId} using both legacy and Wave 2
 in same session (legacy: N, wave2: M)
 ```
 
@@ -225,6 +228,7 @@ npm run test -- mixed-mode-integration.test.ts
 ```
 
 **Success Criteria:**
+
 - All 347 existing NOTIVISA tests pass
 - New 42 mixed-mode tests pass
 - Zero regressions vs v1.3
@@ -232,6 +236,7 @@ npm run test -- mixed-mode-integration.test.ts
 #### 4.4.2 Production Smoke (Week 1: Post-Deploy)
 
 **Manual checklist:**
+
 - [ ] Deploy to hmatologia2 production
 - [ ] Call `notivisaDraftCreate` → succeeds, logs deprecation warning
 - [ ] Call `notivisaCreateDraft` → succeeds, no warning
@@ -267,7 +272,7 @@ async function checkRateLimitPerMinute(
   const minuteKey = /* ... */;
 
   const counterRef = db.doc(`notivisa-drafts/${labId}/rate-limits/wave2-minute-${minuteKey}`);
-  
+
   // Same logic as legacy: 10 req/min (may increase to 20 in future)
   const count = (counterSnap.data()?.['count'] ?? 0) + 1;
   if (count > 10) {
@@ -294,61 +299,55 @@ import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 /**
  * Phase 5 → Phase 6 Cron: Detect labs using both legacy and Wave 2
  * callables in the same session. Logs warning for operator review.
- * 
+ *
  * Frequency: Every 30 minutes
  * Output: Audit log with count + recommendation
  */
-export const detectNotivisaConflicts = onSchedule(
-  'every 30 minutes',
-  async (context) => {
-    const db = admin.firestore();
+export const detectNotivisaConflicts = onSchedule('every 30 minutes', async (context) => {
+  const db = admin.firestore();
 
-    // Get all active labs
-    const labsSnap = await db
-      .collectionGroup('notivisa-config')
-      .where('enabled', '==', true)
+  // Get all active labs
+  const labsSnap = await db.collectionGroup('notivisa-config').where('enabled', '==', true).get();
+
+  for (const configDoc of labsSnap.docs) {
+    const labId = configDoc.ref.parent.parent?.id;
+    if (!labId) continue;
+
+    // Check drafts created in last 30 min
+    const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
+    const recent = await db
+      .collection('notivisa-drafts')
+      .doc(labId)
+      .collection('drafts')
+      .where('criadoEm', '>=', admin.firestore.Timestamp.fromDate(thirtyMinutesAgo))
       .get();
 
-    for (const configDoc of labsSnap.docs) {
-      const labId = configDoc.ref.parent.parent?.id;
-      if (!labId) continue;
+    if (recent.empty) continue;
 
-      // Check drafts created in last 30 min
-      const thirtyMinutesAgo = new Date(Date.now() - 30 * 60 * 1000);
-      const recent = await db
-        .collection('notivisa-drafts')
-        .doc(labId)
-        .collection('drafts')
-        .where('criadoEm', '>=', admin.firestore.Timestamp.fromDate(thirtyMinutesAgo))
-        .get();
+    // Count by status (legacy uses 'draft', Wave 2 uses 'pending')
+    const legacy = recent.docs.filter((d) => d.data().status === 'draft').length;
+    const wave2 = recent.docs.filter((d) => d.data().status === 'pending').length;
 
-      if (recent.empty) continue;
-
-      // Count by status (legacy uses 'draft', Wave 2 uses 'pending')
-      const legacy = recent.docs.filter(d => d.data().status === 'draft').length;
-      const wave2 = recent.docs.filter(d => d.data().status === 'pending').length;
-
-      // Flag if both present
-      if (legacy > 0 && wave2 > 0) {
-        await writeAuditLog({
-          action: 'NOTIVISA_MIXED_MODE_DETECTED',
-          callerUid: 'system/conflict-detector',
-          labId,
-          severity: 'warning',
-          payload: {
-            legacyDrafts: legacy,
-            wave2Drafts: wave2,
-            recommendation:
-              'Lab is using both legacy and Wave 2 callables. ' +
-              'Standardize on Wave 2 (notivisaCreateDraft, notivisaApproveDraft, notivisaSubmitDraft) ' +
-              'by 2026-08-01. See docs/notivisa/MIGRATION_LEGACY_TO_WAVE2.md',
-            window: '30 minutes',
-          },
-        });
-      }
+    // Flag if both present
+    if (legacy > 0 && wave2 > 0) {
+      await writeAuditLog({
+        action: 'NOTIVISA_MIXED_MODE_DETECTED',
+        callerUid: 'system/conflict-detector',
+        labId,
+        severity: 'warning',
+        payload: {
+          legacyDrafts: legacy,
+          wave2Drafts: wave2,
+          recommendation:
+            'Lab is using both legacy and Wave 2 callables. ' +
+            'Standardize on Wave 2 (notivisaCreateDraft, notivisaApproveDraft, notivisaSubmitDraft) ' +
+            'by 2026-08-01. See docs/notivisa/MIGRATION_LEGACY_TO_WAVE2.md',
+          window: '30 minutes',
+        },
+      });
     }
   }
-);
+});
 ```
 
 ### 5.2 Telemetry & Analysis
@@ -370,6 +369,7 @@ ORDER BY date DESC
 ```
 
 **Success Criteria:**
+
 - Legacy calls stay <20% of total (rest are Wave 2)
 - Wave 2 calls growing week-over-week
 - <5 labs with mixed-mode conflicts per week
@@ -383,7 +383,7 @@ Subject: ACTION REQUIRED — Your NOTIVISA Integration
 
 Dear [Lab Name] Team,
 
-Our monitoring detected that your lab is using both old and new NOTIVISA APIs 
+Our monitoring detected that your lab is using both old and new NOTIVISA APIs
 in the same submission batch. This can cause confusion in audit trails.
 
 ACTION REQUIRED by July 20:
@@ -409,12 +409,12 @@ HC Quality Support
 
 #### 5.3.1 Phase 5 Test Matrix (Weeks 1–4)
 
-| Test | Status |
-|------|--------|
-| Rate limiting for Wave 2 works (10 req/min) | Run / Pass |
+| Test                                              | Status     |
+| ------------------------------------------------- | ---------- |
+| Rate limiting for Wave 2 works (10 req/min)       | Run / Pass |
 | Conflict detection cron identifies labs correctly | Run / Pass |
-| Telemetry metrics correctly classified | Run / Pass |
-| No false positives (e.g., same call twice) | Run / Pass |
+| Telemetry metrics correctly classified            | Run / Pass |
+| No false positives (e.g., same call twice)        | Run / Pass |
 
 #### 5.3.2 Staging Cutover Test (Week 3: Jul 3–10)
 
@@ -463,6 +463,7 @@ export { rejectNotivisaDraft } from './rejectNotivisaDraft';
 #### 6.1.2 Delete Legacy Callable Files (Week 2: Jul 27–Aug 1)
 
 **Files to delete:**
+
 - `functions/src/modules/notivisa/notivisaDraftCreate.ts`
 - `functions/src/modules/notivisa/approveNotivisaDraft.ts`
 - `functions/src/modules/notivisa/submitNotivisaDraft.ts`
@@ -470,6 +471,7 @@ export { rejectNotivisaDraft } from './rejectNotivisaDraft';
 - `functions/src/modules/notivisa/signatureCanonical.ts` (if only legacy used it)
 
 **Files to keep:**
+
 - `functions/src/modules/notivisa/createDraft.ts` (Wave 2)
 - `functions/src/modules/notivisa/approveDraft.ts` (Wave 2)
 - `functions/src/modules/notivisa/submitDraft.ts` (Wave 2)
@@ -483,6 +485,7 @@ export { rejectNotivisaDraft } from './rejectNotivisaDraft';
 #### 6.1.3 Archive Legacy Tests (Week 2: Jul 27–Aug 1)
 
 **Action:**
+
 ```bash
 # Move legacy tests to archive
 mv functions/src/modules/notivisa/__tests__/batch1.test.ts \
@@ -559,6 +562,7 @@ firebase deploy --only functions --project hmatologia2-staging
 #### 6.2.3 Step 3: Deploy to Production (Aug 1, Tuesday)
 
 **Pre-deployment checklist:**
+
 - [ ] Staging tests pass (100%)
 - [ ] No critical issues reported by labs (Jul 31 cutoff)
 - [ ] Type-check passes: `npx tsc --noEmit`
@@ -642,47 +646,58 @@ firebase deploy --only functions:notivisaCreateDraft,notivisaApproveDraft,notivi
 ## Callables
 
 ### notivisaCreateDraft
+
 Create a new NOTIVISA draft.
+
 - Input: { labId, laudoId, payload }
 - Output: { ok, draftId, status: 'pending', idempotent, mode, criadoEm }
 
 ### notivisaApproveDraft
+
 Approve a draft for submission.
+
 - Input: { labId, draftId }
 - Output: { ok, draftId, status: 'approved', approvedBy, approvedAt }
 
 ### notivisaSubmitDraft
+
 Submit an approved draft to the queue.
+
 - Input: { labId, draftId }
 - Output: { ok, draftId, eventId, status: 'pending', mode, enqueuedAt }
 
 ## Crons
 
 ### notivisaProcessQueue
+
 Process pending queue events (async transmission to government).
+
 - Frequency: Every 5 minutes
 - Handles: retries, rate limiting, mode switching
 
 ### detectNotivisaConflicts
+
 Monitor for mixed-mode conflicts (Phase 5+ only).
+
 - Frequency: Every 30 minutes
 - Output: warning logs to auditLogs
 
 ## Error Codes
 
-| Code | Meaning | Action |
-|------|---------|--------|
-| `invalid-argument` | Payload validation failed | Fix payload and retry |
-| `permission-denied` | User not authorized for lab | Check lab membership + role |
-| `resource-exhausted` | Rate limit exceeded (10 req/min) | Wait 60 seconds, retry |
-| `not-found` | Draft/lab not found | Verify draftId + labId |
-| `failed-precondition` | Invalid draft state | Check status (e.g., approve needs 'pending') |
-| `internal` | Server error | Contact support + include error details |
+| Code                  | Meaning                          | Action                                       |
+| --------------------- | -------------------------------- | -------------------------------------------- |
+| `invalid-argument`    | Payload validation failed        | Fix payload and retry                        |
+| `permission-denied`   | User not authorized for lab      | Check lab membership + role                  |
+| `resource-exhausted`  | Rate limit exceeded (10 req/min) | Wait 60 seconds, retry                       |
+| `not-found`           | Draft/lab not found              | Verify draftId + labId                       |
+| `failed-precondition` | Invalid draft state              | Check status (e.g., approve needs 'pending') |
+| `internal`            | Server error                     | Contact support + include error details      |
 ```
 
 #### 6.4.2 Archive Migration Guide (Week 1: Jul 20–27)
 
 **Action:**
+
 - Rename `docs/notivisa/MIGRATION_LEGACY_TO_WAVE2.md` → `docs/notivisa/ARCHIVED.MIGRATION_LEGACY_TO_WAVE2.md`
 - Add note at top: "**ARCHIVED (2026-08-01):** Legacy callables removed. This guide is historical only."
 - Create new `docs/notivisa/API_REFERENCE.md` with Wave 2 only
@@ -710,6 +725,7 @@ Monitor for mixed-mode conflicts (Phase 5+ only).
 ### 7.2 Performance Optimization
 
 **Now that Wave 2 is the only path, consider:**
+
 - Increase rate limit from 10 to 20 req/min (if load testing shows headroom)
 - Add caching for frequently accessed lab configs
 - Batch queue processing (current: 5-min intervals; future: real-time with debounce)
@@ -725,23 +741,23 @@ Monitor for mixed-mode conflicts (Phase 5+ only).
 
 ## Timeline Summary
 
-| Phase | Dates | Key Deliverable | Owner |
-|-------|-------|-----------------|-------|
-| **Phase 4** | May 20 → Jun 20 | Deprecation markers, feature flag, Wave 2 launch | Engineering |
-| **Phase 5** | Jun 20 → Jul 20 | Rate limiting, conflict detection, telemetry | Engineering |
-| **Phase 6** | Jul 20 → Aug 1 | Code deletion, production cutover, monitoring | Engineering |
-| **Post-Phase 6** | Aug 1+ | Maintenance, optimization, new features | Engineering |
+| Phase            | Dates           | Key Deliverable                                  | Owner       |
+| ---------------- | --------------- | ------------------------------------------------ | ----------- |
+| **Phase 4**      | May 20 → Jun 20 | Deprecation markers, feature flag, Wave 2 launch | Engineering |
+| **Phase 5**      | Jun 20 → Jul 20 | Rate limiting, conflict detection, telemetry     | Engineering |
+| **Phase 6**      | Jul 20 → Aug 1  | Code deletion, production cutover, monitoring    | Engineering |
+| **Post-Phase 6** | Aug 1+          | Maintenance, optimization, new features          | Engineering |
 
 ---
 
 ## Sign-Off
 
-| Role | Name | Approval | Date |
-|------|------|----------|------|
-| Wave 3-6 Lead | TBD | Proposed | 2026-05-08 |
-| CTO | TBD | Pending | TBD |
-| DevOps/Infra | TBD | Pending | TBD |
-| Product/Support | TBD | Pending | TBD |
+| Role            | Name | Approval | Date       |
+| --------------- | ---- | -------- | ---------- |
+| Wave 3-6 Lead   | TBD  | Proposed | 2026-05-08 |
+| CTO             | TBD  | Pending  | TBD        |
+| DevOps/Infra    | TBD  | Pending  | TBD        |
+| Product/Support | TBD  | Pending  | TBD        |
 
 ---
 

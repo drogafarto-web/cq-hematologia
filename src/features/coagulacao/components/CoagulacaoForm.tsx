@@ -95,9 +95,7 @@ function SectionTitle({ children, hint }: { children: React.ReactNode; hint?: st
 function NivelBadge({ value }: { value: CoagNivel }) {
   const label = value === 'I' ? 'I — Normal' : 'II — Patológico';
   const sub =
-    value === 'I'
-      ? 'valores dentro do intervalo terapêutico'
-      : 'anticoagulado / protrombótico';
+    value === 'I' ? 'valores dentro do intervalo terapêutico' : 'anticoagulado / protrombótico';
   return (
     <div
       className={[
@@ -246,7 +244,7 @@ export function CoagulacaoForm({
     const currentLote = form.loteControle?.trim().toLowerCase();
     if (!form.nivel || !currentLote) return false;
     const exists = existingLots.some(
-      (l) => l.nivel === form.nivel && l.loteControle.trim().toLowerCase() === currentLote
+      (l) => l.nivel === form.nivel && l.loteControle.trim().toLowerCase() === currentLote,
     );
     return !exists;
   }, [form.nivel, form.loteControle, existingLots, lockedFromLot]);
@@ -394,8 +392,7 @@ export function CoagulacaoForm({
     // Fase D: exige equipamento selecionado antes da conferência.
     if (!equipamentoId || !equipamentoSel) {
       setErrors({
-        equipamento:
-          'Selecione o equipamento em que a corrida está sendo feita.',
+        equipamento: 'Selecione o equipamento em que a corrida está sendo feita.',
       });
       return;
     }
@@ -556,9 +553,7 @@ export function CoagulacaoForm({
                         : 'bg-slate-50 dark:bg-white/[0.04] border-slate-200 dark:border-white/[0.09] text-slate-500 dark:text-white/40 hover:border-slate-300 dark:hover:border-white/[0.15]',
                     ].join(' ')}
                   >
-                    <p className="text-sm font-semibold">
-                      {formatCoagNivelDetail(n)}
-                    </p>
+                    <p className="text-sm font-semibold">{formatCoagNivelDetail(n)}</p>
                     <p className="text-[10px] mt-0.5 opacity-60">
                       {n === 'I'
                         ? 'valores dentro do intervalo terapêutico'
@@ -723,7 +718,14 @@ export function CoagulacaoForm({
         <section className="rounded-xl border border-violet-500/25 bg-violet-500/[0.02] p-4 space-y-4">
           <div className="flex items-start gap-3">
             <div className="w-8 h-8 rounded-full bg-violet-500/10 flex items-center justify-center shrink-0 text-violet-600 dark:text-violet-400">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+              >
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
             </div>
@@ -732,7 +734,9 @@ export function CoagulacaoForm({
                 Lote novo detectado: Calibração de Bula (Opcional)
               </h3>
               <p className="text-[11px] text-slate-500 dark:text-white/40 mt-0.5">
-                Altere os valores de Média e Desvio Padrão para corresponder à bula do seu lote mensal PNCQ/fabricante. Deixe em branco para usar os padrões estáticos da plataforma.
+                Altere os valores de Média e Desvio Padrão para corresponder à bula do seu lote
+                mensal PNCQ/fabricante. Deixe em branco para usar os padrões estáticos da
+                plataforma.
               </p>
             </div>
           </div>
@@ -743,13 +747,18 @@ export function CoagulacaoForm({
               if (!cfg) return null;
               const baseline = cfg.levels[form.nivel ?? 'I'];
               return (
-                <div key={analyteId} className="rounded-lg border border-slate-100 dark:border-white/[0.04] bg-white dark:bg-[#080B10] p-3 space-y-3">
+                <div
+                  key={analyteId}
+                  className="rounded-lg border border-slate-100 dark:border-white/[0.04] bg-white dark:bg-[#080B10] p-3 space-y-3"
+                >
                   <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 dark:text-white/45">
                     {cfg.label}
                   </p>
                   <div className="grid grid-cols-2 gap-2">
                     <div>
-                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">Média (x̄)</label>
+                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">
+                        Média (x̄)
+                      </label>
                       <input
                         type="number"
                         step="any"
@@ -769,7 +778,9 @@ export function CoagulacaoForm({
                       />
                     </div>
                     <div>
-                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">DP (SD)</label>
+                      <label className="block text-[10px] text-slate-500 dark:text-white/45 mb-1">
+                        DP (SD)
+                      </label>
                       <input
                         type="number"
                         step="any"
@@ -798,7 +809,9 @@ export function CoagulacaoForm({
 
       {/* ── Reagente ───────────────────────────────────────────────────────── */}
       <section>
-        <SectionTitle hint="preenchido pelo setup">Reagente (Tromboplastina / Ativador)</SectionTitle>
+        <SectionTitle hint="preenchido pelo setup">
+          Reagente (Tromboplastina / Ativador)
+        </SectionTitle>
         <div className="space-y-3">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
@@ -954,7 +967,11 @@ export function CoagulacaoForm({
       {/* ── Resultados ────────────────────────────────────────────────────── */}
       <section>
         <SectionTitle
-          hint={form.nivel ? `baseline ${formatCoagNivelLabel(form.nivel)}` : 'selecione o nível primeiro'}
+          hint={
+            form.nivel
+              ? `baseline ${formatCoagNivelLabel(form.nivel)}`
+              : 'selecione o nível primeiro'
+          }
         >
           Resultados da Corrida
         </SectionTitle>

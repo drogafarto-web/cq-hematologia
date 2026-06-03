@@ -24,12 +24,12 @@ Este documento documenta **como o módulo Coagulação está hoje em produção*
 
 ### 1.1 Coleções
 
-| Path | Entidade | Status no redesign |
-|------|----------|---------------------|
-| `/labs/{labId}/ciq-coagulacao` | `CoagulacaoLot` | ❌ Substituída (lote vira campo, não entidade raiz) |
-| `/labs/{labId}/ciq-coagulacao/{lotId}/runs` | `CoagulacaoRun` | ❌ Substituída por `Attempt` |
-| `/labs/{labId}/equipment-setups/{equipamentoId}` | `EquipmentSetup` | 🔄 Simplificado (slot-model mantido) |
-| `/labs/{labId}/insumos` | `Insumo` | ✅ Preservado (spine compartilhada) |
+| Path                                             | Entidade         | Status no redesign                                  |
+| ------------------------------------------------ | ---------------- | --------------------------------------------------- |
+| `/labs/{labId}/ciq-coagulacao`                   | `CoagulacaoLot`  | ❌ Substituída (lote vira campo, não entidade raiz) |
+| `/labs/{labId}/ciq-coagulacao/{lotId}/runs`      | `CoagulacaoRun`  | ❌ Substituída por `Attempt`                        |
+| `/labs/{labId}/equipment-setups/{equipamentoId}` | `EquipmentSetup` | 🔄 Simplificado (slot-model mantido)                |
+| `/labs/{labId}/insumos`                          | `Insumo`         | ✅ Preservado (spine compartilhada)                 |
 
 ### 1.2 Entidade `CoagulacaoRun` (legado)
 
@@ -44,59 +44,59 @@ CoagulacaoRun = {
   nivel: 'I' | 'II'                  // CLSI H47-A2
   frequencia: 'DIARIA' | 'LOTE'
   equipamento: 'Clotimer Duo'
-  
+
   // Controle (pode virar campo do Attempt se mantivermos "controle")
   loteControle: string
   fabricanteControle: string
   aberturaControle: string
   validadeControle: string
-  
+
   // Reagente (mesma lógica)
   loteReagente: string
   fabricanteReagente: string
   aberturaReagente: string
   validadeReagente: string
-  
+
   // Calibração INR (opcional — derivado de TP+ISI+MNPT)
   isi?: number
   mnpt?: number
-  
+
   // Ambiente (opcional)
   temperaturaAmbiente?: number
   umidadeAmbiente?: number
-  
+
   // Resultados
   resultados: Record<CoagAnalyteId, number>
-  
+
   // Conformidade
   conformidade: 'A' | 'R'
   analitosComViolacao: CoagAnalyteId[]
   westgardViolations?: WestgardViolation[]
   acaoCorretiva?: string             // obrigatória se conformidade === 'R'
-  
+
   // NOTIVISA (tecnovigilância)
   notivisaTipo?: 'queixa_tecnica' | 'evento_adverso'
   notivisaStatus?: 'pendente' | 'notificado' | 'dispensado'
   notivisaProtocolo?: string
   notivisaDataEnvio?: string
   notivisaJustificativa?: string
-  
+
   // Snapshot insumos (RDC 786/2023 art. 42)
   insumosSnapshot?: {
     reagente?: InsumoSnapshot
     reagenteTtpa?: InsumoSnapshot
     controle?: InsumoSnapshot
   }
-  
+
   // Snapshot equipamento (sobrevive aposentadoria)
   equipamentoId?: string
   equipamentoSnapshot?: EquipamentoSnapshot
-  
+
   // Assinatura regulatória
   logicalSignature: string
   signedBy?: string
   signedAt?: Timestamp
-  
+
   // Overrides auditados
   insumoVencidoOverride?: boolean
   qcNaoValidado?: boolean
@@ -120,17 +120,17 @@ CoagulacaoLot = {
   fabricanteControle: string
   aberturaControle: string
   validadeControle: string
-  
+
   mean?: Record<CoagAnalyteId, number>   // Alvo do fabricante
   sd?: Record<CoagAnalyteId, number>     // SD do fabricante
-  
+
   runCount: number                        // Mantido por transação
   lotStatus: 'valido' | 'atencao' | 'reprovado' | 'sem_dados'
-  
+
   coagDecision?: 'A' | 'NA' | 'Rejeitado'  // Decisão RT
   decisionBy?: string
   decisionAt?: Timestamp
-  
+
   setupType?: 'principal' | 'validacao_paralela' | null
   pinnedBy?: string | null
   pinnedAt?: Timestamp | null
@@ -143,10 +143,12 @@ CoagulacaoLot = {
 **Path:** `labs/{labId}/equipment-setups/{equipamentoId}`
 
 Evolução histórica:
+
 - **Fase A** (21/04/2026): `docId = module` → 1 setup por módulo
 - **Fase D** (21/04/2026 2º turno): `docId = equipamentoId` → N equipamentos por módulo
 
 **Slots:**
+
 ```
 activeReagenteId: string | null        // Reagente TP
 activeReagenteTtpaId?: string | null   // Reagente TTPA (coag específico)
@@ -160,14 +162,14 @@ activeTiraUroId: string | null         // Tira de uroanálise
 
 ## 2. Hooks Atuais
 
-| Hook | Arquivo | Função | Manter? |
-|------|---------|--------|---------|
-| `useSaveCoagRun` | `hooks/useSaveCoagRun.ts` | Orquestra save completo de uma corrida (encontra/cria lote → Westgard → assinatura → persistência → auditoria) | ❌ Substituída por `Attempt.save()` |
-| `useCoagWestgard` | `hooks/useCoagWestgard.ts` | Avalia regras CLSI sobre runs | ✅ **Preservado** (lógica estatística) |
-| `useCoagLots` | `hooks/useCoagLots.ts` | Subscription por lotes (filtro opcional por nível) | ❌ Substituída (lote não é entidade) |
-| `useCoagRuns` | `hooks/useCoagRuns.ts` | Subscription por runs de um lote | ❌ Substituída por `Attempt.list` |
-| `useCoagSignature` | `hooks/useCoagSignature.ts` | SHA-256 + logicalSignature | ✅ **Preservado** (regulatório — não simplificar) |
-| `useInsumoFlowGuard` | `insumos/hooks/useInsumoFlowGuard.ts` | Conferência obrigatória + override audited | 🔄 Simplificado (menos estados) |
+| Hook                 | Arquivo                               | Função                                                                                                         | Manter?                                           |
+| -------------------- | ------------------------------------- | -------------------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
+| `useSaveCoagRun`     | `hooks/useSaveCoagRun.ts`             | Orquestra save completo de uma corrida (encontra/cria lote → Westgard → assinatura → persistência → auditoria) | ❌ Substituída por `Attempt.save()`               |
+| `useCoagWestgard`    | `hooks/useCoagWestgard.ts`            | Avalia regras CLSI sobre runs                                                                                  | ✅ **Preservado** (lógica estatística)            |
+| `useCoagLots`        | `hooks/useCoagLots.ts`                | Subscription por lotes (filtro opcional por nível)                                                             | ❌ Substituída (lote não é entidade)              |
+| `useCoagRuns`        | `hooks/useCoagRuns.ts`                | Subscription por runs de um lote                                                                               | ❌ Substituída por `Attempt.list`                 |
+| `useCoagSignature`   | `hooks/useCoagSignature.ts`           | SHA-256 + logicalSignature                                                                                     | ✅ **Preservado** (regulatório — não simplificar) |
+| `useInsumoFlowGuard` | `insumos/hooks/useInsumoFlowGuard.ts` | Conferência obrigatória + override audited                                                                     | 🔄 Simplificado (menos estados)                   |
 
 ### 2.1 `useSaveCoagRun` — Fluxo Detalhado
 
@@ -184,6 +186,7 @@ activeTiraUroId: string | null         // Tira de uroanálise
 ```
 
 **Decisão v2:** Fluxo de 9 passos é pesado. No v2, Attempt.save() tem 3 passos:
+
 1. Captura dados operacionais (resultado, equipamento, controle)
 2. Calcula Westgard (visível apenas para RT)
 3. Persiste com snapshot + assinatura
@@ -192,12 +195,12 @@ activeTiraUroId: string | null         // Tira de uroanálise
 
 ```javascript
 const CLSI_WESTGARD_RULES = [
-  '1-2s',   // 1 medição > 2SD do mean → aviso
-  '1-3s',   // 1 medição > 3SD do mean → rejeição
-  '2-2s',   // 2 medições consecutivas > 2SD mesmo lado → rejeição
-  'R-4s',   // Range > 4SD entre 2 medições consecutivas → rejeição
-  '4-1s',   // 4 medições consecutivas > 1SD mesmo lado → rejeição
-  '10x',    // 10 medições consecutivas mesmo lado → rejeição
+  '1-2s', // 1 medição > 2SD do mean → aviso
+  '1-3s', // 1 medição > 3SD do mean → rejeição
+  '2-2s', // 2 medições consecutivas > 2SD mesmo lado → rejeição
+  'R-4s', // Range > 4SD entre 2 medições consecutivas → rejeição
+  '4-1s', // 4 medições consecutivas > 1SD mesmo lado → rejeição
+  '10x', // 10 medições consecutivas mesmo lado → rejeição
 ];
 ```
 
@@ -223,52 +226,64 @@ CoagulacaoView (topbar + shell)
 ### 3.2 CoagulacaoForm — Blocos e Campos
 
 **Bloco 1: Operador**
+
 - Avatar (auto do auth)
 - `cargo`: enum('biomedico', 'tecnico', 'farmaceutico')
 - `operatorDocument`: CRBM-MG 12345
 
 **Bloco 2: Corrida**
+
 - Seletor de nível (**Nível I** | **Nível II**) → obrigatório
 - Frequência (Diária | Por troca de lote)
 - Coagulômetro (disabled: "Clotimer Duo")
 - `RegulatoryReferencesBar` (RDC 302/2005 · RDC 978/2025 · CLSI)
 
 **Bloco 3: Equipamento**
+
 - `EquipamentoSelector` (Fase D — selecionar equipamento físico)
 
 **Bloco 4: Insumos em Uso**
+
 - `ConferenciaInsumoAtivo` (reagente + reagenteTtpa + controle)
 - `OverrideModal` (abre se houver insumo vencido/qc-pendente)
 
 **Bloco 5: Material de Controle**
+
 - loteControle, fabricanteControle (preenchido pelo setup)
 - aberturaControle, validadeControle
 - ExpiryWarning (calculado por `daysToExpiry`)
 
 **Bloco 6: Calibração do Novo Lote** (somente se `isNewLot`)
+
 - mean/SD customizados por analito (opcional — sobrescreve COAG_ANALYTES)
 
 **Bloco 7: Reagente**
+
 - loteReagente, fabricanteReagente (preenchido pelo setup)
 - aberturaReagente, validadeReagente
 
 **Bloco 8: Calibração RNI (optional)**
+
 - ISI do lote de tromboplastina
 - MNPT do laboratório
 
 **Bloco 9: Ambiente (optional)**
+
 - temperaturaAmbiente, umidadeAmbiente
 
 **Bloco 10: Resultados da Corrida**
+
 - N inputs dinâmicos por analito suportado (derivado de EQUIP_ANALYTES)
 - hint "esperado: low–high unit" por analito
 - RangeBadge: "Resultados dentro do intervalo" | "Valores fora"
 
 **Bloco 11: Ação Corretiva** (soft-conditional)
+
 - aparece se `outOfRange.length > 0`
 - obrigatório se não-conforme (RDC 978 Art. 128)
 
 **Bloco 12: NOTIVISA (Tecnovigilância)** (soft-conditional)
+
 - tipo (queixa_tecnica / evento_adverso)
 - status (pendente / notificado / dispensado)
 - protocolo, dataEnvio, justificativa
@@ -302,12 +317,14 @@ CoagulacaoView (topbar + shell)
 ### 4.3 Snapshot Imutável (100% preservado)
 
 Cada save congela:
+
 - `reagenteSnapshot`: lote, fabricante, abertura, validade, qtdRestante
 - `reagenteTtpaSnapshot`: idem
 - `controleSnapshot`: idem
 - `equipamentoSnapshot`: id, nome, modelo, númeroSérie
 
 Sobrevive a:
+
 - Edição do documento mestre do insumo
 - Descarte do insumo
 - Aposentadoria do equipamento (soft-delete + retenção 5a)
@@ -325,6 +342,7 @@ logicalSignature = SHA-256(
 Onde `resultadosCanonical = JSON.stringify(resultados)` com chaves ordenadas alfabeticamente.
 
 Rules Firestore validam:
+
 - `hash.size() == 64` (hex string = 256 bits)
 - `ts is timestamp` (signedAt é Timestamp do servidor)
 - `operatorId === request.auth.uid` (quem assinou == quem está autenticado)
@@ -388,53 +406,54 @@ Fields: {
 
 Esses componentes são **regulatórios** — redesign NÃO simplifica:
 
-| Item | Por quê |
-|------|---------|
-| **Regras Westgard (6 regras)** | CLSI C24-A3, RDC 978 Art. 128 |
-| **Snapshots imutáveis** | RDC 786/2023 art. 42 (sobrevive deletar doc mestre) |
-| **LogicalSignature** | ADR-0012, chain-hash regulatório |
-| **Audit Records (fire-and-forget)** | ADR-0012, LGPD Art. 37 |
-| **`daysToExpiry` check** | Bloqueio de reagente/controle vencido |
-| **`ConferenciaInsumoAtivo`** (core) | Gate regulatório — sem simplificar |
-| **`OverrideModal`** com `overrideMotivo` | Auditoria obrigatória (RDC 978) |
-| **`EQUIP_ANALYTES`** por equipamento | Gate técnico (analito sem suporte não aparece) |
-| **`COAG_ANALYTES` baselines** | Bula do fabricante — fonte única de mean/SD |
-| **`computeCoagWestgard`** (core) | Lógica estatística — 100% preservada |
+| Item                                     | Por quê                                             |
+| ---------------------------------------- | --------------------------------------------------- |
+| **Regras Westgard (6 regras)**           | CLSI C24-A3, RDC 978 Art. 128                       |
+| **Snapshots imutáveis**                  | RDC 786/2023 art. 42 (sobrevive deletar doc mestre) |
+| **LogicalSignature**                     | ADR-0012, chain-hash regulatório                    |
+| **Audit Records (fire-and-forget)**      | ADR-0012, LGPD Art. 37                              |
+| **`daysToExpiry` check**                 | Bloqueio de reagente/controle vencido               |
+| **`ConferenciaInsumoAtivo`** (core)      | Gate regulatório — sem simplificar                  |
+| **`OverrideModal`** com `overrideMotivo` | Auditoria obrigatória (RDC 978)                     |
+| **`EQUIP_ANALYTES`** por equipamento     | Gate técnico (analito sem suporte não aparece)      |
+| **`COAG_ANALYTES` baselines**            | Bula do fabricante — fonte única de mean/SD         |
+| **`computeCoagWestgard`** (core)         | Lógica estatística — 100% preservada                |
 
 ---
 
 ## 7. O Que Redesenhar Radicalmente
 
-| Item legado | Por quê redesenhar | Substituição v2 |
-|------------|-------------------|-----------------|
-| `CoagulacaoLot` (entidade) | Operador pensa em "controle de hoje", não em "lote" | Campo em `Attempt` |
-| `CoagulacaoRun` (30+ campos) | Complexidade excessiva, 27 campos expostos | `Attempt` (~6 campos) |
-| `CoagulacaoForm` (12 blocos) | UI wizard pesada | 1 tela simples + timeline |
-| LevelPills + LotSwitcher | Operador decide coisas (nível, lote) que já estão no setup | Invisível — derivado de `ControlOperacional` |
-| NOTIVISA section no form | Pertence ao RT, não ao operador | RTAction |
-| Calibração bula (isNewLot) | Heurística frágil + acoplamento de subscription | RTAction pré-attempt |
-| Calibração INR (ISI/MNPT) | Campo opcional raramente preenchido | Configuração do equipamento (uma vez) |
+| Item legado                  | Por quê redesenhar                                         | Substituição v2                              |
+| ---------------------------- | ---------------------------------------------------------- | -------------------------------------------- |
+| `CoagulacaoLot` (entidade)   | Operador pensa em "controle de hoje", não em "lote"        | Campo em `Attempt`                           |
+| `CoagulacaoRun` (30+ campos) | Complexidade excessiva, 27 campos expostos                 | `Attempt` (~6 campos)                        |
+| `CoagulacaoForm` (12 blocos) | UI wizard pesada                                           | 1 tela simples + timeline                    |
+| LevelPills + LotSwitcher     | Operador decide coisas (nível, lote) que já estão no setup | Invisível — derivado de `ControlOperacional` |
+| NOTIVISA section no form     | Pertence ao RT, não ao operador                            | RTAction                                     |
+| Calibração bula (isNewLot)   | Heurística frágil + acoplamento de subscription            | RTAction pré-attempt                         |
+| Calibração INR (ISI/MNPT)    | Campo opcional raramente preenchido                        | Configuração do equipamento (uma vez)        |
 
 ---
 
 ## 8. Compatibilidade Regulatória Preservada
 
-| Regulação | Aplicação no Legado | Aplicação no v2 |
-|-----------|---------------------|-----------------|
-| RDC 978/2025 Art. 128 | Rastreabilidade + ação corretiva | Same |
-| RDC 786/2023 Art. 42 | Snapshot sobrevive deleção | Same |
-| RDC 302/2005 | Dois níveis de controle | Same |
-| RDC 67/2009 + 551/2021 | NOTIVISA tecnovigilância | Same, movida para RTAction |
-| CLSI H47-A2 | Dois níveis obrigatórios | Same |
-| CLSI C24-A3 | Regras Westgard | Same |
-| LGPD Art. 37 | Auditoria imutável | Same |
-| DICQ sec. 2.4 | CIQ quantitativo (coag) | Same |
+| Regulação              | Aplicação no Legado              | Aplicação no v2            |
+| ---------------------- | -------------------------------- | -------------------------- |
+| RDC 978/2025 Art. 128  | Rastreabilidade + ação corretiva | Same                       |
+| RDC 786/2023 Art. 42   | Snapshot sobrevive deleção       | Same                       |
+| RDC 302/2005           | Dois níveis de controle          | Same                       |
+| RDC 67/2009 + 551/2021 | NOTIVISA tecnovigilância         | Same, movida para RTAction |
+| CLSI H47-A2            | Dois níveis obrigatórios         | Same                       |
+| CLSI C24-A3            | Regras Westgard                  | Same                       |
+| LGPD Art. 37           | Auditoria imutável               | Same                       |
+| DICQ sec. 2.4          | CIQ quantitativo (coag)          | Same                       |
 
 ---
 
 ## 9. Resumo para Referência Rápida
 
 **Preservar:**
+
 - `COAG_ANALYTES` baselines (3 analitos × 2 níveis × 5 campos)
 - `EQUIP_ANALYTES` dicionário de analitos por equipamento
 - `computeCoagWestgard` função (6 regras)
@@ -444,6 +463,7 @@ Esses componentes são **regulatórios** — redesign NÃO simplifica:
 - `writeCoagAuditRecord` serviço
 
 **Redesenhar:**
+
 - `CoagulacaoRun` → `Attempt`
 - `CoagulacaoLot` → `ControlOperacional` (lote vira campo)
 - `CoagulacaoForm` (12 blocos) → tela de Attempt (simples)

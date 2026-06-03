@@ -9,11 +9,13 @@
 ## Document Inventory
 
 ### 1. Main Projection (Comprehensive)
+
 **File:** `.planning/milestones/v1.4_BUDGET_PROJECTION.md` (764 lines)
 
 **Purpose:** Authoritative, detailed cost breakdown by phase, service, and role
 
 **Contains:**
+
 - Executive summary
 - Cloud costs by service (Firebase, Gemini Vision, Twilio, SMS, pen-test)
 - Engineering hours allocation (1,355 hours × 4 streams)
@@ -27,6 +29,7 @@
 **When to read:** Budget approval meetings, phase planning, cost variance investigation
 
 **Key metrics:**
+
 - Total budget: $154,500 USD
 - Average monthly burn: $27,627 (with contingency)
 - Contingency buffer: $18,603 (15%)
@@ -35,11 +38,13 @@
 ---
 
 ### 2. Quick Reference (1-page cheat sheet)
+
 **File:** `.planning/v1.4_BUDGET_QUICK_REFERENCE.md` (314 lines)
 
 **Purpose:** Fast lookup during weekly budget reviews
 
 **Contains:**
+
 - Cost summary at a glance (table)
 - Cost triggers (act immediately when thresholds hit)
 - Weekly monitoring checklist (Friday @ 17:00 BRT)
@@ -54,6 +59,7 @@
 **When to read:** Every Friday before auditor alignment call
 
 **Key actions:**
+
 - Check Firebase Firestore ops: target <150k reads/day
 - Check Gemini Vision API: alert if >$1,000/month
 - Check Twilio SMS: alert if >15,000/month
@@ -62,6 +68,7 @@
 ---
 
 ### 3. Cost Tracker (Spreadsheet)
+
 **File:** `.planning/v1.4_COST_TRACKER.csv` (67 lines)
 
 **Purpose:** Real-time spend tracking and variance analysis
@@ -69,6 +76,7 @@
 **Format:** CSV (open in Excel, Google Sheets, or paste into BigQuery)
 
 **Columns:**
+
 - `date` — transaction date
 - `category` — cloud / engineering / external
 - `subcategory` — service, phase, or role
@@ -81,6 +89,7 @@
 **Cadence:** Update weekly by CTO or finance lead (every Friday)
 
 **Use cases:**
+
 - Weekly variance analysis (actual vs. forecast)
 - Monthly burn rate verification
 - Auditor cost reports
@@ -91,11 +100,13 @@
 ---
 
 ### 4. Pre-Deploy Cost Validation Gates
+
 **File:** `.planning/v1.4_COST_VALIDATION_GATES.md` (369 lines)
 
 **Purpose:** Blocking checklist before each phase deployment
 
 **Contains:**
+
 - Phase 4 gate (May 20 → Jun 2)
 - Phase 5 gate (Jun 9 → Jun 30)
 - Phase 6 gate (Jul 1 → Jul 14)
@@ -106,6 +117,7 @@
 - Cost exception report template
 
 **Gate structure (each phase):**
+
 1. Pre-deploy cost audit checklist
 2. Specific cloud metrics to verify
 3. Engineering hours to reconcile
@@ -114,6 +126,7 @@
 6. Escalation path (if any checks fail)
 
 **Key gates (cannot deploy unless passed):**
+
 - Firebase Firestore ops within forecast
 - Cloud Functions invocation rate acceptable
 - Engineering hours on track
@@ -125,11 +138,13 @@
 ---
 
 ### 5. Weekly Status Dashboard Template
+
 **File:** `.planning/v1.4_COST_DASHBOARD_TEMPLATE.md`
 
 **Purpose:** Fill-in-the-blanks weekly status report for CTO/Finance
 
 **Contains:**
+
 - Executive summary table (5 metrics)
 - Cloud services spend breakdown (Firebase, Gemini, Twilio, SendGrid)
 - Engineering hours by phase and role
@@ -148,11 +163,13 @@
 ---
 
 ### 6. Navigation & Overview
+
 **File:** `.planning/README_v1.4_BUDGET.md` (329 lines)
 
 **Purpose:** Central hub for all budget docs
 
 **Contains:**
+
 - Quick navigation guide (which doc to read when)
 - Cost structure summary (table)
 - Monthly burn rate breakdown
@@ -172,6 +189,7 @@
 ## How to Use This Package
 
 ### Scenario 1: Weekly Cost Review (Every Friday)
+
 1. **Read:** `.planning/v1.4_BUDGET_QUICK_REFERENCE.md` (Sections 1–3)
 2. **Execute:** Weekly monitoring checklist
 3. **Tools:** GCP Billing Dashboard + Firebase Console
@@ -182,6 +200,7 @@
 ---
 
 ### Scenario 2: Phase Deployment Approval
+
 1. **Read:** `.planning/v1.4_COST_VALIDATION_GATES.md` (relevant phase section)
 2. **Execute:** Pre-deploy cost audit checklist
 3. **Verify:** All checks PASSED
@@ -192,6 +211,7 @@
 ---
 
 ### Scenario 3: Budget Variance Alert (>110% monthly)
+
 1. **Identify:** Alert triggered in monitoring
 2. **Read:** `.planning/v1.4_BUDGET_QUICK_REFERENCE.md` (Section 2 — triggers)
 3. **Diagnose:** Run cost analysis scripts (Section 8)
@@ -203,6 +223,7 @@
 ---
 
 ### Scenario 4: Monthly Financial Review
+
 1. **Read:** `.planning/README_v1.4_BUDGET.md` (Sections 1–3)
 2. **Data:** Pull COST_TRACKER.csv actuals
 3. **Analyze:** Compare vs. forecast in `.planning/milestones/v1.4_BUDGET_PROJECTION.md`
@@ -213,6 +234,7 @@
 ---
 
 ### Scenario 5: Auditor Pre-Alignment Meeting (Every Monday)
+
 1. **Prepare:** Complete weekly dashboard (due Friday 17:00)
 2. **Read:** Cost validation gates + recent exceptions
 3. **Metrics:** Cloud usage, engineering hours, contingency status
@@ -225,11 +247,13 @@
 ## Key Metrics to Monitor (Daily → Weekly → Monthly)
 
 ### Daily (Automated)
+
 - Firebase Firestore read ops (target: <150k/day)
 - Cloud Functions invocations (target: <400/day)
 - Hosting bandwidth (target: <180 GB/month)
 
 ### Weekly (Manual, Friday @ 17:00)
+
 - Cloud services spend (sum: <$5,000/month alert)
 - Gemini Vision API usage (alert: >$1,000/month)
 - Twilio SMS sent (alert: >15,000/month)
@@ -237,6 +261,7 @@
 - Contingency remaining (target: >50% after Phase 8)
 
 ### Monthly
+
 - Total cumulative spend vs. $154,500 budget
 - Monthly burn rate vs. forecast
 - Phase completion on-time percentage (target: ≥80%)
@@ -247,16 +272,16 @@
 
 ## Escalation Triggers
 
-| Condition | Check | Alert | Escalate To |
-|-----------|-------|-------|-------------|
-| Cloud >$5,000/month | GCP Billing | 🔴 | CTO |
-| Gemini >$1,000/month | API logs | 🔴 | CTO + Agent-6 |
-| SMS >15,000/month | Twilio console | 🔴 | CTO + RT Lead |
-| Eng hours >110% phase | Time tracker | 🔴 | CTO |
-| Cumulative >110% forecast | COST_TRACKER.csv | 🔴 | Founder |
-| Firebase latency >500ms | Firebase console | 🔴 | Agent lead |
-| Phase delay >2 weeks | Deployment gate | 🔴 | Founder |
-| Pen-test >3 medium findings | Phase 10 report | 🔴 | Security consultant |
+| Condition                   | Check            | Alert | Escalate To         |
+| --------------------------- | ---------------- | ----- | ------------------- |
+| Cloud >$5,000/month         | GCP Billing      | 🔴    | CTO                 |
+| Gemini >$1,000/month        | API logs         | 🔴    | CTO + Agent-6       |
+| SMS >15,000/month           | Twilio console   | 🔴    | CTO + RT Lead       |
+| Eng hours >110% phase       | Time tracker     | 🔴    | CTO                 |
+| Cumulative >110% forecast   | COST_TRACKER.csv | 🔴    | Founder             |
+| Firebase latency >500ms     | Firebase console | 🔴    | Agent lead          |
+| Phase delay >2 weeks        | Deployment gate  | 🔴    | Founder             |
+| Pen-test >3 medium findings | Phase 10 report  | 🔴    | Security consultant |
 
 ---
 
@@ -284,14 +309,14 @@ C:\hc quality\.planning\
 
 ## Approval Status
 
-| Document | Status | Approver | Date |
-|----------|--------|----------|------|
-| v1.4_BUDGET_PROJECTION.md | Draft | Awaiting CTO | — |
-| README_v1.4_BUDGET.md | Draft | Awaiting CTO | — |
-| v1.4_BUDGET_QUICK_REFERENCE.md | Draft | Awaiting CTO | — |
-| v1.4_COST_TRACKER.csv | Ready | CTO | Ongoing |
-| v1.4_COST_VALIDATION_GATES.md | Draft | Awaiting CTO | — |
-| v1.4_COST_DASHBOARD_TEMPLATE.md | Ready | CTO | Ongoing |
+| Document                        | Status | Approver     | Date    |
+| ------------------------------- | ------ | ------------ | ------- |
+| v1.4_BUDGET_PROJECTION.md       | Draft  | Awaiting CTO | —       |
+| README_v1.4_BUDGET.md           | Draft  | Awaiting CTO | —       |
+| v1.4_BUDGET_QUICK_REFERENCE.md  | Draft  | Awaiting CTO | —       |
+| v1.4_COST_TRACKER.csv           | Ready  | CTO          | Ongoing |
+| v1.4_COST_VALIDATION_GATES.md   | Draft  | Awaiting CTO | —       |
+| v1.4_COST_DASHBOARD_TEMPLATE.md | Ready  | CTO          | Ongoing |
 
 **Approval sign-off template:**
 
@@ -332,6 +357,7 @@ Ready for Phase 4 kickoff: 2026-05-20 ✓
 **Auditor Liaison:** RT Lead, [email]
 
 **For questions about:**
+
 - Cloud costs → CTO or Finance lead
 - Engineering hours → CTO or Phase lead
 - Auditor alignment → CTO + RT lead
@@ -342,9 +368,9 @@ Ready for Phase 4 kickoff: 2026-05-20 ✓
 
 ## Document History
 
-| Version | Date | Author | Notes |
-|---------|------|--------|-------|
-| 1.0 | 2026-05-07 | Claude Code Agent | v1.4 budget package created (6 docs, 1,843 lines) |
+| Version | Date       | Author            | Notes                                             |
+| ------- | ---------- | ----------------- | ------------------------------------------------- |
+| 1.0     | 2026-05-07 | Claude Code Agent | v1.4 budget package created (6 docs, 1,843 lines) |
 
 ---
 

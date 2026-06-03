@@ -16,12 +16,14 @@ depends_on: [MP-1]
 **Goal:** Finish Phase 7 (Advanced Auditoria + AI Insights) by shipping the W4 UI components, the W5 PDF export + archive + email + ExportWizard integration, and the W6 verification gate.
 **Dependencies:** MP-1 (no functional dep, but ordering keeps git history clean). Phase 7 W0-W3 already LIVE on `main` — do not touch their files.
 **Output:**
+
 - 5 new UI components in `src/features/auditoria/components/`
 - Polished PDF callable + 2 new callables (archive, email)
 - Auditoria registered as ExportWizard source
 - 3 test files (28 tests) + 1 verification doc + Phase 7 overview status flipped to COMPLETE
 
 **W0-W3 already-shipped surface (do not modify; only consume):**
+
 - Hook `useAnomalyAlerts` exists — `src/features/auditoria/hooks/useAnomalyAlerts.ts`
 - Hook `useAuditReportExport` exists
 - Callable `acknowledgeAlert` exists
@@ -35,6 +37,7 @@ depends_on: [MP-1]
 All 5 SAs run in parallel — each owns a distinct component file.
 
 **Shared style invariants for all W4 SAs:**
+
 - Dark-first: `bg-[#141417]` containers, `bg-white/5` surfaces, `text-white/90` body, `text-white/60` muted, `border-white/10` rules
 - Accents: `violet-500` for primary, `emerald-500` for success/positive, `rose-500` for danger/severity-high
 - 4px grid spacing — only `p-1`, `p-2`, `p-4`, `p-6`, `p-8`, `gap-2`, `gap-4`, `gap-6`
@@ -54,16 +57,22 @@ All 5 SAs run in parallel — each owns a distinct component file.
 **Depends on:** none (W4)
 
 **Contract:**
+
 ```typescript
 type Props = {
   labId: string;
-  initialFilters?: { severity?: 'low' | 'medium' | 'high' | 'critical'; from?: number; to?: number };
+  initialFilters?: {
+    severity?: 'low' | 'medium' | 'high' | 'critical';
+    from?: number;
+    to?: number;
+  };
 };
 
 export default function AlertDashboard(props: Props): JSX.Element;
 ```
 
 **Behavior:**
+
 - Calls `useAnomalyAlerts(labId, filters)` → `{ alerts, loading, error }`.
 - Filter bar at top: severity multi-select pill buttons + date-range (two `<input type="date">`).
 - Empty state: "Nenhum alerta no período" with a subtle violet pulse dot.
@@ -79,10 +88,12 @@ export default function AlertDashboard(props: Props): JSX.Element;
 - No external chart libs; no icon libs.
 
 **Invariants:**
+
 - `useEffect` with `onSnapshot` cleanup is the hook's responsibility — do not re-subscribe inside the component.
 - Memoize `alerts.map(...)` with `useMemo` if list >50 items.
 
 **Files to read first:**
+
 - `src/features/auditoria/hooks/useAnomalyAlerts.ts` (verify return shape)
 - `src/features/criticos/components/EscalacaoDashboard.tsx` (canonical dark-first dashboard)
 - `DESIGN_SYSTEM.md`
@@ -90,6 +101,7 @@ export default function AlertDashboard(props: Props): JSX.Element;
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors for this file
 - Component renders without prop violations under Storybook-style harness (covered by SA-20 test)
 
@@ -104,9 +116,10 @@ export default function AlertDashboard(props: Props): JSX.Element;
 **Depends on:** none (W4)
 
 **Contract:**
+
 ```typescript
 type Props = {
-  alert: AnomalyAlert | null;       // null => closed
+  alert: AnomalyAlert | null; // null => closed
   onClose: () => void;
   onAcknowledged?: (alertId: string) => void;
 };
@@ -115,6 +128,7 @@ export default function AlertDetailModal(props: Props): JSX.Element | null;
 ```
 
 **Behavior:**
+
 - When `alert == null` → returns `null`.
 - Otherwise renders an accessible modal: `role="dialog"`, `aria-modal="true"`, `aria-labelledby`, focus-trap (focus first interactive on open, return focus on close), close on Escape, close on backdrop click.
 - Sections: Header (title + severity), Anomaly evidence (key/value list with `tabular-nums`), Detected pattern (free text from `alert.patternSummary`), Recommended actions (bullet list from `alert.recommendations`), Footer with two buttons: "Fechar" (secondary), "Reconhecer" (primary, violet).
@@ -123,16 +137,19 @@ export default function AlertDetailModal(props: Props): JSX.Element | null;
 - Background overlay: `bg-black/60 backdrop-blur-sm`.
 
 **Invariants:**
+
 - No `document.body` style mutation outside `useEffect` cleanup.
 - Keyboard: Tab cycles only inside the modal.
 - No new dependencies (no `headlessui`, no `radix-ui`).
 
 **Files to read first:**
+
 - `src/features/auditoria/hooks/useAnomalyAlerts.ts`
 - `src/features/criticos/components/ComunicacaoModal.tsx` (canonical modal)
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors
 - Manual axe pass would yield 0 critical (verified by SA-20 jest-axe assertions)
 
@@ -147,6 +164,7 @@ export default function AlertDetailModal(props: Props): JSX.Element | null;
 **Depends on:** none (W4)
 
 **Contract:**
+
 ```typescript
 type Props = {
   labId: string;
@@ -157,6 +175,7 @@ export default function ReportViewer(props: Props): JSX.Element;
 ```
 
 **Behavior:**
+
 - Fetches the NLP-summarized report from `/labs/{labId}/audit-reports/{reportId}` via existing service or hook (search `src/features/auditoria/services/` first; if no fetcher exists, inline a `getDoc` call using `firebase/firestore`).
 - Renders:
   1. **Header:** report title, period (from/to dates), generated-by user, generation timestamp.
@@ -167,15 +186,18 @@ export default function ReportViewer(props: Props): JSX.Element;
 - Print-friendly: include `@media print` styles via Tailwind `print:` classes (light background for print).
 
 **Invariants:**
+
 - No chart library — diff is a table.
 - All financial/numeric cells use `tabular-nums`.
 
 **Files to read first:**
+
 - `src/features/auditoria/services/` (any existing report service)
 - `src/features/auditoria/hooks/useAuditReportExport.ts`
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors
 
 **Commit:** `feat(MP-2-W4-SA-13): ReportViewer — exec summary + diff table + expandable sections`
@@ -189,18 +211,20 @@ export default function ReportViewer(props: Props): JSX.Element;
 **Depends on:** none (W4)
 
 **Contract:**
+
 ```typescript
 type Props = {
   labId: string;
-  from: number;     // ms epoch
-  to: number;       // ms epoch
-  granularity?: 'day' | 'week';   // default 'day'
+  from: number; // ms epoch
+  to: number; // ms epoch
+  granularity?: 'day' | 'week'; // default 'day'
 };
 
 export default function AnomalyTimeline(props: Props): JSX.Element;
 ```
 
 **Behavior:**
+
 - Calls `useAnomalyAlerts(labId, { from, to })` and groups results by day (or week).
 - Renders a heatmap grid with X-axis = time bucket, Y-axis = severity (low/med/high/critical, top=critical).
 - Each cell is a `<div>` with `aria-label="Dia 2026-05-09 — 3 alertas críticos"`. Color intensity scales with count using a 5-stop alpha ramp on the severity hue:
@@ -214,15 +238,18 @@ export default function AnomalyTimeline(props: Props): JSX.Element;
 - No external libraries — pure CSS grid.
 
 **Invariants:**
+
 - Cells responsive: grid-template-columns auto-fits between 12 and 32 columns.
 - Empty period (from > to or no alerts) renders the grid with all empty cells + a "Sem anomalias no período" overlay.
 - Memoize the bucketing computation with `useMemo`.
 
 **Files to read first:**
+
 - `src/features/auditoria/hooks/useAnomalyAlerts.ts`
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors
 
 **Commit:** `feat(MP-2-W4-SA-14): AnomalyTimeline — CSS-grid heatmap, no chart deps`
@@ -236,16 +263,18 @@ export default function AnomalyTimeline(props: Props): JSX.Element;
 **Depends on:** none (W4)
 
 **Contract:**
+
 ```typescript
 type Props = {
   labId: string;
-  ruleId?: string;     // optional filter by single rule
+  ruleId?: string; // optional filter by single rule
 };
 
 export default function RuleBasedAlertList(props: Props): JSX.Element;
 ```
 
 **Behavior:**
+
 - Fetches detection rules from `/labs/{labId}/audit-detection-rules` (collection group; if path differs, read existing `cfAuditTrigger.ts` to confirm).
 - For each rule, fetches the count of alerts triggered in the last 30 days.
 - Renders a list of cards: rule name, description, last-triggered timestamp, alert count badge, and a link `Editar regra →` pointing to `/auditoria/rules/{ruleId}/edit` (router path).
@@ -253,15 +282,18 @@ export default function RuleBasedAlertList(props: Props): JSX.Element;
 - Empty: "Nenhuma regra configurada — defina sua primeira regra".
 
 **Invariants:**
+
 - Use existing `react-router` `<Link>` (the project uses it; verify in `src/AppRouter.tsx`). If the route doesn't exist yet, generate the link anyway — wiring the route is out-of-scope for this SA.
 - No `useEffect` polling; rely on Firestore `onSnapshot` for the rule list.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/` (locate detection rules schema)
 - `src/AppRouter.tsx`
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors
 
 **Commit:** `feat(MP-2-W4-SA-15): RuleBasedAlertList — per-rule grouping + edit link`
@@ -279,6 +311,7 @@ export default function RuleBasedAlertList(props: Props): JSX.Element;
 **Depends on:** none (functions-side, parallel with W5 siblings)
 
 **Actions:**
+
 1. Read the file. Locate the existing PDF render function (likely uses `pdfkit` or `puppeteer`).
 2. Add three new sections to the rendered PDF, in this exact order:
    - **Cover page** — lab name, lab CNPJ, report period, RT name, generation timestamp, the violet primary at top-left as a 4mm bar (use a hex color so it renders in PDF; tokens-cache.json has the mapping).
@@ -288,17 +321,20 @@ export default function RuleBasedAlertList(props: Props): JSX.Element;
 4. Wrap PDF byte assembly in try/catch — on error, throw `HttpsError('internal', 'PDF generation failed: ' + err.message)`.
 
 **Invariants:**
+
 - onCall v2 with `cors: true` and `region: 'southamerica-east1'` — confirm in the existing handler; if missing, fix.
 - Output remains a Buffer or base64 string (whatever the existing contract is — do not change return shape).
 - No new heavy npm dependency. Reuse what's already in `functions/package.json`.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/generatePDF.ts` (full)
 - `functions/package.json`
 - `.claude/rules/performance.md` (puppeteer/pdfkit must be functions-side only)
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 - `cd functions && npm test -- generatePDF` passes existing tests + new ones from SA-22
 
@@ -313,28 +349,34 @@ export default function RuleBasedAlertList(props: Props): JSX.Element;
 **Depends on:** none (W5)
 
 **Contract:**
+
 ```typescript
 import { onCall } from 'firebase-functions/v2/https';
 import { onSchedule } from 'firebase-functions/v2/scheduler';
 
 const ArchiveInput = z.object({
   labId: z.string().min(1),
-  yearMonth: z.string().regex(/^\d{4}-\d{2}$/),   // e.g. "2026-05"
+  yearMonth: z.string().regex(/^\d{4}-\d{2}$/), // e.g. "2026-05"
   reportId: z.string().min(1),
 });
 
 export const archiveAuditReport = onCall(
   { region: 'southamerica-east1', cors: true },
-  async (request) => { /* archives one report immutably */ }
+  async (request) => {
+    /* archives one report immutably */
+  },
 );
 
 export const archiveAuditReportsMonthly = onSchedule(
   { schedule: '0 3 1 * *', timeZone: 'America/Sao_Paulo', region: 'southamerica-east1' },
-  async () => { /* iterates all labs + archives previous month */ }
+  async () => {
+    /* iterates all labs + archives previous month */
+  },
 );
 ```
 
 **Behavior of `archiveAuditReport` (callable):**
+
 1. Auth + lab membership guard.
 2. Read source report at `/labs/{labId}/audit-reports/{reportId}`.
 3. Compute `crypto.createHash('sha256').update(JSON.stringify(reportData)).digest('hex')`.
@@ -352,16 +394,19 @@ export const archiveAuditReportsMonthly = onSchedule(
 6. Return `{ archiveId: ref.id, hash }`.
 
 **Behavior of `archiveAuditReportsMonthly` (cron):**
+
 - Runs 03:00 Sao_Paulo on day 1 of each month.
 - Iterates `/labs` collection (top-level), then for each lab queries reports in the previous calendar month, calling the same archive logic.
 - Skips reports already archived (idempotent — check existence at target path).
 
 **Invariants:**
+
 - onCall v2 + onSchedule v2 — both with `region: 'southamerica-east1'`.
 - Archive docs are append-only — no rules updates needed if the rule for `auditoria-archive` denies update/delete (SA-08-equivalent rule may need to be added; if missing, append a block in this SA to `firestore.rules` denying update/delete on `auditoria-archive`).
 - Idempotent — running twice for the same `yearMonth/reportId` is a no-op.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/auditoria.ts` (callable pattern)
 - `functions/src/modules/auditoria/generatePDF.ts` (PDF source path)
 - Any existing `onSchedule` example in `functions/src/modules/` (e.g. `firestoreBackup`, `criticos/cron.ts`)
@@ -369,6 +414,7 @@ export const archiveAuditReportsMonthly = onSchedule(
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 - Rules emulator test denies client write to `auditoria-archive`
 
@@ -383,6 +429,7 @@ export const archiveAuditReportsMonthly = onSchedule(
 **Depends on:** none (W5)
 
 **Actions:**
+
 1. Read `src/features/export/services/exportSourceRegistry.ts` — confirm the registry shape (likely `Record<SourceKey, SourceDescriptor>`).
 2. Add a new entry `'auditoria'` with descriptor:
    ```typescript
@@ -405,16 +452,19 @@ export const archiveAuditReportsMonthly = onSchedule(
 4. Confirm `npx tsc --noEmit` is clean.
 
 **Invariants:**
+
 - Append only — do not edit unrelated entries.
 - Format strings (`'pdf'`, `'xlsx'`) must match the existing union — verify before writing.
 - `permission` value must match an existing key (read the file to find it).
 
 **Files to read first:**
+
 - `src/features/export/services/exportSourceRegistry.ts`
 - `src/features/export/types/` (if exists)
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` 0 errors
 - `grep -E "key:\\s*'auditoria'" src/features/export/services/exportSourceRegistry.ts` returns 1
 
@@ -429,6 +479,7 @@ export const archiveAuditReportsMonthly = onSchedule(
 **Depends on:** none (W5)
 
 **Contract:**
+
 ```typescript
 const EmailReportInput = z.object({
   labId: z.string().min(1),
@@ -438,15 +489,19 @@ const EmailReportInput = z.object({
 });
 
 export const emailAuditReport = onCall(
-  { region: 'southamerica-east1', cors: true,
-    secrets: ['SMTP_HOST','SMTP_PORT','SMTP_USER','SMTP_PASS'] },
+  {
+    region: 'southamerica-east1',
+    cors: true,
+    secrets: ['SMTP_HOST', 'SMTP_PORT', 'SMTP_USER', 'SMTP_PASS'],
+  },
   async (request) => {
     // returns { messageId: string, recipientsSent: string[] }
-  }
+  },
 );
 ```
 
 **Behavior:**
+
 1. Auth + lab membership guard.
 2. Default recipients: query `/labs/{labId}/members` for users with `role in ('admin','rt','auditor')` and collect their emails. Cap at 10.
 3. Generate the PDF by invoking the existing `generateAuditReportPDF` logic — refactor the rendering function out of `generatePDF.ts` into an exported helper if it isn't already, then `import { renderAuditReportPDF } from './generatePDF'` here. **If extracting a helper, do it in SA-16's same file** — coordinate by adding a TODO at the top of this file referring to that helper. If unfeasible, call the public callable internally via `httpsCallable` (last resort).
@@ -455,11 +510,13 @@ export const emailAuditReport = onCall(
 6. Return `{ messageId, recipientsSent }`.
 
 **Invariants:**
+
 - onCall v2 with `cors: true`, `region: 'southamerica-east1'`, secrets declared.
-- Pre-deploy gate `bash scripts/preflight-secrets-check.sh` will block deploy if SMTP_* secrets aren't provisioned. Expected — do not work around it.
+- Pre-deploy gate `bash scripts/preflight-secrets-check.sh` will block deploy if SMTP\_\* secrets aren't provisioned. Expected — do not work around it.
 - Attachment max 25 MB. If PDF exceeds, throw `HttpsError('resource-exhausted', ...)` with guidance to use Firebase Storage signed URL instead.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/generatePDF.ts`
 - `functions/package.json` (confirm `nodemailer`)
 - Any sibling email callable for nodemailer config pattern (e.g. `functions/src/modules/emailBackup`)
@@ -467,8 +524,9 @@ export const emailAuditReport = onCall(
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
-- `bash scripts/preflight-secrets-check.sh` lists SMTP_* if any are unset (informational; do not break MP-2 on this — deploy gate handles it in MP-8)
+- `bash scripts/preflight-secrets-check.sh` lists SMTP\_\* if any are unset (informational; do not break MP-2 on this — deploy gate handles it in MP-8)
 
 **Commit:** `feat(MP-2-W5-SA-19): emailAuditReport callable — SMTP delivery + audit log`
 
@@ -487,6 +545,7 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 **Depends on:** SA-11, SA-12 (components must exist)
 
 **Tests (8 minimum):**
+
 1. Renders empty state when `useAnomalyAlerts` returns `{ alerts: [], loading: false, error: null }`.
 2. Renders 3 skeleton rows when `loading: true`.
 3. Renders error banner with retry button when `error != null`.
@@ -498,11 +557,13 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 9. (bonus) jest-axe `expect(await axe(container)).toHaveNoViolations()` on the rendered tree.
 
 **Harness:**
+
 - vitest + @testing-library/react (read sibling tests in `src/__tests__/` to confirm; install nothing new)
 - Mock `useAnomalyAlerts` via `vi.mock('../../features/auditoria/hooks/useAnomalyAlerts', ...)`
 - Mock `acknowledgeAlert` callable similarly.
 
 **Verification:**
+
 - `npm test -- src/__tests__/auditoria/alertDashboard.test.tsx` → 8/8 (or 9/9) pass
 
 **Commit:** `test(MP-2-W6-SA-20): AlertDashboard — 8 tests + a11y`
@@ -529,10 +590,12 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 10. Idempotent: running detector twice on the same input produces identical alert ids (deterministic hash).
 
 **Harness:**
+
 - Pure unit tests under vitest. No emulator.
 - Build deterministic fixtures inline in the test file.
 
 **Verification:**
+
 - `cd functions && npm test -- anomalyDetection` (or root `npm test` depending on config) → 10/10 pass
 
 **Commit:** `test(MP-2-W6-SA-21): anomalyDetector — 10 unit tests`
@@ -546,6 +609,7 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 **Depends on:** SA-16 (PDF must produce cover/exec/per-rule sections)
 
 **Tests:**
+
 1. Golden snapshot: render a fixture report → extract text content from the PDF (use `pdf-parse` if already in deps; if not, fall back to byte-length + section-marker assertions). Assert the snapshot matches `__snapshots__/reportPDF.snap`.
 2. Cover page: extracted text contains lab name, period, RT name, generation timestamp.
 3. Executive summary: extracted text contains the `report.summary` string.
@@ -554,10 +618,12 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 6. Determinism: rendering the same fixture twice produces identical byte length (or, if signed/timestamped, identical SHA-256 of all non-timestamp regions).
 
 **Setup:**
+
 - Add an `__snapshots__/reportPDF.snap` file generated on first run. Subsequent runs must match.
 - If `pdf-parse` is not installed, document that and use byte-marker assertions only — do not add dependencies.
 
 **Verification:**
+
 - `npm test -- reportPDF` → all pass on second run (first run generates snapshot)
 
 **Commit:** `test(MP-2-W6-SA-22): reportPDF — golden snapshot + 5 assertions`
@@ -571,48 +637,56 @@ SA-20, SA-21, SA-22 run in parallel (each owns a distinct test file). SA-23 depe
 **Depends on:** SA-20, SA-21, SA-22 (all must pass first)
 
 **Doc structure:**
+
 ```markdown
 # Phase 7 — Verification Gate (W6)
 
-## Status: PASS / FAIL  ← actual result
+## Status: PASS / FAIL ← actual result
 
 ## TSC
+
 - Web: <N> errors
 - Functions: <N> errors
 
 ## Tests
+
 - Total Phase 7 tests: existing + 18 new = <total>
 - Pass rate: <%>
 - New tests by SA: SA-20 (8) + SA-21 (10) + SA-22 (5+) = 23+
 
 ## Compliance Audit
-| Requirement | W4-W6 evidence |
-|-------------|----------------|
+
+| Requirement                                   | W4-W6 evidence                                                               |
+| --------------------------------------------- | ---------------------------------------------------------------------------- |
 | RDC 978 5.3 — Audit trail who/what/when/where | AlertDashboard surfaces who/what/when/where; AnomalyTimeline visualizes when |
-| RDC 978 Art. 107 — Revisões periódicas | archiveAuditReportsMonthly cron + ReportViewer |
-| DICQ 4.4 — Trilha + anomalias | AlertDashboard + AnomalyTimeline + RuleBasedAlertList |
-| DICQ 4.4 — Investigação de NC | AlertDetailModal "Reconhecer" + acknowledge log |
+| RDC 978 Art. 107 — Revisões periódicas        | archiveAuditReportsMonthly cron + ReportViewer                               |
+| DICQ 4.4 — Trilha + anomalias                 | AlertDashboard + AnomalyTimeline + RuleBasedAlertList                        |
+| DICQ 4.4 — Investigação de NC                 | AlertDetailModal "Reconhecer" + acknowledge log                              |
 
 ## Bundle
+
 - Auditoria module gzip delta: +<KB> KB (must be < 30 KB)
 - Main chunk total gzip: <KB> KB (limit: 450 KB)
 
 ## Deploy readiness
+
 - [ ] All tests green
 - [ ] TSC 0 errors
 - [ ] All callables `cors: true` + `region: southamerica-east1`
 - [ ] Rules updated for `auditoria-archive` (SA-17 may have appended)
-- [ ] preflight-secrets-check passes (SMTP_* required by emailAuditReport)
+- [ ] preflight-secrets-check passes (SMTP\_\* required by emailAuditReport)
 - [ ] No regressions vs MP-1 baseline
 
 Generated by MP-2-W6-SA-23 on 2026-05-09.
 ```
 
 **Actions:**
+
 - Run all verification commands and fill in real numbers.
 - If any test fails, write `Status: FAIL` and list the failing tests — do not gloss over.
 
 **Verification:**
+
 - File exists with real data
 - `git diff --stat` shows only this file modified
 
@@ -627,10 +701,12 @@ Generated by MP-2-W6-SA-23 on 2026-05-09.
 **Depends on:** SA-23
 
 **Actions:**
+
 1. Open the file. In the frontmatter, change `status: planned` → `status: complete`. Add `date_completed: 2026-05-09`.
 2. In the body, append (do not rewrite existing waves):
    ```markdown
    ## Completion (2026-05-09)
+
    - W4 UI shipped: AlertDashboard, AlertDetailModal, ReportViewer, AnomalyTimeline, RuleBasedAlertList
    - W5 PDF/Archive shipped: cover/exec/per-rule sections, archiveAuditReport (callable + monthly cron), ExportWizard registration, emailAuditReport
    - W6 verification: see `07-VERIFICATION.md`
@@ -639,14 +715,17 @@ Generated by MP-2-W6-SA-23 on 2026-05-09.
 3. Edit `CLAUDE.md` (root) `Módulos em produção` table — add or update the `auditoria` row to reflect "Em prod · Phase 7 W4-W6 (advanced auditoria + AI insights)" with date `2026-05-09`. **Surgical edit only — do not touch other rows.**
 
 **Invariants:**
+
 - Frontmatter must remain valid YAML.
 - Do not delete any existing line.
 
 **Files to read first:**
+
 - `.planning/phases/07-advanced-auditoria/PHASE-7-OVERVIEW.md`
 - `CLAUDE.md` (root)
 
 **Verification:**
+
 - `grep '^status: complete' .planning/phases/07-advanced-auditoria/PHASE-7-OVERVIEW.md` returns 1
 - `git diff --stat` shows exactly 2 files
 
@@ -682,6 +761,7 @@ grep -q '^Status: PASS' .planning/phases/07-advanced-auditoria/07-VERIFICATION.m
 ```
 
 **Pass criteria:**
+
 - [ ] 14 SA commits landed
 - [ ] 5 W4 components compile and pass renders in test SA-20
 - [ ] generatePDF outputs cover + exec + per-rule sections (SA-22 snapshot green)

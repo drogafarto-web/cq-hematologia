@@ -6,7 +6,12 @@ import type { ControlOperacional } from '../types/ControlOperacional';
 import type { Attempt } from '../types/Attempt';
 import type { CoagAnalyteId, CoagNivel } from '../../coagulacao/types/_shared_refs';
 import type { Analyte, WestgardViolation, RunStatus } from '../../../types';
-import type { UseChartDataReturn, ChartPoint, ChartStats, WestgardAlert } from '../../chart/hooks/useChartData';
+import type {
+  UseChartDataReturn,
+  ChartPoint,
+  ChartStats,
+  WestgardAlert,
+} from '../../chart/hooks/useChartData';
 
 interface CoagLeveyJenningsPanelProps {
   labId: string;
@@ -148,12 +153,11 @@ export function CoagLeveyJenningsPanel({ labId, controls }: CoagLeveyJenningsPan
         return (
           <div key={nivel} className="space-y-3">
             <div className="flex items-baseline gap-3 px-1">
-              <h2 className="text-sm font-semibold text-[var(--cl-text-strong)]">
-                Nível {nivel}
-              </h2>
+              <h2 className="text-sm font-semibold text-[var(--cl-text-strong)]">Nível {nivel}</h2>
               <span className="text-xs text-[var(--cl-text-muted)]">
                 {bucket.attempts.length} tentativa{bucket.attempts.length === 1 ? '' : 's'}
-                {bucket.controls.length > 0 && ` · ${bucket.controls.length} controle${bucket.controls.length === 1 ? '' : 's'}`}
+                {bucket.controls.length > 0 &&
+                  ` · ${bucket.controls.length} controle${bucket.controls.length === 1 ? '' : 's'}`}
               </span>
             </div>
 

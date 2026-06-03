@@ -25,23 +25,23 @@ import type { LogicalSignature } from '../../shared/cryptoaudit';
  * (clinical correction).
  */
 export interface OCRField {
-  name: string;       // e.g. "WBC", "RBC", "HGB"
-  value: string;      // raw extracted value (post-OCR, pre-RT)
+  name: string; // e.g. "WBC", "RBC", "HGB"
+  value: string; // raw extracted value (post-OCR, pre-RT)
   confidence?: number; // optional per-field confidence (0–1)
 }
 
 export interface OCRResultSnapshot {
   fields: OCRField[];
-  overallConfidence: number;        // global OCR confidence 0–1
-  geminiModel?: string;             // 'gemini-2.5-flash'
-  promptVariant?: string;           // for A/B tracking
-  capturedAt?: number;              // epoch ms
+  overallConfidence: number; // global OCR confidence 0–1
+  geminiModel?: string; // 'gemini-2.5-flash'
+  promptVariant?: string; // for A/B tracking
+  capturedAt?: number; // epoch ms
 }
 
 export interface FinalResultSnapshot {
-  fields: OCRField[];               // RT-validated final values
-  finalisedBy: string;              // operator UID
-  finalisedAt?: number;             // epoch ms
+  fields: OCRField[]; // RT-validated final values
+  finalisedBy: string; // operator UID
+  finalisedAt?: number; // epoch ms
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -89,10 +89,10 @@ export interface OCRFeedbackRun {
   accepted: boolean;
   signature: LogicalSignature;
   operatorId: string;
-  ts: any;                          // Firestore Timestamp
+  ts: any; // Firestore Timestamp
   // Surface metadata (denormalised for fast aggregation)
   analyzer?: 'yumizen-h550' | 'rdt-strip' | 'other';
-  source?: string;                  // free-form (e.g. captureId from ia-strip)
+  source?: string; // free-form (e.g. captureId from ia-strip)
 }
 
 /**
@@ -129,9 +129,9 @@ export interface FieldErrorPattern {
 
 export interface OCRWeeklyAggregate {
   labId: string;
-  weekKey: string;                  // ISO week e.g. "2026-W19"
-  windowStart: number;              // epoch ms (inclusive)
-  windowEnd: number;                // epoch ms (exclusive)
+  weekKey: string; // ISO week e.g. "2026-W19"
+  windowStart: number; // epoch ms (inclusive)
+  windowEnd: number; // epoch ms (exclusive)
   totalRuns: number;
   acceptedRuns: number;
   /** acceptedRuns / totalRuns — primary KPI */
@@ -142,5 +142,5 @@ export interface OCRWeeklyAggregate {
   mostEditedFields: FieldErrorPattern[];
   /** Lightweight prompt-tuning hints derived from patterns (NOT prescriptive) */
   promptTuningSuggestions: string[];
-  computedAt: any;                  // Firestore Timestamp
+  computedAt: any; // Firestore Timestamp
 }

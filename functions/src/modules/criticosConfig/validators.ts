@@ -35,10 +35,7 @@ export async function assertCriticosConfigReadAccess(
     throw new HttpsError('unauthenticated', 'Autenticação necessária.');
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${auth.uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${auth.uid}`).get();
 
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[CRITICOS_CONFIG_ACCESS_DENIED]', {
@@ -66,10 +63,7 @@ export async function assertCriticosConfigWriteAccess(
     throw new HttpsError('unauthenticated', 'Autenticação necessária.');
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${auth.uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${auth.uid}`).get();
 
   const data = memberSnap.data();
   if (!memberSnap.exists || data?.['active'] !== true) {
@@ -102,10 +96,7 @@ export async function assertCriticosConfigWriteAccess(
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
-export function criticosConfigCollection(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function criticosConfigCollection(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`critical-thresholds/${labId}/items`);
 }
 
@@ -130,20 +121,16 @@ const SexSchema = z.enum(['M', 'F', 'ALL']);
  */
 const AgeGroupSchema = z.enum([
   'ALL',
-  'NEONATE',     // 0–28 days
-  'INFANT',      // 29 days – 1 year
-  'CHILD',       // 1–11 years
-  'ADOLESCENT',  // 12–17 years
-  'ADULT',       // 18–64 years
-  'ELDERLY',     // 65+
+  'NEONATE', // 0–28 days
+  'INFANT', // 29 days – 1 year
+  'CHILD', // 1–11 years
+  'ADOLESCENT', // 12–17 years
+  'ADULT', // 18–64 years
+  'ELDERLY', // 65+
 ]);
 
 /** Reasonable bounds for clinical chemistry. Server rejects payloads outside. */
-const ThresholdValueSchema = z
-  .number()
-  .finite()
-  .min(-1_000_000)
-  .max(1_000_000);
+const ThresholdValueSchema = z.number().finite().min(-1_000_000).max(1_000_000);
 
 /** Unit string — short, no whitespace at edges. e.g. "mg/dL", "mmol/L". */
 const UnitSchema = z

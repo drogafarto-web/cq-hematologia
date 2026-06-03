@@ -212,41 +212,37 @@ describe('NotivisaHTTPClient', () => {
       expect(mockFetch).toHaveBeenCalledTimes(2); // Retried on timeout
     });
 
-    it(
-      'should exhaust retries and return error',
-      async () => {
-        const mockPayload: NotivisaDraftPayload = {
-          versao: '1.0',
-          laudo_id: 'laudo-123',
-          paciente_cpf: '12345678901',
-          data_resultado: Date.now(),
-          resultados: [
-            {
-              analito: 'Hemoglobina',
-              valor: 13.5,
-              unidade: 'g/dL',
-              referencia: '12-16',
-            },
-          ],
-          assinador: {
-            cpf: '98765432100',
-            nome: 'Dr. João',
-            data_assinatura: Date.now(),
+    it('should exhaust retries and return error', async () => {
+      const mockPayload: NotivisaDraftPayload = {
+        versao: '1.0',
+        laudo_id: 'laudo-123',
+        paciente_cpf: '12345678901',
+        data_resultado: Date.now(),
+        resultados: [
+          {
+            analito: 'Hemoglobina',
+            valor: 13.5,
+            unidade: 'g/dL',
+            referencia: '12-16',
           },
-        };
+        ],
+        assinador: {
+          cpf: '98765432100',
+          nome: 'Dr. João',
+          data_assinatura: Date.now(),
+        },
+      };
 
-        // Always fail
-        mockFetch.mockRejectedValue(new Error('Network error'));
+      // Always fail
+      mockFetch.mockRejectedValue(new Error('Network error'));
 
-        const result = await client.submitDraft('draft-1', mockPayload);
+      const result = await client.submitDraft('draft-1', mockPayload);
 
-        expect((result as any).status).toBe('error');
-        expect((result as any).reason).toContain('Network error');
-        expect((result as any).retryCount).toBe(5);
-        expect(mockFetch).toHaveBeenCalledTimes(5); // All retries exhausted
-      },
-      30000, // Long timeout for backoff delays
-    );
+      expect((result as any).status).toBe('error');
+      expect((result as any).reason).toContain('Network error');
+      expect((result as any).retryCount).toBe(5);
+      expect(mockFetch).toHaveBeenCalledTimes(5); // All retries exhausted
+    }, 30000); // Long timeout for backoff delays
   });
 
   describe('checkStatus', () => {
@@ -280,20 +276,16 @@ describe('NotivisaHTTPClient', () => {
       expect(result.status).toBe('pending');
     });
 
-    it(
-      'should handle status check error',
-      async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-        } as any);
+    it('should handle status check error', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+      } as any);
 
-        const result = await client.checkStatus('status-123');
+      const result = await client.checkStatus('status-123');
 
-        expect((result as any).status).toBe('error');
-      },
-      30000, // Long timeout for backoff delays
-    );
+      expect((result as any).status).toBe('error');
+    }, 30000); // Long timeout for backoff delays
   });
 
   describe('retrieveApproval', () => {
@@ -331,10 +323,7 @@ describe('NotivisaHTTPClient', () => {
 
   describe('base URL handling', () => {
     it('should remove trailing slash from base URL', () => {
-      const clientWithSlash = new NotivisaHTTPClient(
-        'test-key',
-        'https://api.notivisa.test/',
-      );
+      const clientWithSlash = new NotivisaHTTPClient('test-key', 'https://api.notivisa.test/');
 
       mockFetch.mockResolvedValueOnce({
         ok: true,
@@ -352,10 +341,7 @@ describe('NotivisaHTTPClient', () => {
 
   describe('authorization header', () => {
     it('should include Bearer token in Authorization header', async () => {
-      const clientWithToken = new NotivisaHTTPClient(
-        'custom-secret-key',
-        'https://api.test',
-      );
+      const clientWithToken = new NotivisaHTTPClient('custom-secret-key', 'https://api.test');
 
       mockFetch.mockResolvedValueOnce({
         ok: true,

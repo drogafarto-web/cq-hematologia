@@ -56,7 +56,7 @@ describe('useAuditTrail hook', () => {
           labId: 'lab-001',
           offset: 0,
           limit: 50,
-        })
+        }),
       );
     });
 
@@ -69,7 +69,7 @@ describe('useAuditTrail hook', () => {
           labId: 'lab-001',
           offset: 0,
           limit: 50,
-        })
+        }),
       ).rejects.toThrow('Sem permissão para este módulo');
     });
   });

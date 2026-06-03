@@ -112,7 +112,14 @@ export function WebcamCaptureModal({ open, onCapture, onClose }: Props) {
           className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors"
           aria-label="Fechar câmera"
         >
-          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="white" strokeWidth="2">
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="white"
+            strokeWidth="2"
+          >
             <path d="M4 4l8 8M12 4l-8 8" strokeLinecap="round" />
           </svg>
         </button>
@@ -126,7 +133,14 @@ export function WebcamCaptureModal({ open, onCapture, onClose }: Props) {
 
           {state === 'error' && (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 text-white/70">
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+              <svg
+                width="32"
+                height="32"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1.5"
+              >
                 <path d="M18.36 5.64a9 9 0 11-12.73 0M12 9v4M12 17h.01" strokeLinecap="round" />
               </svg>
               <span className="text-sm">Câmera não disponível</span>

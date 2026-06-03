@@ -1,6 +1,9 @@
 import { useState, useCallback } from 'react';
 import { useActiveLab } from '../../../store/useAuthStore';
-import { useCoagSignature, canonicalizeCoagResultados } from '../../coagulacao/hooks/useCoagSignature';
+import {
+  useCoagSignature,
+  canonicalizeCoagResultados,
+} from '../../coagulacao/hooks/useCoagSignature';
 import type { CoagSignaturePayload } from '../../coagulacao/hooks/useCoagSignature';
 import { computeCoagWestgard } from '../../coagulacao/hooks/useCoagWestgard';
 import { saveAttempt } from '../services/attemptService';
@@ -36,7 +39,8 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           throw new Error('Pelo menos um resultado deve ser informado');
         }
         for (const v of Object.values(data.resultados)) {
-          if (typeof v !== 'number' || v <= 0) throw new Error('Resultados devem ser números positivos');
+          if (typeof v !== 'number' || v <= 0)
+            throw new Error('Resultados devem ser números positivos');
         }
 
         const { listAttempts } = await import('../services/attemptService');
@@ -71,11 +75,16 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
         }
 
         const { getInsumoOnce } = await import('../../insumos/services/insumosFirebaseService');
-        const { getEquipamentoOnce } = await import('../../equipamentos/services/equipamentoService');
+        const { getEquipamentoOnce } =
+          await import('../../equipamentos/services/equipamentoService');
 
         const insumoTP = controle.insumoId ? await getInsumoOnce(labId, controle.insumoId) : null;
-        const insumoTTPA = controle.reagenteTTPAId ? await getInsumoOnce(labId, controle.reagenteTTPAId) : null;
-        const equipamento = controle.equipamentoId ? await getEquipamentoOnce(labId, controle.equipamentoId) : null;
+        const insumoTTPA = controle.reagenteTTPAId
+          ? await getInsumoOnce(labId, controle.reagenteTTPAId)
+          : null;
+        const equipamento = controle.equipamentoId
+          ? await getEquipamentoOnce(labId, controle.equipamentoId)
+          : null;
 
         const { buildInsumoSnapshot } = await import('../../insumos/types/InsumoSnapshot');
         const { buildEquipamentoSnapshot } = await import('../../equipamentos/types/Equipamento');
@@ -84,7 +93,9 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
           controle: insumoTP ? buildInsumoSnapshot(insumoTP) : buildInsumoSnapshot({} as any),
           reagente: insumoTP ? buildInsumoSnapshot(insumoTP) : buildInsumoSnapshot({} as any),
           reagenteTtpa: insumoTTPA ? buildInsumoSnapshot(insumoTTPA) : null,
-          equipamento: equipamento ? buildEquipamentoSnapshot(equipamento) : buildEquipamentoSnapshot({} as any),
+          equipamento: equipamento
+            ? buildEquipamentoSnapshot(equipamento)
+            : buildEquipamentoSnapshot({} as any),
         };
 
         const signPayload: CoagSignaturePayload = {
@@ -97,20 +108,15 @@ export function useAttemptSave(labId: string): UseAttemptSaveResult {
         };
         const signed = await sign(signPayload);
 
-        const attempt = await saveAttempt(
-          labId,
-          '',
-          signed.signedBy,
-          {
-            ...data,
-            conformidade,
-            violacoes,
-            analitosComViolacao,
-            snapshot,
-            overrides: { insumoVencido: false, qcNaoValidado: false, motivo: null },
-            logicalSignature: signed.logicalSignature,
-          },
-        );
+        const attempt = await saveAttempt(labId, '', signed.signedBy, {
+          ...data,
+          conformidade,
+          violacoes,
+          analitosComViolacao,
+          snapshot,
+          overrides: { insumoVencido: false, qcNaoValidado: false, motivo: null },
+          logicalSignature: signed.logicalSignature,
+        });
 
         setIsSaving(false);
         return attempt;

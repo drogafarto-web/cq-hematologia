@@ -11,8 +11,7 @@ import { HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-export const TURNOS_ACCESS_DENIED_MSG =
-  'Sem permissão para este módulo — contate o administrador.';
+export const TURNOS_ACCESS_DENIED_MSG = 'Sem permissão para este módulo — contate o administrador.';
 
 interface AuthDataLite {
   uid: string;
@@ -50,10 +49,7 @@ export async function assertTurnosAccess(
     throw new HttpsError('permission-denied', TURNOS_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[TURNOS_ACCESS_DENIED]', {
       uid,
@@ -71,24 +67,15 @@ export function turnosLabRoot(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}`);
 }
 
-export function turnosCollection(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function turnosCollection(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`labs/${labId}/turnos`);
 }
 
-export function escalasCollection(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function escalasCollection(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`personnel/${labId}/escalas`);
 }
 
-export function escalaPadraoDoc(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function escalaPadraoDoc(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}/turnos-config/escala-padrao`);
 }
 
@@ -148,12 +135,14 @@ export type SoftDeleteEscalaInput = z.infer<typeof SoftDeleteEscalaInputSchema>;
 export const SaveEscalaPadraoInputSchema = z.object({
   labId: z.string().min(1),
   diasAtivos: z.array(z.number().int().min(0).max(6)),
-  turnos: z.array(z.object({
-    periodo: PeriodoEscalaSchema,
-    colaboradores: z.array(EscalaColaboradorSchema),
-    rtPresente: z.boolean(),
-    rtSubstitutoPresente: z.boolean(),
-  })),
+  turnos: z.array(
+    z.object({
+      periodo: PeriodoEscalaSchema,
+      colaboradores: z.array(EscalaColaboradorSchema),
+      rtPresente: z.boolean(),
+      rtSubstitutoPresente: z.boolean(),
+    }),
+  ),
 });
 
 export type SaveEscalaPadraoInput = z.infer<typeof SaveEscalaPadraoInputSchema>;
@@ -204,7 +193,11 @@ export const SupervisorCheckinInputSchema = z.object({
   labId: z.string().min(1),
   turnoId: z.string().min(1),
   supervisorUid: z.string().min(1),
-  pin: z.string().regex(/^\d{4,6}$/).optional().nullable(),
+  pin: z
+    .string()
+    .regex(/^\d{4,6}$/)
+    .optional()
+    .nullable(),
 });
 
 export type SupervisorCheckinInput = z.infer<typeof SupervisorCheckinInputSchema>;
@@ -227,26 +220,15 @@ export type DesignateSubstituteInput = z.infer<typeof DesignateSubstituteInputSc
 
 // ─── Presença path helpers ──────────────────────────────────────────────────
 
-export function presencaDoc(
-  db: admin.firestore.Firestore,
-  labId: string,
-  turnoId: string,
-) {
+export function presencaDoc(db: admin.firestore.Firestore, labId: string, turnoId: string) {
   return db.doc(`labs/${labId}/turnos/${turnoId}/presenca/current`);
 }
 
-export function presencaEventsCol(
-  db: admin.firestore.Firestore,
-  labId: string,
-  turnoId: string,
-) {
+export function presencaEventsCol(db: admin.firestore.Firestore, labId: string, turnoId: string) {
   return db.collection(`labs/${labId}/turnos/${turnoId}/presenca-events`);
 }
 
-export function labSupervisorStatusDoc(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function labSupervisorStatusDoc(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}/supervisor-status/current`);
 }
 

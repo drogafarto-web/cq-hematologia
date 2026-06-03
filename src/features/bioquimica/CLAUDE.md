@@ -64,7 +64,7 @@ Toda função de service recebe `labId` como parâmetro posicional obrigatório.
 - **chainHash server-only** — calculado no server, nunca confiar no client.
 - **labId redundante** — todos os docs carregam payload + path. Rules validam ambos.
 - **LogicalSignature** em runs e traceability events — `hash.size() == 64`
-  + `operatorId == request.auth.uid` + `ts is timestamp`.
+  - `operatorId == request.auth.uid` + `ts is timestamp`.
 - **Compliance override** — `complianceOverride.blockers` congelado no momento
   do override (snapshot imutável).
 

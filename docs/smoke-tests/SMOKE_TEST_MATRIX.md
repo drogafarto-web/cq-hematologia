@@ -17,33 +17,33 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 ## Module Coverage (CRUD Operations)
 
-| # | Module | Create | Read | Soft-Delete | Audit Trail | P99 Latency | Status |
-|---|--------|--------|------|-------------|------------|------------|--------|
-| 1 | `analyzer` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 2 | `coagulacao` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 3 | `ciq-imuno` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 4 | `insumos` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 5 | `controle-temperatura` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 6 | `uroanalise` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 7 | `equipamentos` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 8 | `fornecedores` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 9 | `lots` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 10 | `runs` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 11 | `chart` | ✓ | ✓ | ✓ | — | <2s | READY |
-| 12 | `reports` | ✓ | ✓ | ✓ | — | <2s | READY |
-| 13 | `labSettings` | ✓ | ✓ | ✓ | — | <2s | READY |
-| 14 | `hub` | — | ✓ | — | — | <1s | READY |
-| 15 | `bulaparser` | ✓ | ✓ | ✓ | — | <3s | READY |
-| 16 | `auth` | ✓ | ✓ | — | ✓ | <2s | READY |
-| 17 | `admin` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 18 | `educacao-continuada` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 19 | `sgq` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 20 | `pops` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 21 | `auditoria` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 22 | `sgd` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 23 | `treinamentos` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 24 | `biosseguranca` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
-| 25 | `pgrss` | ✓ | ✓ | ✓ | ✓ | <2s | READY |
+| #   | Module                 | Create | Read | Soft-Delete | Audit Trail | P99 Latency | Status |
+| --- | ---------------------- | ------ | ---- | ----------- | ----------- | ----------- | ------ |
+| 1   | `analyzer`             | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 2   | `coagulacao`           | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 3   | `ciq-imuno`            | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 4   | `insumos`              | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 5   | `controle-temperatura` | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 6   | `uroanalise`           | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 7   | `equipamentos`         | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 8   | `fornecedores`         | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 9   | `lots`                 | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 10  | `runs`                 | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 11  | `chart`                | ✓      | ✓    | ✓           | —           | <2s         | READY  |
+| 12  | `reports`              | ✓      | ✓    | ✓           | —           | <2s         | READY  |
+| 13  | `labSettings`          | ✓      | ✓    | ✓           | —           | <2s         | READY  |
+| 14  | `hub`                  | —      | ✓    | —           | —           | <1s         | READY  |
+| 15  | `bulaparser`           | ✓      | ✓    | ✓           | —           | <3s         | READY  |
+| 16  | `auth`                 | ✓      | ✓    | —           | ✓           | <2s         | READY  |
+| 17  | `admin`                | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 18  | `educacao-continuada`  | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 19  | `sgq`                  | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 20  | `pops`                 | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 21  | `auditoria`            | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 22  | `sgd`                  | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 23  | `treinamentos`         | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 24  | `biosseguranca`        | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
+| 25  | `pgrss`                | ✓      | ✓    | ✓           | ✓           | <2s         | READY  |
 
 **Summary:** 25/25 modules ready for smoke testing.
 
@@ -55,16 +55,16 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 **Path:** Patient → Sample → Analyzer/Analyzer → CIQ Validation → Laudo Generation → Portal Access
 
-| Module | Operation | Result | Evidence | Time |
-|--------|-----------|--------|----------|------|
-| `auth` | Patient login | PASS | JWT token valid | <1s |
-| `analyzer` | Create analyzer run | PASS | Run UUID created, results captured | <3s |
-| `coagulacao` | CIQ validation | PASS | Control material analyzed, QC flag set | <2s |
-| `ciq-imuno` | CIQ validation | PASS | Quality control rules applied | <2s |
-| `reports` | Generate laudo PDF | PASS | PDF <2MB, contains signature | <5s |
-| `portal` | Patient downloads result | PASS | HTTP 200, PDF served | <2s |
-| `auditoria` | Audit trail complete | PASS | 6 entries logged (analyzer → portal) | <1s |
-| **TOTAL** | **E2E flow** | **PASS** | **Full cycle** | **<16s** |
+| Module       | Operation                | Result   | Evidence                               | Time     |
+| ------------ | ------------------------ | -------- | -------------------------------------- | -------- |
+| `auth`       | Patient login            | PASS     | JWT token valid                        | <1s      |
+| `analyzer`   | Create analyzer run      | PASS     | Run UUID created, results captured     | <3s      |
+| `coagulacao` | CIQ validation           | PASS     | Control material analyzed, QC flag set | <2s      |
+| `ciq-imuno`  | CIQ validation           | PASS     | Quality control rules applied          | <2s      |
+| `reports`    | Generate laudo PDF       | PASS     | PDF <2MB, contains signature           | <5s      |
+| `portal`     | Patient downloads result | PASS     | HTTP 200, PDF served                   | <2s      |
+| `auditoria`  | Audit trail complete     | PASS     | 6 entries logged (analyzer → portal)   | <1s      |
+| **TOTAL**    | **E2E flow**             | **PASS** | **Full cycle**                         | **<16s** |
 
 **Acceptance:** All 7 steps PASS, P99 <16s, zero errors in Cloud Logs.
 
@@ -74,15 +74,15 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 **Path:** Laudo Ready → Queue → Processor → Submission → Response Logged
 
-| Step | Operation | Result | Evidence | Time |
-|------|-----------|--------|----------|------|
-| 1 | Mark laudo as ready for notification | PASS | Status field updated | <1s |
-| 2 | Queue to `notivisa-outbox` | PASS | Document created, dated | <1s |
-| 3 | Processor polls queue | PASS | Cron job executes, reads outbox | <10s |
-| 4 | Submit to NOTIVISA API | PASS | POST request, response received | <5s |
-| 5 | Log response in `notivisa-responses` | PASS | Entry timestamped, immutable | <1s |
-| 6 | Mark outbox entry processed | PASS | Soft-delete flag set | <1s |
-| **TOTAL** | **Queue → Response** | **PASS** | **Full cycle** | **<30s** |
+| Step      | Operation                            | Result   | Evidence                        | Time     |
+| --------- | ------------------------------------ | -------- | ------------------------------- | -------- |
+| 1         | Mark laudo as ready for notification | PASS     | Status field updated            | <1s      |
+| 2         | Queue to `notivisa-outbox`           | PASS     | Document created, dated         | <1s      |
+| 3         | Processor polls queue                | PASS     | Cron job executes, reads outbox | <10s     |
+| 4         | Submit to NOTIVISA API               | PASS     | POST request, response received | <5s      |
+| 5         | Log response in `notivisa-responses` | PASS     | Entry timestamped, immutable    | <1s      |
+| 6         | Mark outbox entry processed          | PASS     | Soft-delete flag set            | <1s      |
+| **TOTAL** | **Queue → Response**                 | **PASS** | **Full cycle**                  | **<30s** |
 
 **Acceptance:** All 6 steps PASS, end-to-end <30s, zero retries needed, response status captured.
 
@@ -92,15 +92,15 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 **Path:** NC Audit Finding → CAPA Creation → Action Plan → Completion → Sign-Off
 
-| Step | Operation | Result | Evidence | Time |
-|------|-----------|--------|----------|------|
-| 1 | Log NC finding (non-conformance) | PASS | Finding UUID created, severity assigned | <1s |
-| 2 | Create CAPA (corrective/preventive) | PASS | CAPA UUID created, linked to finding | <1s |
-| 3 | Assign action to operator | PASS | Responsible person, deadline set | <1s |
-| 4 | Log action completion + evidence | PASS | Photo/document attached, signed | <2s |
-| 5 | RT (responsible tech) reviews | PASS | Approval recorded | <1s |
-| 6 | Audit trail immutable | PASS | 5+ entries, no updates/deletes | <1s |
-| **TOTAL** | **Finding → Closure** | **PASS** | **Full cycle** | **<7s** |
+| Step      | Operation                           | Result   | Evidence                                | Time    |
+| --------- | ----------------------------------- | -------- | --------------------------------------- | ------- |
+| 1         | Log NC finding (non-conformance)    | PASS     | Finding UUID created, severity assigned | <1s     |
+| 2         | Create CAPA (corrective/preventive) | PASS     | CAPA UUID created, linked to finding    | <1s     |
+| 3         | Assign action to operator           | PASS     | Responsible person, deadline set        | <1s     |
+| 4         | Log action completion + evidence    | PASS     | Photo/document attached, signed         | <2s     |
+| 5         | RT (responsible tech) reviews       | PASS     | Approval recorded                       | <1s     |
+| 6         | Audit trail immutable               | PASS     | 5+ entries, no updates/deletes          | <1s     |
+| **TOTAL** | **Finding → Closure**               | **PASS** | **Full cycle**                          | **<7s** |
 
 **Acceptance:** All 6 steps PASS, audit trail immutable, zero data loss during soft-delete.
 
@@ -110,15 +110,15 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 **Path:** Patient Login → Laudo List → Fetch Details → Download PDF → Access Logged
 
-| Step | Operation | Result | Evidence | Time |
-|------|-----------|--------|----------|------|
-| 1 | Patient authenticates | PASS | Custom claims verified, portal claims set | <1s |
-| 2 | List laudos accessible to patient | PASS | Query returns only patient's laudos | <1s |
-| 3 | Fetch laudo metadata + PDF link | PASS | Signature verified, physician displayed | <1s |
-| 4 | Download PDF from Cloud Storage | PASS | HTTP 200, <2MB file, <5s transfer | <5s |
-| 5 | Log access in audit trail | PASS | Portal access recorded with timestamp | <1s |
-| 6 | LGPD consent verified | PASS | Patient has active consent for portal | <1s |
-| **TOTAL** | **Login → Download** | **PASS** | **Full cycle** | **<10s** |
+| Step      | Operation                         | Result   | Evidence                                  | Time     |
+| --------- | --------------------------------- | -------- | ----------------------------------------- | -------- |
+| 1         | Patient authenticates             | PASS     | Custom claims verified, portal claims set | <1s      |
+| 2         | List laudos accessible to patient | PASS     | Query returns only patient's laudos       | <1s      |
+| 3         | Fetch laudo metadata + PDF link   | PASS     | Signature verified, physician displayed   | <1s      |
+| 4         | Download PDF from Cloud Storage   | PASS     | HTTP 200, <2MB file, <5s transfer         | <5s      |
+| 5         | Log access in audit trail         | PASS     | Portal access recorded with timestamp     | <1s      |
+| 6         | LGPD consent verified             | PASS     | Patient has active consent for portal     | <1s      |
+| **TOTAL** | **Login → Download**              | **PASS** | **Full cycle**                            | **<10s** |
 
 **Acceptance:** All 6 steps PASS, P99 <10s, patient sees only own data (no cross-tenant leakage).
 
@@ -130,14 +130,14 @@ This matrix tracks smoke test execution across all 25 production modules on stag
 
 For each of CP-1 through CP-4, verify audit trail entries:
 
-| Check | Criteria | Expected | Evidence |
-|-------|----------|----------|----------|
-| **Entry created** | Every action logged | ✓ for all 7 operations in CP-1 | Entry count matches action count |
-| **Operator ID** | `operatorId == request.auth.uid` | Matches authenticated user | Audit log shows correct operator |
-| **Timestamp** | `createdAt` is Firebase server time | Within <100ms of action | Not user input, server-generated |
-| **Signature valid** | `hash.size() == 64`, SHA-256 | All regulatory writes signed | Hash computed over payload |
-| **Immutable** | No soft-delete, no update | Frozen after creation | Attempt to update → DENIED |
-| **Queryable** | Fetch via `auditTrail` subcollection | Returns all entries in order | Pagination <500ms |
+| Check               | Criteria                             | Expected                       | Evidence                         |
+| ------------------- | ------------------------------------ | ------------------------------ | -------------------------------- |
+| **Entry created**   | Every action logged                  | ✓ for all 7 operations in CP-1 | Entry count matches action count |
+| **Operator ID**     | `operatorId == request.auth.uid`     | Matches authenticated user     | Audit log shows correct operator |
+| **Timestamp**       | `createdAt` is Firebase server time  | Within <100ms of action        | Not user input, server-generated |
+| **Signature valid** | `hash.size() == 64`, SHA-256         | All regulatory writes signed   | Hash computed over payload       |
+| **Immutable**       | No soft-delete, no update            | Frozen after creation          | Attempt to update → DENIED       |
+| **Queryable**       | Fetch via `auditTrail` subcollection | Returns all entries in order   | Pagination <500ms                |
 
 **Sampling strategy:** For CP-1, verify all 6 audit entries. For CP-2–CP-5, sample 3 entries each.
 
@@ -221,7 +221,11 @@ For each of CP-1 through CP-4, verify audit trail entries:
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { initializeApp } from 'firebase/app';
 import { getFirestore, connectFirestoreEmulator } from 'firebase/firestore';
-import { testAnalyzerCreate, testAnalyzerRead, testAnalyzerDelete } from '../../fixtures/analyzerHelpers';
+import {
+  testAnalyzerCreate,
+  testAnalyzerRead,
+  testAnalyzerDelete,
+} from '../../fixtures/analyzerHelpers';
 
 describe('Module: Analyzer', () => {
   let db: any;
@@ -288,10 +292,10 @@ describe('Module: Analyzer', () => {
 
 ## Approval & Sign-Off
 
-**Smoke Test Lead:** _________________ Date: _________
+**Smoke Test Lead:** ********\_******** Date: ****\_****
 
-**QA Lead:** _________________ Date: _________
+**QA Lead:** ********\_******** Date: ****\_****
 
-**CTO:** _________________ Date: _________
+**CTO:** ********\_******** Date: ****\_****
 
 Once all 125 test cases pass, Phase 14 can advance to Load Testing.

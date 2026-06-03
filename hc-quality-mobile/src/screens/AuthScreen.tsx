@@ -98,7 +98,7 @@ export function AuthScreen() {
                 text: 'Agora não',
                 style: 'cancel',
               },
-            ]
+            ],
           );
         }, 500);
       }
@@ -167,9 +167,7 @@ export function AuthScreen() {
           accessibilityHint="Abre o diálogo de autenticação biométrica"
           testID="biometric-button"
         >
-          <Text style={styles.biometricButtonText}>
-            Entrar com {biometricLabel}
-          </Text>
+          <Text style={styles.biometricButtonText}>Entrar com {biometricLabel}</Text>
         </TouchableOpacity>
       ) : null}
 
@@ -211,11 +209,7 @@ export function AuthScreen() {
         testID="login-button"
       >
         {loading ? (
-          <ActivityIndicator
-            color="#fff"
-            accessible
-            accessibilityLabel="Autenticando"
-          />
+          <ActivityIndicator color="#fff" accessible accessibilityLabel="Autenticando" />
         ) : (
           <Text style={styles.buttonText}>Entrar</Text>
         )}

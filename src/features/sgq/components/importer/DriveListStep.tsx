@@ -49,9 +49,7 @@ export function DriveListStep({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium text-white mb-2">
-          Documentos encontrados no Drive
-        </h3>
+        <h3 className="text-base font-medium text-white mb-2">Documentos encontrados no Drive</h3>
         <p className="text-sm text-neutral-400">
           {matched.length} de {total} documentos da Lista Mestra foram encontrados no Drive
         </p>
@@ -66,9 +64,7 @@ export function DriveListStep({
           {/* Matched documents */}
           {matched.length > 0 && (
             <div className="space-y-2">
-              <h4 className="font-medium text-green-400 text-sm">
-                ✓ {matched.length} encontrados
-              </h4>
+              <h4 className="font-medium text-green-400 text-sm">✓ {matched.length} encontrados</h4>
               <div className="bg-neutral-900 border border-neutral-800 rounded max-h-48 overflow-y-auto">
                 {matched.slice(0, 10).map((doc) => (
                   <div
@@ -104,9 +100,7 @@ export function DriveListStep({
                   </div>
                 ))}
                 {gaps.length > 5 && (
-                  <div className="p-2 text-xs text-neutral-500">
-                    + {gaps.length - 5} mais...
-                  </div>
+                  <div className="p-2 text-xs text-neutral-500">+ {gaps.length - 5} mais...</div>
                 )}
               </div>
             </div>

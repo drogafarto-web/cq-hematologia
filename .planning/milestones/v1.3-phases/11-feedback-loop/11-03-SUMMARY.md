@@ -1,9 +1,9 @@
 ---
-plan: "03"
-phase: "11-feedback-loop"
-title: "Status Workflow + Notificação Email + RCA UI — SUMMARY"
-date_completed: "2026-05-06"
-status: "PARTIAL"
+plan: '03'
+phase: '11-feedback-loop'
+title: 'Status Workflow + Notificação Email + RCA UI — SUMMARY'
+date_completed: '2026-05-06'
+status: 'PARTIAL'
 ---
 
 # Phase 11 Plan 03 — SUMMARY (PARTIAL)
@@ -13,6 +13,7 @@ status: "PARTIAL"
 Status machine completa de reclamação (6 estados) + RCA 5 Whys interativa + notificação automática a cada transição via Resend + SLA tracker visual.
 
 **Output delivered (Partial):**
+
 - 1 Cloud Function: `transitarReclamacao` (callable)
 - 1 State machine: `stateMachine.ts` (pure logic)
 - 1 RCA component: `RCAFiveWhysForm` (intake)
@@ -20,6 +21,7 @@ Status machine completa de reclamação (6 estados) + RCA 5 Whys interativa + no
 - Zero TypeScript errors
 
 **Deferred to Wave 2:**
+
 - StatusTransitionModal (UI for state transitions)
 - StatusBadge (visual status indicator component)
 - SLATracker (visual SLA countdown + alerts)
@@ -34,6 +36,7 @@ Status machine completa de reclamação (6 estados) + RCA 5 Whys interativa + no
 ### 1. Cloud Function
 
 #### `transitarReclamacao` (Callable)
+
 - **Path:** `functions/src/modules/reclamacoes/transitarReclamacao.ts` (240 lines)
 - **Auth:** `isActiveMemberOfLab(uid, labId)` required (RT/Qualidade only)
 - **Input Zod schema:**
@@ -76,12 +79,14 @@ Status machine completa de reclamação (6 estados) + RCA 5 Whys interativa + no
 **File:** `src/features/reclamacoes/utils/stateMachine.ts` (60 lines)
 
 **Functions:**
+
 - `validateTransition(statusAtual, novoStatus)` — Boolean validation
 - `getNextStates(statusAtual)` — Array of valid next states
 - `getStatusLabel(status)` — Portuguese label
 - `getStatusColor(status)` — Tailwind color class (blue/yellow/orange/green/purple/gray)
 
 **State graph:**
+
 ```
 Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ```
@@ -89,6 +94,7 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ### 3. React Components
 
 #### `RCAFiveWhysForm` (RCA intake form)
+
 - **File:** `src/features/reclamacoes/components/RCAFiveWhysForm.tsx` (160 lines)
 - **Layout:**
   - Info banner: "5 Whys: responda a cada nível para identificar a causa raiz"
@@ -106,6 +112,7 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 - **Pending:** Actual Firestore update commented out (should call `transitarReclamacao` callable)
 
 #### `ReclamacaoDashboard` (Complaint list)
+
 - **File:** `src/features/reclamacoes/components/ReclamacaoDashboard.tsx` (200 lines)
 - **Features:**
   - Header with total count + "Nova reclamação" button
@@ -127,11 +134,12 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ## Firestore Schema (for Plan 03)
 
 ### Collection: `/labs/{labId}/reclamacoes/{reclamacaoId}`
+
 ```typescript
 {
   // ... (existing from Plan 01-02)
   status: 'Nova' | 'Analisando' | 'RCA' | 'Resolvida' | 'Comunicada' | 'Fechada',
-  
+
   // Plan 03 additions:
   rcaFiveWhys?: {
     niveis: [{
@@ -143,14 +151,14 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
     acoesRecomendadas?: string,
     completadoEm: Timestamp
   },
-  
+
   // Audit trail
   signature?: {
     hash: string (64-char SHA-256),
     operatorId: string,
     ts: Timestamp
   },
-  
+
   updatedAt: Timestamp
 }
 ```
@@ -160,6 +168,7 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ## Deferred Components (Wave 2 — Plan 03 continuation)
 
 ### StatusTransitionModal
+
 - Modal dialog to trigger state change
 - Dropdown select novoStatus
 - Optional text field for descricaoTransicao
@@ -167,30 +176,35 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 - Validation: only shows valid next states
 
 ### StatusBadge
+
 - Reusable badge component
 - Shows status label + color
 - Uses `getStatusColor()` from state machine
 - Tailwind variants for blue/yellow/orange/green/purple/gray
 
 ### SLATracker
+
 - Visual countdown: dias restantes / slaPrazo
 - Color: green (>7d), yellow (1-7d), red (overdue)
 - Daily cron job: check overdue complaints, send alert email to RT
 - Component shows chip + countdown timer
 
 ### AcoesCorretivas
+
 - Editable list of corrective actions (linked to NC if severity=alta)
 - Fields: responsável (user), prazo (date), status (pendente/concluída)
 - Add/edit/delete actions
 - Validation: prazo must be after RCA completion date
 
 ### ResolucaoForm
+
 - Textarea: descricao da resolução
 - Dropdown: eficacia (eficaz / parcial / ineficaz)
 - If ineficaz: reopen reclamacao → status back to RCA
 - Submit calls `transitarReclamacao` to move to Resolvida
 
 ### ComunicacaoTimeline
+
 - Immutable timeline of all emails sent
 - Shows: email address, status (enviado/erro), timestamp, Resend messageId
 - Queries `comunicacoes-cliente` collection
@@ -222,12 +236,14 @@ Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 ## Testing (Partial — Wave 2 to complete)
 
 ### Unit Tests (Functions)
+
 - ✅ `transitarReclamacao` state validation (invalid transition → error)
 - ✅ `validateTransition()` pure function
 - ⏳ RCA completion validation (nivelRaiz required before Resolvida)
 - ⏳ Email send on Comunicada transition
 
 ### Integration Tests (E2E)
+
 - ⏳ Full workflow: Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 - ⏳ RCA form submit → reclamacao.rcaFiveWhys populated
 - ⏳ Status change → email delivered to reclamant

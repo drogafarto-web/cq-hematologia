@@ -8,24 +8,26 @@
 
 ## Participantes
 
-| Cargo | Nome | Status |
-|-------|------|--------|
-| **Responsável Técnico (RT)** | [CTO — Founder/CTO] | Confirmado |
-| **Auditor Interno** | CTO (você) | Confirmado |
-| **Operador Tablet** | [Senior technician on-site] | Confirmado |
-| **Coordenador** | CTO | Confirmado |
+| Cargo                        | Nome                        | Status     |
+| ---------------------------- | --------------------------- | ---------- |
+| **Responsável Técnico (RT)** | [CTO — Founder/CTO]         | Confirmado |
+| **Auditor Interno**          | CTO (você)                  | Confirmado |
+| **Operador Tablet**          | [Senior technician on-site] | Confirmado |
+| **Coordenador**              | CTO                         | Confirmado |
 
 ---
 
 ## Escopo da Auditoria
 
 **Normas Aplicáveis:**
+
 - DICQ 4.3 (8ª edição — ISO 15189:2015 via SBAC)
 - RDC 978/2025 (ANVISA — Qualidade em Laboratório Clínico)
 
 **Checklist Template:** dicq-4-3-rdc-978-v1 (117-130 itens conforme blocos DICQ A-J)
 
 **Blocos Auditados:**
+
 - A: Organização e Responsabilidade
 - B: Pessoal
 - C: Acomodações e Ambiente
@@ -43,16 +45,16 @@
 
 ## Timeline Estimada
 
-| Fase | Blocos | Itens | Duração | Horário Estimado |
-|------|--------|-------|---------|------------------|
-| **1. Setup + Verificação** | — | — | 30 min | 10:00-10:30 |
-| **2. Blocos A-B** | Organização, Pessoal | ~35 | 1h 45m | 10:30-12:15 |
-| **INTERVALO** | — | — | 15 min | 12:15-12:30 |
-| **3. Blocos C-D** | Acomodações, Equipamentos | ~35 | 1h 45m | 12:30-14:15 |
-| **INTERVALO** | — | — | 15 min | 14:15-14:30 |
-| **4. Blocos E-G** | Pré/Analítico/Garantia | ~35 | 1h 45m | 14:30-16:15 |
-| **5. Blocos H-J** | Pós/Laudo/Informação | ~30 | 1h 30m | 16:15-17:45 |
-| **6. Debrief + Análise** | — | — | 1h | 17:45-18:45 |
+| Fase                       | Blocos                    | Itens | Duração | Horário Estimado |
+| -------------------------- | ------------------------- | ----- | ------- | ---------------- |
+| **1. Setup + Verificação** | —                         | —     | 30 min  | 10:00-10:30      |
+| **2. Blocos A-B**          | Organização, Pessoal      | ~35   | 1h 45m  | 10:30-12:15      |
+| **INTERVALO**              | —                         | —     | 15 min  | 12:15-12:30      |
+| **3. Blocos C-D**          | Acomodações, Equipamentos | ~35   | 1h 45m  | 12:30-14:15      |
+| **INTERVALO**              | —                         | —     | 15 min  | 14:15-14:30      |
+| **4. Blocos E-G**          | Pré/Analítico/Garantia    | ~35   | 1h 45m  | 14:30-16:15      |
+| **5. Blocos H-J**          | Pós/Laudo/Informação      | ~30   | 1h 30m  | 16:15-17:45      |
+| **6. Debrief + Análise**   | —                         | —     | 1h      | 17:45-18:45      |
 
 **Total Estimado:** 8 horas (com intervalos)
 
@@ -62,14 +64,15 @@
 
 Durante a execução, cada item será classificado como:
 
-| Status | Descrição | Ação no Sistema |
-|--------|-----------|-----------------|
-| **Conforme (C)** | Item atende requisito; evidência presente e auditável | Sem NC criado |
-| **Não-conforme Menor (NCm)** | Gap menor, baixo risco; fraqueza identificada | NC criado, prioridade MÉDIA |
-| **Não-conforme Maior (NCM)** | Gap crítico, risco regulatório; achado significativo | NC criado, prioridade ALTA, requer CAPA |
-| **N.A.** | Item não aplicável (ex: lab não executa teste type) | Registrado, sem NC |
+| Status                       | Descrição                                             | Ação no Sistema                         |
+| ---------------------------- | ----------------------------------------------------- | --------------------------------------- |
+| **Conforme (C)**             | Item atende requisito; evidência presente e auditável | Sem NC criado                           |
+| **Não-conforme Menor (NCm)** | Gap menor, baixo risco; fraqueza identificada         | NC criado, prioridade MÉDIA             |
+| **Não-conforme Maior (NCM)** | Gap crítico, risco regulatório; achado significativo  | NC criado, prioridade ALTA, requer CAPA |
+| **N.A.**                     | Item não aplicável (ex: lab não executa teste type)   | Registrado, sem NC                      |
 
 **Severidade Mapping:**
+
 - **NCM (Não-conforme Maior):** RDC 978/DICQ violação, falha de controle crítico, risco ao resultado, falta regulatória
 - **NCm (Não-conforme Menor):** Documentação incompleta, processo débil, falta eficácia
 - **N.A.:** Aplicação condicional (ex: "Procedimento de CEQ externo" → N.A. se lab não terceiriza)
@@ -86,6 +89,7 @@ Para cada achado (Não-conforme):
 4. **Contexto:** Bloco DICQ, requisito específico
 
 **Armazenamento:**
+
 - Fotos → Cloud Storage `/labs/{labId}/auditoria-evidencia/`
 - Notas → Achado documento em Firestore (estruturado)
 - Assinatura → LogicalSignature (hash + operatorId + timestamp)
@@ -100,11 +104,11 @@ Para cada achado (Não-conforme):
 1. Auditoria Interna UI → Criar nova Sessao
    - Data: 2026-05-06
    - Participantes: [lista acima]
-   
+
 2. Carregar Template: dicq-4-3-rdc-978-v1
    - Sistema instala ~115 itens em ordem (Blocos A-J)
    - UI exibe em abas por bloco
-   
+
 3. Tablet Staging
    - Login como Auditor (role: auditor)
    - Test offline mode: marcar 1-2 itens, desligar WiFi, reabilitar
@@ -133,12 +137,12 @@ Para cada item DICQ:
 ```
 CAPA (Task 3):
    - Para cada NC crítica: fill Ação Corretiva + Responsável + Prazo
-   
+
 Relatório (Task 4):
    - Callable generateAuditReportPDF
    - RT assina (LogicalSignature)
    - PDF archivado em Storage + shareable link
-   
+
 Análise (Task 5):
    - Conformidade % por bloco
    - Top 5 achados críticos
@@ -180,6 +184,7 @@ A cada 2 blocos (~50 items / 2h), o Coordenador atualiza:
 ## Interim Reporting — During Execution
 
 **Bloco A-B (Organização, Pessoal)** — Esperado ~1h45m
+
 - Tempo real: 1h52m
 - Items: 33
   - Conforme: 23 (70%)
@@ -187,6 +192,7 @@ A cada 2 blocos (~50 items / 2h), o Coordenador atualiza:
   - N.A.: 2 (6%)
 
 **Bloco C-D (Acomodações, Equipamentos)** — Esperado ~1h45m
+
 - Tempo real: 1h48m
 - Items: 28
   - Conforme: 19 (68%)
@@ -194,6 +200,7 @@ A cada 2 blocos (~50 items / 2h), o Coordenador atualiza:
   - N.A.: 3 (11%)
 
 **Bloco E-G (Pré/Analítico/Garantia)** — Esperado ~1h45m
+
 - Tempo real: 1h51m
 - Items: 39
   - Conforme: 28 (72%)
@@ -201,6 +208,7 @@ A cada 2 blocos (~50 items / 2h), o Coordenador atualiza:
   - N.A.: 2 (5%)
 
 **Bloco H-J (Pós/Laudo/Informação)** — Esperado ~1h30m
+
 - Tempo real: 1h36m
 - Items: 15
   - Conforme: 12 (80%)
@@ -224,6 +232,7 @@ A cada 2 blocos (~50 items / 2h), o Coordenador atualiza:
 **RT:** CTO ✓ Data: 2026-05-06 16:15
 
 **LogicalSignature (RT):**
+
 ```
 Hash: a4b7c9e2f1d5a8b3c6e9f2d5a7c0e3f6a9b2c5d8e1f4a7b0c3d6e9f2a5b8c
 OperatorId: cto-uid-001
@@ -246,18 +255,18 @@ Timestamp: 2026-05-06T16:15:00Z
 
 ### Distribuição de Achados por Bloco
 
-| Bloco | Conforme % | Não-Conf % | Categoria | Ação |
-|-------|-----------|-----------|-----------|------|
-| A — Organização | 73% | 20% | MÉDIA | 3 NCM → CAPAs |
-| B — Pessoal | 67% | 28% | CRÍTICA | 2 NCM → CAPAs |
-| C — Acomodações | 58% | 34% | MÉDIA | 1 NCM → CAPAs |
-| D — Equipamentos | 69% | 25% | ALTA | 2 NCM → CAPAs |
-| E — Pré-analítico | 64% | 29% | MÉDIA | 1 NCM → CAPAs |
-| F — Analítico | 77% | 23% | BAIXA | 0 NCM |
-| G — Garantia QA | 86% | 14% | BAIXA | 0 NCM |
-| H — Pós-analítico | 70% | 30% | MÉDIA | 1 NCM → CAPAs |
-| I — Laudo/Liberação | 75% | 25% | BAIXA | 1 NCM → CAPAs |
-| J — Informação | 86% | 14% | BAIXA | 0 NCM |
+| Bloco               | Conforme % | Não-Conf % | Categoria | Ação          |
+| ------------------- | ---------- | ---------- | --------- | ------------- |
+| A — Organização     | 73%        | 20%        | MÉDIA     | 3 NCM → CAPAs |
+| B — Pessoal         | 67%        | 28%        | CRÍTICA   | 2 NCM → CAPAs |
+| C — Acomodações     | 58%        | 34%        | MÉDIA     | 1 NCM → CAPAs |
+| D — Equipamentos    | 69%        | 25%        | ALTA      | 2 NCM → CAPAs |
+| E — Pré-analítico   | 64%        | 29%        | MÉDIA     | 1 NCM → CAPAs |
+| F — Analítico       | 77%        | 23%        | BAIXA     | 0 NCM         |
+| G — Garantia QA     | 86%        | 14%        | BAIXA     | 0 NCM         |
+| H — Pós-analítico   | 70%        | 30%        | MÉDIA     | 1 NCM → CAPAs |
+| I — Laudo/Liberação | 75%        | 25%        | BAIXA     | 1 NCM → CAPAs |
+| J — Informação      | 86%        | 14%        | BAIXA     | 0 NCM         |
 
 (Blocos com >20% não-conformidade sinalizado como CRÍTICA/ALTA)
 
@@ -313,6 +322,7 @@ Nenhuma lacuna bloqueia auditoria externa; todas são arquiteturais (v1.3 scope)
 **Auditoria externa recomendada: 2026-08-31** (após CAPA closure ~80%)
 
 Neste ponto, sistema estará com:
+
 - Políticas/POP formalizadas
 - Procedimentos de calibração estendidos
 - Ordem de entrada de paciente funcional (order-entry)
@@ -326,9 +336,9 @@ Neste ponto, sistema estará com:
 
 ### Assinatura Final
 
-**Auditor (CTO):** ___ ✓ ___ Data: 2026-05-06
+**Auditor (CTO):** **_ ✓ _** Data: 2026-05-06
 
-**RT (CTO):** ___ ✓ ___ Data: 2026-05-06
+**RT (CTO):** **_ ✓ _** Data: 2026-05-06
 
 ### Artefatos
 
@@ -341,16 +351,16 @@ Neste ponto, sistema estará com:
 
 ## Localização de Artefatos
 
-| Artefato | Caminho | Status |
-|----------|---------|--------|
-| **Auditoria Record** | `/labs/{labId}/auditorias-internas/{auditoriaId}` | Firestore |
-| **Sessao** | `/labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}` | Firestore |
-| **Achados** | `/labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/achados/*` | Firestore |
-| **NC Auto-Criadas** | `/labs/{labId}/naoConformidades/*` | Firestore (linked via achadoId) |
-| **CAPA Plans** | `/labs/{labId}/naoConformidades/{ncId}/capaPlano` | Firestore |
-| **Audit PDF** | `/labs/{labId}/audit-reports/audit-2026-05-{date}.pdf` | Cloud Storage |
-| **Evidence Photos** | `/labs/{labId}/auditoria-evidencia/` | Cloud Storage (5-year retention) |
-| **Audit Logs** | `/labs/{labId}/audit-logs/audit_dry_run_completed` | Firestore (immutable event) |
+| Artefato             | Caminho                                                                        | Status                           |
+| -------------------- | ------------------------------------------------------------------------------ | -------------------------------- |
+| **Auditoria Record** | `/labs/{labId}/auditorias-internas/{auditoriaId}`                              | Firestore                        |
+| **Sessao**           | `/labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}`           | Firestore                        |
+| **Achados**          | `/labs/{labId}/auditorias-internas/{auditoriaId}/sessoes/{sessaoId}/achados/*` | Firestore                        |
+| **NC Auto-Criadas**  | `/labs/{labId}/naoConformidades/*`                                             | Firestore (linked via achadoId)  |
+| **CAPA Plans**       | `/labs/{labId}/naoConformidades/{ncId}/capaPlano`                              | Firestore                        |
+| **Audit PDF**        | `/labs/{labId}/audit-reports/audit-2026-05-{date}.pdf`                         | Cloud Storage                    |
+| **Evidence Photos**  | `/labs/{labId}/auditoria-evidencia/`                                           | Cloud Storage (5-year retention) |
+| **Audit Logs**       | `/labs/{labId}/audit-logs/audit_dry_run_completed`                             | Firestore (immutable event)      |
 
 ---
 

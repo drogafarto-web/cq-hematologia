@@ -49,8 +49,7 @@ export const DEFAULT_FSM_THRESHOLD_CONFIG: FSMThresholdConfig = {
 const configCol = (labId: string): CollectionReference =>
   collection(db, 'labs', labId, 'fsm-config');
 
-const configDoc = (labId: string): DocumentReference =>
-  doc(configCol(labId), 'main');
+const configDoc = (labId: string): DocumentReference => doc(configCol(labId), 'main');
 
 // ─── API ───────────────────────────────────────────────────────────────────
 
@@ -122,25 +121,16 @@ export async function setFSMConfig(
           throw new Error(`perAnalito.${analitoId}.slaTargetMs must be a positive integer`);
         }
         if (override.slaTargetMs > 24 * 60 * 60 * 1000) {
-          throw new Error(
-            `perAnalito.${analitoId}.slaTargetMs cannot exceed 24 hours`
-          );
+          throw new Error(`perAnalito.${analitoId}.slaTargetMs cannot exceed 24 hours`);
         }
       }
 
       if (override.autoEscalateAfterMs !== undefined) {
-        if (
-          !Number.isInteger(override.autoEscalateAfterMs) ||
-          override.autoEscalateAfterMs <= 0
-        ) {
-          throw new Error(
-            `perAnalito.${analitoId}.autoEscalateAfterMs must be a positive integer`
-          );
+        if (!Number.isInteger(override.autoEscalateAfterMs) || override.autoEscalateAfterMs <= 0) {
+          throw new Error(`perAnalito.${analitoId}.autoEscalateAfterMs must be a positive integer`);
         }
         if (override.autoEscalateAfterMs > 24 * 60 * 60 * 1000) {
-          throw new Error(
-            `perAnalito.${analitoId}.autoEscalateAfterMs cannot exceed 24 hours`
-          );
+          throw new Error(`perAnalito.${analitoId}.autoEscalateAfterMs cannot exceed 24 hours`);
         }
       }
     }
@@ -161,7 +151,6 @@ export function resolveSLA(
 
   return {
     slaTargetMs: override?.slaTargetMs ?? config.slaTargetMs,
-    autoEscalateAfterMs:
-      override?.autoEscalateAfterMs ?? config.autoEscalateAfterMs,
+    autoEscalateAfterMs: override?.autoEscalateAfterMs ?? config.autoEscalateAfterMs,
   };
 }

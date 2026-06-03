@@ -9,11 +9,7 @@ import {
   updateTermometro,
   type SubscribeTermometrosOptions,
 } from '../services/ctFirebaseService';
-import type {
-  StatusCalibracao,
-  Termometro,
-  TermometroInput,
-} from '../types/ControlTemperatura';
+import type { StatusCalibracao, Termometro, TermometroInput } from '../types/ControlTemperatura';
 
 export interface TermometroComStatus extends Termometro {
   statusCalibracao: StatusCalibracao;
@@ -32,9 +28,7 @@ export interface UseTermometrosResult {
   softDelete: (id: string) => Promise<void>;
 }
 
-export function useTermometros(
-  options: SubscribeTermometrosOptions = {},
-): UseTermometrosResult {
+export function useTermometros(options: SubscribeTermometrosOptions = {}): UseTermometrosResult {
   const labId = useActiveLabId();
   const { includeDeleted = false, somenteAtivos = false } = options;
 

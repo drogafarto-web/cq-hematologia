@@ -63,9 +63,7 @@ interface SubmitArgs {
  * Optional `injectFailure` (used in tests) forces a retryable error to
  * exercise the backoff path.
  */
-export async function submitToGovTestMode(
-  args: SubmitArgs,
-): Promise<SubmissionOutcome> {
+export async function submitToGovTestMode(args: SubmitArgs): Promise<SubmissionOutcome> {
   const start = Date.now();
   const latencyMs = 200 + Math.floor(Math.random() * 600); // 200–800ms
   await new Promise((resolve) => setTimeout(resolve, latencyMs));

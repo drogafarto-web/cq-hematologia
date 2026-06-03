@@ -86,8 +86,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
 
     // Rule check: paciente_id == request.auth.uid && publicado == true
     const ruleCheck =
-      snapshot.data()?.paciente_id === mockPatientUid &&
-      snapshot.data()?.publicado === true;
+      snapshot.data()?.paciente_id === mockPatientUid && snapshot.data()?.publicado === true;
     expect(ruleCheck).toBe(true);
 
     // ─── Negative test: Verify draft would be blocked ────────────────────
@@ -148,9 +147,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
       error: null,
     };
 
-    const eventRef = db.doc(
-      `labs/${testLabId}/notivisa-outbox/${eventId}`
-    );
+    const eventRef = db.doc(`labs/${testLabId}/notivisa-outbox/${eventId}`);
 
     // ─── Test 1: Valid payload passes ──────────────────────────────────────
     await eventRef.set(validPayload);
@@ -233,9 +230,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
       createdAt: Timestamp.now(),
     };
 
-    const escalacaoRef = db.doc(
-      `labs/${testLabId}/criticos-escalacoes/${escalacaoId}`
-    );
+    const escalacaoRef = db.doc(`labs/${testLabId}/criticos-escalacoes/${escalacaoId}`);
 
     // ─── Test 1: RT can create escalation ──────────────────────────────────
     await escalacaoRef.set(escalacao);
@@ -338,9 +333,7 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
     // ─── Create Draft: RT1 acquires lock ───────────────────────────────────
     const lockExpiry = Timestamp.fromDate(new Date(Date.now() + 3600000)); // 1 hour
 
-    const draftRef = db.doc(
-      `labs/${testLabId}/laudos-draft/${draftId}`
-    );
+    const draftRef = db.doc(`labs/${testLabId}/laudos-draft/${draftId}`);
 
     const initialDraft = {
       laudo_id: laudoId,
@@ -373,14 +366,12 @@ describe('Phase 3 Firestore Rules (03-02)', () => {
     // validateDraftLock checks: locked_until_ts > now || locked_by == request.auth.uid
     const now = Timestamp.now();
     const lockConflict =
-      snapshot.data()?.locked_until_ts > now &&
-      snapshot.data()?.locked_by !== mockRtUid; // Different RT
+      snapshot.data()?.locked_until_ts > now && snapshot.data()?.locked_by !== mockRtUid; // Different RT
     expect(lockConflict).toBe(false); // No conflict since we're the lock holder
 
     // ─── Test 3: Another RT would see lock conflict ────────────────────────
     const otherRtConflict =
-      snapshot.data()?.locked_until_ts > now &&
-      snapshot.data()?.locked_by !== 'other-rt-user'; // Pretend we're different RT
+      snapshot.data()?.locked_until_ts > now && snapshot.data()?.locked_by !== 'other-rt-user'; // Pretend we're different RT
     expect(otherRtConflict).toBe(true); // Conflict: locked by someone else
 
     // ─── Test 4: RT can update draft while holding lock ───────────────────

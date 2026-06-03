@@ -273,7 +273,7 @@ describe('E2E Suite: IA Strip Upload & Classification', () => {
 
     it('should support manual review workflow for low-confidence strips', async () => {
       // Arrange: Create low-confidence classification
-      const mockClassification = mockGeminiResponse('inconclusive', 0.80, 'HCG');
+      const mockClassification = mockGeminiResponse('inconclusive', 0.8, 'HCG');
       const classificationRef = classificationCol(testLabId).doc();
       const classificationId = classificationRef.id;
 
@@ -292,9 +292,7 @@ describe('E2E Suite: IA Strip Upload & Classification', () => {
       };
 
       // Create a manual correction record (soft update)
-      const correctionRef = classificationCol(testLabId).doc(
-        `${classificationId}-manual-verdict`
-      );
+      const correctionRef = classificationCol(testLabId).doc(`${classificationId}-manual-verdict`);
       await correctionRef.set(manualVerdict);
 
       // Assert: Manual verdict exists
@@ -522,7 +520,7 @@ describe('E2E Suite: IA Strip Upload & Classification', () => {
       }
 
       // Add 1 inaccurate record
-      const aiClassification = mockGeminiResponse('positive', 0.80, 'COVID');
+      const aiClassification = mockGeminiResponse('positive', 0.8, 'COVID');
       const inaccurateRef = datasetCol(testLabId).doc();
 
       await inaccurateRef.set({

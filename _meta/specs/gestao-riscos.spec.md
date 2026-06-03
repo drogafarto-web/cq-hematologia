@@ -19,14 +19,14 @@ O módulo já existe com FMEA-lite completo. Este spec estende sem reescrever.
 
 ## Já existe (não tocar sem necessidade)
 
-| Artefato | Path | Notas |
-|---|---|---|
-| `Risk` type completo | `src/features/risks/types/Risk.ts` | Apenas estender com 4 campos |
-| `RiskTreatmentAction`, `RiskReview`, `RiskAuditEvent` | `src/features/risks/types/Risk.ts` | Intocáveis |
-| CF trigger `chainHash` | `functions/src/modules/risks/` | Funcional |
-| Firestore `/labs/{labId}/risks` + regras | `firestore.rules` | Estender regras |
-| `risksCallables.ts` | `src/features/risks/services/` | Estender (não substituir) |
-| `CLAUDE.md` de riscos | `src/features/risks/CLAUDE.md` | Ler antes de editar |
+| Artefato                                              | Path                               | Notas                        |
+| ----------------------------------------------------- | ---------------------------------- | ---------------------------- |
+| `Risk` type completo                                  | `src/features/risks/types/Risk.ts` | Apenas estender com 4 campos |
+| `RiskTreatmentAction`, `RiskReview`, `RiskAuditEvent` | `src/features/risks/types/Risk.ts` | Intocáveis                   |
+| CF trigger `chainHash`                                | `functions/src/modules/risks/`     | Funcional                    |
+| Firestore `/labs/{labId}/risks` + regras              | `firestore.rules`                  | Estender regras              |
+| `risksCallables.ts`                                   | `src/features/risks/services/`     | Estender (não substituir)    |
+| `CLAUDE.md` de riscos                                 | `src/features/risks/CLAUDE.md`     | Ler antes de editar          |
 
 ---
 
@@ -44,49 +44,50 @@ O módulo já existe com FMEA-lite completo. Este spec estende sem reescrever.
 
 ### Grupo A — Extensão do tipo Risk e vínculo NC/CAPA
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| Extensão de `Risk` | Type change | Adicionar `ncIds[]`, `capaIds[]`, `planoMelhoriaId?`, `aprovadoPor?`, `aprovadoEm?` |
-| `vincularNcAoRisco` callable | CF callable | Atualiza `ncIds[]` / `capaIds[]` via callable |
-| `aprovarRisco` callable | CF callable | Status `aceito` para risco `critico` exige RT + logicalSignature |
+| Artefato                     | Tipo        | Descrição                                                                           |
+| ---------------------------- | ----------- | ----------------------------------------------------------------------------------- |
+| Extensão de `Risk`           | Type change | Adicionar `ncIds[]`, `capaIds[]`, `planoMelhoriaId?`, `aprovadoPor?`, `aprovadoEm?` |
+| `vincularNcAoRisco` callable | CF callable | Atualiza `ncIds[]` / `capaIds[]` via callable                                       |
+| `aprovarRisco` callable      | CF callable | Status `aceito` para risco `critico` exige RT + logicalSignature                    |
 
 ### Grupo B — Biblioteca de templates
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `RiskTemplate` interface | Tipo TS | Nova entidade na coleção `/labs/{labId}/risk-templates` |
-| Regras Firestore | `firestore.rules` | `risk-templates`: read/write com role check |
-| Seed de templates | Dados | ≥ 5 templates por categoria (biologico, quimico, processual) |
-| `useRiskTemplates` hook | React hook | Leitura da coleção de templates |
-| UI — picker de template no form de criação de risco | Componente | Dropdown/modal de templates ao criar risco |
+| Artefato                                            | Tipo              | Descrição                                                    |
+| --------------------------------------------------- | ----------------- | ------------------------------------------------------------ |
+| `RiskTemplate` interface                            | Tipo TS           | Nova entidade na coleção `/labs/{labId}/risk-templates`      |
+| Regras Firestore                                    | `firestore.rules` | `risk-templates`: read/write com role check                  |
+| Seed de templates                                   | Dados             | ≥ 5 templates por categoria (biologico, quimico, processual) |
+| `useRiskTemplates` hook                             | React hook        | Leitura da coleção de templates                              |
+| UI — picker de template no form de criação de risco | Componente        | Dropdown/modal de templates ao criar risco                   |
 
 ### Grupo C — Alertas de revisão vencida
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `useRiskReviewAlerts` hook | React hook | Filtra riscos com `reviewSchedule.proximaRevisao` < hoje |
-| CF cron `alertRiskReviews` | Cloud Function | Diária; cria `KPIAlert` para revisões vencidas |
-| Badge/alerta na UI | Componente | Indicação visual na lista de riscos |
+| Artefato                   | Tipo           | Descrição                                                |
+| -------------------------- | -------------- | -------------------------------------------------------- |
+| `useRiskReviewAlerts` hook | React hook     | Filtra riscos com `reviewSchedule.proximaRevisao` < hoje |
+| CF cron `alertRiskReviews` | Cloud Function | Diária; cria `KPIAlert` para revisões vencidas           |
+| Badge/alerta na UI         | Componente     | Indicação visual na lista de riscos                      |
 
 ### Grupo D — Dashboard e visualizações
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `RiskHeatmap` | Componente React | Quadrante P×S (5×5) com bolhas coloridas por NPR |
+| Artefato                  | Tipo             | Descrição                                                   |
+| ------------------------- | ---------------- | ----------------------------------------------------------- |
+| `RiskHeatmap`             | Componente React | Quadrante P×S (5×5) com bolhas coloridas por NPR            |
 | Dashboard de distribuição | Componente React | Barras por categoria + por nível (baixo/médio/alto/crítico) |
 
 ### Grupo E — Exportação PDF
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
+| Artefato                            | Tipo           | Descrição                                           |
+| ----------------------------------- | -------------- | --------------------------------------------------- |
 | CF callable `generateRiskMatrixPDF` | Cloud Function | PDF com heat map + lista de riscos ordenada por NPR |
-| Botão export na UI | Componente | Dispara callable e abre PDF |
+| Botão export na UI                  | Componente     | Dispara callable e abre PDF                         |
 
 ---
 
 ## Dados / Entidades
 
 ### `Risk` — extensão (campos adicionados)
+
 ```typescript
 ncIds: string[];           // IDs de NCs vinculadas
 capaIds: string[];         // IDs de CAPAs vinculadas
@@ -96,10 +97,11 @@ aprovadoEm?: Timestamp;
 ```
 
 ### `RiskTemplate` (nova coleção)
+
 ```typescript
 interface RiskTemplate {
   id: string;
-  labId: string;           // ou 'global' para templates padrão
+  labId: string; // ou 'global' para templates padrão
   categoria: RiskCategory;
   processo: RiskProcess;
   titulo: string;

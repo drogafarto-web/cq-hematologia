@@ -2,16 +2,16 @@ import React, { useEffect, useState, useMemo } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { useSessao } from '../hooks/useAuditorias';
 import { ChecklistItemCard } from './ChecklistItemCard';
-import { 
-  ChevronLeft, 
-  Save, 
-  CheckCircle, 
-  Wifi, 
-  WifiOff, 
-  Menu, 
+import {
+  ChevronLeft,
+  Save,
+  CheckCircle,
+  Wifi,
+  WifiOff,
+  Menu,
   X,
   BookOpen,
-  FileCheck
+  FileCheck,
 } from 'lucide-react';
 
 interface SessaoExecucaoPanelProps {
@@ -44,7 +44,7 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
   const { sessao, checklistItems, isLoading } = useSessao(auditoriaId, sessaoId);
   const [isOnline, setIsOnline] = useState(navigator.onLine);
   const [draftResponses, setDraftResponses] = useState<Record<string, ChecklistResponse>>({});
-  
+
   // Navigation State
   const [activeBloco, setActiveBloco] = useState<string>('A');
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -52,7 +52,7 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
   // Group items by bloco
   const itemsByBloco = useMemo(() => {
     const groups: Record<string, typeof checklistItems> = {};
-    checklistItems.forEach(item => {
+    checklistItems.forEach((item) => {
       const b = item.bloco || 'A';
       if (!groups[b]) groups[b] = [];
       groups[b].push(item);
@@ -126,23 +126,27 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
   return (
     <div className="min-h-screen bg-[#0f0f12] text-white/90 flex overflow-hidden">
       {/* Sidebar Navigation */}
-      <aside className={`
+      <aside
+        className={`
         fixed inset-y-0 left-0 z-50 w-72 bg-[#141417] border-r border-white/10 transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0
         ${sidebarOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full'}
-      `}>
+      `}
+      >
         <div className="h-full flex flex-col">
           <div className="p-6 border-b border-white/10">
             <div className="flex items-center gap-2 mb-2">
               <BookOpen className="w-5 h-5 text-violet-400" />
               <h3 className="font-bold text-lg">Módulos DICQ</h3>
             </div>
-            <p className="text-xs text-white/40 uppercase tracking-widest font-black">Plataforma de Auditoria</p>
+            <p className="text-xs text-white/40 uppercase tracking-widest font-black">
+              Plataforma de Auditoria
+            </p>
           </div>
 
           <nav className="flex-1 overflow-y-auto p-4 space-y-1 custom-scrollbar">
-            {blocos.map(b => {
+            {blocos.map((b) => {
               const blockItems = itemsByBloco[b];
-              const completed = blockItems.filter(i => draftResponses[i.id]).length;
+              const completed = blockItems.filter((i) => draftResponses[i.id]).length;
               const total = blockItems.length;
               const isSelected = activeBloco === b;
 
@@ -159,18 +163,24 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
                   `}
                 >
                   <div className="flex justify-between items-center mb-2">
-                    <span className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-white/70'}`}>
+                    <span
+                      className={`text-sm font-bold ${isSelected ? 'text-white' : 'text-white/70'}`}
+                    >
                       Bloco {b}
                     </span>
-                    <span className={`text-[10px] font-black ${isSelected ? 'text-white/60' : 'text-white/30'}`}>
+                    <span
+                      className={`text-[10px] font-black ${isSelected ? 'text-white/60' : 'text-white/30'}`}
+                    >
                       {completed}/{total}
                     </span>
                   </div>
-                  <p className={`text-xs truncate mb-2 ${isSelected ? 'text-white/80' : 'text-white/40'}`}>
+                  <p
+                    className={`text-xs truncate mb-2 ${isSelected ? 'text-white/80' : 'text-white/40'}`}
+                  >
                     {BLOCO_LABELS[b] || 'Seção'}
                   </p>
                   <div className="h-1 bg-black/20 rounded-full overflow-hidden">
-                    <div 
+                    <div
                       className={`h-full transition-all duration-500 ${isSelected ? 'bg-white' : 'bg-violet-500'}`}
                       style={{ width: `${(completed / total) * 100}%` }}
                     />
@@ -181,14 +191,16 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
           </nav>
 
           <div className="p-4 border-t border-white/10">
-            <button 
+            <button
               onClick={handleComplete}
               disabled={totalCompleted < totalCount}
               className={`
                 w-full py-4 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all
-                ${totalCompleted >= totalCount 
-                  ? 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20' 
-                  : 'bg-white/5 text-white/20 cursor-not-allowed'}
+                ${
+                  totalCompleted >= totalCount
+                    ? 'bg-emerald-600 hover:bg-emerald-500 shadow-lg shadow-emerald-600/20'
+                    : 'bg-white/5 text-white/20 cursor-not-allowed'
+                }
               `}
             >
               <FileCheck className="w-5 h-5" />
@@ -203,13 +215,13 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
         {/* Top Header */}
         <header className="h-20 bg-[#141417]/80 backdrop-blur-md border-b border-white/10 px-6 flex items-center justify-between sticky top-0 z-40">
           <div className="flex items-center gap-4">
-            <button 
+            <button
               onClick={() => setSidebarOpen(true)}
               className="lg:hidden p-2 rounded-xl bg-white/5 hover:bg-white/10"
             >
               <Menu className="w-6 h-6" />
             </button>
-            <button 
+            <button
               onClick={onBack}
               className="hidden sm:flex items-center gap-2 text-white/40 hover:text-white transition group"
             >
@@ -225,25 +237,32 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
 
           <div className="flex items-center gap-6">
             <div className="hidden md:flex flex-col items-end">
-              <span className="text-[10px] text-white/30 uppercase tracking-widest font-black">Progresso Geral</span>
+              <span className="text-[10px] text-white/30 uppercase tracking-widest font-black">
+                Progresso Geral
+              </span>
               <div className="flex items-center gap-3">
                 <div className="w-32 h-1.5 bg-white/5 rounded-full overflow-hidden">
-                  <div 
+                  <div
                     className="h-full bg-gradient-to-r from-violet-600 to-fuchsia-500"
                     style={{ width: `${(totalCompleted / totalCount) * 100}%` }}
                   />
                 </div>
-                <span className="text-sm font-black">{Math.round((totalCompleted / totalCount) * 100)}%</span>
+                <span className="text-sm font-black">
+                  {Math.round((totalCompleted / totalCount) * 100)}%
+                </span>
               </div>
             </div>
-            
+
             <div className="flex items-center gap-2">
               {isOnline ? (
                 <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400" title="Online">
                   <Wifi className="w-4 h-4" />
                 </div>
               ) : (
-                <div className="p-2 rounded-xl bg-amber-500/10 text-amber-400" title="Offline - Sincronização Local">
+                <div
+                  className="p-2 rounded-xl bg-amber-500/10 text-amber-400"
+                  title="Offline - Sincronização Local"
+                >
                   <WifiOff className="w-4 h-4" />
                 </div>
               )}
@@ -255,8 +274,8 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
           <div className="max-w-4xl mx-auto space-y-6 pb-20">
             {currentItems.map((item, index) => (
-              <div 
-                key={item.id} 
+              <div
+                key={item.id}
                 className="animate-in fade-in slide-in-from-bottom-4 duration-500 fill-mode-both"
                 style={{ animationDelay: `${index * 50}ms` }}
               >
@@ -277,7 +296,7 @@ export function SessaoExecucaoPanel({ auditoriaId, sessaoId, onBack }: SessaoExe
 
       {/* Backdrop for mobile sidebar */}
       {sidebarOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />

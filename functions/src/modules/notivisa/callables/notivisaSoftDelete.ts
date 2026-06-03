@@ -20,13 +20,7 @@ import { z } from 'zod';
 const notivisaSoftDeleteInputSchema = z.object({
   labId: z.string().min(1, 'labId required'),
   entryId: z.string().min(1, 'entryId required'),
-  reason: z.enum([
-    'duplicate',
-    'incorrect-patient',
-    'false-positive',
-    'test-entry',
-    'other',
-  ]),
+  reason: z.enum(['duplicate', 'incorrect-patient', 'false-positive', 'test-entry', 'other']),
   notes: z.string().max(500).optional(),
 });
 
@@ -62,10 +56,7 @@ export const notivisaSoftDelete = onCall(
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = notivisaSoftDeleteInputSchema.parse(request.data);
@@ -75,12 +66,7 @@ export const notivisaSoftDelete = onCall(
       const db = admin.firestore();
 
       // ========== 2. Authorization: admin only ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         return {
@@ -102,9 +88,7 @@ export const notivisaSoftDelete = onCall(
       }
 
       // ========== 3. Fetch entry ==========
-      const entryRef = db
-        .collection(`labs/${labId}/notivisa-outbox`)
-        .doc(entryId);
+      const entryRef = db.collection(`labs/${labId}/notivisa-outbox`).doc(entryId);
 
       const entrySnap = await entryRef.get();
 
@@ -162,21 +146,18 @@ export const notivisaSoftDelete = onCall(
       });
 
       // Create deletion audit log entry
-      batch.set(
-        entryRef.collection('auditLog').doc(`deletion-${now}`),
-        {
-          action: 'SOFT_DELETED',
-          operatorId: uid,
-          ts: now,
-          details: {
-            reason,
-            notes: notes || null,
-            previousStatus: entryData.status,
-            submissionAttempts: entryData.submissionAttempts?.length ?? 0,
-            receiptCode: entryData.receiptCodeFromAnvisa || null,
-          },
-        }
-      );
+      batch.set(entryRef.collection('auditLog').doc(`deletion-${now}`), {
+        action: 'SOFT_DELETED',
+        operatorId: uid,
+        ts: now,
+        details: {
+          reason,
+          notes: notes || null,
+          previousStatus: entryData.status,
+          submissionAttempts: entryData.submissionAttempts?.length ?? 0,
+          receiptCode: entryData.receiptCodeFromAnvisa || null,
+        },
+      });
 
       await batch.commit();
 
@@ -215,5 +196,5 @@ export const notivisaSoftDelete = onCall(
         message: error.message || 'Internal error during deletion',
       };
     }
-  }
+  },
 );

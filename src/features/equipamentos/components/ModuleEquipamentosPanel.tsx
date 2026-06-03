@@ -72,13 +72,8 @@ export function ModuleEquipamentosPanel({
   );
   const { equipamentos: ativos, isLoading } = useEquipamentos(filtroAtivos);
 
-  const filtroAposentados = useMemo(
-    () => ({ module, status: 'aposentado' as const }),
-    [module],
-  );
-  const { equipamentos: aposentados } = useEquipamentos(
-    showAposentados ? filtroAposentados : {},
-  );
+  const filtroAposentados = useMemo(() => ({ module, status: 'aposentado' as const }), [module]);
+  const { equipamentos: aposentados } = useEquipamentos(showAposentados ? filtroAposentados : {});
 
   return (
     <section
@@ -220,11 +215,7 @@ export function ModuleEquipamentosPanel({
           Carregando equipamentos…
         </div>
       ) : ativos.length === 0 ? (
-        <EmptyState
-          module={module}
-          canMutate={canMutate}
-          onCadastrar={() => setShowForm(true)}
-        />
+        <EmptyState module={module} canMutate={canMutate} onCadastrar={() => setShowForm(true)} />
       ) : (
         <div className="space-y-3">
           {ativos.map((e) => (
@@ -255,7 +246,13 @@ export function ModuleEquipamentosPanel({
             aria-hidden
             className={`transition-transform ${showAposentados ? 'rotate-90' : ''}`}
           >
-            <path d="M4 3l4 3-4 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+            <path
+              d="M4 3l4 3-4 3"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
           </svg>
           {showAposentados ? 'Ocultar' : 'Ver'} aposentados
           <span className="text-slate-400 dark:text-white/30">· RDC 786 · retenção 5 anos</span>
@@ -268,11 +265,7 @@ export function ModuleEquipamentosPanel({
               </p>
             ) : (
               aposentados.map((e) => (
-                <EquipamentoCard
-                  key={e.id}
-                  equipamento={e}
-                  canMutate={false}
-                />
+                <EquipamentoCard key={e.id} equipamento={e} canMutate={false} />
               ))
             )}
           </div>
@@ -280,11 +273,7 @@ export function ModuleEquipamentosPanel({
       </div>
 
       {showForm && (
-        <EquipamentoFormModal
-          labId={labId}
-          module={module}
-          onClose={() => setShowForm(false)}
-        />
+        <EquipamentoFormModal labId={labId} module={module} onClose={() => setShowForm(false)} />
       )}
     </section>
   );
@@ -308,8 +297,8 @@ function EmptyState({
       </p>
       <p className="text-xs text-slate-500 dark:text-white/40 mt-1 max-w-md mx-auto leading-relaxed">
         Cadastre cada analisador/leitor do módulo. Em seguida cadastre os produtos (reagentes,
-        controles, tiras) do catálogo e por fim os lotes físicos em uso. As corridas diárias
-        passam a consumir esse setup automaticamente.
+        controles, tiras) do catálogo e por fim os lotes físicos em uso. As corridas diárias passam
+        a consumir esse setup automaticamente.
       </p>
       {canMutate && (
         <button

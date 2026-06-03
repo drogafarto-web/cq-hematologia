@@ -189,6 +189,7 @@ functions/
 **Location:** `functions/src/modules/notivisa/callables/authenticatePortal.test.ts`
 
 **Structure:**
+
 ```typescript
 describe('authenticatePortal', () => {
   let mockDb: any;
@@ -233,6 +234,7 @@ describe('authenticatePortal', () => {
 ```
 
 **Key Mocks to Create:**
+
 - `admin.firestore()` → mockDb
 - `admin.firestore().batch()` → mockBatch
 - `functions.logger.info/warn/error` → jest.fn()
@@ -240,6 +242,7 @@ describe('authenticatePortal', () => {
 - Credentials validation → boolean
 
 **Coverage Targets:**
+
 - Line: 95% (achieved by testing all branches)
 - Branch: 90% (test both MFA paths: required/optional/invalid)
 - Critical: 100% (session creation + error returns)
@@ -253,6 +256,7 @@ describe('authenticatePortal', () => {
 **Location:** `functions/src/modules/notivisa/callables/submitRequisition.test.ts`
 
 **Structure:**
+
 ```typescript
 describe('submitRequisition', () => {
   let mockDb: any;
@@ -307,6 +311,7 @@ describe('submitRequisition', () => {
 ```
 
 **Key Mocks:**
+
 - `admin.firestore().batch()` with commit()
 - Session fetch + validation (exists, active, not expired)
 - Duplicate check query (where + limit)
@@ -315,6 +320,7 @@ describe('submitRequisition', () => {
 - Batch operations for document creation
 
 **Coverage Targets:**
+
 - Line: 96% (highest of all)
 - Branch: 92% (multiple paths: success/queue, duplicate/new, etc.)
 - Critical: 100% (session check, duplicate prevention, portal fallback)
@@ -328,6 +334,7 @@ describe('submitRequisition', () => {
 **Location:** `functions/src/modules/notivisa/callables/trackSampleStatus.test.ts`
 
 **Structure:**
+
 ```typescript
 describe('trackSampleStatus', () => {
   let mockDb: any;
@@ -369,6 +376,7 @@ describe('trackSampleStatus', () => {
 ```
 
 **Key Mocks:**
+
 - Submission fetch (terminal/non-terminal status)
 - Portal poll response (submitted/processing/completed/rejected)
 - Batch update for status changes
@@ -376,6 +384,7 @@ describe('trackSampleStatus', () => {
 - Session validation (optional)
 
 **Coverage Targets:**
+
 - Line: 94%
 - Branch: 90% (terminal vs. polling, success vs. timeout, etc.)
 - Critical: 100% (terminal state detection, 24h timeout, polling fallback)
@@ -386,13 +395,13 @@ describe('trackSampleStatus', () => {
 
 ### Other Unit Test Files (Summary)
 
-| File | Tests | Coverage | Key Focus |
-|------|-------|----------|-----------|
-| notivisaDraftCreate.test.ts | 14 | 91% / 87% | Idempotency, root creation |
-| getNotivisaDraft.test.ts | 12 | 89% / 85% | Fetch, audit log inclusion |
-| rejectNotivisaDraft.test.ts | 15 | 93% / 89% | Signature validation, transition |
-| listNotivisaOutbox.test.ts | 11 | 88% / 84% | Pagination, filtering |
-| **SUBTOTAL** | **52** | **90% / 86%** | — |
+| File                        | Tests  | Coverage      | Key Focus                        |
+| --------------------------- | ------ | ------------- | -------------------------------- |
+| notivisaDraftCreate.test.ts | 14     | 91% / 87%     | Idempotency, root creation       |
+| getNotivisaDraft.test.ts    | 12     | 89% / 85%     | Fetch, audit log inclusion       |
+| rejectNotivisaDraft.test.ts | 15     | 93% / 89%     | Signature validation, transition |
+| listNotivisaOutbox.test.ts  | 11     | 88% / 84%     | Pagination, filtering            |
+| **SUBTOTAL**                | **52** | **90% / 86%** | —                                |
 
 ---
 
@@ -500,17 +509,19 @@ describe('NOTIVISA Integration — Firestore Rules', () => {
 ```
 
 **Setup Functions (use from test-data.ts):**
+
 ```typescript
 await seedCompleteTestEnvironment(
   adminDb,
   'test-lab-001',
   'test-user-rt-001',
   'test-auditor-001',
-  '12345678900'
+  '12345678900',
 );
 ```
 
 **Key Assertions:**
+
 ```typescript
 expect(result.ok).toBe(true);
 expect(result.status).toBe('submitted');
@@ -523,7 +534,7 @@ expect(auditLog.operatorId).toBe(uid);
 
 ## Mock Files Implementation
 
-### __mocks__/firestore.ts
+### **mocks**/firestore.ts
 
 ```typescript
 export function createMockDb() {
@@ -562,7 +573,7 @@ export function createMockDb() {
 }
 ```
 
-### __mocks__/notivisaPortal.ts
+### **mocks**/notivisaPortal.ts
 
 ```typescript
 export const MockPortalResponses = {
@@ -586,7 +597,7 @@ export const MockPortalResponses = {
 
 ## Fixture Files Implementation
 
-### __tests__/fixtures/test-data.ts
+### **tests**/fixtures/test-data.ts
 
 ```typescript
 export async function seedCompleteTestEnvironment(
@@ -594,7 +605,7 @@ export async function seedCompleteTestEnvironment(
   labId: string,
   userId: string,
   auditorId: string,
-  patientCpf: string
+  patientCpf: string,
 ): Promise<void> {
   // Create lab, members, patient, laudo, config in order
   await seedTestLab(db, labId);
@@ -654,9 +665,15 @@ jest.mock('firebase-functions/v2/https', () => ({
 }));
 
 global.testUtils = {
-  createMockBatch: () => ({ /* ... */ }),
-  createMockAuth: () => ({ /* ... */ }),
-  createValidPayload: () => ({ /* ... */ }),
+  createMockBatch: () => ({
+    /* ... */
+  }),
+  createMockAuth: () => ({
+    /* ... */
+  }),
+  createValidPayload: () => ({
+    /* ... */
+  }),
 };
 ```
 
@@ -685,14 +702,14 @@ global.testUtils = {
 
 ## File Count & Lines of Code
 
-| Category | Files | LOC | New | Update |
-|----------|-------|-----|-----|--------|
-| Unit Tests | 8 | 2,700 | 8 | — |
-| Mocks | 2 | 330 | 2 | — |
-| Fixtures | 2 | 530 | 1 | 1 |
-| Integration | 2 | 1,200 | 1 | 1 |
-| Config | 3 | 350 | 1 | 2 |
-| **TOTAL** | **17** | **5,110** | **13** | **4** |
+| Category    | Files  | LOC       | New    | Update |
+| ----------- | ------ | --------- | ------ | ------ |
+| Unit Tests  | 8      | 2,700     | 8      | —      |
+| Mocks       | 2      | 330       | 2      | —      |
+| Fixtures    | 2      | 530       | 1      | 1      |
+| Integration | 2      | 1,200     | 1      | 1      |
+| Config      | 3      | 350       | 1      | 2      |
+| **TOTAL**   | **17** | **5,110** | **13** | **4**  |
 
 ---
 

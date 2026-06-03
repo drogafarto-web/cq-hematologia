@@ -28,7 +28,7 @@ export function useControlOperacional(labId: string): UseControlOperacionalResul
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setControls(snap.docs.map((d) => ({ id: d.id, ...d.data() } as ControlOperacional)));
+        setControls(snap.docs.map((d) => ({ id: d.id, ...d.data() }) as ControlOperacional));
         setIsLoading(false);
       },
       (err) => {

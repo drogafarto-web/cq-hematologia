@@ -46,7 +46,7 @@ async function migrate() {
         if (typeof dataEmissao === 'string') {
           try {
             const timestamp = admin.firestore.Timestamp.fromDate(
-              new Date(`${dataEmissao}T00:00:00`)
+              new Date(`${dataEmissao}T00:00:00`),
             );
             await notaDoc.ref.update({ dataEmissao: timestamp });
             totalMigrated++;
@@ -54,7 +54,7 @@ async function migrate() {
           } catch (err) {
             totalFailed++;
             console.log(
-              `  ✗ ${notaDoc.id}: FAILED — ${err instanceof Error ? err.message : String(err)}`
+              `  ✗ ${notaDoc.id}: FAILED — ${err instanceof Error ? err.message : String(err)}`,
             );
           }
         }

@@ -97,7 +97,9 @@ export function QualificacaoFormModal({
               disabled={submitting}
             >
               {ETAPAS.map((e) => (
-                <option key={e} value={e}>{QUALIFICACAO_ETAPA_LABEL[e]}</option>
+                <option key={e} value={e}>
+                  {QUALIFICACAO_ETAPA_LABEL[e]}
+                </option>
               ))}
             </select>
           </div>
@@ -118,7 +120,9 @@ export function QualificacaoFormModal({
                     disabled={submitting}
                     className="w-4 h-4 text-violet-600"
                   />
-                  <span className={`text-sm ${r === 'aprovado' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}>
+                  <span
+                    className={`text-sm ${r === 'aprovado' ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'}`}
+                  >
                     {QUALIFICACAO_RESULTADO_LABEL[r]}
                   </span>
                 </label>
@@ -154,7 +158,9 @@ export function QualificacaoFormModal({
           </div>
 
           {error && (
-            <p className="text-xs text-red-600 dark:text-red-400" role="alert">{error}</p>
+            <p className="text-xs text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
           )}
         </div>
 

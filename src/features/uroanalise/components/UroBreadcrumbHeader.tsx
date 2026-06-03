@@ -17,7 +17,8 @@ export interface UroBreadcrumbHeaderProps {
 
 const CRUMB_BASE =
   'text-xs uppercase tracking-wider transition-colors duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40 focus-visible:rounded-sm';
-const CRUMB_INACTIVE = 'text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white/90';
+const CRUMB_INACTIVE =
+  'text-slate-500 dark:text-white/45 hover:text-slate-800 dark:hover:text-white/90';
 const CRUMB_ACTIVE = 'text-amber-700 dark:text-amber-300 cursor-default';
 const SEPARATOR = 'text-xs text-slate-300 dark:text-white/20 select-none';
 
@@ -88,13 +89,21 @@ interface CrumbProps {
 function Crumb({ label, onClick, active, title }: CrumbProps) {
   if (active || !onClick) {
     return (
-      <span className={`${CRUMB_BASE} ${active ? CRUMB_ACTIVE : 'text-slate-500 dark:text-white/45'}`} title={title}>
+      <span
+        className={`${CRUMB_BASE} ${active ? CRUMB_ACTIVE : 'text-slate-500 dark:text-white/45'}`}
+        title={title}
+      >
         {label}
       </span>
     );
   }
   return (
-    <button type="button" onClick={onClick} className={`${CRUMB_BASE} ${CRUMB_INACTIVE}`} title={title}>
+    <button
+      type="button"
+      onClick={onClick}
+      className={`${CRUMB_BASE} ${CRUMB_INACTIVE}`}
+      title={title}
+    >
       {label}
     </button>
   );
@@ -136,9 +145,7 @@ export function UroBreadcrumbHeader({
   const activeCrumb: 'lab' | 'lote' | 'run' = hasRun ? 'run' : hasLote ? 'lote' : 'lab';
 
   const pinnedLabel =
-    setupType === 'validacao_paralela'
-      ? 'vinculada · validação'
-      : 'vinculada · principal';
+    setupType === 'validacao_paralela' ? 'vinculada · validação' : 'vinculada · principal';
 
   const wrapperClass = [
     'flex items-center justify-between gap-4 px-6 py-3',
@@ -179,25 +186,21 @@ export function UroBreadcrumbHeader({
       </span>
     ) : null;
 
-  const PinnedIndicator =
-    pinned ? (
-      <span
-        className="inline-flex items-center gap-1 text-[10px] text-slate-400 dark:text-white/35"
-        aria-label={pinnedLabel}
-      >
-        <PinIcon />
-        {pinnedLabel}
-      </span>
-    ) : null;
+  const PinnedIndicator = pinned ? (
+    <span
+      className="inline-flex items-center gap-1 text-[10px] text-slate-400 dark:text-white/35"
+      aria-label={pinnedLabel}
+    >
+      <PinIcon />
+      {pinnedLabel}
+    </span>
+  ) : null;
 
   return (
     <>
       {/* Desktop / >=640px */}
       <div className={`hidden sm:flex ${wrapperClass}`}>
-        <nav
-          aria-label="Localização"
-          className="flex items-center gap-2 min-w-0 flex-1"
-        >
+        <nav aria-label="Localização" className="flex items-center gap-2 min-w-0 flex-1">
           {hasLab ? (
             <>
               <Crumb
@@ -223,7 +226,7 @@ export function UroBreadcrumbHeader({
 
           {hasRun ? (
             <>
-              {(hasLab || hasLote) ? <Separator /> : null}
+              {hasLab || hasLote ? <Separator /> : null}
               <span
                 className={`${CRUMB_BASE} ${CRUMB_ACTIVE} tabular-nums`}
                 style={{ fontVariantNumeric: 'tabular-nums' }}
@@ -249,10 +252,7 @@ export function UroBreadcrumbHeader({
 
       {/* Mobile / <640px */}
       <div className={`flex sm:hidden ${mobileWrapperClass}`}>
-        <nav
-          aria-label="Localização"
-          className="flex items-center gap-2 min-w-0 w-full"
-        >
+        <nav aria-label="Localização" className="flex items-center gap-2 min-w-0 w-full">
           {hasLab ? (
             <Crumb
               label={labName!}

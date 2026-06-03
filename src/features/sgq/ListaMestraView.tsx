@@ -73,7 +73,9 @@ export function ListaMestraView() {
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-white">Sistema de Gestão Documental</h1>
-          <p className="text-white/60 text-sm mt-2">Gerenciamento centralizado de documentos da qualidade</p>
+          <p className="text-white/60 text-sm mt-2">
+            Gerenciamento centralizado de documentos da qualidade
+          </p>
         </div>
 
         {/* Tabs */}
@@ -123,7 +125,7 @@ export function ListaMestraView() {
           {currentTab === 'hierarquia' && (
             <div className="space-y-4">
               <HierarquiaTree
-                data={MOCK_DOCS.map(doc => ({
+                data={MOCK_DOCS.map((doc) => ({
                   id: doc.id,
                   codigo: doc.codigo,
                   titulo: doc.titulo,
@@ -138,7 +140,7 @@ export function ListaMestraView() {
 
           {currentTab === 'distribuicao' && (
             <DistribuicaoMatrix
-              documentos={MOCK_DOCS.map(doc => ({
+              documentos={MOCK_DOCS.map((doc) => ({
                 id: doc.id,
                 codigo: doc.codigo,
                 titulo: doc.titulo,

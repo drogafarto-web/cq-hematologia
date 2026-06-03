@@ -99,7 +99,9 @@ test.describe('F-Compras-01 — NF → Lote → Run CIQ → Chain Validation', (
     // 6. Validar chain integrity
     console.log('Step 6: Validate chain integrity...');
     // Verificar que o run tem movimentações assinadas
-    const chainIndicator = page.locator('[data-testid*="chain"], [aria-label*="assinado"], [title*="hash"]');
+    const chainIndicator = page.locator(
+      '[data-testid*="chain"], [aria-label*="assinado"], [title*="hash"]',
+    );
     const hasChain = await chainIndicator.isVisible().catch(() => false);
 
     if (hasChain) {

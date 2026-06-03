@@ -30,10 +30,7 @@ export interface SlaState {
  * For escalations already acknowledged, uses `tempo_sla_ms` if present so
  * the modal shows the snapshot of how long it actually took.
  */
-export function computeSlaState(
-  escalacao: CriticosEscalacao,
-  nowMs: number,
-): SlaState {
+export function computeSlaState(escalacao: CriticosEscalacao, nowMs: number): SlaState {
   const target = escalacao.sla_minutos_target * 60 * 1000;
   let elapsed: number;
 
@@ -45,8 +42,7 @@ export function computeSlaState(
   }
 
   if (elapsed >= target) return { kind: 'expired', elapsedMs: elapsed, targetMs: target };
-  if (elapsed >= target * 0.5)
-    return { kind: 'warning', elapsedMs: elapsed, targetMs: target };
+  if (elapsed >= target * 0.5) return { kind: 'warning', elapsedMs: elapsed, targetMs: target };
   return { kind: 'in_window', elapsedMs: elapsed, targetMs: target };
 }
 
@@ -54,10 +50,7 @@ export function computeSlaState(
  * Renders "Xm Ys / Tm" — minutes:seconds elapsed vs minutes target.
  * Always tabular-safe: pads seconds to 2 digits.
  */
-export function formatSlaCountdown(
-  elapsedMs: number,
-  targetMinutes: number,
-): string {
+export function formatSlaCountdown(elapsedMs: number, targetMinutes: number): string {
   const totalSec = Math.floor(elapsedMs / 1000);
   const min = Math.floor(totalSec / 60);
   const sec = totalSec % 60;

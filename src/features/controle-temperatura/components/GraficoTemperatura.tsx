@@ -11,10 +11,7 @@ import {
   YAxis,
 } from 'recharts';
 
-import type {
-  EquipamentoMonitorado,
-  LeituraTemperatura,
-} from '../types/ControlTemperatura';
+import type { EquipamentoMonitorado, LeituraTemperatura } from '../types/ControlTemperatura';
 
 export interface GraficoTemperaturaProps {
   equipamento: EquipamentoMonitorado;
@@ -27,7 +24,11 @@ export interface GraficoTemperaturaProps {
  * ficam destacados em rose — a banda emerald-100 dá leitura rápida de
  * conformidade sem precisar cruzar com a legenda.
  */
-export function GraficoTemperatura({ equipamento, leituras, height = 280 }: GraficoTemperaturaProps) {
+export function GraficoTemperatura({
+  equipamento,
+  leituras,
+  height = 280,
+}: GraficoTemperaturaProps) {
   const data = useMemo(() => {
     return [...leituras]
       .filter((l) => l.deletadoEm === null)
@@ -87,7 +88,11 @@ export function GraficoTemperatura({ equipamento, leituras, height = 280 }: Graf
             stroke="#4f46e5"
             strokeWidth={2}
             dot={(props) => {
-              const { cx, cy, payload } = props as { cx: number; cy: number; payload: { fora: boolean } };
+              const { cx, cy, payload } = props as {
+                cx: number;
+                cy: number;
+                payload: { fora: boolean };
+              };
               return (
                 <circle
                   cx={cx}

@@ -75,18 +75,15 @@ const equipamentoDoc = (labId: LabId, id: string): DocumentReference =>
 
 const leiturasCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'leituras');
-const leituraDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(leiturasCol(labId), id);
+const leituraDoc = (labId: LabId, id: string): DocumentReference => doc(leiturasCol(labId), id);
 
 const leiturasPrevistasCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'leituras-previstas');
 const leituraPrevistaDoc = (labId: LabId, id: string): DocumentReference =>
   doc(leiturasPrevistasCol(labId), id);
 
-const ncsCol = (labId: LabId): CollectionReference =>
-  collection(labRootDoc(labId), 'ncs');
-const ncDoc = (labId: LabId, id: string): DocumentReference =>
-  doc(ncsCol(labId), id);
+const ncsCol = (labId: LabId): CollectionReference => collection(labRootDoc(labId), 'ncs');
+const ncDoc = (labId: LabId, id: string): DocumentReference => doc(ncsCol(labId), id);
 
 const termometrosCol = (labId: LabId): CollectionReference =>
   collection(labRootDoc(labId), 'termometros');
@@ -299,10 +296,7 @@ function mapDispositivo(snap: QueryDocumentSnapshot): DispositivoIoT {
 
 // ─── API: Equipamentos ───────────────────────────────────────────────────────
 
-export async function createEquipamento(
-  labId: LabId,
-  input: EquipamentoInput,
-): Promise<string> {
+export async function createEquipamento(labId: LabId, input: EquipamentoInput): Promise<string> {
   try {
     await ensureLabRoot(labId);
     const ref = doc(equipamentosCol(labId));
@@ -491,7 +485,8 @@ export function subscribeLeiturasPrevistas(
       const filtered = all.filter((p) => {
         if (options.equipamentoId && p.equipamentoId !== options.equipamentoId) return false;
         if (options.status && p.status !== options.status) return false;
-        if (options.inicio && p.dataHoraPrevista.toMillis() < options.inicio.toMillis()) return false;
+        if (options.inicio && p.dataHoraPrevista.toMillis() < options.inicio.toMillis())
+          return false;
         if (options.fim && p.dataHoraPrevista.toMillis() > options.fim.toMillis()) return false;
         return true;
       });
@@ -506,19 +501,11 @@ export function subscribeLeiturasPrevistas(
 // client-side. NC automática criada no callable `ct_commitLeitura`.
 // NC manual (sem leitura) é backlog CT-08 (callable dedicada).
 
-export async function updateNC(
-  labId: LabId,
-  id: string,
-  patch: Partial<NCInput>,
-): Promise<void> {
+export async function updateNC(labId: LabId, id: string, patch: Partial<NCInput>): Promise<void> {
   await updateDoc(ncDoc(labId, id), { ...patch });
 }
 
-export async function resolverNC(
-  labId: LabId,
-  id: string,
-  acaoCorretiva: string,
-): Promise<void> {
+export async function resolverNC(labId: LabId, id: string, acaoCorretiva: string): Promise<void> {
   await updateDoc(ncDoc(labId, id), {
     status: 'resolvida' as StatusNC,
     acaoCorretiva,
@@ -584,10 +571,7 @@ function certificadoDoc(c: CertificadoCalibracao): Record<string, unknown> {
   };
 }
 
-export async function createTermometro(
-  labId: LabId,
-  input: TermometroInput,
-): Promise<string> {
+export async function createTermometro(labId: LabId, input: TermometroInput): Promise<string> {
   try {
     await ensureLabRoot(labId);
     const ref = doc(termometrosCol(labId));
@@ -743,10 +727,7 @@ export function subscribeTermometros(
  * é entregue uma única vez ao operador (pra flashear no ESP32) e nunca
  * persistido. Chamador deve exibir imediatamente após `createDispositivo`.
  */
-export async function createDispositivo(
-  labId: LabId,
-  input: DispositivoInput,
-): Promise<string> {
+export async function createDispositivo(labId: LabId, input: DispositivoInput): Promise<string> {
   try {
     await ensureLabRoot(labId);
     const ref = doc(dispositivosCol(labId));
@@ -886,8 +867,7 @@ export async function importarXlsxBatch(
     const w = dia.getDay();
     for (const { id, input } of equipamentoIds) {
       const cal = input.calendario;
-      const bucket =
-        w === 0 ? cal.domingo : w === 6 ? cal.sabado : cal.diasUteis;
+      const bucket = w === 0 ? cal.domingo : w === 6 ? cal.sabado : cal.diasUteis;
       if (!bucket.obrigatorio) continue;
       for (const hora of bucket.horarios) {
         const [h, m] = hora.split(':').map(Number);

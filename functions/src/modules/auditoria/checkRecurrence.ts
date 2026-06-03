@@ -94,7 +94,7 @@ export const checkRecurrence = onCall(
           // Look for achados (findings) related to this indicador
           const achadosSnap = await db
             .collection(
-              `labs/${input.labId}/auditorias-internas/${auditoriaDoc.id}/sessoes/${sessaoDoc.id}/achados`
+              `labs/${input.labId}/auditorias-internas/${auditoriaDoc.id}/sessoes/${sessaoDoc.id}/achados`,
             )
             .where('deletadoEm', '==', null)
             .get();
@@ -111,8 +111,9 @@ export const checkRecurrence = onCall(
               foundNCInThisAudit = true;
 
               if (!lastAuditDate) {
-                const auditDate = auditoriaData.proximaAuditoriaPlanejada?.toDate?.()
-                  ?? auditoriaData.criadoEm?.toDate?.();
+                const auditDate =
+                  auditoriaData.proximaAuditoriaPlanejada?.toDate?.() ??
+                  auditoriaData.criadoEm?.toDate?.();
                 if (auditDate) {
                   lastAuditDate = auditDate.toISOString();
                 }
@@ -149,22 +150,20 @@ export const checkRecurrence = onCall(
           for (const sessaoDoc of sessoesSnap.docs) {
             const checklistSnap = await db
               .collection(
-                `labs/${input.labId}/auditorias-internas/${auditoriaDoc.id}/sessoes/${sessaoDoc.id}/checklist-items`
+                `labs/${input.labId}/auditorias-internas/${auditoriaDoc.id}/sessoes/${sessaoDoc.id}/checklist-items`,
               )
               .where('resposta', '==', 'não-conforme')
               .get();
 
             for (const itemDoc of checklistSnap.docs) {
               const itemData = itemDoc.data();
-              if (
-                itemDoc.id === input.indicadorId ||
-                itemData.numeroDICQ === input.indicadorId
-              ) {
+              if (itemDoc.id === input.indicadorId || itemData.numeroDICQ === input.indicadorId) {
                 foundNCInThisAudit = true;
 
                 if (!lastAuditDate) {
-                  const auditDate = auditoriaData.proximaAuditoriaPlanejada?.toDate?.()
-                    ?? auditoriaData.criadoEm?.toDate?.();
+                  const auditDate =
+                    auditoriaData.proximaAuditoriaPlanejada?.toDate?.() ??
+                    auditoriaData.criadoEm?.toDate?.();
                   if (auditDate) {
                     lastAuditDate = auditDate.toISOString();
                   }
@@ -203,8 +202,7 @@ export const checkRecurrence = onCall(
           'e verificar se ações corretivas foram eficazes.';
       } else {
         recommendation =
-          'Nenhuma não conformidade anterior encontrada para este indicador. ' +
-          'Histórico limpo.';
+          'Nenhuma não conformidade anterior encontrada para este indicador. ' + 'Histórico limpo.';
       }
 
       return {
@@ -217,5 +215,5 @@ export const checkRecurrence = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError('internal', error.message || 'Erro ao verificar recorrência');
     }
-  }
+  },
 );

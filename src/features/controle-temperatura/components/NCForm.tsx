@@ -83,9 +83,8 @@ export function NCForm({ open, onClose, nc }: NCFormProps) {
     >
       <div className="space-y-4">
         <div className="rounded-lg bg-rose-50 p-3 text-sm text-rose-700">
-          <strong>Valor registrado:</strong>{' '}
-          {nc.temperaturaRegistrada.toFixed(1)}°C — violou limite de{' '}
-          <strong>{nc.limiteViolado}</strong>.
+          <strong>Valor registrado:</strong> {nc.temperaturaRegistrada.toFixed(1)}°C — violou limite
+          de <strong>{nc.limiteViolado}</strong>.
         </div>
         <Field label="Descrição do desvio">
           <TextArea value={descricao} onChange={(e) => setDescricao(e.target.value)} />

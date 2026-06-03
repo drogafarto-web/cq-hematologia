@@ -28,9 +28,10 @@
 **CAPA** (Corrective Action / Preventive Action) is the systematic process for responding to non-conformities (NCs) and risks identified during quality operations or audits. Every CAPA lifecycle flows through five mandatory states, each requiring immutable audit trail documentation and role-based sign-offs.
 
 **Key Facts:**
+
 - **Trigger:** Non-conformity detection (NC created with severity critica/alta) OR Risk identified (via FMEA-Lite, RDC 978 Art. 86)
 - **Deadline:** 30–90 days target (per RDC 978 Art. 147 §2); configurable per lab
-- **Actors:** 
+- **Actors:**
   - **Quality Operator** — initiates investigation, proposes corrective action
   - **RT (Technical Responsible)** — validates RCA, approves action plan
   - **Auditor Master CIQ** — reviews evidence, verifies efficacy, signs closure
@@ -38,6 +39,7 @@
 - **Evidence:** Immutable chain of audit events (`transicoesCAPAs[]` array); no post-closure edits
 
 **Regulatory Context:**
+
 - **RDC 978 Art. 86:** Risk Management (identification → assessment → treatment via CAPA)
 - **RDC 978 Art. 147:** CAPA as mandatory control measure (§5.1: "Ações de correção e preventivas")
 - **DICQ 4.1.2.4:** Ações de correção (formal workflow, evidence retention)
@@ -77,7 +79,7 @@ ENTRY POINT
     ↓
 [4. AUDITOR-REVISANDO — Auditor Review]
     ├─ Auditor (role: isAuditorMasterCIQ) claims CAPA: `capaAuditorReviewStart()`
-    ├─ Review scope: 
+    ├─ Review scope:
     │   ├─ RCA completeness (is root cause substantive?)
     │   ├─ Action adequacy (does plan address RCA?)
     │   ├─ Evidence sufficiency (do artifacts prove action taken?)
@@ -198,11 +200,13 @@ OPTIONAL REJECTION LOOP (Step 4 → Step 2)
 ### Phase 1: ABERTO (Open/Initial)
 
 **Triggered By:**
+
 - Non-Conformidade created with `severidade = 'critica'` or `'alta'`
 - OR Risk identified with `npr >= 20` (FMEA scoring)
 - OR Auditor manually creates CAPA via callable
 
 **System Action:**
+
 ```typescript
 // Cloud Function: capaOpenNewCAPAWorkflow
 {
@@ -213,20 +217,20 @@ OPTIONAL REJECTION LOOP (Step 4 → Step 2)
   findingId: string,        // Link to audit finding (optional)
   ncId?: string,            // Link to parent NC (optional, from ADR-0015)
   linkedRiskIds?: [string], // Link to risks (optional)
-  
+
   proprietarioId: string,   // UID assigned operator
   proprietarioNome: string, // Denormalized for display
-  
+
   deadline: Timestamp,      // 30–90 days from now
   status: 'aberto',
-  
+
   transicoesCAPAs: [{
     acao: 'capa-aberta',
     operatorId: system,
     ts: Timestamp.now(),
     chainHash: sha256(...),
   }],
-  
+
   // Immutability markers
   createdAt: Timestamp.now(),
   createdBy: system,
@@ -235,17 +239,20 @@ OPTIONAL REJECTION LOOP (Step 4 → Step 2)
 ```
 
 **Responsibilities:**
+
 - **Quality Manager** — creates CAPA with clear, actionable titulo/descricao
 - **System** — assigns proprietario based on role or configuration
 - **Email Notification** — proprietario receives email with CAPA #, deadline, NC link
 
 **Validation Rules:**
+
 - `titulo.length >= 10 && <= 150` (concise, not empty)
 - `descricao.length >= 50 && <= 2000` (substantive context)
 - `deadline > now()` (future date)
 - `proprietarioId` must be active member of lab
 
 **Audit Trail Entry:**
+
 ```json
 {
   "acao": "capa-aberta",
@@ -263,6 +270,7 @@ OPTIONAL REJECTION LOOP (Step 4 → Step 2)
 ```
 
 **Exit Criteria:**
+
 - Document created in Firestore (`/labs/{labId}/capaWorkflow/{capaId}`)
 - Audit trail entry appended
 - Proprietario notified (email sent)
@@ -273,18 +281,20 @@ OPTIONAL REJECTION LOOP (Step 4 → Step 2)
 ### Phase 2: EM-ANDAMENTO (In Progress — Investigation & Action Planning)
 
 **Initiated By:**
+
 ```typescript
 // Cloud Function: capaStartInvestigation
 // Called by: proprietario or RT
 await capaStartInvestigation(labId, capaId, {
-  analiseRaizCausa: string,     // RCA (min 100 chars, substantive)
-  acaoCorretivaPlano: string,   // Corrective action description
+  analiseRaizCausa: string, // RCA (min 100 chars, substantive)
+  acaoCorretivaPlano: string, // Corrective action description
   dataPrevisaoEvidencia: Timestamp, // When evidence will be ready
-  investigadorId: string,       // UID of investigator (usually proprietario)
-})
+  investigadorId: string, // UID of investigator (usually proprietario)
+});
 ```
 
 **System Action:**
+
 - Validates: CAPA in state `aberto`
 - Validates: RCA length >= 100 chars (quality gate: not boilerplate)
 - Validates: `dataPrevisaoEvidencia > now()` (future date)
@@ -293,6 +303,7 @@ await capaStartInvestigation(labId, capaId, {
 - Updates status → `em-andamento`
 
 **Operator Responsibilities:**
+
 1. **Root Cause Analysis (RCA):**
    - Investigate the NC or risk condition
    - Interview relevant personnel (operators, supervisors, RT)
@@ -317,18 +328,19 @@ await capaStartInvestigation(labId, capaId, {
      - "All 8 lab technicians retrained on POP-001 and signed acknowledgment"
 
 **Field Updates (Firestore):**
+
 ```typescript
 {
   status: 'em-andamento',
-  
+
   analiseRaizCausa: string,      // RCA text (immutable after submission)
   acaoCorretivaPlano: string,    // Action plan text
   dataPrevisaoEvidencia: Timestamp,
   effectivenessCriteria: string, // How to verify closure
-  
+
   investigadorId: string,        // UID
   investigadorNome: string,      // Denormalized
-  
+
   transicoesCAPAs: [
     // ... previous transitions
     {
@@ -342,11 +354,13 @@ await capaStartInvestigation(labId, capaId, {
 ```
 
 **Permissions:**
+
 - **Proprietario** — can create/edit investigation until submit
 - **RT** — can view, comment, but not edit without escalation
 - **Auditor** — read-only until evidence submitted
 
 **Exit Criteria:**
+
 - RCA documented (>= 100 chars, substantive)
 - Action plan defined (description + responsible + deadline)
 - Effectiveness criteria clear
@@ -359,17 +373,19 @@ await capaStartInvestigation(labId, capaId, {
 ### Phase 3: EVIDENCIA-SUBMETIDA (Evidence Submitted, Awaiting Review)
 
 **Initiated By:**
+
 ```typescript
 // Cloud Function: capaSubmitEvidence
 // Called by: proprietario or operator
 await capaSubmitEvidence(labId, capaId, {
-  evidenceFile: File,           // PDF, image, CSV, etc.
+  evidenceFile: File, // PDF, image, CSV, etc.
   evidenceType: 'foto' | 'documento' | 'certificado' | 'pop' | 'treinamento',
-  description: string,           // What this evidence proves
-})
+  description: string, // What this evidence proves
+});
 ```
 
 **System Action:**
+
 1. Validates: CAPA in state `em-andamento`
 2. Uploads evidence to Firebase Storage:
    - Path: `gs://bucket/labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}`
@@ -393,31 +409,34 @@ await capaSubmitEvidence(labId, capaId, {
 
 **Evidence Types & Examples:**
 
-| Type | Purpose | Format | Example |
-|------|---------|--------|---------|
-| `foto` | Visual proof of corrective action | JPG/PNG | "Before/after equipment repair photos" |
-| `documento` | Records, logs, certifications | PDF, TXT | "RCA report, root cause determination worksheet" |
-| `certificado` | Training completion, certification | PDF | "Technician training certificate for POP-001" |
-| `pop` | Updated procedure | PDF | "POP-001 v2 (updated with new calibration interval)" |
-| `treinamento` | Training records | Excel, PDF | "Training log: 8 technicians retrained 2026-05-05" |
+| Type          | Purpose                            | Format     | Example                                              |
+| ------------- | ---------------------------------- | ---------- | ---------------------------------------------------- |
+| `foto`        | Visual proof of corrective action  | JPG/PNG    | "Before/after equipment repair photos"               |
+| `documento`   | Records, logs, certifications      | PDF, TXT   | "RCA report, root cause determination worksheet"     |
+| `certificado` | Training completion, certification | PDF        | "Technician training certificate for POP-001"        |
+| `pop`         | Updated procedure                  | PDF        | "POP-001 v2 (updated with new calibration interval)" |
+| `treinamento` | Training records                   | Excel, PDF | "Training log: 8 technicians retrained 2026-05-05"   |
 
 **Operator Responsibilities (Pre-Submission):**
+
 - Gather all evidence supporting action completion
 - Ensure evidence clearly demonstrates corrective action taken
 - Quality check: Is evidence sufficient for auditor to verify effectiveness criteria?
 - Bundle evidence (multiple files OK; one per evidence entry)
 
 **Storage & Retention:**
+
 - Evidence files stored in Firebase Storage (separate from Firestore docs)
 - Linked via hash + path reference
 - RDC 978 Art. 105: 5-year retention (delete only after retention period + audit approval)
 - Soft-delete pattern: CAPA doc marked `deletadoEm`, but evidence files remain (no Cloud Storage soft-delete)
 
 **Field Updates:**
+
 ```typescript
 {
   status: 'evidencia-submetida',
-  
+
   evidence: [
     {
       type: 'documento',
@@ -429,10 +448,10 @@ await capaSubmitEvidence(labId, capaId, {
     },
     // ... more evidence entries
   ],
-  
+
   dataSubmissao: Timestamp.now(),
   submissaoChainHash: sha256(...),  // Seals submission (ADR-0012 pattern)
-  
+
   transicoesCAPAs: [
     // ... previous transitions
     {
@@ -447,6 +466,7 @@ await capaSubmitEvidence(labId, capaId, {
 ```
 
 **Audit Trail Entry:**
+
 ```json
 {
   "acao": "evidencia-submetida",
@@ -454,28 +474,27 @@ await capaSubmitEvidence(labId, capaId, {
   "operatorId": "proprietario-456",
   "ts": "2026-05-15T14:30:00Z",
   "evidenceCount": 3,
-  "evidenceHashes": [
-    "abc123...",
-    "def456...",
-    "ghi789..."
-  ],
+  "evidenceHashes": ["abc123...", "def456...", "ghi789..."],
   "chainHash": "xyz789...",
   "dataProvisao": "2026-05-15T14:30:00Z"
 }
 ```
 
 **Auditor Queue (Automated):**
+
 - Firestore query: `where status == 'evidencia-submetida' AND deletedAt == null`
 - Dashboard: "Awaiting Your Review" tile shows count + list
 - Sorting: by deadline (ascending), then by submittedAt (descending)
 - Notification: Auditor receives email: "CAPA [número] evidence submitted, review required"
 
 **Permissions:**
+
 - **Proprietario** — can upload evidence (read-only after submit)
 - **Auditor** — can view + download evidence, but cannot edit
 - **RT** — can view evidence (read-only)
 
 **Exit Criteria:**
+
 - Evidence uploaded to Storage (hash validated)
 - Evidence references stored in Firestore
 - Status = `evidencia-submetida`
@@ -488,12 +507,13 @@ await capaSubmitEvidence(labId, capaId, {
 ### Phase 4: AUDITOR-REVISANDO (Auditor Review In Progress)
 
 **Initiated By:**
+
 ```typescript
 // Cloud Function: capaAuditorReviewStart
 // Called by: user with role isAuditorMasterCIQ
 await capaAuditorReviewStart(labId, capaId, {
-  auditorId: string,  // request.auth.uid (must have isAuditorMasterCIQ)
-})
+  auditorId: string, // request.auth.uid (must have isAuditorMasterCIQ)
+});
 ```
 
 **Auditor Responsibilities:**
@@ -523,6 +543,7 @@ await capaAuditorReviewStart(labId, capaId, {
    - **REJECT** (evidence gaps, action incomplete, or efficacy unproven) → transition back to `em-andamento`, request rework
 
 **Approval Path:**
+
 ```typescript
 // Cloud Function: capaAuditorApprove
 await capaAuditorApprove(labId, capaId, {
@@ -533,6 +554,7 @@ await capaAuditorApprove(labId, capaId, {
 ```
 
 **System Action (Approve):**
+
 - Validates: CAPA in state `auditor-revisando`
 - Validates: `auditorId == request.auth.uid` (caller must be the assigned auditor)
 - Locks all fields (Firestore rules deny further writes except soft-delete)
@@ -554,15 +576,17 @@ await capaAuditorApprove(labId, capaId, {
 - Appends transition to `transicoesCAPAs[]`
 
 **Rejection Path:**
+
 ```typescript
 // Cloud Function: capaAuditorReject
 await capaAuditorReject(labId, capaId, {
   auditorId: string,
-  motivo: string,  // e.g., "Evidence incomplete: missing training sign-offs for 3 technicians"
-})
+  motivo: string, // e.g., "Evidence incomplete: missing training sign-offs for 3 technicians"
+});
 ```
 
 **System Action (Reject):**
+
 - Validates: CAPA in state `auditor-revisando` OR `evidencia-submetida`
 - Transitions status back to `em-andamento`
 - Appends transition:
@@ -578,24 +602,25 @@ await capaAuditorReject(labId, capaId, {
 - Sends email to proprietario: "CAPA [número] rejected. Reason: {motivo}. Please resubmit evidence."
 
 **Field Updates (Approval):**
+
 ```typescript
 {
   status: 'fechado',
-  
+
   auditorId: auditorId,         // Auditor claimed this CAPA
   auditorIdAprovador: auditorId,// Auditor approved closure
   dataRevisaoInicio: Timestamp, // When review started
   dataFechamento: Timestamp,    // When approved
-  
+
   comentariosAuditor: string,   // Feedback from auditor
   effectivenessVerified: true,  // Action effective + verified
-  
+
   closureSignature: {
     hash: sha256(...),          // Immutable proof
     operatorId: auditorId,
     ts: Timestamp.now(),
   },
-  
+
   transicoesCAPAs: [
     // ... previous transitions
     {
@@ -616,6 +641,7 @@ await capaAuditorReject(labId, capaId, {
 ```
 
 **Audit Trail Entry (Approval):**
+
 ```json
 {
   "acao": "capa-fechada",
@@ -635,17 +661,20 @@ await capaAuditorReject(labId, capaId, {
 ```
 
 **Permissions:**
+
 - **Auditor (isAuditorMasterCIQ)** — can approve/reject + lock CAPA
 - **Proprietario** — read-only
 - **RT** — read-only
 
 **Exit Criteria (Approval):**
+
 - Status = `fechado`
 - All fields locked
 - Closure signature set
 - Audit trail complete
 
 **Exit Criteria (Rejection):**
+
 - Status = `em-andamento`
 - Proprietario notified
 - Loop back to Phase 2 (rework required)
@@ -657,30 +686,32 @@ await capaAuditorReject(labId, capaId, {
 ### Phase 5: FECHADO (Closed/Final)
 
 **Triggered By:**
+
 - `capaAuditorApprove()` completes successfully
 
 **System State:**
+
 ```typescript
 {
   status: 'fechado',        // IMMUTABLE (final state)
-  
+
   // Locked fields (Firestore rules enforce)
   titulo: string,
   descricao: string,
   analiseRaizCausa: string,
   acaoCorretivaPlano: string,
   evidence: [...],
-  
+
   // Closure proof
   dataFechamento: Timestamp,
   auditorIdAprovador: string,
   closureSignature: LogicalSignature,
-  
+
   // Audit trail
   transicoesCAPAs: [
     // ... all transitions from aberto → fechado
   ],
-  
+
   // Retention
   deletadoEm: null,  // Can be soft-deleted later, but records preserved
 }
@@ -709,6 +740,7 @@ await capaAuditorReject(labId, capaId, {
    - NC also marked resolved (no blocking operations)
 
 **Soft-Delete Option:**
+
 ```typescript
 // Cloud Function: capaSoftDelete
 // Called by: admin, QM (after closure)
@@ -720,6 +752,7 @@ await capaSoftDelete(labId, capaId, {
 ```
 
 **System Action (Soft-Delete):**
+
 - Sets: `deletadoEm: Timestamp.now()`, `deletadoPor: auditorId`
 - Appends audit trail entry:
   ```typescript
@@ -735,11 +768,13 @@ await capaSoftDelete(labId, capaId, {
 - Query filters automatically exclude soft-deleted CAPAs (`WHERE deletadoEm == null`)
 
 **Archival & Audit Retrieval:**
+
 - Closed CAPAs (last 2 years) visible in dashboard
 - Soft-deleted CAPAs hidden by default (available via admin audit trail query)
 - External auditors can request full CAPA dossier (including soft-deleted) via audit report export
 
 **Compliance Checklist (Closure):**
+
 - [ ] RCA substantive (>100 chars, investigative depth)
 - [ ] Action plan clear (description + responsible + deadline)
 - [ ] Evidence sufficient (photos, logs, training records, etc.)
@@ -755,19 +790,20 @@ await capaSoftDelete(labId, capaId, {
 ## RDC 978 Art. 105 Mapping
 
 **RDC 978 Art. 105 (Gestão de Documentos):**
+
 > "A empresa responsável pela realização de ensaios deverá manter sob sua guarda a documentação técnica necessária à comprovação da conformidade dos resultados de ensaios com os critérios estabelecidos. A documentação deverá ser mantida por período não inferior a cinco anos."
 
 **CAPA Documentation Retention (Art. 105 Compliance):**
 
-| Artifact | RDC 105 Category | Storage Location | Retention | Searchable By |
-|----------|------------------|------------------|-----------|--------------|
-| **CAPA Root Doc** | Registros Técnicos | Firestore: `/labs/{labId}/capaWorkflow/{capaId}` | 5 years | labId, capaId, status |
-| **RCA Report** | Registros Técnicos | Included in CAPA doc (analiseRaizCausa field) | 5 years | labId, capaId |
-| **Action Plan** | Registros Técnicos | Included in CAPA doc (acaoCorretivaPlano field) | 5 years | labId, capaId |
-| **Audit Trail** | Registros Técnicos | Firestore: CAPA.transicoesCAPAs[] (append-only array) | 5 years | labId, capaId |
-| **Evidence Files** | Registros Técnicos | Cloud Storage: `/labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}` | 5 years | labId, capaId (via hash) |
-| **Closure Signature** | Assinatura Digital | Included in CAPA doc (closureSignature field) | 5 years | labId, capaId |
-| **Soft-Delete Log** | Registros Técnicos | Audit trail entry (acao: 'capa-soft-deleted') | 5 years | labId, capaId |
+| Artifact              | RDC 105 Category   | Storage Location                                                            | Retention | Searchable By            |
+| --------------------- | ------------------ | --------------------------------------------------------------------------- | --------- | ------------------------ |
+| **CAPA Root Doc**     | Registros Técnicos | Firestore: `/labs/{labId}/capaWorkflow/{capaId}`                            | 5 years   | labId, capaId, status    |
+| **RCA Report**        | Registros Técnicos | Included in CAPA doc (analiseRaizCausa field)                               | 5 years   | labId, capaId            |
+| **Action Plan**       | Registros Técnicos | Included in CAPA doc (acaoCorretivaPlano field)                             | 5 years   | labId, capaId            |
+| **Audit Trail**       | Registros Técnicos | Firestore: CAPA.transicoesCAPAs[] (append-only array)                       | 5 years   | labId, capaId            |
+| **Evidence Files**    | Registros Técnicos | Cloud Storage: `/labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}` | 5 years   | labId, capaId (via hash) |
+| **Closure Signature** | Assinatura Digital | Included in CAPA doc (closureSignature field)                               | 5 years   | labId, capaId            |
+| **Soft-Delete Log**   | Registros Técnicos | Audit trail entry (acao: 'capa-soft-deleted')                               | 5 years   | labId, capaId            |
 
 **Art. 105 Compliance Implementation:**
 
@@ -807,7 +843,7 @@ await capaSoftDelete(labId, capaId, {
   status: string,
   dataAbertura: Timestamp,
   dataFechamento?: Timestamp,
-  
+
   // Full audit trail
   transicoesCAPAs: [
     {
@@ -818,7 +854,7 @@ await capaSoftDelete(labId, capaId, {
       // ... payload varies by acao
     }
   ],
-  
+
   // Evidence manifest
   evidence: [
     {
@@ -829,14 +865,14 @@ await capaSoftDelete(labId, capaId, {
       type: string,
     }
   ],
-  
+
   // Closure proof
   closureSignature?: {
     hash: string,
     operatorId: string,
     ts: Timestamp,
   },
-  
+
   // Retention status
   retentionExpiresAt: Timestamp,
   deletedAt?: Timestamp,
@@ -850,6 +886,7 @@ await capaSoftDelete(labId, capaId, {
 ### Audit Trail Architecture
 
 **Collection Path:**
+
 - CAPA transitions stored in-line: `/labs/{labId}/capaWorkflow/{capaId}` (field: `transicoesCAPAs[]`)
 - Pattern: append-only array (Firestore `ArrayUnion`), never mutated or deleted
 - Immutability enforced: Firestore rules deny array reordering/deletion
@@ -859,36 +896,36 @@ await capaSoftDelete(labId, capaId, {
 ```typescript
 interface CAPATransition {
   // Identification
-  acao: 'capa-aberta' | 'investigacao-iniciada' | 'evidencia-submetida' 
+  acao: 'capa-aberta' | 'investigacao-iniciada' | 'evidencia-submetida'
       | 'revisao-iniciada' | 'evidencia-rejeitada' | 'capa-fechada' | 'capa-soft-deleted';
-  
+
   // Operator
   operatorId: string;        // request.auth.uid (who made change)
   operatorNome?: string;     // Denormalized for display
-  
+
   // Auditor (if applicable)
   auditorId?: string;        // If acao = 'revisao-iniciada' or 'capa-fechada'
-  
+
   // Timestamp (server-side)
   ts: Timestamp;             // Timestamp.serverTimestamp()
-  
+
   // Signature (immutable proof)
   signature: LogicalSignature {
     hash: string;            // SHA-256 hex (64 chars)
     operatorId: string;      // == operator.id (validation)
     ts: Timestamp;           // == transition.ts (validation)
   };
-  
+
   // Chain (prevents reordering)
   chainHash: string;         // HMAC over {labId, capaId, status, ts, index}
-  
+
   // Metadata (varies by acao)
   notes?: string;            // Additional context
   motivo?: string;           // Reason (rejection, soft-delete)
   comentarios?: string;      // Auditor feedback (approval)
   evidenciaHash?: string;    // Hash of submitted evidence
   effectivenessVerified?: boolean; // Was action effective?
-  
+
   // Payload (canonical JSON of change)
   payload?: {
     oldStatus?: string,
@@ -901,6 +938,7 @@ interface CAPATransition {
 ### Audit Trail Lifecycle
 
 **Entry 1: capa-aberta**
+
 ```typescript
 {
   acao: 'capa-aberta',
@@ -921,6 +959,7 @@ interface CAPATransition {
 ```
 
 **Entry 2: investigacao-iniciada**
+
 ```typescript
 {
   acao: 'investigacao-iniciada',
@@ -941,6 +980,7 @@ interface CAPATransition {
 ```
 
 **Entry 3: evidencia-submetida**
+
 ```typescript
 {
   acao: 'evidencia-submetida',
@@ -963,6 +1003,7 @@ interface CAPATransition {
 ```
 
 **Entry 4: revisao-iniciada**
+
 ```typescript
 {
   acao: 'revisao-iniciada',
@@ -983,6 +1024,7 @@ interface CAPATransition {
 ```
 
 **Entry 5: capa-fechada**
+
 ```typescript
 {
   acao: 'capa-fechada',
@@ -1013,6 +1055,7 @@ interface CAPATransition {
 ### Hash Verification (for Auditor)
 
 **Pseudocode: Verify Chain Integrity**
+
 ```
 function verifyCAPAChain(capa):
   prev_hash = null
@@ -1025,7 +1068,7 @@ function verifyCAPAChain(capa):
       payload: transition.payload,
     }))
     assert computed_hash == transition.signature.hash, "Signature mismatch"
-    
+
     // Verify chain
     computed_chain = hmac_sha256(
       key=labId,
@@ -1037,23 +1080,25 @@ function verifyCAPAChain(capa):
       }
     )
     assert computed_chain == transition.chainHash, "Chain broken at index {index}"
-    
+
     prev_hash = transition.chainHash
-  
+
   return {valid: true, finalHash: prev_hash}
 ```
 
 ### Audit Trail Export
 
 **Function: Export CAPA Audit Trail**
+
 ```typescript
 // Cloud Function: exportCAPAAuditTrail
 // Called by: auditor, QM, admin
 // Returns: PDF or JSON
-await exportCAPAAuditTrail(labId, capaId)
+await exportCAPAAuditTrail(labId, capaId);
 ```
 
 **Export Format (JSON):**
+
 ```json
 {
   "capaId": "capa-2026-0042",
@@ -1061,7 +1106,7 @@ await exportCAPAAuditTrail(labId, capaId)
   "labId": "lab-123",
   "exportedAt": "2026-05-20T20:00:00Z",
   "exportedBy": "auditor-789",
-  
+
   "auditTrail": [
     {
       "index": 1,
@@ -1073,7 +1118,7 @@ await exportCAPAAuditTrail(labId, capaId)
     },
     // ... more transitions
   ],
-  
+
   "evidenceManifest": [
     {
       "filename": "RCA_Report.pdf",
@@ -1084,7 +1129,7 @@ await exportCAPAAuditTrail(labId, capaId)
       "storagePath": "gs://bucket/labs/lab-123/auditoria-evidencia/capa-2026-0042/RCA_Report.pdf"
     }
   ],
-  
+
   "verificationStatus": {
     "chainValid": true,
     "finalHash": "hash-5",
@@ -1095,6 +1140,7 @@ await exportCAPAAuditTrail(labId, capaId)
 ```
 
 **Export Format (PDF):**
+
 - Title: "CAPA Audit Trail — [numero]"
 - Sections:
   1. CAPA Summary (titulo, descricao, dates, status)
@@ -1112,15 +1158,18 @@ await exportCAPAAuditTrail(labId, capaId)
 **When:** CAPA created (status: `aberto`)
 
 **System Action:**
+
 - Email sent to proprietario with CAPA #, titulo, deadline, NC/Risk link
 - Email includes link to CAPA detail view (requires authentication)
 
 **Proprietario Responsibility:**
+
 - Click "I Acknowledge" button (records `proprietario.acknowledgedAt: Timestamp`)
 - Review CAPA details
 - Confirm assignment (if incorrect, raise escalation to QM)
 
 **Audit Trail Entry:**
+
 ```json
 {
   "acao": "proprietario-acknowledged",
@@ -1140,11 +1189,13 @@ await exportCAPAAuditTrail(labId, capaId)
 **When:** CAPA transitions to `em-andamento` (proprietario initiates `capaStartInvestigation()`)
 
 **System Action:**
+
 - Email sent to RT: "CAPA [número] — RCA submitted, awaiting RT review"
 - RT can view RCA + action plan in UI
 - RT approves or requests changes (comment system)
 
 **RT Responsibility:**
+
 1. Review RCA (is it substantive + thorough?)
 2. Review action plan (is it adequate + measurable?)
 3. Approve or request revision
@@ -1153,15 +1204,17 @@ await exportCAPAAuditTrail(labId, capaId)
    await capaRTApproveRCA(labId, capaId, {
      rtId: string,
      comentarios: string,
-   })
+   });
    ```
 
 **System Action (RT Approval):**
+
 - Appends audit trail entry: `{ acao: 'rt-approved-rca', rtId, comentarios, ... }`
 - Sends email to proprietario: "RT approved your RCA & plan. Proceed with action."
 - CAPA remains in `em-andamento` (no status change; just approval marker)
 
 **Audit Trail Entry (RT Approval):**
+
 ```json
 {
   "acao": "rt-approved-rca",
@@ -1182,16 +1235,19 @@ await exportCAPAAuditTrail(labId, capaId)
 **When:** Proprietario ready to submit evidence (calls `capaSubmitEvidence()`)
 
 **System Action:**
+
 - Proprietario uploads evidence file(s)
 - Selects evidence type (foto, documento, certificado, pop, treinamento)
 - Adds description of what evidence proves
 
 **Proprietario Certification:**
+
 - Checkbox: "I certify that the corrective action described in this CAPA has been completed and that the evidence provided demonstrates effective implementation."
 - Signature: Digital signature via Cloud Function callable
 - Timestamp: Recorded in Cloud Function (server-side)
 
 **Audit Trail Entry:**
+
 ```json
 {
   "acao": "evidencia-submetida",
@@ -1216,6 +1272,7 @@ await exportCAPAAuditTrail(labId, capaId)
 **When:** Auditor transitions CAPA to `fechado` (calls `capaAuditorApprove()`)
 
 **Auditor Responsibility:**
+
 1. Review evidence (download, verify hash, examine contents)
 2. Verify action completion (is evidence sufficient?)
 3. Verify effectiveness (do criteria in `effectivenessCriteria` field apply?)
@@ -1229,11 +1286,13 @@ await exportCAPAAuditTrail(labId, capaId)
    ```
 
 **Auditor Certification:**
+
 - Checkbox: "I certify that I have reviewed the evidence submitted for CAPA [número] and that it demonstrates effective implementation of the corrective action. The action adequately addresses the root cause and will prevent recurrence."
 - Signature: Digital signature via Cloud Function callable
 - Timestamp: Recorded in Cloud Function (server-side)
 
 **System Action (Auditor Signature):**
+
 - Generates LogicalSignature:
   ```typescript
   closureSignature: {
@@ -1252,6 +1311,7 @@ await exportCAPAAuditTrail(labId, capaId)
 - Appends final audit trail entry (chain sealed)
 
 **Audit Trail Entry (Auditor Closure):**
+
 ```json
 {
   "acao": "capa-fechada",
@@ -1285,13 +1345,16 @@ await exportCAPAAuditTrail(labId, capaId)
 **When:** External auditor (DICQ accreditation) requests CAPA dossier for verification
 
 **System Action:**
+
 - Admin/QM exports full CAPA dossier: `exportCAPAAuditTrail(labId, capaId)`
 - Dossier includes: RCA, action plan, evidence manifest, audit trail, closure signature
 
 **External Auditor Responsibility:**
+
 - Review dossier (RCA, action, evidence, signatures)
 - Verify chain integrity (recalculate hashes)
 - Sign off: Add external auditor certification to dossier
+
   ```
   External Auditor Certification:
   DICQ Accreditation Audit — 2026-10-15
@@ -1301,11 +1364,12 @@ await exportCAPAAuditTrail(labId, capaId)
   ✓ Evidence demonstrates effective implementation
   ✓ Audit trail complete and tamper-proof
   ✓ Signatures valid (operatorId, hash, timestamp match)
-  
+
   Auditor: [name, credential], Date: 2026-10-15, Signature: [digital sig]
   ```
 
 **Audit Trail Entry (External Audit):**
+
 ```json
 {
   "acao": "external-auditor-verified",
@@ -1339,69 +1403,69 @@ await exportCAPAAuditTrail(labId, capaId)
 ```typescript
 interface CAPAWorkflow {
   // Identification
-  id: string;                           // Firestore doc ID (matches capaId)
-  labId: string;                        // Multi-tenant (RN-01)
-  numero: string;                       // Sequential: CAPA-YYYY-SEQ (generated server-side)
-  
+  id: string; // Firestore doc ID (matches capaId)
+  labId: string; // Multi-tenant (RN-01)
+  numero: string; // Sequential: CAPA-YYYY-SEQ (generated server-side)
+
   // Title & Description
-  titulo: string;                       // Max 150 chars, min 10 chars
-  descricao: string;                    // Max 2000 chars, min 50 chars
-  
+  titulo: string; // Max 150 chars, min 10 chars
+  descricao: string; // Max 2000 chars, min 50 chars
+
   // Linkage (ADR-0015: Hybrid CAPA/Risk/NCQ integration)
-  findingId?: string;                   // Link to audit finding
-  ncId?: string;                        // Link to non-conformidade (optional)
-  linkedRiskIds?: string[];             // Link to risks (optional)
-  validLinksPolicy?: () => boolean;     // Server-side: must link to at least 1 Risk or NCQ
-  
+  findingId?: string; // Link to audit finding
+  ncId?: string; // Link to non-conformidade (optional)
+  linkedRiskIds?: string[]; // Link to risks (optional)
+  validLinksPolicy?: () => boolean; // Server-side: must link to at least 1 Risk or NCQ
+
   // Assignment
-  proprietarioId: string;               // UID (quality operator assigned)
-  proprietarioNome: string;             // Denormalized (display)
+  proprietarioId: string; // UID (quality operator assigned)
+  proprietarioNome: string; // Denormalized (display)
   proprietarioAcknowledgedAt?: Timestamp; // When proprietario acknowledged assignment
-  
+
   // Status & Workflow (5-state machine)
   status: 'aberto' | 'em-andamento' | 'evidencia-submetida' | 'auditor-revisando' | 'fechado';
-  
+
   // Timeline
-  deadline: Timestamp;                  // Target closure (30-90 days)
-  dataAbertura: Timestamp;              // When CAPA created (== createdAt)
-  dataInvestigacaoInicio?: Timestamp;   // When "em-andamento"
-  dataPrevisaoEvidencia?: Timestamp;    // When proprietario expects evidence ready
-  dataSubmissao?: Timestamp;            // When evidencia-submetida
-  dataRevisaoInicio?: Timestamp;        // When auditor starts review
-  dataFechamento?: Timestamp;           // When closed (== closedAt)
-  
+  deadline: Timestamp; // Target closure (30-90 days)
+  dataAbertura: Timestamp; // When CAPA created (== createdAt)
+  dataInvestigacaoInicio?: Timestamp; // When "em-andamento"
+  dataPrevisaoEvidencia?: Timestamp; // When proprietario expects evidence ready
+  dataSubmissao?: Timestamp; // When evidencia-submetida
+  dataRevisaoInicio?: Timestamp; // When auditor starts review
+  dataFechamento?: Timestamp; // When closed (== closedAt)
+
   // Investigation Phase (em-andamento)
-  analiseRaizCausa?: string;            // RCA text (min 100 chars)
-  investigadorId?: string;              // UID of RCA author (usually proprietario)
-  investigadorNome?: string;            // Denormalized (display)
-  
+  analiseRaizCausa?: string; // RCA text (min 100 chars)
+  investigadorId?: string; // UID of RCA author (usually proprietario)
+  investigadorNome?: string; // Denormalized (display)
+
   // Corrective Action Phase (em-andamento)
-  acaoCorretivaPlano?: string;          // Action description
-  responsavelExecucao?: string;         // UID of responsible (may differ from proprietario)
-  responsavelNome?: string;             // Denormalized (display)
-  dataExecutionTarget?: Timestamp;      // When action should be complete
-  
+  acaoCorretivaPlano?: string; // Action description
+  responsavelExecucao?: string; // UID of responsible (may differ from proprietario)
+  responsavelNome?: string; // Denormalized (display)
+  dataExecutionTarget?: Timestamp; // When action should be complete
+
   // Effectiveness Criteria (em-andamento)
-  effectivenessCriteria?: string;       // How to verify closure (e.g., "No NC reoccurrence in 30 days")
-  
+  effectivenessCriteria?: string; // How to verify closure (e.g., "No NC reoccurrence in 30 days")
+
   // Evidence Phase (evidencia-submetida)
-  evidence: CAPAEvidenceRef[];          // Array of evidence files
-  dataSubmissao?: Timestamp;            // When evidence submitted
-  submissaoChainHash?: string;          // Hash seal at submission
-  
+  evidence: CAPAEvidenceRef[]; // Array of evidence files
+  dataSubmissao?: Timestamp; // When evidence submitted
+  submissaoChainHash?: string; // Hash seal at submission
+
   // Auditor Review Phase (auditor-revisando)
-  auditorId?: string;                   // UID of assigned auditor
-  auditorNome?: string;                 // Denormalized (display)
-  dataRevisaoInicio?: Timestamp;        // When auditor started review
-  comentariosAuditor?: string;          // Feedback (approve/reject)
-  
+  auditorId?: string; // UID of assigned auditor
+  auditorNome?: string; // Denormalized (display)
+  dataRevisaoInicio?: Timestamp; // When auditor started review
+  comentariosAuditor?: string; // Feedback (approve/reject)
+
   // Closure Phase (fechado)
-  auditorIdAprovador?: string;          // UID of auditor who approved
-  dataFechamento?: Timestamp;           // When status changed to fechado
-  effectivenessVerified?: boolean;      // Was action effective?
+  auditorIdAprovador?: string; // UID of auditor who approved
+  dataFechamento?: Timestamp; // When status changed to fechado
+  effectivenessVerified?: boolean; // Was action effective?
   dataEfetividadeVerificacao?: Timestamp; // Optional: date of follow-up audit
-  closureSignature?: LogicalSignature;  // { hash, operatorId, ts } immutable proof
-  
+  closureSignature?: LogicalSignature; // { hash, operatorId, ts } immutable proof
+
   // Rejection History (if rejected)
   rejectionHistory?: Array<{
     auditorId: string;
@@ -1409,40 +1473,46 @@ interface CAPAWorkflow {
     dataRejeicao: Timestamp;
     reworkAttempt?: number;
   }>;
-  
+
   // Audit Trail (immutable)
-  transicoesCAPAs: CAPATransition[];    // Array of state transitions (append-only, never mutated)
-  
+  transicoesCAPAs: CAPATransition[]; // Array of state transitions (append-only, never mutated)
+
   // Soft Delete (RN-06)
-  deletadoEm?: Timestamp | null;        // Soft-delete marker (null = active)
-  deletadoPor?: string;                 // UID who soft-deleted
-  
+  deletadoEm?: Timestamp | null; // Soft-delete marker (null = active)
+  deletadoPor?: string; // UID who soft-deleted
+
   // Metadata
-  createdAt: Timestamp;                 // When doc created (== dataAbertura)
-  createdBy?: string;                   // UID (usually system or QM)
-  updatedAt: Timestamp;                 // Last modification
-  version?: number;                     // Optimistic concurrency control (optional)
+  createdAt: Timestamp; // When doc created (== dataAbertura)
+  createdBy?: string; // UID (usually system or QM)
+  updatedAt: Timestamp; // Last modification
+  version?: number; // Optimistic concurrency control (optional)
 }
 
 interface CAPAEvidenceRef {
   type: 'foto' | 'documento' | 'certificado' | 'pop' | 'treinamento';
-  storagePath: string;                  // gs://bucket/labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}
+  storagePath: string; // gs://bucket/labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}
   uploadedAt: Timestamp;
-  uploadedBy: string;                   // UID
-  hash: string;                         // SHA-256 hex (64 chars), integrity verification
-  filename?: string;                    // Original filename (metadata)
-  description?: string;                 // What this evidence proves
+  uploadedBy: string; // UID
+  hash: string; // SHA-256 hex (64 chars), integrity verification
+  filename?: string; // Original filename (metadata)
+  description?: string; // What this evidence proves
 }
 
 interface LogicalSignature {
-  readonly hash: string;                // SHA-256 hex (64 chars)
-  readonly operatorId: string;          // request.auth.uid
-  readonly ts: Timestamp;               // when signed
+  readonly hash: string; // SHA-256 hex (64 chars)
+  readonly operatorId: string; // request.auth.uid
+  readonly ts: Timestamp; // when signed
 }
 
 interface CAPATransition {
-  acao: 'capa-aberta' | 'investigacao-iniciada' | 'evidencia-submetida' 
-      | 'revisao-iniciada' | 'evidencia-rejeitada' | 'capa-fechada' | 'capa-soft-deleted';
+  acao:
+    | 'capa-aberta'
+    | 'investigacao-iniciada'
+    | 'evidencia-submetida'
+    | 'revisao-iniciada'
+    | 'evidencia-rejeitada'
+    | 'capa-fechada'
+    | 'capa-soft-deleted';
   operatorId: string;
   operatorNome?: string;
   auditorId?: string;
@@ -1450,15 +1520,15 @@ interface CAPATransition {
   ts: Timestamp;
   signature: LogicalSignature;
   chainHash: string;
-  
+
   // Metadata (varies by acao)
   notes?: string;
-  motivo?: string;                      // Rejection reason
-  comentarios?: string;                 // Auditor feedback
-  evidenciaHash?: string;               // Hash of submitted evidence
+  motivo?: string; // Rejection reason
+  comentarios?: string; // Auditor feedback
+  evidenciaHash?: string; // Hash of submitted evidence
   effectivenessVerified?: boolean;
-  closureSignature?: LogicalSignature;  // Final seal (acao='capa-fechada' only)
-  
+  closureSignature?: LogicalSignature; // Final seal (acao='capa-fechada' only)
+
   // Payload (canonical JSON of change)
   payload?: Record<string, any>;
 }
@@ -1467,32 +1537,33 @@ interface CAPATransition {
 ### Firestore Rules
 
 **CAPA Collection Rules:**
+
 ```firestore
 // /labs/{labId}/capaWorkflow/{capaId}
 match /labs/{labId}/capaWorkflow/{capaId} {
-  
+
   // READ: Active lab members can read CAPAs scoped to their lab
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // CREATE: Cloud Function only (no client-side creation)
   allow create: if false;
-  
+
   // UPDATE: Cloud Function only (no client-side updates)
   allow update: if false;
-  
+
   // DELETE: Never (Firestore rules deny hard delete; soft-delete only)
   allow delete: if false;
 }
 
 // /labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename}
 match /labs/{labId}/auditoria-evidencia/capa-{capaId}/{filename} {
-  
+
   // READ: Lab members + auditor can read evidence files
   allow read: if isActiveMemberOfLab(labId);
-  
+
   // CREATE: Cloud Function only (via capaSubmitEvidence callable)
   allow create: if false;
-  
+
   // DELETE: Never (5-year retention, soft-delete only)
   allow delete: if false;
 }
@@ -1504,7 +1575,7 @@ function isActiveMemberOfLab(labId) {
 }
 
 function isAuditorMasterCIQ(labId) {
-  return isActiveMemberOfLab(labId) && 
+  return isActiveMemberOfLab(labId) &&
          get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.role == 'auditor-master-ciq';
 }
 ```
@@ -1512,14 +1583,15 @@ function isAuditorMasterCIQ(labId) {
 ### Cloud Functions Callables
 
 **Callable 1: capaOpenNewCAPAWorkflow (Cloud Function)**
+
 ```typescript
 export const capaOpenNewCAPAWorkflow = functions.https.onCall(async (data, context) => {
   const { labId, titulo, descricao, findingId, ncId, linkedRiskIds, proprietarioId } = data;
-  
+
   // 1. Validate auth
   if (!context.auth) throw new Error('Unauthenticated');
   if (!isActiveMemberOfLab(labId)) throw new Error('Unauthorized');
-  
+
   // 2. Validate input
   if (!titulo || titulo.length < 10 || titulo.length > 150) {
     throw new Error('Titulo invalid');
@@ -1527,26 +1599,32 @@ export const capaOpenNewCAPAWorkflow = functions.https.onCall(async (data, conte
   if (!descricao || descricao.length < 50 || descricao.length > 2000) {
     throw new Error('Descricao invalid');
   }
-  
+
   // 3. Link validation (ADR-0015)
   if (!linkedRiskIds?.length && !ncId) {
     throw new Error('CAPA must link to at least 1 Risk or NCQ');
   }
-  
+
   // 4. Generate CAPA ID + numero
   const capaId = db.collection(`labs/${labId}/capaWorkflow`).doc().id;
   const numero = await generateCAPANumero(labId); // CAPA-2026-0042
-  
+
   // 5. Compute first signature
   const payload = { titulo, descricao, labId, proprietarioId };
   const signature = generateLogicalSignature(payload, context.auth.uid);
-  const chainHash = computeChainHash(labId, capaId, 'aberto', admin.firestore.Timestamp.now(), payload);
-  
+  const chainHash = computeChainHash(
+    labId,
+    capaId,
+    'aberto',
+    admin.firestore.Timestamp.now(),
+    payload,
+  );
+
   // 6. Write CAPA doc
   const deadline = admin.firestore.Timestamp.fromDate(
-    new Date(Date.now() + 60 * 24 * 60 * 60 * 1000) // 60 days default
+    new Date(Date.now() + 60 * 24 * 60 * 60 * 1000), // 60 days default
   );
-  
+
   await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).set({
     id: capaId,
     labId,
@@ -1560,33 +1638,35 @@ export const capaOpenNewCAPAWorkflow = functions.https.onCall(async (data, conte
     proprietarioNome: await getOperatorName(labId, proprietarioId),
     deadline,
     status: 'aberto',
-    
-    transicoesCAPAs: [{
-      acao: 'capa-aberta',
-      operatorId: 'system',
-      ts: admin.firestore.Timestamp.now(),
-      signature: {
-        hash: 'system-signature',
+
+    transicoesCAPAs: [
+      {
+        acao: 'capa-aberta',
         operatorId: 'system',
         ts: admin.firestore.Timestamp.now(),
+        signature: {
+          hash: 'system-signature',
+          operatorId: 'system',
+          ts: admin.firestore.Timestamp.now(),
+        },
+        chainHash,
+        payload,
       },
-      chainHash,
-      payload,
-    }],
-    
+    ],
+
     evidence: [],
     createdAt: admin.firestore.Timestamp.now(),
     createdBy: context.auth.uid,
     updatedAt: admin.firestore.Timestamp.now(),
     deletadoEm: null,
   });
-  
+
   // 7. Send notification email
   await sendEmail(proprietarioId, {
     subject: `CAPA ${numero} assigned to you`,
     body: `CAPA: ${titulo}\nDeadline: ${deadline}\n\nPlease review and acknowledge.`,
   });
-  
+
   return {
     success: true,
     capaId,
@@ -1598,38 +1678,46 @@ export const capaOpenNewCAPAWorkflow = functions.https.onCall(async (data, conte
 ```
 
 **Callable 2: capaStartInvestigation (Cloud Function)**
+
 ```typescript
 export const capaStartInvestigation = functions.https.onCall(async (data, context) => {
-  const { labId, capaId, analiseRaizCausa, acaoCorretivaPlano, dataPrevisaoEvidencia, effectivenessCriteria } = data;
-  
+  const {
+    labId,
+    capaId,
+    analiseRaizCausa,
+    acaoCorretivaPlano,
+    dataPrevisaoEvidencia,
+    effectivenessCriteria,
+  } = data;
+
   // 1. Validate auth
   if (!context.auth) throw new Error('Unauthenticated');
   if (!isActiveMemberOfLab(labId)) throw new Error('Unauthorized');
-  
+
   // 2. Get CAPA doc
   const capaDoc = await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).get();
   if (!capaDoc.exists) throw new Error('CAPA not found');
-  
+
   const capa = capaDoc.data();
   if (capa.status !== 'aberto') {
     throw new Error(`Cannot start investigation: CAPA status is ${capa.status}`);
   }
-  
+
   // 3. Validate RCA
   if (!analiseRaizCausa || analiseRaizCausa.length < 100) {
     throw new Error('RCA must be at least 100 characters');
   }
-  
+
   // 4. Validate action plan
   if (!acaoCorretivaPlano || acaoCorretivaPlano.length < 50) {
     throw new Error('Action plan required');
   }
-  
+
   // 5. Validate dates
   if (new Date(dataPrevisaoEvidencia) <= new Date()) {
     throw new Error('Evidence target date must be in future');
   }
-  
+
   // 6. Compute signature + chain
   const payload = {
     analiseRaizCausa,
@@ -1639,8 +1727,15 @@ export const capaStartInvestigation = functions.https.onCall(async (data, contex
   };
   const signature = generateLogicalSignature(payload, context.auth.uid);
   const prevChainHash = capa.transicoesCAPAs[capa.transicoesCAPAs.length - 1].chainHash;
-  const chainHash = computeChainHash(labId, capaId, 'em-andamento', admin.firestore.Timestamp.now(), payload, prevChainHash);
-  
+  const chainHash = computeChainHash(
+    labId,
+    capaId,
+    'em-andamento',
+    admin.firestore.Timestamp.now(),
+    payload,
+    prevChainHash,
+  );
+
   // 7. Update CAPA
   await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).update({
     status: 'em-andamento',
@@ -1651,7 +1746,7 @@ export const capaStartInvestigation = functions.https.onCall(async (data, contex
     investigadorId: context.auth.uid,
     investigadorNome: await getOperatorName(labId, context.auth.uid),
     dataInvestigacaoInicio: admin.firestore.Timestamp.now(),
-    
+
     transicoesCAPAs: admin.firestore.FieldValue.arrayUnion({
       acao: 'investigacao-iniciada',
       operatorId: context.auth.uid,
@@ -1661,16 +1756,16 @@ export const capaStartInvestigation = functions.https.onCall(async (data, contex
       chainHash,
       payload,
     }),
-    
+
     updatedAt: admin.firestore.Timestamp.now(),
   });
-  
+
   // 8. Send notification
   await sendEmail(capa.proprietarioId, {
     subject: `RCA approved for CAPA ${capa.numero}`,
     body: `Investigation started. Proceed with corrective action.`,
   });
-  
+
   return {
     success: true,
     status: 'em-andamento',
@@ -1680,35 +1775,36 @@ export const capaStartInvestigation = functions.https.onCall(async (data, contex
 ```
 
 **Callable 3: capaSubmitEvidence (Cloud Function)**
+
 ```typescript
 export const capaSubmitEvidence = functions.https.onCall(async (data, context) => {
   const { labId, capaId, evidenceFile, evidenceType, description } = data;
-  
+
   // 1. Validate auth
   if (!context.auth) throw new Error('Unauthenticated');
-  
+
   // 2. Get CAPA doc
   const capaDoc = await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).get();
   if (!capaDoc.exists) throw new Error('CAPA not found');
-  
+
   const capa = capaDoc.data();
   if (capa.status !== 'em-andamento') {
     throw new Error(`Cannot submit evidence: CAPA status is ${capa.status}`);
   }
-  
+
   // 3. Validate file
   if (!evidenceFile || !evidenceFile.data) throw new Error('File required');
-  
+
   // 4. Compute file hash
   const fileHash = computeSHA256(evidenceFile.data);
-  
+
   // 5. Upload to Cloud Storage
   const filename = `${evidenceType}-${Date.now()}.pdf`;
   const storagePath = `labs/${labId}/auditoria-evidencia/capa-${capaId}/${filename}`;
   const bucket = admin.storage().bucket();
-  
+
   await bucket.file(storagePath).save(evidenceFile.data);
-  
+
   // 6. Add evidence reference
   const evidenceRef: CAPAEvidenceRef = {
     type: evidenceType,
@@ -1719,20 +1815,27 @@ export const capaSubmitEvidence = functions.https.onCall(async (data, context) =
     filename,
     description,
   };
-  
+
   // 7. Compute signature + chain
   const payload = { evidenceRef };
   const signature = generateLogicalSignature(payload, context.auth.uid);
   const prevChainHash = capa.transicoesCAPAs[capa.transicoesCAPAs.length - 1].chainHash;
-  const chainHash = computeChainHash(labId, capaId, 'evidencia-submetida', admin.firestore.Timestamp.now(), payload, prevChainHash);
-  
+  const chainHash = computeChainHash(
+    labId,
+    capaId,
+    'evidencia-submetida',
+    admin.firestore.Timestamp.now(),
+    payload,
+    prevChainHash,
+  );
+
   // 8. Update CAPA
   await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).update({
     status: 'evidencia-submetida',
     evidence: admin.firestore.FieldValue.arrayUnion(evidenceRef),
     dataSubmissao: admin.firestore.Timestamp.now(),
     submissaoChainHash: chainHash,
-    
+
     transicoesCAPAs: admin.firestore.FieldValue.arrayUnion({
       acao: 'evidencia-submetida',
       operatorId: context.auth.uid,
@@ -1742,13 +1845,13 @@ export const capaSubmitEvidence = functions.https.onCall(async (data, context) =
       evidenciaHash: fileHash,
       payload,
     }),
-    
+
     updatedAt: admin.firestore.Timestamp.now(),
   });
-  
+
   // 9. Trigger auditor notification
   await notifyAuditorQueue(labId, capaId, capa.numero);
-  
+
   return {
     success: true,
     status: 'evidencia-submetida',
@@ -1759,25 +1862,26 @@ export const capaSubmitEvidence = functions.https.onCall(async (data, context) =
 ```
 
 **Callable 4: capaAuditorApprove (Cloud Function)**
+
 ```typescript
 export const capaAuditorApprove = functions.https.onCall(async (data, context) => {
   const { labId, capaId, comentarios, dataEfetividadeVerificacao } = data;
-  
+
   // 1. Validate auth (must be auditor)
   if (!context.auth) throw new Error('Unauthenticated');
   if (!isAuditorMasterCIQ(labId, context.auth.uid)) {
     throw new Error('Only auditor can approve CAPA');
   }
-  
+
   // 2. Get CAPA doc
   const capaDoc = await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).get();
   if (!capaDoc.exists) throw new Error('CAPA not found');
-  
+
   const capa = capaDoc.data();
   if (capa.status !== 'auditor-revisando' && capa.status !== 'evidencia-submetida') {
     throw new Error(`Cannot approve: CAPA status is ${capa.status}`);
   }
-  
+
   // 3. Compute closure signature
   const closurePayload = {
     capaId,
@@ -1787,12 +1891,19 @@ export const capaAuditorApprove = functions.https.onCall(async (data, context) =
     comentarios,
   };
   const closureSignature = generateLogicalSignature(closurePayload, context.auth.uid);
-  
+
   // 4. Compute final chain hash
   const payload = { closureSignature, efectivenessVerified: true };
   const prevChainHash = capa.transicoesCAPAs[capa.transicoesCAPAs.length - 1].chainHash;
-  const chainHash = computeChainHash(labId, capaId, 'fechado', admin.firestore.Timestamp.now(), payload, prevChainHash);
-  
+  const chainHash = computeChainHash(
+    labId,
+    capaId,
+    'fechado',
+    admin.firestore.Timestamp.now(),
+    payload,
+    prevChainHash,
+  );
+
   // 5. Update CAPA (locked)
   const db = admin.firestore();
   await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).update({
@@ -1801,39 +1912,40 @@ export const capaAuditorApprove = functions.https.onCall(async (data, context) =
     auditorIdAprovador: context.auth.uid,
     comentariosAuditor: comentarios,
     effectivenessVerified: true,
-    dataEfetividadeVerificacao: dataEfetividadeVerificacao ? 
-      admin.firestore.Timestamp.fromDate(new Date(dataEfetividadeVerificacao)) : null,
+    dataEfetividadeVerificacao: dataEfetividadeVerificacao
+      ? admin.firestore.Timestamp.fromDate(new Date(dataEfetividadeVerificacao))
+      : null,
     closureSignature,
-    
+
     transicoesCAPAs: admin.firestore.FieldValue.arrayUnion({
       acao: 'capa-fechada',
       operatorId: context.auth.uid,
       auditorId: context.auth.uid,
       ts: admin.firestore.Timestamp.now(),
       signature: closureSignature,
-      chainHash,          // FINAL SEAL
+      chainHash, // FINAL SEAL
       effectivenessVerified: true,
       comentarios,
       closureSignature,
       payload,
     }),
-    
+
     updatedAt: admin.firestore.Timestamp.now(),
   });
-  
+
   // 6. Update linked Risk (if applicable)
   if (capa.linkedRiskIds?.length) {
     for (const riskId of capa.linkedRiskIds) {
       await updateRiskStatus(labId, riskId, 'fechado', capaId);
     }
   }
-  
+
   // 7. Send notifications
   await sendEmail(capa.proprietarioId, {
     subject: `CAPA ${capa.numero} closed`,
     body: `Your CAPA has been approved and closed. Auditor feedback: ${comentarios}`,
   });
-  
+
   return {
     success: true,
     status: 'fechado',
@@ -1844,35 +1956,43 @@ export const capaAuditorApprove = functions.https.onCall(async (data, context) =
 ```
 
 **Callable 5: capaAuditorReject (Cloud Function)**
+
 ```typescript
 export const capaAuditorReject = functions.https.onCall(async (data, context) => {
   const { labId, capaId, motivo } = data;
-  
+
   // 1. Validate auth (must be auditor)
   if (!context.auth) throw new Error('Unauthenticated');
   if (!isAuditorMasterCIQ(labId, context.auth.uid)) {
     throw new Error('Only auditor can reject CAPA');
   }
-  
+
   // 2. Get CAPA doc
   const capaDoc = await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).get();
   if (!capaDoc.exists) throw new Error('CAPA not found');
-  
+
   const capa = capaDoc.data();
   if (capa.status !== 'auditor-revisando' && capa.status !== 'evidencia-submetida') {
     throw new Error(`Cannot reject: CAPA status is ${capa.status}`);
   }
-  
+
   // 3. Compute signature + chain
   const payload = { rejeicaoMotivo: motivo };
   const signature = generateLogicalSignature(payload, context.auth.uid);
   const prevChainHash = capa.transicoesCAPAs[capa.transicoesCAPAs.length - 1].chainHash;
-  const chainHash = computeChainHash(labId, capaId, 'em-andamento', admin.firestore.Timestamp.now(), payload, prevChainHash);
-  
+  const chainHash = computeChainHash(
+    labId,
+    capaId,
+    'em-andamento',
+    admin.firestore.Timestamp.now(),
+    payload,
+    prevChainHash,
+  );
+
   // 4. Update CAPA (back to em-andamento)
   await db.doc(`labs/${labId}/capaWorkflow/${capaId}`).update({
     status: 'em-andamento',
-    
+
     transicoesCAPAs: admin.firestore.FieldValue.arrayUnion({
       acao: 'evidencia-rejeitada',
       operatorId: context.auth.uid,
@@ -1883,16 +2003,16 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
       motivo,
       payload,
     }),
-    
+
     updatedAt: admin.firestore.Timestamp.now(),
   });
-  
+
   // 5. Send notification
   await sendEmail(capa.proprietarioId, {
     subject: `CAPA ${capa.numero} rejected - rework required`,
     body: `Auditor feedback: ${motivo}\n\nPlease address the issues and resubmit evidence.`,
   });
-  
+
   return {
     success: true,
     status: 'em-andamento',
@@ -1905,15 +2025,16 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 
 ## Roles & Permissions
 
-| Role | Permissions |
-|------|-------------|
-| **Proprietario (Quality Operator)** | • Acknowledge CAPA creation<br/>• Start investigation (transition aberto → em-andamento)<br/>• Edit RCA, action plan, effectiveness criteria<br/>• Upload evidence (transition em-andamento → evidencia-submetida)<br/>• View own CAPA (read-only after evidence submitted)<br/>• Cannot approve/close CAPA |
-| **RT (Technical Responsible)** | • View all CAPAs (read-only)<br/>• Comment on RCA/action plan (review gate)<br/>• Approve RCA completeness (audit trail, but no status change)<br/>• View evidence (read-only)<br/>• Cannot submit evidence or close CAPA |
-| **Auditor Master CIQ** | • View all CAPAs + evidence (read-only until review starts)<br/>• Download evidence files + verify hash<br/>• Claim CAPA for review (transition evidencia-submetida → auditor-revisando)<br/>• Approve closure (transition auditor-revisando → fechado)<br/>• Reject + request rework (transition back to em-andamento)<br/>• Sign closure with LogicalSignature |
-| **QM (Quality Manager)** | • Create CAPA (call capaOpenNewCAPAWorkflow)<br/>• View all CAPAs + audit trails<br/>• Assign proprietario<br/>• Soft-delete closed CAPAs (after 5-year retention)<br/>• Export CAPA dossiers for external audit |
-| **Admin / Lab Director** | • All QM permissions<br/>• Modify CAPA deadlines<br/>• Override auditor decisions (audit trail recorded)<br/>• Configure CAPA workflow rules<br/>• Access full audit trail (including soft-deleted CAPAs) |
+| Role                                | Permissions                                                                                                                                                                                                                                                                                                                                                      |
+| ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Proprietario (Quality Operator)** | • Acknowledge CAPA creation<br/>• Start investigation (transition aberto → em-andamento)<br/>• Edit RCA, action plan, effectiveness criteria<br/>• Upload evidence (transition em-andamento → evidencia-submetida)<br/>• View own CAPA (read-only after evidence submitted)<br/>• Cannot approve/close CAPA                                                      |
+| **RT (Technical Responsible)**      | • View all CAPAs (read-only)<br/>• Comment on RCA/action plan (review gate)<br/>• Approve RCA completeness (audit trail, but no status change)<br/>• View evidence (read-only)<br/>• Cannot submit evidence or close CAPA                                                                                                                                        |
+| **Auditor Master CIQ**              | • View all CAPAs + evidence (read-only until review starts)<br/>• Download evidence files + verify hash<br/>• Claim CAPA for review (transition evidencia-submetida → auditor-revisando)<br/>• Approve closure (transition auditor-revisando → fechado)<br/>• Reject + request rework (transition back to em-andamento)<br/>• Sign closure with LogicalSignature |
+| **QM (Quality Manager)**            | • Create CAPA (call capaOpenNewCAPAWorkflow)<br/>• View all CAPAs + audit trails<br/>• Assign proprietario<br/>• Soft-delete closed CAPAs (after 5-year retention)<br/>• Export CAPA dossiers for external audit                                                                                                                                                 |
+| **Admin / Lab Director**            | • All QM permissions<br/>• Modify CAPA deadlines<br/>• Override auditor decisions (audit trail recorded)<br/>• Configure CAPA workflow rules<br/>• Access full audit trail (including soft-deleted CAPAs)                                                                                                                                                        |
 
 **Firestore Custom Claims (for Rules):**
+
 ```json
 {
   "labId": "lab-123",
@@ -1933,6 +2054,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 **Scenario:** Proprietario tries to submit evidence when CAPA is in `aberto` state (investigation not started).
 
 **System Response:**
+
 ```json
 {
   "error": true,
@@ -1940,10 +2062,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
   "message": "Cannot submit evidence: CAPA status is 'aberto'. Start investigation first.",
   "currentStatus": "aberto",
   "requiredStatus": "em-andamento",
-  "suggestedActions": [
-    "capaStartInvestigation(labId, capaId)",
-    "Contact auditor if you need help"
-  ]
+  "suggestedActions": ["capaStartInvestigation(labId, capaId)", "Contact auditor if you need help"]
 }
 ```
 
@@ -1952,6 +2071,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 **Scenario:** Proprietario submits RCA with only 50 characters (minimum is 100).
 
 **System Response:**
+
 ```json
 {
   "error": true,
@@ -1971,6 +2091,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 **Scenario:** Evidence file uploaded, but SHA-256 hash doesn't match client-side calculation.
 
 **System Response:**
+
 ```json
 {
   "error": true,
@@ -1991,6 +2112,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 **Scenario:** Proprietario submits evidence, but no auditor is available to review.
 
 **System Response:**
+
 - Evidence accepted (status: `evidencia-submetida`)
 - Alert email sent to QM: "CAPA [número] awaiting auditor review for 7+ days"
 - Escalation: QM manually assigns auditor via capaAuditorAssign callable
@@ -2000,6 +2122,7 @@ export const capaAuditorReject = functions.https.onCall(async (data, context) =>
 **Scenario:** CAPA deadline passed, but still in `em-andamento` state.
 
 **System Response:**
+
 - CAPA marked as "overdue" (visual indicator in dashboard)
 - Daily reminder email to proprietario: "CAPA [número] overdue by X days"
 - Daily escalation to RT: "Overdue CAPA [número] requires immediate action"
@@ -2026,9 +2149,11 @@ CAPA Issue Detected
 ### RDC 978 Art. 86 (Risk Management)
 
 **Requirement:**
+
 > "A empresa responsável pela realização de ensaios deverá implantar e manter um sistema de gestão de risco que inclua identificação, avaliação e tratamento de riscos... As ações de tratamento de risco deverão ser documentadas e verificadas."
 
 **CAPA Compliance:**
+
 1. ✅ Risk identification (Risk register, FMEA-Lite, ADR-0016)
 2. ✅ Risk assessment (P×S×D scoring)
 3. ✅ Risk treatment via CAPA (investigation → action → verification)
@@ -2036,6 +2161,7 @@ CAPA Issue Detected
 5. ✅ Verification (auditor effectiveness check, closureSignature)
 
 **Evidence for External Auditor:**
+
 - CAPA linked to Risk (riskId in CAPA doc)
 - RCA addresses risk root cause
 - Action plan mitigates risk (P/S/D reduction)
@@ -2045,15 +2171,18 @@ CAPA Issue Detected
 ### RDC 978 Art. 147 (CAPA)
 
 **Requirement:**
+
 > "Quando não-conformidades ou desvios forem identificados, a empresa responsável pela realização de ensaios deverá estabelecer um sistema de avaliação do impacto na qualidade dos resultados de ensaios... A empresa deverá implementar ações de correção ou ações preventivas apropriadas e verificar sua efetividade."
 
 **CAPA Compliance:**
+
 1. ✅ NC detection (auditor, operator, system alert)
 2. ✅ Impact evaluation (RCA analysis)
 3. ✅ Corrective action (acaoCorretivaPlano)
 4. ✅ Verification (auditor review, effectivenessCriteria)
 
 **Timeline Requirement (Art. 147 §2):**
+
 - **Deadline:** 30–90 days from NC detection (configurable per lab)
 - **Monitoring:** Dashboard shows "at-risk" CAPAs (deadline < 7 days), "overdue" CAPAs
 - **Escalation:** RT/QM notified daily for overdue
@@ -2061,15 +2190,18 @@ CAPA Issue Detected
 ### DICQ 4.1.2.4 (Ações de Correção)
 
 **Requirement:**
+
 > "As ações de correção deverão ser documentadas, implementadas, avaliadas quanto à sua efetividade e registradas de forma a permitir rastreabilidade."
 
 **CAPA Compliance:**
+
 1. ✅ Documented (RCA, action plan, effectiveness criteria stored in Firestore)
 2. ✅ Implemented (evidence uploaded, auditor verifies)
 3. ✅ Evaluated for efficacy (auditor effectiveness check, effectivenessVerified flag)
 4. ✅ Traceable (audit trail with operatorId, ts, chainHash for every transition)
 
 **Retention (DICQ 4.1.2.4):**
+
 - Records retained for 5 years minimum (RDC 978 Art. 105)
 - Soft-delete only; no hard delete
 - Audit trail immutable
@@ -2077,9 +2209,11 @@ CAPA Issue Detected
 ### ISO 15189:2022 §8.5 (Nonconformities and Corrective Actions)
 
 **Requirement:**
+
 > "When nonconformities are detected, the laboratory shall investigate the cause and determine whether a corrective action is needed... The laboratory shall verify the effectiveness of corrective actions."
 
 **CAPA Compliance:**
+
 1. ✅ Detection & documentation (CAPA created, logged)
 2. ✅ Investigation (RCA analysis, min 100 chars)
 3. ✅ Corrective action (action plan, responsible party, deadline)
@@ -2090,19 +2224,19 @@ CAPA Issue Detected
 
 ## Appendix: Glossary
 
-| Term | Definition |
-|------|-----------|
-| **CAPA** | Corrective Action / Preventive Action. Systematic process for addressing NC or Risk via investigation → action → verification. |
-| **NC (Non-Conformidade)** | Deviation from established procedures, quality standards, or regulatory requirements. Source of CAPA. |
-| **Risk** | Potential for harm (FMEA-Lite: P×S×D scoring). Trigger for preventive CAPA (ADR-0016). |
-| **RCA (Root Cause Analysis)** | Investigation to determine underlying cause of NC or Risk. Minimum 100 chars. |
-| **Effectiveness Criteria** | Measurable standard for verifying CAPA effectiveness (e.g., "No recurrence in 30 days"). |
-| **Audit Trail** | Immutable record of CAPA state transitions + signatures. Append-only `transicoesCAPAs[]` array. |
-| **Soft-Delete** | Logical deletion (RN-06): `deletadoEm` flag set, records preserved for 5 years. No hard delete. |
-| **LogicalSignature** | Immutable signature: `{ hash: SHA-256, operatorId, ts }`. Proof of authority + integrity. |
-| **ChainHash** | HMAC linking successive transitions. Prevents tampering + reordering. |
-| **Proprietario** | Quality operator assigned to investigate + execute corrective action. |
-| **Auditor Master CIQ** | Role authorized to review evidence + approve/reject CAPA closure. |
+| Term                          | Definition                                                                                                                     |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| **CAPA**                      | Corrective Action / Preventive Action. Systematic process for addressing NC or Risk via investigation → action → verification. |
+| **NC (Non-Conformidade)**     | Deviation from established procedures, quality standards, or regulatory requirements. Source of CAPA.                          |
+| **Risk**                      | Potential for harm (FMEA-Lite: P×S×D scoring). Trigger for preventive CAPA (ADR-0016).                                         |
+| **RCA (Root Cause Analysis)** | Investigation to determine underlying cause of NC or Risk. Minimum 100 chars.                                                  |
+| **Effectiveness Criteria**    | Measurable standard for verifying CAPA effectiveness (e.g., "No recurrence in 30 days").                                       |
+| **Audit Trail**               | Immutable record of CAPA state transitions + signatures. Append-only `transicoesCAPAs[]` array.                                |
+| **Soft-Delete**               | Logical deletion (RN-06): `deletadoEm` flag set, records preserved for 5 years. No hard delete.                                |
+| **LogicalSignature**          | Immutable signature: `{ hash: SHA-256, operatorId, ts }`. Proof of authority + integrity.                                      |
+| **ChainHash**                 | HMAC linking successive transitions. Prevents tampering + reordering.                                                          |
+| **Proprietario**              | Quality operator assigned to investigate + execute corrective action.                                                          |
+| **Auditor Master CIQ**        | Role authorized to review evidence + approve/reject CAPA closure.                                                              |
 
 ---
 
@@ -2114,4 +2248,4 @@ CAPA Issue Detected
 
 ---
 
-*This document is part of the HC Quality v1.4 regulatory compliance suite. For RDC 978 Art. 105 (5-year retention), this document and all referenced CAPA records must be preserved for the retention period.*
+_This document is part of the HC Quality v1.4 regulatory compliance suite. For RDC 978 Art. 105 (5-year retention), this document and all referenced CAPA records must be preserved for the retention period._

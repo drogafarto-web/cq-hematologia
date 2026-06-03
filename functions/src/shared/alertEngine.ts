@@ -44,15 +44,15 @@ export async function generateAlert(
   anomalyResult: AnomalyDetectionResult,
   labId: string,
   operatorId?: string,
-  routingRules?: AlertRoutingRule[]
+  routingRules?: AlertRoutingRule[],
 ): Promise<AuditAlert | null> {
-  if (anomalyResult.overall < 0.70) {
+  if (anomalyResult.overall < 0.7) {
     return null;
   }
 
   const severity = computeSeverity(anomalyResult.overall);
   const routedTo = routingRules
-    ? routingRules.find((r) => r.severity === severity)?.routeTo ?? getDefaultRouting(severity)
+    ? (routingRules.find((r) => r.severity === severity)?.routeTo ?? getDefaultRouting(severity))
     : getDefaultRouting(severity);
 
   const alertRef = db.collection('labs').doc(labId).collection('audit-alerts').doc();

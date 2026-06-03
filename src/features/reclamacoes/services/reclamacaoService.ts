@@ -26,11 +26,7 @@ import {
 } from 'firebase/firestore';
 
 import { db } from '../../../shared/services/firebase';
-import type {
-  Reclamacao,
-  CreateReclamacaoInput,
-  StatusReclamacao,
-} from '../types';
+import type { Reclamacao, CreateReclamacaoInput, StatusReclamacao } from '../types';
 
 /**
  * Subscribe to all complaints for a lab
@@ -44,7 +40,7 @@ export function subscribeToReclamacoes(
     limit?: number;
   },
   onUpdate?: (reclamacoes: Reclamacao[]) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const constraints: any[] = [
     where('labId', '==', labId),
@@ -64,10 +60,7 @@ export function subscribeToReclamacoes(
     constraints.push(limit(filters.limit));
   }
 
-  const q = query(
-    collection(db, 'labs', labId, 'reclamacoes'),
-    ...constraints
-  );
+  const q = query(collection(db, 'labs', labId, 'reclamacoes'), ...constraints);
 
   return onSnapshot(
     q,
@@ -81,7 +74,7 @@ export function subscribeToReclamacoes(
     (error) => {
       console.error('Error subscribing to reclamacoes:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -92,7 +85,7 @@ export function subscribeToReclamacao(
   labId: string,
   reclamacaoId: string,
   onUpdate?: (reclamacao: Reclamacao | null) => void,
-  onError?: (error: Error) => void
+  onError?: (error: Error) => void,
 ): Unsubscribe {
   const docRef = doc(db, 'labs', labId, 'reclamacoes', reclamacaoId);
 
@@ -108,7 +101,7 @@ export function subscribeToReclamacao(
     (error) => {
       console.error('Error subscribing to reclamacao:', error);
       onError?.(error as Error);
-    }
+    },
   );
 }
 
@@ -117,7 +110,7 @@ export function subscribeToReclamacao(
  */
 export async function getReclamacao(
   labId: string,
-  reclamacaoId: string
+  reclamacaoId: string,
 ): Promise<Reclamacao | null> {
   const docRef = doc(db, 'labs', labId, 'reclamacoes', reclamacaoId);
   const snapshot = await getDoc(docRef);
@@ -135,7 +128,7 @@ export async function getReclamacao(
 export async function getReclamacoesByStatus(
   labId: string,
   status: StatusReclamacao,
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Reclamacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
@@ -143,7 +136,7 @@ export async function getReclamacoesByStatus(
     where('status', '==', status),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -162,7 +155,7 @@ export async function getReclamacoesByStatus(
 export async function getReclamacoesBySeveridade(
   labId: string,
   severidade: 'alta' | 'media' | 'baixa',
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Reclamacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
@@ -170,7 +163,7 @@ export async function getReclamacoesBySeveridade(
     where('classificacao.severidade', '==', severidade),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -189,7 +182,7 @@ export async function getReclamacoesBySeveridade(
 export async function getReclamacoesByArea(
   labId: string,
   area: string,
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Reclamacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
@@ -197,7 +190,7 @@ export async function getReclamacoesByArea(
     where('classificacao.areaResponsavel', '==', area),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -217,14 +210,14 @@ export async function getReclamacoesByArea(
 export async function searchReclamacoes(
   labId: string,
   searchTerm: string,
-  limitCount = 50
+  limitCount = 50,
 ): Promise<Reclamacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
     where('labId', '==', labId),
     where('deletadoEm', '==', null),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount * 2) // fetch 2x to filter client-side
+    limit(limitCount * 2), // fetch 2x to filter client-side
   );
 
   const snapshot = await getDocs(q);
@@ -252,7 +245,7 @@ export async function getReclamacoesByDateRange(
   labId: string,
   startDate: Date,
   endDate: Date,
-  limitCount = 500
+  limitCount = 500,
 ): Promise<Reclamacao[]> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
@@ -261,7 +254,7 @@ export async function getReclamacoesByDateRange(
     where('criadoEm', '>=', Timestamp.fromDate(startDate)),
     where('criadoEm', '<=', Timestamp.fromDate(endDate)),
     orderBy('criadoEm', 'desc'),
-    limit(limitCount)
+    limit(limitCount),
   );
 
   const snapshot = await getDocs(q);
@@ -280,22 +273,18 @@ export async function getReclamacoesByDateRange(
  */
 export async function markReclamacaoAsDeleted(
   labId: string,
-  reclamacaoId: string
+  reclamacaoId: string,
 ): Promise<boolean> {
   // Service doesn't actually perform the deletion
   // (requires signature + transaction in hook/function)
-  console.warn(
-    'markReclamacaoAsDeleted: soft-delete must be called from hook with signature'
-  );
+  console.warn('markReclamacaoAsDeleted: soft-delete must be called from hook with signature');
   return false;
 }
 
 /**
  * Get complaints with overdue SLA (slaPrazo < now)
  */
-export async function getOverdueReclamacoes(
-  labId: string
-): Promise<Reclamacao[]> {
+export async function getOverdueReclamacoes(labId: string): Promise<Reclamacao[]> {
   const now = Timestamp.now();
 
   const q = query(
@@ -304,7 +293,7 @@ export async function getOverdueReclamacoes(
     where('deletadoEm', '==', null),
     where('slaPrazo', '<', now),
     where('status', 'in', ['Nova', 'Analisando', 'RCA']),
-    orderBy('slaPrazo', 'asc')
+    orderBy('slaPrazo', 'asc'),
   );
 
   const snapshot = await getDocs(q);
@@ -322,7 +311,7 @@ export async function getOverdueReclamacoes(
  */
 export async function getReclamacoesPendentesRCA(
   labId: string,
-  limitCount = 100
+  limitCount = 100,
 ): Promise<Reclamacao[]> {
   return getReclamacoesByStatus(labId, 'RCA', limitCount);
 }
@@ -332,13 +321,13 @@ export async function getReclamacoesPendentesRCA(
  */
 export async function countReclamacoesByStatus(
   labId: string,
-  status: StatusReclamacao
+  status: StatusReclamacao,
 ): Promise<number> {
   const q = query(
     collection(db, 'labs', labId, 'reclamacoes'),
     where('labId', '==', labId),
     where('status', '==', status),
-    where('deletadoEm', '==', null)
+    where('deletadoEm', '==', null),
   );
 
   const snapshot = await getDocs(q);

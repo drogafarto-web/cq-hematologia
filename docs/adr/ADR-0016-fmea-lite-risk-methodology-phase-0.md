@@ -24,7 +24,7 @@ HC Quality entrou em v1.4 com necessidade urgente de **risk management system** 
 
 ## Problema
 
-Sem decisão explícita sobre *como* calcular NPR (número de prioridade de risco), há risco de:
+Sem decisão explícita sobre _como_ calcular NPR (número de prioridade de risco), há risco de:
 
 1. **Rejeição regulatória:** Auditor não reconhece metodologia → retrabado em semana de CAPA closure.
 2. **Inconsistência:** Cada laboratório usa fórmula diferente → impossível comparar riscos entre filiais.
@@ -38,6 +38,7 @@ Sem decisão explícita sobre *como* calcular NPR (número de prioridade de risc
 ### Metodologia FMEA-Lite Escolhida
 
 **Scoring Formula:**
+
 ```
 NPR (Número de Prioridade de Risco) = Probabilidade × Severidade × Detecção
 Onde cada fator ∈ [1, 5]
@@ -47,6 +48,7 @@ Portanto: NPR ∈ [1, 125]
 **Definições de Fator (client-side guidance; server-side authoritative):**
 
 #### Probabilidade (P) — Likelihood of occurrence
+
 1. **Muito improvável** — ocorre raramente, <1 vez por ano na prática clínica
 2. **Improvável** — ocorre ocasionalmente, 1–5 vezes por ano
 3. **Possível** — ocorre com frequência moderada, 5–20 vezes por ano
@@ -54,6 +56,7 @@ Portanto: NPR ∈ [1, 125]
 5. **Muito provável** — ocorre constantemente ou em cada ciclo
 
 #### Severidade (S) — Impact on patient/process
+
 1. **Desprezível** — sem impacto clínico; descoberto antes de resultado
 2. **Menor** — impacto mínimo; paciente recuperado com intervenção simples
 3. **Moderado** — impacto significativo; paciente requer hospitalization ou intervenção
@@ -61,6 +64,7 @@ Portanto: NPR ∈ [1, 125]
 5. **Catastrófico** — morte ou incapacidade permanente
 
 #### Detecção (D) — Ability to detect before it reaches patient
+
 1. **Certeza de detecção** — controle detecta 100% das ocorrências
 2. **Muito provável** — controle detecta >80% (boa capacidade)
 3. **Provável** — controle detecta 50–80%
@@ -69,12 +73,12 @@ Portanto: NPR ∈ [1, 125]
 
 **Classificação de Nivel por NPR:**
 
-| Nivel | NPR Range | Ação | Revisão |
-|-------|-----------|------|---------|
-| **Baixo** | 1–24 | Aceitar risco; monitorar anualmente | Anual |
-| **Médio** | 25–60 | Mitigação planejada; revisão 6 meses | Semestral |
-| **Alto** | 61–99 | Mitigação urgente; revisão 3 meses | Trimestral |
-| **Crítico** | 100–125 | Ação imediata; revisão mensal | Mensal + Top-5 |
+| Nivel       | NPR Range | Ação                                 | Revisão        |
+| ----------- | --------- | ------------------------------------ | -------------- |
+| **Baixo**   | 1–24      | Aceitar risco; monitorar anualmente  | Anual          |
+| **Médio**   | 25–60     | Mitigação planejada; revisão 6 meses | Semestral      |
+| **Alto**    | 61–99     | Mitigação urgente; revisão 3 meses   | Trimestral     |
+| **Crítico** | 100–125   | Ação imediata; revisão mensal        | Mensal + Top-5 |
 
 (Thresholds configuráveis por laboratório via `labSettings` em v1.4 Phase 1; Phase 0 hardcoded.)
 
@@ -99,6 +103,7 @@ Portanto: NPR ∈ [1, 125]
 **Por que ISO 31000 em v1.5:**
 
 ISO 31000 é **framework de gestão de risco integrado** (análise qualitativa + quantitativa, matriz de risco + apetite empresarial, governance loops). Requer:
+
 - Entrevistar C-suite (diretor clínico, diretor administrativo) → apetite de risco por categoria
 - Mapear 50+ processos clínicos × risco (2-3 semanas)
 - Estruturar matriz 5×5 com limiares de decisão por categoria
@@ -113,6 +118,7 @@ ISO 31000 é **framework de gestão de risco integrado** (análise qualitativa +
 Implementar risk framework completo: RACI roles, risk appetite matrix, governance committee.
 
 **Rejeitada porque:**
+
 - Não cabe em 3.5 dias (minimo 6 semanas de design + client interviews + training).
 - v1.3 é medida de baseline; Phase 0 unblock gate crítico → não há tempo.
 - Riopomba não pediu; Lab Manager pediu "alguma forma de rastrear riscos antes da auditoria".
@@ -122,6 +128,7 @@ Implementar risk framework completo: RACI roles, risk appetite matrix, governanc
 Apenas categorizar por heatmap (alto/médio/baixo) sem fórmula numérica.
 
 **Rejeitada porque:**
+
 - Auditor pergunta "como vocês priorizaram este risco vs aquele?" → sem NPR, é subjetivo.
 - RDC 978 Art. 86 implica **análise + avaliação** (objetivo); qualitativa pura é insuficiente.
 - Benchmarking entre labs impossível.
@@ -131,7 +138,8 @@ Apenas categorizar por heatmap (alto/médio/baixo) sem fórmula numérica.
 NPR = P × S (fórmula FMEA padrão). Detecção deixa para Phase 1.
 
 **Considerada, mas rejeitada:**
-- Detecção é crítica em CIQ: se o controle interno é *detecta tudo*, risco real é menor.
+
+- Detecção é crítica em CIQ: se o controle interno é _detecta tudo_, risco real é menor.
 - Laboratório clínico = ambiente altamente controlado; ignorar detecção subestima capabilidade.
 - Implementar depois cria refactor desnecessário; fazendo certo agora é negligenciável.
 

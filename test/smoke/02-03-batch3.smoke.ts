@@ -45,12 +45,26 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
 
     it('should validate CIQ Bio analyte types', () => {
       const supportedAnalytes = [
-        'WBC', 'RBC', 'HGB', 'HCT', 'MCV', 'MCH', 'MCHC',
-        'PLT', 'RDW', 'NRBC', 'IG', 'LY', 'MO', 'NE', 'EO', 'BA'
+        'WBC',
+        'RBC',
+        'HGB',
+        'HCT',
+        'MCV',
+        'MCH',
+        'MCHC',
+        'PLT',
+        'RDW',
+        'NRBC',
+        'IG',
+        'LY',
+        'MO',
+        'NE',
+        'EO',
+        'BA',
       ];
 
       const runAnalytes = ['WBC', 'RBC', 'HGB'];
-      const allSupported = runAnalytes.every(a => supportedAnalytes.includes(a));
+      const allSupported = runAnalytes.every((a) => supportedAnalytes.includes(a));
 
       expect(allSupported).toBe(true);
     });
@@ -58,9 +72,9 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
     it('should validate analyte value ranges', () => {
       const mockValidate = (analyte: string, value: number) => {
         const ranges: Record<string, [number, number]> = {
-          'WBC': [4.5, 11.0],
-          'RBC': [4.5, 5.9],
-          'HGB': [12.0, 17.5],
+          WBC: [4.5, 11.0],
+          RBC: [4.5, 5.9],
+          HGB: [12.0, 17.5],
         };
 
         const [min, max] = ranges[analyte] || [0, Infinity];
@@ -119,7 +133,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       ];
 
       const mockValidate = (popId: string) => {
-        const pop = mockPOPs.find(p => p.id === popId);
+        const pop = mockPOPs.find((p) => p.id === popId);
         if (!pop) throw new Error('POP not found');
         if (!pop.ativo) throw new Error('POP is inactive');
         return pop;
@@ -138,7 +152,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       ];
 
       const mockValidate = (equipId: string) => {
-        const equip = mockEquips.find(e => e.id === equipId);
+        const equip = mockEquips.find((e) => e.id === equipId);
         if (!equip) throw new Error('Equipment not found');
         if (equip.status !== 'ativa') throw new Error('Equipment not active');
         return equip;
@@ -181,7 +195,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
 
       const mockCheckCanCreateRun = (labId: string, ncs: any[]) => {
         const hasBlockingNC = ncs.some(
-          nc => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta'
+          (nc) => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta',
         );
         return !hasBlockingNC;
       };
@@ -200,7 +214,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
 
       const mockCheckCanCreateRun = (labId: string, ncs: any[]) => {
         const hasBlockingNC = ncs.some(
-          nc => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta'
+          (nc) => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta',
         );
         return !hasBlockingNC;
       };
@@ -212,7 +226,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
     it('should allow run creation when no NCs exist', () => {
       const mockCheckCanCreateRun = (labId: string, ncs: any[]) => {
         const hasBlockingNC = ncs.some(
-          nc => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta'
+          (nc) => nc.labId === labId && nc.bloqueiaOperacoes && nc.status === 'aberta',
         );
         return !hasBlockingNC;
       };
@@ -229,7 +243,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       });
 
       const mockGetBlocker = (ncs: any[]) => {
-        return ncs.find(nc => nc.bloqueiaOperacoes && nc.status === 'aberta');
+        return ncs.find((nc) => nc.bloqueiaOperacoes && nc.status === 'aberta');
       };
 
       const blocker = mockGetBlocker([blockingNC]);
@@ -242,13 +256,9 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
 
   describe('Cross-Module Regressions', () => {
     it('should not break CEQ module when adding CIQ Bio', () => {
-      const mockCEQFunctions = [
-        'lacarCEQResultado',
-        'listarCEQResultados',
-        'validarCEQResultado',
-      ];
+      const mockCEQFunctions = ['lacarCEQResultado', 'listarCEQResultados', 'validarCEQResultado'];
 
-      mockCEQFunctions.forEach(fn => {
+      mockCEQFunctions.forEach((fn) => {
         expect(fn).toBeDefined();
         expect(typeof fn).toBe('string');
       });
@@ -261,7 +271,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
         'listNaoConformidades',
       ];
 
-      mockNCFunctions.forEach(fn => {
+      mockNCFunctions.forEach((fn) => {
         expect(fn).toBeDefined();
       });
     });
@@ -275,7 +285,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       });
 
       const mockCheckBlocker = (ncs: any[]) => {
-        return ncs.some(nc => nc.bloqueiaOperacoes && nc.status === 'aberta');
+        return ncs.some((nc) => nc.bloqueiaOperacoes && nc.status === 'aberta');
       };
 
       expect(mockCheckBlocker([blockingNC])).toBe(true);
@@ -387,7 +397,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       ];
 
       expect(deployedModules).toHaveLength(7);
-      expect(deployedModules.filter(m => m.status === 'production')).toHaveLength(3);
+      expect(deployedModules.filter((m) => m.status === 'production')).toHaveLength(3);
     });
 
     it('should validate Firestore rules deployed', () => {
@@ -407,11 +417,7 @@ describe('02-03 Batch 3 Smoke Tests: CIQ Bio Integration', () => {
       const cfStatus = {
         region: 'southamerica-east1',
         runtime: 'nodejs22',
-        functions: [
-          'computeAnalyticsMetrics',
-          'lacarCEQResultado',
-          'createAutoNC',
-        ],
+        functions: ['computeAnalyticsMetrics', 'lacarCEQResultado', 'createAutoNC'],
       };
 
       expect(cfStatus.runtime).toBe('nodejs22');

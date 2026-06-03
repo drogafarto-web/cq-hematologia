@@ -22,19 +22,14 @@ const EVIDENCE_TYPE_CONFIG: Record<
   NonNullable<CAPAEvidenceRef['type']>,
   { label: string; icon: string }
 > = {
-  'foto': { label: 'Foto', icon: '📸' },
-  'documento': { label: 'Documento', icon: '📄' },
-  'certificado': { label: 'Certificado', icon: '✓' },
-  'pop': { label: 'POP', icon: '📋' },
-  'treinamento': { label: 'Treinamento', icon: '👨‍🎓' },
+  foto: { label: 'Foto', icon: '📸' },
+  documento: { label: 'Documento', icon: '📄' },
+  certificado: { label: 'Certificado', icon: '✓' },
+  pop: { label: 'POP', icon: '📋' },
+  treinamento: { label: 'Treinamento', icon: '👨‍🎓' },
 };
 
-export function CAPAEvidenceList({
-  evidence,
-  capaId,
-  isOpen,
-  onClose,
-}: CAPAEvidenceListProps) {
+export function CAPAEvidenceList({ evidence, capaId, isOpen, onClose }: CAPAEvidenceListProps) {
   const [selectedHash, setSelectedHash] = useState<string | null>(null);
 
   if (!isOpen) return null;
@@ -51,8 +46,7 @@ export function CAPAEvidenceList({
         <div className="sticky top-0 bg-[#1a1a1f] px-6 py-4 border-b border-white/10">
           <div className="flex items-center justify-between">
             <h2 id={`evidence-modal-${capaId}`} className="text-lg font-semibold">
-              Evidências (
-              {evidence.length})
+              Evidências ({evidence.length})
             </h2>
             <button
               onClick={onClose}
@@ -66,34 +60,25 @@ export function CAPAEvidenceList({
 
         {/* Evidence List */}
         {evidence.length === 0 ? (
-          <div className="px-6 py-8 text-center text-white/60">
-            Nenhuma evidência carregada
-          </div>
+          <div className="px-6 py-8 text-center text-white/60">Nenhuma evidência carregada</div>
         ) : (
           <ul className="divide-y divide-white/10">
             {evidence.map((ev) => {
-              const config = ev.type ? EVIDENCE_TYPE_CONFIG[ev.type] : { label: 'Arquivo', icon: '📄' };
+              const config = ev.type
+                ? EVIDENCE_TYPE_CONFIG[ev.type]
+                : { label: 'Arquivo', icon: '📄' };
               const date = new Date(ev.uploadedAt);
 
               return (
-                <li
-                  key={ev.hash}
-                  className="px-6 py-4 hover:bg-white/5 transition-colors"
-                >
+                <li key={ev.hash} className="px-6 py-4 hover:bg-white/5 transition-colors">
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex items-start gap-3 flex-1">
                       <span className="text-xl mt-0.5" aria-hidden="true">
                         {config.icon}
                       </span>
                       <div className="flex-1">
-                        <h3 className="font-medium text-sm">
-                          {config.label}
-                        </h3>
-                        {ev.filename && (
-                          <p className="text-xs text-white/60 mt-1">
-                            {ev.filename}
-                          </p>
-                        )}
+                        <h3 className="font-medium text-sm">{config.label}</h3>
+                        {ev.filename && <p className="text-xs text-white/60 mt-1">{ev.filename}</p>}
                         <div className="flex items-center gap-2 mt-2">
                           <span className="text-xs text-white/50">
                             {new Intl.DateTimeFormat('pt-BR', {
@@ -105,9 +90,7 @@ export function CAPAEvidenceList({
                             }).format(date)}
                           </span>
                           {ev.uploadedBy && (
-                            <span className="text-xs text-white/40">
-                              por {ev.uploadedBy}
-                            </span>
+                            <span className="text-xs text-white/40">por {ev.uploadedBy}</span>
                           )}
                         </div>
                       </div>
@@ -115,9 +98,7 @@ export function CAPAEvidenceList({
 
                     {/* Hash toggle */}
                     <button
-                      onClick={() =>
-                        setSelectedHash(selectedHash === ev.hash ? null : ev.hash)
-                      }
+                      onClick={() => setSelectedHash(selectedHash === ev.hash ? null : ev.hash)}
                       className="text-xs text-violet-400 hover:text-violet-300 whitespace-nowrap transition-colors"
                       aria-label="Ver hash"
                     >
@@ -128,9 +109,7 @@ export function CAPAEvidenceList({
                   {/* Hash display when selected */}
                   {selectedHash === ev.hash && (
                     <div className="mt-3 pt-3 border-t border-white/10">
-                      <code className="text-xs text-white/60 break-all font-mono">
-                        {ev.hash}
-                      </code>
+                      <code className="text-xs text-white/60 break-all font-mono">{ev.hash}</code>
                     </div>
                   )}
                 </li>

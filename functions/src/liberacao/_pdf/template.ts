@@ -165,7 +165,9 @@ export function renderLaudoHtml(inputs: TemplateInputs): string {
     })
     .join('');
 
-  const cpf = laudo.paciente?.cpf ? `<div class="field"><span class="label">CPF</span><span class="value">${escapeHtml(laudo.paciente.cpf)}</span></div>` : '';
+  const cpf = laudo.paciente?.cpf
+    ? `<div class="field"><span class="label">CPF</span><span class="value">${escapeHtml(laudo.paciente.cpf)}</span></div>`
+    : '';
 
   const hashTrunc = (version.chainHash ?? '').slice(0, 16);
 

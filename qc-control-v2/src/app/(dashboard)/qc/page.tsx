@@ -1,13 +1,13 @@
-import { auth } from '@/lib/auth'
-import { redirect } from 'next/navigation'
-import { prisma } from '@/lib/db'
-import { TelaPrincipaV2 } from './tela-principal'
+import { auth } from '@/lib/auth';
+import { redirect } from 'next/navigation';
+import { prisma } from '@/lib/db';
+import { TelaPrincipaV2 } from './tela-principal';
 
-export const dynamic = 'force-dynamic'
+export const dynamic = 'force-dynamic';
 
 export default async function QcPage() {
-  const session = await auth()
-  if (!session?.user) redirect('/login')
+  const session = await auth();
+  if (!session?.user) redirect('/login');
 
   const rawControles = await prisma.controle.findMany({
     where: { ativo: true },
@@ -21,7 +21,7 @@ export default async function QcPage() {
         },
       },
     },
-  })
+  });
 
   const controles = rawControles.map((c) => ({
     ...c,
@@ -38,14 +38,14 @@ export default async function QcPage() {
       valorTtppa: Number(r.valorTtppa),
       registradoEm: r.registradoEm.toISOString(),
     })),
-  }))
+  }));
 
   const operador = await prisma.usuario.findUnique({
     where: { id: session.user.id },
     select: { id: true, nome: true },
-  })
+  });
 
-  if (!operador) redirect('/login')
+  if (!operador) redirect('/login');
 
-  return <TelaPrincipaV2 controles={controles} operador={operador} />
+  return <TelaPrincipaV2 controles={controles} operador={operador} />;
 }

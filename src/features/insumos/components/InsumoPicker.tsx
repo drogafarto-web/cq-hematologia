@@ -108,7 +108,7 @@ export function InsumoPicker({
   const { insumos, isLoading } = useInsumos(filters);
 
   const selected = useMemo(
-    () => (value ? insumos.find((i) => i.id === value) ?? null : null),
+    () => (value ? (insumos.find((i) => i.id === value) ?? null) : null),
     [value, insumos],
   );
 
@@ -127,7 +127,9 @@ export function InsumoPicker({
             <span className="truncate text-slate-900 dark:text-white/85 font-medium">
               {selected.nomeComercial}
             </span>
-            <span className="text-xs text-slate-500 dark:text-white/45">· Lote {selected.lote}</span>
+            <span className="text-xs text-slate-500 dark:text-white/45">
+              · Lote {selected.lote}
+            </span>
             <ValidadeChip insumo={selected} />
             {hasQCValidationPending(selected) && <QCPendingChip />}
           </div>

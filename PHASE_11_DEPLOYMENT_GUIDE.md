@@ -9,9 +9,11 @@
 ## Delivered Artifacts
 
 ### 1. Gemini Vision Callable ✅
+
 **File**: `functions/src/modules/ia-strip/callables/classifyStripGemini.ts`
 
 **What it does**:
+
 - Accepts base64-encoded RDT image (JPEG/PNG/WebP)
 - Sends to Gemini 2.5 Flash with clinical prompts (Portuguese/English)
 - Parses response JSON (handles markdown code blocks + raw JSON)
@@ -26,9 +28,11 @@
 **Cost estimate**: ~$0.87/month for 50 images/day collection
 
 ### 2. Types & Interfaces ✅
+
 **File**: `functions/src/modules/ia-strip/types.ts`
 
 **Defines**:
+
 - `ClassifyStripPayload` — input shape
 - `GeminiClassificationResult` — Gemini response
 - `ClassifyStripResult` — final result with threshold logic
@@ -39,9 +43,11 @@
 - `Classification` — R|NR|INCONCLUSIVE
 
 ### 3. Execution Plan ✅
+
 **File**: `PHASE_11_EXECUTION_STATUS.md`
 
 Comprehensive 2-week roadmap:
+
 - Week 1: Infrastructure + Gemini callable
 - Week 2: UI components + dashboard + testing
 - Daily deployment gates (typecheck, lint, tests, secrets)
@@ -49,9 +55,11 @@ Comprehensive 2-week roadmap:
 - Exit criteria checklist
 
 ### 4. Implementation Checklist ✅
+
 **File**: `PHASE_11_IMPLEMENTATION_CHECKLIST.md`
 
 Day-by-day task breakdown:
+
 - Day 1–3: Callable + schema + UI start
 - Day 4–7: Components + tests
 - Day 8–12: Dashboard + E2E tests + collection
@@ -66,6 +74,7 @@ Day-by-day task breakdown:
 **Attendees**: Engineering team + RT team + Lab ops + Audit
 
 **Agenda**:
+
 1. Review Phase 11 scope (30 min)
    - Read: `PHASE_11_EXECUTION_STATUS.md`
    - Watch: Gemini capabilities demo
@@ -91,6 +100,7 @@ Day-by-day task breakdown:
 **Task 1: Export callable in functions/src/index.ts**
 
 Add to exports:
+
 ```typescript
 export { classifyStripGemini } from './modules/ia-strip/callables/classifyStripGemini';
 ```
@@ -98,6 +108,7 @@ export { classifyStripGemini } from './modules/ia-strip/callables/classifyStripG
 **Task 2: Create Firestore indexes (firestore.indexes.json)**
 
 Add these 5 composite indexes:
+
 ```json
 {
   "indexes": [
@@ -153,13 +164,14 @@ Deploy: `firebase deploy --only firestore:indexes`
 **Task 3: Add Firestore rules (firestore.rules)**
 
 Add these rules to the `firestore.rules` file:
+
 ```
 match /imuno-ia-dev/{labId} {
   match /config {
     allow read: if isActiveMemberOfLab(labId);
     allow write: if isAdminOfLab(labId);
   }
-  
+
   match /events/{captureId} {
     allow read: if isActiveMemberOfLab(labId);
     allow create: if isActiveMemberOfLab(labId)
@@ -172,7 +184,7 @@ match /imuno-ia-dev/{labId} {
 match /imuno-ia-cost/{labId} {
   match /daily/{dateKey} {
     allow read: if isAdminOfLab(labId);
-    allow write: if request.auth.token.claims.role == 'system' 
+    allow write: if request.auth.token.claims.role == 'system'
                     || request.auth.uid == getCloudFunctionServiceUid();
   }
 }
@@ -201,6 +213,7 @@ Complete these components (order not strict):
 Reference implementations in `PHASE_11_DETAILED_PLAN.md` (sections 1–3).
 
 Each component:
+
 - WCAG AA compliant (dark-first design, contrast 4.5:1)
 - Mobile responsive (iOS Safari + Android Chrome)
 - Error handling (network, validation, API timeouts)
@@ -211,6 +224,7 @@ Each component:
 ### Step 4: Collection Kick-off (Day 8)
 
 **RT Team**:
+
 1. Receive training: `CLASSIFICATION_GUIDE.md`
    - Manual classification categories (R, NR, INCONCLUSIVE, borderline, unclear)
    - Confidence sliders (0.0–1.0)
@@ -230,6 +244,7 @@ Each component:
    - Alert if <25 images (missed target)
 
 **Engineering**:
+
 - Monitor Cloud Logs for errors
 - Track variant allocation (v1/v2/v3 roughly 33/33/33)
 - Calculate daily accuracy (Gemini vs RT verdicts)
@@ -266,6 +281,7 @@ Build `IAPerformanceDashboard.tsx` with 5 tabs:
    - Projected monthly (alert if >$500)
 
 E2E test specs (5 critical flows):
+
 - Flow 1: Camera → Gemini → confidence ≥0.85 → auto-save
 - Flow 2: File → confidence <0.85 → manual review → signature
 - Flow 3: A/B variant allocation (verify 33/33/33)
@@ -277,6 +293,7 @@ E2E test specs (5 critical flows):
 ### Step 6: Deploy to Staging (Day 13)
 
 **Pre-flight gate**:
+
 ```bash
 npx tsc --noEmit                 # TypeScript OK?
 npm run lint                     # Baseline 88 warnings
@@ -286,6 +303,7 @@ bash scripts/preflight-secrets-check.sh  # GEMINI_API_KEY SET?
 ```
 
 **If all green**:
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 firebase deploy --only functions --project hmatologia2
@@ -293,6 +311,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Post-deploy validation** (24 hours):
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # Expected: 0 errors, <5% warning rate
@@ -303,12 +322,14 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ### Step 7: Production Deploy (Monday 2026-06-23)
 
 **Go/No-go decision**:
+
 - Accuracy ≥85% on 300+ images? ✅ Go
 - No data loss or corruption? ✅ Go
 - Cloud Logs clean (0 errors, <5% warnings)? ✅ Go
 - Operator feedback positive? ✅ Go
 
 **Deploy to prod**:
+
 ```bash
 firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 firebase deploy --only functions --project hmatologia2
@@ -316,6 +337,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Immediate post-deploy**:
+
 - Hard reload browser (Ctrl+Shift+R)
 - Manual camera test (capture image → verify Gemini classification)
 - Verify dashboard is live (real-time accuracy updating)
@@ -358,18 +380,21 @@ firebase deploy --only hosting --project hmatologia2
 ## Monitoring & Alerting (Post-Deploy)
 
 ### Daily standup (10am BRT)
+
 - Images collected yesterday?
 - Accuracy % (vs RT verdicts)?
 - API errors or timeouts?
 - Cost on track?
 
 ### Weekly metrics review (Friday 4pm)
+
 - Accuracy per test type (HIV/Dengue/Syphilis/COVID/HCG)
 - Accuracy per variant (v1/v2/v3)
 - Confidence distribution (histogram)
 - Operator feedback from manual reviews
 
 ### Monthly handoff (End of June)
+
 - Dataset export (500+ images, metadata.csv)
 - Gemini baseline report (per-kit accuracy/sensitivity/specificity)
 - Error analysis (top 20 misclassifications)
@@ -380,6 +405,7 @@ firebase deploy --only hosting --project hmatologia2
 ## Phase 11 Exit Criteria (Final Checklist)
 
 ### Code Quality ✅
+
 - [ ] All 3 callables merged + deployed
 - [ ] 8–12 unit tests passing for Gemini callable
 - [ ] 5 E2E tests for critical flows PASS
@@ -389,6 +415,7 @@ firebase deploy --only hosting --project hmatologia2
 - [ ] Tests: `npm test` (738/738 baseline still PASS)
 
 ### Functionality ✅
+
 - [ ] Callable deployed + handles all 5 test kits
 - [ ] 3 prompt variants (v1/v2/v3) running, allocation 33/33/33
 - [ ] Confidence threshold (0.85) working
@@ -396,18 +423,21 @@ firebase deploy --only hosting --project hmatologia2
 - [ ] Dashboard live (5 tabs, real-time metrics)
 
 ### Dataset ✅
+
 - [ ] 300+ images collected (target 500 by end of phase, may land at 300)
 - [ ] Metadata complete (test type, device, lighting, manual classification)
 - [ ] Diversity: ≥3 devices, ≥3 lighting conditions, balanced result distribution
 - [ ] Ground truth: RT classifications logged + timestamped
 
 ### Accuracy ✅
+
 - [ ] Gemini accuracy ≥85% vs RT verdicts
 - [ ] No variant significantly worse than others
 - [ ] Confidence distribution plotted (modal 0.70–0.95)
 - [ ] Confidence vs accuracy curve shows inflection at ~0.85
 
 ### Compliance ✅
+
 - [ ] DICQ 4.7 training dataset policy documented
 - [ ] DICQ 4.7 model versioning procedure documented
 - [ ] DICQ 4.7 performance monitoring live (dashboard)
@@ -415,18 +445,21 @@ firebase deploy --only hosting --project hmatologia2
 - [ ] Signature validation passing (hash size = 64 chars)
 
 ### Cost ✅
+
 - [ ] Gemini API cost tracking live
 - [ ] Monthly trajectory <$500 (expected ~$0.87 for Phase 11 collection)
 - [ ] Cost per classification: ~$0.0006 (acceptable)
 - [ ] Alert system ready (will fire if >$500)
 
 ### Operations ✅
+
 - [ ] Cloud Logs clean (24h post-deploy: 0 errors, <5% warnings)
 - [ ] Firestore indexes deployed
 - [ ] Firestore rules deployed
 - [ ] Lab config document initialized (threshold, retention, etc.)
 
 ### Handoff to Phase 12 ✅
+
 - [ ] Dataset frozen (v1.1.0 export ready)
 - [ ] Gemini baseline established (baseline v1.0)
 - [ ] Error analysis documented (top 20 misclassifications)
@@ -438,15 +471,16 @@ firebase deploy --only hosting --project hmatologia2
 
 **Issues during Phase 11**:
 
-| Problem | Owner | Escalation |
-|---------|-------|-----------|
-| Gemini API errors (quota/rate limit) | Engineering | CTO (need Google support ticket) |
-| Firestore write failures (rules deny) | Engineering | Audit compliance review |
-| Accuracy <85% on variant | Engineering + RT | CTO (re-evaluate prompt strategy) |
-| PII leak detected in images | Security + Audit | CTO + Legal (LGPD breach protocol) |
-| Dataset collection lagging | RT team lead | Lab ops (resource allocation) |
+| Problem                               | Owner            | Escalation                         |
+| ------------------------------------- | ---------------- | ---------------------------------- |
+| Gemini API errors (quota/rate limit)  | Engineering      | CTO (need Google support ticket)   |
+| Firestore write failures (rules deny) | Engineering      | Audit compliance review            |
+| Accuracy <85% on variant              | Engineering + RT | CTO (re-evaluate prompt strategy)  |
+| PII leak detected in images           | Security + Audit | CTO + Legal (LGPD breach protocol) |
+| Dataset collection lagging            | RT team lead     | Lab ops (resource allocation)      |
 
 **Contact**:
+
 - Engineering lead: [assigned]
 - RT team lead: [assigned]
 - CTO: [assigned]
@@ -457,6 +491,7 @@ firebase deploy --only hosting --project hmatologia2
 ## Reference Documents
 
 Read in this order:
+
 1. `PHASE_11_EXECUTION_STATUS.md` — overview + critical path
 2. `PHASE_11_IMPLEMENTATION_CHECKLIST.md` — day-by-day tasks
 3. `PHASE_11_GEMINI_PROMPT_ENGINEERING.md` — prompt variants + accuracy targets

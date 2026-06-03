@@ -1,12 +1,12 @@
-﻿'use client'
+﻿'use client';
 
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'outline' | 'danger' | 'text'
-  size?: 'sm' | 'md' | 'lg'
-  loading?: boolean
+  variant?: 'primary' | 'outline' | 'danger' | 'text';
+  size?: 'sm' | 'md' | 'lg';
+  loading?: boolean;
 }
 
 const variantStyles: Record<string, string> = {
@@ -14,13 +14,13 @@ const variantStyles: Record<string, string> = {
   outline: 'border border-border-variant text-primary hover:bg-surface-variant',
   danger: 'text-error hover:underline',
   text: 'text-on-surface-variant hover:text-primary',
-}
+};
 
 const sizeStyles: Record<string, string> = {
   sm: 'h-8 px-6 text-sm',
   md: 'h-10 px-6 text-sm',
   lg: 'h-12 px-6 text-sm',
-}
+};
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ({ variant = 'primary', size = 'md', loading, disabled, children, className, ...props }, ref) => {
@@ -44,7 +44,14 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             fill="none"
             viewBox="0 0 24 24"
           >
-            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+            <circle
+              className="opacity-25"
+              cx="12"
+              cy="12"
+              r="10"
+              stroke="currentColor"
+              strokeWidth="4"
+            />
             <path
               className="opacity-75"
               fill="currentColor"
@@ -54,8 +61,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
         )}
         {children}
       </button>
-    )
+    );
   },
-)
+);
 
-Button.displayName = 'Button'
+Button.displayName = 'Button';

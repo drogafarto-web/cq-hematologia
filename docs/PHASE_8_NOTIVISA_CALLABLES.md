@@ -19,6 +19,7 @@ This document specifies 6 production-ready Cloud Function callables for NOTIVISA
 5. **Phase 6 integration** — auto-draft trigger on critical detection (Phase 10 criticos module)
 
 **Key constraints:**
+
 - Multi-tenant (all endpoints require `labId`)
 - Regulatory writes via callable only (RN-12 from Phase 0b pattern)
 - Immutable audit chain + signature (ADR-0012)
@@ -99,19 +100,21 @@ const notivisaPayloadSchema = z.object({
   laudo_id: z.string().min(1).max(128),
   paciente_cpf: z.string().regex(/^\d{11}$/, 'Invalid CPF format (11 digits)'),
   data_resultado: z.number().int().positive('Unix timestamp required'),
-  resultados: z.array(
-    z.object({
-      analito: z.string().min(1).max(256),
-      valor: z.union([z.number(), z.string()]),
-      unidade: z.string().min(1).max(32),
-      referencia: z.string().max(256)
-    })
-  ).min(1, 'At least one resultado required'),
+  resultados: z
+    .array(
+      z.object({
+        analito: z.string().min(1).max(256),
+        valor: z.union([z.number(), z.string()]),
+        unidade: z.string().min(1).max(32),
+        referencia: z.string().max(256),
+      }),
+    )
+    .min(1, 'At least one resultado required'),
   assinador: z.object({
     cpf: z.string().regex(/^\d{11}$/, 'Invalid operator CPF'),
     nome: z.string().min(1).max(256),
-    data_assinatura: z.number().int().positive()
-  })
+    data_assinatura: z.number().int().positive(),
+  }),
 });
 ```
 
@@ -138,13 +141,15 @@ Gateway callable that validates RT approval (if required), signs draft as submit
 const submitNotivisaInputSchema = z.object({
   labId: z.string().min(1),
   draftId: z.string().min(1),
-  rtApprovalSignature: z.object({
-    hash: z.string().length(64),
-    operatorId: z.string(),
-    ts: z.number().int()
-  }).optional(),
+  rtApprovalSignature: z
+    .object({
+      hash: z.string().length(64),
+      operatorId: z.string(),
+      ts: z.number().int(),
+    })
+    .optional(),
   // Idempotency token (prevent double-submit on network retry)
-  idempotencyToken: z.string().uuid().optional()
+  idempotencyToken: z.string().uuid().optional(),
 });
 ```
 
@@ -156,7 +161,7 @@ const submitNotivisaOutputSchema = z.object({
   eventId: z.string(),
   status: z.literal('pending'),
   pacienteCpf: z.string(),
-  nextPollAt: z.number().int().optional()
+  nextPollAt: z.number().int().optional(),
 });
 
 const submitNotivisaErrorSchema = z.object({
@@ -168,9 +173,9 @@ const submitNotivisaErrorSchema = z.object({
     'RT_APPROVAL_REQUIRED',
     'APPROVAL_SIGNATURE_INVALID',
     'RATE_LIMITED',
-    'INTERNAL_ERROR'
+    'INTERNAL_ERROR',
   ]),
-  message: z.string()
+  message: z.string(),
 });
 ```
 
@@ -216,15 +221,15 @@ const submitNotivisaErrorSchema = z.object({
 
 **Error Codes:**
 
-| Code | HTTP Status | Cause | Mitigation |
-|------|-------------|-------|-----------|
-| `INVALID-ARGUMENT` | 400 | Payload schema fails Zod | Client retries with valid schema |
-| `UNAUTHENTICATED` | 401 | No Firebase token | User re-authenticates |
-| `PERMISSION-DENIED` | 403 | Not member of lab or wrong role | User requests lab access |
-| `NOT-FOUND` | 404 | Draft doesn't exist | Client queries draft existence first |
-| `FAILED-PRECONDITION` | 412 | Draft already submitted or RT approval needed | Client checks draft status |
-| `RESOURCE-EXHAUSTED` | 429 | Rate limited (10/hour exceeded) | Client backs off exponentially |
-| `INTERNAL` | 500 | Firestore write error | Auto-retry in client; alert SRE |
+| Code                  | HTTP Status | Cause                                         | Mitigation                           |
+| --------------------- | ----------- | --------------------------------------------- | ------------------------------------ |
+| `INVALID-ARGUMENT`    | 400         | Payload schema fails Zod                      | Client retries with valid schema     |
+| `UNAUTHENTICATED`     | 401         | No Firebase token                             | User re-authenticates                |
+| `PERMISSION-DENIED`   | 403         | Not member of lab or wrong role               | User requests lab access             |
+| `NOT-FOUND`           | 404         | Draft doesn't exist                           | Client queries draft existence first |
+| `FAILED-PRECONDITION` | 412         | Draft already submitted or RT approval needed | Client checks draft status           |
+| `RESOURCE-EXHAUSTED`  | 429         | Rate limited (10/hour exceeded)               | Client backs off exponentially       |
+| `INTERNAL`            | 500         | Firestore write error                         | Auto-retry in client; alert SRE      |
 
 **Audit Log Entry:**
 
@@ -261,21 +266,27 @@ const notivisaDraftCreateInputSchema = z.object({
   labId: z.string().min(1),
   laudoId: z.string().min(1),
   // Optional: if triggered by criticos detector, include context
-  criticoContext: z.object({
-    detectadoEm: z.number().int(),
-    analito: z.string(),
-    valor: z.number(),
-    severidade: z.enum(['alta', 'baixa'])
-  }).optional(),
-  // Allow manual override of auto-generated payload
-  payloadOverride: z.object({
-    resultados: z.array(z.object({
+  criticoContext: z
+    .object({
+      detectadoEm: z.number().int(),
       analito: z.string(),
-      valor: z.union([z.number(), z.string()]),
-      unidade: z.string(),
-      referencia: z.string()
-    }))
-  }).optional()
+      valor: z.number(),
+      severidade: z.enum(['alta', 'baixa']),
+    })
+    .optional(),
+  // Allow manual override of auto-generated payload
+  payloadOverride: z
+    .object({
+      resultados: z.array(
+        z.object({
+          analito: z.string(),
+          valor: z.union([z.number(), z.string()]),
+          unidade: z.string(),
+          referencia: z.string(),
+        }),
+      ),
+    })
+    .optional(),
 });
 ```
 
@@ -287,7 +298,7 @@ const notivisaDraftCreateOutputSchema = z.object({
   draftId: z.string(),
   status: z.literal('draft'),
   payload: notivisaPayloadSchema,
-  createdAt: z.number().int()
+  createdAt: z.number().int(),
 });
 ```
 
@@ -331,11 +342,11 @@ const notivisaDraftCreateOutputSchema = z.object({
 
 **Error Codes:**
 
-| Code | Cause |
-|------|-------|
-| `NOT-FOUND` | Laudo or paciente not found |
-| `INVALID-ARGUMENT` | Payload schema fails validation |
-| `FAILED-PRECONDITION` | Paciente missing CPF |
+| Code                  | Cause                           |
+| --------------------- | ------------------------------- |
+| `NOT-FOUND`           | Laudo or paciente not found     |
+| `INVALID-ARGUMENT`    | Payload schema fails validation |
+| `FAILED-PRECONDITION` | Paciente missing CPF            |
 
 **Audit Log Entry:**
 
@@ -452,7 +463,7 @@ Fetch a single draft with full context (payload, audit log, current status, link
 ```typescript
 const getNotivisaDraftInputSchema = z.object({
   labId: z.string().min(1),
-  draftId: z.string().min(1)
+  draftId: z.string().min(1),
 });
 ```
 
@@ -468,27 +479,33 @@ const getNotivisaDraftOutputSchema = z.object({
     status: z.enum(['draft', 'pending_approval', 'approved', 'submitted', 'rejected']),
     payload: notivisaPayloadSchema,
     rejectionReason: z.string().optional(),
-    rtApprovalSignature: z.object({
-      hash: z.string(),
-      operatorId: z.string(),
-      ts: z.number().int()
-    }).optional(),
+    rtApprovalSignature: z
+      .object({
+        hash: z.string(),
+        operatorId: z.string(),
+        ts: z.number().int(),
+      })
+      .optional(),
     criadoEm: z.number().int(),
-    updatedAt: z.number().int().optional()
+    updatedAt: z.number().int().optional(),
   }),
-  auditLog: z.array(z.object({
-    id: z.string(),
-    action: z.string(),
-    operatorId: z.string(),
-    ts: z.number().int(),
-    details: z.record(z.any())
-  })),
-  linkedEvent: z.object({
-    eventId: z.string(),
-    status: z.enum(['pending', 'sent', 'failed', 'acknowledged', 'rejected']),
-    attempts: z.number().int(),
-    nextRetry: z.number().int().optional()
-  }).optional()
+  auditLog: z.array(
+    z.object({
+      id: z.string(),
+      action: z.string(),
+      operatorId: z.string(),
+      ts: z.number().int(),
+      details: z.record(z.any()),
+    }),
+  ),
+  linkedEvent: z
+    .object({
+      eventId: z.string(),
+      status: z.enum(['pending', 'sent', 'failed', 'acknowledged', 'rejected']),
+      attempts: z.number().int(),
+      nextRetry: z.number().int().optional(),
+    })
+    .optional(),
 });
 ```
 
@@ -533,14 +550,15 @@ RT marks draft as rejected with reason, preventing submission. Auditor can then 
 const rejectNotivisaDraftInputSchema = z.object({
   labId: z.string().min(1),
   draftId: z.string().min(1),
-  reason: z.string()
+  reason: z
+    .string()
     .min(10, 'Reason must be at least 10 characters')
     .max(500, 'Reason max 500 characters'),
   signature: z.object({
     hash: z.string().length(64),
     operatorId: z.string(),
-    ts: z.number().int()
-  })
+    ts: z.number().int(),
+  }),
 });
 ```
 
@@ -551,7 +569,7 @@ const rejectNotivisaDraftOutputSchema = z.object({
   ok: z.literal(true),
   draftId: z.string(),
   status: z.literal('rejected'),
-  rejectionReason: z.string()
+  rejectionReason: z.string(),
 });
 ```
 
@@ -597,16 +615,21 @@ Auditor export endpoint. Returns paginated list of submitted notifications with 
 ```typescript
 const listNotivisaOutboxInputSchema = z.object({
   labId: z.string().min(1),
-  filters: z.object({
-    status: z.enum(['submitted', 'acknowledged', 'rejected', 'failed']).optional(),
-    operatorId: z.string().optional(),
-    dateRangeStart: z.number().int().optional(),
-    dateRangeEnd: z.number().int().optional(),
-    pacienteCpf: z.string().regex(/^\d{11}$/).optional()
-  }).optional(),
+  filters: z
+    .object({
+      status: z.enum(['submitted', 'acknowledged', 'rejected', 'failed']).optional(),
+      operatorId: z.string().optional(),
+      dateRangeStart: z.number().int().optional(),
+      dateRangeEnd: z.number().int().optional(),
+      pacienteCpf: z
+        .string()
+        .regex(/^\d{11}$/)
+        .optional(),
+    })
+    .optional(),
   format: z.enum(['json', 'csv', 'xlsx']).default('json'),
   pageSize: z.number().int().min(10).max(500).default(50),
-  pageToken: z.string().optional()
+  pageToken: z.string().optional(),
 });
 ```
 
@@ -615,20 +638,22 @@ const listNotivisaOutboxInputSchema = z.object({
 ```typescript
 const listNotivisaOutboxOutputSchema = z.object({
   ok: z.literal(true),
-  items: z.array(z.object({
-    draftId: z.string(),
-    eventId: z.string().optional(),
-    status: z.string(),
-    pacienteCpf: z.string(),
-    laudo_id: z.string(),
-    submittedAt: z.number().int(),
-    govStatus: z.enum(['pending', 'acknowledged', 'rejected', 'failed']).optional(),
-    attempts: z.number().int().optional()
-  })),
+  items: z.array(
+    z.object({
+      draftId: z.string(),
+      eventId: z.string().optional(),
+      status: z.string(),
+      pacienteCpf: z.string(),
+      laudo_id: z.string(),
+      submittedAt: z.number().int(),
+      govStatus: z.enum(['pending', 'acknowledged', 'rejected', 'failed']).optional(),
+      attempts: z.number().int().optional(),
+    }),
+  ),
   pageToken: z.string().optional(),
   total: z.number().int(),
   // For export formats (CSV/XLSX)
-  downloadUrl: z.string().optional()
+  downloadUrl: z.string().optional(),
 });
 ```
 
@@ -674,32 +699,34 @@ All callables return errors in consistent format:
 ```typescript
 type CallableError = {
   ok: false;
-  code: string;           // Machine-readable error code
-  message: string;        // User-facing message
-  details?: Record<string, any>;  // Debug info
+  code: string; // Machine-readable error code
+  message: string; // User-facing message
+  details?: Record<string, any>; // Debug info
 };
 ```
 
 ### HTTP Status Codes
 
-| Error | HTTP | Code | Client action |
-|-------|------|------|---------------|
-| Invalid input | 400 | `INVALID-ARGUMENT` | Retry with valid data |
-| Unauthenticated | 401 | `UNAUTHENTICATED` | Re-authenticate |
-| Permission denied | 403 | `PERMISSION-DENIED` | Request lab access |
-| Not found | 404 | `NOT-FOUND` | Check existence first |
-| Precondition failed | 412 | `FAILED-PRECONDITION` | Check state before retry |
-| Rate limited | 429 | `RESOURCE-EXHAUSTED` | Backoff exponentially |
-| Internal error | 500 | `INTERNAL` | Alert SRE, auto-retry |
+| Error               | HTTP | Code                  | Client action            |
+| ------------------- | ---- | --------------------- | ------------------------ |
+| Invalid input       | 400  | `INVALID-ARGUMENT`    | Retry with valid data    |
+| Unauthenticated     | 401  | `UNAUTHENTICATED`     | Re-authenticate          |
+| Permission denied   | 403  | `PERMISSION-DENIED`   | Request lab access       |
+| Not found           | 404  | `NOT-FOUND`           | Check existence first    |
+| Precondition failed | 412  | `FAILED-PRECONDITION` | Check state before retry |
+| Rate limited        | 429  | `RESOURCE-EXHAUSTED`  | Backoff exponentially    |
+| Internal error      | 500  | `INTERNAL`            | Alert SRE, auto-retry    |
 
 ### Retry Strategy
 
 **Client side (callable submissions):**
+
 - Exponential backoff: 1s, 2s, 4s, 8s, 16s (cap at 60s)
 - Max 5 retries
 - Always use `idempotencyToken` to prevent duplicate submissions
 
 **Server side (polling cron):**
+
 - Exponential backoff per event: `interval * 2^(attempts-1)`
 - Cap at 24 hours
 - Max attempts configurable per lab (default 5)
@@ -713,9 +740,9 @@ All regulatory writes use LogicalSignature (SHA-256 hash):
 
 ```typescript
 interface LogicalSignature {
-  hash: string;           // SHA-256 hex (64 chars)
-  operatorId: string;     // request.auth.uid
-  ts: number;             // Unix timestamp (ms) at signing time
+  hash: string; // SHA-256 hex (64 chars)
+  operatorId: string; // request.auth.uid
+  ts: number; // Unix timestamp (ms) at signing time
 }
 
 function generateSignature(operatorId: string, payload: any): LogicalSignature {
@@ -724,7 +751,7 @@ function generateSignature(operatorId: string, payload: any): LogicalSignature {
   return {
     hash,
     operatorId,
-    ts: Date.now()
+    ts: Date.now(),
   };
 }
 
@@ -740,13 +767,13 @@ function verifySignature(sig: LogicalSignature, payload: any): boolean {
 
 ### Per-lab limits
 
-| Endpoint | Limit | Window | Fallback |
-|----------|-------|--------|----------|
-| `submitNotivisa` | 10 reqs/hour | Sliding 1h | 429 + `RESOURCE-EXHAUSTED` |
-| `listNotivisaOutbox` | 10 reqs/hour | Sliding 1h | 429 + `RESOURCE-EXHAUSTED` |
-| `notivisaDraftCreate` | Unlimited | — | Server-side trigger only |
-| `getNotivisaDraft` | Unlimited | — | Read-only |
-| `rejectNotivisaDraft` | Unlimited | — | Write non-critical |
+| Endpoint              | Limit        | Window     | Fallback                   |
+| --------------------- | ------------ | ---------- | -------------------------- |
+| `submitNotivisa`      | 10 reqs/hour | Sliding 1h | 429 + `RESOURCE-EXHAUSTED` |
+| `listNotivisaOutbox`  | 10 reqs/hour | Sliding 1h | 429 + `RESOURCE-EXHAUSTED` |
+| `notivisaDraftCreate` | Unlimited    | —          | Server-side trigger only   |
+| `getNotivisaDraft`    | Unlimited    | —          | Read-only                  |
+| `rejectNotivisaDraft` | Unlimited    | —          | Write non-critical         |
 
 ### Implementation
 
@@ -756,14 +783,14 @@ async function checkRateLimit(labId: string, endpoint: string): Promise<void> {
   const key = `ratelimit:${labId}:${endpoint}`;
   const count = await redisClient.incr(key);
   if (count === 1) await redisClient.expire(key, 3600); // 1 hour
-  
+
   if (count > LIMITS[endpoint]) {
     throw new HttpsError('resource-exhausted', 'Rate limit exceeded');
   }
 }
 ```
 
-*(Alternative: use Firestore counters if Redis unavailable)*
+_(Alternative: use Firestore counters if Redis unavailable)_
 
 ---
 
@@ -775,23 +802,24 @@ Every regulatory write creates immutable audit log entry:
 async function auditLog(
   db: Firestore,
   labId: string,
-  parentRef: string,  // e.g., "notivisa-drafts/labId/draftId"
+  parentRef: string, // e.g., "notivisa-drafts/labId/draftId"
   entry: {
     action: string;
     operatorId: string;
     ts: Timestamp;
     details: Record<string, any>;
-  }
+  },
 ): Promise<void> {
   const logRef = doc(db, parentRef, 'auditLog').collection('auditLog').doc();
   await setDoc(logRef, {
     ...entry,
-    criadoEm: serverTimestamp()
+    criadoEm: serverTimestamp(),
   });
 }
 ```
 
 **Sensitive field masking:**
+
 - Patient CPF: log last 4 digits only (`***1234`)
 - Patient name: hash or omit (store only in encrypted payload)
 - Operator name: store UID, resolve in UI if needed
@@ -811,15 +839,18 @@ When Phase 10 criticos module detects critical value, it automatically:
 // In criticos/detector.ts (Phase 10)
 export async function onCriticoDetected(laudo: Laudo, critico: CriticoEvent) {
   // Call NOTIVISA draft creator
-  const response = await httpsCallable(functions, 'notivisaDraftCreate')({
+  const response = await httpsCallable(
+    functions,
+    'notivisaDraftCreate',
+  )({
     labId: laudo.labId,
     laudoId: laudo.id,
     criticoContext: {
       detectadoEm: critico.ts,
       analito: critico.analito,
       valor: critico.valor,
-      severidade: critico.severidade
-    }
+      severidade: critico.severidade,
+    },
   });
 
   // Notify operator

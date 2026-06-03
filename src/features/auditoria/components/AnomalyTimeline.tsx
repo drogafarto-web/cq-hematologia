@@ -17,20 +17,14 @@ import { useAnomalyAlerts, type AlertSeverity } from '../hooks/useAnomalyAlerts'
 interface AnomalyTimelineProps {
   labId: string;
   from: number; // ms epoch
-  to: number;   // ms epoch
+  to: number; // ms epoch
   granularity?: 'day' | 'week';
 }
 
 // ─── Intensity scale ────────────────────────────────────────────────────────────
 
 const INTENSITY_COLORS: Record<AlertSeverity, string[]> = {
-  low: [
-    'bg-blue-500/5',
-    'bg-blue-500/15',
-    'bg-blue-500/30',
-    'bg-blue-500/45',
-    'bg-blue-500/60',
-  ],
+  low: ['bg-blue-500/5', 'bg-blue-500/15', 'bg-blue-500/30', 'bg-blue-500/45', 'bg-blue-500/60'],
   medium: [
     'bg-amber-500/5',
     'bg-amber-500/15',
@@ -73,20 +67,21 @@ export default function AnomalyTimeline({
     let current = Math.floor(from / bucketSize) * bucketSize;
     while (current <= to) {
       const bucketKey = new Date(current).toISOString().split('T')[0];
-      buckets.set(bucketKey, new Map([
-        ['low', 0],
-        ['medium', 0],
-        ['high', 0],
-        ['critical', 0],
-      ]));
+      buckets.set(
+        bucketKey,
+        new Map([
+          ['low', 0],
+          ['medium', 0],
+          ['high', 0],
+          ['critical', 0],
+        ]),
+      );
       current += bucketSize;
     }
 
     // Count alerts per bucket/severity
     alerts.forEach((alert) => {
-      const bucketKey = new Date(alert.detectedAt)
-        .toISOString()
-        .split('T')[0];
+      const bucketKey = new Date(alert.detectedAt).toISOString().split('T')[0];
 
       if (buckets.has(bucketKey)) {
         const severityMap = buckets.get(bucketKey)!;
@@ -95,8 +90,7 @@ export default function AnomalyTimeline({
     });
 
     // Sort buckets by date
-    const sorted = Array.from(buckets.entries())
-      .sort(([a], [b]) => a.localeCompare(b));
+    const sorted = Array.from(buckets.entries()).sort(([a], [b]) => a.localeCompare(b));
 
     return sorted;
   }, [alerts, from, to, granularity]);
@@ -181,9 +175,7 @@ export default function AnomalyTimeline({
                     else if (count >= 1) intensity = 1;
 
                     const colorClass =
-                      intensity === 0
-                        ? 'bg-white/5'
-                        : INTENSITY_COLORS[severity][intensity];
+                      intensity === 0 ? 'bg-white/5' : INTENSITY_COLORS[severity][intensity];
 
                     return (
                       <div

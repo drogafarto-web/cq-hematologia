@@ -10,6 +10,7 @@
 ## ✅ Deliverables
 
 ### Cloud Functions (v2 Callables)
+
 - ✅ `criarEquipamento` — Register new equipment with calibration schedule
   - Parameters: labId, nome, marca, modelo, numeroSerie, fornecedorCalibracaoId
   - Returns: { success: true, equipId }
@@ -26,11 +27,13 @@
   - Blocks: quebrado, em_manutencao, calibração vencida, nunca calibrado
 
 ### Firestore Rules
+
 - ✅ `/labs/{labId}/equipamentos` — read/write rules applied
 - ✅ `/equipamentos-audit` — audit trail rules applied
 - ✅ Multi-tenant isolation + labId validation
 
 ### Tests
+
 - ✅ Unit tests: 8 test cases (equipamentos.test.ts)
 - ✅ Integration: validação de gate, bloqueio de operações
 - ✅ Smoke test scenarios:
@@ -38,6 +41,7 @@
   - ✅ Scenario 2: Create overdue equipment → gate blocks operation
 
 ### Metrics
+
 - **Code coverage:** 88%
 - **Functions deployed:** 2 v2 callables (live)
 - **Firestore rules:** 1 patch (applied)
@@ -48,18 +52,21 @@
 ## 🚀 Deployment Steps Executed
 
 ### Step 1: Type-Check ✅
+
 ```
 npx tsc --noEmit
 → No errors
 ```
 
 ### Step 2: Build ✅
+
 ```
 npm run build
 → Built in 48.26s
 ```
 
 ### Step 3: Clean Old Functions ✅
+
 ```
 firebase functions:delete scheduledCleanupEquipamentosExpirados --force
 firebase functions:delete triggerCleanupEquipamentosExpirados --force
@@ -68,6 +75,7 @@ firebase functions:delete triggerMigrateSetupsToEquipamentos --force
 ```
 
 ### Step 4: Deploy Rules ✅
+
 ```
 firebase deploy --only firestore:rules,firestore:indexes
 → Rules compiled successfully
@@ -76,6 +84,7 @@ firebase deploy --only firestore:rules,firestore:indexes
 ```
 
 ### Step 5: Deploy Functions ✅
+
 ```
 firebase deploy --only functions
 → 22 functions updated/deployed
@@ -85,6 +94,7 @@ firebase deploy --only functions
 ```
 
 ### Step 6: Verify Deployment ✅
+
 ```
 firebase functions:list | grep equipamento
 → criarEquipamento | v2 | callable | southamerica-east1
@@ -96,6 +106,7 @@ firebase functions:list | grep equipamento
 ## 📋 Smoke Test Results
 
 ### Scenario 1: Equipment Creation + Calibration Workflow
+
 ```
 ✅ Equipment created with:
    - ID: [auto-generated]
@@ -111,6 +122,7 @@ firebase functions:list | grep equipamento
 ```
 
 ### Scenario 2: Gate Blocking (Overdue Calibration)
+
 ```
 ✅ Equipment created with overdue date (-30 days)
 
@@ -127,6 +139,7 @@ firebase functions:list | grep equipamento
 ## Integration with Phase 1 Gate
 
 ADR 0007 completion enables:
+
 - ✅ Equipamento spine complete (all fields + validation)
 - ✅ Calibration tracking (próxima calibração bloqueio)
 - ✅ Fornecedor integration (provedor calibração)
@@ -139,6 +152,7 @@ ADR 0007 completion enables:
 ## What's Next
 
 ### Phase 1 Validation Gate Checklist
+
 - [x] ADR 0005: Crypto helper — ✅ Live (2026-05-02)
 - [x] ADR 0002: Lote ↔ NF — ✅ Live (2026-05-02)
 - [x] ADR 0006: Pessoa completa — ✅ Live (2026-05-02)
@@ -147,6 +161,7 @@ ADR 0007 completion enables:
 - [x] ADR 0007: Equipamento — ✅ Live (2026-05-03)
 
 ### Validation Requirements
+
 - [ ] Spine integrity: 0% violations (V-001 to V-013) ← **VERIFY**
 - [ ] Chain-hash validation: 1 successful run ← **CHECK LOGS**
 - [ ] LGPD compliance: qualificacoes + audit HMAC ← **VERIFY**
@@ -157,9 +172,11 @@ ADR 0007 completion enables:
 ## Commits
 
 **This session:**
+
 - Wave 3 ADR 0007: Deploy + Smoke Tests Pass
 
 **Previous session (Phase 1 waves 1-2):**
+
 - 6 commits (6b26c31 → 85324ce)
 - All 6 ADRs (0005, 0002, 0006, 0003, 0004, 0007)
 
@@ -205,4 +222,3 @@ firestore.rules        ✅ Rules compiled + deployed
 **Phase 1 Status: 100% COMPLETE — READY FOR VALIDATION GATE**
 
 Next: CTO sign-off on Phase 1 compliance → Phase 2 execution
-

@@ -16,9 +16,7 @@ function worstStatus(statuses: OperacionalStatus[]): OperacionalStatus {
   return 'ok';
 }
 
-function computeOperacionalContentHash(
-  report: Omit<OperacionalReport, 'contentHash'>,
-): string {
+function computeOperacionalContentHash(report: Omit<OperacionalReport, 'contentHash'>): string {
   const payload = JSON.stringify({
     labId: report.labId,
     periodStart: report.periodStart.toISOString(),

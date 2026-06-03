@@ -2,7 +2,7 @@
 
 **Version:** 1.0  
 **Date:** 2026-05-08  
-**Status:** Complete implementation with test stubs  
+**Status:** Complete implementation with test stubs
 
 ## Overview
 
@@ -51,15 +51,15 @@ All follow the same pattern as callables 1-4: full validation, auth checks, erro
 
 ### Error Codes
 
-| Code | Meaning | Recovery |
-|------|---------|----------|
-| `SUBMISSION_NOT_FOUND` | Submission does not exist | Verify submissionId |
-| `INVALID_STATUS_TRANSITION` | Cannot transition from current to target state | Check current status |
-| `INVALID_SIGNATURE` | Signature operatorId ≠ authenticated uid | Regenerate signature |
-| `PERMISSION_DENIED` | User lacks notivisa module claim | Contact admin |
-| `SUPERVISOR_ROLE_REQUIRED` | Only RT/admin can review/release | Escalate to supervisor |
-| `SUBMISSION_EXPIRED` | Result older than 7 days | Archive before review |
-| `INTERNAL_ERROR` | Database or validation error | Check logs |
+| Code                        | Meaning                                        | Recovery               |
+| --------------------------- | ---------------------------------------------- | ---------------------- |
+| `SUBMISSION_NOT_FOUND`      | Submission does not exist                      | Verify submissionId    |
+| `INVALID_STATUS_TRANSITION` | Cannot transition from current to target state | Check current status   |
+| `INVALID_SIGNATURE`         | Signature operatorId ≠ authenticated uid       | Regenerate signature   |
+| `PERMISSION_DENIED`         | User lacks notivisa module claim               | Contact admin          |
+| `SUPERVISOR_ROLE_REQUIRED`  | Only RT/admin can review/release               | Escalate to supervisor |
+| `SUBMISSION_EXPIRED`        | Result older than 7 days                       | Archive before review  |
+| `INTERNAL_ERROR`            | Database or validation error                   | Check logs             |
 
 ### Key Features
 
@@ -67,7 +67,7 @@ All follow the same pattern as callables 1-4: full validation, auth checks, erro
 ✅ **State machine validation:** Prevents invalid transitions  
 ✅ **Expiration check:** Results older than 7 days cannot be reviewed  
 ✅ **Atomic updates:** Status change + audit log in single transaction  
-✅ **Immutable audit trail:** Cannot modify audit log entries  
+✅ **Immutable audit trail:** Cannot modify audit log entries
 
 ### Firestore Collections Modified
 
@@ -163,13 +163,13 @@ const result = await updateResultStatus({
 
 ### Error Codes
 
-| Code | Meaning | Recovery |
-|------|---------|----------|
-| `PERMISSION_DENIED` | User lacks NOTIVISA access | Contact admin |
-| `INVALID_FILTER` | Filter validation failed | Check filter syntax |
-| `PORTAL_UNAVAILABLE` | External portal unreachable | Retry later |
-| `INVALID_PAGE_TOKEN` | Token malformed or expired | Request page 1 |
-| `INTERNAL_ERROR` | Database error | Check logs |
+| Code                 | Meaning                     | Recovery            |
+| -------------------- | --------------------------- | ------------------- |
+| `PERMISSION_DENIED`  | User lacks NOTIVISA access  | Contact admin       |
+| `INVALID_FILTER`     | Filter validation failed    | Check filter syntax |
+| `PORTAL_UNAVAILABLE` | External portal unreachable | Retry later         |
+| `INVALID_PAGE_TOKEN` | Token malformed or expired  | Request page 1      |
+| `INTERNAL_ERROR`     | Database error              | Check logs          |
 
 ### Key Features
 
@@ -177,7 +177,7 @@ const result = await updateResultStatus({
 ✅ **Multi-field filtering:** status, date range, CPF, submission ID  
 ✅ **Performance optimization:** Soft-delete filter applied, 30s query timeout  
 ✅ **Audit logging:** All data access logged with operator ID  
-✅ **PII protection:** CPF filtered client-side, not indexed  
+✅ **PII protection:** CPF filtered client-side, not indexed
 
 ### Firestore Collections Queried
 
@@ -224,7 +224,7 @@ const result = await fetchTestResults({
 
 ```typescript
 {
-  labId: string;  // Lab to validate access for
+  labId: string; // Lab to validate access for
 }
 ```
 
@@ -275,21 +275,21 @@ const result = await fetchTestResults({
 
 ### Error Codes
 
-| Code | Meaning | Recovery |
-|------|---------|----------|
-| `UNAUTHENTICATED` | No auth context | Log in again |
+| Code                | Meaning               | Recovery          |
+| ------------------- | --------------------- | ----------------- |
+| `UNAUTHENTICATED`   | No auth context       | Log in again      |
 | `PERMISSION_DENIED` | Not active lab member | Contact lab admin |
-| `LAB_NOT_FOUND` | Lab document missing | Verify labId |
-| `INTERNAL_ERROR` | Database error | Check logs |
+| `LAB_NOT_FOUND`     | Lab document missing  | Verify labId      |
+| `INTERNAL_ERROR`    | Database error        | Check logs        |
 
 ### Role Permission Matrix
 
-| Role | Permissions | Use Case |
-|------|-------------|----------|
-| `operator` | read, write, submit | Creates and submits NOTIVISA requisitions |
-| `RT` | read, write, submit, review, release, audit | Reviews and releases results (RDC requirement) |
-| `admin` | read, write, submit, review, release, audit, config | Configures portal and manages permissions |
-| `owner` | read, write, submit, review, release, audit, config | Full lab control |
+| Role       | Permissions                                         | Use Case                                       |
+| ---------- | --------------------------------------------------- | ---------------------------------------------- |
+| `operator` | read, write, submit                                 | Creates and submits NOTIVISA requisitions      |
+| `RT`       | read, write, submit, review, release, audit         | Reviews and releases results (RDC requirement) |
+| `admin`    | read, write, submit, review, release, audit, config | Configures portal and manages permissions      |
+| `owner`    | read, write, submit, review, release, audit, config | Full lab control                               |
 
 ### Key Features
 
@@ -297,7 +297,7 @@ const result = await fetchTestResults({
 ✅ **Feature flag support:** Frontend can enable/disable UI based on features array  
 ✅ **Portal connectivity check:** Detects if government API is reachable  
 ✅ **Granular diagnostics:** validationDetails for troubleshooting  
-✅ **Audit logging:** Every auth check logged  
+✅ **Audit logging:** Every auth check logged
 
 ### Firestore Collections Queried
 
@@ -394,15 +394,15 @@ const result = await validateAuthorization({
 
 ### Error Codes
 
-| Code | Meaning | Recovery |
-|------|---------|----------|
-| `INVALID_EVENT_TYPE` | Event type not recognized | Use valid type from enum |
-| `INVALID_SIGNATURE` | operatorId ≠ uid or timestamp stale | Regenerate signature |
-| `PERMISSION_DENIED` | User lacks notivisa module claim | Contact admin |
-| `LAB_NOT_FOUND` | Lab document missing | Verify labId |
-| `CHAIN_VERIFICATION_FAILED` | Previous hash mismatch | Data integrity concern |
-| `DATABASE_ERROR` | Firestore write failed | Retry or contact support |
-| `INTERNAL_ERROR` | Validation error | Check logs |
+| Code                        | Meaning                             | Recovery                 |
+| --------------------------- | ----------------------------------- | ------------------------ |
+| `INVALID_EVENT_TYPE`        | Event type not recognized           | Use valid type from enum |
+| `INVALID_SIGNATURE`         | operatorId ≠ uid or timestamp stale | Regenerate signature     |
+| `PERMISSION_DENIED`         | User lacks notivisa module claim    | Contact admin            |
+| `LAB_NOT_FOUND`             | Lab document missing                | Verify labId             |
+| `CHAIN_VERIFICATION_FAILED` | Previous hash mismatch              | Data integrity concern   |
+| `DATABASE_ERROR`            | Firestore write failed              | Retry or contact support |
+| `INTERNAL_ERROR`            | Validation error                    | Check logs               |
 
 ### Key Features
 
@@ -411,27 +411,27 @@ const result = await validateAuthorization({
 ✅ **Immutability:** Events created only, never updated/deleted (Firestore security rules enforce)  
 ✅ **Idempotency:** Transaction prevents duplicate event IDs  
 ✅ **Comprehensive event types:** 15 standard event types covered  
-✅ **Chain verification:** Detects if previous events were tampered with  
+✅ **Chain verification:** Detects if previous events were tampered with
 
 ### Event Type Reference
 
-| Event Type | Context | Example |
-|---|---|---|
-| `DRAFT_CREATED` | New NOTIVISA draft initiated | Draft form created in system |
-| `DRAFT_SUBMITTED` | Draft submitted for approval | User hits "Submit Draft" button |
-| `DRAFT_APPROVED` | RT approves draft | RT reviews and approves draft |
-| `DRAFT_REJECTED` | Draft rejected with motivo | Auditor rejects for corrections |
-| `REQUISITION_SENT` | Submission sent to NOTIVISA portal | Result sent to government API |
-| `RESULT_RECEIVED` | Government portal returned result | Status updated to "received" |
-| `RESULT_REVIEWED` | RT reviewed result | RT marks as reviewed |
-| `RESULT_RELEASED` | Result released for clinical use | RT marks as released |
-| `ARCHIVE_EXPORTED` | Results exported/archived | Auditor exports submission batch |
-| `CONFIG_CHANGED` | Lab configuration updated | Portal credentials or settings changed |
-| `AUTH_FAILED` | Authentication attempt failed | Failed login or permission denied |
-| `DATA_ACCESS` | Data accessed (patient info, results) | Data retrieval for submission |
-| `PERMISSION_GRANTED` | User permission added | New user granted NOTIVISA access |
-| `PERMISSION_REVOKED` | User permission removed | User revoked from module |
-| `SYSTEM_EVENT` | System-level event | Health check, maintenance |
+| Event Type           | Context                               | Example                                |
+| -------------------- | ------------------------------------- | -------------------------------------- |
+| `DRAFT_CREATED`      | New NOTIVISA draft initiated          | Draft form created in system           |
+| `DRAFT_SUBMITTED`    | Draft submitted for approval          | User hits "Submit Draft" button        |
+| `DRAFT_APPROVED`     | RT approves draft                     | RT reviews and approves draft          |
+| `DRAFT_REJECTED`     | Draft rejected with motivo            | Auditor rejects for corrections        |
+| `REQUISITION_SENT`   | Submission sent to NOTIVISA portal    | Result sent to government API          |
+| `RESULT_RECEIVED`    | Government portal returned result     | Status updated to "received"           |
+| `RESULT_REVIEWED`    | RT reviewed result                    | RT marks as reviewed                   |
+| `RESULT_RELEASED`    | Result released for clinical use      | RT marks as released                   |
+| `ARCHIVE_EXPORTED`   | Results exported/archived             | Auditor exports submission batch       |
+| `CONFIG_CHANGED`     | Lab configuration updated             | Portal credentials or settings changed |
+| `AUTH_FAILED`        | Authentication attempt failed         | Failed login or permission denied      |
+| `DATA_ACCESS`        | Data accessed (patient info, results) | Data retrieval for submission          |
+| `PERMISSION_GRANTED` | User permission added                 | New user granted NOTIVISA access       |
+| `PERMISSION_REVOKED` | User permission removed               | User revoked from module               |
+| `SYSTEM_EVENT`       | System-level event                    | Health check, maintenance              |
 
 ### Firestore Collections Modified
 
@@ -613,7 +613,7 @@ firebase deploy --only hosting --project hmatologia2
 ✅ Module claim `notivisa` must be true  
 ✅ User must be active lab member  
 ✅ RT/admin role required for release operations  
-✅ Signature operatorId must match authenticated UID  
+✅ Signature operatorId must match authenticated UID
 
 ### Data Protection
 
@@ -621,11 +621,12 @@ firebase deploy --only hosting --project hmatologia2
 ✅ Server-side assinatura generation (not client)  
 ✅ Soft-delete only (never hard delete)  
 ✅ PII masking in logs (CPF first 3 digits masked)  
-✅ Audit trail immutable (transaction-based creation)  
+✅ Audit trail immutable (transaction-based creation)
 
 ### Rate Limiting
 
 Callables 5-8 don't have explicit rate limits (read-heavy, low risk), but:
+
 - Frontend should limit UI button clicks (debounce)
 - Monitor Cloud Logs for abuse patterns
 - Can add rate limiting via custom middleware if needed
@@ -637,21 +638,21 @@ Callables 5-8 don't have explicit rate limits (read-heavy, low risk), but:
 ✅ Idempotency via transaction  
 ✅ Immutable creation (no updates)  
 ✅ Comprehensive event types  
-✅ Operator ID and timestamp recorded  
+✅ Operator ID and timestamp recorded
 
 ---
 
 ## Compliance Mapping
 
-| Requirement | Callable(s) | Mechanism |
-|---|---|---|
-| **RDC 978 Art. 66** (Signed Access) | All | Signature validation, auth checks |
-| **RDC 978 Art. 122** (Supervision) | 5, 8 | RT role enforcement, audit trail |
-| **DICQ 4.1.2.5** (RBAC) | 7 | Permission mapping, role validation |
-| **DICQ 4.1.2.7** (Supervision Record) | 5, 8 | Status transitions, audit log |
-| **DICQ 4.3** (Audit Trail) | All | notivisa-audit-logs collection |
-| **DICQ 4.4** (Trilha de Auditoria) | 8 | Chain verification, immutable logs |
-| **LGPD** (PII Protection) | 6 | CPF masking in logs |
+| Requirement                           | Callable(s) | Mechanism                           |
+| ------------------------------------- | ----------- | ----------------------------------- |
+| **RDC 978 Art. 66** (Signed Access)   | All         | Signature validation, auth checks   |
+| **RDC 978 Art. 122** (Supervision)    | 5, 8        | RT role enforcement, audit trail    |
+| **DICQ 4.1.2.5** (RBAC)               | 7           | Permission mapping, role validation |
+| **DICQ 4.1.2.7** (Supervision Record) | 5, 8        | Status transitions, audit log       |
+| **DICQ 4.3** (Audit Trail)            | All         | notivisa-audit-logs collection      |
+| **DICQ 4.4** (Trilha de Auditoria)    | 8           | Chain verification, immutable logs  |
+| **LGPD** (PII Protection)             | 6           | CPF masking in logs                 |
 
 ---
 
@@ -710,14 +711,15 @@ Callables 5-8 don't have explicit rate limits (read-heavy, low risk), but:
 ## Summary
 
 **Callables 5-8 complete the NOTIVISA integration** with:
+
 - ✅ Result status management (review/release workflow)
 - ✅ Test result retrieval with filtering & pagination
 - ✅ Authorization validation with RBAC & features
 - ✅ Immutable audit trail with chain verification
 
 **Ready for Phase 4 deployment (2026-05-20)** after:
+
 1. All tests passing
 2. Firestore rules deployed
 3. Smoke tests executed
 4. 24-hour log monitoring
-

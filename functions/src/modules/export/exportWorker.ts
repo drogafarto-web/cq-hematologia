@@ -46,11 +46,7 @@ export const exportWorker = onMessagePublished(
       console.log(`[Export Worker] Processing job ${jobId} for lab ${labId}, format ${format}`);
 
       // 2. Load job document
-      const jobRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('export-jobs')
-        .doc(jobId);
+      const jobRef = db.collection('labs').doc(labId).collection('export-jobs').doc(jobId);
 
       const jobDoc = await jobRef.get();
       if (!jobDoc.exists) {
@@ -136,7 +132,7 @@ export const exportWorker = onMessagePublished(
       });
 
       console.log(
-        `[Export Worker] ✓ Job ${jobId} completed in ${processingDurationMs}ms, URL expires in 7 days`
+        `[Export Worker] ✓ Job ${jobId} completed in ${processingDurationMs}ms, URL expires in 7 days`,
       );
 
       return { success: true, jobId, processingDurationMs };
@@ -165,5 +161,5 @@ export const exportWorker = onMessagePublished(
 
       throw error; // Pub/Sub will retry
     }
-  }
+  },
 );

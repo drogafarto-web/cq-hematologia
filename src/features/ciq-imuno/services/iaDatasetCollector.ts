@@ -8,12 +8,7 @@
  * Firestore path: /labs/{labId}/ia-strip-dataset/{entryId}
  */
 
-import {
-  ref,
-  uploadBytes,
-  StorageReference,
-  FirebaseStorage,
-} from 'firebase/storage';
+import { ref, uploadBytes, StorageReference, FirebaseStorage } from 'firebase/storage';
 import {
   collection,
   doc,
@@ -56,7 +51,7 @@ export async function uploadDatasetEntry(
   parsedResultId: string,
   modelVersion: string,
   consentGiven: boolean,
-  userId: string
+  userId: string,
 ): Promise<{ entryId: string; storagePath: string }> {
   try {
     // Validate consent
@@ -80,13 +75,7 @@ export async function uploadDatasetEntry(
 
     // Write metadata to Firestore
     const entryId = doc(collection(db, '_')).id;
-    const entryRef = doc(
-      db,
-      COLLECTIONS.LABS,
-      labId,
-      SUBCOLLECTIONS.IA_STRIP_DATASET,
-      entryId
-    );
+    const entryRef = doc(db, COLLECTIONS.LABS, labId, SUBCOLLECTIONS.IA_STRIP_DATASET, entryId);
 
     const entry: Omit<DatasetEntry, 'uploadedAt'> & { uploadedAt: Timestamp } = {
       labId,

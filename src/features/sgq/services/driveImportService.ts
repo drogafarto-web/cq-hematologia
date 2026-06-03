@@ -7,10 +7,7 @@
  * - Batches imports
  */
 
-import {
-  httpsCallable,
-  functions,
-} from '../../../shared/services/firebase';
+import { httpsCallable, functions } from '../../../shared/services/firebase';
 
 export interface ImportDocPreview {
   codigo: string;
@@ -28,17 +25,18 @@ export interface ImportDocPreview {
  * Initiate OAuth flow for Drive authorization
  */
 export function initiateOAuthFlow(labId: string): string {
-  const authUrl = new URL(
-    'https://accounts.google.com/o/oauth2/v2/auth',
-  );
+  const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
   authUrl.searchParams.append('client_id', import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID);
   authUrl.searchParams.append('redirect_uri', `${window.location.origin}/api/sgq/oauth-callback`);
   authUrl.searchParams.append('response_type', 'code');
-  authUrl.searchParams.append('scope', [
-    'https://www.googleapis.com/auth/drive.readonly',
-    'https://www.googleapis.com/auth/drive.file',
-    'https://www.googleapis.com/auth/documents',
-  ].join(' '));
+  authUrl.searchParams.append(
+    'scope',
+    [
+      'https://www.googleapis.com/auth/drive.readonly',
+      'https://www.googleapis.com/auth/drive.file',
+      'https://www.googleapis.com/auth/documents',
+    ].join(' '),
+  );
   authUrl.searchParams.append('state', generateStateToken());
 
   return authUrl.toString();
@@ -54,10 +52,7 @@ function generateStateToken(): string {
 /**
  * Call backend to list Drive documents matching LM-01
  */
-export async function listarDocsDrive(
-  labId: string,
-  lm01SheetId: string,
-): Promise<any> {
+export async function listarDocsDrive(labId: string, lm01SheetId: string): Promise<any> {
   const callable = httpsCallable(functions, 'listarDocsDrive');
   const result = await callable({ labId, lm01SheetId });
   return result.data;

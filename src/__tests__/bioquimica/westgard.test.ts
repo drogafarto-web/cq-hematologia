@@ -20,11 +20,7 @@ import type { WestgardObservation } from '../../features/bioquimica/types/westga
 
 // ─── Helper ───────────────────────────────────────────────────────────────
 
-function createObs(
-  id: string,
-  zScore: number,
-  tsOffset: number = 0
-): WestgardObservation {
+function createObs(id: string, zScore: number, tsOffset: number = 0): WestgardObservation {
   return {
     runId: `run-${id}`,
     analitoId: 'test-analito',
@@ -127,9 +123,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
 
   describe('detect_10x', () => {
     it('should detect 10 consecutive same-side', () => {
-      const obs = Array.from({ length: 10 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 10 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_10x(obs);
       expect(violations).toHaveLength(1);
       expect(violations[0].rule).toBe('10x');
@@ -137,9 +131,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
     });
 
     it('should not detect 9 same-side', () => {
-      const obs = Array.from({ length: 9 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 9 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_10x(obs);
       expect(violations).toHaveLength(0);
     });
@@ -149,9 +141,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
 
   describe('detect_7T', () => {
     it('should detect 7 consecutive monotonic ascending', () => {
-      const obs = Array.from({ length: 7 }, (_, i) =>
-        createObs(i.toString(), i * 0.3, i * 1000)
-      );
+      const obs = Array.from({ length: 7 }, (_, i) => createObs(i.toString(), i * 0.3, i * 1000));
       const violations = detect_7T(obs);
       expect(violations).toHaveLength(1);
       expect(violations[0].rule).toBe('7T');
@@ -177,9 +167,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
 
   describe('detect_8x', () => {
     it('should detect 8 consecutive same-side (warn)', () => {
-      const obs = Array.from({ length: 8 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 8 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_8x(obs);
       expect(violations).toHaveLength(1);
       expect(violations[0].rule).toBe('8x');
@@ -187,9 +175,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
     });
 
     it('should not detect 7 same-side', () => {
-      const obs = Array.from({ length: 7 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 7 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_8x(obs);
       expect(violations).toHaveLength(0);
     });
@@ -199,9 +185,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
 
   describe('detect_12x', () => {
     it('should detect 12 consecutive same-side (warn)', () => {
-      const obs = Array.from({ length: 12 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 12 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_12x(obs);
       expect(violations).toHaveLength(1);
       expect(violations[0].rule).toBe('12x');
@@ -209,9 +193,7 @@ describe('Westgard CLSI 8-Rule Engine', () => {
     });
 
     it('should not detect 11 same-side', () => {
-      const obs = Array.from({ length: 11 }, (_, i) =>
-        createObs(i.toString(), 0.5, i * 1000)
-      );
+      const obs = Array.from({ length: 11 }, (_, i) => createObs(i.toString(), 0.5, i * 1000));
       const violations = detect_12x(obs);
       expect(violations).toHaveLength(0);
     });

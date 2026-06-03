@@ -47,10 +47,7 @@ export async function assertLabApoioAccess(
     throw new HttpsError('permission-denied', LABAPOIO_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[LABAPOIO_ACCESS_DENIED]', {
       uid,
@@ -68,10 +65,7 @@ export function labApoioLabRoot(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}`);
 }
 
-export function labApoioCollection(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function labApoioCollection(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`labs/${labId}/lab-apoio`);
 }
 
@@ -282,7 +276,10 @@ export const UploadContratoAnexoInputSchema = z.object({
   contratoId: z.string().min(1),
   fileMeta: z.object({
     path: z.string(),
-    size: z.number().min(1).max(10 * 1024 * 1024), // <10MB
+    size: z
+      .number()
+      .min(1)
+      .max(10 * 1024 * 1024), // <10MB
     contentType: z.string().refine((ct) => ct === 'application/pdf', 'Apenas PDF permitido'),
   }),
 });

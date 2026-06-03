@@ -1,11 +1,5 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StyleSheet,
-  Alert,
-} from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Alert } from 'react-native';
 import { ReadingForm, ReadingData } from '../components/ReadingForm';
 import { useMobileCallables } from '../hooks/useMobileCallables';
 import { useAuthStore } from '../store/useAuthStore';
@@ -64,8 +58,7 @@ export function ReadingsScreen(): React.JSX.Element {
 
       Alert.alert('Leitura registrada', `${data.parameterName}: ${data.value} ${data.unit}`);
     } catch (err: any) {
-      const isNetworkError =
-        err.code === 'unavailable' || err.message?.includes('network');
+      const isNetworkError = err.code === 'unavailable' || err.message?.includes('network');
 
       // Add to session log (synced = false — queued offline)
       setSessionReadings((prev) => [
@@ -78,10 +71,7 @@ export function ReadingsScreen(): React.JSX.Element {
       ]);
 
       if (isNetworkError) {
-        Alert.alert(
-          'Salvo offline',
-          'Leitura enfileirada. Será sincronizada ao reconectar.'
-        );
+        Alert.alert('Salvo offline', 'Leitura enfileirada. Será sincronizada ao reconectar.');
       } else {
         Alert.alert('Erro', err.message || 'Falha ao registrar leitura.');
       }
@@ -91,7 +81,11 @@ export function ReadingsScreen(): React.JSX.Element {
   };
 
   return (
-    <ScrollView style={styles.container} keyboardShouldPersistTaps="handled" testID="readings-screen">
+    <ScrollView
+      style={styles.container}
+      keyboardShouldPersistTaps="handled"
+      testID="readings-screen"
+    >
       <OfflineIndicator />
       <View style={styles.content}>
         <Text style={styles.title}>Registrar Leitura</Text>

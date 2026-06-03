@@ -11,7 +11,10 @@ const CreatePlanoAcaoInput = z.object({
   labId: z.string().min(1, 'labId é obrigatório'),
   auditoriaId: z.string().min(1, 'auditoriaId é obrigatório'),
   achadoId: z.string().min(1, 'achadoId é obrigatório'),
-  descricao: z.string().min(20, 'Descrição deve ter pelo menos 20 caracteres').max(1000, 'Descrição não pode exceder 1000 caracteres'),
+  descricao: z
+    .string()
+    .min(20, 'Descrição deve ter pelo menos 20 caracteres')
+    .max(1000, 'Descrição não pode exceder 1000 caracteres'),
   responsavel: z.string().min(1, 'responsavel é obrigatório'),
   prazo: z.number().int().positive('prazo deve ser um número inteiro positivo'),
 });
@@ -54,7 +57,12 @@ export const createPlanoAcao = onCall(
 
     try {
       // Verify auditoria exists
-      const auditoriaSnap = await db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).get();
+      const auditoriaSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .get();
       if (!auditoriaSnap.exists) {
         throw new HttpsError('not-found', 'Auditoria não encontrada');
       }
@@ -64,7 +72,14 @@ export const createPlanoAcao = onCall(
       }
 
       // Verify achado exists under this auditoria
-      const achadoSnap = await db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).collection('achados').doc(achadoId).get();
+      const achadoSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .collection('achados')
+        .doc(achadoId)
+        .get();
       if (!achadoSnap.exists) {
         throw new HttpsError('not-found', 'Achado não encontrado nesta auditoria');
       }
@@ -76,7 +91,10 @@ export const createPlanoAcao = onCall(
       // Cross-check NCs: achado must have an open NC
       const ncCheck = await checkNCs(labId, achadoId);
       if (!ncCheck || ncCheck.blocked) {
-        throw new HttpsError('failed-precondition', 'Este achado não tem uma não-conformidade aberta associada');
+        throw new HttpsError(
+          'failed-precondition',
+          'Este achado não tem uma não-conformidade aberta associada',
+        );
       }
 
       // Generate server-side signature
@@ -90,7 +108,13 @@ export const createPlanoAcao = onCall(
       };
 
       // Write plano de ação
-      const planoRef = db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaId).collection('planos-acao').doc();
+      const planoRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaId)
+        .collection('planos-acao')
+        .doc();
       await planoRef.set({
         labId,
         auditoriaId,
@@ -113,5 +137,5 @@ export const createPlanoAcao = onCall(
       console.error('createPlanoAcao error:', err);
       throw new HttpsError('internal', 'Erro ao criar plano de ação');
     }
-  }
+  },
 );

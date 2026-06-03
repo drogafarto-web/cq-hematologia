@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { getLabMembers, type LabMember } from '../../admin/services/labAdminService';
 import { toast } from '../../../shared/store/useToastStore';
-import { firestoreErrorMessage, functions, httpsCallable, Timestamp } from '../../../shared/services/firebase';
+import {
+  firestoreErrorMessage,
+  functions,
+  httpsCallable,
+  Timestamp,
+} from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
 import { usePlanosMelhoria } from '../hooks/usePlanosMelhoria';
 import type { UsePlanosMelhoriaFilters } from '../hooks/usePlanosMelhoria';
@@ -86,7 +91,12 @@ interface NovoPlanoMelhoriaModalProps {
   readonly onCreated: (planoId: string) => void;
 }
 
-function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlanoMelhoriaModalProps) {
+function NovoPlanoMelhoriaModal({
+  isOpen,
+  labId,
+  onClose,
+  onCreated,
+}: NovoPlanoMelhoriaModalProps) {
   const [titulo, setTitulo] = useState('');
   const [descricao, setDescricao] = useState('');
   const [responsavelId, setResponsavelId] = useState('');
@@ -197,10 +207,15 @@ function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlano
         aria-labelledby="novo-plano-melhoria-title"
         className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl border border-white/10 bg-[#141417] p-6 shadow-xl"
       >
-        <h2 id="novo-plano-melhoria-title" className="text-lg font-semibold tracking-tight text-white">
+        <h2
+          id="novo-plano-melhoria-title"
+          className="text-lg font-semibold tracking-tight text-white"
+        >
           Novo plano de melhoria
         </h2>
-        <p className="mt-1 text-sm text-white/50">O plano nasce em rascunho; ajustes finos entram na próxima entrega.</p>
+        <p className="mt-1 text-sm text-white/50">
+          O plano nasce em rascunho; ajustes finos entram na próxima entrega.
+        </p>
 
         {formError ? (
           <div className="mt-4 rounded-lg border border-red-500/35 bg-red-500/10 px-3 py-2 text-sm text-red-200">
@@ -210,7 +225,10 @@ function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlano
 
         <form onSubmit={(ev) => void handleSubmit(ev)} className="mt-5 space-y-4">
           <div>
-            <label htmlFor="pm-titulo" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="pm-titulo"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Título
             </label>
             <input
@@ -224,7 +242,10 @@ function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlano
             />
           </div>
           <div>
-            <label htmlFor="pm-desc" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="pm-desc"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Descrição
             </label>
             <textarea
@@ -238,7 +259,10 @@ function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlano
             />
           </div>
           <div>
-            <label htmlFor="pm-resp" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="pm-resp"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Responsável
             </label>
             <select
@@ -258,7 +282,10 @@ function NovoPlanoMelhoriaModal({ isOpen, labId, onClose, onCreated }: NovoPlano
             </select>
           </div>
           <div>
-            <label htmlFor="pm-prazo" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="pm-prazo"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Prazo meta
             </label>
             <input
@@ -358,7 +385,11 @@ export function PlanoMelhoriaListView() {
   }, [labId, mesFimMonth, mesInicioMonth]);
 
   if (!labId) {
-    return <p className="text-sm text-white/55">Selecione um laboratório para ver os planos de melhoria.</p>;
+    return (
+      <p className="text-sm text-white/55">
+        Selecione um laboratório para ver os planos de melhoria.
+      </p>
+    );
   }
 
   if (selectedPlanoId) {
@@ -370,7 +401,9 @@ export function PlanoMelhoriaListView() {
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-xl font-semibold tracking-tight text-white">Planos de melhoria</h1>
-          <p className="mt-1 text-sm text-white/50">Acompanhamento de planos vinculados a KPIs e ações corretivas.</p>
+          <p className="mt-1 text-sm text-white/50">
+            Acompanhamento de planos vinculados a KPIs e ações corretivas.
+          </p>
         </div>
         <button
           type="button"
@@ -388,20 +421,30 @@ export function PlanoMelhoriaListView() {
         <h2 id="kpi-dashboard-heading" className="text-sm font-semibold tracking-tight text-white">
           Indicadores (KPI)
         </h2>
-        <p className="mt-1 text-xs text-white/45">Último dia agregado, metas ativas e alertas recentes.</p>
+        <p className="mt-1 text-xs text-white/45">
+          Último dia agregado, metas ativas e alertas recentes.
+        </p>
         <div className="mt-4">
           <KPIDashboard labId={labId} />
         </div>
       </section>
 
-      <section className="rounded-2xl border border-white/10 bg-[#1a1a1d]/40 p-5" aria-labelledby="kpi-report-heading">
+      <section
+        className="rounded-2xl border border-white/10 bg-[#1a1a1d]/40 p-5"
+        aria-labelledby="kpi-report-heading"
+      >
         <h2 id="kpi-report-heading" className="text-sm font-semibold tracking-tight text-white">
           Relatório KPI (PDF)
         </h2>
-        <p className="mt-1 text-xs text-white/45">Consolida métricas diárias, metas ativas e planos em rascunho ou ativo.</p>
+        <p className="mt-1 text-xs text-white/45">
+          Consolida métricas diárias, metas ativas e planos em rascunho ou ativo.
+        </p>
         <div className="mt-4 flex flex-wrap items-end gap-4">
           <div>
-            <label htmlFor="kpi-mes-inicio" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="kpi-mes-inicio"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Mês início
             </label>
             <input
@@ -413,7 +456,10 @@ export function PlanoMelhoriaListView() {
             />
           </div>
           <div>
-            <label htmlFor="kpi-mes-fim" className="block text-xs font-medium uppercase tracking-wide text-white/50">
+            <label
+              htmlFor="kpi-mes-fim"
+              className="block text-xs font-medium uppercase tracking-wide text-white/50"
+            >
               Mês fim
             </label>
             <input
@@ -466,7 +512,10 @@ export function PlanoMelhoriaListView() {
       {loading ? (
         <div className="space-y-3">
           {[1, 2, 3].map((i) => (
-            <div key={i} className="h-36 animate-pulse rounded-xl border border-white/5 bg-[#1a1a1d]/80" />
+            <div
+              key={i}
+              className="h-36 animate-pulse rounded-xl border border-white/5 bg-[#1a1a1d]/80"
+            />
           ))}
         </div>
       ) : planos.length === 0 ? (

@@ -41,6 +41,7 @@ gcloud logging read \
 ```
 
 **Look for error patterns:**
+
 - `PERMISSION_DENIED` → Firestore rule violation (Section 2A)
 - `SendGrid` / `RESEND` error → Email service down (Section 2B)
 - `undefined is not a function` → Missing HMAC secret (Section 2C)
@@ -88,6 +89,7 @@ git diff HEAD~1 firestore.rules | head -50
 ```
 
 **Actions:**
+
 1. If recent change, revert:
    ```bash
    git revert HEAD --firestore.rules
@@ -113,11 +115,11 @@ gcloud logging read \
 
 **Patterns to identify:**
 
-| Pattern | Cause | Fix |
-|---------|-------|-----|
+| Pattern                                        | Cause                              | Fix                                                    |
+| ---------------------------------------------- | ---------------------------------- | ------------------------------------------------------ |
 | Path `/labs/ABC/patients/XYZ`, user is patient | Correct access (should be allowed) | Rule syntax bug → check isActiveMemberOfLab() function |
-| Path `/labs/ABC/admin-only`, user is patient | Patient accessing admin collection | Expected rejection (not a bug) |
-| Path `/labs/ABC/patients/XYZ`, user is RT | RT accessing patient collection | Rule syntax bug → check role check in rules |
+| Path `/labs/ABC/admin-only`, user is patient   | Patient accessing admin collection | Expected rejection (not a bug)                         |
+| Path `/labs/ABC/patients/XYZ`, user is RT      | RT accessing patient collection    | Rule syntax bug → check role check in rules            |
 
 **If rule is correct but rejections persist:**
 
@@ -126,8 +128,8 @@ gcloud logging read \
      ```javascript
      // Browser console while logged in as patient
      const token = await auth.currentUser.getIdTokenResult();
-     console.log(token.claims.labId);  // Should match accessed lab
-     console.log(token.claims.role);   // Should be 'patient'
+     console.log(token.claims.labId); // Should match accessed lab
+     console.log(token.claims.role); // Should be 'patient'
      ```
 
 2. **If token has wrong labId:**
@@ -158,6 +160,7 @@ curl -s https://status.sendgrid.com/api/v2/status.json | \
 ```
 
 **If vendor is down:**
+
 1. Post to `#production-alerts`: "SendGrid/RESEND is experiencing outage. Estimated recovery: [ETA]"
 2. Notify patient support team (patients cannot receive auth links)
 3. Check if fallback email provider is configured (see `.env`)
@@ -179,6 +182,7 @@ curl -s https://api.sendgrid.com/v3/user/credits \
 ```
 
 **If quota is 0:**
+
 1. Log into SendGrid dashboard → Settings → Billing
 2. Upgrade plan OR
 3. Purchase additional email credits
@@ -201,13 +205,15 @@ gcloud firestore documents get \
 ```
 
 **If email is missing or invalid:**
+
 1. This patient's email address is not in database
 2. Support team must add/correct email address
 3. Retry email delivery to corrected address
 
-**If email is valid:** 
+**If email is valid:**
 
 1. Check email template in code:
+
    ```bash
    cat functions/src/modules/auth/templates/generatePatientAuthLink.html
    ```
@@ -238,22 +244,25 @@ grep -r "HCQ_SIGNATURE\|defineSecret.*HMAC" functions/src/modules/ | head -5
 ```
 
 **If no defineSecret() call:**
+
 1. Open function file (e.g., `functions/src/modules/auth/verifyPatientAuthToken.ts`)
 2. Add at top:
+
    ```typescript
    import { defineSecret } from 'firebase-functions/params';
-   
+
    const hmacKey = defineSecret('HCQ_SIGNATURE_HMAC_KEY');
    ```
 
 3. Add to function declaration:
+
    ```typescript
    export const verifyPatientAuthToken = onCall(
      { secrets: [hmacKey], region: 'southamerica-east1' },
      async (request) => {
        const key = hmacKey.value();
        // ... rest of function
-     }
+     },
    );
    ```
 
@@ -274,10 +283,13 @@ gcloud secrets list --project=hmatologia2 | grep HCQ
 ```
 
 **If secret is not listed:**
+
 1. Provision it:
+
    ```bash
    firebase functions:secrets:set HCQ_SIGNATURE_HMAC_KEY --project=hmatologia2
    ```
+
    (Will prompt for value — ask CTO for current key value)
 
 2. Deploy function to use new secret:
@@ -296,6 +308,7 @@ gcloud secrets versions access latest --secret=HCQ_SIGNATURE_HMAC_KEY --project=
 ```
 
 **If values don't match:**
+
 1. Check `functions/src/modules/signatures/index.ts` for signer logic
 2. Verify both functions use same key + algorithm
 3. If issue found, rotate secret (see ADR-0017 procedure)
@@ -327,12 +340,14 @@ gcloud logging read \
 ### Step 2: Identify Bottleneck
 
 **Check if cold start:**
+
 ```bash
 # First invocation after deploy will be slow (normal)
 # Monitor warm execution (2nd+ invocations)
 ```
 
 **Check Firestore query performance:**
+
 ```bash
 # Monitor Firestore quota usage
 gcloud monitoring read \
@@ -341,10 +356,12 @@ gcloud monitoring read \
 ```
 
 **If quota approaching limit:**
+
 - Firestore is rate-limiting reads
 - Scale up quota in Firebase Console → Project Settings → Firestore
 
 **If quota OK:**
+
 - Check for missing Firestore indexes:
   ```bash
   firebase firestore:indexes list --project=hmatologia2 | grep -E "patients|laudos"
@@ -376,11 +393,13 @@ watch -n 5 'gcloud logging read \
 ```
 
 **Success criteria:**
+
 - Error count < 1 per 5 minutes (below alert threshold)
 - At least 10 consecutive successful authentications
 - Patients can access portal + view results
 
 **If still failing after 30 min:**
+
 1. Page CTO immediately
 2. Consider rollback to v1.3 (portal-disabled)
 3. Create incident ticket for root-cause analysis

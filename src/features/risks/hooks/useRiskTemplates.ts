@@ -14,9 +14,7 @@ export interface UseRiskTemplatesResult {
   readonly error: Error | null;
 }
 
-export function useRiskTemplates(
-  labId: string | null | undefined,
-): UseRiskTemplatesResult {
+export function useRiskTemplates(labId: string | null | undefined): UseRiskTemplatesResult {
   const [templates, setTemplates] = useState<RiskTemplate[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -32,10 +30,7 @@ export function useRiskTemplates(
     setLoading(true);
     setError(null);
 
-    const q = query(
-      collection(db, `labs/${labId}/risk-templates`),
-      where('ativo', '==', true),
-    );
+    const q = query(collection(db, `labs/${labId}/risk-templates`), where('ativo', '==', true));
 
     const unsub = onSnapshot(
       q,

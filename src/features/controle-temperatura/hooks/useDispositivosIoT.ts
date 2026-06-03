@@ -8,10 +8,7 @@ import {
   updateDispositivo,
   type SubscribeDispositivosOptions,
 } from '../services/ctFirebaseService';
-import {
-  gerarTokenDispositivo,
-  type TokenDispositivo,
-} from '../services/ctIoTService';
+import { gerarTokenDispositivo, type TokenDispositivo } from '../services/ctIoTService';
 import type { DispositivoInput, DispositivoIoT } from '../types/ControlTemperatura';
 
 export interface UseDispositivosIoTResult {

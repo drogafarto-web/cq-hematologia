@@ -21,10 +21,11 @@ audience: ops-engineer, tech-lead
 ### Git & Build Hygiene
 
 - [ ] **Verify main branch status**
+
   ```bash
   git status
   # Expected: On branch main, nothing to commit, working tree clean
-  
+
   git log --oneline -n 1
   # Expected: Latest commit is merged PR with all tests passing
   ```
@@ -45,11 +46,12 @@ audience: ops-engineer, tech-lead
 ### Build Validation
 
 - [ ] **Local build succeeds**
+
   ```bash
   npx tsc --noEmit
   npm run build
   # Expected: No errors, Hosting bundle <500KB gzip
-  
+
   npm run lint
   # Expected: 0 errors
   ```
@@ -64,12 +66,14 @@ audience: ops-engineer, tech-lead
 ### Test Execution (Staging)
 
 - [ ] **Unit tests on staging**
+
   ```bash
   npm run test:unit
   # Expected: 738/738 passing
   ```
 
 - [ ] **Smoke tests on staging**
+
   ```bash
   npm run test:smoke:staging
   # Expected: All 25 modules + 5 critical paths PASS
@@ -86,18 +90,20 @@ audience: ops-engineer, tech-lead
 ### Production Readiness
 
 - [ ] **Verify production Firebase project**
+
   ```bash
   firebase projects:list
   # Confirm: hmatologia2 (default)
-  
+
   firebase use hmatologia2
   # Set active project
-  
+
   firebase apps:list
   # Verify: Web app (apiKey: AIza...) registered
   ```
 
 - [ ] **Verify production secrets**
+
   ```bash
   firebase functions:secrets:list --project hmatologia2
   # Expected: All 6 secrets ACTIVE, no PENDING_SET
@@ -105,6 +111,7 @@ audience: ops-engineer, tech-lead
   ```
 
 - [ ] **Verify production Firestore**
+
   ```bash
   firebase firestore:indexes --project hmatologia2
   # Expected: All indexes ENABLED (or CREATING if recent change)
@@ -119,10 +126,11 @@ audience: ops-engineer, tech-lead
 ### Stakeholder Notification
 
 - [ ] **Send pre-deployment email**
+
   ```
   To: CTO, RT lead, lab directors, auditor
   Subject: v1.4 Production Deployment — [DATE] [TIME UTC]
-  
+
   Content:
   - Launch time: [DATE HH:MM UTC]
   - Expected downtime: 0 minutes (zero-downtime deploy)
@@ -133,12 +141,13 @@ audience: ops-engineer, tech-lead
     * CAPA closure workflow
   - Compliance readiness: DICQ 88% + RDC 978 critical articles 100%
   - If issues: Rollback available within 5 minutes
-  
+
   Rollback plan: docs/rollback-procedures/ROLLBACK_CHECKLIST.md
   Incident escalation: [Slack #incident] or [Page on-call]
   ```
 
 - [ ] **Post in #announcements Slack**
+
   ```
   🚀 v1.4 GA deployment starting in [TIME]
   Features: Portal, NOTIVISA, Critical Values, CAPA
@@ -149,7 +158,7 @@ audience: ops-engineer, tech-lead
 - [ ] **Notify lab support team**
   ```
   "v1.4 goes live [TIME UTC]. Users may see new portal feature.
-   If login issues: Ctrl+Shift+R (hard reload). 
+   If login issues: Ctrl+Shift+R (hard reload).
    Contact ops if problems persist."
   ```
 
@@ -188,6 +197,7 @@ firebase deploy --only firestore:rules,firestore:indexes \
 ```
 
 **Expected:**
+
 - Output: ✓ rules deployed, ✓ indexes updated
 - Duration: 30–60 seconds
 - No user-facing impact (rules applied immediately)
@@ -211,6 +221,7 @@ gcloud functions logs read \
 - [ ] Users can still access their modules (sanity check: test user logs in)
 
 **If failure:**
+
 - [ ] Rollback: `git checkout v1.3 -- firestore.rules && firebase deploy --only firestore:rules`
 - [ ] Wait 2 minutes for rules to propagate
 - [ ] ABORT deployment, investigate root cause
@@ -229,6 +240,7 @@ firebase deploy --only functions \
 ```
 
 **Expected:**
+
 - Output: ✓ 75+ functions deployed
 - Duration: 3–5 minutes
 - No errors during deployment
@@ -241,6 +253,7 @@ watch -n 30 'gcloud functions logs read --project hmatologia2 --limit 10'
 ```
 
 **Expected logs:**
+
 ```
 [Cloud Functions] Deployment started
 [Cloud Functions] Function abc deployed
@@ -255,6 +268,7 @@ watch -n 30 'gcloud functions logs read --project hmatologia2 --limit 10'
 - [ ] Cloud Logs show no Error or Critical messages
 
 **If failure:**
+
 - [ ] Check specific error in logs: `gcloud functions logs read`
 - [ ] If missing secret: `firebase functions:secrets:set NAME`
 - [ ] If dependency missing: `cd functions && npm install && npm run build`
@@ -272,6 +286,7 @@ gcloud compute url-maps invalidate-cdn-cache web-app-cache \
 ```
 
 **Expected:**
+
 - Invalidation request queued
 - Duration: <1 second to queue, 1–2 minutes to propagate globally
 
@@ -284,6 +299,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Expected:**
+
 - Output: ✓ bundle deployed, ✓ live at https://hmatologia2.web.app
 - Duration: 2–3 minutes
 - Users see new PWA bundle after CDN propagation
@@ -312,12 +328,14 @@ gcloud functions logs read --project hmatologia2 --limit 20
 **Critical flow sanity check:**
 
 - [ ] **Open browser (incognito, Ctrl+Shift+R)**
+
   ```
   URL: https://hmatologia2.web.app
   Expected: Site loads in <2s, no errors in console (F12)
   ```
 
 - [ ] **Login as test user**
+
   ```
   Email: testops@lab1.local
   Password: [from secrets manager]
@@ -325,6 +343,7 @@ gcloud functions logs read --project hmatologia2 --limit 20
   ```
 
 - [ ] **Create CIQ run (quick smoke)**
+
   ```
   Navigate: Hub → Analyzer
   Action: Create new CIQ run
@@ -332,6 +351,7 @@ gcloud functions logs read --project hmatologia2 --limit 20
   ```
 
 - [ ] **Verify audit trail**
+
   ```
   Navigate: Hub → Auditoria
   Action: Look for "testops" entries from 2 min ago
@@ -345,6 +365,7 @@ gcloud functions logs read --project hmatologia2 --limit 20
   ```
 
 **If any failure:**
+
 - [ ] **P1 response:** Initiate rollback immediately (Section: "Rollback Procedure")
 - [ ] **P2/P3 response:** Note issue, continue monitoring 45 min, then decide
 
@@ -366,12 +387,12 @@ gcloud functions logs read \
 
 **Thresholds that trigger rollback:**
 
-| Metric | Threshold | Action |
-|--------|-----------|--------|
-| Errors/min | >10 | ROLLBACK immediately |
-| 5xx responses | >5% | ROLLBACK immediately |
-| Latency p99 | >3s | Monitor, decide in 15 min |
-| Module unavailable | Any 1+ modules | ROLLBACK immediately |
+| Metric             | Threshold      | Action                    |
+| ------------------ | -------------- | ------------------------- |
+| Errors/min         | >10            | ROLLBACK immediately      |
+| 5xx responses      | >5%            | ROLLBACK immediately      |
+| Latency p99        | >3s            | Monitor, decide in 15 min |
+| Module unavailable | Any 1+ modules | ROLLBACK immediately      |
 
 ---
 
@@ -386,6 +407,7 @@ bash scripts/monitor-cloud-logs.sh 30 5
 ```
 
 **Expected output (good):**
+
 ```
 [OK] No errors detected
 [OK] Latency distribution normal
@@ -394,6 +416,7 @@ bash scripts/monitor-cloud-logs.sh 30 5
 ```
 
 **Expected output (needs investigation):**
+
 ```
 [WARNING] 5 errors in last 10 min (still <1% rate) — monitor
 [WARNING] p99 latency 2.8s (elevated but <3s) — acceptable
@@ -540,18 +563,18 @@ Lab teams: Contact ops if issues persist
 
 **Deployment approved by:**
 
-- [ ] **CTO:** _________________ Date: _________ Time: _________
-- [ ] **Tech Lead:** _________________ Date: _________ Time: _________
-- [ ] **Ops Lead:** _________________ Date: _________ Time: _________
+- [ ] **CTO:** ********\_******** Date: ****\_**** Time: ****\_****
+- [ ] **Tech Lead:** ********\_******** Date: ****\_**** Time: ****\_****
+- [ ] **Ops Lead:** ********\_******** Date: ****\_**** Time: ****\_****
 
 **Deployment executed by:**
 
-- **Ops Engineer:** _________________ Date: _________ Time: _________
+- **Ops Engineer:** ********\_******** Date: ****\_**** Time: ****\_****
 
 **Monitoring responsibility:**
 
-- **Primary (0–45 min):** _________________ (on-call engineer)
-- **Secondary (45–72h):** _________________ (on-call engineer)
+- **Primary (0–45 min):** ********\_******** (on-call engineer)
+- **Secondary (45–72h):** ********\_******** (on-call engineer)
 
 ---
 

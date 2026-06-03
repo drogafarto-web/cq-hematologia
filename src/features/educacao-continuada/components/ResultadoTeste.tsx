@@ -45,8 +45,8 @@ export function ResultadoTeste({ avaliacao, onClose }: ResultadoTesteProps) {
 
       {pendenciaDissertativa && (
         <p className="rounded-md border border-amber-500/30 bg-amber-500/10 px-3 py-2 text-xs text-amber-200">
-          Questões dissertativas exigem correção manual. O responsável receberá o
-          resultado final após revisão.
+          Questões dissertativas exigem correção manual. O responsável receberá o resultado final
+          após revisão.
         </p>
       )}
 

@@ -3,7 +3,7 @@
 **Phase:** 9 — Manual Qualidade / Governance Framework  
 **Date:** 2026-05-07  
 **Status:** Infrastructure Ready for Integration  
-**Compliance:** DICQ 4.1.2.3–4.1.2.7, RDC 978 Arts. 76–89  
+**Compliance:** DICQ 4.1.2.3–4.1.2.7, RDC 978 Arts. 76–89
 
 ---
 
@@ -58,6 +58,7 @@
 - [x] `PHASE_9_GOVERNANCE_TEMPLATE.json` — JSON structure with metadata, items, alert rules
 
 **Locations:**
+
 - `docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md` (Markdown reference)
 - `docs/PHASE_9_GOVERNANCE_CHECKLIST.json` (Machine-readable tracker)
 - `docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md` (Implementation steps)
@@ -189,15 +190,15 @@ export const GOVERNANCE_ALERTS = {
 
 ### 5. Integration Points (Cross-Module)
 
-| Module | Integration | Status |
-|---|---|---|
-| `educacao-continuada` | Training matrix (G-001) auto-populates from training records | 📋 TODO |
-| `sgd` | Document links for all governance docs (A-*, D-007, G-002, G-005) | 📋 TODO |
-| `auditoria-interna` | Audit findings auto-create CAPA records | 📋 TODO |
-| `capa-tracking` | NC & CAPA linked to governance items D-004, D-005 | 📋 TODO |
-| `kpis` | KPI dashboard feeds Management Review input D-006 | ✅ Exists |
-| `labSettings` | governance config section with director, MR chair, contacts | 📋 TODO |
-| `management-review` | Minutes stored and linked to governance checklist | ✅ Types created |
+| Module                | Integration                                                        | Status           |
+| --------------------- | ------------------------------------------------------------------ | ---------------- |
+| `educacao-continuada` | Training matrix (G-001) auto-populates from training records       | 📋 TODO          |
+| `sgd`                 | Document links for all governance docs (A-\*, D-007, G-002, G-005) | 📋 TODO          |
+| `auditoria-interna`   | Audit findings auto-create CAPA records                            | 📋 TODO          |
+| `capa-tracking`       | NC & CAPA linked to governance items D-004, D-005                  | 📋 TODO          |
+| `kpis`                | KPI dashboard feeds Management Review input D-006                  | ✅ Exists        |
+| `labSettings`         | governance config section with director, MR chair, contacts        | 📋 TODO          |
+| `management-review`   | Minutes stored and linked to governance checklist                  | ✅ Types created |
 
 ### 6. E2E Test Specs
 
@@ -224,6 +225,7 @@ export const GOVERNANCE_ALERTS = {
 **Status: FRAMEWORK READY**
 
 Gate opens when:
+
 - Block A items (A-001 through A-007): ≥80% complete
 - Block D items (D-001 through D-010): ≥80% complete
 - Block E items (E-001 through E-005): ≥80% complete
@@ -239,6 +241,7 @@ Gate opens when:
 ### RDC 978 Art. 5.3 — Audit Trail
 
 ✅ Implemented:
+
 - Append-only audit collection with chain hashing
 - Every item update logged with timestamp + operator
 - Previous/new state recorded for delta tracking
@@ -247,6 +250,7 @@ Gate opens when:
 ### DICQ 4.15 — Management Review
 
 ✅ Implemented:
+
 - 15 mandatory inputs defined in `ManagementReviewInput` type
 - Minutes template with decision & action item tracking
 - QD signature workflow (signedAt, signedBy immutable)
@@ -254,6 +258,7 @@ Gate opens when:
 ### Firestore Rules
 
 ✅ Implemented:
+
 - Read access: all lab members
 - Write access: Admin/Owner only
 - Audit trail: append-only, no updates/deletes
@@ -263,17 +268,17 @@ Gate opens when:
 
 ## 📅 Estimated Timeline to Production
 
-| Task | Effort | Owner | Target |
-|---|---|---|---|
-| Component: GovernanceChecklistDashboard | 4–6h | Frontend | 2026-05-12 |
-| Component: ManagementReviewMinutesForm | 4–6h | Frontend | 2026-05-12 |
-| Cloud Function: publishManualQualidade | 2–3h | Backend | 2026-05-12 |
-| Firestore schema validation | 1–2h | DevOps | 2026-05-12 |
-| labSettings governance config section | 2–3h | Frontend | 2026-05-13 |
-| E2E test specs | 3–4h | QA | 2026-05-14 |
-| Integration: educacao-continuada linking | 2–3h | Backend | 2026-05-14 |
-| Deployment: Rules + Functions + Hosting | 1–2h | DevOps | 2026-05-15 |
-| **Total** | **~23h** | — | **2026-05-15** |
+| Task                                     | Effort   | Owner    | Target         |
+| ---------------------------------------- | -------- | -------- | -------------- |
+| Component: GovernanceChecklistDashboard  | 4–6h     | Frontend | 2026-05-12     |
+| Component: ManagementReviewMinutesForm   | 4–6h     | Frontend | 2026-05-12     |
+| Cloud Function: publishManualQualidade   | 2–3h     | Backend  | 2026-05-12     |
+| Firestore schema validation              | 1–2h     | DevOps   | 2026-05-12     |
+| labSettings governance config section    | 2–3h     | Frontend | 2026-05-13     |
+| E2E test specs                           | 3–4h     | QA       | 2026-05-14     |
+| Integration: educacao-continuada linking | 2–3h     | Backend  | 2026-05-14     |
+| Deployment: Rules + Functions + Hosting  | 1–2h     | DevOps   | 2026-05-15     |
+| **Total**                                | **~23h** | —        | **2026-05-15** |
 
 ---
 
@@ -295,32 +300,32 @@ Gate opens when:
 
 ## 📝 Artifact Locations
 
-| Artifact | Path | Status |
-|---|---|---|
-| Governance Checklist JSON | `docs/PHASE_9_GOVERNANCE_CHECKLIST.json` | ✅ |
-| Manual Qualidade Template | `docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md` | ✅ |
-| Implementation Guide | `docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md` | ✅ |
-| Firestore Rules | `docs/PHASE_9_FIRESTORE_RULES_GOVERNANCE.md` | ✅ |
-| Type Definitions | `src/features/sgd/types/GovernanceChecklist.ts` | ✅ |
-| Service Layer | `src/features/sgd/services/GovernanceChecklistService.ts` | ✅ |
-| React Hook | `src/features/sgd/hooks/useGovernanceChecklist.ts` | ✅ |
-| Management Review Types | `src/features/management-review/types/ManagementReview.ts` | ✅ |
-| **Components** | `src/features/sgd/components/GovernanceChecklistDashboard.tsx` | 📋 TODO |
-| **Minutes Form** | `src/features/management-review/components/ManagementReviewMinutesForm.tsx` | 📋 TODO |
-| **Callables** | `functions/src/modules/sgd/publishManualQualidade.callable.ts` | 📋 TODO |
-| **E2E Tests** | `src/__tests__/phase9-governance.e2e.spec.ts` | 📋 TODO |
+| Artifact                  | Path                                                                        | Status  |
+| ------------------------- | --------------------------------------------------------------------------- | ------- |
+| Governance Checklist JSON | `docs/PHASE_9_GOVERNANCE_CHECKLIST.json`                                    | ✅      |
+| Manual Qualidade Template | `docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md`                                 | ✅      |
+| Implementation Guide      | `docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md`                                 | ✅      |
+| Firestore Rules           | `docs/PHASE_9_FIRESTORE_RULES_GOVERNANCE.md`                                | ✅      |
+| Type Definitions          | `src/features/sgd/types/GovernanceChecklist.ts`                             | ✅      |
+| Service Layer             | `src/features/sgd/services/GovernanceChecklistService.ts`                   | ✅      |
+| React Hook                | `src/features/sgd/hooks/useGovernanceChecklist.ts`                          | ✅      |
+| Management Review Types   | `src/features/management-review/types/ManagementReview.ts`                  | ✅      |
+| **Components**            | `src/features/sgd/components/GovernanceChecklistDashboard.tsx`              | 📋 TODO |
+| **Minutes Form**          | `src/features/management-review/components/ManagementReviewMinutesForm.tsx` | 📋 TODO |
+| **Callables**             | `functions/src/modules/sgd/publishManualQualidade.callable.ts`              | 📋 TODO |
+| **E2E Tests**             | `src/__tests__/phase9-governance.e2e.spec.ts`                               | 📋 TODO |
 
 ---
 
 ## 🚨 Risk Mitigation
 
-| Risk | Mitigation | Status |
-|---|---|---|
-| Governance items duplicated in multiple systems | Single source of truth: JSON → Firestore | ✅ |
-| Overdue items missed | Auto-detection + alert escalation rules | ✅ (Config needed) |
-| Audit trail gaps | Chain-hashed append-only collection | ✅ |
-| QD signature bypass | Immutable post-signature (Firestore rules) | ✅ |
-| Phase 9 gate not enforced | Pre-merge validation function + CI/CD gate | ✅ (Function created) |
+| Risk                                            | Mitigation                                 | Status                |
+| ----------------------------------------------- | ------------------------------------------ | --------------------- |
+| Governance items duplicated in multiple systems | Single source of truth: JSON → Firestore   | ✅                    |
+| Overdue items missed                            | Auto-detection + alert escalation rules    | ✅ (Config needed)    |
+| Audit trail gaps                                | Chain-hashed append-only collection        | ✅                    |
+| QD signature bypass                             | Immutable post-signature (Firestore rules) | ✅                    |
+| Phase 9 gate not enforced                       | Pre-merge validation function + CI/CD gate | ✅ (Function created) |
 
 ---
 

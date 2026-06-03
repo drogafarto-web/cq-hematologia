@@ -12,7 +12,11 @@
 import React, { useState, useEffect } from 'react';
 import DOMPurify from 'dompurify';
 import { usePrivacyPolicy } from '../hooks/usePrivacyPolicy';
-import { getAllPolicyVersions, getUserCurrentAcceptance, recordAceite } from '../services/lgpdService';
+import {
+  getAllPolicyVersions,
+  getUserCurrentAcceptance,
+  recordAceite,
+} from '../services/lgpdService';
 import type { PolicyVersion, PrivacyAceite } from '../types';
 
 interface PrivacyPageProps {
@@ -46,8 +50,10 @@ function renderMarkdown(markdown: string): string {
       // Italic
       escaped = escaped.replace(/\*(.*?)\*/g, '<em>$1</em>');
       // Links (only allow http/https/mailto)
-      escaped = escaped.replace(/\[(.*?)\]\((https?:\/\/.*?|mailto:.*?)\)/g,
-        '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>');
+      escaped = escaped.replace(
+        /\[(.*?)\]\((https?:\/\/.*?|mailto:.*?)\)/g,
+        '<a href="$2" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline">$1</a>',
+      );
 
       // Headers (safe: content already escaped)
       if (line.startsWith('### ')) {
@@ -218,7 +224,8 @@ export function PrivacyPage({ labId, userId }: PrivacyPageProps) {
                 <span className="font-medium">Você aceitou esta versão</span>
               </div>
               <p className="text-sm text-white/60">
-                Aceito em {currentAcceptance.aceiteEm?.toDate().toLocaleDateString('pt-BR', {
+                Aceito em{' '}
+                {currentAcceptance.aceiteEm?.toDate().toLocaleDateString('pt-BR', {
                   weekday: 'long',
                   year: 'numeric',
                   month: 'long',

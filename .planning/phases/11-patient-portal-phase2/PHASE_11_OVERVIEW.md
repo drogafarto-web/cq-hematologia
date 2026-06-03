@@ -1,9 +1,9 @@
 ---
-phase: "11"
-title: "Patient Portal Phase 2 + Multi-Channel Feedback"
-status: "Planned"
-created: "2026-05-07"
-duration: "3 weeks"
+phase: '11'
+title: 'Patient Portal Phase 2 + Multi-Channel Feedback'
+status: 'Planned'
+created: '2026-05-07'
+duration: '3 weeks'
 waves: 2
 ---
 
@@ -34,6 +34,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 **Objective:** Build complaint intake forms + RCA workflow per DICQ 4.8/4.14.3.
 
 **Deliverables:**
+
 - Complaint intake form (FormReclamacao.tsx) with reCAPTCHA v3 + file upload
 - RCA Five Whys wizard (RCAFormFiveWhys.tsx, 5 levels + root cause)
 - Cloud Callable: criarReclamacao (create complaint + classify severity + NC auto-trigger)
@@ -44,6 +45,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 - 3 critical E2E flows (form submission, RCA workflow, NC auto-create)
 
 **Key Features:**
+
 - Severity auto-classification (heuristic, deterministic, no API dependency)
 - Status state machine: Nova → Analisando → RCA → Resolvida → Comunicada → Fechada
 - High-severity (>=100 chars) auto-triggers NC draft (RN-13)
@@ -60,6 +62,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 **Objective:** Build post-resolution satisfaction measurement + suggestion feed with voting.
 
 **Deliverables:**
+
 - NPS survey form (FormNPSSurvey.tsx, token-based, 1-5 scale)
 - Suggestion voting feed (SugestaoListVoting.tsx with upvote/downvote UI)
 - Cloud Callable: submitNPSResposta (public NPS response submission)
@@ -72,6 +75,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 - 4 critical E2E flows (NPS survey submission, suggestion creation, voting, 90d anonymization)
 
 **Key Features:**
+
 - NPS survey sent 30 days after complaint resolution (Resolvida status)
 - Email contains token-based link (no auth required, single-use token)
 - 1-5 scale response + optional comment (max 500 chars)
@@ -88,10 +92,10 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 
 ## Wave Structure
 
-| Wave | Plans | Focus | Duration | Owner | Blocker |
-|------|-------|-------|----------|-------|---------|
-| **1** | 11-01 | Complaint intake + RCA | 5 days | Backend + Frontend | Phase 4 portal auth |
-| **2** | 11-02 | NPS + voting | 5 days | Backend + Frontend | 11-01 complete (Resolvida status dependency) |
+| Wave  | Plans | Focus                  | Duration | Owner              | Blocker                                      |
+| ----- | ----- | ---------------------- | -------- | ------------------ | -------------------------------------------- |
+| **1** | 11-01 | Complaint intake + RCA | 5 days   | Backend + Frontend | Phase 4 portal auth                          |
+| **2** | 11-02 | NPS + voting           | 5 days   | Backend + Frontend | 11-01 complete (Resolvida status dependency) |
 
 **Parallelization:** Minimal — 11-02 depends on 11-01 Reclamacao status machine (Resolvida trigger point).
 
@@ -99,17 +103,17 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 
 ## Compliance Mapping
 
-| Standard | Article | Phase 11 Coverage |
-|----------|---------|------------------|
-| **DICQ** | 4.8 | Feedback management (complaint intake + RCA) ✓ |
-| **DICQ** | 4.14.3 | Customer satisfaction (NPS survey) ✓ |
-| **DICQ** | 4.14.4 | Improvement suggestions (voting feed) ✓ |
-| **DICQ** | 4.14.6 | Risk analysis via NC | ✓ (auto-link) |
-| **RDC 978** | Art. 115 | Patient communication rights (portal) ✓ |
-| **CDC** | Lei 8.078/90 | 30-day response SLA | ✓ (tracked) |
-| **LGPD** | Art. 9 | Sensitive data handling | ✓ (audit trail, hashing) |
-| **LGPD** | Art. 18 | Right of access | ✓ (portal, NPS) |
-| **LGPD** | Art. 19 | Right to deletion | Deferred to Phase 12 |
+| Standard    | Article      | Phase 11 Coverage                              |
+| ----------- | ------------ | ---------------------------------------------- | ------------------------ |
+| **DICQ**    | 4.8          | Feedback management (complaint intake + RCA) ✓ |
+| **DICQ**    | 4.14.3       | Customer satisfaction (NPS survey) ✓           |
+| **DICQ**    | 4.14.4       | Improvement suggestions (voting feed) ✓        |
+| **DICQ**    | 4.14.6       | Risk analysis via NC                           | ✓ (auto-link)            |
+| **RDC 978** | Art. 115     | Patient communication rights (portal) ✓        |
+| **CDC**     | Lei 8.078/90 | 30-day response SLA                            | ✓ (tracked)              |
+| **LGPD**    | Art. 9       | Sensitive data handling                        | ✓ (audit trail, hashing) |
+| **LGPD**    | Art. 18      | Right of access                                | ✓ (portal, NPS)          |
+| **LGPD**    | Art. 19      | Right to deletion                              | Deferred to Phase 12     |
 
 ---
 
@@ -118,6 +122,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 **Unit Tests:** 37+ (form validation, callables, RCA validation, vote aggregation, trending)
 
 **E2E Tests:** 7 critical flows
+
 - Complaint form submission + severity classification
 - RCA Five Whys workflow + state transitions
 - NC auto-creation on high-severity
@@ -134,23 +139,25 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 
 ## Risk Dashboard
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **Email service integration** | Medium | Phase blocked if email fails | Defer to Phase 5; use mock/log-based email in Phase 11 (Phase 4 also defers email) |
-| **Firestore trigger delays** | Low | NPS sends late (>1h after Resolvida) | Monitor Cloud Logs; set alert on trigger latency |
-| **Pub/Sub cron misfire** | Low | PII not anonymized | Dry-run cron in test lab; manual trigger fallback script |
-| **Vote spam** | Low | Trending skewed by bots | Rate limit: 100 votes/patient/hour; Cloud Logs monitoring |
-| **Gemini integration pending** | Medium | Heuristic severity <95% accuracy | Use heuristic (deterministic) in Phase 11; defer IA to Phase 5 |
+| Risk                           | Likelihood | Impact                               | Mitigation                                                                         |
+| ------------------------------ | ---------- | ------------------------------------ | ---------------------------------------------------------------------------------- |
+| **Email service integration**  | Medium     | Phase blocked if email fails         | Defer to Phase 5; use mock/log-based email in Phase 11 (Phase 4 also defers email) |
+| **Firestore trigger delays**   | Low        | NPS sends late (>1h after Resolvida) | Monitor Cloud Logs; set alert on trigger latency                                   |
+| **Pub/Sub cron misfire**       | Low        | PII not anonymized                   | Dry-run cron in test lab; manual trigger fallback script                           |
+| **Vote spam**                  | Low        | Trending skewed by bots              | Rate limit: 100 votes/patient/hour; Cloud Logs monitoring                          |
+| **Gemini integration pending** | Medium     | Heuristic severity <95% accuracy     | Use heuristic (deterministic) in Phase 11; defer IA to Phase 5                     |
 
 ---
 
 ## Dependencies & Blockers
 
 **Upstream Dependencies:**
+
 - Phase 4 (Portal Foundation) — Email-link auth required for patient access
 - Phase 11-01 must complete before 11-02 starts (Reclamacao status machine required)
 
 **Downstream Dependents:**
+
 - Phase 11.5 (NPS Dashboard) — Trending aggregation + NPS score analytics
 - Phase 12 (LGPD Fulfillment) — Right-to-deletion implementation
 - Phase 5 (IA Integration) — Gemini severity classifier (optional enhancement)
@@ -160,6 +167,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 ## Deployment Checklist
 
 **Pre-Deploy (Wave 1 + Wave 2 complete):**
+
 - [ ] TypeScript: 0 errors
 - [ ] Unit tests: 37+ all green, coverage >90%
 - [ ] E2E tests: 7 flows all green
@@ -170,11 +178,13 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 - [ ] LGPD compliance: audit trail complete, consent checkboxes functional
 
 **Deployment Steps:**
+
 1. Rules (firestore.rules)
 2. Functions (criarReclamacao, transitarReclamacao, dispararNPSPosResolucao, submitNPSResposta, criarSugestao, votarSugestao, criarNCDraft, anonimizarRespostas)
 3. Hosting (React components)
 
 **Sign-Off:**
+
 - CTO (code + design)
 - QA (tests + E2E)
 - DevOps (deployment + monitoring)
@@ -185,6 +195,7 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 ## Success Criteria
 
 **Functional:**
+
 - Patients submit complaints <5s (form → callable → Firestore)
 - Severity auto-classified (heuristic accuracy ≥95% on test set)
 - High-severity complaints create NC automatically (100% success)
@@ -194,18 +205,21 @@ Full DICQ 4.8 (feedback management) + DICQ 4.14.3 (customer satisfaction) + RDC 
 - PII anonymized after 90 days (audit log confirms removal)
 
 **Performance:**
+
 - Form submission: <5s (including reCAPTCHA + classification)
 - NPS survey: <3s (rendering + submission)
 - Suggestion voting: <2s (upvote toggle)
 - Mobile responsive: tested on 375px/768px/1024px
 
 **Compliance:**
+
 - DICQ 4.8 + 4.14.3 satisfied
 - RDC 978 Art. 115 satisfied
 - LGPD Arts. 9, 18 satisfied (explicit consent, audit trail, PII removal)
 - 0 cross-patient leaks (code review + Rules validation)
 
 **Security:**
+
 - reCAPTCHA bot prevention (score >=0.5)
 - Rate limiting enforced (10 complaints/patient/24h, 100 votes/patient/hour)
 - Token single-use (NPS survey)
@@ -254,15 +268,15 @@ Jun 10 — Phase 11 LIVE (all feedback loops functional)
 
 **Total files modified/created:** 29 files
 
-| Category | Count | Files |
-|----------|-------|-------|
-| Components (TSX) | 5 | FormReclamacao, RCAFormFiveWhys, FormNPSSurvey, SugestaoCard, SugestaoListVoting |
-| Hooks (TS) | 5 | useReclamacaoForm, useRCAState, useNPSSurvey, useSugestaoVoting, satisfacaoService |
-| Cloud Functions (TS) | 8 | criarReclamacao, transitarReclamacao, criarNCDraft, dispararNPSPosResolucao, submitNPSResposta, anonimizarRespostas, criarSugestao, votarSugestao |
-| Types (TS) | 2 | reclamacoes/types, satisfacao/types |
-| Rules (Firestore) | 1 | firestore.rules (extended) |
-| Tests (TS) | 7 | reclamacoes-intake.test, satisfacao-nps.test, sugestoes-voting.test, reclamacao-intake.e2e, nps-survey.e2e, sugestao-voting.e2e + others |
-| Documentation (MD) | 1 | PHASE_11_OVERVIEW.md + inline (CLAUDE.md updates, ARCHITECTURE.md, DEPLOYMENT-CHECKLIST) |
+| Category             | Count | Files                                                                                                                                             |
+| -------------------- | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Components (TSX)     | 5     | FormReclamacao, RCAFormFiveWhys, FormNPSSurvey, SugestaoCard, SugestaoListVoting                                                                  |
+| Hooks (TS)           | 5     | useReclamacaoForm, useRCAState, useNPSSurvey, useSugestaoVoting, satisfacaoService                                                                |
+| Cloud Functions (TS) | 8     | criarReclamacao, transitarReclamacao, criarNCDraft, dispararNPSPosResolucao, submitNPSResposta, anonimizarRespostas, criarSugestao, votarSugestao |
+| Types (TS)           | 2     | reclamacoes/types, satisfacao/types                                                                                                               |
+| Rules (Firestore)    | 1     | firestore.rules (extended)                                                                                                                        |
+| Tests (TS)           | 7     | reclamacoes-intake.test, satisfacao-nps.test, sugestoes-voting.test, reclamacao-intake.e2e, nps-survey.e2e, sugestao-voting.e2e + others          |
+| Documentation (MD)   | 1     | PHASE_11_OVERVIEW.md + inline (CLAUDE.md updates, ARCHITECTURE.md, DEPLOYMENT-CHECKLIST)                                                          |
 
 ---
 

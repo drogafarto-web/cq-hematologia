@@ -12,6 +12,7 @@
 Successfully executed pre-deployment bootstrap of supervisor-status documents for RDC 978 Art. 122 enforcement. One active lab (labclin-riopomba) now has /labs/{labId}/supervisor-status/current doc with hasActiveSupervisor: false (safe default). All 8 task requirements met. Ready for STEP 1 (Firestore rules deployment).
 
 **Key metrics:**
+
 - Labs bootstrapped: 1
 - Documents created: 1
 - Test coverage: 8 scenarios
@@ -25,18 +26,21 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 ## Tasks Completed
 
 ### 1. Script Review (Wave 3 Bootstrap)
+
 - Reviewed scripts/bootstrap-supervisor-status.mjs
 - Validated Admin SDK integration
 - Verified idempotency logic (doc exists check)
 - Confirmed error handling per lab
 
 **Key design:**
+
 - Admin SDK with full credentials (gcloud auth required)
 - Dry-run mode: outputs [DRY-RUN] prefix, no writes
 - Apply mode: creates docs, skips existing
 - Per-lab error context (failure doesn't block others)
 
 ### 2. Pre-Deployment Validation
+
 - Queried Firestore: 1 lab found (labclin-riopomba)
 - Verified no existing supervisor-status docs
 - Confirmed Firestore rules NOT yet deployed (still writable)
@@ -51,6 +55,7 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 | Auth available | ✅ | gcloud credentials active |
 
 ### 3. Dry-Run Execution
+
 **Command:** node scripts/bootstrap-supervisor-status.mjs --dry-run --project hmatologia2
 
 **Output:** Found 1 lab, would create 1 doc, [DRY-RUN] prefix on operations
@@ -58,6 +63,7 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 **Verification:** No writes, correct lab count, document path valid
 
 ### 4. Apply Mode Execution
+
 **Command:** node scripts/bootstrap-supervisor-status.mjs --project hmatologia2
 
 **Output:** Found 1 lab, created 1 doc, no errors, exit code 0
@@ -65,15 +71,18 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 **Verification:** Document created for labclin-riopomba, matches dry-run
 
 ### 5. Post-Bootstrap Validation
+
 - Document persisted in Firestore
 - Path correct: /labs/labclin-riopomba/supervisor-status/current
 - Fields correct: hasActiveSupervisor: false, lastUpdated: timestamp
 - Idempotent: re-running would skip (doc exists)
 
 ### 6. Verification UI Component
+
 **File:** src/features/admin/SupervisorStatusBootstrapVerifier.tsx (326 LOC)
 
 **Features:**
+
 - Real-time Firestore listeners (onSnapshot)
 - Lab status matrix (ID, hasActiveSupervisor badge, timestamp)
 - Status indicators: green (ready), yellow (supervisor active)
@@ -82,9 +91,11 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 - RDC 978 compliance footer
 
 ### 7. Test Suite
-**File:** scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs (340 LOC, 8 tests)
+
+**File:** scripts/**tests**/bootstrap-supervisor-status-execution.test.mjs (340 LOC, 8 tests)
 
 **Test coverage:**
+
 - Test 1: Dry-run mode (no writes)
 - Test 2: Apply mode (Firestore writes)
 - Test 3: Lab filtering (--labId option)
@@ -95,9 +106,11 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 - Test 8: Environment (default project, custom project, emulator)
 
 ### 8. Deployment Checklist
+
 **File:** docs/DEPLOY_CHECKLIST_v1.4_STEP0.md (289 LOC)
 
 **Sections:**
+
 - Prerequisites (rules not deployed, auth available)
 - Step 0a: Dry-run with expected output
 - Step 0b: Apply with expected output
@@ -122,7 +135,7 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
    - Firestore listeners
    - Status indicators + action buttons
 
-3. **scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs** (340 LOC)
+3. **scripts/**tests**/bootstrap-supervisor-status-execution.test.mjs** (340 LOC)
    - 8 comprehensive tests
    - All scenarios covered
    - Vitest framework
@@ -142,48 +155,56 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 ## Verification Checklist
 
 **Gate 1: Script Review**
+
 - Review bootstrap script: ✅
 - Admin SDK integration: ✅
 - Idempotency logic: ✅
 - Error handling: ✅
 
 **Gate 2: Pre-Deployment Validation**
+
 - Labs in Firestore: ✅
 - No existing docs: ✅
 - Rules not deployed: ✅
 - Auth available: ✅
 
 **Gate 3: Dry-Run**
+
 - Clean exit: ✅
 - Correct lab count: ✅
 - Valid document path: ✅
 - No actual writes: ✅
 
 **Gate 4: Apply Mode**
+
 - Document created: ✅
 - No errors: ✅
 - Exit code 0: ✅
 - Matches dry-run: ✅
 
 **Gate 5: Post-Bootstrap**
+
 - Persisted in Firestore: ✅
 - Correct structure: ✅
 - Safe defaults: ✅
 - Idempotent: ✅
 
 **Gate 6: Verification UI**
+
 - Component created: ✅
 - Firestore integration: ✅
 - Status indicators: ✅
 - Admin actions: ✅
 
 **Gate 7: Tests**
+
 - 8 tests created: ✅
 - Valid syntax: ✅
 - Complete coverage: ✅
 - Mock Firebase: ✅
 
 **Gate 8: Documentation**
+
 - Execution log: ✅
 - Deployment checklist: ✅
 - Order dependency: ✅
@@ -198,12 +219,14 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 **Requirement:** Lab must enforce active supervisor presence for CIQ operations
 
 **Implementation stack:**
+
 1. Supervisor-status doc (Bootstrap - this task): ✅
 2. hasActiveSupervisor boolean (Callables - Phase 12): ⏭️
 3. CIQ run gating (Rules - STEP 1): ⏭️
 4. Audit trail (Audit callables - Phase 13): ⏭️
 
 **Bootstrap role:**
+
 - Creates source-of-truth document
 - Default: hasActiveSupervisor: false (safe until supervisor checks in)
 - Enables rules gating (doc must exist for rule to read)
@@ -215,14 +238,15 @@ Successfully executed pre-deployment bootstrap of supervisor-status documents fo
 
 ## Deployment Gate Status
 
-| Gate | Status | Dependencies | Next |
-|------|--------|--------------|------|
-| STEP 0 (Bootstrap) | ✅ COMPLETE | None | STEP 1 |
-| STEP 1 (Rules) | ⏭️ READY | STEP 0 ✅ | STEP 2 |
-| STEP 2 (Functions) | 🔄 PENDING | STEP 1 | STEP 3 |
-| STEP 3 (E2E Test) | 🔄 PENDING | STEP 2 | LIVE |
+| Gate               | Status      | Dependencies | Next   |
+| ------------------ | ----------- | ------------ | ------ |
+| STEP 0 (Bootstrap) | ✅ COMPLETE | None         | STEP 1 |
+| STEP 1 (Rules)     | ⏭️ READY    | STEP 0 ✅    | STEP 2 |
+| STEP 2 (Functions) | 🔄 PENDING  | STEP 1       | STEP 3 |
+| STEP 3 (E2E Test)  | 🔄 PENDING  | STEP 2       | LIVE   |
 
 **For STEP 1 (rules deployment):**
+
 ```bash
 firebase deploy --only firestore:rules --project hmatologia2
 ```
@@ -232,6 +256,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ## Order Dependency (Critical)
 
 **Timeline:**
+
 - T0: Bootstrap runs (Admin SDK unrestricted) -> Creates /labs/{labId}/supervisor-status/current
 - T1: Firestore rules deploy -> Locks collection to callables-only
 - T2: CIQ runs write -> Gate on hasActiveSupervisor(labId)
@@ -239,6 +264,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 **Critical constraint:** Do NOT reverse T0->T1
 
 If rules deploy first:
+
 - Bootstrap would fail (rules block supervisor-status creates)
 - Labs would become inaccessible
 - CIQ runs would fail (doc missing -> rule fails closed)
@@ -249,14 +275,14 @@ If rules deploy first:
 
 ## Files Summary
 
-| File | Lines | Purpose |
-|------|-------|---------|
-| scripts/bootstrap-supervisor-status.mjs | 243 | Bootstrap runner (from Wave 3, validated) |
-| docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md | 157 | Audit trail + execution record |
-| src/features/admin/SupervisorStatusBootstrapVerifier.tsx | 326 | Real-time verification UI |
-| scripts/__tests__/bootstrap-supervisor-status-execution.test.mjs | 340 | 8 comprehensive test cases |
-| docs/DEPLOY_CHECKLIST_v1.4_STEP0.md | 289 | Pre-deployment gate |
-| proposed-changes/wave4-10-bootstrap-execution.md | 332 | Complete sign-off document |
+| File                                                             | Lines | Purpose                                   |
+| ---------------------------------------------------------------- | ----- | ----------------------------------------- |
+| scripts/bootstrap-supervisor-status.mjs                          | 243   | Bootstrap runner (from Wave 3, validated) |
+| docs/BOOTSTRAP_EXECUTION_LOG_2026-05-08.md                       | 157   | Audit trail + execution record            |
+| src/features/admin/SupervisorStatusBootstrapVerifier.tsx         | 326   | Real-time verification UI                 |
+| scripts/**tests**/bootstrap-supervisor-status-execution.test.mjs | 340   | 8 comprehensive test cases                |
+| docs/DEPLOY_CHECKLIST_v1.4_STEP0.md                              | 289   | Pre-deployment gate                       |
+| proposed-changes/wave4-10-bootstrap-execution.md                 | 332   | Complete sign-off document                |
 
 **Total new code:** ~1,400 LOC (including docs + tests + UI)
 
@@ -270,6 +296,7 @@ If rules deploy first:
 **Status:** ✅ COMPLETE
 
 **All 8 requirements met:**
+
 1. Bootstrap script reviewed: ✅
 2. Pre-deployment validation passed: ✅
 3. Dry-run execution successful: ✅

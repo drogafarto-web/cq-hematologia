@@ -1,42 +1,52 @@
-'use client'
+'use client';
 
-import { useForm } from 'react-hook-form'
-import { z } from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
+import { useForm } from 'react-hook-form';
+import { z } from 'zod';
+import { zodResolver } from '@hookform/resolvers/zod';
 
 const quickAddSchema = z.object({
   value: z.coerce.number().positive('Value must be positive'),
-  justification: z.string().min(10, 'Justification must be at least 10 characters').optional().or(z.literal('')),
-})
+  justification: z
+    .string()
+    .min(10, 'Justification must be at least 10 characters')
+    .optional()
+    .or(z.literal('')),
+});
 
-type QuickAddFormData = z.infer<typeof quickAddSchema>
+type QuickAddFormData = z.infer<typeof quickAddSchema>;
 
 interface Lot {
-  id: string
-  lotNumber: string
-  analyte: string
-  level: number
-  reagentName: string
-  analyzer: { id: string; analyzerId: string; model: string }
+  id: string;
+  lotNumber: string;
+  analyte: string;
+  level: number;
+  reagentName: string;
+  analyzer: { id: string; analyzerId: string; model: string };
 }
 
 interface Violation {
-  rule: string
-  isWarning: boolean
-  isReject: boolean
-  sdDistance: number
+  rule: string;
+  isWarning: boolean;
+  isReject: boolean;
+  sdDistance: number;
 }
 
 interface QuickAddFormProps {
-  lots: Lot[]
-  selectedLotId: string
-  onSelectLot: (id: string) => void
-  onSave: (value: number) => void
-  pendingViolation: { run: { id: string }; violation: Violation } | null
+  lots: Lot[];
+  selectedLotId: string;
+  onSelectLot: (id: string) => void;
+  onSave: (value: number) => void;
+  pendingViolation: { run: { id: string }; violation: Violation } | null;
 }
 
-export function QuickAddForm({ lots, selectedLotId, onSelectLot, onSave, pendingViolation }: QuickAddFormProps) {
-  const selectedLot = lots.find(l => l.id === selectedLotId)
+export function QuickAddForm({
+  lots,
+  selectedLotId,
+  onSelectLot,
+  onSave,
+  pendingViolation,
+}: QuickAddFormProps) {
+  const selectedLot = lots.find((l) => l.id === selectedLotId);
 
   const {
     register,
@@ -45,11 +55,11 @@ export function QuickAddForm({ lots, selectedLotId, onSelectLot, onSave, pending
     reset,
   } = useForm<QuickAddFormData>({
     resolver: zodResolver(quickAddSchema),
-  })
+  });
 
   function onSubmit(data: QuickAddFormData) {
-    onSave(data.value)
-    reset({ value: undefined, justification: '' })
+    onSave(data.value);
+    reset({ value: undefined, justification: '' });
   }
 
   return (
@@ -91,7 +101,9 @@ export function QuickAddForm({ lots, selectedLotId, onSelectLot, onSave, pending
 
       <div className="flex items-end gap-4">
         <div className="flex flex-col gap-1">
-          <label className="text-xs font-semibold uppercase tracking-wider text-outline">Value</label>
+          <label className="text-xs font-semibold uppercase tracking-wider text-outline">
+            Value
+          </label>
           <input
             type="number"
             step="any"
@@ -111,5 +123,5 @@ export function QuickAddForm({ lots, selectedLotId, onSelectLot, onSave, pending
         </button>
       </div>
     </form>
-  )
+  );
 }

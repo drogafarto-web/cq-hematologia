@@ -33,12 +33,7 @@ export default function CAPAHome() {
   }
 
   if (currentView === 'detail' && selectedCAPAId) {
-    return (
-      <CAPADetailView
-        capaId={selectedCAPAId}
-        onBack={() => setCurrentView('list')}
-      />
-    );
+    return <CAPADetailView capaId={selectedCAPAId} onBack={() => setCurrentView('list')} />;
   }
 
   if (currentView === 'create') {

@@ -52,10 +52,7 @@ export async function assertNotivisaAccess(
     throw new HttpsError('permission-denied', NOTIVISA_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[NOTIVISA_ACCESS_DENIED]', {
       uid,
@@ -69,24 +66,15 @@ export async function assertNotivisaAccess(
 
 // ─── Path helpers ────────────────────────────────────────────────────────────
 
-export function notivisaDraftsCol(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function notivisaDraftsCol(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`notivisa-drafts/${labId}/drafts`);
 }
 
-export function notivisaQueueCol(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function notivisaQueueCol(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`notivisa-queue/${labId}/events`);
 }
 
-export function notivisaOutboxCol(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function notivisaOutboxCol(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`notivisa-outbox/${labId}/archives`);
 }
 
@@ -212,7 +200,10 @@ export const FetchTestResultsInputSchema = z.object({
           endTs: z.number().int().positive(),
         })
         .optional(),
-      pacienteCpf: z.string().regex(/^\d{11}$/).optional(),
+      pacienteCpf: z
+        .string()
+        .regex(/^\d{11}$/)
+        .optional(),
       submissionId: z.string().optional(),
     })
     .optional(),

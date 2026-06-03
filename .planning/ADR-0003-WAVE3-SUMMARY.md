@@ -3,7 +3,7 @@
 **Status:** Wave 3 Complete  
 **Date:** 2026-05-03  
 **Duration:** ~3 hours  
-**Owner:** gsd-executor (Cloud)  
+**Owner:** gsd-executor (Cloud)
 
 ---
 
@@ -28,6 +28,7 @@ Wave 3 integrated blocking gates (`checkNCs` helper) into 5 Cloud Function modul
 - Exported from `functions/src/modules/qualidade/index.ts`
 
 **Interface:**
+
 ```typescript
 export interface NCBlockingCheckResult {
   blocked: boolean;
@@ -35,10 +36,7 @@ export interface NCBlockingCheckResult {
   message?: string;
 }
 
-export async function checkNCs(
-  labId: string,
-  moduloId: string
-): Promise<NCBlockingCheckResult>;
+export async function checkNCs(labId: string, moduloId: string): Promise<NCBlockingCheckResult>;
 ```
 
 ### 2. Module Integration (5 Cloud Functions) ✓
@@ -71,13 +69,14 @@ export async function checkNCs(
    - Bonus integration (not in original plan but fits pattern)
 
 **Pattern used in all 5:**
+
 ```typescript
 // Check for blocking NCs before operation
 const ncCheck = await checkNCs(labId, 'moduloId');
 if (ncCheck.blocked) {
   throw new HttpsError(
     'failed-precondition',
-    ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+    ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo',
   );
 }
 ```
@@ -87,6 +86,7 @@ if (ncCheck.blocked) {
 **File:** `functions/src/modules/qualidade/types.ts`
 
 Added to `NaoConformidade` interface:
+
 - `moduloOrigemId?: string` — Which module this NC belongs to ('equipamento', 'pessoas', etc)
 - `origemId?: string` — FK to specific resource (equipId, userId, etc)
 
@@ -97,6 +97,7 @@ These fields enable the blocking gates to determine if an NC applies to a module
 **File:** `functions/src/modules/qualidade/ncBlockingGates.test.ts`
 
 15+ test cases covering:
+
 - ✓ `blocked=false` when no critical NCs exist
 - ✓ `blocked=true` when critical NC found for module
 - ✓ Non-critical NCs don't block
@@ -114,6 +115,7 @@ All tests compile with Jest type definitions.
 **File:** `functions/scripts/backfill-naoConformidade.mjs`
 
 Reviewed existing implementation:
+
 - Migrates temporary NC collections to global spine
 - Supports dry-run mode
 - Computes HMAC via ADR 0005
@@ -122,6 +124,7 @@ Reviewed existing implementation:
 - Ready to execute in Wave 4
 
 **Usage:**
+
 ```bash
 node functions/scripts/backfill-naoConformidade.mjs --labId=default --dry-run
 node functions/scripts/backfill-naoConformidade.mjs --labId=default
@@ -132,6 +135,7 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=default
 **File:** `firestore.rules` (lines 1144-1164)
 
 NC rules already defined:
+
 - Create requires: `codigo`, `titulo`, `severidade`, `origem`, `bloqueiaOperacoes`, `capaStatus`
 - Read restricted to active lab members with `sgq` module access
 - Update requires keeping `labId` and `createdAt`
@@ -142,21 +146,21 @@ NC rules already defined:
 
 ## Files Changed Summary
 
-| File | Changes | Status |
-|------|---------|--------|
-| functions/src/modules/qualidade/naoConformidade.ts | +47 lines (checkNCs function) | ✓ |
-| functions/src/modules/qualidade/index.ts | +1 line (export checkNCs) | ✓ |
-| functions/src/modules/qualidade/types.ts | +2 fields (moduloOrigemId, origemId) | ✓ |
-| functions/src/modules/qualidade/ncBlockingGates.test.ts | +226 lines (new test file) | ✓ |
-| functions/src/modules/equipamentos/equipamentos.ts | +10 lines (import + gate) | ✓ |
-| functions/src/modules/procedimentos/pop.ts | +10 lines (import + gate) | ✓ |
-| functions/src/modules/auditoria/auditoria.ts | +10 lines (import + gate) | ✓ |
-| functions/src/modules/pessoas/qualificacao.ts | +10 lines (import + gate) | ✓ |
-| functions/src/modules/treinamentos/treinamentos.ts | +10 lines (import + gate) | ✓ |
+| File                                                    | Changes                              | Status |
+| ------------------------------------------------------- | ------------------------------------ | ------ |
+| functions/src/modules/qualidade/naoConformidade.ts      | +47 lines (checkNCs function)        | ✓      |
+| functions/src/modules/qualidade/index.ts                | +1 line (export checkNCs)            | ✓      |
+| functions/src/modules/qualidade/types.ts                | +2 fields (moduloOrigemId, origemId) | ✓      |
+| functions/src/modules/qualidade/ncBlockingGates.test.ts | +226 lines (new test file)           | ✓      |
+| functions/src/modules/equipamentos/equipamentos.ts      | +10 lines (import + gate)            | ✓      |
+| functions/src/modules/procedimentos/pop.ts              | +10 lines (import + gate)            | ✓      |
+| functions/src/modules/auditoria/auditoria.ts            | +10 lines (import + gate)            | ✓      |
+| functions/src/modules/pessoas/qualificacao.ts           | +10 lines (import + gate)            | ✓      |
+| functions/src/modules/treinamentos/treinamentos.ts      | +10 lines (import + gate)            | ✓      |
 
 **Total additions:** ~295 lines  
 **Compilation:** ✓ No TypeScript errors  
-**Tests:** ✓ 15+ test cases written, ready to run  
+**Tests:** ✓ 15+ test cases written, ready to run
 
 ---
 
@@ -183,17 +187,20 @@ NC rules already defined:
 ## Testing Status
 
 ### Compilation ✓
+
 ```bash
 npm run build              # ✓ No errors
 npx tsc --noEmit          # ✓ No errors
 ```
 
 ### Unit Tests (Ready for Wave 4)
+
 - ncBlockingGates.test.ts: 15+ test cases
 - Tests cover: basic blocking, module isolation, edge cases, consistency
 - Will run in Wave 4 via: `npm test -- ncBlockingGates.test.ts`
 
 ### Integration Tests (Wave 4)
+
 - Plan: Test each module end-to-end
 - Pattern: Create critical NC → try create resource → expect blocked → close NC → try again → expect success
 - Coverage: All 5 modules
@@ -206,9 +213,10 @@ npx tsc --noEmit          # ✓ No errors
 ✅ **Tests:** Unit test suite written  
 ✅ **Backfill:** Script ready to run  
 ✅ **Rules:** NC Firestore rules already deployed  
-✅ **Documentation:** This summary + inline code comments  
+✅ **Documentation:** This summary + inline code comments
 
 ### Wave 4 Actions (Planned)
+
 1. Run existing unit tests (naoConformidade.test.ts)
 2. Run new ncBlockingGates tests
 3. Run integration tests
@@ -223,9 +231,10 @@ npx tsc --noEmit          # ✓ No errors
 ✅ Functions compiled  
 ✅ Tests passing  
 ✅ Rules in place  
-✅ Backfill script ready  
+✅ Backfill script ready
 
 ### Wave 5 Actions (Planned)
+
 1. Type-check: `npx tsc --noEmit`
 2. Build: `npm run build`
 3. Deploy functions (includes checkNCs + module gates)
@@ -237,16 +246,19 @@ npx tsc --noEmit          # ✓ No errors
 
 ## Deviations from Plan
 
-### Expected: 7 modules  
-### Actual: 5 modules  
+### Expected: 7 modules
+
+### Actual: 5 modules
 
 **Reason:** Modules insumos, qualidade, and evolução don't have separate `create*` Cloud Functions in `functions/src/modules`. They're either:
+
 - **Client-direct:** Firestore rules validate (e.g., insumos)
 - **Not found:** No separate callable (e.g., qualidade/CIQ, evolução)
 
 **Resolution:** All create callables that exist have been integrated. If future work requires NC gates for insumos/qualidade/evolução, create dedicated Cloud Functions and call `checkNCs` before writing.
 
 ### No Changes to Original Scope
+
 - Backfill script already existed
 - Firestore rules already existed
 - No need to create missing modules (out of scope)
@@ -280,4 +292,4 @@ npx tsc --noEmit          # ✓ No errors
 
 **Status:** Wave 3 Complete. Ready for Wave 4 Testing.  
 **Owner:** gsd-executor  
-**Next Review:** After Wave 4 test execution  
+**Next Review:** After Wave 4 test execution

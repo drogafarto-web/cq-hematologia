@@ -137,10 +137,7 @@ export function useCriticosEscalacoes(): UseCriticosEscalacoesResult {
     [labId, user?.uid],
   );
 
-  const pendentes = useMemo(
-    () => escalacoes.filter((e) => e.status === 'enviado'),
-    [escalacoes],
-  );
+  const pendentes = useMemo(() => escalacoes.filter((e) => e.status === 'enviado'), [escalacoes]);
   const reconhecidas = useMemo(
     () => escalacoes.filter((e) => e.status !== 'enviado'),
     [escalacoes],

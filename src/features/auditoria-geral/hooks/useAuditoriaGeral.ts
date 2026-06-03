@@ -21,16 +21,29 @@ export function useAuditoriaGeral(auditoriaId: string | null) {
     const unsubDoc = subscribeAuditoria(
       labId,
       auditoriaId,
-      (a) => { setAuditoria(a); setIsLoading(false); },
-      (err) => { setError(err); setIsLoading(false); },
+      (a) => {
+        setAuditoria(a);
+        setIsLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setIsLoading(false);
+      },
     );
     const unsubRespostas = subscribeRespostas(
       labId,
       auditoriaId,
-      (list) => { setRespostas(list); },
-      (err) => { setError(err); },
+      (list) => {
+        setRespostas(list);
+      },
+      (err) => {
+        setError(err);
+      },
     );
-    return () => { unsubDoc(); unsubRespostas(); };
+    return () => {
+      unsubDoc();
+      unsubRespostas();
+    };
   }, [labId, auditoriaId]);
 
   return { auditoria, respostas, isLoading, error };

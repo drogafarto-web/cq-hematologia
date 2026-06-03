@@ -11,13 +11,16 @@ module.exports = {
   testMatch: ['**/__tests__/**/*.test.ts'],
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
   transform: {
-    '^.+\\.tsx?$': ['ts-jest', {
-      tsconfig: {
-        esModuleInterop: true,
-        allowSyntheticDefaultImports: true,
-        types: ['jest', 'node'],
+    '^.+\\.tsx?$': [
+      'ts-jest',
+      {
+        tsconfig: {
+          esModuleInterop: true,
+          allowSyntheticDefaultImports: true,
+          types: ['jest', 'node'],
+        },
       },
-    }],
+    ],
   },
   collectCoverageFrom: [
     'modules/**/*.ts',
@@ -27,11 +30,7 @@ module.exports = {
   ],
   coverageDirectory: '../coverage/functions',
   coverageReporters: ['text', 'lcov', 'html'],
-  coveragePathIgnorePatterns: [
-    '/node_modules/',
-    '/__tests__/',
-    '/__mocks__/',
-  ],
+  coveragePathIgnorePatterns: ['/node_modules/', '/__tests__/', '/__mocks__/'],
   testTimeout: 10000,
   verbose: true,
   bail: false,

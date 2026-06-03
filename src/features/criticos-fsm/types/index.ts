@@ -83,10 +83,7 @@ export interface CriticoCase {
  * - All others → false
  * - RESOLVIDO → * → always false (terminal)
  */
-export function isValidStateTransition(
-  from: CriticoFSMState,
-  to: CriticoFSMState
-): boolean {
+export function isValidStateTransition(from: CriticoFSMState, to: CriticoFSMState): boolean {
   if (from === 'RESOLVIDO') return false; // terminal state
   if (from === 'NORMAL' && to === 'CRITICO') return true;
   if (from === 'CRITICO' && to === 'ALERTADO') return true;
@@ -102,7 +99,7 @@ export function isValidStateTransition(
  */
 export function getNextState(
   from: CriticoFSMState,
-  event: CriticoTransitionEvent
+  event: CriticoTransitionEvent,
 ): CriticoFSMState | null {
   switch (from) {
     case 'NORMAL':

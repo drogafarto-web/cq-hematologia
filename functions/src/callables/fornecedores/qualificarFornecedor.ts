@@ -103,7 +103,10 @@ export const qualificarFornecedor = onCall<unknown, Promise<{ ok: true }>>(
     const token = request.auth.token as Record<string, unknown> | undefined;
 
     if (input.logicalSignature.operatorId !== uid) {
-      throw new HttpsError('invalid-argument', 'logicalSignature.operatorId deve ser o usuário autenticado.');
+      throw new HttpsError(
+        'invalid-argument',
+        'logicalSignature.operatorId deve ser o usuário autenticado.',
+      );
     }
 
     const db = admin.firestore();

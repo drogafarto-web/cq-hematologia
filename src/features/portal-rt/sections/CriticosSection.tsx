@@ -108,9 +108,7 @@ function CriticosAlertCard({
             <p className={`font-medium ${PortalRTTokens.text.primary} truncate`}>
               {alert.pacienteName}
             </p>
-            <p className={`text-sm ${PortalRTTokens.text.secondary} truncate`}>
-              {alert.teste}
-            </p>
+            <p className={`text-sm ${PortalRTTokens.text.secondary} truncate`}>{alert.teste}</p>
           </div>
           <SeverityBadge severity={alert.severidade} />
         </div>
@@ -123,17 +121,13 @@ function CriticosAlertCard({
             <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
               Resultado
             </p>
-            <p className={`font-semibold ${PortalRTTokens.text.primary}`}>
-              {alert.valor}
-            </p>
+            <p className={`font-semibold ${PortalRTTokens.text.primary}`}>{alert.valor}</p>
           </div>
           <div>
             <p className={`text-xs ${PortalRTTokens.text.tertiary} uppercase tracking-wide mb-1`}>
               Referência
             </p>
-            <p className={`text-sm ${PortalRTTokens.text.secondary}`}>
-              {alert.referencia}
-            </p>
+            <p className={`text-sm ${PortalRTTokens.text.secondary}`}>{alert.referencia}</p>
           </div>
         </div>
 
@@ -168,10 +162,11 @@ function CriticosAlertCard({
                 onClick={handleAckClick}
                 disabled={isLoading || isProcessing}
                 className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isLoading || isProcessing
-                    ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                    : `bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30`
-                }`}
+                  ${
+                    isLoading || isProcessing
+                      ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                      : `bg-emerald-500/20 text-emerald-300 hover:bg-emerald-500/30 border border-emerald-500/30`
+                  }`}
               >
                 {isLoading ? 'Processando...' : 'Reconhecer'}
               </button>
@@ -181,10 +176,11 @@ function CriticosAlertCard({
                 onClick={handleEscalateClick}
                 disabled={isLoading || isProcessing}
                 className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-                  ${isLoading || isProcessing
-                    ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                    : `bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30`
-                }`}
+                  ${
+                    isLoading || isProcessing
+                      ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                      : `bg-rose-500/20 text-rose-300 hover:bg-rose-500/30 border border-rose-500/30`
+                  }`}
               >
                 {isLoading ? 'Processando...' : 'Escalar'}
               </button>
@@ -196,9 +192,10 @@ function CriticosAlertCard({
             onClick={() => onComment(alert.id)}
             disabled={isProcessing}
             className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium transition-colors
-              ${isProcessing
-                ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
-                : `bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 border border-violet-500/30`
+              ${
+                isProcessing
+                  ? `${PortalRTTokens.bg.interactive} ${PortalRTTokens.text.tertiary} cursor-not-allowed`
+                  : `bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 border border-violet-500/30`
               }`}
           >
             Comentar
@@ -241,7 +238,9 @@ function CriticosSkeleton() {
 
 function EmptyState() {
   return (
-    <div className={`p-12 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}>
+    <div
+      className={`p-12 rounded-lg ${PortalRTTokens.bg.card} border ${PortalRTTokens.border.default} text-center`}
+    >
       <svg
         width="48"
         height="48"
@@ -337,35 +336,41 @@ export function CriticosSection({ labId, onActionComplete }: CriticosSectionProp
     return () => clearTimeout(timer);
   }, [currentLabId]);
 
-  const handleAcknowledge = useCallback(async (alertId: string) => {
-    setProcessingId(alertId);
-    try {
-      // In Phase 4.2+, call Cloud Function to update status
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      setAlerts((prev) =>
-        prev.map((a) =>
-          a.id === alertId ? { ...a, status: 'acknowledged', reconhecidoEm: Date.now() } : a
-        )
-      );
-      onActionComplete?.();
-    } finally {
-      setProcessingId(null);
-    }
-  }, [onActionComplete]);
+  const handleAcknowledge = useCallback(
+    async (alertId: string) => {
+      setProcessingId(alertId);
+      try {
+        // In Phase 4.2+, call Cloud Function to update status
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        setAlerts((prev) =>
+          prev.map((a) =>
+            a.id === alertId ? { ...a, status: 'acknowledged', reconhecidoEm: Date.now() } : a,
+          ),
+        );
+        onActionComplete?.();
+      } finally {
+        setProcessingId(null);
+      }
+    },
+    [onActionComplete],
+  );
 
-  const handleEscalate = useCallback(async (alertId: string) => {
-    setProcessingId(alertId);
-    try {
-      // In Phase 4.2+, call Cloud Function to escalate
-      await new Promise((resolve) => setTimeout(resolve, 600));
-      setAlerts((prev) =>
-        prev.map((a) => (a.id === alertId ? { ...a, status: 'escalated' } : a))
-      );
-      onActionComplete?.();
-    } finally {
-      setProcessingId(null);
-    }
-  }, [onActionComplete]);
+  const handleEscalate = useCallback(
+    async (alertId: string) => {
+      setProcessingId(alertId);
+      try {
+        // In Phase 4.2+, call Cloud Function to escalate
+        await new Promise((resolve) => setTimeout(resolve, 600));
+        setAlerts((prev) =>
+          prev.map((a) => (a.id === alertId ? { ...a, status: 'escalated' } : a)),
+        );
+        onActionComplete?.();
+      } finally {
+        setProcessingId(null);
+      }
+    },
+    [onActionComplete],
+  );
 
   const handleComment = useCallback((alertId: string) => {
     // In Phase 4.3+, open comment modal

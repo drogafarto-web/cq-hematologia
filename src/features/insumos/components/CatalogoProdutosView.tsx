@@ -101,9 +101,9 @@ export function CatalogoProdutosView({
             Catálogo de produtos
           </h2>
           <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5 max-w-2xl leading-relaxed">
-            Cadastro único por laboratório — produto é entidade estável (Bio-Rad Multiqual,
-            Horiba ABX Diluent). Lotes físicos ficam em cada equipamento, vinculados ao produto
-            do catálogo.
+            Cadastro único por laboratório — produto é entidade estável (Bio-Rad Multiqual, Horiba
+            ABX Diluent). Lotes físicos ficam em cada equipamento, vinculados ao produto do
+            catálogo.
           </p>
         </div>
         {canMutate && (
@@ -202,9 +202,7 @@ export function CatalogoProdutosView({
         </div>
       ) : produtos.length === 0 ? (
         <EmptyState
-          hasFilters={
-            moduloFilter !== 'all' || tipoFilter !== 'all' || searchQuery.trim() !== ''
-          }
+          hasFilters={moduloFilter !== 'all' || tipoFilter !== 'all' || searchQuery.trim() !== ''}
           canMutate={canMutate}
           onNovo={() => setShowNovo(true)}
         />
@@ -424,12 +422,10 @@ function EmptyState({
   }
   return (
     <div className="border-2 border-dashed border-slate-300 dark:border-white/[0.08] rounded-xl p-8 text-center">
-      <p className="text-sm font-medium text-slate-700 dark:text-white/70">
-        Catálogo vazio
-      </p>
+      <p className="text-sm font-medium text-slate-700 dark:text-white/70">Catálogo vazio</p>
       <p className="text-xs text-slate-500 dark:text-white/40 mt-1 max-w-md mx-auto leading-relaxed">
-        Cadastre os produtos usados pelo lab — reagentes, controles e tiras.
-        Cada produto aqui pode receber N lotes físicos em uso nos equipamentos.
+        Cadastre os produtos usados pelo lab — reagentes, controles e tiras. Cada produto aqui pode
+        receber N lotes físicos em uso nos equipamentos.
       </p>
       {canMutate && (
         <button

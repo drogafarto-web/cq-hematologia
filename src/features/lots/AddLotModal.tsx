@@ -221,10 +221,7 @@ function BatchCreationForm({
     for (const lvl of levels) {
       const lotNumber = lvl.lotNumber ?? `${controlName}-N${lvl.level}`;
       const dup = existingLots.find(
-        (l) =>
-          l.lotNumber === lotNumber &&
-          l.level === lvl.level &&
-          l.controlName === trimmedName,
+        (l) => l.lotNumber === lotNumber && l.level === lvl.level && l.controlName === trimmedName,
       );
       if (!dup) continue;
       const isPending = dup.bulaPendente === true || dup.manufacturerStats == null;
@@ -264,11 +261,7 @@ function BatchCreationForm({
       try {
         let done = 0;
         for (const m of mergeCandidates) {
-          await onApplyBula(
-            m.lotId,
-            m.manufacturerStats,
-            Object.keys(m.manufacturerStats),
-          );
+          await onApplyBula(m.lotId, m.manufacturerStats, Object.keys(m.manufacturerStats));
           done += 1;
           setCreated(done);
         }
@@ -392,8 +385,8 @@ function BatchCreationForm({
             ))}
           </ul>
           <p className="pt-1 text-amber-700/80 dark:text-amber-200/70">
-            Use os lotes existentes em "Lotes de controle". Re-importar criaria duplicatas
-            que bagunçam o histórico estatístico.
+            Use os lotes existentes em "Lotes de controle". Re-importar criaria duplicatas que
+            bagunçam o histórico estatístico.
           </p>
         </div>
       )}
@@ -425,8 +418,8 @@ function BatchCreationForm({
           </label>
           {!mergeMode && (
             <p className="text-emerald-700/70 dark:text-emerald-300/60 pl-5">
-              Desligado: o sistema vai bloquear como duplicata. Use o caminho normal de
-              cadastro acima.
+              Desligado: o sistema vai bloquear como duplicata. Use o caminho normal de cadastro
+              acima.
             </p>
           )}
         </div>

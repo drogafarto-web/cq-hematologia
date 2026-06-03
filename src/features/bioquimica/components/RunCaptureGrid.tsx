@@ -19,11 +19,7 @@ interface RunCaptureGridProps {
   onResultsChange: (results: Record<string, number[]>) => void;
 }
 
-export function RunCaptureGrid({
-  analitoIds,
-  niveis,
-  onResultsChange,
-}: RunCaptureGridProps) {
+export function RunCaptureGrid({ analitoIds, niveis, onResultsChange }: RunCaptureGridProps) {
   const [results, setResults] = useState<Record<string, number[]>>(
     analitoIds.reduce(
       (acc, id) => {
@@ -71,7 +67,11 @@ export function RunCaptureGrid({
   return (
     <div className="rounded-xl border border-white/[0.09] overflow-hidden">
       <div className="overflow-x-auto">
-        <table className="w-full text-sm font-mono text-white/80" role="grid" aria-label="Grade de captura de resultados de analitos">
+        <table
+          className="w-full text-sm font-mono text-white/80"
+          role="grid"
+          aria-label="Grade de captura de resultados de analitos"
+        >
           <thead>
             <tr className="bg-white/[0.03] border-b border-white/[0.09]">
               <th className="px-4 py-2.5 text-left text-xs font-semibold text-white/40">Analito</th>
@@ -89,7 +89,9 @@ export function RunCaptureGrid({
           <tbody className="divide-y divide-white/[0.05]">
             {analitoIds.map((analitoId) => (
               <tr key={analitoId} className="hover:bg-white/[0.02]">
-                <th scope="row" className="px-4 py-3 text-white/70 text-left font-mono">{analitoId}</th>
+                <th scope="row" className="px-4 py-3 text-white/70 text-left font-mono">
+                  {analitoId}
+                </th>
                 {niveis.map((_, nivelIdx) => (
                   <td key={nivelIdx} className="px-3 py-3">
                     <input

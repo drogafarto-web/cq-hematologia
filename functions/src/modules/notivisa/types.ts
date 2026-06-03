@@ -5,12 +5,7 @@
 
 import type { NotivisaPayload } from '../../shared/notivisa';
 
-export type NotivisaEventStatus =
-  | 'PENDING'
-  | 'SENT'
-  | 'FAILED'
-  | 'ACKNOWLEDGED'
-  | 'REJECTED';
+export type NotivisaEventStatus = 'PENDING' | 'SENT' | 'FAILED' | 'ACKNOWLEDGED' | 'REJECTED';
 
 export interface NotivisaEvent {
   id: string;

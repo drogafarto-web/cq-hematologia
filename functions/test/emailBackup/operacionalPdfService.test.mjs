@@ -18,10 +18,7 @@ const FUNCTIONS_DIR = path.resolve(__dirname, '..', '..');
 
 const { generateOperacionalPdf } = await import(
   pathToFileURL(
-    path.join(
-      FUNCTIONS_DIR,
-      'lib/modules/emailBackup/operacional/pdf/operacionalPdfService.js',
-    ),
+    path.join(FUNCTIONS_DIR, 'lib/modules/emailBackup/operacional/pdf/operacionalPdfService.js'),
   ).href
 );
 
@@ -237,10 +234,7 @@ test('generateOperacionalPdf — fixture full status=atencao produz buffer maior
       },
     }),
   );
-  assert.ok(
-    full.length > empty.length,
-    `expected full(${full.length}) > empty(${empty.length})`,
-  );
+  assert.ok(full.length > empty.length, `expected full(${full.length}) > empty(${empty.length})`);
 });
 
 test('generateOperacionalPdf — branch audit collectionActive=true sem quebras', async () => {

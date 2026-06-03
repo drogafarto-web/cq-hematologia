@@ -244,7 +244,7 @@
   - Flow 4: Dashboard metrics display
   - Flow 5: Cost alert (mock >$500 trajectory)
 
-- [ ] **Manual collection running** 
+- [ ] **Manual collection running**
   - 50 images/day on track
   - Cumulative: ~300 images by end of day 12
   - Accuracy baseline: expect 80–88% (Gemini vs RT)
@@ -288,17 +288,20 @@
 ## Parallel Tracks (Cross-team)
 
 **RT Team (Data Collection)**
+
 - [ ] Training: manual classification guide (CLASSIFICATION_GUIDE.md)
 - [ ] Device setup: camera + lighting standardization
 - [ ] Daily collection: 50+ images/day, metadata complete
 - [ ] Feedback: any issues with UI, classification difficulty noted
 
 **Lab Ops (Infrastructure)**
+
 - [ ] Gemini API quota: confirm 10M input tokens/month (sufficient for Phase 11)
 - [ ] Cloud Storage: bucket permissions, CORS configured
 - [ ] Firestore: backup enabled, replication to secondary region
 
 **Audit/Compliance (DICQ Mapping)**
+
 - [ ] Training dataset policy reviewed
 - [ ] Model versioning procedure validated
 - [ ] Performance monitoring audit trail complete
@@ -307,19 +310,19 @@
 
 ## Success Metrics (Phase 11 Exit)
 
-| Metric | Target | Status |
-|--------|--------|--------|
-| **Gemini callable** | 6 callables deployed + tested | ❌ To do |
-| **Dataset size** | 500+ images (or baseline 300+ ready) | ❌ To do |
-| **Gemini accuracy** | ≥85% vs RT verdicts | ❌ To do |
-| **Confidence threshold** | 0.85 default, manual override working | ❌ To do |
-| **Latency** | <3s p99 (95% <2.5s) | ❌ To do |
-| **Cost** | <$500/month trajectory | ✅ Projected $0.87 |
-| **Dashboard** | 5 tabs live, metrics calculated | ❌ To do |
-| **E2E tests** | 5/5 flows PASS | ❌ To do |
-| **DICQ 4.7 compliance** | Training policy + versioning documented | ❌ To do |
-| **Baseline tests** | 738/738 still PASS | ✅ Should pass |
-| **Cloud Logs** | 0 errors, <5% warning rate (24h) | ❌ To do |
+| Metric                   | Target                                  | Status             |
+| ------------------------ | --------------------------------------- | ------------------ |
+| **Gemini callable**      | 6 callables deployed + tested           | ❌ To do           |
+| **Dataset size**         | 500+ images (or baseline 300+ ready)    | ❌ To do           |
+| **Gemini accuracy**      | ≥85% vs RT verdicts                     | ❌ To do           |
+| **Confidence threshold** | 0.85 default, manual override working   | ❌ To do           |
+| **Latency**              | <3s p99 (95% <2.5s)                     | ❌ To do           |
+| **Cost**                 | <$500/month trajectory                  | ✅ Projected $0.87 |
+| **Dashboard**            | 5 tabs live, metrics calculated         | ❌ To do           |
+| **E2E tests**            | 5/5 flows PASS                          | ❌ To do           |
+| **DICQ 4.7 compliance**  | Training policy + versioning documented | ❌ To do           |
+| **Baseline tests**       | 738/738 still PASS                      | ✅ Should pass     |
+| **Cloud Logs**           | 0 errors, <5% warning rate (24h)        | ❌ To do           |
 
 ---
 
@@ -328,24 +331,29 @@
 ### Medium Priority
 
 **Risk**: Dataset collection lags (target 50/day, actual <30)
+
 - **Mitigation**: Allocate dedicated RT hour blocks (morning + afternoon)
 - **Fallback**: Use batch replay from historical images (seed ~100)
 
 **Risk**: Gemini accuracy <85% on any variant
+
 - **Mitigation**: A/B test all 3 variants immediately; choose best
 - **Fallback**: Widen manual review threshold to 0.80 (accept more operator review)
 
 **Risk**: Confidence threshold miscalibrated
+
 - **Mitigation**: Plot confidence vs accuracy curve (end of Week 2)
 - **Action**: Adjust threshold if accuracy dips below 85% at 0.85
 
 ### Low Priority
 
 **Risk**: API timeout (>3s p99)
+
 - **Mitigation**: Fallback to manual review if timeout
 - **Alert**: Ops team notified on 3 consecutive timeouts
 
 **Risk**: Privacy breach (PII in image metadata)
+
 - **Mitigation**: No patient ID in metadata; geolocation optional; audit trail immutable
 - **Check**: Weekly PII scan (no text in images detected)
 
@@ -354,17 +362,20 @@
 ## Communication Plan
 
 **Daily**: 10am BRT standup (15 min)
+
 - Progress vs checklist
 - Blockers + help needed
 - Dataset count (images collected yesterday)
 - Any alerts (accuracy drop, API errors)
 
 **Weekly**: Friday 4pm BRT sync (30 min)
+
 - Week summary
 - Decisions needed (threshold tuning, variant selection)
 - Phase 12 readiness check
 
 **Pre-Deploy**: Sunday evening (final review)
+
 - All gates PASS?
 - Any last-minute concerns?
 - Deploy confidence: 100%?

@@ -18,8 +18,13 @@ export function usePlanosAcao(auditoriaId: string | null) {
     const unsub = subscribePlanosAcao(
       labId,
       auditoriaId,
-      (list) => { setPlanos(list); setIsLoading(false); },
-      () => { setIsLoading(false); },
+      (list) => {
+        setPlanos(list);
+        setIsLoading(false);
+      },
+      () => {
+        setIsLoading(false);
+      },
     );
     return unsub;
   }, [labId, auditoriaId]);

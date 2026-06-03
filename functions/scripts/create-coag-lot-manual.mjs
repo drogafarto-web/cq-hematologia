@@ -22,17 +22,17 @@ const lotData = {
   estabilidadePosAbertura: 90, // dias
   rastreabilidadeWorklab: {
     exam: 'CTL',
-    codigo: '107416'
+    codigo: '107416',
   },
   mean: {
     atividadeProtrombinica: 100,
     rni: 2.5,
-    ttpa: 35
+    ttpa: 35,
   },
   sd: {
     atividadeProtrombinica: 5,
     rni: 0.5,
-    ttpa: 3
+    ttpa: 3,
   },
   runCount: 0,
   lotStatus: 'aberto', // "em uso (abrir agora)"
@@ -41,19 +41,13 @@ const lotData = {
 };
 
 try {
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('ciq-coagulacao')
-    .doc(lotId)
-    .set(lotData);
+  await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(lotId).set(lotData);
 
   console.log('✅ Lote criado com sucesso!\n');
   console.log(`   ID do lote: ${lotId}`);
   console.log(`   Número: ${lotData.loteControle}`);
   console.log(`   Validade: ${lotData.validadeControle}`);
   console.log(`   Status: ${lotData.lotStatus}\n`);
-
 } catch (err) {
   console.error('❌ Erro ao criar lote:');
   console.error('   Código:', err.code);

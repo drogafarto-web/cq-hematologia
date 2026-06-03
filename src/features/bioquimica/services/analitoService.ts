@@ -100,10 +100,7 @@ export function watchAnalitos(
  * @deprecated após Plan 09-04 — Cloud Function callable assumirá escrita.
  *             Mantido como fallback durante 1 sprint pós-migração.
  */
-export async function createAnalito(
-  labId: LabId,
-  input: AnalitoInput,
-): Promise<string> {
+export async function createAnalito(labId: LabId, input: AnalitoInput): Promise<string> {
   await ensureBioquimicaRoot(labId);
   const ref = doc(analitosCol(labId));
   await setDoc(ref, {

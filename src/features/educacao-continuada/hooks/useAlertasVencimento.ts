@@ -6,10 +6,7 @@ import {
   updateAlertaVencimentoStatus,
   type SubscribeAlertasVencimentoOptions,
 } from '../services/ecFirebaseService';
-import type {
-  AlertaVencimento,
-  StatusAlertaVencimento,
-} from '../types/EducacaoContinuada';
+import type { AlertaVencimento, StatusAlertaVencimento } from '../types/EducacaoContinuada';
 
 export interface UseAlertasVencimentoResult {
   alertas: AlertaVencimento[];
@@ -82,9 +79,7 @@ export function useAlertasVencimento(
 
   const alertasVencidos = useMemo<AlertaVencimento[]>(() => {
     const hoje = Date.now();
-    return alertas.filter(
-      (a) => a.status !== 'resolvido' && a.dataVencimento.toMillis() < hoje,
-    );
+    return alertas.filter((a) => a.status !== 'resolvido' && a.dataVencimento.toMillis() < hoje);
   }, [alertas]);
 
   const setStatus = useCallback(
@@ -95,18 +90,9 @@ export function useAlertasVencimento(
     [labId],
   );
 
-  const marcarNotificado = useCallback(
-    (id: string) => setStatus(id, 'notificado'),
-    [setStatus],
-  );
-  const resolver = useCallback(
-    (id: string) => setStatus(id, 'resolvido'),
-    [setStatus],
-  );
-  const reabrir = useCallback(
-    (id: string) => setStatus(id, 'pendente'),
-    [setStatus],
-  );
+  const marcarNotificado = useCallback((id: string) => setStatus(id, 'notificado'), [setStatus]);
+  const resolver = useCallback((id: string) => setStatus(id, 'resolvido'), [setStatus]);
+  const reabrir = useCallback((id: string) => setStatus(id, 'pendente'), [setStatus]);
 
   return {
     alertas,

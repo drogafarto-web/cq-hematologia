@@ -15,7 +15,7 @@ export function useInternalStats(
   labId: string,
   equipmentId: string,
   analitoId: string,
-  nivelId: string
+  nivelId: string,
 ): InternalStatsResult {
   const { runs } = useRuns(labId, { equipmentId });
 
@@ -25,7 +25,7 @@ export function useInternalStats(
       (run) =>
         run.equipmentId === equipmentId &&
         run.aproveitamento === 'oficial' &&
-        run.resultados?.[analitoId]?.[nivelId] !== undefined
+        run.resultados?.[analitoId]?.[nivelId] !== undefined,
     );
 
     if (relevantRuns.length === 0) {

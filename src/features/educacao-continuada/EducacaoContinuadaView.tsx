@@ -11,13 +11,7 @@ import { IndicadoresTab } from './components/_tabs/IndicadoresTab';
 import { MatrizTab } from './components/_tabs/MatrizTab';
 import { useAlertasVencimento } from './hooks/useAlertasVencimento';
 
-type TabId =
-  | 'planejamento'
-  | 'execucoes'
-  | 'colaboradores'
-  | 'matriz'
-  | 'alertas'
-  | 'indicadores';
+type TabId = 'planejamento' | 'execucoes' | 'colaboradores' | 'matriz' | 'alertas' | 'indicadores';
 
 interface TabDef {
   id: TabId;
@@ -55,8 +49,7 @@ export function EducacaoContinuadaView() {
   // progresso automaticamente via Admin SDK (2026-04-24 cleanup). Observer
   // client-side (`useAutoStartTrilhasRN08`) removido para eliminar race window.
 
-  const initial =
-    (user?.displayName?.split(' ')[0]?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase();
+  const initial = (user?.displayName?.split(' ')[0]?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase();
 
   return (
     <div className="min-h-screen bg-slate-950 text-slate-200">
@@ -86,9 +79,7 @@ export function EducacaoContinuadaView() {
           <div className="flex items-center gap-3">
             <div className="hidden text-right sm:block">
               <p className="text-sm text-slate-300">{activeLab?.name ?? '—'}</p>
-              {activeLab?.id && (
-                <p className="text-[10px] text-slate-600">ID: {activeLab.id}</p>
-              )}
+              {activeLab?.id && <p className="text-[10px] text-slate-600">ID: {activeLab.id}</p>}
             </div>
             <div
               className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-700 bg-slate-800 text-sm font-medium text-slate-300"
@@ -103,12 +94,7 @@ export function EducacaoContinuadaView() {
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 sm:py-8">
         <TabBar value={tab} onChange={setTab} alertCount={totalAlertasCriticos} />
 
-        <div
-          id="ec-tabpanel"
-          role="tabpanel"
-          key={tab}
-          className="ec-fade-in mt-6 min-h-[60vh]"
-        >
+        <div id="ec-tabpanel" role="tabpanel" key={tab} className="ec-fade-in mt-6 min-h-[60vh]">
           {tab === 'planejamento' && <ECDashboard />}
           {tab === 'execucoes' && <ExecucoesTab />}
           {tab === 'colaboradores' && <ColaboradoresTab />}
@@ -198,7 +184,12 @@ function IconCalendar() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <rect x="2" y="3" width="12" height="11" rx="1.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M2 6h12M5.5 1.5v3M10.5 1.5v3" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M2 6h12M5.5 1.5v3M10.5 1.5v3"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -207,7 +198,13 @@ function IconCheckSquare() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <rect x="2" y="2" width="12" height="12" rx="2" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M5 8l2 2 4-4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M5 8l2 2 4-4"
+        stroke="currentColor"
+        strokeWidth="1.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -216,9 +213,19 @@ function IconUsers() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden>
       <circle cx="6" cy="5.5" r="2.5" stroke="currentColor" strokeWidth="1.3" />
-      <path d="M1.5 13c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path
+        d="M1.5 13c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4"
+        stroke="currentColor"
+        strokeWidth="1.3"
+        strokeLinecap="round"
+      />
       <circle cx="11.5" cy="5" r="2" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M11.5 9c1.8 0 3 1.3 3 3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+      <path
+        d="M11.5 9c1.8 0 3 1.3 3 3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }

@@ -12,43 +12,44 @@ Phase 6 formalizes the audit trail infrastructure (write intent + read consent) 
 
 ## Architectural Responsibility Map
 
-| Capability | Primary Tier | Secondary Tier | Rationale |
-|------------|-------------|----------------|-----------|
-| Audit logging (write intent) | Backend (Cloud Function callable) | Database (append-only collection) | RDC 978 Art. 128 requires server-side, operator-attributed logging; client-side writes are rejected by rules |
-| Read consent tracking | API / Backend | Database | LGPD Art. 38 access logs must be immutable and server-sealed; client sees consent prompt; backend records response |
-| Data subject request processing | API / Backend | — | SolicitacaoDados creation + fulfillment (export, retification, deletion) is non-repudiable; Backend owns workflows |
-| Audit report generation | Backend (callable) | Client (display) | Data aggregation happens server-side; Client renders formatted PDF/Excel export |
-| Read access in audit UI (Auditoria) | Frontend (React) | Backend (APIs) | Auditor/RT views audit logs via restricted-access callable; Rules enforce `role:auditor` OR `role:rt` |
+| Capability                          | Primary Tier                      | Secondary Tier                    | Rationale                                                                                                          |
+| ----------------------------------- | --------------------------------- | --------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Audit logging (write intent)        | Backend (Cloud Function callable) | Database (append-only collection) | RDC 978 Art. 128 requires server-side, operator-attributed logging; client-side writes are rejected by rules       |
+| Read consent tracking               | API / Backend                     | Database                          | LGPD Art. 38 access logs must be immutable and server-sealed; client sees consent prompt; backend records response |
+| Data subject request processing     | API / Backend                     | —                                 | SolicitacaoDados creation + fulfillment (export, retification, deletion) is non-repudiable; Backend owns workflows |
+| Audit report generation             | Backend (callable)                | Client (display)                  | Data aggregation happens server-side; Client renders formatted PDF/Excel export                                    |
+| Read access in audit UI (Auditoria) | Frontend (React)                  | Backend (APIs)                    | Auditor/RT views audit logs via restricted-access callable; Rules enforce `role:auditor` OR `role:rt`              |
 
 ## Standard Stack
 
 ### Core
 
-| Library | Version | Purpose | Why Standard | Verified |
-|---------|---------|---------|--------------|----------|
-| Firebase Firestore | v12 | Append-only audit collections + Rules | Multi-tenant, immutable logs, transaction support | [VERIFIED: npm registry v12.x] |
-| Cloud Functions (Node 22) | 22 LTS | Callable for audit sealing + consent tracking | RDC 978 requires server-sealed signatures; v1.3 ADR-0012 established pattern | [VERIFIED: v1.3 deployment] |
-| Zod 3 | 3.x | Input validation (audit payloads, SolicitacaoDados) | Type-safe request handling before sealing | [VERIFIED: npm registry] |
-| React (existing) | 19 | Audit log UI components (table, export, filters) | Consistent with web tier; dark-first design | [VERIFIED: v1.3 stack] |
+| Library                   | Version | Purpose                                             | Why Standard                                                                 | Verified                       |
+| ------------------------- | ------- | --------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------ |
+| Firebase Firestore        | v12     | Append-only audit collections + Rules               | Multi-tenant, immutable logs, transaction support                            | [VERIFIED: npm registry v12.x] |
+| Cloud Functions (Node 22) | 22 LTS  | Callable for audit sealing + consent tracking       | RDC 978 requires server-sealed signatures; v1.3 ADR-0012 established pattern | [VERIFIED: v1.3 deployment]    |
+| Zod 3                     | 3.x     | Input validation (audit payloads, SolicitacaoDados) | Type-safe request handling before sealing                                    | [VERIFIED: npm registry]       |
+| React (existing)          | 19      | Audit log UI components (table, export, filters)    | Consistent with web tier; dark-first design                                  | [VERIFIED: v1.3 stack]         |
 
 ### Supporting
 
-| Library | Version | Purpose | When to Use |
-|---------|---------|---------|-------------|
-| date-fns 3 | 3.x | Timestamp formatting (audit log queries, date range filters) | Lightweight alternative to Moment; already in stack |
-| jsPDF + pdfkit | Latest | Audit report PDF generation (server-side via Cloud Function) | Server-side generation avoids bundle bloat; v1.3 pattern (export module) |
-| nodemailer | Latest | Email notification (data subject request fulfillment) | LGPD Art. 18 requires written response; Phase 0 established pattern for notifications |
+| Library        | Version | Purpose                                                      | When to Use                                                                           |
+| -------------- | ------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------------- |
+| date-fns 3     | 3.x     | Timestamp formatting (audit log queries, date range filters) | Lightweight alternative to Moment; already in stack                                   |
+| jsPDF + pdfkit | Latest  | Audit report PDF generation (server-side via Cloud Function) | Server-side generation avoids bundle bloat; v1.3 pattern (export module)              |
+| nodemailer     | Latest  | Email notification (data subject request fulfillment)        | LGPD Art. 18 requires written response; Phase 0 established pattern for notifications |
 
 ### Alternatives Considered
 
-| Instead of | Could Use | Tradeoff |
-|------------|-----------|----------|
-| Firestore append-only | MongoDB oplog or PostgreSQL WAL | Firestore is already in use; no new infrastructure; rules enforce immutability |
+| Instead of                     | Could Use                                      | Tradeoff                                                                                                                             |
+| ------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Firestore append-only          | MongoDB oplog or PostgreSQL WAL                | Firestore is already in use; no new infrastructure; rules enforce immutability                                                       |
 | Server-side callable for audit | Client-side Firestore batch + Rules validation | Client-side is lighter but RDC 978 auditor specifically requires server-sealed signature; v1.3 ADR-0012 chose callable for integrity |
-| Simple timestamp log | HMAC-SHA256 chain (ADR-0012) | HMAC is heavier but auditor-verifiable; DICQ 4.4 expects "auditoria… integra e rastreável"; chain is audit-ready |
-| In-app LGPD forms | Dedicated LGPD portal (future v1.5) | Phase 6 is admin-only request intake; patient-facing portal deferred; reduces scope |
+| Simple timestamp log           | HMAC-SHA256 chain (ADR-0012)                   | HMAC is heavier but auditor-verifiable; DICQ 4.4 expects "auditoria… integra e rastreável"; chain is audit-ready                     |
+| In-app LGPD forms              | Dedicated LGPD portal (future v1.5)            | Phase 6 is admin-only request intake; patient-facing portal deferred; reduces scope                                                  |
 
 **Installation (no new npm deps for Phase 6 core):**
+
 ```bash
 # All dependencies already in package.json from v1.3
 npm ls firebase firebase-functions zod date-fns
@@ -149,17 +150,19 @@ functions/src/
 **When to use:** Any regulatory write (laudo release, CAPA closure, NOTIVISA submission, personnel update). Client is forbidden from directly writing to `audit-trail`.
 
 **Example:**
+
 ```typescript
 // Source: ADR-0012 + Phase 3 schema design
 
 // Client calls this callable after action completes
 export async function registerAuditEntry(
   labId: string,
-  operation: string,        // e.g. 'laudo.liberado'
-  modulo: string,           // e.g. 'laudos'
-  acao: string,             // Human-readable: "Laudo LAC-001 liberado por RT"
-  payload: Record<string, unknown> // Structured data that changed
-): Promise<string> {          // Returns sealed entry ID
+  operation: string, // e.g. 'laudo.liberado'
+  modulo: string, // e.g. 'laudos'
+  acao: string, // Human-readable: "Laudo LAC-001 liberado por RT"
+  payload: Record<string, unknown>, // Structured data that changed
+): Promise<string> {
+  // Returns sealed entry ID
   const callable = httpsCallable(functions, 'registerAuditEntry');
   const result: any = await callable({
     labId,
@@ -176,10 +179,10 @@ export const registerAuditEntry = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { labId, operation, modulo, acao, payload } = data;
-    
+
     // Validate claims
     if (!context.auth) throw new Error('Unauthenticated');
-    
+
     // Get previous hash from chain
     const lastEntrySnap = await admin
       .firestore()
@@ -188,18 +191,18 @@ export const registerAuditEntry = functions
       .limit(1)
       .get();
     const previousHash = lastEntrySnap.empty ? null : lastEntrySnap.docs[0].data().hash;
-    
+
     // Generate HMAC-SHA256
     const secret = await getSecretValue('audit-hmac-key'); // Rotated monthly
     const hmac = createHmac('sha256', secret)
       .update(JSON.stringify({ previousHash, payload, operation }))
       .digest('hex');
-    
+
     // Full hash
     const hash = createHash('sha256')
       .update(JSON.stringify({ hmac, previousHash, timestamp: admin.firestore.Timestamp.now() }))
       .digest('hex');
-    
+
     // Write sealed entry
     const entryRef = admin.firestore().collection(`labs/${labId}/audit-trail`).doc();
     await entryRef.set({
@@ -214,7 +217,7 @@ export const registerAuditEntry = functions
       timestamp: admin.firestore.Timestamp.now(),
       deletadoEm: null,
     });
-    
+
     return { entryId: entryRef.id };
   });
 ```
@@ -226,23 +229,21 @@ export const registerAuditEntry = functions
 **When to use:** Audit views, analytics dashboards, clinical portals—any view that displays patient-identifiable info.
 
 **Example:**
+
 ```typescript
 // Client hook: wraps useAuditorias subscription with consent tracking
 
-export function useAuditWithReadLogging(
-  labId: string,
-  options: { requireConsent?: boolean } = {}
-) {
+export function useAuditWithReadLogging(labId: string, options: { requireConsent?: boolean } = {}) {
   const user = useUser();
   const [auditorias, setAuditorias] = useState<AuditEntry[]>([]);
-  
+
   useEffect(() => {
     // Log the read intent
     registerAuditRead({
       labId,
       documentId: `audit-trail/${labId}`,
       sourceView: 'auditoria',
-      consentStatus: options.requireConsent ? 'pendente' : 'sem-opcao'
+      consentStatus: options.requireConsent ? 'pendente' : 'sem-opcao',
     }).then((readEventId) => {
       // Now subscribe to data
       const unsub = subscribeAuditorias(labId, (entries) => {
@@ -251,7 +252,7 @@ export function useAuditWithReadLogging(
       return () => unsub();
     });
   }, [labId, user.id]);
-  
+
   return { auditorias, loading: !auditorias.length };
 }
 
@@ -260,12 +261,9 @@ export const registerAuditRead = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { labId, documentId, sourceView, consentStatus } = data;
-    
-    const readEventRef = admin
-      .firestore()
-      .collection(`labs/${labId}/audit-reads`)
-      .doc();
-    
+
+    const readEventRef = admin.firestore().collection(`labs/${labId}/audit-reads`).doc();
+
     await readEventRef.set({
       operatorId: context.auth!.uid,
       timestamp: admin.firestore.Timestamp.now(),
@@ -274,7 +272,7 @@ export const registerAuditRead = functions
       consentStatus, // 'consentiu' | 'nao-consentiu' | 'sem-opcao'
       deletadoEm: null,
     });
-    
+
     return { readEventId: readEventRef.id };
   });
 ```
@@ -286,6 +284,7 @@ export const registerAuditRead = functions
 **When to use:** LGPD compliance. Triggered from patient-facing portal (v1.5) or admin intake form (v1.4).
 
 **Example:**
+
 ```typescript
 // Admin form calls this
 export async function createSolicitacaoDados(input: {
@@ -306,7 +305,7 @@ export const createSolicitacaoDados = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { labId, titular_id, titular_email, tipo } = data;
-    
+
     // Validate RT approval if tipo = 'exclusao'
     if (tipo === 'exclusao') {
       const user = await admin.auth().getUser(context.auth!.uid);
@@ -314,16 +313,13 @@ export const createSolicitacaoDados = functions
         throw new Error('Only RT can approve data deletion');
       }
     }
-    
+
     // Create solicitacao document
-    const solicitacaoRef = admin
-      .firestore()
-      .collection(`labs/${labId}/lgpd-solicitacoes`)
-      .doc();
-    
+    const solicitacaoRef = admin.firestore().collection(`labs/${labId}/lgpd-solicitacoes`).doc();
+
     const prazo = new Date();
     prazo.setDate(prazo.getDate() + 15); // 15 days for response (LGPD Art. 18)
-    
+
     await solicitacaoRef.set({
       titular_id,
       titular_nome: data.titular_nome,
@@ -335,16 +331,16 @@ export const createSolicitacaoDados = functions
       criadoEm: admin.firestore.Timestamp.now(),
       criadoPor: context.auth!.uid,
     });
-    
+
     // Audit this action
     await registerAuditEntry(
       labId,
       'lgpd.solicitacao-criada',
       'lgpd',
       `LGPD ${tipo} request from ${titular_email}`,
-      { solicitacaoId: solicitacaoRef.id, tipo, titularId: titular_id }
+      { solicitacaoId: solicitacaoRef.id, tipo, titularId: titular_id },
     );
-    
+
     return { solicitacaoId: solicitacaoRef.id, prazo: prazo.toISOString() };
   });
 ```
@@ -359,12 +355,12 @@ export const createSolicitacaoDados = functions
 
 ## Don't Hand-Roll
 
-| Problem | Don't Build | Use Instead | Why |
-|---------|-------------|-------------|-----|
-| Audit chain integrity | Custom hash verification algorithm | HMAC-SHA256 via Node.js crypto (ADR-0012) | Cryptography is hard; standard library is battle-tested |
-| LGPD request fulfillment | Manual CSV generator + email | Cloud Function + nodemailer + jsPDF | Async + retry logic, email templates, PDF signing |
-| Consent UX | Custom consent dialog | Reuse pattern from EC (educacao-continuada) + LGPD modal | Consistent with v1.3 design; auditor expects known patterns |
-| Audit report generation | In-memory JSON aggregation | Server-side pdfkit + streaming response | >1k entries = OOM client-side; server streams to browser |
+| Problem                  | Don't Build                        | Use Instead                                              | Why                                                         |
+| ------------------------ | ---------------------------------- | -------------------------------------------------------- | ----------------------------------------------------------- |
+| Audit chain integrity    | Custom hash verification algorithm | HMAC-SHA256 via Node.js crypto (ADR-0012)                | Cryptography is hard; standard library is battle-tested     |
+| LGPD request fulfillment | Manual CSV generator + email       | Cloud Function + nodemailer + jsPDF                      | Async + retry logic, email templates, PDF signing           |
+| Consent UX               | Custom consent dialog              | Reuse pattern from EC (educacao-continuada) + LGPD modal | Consistent with v1.3 design; auditor expects known patterns |
+| Audit report generation  | In-memory JSON aggregation         | Server-side pdfkit + streaming response                  | >1k entries = OOM client-side; server streams to browser    |
 
 **Key insight:** Audit infrastructure looks simple (timestamp + user ID) but regulatory complexity (chain integrity, consent proof, LGPD evidence preservation) demands cryptographic + operational discipline. Off-the-shelf libraries + proven patterns (ADR-0012) reduce attack surface.
 
@@ -438,21 +434,17 @@ import { createHmac, createHash } from 'crypto';
 async function sealAuditEntry(
   previousHash: string | null,
   payload: Record<string, unknown>,
-  secret: string
+  secret: string,
 ): Promise<{ hmac: string; hash: string }> {
   // HMAC-SHA256: (previous_hash + payload + secret)
   const hmacInput = JSON.stringify({ previousHash, payload });
-  const hmac = createHmac('sha256', secret)
-    .update(hmacInput)
-    .digest('hex'); // 64 chars
-  
+  const hmac = createHmac('sha256', secret).update(hmacInput).digest('hex'); // 64 chars
+
   // Full hash: SHA-256 of (hmac + previousHash + timestamp)
   const now = new Date().toISOString();
   const hashInput = JSON.stringify({ hmac, previousHash, now });
-  const hash = createHash('sha256')
-    .update(hashInput)
-    .digest('hex'); // 64 chars
-  
+  const hash = createHash('sha256').update(hashInput).digest('hex'); // 64 chars
+
   return { hmac, hash };
 }
 ```
@@ -469,11 +461,11 @@ match /labs/{labId}/audit-trail/{entryId} {
     && request.resource.data.hmac is string
     && request.resource.data.hash is string
     && request.resource.data.hash.size() == 64;
-  
+
   // Client can only read if they have audit:read claim for this lab
   allow read: if request.auth.token.audit_labs[labId] == 'read'
     || request.auth.token.role == 'rt';
-  
+
   // No updates or deletes
   allow update, delete: if false;
 }
@@ -488,12 +480,12 @@ export const verifyAuditChainIntegrity = functions
   .region('southamerica-east1')
   .https.onCall(async (data, context) => {
     const { labId, startDate, endDate } = data;
-    
+
     // Only auditors + RT
     if (!['auditor', 'rt'].includes(context.auth?.token?.role)) {
       throw new Error('Unauthorized');
     }
-    
+
     const entries = await admin
       .firestore()
       .collection(`labs/${labId}/audit-trail`)
@@ -501,13 +493,13 @@ export const verifyAuditChainIntegrity = functions
       .where('timestamp', '<=', admin.firestore.Timestamp.fromDate(endDate))
       .orderBy('timestamp', 'asc')
       .get();
-    
+
     const violations: any[] = [];
     let previousHash: string | null = null;
-    
+
     for (const doc of entries.docs) {
       const entry = doc.data();
-      
+
       // Verify hash chain
       if (entry.previousHash !== previousHash) {
         violations.push({
@@ -517,13 +509,13 @@ export const verifyAuditChainIntegrity = functions
           actual: entry.previousHash,
         });
       }
-      
+
       // Verify HMAC (requires secret key access)
       const secret = await getSecretValue('audit-hmac-key');
       const expectedHmac = createHmac('sha256', secret)
         .update(JSON.stringify({ previousHash: entry.previousHash, payload: entry.payload }))
         .digest('hex');
-      
+
       if (entry.hmac !== expectedHmac) {
         violations.push({
           entryId: doc.id,
@@ -532,10 +524,10 @@ export const verifyAuditChainIntegrity = functions
           actual: entry.hmac,
         });
       }
-      
+
       previousHash = entry.hash;
     }
-    
+
     return {
       valid: violations.length === 0,
       entriesChecked: entries.size,
@@ -547,25 +539,26 @@ export const verifyAuditChainIntegrity = functions
 
 ## State of the Art
 
-| Old Approach | Current Approach | When Changed | Impact |
-|--------------|------------------|--------------|--------|
-| Timestamp-only logs (v1.2) | HMAC-SHA256 chain (v1.3+) | ADR-0012 (2026-05-07) | Audit-proof integrity; regulatory credibility |
-| Client-side audit writes | Server-sealed callables | Phase 3 schema design | Non-repudiable operator attribution |
-| No read consent tracking | Per-read audit log + consent status | Phase 6 (new) | LGPD Art. 38 compliance |
-| Manual LGPD exports | Async Cloud Function + email | Phase 6 (new) | Scalable, auditable, compliant |
+| Old Approach               | Current Approach                    | When Changed          | Impact                                        |
+| -------------------------- | ----------------------------------- | --------------------- | --------------------------------------------- |
+| Timestamp-only logs (v1.2) | HMAC-SHA256 chain (v1.3+)           | ADR-0012 (2026-05-07) | Audit-proof integrity; regulatory credibility |
+| Client-side audit writes   | Server-sealed callables             | Phase 3 schema design | Non-repudiable operator attribution           |
+| No read consent tracking   | Per-read audit log + consent status | Phase 6 (new)         | LGPD Art. 38 compliance                       |
+| Manual LGPD exports        | Async Cloud Function + email        | Phase 6 (new)         | Scalable, auditable, compliant                |
 
 **Deprecated/outdated:**
+
 - **Client-side `createAuditEntry` in v1.2:** Replaced by callable. Rollback not needed; v1.3 already deprecated.
 - **Loose "who did what" logging:** Upgraded to HMAC chain in v1.3; v1.4 Phase 0–3 standardized pattern across all modules.
 
 ## Assumptions Log
 
-| # | Claim | Section | Risk if Wrong |
-|---|-------|---------|---------------|
-| A1 | RDC 978 Art. 128 "rastreabilidade" accepts HMAC-SHA256 chains as proof of integrity | Standard Stack + Patterns | Auditor rejects chain validation approach; costly rework to add digital signature PKI |
-| A2 | DICQ 4.4 "Documentação de Auditoria" requires server-sealed timestamps (not client) | Patterns | Client-side timestamps may be rejected; Phase 6 implementation blocked |
-| A3 | LGPD Art. 38 data subject access requests must be async (not inline HTTP response) | Pattern 3 + Common Pitfalls | If inline, large exports timeout; UX broken; compliance gap |
-| A4 | Firestore Rules can enforce `request.auth == null` for Cloud Function writes | Code Examples (Rules) | If Rules don't distinguish service context, any authenticated user could inject audit entries |
+| #   | Claim                                                                               | Section                     | Risk if Wrong                                                                                 |
+| --- | ----------------------------------------------------------------------------------- | --------------------------- | --------------------------------------------------------------------------------------------- |
+| A1  | RDC 978 Art. 128 "rastreabilidade" accepts HMAC-SHA256 chains as proof of integrity | Standard Stack + Patterns   | Auditor rejects chain validation approach; costly rework to add digital signature PKI         |
+| A2  | DICQ 4.4 "Documentação de Auditoria" requires server-sealed timestamps (not client) | Patterns                    | Client-side timestamps may be rejected; Phase 6 implementation blocked                        |
+| A3  | LGPD Art. 38 data subject access requests must be async (not inline HTTP response)  | Pattern 3 + Common Pitfalls | If inline, large exports timeout; UX broken; compliance gap                                   |
+| A4  | Firestore Rules can enforce `request.auth == null` for Cloud Function writes        | Code Examples (Rules)       | If Rules don't distinguish service context, any authenticated user could inject audit entries |
 
 **If any claim is wrong:** User confirmation required before finalizing Phase 6 spec. These are regulatory+architectural decisions.
 
@@ -588,40 +581,42 @@ export const verifyAuditChainIntegrity = functions
 
 ## Environment Availability
 
-| Dependency | Required By | Available | Version | Fallback |
-|------------|------------|-----------|---------|----------|
-| Google Cloud Secret Manager | Audit HMAC key rotation | ✓ | v1 API | Hard-code secret (not for production; Phase 0 emergency only) |
-| Node.js crypto module | HMAC-SHA256 calculation | ✓ | Built-in | Use `tweetnacl.js` if crypto not available (unlikely; legacy Node) |
-| Cloud Firestore transactions | Atomic read-then-write for chain | ✓ | Firestore API v9+ | Fall back to optimistic concurrency (higher violation risk) |
-| Firebase Cloud Functions | Callable for audit sealing + LGPD | ✓ | Region: southamerica-east1 | Deploy to us-central1 if region down (latency +50ms) |
+| Dependency                   | Required By                       | Available | Version                    | Fallback                                                           |
+| ---------------------------- | --------------------------------- | --------- | -------------------------- | ------------------------------------------------------------------ |
+| Google Cloud Secret Manager  | Audit HMAC key rotation           | ✓         | v1 API                     | Hard-code secret (not for production; Phase 0 emergency only)      |
+| Node.js crypto module        | HMAC-SHA256 calculation           | ✓         | Built-in                   | Use `tweetnacl.js` if crypto not available (unlikely; legacy Node) |
+| Cloud Firestore transactions | Atomic read-then-write for chain  | ✓         | Firestore API v9+          | Fall back to optimistic concurrency (higher violation risk)        |
+| Firebase Cloud Functions     | Callable for audit sealing + LGPD | ✓         | Region: southamerica-east1 | Deploy to us-central1 if region down (latency +50ms)               |
 
 **Missing dependencies with no fallback:**
+
 - None identified. Phase 6 uses only existing v1.3 infrastructure.
 
 **Missing dependencies with fallback:**
+
 - If Secret Manager is unavailable, audit key can be hardcoded in `.env` temporarily (dev/staging only), but must be rotated manually. Not suitable for production.
 
 ## Validation Architecture
 
 ### Test Framework
 
-| Property | Value |
-|----------|-------|
-| Framework | Jest + Firebase Emulator (existing) |
-| Config file | `jest.config.js` (existing) |
-| Quick run command | `npm run test -- src/features/sgq/auditoria` |
-| Full suite command | `npm run test && npm run test:integration` |
+| Property           | Value                                        |
+| ------------------ | -------------------------------------------- |
+| Framework          | Jest + Firebase Emulator (existing)          |
+| Config file        | `jest.config.js` (existing)                  |
+| Quick run command  | `npm run test -- src/features/sgq/auditoria` |
+| Full suite command | `npm run test && npm run test:integration`   |
 
 ### Phase Requirements → Test Map
 
-| Req ID | Behavior | Test Type | Automated Command | File Exists? |
-|--------|----------|-----------|-------------------|-------------|
-| REQ-1 (RDC 978 Art. 128) | Audit entry sealed with HMAC + chain link | Unit | `npm test -- registerAuditEntry.test.ts` | ❌ Wave 0 |
-| REQ-2 (DICQ 4.4) | Audit chain integrity verifiable (recalculate hashes, match) | Integration | `npm run test:integration -- verifyAuditChainIntegrity.test.ts` | ❌ Wave 0 |
-| REQ-3 (LGPD Art. 38) | Data subject request creates SolicitacaoDados + audit trail | Unit | `npm test -- createSolicitacaoDados.test.ts` | ❌ Wave 0 |
-| REQ-4 (Audit UI) | AuditoriaView renders audit log with filters, no modification | Component | `npm test -- AuditoriaLogTable.test.tsx` | ❌ Wave 0 |
-| REQ-5 (Read consent) | registerAuditRead callable logs access with consentStatus | Unit | `npm test -- registerAuditRead.test.ts` | ❌ Wave 0 |
-| REQ-6 (LGPD fulfillment) | fulfillSolicitacaoDados exports data async + sends email | Integration | `npm run test:integration -- fulfillSolicitacaoDados.test.ts` | ❌ Wave 0 |
+| Req ID                   | Behavior                                                      | Test Type   | Automated Command                                               | File Exists? |
+| ------------------------ | ------------------------------------------------------------- | ----------- | --------------------------------------------------------------- | ------------ |
+| REQ-1 (RDC 978 Art. 128) | Audit entry sealed with HMAC + chain link                     | Unit        | `npm test -- registerAuditEntry.test.ts`                        | ❌ Wave 0    |
+| REQ-2 (DICQ 4.4)         | Audit chain integrity verifiable (recalculate hashes, match)  | Integration | `npm run test:integration -- verifyAuditChainIntegrity.test.ts` | ❌ Wave 0    |
+| REQ-3 (LGPD Art. 38)     | Data subject request creates SolicitacaoDados + audit trail   | Unit        | `npm test -- createSolicitacaoDados.test.ts`                    | ❌ Wave 0    |
+| REQ-4 (Audit UI)         | AuditoriaView renders audit log with filters, no modification | Component   | `npm test -- AuditoriaLogTable.test.tsx`                        | ❌ Wave 0    |
+| REQ-5 (Read consent)     | registerAuditRead callable logs access with consentStatus     | Unit        | `npm test -- registerAuditRead.test.ts`                         | ❌ Wave 0    |
+| REQ-6 (LGPD fulfillment) | fulfillSolicitacaoDados exports data async + sends email      | Integration | `npm run test:integration -- fulfillSolicitacaoDados.test.ts`   | ❌ Wave 0    |
 
 ### Sampling Rate
 
@@ -637,37 +632,37 @@ export const verifyAuditChainIntegrity = functions
 - [ ] `firestore.rules.test.ts` (extend existing) — audit-trail immutability rules + read consent rules
 - [ ] `setupTests.ts` — mock Google Secret Manager for HMAC key rotation tests
 
-*(If no gaps: existing test infrastructure does not yet cover Phase 6 callables/rules; Wave 0 must scaffold)*
+_(If no gaps: existing test infrastructure does not yet cover Phase 6 callables/rules; Wave 0 must scaffold)_
 
 ## Security Domain
 
 ### Applicable ASVS Categories
 
-| ASVS Category | Applies | Standard Control |
-|---------------|---------|-----------------|
-| V2 Authentication | yes | `request.auth.uid` validated in callables; Cloud Functions enforce service-context-only for sensitive writes |
-| V3 Session Management | yes | Audit logs are immutable per-session (Firestore Rules + transaction integrity) |
-| V4 Access Control | yes | `audit_labs` claim + `role:auditor` OR `role:rt` for audit log read; Rules enforce |
-| V5 Input Validation | yes | Zod schemas for `AuditEntryInput`, `SolicitacaoDados`; callable validates before sealing |
-| V6 Cryptography | yes | HMAC-SHA256 + SHA-256 chain (ADR-0012); never hand-roll crypto |
-| V7 Error Handling | yes | Callables catch exceptions; return error codes, not stack traces; user sees "Request failed; contact admin" |
-| V8 Data Protection | yes | PII NOT in audit payload (see Anti-Patterns); LGPD export is encrypted in transit (HTTPS); audit logs stored in Firestore with field-level rules |
-| V9 Communication | yes | All callables over HTTPS (Cloud Functions default); Firebase Hosting enforces HTTPS |
-| V10 Malicious Code | low | No untrusted code execution; Cloud Functions are reviewed on deployment |
-| V13 API Security | yes | Callables are authenticated (Firebase Auth required); no API keys exposed |
-| V14 Configuration | yes | Secret Manager for HMAC key; no hardcoded secrets in code |
+| ASVS Category         | Applies | Standard Control                                                                                                                                 |
+| --------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------ |
+| V2 Authentication     | yes     | `request.auth.uid` validated in callables; Cloud Functions enforce service-context-only for sensitive writes                                     |
+| V3 Session Management | yes     | Audit logs are immutable per-session (Firestore Rules + transaction integrity)                                                                   |
+| V4 Access Control     | yes     | `audit_labs` claim + `role:auditor` OR `role:rt` for audit log read; Rules enforce                                                               |
+| V5 Input Validation   | yes     | Zod schemas for `AuditEntryInput`, `SolicitacaoDados`; callable validates before sealing                                                         |
+| V6 Cryptography       | yes     | HMAC-SHA256 + SHA-256 chain (ADR-0012); never hand-roll crypto                                                                                   |
+| V7 Error Handling     | yes     | Callables catch exceptions; return error codes, not stack traces; user sees "Request failed; contact admin"                                      |
+| V8 Data Protection    | yes     | PII NOT in audit payload (see Anti-Patterns); LGPD export is encrypted in transit (HTTPS); audit logs stored in Firestore with field-level rules |
+| V9 Communication      | yes     | All callables over HTTPS (Cloud Functions default); Firebase Hosting enforces HTTPS                                                              |
+| V10 Malicious Code    | low     | No untrusted code execution; Cloud Functions are reviewed on deployment                                                                          |
+| V13 API Security      | yes     | Callables are authenticated (Firebase Auth required); no API keys exposed                                                                        |
+| V14 Configuration     | yes     | Secret Manager for HMAC key; no hardcoded secrets in code                                                                                        |
 
 ### Known Threat Patterns for {Firestore + Cloud Functions}
 
-| Pattern | STRIDE | Standard Mitigation |
-|---------|--------|---------------------|
-| Audit log tampering (post-write) | Tampering | Firestore Rules: `allow update: if false` on sealed entries; violations audited |
-| Unauthorized read of audit logs | Information Disclosure | RBAC via `audit_labs` claim; Rules check `role:auditor` or `role:rt` |
-| HMAC key compromise | Information Disclosure | Key rotation monthly via Secret Manager; leaked key invalidates only future hashes, not past (can re-verify with old key) |
-| LGPD data export interception | Information Disclosure | HTTPS in transit; export encrypted at rest in Firebase Storage; signed URL expires in 1 hour |
-| DOS on audit log verification | Denial of Service | Callable times out after 540s; verification job is cron-based (off-peak), not inline |
-| Concurrent write chain break | Integrity | Firestore transactions (atomic read-then-write); concurrent writes serialize |
-| Operator impersonation | Spoofing | `operatorId = request.auth.uid` (Firebase Auth canonical); cannot be forged by client |
+| Pattern                          | STRIDE                 | Standard Mitigation                                                                                                       |
+| -------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------- |
+| Audit log tampering (post-write) | Tampering              | Firestore Rules: `allow update: if false` on sealed entries; violations audited                                           |
+| Unauthorized read of audit logs  | Information Disclosure | RBAC via `audit_labs` claim; Rules check `role:auditor` or `role:rt`                                                      |
+| HMAC key compromise              | Information Disclosure | Key rotation monthly via Secret Manager; leaked key invalidates only future hashes, not past (can re-verify with old key) |
+| LGPD data export interception    | Information Disclosure | HTTPS in transit; export encrypted at rest in Firebase Storage; signed URL expires in 1 hour                              |
+| DOS on audit log verification    | Denial of Service      | Callable times out after 540s; verification job is cron-based (off-peak), not inline                                      |
+| Concurrent write chain break     | Integrity              | Firestore transactions (atomic read-then-write); concurrent writes serialize                                              |
+| Operator impersonation           | Spoofing               | `operatorId = request.auth.uid` (Firebase Auth canonical); cannot be forged by client                                     |
 
 ## Sources
 
@@ -693,6 +688,7 @@ export const verifyAuditChainIntegrity = functions
 ## Metadata
 
 **Confidence breakdown:**
+
 - Standard stack: HIGH (all deps exist in v1.3; no new packages)
 - Architecture (callables): HIGH (ADR-0012 approved + Phase 3 deployed similar patterns)
 - Regulatory (RDC/DICQ/LGPD): HIGH (extracted from official docs + Obsidian compliance spine)

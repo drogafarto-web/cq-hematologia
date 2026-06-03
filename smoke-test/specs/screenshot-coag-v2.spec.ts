@@ -32,10 +32,9 @@ async function login(page: Page) {
     await emailField.fill(EMAIL);
     await pwField.fill(PASS);
     await page.click('button:has-text("Entrar")');
-    await page.waitForFunction(
-      () => !document.querySelector('input[type="password"]'),
-      { timeout: 30000 }
-    );
+    await page.waitForFunction(() => !document.querySelector('input[type="password"]'), {
+      timeout: 30000,
+    });
     await sleep(2000);
   }
 
@@ -76,7 +75,9 @@ test.describe('Coagulação v2 — Screenshots', () => {
       console.log('[nav] clicked Coagulação v2');
     } else {
       // Try alternative navigation
-      const coagAlt = page.locator('[data-module="coagulacao-v2"]').first()
+      const coagAlt = page
+        .locator('[data-module="coagulacao-v2"]')
+        .first()
         .or(page.locator('text="Coagulação"').first());
       if (await coagAlt.isVisible({ timeout: 3000 }).catch(() => false)) {
         await coagAlt.click();
@@ -100,7 +101,9 @@ test.describe('Coagulação v2 — Screenshots', () => {
     await shot(page, '05-reagent-chips-above-inputs');
 
     // Navigate to "Lotes em uso" tab (ControlHub equivalent)
-    const lotesTab = page.locator('text="Lotes em uso"').first()
+    const lotesTab = page
+      .locator('text="Lotes em uso"')
+      .first()
       .or(page.locator('button:has-text("Lotes em uso")').first());
 
     if (await lotesTab.isVisible({ timeout: 5000 }).catch(() => false)) {
@@ -112,7 +115,9 @@ test.describe('Coagulação v2 — Screenshots', () => {
     await shot(page, '06-lotes-em-uso-controlhub');
 
     // Go back to Execução tab to capture the form again
-    const execTab = page.locator('text="Execução"').first()
+    const execTab = page
+      .locator('text="Execução"')
+      .first()
       .or(page.locator('button:has-text("Execução")').first());
     if (await execTab.isVisible({ timeout: 3000 }).catch(() => false)) {
       await execTab.click();

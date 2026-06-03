@@ -25,10 +25,7 @@ import { auth, functions, httpsCallable } from '../../../shared/services/firebas
 import { EmailAuthProvider, reauthenticateWithCredential } from 'firebase/auth';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { createQualificacao } from '../services/insumoQualificacaoFirebaseService';
-import {
-  resolveQualificacaoMode,
-  type ProdutoInsumo,
-} from '../types/ProdutoInsumo';
+import { resolveQualificacaoMode, type ProdutoInsumo } from '../types/ProdutoInsumo';
 import type {
   QualificacaoChecklistRecebimento,
   QualificacaoMode,
@@ -40,7 +37,16 @@ import type { CIQImunoRun } from '../../ciq-imuno/types/CIQImuno';
 
 function XIcon() {
   return (
-    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      aria-hidden
+    >
       <path d="M18 6 6 18M6 6l12 12" />
     </svg>
   );
@@ -48,7 +54,17 @@ function XIcon() {
 
 function ShieldIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+    <svg
+      width="14"
+      height="14"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden
+    >
       <path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6z" />
     </svg>
   );
@@ -71,7 +87,10 @@ const CHECKLIST_ITEMS: Array<{
 }> = [
   { key: 'embalagemIntegra', label: 'Embalagem íntegra (sem violação visível)' },
   { key: 'prazoValidade', label: 'Prazo de validade compatível (>30 dias após chegada)' },
-  { key: 'condicoesTransporte', label: 'Condições de transporte adequadas (cadeia de frio quando aplicável)' },
+  {
+    key: 'condicoesTransporte',
+    label: 'Condições de transporte adequadas (cadeia de frio quando aplicável)',
+  },
   { key: 'dadosFabricante', label: 'Dados do fabricante legíveis (nome, lote, validade)' },
   { key: 'registroAnvisa', label: 'Registro ANVISA presente quando aplicável (RDC 786 art. 42)' },
 ];
@@ -97,7 +116,9 @@ interface InsumoQualificacaoModalProps {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-function slotEsperadoFor(insumo: Insumo): 'reagente' | 'controlePositivo' | 'controleNegativo' | null {
+function slotEsperadoFor(
+  insumo: Insumo,
+): 'reagente' | 'controlePositivo' | 'controleNegativo' | null {
   if (insumo.tipo === 'reagente') return 'reagente';
   if (insumo.tipo === 'controle' && 'nivel' in insumo) {
     if (insumo.nivel === 'positivo') return 'controlePositivo';
@@ -171,13 +192,12 @@ export function InsumoQualificacaoModal({
         <ModalShell title="Qualificação de tira-uro" onClose={onClose}>
           <div className="rounded-xl border border-white/[0.08] bg-white/[0.03] p-5 space-y-3">
             <p className="text-sm text-white/75">
-              Tiras de uroanálise não estão cobertas pelo PR1. O fluxo
-              específico (UroanaliseRun com shape distinto) será entregue no
-              PR2.
+              Tiras de uroanálise não estão cobertas pelo PR1. O fluxo específico (UroanaliseRun com
+              shape distinto) será entregue no PR2.
             </p>
             <p className="text-[12px] text-white/50">
-              Por enquanto: este lote permanece elegível para uso conforme as
-              regras existentes do módulo Uroanálise.
+              Por enquanto: este lote permanece elegível para uso conforme as regras existentes do
+              módulo Uroanálise.
             </p>
           </div>
           <div className="flex justify-end mt-4">
@@ -200,17 +220,10 @@ export function InsumoQualificacaoModal({
     (qualificacaoMode === 'corrida-validacao' && selectedRunIds.length >= 1);
 
   const podeAprovar =
-    !isPR2Mode &&
-    checklistAllChecked &&
-    evidenciaOk &&
-    senha.length >= 6 &&
-    !submitting;
+    !isPR2Mode && checklistAllChecked && evidenciaOk && senha.length >= 6 && !submitting;
 
   const podeReprovar =
-    !isPR2Mode &&
-    motivoReprovacao.trim().length >= 3 &&
-    senha.length >= 6 &&
-    !submitting;
+    !isPR2Mode && motivoReprovacao.trim().length >= 3 && senha.length >= 6 && !submitting;
 
   // ── Handlers ───────────────────────────────────────────────────────────────
 
@@ -337,7 +350,9 @@ export function InsumoQualificacaoModal({
         <div className="rounded-xl border border-white/[0.06] bg-white/[0.02] p-3 mb-4">
           <div className="flex items-center justify-between gap-2 mb-1.5">
             <p className="text-[10px] uppercase tracking-widest font-semibold text-violet-300/85">
-              {insumo.tipo === 'reagente' ? 'Reagente' : `Controle ${'nivel' in insumo ? `· ${insumo.nivel}` : ''}`}
+              {insumo.tipo === 'reagente'
+                ? 'Reagente'
+                : `Controle ${'nivel' in insumo ? `· ${insumo.nivel}` : ''}`}
             </p>
             <span className="text-[10px] uppercase tracking-widest font-bold text-emerald-400">
               {qualificacaoMode === 'corrida-validacao'
@@ -362,9 +377,8 @@ export function InsumoQualificacaoModal({
               Caracterização (PR2) — não suportado neste release.
             </p>
             <p className="text-[12px] text-amber-200/70 mt-1">
-              Multianalíticos / quantitativos com caracterização exigem fluxo
-              próprio (CLSI EP15) que será entregue no PR2. Botão Aprovar
-              desabilitado.
+              Multianalíticos / quantitativos com caracterização exigem fluxo próprio (CLSI EP15)
+              que será entregue no PR2. Botão Aprovar desabilitado.
             </p>
           </div>
         )}
@@ -401,9 +415,9 @@ export function InsumoQualificacaoModal({
                   Nenhuma corrida usando este lote no slot {slotEsperado ?? '—'}.
                 </p>
                 <p className="text-[12px] text-amber-200/70 mt-1 mb-3">
-                  Rode pelo menos uma corrida de validação com este lote
-                  selecionado no slot correto. A modal de qualificação
-                  permanece aberta — o drawer da corrida abre por cima.
+                  Rode pelo menos uma corrida de validação com este lote selecionado no slot
+                  correto. A modal de qualificação permanece aberta — o drawer da corrida abre por
+                  cima.
                 </p>
                 {onRodarCorrida && (
                   <button
@@ -448,7 +462,9 @@ export function InsumoQualificacaoModal({
                               className="h-4 w-4 rounded border-white/20 text-emerald-500"
                             />
                           </td>
-                          <td className="px-3 py-2 font-mono text-white/80">{run.runCode ?? run.id.slice(0, 8)}</td>
+                          <td className="px-3 py-2 font-mono text-white/80">
+                            {run.runCode ?? run.id.slice(0, 8)}
+                          </td>
                           <td className="px-3 py-2 text-white/60">{run.dataRealizacao}</td>
                           <td className="px-3 py-2 text-white/80">
                             {run.resultadoEsperado}/{run.resultadoObtido}
@@ -475,10 +491,9 @@ export function InsumoQualificacaoModal({
             <div className="rounded-xl border border-violet-500/25 bg-violet-500/[0.08] p-4">
               <p className="text-[13px] font-semibold text-violet-300">Modo documental</p>
               <p className="text-[12px] text-white/60 mt-1">
-                Este produto foi configurado para qualificação documental
-                (sem corrida de validação obrigatória). A inspeção de
-                recebimento + assinatura RT/biomedico já cumpre o requisito
-                regulatório.
+                Este produto foi configurado para qualificação documental (sem corrida de validação
+                obrigatória). A inspeção de recebimento + assinatura RT/biomedico já cumpre o
+                requisito regulatório.
               </p>
             </div>
           </Section>
@@ -518,8 +533,8 @@ export function InsumoQualificacaoModal({
               </span>
             </div>
             <p className="text-[11px] text-white/50 mb-2.5 leading-snug">
-              Sua senha é validada localmente (Firebase Auth). Ela NUNCA é enviada
-              ao servidor — apenas o token de sessão renovado.
+              Sua senha é validada localmente (Firebase Auth). Ela NUNCA é enviada ao servidor —
+              apenas o token de sessão renovado.
             </p>
             <input
               type="password"

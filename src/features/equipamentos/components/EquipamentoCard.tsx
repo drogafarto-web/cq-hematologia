@@ -180,7 +180,13 @@ export function EquipamentoCard({
                 aria-hidden
                 className={`transition-transform ${expanded ? 'rotate-180' : ''}`}
               >
-                <path d="M3 5l3 3 3-3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M3 5l3 3 3-3"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
             </button>
           </div>
@@ -408,7 +414,7 @@ function SlotCard({
   insumos: Insumo[];
   onTrocar?: () => void;
 }) {
-  const insumo = insumoId ? insumos.find((i) => i.id === insumoId) ?? null : null;
+  const insumo = insumoId ? (insumos.find((i) => i.id === insumoId) ?? null) : null;
   return (
     <div className="rounded-xl bg-slate-50 dark:bg-white/[0.02] border border-slate-200 dark:border-white/[0.05] p-3">
       <div className="flex items-center justify-between mb-1">
@@ -435,9 +441,7 @@ function SlotCard({
           </p>
         </>
       ) : (
-        <p className="text-xs italic text-slate-400 dark:text-white/25">
-          Nenhum lote ativo
-        </p>
+        <p className="text-xs italic text-slate-400 dark:text-white/25">Nenhum lote ativo</p>
       )}
     </div>
   );
@@ -499,9 +503,7 @@ function LoteRow({ insumo, canMutate }: { insumo: Insumo; canMutate: boolean }) 
         )}
       </li>
 
-      {showEdit && (
-        <EditInsumoSecundarioModal insumo={insumo} onClose={() => setShowEdit(false)} />
-      )}
+      {showEdit && <EditInsumoSecundarioModal insumo={insumo} onClose={() => setShowEdit(false)} />}
       {showSubstituir && (
         <SubstituirLoteModal insumo={insumo} onClose={() => setShowSubstituir(false)} />
       )}
@@ -705,9 +707,7 @@ function MenuItem({
   tone?: 'danger';
 }) {
   const cls =
-    tone === 'danger'
-      ? 'text-red-600 dark:text-red-400'
-      : 'text-slate-700 dark:text-white/75';
+    tone === 'danger' ? 'text-red-600 dark:text-red-400' : 'text-slate-700 dark:text-white/75';
   return (
     <button
       type="button"

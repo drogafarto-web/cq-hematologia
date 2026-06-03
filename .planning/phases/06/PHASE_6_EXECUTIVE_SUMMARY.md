@@ -4,7 +4,7 @@
 **Status:** READY FOR APPROVAL  
 **Date:** 2026-05-07  
 **Effort:** ~2 weeks (100 dev hours + 20 ops hours)  
-**Dependencies:** Twilio contract confirmation  
+**Dependencies:** Twilio contract confirmation
 
 ---
 
@@ -16,14 +16,14 @@ Automate escalation of critical lab results to physicians + RTs via SMS (primary
 
 ## Scope
 
-| Component | Deliverable | Status |
-|---|---|---|
-| **Schema** | 3 new Firestore collections + indexes | Specified (PHASE_6_DETAILED_PLAN.md) |
-| **API** | 7 callables + 1 cron trigger | Specified |
-| **Integrations** | Twilio SMS (regional São Paulo) | Specified (awaiting account) |
-| **Testing** | 20+ unit tests + 5+ E2E specs | Specified |
-| **Operations** | RT dashboard + config interface | Specified (PHASE_6_RT_OPERATIONAL_GUIDE.md) |
-| **Documentation** | ADR-0019 + runbooks | Complete |
+| Component         | Deliverable                           | Status                                      |
+| ----------------- | ------------------------------------- | ------------------------------------------- |
+| **Schema**        | 3 new Firestore collections + indexes | Specified (PHASE_6_DETAILED_PLAN.md)        |
+| **API**           | 7 callables + 1 cron trigger          | Specified                                   |
+| **Integrations**  | Twilio SMS (regional São Paulo)       | Specified (awaiting account)                |
+| **Testing**       | 20+ unit tests + 5+ E2E specs         | Specified                                   |
+| **Operations**    | RT dashboard + config interface       | Specified (PHASE_6_RT_OPERATIONAL_GUIDE.md) |
+| **Documentation** | ADR-0019 + runbooks                   | Complete                                    |
 
 ---
 
@@ -97,32 +97,32 @@ This scales linearly. If 100 críticos/day (busier lab): **BRL 300/month** (~$60
 
 ### RDC 978 Art. 128 Coverage
 
-| Requirement | Phase 6 Delivers | Evidence |
-|---|---|---|
-| Imediata notificação ao médico | ✓ SMS within 30s | CallableTrace |
-| Rastreabilidade de operações | ✓ Immutable log (criticos-log-eventos) | LogicalSignature chain |
-| Assinatura de responsável | ✓ operatorId in every escalacao | request.auth.uid |
-| Ação corretiva registrada | ✓ Escalacao doc is action record | Firestore audit export |
+| Requirement                    | Phase 6 Delivers                       | Evidence               |
+| ------------------------------ | -------------------------------------- | ---------------------- |
+| Imediata notificação ao médico | ✓ SMS within 30s                       | CallableTrace          |
+| Rastreabilidade de operações   | ✓ Immutable log (criticos-log-eventos) | LogicalSignature chain |
+| Assinatura de responsável      | ✓ operatorId in every escalacao        | request.auth.uid       |
+| Ação corretiva registrada      | ✓ Escalacao doc is action record       | Firestore audit export |
 
 ### DICQ 4.3 Coverage
 
-| Block | Phase 6 Delivers |
-|---|---|
+| Block                | Phase 6 Delivers                                                                       |
+| -------------------- | -------------------------------------------------------------------------------------- |
 | 4.3.1 (Documentação) | ✓ PHASE_6_DETAILED_PLAN.md (technical) + PHASE_6_RT_OPERATIONAL_GUIDE.md (operational) |
-| 4.4 (Auditoria) | ✓ criticos-log-eventos with audit trail |
-| 4.5 (Ação Corretiva) | ✓ Escalacao doc is formal action record |
+| 4.4 (Auditoria)      | ✓ criticos-log-eventos with audit trail                                                |
+| 4.5 (Ação Corretiva) | ✓ Escalacao doc is formal action record                                                |
 
 ---
 
 ## Risk Assessment
 
-| Risk | Probability | Impact | Mitigation |
-|---|---|---|---|
-| Twilio account takes too long to provision | Low | 1-2 day slip | Request expedited setup |
-| SMS delivery fails (Twilio outage) | Low | Users fall back to email | Dual-channel fallback + SLA cron |
-| Phone number format invalid | Medium | SMS fails silently | Validate E.164 before send; log failure |
-| SLA target too strict | Medium | Too many false alarms (RT fatigue) | RT can adjust per lab; default 30 min |
-| NOTIVISA draft incomplete | Low | Manual form completion needed | Phase 6 generates pre-populated form; Phase 8 adds API |
+| Risk                                       | Probability | Impact                             | Mitigation                                             |
+| ------------------------------------------ | ----------- | ---------------------------------- | ------------------------------------------------------ |
+| Twilio account takes too long to provision | Low         | 1-2 day slip                       | Request expedited setup                                |
+| SMS delivery fails (Twilio outage)         | Low         | Users fall back to email           | Dual-channel fallback + SLA cron                       |
+| Phone number format invalid                | Medium      | SMS fails silently                 | Validate E.164 before send; log failure                |
+| SLA target too strict                      | Medium      | Too many false alarms (RT fatigue) | RT can adjust per lab; default 30 min                  |
+| NOTIVISA draft incomplete                  | Low         | Manual form completion needed      | Phase 6 generates pre-populated form; Phase 8 adds API |
 
 ---
 
@@ -212,25 +212,25 @@ criticos.e2e.spec.ts
 
 ## Success Metrics (30 Days Post-Launch)
 
-| Metric | Target | Track Via |
-|---|---|---|
-| SMS delivery success rate | ≥99% | Twilio dashboard |
-| SMS delivery latency | <2 min | escalacao.escalacoes[].timestamp |
-| RT SLA acknowledgment rate | ≥95% | criticos-log-eventos |
-| False positive rate | <10% per day | escalacao.cancelado count |
-| NOTIVISA draft generation accuracy | 100% | manual audit of 10 reportable cases |
+| Metric                             | Target       | Track Via                           |
+| ---------------------------------- | ------------ | ----------------------------------- |
+| SMS delivery success rate          | ≥99%         | Twilio dashboard                    |
+| SMS delivery latency               | <2 min       | escalacao.escalacoes[].timestamp    |
+| RT SLA acknowledgment rate         | ≥95%         | criticos-log-eventos                |
+| False positive rate                | <10% per day | escalacao.cancelado count           |
+| NOTIVISA draft generation accuracy | 100%         | manual audit of 10 reportable cases |
 
 ---
 
 ## Estimated Timeline
 
-| Phase | Duration | Owner | Status |
-|---|---|---|---|
-| Setup (Twilio + Schema) | 1 week | Dev + CTO | Ready |
-| Implementation (Callables + Cron) | 1 week | Dev | Ready |
-| Testing (Unit + E2E) | 3 days | QA | Ready |
-| Ops + Training | 2 days | Tech Writer + RT | Ready |
-| **Total** | **2 weeks** | — | **READY FOR EXECUTION** |
+| Phase                             | Duration    | Owner            | Status                  |
+| --------------------------------- | ----------- | ---------------- | ----------------------- |
+| Setup (Twilio + Schema)           | 1 week      | Dev + CTO        | Ready                   |
+| Implementation (Callables + Cron) | 1 week      | Dev              | Ready                   |
+| Testing (Unit + E2E)              | 3 days      | QA               | Ready                   |
+| Ops + Training                    | 2 days      | Tech Writer + RT | Ready                   |
+| **Total**                         | **2 weeks** | —                | **READY FOR EXECUTION** |
 
 ---
 

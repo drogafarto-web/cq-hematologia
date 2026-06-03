@@ -21,9 +21,9 @@ import type { Timestamp } from 'firebase/firestore';
  * Rules validate: hash.size() == 64 + operatorId == request.auth.uid + ts is timestamp
  */
 export interface LogicalSignature {
-  readonly hash: string;        // SHA-256 hex (64 chars)
-  readonly operatorId: string;  // request.auth.uid
-  readonly ts: Timestamp;       // when signed
+  readonly hash: string; // SHA-256 hex (64 chars)
+  readonly operatorId: string; // request.auth.uid
+  readonly ts: Timestamp; // when signed
 }
 
 /**
@@ -34,10 +34,10 @@ export interface LogicalSignature {
  */
 export interface Auditoria {
   readonly id: string;
-  readonly labId: string;  // multi-tenant
-  ano: number;  // e.g., 2026
+  readonly labId: string; // multi-tenant
+  ano: number; // e.g., 2026
   frequencia: 'anual' | 'semestral' | 'trimestral' | 'mensal';
-  responsavelTecnico: string;  // userId
+  responsavelTecnico: string; // userId
   proximaAuditoriaPlanejada: Timestamp;
   status: 'planejada' | 'em_execução' | 'finalizada';
   readonly criadoEm: Timestamp;
@@ -58,9 +58,9 @@ export type AuditoriaInput = Omit<
  */
 export interface Sessao {
   readonly id: string;
-  readonly auditoriaId: string;  // FK back to Auditoria
-  readonly labId: string;  // multi-tenant
-  auditor: string;  // userId
+  readonly auditoriaId: string; // FK back to Auditoria
+  readonly labId: string; // multi-tenant
+  auditor: string; // userId
   dataInicio: Timestamp;
   dataFim: Timestamp | null;
   status: 'planejada' | 'em-execução' | 'finalizada';
@@ -86,12 +86,12 @@ export type SessaoInput = Omit<
  */
 export interface ChecklistItem {
   readonly id: string;
-  readonly sessaoId: string;  // FK
-  readonly labId: string;  // multi-tenant
-  readonly numeroDICQ: string;  // e.g., "4.1.1.2"
+  readonly sessaoId: string; // FK
+  readonly labId: string; // multi-tenant
+  readonly numeroDICQ: string; // e.g., "4.1.1.2"
   readonly descricao: string;
-  readonly categoria: string;  // e.g., "Organização e Responsabilidade"
-  readonly bloco: string;  // DICQ bloco: "A", "B", ..., "J"
+  readonly categoria: string; // e.g., "Organização e Responsabilidade"
+  readonly bloco: string; // DICQ bloco: "A", "B", ..., "J"
   isApplicable: boolean;
   resposta: 'conforme' | 'não-conforme' | 'N/A' | null;
   severidade: 'crítica' | 'grave' | 'moderada' | 'leve' | 'observação' | null;
@@ -113,15 +113,15 @@ export type ChecklistItemInput = Omit<
  */
 export interface Achado {
   readonly id: string;
-  readonly sessaoId: string;  // FK
-  readonly labId: string;  // multi-tenant
-  readonly checklistItemId: string;  // FK back to ChecklistItem
+  readonly sessaoId: string; // FK
+  readonly labId: string; // multi-tenant
+  readonly checklistItemId: string; // FK back to ChecklistItem
   descricao: string;
-  evidencia: string;  // URL or base64 or upload path
+  evidencia: string; // URL or base64 or upload path
   severidade: 'crítica' | 'grave' | 'moderada' | 'leve' | 'observação';
   statusNC: 'pendente' | 'criada' | 'fechada';
-  ncId?: string;  // link to /naoConformidades/ if created
-  assinatura: LogicalSignature;  // immutable
+  ncId?: string; // link to /naoConformidades/ if created
+  assinatura: LogicalSignature; // immutable
   readonly criadoEm: Timestamp;
   readonly criadoPor: string;
   deletadoEm: Timestamp | null;
@@ -129,7 +129,15 @@ export interface Achado {
 
 export type AchadoInput = Omit<
   Achado,
-  'id' | 'sessaoId' | 'labId' | 'criadoEm' | 'criadoPor' | 'deletadoEm' | 'statusNC' | 'ncId' | 'assinatura'
+  | 'id'
+  | 'sessaoId'
+  | 'labId'
+  | 'criadoEm'
+  | 'criadoPor'
+  | 'deletadoEm'
+  | 'statusNC'
+  | 'ncId'
+  | 'assinatura'
 >;
 
 /**
@@ -143,12 +151,12 @@ export interface TemplateChecklistItem {
   readonly descricao: string;
   readonly categoria: string;
   readonly bloco: string;
-  readonly mapeamentoRDC: string;  // e.g., "978:5.1"
+  readonly mapeamentoRDC: string; // e.g., "978:5.1"
   readonly isApplicable: boolean;
 }
 
 export interface TemplateChecklist {
-  readonly id: string;  // e.g., "dicq-4-3-rdc-978-v1"
+  readonly id: string; // e.g., "dicq-4-3-rdc-978-v1"
   readonly nome: string;
   readonly versao: string;
   readonly descricao: string;

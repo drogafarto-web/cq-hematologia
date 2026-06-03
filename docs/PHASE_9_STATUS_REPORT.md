@@ -12,6 +12,7 @@
 Phase 9 governance infrastructure has been successfully established as a comprehensive, production-ready foundation for managing 58 governance items across DICQ Blocks A, D, E, and G. The infrastructure layers (types, services, hooks, rules) are complete and ready for UI component build-out in the next phase.
 
 **Key Metrics:**
+
 - ✅ 7 new TypeScript files created
 - ✅ 58 governance items fully mapped to types
 - ✅ 8 service functions (CRUD + analytics)
@@ -27,20 +28,21 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### 1. Type System & Data Models
 
-| File | LOC | Purpose | Status |
-|---|---|---|---|
-| `GovernanceChecklist.ts` | 650 | 8 interfaces for governance structure | ✅ |
-| `ManagementReview.ts` | 480 | Management Review types (15 inputs) | ✅ |
+| File                     | LOC | Purpose                               | Status |
+| ------------------------ | --- | ------------------------------------- | ------ |
+| `GovernanceChecklist.ts` | 650 | 8 interfaces for governance structure | ✅     |
+| `ManagementReview.ts`    | 480 | Management Review types (15 inputs)   | ✅     |
 
 **Coverage:** 100% of data structures required by PHASE_9_GOVERNANCE_CHECKLIST.json
 
 ### 2. Service Layer
 
-| File | LOC | Functions | Status |
-|---|---|---|---|
-| `GovernanceChecklistService.ts` | 850 | 8 CRUD + analytics functions | ✅ |
+| File                            | LOC | Functions                    | Status |
+| ------------------------------- | --- | ---------------------------- | ------ |
+| `GovernanceChecklistService.ts` | 850 | 8 CRUD + analytics functions | ✅     |
 
 **Functions:**
+
 1. `loadChecklist()` — Firestore read
 2. `initializeChecklist()` — JSON import
 3. `getItemsByBlock()` — Filter by DICQ block
@@ -54,11 +56,12 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### 3. React Hooks
 
-| File | LOC | Purpose | Status |
-|---|---|---|---|
-| `useGovernanceChecklist.ts` | 280 | Reactive state management | ✅ |
+| File                        | LOC | Purpose                   | Status |
+| --------------------------- | --- | ------------------------- | ------ |
+| `useGovernanceChecklist.ts` | 280 | Reactive state management | ✅     |
 
 **Features:**
+
 - Auto-reload on mount
 - Error handling + loading states
 - Overdue/at-risk detection
@@ -67,11 +70,12 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### 4. Security & Access Control
 
-| Document | Purpose | Status |
-|---|---|---|
-| `PHASE_9_FIRESTORE_RULES_GOVERNANCE.md` | 4 collection rules + testing | ✅ |
+| Document                                | Purpose                      | Status |
+| --------------------------------------- | ---------------------------- | ------ |
+| `PHASE_9_FIRESTORE_RULES_GOVERNANCE.md` | 4 collection rules + testing | ✅     |
 
 **Collections Protected:**
+
 - `/governance-checklist/config` — Read: members, Write: admin
 - `/governance-checklist/items/{itemId}` — Audit trail capable
 - `/governance-checklist/audit/{auditId}` — Append-only, immutable
@@ -79,12 +83,12 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### 5. Documentation & Guides
 
-| Document | Purpose | Status |
-|---|---|---|
-| `PHASE_9_FIRESTORE_RULES_GOVERNANCE.md` | Rules + schema | ✅ |
-| `PHASE_9_IMPLEMENTATION_CHECKLIST.md` | Remaining work roadmap | ✅ |
-| `PHASE_9_EXECUTION_SUMMARY.md` | Technical deep-dive | ✅ |
-| `PHASE_9_STATUS_REPORT.md` | This document | ✅ |
+| Document                                | Purpose                | Status |
+| --------------------------------------- | ---------------------- | ------ |
+| `PHASE_9_FIRESTORE_RULES_GOVERNANCE.md` | Rules + schema         | ✅     |
+| `PHASE_9_IMPLEMENTATION_CHECKLIST.md`   | Remaining work roadmap | ✅     |
+| `PHASE_9_EXECUTION_SUMMARY.md`          | Technical deep-dive    | ✅     |
+| `PHASE_9_STATUS_REPORT.md`              | This document          | ✅     |
 
 ---
 
@@ -92,32 +96,32 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### DICQ Requirements
 
-| Requirement | Coverage | Implementation |
-|---|---|---|
-| 4.1.2.3 — Quality Manual structure | ✅ | Template + schema |
-| 4.1.2.4 — Quality objectives | ✅ | Quality Policy doc |
-| 4.1.2.7 — Quality responsibility | ✅ | Governance structure type |
-| 4.15 — Management Review (15 inputs) | ✅ | ManagementReviewInput type |
-| 4.14 — Internal audit + CAPA | ✅ | Linked to auditoria module |
+| Requirement                          | Coverage | Implementation             |
+| ------------------------------------ | -------- | -------------------------- |
+| 4.1.2.3 — Quality Manual structure   | ✅       | Template + schema          |
+| 4.1.2.4 — Quality objectives         | ✅       | Quality Policy doc         |
+| 4.1.2.7 — Quality responsibility     | ✅       | Governance structure type  |
+| 4.15 — Management Review (15 inputs) | ✅       | ManagementReviewInput type |
+| 4.14 — Internal audit + CAPA         | ✅       | Linked to auditoria module |
 
 ### RDC 978 Requirements
 
-| Article | Requirement | Implementation |
-|---|---|---|
-| Art. 4–8 | Quality Management System | Manual template § 1–10 |
-| Art. 13 | Quality Policy + objectives | POL-QUALIDADE template |
-| Art. 33 | Document control | D-007 (Document Controller) |
-| Art. 76 | Quality Director designation | A-002 (governance_structure) |
-| Art. 77 | Legal registration | A-001 (evidence tracking) |
-| Art. 5.3 | Audit trail | Chain-hashed collection |
+| Article  | Requirement                  | Implementation               |
+| -------- | ---------------------------- | ---------------------------- |
+| Art. 4–8 | Quality Management System    | Manual template § 1–10       |
+| Art. 13  | Quality Policy + objectives  | POL-QUALIDADE template       |
+| Art. 33  | Document control             | D-007 (Document Controller)  |
+| Art. 76  | Quality Director designation | A-002 (governance_structure) |
+| Art. 77  | Legal registration           | A-001 (evidence tracking)    |
+| Art. 5.3 | Audit trail                  | Chain-hashed collection      |
 
 ### ISO 15189 Compliance
 
-| Requirement | Implementation |
-|---|---|
+| Requirement                   | Implementation                          |
+| ----------------------------- | --------------------------------------- |
 | § 4.3 — Documentation control | GovernanceChecklistService.updateItem() |
-| § 4.15 — Management review | ManagementReviewInput (15 inputs) |
-| § 4.1 — Organization | Governance structure type |
+| § 4.15 — Management review    | ManagementReviewInput (15 inputs)       |
+| § 4.1 — Organization          | Governance structure type               |
 
 ---
 
@@ -125,15 +129,15 @@ Phase 9 governance infrastructure has been successfully established as a compreh
 
 ### Cross-Module Linkages (Defined, Awaiting Implementation)
 
-| Module | Integration | Type | Status |
-|---|---|---|---|
-| `educacao-continuada` | G-001 Training Matrix | Type: GovernanceItem ref | 🔗 |
-| `sgd` | Document links (A-*, D-007, G-002, G-005) | FK to SGDDocumento | 🔗 |
-| `auditoria-interna` | D-001, D-002 Audit findings → CAPA | Trigger: audit_findings → capa | 🔗 |
-| `capa-tracking` | D-004, D-005 NC & CAPA closure | Bi-directional link | 🔗 |
-| `kpis` | D-006 Performance indicators | Read: KPI module | ✅ |
-| `labSettings` | Governance config (director, MR chair) | Config: governance-config.json | 🔗 |
-| `management-review` | Minutes storage + signing | New collection: /management-review/ | 🔗 |
+| Module                | Integration                                | Type                                | Status |
+| --------------------- | ------------------------------------------ | ----------------------------------- | ------ |
+| `educacao-continuada` | G-001 Training Matrix                      | Type: GovernanceItem ref            | 🔗     |
+| `sgd`                 | Document links (A-\*, D-007, G-002, G-005) | FK to SGDDocumento                  | 🔗     |
+| `auditoria-interna`   | D-001, D-002 Audit findings → CAPA         | Trigger: audit_findings → capa      | 🔗     |
+| `capa-tracking`       | D-004, D-005 NC & CAPA closure             | Bi-directional link                 | 🔗     |
+| `kpis`                | D-006 Performance indicators               | Read: KPI module                    | ✅     |
+| `labSettings`         | Governance config (director, MR chair)     | Config: governance-config.json      | 🔗     |
+| `management-review`   | Minutes storage + signing                  | New collection: /management-review/ | 🔗     |
 
 **Legend:** ✅ = Exists, 🔗 = Linked/Configured, 📋 = TODO
 
@@ -160,20 +164,24 @@ Firestore Collections
 ## Phase 9 Gate Criteria Status
 
 ### Gate Definition
+
 All three conditions must be true to pass Phase 9 gate:
+
 - Block A (A-001 to A-007): ≥80% complete
 - Block D (D-001 to D-010): ≥80% complete
 - Block E (E-001 to E-005): ≥80% complete
 
 ### Current Status
-| Block | Items | Baseline | Target | Current | Gate Opens |
-|---|---|---|---|---|---|
-| **A** | 7 | 78% | 92% | 0% (unfilled) | By 2026-08-31 |
-| **D** | 10 | 60% | 85% | 0% (unfilled) | By 2026-08-31 |
-| **E** | 5 | 64% | 75% | 0% (unfilled) | By 2026-08-31 |
-| **G** | 36 | — | — | 0% (unfilled) | By 2026-09-30 |
+
+| Block | Items | Baseline | Target | Current       | Gate Opens    |
+| ----- | ----- | -------- | ------ | ------------- | ------------- |
+| **A** | 7     | 78%      | 92%    | 0% (unfilled) | By 2026-08-31 |
+| **D** | 10    | 60%      | 85%    | 0% (unfilled) | By 2026-08-31 |
+| **E** | 5     | 64%      | 75%    | 0% (unfilled) | By 2026-08-31 |
+| **G** | 36    | —        | —      | 0% (unfilled) | By 2026-09-30 |
 
 ### Gate Validation Function
+
 ```typescript
 // Located in: GovernanceChecklistService.ts
 const { gateMet, blockACompletion, blockDCompletion, blockECompletion } =
@@ -248,23 +256,27 @@ if (!gateMet) {
 ## Quality Assurance
 
 ### Type Safety
+
 - ✅ Full TypeScript coverage (no `any` types)
 - ✅ Strict mode enabled
 - ✅ All interfaces documented with JSDoc
 
 ### Service Logic
+
 - ✅ Completion percentage algorithm tested against 4 scenarios
 - ✅ Overdue detection (date math verified)
 - ✅ Phase 9 gate logic matches spec (A≥80%, D≥80%, E≥80%)
 - ✅ Audit trail structure immutable (append-only)
 
 ### Security
+
 - ✅ Firestore rules enforce admin-only writes
 - ✅ Audit collection append-only (no updates/deletes)
 - ✅ Management Review minutes immutable post-signature
 - ✅ RDC 978 Art. 5.3 chain-hash implemented
 
 ### Documentation
+
 - ✅ All types documented
 - ✅ All functions documented with parameters
 - ✅ Firestore rules include testing checklist
@@ -274,20 +286,21 @@ if (!gateMet) {
 
 ## Risk Assessment
 
-| Risk | Severity | Mitigation | Status |
-|---|---|---|---|
-| Governance items out of sync between JSON and DB | Medium | JSON is single source of truth; import function idempotent | ✅ |
-| Overdue items missed | Medium | Auto-detection + alert rules defined | ✅ |
-| Audit trail gaps (missing deltas) | High | Chain-hashed append-only collection; immutable rules | ✅ |
-| QD signature bypassed | High | Firestore rules prevent post-signature updates | ✅ |
-| Phase 9 gate not enforced | Critical | Gate function in CI/CD pre-merge validation | ✅ |
-| Components not built on schedule | Medium | Detailed roadmap + 18–25h estimate provided | ✅ |
+| Risk                                             | Severity | Mitigation                                                 | Status |
+| ------------------------------------------------ | -------- | ---------------------------------------------------------- | ------ |
+| Governance items out of sync between JSON and DB | Medium   | JSON is single source of truth; import function idempotent | ✅     |
+| Overdue items missed                             | Medium   | Auto-detection + alert rules defined                       | ✅     |
+| Audit trail gaps (missing deltas)                | High     | Chain-hashed append-only collection; immutable rules       | ✅     |
+| QD signature bypassed                            | High     | Firestore rules prevent post-signature updates             | ✅     |
+| Phase 9 gate not enforced                        | Critical | Gate function in CI/CD pre-merge validation                | ✅     |
+| Components not built on schedule                 | Medium   | Detailed roadmap + 18–25h estimate provided                | ✅     |
 
 ---
 
 ## File Manifest
 
 ### Created This Session
+
 ```
 src/features/sgd/types/GovernanceChecklist.ts                 [650 LOC]
 src/features/sgd/services/GovernanceChecklistService.ts       [850 LOC]
@@ -301,6 +314,7 @@ docs/PHASE_9_STATUS_REPORT.md                                [400 LOC]
 ```
 
 ### Pre-Existing (Referenced)
+
 ```
 docs/PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md                    [650 LOC]
 docs/PHASE_9_GOVERNANCE_CHECKLIST.json                       [668 items]
@@ -308,6 +322,7 @@ docs/PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md                    [700 LOC]
 ```
 
 ### Still TODO (Next Phase)
+
 ```
 src/features/sgd/components/GovernanceChecklistDashboard.tsx
 src/features/management-review/components/ManagementReviewMinutesForm.tsx
@@ -326,6 +341,7 @@ src/__tests__/phase9-governance.e2e.spec.ts
 - Documentation files
 
 **Pre-Merge Actions:**
+
 ```bash
 npx tsc --noEmit                  # Type check
 npm run lint src/features/sgd/   # Lint new files
@@ -337,6 +353,7 @@ npm run lint src/features/sgd/   # Lint new files
 - Schema creation (verify collections exist before code runs)
 
 **Deployment Order:**
+
 1. Merge & deploy code (no Firestore changes)
 2. Test Firestore rules on emulator
 3. Deploy rules to production
@@ -352,16 +369,16 @@ npm run lint src/features/sgd/   # Lint new files
 
 ## Success Metrics
 
-| Metric | Target | Achieved | Status |
-|---|---|---|---|
-| Governance items mapped | 58 | 58 | ✅ |
-| Type coverage | 100% | 100% | ✅ |
-| Service functions | 8 | 10 | ✅ |
-| DICQ blocks | 4 (A/D/E/G) | 4 | ✅ |
-| RDC articles covered | 10+ | 15+ | ✅ |
-| Firestore rules | 4 collections | 4 | ✅ |
-| Documentation | Complete | Complete | ✅ |
-| Breaking changes | 0 | 0 | ✅ |
+| Metric                  | Target        | Achieved | Status |
+| ----------------------- | ------------- | -------- | ------ |
+| Governance items mapped | 58            | 58       | ✅     |
+| Type coverage           | 100%          | 100%     | ✅     |
+| Service functions       | 8             | 10       | ✅     |
+| DICQ blocks             | 4 (A/D/E/G)   | 4        | ✅     |
+| RDC articles covered    | 10+           | 15+      | ✅     |
+| Firestore rules         | 4 collections | 4        | ✅     |
+| Documentation           | Complete      | Complete | ✅     |
+| Breaking changes        | 0             | 0        | ✅     |
 
 ---
 

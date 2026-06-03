@@ -8,11 +8,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-import {
-  assertLabApoioAccess,
-  labApoioCollection,
-  UpdateContratoInputSchema,
-} from './validators';
+import { assertLabApoioAccess, labApoioCollection, UpdateContratoInputSchema } from './validators';
 
 interface UpdateContratoResult {
   ok: true;

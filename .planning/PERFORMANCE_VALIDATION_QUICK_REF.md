@@ -34,15 +34,15 @@ bash scripts/phase4-validation.sh --lighthouse-only
 
 ## 7 Metrics at a Glance
 
-| # | Metric | v1.3 Baseline | Phase 4 Target | Status |
-|---|--------|---------------|----------------|--------|
-| 1 | Bundle size | 362 KB | ≤365 KB | ✅ PASS (3 KB headroom) |
-| 2 | Lighthouse avg | 91/100 | ≥87/100 | ✅ PASS (4 pt headroom) |
-| 3 | LCP (Web Vitals) | 1.9s avg | <2.5s hard limit | ✅ PASS (600 ms headroom) |
-| 4 | INP (Web Vitals) | 110ms avg | <200ms hard limit | ✅ PASS (90 ms headroom) |
-| 5 | CLS (Web Vitals) | 0.04 avg | <0.1 hard limit | ✅ PASS (0.06 headroom) |
-| 6 | Auth latency p95 | ~400ms | <500ms | ✅ PASS (100 ms headroom) |
-| 7 | Laudo load p95 | ~1.2s | <2.0s | ✅ PASS (0.8s headroom) |
+| #   | Metric           | v1.3 Baseline | Phase 4 Target    | Status                    |
+| --- | ---------------- | ------------- | ----------------- | ------------------------- |
+| 1   | Bundle size      | 362 KB        | ≤365 KB           | ✅ PASS (3 KB headroom)   |
+| 2   | Lighthouse avg   | 91/100        | ≥87/100           | ✅ PASS (4 pt headroom)   |
+| 3   | LCP (Web Vitals) | 1.9s avg      | <2.5s hard limit  | ✅ PASS (600 ms headroom) |
+| 4   | INP (Web Vitals) | 110ms avg     | <200ms hard limit | ✅ PASS (90 ms headroom)  |
+| 5   | CLS (Web Vitals) | 0.04 avg      | <0.1 hard limit   | ✅ PASS (0.06 headroom)   |
+| 6   | Auth latency p95 | ~400ms        | <500ms            | ✅ PASS (100 ms headroom) |
+| 7   | Laudo load p95   | ~1.2s         | <2.0s             | ✅ PASS (0.8s headroom)   |
 
 **Overall:** 🟢 LOW RISK — All targets have healthy margins.
 
@@ -151,13 +151,13 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 
 ## Performance Budget Headroom
 
-| Metric | Headroom | Risk |
-|--------|----------|------|
-| Bundle | 3 KB (0.8%) | 🟢 Very low — can't add new libs >50 KB |
-| Lighthouse | 4 pts (4.4%) | 🟢 Low — code changes won't regress 4 pts alone |
-| LCP | 600 ms (25%) | 🟢 Low — major regression needed to fail |
-| Auth latency | 100 ms (20%) | 🟢 Low — network variance won't fail |
-| Laudo load | 800 ms (40%) | 🟢 Low — safety margin for Firestore variance |
+| Metric       | Headroom     | Risk                                            |
+| ------------ | ------------ | ----------------------------------------------- |
+| Bundle       | 3 KB (0.8%)  | 🟢 Very low — can't add new libs >50 KB         |
+| Lighthouse   | 4 pts (4.4%) | 🟢 Low — code changes won't regress 4 pts alone |
+| LCP          | 600 ms (25%) | 🟢 Low — major regression needed to fail        |
+| Auth latency | 100 ms (20%) | 🟢 Low — network variance won't fail            |
+| Laudo load   | 800 ms (40%) | 🟢 Low — safety margin for Firestore variance   |
 
 **Recommendation:** Keep headroom intact. Don't add dependencies or features that would reduce these margins.
 
@@ -168,6 +168,7 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 ### "Bundle size over 365 KB"
 
 **Action:**
+
 1. Run `ANALYZE=true npm run build`
 2. Open `dist/stats.html`
 3. Identify the largest chunk
@@ -175,11 +176,13 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 5. If it's existing code growth: request code review
 
 **Acceptable reasons for size increase:**
+
 - New feature explicitly required (document in code)
 - Unavoidable dependency (justify in PR)
 - Code duplication resolved by refactor (ok to grow)
 
 **Not acceptable:**
+
 - Multiple polyfills for same feature
 - Duplicate node_modules entries
 - Unintentional large library imports
@@ -189,6 +192,7 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 ### "Lighthouse below 87/100"
 
 **Action:**
+
 1. Run Lighthouse locally on same route
 2. Check the "Opportunities" section (recommended fixes)
 3. Most common:
@@ -202,6 +206,7 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 ### "Web Vitals over hard limit"
 
 **Action:**
+
 1. Check which metric: LCP/INP/CLS
 2. LCP >2.5s: Check Firestore latency (add indexes) or new dependency (lazy-load)
 3. INP >200ms: Check for expensive JavaScript (profile in DevTools)
@@ -212,14 +217,14 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 
 ## Key Files
 
-| File | Purpose |
-|------|---------|
-| `.planning/PERFORMANCE_VALIDATION.md` | Full spec + test commands (read this first) |
-| `scripts/phase4-validation.sh` | Bash automation (Linux/macOS) |
-| `scripts/phase4-validation.ps1` | PowerShell automation (Windows) |
-| `docs/PERFORMANCE_PATTERNS.md` | Architectural patterns for optimization |
-| `docs/FIREBASE_PERFORMANCE_BUDGET.md` | Alert thresholds + monitoring setup |
-| `.planning/v1.3-PERFORMANCE_BASELINE.md` | v1.3 baseline data (for comparison) |
+| File                                     | Purpose                                     |
+| ---------------------------------------- | ------------------------------------------- |
+| `.planning/PERFORMANCE_VALIDATION.md`    | Full spec + test commands (read this first) |
+| `scripts/phase4-validation.sh`           | Bash automation (Linux/macOS)               |
+| `scripts/phase4-validation.ps1`          | PowerShell automation (Windows)             |
+| `docs/PERFORMANCE_PATTERNS.md`           | Architectural patterns for optimization     |
+| `docs/FIREBASE_PERFORMANCE_BUDGET.md`    | Alert thresholds + monitoring setup         |
+| `.planning/v1.3-PERFORMANCE_BASELINE.md` | v1.3 baseline data (for comparison)         |
 
 ---
 
@@ -230,6 +235,7 @@ jq '.lighthouseResult.audits.metrics.details.items[0] | {
 https://console.firebase.google.com/project/hmatologia2/performance
 
 Watch for:
+
 - LCP alerts >2500ms (automated email + Slack)
 - INP alerts >200ms (automated email + Slack)
 - CLS alerts >0.1 (automated email + Slack)
@@ -245,6 +251,7 @@ bash scripts/monitor-cloud-logs.sh 24 30
 ```
 
 This will generate a report showing:
+
 - Latency percentiles (p50/p95/p99)
 - Error rates
 - Recommendations
@@ -254,6 +261,7 @@ This will generate a report showing:
 ## Questions?
 
 Refer to:
+
 1. **Full spec:** `.planning/PERFORMANCE_VALIDATION.md` (150+ pages)
 2. **Test commands:** Run the script with `--help` flag
 3. **Architecture:** `docs/PERFORMANCE_PATTERNS.md`

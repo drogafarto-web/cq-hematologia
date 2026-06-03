@@ -8,15 +8,15 @@
 
 ## Decisões de Design
 
-| Decisão | Escolha |
-|---------|---------|
-| Modelo de corrida | 1 run = 1 nível + 1 lote de controle |
-| Seletor de nível | Dropdown/radio no topo do form, obrigatório antes de exibir resultados |
-| Lotes por nível | Filtrados automaticamente pelo `nivel` selecionado |
-| Analitos exibidos | Driven pelo equipamento + insumos configurados no setup |
-| Fibrinogênio | Associado a equipamento específico; não aparece no Clotimer Duo |
-| Schema Firestore | Sem mudanças — `CoagulacaoRun.nivel` e `CoagulacaoLot.nivel` já são `CoagNivel` |
-| Forma de save | 1 save = 1 run (nível único). Nível II exige 2ª run separada |
+| Decisão           | Escolha                                                                         |
+| ----------------- | ------------------------------------------------------------------------------- |
+| Modelo de corrida | 1 run = 1 nível + 1 lote de controle                                            |
+| Seletor de nível  | Dropdown/radio no topo do form, obrigatório antes de exibir resultados          |
+| Lotes por nível   | Filtrados automaticamente pelo `nivel` selecionado                              |
+| Analitos exibidos | Driven pelo equipamento + insumos configurados no setup                         |
+| Fibrinogênio      | Associado a equipamento específico; não aparece no Clotimer Duo                 |
+| Schema Firestore  | Sem mudanças — `CoagulacaoRun.nivel` e `CoagulacaoLot.nivel` já são `CoagNivel` |
+| Forma de save     | 1 save = 1 run (nível único). Nível II exige 2ª run separada                    |
 
 ---
 
@@ -67,13 +67,13 @@ Remover `analytesBaseline` — mean/SD passam a ser `z.record(z.coerce.number().
 
 ## Arquivos modificados
 
-| Arquivo | Tipo de Mudança |
-|---------|----------------|
-| `src/features/coagulacao/CoagAnalyteConfig.ts` | Adicionar `EQUIP_ANALYTES` |
-| `src/features/coagulacao/components/CoagulacaoForm.schema.ts` | Resultados dinâmicos |
-| `src/features/coagulacao/components/CoagulacaoForm.tsx` | Renderização condicional por equipamento + nível |
-| `src/features/coagulacao/hooks/useCoagWestgard.ts` | Validar analitos contra equipamento |
-| `src/features/coagulacao/hooks/useSaveCoagRun.ts` | Ajustar lookup de lote por nível |
+| Arquivo                                                       | Tipo de Mudança                                  |
+| ------------------------------------------------------------- | ------------------------------------------------ |
+| `src/features/coagulacao/CoagAnalyteConfig.ts`                | Adicionar `EQUIP_ANALYTES`                       |
+| `src/features/coagulacao/components/CoagulacaoForm.schema.ts` | Resultados dinâmicos                             |
+| `src/features/coagulacao/components/CoagulacaoForm.tsx`       | Renderização condicional por equipamento + nível |
+| `src/features/coagulacao/hooks/useCoagWestgard.ts`            | Validar analitos contra equipamento              |
+| `src/features/coagulacao/hooks/useSaveCoagRun.ts`             | Ajustar lookup de lote por nível                 |
 
 ---
 

@@ -20,7 +20,10 @@ const NIVEL_COLORS: Record<Nivel, { bar: string; badge: string }> = {
   critico: { bar: 'bg-red-500', badge: 'bg-red-500/15 text-red-300 border-red-500/30' },
   alto: { bar: 'bg-orange-500', badge: 'bg-orange-500/15 text-orange-300 border-orange-500/30' },
   medio: { bar: 'bg-yellow-500', badge: 'bg-yellow-500/15 text-yellow-300 border-yellow-500/30' },
-  baixo: { bar: 'bg-emerald-500', badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30' },
+  baixo: {
+    bar: 'bg-emerald-500',
+    badge: 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30',
+  },
 };
 
 const PROCESSO_LABEL: Record<string, string> = {
@@ -41,7 +44,12 @@ export interface RiskDashboardProps {
   readonly isLoadingRisks: boolean;
 }
 
-function ScoreCard({ label, value, sublabel, tone }: {
+function ScoreCard({
+  label,
+  value,
+  sublabel,
+  tone,
+}: {
   label: string;
   value: string | number;
   sublabel?: string;
@@ -68,24 +76,35 @@ function ScoreCard({ label, value, sublabel, tone }: {
   );
 }
 
-function MiniBar({ label, value, max, color }: { label: string; value: number; max: number; color: string }) {
+function MiniBar({
+  label,
+  value,
+  max,
+  color,
+}: {
+  label: string;
+  value: number;
+  max: number;
+  color: string;
+}) {
   const pct = max > 0 ? Math.round((value / max) * 100) : 0;
   return (
     <div className="flex items-center gap-2">
       <span className="w-20 shrink-0 truncate text-[11px] text-white/60">{label}</span>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-white/[0.06]">
-        <div className={`h-full rounded-full transition-all duration-500 ${color}`} style={{ width: `${pct}%` }} />
+        <div
+          className={`h-full rounded-full transition-all duration-500 ${color}`}
+          style={{ width: `${pct}%` }}
+        />
       </div>
-      <span className="w-6 shrink-0 text-right text-[11px] tabular-nums font-medium text-white/70">{value}</span>
+      <span className="w-6 shrink-0 text-right text-[11px] tabular-nums font-medium text-white/70">
+        {value}
+      </span>
     </div>
   );
 }
 
-export const RiskDashboard: React.FC<RiskDashboardProps> = ({
-  risks,
-  labId,
-  isLoadingRisks,
-}) => {
+export const RiskDashboard: React.FC<RiskDashboardProps> = ({ risks, labId, isLoadingRisks }) => {
   const { vencidas, prestes, loading: loadingAlerts } = useRiskReviewAlerts(labId);
 
   const active = useMemo(
@@ -122,22 +141,39 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
       revisoes: vencidas.length === 0 ? 1 : 0.5,
     };
     const sgqScore = Math.round(
-      ((sgqFactors.cobertura * 20) +
-      (sgqFactors.mitigacao * 30) +
-      (sgqFactors.criticosControlados * 30) +
-      (sgqFactors.revisoes * 20))
+      sgqFactors.cobertura * 20 +
+        sgqFactors.mitigacao * 30 +
+        sgqFactors.criticosControlados * 30 +
+        sgqFactors.revisoes * 20,
     );
 
     return { byNivel, byProcesso, processosSorted, maxProcesso, avgNpr, mitigando, sgqScore };
   }, [active, vencidas]);
 
-  const sgqLabel = stats.sgqScore >= 80 ? 'Avançado' : stats.sgqScore >= 60 ? 'Intermediário' : stats.sgqScore >= 40 ? 'Básico' : 'Crítico';
-  const sgqTone = stats.sgqScore >= 80 ? 'success' : stats.sgqScore >= 60 ? 'neutral' : stats.sgqScore >= 40 ? 'warning' : 'danger';
+  const sgqLabel =
+    stats.sgqScore >= 80
+      ? 'Avançado'
+      : stats.sgqScore >= 60
+        ? 'Intermediário'
+        : stats.sgqScore >= 40
+          ? 'Básico'
+          : 'Crítico';
+  const sgqTone =
+    stats.sgqScore >= 80
+      ? 'success'
+      : stats.sgqScore >= 60
+        ? 'neutral'
+        : stats.sgqScore >= 40
+          ? 'warning'
+          : 'danger';
 
   const loading = isLoadingRisks || loadingAlerts;
 
   return (
-    <section className="border-b border-white/[0.06] bg-[#0d0d10] px-4 py-5" aria-labelledby="risk-dashboard-title">
+    <section
+      className="border-b border-white/[0.06] bg-[#0d0d10] px-4 py-5"
+      aria-labelledby="risk-dashboard-title"
+    >
       {/* Header */}
       <div className="flex items-center justify-between mb-5">
         <h2 id="risk-dashboard-title" className="text-sm font-semibold text-white">
@@ -155,11 +191,7 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
 
       {/* KPI Scorecards */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-5">
-        <ScoreCard
-          label="Riscos Ativos"
-          value={loading ? '—' : active.length}
-          tone="neutral"
-        />
+        <ScoreCard label="Riscos Ativos" value={loading ? '—' : active.length} tone="neutral" />
         <ScoreCard
           label="Críticos"
           value={loading ? '—' : stats.byNivel.critico}
@@ -174,7 +206,11 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
         <ScoreCard
           label="Em Mitigação"
           value={loading ? '—' : stats.mitigando}
-          sublabel={active.length > 0 ? `${Math.round((stats.mitigando / active.length) * 100)}% do total` : undefined}
+          sublabel={
+            active.length > 0
+              ? `${Math.round((stats.mitigando / active.length) * 100)}% do total`
+              : undefined
+          }
           tone="neutral"
         />
         <ScoreCard
@@ -242,13 +278,17 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
                 {stats.byNivel.critico > 0 && (
                   <li className="flex items-start gap-2">
                     <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-red-400 shrink-0" />
-                    <span>{stats.byNivel.critico} risco(s) em nível crítico requerem ação imediata</span>
+                    <span>
+                      {stats.byNivel.critico} risco(s) em nível crítico requerem ação imediata
+                    </span>
                   </li>
                 )}
                 {vencidas.length > 0 && (
                   <li className="flex items-start gap-2">
                     <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-orange-400 shrink-0" />
-                    <span>{vencidas.length} revisão(ões) periódica(s) vencida(s) — RDC 978 Art. 109</span>
+                    <span>
+                      {vencidas.length} revisão(ões) periódica(s) vencida(s) — RDC 978 Art. 109
+                    </span>
                   </li>
                 )}
                 {prestes.length > 0 && (
@@ -261,7 +301,9 @@ export const RiskDashboard: React.FC<RiskDashboardProps> = ({
                   <li className="flex items-start gap-2">
                     <span className="mt-0.5 w-1.5 h-1.5 rounded-full bg-violet-400 shrink-0" />
                     <span>
-                      Maior concentração: {PROCESSO_LABEL[stats.processosSorted[0][0]] || stats.processosSorted[0][0]} ({stats.processosSorted[0][1]} riscos)
+                      Maior concentração:{' '}
+                      {PROCESSO_LABEL[stats.processosSorted[0][0]] || stats.processosSorted[0][0]} (
+                      {stats.processosSorted[0][1]} riscos)
                     </span>
                   </li>
                 )}

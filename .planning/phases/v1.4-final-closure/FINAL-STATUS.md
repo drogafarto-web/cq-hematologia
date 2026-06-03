@@ -12,7 +12,7 @@
 **Subagents Deployed:** 10 of 91  
 **Commits Created:** 11 atomic commits  
 **Verification Gates:** All passing (TSC, tests, rules, exports)  
-**Regressions:** None detected  
+**Regressions:** None detected
 
 **Next Phase:** MP-2 (Phase 7 W4-W6) — 14 SAs across 3 waves, ~2h execution time.
 
@@ -22,14 +22,15 @@
 
 ### MP-0: Foundation & Cleanup (4 SAs)
 
-| SA | Task | Result | Commit |
-|----|------|--------|--------|
-| SA-01 | Archive obsolete phase folders | ✅ Complete | f92d0ef |
+| SA    | Task                                | Result      | Commit  |
+| ----- | ----------------------------------- | ----------- | ------- |
+| SA-01 | Archive obsolete phase folders      | ✅ Complete | f92d0ef |
 | SA-02 | Commit phase-11 PQ-24 UI components | ✅ Complete | 51785dd |
-| SA-03 | Capture baseline metrics | ✅ Complete | 27e48e8 |
-| SA-04 | Extract design tokens cache | ✅ Complete | 42d7c0d |
+| SA-03 | Capture baseline metrics            | ✅ Complete | 27e48e8 |
+| SA-04 | Extract design tokens cache         | ✅ Complete | 42d7c0d |
 
 **Output files created:**
+
 - `.planning/phases/_archive/v1.4-archive-2026-05-09.md` (migration note)
 - `.planning/phases/v1.4-final-closure/BASELINE-2026-05-09.md` (metrics snapshot)
 - `.planning/phases/v1.4-final-closure/tokens-cache.json` (350+ design tokens in JSON)
@@ -42,13 +43,14 @@
 
 **Wave 1 (W11A): Callables — 3 SAs ‖**
 
-| SA | Task | LOC | Result | Commit |
-|----|------|-----|--------|--------|
-| SA-05 | createPlanoAcao callable | 140 | ✅ Complete | 8998236 |
-| SA-06 | registerPresenca callable | 130 | ✅ Complete | 8998236 |
+| SA    | Task                       | LOC | Result      | Commit  |
+| ----- | -------------------------- | --- | ----------- | ------- |
+| SA-05 | createPlanoAcao callable   | 140 | ✅ Complete | 8998236 |
+| SA-06 | registerPresenca callable  | 130 | ✅ Complete | 8998236 |
 | SA-07 | createReAuditoria callable | 150 | ✅ Complete | 8998236 |
 
 **Key features:**
+
 - All 3: onCall v2, `cors: true`, `region: 'southamerica-east1'`
 - Zod input validation + auth gates
 - Server-side LogicalSignature (SHA256)
@@ -57,23 +59,25 @@
 
 **Wave 2 (W11B): Rules + Indexes — 1 SA**
 
-| SA | Task | Result | Commit |
-|----|------|--------|--------|
+| SA    | Task                        | Result      | Commit  |
+| ----- | --------------------------- | ----------- | ------- |
 | SA-08 | Firestore rules + 3 indexes | ✅ Complete | d187b66 |
 
 **Changes:**
+
 - 2 new rule blocks: planos-acao (update gate for RT/admin), reunioes (immutable)
 - 3 composite indexes: reunioes, planos-acao, auditorias-internas
 - Updated `firestore.indexes.json` (valid JSON verified)
 
 **Wave 3 (W11C): Wire + Tests — 2 SAs ‖**
 
-| SA | Task | Result | Commit |
-|----|------|--------|--------|
+| SA    | Task                                  | Result      | Commit  |
+| ----- | ------------------------------------- | ----------- | ------- |
 | SA-09 | Export callables from functions index | ✅ Complete | 14ddeeb |
-| SA-10 | Service/hooks + 8 E2E tests | ✅ Complete | dc48449 |
+| SA-10 | Service/hooks + 8 E2E tests           | ✅ Complete | dc48449 |
 
 **Deliverables (SA-10):**
+
 - Service layer: 3 callable wrappers in `auditoriaService.ts`
 - Hooks: `usePlanosAcao`, `usePresenca`, `useReAuditoriaChain` in `useAuditoriaPQ24.ts`
 - Tests: 8/8 passing (vitest)
@@ -113,13 +117,13 @@
 
 ## Cumulative Metrics
 
-| Metric | Value | Status |
-|--------|-------|--------|
-| Commits | 11 atomic | ✅ Clean history |
-| SAs executed | 10/91 | ✅ On track for 12-13h total |
-| TSC errors | 0 | ✅ No regressions |
-| Test count | 8 new | ✅ All passing |
-| Bundle regression | None | ✅ No increase |
+| Metric            | Value     | Status                       |
+| ----------------- | --------- | ---------------------------- |
+| Commits           | 11 atomic | ✅ Clean history             |
+| SAs executed      | 10/91     | ✅ On track for 12-13h total |
+| TSC errors        | 0         | ✅ No regressions            |
+| Test count        | 8 new     | ✅ All passing               |
+| Bundle regression | None      | ✅ No increase               |
 | Token budget used | ~95K/200K | ✅ 47% consumed, sustainable |
 
 ---
@@ -137,16 +141,19 @@
 ### Source Code
 
 **Functions (3 new callables):**
+
 - `functions/src/modules/auditoria/createPlanoAcao.ts` (140 LOC)
 - `functions/src/modules/auditoria/registerPresenca.ts` (130 LOC)
 - `functions/src/modules/auditoria/createReAuditoria.ts` (150 LOC)
 
 **Client:**
+
 - `src/features/auditoria-interna/services/auditoriaService.ts` — extended with 3 callable wrappers
 - `src/features/auditoria-interna/hooks/useAuditoriaPQ24.ts` (new file, 150 LOC)
 - `src/features/auditoria-interna/components/PlanoAcaoForm.tsx` — fixed import path
 
 **Tests:**
+
 - `src/__tests__/phase11/auditoriaPQ24.test.ts` (new, 8 tests)
 
 ### Configuration
@@ -161,6 +168,7 @@
 ### Immediate (MP-2: Phase 7 W4-W6)
 
 14 SAs across 3 waves:
+
 - **W4:** 5 UI components (AlertDashboard, AnomalyDetail, etc.)
 - **W5:** 6 PDF/archive/email callables
 - **W6:** 3 test files + verification

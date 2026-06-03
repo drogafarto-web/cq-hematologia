@@ -27,7 +27,7 @@ const CSV_HEADERS = [
 ] as const;
 
 export interface AuditLogCSVRow {
-  timestamp: string;      // ISO 8601
+  timestamp: string; // ISO 8601
   operatorId: string;
   action: string;
   resourceType: string;
@@ -58,7 +58,12 @@ function toISO8601(ts: unknown): string {
   if (!ts) return '';
   // Duck-type check for Firestore Timestamp (has toDate method) — covers both
   // real admin SDK Timestamp and test mocks without relying on instanceof
-  if (typeof ts === 'object' && ts !== null && 'toDate' in ts && typeof (ts as { toDate: unknown }).toDate === 'function') {
+  if (
+    typeof ts === 'object' &&
+    ts !== null &&
+    'toDate' in ts &&
+    typeof (ts as { toDate: unknown }).toDate === 'function'
+  ) {
     return (ts as { toDate: () => Date }).toDate().toISOString();
   }
   if (ts instanceof Date) return ts.toISOString();
@@ -83,7 +88,7 @@ const PAGE_SIZE = 1000;
 export async function generateCSVAuditLog(
   labId: string,
   startDate: Date,
-  endDate: Date
+  endDate: Date,
 ): Promise<Buffer> {
   const db = getFirestore();
   const col = db.collection('labs').doc(labId).collection('auditLogs');
@@ -116,20 +121,20 @@ export async function generateCSVAuditLog(
     for (const doc of snap.docs) {
       const d = doc.data();
       const row: AuditLogCSVRow = {
-        timestamp:    toISO8601(d['timestamp']),
-        operatorId:   String(d['operatorId'] ?? ''),
-        action:       String(d['action'] ?? ''),
+        timestamp: toISO8601(d['timestamp']),
+        operatorId: String(d['operatorId'] ?? ''),
+        action: String(d['action'] ?? ''),
         resourceType: String(d['resourceType'] ?? ''),
-        resourceId:   String(d['resourceId'] ?? ''),
+        resourceId: String(d['resourceId'] ?? ''),
         previousHash: String(d['previousHash'] ?? ''),
-        newHash:      String(d['newHash'] ?? ''),
-        labId:        String(d['labId'] ?? labId),
+        newHash: String(d['newHash'] ?? ''),
+        labId: String(d['labId'] ?? labId),
       };
       lines.push(rowToCSV(row));
     }
 
     console.log(
-      `[CSVGenerator] Page ${pageCount}: fetched ${snap.docs.length} audit log docs for lab ${labId}`
+      `[CSVGenerator] Page ${pageCount}: fetched ${snap.docs.length} audit log docs for lab ${labId}`,
     );
 
     if (snap.docs.length < PAGE_SIZE) {
@@ -144,7 +149,7 @@ export async function generateCSVAuditLog(
 
   console.log(
     `[CSVGenerator] Generated CSV: ${lines.length - 1} audit log rows, ` +
-    `${Buffer.byteLength(csvString, 'utf8')} bytes (${pageCount} page(s)) for lab ${labId}`
+      `${Buffer.byteLength(csvString, 'utf8')} bytes (${pageCount} page(s)) for lab ${labId}`,
   );
 
   return Buffer.from(csvString, 'utf8');

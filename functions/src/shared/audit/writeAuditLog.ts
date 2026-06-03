@@ -39,15 +39,12 @@ export interface AuditLogPayload {
   [key: string]: unknown;
 }
 
-export type WriteAuditLogResult =
-  | { ok: true; id: string }
-  | { ok: false; error: string };
+export type WriteAuditLogResult = { ok: true; id: string } | { ok: false; error: string };
 
 const MAX_ATTEMPTS = 3;
 const BACKOFF_MS = [100, 400, 1500];
 
-const sleep = (ms: number): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, ms));
+const sleep = (ms: number): Promise<void> => new Promise((resolve) => setTimeout(resolve, ms));
 
 /**
  * Write an audit log entry to `auditLogs/` with retry + fallback.
@@ -63,8 +60,7 @@ export async function writeAuditLog(
 
   const payload: Record<string, unknown> = {
     ...entry,
-    timestamp:
-      entry.timestamp ?? admin.firestore.FieldValue.serverTimestamp(),
+    timestamp: entry.timestamp ?? admin.firestore.FieldValue.serverTimestamp(),
   };
 
   let lastError: unknown;
@@ -85,8 +81,7 @@ export async function writeAuditLog(
   // All retries exhausted. Surface the loss two ways:
   //   1. structured console.error → Cloud Logs / Sentry / monitoring
   //   2. fallback doc in auditLogFailures/{labId}/events/{autoId}
-  const errorMsg =
-    lastError instanceof Error ? lastError.message : String(lastError);
+  const errorMsg = lastError instanceof Error ? lastError.message : String(lastError);
 
   // eslint-disable-next-line no-console
   console.error('[writeAuditLog] FAILED after retries', {
@@ -101,9 +96,7 @@ export async function writeAuditLog(
   // Fallback write — intentionally without retry. If THIS also fails the
   // console.error above is the last line of defence. We refuse to throw.
   const labId =
-    typeof entry.labId === 'string' && entry.labId.length > 0
-      ? entry.labId
-      : '_unknown';
+    typeof entry.labId === 'string' && entry.labId.length > 0 ? entry.labId : '_unknown';
 
   try {
     await db
@@ -117,19 +110,13 @@ export async function writeAuditLog(
         recordedAt: admin.firestore.FieldValue.serverTimestamp(),
       });
   } catch (fallbackErr) {
-    const fallbackMsg =
-      fallbackErr instanceof Error
-        ? fallbackErr.message
-        : String(fallbackErr);
+    const fallbackMsg = fallbackErr instanceof Error ? fallbackErr.message : String(fallbackErr);
     // eslint-disable-next-line no-console
-    console.error(
-      '[writeAuditLog] CRITICAL: fallback write also failed',
-      {
-        action: entry.action,
-        labId,
-        error: fallbackMsg,
-      },
-    );
+    console.error('[writeAuditLog] CRITICAL: fallback write also failed', {
+      action: entry.action,
+      labId,
+      error: fallbackMsg,
+    });
   }
 
   return { ok: false, error: errorMsg };

@@ -97,9 +97,7 @@ export function AvaliacaoCompetenciaForm({
 
   const colaboradoresElegiveis = useMemo<Colaborador[]>(() => {
     if (!state.execucaoId) return colaboradores.filter((c) => c.deletadoEm === null);
-    const presentes = new Set(
-      participantes.filter((p) => p.presente).map((p) => p.colaboradorId),
-    );
+    const presentes = new Set(participantes.filter((p) => p.presente).map((p) => p.colaboradorId));
     return colaboradores.filter((c) => presentes.has(c.id));
   }, [colaboradores, participantes, state.execucaoId]);
 
@@ -186,7 +184,8 @@ export function AvaliacaoCompetenciaForm({
             <option value="">Selecione…</option>
             {execucoes.map((e) => (
               <option key={e.id} value={e.id}>
-                {tituloPorExec(e)} — {e.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
+                {tituloPorExec(e)} —{' '}
+                {e.dataAplicacao?.toDate().toLocaleDateString('pt-BR') ?? 's/data'}
               </option>
             ))}
           </select>

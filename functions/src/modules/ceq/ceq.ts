@@ -10,22 +10,10 @@
  * - onCEQResultadoCreated() — Auto-NC creation when |Z| > 3
  */
 
-import {
-  onCall,
-  HttpsError,
-} from 'firebase-functions/v2/https';
-import {
-  onDocumentUpdated,
-} from 'firebase-functions/v2/firestore';
-import {
-  initializeApp,
-  getApps,
-} from 'firebase-admin/app';
-import {
-  getFirestore,
-  Timestamp,
-  FieldValue,
-} from 'firebase-admin/firestore';
+import { onCall, HttpsError } from 'firebase-functions/v2/https';
+import { onDocumentUpdated } from 'firebase-functions/v2/firestore';
+import { initializeApp, getApps } from 'firebase-admin/app';
+import { getFirestore, Timestamp, FieldValue } from 'firebase-admin/firestore';
 import type {
   CreateCEQParticipacaoRequest,
   RecebeCEQAmostraRequest,
@@ -304,7 +292,11 @@ export const lacarCEQResultado = onCall({ region: 'southamerica-east1' }, async 
     }
 
     // Update amostra status
-    const amostraRef = db.collection('labs').doc(req.labId).collection('ceq-amostras').doc(req.ceqAmostraId);
+    const amostraRef = db
+      .collection('labs')
+      .doc(req.labId)
+      .collection('ceq-amostras')
+      .doc(req.ceqAmostraId);
     await amostraRef.update({
       status: 'resultado_lancado',
       dataResultado: FieldValue.serverTimestamp(),
@@ -361,15 +353,10 @@ export const onCEQResultadoValidado = onDocumentUpdated(
       const allValidados = resultadosSnap.docs.every((doc) => doc.data().status === 'validado');
 
       if (allValidados) {
-        await db
-          .collection('labs')
-          .doc(labId)
-          .collection('ceq-amostras')
-          .doc(ceqAmostraId)
-          .update({
-            status: 'processada',
-            atualizadoEm: FieldValue.serverTimestamp(),
-          });
+        await db.collection('labs').doc(labId).collection('ceq-amostras').doc(ceqAmostraId).update({
+          status: 'processada',
+          atualizadoEm: FieldValue.serverTimestamp(),
+        });
       }
     }
   },

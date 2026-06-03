@@ -1,11 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-import {
-  assertTurnosAccess,
-  escalasCollection,
-  UpdateEscalaInputSchema,
-} from './validators';
+import { assertTurnosAccess, escalasCollection, UpdateEscalaInputSchema } from './validators';
 
 interface UpdateEscalaResult {
   ok: true;
@@ -39,7 +35,8 @@ export const turnos_updateEscala = onCall<unknown, Promise<UpdateEscalaResult>>(
     if (input.periodo !== undefined) updates.periodo = input.periodo;
     if (input.colaboradores !== undefined) updates.colaboradores = input.colaboradores;
     if (input.rtPresente !== undefined) updates.rtPresente = input.rtPresente;
-    if (input.rtSubstitutoPresente !== undefined) updates.rtSubstitutoPresente = input.rtSubstitutoPresente;
+    if (input.rtSubstitutoPresente !== undefined)
+      updates.rtSubstitutoPresente = input.rtSubstitutoPresente;
     if (input.observacoes !== undefined) updates.observacoes = input.observacoes ?? null;
 
     await ref.update(updates);

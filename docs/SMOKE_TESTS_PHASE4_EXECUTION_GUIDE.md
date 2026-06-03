@@ -36,6 +36,7 @@ bash scripts/phase4-e2e-smoke.sh
 ```
 
 **Output:**
+
 - Console: Real-time colorized results
 - Text report: `.planning/SMOKE_TEST_RESULTS_May_*.txt`
 - JSON export: `.planning/SMOKE_TEST_RESULTS_May_*.json`
@@ -426,13 +427,13 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-      
+
       - name: Install dependencies
         run: npm ci && cd functions && npm ci && cd ..
-      
+
       - name: Run smoke tests
         run: bash scripts/phase4-e2e-smoke.sh
-      
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v4
@@ -472,16 +473,16 @@ cat .planning/SMOKE_TEST_RESULTS_May_*.json | jq .
 
 ## Smoke Test Timeline for May 20 Deployment
 
-| Time (UTC) | Task | Owner | Duration |
-|---|---|---|---|
-| 08:00 | Final code review + approval | Engineering | 30 min |
-| 08:30 | Run smoke tests | QA/DevOps | 45 min |
-| 09:15 | Review results + CTO sign-off | CTO | 15 min |
-| 09:30 | Deploy Step 1 (Rules) | DevOps | 5 min |
-| 09:35 | Deploy Step 2 (Functions) | DevOps | 10 min |
-| 09:45 | Deploy Step 3 (Hosting) | DevOps | 5 min |
-| 09:50 | Post-deploy health check | DevOps | 10 min |
-| 10:00 | Go-live confirmation | CTO | — |
+| Time (UTC) | Task                          | Owner       | Duration |
+| ---------- | ----------------------------- | ----------- | -------- |
+| 08:00      | Final code review + approval  | Engineering | 30 min   |
+| 08:30      | Run smoke tests               | QA/DevOps   | 45 min   |
+| 09:15      | Review results + CTO sign-off | CTO         | 15 min   |
+| 09:30      | Deploy Step 1 (Rules)         | DevOps      | 5 min    |
+| 09:35      | Deploy Step 2 (Functions)     | DevOps      | 10 min   |
+| 09:45      | Deploy Step 3 (Hosting)       | DevOps      | 5 min    |
+| 09:50      | Post-deploy health check      | DevOps      | 10 min   |
+| 10:00      | Go-live confirmation          | CTO         | —        |
 
 ---
 
@@ -498,9 +499,9 @@ cat .planning/SMOKE_TEST_RESULTS_May_*.json | jq .
 
 ## Document History
 
-| Version | Date | Author | Changes |
-|---|---|---|---|
-| 1.0 | 2026-05-07 | CTO | Initial guide for Phase 4 smoke test suite |
+| Version | Date       | Author | Changes                                    |
+| ------- | ---------- | ------ | ------------------------------------------ |
+| 1.0     | 2026-05-07 | CTO    | Initial guide for Phase 4 smoke test suite |
 
 ---
 

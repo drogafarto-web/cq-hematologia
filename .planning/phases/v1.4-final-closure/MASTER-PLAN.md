@@ -112,6 +112,7 @@ Wave proceeds even if 1-2 SAs fail — those are logged for cleanup MP. Hard-sto
 ## Cost Optimization (Prompt Caching)
 
 Shared prompt cached at 4 cache breakpoints:
+
 1. `<role>` + `<project_invariants>` (5K tokens, cached forever in 5min TTL refreshed by each call)
 2. CLAUDE.md content (3K tokens)
 3. Per-wave canonical examples (variable)
@@ -135,22 +136,23 @@ Within each MP, waves execute sequentially but SAs within a wave run parallel vi
 
 ## Master Verification Gates
 
-| Gate | Run after | Pass criteria |
-|------|-----------|---------------|
-| **G-Build** | each MP | `npx tsc --noEmit` exit 0, `(cd functions && npm run build)` exit 0 |
-| **G-Test** | each MP | `npm test` ≥98% pass, no Phase 8 regression |
-| **G-Lint** | MP-8 only | warnings ≤ baseline + 5% (current 2,081) |
-| **G-Bundle** | MP-8 only | dist main chunk ≤ 450 KB gzip |
-| **G-Secrets** | MP-8 only | preflight-secrets-check.sh exit 0, no secrets in diff |
-| **G-CORS** | MP-1, MP-3, MP-4, MP-5a, MP-6 | All new callables have cors:true |
-| **G-Rules** | MP-1, MP-7 | Emulator rules tests pass |
-| **G-Deploy** | MP-8 | rules + indexes deploy OK, functions deploy OK, hosting deploy OK |
+| Gate          | Run after                     | Pass criteria                                                       |
+| ------------- | ----------------------------- | ------------------------------------------------------------------- |
+| **G-Build**   | each MP                       | `npx tsc --noEmit` exit 0, `(cd functions && npm run build)` exit 0 |
+| **G-Test**    | each MP                       | `npm test` ≥98% pass, no Phase 8 regression                         |
+| **G-Lint**    | MP-8 only                     | warnings ≤ baseline + 5% (current 2,081)                            |
+| **G-Bundle**  | MP-8 only                     | dist main chunk ≤ 450 KB gzip                                       |
+| **G-Secrets** | MP-8 only                     | preflight-secrets-check.sh exit 0, no secrets in diff               |
+| **G-CORS**    | MP-1, MP-3, MP-4, MP-5a, MP-6 | All new callables have cors:true                                    |
+| **G-Rules**   | MP-1, MP-7                    | Emulator rules tests pass                                           |
+| **G-Deploy**  | MP-8                          | rules + indexes deploy OK, functions deploy OK, hosting deploy OK   |
 
 ---
 
 ## Final Outputs
 
 After MP-8 completes:
+
 - Branch: `v1.4-final-closure` merged to `main`
 - Tag: `v1.4-FINAL` on the merge commit
 - 91 atomic commits (1 per SA)
@@ -163,6 +165,7 @@ After MP-8 completes:
 ## Per-MP Plan Files
 
 Each macro-phase has its own detailed plan:
+
 - `MP-0/PLAN.md` — Foundation (4 SAs)
 - `MP-1/PLAN.md` — Phase 11 PQ-24 (6 SAs)
 - `MP-2/PLAN.md` — Phase 7 Auditoria W4-W6 (14 SAs)

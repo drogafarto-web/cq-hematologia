@@ -51,13 +51,16 @@ export async function extractLaudoFields(
   labId: string,
   patientId?: string,
   operatorId?: string,
-  firestore?: admin.firestore.Firestore
+  firestore?: admin.firestore.Firestore,
 ): Promise<LaudoExtractedFields> {
   const db = firestore ?? admin.firestore();
 
   // 1. Validate inputs
   if (!laudoPdfUrl || !laudoPdfUrl.startsWith('https://')) {
-    throw new HttpsError('invalid-argument', 'Invalid laudoPdfUrl (must be signed Cloud Storage URL)');
+    throw new HttpsError(
+      'invalid-argument',
+      'Invalid laudoPdfUrl (must be signed Cloud Storage URL)',
+    );
   }
 
   if (!labId) {
@@ -71,7 +74,7 @@ export async function extractLaudoFields(
     } catch (err) {
       throw new HttpsError(
         'failed-precondition',
-        `Patient consent not captured: ${(err as Error).message}`
+        `Patient consent not captured: ${(err as Error).message}`,
       );
     }
   }
@@ -88,7 +91,7 @@ export async function extractLaudoFields(
   } catch (err) {
     throw new HttpsError(
       'internal',
-      `Gemini response validation failed: ${(err as Error).message}`
+      `Gemini response validation failed: ${(err as Error).message}`,
     );
   }
 
@@ -125,7 +128,7 @@ export async function extractLaudoFields(
         overallConfidence: parsedResponse.overallConfidence,
       },
     },
-    db
+    db,
   ).catch((err) => {
     console.error('[extractLaudoFields] Audit log failed (non-blocking):', err);
     // Don't throw — audit failure should not block extraction
@@ -149,9 +152,7 @@ export async function extractLaudoFields(
  *
  * Returns raw parsed JSON from model (before schema validation).
  */
-async function callGeminiVisionLaudo(
-  laudoPdfUrl: string
-): Promise<Record<string, unknown>> {
+async function callGeminiVisionLaudo(laudoPdfUrl: string): Promise<Record<string, unknown>> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
     throw new HttpsError('internal', 'GEMINI_API_KEY not configured');
@@ -188,10 +189,7 @@ async function callGeminiVisionLaudo(
     return parseGeminiLaudoResponse(content);
   } catch (error) {
     console.error('[callGeminiVisionLaudo] Error:', error);
-    throw new HttpsError(
-      'internal',
-      `Gemini Vision API failed: ${(error as Error).message}`
-    );
+    throw new HttpsError('internal', `Gemini Vision API failed: ${(error as Error).message}`);
   }
 }
 
@@ -229,10 +227,7 @@ async function fetchAndEncodeImage(url: string): Promise<{ base64: string; mimeT
 
     return { base64, mimeType };
   } catch (err) {
-    throw new HttpsError(
-      'internal',
-      `Failed to fetch laudo image: ${(err as Error).message}`
-    );
+    throw new HttpsError('internal', `Failed to fetch laudo image: ${(err as Error).message}`);
   }
 }
 
@@ -374,10 +369,15 @@ function parseGeminiLaudoResponse(content: string): Record<string, unknown> {
       }
     }
   } catch (error) {
-    console.error('[parseGeminiLaudoResponse] Parse failed:', error, 'Content:', content.substring(0, 500));
+    console.error(
+      '[parseGeminiLaudoResponse] Parse failed:',
+      error,
+      'Content:',
+      content.substring(0, 500),
+    );
     throw new HttpsError(
       'internal',
-      `Failed to parse Gemini laudo response: ${(error as Error).message}`
+      `Failed to parse Gemini laudo response: ${(error as Error).message}`,
     );
   }
 }

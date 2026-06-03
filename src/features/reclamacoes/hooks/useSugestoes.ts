@@ -47,7 +47,7 @@ export function useSugestoes(filters?: UseSugestoesFilters) {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     return () => unsubscribe();
@@ -58,7 +58,7 @@ export function useSugestoes(filters?: UseSugestoesFilters) {
       if (!labId) return null;
       return getSugestao(labId, sugestaoId);
     },
-    [labId]
+    [labId],
   );
 
   const getByStatus = useCallback(
@@ -66,7 +66,7 @@ export function useSugestoes(filters?: UseSugestoesFilters) {
       if (!labId) return [];
       return getSugestoesByStatus(labId, status, filters?.limit || 100);
     },
-    [labId, filters?.limit]
+    [labId, filters?.limit],
   );
 
   const getTopVoted = useCallback(
@@ -74,7 +74,7 @@ export function useSugestoes(filters?: UseSugestoesFilters) {
       if (!labId) return [];
       return getTopVotedSugestoes(labId, limitCount);
     },
-    [labId]
+    [labId],
   );
 
   return {

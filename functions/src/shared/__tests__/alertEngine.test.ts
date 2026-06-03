@@ -5,12 +5,7 @@
  */
 
 import { describe, it, expect } from '@jest/globals';
-import {
-  classifySeverity,
-  routeAlert,
-  generateAlert,
-  checkEscalation,
-} from '../alertEngine';
+import { classifySeverity, routeAlert, generateAlert, checkEscalation } from '../alertEngine';
 import type { AnomalyDetectionResult } from '../anomalyDetector';
 
 /**
@@ -46,7 +41,7 @@ describe('alertEngine', () => {
 
     it('should classify 0.70-0.84 as medium', () => {
       expect(classifySeverity(0.71)).toBe('medium');
-      expect(classifySeverity(0.80)).toBe('medium');
+      expect(classifySeverity(0.8)).toBe('medium');
     });
 
     it('should classify < 0.70 as medium (floor)', () => {
@@ -82,7 +77,7 @@ describe('alertEngine', () => {
 
   describe('generateAlert', () => {
     it('should return null for anomaly below 0.85 threshold', () => {
-      const anomaly = mockAnomaly({ overall: 0.60 });
+      const anomaly = mockAnomaly({ overall: 0.6 });
 
       const alert = generateAlert(anomaly, 'lab-001');
 
@@ -90,7 +85,7 @@ describe('alertEngine', () => {
     });
 
     it('should return alert for anomaly >= 0.85', () => {
-      const anomaly = mockAnomaly({ overall: 0.90 });
+      const anomaly = mockAnomaly({ overall: 0.9 });
 
       const alert = generateAlert(anomaly, 'lab-001');
 
@@ -100,7 +95,7 @@ describe('alertEngine', () => {
     });
 
     it('should set severity to high for 0.90 score', () => {
-      const anomaly = mockAnomaly({ overall: 0.90 });
+      const anomaly = mockAnomaly({ overall: 0.9 });
 
       const alert = generateAlert(anomaly, 'lab-001');
 
@@ -116,7 +111,7 @@ describe('alertEngine', () => {
     });
 
     it('should set status to active at creation', () => {
-      const anomaly = mockAnomaly({ overall: 0.90 });
+      const anomaly = mockAnomaly({ overall: 0.9 });
 
       const alert = generateAlert(anomaly, 'lab-001');
 
@@ -132,7 +127,7 @@ describe('alertEngine', () => {
     });
 
     it('should populate routedTo based on severity', () => {
-      const anomaly = mockAnomaly({ overall: 0.90 });
+      const anomaly = mockAnomaly({ overall: 0.9 });
 
       const alert = generateAlert(anomaly, 'lab-001');
 
@@ -142,7 +137,7 @@ describe('alertEngine', () => {
     });
 
     it('should set createdAt to current timestamp', () => {
-      const anomaly = mockAnomaly({ overall: 0.90 });
+      const anomaly = mockAnomaly({ overall: 0.9 });
       const before = Date.now();
 
       const alert = generateAlert(anomaly, 'lab-001');
@@ -155,15 +150,15 @@ describe('alertEngine', () => {
     it('should respect custom alert threshold', () => {
       const anomaly = mockAnomaly({ overall: 0.75 });
 
-      const alert = generateAlert(anomaly, 'lab-001', 0.70);
+      const alert = generateAlert(anomaly, 'lab-001', 0.7);
 
       expect(alert).not.toBeNull();
       expect(alert!.severity).toBe('medium');
     });
 
     it('should generate unique alert IDs', async () => {
-      const anomaly1 = mockAnomaly({ overall: 0.90, entryId: 'entry-001' });
-      const anomaly2 = mockAnomaly({ overall: 0.90, entryId: 'entry-002' });
+      const anomaly1 = mockAnomaly({ overall: 0.9, entryId: 'entry-001' });
+      const anomaly2 = mockAnomaly({ overall: 0.9, entryId: 'entry-002' });
 
       const alert1 = generateAlert(anomaly1, 'lab-001');
       // Different entries will have different IDs

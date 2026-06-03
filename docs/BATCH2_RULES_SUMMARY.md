@@ -12,6 +12,7 @@
 Task 6 deploys Firestore Security Rules for all Phase 2 Batch 2 modules and provides smoke test coverage. This is the foundational security infrastructure before production deployment.
 
 **Key objectives:**
+
 1. Enforce multi-tenant access control for 4 new modules
 2. Gate access via module claims (biosseguranca, pgrss, kpis, lgpd)
 3. Validate soft-delete enforcement (no hard delete)
@@ -24,11 +25,13 @@ Task 6 deploys Firestore Security Rules for all Phase 2 Batch 2 modules and prov
 ### 1. Biossegurança (Biosafety Management)
 
 **Collections:**
+
 - `labs/{labId}/biosseguranca-areas` — Risk areas (NB1-NB4 levels)
 - `labs/{labId}/biosseguranca-epe` — Personal protective equipment registry
 - `labs/{labId}/biosseguranca-inspecoes` — ISO 14644 inspections
 
 **Access Control:**
+
 ```
 biosseguranca-areas:
   read:   member + 'biosseguranca' claim
@@ -54,10 +57,12 @@ biosseguranca-inspecoes:
 ### 2. PGRSS (Waste Management — RDC 222/2018)
 
 **Collections:**
+
 - `labs/{labId}/pgrss-geracao` — Waste generation tracking
 - `labs/{labId}/pgrss-coleta` — Collection records with carrier proof
 
 **Access Control:**
+
 ```
 pgrss-geracao & pgrss-coleta:
   read:   member + 'pgrss' claim
@@ -73,10 +78,12 @@ pgrss-geracao & pgrss-coleta:
 ### 3. KPIs (Key Performance Indicators Dashboard)
 
 **Collections:**
+
 - `labs/{labId}/kpi-metrics` — Daily metrics (turnaround, rework%, compliance)
 - `labs/{labId}/kpi-alerts` — SLA violations and thresholds
 
 **Access Control:**
+
 ```
 kpi-metrics & kpi-alerts:
   read:   member + 'kpis' claim
@@ -86,6 +93,7 @@ kpi-metrics & kpi-alerts:
 ```
 
 **Cloud Function Integration:**
+
 - Scheduled function generates daily metrics at fixed time (pending scheduler setup)
 - Metrics are write-once, read-forever (immutable by design)
 
@@ -94,12 +102,14 @@ kpi-metrics & kpi-alerts:
 ### 4. LGPD (Privacy & Data Rights — Lei 13.709/2018)
 
 **Collections:**
+
 - `labs/{labId}/lgpd-solicitacoes` — Data subject access/deletion requests (30-day SLA)
 - `labs/{labId}/lgpd-dpia` — Data Protection Impact Assessments (admin only)
 - `labs/{labId}/lgpd-consentimento` — Consent records (immutable audit trail)
 - `labs/{labId}/lgpd-exclusao` — Verified deletion execution logs (Cloud Function only)
 
 **Access Control:**
+
 ```
 lgpd-solicitacoes:
   read:   member + 'lgpd' claim
@@ -133,12 +143,14 @@ lgpd-exclusao:
 **Updated:** `functions/src/modules/admin/provisionModulesClaims.ts`
 
 New modules added to `ALL_MODULES`:
+
 - `'biosseguranca'`
 - `'pgrss'`
 - `'kpis'`
 - `'lgpd'`
 
 **Provisioning process:**
+
 ```bash
 # 1. Dry run to inspect changes
 gcloud functions call provisionModulesClaims --data '{"dryRun": true}'
@@ -159,18 +171,19 @@ firebase firestore:query 'users' --project hmatologia2 \
 
 **Test scenarios:**
 
-| # | Scenario | What's tested | Expected |
-|---|----------|---------------|----------|
-| 1 | Biossegurança areas | Admin create, member read, soft-delete only | ✅ PASS |
-| 2 | PGRSS generation/collection | Member create/update, immutable delete | ✅ PASS |
-| 3 | KPI metrics | Read-only (CF only), immutable | ✅ PASS |
-| 4 | LGPD solicitacoes | Member/data-subject create, admin approval | ✅ PASS |
-| 5 | LGPD DPIA | Admin-only read/write/update | ✅ PASS |
-| 6 | Cross-module isolation | Independent claims, no data leakage | ✅ PASS |
-| 7 | Soft-delete enforcement | Hard delete forbidden on write collections | ✅ PASS |
-| 8 | SuperAdmin bypass | isSuperAdmin() overrides all claims | ✅ PASS |
+| #   | Scenario                    | What's tested                               | Expected |
+| --- | --------------------------- | ------------------------------------------- | -------- |
+| 1   | Biossegurança areas         | Admin create, member read, soft-delete only | ✅ PASS  |
+| 2   | PGRSS generation/collection | Member create/update, immutable delete      | ✅ PASS  |
+| 3   | KPI metrics                 | Read-only (CF only), immutable              | ✅ PASS  |
+| 4   | LGPD solicitacoes           | Member/data-subject create, admin approval  | ✅ PASS  |
+| 5   | LGPD DPIA                   | Admin-only read/write/update                | ✅ PASS  |
+| 6   | Cross-module isolation      | Independent claims, no data leakage         | ✅ PASS  |
+| 7   | Soft-delete enforcement     | Hard delete forbidden on write collections  | ✅ PASS  |
+| 8   | SuperAdmin bypass           | isSuperAdmin() overrides all claims         | ✅ PASS  |
 
 **Run tests:**
+
 ```bash
 # Unit structure validation
 npm test -- functions/test/batch2/rules.test.mjs
@@ -185,26 +198,31 @@ npm run test:integration -- test/integration/batch2-rules.test.ts
 ## Architectural Decisions
 
 ### Multi-Tenant Enforcement
+
 - All collections follow `/labs/{labId}/<collection>` pattern
 - Payload redundantly carries `labId` (defense-in-depth)
 - Rules validate `labId` in payload == path parameter (prevents cross-tenant write)
 
 ### Module Claims (Custom Auth Token)
+
 - Firestore rules gate reads via `hasModuleAccess(module)` helper
 - Claims provisioned at user onboarding (via `provisionModulesClaims` callable)
 - Fail-safe: missing claim → `permission-denied` (module inaccessible until claim granted)
 
 ### Soft-Delete Only (RN-06)
+
 - All write collections have `allow delete: if false`
 - Clients soft-delete via `updateDoc(docRef, { deletadoEm: serverTimestamp() })`
 - Compliance: full audit trail preserved (RDC 978 5.3, DICQ 4.4)
 
 ### Cloud Function Exclusive Operations
+
 - **KPI metrics** — read-only client-side, generated by scheduled function
 - **LGPD exclusao** — client cannot directly execute deletion; callable verifies SLA, anonymizes, creates audit record
 - Prevents accidental/malicious data loss at Firestore layer
 
 ### Admin vs Member Differentiation
+
 - `isAdmin(labId)` — checks `members/{uid}.role == 'admin'`
 - `isAdminOrOwner(labId)` — admin OR owner (existing pattern)
 - Biossegurança areas require admin (structural risk changes)
@@ -234,7 +252,7 @@ npm run test:integration -- test/integration/batch2-rules.test.ts
    - `biosseguranca-inspecoes` (date range queries)
    - `pgrss-geracao` (status + date filters)
    - `kpi-metrics` (date ordering with limit)
-   
+
    Add to `firestore.indexes.json` when queries require server-side filtering.
 
 2. **KPI scheduler** — Rules prevent direct client creation, but Cloud Function for scheduling not yet wired. Requires:
@@ -260,6 +278,7 @@ function isAdmin(labId) {
 ```
 
 Existing helpers used:
+
 - `isSuperAdmin()` — checks token claim
 - `isActiveMemberOfLab(labId)` — validates `members/{uid}.active == true`
 - `hasModuleAccess(module)` — checks token claim `modules[module] == true`
@@ -270,6 +289,7 @@ Existing helpers used:
 ## Testing in Production
 
 ### Pre-flight (Staging)
+
 ```bash
 # 1. Deploy rules to staging project
 firebase deploy --only firestore:rules --project hmatologia2-staging
@@ -280,6 +300,7 @@ firebase deploy --only firestore:rules --project hmatologia2-staging
 ```
 
 ### Production Cutover
+
 ```bash
 # 1. Create daily backup
 firebase firestore:export gs://hmatologia2-backup/pre-batch2-rules
@@ -314,6 +335,7 @@ gcloud functions call provisionModulesClaims \
 ## Success Criteria
 
 ✅ **Completed:**
+
 - All Phase 2 Batch 2 modules have security rules deployed
 - Module access gated via custom claims
 - Soft-delete enforced (no hard delete)
@@ -322,6 +344,7 @@ gcloud functions call provisionModulesClaims \
 - Smoke tests passing
 
 **Ready for Task 7 (Production Deploy)** when:
+
 1. Rules deploy to live environment
 2. Claims provisioned to production users
 3. No permission regression in existing modules

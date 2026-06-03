@@ -15,11 +15,7 @@ export interface ParticipantesModalProps {
  * individual de cada participante é gerada no commit em `useSaveExecucao`,
  * nunca aqui (evita reexecutar SHA-256 a cada re-render do modal).
  */
-export function ParticipantesModal({
-  initial,
-  onConfirm,
-  onCancel,
-}: ParticipantesModalProps) {
+export function ParticipantesModal({ initial, onConfirm, onCancel }: ParticipantesModalProps) {
   const { colaboradores, isLoading, error } = useColaboradores({ somenteAtivos: true });
 
   // Map colaboradorId → presente — chave estável, performática em toggle.
@@ -120,7 +116,10 @@ export function ParticipantesModal({
 
         <div className="flex-1 overflow-y-auto px-6 py-4">
           {error && (
-            <p role="alert" className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300">
+            <p
+              role="alert"
+              className="rounded-md border border-red-500/40 bg-red-500/10 px-3 py-2 text-sm text-red-300"
+            >
               Erro ao carregar colaboradores: {error.message}
             </p>
           )}
@@ -128,7 +127,10 @@ export function ParticipantesModal({
           {isLoading && (
             <div className="flex flex-col gap-2">
               {[0, 1, 2, 3].map((i) => (
-                <div key={i} className="h-11 animate-pulse rounded border border-slate-800 bg-slate-900/40" />
+                <div
+                  key={i}
+                  className="h-11 animate-pulse rounded border border-slate-800 bg-slate-900/40"
+                />
               ))}
             </div>
           )}

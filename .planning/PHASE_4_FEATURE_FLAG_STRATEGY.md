@@ -24,24 +24,26 @@ This document defines the feature flag system for gradual, safe rollout of NOTIV
 
 ```typescript
 interface FeatureFlag {
-  id: string;                    // e.g., "notivisa-rollout"
-  name: string;                  // Human-readable name
-  enabled: boolean;              // Global on/off
-  rolloutPercentage: number;     // 0–100; % of labs with the feature
-  rolloutBuckets: {              // Lab assignment strategy
+  id: string; // e.g., "notivisa-rollout"
+  name: string; // Human-readable name
+  enabled: boolean; // Global on/off
+  rolloutPercentage: number; // 0–100; % of labs with the feature
+  rolloutBuckets: {
+    // Lab assignment strategy
     type: 'percentage' | 'labIds';
-    labIdWhitelist?: string[];   // If type='labIds'
+    labIdWhitelist?: string[]; // If type='labIds'
   };
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  updatedBy: string;             // uid of operator
-  config: Record<string, any>;   // Feature-specific config (timeout, retries, etc)
+  updatedBy: string; // uid of operator
+  config: Record<string, any>; // Feature-specific config (timeout, retries, etc)
 }
 ```
 
 ### Flag Evaluation
 
 **Client-Side (React Portal):**
+
 ```typescript
 // Hook: useFeatureFlag
 const isNotivisaEnabled = useFeatureFlag('notivisa-rollout');
@@ -55,12 +57,13 @@ const canSubmitToAnvisa = (labId: string) => {
 ```
 
 **Server-Side (Cloud Functions):**
+
 ```typescript
 // Callable: submitNotivisa
 const shouldAllowSubmission = async (labId: string) => {
   const flag = await getFeatureFlag('notivisa-rollout');
   if (!flag.enabled) return false;
-  
+
   // Hash labId to deterministic bucket (0–100)
   const bucket = hashLabIdToBucket(labId, 100);
   return bucket < flag.rolloutPercentage;
@@ -74,17 +77,20 @@ const shouldAllowSubmission = async (labId: string) => {
 ### Week 1 (May 20–26): Pilot — 0% → 25%
 
 **May 20 (08:30 UTC-3):**
+
 - Deploy Phase 4 code
 - Set flag: `enabled = true`, `rolloutPercentage = 0%`
 - Status: **Code live, feature OFF**
 - Action: Monitor system health with zero user impact
 
 **May 22:**
+
 - Enable for **internal labs only** (whitelist: `["lab-internal-test-1", "lab-internal-test-2"]`)
 - Status: **Internal testing active**
 - Validation: Submit 5 adverse events to sandbox ANVISA, verify receipt codes
 
 **May 24 (14:00 UTC-3):**
+
 - Roll out to **25% of production labs** (by hash)
 - Set flag: `enabled = true`, `rolloutPercentage = 25%`
 - Labs affected: ~3 labs (if ~12 total labs active)
@@ -94,6 +100,7 @@ const shouldAllowSubmission = async (labId: string) => {
 ### Week 2 (May 27–June 2): Gradual Expansion — 25% → 50%
 
 **May 29 (10:00 UTC-3):**
+
 - Roll out to **50% of production labs**
 - Set flag: `enabled = true`, `rolloutPercentage = 50%`
 - Labs affected: ~6 labs
@@ -103,6 +110,7 @@ const shouldAllowSubmission = async (labId: string) => {
 ### Week 3 (June 3–9): Final Push — 50% → 100%
 
 **June 6 (10:00 UTC-3):**
+
 - Roll out to **100% of production labs**
 - Set flag: `enabled = true`, `rolloutPercentage = 100%`
 - Status: **Full rollout**
@@ -115,6 +123,7 @@ const shouldAllowSubmission = async (labId: string) => {
 ### Creating & Updating Flags
 
 **Create Flag (Firestore):**
+
 ```bash
 curl -X POST "https://firestore.googleapis.com/v1/projects/hmatologia2/databases/(default)/documents/featureFlags" \
   -H "Authorization: Bearer $(gcloud auth application-default print-access-token)" \
@@ -149,6 +158,7 @@ curl -X POST "https://firestore.googleapis.com/v1/projects/hmatologia2/databases
 ```
 
 **Update Flag (Set rollout percentage):**
+
 ```bash
 # Via Firestore CLI or GCP Console
 # Update document: /featureFlags/notivisa-rollout
@@ -158,11 +168,12 @@ curl -X POST "https://firestore.googleapis.com/v1/projects/hmatologia2/databases
 ### Access Control
 
 **Firestore Rules:**
+
 ```firestore
 match /featureFlags/{flagId} {
   // Read: anyone can read to evaluate client-side
   allow read: if request.auth != null;
-  
+
   // Write: admin only (CTO + on-call manager)
   allow create, update: if isAdmin(request.auth.uid);
   allow delete: if false; // Never delete, only disable
@@ -180,6 +191,7 @@ function isAdmin(uid) {
 ### Deterministic Lab Assignment
 
 Each lab is assigned to a **percentage bucket** (0–100) using a hash function. This ensures:
+
 - Same lab always belongs to the same bucket
 - Rollout is proportional (25% rollout = bottom 25 buckets)
 - No additional Firestore queries needed (hash is local)
@@ -197,7 +209,7 @@ export function hashLabIdToBucket(labId: string, maxBucket: number): number {
 }
 
 // Example:
-hashLabIdToBucket('lab-001', 100) // → 42 (lab is in 42nd percentile)
+hashLabIdToBucket('lab-001', 100); // → 42 (lab is in 42nd percentile)
 // If rollout = 50%, lab-001 is NOT in rollout (42 < 50 = true, so IS in rollout)
 // If rollout = 25%, lab-001 is NOT in rollout (42 < 25 = false)
 ```
@@ -212,7 +224,7 @@ export async function isLabInRollout(labId: string, flag: FeatureFlag): Promise<
   if (flag.rolloutBuckets.labIdWhitelist?.includes(labId)) {
     return true;
   }
-  
+
   // 2. Check percentage bucket
   const bucket = hashLabIdToBucket(labId, 100);
   return bucket < flag.rolloutPercentage;
@@ -248,9 +260,9 @@ export function useFeatureFlag(flagId: string): FeatureFlag | null {
       const snapshot = await getDoc(docRef);
       return snapshot.data() as FeatureFlag;
     },
-    { staleTime: 60000 } // Cache 1 minute (cheap to refresh)
+    { staleTime: 60000 }, // Cache 1 minute (cheap to refresh)
   );
-  
+
   return data || null;
 }
 ```
@@ -264,7 +276,7 @@ export function NotivisaPortal() {
   const flag = useFeatureFlag('notivisa-rollout');
   const { labId } = useAuth();
   const canSubmit = flag?.enabled && (bucket < flag.rolloutPercentage);
-  
+
   if (!flag?.enabled) {
     return (
       <div className="p-6 bg-yellow-50 rounded-lg border border-yellow-200">
@@ -273,7 +285,7 @@ export function NotivisaPortal() {
       </div>
     );
   }
-  
+
   if (!canSubmit) {
     return (
       <div className="p-6 bg-blue-50 rounded-lg border border-blue-200">
@@ -282,7 +294,7 @@ export function NotivisaPortal() {
       </div>
     );
   }
-  
+
   return <NotivisaDraftForm />;
 }
 ```
@@ -298,14 +310,15 @@ export function NotivisaPortal() {
 ```typescript
 import { getFeatureFlag, isLabInRollout } from '../utils/featureFlags';
 
-export const submitNotivisa = functions.region('southamerica-east1').onCall(
-  async (request): Promise<SubmitNotivisaOutput | SubmitNotivisaError> => {
+export const submitNotivisa = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<SubmitNotivisaOutput | SubmitNotivisaError> => {
     try {
       const { labId, draftId } = request.data;
-      
+
       // ========== Check feature flag ==========
       const flag = await getFeatureFlag('notivisa-rollout');
-      
+
       if (!flag?.enabled) {
         return {
           ok: false,
@@ -313,7 +326,7 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
           message: 'NOTIVISA submission is not yet enabled for your lab.',
         };
       }
-      
+
       const inRollout = await isLabInRollout(labId, flag);
       if (!inRollout) {
         return {
@@ -322,14 +335,13 @@ export const submitNotivisa = functions.region('southamerica-east1').onCall(
           message: 'Your lab is not yet in the NOTIVISA rollout phase. Expected date: TBD',
         };
       }
-      
+
       // ========== Proceed with submission ==========
       // (rest of function logic)
     } catch (error) {
       // Error handling
     }
-  }
-);
+  });
 ```
 
 ### Helper: Get Feature Flag
@@ -357,7 +369,7 @@ export async function getFeatureFlag(flagId: string): Promise<FeatureFlag | null
   try {
     const docRef = db.collection('featureFlags').doc(flagId);
     const snapshot = await docRef.get();
-    return snapshot.data() as FeatureFlag || null;
+    return (snapshot.data() as FeatureFlag) || null;
   } catch (error) {
     console.error(`Error fetching feature flag ${flagId}:`, error);
     return null;
@@ -375,7 +387,7 @@ export async function isLabInRollout(labId: string, flag: FeatureFlag): Promise<
   if (flag.rolloutBuckets?.labIdWhitelist?.includes(labId)) {
     return true;
   }
-  
+
   // Percentage bucket check
   const bucket = hashLabIdToBucket(labId, 100);
   return bucket < flag.rolloutPercentage;
@@ -400,7 +412,7 @@ Metrics:
   - Updated by: [uid]
 
 Query:
-SELECT 
+SELECT
   enabled,
   rolloutPercentage,
   updatedAt,
@@ -464,26 +476,28 @@ Before advancing to next percentage tier:
 
 ### Metrics to Monitor During Rollout
 
-| Metric | Target | Alert Threshold |
-|--------|--------|-----------------|
-| Submission success rate | >95% | <90% |
-| Queue latency (p95) | <100ms | >200ms |
-| Error rate | <0.5% | >1% |
-| Function cold start | <1s | >2s |
-| ANVISA API latency (p95) | <3s | >5s |
-| Rule rejections | <5 per minute | >10 per minute |
+| Metric                   | Target        | Alert Threshold |
+| ------------------------ | ------------- | --------------- |
+| Submission success rate  | >95%          | <90%            |
+| Queue latency (p95)      | <100ms        | >200ms          |
+| Error rate               | <0.5%         | >1%             |
+| Function cold start      | <1s           | >2s             |
+| ANVISA API latency (p95) | <3s           | >5s             |
+| Rule rejections          | <5 per minute | >10 per minute  |
 
 ---
 
 ## Post-Rollout (June 10+)
 
 **Archive feature flag:**
+
 - After 100% rollout and 1-week stability window, mark flag as archived
 - Keep flag document for audit trail (set `archived: true`)
 - Remove flag checks from UI code (no longer needed)
 - Remove flag from callables (feature is permanent)
 
 **Document final state:**
+
 - Log in: `.planning/PHASE_4_ROLLOUT_COMPLETION.md`
 - Include: rollout timeline, issues encountered, total submissions processed
 
@@ -499,10 +513,7 @@ Before advancing to next percentage tier:
   "rolloutPercentage": 25,
   "rolloutBuckets": {
     "type": "percentage",
-    "labIdWhitelist": [
-      "lab-internal-test-1",
-      "lab-internal-test-2"
-    ]
+    "labIdWhitelist": ["lab-internal-test-1", "lab-internal-test-2"]
   },
   "config": {
     "maxRetries": 5,

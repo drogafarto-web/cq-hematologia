@@ -43,7 +43,10 @@ interface AuditOfflineState {
   syncErrors: string[];
 
   setCurrentSession: (sessionId: string, auditoriaId: string, labId: string) => void;
-  saveResponse: (itemId: string, data: { resposta: ChecklistResponse['resposta']; severidade?: string; observacao?: string }) => void;
+  saveResponse: (
+    itemId: string,
+    data: { resposta: ChecklistResponse['resposta']; severidade?: string; observacao?: string },
+  ) => void;
   addAchado: (achado: Omit<OfflineAchado, 'id' | 'timestamp' | 'synced'>) => void;
   addEvidence: (evidence: Omit<OfflineEvidence, 'id' | 'timestamp' | 'synced'>) => void;
   markResponseSynced: (itemId: string) => void;
@@ -54,7 +57,11 @@ interface AuditOfflineState {
   clearSyncErrors: () => void;
   setLastSyncAt: (timestamp: number) => void;
   clearSession: () => void;
-  getPendingItems: () => { responses: ChecklistResponse[]; achados: OfflineAchado[]; evidences: OfflineEvidence[] };
+  getPendingItems: () => {
+    responses: ChecklistResponse[];
+    achados: OfflineAchado[];
+    evidences: OfflineEvidence[];
+  };
 }
 
 function generateId(): string {
@@ -84,22 +91,33 @@ export const useAuditOfflineStore = create<AuditOfflineState>()(
             ...state.responses,
             [itemId]: { itemId, ...data, timestamp: Date.now(), synced: false },
           };
-          const pendingSyncCount = Object.values(responses).filter(r => !r.synced).length
-            + state.achados.filter(a => !a.synced).length
-            + state.evidences.filter(e => !e.synced).length;
+          const pendingSyncCount =
+            Object.values(responses).filter((r) => !r.synced).length +
+            state.achados.filter((a) => !a.synced).length +
+            state.evidences.filter((e) => !e.synced).length;
           return { responses, pendingSyncCount };
         }),
 
       addAchado: (achado) =>
         set((state) => {
-          const newAchado: OfflineAchado = { ...achado, id: generateId(), timestamp: Date.now(), synced: false };
+          const newAchado: OfflineAchado = {
+            ...achado,
+            id: generateId(),
+            timestamp: Date.now(),
+            synced: false,
+          };
           const achados = [...state.achados, newAchado];
           return { achados, pendingSyncCount: state.pendingSyncCount + 1 };
         }),
 
       addEvidence: (evidence) =>
         set((state) => {
-          const newEvidence: OfflineEvidence = { ...evidence, id: generateId(), timestamp: Date.now(), synced: false };
+          const newEvidence: OfflineEvidence = {
+            ...evidence,
+            id: generateId(),
+            timestamp: Date.now(),
+            synced: false,
+          };
           const evidences = [...state.evidences, newEvidence];
           return { evidences, pendingSyncCount: state.pendingSyncCount + 1 };
         }),
@@ -108,27 +126,34 @@ export const useAuditOfflineStore = create<AuditOfflineState>()(
         set((state) => {
           const responses = { ...state.responses };
           if (responses[itemId]) responses[itemId] = { ...responses[itemId], synced: true };
-          const pendingSyncCount = Object.values(responses).filter(r => !r.synced).length
-            + state.achados.filter(a => !a.synced).length
-            + state.evidences.filter(e => !e.synced).length;
+          const pendingSyncCount =
+            Object.values(responses).filter((r) => !r.synced).length +
+            state.achados.filter((a) => !a.synced).length +
+            state.evidences.filter((e) => !e.synced).length;
           return { responses, pendingSyncCount };
         }),
 
       markAchadoSynced: (achadoId) =>
         set((state) => {
-          const achados = state.achados.map(a => a.id === achadoId ? { ...a, synced: true } : a);
-          const pendingSyncCount = Object.values(state.responses).filter(r => !r.synced).length
-            + achados.filter(a => !a.synced).length
-            + state.evidences.filter(e => !e.synced).length;
+          const achados = state.achados.map((a) =>
+            a.id === achadoId ? { ...a, synced: true } : a,
+          );
+          const pendingSyncCount =
+            Object.values(state.responses).filter((r) => !r.synced).length +
+            achados.filter((a) => !a.synced).length +
+            state.evidences.filter((e) => !e.synced).length;
           return { achados, pendingSyncCount };
         }),
 
       markEvidenceSynced: (evidenceId) =>
         set((state) => {
-          const evidences = state.evidences.map(e => e.id === evidenceId ? { ...e, synced: true } : e);
-          const pendingSyncCount = Object.values(state.responses).filter(r => !r.synced).length
-            + state.achados.filter(a => !a.synced).length
-            + evidences.filter(e => !e.synced).length;
+          const evidences = state.evidences.map((e) =>
+            e.id === evidenceId ? { ...e, synced: true } : e,
+          );
+          const pendingSyncCount =
+            Object.values(state.responses).filter((r) => !r.synced).length +
+            state.achados.filter((a) => !a.synced).length +
+            evidences.filter((e) => !e.synced).length;
           return { evidences, pendingSyncCount };
         }),
 
@@ -152,15 +177,15 @@ export const useAuditOfflineStore = create<AuditOfflineState>()(
       getPendingItems: () => {
         const state = get();
         return {
-          responses: Object.values(state.responses).filter(r => !r.synced),
-          achados: state.achados.filter(a => !a.synced),
-          evidences: state.evidences.filter(e => !e.synced),
+          responses: Object.values(state.responses).filter((r) => !r.synced),
+          achados: state.achados.filter((a) => !a.synced),
+          evidences: state.evidences.filter((e) => !e.synced),
         };
       },
     }),
     {
       name: 'audit-offline-store',
       storage: createJSONStorage(() => AsyncStorage),
-    }
-  )
+    },
+  ),
 );

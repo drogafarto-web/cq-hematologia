@@ -100,8 +100,7 @@ export default function CriticosSLADashboard() {
       .slice(0, 10);
   }, [metrics]);
 
-  const breachPercent =
-    agg.count > 0 ? ((agg.breachedCount / agg.count) * 100).toFixed(1) : '0.0';
+  const breachPercent = agg.count > 0 ? ((agg.breachedCount / agg.count) * 100).toFixed(1) : '0.0';
 
   return (
     <div className="space-y-6">
@@ -196,9 +195,7 @@ export default function CriticosSLADashboard() {
           {/* Breached alerts list */}
           {breachedAlerts.length === 0 ? (
             <div className="rounded-lg border border-white/10 bg-white/[0.02] p-8 text-center">
-              <p className="text-white/50 text-sm">
-                Nenhum alerta com SLA vencido no período.
-              </p>
+              <p className="text-white/50 text-sm">Nenhum alerta com SLA vencido no período.</p>
             </div>
           ) : (
             <div className="rounded-lg border border-white/10 overflow-hidden">
@@ -214,8 +211,7 @@ export default function CriticosSLADashboard() {
                       <div>
                         <p className="text-white/70 text-sm font-mono">{alert.alertId}</p>
                         <p className="text-white/50 text-xs mt-1">
-                          Detectado:{' '}
-                          {new Date(alert.detectedAt).toLocaleString('pt-BR')}
+                          Detectado: {new Date(alert.detectedAt).toLocaleString('pt-BR')}
                         </p>
                       </div>
                       <div className="text-right">
@@ -223,10 +219,10 @@ export default function CriticosSLADashboard() {
                           +{Math.round((alert.timeToAcknowledgeMs || 0) / 1000 / 60)} min
                         </p>
                         <p className="text-white/50 text-xs mt-1">
-                          {(
-                            ((alert.timeToAcknowledgeMs || 0) / alert.slaTargetMs) *
-                            100
-                          ).toFixed(0)}% do SLA
+                          {(((alert.timeToAcknowledgeMs || 0) / alert.slaTargetMs) * 100).toFixed(
+                            0,
+                          )}
+                          % do SLA
                         </p>
                       </div>
                     </div>
@@ -254,9 +250,17 @@ interface KPITileProps {
 
 function KPITile({ label, value, unit, suffix, variant }: KPITileProps) {
   const bgColor =
-    variant === 'danger' ? 'bg-rose-500/10' : variant === 'warning' ? 'bg-amber-500/10' : 'bg-violet-500/10';
+    variant === 'danger'
+      ? 'bg-rose-500/10'
+      : variant === 'warning'
+        ? 'bg-amber-500/10'
+        : 'bg-violet-500/10';
   const textColor =
-    variant === 'danger' ? 'text-rose-300' : variant === 'warning' ? 'text-amber-300' : 'text-violet-300';
+    variant === 'danger'
+      ? 'text-rose-300'
+      : variant === 'warning'
+        ? 'text-amber-300'
+        : 'text-violet-300';
 
   return (
     <div className={`rounded-lg border border-white/10 ${bgColor} p-4`}>

@@ -20,7 +20,11 @@
 
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { Timestamp } from 'firebase/firestore';
-import type { Documento, DocumentoInput, StatusDocumento } from '../src/features/sgq/types/Documento';
+import type {
+  Documento,
+  DocumentoInput,
+  StatusDocumento,
+} from '../src/features/sgq/types/Documento';
 
 describe('RT Manual Gate T3-T4: SGQ LGPD Document Creation', () => {
   const LAB_ID = 'labclin-riopomba';

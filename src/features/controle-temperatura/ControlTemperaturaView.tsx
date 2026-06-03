@@ -37,14 +37,8 @@ import { useLeituras } from './hooks/useLeituras';
 import { useLeiturasPrevistas } from './hooks/useLeiturasPrevistas';
 import { useNCs } from './hooks/useNCs';
 import { useTermometros } from './hooks/useTermometros';
-import {
-  montarRelatorioFR11,
-  type RelatorioFR11,
-} from './services/ctExportService';
-import type {
-  EquipamentoInput,
-  EquipamentoMonitorado,
-} from './types/ControlTemperatura';
+import { montarRelatorioFR11, type RelatorioFR11 } from './services/ctExportService';
+import type { EquipamentoInput, EquipamentoMonitorado } from './types/ControlTemperatura';
 
 // Relatório PDF é pesado (react-to-print + layout A4) — lazy evita custo na
 // primeira renderização do módulo.
@@ -89,8 +83,7 @@ export function ControlTemperaturaView() {
   }
 
   const activeLabel = TABS.find((t) => t.id === tab)?.label ?? '';
-  const initials =
-    (user?.displayName?.split(' ')[0]?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase();
+  const initials = (user?.displayName?.split(' ')[0]?.[0] ?? user?.email?.[0] ?? 'U').toUpperCase();
 
   return (
     <div className="flex min-h-full flex-col bg-slate-50 font-sans text-slate-900 md:flex-row">
@@ -318,7 +311,9 @@ function TabEquipamentos() {
                 <div className="mb-3 text-xs text-slate-500">
                   Limites: {eq.limites.temperaturaMin.toFixed(1)}°C –{' '}
                   {eq.limites.temperaturaMax.toFixed(1)}°C
-                  {eq.limites.umidadeMin !== undefined ? ` • Umidade ${eq.limites.umidadeMin}-${eq.limites.umidadeMax}%` : ''}
+                  {eq.limites.umidadeMin !== undefined
+                    ? ` • Umidade ${eq.limites.umidadeMin}-${eq.limites.umidadeMax}%`
+                    : ''}
                 </div>
                 <div className="flex items-center justify-between border-t border-slate-100 pt-3">
                   <Button tone="ghost" onClick={() => setForm(eq)}>
@@ -327,7 +322,9 @@ function TabEquipamentos() {
                   <button
                     type="button"
                     onClick={async () => {
-                      if (confirm(`Arquivar "${eq.nome}"? (deleção lógica — pode restaurar depois)`)) {
+                      if (
+                        confirm(`Arquivar "${eq.nome}"? (deleção lógica — pode restaurar depois)`)
+                      ) {
                         await softDelete(eq.id);
                       }
                     }}
@@ -372,7 +369,7 @@ function TabRelatorios() {
 
   const eqSelecionado = equipamentos.find((e) => e.id === equipamentoId) ?? equipamentos[0];
   const termometroVinculado = eqSelecionado
-    ? termometros.find((t) => t.id === eqSelecionado.termometroId) ?? null
+    ? (termometros.find((t) => t.id === eqSelecionado.termometroId) ?? null)
     : null;
 
   const inicio = useMemo(() => {
@@ -475,9 +472,7 @@ function TabRelatorios() {
         </div>
       ) : (
         <Suspense
-          fallback={
-            <div className="p-6 text-sm text-slate-500">Carregando preview do FR-11…</div>
-          }
+          fallback={<div className="p-6 text-sm text-slate-500">Carregando preview do FR-11…</div>}
         >
           <CTRelatorioPrint payload={payload} onClose={() => setPayload(null)} />
         </Suspense>

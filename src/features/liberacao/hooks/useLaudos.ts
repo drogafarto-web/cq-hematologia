@@ -35,7 +35,7 @@ export function useLaudos(filters?: LaudoFilters) {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     // Cleanup

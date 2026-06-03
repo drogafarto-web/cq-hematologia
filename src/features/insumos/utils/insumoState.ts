@@ -42,8 +42,7 @@ export function resolveInsumoState(
       return {
         kind: 'em-uso',
         label: 'Em uso',
-        chipCls:
-          'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300',
+        chipCls: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-700 dark:text-emerald-300',
         tooltip: 'Lote aberto e em rotina — declarável em corridas.',
       };
     case 'fechado':
@@ -60,10 +59,8 @@ export function resolveInsumoState(
       return {
         kind: 'encerrado',
         label: 'Encerrado',
-        chipCls:
-          'bg-slate-400/15 border-slate-400/40 text-slate-600 dark:text-white/55',
-        tooltip:
-          'Lote já foi usado e encerrado — mantido apenas no histórico (RDC 786 retenção).',
+        chipCls: 'bg-slate-400/15 border-slate-400/40 text-slate-600 dark:text-white/55',
+        tooltip: 'Lote já foi usado e encerrado — mantido apenas no histórico (RDC 786 retenção).',
       };
     case 'vencido':
       return {
@@ -76,18 +73,15 @@ export function resolveInsumoState(
       return {
         kind: 'descartado',
         label: 'Descartado',
-        chipCls:
-          'bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400',
+        chipCls: 'bg-zinc-500/10 border-zinc-500/30 text-zinc-600 dark:text-zinc-400',
         tooltip: 'Descarte formal com motivo registrado (RDC 786).',
       };
     case 'segregado':
       return {
         kind: 'segregado',
         label: 'Segregado',
-        chipCls:
-          'bg-red-500/10 border-red-500/40 text-red-700 dark:text-red-300',
-        tooltip:
-          'Lote reprovado em qualificação formal — bloqueado para uso (RDC 786 art. 42).',
+        chipCls: 'bg-red-500/10 border-red-500/40 text-red-700 dark:text-red-300',
+        tooltip: 'Lote reprovado em qualificação formal — bloqueado para uso (RDC 786 art. 42).',
       };
   }
 }

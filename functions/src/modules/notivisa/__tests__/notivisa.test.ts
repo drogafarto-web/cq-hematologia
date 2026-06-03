@@ -10,7 +10,7 @@ describe('NOTIVISA Module Callable', () => {
     // Phase 4: notivisaQueueProcessor placeholder
     const placeholder = {
       status: 'PLACEHOLDER',
-      message: 'NOTIVISA queue processor (Phase 4)'
+      message: 'NOTIVISA queue processor (Phase 4)',
     };
 
     expect(placeholder.status).toBe('PLACEHOLDER');
@@ -21,7 +21,7 @@ describe('NOTIVISA Module Callable', () => {
     const response = {
       status: 'PLACEHOLDER',
       message: 'NOTIVISA queue processor (Phase 4)',
-      eventId: `event-${Date.now()}`
+      eventId: `event-${Date.now()}`,
     };
 
     expect(response.eventId).toBeTruthy();
@@ -33,8 +33,8 @@ describe('NOTIVISA Module Callable', () => {
     const validRequest = {
       data: {
         laudoId: 'laudo-123',
-        labId: 'lab-001'
-      }
+        labId: 'lab-001',
+      },
     };
 
     expect(validRequest.data.laudoId).toBeTruthy();

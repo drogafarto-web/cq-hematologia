@@ -32,8 +32,7 @@ describe('initiateExport validation', () => {
   it('rejects date range > 1 year', () => {
     const startDate = new Date('2025-01-01');
     const endDate = new Date('2027-01-01');
-    const daysDiff =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    const daysDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
     assert.ok(daysDiff > 365, 'Should reject range > 365 days');
   });
@@ -51,8 +50,7 @@ describe('initiateExport validation', () => {
   it('accepts valid date range within 1 year', () => {
     const startDate = new Date('2026-01-01');
     const endDate = new Date('2026-05-04');
-    const daysDiff =
-      (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
+    const daysDiff = (endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24);
 
     assert.ok(daysDiff <= 365, 'Should accept range <= 365 days');
   });

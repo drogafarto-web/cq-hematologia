@@ -15,6 +15,7 @@ RDC 978 (ANVISA) Art. 117 exige rastreabilidade ponta-a-ponta: dado qualquer res
 HC Quality v1.3 implementou **ADR-0005 (LogicalSignature)** para insumo-movimentacoes: client cria doc `pending`, Cloud Function calcula HMAC da chain anterior + payload, seals como `chainHash` imutável. Funciona.
 
 v1.4 expande audit logging para:
+
 - CAPA closure (findings → corrective action → verification).
 - NOTIVISA submission (critical value → draft → RT approval → submission).
 - Personnel qualificações (CV update → supervisor verification).
@@ -39,6 +40,7 @@ Sem decisão explícita, risco de:
 ### 1. LogicalSignature Architecture (Estendido de v1.3)
 
 **Pattern established in v1.3:**
+
 ```
 Client → Firestore DOC {payload, status: 'pending'} [unverified]
    ↓
@@ -52,6 +54,7 @@ Firestore Rules → No further writes allowed (sealed is final)
 ```
 
 **Implementation details:**
+
 - `chainHash`: 64-char hex SHA-256 digest.
 - `prev_hash`: linked to previous event in chain (immutable reference).
 - `secret`: rotates monthly (stored in Google Secret Manager, accessed by CF only).
@@ -61,6 +64,7 @@ Firestore Rules → No further writes allowed (sealed is final)
 ### 2. Scope of LogicalSignature in v1.4
 
 Applied to:
+
 - ✅ Insumo-movimentacoes (v1.3, continue).
 - ✅ CAPA transitions (open → investigation → planned → implemented → verified → closed).
 - ✅ NOTIVISA submissions (draft → RT-approved → submitted → acknowledged by gov).
@@ -72,6 +76,7 @@ Applied to:
 ### 3. Recovery & Audit Procedures
 
 **Integrity verification (on demand):**
+
 ```
 CF callable: verifyChainIntegrity({collectionPath, startDocId, endDocId})
    → Iterate docs from start to end
@@ -81,6 +86,7 @@ CF callable: verifyChainIntegrity({collectionPath, startDocId, endDocId})
 ```
 
 **Chain recovery (if doc is accidentally corrupted):**
+
 - Immutable rule: sealed doc cannot be updated. If corruption detected:
   - Rollback to last valid state (Firestore backup).
   - New doc created with reason = "chain-recovery", linked to corrupted ID.
@@ -94,7 +100,7 @@ match /labs/{labId}/criticos-escalacoes/{escalacaoId} {
   // Client can only create with status='pending'
   allow create: if request.resource.data.status == 'pending'
     && request.resource.data.get('chainHash', null) == null;
-  
+
   // Cloud Function (via service context) transitions pending → sealed
   // No direct client update of status='sealed'
   allow update: if request.auth.uid == null // service context only
@@ -102,10 +108,10 @@ match /labs/{labId}/criticos-escalacoes/{escalacaoId} {
     && request.resource.data.status == 'sealed'
     && request.resource.data.chainHash.size() == 64
     && request.resource.data.operatorId is string;
-  
+
   // Read always allowed (audit)
   allow read: if request.auth.uid != null && isActiveMember();
-  
+
   // Once sealed, immutable
   allow update: if resource.data.status == 'sealed' => false;
 }
@@ -114,9 +120,11 @@ match /labs/{labId}/criticos-escalacoes/{escalacaoId} {
 ### 5. Regulatory Alignment (RDC 978)
 
 RDC 978 Art. 6º, I (rastreabilidade):
+
 > "Registros contendo dados que justifiquem os resultados comunicados, inclusive de amostras rejeitadas, devem ser mantidos e estar disponíveis para consulta por no mínimo 5 (cinco) anos."
 
 **HC Quality compliance:**
+
 - HMAC chain prevents silent tampering (anyone can see if result was forged post-facto).
 - Server-side timestamps ensure no clock-skew manipulation.
 - Monthly secret rotation prevents master-key compromise exposure (compromise only affects future events, not past).
@@ -130,7 +138,8 @@ RDC 978 Art. 6º, I (rastreabilidade):
 Each event stores `{payload, ts, userId}`. No chain, no HMAC.
 
 **Pros:** Simpler implementation; less compute (no CF triggers).
-**Cons:** 
+**Cons:**
+
 - Doesn't detect tampering (if someone hacks Firestore rules or SQL, they can modify past logs).
 - RDC auditor asks "how do I know this log wasn't forged?" No cryptographic answer.
 - Competitors with HMAC chains have stronger compliance posture.
@@ -143,6 +152,7 @@ Each event signed with lab's private key (e.g., e-CNPJ).
 
 **Pros:** Legally recognized in Brazil (follows ICP-Brasil standards); strong regulatory signal.
 **Cons:**
+
 - Requires certificate management infrastructure (cost, operational burden).
 - Key rotation is complex (compromise any key = all past events questioned).
 - Not widely used in healthcare SaaS (overkill for internal audit trail).
@@ -156,6 +166,7 @@ v1.4 uses HMAC for critical events only (NOTIVISA, CAPA, liberação); other eve
 
 **Pros:** Reduces CF overhead for low-risk events.
 **Cons:**
+
 - Inconsistent audit trail (auditor sees "some events are HMAC, some are not"). Creates confusion.
 - If auditor flags timestamp-only events as insufficient, we retrofit HMAC anyway.
 

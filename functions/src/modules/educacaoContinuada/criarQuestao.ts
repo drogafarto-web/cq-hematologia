@@ -39,91 +39,85 @@ interface CriarQuestaoResult {
   questaoId: string;
 }
 
-export const ec_criarQuestao = onCall<unknown, Promise<CriarQuestaoResult>>(
-  {},
-  async (request) => {
-    const parsed = CriarQuestaoInputSchema.safeParse(request.data);
-    if (!parsed.success) {
-      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+export const ec_criarQuestao = onCall<unknown, Promise<CriarQuestaoResult>>({}, async (request) => {
+  const parsed = CriarQuestaoInputSchema.safeParse(request.data);
+  if (!parsed.success) {
+    throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+  }
+  const input = parsed.data;
+
+  await assertEcAccess(request.auth, input.labId);
+  const uid = request.auth!.uid;
+  const db = admin.firestore();
+
+  // Validação: objetivas exigem opcoes com ao menos 1 correta; dissertativa não
+  if (input.tipo === 'dissertativa') {
+    if (input.opcoes && input.opcoes.length > 0) {
+      throw new HttpsError('failed-precondition', 'Dissertativa não deve ter opções.');
     }
-    const input = parsed.data;
-
-    await assertEcAccess(request.auth, input.labId);
-    const uid = request.auth!.uid;
-    const db = admin.firestore();
-
-    // Validação: objetivas exigem opcoes com ao menos 1 correta; dissertativa não
-    if (input.tipo === 'dissertativa') {
-      if (input.opcoes && input.opcoes.length > 0) {
-        throw new HttpsError('failed-precondition', 'Dissertativa não deve ter opções.');
-      }
-    } else {
-      if (!input.opcoes || input.opcoes.length < 2) {
-        throw new HttpsError(
-          'failed-precondition',
-          'Questões objetivas exigem ao menos 2 opções.',
-        );
-      }
-      const corretas = input.opcoes.filter((o) => o.correta);
-      if (corretas.length === 0) {
-        throw new HttpsError(
-          'failed-precondition',
-          'Questão objetiva precisa ter ao menos 1 opção correta.',
-        );
-      }
+  } else {
+    if (!input.opcoes || input.opcoes.length < 2) {
+      throw new HttpsError('failed-precondition', 'Questões objetivas exigem ao menos 2 opções.');
     }
-
-    await ensureEcLabRoot(db, input.labId);
-
-    // Separa gabarito e opções públicas
-    const opcoesPublicas = (input.opcoes ?? []).map((o, i) => ({
-      id: `opt-${i + 1}`,
-      texto: o.texto,
-    }));
-    const opcoesCorretas = (input.opcoes ?? [])
-      .map((o, i) => (o.correta ? `opt-${i + 1}` : null))
-      .filter((id): id is string => id !== null);
-
-    const questoesRef = ecCollection(db, input.labId, 'questoes').doc();
-    const gabaritoRef = ecCollection(db, input.labId, 'questoesGabarito').doc(questoesRef.id);
-
-    const batch = db.batch();
-
-    const questaoPublica: Record<string, unknown> = {
-      labId: input.labId,
-      templateId: input.templateId,
-      enunciado: input.enunciado,
-      tipo: input.tipo,
-      pontuacao: input.pontuacao,
-      ordem: input.ordem,
-      ativo: input.ativo,
-      criadoEm: admin.firestore.FieldValue.serverTimestamp(),
-    };
-    if (opcoesPublicas.length > 0) {
-      questaoPublica['opcoes'] = opcoesPublicas;
+    const corretas = input.opcoes.filter((o) => o.correta);
+    if (corretas.length === 0) {
+      throw new HttpsError(
+        'failed-precondition',
+        'Questão objetiva precisa ter ao menos 1 opção correta.',
+      );
     }
-    batch.set(questoesRef, questaoPublica);
+  }
 
-    const gabarito: Record<string, unknown> = {
-      labId: input.labId,
-      questaoId: questoesRef.id,
-    };
-    if (opcoesCorretas.length > 0) gabarito['opcoesCorretas'] = opcoesCorretas;
-    if (input.gabaritoTexto) gabarito['gabaritoTexto'] = input.gabaritoTexto;
-    batch.set(gabaritoRef, gabarito);
+  await ensureEcLabRoot(db, input.labId);
 
-    await batch.commit();
+  // Separa gabarito e opções públicas
+  const opcoesPublicas = (input.opcoes ?? []).map((o, i) => ({
+    id: `opt-${i + 1}`,
+    texto: o.texto,
+  }));
+  const opcoesCorretas = (input.opcoes ?? [])
+    .map((o, i) => (o.correta ? `opt-${i + 1}` : null))
+    .filter((id): id is string => id !== null);
 
-    await writeAuditLog({
-      action: 'EC_CRIAR_QUESTAO',
-      callerUid: uid,
-      labId: input.labId,
-      payload: { questaoId: questoesRef.id, templateId: input.templateId, tipo: input.tipo },
-    });
+  const questoesRef = ecCollection(db, input.labId, 'questoes').doc();
+  const gabaritoRef = ecCollection(db, input.labId, 'questoesGabarito').doc(questoesRef.id);
 
-    return { ok: true, questaoId: questoesRef.id };
-  },
-);
+  const batch = db.batch();
+
+  const questaoPublica: Record<string, unknown> = {
+    labId: input.labId,
+    templateId: input.templateId,
+    enunciado: input.enunciado,
+    tipo: input.tipo,
+    pontuacao: input.pontuacao,
+    ordem: input.ordem,
+    ativo: input.ativo,
+    criadoEm: admin.firestore.FieldValue.serverTimestamp(),
+  };
+  if (opcoesPublicas.length > 0) {
+    questaoPublica['opcoes'] = opcoesPublicas;
+  }
+  batch.set(questoesRef, questaoPublica);
+
+  const gabarito: Record<string, unknown> = {
+    labId: input.labId,
+    questaoId: questoesRef.id,
+  };
+  if (opcoesCorretas.length > 0) gabarito['opcoesCorretas'] = opcoesCorretas;
+  if (input.gabaritoTexto) gabarito['gabaritoTexto'] = input.gabaritoTexto;
+  batch.set(gabaritoRef, gabarito);
+
+  await batch.commit();
+
+  await writeAuditLog({
+    action: 'EC_CRIAR_QUESTAO',
+    callerUid: uid,
+    labId: input.labId,
+    payload: { questaoId: questoesRef.id, templateId: input.templateId, tipo: input.tipo },
+  });
+
+  return { ok: true, questaoId: questoesRef.id };
+});
 
 // ─── ec_arquivarQuestao ──────────────────────────────────────────────────────
 // Arquiva a questão (ativo=false) mantendo gabarito para histórico.
@@ -134,18 +128,15 @@ const ArquivarQuestaoInputSchema = z.object({
   questaoId: z.string().min(1),
 });
 
-export const ec_arquivarQuestao = onCall<unknown, Promise<{ ok: true }>>(
-  {},
-  async (request) => {
-    const parsed = ArquivarQuestaoInputSchema.safeParse(request.data);
-    if (!parsed.success) {
-      throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
-    }
-    const { labId, questaoId } = parsed.data;
+export const ec_arquivarQuestao = onCall<unknown, Promise<{ ok: true }>>({}, async (request) => {
+  const parsed = ArquivarQuestaoInputSchema.safeParse(request.data);
+  if (!parsed.success) {
+    throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
+  }
+  const { labId, questaoId } = parsed.data;
 
-    await assertEcAccess(request.auth, labId);
-    const db = admin.firestore();
-    await ecCollection(db, labId, 'questoes').doc(questaoId).update({ ativo: false });
-    return { ok: true };
-  },
-);
+  await assertEcAccess(request.auth, labId);
+  const db = admin.firestore();
+  await ecCollection(db, labId, 'questoes').doc(questaoId).update({ ativo: false });
+  return { ok: true };
+});

@@ -12,6 +12,7 @@
 Post-v1.3 deployment, cloud logs monitoring transitions from **episodic 24-hour sweeps** (post-deploy validation) to **continuous operational surveillance**. This document provides the setup, escalation workflows, and SLO targets.
 
 **Three monitoring tiers:**
+
 1. **Tier 1 (Immediate):** Cloud Monitoring alerts + dashboards (setup: ~2 hours)
 2. **Tier 2 (Short-term):** Custom metrics + anomaly detection (setup: ~1 week)
 3. **Tier 3 (Medium-term):** Multi-region failover + advanced alerting (setup: Phase 14+)
@@ -32,11 +33,13 @@ This document focuses on **Tier 1 (Immediate)** for v1.3 production readiness.
 ### 1.2 Create Monitoring Workspace
 
 1. **Navigate to Cloud Console:**
+
    ```
    https://console.cloud.google.com/monitoring?project=hmatologia2
    ```
 
 2. **Enable Cloud Monitoring API:**
+
    ```bash
    gcloud services enable monitoring.googleapis.com \
      --project=hmatologia2
@@ -45,15 +48,18 @@ This document focuses on **Tier 1 (Immediate)** for v1.3 production readiness.
 3. **Create notification channel (Slack):**
 
    **Option A: Slack webhook (recommended)**
+
    ```bash
    gcloud alpha monitoring channels create \
      --display-name="HC Quality Alerts" \
      --type=slack \
      --channel-labels=channel_name='#devops-alerts'
    ```
+
    Note the returned `[CHANNEL_ID]` for later use.
 
    **Option B: Email (fallback)**
+
    ```bash
    gcloud alpha monitoring channels create \
      --display-name="HC Quality Alerts (Email)" \
@@ -83,6 +89,7 @@ gcloud alpha monitoring policies create \
 ```
 
 Or via UI:
+
 1. Open [Cloud Monitoring → Policies](https://console.cloud.google.com/monitoring/alertpolicies?project=hmatologia2)
 2. Click "Create Policy"
 3. **Condition:**
@@ -92,14 +99,15 @@ Or via UI:
    - Condition: `error_count / invocation_count > 0.01`
 4. **Notification:** Select Slack channel created above
 5. **Documentation:**
+
    ```
-   Error rate exceeded 1% threshold. 
-   
+   Error rate exceeded 1% threshold.
+
    **Action:**
    1. Check Cloud Logs for error type via gcloud CLI
    2. Refer to 'Incident Response Runbook' in CLOUD_LOGS_MONITORING_REPORT_v1.3.md
    3. Escalate to CTO if >5 errors in 1 hour
-   
+
    **Commands:**
    gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=20
    ```
@@ -108,32 +116,33 @@ Or via UI:
 
 ```yaml
 # Create file: gke-alert-p99-latency.yaml
-displayName: "HC Quality: P99 Latency >5s"
+displayName: 'HC Quality: P99 Latency >5s'
 documentation:
   content: |
     Cloud Function P99 latency exceeded 5 seconds.
-    
+
     **Action:**
     1. Check Firestore for missing indexes or slow queries
     2. Refer to 'If P99 Latency >5s' section in incident runbook
     3. Review Cloud Function memory allocation
 conditions:
-  - displayName: "P99 latency spike"
+  - displayName: 'P99 latency spike'
     conditionThreshold:
       filter: |
         resource.type="cloud_function"
         AND metric.type="cloudfunctions.googleapis.com|function|execution_times"
       comparison: COMPARISON_GT
-      thresholdValue: 5000  # milliseconds
+      thresholdValue: 5000 # milliseconds
       duration: 300s
       aggregations:
         - alignmentPeriod: 60s
           perSeriesAligner: ALIGN_PERCENTILE_99
 notificationChannels:
-  - "[CHANNEL_ID]"
+  - '[CHANNEL_ID]'
 ```
 
 Deploy:
+
 ```bash
 gcloud alpha monitoring policies create --policy-from-file=gke-alert-p99-latency.yaml \
   --project=hmatologia2
@@ -162,6 +171,7 @@ gcloud logging read \
 ```
 
 Create alert via UI:
+
 1. Open [Cloud Monitoring → Policies](https://console.cloud.google.com/monitoring/alertpolicies?project=hmatologia2)
 2. Click "Create Policy"
 3. **Condition:**
@@ -170,9 +180,10 @@ Create alert via UI:
    - Condition: `log entry count > 0 in 60s`
 4. **Notification:** Select Slack channel
 5. **Documentation:**
+
    ```
-   Cloud Function memory limit exceeded. 
-   
+   Cloud Function memory limit exceeded.
+
    **Action:**
    1. Identify function: gcloud logging read "textPayload=~'.*out of memory.*'" --limit=5
    2. Increase memory in function options (default 256MiB → 512MiB)
@@ -185,12 +196,14 @@ Create alert via UI:
 #### Dashboard 1: System Health Overview
 
 **Via gcloud:**
+
 ```bash
 gcloud monitoring dashboards create --config-from-file=dashboard-overview.json \
   --project=hmatologia2
 ```
 
 **File: `scripts/dashboard-overview.json`**
+
 ```json
 {
   "displayName": "HC Quality v1.3 — System Health",
@@ -283,6 +296,7 @@ gcloud monitoring dashboards create --config-from-file=dashboard-overview.json \
 ```
 
 **Via UI (simpler):**
+
 1. Open [Cloud Monitoring → Dashboards](https://console.cloud.google.com/monitoring/dashboards?project=hmatologia2)
 2. Click "Create Dashboard"
 3. Add these charts:
@@ -302,6 +316,7 @@ gcloud monitoring dashboards create --config-from-file=dashboard-overview.json \
 
 **Primary on-call:** Defined in team Slack (rotate weekly)  
 **Escalation path:**
+
 1. Alert fires → Slack message to `#devops-alerts`
 2. On-call engineer: Acknowledge within 5 minutes
 3. Check runbook section in `CLOUD_LOGS_MONITORING_REPORT_v1.3.md`
@@ -310,12 +325,12 @@ gcloud monitoring dashboards create --config-from-file=dashboard-overview.json \
 
 ### 2.2 Severity Levels
 
-| Level | Threshold | Response | Owner |
-|---|---|---|---|
-| 🟢 **Green** | Error rate <0.1%, no alerts | Monitor passively | On-call engineer |
-| 🟡 **Yellow** | 0.1%–1% error rate, P99 latency 3–5s | Acknowledge alert; investigate within 30 min | On-call engineer |
-| 🔴 **Red** | >1% error rate, >5s P99, OOM, permission denied | Page on-call; escalate to CTO within 5 min | CTO + on-call |
-| ⚫ **Black** | Multiple simultaneous alerts, 5xx sustained >10 min | All-hands incident; prepare rollback | CTO + team |
+| Level         | Threshold                                           | Response                                     | Owner            |
+| ------------- | --------------------------------------------------- | -------------------------------------------- | ---------------- |
+| 🟢 **Green**  | Error rate <0.1%, no alerts                         | Monitor passively                            | On-call engineer |
+| 🟡 **Yellow** | 0.1%–1% error rate, P99 latency 3–5s                | Acknowledge alert; investigate within 30 min | On-call engineer |
+| 🔴 **Red**    | >1% error rate, >5s P99, OOM, permission denied     | Page on-call; escalate to CTO within 5 min   | CTO + on-call    |
+| ⚫ **Black**  | Multiple simultaneous alerts, 5xx sustained >10 min | All-hands incident; prepare rollback         | CTO + team       |
 
 ### 2.3 Escalation Template
 
@@ -348,11 +363,11 @@ CONTACT: [Your name] — [Slack] or [email]
 
 ### 2.4 Escalation Contacts
 
-| Role | Primary | Backup | Response SLA |
-|---|---|---|---|
-| On-call Engineer | Slack `#devops-on-call` | — | 5 min |
-| CTO | drogafarto@gmail.com | Slack DM | 30 min (business hours) |
-| Google Cloud Support | [Support case](https://console.cloud.google.com/support) | — | 4 hour (standard) |
+| Role                 | Primary                                                  | Backup   | Response SLA            |
+| -------------------- | -------------------------------------------------------- | -------- | ----------------------- |
+| On-call Engineer     | Slack `#devops-on-call`                                  | —        | 5 min                   |
+| CTO                  | drogafarto@gmail.com                                     | Slack DM | 30 min (business hours) |
+| Google Cloud Support | [Support case](https://console.cloud.google.com/support) | —        | 4 hour (standard)       |
 
 ---
 
@@ -360,13 +375,13 @@ CONTACT: [Your name] — [Slack] or [email]
 
 ### 3.1 Service Level Objectives (SLOs)
 
-| SLO | Metric | Target | Measurement Window | Owner |
-|---|---|---|---|---|
-| **Availability** | Uptime (5xx errors) | >99.5% | Monthly | On-call |
-| **Error Rate** | Errors / total invocations | <0.1% | Daily rolling 24h | On-call |
-| **Latency (P99)** | Cloud Function execution time | <3s | Daily rolling 24h | On-call |
-| **Audit Trail** | Failed writes with audit log | 0 (100% coverage) | Real-time | CTO |
-| **RDC 978 Compliance** | Coverage of Art. 167–182 | ≥95% | Quarterly | CTO |
+| SLO                    | Metric                        | Target            | Measurement Window | Owner   |
+| ---------------------- | ----------------------------- | ----------------- | ------------------ | ------- |
+| **Availability**       | Uptime (5xx errors)           | >99.5%            | Monthly            | On-call |
+| **Error Rate**         | Errors / total invocations    | <0.1%             | Daily rolling 24h  | On-call |
+| **Latency (P99)**      | Cloud Function execution time | <3s               | Daily rolling 24h  | On-call |
+| **Audit Trail**        | Failed writes with audit log  | 0 (100% coverage) | Real-time          | CTO     |
+| **RDC 978 Compliance** | Coverage of Art. 167–182      | ≥95%              | Quarterly          | CTO     |
 
 ### 3.2 SLO Tracking Dashboard
 
@@ -388,9 +403,7 @@ Create a separate dashboard for SLO metrics:
             }
           }
         },
-        "thresholds": [
-          { "value": 0.995, "direction": "ABOVE", "label": "SLO target" }
-        ]
+        "thresholds": [{ "value": 0.995, "direction": "ABOVE", "label": "SLO target" }]
       }
     },
     {
@@ -449,6 +462,7 @@ echo "**Next Review:** $(date -d '+7 days' +%Y-%m-%d)"
 ```
 
 Deploy as Cloud Scheduler job:
+
 ```bash
 gcloud scheduler jobs create app-engine slo-report-weekly \
   --schedule="0 16 * * FRI" \
@@ -465,6 +479,7 @@ gcloud scheduler jobs create app-engine slo-report-weekly \
 ### 4.1 Tier 2: Custom Metrics (Week 2–4 post-deploy)
 
 **Implement per-module breakdown:**
+
 - Bioquímica: CIQ creation latency, validation errors
 - SGQ: Document versioning operations, audit trail hits
 - Liberação: Signature computation time, auth failures
@@ -510,6 +525,7 @@ export async function recordCIQCreationLatency(labId: string, latencyMs: number)
 ### 4.2 Tier 3: Anomaly Detection + Multi-Region (Phase 14+)
 
 **Future enhancements:**
+
 - Cloud Monitoring anomaly detection for error spikes
 - Secondary region failover (if budget allows)
 - Integration with incident management (PagerDuty / Opsgenie)
@@ -522,16 +538,19 @@ export async function recordCIQCreationLatency(labId: string, latencyMs: number)
 ### Command Cheat Sheet
 
 **List all alerts:**
+
 ```bash
 gcloud alpha monitoring policies list --project=hmatologia2
 ```
 
 **View alert policy:**
+
 ```bash
 gcloud alpha monitoring policies describe [POLICY_ID] --project=hmatologia2
 ```
 
 **Update alert threshold:**
+
 ```bash
 gcloud alpha monitoring policies update [POLICY_ID] \
   --update-condition-threshold-value=0.02 \
@@ -539,24 +558,28 @@ gcloud alpha monitoring policies update [POLICY_ID] \
 ```
 
 **View recent errors:**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 --limit=20 --freshness=1h
 ```
 
 **Export logs to JSON:**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 --format=json > errors-$(date +%s).json
 ```
 
 **Check Firestore quota:**
+
 ```bash
 gcloud firestore databases describe --location=southamerica-east1 \
   --project=hmatologia2
 ```
 
 **Monitor in real-time (tail):**
+
 ```bash
 gcloud logging read "severity >= ERROR" \
   --project=hmatologia2 --follow
@@ -576,11 +599,13 @@ gcloud logging read "severity >= ERROR" \
 ### Issue: Alert not firing when expected
 
 **Root causes:**
+
 1. Notification channel not verified (Slack/email setup incomplete)
 2. Metric not emitting (function not invoked)
 3. Condition threshold misconfigured
 
 **Resolution:**
+
 ```bash
 # Verify notification channel
 gcloud alpha monitoring channels list --project=hmatologia2
@@ -600,6 +625,7 @@ gcloud alpha monitoring policies describe [POLICY_ID] \
 **Root cause:** Threshold set too low
 
 **Resolution:**
+
 ```bash
 # Increase threshold
 gcloud alpha monitoring policies update [POLICY_ID] \
@@ -615,12 +641,15 @@ gcloud alpha monitoring policies update [POLICY_ID] \
 ### Issue: Slack channel not receiving messages
 
 **Root causes:**
+
 1. Webhook URL invalid or revoked
 2. Slack bot permission missing
 3. Notification channel misconfigured
 
 **Resolution:**
+
 1. Recreate notification channel:
+
    ```bash
    gcloud alpha monitoring channels create \
      --display-name="HC Quality Alerts (new)" \
@@ -641,27 +670,28 @@ gcloud alpha monitoring policies update [POLICY_ID] \
 
 ### Monitoring Coverage per RDC 978
 
-| Article | Requirement | Monitored Via | Alert Threshold | Owner |
-|---|---|---|---|---|
-| Art. 167 | Laudo signature RT accountability | Cloud Logs `liberacao_*` functions | Error rate >1% | On-call |
-| Art. 179 | CIQ validation rules (Westgard) | Cloud Logs `bioquimica_*` functions | Error rate >0.5% | On-call |
-| Art. 181 | Traceability events for controls | Cloud Logs `onInsumoMovimentacaoCreate` | Error rate >0% (critical) | CTO |
-| Art. 182 | Analytical method validation (bula) | Cloud Logs `analyzer_*` functions | Error rate >0.5% | On-call |
+| Article  | Requirement                         | Monitored Via                           | Alert Threshold           | Owner   |
+| -------- | ----------------------------------- | --------------------------------------- | ------------------------- | ------- |
+| Art. 167 | Laudo signature RT accountability   | Cloud Logs `liberacao_*` functions      | Error rate >1%            | On-call |
+| Art. 179 | CIQ validation rules (Westgard)     | Cloud Logs `bioquimica_*` functions     | Error rate >0.5%          | On-call |
+| Art. 181 | Traceability events for controls    | Cloud Logs `onInsumoMovimentacaoCreate` | Error rate >0% (critical) | CTO     |
+| Art. 182 | Analytical method validation (bula) | Cloud Logs `analyzer_*` functions       | Error rate >0.5%          | On-call |
 
 ### Monitoring Coverage per DICQ 4.4
 
-| Requirement | Monitored Via | Verification | Frequency |
-|---|---|---|---|
-| Write intent capture | Cloud Logs + Firestore audit collection | Daily spot-check (5 random docs per lab) | Daily |
-| Immutable event logs | Firestore `events` subcollection read-only rules | Weekly (check rules compilation warnings) | Weekly |
-| Soft delete enforcement | Cloud Logs (check for any `deleteDoc` calls) | Monthly audit | Monthly |
-| Operator accountability | Write signatures + Cloud Logs (operatorId validation) | Quarterly compliance audit | Quarterly |
+| Requirement             | Monitored Via                                         | Verification                              | Frequency |
+| ----------------------- | ----------------------------------------------------- | ----------------------------------------- | --------- |
+| Write intent capture    | Cloud Logs + Firestore audit collection               | Daily spot-check (5 random docs per lab)  | Daily     |
+| Immutable event logs    | Firestore `events` subcollection read-only rules      | Weekly (check rules compilation warnings) | Weekly    |
+| Soft delete enforcement | Cloud Logs (check for any `deleteDoc` calls)          | Monthly audit                             | Monthly   |
+| Operator accountability | Write signatures + Cloud Logs (operatorId validation) | Quarterly compliance audit                | Quarterly |
 
 ---
 
 ## Summary
 
 **Continuous monitoring setup timeline:**
+
 - **Day 1 (immediate):** Cloud Monitoring alerts + dashboards (Tier 1)
 - **Week 2–4:** Custom metrics + anomaly detection (Tier 2)
 - **Phase 14+:** Multi-region + advanced alerting (Tier 3)
@@ -675,4 +705,3 @@ gcloud alpha monitoring policies update [POLICY_ID] \
 **Last Updated:** 2026-05-09  
 **Version:** v1.3  
 **Status:** Ready for implementation
-

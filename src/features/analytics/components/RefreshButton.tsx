@@ -92,9 +92,7 @@ export const RefreshButton = React.memo(function RefreshButton({
       ].join(' ')}
     >
       <RefreshIcon spinning={refreshing} />
-      {!compact && (
-        <span>{refreshing ? 'Atualizando…' : 'Atualizar'}</span>
-      )}
+      {!compact && <span>{refreshing ? 'Atualizando…' : 'Atualizar'}</span>}
     </button>
   );
 });

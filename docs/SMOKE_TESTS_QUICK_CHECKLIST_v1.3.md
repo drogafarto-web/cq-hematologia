@@ -6,7 +6,7 @@ format: One-Page Test Execution Checklist
 # Smoke Test v1.3 — Quick Checklist
 
 **Test Duration:** ~45 min total | **Environment:** Production (hmatologia2.web.app)  
-**Tester:** _________________ | **Date:** _________________ | **Time:** _________________
+**Tester:** ********\_******** | **Date:** ********\_******** | **Time:** ********\_********
 
 ---
 
@@ -24,33 +24,33 @@ format: One-Page Test Execution Checklist
 
 ## Smoke 1: Bioquímica (10 min)
 
-| Step | Action | Expected | Pass | Fail |
-|------|--------|----------|------|------|
-| 1 | `/bioquimica/admin` | 16 analitos visible | ☐ | ☐ |
-| 2 | Upload bula PDF | Parse <30s, stats extracted | ☐ | ☐ |
-| 3 | Create lot | Lot visible, status `EM USO` | ☐ | ☐ |
-| 4 | Record run (3 analitos) | Run recorded, chainHash present | ☐ | ☐ |
-| 5 | View Levey-Jennings chart | 1 point rendered, lines visible | ☐ | ☐ |
-| 6 | Check Firestore events | Event doc exists, hash valid format | ☐ | ☐ |
-| 7 | CLI verify chain | `npm run verify-chain` → exit 0 | ☐ | ☐ |
+| Step | Action                    | Expected                            | Pass | Fail |
+| ---- | ------------------------- | ----------------------------------- | ---- | ---- |
+| 1    | `/bioquimica/admin`       | 16 analitos visible                 | ☐    | ☐    |
+| 2    | Upload bula PDF           | Parse <30s, stats extracted         | ☐    | ☐    |
+| 3    | Create lot                | Lot visible, status `EM USO`        | ☐    | ☐    |
+| 4    | Record run (3 analitos)   | Run recorded, chainHash present     | ☐    | ☐    |
+| 5    | View Levey-Jennings chart | 1 point rendered, lines visible     | ☐    | ☐    |
+| 6    | Check Firestore events    | Event doc exists, hash valid format | ☐    | ☐    |
+| 7    | CLI verify chain          | `npm run verify-chain` → exit 0     | ☐    | ☐    |
 
-**Smoke 1 Status:** ☐ PASS ☐ FAIL | **Failed Step:** _________ | **Error:** _________________
+**Smoke 1 Status:** ☐ PASS ☐ FAIL | **Failed Step:** ****\_**** | **Error:** ********\_********
 
 ---
 
 ## Smoke 2: SGD Drive Importer (15 min)
 
-| Step | Action | Expected | Pass | Fail |
-|------|--------|----------|------|------|
-| 1 | Navigate `/sgq/importar-drive` | Page loads, OAuth button visible | ☐ | ☐ |
-| 2 | Click "Conectar ao Drive" | Google consent screen appears | ☐ | ☐ |
-| 3 | Authorize & callback | Redirect <5s, wizard Step 2 loads | ☐ | ☐ |
-| 4 | Enter folder ID, list docs | 5 documents listed | ☐ | ☐ |
-| 5 | Preview 3 documents | Preview modal renders, content visible | ☐ | ☐ |
-| 6 | Select all 5, approve batch | 5 docs created in `rascunho` status | ☐ | ☐ |
-| 7 | Publish all, search "MQ" | All 5 → `vigente`, search filters correctly | ☐ | ☐ |
+| Step | Action                         | Expected                                    | Pass | Fail |
+| ---- | ------------------------------ | ------------------------------------------- | ---- | ---- |
+| 1    | Navigate `/sgq/importar-drive` | Page loads, OAuth button visible            | ☐    | ☐    |
+| 2    | Click "Conectar ao Drive"      | Google consent screen appears               | ☐    | ☐    |
+| 3    | Authorize & callback           | Redirect <5s, wizard Step 2 loads           | ☐    | ☐    |
+| 4    | Enter folder ID, list docs     | 5 documents listed                          | ☐    | ☐    |
+| 5    | Preview 3 documents            | Preview modal renders, content visible      | ☐    | ☐    |
+| 6    | Select all 5, approve batch    | 5 docs created in `rascunho` status         | ☐    | ☐    |
+| 7    | Publish all, search "MQ"       | All 5 → `vigente`, search filters correctly | ☐    | ☐    |
 
-**Smoke 2 Status:** ☐ PASS ☐ FAIL | **Failed Step:** _________ | **Error:** _________________
+**Smoke 2 Status:** ☐ PASS ☐ FAIL | **Failed Step:** ****\_**** | **Error:** ********\_********
 
 ---
 
@@ -63,15 +63,15 @@ format: One-Page Test Execution Checklist
 
 ## Smoke 5: Regression Check (5 min)
 
-| Module | Route | Load | No Errors | Pass |
-|--------|-------|------|-----------|------|
-| analyzer | `/analyzer` | ☐ | ☐ | ☐ |
-| coagulacao | `/coagulacao` | ☐ | ☐ | ☐ |
-| auditoria | `/auditoria` | ☐ | ☐ | ☐ |
-| treinamentos | `/treinamentos` | ☐ | ☐ | ☐ |
-| educacao-continuada | `/educacao-continuada` | ☐ | ☐ | ☐ |
+| Module              | Route                  | Load | No Errors | Pass |
+| ------------------- | ---------------------- | ---- | --------- | ---- |
+| analyzer            | `/analyzer`            | ☐    | ☐         | ☐    |
+| coagulacao          | `/coagulacao`          | ☐    | ☐         | ☐    |
+| auditoria           | `/auditoria`           | ☐    | ☐         | ☐    |
+| treinamentos        | `/treinamentos`        | ☐    | ☐         | ☐    |
+| educacao-continuada | `/educacao-continuada` | ☐    | ☐         | ☐    |
 
-**Smoke 5 Status:** ☐ PASS ☐ FAIL | **Failed Module:** _________
+**Smoke 5 Status:** ☐ PASS ☐ FAIL | **Failed Module:** ****\_****
 
 ---
 
@@ -86,21 +86,21 @@ format: One-Page Test Execution Checklist
 
 ## Final Sign-Off
 
-| Item | Status |
-|------|--------|
-| **All Smokes Passed?** | ☐ YES ☐ NO |
-| **Regressions Found?** | ☐ None ☐ Minor (document) ☐ Critical (rollback) |
-| **Ready for Next 24h Ops?** | ☐ YES ☐ ESCALATE |
-| **Tester Sign:** _________________ | **Time:** _________________ |
+| Item                                | Status                                          |
+| ----------------------------------- | ----------------------------------------------- |
+| **All Smokes Passed?**              | ☐ YES ☐ NO                                      |
+| **Regressions Found?**              | ☐ None ☐ Minor (document) ☐ Critical (rollback) |
+| **Ready for Next 24h Ops?**         | ☐ YES ☐ ESCALATE                                |
+| **Tester Sign:** ********\_******** | **Time:** ********\_********                    |
 
 ---
 
 ## Failure Summary (if any)
 
-**Smoke/Step:** _____________  
-**Error Message:** _________________________________________________  
+**Smoke/Step:** ******\_******  
+**Error Message:** ************************\_************************  
 **Screenshots:** (link or file path)  
-**Workaround Applied:** ☐ Yes | Note: __________________________  
+**Workaround Applied:** ☐ Yes | Note: ************\_\_************  
 **Escalation Level:** ☐ 🟡 Medium ☐ 🟠 High ☐ 🔴 Critical
 
 ---

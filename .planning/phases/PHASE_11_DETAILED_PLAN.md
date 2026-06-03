@@ -1,13 +1,13 @@
 ---
 phase: 11
-title: "IA Foundation — Strip OCR Classification Prep"
-duration: "2 weeks"
-start_date: "2026-06-09"
-deploy_date: "2026-06-23"
-status: "planning"
-risk_level: "2.5/10"
-dicq_gain: "+3–4% (DICQ 4.7 IA training dataset)"
-rdc_articles: "115 (critical values), 204 (audit trail), 5.3 (management review)"
+title: 'IA Foundation — Strip OCR Classification Prep'
+duration: '2 weeks'
+start_date: '2026-06-09'
+deploy_date: '2026-06-23'
+status: 'planning'
+risk_level: '2.5/10'
+dicq_gain: '+3–4% (DICQ 4.7 IA training dataset)'
+rdc_articles: '115 (critical values), 204 (audit trail), 5.3 (management review)'
 ---
 
 # Phase 11: IA Foundation — Strip OCR Classification Prep
@@ -25,6 +25,7 @@ rdc_articles: "115 (critical values), 204 (audit trail), 5.3 (management review)
 Phase 11 builds the **infrastructure for AI-powered strip immunology classification**. Goal: capture 500+ diverse strip images, train baseline Gemini Vision model, establish validation pipeline, and implement confidence-based manual review escalation. Delivery readiness for Phase 12 (IA feedback loop + versioning).
 
 **Success criteria:**
+
 - Image upload infrastructure (camera + file) live on imuno module
 - Gemini Vision API integrated (3 test prompts, <3s p99 latency)
 - Confidence threshold validation (0.85 default, manual override path)
@@ -41,6 +42,7 @@ Phase 11 builds the **infrastructure for AI-powered strip immunology classificat
 ### 1.1 Components & UX (Dark-first, WCAG AA)
 
 #### Camera Feed Component
+
 - **File:** `src/features/ciq-imuno/components/StripCameraCapture.tsx`
 - **Capabilities:**
   - Live camera preview with focus guides (strip positioning visual cue)
@@ -51,6 +53,7 @@ Phase 11 builds the **infrastructure for AI-powered strip immunology classificat
   - WCAG AA: aria-labels, focus visible, keyboard navigation
 
 #### Upload Form Component
+
 - **File:** `src/features/ciq-imuno/components/StripIAUploadForm.tsx`
 - **Fields:**
   - Camera feed (live or captured image preview)
@@ -65,6 +68,7 @@ Phase 11 builds the **infrastructure for AI-powered strip immunology classificat
   - Min resolution 640×480
 
 #### Image Preview & Annotation
+
 - **File:** `src/features/ciq-imuno/components/StripIAPreview.tsx`
 - **Features:**
   - Thumbnail + metadata (capture time, test type, file size)
@@ -87,6 +91,7 @@ gs://hmatologia2.appspot.com/
 ```
 
 **Metadata file example (`{captureId}_metadata.json`):**
+
 ```json
 {
   "captureId": "img_20260609_abc123",
@@ -117,6 +122,7 @@ gs://hmatologia2.appspot.com/
   5. Client keeps original (for retry metadata) but sends resized
 
 **Size limits:**
+
 - Max upload size: **5 MB** (triggers client-side error before processing)
 - Resized target: **<1 MB** (typically 650–950 KB at q=0.8)
 - Battery/data consideration: max 50 images/day per operator (soft limit, enforced via UI warning)
@@ -185,8 +191,15 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       throw new HttpsError('unauthenticated', 'User must be authenticated');
     }
 
-    const { base64, mimeType, testType, labId, captureId, operatorId, promptVariant = 'v1' } =
-      request.data;
+    const {
+      base64,
+      mimeType,
+      testType,
+      labId,
+      captureId,
+      operatorId,
+      promptVariant = 'v1',
+    } = request.data;
 
     // 2. Validation
     if (!base64 || !mimeType || !testType || !labId || !captureId || !operatorId) {
@@ -277,7 +290,8 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       .catch((err) => console.error('[classifyStripGemini] Audit log write failed:', err));
 
     // 9. Cost tracking (Gemini pricing: ~$1.25 per 1M input tokens, ~$5 per 1M output tokens)
-    const costEstimate = (geminiResult.tokensUsed.input * 1.25 + geminiResult.tokensUsed.output * 5) / 1_000_000;
+    const costEstimate =
+      (geminiResult.tokensUsed.input * 1.25 + geminiResult.tokensUsed.output * 5) / 1_000_000;
     admin
       .firestore()
       .doc(`imuno-ia-cost/${labId}/daily/${getTodayKey()}`)
@@ -307,7 +321,7 @@ export const classifyStripGemini = onCall<ClassifyStripPayload, ClassifyStripRes
       signature,
       operatorId,
     };
-  }
+  },
 );
 
 // ─── Helpers ────────────────────────────────────────────────────────────────
@@ -346,7 +360,7 @@ function parseGeminiResponse(
   content: string,
   testType: TestType,
   promptVariant: string,
-  latencyMs: number
+  latencyMs: number,
 ): GeminiClassificationResult {
   try {
     const jsonMatch = content.match(/\{[\s\S]*\}/);
@@ -359,7 +373,8 @@ function parseGeminiResponse(
       classification: ['R', 'NR', 'INCONCLUSIVE'].includes(parsed.classification)
         ? parsed.classification
         : 'INCONCLUSIVE',
-      confidence: typeof parsed.confidence === 'number' ? Math.min(1, Math.max(0, parsed.confidence)) : 0.5,
+      confidence:
+        typeof parsed.confidence === 'number' ? Math.min(1, Math.max(0, parsed.confidence)) : 0.5,
       reasoning: parsed.reasoning || '',
       geminiModel: 'gemini-2.5-flash',
       latencyMs,
@@ -395,17 +410,18 @@ function getTodayKey(): string {
 
 Three prompt variants to test during dataset collection:
 
-| Variant | Style | Target | Latency | Accuracy |
-|---------|-------|--------|---------|----------|
-| **v1** | Portuguese, clinical detail | Accuracy | <2.5s | Baseline |
-| **v2** | Portuguese, terse checklist | Speed | <1.5s | 95%+ |
-| **v3** | English, visual instructions | International model alignment | <2.0s | 94%+ |
+| Variant | Style                        | Target                        | Latency | Accuracy |
+| ------- | ---------------------------- | ----------------------------- | ------- | -------- |
+| **v1**  | Portuguese, clinical detail  | Accuracy                      | <2.5s   | Baseline |
+| **v2**  | Portuguese, terse checklist  | Speed                         | <1.5s   | 95%+     |
+| **v3**  | English, visual instructions | International model alignment | <2.0s   | 94%+     |
 
 **Evaluation metrics:** Accuracy vs. RT verdicts (ground truth), latency p50/p95/p99, token usage per call.
 
 ### 2.3 Response Schema
 
 All Gemini responses parsed to:
+
 ```typescript
 {
   classification: 'R' | 'NR' | 'INCONCLUSIVE';
@@ -486,7 +502,7 @@ export function useStripIAClassification(options: UseStripIAClassificationOption
       testType: TestType,
       labId: string,
       captureId: string,
-      operatorId: string
+      operatorId: string,
     ) => {
       setIsClassifying(true);
       try {
@@ -513,7 +529,7 @@ export function useStripIAClassification(options: UseStripIAClassificationOption
         setIsClassifying(false);
       }
     },
-    [onClassificationComplete, onError]
+    [onClassificationComplete, onError],
   );
 
   return { classifyStrip, isClassifying, result };
@@ -537,10 +553,10 @@ export function useStripIAClassification(options: UseStripIAClassificationOption
 
 ### 4.1 Collection Target
 
-| Phase | Week | Target | Cumulative |
-|-------|------|--------|-----------|
-| Phase 11 | Week 1 | 50 images/day | 350 |
-| Phase 11 | Week 2 | 75 images/day | 500+ |
+| Phase    | Week   | Target        | Cumulative |
+| -------- | ------ | ------------- | ---------- |
+| Phase 11 | Week 1 | 50 images/day | 350        |
+| Phase 11 | Week 2 | 75 images/day | 500+       |
 
 **Diversity requirement:** Across test types (IgG Rubéola/Toxo/Sífilis, IgM dengue/zika), lighting conditions (good/poor/harsh), and strip quality (clear/faint/borderline).
 
@@ -566,6 +582,7 @@ imuno-ia-dev/{labId}/
 ### 4.4 Metadata Collection
 
 Every image logged to `imuno-ia-dev/{labId}/events/{captureId}`:
+
 ```json
 {
   "captureId": "img_20260609_...",
@@ -591,6 +608,7 @@ Every image logged to `imuno-ia-dev/{labId}/events/{captureId}`:
 **File:** `src/features/ciq-imuno/components/IAPerformanceDashboard.tsx`
 
 #### Tab 1: Overview
+
 - Gemini accuracy % vs. RT verdicts (YTD)
 - Total images processed (count)
 - Average confidence by test type
@@ -598,21 +616,25 @@ Every image logged to `imuno-ia-dev/{labId}/events/{captureId}`:
 - Gemini API cost trending (weekly)
 
 #### Tab 2: Confusion Matrix
+
 - 2×2 table: Gemini (R/NR) vs. RT (R/NR)
 - Cell counts + percentages
 - Sensitivity, specificity, PPV, NPV calculations
 
 #### Tab 3: Confidence Distribution
+
 - Histogram: confidence buckets (0–0.1, 0.1–0.2, ..., 0.9–1.0)
 - % of images flagged for manual review
 - Overlay: RT agreement % by confidence bucket
 
 #### Tab 4: Trend Analysis
+
 - Line chart: weekly accuracy + API cost
 - Filter: test type, prompt variant, operator
 - Monthly export button (CSV/XLSX)
 
 #### Tab 5: Cost Tracking
+
 - Gemini API spend this month
 - Cost per classification (estimate)
 - Alert if spending >$500/month (configurable)
@@ -623,17 +645,17 @@ Every image logged to `imuno-ia-dev/{labId}/events/{captureId}`:
 ```typescript
 // Accuracy calculation
 const events = await getCollection(`imuno-ia-dev/${labId}/events`);
-const agreements = events.filter(e => e.agreedWithGemini).length;
+const agreements = events.filter((e) => e.agreedWithGemini).length;
 const accuracy = (agreements / events.length) * 100;
 
 // Sensitivity = TP / (TP + FN)
-const tp = events.filter(e => e.classification === 'R' && e.rtVerdict === 'R').length;
-const fn = events.filter(e => e.classification === 'NR' && e.rtVerdict === 'R').length;
+const tp = events.filter((e) => e.classification === 'R' && e.rtVerdict === 'R').length;
+const fn = events.filter((e) => e.classification === 'NR' && e.rtVerdict === 'R').length;
 const sensitivity = (tp / (tp + fn)) * 100;
 
 // Confidence bucketing
 const buckets = {};
-events.forEach(e => {
+events.forEach((e) => {
   const bucket = Math.floor(e.confidence * 10) / 10;
   buckets[bucket] = (buckets[bucket] || 0) + 1;
 });
@@ -646,6 +668,7 @@ events.forEach(e => {
 ### 6.1 Collections
 
 #### imuno-ia-dev/{labId}/events (Append-only audit log)
+
 ```typescript
 interface IAEventLog {
   captureId: string;
@@ -657,80 +680,83 @@ interface IAEventLog {
   promptVariant: 'v1' | 'v2' | 'v3';
   geminiLatencyMs: number;
   tokensUsed: { input: number; output: number };
-  
+
   // RT manual review (if confidence < 0.85)
   flaggedForManualReview: boolean;
   rtVerdict?: 'R' | 'NR' | 'INCONCLUSIVE';
   rtVerdictAt?: Timestamp;
   rtOperatorId?: string;
   rtNotes?: string;
-  
+
   // Signature
   signature: LogicalSignature;
-  
+
   // Audit
   operatorId: string;
   labId: string;
   classifiedAt: Timestamp;
   agreedWithGemini: boolean; // (rtVerdict === classification)
-  
+
   createdAt: Timestamp;
   deletedAt: null | Timestamp; // Soft-delete only
 }
 ```
 
 **Indexes:**
+
 - `{ labId, classifiedAt desc }`
 - `{ labId, testType, classifiedAt desc }`
 - `{ labId, flaggedForManualReview, classifiedAt desc }`
 - `{ labId, promptVariant, classifiedAt desc }`
 
 #### imuno-ia-dev/{labId}/config (Lab-specific settings)
+
 ```typescript
 interface IALabConfig {
   labId: string;
-  
+
   // Thresholds & rules
   confidenceThreshold: number; // 0.85 default
   minImagesBeforeModelUpdate: number; // 100
-  
+
   // Collection targets
   dailyCollectionTarget: number; // 50 images/day
   maxImagesPerDay: number; // 200 (soft limit)
-  
+
   // Prompt variant (A/B test allocation)
   promptVariantAllocation: {
     v1: 0.34; // 34% of images use v1
     v2: 0.33;
     v3: 0.33;
   };
-  
+
   // Privacy & consent
   recordGeolocation: boolean;
   retentionDays: number; // 365 default
-  
+
   // Notifications
   alertEmail: string[];
   alertOnAccuracyDrop: number; // 0.80 (80% accuracy alert)
-  
+
   updatedAt: Timestamp;
   updatedBy: string; // Admin operator ID
 }
 ```
 
 #### imuno-ia-cost/{labId}/daily/{dateKey} (Cost tracking)
+
 ```typescript
 interface IACostDaily {
   labId: string;
   dateKey: string; // YYYY-MM-DD
-  
+
   callCount: number;
   estimatedCost: number; // USD
   tokensUsed: {
     input: number;
     output: number;
   };
-  
+
   lastUpdated: Timestamp;
 }
 ```
@@ -746,7 +772,7 @@ match /imuno-ia-dev/{labId} {
     allow read: if isActiveMemberOfLab(labId);
     allow write: if isAdminOfLab(labId);
   }
-  
+
   // Append-only events (operators + readers)
   match /events/{captureId} {
     allow read: if isActiveMemberOfLab(labId);
@@ -755,7 +781,7 @@ match /imuno-ia-dev/{labId} {
                      && validSignature(request.resource.data.signature);
     allow update, delete: if false; // Immutable
   }
-  
+
   // Cost tracking (admin read, system write)
   match /daily/{dateKey} {
     allow read: if isAdminOfLab(labId);
@@ -770,14 +796,14 @@ match /imuno-ia-dev/{labId} {
 
 ### 7.1 Function Inventory
 
-| Callable | Purpose | Region | Timeout | Owner |
-|----------|---------|--------|---------|-------|
-| `classifyStripGemini` | Core IA classification | southamerica-east1 | 30s | Phase 11 |
-| `collectIADataset` | Batch image upload tracking | southamerica-east1 | 60s | Phase 11 |
-| `trackIAAccuracy` | Log RT verdict & agreement | southamerica-east1 | 15s | Phase 11 |
-| `getIAPerformanceMetrics` | Dashboard data aggregation | southamerica-east1 | 20s | Phase 11 |
-| `updateIALabConfig` | Admin config updates | southamerica-east1 | 10s | Phase 11 |
-| `exportIADataset` | Batch dataset export (ML team) | southamerica-east1 | 120s | Phase 12 |
+| Callable                  | Purpose                        | Region             | Timeout | Owner    |
+| ------------------------- | ------------------------------ | ------------------ | ------- | -------- |
+| `classifyStripGemini`     | Core IA classification         | southamerica-east1 | 30s     | Phase 11 |
+| `collectIADataset`        | Batch image upload tracking    | southamerica-east1 | 60s     | Phase 11 |
+| `trackIAAccuracy`         | Log RT verdict & agreement     | southamerica-east1 | 15s     | Phase 11 |
+| `getIAPerformanceMetrics` | Dashboard data aggregation     | southamerica-east1 | 20s     | Phase 11 |
+| `updateIALabConfig`       | Admin config updates           | southamerica-east1 | 10s     | Phase 11 |
+| `exportIADataset`         | Batch dataset export (ML team) | southamerica-east1 | 120s    | Phase 12 |
 
 ### 7.2 Stubs (To be implemented in Phase 11)
 
@@ -801,15 +827,16 @@ export const updateIALabConfig = onCall(...); // Admin config changes
 
 ### 8.1 Variants
 
-| Variant | Language | Style | Expected Strength | A/B Weight |
-|---------|----------|-------|-------------------|-----------|
-| **v1** | Portuguese | Clinical detail + decision rules | High accuracy | 34% |
-| **v2** | Portuguese | Terse checklist (faster) | Speed + 95% accuracy | 33% |
-| **v3** | English | Visual cues (international model alignment) | Model generalization | 33% |
+| Variant | Language   | Style                                       | Expected Strength    | A/B Weight |
+| ------- | ---------- | ------------------------------------------- | -------------------- | ---------- |
+| **v1**  | Portuguese | Clinical detail + decision rules            | High accuracy        | 34%        |
+| **v2**  | Portuguese | Terse checklist (faster)                    | Speed + 95% accuracy | 33%        |
+| **v3**  | English    | Visual cues (international model alignment) | Model generalization | 33%        |
 
 ### 8.2 Evaluation
 
 **Daily metrics logged per variant:**
+
 - Accuracy (% agreement with RT verdict)
 - Latency p50/p95/p99
 - Token usage (input + output)
@@ -909,6 +936,7 @@ it('Gemini API cost tracking alerts when spending exceeds $500/month', async () 
 ### 10.1 Daily Collection Process
 
 **Workflow:**
+
 1. **Morning (6:00 AM BRT):** Lab ops team starts daily collection
    - Opens imuno module
    - Clicks "IA Dataset Collection Mode"
@@ -936,6 +964,7 @@ imuno-ia-dev/{labId}/
 ```
 
 **version.log entry:**
+
 ```
 v1.0_baseline | 2026-06-23 | 523 images | v1:v2:v3 = 34:33:33 | 92.1% accuracy | deployed
 v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
@@ -950,6 +979,7 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 **Requirement:** Organization must document IA model training, validation, and monitoring.
 
 **Phase 11 Deliverables:**
+
 1. **Training dataset policy** (`docs/PHASE_11_IA_TRAINING_POLICY.md`)
    - Image selection criteria (diversity, quality)
    - Consent & privacy safeguards
@@ -971,6 +1001,7 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
    - Gemini API costs tracked (cost control)
 
 **DICQ compliance checklist:**
+
 - [ ] Training dataset documented (50-day collection target = 500+ images)
 - [ ] Prompt engineering variants tested (v1, v2, v3)
 - [ ] Accuracy baseline established (92%+ vs. RT verdicts)
@@ -984,14 +1015,14 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 
 ### High-Priority Risks
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| **Gemini API cost overrun** | Medium | High | Cost tracking + $500/month alert + daily target soft limits |
-| **Model accuracy <80%** | Low | High | A/B testing 3 prompt variants; choose best v1.0 baseline |
-| **Dataset skew (mostly R)** | Medium | Medium | Daily collection review + enforce diversity requirement |
-| **Confidence threshold miscalibrated** | Medium | Medium | Phase 11 exit: tune threshold based on 500-image validation |
-| **Privacy breach (patient PII)** | Low | Critical | No PII in image metadata; geolocation optional; 12-month retention max |
-| **Gemini API latency >3s p99** | Low | Medium | Fallback to manual review if timeout; alert ops team |
+| Risk                                   | Likelihood | Impact   | Mitigation                                                             |
+| -------------------------------------- | ---------- | -------- | ---------------------------------------------------------------------- |
+| **Gemini API cost overrun**            | Medium     | High     | Cost tracking + $500/month alert + daily target soft limits            |
+| **Model accuracy <80%**                | Low        | High     | A/B testing 3 prompt variants; choose best v1.0 baseline               |
+| **Dataset skew (mostly R)**            | Medium     | Medium   | Daily collection review + enforce diversity requirement                |
+| **Confidence threshold miscalibrated** | Medium     | Medium   | Phase 11 exit: tune threshold based on 500-image validation            |
+| **Privacy breach (patient PII)**       | Low        | Critical | No PII in image metadata; geolocation optional; 12-month retention max |
+| **Gemini API latency >3s p99**         | Low        | Medium   | Fallback to manual review if timeout; alert ops team                   |
 
 ### Cost Control (Gemini API)
 
@@ -1000,6 +1031,7 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 **Tracking:** Daily cost logged to `imuno-ia-cost/{labId}/daily/{dateKey}`
 
 **Calculation:**
+
 - Input tokens: ~$1.25 per 1M
 - Output tokens: ~$5.00 per 1M
 - Avg classification: 350 input tokens + 80 output tokens = ~$0.00058 per call
@@ -1013,27 +1045,28 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 
 ### Phase 11 Task Breakdown
 
-| Week | Task | Subtask | Owner | Status |
-|------|------|---------|-------|--------|
-| W1 | **Image upload infra** | StripCameraCapture component | Eng1 | — |
-| W1 | | Firebase Storage path + auto-resize | Eng1 | — |
-| W1 | | Upload form validation (size, MIME, resolution) | Eng1 | — |
-| W1 | **Gemini integration** | classifyStripGemini callable | Eng2 | — |
-| W1 | | Prompt v1/v2/v3 engineering | Eng2 | — |
-| W1 | | Response parsing + error handling | Eng2 | — |
-| W1 | **Validation pipeline** | Confidence threshold logic | Eng3 | — |
-| W1 | | StripManualReviewModal component | Eng3 | — |
-| W1 | | Manual override + signature capture | Eng3 | — |
-| W2 | **Firestore schema** | Collections + indexes + rules | Eng2 | — |
-| W2 | | Cost tracking callables | Eng2 | — |
-| W2 | **Dashboard** | IAPerformanceDashboard 5 tabs | Eng4 | — |
-| W2 | | Confusion matrix + metrics queries | Eng4 | — |
-| W2 | | Cost trending + alerts | Eng4 | — |
-| W2 | **Testing & validation** | E2E test specs (5 flows) | QA | — |
-| W2 | | Phase 11 smoke tests | QA | — |
-| W2 | | Cloud Logs monitoring (24h post-deploy) | DevOps | — |
+| Week | Task                     | Subtask                                         | Owner  | Status |
+| ---- | ------------------------ | ----------------------------------------------- | ------ | ------ |
+| W1   | **Image upload infra**   | StripCameraCapture component                    | Eng1   | —      |
+| W1   |                          | Firebase Storage path + auto-resize             | Eng1   | —      |
+| W1   |                          | Upload form validation (size, MIME, resolution) | Eng1   | —      |
+| W1   | **Gemini integration**   | classifyStripGemini callable                    | Eng2   | —      |
+| W1   |                          | Prompt v1/v2/v3 engineering                     | Eng2   | —      |
+| W1   |                          | Response parsing + error handling               | Eng2   | —      |
+| W1   | **Validation pipeline**  | Confidence threshold logic                      | Eng3   | —      |
+| W1   |                          | StripManualReviewModal component                | Eng3   | —      |
+| W1   |                          | Manual override + signature capture             | Eng3   | —      |
+| W2   | **Firestore schema**     | Collections + indexes + rules                   | Eng2   | —      |
+| W2   |                          | Cost tracking callables                         | Eng2   | —      |
+| W2   | **Dashboard**            | IAPerformanceDashboard 5 tabs                   | Eng4   | —      |
+| W2   |                          | Confusion matrix + metrics queries              | Eng4   | —      |
+| W2   |                          | Cost trending + alerts                          | Eng4   | —      |
+| W2   | **Testing & validation** | E2E test specs (5 flows)                        | QA     | —      |
+| W2   |                          | Phase 11 smoke tests                            | QA     | —      |
+| W2   |                          | Cloud Logs monitoring (24h post-deploy)         | DevOps | —      |
 
 **Dependencies:**
+
 - Gemini API key provisioned + quota verified (Week 1, Day 1)
 - Firebase Storage bucket write access confirmed (Week 1, Day 1)
 - Cloud Function emulator tested (Week 1, Day 2)
@@ -1044,18 +1077,18 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 
 ### Phase 11 Exit Gate Criteria
 
-| Criterion | Target | Status |
-|-----------|--------|--------|
-| **Code coverage** | >85% (E2E + unit tests) | — |
-| **Functionality** | All 6 callables + dashboard live | — |
-| **Dataset collection** | 500+ images by phase end | — |
-| **Gemini accuracy** | ≥92% (vs. RT verdicts) | — |
-| **Latency** | <3s p99 (95% <2.5s) | — |
-| **Cost control** | <$500/month trajectory | — |
-| **DICQ 4.7 compliance** | Training policy + versioning documented | — |
-| **E2E tests** | 5/5 flows PASS | — |
-| **Regressions** | 738/738 baseline tests still PASS | — |
-| **Cloud Logs** | 0 errors, <5% warning rate (24h post-deploy) | — |
+| Criterion               | Target                                       | Status |
+| ----------------------- | -------------------------------------------- | ------ |
+| **Code coverage**       | >85% (E2E + unit tests)                      | —      |
+| **Functionality**       | All 6 callables + dashboard live             | —      |
+| **Dataset collection**  | 500+ images by phase end                     | —      |
+| **Gemini accuracy**     | ≥92% (vs. RT verdicts)                       | —      |
+| **Latency**             | <3s p99 (95% <2.5s)                          | —      |
+| **Cost control**        | <$500/month trajectory                       | —      |
+| **DICQ 4.7 compliance** | Training policy + versioning documented      | —      |
+| **E2E tests**           | 5/5 flows PASS                               | —      |
+| **Regressions**         | 738/738 baseline tests still PASS            | —      |
+| **Cloud Logs**          | 0 errors, <5% warning rate (24h post-deploy) | —      |
 
 **Phase 11 Deploy Date:** 2026-06-23
 
@@ -1064,6 +1097,7 @@ v1.1_experiment | 2026-07-14 | 1050 images | v1:v2:v3 = 20:40:40 | in-collection
 ## 15. Handoff to Phase 12
 
 **Phase 12 kickoff dependencies:**
+
 1. ✅ Image collection baseline (500+ images)
 2. ✅ v1.0 model accuracy established (≥92%)
 3. ✅ Dashboard live + operators trained on UI

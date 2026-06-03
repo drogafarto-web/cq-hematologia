@@ -23,7 +23,7 @@
 
 import { useMemo } from 'react';
 import { URO_ANALITOS, URO_CRITERIOS } from '../UroAnalyteConfig';
-import type { UroanaliseRun } from '../types/Uroanalise';
+import type { UroanaliseRun, UroExpectedValueConfig } from '../types/Uroanalise';
 import type {
   UroAnalitoId,
   UroNivel,
@@ -134,8 +134,36 @@ export function validateUroResultado(
   analito: UroAnalitoId,
   valor: UroValorCategorico | number | null,
   nivel: UroNivel,
+  expectedConfig?: UroExpectedValueConfig,
 ): boolean | null {
   if (valor === null) return null;
+
+  if (expectedConfig) {
+    const { tipo, min, max, valores } = expectedConfig;
+    if (tipo === 'numerico') {
+      if (typeof valor !== 'number') return null;
+      if (min === undefined || max === undefined) return null;
+      return valor >= min && valor <= max;
+    }
+    if (tipo === 'faixa_cruzes') {
+      const getCrossLevel = (v: string): number => {
+        if (v === '1+') return 1;
+        if (v === '2+') return 2;
+        if (v === '3+') return 3;
+        if (v === '4+') return 4;
+        if (v === 'TRACOS') return 0.5;
+        return 0; // NEGATIVO or NORMAL
+      };
+      const valNum = getCrossLevel(String(valor));
+      const minNum = min ?? 0;
+      const maxNum = max ?? 4;
+      return valNum >= minNum && valNum <= maxNum;
+    }
+    if (tipo === 'nominal') {
+      if (!valores || valores.length === 0) return null;
+      return valores.includes(String(valor));
+    }
+  }
 
   const criterioNivel = URO_CRITERIOS[nivel];
   const criterio = criterioNivel[analito];
@@ -164,7 +192,10 @@ export function validateUroResultado(
  * @param run Corrida de uroanálise a ser avaliada.
  * @returns   `UroRunAvaliacao` com conformidade por analito e status global.
  */
-export function avaliarRunUro(run: UroanaliseRun): UroRunAvaliacao {
+export function avaliarRunUro(
+  run: UroanaliseRun,
+  lotExpectedValues?: Record<string, UroExpectedValueConfig>,
+): UroRunAvaliacao {
   const nivel = run.nivel;
   const conformidadePorAnalito: Partial<Record<UroAnalitoId, boolean>> = {};
   const analitosNaoConformes: UroAnalitoId[] = [];
@@ -174,7 +205,8 @@ export function avaliarRunUro(run: UroanaliseRun): UroRunAvaliacao {
     if (!campo) continue;
 
     const valor = campo.valor as UroValorCategorico | number | null;
-    const resultado = validateUroResultado(analito, valor, nivel);
+    const expectedConfig = run.expectedValuesRun?.[analito] || lotExpectedValues?.[analito];
+    const resultado = validateUroResultado(analito, valor, nivel, expectedConfig);
 
     if (resultado === null) continue; // Analito sem critério ou sem valor — não avalia
 
@@ -214,6 +246,7 @@ export function avaliarRunUro(run: UroanaliseRun): UroRunAvaliacao {
 export function computeUroValidator(
   runs: UroanaliseRun[],
   validadeControle: string,
+  lotExpectedValues?: Record<string, UroExpectedValueConfig>,
 ): UroValidatorResult {
   if (runs.length === 0) {
     return { byRun: new Map(), lotStatus: 'sem_dados', alerts: [] };
@@ -222,7 +255,7 @@ export function computeUroValidator(
   // ── Avaliar cada corrida ─────────────────────────────────────────────────────
   const byRun = new Map<string, UroRunAvaliacao>();
   for (const run of runs) {
-    byRun.set(run.id, avaliarRunUro(run));
+    byRun.set(run.id, avaliarRunUro(run, lotExpectedValues));
   }
 
   const alerts: UroAlert[] = [];
@@ -302,6 +335,10 @@ export function computeUroValidator(
 export function useUroValidator(
   runs: UroanaliseRun[],
   validadeControle: string,
+  lotExpectedValues?: Record<string, UroExpectedValueConfig>,
 ): UroValidatorResult {
-  return useMemo(() => computeUroValidator(runs, validadeControle), [runs, validadeControle]);
+  return useMemo(
+    () => computeUroValidator(runs, validadeControle, lotExpectedValues),
+    [runs, validadeControle, lotExpectedValues],
+  );
 }

@@ -1,7 +1,7 @@
 ---
-title: "Phase 4 Incident Response Playbook"
-date: "2026-08-31"
-status: "OPERATIONAL"
+title: 'Phase 4 Incident Response Playbook'
+date: '2026-08-31'
+status: 'OPERATIONAL'
 ---
 
 # Phase 4 Incident Response Playbook
@@ -21,6 +21,7 @@ status: "OPERATIONAL"
 **Examples:** Single user complaint, minor UI bug, non-critical feature down
 
 **Response:**
+
 1. Acknowledge in Slack (#production-alerts)
 2. Investigate root cause (< 5 min)
 3. Triage: Fix forward or defer to maintenance window
@@ -38,6 +39,7 @@ status: "OPERATIONAL"
 **Examples:** Portal timeout spike, NOTIVISA queue backing up, auth latency issue
 
 **Response:**
+
 1. Page on-call (primary + secondary)
 2. Join Slack war room (#production-emergency)
 3. Engage CTO (notify, don't page yet)
@@ -60,6 +62,7 @@ status: "OPERATIONAL"
 **Examples:** Firestore rules blocking all writes, Gemini API quota exhausted, NOTIVISA API down, auth service unavailable
 
 **Response:**
+
 1. Page ALL (on-call + secondary + CTO + DevOps lead)
 2. CTO takes incident commander role
 3. War room (Slack + video call): max 1 min assembly
@@ -86,6 +89,7 @@ status: "OPERATIONAL"
 **Examples:** Database corruption, unauthorized access, patient data leaked, financial fraud
 
 **Response:**
+
 1. Page ALL immediately (no filtering)
 2. Declare CODE RED incident
 3. CTO + Legal + Security convene instantly
@@ -105,6 +109,7 @@ status: "OPERATIONAL"
 ## Scenario 1: Firestore Rules Block All Writes
 
 **Symptom Detection:**
+
 - Spike in "Permission denied" errors (>20% of writes)
 - Portal RT: "Cannot create run" errors
 - Portal Paciente: Consent save fails
@@ -114,6 +119,7 @@ status: "OPERATIONAL"
 **Severity:** 🔴 RED (all run creation blocked)
 
 **Timeline:**
+
 ```
 T+0    Alert fires (A1 error rate >5%)
 T+1    Page on-call
@@ -255,6 +261,7 @@ gcloud monitoring time-series list \
 5. **Prevention?** — Mandatory rules:test before deploy (git pre-push hook)
 
 **Action Items:**
+
 - [ ] Add `firebase rules:test` to git pre-push hook
 - [ ] Add rules syntax validation to CI/CD
 - [ ] Schedule code review training (Firestore rules focus)
@@ -264,6 +271,7 @@ gcloud monitoring time-series list \
 ## Scenario 2: Cloud Functions Cold Start Latency Spike
 
 **Symptom Detection:**
+
 - Portal load time increases to >3s (normally 1.8s)
 - NOTIVISA submissions taking >5s (normally <2s)
 - Alert A3 fires (P99 latency >3s)
@@ -272,6 +280,7 @@ gcloud monitoring time-series list \
 **Severity:** 🟡 YELLOW (user experience degraded, not blocked)
 
 **Timeline:**
+
 ```
 T+0    Alert fires (P99 > 3s)
 T+1    Page secondary on-call
@@ -413,6 +422,7 @@ firebase functions:list --project hmatologia2 \
 5. **Prevention?** — Baseline memory config based on expected load
 
 **Action Items:**
+
 - [ ] Document function memory requirements per deployment
 - [ ] Set up P99 latency baseline dashboard
 - [ ] Create auto-scaling policy for Cloud Functions
@@ -422,6 +432,7 @@ firebase functions:list --project hmatologia2 \
 ## Scenario 3: Gemini API Quota Exhausted
 
 **Symptom Detection:**
+
 - OCR extraction fails with "Quota exceeded" error
 - Portal Paciente: PDF upload hangs, timeout after 60s
 - Cloud Functions: extractLaudoOCR returns HTTP 429
@@ -430,6 +441,7 @@ firebase functions:list --project hmatologia2 \
 **Severity:** 🟡 YELLOW (OCR feature down, not blocking other features)
 
 **Timeline:**
+
 ```
 T+0    Alert fires (OCR error rate >10%)
 T+1    Page on-call
@@ -566,6 +578,7 @@ Manual OCR Flow Test:
 5. **Prevention?** — Increase quota to 500+ requests/min, add rate limiting
 
 **Action Items:**
+
 - [ ] Request Gemini API quota increase (500+ req/min)
 - [ ] Add rate limiting to extractLaudoOCR (max 10 uploads/user/hour)
 - [ ] Add queueing for bulk OCR (process async with delay)
@@ -576,6 +589,7 @@ Manual OCR Flow Test:
 ## Scenario 4: Firestore Index Timeout (Queries Slow Down)
 
 **Symptom Detection:**
+
 - NOTIVISA queue status query takes >10s (normally <1s)
 - RT Presence lookup latency spikes
 - Alert A3 fires (P99 > 3s)
@@ -584,6 +598,7 @@ Manual OCR Flow Test:
 **Severity:** 🟡 YELLOW (reporting slow, operational systems still responsive)
 
 **Timeline:**
+
 ```
 T+0    Alert fires (query latency >3s)
 T+1    Page on-call
@@ -722,6 +737,7 @@ T+0 Alert fires
 ### Escalation Contacts
 
 **On-Call Engineer (Primary):**
+
 ```
 Name: ________________________
 Phone: ________________________
@@ -730,6 +746,7 @@ Hours: 24/7 rotation
 ```
 
 **Secondary On-Call:**
+
 ```
 Name: ________________________
 Phone: ________________________
@@ -738,6 +755,7 @@ Hours: 24/7 rotation
 ```
 
 **CTO (Final Authority):**
+
 ```
 Name: drogafarto
 Email: drogafarto@gmail.com
@@ -746,6 +764,7 @@ Slack: @drogafarto
 ```
 
 **DevOps Lead:**
+
 ```
 Name: ________________________
 Phone: ________________________
@@ -754,6 +773,7 @@ Hours: 08:00–18:00 weekdays
 ```
 
 **Security Lead:**
+
 ```
 Name: ________________________
 Phone: ________________________
@@ -770,6 +790,7 @@ Hours: On-call for BLACK incidents
 **Incident ID:** [YYYY-MM-DD-NNN]
 
 **Timeline:**
+
 ```
 T+0:   Alert fired / issue reported
 T+5:   Root cause identified
@@ -779,6 +800,7 @@ T+30:  Validation complete
 ```
 
 **Impact Assessment:**
+
 ```
 Duration: __ minutes
 Users affected: __ (% of total)
@@ -789,6 +811,7 @@ Severity: [ ] GREEN [ ] YELLOW [ ] RED [ ] BLACK
 ```
 
 **Root Cause:**
+
 ```
 What happened: _____________________________________
 Why it happened: _____________________________________
@@ -797,6 +820,7 @@ How? _____________________________________
 ```
 
 **Mitigation:**
+
 ```
 Action taken: _____________________________________
 Owner: _____________________________________
@@ -805,6 +829,7 @@ Effectiveness: _____________________________________
 ```
 
 **Prevention:**
+
 ```
 Action 1: _____________________________________
 Owner: _____________ Target: _____________ Status: [ ] Done [ ] Pending
@@ -817,6 +842,7 @@ Owner: _____________ Target: _____________ Status: [ ] Done [ ] Pending
 ```
 
 **Post-Mortem Meeting:**
+
 ```
 Date: ______________
 Attendees: _____________________________________
@@ -833,6 +859,7 @@ Target date: ______________
 **This Playbook:** `docs/INCIDENT_RESPONSE_PLAYBOOK_PHASE_4.md`
 
 **Related Documents:**
+
 - `.planning/v1.4-INCIDENT_RESPONSE_CONTACTS.md` — Contact tree
 - `docs/GO_LIVE_DAY_SCHEDULE_2026-05-20.md` — Go-live timeline
 - `.planning/SLO_TRACKING_MANIFEST.md` — SLO definitions

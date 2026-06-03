@@ -23,7 +23,7 @@ export function AdminDashboard() {
       (err) => {
         console.error('Erro ao carregar solicitações:', err);
         setLoading(false);
-      }
+      },
     );
 
     return unsub;
@@ -32,7 +32,7 @@ export function AdminDashboard() {
   useEffect(() => {
     const unsub = subscribeToExclusoes(
       (data) => setExclusoes(data),
-      (err) => console.error('Erro ao carregar logs de exclusão:', err)
+      (err) => console.error('Erro ao carregar logs de exclusão:', err),
     );
 
     return unsub;
@@ -136,16 +136,14 @@ export function AdminDashboard() {
                     <div className="flex-1">
                       <div className="font-medium">{solicitacao.titular_nome}</div>
                       <div className="mt-1 text-sm text-gray-600">{solicitacao.titular_email}</div>
-                      <div className="mt-1 text-xs text-gray-500">
-                        ID: {solicitacao.titular_id}
-                      </div>
+                      <div className="mt-1 text-xs text-gray-500">ID: {solicitacao.titular_id}</div>
                       <div className="mt-2 flex gap-2">
                         <span className="inline-block rounded px-2 py-1 text-xs font-medium bg-blue-100 text-blue-900">
                           {solicitacao.tipo.toUpperCase()}
                         </span>
                         <span
                           className={`inline-block rounded px-2 py-1 text-xs font-medium ${getStatusColor(
-                            solicitacao.status
+                            solicitacao.status,
                           )}`}
                         >
                           {solicitacao.status.toUpperCase()}
@@ -181,7 +179,10 @@ export function AdminDashboard() {
           <h3 className="text-lg font-semibold">Histórico de Anonimizações</h3>
           <div className="mt-4 space-y-2 max-h-96 overflow-y-auto">
             {exclusoes.slice(0, 10).map((log) => (
-              <div key={log.id} className="flex items-center justify-between rounded border p-3 text-sm">
+              <div
+                key={log.id}
+                className="flex items-center justify-between rounded border p-3 text-sm"
+              >
                 <div className="flex-1">
                   <div className="font-medium">{log.usuario_nome}</div>
                   <div className="text-xs text-gray-500">
@@ -191,9 +192,7 @@ export function AdminDashboard() {
                 <div className="text-xs text-gray-600">
                   {log.data_exclusao?.toDate?.().toLocaleDateString?.() || 'Data desconhecida'}
                 </div>
-                {log.verificado && (
-                  <div className="ml-2 text-green-600">✓</div>
-                )}
+                {log.verificado && <div className="ml-2 text-green-600">✓</div>}
               </div>
             ))}
           </div>

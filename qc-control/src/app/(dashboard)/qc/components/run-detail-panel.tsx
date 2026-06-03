@@ -1,50 +1,50 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
+import { useState } from 'react';
 
 interface Lot {
-  id: string
-  lotNumber: string
-  analyte: string
-  level: number
-  reagentName: string
-  analyzer: { id: string; analyzerId: string; model: string }
+  id: string;
+  lotNumber: string;
+  analyte: string;
+  level: number;
+  reagentName: string;
+  analyzer: { id: string; analyzerId: string; model: string };
 }
 
 interface Run {
-  id: string
-  value: number
-  sdDistance: number
-  ruleViolated: string | null
-  isReject: boolean
-  isWarning: boolean
-  status: string
-  justification: string | null
-  runAt: string
-  operator: { name: string }
-  lot: Lot
+  id: string;
+  value: number;
+  sdDistance: number;
+  ruleViolated: string | null;
+  isReject: boolean;
+  isWarning: boolean;
+  status: string;
+  justification: string | null;
+  runAt: string;
+  operator: { name: string };
+  lot: Lot;
 }
 
 interface RunDetailPanelProps {
-  run: Run
-  onClose: () => void
-  onRelease: (justification: string) => void
+  run: Run;
+  onClose: () => void;
+  onRelease: (justification: string) => void;
 }
 
 export function RunDetailPanel({ run, onClose, onRelease }: RunDetailPanelProps) {
-  const [justification, setJustification] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const [justification, setJustification] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
-  const isPending = run.status === 'PENDING_JUSTIFICATION' && !run.justification
+  const isPending = run.status === 'PENDING_JUSTIFICATION' && !run.justification;
 
   async function handleRelease() {
-    if (justification.length < 10) return
-    setSubmitting(true)
-    await onRelease(justification)
-    setSubmitting(false)
+    if (justification.length < 10) return;
+    setSubmitting(true);
+    await onRelease(justification);
+    setSubmitting(false);
   }
 
-  const date = new Date(run.runAt)
+  const date = new Date(run.runAt);
 
   return (
     <div className="fixed inset-0 z-50 flex justify-end">
@@ -64,80 +64,116 @@ export function RunDetailPanel({ run, onClose, onRelease }: RunDetailPanelProps)
         <div className="flex flex-col gap-3 text-sm">
           <div className="grid grid-cols-2 gap-2">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Date</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Date
+              </span>
               <span className="font-mono">{date.toLocaleDateString('pt-BR')}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Time</span>
-              <span className="font-mono">{date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Time
+              </span>
+              <span className="font-mono">
+                {date.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+              </span>
             </div>
           </div>
 
           <div className="border-t border-border pt-3 grid grid-cols-2 gap-2">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Lot</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Lot
+              </span>
               <span className="font-mono">{run.lot.lotNumber}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Level</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Level
+              </span>
               <span>{run.lot.level}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Analyte</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Analyte
+              </span>
               <span>{run.lot.analyte}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Reagent</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Reagent
+              </span>
               <span>{run.lot.reagentName}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Analyzer</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Analyzer
+              </span>
               <span className="font-mono">{run.lot.analyzer.analyzerId}</span>
             </div>
           </div>
 
           <div className="border-t border-border pt-3 grid grid-cols-2 gap-2">
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Result</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Result
+              </span>
               <span className="font-mono text-lg">{run.value.toFixed(2)}</span>
             </div>
             <div>
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">±SD</span>
-              <span className="font-mono text-lg">{(run.sdDistance >= 0 ? '+' : '') + run.sdDistance.toFixed(2)}</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                ±SD
+              </span>
+              <span className="font-mono text-lg">
+                {(run.sdDistance >= 0 ? '+' : '') + run.sdDistance.toFixed(2)}
+              </span>
             </div>
           </div>
 
           <div className="border-t border-border pt-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Status</span>
-            <span className={`font-semibold ${run.status === 'PENDING_JUSTIFICATION' ? 'text-warning' : 'text-success'}`}>
+            <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+              Status
+            </span>
+            <span
+              className={`font-semibold ${run.status === 'PENDING_JUSTIFICATION' ? 'text-warning' : 'text-success'}`}
+            >
               {run.status === 'PENDING_JUSTIFICATION' ? 'Pending Justification' : 'Released'}
             </span>
           </div>
 
           {run.ruleViolated && (
             <div className="border-t border-border pt-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Rule Violated</span>
-              <span className={`font-mono font-semibold ${run.isReject ? 'text-error' : 'text-warning'}`}>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Rule Violated
+              </span>
+              <span
+                className={`font-mono font-semibold ${run.isReject ? 'text-error' : 'text-warning'}`}
+              >
                 {run.ruleViolated}
               </span>
             </div>
           )}
 
           <div className="border-t border-border pt-3">
-            <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Operator</span>
+            <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+              Operator
+            </span>
             <span>{run.operator.name}</span>
           </div>
 
           {run.justification && (
             <div className="border-t border-border pt-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">Justification</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline block">
+                Justification
+              </span>
               <p className="text-sm mt-1">{run.justification}</p>
             </div>
           )}
 
           {isPending && (
             <div className="border-t border-border pt-3 flex flex-col gap-3">
-              <span className="text-xs font-semibold uppercase tracking-wider text-outline">Justification Required</span>
+              <span className="text-xs font-semibold uppercase tracking-wider text-outline">
+                Justification Required
+              </span>
               <textarea
                 value={justification}
                 onChange={(e) => setJustification(e.target.value)}
@@ -158,5 +194,5 @@ export function RunDetailPanel({ run, onClose, onRelease }: RunDetailPanelProps)
         </div>
       </div>
     </div>
-  )
+  );
 }

@@ -85,7 +85,7 @@ describe.skip('Flow 1: Patient Portal Auth (Email Link)', () => {
     it('should reject token with iat > 7 days old', async () => {
       // Setup: Create token with old iat timestamp
       const now = Math.floor(Date.now() / 1000);
-      const sevenDaysAgo = now - (7 * 24 * 60 * 60) - 100; // 7 days + 100 seconds
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 - 100; // 7 days + 100 seconds
 
       const expiredToken = createTokenWithIat(sevenDaysAgo);
 
@@ -103,7 +103,7 @@ describe.skip('Flow 1: Patient Portal Auth (Email Link)', () => {
 
     it('should offer option to resend email', async () => {
       const now = Math.floor(Date.now() / 1000);
-      const sevenDaysAgo = now - (7 * 24 * 60 * 60) - 100;
+      const sevenDaysAgo = now - 7 * 24 * 60 * 60 - 100;
       const expiredToken = createTokenWithIat(sevenDaysAgo);
 
       await validateAuthToken(expiredToken);
@@ -291,7 +291,7 @@ describe.skip('Flow 2: Patient Views Own Laudos', () => {
       expect(skeletons.length).toBeGreaterThan(0);
 
       // Assert: Skeleton has aria-busy
-      skeletons.forEach(skeleton => {
+      skeletons.forEach((skeleton) => {
         expect(skeleton.getAttribute('aria-busy')).toBe('true');
       });
     });
@@ -405,7 +405,7 @@ describe.skip('Flow 2: Patient Views Own Laudos', () => {
 
       // Assert: Items sorted newest first
       const items = getLaudoListItems();
-      const dates_from_list = items.map(item => {
+      const dates_from_list = items.map((item) => {
         const dateText = getTextFromElement(item, '[data-testid="exam-date"]');
         return new Date(dateText);
       });
@@ -417,10 +417,7 @@ describe.skip('Flow 2: Patient Views Own Laudos', () => {
     });
 
     it('should allow sort toggle', async () => {
-      const dates = [
-        new Date('2026-04-01'),
-        new Date('2026-05-01'),
-      ];
+      const dates = [new Date('2026-04-01'), new Date('2026-05-01')];
       seedTestLaudosWithDates('pat_alice_001', 2, 0, dates);
 
       navigateTo('/portal/dashboard');
@@ -511,7 +508,7 @@ describe.skip('Flow 3: Patient Downloads Laudo (PDF Export)', () => {
     it('should generate PDF and trigger browser download', async () => {
       const laudo = seedTestLaudo('pat_alice_001', {
         id: 'laudo_pdf_001',
-        exame: 'Hemograma'
+        exame: 'Hemograma',
       });
 
       navigateTo('/portal/dashboard');
@@ -706,7 +703,7 @@ describe.skip('Flow 4: RT Submits NOTIVISA Form + Queue Processing', () => {
       const auditLogs = getAuditLogs('notivisa-drafts', 'pat_alice_001');
       expect(auditLogs.length).toBeGreaterThan(0);
 
-      const creationLog = auditLogs.find(log => log.action === 'draft_created');
+      const creationLog = auditLogs.find((log) => log.action === 'draft_created');
       expect(creationLog).toBeDefined();
       expect(creationLog?.userId).toBe('rt_user_001');
       expect(creationLog?.timestamp).toBeDefined();
@@ -943,7 +940,7 @@ describe.skip('Flow 4: RT Submits NOTIVISA Form + Queue Processing', () => {
         filter: `labels.draftId="${draft.id}" AND severity="INFO"`,
       });
 
-      const ackLog = logs.find(log => log.message.includes('ACK timestamp'));
+      const ackLog = logs.find((log) => log.message.includes('ACK timestamp'));
       expect(ackLog).toBeDefined();
     });
   });
@@ -1139,15 +1136,20 @@ function generatePatientAuthLink(email: string, patientId: string): string {
     patientId,
     iat: Math.floor(Date.now() / 1000),
   };
-  const token = Buffer.from(JSON.stringify(payload)).toString('base64') + '.' +
-                Buffer.from('signature').toString('base64');
+  const token =
+    Buffer.from(JSON.stringify(payload)).toString('base64') +
+    '.' +
+    Buffer.from('signature').toString('base64');
   return `http://localhost:3000/portal/auth/callback?token=${token}`;
 }
 
 function createTokenWithIat(iat: number): string {
   const payload = { email: 'test@lab.test', iat };
-  return Buffer.from(JSON.stringify(payload)).toString('base64') + '.' +
-         Buffer.from('signature').toString('base64');
+  return (
+    Buffer.from(JSON.stringify(payload)).toString('base64') +
+    '.' +
+    Buffer.from('signature').toString('base64')
+  );
 }
 
 async function validateAuthToken(token: string): Promise<boolean> {
@@ -1243,14 +1245,14 @@ function scrollToBottom(): void {
 
 // Async helpers
 async function loadLaudosList(): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, 100));
+  return new Promise((resolve) => setTimeout(resolve, 100));
 }
 
 async function waitForElement(selector: string): Promise<Element | null> {
   for (let i = 0; i < 50; i++) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   return null;
 }
@@ -1258,12 +1260,12 @@ async function waitForElement(selector: string): Promise<Element | null> {
 async function waitForElementToDisappear(el: Element | null): Promise<void> {
   for (let i = 0; i < 50; i++) {
     if (!document.contains(el)) return;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
 }
 
 async function waitForListUpdate(): Promise<void> {
-  return new Promise(resolve => setTimeout(resolve, 200));
+  return new Promise((resolve) => setTimeout(resolve, 200));
 }
 
 function waitForDownload() {
@@ -1271,7 +1273,7 @@ function waitForDownload() {
 }
 
 async function waitForDraftCreation() {
-  await new Promise(r => setTimeout(r, 100));
+  await new Promise((r) => setTimeout(r, 100));
   return {
     id: 'f47ac10b-58cc-4372-a567-0e02b2c3d479',
     status: 'draft',
@@ -1301,7 +1303,12 @@ function seedTestLaudos(patientId: string, count: number) {
   }));
 }
 
-function seedTestLaudosWithDates(patientId: string, count: number, daysSpan: number, dates?: Date[]) {
+function seedTestLaudosWithDates(
+  patientId: string,
+  count: number,
+  daysSpan: number,
+  dates?: Date[],
+) {
   return Array.from({ length: count }, (_, i) => ({
     id: `laudo_${patientId}_${i}`,
     patientId,

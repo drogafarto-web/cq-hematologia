@@ -23,11 +23,7 @@ import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { z } from 'zod';
 
-import {
-  assertNotivisaAccess,
-  ensureNotivisaLabRoot,
-  notivisaDraftsCol,
-} from './validators';
+import { assertNotivisaAccess, ensureNotivisaLabRoot, notivisaDraftsCol } from './validators';
 import { getNotivisaMode } from './testMode';
 import { writeAuditLog } from '../../shared/audit/writeAuditLog';
 

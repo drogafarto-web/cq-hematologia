@@ -72,7 +72,8 @@ export function MaterialViewer({ material, height = 480 }: MaterialViewerProps) 
 
 // ─── Whitelist de vídeo ──────────────────────────────────────────────────────
 
-const YOUTUBE_RE = /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/;
+const YOUTUBE_RE =
+  /^(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([\w-]{11})/;
 const VIMEO_RE = /^(?:https?:\/\/)?(?:www\.)?vimeo\.com\/(\d+)/;
 
 function toVideoEmbedUrl(url: string): string | null {

@@ -3,7 +3,7 @@
 **Execution Date:** 2026-05-07  
 **Executed By:** Automated Agent  
 **Environment:** Production (hmatologia2.web.app)  
-**Region:** southamerica-east1  
+**Region:** southamerica-east1
 
 ---
 
@@ -12,6 +12,7 @@
 **Status:** ✓ DEPLOYMENT VERIFIED — Functions + Frontend Ready for Manual Testing
 
 All Phase 0 T1-T4 deliverables are deployed and operational:
+
 - 78 Cloud Functions verified live (all regions)
 - 5 turnos-specific callables + 1 trigger confirmed
 - TurnosView component scaffolded with dark-first design
@@ -29,6 +30,7 @@ firebase functions:list --project hmatologia2
 ```
 
 **Results:**
+
 - **Total functions:** 78/78 deployed
 - **Runtime:** Node 22 Gen2
 - **Region:** southamerica-east1 (regional callables)
@@ -37,13 +39,13 @@ firebase functions:list --project hmatologia2
 
 ### ✓ PASS — Turnos Callables Verified
 
-| Function | Type | Status |
-|----------|------|--------|
-| `turnos_createTurno` | Cloud Function (callable) | ✓ LIVE |
-| `turnos_updateTurno` | Cloud Function (callable) | ✓ LIVE |
+| Function                 | Type                      | Status |
+| ------------------------ | ------------------------- | ------ |
+| `turnos_createTurno`     | Cloud Function (callable) | ✓ LIVE |
+| `turnos_updateTurno`     | Cloud Function (callable) | ✓ LIVE |
 | `turnos_softDeleteTurno` | Cloud Function (callable) | ✓ LIVE |
-| `turnos_backfill90Days` | Cloud Function (callable) | ✓ LIVE |
-| `onTurnoEventCreated` | Firestore trigger (v2) | ✓ LIVE |
+| `turnos_backfill90Days`  | Cloud Function (callable) | ✓ LIVE |
+| `onTurnoEventCreated`    | Firestore trigger (v2)    | ✓ LIVE |
 
 ---
 
@@ -53,27 +55,27 @@ firebase functions:list --project hmatologia2
 
 **Component Coverage:**
 
-| Component | Path | Status |
-|-----------|------|--------|
-| TurnosView (entry point) | `src/features/turnos/components/TurnosView.tsx` | ✓ Exists |
-| TurnoForm | `src/features/turnos/components/TurnoForm.tsx` | ✓ Exists |
-| TurnosList | `src/features/turnos/components/TurnosList.tsx` | ✓ Exists |
-| CoberturaReport | `src/features/turnos/components/CoberturaReport.tsx` | ✓ Exists |
+| Component                | Path                                                 | Status   |
+| ------------------------ | ---------------------------------------------------- | -------- |
+| TurnosView (entry point) | `src/features/turnos/components/TurnosView.tsx`      | ✓ Exists |
+| TurnoForm                | `src/features/turnos/components/TurnoForm.tsx`       | ✓ Exists |
+| TurnosList               | `src/features/turnos/components/TurnosList.tsx`      | ✓ Exists |
+| CoberturaReport          | `src/features/turnos/components/CoberturaReport.tsx` | ✓ Exists |
 
 **Hook Coverage:**
 
-| Hook | Path | Status |
-|------|------|--------|
-| useTurnos | `src/features/turnos/hooks/useTurnos.ts` | ✓ Exists |
+| Hook               | Path                                              | Status   |
+| ------------------ | ------------------------------------------------- | -------- |
+| useTurnos          | `src/features/turnos/hooks/useTurnos.ts`          | ✓ Exists |
 | useCoberturaTurnos | `src/features/turnos/hooks/useCoberturaTurnos.ts` | ✓ Exists |
 
 **Shell Integration:**
 
-| Item | Path | Status |
-|------|------|--------|
-| View registration | `src/types/index.ts` (View union) | ✓ 'turnos' registered |
-| Routes | `src/app/AppRouter.tsx` | ✓ Lazy route added |
-| Hub tile | `src/app/hub/components/HubTiles.tsx` | ✓ Turnos tile visible |
+| Item              | Path                                  | Status                |
+| ----------------- | ------------------------------------- | --------------------- |
+| View registration | `src/types/index.ts` (View union)     | ✓ 'turnos' registered |
+| Routes            | `src/app/AppRouter.tsx`               | ✓ Lazy route added    |
+| Hub tile          | `src/app/hub/components/HubTiles.tsx` | ✓ Turnos tile visible |
 
 ### ✓ PASS — Design System Applied
 
@@ -95,11 +97,13 @@ firebase functions:list --project hmatologia2
 ### Test A: Hub Navigation & Performance
 
 **Steps:**
+
 1. Open https://hmatologia2.web.app
 2. Hard reload: `Ctrl+Shift+R` (bypass PWA cache)
 3. Wait for hub to load
 
 **Acceptance Criteria:**
+
 - Hub renders in <2.5s (LCP target)
 - All 25 module tiles visible
 - No console errors (DevTools → Console)
@@ -112,11 +116,13 @@ firebase functions:list --project hmatologia2
 ### Test B: Turnos Tile Navigation
 
 **Steps:**
+
 1. Locate "Turnos e Supervisão" tile on hub
 2. Click the tile
 3. Wait for TurnosView to load
 
 **Acceptance Criteria:**
+
 - View loads in <2.5s
 - Dark theme applied correctly
 - Topbar visible ("← Hub" back button + "Turnos e Supervisão" title)
@@ -132,10 +138,12 @@ firebase functions:list --project hmatologia2
 ### Test C: Create Turno (Full Flow)
 
 **Prerequisites:**
+
 - Must be logged in as lab admin or supervisor
 - Lab must have at least 1 active supervisor in educacao-continuada module
 
 **Steps:**
+
 1. Click "Novo Turno" button
 2. Fill form:
    - **Data:** Select today (2026-05-07)
@@ -145,6 +153,7 @@ firebase functions:list --project hmatologia2
 3. Click "Salvar"
 
 **Acceptance Criteria:**
+
 - Form closes immediately
 - No errors in modal or form
 - Turno appears **instantly** in TurnosList (realtime via onSnapshot)
@@ -162,12 +171,14 @@ firebase functions:list --project hmatologia2
 ### Test D: Cloud Logs Validation
 
 **Monitoring:**
+
 - Script: `scripts/monitor-cloud-logs.sh 24 30`
 - Duration: 24 hours
 - Sampling interval: 30 seconds
 - Report destination: `.planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md`
 
 **Expected Findings:**
+
 - 0 ERROR severity entries for `turnos_*` functions
 - 0 CRITICAL severity entries
 - Function execution latency: <1s avg (p99 <2s)
@@ -175,6 +186,7 @@ firebase functions:list --project hmatologia2
 - No auth failures (auth.uid validation)
 
 **Red Flags to Watch:**
+
 - ❌ `"turnos_createTurno"` + `"ERROR"` → callable logic failure
 - ❌ `"Firestore quota exceeded"` → rules blocker or large write
 - ❌ `"auth.uid is undefined"` → authentication/session issue
@@ -191,6 +203,7 @@ firebase functions:list --project hmatologia2
 **Priority flows to verify:**
 
 #### E1: CIQ Run Creation (Core Feature)
+
 - Navigate to any CIQ module (e.g., "Coagulação")
 - Create a run (quick form: date + equipment + manual value)
 - Verify realtime list update
@@ -199,6 +212,7 @@ firebase functions:list --project hmatologia2
 **Expected Result:** ✓ PASS (pending user execution)
 
 #### E2: EC Supervisor List (Dependency)
+
 - Navigate to "Educação Continuada"
 - Verify supervisor list loads
 - Verify supervisors have isActiveMemberOfLab=true
@@ -206,6 +220,7 @@ firebase functions:list --project hmatologia2
 **Expected Result:** ✓ PASS (pending user execution)
 
 #### E3: Controle-Temperatura IoT (Phase 3 Feature)
+
 - Navigate to "Controle de Temperatura"
 - Verify last 24h readings display
 - Create a test calibration entry
@@ -231,6 +246,7 @@ firebase functions:list --project hmatologia2
 **Location:** `.planning/phases/00-rdc-blockers/00-01-cloud-logs-day1.md`
 
 **Contents:**
+
 - 24h error summary (count by function)
 - Function execution time histogram
 - Auth failure count (if any)
@@ -242,39 +258,39 @@ firebase functions:list --project hmatologia2
 
 ## 5. Compliance Checklist (Phase 0 T1-T4)
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Types defined (Turno, TurnoInput, etc.) | ✓ | `src/features/turnos/types/Turno.ts` |
-| Service layer (read-only) | ✓ | `turnosService.ts` |
-| Callables wrappers | ✓ | `turnosCallables.ts` |
-| Validators (Zod) | ✓ | `functions/src/modules/turnos/validators.ts` |
-| Signature generation (SHA-256) | ✓ | `signatureCanonical.ts` |
-| createTurno callable | ✓ | `functions/src/modules/turnos/createTurno.ts` |
-| updateTurno callable | ✓ | `functions/src/modules/turnos/updateTurno.ts` |
-| softDeleteTurno callable | ✓ | `functions/src/modules/turnos/softDeleteTurno.ts` |
-| backfill90Days callable | ✓ | `functions/src/modules/turnos/backfill90Days.ts` |
-| onTurnoEventCreated trigger | ✓ | `functions/src/modules/turnos/onTurnoEventCreated.ts` |
-| TurnosView component | ✓ | Dark-first design applied |
-| TurnoForm component | ✓ | Create/edit functionality |
-| TurnosList component | ✓ | Sortable, dark theme |
-| CoberturaReport component | ✓ | Heatmap + inline confirmation |
-| useTurnos hook | ✓ | Subscribe + mutations |
-| useCoberturaTurnos hook | ✓ | 90-day heatmap logic |
-| View registration | ✓ | In src/types/index.ts |
-| Route lazy loading | ✓ | In AppRouter.tsx |
-| Hub tile wiring | ✓ | Visible in /hub |
+| Item                                    | Status | Notes                                                 |
+| --------------------------------------- | ------ | ----------------------------------------------------- |
+| Types defined (Turno, TurnoInput, etc.) | ✓      | `src/features/turnos/types/Turno.ts`                  |
+| Service layer (read-only)               | ✓      | `turnosService.ts`                                    |
+| Callables wrappers                      | ✓      | `turnosCallables.ts`                                  |
+| Validators (Zod)                        | ✓      | `functions/src/modules/turnos/validators.ts`          |
+| Signature generation (SHA-256)          | ✓      | `signatureCanonical.ts`                               |
+| createTurno callable                    | ✓      | `functions/src/modules/turnos/createTurno.ts`         |
+| updateTurno callable                    | ✓      | `functions/src/modules/turnos/updateTurno.ts`         |
+| softDeleteTurno callable                | ✓      | `functions/src/modules/turnos/softDeleteTurno.ts`     |
+| backfill90Days callable                 | ✓      | `functions/src/modules/turnos/backfill90Days.ts`      |
+| onTurnoEventCreated trigger             | ✓      | `functions/src/modules/turnos/onTurnoEventCreated.ts` |
+| TurnosView component                    | ✓      | Dark-first design applied                             |
+| TurnoForm component                     | ✓      | Create/edit functionality                             |
+| TurnosList component                    | ✓      | Sortable, dark theme                                  |
+| CoberturaReport component               | ✓      | Heatmap + inline confirmation                         |
+| useTurnos hook                          | ✓      | Subscribe + mutations                                 |
+| useCoberturaTurnos hook                 | ✓      | 90-day heatmap logic                                  |
+| View registration                       | ✓      | In src/types/index.ts                                 |
+| Route lazy loading                      | ✓      | In AppRouter.tsx                                      |
+| Hub tile wiring                         | ✓      | Visible in /hub                                       |
 
 ---
 
 ## 6. Known Limitations (Phase 0 T5+)
 
-| Limitation | Why | When Fixed |
-|-----------|-----|-----------|
-| Firestore rules not deployed | T5 (Phase 0) | After T5 completion |
-| No audit trail yet | Trigger pending rules | After T5 + deploy |
-| No composite indexes | Firestore plan pending | T5 (firebase.json) |
-| Manual backfill not tested | Requires admin claim | T9 (claim provisioning) |
-| No browser E2E tests | Requires Playwright setup | Phase 1 (optional) |
+| Limitation                   | Why                       | When Fixed              |
+| ---------------------------- | ------------------------- | ----------------------- |
+| Firestore rules not deployed | T5 (Phase 0)              | After T5 completion     |
+| No audit trail yet           | Trigger pending rules     | After T5 + deploy       |
+| No composite indexes         | Firestore plan pending    | T5 (firebase.json)      |
+| Manual backfill not tested   | Requires admin claim      | T9 (claim provisioning) |
+| No browser E2E tests         | Requires Playwright setup | Phase 1 (optional)      |
 
 ---
 
@@ -283,6 +299,7 @@ firebase functions:list --project hmatologia2
 ### Phase 0 T1-T4: ✓ PASS
 
 **Rationale:**
+
 - All deliverables present and deployed
 - Functions operational (verified via CLI)
 - Frontend bundle complete (components + hooks + UI)
@@ -292,12 +309,14 @@ firebase functions:list --project hmatologia2
 ### Proceed to Phase 0 T5? ✓ YES
 
 **Prerequisites met:**
+
 - ✓ Functions deployed and callable
 - ✓ Frontend ready for interaction
 - ✓ Cloud Logs monitoring active
 - ✓ Manual smoke tests can be executed
 
 **T5 scope (Firestore Rules):**
+
 - Add `/labs/{labId}/turnos/` rules block
 - Add composite indexes (2x for sorting)
 - Test in Firestore emulator
@@ -307,15 +326,15 @@ firebase functions:list --project hmatologia2
 
 ## 8. Execution Timeline
 
-| Phase | Task | Status | Date |
-|-------|------|--------|------|
-| T1-T4 | Dev + Deploy | ✓ COMPLETE | 2026-05-06 |
-| T5 | Firestore Rules | Pending | 2026-05-07 |
-| T6 | Hooks + UI Polish | Pending | 2026-05-07 |
-| T7 | Shell Wiring | ✓ COMPLETE | 2026-05-07 |
-| T8 | Documentation | In Progress | 2026-05-07 |
-| T9 | Pre-Deploy | Pending | 2026-05-08 |
-| T10 | Deploy + Logs | Pending | 2026-05-08 |
+| Phase | Task              | Status      | Date       |
+| ----- | ----------------- | ----------- | ---------- |
+| T1-T4 | Dev + Deploy      | ✓ COMPLETE  | 2026-05-06 |
+| T5    | Firestore Rules   | Pending     | 2026-05-07 |
+| T6    | Hooks + UI Polish | Pending     | 2026-05-07 |
+| T7    | Shell Wiring      | ✓ COMPLETE  | 2026-05-07 |
+| T8    | Documentation     | In Progress | 2026-05-07 |
+| T9    | Pre-Deploy        | Pending     | 2026-05-08 |
+| T10   | Deploy + Logs     | Pending     | 2026-05-08 |
 
 ---
 

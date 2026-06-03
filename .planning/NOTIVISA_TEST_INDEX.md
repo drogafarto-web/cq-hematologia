@@ -9,31 +9,41 @@ All documentation, test files, and configuration for the NOTIVISA comprehensive 
 ## Quick Navigation
 
 ### For Smoke Test Execution (May 20)
+
 → **[`.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md`](.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md)**
+
 - Step-by-step smoke test procedure
 - 30-minute execution timeline
 - Pre-test seeding, verification steps
 
 ### For Test Suite Overview
+
 → **[`.planning/NOTIVISA_TEST_DELIVERY.md`](.planning/NOTIVISA_TEST_DELIVERY.md)**
+
 - Executive summary & deliverables
 - Complete coverage breakdown
 - Quality metrics & sign-off
 
 ### For Execution Summary
+
 → **[`.planning/NOTIVISA_TEST_EXECUTION_SUMMARY.txt`](.planning/NOTIVISA_TEST_EXECUTION_SUMMARY.txt)**
+
 - Test counts (122 assertions)
 - Code statistics (2,388 lines)
 - Quick reference
 
 ### For Coverage Details
+
 → **[`docs/NOTIVISA_TEST_SUITE_SUMMARY.md`](docs/NOTIVISA_TEST_SUITE_SUMMARY.md)**
+
 - Detailed metrics per callable
 - Regulatory compliance mapping
 - Performance benchmarks
 
 ### For Running Tests
+
 → **[`functions/src/modules/notivisa/__tests__/README.md`](functions/src/modules/notivisa/__tests__/README.md)**
+
 - Quick start guide
 - Test structure & organization
 - Debugging tips
@@ -48,14 +58,15 @@ All documentation, test files, and configuration for the NOTIVISA comprehensive 
 
 Tests for the 4 core draft management callables:
 
-| Callable | Tests | Coverage |
-|----------|-------|----------|
-| notivisaDraftCreate | 12 | Schema validation (8), signature determinism (4) |
-| approveNotivisaDraft | 8 | Schema validation (8), signature verification (4) |
-| submitNotivisaDraft | 8 | Schema (5), masking (2), audit/queue (3) |
-| rejectNotivisaDraft | 6 | Schema & motivo validation (6) |
+| Callable             | Tests | Coverage                                          |
+| -------------------- | ----- | ------------------------------------------------- |
+| notivisaDraftCreate  | 12    | Schema validation (8), signature determinism (4)  |
+| approveNotivisaDraft | 8     | Schema validation (8), signature verification (4) |
+| submitNotivisaDraft  | 8     | Schema (5), masking (2), audit/queue (3)          |
+| rejectNotivisaDraft  | 6     | Schema & motivo validation (6)                    |
 
 **Run:**
+
 ```bash
 npm test -- batch1-expanded.test.ts
 ```
@@ -68,14 +79,15 @@ npm test -- batch1-expanded.test.ts
 
 Tests for the 4 async/admin callables:
 
-| Callable | Tests | Coverage |
-|----------|-------|----------|
-| notivisaQueueProcessor | 10 | Entry detection (2), backoff (4), idempotency (2), failure (3), metrics (4) |
-| notivisaWebhookHandler | 8 | Signature (5), entry processing (3), error handling (3) |
-| notivisaExportArchive | 6 | Permissions (4), filtering (3), splitting (2), metadata (3), perf (1) |
-| notivisaSoftDelete | 6 | Permissions (3), logic (4), filtering (2) |
+| Callable               | Tests | Coverage                                                                    |
+| ---------------------- | ----- | --------------------------------------------------------------------------- |
+| notivisaQueueProcessor | 10    | Entry detection (2), backoff (4), idempotency (2), failure (3), metrics (4) |
+| notivisaWebhookHandler | 8     | Signature (5), entry processing (3), error handling (3)                     |
+| notivisaExportArchive  | 6     | Permissions (4), filtering (3), splitting (2), metadata (3), perf (1)       |
+| notivisaSoftDelete     | 6     | Permissions (3), logic (4), filtering (2)                                   |
 
 **Run:**
+
 ```bash
 npm test -- batch2-comprehensive.test.ts
 ```
@@ -99,6 +111,7 @@ End-to-end workflows, concurrency, error recovery, and performance:
 - **Rollback (1 test):** State recovery scenarios
 
 **Run:**
+
 ```bash
 npm test -- integration.test.ts
 ```
@@ -125,6 +138,7 @@ Mock NOTIVISA SOAP API for Phase 4 sandbox testing. Includes:
   - `assertValidErrorResponse()` — Error validation
 
 **Usage:**
+
 ```typescript
 import { createMockSoapClient, SoapMockScenario } from '../__mocks__/soapClient';
 
@@ -141,6 +155,7 @@ const response = await mockClient.submit(request);
 **File:** `functions/jest.config.js` (30 lines)
 
 Configures Jest for Cloud Functions testing:
+
 - `ts-jest` preset for TypeScript
 - Node test environment
 - Coverage collection
@@ -151,6 +166,7 @@ Configures Jest for Cloud Functions testing:
 **File:** `functions/package.json`
 
 Updated test scripts:
+
 ```json
 {
   "test": "jest --rootDir src",
@@ -160,6 +176,7 @@ Updated test scripts:
 ```
 
 **Run:**
+
 ```bash
 npm test:notivisa              # Run NOTIVISA tests only
 npm run test:coverage          # Generate coverage report
@@ -171,11 +188,13 @@ npm test:notivisa -- --watch   # Watch mode
 **File:** `scripts/seed-notivisa-test-data.sh` (50 lines)
 
 Bash script to seed test data:
+
 - Creates 10 test labs (`test-lab-0` through `test-lab-9`)
 - Creates 50 draft entries (5 per lab)
 - Validates Firestore emulator running
 
 **Run:**
+
 ```bash
 bash scripts/seed-notivisa-test-data.sh
 ```
@@ -189,6 +208,7 @@ bash scripts/seed-notivisa-test-data.sh
 **File:** `.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md` (220 lines)
 
 Complete procedure for May 20, 2026 launch:
+
 - Pre-test seeding (5 min)
 - Unit tests (1 min)
 - Integration tests (2 min)
@@ -205,6 +225,7 @@ Complete procedure for May 20, 2026 launch:
 **File:** `.planning/NOTIVISA_TEST_DELIVERY.md` (520 lines)
 
 Executive summary for stakeholders:
+
 - Deliverables checklist (test files, mocks, docs)
 - Coverage breakdown by callable
 - Coverage metrics by test type
@@ -222,6 +243,7 @@ Executive summary for stakeholders:
 **File:** `docs/NOTIVISA_TEST_SUITE_SUMMARY.md` (380 lines)
 
 Comprehensive technical reference:
+
 - Test breakdown by callable & test type
 - Coverage metrics (100% line / 95% branch)
 - Regulatory compliance (RDC 978, DICQ 4.3, LGPD)
@@ -237,6 +259,7 @@ Comprehensive technical reference:
 **File:** `.planning/NOTIVISA_TEST_EXECUTION_SUMMARY.txt` (text file)
 
 Quick reference with all key metrics:
+
 - Test counts (122 assertions)
 - Code statistics (2,388 lines)
 - Coverage metrics
@@ -253,6 +276,7 @@ Quick reference with all key metrics:
 **File:** `functions/src/modules/notivisa/__tests__/README.md` (360 lines)
 
 Comprehensive guide for developers:
+
 - Overview & quick start
 - Test structure by callable
 - Mock SOAP client usage
@@ -282,35 +306,41 @@ Comprehensive guide for developers:
 
 ### By Test Type
 
-| Type | Count | Lines | Branch |
-|------|-------|-------|--------|
-| Schema Validation | 32 | 100% | 100% |
-| Signature Verification | 8 | 100% | 95% |
-| Error Handling | 9 | 100% | 90% |
-| Idempotency | 7 | 100% | 100% |
-| Permissions | 7 | 100% | 100% |
-| Performance | 4 | 100% | 95% |
+| Type                   | Count | Lines | Branch |
+| ---------------------- | ----- | ----- | ------ |
+| Schema Validation      | 32    | 100%  | 100%   |
+| Signature Verification | 8     | 100%  | 95%    |
+| Error Handling         | 9     | 100%  | 90%    |
+| Idempotency            | 7     | 100%  | 100%   |
+| Permissions            | 7     | 100%  | 100%   |
+| Performance            | 4     | 100%  | 95%    |
 
 ---
 
 ## How to Use This Index
 
 ### I want to run the smoke test on May 20
+
 → Start with [`.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md`](.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md)
 
 ### I want to understand what tests were written
+
 → Read [`.planning/NOTIVISA_TEST_DELIVERY.md`](.planning/NOTIVISA_TEST_DELIVERY.md)
 
 ### I want to see test statistics
+
 → Check [`.planning/NOTIVISA_TEST_EXECUTION_SUMMARY.txt`](.planning/NOTIVISA_TEST_EXECUTION_SUMMARY.txt)
 
 ### I want to run tests locally
-→ Follow [functions/src/modules/notivisa/__tests__/README.md](functions/src/modules/notivisa/__tests__/README.md)
+
+→ Follow [functions/src/modules/notivisa/**tests**/README.md](functions/src/modules/notivisa/__tests__/README.md)
 
 ### I want coverage details
+
 → Review [docs/NOTIVISA_TEST_SUITE_SUMMARY.md](docs/NOTIVISA_TEST_SUITE_SUMMARY.md)
 
 ### I want to understand the architecture
+
 → See ADR-0026 + [`firestore-security.md`](.claude/rules/firestore-security.md)
 
 ---
@@ -369,6 +399,7 @@ bash scripts/seed-notivisa-test-data.sh
 **Status:** ✓ Production Ready (Phase 4)
 
 **May 20, 2026 Smoke Test:**
+
 1. Seed test data: `bash scripts/seed-notivisa-test-data.sh`
 2. Run tests: `npm run test:notivisa`
 3. Verify logs: `gcloud functions logs read --limit 100 --region southamerica-east1`
@@ -376,6 +407,7 @@ bash scripts/seed-notivisa-test-data.sh
 5. Sign-off
 
 **Future Phases:**
+
 - Phase 8: SMS/email escalation tests
 - Phase 12: Real SOAP API + mTLS tests
 - Phase 13: WebSocket + analytics tests
@@ -385,6 +417,7 @@ bash scripts/seed-notivisa-test-data.sh
 ## Support
 
 For questions about:
+
 - **Test structure:** See `functions/src/modules/notivisa/__tests__/README.md`
 - **Smoke test procedure:** See `.planning/PHASE_4_NOTIVISA_TEST_CHECKLIST.md`
 - **Coverage metrics:** See `docs/NOTIVISA_TEST_SUITE_SUMMARY.md`

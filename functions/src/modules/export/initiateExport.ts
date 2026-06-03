@@ -2,12 +2,7 @@ import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https
 import { getFirestore } from 'firebase-admin/firestore';
 import { PubSub } from '@google-cloud/pubsub';
 import { randomUUID } from 'crypto';
-import {
-  ExportRequest,
-  ExportJob,
-  ExportJobMessage,
-  ExportFormat,
-} from './types';
+import { ExportRequest, ExportJob, ExportJobMessage, ExportFormat } from './types';
 
 const db = getFirestore();
 const pubsub = new PubSub({ projectId: process.env.GCLOUD_PROJECT });
@@ -41,7 +36,7 @@ export const initiateExport = onCall(
       if (!labId || !format || !startDate || !endDate) {
         throw new HttpsError(
           'invalid-argument',
-          'Missing required fields: labId, format, startDate, endDate'
+          'Missing required fields: labId, format, startDate, endDate',
         );
       }
 
@@ -62,7 +57,7 @@ export const initiateExport = onCall(
       if (daysDiff > 365) {
         throw new HttpsError(
           'invalid-argument',
-          'Date range cannot exceed 1 year (compliance limit)'
+          'Date range cannot exceed 1 year (compliance limit)',
         );
       }
 
@@ -91,11 +86,7 @@ export const initiateExport = onCall(
         operatorId,
       };
 
-      const jobRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('export-jobs')
-        .doc(jobId);
+      const jobRef = db.collection('labs').doc(labId).collection('export-jobs').doc(jobId);
 
       await jobRef.set(job);
 
@@ -109,17 +100,12 @@ export const initiateExport = onCall(
       };
 
       const topic = pubsub.topic('exports');
-      const messageId = await topic.publish(
-        Buffer.from(JSON.stringify(message))
-      );
+      const messageId = await topic.publish(Buffer.from(JSON.stringify(message)));
 
-      console.log(
-        `[Export] Published job ${jobId} to Pub/Sub, message ID: ${messageId}`
-      );
+      console.log(`[Export] Published job ${jobId} to Pub/Sub, message ID: ${messageId}`);
 
       // 6. Return response
-      const estimatedMinutes =
-        format === 'xlsx' ? 2 : format === 'pdf' ? 5 : 1;
+      const estimatedMinutes = format === 'xlsx' ? 2 : format === 'pdf' ? 5 : 1;
 
       return {
         jobId,
@@ -134,10 +120,7 @@ export const initiateExport = onCall(
         throw error;
       }
 
-      throw new HttpsError(
-        'internal',
-        `Export failed: ${error.message || 'Unknown error'}`
-      );
+      throw new HttpsError('internal', `Export failed: ${error.message || 'Unknown error'}`);
     }
-  }
+  },
 );

@@ -52,9 +52,7 @@ export default function ReviewHistory({ onSelectReview }: ReviewHistoryProps) {
     <div className="space-y-8">
       {sortedYears.map((year) => (
         <div key={year}>
-          <h3 className="text-lg font-semibold text-white mb-4">
-            {year}
-          </h3>
+          <h3 className="text-lg font-semibold text-white mb-4">{year}</h3>
 
           <div className="space-y-3">
             {byYear[year].map((review) => (
@@ -81,28 +79,28 @@ function ReviewHistoryCard({ review, onSelect }: ReviewHistoryCardProps) {
     draft: 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400',
     submitted: 'bg-blue-500/10 border-blue-500/20 text-blue-400',
     approved: 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400',
-    archived: 'bg-white/10 border-white/10 text-white/50'
+    archived: 'bg-white/10 border-white/10 text-white/50',
   };
 
   const statusLabel: Record<ReviewStatus, string> = {
     draft: 'Rascunho',
     submitted: 'Submetida',
     approved: 'Aprovada',
-    archived: 'Arquivada'
+    archived: 'Arquivada',
   };
 
   const reviewDate = review.dataRevisao?.toDate?.() || new Date();
   const formattedDate = new Intl.DateTimeFormat('pt-BR', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric'
+    day: 'numeric',
   }).format(reviewDate);
 
   const allParticipants = [
     review.diretor,
     review.gerenteQualidade,
     ...review.participantes,
-    ...(review.outrasCargos || [])
+    ...(review.outrasCargos || []),
   ].filter((p) => p && p.trim());
 
   return (
@@ -112,15 +110,13 @@ function ReviewHistoryCard({ review, onSelect }: ReviewHistoryCardProps) {
     >
       <div className="flex items-start justify-between mb-2">
         <div>
-          <h4 className="font-semibold text-white mb-1">
-            Análise Crítica — {review.year}
-          </h4>
-          <p className="text-sm text-white/60">
-            {formattedDate}
-          </p>
+          <h4 className="font-semibold text-white mb-1">Análise Crítica — {review.year}</h4>
+          <p className="text-sm text-white/60">{formattedDate}</p>
         </div>
 
-        <div className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColor[review.status]}`}>
+        <div
+          className={`px-3 py-1 rounded-full text-xs font-semibold border ${statusColor[review.status]}`}
+        >
           {statusLabel[review.status]}
         </div>
       </div>

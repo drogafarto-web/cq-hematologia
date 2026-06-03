@@ -42,24 +42,43 @@ const hoisted = vi.hoisted(() => {
     storeActions,
     unsubMetrics,
     unsubMeta,
-    get metricsCallback() { return metricsCallback; },
-    set metricsCallback(v) { metricsCallback = v; },
-    get metaCallback() { return metaCallback; },
-    set metaCallback(v) { metaCallback = v; },
-    get metricsErrorCallback() { return metricsErrorCallback; },
-    set metricsErrorCallback(v) { metricsErrorCallback = v; },
+    get metricsCallback() {
+      return metricsCallback;
+    },
+    set metricsCallback(v) {
+      metricsCallback = v;
+    },
+    get metaCallback() {
+      return metaCallback;
+    },
+    set metaCallback(v) {
+      metaCallback = v;
+    },
+    get metricsErrorCallback() {
+      return metricsErrorCallback;
+    },
+    set metricsErrorCallback(v) {
+      metricsErrorCallback = v;
+    },
     mockOnSnapshot,
-    get mockLabId() { return mockLabId; },
-    set mockLabId(v) { mockLabId = v; },
+    get mockLabId() {
+      return mockLabId;
+    },
+    set mockLabId(v) {
+      mockLabId = v;
+    },
   };
 });
 
 // ─── Mocks ────────────────────────────────────────────────────────────────────
 
 vi.mock('../../../src/features/analytics/hooks/useAnalyticsCache', () => ({
-  useAnalyticsStore: Object.assign(vi.fn(() => hoisted.storeActions), {
-    getState: () => hoisted.storeActions,
-  }),
+  useAnalyticsStore: Object.assign(
+    vi.fn(() => hoisted.storeActions),
+    {
+      getState: () => hoisted.storeActions,
+    },
+  ),
   useAnalyticsAggregate: vi.fn(),
   useAnalyticsMetadata: vi.fn(),
   useAnalyticsLoading: vi.fn(),

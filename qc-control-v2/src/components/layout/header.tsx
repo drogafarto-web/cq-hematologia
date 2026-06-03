@@ -1,23 +1,23 @@
-﻿'use client'
+﻿'use client';
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { signOut } from 'next-auth/react'
-import { LogOut } from 'lucide-react'
-import { cn } from '@/lib/utils'
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { signOut } from 'next-auth/react';
+import { LogOut } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface HeaderProps {
-  userName: string
-  onSignOut: () => void
+  userName: string;
+  onSignOut: () => void;
 }
 
 export function Header({ userName, onSignOut }: HeaderProps) {
-  const pathname = usePathname()
+  const pathname = usePathname();
 
   const links = [
     { href: '/qc', label: 'Controle' },
     { href: '/controles', label: 'Hub' },
-  ]
+  ];
 
   return (
     <header className="h-12 border-b border-border px-6 flex items-center justify-between bg-white sticky top-0 z-10">
@@ -27,7 +27,7 @@ export function Header({ userName, onSignOut }: HeaderProps) {
         </Link>
         <nav className="flex items-center gap-1">
           {links.map((l) => {
-            const active = pathname === l.href
+            const active = pathname === l.href;
             return (
               <Link
                 key={l.href}
@@ -38,11 +38,9 @@ export function Header({ userName, onSignOut }: HeaderProps) {
                 )}
               >
                 {l.label}
-                {active && (
-                  <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />
-                )}
+                {active && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary" />}
               </Link>
-            )
+            );
           })}
         </nav>
       </div>
@@ -58,5 +56,5 @@ export function Header({ userName, onSignOut }: HeaderProps) {
         </button>
       </div>
     </header>
-  )
+  );
 }

@@ -75,9 +75,10 @@ export const ec_scheduledAlertasVencimento = onSchedule(
         const responsavel = (treinSnap.data()?.['responsavel'] as string | undefined) ?? '';
 
         const diasRestantes = Math.ceil((vencMillis - now) / MS_POR_DIA);
-        const subject = diasRestantes < 0
-          ? `[VENCIDO] ${titulo}`
-          : `Vencimento em ${diasRestantes} dia(s): ${titulo}`;
+        const subject =
+          diasRestantes < 0
+            ? `[VENCIDO] ${titulo}`
+            : `Vencimento em ${diasRestantes} dia(s): ${titulo}`;
 
         const recipients: string[] = [];
         // emailResponsavel: busca email do usuário criador (simplificado — usa emailsCopia)
@@ -157,10 +158,12 @@ function buildEmailHtml(p: {
   responsavel: string;
   dataVencimento: string;
 }): string {
-  const urgenciaCls = p.diasRestantes < 0 ? '#991b1b' : p.diasRestantes <= 7 ? '#ea580c' : '#0369a1';
-  const urgenciaTexto = p.diasRestantes < 0
-    ? `Vencido há ${Math.abs(p.diasRestantes)} dia(s)`
-    : `Vence em ${p.diasRestantes} dia(s)`;
+  const urgenciaCls =
+    p.diasRestantes < 0 ? '#991b1b' : p.diasRestantes <= 7 ? '#ea580c' : '#0369a1';
+  const urgenciaTexto =
+    p.diasRestantes < 0
+      ? `Vencido há ${Math.abs(p.diasRestantes)} dia(s)`
+      : `Vence em ${p.diasRestantes} dia(s)`;
   return `<!doctype html>
 <html><body style="margin:0;font:15px/1.5 -apple-system,BlinkMacSystemFont,sans-serif;background:#f1f5f9;color:#0f172a;">
   <div style="max-width:560px;margin:32px auto;padding:32px;background:#fff;border-radius:12px;">

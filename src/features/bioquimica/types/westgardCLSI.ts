@@ -12,14 +12,14 @@ import type { AnalitoId, EquipmentId, NivelId } from './_shared_refs';
 // ─── CLSI 8-Rule Westgard Rules ───────────────────────────────────────────
 
 export type WestgardRuleCLSI8 =
-  | '1-3s'   // 1 result > ±3 SD → reject
-  | '2-2s'   // 2 consecutive same-side > ±2 SD → reject
-  | 'R-4s'   // range between 2 consecutive runs > 4 SD → reject
-  | '4-1s'   // 4 consecutive results > ±1 SD same side → reject
-  | '10x'    // 10 consecutive same-side from mean → reject
-  | '7T'     // 7 consecutive trending up or down → reject
-  | '8x'     // 8 consecutive same-side from mean → warn
-  | '12x';   // 12 consecutive same-side from mean → warn
+  | '1-3s' // 1 result > ±3 SD → reject
+  | '2-2s' // 2 consecutive same-side > ±2 SD → reject
+  | 'R-4s' // range between 2 consecutive runs > 4 SD → reject
+  | '4-1s' // 4 consecutive results > ±1 SD same side → reject
+  | '10x' // 10 consecutive same-side from mean → reject
+  | '7T' // 7 consecutive trending up or down → reject
+  | '8x' // 8 consecutive same-side from mean → warn
+  | '12x'; // 12 consecutive same-side from mean → warn
 
 // ─── Severity Classification ──────────────────────────────────────────────
 
@@ -32,11 +32,11 @@ export interface WestgardObservation {
   analitoId: AnalitoId;
   equipmentId: EquipmentId;
   nivelId: NivelId;
-  value: number;           // raw measurement
-  mean: number;            // reference mean (from bula or internal stats)
-  sd: number;              // standard deviation
-  zScore: number;          // (value - mean) / sd
-  ts: number;              // unix timestamp (milliseconds)
+  value: number; // raw measurement
+  mean: number; // reference mean (from bula or internal stats)
+  sd: number; // standard deviation
+  zScore: number; // (value - mean) / sd
+  ts: number; // unix timestamp (milliseconds)
 }
 
 // ─── Violation (output of detector functions) ─────────────────────────────
@@ -44,9 +44,9 @@ export interface WestgardObservation {
 export interface WestgardViolationCLSI8 {
   rule: WestgardRuleCLSI8;
   severity: WestgardSeverityCLSI8;
-  detectedAt: number;      // unix timestamp when violation detected
-  windowRuns: string[];    // runIds participating in the violation window
-  description: string;     // human-readable, e.g. "1 result at +3.2 SD (rule 1-3s)"
+  detectedAt: number; // unix timestamp when violation detected
+  windowRuns: string[]; // runIds participating in the violation window
+  description: string; // human-readable, e.g. "1 result at +3.2 SD (rule 1-3s)"
 }
 
 // ─── Rule Configuration ────────────────────────────────────────────────────

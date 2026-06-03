@@ -14,31 +14,29 @@ export interface TrilhaProgressoViewProps {
   colaboradorNome: string;
 }
 
-const STATUS_ETAPA_CFG: Record<
-  StatusProgressoEtapa,
-  { label: string; cls: string; dot: string }
-> = {
-  pendente: {
-    label: 'Pendente',
-    cls: 'border-slate-700 bg-slate-800/40 text-slate-400',
-    dot: 'bg-slate-500',
-  },
-  agendado: {
-    label: 'Agendado',
-    cls: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
-    dot: 'bg-amber-400',
-  },
-  realizado: {
-    label: 'Realizado',
-    cls: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
-    dot: 'bg-blue-400',
-  },
-  aprovado: {
-    label: 'Aprovado',
-    cls: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
-    dot: 'bg-emerald-400',
-  },
-};
+const STATUS_ETAPA_CFG: Record<StatusProgressoEtapa, { label: string; cls: string; dot: string }> =
+  {
+    pendente: {
+      label: 'Pendente',
+      cls: 'border-slate-700 bg-slate-800/40 text-slate-400',
+      dot: 'bg-slate-500',
+    },
+    agendado: {
+      label: 'Agendado',
+      cls: 'border-amber-500/30 bg-amber-500/10 text-amber-300',
+      dot: 'bg-amber-400',
+    },
+    realizado: {
+      label: 'Realizado',
+      cls: 'border-blue-500/30 bg-blue-500/10 text-blue-300',
+      dot: 'bg-blue-400',
+    },
+    aprovado: {
+      label: 'Aprovado',
+      cls: 'border-emerald-500/30 bg-emerald-500/10 text-emerald-300',
+      dot: 'bg-emerald-400',
+    },
+  };
 
 /**
  * Visão do colaborador — checklist das etapas da(s) trilha(s) em andamento.
@@ -120,7 +118,9 @@ function EtapaRow({
   const cfg = STATUS_ETAPA_CFG[etapa.status];
   return (
     <li className="flex items-center gap-2 rounded border border-slate-800 bg-slate-950/40 px-3 py-2">
-      <span className="w-6 shrink-0 text-center text-xs font-semibold text-slate-500">{ordem}.</span>
+      <span className="w-6 shrink-0 text-center text-xs font-semibold text-slate-500">
+        {ordem}.
+      </span>
       <span className={`h-2 w-2 shrink-0 rounded-full ${cfg.dot}`} aria-hidden />
       <span className="min-w-0 flex-1 truncate text-xs text-slate-300">{templateTitulo}</span>
       <span

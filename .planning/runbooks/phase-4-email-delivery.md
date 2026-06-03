@@ -9,9 +9,10 @@
 
 ## What This Alert Means
 
->20% of patient authentication emails are failing to send. This means patients cannot receive the magic link needed to access their results in the Portal (Phase 4).
+> 20% of patient authentication emails are failing to send. This means patients cannot receive the magic link needed to access their results in the Portal (Phase 4).
 
 **Impact:**
+
 - Patients cannot authenticate
 - Portal feature becomes unusable
 - Compliance risk (RDC 978 Art. 167 — patient access to results)
@@ -37,6 +38,7 @@ gcloud logging read \
 ```
 
 **Expected output:**
+
 ```json
 [
   { "severity": "ERROR", "count": 3 },
@@ -64,6 +66,7 @@ gcloud logging read \
 ```
 
 **Categorize errors:**
+
 - `SendGrid API error` → Go to **Section 2A**
 - `RESEND API error` → Go to **Section 2A**
 - `email not found / invalid` → Go to **Section 2B**
@@ -88,7 +91,9 @@ curl -s https://status.sendgrid.com/api/v2/status.json | \
 ```
 
 **If vendor is down:**
+
 1. Post to `#production-alerts`:
+
    ```
    ⚠️ EMAIL VENDOR OUTAGE
    Service: SendGrid/RESEND
@@ -98,6 +103,7 @@ curl -s https://status.sendgrid.com/api/v2/status.json | \
    ```
 
 2. Check for fallback email provider:
+
    ```bash
    grep -r "EMAIL_FALLBACK\|BACKUP.*EMAIL" functions/src/.env functions/.env.example
    ```
@@ -128,6 +134,7 @@ curl -s https://api.sendgrid.com/v3/user/credits \
 **Expected:** `{"credits": 1000, "status": "active"}`
 
 **If credits = 0:**
+
 1. Log into SendGrid dashboard → Settings → Billing
 2. Check current plan + overage limit
 3. Options:
@@ -158,8 +165,10 @@ curl -s https://api.sendgrid.com/v3/mail/send \
 ```
 
 **If HTTP 429 (Too Many Requests):**
+
 1. We're rate-limited (too many auth emails to same patient?)
 2. Check sendgrid logs for pattern:
+
    ```bash
    gcloud logging read \
      "resource.type='cloud_function' AND \
@@ -185,7 +194,9 @@ gcloud secrets versions access latest --secret=SENDGRID_API_KEY --project=hmatol
 ```
 
 **If secret is empty/placeholder:**
+
 1. Provision correct secret:
+
    ```bash
    firebase functions:secrets:set SENDGRID_API_KEY --project=hmatologia2
    # Will prompt for value — ask CTO for current API key
@@ -222,13 +233,14 @@ gcloud logging read \
 gcloud firestore documents list \
   --collection-ids=labs \
   --project=hmatologia2 | \
-  jq '.[] | 
+  jq '.[] |
     select(.email == null or .email == "" or \
            .email | test("^[^@]+@[^@]+\\.[^@]+$") | not) | \
     {patient_id: .id, email: .email}'
 ```
 
 **Common issues:**
+
 - Missing email (null or empty)
 - Typos: `user@cmm.com` instead of `user@com.br`
 - Invalid format: `user@domain` (no TLD)
@@ -274,6 +286,7 @@ cat functions/src/modules/auth/templates/generatePatientAuthLink.hbs
 ```
 
 **Look for:**
+
 - Unclosed HTML tags
 - Undefined variables (e.g., `{{patientName}}` but name not provided)
 - Complex expressions that might fail
@@ -299,11 +312,13 @@ npm run test:email -- \
 ```
 
 **If render fails:**
+
 1. Check error message for specific line/variable
 2. Fix template syntax
 3. Test again
 
 **If render succeeds:**
+
 1. Check if rendering is deterministic (same output every time)
 2. Verify link is clickable
 3. Verify patient name shows correctly
@@ -333,9 +348,11 @@ gcloud logging read \
 ```
 
 **If monthly quota:**
+
 - Go to **Section 2A, Step 3** (upgrade plan)
 
 **If rate limit:**
+
 - Go to **Section 2A, Step 3** (space out requests)
 
 ### Step 2: Check Daily Email Volume
@@ -353,12 +370,14 @@ gcloud logging read \
 **Expected:** <10K emails/day (SendGrid free tier allows 100/day, paid allows 1M+)
 
 **If volume is high:**
+
 1. Check for retry loops (patients clicking "send again" repeatedly?)
 2. Implement backoff:
    ```typescript
    const lastAttempt = patient.lastAuthEmailAt;
    const now = Date.now();
-   if (now - lastAttempt < 60000) {  // 1 minute cooldown
+   if (now - lastAttempt < 60000) {
+     // 1 minute cooldown
      return { error: 'Too soon. Wait 1 minute before retrying.' };
    }
    ```
@@ -378,6 +397,7 @@ watch -n 30 'gcloud logging read \
 ```
 
 **Success criteria:**
+
 - Success rate returns to >95%
 - Failure count <5 per 100 attempts
 - No new errors for 30 minutes
@@ -400,6 +420,7 @@ watch -n 30 'gcloud logging read \
 ## Monitoring Tips
 
 **Daily health check:**
+
 ```bash
 # Check email success rate once per day
 gcloud logging read \
@@ -407,8 +428,8 @@ gcloud logging read \
    labels.functionName='generatePatientAuthLink' AND \
    timestamp>='-P1D'" \
   --limit=1000 --project=hmatologia2 --format=json | \
-  jq 'group_by(.severity) | 
-      map({severity: .[0].severity, count: length}) | 
+  jq 'group_by(.severity) |
+      map({severity: .[0].severity, count: length}) |
       reverse'
 ```
 

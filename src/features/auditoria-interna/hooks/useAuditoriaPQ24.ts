@@ -6,11 +6,7 @@
  */
 
 import { useState } from 'react';
-import {
-  createPlanoAcao,
-  createReAuditoria,
-  registerPresenca,
-} from '../services/auditoriaService';
+import { createPlanoAcao, createReAuditoria, registerPresenca } from '../services/auditoriaService';
 
 export interface PlanoAcaoHookState {
   planos: Array<{ id: string; descricao: string; status: string }>;
@@ -69,11 +65,7 @@ export interface PresencaHookState {
 /**
  * usePresenca: Manage meeting attendance (abertura/encerramento)
  */
-export function usePresenca(
-  labId: string,
-  auditoriaId: string,
-  sessaoId: string
-) {
+export function usePresenca(labId: string, auditoriaId: string, sessaoId: string) {
   const [reunioes, setReunioes] = useState<PresencaHookState['reunioes']>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<Error | null>(null);
@@ -92,10 +84,7 @@ export function usePresenca(
         ...input,
       });
       // Optimistic update
-      setReunioes((prev) => [
-        ...prev,
-        { id: result.reuniaoId, reuniao: input.reuniao },
-      ]);
+      setReunioes((prev) => [...prev, { id: result.reuniaoId, reuniao: input.reuniao }]);
     } catch (err) {
       setError(err instanceof Error ? err : new Error(String(err)));
       throw err;

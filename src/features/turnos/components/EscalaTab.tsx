@@ -12,7 +12,8 @@ import type { EscalaDiaria } from '../types/Escala';
 const DIAS_SEMANA_SHORT = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'];
 
 function formatDateRange(start: Date, end: Date): string {
-  const fmt = (d: Date) => `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
+  const fmt = (d: Date) =>
+    `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}`;
   return `${fmt(start)} — ${fmt(end)}`;
 }
 
@@ -22,7 +23,8 @@ function toISODate(d: Date): string {
 
 export function EscalaTab() {
   const labId = useActiveLabId();
-  const { escalas, loading, rangeStart, rangeEnd, weekOffset, setWeekOffset, diasSemCobertura } = useEscalas();
+  const { escalas, loading, rangeStart, rangeEnd, weekOffset, setWeekOffset, diasSemCobertura } =
+    useEscalas();
   const { padrao, loading: padraoLoading } = useEscalaPadrao();
   const [showPadraoPanel, setShowPadraoPanel] = useState(false);
   const [applyingPadrao, setApplyingPadrao] = useState(false);
@@ -108,7 +110,13 @@ export function EscalaTab() {
             }}
             aria-label="Semana anterior"
           >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
             </svg>
           </button>
@@ -128,7 +136,13 @@ export function EscalaTab() {
             }}
             aria-label="Próxima semana"
           >
-            <svg className="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+            <svg
+              className="h-3.5 w-3.5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={2}
+            >
               <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
             </svg>
           </button>
@@ -177,9 +191,7 @@ export function EscalaTab() {
       </div>
 
       {/* Escala Padrão Panel */}
-      {showPadraoPanel && (
-        <EscalaPadraoPanel onClose={() => setShowPadraoPanel(false)} />
-      )}
+      {showPadraoPanel && <EscalaPadraoPanel onClose={() => setShowPadraoPanel(false)} />}
 
       {/* Calendar */}
       {loading ? (
@@ -202,13 +214,7 @@ export function EscalaTab() {
       )}
 
       {/* Modal */}
-      {modalDay && (
-        <EscalaFormModal
-          day={modalDay}
-          existing={editingEscala}
-          onClose={closeModal}
-        />
-      )}
+      {modalDay && <EscalaFormModal day={modalDay} existing={editingEscala} onClose={closeModal} />}
     </div>
   );
 }

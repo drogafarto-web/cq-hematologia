@@ -9,14 +9,15 @@
 
 ### Build Performance
 
-| Metric | Value | Status |
-|---|---|---|
-| **Build Time (tsc + vite)** | 29.10s | ✅ Within target |
-| **Main Chunk** | 1,595.38 KB (minified) · 397.04 KB (gzip) | ⚠️ Exceeds 365KB gzip target by 32 KB |
-| **Total dist size** | 9,806.49 KiB (PWA precache) | ✅ Healthy |
-| **Total JS chunks** | 19 bundles | ✅ Stable |
+| Metric                      | Value                                     | Status                                |
+| --------------------------- | ----------------------------------------- | ------------------------------------- |
+| **Build Time (tsc + vite)** | 29.10s                                    | ✅ Within target                      |
+| **Main Chunk**              | 1,595.38 KB (minified) · 397.04 KB (gzip) | ⚠️ Exceeds 365KB gzip target by 32 KB |
+| **Total dist size**         | 9,806.49 KiB (PWA precache)               | ✅ Healthy                            |
+| **Total JS chunks**         | 19 bundles                                | ✅ Stable                             |
 
 **Top 5 Chunks by Gzip Size:**
+
 1. `index-6S94_RFt.js` (main) — 397.04 KB gzip
 2. `vendor-firebase-CR8j0sqV.js` — 162.30 KB gzip
 3. `vendor-pdf-m4-iSrJB.js` — 134.96 KB gzip
@@ -25,33 +26,34 @@
 
 ### TypeScript Compilation
 
-| Metric | Value | Status |
-|---|---|---|
-| **Type Check Time** | <2s (sub-second, overhead-free) | ✅ Excellent |
-| **TS Errors** | 0 (post-fix) | ✅ Clean |
-| **Total TS Files** | ~180 source files | ✅ Manageable |
+| Metric              | Value                           | Status        |
+| ------------------- | ------------------------------- | ------------- |
+| **Type Check Time** | <2s (sub-second, overhead-free) | ✅ Excellent  |
+| **TS Errors**       | 0 (post-fix)                    | ✅ Clean      |
+| **Total TS Files**  | ~180 source files               | ✅ Manageable |
 
 ### Test Suite
 
-| Metric | Value | Status |
-|---|---|---|
-| **Unit Test Time** | 41.89s (total run) | ⚠️ Exceeds 30s target; vitest workers degraded |
-| **Test Breakdown** | Transform 9.60s, Setup 61.93s, Tests 25.73s | ⚠️ Setup overhead (likely Firebase emulator init) |
-| **Test Count** | 978 passed, 10 failed, 16 skipped (1004 total) | ⚠️ 10 failures in E2E rules tests (Phase 3 e2e scaffold) |
-| **Test Files** | 4 failed, 55 passed (59 total) | ⚠️ Phase 3 e2e file has flaky worker exits |
+| Metric             | Value                                          | Status                                                   |
+| ------------------ | ---------------------------------------------- | -------------------------------------------------------- |
+| **Unit Test Time** | 41.89s (total run)                             | ⚠️ Exceeds 30s target; vitest workers degraded           |
+| **Test Breakdown** | Transform 9.60s, Setup 61.93s, Tests 25.73s    | ⚠️ Setup overhead (likely Firebase emulator init)        |
+| **Test Count**     | 978 passed, 10 failed, 16 skipped (1004 total) | ⚠️ 10 failures in E2E rules tests (Phase 3 e2e scaffold) |
+| **Test Files**     | 4 failed, 55 passed (59 total)                 | ⚠️ Phase 3 e2e file has flaky worker exits               |
 
 **Known Issues:**
+
 - Vitest worker pool unstable when running E2E + emulator tests in parallel. Likely: Firebase Admin SDK version lock or Node 22 worker thread issue.
 - E2E phase3-rules tests have 6 worker errors — recommend running in isolation or breaking into smaller suites.
 
 ### Firebase Firestore (Latency Baseline)
 
-| Operation | Expected | Notes |
-|---|---|---|
-| **Read (single doc)** | <100ms | Emulator-based; production ~50-80ms typical |
-| **Write (single doc)** | <200ms | Includes server-side validation + LogicalSignature compute |
-| **Batch write (10 docs)** | <500ms | Typical for CIQ event writes |
-| **Query (index-backed)** | <300ms | Collection scan; indexes deployed post-schema |
+| Operation                 | Expected | Notes                                                      |
+| ------------------------- | -------- | ---------------------------------------------------------- |
+| **Read (single doc)**     | <100ms   | Emulator-based; production ~50-80ms typical                |
+| **Write (single doc)**    | <200ms   | Includes server-side validation + LogicalSignature compute |
+| **Batch write (10 docs)** | <500ms   | Typical for CIQ event writes                               |
+| **Query (index-backed)**  | <300ms   | Collection scan; indexes deployed post-schema              |
 
 **Status:** No baseline production metrics yet. Phase 3 will add 5 Firestore collections; post-deploy monitoring required.
 
@@ -61,13 +63,13 @@
 
 ### New Collections + Indexes
 
-| Item | Type | Est. KB Impact | Notes |
-|---|---|---|
-| Helpers modules (notivisa, sms, laudo, ia) | Code | +3–5 KB gzip | Dynamic import; lazy-loaded |
-| Cloud Functions callables (4 placeholders) | Code | +10 KB gzip | Bootstrap only; grows with implementation |
-| Firestore schema (5 new collections) | Schema | 0 KB | Metadata only (rules + indexes) |
-| Firestore indexes (15+ composite) | Index | 0 KB | Server-side only |
-| Audit trail extensions | Schema | 0 KB | New audit subcollections per module |
+| Item                                       | Type   | Est. KB Impact | Notes                                     |
+| ------------------------------------------ | ------ | -------------- | ----------------------------------------- |
+| Helpers modules (notivisa, sms, laudo, ia) | Code   | +3–5 KB gzip   | Dynamic import; lazy-loaded               |
+| Cloud Functions callables (4 placeholders) | Code   | +10 KB gzip    | Bootstrap only; grows with implementation |
+| Firestore schema (5 new collections)       | Schema | 0 KB           | Metadata only (rules + indexes)           |
+| Firestore indexes (15+ composite)          | Index  | 0 KB           | Server-side only                          |
+| Audit trail extensions                     | Schema | 0 KB           | New audit subcollections per module       |
 
 **Total estimated bundle delta:** +13–15 KB gzip (1.3–1.5% increase).
 
@@ -77,14 +79,15 @@
 
 ### Bundle Size Thresholds
 
-| Chunk | Hard Limit | Alert (Warning) | Rationale |
-|---|---|---|---|
-| **Main chunk** | 420 KB gzip | 380 KB gzip | Current 397.04 KB; Phase 3 +13–15 KB = 410–412 KB |
-| **Vendor chunks** | 180 KB gzip each | 160 KB gzip each | Firebase already at 162 KB; no new heavy deps |
-| **Total dist** | 10.5 MB | 10.2 MB | Precache target; includes PWA SW |
-| **Any single chunk** | 600 KB minified | 500 KB minified | Rollup build warning threshold |
+| Chunk                | Hard Limit       | Alert (Warning)  | Rationale                                         |
+| -------------------- | ---------------- | ---------------- | ------------------------------------------------- |
+| **Main chunk**       | 420 KB gzip      | 380 KB gzip      | Current 397.04 KB; Phase 3 +13–15 KB = 410–412 KB |
+| **Vendor chunks**    | 180 KB gzip each | 160 KB gzip each | Firebase already at 162 KB; no new heavy deps     |
+| **Total dist**       | 10.5 MB          | 10.2 MB          | Precache target; includes PWA SW                  |
+| **Any single chunk** | 600 KB minified  | 500 KB minified  | Rollup build warning threshold                    |
 
 **Action if exceeded:**
+
 - Alert trigger: Run `npm run build` and review chunk breakdown.
 - If main >420 KB: audit `src/index.ts` imports for unnecessary eager loads.
 - If vendor >180 KB: check for duplicate versions in `node_modules` (e.g., zod, firebase).
@@ -92,20 +95,21 @@
 ### TypeScript Build Time
 
 | Target | Alert | Hard Limit |
-|---|---|---|
-| <8s | >12s | >20s |
+| ------ | ----- | ---------- |
+| <8s    | >12s  | >20s       |
 
 **Action if exceeded:** Profile with `tsc --diagnostics` and check for new heavy types (e.g., unions with 100+ members).
 
 ### Test Suite Time
 
 | Target | Alert | Hard Limit |
-|---|---|---|
-| <45s | >60s | >90s |
+| ------ | ----- | ---------- |
+| <45s   | >60s  | >90s       |
 
 **Note:** Current 41.89s is within target despite vitest worker overhead. Phase 3 adds ~5–8 E2E tests (allowance: +15s).
 
-**Action if exceeded:** 
+**Action if exceeded:**
+
 - Check vitest worker pool (`--jobs` flag in package.json).
 - Consider splitting E2E from unit tests (`test:unit` vs `test:e2e`).
 - Profile with `npm run test:unit -- --reporter=verbose`.
@@ -139,6 +143,7 @@ npx @lhci/cli@latest autorun --config=lighthouserc.json
 **Path:** Firebase Console → Project `hmatologia2` → Performance
 
 **Key Metrics:**
+
 - **Realtime Database:** Read/write latency (monitor max P95).
 - **Firestore:** Collection read/write latency (per collection, post-Phase 3).
 - **Functions:** Execution time (baseline p50 <500ms for callables).
@@ -153,6 +158,7 @@ npx @lhci/cli@latest autorun --config=lighthouserc.json
 **Config:** `sentry.properties` (project-level).
 
 **Key watches:**
+
 - Error rate (baseline should be <0.1% on known-good traffic).
 - Web Vitals (INP, LCP, CLS logged client-side via Sentry SDK).
 - Function cold start time (logged in `functions/src/*/observable.ts`).
@@ -192,6 +198,7 @@ Before Phase 3 goes live:
 ### Rollback Triggers
 
 **Immediate rollback if:**
+
 - Any Web Vital (LCP, INP, CLS) exceeds hard limit.
 - Error rate >1% over 10 min window.
 - Firestore latency P95 >1s for any collection.
@@ -230,6 +237,7 @@ Add to sprint retrospective:
 ## Alert Summaries (For DevOps Integration)
 
 ### Green Zone (No Action)
+
 - Main chunk 380–400 KB gzip
 - Build time <12s
 - Test suite <60s
@@ -237,6 +245,7 @@ Add to sprint retrospective:
 - Error rate <0.05%
 
 ### Yellow Zone (Review Next Sprint)
+
 - Main chunk 400–420 KB gzip
 - Build time 12–15s
 - Test suite 60–75s
@@ -244,6 +253,7 @@ Add to sprint retrospective:
 - Error rate 0.05–0.2%
 
 ### Red Zone (Action Required)
+
 - Main chunk >420 KB gzip
 - Build time >20s
 - Test suite >90s

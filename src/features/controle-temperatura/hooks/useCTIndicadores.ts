@@ -24,7 +24,10 @@ function statusCardPara(
   if (equipamento.status === 'inativo' || equipamento.status === 'manutencao') {
     return { status: 'cinza', motivo: `Equipamento ${equipamento.status}` };
   }
-  if (dispositivo && !computarOnline(dispositivo.ultimaTransmissao, dispositivo.intervaloEnvioMinutos, agora)) {
+  if (
+    dispositivo &&
+    !computarOnline(dispositivo.ultimaTransmissao, dispositivo.intervaloEnvioMinutos, agora)
+  ) {
     return { status: 'vermelho', motivo: 'Dispositivo IoT offline' };
   }
   if (ultimaLeitura?.foraDosLimites) {

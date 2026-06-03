@@ -452,9 +452,7 @@ export function CIQTestTypeManager({
               <TypeRow
                 key={config.name}
                 config={config}
-                siblings={types
-                  .filter((t) => t.name !== config.name)
-                  .map((t) => t.name)}
+                siblings={types.filter((t) => t.name !== config.name).map((t) => t.name)}
                 onRename={renameType}
                 onRemove={removeType}
                 onSetManual={setManual}
@@ -557,9 +555,9 @@ export function CIQTestTypeManager({
 
           {addError && <p className="text-xs text-red-400/80 mt-1.5 ml-0.5">{addError}</p>}
           <p className="text-[10px] text-white/20 mt-2 leading-relaxed">
-            <span className="text-white/40">Manual</span> = kit lido a olho (aglutinação,
-            cartela, imunocromatografia) — esconde o seletor de equipamento na corrida.
-            Alterações refletem imediatamente. Remover um tipo não afeta dados históricos.
+            <span className="text-white/40">Manual</span> = kit lido a olho (aglutinação, cartela,
+            imunocromatografia) — esconde o seletor de equipamento na corrida. Alterações refletem
+            imediatamente. Remover um tipo não afeta dados históricos.
           </p>
         </div>
       </div>

@@ -116,10 +116,7 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
         json: async () => ({ statusId: 'status-sandbox-001' }),
       } as any);
 
-      const result = (await client.submitDraft(
-        testLaudo.id,
-        testPayload,
-      )) as SubmitDraftResponse;
+      const result = (await client.submitDraft(testLaudo.id, testPayload)) as SubmitDraftResponse;
 
       expect(result).toHaveProperty('statusId');
       expect(result).toHaveProperty('submittedAt');
@@ -195,9 +192,7 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
       }
 
       for (let i = 0; i < 5; i++) {
-        const result = (await client.checkStatus(
-          statusId,
-        )) as CheckStatusResponse;
+        const result = (await client.checkStatus(statusId)) as CheckStatusResponse;
 
         expect(result.status).toBe(states[i]);
       }
@@ -247,49 +242,38 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
   // ─────────────────────────────────────────────────────────────────────
 
   describe('Test 4: Network Timeout → Retry Logic Triggers, Max 5 Retries', () => {
-    it(
-      'retries on AbortError (timeout) up to 5 times',
-      async () => {
-        const abortError = new Error('AbortError');
-        abortError.name = 'AbortError';
+    it('retries on AbortError (timeout) up to 5 times', async () => {
+      const abortError = new Error('AbortError');
+      abortError.name = 'AbortError';
 
-        // Fail 4 times, succeed on 5th
-        mockFetch.mockRejectedValueOnce(abortError);
-        mockFetch.mockRejectedValueOnce(abortError);
-        mockFetch.mockRejectedValueOnce(abortError);
-        mockFetch.mockRejectedValueOnce(abortError);
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ statusId: 'status-after-timeout' }),
-        } as any);
+      // Fail 4 times, succeed on 5th
+      mockFetch.mockRejectedValueOnce(abortError);
+      mockFetch.mockRejectedValueOnce(abortError);
+      mockFetch.mockRejectedValueOnce(abortError);
+      mockFetch.mockRejectedValueOnce(abortError);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ statusId: 'status-after-timeout' }),
+      } as any);
 
-        const result = (await client.submitDraft(
-          testLaudo.id,
-          testPayload,
-        )) as SubmitDraftResponse;
+      const result = (await client.submitDraft(testLaudo.id, testPayload)) as SubmitDraftResponse;
 
-        expect(result.statusId).toBe('status-after-timeout');
-        expect(mockFetch).toHaveBeenCalledTimes(5);
-      },
-      30000, // Long timeout for backoff delays
-    );
+      expect(result.statusId).toBe('status-after-timeout');
+      expect(mockFetch).toHaveBeenCalledTimes(5);
+    }, 30000); // Long timeout for backoff delays
 
-    it(
-      'exhausts 5 retries and returns error',
-      async () => {
-        const abortError = new Error('AbortError');
-        abortError.name = 'AbortError';
+    it('exhausts 5 retries and returns error', async () => {
+      const abortError = new Error('AbortError');
+      abortError.name = 'AbortError';
 
-        mockFetch.mockRejectedValue(abortError);
+      mockFetch.mockRejectedValue(abortError);
 
-        const result = await client.submitDraft(testLaudo.id, testPayload);
+      const result = await client.submitDraft(testLaudo.id, testPayload);
 
-        expect((result as any).status).toBe('error');
-        expect((result as any).retryCount).toBe(5);
-        expect(mockFetch).toHaveBeenCalledTimes(5);
-      },
-      30000,
-    );
+      expect((result as any).status).toBe('error');
+      expect((result as any).retryCount).toBe(5);
+      expect(mockFetch).toHaveBeenCalledTimes(5);
+    }, 30000);
   });
 
   // ─────────────────────────────────────────────────────────────────────
@@ -413,9 +397,7 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
   describe('Test 10: Empty Results Validation', () => {
     it('rejects laudo with no results', async () => {
       const laudo = { ...testLaudo, resultados: [] };
-      await expect(buildNotivisaPayload(laudo, testLab)).rejects.toThrow(
-        'at least one result',
-      );
+      await expect(buildNotivisaPayload(laudo, testLab)).rejects.toThrow('at least one result');
     });
   });
 
@@ -447,90 +429,69 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
   // ─────────────────────────────────────────────────────────────────────
 
   describe('Test 13: Retry on 5xx Server Error', () => {
-    it(
-      'retries on 500 and succeeds on retry',
-      async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 500,
-          text: async () => 'Internal Server Error',
-        } as any);
+    it('retries on 500 and succeeds on retry', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 500,
+        text: async () => 'Internal Server Error',
+      } as any);
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ statusId: 'status-after-500' }),
-        } as any);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ statusId: 'status-after-500' }),
+      } as any);
 
-        const result = (await client.submitDraft(
-          testLaudo.id,
-          testPayload,
-        )) as SubmitDraftResponse;
+      const result = (await client.submitDraft(testLaudo.id, testPayload)) as SubmitDraftResponse;
 
-        expect(result.statusId).toBe('status-after-500');
-        expect(mockFetch).toHaveBeenCalledTimes(2);
-      },
-      30000,
-    );
+      expect(result.statusId).toBe('status-after-500');
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    }, 30000);
   });
 
   describe('Test 14: Retry on 503 Service Unavailable', () => {
-    it(
-      'retries on 503 with exponential backoff',
-      async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          text: async () => 'Service Unavailable',
-        } as any);
+    it('retries on 503 with exponential backoff', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'Service Unavailable',
+      } as any);
 
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 503,
-          text: async () => 'Service Unavailable',
-        } as any);
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 503,
+        text: async () => 'Service Unavailable',
+      } as any);
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ statusId: 'status-after-503' }),
-        } as any);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ statusId: 'status-after-503' }),
+      } as any);
 
-        const result = (await client.submitDraft(
-          testLaudo.id,
-          testPayload,
-        )) as SubmitDraftResponse;
+      const result = (await client.submitDraft(testLaudo.id, testPayload)) as SubmitDraftResponse;
 
-        expect(result.statusId).toBe('status-after-503');
-        expect(mockFetch).toHaveBeenCalledTimes(3);
-      },
-      30000,
-    );
+      expect(result.statusId).toBe('status-after-503');
+      expect(mockFetch).toHaveBeenCalledTimes(3);
+    }, 30000);
   });
 
   describe('Test 15: Retry on 429 Rate Limit', () => {
-    it(
-      'retries on 429 Too Many Requests',
-      async () => {
-        mockFetch.mockResolvedValueOnce({
-          ok: false,
-          status: 429,
-          text: async () => 'Rate Limited',
-        } as any);
+    it('retries on 429 Too Many Requests', async () => {
+      mockFetch.mockResolvedValueOnce({
+        ok: false,
+        status: 429,
+        text: async () => 'Rate Limited',
+      } as any);
 
-        mockFetch.mockResolvedValueOnce({
-          ok: true,
-          json: async () => ({ statusId: 'status-after-429' }),
-        } as any);
+      mockFetch.mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ statusId: 'status-after-429' }),
+      } as any);
 
-        const result = (await client.submitDraft(
-          testLaudo.id,
-          testPayload,
-        )) as SubmitDraftResponse;
+      const result = (await client.submitDraft(testLaudo.id, testPayload)) as SubmitDraftResponse;
 
-        expect(result.statusId).toBe('status-after-429');
-        expect(mockFetch).toHaveBeenCalledTimes(2);
-      },
-      30000,
-    );
+      expect(result.statusId).toBe('status-after-429');
+      expect(mockFetch).toHaveBeenCalledTimes(2);
+    }, 30000);
   });
 
   describe('Test 16: No Retry on 4xx Client Errors', () => {
@@ -562,51 +523,43 @@ describe('NOTIVISA Sandbox Integration Tests', () => {
   });
 
   describe('Test 17: Exponential Backoff Timing', () => {
-    it(
-      'uses exponential backoff: 1, 2, 4, 8, 16 seconds',
-      async () => {
-        // This test verifies delay logic by mocking setTimeout
-        const delays: number[] = [];
-        const originalSetTimeout = global.setTimeout;
+    it('uses exponential backoff: 1, 2, 4, 8, 16 seconds', async () => {
+      // This test verifies delay logic by mocking setTimeout
+      const delays: number[] = [];
+      const originalSetTimeout = global.setTimeout;
 
-        jest.useFakeTimers();
+      jest.useFakeTimers();
 
-        mockFetch.mockRejectedValue(new Error('Network error'));
+      mockFetch.mockRejectedValue(new Error('Network error'));
 
-        // Start submission
-        const submitPromise = client.submitDraft(testLaudo.id, testPayload);
+      // Start submission
+      const submitPromise = client.submitDraft(testLaudo.id, testPayload);
 
-        // Manually advance timers and track delays
-        let timerCount = 0;
-        jest.runAllTimers();
+      // Manually advance timers and track delays
+      let timerCount = 0;
+      jest.runAllTimers();
 
-        jest.useRealTimers();
+      jest.useRealTimers();
 
-        const result = await submitPromise;
+      const result = await submitPromise;
 
-        expect((result as any).status).toBe('error');
-        // Note: Actual delay verification would require more sophisticated mocking
-      },
-      30000,
-    );
+      expect((result as any).status).toBe('error');
+      // Note: Actual delay verification would require more sophisticated mocking
+    }, 30000);
   });
 
   describe('Test 18: Request Timeout at 30 seconds', () => {
-    it(
-      'enforces 30-second timeout per request',
-      async () => {
-        const abortError = new Error('AbortError');
-        abortError.name = 'AbortError';
+    it('enforces 30-second timeout per request', async () => {
+      const abortError = new Error('AbortError');
+      abortError.name = 'AbortError';
 
-        mockFetch.mockRejectedValue(abortError);
+      mockFetch.mockRejectedValue(abortError);
 
-        const result = await client.submitDraft(testLaudo.id, testPayload);
+      const result = await client.submitDraft(testLaudo.id, testPayload);
 
-        expect((result as any).status).toBe('error');
-        expect((result as any).reason).toContain('Request timeout');
-      },
-      30000,
-    );
+      expect((result as any).status).toBe('error');
+      expect((result as any).reason).toContain('Request timeout');
+    }, 30000);
   });
 });
 

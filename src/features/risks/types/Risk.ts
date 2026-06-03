@@ -1,4 +1,9 @@
-import type { LabId, LogicalSignature, Timestamp, UserId } from '../../educacao-continuada/types/_shared_refs';
+import type {
+  LabId,
+  LogicalSignature,
+  Timestamp,
+  UserId,
+} from '../../educacao-continuada/types/_shared_refs';
 
 // ─── Enums ────────────────────────────────────────────────────────────────────
 

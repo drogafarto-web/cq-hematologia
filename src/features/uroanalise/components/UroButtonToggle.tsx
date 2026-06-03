@@ -33,12 +33,11 @@ export function UroButtonToggle<T extends string>({
   const handleKeyDown = (e: React.KeyboardEvent<HTMLButtonElement>, index: number) => {
     if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(e.key)) return;
     e.preventDefault();
-    const enabledIndices = options
-      .map((o, i) => (o.disabled ? -1 : i))
-      .filter((i) => i >= 0);
+    const enabledIndices = options.map((o, i) => (o.disabled ? -1 : i)).filter((i) => i >= 0);
     const currentPos = enabledIndices.indexOf(index);
     let nextPos = currentPos;
-    if (e.key === 'ArrowLeft') nextPos = (currentPos - 1 + enabledIndices.length) % enabledIndices.length;
+    if (e.key === 'ArrowLeft')
+      nextPos = (currentPos - 1 + enabledIndices.length) % enabledIndices.length;
     if (e.key === 'ArrowRight') nextPos = (currentPos + 1) % enabledIndices.length;
     if (e.key === 'Home') nextPos = 0;
     if (e.key === 'End') nextPos = enabledIndices.length - 1;

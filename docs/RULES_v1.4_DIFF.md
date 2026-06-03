@@ -10,6 +10,7 @@
 ## Overview
 
 Phase 3.2 adds 5 new role-based Firestore rules blocks to support Phases 4–9 features:
+
 - Portal access (patient branding + published laudo read)
 - NOTIVISA regulatory queue (RDC 978 Art. 6º)
 - Critical escalations (ISO 15189 5.8.7)
@@ -77,6 +78,7 @@ match /portal-configuracao/{docId} {
 ```
 
 **Rules:**
+
 - Patient can read lab portal config (for branding in patient portal)
 - Lab members can read config (for UI rendering)
 - Admin/RT can update config with `updatedBy == uid` signature
@@ -98,6 +100,7 @@ match /notivisa-outbox/events/{docId} {
 ```
 
 **Rules:**
+
 - Admin/RT creates NOTIVISA events (with payload validation per RDC 978 Art. 6º §1)
 - Server (Cloud Functions) reads events for polling + retry logic
 - Lab members can read for audit trail review
@@ -121,6 +124,7 @@ match /criticos-escalacoes/escalacoes/{docId} {
 ```
 
 **Rules:**
+
 - Admin/RT creates escalation events for critical results
 - All lab members can read (for trending dashboard)
 - Admin/RT updates resolution (only if `resolved_at` is set)
@@ -142,6 +146,7 @@ match /imuno-ias-dev/images/{docId} {
 ```
 
 **Rules:**
+
 - Server (Cloud Functions) has full access for IA training pipeline
 - Admin/RT can also access (for manual dataset curation, future)
 - No patient/member access (development dataset isolation)
@@ -164,6 +169,7 @@ match /laudos-draft/rascunhos/{docId} {
 ```
 
 **Rules:**
+
 - Admin/RT creates/edits drafts with pessimistic lock validation
 - Lock validation: `locked_until_ts > now` OR `locked_by == uid`
 - Lab members can read draft status
@@ -204,6 +210,7 @@ match /laudos-draft/rascunhos/{docId} {
    - Patient can read draft status
 
 **Additional test suites:**
+
 - Helper Functions validation (5 tests)
 - Security Posture cross-cutting (4 tests)
 - Multi-tenant Isolation (2 tests)
@@ -221,6 +228,7 @@ match /laudos-draft/rascunhos/{docId} {
 **Status:** PASS
 
 All rules enforce role-based access control:
+
 - No `allow read, write: if true` patterns
 - All create/write operations require `isAdminOrRT()` or `isServer()`
 - Patient read access restricted to own data (`laudo.paciente_id == uid`, portal configs)
@@ -232,13 +240,15 @@ All rules enforce role-based access control:
 **Status:** PASS
 
 Patient laudo access in portal:
+
 ```firestore-rules
-allow read: if isPatient(labId) 
-  && resource.data.paciente_id == request.auth.uid 
+allow read: if isPatient(labId)
+  && resource.data.paciente_id == request.auth.uid
   && resource.data.publicado == true;
 ```
 
 Patient can only read:
+
 - Own published laudos
 - Portal configuration (no PII)
 - Draft status (via patient role)
@@ -250,11 +260,13 @@ Patient can only read:
 **Status:** PASS
 
 NOTIVISA outbox event polling:
+
 ```firestore-rules
 allow update: if isServer();
 ```
 
 IA training dataset:
+
 ```firestore-rules
 allow read, write: if isServer() || isAdminOrRT(labId);
 ```
@@ -269,14 +281,14 @@ Both use `isServer()` helper to identify Cloud Functions requests.
 
 All admin/RT write operations have validation:
 
-| Operation | Validation |
-|-----------|-----------|
-| Portal config update | `updatedBy == request.auth.uid` |
-| NOTIVISA create | `validateNotivisaPayload()` |
-| Escalation create | `isAdminOrRT()` + no extra restriction (creation only) |
-| Escalation update | `resolved_at != null` (prevents re-opening) |
-| Draft create/write | `validateDraftLock()` (pessimistic locking) |
-| IA write | `isAdminOrRT()` + server-only (data isolation) |
+| Operation            | Validation                                             |
+| -------------------- | ------------------------------------------------------ |
+| Portal config update | `updatedBy == request.auth.uid`                        |
+| NOTIVISA create      | `validateNotivisaPayload()`                            |
+| Escalation create    | `isAdminOrRT()` + no extra restriction (creation only) |
+| Escalation update    | `resolved_at != null` (prevents re-opening)            |
+| Draft create/write   | `validateDraftLock()` (pessimistic locking)            |
+| IA write             | `isAdminOrRT()` + server-only (data isolation)         |
 
 ---
 
@@ -285,6 +297,7 @@ All admin/RT write operations have validation:
 **Status:** PASS
 
 All new paths are directly under `/labs/{labId}/`:
+
 - `/labs/{labId}/portal-configuracao/{docId}`
 - `/labs/{labId}/notivisa-outbox/events/{docId}`
 - `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}`
@@ -300,6 +313,7 @@ No recursive path wildcards (e.g., `{doc=**}`) in multi-tenant collections.
 **Status:** PASS
 
 Role hierarchy enforced:
+
 - `isPatient()` requires lab membership + patient role
 - `isAdminOrRT()` requires lab membership + (admin|owner|rt) role
 - `isServer()` only for service account / callable context
@@ -313,6 +327,7 @@ No path to elevate from patient → admin without explicit role change in `/labs
 **Changes to existing rules:** None
 
 All existing match blocks remain unchanged:
+
 - `/labs/{labId}/...` for all existing modules
 - Helper functions (isAuthenticated, isSuperAdmin, etc.) unchanged
 - Module claim enforcement unchanged
@@ -354,41 +369,41 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 ## References
 
-| Document | Location | Purpose |
-|----------|----------|---------|
-| Schema v1.4 | `docs/SCHEMA_v1.4.md` | Collection field specs |
-| Test data | `docs/TEST_DATA_v1.4_SCHEMA.md` | Sample documents for validation |
-| Composite indexes | `firestore.indexes.json` | Index definitions (added in Phase 3.1) |
-| Rules file | `firestore.rules` (lines 59–92, 1935–1987) | This implementation |
-| Test suite | `functions/test/phase-3-2/rules-v1-4.test.mjs` | 23+ test assertions |
-| Design doc | `.planning/phases/03-schema-extensions/03-02-PLAN.md` | Requirements + specifications |
+| Document          | Location                                              | Purpose                                |
+| ----------------- | ----------------------------------------------------- | -------------------------------------- |
+| Schema v1.4       | `docs/SCHEMA_v1.4.md`                                 | Collection field specs                 |
+| Test data         | `docs/TEST_DATA_v1.4_SCHEMA.md`                       | Sample documents for validation        |
+| Composite indexes | `firestore.indexes.json`                              | Index definitions (added in Phase 3.1) |
+| Rules file        | `firestore.rules` (lines 59–92, 1935–1987)            | This implementation                    |
+| Test suite        | `functions/test/phase-3-2/rules-v1-4.test.mjs`        | 23+ test assertions                    |
+| Design doc        | `.planning/phases/03-schema-extensions/03-02-PLAN.md` | Requirements + specifications          |
 
 ---
 
 ## Compliance Mapping
 
-| Regulation | Requirement | Rules Block | Notes |
-|----------|-----------|-----------|-------|
-| RDC 978 Art. 6º | NOTIVISA notification | NOTIVISA Outbox | Event queue + audit trail |
-| RDC 978 Art. 122 | Audit trail | Escalations, Drafts | Immutable history |
-| ISO 15189 5.8.7 | Critical values | Escalations | Tracking + resolution |
-| DICQ 4.3 | Document config | Portal Config | Branding per lab |
-| DICQ 4.4 | Audit records | All blocks | Append-only + immutable |
-| Phase 9 IA | Training dataset | IA Strip Dev | Server-only isolation |
+| Regulation       | Requirement           | Rules Block         | Notes                     |
+| ---------------- | --------------------- | ------------------- | ------------------------- |
+| RDC 978 Art. 6º  | NOTIVISA notification | NOTIVISA Outbox     | Event queue + audit trail |
+| RDC 978 Art. 122 | Audit trail           | Escalations, Drafts | Immutable history         |
+| ISO 15189 5.8.7  | Critical values       | Escalations         | Tracking + resolution     |
+| DICQ 4.3         | Document config       | Portal Config       | Branding per lab          |
+| DICQ 4.4         | Audit records         | All blocks          | Append-only + immutable   |
+| Phase 9 IA       | Training dataset      | IA Strip Dev        | Server-only isolation     |
 
 ---
 
 ## Summary of Changes
 
-| Item | Count | Status |
-|------|-------|--------|
-| Helper functions added | 5 | ✅ Complete |
-| Match blocks added | 5 | ✅ Complete |
-| Lines added | ~185 | ✅ Complete |
-| Test suites added | 5 | ✅ Complete |
-| Test assertions | 23+ | ✅ Complete |
-| Security audit passed | 6/6 criteria | ✅ Complete |
-| No regressions | 0 failures | ✅ Complete |
+| Item                   | Count        | Status      |
+| ---------------------- | ------------ | ----------- |
+| Helper functions added | 5            | ✅ Complete |
+| Match blocks added     | 5            | ✅ Complete |
+| Lines added            | ~185         | ✅ Complete |
+| Test suites added      | 5            | ✅ Complete |
+| Test assertions        | 23+          | ✅ Complete |
+| Security audit passed  | 6/6 criteria | ✅ Complete |
+| No regressions         | 0 failures   | ✅ Complete |
 
 ---
 

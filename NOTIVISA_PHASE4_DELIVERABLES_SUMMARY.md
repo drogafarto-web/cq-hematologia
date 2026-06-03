@@ -31,6 +31,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 **Purpose:** Comprehensive test strategy specification covering architecture, scope, and execution.
 
 **Contents:**
+
 - Executive summary
 - 8 callables inventory (table: inputs, outputs, error codes)
 - Unit test suite per-callable (1,200 LOC target)
@@ -46,6 +47,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - References & appendix
 
 **Key Sections:**
+
 - Section 1: 8 Callables Scope ← Start here
 - Section 2: Unit Test Strategy ← Per-callable breakdown
 - Section 3: Integration Tests ← 7 test groups
@@ -59,6 +61,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - Section 11–14: Appendix & References
 
 **Use This When:**
+
 - Planning Phase 4 test execution
 - Understanding test scope (what's covered, what's not)
 - Defining acceptance criteria
@@ -72,6 +75,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 **Purpose:** Step-by-step Jest & Firebase Emulator setup for engineers.
 
 **Contents:**
+
 - Quick start (5 minutes)
 - Directory structure (complete file layout)
 - Jest configuration updates (jest.config.js)
@@ -84,10 +88,11 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - References
 
 **Key Sections:**
+
 - Section 1: Quick Start ← 5 min setup
 - Section 2: Jest Config ← Update functions/jest.config.js
 - Section 3: Jest Setup ← Create jest.setup.js
-- Section 4: Mock Files ← Create __mocks__/ files
+- Section 4: Mock Files ← Create **mocks**/ files
 - Section 5: Test Fixtures ← Seeding & payloads
 - Section 6: Running Tests ← Commands & shell scripts
 - Section 7: Troubleshooting ← Common issues
@@ -96,6 +101,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - Section 10: Reference ← Links & docs
 
 **Use This When:**
+
 - Setting up Jest locally
 - Configuring Firebase Emulator
 - Creating mock files
@@ -110,6 +116,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 **Purpose:** Detailed test matrix & implementation checklist for execution.
 
 **Contents:**
+
 - Test coverage matrix (211 × 8 grid)
   - 128 unit tests (per-callable breakdown)
   - 88 integration tests (7 groups)
@@ -129,6 +136,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - 5.5-day timeline with milestones
 
 **Key Sections:**
+
 - Section 1: Test Coverage Matrix ← 211 cases with details
 - Section 2: Implementation Checklist ← Step-by-step tasks
 - Section 3: Coverage Summary ← Per-callable table
@@ -136,6 +144,7 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 - Section 5: Timeline ← 5.5 days with phases
 
 **Use This When:**
+
 - Assigning tasks to engineers
 - Tracking implementation progress
 - Verifying test coverage
@@ -146,17 +155,17 @@ This package delivers a **comprehensive Phase 4 integration test strategy** for 
 
 ## The 8 Callables (Quick Reference)
 
-| # | Callable | Status | Lines | Branch | Critical Path | Error Codes |
-|---|----------|--------|-------|--------|---|---|
-| 1 | authenticatePortal | Ready | 95% | 90% | ✓ 100% | 8 |
-| 2 | getPatientData | Ready | 92% | 88% | ✓ 100% | 5 |
-| 3 | submitRequisition | Ready | 96% | 92% | ✓ 100% | 8 |
-| 4 | trackSampleStatus | Ready | 94% | 90% | ✓ 100% | 6 |
-| 5 | notivisaDraftCreate | Ready | 91% | 87% | ✓ 100% | 4 |
-| 6 | getNotivisaDraft | Ready | 89% | 85% | ✓ 100% | 3 |
-| 7 | rejectNotivisaDraft | Ready | 93% | 89% | ✓ 100% | 4 |
-| 8 | listNotivisaOutbox | Ready | 88% | 84% | ✓ 100% | 2 |
-| **Total** | **8 callables** | **Ready** | **92%** | **88%** | **8/8 ✓** | **40** |
+| #         | Callable            | Status    | Lines   | Branch  | Critical Path | Error Codes |
+| --------- | ------------------- | --------- | ------- | ------- | ------------- | ----------- |
+| 1         | authenticatePortal  | Ready     | 95%     | 90%     | ✓ 100%        | 8           |
+| 2         | getPatientData      | Ready     | 92%     | 88%     | ✓ 100%        | 5           |
+| 3         | submitRequisition   | Ready     | 96%     | 92%     | ✓ 100%        | 8           |
+| 4         | trackSampleStatus   | Ready     | 94%     | 90%     | ✓ 100%        | 6           |
+| 5         | notivisaDraftCreate | Ready     | 91%     | 87%     | ✓ 100%        | 4           |
+| 6         | getNotivisaDraft    | Ready     | 89%     | 85%     | ✓ 100%        | 3           |
+| 7         | rejectNotivisaDraft | Ready     | 93%     | 89%     | ✓ 100%        | 4           |
+| 8         | listNotivisaOutbox  | Ready     | 88%     | 84%     | ✓ 100%        | 2           |
+| **Total** | **8 callables**     | **Ready** | **92%** | **88%** | **8/8 ✓**     | **40**      |
 
 ---
 
@@ -207,49 +216,49 @@ Audit Trail (all callables) ................... ✓ 100%
 
 ## Error Scenarios Covered (40 Total)
 
-| Callable | Error Code | Trigger | Tests |
-|----------|-----------|---------|-------|
-| authenticatePortal | INVALID_CREDENTIALS | Wrong password | 1 |
-| | MFA_REQUIRED | MFA configured, code not provided | 1 |
-| | MFA_INVALID | Wrong MFA code | 1 |
-| | PORTAL_CONFIG_MISSING | No config doc | 1 |
-| | PORTAL_UNREACHABLE | Network error | 1 |
-| | SESSION_CREATION_FAILED | Batch fails | 1 |
-| | PERMISSION_DENIED | Missing notivisa claim | 1 |
-| | INTERNAL_ERROR | Unhandled exception | 1 |
-| getPatientData | PATIENT_NOT_FOUND | Invalid CPF | 1 |
-| | LAUDO_NOT_FOUND | No results | 1 |
-| | INCOMPLETE_DATA | Missing field | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | DB error | 1 |
-| submitRequisition | INVALID_SESSION | Session doesn't exist | 1 |
-| | SESSION_EXPIRED | Session > 1h old | 1 |
-| | INVALID_PAYLOAD | Zod validation fails | 1 |
-| | DUPLICATE_SUBMISSION | Same laudo + patient | 1 |
-| | PORTAL_ERROR | HTTP error | 1 |
-| | RATE_LIMITED | >20/hour | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | Unhandled exception | 1 |
-| trackSampleStatus | REQUISITION_NOT_FOUND | ID not in DB | 1 |
-| | SESSION_INVALID | Session not found | 1 |
-| | SESSION_EXPIRED | Session > 1h old | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | PORTAL_ERROR | Poll timeout | 1 |
-| | INTERNAL_ERROR | DB error | 1 |
-| notivisaDraftCreate | DUPLICATE_LAUDO | Same laudoId + labId | 1 |
-| | INCOMPLETE_DATA | Invalid payload | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | Batch fails | 1 |
-| getNotivisaDraft | DRAFT_NOT_FOUND | ID not in DB | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | DB read fails | 1 |
-| rejectNotivisaDraft | DRAFT_NOT_FOUND | ID not in DB | 1 |
-| | INVALID_SIGNATURE | Hash != 64 chars | 1 |
-| | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | Batch fails | 1 |
-| listNotivisaOutbox | PERMISSION_DENIED | Missing claim | 1 |
-| | INTERNAL_ERROR | Query fails | 1 |
-| **TOTAL** | **40 error codes** | **All scenarios** | **40 tests** |
+| Callable            | Error Code              | Trigger                           | Tests        |
+| ------------------- | ----------------------- | --------------------------------- | ------------ |
+| authenticatePortal  | INVALID_CREDENTIALS     | Wrong password                    | 1            |
+|                     | MFA_REQUIRED            | MFA configured, code not provided | 1            |
+|                     | MFA_INVALID             | Wrong MFA code                    | 1            |
+|                     | PORTAL_CONFIG_MISSING   | No config doc                     | 1            |
+|                     | PORTAL_UNREACHABLE      | Network error                     | 1            |
+|                     | SESSION_CREATION_FAILED | Batch fails                       | 1            |
+|                     | PERMISSION_DENIED       | Missing notivisa claim            | 1            |
+|                     | INTERNAL_ERROR          | Unhandled exception               | 1            |
+| getPatientData      | PATIENT_NOT_FOUND       | Invalid CPF                       | 1            |
+|                     | LAUDO_NOT_FOUND         | No results                        | 1            |
+|                     | INCOMPLETE_DATA         | Missing field                     | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | DB error                          | 1            |
+| submitRequisition   | INVALID_SESSION         | Session doesn't exist             | 1            |
+|                     | SESSION_EXPIRED         | Session > 1h old                  | 1            |
+|                     | INVALID_PAYLOAD         | Zod validation fails              | 1            |
+|                     | DUPLICATE_SUBMISSION    | Same laudo + patient              | 1            |
+|                     | PORTAL_ERROR            | HTTP error                        | 1            |
+|                     | RATE_LIMITED            | >20/hour                          | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | Unhandled exception               | 1            |
+| trackSampleStatus   | REQUISITION_NOT_FOUND   | ID not in DB                      | 1            |
+|                     | SESSION_INVALID         | Session not found                 | 1            |
+|                     | SESSION_EXPIRED         | Session > 1h old                  | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | PORTAL_ERROR            | Poll timeout                      | 1            |
+|                     | INTERNAL_ERROR          | DB error                          | 1            |
+| notivisaDraftCreate | DUPLICATE_LAUDO         | Same laudoId + labId              | 1            |
+|                     | INCOMPLETE_DATA         | Invalid payload                   | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | Batch fails                       | 1            |
+| getNotivisaDraft    | DRAFT_NOT_FOUND         | ID not in DB                      | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | DB read fails                     | 1            |
+| rejectNotivisaDraft | DRAFT_NOT_FOUND         | ID not in DB                      | 1            |
+|                     | INVALID_SIGNATURE       | Hash != 64 chars                  | 1            |
+|                     | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | Batch fails                       | 1            |
+| listNotivisaOutbox  | PERMISSION_DENIED       | Missing claim                     | 1            |
+|                     | INTERNAL_ERROR          | Query fails                       | 1            |
+| **TOTAL**           | **40 error codes**      | **All scenarios**                 | **40 tests** |
 
 ---
 
@@ -300,14 +309,15 @@ Audit Trail (all callables) ................... ✓ 100%
 
 ## Implementation Timeline (5.5 Days)
 
-| Day | Phase | Deliverable | Owner |
-|-----|-------|-----------|-------|
-| 1–2 | Phase 1: Unit Tests | 8 files, 128 tests | Engineer |
-| 2–3 | Phase 2: Integration | Mock libs + 88 tests | Engineer + QA |
-| 3 | Phase 3: Jest Config | jest.config.js + jest.setup.js | Engineer |
-| 4–5 | Phase 4: Verification | Coverage report + sign-off | QA + CTO |
+| Day | Phase                 | Deliverable                    | Owner         |
+| --- | --------------------- | ------------------------------ | ------------- |
+| 1–2 | Phase 1: Unit Tests   | 8 files, 128 tests             | Engineer      |
+| 2–3 | Phase 2: Integration  | Mock libs + 88 tests           | Engineer + QA |
+| 3   | Phase 3: Jest Config  | jest.config.js + jest.setup.js | Engineer      |
+| 4–5 | Phase 4: Verification | Coverage report + sign-off     | QA + CTO      |
 
 **Milestones:**
+
 - Day 2 EOD: 128 unit tests passing
 - Day 3 EOD: 88 integration tests passing
 - Day 4 EOD: 92% coverage report
@@ -418,7 +428,7 @@ npm test -- modules/notivisa __tests__/integration/notivisa
 ✅ **40 Error Codes:** All error scenarios tested  
 ✅ **Audit Trail:** 100% logged per RDC 978 Art. 66  
 ✅ **Pre-Merge Gate:** All tests pass before merge  
-✅ **5.5-Day Timeline:** Realistic execution window  
+✅ **5.5-Day Timeline:** Realistic execution window
 
 ---
 

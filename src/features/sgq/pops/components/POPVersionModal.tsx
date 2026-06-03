@@ -9,12 +9,7 @@ interface POPVersionModalProps {
   onSuccess?: () => void;
 }
 
-export default function POPVersionModal({
-  isOpen,
-  pop,
-  onClose,
-  onSuccess,
-}: POPVersionModalProps) {
+export default function POPVersionModal({ isOpen, pop, onClose, onSuccess }: POPVersionModalProps) {
   const { execute, loading, error } = useCreatePOPVersion();
   const [markdown, setMarkdown] = useState('');
   const [pdfUrl, setPdfUrl] = useState('');
@@ -52,7 +47,9 @@ export default function POPVersionModal({
         <div className="flex items-center justify-between p-6 border-b border-white/10 sticky top-0 bg-[#1a1a1f]">
           <div>
             <h2 className="text-lg font-semibold text-white">Nova Versão</h2>
-            <p className="text-xs text-white/50 mt-1">{pop.codigo} — {pop.nome}</p>
+            <p className="text-xs text-white/50 mt-1">
+              {pop.codigo} — {pop.nome}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -97,7 +94,9 @@ export default function POPVersionModal({
                 />
                 <div className="flex-1">
                   <div className="text-sm font-medium text-white">Versão Maior (v1.0 → v2.0)</div>
-                  <div className="text-xs text-white/50">Mudanças significativas; requer novo treinamento</div>
+                  <div className="text-xs text-white/50">
+                    Mudanças significativas; requer novo treinamento
+                  </div>
                 </div>
               </label>
             </div>

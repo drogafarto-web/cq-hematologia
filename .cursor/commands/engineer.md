@@ -39,6 +39,7 @@ Fix: mudança específica e acionável (não "considere", não "talvez")
 ```
 
 No fim:
+
 - Total por severidade
 - Recomendação: **shippa / corrige primeiro / repensa**
 - Se está limpo: "World-class. Shippa." e para.

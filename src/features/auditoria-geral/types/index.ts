@@ -96,7 +96,12 @@ export interface PlanoAcao {
   criadoEm: Timestamp;
 }
 
-export type TipoAchado = 'nc-critica' | 'nc-maior' | 'nc-menor' | 'oportunidade-melhoria' | 'observacao';
+export type TipoAchado =
+  | 'nc-critica'
+  | 'nc-maior'
+  | 'nc-menor'
+  | 'oportunidade-melhoria'
+  | 'observacao';
 
 export interface Achado {
   id: string;

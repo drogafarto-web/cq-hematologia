@@ -1,45 +1,48 @@
-import React, { useState } from 'react'
-import { useActiveLabId } from '../../store/useAuthStore'
-import { useSGDDocumentos } from './hooks/useSGDDocumentos'
-import { SGDViewer } from './components/SGDViewer'
-import { DriveImporterWizard } from './components/DriveImporterWizard'
-import { cn } from '../../utils/cn'
-import { DICABloco, SGDDocumento } from './types/SGDDocumento'
+import React, { useState } from 'react';
+import { useActiveLabId } from '../../store/useAuthStore';
+import { useSGDDocumentos } from './hooks/useSGDDocumentos';
+import { SGDViewer } from './components/SGDViewer';
+import { DriveImporterWizard } from './components/DriveImporterWizard';
+import { cn } from '../../utils/cn';
+import { DICABloco, SGDDocumento } from './types/SGDDocumento';
 
 /**
  * SGDView — Sistema de Gestão de Documentos Externos
  * Displays imported documents from Google Drive with filtering, search, and categorization.
  */
 export const SGDView: React.FC = () => {
-  const labId = useActiveLabId()
+  const labId = useActiveLabId();
 
   if (!labId) {
     return (
       <div className="min-h-screen bg-[#0a0a0c] text-white flex items-center justify-center">
         <p className="text-white/60">Laboratório não selecionado</p>
       </div>
-    )
+    );
   }
 
-  const [selectedDocId, setSelectedDocId] = useState<string | null>(null)
-  const [showImporter, setShowImporter] = useState(false)
-  const [categoria, setCategoria] = useState<DICABloco | undefined>(undefined)
-  const [searchTerm, setSearchTerm] = useState('')
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
+  const [showImporter, setShowImporter] = useState(false);
+  const [categoria, setCategoria] = useState<DICABloco | undefined>(undefined);
+  const [searchTerm, setSearchTerm] = useState('');
 
-  const { data: documentos, loading } = useSGDDocumentos(labId, { categoria })
+  const { data: documentos, loading } = useSGDDocumentos(labId, { categoria });
 
   // Filter by search term
-  const filtered = documentos.filter((doc) =>
-    doc.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    doc.descricao?.toLowerCase().includes(searchTerm.toLowerCase())
-  )
+  const filtered = documentos.filter(
+    (doc) =>
+      doc.titulo.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      doc.descricao?.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   // KPI calculations
-  const totalDocs = documentos.length
-  const categorizedDocs = documentos.filter((d) => d.categoriaICQ).length
-  const linkedDocs = documentos.filter((d) => d.linksConfirmados && d.linksConfirmados.length > 0).length
+  const totalDocs = documentos.length;
+  const categorizedDocs = documentos.filter((d) => d.categoriaICQ).length;
+  const linkedDocs = documentos.filter(
+    (d) => d.linksConfirmados && d.linksConfirmados.length > 0,
+  ).length;
 
-  const dicqBlocos: DICABloco[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J']
+  const dicqBlocos: DICABloco[] = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'];
   const dicqLabels: Record<DICABloco, string> = {
     A: 'Estabelecimento',
     B: 'Responsável Técnico',
@@ -50,8 +53,8 @@ export const SGDView: React.FC = () => {
     G: 'Pré-Analítico',
     H: 'Analítico',
     I: 'Pós-Analítico',
-    J: 'Qualidade Geral'
-  }
+    J: 'Qualidade Geral',
+  };
 
   return (
     <div className="min-h-screen bg-[#0a0a0c] text-white">
@@ -70,7 +73,12 @@ export const SGDView: React.FC = () => {
               className="bg-violet-600 hover:bg-violet-700 text-white font-medium px-4 py-2 rounded-lg transition-colors flex items-center gap-2"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 4v16m8-8H4"
+                />
               </svg>
               Importar do Drive
             </button>
@@ -105,7 +113,12 @@ export const SGDView: React.FC = () => {
               stroke="currentColor"
               viewBox="0 0 24 24"
             >
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+              />
             </svg>
             <input
               type="text"
@@ -142,8 +155,18 @@ export const SGDView: React.FC = () => {
           </div>
         ) : filtered.length === 0 ? (
           <div className="text-center py-12">
-            <svg className="w-12 h-12 text-white/30 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            <svg
+              className="w-12 h-12 text-white/30 mx-auto mb-3"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+              />
             </svg>
             <p className="text-white/60">Nenhum documento encontrado</p>
           </div>
@@ -160,11 +183,7 @@ export const SGDView: React.FC = () => {
       {selectedDocId && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-[#141417] border border-white/10 rounded-xl w-full h-5/6 max-w-4xl overflow-hidden flex flex-col">
-            <SGDViewer
-              labId={labId}
-              docId={selectedDocId}
-              onClose={() => setSelectedDocId(null)}
-            />
+            <SGDViewer labId={labId} docId={selectedDocId} onClose={() => setSelectedDocId(null)} />
           </div>
         </div>
       )}
@@ -174,20 +193,20 @@ export const SGDView: React.FC = () => {
         <DriveImporterWizard
           labId={labId}
           onComplete={(count) => {
-            setShowImporter(false)
+            setShowImporter(false);
             // TODO: show toast "X documentos importados"
           }}
           onCancel={() => setShowImporter(false)}
         />
       )}
     </div>
-  )
-}
+  );
+};
 
 // Document Row Component
 const DocumentRow: React.FC<{
-  doc: SGDDocumento
-  onSelect: () => void
+  doc: SGDDocumento;
+  onSelect: () => void;
 }> = ({ doc, onSelect }) => {
   const dicqLabels: Record<DICABloco, string> = {
     A: 'Estabelecimento',
@@ -199,8 +218,8 @@ const DocumentRow: React.FC<{
     G: 'Pré-Analítico',
     H: 'Analítico',
     I: 'Pós-Analítico',
-    J: 'Qualidade Geral'
-  }
+    J: 'Qualidade Geral',
+  };
 
   return (
     <button
@@ -212,7 +231,9 @@ const DocumentRow: React.FC<{
           <p className="font-medium text-white group-hover:text-violet-300 transition-colors truncate">
             {doc.titulo}
           </p>
-          {doc.descricao && <p className="text-sm text-white/60 mt-1 line-clamp-1">{doc.descricao}</p>}
+          {doc.descricao && (
+            <p className="text-sm text-white/60 mt-1 line-clamp-1">{doc.descricao}</p>
+          )}
         </div>
 
         <div className="flex items-center gap-3 flex-shrink-0">
@@ -229,11 +250,16 @@ const DocumentRow: React.FC<{
             </span>
           )}
 
-          <svg className="w-4 h-4 text-white/40 group-hover:text-white/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg
+            className="w-4 h-4 text-white/40 group-hover:text-white/60"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
           </svg>
         </div>
       </div>
     </button>
-  )
-}
+  );
+};

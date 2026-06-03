@@ -49,10 +49,7 @@ export const listarDocsDrive = onCall<ListarDocsDriveInput, Promise<ListarDocsDr
   async (request: CallableRequest<ListarDocsDriveInput>) => {
     // Auth: requires RT claim or authenticated user (will refine to RT later)
     if (!request.auth) {
-      throw new HttpsError(
-        'unauthenticated',
-        'User must be authenticated',
-      );
+      throw new HttpsError('unauthenticated', 'User must be authenticated');
     }
 
     const { labId, lm01SheetId } = request.data;

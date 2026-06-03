@@ -1,7 +1,16 @@
 import { describe, it, expect } from 'vitest';
 import { Timestamp } from 'firebase/firestore';
-import type { Area, EPE, InspecaoArea } from '../../../src/features/biosseguranca/types/Biosseguranca';
-import { epeVencida, epeEstoque, diasAteVencimentoEPE, areaConformidade } from '../../../src/features/biosseguranca/types/Biosseguranca';
+import type {
+  Area,
+  EPE,
+  InspecaoArea,
+} from '../../../src/features/biosseguranca/types/Biosseguranca';
+import {
+  epeVencida,
+  epeEstoque,
+  diasAteVencimentoEPE,
+  areaConformidade,
+} from '../../../src/features/biosseguranca/types/Biosseguranca';
 
 describe('BiossegurancaService', () => {
   const labId = 'test-lab-1';

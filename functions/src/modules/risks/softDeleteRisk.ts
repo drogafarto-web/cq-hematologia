@@ -54,7 +54,7 @@ export const risks_softDeleteRisk = onCall(
     if (riskData.status === 'fechado') {
       throw new HttpsError(
         'failed-precondition',
-        'Não é possível arquivar um risco fechado. Riscos fechados preservam evidência indefinidamente.'
+        'Não é possível arquivar um risco fechado. Riscos fechados preservam evidência indefinidamente.',
       );
     }
 

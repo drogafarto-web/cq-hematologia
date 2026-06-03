@@ -39,11 +39,13 @@ bash scripts/preflight-secrets-check.sh
 ```
 
 **Expected output:**
+
 ```
 ✓ OK — all 14 declared secret(s) have real values. Safe to deploy.
 ```
 
 **If any secrets are missing:**
+
 ```bash
 firebase functions:secrets:set GEMINI_API_KEY --project hmatologia2
 firebase functions:secrets:set TWILIO_ACCOUNT_SID --project hmatologia2
@@ -100,21 +102,25 @@ bash scripts/deploy-functions.sh --dry-run
 ### Step 3: Deploy Functions (15 min)
 
 **Option A: All functions at once (recommended)**
+
 ```bash
 bash scripts/deploy-functions.sh --phase 1
 ```
 
 **Option B: Callables only** (if crons were deployed separately earlier)
+
 ```bash
 bash scripts/deploy-functions.sh --phase 2
 ```
 
 **Option C: Single function** (emergency hotfix)
+
 ```bash
 bash scripts/deploy-functions.sh --phase 3 --function criarLaudo
 ```
 
 **Monitor deployment:**
+
 - Console output shows progress (`Deploying function X of Y...`)
 - Look for `Deploy complete!` at the end
 - If interrupted, re-run the command (Firebase CLI is idempotent)
@@ -122,6 +128,7 @@ bash scripts/deploy-functions.sh --phase 3 --function criarLaudo
 ### Step 4: Verify Deployment (5 min)
 
 Check Firebase Console:
+
 - **Functions tab:** All ~78 functions show as "Active" (green)
 - **Last deployment:** Recent timestamp (within last 5 min)
 - **Runtime:** Node 22 (not Node 20)
@@ -162,6 +169,7 @@ gcloud scheduler jobs list --project=hmatologia2 --location=southamerica-east1
 ```
 
 **Expected jobs:**
+
 - `notivisa-poll-submissions-5min`
 - `presence-cleanup-8h`
 - `audit-log-expiry-daily`
@@ -189,17 +197,20 @@ Start real-time log monitoring:
 bash scripts/monitor-cloud-logs.sh 30 60
 ```
 
-**Parameters:** 
+**Parameters:**
+
 - `30` — polling interval (seconds)
 - `60` — total duration (minutes)
 
 **Output:** JSON report + summary of:
+
 - Error rate per function
 - Latency p50/p95/p99
 - Cold starts
 - Memory usage
 
 **Red flags:**
+
 - Error rate >5% on any single function
 - Latency p99 >5s for critical paths (criarLaudo, recordRunBioquimica, etc.)
 - OOM (Out of Memory) crashes
@@ -214,6 +225,7 @@ bash scripts/monitor-cloud-logs.sh 30 60
 **Cause:** One or more `defineSecret()` declarations in `functions/src/` are unprovisioned.
 
 **Fix:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 # Follow the instructions in the output
@@ -226,6 +238,7 @@ bash scripts/preflight-secrets-check.sh  # Verify it passes now
 **Cause:** Source code has type errors.
 
 **Fix:**
+
 ```bash
 cd functions
 npx tsc --noEmit 2>&1 | head -20  # Show first 20 errors
@@ -238,6 +251,7 @@ npm run build
 **Cause:** `firebase login` token has expired.
 
 **Fix:**
+
 ```bash
 firebase login
 # Follow browser prompt to re-authenticate
@@ -249,6 +263,7 @@ firebase projects:list  # Verify access
 **Cause:** Firebase backend is slow or there's a network issue.
 
 **Fix:**
+
 1. Check Cloud Functions console for any activity
 2. Wait 5 minutes, then re-run the deploy command (idempotent, safe)
 3. If still stalled, check `gcloud functions list --project=hmatologia2`
@@ -258,6 +273,7 @@ firebase projects:list  # Verify access
 **Cause:** Function is running before Firestore rules are deployed, OR the function's service account lacks permissions.
 
 **Fix:**
+
 1. Ensure Firestore rules are deployed: `firebase deploy --only firestore:rules`
 2. Verify default Cloud Functions service account has Editor role in IAM
 
@@ -266,6 +282,7 @@ firebase projects:list  # Verify access
 **Cause:** Large dependencies (e.g., Gemini API, SheetJS) are being imported at module level.
 
 **Fix:**
+
 - Use `import(...) ` (dynamic import) for large libraries
 - Example: `const xlsx = await import('xlsx');` (inside the function, not at module level)
 - Redeploy and monitor
@@ -302,6 +319,7 @@ firebase deploy --only functions:barCallable --project hmatologia2
 ### Full rollback via Cloud Functions UI
 
 If CLI is unavailable:
+
 1. Go to [Firebase Console > Functions](https://console.firebase.google.com/project/hmatologia2/functions)
 2. Select each problematic function
 3. Click "Delete"
@@ -317,7 +335,7 @@ Deployment is **complete and safe** if:
 - ✓ Smoke tests (critical callables) return success
 - ✓ Cloud Logs show error rate <2% over 60 min
 - ✓ No "permission denied" errors in logs
-- ✓ No "PENDING_SET_*" secret values in Cloud Logs
+- ✓ No "PENDING*SET*\*" secret values in Cloud Logs
 - ✓ Crons are registered in Cloud Scheduler
 - ✓ Firestore rules are deployed (pre-req check)
 
@@ -328,6 +346,7 @@ Deployment is **complete and safe** if:
 ### 1. Announce deployment to team
 
 Send message with:
+
 - Deployment timestamp
 - Version/commit SHA
 - Which functions were deployed (all / selected)
@@ -336,6 +355,7 @@ Send message with:
 ### 2. Monitor for 24h
 
 Watch Cloud Logs dashboard for errors. If error rate spikes:
+
 - Check recent logs for patterns
 - Cross-reference with recent code changes
 - If critical, initiate rollback
@@ -343,6 +363,7 @@ Watch Cloud Logs dashboard for errors. If error rate spikes:
 ### 3. Update deployment notes
 
 Log in the project's shared notes (e.g., Obsidian or Slack) with:
+
 - Date/time of deployment
 - Deployment duration
 - Any issues encountered
@@ -363,6 +384,7 @@ Log in the project's shared notes (e.g., Obsidian or Slack) with:
 ## Support
 
 **Questions or issues?**
+
 - Escalate to CTO
 - Review Cloud Functions logs: `gcloud functions log read FUNCTION_NAME --region southamerica-east1 --project hmatologia2 --limit 50`
 - Check Firebase status: https://status.firebase.google.com/

@@ -1,8 +1,8 @@
 ---
-title: "Phase 4 Kickoff Documentation Index"
+title: 'Phase 4 Kickoff Documentation Index'
 date: 2026-05-07
-version: "1.0"
-status: "READY FOR DISTRIBUTION"
+version: '1.0'
+status: 'READY FOR DISTRIBUTION'
 ---
 
 # Phase 4 Kickoff Documentation Index
@@ -45,6 +45,7 @@ status: "READY FOR DISTRIBUTION"
 ### 1. Phase 4 Planning Complete — Overview
 
 **PHASE_4_OVERVIEW.md**
+
 - Location: `.planning/phases/04-portal-notivisa/PHASE_4_OVERVIEW.md`
 - Length: 360 lines
 - Read time: 45 min
@@ -63,6 +64,7 @@ status: "READY FOR DISTRIBUTION"
 ### 2. Infrastructure Readiness Verification
 
 **PHASE_3_4_INTEGRATION_REPORT.md**
+
 - Location: `C:/hc quality/docs/PHASE_3_4_INTEGRATION_REPORT.md`
 - Length: 660 lines
 - Read time: 1 hour
@@ -78,6 +80,7 @@ status: "READY FOR DISTRIBUTION"
   - Pre-kickoff checklist for Ops Team
 
 **PHASE_4_BLOCKERS_ACTION_ITEMS.md**
+
 - Location: `C:/hc quality/docs/PHASE_4_BLOCKERS_ACTION_ITEMS.md`
 - Length: 220 lines
 - Read time: 20 min
@@ -95,6 +98,7 @@ status: "READY FOR DISTRIBUTION"
 ### 3. Comprehensive Kickoff Checklist
 
 **PHASE_4_KICKOFF_CHECKLIST.md**
+
 - Location: `C:/hc quality/PHASE_4_KICKOFF_CHECKLIST.md`
 - Length: 450 lines
 - Read time: 1.5 hours
@@ -139,6 +143,7 @@ status: "READY FOR DISTRIBUTION"
 ### 4. Dependency Verification Matrix (Reference)
 
 **PHASE_4_DEPENDENCY_VERIFICATION_MATRIX.md**
+
 - Location: `C:/hc quality/docs/PHASE_4_DEPENDENCY_VERIFICATION_MATRIX.md`
 - Length: 200 lines
 - Read time: 20 min
@@ -253,21 +258,25 @@ status: "READY FOR DISTRIBUTION"
 ### Deployment & Operations
 
 **PHASE_3_DEPLOY_WORKFLOW.md**
+
 - Location: `C:/hc quality/docs/PHASE_3_DEPLOY_WORKFLOW.md`
 - Purpose: Detailed deployment procedure + gates + rollback guide
 - When to read: Before doing any deploy
 
 **DEPLOY_QUICK_REFERENCE.md**
+
 - Location: `C:/hc quality/docs/DEPLOY_QUICK_REFERENCE.md`
 - Purpose: 1-page deployment commands + emergency rollback
 - When to read: During deployment week
 
 **CLOUD_LOGS_MONITORING_GUIDE.md**
+
 - Location: `C:/hc quality/docs/CLOUD_LOGS_MONITORING_GUIDE.md`
 - Purpose: 24h post-deploy Cloud Logs setup + alert tuning
 - When to read: Post-deployment (Week 2.5 onward)
 
 **CLOUD_LOGS_QUICK_REFERENCE.md**
+
 - Location: `C:/hc quality/docs/CLOUD_LOGS_QUICK_REFERENCE.md`
 - Purpose: TL;DR commands + cheat sheet
 - When to read: During Cloud Logs monitoring
@@ -277,11 +286,13 @@ status: "READY FOR DISTRIBUTION"
 ### Monitoring & Incident Response
 
 **PHASE3_INCIDENT_RESPONSE_READINESS.md**
+
 - Location: `C:/hc quality/docs/PHASE3_INCIDENT_RESPONSE_READINESS.md`
 - Purpose: Incident response playbook (applies to Phase 4 as well)
 - When to read: During 24h post-deploy monitoring
 
 **PHASE_3_RUNBOOK.md**
+
 - Location: `C:/hc quality/docs/PHASE_3_RUNBOOK.md`
 - Purpose: Operational troubleshooting guide
 - When to read: When investigating issues
@@ -291,6 +302,7 @@ status: "READY FOR DISTRIBUTION"
 ### Training & Onboarding
 
 **PHASE_3_TRAINING.md**
+
 - Location: `C:/hc quality/docs/PHASE_3_TRAINING.md`
 - Purpose: 1-day hands-on onboarding for engineers
 - When to read: If Phase 4 onboarding needed (Phase 3+ context)
@@ -299,57 +311,58 @@ status: "READY FOR DISTRIBUTION"
 
 ## Phase 4 Deliverable Timeline
 
-| Date | Deliverable | Owner | Purpose |
-|------|-------------|-------|---------|
-| **2026-05-07** | PHASE_4_READINESS_FINAL_SUMMARY.md | Agent | Final readiness verification |
-| **2026-05-07** | PHASE_4_KICKOFF_CHECKLIST.md | Agent | Comprehensive pre-kickoff checklist |
-| **2026-05-07** | PHASE_4_QUICK_REFERENCE.md | Agent | Copy-paste commands (print + laminate) |
-| **2026-05-19 EOB** | SMTP credentials provisioned | DevOps | SMTP Host/User/Pass set in Firebase Secrets |
-| **2026-05-19 EOB** | Cloud Tasks queue created | DevOps | notivisa-outbox-queue live in GCP |
-| **2026-05-19 EOB** | Email-link auth enabled (optional) | Frontend/DevOps | Firebase Auth passwordless configured |
-| **2026-05-20 09:00** | Phase 4 Kickoff Meeting | All | Scope review + team alignment |
-| **2026-05-20 afternoon** | Architecture Review Session | Tech Lead + Streams | Rules/functions/UI/NOTIVISA design |
-| **2026-05-27 EOB** | Week 1 Progress Report | Stream Leads | Status update + blockers |
-| **2026-05-31 EOB** | Week 2 Progress Report | Stream Leads | E2E tests drafted, staging ready |
-| **2026-06-02 EOB** | Readiness Checklist Approved | CTO + QA + Ops | Go/No-Go for deployment |
-| **2026-06-02 → 06-07** | Deployment + 24h Monitoring | DevOps + QA | Rules → Functions → Hosting + logs tail |
-| **2026-06-07** | Phase 4 Sign-Off Report | QA | Incident summary + clean bill of health |
+| Date                     | Deliverable                        | Owner               | Purpose                                     |
+| ------------------------ | ---------------------------------- | ------------------- | ------------------------------------------- |
+| **2026-05-07**           | PHASE_4_READINESS_FINAL_SUMMARY.md | Agent               | Final readiness verification                |
+| **2026-05-07**           | PHASE_4_KICKOFF_CHECKLIST.md       | Agent               | Comprehensive pre-kickoff checklist         |
+| **2026-05-07**           | PHASE_4_QUICK_REFERENCE.md         | Agent               | Copy-paste commands (print + laminate)      |
+| **2026-05-19 EOB**       | SMTP credentials provisioned       | DevOps              | SMTP Host/User/Pass set in Firebase Secrets |
+| **2026-05-19 EOB**       | Cloud Tasks queue created          | DevOps              | notivisa-outbox-queue live in GCP           |
+| **2026-05-19 EOB**       | Email-link auth enabled (optional) | Frontend/DevOps     | Firebase Auth passwordless configured       |
+| **2026-05-20 09:00**     | Phase 4 Kickoff Meeting            | All                 | Scope review + team alignment               |
+| **2026-05-20 afternoon** | Architecture Review Session        | Tech Lead + Streams | Rules/functions/UI/NOTIVISA design          |
+| **2026-05-27 EOB**       | Week 1 Progress Report             | Stream Leads        | Status update + blockers                    |
+| **2026-05-31 EOB**       | Week 2 Progress Report             | Stream Leads        | E2E tests drafted, staging ready            |
+| **2026-06-02 EOB**       | Readiness Checklist Approved       | CTO + QA + Ops      | Go/No-Go for deployment                     |
+| **2026-06-02 → 06-07**   | Deployment + 24h Monitoring        | DevOps + QA         | Rules → Functions → Hosting + logs tail     |
+| **2026-06-07**           | Phase 4 Sign-Off Report            | QA                  | Incident summary + clean bill of health     |
 
 ---
 
 ## Key Contacts
 
-| Role | For Questions About |
-|------|---------------------|
-| **CTO** | Architecture decisions, risk escalations, scope changes |
-| **Tech Lead** | Design decisions, ADRs, code review standards |
-| **DevOps** | Infrastructure setup, deployment, Cloud Logs monitoring |
-| **Stream A Lead** | Backend, NOTIVISA queue, Cloud Functions |
-| **Stream B Lead** | Frontend, Portal UI, responsive design |
-| **Stream D Lead** | Testing, E2E flows, staging environment |
-| **Auditor Liaison** | Compliance questions (RDC 978, DICQ, LGPD) |
+| Role                | For Questions About                                     |
+| ------------------- | ------------------------------------------------------- |
+| **CTO**             | Architecture decisions, risk escalations, scope changes |
+| **Tech Lead**       | Design decisions, ADRs, code review standards           |
+| **DevOps**          | Infrastructure setup, deployment, Cloud Logs monitoring |
+| **Stream A Lead**   | Backend, NOTIVISA queue, Cloud Functions                |
+| **Stream B Lead**   | Frontend, Portal UI, responsive design                  |
+| **Stream D Lead**   | Testing, E2E flows, staging environment                 |
+| **Auditor Liaison** | Compliance questions (RDC 978, DICQ, LGPD)              |
 
 ---
 
 ## Important Dates
 
-| Date | Event | Deadline | Approval |
-|------|-------|----------|----------|
-| **2026-05-19 EOB** | SMTP + Cloud Tasks provisioned | HARD | DevOps Lead |
-| **2026-05-19 EOB** | Phase 3 production health verified | HARD | QA Lead |
-| **2026-05-19 EOB** | All sign-offs complete | HARD | CTO |
-| **2026-05-20 09:00** | Phase 4 Kickoff (all-hands) | HARD | CTO + All Leads |
-| **2026-05-20 afternoon** | Architecture review | SOFT | Tech Lead |
-| **2026-06-02 EOB** | Deployment readiness | HARD | CTO + QA |
-| **2026-06-02 18:00** | Deploy Rules → Functions → Hosting | HARD | DevOps |
-| **2026-06-03–07** | 24h Cloud Logs monitoring | HARD | QA + DevOps |
-| **2026-06-07** | Phase 4 production sign-off | HARD | CTO |
+| Date                     | Event                              | Deadline | Approval        |
+| ------------------------ | ---------------------------------- | -------- | --------------- |
+| **2026-05-19 EOB**       | SMTP + Cloud Tasks provisioned     | HARD     | DevOps Lead     |
+| **2026-05-19 EOB**       | Phase 3 production health verified | HARD     | QA Lead         |
+| **2026-05-19 EOB**       | All sign-offs complete             | HARD     | CTO             |
+| **2026-05-20 09:00**     | Phase 4 Kickoff (all-hands)        | HARD     | CTO + All Leads |
+| **2026-05-20 afternoon** | Architecture review                | SOFT     | Tech Lead       |
+| **2026-06-02 EOB**       | Deployment readiness               | HARD     | CTO + QA        |
+| **2026-06-02 18:00**     | Deploy Rules → Functions → Hosting | HARD     | DevOps          |
+| **2026-06-03–07**        | 24h Cloud Logs monitoring          | HARD     | QA + DevOps     |
+| **2026-06-07**           | Phase 4 production sign-off        | HARD     | CTO             |
 
 ---
 
 ## Success Metrics (Phase-level)
 
 ### Functional Completeness
+
 - ✅ Patient portal live + accessible via email link
 - ✅ PDF download works for all laudo types
 - ✅ NOTIVISA queue enqueues events automatically
@@ -357,6 +370,7 @@ status: "READY FOR DISTRIBUTION"
 - ✅ All patient data properly secured (RBAC + Rules)
 
 ### Performance & UX
+
 - ✅ Portal loads in <2.0s (LCP)
 - ✅ Mobile responsive on all test devices
 - ✅ WCAG AA accessibility verified
@@ -364,6 +378,7 @@ status: "READY FOR DISTRIBUTION"
 - ✅ No console errors on portal routes
 
 ### Compliance & Audit
+
 - ✅ RDC 978 Arts. 6º §1, 167, 204 satisfied
 - ✅ DICQ 4.3–4.4 audit trail complete
 - ✅ LGPD Arts. 9, 18 verified
@@ -371,6 +386,7 @@ status: "READY FOR DISTRIBUTION"
 - ✅ Firestore Rules enforce isolation
 
 ### Testing & Deployment
+
 - ✅ 38+ unit tests all green
 - ✅ 6 critical E2E flows all green (staging)
 - ✅ Cloud Logs 24h clean (0 ERROR/CRITICAL)
@@ -381,14 +397,14 @@ status: "READY FOR DISTRIBUTION"
 
 ## Document Version Control
 
-| Document | Version | Date | Status |
-|----------|---------|------|--------|
-| PHASE_4_OVERVIEW.md | 1.0 | 2026-05-07 | ✅ Final |
-| PHASE_3_4_INTEGRATION_REPORT.md | 1.0 | 2026-05-07 | ✅ Final |
-| PHASE_4_BLOCKERS_ACTION_ITEMS.md | 1.0 | 2026-05-07 | ✅ Final |
-| PHASE_4_KICKOFF_CHECKLIST.md | 1.0 | 2026-05-07 | ✅ Final |
-| PHASE_4_QUICK_REFERENCE.md | 1.0 | 2026-05-07 | ✅ Final |
-| PHASE_4_READINESS_FINAL_SUMMARY.md | 1.0 | 2026-05-07 | ✅ Final |
+| Document                           | Version | Date       | Status   |
+| ---------------------------------- | ------- | ---------- | -------- |
+| PHASE_4_OVERVIEW.md                | 1.0     | 2026-05-07 | ✅ Final |
+| PHASE_3_4_INTEGRATION_REPORT.md    | 1.0     | 2026-05-07 | ✅ Final |
+| PHASE_4_BLOCKERS_ACTION_ITEMS.md   | 1.0     | 2026-05-07 | ✅ Final |
+| PHASE_4_KICKOFF_CHECKLIST.md       | 1.0     | 2026-05-07 | ✅ Final |
+| PHASE_4_QUICK_REFERENCE.md         | 1.0     | 2026-05-07 | ✅ Final |
+| PHASE_4_READINESS_FINAL_SUMMARY.md | 1.0     | 2026-05-07 | ✅ Final |
 
 ---
 
@@ -401,6 +417,7 @@ status: "READY FOR DISTRIBUTION"
 ---
 
 **Quick Navigation:**
+
 - **Executives/CTO:** Start with PHASE_4_READINESS_FINAL_SUMMARY.md
 - **Team Leads:** Read PHASE_4_OVERVIEW.md + PHASE_4_KICKOFF_CHECKLIST.md
 - **Engineers:** Start with PHASE_4_QUICK_REFERENCE.md, then task-specific docs

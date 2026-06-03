@@ -1,9 +1,9 @@
 ---
-title: "Phase 4 Quick Reference — Copy-Paste Commands"
+title: 'Phase 4 Quick Reference — Copy-Paste Commands'
 date: 2026-05-07
-version: "1.0"
-document_type: "CHEATSHEET"
-audience: "Engineers (all streams)"
+version: '1.0'
+document_type: 'CHEATSHEET'
+audience: 'Engineers (all streams)'
 ---
 
 # Phase 4 Quick Reference — Copy-Paste Commands
@@ -19,6 +19,7 @@ audience: "Engineers (all streams)"
 **Choose ONE option:**
 
 #### Option A: Gmail (dev/test)
+
 ```bash
 # Create app password at https://myaccount.google.com/apppasswords
 firebase functions:secrets:set SMTP_HOST --data="smtp.gmail.com"
@@ -31,6 +32,7 @@ firebase functions:secrets:list
 ```
 
 #### Option B: Brevo (production) — RECOMMENDED
+
 ```bash
 # Sign up at https://www.brevo.com (free tier: 300/day)
 firebase functions:secrets:set SMTP_HOST --data="smtp-relay.brevo.com"
@@ -43,6 +45,7 @@ firebase functions:secrets:list
 ```
 
 **Test (optional):**
+
 ```bash
 firebase deploy --only functions:criticos_escalate
 # Wait for deploy, then send test via Firebase console callable
@@ -359,6 +362,7 @@ firebase deploy --only firestore:rules --project hmatologia2
 ### Real User Monitoring
 
 Check staging/prod analytics (if configured):
+
 ```
 https://console.firebase.google.com/project/hmatologia2/performance
 ```
@@ -370,6 +374,7 @@ https://console.firebase.google.com/project/hmatologia2/performance
 ### Issue: SMTP_PASS not found (secret empty)
 
 **Fix:** Re-run secret setup
+
 ```bash
 firebase functions:secrets:set SMTP_PASS --data="<correct-password>"
 firebase deploy --only functions:criticos_escalate
@@ -380,6 +385,7 @@ firebase deploy --only functions:criticos_escalate
 ### Issue: Cloud Tasks queue not found
 
 **Fix:** Create queue
+
 ```bash
 gcloud tasks queues create notivisa-outbox-queue \
   --location=southamerica-east1 \
@@ -393,6 +399,7 @@ gcloud tasks queues create notivisa-outbox-queue \
 ### Issue: E2E tests flaky
 
 **Fix:** Add retries + clear cache
+
 ```bash
 # Run tests 3 times
 npm run test:e2e -- --retries 3
@@ -407,6 +414,7 @@ npm install
 ### Issue: Build >420 KB (fails pre-deploy gate)
 
 **Fix:** Check imports
+
 ```bash
 npm run build -- --analyze
 
@@ -417,36 +425,36 @@ npm run build -- --analyze
 
 ## Phase 4 Module Paths
 
-| Module | Path | Owner |
-|--------|------|-------|
-| Portal Auth | `src/features/portals/` | Stream B |
-| Portal UI | `src/features/portals/components/` | Stream B |
+| Module         | Path                                | Owner    |
+| -------------- | ----------------------------------- | -------- |
+| Portal Auth    | `src/features/portals/`             | Stream B |
+| Portal UI      | `src/features/portals/components/`  | Stream B |
 | NOTIVISA Queue | `functions/src/callables/notivisa/` | Stream A |
-| E2E Tests | `src/__tests__/e2e/` | Stream D |
+| E2E Tests      | `src/__tests__/e2e/`                | Stream D |
 
 ---
 
 ## Important URLs
 
-| Environment | URL | Purpose |
-|-------------|-----|---------|
-| **Production** | https://hmatologia2.web.app | Live portal |
-| **Firebase Console** | https://console.firebase.google.com/project/hmatologia2 | Configuration |
-| **Cloud Functions** | https://console.firebase.google.com/project/hmatologia2/functions | Deployed functions |
-| **Firestore** | https://console.firebase.google.com/project/hmatologia2/firestore | Database |
-| **Cloud Logs** | https://console.cloud.google.com/logs/query?project=hmatologia2 | Error tracking |
+| Environment          | URL                                                               | Purpose            |
+| -------------------- | ----------------------------------------------------------------- | ------------------ |
+| **Production**       | https://hmatologia2.web.app                                       | Live portal        |
+| **Firebase Console** | https://console.firebase.google.com/project/hmatologia2           | Configuration      |
+| **Cloud Functions**  | https://console.firebase.google.com/project/hmatologia2/functions | Deployed functions |
+| **Firestore**        | https://console.firebase.google.com/project/hmatologia2/firestore | Database           |
+| **Cloud Logs**       | https://console.cloud.google.com/logs/query?project=hmatologia2   | Error tracking     |
 
 ---
 
 ## Contacts + Escalation
 
-| Role | Escalation |
-|------|------------|
-| **CTO** | Architecture decisions + P0 issues |
-| **DevOps** | Deployment + infrastructure issues |
-| **Stream A Lead** | Backend + NOTIVISA blockers |
-| **Stream B Lead** | Portal/UI + mobile blockers |
-| **QA Lead** | Test + deployment issues |
+| Role              | Escalation                         |
+| ----------------- | ---------------------------------- |
+| **CTO**           | Architecture decisions + P0 issues |
+| **DevOps**        | Deployment + infrastructure issues |
+| **Stream A Lead** | Backend + NOTIVISA blockers        |
+| **Stream B Lead** | Portal/UI + mobile blockers        |
+| **QA Lead**       | Test + deployment issues           |
 
 ---
 

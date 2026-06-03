@@ -16,6 +16,7 @@ Feature 1 decomposes the Audit Trail Console into 4 implementable tasks with cle
 ## Task Allocation Strategy
 
 ### Option A: Single Engineer (Sequential)
+
 **Timeline:** 5–6 days continuous  
 **Pros:** Deep ownership, fewer integration hiccups  
 **Cons:** Slower feedback loops, one person blocked = whole feature blocked
@@ -26,6 +27,7 @@ Feature 1 decomposes the Audit Trail Console into 4 implementable tasks with cle
 - Day 4–4.5: Task 1.4 (Route + hub tile)
 
 ### Option B: 2 Engineers (Parallel)
+
 **Timeline:** 3–4 days (concurrent)  
 **Pros:** Faster, parallel feedback  
 **Cons:** Requires task isolation + merge coordination
@@ -51,6 +53,7 @@ Feature 1 decomposes the Audit Trail Console into 4 implementable tasks with cle
 **Owner:** [Assign]
 
 **Scope:**
+
 - Component: `src/features/qualidade/components/AuditTrailList.tsx`
 - Hook: `src/features/qualidade/hooks/useGetAuditTrail.ts` (new, wraps callable)
 - Types: ✅ import from `src/features/qualidade/types/auditUI.ts`
@@ -103,12 +106,14 @@ const useGetAuditTrail = (filters: AuditTrailFilters, offset: number, limit: num
 - [ ] Performance: renders 50+ entries in <500ms (Lighthouse LCP <2.5s)
 
 **Definition of Done:**
+
 - [ ] Component exported and testable in Storybook (optional)
 - [ ] Hook tested with mock callable (unit test in `src/__tests__/`)
 - [ ] Integrated into `AuditTrailPage.tsx` (Task 1.4 owns page shell)
 - [ ] Mobile preview confirmed (iPhone SE 375px)
 
 **Notes:**
+
 - Use `Timestamp` from Firestore for ts field; format as `YYYY-MM-DD HH:MM:SS` in table
 - `operadorId` should resolve to operator name via separate hook (educacao-continuada/colaboradores) if available; fallback to ID
 - `detalhes` field is optional; render as expandable row or tooltip
@@ -124,6 +129,7 @@ const useGetAuditTrail = (filters: AuditTrailFilters, offset: number, limit: num
 **Owner:** [Assign] (can be parallel with 1.3)
 
 **Scope:**
+
 - Component: `src/features/qualidade/components/ChainValidator.tsx`
 - Modal: use Radix `Dialog` or headless UI
 - Types: ✅ import from `src/features/qualidade/types/auditUI.ts`
@@ -172,12 +178,14 @@ const callValidateChain = async (payload: ValidateChainPayload) => {
 - [ ] Mobile: modal centered and responsive on 375px (full-width on small screens)
 
 **Definition of Done:**
+
 - [ ] Modal tested with valid/broken/error states
 - [ ] Auto-refresh logic verified (localStorage timestamps)
 - [ ] Error messages in PT-BR
 - [ ] Integrated into `AuditTrailPage.tsx`
 
 **Notes:**
+
 - Store last validation time in localStorage to avoid redundant calls within 24h window
 - If callable takes >5s, show warning "Aguarde..." + cancel option
 - Violation detail should be copy-able (select text or copy button for hash values)
@@ -192,6 +200,7 @@ const callValidateChain = async (payload: ValidateChainPayload) => {
 **Owner:** [Assign] (can be parallel with 1.2)
 
 **Scope:**
+
 - Component: `src/features/qualidade/components/AuditExportButton.tsx`
 - Utilities: `src/features/qualidade/services/auditExportFormatter.ts` (new, handles CSV/PDF generation)
 - Types: ✅ import from `src/features/qualidade/types/auditUI.ts`
@@ -211,16 +220,20 @@ const formatAuditCSV = (
   entries: AuditTrailEntry[],
   filters: AuditTrailFilters,
   chainStatus: ValidateChainResult,
-  labName: string
-): string => { /* CSV with headers + data */ };
+  labName: string,
+): string => {
+  /* CSV with headers + data */
+};
 
 const generateAuditPDF = (
   entries: AuditTrailEntry[],
   filters: AuditTrailFilters,
   chainStatus: ValidateChainResult,
   labName: string,
-  signature: { hash: string; operatorId: string; ts: number }
-): Blob => { /* PDF blob */ };
+  signature: { hash: string; operatorId: string; ts: number },
+): Blob => {
+  /* PDF blob */
+};
 ```
 
 **Acceptance Criteria:**
@@ -264,6 +277,7 @@ const generateAuditPDF = (
 - [ ] WCAG AA: button has proper `aria-label`, popover labeled
 
 **Definition of Done:**
+
 - [ ] CSV and PDF files generated correctly (manual test: download and verify content)
 - [ ] Signature block present in PDF and CSV
 - [ ] File names timestamped and deterministic
@@ -272,6 +286,7 @@ const generateAuditPDF = (
 - [ ] No external PDF library beyond `pdfkit` or `html2pdf` (if already in bundle; check bundle size)
 
 **Notes:**
+
 - CSV and PDF generation is client-side (no callable needed for export itself)
 - Signature is passed from parent (Task 1.1 or Task 1.2 can fetch it via `callValidateChain`, which includes timestamp)
 - If signature is needed server-side (for certification), add a callable spike later
@@ -287,6 +302,7 @@ const generateAuditPDF = (
 **Owner:** [Assign]
 
 **Scope:**
+
 - Route: `src/routes/AuditTrailPage.tsx` (new)
 - Hub integration: update `src/hub/` config or router (check existing pattern)
 - Dependencies: ✅ Components from Tasks 1.1–1.3
@@ -342,6 +358,7 @@ export default function AuditTrailPage() {
 - [ ] Role-based access: check if route is protected (query rules for `isAdminOfLab` requirement)
 
 **Definition of Done:**
+
 - [ ] Page renders without errors
 - [ ] Lazy loading verified (bundle size check)
 - [ ] Hub tile shows in hub page
@@ -350,6 +367,7 @@ export default function AuditTrailPage() {
 - [ ] No hardcoded paths (use named routes)
 
 **Notes:**
+
 - Check existing pages (e.g., `LabSettingsPage`) for page shell pattern
 - Hub tile icon suggestion: `ShieldCheckIcon` or `AuditIcon` (from Lucide or existing icon set)
 - If role-based access is needed, coordinate with Firestore rules (RDC 978 Art. 5.3 likely admin-only)
@@ -370,6 +388,7 @@ Task 1.3 (Export) ┘
 ```
 
 **Recommended Order:**
+
 1. **Start Task 1.1 and 1.2 in parallel** (no cross-dependencies)
 2. **Task 1.3 can start immediately** (uses callables + types, independent of 1.1/1.2 logic)
 3. **Task 1.4 starts once 1.1 is 80% done** (needs components present to compose page)
@@ -381,22 +400,26 @@ Task 1.3 (Export) ┘
 ## Testing & Verification
 
 ### Pre-Implementation Checklist
+
 - [ ] Read existing module patterns (e.g., `educacao-continuada`, `controle-temperatura`)
 - [ ] Verify callables are deployed to staging (`functions/` built successfully)
 - [ ] Smoke test callables with Firestore emulator or staging project
 
 ### Unit Tests (per task)
+
 - [ ] Task 1.1: Hook `useGetAuditTrail` mocked callable, pagination logic
 - [ ] Task 1.2: Modal open/close, validation state machine, auto-refresh logic
 - [ ] Task 1.3: CSV/PDF formatters generate valid output (Jest snapshots)
 - [ ] Task 1.4: Route loads, lazy import works, hub tile renders
 
 ### E2E Tests (post-integration)
+
 - [ ] Load `/auditoria-trail` from hub tile, filters work, export downloads file
 - [ ] Chain validation updates on "Verificar agora" click
 - [ ] Mobile: page loads and renders on 375px viewport
 
 ### Performance Baseline
+
 - [ ] Lighthouse LCP <2.5s, CLS <0.1, INP <200ms (main page)
 - [ ] Export <5s for 100 entries, <30s for 1000 entries
 
@@ -405,6 +428,7 @@ Task 1.3 (Export) ┘
 ## Sign-Off Checklist
 
 ### Before Merge
+
 - [ ] `npm run build` passes (TypeScript + minification)
 - [ ] `npm run test` passes (unit tests for tasks)
 - [ ] `npm run lint` passes (ESLint, max 88 pre-existing warnings)
@@ -412,6 +436,7 @@ Task 1.3 (Export) ┘
 - [ ] Staging deploy: no errors in Cloud Logs
 
 ### Before Release
+
 - [ ] Design review: UI matches Apple/Linear reference (dark, minimal, professional)
 - [ ] QA sign-off: test plan executed (filter combinations, export formats, mobile)
 - [ ] RDC 978 Art. 5.3 compliance check: audit trail is immutable, chain validation works
@@ -421,13 +446,13 @@ Task 1.3 (Export) ┘
 
 ## Known Risks
 
-| Risk | Severity | Mitigation |
-| --- | --- | --- |
-| `callGetAuditTrail` latency on >10k entries | Medium | Pagination (max 50/page), Firestore indexes, caching |
-| CSV with 1000+ rows exceeds browser memory | Low | Batch export, stream to IndexedDB first |
-| PDF generation library adds 200KB+ to bundle | Medium | Use lightweight `pdfkit` or `html2pdf`, defer if not already in bundle |
-| Mobile table overflows on small screens | Low | Responsive design with horizontal scroll, collapsible columns |
-| Chain validator auto-refresh misses checks (localStorage sync issues) | Low | Fallback: button always available, localStorage is best-effort |
+| Risk                                                                  | Severity | Mitigation                                                             |
+| --------------------------------------------------------------------- | -------- | ---------------------------------------------------------------------- |
+| `callGetAuditTrail` latency on >10k entries                           | Medium   | Pagination (max 50/page), Firestore indexes, caching                   |
+| CSV with 1000+ rows exceeds browser memory                            | Low      | Batch export, stream to IndexedDB first                                |
+| PDF generation library adds 200KB+ to bundle                          | Medium   | Use lightweight `pdfkit` or `html2pdf`, defer if not already in bundle |
+| Mobile table overflows on small screens                               | Low      | Responsive design with horizontal scroll, collapsible columns          |
+| Chain validator auto-refresh misses checks (localStorage sync issues) | Low      | Fallback: button always available, localStorage is best-effort         |
 
 ---
 

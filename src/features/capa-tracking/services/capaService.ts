@@ -24,10 +24,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../shared/services/firebase';
-import type {
-  CapaDocument,
-  CapaState,
-} from '../types';
+import type { CapaDocument, CapaState } from '../types';
 import { daysRemaining } from '../types';
 import type { LabId } from '../types/_shared_refs';
 
@@ -36,8 +33,7 @@ import type { LabId } from '../types/_shared_refs';
 const capaCol = (labId: LabId): CollectionReference =>
   collection(db, 'labs', labId, 'capa-tracking');
 
-const capaDoc = (labId: LabId, capaId: string): DocumentReference =>
-  doc(capaCol(labId), capaId);
+const capaDoc = (labId: LabId, capaId: string): DocumentReference => doc(capaCol(labId), capaId);
 
 // ─── Mapping snapshot → entity ─────────────────────────────────────────────
 
@@ -74,11 +70,17 @@ function mapCapaDocument(snap: QueryDocumentSnapshot): CapaDocument {
 /**
  * Get a single CAPA by ID with daysRemaining calculated at read time.
  */
-export async function getCapaById(labId: LabId, capaId: string): Promise<(CapaDocument & { daysRemaining: number }) | null> {
+export async function getCapaById(
+  labId: LabId,
+  capaId: string,
+): Promise<(CapaDocument & { daysRemaining: number }) | null> {
   const snap = await getDoc(capaDoc(labId, capaId));
   if (!snap.exists()) return null;
   const capa = mapCapaDocument(snap);
-  const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+  const deadlineMs =
+    typeof capa.deadlineDate === 'number'
+      ? capa.deadlineDate
+      : ((capa.deadlineDate as any)?.toMillis?.() ?? 0);
   return {
     ...capa,
     daysRemaining: daysRemaining(deadlineMs),
@@ -102,15 +104,16 @@ export function subscribeToCapas(
   return onSnapshot(
     q,
     (snapshot) => {
-      const capas = snapshot.docs
-        .map(mapCapaDocument)
-        .map((capa) => {
-          const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
-          return {
-            ...capa,
-            daysRemaining: daysRemaining(deadlineMs),
-          };
-        });
+      const capas = snapshot.docs.map(mapCapaDocument).map((capa) => {
+        const deadlineMs =
+          typeof capa.deadlineDate === 'number'
+            ? capa.deadlineDate
+            : ((capa.deadlineDate as any)?.toMillis?.() ?? 0);
+        return {
+          ...capa,
+          daysRemaining: daysRemaining(deadlineMs),
+        };
+      });
       onUpdate(capas);
     },
     (err) => {
@@ -138,7 +141,10 @@ export async function listCapas(
     .map(mapCapaDocument)
     .filter((capa) => !filterState || capa.state === filterState)
     .map((capa) => {
-      const deadlineMs = typeof capa.deadlineDate === 'number' ? capa.deadlineDate : (capa.deadlineDate as any)?.toMillis?.() ?? 0;
+      const deadlineMs =
+        typeof capa.deadlineDate === 'number'
+          ? capa.deadlineDate
+          : ((capa.deadlineDate as any)?.toMillis?.() ?? 0);
       return {
         ...capa,
         daysRemaining: daysRemaining(deadlineMs),

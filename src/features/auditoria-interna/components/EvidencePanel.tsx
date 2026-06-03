@@ -30,7 +30,10 @@ const TYPE_ICONS: Record<EvidenciaAgregada['tipo'], React.ReactNode> = {
   foto: <Camera className="w-4 h-4" />,
 };
 
-const STATUS_STYLES: Record<EvidenciaAgregada['status'], { bg: string; text: string; label: string }> = {
+const STATUS_STYLES: Record<
+  EvidenciaAgregada['status'],
+  { bg: string; text: string; label: string }
+> = {
   vigente: { bg: 'bg-emerald-500/20', text: 'text-emerald-400', label: 'Vigente' },
   vencido: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Vencido' },
   pendente: { bg: 'bg-yellow-500/20', text: 'text-yellow-400', label: 'Pendente' },
@@ -58,11 +61,7 @@ export function EvidencePanel({ indicadorId, labId, isOpen, onClose }: EvidenceP
   return (
     <>
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black/50 z-40"
-        onClick={onClose}
-        aria-hidden="true"
-      />
+      <div className="fixed inset-0 bg-black/50 z-40" onClick={onClose} aria-hidden="true" />
 
       {/* Panel */}
       <aside
@@ -110,9 +109,7 @@ export function EvidencePanel({ indicadorId, labId, isOpen, onClose }: EvidenceP
           {!loading && !error && evidencias.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-white/50 space-y-3">
               <Inbox className="w-10 h-10" />
-              <p className="text-sm text-center">
-                Nenhuma evidência encontrada neste módulo
-              </p>
+              <p className="text-sm text-center">Nenhuma evidência encontrada neste módulo</p>
             </div>
           )}
 
@@ -127,9 +124,7 @@ export function EvidencePanel({ indicadorId, labId, isOpen, onClose }: EvidenceP
                   aria-label={`${ev.titulo} - ${statusStyle.label}`}
                 >
                   <div className="flex items-start gap-3">
-                    <span className="text-violet-400 mt-0.5 shrink-0">
-                      {TYPE_ICONS[ev.tipo]}
-                    </span>
+                    <span className="text-violet-400 mt-0.5 shrink-0">{TYPE_ICONS[ev.tipo]}</span>
 
                     <div className="flex-1 min-w-0 space-y-1">
                       <div className="flex items-center gap-2">

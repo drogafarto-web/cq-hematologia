@@ -1,66 +1,68 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
-import toast from 'react-hot-toast'
-import { Card } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
-import { Pill } from '@/components/ui/pill'
-import { cn, formatDecimal, formatDate, formatTime, dentroDoRange } from '@/lib/utils'
-import { HistoricoRegistros } from './historico'
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Pill } from '@/components/ui/pill';
+import { cn, formatDecimal, formatDate, formatTime, dentroDoRange } from '@/lib/utils';
+import { HistoricoRegistros } from './historico';
 
 interface Controle {
-  id: string
-  nome: string
-  lote: string
-  ativo: boolean
-  protrombinaMin: number
-  protrombinaMax: number
-  rniMin: number
-  rniMax: number
-  ttppaMin: number
-  ttppaMax: number
+  id: string;
+  nome: string;
+  lote: string;
+  ativo: boolean;
+  protrombinaMin: number;
+  protrombinaMax: number;
+  rniMin: number;
+  rniMax: number;
+  ttppaMin: number;
+  ttppaMax: number;
   registros: Array<{
-    id: string
-    valorProtrombina: number
-    valorRni: number
-    valorTtppa: number
-    observacao: string | null
-    registradoEm: string
-    operador: { nome: string }
-  }>
+    id: string;
+    valorProtrombina: number;
+    valorRni: number;
+    valorTtppa: number;
+    observacao: string | null;
+    registradoEm: string;
+    operador: { nome: string };
+  }>;
 }
 
 interface Operador {
-  id: string
-  nome: string
+  id: string;
+  nome: string;
 }
 
 interface Props {
-  controles: Controle[]
-  operador: Operador
+  controles: Controle[];
+  operador: Operador;
 }
 
 export function TelaPrincipaV2({ controles, operador }: Props) {
-  const router = useRouter()
-  const [carregando, setCarregando] = useState<string | null>(null)
-  const [valores, setValores] = useState<Record<string, { prot: string; rni: string; ttppa: string }>>({})
+  const router = useRouter();
+  const [carregando, setCarregando] = useState<string | null>(null);
+  const [valores, setValores] = useState<
+    Record<string, { prot: string; rni: string; ttppa: string }>
+  >({});
 
   function atualizar(controleId: string, campo: 'prot' | 'rni' | 'ttppa', valor: string) {
     setValores((prev) => ({
       ...prev,
       [controleId]: { ...(prev[controleId] ?? { prot: '', rni: '', ttppa: '' }), [campo]: valor },
-    }))
+    }));
   }
 
   async function registrar(controleId: string) {
-    const v = valores[controleId]
+    const v = valores[controleId];
     if (!v || !v.prot || !v.rni || !v.ttppa) {
-      toast.error('Preencha os 3 valores')
-      return
+      toast.error('Preencha os 3 valores');
+      return;
     }
 
-    setCarregando(controleId)
+    setCarregando(controleId);
     try {
       const res = await fetch('/api/registros', {
         method: 'POST',
@@ -72,31 +74,37 @@ export function TelaPrincipaV2({ controles, operador }: Props) {
           valorTtppa: Number(v.ttppa),
           operadorId: operador.id,
         }),
-      })
-      const json = await res.json()
+      });
+      const json = await res.json();
       if (!json.success) {
-        toast.error(json.error?.message ?? 'Falha ao registrar')
-        return
+        toast.error(json.error?.message ?? 'Falha ao registrar');
+        return;
       }
-      toast.success('Registro salvo')
-      setValores((prev) => ({ ...prev, [controleId]: { prot: '', rni: '', ttppa: '' } }))
-      router.refresh()
+      toast.success('Registro salvo');
+      setValores((prev) => ({ ...prev, [controleId]: { prot: '', rni: '', ttppa: '' } }));
+      router.refresh();
     } catch {
-      toast.error('Falha ao registrar')
+      toast.error('Falha ao registrar');
     } finally {
-      setCarregando(null)
+      setCarregando(null);
     }
   }
 
-  const ativos = controles.filter((c) => c.ativo)
+  const ativos = controles.filter((c) => c.ativo);
 
   if (ativos.length === 0) {
     return (
       <div className="flex flex-col items-center gap-4 py-20">
         <h1 className="text-xl font-semibold text-on-surface">Controle Interno de Qualidade</h1>
-        <p className="text-on-surface-variant">Nenhum controle ativo. Crie um no <a href="/controles" className="text-primary underline">hub</a>.</p>
+        <p className="text-on-surface-variant">
+          Nenhum controle ativo. Crie um no{' '}
+          <a href="/controles" className="text-primary underline">
+            hub
+          </a>
+          .
+        </p>
       </div>
-    )
+    );
   }
 
   return (
@@ -105,7 +113,7 @@ export function TelaPrincipaV2({ controles, operador }: Props) {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {ativos.map((controle) => {
-          const v = valores[controle.id] ?? { prot: '', rni: '', ttppa: '' }
+          const v = valores[controle.id] ?? { prot: '', rni: '', ttppa: '' };
           return (
             <Card key={controle.id} padding="md" className="flex flex-col gap-5">
               <div className="flex items-start justify-between">
@@ -158,7 +166,7 @@ export function TelaPrincipaV2({ controles, operador }: Props) {
                 </Button>
               </div>
             </Card>
-          )
+          );
         })}
       </div>
 
@@ -167,22 +175,22 @@ export function TelaPrincipaV2({ controles, operador }: Props) {
         <HistoricoRegistros controles={ativos} />
       </div>
     </div>
-  )
+  );
 }
 
 interface ParamInputProps {
-  label: string
-  unidade: string
-  min: number
-  max: number
-  valor: string
-  onChange: (v: string) => void
-  step?: string
+  label: string;
+  unidade: string;
+  min: number;
+  max: number;
+  valor: string;
+  onChange: (v: string) => void;
+  step?: string;
 }
 
 function ParamInput({ label, unidade, min, max, valor, onChange, step }: ParamInputProps) {
-  const num = Number(valor)
-  const foraDoRange = valor !== '' && !dentroDoRange(num, min, max)
+  const num = Number(valor);
+  const foraDoRange = valor !== '' && !dentroDoRange(num, min, max);
 
   return (
     <div className="flex flex-col gap-1.5">
@@ -215,5 +223,5 @@ function ParamInput({ label, unidade, min, max, valor, onChange, step }: ParamIn
         )}
       </div>
     </div>
-  )
+  );
 }

@@ -26,7 +26,15 @@ const NIVEL_COLORS: Record<NivelCompetencia, string> = {
 
 // ─── KPI Card ───────────────────────────────────────────────────────────────
 
-function KpiCard({ label, value, subtitle }: { label: string; value: string | number; subtitle?: string }) {
+function KpiCard({
+  label,
+  value,
+  subtitle,
+}: {
+  label: string;
+  value: string | number;
+  subtitle?: string;
+}) {
   return (
     <div className={CARD_CLS}>
       <p className="text-xs text-white/40 mb-1">{label}</p>
@@ -112,11 +120,7 @@ export function IndicadoresTab() {
           value={pendentes.length}
           subtitle="Designações sem ciência"
         />
-        <KpiCard
-          label="Supervisões Ativas"
-          value="—"
-          subtitle="Dados via hook supervisões"
-        />
+        <KpiCard label="Supervisões Ativas" value="—" subtitle="Dados via hook supervisões" />
       </div>
 
       {/* Bar chart: competências por nível */}
@@ -126,20 +130,22 @@ export function IndicadoresTab() {
           <p className="text-xs text-white/30 text-center py-6">Nenhuma competência registrada.</p>
         ) : (
           <div className="space-y-3">
-            {(Object.entries(competenciasPorNivel) as [NivelCompetencia, number][]).map(([nivel, count]) => (
-              <div key={nivel} className="flex items-center gap-3">
-                <span className="text-[10px] text-white/50 w-28 shrink-0 text-right">
-                  {NIVEL_LABEL[nivel]}
-                </span>
-                <div className="flex-1 h-6 rounded-lg bg-white/[0.04] overflow-hidden">
-                  <div
-                    className={`h-full rounded-lg ${NIVEL_COLORS[nivel]} transition-all duration-500`}
-                    style={{ width: `${(count / maxNivel) * 100}%` }}
-                  />
+            {(Object.entries(competenciasPorNivel) as [NivelCompetencia, number][]).map(
+              ([nivel, count]) => (
+                <div key={nivel} className="flex items-center gap-3">
+                  <span className="text-[10px] text-white/50 w-28 shrink-0 text-right">
+                    {NIVEL_LABEL[nivel]}
+                  </span>
+                  <div className="flex-1 h-6 rounded-lg bg-white/[0.04] overflow-hidden">
+                    <div
+                      className={`h-full rounded-lg ${NIVEL_COLORS[nivel]} transition-all duration-500`}
+                      style={{ width: `${(count / maxNivel) * 100}%` }}
+                    />
+                  </div>
+                  <span className="text-xs text-white/60 tabular-nums w-8 text-right">{count}</span>
                 </div>
-                <span className="text-xs text-white/60 tabular-nums w-8 text-right">{count}</span>
-              </div>
-            ))}
+              ),
+            )}
           </div>
         )}
       </div>

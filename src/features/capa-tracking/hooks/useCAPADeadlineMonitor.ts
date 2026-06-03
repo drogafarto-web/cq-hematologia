@@ -72,7 +72,6 @@ export function useCAPADeadlineMonitor(
       // Mas como a UI já tem acesso a `capas` via hook anterior (watchCAPAs),
       // e o deadline é calculado sempre que `capas` mudar, não precisamos
       // fazer nada especial. O próximo re-render via onSnapshot fará o refresh.
-
       // Se quisermos forçar um re-render mesmo sem dados novos do Firestore,
       // precisaríamos de estado local. Por enquanto, confiar que onSnapshot
       // vai atualizar quando houver mudança em Firestore (ou em 60s quando

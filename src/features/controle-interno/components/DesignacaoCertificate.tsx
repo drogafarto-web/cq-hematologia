@@ -72,7 +72,9 @@ export function DesignacaoCertificate({
               ID: {designacao.id.slice(0, 8)}…
             </span>
           </div>
-          <p className="text-xl font-semibold text-slate-100 print:text-slate-900">{operadorNome}</p>
+          <p className="text-xl font-semibold text-slate-100 print:text-slate-900">
+            {operadorNome}
+          </p>
         </section>
 
         {/* Cargo e período */}
@@ -117,7 +119,8 @@ export function DesignacaoCertificate({
               {designacao.assinatura.hash}
             </p>
             <p className="text-[10px] text-slate-600 print:text-slate-500">
-              Gerado por: {designacao.assinatura.operatorId} · {new Date(designacao.assinatura.ts.toDate()).toLocaleString('pt-BR')}
+              Gerado por: {designacao.assinatura.operatorId} ·{' '}
+              {new Date(designacao.assinatura.ts.toDate()).toLocaleString('pt-BR')}
             </p>
           </div>
         </section>
@@ -127,13 +130,7 @@ export function DesignacaoCertificate({
           <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 print:text-slate-600">
             Verificação de Autenticidade
           </p>
-          <QRCodeSVG
-            value={qrValue}
-            size={120}
-            level="H"
-            includeMargin
-            className="print:size-24"
-          />
+          <QRCodeSVG value={qrValue} size={120} level="H" includeMargin className="print:size-24" />
           <p className="mt-2 text-center text-[10px] text-slate-500 print:text-slate-600">
             Escaneie para acessar a trilha de auditoria
           </p>

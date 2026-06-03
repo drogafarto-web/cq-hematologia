@@ -27,7 +27,12 @@ import type { Timestamp } from 'firebase/firestore';
  */
 export type InsumoStatus = 'ativo' | 'fechado' | 'vencido' | 'descartado' | 'segregado';
 export type InsumoTipo = 'controle' | 'reagente' | 'tira-uro';
-export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunologia' | 'bioquimica';
+export type InsumoModulo =
+  | 'hematologia'
+  | 'coagulacao'
+  | 'uroanalise'
+  | 'imunologia'
+  | 'bioquimica';
 
 /**
  * Nível/polaridade do controle.
@@ -44,13 +49,7 @@ export type InsumoModulo = 'hematologia' | 'coagulacao' | 'uroanalise' | 'imunol
  * UX apresenta só o subset compatível com o módulo (ver NovoLoteModal e
  * ProdutoFormModal).
  */
-export type InsumoNivel =
-  | 'normal'
-  | 'patologico'
-  | 'baixo'
-  | 'alto'
-  | 'positivo'
-  | 'negativo';
+export type InsumoNivel = 'normal' | 'patologico' | 'baixo' | 'alto' | 'positivo' | 'negativo';
 
 /** Subset quantitativo de InsumoNivel — uso em hematologia/coagulação. */
 export const NIVEIS_QUANTITATIVOS: ReadonlyArray<InsumoNivel> = [
@@ -61,10 +60,7 @@ export const NIVEIS_QUANTITATIVOS: ReadonlyArray<InsumoNivel> = [
 ] as const;
 
 /** Subset qualitativo binário de InsumoNivel — uso em imunologia. */
-export const NIVEIS_QUALITATIVOS: ReadonlyArray<InsumoNivel> = [
-  'positivo',
-  'negativo',
-] as const;
+export const NIVEIS_QUALITATIVOS: ReadonlyArray<InsumoNivel> = ['positivo', 'negativo'] as const;
 
 /**
  * Resolve quais opções de "nível" são válidas para um módulo. Imuno é
@@ -702,9 +698,7 @@ export function hasQCValidationPending(i: Insumo): boolean {
  * Garantia: retorna array não-vazio. Se o doc estiver corrompido (nenhum dos
  * dois campos populado), retorna `[]` — caller decide se loga/filtra.
  */
-export function getInsumoModulos(
-  i: Pick<Insumo, 'modulos' | 'modulo'>,
-): InsumoModulo[] {
+export function getInsumoModulos(i: Pick<Insumo, 'modulos' | 'modulo'>): InsumoModulo[] {
   if (Array.isArray(i.modulos) && i.modulos.length > 0) return i.modulos;
   if (i.modulo) return [i.modulo];
   return [];

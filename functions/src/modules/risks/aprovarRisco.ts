@@ -14,10 +14,7 @@ import {
   assertRisksAdminOrOwner,
   risksCollection,
 } from './validators';
-import {
-  generateRisksSignatureServer,
-  type RiskPayload,
-} from './signatureCanonical';
+import { generateRisksSignatureServer, type RiskPayload } from './signatureCanonical';
 
 function coerceFirestoreTimestamp(value: unknown): admin.firestore.Timestamp {
   if (value instanceof admin.firestore.Timestamp) {
@@ -60,10 +57,7 @@ function verifyApprovalSignature(
   const expected = generateRisksSignatureServer(uid, payload, ts);
   const clientHash = parsedSig.hash.toLowerCase();
   if (expected.hash.toLowerCase() !== clientHash) {
-    throw new HttpsError(
-      'invalid-argument',
-      'Assinatura lógica inválida ou payload divergente.',
-    );
+    throw new HttpsError('invalid-argument', 'Assinatura lógica inválida ou payload divergente.');
   }
   return ts;
 }
@@ -97,10 +91,7 @@ export const risks_aprovarRisco = onCall(
 
     const risk = snap.data() as Record<string, unknown>;
     if (risk['deletadoEm'] != null) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Risco arquivado — não é possível aprovar.',
-      );
+      throw new HttpsError('failed-precondition', 'Risco arquivado — não é possível aprovar.');
     }
     if (risk['nivel'] !== 'critico') {
       throw new HttpsError(
@@ -116,10 +107,7 @@ export const risks_aprovarRisco = onCall(
       );
     }
     if (risk['aprovadoPor'] != null) {
-      throw new HttpsError(
-        'failed-precondition',
-        'Risco já possui aprovação registrada.',
-      );
+      throw new HttpsError('failed-precondition', 'Risco já possui aprovação registrada.');
     }
 
     const codigo = String(risk['codigo'] ?? '');

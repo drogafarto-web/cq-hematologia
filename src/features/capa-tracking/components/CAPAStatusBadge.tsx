@@ -22,7 +22,7 @@ interface CAPAStatusBadgeProps {
  * - fechado: emerald (complete)
  */
 const STATUS_CONFIG: Record<CapaStateLegacy, { label: string; colorClass: string }> = {
-  'aberto': {
+  aberto: {
     label: 'Aberto',
     colorClass: 'bg-slate-700 text-slate-100',
   },
@@ -38,16 +38,13 @@ const STATUS_CONFIG: Record<CapaStateLegacy, { label: string; colorClass: string
     label: 'Auditor Revisando',
     colorClass: 'bg-amber-700 text-amber-100',
   },
-  'fechado': {
+  fechado: {
     label: 'Fechado',
     colorClass: 'bg-emerald-700 text-emerald-100',
   },
 };
 
-export function CAPAStatusBadge({
-  status,
-  className = '',
-}: CAPAStatusBadgeProps) {
+export function CAPAStatusBadge({ status, className = '' }: CAPAStatusBadgeProps) {
   const config = STATUS_CONFIG[status];
 
   return (

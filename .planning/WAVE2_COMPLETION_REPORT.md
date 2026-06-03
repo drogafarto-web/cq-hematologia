@@ -1,8 +1,8 @@
 ---
-report_type: "Wave 2 Coordination Completion Report"
-date: "2026-05-07"
-coordinator: "Agent (Wave 2 Lead Role)"
-status: "COORDINATION FRAMEWORK COMPLETE"
+report_type: 'Wave 2 Coordination Completion Report'
+date: '2026-05-07'
+coordinator: 'Agent (Wave 2 Lead Role)'
+status: 'COORDINATION FRAMEWORK COMPLETE'
 ---
 
 # Wave 2 Coordination Framework — Completion Report
@@ -61,15 +61,15 @@ status: "COORDINATION FRAMEWORK COMPLETE"
 
 ### Phase 4 — Patient Portal + NOTIVISA Integration
 
-| Dimension | Status | Readiness | Evidence |
-|-----------|--------|-----------|----------|
-| **Planning** | ✅ COMPLETE | 100% | PHASE_4_OVERVIEW.md (26 KB) |
-| **Architecture** | ✅ APPROVED | 100% | Email-link auth + NOTIVISA queue design reviewed |
-| **Infrastructure** | ⏳ PENDING | 90% | SMTP + Cloud Tasks provisioning due 2026-05-19 |
-| **Team** | ✅ READY | 100% | 3.5 FTE assigned, zero PTO conflicts |
-| **Test Data** | ✅ READY | 95% | 100 test laudos fixture prepared, load due 2026-05-19 |
-| **Risk** | ✅ MITIGATED | LOW (3.5/10) | All risks have documented mitigations |
-| **Compliance** | ✅ ALIGNED | 100% | RDC 978 Arts. 6, 167, 204 mapped |
+| Dimension          | Status       | Readiness    | Evidence                                              |
+| ------------------ | ------------ | ------------ | ----------------------------------------------------- |
+| **Planning**       | ✅ COMPLETE  | 100%         | PHASE_4_OVERVIEW.md (26 KB)                           |
+| **Architecture**   | ✅ APPROVED  | 100%         | Email-link auth + NOTIVISA queue design reviewed      |
+| **Infrastructure** | ⏳ PENDING   | 90%          | SMTP + Cloud Tasks provisioning due 2026-05-19        |
+| **Team**           | ✅ READY     | 100%         | 3.5 FTE assigned, zero PTO conflicts                  |
+| **Test Data**      | ✅ READY     | 95%          | 100 test laudos fixture prepared, load due 2026-05-19 |
+| **Risk**           | ✅ MITIGATED | LOW (3.5/10) | All risks have documented mitigations                 |
+| **Compliance**     | ✅ ALIGNED   | 100%         | RDC 978 Arts. 6, 167, 204 mapped                      |
 
 **Gate Decision Authority:** CTO + Tech Lead  
 **Go/No-Go Date:** 2026-06-02 (pre-deploy)  
@@ -79,15 +79,15 @@ status: "COORDINATION FRAMEWORK COMPLETE"
 
 ### Phase 5 — Critical Escalation + IA Training Dataset
 
-| Dimension | Status | Readiness | Evidence |
-|-----------|--------|-----------|----------|
-| **Planning** | ✅ COMPLETE | 100% | PHASE_5_OVERVIEW.md detailed plan |
-| **Architecture** | ✅ APPROVED | 100% | Gemini Vision + SLA tracking design reviewed |
-| **Dependency** | ⏳ PENDING | — | Phase 4 production verification (2026-06-09) |
-| **Team** | ✅ READY | 100% | 4 FTE assigned |
-| **Test Data** | ✅ READY | 95% | Critical thresholds + IA dataset fixture spec |
-| **Risk** | ✅ MITIGATED | LOW (3/10) | IA latency + SMS provisioning mitigated |
-| **Compliance** | ✅ ALIGNED | 100% | RDC 978 Arts. 115-117, DICQ 4.7 mapped |
+| Dimension        | Status       | Readiness  | Evidence                                      |
+| ---------------- | ------------ | ---------- | --------------------------------------------- |
+| **Planning**     | ✅ COMPLETE  | 100%       | PHASE_5_OVERVIEW.md detailed plan             |
+| **Architecture** | ✅ APPROVED  | 100%       | Gemini Vision + SLA tracking design reviewed  |
+| **Dependency**   | ⏳ PENDING   | —          | Phase 4 production verification (2026-06-09)  |
+| **Team**         | ✅ READY     | 100%       | 4 FTE assigned                                |
+| **Test Data**    | ✅ READY     | 95%        | Critical thresholds + IA dataset fixture spec |
+| **Risk**         | ✅ MITIGATED | LOW (3/10) | IA latency + SMS provisioning mitigated       |
+| **Compliance**   | ✅ ALIGNED   | 100%       | RDC 978 Arts. 115-117, DICQ 4.7 mapped        |
 
 **Gate Decision Authority:** CTO + Tech Lead  
 **Go/No-Go Date:** 2026-06-30 (pre-deploy)  
@@ -97,15 +97,15 @@ status: "COORDINATION FRAMEWORK COMPLETE"
 
 ### Phase 6 — Liberación Completion + Críticos Polish
 
-| Dimension | Status | Readiness | Evidence |
-|-----------|--------|-----------|----------|
-| **Planning** | ✅ COMPLETE | 100% | Detailed plan for PDF + portal médico |
-| **Architecture** | ✅ APPROVED | 100% | PDF generation + QR code design reviewed |
-| **Dependency** | ⏳ PENDING | — | Phase 5 production verification (2026-07-01) |
-| **Team** | ✅ READY | 100% | 2 FTE assigned |
-| **Test Data** | ✅ READY | 95% | 50+ sample laudos fixture spec |
-| **Risk** | ✅ MITIGATED | VERY LOW (2.5/10) | PDF bloat + QR formatting mitigated |
-| **Compliance** | ✅ ALIGNED | 100% | RDC 978 Art. 167, DICQ 4.3 mapped |
+| Dimension        | Status       | Readiness         | Evidence                                     |
+| ---------------- | ------------ | ----------------- | -------------------------------------------- |
+| **Planning**     | ✅ COMPLETE  | 100%              | Detailed plan for PDF + portal médico        |
+| **Architecture** | ✅ APPROVED  | 100%              | PDF generation + QR code design reviewed     |
+| **Dependency**   | ⏳ PENDING   | —                 | Phase 5 production verification (2026-07-01) |
+| **Team**         | ✅ READY     | 100%              | 2 FTE assigned                               |
+| **Test Data**    | ✅ READY     | 95%               | 50+ sample laudos fixture spec               |
+| **Risk**         | ✅ MITIGATED | VERY LOW (2.5/10) | PDF bloat + QR formatting mitigated          |
+| **Compliance**   | ✅ ALIGNED   | 100%              | RDC 978 Art. 167, DICQ 4.3 mapped            |
 
 **Gate Decision Authority:** CTO + Tech Lead  
 **Go/No-Go Date:** 2026-07-14 (pre-deploy)  
@@ -115,15 +115,15 @@ status: "COORDINATION FRAMEWORK COMPLETE"
 
 ### Phase 7 — Export Wizard + Reclamações/Satisfação + Portal Paciente
 
-| Dimension | Status | Readiness | Evidence |
-|-----------|--------|-----------|----------|
-| **Planning** | ✅ COMPLETE | 100% | Detailed plan for export + feedback + trending |
-| **Architecture** | ✅ APPROVED | 100% | XLSX streaming + batch scheduling design reviewed |
-| **Dependency** | ⏳ PENDING | — | Phase 6 production verification (2026-07-15) |
-| **Team** | ✅ READY | 100% | 2.5 FTE assigned |
-| **Test Data** | ✅ READY | 95% | Export samples + feedback fixture spec |
-| **Risk** | ✅ MITIGATED | LOW (3/10) | Batch scale + email delivery mitigated |
-| **Compliance** | ✅ ALIGNED | 100% | RDC 978 Arts. 167, 204; DICQ 4.15; LGPD mapped |
+| Dimension        | Status       | Readiness  | Evidence                                          |
+| ---------------- | ------------ | ---------- | ------------------------------------------------- |
+| **Planning**     | ✅ COMPLETE  | 100%       | Detailed plan for export + feedback + trending    |
+| **Architecture** | ✅ APPROVED  | 100%       | XLSX streaming + batch scheduling design reviewed |
+| **Dependency**   | ⏳ PENDING   | —          | Phase 6 production verification (2026-07-15)      |
+| **Team**         | ✅ READY     | 100%       | 2.5 FTE assigned                                  |
+| **Test Data**    | ✅ READY     | 95%        | Export samples + feedback fixture spec            |
+| **Risk**         | ✅ MITIGATED | LOW (3/10) | Batch scale + email delivery mitigated            |
+| **Compliance**   | ✅ ALIGNED   | 100%       | RDC 978 Arts. 167, 204; DICQ 4.15; LGPD mapped    |
 
 **Gate Decision Authority:** CTO + Tech Lead  
 **Go/No-Go Date:** 2026-07-28 (pre-deploy)  
@@ -157,19 +157,20 @@ OVERALL WAVE 2 SCORE      9.0/10    🟢 GO FOR EXECUTION
 **Auditor deadline:** Aug 5 (3-week buffer before external audit Aug 31)
 
 **Dependency chain verified:**
+
 - Phase 3 ✅ → Phase 4 → Phase 5 → Phase 6 → Phase 7
 - No hard blockers identified
 - All soft blockers have fallback behaviors
 
 ### Risk Register Summary
 
-| Risk | Probability | Impact | Mitigation | Status |
-|------|-------------|--------|-----------|--------|
-| Email delivery fail | 3/10 | 7/10 | Retry queue + fallback | ✅ MITIGATED |
-| IA latency (Phase 5) | 2/10 | 4/10 | Batch processing + async | ✅ MITIGATED |
-| SMS provisioning | 3/10 | 6/10 | Firestore queue fallback | ✅ MITIGATED |
-| Auditor delays | 5/10 | 8/10 | Weekly pre-alignment calls | ✅ MITIGATED |
-| Batch email scale | 3/10 | 6/10 | Job queue + scheduled retry | ✅ MITIGATED |
+| Risk                 | Probability | Impact | Mitigation                  | Status       |
+| -------------------- | ----------- | ------ | --------------------------- | ------------ |
+| Email delivery fail  | 3/10        | 7/10   | Retry queue + fallback      | ✅ MITIGATED |
+| IA latency (Phase 5) | 2/10        | 4/10   | Batch processing + async    | ✅ MITIGATED |
+| SMS provisioning     | 3/10        | 6/10   | Firestore queue fallback    | ✅ MITIGATED |
+| Auditor delays       | 5/10        | 8/10   | Weekly pre-alignment calls  | ✅ MITIGATED |
+| Batch email scale    | 3/10        | 6/10   | Job queue + scheduled retry | ✅ MITIGATED |
 
 **Overall Wave 2 risk:** 3.0/10 (LOW) — All risks documented with clear mitigations.
 
@@ -180,7 +181,7 @@ OVERALL WAVE 2 SCORE      9.0/10    🟢 GO FOR EXECUTION
 ### CRITICAL PATH (Required for Phase 4 kickoff)
 
 1. **SMTP Provisioning** (DevOps Lead)
-   - Task: Set HCQ_SMTP_* secrets in Firebase
+   - Task: Set HCQ*SMTP*\* secrets in Firebase
    - Effort: 1–2 hours
    - Deadline: 2026-05-19 EOB
    - Fallback: Use Resend email provider as backup
@@ -227,6 +228,7 @@ OVERALL WAVE 2 SCORE      9.0/10    🟢 GO FOR EXECUTION
 **Confidence:** 95% (HIGH)
 
 **Reasoning:**
+
 1. Planning 100% complete, zero scope ambiguity
 2. Architecture solid, proven, compliance-verified
 3. Team ready, committed, properly staffed
@@ -307,24 +309,24 @@ Also leveraging existing Phase 4-7 documents:
 
 ### DICQ Compliance
 
-| Milestone | Current | Target | Gap | Status |
-|-----------|---------|--------|-----|--------|
-| **v1.3** | 78.5% | — | — | ✅ COMPLETE |
-| **Wave 2 (Phase 4-7)** | 78.5% | 88% | +9.5% | ⏳ IN PROGRESS |
-| **Phase 8-11** | — | 90%+ | — | 📋 PLANNED |
-| **Phase 14 (Final)** | — | 92%+ | — | 📋 PLANNED |
+| Milestone              | Current | Target | Gap   | Status         |
+| ---------------------- | ------- | ------ | ----- | -------------- |
+| **v1.3**               | 78.5%   | —      | —     | ✅ COMPLETE    |
+| **Wave 2 (Phase 4-7)** | 78.5%   | 88%    | +9.5% | ⏳ IN PROGRESS |
+| **Phase 8-11**         | —       | 90%+   | —     | 📋 PLANNED     |
+| **Phase 14 (Final)**   | —       | 92%+   | —     | 📋 PLANNED     |
 
 ### Timeline Adherence
 
-| Phase | Planned | Actual | Status |
-|-------|---------|--------|--------|
-| **Phase 4** | 2026-05-20 → 2026-06-02 | TBD | ⏳ AWAITING EXECUTION |
-| **Phase 5** | 2026-06-09 → 2026-06-30 | TBD | ⏳ AWAITING EXECUTION |
-| **Phase 6** | 2026-07-01 → 2026-07-14 | TBD | ⏳ AWAITING EXECUTION |
-| **Phase 7** | 2026-07-15 → 2026-07-28 | TBD | ⏳ AWAITING EXECUTION |
-| **Wave 2 Complete** | 2026-07-28 | TBD | ⏳ AWAITING EXECUTION |
-| **Auditor Ceremony** | 2026-08-05 | TBD | 📋 PLANNED |
-| **External Audit** | 2026-08-31 | TBD | 📋 PLANNED |
+| Phase                | Planned                 | Actual | Status                |
+| -------------------- | ----------------------- | ------ | --------------------- |
+| **Phase 4**          | 2026-05-20 → 2026-06-02 | TBD    | ⏳ AWAITING EXECUTION |
+| **Phase 5**          | 2026-06-09 → 2026-06-30 | TBD    | ⏳ AWAITING EXECUTION |
+| **Phase 6**          | 2026-07-01 → 2026-07-14 | TBD    | ⏳ AWAITING EXECUTION |
+| **Phase 7**          | 2026-07-15 → 2026-07-28 | TBD    | ⏳ AWAITING EXECUTION |
+| **Wave 2 Complete**  | 2026-07-28              | TBD    | ⏳ AWAITING EXECUTION |
+| **Auditor Ceremony** | 2026-08-05              | TBD    | 📋 PLANNED            |
+| **External Audit**   | 2026-08-31              | TBD    | 📋 PLANNED            |
 
 ---
 
@@ -358,13 +360,13 @@ Also leveraging existing Phase 4-7 documents:
 
 ## Document Ownership & Maintenance
 
-| Document | Owner | Review Frequency | Next Review |
-|----------|-------|------------------|-------------|
-| WAVE2_COORDINATION_FRAMEWORK.md | Wave 2 Lead | Weekly (execution) | 2026-05-27 |
-| WAVE2_PRE_KICKOFF_STATUS.md | Wave 2 Lead | Post-phase (4 times) | 2026-06-02 |
-| WAVE2_EXECUTIVE_SUMMARY.md | CTO | One-time decision | 2026-05-13 |
-| WAVE2_MONITORING_DASHBOARD.md | Stream Leads | Daily (execution) | 2026-05-21 |
-| PHASE_4_KICKOFF_CHECKLIST.md | CTO + All Leads | One-time sign-off | 2026-05-20 |
+| Document                        | Owner           | Review Frequency     | Next Review |
+| ------------------------------- | --------------- | -------------------- | ----------- |
+| WAVE2_COORDINATION_FRAMEWORK.md | Wave 2 Lead     | Weekly (execution)   | 2026-05-27  |
+| WAVE2_PRE_KICKOFF_STATUS.md     | Wave 2 Lead     | Post-phase (4 times) | 2026-06-02  |
+| WAVE2_EXECUTIVE_SUMMARY.md      | CTO             | One-time decision    | 2026-05-13  |
+| WAVE2_MONITORING_DASHBOARD.md   | Stream Leads    | Daily (execution)    | 2026-05-21  |
+| PHASE_4_KICKOFF_CHECKLIST.md    | CTO + All Leads | One-time sign-off    | 2026-05-20  |
 
 ---
 
@@ -403,6 +405,7 @@ Also leveraging existing Phase 4-7 documents:
 ✅ **Wave 2 coordination framework is complete and ready for CTO decision.**
 
 **Status:**
+
 - Planning: 100% complete
 - Infrastructure: 90% (3 soft items due 2026-05-19)
 - Team: 100% ready (0 PTO conflicts)
@@ -415,6 +418,7 @@ Also leveraging existing Phase 4-7 documents:
 **CTO Decision Required:** By 2026-05-13
 
 **Next Steps:**
+
 1. CTO reviews + approves (2026-05-13)
 2. Infrastructure provisioning (2026-05-19)
 3. Phase 4 kickoff (2026-05-20)

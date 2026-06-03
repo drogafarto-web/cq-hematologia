@@ -20,15 +20,16 @@ Phase 3 of HC Quality (v1.4 foundation + v1.3 post-deploy incidents) adds **5 ne
 
 ### 1.1 Current State (v1.3 LIVE, 2026-05-07)
 
-| Metric | Baseline | Notes |
-|--------|----------|-------|
-| **Collections** | 65 | Multi-tenant: `/labs/{labId}/...` · soft-delete only (no hard deletes) |
-| **Estimates/day** | ~2.5M reads · ~150k writes | See breakdown below |
-| **Data size** | ~15 GB | 25 modules × ~600 MB per lab · mostly CIQ runs + audit trail |
-| **Composite indexes** | 42 deployed | `labId + field + date`, append-only events |
-| **Pricing (v1.3 baseline)** | ~$300/month | 2.5M reads = $1.25/M · 150k writes = $1/day = $30/month |
+| Metric                      | Baseline                   | Notes                                                                  |
+| --------------------------- | -------------------------- | ---------------------------------------------------------------------- |
+| **Collections**             | 65                         | Multi-tenant: `/labs/{labId}/...` · soft-delete only (no hard deletes) |
+| **Estimates/day**           | ~2.5M reads · ~150k writes | See breakdown below                                                    |
+| **Data size**               | ~15 GB                     | 25 modules × ~600 MB per lab · mostly CIQ runs + audit trail           |
+| **Composite indexes**       | 42 deployed                | `labId + field + date`, append-only events                             |
+| **Pricing (v1.3 baseline)** | ~$300/month                | 2.5M reads = $1.25/M · 150k writes = $1/day = $30/month                |
 
 **Calculation details (v1.3 baseline 500k reads/day):**
+
 - **CIQ runs reads:** 20 modules × 50 runs/day × 5 reads/run (list + preview + audit trail) = 5,000 reads/day
 - **Audit trail queries:** 25k logs × 3 reads/run = ~75k reads/day (staff reviewing changes)
 - **Analytics polling:** 30s interval × 4 dashboard users × 120 queries/poll = 480k reads/day (bulk of traffic)
@@ -37,6 +38,7 @@ Phase 3 of HC Quality (v1.4 foundation + v1.3 post-deploy incidents) adds **5 ne
 - **Background functions:** 50 functions × 1k reads/execution × 3 daily runs = ~150k reads/day
 
 **Writes (v1.3 baseline ~50k writes/day):**
+
 - CIQ run create: 200 runs/day × 5 fields = 1k writes/day
 - Audit trail writes: 25k log entries/day @ 1 write/entry = 25k writes/day
 - Scheduled function writes: 30 functions × 500 writes each = 15k writes/day
@@ -48,13 +50,13 @@ Phase 3 of HC Quality (v1.4 foundation + v1.3 post-deploy incidents) adds **5 ne
 
 Phase 3 introduces:
 
-| Collection | Path | Purpose | Est. Docs | Growth |
-|------------|------|---------|-----------|--------|
-| **portal-configuracao** | `/labs/{labId}/portal-configuracao/` | Portal UI settings, patient PDF template config | 1–5 docs/lab | +50 reads/day |
-| **notivisa-outbox** | `/labs/{labId}/notivisa-outbox/` | NOTIVISA form queue (sandbox v1.4, prod v1.5) | ~2–5 docs/day | +500 reads/day · +100 writes/day |
-| **criticos-escalacoes** | `/labs/{labId}/criticos-escalacoes/` | Critical value escalation history + SMS/email intent | ~5 docs/day | +300 reads/day · +50 writes/day |
-| **imuno-ias-dev** | `/labs/{labId}/imuno-ias-dev/` | IA dataset + model logs (Gemini Vision API calls) | ~10 docs/day (500+ images by end of phase) | +100 reads/day · +50 writes/day |
-| **laudos-draft** | `/labs/{labId}/laudos-draft/` | Patient laudo drafts (Liberação state machine) | ~10 docs/day | +200 reads/day · +100 writes/day |
+| Collection              | Path                                 | Purpose                                              | Est. Docs                                  | Growth                           |
+| ----------------------- | ------------------------------------ | ---------------------------------------------------- | ------------------------------------------ | -------------------------------- |
+| **portal-configuracao** | `/labs/{labId}/portal-configuracao/` | Portal UI settings, patient PDF template config      | 1–5 docs/lab                               | +50 reads/day                    |
+| **notivisa-outbox**     | `/labs/{labId}/notivisa-outbox/`     | NOTIVISA form queue (sandbox v1.4, prod v1.5)        | ~2–5 docs/day                              | +500 reads/day · +100 writes/day |
+| **criticos-escalacoes** | `/labs/{labId}/criticos-escalacoes/` | Critical value escalation history + SMS/email intent | ~5 docs/day                                | +300 reads/day · +50 writes/day  |
+| **imuno-ias-dev**       | `/labs/{labId}/imuno-ias-dev/`       | IA dataset + model logs (Gemini Vision API calls)    | ~10 docs/day (500+ images by end of phase) | +100 reads/day · +50 writes/day  |
+| **laudos-draft**        | `/labs/{labId}/laudos-draft/`        | Patient laudo drafts (Liberação state machine)       | ~10 docs/day                               | +200 reads/day · +100 writes/day |
 
 **8 new composite indexes:**
 
@@ -75,12 +77,12 @@ Phase 3 introduces:
 
 Conservatively:
 
-| Operation | Current | Phase 3 Delta | New Total | Notes |
-|-----------|---------|---------------|-----------|-------|
-| **Reads/day** | 500k | +75k (+15%) | 575k | Portal config (50) + NOTIVISA polling (500) + Críticos (300) + IA (100) + Laudos (200) |
-| **Writes/day** | 50k | +5k (+10%) | 55k | Same sources |
-| **Reads/month** | 15M | +2.25M | 17.25M | |
-| **Writes/month** | 1.5M | +150k | 1.65M | |
+| Operation        | Current | Phase 3 Delta | New Total | Notes                                                                                  |
+| ---------------- | ------- | ------------- | --------- | -------------------------------------------------------------------------------------- |
+| **Reads/day**    | 500k    | +75k (+15%)   | 575k      | Portal config (50) + NOTIVISA polling (500) + Críticos (300) + IA (100) + Laudos (200) |
+| **Writes/day**   | 50k     | +5k (+10%)    | 55k       | Same sources                                                                           |
+| **Reads/month**  | 15M     | +2.25M        | 17.25M    |                                                                                        |
+| **Writes/month** | 1.5M    | +150k         | 1.65M     |                                                                                        |
 
 **Firestore pricing impact:**
 
@@ -114,12 +116,14 @@ Conservatively:
 Phase 3 adds 19 functions across streams:
 
 #### Stream A — CAPA Closure (4 functions)
+
 - `closeCAPAAction` — close CAPA with auditor sign-off
 - `generateComplianceReport` — PDF compliance report per RDC requirement
 - `investigarNC` — non-conformance investigation callable
 - `executarAcaoCorretiva` — corrective action execution
 
 #### Stream B — Portals (6 functions)
+
 - `generatePatientLaudo` — render patient-friendly laudo PDF via Puppeteer
 - `sendPortalAccessEmail` — email link auth to patient portal (Resend→SMTP)
 - `logPortalAccess` — audit trail of portal reads
@@ -128,6 +132,7 @@ Phase 3 adds 19 functions across streams:
 - `aggregateFeedbackMetrics` — daily feedback trending
 
 #### Stream C — IA Foundation (5 functions)
+
 - `analyzeImunoStripImage` — Gemini Vision API call + store raw response
 - `validateStripClassification` — confidence check + dataset filtering
 - `aggregateIADatasetMetrics` — accuracy/coverage dashboard
@@ -135,6 +140,7 @@ Phase 3 adds 19 functions across streams:
 - `monitorGeminiQuota` — prevent OOM/quota errors
 
 #### Stream D — Críticos + NOTIVISA (4 functions)
+
 - `escalateNormalityValues` — Twilio SMS + email
 - `formatNOTIVISANotification` — sandbox form generation (RDC 978 Art. 66)
 - `scheduleNOTIVISARetry` — Pub/Sub queue for unsent notifications
@@ -151,12 +157,12 @@ Phase 3 adds 19 functions across streams:
 
 **Invocation estimates:**
 
-| Function | Type | Freq/Month | Avg Duration | Memory |
-|----------|------|-----------|---------------|--------|
-| CAPA callables (4) | on-demand | 50 (manual) | 2s | 256 MiB |
-| Portal functions (6) | on-demand + scheduled | 10k (polled daily + manual) | 3s | 256 MiB |
-| IA functions (5) | on-demand + scheduled | 5k (polling 1x/hr + OCR) | 10s | 512 MiB |
-| Críticos/NOTIVISA (4) | on-demand | 500 (critical values per day) | 2s | 256 MiB |
+| Function              | Type                  | Freq/Month                    | Avg Duration | Memory  |
+| --------------------- | --------------------- | ----------------------------- | ------------ | ------- |
+| CAPA callables (4)    | on-demand             | 50 (manual)                   | 2s           | 256 MiB |
+| Portal functions (6)  | on-demand + scheduled | 10k (polled daily + manual)   | 3s           | 256 MiB |
+| IA functions (5)      | on-demand + scheduled | 5k (polling 1x/hr + OCR)      | 10s          | 512 MiB |
+| Críticos/NOTIVISA (4) | on-demand             | 500 (critical values per day) | 2s           | 256 MiB |
 
 **VCU/GiB-s calculation:**
 
@@ -176,11 +182,11 @@ Phase 3 adds 19 functions across streams:
 
 ### 3.1 Current Storage (v1.3 baseline)
 
-| Bucket | Usage | Cost/Month |
-|--------|-------|-----------|
-| `hmatologia2.appspot.com` | 15 GB (OCR images + insumo fotos + audit PDFs) | $0.30 (standard) |
-| Firestore backups (GCS) | 5 GB daily × 30 days = 150 GB | $3.07 (standard) + $5/backup job |
-| Archive (cold storage) | 0 (not yet enabled) | $0 |
+| Bucket                    | Usage                                          | Cost/Month                       |
+| ------------------------- | ---------------------------------------------- | -------------------------------- |
+| `hmatologia2.appspot.com` | 15 GB (OCR images + insumo fotos + audit PDFs) | $0.30 (standard)                 |
+| Firestore backups (GCS)   | 5 GB daily × 30 days = 150 GB                  | $3.07 (standard) + $5/backup job |
+| Archive (cold storage)    | 0 (not yet enabled)                            | $0                               |
 
 ### 3.2 Phase 3 Storage Additions
 
@@ -203,11 +209,13 @@ Phase 3 adds 19 functions across streams:
 ### 4.1 Gemini API (IA Foundation)
 
 **Current (v1.3 baseline):**
+
 - 5 OCR functions (analyzer, bulaparser, imuno, uro, bioquimica) share quota
 - ~1k calls/day × 5 modules = **5k vision API calls/month**
 - Gemini 2.5 Flash pricing: **free tier = $0.075/1k image tokens**
 
 **Phase 3 (IA dataset generation):**
+
 - Scheduled `analyzeImunoStripImage` runs **1x/hour on collected images** = 720 calls/month
 - Adds **validation + monitoring functions** = 200 calls/month
 - **Total Phase 3 IA calls:** ~1k calls/month (modest, well within free tier)
@@ -217,6 +225,7 @@ Phase 3 adds 19 functions across streams:
 ### 4.2 Twilio SMS (Críticos escalation)
 
 **Phase 3 (pilot, v1.4 Phase 6):**
+
 - ~10 critical values/day × 5 days/week = 250 SMS/month
 - Twilio SMS Brazil: $0.015 per SMS
 - **Cost: 250 × $0.015 = $3.75/month**
@@ -224,6 +233,7 @@ Phase 3 adds 19 functions across streams:
 ### 4.3 Email (Portal access + alerts)
 
 **Current (SMTP via cloud functions):**
+
 - ~100 transactional emails/month
 - Google Cloud SMTP (native) = **free via Google Workspace or Cloud SendGrid integration**
 - **Cost: $0** (already absorbed in v1.3)
@@ -234,31 +244,31 @@ Phase 3 adds 19 functions across streams:
 
 ### 5.1 Monthly Breakdown
 
-| Component | Baseline | Phase 3 Delta | Notes |
-|-----------|----------|---------------|-------|
-| **Firestore Reads** | $0.90 | +$0.14 | 500k → 575k reads/day |
-| **Firestore Writes** | $0.27 | +$0.03 | 50k → 55k writes/day |
-| **Firestore Storage** | $0.90 | +$0.09 | 15 GB → 16.5 GB |
-| **Indexes** | $1.26 | +$0.24 | 42 → 50 indexes |
-| **Cloud Functions GiB-s** | $4.45 | +$4.35 | 19 new functions, heavier workload (PDF + IA) |
-| **Cloud Storage** | $3.30 | +$0.33 | Dataset + cached PDFs |
-| **Twilio SMS** | $0 | +$3.75 | Críticos escalation |
-| **Gemini API** | $0 | $0 | Free tier |
-| **Monitoring + Logging** | $2.00 | +$0.50 | Cloud Logs, Trace, profiling |
-| **Misc (IPs, networking)** | $1.00 | +$0.10 | Standard monthly |
-| **Subtotal** | $14.08 | **+$9.53** | |
-| **Margin (15% overhead)** | $2.11 | +$1.43 | Rounding, unexpected surges |
-| **Total Monthly** | ~**$16/month** | **+$11/month** | **→ ~$27/month Phase 3** |
+| Component                  | Baseline       | Phase 3 Delta  | Notes                                         |
+| -------------------------- | -------------- | -------------- | --------------------------------------------- |
+| **Firestore Reads**        | $0.90          | +$0.14         | 500k → 575k reads/day                         |
+| **Firestore Writes**       | $0.27          | +$0.03         | 50k → 55k writes/day                          |
+| **Firestore Storage**      | $0.90          | +$0.09         | 15 GB → 16.5 GB                               |
+| **Indexes**                | $1.26          | +$0.24         | 42 → 50 indexes                               |
+| **Cloud Functions GiB-s**  | $4.45          | +$4.35         | 19 new functions, heavier workload (PDF + IA) |
+| **Cloud Storage**          | $3.30          | +$0.33         | Dataset + cached PDFs                         |
+| **Twilio SMS**             | $0             | +$3.75         | Críticos escalation                           |
+| **Gemini API**             | $0             | $0             | Free tier                                     |
+| **Monitoring + Logging**   | $2.00          | +$0.50         | Cloud Logs, Trace, profiling                  |
+| **Misc (IPs, networking)** | $1.00          | +$0.10         | Standard monthly                              |
+| **Subtotal**               | $14.08         | **+$9.53**     |                                               |
+| **Margin (15% overhead)**  | $2.11          | +$1.43         | Rounding, unexpected surges                   |
+| **Total Monthly**          | ~**$16/month** | **+$11/month** | **→ ~$27/month Phase 3**                      |
 
 ---
 
 ### 5.2 Phase 3 Quarterly & Annual Costs
 
-| Period | Monthly | Total |
-|--------|---------|-------|
-| **Q2 2026** (May–Jun, Phase 3.1) | $20–22 | $60–66 |
-| **Q3 2026** (Jul–Sep, Phase 3.2–3.3) | $27 | $81 |
-| **Year 1 (May–Dec 2026)** | avg $23 | **~$184** |
+| Period                               | Monthly | Total     |
+| ------------------------------------ | ------- | --------- |
+| **Q2 2026** (May–Jun, Phase 3.1)     | $20–22  | $60–66    |
+| **Q3 2026** (Jul–Sep, Phase 3.2–3.3) | $27     | $81       |
+| **Year 1 (May–Dec 2026)**            | avg $23 | **~$184** |
 
 ---
 
@@ -274,14 +284,14 @@ Phase 3 ends at Week 3; Phases 4–15 implement:
 
 **Projected monthly cost by Phase:**
 
-| Phase | Start | Monthly Cost | Notes |
-|-------|-------|--------------|-------|
-| Phase 3 (current) | Week 1 | $27 | Pilot functions + dataset base |
-| Phase 4–5 | Week 4 | $35 | CAPA reporting + portal init |
-| Phase 6–7 | Week 6 | $45 | SMS at scale + feedback portal |
-| Phase 8–9 | Week 9 | $65 | NOTIVISA queue + IA scaling |
-| Phase 10–11 | Week 12 | $75 | Multi-equipment + fine-tuning prep |
-| Phase 12–15 | Week 16 | $80–100 | Full scale, monitoring, optimization |
+| Phase             | Start   | Monthly Cost | Notes                                |
+| ----------------- | ------- | ------------ | ------------------------------------ |
+| Phase 3 (current) | Week 1  | $27          | Pilot functions + dataset base       |
+| Phase 4–5         | Week 4  | $35          | CAPA reporting + portal init         |
+| Phase 6–7         | Week 6  | $45          | SMS at scale + feedback portal       |
+| Phase 8–9         | Week 9  | $65          | NOTIVISA queue + IA scaling          |
+| Phase 10–11       | Week 12 | $75          | Multi-equipment + fine-tuning prep   |
+| Phase 12–15       | Week 16 | $80–100      | Full scale, monitoring, optimization |
 
 ---
 
@@ -292,15 +302,18 @@ Assuming HC Quality is marketed as **SaaS multi-lab** (v1.5 onward):
 ### 7.1 Cost per Active Lab
 
 **Fixed costs (infrastructure, shared):**
+
 - Phase 3 (v1.4 foundation): $27/month
 - Phase 4–12 (full deployment): $85/month average
 
 **Variable costs per lab:**
+
 - **Firestore per-lab storage:** ~500 MB × $0.06/GB = $0.03/month
 - **Functions per-lab:** ~10% of total = $8.50/month (Phases 4–12)
 - **SMS per lab (critical escalation):** ~$2/month (10 criticals/week average)
 
 **Cost per lab at scale (10 labs):**
+
 - **Fixed allocation:** $85/month ÷ 10 = $8.50/lab
 - **Variable per lab:** $0.03 + $8.50 + $2.00 = **$10.53/lab**
 - **Total per lab:** ~$19/lab/month
@@ -308,6 +321,7 @@ Assuming HC Quality is marketed as **SaaS multi-lab** (v1.5 onward):
 ### 7.2 Pricing Model
 
 At **$99/month per lab** (market-competitive for ISO 15189 compliance SaaS):
+
 - **Gross margin:** 99 − 19 = $80/lab
 - **Contribution margin:** 80.8% (80 ÷ 99)
 - **Break-even:** 1 lab (infrastructure break-even at 2–3 labs)
@@ -315,12 +329,12 @@ At **$99/month per lab** (market-competitive for ISO 15189 compliance SaaS):
 **Scenario analysis:**
 
 | Labs | Revenue/Month | Costs | Profit | Margin |
-|------|---------------|-------|--------|--------|
-| 1 | $99 | $95 | $4 | 4% |
-| 5 | $495 | $186 | $309 | 62% |
-| 10 | $990 | $276 | $714 | 72% |
-| 15 | $1,485 | $316 | $1,169 | 79% |
-| 30 | $2,970 | $455 | $2,515 | 85% |
+| ---- | ------------- | ----- | ------ | ------ |
+| 1    | $99           | $95   | $4     | 4%     |
+| 5    | $495          | $186  | $309   | 62%    |
+| 10   | $990          | $276  | $714   | 72%    |
+| 15   | $1,485        | $316  | $1,169 | 79%    |
+| 30   | $2,970        | $455  | $2,515 | 85%    |
 
 **Profitability threshold:** 3–5 active labs (typical small–medium lab network) → **breakeven or better**.
 
@@ -335,6 +349,7 @@ To reduce Phase 3+ costs, consider:
 **Current (Phase 3):** Analytics polling at **30s interval** per user.
 
 **Optimization:** Implement **WebSocket-based real-time subscriptions** instead of polling.
+
 - **Savings:** 480k reads/day → 100k reads/day = **$18/month Firestore**
 - **Trade-off:** Adds ~1–2 days dev work, requires client-side refactor (Zustand → Socket.io)
 - **ROI:** +1000 labs breakeven point drops to 5 labs
@@ -344,6 +359,7 @@ To reduce Phase 3+ costs, consider:
 **Current:** All audit events live in hot Firestore (index stored 100% of time).
 
 **Optimization:** Move events >90 days old to **Cloud Storage Archive + BigQuery dump**.
+
 - **Savings:** ~60% of Firestore index storage = $0.75/month · ~20% of Firestore reads (read archival copy from BigQuery) = $0.18/month = **$0.93/month**
 - **Trade-off:** Complex query migration, 2–3 days dev + ops setup
 - **ROI:** Cost-neutral for <10 labs, beneficial for multi-tenant scale
@@ -353,6 +369,7 @@ To reduce Phase 3+ costs, consider:
 **Current (Phase 8, projected):** Poll NOTIVISA queue **every 15 minutes**.
 
 **Optimization:** Batch 10 notifications into 1 request, run **once/hour**.
+
 - **Savings:** 4 polls/hour × 24 = 96 polls/day → 6 polls/day = **~90% reduction in invocations**
 - **Trade-off:** +45 min latency for notifications (acceptable for async compliance)
 - **Savings:** $8/month (less relevant as already Pub/Sub based, but reduces API calls)
@@ -362,6 +379,7 @@ To reduce Phase 3+ costs, consider:
 **Current:** Portal configuration read directly from Firestore on every load.
 
 **Optimization:** Implement **Redis cache** (Firebase Realtime Database or Memorystore) with 1h TTL.
+
 - **Savings:** 50 reads/day → 5 reads/day = **$0.0027/month Firestore**
 - **Cost:** $5/month Memorystore (minimal)
 - **Break-even:** 2000+ labs; not recommended until multi-tenant v2
@@ -374,7 +392,6 @@ To reduce Phase 3+ costs, consider:
 
 1. **IA dataset explosion:** If Gemini Vision API calls exceed free tier (typically 5k/day), costs scale $0.075 per 1k calls.
    - **Mitigation:** Cap dataset collection at 500 images; use batch processing
-   
 2. **Portal PDF generation at scale:** Puppeteer functions consume 512 MiB + 5s CPU.
    - **If 1000 users × 10 downloads/month:** 10k invocations × 5s × 512 MiB = **$7.50 additional/month**
    - **Mitigation:** Implement PDF caching + CDN
@@ -390,6 +407,7 @@ To reduce Phase 3+ costs, consider:
 ### 9.2 Budget Allocation
 
 **Recommend allocating:**
+
 - **Phase 3 (Months 1–3):** $60–80 budget (actual ~$27/month, 66% reserve for contingencies)
 - **Phase 4–12 (Months 4–9):** $90–120 budget (actual ~$75/month avg, 25% reserve)
 - **Annual Year 1 contingency:** 15% of total = $150–200
@@ -401,6 +419,7 @@ To reduce Phase 3+ costs, consider:
 ### 10.1 Approval Gate
 
 **Proceed with Phase 3 if:**
+
 - [ ] 3+ labs committed to SaaS (reduces per-lab cost from $95 → $35)
 - [ ] Marketing + sales ready for go-to-market (break-even at 5 labs requires revenue)
 - [ ] IA dataset labeling plan finalized (avoids surprise Gemini API costs)
@@ -434,22 +453,23 @@ Monitor via `gcloud billing accounts list` + `gcloud billing accounts describe`.
 
 ### Current Google Cloud Pricing (Brazil region southamerica-east1)
 
-| Service | Tier | Price |
-|---------|------|-------|
-| **Firestore Reads** | per 100k ops | $0.06 |
-| **Firestore Writes** | per 100k ops | $0.18 |
-| **Firestore Deletes** | per 100k ops | $0.02 |
-| **Firestore Storage** | per GB/month | $0.06 |
-| **Composite Indexes** | per 100k reads | $0.006 (included in reads) |
-| **Cloud Functions** | per 1M invocations | $0.40 (first 2M free) |
-| **Cloud Functions CPU** | per vCPU-second | $0.0000041 |
-| **Cloud Functions Memory** | per GiB-second | $0.0000025 |
-| **Cloud Storage (Standard)** | per GB/month | $0.020 |
-| **Cloud Storage Archive** | per GB/month | $0.004 |
-| **Twilio SMS (Brazil)** | per SMS outbound | $0.015 |
-| **Gemini Vision API** | per 1k image tokens | $0.075 (free tier: unlimited) |
+| Service                      | Tier                | Price                         |
+| ---------------------------- | ------------------- | ----------------------------- |
+| **Firestore Reads**          | per 100k ops        | $0.06                         |
+| **Firestore Writes**         | per 100k ops        | $0.18                         |
+| **Firestore Deletes**        | per 100k ops        | $0.02                         |
+| **Firestore Storage**        | per GB/month        | $0.06                         |
+| **Composite Indexes**        | per 100k reads      | $0.006 (included in reads)    |
+| **Cloud Functions**          | per 1M invocations  | $0.40 (first 2M free)         |
+| **Cloud Functions CPU**      | per vCPU-second     | $0.0000041                    |
+| **Cloud Functions Memory**   | per GiB-second      | $0.0000025                    |
+| **Cloud Storage (Standard)** | per GB/month        | $0.020                        |
+| **Cloud Storage Archive**    | per GB/month        | $0.004                        |
+| **Twilio SMS (Brazil)**      | per SMS outbound    | $0.015                        |
+| **Gemini Vision API**        | per 1k image tokens | $0.075 (free tier: unlimited) |
 
 **Notes:**
+
 - Firestore free tier: 50k reads, 20k writes, 20k deletes/day
 - Cloud Functions: First 2M invocations/month free
 - Cloud Storage: 5 GB free tier (applies to first 5 GB only)
@@ -461,9 +481,10 @@ Monitor via `gcloud billing accounts list` + `gcloud billing accounts describe`.
 
 **Prepared by:** Claude Agent (AI)  
 **Date:** 2026-05-07  
-**Status:** Ready for CTO review + CFO approval  
+**Status:** Ready for CTO review + CFO approval
 
 **Next steps:**
+
 1. Review cost projections with CFO
 2. Confirm Phase 3 green light with business team
 3. Provision monitoring alerts in GCP
@@ -473,9 +494,9 @@ Monitor via `gcloud billing accounts list` + `gcloud billing accounts describe`.
 
 ## Versioning & Updates
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-05-07 | Initial analysis: Phase 3 + unit economics |
-| — | — | — |
+| Version | Date       | Changes                                    |
+| ------- | ---------- | ------------------------------------------ |
+| 1.0     | 2026-05-07 | Initial analysis: Phase 3 + unit economics |
+| —       | —          | —                                          |
 
 **Last updated:** 2026-05-07 by Claude Agent

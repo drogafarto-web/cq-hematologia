@@ -23,7 +23,9 @@ import { NCConfiguracoes } from './components/NCConfiguracoes';
 import { NCReportBuilder } from './components/NCReportBuilder';
 import type { NaoConformidade } from '../sgq/types/NaoConformidade';
 
-const CAPAHome = lazy(() => import('../sgq/capa/pages/CAPAHome').then((m) => ({ default: m.default })));
+const CAPAHome = lazy(() =>
+  import('../sgq/capa/pages/CAPAHome').then((m) => ({ default: m.default })),
+);
 
 type Tab = 'ncs' | 'investigacoes' | 'indicadores' | 'relatorios' | 'configuracoes';
 
@@ -63,7 +65,13 @@ export default function NCView() {
             className="inline-flex items-center gap-1.5 text-xs text-white/40 hover:text-white/70 transition-colors mb-3"
           >
             <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden>
-              <path d="M12 15l-5-5 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+              <path
+                d="M12 15l-5-5 5-5"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
             </svg>
             Voltar ao Hub
           </button>
@@ -120,9 +128,7 @@ export default function NCView() {
             </div>
           )}
 
-          {activeTab === 'indicadores' && (
-            <NCIndicadores labId={labId} />
-          )}
+          {activeTab === 'indicadores' && <NCIndicadores labId={labId} />}
 
           {activeTab === 'relatorios' && (
             <div className="bg-[#141417] rounded-xl border border-white/[0.08] p-6">
@@ -130,9 +136,7 @@ export default function NCView() {
             </div>
           )}
 
-          {activeTab === 'configuracoes' && (
-            <NCConfiguracoes labId={labId} />
-          )}
+          {activeTab === 'configuracoes' && <NCConfiguracoes labId={labId} />}
         </div>
       </div>
     </div>

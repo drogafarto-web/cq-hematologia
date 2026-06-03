@@ -26,7 +26,7 @@ interface ViewState {
 export default function ManagementReviewDashboard() {
   const [view, setView] = useState<ViewState>({ tab: 'new' });
   const { review: selectedReview, loading: reviewLoading } = useFetchManagementReview(
-    view.selectedReviewId || null
+    view.selectedReviewId || null,
   );
 
   const handleSelectReview = (reviewId: string) => {
@@ -46,12 +46,8 @@ export default function ManagementReviewDashboard() {
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="mb-12">
-          <h1 className="text-4xl font-bold text-white mb-2">
-            Análise Crítica pela Direção
-          </h1>
-          <p className="text-white/60">
-            DICQ 4.15 — Gestão de Revisões Anuais e Atas de Reunião
-          </p>
+          <h1 className="text-4xl font-bold text-white mb-2">Análise Crítica pela Direção</h1>
+          <p className="text-white/60">DICQ 4.15 — Gestão de Revisões Anuais e Atas de Reunião</p>
         </div>
 
         {/* Tab Navigation */}
@@ -102,17 +98,13 @@ export default function ManagementReviewDashboard() {
           )}
 
           {/* History Tab */}
-          {view.tab === 'history' && (
-            <ReviewHistory onSelectReview={handleSelectReview} />
-          )}
+          {view.tab === 'history' && <ReviewHistory onSelectReview={handleSelectReview} />}
 
           {/* Atas Tab */}
           {view.tab === 'atas' && (
             <div className="space-y-6">
               <div className="bg-[#141417] rounded-lg border border-white/5 p-8">
-                <h2 className="text-2xl font-semibold text-white mb-6">
-                  Atas de Reunião
-                </h2>
+                <h2 className="text-2xl font-semibold text-white mb-6">Atas de Reunião</h2>
 
                 <div className="grid grid-cols-1 gap-4">
                   {/* Create new ata */}

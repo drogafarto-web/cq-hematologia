@@ -91,9 +91,11 @@ export function applyConditionalFormatting(
 
     const status = String(statusCell.v ?? '').toLowerCase();
     const style: XlsxCellStyle =
-      status === 'invalid' ? OUT_OF_RANGE_STYLE
-      : status === 'pending' ? PENDING_STYLE
-      : VALID_STYLE;
+      status === 'invalid'
+        ? OUT_OF_RANGE_STYLE
+        : status === 'pending'
+          ? PENDING_STYLE
+          : VALID_STYLE;
 
     // Apply to all cells in this row
     for (let C = range.s.c; C <= range.e.c; C++) {

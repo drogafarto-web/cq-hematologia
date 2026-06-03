@@ -1,11 +1,11 @@
 ---
-phase: "09-bioquimica"
-plan: "01"
-title: "Schema + Service Layer + Admin Analitos"
+phase: '09-bioquimica'
+plan: '01'
+title: 'Schema + Service Layer + Admin Analitos'
 status: COMPLETE
-delivered: "2026-05-06"
-duration_actual: "1 sessão (fast-path execution)"
-requirements_completed: ["BIO-01", "BIO-02", "BIO-13"]
+delivered: '2026-05-06'
+duration_actual: '1 sessão (fast-path execution)'
+requirements_completed: ['BIO-01', 'BIO-02', 'BIO-13']
 ---
 
 # Phase 9 Plan 09-01: Bioquímica Foundation — Summary
@@ -18,41 +18,41 @@ analitos, UI admin dark-first, rules + indexes, lazy chunk dedicado.
 
 ## Files Created
 
-| File | Lines | Purpose |
-|------|------:|---------|
-| `src/features/bioquimica/types/_shared_refs.ts`               |  44 | Primitivos: LabId, UserId, AnalitoId, NivelId, EquipmentId, LogicalSignature, ValidationBlocker |
-| `src/features/bioquimica/types/analito.ts`                    |  73 | Analito + AnalitoInput + RangeBiologico |
-| `src/features/bioquimica/types/controlMaterial.ts`            | 104 | ControlMaterial + ControlLevel + ManufacturerStatsBio + 3 origens (bula/sem-bula-7d/avulso) |
-| `src/features/bioquimica/types/run.ts`                        | 129 | Run + RunInput + violations/aproveitamento/reagentesSnapshot/complianceOverride |
-| `src/features/bioquimica/types/westgard.ts`                   |  84 | WestgardRule (CLSI + extended) + WestgardViolation + tabela canônica de severidade |
-| `src/features/bioquimica/types/index.ts`                      |  52 | Barrel — re-exports tipados de todos os types acima |
-| `src/features/bioquimica/services/bioquimicaService.ts`       | 320 | subscribeBioquimicaConfig/Analitos/Lotes/Runs + softDeleteAnalito/Lot + getters + ensureBioquimicaRoot |
-| `src/features/bioquimica/services/analitoService.ts`          | 164 | watchAnalitos + createAnalito + updateAnalito + softDeleteAnalito (client-direct até Plan 09-04) |
-| `src/features/bioquimica/hooks/useAnalitos.ts`                |  66 | Real-time hook + selector `useAnalitosAtivos` |
-| `src/features/bioquimica/hooks/useBioquimicaState.ts`         | 121 | Hook agregador 3-listeners (config + analitos + lotes) com cleanup unificado |
-| `src/features/bioquimica/constants/seedAnalitos.ts`           | 214 | 17 analitos seed — painel básico, hepático, lipídico, eletrólitos |
-| `src/features/bioquimica/components/AnalitoForm.tsx`          | 427 | Modal CRUD com Zod validation, errors inline, range chip, A11y AA, Escape close |
-| `src/features/bioquimica/components/AnalitoList.tsx`          | 165 | Tabela com `tabular-nums`, AnalitoRow memoizado, EmptyState, Skeleton |
-| `src/features/bioquimica/components/AnalitoAdmin.tsx`         | 330 | Tela admin completa — filtros (todos/ativos/inativos), busca, seed callable, soft-delete + confirm |
-| `src/features/bioquimica/index.ts`                            |  20 | Barrel — entry point para `React.lazy` |
-| `src/features/bioquimica/CLAUDE.md`                           | 133 | Doc do módulo (escopo, deps, regulatório, schema, decisões locked, status) |
-| `functions/src/modules/bioquimica/seedBioquimicaDefaults.ts`  | 265 | Cloud Function callable idempotente — 17 docs, batch, region southamerica-east1, 256MiB |
-| `functions/test/bioquimica/rules.test.mjs`                    | 195 | 10 cenários documentados + 5 unit tests verificando expected/path/operation |
-| `.planning/phases/09-bioquimica/09-01-SUMMARY.md`             | this | Este documento |
+| File                                                         | Lines | Purpose                                                                                                |
+| ------------------------------------------------------------ | ----: | ------------------------------------------------------------------------------------------------------ |
+| `src/features/bioquimica/types/_shared_refs.ts`              |    44 | Primitivos: LabId, UserId, AnalitoId, NivelId, EquipmentId, LogicalSignature, ValidationBlocker        |
+| `src/features/bioquimica/types/analito.ts`                   |    73 | Analito + AnalitoInput + RangeBiologico                                                                |
+| `src/features/bioquimica/types/controlMaterial.ts`           |   104 | ControlMaterial + ControlLevel + ManufacturerStatsBio + 3 origens (bula/sem-bula-7d/avulso)            |
+| `src/features/bioquimica/types/run.ts`                       |   129 | Run + RunInput + violations/aproveitamento/reagentesSnapshot/complianceOverride                        |
+| `src/features/bioquimica/types/westgard.ts`                  |    84 | WestgardRule (CLSI + extended) + WestgardViolation + tabela canônica de severidade                     |
+| `src/features/bioquimica/types/index.ts`                     |    52 | Barrel — re-exports tipados de todos os types acima                                                    |
+| `src/features/bioquimica/services/bioquimicaService.ts`      |   320 | subscribeBioquimicaConfig/Analitos/Lotes/Runs + softDeleteAnalito/Lot + getters + ensureBioquimicaRoot |
+| `src/features/bioquimica/services/analitoService.ts`         |   164 | watchAnalitos + createAnalito + updateAnalito + softDeleteAnalito (client-direct até Plan 09-04)       |
+| `src/features/bioquimica/hooks/useAnalitos.ts`               |    66 | Real-time hook + selector `useAnalitosAtivos`                                                          |
+| `src/features/bioquimica/hooks/useBioquimicaState.ts`        |   121 | Hook agregador 3-listeners (config + analitos + lotes) com cleanup unificado                           |
+| `src/features/bioquimica/constants/seedAnalitos.ts`          |   214 | 17 analitos seed — painel básico, hepático, lipídico, eletrólitos                                      |
+| `src/features/bioquimica/components/AnalitoForm.tsx`         |   427 | Modal CRUD com Zod validation, errors inline, range chip, A11y AA, Escape close                        |
+| `src/features/bioquimica/components/AnalitoList.tsx`         |   165 | Tabela com `tabular-nums`, AnalitoRow memoizado, EmptyState, Skeleton                                  |
+| `src/features/bioquimica/components/AnalitoAdmin.tsx`        |   330 | Tela admin completa — filtros (todos/ativos/inativos), busca, seed callable, soft-delete + confirm     |
+| `src/features/bioquimica/index.ts`                           |    20 | Barrel — entry point para `React.lazy`                                                                 |
+| `src/features/bioquimica/CLAUDE.md`                          |   133 | Doc do módulo (escopo, deps, regulatório, schema, decisões locked, status)                             |
+| `functions/src/modules/bioquimica/seedBioquimicaDefaults.ts` |   265 | Cloud Function callable idempotente — 17 docs, batch, region southamerica-east1, 256MiB                |
+| `functions/test/bioquimica/rules.test.mjs`                   |   195 | 10 cenários documentados + 5 unit tests verificando expected/path/operation                            |
+| `.planning/phases/09-bioquimica/09-01-SUMMARY.md`            |  this | Este documento                                                                                         |
 
 **Total novos:** 18 arquivos · ~2.906 linhas (incl. comentários)
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `src/types/index.ts`                | Added `'bioquimica'` to `View` union |
-| `src/features/auth/AuthWrapper.tsx` | `BioquimicaView = React.lazy(() => import('../bioquimica'))` + roteamento `currentView === 'bioquimica'` com `Suspense` fallback |
-| `src/features/hub/ModuleHub.tsx`    | Tile `biochemistry`: `status: 'soon'` → `'active'`, view `'bioquimica'`, bullets atualizadas, `statusLabel: 'Foundation'` |
-| `vite.config.ts`                    | Adicionado `manualChunks` entry `'module-bioquimica'` |
+| File                                | Change                                                                                                                                                                                                             |
+| ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `src/types/index.ts`                | Added `'bioquimica'` to `View` union                                                                                                                                                                               |
+| `src/features/auth/AuthWrapper.tsx` | `BioquimicaView = React.lazy(() => import('../bioquimica'))` + roteamento `currentView === 'bioquimica'` com `Suspense` fallback                                                                                   |
+| `src/features/hub/ModuleHub.tsx`    | Tile `biochemistry`: `status: 'soon'` → `'active'`, view `'bioquimica'`, bullets atualizadas, `statusLabel: 'Foundation'`                                                                                          |
+| `vite.config.ts`                    | Adicionado `manualChunks` entry `'module-bioquimica'`                                                                                                                                                              |
 | `firestore.rules`                   | Bloco completo `/labs/{labId}/bioquimica/root/**` — 7 paths (root/analitos/lotes/runs/traceability-events/audit/config) com create-validation, keepsLabId/keepsCreatedAt, callable-only em runs/traceability/audit |
-| `firestore.indexes.json`            | 7 índices compostos: 1 analitos, 4 runs, 1 lotes, 1 traceability-events |
-| `functions/src/index.ts`            | Re-export `seedBioquimicaDefaults` from `./modules/bioquimica/seedBioquimicaDefaults` |
+| `firestore.indexes.json`            | 7 índices compostos: 1 analitos, 4 runs, 1 lotes, 1 traceability-events                                                                                                                                            |
+| `functions/src/index.ts`            | Re-export `seedBioquimicaDefaults` from `./modules/bioquimica/seedBioquimicaDefaults`                                                                                                                              |
 
 ## TypeScript Status
 
@@ -159,12 +159,12 @@ Cada cenário já está estruturado para conversão direta a calls
    `applyBulaToLot`, `recordTraceabilityEvent`, `parseBulaBioquimica`,
    `generateMonthlyReportBioquimica`. Migra `createAnalito`/`updateAnalito`
    para `manageAnalito` callable.
-5. **Plan 09-05** Comparabilidade entre equipamentos (DICQ 5.6.4) + handoff
+4. **Plan 09-05** Comparabilidade entre equipamentos (DICQ 5.6.4) + handoff
    produção.
-6. **Débito** — adicionar `@firebase/rules-unit-testing` ao projeto e
+5. **Débito** — adicionar `@firebase/rules-unit-testing` ao projeto e
    converter rules.test.mjs para live emulator (Plan 09-02).
-7. **Débito** — teste de paridade para o seed dataset duplicado client/functions.
-8. **Débito** — `provisionModulesClaims` precisa incluir `bioquimica` antes
+6. **Débito** — teste de paridade para o seed dataset duplicado client/functions.
+7. **Débito** — `provisionModulesClaims` precisa incluir `bioquimica` antes
    de Plan 09-04 trocar para `RequireClaim`.
 
 ## Deploy Notes (NÃO executar — CTO approval needed)

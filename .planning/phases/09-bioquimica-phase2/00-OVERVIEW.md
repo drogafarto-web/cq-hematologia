@@ -10,16 +10,19 @@
 ## Vision
 
 **Phase 9.1 Foundation** (2026-05-06, complete):
+
 - 16 core analytes seeded
 - Westgard CLSI engine stub
 - Schema + service layer
 - 42 unit tests
 
 **Phase 9.2** (this phase — 2026-05-20 to 2026-06-10):
+
 - **Plan 09-01:** Expand seed 16 → 25+ analytes, implement client + server Westgard engines, 20+ tests
 - **Plan 09-02:** Gemini 2.5 Flash Vision integration, fuzzy matching, dark-first OCR UI, audit trail, 26+ tests
 
 **Phase 9.3+** (future):
+
 - Batch OCR processing (multi-image import)
 - Semantic matching enhancement (LLM-based)
 - Multi-instrument support (Abbott, Siemens SDKs)
@@ -36,6 +39,7 @@
 **Wave:** 1 (parallel with 09-02, no blocking dependencies)
 
 **Deliverables:**
+
 - 25+ analyte seed dataset (glucose, urea, creatinine, albumin, … TSH)
 - Client-side Westgard engine (westgardRulesCLSI.ts, deterministic)
 - Server-side Westgard engine (authoritative, Phase 9.4 recordRunBioquimica integration)
@@ -44,6 +48,7 @@
 - Regression: all 42 Phase 1 tests still pass
 
 **Key Milestones:**
+
 - Task 1 (types): 2 days
 - Task 2 (seed data): 2 days
 - Task 3 (client engine): 3 days
@@ -51,6 +56,7 @@
 - Task 5 (tests + regression): 2 days
 
 **Success Criteria:**
+
 - ✅ 25+ analytes seeded with westgardRules config
 - ✅ Client evaluateRules() passes 12+ test scenarios
 - ✅ Server evaluateRunCompliance() mirrors client logic
@@ -67,6 +73,7 @@
 **Wave:** 2 (depends on 09-01 analyte seed + Westgard types)
 
 **Deliverables:**
+
 - Gemini 2.5 Flash Vision service (parseImageWithGemini, custom prompt, error handling)
 - Fuzzy matching utility (Levenshtein + semantic, 70–100% confidence scoring)
 - React hooks: useGeminiVision (state management), useOCRValidation (audit logging)
@@ -77,6 +84,7 @@
 - 26+ unit tests (fuzzy match, integration scenarios, audit, regression)
 
 **Key Milestones:**
+
 - Task 1 (OCR types): 1 day
 - Task 2 (Gemini service + docs): 3 days
 - Task 3 (fuzzy match): 2 days
@@ -85,6 +93,7 @@
 - Task 6 (audit trail + regression): 1 day
 
 **Success Criteria:**
+
 - ✅ Gemini 2.5 Flash parses H550 images → JSON in <3s
 - ✅ Fuzzy matching >90% accuracy on test set
 - ✅ OCR confidence <85% triggers manual review
@@ -114,14 +123,17 @@ Wave 2 (Sequential, depends on Wave 1):
 ## Dependencies & Blockers
 
 ### Plan 09-01 → Plan 09-02
+
 - **Dependency:** Plan 09-01 analyte seed must be live before Plan 09-02 fuzzy matching works
 - **Mitigation:** Both plans can start in parallel; Plan 09-02 uses mock seed for initial development
 
 ### Phase 9.2 → Phase 9.4 (recordRunBioquimica callable)
+
 - **Dependency:** Westgard engines from Plan 09-01 + OCR validation from Plan 09-02 must be complete
 - **Timeline:** Phase 9.4 kicks off after both plans stabilize (~2026-06-15)
 
 ### Phase 9.2 → Phase 5 (críticos escalation)
+
 - **Dependency:** OCR pipeline architecture can be reused for Phase 5 strip parsing
 - **Not blocking:** Phase 5 proceeds independently; OCR foundation is optional enhancement
 
@@ -130,65 +142,70 @@ Wave 2 (Sequential, depends on Wave 1):
 ## Compliance Coverage
 
 ### RDC 978 Art. 179 (CIQ Mandatory)
+
 - ✅ **Plan 09-01:** Westgard CLSI rules (1-2s, 1-3s, 2-2s, R-4s) mandatory per art. 179
 - ✅ Extended rules optional (4-1s, 10x, 6T, 6X) config-enabled per art. 180
 
 ### RDC 978 Art. 161 (Audit Trail)
+
 - ✅ **Plan 09-02:** LogicalSignature (hash, operatorId, timestamp) on all OCR decisions
 - ✅ Append-only audit collection (immutable, chainHash integrity)
 
 ### DICQ 4.3 (Bloco F — Analítico)
+
 - ✅ **Plan 09-01:** Westgard rules documented in code + test scenarios
 - ✅ **Plan 09-02:** OCR confidence scoring + operator review gate
 - ✅ Multi-equipment tracking (analito × equipment × nivel tuple)
 
 ### DICQ 4.4 (Trilha de Auditoria)
+
 - ✅ **Plan 09-02:** Image → parse → match → decision audit trail
 
 ---
 
 ## Test Coverage
 
-| Category | Phase 9.1 | Phase 9.2 | Total |
-|----------|-----------|-----------|-------|
-| Unit (Westgard) | 12 | — | 12 |
-| Unit (OCR) | — | 7 (fuzzy) + 3 (parser) + 2 (audit) | 12 |
-| Integration | — | 5 (OCR scenarios) | 5 |
-| Regression (Phase 1) | 42 | 42 | 42 |
-| **TOTAL** | **54** | **68** | **68** |
+| Category             | Phase 9.1 | Phase 9.2                          | Total  |
+| -------------------- | --------- | ---------------------------------- | ------ |
+| Unit (Westgard)      | 12        | —                                  | 12     |
+| Unit (OCR)           | —         | 7 (fuzzy) + 3 (parser) + 2 (audit) | 12     |
+| Integration          | —         | 5 (OCR scenarios)                  | 5      |
+| Regression (Phase 1) | 42        | 42                                 | 42     |
+| **TOTAL**            | **54**    | **68**                             | **68** |
 
 ---
 
 ## Risk Register
 
-| Risk | Likelihood | Impact | Mitigation |
-|------|-----------|--------|-----------|
-| Gemini API rate limit exceeded | Medium | High | Server-side fallback parser (Task 5), batch processing (Phase 9.3) |
-| OCR accuracy <90% on production images | Medium | High | 100+ test images, confidence thresholds, operator override UI |
-| Fuzzy match false negatives | Low | Medium | Semantic matching enhancement (Phase 9.3), operator suggestions |
-| Analyte seed drift (client vs server) | Low | Medium | Parity tests in CI (Task 2) |
-| Performance: image processing >5s | Low | Medium | Optimize Gemini prompt (Task 2), async processing |
-| Cost overrun (Gemini API) | Low | Low | Cost monitoring (Phase 9.5), batch optimization (Phase 9.3) |
+| Risk                                   | Likelihood | Impact | Mitigation                                                         |
+| -------------------------------------- | ---------- | ------ | ------------------------------------------------------------------ |
+| Gemini API rate limit exceeded         | Medium     | High   | Server-side fallback parser (Task 5), batch processing (Phase 9.3) |
+| OCR accuracy <90% on production images | Medium     | High   | 100+ test images, confidence thresholds, operator override UI      |
+| Fuzzy match false negatives            | Low        | Medium | Semantic matching enhancement (Phase 9.3), operator suggestions    |
+| Analyte seed drift (client vs server)  | Low        | Medium | Parity tests in CI (Task 2)                                        |
+| Performance: image processing >5s      | Low        | Medium | Optimize Gemini prompt (Task 2), async processing                  |
+| Cost overrun (Gemini API)              | Low        | Low    | Cost monitoring (Phase 9.5), batch optimization (Phase 9.3)        |
 
 ---
 
 ## Readiness for Phase 9.3+
 
-| Component | Status | Notes |
-|-----------|--------|-------|
-| Analyte seed (25+) | ✅ Plan 09-01 | Expandable to 50+ in Phase 9.3 |
-| Westgard engines | ✅ Plan 09-01 | Extended rules ready for activation (Phase 9.3+) |
-| OCR pipeline | ✅ Plan 09-02 | Reusable for Phase 5 (críticos strip) + Phase 11 (immunology) |
-| Fuzzy matching | ✅ Plan 09-02 | Semantic enhancement ready (Phase 9.3) |
-| Batch processing | 📅 Phase 9.3 | Skeleton ready, implementation deferred |
-| Multi-instrument | 📅 Phase 9.3 | H550 primary test, Abbott/Siemens design-ready |
-| Cost model | 📅 Phase 9.5 | Monitoring infrastructure from Phase 9.2 |
+| Component          | Status        | Notes                                                         |
+| ------------------ | ------------- | ------------------------------------------------------------- |
+| Analyte seed (25+) | ✅ Plan 09-01 | Expandable to 50+ in Phase 9.3                                |
+| Westgard engines   | ✅ Plan 09-01 | Extended rules ready for activation (Phase 9.3+)              |
+| OCR pipeline       | ✅ Plan 09-02 | Reusable for Phase 5 (críticos strip) + Phase 11 (immunology) |
+| Fuzzy matching     | ✅ Plan 09-02 | Semantic enhancement ready (Phase 9.3)                        |
+| Batch processing   | 📅 Phase 9.3  | Skeleton ready, implementation deferred                       |
+| Multi-instrument   | 📅 Phase 9.3  | H550 primary test, Abbott/Siemens design-ready                |
+| Cost model         | 📅 Phase 9.5  | Monitoring infrastructure from Phase 9.2                      |
 
 ---
 
 ## Deliverables Checklist
 
 ### Plan 09-01
+
 - [ ] 25+ analytes seeded (glucose, urea, creatinine, albumin, …, TSH)
 - [ ] Analito type extended with westgardRules
 - [ ] Client Westgard engine (westgardRulesCLSI.ts, 200+ lines)
@@ -200,6 +217,7 @@ Wave 2 (Sequential, depends on Wave 1):
 - [ ] Commit: `feat(bioquimica): expand seed + Westgard engines (Phase 9.1)`
 
 ### Plan 09-02
+
 - [ ] OCR type definitions (ParsedAnalyte, MatchResult, OCRValidationResult, etc.)
 - [ ] Gemini Vision service (parseImageWithGemini, prompt template)
 - [ ] Fuzzy matching utility (Levenshtein + semantic, 100 lines)

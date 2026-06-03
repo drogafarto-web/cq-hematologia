@@ -4,7 +4,7 @@
 **Phase:** 3.1  
 **Owner:** Stream D — DB Engineer  
 **Status:** IMPLEMENTATION COMPLETE  
-**Completed:** 2026-05-07  
+**Completed:** 2026-05-07
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### 1. Collections Created
 
-- [x] `labs/{labId}/portal-configuracao/{docId}` 
+- [x] `labs/{labId}/portal-configuracao/{docId}`
   - Location: `/labs/{labId}/portal-configuracao/{docId}`
   - Fields: 9 (3 required colors/URL, 6 optional locale/HTML)
   - Indexes: None (labId indexed)
@@ -112,6 +112,7 @@
 
 **Status:** PASS  
 **Evidence:**
+
 - Portal-configuracao collection path documented
 - NOTIVISA events collection path documented
 - Críticos escalacoes collection path documented
@@ -124,6 +125,7 @@
 
 **Status:** PASS  
 **Evidence:**
+
 - 5 composite indexes added to `firestore.indexes.json`
 - Indexes follow Firestore native JSON format
 - Correct field ordering (ASC/DESC) per query pattern
@@ -134,6 +136,7 @@
 
 **Status:** READY FOR EXECUTION  
 **Evidence:**
+
 - Validation script created at `scripts/validate-schema-v1.4.js`
 - Script validates: collection existence, required fields, custom logic
 - Test data available for validation
@@ -144,6 +147,7 @@
 
 **Status:** PASS  
 **Evidence:**
+
 - 13 sample documents created in `docs/TEST_DATA_v1.4_SCHEMA.md`
 - Documents cover all 5 collections + various status states
 - Import script template provided for batch loading
@@ -155,6 +159,7 @@
 
 **Status:** READY FOR EXECUTION  
 **Evidence:**
+
 - TypeScript types will be generated in Phase 3.2
 - No client code yet references these collections
 - Service stubs will be created in Phase 3.3+ as needed
@@ -165,25 +170,28 @@
 
 ## Artifacts Delivered
 
-| Artifact | Location | Status | For whom |
-|----------|----------|--------|----------|
-| Full schema snapshot | `docs/SCHEMA_v1.4.md` | ✓ Complete | Architects, Agents 2-4 |
-| Test data + queries | `docs/TEST_DATA_v1.4_SCHEMA.md` | ✓ Complete | QA, Agent 4 (Functions) |
-| Index definitions | `firestore.indexes.json` | ✓ Updated | Firebase deployment |
-| Validation script | `scripts/validate-schema-v1.4.js` | ✓ Ready | CI/CD pipeline |
-| Implementation notes | This checklist | ✓ Complete | Next phase owners |
+| Artifact             | Location                          | Status     | For whom                |
+| -------------------- | --------------------------------- | ---------- | ----------------------- |
+| Full schema snapshot | `docs/SCHEMA_v1.4.md`             | ✓ Complete | Architects, Agents 2-4  |
+| Test data + queries  | `docs/TEST_DATA_v1.4_SCHEMA.md`   | ✓ Complete | QA, Agent 4 (Functions) |
+| Index definitions    | `firestore.indexes.json`          | ✓ Updated  | Firebase deployment     |
+| Validation script    | `scripts/validate-schema-v1.4.js` | ✓ Ready    | CI/CD pipeline          |
+| Implementation notes | This checklist                    | ✓ Complete | Next phase owners       |
 
 ---
 
 ## Deployment Steps (Next Actions)
 
 ### Step 1: Deploy Indexes
+
 ```bash
 firebase deploy --only firestore:indexes --project hmatologia2
 ```
+
 Expected: Index build <5 minutes. Check Firebase Console for "ENABLED" status.
 
 ### Step 2: Load Test Data (Staging only)
+
 ```bash
 # Option A: Firebase Console manual import
 # Copy documents from docs/TEST_DATA_v1.4_SCHEMA.md into Console
@@ -193,19 +201,25 @@ node scripts/load-test-data-v1.4.js
 ```
 
 ### Step 3: Validate Schema
+
 ```bash
 node scripts/validate-schema-v1.4.js
 ```
+
 Expected: All checks pass, 0 failures.
 
 ### Step 4: Phase 3.2 — Add Security Rules
+
 Agent 2 will add Firestore rules protecting all 5 new collections:
+
 - Read/write restrictions via labId
 - Payload validation
 - Audit trail setup
 
 ### Step 5: Phase 3.3 — Create Service Stubs
+
 Agent 4 will create service files:
+
 - `services/portal-configuracaoService.ts`
 - `services/notivisaOutboxService.ts`
 - `services/criticosEscalacoes.Service.ts`
@@ -216,24 +230,24 @@ Agent 4 will create service files:
 
 ## Design Decisions Locked
 
-| Decision | Rationale |
-|----------|-----------|
-| Multi-tenant via labId path | Consistent with existing modules; enforces isolation at rule level |
-| No soft-delete on audit collections | Regulatory requirement; events immutable once created |
-| Composite indexes on labId+filter | Mandatory for multi-tenant queries; Firestore requires explicit |
-| Server-side timestamps only | Prevents clock-skew attacks; consistent with regulatory audit |
-| Pessimistic locks in drafts | Prevents concurrent edit conflicts; simpler than OT |
+| Decision                            | Rationale                                                          |
+| ----------------------------------- | ------------------------------------------------------------------ |
+| Multi-tenant via labId path         | Consistent with existing modules; enforces isolation at rule level |
+| No soft-delete on audit collections | Regulatory requirement; events immutable once created              |
+| Composite indexes on labId+filter   | Mandatory for multi-tenant queries; Firestore requires explicit    |
+| Server-side timestamps only         | Prevents clock-skew attacks; consistent with regulatory audit      |
+| Pessimistic locks in drafts         | Prevents concurrent edit conflicts; simpler than OT                |
 
 ---
 
 ## Known Limitations & Defer Items
 
-| Item | Status | Phase |
-|------|--------|-------|
-| Automatic lock cleanup cron | Defer | Phase 4 (schedule function) |
-| NOTIVISA integration (real API) | Defer | Phase 4 (callable function) |
-| IA model training pipeline | Defer | Phase 9 (Jupyter integration) |
-| Patient portal access rules | Defer | Phase 5 (auth + rules) |
+| Item                            | Status | Phase                         |
+| ------------------------------- | ------ | ----------------------------- |
+| Automatic lock cleanup cron     | Defer  | Phase 4 (schedule function)   |
+| NOTIVISA integration (real API) | Defer  | Phase 4 (callable function)   |
+| IA model training pipeline      | Defer  | Phase 9 (Jupyter integration) |
+| Patient portal access rules     | Defer  | Phase 5 (auth + rules)        |
 
 ---
 

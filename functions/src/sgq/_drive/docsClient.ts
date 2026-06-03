@@ -291,10 +291,7 @@ export async function revokeEditAccess(
   const emailSet = new Set(emails.map((e) => e.toLowerCase()));
 
   const writerPerms = permissions.filter(
-    (p) =>
-      p.role === 'writer' &&
-      p.emailAddress &&
-      emailSet.has(p.emailAddress.toLowerCase()),
+    (p) => p.role === 'writer' && p.emailAddress && emailSet.has(p.emailAddress.toLowerCase()),
   );
 
   await Promise.all(

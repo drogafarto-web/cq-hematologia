@@ -59,54 +59,50 @@ export const handleMLTeamFeedback = onCall(async (request) => {
   let payload: MLFeedbackPayload;
   try {
     payload = MLFeedbackPayloadSchema.parse(data);
-    } catch (error) {
-      const validationError =
-        error instanceof z.ZodError
-          ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
-          : 'Unknown validation error';
-      throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
-    }
-
-    try {
-      const db = admin.firestore();
-      const now = admin.firestore.Timestamp.now();
-
-      // Store feedback in Firestore for audit trail
-      await db
-        .collection(`labs/${payload.labId}/imuno-ia-feedback`)
-        .add({
-          labId: payload.labId,
-          modelVersion: payload.modelVersion,
-          improvedAccuracy: payload.improvedAccuracy,
-          notes: payload.notes || '',
-          thresholdRecommendation: payload.thresholdRecommendation,
-          status: 'PENDING_IMPLEMENTATION', // Phase 11: will be implemented
-          receivedAt: now,
-          createdAt: now,
-          deletedAt: null,
-        });
-
-      console.log(
-        `Feedback received for lab ${payload.labId}: model v${payload.modelVersion} ` +
-          `(accuracy: ${(payload.improvedAccuracy * 100).toFixed(1)}%)`
-      );
-
-      return {
-        success: true,
-        message:
-          'Feedback recorded. Implementation scheduled for Phase 11 IA fine-tuning sprint.',
-        updatedAt: now.toDate().toISOString(),
-      };
-    } catch (error) {
-      if (error instanceof HttpsError) {
-        throw error;
-      }
-
-      console.error('ML feedback error:', error);
-      throw new HttpsError(
-        'internal',
-        `Feedback processing failed: ${error instanceof Error ? error.message : 'unknown error'}`
-      );
-    }
+  } catch (error) {
+    const validationError =
+      error instanceof z.ZodError
+        ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
+        : 'Unknown validation error';
+    throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
   }
-);
+
+  try {
+    const db = admin.firestore();
+    const now = admin.firestore.Timestamp.now();
+
+    // Store feedback in Firestore for audit trail
+    await db.collection(`labs/${payload.labId}/imuno-ia-feedback`).add({
+      labId: payload.labId,
+      modelVersion: payload.modelVersion,
+      improvedAccuracy: payload.improvedAccuracy,
+      notes: payload.notes || '',
+      thresholdRecommendation: payload.thresholdRecommendation,
+      status: 'PENDING_IMPLEMENTATION', // Phase 11: will be implemented
+      receivedAt: now,
+      createdAt: now,
+      deletedAt: null,
+    });
+
+    console.log(
+      `Feedback received for lab ${payload.labId}: model v${payload.modelVersion} ` +
+        `(accuracy: ${(payload.improvedAccuracy * 100).toFixed(1)}%)`,
+    );
+
+    return {
+      success: true,
+      message: 'Feedback recorded. Implementation scheduled for Phase 11 IA fine-tuning sprint.',
+      updatedAt: now.toDate().toISOString(),
+    };
+  } catch (error) {
+    if (error instanceof HttpsError) {
+      throw error;
+    }
+
+    console.error('ML feedback error:', error);
+    throw new HttpsError(
+      'internal',
+      `Feedback processing failed: ${error instanceof Error ? error.message : 'unknown error'}`,
+    );
+  }
+});

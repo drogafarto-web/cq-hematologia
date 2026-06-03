@@ -16,6 +16,7 @@ depends_on: [MP-0]
 **Goal:** Land the 3 missing callables (createPlanoAcao, registerPresenca, createReAuditoria), the matching firestore.rules + indexes, the index.ts wiring, and a passing e2e test so the 5 untracked components committed in MP-0 are functional.
 **Dependencies:** MP-0 (components must already be tracked so we can wire them up).
 **Output:**
+
 - 3 new callables in `functions/src/modules/auditoria/`
 - Updated `firestore.rules` with 3 new collection blocks + auditoria-internas update
 - Updated `firestore.indexes.json` with 4 composite indexes
@@ -38,6 +39,7 @@ All 3 SAs run in parallel. They touch different files. Canonical sibling: `funct
 **Depends on:** none (W1)
 
 **Contract:**
+
 ```typescript
 import { onCall, HttpsError, CallableRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
@@ -50,19 +52,20 @@ const CreatePlanoAcaoInput = z.object({
   auditoriaId: z.string().min(1),
   achadoId: z.string().min(1),
   descricao: z.string().min(20).max(1000),
-  responsavel: z.string().min(1),       // userId of responsible person
-  prazo: z.number().int().positive(),   // ms epoch
+  responsavel: z.string().min(1), // userId of responsible person
+  prazo: z.number().int().positive(), // ms epoch
 });
 
 export const createPlanoAcao = onCall(
   { region: 'southamerica-east1', cors: true },
   async (request: CallableRequest<unknown>) => {
     // returns { planoId: string }
-  }
+  },
 );
 ```
 
 **Behavior:**
+
 1. Reject if `!request.auth` → `HttpsError('unauthenticated', ...)`.
 2. Validate input with `CreatePlanoAcaoInput.parse(request.data)`. On error → `HttpsError('invalid-argument', ...)`.
 3. Confirm `isActiveMemberOfLab(labId, request.auth.uid)` (helper exists in sibling `auditoria.ts` — copy or import). Reject with `permission-denied` otherwise.
@@ -72,7 +75,10 @@ export const createPlanoAcao = onCall(
 7. Generate server-side `LogicalSignature`:
    ```typescript
    const ts = Date.now();
-   const hash = crypto.createHash('sha256').update(`${labId}|${auditoriaId}|${achadoId}|${request.auth.uid}|${ts}`).digest('hex');
+   const hash = crypto
+     .createHash('sha256')
+     .update(`${labId}|${auditoriaId}|${achadoId}|${request.auth.uid}|${ts}`)
+     .digest('hex');
    const signature: LogicalSignature = { hash, operatorId: request.auth.uid, ts };
    ```
 8. Write to `/labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao/{planoId}` (auto-id) with payload:
@@ -90,12 +96,14 @@ export const createPlanoAcao = onCall(
 9. Return `{ planoId: ref.id }`.
 
 **Invariants:**
+
 - onCall v2 with `cors: true` and `region: 'southamerica-east1'` — non-negotiable.
 - Server-side signature (never trust client).
 - Multi-tenant write under `/labs/{labId}/...`.
 - No `deleteDoc` semantics (soft-delete only).
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/auditoria.ts` (canonical pattern: `createAuditoria`, `registerAchado`)
 - `functions/src/modules/auditoria/types.ts` (for `LogicalSignature`)
 - `functions/src/modules/qualidade/naoConformidade.ts` (for `checkNCs` signature)
@@ -103,6 +111,7 @@ export const createPlanoAcao = onCall(
 - `.claude/rules/firestore-security.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 - `cd functions && npm test -- createPlanoAcao` (if test exists) → pass; if no test, this SA only verified by build + downstream MP-1-W3 e2e.
 
@@ -117,28 +126,34 @@ export const createPlanoAcao = onCall(
 **Depends on:** none (W1)
 
 **Contract:**
+
 ```typescript
 const RegisterPresencaInput = z.object({
   labId: z.string().min(1),
   auditoriaId: z.string().min(1),
   sessaoId: z.string().min(1),
   reuniao: z.enum(['abertura', 'encerramento']),
-  participantes: z.array(z.object({
-    userId: z.string().min(1),
-    nome: z.string().min(1),
-    papel: z.string().min(1),
-  })).min(1),
+  participantes: z
+    .array(
+      z.object({
+        userId: z.string().min(1),
+        nome: z.string().min(1),
+        papel: z.string().min(1),
+      }),
+    )
+    .min(1),
 });
 
 export const registerPresenca = onCall(
   { region: 'southamerica-east1', cors: true },
   async (request) => {
     // returns { reuniaoId: string }
-  }
+  },
 );
 ```
 
 **Behavior:**
+
 1. Standard auth + validation guards (same pattern as SA-05).
 2. Verify auditoria + sessao both exist and are not soft-deleted.
 3. Generate server-side `LogicalSignature` (same algorithm as SA-05; concatenate `labId|auditoriaId|sessaoId|reuniao|uid|ts`).
@@ -157,16 +172,19 @@ export const registerPresenca = onCall(
 5. Return `{ reuniaoId: ref.id }`.
 
 **Invariants:**
+
 - onCall v2, `cors: true`, region `southamerica-east1`.
 - A reunião record is immutable post-creation (rules enforce this in SA-08).
 - `participantes` must contain at least one entry; reject empty array.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/auditoria.ts`
 - `functions/src/modules/auditoria/types.ts`
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 - Type-check passes for the new file
 
@@ -181,11 +199,12 @@ export const registerPresenca = onCall(
 **Depends on:** none (W1)
 
 **Contract:**
+
 ```typescript
 const CreateReAuditoriaInput = z.object({
   labId: z.string().min(1),
   auditoriaOriginalId: z.string().min(1),
-  proximaAuditoriaPlanejada: z.number().int().positive(),  // ms epoch
+  proximaAuditoriaPlanejada: z.number().int().positive(), // ms epoch
   responsavelTecnico: z.string().min(1),
   motivacao: z.string().min(20).max(1000),
 });
@@ -194,11 +213,12 @@ export const createReAuditoria = onCall(
   { region: 'southamerica-east1', cors: true },
   async (request) => {
     // returns { auditoriaId: string }
-  }
+  },
 );
 ```
 
 **Behavior:**
+
 1. Standard auth + validation guards.
 2. Read original auditoria from `/labs/{labId}/auditorias-internas/{auditoriaOriginalId}`. Reject `not-found` if missing.
 3. Validate `original.status === 'finalizada'` — reject `failed-precondition` otherwise.
@@ -223,17 +243,20 @@ export const createReAuditoria = onCall(
 7. Return `{ auditoriaId: ref.id }`.
 
 **Invariants:**
+
 - onCall v2 with `cors: true` and `region: 'southamerica-east1'`.
 - Cannot create a re-auditoria of a re-auditoria? — allowed per current spec; do not block.
 - The `reAuditoriaDe` field is the explicit chain link consumed by `ReAuditoriaChain.tsx`.
 
 **Files to read first:**
+
 - `functions/src/modules/auditoria/auditoria.ts` (`createAuditoria` shape)
 - `functions/src/modules/auditoria/types.ts`
 - `functions/src/modules/qualidade/naoConformidade.ts` (NC query shape)
 - `./CLAUDE.md`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 
 **Commit:** `feat(MP-1-W11A-SA-07): createReAuditoria callable — open-NC gate + reAuditoriaDe chain link`
@@ -294,18 +317,21 @@ match /labs/{labId}/auditorias-internas/{auditoriaId}/planos-acao/{planoId} {
 For each, set `queryScope: 'COLLECTION_GROUP'` since paths are nested under `{labId}/{auditoriaId}/...`.
 
 **Invariants:**
+
 - Append only — never rewrite blocks unrelated to PQ-24.
 - Every rule references at least one helper from the file header.
 - `validSignature(request.resource.data.assinatura)` is enforced at the callable level (server-only create), so rules need not duplicate.
 - `firestore.indexes.json` must remain valid JSON.
 
 **Files to read first:**
+
 - `firestore.rules` (full file — locate helpers and existing `auditorias-internas` block)
 - `firestore.indexes.json`
 - `.claude/rules/firestore-security.md`
 - `.claude/rules/notivisa-firestore-rules.md` (style reference for grouped indexes)
 
 **Verification:**
+
 - `node -e "JSON.parse(require('fs').readFileSync('firestore.indexes.json','utf8'))"` exit 0
 - `firebase emulators:exec --only firestore "npm test -- firestore-rules"` (or equivalent project rule-test command) — pass
 - If no rule-test infra exists, run `firebase deploy --only firestore:rules --dry-run --project hmatologia2` and confirm no syntax errors
@@ -325,6 +351,7 @@ For each, set `queryScope: 'COLLECTION_GROUP'` since paths are nested under `{la
 **Depends on:** SA-05, SA-06, SA-07
 
 **Actions:**
+
 1. Read `functions/src/index.ts`.
 2. Append three exports (matching the existing export style in that file — likely `export { fooCallable } from './modules/...'`):
    ```typescript
@@ -336,16 +363,19 @@ For each, set `queryScope: 'COLLECTION_GROUP'` since paths are nested under `{la
 4. Run `(cd functions && npm run build)` and confirm 0 errors.
 
 **Invariants:**
+
 - Alphabetic or grouped style — match the file's existing convention.
 - No reformatting of unrelated exports.
 
 **Files to read first:**
+
 - `functions/src/index.ts`
 - `functions/src/modules/auditoria/createPlanoAcao.ts` (just-written)
 - `functions/src/modules/auditoria/registerPresenca.ts`
 - `functions/src/modules/auditoria/createReAuditoria.ts`
 
 **Verification:**
+
 - `(cd functions && npm run build)` exit 0
 - `grep -c 'cors: true' functions/src/modules/auditoria/{createPlanoAcao,registerPresenca,createReAuditoria}.ts` returns 3
 - `grep -E 'createPlanoAcao|registerPresenca|createReAuditoria' functions/src/index.ts` returns 3 lines
@@ -367,11 +397,15 @@ Expected surface (verify against actual imports — adjust if components import 
 ```typescript
 // src/features/auditoria-interna/services/auditoriaService.ts (additions)
 import { httpsCallable } from 'firebase/functions';
-import { functions } from '../../../core/firebase';   // adjust to project's firebase init path
+import { functions } from '../../../core/firebase'; // adjust to project's firebase init path
 
 export async function createPlanoAcao(input: {
-  labId: string; auditoriaId: string; achadoId: string;
-  descricao: string; responsavel: string; prazo: number;
+  labId: string;
+  auditoriaId: string;
+  achadoId: string;
+  descricao: string;
+  responsavel: string;
+  prazo: number;
 }): Promise<{ planoId: string }> {
   const fn = httpsCallable<typeof input, { planoId: string }>(functions, 'createPlanoAcao');
   const res = await fn(input);
@@ -379,19 +413,28 @@ export async function createPlanoAcao(input: {
 }
 
 export async function registerPresenca(input: {
-  labId: string; auditoriaId: string; sessaoId: string;
+  labId: string;
+  auditoriaId: string;
+  sessaoId: string;
   reuniao: 'abertura' | 'encerramento';
   participantes: { userId: string; nome: string; papel: string }[];
-}): Promise<{ reuniaoId: string }> { /* identical pattern */ }
+}): Promise<{ reuniaoId: string }> {
+  /* identical pattern */
+}
 
 export async function createReAuditoria(input: {
-  labId: string; auditoriaOriginalId: string;
+  labId: string;
+  auditoriaOriginalId: string;
   proximaAuditoriaPlanejada: number;
-  responsavelTecnico: string; motivacao: string;
-}): Promise<{ auditoriaId: string }> { /* identical pattern */ }
+  responsavelTecnico: string;
+  motivacao: string;
+}): Promise<{ auditoriaId: string }> {
+  /* identical pattern */
+}
 ```
 
 **Step 2 — Hook surface.** Add to `src/features/auditoria-interna/hooks/useAuditoria.ts`:
+
 ```typescript
 export function usePlanosAcao(labId: string, auditoriaId: string): {
   planos: PlanoAcao[];
@@ -419,13 +462,17 @@ If `useAuditoria.ts` doesn't exist, create it. If it exists, append. Use `onSnap
 
 ```typescript
 describe('phase-11 PQ-24 e2e', () => {
-  it('createPlanoAcao: rejects when achado has no open NC', async () => { /* mock callable to throw FailedPrecondition */ });
+  it('createPlanoAcao: rejects when achado has no open NC', async () => {
+    /* mock callable to throw FailedPrecondition */
+  });
   it('createPlanoAcao: succeeds and returns planoId', async () => {});
   it('registerPresenca: writes reuniao and returns reuniaoId', async () => {});
   it('registerPresenca: rejects empty participantes', async () => {});
   it('createReAuditoria: rejects when original has open NCs', async () => {});
   it('createReAuditoria: succeeds and links via reAuditoriaDe', async () => {});
-  it('PlanoAcaoForm renders and submits via service', async () => { /* RTL render */ });
+  it('PlanoAcaoForm renders and submits via service', async () => {
+    /* RTL render */
+  });
   it('ReAuditoriaChain renders chain length ≥ 2', async () => {});
 });
 ```
@@ -433,11 +480,13 @@ describe('phase-11 PQ-24 e2e', () => {
 8 tests minimum. All must pass.
 
 **Invariants:**
+
 - No new dependency added to `package.json` for the test harness — use what's already there.
 - Mock callables; do not require Firebase emulator for this SA.
 - Component edits only if the type-checker forces them. Surgical only.
 
 **Files to read first:**
+
 - All 5 phase-11 components (committed in MP-0/SA-02)
 - An existing service in `src/features/<other-module>/services/` for callable-wrapping pattern (e.g. `src/features/criticos/services/thresholdService.ts`)
 - An existing test in `src/__tests__/` for harness style
@@ -445,6 +494,7 @@ describe('phase-11 PQ-24 e2e', () => {
 - `.claude/rules/performance.md`
 
 **Verification:**
+
 - `npx tsc --noEmit` exit 0
 - `npm test -- src/__tests__/phase11/auditoriaPQ24.test.ts` → 8/8 pass
 
@@ -479,6 +529,7 @@ npm test -- src/__tests__/phase11/auditoriaPQ24.test.ts
 ```
 
 **Pass criteria:**
+
 - [ ] 6 SA commits landed
 - [ ] All 3 callables export with `cors: true` and `region: 'southamerica-east1'`
 - [ ] `firestore.rules` adds 3 collection blocks + (if needed) updates auditoria-internas for `reAuditoriaDe`

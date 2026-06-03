@@ -1,34 +1,34 @@
-'use client'
+'use client';
 
-import { useState, FormEvent } from 'react'
-import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { useState, FormEvent } from 'react';
+import { useRouter } from 'next/navigation';
+import { signIn } from 'next-auth/react';
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
-    e.preventDefault()
-    setError('')
-    setLoading(true)
+    e.preventDefault();
+    setError('');
+    setLoading(true);
 
     const result = await signIn('credentials', {
       email,
       password,
       redirect: false,
-    })
+    });
 
     if (result?.error) {
-      setError('Credenciais inválidas. Tente novamente.')
-      setLoading(false)
-      return
+      setError('Credenciais inválidas. Tente novamente.');
+      setLoading(false);
+      return;
     }
 
-    router.push('/qc')
+    router.push('/qc');
   }
 
   return (
@@ -64,9 +64,7 @@ export default function LoginPage() {
         />
       </div>
 
-      {error && (
-        <p className="text-sm text-red-600 text-center">{error}</p>
-      )}
+      {error && <p className="text-sm text-red-600 text-center">{error}</p>}
 
       <button
         type="submit"
@@ -76,5 +74,5 @@ export default function LoginPage() {
         {loading ? 'Entrando...' : 'Entrar'}
       </button>
     </form>
-  )
+  );
 }

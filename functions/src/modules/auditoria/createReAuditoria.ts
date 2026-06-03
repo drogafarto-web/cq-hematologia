@@ -9,9 +9,15 @@ const db = admin.firestore();
 const CreateReAuditoriaInput = z.object({
   labId: z.string().min(1, 'labId é obrigatório'),
   auditoriaOriginalId: z.string().min(1, 'auditoriaOriginalId é obrigatório'),
-  proximaAuditoriaPlanejada: z.number().int().positive('proximaAuditoriaPlanejada deve ser positiva'),
+  proximaAuditoriaPlanejada: z
+    .number()
+    .int()
+    .positive('proximaAuditoriaPlanejada deve ser positiva'),
   responsavelTecnico: z.string().min(1, 'responsavelTecnico é obrigatório'),
-  motivacao: z.string().min(20, 'Motivação deve ter pelo menos 20 caracteres').max(1000, 'Motivação não pode exceder 1000 caracteres'),
+  motivacao: z
+    .string()
+    .min(20, 'Motivação deve ter pelo menos 20 caracteres')
+    .max(1000, 'Motivação não pode exceder 1000 caracteres'),
 });
 
 type CreateReAuditoriaInputType = z.infer<typeof CreateReAuditoriaInput>;
@@ -43,7 +49,8 @@ export const createReAuditoria = onCall(
       throw new HttpsError('invalid-argument', `Validação falhou: ${err.message}`);
     }
 
-    const { labId, auditoriaOriginalId, proximaAuditoriaPlanejada, responsavelTecnico, motivacao } = input;
+    const { labId, auditoriaOriginalId, proximaAuditoriaPlanejada, responsavelTecnico, motivacao } =
+      input;
 
     const isSuperAdmin = !!request.auth.token.superAdmin || !!request.auth.token.isSuperAdmin;
     const isMember = isSuperAdmin || (await isActiveMemberOfLab(labId, request.auth.uid));
@@ -53,7 +60,12 @@ export const createReAuditoria = onCall(
 
     try {
       // Read original auditoria
-      const originalSnap = await db.collection('labs').doc(labId).collection('auditorias-internas').doc(auditoriaOriginalId).get();
+      const originalSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc(auditoriaOriginalId)
+        .get();
       if (!originalSnap.exists) {
         throw new HttpsError('not-found', 'Auditoria original não encontrada');
       }
@@ -64,21 +76,30 @@ export const createReAuditoria = onCall(
 
       // Verify original is finalized
       if (original?.status !== 'finalizada') {
-        throw new HttpsError('failed-precondition', `Apenas auditorias finalizadas podem gerar re-auditorias. Status atual: ${original?.status}`);
+        throw new HttpsError(
+          'failed-precondition',
+          `Apenas auditorias finalizadas podem gerar re-auditorias. Status atual: ${original?.status}`,
+        );
       }
 
       // Check all NCs from original auditoria are closed
-      const ncsSnap = await db.collection('labs').doc(labId).collection('ncs')
+      const ncsSnap = await db
+        .collection('labs')
+        .doc(labId)
+        .collection('ncs')
         .where('auditoriaOriginalId', '==', auditoriaOriginalId)
         .get();
 
       const openNCs = ncsSnap.docs
-        .map(d => ({ id: d.id, status: d.data().status }))
-        .filter(nc => nc.status !== 'fechada');
+        .map((d) => ({ id: d.id, status: d.data().status }))
+        .filter((nc) => nc.status !== 'fechada');
 
       if (openNCs.length > 0) {
-        const openIds = openNCs.map(nc => nc.id).join(', ');
-        throw new HttpsError('failed-precondition', `Não é possível criar re-auditoria. NCs abertas encontradas: ${openIds}`);
+        const openIds = openNCs.map((nc) => nc.id).join(', ');
+        throw new HttpsError(
+          'failed-precondition',
+          `Não é possível criar re-auditoria. NCs abertas encontradas: ${openIds}`,
+        );
       }
 
       // Generate server-side signature
@@ -92,7 +113,11 @@ export const createReAuditoria = onCall(
       };
 
       // Create new auditoria with reAuditoriaDe link
-      const newAuditoriaRef = db.collection('labs').doc(labId).collection('auditorias-internas').doc();
+      const newAuditoriaRef = db
+        .collection('labs')
+        .doc(labId)
+        .collection('auditorias-internas')
+        .doc();
       await newAuditoriaRef.set({
         labId,
         reAuditoriaDe: auditoriaOriginalId,
@@ -116,5 +141,5 @@ export const createReAuditoria = onCall(
       console.error('createReAuditoria error:', err);
       throw new HttpsError('internal', 'Erro ao criar re-auditoria');
     }
-  }
+  },
 );

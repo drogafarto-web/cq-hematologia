@@ -1,12 +1,7 @@
 import { useMemo, useState } from 'react';
 
 import { useTreinamentos } from '../hooks/useTreinamentos';
-import type {
-  Modalidade,
-  Periodicidade,
-  Treinamento,
-  Unidade,
-} from '../types/EducacaoContinuada';
+import type { Modalidade, Periodicidade, Treinamento, Unidade } from '../types/EducacaoContinuada';
 
 import { downloadTemplate } from '../services/ecImportService';
 
@@ -347,7 +342,9 @@ function StatusBadge({ ativo }: { ativo: boolean }) {
     ? 'bg-emerald-500/10 text-emerald-300 border border-emerald-500/30'
     : 'bg-slate-700/40 text-slate-400 border border-slate-700';
   return (
-    <span className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}>
+    <span
+      className={`rounded-full px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${cls}`}
+    >
       {ativo ? 'Ativo' : 'Inativo'}
     </span>
   );
@@ -364,13 +361,7 @@ function MetaRow({ label, value }: { label: string; value: string }) {
 
 // ─── Painel do form ───────────────────────────────────────────────────────────
 
-function FormPanel({
-  children,
-  onClose,
-}: {
-  children: React.ReactNode;
-  onClose: () => void;
-}) {
+function FormPanel({ children, onClose }: { children: React.ReactNode; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-40 flex">
       <button
@@ -408,9 +399,7 @@ function SkeletonGrid() {
 function EmptyState({ onCreate }: { onCreate: () => void }) {
   return (
     <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-slate-800 py-16 text-center">
-      <p className="text-sm text-slate-400">
-        Nenhum treinamento planejado ainda.
-      </p>
+      <p className="text-sm text-slate-400">Nenhum treinamento planejado ainda.</p>
       <button
         type="button"
         onClick={onCreate}
@@ -454,7 +443,7 @@ function groupByPeriodicidade(
     const bucket = buckets.get(t.periodicidade);
     if (bucket) bucket.push(t);
   }
-  return ORDER
-    .map((p) => [p, buckets.get(p) ?? []] as const)
-    .filter(([, items]) => items.length > 0);
+  return ORDER.map((p) => [p, buckets.get(p) ?? []] as const).filter(
+    ([, items]) => items.length > 0,
+  );
 }

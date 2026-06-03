@@ -12,31 +12,31 @@
 
 ### Core Documents (Read These First)
 
-| File | Audience | Read Time | Purpose |
-|------|----------|-----------|---------|
-| **`DEPLOYMENT_QUICK_START.md`** | Deployers | 2 min | Copy to screen before deploying. 3-terminal setup + timeline. |
-| **`CLOUD_LOGS_QUICK_REFERENCE.md`** | Everyone | 3 min | Bookmark. Essential commands, red flags, cheat sheet. |
-| **`CLOUD_LOGS_MONITORING_GUIDE.md`** | Reference | 20 min | Full guide. Sections 1–8 + troubleshooting. **Read once, reference often.** |
+| File                                 | Audience  | Read Time | Purpose                                                                     |
+| ------------------------------------ | --------- | --------- | --------------------------------------------------------------------------- |
+| **`DEPLOYMENT_QUICK_START.md`**      | Deployers | 2 min     | Copy to screen before deploying. 3-terminal setup + timeline.               |
+| **`CLOUD_LOGS_QUICK_REFERENCE.md`**  | Everyone  | 3 min     | Bookmark. Essential commands, red flags, cheat sheet.                       |
+| **`CLOUD_LOGS_MONITORING_GUIDE.md`** | Reference | 20 min    | Full guide. Sections 1–8 + troubleshooting. **Read once, reference often.** |
 
 ### Workflow / Integration
 
-| File | Audience | Purpose |
-|------|----------|---------|
-| **`CLOUD_LOGS_INTEGRATION_CHECKLIST.md`** | Deployers | Pre/during/post deploy tasks. Scenario-based (red flags, rollback, etc.). |
-| **`.planning/DEPLOYMENT_MONITORING_WORKFLOW.md`** | Project leads | Complete workflow from Steps 1–5. Timeline + decision tree. |
-| **`CLOUD_LOGS_MONITORING_SETUP_SUMMARY.md`** | Technical leads | What was created, why, how it works. Questions + answers. |
+| File                                              | Audience        | Purpose                                                                   |
+| ------------------------------------------------- | --------------- | ------------------------------------------------------------------------- |
+| **`CLOUD_LOGS_INTEGRATION_CHECKLIST.md`**         | Deployers       | Pre/during/post deploy tasks. Scenario-based (red flags, rollback, etc.). |
+| **`.planning/DEPLOYMENT_MONITORING_WORKFLOW.md`** | Project leads   | Complete workflow from Steps 1–5. Timeline + decision tree.               |
+| **`CLOUD_LOGS_MONITORING_SETUP_SUMMARY.md`**      | Technical leads | What was created, why, how it works. Questions + answers.                 |
 
 ### Automated Tools (Scripts)
 
-| File | Platform | Lines | Usage |
-|------|----------|-------|-------|
-| **`scripts/monitor-cloud-logs.sh`** | Bash (macOS/Linux) | 250+ | `bash scripts/monitor-cloud-logs.sh 24 30` |
-| **`scripts/monitor-cloud-logs.ps1`** | PowerShell (Windows) | 280+ | `.\scripts\monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30` |
+| File                                 | Platform             | Lines | Usage                                                            |
+| ------------------------------------ | -------------------- | ----- | ---------------------------------------------------------------- |
+| **`scripts/monitor-cloud-logs.sh`**  | Bash (macOS/Linux)   | 250+  | `bash scripts/monitor-cloud-logs.sh 24 30`                       |
+| **`scripts/monitor-cloud-logs.ps1`** | PowerShell (Windows) | 280+  | `.\scripts\monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30` |
 
 ### This File
 
-| File | Purpose |
-|------|---------|
+| File                                 | Purpose                                 |
+| ------------------------------------ | --------------------------------------- |
 | **`CLOUD_LOGS_MONITORING_INDEX.md`** | You are here. Navigation + quick links. |
 
 ---
@@ -46,6 +46,7 @@
 ### I'm a Deployer (About to Deploy v1.3)
 
 **Start here:**
+
 1. Read: `DEPLOYMENT_QUICK_START.md` (2 min)
 2. Print/bookmark: `CLOUD_LOGS_QUICK_REFERENCE.md`
 3. Open Terminal 2, run: `bash scripts/monitor-cloud-logs.sh 24 30` (while Terminal 1 deploys)
@@ -61,11 +62,13 @@
 ### I'm a Project Lead (Overseeing Deployment)
 
 **Read these (in order):**
+
 1. `DEPLOYMENT_QUICK_START.md` (2 min) — understand timeline
 2. `.planning/DEPLOYMENT_MONITORING_WORKFLOW.md` (10 min) — full workflow + decision tree
 3. `CLOUD_LOGS_INTEGRATION_CHECKLIST.md` (5 min) — integration + scenario handling
 
 **Key points:**
+
 - Monitoring is non-blocking; deploy proceeds regardless
 - Red flags require escalation; document in sign-off
 - Post-deployment sign-off is required before releasing to users
@@ -75,11 +78,13 @@
 ### I'm a CTO / Tech Lead (Reviewing Deployment)
 
 **Essential reading:**
+
 1. `CLOUD_LOGS_MONITORING_SETUP_SUMMARY.md` (5 min) — what was created + why
 2. `CLOUD_LOGS_MONITORING_GUIDE.md` sections 2–3 (10 min) — red flags + common issues
 3. `.planning/DEPLOYMENT_MONITORING_WORKFLOW.md` (5 min) — escalation decision tree
 
 **Key questions to ask deployer:**
+
 - "What's the total error count from `MONITORING_REPORT_*.md`?"
 - "Any red flags (timeout, permission denied, 502/503)?"
 - "Have we documented findings in `SIGN_OFF_CLOUD_LOGS_*.md`?"
@@ -91,11 +96,13 @@
 ### I'm a QA / Auditor (Verifying Deployment Health)
 
 **Documents to review:**
+
 1. `docs/MONITORING_REPORT_<timestamp>.md` — auto-generated report (summary)
 2. `docs/SIGN_OFF_CLOUD_LOGS_<date>.md` — manual sign-off with recommendation
 3. `scripts/cloud-logs-export-<timestamp>.json` — detailed error log (if any errors)
 
 **What you're checking:**
+
 - Total error count: should be 0 or <5
 - No red flags (timeout, permission, 502, etc.)
 - Sign-off recommendation: ✅ APPROVE (safe) or ⚠️ ESCALATE (needs investigation)
@@ -125,12 +132,14 @@ cat docs/CLOUD_LOGS_QUICK_REFERENCE.md
 ### During Deployment (17 min active)
 
 **Terminal 1:**
+
 ```bash
 npm run tsc --noEmit
 npm run build
 ```
 
 **Terminal 2 (while Terminal 1 runs):**
+
 ```bash
 firebase deploy --only functions --project hmatologia2
 # Wait for ✓ complete
@@ -139,6 +148,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Terminal 3 (start AFTER Terminal 2 starts Functions deploy):**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # Let it run. Will auto-complete after 24h.
@@ -169,12 +179,14 @@ Signed by: [deployer name]"
 ## Common Commands (Copy + Paste)
 
 ### Deploy Commands
+
 ```bash
 # Full deploy (Steps 1–3)
 npm run tsc --noEmit && npm run build && firebase deploy --only functions --project hmatologia2 && firebase deploy --only hosting --project hmatologia2
 ```
 
 ### Monitoring Commands
+
 ```bash
 # Automated (24h, 30-min checks) — Bash
 bash scripts/monitor-cloud-logs.sh 24 30
@@ -193,6 +205,7 @@ gcloud logging read "severity >= ERROR" --project=hmatologia2 --format=json | jq
 ```
 
 ### Rollback Commands
+
 ```bash
 # If Functions failed
 git checkout HEAD~1 functions/
@@ -207,6 +220,7 @@ bash scripts/monitor-cloud-logs.sh 2 10  # 2h with 10-min checks
 ```
 
 ### Review Commands
+
 ```bash
 # View auto-generated report
 cat docs/MONITORING_REPORT_*.md
@@ -224,17 +238,18 @@ cat docs/SIGN_OFF_CLOUD_LOGS_*.md
 
 **If you see ANY of these, escalate immediately:**
 
-| Error Signature | Severity | Action |
-|---|---|---|
-| `"Exceeded timeout of X seconds"` | 🔴 BLOCK | Async handler not awaiting; check `functions/src/modules/*/index.ts` |
-| `"Permission denied"` on `/labs/{labId}/*` writes | 🔴 BLOCK | Firestore rules regression; compare to git HEAD |
-| HTTP 502 or 503 sustained >5 min | 🔴 BLOCK | Hosting/runtime failure; consider rollback |
-| `"undefined is not a function"` | 🔴 BLOCK | Missing dependency; check `functions/package.json` |
-| `"Document too large"` on laudo/declaracao | 🔴 BLOCK | Data model exceeds 1 MB; refactor to subcollection |
-| `"Request rate exceeded"` (Firestore) | 🟡 OK | Expected during load; backoff handles automatically |
-| Cold-start latency on first invoke | 🟡 OK | Expected; not an error |
+| Error Signature                                   | Severity | Action                                                               |
+| ------------------------------------------------- | -------- | -------------------------------------------------------------------- |
+| `"Exceeded timeout of X seconds"`                 | 🔴 BLOCK | Async handler not awaiting; check `functions/src/modules/*/index.ts` |
+| `"Permission denied"` on `/labs/{labId}/*` writes | 🔴 BLOCK | Firestore rules regression; compare to git HEAD                      |
+| HTTP 502 or 503 sustained >5 min                  | 🔴 BLOCK | Hosting/runtime failure; consider rollback                           |
+| `"undefined is not a function"`                   | 🔴 BLOCK | Missing dependency; check `functions/package.json`                   |
+| `"Document too large"` on laudo/declaracao        | 🔴 BLOCK | Data model exceeds 1 MB; refactor to subcollection                   |
+| `"Request rate exceeded"` (Firestore)             | 🟡 OK    | Expected during load; backoff handles automatically                  |
+| Cold-start latency on first invoke                | 🟡 OK    | Expected; not an error                                               |
 
 **For any 🔴 BLOCK:**
+
 1. Screenshot error from Cloud Console
 2. Note exact timestamp
 3. Message CTO (@drogafarto): "🔴 BLOCK — [error type] at [timestamp]"

@@ -1,9 +1,9 @@
 ---
 milestone: v1.3
-name: "Deploy Roadmap"
+name: 'Deploy Roadmap'
 status: draft
 last_updated: 2026-05-06
-target_window: "TBD — gated by Phase 8.5 fixes"
+target_window: 'TBD — gated by Phase 8.5 fixes'
 ---
 
 # v1.3 Deploy Roadmap
@@ -14,17 +14,17 @@ End-to-end deploy plan for milestone v1.3. **CTO authorization required at each 
 
 ## 0. Current State
 
-| Layer | Status |
-|-------|--------|
-| Web TypeScript | ✅ Clean (`tsc --noEmit` 0 errors) |
-| Web Build | ✅ Succeeds (28.46s, 0 warnings) |
-| Functions TypeScript | ✅ Clean (`tsc --noEmit` 0 errors) |
-| Functions Build | ✅ Succeeds (compiles to `functions/lib/`) |
-| Firestore Rules | 🟡 Drafted per module — emulator smoke pending |
-| Firestore Indexes | 🟡 ~25 new composite indexes — not yet deployed |
-| Tests (web) | 🟡 42 unit (bioquimica) + scaffolds — full regression pending |
-| Bundle Sizes | ✅ All within budget |
-| Phase 8.5 Housekeeping | ✅ Complete (4 batches, 0 errors) |
+| Layer                  | Status                                                        |
+| ---------------------- | ------------------------------------------------------------- |
+| Web TypeScript         | ✅ Clean (`tsc --noEmit` 0 errors)                            |
+| Web Build              | ✅ Succeeds (28.46s, 0 warnings)                              |
+| Functions TypeScript   | ✅ Clean (`tsc --noEmit` 0 errors)                            |
+| Functions Build        | ✅ Succeeds (compiles to `functions/lib/`)                    |
+| Firestore Rules        | 🟡 Drafted per module — emulator smoke pending                |
+| Firestore Indexes      | 🟡 ~25 new composite indexes — not yet deployed               |
+| Tests (web)            | 🟡 42 unit (bioquimica) + scaffolds — full regression pending |
+| Bundle Sizes           | ✅ All within budget                                          |
+| Phase 8.5 Housekeeping | ✅ Complete (4 batches, 0 errors)                             |
 
 **Deploy unblocked.** Pre-deploy checklist (Section 1) is the next gate.
 
@@ -123,6 +123,7 @@ firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
 ```
 
 **Verify:**
+
 - Console → Firestore → Rules → Last published timestamp = now
 - Console → Firestore → Indexes → New indexes status = `Building` (will go to `Ready` in 5–60 min)
 
@@ -152,6 +153,7 @@ firebase deploy --only "functions:registrarCalibracao,functions:aprovarDesignaca
 ```
 
 **Verify each batch:**
+
 - Cloud Console → Functions → version + last deploy timestamp
 - Cloud Logging tail: `gcloud functions logs read --region=southamerica-east1 --limit=20`
 - No `Error` or `panic` in last 5 invocations
@@ -164,6 +166,7 @@ firebase deploy --only hosting --project hmatologia2
 ```
 
 **Verify:**
+
 - Visit `https://hmatologia2.web.app` → hard reload (Cmd+Shift+R / Ctrl+F5)
 - New routes load: `/bioquimica`, `/sgq/lista-mestra`, `/reclamacoes`, `/sugestoes`
 - Service Worker version updated (DevTools → Application → Service Workers)
@@ -253,6 +256,7 @@ Initiate rollback if any of:
 ### Rollback Procedure (per layer)
 
 **Hosting:**
+
 ```bash
 # List recent releases
 firebase hosting:channel:list --project hmatologia2
@@ -262,31 +266,35 @@ firebase hosting:rollback --project hmatologia2
 ```
 
 **Cloud Functions:**
+
 - Cloud Console → Functions → select function → "Rollback to previous version"
 - Or redeploy previous git tag: `git checkout v1.2.x && cd functions && firebase deploy --only functions:<name>`
 
 **Firestore Rules:**
+
 ```bash
 cp docs/audits/firestore.rules.v1.3-backup.txt firestore.rules
 firebase deploy --only firestore:rules --project hmatologia2
 ```
 
 **Firestore Indexes:**
+
 - Indexes are additive. Removal is rare. If needed, manually delete in Console → Firestore → Indexes.
 
 **Data:**
+
 - v1.3 writes are append-only (events) or new collections.
 - If a Cloud Function corrupts data: stop function (disable in Console) → restore from latest backup (`/labs/{labId}/_backups/<date>`) using DR runbook (`docs/runbooks/dr-restore.md`).
 
 ### Rollback Decision Matrix
 
-| Symptom | Rollback Layer | ETA |
-|---------|----------------|-----|
-| Specific callable failing | Functions only | 5 min |
-| Rules blocking valid users | Rules only | 3 min |
-| UI bug critical | Hosting only | 3 min |
-| Data corruption | Data restore from backup | 30-60 min |
-| Cascading failure | Full rollback (rules + functions + hosting) | 15 min |
+| Symptom                    | Rollback Layer                              | ETA       |
+| -------------------------- | ------------------------------------------- | --------- |
+| Specific callable failing  | Functions only                              | 5 min     |
+| Rules blocking valid users | Rules only                                  | 3 min     |
+| UI bug critical            | Hosting only                                | 3 min     |
+| Data corruption            | Data restore from backup                    | 30-60 min |
+| Cascading failure          | Full rollback (rules + functions + hosting) | 15 min    |
 
 ---
 
@@ -302,13 +310,13 @@ firebase deploy --only firestore:rules --project hmatologia2
 
 ### Key Metrics to Watch (first 24h)
 
-| Metric | Baseline | Alert Threshold |
-|--------|----------|-----------------|
-| Function 5xx rate | <0.5% | >2% (10-min window) |
-| Function p95 latency | <2s | >5s sustained |
-| Firestore reads/s | TBD baseline | >2× baseline |
-| Hosting 4xx rate | <1% | >5% sustained |
-| PWA install fail rate | <5% | >15% |
+| Metric                | Baseline     | Alert Threshold     |
+| --------------------- | ------------ | ------------------- |
+| Function 5xx rate     | <0.5%        | >2% (10-min window) |
+| Function p95 latency  | <2s          | >5s sustained       |
+| Firestore reads/s     | TBD baseline | >2× baseline        |
+| Hosting 4xx rate      | <1%          | >5% sustained       |
+| PWA install fail rate | <5%          | >15%                |
 
 ### Alerting Setup (verify before deploy)
 
@@ -321,22 +329,26 @@ firebase deploy --only firestore:rules --project hmatologia2
 ## 6. Post-Deploy Validation (Days 1-7)
 
 ### Day 1
+
 - [ ] Smoke tests 1–5 (Section 3) all pass on production
 - [ ] Cloud Logging review: no recurring errors
 - [ ] First 50 user sessions: no support tickets > P2
 
 ### Day 2-3
+
 - [ ] Riopomba lab onboarding: verify 80 SGD docs accessible
 - [ ] First real bioquímica run from Riopomba: chainHash valid
 - [ ] First reclamação intake: NPS triggered correctly
 
 ### Day 7
+
 - [ ] Indexes all `Ready` (Console → Firestore → Indexes)
 - [ ] Function cold-start metrics within budget
 - [ ] No memory leak indicators (listener accumulation, billing creep)
 - [ ] Auditor preview session scheduled (target Phase 8 sign-off)
 
 ### Day 14
+
 - [ ] Phase 8.5 housekeeping fully closed (TSC + bug audit + spine cleanup)
 - [ ] Phase 8 CAPA process closure plans (05–07) initiated
 - [ ] CLAUDE.md root updated: 4 new modules in production table
@@ -382,11 +394,11 @@ If any of these surface during smoke as "should ship", **stop and re-plan** — 
 
 ## 9. Sign-Off
 
-| Role | Name | Authorized | Date | Hash |
-|------|------|------------|------|------|
-| CTO | drogafarto | ☐ | TBD | TBD |
-| Eng A (deploy lead) | TBD | ☐ | TBD | — |
-| Auditor (informed) | TBD | ☐ | TBD | — |
+| Role                | Name       | Authorized | Date | Hash |
+| ------------------- | ---------- | ---------- | ---- | ---- |
+| CTO                 | drogafarto | ☐          | TBD  | TBD  |
+| Eng A (deploy lead) | TBD        | ☐          | TBD  | —    |
+| Auditor (informed)  | TBD        | ☐          | TBD  | —    |
 
 ---
 

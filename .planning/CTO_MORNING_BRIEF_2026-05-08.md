@@ -16,14 +16,14 @@
 
 ## 1. BLOCKERs — Status
 
-| # | Item | Resolução | Commit |
-|---|---|---|---|
-| 1 | HMAC vazio em criticos | 4 sites com `generateChainHash()` + 5 testes | a6e01ad |
-| 2 | OCR vs RDT scope | Errata explícita em PHASE_5 docs (RDT ≠ Art. 167) | d926d13 |
-| 3 | LGPD Art. 9 DPIA | 3 docs DRAFT (DPIA + POL amendment + consent flow) | b7fe2a1 |
-| 4 | Critical Values UI placeholder | 4 componentes + 2 hooks + 13 testes vitest | 5d9f7dc |
-| 5 | Status conflict (lab-apoio/turnos/risks) | Verificado via `firebase functions:list` — já estava OK no HEAD | (no-op) |
-| 6 | DICQ tracker projection 78.5%→82% | Banner WARNING + reversão de "covered" preemptivos | d926d13 |
+| #   | Item                                     | Resolução                                                       | Commit  |
+| --- | ---------------------------------------- | --------------------------------------------------------------- | ------- |
+| 1   | HMAC vazio em criticos                   | 4 sites com `generateChainHash()` + 5 testes                    | a6e01ad |
+| 2   | OCR vs RDT scope                         | Errata explícita em PHASE_5 docs (RDT ≠ Art. 167)               | d926d13 |
+| 3   | LGPD Art. 9 DPIA                         | 3 docs DRAFT (DPIA + POL amendment + consent flow)              | b7fe2a1 |
+| 4   | Critical Values UI placeholder           | 4 componentes + 2 hooks + 13 testes vitest                      | 5d9f7dc |
+| 5   | Status conflict (lab-apoio/turnos/risks) | Verificado via `firebase functions:list` — já estava OK no HEAD | (no-op) |
+| 6   | DICQ tracker projection 78.5%→82%        | Banner WARNING + reversão de "covered" preemptivos              | d926d13 |
 
 ---
 
@@ -56,17 +56,18 @@
 
 `bash scripts/preflight-secrets-check.sh` vai falhar até provisionar:
 
-| Secret | Necessário para |
-|---|---|
-| `TWILIO_ACCOUNT_SID` / `AUTH_TOKEN` / `PHONE_NUMBER` | Caminho SMS de criticos. Acknowledge funciona sem. |
-| `GEMINI_API_KEY` (eval) | CI eval do `classifyStripGemini`. Pré-requisito do gate Promptfoo. |
-| `RESEND_API_KEY` | Fallback EMAIL de criticos. |
+| Secret                                               | Necessário para                                                    |
+| ---------------------------------------------------- | ------------------------------------------------------------------ |
+| `TWILIO_ACCOUNT_SID` / `AUTH_TOKEN` / `PHONE_NUMBER` | Caminho SMS de criticos. Acknowledge funciona sem.                 |
+| `GEMINI_API_KEY` (eval)                              | CI eval do `classifyStripGemini`. Pré-requisito do gate Promptfoo. |
+| `RESEND_API_KEY`                                     | Fallback EMAIL de criticos.                                        |
 
 Comandos prontos no preflight script.
 
 ### 3.2 LGPD DPIA — assinatura RT + DPO + CTO
 
 Arquivos DRAFT:
+
 - `docs/lgpd/IT-LGPD-DPIA-002-IA-STRIP-GEMINI.md`
 - `docs/lgpd/POL-LGPD-001-AMENDMENT-2026-05-08.md`
 - `docs/lgpd/IA-STRIP-CONSENT-FLOW.md`
@@ -100,7 +101,7 @@ Caso contrário, **CIQ runs em hematologia/imuno/uroanalise/insumos travam** (fa
 - **Phase 6 Art. 22 RT presence** — análogo ao Art. 122 mas para Responsável Técnico. Pattern reutilizável de turnos.
 - **Phase 6 Art. 167 fields 10-12** — laudo OCR (NÃO é o que `classifyStripGemini` faz; é trabalho novo).
 - **NOTIVISA legacy reconciliation** — `notivisaDraftCreate` (legacy) coexiste com `notivisaCreateDraft` (W2-10). Wave 3 dedupe.
-- **`functions/src/modules/notivisa/**` excluído de tsconfig** — 149 erros TS pré-existentes em callables legados (Wave 2 Agent 3 documentou em `wave2-3-notivisa-tsc.md`).
+- **`functions/src/modules/notivisa/**`excluído de tsconfig** — 149 erros TS pré-existentes em callables legados (Wave 2 Agent 3 documentou em`wave2-3-notivisa-tsc.md`).
 - **Bootstrap script supervisor-status** — necessário antes de deploy de rules (mencionado em 3.3).
 - **`compras/notaFiscal.ts` audit chain helper** entregue (W2-4) — outras coleções com chain HMAC podem reaproveitar mesmo helper.
 

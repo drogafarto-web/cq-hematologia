@@ -11,9 +11,10 @@
 ## 1. Account Provisioning & Setup
 
 ### 1.1 Twilio Account Configuration
+
 - [ ] **Confirm account provisioning** from Twilio (sign-up complete)
-  - Account SID: _______________
-  - Auth Token: _______________
+  - Account SID: ******\_\_\_******
+  - Auth Token: ******\_\_\_******
   - Account type: Standard or Enterprise?
   - Region: southamerica-east1 (if available) or us-east-1 (fallback)
   - Pricing plan: Pay-as-you-go or committed (preferred)
@@ -28,6 +29,7 @@
   - [ ] Phone number service (TwiML)
 
 ### 1.2 Account Security & Compliance
+
 - [ ] **Enable account-level security features**
   - [ ] Two-factor authentication (2FA) for account login
   - [ ] IP whitelisting (restrict API access to GCP Cloud Functions subnet)
@@ -47,6 +49,7 @@
 ## 2. Phone Numbers & Regional Allocation
 
 ### 2.1 SMS Short Code / Long Code Provisioning
+
 - [ ] **Determine phone number strategy**
   - Option A: Long code (traditional 11-digit number) — slower, cheaper, no approval
   - Option B: Short code (5–6 digits) — faster delivery, requires approval, ~2 week wait
@@ -56,15 +59,16 @@
   - Country: BR (Brazil)
   - Area code(s): 11 (São Paulo), 21 (Rio), 31 (Minas Gerais) — or national
   - Quantity: 2 numbers (primary + backup) recommended
-  - Phone number 1: _____________
-  - Phone number 2: _____________
-  - Purchase date(s): ___________
+  - Phone number 1: ******\_******
+  - Phone number 2: ******\_******
+  - Purchase date(s): ****\_\_\_****
 - [ ] **Verify phone number details in Twilio Console**
   - Confirm status: "Active"
   - Confirm SMS capability: "Enabled"
   - Confirm incoming webhook ready (if two-way SMS planned)
 
 ### 2.2 Incoming SMS Configuration (if needed for future)
+
 - [ ] **Set incoming webhook callback** (for Phase 5 expansion or later)
   - Webhook URL: `https://hmatologia2.web.app/api/sms-webhook`
   - HTTP method: POST
@@ -80,10 +84,11 @@
   ```
 
 ### 2.3 Number Verification (Business Requirements)
+
 - [ ] **Verify numbers are registered to lab** (if required by Twilio)
-  - Lab name: _______________
-  - Lab CNPJ: _______________
-  - Registered address: _______________
+  - Lab name: ******\_\_\_******
+  - Lab CNPJ: ******\_\_\_******
+  - Registered address: ******\_\_\_******
   - Verification status: Approved / Pending
 - [ ] **Document number allocation strategy** in `/docs/TWILIO_PHONE_NUMBERS.md`
   - Which lab gets which number?
@@ -94,10 +99,11 @@
 ## 3. SMS Configuration & Rate Limits
 
 ### 3.1 SMS API Settings
+
 - [ ] **Review Twilio Messaging API limits** (from account console)
-  - Concurrent connections: ___ (typically 500–1000)
-  - Throughput: ___ messages/second (typically 1–10 depending on plan)
-  - Regional latency: ___ ms to Brazil
+  - Concurrent connections: \_\_\_ (typically 500–1000)
+  - Throughput: \_\_\_ messages/second (typically 1–10 depending on plan)
+  - Regional latency: \_\_\_ ms to Brazil
 - [ ] **Document limits** in `/docs/TWILIO_RATE_LIMITS.md`
 - [ ] **Confirm character encoding**
   - SMS standard: 160 characters (GSM 7-bit)
@@ -105,6 +111,7 @@
   - Plan: Use GSM encoding with automatic rollover to Unicode if needed
 
 ### 3.2 Outbound SMS Configuration
+
 - [ ] **Set up SMS sender ID** (From number)
   - Use provisioned phone number (above)
   - Alternatively, use Twilio shortcode (if purchased)
@@ -119,6 +126,7 @@
   - Confirm delivery status callback received
 
 ### 3.3 Throughput & Throttling Strategy
+
 - [ ] **Calculate daily SMS volume**
   - 50 labs × 5 critical alerts/lab/day = 250 SMS/day (typical)
   - Peak scenario: 500 labs × 10 alerts/day = 5,000 SMS/day
@@ -131,13 +139,14 @@
   - Estimated daily cost: $0.01/SMS × 250 = $2.50 (typical)
   - Set daily spending cap: $50 (20x buffer)
   - Alert threshold: $40 (80% of cap)
-  - Billing contact: _____________
+  - Billing contact: ******\_******
 
 ---
 
 ## 4. WhatsApp Business API Setup (Phase 5 Expansion)
 
 ### 4.1 WhatsApp Business Account (Deferred to Phase 5)
+
 - [ ] **Status:** Deferred (non-blocking for Phase 5-01 SMS core)
 - [ ] **Prerequisites for future enablement**
   - [ ] Lab CNPJ verified with Meta/Twilio
@@ -151,6 +160,7 @@
 ## 5. Error Handling & Failure Scenarios
 
 ### 5.1 Twilio Service Unavailability
+
 - [ ] **Define retry strategy** when Twilio API is down
   - HTTP 5xx errors: exponential backoff (start 2s, max 5 retries)
   - Connection timeout (>10s): retry after 30s, max 3 times
@@ -162,6 +172,7 @@
   - Fall back to email delivery (SendGrid) when circuit open
 
 ### 5.2 Invalid Phone Number Errors
+
 - [ ] **Handle Twilio response codes** (from API)
   - 400 (Invalid number): Log, mark as `failed`, no retry (flag for human review)
   - 404 (Not found): Retry 1x with Twilio's number lookup service
@@ -173,6 +184,7 @@
   - Log validation result in Firestore for audit
 
 ### 5.3 Network & Timeout Errors
+
 - [ ] **Define timeout thresholds**
   - Connection timeout: 5 seconds
   - Read timeout: 10 seconds
@@ -183,6 +195,7 @@
   - Alert ops if timeout rate >10% in 1-hour window
 
 ### 5.4 Message Delivery Failures
+
 - [ ] **Handle undelivered messages**
   - Twilio status callback: `undelivered`
   - Error code: (documented in Twilio response)
@@ -194,6 +207,7 @@
   - Action: Flag for admin review, suggest manual intervention
 
 ### 5.5 Audit Trail for SMS Events
+
 - [ ] **Log all SMS interactions** to Firestore `criticos-escalacoes/{escalationId}/events`
   ```typescript
   interface SMSEvent {
@@ -223,6 +237,7 @@
 ## 6. Firestore Integration & Schemas
 
 ### 6.1 Escalation Queue Collection
+
 - [ ] **Verify `criticos-escalacoes` collection schema** (designed in Phase 3)
   ```typescript
   interface CriticalEscalation {
@@ -235,7 +250,8 @@
     units: string;
     criticality: 'low' | 'medium' | 'high' | 'critical';
     escalationLevel: 1 | 2 | 3; // 1=SMS to tech, 2=SMS to RT, 3=Phone call
-    recipients: { // dynamic per lab config
+    recipients: {
+      // dynamic per lab config
       techs: string[]; // tech phone numbers
       rts: string[]; // RT emails + phones
       supervisors: string[]; // supervisor phone numbers
@@ -246,7 +262,9 @@
     acknowledgedAt?: Timestamp;
     smsDeliveryTime?: number; // milliseconds from send to delivery
     slaMet: boolean; // true if delivery within SLA (default 2 min)
-    events: { /* SMS/Email events */ };
+    events: {
+      /* SMS/Email events */
+    };
     criadoEm: Timestamp;
     deletadoEm?: Timestamp;
     signature: LogicalSignature;
@@ -258,6 +276,7 @@
   - Twilio error code → Firestore `events[].twilioErrorCode`
 
 ### 6.2 SMS Template Management
+
 - [ ] **Define SMS templates** (stored in Firestore or code)
   - Template 1: Critical result notification (max 160 chars)
     ```
@@ -281,6 +300,7 @@
 ## 7. Firestore Indexes & Performance
 
 ### 7.1 Collection Indexes
+
 - [ ] **Verify `criticos-escalacoes` indexes** are created
   ```
   Collection: criticos-escalacoes
@@ -293,6 +313,7 @@
   - Confirm status: "Enabled" for all indexes
 
 ### 7.2 Query Performance Baseline
+
 - [ ] **Benchmark baseline queries**
   - Query: `criticos-escalacoes` where `smsStatus = sent` and `slaMet = false` (unmet SLA)
   - Target latency: <100ms
@@ -307,6 +328,7 @@
 ## 8. Testing & Validation
 
 ### 8.1 Unit Tests
+
 - [ ] **Tests in `/functions/src/__tests__/twilioService.test.ts`**
   - [ ] Message formatting (160 char limit, special chars)
   - [ ] Phone number validation (Brazil format)
@@ -317,6 +339,7 @@
 - [ ] **Test coverage target:** >90% line coverage
 
 ### 8.2 Integration Tests (Twilio Sandbox)
+
 - [ ] **Use Twilio test credentials** (sandbox mode)
   - Account SID: AC_TEST_12345
   - Auth Token: test_token_xyz
@@ -331,6 +354,7 @@
 - [ ] **Document test results** in `/docs/TWILIO_TEST_REPORT.md`
 
 ### 8.3 End-to-End Testing (Production Credentials, Test Phone)
+
 - [ ] **Set up production account + test numbers** (above)
 - [ ] **E2E test flow**
   1. Create critical result in Firestore (test data)
@@ -348,6 +372,7 @@
   - Send to invalid phone, confirm error logged + human review flag
 
 ### 8.4 Load Testing
+
 - [ ] **Simulate daily critical alerts**
   - 50 labs × 5 alerts/day = 250 SMS/day
   - Spread over 8 business hours (30 SMS/hour)
@@ -364,6 +389,7 @@
 ## 9. Billing & Cost Management
 
 ### 9.1 Cost Estimation & Budgeting
+
 - [ ] **Calculate SMS costs**
   - Twilio rate (Brazil): ~$0.01 per SMS (inbound/outbound similar)
   - Estimated volume: 250 SMS/day × 30 days = 7,500 SMS/month
@@ -379,6 +405,7 @@
   - Escalation: Notify #hc-quality-ops Slack if limit exceeded
 
 ### 9.2 Cost Optimization
+
 - [ ] **Identify cost drivers**
   - Monitor SMS count by lab (find high-volume labs)
   - Monitor SMS count by escalation level (level 3 = phone call fallback?)
@@ -393,9 +420,10 @@
 ## 10. Audit Trail & Compliance
 
 ### 10.1 Audit Log Requirements (RDC 978 Art. 5.3)
+
 - [ ] **Log all SMS interactions**
   - Timestamp of SMS queued
-  - Recipient phone number (masked: +55 11 XXXX-****)
+  - Recipient phone number (masked: +55 11 XXXX-\*\*\*\*)
   - Message body (redacted of patient details)
   - Operator who triggered escalation (audit trail)
   - Twilio messageSid (for correlation)
@@ -409,6 +437,7 @@
   - Mark deleted with `deletedAt` timestamp + operator
 
 ### 10.2 Data Privacy (LGPD Arts. 9, 18, 38)
+
 - [ ] **PII in SMS messages**
   - Patient ID only (no patient name)
   - Result value (clinical, not PII)
@@ -424,6 +453,7 @@
   - Purge from Twilio's servers (request from Twilio support if needed)
 
 ### 10.3 Compliance Checklist
+
 - [ ] **RDC 978 Art. 6** — Result notification
   - Confirm SMS includes result value + interpretation
   - Confirm timestamp recorded for audit trail
@@ -446,6 +476,7 @@
 ## 11. Deployment Checklist (Pre-Phase 5 Deployment)
 
 ### 11.1 Pre-Deployment Validation
+
 - [ ] **All tests passing** (unit + integration + E2E)
   - Run: `npm run test -- twilioService`
   - Expected: 100% pass rate
@@ -464,6 +495,7 @@
   - Test access: `gcloud secrets versions access latest --secret="twilio_account_sid"`
 
 ### 11.2 Deployment Order (Dependency Chain)
+
 1. Provision Twilio account + phone numbers (if not done)
 2. Store credentials in Secrets Manager
 3. Deploy Firestore Rules (includes criticos-escalacoes collection rules)
@@ -475,6 +507,7 @@
 9. Validate with smoke tests (Phase 5-04)
 
 ### 11.3 Go/No-Go Gate
+
 - [ ] **All items in sections 1–10 are complete** ✓
 - [ ] **No blocking risks** (see Risk Register below)
 - [ ] **Twilio account provisioned + funds available** ✓
@@ -487,21 +520,24 @@
 ## 12. Support & Escalation
 
 ### 12.1 Twilio Support Contact
-- **Vendor:** Twilio  
-- **Account Manager:** ___ (Name, email, phone)  
-- **Technical Support:** support@twilio.com | 1-844-TWILIO-1  
-- **Support Hours:** 24/7 (with varying response SLA by plan)  
+
+- **Vendor:** Twilio
+- **Account Manager:** \_\_\_ (Name, email, phone)
+- **Technical Support:** support@twilio.com | 1-844-TWILIO-1
+- **Support Hours:** 24/7 (with varying response SLA by plan)
 - **SLA:** Enterprise plan includes 4-hour response time for critical issues
 
 ### 12.2 Internal Escalation Path
+
 - **L1 (Agent):** Agent 1 (Phase 5-01 owner) — SMS integration + escalation logic
 - **L2 (Team Lead):** Engineering manager — resource allocation, vendor coordination
 - **L3 (CTO):** Regulatory decisions + vendor contracts
 
 ### 12.3 Known Issues & Workarounds
-| Issue | Status | Workaround | Owner |
-|-------|--------|-----------|-------|
-| (To be populated after testing) | — | — | — |
+
+| Issue                           | Status | Workaround | Owner |
+| ------------------------------- | ------ | ---------- | ----- |
+| (To be populated after testing) | —      | —          | —     |
 
 ---
 
@@ -521,12 +557,13 @@
 ## Appendix B: Sign-Off Template
 
 **Integration Validation Complete:** `[ ] Yes [ ] No`  
-**Date:** ___________  
-**Validated By:** _________________ (Agent 1, Phase 5-01)  
-**Reviewed By:** _________________ (Engineering Manager)  
-**Approved By:** _________________ (CTO)  
+**Date:** ****\_\_\_****  
+**Validated By:** ********\_******** (Agent 1, Phase 5-01)  
+**Reviewed By:** ********\_******** (Engineering Manager)  
+**Approved By:** ********\_******** (CTO)
 
 **Notes / Open Items:**
+
 ```
 (Use this section to document any blockers or deferred items)
 ```

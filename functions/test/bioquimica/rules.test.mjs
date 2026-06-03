@@ -28,7 +28,8 @@ const scenarios = [
     operation: 'read',
     actor: 'member-active',
     expected: 'allow',
-    rationale: 'isActiveMemberOfLab(labId) — analitos não são regulatorios sensíveis a claims de módulo',
+    rationale:
+      'isActiveMemberOfLab(labId) — analitos não são regulatorios sensíveis a claims de módulo',
   },
   {
     name: 'S2: Non-member (outro lab) NÃO pode ler analitos',
@@ -61,7 +62,7 @@ const scenarios = [
     operation: 'create',
     actor: 'member-of-lab-A',
     payload: {
-      labId: 'lab-B',  // mismatch — defesa em profundidade
+      labId: 'lab-B', // mismatch — defesa em profundidade
       nome: 'Frutosamina',
       unidade: 'umol/L',
       rangeBiologico: { min: 200, max: 285 },
@@ -100,7 +101,7 @@ const scenarios = [
     path: '/labs/{labId}/bioquimica/root/analitos/{analitoId}',
     operation: 'update',
     actor: 'member-active',
-    payload_change: { labId: 'lab-other' },  // attempted attack
+    payload_change: { labId: 'lab-other' }, // attempted attack
     expected: 'deny',
     rationale: 'request.resource.data.labId == resource.data.labId — keepsLabId()',
   },
@@ -119,7 +120,7 @@ const scenarios = [
     actor: 'member-active',
     payload: {
       labId: '{labId}',
-      equipmentIds: [],  // multi-instrumento — vazio é inválido
+      equipmentIds: [], // multi-instrumento — vazio é inválido
       lote: 'L123',
       validade: '2026-12-31',
       origem: 'avulso',

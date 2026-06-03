@@ -6,7 +6,7 @@ import { type NotivisaPayload, type LaudoInput, type PacienteInput } from '../..
 
 export const mockPaciente: PacienteInput = {
   cpf: '12345678901',
-  nome: 'João da Silva'
+  nome: 'João da Silva',
 };
 
 export const mockLaudo: LaudoInput = {
@@ -17,19 +17,19 @@ export const mockLaudo: LaudoInput = {
       analito: 'Potassium',
       valor: '5.8',
       unidade: 'mEq/L',
-      referencia: '3.5-5.5'
+      referencia: '3.5-5.5',
     },
     {
       analito: 'Sodium',
       valor: '138',
       unidade: 'mEq/L',
-      referencia: '135-145'
-    }
+      referencia: '135-145',
+    },
   ],
   assinatura: {
     operatorCpf: '98765432100',
-    ts: 1714982400000
-  }
+    ts: 1714982400000,
+  },
 };
 
 export const mockNotivisaPayload: NotivisaPayload = {
@@ -42,20 +42,20 @@ export const mockNotivisaPayload: NotivisaPayload = {
       analito: 'Potassium',
       valor: '5.8',
       unidade: 'mEq/L',
-      referencia: '3.5-5.5'
+      referencia: '3.5-5.5',
     },
     {
       analito: 'Sodium',
       valor: '138',
       unidade: 'mEq/L',
-      referencia: '135-145'
-    }
+      referencia: '135-145',
+    },
   ],
   assinador: {
     cpf: '98765432100',
     nome: 'João da Silva',
-    data_assinatura: 1714982400000
-  }
+    data_assinatura: 1714982400000,
+  },
 };
 
 export const mockLaudoMissingCPF: Partial<LaudoInput> = {
@@ -66,17 +66,17 @@ export const mockLaudoMissingCPF: Partial<LaudoInput> = {
       analito: 'Glucose',
       valor: '180',
       unidade: 'mg/dL',
-      referencia: '70-100'
-    }
+      referencia: '70-100',
+    },
   ],
   assinatura: {
     operatorCpf: '98765432100',
-    ts: 1714982400000
-  }
+    ts: 1714982400000,
+  },
 };
 
 export const mockPacienteMissingCPF: Partial<PacienteInput> = {
-  nome: 'Maria dos Santos'
+  nome: 'Maria dos Santos',
 };
 
 export const mockLaudoEmptyResultados: LaudoInput = {
@@ -85,6 +85,6 @@ export const mockLaudoEmptyResultados: LaudoInput = {
   resultados: [],
   assinatura: {
     operatorCpf: '98765432100',
-    ts: 1714982400000
-  }
+    ts: 1714982400000,
+  },
 };

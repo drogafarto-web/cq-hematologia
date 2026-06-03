@@ -24,7 +24,7 @@ const pubsub = new PubSub({ projectId: process.env['GCLOUD_PROJECT'] });
 
 /** Supported export formats in Phase 3.3 */
 export const SUPPORTED_FORMATS = ['xlsx-ciq', 'xlsx-nc', 'pdf-compliance', 'csv-audit'] as const;
-export type SupportedFormat33 = typeof SUPPORTED_FORMATS[number];
+export type SupportedFormat33 = (typeof SUPPORTED_FORMATS)[number];
 
 /** Maximum number of formats allowed per batch (T-03.3-11 DoS guard) */
 export const MAX_BATCH_FORMATS = 5;
@@ -67,18 +67,11 @@ interface CreateJobParams {
  * Adds a single export job document to a Firestore write batch.
  * Returns the generated jobId so it can be returned to the caller and enqueued.
  */
-function createJobInBatch(
-  batch: FirebaseFirestore.WriteBatch,
-  params: CreateJobParams,
-): string {
+function createJobInBatch(batch: FirebaseFirestore.WriteBatch, params: CreateJobParams): string {
   const jobId = randomUUID();
   const now = new Date();
 
-  const jobRef = db
-    .collection('labs')
-    .doc(params.labId)
-    .collection('export-jobs')
-    .doc(jobId);
+  const jobRef = db.collection('labs').doc(params.labId).collection('export-jobs').doc(jobId);
 
   const jobData: Record<string, unknown> = {
     jobId,
@@ -131,10 +124,7 @@ export const batchExport = onCall(
     const parsed = BatchExportSchema.safeParse(request.data);
     if (!parsed.success) {
       const firstError = parsed.error.errors[0];
-      throw new HttpsError(
-        'invalid-argument',
-        firstError?.message ?? 'Invalid request payload',
-      );
+      throw new HttpsError('invalid-argument', firstError?.message ?? 'Invalid request payload');
     }
 
     const { labId, formats, dateRange, emailRecipient } = parsed.data;
@@ -158,7 +148,10 @@ export const batchExport = onCall(
     const endDate = new Date(dateRange.end);
 
     if (Number.isNaN(startDate.getTime()) || Number.isNaN(endDate.getTime())) {
-      throw new HttpsError('invalid-argument', 'Invalid date range — start or end is not a valid date');
+      throw new HttpsError(
+        'invalid-argument',
+        'Invalid date range — start or end is not a valid date',
+      );
     }
 
     if (startDate >= endDate) {

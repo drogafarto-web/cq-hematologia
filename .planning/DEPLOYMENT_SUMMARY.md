@@ -9,6 +9,7 @@
 ## 📋 What Was Deployed
 
 ### ✅ ADR 0005 — Crypto Helper
+
 - **Functions:**
   - `validateChainIntegrityScheduled`: Pub/Sub scheduled every 12 hours
   - `validateChainIntegrityOnDemand`: Callable HTTPS for manual verification
@@ -17,6 +18,7 @@
 - **Backfill:** Ran successfully (0 legacy entries in default lab)
 
 ### ✅ ADR 0002 — Lote ↔ NF Obrigatório
+
 - **Functions:**
   - `upsertFornecedor()`: Callable for supplier management
   - `criarNotaFiscal()`: Create purchase invoices with rastreability
@@ -25,6 +27,7 @@
 - **Backfill:** Ran successfully (0 legacy entries in default lab)
 
 ### ✅ ADR 0006 — Pessoa Completa
+
 - **Functions:**
   - `criarQualificacao()`: RT-only, creates trainings/certifications
   - `isOperadorQualificadoPara()`: Helper to check module-level access
@@ -32,6 +35,7 @@
 - **Integration:** Qualificacao HMAC-signed via ADR 0005
 
 ### ✅ Firestore Rules
+
 - ADR 0005 audit rules (HMAC + hash required)
 - ADR 0002 NF + Fornecedor dual-mode (legacy + strict)
 - ADR 0006 qualifications (HMAC-signed)
@@ -44,11 +48,9 @@
 1. **TypeScript v2 API Migration**
    - `chainHashValidator.ts`: Migrated from v1 to v2 scheduler/HTTPS APIs
    - Proper region specification for southamerica-east1
-   
 2. **Type Safety**
    - `fornecedor.ts`: Cast `serverTimestamp()` to avoid FieldValue/Timestamp mismatch
    - Test imports: Suppressed @jest/globals not-found errors with @ts-ignore
-   
 3. **Script Authentication**
    - Both backfill scripts: Fixed firebase-admin default initialization
    - Can now run with `GCLOUD_PROJECT` or Firebase CLI authentication
@@ -57,15 +59,15 @@
 
 ## 📊 Deployment Metrics
 
-| Component | Status |
-|-----------|--------|
-| TypeScript build | ✅ Pass |
-| Firebase functions | ✅ 40+ functions deployed |
-| Firestore rules | ✅ Compiled & deployed |
-| Backfill HMAC | ✅ Ran (0 entries) |
-| Backfill NF | ✅ Ran (0 entries) |
+| Component                 | Status                      |
+| ------------------------- | --------------------------- |
+| TypeScript build          | ✅ Pass                     |
+| Firebase functions        | ✅ 40+ functions deployed   |
+| Firestore rules           | ✅ Compiled & deployed      |
+| Backfill HMAC             | ✅ Ran (0 entries)          |
+| Backfill NF               | ✅ Ran (0 entries)          |
 | Chain validator scheduled | ✅ Active (next run in 12h) |
-| Chain validator on-demand | ✅ Available via callable |
+| Chain validator on-demand | ✅ Available via callable   |
 
 ---
 
@@ -74,10 +76,11 @@
 ### Immediate (Today/Tomorrow)
 
 1. **Smoke Tests (Manual)**
+
    ```bash
    # E2E: Create Fornecedor → NF → Recebimento → Lotes
    firebase console # Check collections for data
-   
+
    # Qualification gate test
    # Create operador without qualificacao → attempt module operation → should block
    ```
@@ -95,6 +98,7 @@
 ### Scheduled (12+ hours)
 
 4. **Validate Chain Integrity**
+
    ```bash
    firebase functions:list | grep validateChain
    # Should show both scheduled + on-demand active
@@ -137,7 +141,7 @@ functions/scripts/backfill-notaFiscal.mjs
 ## 🎯 Success Criteria
 
 - [x] ADR 0005 (cryptoAudit) deployed
-- [x] ADR 0002 (Lote ↔ NF) deployed  
+- [x] ADR 0002 (Lote ↔ NF) deployed
 - [x] ADR 0006 (Pessoa Qualificações) deployed
 - [x] Firestore rules deployed
 - [x] Backfill scripts ran without errors

@@ -7,7 +7,7 @@
 #
 # To populate: see ../README.md and docs/ai-evals/IA_STRIP_EVAL_FRAMEWORK.md.
 
-- description: "STUB — no fixtures provisioned yet"
+- description: 'STUB — no fixtures provisioned yet'
   vars:
     _stub: true
   assert:

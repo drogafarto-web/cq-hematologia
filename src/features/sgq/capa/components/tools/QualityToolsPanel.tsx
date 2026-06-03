@@ -46,31 +46,34 @@ export function QualityToolsPanel({
   const [saving, setSaving] = useState(false);
   const [showAI, setShowAI] = useState(false);
 
-  const handleSave = useCallback(async (data: QualityToolData) => {
-    if (!user) return;
-    setSaving(true);
-    try {
-      const colRef = collection(db, `labs/${labId}/capa/${capaId}/ferramentas`);
-      const docRef = doc(colRef);
-      await setDoc(docRef, {
-        id: docRef.id,
-        labId,
-        capaId,
-        toolType: data.tipo,
-        data,
-        criadoPor: user.uid,
-        criadoEm: serverTimestamp(),
-        atualizadoEm: serverTimestamp(),
-        status: 'concluido',
-      });
-      setSelectedTool(null);
-      onToolSaved?.();
-    } catch (err: any) {
-      console.error('Erro ao salvar ferramenta:', err);
-    } finally {
-      setSaving(false);
-    }
-  }, [labId, capaId, user, onToolSaved]);
+  const handleSave = useCallback(
+    async (data: QualityToolData) => {
+      if (!user) return;
+      setSaving(true);
+      try {
+        const colRef = collection(db, `labs/${labId}/capa/${capaId}/ferramentas`);
+        const docRef = doc(colRef);
+        await setDoc(docRef, {
+          id: docRef.id,
+          labId,
+          capaId,
+          toolType: data.tipo,
+          data,
+          criadoPor: user.uid,
+          criadoEm: serverTimestamp(),
+          atualizadoEm: serverTimestamp(),
+          status: 'concluido',
+        });
+        setSelectedTool(null);
+        onToolSaved?.();
+      } catch (err: any) {
+        console.error('Erro ao salvar ferramenta:', err);
+      } finally {
+        setSaving(false);
+      }
+    },
+    [labId, capaId, user, onToolSaved],
+  );
 
   const handleCancel = () => setSelectedTool(null);
 
@@ -109,19 +112,33 @@ export function QualityToolsPanel({
         )}
 
         {/* Tool Form */}
-        {selectedTool === 'cinco-porques' && <CincosPorquesForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === 'ishikawa' && <IshikawaForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === '5w2h' && <FiveW2HForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === 'pdca' && <PDCAForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === 'gut' && <GUTForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === 'pareto' && <ParetoForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === '8d' && <EightDForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
-        {selectedTool === 'brainstorming' && <BrainstormingForm onSave={handleSave} onCancel={handleCancel} saving={saving} />}
+        {selectedTool === 'cinco-porques' && (
+          <CincosPorquesForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === 'ishikawa' && (
+          <IshikawaForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === '5w2h' && (
+          <FiveW2HForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === 'pdca' && (
+          <PDCAForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === 'gut' && (
+          <GUTForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === 'pareto' && (
+          <ParetoForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === '8d' && (
+          <EightDForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
+        {selectedTool === 'brainstorming' && (
+          <BrainstormingForm onSave={handleSave} onCancel={handleCancel} saving={saving} />
+        )}
       </div>
     );
   }
 
-  return (
-    <QualityToolPicker onSelect={setSelectedTool} usedTools={usedTools} />
-  );
+  return <QualityToolPicker onSelect={setSelectedTool} usedTools={usedTools} />;
 }

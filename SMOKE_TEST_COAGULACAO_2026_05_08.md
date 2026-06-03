@@ -1,4 +1,5 @@
 # Smoke Test — Módulo Coagulação
+
 **Data:** 2026-05-08  
 **Status:** ✅ APROVADO  
 **Resultado:** 32/32 checks aprovados
@@ -8,6 +9,7 @@
 ## 📊 Resumo Executivo
 
 O módulo de coagulação foi testado em todas as 6 fases críticas:
+
 - ✅ Infraestrutura (fornecedor, NF, insumo, equipamento, setup)
 - ✅ Lotes (CIQ lot existente, status, rastreabilidade)
 - ✅ Corridas (criação e persistência de runs)
@@ -22,15 +24,17 @@ O módulo de coagulação foi testado em todas as 6 fases críticas:
 ## 🔍 Detalhes Técnicos
 
 ### FASE 1: Infraestrutura
-| Componente | ID | Status |
-|---|---|---|
-| Fornecedor | appt-fornecedor | ✅ Existe |
-| Nota Fiscal | nf-10123-1778213039737 | ✅ NF 10123 |
+
+| Componente        | ID                                   | Status                             |
+| ----------------- | ------------------------------------ | ---------------------------------- |
+| Fornecedor        | appt-fornecedor                      | ✅ Existe                          |
+| Nota Fiscal       | nf-10123-1778213039737               | ✅ NF 10123                        |
 | Insumo (Reagente) | 173627c9-0bc1-497b-9233-aa9b34f499bb | ✅ Ativo, equipamento=clotimer-duo |
-| Equipamento | clotimer-duo | ✅ CLOT DUO |
-| EquipmentSetup | clotimer-duo | ✅ activeReagenteId configurado |
+| Equipamento       | clotimer-duo                         | ✅ CLOT DUO                        |
+| EquipmentSetup    | clotimer-duo                         | ✅ activeReagenteId configurado    |
 
 **Validações:**
+
 - Insumo tipo: `reagente` ✓
 - Insumo status: `ativo` ✓
 - Insumo modulos: `['coagulacao']` ✓
@@ -40,24 +44,28 @@ O módulo de coagulação foi testado em todas as 6 fases críticas:
 - Setup equipamentoName: `CLOT DUO` ✓
 
 ### FASE 2: Lotes
-| Campo | Valor | Status |
-|---|---|---|
-| Lote | 7281/26 | ✅ Existe |
-| ID | b65dea11-5e53-4f7d-a695-c32fd0c28f73 | ✅ Único |
-| Nível | nv1 | ✅ CLSI H47-A2 |
-| Status | aberto | ✅ Operacional |
-| setupType | principal | ✅ Vinculado à bancada |
-| pinnedAt | 2026-05-08T... | ✅ Timestamp presente |
-| insumoId | 173627c9-0bc1-497b-9233-aa9b34f499bb | ✅ FK válido |
-| notaFiscalId | nf-10123-1778213039737 | ✅ FK válido |
+
+| Campo        | Valor                                | Status                 |
+| ------------ | ------------------------------------ | ---------------------- |
+| Lote         | 7281/26                              | ✅ Existe              |
+| ID           | b65dea11-5e53-4f7d-a695-c32fd0c28f73 | ✅ Único               |
+| Nível        | nv1                                  | ✅ CLSI H47-A2         |
+| Status       | aberto                               | ✅ Operacional         |
+| setupType    | principal                            | ✅ Vinculado à bancada |
+| pinnedAt     | 2026-05-08T...                       | ✅ Timestamp presente  |
+| insumoId     | 173627c9-0bc1-497b-9233-aa9b34f499bb | ✅ FK válido           |
+| notaFiscalId | nf-10123-1778213039737               | ✅ FK válido           |
 
 **Valores de Controle (mean/SD):**
+
 - AP (atividade protrombinica): 100 ± 5 ✓
 - RNI: 2.5 ± 0.5 ✓
 - TTPA: 35 ± 3 ✓
 
 ### FASE 3: Teste de Corrida (Run)
+
 Run criado e testado:
+
 - **Run ID:** c4f5ca36-4f69-4f7d-... ✓
 - **Resultados registrados:** 3 analitos (AP, RNI, TTPA) ✓
 - **Conformidade Westgard:** A (aceito) ✓
@@ -65,6 +73,7 @@ Run criado e testado:
 - **Persistência:** Verificado em Firestore ✓
 
 ### FASE 4: Rastreabilidade (RDC 786/2023)
+
 ```
 Corrida (Run)
     ↓
@@ -77,17 +86,20 @@ Lote 7281/26 (CIQ)
     └─ notaFiscalId → NF 10123
                        └─ Rastreabilidade fiscal completa
 ```
+
 ✅ **Status:** Cadeia completa validada
 
 ### FASE 5: Conformidade Normativa
-| Norma | Requisito | Status |
-|---|---|---|
-| RDC 786/2023 | Rastreabilidade fiscal (notaFiscalId) | ✅ Presente |
-| RDC 978/2025 | Worklab (rastreabilidadeWorklab) | ✅ CTL 107416 |
-| CLSI H47-A2 | Níveis (I, II) | ✅ nv1 confirmado |
-| Westgard | Mean/SD para regras QC | ✅ Completo |
+
+| Norma        | Requisito                             | Status            |
+| ------------ | ------------------------------------- | ----------------- |
+| RDC 786/2023 | Rastreabilidade fiscal (notaFiscalId) | ✅ Presente       |
+| RDC 978/2025 | Worklab (rastreabilidadeWorklab)      | ✅ CTL 107416     |
+| CLSI H47-A2  | Níveis (I, II)                        | ✅ nv1 confirmado |
+| Westgard     | Mean/SD para regras QC                | ✅ Completo       |
 
 ### FASE 6: Resumo de Verificações
+
 ```
 Total de checks: 32
 Aprovados:      32  ✅

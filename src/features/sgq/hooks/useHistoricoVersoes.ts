@@ -1,10 +1,5 @@
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { collection, onSnapshot, orderBy, query } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
 import type { VersaoHistorico } from '../types/Documento';
 import { useActiveLabId } from '../../../store/useAuthStore';
@@ -26,10 +21,7 @@ export function useHistoricoVersoes(documentoId: string | null): UseHistoricoVer
       return;
     }
 
-    const colRef = collection(
-      db,
-      `labs/${labId}/sgq-documentos/${documentoId}/historico-versoes`,
-    );
+    const colRef = collection(db, `labs/${labId}/sgq-documentos/${documentoId}/historico-versoes`);
     const q = query(colRef, orderBy('data', 'asc'));
 
     const unsub = onSnapshot(

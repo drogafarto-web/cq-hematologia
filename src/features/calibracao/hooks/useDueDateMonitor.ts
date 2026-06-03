@@ -73,17 +73,11 @@ export function useDueDateMonitor(
         // Log alert threshold crossings
         detectedChanges.forEach((change) => {
           if (change.daysRemaining === 30) {
-            console.info(
-              `[Calibração] 30-day alert: ${change.equipId} entering at-risk zone`,
-            );
+            console.info(`[Calibração] 30-day alert: ${change.equipId} entering at-risk zone`);
           } else if (change.daysRemaining === 7) {
-            console.info(
-              `[Calibração] 7-day alert: ${change.equipId} entering critical zone`,
-            );
+            console.info(`[Calibração] 7-day alert: ${change.equipId} entering critical zone`);
           } else if (change.daysRemaining === 0) {
-            console.warn(
-              `[Calibração] OVERDUE: ${change.equipId} has passed due date`,
-            );
+            console.warn(`[Calibração] OVERDUE: ${change.equipId} has passed due date`);
           }
         });
       }

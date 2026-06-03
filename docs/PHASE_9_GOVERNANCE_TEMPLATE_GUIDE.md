@@ -3,7 +3,7 @@
 **Date:** May 7, 2026  
 **Version:** 1.0  
 **Scope:** PHASE_9_MANUAL_QUALIDADE_TEMPLATE + PHASE_9_GOVERNANCE_CHECKLIST.json  
-**Audience:** Quality Directors, Document Controllers, Internal Audit Coordinators, Lab Managers  
+**Audience:** Quality Directors, Document Controllers, Internal Audit Coordinators, Lab Managers
 
 ---
 
@@ -15,6 +15,7 @@ Phase 9 governance deliverables establish **foundational compliance infrastructu
 2. **PHASE_9_GOVERNANCE_CHECKLIST.json** — Executable compliance tracker with 58 governance items, alert rules, owner assignment, and integration points
 
 Together, these files enable labs to:
+
 - Document governance decisions and organizational structure
 - Assign accountability with due dates
 - Track compliance across DICQ blocks with measurable progress
@@ -25,12 +26,12 @@ Together, these files enable labs to:
 
 ## File Locations
 
-| File | Format | Location | Purpose |
-|------|--------|----------|---------|
-| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE** | Google Docs (editable) | Google Drive: [File ID: 1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk](https://docs.google.com/document/d/1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk) | Master template; fill in lab-specific details; publish to SGD after approval |
-| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE** | Markdown | `C:\hc quality\docs\PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md` | Local reference; version control; offline access |
-| **PHASE_9_GOVERNANCE_CHECKLIST.json** | JSON | `C:\hc quality\docs\PHASE_9_GOVERNANCE_CHECKLIST.json` | Machine-readable tracker; integrates with labSettings/governance, sgd, auditoria modules |
-| **This Guide** | Markdown | `C:\hc quality\docs\PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md` | Step-by-step implementation instructions |
+| File                                  | Format                 | Location                                                                                                                                               | Purpose                                                                                  |
+| ------------------------------------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------- |
+| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE** | Google Docs (editable) | Google Drive: [File ID: 1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk](https://docs.google.com/document/d/1Y_G2yvgABr7EOWcZYdoUiMYlccV5lUxWZCKRzAtxNQk) | Master template; fill in lab-specific details; publish to SGD after approval             |
+| **PHASE_9_MANUAL_QUALIDADE_TEMPLATE** | Markdown               | `C:\hc quality\docs\PHASE_9_MANUAL_QUALIDADE_TEMPLATE.md`                                                                                              | Local reference; version control; offline access                                         |
+| **PHASE_9_GOVERNANCE_CHECKLIST.json** | JSON                   | `C:\hc quality\docs\PHASE_9_GOVERNANCE_CHECKLIST.json`                                                                                                 | Machine-readable tracker; integrates with labSettings/governance, sgd, auditoria modules |
+| **This Guide**                        | Markdown               | `C:\hc quality\docs\PHASE_9_GOVERNANCE_TEMPLATE_GUIDE.md`                                                                                              | Step-by-step implementation instructions                                                 |
 
 ---
 
@@ -58,12 +59,12 @@ Together, these files enable labs to:
 
 **Roles Required:**
 
-| Role | Typical Seniority | Mandatory? | Owner in JSON |
-|------|------------------|-----------|---------------|
-| Quality Director | Executive | YES | `governance_structure.quality_director` |
-| Management Review Chair | Executive / Senior | YES | `governance_structure.management_review_chair` |
-| Internal Audit Coordinator | Senior / Staff | YES | `governance_structure.internal_audit_coordinator` |
-| Document Controller | Senior / Staff | YES | `governance_structure.document_controller` |
+| Role                       | Typical Seniority  | Mandatory? | Owner in JSON                                     |
+| -------------------------- | ------------------ | ---------- | ------------------------------------------------- |
+| Quality Director           | Executive          | YES        | `governance_structure.quality_director`           |
+| Management Review Chair    | Executive / Senior | YES        | `governance_structure.management_review_chair`    |
+| Internal Audit Coordinator | Senior / Staff     | YES        | `governance_structure.internal_audit_coordinator` |
+| Document Controller        | Senior / Staff     | YES        | `governance_structure.document_controller`        |
 
 **Update JSON:**
 
@@ -122,7 +123,7 @@ Mark A-003 (Norteadores), A-004 (Quality Policy), A-006 (Org Chart) as "in_progr
   "id": "A-004",
   "status": "in_progress",
   "completion_date": null,
-  "completion_percentage": 75  // e.g., draft approved, awaiting printing
+  "completion_percentage": 75 // e.g., draft approved, awaiting printing
 }
 ```
 
@@ -181,12 +182,12 @@ Mark D-003 as "pending":
 
 **For Each Supplier Type:**
 
-| Type | Assessment | Frequency | Documents |
-|------|-----------|-----------|-----------|
-| Reagent & Calibrator | ISO 13485 cert OR QMS doc | Triennial | ASL entry + cert scan + SLA |
-| Calibration Service | ISO 17025 cert + response SLA | Annual | ASL entry + cert + SLA + performance log |
-| Equipment Maintenance | Service contract + SLA | Annual | ASL entry + contract + uptime log |
-| Lab Support / Referral | CAP/CLIA/ISO accreditation | Annual | ASL entry + accreditation cert + complaint log |
+| Type                   | Assessment                    | Frequency | Documents                                      |
+| ---------------------- | ----------------------------- | --------- | ---------------------------------------------- |
+| Reagent & Calibrator   | ISO 13485 cert OR QMS doc     | Triennial | ASL entry + cert scan + SLA                    |
+| Calibration Service    | ISO 17025 cert + response SLA | Annual    | ASL entry + cert + SLA + performance log       |
+| Equipment Maintenance  | Service contract + SLA        | Annual    | ASL entry + contract + uptime log              |
+| Lab Support / Referral | CAP/CLIA/ISO accreditation    | Annual    | ASL entry + accreditation cert + complaint log |
 
 **Create Approved Supplier List (ASL):**
 
@@ -205,7 +206,7 @@ Mark D-008 and items in "governance_structure" as "in_progress":
 {
   "id": "D-008",
   "status": "in_progress",
-  "completion_percentage": 60,  // 6 of 10 suppliers audited
+  "completion_percentage": 60, // 6 of 10 suppliers audited
   "due_date": "2026-08-15"
 }
 ```
@@ -232,8 +233,8 @@ Quality Manual (MQ)
 **Approval Workflow (Example):**
 
 ```
-Author Draft 
-  → [Manager Review] 
+Author Draft
+  → [Manager Review]
   → QD Approval (sign + date)
   → Archive as "Active" in SGD
   → Distribute with read confirmation
@@ -267,7 +268,7 @@ Mark D-007 (Document Control) as "in_progress":
 {
   "id": "D-007",
   "status": "in_progress",
-  "completion_percentage": 70,  // SGD structure in place; workflows in testing
+  "completion_percentage": 70, // SGD structure in place; workflows in testing
   "due_date": "2026-06-30"
 }
 ```
@@ -283,13 +284,13 @@ Mark D-007 (Document Control) as "in_progress":
 
 **Annual Audit Schedule (Example):**
 
-| Quarter | DICQ Blocks | Schedule | Auditor(s) | Format |
-|---------|-------------|----------|-----------|--------|
-| Q1 | Block A, B | Jan 15–Feb 28 | QC + Lab Manager | Walkaround + doc review |
-| Q2 | Block D, E | Apr 1–May 31 | QC + Pre-Analytical Lead | Process walkthrough + SOP audit |
-| Q3 | Block F, G | Jul 1–Aug 31 | QC + Technical Lead | Equipment audit + method review |
-| Q4 | Block H–J | Oct 1–Nov 30 | QC + HR Lead | Infrastructure inspection + records |
-| Annual | Full System | Sep–Nov | QC + External (optional) | Compliance checklist (115+ items) |
+| Quarter | DICQ Blocks | Schedule      | Auditor(s)               | Format                              |
+| ------- | ----------- | ------------- | ------------------------ | ----------------------------------- |
+| Q1      | Block A, B  | Jan 15–Feb 28 | QC + Lab Manager         | Walkaround + doc review             |
+| Q2      | Block D, E  | Apr 1–May 31  | QC + Pre-Analytical Lead | Process walkthrough + SOP audit     |
+| Q3      | Block F, G  | Jul 1–Aug 31  | QC + Technical Lead      | Equipment audit + method review     |
+| Q4      | Block H–J   | Oct 1–Nov 30  | QC + HR Lead             | Infrastructure inspection + records |
+| Annual  | Full System | Sep–Nov       | QC + External (optional) | Compliance checklist (115+ items)   |
 
 **Create Audit Plan Document:**
 
@@ -320,7 +321,7 @@ Mark D-001 (Audit Plan) as "completed":
   "status": "completed",
   "completion_date": "2026-05-31",
   "completion_percentage": 100,
-  "due_date": "2026-06-30"  // Already met
+  "due_date": "2026-06-30" // Already met
 }
 ```
 
@@ -335,12 +336,12 @@ Mark D-001 (Audit Plan) as "completed":
 
 **MR Schedule (Example — adjust to your lab):**
 
-| Meeting | Date | Chair | Recorder | Attendees | Focus Area |
-|---------|------|------|----------|-----------|-----------|
-| Q1 MR | Mar 15, 2026 | QD | Quality Coordinator | QD, Lab Manager, Finance, Ops Manager | Year-start review; audit findings from prior year; CAPA status; KPI baseline |
-| Q2 MR | Jun 15, 2026 | QD | Quality Coordinator | QD, Lab Manager, Finance, Ops Manager | H1 performance review; customer complaints trend; resource needs |
-| Q3 MR | Sep 15, 2026 | QD | Quality Coordinator | QD, Lab Manager, Finance, Audit Lead | Pre-external audit readiness; compliance gaps; risk reassessment |
-| Q4 MR | Dec 15, 2026 | QD | Quality Coordinator | QD, Lab Manager, Finance, All Dept Heads | Annual audit results; year-end KPI; 2027 quality plan approval |
+| Meeting | Date         | Chair | Recorder            | Attendees                                | Focus Area                                                                   |
+| ------- | ------------ | ----- | ------------------- | ---------------------------------------- | ---------------------------------------------------------------------------- |
+| Q1 MR   | Mar 15, 2026 | QD    | Quality Coordinator | QD, Lab Manager, Finance, Ops Manager    | Year-start review; audit findings from prior year; CAPA status; KPI baseline |
+| Q2 MR   | Jun 15, 2026 | QD    | Quality Coordinator | QD, Lab Manager, Finance, Ops Manager    | H1 performance review; customer complaints trend; resource needs             |
+| Q3 MR   | Sep 15, 2026 | QD    | Quality Coordinator | QD, Lab Manager, Finance, Audit Lead     | Pre-external audit readiness; compliance gaps; risk reassessment             |
+| Q4 MR   | Dec 15, 2026 | QD    | Quality Coordinator | QD, Lab Manager, Finance, All Dept Heads | Annual audit results; year-end KPI; 2027 quality plan approval               |
 
 **MR Minute Template:**
 
@@ -376,6 +377,7 @@ Mark A-007 (MR Cycle) as "completed":
 **Setup Options:**
 
 **Option A: Manual Spreadsheet (Simplest)**
+
 - Export JSON to Excel using `jq` or online converter
 - Share with Quality Director and Document Controller
 - Update completion % monthly
@@ -383,6 +385,7 @@ Mark A-007 (MR Cycle) as "completed":
 - Export to Management Review input table
 
 **Option B: Integrated Module (Medium)**
+
 - If labSettings/governance module exists, import JSON schema as config
 - Link items to owner fields from directory (auto-populate from organizational chart)
 - Enable auto-alerts for overdue items (send email to owner + QD when >30 days past due)
@@ -390,6 +393,7 @@ Mark A-007 (MR Cycle) as "completed":
 - Export to PDF for Management Review
 
 **Option C: External Platform (Advanced)**
+
 - Use Airtable, Monday.com, or similar for shared tracking
 - Link each item to responsible party
 - Auto-calculate completion % by category
@@ -407,13 +411,11 @@ Mark A-007 (MR Cycle) as "completed":
 **Sample Alert Rule (pseudo-code):**
 
 ```javascript
-if (item.status === "pending" && 
-    item.due_date < today - 30 && 
-    !item.completion_date) {
+if (item.status === 'pending' && item.due_date < today - 30 && !item.completion_date) {
   sendEmailAlert({
     to: [item.owner, governanceStructure.quality_director.email],
     subject: `OVERDUE: ${item.requirement} (${item.id})`,
-    body: `Item is ${daysOverdue} days overdue. Due date was ${item.due_date}. Please complete by [NEW TARGET DATE].`
+    body: `Item is ${daysOverdue} days overdue. Due date was ${item.due_date}. Please complete by [NEW TARGET DATE].`,
   });
 }
 ```
@@ -430,10 +432,10 @@ Mark all items with status "pending" (don't change items yet):
   },
   "summary": {
     "total_items": 58,
-    "completed": 7,  // A-007 + D-001 + others marked above
+    "completed": 7, // A-007 + D-001 + others marked above
     "pending": 51,
     "overdue": 0,
-    "completion_percentage": 12  // (7/58) × 100
+    "completion_percentage": 12 // (7/58) × 100
   }
 }
 ```
@@ -455,6 +457,7 @@ Mark all items with status "pending" (don't change items yet):
 - **Competency Assessment:** Annual scores auto-feed to Management Review input (DICQ 4.15 input #8)
 
 **Action:** Add training courses:
+
 - ISO 19011 Audit Standards (for auditors)
 - Quality Policy & Philosophy (for all staff)
 - Document Control (for Document Controller + super-users)
@@ -473,6 +476,7 @@ Mark all items with status "pending" (don't change items yet):
 - **A-004 (Quality Policy):** Formal policy document published to SGD; staff training completion linked
 
 **Action:**
+
 - Enable SGD approval workflow (draft → review → QD approval → active → obsolete archive)
 - Create document hierarchy folders (MQ → POL → SOP → IT → FR)
 - Upload Quality Manual template as version 1.0
@@ -491,6 +495,7 @@ Mark all items with status "pending" (don't change items yet):
 - **Annual Compliance Audit (G-006):** Comprehensive audit across all 10 DICQ blocks; results feed to Management Review
 
 **Action:**
+
 - Create audit templates for each DICQ block (A–J)
 - Schedule Q1–Q4 audits in calendar
 - Train auditors on ISO 19011 standards
@@ -508,6 +513,7 @@ Mark all items with status "pending" (don't change items yet):
 - **D-004–D-005 (CAPA):** High-risk items (RPN >75) trigger preventive actions and CAPA closure
 
 **Action:**
+
 - Complete risk assessment across 5 categories (pre-analytical, analytical, post-analytical, operational, regulatory)
 - Score each risk using Probability × Severity × Detection methodology
 - Document mitigation actions for all High (75–125) and Medium (25–74) risks
@@ -527,6 +533,7 @@ Mark all items with status "pending" (don't change items yet):
 - **Audit Findings:** Internal audit findings auto-create CAPA records
 
 **Action:**
+
 - Enable CAPA module with NC register and closure tracking
 - Set target closure dates (typically 30–90 days from NC logging)
 - Require root cause analysis (5 Why or fishbone diagram)
@@ -544,6 +551,7 @@ Mark all items with status "pending" (don't change items yet):
 - **Management Review (A-007):** KPI trends presented as part of 15 mandatory inputs
 
 **Action:**
+
 - Define KPI targets for each metric (turnaround time, error rate, retest %, rework %, NC origin)
 - Set up daily/weekly automatic data pulls from lab system (LIS integration)
 - Create dashboard visible to all staff
@@ -563,6 +571,7 @@ Mark all items with status "pending" (don't change items yet):
 - **MR Calendar:** Publish quarterly MR scheduled dates
 
 **Action:**
+
 - Create config file: `labSettings/governance/governance-config.json`
 - Populate QD name, email, phone, CREA/CRMV, substitutes
 - Link to organizational chart (Drive URL or embed)
@@ -575,14 +584,14 @@ Mark all items with status "pending" (don't change items yet):
 
 **Use this template for monthly status updates to Management Review:**
 
-| DICQ Block | Item | Owner | Status | % Complete | Due Date | Notes |
-|------------|------|-------|--------|------------|----------|-------|
-| A | A-001 (Legal Registration) | Lab Manager | Pending | 0% | 2026-06-15 | Waiting for RLP documentation |
-| A | A-002 (QD Designation) | Quality Director | Pending | 50% | 2026-06-15 | Draft approval in progress; substitutes identified |
-| A | A-003 (Norteadores) | Quality Director | In Progress | 75% | 2026-06-30 | Draft completed; awaiting QD final approval |
-| A | A-004 (Quality Policy) | Quality Director | In Progress | 70% | 2026-06-30 | Policy written; staff training scheduled Q2 |
-| ... | ... | ... | ... | ... | ... | ... |
-| **Summary** | **DICQ Block A (7 items)** | — | — | **66%** | — | **On track for Phase 9 gate (≥80% by 8/31)** |
+| DICQ Block  | Item                       | Owner            | Status      | % Complete | Due Date   | Notes                                              |
+| ----------- | -------------------------- | ---------------- | ----------- | ---------- | ---------- | -------------------------------------------------- |
+| A           | A-001 (Legal Registration) | Lab Manager      | Pending     | 0%         | 2026-06-15 | Waiting for RLP documentation                      |
+| A           | A-002 (QD Designation)     | Quality Director | Pending     | 50%        | 2026-06-15 | Draft approval in progress; substitutes identified |
+| A           | A-003 (Norteadores)        | Quality Director | In Progress | 75%        | 2026-06-30 | Draft completed; awaiting QD final approval        |
+| A           | A-004 (Quality Policy)     | Quality Director | In Progress | 70%        | 2026-06-30 | Policy written; staff training scheduled Q2        |
+| ...         | ...                        | ...              | ...         | ...        | ...        | ...                                                |
+| **Summary** | **DICQ Block A (7 items)** | —                | —           | **66%**    | —          | **On track for Phase 9 gate (≥80% by 8/31)**       |
 
 ---
 
@@ -603,16 +612,19 @@ Mark all items with status "pending" (don't change items yet):
 ## Success Criteria
 
 **Phase 9 Gate (by 2026-08-31):**
+
 - A-001 through A-007: ≥80% complete
 - D-001 through D-010: ≥80% complete
 - E-001 through E-005: ≥80% complete
 
 **Audit Readiness (by 2026-09-30):**
+
 - All 58 items: ≥90% complete
 - Overdue count: 0
 - Annual compliance audit: ≥88% DICQ conformance score
 
 **Governance Maturity:**
+
 - Management Review cycle active (Q1, Q2, Q3, Q4 meetings held and minutes documented)
 - Minutes document all 15 DICQ 4.15 mandatory inputs
 - CAPA closure rate: ≥95%
@@ -665,6 +677,7 @@ If these 18 items are ≥80% complete by 8/31, you'll pass the Phase 9 gate. Low
 ### Q: Can we edit the JSON checklist?
 
 **A:** Yes. The structure is provided as a template. You may:
+
 - Add lab-specific items (don't exceed 75 total)
 - Adjust due dates based on your lab's calendar
 - Rename owners to match your organizational structure
@@ -675,6 +688,7 @@ However, do **not** remove DICQ-required items (A-001 through A-007, D-001 throu
 ### Q: Who has write access to the Google Docs template?
 
 **A:** By default, only the Quality Director. We recommend:
+
 1. **Quality Director:** Full edit access (approval authority)
 2. **Document Controller:** Comment-only access (tracking changes)
 3. **All Staff:** View-only access (awareness)
@@ -698,9 +712,9 @@ Refer to: `src/features/<module>/CLAUDE.md` (module-specific documentation) and 
 
 **Version History:**
 
-| Version | Date | Author | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-05-07 | Phase 9 Team | Initial publication |
+| Version | Date       | Author       | Changes             |
+| ------- | ---------- | ------------ | ------------------- |
+| 1.0     | 2026-05-07 | Phase 9 Team | Initial publication |
 
 ---
 

@@ -1,10 +1,11 @@
 # HC QUALITY — CQ LABCLIN
+
 ## Phase 9 Quality Manual & Governance Framework
 
 **Version:** 1.0  
 **Date:** May 7, 2026  
 **Classification:** CONFIDENTIAL  
-**Regulatory Framework:** DICQ, RDC 978, RDC 786, ISO 15189  
+**Regulatory Framework:** DICQ, RDC 978, RDC 786, ISO 15189
 
 ---
 
@@ -18,11 +19,11 @@ Phase 9 Quality Manual & Governance Framework
 
 ### Approvals
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Quality Director | _________________ | _________________ | ___________ |
-| Lab Manager | _________________ | _________________ | ___________ |
-| Executive Board | _________________ | _________________ | ___________ |
+| Role             | Name               | Signature          | Date           |
+| ---------------- | ------------------ | ------------------ | -------------- |
+| Quality Director | ********\_******** | ********\_******** | ****\_\_\_**** |
+| Lab Manager      | ********\_******** | ********\_******** | ****\_\_\_**** |
+| Executive Board  | ********\_******** | ********\_******** | ****\_\_\_**** |
 
 ---
 
@@ -41,8 +42,8 @@ We are committed to:
 
 This Quality Policy is endorsed by laboratory leadership and reviewed annually. All staff members are trained on this policy and expected to uphold its principles in their daily work.
 
-**Approved by:** _________________________ (Quality Director)  
-**Date:** _________________________ 
+**Approved by:** ************\_************ (Quality Director)  
+**Date:** ************\_************
 
 ---
 
@@ -55,27 +56,27 @@ Include all positions, reporting lines, and CREA/CRMV registration numbers.
 
 ### 2.2 Key Roles & Responsibilities
 
-| Role | Primary Responsibilities | Authority Level | Substitute |
-|------|-------------------------|-----------------|-----------|
-| Quality Director | Oversee entire QMS; approve policies; chair MR; sign regulatory submissions; maintain CREA/CRMV | Executive | _________________ |
-| Lab Manager | Day-to-day operations; resource allocation; budget oversight; safety enforcement | Executive | _________________ |
-| Quality Coordinator | CAPA tracking; audit coordination; non-conformance logging; trend analysis | Senior Staff | _________________ |
-| Document Controller | SGD maintenance; version control; approval workflows; distribution tracking | Senior Staff | _________________ |
-| Internal Audit Coordinator | Audit planning; execution; follow-up; compliance tracking; auditor training | Staff | _________________ |
-| HR / Training Lead | Staff training matrix; competency assessment; onboarding; development planning | Staff | _________________ |
-| Equipment Manager | Maintenance scheduling; calibration tracking; supplier management; downtime logging | Staff | _________________ |
-| Pre-Analytical Lead | Collection SOP compliance; transport procedures; sample reception; rejection decisions | Staff | _________________ |
+| Role                       | Primary Responsibilities                                                                        | Authority Level | Substitute         |
+| -------------------------- | ----------------------------------------------------------------------------------------------- | --------------- | ------------------ |
+| Quality Director           | Oversee entire QMS; approve policies; chair MR; sign regulatory submissions; maintain CREA/CRMV | Executive       | ********\_******** |
+| Lab Manager                | Day-to-day operations; resource allocation; budget oversight; safety enforcement                | Executive       | ********\_******** |
+| Quality Coordinator        | CAPA tracking; audit coordination; non-conformance logging; trend analysis                      | Senior Staff    | ********\_******** |
+| Document Controller        | SGD maintenance; version control; approval workflows; distribution tracking                     | Senior Staff    | ********\_******** |
+| Internal Audit Coordinator | Audit planning; execution; follow-up; compliance tracking; auditor training                     | Staff           | ********\_******** |
+| HR / Training Lead         | Staff training matrix; competency assessment; onboarding; development planning                  | Staff           | ********\_******** |
+| Equipment Manager          | Maintenance scheduling; calibration tracking; supplier management; downtime logging             | Staff           | ********\_******** |
+| Pre-Analytical Lead        | Collection SOP compliance; transport procedures; sample reception; rejection decisions          | Staff           | ********\_******** |
 
 ### 2.3 Governance Contacts
 
-| Position | Name | Email | Phone | CREA/CRMV |
-|----------|------|-------|-------|-----------|
-| Quality Director | _____________ | _____________ | _____________ | _____________ |
-| Lab Manager | _____________ | _____________ | _____________ | _____________ |
-| QD Substitute 1 | _____________ | _____________ | _____________ | _____________ |
-| QD Substitute 2 | _____________ | _____________ | _____________ | _____________ |
-| MR Coordinator | _____________ | _____________ | _____________ | N/A |
-| LGPD Officer | _____________ | _____________ | _____________ | N/A |
+| Position         | Name           | Email          | Phone          | CREA/CRMV      |
+| ---------------- | -------------- | -------------- | -------------- | -------------- |
+| Quality Director | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| Lab Manager      | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| QD Substitute 1  | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| QD Substitute 2  | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| MR Coordinator   | ******\_****** | ******\_****** | ******\_****** | N/A            |
+| LGPD Officer     | ******\_****** | ******\_****** | ******\_****** | N/A            |
 
 ---
 
@@ -104,25 +105,25 @@ ANVISA regulatory changes, audit findings, accreditation loss, legal liability
 
 **Risk Priority Number (RPN) = Probability (1–5) × Severity (1–5) × Detection (1–5)**
 
-| Score Range | Risk Level | Response |
-|-------------|-----------|----------|
-| 1–24 | Low | Routine monitoring; document decision |
-| 25–74 | Medium | Risk mitigation plan; monthly review |
-| 75–125 | High | Immediate mitigation required; escalate to QD |
+| Score Range | Risk Level | Response                                      |
+| ----------- | ---------- | --------------------------------------------- |
+| 1–24        | Low        | Routine monitoring; document decision         |
+| 25–74       | Medium     | Risk mitigation plan; monthly review          |
+| 75–125      | High       | Immediate mitigation required; escalate to QD |
 
 ### 3.3 Risk Register Summary
 
-| Risk Category | Example | RPN | Mitigation Action | Owner | Review Frequency |
-|---------------|---------|-----|-------------------|-------|------------------|
-| Pre-analytical | Sample mislabeling | 48 | Barcode system + 2-step verification | Pre-Analytical Lead | Monthly |
-| Analytical | Equipment calibration drift | 72 | Daily QC; monthly calibration verification | Equipment Manager | Quarterly |
-| Post-analytical | Critical value not reported | 80 | Automated alerts + dual verification | Quality Coordinator | Quarterly |
-| Operational | Key staff departure | 35 | Cross-training program; documented procedures | HR Lead | Semi-annual |
-| Compliance | Regulatory change not implemented | 50 | Monthly regulatory scan; notification protocol | Quality Director | Quarterly |
+| Risk Category   | Example                           | RPN | Mitigation Action                              | Owner               | Review Frequency |
+| --------------- | --------------------------------- | --- | ---------------------------------------------- | ------------------- | ---------------- |
+| Pre-analytical  | Sample mislabeling                | 48  | Barcode system + 2-step verification           | Pre-Analytical Lead | Monthly          |
+| Analytical      | Equipment calibration drift       | 72  | Daily QC; monthly calibration verification     | Equipment Manager   | Quarterly        |
+| Post-analytical | Critical value not reported       | 80  | Automated alerts + dual verification           | Quality Coordinator | Quarterly        |
+| Operational     | Key staff departure               | 35  | Cross-training program; documented procedures  | HR Lead             | Semi-annual      |
+| Compliance      | Regulatory change not implemented | 50  | Monthly regulatory scan; notification protocol | Quality Director    | Quarterly        |
 
 **Risk Register Location:** `/risks/risk-register.xlsx` (Module: risks)  
-**Last Updated:** _______________  
-**Next Annual Review Due:** _______________
+**Last Updated:** ******\_\_\_******  
+**Next Annual Review Due:** ******\_\_\_******
 
 ---
 
@@ -155,16 +156,16 @@ All suppliers of critical materials (reagents, calibrators, controls, equipment)
 
 ### 4.2 Approved Supplier List (ASL)
 
-| Supplier Type | Company Name | Contact | Services | Accreditation | Next Audit |
-|---------------|--------------|---------|----------|---------------|-----------|
-| Reagent | _____________ | _____________ | _____________ | _____________ | _____________ |
-| Calibration | _____________ | _____________ | _____________ | _____________ | _____________ |
-| Equipment Maintenance | _____________ | _____________ | _____________ | _____________ | _____________ |
-| Lab Support / Referral | _____________ | _____________ | _____________ | _____________ | _____________ |
+| Supplier Type          | Company Name   | Contact        | Services       | Accreditation  | Next Audit     |
+| ---------------------- | -------------- | -------------- | -------------- | -------------- | -------------- |
+| Reagent                | ******\_****** | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| Calibration            | ******\_****** | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| Equipment Maintenance  | ******\_****** | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
+| Lab Support / Referral | ******\_****** | ******\_****** | ******\_****** | ******\_****** | ******\_****** |
 
 **ASL Location:** `/fornecedores/approved-supplier-list.xlsx` (Module: fornecedores)  
-**Last Updated:** _______________  
-**Next Annual Review Due:** _______________
+**Last Updated:** ******\_\_\_******  
+**Next Annual Review Due:** ******\_\_\_******
 
 ---
 
@@ -184,25 +185,25 @@ All operational documents (SOPs, Work Instructions, Forms, Records, Policies, Qu
 
 ### 5.2 Document Types & Control Requirements
 
-| Document Type | Approval Level | Review Frequency | Retention | RDC Reference |
-|---------------|----------------|------------------|-----------|---------------|
-| SOP (Standard Operating Procedure) | QD Signature + date | Every 3 years | 5 years archived | RDC 978 Art. 33 |
-| POP (Procedural Operations) | QD + Department Manager | Every 3 years | 5 years archived | RDC 978 Art. 33 |
-| Form / Record Form | QD | Every 3 years | Per regulation | RDC 978 Art. 33 |
-| Quality Manual | QD + Lab Director | Every 2 years | Indefinite | DICQ 4.2.2.2 |
-| Record (Evidence of work) | Operator signature | N/A | Per RDC/DICQ | RDC 978 Art. 5.3 |
+| Document Type                      | Approval Level          | Review Frequency | Retention        | RDC Reference    |
+| ---------------------------------- | ----------------------- | ---------------- | ---------------- | ---------------- |
+| SOP (Standard Operating Procedure) | QD Signature + date     | Every 3 years    | 5 years archived | RDC 978 Art. 33  |
+| POP (Procedural Operations)        | QD + Department Manager | Every 3 years    | 5 years archived | RDC 978 Art. 33  |
+| Form / Record Form                 | QD                      | Every 3 years    | Per regulation   | RDC 978 Art. 33  |
+| Quality Manual                     | QD + Lab Director       | Every 2 years    | Indefinite       | DICQ 4.2.2.2     |
+| Record (Evidence of work)          | Operator signature      | N/A              | Per RDC/DICQ     | RDC 978 Art. 5.3 |
 
 ### 5.3 SGD Workflow & Approval
 
 **All documents follow this workflow:**
 
 ```
-Draft 
-  → Technical Review (optional) 
-  → QD Approval 
-  → Distribution 
-  → Active 
-  → [Periodic Review] 
+Draft
+  → Technical Review (optional)
+  → QD Approval
+  → Distribution
+  → Active
+  → [Periodic Review]
   → Obsolete Archive
 ```
 
@@ -219,7 +220,7 @@ Draft
 - Obsolete versions removed from active circulation within 5 days of supersession
 
 **SGD Location:** `https://drive.google.com/drive/folders/[HC-Quality-SGD-Root-ID]`  
-**Document Controller Contact:** _________________ (Email: _________________ )
+**Document Controller Contact:** ********\_******** (Email: ********\_******** )
 
 ---
 
@@ -229,14 +230,14 @@ HC Quality conducts regular internal audits to verify compliance with the Qualit
 
 ### 6.1 Annual Audit Schedule (2026)
 
-| Quarter | DICQ Blocks | Audit Scope | Auditor(s) | Scheduled Date | Report Due |
-|---------|-------------|------------|-----------|----------------|-----------|
-| Q1 | Block A (Governance), Block B (Documents) | Quality management system, document control, governance | Quality Coordinator + External Auditor (optional) | Jan 15 – Feb 28 | Mar 31, 2026 |
-| Q2 | Block D (Quality), Block E (Pre-analytical) | Quality planning, pre-analytical phase, risk management | Quality Coordinator + Lab Manager | Apr 1 – May 31 | Jun 30, 2026 |
-| Q3 | Block F (Analytical), Block G (Post-analytical) | Analytical phase, post-analytical phase, reporting | Quality Coordinator + Technical Lead | Jul 1 – Aug 31 | Sep 30, 2026 |
-| Q4 | Block H–J (Resources, Environment, Continuity) | Equipment, facilities, biosecurity, disaster recovery | Quality Coordinator + HR Lead | Oct 1 – Nov 30 | Dec 31, 2026 |
-| Anytime | Follow-up Audits | CAPA verification, targeted investigations | Quality Coordinator | Per schedule | Within 10 days |
-| Annual | Full System | Compliance audit across all 10 DICQ blocks | Quality Coordinator + External Auditor | Sep–Nov 2026 | Nov 30, 2026 |
+| Quarter | DICQ Blocks                                     | Audit Scope                                             | Auditor(s)                                        | Scheduled Date  | Report Due     |
+| ------- | ----------------------------------------------- | ------------------------------------------------------- | ------------------------------------------------- | --------------- | -------------- |
+| Q1      | Block A (Governance), Block B (Documents)       | Quality management system, document control, governance | Quality Coordinator + External Auditor (optional) | Jan 15 – Feb 28 | Mar 31, 2026   |
+| Q2      | Block D (Quality), Block E (Pre-analytical)     | Quality planning, pre-analytical phase, risk management | Quality Coordinator + Lab Manager                 | Apr 1 – May 31  | Jun 30, 2026   |
+| Q3      | Block F (Analytical), Block G (Post-analytical) | Analytical phase, post-analytical phase, reporting      | Quality Coordinator + Technical Lead              | Jul 1 – Aug 31  | Sep 30, 2026   |
+| Q4      | Block H–J (Resources, Environment, Continuity)  | Equipment, facilities, biosecurity, disaster recovery   | Quality Coordinator + HR Lead                     | Oct 1 – Nov 30  | Dec 31, 2026   |
+| Anytime | Follow-up Audits                                | CAPA verification, targeted investigations              | Quality Coordinator                               | Per schedule    | Within 10 days |
+| Annual  | Full System                                     | Compliance audit across all 10 DICQ blocks              | Quality Coordinator + External Auditor            | Sep–Nov 2026    | Nov 30, 2026   |
 
 ### 6.2 Audit Reporting & Follow-up
 
@@ -272,8 +273,8 @@ HC Quality conducts regular internal audits to verify compliance with the Qualit
 - Audit training records maintained in educacao-continuada module
 
 **Audit Schedule Location:** `/auditoria/audit-plan.xlsx` (Module: auditoria)  
-**Internal Audit Coordinator:** _________________ (Email: _________________ )  
-**Last Audit Schedule Update:** _______________
+**Internal Audit Coordinator:** ********\_******** (Email: ********\_******** )  
+**Last Audit Schedule Update:** ******\_\_\_******
 
 ---
 
@@ -283,12 +284,12 @@ The Management Review is HC Quality's primary governance mechanism for strategic
 
 ### 7.1 2026 Management Review Schedule
 
-| Meeting | Scheduled Date | Primary Focus | Attendees |
-|---------|---------------|---------------|-----------|
-| Q1 MR | Mar 15, 2026 | Prior year audit findings, CAPA closure rate, KPI baseline, strategic planning | Quality Director, Lab Manager, Finance Lead, Operations Manager |
-| Q2 MR | Jun 15, 2026 | H1 KPI review, customer complaints, resource assessment, training gaps | Quality Director, Lab Manager, Finance Lead, Operations Manager |
-| Q3 MR | Sep 15, 2026 | Audit readiness (pre-external audit), compliance gaps, risk reassessment | Quality Director, Lab Manager, Finance Lead, External Audit Prep Lead |
-| Q4 MR | Dec 15, 2026 | Annual compliance audit results, year-end KPI, 2027 quality plan, succession planning | Quality Director, Lab Manager, Finance Lead, All Department Heads |
+| Meeting | Scheduled Date | Primary Focus                                                                         | Attendees                                                             |
+| ------- | -------------- | ------------------------------------------------------------------------------------- | --------------------------------------------------------------------- |
+| Q1 MR   | Mar 15, 2026   | Prior year audit findings, CAPA closure rate, KPI baseline, strategic planning        | Quality Director, Lab Manager, Finance Lead, Operations Manager       |
+| Q2 MR   | Jun 15, 2026   | H1 KPI review, customer complaints, resource assessment, training gaps                | Quality Director, Lab Manager, Finance Lead, Operations Manager       |
+| Q3 MR   | Sep 15, 2026   | Audit readiness (pre-external audit), compliance gaps, risk reassessment              | Quality Director, Lab Manager, Finance Lead, External Audit Prep Lead |
+| Q4 MR   | Dec 15, 2026   | Annual compliance audit results, year-end KPI, 2027 quality plan, succession planning | Quality Director, Lab Manager, Finance Lead, All Department Heads     |
 
 ### 7.2 15 Mandatory Inputs per DICQ 4.15
 
@@ -332,7 +333,7 @@ The Management Review is HC Quality's primary governance mechanism for strategic
 - KPI target refreshment
 - Staffing and resource planning
 
-**Management Review Coordinator:** _________________ (Email: _________________ )  
+**Management Review Coordinator:** ********\_******** (Email: ********\_******** )  
 **Minutes Repository:** `/sgq/management-review/` (Module: sgq)  
 **Minute Template:** Available in SGD
 
@@ -342,32 +343,32 @@ The Management Review is HC Quality's primary governance mechanism for strategic
 
 ### Appendix A: Compliance Framework Summary
 
-| Regulation | Title | Key Requirement | Applicable DICQ Block |
-|-----------|-------|-----------------|----------------------|
-| RDC 978 | Clinical Laboratory Regulations | Quality system, personnel, pre-/analytical/post-analytical, documentation | A–J (all) |
-| RDC 786 | In Vitro Diagnostic Device Quality | Device traceability, labeling, complaints, recalls | F, G |
-| DICQ | Document of Brazilian Quality Standards | Comprehensive 10-block quality framework | A–J (all) |
-| ISO 15189 | Medical Laboratories — Requirements | Quality management, personnel, equipment, result reporting | A–J (all) |
-| LGPD | General Data Protection Law | Patient data privacy, data minimization, DPIA, right to deletion | J |
+| Regulation | Title                                   | Key Requirement                                                           | Applicable DICQ Block |
+| ---------- | --------------------------------------- | ------------------------------------------------------------------------- | --------------------- |
+| RDC 978    | Clinical Laboratory Regulations         | Quality system, personnel, pre-/analytical/post-analytical, documentation | A–J (all)             |
+| RDC 786    | In Vitro Diagnostic Device Quality      | Device traceability, labeling, complaints, recalls                        | F, G                  |
+| DICQ       | Document of Brazilian Quality Standards | Comprehensive 10-block quality framework                                  | A–J (all)             |
+| ISO 15189  | Medical Laboratories — Requirements     | Quality management, personnel, equipment, result reporting                | A–J (all)             |
+| LGPD       | General Data Protection Law             | Patient data privacy, data minimization, DPIA, right to deletion          | J                     |
 
 ### Appendix B: Key Contacts & Escalation
 
 **Quality Emergency Hotline:**  
-Contact: _________________________ Phone: _________________________ Email: _________________________ 
+Contact: ************\_************ Phone: ************\_************ Email: ************\_************
 
 **Regulatory Reporting (ANVISA):**  
-Contact: _________________________ Phone: _________________________ Email: _________________________ 
+Contact: ************\_************ Phone: ************\_************ Email: ************\_************
 
 **External Audit Preparation:**  
-Contact: _________________________ Phone: _________________________ Email: _________________________ 
+Contact: ************\_************ Phone: ************\_************ Email: ************\_************
 
 ### Appendix C: Document Revision History
 
-| Version | Date | Author | Changes | Approval |
-|---------|------|--------|---------|----------|
-| 1.0 | May 7, 2026 | _____________ | Initial publication (Phase 9) | _____________ |
-| | | | | |
-| | | | | |
+| Version | Date        | Author         | Changes                       | Approval       |
+| ------- | ----------- | -------------- | ----------------------------- | -------------- |
+| 1.0     | May 7, 2026 | ******\_****** | Initial publication (Phase 9) | ******\_****** |
+|         |             |                |                               |                |
+|         |             |                |                               |                |
 
 ---
 
@@ -375,10 +376,10 @@ Contact: _________________________ Phone: _________________________ Email: _____
 
 **This Quality Manual is approved and effective as of the date below.**
 
-| Role | Name | Signature | Date |
-|------|------|-----------|------|
-| Quality Director | _____________ | _____________ | _____________ |
-| Lab Manager | _____________ | _____________ | _____________ |
+| Role             | Name           | Signature      | Date           |
+| ---------------- | -------------- | -------------- | -------------- |
+| Quality Director | ******\_****** | ******\_****** | ******\_****** |
+| Lab Manager      | ******\_****** | ******\_****** | ******\_****** |
 
 **Classification:** CONFIDENTIAL  
 **Distribution:** All HC Quality staff (mandatory training and acknowledgment required)  

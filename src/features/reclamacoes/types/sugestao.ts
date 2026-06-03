@@ -10,11 +10,11 @@ import type { Timestamp } from 'firebase/firestore';
 import type { LogicalSignature } from './reclamacao';
 
 export type CategoriasugestaoSugestao =
-  | 'produto'             // product/reagent feedback
-  | 'processo'            // process improvement
-  | 'ambiente'            // lab environment/safety
-  | 'atendimento'         // customer service
-  | 'outro';              // other
+  | 'produto' // product/reagent feedback
+  | 'processo' // process improvement
+  | 'ambiente' // lab environment/safety
+  | 'atendimento' // customer service
+  | 'outro'; // other
 
 export type StatusSugestao = 'aberta' | 'analisada' | 'implementada' | 'rejeitada';
 
@@ -23,8 +23,8 @@ export type TipoAutor = 'colaborador' | 'paciente' | 'externo';
 /** Single suggestion comment */
 export interface ComentarioSugestao {
   id: string;
-  autorId?: string;       // null if anonymous internal
-  textoAutor?: string;    // display name if needed
+  autorId?: string; // null if anonymous internal
+  textoAutor?: string; // display name if needed
   texto: string;
   criadoEm: Timestamp;
   deletadoEm?: Timestamp; // soft-delete
@@ -37,9 +37,9 @@ export interface Sugestao {
   labId: string;
 
   // ─── Author ──────────────────────────────────────────────────────────────
-  autorId?: string;       // null for anonymous external suggestions
-  autorTipo: TipoAutor;   // track origin
-  autorNome?: string;     // display name (public can skip)
+  autorId?: string; // null for anonymous external suggestions
+  autorTipo: TipoAutor; // track origin
+  autorNome?: string; // display name (public can skip)
 
   // ─── Content ─────────────────────────────────────────────────────────────
   titulo: string;
@@ -52,7 +52,7 @@ export interface Sugestao {
   dataImplementacao?: Timestamp;
 
   // ─── Community features ──────────────────────────────────────────────────
-  votos: number;          // upvote count (collaborators only)
+  votos: number; // upvote count (collaborators only)
   votaraisPor?: string[]; // userIds who upvoted
 
   // ─── Discussion ──────────────────────────────────────────────────────────

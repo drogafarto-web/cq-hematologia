@@ -172,7 +172,7 @@ describe('Patient Portal — Date Filtering', () => {
     const thirtyDaysAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
 
     expect(mockLaudo.dataEmissao.toDate() >= thirtyDaysAgo).toBe(
-      mockLaudo.dataEmissao.toDate().getTime() >= thirtyDaysAgo.getTime()
+      mockLaudo.dataEmissao.toDate().getTime() >= thirtyDaysAgo.getTime(),
     );
   });
 
@@ -180,8 +180,7 @@ describe('Patient Portal — Date Filtering', () => {
     const now = new Date();
     const ninetyDaysAgo = new Date(now.getTime() - 90 * 24 * 60 * 60 * 1000);
 
-    const isInRange =
-      mockLaudo.dataEmissao.toDate().getTime() >= ninetyDaysAgo.getTime();
+    const isInRange = mockLaudo.dataEmissao.toDate().getTime() >= ninetyDaysAgo.getTime();
     expect(isInRange).toBeDefined();
   });
 });

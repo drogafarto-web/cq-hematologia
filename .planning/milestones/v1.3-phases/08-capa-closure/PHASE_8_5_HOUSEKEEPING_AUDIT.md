@@ -1,4 +1,5 @@
 # Phase 8.5 — Housekeeping Audit Report
+
 **Date:** 2026-05-06  
 **Status:** FIXED — 121 → 0 TypeScript errors. `npm run build` passes.
 **Scope:** Latent bugs audit + spine cleanup
@@ -68,7 +69,9 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
 ## Findings
 
 ### 1. Web Layer (React + Vite)
+
 ✅ **STATUS: CLEAN**
+
 - `npm run build` → 28.46s, successful
 - `npx tsc --noEmit` → 0 errors (strict mode passes)
 - Unsubscribe patterns verified (Firebase listeners properly cleanup)
@@ -76,9 +79,11 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
 - No critical null reference issues found
 
 ### 2. Functions Layer (Node 22, firebase-functions v7)
+
 🔴 **STATUS: BLOCKED — 121 TypeScript Errors**
 
 **Error Breakdown:**
+
 - **TS6133** (unused variables): 24 instances
 - **TS2307** (cannot find module): 24 instances
 - **TS2339** (property doesn't exist): 17 instances
@@ -88,6 +93,7 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
 - **Other**: 31 instances (TS2308, TS2305, TS2724, etc.)
 
 **Top Offending Files:**
+
 1. `src/sgq/aprovarBatchImport.ts` — 11 errors
 2. `src/liberacao/criarLaudo.ts` — 10 errors
 3. `src/modules/satisfacao/dispararNPSPosResolucao.ts` — 8 errors
@@ -126,7 +132,7 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
    - Common in Pub/Sub triggers: `onDocumentWrite((change, context) => ...)`
    - Fix: Add explicit types via CloudEvent
 
-6. **Export Ambiguity (3 instances in liberacao/_shared/index.ts)**
+6. **Export Ambiguity (3 instances in liberacao/\_shared/index.ts)**
    - ReleaseState, ExamClassification, ExameConfig exported twice
    - Fix: Consolidate exports
 
@@ -135,17 +141,20 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
 ## Implementation Plan (Next Session)
 
 ### Phase 8.5 Batch 1 — Firebase Functions v2 Migration (Est. 2-3h)
+
 **Priority:** P0 (blocks all function deploys)
 
 1. Create helper migration script to refactor callable signatures
 2. Fix 15+ callables using v2 API pattern:
+
    ```typescript
    // OLD (v1):
    functions.https.onCall(async (input, context) => { ... })
-   
+
    // NEW (v2):
    onCall<InputType>(async (request: CallableRequest<InputType>) => { ... })
    ```
+
 3. Update request/response property access:
    - `input` → `request.data`
    - `context.auth` → `request.auth`
@@ -164,6 +173,7 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
    - etc.
 
 ### Phase 8.5 Batch 2 — Module Resolution + Package Deps (Est. 1-2h)
+
 **Priority:** P1
 
 1. Add missing packages to functions/package.json:
@@ -183,15 +193,17 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
    ```
 
 ### Phase 8.5 Batch 3 — Cleanup + Validation (Est. 1h)
+
 **Priority:** P2
 
 1. Remove 24 unused variables
 2. Fix 11 possibly-undefined issues
 3. Add explicit types to 8 implicit-any parameters
-4. Resolve 3 export ambiguities in liberacao/_shared/index.ts
+4. Resolve 3 export ambiguities in liberacao/\_shared/index.ts
 5. Run `npx tsc --noEmit` → 0 errors target
 
 ### Phase 8.5 Batch 4 — Smoke Testing (Est. 30m)
+
 **Priority:** P3
 
 1. `npm run build` in functions/ → success
@@ -211,6 +223,7 @@ Phase 8.5 housekeeping initiated to fix accumulated technical debt from Phases 9
 4. Expected error reduction: 121 → ~50 (after v2 migration) → ~0 (after cleanup)
 
 **Commands to verify progress:**
+
 ```bash
 cd "C:\hc quality\functions"
 npx tsc --noEmit 2>&1 | wc -l                    # Total error count
@@ -218,9 +231,10 @@ npx tsc --noEmit 2>&1 | grep "error TS" | cut -d: -f4 | sort | uniq -c | sort -r
 ```
 
 **Files NOT touched in web layer (all clean):**
-- src/features/** — all modules
-- src/shared/**
-- src/store/**
+
+- src/features/\*\* — all modules
+- src/shared/\*\*
+- src/store/\*\*
 - vite.config.ts
 - tsconfig.json
 
@@ -228,12 +242,12 @@ npx tsc --noEmit 2>&1 | grep "error TS" | cut -d: -f4 | sort | uniq -c | sort -r
 
 ## Risk Assessment
 
-| Risk | Impact | Mitigation |
-|------|--------|-----------|
-| Functions deploy blocked | High | Fix all 121 TSC errors before any function deploy |
-| v2 API breakage | Medium | Test 3-4 key callables in emulator after migration |
-| Missing deps on deploy | Medium | Add all packages to package.json + test build |
-| Regression in web | Low | Web build already passes; no web changes made |
+| Risk                     | Impact | Mitigation                                         |
+| ------------------------ | ------ | -------------------------------------------------- |
+| Functions deploy blocked | High   | Fix all 121 TSC errors before any function deploy  |
+| v2 API breakage          | Medium | Test 3-4 key callables in emulator after migration |
+| Missing deps on deploy   | Medium | Add all packages to package.json + test build      |
+| Regression in web        | Low    | Web build already passes; no web changes made      |
 
 ---
 
@@ -242,7 +256,6 @@ npx tsc --noEmit 2>&1 | grep "error TS" | cut -d: -f4 | sort | uniq -c | sort -r
 1. **Session: Phase 8.5.1** → Fix 121 TSC errors in functions
    - Target: `npx tsc --noEmit` → 0 errors
    - Target: `npm run build` (functions) → success
-   
 2. **Session: Phase 8.5.2** → Latent bug audit (memory leaks, null refs)
    - Firestore listener patterns
    - Error boundaries in UI

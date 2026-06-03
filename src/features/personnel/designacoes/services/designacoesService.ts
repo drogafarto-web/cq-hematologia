@@ -23,10 +23,7 @@ import {
   type QueryDocumentSnapshot,
   type Unsubscribe,
 } from '../../../../shared/services/firebase';
-import type {
-  Designacao,
-  DesignacaoType,
-} from '../types';
+import type { Designacao, DesignacaoType } from '../types';
 import type { LabId } from '../../types/_shared_refs';
 
 // ─── Paths ────────────────────────────────────────────────────────────────
@@ -76,9 +73,7 @@ export function subscribeToDesignacoes(
   return onSnapshot(
     q,
     (snapshot) => {
-      const designacoes = snapshot.docs
-        .map(mapDesignacao)
-        .filter((des) => !des.deletedAt);
+      const designacoes = snapshot.docs.map(mapDesignacao).filter((des) => !des.deletedAt);
       onUpdate(designacoes);
     },
     (err) => {
@@ -91,20 +86,17 @@ export function subscribeToDesignacoes(
  * Get the currently active designacao for a specific type.
  * Returns null if none are active.
  */
-export async function getActiveDesignacao(labId: LabId, type: DesignacaoType): Promise<Designacao | null> {
-  const q = query(
-    designacoesCol(labId),
-    where('type', '==', type),
-    where('deletedAt', '==', null),
-  );
+export async function getActiveDesignacao(
+  labId: LabId,
+  type: DesignacaoType,
+): Promise<Designacao | null> {
+  const q = query(designacoesCol(labId), where('type', '==', type), where('deletedAt', '==', null));
 
   const snapshot = await getDocs(q);
   if (snapshot.empty) return null;
 
   const now = Date.now();
-  const active = snapshot.docs
-    .map(mapDesignacao)
-    .filter((des) => des.dataExpiracao > now);
+  const active = snapshot.docs.map(mapDesignacao).filter((des) => des.dataExpiracao > now);
 
   return active.length > 0 ? active[0] : null;
 }

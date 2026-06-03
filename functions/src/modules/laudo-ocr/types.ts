@@ -178,7 +178,9 @@ export interface SaveLaudoFieldsManuallyError {
   error: string;
 }
 
-export type SaveLaudoFieldsManuallyResponse = SaveLaudoFieldsManuallyResult | SaveLaudoFieldsManuallyError;
+export type SaveLaudoFieldsManuallyResponse =
+  | SaveLaudoFieldsManuallyResult
+  | SaveLaudoFieldsManuallyError;
 
 // ─── Audit trail ───────────────────────────────────────────────────────────
 
@@ -186,7 +188,11 @@ export type SaveLaudoFieldsManuallyResponse = SaveLaudoFieldsManuallyResult | Sa
  * Denormalized audit entry for extraction operations.
  */
 export interface LaudoOCRAuditEntry {
-  action: 'LAUDO_OCR_REQUESTED' | 'LAUDO_OCR_SUCCESS' | 'LAUDO_OCR_FAILED' | 'LAUDO_FIELDS_MANUAL_ENTRY';
+  action:
+    | 'LAUDO_OCR_REQUESTED'
+    | 'LAUDO_OCR_SUCCESS'
+    | 'LAUDO_OCR_FAILED'
+    | 'LAUDO_FIELDS_MANUAL_ENTRY';
   operatorId: string;
   labId: string;
   laudoId: string;

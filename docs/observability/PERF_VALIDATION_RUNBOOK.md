@@ -25,12 +25,12 @@ It runs in two contexts:
 
 Every metric ends in one of four states:
 
-| Status | Meaning | Gate behavior |
-| --- | --- | --- |
-| `PASS` | Within budget vs baseline | Green |
+| Status | Meaning                                       | Gate behavior                               |
+| ------ | --------------------------------------------- | ------------------------------------------- |
+| `PASS` | Within budget vs baseline                     | Green                                       |
 | `WARN` | Past the warn threshold but within hard limit | Yellow — gate stays green, comment flags it |
-| `FAIL` | Past the hard limit | **Red — blocks merge** |
-| `SKIP` | No data captured (collector not run) | Green (unless `--strict`) |
+| `FAIL` | Past the hard limit                           | **Red — blocks merge**                      |
+| `SKIP` | No data captured (collector not run)          | Green (unless `--strict`)                   |
 
 Thresholds live in `.planning/perf-baseline.json`. Each metric has `baseline`, `warn`, `fail`. Direction is `lower-is-better` for ms/KB and `higher-is-better` for Lighthouse scores.
 
@@ -70,7 +70,7 @@ When the gate fails on your PR:
 
 ### Bundle regression
 
-- Cause: a new static `import` of a heavy lib (xlsx, pdf-lib, recharts, @sentry/*).
+- Cause: a new static `import` of a heavy lib (xlsx, pdf-lib, recharts, @sentry/\*).
 - Action: `npm run analyze` → open `dist/stats.html` → find the new chunk → convert to `await import(...)` at use site.
 - Reference: `docs/PERFORMANCE_PATTERNS.md` and `.claude/rules/performance.md`.
 
@@ -144,10 +144,10 @@ node scripts/perf-validate.mjs --json --pr-summary
 
 ```json
 {
-  "auth":           { "p95Ms": 412, "p99Ms": 521 },
-  "laudoLoad":      { "p95Ms": 1180, "p99Ms": 1980 },
-  "queue":          { "p95Ms": 78,   "p99Ms": 142 },
-  "firestoreRules": { "p95Ms": 31,   "p99Ms": 65 }
+  "auth": { "p95Ms": 412, "p99Ms": 521 },
+  "laudoLoad": { "p95Ms": 1180, "p99Ms": 1980 },
+  "queue": { "p95Ms": 78, "p99Ms": 142 },
+  "firestoreRules": { "p95Ms": 31, "p99Ms": 65 }
 }
 ```
 
@@ -167,12 +167,12 @@ Never bump the baseline silently as part of a feature PR.
 
 ## Failure modes of the gate itself
 
-| Symptom | Likely cause | Fix |
-| --- | --- | --- |
-| Job fails with `Baseline not found` | wrong `--baseline=` path | check path is repo-relative |
-| All metrics report SKIP | LHCI did not run before perf-validate | check workflow order; LHCI step must succeed first |
-| PR comment not posted | missing `pull-requests: write` permission | already set in `lighthouse-ci.yml` |
-| `dist/perf-report-*.md` missing in artifact | build dir not present | the script `mkdir -p`s it; check `Upload perf validation report` step |
+| Symptom                                     | Likely cause                              | Fix                                                                   |
+| ------------------------------------------- | ----------------------------------------- | --------------------------------------------------------------------- |
+| Job fails with `Baseline not found`         | wrong `--baseline=` path                  | check path is repo-relative                                           |
+| All metrics report SKIP                     | LHCI did not run before perf-validate     | check workflow order; LHCI step must succeed first                    |
+| PR comment not posted                       | missing `pull-requests: write` permission | already set in `lighthouse-ci.yml`                                    |
+| `dist/perf-report-*.md` missing in artifact | build dir not present                     | the script `mkdir -p`s it; check `Upload perf validation report` step |
 
 ---
 

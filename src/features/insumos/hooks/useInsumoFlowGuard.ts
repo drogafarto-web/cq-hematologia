@@ -23,21 +23,14 @@ import { useCallback, useMemo, useState } from 'react';
 import { useActiveLab } from '../../../store/useAuthStore';
 import { useEquipmentSetup } from './useEquipmentSetup';
 import { useInsumos } from './useInsumos';
-import {
-  buildInsumoSnapshot,
-  type InsumosSnapshotSet,
-} from '../types/InsumoSnapshot';
+import { buildInsumoSnapshot, type InsumosSnapshotSet } from '../types/InsumoSnapshot';
 import { evaluateInsumoUsability } from '../utils/insumoUsability';
 import {
   incrementInsumoRunCount,
   clearInsumoQCValidation,
 } from '../services/insumosFirebaseService';
 import type { OverrideContext } from '../components/OverrideModal';
-import {
-  insumoCobreEquipamento,
-  type Insumo,
-  type InsumoModulo,
-} from '../types/Insumo';
+import { insumoCobreEquipamento, type Insumo, type InsumoModulo } from '../types/Insumo';
 
 export interface RequiredSlots {
   reagente?: boolean;
@@ -133,9 +126,7 @@ export function useInsumoFlowGuard({
   // Sem equipamentoId, passa tudo (backward-compat).
   const insumos = useMemo(
     () =>
-      equipamentoId
-        ? allAtivos.filter((i) => insumoCobreEquipamento(i, equipamentoId))
-        : allAtivos,
+      equipamentoId ? allAtivos.filter((i) => insumoCobreEquipamento(i, equipamentoId)) : allAtivos,
     [allAtivos, equipamentoId],
   );
 
@@ -149,10 +140,12 @@ export function useInsumoFlowGuard({
 
   // ── Resolução dos insumos ativos ─────────────────────────────────────────
   const byId = useMemo(() => new Map(insumos.map((i) => [i.id, i])), [insumos]);
-  const reagente = setup?.activeReagenteId ? byId.get(setup.activeReagenteId) ?? null : null;
-  const reagenteTtpa = setup?.activeReagenteTtpaId ? byId.get(setup.activeReagenteTtpaId) ?? null : null;
-  const controle = setup?.activeControleId ? byId.get(setup.activeControleId) ?? null : null;
-  const tira = setup?.activeTiraUroId ? byId.get(setup.activeTiraUroId) ?? null : null;
+  const reagente = setup?.activeReagenteId ? (byId.get(setup.activeReagenteId) ?? null) : null;
+  const reagenteTtpa = setup?.activeReagenteTtpaId
+    ? (byId.get(setup.activeReagenteTtpaId) ?? null)
+    : null;
+  const controle = setup?.activeControleId ? (byId.get(setup.activeControleId) ?? null) : null;
+  const tira = setup?.activeTiraUroId ? (byId.get(setup.activeTiraUroId) ?? null) : null;
 
   const slotsFaltando = useMemo(() => {
     const out: Array<'reagente' | 'reagenteTtpa' | 'controle' | 'tira'> = [];
@@ -161,7 +154,16 @@ export function useInsumoFlowGuard({
     if (requiredSlots.controle && !controle) out.push('controle');
     if (requiredSlots.tira && !tira) out.push('tira');
     return out;
-  }, [requiredSlots.reagente, requiredSlots.reagenteTtpa, requiredSlots.controle, requiredSlots.tira, reagente, reagenteTtpa, controle, tira]);
+  }, [
+    requiredSlots.reagente,
+    requiredSlots.reagenteTtpa,
+    requiredSlots.controle,
+    requiredSlots.tira,
+    reagente,
+    reagenteTtpa,
+    controle,
+    tira,
+  ]);
 
   const setupComplete = slotsFaltando.length === 0;
 
@@ -193,14 +195,14 @@ export function useInsumoFlowGuard({
     (motivo: string) => {
       // Deriva flags a partir dos bloqueios registrados no contexto.
       const hasVencido = overrideContext?.bloqueios.some((b) => b.motivo === 'vencido') ?? false;
-      const hasQcPend = overrideContext?.bloqueios.some((b) =>
-        ['qc-pendente', 'imuno-nao-aprovado'].includes(b.motivo),
-      ) ?? false;
+      const hasQcPend =
+        overrideContext?.bloqueios.some((b) =>
+          ['qc-pendente', 'imuno-nao-aprovado'].includes(b.motivo),
+        ) ?? false;
       // Classificação Imuno: se qualquer slot imuno estava com qcStatus !== aprovado
       // no momento, a corrida é VALIDAÇÃO (não uso-normal).
-      const hasImunoPend = overrideContext?.bloqueios.some(
-        (b) => b.motivo === 'imuno-nao-aprovado',
-      ) ?? false;
+      const hasImunoPend =
+        overrideContext?.bloqueios.some((b) => b.motivo === 'imuno-nao-aprovado') ?? false;
 
       const flags: InsumoFlowOverrideFlags = {
         insumoVencidoOverride: hasVencido,
@@ -240,7 +242,10 @@ export function useInsumoFlowGuard({
 
     // 3. Validar usabilidade de cada slot configurado.
     const bloqueios: OverrideContext['bloqueios'] = [];
-    const addIf = (slot: 'reagente' | 'reagenteTtpa' | 'controle' | 'tira', insumo: Insumo | null) => {
+    const addIf = (
+      slot: 'reagente' | 'reagenteTtpa' | 'controle' | 'tira',
+      insumo: Insumo | null,
+    ) => {
       if (!insumo) return;
       const u = evaluateInsumoUsability(insumo);
       if (!u.ok && u.motivo && u.mensagem) {
@@ -310,7 +315,7 @@ export function useInsumoFlowGuard({
         await clearInsumoQCValidation(activeLab.id, qcIds);
       }
     },
-    [activeLab, reagente, reagenteTtpa, controle, tira]
+    [activeLab, reagente, reagenteTtpa, controle, tira],
   );
 
   return {

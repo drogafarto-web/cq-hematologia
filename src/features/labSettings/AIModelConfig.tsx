@@ -36,10 +36,14 @@ export function AIModelConfig() {
     if (!activeLab || !canEdit || saving) return;
     setSaving(true);
     try {
-      await setDoc(doc(db, `labs/${activeLab.id}/settings/ai`), {
-        geminiModel: modelId,
-        updatedAt: new Date(),
-      }, { merge: true });
+      await setDoc(
+        doc(db, `labs/${activeLab.id}/settings/ai`),
+        {
+          geminiModel: modelId,
+          updatedAt: new Date(),
+        },
+        { merge: true },
+      );
       setCurrentModel(modelId);
       toast.success(`Modelo IA alterado para ${modelId}`);
     } catch {
@@ -56,7 +60,8 @@ export function AIModelConfig() {
       <div>
         <p className="text-sm font-medium text-slate-800 dark:text-white/80">Modelo de IA</p>
         <p className="text-xs text-slate-400 dark:text-white/30 mt-0.5">
-          Modelo usado para validação de evidências, resumos e OCR. Alteração aplica imediatamente, sem deploy.
+          Modelo usado para validação de evidências, resumos e OCR. Alteração aplica imediatamente,
+          sem deploy.
         </p>
       </div>
 
@@ -75,11 +80,13 @@ export function AIModelConfig() {
           >
             <div className="flex items-center justify-between">
               <div>
-                <p className={`text-sm font-medium ${
-                  m.id === currentModel
-                    ? 'text-violet-700 dark:text-violet-400'
-                    : 'text-slate-700 dark:text-white/70'
-                }`}>
+                <p
+                  className={`text-sm font-medium ${
+                    m.id === currentModel
+                      ? 'text-violet-700 dark:text-violet-400'
+                      : 'text-slate-700 dark:text-white/70'
+                  }`}
+                >
                   {m.label}
                 </p>
                 <p className="text-[11px] text-slate-400 dark:text-white/30 mt-0.5">{m.desc}</p>

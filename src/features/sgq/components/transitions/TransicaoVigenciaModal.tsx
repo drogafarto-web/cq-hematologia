@@ -24,10 +24,10 @@ interface TransicaoVigenciaModalProps {
 }
 
 const VALID_TRANSITIONS: Record<StatusVigencia, StatusVigencia[]> = {
-  'draft': ['em-revisao'],
+  draft: ['em-revisao'],
   'em-revisao': ['vigente', 'draft'],
-  'vigente': ['obsoleto', 'em-revisao'],
-  'obsoleto': ['vigente'],
+  vigente: ['obsoleto', 'em-revisao'],
+  obsoleto: ['vigente'],
 };
 
 function getReasonLabel(from: StatusVigencia, to: StatusVigencia): string {
@@ -52,7 +52,8 @@ export function TransicaoVigenciaModal({
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
 
-  const isValidTransition = VALID_TRANSITIONS[document.currentStatus]?.includes(nextStatus) ?? false;
+  const isValidTransition =
+    VALID_TRANSITIONS[document.currentStatus]?.includes(nextStatus) ?? false;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -110,7 +111,9 @@ export function TransicaoVigenciaModal({
         <div className="px-6 py-4 space-y-6">
           {/* Document preview */}
           <div>
-            <p className="text-xs text-white/60 uppercase font-semibold tracking-wide mb-2">Documento</p>
+            <p className="text-xs text-white/60 uppercase font-semibold tracking-wide mb-2">
+              Documento
+            </p>
             <div className="px-3 py-2 bg-white/5 rounded-lg border border-white/10">
               <div className="text-xs font-mono text-white/70">{document.codigo}</div>
               <div className="text-sm text-white mt-1 truncate">{document.titulo}</div>
@@ -119,7 +122,9 @@ export function TransicaoVigenciaModal({
 
           {/* Status transition */}
           <div>
-            <p className="text-xs text-white/60 uppercase font-semibold tracking-wide mb-2">Transição de Status</p>
+            <p className="text-xs text-white/60 uppercase font-semibold tracking-wide mb-2">
+              Transição de Status
+            </p>
             <div className="flex items-center gap-3 px-3 py-2 bg-white/5 rounded-lg border border-white/10">
               <StatusVigenciaBadge status={document.currentStatus} showLabel tooltip={false} />
               <div className="text-white/40">→</div>
@@ -137,7 +142,10 @@ export function TransicaoVigenciaModal({
             <form onSubmit={handleSubmit} className="space-y-4">
               {/* Reason */}
               <div>
-                <label htmlFor="reason" className="text-xs text-white/60 uppercase font-semibold tracking-wide block mb-2">
+                <label
+                  htmlFor="reason"
+                  className="text-xs text-white/60 uppercase font-semibold tracking-wide block mb-2"
+                >
                   {getReasonLabel(document.currentStatus, nextStatus)}
                 </label>
                 <textarea
@@ -153,7 +161,10 @@ export function TransicaoVigenciaModal({
 
               {/* PIN (RTSignatureGate) */}
               <div>
-                <label htmlFor="pin" className="text-xs text-white/60 uppercase font-semibold tracking-wide block mb-2">
+                <label
+                  htmlFor="pin"
+                  className="text-xs text-white/60 uppercase font-semibold tracking-wide block mb-2"
+                >
                   <svg
                     width={14}
                     height={14}

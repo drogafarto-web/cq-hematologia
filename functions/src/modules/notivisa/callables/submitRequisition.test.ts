@@ -119,18 +119,11 @@ describe('submitRequisition', () => {
         data: () => ({ count: 5 }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest
+      mockDb.collection().doc().collection().where().limit().get = jest
         .fn()
         .mockResolvedValueOnce(existingSubmissionMock)
         .mockResolvedValueOnce(rateLimitMock);
@@ -188,18 +181,13 @@ describe('submitRequisition', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest.fn().mockResolvedValue({ empty: true });
+      mockDb.collection().doc().collection().where().limit().get = jest
+        .fn()
+        .mockResolvedValue({ empty: true });
 
       // WHEN: Calling submitRequisition with portal failure
       const result = await submitRequisition(request as CallableRequest<any>);
@@ -286,9 +274,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -303,11 +289,9 @@ describe('submitRequisition', () => {
         exists: false,
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
       // WHEN: Calling with invalid session
       const result = await submitRequisition(request as CallableRequest<any>);
@@ -334,9 +318,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -355,11 +337,9 @@ describe('submitRequisition', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
       // WHEN: Calling with expired session
       const result = await submitRequisition(request as CallableRequest<any>);
@@ -388,9 +368,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -419,18 +397,13 @@ describe('submitRequisition', () => {
         ],
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest.fn().mockResolvedValue(existingSubmissionMock);
+      mockDb.collection().doc().collection().where().limit().get = jest
+        .fn()
+        .mockResolvedValue(existingSubmissionMock);
 
       // WHEN: Calling with duplicate submission
       const result = await submitRequisition(request as CallableRequest<any>);
@@ -459,9 +432,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -485,18 +456,11 @@ describe('submitRequisition', () => {
         data: () => ({ count: 25 }), // 25 submissions > limit of 20
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest
+      mockDb.collection().doc().collection().where().limit().get = jest
         .fn()
         .mockResolvedValueOnce({ empty: true })
         .mockResolvedValueOnce(rateLimitMock);
@@ -528,9 +492,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -549,18 +511,13 @@ describe('submitRequisition', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest.fn().mockResolvedValue({ empty: true });
+      mockDb.collection().doc().collection().where().limit().get = jest
+        .fn()
+        .mockResolvedValue({ empty: true });
 
       // WHEN: Calling submitRequisition
       await submitRequisition(request as CallableRequest<any>);
@@ -570,7 +527,7 @@ describe('submitRequisition', () => {
         expect.any(Object),
         expect.objectContaining({
           action: 'SUBMITTED',
-        })
+        }),
       );
     });
   });
@@ -593,9 +550,7 @@ describe('submitRequisition', () => {
             laudo_id: 'laudo-123',
             paciente_cpf: '12345678901',
             data_resultado: 1700000000000,
-            resultados: [
-              { analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' },
-            ],
+            resultados: [{ analito: 'Test', valor: 1, unidade: 'u', referencia: 'ref' }],
             assinador: {
               cpf: '98765432100',
               nome: 'Dr. João',
@@ -614,18 +569,13 @@ describe('submitRequisition', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .where()
-        .limit()
-        .get = jest.fn().mockResolvedValue({ empty: true });
+      mockDb.collection().doc().collection().where().limit().get = jest
+        .fn()
+        .mockResolvedValue({ empty: true });
 
       // WHEN: Calling with portal failure simulation
       const result = await submitRequisition(request as CallableRequest<any>);

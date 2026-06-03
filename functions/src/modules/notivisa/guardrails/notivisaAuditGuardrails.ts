@@ -9,7 +9,11 @@
  */
 
 import * as admin from 'firebase-admin';
-import { LogicalSignature, generateLogicalSignature, verifyLogicalSignature } from '../../../shared/cryptoaudit';
+import {
+  LogicalSignature,
+  generateLogicalSignature,
+  verifyLogicalSignature,
+} from '../../../shared/cryptoaudit';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Audit Log Types
@@ -48,7 +52,7 @@ export interface NotivisaAuditLogEntry {
 export async function validateNotivisaAuditTrail(
   db: admin.firestore.Firestore,
   labId: string,
-  draftId: string
+  draftId: string,
 ): Promise<{
   valid: boolean;
   chainIntact: boolean;
@@ -71,7 +75,7 @@ export async function validateNotivisaAuditTrail(
         valid: false,
         chainIntact: false,
         entryCount: 0,
-        errors
+        errors,
       };
     }
 
@@ -97,7 +101,7 @@ export async function validateNotivisaAuditTrail(
         eventType: entry.eventType,
         operatorId: entry.operatorId,
         timestamp: entry.timestamp,
-        details: entry.details
+        details: entry.details,
       };
 
       const isValid = verifyLogicalSignature(entry.signature, entryPayload, prevHash);
@@ -127,7 +131,7 @@ export async function validateNotivisaAuditTrail(
       valid: chainIntact,
       chainIntact,
       entryCount: entries.length,
-      errors
+      errors,
     };
   } catch (err) {
     errors.push(`Database error: ${err instanceof Error ? err.message : 'Unknown'}`);
@@ -135,7 +139,7 @@ export async function validateNotivisaAuditTrail(
       valid: false,
       chainIntact: false,
       entryCount: 0,
-      errors
+      errors,
     };
   }
 }
@@ -146,7 +150,7 @@ export async function validateNotivisaAuditTrail(
 export async function validateRevocationReason(
   db: admin.firestore.Firestore,
   labId: string,
-  draftId: string
+  draftId: string,
 ): Promise<{
   valid: boolean;
   reason?: string;
@@ -164,7 +168,7 @@ export async function validateRevocationReason(
     if (snapshot.empty) {
       return {
         valid: true, // No revocation found — valid state
-        reason: undefined
+        reason: undefined,
       };
     }
 
@@ -174,18 +178,18 @@ export async function validateRevocationReason(
     if (!reason || reason.length < 10) {
       return {
         valid: false,
-        error: 'Revocation reason must be at least 10 characters (LGPD Art. 11 requirement)'
+        error: 'Revocation reason must be at least 10 characters (LGPD Art. 11 requirement)',
       };
     }
 
     return {
       valid: true,
-      reason
+      reason,
     };
   } catch (err) {
     return {
       valid: false,
-      error: `Database error: ${err instanceof Error ? err.message : 'Unknown'}`
+      error: `Database error: ${err instanceof Error ? err.message : 'Unknown'}`,
     };
   }
 }
@@ -205,7 +209,7 @@ export async function writeNotivisaAuditLog(
     eventType: NotivisaAuditEventType;
     operatorId: string;
     details: Record<string, unknown>;
-  }
+  },
 ): Promise<{
   entryId: string;
   signature: LogicalSignature;
@@ -232,15 +236,13 @@ export async function writeNotivisaAuditLog(
     eventType: event.eventType,
     operatorId: event.operatorId,
     timestamp: Date.now(),
-    details: event.details
+    details: event.details,
   };
 
   const signature = generateLogicalSignature(event.operatorId, eventPayload, prevHash);
 
   // ========== 3. Write to Firestore (immutable) ==========
-  const auditRef = db
-    .collection(`notivisa-drafts/${labId}/drafts/${draftId}/auditLog`)
-    .doc();
+  const auditRef = db.collection(`notivisa-drafts/${labId}/drafts/${draftId}/auditLog`).doc();
 
   const logEntry: NotivisaAuditLogEntry = {
     id: auditRef.id,
@@ -252,14 +254,14 @@ export async function writeNotivisaAuditLog(
     details: event.details,
     signature,
     prevHash,
-    createdAt: admin.firestore.Timestamp.now()
+    createdAt: admin.firestore.Timestamp.now(),
   };
 
   await auditRef.set(logEntry);
 
   return {
     entryId: auditRef.id,
-    signature
+    signature,
   };
 }
 
@@ -270,7 +272,7 @@ export async function writeNotivisaAuditLog(
 export async function generateNotivisaAuditSummary(
   db: admin.firestore.Firestore,
   labId: string,
-  draftId: string
+  draftId: string,
 ): Promise<{
   draftId: string;
   entryCount: number;
@@ -300,9 +302,9 @@ export async function generateNotivisaAuditSummary(
       timestamp: e.timestamp,
       eventType: e.eventType,
       operatorId: e.operatorId,
-      details: e.details
+      details: e.details,
     })),
     chainValid: validation.chainIntact,
-    hasRevocation: entries.some((e) => e.eventType === 'DRAFT_REVOKED')
+    hasRevocation: entries.some((e) => e.eventType === 'DRAFT_REVOKED'),
   };
 }

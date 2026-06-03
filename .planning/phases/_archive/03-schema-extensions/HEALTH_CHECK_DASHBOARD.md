@@ -46,6 +46,7 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 ```
 
 **Status Legend:**
+
 - ✅ HEALTHY: 0 errors
 - ⚠️ DEGRADED: 1–5 errors
 - 🔴 CRITICAL: >5 errors
@@ -58,16 +59,16 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 
 **Status:** ⏳ PENDING → ⏸ IN PROGRESS → ✅ COMPLETE
 
-| Component | Target | Current | Status |
-|-----------|--------|---------|--------|
-| **Collections Created** | 5 | — | ⏳ PENDING |
-| New Collections | portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft | — | ⏳ |
-| **Composite Indexes** | 3 created | — | ⏳ PENDING |
-| notivisa-outbox index | (labId, status, createdAt) | — | ⏳ |
-| criticos-escalacoes index | (labId, createdAt) | — | ⏳ |
-| imuno-ias-dev index | (labId, model_version, createdAt) | — | ⏳ |
-| **Total Indexes READY** | 25 | 22 (pre-deploy) | ⏳ PENDING |
-| **Errors Logged** | 0 | — | ⏳ PENDING |
+| Component                 | Target                                                                                 | Current         | Status     |
+| ------------------------- | -------------------------------------------------------------------------------------- | --------------- | ---------- |
+| **Collections Created**   | 5                                                                                      | —               | ⏳ PENDING |
+| New Collections           | portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft | —               | ⏳         |
+| **Composite Indexes**     | 3 created                                                                              | —               | ⏳ PENDING |
+| notivisa-outbox index     | (labId, status, createdAt)                                                             | —               | ⏳         |
+| criticos-escalacoes index | (labId, createdAt)                                                                     | —               | ⏳         |
+| imuno-ias-dev index       | (labId, model_version, createdAt)                                                      | —               | ⏳         |
+| **Total Indexes READY**   | 25                                                                                     | 22 (pre-deploy) | ⏳ PENDING |
+| **Errors Logged**         | 0                                                                                      | —               | ⏳ PENDING |
 
 **Expected Completion:** T+5m (2026-05-08 23:05 UTC)  
 **Acceptance Criteria:** All 5 collections created, 3 new indexes in CREATING state, 0 errors
@@ -78,15 +79,15 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 
 **Status:** ⏳ PENDING → ⏸ IN PROGRESS → ✅ COMPLETE
 
-| Component | Target | Current | Status |
-|-----------|--------|---------|--------|
-| **Rules Deploy** | Success | — | ⏳ PENDING |
-| Portal access rules | isPatient, isOwnLaudo enforced | — | ⏳ |
-| NOTIVISA outbox rules | isAdmin, validatePayload enforced | — | ⏳ |
-| Critical escalation rules | isAdminOrRT enforced | — | ⏳ |
-| **Compile Warnings** | ≤20 | 15 (baseline) | ⏳ PENDING |
-| **Permission Denies** | 0 (authorized users) | 0 | ✅ STABLE |
-| **Errors Logged** | 0 | 0 | ✅ STABLE |
+| Component                 | Target                            | Current       | Status     |
+| ------------------------- | --------------------------------- | ------------- | ---------- |
+| **Rules Deploy**          | Success                           | —             | ⏳ PENDING |
+| Portal access rules       | isPatient, isOwnLaudo enforced    | —             | ⏳         |
+| NOTIVISA outbox rules     | isAdmin, validatePayload enforced | —             | ⏳         |
+| Critical escalation rules | isAdminOrRT enforced              | —             | ⏳         |
+| **Compile Warnings**      | ≤20                               | 15 (baseline) | ⏳ PENDING |
+| **Permission Denies**     | 0 (authorized users)              | 0             | ✅ STABLE  |
+| **Errors Logged**         | 0                                 | 0             | ✅ STABLE  |
 
 **Expected Completion:** T+10m (2026-05-08 23:10 UTC)  
 **Acceptance Criteria:** Rules deploy success, warnings ≤20, 0 permission denies for authorized users
@@ -97,17 +98,17 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 
 **Status:** ⏳ PENDING → ⏸ IN PROGRESS → ✅ COMPLETE
 
-| Component | Target | Current | Status |
-|-----------|--------|---------|--------|
-| **notivisa-sender** | Deployed | — | ⏳ PENDING |
-| Cold-start latency | <300ms | — | ⏳ |
-| Warm latency | <100ms | — | ⏳ |
-| **sms-gateway** | Deployed | — | ⏳ PENDING |
-| Cold-start latency | <300ms | — | ⏳ |
-| **laudo-finalizer** | Deployed | — | ⏳ PENDING |
-| **ia-strip-processor** | Deployed | — | ⏳ PENDING |
-| **Total Functions Deployed** | 4 | 0 | ⏳ PENDING |
-| **Errors Logged** | 0 | 0 | ✅ STABLE |
+| Component                    | Target   | Current | Status     |
+| ---------------------------- | -------- | ------- | ---------- |
+| **notivisa-sender**          | Deployed | —       | ⏳ PENDING |
+| Cold-start latency           | <300ms   | —       | ⏳         |
+| Warm latency                 | <100ms   | —       | ⏳         |
+| **sms-gateway**              | Deployed | —       | ⏳ PENDING |
+| Cold-start latency           | <300ms   | —       | ⏳         |
+| **laudo-finalizer**          | Deployed | —       | ⏳ PENDING |
+| **ia-strip-processor**       | Deployed | —       | ⏳ PENDING |
+| **Total Functions Deployed** | 4        | 0       | ⏳ PENDING |
+| **Errors Logged**            | 0        | 0       | ✅ STABLE  |
 
 **Expected Completion:** T+20m (2026-05-08 23:20 UTC)  
 **Acceptance Criteria:** All 4 functions deployed, cold-start <300ms, warm <100ms, 0 errors
@@ -118,14 +119,14 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 
 **Status:** ⏳ PENDING → ⏸ IN PROGRESS → ✅ COMPLETE
 
-| Component | Target | Current | Status |
-|-----------|--------|---------|--------|
-| **portal-getter callable** | Deployed, <100ms | — | ⏳ PENDING |
-| **portal-setter callable** | Deployed, <100ms | — | ⏳ PENDING |
-| **notivisa-processor** | Deployed, listening | — | ⏳ PENDING |
-| **critical-escalation-trigger** | Deployed, firing | — | ⏳ PENDING |
-| **Total Callables Deployed** | 3 | 0 | ⏳ PENDING |
-| **Errors Logged** | 0 | 0 | ✅ STABLE |
+| Component                       | Target              | Current | Status     |
+| ------------------------------- | ------------------- | ------- | ---------- |
+| **portal-getter callable**      | Deployed, <100ms    | —       | ⏳ PENDING |
+| **portal-setter callable**      | Deployed, <100ms    | —       | ⏳ PENDING |
+| **notivisa-processor**          | Deployed, listening | —       | ⏳ PENDING |
+| **critical-escalation-trigger** | Deployed, firing    | —       | ⏳ PENDING |
+| **Total Callables Deployed**    | 3                   | 0       | ⏳ PENDING |
+| **Errors Logged**               | 0                   | 0       | ✅ STABLE  |
 
 **Expected Completion:** T+25m (2026-05-08 23:25 UTC)  
 **Acceptance Criteria:** All 3 callables deployed, responding <100ms, 0 errors
@@ -136,14 +137,14 @@ TOTAL ERRORS        │   0   │ ↔️     │ ✅ STABLE
 
 **Status:** ⏳ PENDING → ⏸ IN PROGRESS → ✅ COMPLETE
 
-| Test | Expected | Result | Status |
-|------|----------|--------|--------|
-| **Test 1: NOTIVISA Outbox Create** | PASS (doc created, rules allow) | — | ⏳ PENDING |
-| **Test 2: Portal Access Deny** | PASS (unauthorized blocked) | — | ⏳ PENDING |
-| **Test 3: Critical Escalation** | PASS (SMS trigger fires) | — | ⏳ PENDING |
-| **Test 4: Shared Helper Callable** | PASS (notivisa-sender success) | — | ⏳ PENDING |
-| **Pass Rate** | 4/4 (100%) | — | ⏳ PENDING |
-| **Test Duration** | <5s each | — | ⏳ PENDING |
+| Test                               | Expected                        | Result | Status     |
+| ---------------------------------- | ------------------------------- | ------ | ---------- |
+| **Test 1: NOTIVISA Outbox Create** | PASS (doc created, rules allow) | —      | ⏳ PENDING |
+| **Test 2: Portal Access Deny**     | PASS (unauthorized blocked)     | —      | ⏳ PENDING |
+| **Test 3: Critical Escalation**    | PASS (SMS trigger fires)        | —      | ⏳ PENDING |
+| **Test 4: Shared Helper Callable** | PASS (notivisa-sender success)  | —      | ⏳ PENDING |
+| **Pass Rate**                      | 4/4 (100%)                      | —      | ⏳ PENDING |
+| **Test Duration**                  | <5s each                        | —      | ⏳ PENDING |
 
 **Expected Completion:** T+30m (2026-05-08 23:30 UTC)  
 **Acceptance Criteria:** 4/4 tests pass, <5s each
@@ -205,6 +206,7 @@ FAILED      ░░░░░░░░░░░░░░░░░░░ 0/25 (0%)
 ```
 
 **Expected Timeline:**
+
 - T+0m: 22/25 READY
 - T+5m: 3 new indexes created, status = CREATING
 - T+10m: 25/25 READY (estimated)
@@ -230,7 +232,8 @@ Post-Phase 3: ████████████░ 15/20 (75% of target)
 
 ### Function Latency
 
-**Target:** 
+**Target:**
+
 - Cold-start: <300ms
 - Warm: <100ms
 - p95: <200ms
@@ -269,15 +272,15 @@ Pass Rate: 0/4 (0%) → [PENDING]
 
 ### Active Alerts
 
-| Alert | Severity | Trigger | Status |
-|-------|----------|---------|--------|
-| — | — | — | ✅ NO ACTIVE ALERTS |
+| Alert | Severity | Trigger | Status              |
+| ----- | -------- | ------- | ------------------- |
+| —     | —        | —       | ✅ NO ACTIVE ALERTS |
 
 ### Alert History (Last 24h)
 
 | Time | Alert | Resolution | Status |
-|------|-------|-----------|--------|
-| — | — | — | — |
+| ---- | ----- | ---------- | ------ |
+| —    | —     | —          | —      |
 
 **Total Alerts (24h):** 0
 
@@ -394,26 +397,26 @@ git commit -m "docs(phase-3): health check update — [timestamp] — status sum
 
 ## Success Criteria Summary
 
-| Criterion | Target | Current | Status |
-|-----------|--------|---------|--------|
-| **Pre-deploy baseline errors** | 0 | 0 | ✅ PASS |
-| **Post-deploy errors (24h)** | 0 | [TBD] | ⏳ MONITORING |
-| **Rules warnings** | ≤20 | 15 | ✅ PASS |
-| **All indexes READY** | 25/25 by T+10m | 22/25 | ⏳ MONITORING |
-| **Function p95 latency** | <200ms | <200ms | ✅ PASS |
-| **Smoke tests** | 4/4 pass | [TBD] | ⏳ PENDING |
-| **RDC 978 coverage** | ≥95% | 95% | ✅ MAINTAINED |
-| **DICQ compliance** | ≥78.5% | 78.5% | ✅ MAINTAINED |
+| Criterion                      | Target         | Current | Status        |
+| ------------------------------ | -------------- | ------- | ------------- |
+| **Pre-deploy baseline errors** | 0              | 0       | ✅ PASS       |
+| **Post-deploy errors (24h)**   | 0              | [TBD]   | ⏳ MONITORING |
+| **Rules warnings**             | ≤20            | 15      | ✅ PASS       |
+| **All indexes READY**          | 25/25 by T+10m | 22/25   | ⏳ MONITORING |
+| **Function p95 latency**       | <200ms         | <200ms  | ✅ PASS       |
+| **Smoke tests**                | 4/4 pass       | [TBD]   | ⏳ PENDING    |
+| **RDC 978 coverage**           | ≥95%           | 95%     | ✅ MAINTAINED |
+| **DICQ compliance**            | ≥78.5%         | 78.5%   | ✅ MAINTAINED |
 
 ---
 
 ## Phase 3 Wave 1 Sign-Off
 
-| Role | Name | Status | Date |
-|------|------|--------|------|
-| DevOps | — | ⏳ PENDING | — |
-| CTO | — | ⏳ PENDING | — |
-| QA | — | ⏳ PENDING | — |
+| Role   | Name | Status     | Date |
+| ------ | ---- | ---------- | ---- |
+| DevOps | —    | ⏳ PENDING | —    |
+| CTO    | —    | ⏳ PENDING | —    |
+| QA     | —    | ⏳ PENDING | —    |
 
 **Overall Wave 1 Status:** 🟢 READY FOR DEPLOYMENT
 

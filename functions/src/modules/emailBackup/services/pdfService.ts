@@ -85,11 +85,7 @@ export function generateBackupPdf(report: BackupReport): Promise<Buffer> {
 
 // ─── Cover Page ───────────────────────────────────────────────────────────────
 
-function renderCoverPage(
-  doc: PDFKit.PDFDocument,
-  report: BackupReport,
-  env: PdfEnvironment,
-): void {
+function renderCoverPage(doc: PDFKit.PDFDocument, report: BackupReport, env: PdfEnvironment): void {
   const { margin } = PAGE;
   const contentWidth = CONTENT_WIDTH;
 
@@ -335,9 +331,7 @@ function renderCoverPage(
   // Data-quality gap banner — evidencia cadastro incompleto em cima da página
   const missingLabFields = cardLines.filter((l) => l.missing).map((l) => l.label);
   const missingAnvisaCount = report.sections.reduce((acc, section) => {
-    return (
-      acc + section.rows.filter((r) => (r['Reg. ANVISA'] ?? '—').trim() === '—').length
-    );
+    return acc + section.rows.filter((r) => (r['Reg. ANVISA'] ?? '—').trim() === '—').length;
   }, 0);
   const hasAnyGap = missingLabFields.length > 0 || missingAnvisaCount > 0;
 
@@ -358,12 +352,11 @@ function renderCoverPage(
       .font(Fonts.bold)
       .fontSize(9)
       .fillColor(COLOR.accentWarm)
-      .text(
-        `Gaps de cadastro: ${parts.join('  \u00b7  ')}`,
-        margin + 28,
-        gapY + 7,
-        { width: contentWidth - 40, lineBreak: false, ellipsis: true },
-      );
+      .text(`Gaps de cadastro: ${parts.join('  \u00b7  ')}`, margin + 28, gapY + 7, {
+        width: contentWidth - 40,
+        lineBreak: false,
+        ellipsis: true,
+      });
 
     nextBlockY = gapY + 30;
   }
@@ -841,8 +834,7 @@ function renderDualRowTable(
 
         const labelW = measure(fragmentLabel, Fonts.regular, baseFontSize);
         const valueW = measure(value, valueFont, valueFontSize);
-        const sepW =
-          i < parts.length - 1 ? measure(separator, Fonts.regular, baseFontSize) : 0;
+        const sepW = i < parts.length - 1 ? measure(separator, Fonts.regular, baseFontSize) : 0;
         const fragmentTotalW = labelW + valueW + sepW;
 
         if (inlineX + fragmentTotalW > inlineMaxX) {
@@ -1240,11 +1232,7 @@ function drawActivityBadge(
 
   doc.save();
   doc.roundedRect(originX, y, width, height, 4).fillColor(badge.bg).fill();
-  doc
-    .roundedRect(originX, y, width, height, 4)
-    .lineWidth(0.6)
-    .strokeColor(badge.border)
-    .stroke();
+  doc.roundedRect(originX, y, width, height, 4).lineWidth(0.6).strokeColor(badge.border).stroke();
   doc
     .font(Fonts.bold)
     .fontSize(fontSize)

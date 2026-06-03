@@ -69,27 +69,27 @@ W6 — Verification      [1 SA]                       deps: W5
 
 ## Compliance Mapping
 
-| Requisito | Wave | Subagente |
-|-----------|------|-----------|
+| Requisito                                                              | Wave  | Subagente      |
+| ---------------------------------------------------------------------- | ----- | -------------- |
 | RDC 978 Art. 179 — CIQ obrigatório (Westgard CLSI 1-2s/1-3s/2-2s/R-4s) | W0–W1 | SA-01/02/05/06 |
-| RDC 978 Art. 161 — Audit trail operador + decisão OCR | W2 | SA-10 |
-| RDC 978 5.3 — Imutabilidade trilha auditoria (chainHash) | W2 | SA-10 |
-| DICQ 4.3 Bloco F — Westgard documentado + testado | W1/W5 | SA-05/06/17/18 |
-| DICQ 4.4 — Trilha auditoria OCR (image→parse→match→decision) | W2/W3 | SA-10/13 |
+| RDC 978 Art. 161 — Audit trail operador + decisão OCR                  | W2    | SA-10          |
+| RDC 978 5.3 — Imutabilidade trilha auditoria (chainHash)               | W2    | SA-10          |
+| DICQ 4.3 Bloco F — Westgard documentado + testado                      | W1/W5 | SA-05/06/17/18 |
+| DICQ 4.4 — Trilha auditoria OCR (image→parse→match→decision)           | W2/W3 | SA-10/13       |
 
 ---
 
 ## Planos de execução
 
-| Plano | Wave | SAs | Dependência |
-|-------|------|-----|-------------|
-| 09-01 | W0 — Foundation | SA-01/02/03/04 | nenhuma |
-| 09-02 | W1 — Core Logic | SA-05/06/07/08 | 09-01 |
-| 09-03 | W2 — Services | SA-09/10/11 | 09-02 |
-| 09-04 | W3 — Hooks + UI | SA-12/13/14 | 09-03 |
-| 09-05 | W4 — Functions + Docs | SA-15/16 | 09-04 |
-| 09-06 | W5 — Tests | SA-17/18/19/20/21 | 09-05 |
-| 09-07 | W6 — Verification Gate | SA-22 | 09-06 |
+| Plano | Wave                   | SAs               | Dependência |
+| ----- | ---------------------- | ----------------- | ----------- |
+| 09-01 | W0 — Foundation        | SA-01/02/03/04    | nenhuma     |
+| 09-02 | W1 — Core Logic        | SA-05/06/07/08    | 09-01       |
+| 09-03 | W2 — Services          | SA-09/10/11       | 09-02       |
+| 09-04 | W3 — Hooks + UI        | SA-12/13/14       | 09-03       |
+| 09-05 | W4 — Functions + Docs  | SA-15/16          | 09-04       |
+| 09-06 | W5 — Tests             | SA-17/18/19/20/21 | 09-05       |
+| 09-07 | W6 — Verification Gate | SA-22             | 09-06       |
 
 ---
 

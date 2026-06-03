@@ -11,7 +11,7 @@ import { UroanaliseIndicadores } from './UroanaliseIndicadores';
 import { UroHitRateChart } from './UroHitRateChart';
 import { UroanaliseRelatorioPrint } from './UroanaliseRelatorioPrint';
 import { exportUroRunsToCSV } from '../services/uroExportService';
-import { URO_ANALITO_LABELS } from '../UroAnalyteConfig';
+import { URO_ANALITO_LABELS, OPCOES_POR_ANALITO, URO_ANALITOS, URO_CRITERIOS } from '../UroAnalyteConfig';
 import {
   updateUroLotDecision,
   updateUroLotMeta,
@@ -20,8 +20,8 @@ import {
   desvincularUroLot,
 } from '../services/uroanaliseFirebaseService';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
-import type { UroanaliseLot, UroanaliseRun } from '../types/Uroanalise';
-import type { UroLotStatus, UroStatus } from '../types/_shared_refs';
+import type { UroanaliseLot, UroanaliseRun, UroExpectedValueConfig } from '../types/Uroanalise';
+import type { UroLotStatus, UroStatus, UroValorCategorico } from '../types/_shared_refs';
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
@@ -354,7 +354,9 @@ export function UroanaliseContent({
       return;
     }
     exportUroRunsToCSV(runs, `FR036_Uro_Nivel${activeLot.nivel}_${activeLot.loteControle}`);
-    toast.success(`${runs.length} corrida${runs.length !== 1 ? 's' : ''} exportada${runs.length !== 1 ? 's' : ''}.`);
+    toast.success(
+      `${runs.length} corrida${runs.length !== 1 ? 's' : ''} exportada${runs.length !== 1 ? 's' : ''}.`,
+    );
   }
 
   async function handlePin(setupType: 'principal' | 'validacao_paralela') {
@@ -371,7 +373,12 @@ export function UroanaliseContent({
 
   async function handleUnpin() {
     if (!activeLot || !user) return;
-    if (!confirm(`Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`)) return;
+    if (
+      !confirm(
+        `Desvincular o lote ${activeLot.loteControle} (Nível ${activeLot.nivel}) da bancada?`,
+      )
+    )
+      return;
     try {
       await desvincularUroLot(activeLot.labId, activeLot.id, user.uid);
       toast.success('Lote desvinculado. Auditado.');
@@ -614,8 +621,18 @@ export function UroanaliseContent({
                   className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-amber-300 dark:border-amber-500/25 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-500/10 transition-all"
                 >
                   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                    <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
-                    <path d="M2 11l9-9" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+                    <path
+                      d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                      stroke="currentColor"
+                      strokeWidth="1.2"
+                      strokeLinejoin="round"
+                    />
+                    <path
+                      d="M2 11l9-9"
+                      stroke="currentColor"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
                   </svg>
                   Desvincular
                 </button>
@@ -629,7 +646,12 @@ export function UroanaliseContent({
                       className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-emerald-300 dark:border-emerald-500/25 text-emerald-700 dark:text-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-all"
                     >
                       <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                        <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                        <path
+                          d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                          stroke="currentColor"
+                          strokeWidth="1.2"
+                          strokeLinejoin="round"
+                        />
                       </svg>
                       Vincular oficial
                     </button>
@@ -641,7 +663,12 @@ export function UroanaliseContent({
                     className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-blue-300 dark:border-blue-500/25 text-blue-700 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all"
                   >
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden>
-                      <path d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
+                      <path
+                        d="M6.5 1.5l3 3-1 1 1.5 1.5-1 1L7 6.5l-3 3v-2L6.5 5l-1-1 1-1z"
+                        stroke="currentColor"
+                        strokeWidth="1.2"
+                        strokeLinejoin="round"
+                      />
                     </svg>
                     Em validação
                   </button>
@@ -662,7 +689,11 @@ export function UroanaliseContent({
             type="button"
             onClick={() => canDecide && setShowDelete(true)}
             disabled={!canDecide}
-            title={canDecide ? 'Excluir lote e todas suas corridas' : 'Apenas owner/admin podem excluir lotes'}
+            title={
+              canDecide
+                ? 'Excluir lote e todas suas corridas'
+                : 'Apenas owner/admin podem excluir lotes'
+            }
             className="inline-flex items-center gap-1.5 h-9 px-3 rounded-lg text-xs font-medium border border-red-300/50 dark:border-red-500/25 text-red-500 dark:text-red-400/90 hover:bg-red-50 dark:hover:bg-red-500/10 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
           >
             <TrashIcon /> Excluir
@@ -1023,7 +1054,7 @@ export function NovaRunModal({
   );
 }
 
-function EditLotModal({
+export function EditLotModal({
   lot,
   onClose,
   onSave,
@@ -1031,22 +1062,80 @@ function EditLotModal({
   lot: UroanaliseLot;
   onClose: () => void;
   onSave: (
-    fields: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle'>>,
-    prev: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle'>>,
+    fields: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'expectedValues'>>,
+    prev: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'expectedValues'>>,
   ) => Promise<void>;
 }) {
   const [abertura, setAbertura] = useState(lot.aberturaControle);
   const [validade, setValidade] = useState(lot.validadeControle);
   const [saving, setSaving] = useState(false);
-  const dirty = abertura !== lot.aberturaControle || validade !== lot.validadeControle;
+
+  const CROSS_LABELS = ['NEGATIVO', 'TRACOS', '1+', '2+', '3+', '4+'] as const;
+  const CROSS_VALUE_MAP: Record<string, number> = {
+    NEGATIVO: 0,
+    TRACOS: 0.5,
+    '1+': 1,
+    '2+': 2,
+    '3+': 3,
+    '4+': 4,
+  };
+  const CROSS_LABEL_MAP: Record<number, string> = {
+    0: 'NEGATIVO',
+    0.5: 'TRACOS',
+    1: '1+',
+    2: '2+',
+    3: '3+',
+    4: '4+',
+  };
+
+  const [expectedValues, setExpectedValues] = useState<Record<string, UroExpectedValueConfig>>(() => {
+    const initial: Record<string, UroExpectedValueConfig> = {};
+    for (const a of URO_ANALITOS) {
+      if (lot.expectedValues?.[a]) {
+        initial[a] = lot.expectedValues[a];
+      } else {
+        const crit = URO_CRITERIOS[lot.nivel][a];
+        if (a === 'ph' || a === 'densidade') {
+          const c = crit as { min: number; max: number };
+          initial[a] = { tipo: 'numerico', min: c.min, max: c.max };
+        } else {
+          const c = crit as readonly UroValorCategorico[];
+          initial[a] = { tipo: 'nominal', valores: [...c] };
+        }
+      }
+    }
+    return initial;
+  });
+
+  const hasExpectedValuesChanged = JSON.stringify(expectedValues) !== JSON.stringify(lot.expectedValues ?? {});
+  const dirty = abertura !== lot.aberturaControle || validade !== lot.validadeControle || hasExpectedValuesChanged;
+
+  const updateExpectedValue = (analito: string, patch: Partial<UroExpectedValueConfig>) => {
+    setExpectedValues((prev) => ({
+      ...prev,
+      [analito]: {
+        ...prev[analito],
+        ...patch,
+      } as UroExpectedValueConfig,
+    }));
+  };
 
   async function submit() {
     setSaving(true);
     try {
-      await onSave(
-        { aberturaControle: abertura, validadeControle: validade },
-        { aberturaControle: lot.aberturaControle, validadeControle: lot.validadeControle },
-      );
+      const fields: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'expectedValues'>> = {
+        aberturaControle: abertura,
+        validadeControle: validade,
+      };
+      const prev: Partial<Pick<UroanaliseLot, 'aberturaControle' | 'validadeControle' | 'expectedValues'>> = {
+        aberturaControle: lot.aberturaControle,
+        validadeControle: lot.validadeControle,
+      };
+      if (hasExpectedValuesChanged) {
+        fields.expectedValues = expectedValues;
+        prev.expectedValues = lot.expectedValues ?? {};
+      }
+      await onSave(fields, prev);
     } finally {
       setSaving(false);
     }
@@ -1054,28 +1143,162 @@ function EditLotModal({
 
   return (
     <ModalShell title="Editar lote" subtitle="Alterações são auditadas" onClose={onClose}>
-      <div className="space-y-3">
-        <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5">
-            Abertura
-          </label>
-          <input
-            type="date"
-            value={abertura}
-            onChange={(e) => setAbertura(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-sm"
-          />
+      <div className="space-y-4 max-h-[75vh] overflow-y-auto pr-2">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5">
+              Abertura
+            </label>
+            <input
+              type="date"
+              value={abertura}
+              onChange={(e) => setAbertura(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-sm"
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5">
+              Validade
+            </label>
+            <input
+              type="date"
+              value={validade}
+              onChange={(e) => setValidade(e.target.value)}
+              className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-sm"
+            />
+          </div>
         </div>
-        <div>
-          <label className="block text-xs font-medium text-slate-500 dark:text-white/45 mb-1.5">
-            Validade
-          </label>
-          <input
-            type="date"
-            value={validade}
-            onChange={(e) => setValidade(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-xl bg-slate-50 dark:bg-white/[0.06] border border-slate-200 dark:border-white/[0.09] text-sm"
-          />
+
+        <div className="border-t border-slate-100 dark:border-white/[0.08] pt-4 space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-400 dark:text-white/30">
+            Valores Esperados da Bula (Nível {lot.nivel})
+          </h3>
+
+          {URO_ANALITOS.map((analito) => {
+            const cfg = expectedValues[analito] || { tipo: 'nominal', valores: [] };
+            const label = URO_ANALITO_LABELS[analito];
+            const isNumericOnly = analito === 'ph' || analito === 'densidade';
+
+            return (
+              <div
+                key={analito}
+                className="p-3.5 rounded-xl bg-slate-50/50 dark:bg-white/[0.02] border border-slate-100 dark:border-white/[0.04] space-y-3"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-semibold text-slate-700 dark:text-white/80">{label}</span>
+                  {!isNumericOnly && (
+                    <select
+                      value={cfg.tipo}
+                      onChange={(e) =>
+                        updateExpectedValue(analito, {
+                          tipo: e.target.value as any,
+                          min: undefined,
+                          max: undefined,
+                          valores: [],
+                        })
+                      }
+                      className="text-xs px-2.5 py-1 rounded-lg bg-white dark:bg-[#1a202c] border border-slate-200 dark:border-white/[0.09] dark:text-white"
+                    >
+                      <option value="nominal">Nominal (Lista)</option>
+                      <option value="faixa_cruzes">Faixa de Cruzes</option>
+                    </select>
+                  )}
+                </div>
+
+                {cfg.tipo === 'numerico' && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-medium text-slate-400 mb-1">Mínimo</label>
+                      <input
+                        type="number"
+                        step={analito === 'ph' ? '0.5' : '0.005'}
+                        value={cfg.min ?? ''}
+                        onChange={(e) =>
+                          updateExpectedValue(analito, { min: parseFloat(e.target.value) || undefined })
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] text-sm font-mono dark:text-white"
+                      />
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-medium text-slate-400 mb-1">Máximo</label>
+                      <input
+                        type="number"
+                        step={analito === 'ph' ? '0.5' : '0.005'}
+                        value={cfg.max ?? ''}
+                        onChange={(e) =>
+                          updateExpectedValue(analito, { max: parseFloat(e.target.value) || undefined })
+                        }
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-white/[0.04] border border-slate-200 dark:border-white/[0.08] text-sm font-mono dark:text-white"
+                      />
+                    </div>
+                  </div>
+                )}
+
+                {cfg.tipo === 'faixa_cruzes' && (
+                  <div className="flex items-center gap-3">
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-medium text-slate-400 mb-1">Mínimo</label>
+                      <select
+                        value={CROSS_LABEL_MAP[cfg.min ?? 0] ?? 'NEGATIVO'}
+                        onChange={(e) => updateExpectedValue(analito, { min: CROSS_VALUE_MAP[e.target.value] })}
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-[#1a202c] border border-slate-200 dark:border-white/[0.08] text-sm dark:text-white"
+                      >
+                        {CROSS_LABELS.map((lbl) => (
+                          <option key={lbl} value={lbl}>
+                            {lbl}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                    <div className="flex-1">
+                      <label className="block text-[10px] font-medium text-slate-400 mb-1">Máximo</label>
+                      <select
+                        value={CROSS_LABEL_MAP[cfg.max ?? 4] ?? '4+'}
+                        onChange={(e) => updateExpectedValue(analito, { max: CROSS_VALUE_MAP[e.target.value] })}
+                        className="w-full px-3 py-1.5 rounded-lg bg-white dark:bg-[#1a202c] border border-slate-200 dark:border-white/[0.08] text-sm dark:text-white"
+                      >
+                        {CROSS_LABELS.map((lbl) => (
+                          <option key={lbl} value={lbl}>
+                            {lbl}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {cfg.tipo === 'nominal' && (
+                  <div className="space-y-2">
+                    <label className="block text-[10px] font-medium text-slate-400">Valores aceitos</label>
+                    <div className="flex flex-wrap gap-1.5">
+                      {(OPCOES_POR_ANALITO[analito] ?? []).map((val) => {
+                        const active = cfg.valores?.includes(val) ?? false;
+                        return (
+                          <button
+                            key={val}
+                            type="button"
+                            onClick={() => {
+                              const current = cfg.valores ?? [];
+                              const next = active ? current.filter((x) => x !== val) : [...current, val];
+                              updateExpectedValue(analito, { valores: next });
+                            }}
+                            className={[
+                              'text-xs px-2.5 py-1 rounded-lg border transition-all select-none',
+                              active
+                                ? 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300 font-semibold'
+                                : 'bg-white dark:bg-white/[0.02] border-slate-200 dark:border-white/[0.06] text-slate-500 dark:text-white/40 hover:text-slate-700 dark:hover:text-white',
+                            ].join(' ')}
+                          >
+                            {val}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
       <div className="mt-6 flex gap-3 justify-end">

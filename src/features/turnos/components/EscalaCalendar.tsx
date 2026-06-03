@@ -10,7 +10,12 @@ interface EscalaCalendarProps {
   onDayClick: (day: Date, existing?: EscalaDiaria) => void;
 }
 
-export function EscalaCalendar({ weekDays, escalasByDay, diasSemCobertura, onDayClick }: EscalaCalendarProps) {
+export function EscalaCalendar({
+  weekDays,
+  escalasByDay,
+  diasSemCobertura,
+  onDayClick,
+}: EscalaCalendarProps) {
   const missingSet = new Set(diasSemCobertura.map((d) => d.toDateString()));
   const today = new Date().toDateString();
 

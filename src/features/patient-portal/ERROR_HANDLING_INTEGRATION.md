@@ -11,15 +11,15 @@
 
 ### 1. Component Overview
 
-| Component | Purpose | When to use |
-|-----------|---------|-----------|
-| `ErrorAlert` | Inline error messages with actions | Form validation, API errors |
-| `SuccessAlert` | Dismissible success feedback | Link sent, action completed |
-| `LoadingState` | Skeleton screens + spinners | Data loading, async operations |
-| `SessionExpiryWarning` | Modal countdown timer | Session near expiry (10 min) |
-| `PortalErrorBoundary` | JS error boundary | Wrap portal sections |
-| `useAuthErrorHandler` | Error code → friendly message | API response handling |
-| `useSessionManagement` | Session expiry + refresh logic | Session tracking + auto-logout |
+| Component              | Purpose                            | When to use                    |
+| ---------------------- | ---------------------------------- | ------------------------------ |
+| `ErrorAlert`           | Inline error messages with actions | Form validation, API errors    |
+| `SuccessAlert`         | Dismissible success feedback       | Link sent, action completed    |
+| `LoadingState`         | Skeleton screens + spinners        | Data loading, async operations |
+| `SessionExpiryWarning` | Modal countdown timer              | Session near expiry (10 min)   |
+| `PortalErrorBoundary`  | JS error boundary                  | Wrap portal sections           |
+| `useAuthErrorHandler`  | Error code → friendly message      | API response handling          |
+| `useSessionManagement` | Session expiry + refresh logic     | Session tracking + auto-logout |
 
 ### 2. Usage Examples
 
@@ -111,8 +111,7 @@ import { SessionExpiryWarning } from './components/SessionExpiryWarning';
 import { PortalErrorBoundary } from './components/PortalErrorBoundary';
 
 export function PatientPortal() {
-  const { timeRemaining, showWarning, refreshToken, logout } =
-    useSessionManagement();
+  const { timeRemaining, showWarning, refreshToken, logout } = useSessionManagement();
 
   return (
     <PortalErrorBoundary>
@@ -157,32 +156,32 @@ import { LoadingState } from './components/LoadingState';
 
 #### Auth Link Errors (5)
 
-| Scenario | Error Code | Message | Action | Type |
-|----------|-----------|---------|--------|------|
-| Token invalid (malformed JWT) | `auth/token-invalid` | "Link inválido. Solicite um novo." | "Solicitar novo link" | auth |
-| Token expired (>72h) | `auth/token-expired` | "Link expirado. Os links são válidos por 72 horas." | "Solicitar novo link" | auth |
-| Token used (already authenticated) | `auth/token-used` | "Este link já foi utilizado. Faça login." | "Fazer login" | auth |
-| Signature mismatch (tampering) | `auth/token-tampered` | "Link inválido (adulteração detectada)." | "Solicitar novo link" | auth |
-| Lab not found (invalid labId) | `auth/lab-not-found` | "Laboratório não encontrado. Contate suporte." | — | auth |
-| Patient not found (invalid patientId) | `auth/patient-not-found` | "Paciente não encontrado. Contate suporte." | — | auth |
+| Scenario                              | Error Code               | Message                                             | Action                | Type |
+| ------------------------------------- | ------------------------ | --------------------------------------------------- | --------------------- | ---- |
+| Token invalid (malformed JWT)         | `auth/token-invalid`     | "Link inválido. Solicite um novo."                  | "Solicitar novo link" | auth |
+| Token expired (>72h)                  | `auth/token-expired`     | "Link expirado. Os links são válidos por 72 horas." | "Solicitar novo link" | auth |
+| Token used (already authenticated)    | `auth/token-used`        | "Este link já foi utilizado. Faça login."           | "Fazer login"         | auth |
+| Signature mismatch (tampering)        | `auth/token-tampered`    | "Link inválido (adulteração detectada)."            | "Solicitar novo link" | auth |
+| Lab not found (invalid labId)         | `auth/lab-not-found`     | "Laboratório não encontrado. Contate suporte."      | —                     | auth |
+| Patient not found (invalid patientId) | `auth/patient-not-found` | "Paciente não encontrado. Contate suporte."         | —                     | auth |
 
 #### Email Request Errors (3)
 
-| Scenario | Error Code | Message | Action | Type |
-|----------|-----------|---------|--------|------|
-| Email not found in patient DB | `auth/email-not-found` | "Email não associado a este lab." | "Tentar outro email" | email |
-| Rate limit exceeded (5+/min) | `auth/rate-limited` | "Muitas tentativas. Aguarde 1 minuto." | — (countdown) | validation |
-| Email service down | `auth/email-service-down` | "Serviço de email indisponível." | "Tentar novamente" | network |
-| Email recently sent (<5 min) | `auth/email-recently-sent` | "Email enviado recentemente. Tente em 5 min." | — | session |
+| Scenario                      | Error Code                 | Message                                       | Action               | Type       |
+| ----------------------------- | -------------------------- | --------------------------------------------- | -------------------- | ---------- |
+| Email not found in patient DB | `auth/email-not-found`     | "Email não associado a este lab."             | "Tentar outro email" | email      |
+| Rate limit exceeded (5+/min)  | `auth/rate-limited`        | "Muitas tentativas. Aguarde 1 minuto."        | — (countdown)        | validation |
+| Email service down            | `auth/email-service-down`  | "Serviço de email indisponível."              | "Tentar novamente"   | network    |
+| Email recently sent (<5 min)  | `auth/email-recently-sent` | "Email enviado recentemente. Tente em 5 min." | —                    | session    |
 
 #### Session Errors (2)
 
-| Scenario | Error Code | Message | Action | Type |
-|----------|-----------|---------|--------|------|
-| Session expired (30-day TTL) | `auth/session-expired` | "Sessão expirou. Solicite novo link." | "Solicitar novo link" | session |
-| Session corrupted (invalid Firebase token) | `auth/session-corrupted` | "Sessão inválida. Faça login." | "Fazer login" | auth |
-| Access denied (Firestore rules rejected) | `auth/access-denied` | "Acesso negado. Contate suporte." | — | auth |
-| Network error | `auth/network-error` | "Erro de conexão. Verifique internet." | "Tentar novamente" | network |
+| Scenario                                   | Error Code               | Message                                | Action                | Type    |
+| ------------------------------------------ | ------------------------ | -------------------------------------- | --------------------- | ------- |
+| Session expired (30-day TTL)               | `auth/session-expired`   | "Sessão expirou. Solicite novo link."  | "Solicitar novo link" | session |
+| Session corrupted (invalid Firebase token) | `auth/session-corrupted` | "Sessão inválida. Faça login."         | "Fazer login"         | auth    |
+| Access denied (Firestore rules rejected)   | `auth/access-denied`     | "Acesso negado. Contate suporte."      | —                     | auth    |
+| Network error                              | `auth/network-error`     | "Erro de conexão. Verifique internet." | "Tentar novamente"    | network |
 
 ---
 
@@ -296,19 +295,20 @@ export const refreshPatientToken = functions
 
 ## Performance Targets
 
-| Metric | Target | Compliance |
-|--------|--------|-----------|
-| Error render | <100ms | ✓ |
-| Session countdown tick | <150ms | ✓ |
-| Modal open | <200ms | ✓ |
-| Form validation feedback | <50ms | ✓ |
-| Network request timeout | 5s | ✓ |
+| Metric                   | Target | Compliance |
+| ------------------------ | ------ | ---------- |
+| Error render             | <100ms | ✓          |
+| Session countdown tick   | <150ms | ✓          |
+| Modal open               | <200ms | ✓          |
+| Form validation feedback | <50ms  | ✓          |
+| Network request timeout  | 5s     | ✓          |
 
 ---
 
 ## Testing Summary
 
 ### Unit Tests (52 specs)
+
 - ✓ ErrorAlert: 16 specs (10 error types + 6 a11y)
 - ✓ SuccessAlert: 5 specs
 - ✓ LoadingState: 8 specs
@@ -318,6 +318,7 @@ export const refreshPatientToken = functions
 - ✓ useSessionManagement: 4 specs
 
 ### E2E Tests (all 10 scenarios + a11y)
+
 - ✓ Auth link errors (6 specs)
 - ✓ Email request errors (4 specs)
 - ✓ Session errors (4 specs)
@@ -325,6 +326,7 @@ export const refreshPatientToken = functions
 - ✓ Performance benchmarks (2 specs)
 
 ### Test Coverage
+
 - **Lines covered:** 95%+
 - **Branches covered:** 90%+
 - **Error scenarios:** 100% (all 10)
@@ -334,6 +336,7 @@ export const refreshPatientToken = functions
 ## Deployment Checklist
 
 ### Pre-Deploy
+
 - [ ] `npm run test:error-handling` passes (52/52)
 - [ ] `npm run test:e2e:error-scenarios` passes (22/22)
 - [ ] `npm run test:a11y` passes (0 violations)
@@ -341,11 +344,13 @@ export const refreshPatientToken = functions
 - [ ] Bundle size impact <50KB
 
 ### Deploy Order
+
 1. Firestore rules (if new collections)
 2. Cloud Functions (callables)
 3. Frontend hosting
 
 ### Post-Deploy
+
 - [ ] Smoke test: all 10 error scenarios
 - [ ] Monitor Cloud Logs for `TAMPERING_DETECTED` events
 - [ ] Check session refresh token working
@@ -356,6 +361,7 @@ export const refreshPatientToken = functions
 ## Files Reference
 
 ### Components
+
 - `src/features/patient-portal/components/ErrorAlert.tsx`
 - `src/features/patient-portal/components/SuccessAlert.tsx`
 - `src/features/patient-portal/components/LoadingState.tsx`
@@ -363,14 +369,17 @@ export const refreshPatientToken = functions
 - `src/features/patient-portal/components/PortalErrorBoundary.tsx`
 
 ### Hooks
+
 - `src/features/patient-portal/hooks/useAuthErrorHandler.ts`
 - `src/features/patient-portal/hooks/useSessionManagement.ts`
 
 ### Tests
+
 - `src/features/patient-portal/__tests__/error-handling.test.tsx` (52 specs)
 - `src/features/patient-portal/__tests__/error-scenarios.e2e.test.ts` (22 specs)
 
 ### Documentation
+
 - `src/features/patient-portal/ACCESSIBILITY_GUIDE.md` (13 sections)
 - `src/features/patient-portal/ERROR_HANDLING_INTEGRATION.md` (this file)
 
@@ -379,6 +388,7 @@ export const refreshPatientToken = functions
 ## Support & Questions
 
 For issues or clarifications:
+
 1. Check `ACCESSIBILITY_GUIDE.md` for component patterns
 2. Review test file for usage examples
 3. Consult error code mapping in this guide

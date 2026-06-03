@@ -52,9 +52,7 @@ export const ProgressHeader = React.memo(function ProgressHeader({
               accessibilityState={{ selected: isActive }}
               accessibilityLabel={`Filtrar por ${filter}`}
             >
-              <Text style={[styles.chipText, isActive && styles.chipTextActive]}>
-                {filter}
-              </Text>
+              <Text style={[styles.chipText, isActive && styles.chipTextActive]}>{filter}</Text>
             </TouchableOpacity>
           );
         })}

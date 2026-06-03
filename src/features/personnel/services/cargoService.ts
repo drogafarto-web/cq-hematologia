@@ -38,7 +38,8 @@ const labRootDoc = (labId: LabId): DocumentReference => doc(db, PERSONNEL_ROOT, 
 
 const cargosCol = (labId: LabId): CollectionReference => collection(labRootDoc(labId), 'cargos');
 
-const cargoDoc = (labId: LabId, cargoId: string): DocumentReference => doc(cargosCol(labId), cargoId);
+const cargoDoc = (labId: LabId, cargoId: string): DocumentReference =>
+  doc(cargosCol(labId), cargoId);
 
 /**
  * Garante que o doc raiz do tenant existe antes de escrever em subcoleções.
@@ -106,11 +107,7 @@ export async function getCargo(labId: LabId, cargoId: string): Promise<Cargo | n
  * Lê todos os cargos do tenant (em memória; não deletados).
  */
 export async function getCargos(labId: LabId): Promise<Cargo[]> {
-  const q = query(
-    cargosCol(labId),
-    where('deletadoEm', '==', null),
-    orderBy('titulo', 'asc'),
-  );
+  const q = query(cargosCol(labId), where('deletadoEm', '==', null), orderBy('titulo', 'asc'));
   const snap = await getDocs(q);
   return snap.docs.map(mapCargo);
 }
@@ -123,11 +120,7 @@ export function watchCargos(
   callback: (cargos: Cargo[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(
-    cargosCol(labId),
-    where('deletadoEm', '==', null),
-    orderBy('titulo', 'asc'),
-  );
+  const q = query(cargosCol(labId), where('deletadoEm', '==', null), orderBy('titulo', 'asc'));
   return onSnapshot(
     q,
     (snap) => {
@@ -170,7 +163,9 @@ export async function softDeleteCargo(labId: LabId, cargoId: string): Promise<vo
  * Reconstrói a hierarquia de cargos (reportaA) para visualização.
  * Retorna árvore pronta para OrgChart.
  */
-export async function getCargoHierarchy(labId: LabId): Promise<{ roots: string[]; parents: Map<string, string> }> {
+export async function getCargoHierarchy(
+  labId: LabId,
+): Promise<{ roots: string[]; parents: Map<string, string> }> {
   const cargos = await getCargos(labId);
   const roots: string[] = [];
   const parents = new Map<string, string>();

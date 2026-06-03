@@ -186,7 +186,9 @@ export function makeReport(opts = {}) {
   }
 
   const sections = [
-    ...(multi ? [makeHemaSection({ full, runCount: Math.max(1, Math.floor(runCount * 1.8)) })] : []),
+    ...(multi
+      ? [makeHemaSection({ full, runCount: Math.max(1, Math.floor(runCount * 1.8)) })]
+      : []),
     makeImunoSection({ full, runCount }),
   ];
 
@@ -194,9 +196,7 @@ export function makeReport(opts = {}) {
     labId: 'labclin-riopomba',
     labName: 'LabClin Rio Pomba MG',
     labCnpj: full ? '12.345.678/0001-90' : undefined,
-    labAddress: full
-      ? 'Rua São Sebastião, 123 — Centro — Rio Pomba/MG — CEP 36180-000'
-      : undefined,
+    labAddress: full ? 'Rua São Sebastião, 123 — Centro — Rio Pomba/MG — CEP 36180-000' : undefined,
     responsibleTech: full
       ? { name: 'Dra. Maria da Silva', registration: 'CRBM-MG 1234' }
       : undefined,

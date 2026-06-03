@@ -4,12 +4,7 @@ import type { LabId, LogicalSignature, Timestamp, UserId } from './_shared_refs'
 
 export type Modalidade = 'presencial' | 'online' | 'em_servico';
 export type Unidade = 'fixa' | 'itinerante' | 'ambas';
-export type Periodicidade =
-  | 'mensal'
-  | 'bimestral'
-  | 'trimestral'
-  | 'semestral'
-  | 'anual';
+export type Periodicidade = 'mensal' | 'bimestral' | 'trimestral' | 'semestral' | 'anual';
 
 /**
  * Tipo regulatório do treinamento (ISO 15189:2022 cl. 6.2 + RDC 978/2025).
@@ -45,10 +40,7 @@ export type MetodoAvaliacaoCompetencia =
   | 'simulacao_pratica'
   | 'revisao_registro';
 
-export type ResultadoCompetencia =
-  | 'aprovado'
-  | 'reprovado'
-  | 'requer_retreinamento';
+export type ResultadoCompetencia = 'aprovado' | 'reprovado' | 'requer_retreinamento';
 
 export type StatusAlertaVencimento = 'pendente' | 'notificado' | 'resolvido';
 
@@ -171,32 +163,17 @@ export interface AlertaVencimento {
 // Payloads aceitos pelo service layer. Campos de identidade e auditoria são
 // preenchidos exclusivamente por ecFirebaseService — o caller nunca os envia.
 
-export type ColaboradorInput = Omit<
-  Colaborador,
-  'id' | 'labId' | 'criadoEm' | 'deletadoEm'
->;
+export type ColaboradorInput = Omit<Colaborador, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 
-export type TreinamentoInput = Omit<
-  Treinamento,
-  'id' | 'labId' | 'criadoEm' | 'deletadoEm'
->;
+export type TreinamentoInput = Omit<Treinamento, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 
-export type ExecucaoInput = Omit<
-  Execucao,
-  'id' | 'labId' | 'criadoEm' | 'deletadoEm'
->;
+export type ExecucaoInput = Omit<Execucao, 'id' | 'labId' | 'criadoEm' | 'deletadoEm'>;
 
 export type ParticipanteInput = Omit<Participante, 'id' | 'labId' | 'deletadoEm'>;
 
-export type AvaliacaoEficaciaInput = Omit<
-  AvaliacaoEficacia,
-  'id' | 'labId' | 'deletadoEm'
->;
+export type AvaliacaoEficaciaInput = Omit<AvaliacaoEficacia, 'id' | 'labId' | 'deletadoEm'>;
 
-export type AvaliacaoCompetenciaInput = Omit<
-  AvaliacaoCompetencia,
-  'id' | 'labId' | 'deletadoEm'
->;
+export type AvaliacaoCompetenciaInput = Omit<AvaliacaoCompetencia, 'id' | 'labId' | 'deletadoEm'>;
 
 export type AlertaVencimentoInput = Omit<AlertaVencimento, 'id' | 'labId'>;
 
@@ -326,10 +303,7 @@ export type TrilhaAprendizadoInput = Omit<
   'id' | 'labId' | 'criadoEm' | 'deletadoEm'
 >;
 
-export type ProgressoTrilhaInput = Omit<
-  ProgressoTrilha,
-  'id' | 'labId' | 'deletadoEm'
->;
+export type ProgressoTrilhaInput = Omit<ProgressoTrilha, 'id' | 'labId' | 'deletadoEm'>;
 
 // ─── FASE 8 — Banco de Questões + Avaliação Automática ───────────────────────
 

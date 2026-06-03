@@ -4,7 +4,7 @@
 **Date:** 2026-05-07  
 **Scope:** Critical values auto-escalation workflow for HC Quality v1.4 Wave 2  
 **Confidence:** HIGH (criticos module foundation + bioquimica schema + callable patterns from Phase 5)  
-**Status:** READY FOR EXECUTION  
+**Status:** READY FOR EXECUTION
 
 ---
 
@@ -20,6 +20,7 @@ Phase 6 automates escalation of critical lab results to physicians and RTs via m
 6. **Implements fallback** (email if SMS fails) + delivery verification
 
 **Key Deliverables:**
+
 - Firestore schema (3 new collections, 2 index patterns)
 - 7 Cloud Function callables + 1 cron trigger (5-min SLA poll)
 - Twilio integration (SMS templates, delivery tracking)
@@ -72,13 +73,13 @@ Phase 6 automates escalation of critical lab results to physicians and RTs via m
 
 ### System Tiers
 
-| Tier | Component | Responsibility |
-|------|-----------|-----------------|
-| **Frontend** | `CriticosDetector.tsx` (bioquimica) | Client-side detection; triggers callable on critico flag |
-| **API** | Cloud Functions (7 callables + 1 cron) | Orchestration, SMS/email, SLA tracking, NOTIVISA drafts |
-| **Database** | 3 new Firestore collections | Audit trail (append-only), SLA metrics, NOTIVISA queue |
-| **SMS Provider** | Twilio (regional: São Paulo) | SMS delivery + tracking (webhook for delivery status) |
-| **Email Provider** | Firebase/SMTP (fallback) | Email fallback + NOTIVISA notifications |
+| Tier               | Component                              | Responsibility                                           |
+| ------------------ | -------------------------------------- | -------------------------------------------------------- |
+| **Frontend**       | `CriticosDetector.tsx` (bioquimica)    | Client-side detection; triggers callable on critico flag |
+| **API**            | Cloud Functions (7 callables + 1 cron) | Orchestration, SMS/email, SLA tracking, NOTIVISA drafts  |
+| **Database**       | 3 new Firestore collections            | Audit trail (append-only), SLA metrics, NOTIVISA queue   |
+| **SMS Provider**   | Twilio (regional: São Paulo)           | SMS delivery + tracking (webhook for delivery status)    |
+| **Email Provider** | Firebase/SMTP (fallback)               | Email fallback + NOTIVISA notifications                  |
 
 ---
 
@@ -97,37 +98,38 @@ interface CriticosThreshold {
   // Identity
   id: string;
   labId: string;
-  
+
   // Analyte reference
-  analitoId: string;           // Foreign key → /bioquimica/analitos/{analitoId}
-  analitoNome: string;         // Denormalized for UI (copy from bula)
-  unidade: string;             // Must match analito.unidade
-  
+  analitoId: string; // Foreign key → /bioquimica/analitos/{analitoId}
+  analitoNome: string; // Denormalized for UI (copy from bula)
+  unidade: string; // Must match analito.unidade
+
   // Range-based rules
-  min: number | null;          // Lower critical bound (null = no lower limit)
-  max: number | null;          // Upper critical bound (null = no upper limit)
-  alwaysCritico?: boolean;     // Force critico regardless of range (e.g., "<0")
-  neverCritico?: boolean;      // Whitelist (never escalate for this analito)
-  
+  min: number | null; // Lower critical bound (null = no lower limit)
+  max: number | null; // Upper critical bound (null = no upper limit)
+  alwaysCritico?: boolean; // Force critico regardless of range (e.g., "<0")
+  neverCritico?: boolean; // Whitelist (never escalate for this analito)
+
   // Severity classification
-  severidade: 'alta' | 'baixa';  // High=life-threatening, Low=action required
-  
+  severidade: 'alta' | 'baixa'; // High=life-threatening, Low=action required
+
   // Conditional rules (population-specific)
   condicional?: {
-    idadeMin?: number;         // Min age (years) for this rule to apply
-    idadeMax?: number;         // Max age
-    sexo?: 'M' | 'F';         // Applicable only to this sex
+    idadeMin?: number; // Min age (years) for this rule to apply
+    idadeMax?: number; // Max age
+    sexo?: 'M' | 'F'; // Applicable only to this sex
   };
-  
+
   // Audit
   criadoEm: Timestamp;
-  criadoPor: string;           // UserId of RT who set threshold
-  ativo: boolean;              // Soft delete
+  criadoPor: string; // UserId of RT who set threshold
+  ativo: boolean; // Soft delete
   deletadoEm: Timestamp | null;
 }
 ```
 
 **Firestore Indexes:**
+
 ```firestore
 {
   "collection": "/labs/{labId}/criticos-thresholds",
@@ -141,6 +143,7 @@ interface CriticosThreshold {
 ```
 
 **Rules Pattern:**
+
 ```firestore
 // Only RT + Owner can read/write thresholds
 match /criticos-thresholds/{thresholdId} {
@@ -164,66 +167,66 @@ interface CriticosEscalacao {
   // Identity
   id: string;
   labId: string;
-  
+
   // Source reference
-  laudoId: string;             // Foreign key → /liberacao/laudos/{laudoId}
-  laudoVersion: number;        // Version at time of escalation (for audit trail)
-  exameId: string;             // Which exam in laudo triggered escalation
-  analitoId: string;           // Which analyte (copy from exame for audit)
+  laudoId: string; // Foreign key → /liberacao/laudos/{laudoId}
+  laudoVersion: number; // Version at time of escalation (for audit trail)
+  exameId: string; // Which exam in laudo triggered escalation
+  analitoId: string; // Which analyte (copy from exame for audit)
   valorObtido: number;
-  
+
   // Threshold applied
-  thresholdId: string;         // Which threshold doc was used
+  thresholdId: string; // Which threshold doc was used
   severidade: 'alta' | 'baixa';
-  motivo: string;              // "Acima de 250" | "Abaixo de 20"
-  
+  motivo: string; // "Acima de 250" | "Abaixo de 20"
+
   // Patient context (copied for audit trail — not linked)
   pacienteId: string;
   pacienteNome: string;
   pacienteIdade: number;
   pacienteSexo: 'M' | 'F' | 'NI';
-  
+
   // Physician contact info (from laudo at time of escalation)
   medicoId: string;
   medicoNome: string;
-  medicoTelefone: string;      // Phone for SMS (must be E.164 format: +55XXXXXXXXXX)
+  medicoTelefone: string; // Phone for SMS (must be E.164 format: +55XXXXXXXXXX)
   medicoEmail: string;
-  
+
   // RT contact info (from labSettings)
   rtId: string;
   rtNome: string;
   rtEmail: string;
-  
+
   // Escalation attempts (immutable log)
   escalacoes: Array<{
-    canalId: string;           // Unique ID per escalation attempt (uuid)
+    canalId: string; // Unique ID per escalation attempt (uuid)
     canal: 'SMS' | 'EMAIL' | 'WEBHOOK';
     status: 'enviado' | 'entregue' | 'falha' | 'descartado';
-    enviado_em: Timestamp;     // Server-sealed timestamp
-    entregue_em?: Timestamp;   // When provider confirmed delivery
-    motivo_falha?: string;     // If status='falha', why? (e.g., "invalid_number")
+    enviado_em: Timestamp; // Server-sealed timestamp
+    entregue_em?: Timestamp; // When provider confirmed delivery
+    motivo_falha?: string; // If status='falha', why? (e.g., "invalid_number")
     provider_messageId?: string; // Twilio sid or email msgId
-    tentativa_numero: number;  // 1, 2, 3... for retry logic
-    operador_manual?: string;  // UserId if RT forced re-escalation
+    tentativa_numero: number; // 1, 2, 3... for retry logic
+    operador_manual?: string; // UserId if RT forced re-escalation
   }>;
-  
+
   // Acknowledgment tracking
   status: 'enviado' | 'reconhecido' | 'cancelado';
-  reconhecido_em?: Timestamp;  // When physician/RT acknowledged
-  reconhecido_por?: string;    // UserId or 'twilio_webhook' if automated
-  
+  reconhecido_em?: Timestamp; // When physician/RT acknowledged
+  reconhecido_por?: string; // UserId or 'twilio_webhook' if automated
+
   // SLA metrics
-  tempo_deteccao_ms?: number;  // ms from laudo create to escalacao create
-  tempo_sla_ms?: number;       // ms from escalacao create to reconhecimento
+  tempo_deteccao_ms?: number; // ms from laudo create to escalacao create
+  tempo_sla_ms?: number; // ms from escalacao create to reconhecimento
   sla_status: 'em_prazo' | 'vencido' | 'nao_aplicavel';
-  sla_minutos_target: number;  // e.g., 30 (from labSettings.criticosSLAMinutos)
-  
+  sla_minutos_target: number; // e.g., 30 (from labSettings.criticosSLAMinutos)
+
   // NOTIVISA linkage
-  notivisaDraftId?: string;    // If condition is reportable
-  
+  notivisaDraftId?: string; // If condition is reportable
+
   // Audit
   criadoEm: Timestamp;
-  criadoPor: string;           // System (callable owner)
+  criadoPor: string; // System (callable owner)
   atualizadoEm: Timestamp;
   atualizadoPor: string;
   deletadoEm: Timestamp | null;
@@ -231,6 +234,7 @@ interface CriticosEscalacao {
 ```
 
 **Firestore Indexes:**
+
 ```firestore
 {
   "collection": "/labs/{labId}/criticos-escalacoes",
@@ -252,6 +256,7 @@ interface CriticosEscalacao {
 ```
 
 **Rules Pattern:**
+
 ```firestore
 // Read: RT + Auditor only (SLA tracking is compliance-sensitive)
 match /criticos-escalacoes/{escalacaoId} {
@@ -275,13 +280,13 @@ interface CriticosLogEvento {
   // Identity
   id: string;
   labId: string;
-  
+
   // References
-  escalacaoId: string;         // Parent escalacao doc
+  escalacaoId: string; // Parent escalacao doc
   laudoId: string;
-  
+
   // Event type
-  tipo: 
+  tipo:
     | 'sms_enviado'
     | 'sms_entregue'
     | 'sms_falha'
@@ -292,7 +297,7 @@ interface CriticosLogEvento {
     | 'reconhecimento_manual'
     | 'sla_vencido_alerta'
     | 'escalacao_cancelada';
-  
+
   // Event details
   detalhes: {
     [key: string]: string | number | boolean;
@@ -301,21 +306,22 @@ interface CriticosLogEvento {
     // sms_falha: { motivo: "invalid_number", codigo_erro: "21211" }
     // reconhecimento_manual: { reconhecido_por: "medico_id", metodo: "portal_web" }
   };
-  
+
   // Server-sealed metadata
   timestamp: Timestamp;
-  operadorId: string;          // request.auth.uid (system function name if callable)
+  operadorId: string; // request.auth.uid (system function name if callable)
   assinatura: LogicalSignature; // { hash, operatorId, ts }
-  
+
   // Previous event chain (ADR-0012 pattern for immutability verification)
   eventoAnteriorId?: string;
-  
+
   // Audit
   deletadoEm: Timestamp | null;
 }
 ```
 
 **Firestore Indexes:**
+
 ```firestore
 {
   "collection": "/labs/{labId}/criticos-log-eventos",
@@ -328,6 +334,7 @@ interface CriticosLogEvento {
 ```
 
 **Rules Pattern:**
+
 ```firestore
 // Append-only for compliance
 match /criticos-log-eventos/{eventoId} {
@@ -349,35 +356,36 @@ Add to existing `/labs/{labId}/labSettings` doc:
 ```typescript
 interface LabSettings {
   // ... existing fields ...
-  
+
   criticos: {
-    ativo: boolean;                    // Master on/off flag
+    ativo: boolean; // Master on/off flag
     canaisPrefixo: 'SMS' | 'EMAIL' | 'SMS_THEN_EMAIL';
-    slaMinutosTarget: number;          // e.g., 30, 60, 120
+    slaMinutosTarget: number; // e.g., 30, 60, 120
     slaAlertas: {
-      minutos50Pct: number;            // Alert at 50% SLA elapsed
-      minutos100Pct: number;           // Escalate at 100% (retry)
+      minutos50Pct: number; // Alert at 50% SLA elapsed
+      minutos100Pct: number; // Escalate at 100% (retry)
     };
-    
+
     // Reporting thresholds
     condicoesNotivisaveis: Array<{
       analitoId: string;
-      condicao: string;                // e.g., "valor > 350 E sexo = F E idade < 18"
+      condicao: string; // e.g., "valor > 350 E sexo = F E idade < 18"
     }>;
-    
+
     // Twilio config (runtime lookup for regional number)
-    twilioNumberRegional: string;      // e.g., "+5511XXXXXXXX" (São Paulo)
-    
+    twilioNumberRegional: string; // e.g., "+5511XXXXXXXX" (São Paulo)
+
     // Email config
-    emailTemplateId?: string;          // If using custom template (future)
-    
+    emailTemplateId?: string; // If using custom template (future)
+
     // Audit trail linkage
-    auditLevel: 'basico' | 'completo';  // completo = all events logged
+    auditLevel: 'basico' | 'completo'; // completo = all events logged
   };
 }
 ```
 
 **Update Rule:**
+
 ```firestore
 // Only Owner can modify criticos settings
 allow update: if isOwner(labId)
@@ -396,7 +404,7 @@ Update `Laudo` interface in `src/features/liberacao/types/laudo.ts`:
 ```typescript
 export interface Laudo {
   // ... existing fields ...
-  
+
   // Critical values metadata (denormalized for fast lookup)
   criticoMetadata?: {
     hasCritico: boolean;
@@ -407,12 +415,12 @@ export interface Laudo {
       severidade: 'alta' | 'baixa';
       motivo: string;
     }>;
-    escalacaoId?: string;       // First escalacao attempt (for linking)
+    escalacaoId?: string; // First escalacao attempt (for linking)
     deteccaoEm: Timestamp;
   };
-  
+
   // Physician contact info (copied to escalacao for audit)
-  medicoSolicitanteTelefone?: string;  // New field; must be E.164 format
+  medicoSolicitanteTelefone?: string; // New field; must be E.164 format
 }
 ```
 
@@ -432,7 +440,7 @@ interface RegisterCriticoDetectionRequest {
   laudoId: string;
   laudoVersion: number;
   exames: Array<{
-    id: string;                        // exameId
+    id: string; // exameId
     analitoId: string;
     valor: number;
     unidade: string;
@@ -453,14 +461,14 @@ interface RegisterCriticoDetectionRequest {
   medico: {
     id: string;
     nome: string;
-    telefone: string;                 // Must be E.164: +55XXXXXXXXXX
+    telefone: string; // Must be E.164: +55XXXXXXXXXX
     email: string;
   };
 }
 
 interface RegisterCriticoDetectionResponse {
   success: boolean;
-  escalacaoId: string;                // New escalacao doc ID
+  escalacaoId: string; // New escalacao doc ID
   escalacoes: Array<{
     canalId: string;
     canal: 'SMS' | 'EMAIL';
@@ -470,7 +478,7 @@ interface RegisterCriticoDetectionResponse {
   }>;
   sla: {
     slaMinutosTarget: number;
-    etaAckMs: number;                 // Expected ack time in ms
+    etaAckMs: number; // Expected ack time in ms
   };
   notivisaDraftId?: string;
 }
@@ -507,7 +515,7 @@ interface RegisterCriticoDetectionResponse {
 interface AcknowledgeEscalacaoRequest {
   labId: string;
   escalacaoId: string;
-  acknowledgedBy: string;              // UserId
+  acknowledgedBy: string; // UserId
   method: 'portal_web' | 'webhook_twilio' | 'manual_rt';
   notas?: string;
 }
@@ -543,7 +551,7 @@ interface AcknowledgeEscalacaoResponse {
 
 ```typescript
 interface EscalacaoCriticosRequest {
-  labId?: string;  // Optional: if omitted, scan all labs
+  labId?: string; // Optional: if omitted, scan all labs
 }
 
 interface EscalacaoCriticosResponse {
@@ -583,6 +591,7 @@ interface EscalacaoCriticosResponse {
 5. **Return summary** of actions taken
 
 **Scheduled Config (firebase.json):**
+
 ```json
 {
   "functions": [
@@ -604,6 +613,7 @@ interface EscalacaoCriticosResponse {
 ```
 
 Add to `functions/src/index.ts`:
+
 ```typescript
 export const escalacaoCriticos = onSchedule(
   {
@@ -614,7 +624,7 @@ export const escalacaoCriticos = onSchedule(
   },
   async (context) => {
     // Implementation
-  }
+  },
 );
 ```
 
@@ -630,8 +640,8 @@ export const escalacaoCriticos = onSchedule(
 interface RetryEscalacaoRequest {
   labId: string;
   escalacaoId: string;
-  novoCanal: 'SMS' | 'EMAIL';  // Must differ from previous attempt
-  motivoRetry: string;          // e.g., "Número trocado por RT"
+  novoCanal: 'SMS' | 'EMAIL'; // Must differ from previous attempt
+  motivoRetry: string; // e.g., "Número trocado por RT"
 }
 
 interface RetryEscalacaoResponse {
@@ -667,7 +677,7 @@ interface RetryEscalacaoResponse {
 interface CancelarEscalacaoRequest {
   labId: string;
   escalacaoId: string;
-  motivo: string;               // e.g., "Resultado corrigido pelo analisador"
+  motivo: string; // e.g., "Resultado corrigido pelo analisador"
 }
 
 interface CancelarEscalacaoResponse {
@@ -706,7 +716,7 @@ interface ListCriticosEscalacoeRequest {
     dataAte?: Date;
     escalacaoIds?: string[];
   };
-  limit?: number;               // Default 50, max 500
+  limit?: number; // Default 50, max 500
   orderBy?: 'criadoEm' | 'reconhecido_em';
 }
 
@@ -742,10 +752,10 @@ interface GenerateNOTIVISADraftRequest {
 interface GenerateNOTIVISADraftResponse {
   success: boolean;
   notivisaDraftId: string;
-  status: 'rascunho';              // Ready for RT review
+  status: 'rascunho'; // Ready for RT review
   campos: {
     // Pre-populated NOTIVISA form fields
-    tipo: string;                   // "Desvio de Qualidade" | "Falha de Equipamento"
+    tipo: string; // "Desvio de Qualidade" | "Falha de Equipamento"
     descricao: string;
     criteriosDeRisco: string[];
   };
@@ -768,7 +778,7 @@ interface GenerateNOTIVISADraftResponse {
      tipo: string;
      descricao: string;
      criteriosDeRisco: string[];
-     formFields: Record<string, any>;  // Full NOTIVISA form
+     formFields: Record<string, any>; // Full NOTIVISA form
      criadoEm: Timestamp;
      revisadoPor?: string;
      revisadoEm?: Timestamp;
@@ -822,6 +832,7 @@ Responda RECONHECER para confirmar
 ```
 
 **Parameters:**
+
 - `{pacienteNome}` — First name only (privacy)
 - `{analitoNome}` — e.g., "Glicose"
 - `{valorObtido}` — e.g., "487"
@@ -831,6 +842,7 @@ Responda RECONHECER para confirmar
 **SMS character count:** ~120 chars (2 SMS if longer)
 
 **Twilio Configuration:**
+
 - **Sending Number:** Regional São Paulo: `+5511XXXXXXXX` (from labSettings.criticos.twilioNumberRegional)
 - **Provider:** Twilio (standard account)
 - **Delivery Report:** Enable (webhook callback for status updates)
@@ -847,34 +859,41 @@ Responda RECONHECER para confirmar
 ```html
 <html>
   <body style="font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px;">
-    <div style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-      
+    <div
+      style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;"
+    >
       <div style="border-left: 4px solid #ef4444; padding-left: 16px;">
         <h2 style="color: #991b1b; margin: 0 0 12px 0;">⚠️ Resultado Crítico Detectado</h2>
       </div>
-      
+
       <p style="color: #374151; line-height: 1.6;">
-        <strong>Paciente:</strong> {pacienteNome}<br>
-        <strong>Analito:</strong> {analitoNome}<br>
-        <strong>Valor Obtido:</strong> <span style="color: #991b1b; font-weight: bold;">{valorObtido} {unidade}</span><br>
-        <strong>Limiar Crítico:</strong> {limite}<br>
-        <strong>Severidade:</strong> <span style="color: {severidadeCor};">{severidade}</span><br>
+        <strong>Paciente:</strong> {pacienteNome}<br />
+        <strong>Analito:</strong> {analitoNome}<br />
+        <strong>Valor Obtido:</strong>
+        <span style="color: #991b1b; font-weight: bold;">{valorObtido} {unidade}</span><br />
+        <strong>Limiar Crítico:</strong> {limite}<br />
+        <strong>Severidade:</strong> <span style="color: {severidadeCor};">{severidade}</span><br />
       </p>
-      
-      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px; margin: 16px 0;">
+
+      <div
+        style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px; margin: 16px 0;"
+      >
         <p style="margin: 0; color: #7f1d1d; font-size: 14px;">
           <strong>Ação Requerida:</strong> Revisar resultado imediatamente no portal HC Qualidade.
         </p>
       </div>
-      
-      <a href="https://hmatologia2.web.app/laudos/{laudoId}" style="display: inline-block; background: #3b82f6; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;">
+
+      <a
+        href="https://hmatologia2.web.app/laudos/{laudoId}"
+        style="display: inline-block; background: #3b82f6; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;"
+      >
         Acessar Laudo
       </a>
-      
-      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+
       <p style="color: #6b7280; font-size: 12px; margin: 0;">
-        HC Qualidade — Sistema de Controle Interno de Qualidade<br>
+        HC Qualidade — Sistema de Controle Interno de Qualidade<br />
         {labName} — {labTelefone}
       </p>
     </div>
@@ -893,34 +912,41 @@ Responda RECONHECER para confirmar
 ```html
 <html>
   <body style="font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px;">
-    <div style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-      
+    <div
+      style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;"
+    >
       <div style="border-left: 4px solid #dc2626; padding-left: 16px;">
         <h2 style="color: #7f1d1d; margin: 0 0 12px 0;">🚨 SLA Crítico Vencido</h2>
       </div>
-      
+
       <p style="color: #374151; line-height: 1.6;">
-        A escalação crítica abaixo não foi reconhecida no prazo de <strong>{slaMinutos} minutos</strong>.
+        A escalação crítica abaixo não foi reconhecida no prazo de
+        <strong>{slaMinutos} minutos</strong>.
       </p>
-      
-      <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px; margin: 16px 0;">
+
+      <div
+        style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 4px; padding: 12px; margin: 16px 0;"
+      >
         <p style="margin: 0 0 8px 0; color: #7f1d1d; font-weight: bold;">Detalhes da Escalação:</p>
         <p style="margin: 0; color: #7f1d1d; font-size: 14px;">
-          Paciente: {pacienteNome}<br>
-          Analito: {analitoNome}<br>
-          Valor: {valorObtido} {unidade}<br>
-          Tempo desde detecção: {tempoDecorrido}<br>
+          Paciente: {pacienteNome}<br />
+          Analito: {analitoNome}<br />
+          Valor: {valorObtido} {unidade}<br />
+          Tempo desde detecção: {tempoDecorrido}<br />
         </p>
       </div>
-      
-      <a href="https://hmatologia2.web.app/criticos?escalacaoId={escalacaoId}" style="display: inline-block; background: #dc2626; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;">
+
+      <a
+        href="https://hmatologia2.web.app/criticos?escalacaoId={escalacaoId}"
+        style="display: inline-block; background: #dc2626; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;"
+      >
         Acessar Escalação
       </a>
-      
-      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+
       <p style="color: #6b7280; font-size: 12px; margin: 0;">
-        HC Qualidade — Responsável Técnico (RT)<br>
+        HC Qualidade — Responsável Técnico (RT)<br />
         {labName}
       </p>
     </div>
@@ -939,31 +965,38 @@ Responda RECONHECER para confirmar
 ```html
 <html>
   <body style="font-family: 'Segoe UI', sans-serif; background: #f5f5f5; padding: 20px;">
-    <div style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;">
-      
+    <div
+      style="max-width: 600px; background: white; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); padding: 24px;"
+    >
       <div style="border-left: 4px solid #f97316; padding-left: 16px;">
         <h2 style="color: #92400e; margin: 0 0 12px 0;">📋 NOTIVISA Rascunho Gerado</h2>
       </div>
-      
+
       <p style="color: #374151; line-height: 1.6;">
-        Um resultado crítico foi detectado que pode ser reportável à ANVISA sob RDC 978/2025.
-        Um rascunho NOTIVISA foi gerado e aguarda sua revisão.
+        Um resultado crítico foi detectado que pode ser reportável à ANVISA sob RDC 978/2025. Um
+        rascunho NOTIVISA foi gerado e aguarda sua revisão.
       </p>
-      
-      <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 12px; margin: 16px 0;">
+
+      <div
+        style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 4px; padding: 12px; margin: 16px 0;"
+      >
         <p style="margin: 0; color: #92400e; font-size: 14px;">
-          <strong>⚠️ Atenção:</strong> Revisar imediatamente. Condições reportáveis têm prazos rigorosos.
+          <strong>⚠️ Atenção:</strong> Revisar imediatamente. Condições reportáveis têm prazos
+          rigorosos.
         </p>
       </div>
-      
-      <a href="https://hmatologia2.web.app/notivisa/{notivisaDraftId}" style="display: inline-block; background: #f97316; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;">
+
+      <a
+        href="https://hmatologia2.web.app/notivisa/{notivisaDraftId}"
+        style="display: inline-block; background: #f97316; color: white; padding: 10px 16px; border-radius: 4px; text-decoration: none; margin-top: 12px;"
+      >
         Revisar Rascunho NOTIVISA
       </a>
-      
-      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;">
-      
+
+      <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+
       <p style="color: #6b7280; font-size: 12px; margin: 0;">
-        HC Qualidade — NOTIVISA Portal<br>
+        HC Qualidade — NOTIVISA Portal<br />
         {labName}
       </p>
     </div>
@@ -982,7 +1015,6 @@ Responda RECONHECER para confirmar
 1. **Create Twilio account** (if not exists):
    - Signup: https://www.twilio.com
    - Project: HC Quality (Brazil region preferred)
-   
 2. **Purchase regional SMS number** (São Paulo):
    - Account → Phone Numbers → Buy a Number
    - Region: Brazil (São Paulo)
@@ -990,6 +1022,7 @@ Responda RECONHECER para confirmar
    - Example: `+5511988887777`
 
 3. **Configure secrets** in Firebase:
+
    ```bash
    firebase functions:secrets:set TWILIO_ACCOUNT_SID
    firebase functions:secrets:set TWILIO_AUTH_TOKEN
@@ -1020,7 +1053,7 @@ export function createTwilioClient() {
 }
 
 export async function sendSMS(
-  toNumber: string,  // Must be E.164: +55XXXXXXXXXX
+  toNumber: string, // Must be E.164: +55XXXXXXXXXX
   message: string,
 ): Promise<{
   sid: string;
@@ -1035,7 +1068,7 @@ export async function sendSMS(
       to: toNumber,
       statusCallback: `https://southamerica-east1-hmatologia2.cloudfunctions.net/escalacaoCriticos_webhook`,
     });
-    
+
     return {
       sid: result.sid,
       status: result.status as any,
@@ -1056,7 +1089,7 @@ export async function checkMessageStatus(sid: string): Promise<{
   try {
     const client = createTwilioClient();
     const message = await client.messages(sid).fetch();
-    
+
     return {
       status: message.status as any,
       errorCode: message.errorCode || undefined,
@@ -1085,44 +1118,42 @@ export const escalacaoCriticos_webhook = onRequest(
     // Verify Twilio signature (standard Twilio webhook auth)
     const params = { ...req.query, ...req.body };
     const signature = req.get('X-Twilio-Signature') || '';
-    
+
     if (!verifyTwilioSignature(signature, req.originalUrl, params)) {
       res.status(401).send('Unauthorized');
       return;
     }
-    
+
     const messageSid = params.MessageSid;
     const messageStatus = params.MessageStatus;
-    
+
     // Find escalacao by provider_messageId (Twilio SID)
     const escalacoes = await db
       .collectionGroup('criticos-escalacoes')
-      .where('escalacoes', 'array-contains-any', [
-        { provider_messageId: messageSid },
-      ])
+      .where('escalacoes', 'array-contains-any', [{ provider_messageId: messageSid }])
       .get();
-    
+
     if (escalacoes.empty) {
       res.status(200).send('No matching escalacao');
       return;
     }
-    
+
     // Update escalacao document
     const escalacao = escalacoes.docs[0];
     const escalacaoData = escalacao.data();
-    
+
     // Find the escalacao entry with this SID
     const escalacaoEntryIndex = escalacaoData.escalacoes.findIndex(
-      (e: any) => e.provider_messageId === messageSid
+      (e: any) => e.provider_messageId === messageSid,
     );
-    
+
     if (escalacaoEntryIndex >= 0) {
       const updated = escalacaoData.escalacoes[escalacaoEntryIndex];
       updated.status = messageStatus; // 'delivered' | 'failed' | 'undelivered'
       updated.entregue_em = admin.firestore.Timestamp.now();
-      
+
       await escalacao.ref.update({ escalacoes: escalacaoData.escalacoes });
-      
+
       // Log event
       await escalacao.ref.parent.parent.collection('criticos-log-eventos').add({
         escalacaoId: escalacao.id,
@@ -1131,9 +1162,9 @@ export const escalacaoCriticos_webhook = onRequest(
         detalhes: { twilio_sid: messageSid, status: messageStatus },
       });
     }
-    
+
     res.status(200).send('OK');
-  }
+  },
 );
 ```
 
@@ -1313,12 +1344,15 @@ const DEFAULT_THRESHOLDS = [
 
 export async function seedCriticosThresholds(labId: string) {
   const batch = admin.firestore().batch();
-  
+
   for (const threshold of DEFAULT_THRESHOLDS) {
-    const ref = admin.firestore()
-      .collection('labs').doc(labId)
-      .collection('criticos-thresholds').doc();
-    
+    const ref = admin
+      .firestore()
+      .collection('labs')
+      .doc(labId)
+      .collection('criticos-thresholds')
+      .doc();
+
     batch.set(ref, {
       ...threshold,
       ativo: true,
@@ -1326,7 +1360,7 @@ export async function seedCriticosThresholds(labId: string) {
       criadoPor: 'system',
     });
   }
-  
+
   await batch.commit();
 }
 ```
@@ -1340,12 +1374,14 @@ export async function seedCriticosThresholds(labId: string) {
 **Access:** `/criticos` (RT + Auditor only)
 
 **Dashboard Shows:**
+
 - Pending escalacoes (last 24h)
 - SLA status (em prazo / vencido)
 - Physician acknowledgment status
 - Retry history
 
 **Actions:**
+
 1. **Acknowledge Crítico**
    - Button: "Confirmar Leitura" (marks status='reconhecido')
    - Records timestamp + RT identifier
@@ -1373,12 +1409,12 @@ export async function seedCriticosThresholds(labId: string) {
 
 ### External Dependencies
 
-| Dependency | Version | Status | Notes |
-|---|---|---|---|
-| **Twilio SDK** | ^4.x | ✓ npm available | `npm install twilio` |
-| **Firebase Admin SDK** | 12.x | ✓ already in stack | No version change |
-| **Zod** | 3.x | ✓ already in stack | Reuse for validation |
-| **date-fns** | 3.x | ✓ already in stack | Timestamp formatting |
+| Dependency             | Version | Status             | Notes                |
+| ---------------------- | ------- | ------------------ | -------------------- |
+| **Twilio SDK**         | ^4.x    | ✓ npm available    | `npm install twilio` |
+| **Firebase Admin SDK** | 12.x    | ✓ already in stack | No version change    |
+| **Zod**                | 3.x     | ✓ already in stack | Reuse for validation |
+| **date-fns**           | 3.x     | ✓ already in stack | Timestamp formatting |
 
 ### Twilio Contract Prerequisites
 
@@ -1432,6 +1468,7 @@ export async function seedCriticosThresholds(labId: string) {
 **Scenario:** Twilio API returns error, SMS never sent.
 
 **Mitigation:**
+
 - Retry logic in sendSMS() (3 attempts, exponential backoff)
 - Fallback to email immediately if SMS fails
 - Log all failures in criticos-log-eventos for auditor review
@@ -1442,6 +1479,7 @@ export async function seedCriticosThresholds(labId: string) {
 **Scenario:** Laudo lacks valid phone number, SMS fails.
 
 **Mitigation:**
+
 - Validate phone format (E.164) before sending
 - Fallback to email (which requires email from laudo)
 - If both fail: escalate to RT dashboard alert
@@ -1452,6 +1490,7 @@ export async function seedCriticosThresholds(labId: string) {
 **Scenario:** Firestore batch write or Twilio API hangs, cron timeout.
 
 **Mitigation:**
+
 - Cron timeout: 5min (increase to 10min if needed)
 - Error logging with stack trace → CloudLogs for investigation
 - Manual RT action: "Reenviar via Email" button as override
@@ -1462,6 +1501,7 @@ export async function seedCriticosThresholds(labId: string) {
 **Scenario:** Too many false alarms, physician ignores SMS.
 
 **Mitigation:**
+
 - Default thresholds based on clinical references
 - RT can adjust thresholds per lab via dashboard
 - Log all threshold changes (audit trail)
@@ -1472,6 +1512,7 @@ export async function seedCriticosThresholds(labId: string) {
 **Scenario:** Multiple laudo updates trigger multiple SMS for same patient.
 
 **Mitigation:**
+
 - Escalacao uniqueness: one per (laudoId, exameId, analitoId, valor)
 - Dedup check before calling registerCriticoDetection
 - If exists: return existing escalacaoId instead of creating new doc
@@ -1527,14 +1568,14 @@ export async function seedCriticosThresholds(labId: string) {
 
 ## 15. Approval Checklist
 
-| Checkpoint | Responsible | Status |
-|---|---|---|
-| Twilio contract confirmed | CTO | Awaiting ACK |
-| Schema design approved | CTO | Awaiting review |
-| Callable specs reviewed | CTO | Awaiting review |
-| Rules pattern validated | Security | Awaiting review |
-| E2E test plan signed off | QA | Awaiting review |
-| Runbook completed | Tech Writer | ✓ Draft |
+| Checkpoint                | Responsible | Status          |
+| ------------------------- | ----------- | --------------- |
+| Twilio contract confirmed | CTO         | Awaiting ACK    |
+| Schema design approved    | CTO         | Awaiting review |
+| Callable specs reviewed   | CTO         | Awaiting review |
+| Rules pattern validated   | Security    | Awaiting review |
+| E2E test plan signed off  | QA          | Awaiting review |
+| Runbook completed         | Tech Writer | ✓ Draft         |
 
 ---
 

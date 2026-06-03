@@ -7,10 +7,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  subscribeToProdutos,
-  type ProdutoFilters,
-} from '../services/produtoInsumoService';
+import { subscribeToProdutos, type ProdutoFilters } from '../services/produtoInsumoService';
 import type { ProdutoInsumo } from '../types/ProdutoInsumo';
 
 interface UseProdutosResult {

@@ -111,7 +111,11 @@ test('bootstrap-supervisor-status: Creates docs for 3 labs, skips 1 existing', a
   }
 
   // Pre-populate supervisor-status for lab-2
-  const lab2StatusRef = db.collection('labs').doc('lab-2').collection('supervisor-status').doc('current');
+  const lab2StatusRef = db
+    .collection('labs')
+    .doc('lab-2')
+    .collection('supervisor-status')
+    .doc('current');
   await lab2StatusRef.set({ hasActiveSupervisor: true });
 
   // Simulate bootstrap logic
@@ -120,7 +124,11 @@ test('bootstrap-supervisor-status: Creates docs for 3 labs, skips 1 existing', a
 
   const snapshot = await db.collection('labs').get();
   for (const labDoc of snapshot.docs) {
-    const statusRef = db.collection('labs').doc(labDoc.id).collection('supervisor-status').doc('current');
+    const statusRef = db
+      .collection('labs')
+      .doc(labDoc.id)
+      .collection('supervisor-status')
+      .doc('current');
     const statusSnapshot = await statusRef.get();
 
     if (statusSnapshot.exists) {
@@ -168,7 +176,11 @@ test('bootstrap-supervisor-status: Dry-run mode (preview only)', async () => {
 
   // Dry-run: check but don't write
   for (const labDoc of snapshot.docs) {
-    const statusRef = db.collection('labs').doc(labDoc.id).collection('supervisor-status').doc('current');
+    const statusRef = db
+      .collection('labs')
+      .doc(labDoc.id)
+      .collection('supervisor-status')
+      .doc('current');
     const statusSnapshot = await statusRef.get();
 
     if (!statusSnapshot.exists) {
@@ -180,7 +192,11 @@ test('bootstrap-supervisor-status: Dry-run mode (preview only)', async () => {
   assert.equal(wouldCreate, 1, 'Dry-run should identify 1 doc to create');
 
   // Verify nothing was actually written
-  const statusRef = db.collection('labs').doc('lab-1').collection('supervisor-status').doc('current');
+  const statusRef = db
+    .collection('labs')
+    .doc('lab-1')
+    .collection('supervisor-status')
+    .doc('current');
   const check = await statusRef.get();
   assert.equal(check.exists, false, 'Dry-run should not write');
 });
@@ -216,7 +232,11 @@ test('bootstrap-supervisor-status: All labs already have supervisor-status', asy
   for (const labId of labs) {
     await db.collection('labs').doc(labId).collection('_dummy').doc('_').set({});
     // Pre-populate all with supervisor-status
-    const statusRef = db.collection('labs').doc(labId).collection('supervisor-status').doc('current');
+    const statusRef = db
+      .collection('labs')
+      .doc(labId)
+      .collection('supervisor-status')
+      .doc('current');
     await statusRef.set({ hasActiveSupervisor: false });
   }
 
@@ -226,7 +246,11 @@ test('bootstrap-supervisor-status: All labs already have supervisor-status', asy
 
   const snapshot = await db.collection('labs').get();
   for (const labDoc of snapshot.docs) {
-    const statusRef = db.collection('labs').doc(labDoc.id).collection('supervisor-status').doc('current');
+    const statusRef = db
+      .collection('labs')
+      .doc(labDoc.id)
+      .collection('supervisor-status')
+      .doc('current');
     const statusSnapshot = await statusRef.get();
 
     if (statusSnapshot.exists) {

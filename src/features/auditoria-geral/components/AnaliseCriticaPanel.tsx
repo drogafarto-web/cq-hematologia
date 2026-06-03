@@ -32,7 +32,7 @@ export function AnaliseCriticaPanel() {
 
   // Calculate trends
   const sortedByDate = [...finalizadas].sort((a, b) =>
-    a.dataFim && b.dataFim ? a.dataFim.toMillis() - b.dataFim.toMillis() : 0
+    a.dataFim && b.dataFim ? a.dataFim.toMillis() - b.dataFim.toMillis() : 0,
   );
   const latest = sortedByDate[sortedByDate.length - 1];
   const previous = sortedByDate.length > 1 ? sortedByDate[sortedByDate.length - 2] : null;
@@ -40,7 +40,7 @@ export function AnaliseCriticaPanel() {
 
   // Average score over time
   const avgScore = Math.round(
-    finalizadas.reduce((sum, a) => sum + a.scoreTotal, 0) / finalizadas.length
+    finalizadas.reduce((sum, a) => sum + a.scoreTotal, 0) / finalizadas.length,
   );
 
   // Frequency analysis
@@ -109,7 +109,11 @@ export function AnaliseCriticaPanel() {
                 <div className="flex-1 h-2 rounded-full bg-slate-100 dark:bg-white/[0.04] overflow-hidden">
                   <div
                     className={`h-full rounded-full ${
-                      (score as number) >= 70 ? 'bg-emerald-400' : (score as number) >= 50 ? 'bg-amber-400' : 'bg-red-400'
+                      (score as number) >= 70
+                        ? 'bg-emerald-400'
+                        : (score as number) >= 50
+                          ? 'bg-amber-400'
+                          : 'bg-red-400'
                     }`}
                     style={{ width: `${score}%` }}
                   />

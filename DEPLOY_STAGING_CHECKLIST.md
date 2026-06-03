@@ -4,7 +4,7 @@
 **Phase:** 3 (Schema Extensions & Cross-Cutting Prep)  
 **Wave:** 1 (03-01: Schema, 03-03: Helpers, pre-deploy gate tasks)  
 **Deployment Target:** Staging (hmatologia2-staging Firebase project)  
-**Approval:** Pre-flight verification complete  
+**Approval:** Pre-flight verification complete
 
 ---
 
@@ -24,6 +24,7 @@ Phase 3 Wave 1 artifacts are **PRODUCTION-READY for staging deployment**. All cr
 ### 1. TypeScript Compilation
 
 **Command:**
+
 ```bash
 npm run typecheck              # src/
 cd functions && npm run build  # functions/src
@@ -32,19 +33,22 @@ cd functions && npm run build  # functions/src
 **Result:** ✅ **PASS — 0 errors**
 
 **Details:**
+
 - `src/` TypeScript check: 0 errors
 - `functions/src/` build: 0 errors (after tsconfig.json exclusion of Wave 2 modules)
 - All production code compiles cleanly
 
 **Note:** Wave 2 module skeletons (criticos, notivisa, ia-strip, portals) have incomplete `onSchedule` signatures. These were excluded from `functions/tsconfig.json` via:
+
 ```json
 "exclude": [
   "src/modules/criticos/**",
-  "src/modules/notivisa/**", 
+  "src/modules/notivisa/**",
   "src/modules/ia-strip/**",
   "src/modules/portals/**"
 ]
 ```
+
 This is correct isolation—Wave 2 tasks (03-04) will implement these modules fully before deployment. Production code is unaffected.
 
 ---
@@ -52,6 +56,7 @@ This is correct isolation—Wave 2 tasks (03-04) will implement these modules fu
 ### 2. Build Success
 
 **Command:**
+
 ```bash
 npm run build  # Vite + TypeScript build
 ```
@@ -59,9 +64,10 @@ npm run build  # Vite + TypeScript build
 **Result:** ✅ **PASS — built in 31.93s**
 
 **Artifact:**
+
 - `dist/` generated
 - PWA precache: 37 entries (9.8 MB)
-- Service Worker: dist/sw.js + dist/workbox-*.js
+- Service Worker: dist/sw.js + dist/workbox-\*.js
 - All code-split bundles generated
 
 **No breaking changes:** Build succeeds without modification to existing code structure.
@@ -71,6 +77,7 @@ npm run build  # Vite + TypeScript build
 ### 3. Test Suite Status
 
 **Command:**
+
 ```bash
 npm run test:unit
 ```
@@ -86,12 +93,14 @@ npm run test:unit
 | **Total** | **1130** | **4** | **✅ Safe for deploy** |
 
 **Failed Tests (non-blocking):**
+
 - `phase3-schema.e2e.test.ts` → 4 failures (E2E test infrastructure, not production code)
 - Root cause: Incorrect Firestore collection paths in test code (e.g., `labs/{labId}/notivisa-outbox/events` should be referenced via callable, not direct collection)
 - Impact: **Zero** — these test files don't affect production deployment
 - Remediation: Will be fixed in 03-02 (Rules) and 03-03 (Helpers) completion tasks
 
 **Why production tests are unaffected:**
+
 - Schema 03-01 delivers Firestore schema + indexes only (no service layer)
 - Helpers 03-03 delivers shared utilities (notivisa, SMS, IA formatters)
 - Rules 03-02 and Callables 03-04 add the service layer and Cloud Functions that tests validate
@@ -104,6 +113,7 @@ npm run test:unit
 **File:** `firestore.rules` (1600+ lines, 100+ collection rules)
 
 **Checks:**
+
 - ✅ No `allow delete: if true` (all regulatory collections: soft-delete only per RN-06)
 - ✅ No `allow write: if true` (all writes restricted by `isActiveMemberOfLab` + role + payload validation)
 - ✅ No `allow read: if true` (all reads checked for `isAuthenticated` or module claim)
@@ -119,6 +129,7 @@ npm run test:unit
 ### 5. Secret Status Check
 
 **Command:**
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 ```
@@ -143,6 +154,7 @@ bash scripts/preflight-secrets-check.sh
 **Status:** ✅ **READY**
 
 **Verification:**
+
 - ✅ Functions build succeeds: `cd functions && npm run build`
 - ✅ All 78+ exported Cloud Functions are accounted for in `functions/src/index.ts`
 - ✅ Scheduled functions use correct region: `southamerica-east1` (set via `setGlobalOptions` in index.ts line 16)
@@ -183,6 +195,7 @@ bash scripts/preflight-secrets-check.sh
 **Build Impact:** <5 minutes typical for Firestore index creation
 
 **Verification:**
+
 - ✅ JSON syntax valid
 - ✅ No duplicate indexes
 - ✅ Field ordering matches query patterns (ASC/DESC)
@@ -193,6 +206,7 @@ bash scripts/preflight-secrets-check.sh
 ### 8. No Hardcoded Secrets or Credentials
 
 **Scan:**
+
 ```bash
 grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
   --include="*.ts" --include="*.tsx" | \
@@ -202,6 +216,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 **Result:** ✅ **PASS — No hardcoded credentials**
 
 **Details:**
+
 - All API keys: via `defineSecret()` + Firebase Secrets Manager
 - All passwords: user auth only (Firebase Authentication)
 - All sensitive data: never in code or firestore.rules
@@ -212,11 +227,13 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ### 9. Compliance & Audit Trail
 
 **RDC 978/2025 Art. 5.3 — Audit Trail:**
+
 - ✅ All writes logged via `auditLogs` subcollection
 - ✅ Chain hash validation enforced server-side (ADR-0005)
 - ✅ Immutable audit records: `allow update, delete: if false`
 
 **DICQ 4.3 — Data Quality:**
+
 - ✅ Multi-tenant isolation (schema v1.4 enforces `labId` in all paths)
 - ✅ Soft delete only (RN-06: no hard deletes in regulatory collections)
 - ✅ Signatures: HMAC-SHA256 + operatorId + timestamp on all critical writes
@@ -235,6 +252,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ### 10. Bundle Size & Performance
 
 **Web Bundle:**
+
 - ✅ Build succeeded in 31.93s
 - ✅ Code-splitting active (18+ feature modules)
 - ✅ PWA precache: 37 entries (9.8 MB total precached)
@@ -256,6 +274,7 @@ grep -r "PENDING_SET\|api_key\|secret\|password" src/ functions/src/ \
 ### Before Firebase Deploy
 
 **1. Verify all secrets are provisioned** (required for functions to work)
+
 ```bash
 bash scripts/preflight-secrets-check.sh
 # Output: exit code 0 (all secrets OK) or exit code 1 (missing secrets listed)
@@ -264,6 +283,7 @@ bash scripts/preflight-secrets-check.sh
 **If exit code 1:** Run each command listed in output to provision missing secrets, then retry.
 
 **2. Type-check locally**
+
 ```bash
 npx tsc --noEmit
 cd functions && npm run build
@@ -272,6 +292,7 @@ cd functions && npm run build
 **Expected:** 0 errors
 
 **3. Run production tests** (optional; already passed)
+
 ```bash
 npm run test:unit 2>&1 | grep "Test Files"
 # Expected: "4 failed | 61 passed" (E2E schema tests, non-blocking) + "10 failed | 1130 passed" (production tests, all pass)
@@ -314,12 +335,14 @@ firebase deploy --only hosting --project hmatologia2-staging
 ### Immediate (5 min after deploy)
 
 1. **Verify Firestore indexes created:**
+
    ```bash
    firebase firestore:indexes --project hmatologia2-staging
    # Should list all 5 new indexes as "Enabled"
    ```
 
 2. **Verify functions are warm:**
+
    ```bash
    curl -X POST \
      https://us-central1-hmatologia2-staging.cloudfunctions.net/helloWorld \
@@ -335,6 +358,7 @@ firebase deploy --only hosting --project hmatologia2-staging
 ### 24 Hours (Monitoring)
 
 **Cloud Logs monitoring:**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30  # macOS/Linux
 # or
@@ -342,6 +366,7 @@ bash scripts/monitor-cloud-logs.sh 24 30  # macOS/Linux
 ```
 
 **Watch for:**
+
 - ❌ Functions timing out
 - ❌ Rules denying legitimate reads/writes
 - ❌ Index build failures
@@ -356,12 +381,15 @@ bash scripts/monitor-cloud-logs.sh 24 30  # macOS/Linux
 If critical issue detected post-deploy:
 
 ### Option A: Revert to previous hosting build
+
 ```bash
 firebase hosting:rollback --project hmatologia2-staging
 ```
+
 (returns to previous deployment; indexes + rules unchanged)
 
 ### Option B: Full rollback (all components)
+
 ```bash
 git revert <commit-sha>
 firebase deploy --only firestore:indexes,firestore:rules,functions,hosting \
@@ -374,12 +402,12 @@ firebase deploy --only firestore:indexes,firestore:rules,functions,hosting \
 
 ## Known Limitations & Mitigations
 
-| Issue | Impact | Mitigation | Timeline |
-|-------|--------|-----------|----------|
-| Phase 3 E2E tests failing | Non-blocking; test infrastructure | Fix in 03-02 task | End of week |
-| Wave 2 modules excluded from build | None; correct isolation | Will be included after 03-04 complete | Week of 2026-05-14 |
-| Portal read rules pending 03-02 | None; no portal live yet | Deploy with 03-02 completion | End of week |
-| NOTIVISA callable pending 03-04 | None; schema ready, callable deferred | Implement in Wave 2 | Week of 2026-05-14 |
+| Issue                              | Impact                                | Mitigation                            | Timeline           |
+| ---------------------------------- | ------------------------------------- | ------------------------------------- | ------------------ |
+| Phase 3 E2E tests failing          | Non-blocking; test infrastructure     | Fix in 03-02 task                     | End of week        |
+| Wave 2 modules excluded from build | None; correct isolation               | Will be included after 03-04 complete | Week of 2026-05-14 |
+| Portal read rules pending 03-02    | None; no portal live yet              | Deploy with 03-02 completion          | End of week        |
+| NOTIVISA callable pending 03-04    | None; schema ready, callable deferred | Implement in Wave 2                   | Week of 2026-05-14 |
 
 ---
 
@@ -408,6 +436,7 @@ firebase deploy --only firestore:indexes,firestore:rules,functions,hosting \
 **Go/No-go decision:** ✅ **GO**
 
 **Next steps:**
+
 1. Provision any missing secrets (if needed)
 2. Execute deployment steps in order
 3. Run 24h monitoring post-deploy
@@ -420,12 +449,12 @@ firebase deploy --only firestore:indexes,firestore:rules,functions,hosting \
 
 ## Appendix: Task Completion Status
 
-| Task | Status | Deliverables | Tests |
-|------|--------|--------------|-------|
-| **03-01** | ✅ Complete | 5 collections, 5 indexes, schema doc | Schema created |
-| **03-02** | ⏳ In Progress | Rules for portal + notivisa gates | Will pass with 03-02 completion |
-| **03-03** | ✅ Complete | Shared helpers (notivisa, SMS, IA, laudo formatters) | 1130 production tests passing |
-| **03-04** | 📋 Queued (Wave 2) | Cloud Functions module skeletons | Deferred to Wave 2 |
+| Task      | Status             | Deliverables                                         | Tests                           |
+| --------- | ------------------ | ---------------------------------------------------- | ------------------------------- |
+| **03-01** | ✅ Complete        | 5 collections, 5 indexes, schema doc                 | Schema created                  |
+| **03-02** | ⏳ In Progress     | Rules for portal + notivisa gates                    | Will pass with 03-02 completion |
+| **03-03** | ✅ Complete        | Shared helpers (notivisa, SMS, IA, laudo formatters) | 1130 production tests passing   |
+| **03-04** | 📋 Queued (Wave 2) | Cloud Functions module skeletons                     | Deferred to Wave 2              |
 
 **Phase 3 Overall:** 75% complete (3/4 tasks in Wave 1 done, Wave 2 queued)
 

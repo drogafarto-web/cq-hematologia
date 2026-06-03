@@ -5,11 +5,12 @@
  * Provides helpers for creating consistent test data across all smoke test files
  */
 
+import type { Lab, UserRole } from '../../../src/types';
 import type {
-  Lab,
-  UserRole,
-} from '../../../src/types';
-import type { CEQParticipacao, CEQAmostra, CEQResultado } from '../../../src/features/ceq/types/CEQ';
+  CEQParticipacao,
+  CEQAmostra,
+  CEQResultado,
+} from '../../../src/features/ceq/types/CEQ';
 import type { ExportJob, ExportRequest } from '../../../src/features/export/types';
 import type { CIQComplianceMetrics } from '../../../src/features/analytics/types';
 
@@ -49,9 +50,7 @@ export const createSampleCEQParticipacao = (
   ...overrides,
 });
 
-export const createSampleCEQAmostra = (
-  overrides?: Partial<CEQAmostra>,
-): CEQAmostra => ({
+export const createSampleCEQAmostra = (overrides?: Partial<CEQAmostra>): CEQAmostra => ({
   id: 'ceq-amo-001',
   labId: SAMPLE_LAB_ID,
   ceqParticipacaoId: 'ceq-part-001',
@@ -111,9 +110,7 @@ export const createSampleCEQResultadoUnsatisfactory = (
 
 // ─── Export Job Fixtures ─────────────────────────────────────────────────────
 
-export const createSampleExportRequest = (
-  overrides?: Partial<ExportRequest>,
-): ExportRequest => ({
+export const createSampleExportRequest = (overrides?: Partial<ExportRequest>): ExportRequest => ({
   labId: SAMPLE_LAB_ID,
   format: 'xlsx',
   startDate: new Date('2026-01-01'),
@@ -122,9 +119,7 @@ export const createSampleExportRequest = (
   ...overrides,
 });
 
-export const createSampleExportJob = (
-  overrides?: Partial<ExportJob>,
-): ExportJob => ({
+export const createSampleExportJob = (overrides?: Partial<ExportJob>): ExportJob => ({
   id: 'job-001',
   labId: SAMPLE_LAB_ID,
   format: 'xlsx',
@@ -133,7 +128,8 @@ export const createSampleExportJob = (
   createdBy: SAMPLE_USER_ID,
   expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
   fileName: 'cq-export-2026-05-04.xlsx',
-  downloadUrl: 'https://storage.googleapis.com/hmatologia2.appspot.com/exports/job-001.xlsx?token=abc123',
+  downloadUrl:
+    'https://storage.googleapis.com/hmatologia2.appspot.com/exports/job-001.xlsx?token=abc123',
   fileSize: 1234567,
   processingTimeMs: 5000,
   ...overrides,
@@ -205,9 +201,7 @@ export interface SamplePOP {
   ativo: boolean;
 }
 
-export const createSamplePOP = (
-  overrides?: Partial<SamplePOP>,
-): SamplePOP => ({
+export const createSamplePOP = (overrides?: Partial<SamplePOP>): SamplePOP => ({
   id: 'pop-001',
   labId: SAMPLE_LAB_ID,
   numero: 'POP-001',

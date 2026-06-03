@@ -12,14 +12,13 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 // ─── Hoisted mocks (before imports) ──────────────────────────────────────────
 
-const { mockGetDoc, mockRefreshAggregates, mockSetMetadata, mockStoreState } =
-  vi.hoisted(() => {
-    const mockGetDoc = vi.fn();
-    const mockRefreshAggregates = vi.fn().mockResolvedValue(undefined);
-    const mockSetMetadata = vi.fn();
-    const mockStoreState = { metadata: null as null | object, setMetadata: mockSetMetadata };
-    return { mockGetDoc, mockRefreshAggregates, mockSetMetadata, mockStoreState };
-  });
+const { mockGetDoc, mockRefreshAggregates, mockSetMetadata, mockStoreState } = vi.hoisted(() => {
+  const mockGetDoc = vi.fn();
+  const mockRefreshAggregates = vi.fn().mockResolvedValue(undefined);
+  const mockSetMetadata = vi.fn();
+  const mockStoreState = { metadata: null as null | object, setMetadata: mockSetMetadata };
+  return { mockGetDoc, mockRefreshAggregates, mockSetMetadata, mockStoreState };
+});
 
 // ─── Module mocks ─────────────────────────────────────────────────────────────
 

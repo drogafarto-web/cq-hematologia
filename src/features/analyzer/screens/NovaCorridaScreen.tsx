@@ -105,9 +105,7 @@ function LotPicker({ lots, selectedId, onSelect, onConfirm, onNewMonth }: LotPic
   const today = new Date();
   // Operador não pode registrar corrida em lote arquivado ou retirado de uso
   // — LotManager mostra esses em HISTÓRICO; aqui ficam ocultos.
-  const selectableLots = lots.filter(
-    (l) => l.archivedAt == null && l.manualHidden !== true,
-  );
+  const selectableLots = lots.filter((l) => l.archivedAt == null && l.manualHidden !== true);
   const groups = groupByMonth(selectableLots);
 
   if (selectableLots.length === 0) {
@@ -293,7 +291,7 @@ export function NovaCorridaScreen({
   /* eslint-enable react-hooks/set-state-in-effect */
 
   const step = confirmedId === null ? 0 : pendingRun ? 2 : 1;
-  const confirmedLot = confirmedId ? lots.find((l) => l.id === confirmedId) ?? null : null;
+  const confirmedLot = confirmedId ? (lots.find((l) => l.id === confirmedId) ?? null) : null;
 
   async function handleConfirm() {
     if (!selectedId) return;

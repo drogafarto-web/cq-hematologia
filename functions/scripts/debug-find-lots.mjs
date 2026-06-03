@@ -11,7 +11,7 @@ for (const id of ids) {
   const lotRef = db.collection('labs').doc(labId).collection('ciq-uroanalise').doc(id);
   const runsSnap = await lotRef.collection('runs').get();
   console.log(`\n--- RUNS FOR LOT ${id} ---`);
-  runsSnap.forEach(runDoc => {
+  runsSnap.forEach((runDoc) => {
     console.log(`Run ID: ${runDoc.id}`);
     console.log(JSON.stringify(runDoc.data(), null, 2));
   });

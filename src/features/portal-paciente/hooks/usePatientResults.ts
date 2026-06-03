@@ -22,10 +22,7 @@ interface UsePatientResultsReturn {
  * @param patientId - Patient ID
  * @returns Results state
  */
-export function usePatientResults(
-  labId: string,
-  patientId: string
-): UsePatientResultsReturn {
+export function usePatientResults(labId: string, patientId: string): UsePatientResultsReturn {
   const [results, setResults] = useState<PatientResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

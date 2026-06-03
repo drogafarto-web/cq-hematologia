@@ -178,10 +178,7 @@ export function useSaveExecucao(): UseSaveExecucaoResult {
       if (params.motivo.trim().length === 0) {
         throw new Error('Motivo do adiamento é obrigatório.');
       }
-      if (
-        params.novaDataPlanejada.toMillis() <=
-        params.execucaoOriginal.dataPlanejada.toMillis()
-      ) {
+      if (params.novaDataPlanejada.toMillis() <= params.execucaoOriginal.dataPlanejada.toMillis()) {
         throw new Error('Nova data precisa ser posterior à data planejada original.');
       }
 

@@ -1,4 +1,5 @@
 # Cloud Logs Alert Policies Validation — Phase 4
+
 **Effective Date:** 2026-05-20  
 **Project ID:** `hmatologia2`  
 **Region:** `southamerica-east1`  
@@ -17,6 +18,7 @@ This document provides **ready-to-execute gcloud commands** to create, test, and
 4. **Success criteria** (verification checklist)
 
 **Prerequisites:**
+
 - `gcloud` CLI installed and authenticated
 - Project ID set: `gcloud config set project hmatologia2`
 - Slack webhook configured in GCP Notification Channels
@@ -302,7 +304,7 @@ admin.initializeApp();
 exports.testNotivisaQueueAlert = async (req, res) => {
   const db = admin.firestore();
   const oldDate = new Date(Date.now() - 20 * 60000); // 20 min ago
-  
+
   await db.collection('notivisa-queue').doc('test-lab-001')
     .collection('events').doc('test-alert-' + Date.now()).set({
       status: 'pending',
@@ -310,7 +312,7 @@ exports.testNotivisaQueueAlert = async (req, res) => {
       labId: 'test-lab-001',
       payload: { event_type: 'TEST' }
     });
-  
+
   res.json({ success: true });
 };
 EOF
@@ -670,7 +672,7 @@ gcloud logging read \
 
 for i in {1..50}; do
   duration=$((1500 + RANDOM % 1000))  # 1500-2500ms
-  
+
   gcloud logging write verifyPatientAuthToken \
     "{\"duration\": $duration, \"message\": \"Token verification took ${duration}ms\"}" \
     --resource=cloud_function \
@@ -889,6 +891,7 @@ Before Phase 4 launch (2026-05-20):
 ## Troubleshooting
 
 ### gcloud command not found
+
 ```bash
 # Install Google Cloud SDK
 # macOS: brew install google-cloud-sdk
@@ -901,6 +904,7 @@ gcloud config set project hmatologia2
 ```
 
 ### Alert policy not triggering
+
 ```bash
 # Check if notification channel is configured
 gcloud alpha monitoring channels list --project=hmatologia2
@@ -913,6 +917,7 @@ gcloud alpha monitoring policies list --project=hmatologia2 | grep -i "alert-nam
 ```
 
 ### Slack webhook not working
+
 ```bash
 # Verify Slack integration in GCP
 # 1. GCP Console → Monitoring → Notification Channels

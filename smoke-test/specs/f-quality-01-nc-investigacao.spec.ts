@@ -20,16 +20,23 @@ test.describe('F-Quality-01 — NC Crítica → Investigação → Ação → Ef
 
     // 2. Criar NC crítica
     console.log('Step 2: Create critical NC...');
-    const newNcBtn = page.locator('button:has-text("Nova"), button:has-text("Novo"), button:has-text("Criar")').first();
+    const newNcBtn = page
+      .locator('button:has-text("Nova"), button:has-text("Novo"), button:has-text("Criar")')
+      .first();
     if (await newNcBtn.isVisible()) {
       await newNcBtn.click();
       await page.waitForTimeout(1500);
 
       // Preencher dados da NC
-      await page.fill('textarea[placeholder*="descrição"]', `SMOKE_NC_CRITICA_${names.runId}: Resultado anômalo`);
+      await page.fill(
+        'textarea[placeholder*="descrição"]',
+        `SMOKE_NC_CRITICA_${names.runId}: Resultado anômalo`,
+      );
 
       // Marcar como crítica
-      const criticalCheckbox = page.locator('input[type="checkbox"][aria-label*="crítica"], label:has-text("Crítica")');
+      const criticalCheckbox = page.locator(
+        'input[type="checkbox"][aria-label*="crítica"], label:has-text("Crítica")',
+      );
       if (await criticalCheckbox.isVisible()) {
         await criticalCheckbox.check();
       }
@@ -47,16 +54,22 @@ test.describe('F-Quality-01 — NC Crítica → Investigação → Ação → Ef
       await page.waitForTimeout(2000);
 
       // Aba Investigação
-      const investigationTab = page.locator('button:has-text("Investigação"), [role="tab"]:has-text("Investigação")').first();
+      const investigationTab = page
+        .locator('button:has-text("Investigação"), [role="tab"]:has-text("Investigação")')
+        .first();
       if (await investigationTab.isVisible()) {
         await investigationTab.click();
         await page.waitForTimeout(1000);
       }
 
       // Registrar investigação
-      const investigationField = page.locator('textarea[placeholder*="investigação"], textarea[placeholder*="análise"]').first();
+      const investigationField = page
+        .locator('textarea[placeholder*="investigação"], textarea[placeholder*="análise"]')
+        .first();
       if (await investigationField.isVisible()) {
-        await investigationField.fill(`SMOKE: Investigação iniciada em ${today}. Causa raiz: calibração de equipamento.`);
+        await investigationField.fill(
+          `SMOKE: Investigação iniciada em ${today}. Causa raiz: calibração de equipamento.`,
+        );
         await page.click('button:has-text("Salvar"), button:has-text("Registrar")');
         await page.waitForTimeout(1500);
         console.log('✅ Investigation recorded');
@@ -65,26 +78,36 @@ test.describe('F-Quality-01 — NC Crítica → Investigação → Ação → Ef
 
     // 4. Propor ação corretiva
     console.log('Step 4: Propose corrective action...');
-    const actionTab = page.locator('button:has-text("Ação"), [role="tab"]:has-text("Ação")').first();
+    const actionTab = page
+      .locator('button:has-text("Ação"), [role="tab"]:has-text("Ação")')
+      .first();
     if (await actionTab.isVisible()) {
       await actionTab.click();
       await page.waitForTimeout(1000);
 
-      const newActionBtn = page.locator('button:has-text("Nova"), button:has-text("Adicionar")').first();
+      const newActionBtn = page
+        .locator('button:has-text("Nova"), button:has-text("Adicionar")')
+        .first();
       if (await newActionBtn.isVisible()) {
         await newActionBtn.click();
         await page.waitForTimeout(1000);
 
-        const actionField = page.locator('textarea[placeholder*="ação"], textarea[placeholder*="correção"]').first();
+        const actionField = page
+          .locator('textarea[placeholder*="ação"], textarea[placeholder*="correção"]')
+          .first();
         if (await actionField.isVisible()) {
-          await actionField.fill(`SMOKE: Recalibração do equipamento. Responsável: técnico. Prazo: 7 dias.`);
+          await actionField.fill(
+            `SMOKE: Recalibração do equipamento. Responsável: técnico. Prazo: 7 dias.`,
+          );
 
           // Definir data de conclusão
           const dueDate = new Date();
           dueDate.setDate(dueDate.getDate() + 7);
           const dueDateStr = dueDate.toISOString().split('T')[0];
 
-          const dueDateField = page.locator('input[type="date"], input[placeholder*="conclusão"]').nth(1);
+          const dueDateField = page
+            .locator('input[type="date"], input[placeholder*="conclusão"]')
+            .nth(1);
           if (await dueDateField.isVisible()) {
             await dueDateField.fill(dueDateStr);
           }
@@ -98,12 +121,18 @@ test.describe('F-Quality-01 — NC Crítica → Investigação → Ação → Ef
 
     // 5. Verificar eficácia (simular fechamento)
     console.log('Step 5: Verify action effectiveness...');
-    const closeNcBtn = page.locator('button:has-text("Fechar"), button:has-text("Validar"), button:has-text("Confirmar Eficácia")').first();
+    const closeNcBtn = page
+      .locator(
+        'button:has-text("Fechar"), button:has-text("Validar"), button:has-text("Confirmar Eficácia")',
+      )
+      .first();
     if (await closeNcBtn.isVisible()) {
       await closeNcBtn.click();
       await page.waitForTimeout(1500);
 
-      const confirmBtn = page.locator('button:has-text("Confirmar"), button:has-text("OK"), button:has-text("Sim")').first();
+      const confirmBtn = page
+        .locator('button:has-text("Confirmar"), button:has-text("OK"), button:has-text("Sim")')
+        .first();
       if (await confirmBtn.isVisible()) {
         await confirmBtn.click();
         await page.waitForTimeout(2000);

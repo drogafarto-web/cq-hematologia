@@ -209,7 +209,7 @@ export const classificarReclamacaoIA = functions.tasks.onTaskDispatched(
         criadoEm: now,
       });
     }
-  }
+  },
 );
 
 // Sync testing version removed — use task-based async for production

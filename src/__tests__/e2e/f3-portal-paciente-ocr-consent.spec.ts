@@ -86,7 +86,9 @@ describe('F3: Portal-Paciente Consent & Laudo OCR', () => {
       expect(laudoDetail?.textContent).toContain('Hemograma');
       expect(laudoDetail?.textContent).toContain('Alice da Silva');
 
-      const consentCheckbox = laudoDetail?.querySelector('[data-testid="consent-ia-strip-ocr"]') as HTMLInputElement;
+      const consentCheckbox = laudoDetail?.querySelector(
+        '[data-testid="consent-ia-strip-ocr"]',
+      ) as HTMLInputElement;
       expect(consentCheckbox).toBeDefined();
       expect(consentCheckbox?.checked).toBe(false); // Unchecked initially
 
@@ -181,7 +183,9 @@ describe('F3: Portal-Paciente Consent & Laudo OCR', () => {
       await waitForElement('[data-testid="laudo-detail-view"]');
 
       // Action: Patient declines consent
-      const consentCheckbox = document.querySelector('[data-testid="consent-ia-strip-ocr"]') as HTMLInputElement;
+      const consentCheckbox = document.querySelector(
+        '[data-testid="consent-ia-strip-ocr"]',
+      ) as HTMLInputElement;
       // Leave unchecked (declined)
       expect(consentCheckbox?.checked).toBe(false);
 
@@ -235,7 +239,9 @@ describe('F3: Portal-Paciente Consent & Laudo OCR', () => {
       navigateTo(`/portal/laudo/${testLaudo.id}`);
 
       // Action: Consent to OCR
-      const consentCheckbox = document.querySelector('[data-testid="consent-ia-strip-ocr"]') as HTMLInputElement;
+      const consentCheckbox = document.querySelector(
+        '[data-testid="consent-ia-strip-ocr"]',
+      ) as HTMLInputElement;
       clickElement(consentCheckbox);
 
       // Mock: Gemini timeout
@@ -295,12 +301,14 @@ function seedTestLaudo(labId: string, patientId: string, options: any = {}) {
 
 function generatePatientAuthToken(patientId: string, email: string): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    patientId,
-    email,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 86400, // 24h
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      patientId,
+      email,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 86400, // 24h
+    }),
+  );
   const signature = btoa('mock_patient_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -322,7 +330,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }

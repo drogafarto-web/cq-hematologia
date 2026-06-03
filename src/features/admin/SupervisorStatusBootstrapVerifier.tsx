@@ -57,12 +57,7 @@ function useSupervisorStatusMonitor() {
 
         // For each lab, subscribe to its supervisor-status/current doc
         labs.forEach((labId) => {
-          const statusDocRef = collection(
-            db,
-            'labs',
-            labId,
-            'supervisor-status'
-          );
+          const statusDocRef = collection(db, 'labs', labId, 'supervisor-status');
 
           const statusUnsubscribe = onSnapshot(
             statusDocRef,
@@ -89,7 +84,7 @@ function useSupervisorStatusMonitor() {
             },
             (err) => {
               setError(err);
-            }
+            },
           );
 
           unsubscribers.push(statusUnsubscribe);
@@ -100,7 +95,7 @@ function useSupervisorStatusMonitor() {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     unsubscribers.push(labsUnsubscribe);
@@ -121,9 +116,7 @@ function StatusBadge({ hasActiveSupervisor }: { hasActiveSupervisor: boolean }) 
     return (
       <div className="flex items-center gap-2">
         <div className="w-2.5 h-2.5 rounded-full bg-yellow-500" />
-        <span className="text-sm text-yellow-700 dark:text-yellow-300">
-          Supervisor active
-        </span>
+        <span className="text-sm text-yellow-700 dark:text-yellow-300">Supervisor active</span>
       </div>
     );
   }
@@ -131,9 +124,7 @@ function StatusBadge({ hasActiveSupervisor }: { hasActiveSupervisor: boolean }) 
   return (
     <div className="flex items-center gap-2">
       <div className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-      <span className="text-sm text-emerald-700 dark:text-emerald-300">
-        Ready (no supervisor)
-      </span>
+      <span className="text-sm text-emerald-700 dark:text-emerald-300">Ready (no supervisor)</span>
     </div>
   );
 }
@@ -154,19 +145,14 @@ function SupervisorStatusRow({
   onForceReset: (labId: string) => void;
   onOverride: (labId: string, value: boolean) => void;
 }) {
-  const timeAgo = Math.round(
-    (Date.now() - lastUpdated.getTime()) / 1000 / 60
-  );
-  const timeLabel =
-    timeAgo < 1 ? 'now' : timeAgo === 1 ? '1 min' : `${timeAgo} mins`;
+  const timeAgo = Math.round((Date.now() - lastUpdated.getTime()) / 1000 / 60);
+  const timeLabel = timeAgo < 1 ? 'now' : timeAgo === 1 ? '1 min' : `${timeAgo} mins`;
 
   return (
     <div className="flex items-center justify-between px-4 py-3 border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800/50">
       {/* Lab ID + Status */}
       <div className="flex-1 min-w-0">
-        <div className="font-mono text-sm text-gray-900 dark:text-gray-100 truncate">
-          {labId}
-        </div>
+        <div className="font-mono text-sm text-gray-900 dark:text-gray-100 truncate">{labId}</div>
         <div className="mt-1">
           <StatusBadge hasActiveSupervisor={hasActiveSupervisor} />
         </div>
@@ -175,9 +161,7 @@ function SupervisorStatusRow({
       {/* Timestamp */}
       <div className="flex-shrink-0 px-4 text-xs text-gray-600 dark:text-gray-400">
         {lastUpdated.toLocaleTimeString()}
-        <div className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">
-          {timeLabel} ago
-        </div>
+        <div className="text-xs text-gray-500 dark:text-gray-500 mt-0.5">{timeLabel} ago</div>
       </div>
 
       {/* Actions */}
@@ -249,12 +233,8 @@ export function SupervisorStatusBootstrapVerifier() {
       <div className="flex items-start gap-3 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
         <span className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0 mt-0.5">!</span>
         <div>
-          <h3 className="font-semibold text-red-900 dark:text-red-100">
-            Connection Error
-          </h3>
-          <p className="text-sm text-red-800 dark:text-red-200 mt-1">
-            {error.message}
-          </p>
+          <h3 className="font-semibold text-red-900 dark:text-red-100">Connection Error</h3>
+          <p className="text-sm text-red-800 dark:text-red-200 mt-1">{error.message}</p>
         </div>
       </div>
     );
@@ -293,12 +273,8 @@ export function SupervisorStatusBootstrapVerifier() {
       <div className="border border-gray-200 dark:border-gray-700 rounded-lg overflow-hidden">
         <div className="bg-gray-50 dark:bg-gray-800 px-4 py-3 border-b border-gray-200 dark:border-gray-700">
           <div className="flex items-center justify-between">
-            <span className="font-semibold text-sm text-gray-700 dark:text-gray-300">
-              Labs
-            </span>
-            <span className="text-xs text-gray-600 dark:text-gray-400">
-              Status
-            </span>
+            <span className="font-semibold text-sm text-gray-700 dark:text-gray-300">Labs</span>
+            <span className="text-xs text-gray-600 dark:text-gray-400">Status</span>
           </div>
         </div>
 
@@ -319,7 +295,8 @@ export function SupervisorStatusBootstrapVerifier() {
       {/* Footer Info */}
       <div className="text-xs text-gray-600 dark:text-gray-400 p-3 bg-gray-50 dark:bg-gray-800 rounded-lg">
         <p>
-          <strong>RDC 978 Art. 122:</strong> Each lab's supervisor-status document gates CIQ run submissions. Bootstrap creates docs with hasActiveSupervisor=false (safe default).
+          <strong>RDC 978 Art. 122:</strong> Each lab's supervisor-status document gates CIQ run
+          submissions. Bootstrap creates docs with hasActiveSupervisor=false (safe default).
         </p>
       </div>
     </div>

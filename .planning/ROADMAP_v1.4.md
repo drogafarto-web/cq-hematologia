@@ -1,11 +1,11 @@
 ---
 milestone: v1.4
 version: 2.0
-date_created: "2026-05-07"
-date_updated: "2026-05-07"
-status: "approved"
-consolidation_status: "complete"
-scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel execution)"
+date_created: '2026-05-07'
+date_updated: '2026-05-07'
+status: 'approved'
+consolidation_status: 'complete'
+scope: 'All research + plans consolidated (Phases 0–9 + 12 weeks parallel execution)'
 ---
 
 # HC Quality v1.4 — Complete Consolidated Roadmap
@@ -22,6 +22,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **v1.4 north star:** Achieve **85%+ DICQ compliance** before external auditor assessment (2026-08-31) while expanding patient/operator portals and establishing IA foundation for Gemini Vision OCR integration.
 
 **Key milestones:**
+
 - ✅ Phase 0 (RDC Blockers) — **LIVE** 2026-05-07 (turnos + LGPD + lab-apoio + risks)
 - ✅ Phase 1 (v1.3 Stabilization) — **LIVE** 2026-05-07 (smoke tests + baseline verification)
 - ✅ Phase 2 (Planning Deep-Dive) — **COMPLETE** 2026-05-07 (9 artifacts, 8,500+ lines)
@@ -33,10 +34,11 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **Target:** All phases complete by 2026-08-15. External audit 2026-08-31.
 
 **Compliance trajectory:**
+
 - v1.3 baseline: 78.5% DICQ
-- + Phase 4 (Portal): 80–82%
-- + Phase 5 (Críticos): 83–85%
-- + Phase 6 (Auditoria): 86–88%
+- - Phase 4 (Portal): 80–82%
+- - Phase 5 (Críticos): 83–85%
+- - Phase 6 (Auditoria): 86–88%
 - **Target v1.4 final: 85%+ (exceeded by Phase 8)**
 
 ---
@@ -44,28 +46,32 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 ## v1.4 Wave Structure & Critical Path
 
 ### Wave 1: RDC Blockers (Phase 0) — ✅ COMPLETE
-| Phase | Focus | Duration | Status | Deploy |
-|-------|-------|----------|--------|--------|
-| **00** | Turnos + LGPD + Lab-Apoio + Risks | 1 week | ✅ LIVE | 2026-05-07 |
+
+| Phase  | Focus                             | Duration | Status  | Deploy     |
+| ------ | --------------------------------- | -------- | ------- | ---------- |
+| **00** | Turnos + LGPD + Lab-Apoio + Risks | 1 week   | ✅ LIVE | 2026-05-07 |
 
 ### Wave 2: Operations & Foundation (Phases 3–5)
-| Phase | Focus | Duration | Gate | Deploy |
-|-------|-------|----------|------|--------|
-| **03** | Schema Extensions + Functions | 1 week | Phase 0 ✅ | 2026-05-07 |
-| **04** | Patient Portal + NOTIVISA | 2.5 weeks | Phase 3 ✅ | 2026-06-02 |
-| **05** | Critical Values + IA Strip | 2.5 weeks | Phase 4 ✅ | 2026-06-30 |
+
+| Phase  | Focus                         | Duration  | Gate       | Deploy     |
+| ------ | ----------------------------- | --------- | ---------- | ---------- |
+| **03** | Schema Extensions + Functions | 1 week    | Phase 0 ✅ | 2026-05-07 |
+| **04** | Patient Portal + NOTIVISA     | 2.5 weeks | Phase 3 ✅ | 2026-06-02 |
+| **05** | Critical Values + IA Strip    | 2.5 weeks | Phase 4 ✅ | 2026-06-30 |
 
 ### Wave 3: Compliance & Extended Workflows (Phases 6–8)
-| Phase | Focus | Duration | Gate | Deploy |
-|-------|-------|----------|------|--------|
-| **06** | CAPA Closure + Auditoria | 2 weeks | Phase 5 ✅ | 2026-07-14 |
-| **07** | Export Wizard + Mobile Polish | 3 weeks | Phase 6 ✅ | 2026-08-04 |
-| **08** | NOTIVISA Edge + Labs Apoio | 2 weeks | Phase 7 ✅ | 2026-08-18 |
+
+| Phase  | Focus                         | Duration | Gate       | Deploy     |
+| ------ | ----------------------------- | -------- | ---------- | ---------- |
+| **06** | CAPA Closure + Auditoria      | 2 weeks  | Phase 5 ✅ | 2026-07-14 |
+| **07** | Export Wizard + Mobile Polish | 3 weeks  | Phase 6 ✅ | 2026-08-04 |
+| **08** | NOTIVISA Edge + Labs Apoio    | 2 weeks  | Phase 7 ✅ | 2026-08-18 |
 
 ### Wave 4: Tail & Stabilization (Phase 9+)
-| Phase | Focus | Duration | Gate | Deploy |
-|-------|-------|----------|------|--------|
-| **09** | Manual QC + Bioquímica Phase 2 | 1 week | Phase 8 ✅ | 2026-08-31 |
+
+| Phase  | Focus                          | Duration | Gate       | Deploy     |
+| ------ | ------------------------------ | -------- | ---------- | ---------- |
+| **09** | Manual QC + Bioquímica Phase 2 | 1 week   | Phase 8 ✅ | 2026-08-31 |
 
 **Critical Path:** 00 → 03 → 04 → 05 → 06 → 07 → 08 → 09 (sequential, 14 weeks baseline)
 
@@ -79,14 +85,15 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **Scope:** 4 critical requirements (turnos, LGPD POL+DPIA, lab-apoio, risks FMEA)  
 **Compliance:** RDC 978 Arts. 122, 77, 36–39, 86
 
-| Plan | Title | Owner | Completion | Status |
-|------|-------|-------|-----------|--------|
+| Plan      | Title                         | Owner   | Completion | Status  |
+| --------- | ----------------------------- | ------- | ---------- | ------- |
 | **00-01** | Turnos (Supervision Registry) | Agent 1 | 2026-05-07 | ✅ LIVE |
-| **00-02** | LGPD POL-LGPD-001 + DPIA | Agent 2 | 2026-05-07 | ✅ LIVE |
-| **00-03** | Lab-Apoio (Contracts Module) | Agent 3 | 2026-05-07 | ✅ LIVE |
-| **00-04** | Risks (FMEA-Lite) | Agent 4 | 2026-05-07 | ✅ LIVE |
+| **00-02** | LGPD POL-LGPD-001 + DPIA      | Agent 2 | 2026-05-07 | ✅ LIVE |
+| **00-03** | Lab-Apoio (Contracts Module)  | Agent 3 | 2026-05-07 | ✅ LIVE |
+| **00-04** | Risks (FMEA-Lite)             | Agent 4 | 2026-05-07 | ✅ LIVE |
 
 **Deliverables:**
+
 - 4 Firestore collections (turnos, lgpd-data, lab-apoio, risks)
 - 78 Cloud Functions (callables + triggers + cron)
 - Firestore Rules (RBAC, soft delete, audit trail)
@@ -103,14 +110,14 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **Scope:** Production stability + compliance baseline + roadmap readiness  
 **Outputs:** v1.3-REQUIREMENTS-VERIFIED.md + v1.4-RISK-MITIGATION-MATRIX.md
 
-| Artifact | Status |
-|----------|--------|
-| Smoke test suite (4/4 critical flows) | ✅ PASS |
-| Cloud Logs 24h+ | ✅ CLEAN (0 errors) |
-| Unit tests baseline | ✅ GREEN (738/738, 0 regressions) |
-| v1.3 production deployment | ✅ LIVE |
-| REQ verification | ✅ 15 core + 4 TD verified |
-| Risk mitigation | ✅ RISK-401 + RISK-403 mitigated |
+| Artifact                              | Status                            |
+| ------------------------------------- | --------------------------------- |
+| Smoke test suite (4/4 critical flows) | ✅ PASS                           |
+| Cloud Logs 24h+                       | ✅ CLEAN (0 errors)               |
+| Unit tests baseline                   | ✅ GREEN (738/738, 0 regressions) |
+| v1.3 production deployment            | ✅ LIVE                           |
+| REQ verification                      | ✅ 15 core + 4 TD verified        |
+| Risk mitigation                       | ✅ RISK-401 + RISK-403 mitigated  |
 
 ---
 
@@ -121,6 +128,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **Outputs:** 8,500+ lines, 9 documents
 
 **Key Artifacts:**
+
 - ✅ v1.4-REQ-PHASE-MATRIX.md (16 requirements → phases)
 - ✅ v1.4-PHASE-0-PLAN.md (RDC blockers formalized)
 - ✅ v1.4-DICQ-COVERAGE-MATRIX.md (40+ blocks A–J mapped)
@@ -144,30 +152,33 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 **Deliverables:**
 
 #### Wave 1: Schema Design
-| Collection | Purpose | Status |
-|------------|---------|--------|
-| **portal-configuracao** | Patient portal branding + customization | ✅ Rules + Indexes |
-| **notivisa-outbox** | Regulatory event queue (RDC 978 Art. 6º §1) | ✅ Rules + Indexes |
-| **criticos-escalacoes** | Critical value escalations + SLA tracking | ✅ Rules + Indexes |
-| **imuno-ias-dev** | IA training dataset (immunology strips) | ✅ Rules + Indexes |
-| **laudos-draft** | RT portal draft editing with locking | ✅ Rules + Indexes |
+
+| Collection              | Purpose                                     | Status             |
+| ----------------------- | ------------------------------------------- | ------------------ |
+| **portal-configuracao** | Patient portal branding + customization     | ✅ Rules + Indexes |
+| **notivisa-outbox**     | Regulatory event queue (RDC 978 Art. 6º §1) | ✅ Rules + Indexes |
+| **criticos-escalacoes** | Critical value escalations + SLA tracking   | ✅ Rules + Indexes |
+| **imuno-ias-dev**       | IA training dataset (immunology strips)     | ✅ Rules + Indexes |
+| **laudos-draft**        | RT portal draft editing with locking        | ✅ Rules + Indexes |
 
 **Outputs:**
+
 - 1,500+ lines SCHEMA_v1.4.md
 - 13 comprehensive test documents
 - 5 composite indexes (firestore.indexes.json)
 - Schema validation script
 
 #### Wave 2: Implementation
-| Component | Scope | Status |
-|-----------|-------|--------|
-| **Security Rules** | 5 collection blocks + 5 subcollections | ✅ Complete |
-| **Helper Modules** | notivisa, sms, laudo, ia | ✅ Stubs ready |
-| **Callable Functions** | 50+ function signatures | ✅ Ready for Phase 4–5 |
-| **Integration Tests** | 25+ tests (happy path + concurrency) | ✅ All green |
-| **E2E Tests** | 5 critical flow tests | ✅ Baseline established |
-| **Compliance Audit** | RDC 978 + DICQ 4.3/4.4 coverage | ✅ APPROVED |
-| **Performance Baseline** | Bundle, queries, Web Vitals | ✅ Monitored |
+
+| Component                | Scope                                  | Status                  |
+| ------------------------ | -------------------------------------- | ----------------------- |
+| **Security Rules**       | 5 collection blocks + 5 subcollections | ✅ Complete             |
+| **Helper Modules**       | notivisa, sms, laudo, ia               | ✅ Stubs ready          |
+| **Callable Functions**   | 50+ function signatures                | ✅ Ready for Phase 4–5  |
+| **Integration Tests**    | 25+ tests (happy path + concurrency)   | ✅ All green            |
+| **E2E Tests**            | 5 critical flow tests                  | ✅ Baseline established |
+| **Compliance Audit**     | RDC 978 + DICQ 4.3/4.4 coverage        | ✅ APPROVED             |
+| **Performance Baseline** | Bundle, queries, Web Vitals            | ✅ Monitored            |
 
 **Risk Score:** 2.5/10 (LOW) — All mitigations verified.
 
@@ -183,16 +194,17 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **04-01** | Portal auth + laudo access | Stream B | 2 weeks | 📋 PLANNED |
+| Task      | Focus                             | Owner    | Duration  | Status     |
+| --------- | --------------------------------- | -------- | --------- | ---------- |
+| **04-01** | Portal auth + laudo access        | Stream B | 2 weeks   | 📋 PLANNED |
 | **04-02** | Portal UI components + responsive | Stream B | 1.5 weeks | 📋 PLANNED |
-| **04-03** | NOTIVISA queue processor | Stream A | 2.5 weeks | 📋 PLANNED |
+| **04-03** | NOTIVISA queue processor          | Stream A | 2.5 weeks | 📋 PLANNED |
 | **04-04** | E2E testing + Cloud Logs + deploy | Stream D | 1.5 weeks | 📋 PLANNED |
 
 #### Key Deliverables
 
 **Patient Portal (REQ-408, 409):**
+
 - Email-link authentication (single-use token, 7-day expiry)
 - Patient laudo list view (CPF-filtered, published only)
 - Read-only laudo detail page + PDF download
@@ -203,6 +215,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - Dark theme responsive UI (WCAG AA, mobile-first)
 
 **NOTIVISA Integration (REQ-410):**
+
 - Regulatory queue processor (Firestore trigger on laudo publication)
 - Sandbox API integration (Portaria 204 format, ANVISA test)
 - Async retry logic (exponential backoff, max 5 attempts)
@@ -213,6 +226,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - Operations runbook
 
 #### Success Criteria
+
 - [ ] Portal live + email-link auth works (<500ms)
 - [ ] PDF download for all laudo types
 - [ ] NOTIVISA auto-enqueues on laudo publication
@@ -224,14 +238,15 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - [ ] WCAG AA verified, dark theme approved
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Email delivery fail | Medium (3/10) | High (7/10) | Test staging, retry queue, fallback alert |
-| Cross-patient data leak | Low (2/10) | Critical (9/10) | Server-side CPF filter + Rules validation |
-| NOTIVISA API key expires | Medium (3/10) | High (7/10) | Rotate quarterly, test staging, alert |
-| Sandbox API payload rejection | Low (2/10) | High (7/10) | Schema validation in tests |
-| Mobile layout breaks | Low (2/10) | Medium (5/10) | Real device testing |
-| E2E tests flaky | Medium (4/10) | Medium (5/10) | Retries + local mocks |
+
+| Risk                          | Probability   | Impact          | Mitigation                                |
+| ----------------------------- | ------------- | --------------- | ----------------------------------------- |
+| Email delivery fail           | Medium (3/10) | High (7/10)     | Test staging, retry queue, fallback alert |
+| Cross-patient data leak       | Low (2/10)    | Critical (9/10) | Server-side CPF filter + Rules validation |
+| NOTIVISA API key expires      | Medium (3/10) | High (7/10)     | Rotate quarterly, test staging, alert     |
+| Sandbox API payload rejection | Low (2/10)    | High (7/10)     | Schema validation in tests                |
+| Mobile layout breaks          | Low (2/10)    | Medium (5/10)   | Real device testing                       |
+| E2E tests flaky               | Medium (4/10) | Medium (5/10)   | Retries + local mocks                     |
 
 **Overall risk score: 3.5/10 (LOW)**
 
@@ -248,16 +263,17 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **05-01** | Critical state machine + severity rules | Stream A | 3 days | 📋 PLANNED |
-| **05-02** | Critical notification cascade (SMS/Email) | Stream A | 3 days | 📋 PLANNED |
-| **05-03** | Gemini OCR strip parsing | Stream C | 5 days | 📋 PLANNED |
-| **05-04** | IA training versioning + A/B testing | Stream C | 4 days | 📋 PLANNED |
+| Task      | Focus                                     | Owner    | Duration | Status     |
+| --------- | ----------------------------------------- | -------- | -------- | ---------- |
+| **05-01** | Critical state machine + severity rules   | Stream A | 3 days   | 📋 PLANNED |
+| **05-02** | Critical notification cascade (SMS/Email) | Stream A | 3 days   | 📋 PLANNED |
+| **05-03** | Gemini OCR strip parsing                  | Stream C | 5 days   | 📋 PLANNED |
+| **05-04** | IA training versioning + A/B testing      | Stream C | 4 days   | 📋 PLANNED |
 
 #### Key Deliverables
 
 **Critical Values Module (05-01, 05-02):**
+
 - Detection engine (recordRunWithCriticalDetection callable)
 - Severity configuration (thresholds: low/high critical, low/high warn)
 - State machine (FLAGGED → ALERTED → RESOLVED)
@@ -272,6 +288,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - 5+ E2E tests (critical flow, escalation, SLA)
 
 **IA OCR Module (05-03, 05-04):**
+
 - Gemini Vision API integration (parseImmunologyStrip callable)
 - Strip image upload + Cloud Storage management
 - OCR result reconciliation (delta calculation)
@@ -286,6 +303,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - 5+ E2E tests (strip upload, OCR reconcile, A/B test)
 
 #### Success Criteria
+
 - [ ] Critical detection engine live + detecting correctly
 - [ ] SMS + Email sent <5 min from critical flag
 - [ ] OCR parsing accuracy ≥92% (100-sample validation)
@@ -300,14 +318,15 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - [ ] Confidence threshold reduces review rate to <20%
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| SMS rate limit exceeded | Low (2/10) | Medium (5/10) | Account limit +100/min, batching |
-| OCR accuracy <92% | Medium (4/10) | High (7/10) | Validate 100 samples, golden data |
-| Gemini cost overruns | Low (2/10) | Medium (5/10) | Rate limiting + monitoring |
-| Cross-lab data leak | Low (2/10) | Critical (9/10) | Rules validation, labId checks |
-| E2E flakiness | Medium (3/10) | Low (3/10) | Retries, local mocks |
-| Schedule compression | Medium (3/10) | Medium (5/10) | Weekly checkpoints, cut scope if needed |
+
+| Risk                    | Probability   | Impact          | Mitigation                              |
+| ----------------------- | ------------- | --------------- | --------------------------------------- |
+| SMS rate limit exceeded | Low (2/10)    | Medium (5/10)   | Account limit +100/min, batching        |
+| OCR accuracy <92%       | Medium (4/10) | High (7/10)     | Validate 100 samples, golden data       |
+| Gemini cost overruns    | Low (2/10)    | Medium (5/10)   | Rate limiting + monitoring              |
+| Cross-lab data leak     | Low (2/10)    | Critical (9/10) | Rules validation, labId checks          |
+| E2E flakiness           | Medium (3/10) | Low (3/10)      | Retries, local mocks                    |
+| Schedule compression    | Medium (3/10) | Medium (5/10)   | Weekly checkpoints, cut scope if needed |
 
 **Overall risk score: 2.5/10 (LOW)**
 
@@ -324,14 +343,15 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **06-01** | CAPA state machine + workflow UI | Stream B | 3.5 days | 📋 PLANNED |
+| Task      | Focus                                 | Owner    | Duration | Status     |
+| --------- | ------------------------------------- | -------- | -------- | ---------- |
+| **06-01** | CAPA state machine + workflow UI      | Stream B | 3.5 days | 📋 PLANNED |
 | **06-02** | Audit trail + compliance verification | Stream A | 3.5 days | 📋 PLANNED |
 
 #### Key Deliverables
 
 **CAPA Module:**
+
 - CAPA schema (finding → action → verification → closeout)
 - State machine (OPEN → IN-PROGRESS → RESOLVED → CLOSED)
 - CAPA workflow UI (assign, track, evidence, sign-off)
@@ -342,6 +362,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - Firestore Rules (append-only evidence, RBAC per CAPA status)
 
 **Auditoria Module:**
+
 - Internal audit findings registry
 - CAPA linking (finding → remediation)
 - Non-conformance (NCQ) trending
@@ -349,6 +370,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - Audit trail for all audit events (logged + signed)
 
 #### Success Criteria
+
 - [ ] CAPA state machine enforced (OPEN → IN-PROGRESS → RESOLVED → CLOSED)
 - [ ] Evidence repository operational (append-only, immutable)
 - [ ] Audit trail complete (all CAPA changes logged + signed)
@@ -358,11 +380,12 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - [ ] DICQ 4.14.6 preventive action workflow documented
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Complex state machine edge cases | Low (3/10) | Medium (5/10) | Heavy testing, state transition matrix |
-| CAPA evidence upload latency | Low (2/10) | Low (3/10) | Cloud Storage optimization |
-| Audit trail performance at scale | Low (2/10) | Medium (4/10) | Query optimization, indexes |
+
+| Risk                             | Probability | Impact        | Mitigation                             |
+| -------------------------------- | ----------- | ------------- | -------------------------------------- |
+| Complex state machine edge cases | Low (3/10)  | Medium (5/10) | Heavy testing, state transition matrix |
+| CAPA evidence upload latency     | Low (2/10)  | Low (3/10)    | Cloud Storage optimization             |
+| Audit trail performance at scale | Low (2/10)  | Medium (4/10) | Query optimization, indexes            |
 
 **Overall risk score: 2.5/10 (LOW)**
 
@@ -379,15 +402,16 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **07-01** | Export wizard 4-step (format, filters, recipients, schedule) | Stream B | 2 weeks | 📋 PLANNED |
-| **07-02** | XLSX/PDF render engines (Cloud Function backed) | Stream A | 1.5 weeks | 📋 PLANNED |
-| **07-03** | Mobile UI rewrite (NativeWind dark theme) | Stream B | 1.5 weeks | 📋 PLANNED |
+| Task      | Focus                                                        | Owner    | Duration  | Status     |
+| --------- | ------------------------------------------------------------ | -------- | --------- | ---------- |
+| **07-01** | Export wizard 4-step (format, filters, recipients, schedule) | Stream B | 2 weeks   | 📋 PLANNED |
+| **07-02** | XLSX/PDF render engines (Cloud Function backed)              | Stream A | 1.5 weeks | 📋 PLANNED |
+| **07-03** | Mobile UI rewrite (NativeWind dark theme)                    | Stream B | 1.5 weeks | 📋 PLANNED |
 
 #### Key Deliverables
 
 **Export Module:**
+
 - 4-step export wizard (format selection, date/filter range, recipient list, schedule)
 - Multi-format support (XLSX, PDF, CSV)
 - Cloud Function render engines (Excel, PDF generation, compression)
@@ -398,6 +422,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - 40+ unit tests
 
 **Mobile Enhancements:**
+
 - NativeWind dark theme integration (React Native)
 - Responsive layout overhaul (all screens)
 - Biometric auth integration
@@ -406,6 +431,7 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - 20+ unit tests
 
 #### Success Criteria
+
 - [ ] Export wizard 4-step functional (all flows)
 - [ ] XLSX/PDF render <10s per document
 - [ ] Email delivery 100% success rate
@@ -416,12 +442,13 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - [ ] LCP <2.0s, INP <200ms, CLS <0.05 (mobile)
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| PDF generation latency | Low (2/10) | Medium (5/10) | Cloud Function optimization, caching |
-| Mobile layout regression | Medium (3/10) | Medium (5/10) | Real device testing, CI/CD gate |
-| Email rendering issues (Outlook) | Low (2/10) | Low (3/10) | Email template testing, MJML |
-| Scope creep (design requests) | High (5/10) | High (6/10) | Freeze design by 2026-07-01 |
+
+| Risk                             | Probability   | Impact        | Mitigation                           |
+| -------------------------------- | ------------- | ------------- | ------------------------------------ |
+| PDF generation latency           | Low (2/10)    | Medium (5/10) | Cloud Function optimization, caching |
+| Mobile layout regression         | Medium (3/10) | Medium (5/10) | Real device testing, CI/CD gate      |
+| Email rendering issues (Outlook) | Low (2/10)    | Low (3/10)    | Email template testing, MJML         |
+| Scope creep (design requests)    | High (5/10)   | High (6/10)   | Freeze design by 2026-07-01          |
 
 **Overall risk score: 3/10 (LOW)**
 
@@ -438,14 +465,15 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **08-01** | Labs Apoio contracts + SLA tracking | Stream A | 1 week | 📅 RESEARCH |
-| **08-02** | NOTIVISA edge cases (partial result blocks, ack retries) | Stream A | 1 week | 📅 RESEARCH |
+| Task      | Focus                                                    | Owner    | Duration | Status      |
+| --------- | -------------------------------------------------------- | -------- | -------- | ----------- |
+| **08-01** | Labs Apoio contracts + SLA tracking                      | Stream A | 1 week   | 📅 RESEARCH |
+| **08-02** | NOTIVISA edge cases (partial result blocks, ack retries) | Stream A | 1 week   | 📅 RESEARCH |
 
 #### Key Deliverables
 
 **Labs Apoio (Support Labs) Module:**
+
 - Contract management (CNPJ, vigência, CAP cert, SLA terms)
 - Lab selection in analyzer run (third-party exemption)
 - Exame terceirizado mapping (exame → apoio lab)
@@ -455,12 +483,14 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - 25+ unit tests
 
 **NOTIVISA Edge Cases:**
+
 - Partial result blocks (some analytes ready, others pending)
 - Acknowledgment retry logic (gov NACKs vs ACKs)
 - Event correlation (result → audit event → NOTIVISA queue)
 - Rollback mechanism (re-draft laudo, cancel NOTIVISA)
 
 #### Success Criteria
+
 - [ ] Labs Apoio contracts operational
 - [ ] Exame terceirizado routing functional
 - [ ] SLA tracking ≥95% accuracy
@@ -469,10 +499,11 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 - [ ] 2+ E2E tests (third-party routing, NOTIVISA edge) all green
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
+
+| Risk                            | Probability   | Impact        | Mitigation                                      |
+| ------------------------------- | ------------- | ------------- | ----------------------------------------------- |
 | Legal review delays (contracts) | Medium (4/10) | Medium (5/10) | Template contracts in place, legal early review |
-| Gov API edge case surprises | Low (2/10) | High (7/10) | Sandbox testing, gov documentation review |
+| Gov API edge case surprises     | Low (2/10)    | High (7/10)   | Sandbox testing, gov documentation review       |
 
 **Overall risk score: 2.5/10 (LOW)**
 
@@ -489,40 +520,45 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 #### Task Breakdown
 
-| Task | Focus | Owner | Duration | Status |
-|------|-------|-------|----------|--------|
-| **09-01** | Manual QC entry form + validation | Stream A | 2 days | 📅 SKETCH |
-| **09-02** | Bioquímica analyte library expansion (50+ analytes) | Stream A | 2 days | 📅 SKETCH |
-| **09-03** | Legacy data backfill (v1.2 sqlite importer) | Stream A | 1 day | 📅 SKETCH |
-| **09-04** | E2E testing + compliance final audit | QA | 1 day | 📅 SKETCH |
+| Task      | Focus                                               | Owner    | Duration | Status    |
+| --------- | --------------------------------------------------- | -------- | -------- | --------- |
+| **09-01** | Manual QC entry form + validation                   | Stream A | 2 days   | 📅 SKETCH |
+| **09-02** | Bioquímica analyte library expansion (50+ analytes) | Stream A | 2 days   | 📅 SKETCH |
+| **09-03** | Legacy data backfill (v1.2 sqlite importer)         | Stream A | 1 day    | 📅 SKETCH |
+| **09-04** | E2E testing + compliance final audit                | QA       | 1 day    | 📅 SKETCH |
 
 #### Key Deliverables
 
 **Manual QC Module:**
+
 - Form for manual QC entry (no analyzer source)
 - Validation rules (range, duplicate detection)
 - Fallback for scanner failures
 
 **Bioquímica Phase 2:**
+
 - 50+ analyte library expansion
 - Reference ranges per analyzer model
 - Quality control thresholds (Westgard rules)
 
 **Legacy Migration:**
+
 - SQLite importer from v1.2 (clean backfill)
 - Data validation (no invalid runs)
 
 #### Success Criteria
+
 - [ ] Manual QC form operational
 - [ ] 50+ analytes live
 - [ ] Legacy backfill <5% error rate
 - [ ] DICQ F (Analítico) ≥92% compliance
 
 #### Risk Summary
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Schedule compression (last phase) | High (5/10) | Medium (5/10) | Cut scope if needed, cut Bioquímica Phase 2 to v1.5 |
-| Legacy data quality issues | Medium (3/10) | Medium (5/10) | Validation, manual spot-check |
+
+| Risk                              | Probability   | Impact        | Mitigation                                          |
+| --------------------------------- | ------------- | ------------- | --------------------------------------------------- |
+| Schedule compression (last phase) | High (5/10)   | Medium (5/10) | Cut scope if needed, cut Bioquímica Phase 2 to v1.5 |
+| Legacy data quality issues        | Medium (3/10) | Medium (5/10) | Validation, manual spot-check                       |
 
 **Overall risk score: 3/10 (LOW)**
 
@@ -531,21 +567,23 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 ## Compliance Roadmap (DICQ Target: 85%+)
 
 ### Baseline (v1.3 — 2026-05-07)
-| Block | v1.3 | Phase 4 | Phase 5 | Phase 6 | Phase 8 | Target |
-|-------|------|--------|--------|--------|--------|--------|
-| A — Governança | 73% | +1% | +1% | +1% | +1% | 80% |
-| B — Gestão Documental | 70% | +1% | +1% | +2% | +1% | 85% |
-| C — Pessoal | 75% | +1% | +1% | +1% | +1% | 88% |
-| D — Ambiente | 65% | +1% | +1% | +1% | +1% | 75% |
-| E — Pré-analítico | 72% | +2% | +2% | +1% | +1% | 82% |
-| F — Analítico | 85% | +1% | +3% | +1% | +1% | 92% |
-| G — Pós-analítico | 78% | +2% | +2% | +1% | +1% | 90% |
-| H — Garantia Qualidade | 75% | +1% | +3% | +2% | +1% | 88% |
-| I — Laudos/Liberação | 80% | +2% | +2% | +1% | +1% | 92% |
-| J — Continuidade | 70% | +1% | +1% | +2% | +1% | 80% |
-| **Overall** | **78.5%** | **+1.3%** | **+1.7%** | **+1.3%** | **+1% ** | **≥85%** |
+
+| Block                  | v1.3      | Phase 4   | Phase 5   | Phase 6   | Phase 8  | Target   |
+| ---------------------- | --------- | --------- | --------- | --------- | -------- | -------- |
+| A — Governança         | 73%       | +1%       | +1%       | +1%       | +1%      | 80%      |
+| B — Gestão Documental  | 70%       | +1%       | +1%       | +2%       | +1%      | 85%      |
+| C — Pessoal            | 75%       | +1%       | +1%       | +1%       | +1%      | 88%      |
+| D — Ambiente           | 65%       | +1%       | +1%       | +1%       | +1%      | 75%      |
+| E — Pré-analítico      | 72%       | +2%       | +2%       | +1%       | +1%      | 82%      |
+| F — Analítico          | 85%       | +1%       | +3%       | +1%       | +1%      | 92%      |
+| G — Pós-analítico      | 78%       | +2%       | +2%       | +1%       | +1%      | 90%      |
+| H — Garantia Qualidade | 75%       | +1%       | +3%       | +2%       | +1%      | 88%      |
+| I — Laudos/Liberação   | 80%       | +2%       | +2%       | +1%       | +1%      | 92%      |
+| J — Continuidade       | 70%       | +1%       | +1%       | +2%       | +1%      | 80%      |
+| **Overall**            | **78.5%** | **+1.3%** | **+1.7%** | **+1.3%** | **+1% ** | **≥85%** |
 
 **Path to 85%:**
+
 - Phase 4 complete (Portal): 79.8% (still <85%, continue)
 - Phase 5 complete (Críticos + IA): 81.5% (still <85%, continue)
 - Phase 6 complete (CAPA + Auditoria): 82.8% (still <85%, continue)
@@ -560,18 +598,18 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 ### By Phase
 
-| Phase | Backend | Frontend | IA/ML | QA/DevOps | Total | Duration |
-|-------|---------|----------|-------|-----------|-------|----------|
-| **Phase 0** | 1.0 | 0.5 | 0.5 | 0.5 | 2.5 | 1 week |
-| **Phase 1** | 0.5 | 0.5 | 0.0 | 1.0 | 2.0 | 1 week |
-| **Phase 2** | 1.0 | 0.5 | 0.5 | 0.5 | 2.5 | 1 week |
-| **Phase 3** | 1.5 | 1.5 | 0.5 | 0.5 | 4.0 | 1 week |
-| **Phase 4** | 1.5 | 1.0 | 0.5 | 0.5 | 3.5 | 2.5 weeks |
-| **Phase 5** | 2.0 | 0.5 | 1.5 | 0.5 | 4.5 | 2.5 weeks |
-| **Phase 6** | 1.0 | 0.8 | 0.2 | 0.5 | 2.5 | 2 weeks |
-| **Phase 7** | 0.8 | 1.2 | 0.0 | 0.5 | 2.5 | 3 weeks |
-| **Phase 8** | 1.0 | 0.5 | 0.0 | 0.5 | 2.0 | 2 weeks |
-| **Phase 9** | 1.5 | 1.0 | 0.5 | 0.5 | 3.5 | 1 week |
+| Phase       | Backend | Frontend | IA/ML | QA/DevOps | Total | Duration  |
+| ----------- | ------- | -------- | ----- | --------- | ----- | --------- |
+| **Phase 0** | 1.0     | 0.5      | 0.5   | 0.5       | 2.5   | 1 week    |
+| **Phase 1** | 0.5     | 0.5      | 0.0   | 1.0       | 2.0   | 1 week    |
+| **Phase 2** | 1.0     | 0.5      | 0.5   | 0.5       | 2.5   | 1 week    |
+| **Phase 3** | 1.5     | 1.5      | 0.5   | 0.5       | 4.0   | 1 week    |
+| **Phase 4** | 1.5     | 1.0      | 0.5   | 0.5       | 3.5   | 2.5 weeks |
+| **Phase 5** | 2.0     | 0.5      | 1.5   | 0.5       | 4.5   | 2.5 weeks |
+| **Phase 6** | 1.0     | 0.8      | 0.2   | 0.5       | 2.5   | 2 weeks   |
+| **Phase 7** | 0.8     | 1.2      | 0.0   | 0.5       | 2.5   | 3 weeks   |
+| **Phase 8** | 1.0     | 0.5      | 0.0   | 0.5       | 2.0   | 2 weeks   |
+| **Phase 9** | 1.5     | 1.0      | 0.5   | 0.5       | 3.5   | 1 week    |
 
 **Baseline:** 2 FTE constant (CTO oversight + DevOps)  
 **Peak (Phase 5):** 6.5 FTE (concurrent execution Phases 4–7)  
@@ -579,30 +617,30 @@ scope: "All research + plans consolidated (Phases 0–9 + 12 weeks parallel exec
 
 ### By Stream
 
-| Stream | Role | Allocation | Notes |
-|--------|------|-----------|-------|
-| **Stream A** | Backend + Cloud Functions | 11.5 FTE | NOTIVISA, Critical values, CAPA, Labs Apoio |
-| **Stream B** | Frontend + UI/UX | 7.5 FTE | Portal, Mobile, Export, components |
-| **Stream C** | IA/ML | 3.5 FTE | OCR, training versioning, A/B testing |
-| **Stream D** | QA + DevOps | 5.0 FTE | Testing, Cloud Logs, deployment, monitoring |
-| **CTO** | Oversight + Architecture | 10% allocation | Gates, decisions, risk escalation |
+| Stream       | Role                      | Allocation     | Notes                                       |
+| ------------ | ------------------------- | -------------- | ------------------------------------------- |
+| **Stream A** | Backend + Cloud Functions | 11.5 FTE       | NOTIVISA, Critical values, CAPA, Labs Apoio |
+| **Stream B** | Frontend + UI/UX          | 7.5 FTE        | Portal, Mobile, Export, components          |
+| **Stream C** | IA/ML                     | 3.5 FTE        | OCR, training versioning, A/B testing       |
+| **Stream D** | QA + DevOps               | 5.0 FTE        | Testing, Cloud Logs, deployment, monitoring |
+| **CTO**      | Oversight + Architecture  | 10% allocation | Gates, decisions, risk escalation           |
 
 ---
 
 ## Risk Dashboard (v1.4 Top 10)
 
-| Risk ID | Category | Component | Probability | Impact | Mitigation | Status |
-|---------|----------|-----------|-------------|--------|-----------|--------|
-| **RISK-401** | Schedule | Phase compression (Phases 6–9) | Medium (4/10) | High (7/10) | Weekly gates, scope cut if needed | Monitoring |
-| **RISK-402** | Technical | OCR accuracy <92% | Medium (4/10) | High (7/10) | 100-sample validation, golden dataset | Monitoring |
-| **RISK-403** | External | NOTIVISA gov API flakiness | Medium (3/10) | High (7/10) | Webhook timeout, retry queue, sandbox testing | Mitigating |
-| **RISK-404** | Personnel | Auditor approval gates slip | Medium (3/10) | High (7/10) | Weekly pre-alignment calls, templates ready | Monitoring |
-| **RISK-405** | Technical | Gemini cost overruns | Low (2/10) | Medium (5/10) | Rate limiting, cost cap $500/mo | Monitoring |
-| **RISK-406** | Technical | E2E test flakiness | Medium (3/10) | Low (3/10) | Retries, local mocks, run 3× | Monitoring |
-| **RISK-407** | Technical | Mobile layout regression | Low (2/10) | Medium (5/10) | Real device testing, CI/CD gate | Monitoring |
-| **RISK-408** | External | Email delivery (SMTP) | Medium (3/10) | Medium (5/10) | Test staging, retry queue | Monitoring |
-| **RISK-409** | Technical | Portal UX complexity | Medium (3/10) | Medium (5/10) | Design spike, pair programming Week 1 | Monitoring |
-| **RISK-410** | Personnel | Gemini fine-tuning delay (v1.5) | Low (2/10) | Low (2/10) | Defer to v1.5, use Flash in v1.4 | Accepted |
+| Risk ID      | Category  | Component                       | Probability   | Impact        | Mitigation                                    | Status     |
+| ------------ | --------- | ------------------------------- | ------------- | ------------- | --------------------------------------------- | ---------- |
+| **RISK-401** | Schedule  | Phase compression (Phases 6–9)  | Medium (4/10) | High (7/10)   | Weekly gates, scope cut if needed             | Monitoring |
+| **RISK-402** | Technical | OCR accuracy <92%               | Medium (4/10) | High (7/10)   | 100-sample validation, golden dataset         | Monitoring |
+| **RISK-403** | External  | NOTIVISA gov API flakiness      | Medium (3/10) | High (7/10)   | Webhook timeout, retry queue, sandbox testing | Mitigating |
+| **RISK-404** | Personnel | Auditor approval gates slip     | Medium (3/10) | High (7/10)   | Weekly pre-alignment calls, templates ready   | Monitoring |
+| **RISK-405** | Technical | Gemini cost overruns            | Low (2/10)    | Medium (5/10) | Rate limiting, cost cap $500/mo               | Monitoring |
+| **RISK-406** | Technical | E2E test flakiness              | Medium (3/10) | Low (3/10)    | Retries, local mocks, run 3×                  | Monitoring |
+| **RISK-407** | Technical | Mobile layout regression        | Low (2/10)    | Medium (5/10) | Real device testing, CI/CD gate               | Monitoring |
+| **RISK-408** | External  | Email delivery (SMTP)           | Medium (3/10) | Medium (5/10) | Test staging, retry queue                     | Monitoring |
+| **RISK-409** | Technical | Portal UX complexity            | Medium (3/10) | Medium (5/10) | Design spike, pair programming Week 1         | Monitoring |
+| **RISK-410** | Personnel | Gemini fine-tuning delay (v1.5) | Low (2/10)    | Low (2/10)    | Defer to v1.5, use Flash in v1.4              | Accepted   |
 
 **Overall v1.4 Risk Score: 2.8/10 (LOW)** — No blocker risks, all major items mitigated.
 
@@ -680,18 +718,18 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 
 ### Phase-Level Gates
 
-| Phase | Completion Criteria | Sign-Off Owner | Target Date |
-|-------|-------------------|----------------|-------------|
-| **Phase 0** | All 4 plans deployed live, Cloud Logs 24h clean | DevOps | ✅ 2026-05-07 |
-| **Phase 1** | Smoke tests pass, baseline verified | QA | ✅ 2026-05-07 |
-| **Phase 2** | 9 planning artifacts complete, readiness audit 95%+ | CTO | ✅ 2026-05-07 |
-| **Phase 3** | 5 collections + Rules deployed, 50+ callables ready | Backend lead | ✅ 2026-05-07 |
-| **Phase 4** | Portal live, NOTIVISA queue operational, 0 errors 24h | CTO + QA | 2026-06-02 |
-| **Phase 5** | Critical values + IA OCR live, accuracy ≥92% | CTO + IA lead | 2026-06-30 |
-| **Phase 6** | CAPA + Auditoria live, audit trail verified | CTO + Auditor | 2026-07-14 |
-| **Phase 7** | Export wizard + mobile polish live, responsive verified | CTO + Designer | 2026-08-04 |
-| **Phase 8** | Labs Apoio contracts + NOTIVISA edge cases live | CTO | 2026-08-18 |
-| **Phase 9** | Manual QC + Bioquímica 2 live, 85%+ DICQ verified | CTO | 2026-08-31 |
+| Phase       | Completion Criteria                                     | Sign-Off Owner | Target Date   |
+| ----------- | ------------------------------------------------------- | -------------- | ------------- |
+| **Phase 0** | All 4 plans deployed live, Cloud Logs 24h clean         | DevOps         | ✅ 2026-05-07 |
+| **Phase 1** | Smoke tests pass, baseline verified                     | QA             | ✅ 2026-05-07 |
+| **Phase 2** | 9 planning artifacts complete, readiness audit 95%+     | CTO            | ✅ 2026-05-07 |
+| **Phase 3** | 5 collections + Rules deployed, 50+ callables ready     | Backend lead   | ✅ 2026-05-07 |
+| **Phase 4** | Portal live, NOTIVISA queue operational, 0 errors 24h   | CTO + QA       | 2026-06-02    |
+| **Phase 5** | Critical values + IA OCR live, accuracy ≥92%            | CTO + IA lead  | 2026-06-30    |
+| **Phase 6** | CAPA + Auditoria live, audit trail verified             | CTO + Auditor  | 2026-07-14    |
+| **Phase 7** | Export wizard + mobile polish live, responsive verified | CTO + Designer | 2026-08-04    |
+| **Phase 8** | Labs Apoio contracts + NOTIVISA edge cases live         | CTO            | 2026-08-18    |
+| **Phase 9** | Manual QC + Bioquímica 2 live, 85%+ DICQ verified       | CTO            | 2026-08-31    |
 
 ### v1.4 Final Success Criteria
 
@@ -709,26 +747,31 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 ## Next Steps
 
 ### Immediate (Next session)
+
 1. ✅ **Roadmap Consolidated** — All research + plans incorporated (this document)
 2. **CTO Review** — Architecture + resource allocation approval
 3. **Approval Gates** — Phase 4–5 kickoff authorization
 
 ### Week 1 (2026-05-13 → 2026-05-17)
+
 1. Phase 3 sign-off + production stability checkpoint
 2. Phase 4 kickoff (Stream A + B + D all-hands)
 3. Dependency verification (Phase 3 schema live + staging ready)
 
 ### Week 2–4 (2026-05-20 → 2026-06-02)
+
 1. Phase 4 execution (Portal + NOTIVISA integration)
 2. Weekly gates (code review, Cloud Logs, E2E tests)
 3. Pre-deploy readiness checkpoint (Friday Week 2)
 
 ### Week 5–7 (2026-06-09 → 2026-06-30)
+
 1. Phase 4 post-deploy stabilization
 2. Phase 5 kickoff (Critical values + IA OCR)
 3. Phases 4–5 parallel execution + monitoring
 
 ### Week 8+ (2026-07-01 → 2026-08-31)
+
 1. Phases 6–9 parallel execution (CAPA, Export, Mobile, Labs Apoio, Manual QC)
 2. Weekly compliance audits (DICQ tracking toward 85%+)
 3. Auditor pre-alignment calls (bi-weekly)
@@ -739,16 +782,19 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 ## Escalation & Contact
 
 **CTO Decision Gates:**
+
 - Phase 4–5 resource allocation conflicts → CTO approval
 - Risk escalation (prob+impact >6/10) → CTO + tech lead review
 - Scope creep (Phase 7 design requests) → CTO freeze gate
 
 **Auditor Pre-Alignment:**
+
 - Weekly sync (Fridays 10:00 UTC)
 - Phase gates (4, 6, 8) require auditor sign-off
 - RDC 978 + DICQ mapping reviewed per phase
 
 **Stakeholder Communication:**
+
 - Phase 4 kickoff → board notification (portal launch)
 - Phase 5 completion → compliance update (85%+ achieved)
 - Phase 9 completion → external audit readiness (final metrics)
@@ -758,6 +804,7 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 ## Document References
 
 **v1.4 Planning Artifacts:**
+
 - ✅ `.planning/ROADMAP.md` (previous version, superseded by this document)
 - ✅ `.planning/STATE.md` (execution state + phase progress)
 - ✅ `.planning/phases/00-rdc-blockers/` (Phase 0 plans + summaries)
@@ -769,6 +816,7 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 - ✅ `.planning/phases/08/` (Phase 8 RESEARCH: 08-RESEARCH.md)
 
 **Compliance & Regulatory:**
+
 - `docs/adr/` — Architecture Decision Records (ADR-0003 through ADR-0017)
 - `docs/v1.4-REQUIREMENTS.md` (48 requirements mapped to phases)
 - `docs/v1.4-DICQ-COVERAGE-MATRIX.md` (40+ blocks A–J)
@@ -776,6 +824,7 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 - `docs/SCHEMA_v1.4.md` (Phase 3 schema design)
 
 **Obsidian Strategic Docs:**
+
 - `~/.obsidian/01_Projetos/HC_Quality_Roadmap.md` (long-term vision)
 - `~/.obsidian/01_Projetos/HC_Quality_Compliance_DICQ.md` (DICQ mapping)
 - `~/.obsidian/01_Projetos/HC_Quality_RDC_978_2025_Resumo.md` (regulatory summary)
@@ -785,10 +834,10 @@ Phase 9 (Manual QC + Bioquímica 2) 📋 PLANNED (2026-08-05 → 2026-08-31)
 
 ## Version History
 
-| Version | Date | Status | Changes |
-|---------|------|--------|---------|
-| 1.0 | 2026-05-07 | Original | Phase 0–9 drafted, timeline + risks |
-| 2.0 | 2026-05-07 | **CONSOLIDATED** | All research + 27 PLANs incorporated, Wave structure formalized, Compliance roadmap detailed, Dependency graph refined, Risk matrix v1.4 complete, Resource allocation by stream |
+| Version | Date       | Status           | Changes                                                                                                                                                                          |
+| ------- | ---------- | ---------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-05-07 | Original         | Phase 0–9 drafted, timeline + risks                                                                                                                                              |
+| 2.0     | 2026-05-07 | **CONSOLIDATED** | All research + 27 PLANs incorporated, Wave structure formalized, Compliance roadmap detailed, Dependency graph refined, Risk matrix v1.4 complete, Resource allocation by stream |
 
 ---
 

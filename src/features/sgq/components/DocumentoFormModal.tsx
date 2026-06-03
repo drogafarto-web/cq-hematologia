@@ -21,7 +21,20 @@ import {
 } from '../types/Documento';
 import { SECOES_POR_TIPO } from '../constants/secoesObrigatorias';
 
-const TIPOS: TipoDocumento[] = ['MQ', 'CDC', 'DC', 'PQ', 'PQ-ANA', 'PQ-EQP', 'IT', 'ITA', 'FR', 'POL', 'LM', 'EXT'];
+const TIPOS: TipoDocumento[] = [
+  'MQ',
+  'CDC',
+  'DC',
+  'PQ',
+  'PQ-ANA',
+  'PQ-EQP',
+  'IT',
+  'ITA',
+  'FR',
+  'POL',
+  'LM',
+  'EXT',
+];
 
 export interface DocumentoFormModalProps {
   /** Quando presente, modal abre em modo edição. */
@@ -71,16 +84,17 @@ export function DocumentoFormModal({
   onClose,
   onSubmit,
 }: DocumentoFormModalProps) {
-  const mode: 'criar' | 'editar' | 'revisao' =
-    revisaoDe ? 'revisao' : documento ? 'editar' : 'criar';
+  const mode: 'criar' | 'editar' | 'revisao' = revisaoDe
+    ? 'revisao'
+    : documento
+      ? 'editar'
+      : 'criar';
 
   const initialDoc = revisaoDe ?? documento;
   const today = useMemo(() => new Date(), []);
 
   const [tipo, setTipo] = useState<TipoDocumento>(initialDoc?.tipo ?? 'IT');
-  const [codigo, setCodigo] = useState<string>(
-    initialDoc?.codigo ?? codigoSugerido ?? '',
-  );
+  const [codigo, setCodigo] = useState<string>(initialDoc?.codigo ?? codigoSugerido ?? '');
   const [titulo, setTitulo] = useState<string>(initialDoc?.titulo ?? '');
   const [url, setUrl] = useState<string>(
     initialDoc?.url && !initialDoc.url.startsWith('gs://') ? initialDoc.url : '',
@@ -106,9 +120,7 @@ export function DocumentoFormModal({
   const [dataElaboracao, setDataElaboracao] = useState<string>(
     initialDoc?.dataElaboracao ? toDateInput(initialDoc.dataElaboracao) : '',
   );
-  const [referencias, setReferencias] = useState<string>(
-    initialDoc?.referencias?.join(', ') ?? '',
-  );
+  const [referencias, setReferencias] = useState<string>(initialDoc?.referencias?.join(', ') ?? '');
   const [prazoGuarda, setPrazoGuarda] = useState<string>(
     initialDoc?.prazoGuarda?.toString() ?? '5',
   );
@@ -133,8 +145,8 @@ export function DocumentoFormModal({
   const codigoBloqueado = mode === 'revisao';
 
   // Em modo edição de doc vigente, mudança de código levanta alerta na UI.
-  const podeEditarCodigo = mode === 'criar' ||
-    (mode === 'editar' && documento?.status === 'em_revisao');
+  const podeEditarCodigo =
+    mode === 'criar' || (mode === 'editar' && documento?.status === 'em_revisao');
 
   useEffect(() => {
     if (mode === 'criar' && codigoSugerido && !codigo) {
@@ -180,7 +192,10 @@ export function DocumentoFormModal({
       revisadoPor: revisadoPor.trim() || undefined,
       dataElaboracao: dataElaboracao ? fromDateInput(dataElaboracao) : undefined,
       referencias: referencias.trim()
-        ? referencias.split(',').map((r) => r.trim()).filter(Boolean)
+        ? referencias
+            .split(',')
+            .map((r) => r.trim())
+            .filter(Boolean)
         : undefined,
       prazoGuarda: prazoGuarda ? Number(prazoGuarda) || undefined : undefined,
       formaArmazenamento: (formaArmazenamento as 'fisico' | 'digital' | 'ambos') || undefined,
@@ -284,7 +299,11 @@ export function DocumentoFormModal({
                   stroke="currentColor"
                   strokeWidth={2}
                 >
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
                 <div>
                   <p className="text-[11px] font-semibold text-white/50 uppercase tracking-wider mb-1">
@@ -292,7 +311,10 @@ export function DocumentoFormModal({
                   </p>
                   <ul className="flex flex-wrap gap-x-3 gap-y-0.5">
                     {SECOES_POR_TIPO[tipo].map((secao) => (
-                      <li key={secao} className="text-xs text-white/40 before:content-['•'] before:mr-1 before:text-white/20">
+                      <li
+                        key={secao}
+                        className="text-xs text-white/40 before:content-['•'] before:mr-1 before:text-white/20"
+                      >
                         {secao}
                       </li>
                     ))}
@@ -487,7 +509,10 @@ export function DocumentoFormModal({
                   />
                 </Field>
 
-                <Field label="Referências (Vide)" hint="Códigos separados por vírgula (ex: PQ-014, IT-003)">
+                <Field
+                  label="Referências (Vide)"
+                  hint="Códigos separados por vírgula (ex: PQ-014, IT-003)"
+                >
                   <input
                     type="text"
                     value={referencias}

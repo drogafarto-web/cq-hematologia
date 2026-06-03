@@ -1,5 +1,5 @@
 ---
-title: "Phase 4 Pre-Kickoff Action Items"
+title: 'Phase 4 Pre-Kickoff Action Items'
 date: 2026-05-07
 priority: HIGH
 blocking_phase_4: true
@@ -23,6 +23,7 @@ blocking_phase_4: true
 Choose one provider:
 
 **Option 1: Gmail (dev/test)**
+
 ```bash
 # Create app password at https://myaccount.google.com/apppasswords
 firebase functions:secrets:set SMTP_HOST --data="smtp.gmail.com"
@@ -32,6 +33,7 @@ firebase functions:secrets:set SMTP_PASS --data="<app-password>"
 ```
 
 **Option 2: Brevo (production) — RECOMMENDED**
+
 ```bash
 # Sign up at https://www.brevo.com (free tier available)
 firebase functions:secrets:set SMTP_HOST --data="smtp-relay.brevo.com"
@@ -41,6 +43,7 @@ firebase functions:secrets:set SMTP_PASS --data="<api-key>"
 ```
 
 **Verification:**
+
 ```bash
 firebase deploy --only functions:criticos_escalate
 # Test: send escalation, verify email received in 10 min
@@ -54,6 +57,7 @@ firebase deploy --only functions:criticos_escalate
 ### Task 1b: Twilio Provisioning (SMS Escalation) — OPTIONAL, CAN DEFER
 
 **If SMS is in Phase 4 scope:**
+
 ```bash
 # 1. Create account at https://www.twilio.com
 # 2. Provision Brazil phone number
@@ -65,6 +69,7 @@ firebase deploy --only functions:criticos_escalate
 ```
 
 **If NOT in Phase 4 scope (defer to 4.1):**
+
 - Email-only escalation works immediately
 - SMS wired asynchronously (no re-architecture needed)
 - Mark in Phase 4 spec as "stretch goal"
@@ -92,6 +97,7 @@ gcloud tasks queues create notivisa-outbox-queue \
 ```
 
 **Verify:**
+
 ```bash
 gcloud tasks queues describe notivisa-outbox-queue \
   --location=southamerica-east1 \
@@ -207,13 +213,13 @@ Week 9 (2026-07-07):
 
 ## Dependencies Summary
 
-| Action Item | Blocks Phase | Effort | Owner | Deadline |
-|---|---|---|---|---|
-| #1a: SMTP | 4 | 1h | DevOps | 2026-05-20 |
-| #1b: Twilio | 5 (optional) | 2–3d | Ops | 2026-05-20 (soft) |
-| #2: Cloud Tasks | 4 + 8 | 15m | DevOps | 2026-05-20 |
-| #3: Email-link Auth | 5 (optional) | 1.5h | Frontend | 2026-05-20 (soft) |
-| #4: NOTIVISA Sandbox | 8 | — | Compliance | 2026-06-28 |
+| Action Item          | Blocks Phase | Effort | Owner      | Deadline          |
+| -------------------- | ------------ | ------ | ---------- | ----------------- |
+| #1a: SMTP            | 4            | 1h     | DevOps     | 2026-05-20        |
+| #1b: Twilio          | 5 (optional) | 2–3d   | Ops        | 2026-05-20 (soft) |
+| #2: Cloud Tasks      | 4 + 8        | 15m    | DevOps     | 2026-05-20        |
+| #3: Email-link Auth  | 5 (optional) | 1.5h   | Frontend   | 2026-05-20 (soft) |
+| #4: NOTIVISA Sandbox | 8            | —      | Compliance | 2026-06-28        |
 
 ---
 

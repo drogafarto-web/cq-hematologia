@@ -18,9 +18,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FUNCTIONS_DIR = path.resolve(__dirname, '..', '..');
 
 const { validateCNPJ, validateAVS } = await import(
-  pathToFileURL(
-    path.join(FUNCTIONS_DIR, 'lib/modules/labApoio/validators.js'),
-  ).href
+  pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/labApoio/validators.js')).href
 );
 
 // ─── CNPJ Valid cases ────────────────────────────────────────────────────────

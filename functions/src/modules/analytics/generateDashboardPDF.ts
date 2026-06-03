@@ -32,8 +32,14 @@ const inputSchema = z.object({
   labId: z.string().min(1),
   dashboardType: z.enum(['compliance', 'ciq-trends', 'nc-heatmap', 'training-matrix']),
   dateRange: z.object({
-    start: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
-    end: z.string().datetime({ offset: true }).or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
+    start: z
+      .string()
+      .datetime({ offset: true })
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
+    end: z
+      .string()
+      .datetime({ offset: true })
+      .or(z.string().regex(/^\d{4}-\d{2}-\d{2}/)),
   }),
   filters: z
     .object({
@@ -48,9 +54,9 @@ type PDFInput = z.infer<typeof inputSchema>;
 // ─── HTML template helpers ────────────────────────────────────────────────────
 
 const DASHBOARD_LABELS: Record<PDFInput['dashboardType'], string> = {
-  'compliance':      'Status de Conformidade CIQ',
-  'ciq-trends':      'Tendências CIQ — Levey-Jennings',
-  'nc-heatmap':      'Heatmap de Não-Conformidades',
+  compliance: 'Status de Conformidade CIQ',
+  'ciq-trends': 'Tendências CIQ — Levey-Jennings',
+  'nc-heatmap': 'Heatmap de Não-Conformidades',
   'training-matrix': 'Matriz de Treinamentos',
 };
 
@@ -84,9 +90,10 @@ async function buildDashboardHTML(
   const dashLabel = DASHBOARD_LABELS[dashboardType];
 
   const filterSummary = buildFilterSummary(input);
-  const lastRefreshAt = meta.lastRefreshAt instanceof Timestamp
-    ? meta.lastRefreshAt.toDate().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
-    : 'N/D';
+  const lastRefreshAt =
+    meta.lastRefreshAt instanceof Timestamp
+      ? meta.lastRefreshAt.toDate().toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo' })
+      : 'N/D';
 
   return `<!DOCTYPE html>
 <html lang="pt-BR">
@@ -227,11 +234,7 @@ export const generateDashboardPDF = onCall(
     const now = new Date();
 
     // 5. Create job record (status: processing)
-    const jobRef = db
-      .collection('labs')
-      .doc(labId)
-      .collection('export-jobs')
-      .doc(jobId);
+    const jobRef = db.collection('labs').doc(labId).collection('export-jobs').doc(jobId);
 
     await jobRef.set({
       jobId,
@@ -316,20 +319,24 @@ export const generateDashboardPDF = onCall(
       });
 
       // 11. Audit log
-      await db.collection('auditLogs').doc(labId).collection('entries').add({
-        labId,
-        operatorId,
-        action: 'dashboard_pdf_generated',
-        resource: `dashboards/${dashboardType}`,
-        details: {
-          jobId,
-          dashboardType,
-          dateRange,
-          fileSizeBytes: pdfBuffer.length,
-          fileName,
-        },
-        ts: Timestamp.fromDate(completedAt),
-      });
+      await db
+        .collection('auditLogs')
+        .doc(labId)
+        .collection('entries')
+        .add({
+          labId,
+          operatorId,
+          action: 'dashboard_pdf_generated',
+          resource: `dashboards/${dashboardType}`,
+          details: {
+            jobId,
+            dashboardType,
+            dateRange,
+            fileSizeBytes: pdfBuffer.length,
+            fileName,
+          },
+          ts: Timestamp.fromDate(completedAt),
+        });
 
       console.log(
         `[generateDashboardPDF] ✓ job=${jobId} lab=${labId} type=${dashboardType} size=${pdfBuffer.length}b`,

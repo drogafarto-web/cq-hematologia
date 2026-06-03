@@ -126,13 +126,7 @@ function deriveStages(insumo: Insumo): Stage[] {
   const emUso: Stage = {
     key: 'em_uso',
     label: 'Em uso',
-    state: inUse
-      ? 'done'
-      : isClosed
-        ? 'future'
-        : isQualified
-          ? 'current'
-          : 'future',
+    state: inUse ? 'done' : isClosed ? 'future' : isQualified ? 'current' : 'future',
   };
 
   // Encerrado

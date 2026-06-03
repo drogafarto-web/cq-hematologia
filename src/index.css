@@ -53,44 +53,44 @@ button:not(:active):not(:disabled) {
    Scoped via .coag-clinical wrapper. Dark = analisador Roche/Sysmex.
    Light = papel clínico / equipamento branco premium.                       */
 .coag-clinical {
-  --cl-page: #0F1419;
-  --cl-card: #161D26;
-  --cl-card-elevated: #1C2530;
-  --cl-input: #1A2230;
+  --cl-page: #0f1419;
+  --cl-card: #161d26;
+  --cl-card-elevated: #1c2530;
+  --cl-input: #1a2230;
   --cl-border: rgba(148, 163, 184, 0.12);
-  --cl-border-focus: #D4A853;
-  --cl-text-strong: #F1F5F9;
-  --cl-text-body: #CBD5E1;
-  --cl-text-muted: #8B9DB5;
-  --cl-text-faint: #5B6B80;
-  --cl-accent: #D4A853;
-  --cl-accent-hover: #E0B862;
+  --cl-border-focus: #d4a853;
+  --cl-text-strong: #f1f5f9;
+  --cl-text-body: #cbd5e1;
+  --cl-text-muted: #8b9db5;
+  --cl-text-faint: #5b6b80;
+  --cl-accent: #d4a853;
+  --cl-accent-hover: #e0b862;
   --cl-accent-muted: rgba(212, 168, 83, 0.15);
-  --cl-accent-text: #1A1A1A;
-  --cl-success: #34D399;
+  --cl-accent-text: #1a1a1a;
+  --cl-success: #34d399;
   --cl-success-bg: rgba(52, 211, 153, 0.08);
-  --cl-danger: #F87171;
+  --cl-danger: #f87171;
   --cl-danger-bg: rgba(248, 113, 113, 0.08);
 }
 
 .coag-clinical.coag-light {
-  --cl-page: #FAFAF8;
-  --cl-card: #FFFFFF;
-  --cl-card-elevated: #FFFFFF;
-  --cl-input: #F5F5F2;
-  --cl-border: #E8E5E0;
-  --cl-border-focus: #B8860B;
-  --cl-text-strong: #1A1A1A;
+  --cl-page: #fafaf8;
+  --cl-card: #ffffff;
+  --cl-card-elevated: #ffffff;
+  --cl-input: #f5f5f2;
+  --cl-border: #e8e5e0;
+  --cl-border-focus: #b8860b;
+  --cl-text-strong: #1a1a1a;
   --cl-text-body: #374151;
-  --cl-text-muted: #6B7280;
-  --cl-text-faint: #9CA3AF;
-  --cl-accent: #B8860B;
-  --cl-accent-hover: #996F09;
+  --cl-text-muted: #6b7280;
+  --cl-text-faint: #9ca3af;
+  --cl-accent: #b8860b;
+  --cl-accent-hover: #996f09;
   --cl-accent-muted: rgba(184, 134, 11, 0.08);
-  --cl-accent-text: #FFFFFF;
+  --cl-accent-text: #ffffff;
   --cl-success: #059669;
   --cl-success-bg: rgba(5, 150, 105, 0.06);
-  --cl-danger: #DC2626;
+  --cl-danger: #dc2626;
   --cl-danger-bg: rgba(220, 38, 38, 0.06);
 }
 

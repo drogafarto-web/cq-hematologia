@@ -41,7 +41,7 @@ export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
       if (!isMember) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          'Usuário não é membro do laboratório'
+          'Usuário não é membro do laboratório',
         );
       }
 
@@ -60,7 +60,7 @@ export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
       if (!validTransicoes.includes(input.novoStatus)) {
         throw new functions.https.HttpsError(
           'invalid-argument',
-          `Transição inválida de ${reclamacao.status} para ${input.novoStatus}`
+          `Transição inválida de ${reclamacao.status} para ${input.novoStatus}`,
         );
       }
 
@@ -69,7 +69,7 @@ export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
         if (!reclamacao.rcaFiveWhys || !reclamacao.rcaFiveWhys.nivelRaiz) {
           throw new functions.https.HttpsError(
             'failed-precondition',
-            'RCA 5 Whys deve estar completa antes de resolver'
+            'RCA 5 Whys deve estar completa antes de resolver',
           );
         }
       }
@@ -137,5 +137,5 @@ export const transitarReclamacao = onCall<TransitarReclamacaoInput>(
 
       throw new functions.https.HttpsError('internal', 'Erro ao transitar reclamação');
     }
-  }
+  },
 );

@@ -53,10 +53,7 @@ export async function assertRtPresenceAccess(
     throw new HttpsError('permission-denied', RT_PRESENCE_ACCESS_DENIED_MSG);
   }
 
-  const memberSnap = await admin
-    .firestore()
-    .doc(`labs/${labId}/members/${uid}`)
-    .get();
+  const memberSnap = await admin.firestore().doc(`labs/${labId}/members/${uid}`).get();
   if (!memberSnap.exists || memberSnap.data()?.['active'] !== true) {
     console.error('[RT_PRESENCE_ACCESS_DENIED]', {
       uid,
@@ -90,17 +87,11 @@ export function rtPresenceLabRoot(db: admin.firestore.Firestore, labId: string) 
   return db.doc(`labs/${labId}`);
 }
 
-export function rtPresenceStatusDoc(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function rtPresenceStatusDoc(db: admin.firestore.Firestore, labId: string) {
   return db.doc(`labs/${labId}/rt-presenca/current`);
 }
 
-export function rtPresenceEventsCol(
-  db: admin.firestore.Firestore,
-  labId: string,
-) {
+export function rtPresenceEventsCol(db: admin.firestore.Firestore, labId: string) {
   return db.collection(`labs/${labId}/rt-presenca-events`);
 }
 

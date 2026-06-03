@@ -4,7 +4,13 @@
  */
 
 // Validators + helpers
-export { assertTurnosAccess, turnosCollection, escalasCollection, escalaPadraoDoc, ensureTurnosLabRoot } from './validators';
+export {
+  assertTurnosAccess,
+  turnosCollection,
+  escalasCollection,
+  escalaPadraoDoc,
+  ensureTurnosLabRoot,
+} from './validators';
 export type {
   CreateTurnoInput,
   UpdateTurnoInput,

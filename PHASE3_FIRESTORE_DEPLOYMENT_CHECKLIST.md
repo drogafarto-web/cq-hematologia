@@ -8,20 +8,21 @@
 
 ## Quick Status
 
-| Item | Status | Evidence |
-|---|---|---|
-| **Rules Definition** | ✅ READY | 5 new rules implemented in firestore.rules |
-| **Indexes** | ✅ ALL PRESENT | 5/5 indexes in firestore.indexes.json |
-| **Test Suite** | ⚠️ NEEDS FIX | 5 false positives (test defect, not security defect) |
-| **Schema** | ✅ COMPLETE | All required fields validated |
-| **Security** | ✅ VERIFIED | Multi-tenant, RBAC, soft-delete enforced |
-| **Deploy Ready** | ⚠️ CONDITIONAL | Fix tests first, then deploy |
+| Item                 | Status         | Evidence                                             |
+| -------------------- | -------------- | ---------------------------------------------------- |
+| **Rules Definition** | ✅ READY       | 5 new rules implemented in firestore.rules           |
+| **Indexes**          | ✅ ALL PRESENT | 5/5 indexes in firestore.indexes.json                |
+| **Test Suite**       | ⚠️ NEEDS FIX   | 5 false positives (test defect, not security defect) |
+| **Schema**           | ✅ COMPLETE    | All required fields validated                        |
+| **Security**         | ✅ VERIFIED    | Multi-tenant, RBAC, soft-delete enforced             |
+| **Deploy Ready**     | ⚠️ CONDITIONAL | Fix tests first, then deploy                         |
 
 ---
 
 ## Phase 3 Rules Overview
 
 ### 1. Portal Access Rules (Patient Portal Configuration)
+
 - **Collections:** `portal-configuracao`, `laudos` (read-only for patients)
 - **Key Rules:**
   - Patients read published laudos (own only, `publicado==true`)
@@ -29,6 +30,7 @@
   - All deletes forbidden (soft-delete only)
 
 ### 2. NOTIVISA Outbox Rules (Regulatory Event Queue)
+
 - **Collection:** `notivisa-outbox`
 - **Key Rules:**
   - Admin/RT create events (with `validateNotivisaPayload()`)
@@ -37,6 +39,7 @@
   - All deletes forbidden (immutable audit trail)
 
 ### 3. Critical Escalations Rules (Result Flagging)
+
 - **Collection:** `criticos-escalacoes`
 - **Key Rules:**
   - Admin/RT create escalation events
@@ -45,6 +48,7 @@
   - All deletes forbidden (immutable history)
 
 ### 4. IA Strip Dev Rules (Training Dataset)
+
 - **Collection:** `imuno-ias-dev`
 - **Key Rules:**
   - Server/Admin-only read/write (training pipeline)
@@ -52,6 +56,7 @@
   - All deletes forbidden (training data immutable)
 
 ### 5. Laudo Draft Rules (Pessimistic Locking)
+
 - **Collection:** `laudos-draft`
 - **Key Rules:**
   - Admin/RT create/update (with `validateDraftLock()`)
@@ -116,6 +121,7 @@
 ## Test Results
 
 ### Current State
+
 ```
 $ cd functions && npm test
 
@@ -141,9 +147,11 @@ $ cd functions && npm test
    - **Impact:** 0 — security unaffected
 
 ### Root Cause
+
 Test harness spec strings use naive substring matching. The actual rules are correct.
 
 ### Fix Status
+
 ✅ Fixes documented in `RULES_FAILURES_ANALYSIS.md`
 
 ---
@@ -368,11 +376,13 @@ firebase deploy --only functions --project hmatologia2
 ## Success Criteria
 
 ### Deployment
+
 - ✅ `firebase deploy` completes without errors
 - ✅ Web app accessible at https://hmatologia2.web.app
 - ✅ Hard-reload shows latest code version
 
 ### Rules
+
 - ✅ Patient can read published laudo via portal
 - ✅ RT can create NOTIVISA event, status updates
 - ✅ RT can create critical escalation
@@ -380,12 +390,14 @@ firebase deploy --only functions --project hmatologia2
 - ✅ No `"Permission denied"` errors in logs
 
 ### Indexes
+
 - ✅ Queries on notivisa-outbox complete in <100ms
 - ✅ Queries on criticos-escalacoes complete in <100ms
 - ✅ Queries on imuno-ias-dev complete in <100ms
 - ✅ Queries on laudos-draft complete in <100ms
 
 ### Monitoring
+
 - ✅ Cloud Logs show only expected operation logs
 - ✅ No ERROR or DENIED messages
 - ✅ 24h monitoring completed with no issues
@@ -399,6 +411,7 @@ firebase deploy --only functions --project hmatologia2
 **Blocker:** 5 test failures (false positives, but must be fixed for CI/CD)
 
 **Required Before Deploy:**
+
 1. Fix test spec in `functions/test/phase-3-2/rules-v1-4.test.mjs`
 2. Re-run `npm test` → verify 23/23 passing
 3. Proceed with deployment steps above
@@ -426,4 +439,3 @@ firebase deploy --only functions --project hmatologia2
 **Prepared by:** Claude Code  
 **Date:** 2026-05-07  
 **Next Review:** After test fixes + deployment completion
-

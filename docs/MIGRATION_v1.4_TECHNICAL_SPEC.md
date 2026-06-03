@@ -3,7 +3,7 @@
 **Version:** 1.4.0  
 **Date:** 2026-05-07  
 **Status:** Production-ready  
-**Compliance:** RDC 978 + DICQ 4.3 + LGPD  
+**Compliance:** RDC 978 + DICQ 4.3 + LGPD
 
 ---
 
@@ -14,6 +14,7 @@
 **Path:** `labs/{labId}/portal-configuracao/config`
 
 **Document structure:**
+
 ```json
 {
   "branding": {
@@ -38,16 +39,16 @@
 ```
 
 **RDC 978 mapping:**
+
 - Art. 4º (Portal de Serviços): branding + termos
 - Art. 11 (Política de privacidade): privacidade field
 - LGPD Art. 13 (Transparência): descricao + dataEfetivacao
 
 **Query pattern:**
+
 ```typescript
 // Client-side (read-only)
-const portalConfig = await getDoc(
-  doc(db, 'labs', labId, 'portal-configuracao', 'config')
-);
+const portalConfig = await getDoc(doc(db, 'labs', labId, 'portal-configuracao', 'config'));
 ```
 
 ---
@@ -59,6 +60,7 @@ const portalConfig = await getDoc(
 **Marker document:** `_init` (soft-deleted when first real event added)
 
 **Expected document structure (Phase 4):**
+
 ```json
 {
   "laudo_id": "string (UUID)",
@@ -76,10 +78,12 @@ const portalConfig = await getDoc(
 ```
 
 **RDC 978 mapping:**
+
 - Art. 6º (Notificação de Eventos Adversos): NOTIVISA reporting
 - LGPD Art. 5 (Dados Pessoais): patient_cpf encryption
 
 **Firestore rules (Phase 4):**
+
 ```
 allow create: if isServer() && validNotivisaPayload(d)
 allow read: if isServer() || isRT(labId)
@@ -96,6 +100,7 @@ allow delete: if false
 **Marker document:** `_init`
 
 **Expected document structure:**
+
 ```json
 {
   "run_id": "string (UUID)",
@@ -113,6 +118,7 @@ allow delete: if false
 ```
 
 **RDC 978 mapping:**
+
 - Art. 122 (Supervisão): escalação de críticos
 - DICQ 4.3.5 (Gerenciamento de Riscos): resultados críticos
 
@@ -127,6 +133,7 @@ allow delete: if false
 **Marker document:** `_init`
 
 **Expected document structure:**
+
 ```json
 {
   "nome_experimento": "string",
@@ -143,6 +150,7 @@ allow delete: if false
 **Purpose:** Experiment tracking for AI/ML feature rollout (imunologia)
 
 **RDC 978 mapping:**
+
 - Art. 34 (Validação de Processos): AI model validation
 - DICQ 4.3 (Controle da Qualidade): QC model improvements
 
@@ -155,6 +163,7 @@ allow delete: if false
 **Marker document:** `_init`
 
 **Expected document structure:**
+
 ```json
 {
   "laudo_id": "string (UUID or null if new)",
@@ -180,10 +189,12 @@ allow delete: if false
 ```
 
 **RDC 978 mapping:**
+
 - Art. 107 (Emissão de Laudos): draft management
 - DICQ 4.6 (Validação de Laudos): pessimistic locking pattern
 
 **Pessimistic lock pattern:**
+
 ```typescript
 // Client wants to edit:
 const now = serverTimestamp();
@@ -192,7 +203,7 @@ const lockUntil = new Date(now.getTime() + 10 * 60 * 1000); // 10 min
 await updateDoc(docRef, {
   bloqueado_ate: lockUntil,
   bloqueado_por: userId,
-  versao: increment(1)
+  versao: increment(1),
 });
 
 // Other clients see lock and must wait
@@ -211,10 +222,10 @@ if (draft.bloqueado_ate > now && draft.bloqueado_por !== userId) {
 ```bash
 1. Validate Firebase CLI
    - firebase projects:list
-   
+
 2. Acquire lab list
    - node scripts/list-labs.js --project hmatologia2
-   
+
 3. Export LABS_LIST
    - export LABS_LIST="lab1,lab2,lab3"
 ```
@@ -340,16 +351,19 @@ match /labs/{labId}/laudos-draft/{document=**} {
 ## Storage & Billing Impact
 
 ### Firestore Writes
+
 - Per-lab: 5 document creates + 1 config write = 6 writes
 - Per 100 labs: 600 writes
 - Cost at standard pricing (~$0.06 per 100K writes): ~$0.00036 per 100 labs
 
 ### Storage Added
+
 - Per-lab: ~2 KB baseline (grows with portal-configuracao config)
 - Per 100 labs: ~200 KB baseline
 - Cost at standard pricing (~$0.18 per GB/month): negligible
 
 ### Total one-time cost
+
 - 100 labs: ~$0.0004 + storage negligible ≈ **<$0.01**
 
 ---
@@ -360,23 +374,24 @@ All documents follow soft-delete pattern (never hard-delete):
 
 ```typescript
 // Never do this:
-await deleteDoc(ref);  // ✗ BANNED
+await deleteDoc(ref); // ✗ BANNED
 
 // Always do this:
 await updateDoc(ref, {
-  deletadoEm: serverTimestamp()
+  deletadoEm: serverTimestamp(),
 });
 
 // Client queries filter automatically:
-const active = docs.filter(d => d.deletadoEm === null);
+const active = docs.filter((d) => d.deletadoEm === null);
 ```
 
 **Service pattern:**
+
 ```typescript
 export async function softDeleteLaudoDraft(labId: LabId, draftId: string) {
   const ref = doc(db, 'labs', labId, 'laudos-draft', draftId);
   await updateDoc(ref, {
-    deletadoEm: serverTimestamp()
+    deletadoEm: serverTimestamp(),
   });
 }
 ```
@@ -386,6 +401,7 @@ export async function softDeleteLaudoDraft(labId: LabId, draftId: string) {
 ## Rollback Procedure
 
 ### Soft-delete rollback (default)
+
 ```bash
 bash scripts/migrate-v1.4-rollback.sh --execute
 ```
@@ -393,6 +409,7 @@ bash scripts/migrate-v1.4-rollback.sh --execute
 **Effect:** All 5 documents per lab marked with `deletadoEm = now`. Data preserved.
 
 ### Hard-delete rollback (if needed)
+
 **NOT automated.** Must do manually in Firebase Console if absolute removal required:
 
 ```bash
@@ -409,13 +426,13 @@ bash scripts/migrate-v1.4-rollback.sh --execute
 
 ### Metrics to track post-migration
 
-| Metric | How to check | Expected |
-|---|---|---|
-| Total docs created | Firebase Console → Firestore | Labs × 5 + config |
-| Errors in logs | `cat migrate-v1.4.log` | 0 errors |
-| Validation pass | `validate-migration-v1.4.sh` | 100% labs complete |
-| Query latency | Cloud Logs | <100ms for reads |
-| Write latency | Cloud Logs | <500ms for writes |
+| Metric             | How to check                 | Expected           |
+| ------------------ | ---------------------------- | ------------------ |
+| Total docs created | Firebase Console → Firestore | Labs × 5 + config  |
+| Errors in logs     | `cat migrate-v1.4.log`       | 0 errors           |
+| Validation pass    | `validate-migration-v1.4.sh` | 100% labs complete |
+| Query latency      | Cloud Logs                   | <100ms for reads   |
+| Write latency      | Cloud Logs                   | <500ms for writes  |
 
 ### Log format
 
@@ -444,12 +461,11 @@ export const onNotivisaOutboxCreated = onDocumentCreated(
     const result = await sendToNotivisa(outboxDoc.payload);
 
     // Update status
-    await db.doc(`labs/${labId}/notivisa-outbox/${eventId}`)
-      .update({
-        status: result.success ? 'DELIVERED' : 'FAILED',
-        ultimaTentativa: admin.firestore.FieldValue.serverTimestamp()
-      });
-  }
+    await db.doc(`labs/${labId}/notivisa-outbox/${eventId}`).update({
+      status: result.success ? 'DELIVERED' : 'FAILED',
+      ultimaTentativa: admin.firestore.FieldValue.serverTimestamp(),
+    });
+  },
 );
 ```
 
@@ -488,26 +504,26 @@ export function usePortalConfig(labId: LabId) {
 
 ## Appendix A: Collection Size Estimates
 
-| Collection | Docs per lab | Avg doc size | Space per lab |
-|---|---|---|---|
-| portal-configuracao | 1 | 1.5 KB | 1.5 KB |
-| notivisa-outbox | 0-100/month | 2 KB | ~200 KB/month |
-| criticos-escalacoes | 0-1000/year | 1 KB | ~1 MB/year |
-| imuno-ias-dev | 5-20 | 3 KB | 60 KB |
-| laudos-draft | 0-50/day | 8 KB | 400 KB/month |
-| **Total baseline** | — | — | **~2 KB per lab** |
+| Collection          | Docs per lab | Avg doc size | Space per lab     |
+| ------------------- | ------------ | ------------ | ----------------- |
+| portal-configuracao | 1            | 1.5 KB       | 1.5 KB            |
+| notivisa-outbox     | 0-100/month  | 2 KB         | ~200 KB/month     |
+| criticos-escalacoes | 0-1000/year  | 1 KB         | ~1 MB/year        |
+| imuno-ias-dev       | 5-20         | 3 KB         | 60 KB             |
+| laudos-draft        | 0-50/day     | 8 KB         | 400 KB/month      |
+| **Total baseline**  | —            | —            | **~2 KB per lab** |
 
 ---
 
 ## Appendix B: Error Codes
 
-| Code | Meaning | Action |
-|---|---|---|
-| `PERMISSION_DENIED` | User not member of lab | Verify isActiveMemberOfLab |
-| `NOT_FOUND` | Lab doesn't exist | Verify labId valid |
-| `ALREADY_EXISTS` | Collection/doc already exists | Rollback + check manual creation |
-| `RESOURCE_EXHAUSTED` | Rate limited | Retry after 60s |
-| `INTERNAL` | Server error | Check Cloud Logs, retry |
+| Code                 | Meaning                       | Action                           |
+| -------------------- | ----------------------------- | -------------------------------- |
+| `PERMISSION_DENIED`  | User not member of lab        | Verify isActiveMemberOfLab       |
+| `NOT_FOUND`          | Lab doesn't exist             | Verify labId valid               |
+| `ALREADY_EXISTS`     | Collection/doc already exists | Rollback + check manual creation |
+| `RESOURCE_EXHAUSTED` | Rate limited                  | Retry after 60s                  |
+| `INTERNAL`           | Server error                  | Check Cloud Logs, retry          |
 
 ---
 

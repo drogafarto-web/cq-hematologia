@@ -33,11 +33,11 @@ See full deploy instructions in `docs/DEPLOY-PHASE3.1.md`.
 
 ## Status
 
-| Gate | Status |
-| --- | --- |
-| TypeScript clean | UNKNOWN — run check |
-| Functions build | UNKNOWN — run check |
-| Unit tests | UNKNOWN — run check |
-| Pub/Sub topic | UNKNOWN — verify in console |
-| Rules backup | NOT DONE |
-| CTO authorization | PENDING |
+| Gate              | Status                      |
+| ----------------- | --------------------------- |
+| TypeScript clean  | UNKNOWN — run check         |
+| Functions build   | UNKNOWN — run check         |
+| Unit tests        | UNKNOWN — run check         |
+| Pub/Sub topic     | UNKNOWN — verify in console |
+| Rules backup      | NOT DONE                    |
+| CTO authorization | PENDING                     |

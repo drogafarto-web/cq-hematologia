@@ -52,14 +52,14 @@ main (produção)
 
 ### Types permitidos:
 
-| Type | Quando usar |
-|------|-------------|
-| `feat` | Nova funcionalidade (entidade, hook, componente) |
-| `fix` | Correção de bug em código já merged |
-| `test` | Novos testes ou correção de testes |
+| Type       | Quando usar                                          |
+| ---------- | ---------------------------------------------------- |
+| `feat`     | Nova funcionalidade (entidade, hook, componente)     |
+| `fix`      | Correção de bug em código já merged                  |
+| `test`     | Novos testes ou correção de testes                   |
 | `refactor` | Mudança interna sem alterar interface pública (raro) |
-| `docs` | Documentação |
-| `chore` | Configuração, tooling, CI |
+| `docs`     | Documentação                                         |
+| `chore`    | Configuração, tooling, CI                            |
 
 ### Exemplos:
 
@@ -75,15 +75,15 @@ docs(coag-v2): add wave A completion report
 
 ### Por wave:
 
-| Wave | Commits esperados | Prefixo |
-|------|-------------------|---------|
-| A | 5 | `feat(coag-v2):` + `test(coag-v2):` + `docs(coag-v2):` |
-| B | 8 | `feat(coag-v2):` + `test(coag-v2):` |
-| C | 5 | `feat(coag-v2):` + `test(coag-v2):` |
-| D | 6 | `feat(coag-v2):` + `test(coag-v2):` |
-| E | 5 | `feat(coag-v2):` + `test(coag-v2):` |
-| F | 3 | `feat(coag-v2):` + `chore(coag-v2):` |
-| G | 2 | `chore(coag-v2):` + `docs(coag-v2):` |
+| Wave | Commits esperados | Prefixo                                                |
+| ---- | ----------------- | ------------------------------------------------------ |
+| A    | 5                 | `feat(coag-v2):` + `test(coag-v2):` + `docs(coag-v2):` |
+| B    | 8                 | `feat(coag-v2):` + `test(coag-v2):`                    |
+| C    | 5                 | `feat(coag-v2):` + `test(coag-v2):`                    |
+| D    | 6                 | `feat(coag-v2):` + `test(coag-v2):`                    |
+| E    | 5                 | `feat(coag-v2):` + `test(coag-v2):`                    |
+| F    | 3                 | `feat(coag-v2):` + `chore(coag-v2):`                   |
+| G    | 2                 | `chore(coag-v2):` + `docs(coag-v2):`                   |
 
 **Total: ~34 commits** em 7 waves.
 
@@ -185,12 +185,14 @@ Arquiteto:
 ### Daily sync (entre ondas):
 
 **Arquiteto revisa:**
+
 1. Output de cada wave vs contrato
 2. Métricas de complexidade
 3. Anti-patterns detectados
 4. Interface pública exposta
 
 **Se detectar drift:**
+
 - Reverter wave inteira (git revert)
 - Re-escrever contrato (se drift é legítima evolução)
 - Abortar onda e replanejar
@@ -203,6 +205,7 @@ Arquiteto:
 ```
 
 **O que verifica:**
+
 - Número de entidades (sempre 3)
 - Número de eventos (sempre 3)
 - Nomes de entidades (sempre `ControlOperacional`, `Attempt`, `RTAction`)
@@ -250,31 +253,31 @@ Arquiteto:
 
 ### Nomenclatura de arquivos:
 
-| Tipo | Padrão | Exemplo |
-|------|--------|---------|
-| Types | `EntidadeName.ts` | `ControlOperacional.ts` |
-| Service | `entidadeNameService.ts` | `controlOperacionalService.ts` |
-| Hook | `useEntidadeName.ts` | `useControlOperacional.ts` |
-| Component | `EntidadeNameForm.tsx` | `ControlOperacionalForm.tsx` |
-| Test | `[arquivo].test.ts` | `controlOperacionalService.test.ts` |
+| Tipo      | Padrão                   | Exemplo                             |
+| --------- | ------------------------ | ----------------------------------- |
+| Types     | `EntidadeName.ts`        | `ControlOperacional.ts`             |
+| Service   | `entidadeNameService.ts` | `controlOperacionalService.ts`      |
+| Hook      | `useEntidadeName.ts`     | `useControlOperacional.ts`          |
+| Component | `EntidadeNameForm.tsx`   | `ControlOperacionalForm.tsx`        |
+| Test      | `[arquivo].test.ts`      | `controlOperacionalService.test.ts` |
 
 ### Nomenclatura de funções:
 
-| Ação | Padrão | Exemplo |
-|------|--------|---------|
-| Criar | `createEntidade` | `createControlOperacional` |
-| Buscar | `getEntidade` | `getControlOperacional` |
-| Listar | `listEntidades` | `listControlOperacionals` |
-| Atualizar | `updateEntidade` | `updateControlOperacional` |
+| Ação           | Padrão           | Exemplo                    |
+| -------------- | ---------------- | -------------------------- |
+| Criar          | `createEntidade` | `createControlOperacional` |
+| Buscar         | `getEntidade`    | `getControlOperacional`    |
+| Listar         | `listEntidades`  | `listControlOperacionals`  |
+| Atualizar      | `updateEntidade` | `updateControlOperacional` |
 | Deletar (soft) | `deleteEntidade` | `deleteControlOperacional` |
 
 ### Nomenclatura de hooks:
 
-| Função | Padrão |
-|--------|--------|
-| Ler entidade | `useEntidade` |
-| Listar entidades | `useEntidades` |
-| Salvar entidade | `useEntidadeSave` |
+| Função                | Padrão                  |
+| --------------------- | ----------------------- |
+| Ler entidade          | `useEntidade`           |
+| Listar entidades      | `useEntidades`          |
+| Salvar entidade       | `useEntidadeSave`       |
 | Avaliação de entidade | `useEntidadeEvaluation` |
 
 ---
@@ -286,6 +289,7 @@ Arquiteto:
 **Sintoma:** Agente começa a "melhorar" spec sem autorização.
 
 **Prevenção:**
+
 - Toda spec está em `docs/coag-v2/contracts/[entidade].md`
 - Agente recebe link para contrato, não para rationale
 - Auditor valida aderência literal ao contrato
@@ -295,6 +299,7 @@ Arquiteto:
 **Sintoma:** Agente usa padrão diferente das waves anteriores (ex: Factory em vez de funções).
 
 **Prevenção:**
+
 - Prompt inclui exemplo de padrão existente
 - Auditor detecta padrões proibidos (Repository, Factory, Adapter)
 - Se detectado → rejeição automática
@@ -304,6 +309,7 @@ Arquiteto:
 **Sintoma:** Agente usa nomes diferentes (ex: `CoagOperationalControl` em vez de `ControlOperacional`).
 
 **Prevenção:**
+
 - Contrato congela nomes
 - Auditor valida nomes exatos em types, services, hooks
 - Rejeição automática se nome divergir do contrato
@@ -313,6 +319,7 @@ Arquiteto:
 **Sintoma:** Agente adiciona features não solicitadas.
 
 **Prevenção:**
+
 - Wave spec define escopo fechado
 - Auditor conta campos, eventos, states
 - Se detectar campo extra → rejeição

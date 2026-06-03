@@ -409,8 +409,7 @@ describe('perf-validate.mjs', () => {
 
       tests.forEach(({ input, expected }) => {
         const result = input.sort(
-          (a, b) =>
-            verdictPriority.indexOf(a) - verdictPriority.indexOf(b)
+          (a, b) => verdictPriority.indexOf(a) - verdictPriority.indexOf(b),
         )[0];
         expect(result).toBe(expected);
       });

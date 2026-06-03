@@ -43,19 +43,14 @@ const MIN_REASON_LENGTH = 20;
 
 if (apply) {
   if (!reason || reason.trim().length < MIN_REASON_LENGTH) {
-    console.error(
-      `\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`,
-    );
+    console.error(`\n❌ --reason é obrigatória com ≥ ${MIN_REASON_LENGTH} caracteres.\n`);
     process.exit(2);
   }
 }
 
 // ─── Init ────────────────────────────────────────────────────────────────────
 
-const projectId =
-  process.env.GOOGLE_CLOUD_PROJECT ??
-  process.env.GCLOUD_PROJECT ??
-  'hmatologia2';
+const projectId = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? 'hmatologia2';
 
 admin.initializeApp({ projectId });
 const auth = admin.auth();
@@ -113,23 +108,19 @@ for (const chunk of chunks) {
   const refs = chunk.map((u) => db.doc(`users/${u.uid}`));
   const snaps = await db.getAll(...refs);
   for (const snap of snaps) {
-    firestoreStates.set(
-      snap.id,
-      snap.exists ? (snap.data() ?? null) : null,
-    );
+    firestoreStates.set(snap.id, snap.exists ? (snap.data() ?? null) : null);
   }
 }
 
 // Diffs
 const diffs = users.map((u) => {
   const claims = u.customClaims ?? {};
-  const beforeModules = (claims.modules ?? null);
+  const beforeModules = claims.modules ?? null;
   const fs = firestoreStates.get(u.uid);
   const labIds = Array.isArray(fs?.labIds) ? fs.labIds : [];
   const hasLabs = labIds.length > 0;
   const needsUpdate =
-    hasLabs &&
-    (beforeModules === null || !modulesEqual(beforeModules, FULL_ACCESS));
+    hasLabs && (beforeModules === null || !modulesEqual(beforeModules, FULL_ACCESS));
   return {
     uid: u.uid,
     email: u.email ?? null,
@@ -164,9 +155,7 @@ if (toUpdate.length > 0) {
 
 if (!apply) {
   console.log(`\n✋ dry-run concluído. Nada foi escrito.`);
-  console.log(
-    `   Pra aplicar: node scripts/provision-ec-module-claim.mjs --apply --reason "…"\n`,
-  );
+  console.log(`   Pra aplicar: node scripts/provision-ec-module-claim.mjs --apply --reason "…"\n`);
   process.exit(0);
 }
 
@@ -179,10 +168,7 @@ let failed = 0;
 for (const d of toUpdate) {
   try {
     // Firestore `/users/{uid}.modules` espelha o claim (consistente com callable)
-    await db.doc(`users/${d.uid}`).set(
-      { modules: FULL_ACCESS },
-      { merge: true },
-    );
+    await db.doc(`users/${d.uid}`).set({ modules: FULL_ACCESS }, { merge: true });
 
     // Custom claim (merge preservando demais claims como isSuperAdmin)
     const user = await auth.getUser(d.uid);

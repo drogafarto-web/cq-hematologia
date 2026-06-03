@@ -13,6 +13,7 @@
 ### Core Entities
 
 **NaoConformidade Interface:**
+
 - `id`, `labId`, `numero` (NC-{YYYY}-{seq})
 - **Origin:** `origem` (insumo|controle|equipamento|pessoas|processo|outro), `origemId`, `moduloOrigemId`
 - **Description:** `descricao`, `severidade` (leve|grave|critica)
@@ -25,6 +26,7 @@
 ### CAPA Workflow (Corrective Action Process)
 
 **State Machine:**
+
 ```
 Investigacao:
   - realizada: boolean
@@ -60,18 +62,21 @@ Reabertura:
 ## NC Severity Levels & Blocking
 
 **leve** (Minor):
+
 - Impact: Low, limited scope
 - Blocking: NO
 - CAPA: Optional investigation
 - Example: Documentation typo, minor process deviation
 
 **grave** (Major):
+
 - Impact: Affects patient safety or compliance
 - Blocking: YES (auto-block originating module operations)
 - CAPA: Mandatory investigation + action
 - Example: Equipment calibration overdue, operator training expired
 
 **critica** (Critical):
+
 - Impact: Immediate safety risk or regulatory violation
 - Blocking: YES (block across ALL modules until resolved)
 - CAPA: Mandatory investigation + immediate action + verification
@@ -83,21 +88,22 @@ Reabertura:
 
 Each module can **open** an NC and must **check** for NCs before operations:
 
-| Module | Opens NC When | Check Before | Example |
-|--------|---------------|--------------|---------|
-| **Insumos** | Lot expired, contamination detected, quantity mismatch | Create/use Lote | Lot past expiry → open grave NC |
-| **Equipamento** | Calibration overdue, maintenance issue, failure | Run test | Calibration expired → open grave NC |
-| **Controle de Qualidade** | QC failure, EQA deviation, CEQ out of spec | Save QC result | QC outside control limits → open NC |
-| **Pessoas** | Training expired, qualification revoked, competency issue | Perform operation | Operator qual expired → open grave NC |
-| **POPs** | Procedure deviation, version obsolescence | Approve POP | POP marked obsolete → notify users |
-| **Evoluções** | Result anomaly, transcription error, out-of-range value | Save evolution | Inconsistent with patient history → open leve NC |
-| **Auditoria** | External audit finding, corrective action tracking | Create audit record | Inspector finding → auto-open NC |
+| Module                    | Opens NC When                                             | Check Before        | Example                                          |
+| ------------------------- | --------------------------------------------------------- | ------------------- | ------------------------------------------------ |
+| **Insumos**               | Lot expired, contamination detected, quantity mismatch    | Create/use Lote     | Lot past expiry → open grave NC                  |
+| **Equipamento**           | Calibration overdue, maintenance issue, failure           | Run test            | Calibration expired → open grave NC              |
+| **Controle de Qualidade** | QC failure, EQA deviation, CEQ out of spec                | Save QC result      | QC outside control limits → open NC              |
+| **Pessoas**               | Training expired, qualification revoked, competency issue | Perform operation   | Operator qual expired → open grave NC            |
+| **POPs**                  | Procedure deviation, version obsolescence                 | Approve POP         | POP marked obsolete → notify users               |
+| **Evoluções**             | Result anomaly, transcription error, out-of-range value   | Save evolution      | Inconsistent with patient history → open leve NC |
+| **Auditoria**             | External audit finding, corrective action tracking        | Create audit record | Inspector finding → auto-open NC                 |
 
 ---
 
 ## Backfill Strategy (NCTemps → NaoConformidade)
 
 ### Current State
+
 - `NaoConformidadeTemp` scattered across collections:
   - `labs/{labId}/controleQualidade/desvios`
   - `labs/{labId}/insumos/{id}/ncHistory`
@@ -122,9 +128,10 @@ Each module can **open** an NC and must **check** for NCs before operations:
 ```
 
 **Safety Measures:**
+
 - Dry-run first on test lab
 - Verify 1:1 mapping (no data loss)
-- Keep old NCTemps as read-only reference (_migrated: true)
+- Keep old NCTemps as read-only reference (\_migrated: true)
 - Halt if >5% anomalies detected
 - Full audit trail of migration (who, when, count, hash)
 

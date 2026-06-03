@@ -60,13 +60,14 @@ async function main() {
     for (const p of prodSnap.docs) {
       const d = p.data();
       const isImuno =
-        d.modulo === 'imunologia' ||
-        (Array.isArray(d.modulos) && d.modulos.includes('imunologia'));
+        d.modulo === 'imunologia' || (Array.isArray(d.modulos) && d.modulos.includes('imunologia'));
       const matchesText = /(wama|pcr|latex|látex)/i.test(d.nomeComercial ?? '');
       if (!isImuno && !matchesText) continue;
       console.log(`    ${p.id}:`);
       console.log(`      nomeComercial: ${fmt(d.nomeComercial)}  fabricante: ${fmt(d.fabricante)}`);
-      console.log(`      modulo: ${fmt(d.modulo)}  modulos: ${fmt(d.modulos)}  tipo: ${fmt(d.tipo)}`);
+      console.log(
+        `      modulo: ${fmt(d.modulo)}  modulos: ${fmt(d.modulos)}  tipo: ${fmt(d.tipo)}`,
+      );
       console.log(`      equipamentoIds: ${fmt(d.equipamentoIds)}`);
       console.log(`      equipamentosCompativeis: ${fmt(d.equipamentosCompativeis)}`);
       console.log(`      testTypesCompativeis: ${fmt(d.testTypesCompativeis)}`);

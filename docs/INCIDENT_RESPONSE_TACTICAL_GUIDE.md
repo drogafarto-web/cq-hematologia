@@ -94,6 +94,7 @@ firebase deploy --only firestore:rules,functions --project hmatologia2
 **Timeline:** 60–120 min (slower but safer)
 
 **Prerequisites:**
+
 - CTO must approve (restores are destructive)
 - You have access to restore location (`hmatologia2-staging` project)
 
@@ -473,7 +474,7 @@ gcloud firestore describe \
 **When you need to call CTO during incident:**
 
 ```
-"Hi [name], this is [your name] from DevOps. 
+"Hi [name], this is [your name] from DevOps.
 We have a P0 incident in production.
 
 [Type]: [data breach | system down | data corruption | etc.]

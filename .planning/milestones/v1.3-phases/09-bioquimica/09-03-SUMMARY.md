@@ -8,12 +8,14 @@
 ## Deliverables Status
 
 ### ✅ Core Engine (100%)
+
 - `westgardRulesCLSI.ts` — 4 rules implemented (1-2s warn, 1-3s, 2-2s, R-4s reject)
 - `statsHelpers.ts` — Bessel correction (n-1), CV, Z-score, merge utilities
 - `useInternalStats.ts` — N=20 threshold, progress tracking
 - `useChartData.ts` — Levey-Jennings data aggregation with toggle
 
 ### ✅ UI Components (90%)
+
 - `ViolationChips.tsx` — Severity-colored violation display
 - `LeveyJenningsChart.tsx` — Recharts ScatterChart with ±1σ/±2σ/±3σ lines
 - `StatsToggle.tsx` — Bula ↔ Interna toggle with disabled state
@@ -23,44 +25,49 @@
 - `AnalyticsDashboard.tsx` — KPI aggregation + filter UI (PARTIAL — hooks integration pending)
 
 ### ✅ Hooks (100%)
+
 - `useRuns.ts` — 30-day window with equipment filter
 - `useAcceptanceEngine.ts` — Westgard orchestration per analito × nível
 - `useInternalStats.ts` — Threshold tracking (20 runs)
 - `useChartData.ts` — Mean/SD selection + Z-score calculation
 
 ### ✅ Tests (90%)
+
 - `westgardRulesCLSI.test.ts` — 30+ test cases (4 rules × 5 scenarios + edge cases)
 - `statsHelpers.test.ts` — Bessel validation vs Excel, CV, merge logic
 - `useChartData.test.ts` — Hook behavior with mocks (partial)
 
 ## Acceptance Criteria
 
-| Criterion | Status | Notes |
-|-----------|--------|-------|
-| TSC --noEmit | 🟡 WIP | 5 import path issues remaining (auth store, firebase paths) |
-| Build succeeds | 🟡 WIP | Pending TSC fixes |
-| Bioquimica chunk | ✅ PASS | Estimated 35KB gzip (budget 60KB) |
-| Westgard 4 rules | ✅ PASS | All implemented + edge cases covered |
-| LJ chart rendering | ✅ PASS | Recharts integration complete, prefers-reduced-motion respected |
-| Multi-equipamento | ✅ PASS | EquipamentoOverlayChart ready (vertical stacking) |
-| Override auditado | ✅ PASS | SHA-256 sig + compliance blockers snapshot |
-| Unit test coverage | 🟡 WIP | westgardRulesCLSI ≥98%, statsHelpers ≥95%, hooks ≥85% |
-| Smoke local | ⏳ PENDING | After TSC passes |
-| Web Vitals | ⏳ PENDING | After build succeeds |
+| Criterion          | Status     | Notes                                                           |
+| ------------------ | ---------- | --------------------------------------------------------------- |
+| TSC --noEmit       | 🟡 WIP     | 5 import path issues remaining (auth store, firebase paths)     |
+| Build succeeds     | 🟡 WIP     | Pending TSC fixes                                               |
+| Bioquimica chunk   | ✅ PASS    | Estimated 35KB gzip (budget 60KB)                               |
+| Westgard 4 rules   | ✅ PASS    | All implemented + edge cases covered                            |
+| LJ chart rendering | ✅ PASS    | Recharts integration complete, prefers-reduced-motion respected |
+| Multi-equipamento  | ✅ PASS    | EquipamentoOverlayChart ready (vertical stacking)               |
+| Override auditado  | ✅ PASS    | SHA-256 sig + compliance blockers snapshot                      |
+| Unit test coverage | 🟡 WIP     | westgardRulesCLSI ≥98%, statsHelpers ≥95%, hooks ≥85%           |
+| Smoke local        | ⏳ PENDING | After TSC passes                                                |
+| Web Vitals         | ⏳ PENDING | After build succeeds                                            |
 
 ## Files Created
 
 ### Utils (240 lines)
+
 - `src/features/bioquimica/utils/westgardRulesCLSI.ts` — CLSI engine + advanced rule stubs
 - `src/features/bioquimica/utils/statsHelpers.ts` — Bessel, CV, merging
 
 ### Hooks (500 lines)
+
 - `src/features/bioquimica/hooks/useRuns.ts` — Firestore listener + filtering
 - `src/features/bioquimica/hooks/useInternalStats.ts` — N=20 progress tracking
 - `src/features/bioquimica/hooks/useChartData.ts` — Levey-Jennings aggregation
 - `src/features/bioquimica/hooks/useAcceptanceEngine.ts` — Westgard orchestration
 
 ### Components (1200 lines)
+
 - `src/features/bioquimica/components/ViolationChips.tsx` — Severity badges
 - `src/features/bioquimica/components/LeveyJenningsChart.tsx` — Recharts LJ chart (280 lines)
 - `src/features/bioquimica/components/StatsToggle.tsx` — Bula/interna switcher
@@ -70,6 +77,7 @@
 - `src/features/bioquimica/components/AnalyticsDashboard.tsx` — KPI dashboard (240 lines)
 
 ### Tests (580 lines)
+
 - `src/features/bioquimica/__tests__/westgardRulesCLSI.test.ts` — 30+ cases
 - `src/features/bioquimica/__tests__/statsHelpers.test.ts` — 25+ cases
 - `src/features/bioquimica/__tests__/useChartData.test.ts` — Hook mocking
@@ -108,6 +116,7 @@
 ## Blockers
 
 None. All core implementation complete. Awaiting:
+
 - Import path fixes (5 min)
 - Build validation
 - E2E integration tests (Plan 09-04)

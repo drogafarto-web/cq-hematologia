@@ -17,14 +17,14 @@ tendências temporais. O módulo `kpis` já calcula e exibe — este spec fecha 
 
 ## Já existe (não tocar sem necessidade)
 
-| Artefato | Path | Notas |
-|---|---|---|
-| `KPIDaily`, `KPIAlert` types | `src/features/kpis/types/KPI.ts` | Apenas estender com `meta?` |
-| `aggregateDaily` CF | `functions/src/modules/analytics/aggregateDaily.ts` | Não tocar |
-| `queryCIQCompliance` CF | `functions/src/modules/analytics/queryCIQCompliance.ts` | Não tocar |
-| `generateDashboardPDF` CF | `functions/src/modules/analytics/generateDashboardPDF.ts` | Reutilizar padrão PDF |
-| Analytics dashboard + filtros | `src/features/analytics/` | Não tocar |
-| KPI dashboard view | `src/features/kpis/` | Estender com link para planos |
+| Artefato                      | Path                                                      | Notas                         |
+| ----------------------------- | --------------------------------------------------------- | ----------------------------- |
+| `KPIDaily`, `KPIAlert` types  | `src/features/kpis/types/KPI.ts`                          | Apenas estender com `meta?`   |
+| `aggregateDaily` CF           | `functions/src/modules/analytics/aggregateDaily.ts`       | Não tocar                     |
+| `queryCIQCompliance` CF       | `functions/src/modules/analytics/queryCIQCompliance.ts`   | Não tocar                     |
+| `generateDashboardPDF` CF     | `functions/src/modules/analytics/generateDashboardPDF.ts` | Reutilizar padrão PDF         |
+| Analytics dashboard + filtros | `src/features/analytics/`                                 | Não tocar                     |
+| KPI dashboard view            | `src/features/kpis/`                                      | Estender com link para planos |
 
 ---
 
@@ -42,59 +42,60 @@ tendências temporais. O módulo `kpis` já calcula e exibe — este spec fecha 
 
 ### Grupo A — Metas por KPI
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| Extensão de `KPIDaily` | Type change | Adicionar `meta?: number` (percentual ou valor absoluto conforme métrica) |
-| `KPIMeta` interface | Tipo TS | Documento na coleção `/labs/{labId}/kpi-metas` |
-| `definirMetaKPI` callable | CF callable | Cria/atualiza `KPIMeta` com validação de role |
-| `useKpiMetas` hook | React hook | Leitura das metas por tipo de KPI |
-| UI — indicador de meta no dashboard | Componente | Linha de referência no gráfico existente |
+| Artefato                            | Tipo        | Descrição                                                                 |
+| ----------------------------------- | ----------- | ------------------------------------------------------------------------- |
+| Extensão de `KPIDaily`              | Type change | Adicionar `meta?: number` (percentual ou valor absoluto conforme métrica) |
+| `KPIMeta` interface                 | Tipo TS     | Documento na coleção `/labs/{labId}/kpi-metas`                            |
+| `definirMetaKPI` callable           | CF callable | Cria/atualiza `KPIMeta` com validação de role                             |
+| `useKpiMetas` hook                  | React hook  | Leitura das metas por tipo de KPI                                         |
+| UI — indicador de meta no dashboard | Componente  | Linha de referência no gráfico existente                                  |
 
 ### Grupo B — Planos de Melhoria
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `PlanoMelhoria` interface | Tipo TS | Documento na coleção `/labs/{labId}/planos-melhoria` |
-| `AcaoMelhoria` interface | Tipo TS | Subcoleção `acoes` dentro de `PlanoMelhoria` |
-| `PlanoMelhoriaStatus` enum | Enum TS | `rascunho`, `ativo`, `concluido`, `cancelado` |
-| Regras Firestore | `firestore.rules` | `/labs/{labId}/planos-melhoria` + subcoleção `acoes` |
-| `criarPlanoMelhoria` callable | CF callable | Cria plano com `logicalSignature` |
-| `atualizarAcaoMelhoria` callable | CF callable | Atualiza status de ação individual |
-| `fecharPlanoMelhoria` callable | CF callable | Transição para `concluido`; exige RT signature |
-| `usePlanosMelhoria` hook | React hook | Listagem com filtros |
-| `usePlanoMelhoria` hook | React hook | Plano único + ações |
+| Artefato                         | Tipo              | Descrição                                            |
+| -------------------------------- | ----------------- | ---------------------------------------------------- |
+| `PlanoMelhoria` interface        | Tipo TS           | Documento na coleção `/labs/{labId}/planos-melhoria` |
+| `AcaoMelhoria` interface         | Tipo TS           | Subcoleção `acoes` dentro de `PlanoMelhoria`         |
+| `PlanoMelhoriaStatus` enum       | Enum TS           | `rascunho`, `ativo`, `concluido`, `cancelado`        |
+| Regras Firestore                 | `firestore.rules` | `/labs/{labId}/planos-melhoria` + subcoleção `acoes` |
+| `criarPlanoMelhoria` callable    | CF callable       | Cria plano com `logicalSignature`                    |
+| `atualizarAcaoMelhoria` callable | CF callable       | Atualiza status de ação individual                   |
+| `fecharPlanoMelhoria` callable   | CF callable       | Transição para `concluido`; exige RT signature       |
+| `usePlanosMelhoria` hook         | React hook        | Listagem com filtros                                 |
+| `usePlanoMelhoria` hook          | React hook        | Plano único + ações                                  |
 
 ### Grupo C — UI de Planos de Melhoria
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
-| `PlanoMelhoriaCard` | Componente React | Card com status, ações pendentes, responsável |
-| `PlanoMelhoriaDetail` | Componente React | Detalhe com lista de ações e linha do tempo |
-| `AcaoMelhoriaForm` | Componente React | Formulário inline de ação (what/who/when) |
-| View de listagem | Componente React | Listagem filtrada por status/responsável |
+| Artefato              | Tipo             | Descrição                                     |
+| --------------------- | ---------------- | --------------------------------------------- |
+| `PlanoMelhoriaCard`   | Componente React | Card com status, ações pendentes, responsável |
+| `PlanoMelhoriaDetail` | Componente React | Detalhe com lista de ações e linha do tempo   |
+| `AcaoMelhoriaForm`    | Componente React | Formulário inline de ação (what/who/when)     |
+| View de listagem      | Componente React | Listagem filtrada por status/responsável      |
 
 ### Grupo D — Exportação de relatório gerencial
 
-| Artefato | Tipo | Descrição |
-|---|---|---|
+| Artefato                        | Tipo           | Descrição                                              |
+| ------------------------------- | -------------- | ------------------------------------------------------ |
 | CF callable `generateKPIReport` | Cloud Function | PDF com tendências mensais dos KPIs + planos em aberto |
-| Botão de export | Componente | Na view de KPIs |
+| Botão de export                 | Componente     | Na view de KPIs                                        |
 
 ---
 
 ## Dados / Entidades
 
 ### `KPIMeta`
+
 ```typescript
 interface KPIMeta {
   id: string;
   labId: string;
-  tipoKPI: string;             // ex: 'turnaround', 'retrabalho', 'conformidade'
-  valor: number;               // meta numérica (percentual ou absoluto conforme tipo)
-  unidade: string;             // 'percent' | 'hours' | 'count'
+  tipoKPI: string; // ex: 'turnaround', 'retrabalho', 'conformidade'
+  valor: number; // meta numérica (percentual ou absoluto conforme tipo)
+  unidade: string; // 'percent' | 'hours' | 'count'
   vigenciaInicio: Timestamp;
   vigenciaFim?: Timestamp;
-  definidoPor: string;         // userId
+  definidoPor: string; // userId
   definidoPorNome: string;
   criadoEm: Timestamp;
   ativo: boolean;
@@ -102,24 +103,26 @@ interface KPIMeta {
 ```
 
 ### `PlanoMelhoriaStatus`
+
 ```typescript
 type PlanoMelhoriaStatus = 'rascunho' | 'ativo' | 'concluido' | 'cancelado';
 ```
 
 ### `PlanoMelhoria`
+
 ```typescript
 interface PlanoMelhoria {
   id: string;
   labId: string;
   titulo: string;
   descricao: string;
-  kpiOrigemId?: string;          // KPIAlert ou KPIDaily que originou o plano
+  kpiOrigemId?: string; // KPIAlert ou KPIDaily que originou o plano
   status: PlanoMelhoriaStatus;
   responsavelId: string;
   responsavelNome: string;
   prazoMeta: Timestamp;
   conclusaoEm?: Timestamp;
-  logicalSignature?: LogicalSignature;  // preenchido ao fechar
+  logicalSignature?: LogicalSignature; // preenchido ao fechar
   criadoEm: Timestamp;
   updatedAt: Timestamp;
   deletadoEm?: Timestamp;
@@ -127,6 +130,7 @@ interface PlanoMelhoria {
 ```
 
 ### `AcaoMelhoria`
+
 ```typescript
 interface AcaoMelhoria {
   id: string;
@@ -137,7 +141,7 @@ interface AcaoMelhoria {
   responsavelNome: string;
   prazo: Timestamp;
   status: 'pendente' | 'em_andamento' | 'concluida' | 'cancelada';
-  evidencia?: string;            // texto ou URL de upload futuro
+  evidencia?: string; // texto ou URL de upload futuro
   criadoEm: Timestamp;
   updatedAt: Timestamp;
 }

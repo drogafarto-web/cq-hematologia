@@ -32,17 +32,17 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 
 **Components**:
 
-| Job | Trigger | Duration | Purpose |
-|-----|---------|----------|---------|
-| `pre-deploy-gate` | Always | 5 min | 7 mandatory checks (typecheck, lint, tests, build, secrets) |
-| `deploy-rules` | Manual + auto on merge | 2 min | `firebase deploy --only firestore:rules` |
-| `deploy-indexes` | Manual + auto on merge | 2 min | `firebase deploy --only firestore:indexes` |
-| `deploy-functions` | Manual + auto on merge | 5 min | `firebase deploy --only functions` |
-| `deploy-hosting` | Manual only | 2 min | `firebase deploy --only hosting` |
-| `post-deploy-verification` | After deploy | 60 min | Smoke tests + Cloud Logs monitoring |
-| `merge-protection` | PR only | 2 min | Coverage, bundle size, quality gates |
-| `rollback` | On failure | 5 min | Auto-generate rollback guide + escalate |
-| `deploy-status` | Always (final) | <1 min | Summary report + live URL |
+| Job                        | Trigger                | Duration | Purpose                                                     |
+| -------------------------- | ---------------------- | -------- | ----------------------------------------------------------- |
+| `pre-deploy-gate`          | Always                 | 5 min    | 7 mandatory checks (typecheck, lint, tests, build, secrets) |
+| `deploy-rules`             | Manual + auto on merge | 2 min    | `firebase deploy --only firestore:rules`                    |
+| `deploy-indexes`           | Manual + auto on merge | 2 min    | `firebase deploy --only firestore:indexes`                  |
+| `deploy-functions`         | Manual + auto on merge | 5 min    | `firebase deploy --only functions`                          |
+| `deploy-hosting`           | Manual only            | 2 min    | `firebase deploy --only hosting`                            |
+| `post-deploy-verification` | After deploy           | 60 min   | Smoke tests + Cloud Logs monitoring                         |
+| `merge-protection`         | PR only                | 2 min    | Coverage, bundle size, quality gates                        |
+| `rollback`                 | On failure             | 5 min    | Auto-generate rollback guide + escalate                     |
+| `deploy-status`            | Always (final)         | <1 min   | Summary report + live URL                                   |
 
 **Features**:
 
@@ -66,6 +66,7 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 **For**: Engineers deploying to production
 
 **Contains**:
+
 - Deployment modes (auto vs manual)
 - Pre-deploy gate details (7 checks)
 - Deployment order rationale
@@ -88,6 +89,7 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 **For**: Quick lookup during development/deployment
 
 **Contains**:
+
 - Pre-merge checklist (code authors)
 - Manual deploy full cycle (Step 1-4)
 - Rollback procedures (emergency)
@@ -109,6 +111,7 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 **For**: Initial setup (15 min, one-time)
 
 **Contains**:
+
 - Step 1: Generate Firebase auth token
 - Step 2: Create branch protection rules
 - Step 3: Set GitHub Actions permissions
@@ -130,6 +133,7 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 **For**: Deep technical understanding
 
 **Contains**:
+
 - System overview (ASCII diagram)
 - Job dependency graph (ASCII)
 - 3 execution flows (auto-deploy, manual, PR validation)
@@ -152,17 +156,17 @@ A **production-grade GitHub Actions CI/CD workflow** with:
 
 Already exist in repo, referenced by workflow:
 
-| Script | Location | Purpose | Trigger |
-|--------|----------|---------|---------|
-| `npm run typecheck` | package.json | TypeScript compilation check | Pre-gate job |
-| `npm run lint` | package.json | ESLint (88-warning baseline) | Pre-gate job |
-| `npm run test:unit` | package.json | Vitest unit tests (274-test baseline) | Pre-gate job |
-| `npm run test:coverage` | package.json | Coverage report (≥80% threshold) | Merge-protection job |
-| `npm run test:smoke` | package.json | Integration smoke tests | Post-deploy job |
-| `npm run build` | package.json | Vite app bundle (<420 KB gzip) | Pre-gate + merge-protection |
-| `cd functions && npm run build` | functions/package.json | Cloud Functions build | Pre-gate job |
-| `bash scripts/preflight-secrets-check.sh` | scripts/ | ADR-0018 secrets gate (blocks PENDING_SET) | Pre-gate job (if functions changed) |
-| `bash scripts/monitor-cloud-logs.sh 1 60` | scripts/ | 1-hour Cloud Logs monitoring | Post-deploy job |
+| Script                                    | Location               | Purpose                                    | Trigger                             |
+| ----------------------------------------- | ---------------------- | ------------------------------------------ | ----------------------------------- |
+| `npm run typecheck`                       | package.json           | TypeScript compilation check               | Pre-gate job                        |
+| `npm run lint`                            | package.json           | ESLint (88-warning baseline)               | Pre-gate job                        |
+| `npm run test:unit`                       | package.json           | Vitest unit tests (274-test baseline)      | Pre-gate job                        |
+| `npm run test:coverage`                   | package.json           | Coverage report (≥80% threshold)           | Merge-protection job                |
+| `npm run test:smoke`                      | package.json           | Integration smoke tests                    | Post-deploy job                     |
+| `npm run build`                           | package.json           | Vite app bundle (<420 KB gzip)             | Pre-gate + merge-protection         |
+| `cd functions && npm run build`           | functions/package.json | Cloud Functions build                      | Pre-gate job                        |
+| `bash scripts/preflight-secrets-check.sh` | scripts/               | ADR-0018 secrets gate (blocks PENDING_SET) | Pre-gate job (if functions changed) |
+| `bash scripts/monitor-cloud-logs.sh 1 60` | scripts/               | 1-hour Cloud Logs monitoring               | Post-deploy job                     |
 
 ---
 
@@ -170,8 +174,8 @@ Already exist in repo, referenced by workflow:
 
 **Secrets** (must be created in GitHub UI):
 
-| Secret | Value | Location |
-|--------|-------|----------|
+| Secret           | Value                                                             | Location                                   |
+| ---------------- | ----------------------------------------------------------------- | ------------------------------------------ |
 | `FIREBASE_TOKEN` | Firebase CLI token from `firebase login:ci --project hmatologia2` | Settings → Secrets and variables → Actions |
 
 **Branch Protection Rules** (main branch):
@@ -209,24 +213,24 @@ Code author:
   2. npm run typecheck && npm run test:unit (local)
   3. git push origin feature-branch
   4. Create PR to main
-  
+
 GitHub Actions (on PR):
   5. pre-deploy-gate + merge-protection checks
   6. PR status shows ✅ or ❌
-  
+
 Reviewer:
   7. Review code + approve
-  
+
 Code author:
   8. Click "Merge pull request"
-  
+
 GitHub Actions (auto-trigger):
   9. pre-deploy-gate (again)
   10. deploy-rules (if firestore.rules changed)
   11. deploy-functions (if functions/ changed)
   12. (NOT hosting — manual only)
   13. post-deploy-verification (smoke + logs)
-  
+
 Live: ✅ https://hmatologia2.web.app
 ```
 
@@ -243,7 +247,7 @@ Code author:
   3. git push origin hotfix/ui-crash
   4. Create PR to main, get 1 approval
   5. Merge
-  
+
 (Auto-deploy would do Rules + Functions, but NOT Hosting)
 
 On-call engineer:
@@ -252,12 +256,12 @@ On-call engineer:
   8. Select deploy_stage: "hosting"
   9. Click "Run"
   10. Watch Actions tab
-  
+
 GitHub Actions:
   11. pre-deploy-gate (5 min)
   12. deploy-hosting only (2 min)
   13. post-deploy-verification (60 min)
-  
+
 Live: ✅ (UI fix deployed)
 ```
 
@@ -272,17 +276,17 @@ Production error detected:
   1. Cloud Logs shows ERROR spike post-deploy
   2. Determine: New error or old?
   3. If new: Rollback immediately
-  
+
 Git-based rollback:
   4. git revert HEAD~1 && git push
   5. GitHub Actions auto-triggers (auto-deploy Rules + Functions)
-  
+
 Manual CLI rollback (if needed):
   4. git checkout HEAD~1 -- functions/ firestore.rules src/
   5. npm run build
   6. firebase deploy --only firestore:rules --project hmatologia2 --token $FIREBASE_TOKEN
   7. firebase deploy --only functions --project hmatologia2 --token $FIREBASE_TOKEN
-  
+
 Live: ✅ (previous version restored)
 ```
 
@@ -295,12 +299,14 @@ Live: ✅ (previous version restored)
 ### RDC 978 (ANVISA Lab Accreditation)
 
 **Article 5.3 (Audit Trail)**
+
 - ✅ Git commit author (logged)
 - ✅ Deploy timestamp (logged)
 - ✅ Approval chain (GitHub PR review)
 - ✅ Pre-checks + post-checks (logged)
 
 **Article 122 (Operational Records)**
+
 - ✅ Who, when, what changed (GitHub history)
 - ✅ Verification (pre-deploy gates)
 - ✅ Approval (PR review mandatory)
@@ -308,11 +314,13 @@ Live: ✅ (previous version restored)
 ### DICQ 4.3 (System Documentation)
 
 **Code change documentation**
+
 - ✅ Commit message (why change?)
 - ✅ PR review (independent approval)
 - ✅ Pre-deploy gates (what was tested?)
 
 **Deployment audit**
+
 - ✅ Artifact retention (7-30 days)
 - ✅ Cloud Logs (30-day retention)
 - ✅ Firebase Hosting logs (varies by plan)
@@ -321,18 +329,18 @@ Live: ✅ (previous version restored)
 
 ## Risk Mitigation
 
-| Risk | Pre-Deploy Gate | Post-Deploy Gate | Rollback |
-|------|-----------------|------------------|----------|
-| Type errors deployed | ✅ tsc check | — | ✅ Git revert |
-| Lint violations | ✅ ESLint check | — | ✅ Git revert |
-| Tests failing | ✅ Vitest check | — | ✅ Git revert |
-| Bundle too large | ✅ Size check (<420 KB) | — | ✅ Git revert |
-| Test coverage drops | ✅ Coverage ≥80% check | — | ✅ Git revert |
-| Secrets missing | ✅ preflight-secrets-check | — | ✅ Manual fix + retry |
-| Invalid rules deployed | ✅ Firebase dry-run | — | ✅ Manual revert |
-| Functions integration broken | — | ✅ Smoke tests | ✅ Cloud Logs alert |
-| Firestore access broken | — | ✅ Smoke tests | ✅ Manual rollback |
-| Production error spike | — | ✅ 1h Cloud Logs monitoring | ✅ Git revert |
+| Risk                         | Pre-Deploy Gate            | Post-Deploy Gate            | Rollback              |
+| ---------------------------- | -------------------------- | --------------------------- | --------------------- |
+| Type errors deployed         | ✅ tsc check               | —                           | ✅ Git revert         |
+| Lint violations              | ✅ ESLint check            | —                           | ✅ Git revert         |
+| Tests failing                | ✅ Vitest check            | —                           | ✅ Git revert         |
+| Bundle too large             | ✅ Size check (<420 KB)    | —                           | ✅ Git revert         |
+| Test coverage drops          | ✅ Coverage ≥80% check     | —                           | ✅ Git revert         |
+| Secrets missing              | ✅ preflight-secrets-check | —                           | ✅ Manual fix + retry |
+| Invalid rules deployed       | ✅ Firebase dry-run        | —                           | ✅ Manual revert      |
+| Functions integration broken | —                          | ✅ Smoke tests              | ✅ Cloud Logs alert   |
+| Firestore access broken      | —                          | ✅ Smoke tests              | ✅ Manual rollback    |
+| Production error spike       | —                          | ✅ 1h Cloud Logs monitoring | ✅ Git revert         |
 
 ---
 
@@ -343,33 +351,34 @@ Live: ✅ (previous version restored)
 **Target**: >98% (exceptions require incident review)
 
 **Tracked**:
+
 - Pre-gate pass rate (should be 100% — failures are code issues)
 - Deploy job success rate (should be >99% — Firebase API reliability)
 - Post-deploy error detection rate (should flag >95% of bad deploys)
 
 ### Deployment Duration (SLO)
 
-| Stage | Target | Hard Limit |
-|-------|--------|-----------|
-| Pre-gate | <5 min | 10 min |
-| Rules | <2 min | 5 min |
-| Functions | <5 min | 15 min |
-| Hosting | <2 min | 5 min |
-| Verification | <70 min | 75 min |
-| **Total** | **~20 min** | **40 min** |
+| Stage        | Target      | Hard Limit |
+| ------------ | ----------- | ---------- |
+| Pre-gate     | <5 min      | 10 min     |
+| Rules        | <2 min      | 5 min      |
+| Functions    | <5 min      | 15 min     |
+| Hosting      | <2 min      | 5 min      |
+| Verification | <70 min     | 75 min     |
+| **Total**    | **~20 min** | **40 min** |
 
 ### Error Detection Rate
 
-| Gate | False Negative Rate (miss bugs) | False Positive Rate (block good code) |
-|-----|--------------------------------|--------------------------------------|
-| Type-check | <1% | 0% |
-| Lint | <5% | <1% (baseline tolerance) |
-| Unit tests | <10% (missing coverage) | 0% |
-| Coverage gate | <10% | 0% |
-| Bundle size | <5% | 0% |
-| Secrets gate | <1% | 0% |
-| Smoke tests | <20% (integration gaps) | <5% |
-| Cloud Logs | <30% (subtle issues) | <10% (false error positives) |
+| Gate          | False Negative Rate (miss bugs) | False Positive Rate (block good code) |
+| ------------- | ------------------------------- | ------------------------------------- |
+| Type-check    | <1%                             | 0%                                    |
+| Lint          | <5%                             | <1% (baseline tolerance)              |
+| Unit tests    | <10% (missing coverage)         | 0%                                    |
+| Coverage gate | <10%                            | 0%                                    |
+| Bundle size   | <5%                             | 0%                                    |
+| Secrets gate  | <1%                             | 0%                                    |
+| Smoke tests   | <20% (integration gaps)         | <5%                                   |
+| Cloud Logs    | <30% (subtle issues)            | <10% (false error positives)          |
 
 ---
 
@@ -423,13 +432,13 @@ C:\hc quality\
 
 ### Common Issues
 
-| Issue | Resolution | Time |
-|-------|-----------|------|
-| PR blocked by pre-deploy gate | Check Actions tab → fix code → commit → push | 5 min |
-| Secrets missing (pre-deploy blocks) | `firebase functions:secrets:set SECRET_NAME` → retry | 5 min |
-| Cloud Logs shows errors (post-deploy) | Review Cloud Logs → decide rollback → execute | 10 min |
-| Workflow file syntax error | GitHub UI shows error → fix YAML → commit → push | 5 min |
-| Bundle size exceeds 420 KB | Lazy-load large deps or split routes → rebuild → commit | 20 min |
+| Issue                                 | Resolution                                              | Time   |
+| ------------------------------------- | ------------------------------------------------------- | ------ |
+| PR blocked by pre-deploy gate         | Check Actions tab → fix code → commit → push            | 5 min  |
+| Secrets missing (pre-deploy blocks)   | `firebase functions:secrets:set SECRET_NAME` → retry    | 5 min  |
+| Cloud Logs shows errors (post-deploy) | Review Cloud Logs → decide rollback → execute           | 10 min |
+| Workflow file syntax error            | GitHub UI shows error → fix YAML → commit → push        | 5 min  |
+| Bundle size exceeds 420 KB            | Lazy-load large deps or split routes → rebuild → commit | 20 min |
 
 ### Escalation Chain
 
@@ -459,6 +468,7 @@ C:\hc quality\
 **Status**: Ready for immediate use
 
 **System validates**:
+
 - ✅ All pre-deploy gates present and functional
 - ✅ Deployment order correct (Rules → Functions → Hosting)
 - ✅ Post-deploy verification (smoke tests + logs)
@@ -474,4 +484,3 @@ C:\hc quality\
 ---
 
 **For questions, issues, or enhancements**: See escalation chain above or reference documentation files.
-

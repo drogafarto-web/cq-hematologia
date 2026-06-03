@@ -22,10 +22,10 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
   const [showTransition, setShowTransition] = useState(false);
 
   const priorityColor: Record<string, string> = {
-    'critica': 'border-l-4 border-red-500',
-    'alta': 'border-l-4 border-amber-500',
-    'media': 'border-l-4 border-yellow-500',
-    'estendida': 'border-l-4 border-slate-500',
+    critica: 'border-l-4 border-red-500',
+    alta: 'border-l-4 border-amber-500',
+    media: 'border-l-4 border-yellow-500',
+    estendida: 'border-l-4 border-slate-500',
   };
 
   return (
@@ -70,10 +70,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
 
         {/* Deadline Indicator */}
         <div>
-          <CAPADeadlineIndicator
-            deadline={capa.deadline}
-            deadlineStatus={capa.deadlineStatus}
-          />
+          <CAPADeadlineIndicator deadline={capa.deadline} deadlineStatus={capa.deadlineStatus} />
         </div>
 
         {/* Status Badge */}
@@ -105,9 +102,7 @@ function CAPACard({ capa }: { capa: CAPAWithDeadlineStatus }) {
 
         {/* Owner */}
         {capa.ownerName && (
-          <div className="text-xs text-white/50">
-            Responsável: {capa.ownerName}
-          </div>
+          <div className="text-xs text-white/50">Responsável: {capa.ownerName}</div>
         )}
       </div>
 
@@ -140,9 +135,7 @@ export function CAPADashboard() {
   const { capas, loading, error } = useCAPAs();
   useCAPADeadlineMonitor(capas);
 
-  const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'status'>(
-    'deadline',
-  );
+  const [sortBy, setSortBy] = useState<'deadline' | 'priority' | 'status'>('deadline');
 
   // Compute sorted list
   const sortedCapas = useMemo(() => {
@@ -155,7 +148,15 @@ export function CAPADashboard() {
         return aTime - bTime;
       });
     } else if (sortBy === 'priority') {
-      const priorityOrder: Record<string, number> = { critica: 0, critical: 0, alta: 1, major: 1, media: 2, minor: 2, estendida: 3 };
+      const priorityOrder: Record<string, number> = {
+        critica: 0,
+        critical: 0,
+        alta: 1,
+        major: 1,
+        media: 2,
+        minor: 2,
+        estendida: 3,
+      };
       sorted.sort((a, b) => {
         const aIdx = priorityOrder[a.priority as string] ?? 3;
         const bIdx = priorityOrder[b.priority as string] ?? 3;
@@ -163,15 +164,15 @@ export function CAPADashboard() {
       });
     } else if (sortBy === 'status') {
       const statusOrder: Record<CapaStateLegacy, number> = {
-        'aberto': 0,
+        aberto: 0,
         'em-andamento': 1,
         'evidencia-submetida': 2,
         'auditor-revisando': 3,
-        'fechado': 4,
+        fechado: 4,
       };
       sorted.sort((a, b) => {
-        const aIdx = statusOrder[(a.status as CapaStateLegacy)] ?? 5;
-        const bIdx = statusOrder[(b.status as CapaStateLegacy)] ?? 5;
+        const aIdx = statusOrder[a.status as CapaStateLegacy] ?? 5;
+        const bIdx = statusOrder[b.status as CapaStateLegacy] ?? 5;
         return aIdx - bIdx;
       });
     }
@@ -182,14 +183,14 @@ export function CAPADashboard() {
   // Count by status
   const statusCounts = useMemo(() => {
     const counts: Record<CapaStateLegacy, number> = {
-      'aberto': 0,
+      aberto: 0,
       'em-andamento': 0,
       'evidencia-submetida': 0,
       'auditor-revisando': 0,
-      'fechado': 0,
+      fechado: 0,
     };
     capas.forEach((c) => {
-      counts[(c.status as CapaStateLegacy)]++;
+      counts[c.status as CapaStateLegacy]++;
     });
     return counts;
   }, [capas]);
@@ -206,27 +207,16 @@ export function CAPADashboard() {
     <div className="min-h-screen bg-[#141417] p-6">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-white mb-2">
-          Acompanhamento CAPA
-        </h1>
-        <p className="text-white/60">
-          {capas.length} CAPAs de Phase 7 Audit Dry-Run
-        </p>
+        <h1 className="text-3xl font-bold text-white mb-2">Acompanhamento CAPA</h1>
+        <p className="text-white/60">{capas.length} CAPAs de Phase 7 Audit Dry-Run</p>
       </div>
 
       {/* Status Summary */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-8">
         {(Object.keys(statusCounts) as Array<keyof typeof statusCounts>).map((status) => (
-          <div
-            key={status}
-            className="bg-white/5 rounded-lg p-4 text-center"
-          >
-            <p className="text-2xl font-bold text-white">
-              {statusCounts[status]}
-            </p>
-            <p className="text-xs text-white/60 mt-1 capitalize">
-              {status.replace('-', ' ')}
-            </p>
+          <div key={status} className="bg-white/5 rounded-lg p-4 text-center">
+            <p className="text-2xl font-bold text-white">{statusCounts[status]}</p>
+            <p className="text-xs text-white/60 mt-1 capitalize">{status.replace('-', ' ')}</p>
           </div>
         ))}
       </div>
@@ -252,10 +242,7 @@ export function CAPADashboard() {
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
           {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="bg-white/5 rounded-lg p-6 animate-pulse"
-            >
+            <div key={i} className="bg-white/5 rounded-lg p-6 animate-pulse">
               <div className="h-4 bg-white/10 rounded w-20 mb-4" />
               <div className="h-3 bg-white/10 rounded w-full mb-2" />
               <div className="h-3 bg-white/10 rounded w-4/5" />

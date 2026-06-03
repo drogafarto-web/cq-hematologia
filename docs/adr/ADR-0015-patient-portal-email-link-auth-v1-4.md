@@ -15,6 +15,7 @@ v1.4 roadmap inclui **Phase 5 — Patient Portal Phase 1** (read-only patient ac
 **Questão:** v1.4 requer integração com LIS (patient data sync) ou pode usar email-link auth (fallback) e defer LIS integration a v1.4.1?
 
 **Context:**
+
 - Riopomba usava desktop LIS antes (sistema antigo).
 - HC Quality v1.3 não tem integração LIS (patient data é manual entry via RT).
 - v1.4 roadmap menciona "optional: patient self-service account (email + name + CPF matching)" — not mandatory.
@@ -27,6 +28,7 @@ v1.4 roadmap inclui **Phase 5 — Patient Portal Phase 1** (read-only patient ac
 Two paths diverge at Week 4 (Phase 5 kickoff):
 
 ### Path A — Email-link auth only (v1.4 Phase 5)
+
 - **Patient authenticity:** Email link (24–72h expiry) is sent to patient.
 - **Patient data:** RT must pre-populate lab system com patient info (manual entry ou CSV import).
 - **UX:** Pasient clicks link in email → laudo download available for 24h.
@@ -36,6 +38,7 @@ Two paths diverge at Week 4 (Phase 5 kickoff):
 **Impact on timeline:** Phase 5 ships Week 4-5. Portal live in production Week 6.
 
 ### Path B — LIS integration (v1.4 Phase 5)
+
 - **Patient authentication:** LIS webhook syncs patient list → HC Quality `patients` collection.
 - **Patient lookup:** Portal searches patient by CPF / name.
 - **Self-service onboarding:** Patient enters email + name + CPF → system verifies against LIS → sends auth link.
@@ -53,6 +56,7 @@ Two paths diverge at Week 4 (Phase 5 kickoff):
 ### 1. v1.4 Patient Portal — Email-Link Auth
 
 **Flow:**
+
 ```
 Lab RT adds patient to HC Quality:
   → Manual entry: Patient name, DOB, CPF, email
@@ -68,12 +72,14 @@ Patient arrives at portal:
 ```
 
 **Components:**
+
 - `src/features/patient-portal/` (public subdomain or `/patient-portal` path).
 - `generatePatientAuthLink` CF callable: creates signed JWT (expiry 72h), sends email.
 - `verifyPatientAuthToken` service: validates token, authorizes download.
 - Patient data stored in `/labs/{labId}/patients` (manual entry or CSV seeded).
 
 **Audit trail:**
+
 - Email link generated: logged in `patient-portal-events`.
 - Download: logged + tied to patient ID + timestamp.
 - No patient PII in logs (only ID + action).
@@ -83,12 +89,14 @@ Patient arrives at portal:
 **Timing:** 2–3 weeks after v1.4 launch (est. late Oct 2026).
 
 **Refactor scope:**
+
 - Remove manual patient entry UI.
 - Add LIS webhook listener (CF + Firestore listener).
 - Batch sync: `syncPatientsFromLIS` CF (runs nightly, pulls patient list from LIS API).
 - Enhanced self-service: Patient self-registers (email + name + CPF) → system verifies against LIS → auto-login.
 
 **Code changes (localized):**
+
 - `functions/src/v1.4.1-lis/syncPatientsFromLIS.ts` (new module).
 - Patient data source: `/labs/{labId}/patients` (same collection; schema extended with `lisId` + `syncedAt` fields).
 - Backward-compat: Email-link auth still works (for patients not yet synced).
@@ -100,6 +108,7 @@ Patient arrives at portal:
 **v1.4.1 targets Riopomba's specific LIS first** (assumed: internal custom system or Sysmex SH/D).
 
 **Middleware design (future multi-vendor):**
+
 ```
 LIS Vendor A (HL7 v2.4) ──→ Middleware CF ──→ Normalized patient DTO ──→ /patients collection
 LIS Vendor B (FHIR)      ──→ Middleware CF ──→ (same DTO) ───────────→ (same collection)
@@ -127,6 +136,7 @@ LIS Vendor C (CSV export) ──→ Batch job ────→ (same DTO) ──�
 ### 5. Regulatory Alignment
 
 **LGPD + RDC 978:**
+
 - Patient email is PII; stored encrypted in Firestore (at-rest via Firebase encryption).
 - Email-link auth doesn't require patient password storage (zero password = lower attack surface).
 - Download audit log ties patient ID + timestamp → auditor can verify "patient X downloaded on date Y".
@@ -141,10 +151,12 @@ LIS Vendor C (CSV export) ──→ Batch job ────→ (same DTO) ──�
 Invest 4–6 weeks in LIS middleware + patient sync + self-service in v1.4.
 
 **Pros:**
+
 - Portal is complete (self-service + LIS sync).
 - Better UX (patient self-registers, no RT manual add).
 
 **Cons:**
+
 - Phase 5 blocked until LIS integration ready (~Week 8–10).
 - Portal launch deferred (later than Week 6 target).
 - Risk: LIS API changes, integration bugs → Phase 5 slip cascades to other phases.
@@ -157,9 +169,11 @@ Invest 4–6 weeks in LIS middleware + patient sync + self-service in v1.4.
 Focus v1.4 purely on compliance (DICQ + RDC 978); patient portal is v1.5+ feature.
 
 **Pros:**
+
 - Zero timeline risk; pure compliance focus.
 
 **Cons:**
+
 - Patient experience gap (no self-service laudo access; RT must email PDF manually).
 - Market positioning: "patients can't download own results yet" is weak.
 - v1.4.1 (post-launch) is good "quick win" roadmap; deferring to v1.5 loses momentum.

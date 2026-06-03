@@ -7,6 +7,7 @@
 ## For Different Audiences
 
 ### 👔 CTO (Sign-Off Required)
+
 1. **Start here:** `PHASE3_MONITORING_EXEC_SUMMARY.md` (3 min read)
    - What's been set up
    - Key metrics baseline
@@ -14,6 +15,7 @@
    - One-page sign-off checklist
 
 ### 🛠️ DevOps / On-Call (Monitoring Execution)
+
 1. **Start here:** `PHASE3_MONITORING_README.md` (10 min read)
    - Monitoring architecture (5-layer stack)
    - Quick-start commands
@@ -29,12 +31,14 @@
    - `CLOUD_LOGS_WAVE1_REPORT.md` — Generate at T+24h
 
 ### 📊 QA / Test Engineer (Smoke Testing)
+
 1. **Start here:** `ALERT_CHECKLIST_PHASE3.md` → Stage 5: Smoke Tests section
    - 4 critical tests required
    - Expected outcomes
    - Success criteria (4/4 pass in <5s each)
 
 ### 📈 Project Manager (Status Tracking)
+
 1. **Start here:** `HEALTH_CHECK_DASHBOARD.md`
    - 5-stage deployment timeline
    - Real-time KPI snapshot
@@ -46,9 +50,11 @@
 ## Document Descriptions
 
 ### PHASE3_MONITORING_EXEC_SUMMARY.md
+
 **For:** CTO sign-off  
 **Length:** 2 pages  
 **Key Content:**
+
 - What's been set up (3 docs + 1 script)
 - Key metrics baseline (errors, latency, compliance)
 - 30-minute Wave 1 timeline
@@ -60,9 +66,11 @@
 ---
 
 ### PHASE3_MONITORING_README.md
+
 **For:** DevOps / ops team  
 **Length:** 5 pages  
 **Key Content:**
+
 - 5-layer monitoring architecture
 - Quick-start: 3 monitoring commands (baseline, intensive, post-deploy)
 - Full Phase 3 Wave 1 timeline (T-24h → T+24h)
@@ -74,9 +82,11 @@
 ---
 
 ### CLOUD_LOGS_BASELINE.md
+
 **For:** Pre/post comparison, sign-off  
 **Length:** 6 pages  
 **Key Content:**
+
 - Pre-deployment baseline (T-24h snapshot)
 - Wave 1 deployment plan (5 stages, 30m total)
 - Parallel stream assignments (Streams A/D primary)
@@ -89,9 +99,11 @@
 ---
 
 ### ALERT_CHECKLIST_PHASE3.md
+
 **For:** Real-time escalation playbook  
 **Length:** 7 pages  
 **Key Content:**
+
 - Severity levels: 🔴 P0 (STOP), 🟡 P1 (ESCALATE), 🟠 P2 (LOG)
 - Per-stage alert watch lists (Stage 1–5)
 - Real-time monitoring commands (gcloud syntax)
@@ -104,9 +116,11 @@
 ---
 
 ### HEALTH_CHECK_DASHBOARD.md
+
 **For:** Live KPI tracker (update every 30 min)  
 **Length:** 8 pages  
 **Key Content:**
+
 - Real-time status board (deployment stage progress)
 - Cloud Logs health snapshot (errors, trend)
 - 5 deployment stage checklists (what to verify per stage)
@@ -138,6 +152,7 @@ pwsh scripts/monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30 -StartTime "20
 ```
 
 **Outputs:**
+
 - JSON export: `scripts/cloud-logs-export-[timestamp].json`
 - Markdown report: `docs/MONITORING_REPORT_[timestamp].md`
 
@@ -172,16 +187,16 @@ T+24h (2026-05-09 23:30 UTC) — MONITORING COMPLETE
 
 ## Alert Escalation At A Glance
 
-| Alert | Severity | Action | Reference |
-|-------|----------|--------|-----------|
-| >10 errors in 30m | 🔴 P0 | **STOP deployment** → export logs → CTO | ALERT_CHECKLIST_PHASE3.md § P0 |
-| 1+ CRITICAL event | 🔴 P0 | **STOP immediately** → investigate | ALERT_CHECKLIST_PHASE3.md § P0 |
-| Rules compile fail | 🔴 P0 | **Revert rules** → debug → CTO | ALERT_CHECKLIST_PHASE3.md § P0 |
-| Index FAILED state | 🔴 P0 | **Contact GCP** → pause functions | ALERT_CHECKLIST_PHASE3.md § P0 |
-| >5 permission denies | 🟡 P1 | Investigate rules (can continue) | ALERT_CHECKLIST_PHASE3.md § P1 |
-| Rules warnings >22 | 🟡 P1 | Review syntax (no deploy hold) | ALERT_CHECKLIST_PHASE3.md § P1 |
-| Function timeout >10s | 🟡 P1 | Profile function, check indexes | ALERT_CHECKLIST_PHASE3.md § P1 |
-| Index creation delay | 🟠 P2 | Expected; monitor until READY | ALERT_CHECKLIST_PHASE3.md § P2 |
+| Alert                 | Severity | Action                                  | Reference                      |
+| --------------------- | -------- | --------------------------------------- | ------------------------------ |
+| >10 errors in 30m     | 🔴 P0    | **STOP deployment** → export logs → CTO | ALERT_CHECKLIST_PHASE3.md § P0 |
+| 1+ CRITICAL event     | 🔴 P0    | **STOP immediately** → investigate      | ALERT_CHECKLIST_PHASE3.md § P0 |
+| Rules compile fail    | 🔴 P0    | **Revert rules** → debug → CTO          | ALERT_CHECKLIST_PHASE3.md § P0 |
+| Index FAILED state    | 🔴 P0    | **Contact GCP** → pause functions       | ALERT_CHECKLIST_PHASE3.md § P0 |
+| >5 permission denies  | 🟡 P1    | Investigate rules (can continue)        | ALERT_CHECKLIST_PHASE3.md § P1 |
+| Rules warnings >22    | 🟡 P1    | Review syntax (no deploy hold)          | ALERT_CHECKLIST_PHASE3.md § P1 |
+| Function timeout >10s | 🟡 P1    | Profile function, check indexes         | ALERT_CHECKLIST_PHASE3.md § P1 |
+| Index creation delay  | 🟠 P2    | Expected; monitor until READY           | ALERT_CHECKLIST_PHASE3.md § P2 |
 
 ---
 
@@ -237,11 +252,13 @@ Scripts (already deployed):
 ## How to Use This Index
 
 **I'm the CTO:**
+
 1. Read PHASE3_MONITORING_EXEC_SUMMARY.md (2 min)
 2. Skim ALERT_CHECKLIST_PHASE3.md § Alert Severity (1 min)
 3. Sign off on summary checklist (1 min)
 
 **I'm on DevOps/ops:**
+
 1. Read PHASE3_MONITORING_README.md (10 min)
 2. Before T0: Run baseline → `pwsh scripts/monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30`
 3. At T0: Switch to intensive → `pwsh scripts/monitor-cloud-logs.ps1 -Hours 1 -IntervalMinutes 5`
@@ -250,11 +267,13 @@ Scripts (already deployed):
 6. On any alert: Check ALERT_CHECKLIST_PHASE3.md for action
 
 **I'm QA:**
+
 1. Read ALERT_CHECKLIST_PHASE3.md § Stage 5: Smoke Tests
 2. Execute 4 tests per checklist
 3. Record results in HEALTH_CHECK_DASHBOARD.md
 
 **I'm project manager:**
+
 1. Bookmark HEALTH_CHECK_DASHBOARD.md
 2. Check every 2 hours during Wave 1 for stage progress
 3. Review final report at T+24h
@@ -263,21 +282,21 @@ Scripts (already deployed):
 
 ## Critical Moments (Don't Miss These)
 
-| Time | Event | Action | Owner |
-|------|-------|--------|-------|
-| **T-1h** | Final briefing | Review alert escalation chain | CTO |
-| **T-24h** | Baseline starts | Run monitoring script | DevOps |
-| **T0** | Wave 1 begins | Switch to intensive monitoring (5m intervals) | DevOps |
-| **T+5m** | Stage 1 ends | Verify: 5 collections, 3 indexes CREATING, 0 errors | CTO |
-| **T+10m** | Stage 2 ends | Verify: Rules deployed, warnings ≤20 | CTO |
-| **T+20m** | Stage 3 ends | Verify: 4 functions, latency <300ms | CTO |
-| **T+25m** | Stage 4 ends | Verify: 3 callables, response <100ms | CTO |
-| **T+30m** | Stage 5 ends | Verify: 4/4 smoke tests PASS | QA |
-| **T+30m** | Monitoring starts | Switch to standard 30m intervals | DevOps |
-| **T+2h** | Index readiness check | All 25 indexes should be READY | DevOps |
-| **T+24h** | Monitoring ends | Export logs, generate final report | DevOps |
-| **T+24h+1h** | CTO review | Read CLOUD_LOGS_WAVE1_REPORT.md | CTO |
-| **T+24h+2h** | Sign-off | Approve Wave 2 proceeding | CTO |
+| Time         | Event                 | Action                                              | Owner  |
+| ------------ | --------------------- | --------------------------------------------------- | ------ |
+| **T-1h**     | Final briefing        | Review alert escalation chain                       | CTO    |
+| **T-24h**    | Baseline starts       | Run monitoring script                               | DevOps |
+| **T0**       | Wave 1 begins         | Switch to intensive monitoring (5m intervals)       | DevOps |
+| **T+5m**     | Stage 1 ends          | Verify: 5 collections, 3 indexes CREATING, 0 errors | CTO    |
+| **T+10m**    | Stage 2 ends          | Verify: Rules deployed, warnings ≤20                | CTO    |
+| **T+20m**    | Stage 3 ends          | Verify: 4 functions, latency <300ms                 | CTO    |
+| **T+25m**    | Stage 4 ends          | Verify: 3 callables, response <100ms                | CTO    |
+| **T+30m**    | Stage 5 ends          | Verify: 4/4 smoke tests PASS                        | QA     |
+| **T+30m**    | Monitoring starts     | Switch to standard 30m intervals                    | DevOps |
+| **T+2h**     | Index readiness check | All 25 indexes should be READY                      | DevOps |
+| **T+24h**    | Monitoring ends       | Export logs, generate final report                  | DevOps |
+| **T+24h+1h** | CTO review            | Read CLOUD_LOGS_WAVE1_REPORT.md                     | CTO    |
+| **T+24h+2h** | Sign-off              | Approve Wave 2 proceeding                           | CTO    |
 
 ---
 
@@ -318,17 +337,20 @@ Example: "We have >10 errors in last 30m"
 ## References & Resources
 
 **Internal Documents:**
+
 - `.planning/phases/03-schema-extensions/03-PLAN.md` — Full Phase 3 plan
 - `.claude/docs/CLOUD_LOGS_MONITORING_GUIDE.md` — v1.3 reference (read-only)
 - `.claude/docs/CLOUD_LOGS_QUICK_REFERENCE.md` — gcloud commands
 
 **External Resources:**
+
 - GCP Cloud Logs Console: https://console.cloud.google.com/logs/query
 - Firestore Indexes: https://console.cloud.google.com/firestore/indexes
 - Cloud Functions: https://console.cloud.google.com/functions
 - Project: `hmatologia2` in GCP console
 
 **Contacts:**
+
 - CTO: [Name] — sign-off, escalation decisions
 - DevOps: [Name] — monitoring execution, diagnostics
 - Rules Auditor: [Name] — rules validation

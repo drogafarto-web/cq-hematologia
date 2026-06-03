@@ -132,7 +132,13 @@ export interface Contrato {
  */
 export type ContratoInput = Omit<
   Contrato,
-  'id' | 'labId' | 'criadoEm' | 'deletadoEm' | 'logicalSignature' | 'proximaAvaliacaoEm' | 'avaliacaoPeriodica'
+  | 'id'
+  | 'labId'
+  | 'criadoEm'
+  | 'deletadoEm'
+  | 'logicalSignature'
+  | 'proximaAvaliacaoEm'
+  | 'avaliacaoPeriodica'
 > & {
   avaliacaoPeriodica?: AvaliacaoPeriodica[];
   proximaAvaliacaoEm?: Timestamp | null;

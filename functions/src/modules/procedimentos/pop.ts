@@ -21,13 +21,15 @@ const POPCreationSchema = z.object({
     pdfUrl: z.string().url().optional(),
   }),
   modulos: z.array(z.string()).default([]),
-  treinamentosObrigatorios: z.array(
-    z.object({
-      modulo: z.string(),
-      tipoTreinamento: z.enum(['inicial', 'reciclagem']),
-      periodicidadeMeses: z.number().int().positive(),
-    })
-  ).default([]),
+  treinamentosObrigatorios: z
+    .array(
+      z.object({
+        modulo: z.string(),
+        tipoTreinamento: z.enum(['inicial', 'reciclagem']),
+        periodicidadeMeses: z.number().int().positive(),
+      }),
+    )
+    .default([]),
 });
 
 /**
@@ -51,7 +53,7 @@ export const createPOP = onCall(
       if (ncCheck.blocked) {
         throw new HttpsError(
           'failed-precondition',
-          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo',
         );
       }
 
@@ -101,7 +103,7 @@ export const createPOP = onCall(
       }
       throw new HttpsError('internal', error.message || 'Erro ao criar POP');
     }
-  }
+  },
 );
 
 const POPVersionCreationSchema = z.object({
@@ -215,7 +217,7 @@ export const createPOPVersion = onCall(
       }
       throw new HttpsError('internal', error.message || 'Erro ao criar versão');
     }
-  }
+  },
 );
 
 const POPSignatureSchema = z.object({
@@ -254,7 +256,7 @@ export const assinaturaRT = onCall(
       }
 
       const pop = popSnap.data() as POP;
-      const versionIndex = pop.versoes.findIndex(v => v.numero === popVersaoNumero);
+      const versionIndex = pop.versoes.findIndex((v) => v.numero === popVersaoNumero);
 
       if (versionIndex === -1) {
         throw new HttpsError('not-found', `Versão ${popVersaoNumero} não encontrada`);
@@ -264,7 +266,10 @@ export const assinaturaRT = onCall(
 
       // RN-SGQ-02: Validate status transition
       if (versionToSign.status !== 'em_revisao') {
-        throw new HttpsError('failed-precondition', `Apenas versões em_revisao podem ser assinadas. Status atual: ${versionToSign.status}`);
+        throw new HttpsError(
+          'failed-precondition',
+          `Apenas versões em_revisao podem ser assinadas. Status atual: ${versionToSign.status}`,
+        );
       }
 
       // Get RT user info (from custom claims or users collection)
@@ -324,7 +329,7 @@ export const assinaturaRT = onCall(
       }
       throw new HttpsError('internal', error.message || 'Erro ao assinar POP');
     }
-  }
+  },
 );
 
 const POPTrainingSchema = z.object({
@@ -347,7 +352,10 @@ export const recordarTreinamentoPOP = onCall(
   { region: 'southamerica-east1', secrets: [HCQ_SIGNATURE_HMAC_KEY] },
   async (request: any) => {
     if (!request.auth?.token.admin && !request.auth?.token.instrutorId) {
-      throw new HttpsError('permission-denied', 'Apenas admin/instrutor podem registrar treinamentos');
+      throw new HttpsError(
+        'permission-denied',
+        'Apenas admin/instrutor podem registrar treinamentos',
+      );
     }
 
     try {
@@ -362,7 +370,7 @@ export const recordarTreinamentoPOP = onCall(
 
       const pop = popSnap.data() as POP;
       const targetVersion = pop.versoes.find(
-        v => v.numero === popVersaoNumero && v.status === 'ativa'
+        (v) => v.numero === popVersaoNumero && v.status === 'ativa',
       );
 
       if (!targetVersion) {
@@ -382,7 +390,7 @@ export const recordarTreinamentoPOP = onCall(
         if (qualSnap.empty) {
           throw new HttpsError(
             'failed-precondition',
-            `Operador não tem qualificação para o módulo: ${modulo}`
+            `Operador não tem qualificação para o módulo: ${modulo}`,
           );
         }
       }
@@ -390,7 +398,7 @@ export const recordarTreinamentoPOP = onCall(
       // Create training record
       const dataConcluso = admin.firestore.Timestamp.now();
       const validoAte = admin.firestore.Timestamp.fromDate(
-        new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) // 1 year validity
+        new Date(Date.now() + 365 * 24 * 60 * 60 * 1000), // 1 year validity
       );
 
       const treinamentoPOP = {
@@ -411,7 +419,7 @@ export const recordarTreinamentoPOP = onCall(
 
         // Remove any existing training record for same POP (update, not add)
         const filtered = treinamentos.filter(
-          (t: any) => !(t.popId === popId && t.popVersaoNumero === popVersaoNumero)
+          (t: any) => !(t.popId === popId && t.popVersaoNumero === popVersaoNumero),
         );
 
         filtered.push(treinamentoPOP);
@@ -442,5 +450,5 @@ export const recordarTreinamentoPOP = onCall(
       }
       throw new HttpsError('internal', error.message || 'Erro ao registrar treinamento');
     }
-  }
+  },
 );

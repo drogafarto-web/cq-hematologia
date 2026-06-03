@@ -10,12 +10,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import type { Unsubscribe } from 'firebase/firestore';
-import {
-  getCAPA,
-  getAcoes,
-  getVerificacoes,
-  subscribeAcoes,
-} from '../services/capaService';
+import { getCAPA, getAcoes, getVerificacoes, subscribeAcoes } from '../services/capaService';
 import type { CAPA, CAParecao, Verificacao } from '../types';
 
 export interface UseCAPADetailResult {
@@ -38,10 +33,7 @@ export interface UseCAPADetailResult {
  * @param capaId - The CAPA document ID
  * @returns { capa, acoes, verificacoes, isLoading, error }
  */
-export function useCAPADetail(
-  labId: string,
-  capaId: string
-): UseCAPADetailResult {
+export function useCAPADetail(labId: string, capaId: string): UseCAPADetailResult {
   const [capa, setCapa] = useState<CAPA | null>(null);
   const [acoes, setAcoes] = useState<CAParecao[]>([]);
   const [verificacoes, setVerificacoes] = useState<Verificacao[]>([]);
@@ -115,7 +107,7 @@ export function useCAPADetail(
         (err) => {
           console.error('Error subscribing to actions:', err);
           // Don't set error state for subcollection failures
-        }
+        },
       );
     } catch (err: any) {
       console.error('Error setting up action subscription:', err);

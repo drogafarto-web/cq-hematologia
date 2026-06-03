@@ -22,7 +22,10 @@ test.describe('Auditoria Interna', () => {
     await submitBtn.click();
 
     // Wait for dashboard to load (menu item visible = logged in)
-    await page.locator('text=Auditoria Interna').first().waitFor({ state: 'visible', timeout: 15000 });
+    await page
+      .locator('text=Auditoria Interna')
+      .first()
+      .waitFor({ state: 'visible', timeout: 15000 });
   });
 
   test('login succeeds and dashboard loads', async ({ page }) => {
@@ -45,7 +48,11 @@ test.describe('Auditoria Interna', () => {
     await page.goto(`${APP_URL}/auditoria-interna`);
     await page.waitForTimeout(5000);
 
-    const createBtn = page.locator('button:has-text("Nova"), button:has-text("Criar"), button:has-text("Planejar"), button:has-text("Agendar")').first();
+    const createBtn = page
+      .locator(
+        'button:has-text("Nova"), button:has-text("Criar"), button:has-text("Planejar"), button:has-text("Agendar")',
+      )
+      .first();
     if (await createBtn.isVisible({ timeout: 5000 }).catch(() => false)) {
       await createBtn.click();
       await page.waitForTimeout(2000);

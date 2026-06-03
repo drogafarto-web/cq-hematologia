@@ -16,8 +16,7 @@ import { computeSlaState, formatSlaCountdown } from '../utils/slaFormat';
 import type { CriticosEscalacao } from '../types';
 
 export function CriticosEscalacaoList() {
-  const { pendentes, reconhecidas, isLoading, error, acknowledge } =
-    useCriticosEscalacoes();
+  const { pendentes, reconhecidas, isLoading, error, acknowledge } = useCriticosEscalacoes();
   const [selected, setSelected] = useState<CriticosEscalacao | null>(null);
 
   // Live tick — drives SLA indicator updates without re-fetching Firestore.
@@ -41,8 +40,8 @@ export function CriticosEscalacaoList() {
               Pendentes
             </h2>
             <p className="mt-1 text-xs text-white/50">
-              Escalações aguardando reconhecimento. SLA RDC 978 Art. 5.7.1:
-              comunicação crítica em até 60 minutos.
+              Escalações aguardando reconhecimento. SLA RDC 978 Art. 5.7.1: comunicação crítica em
+              até 60 minutos.
             </p>
           </div>
           <span className="rounded-full border border-white/[0.08] bg-white/[0.03] px-2 py-0.5 text-xs tabular-nums text-white/70">
@@ -62,12 +61,7 @@ export function CriticosEscalacaoList() {
         ) : (
           <ul className="space-y-2">
             {pendentes.map((e) => (
-              <EscalacaoRow
-                key={e.id}
-                escalacao={e}
-                now={now}
-                onSelect={() => setSelected(e)}
-              />
+              <EscalacaoRow key={e.id} escalacao={e} now={now} onSelect={() => setSelected(e)} />
             ))}
           </ul>
         )}
@@ -76,10 +70,7 @@ export function CriticosEscalacaoList() {
       <section aria-labelledby="recent-title">
         <header className="mb-4 flex items-end justify-between">
           <div>
-            <h2
-              id="recent-title"
-              className="text-[15px] font-semibold tracking-tight text-white"
-            >
+            <h2 id="recent-title" className="text-[15px] font-semibold tracking-tight text-white">
               Histórico recente
             </h2>
             <p className="mt-1 text-xs text-white/50">
@@ -97,12 +88,7 @@ export function CriticosEscalacaoList() {
         ) : (
           <ul className="space-y-2">
             {recent.map((e) => (
-              <EscalacaoRow
-                key={e.id}
-                escalacao={e}
-                now={now}
-                onSelect={() => setSelected(e)}
-              />
+              <EscalacaoRow key={e.id} escalacao={e} now={now} onSelect={() => setSelected(e)} />
             ))}
           </ul>
         )}
@@ -135,17 +121,14 @@ function EscalacaoRow({ escalacao, now, onSelect }: RowProps) {
     escalacao.status === 'reconhecido'
       ? 'emerald'
       : escalacao.status === 'cancelado'
-      ? 'slate'
-      : slaState.kind === 'expired'
-      ? 'red'
-      : slaState.kind === 'warning'
-      ? 'amber'
-      : 'violet';
+        ? 'slate'
+        : slaState.kind === 'expired'
+          ? 'red'
+          : slaState.kind === 'warning'
+            ? 'amber'
+            : 'violet';
 
-  const accentMap: Record<
-    string,
-    { ring: string; text: string; bg: string; dot: string }
-  > = {
+  const accentMap: Record<string, { ring: string; text: string; bg: string; dot: string }> = {
     emerald: {
       ring: 'border-emerald-500/25',
       text: 'text-emerald-300',
@@ -200,18 +183,14 @@ function EscalacaoRow({ escalacao, now, onSelect }: RowProps) {
 
         <div className="min-w-0 flex-1">
           <div className="flex items-baseline gap-3">
-            <p className="truncate text-sm font-medium text-white">
-              {escalacao.pacienteNome}
-            </p>
+            <p className="truncate text-sm font-medium text-white">{escalacao.pacienteNome}</p>
             <span className="font-mono text-[11px] text-white/40">
               {escalacao.pacienteIdade} a · {escalacao.pacienteSexo}
             </span>
           </div>
           <div className="mt-0.5 flex items-baseline gap-2 text-xs text-white/60">
             <span className="font-mono">{escalacao.analitoId}</span>
-            <span className="tabular-nums font-semibold text-white">
-              {escalacao.valorObtido}
-            </span>
+            <span className="tabular-nums font-semibold text-white">{escalacao.valorObtido}</span>
             <span
               className={
                 'rounded-full px-1.5 py-0.5 text-[10px] font-medium ' +
@@ -244,11 +223,11 @@ function EscalacaoRow({ escalacao, now, onSelect }: RowProps) {
               ? slaState.kind === 'expired'
                 ? 'SLA vencido'
                 : slaState.kind === 'warning'
-                ? '> 50% prazo'
-                : 'em prazo'
+                  ? '> 50% prazo'
+                  : 'em prazo'
               : escalacao.status === 'reconhecido'
-              ? 'reconhecido'
-              : 'cancelado'}
+                ? 'reconhecido'
+                : 'cancelado'}
           </span>
         </div>
       </button>
@@ -262,12 +241,9 @@ function PendingEmpty() {
       <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-emerald-500/10 text-emerald-300">
         <IconCheck />
       </div>
-      <p className="mt-3 text-sm font-medium text-white">
-        Nenhuma escalação pendente
-      </p>
+      <p className="mt-3 text-sm font-medium text-white">Nenhuma escalação pendente</p>
       <p className="mt-1 text-xs text-white/50">
-        Quando um valor crítico for detectado, ele aparecerá aqui para
-        reconhecimento imediato.
+        Quando um valor crítico for detectado, ele aparecerá aqui para reconhecimento imediato.
       </p>
     </Card>
   );

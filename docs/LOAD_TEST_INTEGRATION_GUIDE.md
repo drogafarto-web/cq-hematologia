@@ -5,6 +5,7 @@
 Este documento descreve a integração da suíte de load testing do HC Quality Phase 3 no workflow de desenvolvimento e deployment.
 
 **Deliverables:**
+
 - `scripts/load-test-phase-3.js` — Script k6 com 4 workloads realistas
 - `scripts/load-test-phase-3.ps1` — Wrapper PowerShell (Windows)
 - `scripts/load-test-phase-3.sh` — Wrapper Bash (Linux/macOS)
@@ -47,18 +48,18 @@ Phase 3 Schema Load Test
 
 ### Métricas capturadas
 
-| Métrica | Fonte | Threshold |
-|---------|-------|-----------|
-| `portal_read_duration_ms` (p95) | k6 timing | <150ms |
-| `notivisa_create_duration_ms` (p95) | k6 timing | <300ms |
-| `critical_escalation_duration_ms` (p95) | k6 timing | <200ms |
-| `draft_lock_duration_ms` (p95) | k6 timing | <100ms |
-| `http_req_duration` (p95) | k6 aggregate | <250ms |
-| `errors` (rate) | k6 check failures | <5% baseline, <5% stress |
-| `http_req_failed` (rate) | HTTP 5xx | <1% |
-| `firestore_reads` | manual counter | info only |
-| `firestore_writes` | manual counter | info only |
-| `quota_exceeded` | 429 responses | <10 total |
+| Métrica                                 | Fonte             | Threshold                |
+| --------------------------------------- | ----------------- | ------------------------ |
+| `portal_read_duration_ms` (p95)         | k6 timing         | <150ms                   |
+| `notivisa_create_duration_ms` (p95)     | k6 timing         | <300ms                   |
+| `critical_escalation_duration_ms` (p95) | k6 timing         | <200ms                   |
+| `draft_lock_duration_ms` (p95)          | k6 timing         | <100ms                   |
+| `http_req_duration` (p95)               | k6 aggregate      | <250ms                   |
+| `errors` (rate)                         | k6 check failures | <5% baseline, <5% stress |
+| `http_req_failed` (rate)                | HTTP 5xx          | <1%                      |
+| `firestore_reads`                       | manual counter    | info only                |
+| `firestore_writes`                      | manual counter    | info only                |
+| `quota_exceeded`                        | 429 responses     | <10 total                |
 
 ### Cenários de teste
 
@@ -224,44 +225,44 @@ jobs:
   load-test:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    
+
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 50  # Para comparação com commits anteriores
-      
+          fetch-depth: 50 # Para comparação com commits anteriores
+
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: 'npm'
-      
+
       - name: Install k6
         run: |
           curl https://dl.k6.io/release/v0.50.0/k6-v0.50.0-linux-amd64.tar.gz | tar xz
           sudo mv k6 /usr/local/bin/
-      
+
       - name: Install k6-reporter
         run: npm i -g k6-reporter
-      
+
       - name: Setup gcloud
         uses: google-github-actions/setup-gcloud@v1
         with:
           project_id: hmatologia2
           service_account_key: ${{ secrets.GCP_SA_KEY }}
-      
+
       - name: Run load test
         id: load-test
         run: ./scripts/load-test-phase-3.sh ${{ github.event.inputs.scenario || 'baseline' }}
         env:
           BASE_URL: https://hmatologia2.web.app
           TEST_LAB_ID: lab_ci_${{ github.run_id }}_${{ github.run_attempt }}
-      
+
       - name: Get previous baseline
         continue-on-error: true
         run: |
           git show HEAD~1:LOAD_TEST_RESULTS.md > /tmp/baseline-previous.md || echo "No previous baseline"
-      
+
       - name: Compare with previous
         continue-on-error: true
         run: |
@@ -269,7 +270,7 @@ jobs:
             echo "## Load Test Comparison" >> $GITHUB_STEP_SUMMARY
             diff -u /tmp/baseline-previous.md LOAD_TEST_RESULTS.md >> $GITHUB_STEP_SUMMARY || true
           fi
-      
+
       - name: Upload results
         if: always()
         uses: actions/upload-artifact@v3
@@ -280,7 +281,7 @@ jobs:
             load-test-results-*.html
             LOAD_TEST_RESULTS.md
           retention-days: 30
-      
+
       - name: Comment PR with results
         if: github.event_name == 'pull_request'
         uses: actions/github-script@v7
@@ -294,7 +295,7 @@ jobs:
               repo: context.repo.repo,
               body: `## Load Test Results\n\n${md}`
             });
-      
+
       - name: Fail if thresholds not met
         run: |
           if grep -q "✗ FAIL" LOAD_TEST_RESULTS.md; then
@@ -317,7 +318,7 @@ echo "▶ Pre-deploy load test gate..."
 if ! git diff --quiet; then
   echo "Uncommitted changes detected. Running baseline..."
   ./scripts/load-test-phase-3.sh baseline --skip-report
-  
+
   if grep -q "✗ FAIL" LOAD_TEST_RESULTS.md; then
     echo "✗ Load test failed. Fix before deploying."
     cat LOAD_TEST_RESULTS.md

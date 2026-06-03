@@ -85,32 +85,34 @@ Algoritmo de prioridade (rejeita = para em 1º bloqueio):
 ```typescript
 if (westgardResult.rejectCount > 0) {
   // Qualquer violação Westgard reject → REJECT
-  decision = 'reject'
+  decision = 'reject';
 } else if (interlabZScore?.classification === 'unsatisfactory') {
   // Z-score interlab |z| > 3 → REJECT
-  decision = 'reject'
+  decision = 'reject';
 } else if (ocrValidation?.validationSeverity === 'reject') {
   // OCR não encontrou analitos esperados → REJECT
-  decision = 'reject'
-} else if (westgardResult.warnCount > 0 
-           || interlabZScore?.classification === 'questionable'
-           || ocrValidation?.validationSeverity === 'review') {
+  decision = 'reject';
+} else if (
+  westgardResult.warnCount > 0 ||
+  interlabZScore?.classification === 'questionable' ||
+  ocrValidation?.validationSeverity === 'review'
+) {
   // Qualquer warn → WARN
-  decision = 'warn'
+  decision = 'warn';
 } else {
-  decision = 'accept'
+  decision = 'accept';
 }
 ```
 
 **Cenários:**
 
-| Westgard | Interlab | OCR | Decisão | Ação |
-|---|---|---|---|---|
-| ✓ pass | ✓ satisf | ✓ accept | **ACCEPT** | Confirma automaticamente |
-| 1-3s reject | — | — | **REJECT** | Exibe blocker, oferece retry ou override |
-| ✓ pass | z=3.1 | — | **REJECT** | Exibe z-score, pede retry |
-| ✓ pass | ✓ satisf | review (1 unmatched) | **WARN** | Operador confirma manualmente |
-| ✓ pass | 2.5 (q) | ✓ accept | **WARN** | Ambos warn → operador decide |
+| Westgard    | Interlab | OCR                  | Decisão    | Ação                                     |
+| ----------- | -------- | -------------------- | ---------- | ---------------------------------------- |
+| ✓ pass      | ✓ satisf | ✓ accept             | **ACCEPT** | Confirma automaticamente                 |
+| 1-3s reject | —        | —                    | **REJECT** | Exibe blocker, oferece retry ou override |
+| ✓ pass      | z=3.1    | —                    | **REJECT** | Exibe z-score, pede retry                |
+| ✓ pass      | ✓ satisf | review (1 unmatched) | **WARN**   | Operador confirma manualmente            |
+| ✓ pass      | 2.5 (q)  | ✓ accept             | **WARN**   | Ambos warn → operador decide             |
 
 ## Tratamento de OCR rejeitado
 
@@ -129,6 +131,7 @@ Unexpected: 5-NUCLEOTIDASE
 ```
 
 **Opções:**
+
 - **Tentar Novamente:** Reset modal, volta a idle
 - **Entrada Manual:** Abre form tradicional para digitar valores
 
@@ -177,13 +180,13 @@ const result = await httpsCallable(functions, 'parseAnalyteStripImage')({
 
 ## Limites conhecidos + fallback manual
 
-| Limite | Impacto | Fallback |
-|---|---|---|
-| Imagem rotacionada >45° | OCR pode falhar | Operador reposiciona + retry |
-| Texto muito pequeno (<8pt) | Fuzzy match low confidence | Manual entry modal abre auto |
-| Logomarca/marcas d'água | Pode confundir OCR | Sistema ignora, foca nas áreas de valores |
-| Imagem muito borrada | Confiança <0.6 | Rejeita automaticamente |
-| Gráficos/tabelas mistas | Pode extrair labels errados | Unexpected[] lista, operador revisa |
+| Limite                     | Impacto                     | Fallback                                  |
+| -------------------------- | --------------------------- | ----------------------------------------- |
+| Imagem rotacionada >45°    | OCR pode falhar             | Operador reposiciona + retry              |
+| Texto muito pequeno (<8pt) | Fuzzy match low confidence  | Manual entry modal abre auto              |
+| Logomarca/marcas d'água    | Pode confundir OCR          | Sistema ignora, foca nas áreas de valores |
+| Imagem muito borrada       | Confiança <0.6              | Rejeita automaticamente                   |
+| Gráficos/tabelas mistas    | Pode extrair labels errados | Unexpected[] lista, operador revisa       |
 
 **Solução:** Toda run com `validationSeverity === 'reject'` oferece `[Entrada Manual]` que abre form tradicional para digitação.
 
@@ -208,6 +211,7 @@ jsonPayload.event="bioq_run_with_ocr"
 ```
 
 Sample log entry:
+
 ```json
 {
   "timestamp": "2026-05-10T14:32:15.123Z",
@@ -222,17 +226,17 @@ Sample log entry:
 
 ## Compliance map (RDC 978 + DICQ 4.3 + LGPD)
 
-| Norma | Artigo | Requisito | SA | Implementação |
-|---|---|---|---|---|
-| RDC 978 | 167 | Laudo digital com integridade | SA-56, SA-57 | OCR callable + signature |
-| RDC 978 | 179 | CIQ obrigatório | SA-43, SA-47, SA-48 | Westgard engine |
-| RDC 978 | 180 | Plano de controle | SA-45 | Analyte seed + config |
-| RDC 978 | 183 | CIQ por troca de lote | SA-57 | Callables check lote |
-| DICQ 4.3 | 5.5.1.1 | Planejamento CIQ | SA-43, SA-45 | Catalog + metadata |
-| DICQ 4.3 | 5.6.2 | Regras Westgard | SA-44, SA-47, SA-48 | 8-rule CLSI engine |
-| DICQ 4.3 | 5.6.3.1 | Critério rejeição | SA-53 | Acceptance engine |
-| DICQ 4.3 | 5.6.4 | Comparação interlaboratorial | SA-50, SA-63 | Z-score + CEQ |
-| LGPD | Art. 9 | Consentimento dados sensíveis | SA-51, SA-57 | LGPD gate token |
+| Norma    | Artigo  | Requisito                     | SA                  | Implementação            |
+| -------- | ------- | ----------------------------- | ------------------- | ------------------------ |
+| RDC 978  | 167     | Laudo digital com integridade | SA-56, SA-57        | OCR callable + signature |
+| RDC 978  | 179     | CIQ obrigatório               | SA-43, SA-47, SA-48 | Westgard engine          |
+| RDC 978  | 180     | Plano de controle             | SA-45               | Analyte seed + config    |
+| RDC 978  | 183     | CIQ por troca de lote         | SA-57               | Callables check lote     |
+| DICQ 4.3 | 5.5.1.1 | Planejamento CIQ              | SA-43, SA-45        | Catalog + metadata       |
+| DICQ 4.3 | 5.6.2   | Regras Westgard               | SA-44, SA-47, SA-48 | 8-rule CLSI engine       |
+| DICQ 4.3 | 5.6.3.1 | Critério rejeição             | SA-53               | Acceptance engine        |
+| DICQ 4.3 | 5.6.4   | Comparação interlaboratorial  | SA-50, SA-63        | Z-score + CEQ            |
+| LGPD     | Art. 9  | Consentimento dados sensíveis | SA-51, SA-57        | LGPD gate token          |
 
 ---
 

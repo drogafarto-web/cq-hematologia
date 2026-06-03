@@ -17,6 +17,7 @@ v1.4 expande DICQ compliance (25 modules → mature feature set), RDC 978 covera
 **Questão arquitetural:** v1.4 investe em multi-tenant v2 (N labs, 1 deploy) ou mantém single-lab e escalas a v1.5+?
 
 **Contexto mercado:**
+
 - TAM addressable: 1,500–2,000 labs @ $50–$200/month = ~$75M–$300M.
 - Go-to-market viável single-lab (Riopomba) com case studies + SBAC partnership (roadmap v1.4).
 - Multi-tenant é diferentiador (competitors WinLab, Labcat, PNCQ são per-server), mas não blocker para primeira venda.
@@ -45,12 +46,14 @@ Pressão conflitante:
 ### 1. v1.4 Single-Lab Constraints
 
 **Firestore schema stays multi-tenant-ready** (for future; `/labs/{labId}` prefix respected everywhere). But:
+
 - Config: `labId` hardcoded to Riopomba's ID in Firebase auth + app config.
 - Auth: Single Firebase Auth project (`hmatologia2`); no "switch lab" UX.
 - Onboarding: Assume all users are employees of Riopomba (pre-populated; no signup).
 - Billing: Flat rate v1.4 (no per-lab metering). v1.5 introduces per-lab subscription.
 
 **Production deployment:**
+
 ```
    /labs/riopomba-labId-hardcoded
     ├─ /members
@@ -65,12 +68,14 @@ Pressão conflitante:
 v1.5 kickoff planning (Week 1-2 nov/2026):
 
 **Design gate:**
+
 - Define N labs per deploy (estimate: 10–100 labs per instance, depending on load testing).
 - Refine RBAC: Org admin (all labs) vs Lab admin (single lab) vs Operator (assigned analytes).
 - Billing architecture: recurring subscription, multi-tenant accounting, per-lab API quotas.
 - Onboarding: self-service lab registration + invitation-based employee add.
 
 **Engineering execution:**
+
 - 3–4 weeks: Rules audit + multi-tenant isolation validation.
 - 1–2 weeks: Seeding + onboarding refactor.
 - 2–3 weeks: Billing engine (Stripe integration?).
@@ -82,10 +87,11 @@ v1.5 kickoff planning (Week 1-2 nov/2026):
 ### 3. Firestore Rules — Future-Proof but Single-Lab v1.4
 
 Example rule (current):
+
 ```javascript
 // v1.4: labId is constant (hardcoded app config)
 match /labs/{labId}/nao-conformidades/{ncId} {
-  allow read: if request.auth.uid != null 
+  allow read: if request.auth.uid != null
     && get(/databases/$(database)/documents/labs/$(labId)/members/$(request.auth.uid)).data.isActiveMember;
   allow write: if isQAManager() && labId == RIOPOMBA_LAB_ID; // hardcoded
 }
@@ -107,6 +113,7 @@ Existing schema supports multi-tenant (all collections under `/labs/{labId}`). v
 Invest 10–14 weeks in v1.5 multi-tenant architecture in v1.4 timeline.
 
 **Rejeitada porque:**
+
 - v1.4 timeline is fixed (auditoria 2026-10-15). Compliance deadline > product scaling.
 - Multi-tenant adds complexity (Rules audit, billing, RBAC hierarchy). Any gap blocks launch.
 - Single-lab case study (Riopomba) is stronger than "multi-tenant beta" for market positioning. Case studies sell better.
@@ -116,6 +123,7 @@ Invest 10–14 weeks in v1.5 multi-tenant architecture in v1.4 timeline.
 Each lab gets its own Firebase project + deploy (status quo: WinLab, Labcat model).
 
 **Rejeitada because:**
+
 - Operational overhead explodes (N projects to monitor, N deploy pipelines, N secret mgmt).
 - COGS per lab increases (Firebase org management, billing overhead).
 - No shared learning (each lab is isolated; can't aggregate KPIs or build network effects).

@@ -9,6 +9,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Impact:** No patient impact, internal systems only, non-urgent
 
 **Examples:**
+
 - UI typo or visual bug
 - Dev environment broken
 - Documentation gap
@@ -19,6 +20,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Team Notification:** Slack `#dev-incidents` (async)
 
 **Decision Criteria:**
+
 - Zero production data affected
 - Zero regulatory impact
 - Non-blocking for users
@@ -30,6 +32,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Impact:** Some users affected, non-critical workflow, workaround available
 
 **Examples:**
+
 - Analytics dashboard slow (>3s load)
 - 5% of laudo exports failing
 - Audit trail query timeout
@@ -39,6 +42,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Team Notification:** Slack `@oncall`, Slack `#incidents`
 
 **Decision Criteria:**
+
 - <10% of users affected
 - Workaround available
 - Regulatory impact: none or minimal
@@ -50,6 +54,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Impact:** Core workflow down, many users affected, regulatory implications
 
 **Examples:**
+
 - Patient portal down
 - Laudo release blocked
 - Audit trail corrupted
@@ -60,6 +65,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Team Notification:** All + on-call + leadership
 
 **Decision Criteria:**
+
 - ≥50% of users affected OR
 - Core workflow (laudo release, CAPA, audit) down OR
 - RDC Art. 128 impact (audit trail integrity)
@@ -71,6 +77,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Impact:** System down, patient safety risk, regulatory notification required
 
 **Examples:**
+
 - Database entirely inaccessible
 - All functions failing
 - Patient data lost/corrupted
@@ -81,6 +88,7 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 **Team Notification:** All hands on deck
 
 **Decision Criteria:**
+
 - System completely unavailable OR
 - Patient safety at risk OR
 - Data loss confirmed OR
@@ -112,24 +120,26 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 
 ## Response Time SLA by Severity
 
-| Severity | Detection | First Response | Resolution Target |
-|----------|-----------|----------------|-------------------|
-| Green | Next standup | Next business day | Next sprint |
-| Yellow | 30s monitoring | 15 min | 4 hours |
-| Red | 1min alert | 5 min | 1 hour |
-| Black | Immediate + verify | <2 min | 30 min (restore) |
+| Severity | Detection          | First Response    | Resolution Target |
+| -------- | ------------------ | ----------------- | ----------------- |
+| Green    | Next standup       | Next business day | Next sprint       |
+| Yellow   | 30s monitoring     | 15 min            | 4 hours           |
+| Red      | 1min alert         | 5 min             | 1 hour            |
+| Black    | Immediate + verify | <2 min            | 30 min (restore)  |
 
 ---
 
 ## Escalation Criteria
 
 **Yellow → Red:**
-- >10% of users affected
+
+- > 10% of users affected
 - No workaround available
-- >30 min to resolution
+- > 30 min to resolution
 - Unknown root cause
 
 **Red → Black:**
+
 - Data loss confirmed
 - Corruption detected
 - All backups failed
@@ -139,9 +149,9 @@ Classification system for production incidents: Green/Yellow/Red/Black with clea
 
 ## Customer Notification Rules
 
-| Severity | Notify? | Timeline | Approver |
-|----------|---------|----------|----------|
-| Green | No | — | N/A |
-| Yellow | If >1h | After resolution | CTO |
-| Red | If >1h | After 30min | CTO |
-| Black | Yes | Within 1h | CTO + Legal |
+| Severity | Notify? | Timeline         | Approver    |
+| -------- | ------- | ---------------- | ----------- |
+| Green    | No      | —                | N/A         |
+| Yellow   | If >1h  | After resolution | CTO         |
+| Red      | If >1h  | After 30min      | CTO         |
+| Black    | Yes     | Within 1h        | CTO + Legal |

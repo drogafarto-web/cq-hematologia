@@ -14,6 +14,7 @@
 **Goal**: Infrastructure ready. Mobile stack booted. Analytics queries validated. Export templates drafted.
 
 **Deliverables**:
+
 - ✅ Mobile project initialized (Expo or React Native CLI)
 - ✅ Mobile auth flow (Firebase + session sync)
 - ✅ Analytics module structure (hooks + services + types)
@@ -22,6 +23,7 @@
 - ✅ All three modules: unit tests + CI passing
 
 **Blockers resolved**:
+
 - Mobile CI/CD pipeline (GitHub Actions → TestFlight/Play Store)
 - Firestore indices needed for analytics queries (CT-05 from Phase 2)
 - Export: Cloud Function timeout strategy (30s default → 540s for large labs)
@@ -37,6 +39,7 @@
 **Deliverables**:
 
 #### Mobile (Week 2-4)
+
 - ✅ Auth screen (login + 2FA)
 - ✅ CIQ flow: list runs → view run → edit comments → submit (offline queue)
 - ✅ NC flow: list open NCs → view → add action → resolve
@@ -45,6 +48,7 @@
 - ✅ Offline sync: queue + retry logic + conflict resolution
 
 #### Analytics (Week 2-4)
+
 - ✅ ComplianceStatusDash (% runs valid, open NCs, audit findings)
 - ✅ CIQTrendsDash (Levey-Jennings, equipment failure trends)
 - ✅ NCHeatmapDash (open NCs by module/equipment, age distribution)
@@ -53,6 +57,7 @@
 - ✅ PDF export per dashboard
 
 #### Export (Week 2-4)
+
 - ✅ ExportWizard UI (step 1: select format, step 2: date range, step 3: review)
 - ✅ XLSX CIQ export (all runs, status, equipment, operator)
 - ✅ XLSX NC register (open + closed, CAPA, effectiveness)
@@ -61,6 +66,7 @@
 - ✅ Storage signed URLs (7-day expiry)
 
 **Blockers resolved**:
+
 - Mobile offline data model (define sync conflict strategy)
 - Analytics real-time vs scheduled (decision: scheduled hourly for first pass)
 - Export timeout strategy (large labs >100k docs)
@@ -76,6 +82,7 @@
 **Deliverables**:
 
 #### Mobile (Week 5-6)
+
 - ✅ Dark mode (CLAUDE.md brand compliance)
 - ✅ Offline indicators (banner showing sync status)
 - ✅ Image capture + attachment (photo evidence for NC)
@@ -85,6 +92,7 @@
 - ✅ TestFlight + Play Store beta ready
 
 #### Analytics (Week 5-6)
+
 - ✅ Real-time updates (WebSocket or polling 30s)
 - ✅ Export PDF from dashboard (snapshot + timestamp)
 - ✅ Custom date ranges (date picker, last 30d/90d/1y)
@@ -92,6 +100,7 @@
 - ✅ Mobile responsive (dashboards work on tablet)
 
 #### Export (Week 5-6)
+
 - ✅ CSV raw audit log (forensics export)
 - ✅ Excel conditional formatting (out-of-range cells highlighted)
 - ✅ PDF compression (reduce file size <10MB for large labs)
@@ -100,6 +109,7 @@
 - ✅ Schedule recurring exports (weekly backup pattern)
 
 **Blockers resolved**:
+
 - Large dataset handling (test with real 100k+ records)
 - Mobile memory usage (avoid crashes on low-end devices)
 - Export PDF rendering time (async generation)
@@ -115,6 +125,7 @@
 **Deliverables**:
 
 #### All Modules
+
 - ✅ Integration tests (Mobile ↔ Firestore, Analytics ↔ Cloud Functions, Export ↔ Storage)
 - ✅ Performance tests (load testing for analytics queries, concurrent exports)
 - ✅ Security audit (mobile + API rate limits, export access control)
@@ -123,6 +134,7 @@
 - ✅ Runbooks (troubleshooting, manual data recovery, export stuck jobs)
 
 #### Deployment Checklist
+
 - ✅ Firebase configuration (new Cloud Functions, rules updates, indices)
 - ✅ Mobile app signing certificates ready (iOS + Android)
 - ✅ TestFlight review passed (Apple), Play Store review passed (Google)
@@ -136,43 +148,43 @@
 
 ## Milestone Success Criteria
 
-| Criterion | Measure | Target |
-|-----------|---------|--------|
-| Mobile availability | App store + TestFlight | Both available |
-| Mobile adoption | % of users accessing monthly | >30% |
-| Analytics performance | Query p95 latency | <2s |
-| Analytics freshness | Data lag | <1h |
-| Export reliability | Job success rate | >99% |
-| Export performance | XLSX gen (100k runs) | <5min |
-| Compliance | New RDC 978 violations | 0 |
-| Test coverage | Critical flows | >95% |
-| Bug escape rate | Severity 1 bugs in first week | 0 |
+| Criterion             | Measure                       | Target         |
+| --------------------- | ----------------------------- | -------------- |
+| Mobile availability   | App store + TestFlight        | Both available |
+| Mobile adoption       | % of users accessing monthly  | >30%           |
+| Analytics performance | Query p95 latency             | <2s            |
+| Analytics freshness   | Data lag                      | <1h            |
+| Export reliability    | Job success rate              | >99%           |
+| Export performance    | XLSX gen (100k runs)          | <5min          |
+| Compliance            | New RDC 978 violations        | 0              |
+| Test coverage         | Critical flows                | >95%           |
+| Bug escape rate       | Severity 1 bugs in first week | 0              |
 
 ---
 
 ## Resource Plan
 
-| Role | Count | Weeks | Effort (person-weeks) |
-|------|-------|-------|----------------------|
-| Mobile Engineer | 2 | 8 | 16 |
-| Backend Engineer | 2 | 8 | 16 |
-| Analyst / Frontend | 2 | 8 | 16 |
-| QA / Tester | 1 | 4-8 | 6 |
-| DevOps / Infra | 0.5 | 8 | 4 |
-| **Total** | **~6-7** | **8** | **~58 person-weeks** |
+| Role               | Count    | Weeks | Effort (person-weeks) |
+| ------------------ | -------- | ----- | --------------------- |
+| Mobile Engineer    | 2        | 8     | 16                    |
+| Backend Engineer   | 2        | 8     | 16                    |
+| Analyst / Frontend | 2        | 8     | 16                    |
+| QA / Tester        | 1        | 4-8   | 6                     |
+| DevOps / Infra     | 0.5      | 8     | 4                     |
+| **Total**          | **~6-7** | **8** | **~58 person-weeks**  |
 
 ---
 
 ## Risks & Mitigation
 
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|------------|-----------|
-| Mobile offline sync complexity | Schedule slip | Medium | Prototype offline model early (Phase 3.1) |
-| Analytics query timeouts (large labs) | Slow dashboards | Medium | Use indices + scheduled aggregation |
-| Export PDF rendering memory leak | Crash on large datasets | Medium | Test with >100k records, use streaming |
-| Mobile app store review delay | Launch delay | Low | Submit 2 weeks early, have backup PWA |
-| Compliance violation discovered | Rework + delay | Low | Audit trail review before Phase 3.1 end |
-| Team bandwidth | Schedule slip | Medium | Hire contractor if needed; prioritize Mobile |
+| Risk                                  | Impact                  | Likelihood | Mitigation                                   |
+| ------------------------------------- | ----------------------- | ---------- | -------------------------------------------- |
+| Mobile offline sync complexity        | Schedule slip           | Medium     | Prototype offline model early (Phase 3.1)    |
+| Analytics query timeouts (large labs) | Slow dashboards         | Medium     | Use indices + scheduled aggregation          |
+| Export PDF rendering memory leak      | Crash on large datasets | Medium     | Test with >100k records, use streaming       |
+| Mobile app store review delay         | Launch delay            | Low        | Submit 2 weeks early, have backup PWA        |
+| Compliance violation discovered       | Rework + delay          | Low        | Audit trail review before Phase 3.1 end      |
+| Team bandwidth                        | Schedule slip           | Medium     | Hire contractor if needed; prioritize Mobile |
 
 ---
 

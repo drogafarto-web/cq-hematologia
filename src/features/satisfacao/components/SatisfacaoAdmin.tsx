@@ -26,14 +26,14 @@ export const SatisfacaoAdmin: React.FC = () => {
       try {
         const q = query(
           collection(db, `labs/${labId}/satisfacao-campanhas`),
-          where('deletadoEm', '==', null)
+          where('deletadoEm', '==', null),
         );
         const snap = await getDocs(q);
         setCampanhas(
           snap.docs.map((doc) => ({
             id: doc.id,
             ...doc.data(),
-          })) as CampanhaData[]
+          })) as CampanhaData[],
         );
       } catch (error) {
         console.error('Error loading campanhas:', error);
@@ -86,11 +86,7 @@ export const SatisfacaoAdmin: React.FC = () => {
               origem="pos-reclamacao"
               title="NPS Pós-Resolução de Reclamação"
             />
-            <NPSScoreCard
-              labId={labId}
-              origem="trimestral"
-              title="NPS Trimestral"
-            />
+            <NPSScoreCard labId={labId} origem="trimestral" title="NPS Trimestral" />
           </div>
         )}
 

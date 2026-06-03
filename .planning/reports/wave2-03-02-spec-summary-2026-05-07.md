@@ -7,6 +7,7 @@
 **Marked complete on:** 2026-05-07 (same day as plan creation)
 
 Source documents read in full:
+
 - `.planning/phases/03-schema-extensions/03-PLAN.md` (parent phase plan)
 - `.planning/phases/03-schema-extensions/03-02-PLAN.md` (the Wave 2 / 03-02 spec)
 - `.planning/phases/03-schema-extensions/03-02-IMPLEMENTATION_CHECKLIST.md`
@@ -40,16 +41,16 @@ Plus two new helper functions: `validateNotivisaPayload(payload)` and `validateD
 
 ## Rules changes planned
 
-| Collection | Change | Reason |
-|---|---|---|
-| `/labs/{labId}/portal-configuracao/{docId}` | NEW match block — patient/member read; admin/RT write with `updatedBy` signature | Patient portal branding (Phase 4 portal feature) |
-| `/labs/{labId}/laudos/{laudoId}` | ADD allow-read clause for patient on own published laudo | Patient portal access to own published reports |
-| `/labs/{labId}/notivisa-outbox/events/{docId}` | NEW match block — admin/RT create + payload validation; server read/update; member audit read; no delete | RDC 978/2025 Art. 6º §1 NOTIVISA notification queue |
-| `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}` | NEW match block — admin/RT create; member read (dashboard); admin/RT update requires `resolved_at`; no delete | ISO 15189 5.8.7 critical-value tracking |
-| `/labs/{labId}/imuno-ias-dev/images/{docId}` | NEW match block — server or admin only; no patient/member access | Phase 9 IA strip classification training dataset isolation |
-| `/labs/{labId}/laudos-draft/rascunhos/{docId}` | NEW match block — admin/RT create/write with pessimistic lock; member + patient read; no delete | RT laudo edit portal with concurrent-edit safety |
-| Helpers (top of file) | ADD `validateNotivisaPayload(payload)` (4 fields, status enum) | Enforce Art. 6º §1 payload structure server-side |
-| Helpers (top of file) | ADD `validateDraftLock(request)` (`locked_until_ts > now \|\| locked_by == uid`) | Pessimistic lock for concurrent draft edits |
+| Collection                                             | Change                                                                                                        | Reason                                                     |
+| ------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------- |
+| `/labs/{labId}/portal-configuracao/{docId}`            | NEW match block — patient/member read; admin/RT write with `updatedBy` signature                              | Patient portal branding (Phase 4 portal feature)           |
+| `/labs/{labId}/laudos/{laudoId}`                       | ADD allow-read clause for patient on own published laudo                                                      | Patient portal access to own published reports             |
+| `/labs/{labId}/notivisa-outbox/events/{docId}`         | NEW match block — admin/RT create + payload validation; server read/update; member audit read; no delete      | RDC 978/2025 Art. 6º §1 NOTIVISA notification queue        |
+| `/labs/{labId}/criticos-escalacoes/escalacoes/{docId}` | NEW match block — admin/RT create; member read (dashboard); admin/RT update requires `resolved_at`; no delete | ISO 15189 5.8.7 critical-value tracking                    |
+| `/labs/{labId}/imuno-ias-dev/images/{docId}`           | NEW match block — server or admin only; no patient/member access                                              | Phase 9 IA strip classification training dataset isolation |
+| `/labs/{labId}/laudos-draft/rascunhos/{docId}`         | NEW match block — admin/RT create/write with pessimistic lock; member + patient read; no delete               | RT laudo edit portal with concurrent-edit safety           |
+| Helpers (top of file)                                  | ADD `validateNotivisaPayload(payload)` (4 fields, status enum)                                                | Enforce Art. 6º §1 payload structure server-side           |
+| Helpers (top of file)                                  | ADD `validateDraftLock(request)` (`locked_until_ts > now \|\| locked_by == uid`)                              | Pessimistic lock for concurrent draft edits                |
 
 Total addition stated in plan: ~185 lines across `firestore.rules` (5 match blocks ~150 lines + 2 helpers ~35 lines). Actual addition reported in the SESSION_REPORT was ~88 lines (helpers at lines 59–92, match blocks at lines 1935–1987) — line count differs because pre-flight findings (`WAVE2_FINDINGS.md`) discovered the helpers and match-block scaffolds **already existed** from Phase 3.1, so 03-02 became "refine + fix one line" rather than "add from scratch".
 
@@ -62,6 +63,7 @@ The plan **explicitly required tests as a deliverable** (not pre-existing).
 From `03-02-PLAN.md` "Testing" section (verbatim):
 
 > **Existing test suite:** `npm run test:rules`
+>
 > - 18 existing role-based tests (should all still pass)
 >
 > **New tests to add:** 5 new test suites in `firestore.rules.test.ts`
@@ -126,15 +128,15 @@ And from "Security Audit Checklist":
 - **Marked complete on:** 2026-05-07 (same calendar day the plan was created — see `03-02-IMPLEMENTATION_CHECKLIST.md` header "Status: IMPLEMENTATION COMPLETE / Completed: 2026-05-07" and `03-02-SESSION_REPORT.md` "Status: ✅ COMPLETE").
 
 - **Outstanding items at completion time** (from the checklist itself, marked as deferred but still open):
-  - "23/23 tests passing" — checklist marks this as **"READY FOR EXECUTION"**, not "PASS". Verbatim: *"Verification method: `npm test -- test/phase-3-2/rules-v1-4.test.mjs` (to be run in emulator environment)"*. The tests were not actually run as a gate.
+  - "23/23 tests passing" — checklist marks this as **"READY FOR EXECUTION"**, not "PASS". Verbatim: _"Verification method: `npm test -- test/phase-3-2/rules-v1-4.test.mjs` (to be run in emulator environment)"_. The tests were not actually run as a gate.
   - "Deploys to staging without errors" — marked **"READY FOR DEPLOYMENT"**, not "PASS". Deploy command is documented but no deploy log is referenced.
-  - QA Approval — explicitly listed as still required: *"QA Approval Needed: Before production deployment"*.
+  - QA Approval — explicitly listed as still required: _"QA Approval Needed: Before production deployment"_.
   - Production deploy — explicitly held for ≥24h staging validation.
   - 4 deferred items moved to later phases (portal URL validation, NOTIVISA retry, draft auto-lock cron, IA model versioning).
 
 - **Tests passing at completion:**
   - **0 rules tests actually executed against the emulator.** The new file `functions/test/phase-3-2/rules-v1-4.test.mjs` is a structural assertion over a literal — it can pass without `firestore.rules` even existing. The plan's named deliverable (`firestore.rules.test.ts` + `npm run test:rules` going from 18 to 23 passing) was not produced.
-  - 18 helper tests in `src/__tests__/e2e/phase3-helpers.e2e.test.ts` reported passing — these are *helper-module* tests (notivisa formatter, SMS template, draft manager mock, IA validator), not rules tests.
+  - 18 helper tests in `src/__tests__/e2e/phase3-helpers.e2e.test.ts` reported passing — these are _helper-module_ tests (notivisa formatter, SMS template, draft manager mock, IA validator), not rules tests.
   - 5 rules E2E tests in `src/__tests__/e2e/phase3-rules.e2e.test.ts` exist but `PHASE3_E2E_TESTS_COMPLETE.md` states they require emulator + deployed rules and were not run.
 
 ---
@@ -143,11 +145,11 @@ And from "Security Audit Checklist":
 
 1. **Test gate not satisfied as specified.** Plan required "23/23 tests passing" as a Success Criterion and named `firestore.rules.test.ts` + `npm run test:rules` as the deliverable. Delivered artifact (`functions/test/phase-3-2/rules-v1-4.test.mjs`) is a node:test assertion over a JS object literal describing expected semantics — it does not exercise the rules emulator and cannot fail if `firestore.rules` regresses. This is the most likely root of the 10 failing E2E rules tests the user is investigating: the gate was marked green without ever being executed against actual rules.
 
-2. **Plan vs. reality of "additions".** Plan said 03-02 would *add* 5 match blocks + 2 helpers (~185 lines). Pre-flight (`WAVE2_FINDINGS.md`) found that 03-01 already scaffolded all 5 match blocks and both helpers. Actual delta was a 1-line fix (IA strip: `isAdminOrRT` → `isAdmin`) plus a few comment/split edits — totaling ~88 lines per the SESSION_REPORT. The IMPLEMENTATION_CHECKLIST and SESSION_REPORT still report "5 blocks added" rather than "5 blocks refined", which obscures the real change footprint.
+2. **Plan vs. reality of "additions".** Plan said 03-02 would _add_ 5 match blocks + 2 helpers (~185 lines). Pre-flight (`WAVE2_FINDINGS.md`) found that 03-01 already scaffolded all 5 match blocks and both helpers. Actual delta was a 1-line fix (IA strip: `isAdminOrRT` → `isAdmin`) plus a few comment/split edits — totaling ~88 lines per the SESSION_REPORT. The IMPLEMENTATION_CHECKLIST and SESSION_REPORT still report "5 blocks added" rather than "5 blocks refined", which obscures the real change footprint.
 
 3. **Status semantics inflated.** Both Acceptance Criterion 2 ("23/23 tests passing") and Criterion 4 ("Deploys to staging without errors") are reported in the checklist as ✅ but the supporting cells say "READY FOR EXECUTION" / "READY FOR DEPLOYMENT". The check icon is a planning artifact, not evidence of execution. Treating these as PASS allowed the task to be archived as COMPLETE on the same day it was specified.
 
-4. **No staging deploy log produced.** The plan's deployment sequence (Steps 1–4) and the "24h staging validation" gate before production are referenced but no deploy log, smoke-test output, or Cloud Logs sweep tied to 03-02 is in `.planning/reports/` (only post-deploy reports for 2026-05-07 *runtime* exist, none scoped to firestore:rules of 03-02).
+4. **No staging deploy log produced.** The plan's deployment sequence (Steps 1–4) and the "24h staging validation" gate before production are referenced but no deploy log, smoke-test output, or Cloud Logs sweep tied to 03-02 is in `.planning/reports/` (only post-deploy reports for 2026-05-07 _runtime_ exist, none scoped to firestore:rules of 03-02).
 
 5. **Test file scope mismatch.** The plan said the new tests would live in `firestore.rules.test.ts` (TS, root-adjacent, runnable via `npm run test:rules`). Delivered file lives under `functions/test/phase-3-2/` as `.mjs`. Even at the structural level the file does not import `@firebase/rules-unit-testing` or any equivalent — so even if executed it would not validate rules behavior.
 

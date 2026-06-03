@@ -5,10 +5,7 @@
 
 import * as React from 'react';
 import { useCallback, useEffect, useId, useMemo, useState } from 'react';
-import {
-  functions,
-  httpsCallable,
-} from '../../../shared/services/firebase';
+import { functions, httpsCallable } from '../../../shared/services/firebase';
 import { useUser } from '../../../store/useAuthStore';
 import {
   subscribeSugestoesRanked,
@@ -78,8 +75,7 @@ export function SugestaoVotingPanel({
     if (!labId || !uid) {
       setPanel({
         kind: 'error',
-        message:
-          'É necessário estar autenticado para ver e votar nas sugestões.',
+        message: 'É necessário estar autenticado para ver e votar nas sugestões.',
       });
       return;
     }
@@ -119,8 +115,7 @@ export function SugestaoVotingPanel({
 
       const prevVote = row.userVote;
       const prevScore = row.votos;
-      const value = (d: VoteDirection) =>
-        d === 'up' ? 1 : d === 'down' ? -1 : 0;
+      const value = (d: VoteDirection) => (d === 'up' ? 1 : d === 'down' ? -1 : 0);
       const optimisticScore = prevScore + value(direction) - value(prevVote);
 
       setOverrides((prev) => ({
@@ -132,10 +127,10 @@ export function SugestaoVotingPanel({
 
       try {
         const payload = { labId, sugestaoId, direction };
-        const fn = httpsCallable<
-          typeof payload,
-          { newScore: number; userVote: VoteDirection }
-        >(functions, 'voteSugestao');
+        const fn = httpsCallable<typeof payload, { newScore: number; userVote: VoteDirection }>(
+          functions,
+          'voteSugestao',
+        );
         const res = await fn(payload);
         const newScore = res.data?.newScore ?? optimisticScore;
         const userVote = res.data?.userVote ?? direction;
@@ -150,9 +145,7 @@ export function SugestaoVotingPanel({
           return next;
         });
         const msg =
-          e instanceof Error
-            ? e.message
-            : 'Não foi possível registrar o voto. Tente novamente.';
+          e instanceof Error ? e.message : 'Não foi possível registrar o voto. Tente novamente.';
         setInlineError(msg);
       } finally {
         setPendingId(null);
@@ -272,9 +265,7 @@ export function SugestaoVotingPanel({
                   aria-pressed={row.userVote === 'down'}
                   aria-label="Votar negativamente"
                   className={`rounded-lg p-1 transition-colors disabled:opacity-40 ${
-                    row.userVote === 'down'
-                      ? 'text-rose-400'
-                      : 'text-white/40 hover:text-rose-400'
+                    row.userVote === 'down' ? 'text-rose-400' : 'text-white/40 hover:text-rose-400'
                   }`}
                   onClick={() => onDown(row.id, row.userVote)}
                 >
@@ -295,9 +286,7 @@ export function SugestaoVotingPanel({
                     {row.categoria}
                   </span>
                 </div>
-                <h3 className="text-base font-medium text-white tracking-tight">
-                  {row.titulo}
-                </h3>
+                <h3 className="text-base font-medium text-white tracking-tight">{row.titulo}</h3>
                 <p className="text-sm text-white/70 leading-relaxed line-clamp-3">
                   {row.descricao}
                 </p>

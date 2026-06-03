@@ -34,26 +34,14 @@ type ExportState = 'idle' | 'generating' | 'ready' | 'error';
 
 function DocumentArrowDownIcon({ className = '' }: { className?: string }) {
   return (
-    <svg
-      width={14}
-      height={14}
-      viewBox="0 0 20 20"
-      fill="none"
-      aria-hidden
-      className={className}
-    >
+    <svg width={14} height={14} viewBox="0 0 20 20" fill="none" aria-hidden className={className}>
       <path
         d="M4 4a2 2 0 0 1 2-2h5l5 5v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4z"
         stroke="currentColor"
         strokeWidth="1.5"
         strokeLinejoin="round"
       />
-      <path
-        d="M11 2v5h5"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinejoin="round"
-      />
+      <path d="M11 2v5h5" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" />
       <path
         d="M10 10v5m0 0l-2-2m2 2l2-2"
         stroke="currentColor"
@@ -76,12 +64,7 @@ function SpinnerIcon() {
       className="animate-spin"
       style={{ animationDuration: '700ms' }}
     >
-      <path
-        d="M17 10a7 7 0 1 1-7-7"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
+      <path d="M17 10a7 7 0 1 1-7-7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
     </svg>
   );
 }

@@ -598,7 +598,7 @@ async function extractLaudoFields(fileUrl: string): Promise<any> {
 async function approveLaudoOCRExtraction(
   laudoId: string,
   userId: string,
-  payload: any
+  payload: any,
 ): Promise<boolean> {
   if (!userId.includes('rt')) throw new Error('permission-denied: RT role required');
   return true;
@@ -612,7 +612,7 @@ async function getLaudoApprovalRecord(laudoId: string): Promise<any> {
 async function uploadConsentBackfill(
   labId: string,
   records: any[],
-  userId: string
+  userId: string,
 ): Promise<string> {
   const hasEmpty = records.some((r) => !r.patientCPF || !r.consentType);
   if (hasEmpty) throw new Error('validation: invalid records');

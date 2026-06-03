@@ -69,10 +69,7 @@ export function calcCV(stats: { mean: number; sd: number }): number {
  * Merge statistics from two independent groups using Welford's approach
  * Used when combining stats from different time periods or sources
  */
-export function mergeStats(
-  group1: StatsResult,
-  group2: StatsResult
-): StatsResult {
+export function mergeStats(group1: StatsResult, group2: StatsResult): StatsResult {
   if (group1.n === 0) return group2;
   if (group2.n === 0) return group1;
 

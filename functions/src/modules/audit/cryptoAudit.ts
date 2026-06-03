@@ -8,15 +8,9 @@ const db = admin.firestore();
  * Compute HMAC-SHA256 for deterministic data
  * Keys are sorted for reproducibility
  */
-export function computeHmac(
-  data: Record<string, any>,
-  secret: string
-): string {
+export function computeHmac(data: Record<string, any>, secret: string): string {
   const canonicalJson = JSON.stringify(data, Object.keys(data).sort());
-  return crypto
-    .createHmac('sha256', secret)
-    .update(canonicalJson, 'utf-8')
-    .digest('hex');
+  return crypto.createHmac('sha256', secret).update(canonicalJson, 'utf-8').digest('hex');
 }
 
 /**
@@ -25,10 +19,7 @@ export function computeHmac(
  */
 export function hashData(data: Record<string, any>): string {
   const json = JSON.stringify(data, Object.keys(data).sort());
-  return crypto
-    .createHash('sha256')
-    .update(json, 'utf-8')
-    .digest('hex');
+  return crypto.createHash('sha256').update(json, 'utf-8').digest('hex');
 }
 
 /**
@@ -37,14 +28,10 @@ export function hashData(data: Record<string, any>): string {
 export async function getPreviousHashInCollection(
   collectionPath: string,
   secret: string,
-  orderBy: 'timestamp' | 'createdAt' = 'timestamp'
+  orderBy: 'timestamp' | 'createdAt' = 'timestamp',
 ): Promise<string | null> {
   try {
-    const snapshot = await db
-      .collection(collectionPath)
-      .orderBy(orderBy, 'desc')
-      .limit(1)
-      .get();
+    const snapshot = await db.collection(collectionPath).orderBy(orderBy, 'desc').limit(1).get();
 
     if (snapshot.empty) return null;
 
@@ -67,14 +54,10 @@ export async function signAuditEntry(
   operadorId: string,
   operation: string,
   payload: Record<string, any>,
-  secret: string
+  secret: string,
 ): Promise<AuditEntry> {
   // Get previous hash for chain
-  const previousHash = await getPreviousHashInCollection(
-    collectionPath,
-    secret,
-    'timestamp'
-  );
+  const previousHash = await getPreviousHashInCollection(collectionPath, secret, 'timestamp');
 
   // Create entry data (without hmac/hash yet)
   const entryData = {
@@ -109,10 +92,7 @@ export async function signAuditEntry(
 /**
  * Verify audit entry integrity
  */
-export function verifyAuditEntry(
-  entry: AuditEntry,
-  secret: string
-): VerificationResult {
+export function verifyAuditEntry(entry: AuditEntry, secret: string): VerificationResult {
   // Recompute HMAC (without hmac field)
   const { hmac: originalHmac, hash: originalHash, ...dataForHmac } = entry;
 
@@ -144,7 +124,7 @@ export function verifyAuditEntry(
 export async function validateChainIntegrity(
   collectionPath: string,
   secret: string,
-  options?: { batchSize?: number }
+  options?: { batchSize?: number },
 ): Promise<any> {
   const startTime = Date.now();
   const violations = [];
@@ -152,10 +132,7 @@ export async function validateChainIntegrity(
   let valid = 0;
 
   // Query all entries, sorted by timestamp ascending
-  const snapshot = await db
-    .collection(collectionPath)
-    .orderBy('timestamp', 'asc')
-    .get();
+  const snapshot = await db.collection(collectionPath).orderBy('timestamp', 'asc').get();
 
   let previousHash: string | null = null;
 

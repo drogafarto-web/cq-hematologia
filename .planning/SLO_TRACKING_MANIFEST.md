@@ -2,7 +2,7 @@
 
 **Date Created:** 2026-05-07  
 **Version:** 1.0  
-**Status:** Complete, ready for deployment  
+**Status:** Complete, ready for deployment
 
 ---
 
@@ -11,7 +11,7 @@
 **Total Artifacts:** 8 files (22 pages + JSON dashboard)  
 **Total Size:** ~49 KB  
 **Deployment Time:** 30 minutes  
-**Maintenance:** 5 min/week + 30 min/month  
+**Maintenance:** 5 min/week + 30 min/month
 
 ---
 
@@ -19,39 +19,42 @@
 
 ### Documentation Files (in `.planning/docs/`)
 
-| # | File | Purpose | Pages | For |
-|---|------|---------|-------|-----|
-| 1 | **SLO_TRACKING_INDEX.md** | Navigation & overview | 1 | Everyone (start here) |
-| 2 | **SLO_TRACKING_QUICKSTART.md** | 30-min execution checklist | 2 | DevOps deploying today |
-| 3 | **SLO_TRACKING_SETUP.md** | Full SLO definitions + context | 6 | Team leads understanding SLOs |
-| 4 | **SLO_ALERT_POLICIES_REFERENCE.md** | Alert configuration details | 5 | Oncall engineers responding |
-| 5 | **SLO_MONTHLY_REPORT_TEMPLATE.md** | Monthly audit report (fillable) | 8 | Auditors reviewing compliance |
-| 6 | **OBSERVABILITY_SETUP_SUMMARY.md** | Executive summary | 3 | CTO/leaders decision-making |
-| 7 | **SLO_DEPLOYMENT_CHECKLIST.md** | Deploy day checklist | 3 | DevOps execution leader |
-| 8 | **SLO_TRACKING_MANIFEST.md** | This file (inventory) | 1 | Project coordination |
+| #   | File                                | Purpose                         | Pages | For                           |
+| --- | ----------------------------------- | ------------------------------- | ----- | ----------------------------- |
+| 1   | **SLO_TRACKING_INDEX.md**           | Navigation & overview           | 1     | Everyone (start here)         |
+| 2   | **SLO_TRACKING_QUICKSTART.md**      | 30-min execution checklist      | 2     | DevOps deploying today        |
+| 3   | **SLO_TRACKING_SETUP.md**           | Full SLO definitions + context  | 6     | Team leads understanding SLOs |
+| 4   | **SLO_ALERT_POLICIES_REFERENCE.md** | Alert configuration details     | 5     | Oncall engineers responding   |
+| 5   | **SLO_MONTHLY_REPORT_TEMPLATE.md**  | Monthly audit report (fillable) | 8     | Auditors reviewing compliance |
+| 6   | **OBSERVABILITY_SETUP_SUMMARY.md**  | Executive summary               | 3     | CTO/leaders decision-making   |
+| 7   | **SLO_DEPLOYMENT_CHECKLIST.md**     | Deploy day checklist            | 3     | DevOps execution leader       |
+| 8   | **SLO_TRACKING_MANIFEST.md**        | This file (inventory)           | 1     | Project coordination          |
 
 ### Dashboard & Config (in `.planning/dashboard-json/`)
 
-| File | Purpose | Format | Size |
-|------|---------|--------|------|
-| **SLO_TRACKING_DASHBOARD.json** | Importable Cloud Monitoring dashboard | JSON | ~12 KB |
+| File                            | Purpose                               | Format | Size   |
+| ------------------------------- | ------------------------------------- | ------ | ------ |
+| **SLO_TRACKING_DASHBOARD.json** | Importable Cloud Monitoring dashboard | JSON   | ~12 KB |
 
 ---
 
 ## Quick Start Path
 
 **If you have 30 minutes:**
+
 1. Read `SLO_TRACKING_QUICKSTART.md` (5 min)
 2. Execute steps 1–5 (25 min)
 3. Brief team in Slack (post template provided)
 
 **If you have 1 hour:**
+
 1. Read `SLO_TRACKING_SETUP.md` (15 min)
 2. Read `SLO_TRACKING_QUICKSTART.md` (5 min)
 3. Execute steps 1–5 (30 min)
 4. Test all alerts + verify (10 min)
 
 **If you have 5 minutes (urgent link):**
+
 - Send team: `/.planning/docs/SLO_TRACKING_INDEX.md`
 - They'll find the path that fits
 
@@ -59,18 +62,19 @@
 
 ## SLO Definitions at a Glance
 
-| SLO | Target | Budget | Alert Threshold |
-|-----|--------|--------|-----------------|
-| **Availability** | 99.5% uptime | 4.32 h/month | 99.65% (70% budget) |
-| **Performance (P99)** | <3 seconds | 1.5% requests | 2.5s yellow / 3.0s red |
-| **Error Rate** | <0.1% | 50k errors/month | 0.1% sustained 5 min |
-| **Audit Trail** | 100% capture | 0 tolerance | <100% = immediate red |
+| SLO                   | Target       | Budget           | Alert Threshold        |
+| --------------------- | ------------ | ---------------- | ---------------------- |
+| **Availability**      | 99.5% uptime | 4.32 h/month     | 99.65% (70% budget)    |
+| **Performance (P99)** | <3 seconds   | 1.5% requests    | 2.5s yellow / 3.0s red |
+| **Error Rate**        | <0.1%        | 50k errors/month | 0.1% sustained 5 min   |
+| **Audit Trail**       | 100% capture | 0 tolerance      | <100% = immediate red  |
 
 ---
 
 ## 4-Phase Rollout
 
 ### Phase 1: Setup (Day 1, 30 min)
+
 - [ ] Import dashboard
 - [ ] Create 4 alert policies
 - [ ] Setup custom metrics
@@ -81,6 +85,7 @@
 **Artifact:** `SLO_DEPLOYMENT_CHECKLIST.md`
 
 ### Phase 2: Verification (Week 1, daily)
+
 - [ ] Check dashboard daily (2 min)
 - [ ] Monitor alerts (zero expected)
 - [ ] Identify false positives
@@ -89,6 +94,7 @@
 **Artifact:** Dashboard bookmarked
 
 ### Phase 3: Weekly Reviews (Week 2+, Mondays)
+
 - [ ] Screenshot dashboard
 - [ ] Post to Slack #observability
 - [ ] Note trends (↑ / ↓ / →)
@@ -97,6 +103,7 @@
 **Artifact:** `SLO_TRACKING_INDEX.md` (section: Weekly Review)
 
 ### Phase 4: Monthly Reporting (Month 2+, month-end)
+
 - [ ] Fill SLO report
 - [ ] Export metrics
 - [ ] Get sign-offs (DevOps / CTO / Auditor)
@@ -110,6 +117,7 @@
 ## Deployment Dependencies
 
 **Before deploying, ensure:**
+
 - [ ] GCP Project `hmatologia2` accessible
 - [ ] Cloud Monitoring enabled
 - [ ] Cloud Logs enabled
@@ -262,6 +270,7 @@ Capture rate = `captured / expected × 100%` (must stay at 100%)
 - **Art. 179–191:** Technical record requirements (handled by sgd module)
 
 **SLO Tracking provides:**
+
 - Monthly proof that 100% of audit events captured (Article 117 compliance)
 - Incident RCA documentation (shows investigation rigor)
 - Sign-off from CTO + DevOps (management accountability)
@@ -272,6 +281,7 @@ Capture rate = `captured / expected × 100%` (must stay at 100%)
 - **Block 4.14:** Risk management (separate module, but SLO tracking shows process health)
 
 **SLO Tracking provides:**
+
 - Evidence of continuous monitoring (Block 4.4 requirement)
 - Monthly trend analysis (shows quality system effectiveness)
 
@@ -294,20 +304,24 @@ By 2026-06-07, success looks like:
 ## Maintenance Checklist
 
 **Daily (2 min):**
+
 - [ ] Dashboard green? ✓
 - [ ] Any overnight alerts?
 
 **Weekly (Mondays 09:00 UTC, 5 min):**
+
 - [ ] Screenshot dashboard
 - [ ] Post to Slack #observability
 - [ ] Note trend (↑ / ↓ / →)
 
 **Monthly (last day, 30 min):**
+
 - [ ] Fill SLO report
 - [ ] Get sign-offs
 - [ ] Archive
 
 **Quarterly:**
+
 - [ ] Review 3-month trend
 - [ ] Adjust thresholds (if needed)
 - [ ] Auditor briefing
@@ -316,14 +330,14 @@ By 2026-06-07, success looks like:
 
 ## Quick Links
 
-| Purpose | URL / Path |
-|---------|-----------|
-| Cloud Monitoring Dashboard | https://console.cloud.google.com/monitoring/dashboards |
-| Cloud Logs | https://console.cloud.google.com/logs |
-| Alert Policies | https://console.cloud.google.com/monitoring/alertpolicies |
-| Setup Documentation | `.planning/docs/SLO_TRACKING_SETUP.md` |
-| Quick Start | `.planning/docs/SLO_TRACKING_QUICKSTART.md` |
-| Monthly Report | `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md` |
+| Purpose                    | URL / Path                                                |
+| -------------------------- | --------------------------------------------------------- |
+| Cloud Monitoring Dashboard | https://console.cloud.google.com/monitoring/dashboards    |
+| Cloud Logs                 | https://console.cloud.google.com/logs                     |
+| Alert Policies             | https://console.cloud.google.com/monitoring/alertpolicies |
+| Setup Documentation        | `.planning/docs/SLO_TRACKING_SETUP.md`                    |
+| Quick Start                | `.planning/docs/SLO_TRACKING_QUICKSTART.md`               |
+| Monthly Report             | `.planning/docs/SLO_MONTHLY_REPORT_TEMPLATE.md`           |
 
 ---
 
@@ -352,18 +366,22 @@ A: Not yet. Phase 4 will add customer-facing SLO dashboard. Currently CTO/audito
 ## Getting Help
 
 **For setup questions:**
+
 - Read `SLO_TRACKING_QUICKSTART.md`
 - Post in Slack #observability
 
 **For alert interpretation:**
+
 - Read `SLO_ALERT_POLICIES_REFERENCE.md`
 - Check `docs/DR_PLAN.md` (incident response)
 
 **For auditor reporting:**
+
 - Use `SLO_MONTHLY_REPORT_TEMPLATE.md`
 - Contact CTO for sign-off
 
 **For performance optimization:**
+
 - Check `docs/PERFORMANCE_PATTERNS.md`
 - Contact DevOps team
 
@@ -371,26 +389,26 @@ A: Not yet. Phase 4 will add customer-facing SLO dashboard. Currently CTO/audito
 
 ## Sign-Off
 
-| Role | Name | Date | Status |
-|------|------|------|--------|
-| **Observability Engineer** | — | 2026-05-07 | ✅ Ready |
-| **DevOps Lead** | — | — | Awaiting |
-| **CTO** | — | — | Awaiting |
-| **Auditor** | — | — | Awaiting (post-deploy) |
+| Role                       | Name | Date       | Status                 |
+| -------------------------- | ---- | ---------- | ---------------------- |
+| **Observability Engineer** | —    | 2026-05-07 | ✅ Ready               |
+| **DevOps Lead**            | —    | —          | Awaiting               |
+| **CTO**                    | —    | —          | Awaiting               |
+| **Auditor**                | —    | —          | Awaiting (post-deploy) |
 
 ---
 
 ## Timeline
 
-| Date | Milestone | Owner | Status |
-|------|-----------|-------|--------|
-| **2026-05-07** | All artifacts complete | Observability | ✅ Complete |
-| **2026-05-07** | Dashboard deployed | DevOps | Pending (today) |
-| **2026-05-07** | Alerts created + tested | DevOps | Pending (today) |
-| **2026-05-08** | Dashboard verification | Team Lead | Pending |
-| **2026-05-14** | First weekly review | Team | Pending |
-| **2026-05-31** | First monthly report | DevOps + CTO | Pending |
-| **2026-06-30** | Threshold tuning (Q2) | DevOps | Pending |
+| Date           | Milestone               | Owner         | Status          |
+| -------------- | ----------------------- | ------------- | --------------- |
+| **2026-05-07** | All artifacts complete  | Observability | ✅ Complete     |
+| **2026-05-07** | Dashboard deployed      | DevOps        | Pending (today) |
+| **2026-05-07** | Alerts created + tested | DevOps        | Pending (today) |
+| **2026-05-08** | Dashboard verification  | Team Lead     | Pending         |
+| **2026-05-14** | First weekly review     | Team          | Pending         |
+| **2026-05-31** | First monthly report    | DevOps + CTO  | Pending         |
+| **2026-06-30** | Threshold tuning (Q2)   | DevOps        | Pending         |
 
 ---
 

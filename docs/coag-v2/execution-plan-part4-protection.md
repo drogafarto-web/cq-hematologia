@@ -88,7 +88,7 @@ export function attemptRepository() {
 export type AttemptStatus = 'pending' | 'in_validation' | 'approved' | 'rejected';
 
 // ✅ Permitido — conformidade calculada (não estado):
-export type Conformidade = 'A' | 'R';  // Calculado em save, não setado via UI
+export type Conformidade = 'A' | 'R'; // Calculado em save, não setado via UI
 
 // ✅ Permitido — status operacional simples:
 export type ControlStatus = 'ativo' | 'pausado' | 'aposentado';
@@ -114,12 +114,12 @@ useRTAction() cria RTAction (referencia Attempt, mas não modifica)
 
 ```typescript
 // ❌ Proibido — modificar snapshot após save:
-attempt.snapshot = newSnapshot;  // Nunca.
-updateDoc(attemptRef, { snapshot: newSnapshot });  // Nunca.
+attempt.snapshot = newSnapshot; // Nunca.
+updateDoc(attemptRef, { snapshot: newSnapshot }); // Nunca.
 
 // ✅ Correto — snapshot congelado no save:
-const snapshot = buildSnapshot();  // No momento do save
-await addDoc(collection, { ...data, snapshot });  // Persistido uma vez
+const snapshot = buildSnapshot(); // No momento do save
+await addDoc(collection, { ...data, snapshot }); // Persistido uma vez
 ```
 
 **Verificação:** auditor detecta updates em campos de snapshot em qualquer service.
@@ -128,7 +128,7 @@ await addDoc(collection, { ...data, snapshot });  // Persistido uma vez
 
 ```typescript
 // ❌ Proibido — recalcular assinatura:
-attempt.logicalSignature = await sign(newData);  // Nunca após save.
+attempt.logicalSignature = await sign(newData); // Nunca após save.
 
 // ✅ Correto — calculada 1x no save:
 const signature = await sign(data);
@@ -165,13 +165,13 @@ async function saveAttempt(data: AttemptInput) { ... }
 
 ### Guardrail 1: Tamanho de arquivo
 
-| Tipo | Limite | Ação se exceder |
-|------|--------|-----------------|
-| Types | 100 linhas | Dividir |
-| Service | 200 linhas | Extrair operações |
-| Hook | 200 linhas | Extrair sub-hooks |
-| Component | 300 linhas | Extrair sub-componentes |
-| Test | 200 linhas | Dividir describe() blocks |
+| Tipo      | Limite     | Ação se exceder           |
+| --------- | ---------- | ------------------------- |
+| Types     | 100 linhas | Dividir                   |
+| Service   | 200 linhas | Extrair operações         |
+| Hook      | 200 linhas | Extrair sub-hooks         |
+| Component | 300 linhas | Extrair sub-componentes   |
+| Test      | 200 linhas | Dividir describe() blocks |
 
 ### Guardrail 2: Ciclomática de função
 
@@ -229,26 +229,22 @@ Usar `unknown` + type guard se necessário.
 
 ```typescript
 // ❌ Proibido:
-saveAttempt(data);  // sem await, sem .catch()
+saveAttempt(data); // sem await, sem .catch()
 
 // ✅ Correto:
-await saveAttempt(data);  // tratado
+await saveAttempt(data); // tratado
 // OU
-void saveAttempt(data).catch(logError);  // fire-and-forget explícito
+void saveAttempt(data).catch(logError); // fire-and-forget explícito
 ```
 
 ### Guardrail 10: Queries sem limit/paginação
 
 ```typescript
 // ❌ Proibido:
-getDocs(collection(db, 'labs', labId, 'attempts'));  // sem limit
+getDocs(collection(db, 'labs', labId, 'attempts')); // sem limit
 
 // ✅ Correto:
-getDocs(query(
-  collection(db, 'labs', labId, 'attempts'),
-  orderBy('criadoEm', 'desc'),
-  limit(50)
-));
+getDocs(query(collection(db, 'labs', labId, 'attempts'), orderBy('criadoEm', 'desc'), limit(50)));
 ```
 
 ---
@@ -279,7 +275,7 @@ function AttemptForm() {
 // ❌ Anti-pattern — useEffect com side-effect mágico:
 useEffect(() => {
   if (condition) {
-    saveAttempt(data);  // side-effect não documentado
+    saveAttempt(data); // side-effect não documentado
   }
 }, [condition]);
 
@@ -296,11 +292,11 @@ const handleSave = async () => {
 ```typescript
 // ❌ Anti-pattern:
 const [attempts, setAttempts] = useState([]);
-const [isLoading, setIsLoading] = useState(true);  // pode derivar de attempts
-const [error, setError] = useState(null);           // pode derivar de attempts
+const [isLoading, setIsLoading] = useState(true); // pode derivar de attempts
+const [error, setError] = useState(null); // pode derivar de attempts
 
 // ✅ Correto:
-const { attempts, isLoading, error } = useAttempts();  // hook encapsula
+const { attempts, isLoading, error } = useAttempts(); // hook encapsula
 ```
 
 **Detecção:** se hook retorna `{ data, isLoading, error }` mas componente recria um desses como state local.
@@ -425,18 +421,18 @@ echo "✅ Auditoria aprovada"
 
 ### Dashboard por wave:
 
-| Métrica | Alvo | Status |
-|---------|------|--------|
-| Entidades no módulo | 3 | □ |
-| Eventos no módulo | 3 | □ |
-| Campos operacionais expostos | ≤ 6 | □ |
-| Arquivos no módulo | ≤ 15 | □ |
-| Linhas totais (src) | ≤ 3000 | □ |
-| Maior hook | ≤ 200 linhas | □ |
-| Maior componente | ≤ 300 linhas | □ |
-| Ciclomática máxima | ≤ 8 | □ |
-| Profundidade máxima | ≤ 3 | □ |
-| Parâmetros máximos por função | ≤ 3 | □ |
+| Métrica                       | Alvo         | Status |
+| ----------------------------- | ------------ | ------ |
+| Entidades no módulo           | 3            | □      |
+| Eventos no módulo             | 3            | □      |
+| Campos operacionais expostos  | ≤ 6          | □      |
+| Arquivos no módulo            | ≤ 15         | □      |
+| Linhas totais (src)           | ≤ 3000       | □      |
+| Maior hook                    | ≤ 200 linhas | □      |
+| Maior componente              | ≤ 300 linhas | □      |
+| Ciclomática máxima            | ≤ 8          | □      |
+| Profundidade máxima           | ≤ 3          | □      |
+| Parâmetros máximos por função | ≤ 3          | □      |
 
 ### Regra de falha:
 

@@ -12,15 +12,11 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const FUNCTIONS_DIR = path.resolve(__dirname, '..', '..');
 
 const { computeHmac, verify } = await import(
-  pathToFileURL(
-    path.join(FUNCTIONS_DIR, 'lib/modules/signatures/verifier.js'),
-  ).href
+  pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/signatures/verifier.js')).href
 );
 
 const { canonicalStringify } = await import(
-  pathToFileURL(
-    path.join(FUNCTIONS_DIR, 'lib/modules/signatures/canonical.js'),
-  ).href
+  pathToFileURL(path.join(FUNCTIONS_DIR, 'lib/modules/signatures/canonical.js')).href
 );
 
 const KEY = 'test-key-32-bytes-long-enough-01';
@@ -33,9 +29,7 @@ test('computeHmac — determinístico com ordem de chaves diferente', () => {
 
 test('computeHmac — bate com HMAC-SHA256 manual', () => {
   const payload = { labId: 'lab01', value: 7 };
-  const expected = createHmac('sha256', KEY)
-    .update(canonicalStringify(payload))
-    .digest('hex');
+  const expected = createHmac('sha256', KEY).update(canonicalStringify(payload)).digest('hex');
   assert.strictEqual(computeHmac(KEY, payload), expected);
 });
 

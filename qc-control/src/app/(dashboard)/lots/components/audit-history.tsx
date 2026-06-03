@@ -1,17 +1,17 @@
-'use client'
+'use client';
 
 interface AuditLog {
-  id: string
-  action: string
-  field: string | null
-  oldValue: string | null
-  newValue: string | null
-  createdAt: string
-  user: { name: string } | null
+  id: string;
+  action: string;
+  field: string | null;
+  oldValue: string | null;
+  newValue: string | null;
+  createdAt: string;
+  user: { name: string } | null;
 }
 
 export function AuditHistory({ auditLogs }: { auditLogs: AuditLog[] }) {
-  if (!auditLogs.length) return null
+  if (!auditLogs.length) return null;
 
   return (
     <div>
@@ -33,8 +33,7 @@ export function AuditHistory({ auditLogs }: { auditLogs: AuditLog[] }) {
             {log.field ? (
               <>
                 {' '}
-                <span className="font-medium">{log.field}</span>:
-                {' '}
+                <span className="font-medium">{log.field}</span>:{' '}
                 <span className="line-through">{log.oldValue}</span>
                 {' → '}
                 <span>{log.newValue}</span>
@@ -49,5 +48,5 @@ export function AuditHistory({ auditLogs }: { auditLogs: AuditLog[] }) {
         ))}
       </div>
     </div>
-  )
+  );
 }

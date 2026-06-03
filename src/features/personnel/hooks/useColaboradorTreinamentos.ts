@@ -121,11 +121,7 @@ export function useColaboradorTreinamentos(
 
     let cancelled = false;
 
-    Promise.all(
-      batches.map((batch) =>
-        getDocs(query(col, where('__name__', 'in', batch))),
-      ),
-    )
+    Promise.all(batches.map((batch) => getDocs(query(col, where('__name__', 'in', batch)))))
       .then((results) => {
         if (cancelled) return;
         const docs: ExecucaoDoc[] = [];
@@ -147,7 +143,9 @@ export function useColaboradorTreinamentos(
         if (!cancelled) setError(err as Error);
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [labId, participacoes]);
 
   // Fetch treinamento titles
@@ -168,11 +166,7 @@ export function useColaboradorTreinamentos(
 
     let cancelled = false;
 
-    Promise.all(
-      batches.map((batch) =>
-        getDocs(query(col, where('__name__', 'in', batch))),
-      ),
-    )
+    Promise.all(batches.map((batch) => getDocs(query(col, where('__name__', 'in', batch)))))
       .then((results) => {
         if (cancelled) return;
         const map = new Map<string, TreinamentoDoc>();
@@ -196,7 +190,9 @@ export function useColaboradorTreinamentos(
         }
       });
 
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [labId, execucoes]);
 
   // Derive final list

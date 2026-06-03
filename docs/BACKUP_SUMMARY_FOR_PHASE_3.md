@@ -12,14 +12,14 @@ HC Quality now has a **production-grade backup and disaster recovery infrastruct
 
 **Key Metrics:**
 
-| Metric | Value | Compliance |
-|---|---|---|
-| **RPO (Recovery Point Objective)** | < 24 hours | RDC 978 ✓ |
-| **RTO (Recovery Time Objective)** | 2-4 hours | DICQ 4.2 ✓ |
-| **PITR Window** | 35 days | GCP managed ✓ |
-| **Backup Retention** | 7 years | Immutable locks ✓ |
-| **Testing Frequency** | Monthly + Quarterly | DICQ 4.2.3 ✓ |
-| **Data Retention** | Multi-tier (see below) | RDC 978 Art. 115 ✓ |
+| Metric                             | Value                  | Compliance         |
+| ---------------------------------- | ---------------------- | ------------------ |
+| **RPO (Recovery Point Objective)** | < 24 hours             | RDC 978 ✓          |
+| **RTO (Recovery Time Objective)**  | 2-4 hours              | DICQ 4.2 ✓         |
+| **PITR Window**                    | 35 days                | GCP managed ✓      |
+| **Backup Retention**               | 7 years                | Immutable locks ✓  |
+| **Testing Frequency**              | Monthly + Quarterly    | DICQ 4.2.3 ✓       |
+| **Data Retention**                 | Multi-tier (see below) | RDC 978 Art. 115 ✓ |
 
 ---
 
@@ -52,17 +52,17 @@ Recovery Capabilities:
 
 ## Retention Policy Summary
 
-| Data | Retention | Soft Delete | Archive | Legal Basis |
-|---|---|---|---|---|
-| Laudos | 5y + 6mo grace | ✓ | GCS Nearline 1y+ | RDC 978 Art. 115 |
-| NOTIVISA | 10 years | ✗ (immutable) | Coldline 3y+ | RDC 1377/2013 |
-| Audit Trail | 5 years | ✗ (append-only) | Nearline 2y+ | RDC 978 Art. 119 |
-| CIQ Runs | 5 years | ✓ | Nearline 1y+ | ISO 15189 |
-| DICQ Docs | Duration + 5y | ✗ (versioned) | Nearline 2y+ | DICQ 4.3 |
-| POPs | Current + 5y | ✗ (versioned) | Nearline 2y+ | DICQ 4.3 |
-| Treinamento | 5y post-termination | ✗ (audit) | Nearline 3y+ | NR-1 |
-| Drafts | 30 days | ✓ (auto-cleanup) | — | Operational |
-| Logs | 1 year (login) / 90d (error) | ✗ | Coldline 6mo+ | Security |
+| Data        | Retention                    | Soft Delete      | Archive          | Legal Basis      |
+| ----------- | ---------------------------- | ---------------- | ---------------- | ---------------- |
+| Laudos      | 5y + 6mo grace               | ✓                | GCS Nearline 1y+ | RDC 978 Art. 115 |
+| NOTIVISA    | 10 years                     | ✗ (immutable)    | Coldline 3y+     | RDC 1377/2013    |
+| Audit Trail | 5 years                      | ✗ (append-only)  | Nearline 2y+     | RDC 978 Art. 119 |
+| CIQ Runs    | 5 years                      | ✓                | Nearline 1y+     | ISO 15189        |
+| DICQ Docs   | Duration + 5y                | ✗ (versioned)    | Nearline 2y+     | DICQ 4.3         |
+| POPs        | Current + 5y                 | ✗ (versioned)    | Nearline 2y+     | DICQ 4.3         |
+| Treinamento | 5y post-termination          | ✗ (audit)        | Nearline 3y+     | NR-1             |
+| Drafts      | 30 days                      | ✓ (auto-cleanup) | —                | Operational      |
+| Logs        | 1 year (login) / 90d (error) | ✗                | Coldline 6mo+    | Security         |
 
 ---
 
@@ -70,23 +70,23 @@ Recovery Capabilities:
 
 ### 1. Core Documentation
 
-| Document | Purpose | Compliance |
-|---|---|---|
+| Document                             | Purpose                                                    | Compliance     |
+| ------------------------------------ | ---------------------------------------------------------- | -------------- |
 | **BACKUP_DISASTER_RECOVERY_PLAN.md** | Comprehensive retention, strategy, implementation, testing | RDC 978 + DICQ |
-| **DR_PLAN.md** | 4 disaster scenarios with RTO/RPO targets | DICQ 4.2 |
-| **DR_RUNBOOKS.md** | Step-by-step recovery procedures for each scenario | Operational |
-| **BACKUP_OPERATIONAL_CHECKLIST.md** | Daily/weekly/monthly/quarterly/annual procedures | DICQ 4.2.3 |
+| **DR_PLAN.md**                       | 4 disaster scenarios with RTO/RPO targets                  | DICQ 4.2       |
+| **DR_RUNBOOKS.md**                   | Step-by-step recovery procedures for each scenario         | Operational    |
+| **BACKUP_OPERATIONAL_CHECKLIST.md**  | Daily/weekly/monthly/quarterly/annual procedures           | DICQ 4.2.3     |
 
 ### 2. Executable Scripts
 
-| Script | Purpose | Platform |
-|---|---|---|
-| `backup-full.sh` | On-demand full backup to GCS | Bash |
-| `restore-pitr.sh` | Point-in-time recovery from GCP backup | Bash |
-| `backup-test.sh` | Monthly restore validation test | Bash |
-| `backup-status.sh` | Current backup status + health check | Bash |
-| `backup-status.ps1` | Backup status (Windows PowerShell) | PowerShell |
-| `verify-chain-hash.sh` | Chain-hash integrity verification | Bash |
+| Script                 | Purpose                                | Platform   |
+| ---------------------- | -------------------------------------- | ---------- |
+| `backup-full.sh`       | On-demand full backup to GCS           | Bash       |
+| `restore-pitr.sh`      | Point-in-time recovery from GCP backup | Bash       |
+| `backup-test.sh`       | Monthly restore validation test        | Bash       |
+| `backup-status.sh`     | Current backup status + health check   | Bash       |
+| `backup-status.ps1`    | Backup status (Windows PowerShell)     | PowerShell |
+| `verify-chain-hash.sh` | Chain-hash integrity verification      | Bash       |
 
 **Usage Example:**
 
@@ -154,30 +154,30 @@ Location: `functions/src/backups/`
 
 ### RDC 978 Art. 115 (Backup & Retenção)
 
-| Requirement | Implementation | Evidence |
-|---|---|---|
-| Backup of all data | Daily full + weekly incremental + monthly archive | `gs://hc-quality-backups/`, `gs://hc-quality-archives/` |
-| Accessible recovery | PITR window 35 days + on-demand restores | `restore-pitr.sh`, DR_PLAN.md |
-| Retention per data type | Multi-tier retention (see Retention Policy) | BACKUP_DISASTER_RECOVERY_PLAN.md § 1 |
-| Test recovery procedures | Monthly restore tests + quarterly DR drills | BACKUP_OPERATIONAL_CHECKLIST.md |
+| Requirement              | Implementation                                    | Evidence                                                |
+| ------------------------ | ------------------------------------------------- | ------------------------------------------------------- |
+| Backup of all data       | Daily full + weekly incremental + monthly archive | `gs://hc-quality-backups/`, `gs://hc-quality-archives/` |
+| Accessible recovery      | PITR window 35 days + on-demand restores          | `restore-pitr.sh`, DR_PLAN.md                           |
+| Retention per data type  | Multi-tier retention (see Retention Policy)       | BACKUP_DISASTER_RECOVERY_PLAN.md § 1                    |
+| Test recovery procedures | Monthly restore tests + quarterly DR drills       | BACKUP_OPERATIONAL_CHECKLIST.md                         |
 
 ### DICQ 4.2 (Gestão de Dados)
 
-| Requirement | Implementation | Evidence |
-|---|---|---|
-| Data backup procedures | Documented + automated | BACKUP_DISASTER_RECOVERY_PLAN.md § 2-3 |
-| Backup testing | Monthly validation + quarterly drills | BACKUP_OPERATIONAL_CHECKLIST.md |
-| Restoration capability | RTO/RPO defined + tested | DR_PLAN.md + test reports |
-| Disaster recovery plan | 4 scenarios documented + runbooks | DR_PLAN.md + DR_RUNBOOKS.md |
+| Requirement            | Implementation                        | Evidence                               |
+| ---------------------- | ------------------------------------- | -------------------------------------- |
+| Data backup procedures | Documented + automated                | BACKUP_DISASTER_RECOVERY_PLAN.md § 2-3 |
+| Backup testing         | Monthly validation + quarterly drills | BACKUP_OPERATIONAL_CHECKLIST.md        |
+| Restoration capability | RTO/RPO defined + tested              | DR_PLAN.md + test reports              |
+| Disaster recovery plan | 4 scenarios documented + runbooks     | DR_PLAN.md + DR_RUNBOOKS.md            |
 
 ### DICQ 4.2.3 (Testing)
 
-| Requirement | Frequency | Next Date |
-|---|---|---|
-| Restore test | Monthly (1st Friday) | 2026-06-07 |
-| DR drill | Quarterly | 2026-06-01 |
-| Compliance audit | Annual (May) | 2027-05-07 |
-| Team training | Annual | 2027-05-07 |
+| Requirement      | Frequency            | Next Date  |
+| ---------------- | -------------------- | ---------- |
+| Restore test     | Monthly (1st Friday) | 2026-06-07 |
+| DR drill         | Quarterly            | 2026-06-01 |
+| Compliance audit | Annual (May)         | 2027-05-07 |
+| Team training    | Annual               | 2027-05-07 |
 
 ### LGPD Art. 12 (Data Subject Rights)
 
@@ -200,16 +200,19 @@ Location: `functions/src/backups/`
 ### Deployment Steps
 
 1. **GCS Buckets** (Pre-deploy, once)
+
    ```bash
    bash scripts/gcs-setup.sh  # Creates + configures buckets
    ```
 
 2. **Cloud Scheduler Jobs** (Pre-deploy, once)
+
    ```bash
    bash scripts/scheduler-setup.sh  # Creates scheduler jobs
    ```
 
 3. **Cloud Functions** (Each deploy cycle)
+
    ```bash
    npm run build:functions && firebase deploy --only functions
    ```
@@ -234,13 +237,13 @@ Location: `functions/src/backups/`
 
 ## Operational Responsibilities
 
-| Role | Responsibility | Frequency |
-|---|---|---|
-| **DevOps** | Daily status check + alerts | Daily |
-| **Tech Lead** | Weekly review + issue response | Weekly |
-| **CTO** | Monthly test oversight + approvals | Monthly |
-| **Entire Team** | Quarterly DR drill participation | Quarterly |
-| **Security Officer** | Annual compliance audit | Annual |
+| Role                 | Responsibility                     | Frequency |
+| -------------------- | ---------------------------------- | --------- |
+| **DevOps**           | Daily status check + alerts        | Daily     |
+| **Tech Lead**        | Weekly review + issue response     | Weekly    |
+| **CTO**              | Monthly test oversight + approvals | Monthly   |
+| **Entire Team**      | Quarterly DR drill participation   | Quarterly |
+| **Security Officer** | Annual compliance audit            | Annual    |
 
 ---
 
@@ -306,11 +309,11 @@ Location: `functions/src/backups/`
 
 ## Sign-Off
 
-| Role | Name | Date | Status |
-|---|---|---|---|
-| **CTO** | — | 2026-05-07 | ☐ Approved |
-| **Tech Lead** | — | 2026-05-07 | ☐ Approved |
-| **DevOps** | — | 2026-05-07 | ☐ Approved |
+| Role          | Name | Date       | Status     |
+| ------------- | ---- | ---------- | ---------- |
+| **CTO**       | —    | 2026-05-07 | ☐ Approved |
+| **Tech Lead** | —    | 2026-05-07 | ☐ Approved |
+| **DevOps**    | —    | 2026-05-07 | ☐ Approved |
 
 ---
 

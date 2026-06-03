@@ -21,28 +21,28 @@ export default function ReviewDetail({ review, onClose, onEdit }: ReviewDetailPr
     month: 'long',
     day: 'numeric',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   }).format(reviewDate);
 
   const allParticipants = [
     review.diretor,
     review.gerenteQualidade,
     ...review.participantes,
-    ...(review.outrasCargos || [])
+    ...(review.outrasCargos || []),
   ].filter((p) => p && p.trim());
 
   const statusLabel: Record<string, string> = {
     draft: 'Rascunho',
     submitted: 'Submetida',
     approved: 'Aprovada',
-    archived: 'Arquivada'
+    archived: 'Arquivada',
   };
 
   const statusColor: Record<string, string> = {
     draft: 'bg-yellow-500/10 text-yellow-400',
     submitted: 'bg-blue-500/10 text-blue-400',
     approved: 'bg-emerald-500/10 text-emerald-400',
-    archived: 'bg-white/10 text-white/50'
+    archived: 'bg-white/10 text-white/50',
   };
 
   return (
@@ -57,7 +57,9 @@ export default function ReviewDetail({ review, onClose, onEdit }: ReviewDetailPr
             <p className="text-white/60">DICQ 4.15</p>
           </div>
 
-          <div className={`px-4 py-2 rounded-lg text-sm font-semibold border ${statusColor[review.status]}`}>
+          <div
+            className={`px-4 py-2 rounded-lg text-sm font-semibold border ${statusColor[review.status]}`}
+          >
             {statusLabel[review.status]}
           </div>
         </div>
@@ -75,12 +77,16 @@ export default function ReviewDetail({ review, onClose, onEdit }: ReviewDetailPr
           </div>
 
           <div>
-            <p className="text-xs uppercase text-white/50 font-semibold mb-1">Gerente de Qualidade</p>
+            <p className="text-xs uppercase text-white/50 font-semibold mb-1">
+              Gerente de Qualidade
+            </p>
             <p className="text-white">{review.gerenteQualidade || 'N/A'}</p>
           </div>
 
           <div>
-            <p className="text-xs uppercase text-white/50 font-semibold mb-1">Total de Participantes</p>
+            <p className="text-xs uppercase text-white/50 font-semibold mb-1">
+              Total de Participantes
+            </p>
             <p className="text-white">{allParticipants.length} pessoas</p>
           </div>
         </div>
@@ -142,10 +148,7 @@ export default function ReviewDetail({ review, onClose, onEdit }: ReviewDetailPr
       {/* 15 Sections */}
       <div className="space-y-6">
         {review.entries.map((entry) => (
-          <div
-            key={entry.id}
-            className="bg-[#141417] rounded-lg border border-white/5 p-8"
-          >
+          <div key={entry.id} className="bg-[#141417] rounded-lg border border-white/5 p-8">
             <ReviewSection entry={entry} editable={false} />
           </div>
         ))}

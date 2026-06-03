@@ -62,14 +62,7 @@ function CoverageGauge({ percent }: { percent: number }) {
     <div className="relative w-32 h-32 flex items-center justify-center">
       <svg className="absolute" width="128" height="128" viewBox="0 0 128 128">
         {/* Background circle */}
-        <circle
-          cx="64"
-          cy="64"
-          r="45"
-          fill="none"
-          stroke="rgba(255,255,255,0.1)"
-          strokeWidth="8"
-        />
+        <circle cx="64" cy="64" r="45" fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
         {/* Progress circle */}
         <circle
           cx="64"
@@ -158,7 +151,11 @@ function TimelineChart({ data }: { data: Array<{ date: string; count: number }> 
 /**
  * Pie chart for scope breakdown
  */
-function ScopeBreakdown({ data }: { data: { iaStrip: number; iaLaudo: number; analytics: number } }) {
+function ScopeBreakdown({
+  data,
+}: {
+  data: { iaStrip: number; iaLaudo: number; analytics: number };
+}) {
   const total = data.iaStrip + data.iaLaudo + data.analytics;
 
   if (total === 0) {
@@ -323,7 +320,9 @@ export function ConsentBackfillDashboard() {
           </div>
           <div className="p-4 bg-white/2 rounded-lg border border-white/5">
             <p className="text-xs text-white/50">Com consentimento</p>
-            <p className="text-2xl font-bold text-emerald-400 mt-2">{metrics.patientsWithConsent}</p>
+            <p className="text-2xl font-bold text-emerald-400 mt-2">
+              {metrics.patientsWithConsent}
+            </p>
           </div>
         </div>
 
@@ -372,7 +371,8 @@ export function ConsentBackfillDashboard() {
         </div>
         <TimelineChart data={metrics.timelineData.map((d) => ({ date: d.date, count: d.count }))} />
         <p className="text-xs text-white/50 mt-3">
-          {metrics.timelineData.length} dias · máx {Math.max(...metrics.timelineData.map((d) => d.count))} consentimentos/dia
+          {metrics.timelineData.length} dias · máx{' '}
+          {Math.max(...metrics.timelineData.map((d) => d.count))} consentimentos/dia
         </p>
       </div>
 
@@ -386,8 +386,8 @@ export function ConsentBackfillDashboard() {
       <div className="p-4 bg-blue-500/10 border border-blue-500/20 rounded-lg text-blue-300 text-sm space-y-1">
         <p className="font-medium">Nota</p>
         <p>
-          Estes dados são atualizados a cada 30 minutos. Para atualizações em tempo real, consulte os
-          logs de auditoria (auditLogs/action='consent-captured').
+          Estes dados são atualizados a cada 30 minutos. Para atualizações em tempo real, consulte
+          os logs de auditoria (auditLogs/action='consent-captured').
         </p>
       </div>
     </div>

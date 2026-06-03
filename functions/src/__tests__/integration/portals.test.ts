@@ -76,7 +76,7 @@ describe('Portal Module', () => {
     it('should apply lab colors to portal UI', () => {
       const colors = {
         primary: mockPortalConfigBasic.primary_color,
-        secondary: mockPortalConfigBasic.secondary_color
+        secondary: mockPortalConfigBasic.secondary_color,
       };
       expect(colors.primary).toBeTruthy();
       expect(colors.secondary).toBeTruthy();

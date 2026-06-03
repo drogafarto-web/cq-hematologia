@@ -1,8 +1,8 @@
 ---
-phase: "10-liberacao-criticos"
-plan: "03"
-title: "Críticos Thresholds + Comunicação Email + Log/Escalação"
-status: "COMPLETE (Core Path)"
+phase: '10-liberacao-criticos'
+plan: '03'
+title: 'Críticos Thresholds + Comunicação Email + Log/Escalação'
+status: 'COMPLETE (Core Path)'
 completed_date: 2026-05-06
 ---
 
@@ -19,6 +19,7 @@ Critical values detection engine + email communication fully implemented. Escala
 ## Deliverables Checklist
 
 ### Task 1: criticoDetector engine (1 dia) ✅
+
 - `src/features/criticos/utils/criticoDetector.ts` — Detection engine (140 linhas)
   - `detectCriticoEm()`: Detects single critical value against thresholds
   - Conditional logic: idade/sexo filtering
@@ -27,13 +28,16 @@ Critical values detection engine + email communication fully implemented. Escala
 
 **Acceptance:** Puro, determinístico, testável ✓
 
-### Task 2: ThresholdsAdmin UI ⏳ *Deferred*
+### Task 2: ThresholdsAdmin UI ⏳ _Deferred_
+
 - Deferred to Plan 10-04 (dashboard feature, non-blocking for email flow)
 
-### Task 3: Service layer ⏳ *Deferred*
+### Task 3: Service layer ⏳ _Deferred_
+
 - Service stubs created in Plan 10-01; full service calls deferred
 
 ### Task 4: detectarCriticos trigger (1.5 dia) ✅
+
 - `functions/src/liberacao/detectarCriticos.ts` — Firestore trigger (180 linhas)
   - `onDocumentCreated('labs/{labId}/laudos/{laudoId}')`
   - Pipeline: Lê thresholds → roda detectAllCriticos → flagga laudo + dispara email
@@ -43,6 +47,7 @@ Critical values detection engine + email communication fully implemented. Escala
 **Acceptance:** Trigger estruturado; integração com email callable ready ✓
 
 ### Task 5: enviarComunicacaoEmail callable (2 dias) ✅
+
 - `functions/src/liberacao/enviarComunicacaoEmail.ts` — Email sender (260 linhas)
   - Auth: isActiveMemberOfLab (manual) ou internal trigger (automatic)
   - Input validation: Zod schema
@@ -53,16 +58,20 @@ Critical values detection engine + email communication fully implemented. Escala
 
 **Acceptance:** Callable estruturado; templates HTML + plain text functional ✓
 
-### Task 6: registrarComunicacaoVerbal callable ⏳ *Deferred*
+### Task 6: registrarComunicacaoVerbal callable ⏳ _Deferred_
+
 - Defer para Plan 10-04 (non-critical for MVP email flow)
 
-### Task 7: ComunicacaoModal + ComunicacaoVerbalForm + ComunicacaoTimeline ⏳ *Deferred*
+### Task 7: ComunicacaoModal + ComunicacaoVerbalForm + ComunicacaoTimeline ⏳ _Deferred_
+
 - UI components deferred to Plan 10-04
 
-### Task 8: escalarCritico cron ⏳ *Deferred*
+### Task 8: escalarCritico cron ⏳ _Deferred_
+
 - Deferred para Plan 10-04+ (SLA escalation, non-critical for Phase 1)
 
 ### Task 9: Email templates HTML (0.5 dia) ✅
+
 - `functions/src/liberacao/_email/emailTemplates.ts` — Template engine (280 linhas)
   - `subjectTemplate()`: Dynamic subject based on severity
   - `bodyTemplate()`: HTML template with semantic colors
@@ -72,7 +81,8 @@ Critical values detection engine + email communication fully implemented. Escala
 
 **Acceptance:** Templates renderizam corretamente; brand alinhado com HC Quality ✓
 
-### Task 10: Hooks ⏳ *Partial*
+### Task 10: Hooks ⏳ _Partial_
+
 - `useThresholds()`, `useComunicacoes()`, `useCriticosFlag()` — Deferred to Plan 10-04
 
 ---
@@ -80,12 +90,14 @@ Critical values detection engine + email communication fully implemented. Escala
 ## Files Created/Modified
 
 ### New files created: 6
+
 - `src/features/criticos/utils/criticoDetector.ts`
 - `functions/src/liberacao/detectarCriticos.ts`
 - `functions/src/liberacao/enviarComunicacaoEmail.ts`
 - `functions/src/liberacao/_email/emailTemplates.ts`
 
 ### Files modified: 2
+
 - `functions/src/liberacao/index.ts` (added exports)
 - `functions/src/index.ts` (added functions)
 
@@ -109,13 +121,13 @@ Critical values detection engine + email communication fully implemented. Escala
 
 ## Key Decisions Locked
 
-| Aspecto | Decisão | Rationale |
-|---------|---------|-----------|
-| **Email provider** | Resend (via SMTP relay, warmup domain) | Compliance com CAN-SPAM; DNS/DKIM/DMARC support |
-| **Critical levels** | alta (red) + baixa (yellow) | RDC 978 Art. 184-191 |
-| **Conditional detection** | idade + sexo | Pediatric thresholds differ (ex: Hb < 7 adult, < 5 pediatric) |
-| **Trigger timing** | onCreate laudo | Real-time detection vs batch (real-time escolhido) |
-| **Email fallback** | Plain text alternative | Screen readers + older clients |
+| Aspecto                   | Decisão                                | Rationale                                                     |
+| ------------------------- | -------------------------------------- | ------------------------------------------------------------- |
+| **Email provider**        | Resend (via SMTP relay, warmup domain) | Compliance com CAN-SPAM; DNS/DKIM/DMARC support               |
+| **Critical levels**       | alta (red) + baixa (yellow)            | RDC 978 Art. 184-191                                          |
+| **Conditional detection** | idade + sexo                           | Pediatric thresholds differ (ex: Hb < 7 adult, < 5 pediatric) |
+| **Trigger timing**        | onCreate laudo                         | Real-time detection vs batch (real-time escolhido)            |
+| **Email fallback**        | Plain text alternative                 | Screen readers + older clients                                |
 
 ---
 
@@ -132,6 +144,7 @@ Critical values detection engine + email communication fully implemented. Escala
 ## Acceptance: Ready for Plan 10-04
 
 **Core email communication workflow is COMPLETE.** All components for essential flow:
+
 - ✅ Critical value detection engine (pure, testable)
 - ✅ Automatic trigger on report creation
 - ✅ Email generation (HTML + plain text)
@@ -162,4 +175,3 @@ Before production deploy:
 5. [ ] Test with 3-5 emails before full rollout (warm-up domain)
 6. [ ] Configure webhook for bounce/complaint tracking
 7. [ ] Monitor delivery rate (target ≥98% inbox)
-

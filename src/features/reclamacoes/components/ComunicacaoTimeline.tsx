@@ -31,7 +31,7 @@ export const ComunicacaoTimeline: React.FC<ComunicacaoTimelineProps> = ({
       try {
         const q = query(
           collection(db, `labs/${labId}/comunicacoes-cliente`),
-          where('reclamacaoId', '==', reclamacaoId)
+          where('reclamacaoId', '==', reclamacaoId),
         );
         const snap = await getDocs(q);
 
@@ -41,11 +41,13 @@ export const ComunicacaoTimeline: React.FC<ComunicacaoTimelineProps> = ({
         })) as Comunicacao[];
 
         // Sort by date descending
-        setComunicacoes(data.sort((a, b) => {
-          const dateA = a.criadoEm?.toDate?.() || new Date(a.criadoEm);
-          const dateB = b.criadoEm?.toDate?.() || new Date(b.criadoEm);
-          return dateB.getTime() - dateA.getTime();
-        }));
+        setComunicacoes(
+          data.sort((a, b) => {
+            const dateA = a.criadoEm?.toDate?.() || new Date(a.criadoEm);
+            const dateB = b.criadoEm?.toDate?.() || new Date(b.criadoEm);
+            return dateB.getTime() - dateA.getTime();
+          }),
+        );
       } catch (error) {
         console.error('Error loading comunicacoes:', error);
       } finally {
@@ -161,12 +163,12 @@ export const ComunicacaoTimeline: React.FC<ComunicacaoTimelineProps> = ({
             <div key={com.id} className="flex gap-4">
               {/* Timeline line */}
               <div className="flex flex-col items-center">
-                <div className={`rounded-full p-1.5 ${getStatusColor(com.status)} bg-white dark:bg-[#1f2937] border-2`}>
+                <div
+                  className={`rounded-full p-1.5 ${getStatusColor(com.status)} bg-white dark:bg-[#1f2937] border-2`}
+                >
                   {getStatusIcon(com.status)}
                 </div>
-                {!isLast && (
-                  <div className="w-0.5 h-12 bg-gray-300 dark:bg-gray-700 mt-2" />
-                )}
+                {!isLast && <div className="w-0.5 h-12 bg-gray-300 dark:bg-gray-700 mt-2" />}
               </div>
 
               {/* Content */}
@@ -181,13 +183,15 @@ export const ComunicacaoTimeline: React.FC<ComunicacaoTimelineProps> = ({
                         Para: {com.para}
                       </p>
                     </div>
-                    <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                      com.status === 'entregue'
-                        ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
-                        : com.status === 'erro'
-                          ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
-                          : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
-                    }`}>
+                    <span
+                      className={`text-xs font-medium px-2 py-1 rounded-full ${
+                        com.status === 'entregue'
+                          ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400'
+                          : com.status === 'erro'
+                            ? 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400'
+                            : 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-400'
+                      }`}
+                    >
                       {getStatusLabel(com.status)}
                     </span>
                   </div>

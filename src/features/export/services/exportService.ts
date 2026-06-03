@@ -19,13 +19,11 @@ export const ExportService = {
    * });
    * console.log(`Job ${response.jobId} will complete in ~${response.estimatedMinutes} minutes`);
    */
-  initiateExport: async (
-    request: ExportRequest
-  ): Promise<ExportInitiateResponse> => {
-    const callable = httpsCallable<
-      ExportRequest,
-      ExportInitiateResponse
-    >(functions, 'initiateExport');
+  initiateExport: async (request: ExportRequest): Promise<ExportInitiateResponse> => {
+    const callable = httpsCallable<ExportRequest, ExportInitiateResponse>(
+      functions,
+      'initiateExport',
+    );
 
     try {
       const result = await callable(request);
@@ -43,10 +41,7 @@ export const ExportService = {
    * Usage:
    * const job = await ExportService.getJobStatus('lab-123', 'job-abc123');
    */
-  getJobStatus: async (
-    labId: string,
-    jobId: string
-  ): Promise<any> => {
+  getJobStatus: async (labId: string, jobId: string): Promise<any> => {
     // Phase 3.2: implement a Cloud Callable to fetch job
     // For now, use Firestore directly (client-side read permission required)
     throw new Error('Implement in Phase 3.2');

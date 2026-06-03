@@ -19,9 +19,7 @@ function todayIsoUtcDate(): string {
 }
 
 function daysBetweenEndAndToday(endIso: string, nowIso: string): number {
-  return Math.floor(
-    (new Date(endIso).getTime() - new Date(nowIso).getTime()) / DAY_MS,
-  );
+  return Math.floor((new Date(endIso).getTime() - new Date(nowIso).getTime()) / DAY_MS);
 }
 
 function timestampToDateIso(value: unknown): string | null {
@@ -93,19 +91,12 @@ export const apoio_alertVencimentos = onSchedule(
         if (typeof vigenciaFim === 'string' && vigenciaFim.length > 0) {
           const daysVig = daysBetweenEndAndToday(vigenciaFim, nowIso);
           if (daysVig <= 30) {
-            const severidade: 'warning' | 'critical' =
-              daysVig < 0 ? 'critical' : 'warning';
+            const severidade: 'warning' | 'critical' = daysVig < 0 ? 'critical' : 'warning';
             const mensagem =
               daysVig < 0
                 ? `Contrato de apoio «${nome}»: vigência vencida em ${vigenciaFim}.`
                 : `Contrato de apoio «${nome}»: vigência encerra em ${vigenciaFim} (${daysVig === 0 ? 'hoje' : `em ${daysVig} dia(s)`}).`;
-            await upsertKpiAlert(
-              db,
-              labId,
-              `vig_apoio_${contratoDoc.id}`,
-              severidade,
-              mensagem,
-            );
+            await upsertKpiAlert(db, labId, `vig_apoio_${contratoDoc.id}`, severidade, mensagem);
             alertsWritten += 1;
           }
         }
@@ -117,14 +108,12 @@ export const apoio_alertVencimentos = onSchedule(
           const cert = raw as Record<string, unknown>;
           if (cert['ativo'] !== true) continue;
           const certId = typeof cert['id'] === 'string' ? cert['id'] : '';
-          const certNome =
-            typeof cert['nome'] === 'string' ? cert['nome'] : 'Certificação';
+          const certNome = typeof cert['nome'] === 'string' ? cert['nome'] : 'Certificação';
           const certIso = timestampToDateIso(cert['dataValidade']);
           if (certIso === null) continue;
           const daysCert = daysBetweenEndAndToday(certIso, nowIso);
           if (daysCert <= 30) {
-            const severidade: 'warning' | 'critical' =
-              daysCert < 0 ? 'critical' : 'warning';
+            const severidade: 'warning' | 'critical' = daysCert < 0 ? 'critical' : 'warning';
             const mensagem =
               daysCert < 0
                 ? `Certificação «${certNome}» (${nome}): validade vencida em ${certIso}.`

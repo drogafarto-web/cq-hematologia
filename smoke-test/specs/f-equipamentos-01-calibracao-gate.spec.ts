@@ -20,21 +20,31 @@ test.describe('F-Equipamentos-01 — Equipamento → Calibração → Gate Bloqu
 
     // 2. Criar novo equipamento
     console.log('Step 2: Create new equipment...');
-    const newEquipBtn = page.locator('button:has-text("Nova"), button:has-text("Novo"), button:has-text("Adicionar")').first();
+    const newEquipBtn = page
+      .locator('button:has-text("Nova"), button:has-text("Novo"), button:has-text("Adicionar")')
+      .first();
     if (await newEquipBtn.isVisible()) {
       await newEquipBtn.click();
       await page.waitForTimeout(1500);
 
       // Preencher dados do equipamento
-      await page.fill('input[placeholder*="nome"], input[placeholder*="modelo"]', `SMOKE_EQUIP_${names.runId}`);
-      await page.fill('input[placeholder*="série"], input[placeholder*="serial"]', `SN_${names.runId}`);
+      await page.fill(
+        'input[placeholder*="nome"], input[placeholder*="modelo"]',
+        `SMOKE_EQUIP_${names.runId}`,
+      );
+      await page.fill(
+        'input[placeholder*="série"], input[placeholder*="serial"]',
+        `SN_${names.runId}`,
+      );
 
       // Tipo de equipamento
       const typeSelect = page.locator('select, [role="combobox"]').first();
       if (await typeSelect.isVisible()) {
         await typeSelect.click();
         await page.waitForTimeout(500);
-        await page.click('text=Analisador, text=Pipeta, text=Equipamento', { timeout: 2000 }).catch(() => null);
+        await page
+          .click('text=Analisador, text=Pipeta, text=Equipamento', { timeout: 2000 })
+          .catch(() => null);
       }
 
       await page.click('button:has-text("Salvar"), button:has-text("Criar")');
@@ -50,22 +60,30 @@ test.describe('F-Equipamentos-01 — Equipamento → Calibração → Gate Bloqu
       await page.waitForTimeout(2000);
 
       // Aba Calibração
-      const calibrationTab = page.locator('button:has-text("Calibração"), [role="tab"]:has-text("Calibração")').first();
+      const calibrationTab = page
+        .locator('button:has-text("Calibração"), [role="tab"]:has-text("Calibração")')
+        .first();
       if (await calibrationTab.isVisible()) {
         await calibrationTab.click();
         await page.waitForTimeout(1000);
       }
 
       // Adicionar calibração
-      const newCalibBtn = page.locator('button:has-text("Nova"), button:has-text("Adicionar")').first();
+      const newCalibBtn = page
+        .locator('button:has-text("Nova"), button:has-text("Adicionar")')
+        .first();
       if (await newCalibBtn.isVisible()) {
         await newCalibBtn.click();
         await page.waitForTimeout(1000);
 
         // Data de vencimento (amanhã, para teste futuro)
-        const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1)).toISOString().split('T')[0];
+        const tomorrow = new Date(new Date().setDate(new Date().getDate() + 1))
+          .toISOString()
+          .split('T')[0];
 
-        const dueDateField = page.locator('input[type="date"][placeholder*="vencimento"], input[placeholder*="valid"]').first();
+        const dueDateField = page
+          .locator('input[type="date"][placeholder*="vencimento"], input[placeholder*="valid"]')
+          .first();
         if (await dueDateField.isVisible()) {
           await dueDateField.fill(tomorrow);
         }
@@ -88,7 +106,9 @@ test.describe('F-Equipamentos-01 — Equipamento → Calibração → Gate Bloqu
       await page.waitForTimeout(2000);
 
       // Verificar se há indicador de equipamento vencido
-      const expiredWarning = page.locator('[data-testid*="expired"], [aria-label*="vencido"], [title*="expirado"]').first();
+      const expiredWarning = page
+        .locator('[data-testid*="expired"], [aria-label*="vencido"], [title*="expirado"]')
+        .first();
       const hasExpiredIndicator = await expiredWarning.isVisible().catch(() => false);
 
       if (hasExpiredIndicator) {

@@ -3,11 +3,13 @@
 @tailwind utilities;
 
 @layer base {
-  * { box-sizing: border-box; }
-  body { 
+  * {
+    box-sizing: border-box;
+  }
+  body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    color: #191C20;
-    background: #FFFFFF;
+    color: #191c20;
+    background: #ffffff;
   }
 }

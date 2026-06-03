@@ -57,9 +57,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
       setIsLoading(true);
       try {
         const db = getFirestore();
-        const prefDoc = await getDoc(
-          doc(db, `patientPreferences/${labId}/patients/${patientId}`)
-        );
+        const prefDoc = await getDoc(doc(db, `patientPreferences/${labId}/patients/${patientId}`));
 
         if (prefDoc.exists()) {
           setPrefs(prefDoc.data() as EmailPreferences);
@@ -84,9 +82,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
       await onSave(prefs);
       onClose();
     } catch (err) {
-      setError(
-        err instanceof Error ? err.message : 'Erro ao salvar preferências'
-      );
+      setError(err instanceof Error ? err.message : 'Erro ao salvar preferências');
     } finally {
       setIsSaving(false);
     }
@@ -108,9 +104,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
         <div className="bg-[#1a1a1e] rounded-lg border border-white/10 shadow-2xl overflow-hidden">
           {/* Header */}
           <div className="px-6 py-5 border-b border-white/5">
-            <h2 className="text-lg font-semibold text-white/95">
-              Preferências de Email
-            </h2>
+            <h2 className="text-lg font-semibold text-white/95">Preferências de Email</h2>
             <p className="text-sm text-white/60 mt-1">
               Escolha quais notificações você deseja receber
             </p>
@@ -141,9 +135,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-white/30 accent-violet-500 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/95">
-                      Alterações de Consentimento
-                    </p>
+                    <p className="text-sm font-medium text-white/95">Alterações de Consentimento</p>
                     <p className="text-xs text-white/60 mt-0.5">
                       Notificações quando você revoga ou altera consentimentos
                     </p>
@@ -164,9 +156,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-white/30 accent-violet-500 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/95">
-                      Novos Resultados
-                    </p>
+                    <p className="text-sm font-medium text-white/95">Novos Resultados</p>
                     <p className="text-xs text-white/60 mt-0.5">
                       Notificações quando novos resultados estão disponíveis
                     </p>
@@ -187,9 +177,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-white/30 accent-violet-500 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/95">
-                      Exportação Pronta
-                    </p>
+                    <p className="text-sm font-medium text-white/95">Exportação Pronta</p>
                     <p className="text-xs text-white/60 mt-0.5">
                       Notificações quando seus dados estão prontos para download
                     </p>
@@ -210,9 +198,7 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
                     className="mt-1 w-5 h-5 rounded border-white/30 accent-violet-500 cursor-pointer"
                   />
                   <div className="flex-1">
-                    <p className="text-sm font-medium text-white/95">
-                      Resumo Semanal
-                    </p>
+                    <p className="text-sm font-medium text-white/95">Resumo Semanal</p>
                     <p className="text-xs text-white/60 mt-0.5">
                       Resumo semanal de todas as suas atividades no portal
                     </p>
@@ -229,9 +215,8 @@ export const PreferenciaEmailModal: React.FC<PreferenciaEmailModalProps> = ({
                 {/* Legal notice */}
                 <div className="p-3 rounded-lg bg-white/2 border border-white/5">
                   <p className="text-xs text-white/60">
-                    Mesmo que desabilite notificações, você continuará recebendo
-                    mensagens críticas de segurança e alterações de conta conforme
-                    exigido por lei.
+                    Mesmo que desabilite notificações, você continuará recebendo mensagens críticas
+                    de segurança e alterações de conta conforme exigido por lei.
                   </p>
                 </div>
               </>

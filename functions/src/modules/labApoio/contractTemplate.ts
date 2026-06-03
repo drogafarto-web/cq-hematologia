@@ -42,9 +42,7 @@ export const GenerateContractTemplateInputSchema = z.object({
   format: z.enum(['json', 'html']).default('json'),
 });
 
-export type GenerateContractTemplateInput = z.infer<
-  typeof GenerateContractTemplateInputSchema
->;
+export type GenerateContractTemplateInput = z.infer<typeof GenerateContractTemplateInputSchema>;
 
 // ─── Tipos do template ────────────────────────────────────────────────────────
 
@@ -145,7 +143,12 @@ function clauseAVS(d: ContractData): ContractClause {
       ``,
       `O CONTRATADO obriga-se a manter sua AVS atualizada durante toda a vigência deste contrato e a comunicar imediatamente ao CONTRATANTE qualquer interdição, suspensão ou cancelamento, sob pena de rescisão automática.`,
       ``,
-      `Certificações adicionais informadas: ${d.contratado.certificacoes.filter((c) => c.ativo).map((c) => c.nome).join(', ') || '— nenhuma certificação ativa declarada —'}.`,
+      `Certificações adicionais informadas: ${
+        d.contratado.certificacoes
+          .filter((c) => c.ativo)
+          .map((c) => c.nome)
+          .join(', ') || '— nenhuma certificação ativa declarada —'
+      }.`,
     ].join('\n'),
   };
 }
@@ -261,11 +264,14 @@ function sha256(s: string): string {
 
 // ─── Callable ────────────────────────────────────────────────────────────────
 
-export const labApoio_generateContractTemplate = onCall<unknown, Promise<{
-  ok: true;
-  template: ContractTemplate;
-  html?: string;
-}>>({}, async (request) => {
+export const labApoio_generateContractTemplate = onCall<
+  unknown,
+  Promise<{
+    ok: true;
+    template: ContractTemplate;
+    html?: string;
+  }>
+>({}, async (request) => {
   const parsed = GenerateContractTemplateInputSchema.safeParse(request.data);
   if (!parsed.success) {
     throw new HttpsError('invalid-argument', `Dados inválidos: ${parsed.error.message}`);
@@ -306,7 +312,9 @@ export const labApoio_generateContractTemplate = onCall<unknown, Promise<{
   const clausulas = buildContractClauses(data);
   const geradoEm = new Date().toISOString();
   const meta = { contratoId: input.contratoId, labId: input.labId, geradoEm };
-  const fullText = clausulas.map((cl) => `${cl.numero}|${cl.titulo}|${cl.conteudo}`).join('\n---\n');
+  const fullText = clausulas
+    .map((cl) => `${cl.numero}|${cl.titulo}|${cl.conteudo}`)
+    .join('\n---\n');
   const contentHash = sha256(fullText);
 
   const template: ContractTemplate = {

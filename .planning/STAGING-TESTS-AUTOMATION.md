@@ -96,6 +96,7 @@ node scripts/seed-staging-data.mjs
 ```
 
 **Output:**
+
 - Test lab created in Firestore
 - Test user created with module access claims
 - Sample equipments, suppliers, lots created
@@ -108,6 +109,7 @@ bash scripts/run-staging-tests.sh --lab-id=test-lab-001 --project=hmatologia2-st
 ```
 
 **Output:**
+
 - `.planning/STAGING-TEST-RESULTS.md` — Test results summary
 - `.planning/STAGING-TESTS-LOG.md` — Detailed execution log
 
@@ -139,6 +141,7 @@ TEST_LAB_ID=my-lab-123 node scripts/watch-staging-setup.mjs
 ## Results & Logs
 
 ### Test Results File
+
 **Location:** `.planning/STAGING-TEST-RESULTS.md`
 
 ```markdown
@@ -160,9 +163,11 @@ Staging environment is **READY FOR MANUAL QA**
 ```
 
 ### Detailed Log File
+
 **Location:** `.planning/STAGING-TESTS-LOG.md`
 
 Contains timestamped entries for each step:
+
 - Project readiness verification
 - Seed data script execution
 - Test framework checks
@@ -170,6 +175,7 @@ Contains timestamped entries for each step:
 - Any errors or warnings
 
 ### Success Markers
+
 - `.planning/.staging-tests-passed` — Created when all tests pass
 - `.planning/.staging-tests-failed` — Created when tests fail
 - `.planning/.staging-setup-timeout` — Created when watcher times out
@@ -181,6 +187,7 @@ Contains timestamped entries for each step:
 ### Seed Data Script Fails
 
 **Error: "Firebase project not found"**
+
 ```bash
 # Verify project exists
 firebase projects:list
@@ -190,6 +197,7 @@ export FIREBASE_PROJECT_ID=hmatologia2-staging
 ```
 
 **Error: "User creation failed"**
+
 ```bash
 # Check Auth is enabled in staging project
 firebase auth:emulate (if using emulator)
@@ -200,16 +208,19 @@ firebase auth:emulate (if using emulator)
 ### Tests Don't Run After Marker Created
 
 **Check watcher is running:**
+
 ```bash
 ps aux | grep watch-staging-setup
 ```
 
 **Check marker file exists:**
+
 ```bash
 ls -la .planning/.staging-ready
 ```
 
 **Check log file for errors:**
+
 ```bash
 cat .planning/STAGING-TESTS-LOG.md
 ```
@@ -217,16 +228,19 @@ cat .planning/STAGING-TESTS-LOG.md
 ### GitHub Actions Workflow Not Triggering
 
 **Check workflow is enabled:**
+
 ```bash
 gh workflow list --all | grep staging-tests-auto
 ```
 
 **Manual trigger instead:**
+
 ```bash
 gh workflow run staging-tests-auto.yml -f lab_id=test-lab-001
 ```
 
 **Check workflow logs:**
+
 ```bash
 gh run list --workflow=staging-tests-auto.yml
 gh run view <run-id> --log
@@ -236,20 +250,22 @@ gh run view <run-id> --log
 
 ## Environment Variables
 
-| Variable | Default | Purpose |
-|----------|---------|---------|
-| `FIREBASE_PROJECT_ID` | `hmatologia2-staging` | Staging Firebase project ID |
-| `TEST_LAB_ID` | `test-lab-001` | Lab ID to seed and test with |
-| `STAGING_WATCH_TIMEOUT` | `3600` | Watcher timeout in seconds (1 hour) |
-| `FIREBASE_EMULATOR_HOST` | (unset) | If set, use local emulator instead of production |
-| `TEST_TIMEOUT` | `300` | Test execution timeout in seconds (5 minutes) |
+| Variable                 | Default               | Purpose                                          |
+| ------------------------ | --------------------- | ------------------------------------------------ |
+| `FIREBASE_PROJECT_ID`    | `hmatologia2-staging` | Staging Firebase project ID                      |
+| `TEST_LAB_ID`            | `test-lab-001`        | Lab ID to seed and test with                     |
+| `STAGING_WATCH_TIMEOUT`  | `3600`                | Watcher timeout in seconds (1 hour)              |
+| `FIREBASE_EMULATOR_HOST` | (unset)               | If set, use local emulator instead of production |
+| `TEST_TIMEOUT`           | `300`                 | Test execution timeout in seconds (5 minutes)    |
 
 ---
 
 ## Integration Points
 
 ### Staging Setup Script
+
 When your staging setup script completes, it should create:
+
 ```bash
 mkdir -p .planning
 touch .planning/.staging-ready
@@ -258,13 +274,17 @@ touch .planning/.staging-ready
 The watcher will detect this and run tests automatically.
 
 ### CI/CD Pipeline
+
 The GitHub Actions workflow is triggered by:
+
 1. Manual dispatch (`gh workflow run`)
 2. Success of "Staging Deploy" workflow
 3. Daily schedule (2 AM UTC)
 
 ### Slack/Email Notifications
+
 To add notifications, extend the workflow with:
+
 ```yaml
 - name: Notify Slack
   if: always()
@@ -307,4 +327,3 @@ To add notifications, extend the workflow with:
 - Staging URL: `https://hmatologia2-staging.web.app`
 - Test Data: Created fresh before each run, not persisted
 - Credentials: Automatically generated, stored in `.staging-test-creds.json`
-

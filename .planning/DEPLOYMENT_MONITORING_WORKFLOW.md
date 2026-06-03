@@ -11,6 +11,7 @@
 This workflow guides the **complete v1.3 deployment process** including the newly added **24-hour Cloud Logs monitoring** phase.
 
 **Timeline:**
+
 - **Step 1: Type-check** — 5 min
 - **Step 2: Functions deploy** — 5 min + **monitoring starts (parallel)**
 - **Step 3: Hosting deploy** — 2 min
@@ -42,16 +43,19 @@ Before deploying:
 ## Step 1: Type-Check (5 min)
 
 **Command:**
+
 ```bash
 npm run tsc --noEmit
 ```
 
 **Expected Output:**
+
 ```
 No errors found
 ```
 
 **If errors:**
+
 - Fix locally
 - Re-run type-check
 - Do NOT proceed to Step 2 until clean
@@ -61,11 +65,13 @@ No errors found
 ## Step 2: Functions Deploy (5 min) + Monitoring Starts
 
 **Command (Terminal 1):**
+
 ```bash
 npm run build && firebase deploy --only functions --project hmatologia2
 ```
 
 **Expected Output:**
+
 ```
 ✔ Deploy complete!
 Function URL: https://southamerica-east1-hmatologia2.cloudfunctions.net/...
@@ -74,20 +80,25 @@ Function URL: https://southamerica-east1-hmatologia2.cloudfunctions.net/...
 **While deploy runs (Terminal 2, start monitoring in parallel):**
 
 ### Option A: Automated (Bash)
+
 ```bash
 cd C:\hc quality
 bash scripts/monitor-cloud-logs.sh 24 30
 ```
+
 Output: will generate `docs/MONITORING_REPORT_*.md` + `scripts/cloud-logs-export-*.json` after 24h
 
 ### Option B: Automated (PowerShell)
+
 ```powershell
 cd C:\hc quality
 .\scripts\monitor-cloud-logs.ps1 -Hours 24 -IntervalMinutes 30
 ```
+
 Output: same as Bash version
 
 ### Option C: Cloud Console (Manual)
+
 1. Open [Cloud Logs Explorer](https://console.cloud.google.com/logs/query)
 2. Paste filter: `severity >= ERROR`
 3. Set time range: **Last 24 hours**
@@ -95,6 +106,7 @@ Output: same as Bash version
 5. Document observations in notepad
 
 ### Option D: CLI Spot-Checks
+
 ```bash
 # Run every 2 hours (12 checks for 24h)
 gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=20
@@ -107,11 +119,13 @@ gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=20
 ## Step 3: Hosting Deploy (2 min)
 
 **Command (Terminal 1, after Functions deploy completes):**
+
 ```bash
 firebase deploy --only hosting --project hmatologia2
 ```
 
 **Expected Output:**
+
 ```
 ✔ Deploy complete!
 Hosting URL: https://hmatologia2.web.app
@@ -126,24 +140,26 @@ Hosting URL: https://hmatologia2.web.app
 **Status:** Automatic if using script options A or B; manual if option C or D.
 
 **If using automated script:**
+
 - Do nothing. Script runs unattended.
 - Reports auto-generate after 24h:
   - `docs/MONITORING_REPORT_<timestamp>.md` — summary
   - `scripts/cloud-logs-export-<timestamp>.json` — all errors
 
 **If using Cloud Console or CLI:**
+
 - Spot-check every 2h (or as needed)
 - Note any errors in a text file
 
 **What to watch for (Red Flags):**
 
-| Error | Action |
-|-------|--------|
-| `"Exceeded timeout"` | Escalate: async handler issue |
-| `"Permission denied"` on `/labs/{labId}/*` | Escalate: rules regression |
-| HTTP 502/503 sustained >5 min | Escalate: hosting failure |
-| `"undefined is not a function"` | Escalate: missing dependency |
-| `"Document too large"` | Escalate: data model overflow |
+| Error                                      | Action                        |
+| ------------------------------------------ | ----------------------------- |
+| `"Exceeded timeout"`                       | Escalate: async handler issue |
+| `"Permission denied"` on `/labs/{labId}/*` | Escalate: rules regression    |
+| HTTP 502/503 sustained >5 min              | Escalate: hosting failure     |
+| `"undefined is not a function"`            | Escalate: missing dependency  |
+| `"Document too large"`                     | Escalate: data model overflow |
 
 **For any red flag:** Take screenshot + timestamp, notify CTO (@drogafarto).
 
@@ -158,6 +174,7 @@ cat docs/MONITORING_REPORT_*.md | head -50
 ```
 
 Expected:
+
 - Total Errors: 0–5 (acceptable)
 - Recommendation: ✅ APPROVE
 
@@ -176,12 +193,12 @@ Use template from `docs/CLOUD_LOGS_MONITORING_GUIDE.md` section "Sign-Off Report
 
 ## Summary
 
-| Metric | Value |
-|--------|-------|
-| Total Errors | 0 |
-| Function Errors | 0 |
-| Firestore Errors | 0 |
-| Hosting 5xx Errors | 0 |
+| Metric             | Value |
+| ------------------ | ----- |
+| Total Errors       | 0     |
+| Function Errors    | 0     |
+| Firestore Errors   | 0     |
+| Hosting 5xx Errors | 0     |
 
 ## Recommendation
 
@@ -189,7 +206,7 @@ Use template from `docs/CLOUD_LOGS_MONITORING_GUIDE.md` section "Sign-Off Report
 
 ---
 
-**Signature:** _________________ | **Date:** 2026-05-07
+**Signature:** ********\_******** | **Date:** 2026-05-07
 ```
 
 ### 5.3 Commit Reports to Git
@@ -280,6 +297,7 @@ bash scripts/monitor-cloud-logs.sh 2 10  # 2h with tight 10-min checks
 ### Scenario 1: Timeout errors appear during monitoring
 
 **Diagnosis:**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_function" AND textPayload=~".*Exceeded timeout.*"' \
@@ -290,6 +308,7 @@ gcloud logging read \
 **Root cause:** Async handler not awaiting or long-running operation.
 
 **Fix:**
+
 1. Open `functions/src/modules/<name>/index.ts`
 2. Check callable handler — ensure all promises are `await`'ed
 3. Re-deploy: `firebase deploy --only functions --project hmatologia2`
@@ -298,6 +317,7 @@ gcloud logging read \
 ### Scenario 2: Permission denied errors on Firestore
 
 **Diagnosis:**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_firestore" AND textPayload=~".*Permission.*"' \
@@ -308,6 +328,7 @@ gcloud logging read \
 **Root cause:** Firestore rules too restrictive or bug in v1.3 rules.
 
 **Fix:**
+
 1. Compare current rules to git HEAD: `git diff HEAD firestore.rules`
 2. If regression, rollback: `git checkout HEAD~1 firestore.rules`
 3. Re-deploy: `firebase deploy --only firestore --project hmatologia2`
@@ -316,6 +337,7 @@ gcloud logging read \
 ### Scenario 3: HTTP 502/503 errors (Hosting)
 
 **Diagnosis:**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_run" AND httpRequest.status >= 500' \
@@ -326,6 +348,7 @@ gcloud logging read \
 **Root cause:** Deployment in progress, Functions not responding, or hosting config issue.
 
 **Fix:**
+
 1. Wait 5–10 min for Functions to warm up (cold start can cause 502 initially)
 2. If persists, check Functions deploy: `firebase deploy --only functions --project hmatologia2`
 3. If still failing, rollback hosting: `git checkout HEAD~1 hosting/ && firebase deploy --only hosting --project hmatologia2`
@@ -361,6 +384,7 @@ Before marking deployment complete:
 4. **Next deployment:** Reuse scripts; monitoring is repeatable
 
 **Timeline for next check:**
+
 - Monitor live traffic for 24–48h via `analytics` module
 - Review Lighthouse CI results (if enabled)
 - Check user feedback + error reports (Sentry, if integrated)
@@ -369,30 +393,33 @@ Before marking deployment complete:
 
 ## File Locations (Quick Reference)
 
-| File | Purpose |
-|------|---------|
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Full reference (40+ sections) |
-| `docs/CLOUD_LOGS_QUICK_REFERENCE.md` | TL;DR + commands |
-| `docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md` | Workflow scenarios |
-| `scripts/monitor-cloud-logs.sh` | Bash automation |
-| `scripts/monitor-cloud-logs.ps1` | PowerShell automation |
-| `docs/MONITORING_REPORT_*.md` | Auto-generated report |
-| `docs/SIGN_OFF_CLOUD_LOGS_*.md` | Manual sign-off template |
+| File                                       | Purpose                       |
+| ------------------------------------------ | ----------------------------- |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md`      | Full reference (40+ sections) |
+| `docs/CLOUD_LOGS_QUICK_REFERENCE.md`       | TL;DR + commands              |
+| `docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md` | Workflow scenarios            |
+| `scripts/monitor-cloud-logs.sh`            | Bash automation               |
+| `scripts/monitor-cloud-logs.ps1`           | PowerShell automation         |
+| `docs/MONITORING_REPORT_*.md`              | Auto-generated report         |
+| `docs/SIGN_OFF_CLOUD_LOGS_*.md`            | Manual sign-off template      |
 
 ---
 
 ## Support
 
 **Questions?**
+
 - Read `docs/CLOUD_LOGS_QUICK_REFERENCE.md` (2 min)
 - Read `docs/CLOUD_LOGS_MONITORING_GUIDE.md` sections 2–5 (comprehensive)
 
 **Issues found?**
+
 - Match against red flags table above
 - Take screenshot + timestamp
 - Notify CTO (@drogafarto)
 
 **Ready to deploy?**
+
 - Follow the workflow above in order
 - Use automated script (easiest)
 - Sign off after 24h

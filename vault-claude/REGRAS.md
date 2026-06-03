@@ -1,6 +1,7 @@
 # Regras de Povoamento do Vault
 
 ## Princípio Central
+
 Menos é mais. Cada entrada deve justificar sua existência.
 
 ---
@@ -20,6 +21,7 @@ vault-claude/
 ## 2. Regras por Pasta
 
 ### projetos/
+
 - **1 arquivo por projeto**, nomeado em kebab-case (ex: `vetlab.md`)
 - Máximo 60 linhas por arquivo
 - Estrutura obrigatória: usar template `_templates/projeto.md`
@@ -28,6 +30,7 @@ vault-claude/
 - NÃO colar código aqui
 
 ### sessoes/
+
 - Criar APENAS quando houve progresso significativo
 - Nome: `YYYY-MM-DD.md` (uma por dia, no máximo)
 - Máximo 30 linhas
@@ -35,6 +38,7 @@ vault-claude/
 - Apagar sessões com mais de 30 dias (exceto se linkadas em decisões)
 
 ### decisoes/
+
 - Criar APENAS para decisões que afetam arquitetura ou direção do projeto
 - Nome: `projeto-tema.md` (ex: `vetlab-sistema-pdf.md`)
 - Deve conter: decisão, alternativas consideradas, motivo
@@ -43,25 +47,25 @@ vault-claude/
 
 ## 3. Regras Gerais
 
-| Regra | Motivo |
-|-------|--------|
-| Não duplicar info que está no código | Fica desatualizado |
-| Não salvar estrutura de pastas | Posso ler com Glob |
-| Não salvar snippets de código | Já está no projeto |
-| Preferir atualizar a criar novo | Evita acúmulo |
-| Usar [[links]] entre notas | Navegação rápida |
-| Manter _index.md atualizado | É meu ponto de entrada |
+| Regra                                | Motivo                 |
+| ------------------------------------ | ---------------------- |
+| Não duplicar info que está no código | Fica desatualizado     |
+| Não salvar estrutura de pastas       | Posso ler com Glob     |
+| Não salvar snippets de código        | Já está no projeto     |
+| Preferir atualizar a criar novo      | Evita acúmulo          |
+| Usar [[links]] entre notas           | Navegação rápida       |
+| Manter \_index.md atualizado         | É meu ponto de entrada |
 
 ## 4. Quando Salvar
 
-| Situação | Ação |
-|----------|------|
-| Terminei uma feature | Atualizo `projetos/X.md` |
-| Decisão arquitetural | Crio em `decisoes/` |
-| Sessão produtiva | Crio em `sessoes/` |
-| Bug corrigido | Só atualizo status no projeto |
-| Conversa casual | Não salvo nada |
-| Usuário pede "salva" | Salvo onde fizer sentido |
+| Situação             | Ação                          |
+| -------------------- | ----------------------------- |
+| Terminei uma feature | Atualizo `projetos/X.md`      |
+| Decisão arquitetural | Crio em `decisoes/`           |
+| Sessão produtiva     | Crio em `sessoes/`            |
+| Bug corrigido        | Só atualizo status no projeto |
+| Conversa casual      | Não salvo nada                |
+| Usuário pede "salva" | Salvo onde fizer sentido      |
 
 ## 5. Limites de Crescimento
 

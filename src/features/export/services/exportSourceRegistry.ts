@@ -44,8 +44,7 @@ export const EXPORT_SOURCES: Record<string, ExportSourceDescriptor> = {
   auditoria: {
     key: 'auditoria',
     label: 'Auditoria — Relatórios',
-    description:
-      'Relatórios de auditoria avançada (anomalias, alertas, rule-engine)',
+    description: 'Relatórios de auditoria avançada (anomalias, alertas, rule-engine)',
     callable: 'generateAuditReportPDF',
     formats: ['pdf', 'xlsx'],
     filters: [
@@ -86,8 +85,6 @@ export function getAvailableSources(): string[] {
 
 // ─── Helper: Get source by key ─────────────────────────────────────────────────
 
-export function getSourceDescriptor(
-  key: string,
-): ExportSourceDescriptor | undefined {
+export function getSourceDescriptor(key: string): ExportSourceDescriptor | undefined {
   return EXPORT_SOURCES[key];
 }

@@ -12,6 +12,7 @@
 ### ✅ Already Present (No action needed)
 
 **Function 1: `validateNotivisaPayload(payload)`**
+
 ```
 Location: firestore.rules, Lines 78-84
 Status: ✅ VERIFIED
@@ -19,6 +20,7 @@ Definition: Complete and correct
 ```
 
 **Function 2: `validateDraftLock(d)`**
+
 ```
 Location: firestore.rules, Lines 88-91
 Status: ✅ VERIFIED
@@ -27,6 +29,7 @@ Pessimistic lock logic: Correct
 ```
 
 **All 8 existing helper functions:**
+
 - `isAuthenticated()` — Line 26
 - `isSuperAdmin()` — Line 30
 - `isActiveMemberOfLab(labId)` — Line 35
@@ -49,6 +52,7 @@ Pessimistic lock logic: Correct
 **MAJOR FINDING:** All 5 Wave 2 collections are **ALREADY DEFINED** in firestore.rules!
 
 This was done in Phase 3.1 Task 03-01 (Schema Extensions). The rules blocks are already at:
+
 - Line 1949–1954: `/notivisa-outbox/events`
 - Line 1961–1966: `/criticos-escalacoes/escalacoes`
 - Line 1972–1975: `/imuno-ias-dev/images`
@@ -63,6 +67,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ### ✅ Block 1: Portal Configuration — Already Present (Lines 1939–1943)
 
 **Current state (simplified):**
+
 ```firestore-rules
 1939    match /portal-configuracao/{docId} {
 1940      allow read, write: if isActiveMemberOfLab(labId);  // ← Will refactor
@@ -70,6 +75,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ```
 
 **Task 03-02 will expand to:**
+
 ```firestore-rules
       match /portal-configuracao/{docId} {
         // Patient: read lab portal config (for branding)
@@ -85,6 +91,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ### ✅ Block 2: NOTIVISA Outbox — Already Present (Lines 1949–1954)
 
 **Current state:**
+
 ```firestore-rules
 1949    match /notivisa-outbox/events/{docId} {
 1950      allow create: if isAdminOrRT(labId) && validateNotivisaPayload(request.resource.data);
@@ -99,6 +106,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ### ✅ Block 3: Critical Escalations — Already Present (Lines 1961–1966)
 
 **Current state:**
+
 ```firestore-rules
 1961    match /criticos-escalacoes/escalacoes/{docId} {
 1962      allow create: if isAdminOrRT(labId);
@@ -113,6 +121,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ### ✅ Block 4: IA Strip Dev — Already Present (Lines 1972–1975)
 
 **Current state:**
+
 ```firestore-rules
 1972    match /imuno-ias-dev/images/{docId} {
 1973      allow read, write: if isServer() || isAdminOrRT(labId);
@@ -123,6 +132,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 **Status:** ⚠️ **NEEDS REFINEMENT** — Currently uses `isAdminOrRT()` but 03-02-PLAN specifies `isServer() || isAdmin(labId)`.
 
 **Task 03-02 will change to:**
+
 ```firestore-rules
       match /imuno-ias-dev/images/{docId} {
         // Server/Admin only: all access (IA training pipeline)
@@ -136,6 +146,7 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 ### ✅ Block 5: Laudo Draft — Already Present (Lines 1982–1986)
 
 **Current state:**
+
 ```firestore-rules
 1982    match /laudos-draft/rascunhos/{docId} {
 1983      allow create, write: if isAdminOrRT(labId) && validateDraftLock(request.resource.data);
@@ -152,13 +163,13 @@ However, the current rules are **MINIMAL** and just have placeholders. Task 03-0
 
 The good news: **The blocks already exist.** Task 03-02 only needs to apply these refinements:
 
-| Block | Location | Change | Status |
-|-------|----------|--------|--------|
-| Portal Config | Lines 1939–1941 | Expand comments + separate read/write | ⚠️ Minor |
-| NOTIVISA Outbox | Lines 1949–1954 | ✅ Complete, no changes | ✅ Skip |
-| Criticos Escalacoes | Lines 1961–1966 | ✅ Complete, no changes | ✅ Skip |
-| IA Strip Dev | Lines 1972–1975 | Line 1973: change `isAdminOrRT` → `isAdmin` | ⚠️ 1 line |
-| Laudo Draft | Lines 1982–1986 | ✅ Complete, no changes | ✅ Skip |
+| Block               | Location        | Change                                      | Status    |
+| ------------------- | --------------- | ------------------------------------------- | --------- |
+| Portal Config       | Lines 1939–1941 | Expand comments + separate read/write       | ⚠️ Minor  |
+| NOTIVISA Outbox     | Lines 1949–1954 | ✅ Complete, no changes                     | ✅ Skip   |
+| Criticos Escalacoes | Lines 1961–1966 | ✅ Complete, no changes                     | ✅ Skip   |
+| IA Strip Dev        | Lines 1972–1975 | Line 1973: change `isAdminOrRT` → `isAdmin` | ⚠️ 1 line |
+| Laudo Draft         | Lines 1982–1986 | ✅ Complete, no changes                     | ✅ Skip   |
 
 **Total changes for Task 03-02:** ~15 lines (mostly comment expansion + 1 logic fix)
 

@@ -28,11 +28,7 @@ import {
   firestoreErrorMessage,
 } from '../../../shared/services/firebase';
 import type { Unsubscribe } from '../../../shared/services/firebase';
-import {
-  COLLECTIONS,
-  SUBCOLLECTIONS,
-  DEFAULT_EQUIPAMENTO_POR_MODULO,
-} from '../../../constants';
+import { COLLECTIONS, SUBCOLLECTIONS, DEFAULT_EQUIPAMENTO_POR_MODULO } from '../../../constants';
 import type { InsumoModulo } from '../types/Insumo';
 import type { EquipmentSetup, EquipmentSetupSlot } from '../types/EquipmentSetup';
 import type { InsumoTransitionType } from '../types/InsumoTransition';
@@ -160,10 +156,7 @@ export interface SetActiveInsumoInput {
  *
  * @returns ID da transição criada.
  */
-export async function setActiveInsumo(
-  labId: string,
-  input: SetActiveInsumoInput,
-): Promise<string> {
+export async function setActiveInsumo(labId: string, input: SetActiveInsumoInput): Promise<string> {
   try {
     const batch = writeBatch(db);
     // Fase D: se equipamentoId foi passado, usa como docId; senão mantém legado = module.
@@ -202,17 +195,13 @@ export async function setActiveInsumo(
       }
     }
 
-    const type =
-      input.type ?? (fromInsumoId === null ? 'activation' : 'swap');
+    const type = input.type ?? (fromInsumoId === null ? 'activation' : 'swap');
 
     // 1. Setup update — merge preserva slots não afetados. Primeiro write
     //    popula `equipamentoName` a partir do catálogo ou do input.
     const equipamentoDefault = DEFAULT_EQUIPAMENTO_POR_MODULO[input.module];
     const equipamentoName =
-      input.equipamentoName ??
-      prev?.equipamentoName ??
-      equipamentoDefault?.name ??
-      input.module;
+      input.equipamentoName ?? prev?.equipamentoName ?? equipamentoDefault?.name ?? input.module;
     const equipamentoModelo = prev?.equipamentoModelo ?? equipamentoDefault?.modelo;
 
     const setupPatch = {

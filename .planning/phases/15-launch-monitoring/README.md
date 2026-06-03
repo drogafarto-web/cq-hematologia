@@ -21,6 +21,7 @@ Phase 15 is the **final operational gate** before v1.4 is declared "live in prod
 ### 1. **PHASE_15_DETAILED_PLAN.md** (Primary Execution Plan)
 
 Comprehensive, step-by-step operational guide. Use this for:
+
 - Pre-deployment checklist
 - 4-step deployment sequence with validation gates
 - 48-hour monitoring setup and filter patterns
@@ -38,6 +39,7 @@ Comprehensive, step-by-step operational guide. Use this for:
 ### 2. **PHASE_15_EXECUTIVE_SUMMARY.md** (High-Level Overview)
 
 CTO/auditor-friendly summary. Answers:
+
 - What does Phase 15 do?
 - What are the 4 deployment steps?
 - What is the monitoring strategy?
@@ -52,6 +54,7 @@ CTO/auditor-friendly summary. Answers:
 ### 3. **PHASE_15_DEPLOYMENT_CHECKLIST.md** (Quick Reference)
 
 Print-friendly checklist for live deployment. Contains:
+
 - Pre-execution gate checklist (things that must be done before 2026-05-07 19:00)
 - Step 1–4 detailed checklists with copy-paste commands
 - 48-hour monitoring startup command
@@ -72,13 +75,13 @@ Navigation guide to Phase 15 documents.
 
 ## When to Use Each Document
 
-| Situation | Use This | Why |
-|-----------|----------|-----|
-| Planning Phase 15 execution | DETAILED_PLAN | Full operational context |
-| Brief executive stakeholders | EXECUTIVE_SUMMARY | Quick context + key metrics |
-| Live deployment happening now | DEPLOYMENT_CHECKLIST | Step-by-step + commands |
-| Understanding the phase | README | Navigation |
-| Post-mortem after Phase 15 | DETAILED_PLAN + LESSONS_LEARNED | Full context + learnings |
+| Situation                     | Use This                        | Why                         |
+| ----------------------------- | ------------------------------- | --------------------------- |
+| Planning Phase 15 execution   | DETAILED_PLAN                   | Full operational context    |
+| Brief executive stakeholders  | EXECUTIVE_SUMMARY               | Quick context + key metrics |
+| Live deployment happening now | DEPLOYMENT_CHECKLIST            | Step-by-step + commands     |
+| Understanding the phase       | README                          | Navigation                  |
+| Post-mortem after Phase 15    | DETAILED_PLAN + LESSONS_LEARNED | Full context + learnings    |
 
 ---
 
@@ -141,13 +144,13 @@ All must be complete before Step 1:
 
 ## Roles & Responsibilities
 
-| Role | Primary Duty | Phase 15 Window |
-|------|--------------|-----------------|
-| **CTO** | Approval gate | Async email: pre-deploy + post-closure |
-| **DevOps Lead** | Deploy execution | 2026-05-07 20:00–21:45 UTC (all day available) |
-| **QA Lead** | Smoke tests + spot-checks | 2026-05-07 21:45–22:30 UTC + daily 6h rotations |
-| **On-Call Engineer** | 48h monitoring | 2026-05-07 22:30 → 2026-05-09 22:30 (12h rotations) |
-| **Auditor** | Real-world validation | 2026-05-08 08:00–17:00 UTC (business hours) |
+| Role                 | Primary Duty              | Phase 15 Window                                     |
+| -------------------- | ------------------------- | --------------------------------------------------- |
+| **CTO**              | Approval gate             | Async email: pre-deploy + post-closure              |
+| **DevOps Lead**      | Deploy execution          | 2026-05-07 20:00–21:45 UTC (all day available)      |
+| **QA Lead**          | Smoke tests + spot-checks | 2026-05-07 21:45–22:30 UTC + daily 6h rotations     |
+| **On-Call Engineer** | 48h monitoring            | 2026-05-07 22:30 → 2026-05-09 22:30 (12h rotations) |
+| **Auditor**          | Real-world validation     | 2026-05-08 08:00–17:00 UTC (business hours)         |
 
 ---
 
@@ -208,11 +211,11 @@ firebase deploy --only hosting --project hmatologia2
 
 ## Incident Response
 
-| Severity | Example | SLA | Action |
-|----------|---------|-----|--------|
-| **P0** | NOTIVISA down, rules block traffic, auth unavailable | <5 min | Escalate → immediate fix or rollback |
-| **P1** | Function 10% error rate, module slow, rate-limited | <2h | Escalate → log for v1.4.1 patch |
-| **P2** | Single timeout, transient error, slow load | <24h | Document → plan for v1.4.1 |
+| Severity | Example                                              | SLA    | Action                               |
+| -------- | ---------------------------------------------------- | ------ | ------------------------------------ |
+| **P0**   | NOTIVISA down, rules block traffic, auth unavailable | <5 min | Escalate → immediate fix or rollback |
+| **P1**   | Function 10% error rate, module slow, rate-limited   | <2h    | Escalate → log for v1.4.1 patch      |
+| **P2**   | Single timeout, transient error, slow load           | <24h   | Document → plan for v1.4.1           |
 
 For P0: If cannot fix in 15 minutes, execute rollback procedure (DEPLOYMENT_CHECKLIST §Emergency).
 
@@ -231,6 +234,7 @@ After closure, the following documents exist:
 7. **Updated STATE.md** — v1.4 live status
 
 Plus:
+
 - Updated `CLAUDE.md` (module table + deployment status)
 - Updated Obsidian roadmap
 - CTO approval email (saved to docs)
@@ -253,11 +257,13 @@ See `v1.4-ROADMAP.md` for full Phase 4 plan.
 ## Useful References
 
 **From this project:**
+
 - `PHASE_15_DETAILED_PLAN.md` — Full execution guide
 - `PHASE_15_EXECUTIVE_SUMMARY.md` — High-level overview
 - `PHASE_15_DEPLOYMENT_CHECKLIST.md` — Live deployment checklist
 
 **From project root:**
+
 - `.claude/rules/deploy-protocol.md` — Firebase deploy protocol
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — Cloud logs setup guide
 - `docs/CLOUD_LOGS_QUICK_REFERENCE.md` — gcloud commands cheat sheet
@@ -298,18 +304,18 @@ See `v1.4-ROADMAP.md` for full Phase 4 plan.
 
 ## Document Metadata
 
-| Property | Value |
-|----------|-------|
-| **Phase** | 15 |
-| **Milestone** | v1.4 |
-| **Start** | 2026-05-07 20:00 UTC |
-| **End** | 2026-05-09 22:30 UTC |
-| **Owner** | DevOps Lead + QA Lead + On-Call Engineer |
-| **Approval Gate** | CTO authorization |
-| **Status** | Ready for execution |
-| **Version** | 1.0 |
-| **Last Updated** | 2026-05-07 |
-| **Next Review** | Post-Phase 15 completion (2026-05-10) |
+| Property          | Value                                    |
+| ----------------- | ---------------------------------------- |
+| **Phase**         | 15                                       |
+| **Milestone**     | v1.4                                     |
+| **Start**         | 2026-05-07 20:00 UTC                     |
+| **End**           | 2026-05-09 22:30 UTC                     |
+| **Owner**         | DevOps Lead + QA Lead + On-Call Engineer |
+| **Approval Gate** | CTO authorization                        |
+| **Status**        | Ready for execution                      |
+| **Version**       | 1.0                                      |
+| **Last Updated**  | 2026-05-07                               |
+| **Next Review**   | Post-Phase 15 completion (2026-05-10)    |
 
 ---
 

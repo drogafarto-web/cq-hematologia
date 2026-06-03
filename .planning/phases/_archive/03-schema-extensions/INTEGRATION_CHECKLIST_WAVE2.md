@@ -10,6 +10,7 @@
 ## Executive Summary
 
 Phase 3 Wave 2 introduces:
+
 - **Task 03-02:** 5 new Firestore Rules match blocks (~185 lines) with 2 new helper functions
 - **Task 03-03:** 4 shared utility modules in `functions/src/shared/` (~450 lines) with 18 unit tests
 
@@ -25,16 +26,16 @@ Phase 3 Wave 2 introduces:
 
 All 5 new match blocks reuse existing helpers — **no conflicts detected**:
 
-| Helper | Location | Used in Wave 2 | Notes |
-|--------|----------|---|---|
-| `isAuthenticated()` | Line 26 | Portal rules | ✅ Stable |
-| `isActiveMemberOfLab(labId)` | Line 35 | All 5 blocks | ✅ Stable |
-| `getMemberRole(labId)` | Line 40 | Helpers depend on it | ✅ Stable |
-| `isAdminOrOwner(labId)` | Line 44 | CQ draft rules | ⚠️ Used, not changed |
-| `isAdmin(labId)` | Line 49 | IA strip rules | ✅ Stable |
-| `isServer()` | Line 62 | NOTIVISA + IA strip | ✅ Stable (Phase 3.2) |
-| `isPatient(labId)` | Line 68 | Portal + laudo draft | ✅ Stable (Phase 3.2) |
-| `isAdminOrRT(labId)` | Line 73 | NOTIVISA + escalations | ✅ Stable (Phase 3.2) |
+| Helper                       | Location | Used in Wave 2         | Notes                 |
+| ---------------------------- | -------- | ---------------------- | --------------------- |
+| `isAuthenticated()`          | Line 26  | Portal rules           | ✅ Stable             |
+| `isActiveMemberOfLab(labId)` | Line 35  | All 5 blocks           | ✅ Stable             |
+| `getMemberRole(labId)`       | Line 40  | Helpers depend on it   | ✅ Stable             |
+| `isAdminOrOwner(labId)`      | Line 44  | CQ draft rules         | ⚠️ Used, not changed  |
+| `isAdmin(labId)`             | Line 49  | IA strip rules         | ✅ Stable             |
+| `isServer()`                 | Line 62  | NOTIVISA + IA strip    | ✅ Stable (Phase 3.2) |
+| `isPatient(labId)`           | Line 68  | Portal + laudo draft   | ✅ Stable (Phase 3.2) |
+| `isAdminOrRT(labId)`         | Line 73  | NOTIVISA + escalations | ✅ Stable (Phase 3.2) |
 
 **Verification Result:** All existing helpers are compatible. No modifications to existing helpers required.
 
@@ -44,6 +45,7 @@ All 5 new match blocks reuse existing helpers — **no conflicts detected**:
 
 **Status:** ✅ **ALREADY DEFINED**  
 **Signature:**
+
 ```firestore-rules
 function validateNotivisaPayload(payload) {
   return payload.laudo_id != null
@@ -59,6 +61,7 @@ function validateNotivisaPayload(payload) {
 
 **Status:** ✅ **ALREADY DEFINED**  
 **Signature:**
+
 ```firestore-rules
 function validateDraftLock(d) {
   return (d.locked_until_ts != null && d.locked_until_ts > request.time)
@@ -72,13 +75,13 @@ function validateDraftLock(d) {
 
 **New match blocks to add:** 5 blocks, located after existing collections
 
-| Block # | Collection | Insert After | Current Line | Notes |
-|---------|-----------|---|---|---|
-| 1 | `/portal-configuracao/{docId}` | `/labSettings` | ~1370 | Portal branding |
-| 2 | `/notivisa-outbox/events/{docId}` | Above (dynamic) | ~1380 | NOTIVISA queue |
-| 3 | `/criticos-escalacoes/escalacoes/{docId}` | Above | ~1385 | Escalations |
-| 4 | `/imuno-ias-dev/images/{docId}` | Above | ~1390 | IA training |
-| 5 | `/laudos-draft/rascunhos/{docId}` | Above | ~1395 | Draft editing |
+| Block # | Collection                                | Insert After    | Current Line | Notes           |
+| ------- | ----------------------------------------- | --------------- | ------------ | --------------- |
+| 1       | `/portal-configuracao/{docId}`            | `/labSettings`  | ~1370        | Portal branding |
+| 2       | `/notivisa-outbox/events/{docId}`         | Above (dynamic) | ~1380        | NOTIVISA queue  |
+| 3       | `/criticos-escalacoes/escalacoes/{docId}` | Above           | ~1385        | Escalations     |
+| 4       | `/imuno-ias-dev/images/{docId}`           | Above           | ~1390        | IA training     |
+| 5       | `/laudos-draft/rascunhos/{docId}`         | Above           | ~1395        | Draft editing   |
 
 **Estimated Total Lines:** 185 lines added (150 match logic + 35 helpers)  
 **Current file size:** 2049 lines  
@@ -96,7 +99,8 @@ function validateDraftLock(d) {
 - ❌ No recursive helper definitions
 - ✅ All new paths are new collections (Task 03-01 confirmed)
 
-**Verification Method:** 
+**Verification Method:**
+
 ```bash
 grep -c "match /labs/{labId}/portal-configuracao" firestore.rules
 grep -c "match /labs/{labId}/notivisa-outbox" firestore.rules
@@ -104,6 +108,7 @@ grep -c "match /labs/{labId}/criticos-escalacoes" firestore.rules
 grep -c "match /labs/{labId}/imuno-ias-dev" firestore.rules
 grep -c "match /labs/{labId}/laudos-draft" firestore.rules
 ```
+
 Expected: All return 0 (currently) or 1 (post-Wave2)
 
 ---
@@ -113,6 +118,7 @@ Expected: All return 0 (currently) or 1 (post-Wave2)
 #### 1. Functions Directory Structure — Ready
 
 **Current State:**
+
 ```
 functions/
 ├── src/
@@ -128,6 +134,7 @@ functions/
 ```
 
 **Wave 2 Addition:**
+
 ```
 functions/src/shared/
 ├── notivisa.ts                    ← NEW
@@ -146,6 +153,7 @@ functions/src/shared/
 #### 2. TypeScript Compilation — No Issues
 
 **Current Config:** `functions/tsconfig.json`
+
 - Target: `es2020`
 - Module: `commonjs`
 - Strict mode: ✅ enabled
@@ -155,6 +163,7 @@ functions/src/shared/
 **Wave 2 Files:** All new `.ts` and `.test.ts` files will be correctly compiled/excluded.
 
 **Verification:**
+
 ```bash
 cd functions && npm run build
 # Expected: Compiles successfully, no TS errors
@@ -166,18 +175,20 @@ cd functions && npm run build
 
 **Required for Wave 2 helpers:**
 
-| Package | Version | Status | Usage |
-|---------|---------|--------|-------|
-| `zod` | `^3.25.76` | ✅ Installed | IA strip schema validation |
-| `typescript` | `^5.9.3` | ✅ Installed | Type checking |
-| (Standard Node libs) | Node 22 | ✅ Available | Timestamps, strings |
+| Package              | Version    | Status       | Usage                      |
+| -------------------- | ---------- | ------------ | -------------------------- |
+| `zod`                | `^3.25.76` | ✅ Installed | IA strip schema validation |
+| `typescript`         | `^5.9.3`   | ✅ Installed | Type checking              |
+| (Standard Node libs) | Node 22    | ✅ Available | Timestamps, strings        |
 
 **Wave 2 New Imports:**
+
 - `zod` — Already in `functions/package.json` (installed for other modules)
 - Timestamp — Built-in Node.js `Date` and Firebase `Timestamp`
 - No new external dependencies required
 
 **Verification:**
+
 ```bash
 cd functions && npm list zod
 # Expected: zod@3.25.76
@@ -188,6 +199,7 @@ cd functions && npm list zod
 #### 4. Shared Module Index — Pattern Verified
 
 **Existing:** `functions/src/shared/index.ts` (7 files exported)
+
 ```typescript
 export { ... } from './auth';
 export { ... } from './email/smtpClient';
@@ -195,6 +207,7 @@ export { ... } from './email/smtpClient';
 ```
 
 **Wave 2 Addition:** 4 new exports to `src/shared/index.ts`
+
 ```typescript
 export { notivisaFormatter, type NotivisaPayload } from './notivisa';
 export { smsTemplate } from './sms';
@@ -207,11 +220,13 @@ export { iaStripValidator, validateStripImage, type StripImage } from './ia';
 #### 5. Test Fixtures — Already Structured
 
 **Existing:** `functions/src/__tests__/fixtures/`
+
 - `notivisa-payloads.ts` — ✅ Already exists with mock data
 - `portal-users.ts` — ✅ Already exists with user roles
 - `critico-thresholds.ts` — ✅ Already exists with data
 
-**Wave 2 Uses These:** 
+**Wave 2 Uses These:**
+
 - `notivisa.test.ts` → imports from `notivisa-payloads.ts` ✅
 - `laudo.test.ts` → will create inline test data (no fixture needed)
 - `sms.test.ts` → will use `critico-thresholds.ts` + inline
@@ -227,15 +242,16 @@ export { iaStripValidator, validateStripImage, type StripImage } from './ia';
 
 ### Rules ↔ Functions
 
-| Rule Collection | Function Module | Dependency | Status |
-|---|---|---|---|
-| `/notivisa-outbox/events` | (Task 03-04) `notivisa` callable | Rules = prerequisite | ⏳ Blocked until Rules deployed |
+| Rule Collection                   | Function Module                         | Dependency           | Status                          |
+| --------------------------------- | --------------------------------------- | -------------------- | ------------------------------- |
+| `/notivisa-outbox/events`         | (Task 03-04) `notivisa` callable        | Rules = prerequisite | ⏳ Blocked until Rules deployed |
 | `/criticos-escalacoes/escalacoes` | (Task 03-04) `criticos` + `smsTemplate` | Rules = prerequisite | ⏳ Blocked until Rules deployed |
-| `/laudos-draft/rascunhos` | `laudo.ts` manager | Rules = prerequisite | ⏳ Blocked until Rules deployed |
-| `/imuno-ias-dev/images` | (Phase 9) training pipeline | Rules = prerequisite | ⏳ Blocked until Rules deployed |
-| `portal-configuracao` | (Phase 5) patient portal | Rules = prerequisite | ⏳ Blocked until Rules deployed |
+| `/laudos-draft/rascunhos`         | `laudo.ts` manager                      | Rules = prerequisite | ⏳ Blocked until Rules deployed |
+| `/imuno-ias-dev/images`           | (Phase 9) training pipeline             | Rules = prerequisite | ⏳ Blocked until Rules deployed |
+| `portal-configuracao`             | (Phase 5) patient portal                | Rules = prerequisite | ⏳ Blocked until Rules deployed |
 
 **Deployment Order Implication:**
+
 1. **First:** Deploy Rules (03-02) → establishes match blocks
 2. **Then:** Deploy Functions (03-03 helpers) → safely references rules
 3. **Later:** Deploy Functions callables (03-04+) → uses both rules + helpers
@@ -256,6 +272,7 @@ export { iaStripValidator, validateStripImage, type StripImage } from './ia';
 - [ ] Rules file format valid (`firebase emulators:exec` passes)
 
 **Go-Live Criteria:**
+
 ```bash
 firebase emulators:start --only firestore &
 firebase emulators:exec --only firestore 'npm run test:rules' && echo "✅ PASS" || echo "❌ FAIL"
@@ -272,6 +289,7 @@ firebase emulators:exec --only firestore 'npm run test:rules' && echo "✅ PASS"
 - [ ] Test fixtures (`notivisa-payloads.ts`) match test expectations
 
 **Go-Live Criteria:**
+
 ```bash
 cd functions && npm run build 2>&1 | grep -i "error" && echo "❌ FAIL" || echo "✅ PASS"
 npm test -- src/shared --coverage 2>&1 | tail -5
@@ -281,16 +299,17 @@ npm test -- src/shared --coverage 2>&1 | tail -5
 
 ## Risk Register — Wave 2
 
-| Risk | Probability | Impact | Mitigation | Owner |
-|------|---|---|---|---|
-| **Firestore rate limits during index build** | Low | High | Stagger deploys 5min apart; monitor Firestore console | CTO |
-| **Helper function syntax errors** | Low | Medium | Lint + emulator test before deploy | Stream A |
-| **Circular import in `src/shared/`** | Low | High | `npm ls --depth=10 \| grep -i circular` scan | Stream D |
-| **Test fixtures out of sync with schema (03-01)** | Low | Medium | Validate each fixture against SCHEMA_v1.4.md | Stream D |
-| **Rules deploy breaks existing writes** | Low | Critical | Test `provisionModulesClaims` state first (Onda 2) | CTO |
-| **Functions build fails post-merge** | Very Low | Medium | Pre-commit hooks catch TypeScript errors | DevOps |
+| Risk                                              | Probability | Impact   | Mitigation                                            | Owner    |
+| ------------------------------------------------- | ----------- | -------- | ----------------------------------------------------- | -------- |
+| **Firestore rate limits during index build**      | Low         | High     | Stagger deploys 5min apart; monitor Firestore console | CTO      |
+| **Helper function syntax errors**                 | Low         | Medium   | Lint + emulator test before deploy                    | Stream A |
+| **Circular import in `src/shared/`**              | Low         | High     | `npm ls --depth=10 \| grep -i circular` scan          | Stream D |
+| **Test fixtures out of sync with schema (03-01)** | Low         | Medium   | Validate each fixture against SCHEMA_v1.4.md          | Stream D |
+| **Rules deploy breaks existing writes**           | Low         | Critical | Test `provisionModulesClaims` state first (Onda 2)    | CTO      |
+| **Functions build fails post-merge**              | Very Low    | Medium   | Pre-commit hooks catch TypeScript errors              | DevOps   |
 
 **Contingency:** If any risk materializes during Wave 2 execution:
+
 1. Pause deployment
 2. Investigate root cause
 3. Document in `CORRECTIONS.md` under "Wave 2 Incidents"
@@ -304,33 +323,39 @@ npm test -- src/shared --coverage 2>&1 | tail -5
 ### Rules (Task 03-02)
 
 ✅ **All blocks deployed:**
+
 - 5 new match blocks live in production firestore.rules
 - 2 helper functions (already present) validated
 - 0 new security issues in audit review
 
 ✅ **No regressions:**
+
 - Existing rules unchanged (copy/paste error checks)
 - All existing tests still pass (18+)
 - 23 total tests passing (18 existing + 5 new)
 
 ✅ **Audit trail:**
+
 - `git log` shows one commit: "wave-2: rules extensions for portal/notivisa/escalations/ia-strip/laudo-draft"
 - `firestore.rules` diff shows only additions (no deletions)
 
 ### Functions Helpers (Task 03-03)
 
 ✅ **All modules deployed:**
+
 - 4 new `.ts` files in `functions/src/shared/`
 - 4 test files with 18 tests total
 - `src/shared/index.ts` updated with 4 new exports
 
 ✅ **Quality gates:**
+
 - `npm run build` returns exit code 0
 - `npm test -- src/shared` all 18 tests PASS
 - Coverage ≥80% per module (minimum 15/18 covered)
 - 0 linting errors
 
 ✅ **Integration ready:**
+
 - No circular dependencies
 - Imports work in other modules (verified via `npm ls`)
 - Ready for Task 03-04 (Functions callables) to consume
@@ -348,7 +373,7 @@ Task 03-02 (Rules):
   Helper functions verified?      [ ] ✅ YES  [ ] ❌ BLOCKER
   No conflicts with existing?     [ ] ✅ YES  [ ] ❌ BLOCKER
   Security audit passed?          [ ] ✅ YES  [ ] ❌ BLOCKER
-  
+
 Task 03-03 (Functions Helpers):
   4 modules created?              [ ] ✅ YES  [ ] ❌ BLOCKER
   18/18 tests passing?            [ ] ✅ YES  [ ] ❌ BLOCKER
@@ -431,16 +456,19 @@ firebase deploy --only functions --project hmatologia2
 ## Notes & Handoff
 
 **For Stream A (Rules):**
+
 - Both helper functions are already in `firestore.rules` — verify they weren't accidentally deleted
 - Focus on the 5 new match blocks: portal, notivisa, escalations, ia-strip, laudo-draft
 - Security audit should pay special attention to `isPatient()` role isolation
 
 **For Stream D (Functions):**
+
 - `notivisa-payloads.ts` fixture is already in place — use it in tests
 - Zod is already in package.json — no new deps needed
 - Focus on 80% coverage minimum (will be checked by auditor)
 
 **For CTO (Deployment):**
+
 - Wave 2 is lower-risk than Wave 1 (Onda 2) — mostly additive changes
 - No existing rules modified; only new paths added
 - Can deploy rules and functions in same window (rules first, functions second)

@@ -13,10 +13,7 @@ import { useManutencoes } from '../hooks/useManutencoes';
 import type { ManutencaoPreventiva, ManutencaoStatus } from '../types/ManutencaoPreventiva';
 import { CalibracaoBadge } from './CalibracaoBadge';
 
-const STATUS_ROW: Record<
-  ManutencaoStatus,
-  { label: string; cls: string }
-> = {
+const STATUS_ROW: Record<ManutencaoStatus, { label: string; cls: string }> = {
   agendada: {
     label: 'Agendada',
     cls: 'bg-amber-500/10 border-amber-500/30 text-amber-700 dark:text-amber-300',
@@ -97,34 +94,40 @@ export function ManutencaoList({
     }
   }, [labId, equipamentoId, editingId, editDescricao, editDataPrevista, editFornecedor]);
 
-  const marcarRealizada = useCallback(async (m: ManutencaoPreventiva) => {
-    if (!labId || !equipamentoId) return;
-    try {
-      const db = getFirestore();
-      const ref = doc(db, 'labs', labId, 'equipamentos', equipamentoId, 'manutencoes', m.id);
-      await updateDoc(ref, {
-        status: 'realizada',
-        dataRealizada: FsTimestamp.now(),
-        updatedAt: FsTimestamp.now(),
-      });
-    } catch (err) {
-      console.error('Erro ao marcar realizada:', err);
-    }
-  }, [labId, equipamentoId]);
+  const marcarRealizada = useCallback(
+    async (m: ManutencaoPreventiva) => {
+      if (!labId || !equipamentoId) return;
+      try {
+        const db = getFirestore();
+        const ref = doc(db, 'labs', labId, 'equipamentos', equipamentoId, 'manutencoes', m.id);
+        await updateDoc(ref, {
+          status: 'realizada',
+          dataRealizada: FsTimestamp.now(),
+          updatedAt: FsTimestamp.now(),
+        });
+      } catch (err) {
+        console.error('Erro ao marcar realizada:', err);
+      }
+    },
+    [labId, equipamentoId],
+  );
 
-  const cancelarManutencao = useCallback(async (m: ManutencaoPreventiva) => {
-    if (!labId || !equipamentoId) return;
-    try {
-      const db = getFirestore();
-      const ref = doc(db, 'labs', labId, 'equipamentos', equipamentoId, 'manutencoes', m.id);
-      await updateDoc(ref, {
-        status: 'cancelada',
-        updatedAt: FsTimestamp.now(),
-      });
-    } catch (err) {
-      console.error('Erro ao cancelar:', err);
-    }
-  }, [labId, equipamentoId]);
+  const cancelarManutencao = useCallback(
+    async (m: ManutencaoPreventiva) => {
+      if (!labId || !equipamentoId) return;
+      try {
+        const db = getFirestore();
+        const ref = doc(db, 'labs', labId, 'equipamentos', equipamentoId, 'manutencoes', m.id);
+        await updateDoc(ref, {
+          status: 'cancelada',
+          updatedAt: FsTimestamp.now(),
+        });
+      } catch (err) {
+        console.error('Erro ao cancelar:', err);
+      }
+    },
+    [labId, equipamentoId],
+  );
 
   return (
     <section
@@ -147,14 +150,18 @@ export function ManutencaoList({
       </header>
 
       {loading ? (
-        <p className="py-6 text-center text-sm text-slate-500 dark:text-white/40">Carregando manutenções…</p>
+        <p className="py-6 text-center text-sm text-slate-500 dark:text-white/40">
+          Carregando manutenções…
+        </p>
       ) : error ? (
         <p className="py-4 text-sm text-red-600 dark:text-red-400" role="alert">
           {error}
         </p>
       ) : manutencoes.length === 0 ? (
         <div className="border border-dashed border-slate-200 dark:border-white/[0.08] rounded-xl py-8 px-4 text-center">
-          <p className="text-sm text-slate-600 dark:text-white/55">Nenhuma manutenção registrada.</p>
+          <p className="text-sm text-slate-600 dark:text-white/55">
+            Nenhuma manutenção registrada.
+          </p>
           <p className="text-xs text-slate-500 dark:text-white/35 mt-1">
             Agendamentos e registros aparecem aqui em tempo real.
           </p>
@@ -226,7 +233,9 @@ export function ManutencaoList({
                     </p>
                   </div>
                   <div className="flex items-center gap-1.5 shrink-0">
-                    <span className={`${CHIP} ${STATUS_ROW[m.status].cls}`}>{STATUS_ROW[m.status].label}</span>
+                    <span className={`${CHIP} ${STATUS_ROW[m.status].cls}`}>
+                      {STATUS_ROW[m.status].label}
+                    </span>
                     {m.status === 'agendada' && (
                       <>
                         <button
@@ -235,8 +244,18 @@ export function ManutencaoList({
                           title="Editar"
                           className="p-1 rounded text-slate-400 hover:text-violet-600 hover:bg-violet-50 dark:hover:bg-violet-500/10 transition-colors"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
+                            />
                           </svg>
                         </button>
                         <button
@@ -245,7 +264,13 @@ export function ManutencaoList({
                           title="Marcar como realizada"
                           className="p-1 rounded text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
                             <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                           </svg>
                         </button>
@@ -255,8 +280,18 @@ export function ManutencaoList({
                           title="Cancelar manutencao"
                           className="p-1 rounded text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"
                         >
-                          <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                          <svg
+                            className="w-3.5 h-3.5"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M6 18L18 6M6 6l12 12"
+                            />
                           </svg>
                         </button>
                       </>

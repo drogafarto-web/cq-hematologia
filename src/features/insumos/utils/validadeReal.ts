@@ -53,10 +53,7 @@ export function diasAteVencer(validadeReal: Date, now: Date = new Date()): numbe
 /** Semáforo baseado em `diasAteVencer` — alinhado com o design system. */
 export type ValidadeStatus = 'ok' | 'warning' | 'expired';
 
-export function validadeStatus(
-  validadeReal: Date,
-  now: Date = new Date(),
-): ValidadeStatus {
+export function validadeStatus(validadeReal: Date, now: Date = new Date()): ValidadeStatus {
   const dias = diasAteVencer(validadeReal, now);
   if (dias < 0) return 'expired';
   if (dias <= WARNING_DAYS) return 'warning';

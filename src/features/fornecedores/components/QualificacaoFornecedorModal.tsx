@@ -5,11 +5,7 @@
 import React, { useCallback, useState } from 'react';
 import { FirebaseError } from 'firebase/app';
 
-import {
-  functions,
-  httpsCallable,
-  Timestamp,
-} from '../../../shared/services/firebase';
+import { functions, httpsCallable, Timestamp } from '../../../shared/services/firebase';
 import { useUser } from '../../../store/useAuthStore';
 
 const INPUT_CLS = `

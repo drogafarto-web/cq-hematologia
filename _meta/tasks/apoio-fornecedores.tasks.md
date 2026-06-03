@@ -14,6 +14,7 @@
 **Depende de:** —
 
 **O que fazer:**
+
 1. Adicionar interface `QualificacaoFornecedor` (campos: `qualificadoEm`, `qualificadoPor`, `qualificadoPorNome`, `criteriosDocumentados`, `categorias: string[]`, `logicalSignature`).
 2. Adicionar interface `EnderecoEstruturado` (logradouro, numero, complemento?, bairro, cidade, estado, cep) — reutilizar `Endereco` de `LabApoio.ts` como referência de shape.
 3. Adicionar ao type `Fornecedor`:
@@ -33,6 +34,7 @@
 **Depende de:** T-AF-01
 
 **O que fazer:**
+
 1. Criar arquivo com interface `AvaliacaoFornecedor`:
    - `id`, `labId`, `fornecedorId`, `data: Timestamp`, `resultado: 'aprovado' | 'aprovado_com_ressalva' | 'reprovado'`
    - `responsavel`, `responsavelNome`
@@ -55,12 +57,14 @@
 
 **O que fazer:**
 Adicionar bloco de regras para `/labs/{labId}/fornecedores/{fornecedorId}/avaliacoes-periodicas/{avaliacaoId}`:
+
 - `read`: isActiveMemberOfLab(labId)
 - `create`: isActiveMemberOfLab(labId) + validação de campos obrigatórios + `logicalSignature.hash.size() == 64`
 - `update`: **false** (append-only)
 - `delete`: **false**
 
 Adicionar também subcoleção `events` (chain-hash):
+
 - `create`: isActiveMemberOfLab(labId)
 - `update`: **false**
 - `delete`: **false**
@@ -77,6 +81,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-01, T-AF-03
 
 **O que fazer:**
+
 1. Criar callable `qualificarFornecedor` com Zod schema:
    - Input: `{ fornecedorId, criteriosDocumentados, categorias, logicalSignature }`
    - Validar que o chamador é membro ativo do lab e tem role `admin` ou `owner`.
@@ -97,6 +102,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-02, T-AF-03
 
 **O que fazer:**
+
 1. Criar callable `registrarAvaliacaoFornecedor` com Zod schema:
    - Input: `{ fornecedorId, resultado, criteriosAvaliados, observacoes?, logicalSignature }`
    - Validar role de chamador (membro ativo do lab).
@@ -116,6 +122,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-02
 
 **O que fazer:**
+
 1. Criar hook com `onSnapshot` em `/labs/{labId}/fornecedores/{fornecedorId}/avaliacoes-periodicas`.
 2. Ordenar por `data desc`.
 3. Retornar `{ avaliacoes: AvaliacaoFornecedor[], loading, error }`.
@@ -133,6 +140,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-01, T-AF-04, T-AF-06
 
 **O que fazer:**
+
 1. Modal com campos: `criteriosDocumentados` (textarea), `categorias` (multi-select: reagentes/consumiveis/servicos/outros).
 2. Ao submeter, chamar callable `qualificarFornecedor` via `httpsCallable`.
 3. Exibir estado de loading e erro.
@@ -151,6 +159,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-02, T-AF-05, T-AF-06
 
 **O que fazer:**
+
 1. Modal com campos:
    - `resultado`: radio (aprovado / aprovado_com_ressalva / reprovado)
    - `criteriosAvaliados`: 4 checkboxes (prazoEntrega, qualidadeProduto, documentacaoCorreta, atendimento)
@@ -171,6 +180,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** —
 
 **O que fazer:**
+
 1. Componente que lê `Contrato.vigenciaFim` e `Certificacao.dataValidade` dos contratos ativos.
 2. Filtrar contratos/certificações vencendo em ≤ 30 dias ou já vencidos.
 3. Exibir banner com lista: "Contrato XYZ vence em 5 dias" / "Certificado ISO 15189 já venceu".
@@ -188,6 +198,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-03 (estrutura de dados estável)
 
 **O que fazer:**
+
 1. CF agendada (pubsub scheduler, 1x/dia às 07:00).
 2. Iterar `/labs/{labId}/lab-apoio/` buscando contratos com `vigenciaFim` < now + 30 dias.
 3. Para cada achado, criar/upsert `KPIAlert` em `/labs/{labId}/kpi-alerts/` com `tipo: 'vencimento_contrato_apoio'`.
@@ -206,6 +217,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-05
 
 **O que fazer:**
+
 1. Callable que lê todos os fornecedores ativos do lab.
 2. Para cada fornecedor, busca última avaliação periódica.
 3. Gera PDF (reutilizar padrão `react-pdf` ou template existente em `liberacao/_pdf/`).
@@ -224,6 +236,7 @@ Adicionar também subcoleção `events` (chain-hash):
 **Depende de:** T-AF-11
 
 **O que fazer:**
+
 1. Adicionar botão "Exportar relatório (PDF)" na tela de listagem de fornecedores.
 2. Ao clicar, chamar `generateFornecedoresReport` via callable.
 3. Abrir URL retornada em nova aba.

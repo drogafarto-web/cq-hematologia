@@ -107,13 +107,13 @@ drogafarto@gmail.com
 
 ## Send Confirmation
 
-| Item | Status | Timestamp |
-|------|--------|-----------|
-| Email drafted & reviewed | ✅ COMPLETE | 2026-05-07 |
-| Email sent to llabclin3@gmail.com | ⏳ PENDING | — |
-| Auditor receipt confirmation | ⏳ AWAITING | — |
-| Availability confirmed (May 13–17) | ⏳ AWAITING | — |
-| Call scheduled (date + time) | ⏳ AWAITING | — |
+| Item                               | Status      | Timestamp  |
+| ---------------------------------- | ----------- | ---------- |
+| Email drafted & reviewed           | ✅ COMPLETE | 2026-05-07 |
+| Email sent to llabclin3@gmail.com  | ⏳ PENDING  | —          |
+| Auditor receipt confirmation       | ⏳ AWAITING | —          |
+| Availability confirmed (May 13–17) | ⏳ AWAITING | —          |
+| Call scheduled (date + time)       | ⏳ AWAITING | —          |
 
 ---
 
@@ -130,25 +130,27 @@ drogafarto@gmail.com
 
 **Status:** ⏳ AWAITING RESPONSE
 
-| Date | Event | Details |
-|------|-------|---------|
-| 2026-05-07 | Email sent | Confirmation pending |
-| — | Auditor ACK | (awaiting) |
-| — | Availability confirmed | (awaiting) |
-| — | Call date locked | (awaiting) |
-| — | Call executed | (awaiting) |
-| — | Call notes + action items | (awaiting) |
+| Date       | Event                     | Details              |
+| ---------- | ------------------------- | -------------------- |
+| 2026-05-07 | Email sent                | Confirmation pending |
+| —          | Auditor ACK               | (awaiting)           |
+| —          | Availability confirmed    | (awaiting)           |
+| —          | Call date locked          | (awaiting)           |
+| —          | Call executed             | (awaiting)           |
+| —          | Call notes + action items | (awaiting)           |
 
 ---
 
 ## Escalation Plan
 
 **If no response by 2026-05-09 (48h):**
+
 1. Check spam/bounce from llabclin3@gmail.com
 2. Resend with subject: **[FOLLOW-UP] HC Quality v1.4 Alignment Call**
 3. Include note: "Confirming receipt + checking your availability for May 13–17"
 
 **If no response by 2026-05-12 (72h before call window):**
+
 1. Contact via backup channel (phone if available)
 2. Send escalation email to lab compliance officer (if contact available)
 3. Document in risk register if alignment call cannot be confirmed
@@ -182,4 +184,3 @@ drogafarto@gmail.com
 **Owner:** CTO (drogafarto@gmail.com)  
 **Last Updated:** 2026-05-07  
 **Next Action:** Send email + monitor response until 2026-05-09
-

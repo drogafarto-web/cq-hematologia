@@ -1,4 +1,5 @@
 # Phase 3 Executive Summary — Schema Extensions & Infrastructure
+
 ## Auditor-Ready Delivery Report
 
 **Version:** 1.0  
@@ -22,32 +23,33 @@ Phase 3 ("Schema Extensions & Cross-Cutting Infrastructure") extended HC Quality
 
 ### Deliverables at a Glance
 
-| Category | Deliverable | Status |
-|----------|-------------|--------|
-| **Schema** | 5 new collections (portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft) | ✅ Deployed |
-| **Indexes** | 7 composite Firestore indices | ✅ Deployed |
-| **Rules** | Firestore v1.4 — 5 match blocks, 2 helpers, 45/45 tests | ✅ Deployed |
-| **Helpers** | 4 shared modules (notivisa.ts, sms.ts, laudo.ts, ia.ts) | ✅ Deployed |
-| **Functions** | 4 module skeleton callables + shared imports | ✅ Deployed |
-| **ADRs** | ADR-0019 (schema), ADR-0020 (locking), ADR-0021 (queue pattern) | ✅ Registered |
-| **Documentation** | 3 guides (Handbook 1093 LOC, Runbook 778 LOC, Compliance 1200+ LOC) | ✅ Published |
-| **Tests** | 738/738 unit + E2E + integration tests | ✅ Passing |
-| **Deployment** | Commit 4d00db6, Deploy a7cac87, Production 2026-05-07 | ✅ Live |
+| Category          | Deliverable                                                                                                | Status        |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- | ------------- |
+| **Schema**        | 5 new collections (portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft) | ✅ Deployed   |
+| **Indexes**       | 7 composite Firestore indices                                                                              | ✅ Deployed   |
+| **Rules**         | Firestore v1.4 — 5 match blocks, 2 helpers, 45/45 tests                                                    | ✅ Deployed   |
+| **Helpers**       | 4 shared modules (notivisa.ts, sms.ts, laudo.ts, ia.ts)                                                    | ✅ Deployed   |
+| **Functions**     | 4 module skeleton callables + shared imports                                                               | ✅ Deployed   |
+| **ADRs**          | ADR-0019 (schema), ADR-0020 (locking), ADR-0021 (queue pattern)                                            | ✅ Registered |
+| **Documentation** | 3 guides (Handbook 1093 LOC, Runbook 778 LOC, Compliance 1200+ LOC)                                        | ✅ Published  |
+| **Tests**         | 738/738 unit + E2E + integration tests                                                                     | ✅ Passing    |
+| **Deployment**    | Commit 4d00db6, Deploy a7cac87, Production 2026-05-07                                                      | ✅ Live       |
 
 ### Timeline
 
-| Milestone | Planned | Actual | Status |
-|-----------|---------|--------|--------|
-| Phase 3.1 (Schema + Rules) | 2026-04-28 | 2026-05-03 | ✅ +5d delay (external blocker: ADR-0017 HMAC remediation) |
-| Phase 3.2 (Helpers + Functions) | 2026-05-03 | 2026-05-05 | ✅ On time |
-| Phase 3.3 (Deploy + Validation) | 2026-05-05 | 2026-05-07 | ✅ +2d (Cloud Logs instrumentation + smoke tests) |
-| **Phase 3 Complete** | 2026-05-05 | 2026-05-07 | ✅ Overall +2d |
+| Milestone                       | Planned    | Actual     | Status                                                     |
+| ------------------------------- | ---------- | ---------- | ---------------------------------------------------------- |
+| Phase 3.1 (Schema + Rules)      | 2026-04-28 | 2026-05-03 | ✅ +5d delay (external blocker: ADR-0017 HMAC remediation) |
+| Phase 3.2 (Helpers + Functions) | 2026-05-03 | 2026-05-05 | ✅ On time                                                 |
+| Phase 3.3 (Deploy + Validation) | 2026-05-05 | 2026-05-07 | ✅ +2d (Cloud Logs instrumentation + smoke tests)          |
+| **Phase 3 Complete**            | 2026-05-05 | 2026-05-07 | ✅ Overall +2d                                             |
 
 **Root cause of delay:** ADR-0017 HMAC key rotation incident (2026-04-22 to 2026-05-07, 15-day window). Addressed with baseline reset + mandatory pre-deploy gate (ADR-0018). No impact on Phase 4+ kickoff.
 
 ### Team Effort
 
 **8 agents / 6 streams over 12 working days:**
+
 - **Stream A:** Schema design + TypeScript types
 - **Stream B:** Firestore Rules v1.4 + security audit
 - **Stream C:** Shared helpers + validation (sms.ts, notivisa.ts, laudo.ts, ia.ts)
@@ -66,13 +68,13 @@ Phase 3 ("Schema Extensions & Cross-Cutting Infrastructure") extended HC Quality
 
 **5 New Collections** (all under `labs/{labId}/` namespace, multi-tenant isolated):
 
-| Collection | Path | Purpose | Fields | Indexes | Status |
-|-----------|------|---------|--------|---------|--------|
-| Portal Config | `/labs/{labId}/portal-configuracao/{docId}` | Patient portal branding (logo, colors, terms) | 8 fields (logoCdnUrl, primaryColor, termsHTML, etc.) | 0 (labId native) | ✅ Deployed |
-| NOTIVISA Queue | `/labs/{labId}/notivisa-outbox/events/{docId}` | RDC 978 Art. 6º disease notification queue | 11 fields (laudo_id, status, attempts, payload, etc.) | 2 (status, nextRetry) | ✅ Deployed |
-| Critical Alerts | `/labs/{labId}/criticos-escalacoes/{escalationId}` | SMS/email escalation for critical values | 7 fields (resultado_id, sms_sent_to, resolved_at, etc.) | 1 (resolved_at) | ✅ Deployed |
-| IA Training | `/labs/{labId}/imuno-ias-dev/{trainingImageId}` | Gemini Vision feedback dataset for immunology OCR | 6 fields (imageUrl, classesDetected, feedback, etc.) | 1 (createdAt) | ✅ Deployed |
-| Laudo Drafts | `/labs/{labId}/laudos-draft/rascunhos/{draftId}` | RT draft editing with pessimistic locking | 9 fields (laudo_id, locked_by, locked_until_ts, version, etc.) | 2 (locked_until_ts, status) | ✅ Deployed |
+| Collection      | Path                                               | Purpose                                           | Fields                                                         | Indexes                     | Status      |
+| --------------- | -------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------- | --------------------------- | ----------- |
+| Portal Config   | `/labs/{labId}/portal-configuracao/{docId}`        | Patient portal branding (logo, colors, terms)     | 8 fields (logoCdnUrl, primaryColor, termsHTML, etc.)           | 0 (labId native)            | ✅ Deployed |
+| NOTIVISA Queue  | `/labs/{labId}/notivisa-outbox/events/{docId}`     | RDC 978 Art. 6º disease notification queue        | 11 fields (laudo_id, status, attempts, payload, etc.)          | 2 (status, nextRetry)       | ✅ Deployed |
+| Critical Alerts | `/labs/{labId}/criticos-escalacoes/{escalationId}` | SMS/email escalation for critical values          | 7 fields (resultado_id, sms_sent_to, resolved_at, etc.)        | 1 (resolved_at)             | ✅ Deployed |
+| IA Training     | `/labs/{labId}/imuno-ias-dev/{trainingImageId}`    | Gemini Vision feedback dataset for immunology OCR | 6 fields (imageUrl, classesDetected, feedback, etc.)           | 1 (createdAt)               | ✅ Deployed |
+| Laudo Drafts    | `/labs/{labId}/laudos-draft/rascunhos/{draftId}`   | RT draft editing with pessimistic locking         | 9 fields (laudo_id, locked_by, locked_until_ts, version, etc.) | 2 (locked_until_ts, status) | ✅ Deployed |
 
 **SCHEMA_v1.4.md Generated:** Yes (`docs/SCHEMA_v1.4.md`). Contains ERD, sample queries, index analysis, soft-delete rationale.
 
@@ -90,6 +92,7 @@ Phase 3 ("Schema Extensions & Cross-Cutting Infrastructure") extended HC Quality
 ```
 
 **Rule Statistics:**
+
 - 2 reusable functions: `isActiveMemberOfLab(labId)`, `isAdminOrOwner(labId)`
 - 5 match blocks: portal-configuracao, notivisa-outbox, criticos-escalacoes, imuno-ias-dev, laudos-draft
 - ~185 lines of rules code (tight, no bloat)
@@ -101,12 +104,12 @@ Phase 3 ("Schema Extensions & Cross-Cutting Infrastructure") extended HC Quality
 
 All in `functions/src/shared/`:
 
-| Module | Purpose | Tests | LOC | Status |
-|--------|---------|-------|-----|--------|
+| Module        | Purpose                                                     | Tests  | LOC | Status      |
+| ------------- | ----------------------------------------------------------- | ------ | --- | ----------- |
 | `notivisa.ts` | SOAP/XML → JSON translation, RDC 286 § 6 payload validation | 5 unit | 245 | ✅ Deployed |
-| `sms.ts` | Twilio SMS abstraction, retry + charset validation | 4 unit | 180 | ✅ Deployed |
-| `laudo.ts` | Result formatting, field validation, RDC Art. 167 checks | 5 unit | 310 | ✅ Deployed |
-| `ia.ts` | Gemini Vision integration, image metadata extraction | 4 unit | 185 | ✅ Deployed |
+| `sms.ts`      | Twilio SMS abstraction, retry + charset validation          | 4 unit | 180 | ✅ Deployed |
+| `laudo.ts`    | Result formatting, field validation, RDC Art. 167 checks    | 5 unit | 310 | ✅ Deployed |
+| `ia.ts`       | Gemini Vision integration, image metadata extraction        | 4 unit | 185 | ✅ Deployed |
 
 **Total:** 18 unit tests (18/18 passing), 920 LOC, zero external dependencies (uses Firebase Admin SDK).
 
@@ -114,14 +117,15 @@ All in `functions/src/shared/`:
 
 **4 Module Skeletons** (production-ready callables, no implementation yet; scheduled for Phases 4–7):
 
-| Callable | Module | Signature | Placeholder | Deployment |
-|----------|--------|-----------|-------------|------------|
-| `acquireDraftLock` | laudos | `(draftId, labId) → {locked, expiresAt}` | ADR-0020 locking logic | Phase 7 |
-| `submitNotivsaNotification` | notivisa | `(queueDocId, labId) → {success, protocolId}` | ADR-0021 queue pattern | Phase 5 |
-| `getPatientPortalConfig` | portal | `(labId) → {logoUrl, colors, terms}` | Read-only config fetch | Phase 4 |
-| `escalateCriticalValue` | criticos | `(resultId, sms_numbers) → {sent, failures}` | SMS escalation trigger | Phase 6 |
+| Callable                    | Module   | Signature                                     | Placeholder            | Deployment |
+| --------------------------- | -------- | --------------------------------------------- | ---------------------- | ---------- |
+| `acquireDraftLock`          | laudos   | `(draftId, labId) → {locked, expiresAt}`      | ADR-0020 locking logic | Phase 7    |
+| `submitNotivsaNotification` | notivisa | `(queueDocId, labId) → {success, protocolId}` | ADR-0021 queue pattern | Phase 5    |
+| `getPatientPortalConfig`    | portal   | `(labId) → {logoUrl, colors, terms}`          | Read-only config fetch | Phase 4    |
+| `escalateCriticalValue`     | criticos | `(resultId, sms_numbers) → {sent, failures}`  | SMS escalation trigger | Phase 6    |
 
-**Shared imports functional:** ✅ 
+**Shared imports functional:** ✅
+
 - All 4 modules import from `functions/src/shared/` (notivisa.ts, sms.ts, laudo.ts, ia.ts)
 - Zero circular dependencies
 - Unit tests verify import paths
@@ -129,12 +133,14 @@ All in `functions/src/shared/`:
 ### 2.5 CI/CD & Deployment
 
 **GitHub Actions Workflow:**
+
 - Lint (baseline: 88 pre-existing warnings, no new warnings allowed)
 - TSC (strict mode, no errors)
 - Unit + E2E + Integration tests (738/738 passing)
 - Build app + build functions (no warnings)
 
 **Pre-Deploy Gates (ADR-0018):**
+
 ```bash
 scripts/preflight-secrets-check.sh          # Blocks if secrets unprovisioned
 npm run lint --... --baseline 88            # Enforces lint baseline
@@ -144,6 +150,7 @@ npm run test                                # All tests must pass
 ```
 
 **Deployment Checklist:**
+
 - [x] Rules deployed (2026-05-07 13:42 UTC)
 - [x] Functions deployed (78 total: 74 Phase 0–2 + 4 Phase 3 skeletons)
 - [x] Hosting deployed (React build, PWA manifest updated)
@@ -153,6 +160,7 @@ npm run test                                # All tests must pass
 ### 2.6 Cloud Logs Monitoring
 
 **Post-Deploy (24h Baseline):**
+
 - ✅ Zero P0/P1 errors logged
 - ✅ P95 function latency: 240ms average (target: <500ms)
 - ✅ Error rate: 0.3% (target: <5%)
@@ -164,12 +172,12 @@ npm run test                                # All tests must pass
 
 **k6 Test Suite** (`load-tests/phase-3.js`):
 
-| Scenario | Concurrency | Duration | P95 Latency | Pass Rate |
-|----------|-------------|----------|-------------|-----------|
-| Read portal config (100 labs) | 10 VU | 2m | 180ms | 100% |
-| NOTIVISA queue poll (200 queued) | 5 VU | 5m | 320ms | 99.8% |
-| Draft lock acquire/release (50 concurrent RTs) | 15 VU | 3m | 420ms | 98.5% |
-| IA image upload (100 images, 2 MB each) | 5 VU | 10m | 890ms | 97% |
+| Scenario                                       | Concurrency | Duration | P95 Latency | Pass Rate |
+| ---------------------------------------------- | ----------- | -------- | ----------- | --------- |
+| Read portal config (100 labs)                  | 10 VU       | 2m       | 180ms       | 100%      |
+| NOTIVISA queue poll (200 queued)               | 5 VU        | 5m       | 320ms       | 99.8%     |
+| Draft lock acquire/release (50 concurrent RTs) | 15 VU       | 3m       | 420ms       | 98.5%     |
+| IA image upload (100 images, 2 MB each)        | 5 VU        | 10m      | 890ms       | 97%       |
 
 **Conclusion:** All scenarios PASS (latency within SLA, error rate <3%). Ready for production.
 
@@ -177,19 +185,21 @@ npm run test                                # All tests must pass
 
 **Documented:** `docs/DR_PLAN.md`
 
-| Scenario | RTO | Procedure | Tests |
-|----------|-----|-----------|-------|
-| Single collection unavailable | 2h | Restore from backup; switch to read-only mode | ✅ Quarterly drill |
-| All Firestore data loss | 4h | Restore from multi-region backup (GCP backup agent) | ✅ Annual drill |
-| Function cold-start cascade | 15m | Scale up function memory; optimize imports | ✅ Load test validated |
-| Rules deployment rollback | 5m | `firebase deploy firestore:rules --project hmatologia2 --rollback` | ✅ Manual tested |
+| Scenario                      | RTO | Procedure                                                          | Tests                  |
+| ----------------------------- | --- | ------------------------------------------------------------------ | ---------------------- |
+| Single collection unavailable | 2h  | Restore from backup; switch to read-only mode                      | ✅ Quarterly drill     |
+| All Firestore data loss       | 4h  | Restore from multi-region backup (GCP backup agent)                | ✅ Annual drill        |
+| Function cold-start cascade   | 15m | Scale up function memory; optimize imports                         | ✅ Load test validated |
+| Rules deployment rollback     | 5m  | `firebase deploy firestore:rules --project hmatologia2 --rollback` | ✅ Manual tested       |
 
 **Backup Strategy:**
+
 - **Tier 1 (24h retention):** Firestore on-demand backups (automatic, 2 snapshots/day)
 - **Tier 2 (30d retention):** Google Cloud Storage export (weekly cron)
 - **Tier 3 (90d retention):** Archive to cold storage (monthly, for compliance)
 
 **6 scripts provided:**
+
 - `backup-firestore-manual.sh`
 - `backup-firestore-scheduled.sh`
 - `restore-firestore-from-backup.sh`
@@ -199,23 +209,23 @@ npm run test                                # All tests must pass
 
 ### 2.9 Documentation
 
-| Document | LOC | Purpose | Audience | Status |
-|-----------|-----|---------|----------|--------|
-| `PHASE_3_HANDBOOK.md` | 1,093 | Unified Phase 3 guide (schema, rules, helpers, functions) | Engineers, DevOps | ✅ Published |
-| `PHASE_3_TRAINING.md` | 1,002 | 1-day onboarding for new engineers (5-step path, module deep-dives, FAQ) | New teammates | ✅ Published |
-| `PHASE_3_RUNBOOK.md` | 778 | Operational procedures (deploy, rollback, troubleshoot) | On-call ops | ✅ Published |
-| `PHASE_3_COMPLIANCE_AUDIT.md` | 1,200+ | Detailed audit mapping (RDC 978, DICQ, LGPD) | Compliance officer | ✅ Published |
-| `SCHEMA_v1.4.md` | 340 | ERD + field specs + index rationale | Database team | ✅ Generated |
+| Document                      | LOC    | Purpose                                                                  | Audience           | Status       |
+| ----------------------------- | ------ | ------------------------------------------------------------------------ | ------------------ | ------------ |
+| `PHASE_3_HANDBOOK.md`         | 1,093  | Unified Phase 3 guide (schema, rules, helpers, functions)                | Engineers, DevOps  | ✅ Published |
+| `PHASE_3_TRAINING.md`         | 1,002  | 1-day onboarding for new engineers (5-step path, module deep-dives, FAQ) | New teammates      | ✅ Published |
+| `PHASE_3_RUNBOOK.md`          | 778    | Operational procedures (deploy, rollback, troubleshoot)                  | On-call ops        | ✅ Published |
+| `PHASE_3_COMPLIANCE_AUDIT.md` | 1,200+ | Detailed audit mapping (RDC 978, DICQ, LGPD)                             | Compliance officer | ✅ Published |
+| `SCHEMA_v1.4.md`              | 340    | ERD + field specs + index rationale                                      | Database team      | ✅ Generated |
 
 **Total:** ~4,400 LOC documentation. Auditor-ready.
 
 ### 2.10 Architecture Decision Records (ADRs)
 
-| ADR | Title | Decision | Status |
-|-----|-------|----------|--------|
-| ADR-0019 | Phase 3 Schema Design | 5 collections (not monolithic) per domain isolation + scaling | ✅ Accepted 2026-05-07 |
-| ADR-0020 | Pessimistic Locking | RT draft editing locked 1h; auto-expire on logout | ✅ Accepted 2026-05-07 |
-| ADR-0021 | NOTIVISA Queue Pattern | Queue + Pub/Sub + retry with exponential backoff | ✅ Accepted 2026-05-07 |
+| ADR      | Title                  | Decision                                                      | Status                 |
+| -------- | ---------------------- | ------------------------------------------------------------- | ---------------------- |
+| ADR-0019 | Phase 3 Schema Design  | 5 collections (not monolithic) per domain isolation + scaling | ✅ Accepted 2026-05-07 |
+| ADR-0020 | Pessimistic Locking    | RT draft editing locked 1h; auto-expire on logout             | ✅ Accepted 2026-05-07 |
+| ADR-0021 | NOTIVISA Queue Pattern | Queue + Pub/Sub + retry with exponential backoff              | ✅ Accepted 2026-05-07 |
 
 All ADRs filed in `docs/adr/` and cross-linked in module CLAUDE.md files for future maintainability.
 
@@ -251,17 +261,20 @@ E2E Tests:            35 passing
 ### 3.2 Compliance Metrics
 
 **RDC 978 Compliance:**
+
 - **v1.3 (pre-Phase 3):** 79%
 - **Phase 3 additions:** +6% (Art. 6º §1 NOTIVISA, Art. 17 draft editing, Art. 5.3 audit)
 - **Current (2026-05-07):** 85% (target: 100% by Phase 0 completion)
 - **Remaining gap:** 15% (laudo field extensions, manual da qualidade, auditoria checklist) → Phases 9–10
 
 **DICQ Compliance:**
+
 - **v1.3 (pre-Phase 3):** 78.5%
 - **Phase 3 additions:** +3.5% (4.1.2.7 draft management, 4.3 document versioning, 4.4 audit trail)
 - **Current (2026-05-07):** 82% (target: 100% by Phase 9 completion)
 
 **LGPD Compliance:**
+
 - **v1.3 (pre-Phase 3):** 70%
 - **Phase 3 additions:** +2% (portal config privacy controls, PII masking in NOTIVISA queue)
 - **Current (2026-05-07):** 72% (target: 95% by Phase 1 completion)
@@ -270,24 +283,24 @@ E2E Tests:            35 passing
 
 **Risk Assessment:** 2/10 (LOW)
 
-| Issue | Severity | Status | Evidence |
-|-------|----------|--------|----------|
-| ADR-0017: HMAC key rotation | Medium (remediated) | ✅ Fixed | New key deployed 2026-05-07; baseline reset documented |
-| ADR-0018: Pre-deploy gate missing | High (prevented) | ✅ Gate installed | `preflight-secrets-check.sh` blocks unsafe deploys |
-| Firestore rules audit | Low | ✅ Passed | Third-party rules auditor gave zero findings |
+| Issue                             | Severity            | Status            | Evidence                                               |
+| --------------------------------- | ------------------- | ----------------- | ------------------------------------------------------ |
+| ADR-0017: HMAC key rotation       | Medium (remediated) | ✅ Fixed          | New key deployed 2026-05-07; baseline reset documented |
+| ADR-0018: Pre-deploy gate missing | High (prevented)    | ✅ Gate installed | `preflight-secrets-check.sh` blocks unsafe deploys     |
+| Firestore rules audit             | Low                 | ✅ Passed         | Third-party rules auditor gave zero findings           |
 
 **No critical or high findings outstanding.**
 
 ### 3.4 Performance
 
-| Metric | Baseline (v1.3) | Current | Target | Status |
-|--------|-----------------|---------|--------|--------|
-| LCP (Largest Contentful Paint) | 2.1s | 2.0s | <2.5s | ✅ Pass |
-| INP (Interaction to Next Paint) | 185ms | 175ms | <200ms | ✅ Pass |
-| CLS (Cumulative Layout Shift) | 0.08 | 0.06 | <0.1 | ✅ Pass |
-| P95 Function Latency | 280ms | 240ms | <500ms | ✅ Pass |
-| Bundle Size (gzip) | 397 KB | 398 KB | <420 KB | ✅ Pass |
-| Firestore Writes/sec | 2.3 | 2.1 | <5 | ✅ Pass |
+| Metric                          | Baseline (v1.3) | Current | Target  | Status  |
+| ------------------------------- | --------------- | ------- | ------- | ------- |
+| LCP (Largest Contentful Paint)  | 2.1s            | 2.0s    | <2.5s   | ✅ Pass |
+| INP (Interaction to Next Paint) | 185ms           | 175ms   | <200ms  | ✅ Pass |
+| CLS (Cumulative Layout Shift)   | 0.08            | 0.06    | <0.1    | ✅ Pass |
+| P95 Function Latency            | 280ms           | 240ms   | <500ms  | ✅ Pass |
+| Bundle Size (gzip)              | 397 KB          | 398 KB  | <420 KB | ✅ Pass |
+| Firestore Writes/sec            | 2.3             | 2.1     | <5      | ✅ Pass |
 
 **Conclusion:** No performance regressions. Phase 3 adds ~40 Firestore writes/day (NOTIVISA queue) and negligible bundle bloat (shared helper imports optimized).
 
@@ -333,14 +346,14 @@ All 25 production modules tested:
 
 ### 4.2 Firestore & Rules
 
-| Component | Metric | Status |
-|-----------|--------|--------|
-| Collections | 25 production + 5 Phase 3 (30 total) | ✅ Live |
-| Indexes | 47 composite (43 existing + 7 Phase 3 new, 2 deprecated) | ✅ Live |
-| Rules Version | v1.4 | ✅ Deployed 2026-05-07 13:42 UTC |
-| Rules Tests | 45/45 passing | ✅ All pass |
-| Multi-tenant isolation | 100% enforced (labId path + rules) | ✅ Verified |
-| Soft-delete enforcement | 100% (no hard deletes) | ✅ Verified |
+| Component               | Metric                                                   | Status                           |
+| ----------------------- | -------------------------------------------------------- | -------------------------------- |
+| Collections             | 25 production + 5 Phase 3 (30 total)                     | ✅ Live                          |
+| Indexes                 | 47 composite (43 existing + 7 Phase 3 new, 2 deprecated) | ✅ Live                          |
+| Rules Version           | v1.4                                                     | ✅ Deployed 2026-05-07 13:42 UTC |
+| Rules Tests             | 45/45 passing                                            | ✅ All pass                      |
+| Multi-tenant isolation  | 100% enforced (labId path + rules)                       | ✅ Verified                      |
+| Soft-delete enforcement | 100% (no hard deletes)                                   | ✅ Verified                      |
 
 ### 4.3 Cloud Functions
 
@@ -354,25 +367,27 @@ All 25 production modules tested:
 ### 4.4 Monitoring & Observability
 
 **Cloud Logs Integration:**
+
 - 24-hour baseline established (2026-05-07 13:42 to 2026-05-08 13:42 UTC)
 - P0/P1 errors: 0 detected
 - Alerts configured (see `docs/CLOUD_LOGS_INTEGRATION_CHECKLIST.md`)
 
 **Metrics:**
+
 - Function invocations: 847 (2026-05-07 only, post-deploy)
 - Errors: 2 (0.24%, both benign: missing user field in one audit write, one network timeout)
 - Average latency: 234ms (target: <500ms, PASS)
 
 ### 4.5 Deployment Artifacts
 
-| Artifact | Location | Commit | Date |
-|----------|----------|--------|------|
-| Schema types | `src/core/domain/types/phase-3-*.ts` | 4d00db6 | 2026-05-03 |
-| Firestore rules | `firestore.rules` | 4d00db6 | 2026-05-03 |
-| Shared helpers | `functions/src/shared/` | 4d00db6 | 2026-05-05 |
+| Artifact           | Location                                                   | Commit  | Date       |
+| ------------------ | ---------------------------------------------------------- | ------- | ---------- |
+| Schema types       | `src/core/domain/types/phase-3-*.ts`                       | 4d00db6 | 2026-05-03 |
+| Firestore rules    | `firestore.rules`                                          | 4d00db6 | 2026-05-03 |
+| Shared helpers     | `functions/src/shared/`                                    | 4d00db6 | 2026-05-05 |
 | Function skeletons | `functions/src/modules/{laudos,notivisa,portal,criticos}/` | 4d00db6 | 2026-05-05 |
-| Deployment config | `firebase.json` + `.firebaserc` | a7cac87 | 2026-05-07 |
-| Hosting build | `.firebase/hosting.*.cache` (auto-generated) | a7cac87 | 2026-05-07 |
+| Deployment config  | `firebase.json` + `.firebaserc`                            | a7cac87 | 2026-05-07 |
+| Hosting build      | `.firebase/hosting.*.cache` (auto-generated)               | a7cac87 | 2026-05-07 |
 
 **All artifacts committed to `main` and production-live as of 2026-05-07 14:15 UTC.**
 
@@ -384,13 +399,13 @@ All 25 production modules tested:
 
 **28 Key Articles — Coverage Breakdown:**
 
-| Category | Articles | Status | Evidence |
-|----------|----------|--------|----------|
-| **Facility & Personnel** | Art. 6, 17, 36–39, 86–87, 122 | 5/5 ✅ | Lab settings, turnos, lab-apoio, risks modules |
-| **Operations** | Art. 27, 47, 49, 167, 195 | 3/5 ⚠️ | CIQ ops live; laudo fields (Art. 167) Phase 9; NOTIVISA (Art. 195) Phase 5 |
-| **Quality Control** | Art. 6º §1 (NOTIVISA), Art. 195 | 2/2 ✅ | notivisa-outbox collection + ADR-0021 queue pattern |
-| **Audit & Records** | Art. 5.3 (audit trail), Art. 3 (records) | 2/2 ✅ | auditoria module + logical signatures (chain hash HMAC) |
-| **Security** | Auth, data protection, encryption | 3/3 ✅ | Firebase Auth + Firestore Rules + TLS in transit |
+| Category                 | Articles                                 | Status | Evidence                                                                   |
+| ------------------------ | ---------------------------------------- | ------ | -------------------------------------------------------------------------- |
+| **Facility & Personnel** | Art. 6, 17, 36–39, 86–87, 122            | 5/5 ✅ | Lab settings, turnos, lab-apoio, risks modules                             |
+| **Operations**           | Art. 27, 47, 49, 167, 195                | 3/5 ⚠️ | CIQ ops live; laudo fields (Art. 167) Phase 9; NOTIVISA (Art. 195) Phase 5 |
+| **Quality Control**      | Art. 6º §1 (NOTIVISA), Art. 195          | 2/2 ✅ | notivisa-outbox collection + ADR-0021 queue pattern                        |
+| **Audit & Records**      | Art. 5.3 (audit trail), Art. 3 (records) | 2/2 ✅ | auditoria module + logical signatures (chain hash HMAC)                    |
+| **Security**             | Auth, data protection, encryption        | 3/3 ✅ | Firebase Auth + Firestore Rules + TLS in transit                           |
 
 **Summary:** 15/28 articles Tier-1 complete. 13 articles Tier-2 (Phase 4–9 features). **No indefinite blockers.**
 
@@ -398,26 +413,26 @@ All 25 production modules tested:
 
 **DICQ 4.3 Block Coverage:**
 
-| Block | Status | Modules | %Complete |
-|-------|--------|---------|-----------|
-| **4.1** Manual and Procedures | ⚠️ Partial | pops, sgq | 70% (manual da qualidade Phase 9) |
-| **4.2** Coordination | ✅ | treinamentos, educacao-continuada | 100% |
-| **4.3** Document Control | ✅ | sgd (80 docs), sgq | 100% |
-| **4.4** Audit Trail | ✅ | auditoria + logical signatures | 100% |
-| **4.14** Risk Management | ✅ | risks (FMEA-Lite), biosseguranca | 100% |
+| Block                         | Status     | Modules                           | %Complete                         |
+| ----------------------------- | ---------- | --------------------------------- | --------------------------------- |
+| **4.1** Manual and Procedures | ⚠️ Partial | pops, sgq                         | 70% (manual da qualidade Phase 9) |
+| **4.2** Coordination          | ✅         | treinamentos, educacao-continuada | 100%                              |
+| **4.3** Document Control      | ✅         | sgd (80 docs), sgq                | 100%                              |
+| **4.4** Audit Trail           | ✅         | auditoria + logical signatures    | 100%                              |
+| **4.14** Risk Management      | ✅         | risks (FMEA-Lite), biosseguranca  | 100%                              |
 
 **Overall DICQ Score:** 82% (target: 100% by Phase 9)
 
 ### 5.3 LGPD Compliance
 
-| Requirement | Status | Module | Evidence |
-|-------------|--------|--------|----------|
-| Privacy notice | ✅ | lgpd | POL-LGPD-001-v1.0.md published |
-| Consent framework | ⚠️ Phase 1 | lgpd | Policy exists; consent UI Phase 1 |
-| Data subject rights (access, deletion) | ✅ | lgpd | DPIA completed; deletion callable operational |
-| PII masking | ✅ | notivisa-outbox | CPF masked before external transmission |
-| Encryption at rest | ✅ | Firestore | Firebase default (AES-256) |
-| Retention policy | ⚠️ Phase 2 | sgd/auditoria | 7-year retention per RDC; archival Phase 2 |
+| Requirement                            | Status     | Module          | Evidence                                      |
+| -------------------------------------- | ---------- | --------------- | --------------------------------------------- |
+| Privacy notice                         | ✅         | lgpd            | POL-LGPD-001-v1.0.md published                |
+| Consent framework                      | ⚠️ Phase 1 | lgpd            | Policy exists; consent UI Phase 1             |
+| Data subject rights (access, deletion) | ✅         | lgpd            | DPIA completed; deletion callable operational |
+| PII masking                            | ✅         | notivisa-outbox | CPF masked before external transmission       |
+| Encryption at rest                     | ✅         | Firestore       | Firebase default (AES-256)                    |
+| Retention policy                       | ⚠️ Phase 2 | sgd/auditoria   | 7-year retention per RDC; archival Phase 2    |
 
 **Overall LGPD Score:** 72% (target: 95% by Phase 1)
 
@@ -432,6 +447,7 @@ All 25 production modules tested:
 **Scope:** ~25 Cloud Functions; logical signatures generated during window not re-signed (marked as baseline reset in audit trail).
 
 **Fix:**
+
 - New key rotated 2026-05-07
 - Functions redeployed
 - Audit event written: `{ type: 'chain_baseline_reset', reason: 'HMAC key rotation', ts: 2026-05-07 }`
@@ -472,6 +488,7 @@ All 25 production modules tested:
 ### 6.1 Wave-Based Parallel Execution
 
 **What Worked:**
+
 - **Parallelization at the task level** (not sprint level) enabled 8 agents to run independently on schema, rules, helpers, functions, docs simultaneously.
 - **Phase 3.1 + 3.2 overlap** (rules testing while functions implemented) compressed timeline by 2 days.
 - **Centralized CLAUDE.md updates** in each phase prevented context thrash (every agent knew the state-of-play via root docs).
@@ -481,6 +498,7 @@ All 25 production modules tested:
 ### 6.2 Agent Specialization Reduces Context Load
 
 **Observation:**
+
 - Stream A (schema) focused on data modeling; finished in 3 days with zero rework.
 - Stream B (rules) specialized in security; 45/45 tests passed on first full run.
 - Stream C (helpers) built unit-tested modules; zero integration surprises.
@@ -490,6 +508,7 @@ All 25 production modules tested:
 ### 6.3 Compliance Mapping Upfront Prevents Late Surprises
 
 **What We Did:**
+
 - Mapped ADR-0019 schema to RDC 978 Art. 6º §1 (NOTIVISA) before writing code.
 - Mapped ADR-0020 locking to RDC 978 Art. 5.3 (audit trail) upfront.
 - Identified DICQ 4.4 gap (record integrity) → pessimistic locking design choice.
@@ -499,6 +518,7 @@ All 25 production modules tested:
 ### 6.4 Pre-Deploy Gates Save Lives
 
 **ADR-0018 (Deploy Gate):**
+
 - `preflight-secrets-check.sh` blocked 3 attempted deploys with unprovisioned secrets.
 - Incident ADR-0017 would have repeated if gate not in place.
 
@@ -507,6 +527,7 @@ All 25 production modules tested:
 ### 6.5 Documentation at Write-Time, Not Review-Time
 
 **What Changed:**
+
 - In Phases 0–2, docs written after deployment (always stale).
 - Phase 3: Handbook + Runbook written **during** implementation (same sprint).
 - Docs stayed synchronized with code; zero outdated examples.
@@ -516,6 +537,7 @@ All 25 production modules tested:
 ### 6.6 Soft-Delete Discipline Simplifies Audit
 
 **Enforcement:**
+
 - Service layer enforces soft-delete (no `deleteDoc` allowed in client code).
 - Rules prevent hard deletes (immutable deletadoEm field).
 - Every soft-delete writes audit trail (who, when, reason).
@@ -533,6 +555,7 @@ All 25 production modules tested:
 **Duration:** 2.5 weeks (2026-05-20 to 2026-06-02)
 
 **Features:**
+
 1. Patient result dashboard (search, filter, download PDF)
 2. White-label branding (lab logo, colors, terms, privacy notice)
 3. Email link authentication (RDC 978 Art. 17 — record access control)
@@ -540,6 +563,7 @@ All 25 production modules tested:
 5. Multi-language support (PT-BR, ES, EN)
 
 **Deliverables:**
+
 - New route `/portal` (lazy-loaded)
 - `getPatientPortalConfig` callable (reads `portal-configuracao` collection)
 - `deletePatientData` callable (LGPD right-to-be-forgotten)
@@ -549,12 +573,12 @@ All 25 production modules tested:
 
 **Overall Risk:** 3.5/10 (LOW)
 
-| Risk | Probability | Impact | Mitigation |
-|------|-------------|--------|-----------|
-| Email link auth UX confusion | Medium | Low | A/B test link vs. password; support chat hotline |
-| LGPD deletion cascade (accidental permanent delete) | Low | High | 30-day soft-delete window; admin approval toggle |
-| Portal branding CSS conflicts | Low | Medium | CSS scoped to `.portal-` namespace; Tailwind isolation |
-| External audit finds LGPD gap | Low | High | Pre-audit with compliance officer (May 20); address findings by June 1 |
+| Risk                                                | Probability | Impact | Mitigation                                                             |
+| --------------------------------------------------- | ----------- | ------ | ---------------------------------------------------------------------- |
+| Email link auth UX confusion                        | Medium      | Low    | A/B test link vs. password; support chat hotline                       |
+| LGPD deletion cascade (accidental permanent delete) | Low         | High   | 30-day soft-delete window; admin approval toggle                       |
+| Portal branding CSS conflicts                       | Low         | Medium | CSS scoped to `.portal-` namespace; Tailwind isolation                 |
+| External audit finds LGPD gap                       | Low         | High   | Pre-audit with compliance officer (May 20); address findings by June 1 |
 
 **No Tier-1 blockers.** 1–2 hours of soft setup (env vars for Twilio, Sendgrid).
 
@@ -570,13 +594,13 @@ All 25 production modules tested:
 
 ### 8.1 Internal Validation
 
-| Item | Owner | Status | Date |
-|------|-------|--------|------|
-| CTO approval | drogafarto | ✅ | 2026-05-07 |
-| Compliance review | compliance officer | ✅ | 2026-05-07 |
-| Security audit | third-party auditor | ✅ PASSED | 2026-05-07 |
-| Smoke tests | QA automation | ✅ 100% pass | 2026-05-07 |
-| Performance baseline | DevOps | ✅ All metrics green | 2026-05-07 |
+| Item                 | Owner               | Status               | Date       |
+| -------------------- | ------------------- | -------------------- | ---------- |
+| CTO approval         | drogafarto          | ✅                   | 2026-05-07 |
+| Compliance review    | compliance officer  | ✅                   | 2026-05-07 |
+| Security audit       | third-party auditor | ✅ PASSED            | 2026-05-07 |
+| Smoke tests          | QA automation       | ✅ 100% pass         | 2026-05-07 |
+| Performance baseline | DevOps              | ✅ All metrics green | 2026-05-07 |
 
 ### 8.2 Production Readiness
 
@@ -652,32 +676,34 @@ C:\hc quality\
 
 ### 9.2 Key Metrics Summary
 
-| Metric | Value | Target | Status |
-|--------|-------|--------|--------|
-| Collections deployed | 5 | 5 | ✅ |
-| Composite indices deployed | 7 | 7 | ✅ |
-| Firestore Rules tests | 45/45 | 45/45 | ✅ |
-| Shared helpers tests | 18/18 | 18/18 | ✅ |
-| All tests passing | 738/738 | 738/738 | ✅ |
-| RDC 978 coverage | 85% | 100% (by Phase 0) | ⚠️ On track |
-| DICQ coverage | 82% | 100% (by Phase 9) | ⚠️ On track |
-| LGPD coverage | 72% | 95% (by Phase 1) | ⚠️ On track |
-| LCP (Web Vitals) | 2.0s | <2.5s | ✅ |
-| P95 function latency | 240ms | <500ms | ✅ |
-| Bundle size (gzip) | 398 KB | <420 KB | ✅ |
-| Uptime (post-deploy 24h) | 99.97% | >99.9% | ✅ |
-| Zero P0/P1 errors (24h) | 0 | 0 | ✅ |
-| Security audit findings | 0 | 0 | ✅ |
+| Metric                     | Value   | Target            | Status      |
+| -------------------------- | ------- | ----------------- | ----------- |
+| Collections deployed       | 5       | 5                 | ✅          |
+| Composite indices deployed | 7       | 7                 | ✅          |
+| Firestore Rules tests      | 45/45   | 45/45             | ✅          |
+| Shared helpers tests       | 18/18   | 18/18             | ✅          |
+| All tests passing          | 738/738 | 738/738           | ✅          |
+| RDC 978 coverage           | 85%     | 100% (by Phase 0) | ⚠️ On track |
+| DICQ coverage              | 82%     | 100% (by Phase 9) | ⚠️ On track |
+| LGPD coverage              | 72%     | 95% (by Phase 1)  | ⚠️ On track |
+| LCP (Web Vitals)           | 2.0s    | <2.5s             | ✅          |
+| P95 function latency       | 240ms   | <500ms            | ✅          |
+| Bundle size (gzip)         | 398 KB  | <420 KB           | ✅          |
+| Uptime (post-deploy 24h)   | 99.97%  | >99.9%            | ✅          |
+| Zero P0/P1 errors (24h)    | 0       | 0                 | ✅          |
+| Security audit findings    | 0       | 0                 | ✅          |
 
 ### 9.3 Related Documents
 
 **Core Infrastructure:**
+
 - `CLAUDE.md` — Root project context (module list, conventions, stack)
 - `docs/SCHEMA_v1.4.md` — ERD + field specifications
 - `firestore.rules` — Firestore security rules (v1.4, deployed)
 - `firebase.json` — Deployment configuration
 
 **Compliance & Audit:**
+
 - `docs/PHASE_3_COMPLIANCE_AUDIT.md` — Detailed audit mapping (RDC 978, DICQ, LGPD)
 - `docs/AUDITOR_EVIDENCE_CHECKLIST.md` — Proof points for external audit
 - Obsidian `HC_Quality_Compliance_DICQ.md` — Master DICQ mapping
@@ -685,16 +711,19 @@ C:\hc quality\
 - Obsidian `HC_Quality_Checklist_Auditoria.md` — ~115 audit items
 
 **Operational:**
+
 - `docs/PHASE_3_RUNBOOK.md` — Deploy, rollback, troubleshoot procedures
 - `docs/CLOUD_LOGS_MONITORING_GUIDE.md` — 24h setup + 39 pre-built filters
 - `docs/DR_PLAN.md` — Disaster recovery (RTO 2–4h per scenario)
 - `scripts/` — 6 backup/restore scripts + 2 monitoring scripts
 
 **Training & Onboarding:**
+
 - `docs/PHASE_3_TRAINING.md` — 1-day onboarding (5-step path, FAQ)
 - `docs/PHASE_3_HANDBOOK.md` — Unified reference (schema, rules, helpers, functions)
 
 **Decision Records:**
+
 - `docs/adr/ADR-0019-phase-3-schema-design.md` — Collection design rationale
 - `docs/adr/ADR-0020-pessimistic-locking-draft-editing.md` — Locking strategy
 - `docs/adr/ADR-0021-notivisa-queue-pattern.md` — Queue & retry pattern
@@ -712,6 +741,7 @@ The schema extensions, security rules, shared helpers, and function skeletons pr
 Compliance is on track: 85% RDC 978, 82% DICQ, 72% LGPD. All metrics green. Zero known issues. Ready to proceed with Phase 4 (Patient Portal) kickoff on 2026-05-20.
 
 **Recommended next actions:**
+
 1. **Schedule DICQ pre-audit** (2026-08-15 target, now confirmed feasible)
 2. **Kick off Phase 4** (2026-05-20, patient portal + LGPD data subject rights)
 3. **Establish external auditor contact** (target: October 2026 full audit)

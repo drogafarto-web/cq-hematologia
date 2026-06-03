@@ -4,13 +4,7 @@
 
 import React, { useCallback, useState } from 'react';
 import { useUser } from '../../../store/useAuthStore';
-import {
-  addDoc,
-  collection,
-  getFirestore,
-  serverTimestamp,
-  Timestamp,
-} from 'firebase/firestore';
+import { addDoc, collection, getFirestore, serverTimestamp, Timestamp } from 'firebase/firestore';
 import type { ManutencaoPreventiva } from '../types/ManutencaoPreventiva';
 
 const INPUT_CLS = `
@@ -75,7 +69,9 @@ export function ManutencaoFormModal({
         responsavelId: user.uid,
         responsavelNome: user.displayName || user.email || 'Operador',
         dataPrevista: Timestamp.fromDate(new Date(dataPrevista + 'T12:00:00')),
-        ...(dataRealizada && { dataRealizada: Timestamp.fromDate(new Date(dataRealizada + 'T12:00:00')) }),
+        ...(dataRealizada && {
+          dataRealizada: Timestamp.fromDate(new Date(dataRealizada + 'T12:00:00')),
+        }),
         status,
         ...(observacoes.trim() && { observacoes: observacoes.trim() }),
         ...(fornecedorNome.trim() && { fornecedorNome: fornecedorNome.trim() }),
@@ -93,7 +89,19 @@ export function ManutencaoFormModal({
     } finally {
       setSubmitting(false);
     }
-  }, [user, labId, equipamentoId, tipo, descricao, dataPrevista, dataRealizada, status, observacoes, onClose, onSaved]);
+  }, [
+    user,
+    labId,
+    equipamentoId,
+    tipo,
+    descricao,
+    dataPrevista,
+    dataRealizada,
+    status,
+    observacoes,
+    onClose,
+    onSaved,
+  ]);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -149,9 +157,10 @@ export function ManutencaoFormModal({
             <textarea
               value={descricao}
               onChange={(e) => setDescricao(e.target.value)}
-              placeholder={tipo === 'preventiva'
-                ? 'Ex: Limpeza de agulha, troca de tubulacao, verificacao de pressoes...'
-                : 'Ex: Substituicao da valvula de aspiracao por defeito...'
+              placeholder={
+                tipo === 'preventiva'
+                  ? 'Ex: Limpeza de agulha, troca de tubulacao, verificacao de pressoes...'
+                  : 'Ex: Substituicao da valvula de aspiracao por defeito...'
               }
               rows={3}
               className={INPUT_CLS + ' resize-none'}
@@ -288,7 +297,9 @@ export function ManutencaoFormModal({
           </div>
 
           {error && (
-            <p className="text-xs text-red-600 dark:text-red-400" role="alert">{error}</p>
+            <p className="text-xs text-red-600 dark:text-red-400" role="alert">
+              {error}
+            </p>
           )}
         </div>
 

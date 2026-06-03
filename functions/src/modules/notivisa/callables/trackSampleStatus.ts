@@ -66,15 +66,13 @@ type TrackSampleStatusError = z.infer<typeof trackSampleStatusErrorSchema>;
 const POLLING_INTERVAL_MS = 300000; // 5 minutes
 const MAX_POLLING_DURATION_MS = 86400000; // 24 hours
 
-export const trackSampleStatus = functions.region('southamerica-east1').onCall(
-  async (request): Promise<TrackSampleStatusOutput | TrackSampleStatusError> => {
+export const trackSampleStatus = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<TrackSampleStatusOutput | TrackSampleStatusError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = trackSampleStatusInputSchema.parse(request.data);
@@ -168,7 +166,7 @@ export const trackSampleStatus = functions.region('southamerica-east1').onCall(
         try {
           portalResponse = await pollNotivisaPortal(
             labId,
-            submissionData.protocolNumber || requisitionId
+            submissionData.protocolNumber || requisitionId,
           );
 
           if (portalResponse.success && portalResponse.status) {
@@ -210,21 +208,18 @@ export const trackSampleStatus = functions.region('southamerica-east1').onCall(
 
         // Log status change
         if (statusChanged) {
-          batch.set(
-            submissionRef.collection('auditLog').doc(`${now}`),
-            {
-              action: 'STATUS_UPDATED',
-              operatorId: uid,
-              ts: now,
-              fromStatus: currentStatus,
-              toStatus: updatedStatus,
-              portalStatus: portalResponse?.status || null,
-              details: {
-                pollingDuration,
-                isTerminal: shouldStopPolling,
-              },
-            }
-          );
+          batch.set(submissionRef.collection('auditLog').doc(`${now}`), {
+            action: 'STATUS_UPDATED',
+            operatorId: uid,
+            ts: now,
+            fromStatus: currentStatus,
+            toStatus: updatedStatus,
+            portalStatus: portalResponse?.status || null,
+            details: {
+              pollingDuration,
+              isTerminal: shouldStopPolling,
+            },
+          });
         }
 
         await batch.commit();
@@ -286,8 +281,7 @@ export const trackSampleStatus = functions.region('southamerica-east1').onCall(
         message: error.message || 'Internal error tracking sample status',
       };
     }
-  }
-);
+  });
 
 /**
  * Poll NOTIVISA portal for status updates
@@ -295,7 +289,7 @@ export const trackSampleStatus = functions.region('southamerica-east1').onCall(
  */
 async function pollNotivisaPortal(
   labId: string,
-  protocolNumber: string
+  protocolNumber: string,
 ): Promise<{
   success: boolean;
   status?: string;
@@ -360,15 +354,15 @@ async function pollNotivisaPortal(
  */
 function mapPortalStatus(portalStatus: string): string {
   const statusMap: Record<string, string> = {
-    'submitted': 'submitted',
-    'acknowledged': 'acknowledged',
-    'in_progress': 'processing',
-    'processing': 'processing',
-    'completed': 'completed',
-    'accepted': 'completed',
-    'rejected': 'rejected',
-    'failed': 'failed',
-    'error': 'failed',
+    submitted: 'submitted',
+    acknowledged: 'acknowledged',
+    in_progress: 'processing',
+    processing: 'processing',
+    completed: 'completed',
+    accepted: 'completed',
+    rejected: 'rejected',
+    failed: 'failed',
+    error: 'failed',
   };
 
   return statusMap[portalStatus.toLowerCase()] || 'queued';

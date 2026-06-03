@@ -469,7 +469,9 @@ function MaterialsEditor({ templateId, materiais, onChange, disabled }: Material
       {(adicionando === 'pdf' || adicionando === 'apresentacao') && (
         <FileInputRow
           label={adicionando === 'pdf' ? 'Selecionar PDF' : 'Selecionar apresentação'}
-          accept={adicionando === 'pdf' ? 'application/pdf' : 'application/pdf,image/jpeg,image/png'}
+          accept={
+            adicionando === 'pdf' ? 'application/pdf' : 'application/pdf,image/jpeg,image/png'
+          }
           onFile={async (file) => {
             try {
               await handleFile(adicionando, file);
@@ -533,9 +535,7 @@ function MaterialsEditor({ templateId, materiais, onChange, disabled }: Material
                 <span className="truncate text-sm text-slate-200">{m.titulo}</span>
                 <span className="text-[10px] uppercase tracking-wider text-slate-500">
                   {m.tipo}
-                  {m.tamanhoBytes
-                    ? ` · ${(m.tamanhoBytes / 1024 / 1024).toFixed(2)}MB`
-                    : ''}
+                  {m.tamanhoBytes ? ` · ${(m.tamanhoBytes / 1024 / 1024).toFixed(2)}MB` : ''}
                 </span>
               </div>
               <button

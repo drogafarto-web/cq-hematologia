@@ -1,18 +1,18 @@
-'use client'
+'use client';
 
-import { cn } from '@/lib/utils'
+import { cn } from '@/lib/utils';
 
 interface Column<T> {
-  key: string
-  header: string
-  render?: (item: T) => React.ReactNode
+  key: string;
+  header: string;
+  render?: (item: T) => React.ReactNode;
 }
 
 interface DataTableProps<T> {
-  columns: Column<T>[]
-  data: T[]
-  onRowClick?: (item: T) => void
-  emptyState?: string
+  columns: Column<T>[];
+  data: T[];
+  onRowClick?: (item: T) => void;
+  emptyState?: string;
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -22,11 +22,7 @@ export function DataTable<T extends Record<string, unknown>>({
   emptyState = 'Nenhum registro encontrado.',
 }: DataTableProps<T>) {
   if (data.length === 0) {
-    return (
-      <div className="text-center text-on-surface-variant py-12">
-        {emptyState}
-      </div>
-    )
+    return <div className="text-center text-on-surface-variant py-12">{emptyState}</div>;
   }
 
   return (
@@ -49,7 +45,10 @@ export function DataTable<T extends Record<string, unknown>>({
             <tr
               key={i}
               onClick={() => onRowClick?.(item)}
-              className={cn('h-12 border-b border-border hover:bg-surface-variant', onRowClick && 'cursor-pointer')}
+              className={cn(
+                'h-12 border-b border-border hover:bg-surface-variant',
+                onRowClick && 'cursor-pointer',
+              )}
             >
               {columns.map((col) => (
                 <td key={col.key} className="px-4 text-on-surface">
@@ -61,5 +60,5 @@ export function DataTable<T extends Record<string, unknown>>({
         </tbody>
       </table>
     </div>
-  )
+  );
 }

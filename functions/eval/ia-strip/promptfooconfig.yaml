@@ -14,7 +14,7 @@
 # docs/ai-evals/IA_STRIP_EVAL_FRAMEWORK.md.
 # ─────────────────────────────────────────────────────────────────────────────
 
-description: "RDT Strip Classifier (HIV/Dengue/Syphilis/COVID/HCG) — Gemini 2.5 Flash"
+description: 'RDT Strip Classifier (HIV/Dengue/Syphilis/COVID/HCG) — Gemini 2.5 Flash'
 
 env:
   # promptfoo reads GEMINI_API_KEY from process env (do not hardcode).

@@ -96,8 +96,7 @@ export async function downloadDocumentContent(
       const markdown = new TextDecoder().decode(buffer);
       return { content: markdown, type: 'markdown', sizeKB };
     } else if (
-      mimeType ===
-      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      mimeType === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     ) {
       // Export DOCX as PDF (simpler preview than Word-specific parsing)
       const response = await drive.files.export(

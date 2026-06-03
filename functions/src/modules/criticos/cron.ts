@@ -12,11 +12,7 @@ import { onRequest } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 import { generateChainHash } from '../../shared/signature';
 
-import type {
-  EscalacaoCriticosResponse,
-  CriticosEscalacao,
-  CriticosLogEvento,
-} from './types';
+import type { EscalacaoCriticosResponse, CriticosEscalacao, CriticosLogEvento } from './types';
 
 const db = admin.firestore();
 
@@ -58,8 +54,7 @@ async function buildLogEventoSignature(params: {
   assinatura: CriticosLogEvento['assinatura'];
   eventoAnteriorId?: string;
 }> {
-  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } =
-    params;
+  const { labId, escalacaoId, eventoId, tipo, detalhes, operadorId, ts } = params;
 
   // Fetch most recent prior event for this escalacao to chain against.
   const priorSnap = await db
@@ -71,9 +66,7 @@ async function buildLogEventoSignature(params: {
     .limit(1)
     .get();
 
-  const prior = priorSnap.empty
-    ? null
-    : (priorSnap.docs[0].data() as CriticosLogEvento);
+  const prior = priorSnap.empty ? null : (priorSnap.docs[0].data() as CriticosLogEvento);
   const previousHash = prior?.assinatura?.hash ?? null;
   const eventoAnteriorId = prior?.id;
 
@@ -157,20 +150,10 @@ export const escalacaoCriticos = onSchedule(
 
             // Check SMS delivery status — Twilio loaded lazily, skipped when
             // not provisioned (SLA tracking continues regardless).
-            const smsAttempt = escalacao.escalacoes.find(
-              (e) => e.canal === 'SMS'
-            );
-            if (
-              smsAttempt &&
-              smsAttempt.provider_messageId &&
-              isTwilioProvisioned()
-            ) {
-              const { checkMessageStatus } = await import(
-                '../../shared/sms/twilioClient'
-              );
-              const status = await checkMessageStatus(
-                smsAttempt.provider_messageId
-              );
+            const smsAttempt = escalacao.escalacoes.find((e) => e.canal === 'SMS');
+            if (smsAttempt && smsAttempt.provider_messageId && isTwilioProvisioned()) {
+              const { checkMessageStatus } = await import('../../shared/sms/twilioClient');
+              const status = await checkMessageStatus(smsAttempt.provider_messageId);
 
               if (status.status === 'delivered') {
                 smsAttempt.status = 'entregue';
@@ -247,7 +230,7 @@ export const escalacaoCriticos = onSchedule(
       console.error('escalacaoCriticos cron error:', error);
       throw error;
     }
-  }
+  },
 );
 
 // ============================================================================
@@ -286,9 +269,7 @@ export const escalacaoCriticos_webhook = onRequest(
       // Find escalacao by provider_messageId
       const escalacoes = await db
         .collectionGroup('criticos-escalacoes')
-        .where('escalacoes', 'array-contains-any', [
-          { provider_messageId: MessageSid },
-        ])
+        .where('escalacoes', 'array-contains-any', [{ provider_messageId: MessageSid }])
         .limit(1)
         .get();
 
@@ -301,14 +282,11 @@ export const escalacaoCriticos_webhook = onRequest(
       const escalacao = escalacaoDoc.data() as CriticosEscalacao;
 
       // Find and update escalacao entry
-      const entryIndex = escalacao.escalacoes.findIndex(
-        (e) => e.provider_messageId === MessageSid
-      );
+      const entryIndex = escalacao.escalacoes.findIndex((e) => e.provider_messageId === MessageSid);
 
       if (entryIndex >= 0) {
         escalacao.escalacoes[entryIndex].status = MessageStatus as any;
-        escalacao.escalacoes[entryIndex].entregue_em =
-          admin.firestore.Timestamp.now();
+        escalacao.escalacoes[entryIndex].entregue_em = admin.firestore.Timestamp.now();
 
         await escalacaoDoc.ref.update({
           escalacoes: escalacao.escalacoes,
@@ -317,11 +295,7 @@ export const escalacaoCriticos_webhook = onRequest(
 
         // Log event
         const labId = escalacao.labId;
-        const eventoRef = db
-          .collection('labs')
-          .doc(labId)
-          .collection('criticos-log-eventos')
-          .doc();
+        const eventoRef = db.collection('labs').doc(labId).collection('criticos-log-eventos').doc();
 
         // Map Twilio status to event type
         let eventoTipo: 'sms_entregue' | 'sms_falha' = 'sms_falha';
@@ -336,18 +310,16 @@ export const escalacaoCriticos_webhook = onRequest(
           twilio_sid: MessageSid,
           status: MessageStatus,
         };
-        const {
-          assinatura: webhookAssinatura,
-          eventoAnteriorId: webhookPriorId,
-        } = await buildLogEventoSignature({
-          labId,
-          escalacaoId: escalacaoDoc.id,
-          eventoId: eventoRef.id,
-          tipo: eventoTipo,
-          detalhes: webhookDetalhes,
-          operadorId: 'twilio-webhook',
-          ts: webhookTs,
-        });
+        const { assinatura: webhookAssinatura, eventoAnteriorId: webhookPriorId } =
+          await buildLogEventoSignature({
+            labId,
+            escalacaoId: escalacaoDoc.id,
+            eventoId: eventoRef.id,
+            tipo: eventoTipo,
+            detalhes: webhookDetalhes,
+            operadorId: 'twilio-webhook',
+            ts: webhookTs,
+          });
 
         await eventoRef.set({
           id: eventoRef.id,
@@ -369,5 +341,5 @@ export const escalacaoCriticos_webhook = onRequest(
       console.error('Webhook handler error:', error);
       res.status(500).send('Internal error');
     }
-  }
+  },
 );

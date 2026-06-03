@@ -56,7 +56,10 @@ export const labApoio_uploadContratoAnexo = onCall<unknown, Promise<UploadContra
     try {
       [metadata] = await file.getMetadata();
     } catch (err: any) {
-      throw new HttpsError('not-found', `Arquivo não encontrado em Storage: ${input.fileMeta.path}`);
+      throw new HttpsError(
+        'not-found',
+        `Arquivo não encontrado em Storage: ${input.fileMeta.path}`,
+      );
     }
 
     const fileSize = parseInt(metadata.size as string, 10);

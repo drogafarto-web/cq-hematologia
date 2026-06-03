@@ -34,7 +34,10 @@ function safeModulesFromClaims(claims: Record<string, unknown>): Record<string, 
   return null;
 }
 
-export async function debugAuthState(auth: Auth, forceRefresh = false): Promise<DebugAuthStateReport> {
+export async function debugAuthState(
+  auth: Auth,
+  forceRefresh = false,
+): Promise<DebugAuthStateReport> {
   const u = auth.currentUser;
   if (!u) {
     return {
@@ -72,7 +75,9 @@ export async function debugAuthState(auth: Auth, forceRefresh = false): Promise<
     emailVerified: u.emailVerified,
     tokenIssuedAtIso: tr.issuedAtTime ? new Date(tr.issuedAtTime).toISOString() : null,
     tokenExpirationIso: tr.expirationTime ? new Date(tr.expirationTime).toISOString() : null,
-    authTimeIso: u.metadata?.lastSignInTime ? new Date(u.metadata.lastSignInTime).toISOString() : null,
+    authTimeIso: u.metadata?.lastSignInTime
+      ? new Date(u.metadata.lastSignInTime).toISOString()
+      : null,
     signInProvider: u.providerData[0]?.providerId ?? null,
     customClaimKeys: Object.keys(claims).sort(),
     modulesClaim: modules,

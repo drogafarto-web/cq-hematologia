@@ -119,7 +119,9 @@ export function TermometroForm({
       onClose={onClose}
       title={isEdit ? 'Editar termômetro' : 'Novo termômetro'}
       subtitle={
-        isEdit ? 'Para renovar a calibração, use o botão "Renovar"' : 'Cadastro + calibração inicial'
+        isEdit
+          ? 'Para renovar a calibração, use o botão "Renovar"'
+          : 'Cadastro + calibração inicial'
       }
       maxWidthClass="max-w-lg"
       footer={
@@ -251,10 +253,7 @@ export function TermometrosList() {
                   ? `${dias} dias restantes`
                   : `${dias} dias restantes`;
             return (
-              <div
-                key={t.id}
-                className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
-              >
+              <div key={t.id} className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
                 <div className="mb-3 flex items-start justify-between gap-3">
                   <div>
                     <h4 className="font-semibold text-slate-800">
@@ -298,9 +297,7 @@ export function TermometrosList() {
                   <Button tone="secondary" onClick={() => setEditando(t)}>
                     Editar
                   </Button>
-                  <Button
-                    onClick={() => setCalibracaoModal({ termometro: t, mode: 'renovar' })}
-                  >
+                  <Button onClick={() => setCalibracaoModal({ termometro: t, mode: 'renovar' })}>
                     🔄 Renovar calibração
                   </Button>
                   <Button

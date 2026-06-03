@@ -43,7 +43,7 @@ interface OverridePayload {
 async function createOverrideAuditLog(
   labId: string,
   payload: OverridePayload,
-  operatorId: string
+  operatorId: string,
 ): Promise<string> {
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
@@ -64,9 +64,7 @@ async function createOverrideAuditLog(
     deletedAt: null,
   };
 
-  const docRef = await db
-    .collection(`labs/${labId}/imuno-ias-dev/audit`)
-    .add(auditLog);
+  const docRef = await db.collection(`labs/${labId}/imuno-ias-dev/audit`).add(auditLog);
 
   return docRef.id;
 }
@@ -78,7 +76,7 @@ async function notifyRTForLowConfidence(
   labId: string,
   runId: string,
   imageId: string,
-  confidence: number
+  confidence: number,
 ): Promise<void> {
   const db = admin.firestore();
 
@@ -101,9 +99,7 @@ async function notifyRTForLowConfidence(
     const batch = db.batch();
 
     rtSnapshot.docs.forEach((doc) => {
-      const notificationRef = db
-        .collection(`users/${doc.id}/notifications`)
-        .doc();
+      const notificationRef = db.collection(`users/${doc.id}/notifications`).doc();
 
       batch.set(notificationRef, {
         type: 'LOW_CONFIDENCE_STRIP_CLASSIFICATION',
@@ -124,7 +120,7 @@ async function notifyRTForLowConfidence(
     console.warn(
       `Failed to notify RT for low confidence: ${
         error instanceof Error ? error.message : 'unknown error'
-      }`
+      }`,
     );
     // Non-fatal: don't block response
   }
@@ -137,7 +133,7 @@ async function recordClassificationResult(
   labId: string,
   payload: OverridePayload,
   operatorId: string,
-  auditLogId: string
+  auditLogId: string,
 ): Promise<void> {
   const db = admin.firestore();
   const now = admin.firestore.Timestamp.now();
@@ -190,73 +186,56 @@ export const recordManualOverride = onCall(async (request) => {
   let payload: OverridePayload;
   try {
     payload = OverridePayloadSchema.parse(data);
-    } catch (error) {
-      const validationError = error instanceof z.ZodError
+  } catch (error) {
+    const validationError =
+      error instanceof z.ZodError
         ? error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ')
         : 'Unknown validation error';
-      throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
-    }
+    throw new HttpsError('invalid-argument', `Validation error: ${validationError}`);
+  }
 
-    // Verify user is RT or admin of lab
-    const db = admin.firestore();
-    const memberDoc = await db.doc(`labs/${payload.labId}/members/${request.auth.uid}`).get();
+  // Verify user is RT or admin of lab
+  const db = admin.firestore();
+  const memberDoc = await db.doc(`labs/${payload.labId}/members/${request.auth.uid}`).get();
 
-    if (!memberDoc.exists) {
-      throw new HttpsError(
-        'permission-denied',
-        'User is not a member of this lab'
-      );
-    }
+  if (!memberDoc.exists) {
+    throw new HttpsError('permission-denied', 'User is not a member of this lab');
+  }
 
-    const memberData = memberDoc.data() as any;
-    if (!memberData?.active) {
-      throw new HttpsError(
-        'permission-denied',
-        'User is not an active member of this lab'
-      );
-    }
+  const memberData = memberDoc.data() as any;
+  if (!memberData?.active) {
+    throw new HttpsError('permission-denied', 'User is not an active member of this lab');
+  }
 
-    // Only RT and admin can override
-    if (!['rt', 'admin', 'owner'].includes(memberData.role)) {
-      throw new HttpsError(
-        'permission-denied',
-        'Only RT and admin can override classifications'
-      );
-    }
+  // Only RT and admin can override
+  if (!['rt', 'admin', 'owner'].includes(memberData.role)) {
+    throw new HttpsError('permission-denied', 'Only RT and admin can override classifications');
+  }
 
-    try {
-      // Step 1: Create audit log
-      const auditLogId = await createOverrideAuditLog(
-        payload.labId,
-        payload,
-        request.auth.uid
-      );
+  try {
+    // Step 1: Create audit log
+    const auditLogId = await createOverrideAuditLog(payload.labId, payload, request.auth.uid);
 
-      // Step 2: Record classification result
-      await recordClassificationResult(
-        payload.labId,
-        payload,
-        request.auth.uid,
-        auditLogId
-      );
+    // Step 2: Record classification result
+    await recordClassificationResult(payload.labId, payload, request.auth.uid, auditLogId);
 
-      // Step 3: Log audit event with signature
-      const now = admin.firestore.Timestamp.now();
-      const auditEventRef = db.collection(`labs/${payload.labId}/ciq-audit`).doc();
+    // Step 3: Log audit event with signature
+    const now = admin.firestore.Timestamp.now();
+    const auditEventRef = db.collection(`labs/${payload.labId}/ciq-audit`).doc();
 
-      await auditEventRef.set({
-        type: 'IMUNO_CLASSIFICATION_OVERRIDE',
-        labId: payload.labId,
-        runId: payload.runId,
-        imageId: payload.imageId,
-        operatorId: request.auth.uid,
-        originalClassification: payload.originalClassification,
-        manualClassification: payload.manualClassification,
-        confidence: payload.originalConfidence,
-        reasoning: payload.reasoning,
-        timestamp: now,
-        createdAt: now,
-      });
+    await auditEventRef.set({
+      type: 'IMUNO_CLASSIFICATION_OVERRIDE',
+      labId: payload.labId,
+      runId: payload.runId,
+      imageId: payload.imageId,
+      operatorId: request.auth.uid,
+      originalClassification: payload.originalClassification,
+      manualClassification: payload.manualClassification,
+      confidence: payload.originalConfidence,
+      reasoning: payload.reasoning,
+      timestamp: now,
+      createdAt: now,
+    });
 
     return {
       success: true,
@@ -272,7 +251,7 @@ export const recordManualOverride = onCall(async (request) => {
     console.error('Manual override error:', error);
     throw new HttpsError(
       'internal',
-      `Manual override failed: ${error instanceof Error ? error.message : 'unknown error'}`
+      `Manual override failed: ${error instanceof Error ? error.message : 'unknown error'}`,
     );
   }
 });
@@ -303,7 +282,7 @@ export const flagForManualReview = onCall(async (request) => {
     console.error('Flag for manual review error:', error);
     throw new HttpsError(
       'internal',
-      `Flagging failed: ${error instanceof Error ? error.message : 'unknown error'}`
+      `Flagging failed: ${error instanceof Error ? error.message : 'unknown error'}`,
     );
   }
 });

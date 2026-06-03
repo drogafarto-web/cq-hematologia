@@ -106,10 +106,7 @@ export function isCritico(
  * Tier 2: 30 min (Physician)
  * Tier 3: 60 min (CTO) — RDC 978 Art. 5.7.1 max
  */
-export function calculateSLA(
-  criticoTime: Date,
-  labConfig: CriticosConfig,
-): SLADeadlines {
+export function calculateSLA(criticoTime: Date, labConfig: CriticosConfig): SLADeadlines {
   if (!labConfig.ativo) {
     return {
       tier1Deadline: new Date(criticoTime.getTime() + 15 * 60 * 1000),

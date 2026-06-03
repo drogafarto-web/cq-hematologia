@@ -41,7 +41,8 @@ export function KpiValueMetaBar({
   fallbackLabel,
 }: KpiValueMetaBarProps): ReactElement {
   const uid = useId().replace(/:/g, '');
-  const metaOk = typeof metaValor === 'number' && Number.isFinite(metaValor) && metaUnidade === expectedUnidade;
+  const metaOk =
+    typeof metaValor === 'number' && Number.isFinite(metaValor) && metaUnidade === expectedUnidade;
   const ref = metaOk ? metaValor : fallbackReference;
 
   const maxScale =
@@ -50,8 +51,7 @@ export function KpiValueMetaBar({
       : Math.max(100, value, ref ?? 0) * 1.02;
 
   const vPct = clamp(value / maxScale, 0, 1);
-  const mPct =
-    typeof ref === 'number' && Number.isFinite(ref) ? clamp(ref / maxScale, 0, 1) : null;
+  const mPct = typeof ref === 'number' && Number.isFinite(ref) ? clamp(ref / maxScale, 0, 1) : null;
 
   const success =
     mode === 'lower-is-better'
@@ -65,7 +65,9 @@ export function KpiValueMetaBar({
   const dotFill = success ? '#34d399' : '#fbbf24';
   const trackTitle = [
     `${label}: ${value.toFixed(expectedUnidade === 'hours' ? 1 : 1)}${valueSuffix}`,
-    metaOk ? `${metaLabel} (${metaValor!.toFixed(expectedUnidade === 'hours' ? 1 : 1)}${valueSuffix})` : null,
+    metaOk
+      ? `${metaLabel} (${metaValor!.toFixed(expectedUnidade === 'hours' ? 1 : 1)}${valueSuffix})`
+      : null,
     !metaOk && fallbackLabel && typeof ref === 'number'
       ? `${fallbackLabel}: ${ref.toFixed(expectedUnidade === 'hours' ? 1 : 1)}${valueSuffix}`
       : null,
@@ -143,7 +145,14 @@ export function KpiValueMetaBar({
           </line>
         ) : null}
         {/* value */}
-        <circle cx={8 + 224 * vPct} cy="18" r="5" fill={dotFill} stroke="#0b0b0c" strokeWidth="1.5" />
+        <circle
+          cx={8 + 224 * vPct}
+          cy="18"
+          r="5"
+          fill={dotFill}
+          stroke="#0b0b0c"
+          strokeWidth="1.5"
+        />
         <defs>
           <linearGradient id={`gradLow-${uid}`} x1="0" x2="1" y1="0" y2="0">
             <stop offset="0%" stopColor="#10b981" stopOpacity="0.5" />

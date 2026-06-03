@@ -3,6 +3,7 @@
 ## Execution Timeline
 
 ### Phase 1: Dry-Run Mode
+
 **Time:** 2026-05-08 (Current session)
 **Command:** `node scripts/bootstrap-supervisor-status.mjs --dry-run --project hmatologia2`
 **Result:** ✅ SUCCESS
@@ -30,6 +31,7 @@ Summary:
 **Labs identified:** `labclin-riopomba`
 
 **Document structure (target):**
+
 ```
 /labs/labclin-riopomba/supervisor-status/current
 {
@@ -41,6 +43,7 @@ Summary:
 ---
 
 ### Phase 2: Apply Mode (Production)
+
 **Time:** 2026-05-08
 **Command:** `node scripts/bootstrap-supervisor-status.mjs --project hmatologia2`
 **Result:** ✅ SUCCESS
@@ -68,6 +71,7 @@ Summary:
 ```
 
 **Action:** Created supervisor-status/current doc for `labclin-riopomba` with:
+
 - `hasActiveSupervisor: false`
 - `lastUpdated: <server-timestamp>` (2026-05-08T[HH:MM:SS]Z)
 
@@ -75,25 +79,27 @@ Summary:
 
 ## Verification Checklist
 
-| Item | Status | Notes |
-|------|--------|-------|
-| Dry-run completed | ✅ | 1 lab identified, no writes |
-| Apply mode completed | ✅ | Document created successfully |
-| Document persisted | 🔄 | To verify in Firestore Console |
-| Firestore rules NOT deployed | ✅ | Rules exist in code, still allow writes (supervised) |
-| Lab count matches | ✅ | 1 lab total (labclin-riopomba) |
-| No errors | ✅ | Clean execution |
+| Item                         | Status | Notes                                                |
+| ---------------------------- | ------ | ---------------------------------------------------- |
+| Dry-run completed            | ✅     | 1 lab identified, no writes                          |
+| Apply mode completed         | ✅     | Document created successfully                        |
+| Document persisted           | 🔄     | To verify in Firestore Console                       |
+| Firestore rules NOT deployed | ✅     | Rules exist in code, still allow writes (supervised) |
+| Lab count matches            | ✅     | 1 lab total (labclin-riopomba)                       |
+| No errors                    | ✅     | Clean execution                                      |
 
 ---
 
 ## Pre-Deployment Validation Summary
 
 ### Labs in Firestore
+
 - **Total:** 1 active lab
 - **Lab ID:** `labclin-riopomba`
 - **Supervisor-status doc:** Created in EXECUTE phase
 
 ### Firestore Rules Status
+
 - **Current state:** Rules contain supervisor-status collection definition (lines 1860–1866 in `firestore.rules`)
 - **Access control:** `allow read: if isSuperAdmin() || isActiveMemberOfLab(labId)`
 - **Write gating:** `allow create, update, delete: if false` (callables only)
@@ -101,12 +107,15 @@ Summary:
 - **Impact:** Before rules deploy, supervisor-status writes are still possible (bootstrap uses Admin SDK with full credentials)
 
 ### Document Structure Validation
+
 Per firestore.rules:1860–1866, supervisor-status doc must exist at path:
+
 ```
 /labs/{labId}/supervisor-status/current
 ```
 
 Required fields:
+
 - `hasActiveSupervisor: boolean` (bootstrapped as `false`)
 - `lastUpdated: timestamp` (server-side)
 
@@ -127,6 +136,7 @@ Required fields:
 ## Deployment Order Notes
 
 **CRITICAL:** Rules must deploy AFTER bootstrap:
+
 - Bootstrap writes to supervisor-status doc (Admin SDK, full access)
 - Rules deploy locks collection to callables-only (prevents future direct writes)
 - CIQ run writes already gate on `hasActiveSupervisor(labId)` helper, which reads the doc

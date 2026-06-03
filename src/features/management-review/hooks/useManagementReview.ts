@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  getMeetings,
-  getMeetingById
-} from '../services/managementReviewService';
+import { getMeetings, getMeetingById } from '../services/managementReviewService';
 import type { ManagementReview } from '../types';
 
 interface UseManagementReviewResult {
@@ -82,7 +79,7 @@ export function useManagementReview(): UseManagementReviewResult {
     latest,
     byYear,
     loading,
-    error
+    error,
   };
 }
 

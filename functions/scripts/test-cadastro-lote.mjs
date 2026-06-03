@@ -95,12 +95,7 @@ try {
     createdAt: admin.firestore.Timestamp.now(),
   };
 
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('ciq-coagulacao')
-    .doc(novoLoteId)
-    .set(novoLote);
+  await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(novoLoteId).set(novoLote);
 
   console.log(`   ✅ Novo lote criado: ${novoLote.loteControle}`);
   console.log(`      ID: ${novoLoteId.slice(0, 12)}...`);
@@ -151,7 +146,9 @@ try {
     .set(novoRun);
 
   console.log(`   ✅ Corrida registrada`);
-  console.log(`      Resultados: AP=${novoRun.resultados.atividadeProtrombinica}, RNI=${novoRun.resultados.rni}, TTPA=${novoRun.resultados.ttpa}`);
+  console.log(
+    `      Resultados: AP=${novoRun.resultados.atividadeProtrombinica}, RNI=${novoRun.resultados.rni}, TTPA=${novoRun.resultados.ttpa}`,
+  );
   console.log(`      Conformidade: ${novoRun.conformidade} (aceito)`);
 
   // ─────────────────────────────────────────────────────────────────────────
@@ -212,7 +209,6 @@ try {
   console.log('  ✅ Validação Westgard funcionando');
   console.log('  ✅ 2 lotes aparecem na listagem');
   console.log('\n🎉 Usuário consegue cadastrar!\n');
-
 } catch (err) {
   console.error('\n❌ ERRO NO FLUXO:');
   console.error('   Mensagem:', err.message);

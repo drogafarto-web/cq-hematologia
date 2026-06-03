@@ -149,10 +149,7 @@ export interface InsumoQualificacao {
  *
  * Firestore path: /labs/{labId}/alertas/{id}
  */
-export type AlertaType =
-  | 'signature_invalid'
-  | 'qualificacao_reprovada'
-  | 'insumo_vencendo';
+export type AlertaType = 'signature_invalid' | 'qualificacao_reprovada' | 'insumo_vencendo';
 
 export type AlertaSeverity = 'info' | 'warning' | 'error';
 

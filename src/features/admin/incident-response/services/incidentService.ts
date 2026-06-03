@@ -43,7 +43,8 @@ import type {
 // ─── Constants ─────────────────────────────────────────────────────────────
 
 const INCIDENTS_COLLECTION = (labId: string) => `labs/${labId}/incidents`;
-const INCIDENT_DOC = (labId: string, incidentId: string) => `${INCIDENTS_COLLECTION(labId)}/${incidentId}`;
+const INCIDENT_DOC = (labId: string, incidentId: string) =>
+  `${INCIDENTS_COLLECTION(labId)}/${incidentId}`;
 const INCIDENT_ACTIONS_COLLECTION = (labId: string, incidentId: string) =>
   `${INCIDENT_DOC(labId, incidentId)}/actions`;
 const INCIDENT_POST_MORTEM_COLLECTION = (labId: string, incidentId: string) =>
@@ -84,11 +85,11 @@ interface RecordPostMortemPayload extends RecordPostMortemInput {
  */
 export async function createIncident(
   labId: string,
-  input: CreateIncidentInput
+  input: CreateIncidentInput,
 ): Promise<CreateIncidentResponse> {
   const createIncidentCallable = httpsCallable<CreateIncidentPayload, CreateIncidentResponse>(
     functions,
-    'createIncident'
+    'createIncident',
   );
 
   try {
@@ -99,9 +100,7 @@ export async function createIncident(
     return result.data;
   } catch (error) {
     console.error('[incidentService] createIncident error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to create incident'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to create incident');
   }
 }
 
@@ -119,11 +118,11 @@ export async function createIncident(
 export async function escalateIncident(
   labId: string,
   incidentId: string,
-  input: EscalateIncidentInput
+  input: EscalateIncidentInput,
 ): Promise<void> {
   const escalateIncidentCallable = httpsCallable<EscalateIncidentPayload, { escalated: boolean }>(
     functions,
-    'escalateIncident'
+    'escalateIncident',
   );
 
   try {
@@ -134,9 +133,7 @@ export async function escalateIncident(
     });
   } catch (error) {
     console.error('[incidentService] escalateIncident error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to escalate incident'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to escalate incident');
   }
 }
 
@@ -154,12 +151,12 @@ export async function escalateIncident(
 export async function closeIncident(
   labId: string,
   incidentId: string,
-  notes?: string
+  notes?: string,
 ): Promise<void> {
-  const closeIncidentCallable = httpsCallable<CloseIncidentPayload, { closed: boolean; mttr: number }>(
-    functions,
-    'closeIncident'
-  );
+  const closeIncidentCallable = httpsCallable<
+    CloseIncidentPayload,
+    { closed: boolean; mttr: number }
+  >(functions, 'closeIncident');
 
   try {
     await closeIncidentCallable({
@@ -169,9 +166,7 @@ export async function closeIncident(
     });
   } catch (error) {
     console.error('[incidentService] closeIncident error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to close incident'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to close incident');
   }
 }
 
@@ -189,11 +184,11 @@ export async function closeIncident(
 export async function recordPostMortem(
   labId: string,
   incidentId: string,
-  input: RecordPostMortemInput
+  input: RecordPostMortemInput,
 ): Promise<void> {
   const recordPostMortemCallable = httpsCallable<RecordPostMortemPayload, { recorded: boolean }>(
     functions,
-    'recordPostMortem'
+    'recordPostMortem',
   );
 
   try {
@@ -204,9 +199,7 @@ export async function recordPostMortem(
     });
   } catch (error) {
     console.error('[incidentService] recordPostMortem error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to record post-mortem'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to record post-mortem');
   }
 }
 
@@ -232,9 +225,7 @@ export async function getIncident(labId: string, incidentId: string): Promise<In
     return snap.data() as Incident;
   } catch (error) {
     console.error('[incidentService] getIncident error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to fetch incident'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to fetch incident');
   }
 }
 
@@ -250,7 +241,7 @@ export async function getIncident(labId: string, incidentId: string): Promise<In
  */
 export async function getIncidentActions(
   labId: string,
-  incidentId: string
+  incidentId: string,
 ): Promise<IncidentAction[]> {
   const actionsRef = collection(db, INCIDENT_ACTIONS_COLLECTION(labId, incidentId));
   const q = query(actionsRef, orderBy('takenAt', 'asc'));
@@ -296,7 +287,7 @@ interface SubscribeIncidentsOptions {
 export function subscribeIncidents(
   labId: string,
   options: SubscribeIncidentsOptions,
-  callback: (incidents: Incident[]) => void
+  callback: (incidents: Incident[]) => void,
 ): Unsubscribe {
   const incidentsRef = collection(db, INCIDENTS_COLLECTION(labId));
 
@@ -336,16 +327,9 @@ export function subscribeIncidents(
  * @param maxResults Maximum number of incidents to return
  * @returns Array of incidents, ordered newest first
  */
-export async function listIncidents(
-  labId: string,
-  maxResults: number = 50
-): Promise<Incident[]> {
+export async function listIncidents(labId: string, maxResults: number = 50): Promise<Incident[]> {
   const incidentsRef = collection(db, INCIDENTS_COLLECTION(labId));
-  const q = query(
-    incidentsRef,
-    orderBy('declaredAt', 'desc'),
-    limit(maxResults)
-  );
+  const q = query(incidentsRef, orderBy('declaredAt', 'desc'), limit(maxResults));
 
   try {
     const snap = await getDocs(q);
@@ -376,9 +360,7 @@ export async function softDeleteIncident(labId: string, incidentId: string): Pro
     await softDeleteCallable({ labId, incidentId });
   } catch (error) {
     console.error('[incidentService] softDeleteIncident error:', error);
-    throw new Error(
-      error instanceof Error ? error.message : 'Failed to soft-delete incident'
-    );
+    throw new Error(error instanceof Error ? error.message : 'Failed to soft-delete incident');
   }
 }
 

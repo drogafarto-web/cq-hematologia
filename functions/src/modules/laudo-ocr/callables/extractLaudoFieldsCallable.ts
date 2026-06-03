@@ -18,10 +18,7 @@ import * as admin from 'firebase-admin';
 import { HttpsError, onCall } from 'firebase-functions/v2/https';
 import { extractLaudoFields } from '../laudoOCRExtractor';
 import { validateLaudoExtraction } from '../validators';
-import {
-  ExtractLaudoFieldsInput,
-  ExtractLaudoFieldsInputSchema,
-} from '../types';
+import { ExtractLaudoFieldsInput, ExtractLaudoFieldsInputSchema } from '../types';
 
 export const extractLaudoFieldsCallable = onCall(
   {
@@ -41,10 +38,7 @@ export const extractLaudoFieldsCallable = onCall(
       try {
         input = ExtractLaudoFieldsInputSchema.parse(request.data);
       } catch (err) {
-        throw new HttpsError(
-          'invalid-argument',
-          `Invalid input: ${(err as Error).message}`
-        );
+        throw new HttpsError('invalid-argument', `Invalid input: ${(err as Error).message}`);
       }
 
       const { labId, laudoId, storageUrl, patientId } = input;
@@ -54,18 +48,12 @@ export const extractLaudoFieldsCallable = onCall(
       const memberDoc = await db.doc(`labs/${labId}/members/${request.auth.uid}`).get();
 
       if (!memberDoc.exists) {
-        throw new HttpsError(
-          'permission-denied',
-          `User not member of lab ${labId}`
-        );
+        throw new HttpsError('permission-denied', `User not member of lab ${labId}`);
       }
 
       const memberData = memberDoc.data();
       if (memberData?.status !== 'active') {
-        throw new HttpsError(
-          'permission-denied',
-          `User not active member of lab ${labId}`
-        );
+        throw new HttpsError('permission-denied', `User not active member of lab ${labId}`);
       }
 
       // 4. Fetch laudo to verify it exists + get patient ID if not provided
@@ -91,7 +79,7 @@ export const extractLaudoFieldsCallable = onCall(
           labId,
           actualPatientId,
           request.auth.uid,
-          db
+          db,
         );
       } catch (err) {
         const error = err as HttpsError | Error;
@@ -159,9 +147,10 @@ export const extractLaudoFieldsCallable = onCall(
       return {
         ok: true,
         extraction,
-        message: validation.warnings.length > 0
-          ? `Extraction completed with ${validation.warnings.length} advisory warnings`
-          : 'Extraction completed successfully',
+        message:
+          validation.warnings.length > 0
+            ? `Extraction completed with ${validation.warnings.length} advisory warnings`
+            : 'Extraction completed successfully',
       };
     } catch (error) {
       console.error('[extractLaudoFieldsCallable] Error:', error);
@@ -170,10 +159,7 @@ export const extractLaudoFieldsCallable = onCall(
         throw error;
       }
 
-      throw new HttpsError(
-        'internal',
-        `Extraction failed: ${(error as Error).message}`
-      );
+      throw new HttpsError('internal', `Extraction failed: ${(error as Error).message}`);
     }
-  }
+  },
 );

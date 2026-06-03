@@ -14,15 +14,15 @@ Build a working NOTIVISA lifecycle skeleton (draft → approve → submit → qu
 
 All new files. No existing files in `functions/src/modules/notivisa/` were modified — race-window discipline with Wave 2 Agent 3.
 
-| Path | Purpose |
-| --- | --- |
-| `functions/src/modules/notivisa/testMode.ts` | Mode resolver (`NOTIVISA_MODE` env) + synthetic responder + `dispatchSubmission` indirection. |
-| `functions/src/modules/notivisa/createDraft.ts` | `createDraft` callable. Idempotent on `laudoId`. |
-| `functions/src/modules/notivisa/approveDraft.ts` | `approveDraft` callable. RT/admin/owner only. |
-| `functions/src/modules/notivisa/submitDraft.ts` | `submitDraft` callable. Atomically updates draft + enqueues to `notivisa-queue`. |
-| `functions/src/modules/notivisa/processQueue.ts` | `processQueue` scheduled cron — every 5 minutes — picks pending events, dispatches via test-mode synth, archives ack to outbox or backs off retries. |
-| `functions/src/modules/notivisa/exportOutbox.ts` | `exportOutbox` callable. AUDITOR-only. CSV upload to Cloud Storage + signed URL (15min TTL). |
-| `functions/src/modules/notivisa/__tests__/wave2-10-lifecycle.test.ts` | Happy-path unit tests for mode resolver, synthetic responder, dispatch, CSV escaping, schema validation, backoff curve. |
+| Path                                                                  | Purpose                                                                                                                                              |
+| --------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `functions/src/modules/notivisa/testMode.ts`                          | Mode resolver (`NOTIVISA_MODE` env) + synthetic responder + `dispatchSubmission` indirection.                                                        |
+| `functions/src/modules/notivisa/createDraft.ts`                       | `createDraft` callable. Idempotent on `laudoId`.                                                                                                     |
+| `functions/src/modules/notivisa/approveDraft.ts`                      | `approveDraft` callable. RT/admin/owner only.                                                                                                        |
+| `functions/src/modules/notivisa/submitDraft.ts`                       | `submitDraft` callable. Atomically updates draft + enqueues to `notivisa-queue`.                                                                     |
+| `functions/src/modules/notivisa/processQueue.ts`                      | `processQueue` scheduled cron — every 5 minutes — picks pending events, dispatches via test-mode synth, archives ack to outbox or backs off retries. |
+| `functions/src/modules/notivisa/exportOutbox.ts`                      | `exportOutbox` callable. AUDITOR-only. CSV upload to Cloud Storage + signed URL (15min TTL).                                                         |
+| `functions/src/modules/notivisa/__tests__/wave2-10-lifecycle.test.ts` | Happy-path unit tests for mode resolver, synthetic responder, dispatch, CSV escaping, schema validation, backoff curve.                              |
 
 ## Required wiring (NOT applied — propose only)
 

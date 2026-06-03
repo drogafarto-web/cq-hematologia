@@ -26,11 +26,7 @@ const eventsStore = new Map<string, FakeDoc[]>();
 function makeDocRef(path: string) {
   return {
     path,
-    get: jest.fn(() =>
-      Promise.resolve(
-        docStore.get(path) ?? { exists: false, data: () => ({}) },
-      ),
-    ),
+    get: jest.fn(() => Promise.resolve(docStore.get(path) ?? { exists: false, data: () => ({}) })),
     set: jest.fn(() => Promise.resolve()),
   };
 }
@@ -62,19 +58,22 @@ const mockDb = {
 jest.mock('firebase-admin', () => ({
   __esModule: true,
   ...jest.requireActual<object>('firebase-admin'),
-  firestore: Object.assign(jest.fn(() => mockDb), {
-    Timestamp: {
-      now: () => ({
-        toMillis: () => 1_700_000_000_000,
-        toDate: () => new Date(1_700_000_000_000),
-      }),
-      fromMillis: (ms: number) => ({
-        toMillis: () => ms,
-        toDate: () => new Date(ms),
-      }),
+  firestore: Object.assign(
+    jest.fn(() => mockDb),
+    {
+      Timestamp: {
+        now: () => ({
+          toMillis: () => 1_700_000_000_000,
+          toDate: () => new Date(1_700_000_000_000),
+        }),
+        fromMillis: (ms: number) => ({
+          toMillis: () => ms,
+          toDate: () => new Date(ms),
+        }),
+      },
+      FieldValue: {},
     },
-    FieldValue: {},
-  }),
+  ),
 }));
 
 // Now import the callables (after the mock is wired)

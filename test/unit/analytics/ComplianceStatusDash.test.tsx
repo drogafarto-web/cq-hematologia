@@ -24,9 +24,12 @@ vi.mock('../../../src/features/analytics/hooks/useAnalyticsCache', () => ({
   useAnalyticsAggregate: mockAggregate,
   useAnalyticsLoading: mockLoading,
   useAnalyticsError: mockError,
-  useAnalyticsStore: Object.assign(vi.fn(() => ({})), {
-    getState: vi.fn(() => ({})),
-  }),
+  useAnalyticsStore: Object.assign(
+    vi.fn(() => ({})),
+    {
+      getState: vi.fn(() => ({})),
+    },
+  ),
 }));
 
 // Import after mocks are registered

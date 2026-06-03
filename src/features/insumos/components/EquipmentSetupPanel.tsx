@@ -166,12 +166,7 @@ function SlotSelector({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40">
-      <button
-        type="button"
-        aria-label="Fechar"
-        className="absolute inset-0"
-        onClick={onClose}
-      />
+      <button type="button" aria-label="Fechar" className="absolute inset-0" onClick={onClose} />
       <div className="relative z-10 w-full max-w-lg rounded-2xl bg-white dark:bg-[#0F1318] border border-slate-200 dark:border-white/[0.08] shadow-2xl">
         <header className="px-5 h-14 border-b border-slate-100 dark:border-white/[0.06] flex items-center justify-between">
           <div>
@@ -303,9 +298,11 @@ function ModuleRow({
         <StatusChip status={aggStatus} />
       </div>
 
-      <div className={`grid grid-cols-1 ${module === 'coagulacao' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2`}>
+      <div
+        className={`grid grid-cols-1 ${module === 'coagulacao' ? 'sm:grid-cols-3' : 'sm:grid-cols-2'} gap-2`}
+      >
         <SlotCard
-          label={module === 'coagulacao' ? "Reagente TP" : "Reagente"}
+          label={module === 'coagulacao' ? 'Reagente TP' : 'Reagente'}
           insumo={reagente}
           canMutate={canMutate}
           onTrocar={() => onOpenSlot('activeReagenteId')}
@@ -375,9 +372,7 @@ function SlotCard({ label, insumo, canMutate, onTrocar }: SlotCardProps) {
           </p>
         </>
       ) : (
-        <p className="text-[13px] text-slate-400 dark:text-white/25 italic">
-          Nenhum ativo
-        </p>
+        <p className="text-[13px] text-slate-400 dark:text-white/25 italic">Nenhum ativo</p>
       )}
       {canMutate && (
         <button
@@ -418,13 +413,10 @@ export function EquipmentSetupPanel({ canMutate }: EquipmentSetupPanelProps) {
   // pela lista principal. Trade-off: lab com >1000 insumos ativos pode sentir,
   // mas nesse ponto outras telas já estão sobrecarregadas também.
   const { insumos } = useInsumos({ status: 'ativo' });
-  const byId = useMemo(
-    () => new Map(insumos.map((i) => [i.id, i])),
-    [insumos],
-  );
+  const byId = useMemo(() => new Map(insumos.map((i) => [i.id, i])), [insumos]);
 
   const resolve = (id: string | null | undefined): Insumo | null =>
-    id ? byId.get(id) ?? null : null;
+    id ? (byId.get(id) ?? null) : null;
 
   if (!activeLab || !user) return null;
 

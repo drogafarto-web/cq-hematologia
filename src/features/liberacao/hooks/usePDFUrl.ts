@@ -64,8 +64,7 @@ export function usePDFUrl(): UsePDFUrlReturn {
 
   const isReady = state.status === 'ready';
   const isLoading = state.status === 'loading';
-  const isExpiringSoon =
-    state.status === 'ready' && state.expiresAt - Date.now() < 5 * 60 * 1000;
+  const isExpiringSoon = state.status === 'ready' && state.expiresAt - Date.now() < 5 * 60 * 1000;
 
   return {
     state,

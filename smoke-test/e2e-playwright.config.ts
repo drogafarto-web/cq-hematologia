@@ -11,11 +11,7 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   workers: 1,
   timeout: 120000,
-  reporter: [
-    ['html'],
-    ['list'],
-    ['json', { outputFile: 'test-results/e2e-report.json' }],
-  ],
+  reporter: [['html'], ['list'], ['json', { outputFile: 'test-results/e2e-report.json' }]],
   use: {
     baseURL: process.env.SMOKE_BASE_URL || 'https://hmatologia2.web.app',
     trace: 'on-first-retry',

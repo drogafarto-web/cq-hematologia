@@ -25,7 +25,10 @@ interface ValidityItem {
   diasRestantes: number | null;
 }
 
-function getAlertLevel(validade: Timestamp | null): { level: AlertLevel; diasRestantes: number | null } {
+function getAlertLevel(validade: Timestamp | null): {
+  level: AlertLevel;
+  diasRestantes: number | null;
+} {
   if (!validade) return { level: 'none', diasRestantes: null };
   const now = Date.now();
   const expiryMs = validade.toMillis();
@@ -58,41 +61,71 @@ interface AlertasCertificacoesCardProps {
   dossier: PersonnelDossier;
 }
 
-export function AlertasCertificacoesCard({ dossier }: AlertasCertificacoesCardProps): React.ReactElement {
+export function AlertasCertificacoesCard({
+  dossier,
+}: AlertasCertificacoesCardProps): React.ReactElement {
   const items = useMemo<ValidityItem[]>(() => {
     const registros: ValidityItem[] = [];
 
     if (dossier.registroCRF) {
       const { level, diasRestantes } = getAlertLevel(dossier.registroCRFValidade);
-      registros.push({ label: 'CRF', numero: dossier.registroCRF, validade: dossier.registroCRFValidade, level, diasRestantes });
+      registros.push({
+        label: 'CRF',
+        numero: dossier.registroCRF,
+        validade: dossier.registroCRFValidade,
+        level,
+        diasRestantes,
+      });
     }
     if (dossier.registroCRBM) {
       const { level, diasRestantes } = getAlertLevel(dossier.registroCRBMValidade);
-      registros.push({ label: 'CRBM', numero: dossier.registroCRBM, validade: dossier.registroCRBMValidade, level, diasRestantes });
+      registros.push({
+        label: 'CRBM',
+        numero: dossier.registroCRBM,
+        validade: dossier.registroCRBMValidade,
+        level,
+        diasRestantes,
+      });
     }
     if (dossier.registroCREF) {
       const { level, diasRestantes } = getAlertLevel(dossier.registroCREFValidade);
-      registros.push({ label: 'CREF', numero: dossier.registroCREF, validade: dossier.registroCREFValidade, level, diasRestantes });
+      registros.push({
+        label: 'CREF',
+        numero: dossier.registroCREF,
+        validade: dossier.registroCREFValidade,
+        level,
+        diasRestantes,
+      });
     }
 
     // Structured certifications
     for (const cert of dossier.certificacoes) {
       const { level, diasRestantes } = getAlertLevel(cert.dataValidade);
-      registros.push({ label: cert.nome, numero: cert.numero, validade: cert.dataValidade, level, diasRestantes });
+      registros.push({
+        label: cert.nome,
+        numero: cert.numero,
+        validade: cert.dataValidade,
+        level,
+        diasRestantes,
+      });
     }
 
     return registros;
   }, [dossier]);
 
   const attentionCount = useMemo(
-    () => items.filter((i) => i.level === 'warning' || i.level === 'danger' || i.level === 'expired').length,
+    () =>
+      items.filter((i) => i.level === 'warning' || i.level === 'danger' || i.level === 'expired')
+        .length,
     [items],
   );
 
   if (items.length === 0) {
     return (
       <div className="rounded-lg border border-white/10 bg-white/[0.02] p-4">
-        <p className="text-sm text-white/50">Nenhum registro profissional ou certificação cadastrada.</p>
+        <p className="text-sm text-white/50">
+          Nenhum registro profissional ou certificação cadastrada.
+        </p>
       </div>
     );
   }
@@ -120,9 +153,7 @@ export function AlertasCertificacoesCard({ dossier }: AlertasCertificacoesCardPr
                 <span className={`h-2 w-2 rounded-full ${styles.dot}`} aria-hidden="true" />
                 <div>
                   <span className="text-sm font-medium text-white">{item.label}</span>
-                  {item.numero && (
-                    <span className="ml-2 text-xs text-white/50">{item.numero}</span>
-                  )}
+                  {item.numero && <span className="ml-2 text-xs text-white/50">{item.numero}</span>}
                 </div>
               </div>
               <span className={`text-xs font-medium ${styles.text}`}>

@@ -14,11 +14,12 @@ import {
   vincularUroLot,
   desvincularUroLot,
   updateUroLotDecision,
+  updateUroLotMeta,
 } from '../services/uroanaliseFirebaseService';
 import { toast } from '../../../shared/store/useToastStore';
 import { db, doc, getDoc } from '../../../shared/services/firebase';
 import { UroanaliseRedesignedShell } from './UroanaliseRedesignedShell';
-import { NovaRunModal, RunDetailModal, QRModal } from './UroanaliseContent';
+import { NovaRunModal, RunDetailModal, QRModal, EditLotModal } from './UroanaliseContent';
 import { NovoLoteModal } from '../../insumos/components/NovoLoteModal';
 import { daysToExpiry } from './UroanaliseForm.schema';
 import type { UroanaliseFormData } from './UroanaliseForm.schema';
@@ -62,9 +63,10 @@ function runToAuditRow(run: UroanaliseRun): UroAuditRow {
     conformidade: run.conformidade,
     desviosCount: run.analitosNaoConformes?.length ?? 0,
     signed,
-    signedBy: signed ? run.operatorName ?? undefined : undefined,
+    signedBy: signed ? (run.operatorName ?? undefined) : undefined,
     signedAt: ts,
-    hasNotivisaPending: run.notivisaStatus === 'pendente' && (run.analitosNaoConformes?.length ?? 0) > 0,
+    hasNotivisaPending:
+      run.notivisaStatus === 'pendente' && (run.analitosNaoConformes?.length ?? 0) > 0,
   };
 }
 
@@ -95,10 +97,9 @@ function buildComplianceItems(lot: UroanaliseLot | undefined): UroComplianceItem
     evidence: lot.uroDecision
       ? `Decisão: ${lot.uroDecision === 'A' ? 'Aceitável' : lot.uroDecision === 'NA' ? 'Não aceitável' : 'Rejeitado'}`
       : 'Aguardando assinatura do RT.',
-    remediation:
-      !lot.uroDecision
-        ? 'RT deve revisar as corridas e registrar decisão formal.'
-        : undefined,
+    remediation: !lot.uroDecision
+      ? 'RT deve revisar as corridas e registrar decisão formal.'
+      : undefined,
   });
 
   items.push({
@@ -165,7 +166,10 @@ function buildAuditEvents(runs: UroanaliseRun[], lot: UroanaliseLot | undefined)
   return events.sort((a, b) => b.ts - a.ts);
 }
 
-function buildFormDefaults(lot: UroanaliseLot | undefined, userName: string): Partial<UroanaliseFormData> {
+function buildFormDefaults(
+  lot: UroanaliseLot | undefined,
+  userName: string,
+): Partial<UroanaliseFormData> {
   if (!lot) {
     return {
       resultados: {},
@@ -187,6 +191,7 @@ function buildFormDefaults(lot: UroanaliseLot | undefined, userName: string): Pa
     dataRealizacao: today,
     resultados: {},
     resultadosEsperadosRun: lot.resultadosEsperados ?? {},
+    expectedValuesRun: lot.expectedValues ?? {},
   };
 }
 
@@ -201,7 +206,9 @@ export function UroanaliseRedesignedDemo() {
   const { lots } = useUroLots();
   const { enabled: ocrEnabled } = useUroOcrSetting();
   const [selectedLotId, setSelectedLotId] = useState<string | null>(null);
-  const [novoLoteInitialTipo, setNovoLoteInitialTipo] = useState<'reagente' | 'controle' | 'tira-uro'>('tira-uro');
+  const [novoLoteInitialTipo, setNovoLoteInitialTipo] = useState<
+    'reagente' | 'controle' | 'tira-uro'
+  >('tira-uro');
   const [createdTiraLot, setCreatedTiraLot] = useState<{ loteTira: string } | null>(null);
 
   const effectiveLotId = selectedLotId ?? lots[0]?.id ?? null;
@@ -217,19 +224,17 @@ export function UroanaliseRedesignedDemo() {
   const [detailRunId, setDetailRunId] = useState<string | null>(null);
   const [qrRunId, setQrRunId] = useState<string | null>(null);
   const [showNovoLote, setShowNovoLote] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
 
   const sidebarItems = useMemo(() => lots.map(lotToSidebarItem), [lots]);
   const auditRows = useMemo(() => runs.map(runToAuditRow), [runs]);
 
   const selectedLot = useMemo(
     () => lots.find((l) => l.id === effectiveLotId),
-    [lots, effectiveLotId]
+    [lots, effectiveLotId],
   );
 
-  const detailRun = useMemo(
-    () => runs.find((r) => r.id === detailRunId),
-    [runs, detailRunId]
-  );
+  const detailRun = useMemo(() => runs.find((r) => r.id === detailRunId), [runs, detailRunId]);
   const qrRun = useMemo(() => runs.find((r) => r.id === qrRunId), [runs, qrRunId]);
 
   const complianceItems = useMemo(() => buildComplianceItems(selectedLot), [selectedLot]);
@@ -248,7 +253,10 @@ export function UroanaliseRedesignedDemo() {
   // ── Wired handlers ───────────────────────────────────────────────────────
 
   const handleSubmitRun = useCallback(
-    async (data: UroanaliseFormData, options?: import('../hooks/useSaveUroRun').SaveUroRunOptions) => {
+    async (
+      data: UroanaliseFormData,
+      options?: import('../hooks/useSaveUroRun').SaveUroRunOptions,
+    ) => {
       saveRun.clearError();
       try {
         const result = await saveRun.save(data, options);
@@ -264,7 +272,7 @@ export function UroanaliseRedesignedDemo() {
         throw err;
       }
     },
-    [saveRun]
+    [saveRun],
   );
 
   const handleSelectLot = useCallback((id: string | null) => {
@@ -301,7 +309,7 @@ export function UroanaliseRedesignedDemo() {
         console.error('Erro ao buscar lote recém-criado:', err);
       }
     },
-    [labId]
+    [labId],
   );
 
   const handleTogglePinLot = useCallback(
@@ -323,7 +331,7 @@ export function UroanaliseRedesignedDemo() {
         toast.error(msg);
       }
     },
-    [labId, user]
+    [labId, user],
   );
 
   const handleViewRun = useCallback((id: string) => {
@@ -340,7 +348,11 @@ export function UroanaliseRedesignedDemo() {
     async (decision: UroStatus) => {
       if (!labId || !user || !selectedLot) return;
       const label = decision === 'A' ? 'Aceitável' : 'Rejeitado';
-      if (!confirm(`Confirmar decisão "${label}" para o lote ${selectedLot.loteControle} (Nível ${selectedLot.nivel})?`)) {
+      if (
+        !confirm(
+          `Confirmar decisão "${label}" para o lote ${selectedLot.loteControle} (Nível ${selectedLot.nivel})?`,
+        )
+      ) {
         return;
       }
       try {
@@ -351,7 +363,7 @@ export function UroanaliseRedesignedDemo() {
         toast.error(msg);
       }
     },
-    [labId, user, selectedLot]
+    [labId, user, selectedLot],
   );
 
   const selectedLotMapped = selectedLot
@@ -365,38 +377,51 @@ export function UroanaliseRedesignedDemo() {
     : undefined;
 
   // ── Lot decision actions in header ───────────────────────────────────────
-  const lotDecisionActions = selectedLot && canDecide && !selectedLot.uroDecision ? (
-    <div className="flex items-center gap-1.5">
-      <button
-        type="button"
-        onClick={() => handleApproveLot('A')}
-        title="Aprovar lote (RT)"
-        className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
-      >
-        Aprovar
-      </button>
-      <button
-        type="button"
-        onClick={() => handleApproveLot('Rejeitado')}
-        title="Rejeitar lote (RT)"
-        className="text-[11px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 px-3 py-2 rounded-lg border border-red-300 dark:border-red-500/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
-      >
-        Rejeitar
-      </button>
-    </div>
-  ) : selectedLot?.uroDecision ? (
-    <span
-      className={[
-        'text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border',
-        selectedLot.uroDecision === 'A'
-          ? 'text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10'
-          : 'text-red-600 dark:text-red-400 border-red-300 dark:border-red-500/25 bg-red-50 dark:bg-red-500/10',
-      ].join(' ')}
-      title={`Decisão registrada por ${selectedLot.decisionBy ?? 'RT'}`}
-    >
-      {selectedLot.uroDecision === 'A' ? 'Aprovado' : 'Rejeitado'}
-    </span>
-  ) : null;
+  const lotDecisionActions =
+    selectedLot && canDecide ? (
+      <div className="flex items-center gap-1.5">
+        <button
+          type="button"
+          onClick={() => setShowEdit(true)}
+          title="Configurar limites de bula do lote (RT)"
+          className="text-[11px] font-semibold uppercase tracking-wider text-slate-700 dark:text-white/70 hover:bg-slate-50 dark:hover:bg-white/10 px-3 py-2 rounded-lg border border-slate-300 dark:border-white/[0.15] transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500/40"
+        >
+          Configurar Bula
+        </button>
+        {!selectedLot.uroDecision ? (
+          <>
+            <button
+              type="button"
+              onClick={() => handleApproveLot('A')}
+              title="Aprovar lote (RT)"
+              className="text-[11px] font-semibold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 px-3 py-2 rounded-lg border border-emerald-300 dark:border-emerald-500/30 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-500/40"
+            >
+              Aprovar
+            </button>
+            <button
+              type="button"
+              onClick={() => handleApproveLot('Rejeitado')}
+              title="Rejeitar lote (RT)"
+              className="text-[11px] font-semibold uppercase tracking-wider text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 px-3 py-2 rounded-lg border border-red-300 dark:border-red-500/25 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500/40"
+            >
+              Rejeitar
+            </button>
+          </>
+        ) : (
+          <span
+            className={[
+              'text-[10px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full border',
+              selectedLot.uroDecision === 'A'
+                ? 'text-emerald-700 dark:text-emerald-300 border-emerald-300 dark:border-emerald-500/30 bg-emerald-50 dark:bg-emerald-500/10'
+                : 'text-red-600 dark:text-red-400 border-red-300 dark:border-red-500/25 bg-red-50 dark:bg-red-500/10',
+            ].join(' ')}
+            title={`Decisão registrada por ${selectedLot.decisionBy ?? 'RT'}`}
+          >
+            {selectedLot.uroDecision === 'A' ? 'Aprovado' : 'Rejeitado'}
+          </span>
+        )}
+      </div>
+    ) : null;
 
   // ── Preview banner ───────────────────────────────────────────────────────
   const previewBanner = (
@@ -462,19 +487,10 @@ export function UroanaliseRedesignedDemo() {
         />
       )}
 
-      {detailRun && (
-        <RunDetailModal
-          run={detailRun}
-          onClose={() => setDetailRunId(null)}
-        />
-      )}
+      {detailRun && <RunDetailModal run={detailRun} onClose={() => setDetailRunId(null)} />}
 
       {qrRun && effectiveLotId && (
-        <QRModal
-          run={qrRun}
-          lotId={effectiveLotId}
-          onClose={() => setQrRunId(null)}
-        />
+        <QRModal run={qrRun} lotId={effectiveLotId} onClose={() => setQrRunId(null)} />
       )}
 
       {showNovoLote && (
@@ -484,6 +500,18 @@ export function UroanaliseRedesignedDemo() {
           initialModulo="uroanalise"
           onClose={() => setShowNovoLote(false)}
           onCreated={handleNovoLoteCreated}
+        />
+      )}
+
+      {showEdit && selectedLot && canDecide && (
+        <EditLotModal
+          lot={selectedLot}
+          onClose={() => setShowEdit(false)}
+          onSave={async (fields, prev) => {
+            if (!user) return;
+            await updateUroLotMeta(selectedLot.labId, selectedLot.id, fields, user.uid, prev);
+            setShowEdit(false);
+          }}
         />
       )}
     </>

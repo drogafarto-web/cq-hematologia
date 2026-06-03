@@ -33,10 +33,12 @@ This 24h passive monitoring guide remains useful for **post-deploy spot-checks**
   - [ ] `docs/CLOUD_LOGS_QUICK_REFERENCE.md` — TL;DR + commands
 
 - [ ] **Verify gcloud CLI**
+
   ```bash
   gcloud config set project hmatologia2
   gcloud logging read "severity >= ERROR" --project=hmatologia2 --limit=1
   ```
+
   Expected: returns 0 or 1 recent error (or empty if none)
 
 - [ ] **Prepare monitoring environment**
@@ -90,12 +92,12 @@ cd C:\hc quality
 
 **Concurrent Tasks:**
 
-| Task | Owner | Duration | Status |
-|------|-------|----------|--------|
-| Step 2: Functions deploy | Deployer | 5–10 min | Primary |
-| Cloud Logs monitoring | Automated / Passive | 24h | Parallel |
-| Step 3: Hosting deploy | Deployer | 2–5 min | After Step 2 |
-| Post-deploy checklist | Deployer | 15 min | After Step 3 |
+| Task                     | Owner               | Duration | Status       |
+| ------------------------ | ------------------- | -------- | ------------ |
+| Step 2: Functions deploy | Deployer            | 5–10 min | Primary      |
+| Cloud Logs monitoring    | Automated / Passive | 24h      | Parallel     |
+| Step 3: Hosting deploy   | Deployer            | 2–5 min  | After Step 2 |
+| Post-deploy checklist    | Deployer            | 15 min   | After Step 3 |
 
 **Monitoring is non-blocking.** Deploy proceeds regardless of monitoring status. If errors appear, investigate separately.
 
@@ -116,6 +118,7 @@ cat scripts/cloud-logs-export-*.json | jq '.[0:10]'  # First 10 errors
 ```
 
 **Expected:**
+
 - `Total Errors: 0` (ideal)
 - `Total Errors: <5` (acceptable)
 - `Total Errors: >10` (escalate)
@@ -171,15 +174,16 @@ Total Errors == 0?
 
 ## Red Flag Scenarios (Immediate Action Required)
 
-| Error | Signature | Action |
-|-------|-----------|--------|
-| **Timeout cascade** | >3 "Exceeded timeout" per hour | Check `functions/src/modules/*/index.ts` async handlers; increase timeout or split work |
-| **Permission denied** on `/labs/{labId}/*` writes | Repeated permission errors | Compare `firestore.rules` to git HEAD; rules regression detected; rollback or fix rules |
-| **502/503 sustained** | HTTP 502/503 for >5 min continuous | Hosting layer issue; consider rollback: `firebase deploy --only hosting ...` with previous version |
-| **"undefined is not a function"** | Stack trace with function name | Missing dependency in `functions/package.json`; check `npm list` output; re-install and re-deploy |
-| **Document too large** | `"Document too large"` on laudo/declaracao | Data model exceeds 1 MB; refactor to subcollection or Cloud Storage |
+| Error                                             | Signature                                  | Action                                                                                             |
+| ------------------------------------------------- | ------------------------------------------ | -------------------------------------------------------------------------------------------------- |
+| **Timeout cascade**                               | >3 "Exceeded timeout" per hour             | Check `functions/src/modules/*/index.ts` async handlers; increase timeout or split work            |
+| **Permission denied** on `/labs/{labId}/*` writes | Repeated permission errors                 | Compare `firestore.rules` to git HEAD; rules regression detected; rollback or fix rules            |
+| **502/503 sustained**                             | HTTP 502/503 for >5 min continuous         | Hosting layer issue; consider rollback: `firebase deploy --only hosting ...` with previous version |
+| **"undefined is not a function"**                 | Stack trace with function name             | Missing dependency in `functions/package.json`; check `npm list` output; re-install and re-deploy  |
+| **Document too large**                            | `"Document too large"` on laudo/declaracao | Data model exceeds 1 MB; refactor to subcollection or Cloud Storage                                |
 
 **For any red flag:**
+
 1. Screenshot error from Cloud Console
 2. Note exact timestamp
 3. Message CTO: "🔴 BLOCK — [error] detected at [time]. Escalating..."
@@ -270,15 +274,15 @@ Auto-generated report will cover the partial monitoring period. Create manual si
 
 ## File Manifest
 
-| File | Purpose | Created By | When to Use |
-|------|---------|-----------|-------------|
-| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Full reference (40 sections) | Setup | Read once; reference as needed |
-| `docs/CLOUD_LOGS_QUICK_REFERENCE.md` | TL;DR + commands | Setup | Print or bookmark |
-| `scripts/monitor-cloud-logs.sh` | Bash monitoring script | Setup | macOS/Linux automated |
-| `scripts/monitor-cloud-logs.ps1` | PowerShell monitoring script | Setup | Windows automated |
-| `docs/MONITORING_REPORT_*.md` | Auto-generated report | Script | View after monitoring |
-| `scripts/cloud-logs-export-*.json` | All errors (JSON) | Script | Archive + analysis |
-| `docs/SIGN_OFF_CLOUD_LOGS_*.md` | Manual sign-off report | Deployer | Human verification |
+| File                                  | Purpose                      | Created By | When to Use                    |
+| ------------------------------------- | ---------------------------- | ---------- | ------------------------------ |
+| `docs/CLOUD_LOGS_MONITORING_GUIDE.md` | Full reference (40 sections) | Setup      | Read once; reference as needed |
+| `docs/CLOUD_LOGS_QUICK_REFERENCE.md`  | TL;DR + commands             | Setup      | Print or bookmark              |
+| `scripts/monitor-cloud-logs.sh`       | Bash monitoring script       | Setup      | macOS/Linux automated          |
+| `scripts/monitor-cloud-logs.ps1`      | PowerShell monitoring script | Setup      | Windows automated              |
+| `docs/MONITORING_REPORT_*.md`         | Auto-generated report        | Script     | View after monitoring          |
+| `scripts/cloud-logs-export-*.json`    | All errors (JSON)            | Script     | Archive + analysis             |
+| `docs/SIGN_OFF_CLOUD_LOGS_*.md`       | Manual sign-off report       | Deployer   | Human verification             |
 
 ---
 
@@ -287,6 +291,7 @@ Auto-generated report will cover the partial monitoring period. Create manual si
 ### "gcloud: command not found"
 
 **Fix:**
+
 ```bash
 # Install Google Cloud SDK
 # macOS: brew install google-cloud-sdk
@@ -300,6 +305,7 @@ gcloud --version
 ### "Project hmatologia2 not found"
 
 **Fix:**
+
 ```bash
 gcloud config set project hmatologia2
 gcloud auth login  # Re-authenticate if needed
@@ -308,6 +314,7 @@ gcloud auth login  # Re-authenticate if needed
 ### "jq: command not found" (Bash script)
 
 **Fix:**
+
 ```bash
 # macOS: brew install jq
 # Windows/Linux: Script will skip jq features and use grep instead
@@ -317,6 +324,7 @@ gcloud auth login  # Re-authenticate if needed
 ### "Monitoring script hangs after 30 min"
 
 **Fix:**
+
 ```bash
 # Terminal 2: Check script status
 ps aux | grep monitor-cloud-logs  # If hung, Ctrl+C and restart
@@ -334,17 +342,17 @@ ps aux | grep monitor-cloud-logs  # If hung, Ctrl+C and restart
 
 **Deployer:** [Your Name]  
 **Date:** 2026-05-07  
-**Monitoring Period:** 24h (May 7 00:00 → May 8 00:00 UTC)  
+**Monitoring Period:** 24h (May 7 00:00 → May 8 00:00 UTC)
 
 ## Results
 
-| Metric | Value |
-|--------|-------|
-| Total Errors | 0 |
-| Function Errors | 0 |
-| Firestore Errors | 0 |
-| Hosting 5xx Errors | 0 |
-| P99 Latency | <2s |
+| Metric             | Value |
+| ------------------ | ----- |
+| Total Errors       | 0     |
+| Function Errors    | 0     |
+| Firestore Errors   | 0     |
+| Hosting 5xx Errors | 0     |
+| P99 Latency        | <2s   |
 
 ## Recommendation
 
@@ -352,7 +360,7 @@ ps aux | grep monitor-cloud-logs  # If hung, Ctrl+C and restart
 
 ---
 
-**Signature:** _______________ | **Date:** 2026-05-07
+**Signature:** ******\_\_\_****** | **Date:** 2026-05-07
 ```
 
 ---

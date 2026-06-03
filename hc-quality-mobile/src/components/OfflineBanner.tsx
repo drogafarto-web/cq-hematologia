@@ -11,8 +11,8 @@ export function OfflineBanner() {
   const message = !isOnline
     ? `Modo Offline — ${pendingCount} item(ns) pendente(s)`
     : inProgress
-    ? 'Sincronizando...'
-    : `✓ ${pendingCount} item(ns) para sincronizar`;
+      ? 'Sincronizando...'
+      : `✓ ${pendingCount} item(ns) para sincronizar`;
 
   return (
     <TouchableOpacity

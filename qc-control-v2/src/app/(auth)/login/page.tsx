@@ -1,37 +1,37 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { signIn } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
-import { Button } from '@/components/ui/button'
+import { useState } from 'react';
+import { signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import { Button } from '@/components/ui/button';
 
 export default function LoginPage() {
-  const router = useRouter()
-  const [email, setEmail] = useState('')
-  const [senha, setSenha] = useState('')
-  const [erro, setErro] = useState('')
-  const [carregando, setCarregando] = useState(false)
+  const router = useRouter();
+  const [email, setEmail] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const [carregando, setCarregando] = useState(false);
 
   async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault()
-    setErro('')
-    setCarregando(true)
+    e.preventDefault();
+    setErro('');
+    setCarregando(true);
     try {
       const result = await signIn('credentials', {
         email,
         senha,
         redirect: false,
-      })
+      });
       if (result?.error) {
-        setErro('Email ou senha inválidos')
+        setErro('Email ou senha inválidos');
       } else {
-        router.push('/qc')
-        router.refresh()
+        router.push('/qc');
+        router.refresh();
       }
     } catch {
-      setErro('Erro ao tentar entrar. Tente novamente.')
+      setErro('Erro ao tentar entrar. Tente novamente.');
     } finally {
-      setCarregando(false)
+      setCarregando(false);
     }
   }
 
@@ -73,16 +73,12 @@ export default function LoginPage() {
           />
         </div>
 
-        {erro && (
-          <div className="bg-error-container px-4 py-3 text-sm text-error">
-            {erro}
-          </div>
-        )}
+        {erro && <div className="bg-error-container px-4 py-3 text-sm text-error">{erro}</div>}
 
         <Button type="submit" loading={carregando} className="w-full">
           Entrar
         </Button>
       </form>
     </div>
-  )
+  );
 }

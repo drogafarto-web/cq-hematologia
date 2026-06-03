@@ -1,5 +1,9 @@
 import { describe, it, expect } from 'vitest';
-import type { TreinamentoCreationRequest, RegistroPresencaRequest, EmitirCertificadoRequest } from '../../../src/features/treinamentos/types/Treinamento';
+import type {
+  TreinamentoCreationRequest,
+  RegistroPresencaRequest,
+  EmitirCertificadoRequest,
+} from '../../../src/features/treinamentos/types/Treinamento';
 import { Timestamp } from 'firebase/firestore';
 
 describe('Treinamento Cloud Functions', () => {

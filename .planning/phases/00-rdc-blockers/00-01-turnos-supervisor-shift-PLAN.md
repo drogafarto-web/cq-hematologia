@@ -72,103 +72,113 @@ Manager can register the supervising professional for every shift (manhã / tard
 **Outcome:** `src/features/turnos/types/Turno.ts` + `services/turnosService.ts` exist; types match the schema in PHASE-0-PLAN Task 1; service exports `subscribeTurnos`, `getTurno`, `mapSnapshotToTurno`, plus typed callable wrappers (`callCreateTurno`, `callUpdateTurno`, `callSoftDeleteTurno`, `callBackfill90Days`) implemented as `httpsCallable` wrappers (no Firestore writes).
 **Files:** types/Turno.ts, services/turnosService.ts, services/turnosCallables.ts (or co-located).
 **Steps:**
+
 1. Invoke `Skill hcq-module-generator` for `turnos` (read-only mode — no create/update in service).
 2. Define `Turno`, `TurnoInput = Omit<Turno, 'id'|'labId'|'criadoEm'|'deletadoEm'|'logicalSignature'|'inferred'>`, `Periodo = 'manha'|'tarde'|'noite'|'plantao'`, `TurnoAuditEvent` (mirror SGQ `DocumentoAuditEvent`).
 3. Implement `subscribeTurnos(labId, {from, to, periodo?, supervisorId?, includeInferred?, includeDeleted?}, cb, onErr)` with `onSnapshot` + filter of `deletadoEm` client-side.
 4. Implement `httpsCallable` wrappers + `unwrapCallableError`.
-**Verification:** `npx tsc --noEmit` clean; `import` from a throwaway test file resolves.
+   **Verification:** `npx tsc --noEmit` clean; `import` from a throwaway test file resolves.
 
 ### T2. Implement callable scaffold (validators + signatureCanonical + index)
 
 **Outcome:** `functions/src/modules/turnos/{validators,signatureCanonical,index}.ts` exist; Zod schemas + access guard + canonical SHA-256 in place; nothing wired yet.
 **Files:** functions/src/modules/turnos/{validators,signatureCanonical,index}.ts.
 **Steps:**
+
 1. Mirror `functions/src/modules/controleTemperatura/validators.ts`: `assertTurnosAccess`, `turnosCollection(labId)`, `ensureTurnosLabRoot(labId)`, Zod schemas (strict — no extra keys; `data` as ISO string coerced to `Timestamp`; `periodo` enum; `supervisorId` non-empty string).
 2. Mirror `functions/src/modules/controleTemperatura/signatureCanonical.ts`: `node:crypto.createHash('sha256')` over `sortedStringify({labId, data, periodo, supervisorId, tsMillis})`.
 3. Barrel re-exports.
-**Verification:** `cd functions && npx tsc --noEmit` clean.
+   **Verification:** `cd functions && npx tsc --noEmit` clean.
 
 ### T3. Implement `turnos_createTurno` + audit trail trigger
 
 **Outcome:** end-to-end create path works in emulator: callable validates input → re-reads supervisor → snapshots `certificatesActive` → generates signature → atomic batch writes turno + audit event → trigger computes chainHash and persists.
 **Files:** createTurno.ts, onTurnoEventCreated.ts, functions/src/index.ts.
 **Steps:**
+
 1. Implement `turnos_createTurno` per spec above; on failure, throw `HttpsError('failed-precondition', ...)` with PT-BR message.
 2. Implement `onTurnoEventCreated` trigger (Firestore v2 onDocumentCreated). Read prev event by ordering audit subcoleção `where(documentoId == this.documentoId).orderBy('timestamp','desc').limit(2)`; compute chainHash; update.
 3. Wire in `functions/src/index.ts`.
 4. Invoke `Skill hcq-ciq-audit-trail` for chainHash conventions (event types: `created`, `updated`, `softdeleted`, `backfilled`).
-**Verification:** Emulator smoke — call `turnos_createTurno` with valid payload via Admin SDK script in `functions/scripts/smoke-turnos-callables.mjs` (mirror EC smoke); inspect created doc + audit event has chainHash within 2s.
+   **Verification:** Emulator smoke — call `turnos_createTurno` with valid payload via Admin SDK script in `functions/scripts/smoke-turnos-callables.mjs` (mirror EC smoke); inspect created doc + audit event has chainHash within 2s.
 
 ### T4. Implement `turnos_updateTurno`, `turnos_softDeleteTurno`, `turnos_backfill90Days`
 
 **Outcome:** all 4 callables operational. Backfill is idempotent (re-runs do not duplicate).
 **Files:** updateTurno.ts, softDeleteTurno.ts, backfill90Days.ts, functions/src/index.ts.
 **Steps:**
+
 1. Update flow: only `observacoes` + `supervisorName` editable post-creation (other fields force a softDelete + recreate flow, enforced server-side).
 2. SoftDelete: writes `deletadoEm = Timestamp.now()` + emits `softdeleted` audit event (chainHash continuity per CONTEXT.md OPEN resolution).
 3. Backfill: read `colaboradores` (active), pick default supervisor (`labSettings.defaultSupervisorId` if set, else most recent active), iterate last 90 days × 4 periods, skip existing `(data, periodo)` tuples, batch in chunks of 100 (Firestore limit 500). Returns `{created, skipped, dryRun}`. Admin role required.
 4. Extend smoke script with 4 more cases (update happy, softDelete idempotent, backfill dry-run, backfill apply twice idempotent).
-**Verification:** Smoke script all green; emulator verifies idempotency (second backfill creates 0 docs).
+   **Verification:** Smoke script all green; emulator verifies idempotency (second backfill creates 0 docs).
 
 ### T5. Write Firestore rules + indexes; deploy emulator test
 
 **Outcome:** rules emulator confirms (a) authenticated lab member can READ turnos, (b) cannot CREATE/UPDATE/DELETE client-direct, (c) callable Admin SDK bypass works (test via emulator running both callable + rules).
 **Files:** firestore.rules, firestore.indexes.json, functions/test/turnos/rules.test.mjs (new), functions/scripts/smoke-turnos-callables.mjs (extended).
 **Steps:**
+
 1. Invoke `Skill hcq-firestore-rules-generator` with input: collection `turnos`; convention DL-1 (write deny client). Generated block must include the events subcollection.
 2. Add 2 composite indexes (see "Modified" above).
 3. Write rules emulator test (`@firebase/rules-unit-testing`) covering: read by member ✅, read by non-member ❌, create by member ❌ (DL-1), create by Admin SDK token ✅, delete by anyone ❌.
-**Verification:** `firebase emulators:exec --only firestore "node functions/test/turnos/rules.test.mjs"` green; `npm test` baseline 738/738 still green.
+   **Verification:** `firebase emulators:exec --only firestore "node functions/test/turnos/rules.test.mjs"` green; `npm test` baseline 738/738 still green.
 
 ### T6. Build hooks + UI components
 
 **Outcome:** TurnosView, TurnosList, TurnoForm, CoberturaReport, useTurnos, useCoberturaTurnos all wired and rendering against emulator data; dark-first per DESIGN_SYSTEM.
 **Files:** hooks/useTurnos.ts, hooks/useCoberturaTurnos.ts, components/TurnosView.tsx, components/TurnosList.tsx, components/TurnoForm.tsx, components/CoberturaReport.tsx.
 **Steps:**
+
 1. `useTurnos` — copy `useColaboradores` shape; replace mutations with callable wrappers; return type `UseTurnosResult` mirrors `UseColaboradoresResult`.
 2. `useCoberturaTurnos` — derive `Map<dateISO, Map<periodo, TurnoCoverageStatus>>` for last 90 days; status enum `'registered' | 'inferred' | 'missing' | 'multiple'`.
 3. `TurnoForm` — `<input type="date">` for `data`; `<select>` for `periodo`; supervisor combobox filtered by `colaboradores.ativo === true` (consume via `useColaboradores({somenteAtivos: true})`); 500-char counter on `observacoes`; submit via `useTurnos.create`.
 4. `TurnosList` — sortable table `Data | Período | Supervisor | CRBM | Inferida? | Observações | Ações`; `tabular-nums` on Data; filters (date range, periodo, supervisor); empty state copy in pt-BR.
 5. `CoberturaReport` — `<table>` with 90 rows × 4 cols; cells use bg color tokens (`bg-emerald-500/15`, `bg-red-500/15`, `bg-amber-500/15`); inline "Confirmar inferida" CTA opens TurnoForm in edit mode prefilled.
 6. `TurnosView` — sticky topbar, KPI strip (3 stats), tabs `[Lista | Cobertura]`, drawer for create/edit.
-**Verification:** `npm run dev`; manual smoke (page renders against emulator, can create + see in list + see in heatmap); `npx tsc --noEmit` clean.
+   **Verification:** `npm run dev`; manual smoke (page renders against emulator, can create + see in list + see in heatmap); `npx tsc --noEmit` clean.
 
 ### T7. Wire shell integration + lazy route + manualChunks
 
 **Outcome:** `View = 'turnos'` reachable from `/hub` tile; lazy chunk verified in `npm run build` output.
 **Files:** src/types/index.ts, src/AppRouter.tsx (or auth/AuthWrapper.tsx), src/features/hub/ModuleHub.tsx, vite.config.ts.
 **Steps:**
+
 1. Add `'turnos'` to `View` union.
 2. Add lazy route + Suspense fallback in shell.
 3. Add Hub tile (SVG inline; status `active`; click navigates to `'turnos'`).
 4. Add `manualChunks['feature-turnos']` entry in `vite.config.ts`.
-**Verification:** `npm run build` succeeds; output contains a chunk named `feature-turnos-*.js`; `dist/assets` size delta <50KB gzip for the new chunk (per `.claude/rules/performance.md`); main bundle does NOT grow.
+   **Verification:** `npm run build` succeeds; output contains a chunk named `feature-turnos-*.js`; `dist/assets` size delta <50KB gzip for the new chunk (per `.claude/rules/performance.md`); main bundle does NOT grow.
 
 ### T8. Write module CLAUDE.md + update root CLAUDE.md
 
 **Outcome:** module governance doc exists; root table updated.
 **Files:** src/features/turnos/CLAUDE.md, CLAUDE.md (root).
 **Steps:**
+
 1. Mirror `src/features/sgq/CLAUDE.md` structure: scope exclusivo, refs regulatórias, multi-tenant, RN-TURNO-01..05 (RN-01: turno único por (labId, data, periodo) entre não-deletados; RN-02: supervisor ativo; RN-03: `certificatesActive` snapshot imutável após criação; RN-04: soft-delete only; RN-05: chainHash contínuo no audit trail).
 2. Add status row in root `CLAUDE.md` table.
-**Verification:** Both files written; markdown links valid (no broken refs).
+   **Verification:** Both files written; markdown links valid (no broken refs).
 
 ### T9. Pre-deploy: claim provisioning + dry-run backfill
 
 **Outcome:** all active users have `modules.turnos = fullAccess()` claim before rules deploy. Backfill `dryRun: true` confirms expected `created` count for Riopomba.
 **Files:** N/A (operational step).
 **Steps:**
+
 1. Extend `provisionModulesClaims` to include `'turnos'` if not generic.
 2. Run `provisionModulesClaims({dryRun: true})` then `({dryRun: false})` against prod (admin token).
 3. Query `users` for any active 30d-user without `modules.turnos` — must be 0.
 4. Run `turnos_backfill90Days({labId: 'labclin-riopomba', dryRun: true})` and report counts to CTO for confirmation.
-**Verification:** CTO ack on dry-run output; query returns 0 unclaimed users.
+   **Verification:** CTO ack on dry-run output; query returns 0 unclaimed users.
 
 ### T10. Deploy in order; run Cloud Logs monitor
 
 **Outcome:** rules + functions + hosting deployed in canonical order; 24h Cloud Logs monitoring kicked off.
 **Files:** N/A (deploy commands).
 **Steps:**
+
 1. `npx tsc --noEmit` (web) + `cd functions && npx tsc --noEmit` clean.
 2. `npm run build` (web) clean.
 3. `firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2`.
@@ -177,7 +187,7 @@ Manager can register the supervising professional for every shift (manhã / tard
 6. Hard-reload prod browser; smoke create + read + cobertura.
 7. Run `bash scripts/monitor-cloud-logs.sh 24 30` (or `.ps1` on Windows) in background; review report.
 8. Apply backfill `({dryRun: false})` on Riopomba; manager confirms inferred rows in Week 1 via CoberturaReport CTA.
-**Verification:** Deploy logs clean; smoke checklist green; Cloud Logs report shows 0 critical incidents 24h post-deploy.
+   **Verification:** Deploy logs clean; smoke checklist green; Cloud Logs report shows 0 critical incidents 24h post-deploy.
 
 ## Acceptance criteria
 

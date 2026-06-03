@@ -35,6 +35,7 @@ Run this sequence every morning and before major deployments. Automate via cron 
 ### 1. Cloud Logs Errors (P0/P1/P2)
 
 **Command:**
+
 ```bash
 gcloud logging read "severity >= ERROR AND timestamp > now - 60m" \
   --project=hmatologia2 \
@@ -43,6 +44,7 @@ gcloud logging read "severity >= ERROR AND timestamp > now - 60m" \
 ```
 
 **Check:**
+
 - [ ] Error count in last 1h ≤ 5
 - [ ] No `"Permission denied"` on `/labs/{labId}/*` writes
 - [ ] No `"Function timeout"` patterns
@@ -56,21 +58,25 @@ gcloud logging read "severity >= ERROR AND timestamp > now - 60m" \
 ### 2. Firestore Quota Usage
 
 **Command:**
+
 ```bash
 gcloud firestore stat --project=hmatologia2
 ```
 
 **Check:**
+
 - [ ] Disk usage growth rate <10% month-over-month
 - [ ] Document count matches expected baseline (should be stable or grow <5% daily)
 - [ ] No unexplained spikes in write operations
 
 **Expected baseline (as of 2026-05-07):**
+
 - ~850K documents
 - ~45 GB storage
 - ~200K daily writes
 
 **If quota exceeded 80%:**
+
 - Document the spike with timestamp
 - Check for bulk imports or drive syncs in progress
 - If unplanned, escalate to P1
@@ -80,6 +86,7 @@ gcloud firestore stat --project=hmatologia2
 ### 3. Function Invocation Count & Latency
 
 **Command:**
+
 ```bash
 gcloud monitoring time-series list \
   --filter="metric.type = cloudfunctions.googleapis.com/function/execution_count" \
@@ -88,11 +95,13 @@ gcloud monitoring time-series list \
 ```
 
 **Check:**
+
 - [ ] Total invocations in last 1h >100 (healthy baseline)
 - [ ] No single function invoked >10k times in 1h (possible infinite loop)
 - [ ] P99 latency <3s (healthy range; <5s acceptable)
 
 **Spike investigation:**
+
 ```bash
 # Find which function is spiking
 gcloud logging read \
@@ -110,6 +119,7 @@ If single function >10% of invocations: Check for runaway polling or trigger mis
 **Check:** Locks should expire automatically after 1h. Manual cleanup only if stuck >2h.
 
 **Command (manual check):**
+
 ```bash
 # Query laudo collection for stuck locks
 firebase firestore --project=hmatologia2 \
@@ -117,6 +127,7 @@ firebase firestore --project=hmatologia2 \
 ```
 
 **If any found:**
+
 - [ ] Document timestamp + `laudo_id`
 - [ ] Check Cloud Logs for error during laudo generation
 - [ ] If lock created >2h ago: Force-delete via admin SDK
@@ -127,36 +138,39 @@ firebase firestore --project=hmatologia2 \
 
 ## Alert Thresholds & Severity
 
-| Metric | Threshold | Severity | Action | Response |
-|--------|-----------|----------|--------|----------|
-| Cloud Logs errors/hour | >10 | P0 | Immediate investigation | <15 min |
-| `"Permission denied"` count | >0 (on writes) | P0 | Check rules rollback | <15 min |
-| Laudo draft lock stuck | >2h | P1 | Force-delete, debug | <1 h |
-| NOTIVISA retry attempts | >3 (same event) | P1 | Check payload validation | <1 h |
-| Firestore rules rejections | >100/hour | P2 | Analyze rejection patterns | <8 h |
-| Function cold-start latency | >5s (P99) | P2 | Profile bundle size | <8 h |
-| Unhandled exceptions | >1/hour | P2 | Stack trace analysis | <8 h |
-| Build time degradation | +20% vs baseline | P2 | Profile imports, check bundle | <24 h |
-| Firestore quota usage | >85% | P1 | Investigate bulk ops | <1 h |
-| HTTP 5xx errors | >5/hour | P1 | Check hosting logs | <1 h |
+| Metric                      | Threshold        | Severity | Action                        | Response |
+| --------------------------- | ---------------- | -------- | ----------------------------- | -------- |
+| Cloud Logs errors/hour      | >10              | P0       | Immediate investigation       | <15 min  |
+| `"Permission denied"` count | >0 (on writes)   | P0       | Check rules rollback          | <15 min  |
+| Laudo draft lock stuck      | >2h              | P1       | Force-delete, debug           | <1 h     |
+| NOTIVISA retry attempts     | >3 (same event)  | P1       | Check payload validation      | <1 h     |
+| Firestore rules rejections  | >100/hour        | P2       | Analyze rejection patterns    | <8 h     |
+| Function cold-start latency | >5s (P99)        | P2       | Profile bundle size           | <8 h     |
+| Unhandled exceptions        | >1/hour          | P2       | Stack trace analysis          | <8 h     |
+| Build time degradation      | +20% vs baseline | P2       | Profile imports, check bundle | <24 h    |
+| Firestore quota usage       | >85%             | P1       | Investigate bulk ops          | <1 h     |
+| HTTP 5xx errors             | >5/hour          | P1       | Check hosting logs            | <1 h     |
 
 ---
 
 ### Severity Definitions
 
 **P0 — Critical (15 min SLA):**
+
 - Service unavailable or degraded for >5 min
 - Data loss or data corruption detected
 - Security breach or unauthorized access
 - Rules rejecting all writes to a collection
 
 **P1 — High (1 hour SLA):**
+
 - Feature unusable (but service up)
 - Performance degraded >50%
 - Intermittent errors affecting >10% of requests
 - External API integration failing (NOTIVISA, Drive, Gemini)
 
 **P2 — Medium (8 hour SLA):**
+
 - Single-module failure (doesn't block other modules)
 - Minor performance issue (<50% degradation)
 - Code quality issue (dead code, unused variables)
@@ -171,11 +185,13 @@ firebase firestore --project=hmatologia2 \
 **Symptom:** Laudo locked for editing, user reports "cannot edit result"
 
 **Log Signature:**
+
 ```
 Cloud Logs: laudo_id={id}, lock.operatorId={uid}, lock.createdAt={ts}
 ```
 
 **Root Cause:**
+
 - Operator session killed while editing (no cleanup)
 - Cloud Function timeout during laudo generation
 - Network disconnect during `unlockLaudo` call
@@ -183,6 +199,7 @@ Cloud Logs: laudo_id={id}, lock.operatorId={uid}, lock.createdAt={ts}
 **Resolution:**
 
 **Step 1: Confirm lock is stuck (not just delayed)**
+
 ```bash
 firebase firestore --project=hmatologia2 \
   'collection("labs").doc("{labId}").collection("laudos").doc("{laudo_id}").get().lock'
@@ -193,6 +210,7 @@ firebase firestore --project=hmatologia2 \
 **Step 2: Force-delete lock (via Admin SDK)**
 
 Create temporary script `force-unlock-laudo.js`:
+
 ```javascript
 const admin = require('firebase-admin');
 const projectId = 'hmatologia2';
@@ -200,22 +218,25 @@ const labId = 'LAB001'; // Replace with actual labId
 const laudoId = 'laudo-123'; // Replace with actual laudo_id
 
 admin.initializeApp({
-  projectId: projectId
+  projectId: projectId,
 });
 
 async function forceClearLock() {
-  const laudoRef = admin.firestore()
-    .collection('labs').doc(labId)
-    .collection('laudos').doc(laudoId);
-  
+  const laudoRef = admin
+    .firestore()
+    .collection('labs')
+    .doc(labId)
+    .collection('laudos')
+    .doc(laudoId);
+
   const laudoDoc = await laudoRef.get();
   console.log('Current lock:', laudoDoc.data().lock);
-  
+
   await laudoRef.update({
     lock: null,
-    updatedAt: admin.firestore.FieldValue.serverTimestamp()
+    updatedAt: admin.firestore.FieldValue.serverTimestamp(),
   });
-  
+
   console.log('Lock cleared. Audit entry created.');
 }
 
@@ -223,6 +244,7 @@ forceClearLock().catch(console.error);
 ```
 
 **Step 3: Audit trail**
+
 - [ ] Document `laudo_id`, operator, lock timestamp, force-clear timestamp
 - [ ] Create audit entry via `auditTrail` subcollection:
   ```
@@ -235,6 +257,7 @@ forceClearLock().catch(console.error);
   ```
 
 **Step 4: Alert operator**
+
 - [ ] Notify original operator: "Draft lock cleared due to timeout. Please retry."
 - [ ] Escalate to P2 if >2 incidents in 24h (indicates timeout issue)
 
@@ -245,12 +268,14 @@ forceClearLock().catch(console.error);
 **Symptom:** Regulatory notification not reaching NOTIVISA. User reports "event stuck PENDING"
 
 **Log Signature:**
+
 ```
 Cloud Logs: "sendNotivisa" OR "notivisa-outbox"
 Error: attempts=3, status=FAILED, nextRetry=null
 ```
 
 **Root Cause:**
+
 - Invalid patient CPF format (masking error)
 - NOTIVISA API authentication expired
 - Payload validation failing (missing required fields per RDC 978 Art. 6º §1)
@@ -259,6 +284,7 @@ Error: attempts=3, status=FAILED, nextRetry=null
 **Resolution:**
 
 **Step 1: Check payload validation**
+
 ```bash
 gcloud logging read \
   'textPayload =~ ".*notivisa.*" AND severity >= ERROR' \
@@ -268,6 +294,7 @@ gcloud logging read \
 ```
 
 **Step 2: Validate CPF masking**
+
 ```bash
 # Check if patient_cpf is correctly masked (should be 11 digits, no dashes)
 # Example: 12345678901 ✓ | 123.456.789-01 ✗
@@ -289,6 +316,7 @@ curl -X POST https://hmatologia2.cloudfunctions.net/retryNotivisaEvent \
 ```
 
 **Step 4: Check NOTIVISA API credentials**
+
 ```bash
 # Verify env var is set
 firebase functions:config:get | grep NOTIVISA
@@ -299,6 +327,7 @@ firebase deploy --only functions --project=hmatologia2
 ```
 
 **Step 5: Escalate if pattern continues**
+
 - If >5 events failing after retry → P1
 - Document failed event IDs + timestamps
 - Check NOTIVISA API status page
@@ -311,12 +340,14 @@ firebase deploy --only functions --project=hmatologia2
 **Symptom:** Users report "permission denied" on normal operations. Cloud Logs show rules rejections.
 
 **Log Signature:**
+
 ```
-Cloud Logs: resource.type="cloud_firestore" 
+Cloud Logs: resource.type="cloud_firestore"
 AND textPayload =~ ".*Permission denied.*"
 ```
 
 **Root Cause:**
+
 - Rules deployed with incorrect RBAC logic
 - `membership` collection out of sync (user no longer member of lab)
 - Multi-tenant isolation broke (labId mismatch)
@@ -325,6 +356,7 @@ AND textPayload =~ ".*Permission denied.*"
 **Resolution:**
 
 **Step 1: Identify rejection pattern**
+
 ```bash
 gcloud logging read \
   'resource.type="cloud_firestore" AND textPayload =~ ".*Permission denied.*"' \
@@ -334,6 +366,7 @@ gcloud logging read \
 ```
 
 **Step 2: Check rules logic**
+
 ```bash
 # View current rules
 firebase rules:get firestore --project=hmatologia2
@@ -354,6 +387,7 @@ firebase firestore --project=hmatologia2 \
 ```
 
 **Step 4: Rollback rules if >5% error rate**
+
 ```bash
 # Get previous rules version
 git log --oneline -- firestore.rules | head -5
@@ -372,6 +406,7 @@ gcloud logging read \
 ```
 
 **Step 5: Investigate root cause post-rollback**
+
 - Review rules diff: `git diff HEAD~1 firestore.rules`
 - Check if RBAC logic change introduced bug
 - Test in staging before re-deploying to prod
@@ -384,11 +419,13 @@ gcloud logging read \
 **Symptom:** Deploy takes significantly longer than usual. Build logs show slowdown.
 
 **Baseline metrics (Phase 3 initial):**
+
 - `npm run build`: ~45s (main app + functions combined)
 - `tsc --noEmit`: ~12s (type check)
 - Bundle size: ~362 KB (main chunk gzip)
 
 **Root Cause:**
+
 - New large dependency added (>50KB gzip)
 - Type checking enabled for more files
 - Composite indexes rebuilding
@@ -397,6 +434,7 @@ gcloud logging read \
 **Resolution:**
 
 **Step 1: Identify slow step**
+
 ```bash
 # Time each build phase
 time npm run build 2>&1 | tee build-profile.log
@@ -408,6 +446,7 @@ time npm run build 2>&1 | tee build-profile.log
 ```
 
 **Step 2: Check for new imports**
+
 ```bash
 # Compare bundle size vs last known good
 npx vite build
@@ -419,6 +458,7 @@ npx vite-plugin-visualizer
 ```
 
 **Step 3: Check for new dependencies**
+
 ```bash
 # Compare package.json vs last deploy
 git diff HEAD~1 package.json | grep "^+" | grep '"'
@@ -433,6 +473,7 @@ npm ls --depth=0 | grep -E "chalk|lodash|axios" # common culprits
 ```
 
 **Step 4: Profile type checking**
+
 ```bash
 # Check if tsconfig includes too many files
 cat tsconfig.json | jq '.include'
@@ -443,6 +484,7 @@ cat tsconfig.json | jq '.include'
 ```
 
 **Step 5: Clear caches if stuck**
+
 ```bash
 rm -rf node_modules dist .turbo .next
 npm install
@@ -450,6 +492,7 @@ npm run build
 ```
 
 **Step 6: If >20% slower, don't deploy**
+
 - Revert recent commits until baseline restored
 - Profile root cause before re-adding changes
 - Escalate to P2 with timeline
@@ -459,16 +502,18 @@ npm run build
 ## Rollback Procedure
 
 **When to rollback:**
+
 - P0 issue unresolved after >30 min investigation
 - Data integrity compromised
 - Security vulnerability discovered post-deploy
-- >20% error rate on single module
+- > 20% error rate on single module
 
 **Scope:** Can rollback Rules, Functions, or Hosting independently.
 
 ### Step 1: Identify rollback target
 
 **Check Git history:**
+
 ```bash
 git log --oneline --decorate | head -10
 
@@ -479,6 +524,7 @@ git log --oneline --decorate | head -10
 ```
 
 **Choose rollback commit:**
+
 - If rules broken: rollback to `v1.3-final`
 - If functions broken: rollback to `v1.3-final`
 - If hosting broken: rollback to `v1.3-final`
@@ -493,6 +539,7 @@ git checkout -b rollback/phase3-emergency
 ### Step 3: Deploy rollback (by component)
 
 **Rollback Rules only:**
+
 ```bash
 firebase deploy --only firestore:rules --project=hmatologia2 \
   -m "Rollback: Rules regression detected — [reason]"
@@ -502,6 +549,7 @@ firebase rules:get firestore --project=hmatologia2 | head -20
 ```
 
 **Rollback Functions only:**
+
 ```bash
 cd functions
 npm run build
@@ -513,6 +561,7 @@ firebase functions:list --project=hmatologia2 | head -10
 ```
 
 **Rollback Hosting only:**
+
 ```bash
 firebase deploy --only hosting --project=hmatologia2 \
   -m "Rollback: Hosting broken — [reason]"
@@ -525,6 +574,7 @@ curl -I https://hmatologia2.web.app
 ### Step 4: Verify rollback successful
 
 **Health check:**
+
 ```bash
 # 1. Cloud Logs — errors should drop
 gcloud logging read "severity >= ERROR AND timestamp > now - 5m" \
@@ -544,6 +594,7 @@ curl https://hmatologia2.web.app
 ### Step 5: Document rollback
 
 **Create incident report:**
+
 ```markdown
 # Rollback Report — Phase 3 [Date]
 
@@ -554,6 +605,7 @@ curl https://hmatologia2.web.app
 **Resolution:** [what to do before re-deploying]
 
 **Impact:**
+
 - Downtime: [duration]
 - Users affected: [count / estimate]
 - Data loss: [yes/no]
@@ -562,6 +614,7 @@ curl https://hmatologia2.web.app
 **Save to:** `docs/rollback-reports/rollback-<date>.md`
 
 **Commit:**
+
 ```bash
 git add docs/rollback-reports/
 git commit -m "docs: Rollback report — Phase 3 [issue] [date]"
@@ -571,12 +624,14 @@ git push origin main
 ### Step 6: Investigate root cause (post-rollback)
 
 Once system is stable, investigate why the deployment failed:
+
 1. Compare rollback version vs deployed version
 2. Identify the specific commit that introduced the issue
 3. Run smoke tests on staging with that commit
 4. Fix the issue and re-test before redeploying
 
 **Timeline:**
+
 - Rollback: <15 min (to stable)
 - Investigation: <2h (parallel with team)
 - Fix validation: <1h (staging smoke tests)
@@ -591,11 +646,13 @@ Once system is stable, investigate why the deployment failed:
 **Your role:** Monitor, collect data, initial triage.
 
 **When to escalate:**
+
 - If issue not resolved within 15 min (P0)
 - If root cause unclear after 20 min investigation
 - If rollback needed
 
 **Before escalating, gather:**
+
 - [ ] Exact error messages from Cloud Logs (copy-paste)
 - [ ] Timestamps of first occurrence + current status
 - [ ] Affected user count (if known)
@@ -613,6 +670,7 @@ Once system is stable, investigate why the deployment failed:
 **What you'll receive:** L1 summary + logs.
 
 **Checklist:**
+
 - [ ] Verify L1 findings in Cloud Logs / Cloud Console
 - [ ] Check recent commits: `git log --oneline | head -20`
 - [ ] Run Cloud Logs filters from [Daily Monitoring](#daily-monitoring-checklist-5-min) section
@@ -630,6 +688,7 @@ Once system is stable, investigate why the deployment failed:
 **Your role:** Strategic decisions, major changes, customer communication.
 
 **When called:**
+
 - P0 issues unresolved after 30 min
 - Potential data loss / corruption
 - Security incident
@@ -637,6 +696,7 @@ Once system is stable, investigate why the deployment failed:
 - Need to communicate with customers
 
 **Your checklist:**
+
 - [ ] Review incident summary from L2
 - [ ] Assess business impact
 - [ ] Decide: rollback vs. emergency fix vs. accept risk for now
@@ -686,11 +746,15 @@ Once system is stable, investigate why the deployment failed:
 
 Rules v1.4 had overly restrictive labId check. Condition should be:
 ```
+
 allow write: if request.auth.labIds.contains(resource.data.labId);
+
 ```
 But deployed as:
 ```
+
 allow write: if request.auth.labIds[0] == resource.data.labId;
+
 ```
 Failed for operators with multiple lab access.
 
@@ -767,9 +831,9 @@ gcloud logging read "severity >= WARNING" \
 
 ## Document History
 
-| Version | Date | Changes |
-|---------|------|---------|
-| 1.0 | 2026-05-07 | Initial Phase 3 runbook — daily checklist, thresholds, troubleshooting, escalation, rollback |
+| Version | Date       | Changes                                                                                      |
+| ------- | ---------- | -------------------------------------------------------------------------------------------- |
+| 1.0     | 2026-05-07 | Initial Phase 3 runbook — daily checklist, thresholds, troubleshooting, escalation, rollback |
 
 ---
 

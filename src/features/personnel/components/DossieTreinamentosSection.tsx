@@ -12,7 +12,9 @@ interface DossieTreinamentosSectionProps {
   colaboradorId: string;
 }
 
-export function DossieTreinamentosSection({ colaboradorId }: DossieTreinamentosSectionProps): React.ReactElement {
+export function DossieTreinamentosSection({
+  colaboradorId,
+}: DossieTreinamentosSectionProps): React.ReactElement {
   const { treinamentos, horasAno, loading, error } = useColaboradorTreinamentos(colaboradorId);
 
   if (loading) {
@@ -44,7 +46,9 @@ export function DossieTreinamentosSection({ colaboradorId }: DossieTreinamentosS
       </div>
 
       {treinamentos.length === 0 ? (
-        <p className="text-xs text-white/40">Nenhum treinamento registrado para este colaborador.</p>
+        <p className="text-xs text-white/40">
+          Nenhum treinamento registrado para este colaborador.
+        </p>
       ) : (
         <div className="space-y-2">
           {treinamentos.map((t, idx) => (
@@ -83,7 +87,9 @@ function ResultadoBadge({ resultado }: { resultado: string }): React.ReactElemen
   const cfg = config[resultado] ?? { bg: 'bg-white/10', text: 'text-white/60', label: resultado };
 
   return (
-    <span className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.bg} ${cfg.text}`}>
+    <span
+      className={`ml-2 shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${cfg.bg} ${cfg.text}`}
+    >
       {cfg.label}
     </span>
   );

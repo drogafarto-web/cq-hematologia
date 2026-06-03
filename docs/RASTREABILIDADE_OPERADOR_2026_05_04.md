@@ -63,6 +63,7 @@ abertoPrimeiraVezEm?: Timestamp;  // Quando foi aberto
 **Problema:** Qual faixa de exames (hemogramas) foi processada com cada lote?
 
 **Solução:**
+
 1. Operador digita código do **primeiro** exame ao abrir novo lote
 2. Sistema **fecha lote anterior** e calcula `ultimoExame = primeiroExame - 1`
 3. Resultado: faixa `[primeiroExame, ultimoExame]` fica gravada atomicamente
@@ -87,22 +88,22 @@ runTransaction(db, async (transaction) => {
   // 1. READ: Valida novo insumo + anterior existente
   const newSnap = await transaction.get(newRef);
   const prevSnap = await transaction.get(prevRef); // race condition check
-  
+
   // 2. VALIDATE: Anterior está 'ativo'?
   if (prevSnap.data().status !== 'ativo') {
-    throw "Lote anterior não mais ativo";
+    throw 'Lote anterior não mais ativo';
   }
-  
+
   // 3. CALCULATE: ultimoExame = examCode - 1
   const ultimoExame = String(parseInt(examCode) - 1).padStart(examCode.length, '0');
-  
+
   // 4. WRITE: Fecha anterior atomicamente
   transaction.update(prevRef, {
     status: 'fechado',
     ultimoExameWorklab: ultimoExame,
     fechadoPor: { operadorId, operadorName, timestamp },
   });
-  
+
   // 5. WRITE: Abre novo atomicamente
   transaction.update(newRef, {
     status: 'ativo',
@@ -145,20 +146,21 @@ Transação Op2 perde:
 
 ### Tabela com Colunas
 
-| Coluna | Fonte | Uso |
-|--------|-------|-----|
-| Insumo | `nomeComercial` + `fabricante` | Identificação |
-| Tipo | `tipo` discriminated union | Controle/Reagente/Tira |
-| Lote | `lote` | Serial fabricante |
-| Aberto por | `abertoPor.operadorName` + `UID slice` | Auditoria |
-| Data/Hora abertura | `abertoPor.timestamp` | Cronologia |
-| Dias em uso | `(hoje - abertoPrimeiraVezEm)` | Alerta > 30d |
-| Código Worklab | `primeiroExameWorklab` | Rastreabilidade LIS |
-| Validade | `validade` | Conformidade |
+| Coluna             | Fonte                                  | Uso                    |
+| ------------------ | -------------------------------------- | ---------------------- |
+| Insumo             | `nomeComercial` + `fabricante`         | Identificação          |
+| Tipo               | `tipo` discriminated union             | Controle/Reagente/Tira |
+| Lote               | `lote`                                 | Serial fabricante      |
+| Aberto por         | `abertoPor.operadorName` + `UID slice` | Auditoria              |
+| Data/Hora abertura | `abertoPor.timestamp`                  | Cronologia             |
+| Dias em uso        | `(hoje - abertoPrimeiraVezEm)`         | Alerta > 30d           |
+| Código Worklab     | `primeiroExameWorklab`                 | Rastreabilidade LIS    |
+| Validade           | `validade`                             | Conformidade           |
 
 ### Badge Âmbar
 
 Quando `diasEmUso > 30`:
+
 ```
 [32 DIAS]  ← Fundo amarelo, fonte âmbar
 ```
@@ -179,6 +181,7 @@ Descendente por `abertoPor.timestamp` (mais recentes primeiro).
    - Agora TODOS os tipos têm campo Worklab
 
 2. **Validação obrigatória**
+
    ```typescript
    if (showTraceability && !traceExamCode.trim()) {
      e.traceExamCode = 'Informe o código do primeiro atendimento (Worklab).';
@@ -188,7 +191,7 @@ Descendente por `abertoPor.timestamp` (mais recentes primeiro).
 3. **UI melhorada**
    - Label: "Rastreabilidade Worklab"
    - Frase: "Obrigatório: registre o código do primeiro atendimento (exame) que será processado com este lote. **Consulte Worklab para obter o código.**"
-   - Placeholder: "Código do primeiro atendimento *"
+   - Placeholder: "Código do primeiro atendimento \*"
    - Erro visual em vermelho se vazio
 
 ### Comportamento
@@ -227,7 +230,7 @@ handleSubmit():
 
 Operador clica "Aplicar rotação":
   - Chama openInsumoWithExamCode(labId, B.id, "0107200", ..., A.id)
-  
+
 Transaction executa:
   - Fecha A: ultimoExame=0107199, fechadoPor={João, 14:32}
   - Abre B: primeiroExame=0107200, abertoPor={João, 14:32}
@@ -243,16 +246,19 @@ Resultado:
 ## 6. Conformidade Regulatória
 
 ### RDC 786/2023 Art. 42 (Rastreabilidade de Insumos)
+
 ✅ Cada lote rastreável por **quem** abriu/fechou + **quando**  
 ✅ Faixa de exames processados com cada lote  
 ✅ Audit trail imutável (movimentações)
 
 ### RDC 978/2025 Art.128 (CIQ Documental)
+
 ✅ Registro de quem qualificou o lote  
 ✅ Assinatura criptográfica em movimentações  
 ✅ Rastreabilidade de reagentes/controles por corrida
 
 ### LGPD (Lei Geral de Proteção de Dados)
+
 ✅ Consentimento implícito: operador autorizado pelo lab  
 ✅ Dados necessários: apenas UID + nome + timestamp  
 ✅ Retenção: aligned com RDC (5 anos Firestore lifecycle)
@@ -264,6 +270,7 @@ Resultado:
 ### Índices Firestore
 
 Nenhum índice adicional necessário:
+
 - `status='ativo'` já está indexado (LotesTable)
 - `produtoId` + `status='ativo'` já está indexado (findAtivoDoMesmoProduto)
 - `abertoPor.timestamp` é leitura em memória (sorting client-side OK)
@@ -273,6 +280,7 @@ Nenhum índice adicional necessário:
 Proteção contra race condition garante **no máximo 1 lote ativo por produto**.
 
 Se 100 operadores abrem simultaneamente:
+
 - 99 transações falham com mensagem clara
 - 1 ganha e transição é atômica
 

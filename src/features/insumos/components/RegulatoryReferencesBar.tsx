@@ -22,10 +22,7 @@ interface RegulatoryReferencesBarProps {
   labOverrides?: Partial<Record<InsumoModulo, ModuleRegulatoryConfig>>;
 }
 
-export function RegulatoryReferencesBar({
-  module,
-  labOverrides,
-}: RegulatoryReferencesBarProps) {
+export function RegulatoryReferencesBar({ module, labOverrides }: RegulatoryReferencesBarProps) {
   const refs = resolveRegulatoryReferences(module, labOverrides);
   if (refs.length === 0) return null;
 

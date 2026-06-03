@@ -18,7 +18,12 @@ export type FirestoreUnaryProbeResult =
   | { status: 'error'; code: string; message: string };
 
 function isFirebaseError(err: unknown): err is FirebaseError {
-  return typeof err === 'object' && err !== null && 'code' in err && typeof (err as FirebaseError).code === 'string';
+  return (
+    typeof err === 'object' &&
+    err !== null &&
+    'code' in err &&
+    typeof (err as FirebaseError).code === 'string'
+  );
 }
 
 /** Códigos frequentes quando o canal de streaming é interrompido ou bloqueado. */
@@ -59,7 +64,11 @@ export function classifyFirestoreListenerError(params: {
   unaryProbe: FirestoreUnaryProbeResult | null;
   /** Se o token já contém modules.ceq === true (após getIdTokenResult). */
   tokenClaimsCeqTrue: boolean | null;
-}): { category: FirestoreListenerFailureCategory; technicalCode: string; technicalMessage: string } {
+}): {
+  category: FirestoreListenerFailureCategory;
+  technicalCode: string;
+  technicalMessage: string;
+} {
   const { err, unaryProbe, tokenClaimsCeqTrue } = params;
 
   const technicalCode = isFirebaseError(err) ? err.code : 'non-firebase-error';
@@ -69,7 +78,10 @@ export function classifyFirestoreListenerError(params: {
       ? err.message
       : String(err);
 
-  if (isFirebaseError(err) && (err.code === 'auth/user-token-expired' || err.code === 'auth/invalid-user-token')) {
+  if (
+    isFirebaseError(err) &&
+    (err.code === 'auth/user-token-expired' || err.code === 'auth/invalid-user-token')
+  ) {
     return { category: 'auth_token', technicalCode, technicalMessage };
   }
 

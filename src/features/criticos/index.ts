@@ -15,11 +15,30 @@ export { CriticosEscalacaoList } from './components/CriticosEscalacaoList';
 export { ComunicacaoModal } from './components/ComunicacaoModal';
 
 // Phase 5 Core Services
-export type { CriticoThreshold, CriticoThresholdInput, RoutingRule, RoutingRuleInput, AnalyteRegistry, EscalationRecipients } from './types/threshold';
+export type {
+  CriticoThreshold,
+  CriticoThresholdInput,
+  RoutingRule,
+  RoutingRuleInput,
+  AnalyteRegistry,
+  EscalationRecipients,
+} from './types/threshold';
 
-export { getThresholds, createThreshold, updateThreshold, softDeleteThreshold, getThresholdById, listThresholdsByAnalyte, validateThresholdInput } from './services/thresholdService';
+export {
+  getThresholds,
+  createThreshold,
+  updateThreshold,
+  softDeleteThreshold,
+  getThresholdById,
+  listThresholdsByAnalyte,
+  validateThresholdInput,
+} from './services/thresholdService';
 
-export { getEscalationRecipients, getRoutingRules, mergeEscalationRecipients } from './utils/routingEngine';
+export {
+  getEscalationRecipients,
+  getRoutingRules,
+  mergeEscalationRecipients,
+} from './utils/routingEngine';
 export type { CriticoDetectionResult } from './utils/routingEngine';
 
 // Phase 5 UI Components

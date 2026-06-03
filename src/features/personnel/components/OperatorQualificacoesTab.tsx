@@ -67,7 +67,13 @@ function CheckCircleIcon() {
   return (
     <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden>
       <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.2" />
-      <path d="M4.5 7l2 2 3-3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M4.5 7l2 2 3-3"
+        stroke="currentColor"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
     </svg>
   );
 }
@@ -96,7 +102,9 @@ function formatDate(timestamp: any): string {
 function daysUntilExpiry(expiryTimestamp: any | null): number | null {
   if (!expiryTimestamp) return null;
   try {
-    const expiryDate = expiryTimestamp.toDate ? expiryTimestamp.toDate() : new Date(expiryTimestamp);
+    const expiryDate = expiryTimestamp.toDate
+      ? expiryTimestamp.toDate()
+      : new Date(expiryTimestamp);
     const today = new Date();
     const diffMs = expiryDate.getTime() - today.getTime();
     return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
@@ -179,14 +187,16 @@ function RevokeConfirmDialog({
       aria-modal="true"
       aria-labelledby="revoke-title"
     >
-      <div className="w-full max-w-sm mx-4 rounded-2xl bg-gradient-to-b from-[#141417] to-[#0a0a0b]
-        border border-white/[0.08] shadow-2xl p-6">
+      <div
+        className="w-full max-w-sm mx-4 rounded-2xl bg-gradient-to-b from-[#141417] to-[#0a0a0b]
+        border border-white/[0.08] shadow-2xl p-6"
+      >
         <h2 id="revoke-title" className="text-lg font-semibold text-white mb-2">
           Revogar qualificação?
         </h2>
         <p className="text-sm text-white/70 mb-6">
-          Você está prestes a revogar a qualificação de <strong>{qualificacao.tipo}</strong> nos módulos{' '}
-          <strong>{qualificacao.modulosLiberados.join(', ')}</strong>.
+          Você está prestes a revogar a qualificação de <strong>{qualificacao.tipo}</strong> nos
+          módulos <strong>{qualificacao.modulosLiberados.join(', ')}</strong>.
         </p>
 
         <div className="flex gap-2">
@@ -311,32 +321,16 @@ export function OperatorQualificacoesTab({
 
       {/* Table wrapper for responsiveness */}
       <div className="overflow-x-auto rounded-lg border border-white/[0.08]">
-        <table
-          className="w-full text-sm"
-          role="table"
-          aria-label="Qualificações do operador"
-        >
+        <table className="w-full text-sm" role="table" aria-label="Qualificações do operador">
           <thead>
             <tr className="border-b border-white/[0.08] bg-white/[0.02]">
-              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">
-                Tipo
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">
-                Módulos
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">
-                Válido de
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">
-                Válido até
-              </th>
-              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">
-                Status
-              </th>
+              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">Tipo</th>
+              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">Módulos</th>
+              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">Válido de</th>
+              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">Válido até</th>
+              <th className="px-4 py-3 text-left font-medium text-white/60 text-xs">Status</th>
               {canEdit && (
-                <th className="px-4 py-3 text-right font-medium text-white/60 text-xs">
-                  Ação
-                </th>
+                <th className="px-4 py-3 text-right font-medium text-white/60 text-xs">Ação</th>
               )}
             </tr>
           </thead>
@@ -365,8 +359,10 @@ export function OperatorQualificacoesTab({
                 <tr key={q.id} className="hover:bg-white/[0.02] transition-colors">
                   {/* Tipo */}
                   <td className="px-4 py-3">
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
-                      bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium">
+                    <span
+                      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md
+                      bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium"
+                    >
                       {q.tipo}
                     </span>
                   </td>
@@ -387,9 +383,7 @@ export function OperatorQualificacoesTab({
                   </td>
 
                   {/* Válido de */}
-                  <td className="px-4 py-3 text-white/70">
-                    {formatDate(q.validoDe)}
-                  </td>
+                  <td className="px-4 py-3 text-white/70">{formatDate(q.validoDe)}</td>
 
                   {/* Válido até */}
                   <td className="px-4 py-3 text-white/70">

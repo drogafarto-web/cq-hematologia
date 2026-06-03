@@ -10,6 +10,7 @@
 ## Executive Summary
 
 Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** using Gemini 2.5 Flash. Deliverables:
+
 - ✅ Gemini Vision callable with 3 prompt variants (A/B testing)
 - ✅ 500+ training images collected across 5 test kits
 - ✅ Confidence threshold validation (0.85 default, manual override)
@@ -18,6 +19,7 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 - ✅ E2E tests (5 critical flows)
 
 **Success Criteria:**
+
 - Gemini accuracy ≥85% on validation set
 - Dataset collection: 50+ images/day → 500+ by phase end
 - Latency: <3s p99 (95% <2.5s)
@@ -29,6 +31,7 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 ## Current State
 
 ### Completed (Phase 0–3, v1.3)
+
 - **20 modules in production** (analyzer, coagulacao, ciq-imuno, uroanalise, etc.)
 - **ia-strip module scaffold** exists with placeholder implementations
 - **Gemini API key provisioned** (environment ready)
@@ -36,6 +39,7 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 - **CIQ infrastructure** stable (347/347 tests passing from v1.3)
 
 ### In Progress (Phase 11 kickoff needed)
+
 - **Gemini Vision callable** — needs full implementation
 - **UI components** — camera capture, manual review modal, image preview
 - **Dataset collection pipeline** — metadata schema, auto-ingestion, versioning
@@ -50,9 +54,11 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 ### Week 1: Infrastructure & Gemini Integration
 
 #### 1.1 Gemini Vision Callable (`classifyStripGemini`)
+
 **File**: `functions/src/modules/ia-strip/callables/classifyStripGemini.ts`
 
 **Spec**:
+
 - Input: `{ base64: string, mimeType, testType, labId, captureId, operatorId, promptVariant? }`
 - Output: `{ classification: 'R'|'NR'|'INCONCLUSIVE', confidence: 0–1, reasoning, flaggedForManualReview, recommendedAction, signature }`
 - Gemini model: `gemini-2.5-flash`
@@ -61,6 +67,7 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 - Error handling: JSON parse failures → return INVALID with confidence=0
 
 **Dependencies**:
+
 - `@google/generative-ai` (already in package.json)
 - `firebase-admin` (sign payload + write audit log)
 - Helper: `generateChainHash()` (from shared/signature)
@@ -68,11 +75,11 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 
 **A/B Test Variants** (prompts hardcoded, variant allocation 33/33/33):
 
-| Variant | Language | Style | Expected accuracy |
-|---------|----------|-------|-------------------|
-| v1 | Portuguese | Clinical detail + decision rules | 86–88% |
-| v2 | Portuguese | Terse checklist (faster) | 84–86% |
-| v3 | English | Visual cues (international) | 82–85% |
+| Variant | Language   | Style                            | Expected accuracy |
+| ------- | ---------- | -------------------------------- | ----------------- |
+| v1      | Portuguese | Clinical detail + decision rules | 86–88%            |
+| v2      | Portuguese | Terse checklist (faster)         | 84–86%            |
+| v3      | English    | Visual cues (international)      | 82–85%            |
 
 **Implementation Priority**: HIGH — blocks all downstream components
 
@@ -81,6 +88,7 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 #### 1.2 Firestore Schema (4 collections + indexes)
 
 **Collection 1: `imuno-ia-dev/{labId}/events/{captureId}` (Append-only audit log)**
+
 ```typescript
 {
   captureId: string;                    // UUID
@@ -92,25 +100,26 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
   promptVariant: 'v1'|'v2'|'v3';
   geminiLatencyMs: number;
   tokensUsed: { input, output };
-  
+
   flaggedForManualReview: boolean;      // confidence < 0.85
   rtVerdict?: 'R'|'NR'|'INCONCLUSIVE';
   rtVerdictAt?: Timestamp;
   rtOperatorId?: string;
   rtNotes?: string;
-  
+
   signature: { hash: string, operatorId, ts };
   operatorId: string;
   labId: string;
   classifiedAt: Timestamp;
   agreedWithGemini: boolean;
-  
+
   createdAt: Timestamp;
   deletedAt?: Timestamp;  // Soft-delete only
 }
 ```
 
 **Collection 2: `imuno-ia-dev/{labId}/config` (Lab settings)**
+
 ```typescript
 {
   labId: string;
@@ -129,31 +138,64 @@ Phase 11 establishes **AI-powered rapid diagnostic test (RDT) classification** u
 ```
 
 **Collection 3: `imuno-ia-cost/{labId}/daily/{dateKey}` (Cost tracking)**
+
 ```typescript
 {
   labId: string;
-  dateKey: string;                    // YYYY-MM-DD
+  dateKey: string; // YYYY-MM-DD
   callCount: number;
-  estimatedCost: number;              // USD (Gemini pricing)
-  tokensUsed: { input, output };
+  estimatedCost: number; // USD (Gemini pricing)
+  tokensUsed: {
+    (input, output);
+  }
   lastUpdated: Timestamp;
 }
 ```
 
 **Indexes**:
+
 ```json
 {
   "indexes": [
-    { "fields": [["labId", "ASC"], ["classifiedAt", "DESC"]] },
-    { "fields": [["labId", "ASC"], ["testType", "ASC"], ["classifiedAt", "DESC"]] },
-    { "fields": [["labId", "ASC"], ["flaggedForManualReview", "ASC"], ["classifiedAt", "DESC"]] },
-    { "fields": [["labId", "ASC"], ["promptVariant", "ASC"], ["classifiedAt", "DESC"]] },
-    { "fields": [["labId", "ASC"], ["dateKey", "DESC"]] }
+    {
+      "fields": [
+        ["labId", "ASC"],
+        ["classifiedAt", "DESC"]
+      ]
+    },
+    {
+      "fields": [
+        ["labId", "ASC"],
+        ["testType", "ASC"],
+        ["classifiedAt", "DESC"]
+      ]
+    },
+    {
+      "fields": [
+        ["labId", "ASC"],
+        ["flaggedForManualReview", "ASC"],
+        ["classifiedAt", "DESC"]
+      ]
+    },
+    {
+      "fields": [
+        ["labId", "ASC"],
+        ["promptVariant", "ASC"],
+        ["classifiedAt", "DESC"]
+      ]
+    },
+    {
+      "fields": [
+        ["labId", "ASC"],
+        ["dateKey", "DESC"]
+      ]
+    }
   ]
 }
 ```
 
 **Firestore Rules**:
+
 ```
 match /imuno-ia-dev/{labId} {
   match /config {
@@ -183,6 +225,7 @@ match /imuno-ia-cost/{labId} {
 #### 1.3 UI Components (Camera Capture + Manual Review)
 
 **Component 1: `StripCameraCapture.tsx`**
+
 - Live camera feed with focus guides
 - Tap to capture or 3-second countdown
 - Real-time size validation (640×480 min, 1080p max)
@@ -190,6 +233,7 @@ match /imuno-ia-cost/{labId} {
 - Mobile responsive (iOS Safari + Android Chrome)
 
 **Component 2: `StripIAUploadForm.tsx`**
+
 - Camera feed or image preview
 - Test type selector (dropdown)
 - Operator notes (256 char textarea)
@@ -197,6 +241,7 @@ match /imuno-ia-cost/{labId} {
 - Submission button + retry logic
 
 **Component 3: `StripManualReviewModal.tsx`**
+
 - Show Gemini result + confidence %
 - Display image (full resolution, zoomable)
 - RT decision buttons: "Confirm (R)" | "Confirm (NR)" | "Mark Inconclusive"
@@ -212,6 +257,7 @@ match /imuno-ia-cost/{labId} {
 #### 2.1 IA Metrics Dashboard (`IAPerformanceDashboard.tsx`)
 
 **5 tabs**:
+
 1. **Overview**: accuracy %, image count, avg confidence, top variant, Gemini API cost trend
 2. **Confusion Matrix**: TP/TN/FP/FN counts + sensitivity/specificity/PPV/NPV
 3. **Confidence Distribution**: histogram of confidence buckets, % flagged for review, RT agreement by bucket
@@ -219,6 +265,7 @@ match /imuno-ia-cost/{labId} {
 5. **Cost Tracking**: monthly spend, cost per classification, projected monthly cost, alert if >$500
 
 **Queries** (firestore):
+
 - Accuracy: `count(agreed) / count(total)`
 - Sensitivity: `count(TP) / (TP + FN)`
 - Specificity: `count(TN) / (TN + FP)`
@@ -243,6 +290,7 @@ match /imuno-ia-cost/{labId} {
 #### 2.3 Documentation & DICQ Mapping
 
 **DICQ 4.7 Compliance Docs**:
+
 1. `PHASE_11_IA_TRAINING_POLICY.md` — dataset selection, diversity, retention
 2. `PHASE_11_IA_MODEL_VERSIONING.md` — baseline v1.0, A/B test procedure, rollback
 3. `PHASE_11_IA_PERFORMANCE_MONITORING.md` — accuracy tracking, alerts, audits
@@ -296,6 +344,7 @@ Day 8–14:
 **Budget**: ~$500/month (hard cap)
 
 **Calculation**:
+
 - Gemini 2.5 Flash: ~$1.25 per 1M input tokens + ~$5 per 1M output tokens
 - Avg classification: 350 input tokens + 80 output tokens ≈ $0.00058 per call
 - Phase 11 collection: 50 images/day × 30 days = 1,500 calls ≈ $0.87/month (well below budget)
@@ -306,29 +355,29 @@ Day 8–14:
 
 ## Risk Register (High-Priority)
 
-| Risk | Mitigation |
-|------|-----------|
-| **Gemini accuracy <85%** | A/B test 3 prompt variants; choose best; Phase 12 improvements |
-| **API cost overrun** | Daily tracking + $500/month alert; soft-limit 200 images/day |
-| **Confidence miscalibration** | Validate threshold with 500-image dataset; confidence vs accuracy curve |
+| Risk                             | Mitigation                                                                              |
+| -------------------------------- | --------------------------------------------------------------------------------------- |
+| **Gemini accuracy <85%**         | A/B test 3 prompt variants; choose best; Phase 12 improvements                          |
+| **API cost overrun**             | Daily tracking + $500/month alert; soft-limit 200 images/day                            |
+| **Confidence miscalibration**    | Validate threshold with 500-image dataset; confidence vs accuracy curve                 |
 | **Privacy breach (patient PII)** | No PII in metadata; geolocation optional; 12-month retention max; audit trail immutable |
-| **Gemini API timeout** | Fallback to manual review if >3s; alert ops team; non-blocking |
+| **Gemini API timeout**           | Fallback to manual review if >3s; alert ops team; non-blocking                          |
 
 ---
 
 ## Phase 11 Exit Criteria
 
-| Criterion | Target | Status |
-|-----------|--------|--------|
-| Gemini callable deployed + tested | 6 callables live | ❌ To do |
-| 500+ training images collected | Images with metadata + ground truth | ❌ To do |
-| Confidence threshold validated | 0.85 default, manual override working | ❌ To do |
-| Fallback logic confirmed | Auto-save ≥0.85, manual review <0.85 | ❌ To do |
-| Accuracy metrics dashboard deployed | 5 tabs live, queries working | ❌ To do |
-| DICQ 4.7 compliance documented | Training policy + versioning + monitoring | ❌ To do |
-| E2E tests pass | 5/5 flows PASS | ❌ To do |
-| Baseline tests still pass | 738/738 | ✅ Confirmed |
-| Cloud Logs validation | 24h post-deploy, 0 errors | ❌ To do |
+| Criterion                           | Target                                    | Status       |
+| ----------------------------------- | ----------------------------------------- | ------------ |
+| Gemini callable deployed + tested   | 6 callables live                          | ❌ To do     |
+| 500+ training images collected      | Images with metadata + ground truth       | ❌ To do     |
+| Confidence threshold validated      | 0.85 default, manual override working     | ❌ To do     |
+| Fallback logic confirmed            | Auto-save ≥0.85, manual review <0.85      | ❌ To do     |
+| Accuracy metrics dashboard deployed | 5 tabs live, queries working              | ❌ To do     |
+| DICQ 4.7 compliance documented      | Training policy + versioning + monitoring | ❌ To do     |
+| E2E tests pass                      | 5/5 flows PASS                            | ❌ To do     |
+| Baseline tests still pass           | 738/738                                   | ✅ Confirmed |
+| Cloud Logs validation               | 24h post-deploy, 0 errors                 | ❌ To do     |
 
 **Phase 11 Deploy Date**: 2026-06-23
 

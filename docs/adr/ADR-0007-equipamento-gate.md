@@ -2,13 +2,14 @@
 
 **Date:** 2026-05-03  
 **Status:** ACCEPTED  
-**Context:** Phase 2 Batch 1, equipment validation flow  
+**Context:** Phase 2 Batch 1, equipment validation flow
 
 ---
 
 ## Problem
 
 Analytical equipment (HPLC, mass spec, analyzers) require:
+
 1. **Current valid calibration** — before accepting sample run
 2. **Current maintenance status** — equipment must not be in maintenance mode
 
@@ -44,6 +45,7 @@ Implement **two validation functions** (Cloud Functions callables) that gate sam
 ## Schema Notes
 
 **Backend** (`functions/src/modules/equipamentos/types.ts`):
+
 ```typescript
 export interface Equipamento {
   id: string;
@@ -64,6 +66,7 @@ export interface Equipamento {
 ```
 
 **Frontend** (`src/features/equipamentos/types.ts`):
+
 - Currently mirrors backend types — **no divergence yet**
 - Watch: if business logic evolves (e.g., equipamento assignment to operators), may diverge
 

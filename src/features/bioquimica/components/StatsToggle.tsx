@@ -49,9 +49,7 @@ export const StatsToggle: React.FC<StatsToggleProps> = ({
         >
           Interna
           {!isInternalReady && (
-            <span className="ml-1.5 text-slate-500">
-              ({Math.round(internalProgress * 100)}%)
-            </span>
+            <span className="ml-1.5 text-slate-500">({Math.round(internalProgress * 100)}%)</span>
           )}
         </button>
       </div>

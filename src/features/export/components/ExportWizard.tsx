@@ -109,8 +109,7 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
   }, [isOpen]);
 
   const canAdvanceStep1 = format !== null;
-  const canAdvanceStep2 =
-    Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
+  const canAdvanceStep2 = Boolean(startDate) && Boolean(endDate) && startDate <= endDate;
   // Step 3 (email) is always advanceable — email is optional
   const canAdvanceStep3 = true;
 
@@ -137,7 +136,17 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
     } catch {
       // Error already set in useExportInitiate
     }
-  }, [format, startDate, endDate, labId, operatorId, emailRecipient, submit, setSubmittedJobId, onSubmitted]);
+  }, [
+    format,
+    startDate,
+    endDate,
+    labId,
+    operatorId,
+    emailRecipient,
+    submit,
+    setSubmittedJobId,
+    onSubmitted,
+  ]);
 
   // Success state — job was submitted
   if (isOpen && submittedJobId) {
@@ -182,10 +191,7 @@ export function ExportWizard({ labId, operatorId, onSubmitted }: ExportWizardPro
             />
           )}
           {step === 3 && (
-            <EmailDeliveryStep
-              emailRecipient={emailRecipient}
-              onChange={setEmailRecipient}
-            />
+            <EmailDeliveryStep emailRecipient={emailRecipient} onChange={setEmailRecipient} />
           )}
           {step === 4 && (
             <ExportStep3
@@ -298,9 +304,7 @@ function ModalCard({ children, title, subtitle, ref }: ModalCardProps) {
       {/* Header */}
       <div className="mb-1">
         <h2 className="text-base font-semibold text-white leading-snug">{title}</h2>
-        {subtitle && (
-          <p className="mt-0.5 text-xs text-white/35">{subtitle}</p>
-        )}
+        {subtitle && <p className="mt-0.5 text-xs text-white/35">{subtitle}</p>}
       </div>
 
       {children}
@@ -316,7 +320,12 @@ interface StepIndicatorProps {
 
 function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) {
   return (
-    <div className="flex items-center gap-0 mt-4" role="progressbar" aria-valuenow={currentStep} aria-valuemax={totalSteps}>
+    <div
+      className="flex items-center gap-0 mt-4"
+      role="progressbar"
+      aria-valuenow={currentStep}
+      aria-valuemax={totalSteps}
+    >
       {Array.from({ length: totalSteps }).map((_, i) => {
         const stepNum = i + 1;
         const isCompleted = stepNum < currentStep;
@@ -332,13 +341,20 @@ function StepIndicator({ currentStep, totalSteps, labels }: StepIndicatorProps) 
                   isCompleted
                     ? 'bg-violet-500 text-white'
                     : isCurrent
-                    ? 'bg-violet-600/30 text-violet-400 ring-1 ring-violet-500/50'
-                    : 'bg-white/[0.06] text-white/25',
+                      ? 'bg-violet-600/30 text-violet-400 ring-1 ring-violet-500/50'
+                      : 'bg-white/[0.06] text-white/25',
                 ].join(' ')}
                 aria-label={`Passo ${stepNum}: ${labels[i]}`}
               >
                 {isCompleted ? (
-                  <svg className="h-3 w-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3} aria-hidden="true">
+                  <svg
+                    className="h-3 w-3"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth={3}
+                    aria-hidden="true"
+                  >
                     <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5" />
                   </svg>
                 ) : (
@@ -397,8 +413,8 @@ function SuccessView({ jobId, onClose }: SuccessViewProps) {
       <div>
         <h3 className="text-sm font-semibold text-white">Exportação em fila</h3>
         <p className="mt-1.5 text-xs text-white/45 leading-relaxed max-w-xs">
-          O arquivo está sendo gerado em segundo plano. Você poderá baixá-lo
-          assim que o processamento for concluído.
+          O arquivo está sendo gerado em segundo plano. Você poderá baixá-lo assim que o
+          processamento for concluído.
         </p>
       </div>
 

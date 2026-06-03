@@ -17,14 +17,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { functions, httpsCallable } from '../../../shared/services/firebase';
 import { useActiveLabId } from '../../../store/useAuthStore';
 
-export type AgeGroup =
-  | 'ALL'
-  | 'NEONATE'
-  | 'INFANT'
-  | 'CHILD'
-  | 'ADOLESCENT'
-  | 'ADULT'
-  | 'ELDERLY';
+export type AgeGroup = 'ALL' | 'NEONATE' | 'INFANT' | 'CHILD' | 'ADOLESCENT' | 'ADULT' | 'ELDERLY';
 
 export type Sex = 'M' | 'F' | 'ALL';
 
@@ -75,20 +68,20 @@ interface GetThresholdsResponse {
   count: number;
 }
 
-const callGet = httpsCallable<
-  { labId: string; includeDeleted?: boolean },
-  GetThresholdsResponse
->(functions, 'criticosConfig_getThresholds');
+const callGet = httpsCallable<{ labId: string; includeDeleted?: boolean }, GetThresholdsResponse>(
+  functions,
+  'criticosConfig_getThresholds',
+);
 
-const callCreate = httpsCallable<
-  Record<string, unknown>,
-  CriticosThresholdRecord
->(functions, 'criticosConfig_createThreshold');
+const callCreate = httpsCallable<Record<string, unknown>, CriticosThresholdRecord>(
+  functions,
+  'criticosConfig_createThreshold',
+);
 
-const callUpdate = httpsCallable<
-  Record<string, unknown>,
-  CriticosThresholdRecord
->(functions, 'criticosConfig_updateThreshold');
+const callUpdate = httpsCallable<Record<string, unknown>, CriticosThresholdRecord>(
+  functions,
+  'criticosConfig_updateThreshold',
+);
 
 function toError(err: unknown, fallback: string): Error {
   if (err instanceof Error) return err;

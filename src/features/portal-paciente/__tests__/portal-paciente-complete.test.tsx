@@ -55,7 +55,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Laboratório Exemplo"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('João Silva')).toBeInTheDocument();
@@ -70,7 +70,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Lab São Paulo"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Maria Santos')).toBeInTheDocument();
@@ -86,7 +86,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={onLogout}
-        />
+        />,
       );
 
       const logoutButton = screen.getByText('Sair');
@@ -103,7 +103,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Meus Resultados')).toBeInTheDocument();
@@ -117,7 +117,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Consentimentos')).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Meus Direitos LGPD')).toBeInTheDocument();
@@ -218,7 +218,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={vi.fn()}
           labName="Laboratório"
-        />
+        />,
       );
       expect(container.firstChild).toBeNull();
     });
@@ -230,7 +230,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={vi.fn()}
           labName="Laboratório"
-        />
+        />,
       );
 
       expect(screen.getByText('Autorizar processamento com IA')).toBeInTheDocument();
@@ -243,7 +243,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={vi.fn()}
           labName="Lab São Paulo"
-        />
+        />,
       );
 
       const labNames = screen.getAllByText(/Lab São Paulo/);
@@ -258,7 +258,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={onSubmit}
           labName="Laboratório"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -279,7 +279,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={vi.fn()}
           labName="Laboratório"
-        />
+        />,
       );
 
       const submitButton = screen.getByText('Autorizar') as HTMLButtonElement;
@@ -293,7 +293,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={vi.fn()}
           labName="Laboratório"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -311,7 +311,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={onClose}
           onSubmit={vi.fn()}
           labName="Laboratório"
-        />
+        />,
       );
 
       const rejectButton = screen.getByText('Recusar');
@@ -328,7 +328,7 @@ describe('Portal Paciente — Wave 3 Tests (Original)', () => {
           onClose={vi.fn()}
           onSubmit={onSubmit}
           labName="Laboratório"
-        />
+        />,
       );
 
       const checkbox = screen.getByRole('checkbox');
@@ -386,11 +386,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
   describe('ResultadosAdvanced', () => {
     it('renders results list with filter controls', () => {
       render(
-        <ResultadosAdvanced
-          results={mockResults}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={mockResults} isLoading={false} onViewDetails={vi.fn()} />,
       );
 
       expect(screen.getByText('Mostrando 3 de 3 resultados')).toBeInTheDocument();
@@ -400,11 +396,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
     it('filters results by status', async () => {
       render(
-        <ResultadosAdvanced
-          results={mockResults}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={mockResults} isLoading={false} onViewDetails={vi.fn()} />,
       );
 
       const selects = screen.getAllByDisplayValue('Todos os status') as HTMLSelectElement[];
@@ -419,11 +411,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
     it('filters results by exam type', async () => {
       render(
-        <ResultadosAdvanced
-          results={mockResults}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={mockResults} isLoading={false} onViewDetails={vi.fn()} />,
       );
 
       const examSelect = screen.getByDisplayValue('Todos os exames') as HTMLSelectElement;
@@ -436,11 +424,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
     it('sorts results by date descending', () => {
       render(
-        <ResultadosAdvanced
-          results={mockResults}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={mockResults} isLoading={false} onViewDetails={vi.fn()} />,
       );
 
       // Verify results are displayed
@@ -448,24 +432,14 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('handles empty results gracefully', () => {
-      render(
-        <ResultadosAdvanced
-          results={[]}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
-      );
+      render(<ResultadosAdvanced results={[]} isLoading={false} onViewDetails={vi.fn()} />);
 
       expect(screen.getByText('Nenhum resultado disponível no momento.')).toBeInTheDocument();
     });
 
     it('shows loading skeleton', () => {
       const { container } = render(
-        <ResultadosAdvanced
-          results={[]}
-          isLoading={true}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={[]} isLoading={true} onViewDetails={vi.fn()} />,
       );
 
       const skeletons = container.querySelectorAll('.animate-pulse');
@@ -479,7 +453,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           results={mockResults}
           isLoading={false}
           onViewDetails={onViewDetails}
-        />
+        />,
       );
 
       const detailLinks = screen.queryAllByText(/Ver detalhes/);
@@ -491,11 +465,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
     it('handles combined filters', async () => {
       render(
-        <ResultadosAdvanced
-          results={mockResults}
-          isLoading={false}
-          onViewDetails={vi.fn()}
-        />
+        <ResultadosAdvanced results={mockResults} isLoading={false} onViewDetails={vi.fn()} />,
       );
 
       const statusSelect = screen.getAllByDisplayValue('Todos os status')[0] as HTMLSelectElement;
@@ -509,25 +479,14 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
   describe('ConsentimentosSection', () => {
     it('renders consentimentos section title', () => {
-      render(
-        <ConsentimentosSection
-          labId="lab_001"
-          patientId="patient_123"
-          onRevoke={vi.fn()}
-        />
-      );
+      render(<ConsentimentosSection labId="lab_001" patientId="patient_123" onRevoke={vi.fn()} />);
 
       // Loading state initially
       expect(screen.getByText(/nenhum|Carregando/i) || screen.queryByText('Ativo')).toBeTruthy();
     });
 
     it('shows empty state when no consents exist', async () => {
-      render(
-        <ConsentimentosSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<ConsentimentosSection labId="lab_001" patientId="patient_123" />);
 
       await waitFor(() => {
         expect(screen.getByText(/Nenhum consentimento ativo/)).toBeInTheDocument();
@@ -535,12 +494,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('displays LGPD information', async () => {
-      render(
-        <ConsentimentosSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<ConsentimentosSection labId="lab_001" patientId="patient_123" />);
 
       await waitFor(() => {
         expect(screen.getByText(/Seus direitos LGPD/)).toBeInTheDocument();
@@ -550,11 +504,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     it('handles revocation with reason text', async () => {
       const onRevoke = vi.fn().mockResolvedValue(undefined);
       const { container } = render(
-        <ConsentimentosSection
-          labId="lab_001"
-          patientId="patient_123"
-          onRevoke={onRevoke}
-        />
+        <ConsentimentosSection labId="lab_001" patientId="patient_123" onRevoke={onRevoke} />,
       );
 
       // Mock consent data would be needed for full test
@@ -564,12 +514,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
 
   describe('DireitosLGPDSection', () => {
     it('renders LGPD rights cards', () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       expect(screen.getByText('Direito de Acesso')).toBeInTheDocument();
       expect(screen.getByText('Direito de Portabilidade')).toBeInTheDocument();
@@ -577,34 +522,19 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('displays access request button', () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       expect(screen.getByText('Solicitar Acesso')).toBeInTheDocument();
     });
 
     it('displays export request button', () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       expect(screen.getByText('Solicitar Exportação')).toBeInTheDocument();
     });
 
     it('displays deletion request button', () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       expect(screen.getByText('Solicitar Exclusão')).toBeInTheDocument();
     });
@@ -616,7 +546,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onRequestAccess={onRequestAccess}
-        />
+        />,
       );
 
       const accessButton = screen.getByText('Solicitar Acesso');
@@ -628,12 +558,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('displays audit trail section', async () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       await waitFor(() => {
         expect(screen.getByText('Histórico de Operações LGPD')).toBeInTheDocument();
@@ -641,12 +566,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('displays legal notice about LGPD', () => {
-      render(
-        <DireitosLGPDSection
-          labId="lab_001"
-          patientId="patient_123"
-        />
-      );
+      render(<DireitosLGPDSection labId="lab_001" patientId="patient_123" />);
 
       expect(screen.getByText(/Informações Legais LGPD/)).toBeInTheDocument();
       expect(screen.getByText(/Prazo legal para resposta/)).toBeInTheDocument();
@@ -659,7 +579,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onRequestAccess={onRequestAccess}
-        />
+        />,
       );
 
       const accessButton = screen.getByText('Solicitar Acesso');
@@ -671,15 +591,13 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     });
 
     it('handles request errors gracefully', async () => {
-      const onRequestAccess = vi
-        .fn()
-        .mockRejectedValue(new Error('Network error'));
+      const onRequestAccess = vi.fn().mockRejectedValue(new Error('Network error'));
       render(
         <DireitosLGPDSection
           labId="lab_001"
           patientId="patient_123"
           onRequestAccess={onRequestAccess}
-        />
+        />,
       );
 
       const accessButton = screen.getByText('Solicitar Acesso');
@@ -699,7 +617,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onClose={vi.fn()}
-        />
+        />,
       );
       expect(container.firstChild).toBeNull();
     });
@@ -711,7 +629,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onClose={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Preferências de Email')).toBeInTheDocument();
@@ -724,7 +642,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onClose={vi.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -742,7 +660,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onClose={vi.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -760,7 +678,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           patientId="patient_123"
           onClose={vi.fn()}
           onSave={onSave}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -783,7 +701,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           patientId="patient_123"
           onClose={onClose}
           onSave={onSave}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -803,15 +721,11 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           patientId="patient_123"
           onClose={vi.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
-        expect(
-          screen.getByText(
-            /mensagens críticas de segurança/
-          )
-        ).toBeInTheDocument();
+        expect(screen.getByText(/mensagens críticas de segurança/)).toBeInTheDocument();
       });
     });
 
@@ -824,7 +738,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           patientId="patient_123"
           onClose={vi.fn()}
           onSave={onSave}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -840,9 +754,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
     it('shows loading state during save', async () => {
       const onSave = vi
         .fn()
-        .mockImplementation(
-          () => new Promise((resolve) => setTimeout(resolve, 100))
-        );
+        .mockImplementation(() => new Promise((resolve) => setTimeout(resolve, 100)));
       render(
         <PreferenciaEmailModal
           isOpen={true}
@@ -850,7 +762,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           patientId="patient_123"
           onClose={vi.fn()}
           onSave={onSave}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -870,7 +782,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       expect(screen.getByText('Meus Resultados')).toBeInTheDocument();
@@ -886,7 +798,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {
@@ -907,7 +819,7 @@ describe('Portal Paciente — Wave 4 Tests (New Sections)', () => {
           labId="lab_001"
           labName="Laboratório"
           onLogout={vi.fn()}
-        />
+        />,
       );
 
       await waitFor(() => {

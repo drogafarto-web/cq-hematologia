@@ -27,10 +27,7 @@ if (apply && token !== REVOKE_TOKEN) {
   process.exit(2);
 }
 
-const projectId =
-  process.env.GOOGLE_CLOUD_PROJECT ??
-  process.env.GCLOUD_PROJECT ??
-  'hmatologia2';
+const projectId = process.env.GOOGLE_CLOUD_PROJECT ?? process.env.GCLOUD_PROJECT ?? 'hmatologia2';
 
 admin.initializeApp({ projectId });
 const auth = admin.auth();
@@ -62,9 +59,7 @@ const toRevoke = snap.docs
 console.log(`📊 resumo:`);
 console.log(`   snapshots encontrados:      ${snap.size}`);
 console.log(`   a serem revogados:          ${toRevoke.length}`);
-console.log(
-  `   mantidos SuperAdmin:        ${snap.size - toRevoke.length}  (já eram antes)`,
-);
+console.log(`   mantidos SuperAdmin:        ${snap.size - toRevoke.length}  (já eram antes)`);
 
 if (toRevoke.length > 0) {
   console.log(`\n👥 serão revogados:`);
@@ -78,9 +73,7 @@ if (toRevoke.length > 0) {
 
 if (!apply) {
   console.log(`\n✋ dry-run concluído. Nada foi escrito.`);
-  console.log(
-    `   Pra aplicar: node scripts/revoke-superadmin-all.mjs --apply --token "REVOGAR"\n`,
-  );
+  console.log(`   Pra aplicar: node scripts/revoke-superadmin-all.mjs --apply --token "REVOGAR"\n`);
   process.exit(0);
 }
 

@@ -17,7 +17,7 @@ async function run() {
     if (snap.exists) {
       console.log(JSON.stringify(snap.data(), null, 2));
     } else {
-      console.log("NOT FOUND!");
+      console.log('NOT FOUND!');
     }
   }
 }

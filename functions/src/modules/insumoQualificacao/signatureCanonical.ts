@@ -53,9 +53,7 @@ export function sha256Hex(input: string): string {
   return createHash('sha256').update(input).digest('hex');
 }
 
-export function computeQualificacaoSignature(
-  p: QualificacaoCanonicalPayload,
-): string {
+export function computeQualificacaoSignature(p: QualificacaoCanonicalPayload): string {
   return sha256Hex(canonicalQualificacao(p));
 }
 
@@ -78,9 +76,7 @@ export interface MovimentacaoQualificacaoPayload {
   motivoReprovacao?: string;
 }
 
-export function canonicalMovimentacaoQualificacao(
-  p: MovimentacaoQualificacaoPayload,
-): string {
+export function canonicalMovimentacaoQualificacao(p: MovimentacaoQualificacaoPayload): string {
   const ordered: Record<string, string> = {
     movId: p.movId,
     insumoId: p.insumoId,

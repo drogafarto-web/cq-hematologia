@@ -79,13 +79,13 @@ scope: Step 4.0 Complete — Handoff to Step 4.1 (Test Execution)
 
 ## Timeline
 
-| Phase | Duration | Owner |
-|-------|----------|-------|
-| Phase 1: Pre-Execution | 15 min | QA Engineer |
-| Phase 2: Test Execution | 80 min | QA Engineer |
-| Phase 3: Post-Test Verification | 10 min | DevOps |
-| Phase 4: Sign-Off | 5 min | QA Lead |
-| **Total** | **~110 min** | — |
+| Phase                           | Duration     | Owner       |
+| ------------------------------- | ------------ | ----------- |
+| Phase 1: Pre-Execution          | 15 min       | QA Engineer |
+| Phase 2: Test Execution         | 80 min       | QA Engineer |
+| Phase 3: Post-Test Verification | 10 min       | DevOps      |
+| Phase 4: Sign-Off               | 5 min        | QA Lead     |
+| **Total**                       | **~110 min** | —           |
 
 **Plus:** 24 hours of operational monitoring (Phase 9)
 
@@ -94,17 +94,21 @@ scope: Step 4.0 Complete — Handoff to Step 4.1 (Test Execution)
 ## Key Files Reference
 
 **For Setup:**
+
 - `TEST_DATA_QUICK_START.md` (start here)
 - `SMOKE_TESTS_TEST_DATA_VERIFICATION.md` (detailed reference)
 
 **For Execution:**
+
 - `SMOKE_TESTS_EXECUTION_GATE.md` (during tests)
 - `SMOKE_TESTS_v1.3.md` (detailed procedures)
 
 **For Navigation:**
+
 - `SMOKE_TESTS_DOCUMENTATION_INDEX.md` (finding what you need)
 
 **For Infrastructure Verify:**
+
 - `POST_DEPLOY_CHECKLIST_v1.3.md` (existing doc)
 
 ---
@@ -114,31 +118,36 @@ scope: Step 4.0 Complete — Handoff to Step 4.1 (Test Execution)
 ### Test Scenarios
 
 ✓ **Smoke Test 1: Bioquímica E2E** (10 min)
-  - 7 detailed steps with expected outcomes
-  - Gemini bula parsing integration
-  - Westgard acceptance rules
-  - Levey-Jennings chart rendering
-  - ChainHash signature verification
+
+- 7 detailed steps with expected outcomes
+- Gemini bula parsing integration
+- Westgard acceptance rules
+- Levey-Jennings chart rendering
+- ChainHash signature verification
 
 ✓ **Smoke Test 2: SGD Drive Importer** (12 min)
-  - OAuth flow (Google consent screen)
-  - Drive folder listing
-  - Document preview
-  - Batch import (5 documents)
-  - Document status transitions + search
+
+- OAuth flow (Google consent screen)
+- Drive folder listing
+- Document preview
+- Batch import (5 documents)
+- Document status transitions + search
 
 ✓ **Smoke Test 3: Reclamação (optional)** (8 min)
-  - Public form submission
-  - State machine transitions
-  - NPS trigger verification
+
+- Public form submission
+- State machine transitions
+- NPS trigger verification
 
 ✓ **Smoke Test 4: Liberação (optional)** (5 min)
-  - Laudo creation and state transitions
-  - Signature gate validation
+
+- Laudo creation and state transitions
+- Signature gate validation
 
 ✓ **Smoke Test 5: Regression** (10 min)
-  - Spot-check 5 existing modules
-  - No 404 errors, no console JS errors
+
+- Spot-check 5 existing modules
+- No 404 errors, no console JS errors
 
 ### Test Data Preparation
 
@@ -215,14 +224,14 @@ scope: Step 4.0 Complete — Handoff to Step 4.1 (Test Execution)
 
 ## Escalation Contacts
 
-| Issue | Contact | Severity |
-|-------|---------|----------|
-| ChainHash broken | CTO + Auditor | 🔴 CRITICAL |
-| Rules lockout | Rules Audit Team | 🔴 CRITICAL |
-| Function 5xx | Functions Team | 🔴 CRITICAL |
-| UI broken | Frontend Team | 🟠 HIGH |
-| Performance degraded | Perf Team | 🟠 HIGH |
-| Transient errors | DevOps (monitor) | 🟡 MEDIUM |
+| Issue                | Contact          | Severity    |
+| -------------------- | ---------------- | ----------- |
+| ChainHash broken     | CTO + Auditor    | 🔴 CRITICAL |
+| Rules lockout        | Rules Audit Team | 🔴 CRITICAL |
+| Function 5xx         | Functions Team   | 🔴 CRITICAL |
+| UI broken            | Frontend Team    | 🟠 HIGH     |
+| Performance degraded | Perf Team        | 🟠 HIGH     |
+| Transient errors     | DevOps (monitor) | 🟡 MEDIUM   |
 
 ---
 
@@ -251,6 +260,7 @@ SECURITY_SIGN_OFF_v1.3.md                ← Security validation
 All prerequisites documented and ready. Executor can proceed immediately to Phase 1 (Pre-Execution, 15 minutes).
 
 **Estimated Total Time:**
+
 - Setup: 15 minutes
 - Smoke tests: 80 minutes
 - Verification: 10 minutes

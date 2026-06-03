@@ -32,7 +32,9 @@ function PlanoMelhoriaCardInner({ plano, pendentesCount, onSelect }: PlanoMelhor
       className="group w-full rounded-xl border border-white/10 bg-[#1a1a1d] p-4 text-left transition-colors duration-150 hover:border-violet-500/35 hover:bg-[#1e1e22] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500/60"
     >
       <div className="flex flex-wrap items-start justify-between gap-2">
-        <h3 className="min-w-0 flex-1 font-semibold tracking-tight text-white/95">{plano.titulo}</h3>
+        <h3 className="min-w-0 flex-1 font-semibold tracking-tight text-white/95">
+          {plano.titulo}
+        </h3>
         <span
           className={`shrink-0 rounded-full px-2.5 py-0.5 text-xs font-medium tabular-nums ${planoStatusBadgeClass(plano.status)}`}
         >

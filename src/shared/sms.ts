@@ -31,11 +31,7 @@ export interface PacienteData {
  * @param paciente - Patient information
  * @returns SMS message string (≤160 chars)
  */
-export const smsTemplate = (
-  critico: CriticoData,
-  lab: LabData,
-  paciente: PacienteData
-): string => {
+export const smsTemplate = (critico: CriticoData, lab: LabData, paciente: PacienteData): string => {
   const pacienteName = paciente.name || 'Paciente';
   const namePrefix = pacienteName.substring(0, 20);
   const analyteUpper = critico.analito.toUpperCase();

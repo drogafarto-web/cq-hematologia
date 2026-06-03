@@ -52,9 +52,7 @@ test.describe('Bioquímica (CIQ Quantitativo)', () => {
    * Then: Lot created but UI shows "Aguardando Bula" status
    * And: Run entry is disabled (no Westgard rules without bula)
    */
-  test('Scenario 1: Create lot without bula → block run entry', async ({
-    page,
-  }) => {
+  test('Scenario 1: Create lot without bula → block run entry', async ({ page }) => {
     await loginAsOperator(page);
     await navigateToBioquimica(page);
 
@@ -94,9 +92,7 @@ test.describe('Bioquímica (CIQ Quantitativo)', () => {
    * And: Stats applied to lot (mean/sd per analito × nível)
    * And: Run entry becomes enabled
    */
-  test('Scenario 2: Upload bula PDF → apply stats → enable runs', async ({
-    page,
-  }) => {
+  test('Scenario 2: Upload bula PDF → apply stats → enable runs', async ({ page }) => {
     // Prerequisite: Create lot (from Test 1)
     await loginAsOperator(page);
     await navigateToBioquimica(page);
@@ -219,9 +215,7 @@ test.describe('Bioquímica (CIQ Quantitativo)', () => {
    * And: Run status remains "Rejeitada" but aproveitamento = "informativa"
    * And: Signature appears in audit trail
    */
-  test('Scenario 5: Override violation with audit signature', async ({
-    page,
-  }) => {
+  test('Scenario 5: Override violation with audit signature', async ({ page }) => {
     await loginAsOperator(page);
     await navigateToBioquimica(page);
     // Setup: Create lot + apply bula + trigger violation
@@ -246,9 +240,7 @@ test.describe('Bioquímica (CIQ Quantitativo)', () => {
 
     // Verify signature saved + audit trail entry
     await page.waitForSelector('text=Override registrado com sucesso');
-    await expect(
-      page.locator('text=Assinado por: operator@labclin-riopomba.com')
-    ).toBeVisible();
+    await expect(page.locator('text=Assinado por: operator@labclin-riopomba.com')).toBeVisible();
     await expect(page.locator('text=Justificativa:')).toBeVisible();
   });
 

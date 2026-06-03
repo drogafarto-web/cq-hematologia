@@ -7,6 +7,7 @@ recipient: Project Leadership, Compliance Officer, RT, DevOps, Auditoria Interna
 ---
 
 # PHASE 0 — RDC 978 BLOCKERS
+
 ## Final Sign-Off Memo
 
 **Prepared:** 2026-05-07 18:30 UTC  
@@ -21,35 +22,35 @@ Phase 0 (RDC 978 Mandatory Blockers) is **officially complete and approved for P
 
 ### Delivered in This Phase
 
-| Requirement | Status | Deliverable | Article(s) |
-|---|---|---|---|
-| **Turnos (Supervisor Shift Registry)** | ✅ Live | TurnosView + CoberturaReport + Real-time Audit Trail | RDC 978 Art. 122, RDC 786 |
-| **LGPD Formal Policy + DPIA** | ✅ Live | POL-LGPD-001-v1.0 + IT-LGPD-DPIA-001-v1.0 (SGQ docs, PDF stored) | RDC 978 Art. 77, LGPD Arts. 7, 8, 11, 18 |
-| **Lab Apoio Contracts** | ✅ Live | LabApoioView + 6-clause contract management + AVS + Expiry alerts | RDC 978 Arts. 36–39, DICQ 4.14.8 |
-| **Risk Management (FMEA-lite)** | ✅ Live | RisksView + Risk Matrix + NPR scoring + Periodic Review cron | RDC 978 Art. 86, DICQ 4.14.6 |
+| Requirement                            | Status  | Deliverable                                                       | Article(s)                               |
+| -------------------------------------- | ------- | ----------------------------------------------------------------- | ---------------------------------------- |
+| **Turnos (Supervisor Shift Registry)** | ✅ Live | TurnosView + CoberturaReport + Real-time Audit Trail              | RDC 978 Art. 122, RDC 786                |
+| **LGPD Formal Policy + DPIA**          | ✅ Live | POL-LGPD-001-v1.0 + IT-LGPD-DPIA-001-v1.0 (SGQ docs, PDF stored)  | RDC 978 Art. 77, LGPD Arts. 7, 8, 11, 18 |
+| **Lab Apoio Contracts**                | ✅ Live | LabApoioView + 6-clause contract management + AVS + Expiry alerts | RDC 978 Arts. 36–39, DICQ 4.14.8         |
+| **Risk Management (FMEA-lite)**        | ✅ Live | RisksView + Risk Matrix + NPR scoring + Periodic Review cron      | RDC 978 Art. 86, DICQ 4.14.6             |
 
 **DICQ Delta Achieved:** +3–4 points (78.5% → ~82–83%)  
 **RDC 978 Mandatory Articles:** 4/4 (100%)  
-**Cloud Production Status:** Fully deployed, monitoring active  
+**Cloud Production Status:** Fully deployed, monitoring active
 
 ---
 
 ## CTO APPROVAL ✅
 
 **Approval by:** Chief Technical Officer  
-**Date:** 2026-05-07 18:30 UTC  
+**Date:** 2026-05-07 18:30 UTC
 
 ### Technical Deliverables Verified
 
-| Component | Deliverable | Status |
-|---|---|---|
-| **Code Commits** | 48 commits across 4 sub-plans | ✅ Merged to `main` |
-| **TypeScript Compilation** | Full type-check, no errors | ✅ `npx tsc --noEmit` PASS |
-| **Firestore Rules** | 4 DL-1 blocks deployed (turnos, lab-apoio, risks, lgpd) | ✅ Rules live |
-| **Cloud Functions** | 78 total functions (19 new in Phase 0) | ✅ Deployed |
-| **Composite Indexes** | 12 new Firestore indexes | ✅ All built |
-| **React Components** | 12 new components (TurnosView, LabApoioForm, RiskMatrix, etc.) | ✅ Hosting live |
-| **Unit Tests** | 34 new tests + 738 regression baseline | ✅ 738/738 PASS |
+| Component                  | Deliverable                                                    | Status                     |
+| -------------------------- | -------------------------------------------------------------- | -------------------------- |
+| **Code Commits**           | 48 commits across 4 sub-plans                                  | ✅ Merged to `main`        |
+| **TypeScript Compilation** | Full type-check, no errors                                     | ✅ `npx tsc --noEmit` PASS |
+| **Firestore Rules**        | 4 DL-1 blocks deployed (turnos, lab-apoio, risks, lgpd)        | ✅ Rules live              |
+| **Cloud Functions**        | 78 total functions (19 new in Phase 0)                         | ✅ Deployed                |
+| **Composite Indexes**      | 12 new Firestore indexes                                       | ✅ All built               |
+| **React Components**       | 12 new components (TurnosView, LabApoioForm, RiskMatrix, etc.) | ✅ Hosting live            |
+| **Unit Tests**             | 34 new tests + 738 regression baseline                         | ✅ 738/738 PASS            |
 
 ### Architecture Review
 
@@ -79,7 +80,7 @@ Phase 0 (RDC 978 Mandatory Blockers) is **officially complete and approved for P
 ## RESPONSÁVEL TÉCNICO (RT) APPROVAL ✅
 
 **Approval by:** Responsável Técnico (Compliance Officer)  
-**Date:** 2026-05-07 18:30 UTC  
+**Date:** 2026-05-07 18:30 UTC
 
 ### Regulatory Compliance Verified
 
@@ -99,7 +100,6 @@ Phase 0 (RDC 978 Mandatory Blockers) is **officially complete and approved for P
   - Coleta, processamento, armazenamento, compartilhamento, direitos
   - Confidencialidade, disponibilidade, integridade
   - Exclusão de dados, direitos do titular, auditoria
-  
 - ✅ **IT-LGPD-DPIA-001-v1.0** created (3,200 words, 8 sections)
   - DPIA methodology (ISO 29134)
   - Data flows, risks, mitigations
@@ -136,13 +136,13 @@ Phase 0 (RDC 978 Mandatory Blockers) is **officially complete and approved for P
 
 ### DICQ Compliance Delta
 
-| Bloc | v1.3 % | Phase 0 Delta | v1.4 Projected |
-|-----|--------|---|---|
-| **A** Governança | 78% | NEW-A1 (legal-docs) + NEW-A2 (norteadores) | 92% target |
-| **B** SGD | 65% | Baseline stable (Phase 3 completes schema) | 92% target |
-| **C** Pessoal | 80% | NEW (supervisor UI) | 92% target |
-| **D** Qualidade | 60% | Risk mgmt skeleton + DICQ 4.14.6 | 85% target |
-| **H** Recursos | 75% | Lab Apoio NEW-H1 + DICQ 4.14.8 | 88% target |
+| Bloc             | v1.3 % | Phase 0 Delta                              | v1.4 Projected |
+| ---------------- | ------ | ------------------------------------------ | -------------- |
+| **A** Governança | 78%    | NEW-A1 (legal-docs) + NEW-A2 (norteadores) | 92% target     |
+| **B** SGD        | 65%    | Baseline stable (Phase 3 completes schema) | 92% target     |
+| **C** Pessoal    | 80%    | NEW (supervisor UI)                        | 92% target     |
+| **D** Qualidade  | 60%    | Risk mgmt skeleton + DICQ 4.14.6           | 85% target     |
+| **H** Recursos   | 75%    | Lab Apoio NEW-H1 + DICQ 4.14.8             | 88% target     |
 
 **v1.3 Baseline:** 78.5% (444/570 requisitos)  
 **Phase 0 Addition:** +3–4 points  
@@ -231,6 +231,7 @@ I certify that Phase 0 addresses the 4 mandatory RDC 978 blockers with full comp
 - ✅ **Storage I/O (PDF uploads):** <2s per 5MB doc
 
 **Monitoring command:**
+
 ```bash
 bash scripts/monitor-cloud-logs.sh 24 30
 # Outputs: .planning/phases/00-rdc-blockers/00-XX-cloud-logs-day1.md
@@ -238,14 +239,14 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 #### Production Health Checks
 
-| Check | Target | Actual | Status |
-|---|---|---|---|
-| **Hub page load (LCP)** | <2.5s | 1.8s | ✅ PASS |
-| **TurnosView render (TTI)** | <3s | 2.2s | ✅ PASS |
-| **Lab Apoio form interaction** | <200ms (INP) | 85ms | ✅ PASS |
-| **Risk Matrix render** | <2s | 1.6s | ✅ PASS |
-| **Firestore read latency (p95)** | <1s | 0.3s | ✅ PASS |
-| **Function cold start (first invoke)** | <5s | 2.8s | ✅ PASS |
+| Check                                  | Target       | Actual | Status  |
+| -------------------------------------- | ------------ | ------ | ------- |
+| **Hub page load (LCP)**                | <2.5s        | 1.8s   | ✅ PASS |
+| **TurnosView render (TTI)**            | <3s          | 2.2s   | ✅ PASS |
+| **Lab Apoio form interaction**         | <200ms (INP) | 85ms   | ✅ PASS |
+| **Risk Matrix render**                 | <2s          | 1.6s   | ✅ PASS |
+| **Firestore read latency (p95)**       | <1s          | 0.3s   | ✅ PASS |
+| **Function cold start (first invoke)** | <5s          | 2.8s   | ✅ PASS |
 
 #### Rollback Readiness
 
@@ -339,13 +340,13 @@ bash scripts/monitor-cloud-logs.sh 24 30
 
 ### Identified Risks During Phase 0
 
-| Risk | Likelihood | Impact | Mitigation | Status |
-|---|---|---|---|---|
-| **TypeScript compilation errors** | ⬛ Happened | Medium | Quick fix (commit 824231b) | ✅ RESOLVED |
-| **Agent context loss (large file trees)** | ⬛ Happened | Low | Respawn with explicit paths | ✅ RESOLVED |
-| **Deploy script sandbox restriction** | ⬛ Happened | Low | Deploy from main thread | ✅ RESOLVED |
-| **DICQ audit RFI (Phase 4 dependency)** | 🟡 Medium | High | Email gate + weekly sync (ROADMAP) | 🔄 MONITORED |
-| **Personnel data migration (v1.4 Phase 9)** | 🟡 Medium | Medium | Backfill job + completeness audit | 🔄 PLANNED |
+| Risk                                        | Likelihood  | Impact | Mitigation                         | Status       |
+| ------------------------------------------- | ----------- | ------ | ---------------------------------- | ------------ |
+| **TypeScript compilation errors**           | ⬛ Happened | Medium | Quick fix (commit 824231b)         | ✅ RESOLVED  |
+| **Agent context loss (large file trees)**   | ⬛ Happened | Low    | Respawn with explicit paths        | ✅ RESOLVED  |
+| **Deploy script sandbox restriction**       | ⬛ Happened | Low    | Deploy from main thread            | ✅ RESOLVED  |
+| **DICQ audit RFI (Phase 4 dependency)**     | 🟡 Medium   | High   | Email gate + weekly sync (ROADMAP) | 🔄 MONITORED |
+| **Personnel data migration (v1.4 Phase 9)** | 🟡 Medium   | Medium | Backfill job + completeness audit  | 🔄 PLANNED   |
 
 ### Overall Risk Level
 
@@ -406,13 +407,13 @@ I certify that:
 
 ### Prerequisites for Phase 1 Execution
 
-| Gate | Status | Approval |
-|---|---|---|
-| **All 4 RDC blockers deployed** | ✅ COMPLETE | ✅ CTO |
-| **Smoke tests 5/5 PASS** | ✅ COMPLETE | ✅ DevOps |
-| **SGQ documents created + audit trail** | ✅ COMPLETE | ✅ RT |
+| Gate                                     | Status        | Approval                |
+| ---------------------------------------- | ------------- | ----------------------- |
+| **All 4 RDC blockers deployed**          | ✅ COMPLETE   | ✅ CTO                  |
+| **Smoke tests 5/5 PASS**                 | ✅ COMPLETE   | ✅ DevOps               |
+| **SGQ documents created + audit trail**  | ✅ COMPLETE   | ✅ RT                   |
 | **Cloud logs green (0 critical errors)** | 🔄 MONITORING | ✅ DevOps (preliminary) |
-| **No regressions (738/738 tests PASS)** | ✅ COMPLETE | ✅ CTO |
+| **No regressions (738/738 tests PASS)**  | ✅ COMPLETE   | ✅ CTO                  |
 
 ### Phase 1 Unlock Status
 
@@ -424,29 +425,29 @@ Phase 1 (v1.3 Stabilization + v1.4 Wave 1) may commence immediately upon complet
 
 ## Metrics Summary
 
-| Metric | Value | Status |
-|---|---|---|
-| **Sub-plans deployed (of 4)** | 4/4 | ✅ 100% |
-| **Modules added to production** | 3 (turnos, lab-apoio, risks) | ✅ |
-| **Cloud Functions deployed** | 78 total (19 new) | ✅ |
-| **Firestore Rules DL-1 blocks** | 4 modules | ✅ |
-| **Composite Firestore indexes** | 12 new | ✅ |
-| **React components** | 12 new | ✅ |
-| **Lines of code (Phase 0 total)** | ~8,700 | ✅ |
-| **Unit tests (new + baseline)** | 34 new, 738 regression PASS | ✅ 100% |
-| **Code commits** | 48 across 4 plans | ✅ |
-| **Smoke test flows** | 5/5 PASS | ✅ |
-| **Cloud logs errors (post-deploy)** | 0 | ✅ |
-| **Rollback needed** | 0 | ✅ |
-| **DICQ delta achieved** | +3–4 points (78.5% → ~82–83%) | ✅ |
+| Metric                              | Value                         | Status  |
+| ----------------------------------- | ----------------------------- | ------- |
+| **Sub-plans deployed (of 4)**       | 4/4                           | ✅ 100% |
+| **Modules added to production**     | 3 (turnos, lab-apoio, risks)  | ✅      |
+| **Cloud Functions deployed**        | 78 total (19 new)             | ✅      |
+| **Firestore Rules DL-1 blocks**     | 4 modules                     | ✅      |
+| **Composite Firestore indexes**     | 12 new                        | ✅      |
+| **React components**                | 12 new                        | ✅      |
+| **Lines of code (Phase 0 total)**   | ~8,700                        | ✅      |
+| **Unit tests (new + baseline)**     | 34 new, 738 regression PASS   | ✅ 100% |
+| **Code commits**                    | 48 across 4 plans             | ✅      |
+| **Smoke test flows**                | 5/5 PASS                      | ✅      |
+| **Cloud logs errors (post-deploy)** | 0                             | ✅      |
+| **Rollback needed**                 | 0                             | ✅      |
+| **DICQ delta achieved**             | +3–4 points (78.5% → ~82–83%) | ✅      |
 
 ---
 
 ## Document History
 
-| Version | Date | Author | Status |
-|---|---|---|---|
-| 1.0 | 2026-05-07 | System (automated) | ✅ Final |
+| Version | Date       | Author             | Status   |
+| ------- | ---------- | ------------------ | -------- |
+| 1.0     | 2026-05-07 | System (automated) | ✅ Final |
 
 ---
 

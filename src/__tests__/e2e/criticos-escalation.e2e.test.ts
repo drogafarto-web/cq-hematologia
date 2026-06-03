@@ -120,39 +120,29 @@ async function setupLab(): Promise<{ labId: string; thresholdId: string }> {
   });
 
   // Create RT member
-  await db
-    .collection('labs')
-    .doc(labId)
-    .collection('members')
-    .doc('rt-user-001')
-    .set({
-      nome: 'RT User',
-      role: 'RT',
-      email: 'rt@lab.com',
-      telefone: '5511999999999',
-      status: 'active',
-      criadoEm: Timestamp.now(),
-    });
+  await db.collection('labs').doc(labId).collection('members').doc('rt-user-001').set({
+    nome: 'RT User',
+    role: 'RT',
+    email: 'rt@lab.com',
+    telefone: '5511999999999',
+    status: 'active',
+    criadoEm: Timestamp.now(),
+  });
 
   // Create threshold config (Hemoglobina: min=50, max=100)
   const thresholdId = 'threshold-001';
-  await db
-    .collection('criticos-thresholds')
-    .doc(labId)
-    .collection('configs')
-    .doc(thresholdId)
-    .set({
-      labId,
-      analitoId: 'hemoglobina-001',
-      analitoNome: 'Hemoglobina',
-      unidade: 'g/dL',
-      min: 50,
-      max: 100,
-      severidade: 'alta',
-      ativo: true,
-      criadoEm: Timestamp.now(),
-      deletadoEm: null,
-    });
+  await db.collection('criticos-thresholds').doc(labId).collection('configs').doc(thresholdId).set({
+    labId,
+    analitoId: 'hemoglobina-001',
+    analitoNome: 'Hemoglobina',
+    unidade: 'g/dL',
+    min: 50,
+    max: 100,
+    severidade: 'alta',
+    ativo: true,
+    criadoEm: Timestamp.now(),
+    deletadoEm: null,
+  });
 
   return { labId, thresholdId };
 }

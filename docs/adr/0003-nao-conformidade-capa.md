@@ -14,6 +14,7 @@
 **Problem:** Non-Conformidade (NC) handling scattered across modules. No canonical registry, no formal CAPA workflow, no blocking gates for critical NCs.
 
 **Solution:** Centralized `nao-conformidades` collection with:
+
 - **Single source of truth:** All NCs in one collection (queryable across modules)
 - **CAPA workflow:** investigacao → acaoCorretiva → verificacaoEficacia (enforced state machine)
 - **Blocking gates:** Critical NCs (`severidade=critica`) automatically block module operations
@@ -33,27 +34,27 @@ Collection: `/labs/{labId}/nao-conformidades/{ncId}`
 ```typescript
 interface NaoConformidade {
   // Identification
-  id: string;                    // Firestore doc ID
-  labId: string;                 // FK to lab
-  numero: string;                // NC-{YYYY}-{seq} (immutable, sequential)
+  id: string; // Firestore doc ID
+  labId: string; // FK to lab
+  numero: string; // NC-{YYYY}-{seq} (immutable, sequential)
 
   // Origin
-  origem: NCOrigin;              // 'insumo'|'equipamento'|'controle'|'pessoas'|'processo'|'outro'
-  origemId?: string;             // FK: loteId, equipId, userId, etc
-  moduloOrigemId: string;        // Which module: 'insumos', 'qualidade', 'equipamento', etc
+  origem: NCOrigin; // 'insumo'|'equipamento'|'controle'|'pessoas'|'processo'|'outro'
+  origemId?: string; // FK: loteId, equipId, userId, etc
+  moduloOrigemId: string; // Which module: 'insumos', 'qualidade', 'equipamento', etc
 
   // Content
-  descricao: string;             // What went wrong (markdown allowed)
-  severidade: NCSeveridade;      // 'leve' | 'grave' | 'critica'
+  descricao: string; // What went wrong (markdown allowed)
+  severidade: NCSeveridade; // 'leve' | 'grave' | 'critica'
 
   // Status machine
-  status: NCStatus;              // 'aberta'|'investig'|'correcao'|'verif_eficacia'|'fechada'|'cancelada'
+  status: NCStatus; // 'aberta'|'investig'|'correcao'|'verif_eficacia'|'fechada'|'cancelada'
   statusHistory: Array<{
-    timestamp: Timestamp;        // When transition occurred
-    novoStatus: NCStatus;        // New status
-    mudadoPor: string;           // uid (who made change)
-    motivo?: string;             // Why (reason for transition)
-    hmac: string;                // ADR 0005 signature
+    timestamp: Timestamp; // When transition occurred
+    novoStatus: NCStatus; // New status
+    mudadoPor: string; // uid (who made change)
+    motivo?: string; // Why (reason for transition)
+    hmac: string; // ADR 0005 signature
   }>;
 
   // CAPA workflow (nested)
@@ -62,53 +63,53 @@ interface NaoConformidade {
       realizada: boolean;
       dataInicio: Timestamp;
       dataFim?: Timestamp;
-      conclusao?: string;        // Root cause findings
+      conclusao?: string; // Root cause findings
       investigadorId?: string;
     };
     acaoCorretiva?: {
-      descricao: string;         // Action to take
-      dataPrevista: Timestamp;   // Deadline
+      descricao: string; // Action to take
+      dataPrevista: Timestamp; // Deadline
       dataRealizacao?: Timestamp; // When actually done
-      responsavel: string;       // uid (who's responsible)
-      status: 'planejada'|'em_exec'|'concluida';
-      resultado?: string;        // What was actually done
+      responsavel: string; // uid (who's responsible)
+      status: 'planejada' | 'em_exec' | 'concluida';
+      resultado?: string; // What was actually done
     };
     verificacaoEficacia?: {
       realizada: boolean;
-      resultado?: 'eficaz'|'ineficaz'|'nao_concluida';
+      resultado?: 'eficaz' | 'ineficaz' | 'nao_concluida';
       dataVerificacao?: Timestamp;
       verificadorId?: string;
-      evidencia?: string;        // How efficacy was verified
-      observacoes?: string;      // If ineffective, why?
+      evidencia?: string; // How efficacy was verified
+      observacoes?: string; // If ineffective, why?
     };
   };
 
   // Lifecycle
   aberta: {
-    timestamp: Timestamp;        // When NC was opened
-    uid: string;                 // Who opened (operator, supervisor)
-    motivo: string;              // Why it was opened
+    timestamp: Timestamp; // When NC was opened
+    uid: string; // Who opened (operator, supervisor)
+    motivo: string; // Why it was opened
   };
   fechada?: {
-    timestamp: Timestamp;        // When NC was closed
-    uid: string;                 // Who closed
-    motivo: string;              // Reason for closure
+    timestamp: Timestamp; // When NC was closed
+    uid: string; // Who closed
+    motivo: string; // Reason for closure
   };
 
   // Blocking
-  bloqueiaOperacoes: boolean;    // If true, module operations are blocked
+  bloqueiaOperacoes: boolean; // If true, module operations are blocked
   operacoesTodasBloqueadas?: string[]; // Granular scopes: ['hematologia'] (future)
 
   // Audit (ADR 0005 integration)
-  hmac: string;                  // HMAC-SHA256 signature
-  previousHash: string | null;   // Chain link (prevents reordering)
-  _ncAuditTrailRef?: string;     // FK to audit entry in ADR 0005
+  hmac: string; // HMAC-SHA256 signature
+  previousHash: string | null; // Chain link (prevents reordering)
+  _ncAuditTrailRef?: string; // FK to audit entry in ADR 0005
 
   // Metadata
   createdAt: Timestamp;
   updatedAt: Timestamp;
-  versao?: number;               // Version counter
-  _migratedAt?: Timestamp;       // Backfill timestamp
+  versao?: number; // Version counter
+  _migratedAt?: Timestamp; // Backfill timestamp
 }
 ```
 
@@ -159,25 +160,26 @@ Any state → CANCELADA [supervisor only] (final, unblocks)
 
 ### Valid Transitions
 
-| From | To | Condition | Who |
-|------|----|-----------|----|
-| `aberta` | `investig` | Investigation starts | RT |
-| `aberta` | `cancelada` | Supervisor cancels | Admin/Supervisor |
-| `investig` | `correcao` | Root cause found | RT |
-| `investig` | `cancelada` | Supervisor cancels | Admin/Supervisor |
-| `correcao` | `verif_eficacia` | Action executed | RT |
-| `correcao` | `cancelada` | Supervisor cancels | Admin/Supervisor |
-| `verif_eficacia` | `fechada` | Efficacy = `eficaz` | RT |
-| `verif_eficacia` | `investigacao` | Efficacy = `ineficaz` | RT |
-| `verif_eficacia` | `cancelada` | Supervisor cancels | Admin/Supervisor |
-| `fechada` | — | Final state (no transitions) | — |
-| `cancelada` | — | Final state (no transitions) | — |
+| From             | To               | Condition                    | Who              |
+| ---------------- | ---------------- | ---------------------------- | ---------------- |
+| `aberta`         | `investig`       | Investigation starts         | RT               |
+| `aberta`         | `cancelada`      | Supervisor cancels           | Admin/Supervisor |
+| `investig`       | `correcao`       | Root cause found             | RT               |
+| `investig`       | `cancelada`      | Supervisor cancels           | Admin/Supervisor |
+| `correcao`       | `verif_eficacia` | Action executed              | RT               |
+| `correcao`       | `cancelada`      | Supervisor cancels           | Admin/Supervisor |
+| `verif_eficacia` | `fechada`        | Efficacy = `eficaz`          | RT               |
+| `verif_eficacia` | `investigacao`   | Efficacy = `ineficaz`        | RT               |
+| `verif_eficacia` | `cancelada`      | Supervisor cancels           | Admin/Supervisor |
+| `fechada`        | —                | Final state (no transitions) | —                |
+| `cancelada`      | —                | Final state (no transitions) | —                |
 
 ---
 
 ## Blocking Logic
 
 **Automatic Blocking (On NC Creation):**
+
 ```
 if severity = 'critica':
   bloqueiaOperacoes = true
@@ -185,6 +187,7 @@ if severity = 'critica':
 ```
 
 **Gate Invocation (In Each Module's create/update):**
+
 ```typescript
 const ncCheck = await checkNCs(labId, 'insumos'); // or 'equipamento', etc
 if (ncCheck.hasCriticalNCs) {
@@ -195,8 +198,9 @@ if (ncCheck.hasCriticalNCs) {
 ```
 
 **Unblocking (On NC Closure):**
+
 ```
-if status = 'fechada' AND 
+if status = 'fechada' AND
    capa.verificacaoEficacia.resultado = 'eficaz':
   bloqueiaOperacoes = false
   // Module operations unblocked
@@ -207,42 +211,49 @@ if status = 'fechada' AND
 ## Integration Points (7 Modules)
 
 ### 1. Insumos (Inventory/Lots)
+
 - **NC Origen:** `'insumo'`
 - **Triggered by:** Expired lot, contamination, lot spec deviation
 - **Gate:** Before `createInsumo()`, `useInsumo()`
 - **Effect:** Cannot use/move lot while critical NC open
 
 ### 2. Equipamento (Equipment)
+
 - **NC Origen:** `'equipamento'`
 - **Triggered by:** Equipment failure, calibration issue, maintenance overdue
 - **Gate:** Before `useEquipamento()`, `calibrateEquipamento()`
 - **Effect:** Cannot use equipment while critical NC open
 
 ### 3. Qualidade (Quality Control)
+
 - **NC Origen:** `'controle'`
 - **Triggered by:** QC failure, EQA deviation, CEQ out-of-range
 - **Gate:** Before `approveCQResult()`
 - **Effect:** Cannot approve results while critical QC NC open
 
 ### 4. Pessoas (Personnel/Training)
+
 - **NC Origen:** `'pessoas'`
 - **Triggered by:** Training expiration, qualification gap, competency issue
 - **Gate:** Before `recordQualificacao()`, maybe `runTest()`
 - **Effect:** Cannot run tests with expired training while critical NC open
 
 ### 5. POPs (Procedimentos)
+
 - **NC Origen:** `'processo'`
 - **Triggered by:** Procedure deviation, operator untrained on POP version
 - **Gate:** Before `updatePOP()`, `usePOP()` (ADR 0004)
 - **Effect:** Cannot update/use procedures while critical NC open
 
 ### 6. Evoluções (Results)
+
 - **NC Origen:** `'outro'`
 - **Triggered by:** Result quality issue, transcription error, missing data
 - **Gate:** Before `saveResult()`, `releaseResult()`
 - **Effect:** Cannot release results while critical NC open
 
 ### 7. Auditoria (Audits)
+
 - **NC Origen:** `'outro'` (or 'auditoria')
 - **Triggered by:** External audit finding, regulatory gap
 - **Gate:** Before `closeAuditFinding()`
@@ -253,6 +264,7 @@ if status = 'fechada' AND
 ## Cloud Functions
 
 ### openNaoConformidade() — Callable
+
 **Usage:** Operator opens new NC when detecting deviation
 
 ```typescript
@@ -264,18 +276,20 @@ const response = await firebase.functions().httpsCallable('openNaoConformidade')
   descricao: 'Lote expirado em 2026-04-30',
   severidade: 'critica',
   uid: 'operador-789',
-  motivo: 'Verificação de validade'
+  motivo: 'Verificação de validade',
 });
 // Returns: { success, ncId, numero, hmac }
 ```
 
 **Side Effects:**
+
 - Creates NC doc in Firestore
 - HMAC-signs via ADR 0005
 - If `severidade=critica`: sets `bloqueiaOperacoes=true`
 - Logs to audit trail
 
 ### updateNaoConformidade() — Callable
+
 **Usage:** RT advances NC through CAPA workflow
 
 ```typescript
@@ -285,18 +299,20 @@ const response = await firebase.functions().httpsCallable('updateNaoConformidade
   uid: 'rt-789',
   novoStatus: 'investig',
   motivoTransicao: 'Iniciando investigação',
-  investigacao: { investigadorId: 'rt-789' }
+  investigacao: { investigadorId: 'rt-789' },
 });
 // Returns: { success, novoStatus, hmac }
 ```
 
 **Validations:**
+
 - RT-only (enforced)
 - Valid status transition
 - CAPA fields validated
 - All changes HMAC-signed
 
 ### checkNCs() — Helper (Used in 7-module integration)
+
 **Usage:** Module gates check for blocking NCs before operation
 
 ```typescript
@@ -336,6 +352,7 @@ await cancelarNC(labId, ncId, uid, motivo);
 ```
 
 Each helper:
+
 - Validates state machine transitions
 - HMAC-signs changes (ADR 0005)
 - Logs to audit trail
@@ -348,6 +365,7 @@ Each helper:
 **Collection:** `/labs/{labId}/nao-conformidades/audit-trail`
 
 Every operation logged:
+
 ```json
 {
   "timestamp": "2026-05-02T...",
@@ -389,6 +407,7 @@ match /labs/{labId}/nao-conformidades/{ncId} {
 ## Backfill Strategy
 
 **Process:**
+
 1. Query all temporary NC collections per module
 2. Map to NaoConformidade schema (1:1)
 3. Generate numero (NC-{YYYY}-{seq})
@@ -400,6 +419,7 @@ match /labs/{labId}/nao-conformidades/{ncId} {
 **Script:** `functions/scripts/backfill-naoConformidade.mjs`
 
 **Execution:**
+
 ```bash
 # Dry-run
 node functions/scripts/backfill-naoConformidade.mjs --labId=default --dry-run
@@ -416,6 +436,7 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=all
 ## Testing
 
 ### Unit Tests (>80% coverage)
+
 - NC creation (numero format, blocking flag)
 - Status transitions (valid + invalid)
 - CAPA workflow (full lifecycle)
@@ -423,11 +444,13 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=all
 - HMAC signing
 
 ### Integration Tests
+
 - E2E: Insumo expired → NC critical → block use → investigate → remediate → unblock
 - Multiple NCs: Only critical blocks
 - Closure scenarios: Efficacy determines final state
 
 ### Smoke Test (Pre-Deploy)
+
 ```
 1. Create critical NC in Insumo module
 2. Try to use lot → blocked (error with NC numero)
@@ -444,6 +467,7 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=all
 ## Compliance
 
 **RDC 978 Requirements:**
+
 - ✓ Formal NC documentation (numero, data, descricao)
 - ✓ Root cause analysis (investigacao)
 - ✓ Corrective action (acaoCorretiva)
@@ -452,6 +476,7 @@ node functions/scripts/backfill-naoConformidade.mjs --labId=all
 - ✓ Management review (RT authorization)
 
 **Audit Trail:**
+
 - All NC changes immutable + HMAC-signed
 - Chain integrity verified automatically (12h schedule)
 - Zero silent edits possible (chain breaks immediately)

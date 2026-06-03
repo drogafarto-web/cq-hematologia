@@ -21,16 +21,18 @@ const criticoContextSchema = z.object({
   severidade: z.enum(['alta', 'baixa']),
 });
 
-const payloadOverrideSchema = z.object({
-  resultados: z.array(
-    z.object({
-      analito: z.string(),
-      valor: z.union([z.number(), z.string()]),
-      unidade: z.string(),
-      referencia: z.string(),
-    })
-  ),
-}).optional();
+const payloadOverrideSchema = z
+  .object({
+    resultados: z.array(
+      z.object({
+        analito: z.string(),
+        valor: z.union([z.number(), z.string()]),
+        unidade: z.string(),
+        referencia: z.string(),
+      }),
+    ),
+  })
+  .optional();
 
 const notivisaDraftCreateInputSchema = z.object({
   labId: z.string().min(1, 'labId required'),
@@ -57,15 +59,13 @@ type NotivisaDraftCreateInput = z.infer<typeof notivisaDraftCreateInputSchema>;
 type NotivisaDraftCreateOutput = z.infer<typeof notivisaDraftCreateOutputSchema>;
 type NotivisaDraftCreateError = z.infer<typeof notivisaDraftCreateErrorSchema>;
 
-export const notivisaDraftCreate = functions.region('southamerica-east1').onCall(
-  async (request): Promise<NotivisaDraftCreateOutput | NotivisaDraftCreateError> => {
+export const notivisaDraftCreate = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<NotivisaDraftCreateOutput | NotivisaDraftCreateError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = notivisaDraftCreateInputSchema.parse(request.data);
@@ -75,27 +75,18 @@ export const notivisaDraftCreate = functions.region('southamerica-east1').onCall
       const db = admin.firestore();
 
       // ========== 2. Authorization check ==========
-      const memberDoc = await db
-        .collection('labs')
-        .doc(labId)
-        .collection('members')
-        .doc(uid)
-        .get();
+      const memberDoc = await db.collection('labs').doc(labId).collection('members').doc(uid).get();
 
       if (!memberDoc.exists) {
         throw new functions.https.HttpsError(
           'permission-denied',
-          `User is not a member of lab ${labId}`
+          `User is not a member of lab ${labId}`,
         );
       }
 
       // ========== 3. Fetch laudo ==========
       // Phase 10 integration: read from liberacao-laudos or similar module
-      const laudoRef = db
-        .collection('labs')
-        .doc(labId)
-        .collection('liberacao-laudos')
-        .doc(laudoId);
+      const laudoRef = db.collection('labs').doc(labId).collection('liberacao-laudos').doc(laudoId);
 
       const laudoSnap = await laudoRef.get();
       if (!laudoSnap.exists) {
@@ -165,7 +156,7 @@ export const notivisaDraftCreate = functions.region('southamerica-east1').onCall
           {
             cpf: pacienteData.cpf,
             nome: pacienteData.nome || 'Unknown',
-          }
+          },
         );
 
         payload = notivisaPayloadSchema.parse(formatted);
@@ -200,10 +191,7 @@ export const notivisaDraftCreate = functions.region('southamerica-east1').onCall
       }
 
       // ========== 7. Create draft ==========
-      const draftsRef = db
-        .collection('notivisa-drafts')
-        .doc(labId)
-        .collection('drafts');
+      const draftsRef = db.collection('notivisa-drafts').doc(labId).collection('drafts');
 
       const newDraftId = draftsRef.doc().id;
       const now = Date.now();
@@ -224,20 +212,17 @@ export const notivisaDraftCreate = functions.region('southamerica-east1').onCall
       });
 
       // Create audit log entry
-      batch.set(
-        draftsRef.doc(newDraftId).collection('auditLog').doc(`${now}`),
-        {
-          action: 'CREATED',
-          operatorId: uid,
-          ts: now,
-          details: {
-            source: criticoContext ? 'critico_detector' : 'manual_ui',
-            laudoId,
-            criticoAnalito: criticoContext?.analito || null,
-            criticoSeveridade: criticoContext?.severidade || null,
-          },
-        }
-      );
+      batch.set(draftsRef.doc(newDraftId).collection('auditLog').doc(`${now}`), {
+        action: 'CREATED',
+        operatorId: uid,
+        ts: now,
+        details: {
+          source: criticoContext ? 'critico_detector' : 'manual_ui',
+          laudoId,
+          criticoAnalito: criticoContext?.analito || null,
+          criticoSeveridade: criticoContext?.severidade || null,
+        },
+      });
 
       await batch.commit();
 
@@ -276,5 +261,4 @@ export const notivisaDraftCreate = functions.region('southamerica-east1').onCall
         message: error.message || 'Internal error during draft creation',
       };
     }
-  }
-);
+  });

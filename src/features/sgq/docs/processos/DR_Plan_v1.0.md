@@ -22,12 +22,12 @@ HC Quality é um sistema SaaS multi-tenant de Controle Interno de Qualidade para
 
 ## Cenários Cobertos
 
-| Cenário | RTO | RPO | Status |
-|---------|-----|-----|--------|
-| 1. Corrupção de dados Firestore | 2h | <1h | Documentado + Testado ✓ |
-| 2. Interrupção de região GCP | 4h | <1h | Documentado + Runbook ✓ |
-| 3. Credenciais comprometidas | 1h | <30m | Documentado + Runbook ✓ |
-| 4. Ataque ransomware / malicioso | 24h | <1h | Documentado + Runbook ✓ |
+| Cenário                          | RTO | RPO  | Status                  |
+| -------------------------------- | --- | ---- | ----------------------- |
+| 1. Corrupção de dados Firestore  | 2h  | <1h  | Documentado + Testado ✓ |
+| 2. Interrupção de região GCP     | 4h  | <1h  | Documentado + Runbook ✓ |
+| 3. Credenciais comprometidas     | 1h  | <30m | Documentado + Runbook ✓ |
+| 4. Ataque ransomware / malicioso | 24h | <1h  | Documentado + Runbook ✓ |
 
 ---
 
@@ -36,6 +36,7 @@ HC Quality é um sistema SaaS multi-tenant de Controle Interno de Qualidade para
 **Runbooks detalhados:** `docs/DR_RUNBOOKS.md`
 
 Cada cenário possui procedimentos passo a passo, incluindo:
+
 - Detecção (alertas e critérios)
 - Contenção imediata
 - Forensics
@@ -50,6 +51,7 @@ Cada cenário possui procedimentos passo a passo, incluindo:
 **Objetivo:** Validar que a estratégia de backup/restore é funcional e confiável.
 
 **Procedimento:**
+
 1. Snapshot do banco de dados de produção exportado para GCS
 2. Snapshot restaurado para projeto de staging
 3. Integridade validada:
@@ -66,13 +68,13 @@ Cada cenário possui procedimentos passo a passo, incluindo:
 
 ## Escalação e Contatos
 
-| Papel | Responsabilidade | Disponibilidade |
-|-------|-----------------|-----------------|
-| CTO | Declarar incidente, aprovar plano de recuperação | 24/7 (pager) |
-| Tech Lead | Executar procedimentos, coordenar time | Business hours + on-call |
-| Security Officer | Forensics, determinação de breach, LGPD | On-call para cenários 3-4 |
-| PM | Comunicação com clientes, status page | Business hours |
-| DevOps | Comandos gcloud, deployment | 24/7 |
+| Papel            | Responsabilidade                                 | Disponibilidade           |
+| ---------------- | ------------------------------------------------ | ------------------------- |
+| CTO              | Declarar incidente, aprovar plano de recuperação | 24/7 (pager)              |
+| Tech Lead        | Executar procedimentos, coordenar time           | Business hours + on-call  |
+| Security Officer | Forensics, determinação de breach, LGPD          | On-call para cenários 3-4 |
+| PM               | Comunicação com clientes, status page            | Business hours            |
+| DevOps           | Comandos gcloud, deployment                      | 24/7                      |
 
 ---
 
@@ -82,6 +84,7 @@ Cada cenário possui procedimentos passo a passo, incluindo:
 "Sistema deve ter plano de continuidade testado anualmente."
 
 **Status:** ✓ COMPLETO
+
 - Plano documentado com 4 cenários
 - Procedimentos descritos (Runbooks)
 - Teste real executado em 2026-05-06
@@ -92,6 +95,7 @@ Cada cenário possui procedimentos passo a passo, incluindo:
 "Planos de contingência devem ser documentados e controlados."
 
 **Status:** ✓ COMPLETO
+
 - Documento versionado (v1.0)
 - Aprovação pendente (assinatura RT)
 - Arquivo controlado em repositório git (rastreabilidade)
@@ -108,6 +112,7 @@ Três scripts de shell executáveis estão disponíveis em `scripts/`:
 3. **dr-validate-chain-hash.sh** — Verifica integridade da cadeia de hashes (100 amostras)
 
 Todos os scripts incluem:
+
 - Tratamento de erros com `set -euo pipefail`
 - Logging de timestamps (rastreabilidade)
 - Status de operações assíncronas do gcloud
@@ -119,6 +124,7 @@ Todos os scripts incluem:
 **Critério crítico:** A trilha de auditoria (auditLogs) deve permanecer íntegra após restauração.
 
 Cada entrada em auditLogs contém:
+
 ```
 LogicalSignature {
   hash: SHA-256 (64 caracteres hex)
@@ -128,6 +134,7 @@ LogicalSignature {
 ```
 
 **Validação pós-restauração:**
+
 - Amostra de 100 docs: 100/100 válidos
 - Hash format: Todos os 64 caracteres hex válidos (nenhuma corrupção)
 - Referência de operador: Intacta
@@ -148,9 +155,9 @@ LogicalSignature {
 
 ## Histórico de Revisão
 
-| Versão | Data | Autor | Alteração |
-|--------|------|-------|-----------|
-| 1.0 | 2026-05-06 | CTO | Versão inicial, 4 cenários documentados, teste real comprovado |
+| Versão | Data       | Autor | Alteração                                                      |
+| ------ | ---------- | ----- | -------------------------------------------------------------- |
+| 1.0    | 2026-05-06 | CTO   | Versão inicial, 4 cenários documentados, teste real comprovado |
 
 ---
 

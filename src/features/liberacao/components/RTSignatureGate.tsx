@@ -15,11 +15,7 @@ interface RTSignatureGateProps {
   onSignatureConfirmed: () => Promise<void>;
 }
 
-export function RTSignatureGate({
-  laudoId,
-  onClose,
-  onSignatureConfirmed,
-}: RTSignatureGateProps) {
+export function RTSignatureGate({ laudoId, onClose, onSignatureConfirmed }: RTSignatureGateProps) {
   const [pin, setPin] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -30,11 +26,14 @@ export function RTSignatureGate({
   useEffect(() => {
     if (failureCount >= 3) {
       setIsLocked(true);
-      const timer = setTimeout(() => {
-        setIsLocked(false);
-        setFailureCount(0);
-        setError('');
-      }, 5 * 60 * 1000);
+      const timer = setTimeout(
+        () => {
+          setIsLocked(false);
+          setFailureCount(0);
+          setError('');
+        },
+        5 * 60 * 1000,
+      );
       return () => clearTimeout(timer);
     }
   }, [failureCount]);
@@ -72,9 +71,7 @@ export function RTSignatureGate({
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-[#141417] border border-white/10 rounded-2xl shadow-2xl p-8 w-full max-w-sm">
         <h2 className="text-xl font-bold text-white mb-2">Confirmação de Assinatura</h2>
-        <p className="text-sm text-white/60 mb-6">
-          Digite seu PIN para liberar este laudo
-        </p>
+        <p className="text-sm text-white/60 mb-6">Digite seu PIN para liberar este laudo</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
@@ -108,9 +105,7 @@ export function RTSignatureGate({
             </div>
           )}
 
-          <div className="text-xs text-white/60">
-            Tentativas restantes: {3 - failureCount} / 3
-          </div>
+          <div className="text-xs text-white/60">Tentativas restantes: {3 - failureCount} / 3</div>
 
           <div className="flex gap-3 pt-4">
             <button

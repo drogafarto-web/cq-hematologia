@@ -222,11 +222,35 @@ async function buildCoverPage(
       const tipoLabel = entry.tipoAlteracao === 'major' ? 'REV' : 'COR';
 
       page.drawText(formatVersao(entry.versao), { x: colX.versao, y, size: 7, font, color: black });
-      page.drawText(tipoLabel, { x: colX.tipo, y, size: 7, font: fontBold, color: entry.tipoAlteracao === 'major' ? rgb(0.7, 0.5, 0.1) : rgb(0.2, 0.6, 0.3) });
+      page.drawText(tipoLabel, {
+        x: colX.tipo,
+        y,
+        size: 7,
+        font: fontBold,
+        color: entry.tipoAlteracao === 'major' ? rgb(0.7, 0.5, 0.1) : rgb(0.2, 0.6, 0.3),
+      });
       page.drawText(formatTimestamp(entry.data), { x: colX.data, y, size: 7, font, color: black });
-      page.drawText((entry.alteracao ?? '').substring(0, 30), { x: colX.alteracao, y, size: 7, font, color: black });
-      page.drawText((entry.elaboradoPor ?? '—').substring(0, 12), { x: colX.elaborado, y, size: 7, font, color: black });
-      page.drawText((entry.aprovadoPor ?? '—').substring(0, 12), { x: colX.aprovado, y, size: 7, font, color: black });
+      page.drawText((entry.alteracao ?? '').substring(0, 30), {
+        x: colX.alteracao,
+        y,
+        size: 7,
+        font,
+        color: black,
+      });
+      page.drawText((entry.elaboradoPor ?? '—').substring(0, 12), {
+        x: colX.elaborado,
+        y,
+        size: 7,
+        font,
+        color: black,
+      });
+      page.drawText((entry.aprovadoPor ?? '—').substring(0, 12), {
+        x: colX.aprovado,
+        y,
+        size: 7,
+        font,
+        color: black,
+      });
       y -= 11;
     }
   }

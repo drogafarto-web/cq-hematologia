@@ -2,30 +2,31 @@
 
 **Duration:** 1.5 weeks (Wave 2, v1.4)  
 **Scope:** Patient NPS + Staff suggestions + Trending dashboard + Complaint integration  
-**Compliance:** DICQ 4.14.3/4.4, RDC 978, LGPD, CDC  
+**Compliance:** DICQ 4.14.3/4.4, RDC 978, LGPD, CDC
 
 ---
 
 ## Deliverables at a Glance
 
-| Item | Owner | Status |
-|------|-------|--------|
-| NPSPortalForm component | Frontend | Ready to execute |
-| SuggestionsIntake component | Frontend | Ready to execute |
-| TrendingDashboard component | Frontend | Ready to execute |
-| dispatchNPSPostLaudo callable | Functions | Spec complete |
-| submitNPSResposta callable | Functions | Spec complete |
-| dispatchNPSQuarterly Pub/Sub | Functions | Spec complete |
-| anonimizarRespostas cron | Functions | Spec complete |
-| Firestore rules + indexes | Security | Ready to execute |
-| useReclamacaoClosureNotification hook | Frontend | Ready to execute |
-| E2E test suite (8 tests) | QA | Spec complete |
+| Item                                  | Owner     | Status           |
+| ------------------------------------- | --------- | ---------------- |
+| NPSPortalForm component               | Frontend  | Ready to execute |
+| SuggestionsIntake component           | Frontend  | Ready to execute |
+| TrendingDashboard component           | Frontend  | Ready to execute |
+| dispatchNPSPostLaudo callable         | Functions | Spec complete    |
+| submitNPSResposta callable            | Functions | Spec complete    |
+| dispatchNPSQuarterly Pub/Sub          | Functions | Spec complete    |
+| anonimizarRespostas cron              | Functions | Spec complete    |
+| Firestore rules + indexes             | Security  | Ready to execute |
+| useReclamacaoClosureNotification hook | Frontend  | Ready to execute |
+| E2E test suite (8 tests)              | QA        | Spec complete    |
 
 ---
 
 ## Parallel Execution Waves
 
 ### Wave 1: Core UI + Firestore (Days 1–3)
+
 - NPSPortalForm (public + authenticated, reCAPTCHA v3)
 - SuggestionsIntake (web + mobile PWA)
 - TrendingDashboard (NPS chart + word cloud)
@@ -33,6 +34,7 @@
 - **Gate:** Rules deployed, all reads/writes via callables validated
 
 ### Wave 2: Cloud Functions (Days 2–4)
+
 - dispatchNPSPostLaudo (token gen + email)
 - submitNPSResposta (server-side sig + write)
 - dispatchNPSQuarterly (recurring campaign)
@@ -40,6 +42,7 @@
 - **Gate:** All functions tested in emulator; E2E tests 1–4 green
 
 ### Wave 3: Integrations (Days 4–5)
+
 - useReclamacaoClosureNotification hook
 - Portal `/portal-paciente/nps/{token}` page
 - Email triggers on critical laudo (5-day delay)
@@ -47,6 +50,7 @@
 - **Gate:** E2E tests 5–8 green; email delivery confirmed
 
 ### Wave 4: Polish + Deploy (Days 5–6)
+
 - Dark-mode UI refinement
 - WCAG AA accessibility audit
 - Performance optimization (Lighthouse)
@@ -95,13 +99,13 @@
 
 ## Risk Flags
 
-| Risk | Mitigation |
-|------|-----------|
-| Email spam filter | Use Resend + SPF/DKIM warmup |
-| Token expiry confusion | Clear error + resend button |
-| Gemini hallucination (Phase 7.2) | Manual RT review fallback |
-| PII in comentario | Regex filter + audit trail |
-| Quarterly campaign saturation | Batch 1000/min; Pub/Sub queue |
+| Risk                             | Mitigation                    |
+| -------------------------------- | ----------------------------- |
+| Email spam filter                | Use Resend + SPF/DKIM warmup  |
+| Token expiry confusion           | Clear error + resend button   |
+| Gemini hallucination (Phase 7.2) | Manual RT review fallback     |
+| PII in comentario                | Regex filter + audit trail    |
+| Quarterly campaign saturation    | Batch 1000/min; Pub/Sub queue |
 
 ---
 

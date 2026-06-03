@@ -56,40 +56,25 @@ async function setupTestData(): Promise<void> {
   });
 
   // Create lab member (RT)
-  await adminDb
-    .collection('labs')
-    .doc(testLabId)
-    .collection('members')
-    .doc(testUserId)
-    .set({
-      role: 'RT',
-      status: 'active',
-    });
+  await adminDb.collection('labs').doc(testLabId).collection('members').doc(testUserId).set({
+    role: 'RT',
+    status: 'active',
+  });
 
   // Create notivisa config
-  await adminDb
-    .collection('labs')
-    .doc(testLabId)
-    .collection('notivisa-config')
-    .doc('config')
-    .set({
-      enabled: true,
-      rtApprovalRequired: true,
-      maxRetries: 5,
-      retryIntervalMs: 300000,
-      batchSize: 10,
-    });
+  await adminDb.collection('labs').doc(testLabId).collection('notivisa-config').doc('config').set({
+    enabled: true,
+    rtApprovalRequired: true,
+    maxRetries: 5,
+    retryIntervalMs: 300000,
+    batchSize: 10,
+  });
 
   // Create test paciente
-  await adminDb
-    .collection('labs')
-    .doc(testLabId)
-    .collection('pacientes')
-    .doc('paciente-001')
-    .set({
-      cpf: '12345678900',
-      nome: 'Test Patient',
-    });
+  await adminDb.collection('labs').doc(testLabId).collection('pacientes').doc('paciente-001').set({
+    cpf: '12345678900',
+    nome: 'Test Patient',
+  });
 
   // Create test laudo (notifiable disease: syphilis)
   await adminDb
@@ -182,9 +167,7 @@ describe('NOTIVISA E2E Tests (8 Critical Flows)', () => {
     expect(getResponse.data.auditLog).toBeDefined();
     expect(getResponse.data.auditLog.length).toBeGreaterThan(0);
 
-    const createdEntry = getResponse.data.auditLog.find(
-      (e: any) => e.action === 'CREATED'
-    );
+    const createdEntry = getResponse.data.auditLog.find((e: any) => e.action === 'CREATED');
     expect(createdEntry).toBeDefined();
     expect(createdEntry.operatorId).toBeTruthy();
     expect(createdEntry.ts).toBeTruthy();
@@ -199,9 +182,7 @@ describe('NOTIVISA E2E Tests (8 Critical Flows)', () => {
       .collection('auditLog')
       .doc(createdEntry.id);
 
-    await expect(auditRef.update({ action: 'HACKED' }))
-      .rejects
-      .toThrow();
+    await expect(auditRef.update({ action: 'HACKED' })).rejects.toThrow();
   });
 
   // ========== E2E-04: Rate limiting ==========
@@ -305,10 +286,7 @@ describe('NOTIVISA E2E Tests (8 Critical Flows)', () => {
     // For now, verify structure
     const adminDb = admin.firestore();
 
-    const queueRef = adminDb
-      .collection('notivisa-queue')
-      .doc(testLabId)
-      .collection('events');
+    const queueRef = adminDb.collection('notivisa-queue').doc(testLabId).collection('events');
 
     // Manually create mock queue event
     const eventId = queueRef.doc().id;
@@ -328,10 +306,7 @@ describe('NOTIVISA E2E Tests (8 Critical Flows)', () => {
   it('E2E-07: Transient errors trigger retry with backoff', async () => {
     const adminDb = admin.firestore();
 
-    const queueRef = adminDb
-      .collection('notivisa-queue')
-      .doc(testLabId)
-      .collection('events');
+    const queueRef = adminDb.collection('notivisa-queue').doc(testLabId).collection('events');
 
     // Create event with transient error simulation
     const eventId = queueRef.doc().id;
@@ -353,15 +328,10 @@ describe('NOTIVISA E2E Tests (8 Critical Flows)', () => {
     const technicianId = 'test-user-technician-001';
     const adminDb = admin.firestore();
 
-    await adminDb
-      .collection('labs')
-      .doc(testLabId)
-      .collection('members')
-      .doc(technicianId)
-      .set({
-        role: 'TECHNICIAN',
-        status: 'active',
-      });
+    await adminDb.collection('labs').doc(testLabId).collection('members').doc(technicianId).set({
+      role: 'TECHNICIAN',
+      status: 'active',
+    });
 
     // This test requires context switching to technician auth
     // In actual test, would use Firebase auth emulator to switch users

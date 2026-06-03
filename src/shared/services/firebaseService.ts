@@ -72,8 +72,7 @@ function deserializeLot(id: string, raw: Record<string, unknown>, runs: Run[]): 
   // manufacturerStats null = "lote sem bula"; UI desenha estado pendente
   // em vez de zeros silenciosos. Ausência total = mesmo tratamento.
   const mfr = d.manufacturerStats;
-  const manufacturerStats =
-    mfr && Object.keys(mfr).length > 0 ? (mfr as ManufacturerStats) : null;
+  const manufacturerStats = mfr && Object.keys(mfr).length > 0 ? (mfr as ManufacturerStats) : null;
   return {
     id,
     labId: d.labId,
@@ -565,8 +564,7 @@ export class FirebaseService implements DatabaseService {
                 pendingRunInitLots.delete(lotId);
                 emit();
               },
-              (err) =>
-                console.error(`[FirebaseService] /lots/${lotId}/runs listener error:`, err),
+              (err) => console.error(`[FirebaseService] /lots/${lotId}/runs listener error:`, err),
             );
             lotsRunUnsubbers.set(lotId, runUnsub);
           }
@@ -648,10 +646,7 @@ export class FirebaseService implements DatabaseService {
                 emit();
               },
               (err) =>
-                console.error(
-                  `[FirebaseService] /insumos/${insumoId}/runs listener error:`,
-                  err,
-                ),
+                console.error(`[FirebaseService] /insumos/${insumoId}/runs listener error:`, err),
             );
             insumosRunUnsubbers.set(insumoId, runUnsub);
           }
@@ -844,8 +839,7 @@ export class FirebaseService implements DatabaseService {
     // Derivado mínimo — sem importar adapter pra não criar dependência cíclica
     // entre service e features. Mantém as decisões de mapeamento alinhadas com
     // controlLotAdapter.ts — qualquer mudança em um precisa refletir no outro.
-    const nivel =
-      lot.level === 1 ? 'baixo' : lot.level === 3 ? 'alto' : 'normal';
+    const nivel = lot.level === 1 ? 'baixo' : lot.level === 3 ? 'alto' : 'normal';
     const writeData: Record<string, unknown> = {
       labId: lot.labId,
       tipo: 'controle',
@@ -881,10 +875,8 @@ export class FirebaseService implements DatabaseService {
     if (lot.manualHidden !== undefined) {
       writeData.manualHidden = lot.manualHidden;
     }
-    await setDoc(
-      doc(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.INSUMOS, lot.id),
-      writeData,
-      { merge: true },
-    );
+    await setDoc(doc(db, COLLECTIONS.LABS, this.labId, SUBCOLLECTIONS.INSUMOS, lot.id), writeData, {
+      merge: true,
+    });
   }
 }

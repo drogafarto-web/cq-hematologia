@@ -16,19 +16,20 @@ Four SLO alert policies protect HC Quality's production availability, performanc
 
 **Trigger:** Composite uptime drops below 99.65% (70% of monthly budget consumed)
 
-| Field | Value |
-|-------|-------|
-| **Policy Name** | `HC Quality Availability Budget 70%` |
-| **Severity** | HIGH (Yellow) |
-| **Metric Type** | `compute.googleapis.com/uptime` |
-| **Resource Filter** | `resource.type="uptime_url" AND resource.labels.display_name="hmatologia2.web.app"` |
-| **Threshold** | `< 99.65%` |
-| **Aggregation** | 30-day rolling window |
-| **Duration** | Sustained 5 minutes |
-| **Notification Channels** | Slack #observability |
-| **Documentation** | SLO Budget: 4.32 hours/month |
+| Field                     | Value                                                                               |
+| ------------------------- | ----------------------------------------------------------------------------------- |
+| **Policy Name**           | `HC Quality Availability Budget 70%`                                                |
+| **Severity**              | HIGH (Yellow)                                                                       |
+| **Metric Type**           | `compute.googleapis.com/uptime`                                                     |
+| **Resource Filter**       | `resource.type="uptime_url" AND resource.labels.display_name="hmatologia2.web.app"` |
+| **Threshold**             | `< 99.65%`                                                                          |
+| **Aggregation**           | 30-day rolling window                                                               |
+| **Duration**              | Sustained 5 minutes                                                                 |
+| **Notification Channels** | Slack #observability                                                                |
+| **Documentation**         | SLO Budget: 4.32 hours/month                                                        |
 
 **What triggers this:**
+
 - Firebase (Firestore + Auth) uptime <99.65%
 - Cloud Hosting (hmatologia2.web.app) uptime <99.65%
 - Cloud Functions uptime <99.65%
@@ -37,6 +38,7 @@ Four SLO alert policies protect HC Quality's production availability, performanc
 **Response SLA:** 1 hour for team review (non-critical, budget warning)
 
 **Example Scenario:**
+
 ```
 Day 1 (May 1):  99.98% ✓
 Day 2 (May 2):  99.97% ✓
@@ -51,28 +53,29 @@ Day 4 (May 4):  99.95% ✓
 
 **Trigger:** P99 latency sustained above 2.5s for 15+ minutes (approaching hard SLO limit)
 
-| Field | Value |
-|-------|-------|
-| **Policy Name** | `HC Quality Latency P99 >2.5s (Yellow)` |
-| **Severity** | MEDIUM (Yellow, warning) |
-| **Metric Type** | `cloudfunctions.googleapis.com/function/execution_times` |
-| **Aggregation** | 95th percentile (P99) per function |
-| **Threshold** | `> 2500` milliseconds |
-| **Duration** | Sustained 15 minutes |
-| **Notification Channels** | Slack #observability |
-| **Documentation** | P99 budget: 1.5% of requests can exceed 3s |
+| Field                     | Value                                                    |
+| ------------------------- | -------------------------------------------------------- |
+| **Policy Name**           | `HC Quality Latency P99 >2.5s (Yellow)`                  |
+| **Severity**              | MEDIUM (Yellow, warning)                                 |
+| **Metric Type**           | `cloudfunctions.googleapis.com/function/execution_times` |
+| **Aggregation**           | 95th percentile (P99) per function                       |
+| **Threshold**             | `> 2500` milliseconds                                    |
+| **Duration**              | Sustained 15 minutes                                     |
+| **Notification Channels** | Slack #observability                                     |
+| **Documentation**         | P99 budget: 1.5% of requests can exceed 3s               |
 
 **Additional Alert: RED threshold**
 
-| Field | Value |
-|-------|-------|
-| **Policy Name** | `HC Quality Latency P99 >3.0s (Red)` |
-| **Severity** | CRITICAL (Red, SLO violation) |
-| **Threshold** | `> 3000` milliseconds |
-| **Duration** | Sustained 5 minutes |
-| **Notification Channels** | PagerDuty + Slack #sev-1 |
+| Field                     | Value                                |
+| ------------------------- | ------------------------------------ |
+| **Policy Name**           | `HC Quality Latency P99 >3.0s (Red)` |
+| **Severity**              | CRITICAL (Red, SLO violation)        |
+| **Threshold**             | `> 3000` milliseconds                |
+| **Duration**              | Sustained 5 minutes                  |
+| **Notification Channels** | PagerDuty + Slack #sev-1             |
 
 **What triggers this:**
+
 - Single module's P99 >2.5s sustained (yellow)
 - Single module's P99 >3.0s sustained (red, SLO violation)
 - Examples:
@@ -81,15 +84,18 @@ Day 4 (May 4):  99.95% ✓
   - `coagulacao` module calculation >2.5s
 
 **Response SLA:**
+
 - YELLOW: 1 hour team review
 - RED: 15 min page oncall + incident ticket
 
 **Expected False Positives:**
+
 - Cold-start after deploy (first invocation, acceptable)
 - High load test (if announced)
 - Gemini Vision API rate-limiting (auto-backoff, expected)
 
 **Mitigation Steps (when alert fires):**
+
 1. [ ] Check Cloud Logs for function execution times
 2. [ ] Identify which module (shown in alert details)
 3. [ ] Grep logs for timeout/rate-limit errors
@@ -102,30 +108,33 @@ Day 4 (May 4):  99.95% ✓
 
 **Trigger:** Error rate >0.1% sustained 5+ minutes (exceeds monthly budget)
 
-| Field | Value |
-|-------|-------|
-| **Policy Name** | `HC Quality Error Rate >0.1%` |
-| **Severity** | CRITICAL (Red, SLO violation) |
-| **Metric Type** | `logging.googleapis.com/user_defined_metric/error_rate_percent` |
-| **Log Filter** | `severity=ERROR AND (resource.type="cloud_function" OR resource.type="cloud_run")` |
-| **Aggregation** | Sum of errors / total requests |
-| **Threshold** | `> 0.001` (0.1%) |
-| **Duration** | Sustained 5 minutes |
-| **Notification Channels** | PagerDuty + Slack #sev-1 |
-| **Documentation** | Budget: ~50,000 errors/month in 5M requests |
+| Field                     | Value                                                                              |
+| ------------------------- | ---------------------------------------------------------------------------------- |
+| **Policy Name**           | `HC Quality Error Rate >0.1%`                                                      |
+| **Severity**              | CRITICAL (Red, SLO violation)                                                      |
+| **Metric Type**           | `logging.googleapis.com/user_defined_metric/error_rate_percent`                    |
+| **Log Filter**            | `severity=ERROR AND (resource.type="cloud_function" OR resource.type="cloud_run")` |
+| **Aggregation**           | Sum of errors / total requests                                                     |
+| **Threshold**             | `> 0.001` (0.1%)                                                                   |
+| **Duration**              | Sustained 5 minutes                                                                |
+| **Notification Channels** | PagerDuty + Slack #sev-1                                                           |
+| **Documentation**         | Budget: ~50,000 errors/month in 5M requests                                        |
 
 **Error Categories Monitored:**
+
 - HTTP 5xx responses (500, 502, 503, 504)
 - Uncaught exceptions in Cloud Functions
 - Firebase `INTERNAL` / `UNAVAILABLE` / `DEADLINE_EXCEEDED`
 - Client-side JavaScript errors (optional RUM integration)
 
 **Excluded from SLO:**
+
 - `PERMISSION_DENIED` (expected during implantação phase)
 - Transient network errors if client retries successfully
 - Anticipated rate-limiting during load tests
 
 **What triggers this:**
+
 ```
 Scenario 1: Deploy breaks something
 - Deploy at 14:00 UTC
@@ -154,18 +163,19 @@ Scenario 3: Database overload
 
 **Trigger:** Audit event capture rate <100% (any missed event)
 
-| Field | Value |
-|-------|-------|
-| **Policy Name** | `HC Quality Audit Trail Capture <100%` |
-| **Severity** | CRITICAL (Red, RDC 978 violation) |
-| **Metric Type** | `logging.googleapis.com/user_defined_metric/audit_trail_capture_rate` |
-| **Calculation** | (events in audit-trail collection) / (expected writes) |
-| **Threshold** | `< 1.0` (must be 100%) |
-| **Duration** | 1 minute (zero tolerance) |
-| **Notification Channels** | PagerDuty + Slack #compliance + email to CTO |
-| **Documentation** | RDC 978 Art. 117—audit trail non-negotiable |
+| Field                     | Value                                                                 |
+| ------------------------- | --------------------------------------------------------------------- |
+| **Policy Name**           | `HC Quality Audit Trail Capture <100%`                                |
+| **Severity**              | CRITICAL (Red, RDC 978 violation)                                     |
+| **Metric Type**           | `logging.googleapis.com/user_defined_metric/audit_trail_capture_rate` |
+| **Calculation**           | (events in audit-trail collection) / (expected writes)                |
+| **Threshold**             | `< 1.0` (must be 100%)                                                |
+| **Duration**              | 1 minute (zero tolerance)                                             |
+| **Notification Channels** | PagerDuty + Slack #compliance + email to CTO                          |
+| **Documentation**         | RDC 978 Art. 117—audit trail non-negotiable                           |
 
 **Expected Writes (triggering audit trail):**
+
 - CIQ run creation + approval
 - DICQ document edit + version
 - POP certification
@@ -175,6 +185,7 @@ Scenario 3: Database overload
 - Non-Conformidade status change
 
 **What triggers this:**
+
 ```
 Scenario: Audit function crashes
 - Write to runs collection: expected
@@ -193,6 +204,7 @@ Remediation:
 ```
 
 **Backfill Procedure (if needed):**
+
 ```bash
 # 1. List missed audit events (from last X hours)
 firebase firestore:query --collection-path="runs" \
@@ -208,6 +220,7 @@ gcloud functions call backfillAuditTrail \
 ```
 
 **RDC 978 Compliance Impact:**
+
 - Each missed audit event = regulatory violation
 - Auditor notes in compliance report
 - Must be corrected + documented before accreditation review
@@ -272,27 +285,33 @@ firebase firestore:rules:deploy --rules=firestore.rules
 ### When to Tighten Thresholds
 
 **Availability:** Currently 99.5% (4.32h/month budget)
+
 - Phase 4+: Tighten to 99.9% if multi-region failover deployed
 
 **Performance:** Currently P99 <3s
+
 - If avg latency drops to <1s sustainably: consider 2.5s threshold
 - If Gemini Vision API becomes bottleneck: consider per-module budgets
 
 **Error Rate:** Currently <0.1%
+
 - Phase 4+: After implantação rules lock down, may tighten to <0.05%
 
 **Audit Trail:** Currently 100% (non-negotiable)
+
 - Stay at 100% indefinitely (RDC 978 requirement)
 
 ### When to Loosen Thresholds
 
 Do NOT loosen lightly. Any loosening must be:
+
 1. Approved by CTO
 2. Documented in ADR
 3. Auditor briefed
 4. Incident reviewed (understand root cause first)
 
 Example acceptable reason:
+
 - "Gemini Vision API public latency SLA is now 5s (was 3s); we've mitigated at library level, but raising our threshold to 4s temporarily while we optimize"
 
 ---
@@ -320,7 +339,7 @@ Example acceptable reason:
 **Mitigation:** Automatic exponential backoff in analyzer function  
 **Resolution:** Google resolved API outage; errors dropped to 0.0%  
 **SLO Impact:** 0.15% of monthly error budget consumed  
-**Action:** Reduce retry budget in analyzer; implement client-side caching for OCR results  
+**Action:** Reduce retry budget in analyzer; implement client-side caching for OCR results
 ```
 
 ---

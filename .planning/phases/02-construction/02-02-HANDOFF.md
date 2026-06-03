@@ -11,6 +11,7 @@
 ### ✅ Task 1: Treinamentos (100% complete)
 
 All infrastructure in place:
+
 - Client-side service (`treinamentoService.ts`) with 8 methods
 - React hook (`useTreinamentos`) with CRUD handlers
 - 4 UI components (list, create modal, attendance, certificate viewer)
@@ -18,10 +19,12 @@ All infrastructure in place:
 - 57 test cases (all passing)
 
 **Status:** Production-ready. Only needs:
+
 - Firestore rules deployment
 - Integration with auth claims
 
-**Files:** 
+**Files:**
+
 - `src/features/treinamentos/*`
 - `functions/src/modules/treinamentos/treinamentos.ts`
 - `test/unit/treinamentos/*.test.ts`
@@ -31,6 +34,7 @@ All infrastructure in place:
 ### ✅ Task 2: Biosseguranca (100% complete)
 
 All infrastructure in place:
+
 - Client-side service (`biossegurancaService.ts`) with 9 methods
 - 3 React hooks (areas, EPEs, inspections)
 - 4 Cloud Functions callables (create area, register EPE, register inspection, update stock)
@@ -38,10 +42,12 @@ All infrastructure in place:
 - Features: ISO 14644 support, NB1-NB4 levels, EPE expiration tracking, auto-NC on maintenance
 
 **Status:** Production-ready. Only needs:
+
 - Firestore rules deployment
 - Integration with auth claims
 
 **Files:**
+
 - `src/features/biosseguranca/*`
 - `functions/src/modules/biosseguranca/biosseguranca.ts`
 - `test/unit/biosseguranca/*.test.ts`
@@ -55,6 +61,7 @@ All infrastructure in place:
 **Created:** Types + client-side service skeleton
 
 **Still needed:**
+
 - [ ] Cloud Functions (4 callables):
   - `registrarGeracao` — waste generation recording
   - `registrarColeta` — collection with evidence tracking
@@ -64,7 +71,8 @@ All infrastructure in place:
 - [ ] Tests (>80% target)
 - [ ] Firestore rules
 
-**Files:** 
+**Files:**
+
 - `src/features/pgrss/types/PGRSS.ts` ✓
 - `src/features/pgrss/pgrssService.ts` ✓
 - `src/features/pgrss/index.ts` ✓
@@ -78,6 +86,7 @@ All infrastructure in place:
 **Created:** Types + client-side service skeleton
 
 **Still needed:**
+
 - [ ] Cloud Function (1 callable):
   - `aggregateKPIs` — scheduled daily aggregation (00:00 UTC)
 - [ ] Trend calculation engine
@@ -87,6 +96,7 @@ All infrastructure in place:
 - [ ] Firestore rules
 
 **Files:**
+
 - `src/features/kpis/types/KPI.ts` ✓
 - `src/features/kpis/kpisService.ts` ✓
 - `src/features/kpis/index.ts` ✓
@@ -100,6 +110,7 @@ All infrastructure in place:
 **Created:** Types + client-side service skeleton
 
 **Still needed:**
+
 - [ ] Cloud Functions (3 callables):
   - `criarSolicitacao` — initiate data subject request with 30-day SLA
   - `processarExclusao` — anonymization pipeline (hash PII, randomize names, archive, verify)
@@ -113,6 +124,7 @@ All infrastructure in place:
 - [ ] Firestore rules
 
 **Files:**
+
 - `src/features/lgpd/types/LGPD.ts` ✓
 - `src/features/lgpd/lgpdService.ts` ✓
 - `src/features/lgpd/index.ts` ✓
@@ -126,6 +138,7 @@ All infrastructure in place:
 ### ⏳ Task 6: Rules Deployment + Integration
 
 **What to do:**
+
 1. Update `firestore.rules` to gate all 5 modules:
    - `labs/{labId}/treinamentos` (admin/instructor write)
    - `labs/{labId}/biosseguranca-areas` (admin write)
@@ -150,6 +163,7 @@ All infrastructure in place:
 ### ⏳ Task 7: Production Deployment
 
 **What to do:**
+
 1. TypeCheck: `npx tsc --noEmit`
 2. Build: `npm run build`
 3. Deploy functions: (after Task 3-5 Cloud Functions complete)
@@ -264,4 +278,4 @@ e3b1863 feat(02-02): Treinamentos module complete with comprehensive tests
 
 **Updated:** 2026-05-04 13:15 UTC
 
-*Ready for Wave 2 backend development.*
+_Ready for Wave 2 backend development._

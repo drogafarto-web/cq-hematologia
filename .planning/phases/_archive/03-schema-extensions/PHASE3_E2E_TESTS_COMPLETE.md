@@ -9,19 +9,21 @@
 ## Deliverables
 
 ### 1. Schema Validation Tests (`phase3-schema.e2e.test.ts`)
+
 **Location:** `src/__tests__/e2e/phase3-schema.e2e.test.ts`  
 **Tests:** 5  
 **Task Coverage:** Task 03-01 (Schema)
 
-| Test | Validates | Status |
-|------|-----------|--------|
+| Test   | Validates                           | Status   |
+| ------ | ----------------------------------- | -------- |
 | Test 1 | Portal configuration write succeeds | ✅ Ready |
-| Test 2 | NOTIVISA outbox index query | ✅ Ready |
-| Test 3 | Critical escalation write + update | ✅ Ready |
-| Test 4 | IA strip image metadata write | ✅ Ready |
-| Test 5 | Laudo draft state transitions | ✅ Ready |
+| Test 2 | NOTIVISA outbox index query         | ✅ Ready |
+| Test 3 | Critical escalation write + update  | ✅ Ready |
+| Test 4 | IA strip image metadata write       | ✅ Ready |
+| Test 5 | Laudo draft state transitions       | ✅ Ready |
 
 **What it tests:**
+
 - Collection paths exist and are writable
 - Document structures match schema specification
 - Indexes work for efficient querying
@@ -31,19 +33,21 @@
 ---
 
 ### 2. Rules Validation Tests (`phase3-rules.e2e.test.ts`)
+
 **Location:** `src/__tests__/e2e/phase3-rules.e2e.test.ts`  
 **Tests:** 5  
 **Task Coverage:** Task 03-02 (Rules)
 
-| Test | Validates | Status |
-|------|-----------|--------|
-| Test 1 | Patient portal read rules | ✅ Ready |
+| Test   | Validates                          | Status   |
+| ------ | ---------------------------------- | -------- |
+| Test 1 | Patient portal read rules          | ✅ Ready |
 | Test 2 | NOTIVISA RT create + server update | ✅ Ready |
-| Test 3 | Critical escalation RBAC | ✅ Ready |
-| Test 4 | IA strip server-only access | ✅ Ready |
-| Test 5 | Laudo draft pessimistic lock | ✅ Ready |
+| Test 3 | Critical escalation RBAC           | ✅ Ready |
+| Test 4 | IA strip server-only access        | ✅ Ready |
+| Test 5 | Laudo draft pessimistic lock       | ✅ Ready |
 
 **What it tests:**
+
 - Patient can read published laudos (rules check: `paciente_id == uid && publicado == true`)
 - RT can create NOTIVISA events with valid payload validation
 - Server can update event status (polling, retry)
@@ -52,6 +56,7 @@
 - Draft lock conflict detection (RT1 blocks RT2)
 
 **Note:** Tests validate rule logic structures. Full rule enforcement requires:
+
 - Rules deployed to Firestore
 - Firebase Emulator running OR production in test mode
 - See `src/__tests__/e2e/README.md` for setup
@@ -59,31 +64,35 @@
 ---
 
 ### 3. Helpers Validation Tests (`phase3-helpers.e2e.test.ts`)
+
 **Location:** `src/__tests__/e2e/phase3-helpers.e2e.test.ts`  
 **Tests:** 18 (all passing ✅)  
 **Task Coverage:** Task 03-03 (Helpers)
 
-| Helper | Tests | Status |
-|--------|-------|--------|
-| `notivisaFormatter` | 3 | ✅ PASS |
-| `smsTemplate` | 4 | ✅ PASS |
-| `LaudoDraftManager` | 5 | ✅ PASS |
-| `iaStripValidator` | 6 | ✅ PASS |
+| Helper              | Tests | Status  |
+| ------------------- | ----- | ------- |
+| `notivisaFormatter` | 3     | ✅ PASS |
+| `smsTemplate`       | 4     | ✅ PASS |
+| `LaudoDraftManager` | 5     | ✅ PASS |
+| `iaStripValidator`  | 6     | ✅ PASS |
 
 **What it tests:**
 
 **notivisaFormatter (3 tests):**
+
 - Valid laudo → valid NOTIVISA Art. 6º §1 JSON
 - Missing CPF throws ValidationError
 - Sensitive fields masked correctly
 
 **smsTemplate (4 tests):**
+
 - Message ≤ 160 chars (SMS standard)
 - Long patient names truncated to 20 chars
 - Analito formatted UPPERCASE
 - Missing phone fallback graceful
 
 **LaudoDraftManager (5 tests):**
+
 - Acquire lock successfully
 - Conflict when another RT has lock
 - Release lock
@@ -91,6 +100,7 @@
 - Only lock owner can publish
 
 **iaStripValidator (6 tests):**
+
 - Valid image payload passes
 - Invalid URL rejected
 - Missing imageDim rejected
@@ -103,6 +113,7 @@
 ## Test Execution Results
 
 ### Helpers Tests (No Firebase dependency)
+
 ```
 ✓ 18 passed in 3.29s
 ```
@@ -110,11 +121,13 @@
 All 18 helper tests **PASS** — ready for immediate use.
 
 ### Schema Tests (Firebase dependency)
+
 - Require Firebase Emulator OR production Cloud Firestore
 - 5 tests ready to run once Phase 3 collections exist
 - Each test has `beforeEach/afterEach` cleanup
 
 ### Rules Tests (Firebase + Rules dependency)
+
 - Require Firebase Emulator OR production Cloud Firestore
 - Require Phase 3 rules deployed
 - 5 tests ready to run
@@ -151,11 +164,13 @@ Post-deploy checklist:
 ## How to Run
 
 ### All Phase 3 E2E Tests
+
 ```bash
 npm run test:unit -- src/__tests__/e2e/phase3
 ```
 
 ### Individual Test Files
+
 ```bash
 npm run test:unit -- src/__tests__/e2e/phase3-schema.e2e.test.ts
 npm run test:unit -- src/__tests__/e2e/phase3-rules.e2e.test.ts
@@ -163,16 +178,19 @@ npm run test:unit -- src/__tests__/e2e/phase3-helpers.e2e.test.ts
 ```
 
 ### Watch Mode
+
 ```bash
 npm run test:unit:watch -- src/__tests__/e2e
 ```
 
 ### With Coverage Report
+
 ```bash
 npm run test:coverage -- src/__tests__/e2e/phase3
 ```
 
 ### Against Firebase Emulator (local dev)
+
 ```bash
 firebase emulators:start &
 sleep 3
@@ -207,13 +225,16 @@ All dependencies already in `package.json`.
 ## Notes
 
 ### Mock Implementations
+
 `phase3-helpers.e2e.test.ts` includes full mock implementations of:
+
 - `notivisaFormatter`
 - `smsTemplate`
 - `LaudoDraftManager`
 - `iaStripValidator`
 
 Once Task 03-03 (real implementations) is complete, replace imports:
+
 ```typescript
 // Before (current):
 const notivisaFormatter = (laudo: Laudo, paciente: Paciente): NotivisaPayload => { ... };
@@ -223,10 +244,13 @@ import { notivisaFormatter } from 'src/shared/notivisa';
 ```
 
 ### Test Isolation
+
 All tests use `testLabId = 'TEST-LAB-*'` to avoid real data pollution. Cleanup runs in `afterEach()` hooks.
 
 ### Firebase Setup
+
 Tests can run in three environments:
+
 1. **Local Emulator** (fastest, recommended for dev)
 2. **Staging Cloud Firestore** (test-mode rules)
 3. **Production Cloud Firestore** (in test mode, read-only after)
@@ -244,7 +268,7 @@ For CI/CD, use Firebase Emulator (included in firebase-tools).
 ✅ **Documentation complete** — README + this file  
 ✅ **TypeScript clean** — No compilation errors  
 ✅ **Cleanup implemented** — No data leaks between tests  
-✅ **CI/CD ready** — Can add to pre-deploy gate  
+✅ **CI/CD ready** — Can add to pre-deploy gate
 
 ---
 
@@ -256,6 +280,7 @@ For CI/CD, use Firebase Emulator (included in firebase-tools).
    - Task 03-03: Implement helpers in src/shared/
 
 2. **Run Full E2E Suite:**
+
    ```bash
    npm run test:unit -- src/__tests__/e2e/phase3
    ```

@@ -97,14 +97,7 @@ export async function summarizeAuditFindings(params: AuditSummarizationParams): 
  * Provides basic structured summary of audit findings.
  */
 function fallbackSummary(params: AuditSummarizationParams): string {
-  const {
-    entryCount,
-    anomalyCount,
-    period,
-    topModules,
-    criticalCount,
-    highCount,
-  } = params;
+  const { entryCount, anomalyCount, period, topModules, criticalCount, highCount } = params;
 
   return (
     `Relatório de auditoria de qualidade gerado para o período ${period}. ` +

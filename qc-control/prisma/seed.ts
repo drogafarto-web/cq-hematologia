@@ -1,10 +1,17 @@
-import { PrismaClient, Role, AnalyzerStatus, LotStatus, QcRunStatus, CAStatus } from '@prisma/client'
-import * as bcrypt from 'bcryptjs'
+import {
+  PrismaClient,
+  Role,
+  AnalyzerStatus,
+  LotStatus,
+  QcRunStatus,
+  CAStatus,
+} from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
 
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
-  const passwordHash = await bcrypt.hash('lab123', 10)
+  const passwordHash = await bcrypt.hash('lab123', 10);
 
   const analyst = await prisma.user.upsert({
     where: { email: 'analyst@lab.test' },
@@ -15,7 +22,7 @@ async function main() {
       passwordHash,
       role: Role.ANALYST,
     },
-  })
+  });
 
   const supervisor = await prisma.user.upsert({
     where: { email: 'supervisor@lab.test' },
@@ -26,7 +33,7 @@ async function main() {
       passwordHash,
       role: Role.SUPERVISOR,
     },
-  })
+  });
 
   const coag01 = await prisma.analyzer.upsert({
     where: { analyzerId: 'COAG-01' },
@@ -40,7 +47,7 @@ async function main() {
       installDate: new Date('2022-11-20'),
       status: AnalyzerStatus.OPERATIONAL,
     },
-  })
+  });
 
   const coag02 = await prisma.analyzer.upsert({
     where: { analyzerId: 'COAG-02' },
@@ -54,7 +61,7 @@ async function main() {
       installDate: new Date('2023-03-15'),
       status: AnalyzerStatus.CAL_OVERDUE,
     },
-  })
+  });
 
   const lot1 = await prisma.lot.upsert({
     where: { lotNumber_level: { lotNumber: '7425', level: 1 } },
@@ -72,7 +79,7 @@ async function main() {
       status: LotStatus.ACTIVE,
       createdById: analyst.id,
     },
-  })
+  });
 
   const lot2 = await prisma.lot.upsert({
     where: { lotNumber_level: { lotNumber: '7425', level: 2 } },
@@ -90,7 +97,7 @@ async function main() {
       status: LotStatus.ACTIVE,
       createdById: analyst.id,
     },
-  })
+  });
 
   const lot3 = await prisma.lot.upsert({
     where: { lotNumber_level: { lotNumber: '8192', level: 1 } },
@@ -103,12 +110,12 @@ async function main() {
       analyzerId: coag02.id,
       targetMean: 32.45,
       sd: 1.15,
-      minAcceptance: 29.00,
-      maxAcceptance: 35.90,
+      minAcceptance: 29.0,
+      maxAcceptance: 35.9,
       status: LotStatus.ACTIVE,
       createdById: analyst.id,
     },
-  })
+  });
 
   const lot4 = await prisma.lot.upsert({
     where: { lotNumber_level: { lotNumber: '8192', level: 2 } },
@@ -119,14 +126,14 @@ async function main() {
       level: 2,
       reagentName: 'Actin FS',
       analyzerId: coag02.id,
-      targetMean: 56.80,
+      targetMean: 56.8,
       sd: 2.41,
       minAcceptance: 49.57,
       maxAcceptance: 64.03,
       status: LotStatus.ACTIVE,
       createdById: analyst.id,
     },
-  })
+  });
 
   const lot5 = await prisma.lot.upsert({
     where: { lotNumber_level: { lotNumber: '1029', level: 1 } },
@@ -137,41 +144,42 @@ async function main() {
       level: 1,
       reagentName: 'Multifibren U',
       analyzerId: coag01.id,
-      targetMean: 245.00,
-      sd: 12.50,
-      minAcceptance: 207.50,
-      maxAcceptance: 282.50,
+      targetMean: 245.0,
+      sd: 12.5,
+      minAcceptance: 207.5,
+      maxAcceptance: 282.5,
       status: LotStatus.ACTIVE,
       createdById: analyst.id,
     },
-  })
+  });
 
-  const lots = [lot1, lot2, lot3, lot4, lot5]
-  const now = new Date()
-  let qcRunCount = 0
+  const lots = [lot1, lot2, lot3, lot4, lot5];
+  const now = new Date();
+  let qcRunCount = 0;
 
   function generateValue(mean: number, sd: number, variation = 1): number {
-    const u1 = Math.random()
-    const u2 = Math.random()
-    const z = Math.sqrt(-2 * Math.log(u1 + 0.0001)) * Math.cos(2 * Math.PI * u2)
-    return Math.round((mean + z * sd * variation) * 100) / 100
+    const u1 = Math.random();
+    const u2 = Math.random();
+    const z = Math.sqrt(-2 * Math.log(u1 + 0.0001)) * Math.cos(2 * Math.PI * u2);
+    return Math.round((mean + z * sd * variation) * 100) / 100;
   }
 
   function randomDate(daysBack: number): Date {
-    const d = new Date(now.getTime() - Math.random() * daysBack * 24 * 60 * 60 * 1000)
-    return d
+    const d = new Date(now.getTime() - Math.random() * daysBack * 24 * 60 * 60 * 1000);
+    return d;
   }
 
   for (const lot of lots) {
-    const mean = Number(lot.targetMean)
-    const sd = Number(lot.sd)
-    const count = lot.lotNumber === '7425' && lot.level === 1 ? 8 : lot.lotNumber === '1029' ? 4 : 6
+    const mean = Number(lot.targetMean);
+    const sd = Number(lot.sd);
+    const count =
+      lot.lotNumber === '7425' && lot.level === 1 ? 8 : lot.lotNumber === '1029' ? 4 : 6;
 
     for (let i = 0; i < count; i++) {
-      if (qcRunCount >= 30) break
-      const value = generateValue(mean, sd)
-      const sdDistance = (value - mean) / sd
-      const runAt = randomDate(30)
+      if (qcRunCount >= 30) break;
+      const value = generateValue(mean, sd);
+      const sdDistance = (value - mean) / sd;
+      const runAt = randomDate(30);
 
       await prisma.qcRun.create({
         data: {
@@ -184,16 +192,16 @@ async function main() {
           runAt,
           operatorId: analyst.id,
         },
-      })
-      qcRunCount++
+      });
+      qcRunCount++;
     }
-    if (qcRunCount >= 30) break
+    if (qcRunCount >= 30) break;
   }
 
-  const twoSdValue1 = Number(lot1.targetMean) + Number(lot1.sd) * 2.3
-  const twoSdValue2 = Number(lot1.targetMean) + Number(lot1.sd) * 2.4
-  const sdDist1 = (twoSdValue1 - Number(lot1.targetMean)) / Number(lot1.sd)
-  const sdDist2 = (twoSdValue2 - Number(lot1.targetMean)) / Number(lot1.sd)
+  const twoSdValue1 = Number(lot1.targetMean) + Number(lot1.sd) * 2.3;
+  const twoSdValue2 = Number(lot1.targetMean) + Number(lot1.sd) * 2.4;
+  const sdDist1 = (twoSdValue1 - Number(lot1.targetMean)) / Number(lot1.sd);
+  const sdDist2 = (twoSdValue2 - Number(lot1.targetMean)) / Number(lot1.sd);
 
   const violLot1 = await prisma.qcRun.create({
     data: {
@@ -207,7 +215,7 @@ async function main() {
       runAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000),
       operatorId: analyst.id,
     },
-  })
+  });
 
   await prisma.qcRun.create({
     data: {
@@ -221,7 +229,7 @@ async function main() {
       runAt: new Date(now.getTime() - 1 * 24 * 60 * 60 * 1000),
       operatorId: analyst.id,
     },
-  })
+  });
 
   await prisma.correctiveAction.upsert({
     where: { caNumber: 'CA-2026-0005' },
@@ -238,18 +246,18 @@ async function main() {
       investigatorId: supervisor.id,
       targetCompletionAt: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000),
     },
-  })
+  });
 
-  console.log('Seed completed successfully')
-  console.log(`Created ${qcRunCount + 2} QC runs`)
-  console.log('Created corrective action CA-2026-0005')
+  console.log('Seed completed successfully');
+  console.log(`Created ${qcRunCount + 2} QC runs`);
+  console.log('Created corrective action CA-2026-0005');
 }
 
 main()
   .catch((e) => {
-    console.error(e)
-    process.exit(1)
+    console.error(e);
+    process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect()
-  })
+    await prisma.$disconnect();
+  });

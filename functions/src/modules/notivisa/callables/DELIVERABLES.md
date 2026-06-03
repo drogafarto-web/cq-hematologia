@@ -11,6 +11,7 @@
 ### 1. TypeScript Implementation Files (Complete)
 
 #### `authenticatePortal.ts` (282 lines)
+
 - **Purpose:** Portal authentication with MFA support
 - **Key Functions:**
   - `authenticatePortal()` — Main callable (1 hour session duration)
@@ -29,6 +30,7 @@
   - ✅ Audit logging
 
 #### `getPatientData.ts` (285 lines)
+
 - **Purpose:** Patient demographics + laudo retrieval with validation
 - **Key Functions:**
   - `getPatientData()` — Main callable
@@ -46,6 +48,7 @@
   - ✅ Audit logging with CPF masking
 
 #### `submitRequisition.ts` (354 lines)
+
 - **Purpose:** Atomic submission to NOTIVISA + queueing for polling
 - **Key Functions:**
   - `submitRequisition()` — Main callable
@@ -65,6 +68,7 @@
   - ✅ Protocol number generation
 
 #### `trackSampleStatus.ts` (328 lines)
+
 - **Purpose:** Portal polling for submission status updates
 - **Key Functions:**
   - `trackSampleStatus()` — Main callable
@@ -88,7 +92,9 @@
 ### 2. Unit Test Files (Complete Test Stubs)
 
 #### `authenticatePortal.test.ts` (336 lines)
+
 **11 test suites, 34+ test cases:**
+
 - ✅ Authentication Success Cases (2 tests)
   - Successful auth with/without MFA
 - ✅ Authentication Error Cases (5 tests)
@@ -99,7 +105,9 @@
   - labId validation, MFA code format validation
 
 #### `getPatientData.test.ts` (412 lines)
+
 **12 test suites, 40+ test cases:**
+
 - ✅ Successful Data Retrieval (2 tests)
   - Complete data, specific laudo by ID
 - ✅ Data Validation (3 tests)
@@ -112,7 +120,9 @@
   - labId validation, CPF format validation
 
 #### `submitRequisition.test.ts` (515 lines)
+
 **14 test suites, 50+ test cases:**
+
 - ✅ Successful Submission (2 tests)
   - Submit successfully, queue if portal unavailable
 - ✅ Validation (2 tests)
@@ -129,7 +139,9 @@
   - Portal communication errors, unauthenticated request
 
 #### `trackSampleStatus.test.ts` (528 lines)
+
 **14 test suites, 50+ test cases:**
+
 - ✅ Status Tracking (3 tests)
   - Retrieve status, detect terminal status, provide nextCheckAt
 - ✅ Polling Logic (2 tests)
@@ -152,7 +164,9 @@
 ### 3. Documentation Files
 
 #### `IMPLEMENTATION_GUIDE.md` (400+ lines)
+
 Complete reference manual covering:
+
 - **Callable Specifications** (6 sections)
   - Input/output schemas for all 4 callables
   - Key features and example usage
@@ -184,6 +198,7 @@ Complete reference manual covering:
   - ADR references
 
 #### `DELIVERABLES.md` (this file)
+
 Complete inventory of all deliverables
 
 ---
@@ -191,6 +206,7 @@ Complete inventory of all deliverables
 ## Technical Specifications
 
 ### Stack
+
 - **Language:** TypeScript 5.8
 - **Runtime:** Node.js 22 (southamerica-east1)
 - **Firebase:** Cloud Functions v2
@@ -199,28 +215,33 @@ Complete inventory of all deliverables
 - **Logging:** firebase-functions logger
 
 ### Compliance
+
 - **RDC 978 Art. 66** — Signed access to government portals
 - **DICQ 4.3 § Audit Trail** — Immutable action logs with operator IDs
 - **LGPD** — PII masking in logs (CPF first 3 digits)
 
 ### Error Handling
+
 - **8–9 error codes per callable** (enum-based)
 - **Zod validation** for all inputs
 - **Graceful degradation** (queue for retry on portal failure)
 - **Circuit breaker logic** (24-hour timeout for polling)
 
 ### Audit Trail
+
 - **Collection:** `notivisa-audit-logs/{labId}/<action-type>/{timestamp}`
 - **Immutable:** Created only, never updated
 - **Fields:** action, operatorId, ts, details
 - **Payload hash:** SHA-256 of NOTIVISA payload (first 16 chars)
 
 ### Rate Limiting
+
 - **submitRequisition:** 20 submissions per hour per lab
 - **Portal auth:** No limit (MFA prevents brute-force)
 - **Status polling:** No limit (read-only)
 
 ### Session Management
+
 - **Duration:** 1 hour (configurable)
 - **Storage:** `notivisa-sessions/{labId}/sessions/{sessionId}`
 - **Auth token:** Base64-encoded (production: JWT with RSA signature)
@@ -230,6 +251,7 @@ Complete inventory of all deliverables
 ## Feature Coverage
 
 ### authenticatePortal
+
 - [x] Multi-factor authentication support
 - [x] Session creation with expiration
 - [x] Lab portal configuration validation
@@ -239,6 +261,7 @@ Complete inventory of all deliverables
 - [x] Error handling (9 codes)
 
 ### getPatientData
+
 - [x] Patient lookup by CPF
 - [x] Laudo lookup (latest or by ID)
 - [x] Comprehensive field validation
@@ -248,6 +271,7 @@ Complete inventory of all deliverables
 - [x] Error handling (5 codes)
 
 ### submitRequisition
+
 - [x] Duplicate submission detection
 - [x] Rate limiting (20/hour)
 - [x] Session validation
@@ -259,6 +283,7 @@ Complete inventory of all deliverables
 - [x] Error handling (7 codes)
 
 ### trackSampleStatus
+
 - [x] Portal polling for status updates
 - [x] Terminal state detection
 - [x] 24-hour timeout enforcement
@@ -273,6 +298,7 @@ Complete inventory of all deliverables
 ## Testing Coverage
 
 ### Test Organization
+
 ```
 authenticatePortal.test.ts (336 LOC)
 ├── Authentication Success Cases (2 tests)
@@ -307,6 +333,7 @@ trackSampleStatus.test.ts (528 LOC)
 ```
 
 ### Test Running
+
 ```bash
 # Run NOTIVISA tests
 cd functions
@@ -345,6 +372,7 @@ C:\hc quality\functions\src\modules\notivisa\callables\
 ## Integration Checklist
 
 ### Before Production Deployment
+
 - [ ] All tests passing locally
 - [ ] TypeScript builds clean (npm run build)
 - [ ] Firestore rules deployed (includes NOTIVISA rules)
@@ -360,6 +388,7 @@ C:\hc quality\functions\src\modules\notivisa\callables\
 - [ ] Deployment documented in CHANGELOG
 
 ### Known Limitations (Mock Implementation)
+
 - Portal API calls use mock responses (5% failure rate)
 - MFA validation checks format only (not TOTP/SMS)
 - Portal credential storage (use Secret Manager in production)
@@ -369,32 +398,35 @@ C:\hc quality\functions\src\modules\notivisa\callables\
 
 ## Compliance Mapping
 
-| Requirement | Callable | Evidence |
-|---|---|---|
-| RDC 978 Art. 66 (Signed Access) | All | Audit logs, assinatura validation |
-| DICQ 4.3 (Audit Trail) | All | notivisa-audit-logs collection, immutable |
-| LGPD (PII Protection) | getPatientData | CPF masked in logs (first 3 digits) |
-| Idempotency | submitRequisition | Duplicate detection, idempotencyToken |
-| Rate Limiting | submitRequisition | 20/hour per lab enforcement |
-| Session Management | authenticatePortal, submitRequisition | 1-hour expiration, active flag |
+| Requirement                     | Callable                              | Evidence                                  |
+| ------------------------------- | ------------------------------------- | ----------------------------------------- |
+| RDC 978 Art. 66 (Signed Access) | All                                   | Audit logs, assinatura validation         |
+| DICQ 4.3 (Audit Trail)          | All                                   | notivisa-audit-logs collection, immutable |
+| LGPD (PII Protection)           | getPatientData                        | CPF masked in logs (first 3 digits)       |
+| Idempotency                     | submitRequisition                     | Duplicate detection, idempotencyToken     |
+| Rate Limiting                   | submitRequisition                     | 20/hour per lab enforcement               |
+| Session Management              | authenticatePortal, submitRequisition | 1-hour expiration, active flag            |
 
 ---
 
 ## Next Steps
 
 ### Immediate (Week of 2026-05-07)
+
 1. Deploy Firestore rules + indexes
 2. Deploy Cloud Functions (phase 4 beta)
 3. Provision pilot lab with notivisa claim
 4. Execute end-to-end smoke tests
 
 ### Short-term (2026-05-13)
+
 1. Integrate with actual NOTIVISA sandbox API
 2. Replace mock portal implementations
 3. Test MFA integration (real TOTP/SMS)
 4. Load test (100+ concurrent submissions)
 
 ### Production (2026-05-27)
+
 1. Full government API integration
 2. Production credentials provisioning
 3. 24-hour monitoring + incident response
@@ -406,13 +438,15 @@ C:\hc quality\functions\src\modules\notivisa\callables\
 
 **Deliverable:** Complete TypeScript implementation of 4 NOTIVISA Cloud Function callables with comprehensive unit test stubs and detailed documentation.
 
-**Scope:** 
+**Scope:**
+
 - 4 production-ready callables
 - 4 complete test suites (stub-based, ready to fill)
 - API documentation + integration guide
 - Compliance mapping (RDC 978 + DICQ 4.3)
 
 **Quality:**
+
 - Zod validation on all inputs
 - 9 error codes per callable (average)
 - Audit trail on every operation

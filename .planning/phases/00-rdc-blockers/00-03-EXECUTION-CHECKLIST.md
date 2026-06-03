@@ -60,7 +60,7 @@ status: execution-ready
      - `callUploadContratoAnexo(id, fileMeta)`
 
 5. **Implement storage service** (30 min):
-   - `uploadContratoPdf(labId, contratoId, file)`: 
+   - `uploadContratoPdf(labId, contratoId, file)`:
      - Validate `file.type === 'application/pdf'`
      - Check `file.size < 10 * 1024 * 1024` (10MB)
      - Return `{url, size}` if success; throw user-readable error if fail
@@ -93,7 +93,7 @@ status: execution-ready
    - Copy `functions/src/modules/turnos/validators.ts` → `functions/src/modules/labApoio/validators.ts`
    - Adapt function names (`turnos*` → `labApoio*`)
    - Define Zod schemas:
-     - `CreateContratoInputSchema`: 
+     - `CreateContratoInputSchema`:
        - `{nome, razaoSocial, cnpj, endereço, avsHabilitacao, vigenciaInicio, vigenciaFim, exames[], certificacoes[], criticidade, observacoes?, anexoContratoUrl?}`
        - `cnpj`: string, non-empty, length 14, must validate checksum (see T2.2)
        - `avs`: non-empty, min 6 chars
@@ -115,7 +115,7 @@ status: execution-ready
      1. Strip non-digits from input
      2. Check length === 14
      3. Reject all-same-digit (11111111111111)
-     4. First checksum: multiply digits 0-11 by weights 5,4,3,2,9,8,7,6,5,4,3,2 
+     4. First checksum: multiply digits 0-11 by weights 5,4,3,2,9,8,7,6,5,4,3,2
         → sum → mod 11 → if <2 then check=0 else check=11-sum%11
         → digit[12] must equal check
      5. Second checksum: multiply digits 0-12 by weights 6,5,4,3,2,9,8,7,6,5,4,3,2
@@ -230,7 +230,10 @@ status: execution-ready
      import { labApoio_createContrato } from './modules/labApoio/createContrato';
      import { onContratoEventCreated } from './modules/labApoio/onContratoEventCreated';
      export const create_contrato = onCall(labApoio_createContrato);
-     export const on_contrato_event_created = onDocumentCreated('labs/{labId}/lab-apoio/{contratoId}/events/{eventId}', onContratoEventCreated);
+     export const on_contrato_event_created = onDocumentCreated(
+       'labs/{labId}/lab-apoio/{contratoId}/events/{eventId}',
+       onContratoEventCreated,
+     );
      ```
 
 4. **Smoke test script** (30 min):
@@ -559,7 +562,7 @@ status: execution-ready
      match /labs/{labId}/lab-apoio/{contratoId} {
        allow read: if isActiveMemberOfLab(labId);
        allow create, update, delete: if false; // all writes via callable
-       
+
        match /events/{eventId} {
          allow read: if isActiveMemberOfLab(labId);
          allow create, update, delete: if false;
@@ -573,8 +576,8 @@ status: execution-ready
      ```
      match /labs/{labId}/lab-apoio/{contratoId}/{file} {
        allow read: if isActiveMemberOfLab(labId);
-       allow write: if isAdminOrOwner(labId) 
-                     && request.resource.size < 10 * 1024 * 1024 
+       allow write: if isAdminOrOwner(labId)
+                     && request.resource.size < 10 * 1024 * 1024
                      && request.resource.contentType == 'application/pdf';
      }
      ```
@@ -621,13 +624,15 @@ status: execution-ready
 1. **Register lazy route** (15 min):
    - File: `AppRouter.tsx` (or equivalent)
    - Add:
+
      ```typescript
      const LabApoioView = React.lazy(() => import('../features/lab-apoio/components/LabApoioView'));
-     
+
      // In routes config:
      case 'lab-apoio':
        return <Suspense fallback={<Skeleton />}><LabApoioView /></Suspense>;
      ```
+
    - Verify import path resolves.
 
 2. **Extend `View` union** (5 min):
@@ -729,6 +734,7 @@ status: execution-ready
    - Expected: users in `labs/{labId}/members/{uid}` get claim `modules['lab-apoio'] = fullAccess()` added
 
 2. **Type check + lint** (10 min):
+
    ```bash
    npm run build  # full build
    npx tsc --noEmit
@@ -736,25 +742,31 @@ status: execution-ready
    ```
 
 3. **Deploy Rules + Indexes** (15 min):
+
    ```bash
    firebase deploy --only firestore:rules,firestore:indexes --project hmatologia2
    ```
+
    - Monitor: `firebase deploy` logs should show "Deployment complete"
    - Verify via Console: `Firestore > Indexes` shows new composite indexes in "Enabled" state (may take 1–2 min)
 
 4. **Deploy Functions** (20 min):
+
    ```bash
    firebase deploy --only functions --project hmatologia2
    ```
+
    - Monitor: `Cloud Functions > Functions` in Console
    - Expect: 5 callables (`labApoio_createContrato`, ..., `labApoio_uploadContratoAnexo`) + 1 trigger + 1 cron visible
    - Region: `southamerica-east1`
    - Check logs: `Cloud Functions > Logs` for any ERROR/CRITICAL
 
 5. **Deploy Hosting** (15 min):
+
    ```bash
    firebase deploy --only hosting --project hmatologia2
    ```
+
    - URL: `hmatologia2.web.app`
    - Verify hard reload in incognito (PWA cache invalidation)
 

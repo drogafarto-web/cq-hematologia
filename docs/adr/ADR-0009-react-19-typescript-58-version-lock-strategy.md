@@ -74,6 +74,7 @@ Falta de estratégia explícita trava progressão em v1.4 ou cria debt incontrol
 Atualizar React, TS, Node, Vite para versões latest menores a cada sprint.
 
 **Rejeitada porque:**
+
 - Time tem 4-5 engenheiros; contexto-switching em breaking changes rouba 1-2 semanas.
 - DICQ compliance é deadline crítica (auditoria 2026-10-15). Não há margem pra surpresas.
 - "Latest" não é sinônimo de "best" — v1.3 stack é world-class; mudanças por mudança é antico.
@@ -83,6 +84,7 @@ Atualizar React, TS, Node, Vite para versões latest menores a cada sprint.
 Manter dois builds em paralelo (v1.4 com versions pinned, v1.4-alpha com latest).
 
 **Rejeitada porque:**
+
 - Split de CI/CD overhead para time pequeno.
 - Alpha branch raramente encontra bugs cedo o suficiente pra bloquear release.
 - Duplica testes + deploy ceremony.

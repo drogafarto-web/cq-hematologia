@@ -23,7 +23,11 @@ export function subscribeGeracoes(
   callback: (registros: RegistroGeracao[]) => void,
   onError?: (err: Error) => void,
 ): Unsubscribe {
-  const q = query(geracaoCollection(labId), where('deletadoEm', '==', null), orderBy('data', 'desc'));
+  const q = query(
+    geracaoCollection(labId),
+    where('deletadoEm', '==', null),
+    orderBy('data', 'desc'),
+  );
 
   return onSnapshot(
     q,
@@ -101,7 +105,11 @@ export async function createColeta(
   return newDocRef.id;
 }
 
-export async function updateGeracao(labId: string, id: string, updates: Partial<RegistroGeracao>): Promise<void> {
+export async function updateGeracao(
+  labId: string,
+  id: string,
+  updates: Partial<RegistroGeracao>,
+): Promise<void> {
   const docRef = doc(geracaoCollection(labId), id);
   const { id: _, labId: __, criadoEm, criadoPor, deletadoEm, ...safeUpdates } = updates;
   await updateDoc(docRef, safeUpdates);

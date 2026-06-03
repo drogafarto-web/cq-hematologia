@@ -1,23 +1,23 @@
-'use client'
+'use client';
 
-import { forwardRef } from 'react'
-import { cn } from '@/lib/utils'
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
 interface Option {
-  value: string
-  label: string
+  value: string;
+  label: string;
 }
 
 interface SelectProps extends React.SelectHTMLAttributes<HTMLSelectElement> {
-  label: string
-  error?: string
-  options: Option[]
-  placeholder?: string
+  label: string;
+  error?: string;
+  options: Option[];
+  placeholder?: string;
 }
 
 export const Select = forwardRef<HTMLSelectElement, SelectProps>(
   ({ label, error, options, placeholder, className, id, ...props }, ref) => {
-    const selectId = id || label.toLowerCase().replace(/\s+/g, '-')
+    const selectId = id || label.toLowerCase().replace(/\s+/g, '-');
 
     return (
       <div className={cn('flex flex-col gap-1', className)}>
@@ -30,7 +30,9 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         <div
           className={cn(
             'h-12 px-4 border rounded flex items-center transition-colors relative',
-            error ? 'border-error' : 'border-border-variant focus-within:border-primary focus-within:border-2',
+            error
+              ? 'border-error'
+              : 'border-border-variant focus-within:border-primary focus-within:border-2',
           )}
         >
           <select
@@ -63,8 +65,8 @@ export const Select = forwardRef<HTMLSelectElement, SelectProps>(
         </div>
         {error && <span className="text-xs text-error mt-1">{error}</span>}
       </div>
-    )
+    );
   },
-)
+);
 
-Select.displayName = 'Select'
+Select.displayName = 'Select';

@@ -15,13 +15,13 @@ All NOTIVISA credentials are stored in **Firebase Secret Manager** and
 accessed only from Cloud Functions via `defineSecret()`. They are
 **never** committed to source control.
 
-| Secret | Purpose |
-|--------|---------|
-| `NOTIVISA_PORTAL_EMAIL` | Gestor email for portal automation |
-| `NOTIVISA_PORTAL_PASSWORD` | Gestor password for portal automation |
-| `NOTIVISA_CLIENT_ID` | OAuth client ID for the SOAP/REST API |
-| `NOTIVISA_CLIENT_SECRET` | OAuth client secret |
-| `NOTIVISA_WEBHOOK_SECRET` | HMAC signing secret for inbound webhooks |
+| Secret                     | Purpose                                  |
+| -------------------------- | ---------------------------------------- |
+| `NOTIVISA_PORTAL_EMAIL`    | Gestor email for portal automation       |
+| `NOTIVISA_PORTAL_PASSWORD` | Gestor password for portal automation    |
+| `NOTIVISA_CLIENT_ID`       | OAuth client ID for the SOAP/REST API    |
+| `NOTIVISA_CLIENT_SECRET`   | OAuth client secret                      |
+| `NOTIVISA_WEBHOOK_SECRET`  | HMAC signing secret for inbound webhooks |
 
 To provision:
 
@@ -55,7 +55,7 @@ before the next NOTIVISA session:
 
 - Portal account `gqlabclin@gmail.com` — rotate password directly in
   the NOTIVISA portal, then `firebase functions:secrets:set
-  NOTIVISA_PORTAL_PASSWORD`.
+NOTIVISA_PORTAL_PASSWORD`.
 - Gestor account `drogafarto@gmail.com` — same procedure.
 - API Client Secret — request a new pair from ANVISA via
   `cadastro.sistemas@anvisa.gov.br`, then update

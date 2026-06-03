@@ -51,6 +51,7 @@ gsutil retention get gs://hc-quality-archives/
 - [ ] No failed Cloud Function invocations
 
 **If GCS locks missing:** Reapply immediately:
+
 ```bash
 gsutil retention set 2557d gs://hc-quality-backups/
 gsutil retention set 2557d gs://hc-quality-archives/
@@ -197,6 +198,7 @@ curl https://hmatologia2.web.app/api/health
 **Team:** CTO, Tech Lead, DevOps
 
 ## Timeline
+
 - Detection: 10:00 UTC
 - Isolation: 10:10 UTC (RTO: 10 min)
 - Staging restore: 10:15 - 11:45 UTC (90 min)
@@ -206,16 +208,19 @@ curl https://hmatologia2.web.app/api/health
 - **Total RTO: 3h 55m** (target: 2-4h) ✓
 
 ## Issues Encountered
+
 - [ ] None
 - [ ] [Issue 1]: [Resolution]
 
 ## Improvements Identified
+
 - [ ] [Improvement 1]
 - [ ] [Improvement 2]
 
 ## Sign-off
-- CTO: _____ 
-- Tech Lead: _____
+
+- CTO: **\_**
+- Tech Lead: **\_**
 ```
 
 ---
@@ -289,11 +294,11 @@ gcloud firestore backups list --project=hmatologia2 --limit=20 \
 
 **Audit sign-off:**
 
-| Role | Name | Date | Compliance Status |
-|---|---|---|---|
-| CTO | — | 2026-05-07 | ☐ Approved |
-| Tech Lead | — | 2026-05-07 | ☐ Approved |
-| Security Officer | — | 2026-05-07 | ☐ Approved |
+| Role             | Name | Date       | Compliance Status |
+| ---------------- | ---- | ---------- | ----------------- |
+| CTO              | —    | 2026-05-07 | ☐ Approved        |
+| Tech Lead        | —    | 2026-05-07 | ☐ Approved        |
+| Security Officer | —    | 2026-05-07 | ☐ Approved        |
 
 ---
 
@@ -314,18 +319,21 @@ gcloud firestore backups list --project=hmatologia2 --limit=20 \
 ### Diagnosis (15-45 min)
 
 - [ ] Review Cloud Logs:
+
   ```bash
   gcloud logging read "resource.type=cloud_firestore_database" \
     --limit=100 --format=json --project=hmatologia2
   ```
 
 - [ ] Check backup bucket integrity:
+
   ```bash
   gsutil ls gs://hc-quality-backups/
   gsutil du gs://hc-quality-backups/
   ```
 
 - [ ] Verify GCS retention locks:
+
   ```bash
   gsutil retention get gs://hc-quality-backups/
   ```
@@ -337,13 +345,13 @@ gcloud firestore backups list --project=hmatologia2 --limit=20 \
 
 ### Escalation
 
-| Issue | Action | Owner |
-|---|---|---|
-| Backup function error | Check CF logs + redeploy | DevOps |
-| GCS bucket error | Verify bucket existence + permissions | DevOps |
-| Restore timeout | Check Firestore size + increase timeout | Tech Lead |
-| Chain-hash anomaly | Trigger corruption recovery | CTO |
-| Ransomware suspected | Isolate + forensics (Runbook 4) | CTO + Security |
+| Issue                 | Action                                  | Owner          |
+| --------------------- | --------------------------------------- | -------------- |
+| Backup function error | Check CF logs + redeploy                | DevOps         |
+| GCS bucket error      | Verify bucket existence + permissions   | DevOps         |
+| Restore timeout       | Check Firestore size + increase timeout | Tech Lead      |
+| Chain-hash anomaly    | Trigger corruption recovery             | CTO            |
+| Ransomware suspected  | Isolate + forensics (Runbook 4)         | CTO + Security |
 
 ---
 
@@ -377,14 +385,14 @@ gcloud firestore backups list --project=hmatologia2 --limit=20 \
 
 ## Escalation Matrix
 
-| Issue | Severity | Owner | Response Time |
-|---|---|---|---|
-| Backup failed | High | DevOps → Tech Lead | 1 hour |
-| Restore timeout | High | Tech Lead | 2 hours |
-| Corruption detected | Critical | CTO → Security | 30 min |
-| Chain-hash anomaly | Critical | CTO → Forensics | 15 min |
-| GCS bucket access denied | High | DevOps → GCP Support | 1 hour |
-| Ransomware suspected | Critical | CTO → Incident Commander | 5 min |
+| Issue                    | Severity | Owner                    | Response Time |
+| ------------------------ | -------- | ------------------------ | ------------- |
+| Backup failed            | High     | DevOps → Tech Lead       | 1 hour        |
+| Restore timeout          | High     | Tech Lead                | 2 hours       |
+| Corruption detected      | Critical | CTO → Security           | 30 min        |
+| Chain-hash anomaly       | Critical | CTO → Forensics          | 15 min        |
+| GCS bucket access denied | High     | DevOps → GCP Support     | 1 hour        |
+| Ransomware suspected     | Critical | CTO → Incident Commander | 5 min         |
 
 **On-call rotation:** CTO primary, Tech Lead secondary, DevOps tertiary.
 
@@ -392,13 +400,13 @@ gcloud firestore backups list --project=hmatologia2 --limit=20 \
 
 ## Key Contact Information
 
-| Role | Name | Phone | Email | Slack |
-|---|---|---|---|---|
-| **CTO** | — | — | — | @cto |
-| **Tech Lead** | — | — | — | @tech-lead |
-| **DevOps** | — | — | — | @devops |
-| **Security Officer** | — | — | — | @security |
-| **GCP Support** | — | [SLA link] | — | — |
+| Role                 | Name | Phone      | Email | Slack      |
+| -------------------- | ---- | ---------- | ----- | ---------- |
+| **CTO**              | —    | —          | —     | @cto       |
+| **Tech Lead**        | —    | —          | —     | @tech-lead |
+| **DevOps**           | —    | —          | —     | @devops    |
+| **Security Officer** | —    | —          | —     | @security  |
+| **GCP Support**      | —    | [SLA link] | —     | —          |
 
 ---
 

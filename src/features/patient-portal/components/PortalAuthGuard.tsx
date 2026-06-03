@@ -24,11 +24,7 @@ export const PortalAuthGuard: React.FC<PortalAuthGuardProps> = ({ children }) =>
   if (!session || isExpired) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-[#141417] via-[#1a1a1f] to-[#0c0c0f] flex items-center justify-center">
-        <svg
-          className="w-8 h-8 animate-spin text-emerald-500"
-          fill="none"
-          viewBox="0 0 24 24"
-        >
+        <svg className="w-8 h-8 animate-spin text-emerald-500" fill="none" viewBox="0 0 24 24">
           <circle
             cx="12"
             cy="12"

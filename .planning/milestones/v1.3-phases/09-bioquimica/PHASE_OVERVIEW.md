@@ -1,6 +1,6 @@
 ---
-phase: "09-bioquimica"
-title: "Phase 9 — Bioquímica (CIQ Quantitativo + Levey-Jennings)"
+phase: '09-bioquimica'
+title: 'Phase 9 — Bioquímica (CIQ Quantitativo + Levey-Jennings)'
 milestone: v1.3
 status: complete
 total_plans: 5
@@ -42,14 +42,14 @@ Production-ready QC module for biochemistry analytes with multi-rule Westgard va
 
 ### Decisões locked (do discuss-phase 2026-05-06)
 
-| Decisão | Valor | Rationale |
-|---------|-------|-----------|
-| Westgard rules | Subset CLSI (1-2s warn, 1-3s, 2-2s, R-4s reject) | Padrão CLSI EP15 — menos false-rejects que set completo de hema. 4-1s/10x ativáveis por analito em v1.4 |
-| Escopo analitos | 16 analitos seed + UI admin para cadastro/edição | Cobre painéis básico+hepático+lipídico+eletrólitos. Lab pode estender sem release |
-| Multi-instrumento | Dia 1 (via `/equipamentos`) | Riopomba opera mais de um analisador. Bula vinculável a vários equipos |
-| Stats source | Bula PDF (Gemini Vision parse) + Interna (após 20 runs) — toggle | Reuso direto do BulaProcessor de hematologia |
-| Rastreabilidade Worklab | Append-only `/traceability-events` | Sem integração externa LIS (vira spike v1.4) |
-| Deferred | CEQ comparison, Comparabilidade entre equipos (DICQ 5.6.4) | CEQ via Importador PNCQ no v1.4. Comparabilidade na v1.4 com 2+ equipos em prod |
+| Decisão                 | Valor                                                            | Rationale                                                                                               |
+| ----------------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Westgard rules          | Subset CLSI (1-2s warn, 1-3s, 2-2s, R-4s reject)                 | Padrão CLSI EP15 — menos false-rejects que set completo de hema. 4-1s/10x ativáveis por analito em v1.4 |
+| Escopo analitos         | 16 analitos seed + UI admin para cadastro/edição                 | Cobre painéis básico+hepático+lipídico+eletrólitos. Lab pode estender sem release                       |
+| Multi-instrumento       | Dia 1 (via `/equipamentos`)                                      | Riopomba opera mais de um analisador. Bula vinculável a vários equipos                                  |
+| Stats source            | Bula PDF (Gemini Vision parse) + Interna (após 20 runs) — toggle | Reuso direto do BulaProcessor de hematologia                                                            |
+| Rastreabilidade Worklab | Append-only `/traceability-events`                               | Sem integração externa LIS (vira spike v1.4)                                                            |
+| Deferred                | CEQ comparison, Comparabilidade entre equipos (DICQ 5.6.4)       | CEQ via Importador PNCQ no v1.4. Comparabilidade na v1.4 com 2+ equipos em prod                         |
 
 ---
 
@@ -60,11 +60,13 @@ Phase 9 has **5 plans** organized em 2 ondas:
 ### Wave 1 — Foundation (Plans 09-01, 09-02 podem rodar parcialmente em paralelo)
 
 #### Plan 09-01: Schema + Service Layer + Admin Analitos
+
 **Duration:** 1.5 weeks (2026-05-06 → 2026-05-16)
 **Type:** Build (infrastructure)
 **Goal:** Tipos, schema Firestore, service multi-tenant, UI admin para cadastro de analitos.
 
 **Deliverables:**
+
 - `src/features/bioquimica/types/index.ts` — `Analito`, `ControlMaterial`, `Run`, `RunBioquimica`, `Westgard*`
 - `src/features/bioquimica/services/bioquimicaService.ts` — replicar pattern `firebaseService.subscribeToState`
 - `src/features/bioquimica/components/AnalitoAdmin.tsx` — CRUD UI (16 analitos seed + customizáveis)
@@ -73,11 +75,13 @@ Phase 9 has **5 plans** organized em 2 ondas:
 - Seed via callable: 16 analitos default — Glicose, Ureia, Creatinina, TGO, TGP, FA, GGT, BT-D, BT-I, CT, HDL, LDL, TG, Na, K, Cl, Ca
 
 #### Plan 09-02: Material Control + Bula PDF + Multi-Instrumento + Entry Form
+
 **Duration:** 2 weeks (2026-05-13 → 2026-05-27)
 **Type:** Build (core domain)
 **Goal:** Modal de cadastro de lote (3 caminhos), parser de bula via Gemini Vision, vínculo de equipamentos múltiplos, formulário de entrada de runs.
 
 **Deliverables:**
+
 - `BulaProcessor.tsx` adaptado (parse de bula bioquímica via Gemini Vision)
 - `AddLotModal.tsx` — Bula PDF / Cadastro sem bula ≤7d / Avulso
 - `EquipamentoMultiselect.tsx` — bind de bula a múltiplos equipamentos via `/equipamentos`
@@ -88,11 +92,13 @@ Phase 9 has **5 plans** organized em 2 ondas:
 ### Wave 2 — Acceptance + Visualization
 
 #### Plan 09-03: Westgard CLSI + Levey-Jennings + Acceptance Logic
+
 **Duration:** 1.5 weeks (2026-05-27 → 2026-06-06)
 **Type:** Build (analytic engine)
 **Goal:** Engine de validação Westgard subset CLSI + chart Levey-Jennings + UI de revisão.
 
 **Deliverables:**
+
 - `westgardRulesCLSI.ts` — 4 regras: 1-2s (warn), 1-3s (reject), 2-2s (reject), R-4s (reject)
 - `useChartData.ts` — Levey-Jennings (mean/sd Bessel, ±1s/±2s/±3s); toggle bula vs interna
 - `LeveyJenningsChart.tsx` — recharts-based, multi-equipamento overlay
@@ -102,11 +108,13 @@ Phase 9 has **5 plans** organized em 2 ondas:
 ### Wave 3 — Closure + Deploy
 
 #### Plan 09-04: Cloud Function + Rastreabilidade Worklab + E2E Tests
+
 **Duration:** 2 weeks (2026-06-06 → 2026-06-20)
 **Type:** Build (server-side + tests)
 **Goal:** Functions callables (parseBulaBioquimica, recordRun, generateMonthlyReport), append-only `/traceability-events`, suite E2E.
 
 **Deliverables:**
+
 - `functions/src/bioquimica/parseBulaBioquimica.ts` — Gemini Vision OCR + Zod validation
 - `functions/src/bioquimica/recordRun.ts` — write run + LogicalSignature + chainHash
 - `functions/src/bioquimica/recordTraceabilityEvent.ts` — append-only com `examCodeAtChange`
@@ -115,16 +123,18 @@ Phase 9 has **5 plans** organized em 2 ondas:
 - `firestore.rules` — eventos imutáveis (allow update/delete: false)
 
 #### Plan 09-05: Polish + Regression + Deploy
+
 **Duration:** 1 week (2026-06-20 → 2026-06-27)
 **Type:** Build (quality + deploy)
 **Goal:** UI polish (a11y AA, dark-first refinement), regression suite verde, deploy progressivo.
 
 **Deliverables:**
+
 - a11y audit AA mínimo (`aria-label`, contraste 4.5:1, foco visível, navegação teclado)
-- Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1 (rotas /bioquimica/*)
+- Web Vitals: LCP <2.5s, INP <200ms, CLS <0.1 (rotas /bioquimica/\*)
 - Bundle: `manualChunks` entry para `module-bioquimica`
 - Smoke tests staging com dados reais Riopomba
-- Deploy ordem: rules + indexes → functions:bioquimica* → hosting
+- Deploy ordem: rules + indexes → functions:bioquimica\* → hosting
 - Adicionar `bioquimica` em `Módulos em produção` no CLAUDE.md root
 
 ---
@@ -150,13 +160,13 @@ Wave 1: Foundation                Wave 2: Engine               Wave 3: Closure
 
 ## Risk Register
 
-| Risk | Severity | Likelihood | Mitigation |
-|------|----------|------------|-----------|
-| Bula PDF de bioquímica tem layout diferente de hematologia (Gemini falha parse) | 🟠 | Médio | Spike de 1 dia em 09-02 com 3 bulas reais (BioPlus, Labtest, Wiener); fallback manual via cadastro avulso |
-| Multi-instrumento explode complexidade de testes (matriz N×M) | 🟠 | Médio | Limitar MVP a 2 equipamentos simultâneos; cobertura E2E só com 2 |
-| 4 regras CLSI insuficientes para alguns analitos (CV alto, ex: GGT) | 🟡 | Baixo | Documentar como known-issue; UI mostra warning visual de CV alto; 4-1s/10x ativáveis em v1.4 |
-| Worklab traceability sem integração LIS = dado preenchido manualmente, baixa adesão | 🟡 | Alto | UX premium no input (autocomplete, atalhos teclado); KPI de % runs com rastreabilidade no dashboard |
-| Seed de 16 analitos diverge entre labs (unidades, ranges biológicos) | 🟢 | Alto | Seed é default editável; UI admin permite override por lab |
+| Risk                                                                                | Severity | Likelihood | Mitigation                                                                                                |
+| ----------------------------------------------------------------------------------- | -------- | ---------- | --------------------------------------------------------------------------------------------------------- |
+| Bula PDF de bioquímica tem layout diferente de hematologia (Gemini falha parse)     | 🟠       | Médio      | Spike de 1 dia em 09-02 com 3 bulas reais (BioPlus, Labtest, Wiener); fallback manual via cadastro avulso |
+| Multi-instrumento explode complexidade de testes (matriz N×M)                       | 🟠       | Médio      | Limitar MVP a 2 equipamentos simultâneos; cobertura E2E só com 2                                          |
+| 4 regras CLSI insuficientes para alguns analitos (CV alto, ex: GGT)                 | 🟡       | Baixo      | Documentar como known-issue; UI mostra warning visual de CV alto; 4-1s/10x ativáveis em v1.4              |
+| Worklab traceability sem integração LIS = dado preenchido manualmente, baixa adesão | 🟡       | Alto       | UX premium no input (autocomplete, atalhos teclado); KPI de % runs com rastreabilidade no dashboard       |
+| Seed de 16 analitos diverge entre labs (unidades, ranges biológicos)                | 🟢       | Alto       | Seed é default editável; UI admin permite override por lab                                                |
 
 ---
 
@@ -188,6 +198,7 @@ Wave 1: Foundation                Wave 2: Engine               Wave 3: Closure
 ## Canonical References
 
 **Obsidian (segundo cérebro — contexto estratégico):**
+
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Modulo_Hematologia_2026-04-29.md` — referência de padrão (replicar)
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_RDC_978_2025_Resumo.md` — Arts. 179-180, 181, 167, 183
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Compliance_DICQ.md` — Bloco F (5.5.1.1, 5.5.1.3, 5.5.2, 5.6.2, 5.6.3, 5.6.4)
@@ -195,6 +206,7 @@ Wave 1: Foundation                Wave 2: Engine               Wave 3: Closure
 - `~/Obsidian_Brain/01_Projetos/HC_Quality_Decisoes_Abertas.md` — pendências arquiteturais (multi-tenant, OCR, CEQ-PNCQ)
 
 **Código vivo (replicar/extender):**
+
 - `src/features/analyzer/` — Hematologia (referência estrutural completa)
 - `src/features/chart/utils/westgardRules.ts` — base do `westgardRulesCLSI.ts`
 - `src/features/insumos/utils/insumoValidation.ts` — picker + validateReagentesForRun
@@ -205,10 +217,12 @@ Wave 1: Foundation                Wave 2: Engine               Wave 3: Closure
 - `src/features/analyzer/components/PreFlightCheck.tsx` — verde/amarelo gate
 
 **ADRs (manter consistência):**
+
 - `docs/adr/0001-audit-chain.md` — chainHash + LogicalSignature
 - `docs/adr/0007-*.md` — multi-tenant patterns
 
 **Specs/Rules:**
+
 - `firestore.rules` (bloco analyzer como template)
 - `.claude/rules/firestore-security.md` — invariantes
 - `.claude/rules/performance.md` — Web Vitals targets, manualChunks

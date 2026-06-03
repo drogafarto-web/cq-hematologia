@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { ExameConfig } from '../types/exameConfig';
-import {
-  subscribeExameConfigs,
-  getExameConfig,
-} from '../services/exameConfigService';
+import { subscribeExameConfigs, getExameConfig } from '../services/exameConfigService';
 import { useActiveLabId } from '../../../store/useAuthStore';
 
 /**
@@ -35,7 +32,7 @@ export function useExameConfigs() {
       (err) => {
         setError(err);
         setLoading(false);
-      }
+      },
     );
 
     return () => {

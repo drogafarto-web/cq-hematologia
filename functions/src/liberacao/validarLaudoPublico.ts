@@ -225,8 +225,7 @@ export const validarLaudoPublico = onRequest(
     // Parse params: prefer URL path, fall back to query.
     const fromPath = parsePath(req.path || req.url || '');
     const laudoId =
-      fromPath.laudoId ??
-      (typeof req.query.laudoId === 'string' ? req.query.laudoId : undefined);
+      fromPath.laudoId ?? (typeof req.query.laudoId === 'string' ? req.query.laudoId : undefined);
     const version =
       fromPath.version ??
       (typeof req.query.version === 'string' ? Number(req.query.version) : undefined);
@@ -250,7 +249,11 @@ export const validarLaudoPublico = onRequest(
       if (acceptsJson) {
         res.status(404).json({ valid: false, reason: 'not_found' });
       } else {
-        res.status(404).send(`<!DOCTYPE html><html><body style="font-family:system-ui;padding:24px;background:#0b0b0e;color:#e8e8ec"><h1>Laudo não encontrado</h1><p>Verifique o link e tente novamente.</p></body></html>`);
+        res
+          .status(404)
+          .send(
+            `<!DOCTYPE html><html><body style="font-family:system-ui;padding:24px;background:#0b0b0e;color:#e8e8ec"><h1>Laudo não encontrado</h1><p>Verifique o link e tente novamente.</p></body></html>`,
+          );
       }
       return;
     }

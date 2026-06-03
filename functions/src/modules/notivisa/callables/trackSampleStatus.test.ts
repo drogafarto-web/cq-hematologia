@@ -83,11 +83,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling trackSampleStatus
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -123,11 +121,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling for completed requisition
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -163,11 +159,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling for pending requisition
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -206,11 +200,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling trackSampleStatus
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -245,11 +237,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling for timed-out requisition
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -295,11 +285,7 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest
+      mockDb.collection().doc().collection().doc().get = jest
         .fn()
         .mockResolvedValueOnce(sessionDocMock)
         .mockResolvedValueOnce(submissionDocMock);
@@ -334,11 +320,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(sessionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(sessionDocMock);
 
       // WHEN: Calling with expired session
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -373,11 +357,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling without session
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -417,11 +399,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling trackSampleStatus
       await trackSampleStatus(request as CallableRequest<any>);
@@ -461,11 +441,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling trackSampleStatus
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -494,11 +472,9 @@ describe('trackSampleStatus', () => {
         exists: false,
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling for non-existent requisition
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -537,11 +513,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling with portal error
       const result = await trackSampleStatus(request as CallableRequest<any>);
@@ -617,11 +591,9 @@ describe('trackSampleStatus', () => {
         }),
       };
 
-      mockDb.collection()
-        .doc()
-        .collection()
-        .doc()
-        .get = jest.fn().mockResolvedValue(submissionDocMock);
+      mockDb.collection().doc().collection().doc().get = jest
+        .fn()
+        .mockResolvedValue(submissionDocMock);
 
       // WHEN: Calling trackSampleStatus
       const result = await trackSampleStatus(request as CallableRequest<any>);

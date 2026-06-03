@@ -19,11 +19,7 @@ import React, { useMemo, useState } from 'react';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
 import { useAppStore } from '../../../store/useAppStore';
 import { useAnalitos } from '../hooks/useAnalitos';
-import {
-  createAnalito,
-  softDeleteAnalito,
-  updateAnalito,
-} from '../services/analitoService';
+import { createAnalito, softDeleteAnalito, updateAnalito } from '../services/analitoService';
 import { httpsCallable, functions } from '../../../shared/services/firebase';
 import type { Analito, AnalitoInput } from '../types';
 import { AnalitoForm } from './AnalitoForm';
@@ -127,7 +123,9 @@ export function AnalitoAdmin() {
   if (!labId) {
     return (
       <div className="min-h-screen bg-[#0B0F14] text-white flex items-center justify-center px-4">
-        <p className="text-white/50 text-sm">Selecione um laboratório ativo para gerenciar analitos.</p>
+        <p className="text-white/50 text-sm">
+          Selecione um laboratório ativo para gerenciar analitos.
+        </p>
       </div>
     );
   }
@@ -145,7 +143,13 @@ export function AnalitoAdmin() {
               aria-label="Voltar"
             >
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M12 5l-5 5 5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                <path
+                  d="M12 5l-5 5 5 5"
+                  stroke="currentColor"
+                  strokeWidth="1.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
               </svg>
               Voltar
             </button>
@@ -177,7 +181,12 @@ export function AnalitoAdmin() {
               className="inline-flex items-center gap-1.5 px-4 py-2 text-sm font-medium rounded-md bg-violet-500 hover:bg-violet-400 text-white transition-colors duration-150"
             >
               <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden>
-                <path d="M10 4v12M4 10h12" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+                <path
+                  d="M10 4v12M4 10h12"
+                  stroke="currentColor"
+                  strokeWidth="1.6"
+                  strokeLinecap="round"
+                />
               </svg>
               Novo analito
             </button>
@@ -186,7 +195,11 @@ export function AnalitoAdmin() {
 
         {/* Filtros + busca */}
         <div className="flex flex-col sm:flex-row gap-3 sm:items-center">
-          <div role="tablist" aria-label="Filtrar por status" className="inline-flex p-0.5 rounded-md bg-white/[0.04] border border-white/[0.06]">
+          <div
+            role="tablist"
+            aria-label="Filtrar por status"
+            className="inline-flex p-0.5 rounded-md bg-white/[0.04] border border-white/[0.06]"
+          >
             {(['todos', 'ativos', 'inativos'] as const).map((f) => (
               <button
                 key={f}
@@ -195,9 +208,7 @@ export function AnalitoAdmin() {
                 aria-selected={filter === f}
                 onClick={() => setFilter(f)}
                 className={`px-3 py-1.5 text-xs rounded-[5px] transition-colors duration-150 ${
-                  filter === f
-                    ? 'bg-white/[0.08] text-white'
-                    : 'text-white/50 hover:text-white/70'
+                  filter === f ? 'bg-white/[0.08] text-white' : 'text-white/50 hover:text-white/70'
                 }`}
               >
                 {f === 'todos' ? 'Todos' : f === 'ativos' ? 'Ativos' : 'Inativos'}
@@ -208,10 +219,19 @@ export function AnalitoAdmin() {
           <div className="relative flex-1 max-w-sm">
             <svg
               className="absolute left-3 top-1/2 -translate-y-1/2 text-white/30"
-              width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden
+              width="14"
+              height="14"
+              viewBox="0 0 20 20"
+              fill="none"
+              aria-hidden
             >
               <circle cx="8.5" cy="8.5" r="5" stroke="currentColor" strokeWidth="1.5" />
-              <path d="M12.5 12.5l4 4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+              <path
+                d="M12.5 12.5l4 4"
+                stroke="currentColor"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+              />
             </svg>
             <input
               type="search"
@@ -226,16 +246,22 @@ export function AnalitoAdmin() {
 
         {/* Errors */}
         {(error || actionError) && (
-          <div role="alert" className="px-3 py-2 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">
+          <div
+            role="alert"
+            className="px-3 py-2 rounded-md bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm"
+          >
             {actionError ?? error?.message}
           </div>
         )}
 
         {/* Seed feedback */}
         {seedSummary && (
-          <div role="status" className="px-3 py-2 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm">
-            Seed concluído — {seedSummary.created} criado{seedSummary.created !== 1 ? 's' : ''},
-            {' '}{seedSummary.skipped} já existia{seedSummary.skipped !== 1 ? 'm' : ''}.
+          <div
+            role="status"
+            className="px-3 py-2 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-sm"
+          >
+            Seed concluído — {seedSummary.created} criado{seedSummary.created !== 1 ? 's' : ''},{' '}
+            {seedSummary.skipped} já existia{seedSummary.skipped !== 1 ? 'm' : ''}.
           </div>
         )}
 
@@ -296,7 +322,8 @@ function ConfirmDeleteDialog({
           Remover analito?
         </h2>
         <p className="text-sm text-white/60">
-          <span className="text-white/80 font-medium">{analito.nome}</span> será marcado como removido. Histórico de runs e estatísticas permanecem para auditoria (RN-06).
+          <span className="text-white/80 font-medium">{analito.nome}</span> será marcado como
+          removido. Histórico de runs e estatísticas permanecem para auditoria (RN-06).
         </p>
         <p className="text-xs text-white/40">
           Esta ação pode ser revertida apenas via super-admin.
@@ -314,7 +341,11 @@ function ConfirmDeleteDialog({
             type="button"
             onClick={async () => {
               setSubmitting(true);
-              try { await onConfirm(); } finally { setSubmitting(false); }
+              try {
+                await onConfirm();
+              } finally {
+                setSubmitting(false);
+              }
             }}
             disabled={submitting}
             className="px-4 py-2 text-sm font-medium bg-rose-500 hover:bg-rose-400 disabled:bg-rose-500/40 text-white rounded-md transition-colors duration-150"

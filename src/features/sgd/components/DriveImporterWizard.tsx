@@ -1,13 +1,13 @@
-import React, { useState } from 'react'
-import { cn } from '../../../utils/cn'
-import { DriveFile } from '../types/SGDDocumento'
+import React, { useState } from 'react';
+import { cn } from '../../../utils/cn';
+import { DriveFile } from '../types/SGDDocumento';
 
-type WizardStep = 'auth' | 'select' | 'preview' | 'confirm'
+type WizardStep = 'auth' | 'select' | 'preview' | 'confirm';
 
 interface DriveImporterWizardProps {
-  labId: string
-  onComplete: (importedCount: number) => void
-  onCancel: () => void
+  labId: string;
+  onComplete: (importedCount: number) => void;
+  onCancel: () => void;
 }
 
 /**
@@ -20,36 +20,36 @@ interface DriveImporterWizardProps {
 export const DriveImporterWizard: React.FC<DriveImporterWizardProps> = ({
   labId,
   onComplete,
-  onCancel
+  onCancel,
 }) => {
-  const [step, setStep] = useState<WizardStep>('auth')
-  const [driveFolderId, setDriveFolderId] = useState('')
-  const [selectedFiles, setSelectedFiles] = useState<DriveFile[]>([])
-  const [isImporting, setIsImporting] = useState(false)
-  const [importProgress, setImportProgress] = useState(0)
+  const [step, setStep] = useState<WizardStep>('auth');
+  const [driveFolderId, setDriveFolderId] = useState('');
+  const [selectedFiles, setSelectedFiles] = useState<DriveFile[]>([]);
+  const [isImporting, setIsImporting] = useState(false);
+  const [importProgress, setImportProgress] = useState(0);
 
   const handleSelectFiles = (files: DriveFile[]) => {
-    setSelectedFiles(files)
-    setStep('preview')
-  }
+    setSelectedFiles(files);
+    setStep('preview');
+  };
 
   const handleConfirmImport = async () => {
-    setIsImporting(true)
+    setIsImporting(true);
     try {
       // TODO: Call driveImporterService.importBatch()
       // For now, mock progress
       for (let i = 0; i <= 100; i += 10) {
-        setImportProgress(i)
-        await new Promise((resolve) => setTimeout(resolve, 100))
+        setImportProgress(i);
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
-      onComplete(selectedFiles.length)
+      onComplete(selectedFiles.length);
     } catch (error) {
-      console.error('Import failed:', error)
+      console.error('Import failed:', error);
       // TODO: show error toast
     } finally {
-      setIsImporting(false)
+      setIsImporting(false);
     }
-  }
+  };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
@@ -63,7 +63,12 @@ export const DriveImporterWizard: React.FC<DriveImporterWizardProps> = ({
             aria-label="Fechar"
           >
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M6 18L18 6M6 6l12 12"
+              />
             </svg>
           </button>
         </div>
@@ -80,7 +85,7 @@ export const DriveImporterWizard: React.FC<DriveImporterWizardProps> = ({
                     ? 'bg-emerald-500'
                     : idx === ['auth', 'select', 'preview', 'confirm'].indexOf(step)
                       ? 'bg-violet-500'
-                      : 'bg-white/10'
+                      : 'bg-white/10',
                 )}
               />
             ))}
@@ -92,8 +97,8 @@ export const DriveImporterWizard: React.FC<DriveImporterWizardProps> = ({
           {step === 'auth' && (
             <AuthStep
               onNext={(folderId) => {
-                setDriveFolderId(folderId)
-                setStep('select')
+                setDriveFolderId(folderId);
+                setStep('select');
               }}
             />
           )}
@@ -127,23 +132,27 @@ export const DriveImporterWizard: React.FC<DriveImporterWizardProps> = ({
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 // --- Step Components ---
 
 interface AuthStepProps {
-  onNext: (folderId: string) => void
+  onNext: (folderId: string) => void;
 }
 
 const AuthStep: React.FC<AuthStepProps> = ({ onNext }) => {
-  const [folderId, setFolderId] = useState('')
+  const [folderId, setFolderId] = useState('');
 
   return (
     <div className="space-y-4">
-      <p className="text-white/80">Selecione a pasta do Google Drive que contém os documentos a importar.</p>
+      <p className="text-white/80">
+        Selecione a pasta do Google Drive que contém os documentos a importar.
+      </p>
       <div>
-        <label className="block text-sm font-medium text-white/80 mb-2">ID da Pasta (Google Drive)</label>
+        <label className="block text-sm font-medium text-white/80 mb-2">
+          ID da Pasta (Google Drive)
+        </label>
         <input
           type="text"
           value={folderId}
@@ -160,19 +169,19 @@ const AuthStep: React.FC<AuthStepProps> = ({ onNext }) => {
         Próximo
       </button>
     </div>
-  )
-}
+  );
+};
 
 interface SelectStepProps {
-  labId: string
-  driveFolderId: string
-  onNext: (files: DriveFile[]) => void
-  onPrev: () => void
+  labId: string;
+  driveFolderId: string;
+  onNext: (files: DriveFile[]) => void;
+  onPrev: () => void;
 }
 
 const SelectStep: React.FC<SelectStepProps> = ({ labId, driveFolderId, onNext, onPrev }) => {
-  const [files, setFiles] = useState<DriveFile[]>([])
-  const [loading, setLoading] = useState(true)
+  const [files, setFiles] = useState<DriveFile[]>([]);
+  const [loading, setLoading] = useState(true);
 
   React.useEffect(() => {
     // TODO: Call sgdDriveImporter() Cloud Function to list files
@@ -186,24 +195,24 @@ const SelectStep: React.FC<SelectStepProps> = ({ labId, driveFolderId, onNext, o
           size: 1024000,
           parents: [driveFolderId],
           createdTime: new Date().toISOString(),
-          modifiedTime: new Date().toISOString()
-        }
-      ])
-      setLoading(false)
-    }, 500)
-  }, [driveFolderId])
+          modifiedTime: new Date().toISOString(),
+        },
+      ]);
+      setLoading(false);
+    }, 500);
+  }, [driveFolderId]);
 
-  const [selected, setSelected] = useState<Set<string>>(new Set())
+  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const toggleFile = (fileId: string) => {
-    const newSelected = new Set(selected)
+    const newSelected = new Set(selected);
     if (newSelected.has(fileId)) {
-      newSelected.delete(fileId)
+      newSelected.delete(fileId);
     } else {
-      newSelected.add(fileId)
+      newSelected.add(fileId);
     }
-    setSelected(newSelected)
-  }
+    setSelected(newSelected);
+  };
 
   return (
     <div className="space-y-4">
@@ -215,10 +224,15 @@ const SelectStep: React.FC<SelectStepProps> = ({ labId, driveFolderId, onNext, o
         </div>
       ) : (
         <>
-          <p className="text-white/80">Selecione os documentos a importar ({selected.size} selecionados)</p>
+          <p className="text-white/80">
+            Selecione os documentos a importar ({selected.size} selecionados)
+          </p>
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {files.map((file) => (
-              <label key={file.id} className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-lg cursor-pointer">
+              <label
+                key={file.id}
+                className="flex items-center gap-3 p-3 hover:bg-white/5 rounded-lg cursor-pointer"
+              >
                 <input
                   type="checkbox"
                   checked={selected.has(file.id)}
@@ -251,17 +265,17 @@ const SelectStep: React.FC<SelectStepProps> = ({ labId, driveFolderId, onNext, o
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface PreviewStepProps {
-  files: DriveFile[]
-  onNext: () => void
-  onPrev: () => void
+  files: DriveFile[];
+  onNext: () => void;
+  onPrev: () => void;
 }
 
 const PreviewStep: React.FC<PreviewStepProps> = ({ files, onNext, onPrev }) => {
-  const [consent, setConsent] = useState(false)
+  const [consent, setConsent] = useState(false);
 
   return (
     <div className="space-y-4">
@@ -285,8 +299,8 @@ const PreviewStep: React.FC<PreviewStepProps> = ({ files, onNext, onPrev }) => {
           className="w-4 h-4 rounded border-white/30 accent-violet-500 mt-1"
         />
         <p className="text-sm text-white/80">
-          Confirmo que estes documentos são adequados para registros laboratoriais e estou de acordo com
-          sua importação.
+          Confirmo que estes documentos são adequados para registros laboratoriais e estou de acordo
+          com sua importação.
         </p>
       </label>
 
@@ -306,18 +320,24 @@ const PreviewStep: React.FC<PreviewStepProps> = ({ files, onNext, onPrev }) => {
         </button>
       </div>
     </div>
-  )
-}
+  );
+};
 
 interface ConfirmStepProps {
-  files: DriveFile[]
-  isImporting: boolean
-  progress: number
-  onConfirm: () => void
-  onPrev: () => void
+  files: DriveFile[];
+  isImporting: boolean;
+  progress: number;
+  onConfirm: () => void;
+  onPrev: () => void;
 }
 
-const ConfirmStep: React.FC<ConfirmStepProps> = ({ files, isImporting, progress, onConfirm, onPrev }) => {
+const ConfirmStep: React.FC<ConfirmStepProps> = ({
+  files,
+  isImporting,
+  progress,
+  onConfirm,
+  onPrev,
+}) => {
   return (
     <div className="space-y-4">
       {isImporting ? (
@@ -351,5 +371,5 @@ const ConfirmStep: React.FC<ConfirmStepProps> = ({ files, isImporting, progress,
         </>
       )}
     </div>
-  )
-}
+  );
+};

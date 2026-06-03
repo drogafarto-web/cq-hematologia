@@ -25,14 +25,30 @@ export function AnalitoList({ analitos, loading, onEdit, onDelete }: AnalitoList
       <table className="w-full text-sm">
         <thead>
           <tr className="text-left text-[11px] uppercase tracking-wider text-white/40 border-b border-white/[0.06]">
-            <th scope="col" className="px-4 py-3 font-medium">Nome</th>
-            <th scope="col" className="px-3 py-3 font-medium">Sigla</th>
-            <th scope="col" className="px-3 py-3 font-medium">Unidade</th>
-            <th scope="col" className="px-3 py-3 font-medium text-right">Range</th>
-            <th scope="col" className="px-3 py-3 font-medium text-right">CV alvo</th>
-            <th scope="col" className="px-3 py-3 font-medium">Método</th>
-            <th scope="col" className="px-3 py-3 font-medium">Status</th>
-            <th scope="col" className="px-3 py-3 font-medium text-right">Ações</th>
+            <th scope="col" className="px-4 py-3 font-medium">
+              Nome
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium">
+              Sigla
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium">
+              Unidade
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium text-right">
+              Range
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium text-right">
+              CV alvo
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium">
+              Método
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium">
+              Status
+            </th>
+            <th scope="col" className="px-3 py-3 font-medium text-right">
+              Ações
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -129,7 +145,12 @@ function EmptyState() {
         aria-hidden
       >
         <circle cx="24" cy="24" r="18" stroke="currentColor" strokeWidth="1.5" />
-        <path d="M16 24h16M24 16v16" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
+        <path
+          d="M16 24h16M24 16v16"
+          stroke="currentColor"
+          strokeWidth="1.5"
+          strokeLinecap="round"
+        />
       </svg>
       <p className="text-sm text-white/60 font-medium">Nenhum analito cadastrado</p>
       <p className="text-xs text-white/40 mt-1">

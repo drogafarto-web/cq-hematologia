@@ -5,14 +5,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import {
-  collection,
-  getFirestore,
-  limit,
-  onSnapshot,
-  orderBy,
-  query,
-} from 'firebase/firestore';
+import { collection, getFirestore, limit, onSnapshot, orderBy, query } from 'firebase/firestore';
 
 import type { EquipamentoUso } from '../types/EquipamentoUso';
 
@@ -27,7 +20,10 @@ export interface UseEquipamentoUsoResult {
   error: string | null;
 }
 
-export function useEquipamentoUso({ labId, equipamentoId }: UseEquipamentoUsoParams): UseEquipamentoUsoResult {
+export function useEquipamentoUso({
+  labId,
+  equipamentoId,
+}: UseEquipamentoUsoParams): UseEquipamentoUsoResult {
   const [usos, setUsos] = useState<EquipamentoUso[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -1,6 +1,6 @@
 ---
-phase: "08-capa-closure"
-title: "Phase 8 — CAPA Closure + 4 Micro-Modules"
+phase: '08-capa-closure'
+title: 'Phase 8 — CAPA Closure + 4 Micro-Modules'
 milestone: v1.3
 status: planning
 total_plans: 7
@@ -36,12 +36,12 @@ This phase combines **process work** (CAPA closure) with **light engineering** (
 
 After cross-checking Phase 7 findings against `HC_Quality_Compliance_DICQ.md`, several CAPAs require **new modules** to be built — they cannot be closed by process work alone:
 
-| CAPA | DICQ Ref | Required Module | Why Module Needed |
-|------|----------|-----------------|-------------------|
-| **NC-002** | 5.3.1.4 | `calibracao` | Auditor wants system to track calibration certificates + due dates per equipment |
-| **NC-003** | 5.1.3 | `personnel/cargos` | Formal job descriptions stored in system with sign-off |
-| **NC-004** | 4.1.2.7 | `personnel/designacoes` | Quality Manager designation document with chain of authority |
-| **NC-001** | 4.14.5 | `management-review` (4.15) | Annual Direction Critical Analysis with 15 mandatory entries — currently 0% covered |
+| CAPA       | DICQ Ref | Required Module            | Why Module Needed                                                                   |
+| ---------- | -------- | -------------------------- | ----------------------------------------------------------------------------------- |
+| **NC-002** | 5.3.1.4  | `calibracao`               | Auditor wants system to track calibration certificates + due dates per equipment    |
+| **NC-003** | 5.1.3    | `personnel/cargos`         | Formal job descriptions stored in system with sign-off                              |
+| **NC-004** | 4.1.2.7  | `personnel/designacoes`    | Quality Manager designation document with chain of authority                        |
+| **NC-001** | 4.14.5   | `management-review` (4.15) | Annual Direction Critical Analysis with 15 mandatory entries — currently 0% covered |
 
 **Strategic Decision:** Build minimal viable versions of these 4 modules in Phase 8 rather than deferring to v1.4. Builds compliance momentum + closes CAPAs in same window.
 
@@ -51,31 +51,31 @@ After cross-checking Phase 7 findings against `HC_Quality_Compliance_DICQ.md`, s
 
 ### Critical CAPAs (P0)
 
-| ID | Finding | DICQ Ref | Owner | Approach | Deadline |
-|----|---------|----------|-------|----------|----------|
-| **NC-001** | Auditoria Interna POP não documentado | 4.14.5 | CTO + Quality | Build management-review module + create POP | 2026-05-30 |
-| **NC-011** | Cadastro Paciente — Sistema não captura | 5.4.3.2 | CTO | **DEFER to v1.4** (order-entry too big) | Discussed with auditor Week 1 |
+| ID         | Finding                                 | DICQ Ref | Owner         | Approach                                    | Deadline                      |
+| ---------- | --------------------------------------- | -------- | ------------- | ------------------------------------------- | ----------------------------- |
+| **NC-001** | Auditoria Interna POP não documentado   | 4.14.5   | CTO + Quality | Build management-review module + create POP | 2026-05-30                    |
+| **NC-011** | Cadastro Paciente — Sistema não captura | 5.4.3.2  | CTO           | **DEFER to v1.4** (order-entry too big)     | Discussed with auditor Week 1 |
 
 ### High Priority CAPAs (P1)
 
-| ID | Finding | DICQ Ref | Owner | Approach | Deadline |
-|----|---------|----------|-------|----------|----------|
-| **NC-002** | Calibração — Falta em analisadores | 5.3.1.4 | Ops + Eng A | Build `calibracao` module + collect certs | 2026-06-30 |
-| **NC-003** | Descrição Cargos não formalizado | 5.1.3 | HR + Eng A | Build `personnel/cargos` + populate | 2026-06-30 |
-| **NC-004** | GQ Designação não documentada | 4.1.2.7 | CTO + Eng A | Build `personnel/designacoes` | 2026-06-30 |
-| **NC-007–010** | (TBD from audit report — operational) | TBD | Team | Process closure | 2026-06-30 |
+| ID             | Finding                               | DICQ Ref | Owner       | Approach                                  | Deadline   |
+| -------------- | ------------------------------------- | -------- | ----------- | ----------------------------------------- | ---------- |
+| **NC-002**     | Calibração — Falta em analisadores    | 5.3.1.4  | Ops + Eng A | Build `calibracao` module + collect certs | 2026-06-30 |
+| **NC-003**     | Descrição Cargos não formalizado      | 5.1.3    | HR + Eng A  | Build `personnel/cargos` + populate       | 2026-06-30 |
+| **NC-004**     | GQ Designação não documentada         | 4.1.2.7  | CTO + Eng A | Build `personnel/designacoes`             | 2026-06-30 |
+| **NC-007–010** | (TBD from audit report — operational) | TBD      | Team        | Process closure                           | 2026-06-30 |
 
 ### Medium Priority CAPAs (P2)
 
-| ID | Finding | DICQ Ref | Owner | Approach | Deadline |
-|----|---------|----------|-------|----------|----------|
-| **NC-005, NC-009, NC-014** | Procedural improvements | TBD | Quality | Document + train | 2026-07-05 |
+| ID                         | Finding                 | DICQ Ref | Owner   | Approach         | Deadline   |
+| -------------------------- | ----------------------- | -------- | ------- | ---------------- | ---------- |
+| **NC-005, NC-009, NC-014** | Procedural improvements | TBD      | Quality | Document + train | 2026-07-05 |
 
 ### Extended Priority CAPAs (P3)
 
-| ID | Finding | DICQ Ref | Owner | Approach | Deadline |
-|----|---------|----------|-------|----------|----------|
-| **NC-006** | (TBD — likely v1.3 module-related) | TBD | Eng (any phase) | Address in respective module phase | 2026-08-05 |
+| ID         | Finding                            | DICQ Ref | Owner           | Approach                           | Deadline   |
+| ---------- | ---------------------------------- | -------- | --------------- | ---------------------------------- | ---------- |
+| **NC-006** | (TBD — likely v1.3 module-related) | TBD      | Eng (any phase) | Address in respective module phase | 2026-08-05 |
 
 ---
 
@@ -97,6 +97,7 @@ Phase 8 has **7 plans** combining build + operations:
 **Goal:** Equipment calibration tracking with certificate uploads, due dates, and audit trail.
 
 **Deliverables:**
+
 - `calibracao` Firestore schema (calibration records linked to equipamentos)
 - Certificate upload (PDF/JPG) with chain-hash
 - Due date alerts (30/15/7 days before due)
@@ -110,6 +111,7 @@ Phase 8 has **7 plans** combining build + operations:
 **Goal:** Formal job descriptions and Quality Manager designations stored in system.
 
 **Deliverables:**
+
 - `personnel/cargos` schema (job description per role)
 - `personnel/designacoes` schema (RT, GQ, Diretor designations with signature)
 - DICQ 5.1.3 + 4.1.2.7 compliance
@@ -122,6 +124,7 @@ Phase 8 has **7 plans** combining build + operations:
 **Goal:** Annual Direction Critical Analysis with all 15 mandatory entries.
 
 **Deliverables:**
+
 - `management-review` schema (annual review with 15 entries)
 - Auto-pull from NC/CAPA/indicators/audits
 - Meeting agenda + minutes (atas)
@@ -135,6 +138,7 @@ Phase 8 has **7 plans** combining build + operations:
 **Goal:** Close 8 CAPAs (2 Critical + 6 High) with full evidence chain.
 
 **Deliverables:**
+
 - 8 CAPAs marked "Closed" with auditor sign-off
 - Evidence uploaded (photos, certificates, training records)
 - RFI responses documented
@@ -153,6 +157,7 @@ Phase 8 has **7 plans** combining build + operations:
 **Goal:** Auditor approval + final closeout report.
 
 **Deliverables:**
+
 - Auditor sign-off (email + LogicalSignature)
 - `docs/CAPA_CLOSEOUT_2026-08.md` (10+ pages)
 - DICQ baseline projection (71.3% → ~85%)
@@ -162,36 +167,37 @@ Phase 8 has **7 plans** combining build + operations:
 
 ## Success Criteria (Revised)
 
-| Criterion | Measurement | Target |
-|-----------|-------------|--------|
-| **CAPA Closure Rate** | 11/12 CAPAs in "Closed" status (NC-011 deferred to v1.4) | 92% |
-| **Modules Deployed** | 4 micro-modules + CAPA dashboard live | 5/5 |
-| **Evidence Completeness** | Required artifacts uploaded per NC | 0 missing items |
-| **Auditor Sign-Off** | Email + LogicalSignature on closeout | All signed off |
-| **Timeline Adherence** | Zero CAPAs overdue past deadline | 0 overdue |
-| **DICQ Block B (SGD)** | (Phase 12 separate — track here is auxiliary) | tracked separately |
-| **DICQ Block C (Pessoal)** | 67% → 80% (cargos+designações) | 80% |
-| **DICQ Block D (Equip)** | 69% → 85% (calibração) | 85% |
-| **DICQ Block A (Governança)** | 73% → 78% (mgmt-review) | 78% |
-| **Closeout Report** | PDF archived with chain-hash | ≥10 pages |
+| Criterion                     | Measurement                                              | Target             |
+| ----------------------------- | -------------------------------------------------------- | ------------------ |
+| **CAPA Closure Rate**         | 11/12 CAPAs in "Closed" status (NC-011 deferred to v1.4) | 92%                |
+| **Modules Deployed**          | 4 micro-modules + CAPA dashboard live                    | 5/5                |
+| **Evidence Completeness**     | Required artifacts uploaded per NC                       | 0 missing items    |
+| **Auditor Sign-Off**          | Email + LogicalSignature on closeout                     | All signed off     |
+| **Timeline Adherence**        | Zero CAPAs overdue past deadline                         | 0 overdue          |
+| **DICQ Block B (SGD)**        | (Phase 12 separate — track here is auxiliary)            | tracked separately |
+| **DICQ Block C (Pessoal)**    | 67% → 80% (cargos+designações)                           | 80%                |
+| **DICQ Block D (Equip)**      | 69% → 85% (calibração)                                   | 85%                |
+| **DICQ Block A (Governança)** | 73% → 78% (mgmt-review)                                  | 78%                |
+| **Closeout Report**           | PDF archived with chain-hash                             | ≥10 pages          |
 
 ---
 
 ## Risks & Mitigations (Revised)
 
-| Risk | Impact | Likelihood | Mitigation |
-|------|--------|-----------|-----------|
-| **Auditor rejects NC-011 deferral** | Re-scope Phase 8 +4 weeks | Medium | Pre-discuss Week 1; have order-entry skeleton design |
-| **Eng A overloaded (4 modules in 8 weeks)** | 2-week slip | High | Pair programming weeks 4-8; freelance Eng I as backup |
-| **Vendor calibration delay (NC-002)** | CAPA close +4 weeks | Medium | Escalate vendor Week 2; backup vendor identified |
-| **Management-review module spec ambiguity** | 1-week extra design | Low | Use DICQ 4.15 15 entries as exact spec |
-| **Auditor evidence rejection** | Re-work +2 weeks | Low | Internal pre-review every 2 weeks |
+| Risk                                        | Impact                    | Likelihood | Mitigation                                            |
+| ------------------------------------------- | ------------------------- | ---------- | ----------------------------------------------------- |
+| **Auditor rejects NC-011 deferral**         | Re-scope Phase 8 +4 weeks | Medium     | Pre-discuss Week 1; have order-entry skeleton design  |
+| **Eng A overloaded (4 modules in 8 weeks)** | 2-week slip               | High       | Pair programming weeks 4-8; freelance Eng I as backup |
+| **Vendor calibration delay (NC-002)**       | CAPA close +4 weeks       | Medium     | Escalate vendor Week 2; backup vendor identified      |
+| **Management-review module spec ambiguity** | 1-week extra design       | Low        | Use DICQ 4.15 15 entries as exact spec                |
+| **Auditor evidence rejection**              | Re-work +2 weeks          | Low        | Internal pre-review every 2 weeks                     |
 
 ---
 
 ## Dependencies
 
 ### Inputs
+
 - ✅ Phase 7 complete (`07-01-SUMMARY.md` with 12 CAPAs)
 - ✅ Auditoria Interna module live (Phase 5)
 - ✅ NC + CAPA Firestore schema (Phase 5)
@@ -200,11 +206,13 @@ Phase 8 has **7 plans** combining build + operations:
 - ✅ Treinamentos module live (for Personnel/Cargos linkage)
 
 ### External
+
 - 🔵 Auditor availability (Week 1 contact required)
 - 🔵 Vendor calibration certificates (NC-002, weeks 2-4)
 - 🔵 HR documentation (NC-003, NC-004)
 
 ### Outputs (consumed downstream)
+
 - External audit (2026-08-31): closeout report + 4 modules as proof
 - Phase 12 (SGD): management-review needs SGD for atas storage
 - v1.4 backlog: order-entry, risk-management, indicators
@@ -213,14 +221,14 @@ Phase 8 has **7 plans** combining build + operations:
 
 ## Compliance Mapping (Detailed)
 
-| DICQ Section | Pre-v1.3 | After Phase 8 | Module |
-|--------------|----------|---------------|--------|
-| 4.1.2.7 Designação GQ | 🔴 (0%) | ✅ (100%) | personnel/designacoes |
-| 4.14.5 Auditoria Interna | 🟡 (Phase 5) | ✅ (formalizada) | management-review + auditoria-interna |
-| 4.15 Análise Crítica Direção | 🔴 (0%) | ✅ (60% — primeira ata pendente) | management-review |
-| 5.1.3 Descrição Cargos | 🔴 (0%) | ✅ (100% — após popular) | personnel/cargos |
-| 5.3.1.4 Calibração | 🔴 (0%) | ✅ (100% — sistema + certs) | calibracao |
-| 4.14 NC + CAPA | 🟡 (Phase 5) | ✅ (closeout) | naoConformidades + capa-tracking |
+| DICQ Section                 | Pre-v1.3     | After Phase 8                    | Module                                |
+| ---------------------------- | ------------ | -------------------------------- | ------------------------------------- |
+| 4.1.2.7 Designação GQ        | 🔴 (0%)      | ✅ (100%)                        | personnel/designacoes                 |
+| 4.14.5 Auditoria Interna     | 🟡 (Phase 5) | ✅ (formalizada)                 | management-review + auditoria-interna |
+| 4.15 Análise Crítica Direção | 🔴 (0%)      | ✅ (60% — primeira ata pendente) | management-review                     |
+| 5.1.3 Descrição Cargos       | 🔴 (0%)      | ✅ (100% — após popular)         | personnel/cargos                      |
+| 5.3.1.4 Calibração           | 🔴 (0%)      | ✅ (100% — sistema + certs)      | calibracao                            |
+| 4.14 NC + CAPA               | 🟡 (Phase 5) | ✅ (closeout)                    | naoConformidades + capa-tracking      |
 
 **Estimated DICQ Improvement Phase 8:** 71.3% → 80% (8.7 pts) — pending Phase 9-12 contributions
 
@@ -228,12 +236,12 @@ Phase 8 has **7 plans** combining build + operations:
 
 ## Communication Cadence
 
-| Frequency | Format | Participants | Purpose |
-|-----------|--------|--------------|---------|
-| **Daily standup** | 5 min/agent | All agents | Status + blockers |
-| **Weekly checkpoint** | 1h Friday | All agents + CTO | Progress + integration |
-| **Bi-weekly auditor sync** | 1h video call | CTO + Auditor | RFI review, evidence walkthrough |
-| **End of phase** | 2h closeout | All + Auditor | Sign-off ceremony |
+| Frequency                  | Format        | Participants     | Purpose                          |
+| -------------------------- | ------------- | ---------------- | -------------------------------- |
+| **Daily standup**          | 5 min/agent   | All agents       | Status + blockers                |
+| **Weekly checkpoint**      | 1h Friday     | All agents + CTO | Progress + integration           |
+| **Bi-weekly auditor sync** | 1h video call | CTO + Auditor    | RFI review, evidence walkthrough |
+| **End of phase**           | 2h closeout   | All + Auditor    | Sign-off ceremony                |
 
 ---
 
@@ -242,6 +250,7 @@ Phase 8 has **7 plans** combining build + operations:
 `/gsd-execute-phase 8` to begin CAPA closure + micro-modules execution.
 
 **Plan progression:**
+
 1. ✅ 08-01: CAPA Tracking Dashboard (PLAN.md drafted)
 2. ⏳ 08-02: Calibração Module (auto-spawned next)
 3. 📋 08-03: Personnel/Cargos + Designações

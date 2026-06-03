@@ -2,7 +2,7 @@
 
 **Date:** 2026-05-05  
 **Phase:** 03.1-foundation (Mobile + Analytics + Export)  
-**Status:** [AWAITING VERIFICATION]  
+**Status:** [AWAITING VERIFICATION]
 
 ---
 
@@ -20,6 +20,7 @@
 - [ ] No console errors or warnings in simulator
 
 **Blockers (if any):**
+
 - [ ] List any issues encountered
 
 **Sign-off:** [Engineer name] on [date]
@@ -39,11 +40,13 @@
 - [ ] Staleness check works (isAnalyticsStale helper tested)
 
 **Performance metrics:**
+
 - [ ] Aggregation query latency on 50k docs: <2s
 - [ ] Cloud Function execution time: <30s for typical lab
 - [ ] Hook re-render time (Firestore onSnapshot): <100ms
 
 **Blockers (if any):**
+
 - [ ] List any issues encountered
 
 **Sign-off:** [Engineer name] on [date]
@@ -66,6 +69,7 @@
 - [ ] Download helper functions work (fileSize, duration, expiry check)
 
 **Blockers (if any):**
+
 - [ ] List any issues encountered
 
 **Sign-off:** [Engineer name] on [date]
@@ -75,15 +79,18 @@
 ## Cross-Module Integration
 
 ### Mobile ↔ Analytics
+
 - [ ] Mobile auth store (useAuthStore) provides activeLabId
 - [ ] Analytics hook (useCIQAnalytics) uses activeLabId to subscribe
 - [ ] No type mismatches between mobile and analytics types
 
 ### Mobile ↔ Export
+
 - [ ] Mobile can call initiateExport callable with auth token
 - [ ] Export hook can read job from Firestore using labId from mobile store
 
 ### Analytics ↔ Export
+
 - [ ] Both modules use consistent Firestore paths (`/labs/{labId}/...`)
 - [ ] Both respect soft-delete convention (deletadoEm === null)
 
@@ -92,16 +99,19 @@
 ## Security Audit
 
 ### Multi-Tenant Isolation
+
 - [ ] All queries filter by labId (verify in code grep)
 - [ ] No cross-lab data access possible via Firestore rules
 - [ ] Cloud Callables validate auth token (request.auth.uid exists)
 
 ### Input Validation
+
 - [ ] Export format validated against whitelist
 - [ ] Date range validated (startDate < endDate, <1 year)
 - [ ] Firestore rules prevent direct writes to cache/jobs (Cloud Function only)
 
 ### Signed URLs
+
 - [ ] 7-day expiry enforced
 - [ ] URL is opaque (contains signed token, not guessable)
 - [ ] Access logged in Cloud Audit Logs (Phase 3.2)
@@ -111,6 +121,7 @@
 ## Deployment Checklist
 
 ### Firebase Configuration
+
 - [ ] `firebase.json` has emulator config (for local testing)
 - [ ] Cloud Tasks queue created (if using Cloud Tasks for Phase 3.1)
 - [ ] Pub/Sub topic created (for export worker)
@@ -118,6 +129,7 @@
 - [ ] Service account has necessary permissions
 
 ### Cloud Functions
+
 - [ ] All functions compile with no warnings
 - [ ] Functions have correct regions (southamerica-east1)
 - [ ] Timeouts set appropriately:
@@ -129,10 +141,11 @@
   - Export: 512MB (for large datasets)
 
 ### CI/CD Pipeline
-- [ ] GitHub Actions workflow runs on every commit to mobile/**
-- [ ] Workflow runs on every commit to functions/**
-- [ ] Workflow runs on every commit to src/features/analytics/**
-- [ ] Workflow runs on every commit to src/features/export/**
+
+- [ ] GitHub Actions workflow runs on every commit to mobile/\*\*
+- [ ] Workflow runs on every commit to functions/\*\*
+- [ ] Workflow runs on every commit to src/features/analytics/\*\*
+- [ ] Workflow runs on every commit to src/features/export/\*\*
 - [ ] All checks must pass before merge to main
 
 ---
@@ -140,6 +153,7 @@
 ## Go/No-Go Gate Decision
 
 ### Pass Criteria
+
 - [ ] All three modules compile without errors
 - [ ] Unit test coverage >80% (measured by test count)
 - [ ] Mobile app runs in simulator with no crashes
@@ -150,6 +164,7 @@
 - [ ] Emulator setup documented and working
 
 ### Fail Criteria
+
 - [ ] Type compilation errors in any module
 - [ ] Unit tests failing in any module
 - [ ] Mobile app crashes on launch or navigation
@@ -164,15 +179,16 @@
 
 ## Issues Discovered
 
-| ID | Component | Severity | Description | Status |
-|---|-----------|----------|-------------|--------|
-| — | — | — | Awaiting verification | — |
+| ID  | Component | Severity | Description           | Status |
+| --- | --------- | -------- | --------------------- | ------ |
+| —   | —         | —        | Awaiting verification | —      |
 
 ---
 
 ## Phase 3.2 Readiness
 
 **Ready to proceed to Phase 3.2 (Core Features) if PASS:**
+
 - Mobile auth flow polished (2FA, social login Phase 3.2)
 - CIQ module screens implemented
 - NC module screens implemented
@@ -181,6 +197,7 @@
 - Offline queue added (Phase 3.2)
 
 **Blockers for Phase 3.2:**
+
 - If any critical issue found, add here
 
 ---

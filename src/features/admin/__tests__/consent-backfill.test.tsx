@@ -64,9 +64,9 @@ describe.skip('ConsentBackfillManager', () => {
       render(<ConsentBackfillManager />);
 
       // Phase stepper should show phase 1 active
-      const steps = screen.getAllByRole('button').filter((btn) =>
-        btn.textContent?.includes('Inventário'),
-      );
+      const steps = screen
+        .getAllByRole('button')
+        .filter((btn) => btn.textContent?.includes('Inventário'));
       expect(steps.length).toBeGreaterThan(0);
     });
 

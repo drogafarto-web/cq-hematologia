@@ -56,7 +56,7 @@ export function useAtas(): UseAtasResult {
     atas,
     byReview,
     loading,
-    error
+    error,
   };
 }
 
@@ -96,6 +96,6 @@ export function useAtasForReview(managementReviewId: string | null): UseAtasResu
     atas,
     byReview: { [managementReviewId || '']: atas },
     loading,
-    error
+    error,
   };
 }

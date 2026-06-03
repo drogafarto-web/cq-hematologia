@@ -3,6 +3,7 @@
 ## What Was Attempted
 
 Updated `functions/src/modules/qualidade/types.ts` to align with frontend schema:
+
 - Changed `NCSeveridade` enum: `LEVE, MEDIA, CRITICA` → `LEVE, MODERADA, GRAVE, CRITICA`
 - Changed `status: string` → `CAPAStatus` enum
 - Aligned field names: `createdAt/updatedAt` → `criadoEm`
@@ -15,6 +16,7 @@ Updated `functions/src/modules/qualidade/types.ts` to align with frontend schema
 ### 1. `functions/src/modules/qualidade/capaWorkflow.ts`
 
 **Errors to fix:**
+
 ```
 Line 35: status: 'investig' → capaStatus: 'investigacao'
 Line 37: ...nc.capa → Remove (structure changed)
@@ -28,14 +30,16 @@ Line 97: status: 'acaoCorretiva' → capaStatus: 'acao'
 **Pattern:** Replace CAPA nested object structure with flat `capaHistorico` append-only array.
 
 **Old pattern:**
+
 ```typescript
 { status: 'investig', capa: { investigacao: {...} } }
 ```
 
 **New pattern:**
+
 ```typescript
-{ 
-  capaStatus: 'investigacao', 
+{
+  capaStatus: 'investigacao',
   capaHistorico: [..., { estado: 'investigacao', dataTransicao: now(), responsavel: uid, ... }]
 }
 ```
@@ -43,6 +47,7 @@ Line 97: status: 'acaoCorretiva' → capaStatus: 'acao'
 ### 2. `functions/src/modules/qualidade/naoConformidade.ts`
 
 **Errors:**
+
 ```
 Line 42: origem: NCOrigem → origem: string (literal 'auditoria'|'modulo'|'cliente'|'interno')
 Line 149: ...nc.capa → ...nc.capaHistorico[] (new structure)
@@ -53,6 +58,7 @@ Line 149: ...nc.capa → ...nc.capaHistorico[] (new structure)
 ### 3. Firestore Rules (`firestore.rules`)
 
 Search for NC validation and update severity enum checks:
+
 ```
 // OLD: severidade in ['leve', 'media', 'critica']
 // NEW: severidade in ['leve', 'moderada', 'grave', 'critica']
@@ -80,6 +86,7 @@ cd functions && npm run build
 ## Why This Matters
 
 Frontend schema is the source of truth. Functions must match it exactly for:
+
 - NC CAPA workflow serialization
 - Client ↔ server type safety
 - Audit trail consistency

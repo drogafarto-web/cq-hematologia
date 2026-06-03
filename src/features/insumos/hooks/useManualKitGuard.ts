@@ -16,10 +16,7 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useActiveLab } from '../../../store/useAuthStore';
 import { useInsumos } from './useInsumos';
-import {
-  buildInsumoSnapshot,
-  type InsumosSnapshotSet,
-} from '../types/InsumoSnapshot';
+import { buildInsumoSnapshot, type InsumosSnapshotSet } from '../types/InsumoSnapshot';
 import { evaluateInsumoUsability } from '../utils/insumoUsability';
 import {
   incrementInsumoRunCount,
@@ -37,12 +34,7 @@ import { type Insumo, type InsumoModulo, type InsumoTipo } from '../types/Insumo
  *
  * Hemato/Coag não têm modo manual (sempre rodam em analisador).
  */
-export type ManualSlot =
-  | 'reagente'
-  | 'controlePositivo'
-  | 'controleNegativo'
-  | 'controle'
-  | 'tira';
+export type ManualSlot = 'reagente' | 'controlePositivo' | 'controleNegativo' | 'controle' | 'tira';
 
 export interface ManualKitRequiredSlots {
   reagente?: boolean;
@@ -227,15 +219,15 @@ export function useManualKitGuard({
 
   const resolved = useMemo<Record<ManualSlot, Insumo | null>>(
     () => ({
-      reagente: selection.reagente ? byId.get(selection.reagente) ?? null : null,
+      reagente: selection.reagente ? (byId.get(selection.reagente) ?? null) : null,
       controlePositivo: selection.controlePositivo
-        ? byId.get(selection.controlePositivo) ?? null
+        ? (byId.get(selection.controlePositivo) ?? null)
         : null,
       controleNegativo: selection.controleNegativo
-        ? byId.get(selection.controleNegativo) ?? null
+        ? (byId.get(selection.controleNegativo) ?? null)
         : null,
-      controle: selection.controle ? byId.get(selection.controle) ?? null : null,
-      tira: selection.tira ? byId.get(selection.tira) ?? null : null,
+      controle: selection.controle ? (byId.get(selection.controle) ?? null) : null,
+      tira: selection.tira ? (byId.get(selection.tira) ?? null) : null,
     }),
     [selection, byId],
   );
@@ -313,11 +305,7 @@ export function useManualKitGuard({
       if (!u.ok && u.motivo && u.mensagem) {
         // Mapeia slot manual para slot do OverrideContext (apenas reagente/controle/tira).
         const ctxSlot: 'reagente' | 'controle' | 'tira' =
-          slot === 'reagente'
-            ? 'reagente'
-            : slot === 'tira'
-              ? 'tira'
-              : 'controle';
+          slot === 'reagente' ? 'reagente' : slot === 'tira' ? 'tira' : 'controle';
         bloqueios.push({
           slot: ctxSlot,
           insumoId: insumo.id,
@@ -354,15 +342,12 @@ export function useManualKitGuard({
       module === 'imunologia' &&
       bloqueios.every((b) => b.motivo === 'imuno-nao-aprovado') &&
       bloqueios.every((b) => {
-        const insumo = resolved[
-          b.slot === 'reagente' ? 'reagente' : 'controle'
-        ] as Insumo | null;
+        const insumo = resolved[b.slot === 'reagente' ? 'reagente' : 'controle'] as Insumo | null;
         const candidato =
           insumo?.id === b.insumoId
             ? insumo
-            : (Object.values(resolved) as (Insumo | null)[]).find(
-                (i) => i?.id === b.insumoId,
-              ) ?? null;
+            : ((Object.values(resolved) as (Insumo | null)[]).find((i) => i?.id === b.insumoId) ??
+              null);
         if (!candidato) return false;
         if (candidato.tipo !== 'reagente') return true;
         return candidato.qcStatus !== 'reprovado';

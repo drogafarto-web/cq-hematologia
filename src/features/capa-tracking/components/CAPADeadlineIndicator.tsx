@@ -18,11 +18,12 @@ interface CAPADeadlineIndicatorProps {
  * Formata data para exibição.
  */
 function formatDeadlineDate(deadline: number | Date | { toDate(): Date }): string {
-  const date = typeof deadline === 'number'
-    ? new Date(deadline)
-    : deadline instanceof Date
-      ? deadline
-      : deadline.toDate();
+  const date =
+    typeof deadline === 'number'
+      ? new Date(deadline)
+      : deadline instanceof Date
+        ? deadline
+        : deadline.toDate();
   return new Intl.DateTimeFormat('pt-BR', {
     day: '2-digit',
     month: '2-digit',
@@ -36,7 +37,7 @@ function formatDeadlineDate(deadline: number | Date | { toDate(): Date }): strin
 const STATUS_COLOR: Record<DeadlineStatus['status'], string> = {
   'on-track': 'bg-emerald-500',
   'at-risk': 'bg-amber-500',
-  'overdue': 'bg-red-500',
+  overdue: 'bg-red-500',
 };
 
 /**
@@ -45,7 +46,7 @@ const STATUS_COLOR: Record<DeadlineStatus['status'], string> = {
 const STATUS_LABEL: Record<DeadlineStatus['status'], string> = {
   'on-track': 'No Prazo',
   'at-risk': 'Risco',
-  'overdue': 'Vencido',
+  overdue: 'Vencido',
 };
 
 export function CAPADeadlineIndicator({
@@ -64,10 +65,7 @@ export function CAPADeadlineIndicator({
       aria-label={`Deadline: ${formattedDate}, ${label}, ${Math.abs(deadlineStatus.daysRemaining)} dias`}
     >
       {/* Indicator dot */}
-      <div
-        className={`h-2 w-2 rounded-full ${dotColor} flex-shrink-0`}
-        aria-hidden="true"
-      />
+      <div className={`h-2 w-2 rounded-full ${dotColor} flex-shrink-0`} aria-hidden="true" />
 
       {/* Days remaining with tabular-nums for alignment */}
       <span className="font-mono font-semibold text-sm tabular-nums">

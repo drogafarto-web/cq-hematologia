@@ -27,7 +27,7 @@ export const mockPatient: MockPatient = {
   role: 'PATIENT',
   labId: 'test-lab-001',
   name: 'João Silva',
-  cpf: '12345678901'
+  cpf: '12345678901',
 };
 
 export const mockPatient2: MockPatient = {
@@ -36,7 +36,7 @@ export const mockPatient2: MockPatient = {
   role: 'PATIENT',
   labId: 'test-lab-001',
   name: 'Maria Santos',
-  cpf: '98765432100'
+  cpf: '98765432100',
 };
 
 export const mockPortalConfigBasic: MockPortalConfig = {
@@ -44,7 +44,7 @@ export const mockPortalConfigBasic: MockPortalConfig = {
   enabled: true,
   logo_url: 'https://example.com/logo.png',
   primary_color: '#1A202C',
-  secondary_color: '#6366F1'
+  secondary_color: '#6366F1',
 };
 
 export const mockPortalConfigFull: MockPortalConfig = {
@@ -54,12 +54,12 @@ export const mockPortalConfigFull: MockPortalConfig = {
   primary_color: '#1A202C',
   secondary_color: '#6366F1',
   locale: 'pt-BR',
-  custom_html: '<footer>© 2024 Healthcare Lab</footer>'
+  custom_html: '<footer>© 2024 Healthcare Lab</footer>',
 };
 
 export const mockPortalConfigDisabled: MockPortalConfig = {
   labId: 'test-lab-002',
-  enabled: false
+  enabled: false,
 };
 
 export const mockLaudoForPatient = {
@@ -74,18 +74,18 @@ export const mockLaudoForPatient = {
       analito: 'Hemoglobin',
       valor: '14.5',
       unidade: 'g/dL',
-      referencia: '13.0-17.5'
-    }
+      referencia: '13.0-17.5',
+    },
   ],
   assinatura: {
     operatorId: 'rt-001',
     ts: 1714982400000,
-    hash: 'abc123'
-  }
+    hash: 'abc123',
+  },
 };
 
 export const mockDownloadRequest = {
   laudoId: 'laudo-patient-001',
   format: 'PDF',
-  includeSignature: true
+  includeSignature: true,
 };

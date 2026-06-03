@@ -41,6 +41,7 @@ Deterministic field-by-field change detection:
 **Function:** `buildDiff(before, after) → DiffEntry[]`
 
 Features:
+
 - Dot-notation paths for nested changes (`tratamento.inicio`, `evidencias[0]`)
 - Array item tracking (`add`, `remove`, `update`, `array-item`)
 - Handles null/undefined → "all add" scenario
@@ -48,9 +49,10 @@ Features:
 - Zero external dependencies
 
 **Test coverage (8 cases):**
+
 ```
 ✓ String field change
-✓ Nested object change  
+✓ Nested object change
 ✓ Field addition
 ✓ Field removal
 ✓ Array item addition
@@ -66,6 +68,7 @@ Extract operation metadata from Cloud Function callable request:
 **Function:** `captureContext(req: CallableRequest) → AuditContext`
 
 **Captured fields:**
+
 - `operatorId` — From `request.auth.uid`
 - `labId` — Multi-tenant isolation
 - `timestamp` — When operation occurred
@@ -75,6 +78,7 @@ Extract operation metadata from Cloud Function callable request:
 - `before`, `after` — Snapshots before/after change
 
 **Test coverage (5 cases):**
+
 ```
 ✓ Extract operator ID + lab ID
 ✓ Capture timestamp (accurate to ±5ms)
@@ -89,20 +93,17 @@ Extract operation metadata from Cloud Function callable request:
 
 1. **audit-trail entries by operator** — `(operatorId ↑, timestamp ↓)`
    - Query: List all ops by operator, sorted by recency
-   
 2. **audit-trail entries by action** — `(action ↑, timestamp ↓)`
    - Query: Filter ops by action type (create, update, etc.)
-   
 3. **alerts by severity** — `(severity ↑, createdAt ↓)`
    - Query: Critical/high alerts first
-   
 4. **alerts by status** — `(status ↑, createdAt ↓)`
    - Query: Active alerts first, then dismissed/resolved
-   
 5. **reports by period** — `(period ↑, generatedAt ↓)`
    - Query: Group reports by period (daily/weekly/monthly)
 
 **Format:** Firebase composite index JSON block. Ready for:
+
 ```bash
 firebase deploy --only firestore:indexes
 ```
@@ -117,6 +118,7 @@ Tests:       13 passed, 13 total
 ```
 
 ### auditDiffDetector.test.ts (8 tests) ✓
+
 ### contextCapture.test.ts (5 tests) ✓
 
 ---
@@ -133,25 +135,28 @@ Tests:       13 passed, 13 total
 
 ### Compliance Mapping
 
-| Regulation | Article | Coverage |
-|---|---|---|
-| RDC 978 | Art. 107 | Anomaly detection in audit trail ✓ |
-| DICQ | 4.4 | Audit monitoring + compliance tracking ✓ |
+| Regulation | Article  | Coverage                                 |
+| ---------- | -------- | ---------------------------------------- |
+| RDC 978    | Art. 107 | Anomaly detection in audit trail ✓       |
+| DICQ       | 4.4      | Audit monitoring + compliance tracking ✓ |
 
 ---
 
 ## Files Modified/Created
 
 ### New Files (3)
+
 - `src/features/qualidade/types/anomalyTypes.ts` — 107 LOC
 - `functions/src/shared/auditDiffDetector.ts` — 148 LOC
 - `functions/src/shared/contextCapture.ts` — 70 LOC
 
 ### New Tests (2)
+
 - `functions/src/shared/__tests__/auditDiffDetector.test.ts` — 90 LOC (8 cases)
 - `functions/src/shared/__tests__/contextCapture.test.ts` — 80 LOC (5 cases)
 
 ### Modified Files (2)
+
 - `firestore.indexes.json` — Added 5 new composite indexes
 - `functions/src/modules/incident.ts` — Fixed v2 https imports (unblocked by incident.ts TS errors)
 

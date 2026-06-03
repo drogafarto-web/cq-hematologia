@@ -67,9 +67,7 @@ async function runBackfill(): Promise<BackfillSummary> {
           try {
             await batch.commit();
           } catch (err) {
-            errors.push(
-              `batch commit failed: ${err instanceof Error ? err.message : String(err)}`,
-            );
+            errors.push(`batch commit failed: ${err instanceof Error ? err.message : String(err)}`);
           }
           batch = db.batch();
           pending = 0;
@@ -78,9 +76,7 @@ async function runBackfill(): Promise<BackfillSummary> {
       }
 
       totalSkippedCorrupt += 1;
-      console.warn(
-        `[insumos][backfill] doc sem modulo nem modulos: ${docSnap.ref.path}`,
-      );
+      console.warn(`[insumos][backfill] doc sem modulo nem modulos: ${docSnap.ref.path}`);
     }
 
     if (pending > 0) {
@@ -93,9 +89,7 @@ async function runBackfill(): Promise<BackfillSummary> {
       }
     }
   } catch (err) {
-    errors.push(
-      `top-level failure: ${err instanceof Error ? err.message : String(err)}`,
-    );
+    errors.push(`top-level failure: ${err instanceof Error ? err.message : String(err)}`);
   }
 
   return {
@@ -130,10 +124,7 @@ export const triggerBackfillInsumoModulos = onCall(
     const isSuperAdmin = userData.isSuperAdmin === true;
 
     if (!isSuperAdmin) {
-      throw new HttpsError(
-        'permission-denied',
-        'Apenas SuperAdmin pode disparar o backfill.',
-      );
+      throw new HttpsError('permission-denied', 'Apenas SuperAdmin pode disparar o backfill.');
     }
 
     const summary = await runBackfill();

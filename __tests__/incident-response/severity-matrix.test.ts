@@ -16,7 +16,14 @@ export type EscalationLevel = 'internal' | 'team' | 'leadership' | 'legal';
 interface IncidentClassificationInput {
   affectedUsers: number;
   systemsDown: string[];
-  dataImpact: 'none' | 'read-slow' | 'read-only-affected' | 'write-blocked' | 'integrity-violated' | 'total-loss' | 'records-missing';
+  dataImpact:
+    | 'none'
+    | 'read-slow'
+    | 'read-only-affected'
+    | 'write-blocked'
+    | 'integrity-violated'
+    | 'total-loss'
+    | 'records-missing';
   regulatoryImpact: 'none' | 'minimal' | 'RDC-Art-128' | 'RDC-Art-99' | 'DICQ-4.4' | 'LGPD-breach';
   workaroundAvailable?: boolean;
   systemDown?: boolean;

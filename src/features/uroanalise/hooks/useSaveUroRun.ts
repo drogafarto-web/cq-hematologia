@@ -105,8 +105,8 @@ export function useSaveUroRun() {
 
       try {
         // ── 1. Encontra ou cria o lote ─────────────────────────────────────
-        let lotId =
-          (await findUroLot(labId, formData.nivel, formData.loteControle ?? ''))?.id ?? null;
+        const lot = await findUroLot(labId, formData.nivel, formData.loteControle ?? '');
+        let lotId = lot?.id ?? null;
 
         if (!lotId) {
           lotId = await createUroLot(labId, {
@@ -117,6 +117,7 @@ export function useSaveUroRun() {
             aberturaControle: formData.aberturaControle ?? '',
             validadeControle: formData.validadeControle ?? '',
             resultadosEsperados: formData.resultadosEsperadosRun,
+            expectedValues: formData.expectedValuesRun,
             runCount: 0,
             lotStatus: 'sem_dados',
             createdBy: user.uid,
@@ -135,7 +136,10 @@ export function useSaveUroRun() {
           labId,
           lotId,
           user.uid,
-          formData,
+          {
+            ...formData,
+            expectedValuesRun: formData.expectedValuesRun || lot?.expectedValues,
+          },
           [], // analitosNaoConformes provisório
           [], // alertas provisório
           'A', // conformidade provisória
@@ -143,7 +147,11 @@ export function useSaveUroRun() {
         );
 
         const allRuns = [...existingRuns, simulatedRun];
-        const validatorResult = computeUroValidator(allRuns, formData.validadeControle ?? '');
+        const validatorResult = computeUroValidator(
+          allRuns,
+          formData.validadeControle ?? '',
+          formData.expectedValuesRun || lot?.expectedValues,
+        );
         const simAvaliacao = validatorResult.byRun.get(simulatedId);
         const lotStatus = validatorResult.lotStatus;
 
@@ -199,7 +207,10 @@ export function useSaveUroRun() {
           labId,
           lotId,
           user.uid,
-          formData,
+          {
+            ...formData,
+            expectedValuesRun: formData.expectedValuesRun || lot?.expectedValues,
+          },
           analitosNaoConformes,
           alertas,
           conformidade,
@@ -358,6 +369,7 @@ function buildRun(
     // Data e resultados
     dataRealizacao: form.dataRealizacao,
     resultadosEsperados: form.resultadosEsperadosRun,
+    expectedValuesRun: form.expectedValuesRun,
     resultados: form.resultados,
     // Conformidade
     conformidade,

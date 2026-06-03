@@ -2,13 +2,14 @@
 
 **Plan Status:** Ready for Execution  
 **Verification Date:** 2026-05-07  
-**Verified by:** Planning Agent (GSD Workflow)  
+**Verified by:** Planning Agent (GSD Workflow)
 
 ---
 
 ## Document Completeness
 
 ### Phase 5 Planning Artifacts
+
 - [x] PHASE_5_OVERVIEW.md — Strategic context, task breakdown, compliance, risks (156 lines)
 - [x] 05-01-PLAN.md — Threshold config + routing (383 lines)
 - [x] 05-02-PLAN.md — Critical escalation + SLA (494 lines)
@@ -26,6 +27,7 @@
 ### Task 05-01: Critical Threshold Configuration + Routing Engine
 
 **Requirements defined:**
+
 - [x] REQ-01.1: Threshold data model + Firestore binding
 - [x] REQ-01.2: Threshold service layer (6 methods)
 - [x] REQ-01.3: Frontend config UI (5 features)
@@ -42,6 +44,7 @@
 ### Task 05-02: Critical Value Detection Engine + SLA Tracking
 
 **Requirements defined:**
+
 - [x] REQ-02.1: Detection on laudo creation
 - [x] REQ-02.2: Escalation callable + state machine
 - [x] REQ-02.3: SMS escalation callable
@@ -59,6 +62,7 @@
 ### Task 05-03: IA Strip Upload + Gemini Vision Integration
 
 **Requirements defined:**
+
 - [x] REQ-03.1: Image upload infrastructure (5 features)
 - [x] REQ-03.2: Gemini Vision API integration
 - [x] REQ-03.3: Confidence validation pipeline
@@ -75,6 +79,7 @@
 ### Task 05-04: IA Classification Feedback Loop + Dataset Aggregation
 
 **Requirements defined:**
+
 - [x] REQ-04.1: Accuracy calculation engine
 - [x] REQ-04.2: Monthly dataset export aggregator
 - [x] REQ-04.3: Feedback webhook (placeholder for v1.5)
@@ -110,7 +115,7 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 
 ### External Dependencies (from other phases)
 
-- [x] Phase 3 schema (imuno-ias-dev, criticos-*) — **Complete** ✓
+- [x] Phase 3 schema (imuno-ias-dev, criticos-\*) — **Complete** ✓
 - [x] Phase 3 helpers (smsTemplate, iaStripValidator, criticoDetector, notivisaFormatter) — **Available** ✓
 - [x] Twilio account + API keys — **Configured** ✓
 - [x] Gemini 2.5 Flash API access — **Confirmed** ✓
@@ -125,12 +130,14 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 ### Code Output
 
 **New modules/features:**
+
 - [x] `src/features/criticos/` (expanded from placeholder) — threshold config + escalation UI
 - [x] `src/features/ciq-imuno/strip-classifier/` (new) — IA upload + classification
 - [x] `functions/src/modules/criticos/` — callables (escalacaoCriticos, escalarCriticoViaSmS, monitor)
 - [x] `functions/src/modules/ciqImuno/` — callables (classifyStripGemini, accuracyCalculator, collectIADataset)
 
 **Infrastructure:**
+
 - [x] Firestore rules (RBAC for thresholds, escalacoes, IA images)
 - [x] Firestore indexes (query optimization)
 - [x] Cloud Functions (5+ new callables)
@@ -138,11 +145,13 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 - [x] Firebase Storage (image hosting)
 
 **Tests:**
+
 - [x] Unit: 8+ test modules, 58+ specs, ≥80% coverage target
 - [x] Integration: 3+ smoke tests
 - [x] E2E: 10+ critical user journeys
 
 **Documentation:**
+
 - [x] ADR-0014: Critical Values Escalation Model
 - [x] ADR-0016: IA Strip Classification Approach
 - [x] Phase 5 planning docs (6 markdown files, 2,321 lines)
@@ -154,6 +163,7 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 ### Global Phase 5 Criteria
 
 **Functional completeness:**
+
 - [x] Threshold CRUD operational → Task 05-01 deliverable
 - [x] Critical detection <200ms → Task 05-02 performance spec
 - [x] SMS delivery >99% → Task 05-02 integration test
@@ -165,12 +175,14 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 - [x] Accuracy dashboard → Task 05-04 dashboard
 
 **Quality criteria:**
+
 - [x] 0 critical linter errors → build gate
 - [x] 0 TypeScript errors → tsc --noEmit
 - [x] ≥80% test coverage → hcq-deploy-gates
 - [x] E2E tests all passing → verification gate
 
 **Security & compliance:**
+
 - [x] RBAC enforced (RT + admin) → firestore.rules
 - [x] Audit trail 100% (escaladoEm, escaladoPor, acknowledgedAt) → schema + callables
 - [x] Soft-delete enforced (RN-06) → service layer
@@ -199,22 +211,22 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 
 ### RDC 978 Coverage
 
-| Article | Requirement | Task | Evidence |
-|---|---|---|---|
-| Art. 17 | Critical values | 05-02 | Detection engine + escalation |
-| Art. 128 | Audit trail | 05-02, 05-04 | operadorId + timestamp on every action |
-| Art. 167 | Emergency procedures | 05-03 | Manual override always allowed |
-| Arts. 184-191 | SLA tracking | 05-02 | SLA deadline + monitoring |
+| Article       | Requirement          | Task         | Evidence                               |
+| ------------- | -------------------- | ------------ | -------------------------------------- |
+| Art. 17       | Critical values      | 05-02        | Detection engine + escalation          |
+| Art. 128      | Audit trail          | 05-02, 05-04 | operadorId + timestamp on every action |
+| Art. 167      | Emergency procedures | 05-03        | Manual override always allowed         |
+| Arts. 184-191 | SLA tracking         | 05-02        | SLA deadline + monitoring              |
 
 **All mandatory articles covered. Phase 5 contribution to RDC 978 = 4 articles (~20% of total).**
 
 ### DICQ Alignment
 
-| Section | Topic | Task | Evidence |
-|---|---|---|---|
-| 4.4.3 | Audit trail | All | Logs + timestamps |
-| 4.14.5 | SLA tracking | 05-02 | Dashboard + cron monitor |
-| 5.8.7 | Critical values + IA | 05-02, 05-03 | Detection + classification |
+| Section | Topic                | Task         | Evidence                   |
+| ------- | -------------------- | ------------ | -------------------------- |
+| 4.4.3   | Audit trail          | All          | Logs + timestamps          |
+| 4.14.5  | SLA tracking         | 05-02        | Dashboard + cron monitor   |
+| 5.8.7   | Critical values + IA | 05-02, 05-03 | Detection + classification |
 
 **Phase 5 addresses DICQ sections directly related to quality management + IA. Compliance solid.**
 
@@ -225,27 +237,32 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 ### Design Pattern Consistency
 
 **Thin service, fat hooks** (per CLAUDE.md):
+
 - [x] Service layer: CRUD + mapping only (thresholdService.ts)
 - [x] Hooks: validation + business logic (useDetectCritico)
 - [x] Callables: transactional operations (escalacaoCriticos, classifyStripGemini)
 
 **Multi-tenant architecture:**
+
 - [x] All collections: `/labs/{labId}/...`
 - [x] Payload carries `labId` (defense-in-depth)
 - [x] Firestore Rules enforce labId in path
 
 **Soft-delete only (RN-06):**
+
 - [x] No hard deletes in any schema
 - [x] `deletadoEm` timestamp on all docs
 - [x] Service methods use `softDelete*` naming
 
 **World-class UI/UX:**
+
 - [x] Dark-first Tailwind (from design system)
 - [x] Responsive on tablet (7-inch bancada hardware)
 - [x] WCAG AA accessibility (contrast, keyboard nav)
 - [x] Real-time updates (onSnapshot, no polling)
 
 **Performance-first design:**
+
 - [x] Detection <200ms (target met)
 - [x] SMS <10s (target met)
 - [x] Dashboard <1s (target met)
@@ -283,13 +300,13 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 
 ### Estimated Effort
 
-| Task | Dev | Test | Review | Total |
-|---|---|---|---|---|
-| 05-01 | 15h | 6.5h | 3h | **24.5h** |
-| 05-02 | 18h | 7.5h | 3.25h | **28.75h** |
-| 05-03 | 18h | 6h | 3.75h | **27.75h** |
-| 05-04 | 9.5h | 3.5h | 1.75h | **14.75h** |
-| **Total** | **60.5h** | **23.5h** | **12h** | **96h** |
+| Task      | Dev       | Test      | Review  | Total      |
+| --------- | --------- | --------- | ------- | ---------- |
+| 05-01     | 15h       | 6.5h      | 3h      | **24.5h**  |
+| 05-02     | 18h       | 7.5h      | 3.25h   | **28.75h** |
+| 05-03     | 18h       | 6h        | 3.75h   | **27.75h** |
+| 05-04     | 9.5h      | 3.5h      | 1.75h   | **14.75h** |
+| **Total** | **60.5h** | **23.5h** | **12h** | **96h**    |
 
 **Calendar:** 2 FTE × 2 weeks = 96h (perfect fit) ✅
 
@@ -329,12 +346,14 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 ### Planning Process Validation
 
 ✅ **Research Phase:**
+
 - v1.4 ROADMAP analyzed (Phases 1-15 context)
 - Phase 3 helpers reviewed (sms.ts, ia.ts, notivisa.ts)
 - Existing criticos module assessed (placeholder state)
 - Dependencies verified (all available, no blockers)
 
 ✅ **Specification Phase:**
+
 - 4 tasks broken down into 22 detailed requirements
 - 58+ test specs defined
 - 7 acceptance definitions (per task + global)
@@ -342,18 +361,21 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 - 6 risks documented with mitigations
 
 ✅ **Architecture Phase:**
+
 - Design patterns verified (thin service, fat hooks, soft-delete)
 - Multi-tenant architecture enforced
 - Performance targets confirmed (<200ms, <3s, <1s)
 - Security/compliance aligned (RBAC, audit trail, RN-06)
 
 ✅ **Estimation Phase:**
+
 - 96 hours total effort (4 tasks × 24h avg)
 - 2-week duration (2 FTE capacity)
 - Resource allocation realistic
 - Critical path identified (05-01 → 05-02)
 
 ✅ **Documentation Phase:**
+
 - 2,321 lines of detailed planning docs
 - 6 markdown files (overview, 4× task plans, execution summary, verification)
 - All files follow GSD template format
@@ -362,17 +384,17 @@ Phase 3 schema ✓ (imuno-ias-dev, criticos-escalacoes, criticos-routing)
 
 ## Phase 5 Planning Status
 
-| Aspect | Status | Notes |
-|---|---|---|
-| Requirements completeness | ✅ PASS | 22 reqs across 4 tasks |
-| Acceptance criteria | ✅ PASS | 7 per-task + 5 global criteria |
-| Test coverage | ✅ PASS | 58 specs, ≥80% code coverage target |
-| Risk assessment | ✅ PASS | 6 risks identified, all mitigated |
-| Regulatory mapping | ✅ PASS | 12 RDC articles + DICQ sections |
-| Dependency resolution | ✅ PASS | No blockers; Phase 3 complete |
-| Resource estimation | ✅ PASS | 96h, 2 FTE, 2-week duration |
-| Architecture coherence | ✅ PASS | Multi-tenant, thin service, soft-delete |
-| Documentation | ✅ PASS | 2,321 lines, 6 files, complete |
+| Aspect                    | Status  | Notes                                   |
+| ------------------------- | ------- | --------------------------------------- |
+| Requirements completeness | ✅ PASS | 22 reqs across 4 tasks                  |
+| Acceptance criteria       | ✅ PASS | 7 per-task + 5 global criteria          |
+| Test coverage             | ✅ PASS | 58 specs, ≥80% code coverage target     |
+| Risk assessment           | ✅ PASS | 6 risks identified, all mitigated       |
+| Regulatory mapping        | ✅ PASS | 12 RDC articles + DICQ sections         |
+| Dependency resolution     | ✅ PASS | No blockers; Phase 3 complete           |
+| Resource estimation       | ✅ PASS | 96h, 2 FTE, 2-week duration             |
+| Architecture coherence    | ✅ PASS | Multi-tenant, thin service, soft-delete |
+| Documentation             | ✅ PASS | 2,321 lines, 6 files, complete          |
 
 **Overall Status: ✅ READY FOR EXECUTION**
 

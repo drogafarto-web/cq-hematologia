@@ -109,10 +109,14 @@ describe('F6: Patient Consent Backfill & Data Export', () => {
       expect(backfillForm?.textContent).toContain('patient@example.com');
 
       // Action: Admin fills consent details
-      const consentDateInput = backfillForm?.querySelector('[name="consentDate"]') as HTMLInputElement;
+      const consentDateInput = backfillForm?.querySelector(
+        '[name="consentDate"]',
+      ) as HTMLInputElement;
       if (consentDateInput) consentDateInput.value = '2026-05-01';
 
-      const consentTypeSelect = backfillForm?.querySelector('[name="consentType"]') as HTMLSelectElement;
+      const consentTypeSelect = backfillForm?.querySelector(
+        '[name="consentType"]',
+      ) as HTMLSelectElement;
       if (consentTypeSelect) consentTypeSelect.value = 'ia_strip_ocr';
 
       // Action: Submit backfill form
@@ -160,11 +164,7 @@ describe('F6: Patient Consent Backfill & Data Export', () => {
                 success: true,
                 patientId: testPatientId,
                 zipUrl: 'gs://bucket/exports/patient_001_export.zip',
-                contents: [
-                  'laudo_001.pdf',
-                  'laudo_002.pdf',
-                  'resultados.json',
-                ],
+                contents: ['laudo_001.pdf', 'laudo_002.pdf', 'resultados.json'],
                 createdAt: Timestamp.now().toDate(),
               },
             });
@@ -193,7 +193,9 @@ describe('F6: Patient Consent Backfill & Data Export', () => {
 
       // Action: Upload malformed CSV
       const csvForm = getElementByTestId('form-batch-csv-upload');
-      const fileInput = csvForm?.querySelector('[data-testid="input-csv-file"]') as HTMLInputElement;
+      const fileInput = csvForm?.querySelector(
+        '[data-testid="input-csv-file"]',
+      ) as HTMLInputElement;
 
       // Create invalid CSV (missing required columns)
       const invalidCsv = 'email,name\npatient@test.com,John'; // Missing consentType, consentDate
@@ -234,7 +236,8 @@ describe('F6: Patient Consent Backfill & Data Export', () => {
       expect(retryBtn).toBeDefined();
 
       // Action: Correct CSV and retry
-      const correctCsv = 'email,name,consentType,consentDate\npatient@test.com,John,ia_strip_ocr,2026-05-01';
+      const correctCsv =
+        'email,name,consentType,consentDate\npatient@test.com,John,ia_strip_ocr,2026-05-01';
       const correctFile = new File([correctCsv], 'consents_fixed.csv', { type: 'text/csv' });
       const dataTransfer2 = new DataTransfer();
       dataTransfer2.items.add(correctFile);
@@ -322,24 +325,28 @@ function seedAdminUser(userId: string, labId: string) {
 
 function generatePatientAuthToken(patientId: string, email: string): string {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    patientId,
-    email,
-    iat: Math.floor(Date.now() / 1000),
-    exp: Math.floor(Date.now() / 1000) + 86400,
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      patientId,
+      email,
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 86400,
+    }),
+  );
   const signature = btoa('mock_signature');
   return `${header}.${payload}.${signature}`;
 }
 
 async function generateAdminAuthToken(user: any): Promise<string> {
   const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
-  const payload = btoa(JSON.stringify({
-    uid: user.uid,
-    email: user.email,
-    role: user.role,
-    iat: Math.floor(Date.now() / 1000),
-  }));
+  const payload = btoa(
+    JSON.stringify({
+      uid: user.uid,
+      email: user.email,
+      role: user.role,
+      iat: Math.floor(Date.now() / 1000),
+    }),
+  );
   const signature = btoa('mock_admin_signature');
   return `${header}.${payload}.${signature}`;
 }
@@ -366,7 +373,7 @@ async function waitForElement(selector: string, timeout = 5000): Promise<Element
   while (Date.now() - startTime < timeout) {
     const el = document.querySelector(selector);
     if (el) return el;
-    await new Promise(r => setTimeout(r, 100));
+    await new Promise((r) => setTimeout(r, 100));
   }
   throw new Error(`Element not found: ${selector}`);
 }

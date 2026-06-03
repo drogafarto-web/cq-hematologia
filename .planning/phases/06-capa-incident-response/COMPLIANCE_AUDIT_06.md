@@ -16,14 +16,14 @@ Phase 6 (CAPA + Incident Response) has been validated for regulatory compliance 
 
 ### Article 99 — CAPA Management
 
-| Requirement | Implementation | Status |
-|------------|----------------|--------|
-| Finding identification | CAPA documents link to source | ✅ |
-| Action assignment | CAParecao.tipo + responsavel enforced | ✅ |
-| Effectiveness verification | Verificacao.resultado (efetiva/nao-efetiva) | ✅ |
-| Auto-closure | CAPA → fechada when resultado='efetiva' | ✅ |
-| Audit trail | registerAuditEntry on all operations | ✅ |
-| Record retention | Soft-delete only; no hard-delete | ✅ |
+| Requirement                | Implementation                              | Status |
+| -------------------------- | ------------------------------------------- | ------ |
+| Finding identification     | CAPA documents link to source               | ✅     |
+| Action assignment          | CAParecao.tipo + responsavel enforced       | ✅     |
+| Effectiveness verification | Verificacao.resultado (efetiva/nao-efetiva) | ✅     |
+| Auto-closure               | CAPA → fechada when resultado='efetiva'     | ✅     |
+| Audit trail                | registerAuditEntry on all operations        | ✅     |
+| Record retention           | Soft-delete only; no hard-delete            | ✅     |
 
 **Art. 99 Compliance:** 100%
 
@@ -31,12 +31,12 @@ Phase 6 (CAPA + Incident Response) has been validated for regulatory compliance 
 
 ### Article 128 — Audit Trail
 
-| Requirement | Implementation | Status |
-|------------|----------------|--------|
-| Operator attribution | operatorId on every audit entry | ✅ |
-| Timestamps | Server-sealed via Admin SDK | ✅ |
-| Chain integrity | HMAC-SHA256 linkage verified | ✅ |
-| Immutability | Firestore Rules: allow update: if false | ✅ |
+| Requirement          | Implementation                          | Status |
+| -------------------- | --------------------------------------- | ------ |
+| Operator attribution | operatorId on every audit entry         | ✅     |
+| Timestamps           | Server-sealed via Admin SDK             | ✅     |
+| Chain integrity      | HMAC-SHA256 linkage verified            | ✅     |
+| Immutability         | Firestore Rules: allow update: if false | ✅     |
 
 **Art. 128 Compliance:** 100%
 
@@ -46,16 +46,16 @@ Phase 6 (CAPA + Incident Response) has been validated for regulatory compliance 
 
 Complete non-conformity procedures implemented and tested:
 
-| Block | Requirement | Status |
-|-------|------------|--------|
-| 4.14.2.1 | Nonconformity identification | ✅ |
-| 4.14.2.2 | Root cause analysis | ✅ |
-| 4.14.2.3 | Corrective action definition | ✅ |
-| 4.14.2.4 | Preventive action support | ✅ |
-| 4.14.2.5 | Action assignment + deadlines | ✅ |
-| 4.14.2.6 | Effectiveness verification | ✅ |
-| 4.14.2.7 | Status tracking | ✅ |
-| 4.14.2.8 | Closure on effectiveness | ✅ |
+| Block    | Requirement                   | Status |
+| -------- | ----------------------------- | ------ |
+| 4.14.2.1 | Nonconformity identification  | ✅     |
+| 4.14.2.2 | Root cause analysis           | ✅     |
+| 4.14.2.3 | Corrective action definition  | ✅     |
+| 4.14.2.4 | Preventive action support     | ✅     |
+| 4.14.2.5 | Action assignment + deadlines | ✅     |
+| 4.14.2.6 | Effectiveness verification    | ✅     |
+| 4.14.2.7 | Status tracking               | ✅     |
+| 4.14.2.8 | Closure on effectiveness      | ✅     |
 
 **DICQ 4.14.2 Compliance:** 100%
 
@@ -80,16 +80,17 @@ All 32 accessibility tests pass:
 
 ### Test Results
 
-| Suite | Tests | Status |
-|-------|-------|--------|
-| CAPA Integration | 9 | ✅ PASSING |
-| Incident Severity | 12 | ✅ PASSING |
-| WCAG AA Accessibility | 32 | ✅ PASSING |
-| **TOTAL** | **53** | **✅ ALL PASSING** |
+| Suite                 | Tests  | Status             |
+| --------------------- | ------ | ------------------ |
+| CAPA Integration      | 9      | ✅ PASSING         |
+| Incident Severity     | 12     | ✅ PASSING         |
+| WCAG AA Accessibility | 32     | ✅ PASSING         |
+| **TOTAL**             | **53** | **✅ ALL PASSING** |
 
 ### Test Coverage
 
 **CAPA Lifecycle:**
+
 - Full end-to-end workflow (create → assign → verify → close)
 - Status transitions and invalid transitions
 - Soft-delete behavior (no hard-delete)
@@ -98,6 +99,7 @@ All 32 accessibility tests pass:
 - Audit chain integrity (HMAC verification)
 
 **Incident Severity Classification:**
+
 - Green incidents (low risk, 8h SLA)
 - Yellow incidents (moderate, 4h SLA)
 - Red incidents (high impact, 1h SLA)
@@ -106,6 +108,7 @@ All 32 accessibility tests pass:
 - SLA calculations validated
 
 **WCAG AA Accessibility:**
+
 - Text contrast ≥4.5:1 validated
 - Keyboard navigation tested
 - Focus visibility on buttons verified

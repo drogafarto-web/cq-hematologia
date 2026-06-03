@@ -37,6 +37,7 @@ RDC 978 Art. 22 mandates that the Responsável Técnico (RT) be **continuously p
   - Audit log: `[RT_PRESENCA_CHECKOUT]` with duration
 
 **Validators (shared):**
+
 - `assertRtPresenceAccess(auth, labId)` — validates:
   1. User authenticated
   2. Has `modules['rt-presence'] === true` claim
@@ -47,6 +48,7 @@ RDC 978 Art. 22 mandates that the Responsável Técnico (RT) be **continuously p
 - `generateSessionId(labId, rtUid, nowMs)` — format: `rt-<labId>-<rtUid>-<timestamp>`
 
 **Access Control:**
+
 - Fail-closed: caller must have RT role; non-RT members cannot check in/out
 - Audit trail: all operations logged with precise timestamps + chain hashing (identical to turnos pattern)
 
@@ -83,11 +85,11 @@ Add to firestore.rules **after supervisor-status sections**:
 match /criticos/{labId}/thresholds/{thresholdId} {
   allow read: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('criticos'));
-  
+
   // RDC 978 Art. 22: create/update thresholds require active RT.
   allow create, update: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('criticos') && hasActiveRT(labId));
-  
+
   allow delete: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 }
@@ -97,14 +99,14 @@ match /criticos/{labId}/thresholds/{thresholdId} {
 match /bioquimica/{labId}/runs/{runId} {
   allow read: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('bioquimica'));
-  
+
   // RDC 978 Art. 22: create runs require active RT.
   allow create: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('bioquimica') && hasActiveRT(labId));
-  
+
   allow update: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && (isAdminOrOwner(labId) || hasActiveRT(labId)));
-  
+
   allow delete: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 }
@@ -114,14 +116,14 @@ match /bioquimica/{labId}/runs/{runId} {
 match /ceq/{labId}/submissions/{submissionId} {
   allow read: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('ceq'));
-  
+
   // RDC 978 Art. 22: create submissions require active RT.
   allow create: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && hasModuleAccess('ceq') && hasActiveRT(labId));
-  
+
   allow update: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && (isAdminOrOwner(labId) || hasActiveRT(labId)));
-  
+
   allow delete: if isSuperAdmin() ||
     (isActiveMemberOfLab(labId) && isAdminOrOwner(labId));
 }
@@ -133,10 +135,10 @@ match /labs/{labId}/rt-presenca/{document=**} {
     (request.auth.token.role == 'RT' ||
      request.auth.token.role == 'auditor' ||
      isAdminOrOwner(labId));
-  
+
   // Create/Update: Cloud Function only (not client)
   allow create, update: if false;
-  
+
   // Delete: never (soft-delete only)
   allow delete: if false;
 }
@@ -148,10 +150,10 @@ match /labs/{labId}/rt-presenca-events/{eventId} {
     (request.auth.token.role == 'RT' ||
      request.auth.token.role == 'auditor' ||
      isAdminOrOwner(labId));
-  
+
   // Create: Cloud Function only
   allow create: if false;
-  
+
   // Update/Delete: never (immutable audit trail)
   allow update, delete: if false;
 }
@@ -166,16 +168,17 @@ match /labs/{labId}/rt-presenca-events/{eventId} {
 Cache doc for current RT active status (server-side only; callables maintain it).
 
 **Schema:**
+
 ```typescript
 {
   labId: string;
   hasActiveRT: boolean;
-  rtId: string | null;           // UID of checked-in RT
-  rtNome: string | null;         // Snapshot of colaborador.nome
-  rtCrbm: string | null;         // Snapshot of colaborador.crbm
-  sessionId: string | null;      // Unique session identifier
+  rtId: string | null; // UID of checked-in RT
+  rtNome: string | null; // Snapshot of colaborador.nome
+  rtCrbm: string | null; // Snapshot of colaborador.crbm
+  sessionId: string | null; // Unique session identifier
   checkedInAt: Timestamp | null;
-  expiresAt: Timestamp | null;   // Automatic expiry after 8 hours
+  expiresAt: Timestamp | null; // Automatic expiry after 8 hours
   checkedOutAt: Timestamp | null;
   atualizadoEm: Timestamp;
 }
@@ -186,6 +189,7 @@ Cache doc for current RT active status (server-side only; callables maintain it)
 Immutable audit trail of check-in/out events.
 
 **Schema:**
+
 ```typescript
 {
   tipo: 'checkin' | 'checkout';
@@ -236,22 +240,26 @@ fields:
 ## Deployment Order
 
 1. **Firestore rules**: Deploy helper `hasActiveRT()` + new collections match blocks
+
    ```bash
    firebase deploy --only firestore:rules --project hmatologia2
    ```
 
 2. **Firestore indexes**: Create indexes via Console or Terraform
+
    ```bash
    firebase deploy --only firestore:indexes --project hmatologia2
    ```
 
 3. **Migration**: Initialize `/labs/{labId}/rt-presenca/current` for each active lab
+
    ```bash
    # Runs as part of post-deploy checklist; see `PHASE_6_MIGRATION_RT_BOOTSTRAP.md`
    node scripts/bootstrap-rt-presenca.js
    ```
 
 4. **Cloud Functions**: Deploy callables
+
    ```bash
    firebase deploy --only functions:rtPresenceCheckin,functions:rtPresenceCheckout --project hmatologia2
    ```
@@ -273,6 +281,7 @@ fields:
 - This is intentional: better to block operations than to skip validation
 
 **Recovery (incident response):**
+
 - SuperAdmin can bypass with `isSuperAdmin()` in all gated rules
 - Callable can be invoked directly to re-initialize status doc
 - For sustained outage: roll back rules to pre-Art.22 version
@@ -296,6 +305,7 @@ export const rtPresenceCheckout = region('southamerica-east1').onCall(rtPresence
 ### 2. Portal-RT Web UI (separate Wave)
 
 Not in scope for this task. Portal-RT (phase TBD) will wire:
+
 - "Check In" button → calls `rtPresenceCheckin({ labId })`
 - "Check Out" button → calls `rtPresenceCheckout({ labId, sessionId })`
 - Session status display → reads from cache doc (read-only)
@@ -316,6 +326,7 @@ node scripts/provision-modules-rt-presence.js
 ## Testing
 
 **Unit tests (10 tests minimum):**
+
 - ✓ rtPresenceCheckin: happy path (checkin succeeds, status updated, sessionId valid)
 - ✓ rtPresenceCheckin: denies non-RT role
 - ✓ rtPresenceCheckin: denies inactive colaborador
@@ -328,6 +339,7 @@ node scripts/provision-modules-rt-presence.js
 - ✓ rtPresenceCheckout: denies when never initialized
 
 **Emulator rules test (Phase 6 integration):**
+
 - Query `/criticos/{labId}/thresholds/` create blocked without hasActiveRT
 - Query `/bioquimica/{labId}/runs/` create blocked without hasActiveRT
 - Query `/ceq/{labId}/submissions/` create blocked without hasActiveRT
@@ -336,12 +348,12 @@ node scripts/provision-modules-rt-presence.js
 
 ## Compliance Mapping
 
-| Requisito | Implementação | Status |
-|-----------|---|---|
-| RDC 978 Art. 22 — RT continuous presence | rtPresenceCheckin + rules gate | ✓ Proposto |
-| DICQ 4.1.2.7 — Supervisor/RT logging | Chain-hashed events + timestamps | ✓ Proposto |
-| Audit trail retention | `/rt-presenca-events/` immutable | ✓ Proposto |
-| Fail-closed enforcement | Rules block without `hasActiveRT` | ✓ Design |
+| Requisito                                | Implementação                     | Status     |
+| ---------------------------------------- | --------------------------------- | ---------- |
+| RDC 978 Art. 22 — RT continuous presence | rtPresenceCheckin + rules gate    | ✓ Proposto |
+| DICQ 4.1.2.7 — Supervisor/RT logging     | Chain-hashed events + timestamps  | ✓ Proposto |
+| Audit trail retention                    | `/rt-presenca-events/` immutable  | ✓ Proposto |
+| Fail-closed enforcement                  | Rules block without `hasActiveRT` | ✓ Design   |
 
 ---
 
@@ -362,4 +374,3 @@ node scripts/provision-modules-rt-presence.js
 - [ ] 10 unit tests all passing
 - [ ] Rules emulator tests pass (gated writes blocked without hasActiveRT)
 - [ ] One commit: `feat(rt-presence): Phase 6 Art. 22 RT presence enforcement (W3-4)`
-

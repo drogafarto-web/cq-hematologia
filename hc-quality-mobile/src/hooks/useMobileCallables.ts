@@ -18,10 +18,7 @@ import { enqueueAction, QueuedActionType } from '../services/offlineQueueService
  */
 export function useMobileCallables() {
   const callFunction = useCallback(
-    async (
-      functionName: string,
-      data: Record<string, unknown>
-    ): Promise<unknown> => {
+    async (functionName: string, data: Record<string, unknown>): Promise<unknown> => {
       try {
         const fn = httpsCallable(functions, functionName);
         const result = await fn(data);
@@ -57,7 +54,7 @@ export function useMobileCallables() {
         throw err;
       }
     },
-    []
+    [],
   );
 
   return { callFunction };

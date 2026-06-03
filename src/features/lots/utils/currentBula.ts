@@ -26,10 +26,7 @@ export function bulaKey(date: Date): string {
 export function selectCurrentBulaLots(lots: ControlLot[]): ControlLot[] {
   const now = Date.now();
   const usable = lots.filter(
-    (l) =>
-      l.archivedAt == null &&
-      l.manualHidden !== true &&
-      l.expiryDate.getTime() >= now,
+    (l) => l.archivedAt == null && l.manualHidden !== true && l.expiryDate.getTime() >= now,
   );
   if (usable.length === 0) return [];
 

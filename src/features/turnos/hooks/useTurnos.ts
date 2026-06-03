@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { useActiveLabId } from '../../../store/useAuthStore';
-import {
-  subscribeTurnos,
-  type SubscribeTurnosOptions,
-} from '../services/turnosService';
+import { subscribeTurnos, type SubscribeTurnosOptions } from '../services/turnosService';
 import {
   callCreateTurno,
   callUpdateTurno,
@@ -35,9 +32,7 @@ export interface UseTurnosResult {
  * - Retorna lista vazia e sem subscribe quando `labId` é null
  * - Todas as mutations lançam `Error` se chamadas sem lab ativo
  */
-export function useTurnos(
-  options: SubscribeTurnosOptions = {},
-): UseTurnosResult {
+export function useTurnos(options: SubscribeTurnosOptions = {}): UseTurnosResult {
   const labId = useActiveLabId();
 
   const [turnos, setTurnos] = useState<Turno[]>([]);

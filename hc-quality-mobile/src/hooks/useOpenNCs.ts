@@ -45,7 +45,7 @@ export function useOpenNCs() {
         collection(db, `labs/${labId}/naoConformidades`),
         where('status', 'in', ['open', 'investigating']),
         where('deletadoEm', '==', null), // RN-06: soft delete filter
-        orderBy('detectadoEm', 'asc')
+        orderBy('detectadoEm', 'asc'),
       );
     } catch (err: any) {
       setError(err.message);
@@ -67,7 +67,7 @@ export function useOpenNCs() {
       (err: any) => {
         setError(err.message);
         setLoading(false);
-      }
+      },
     );
 
     return unsubscribe;

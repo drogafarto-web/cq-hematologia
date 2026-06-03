@@ -75,7 +75,6 @@ const mockQueryChain = {
   }),
 };
 
-
 vi.mock('firebase-admin/firestore', () => {
   const Timestamp = {
     fromDate: (d: Date) => ({
@@ -204,10 +203,10 @@ describe('generateCSVAuditLog', () => {
       .filter((l) => l.length > 0);
 
     const firstDataCols = lines[1]!.split(',');
-    expect(firstDataCols[1]).toBe('op-001');     // operatorId
+    expect(firstDataCols[1]).toBe('op-001'); // operatorId
     expect(firstDataCols[2]).toBe('CREATE_RUN'); // action
-    expect(firstDataCols[3]).toBe('run');        // resourceType
-    expect(firstDataCols[4]).toBe('run-001');    // resourceId
-    expect(firstDataCols[7]).toBe('lab-test');   // labId
+    expect(firstDataCols[3]).toBe('run'); // resourceType
+    expect(firstDataCols[4]).toBe('run-001'); // resourceId
+    expect(firstDataCols[7]).toBe('lab-test'); // labId
   });
 });

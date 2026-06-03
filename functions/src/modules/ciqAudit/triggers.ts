@@ -16,10 +16,7 @@
 import { onDocumentWritten } from 'firebase-functions/v2/firestore';
 import * as admin from 'firebase-admin';
 import { writeCIQAuditEvent } from './writer';
-import type {
-  CIQAuditAction,
-  CIQAuditSeverity,
-} from '../emailBackup/operacional/types';
+import type { CIQAuditAction, CIQAuditSeverity } from '../emailBackup/operacional/types';
 
 type RunModule = 'hematologia' | 'imunologia' | 'coagulacao' | 'uroanalise';
 
@@ -104,9 +101,7 @@ function deriveRunAction(
     return {
       action: 'EDIT_RUN_VALUE',
       severity: 'critical',
-      reason:
-        (after['editReason'] as string) ??
-        'Edição manual pós-OCR sem justificativa',
+      reason: (after['editReason'] as string) ?? 'Edição manual pós-OCR sem justificativa',
     };
   }
 
@@ -133,9 +128,7 @@ function deriveInsumoAction(
       return {
         action: 'SEGREGATE_LOT',
         severity: 'critical',
-        reason:
-          (after['segregationReason'] as string) ??
-          'Lote segregado sem justificativa',
+        reason: (after['segregationReason'] as string) ?? 'Lote segregado sem justificativa',
       };
     }
     return null;
@@ -148,8 +141,7 @@ function deriveInsumoAction(
     return {
       action: 'DISCARD_LOT',
       severity: 'critical',
-      reason:
-        (after['motivoDescarte'] as string) ?? 'Descarte sem justificativa',
+      reason: (after['motivoDescarte'] as string) ?? 'Descarte sem justificativa',
     };
   }
   if (statusAfter === 'ativo' && statusBefore === null) {
@@ -199,10 +191,7 @@ export const onHematologiaRunAudit = onDocumentWritten(
         eventId: `run-${runId}-${delta.action}-${after?.['version'] ?? Date.now()}`,
       });
     } catch (err) {
-      console.error(
-        `[ciqAudit] Falha ao registrar ${delta.action} run=${runId}:`,
-        err,
-      );
+      console.error(`[ciqAudit] Falha ao registrar ${delta.action} run=${runId}:`, err);
     }
   },
 );
@@ -240,10 +229,7 @@ export const onImunoRunAudit = onDocumentWritten(
         eventId: `imuno-run-${runId}-${delta.action}-${after?.['version'] ?? Date.now()}`,
       });
     } catch (err) {
-      console.error(
-        `[ciqAudit] Falha ao registrar ${delta.action} imuno-run=${runId}:`,
-        err,
-      );
+      console.error(`[ciqAudit] Falha ao registrar ${delta.action} imuno-run=${runId}:`, err);
     }
   },
 );
@@ -299,10 +285,7 @@ export const onInsumoLifecycleAudit = onDocumentWritten(
         eventId: `insumo-${insumoId}-${delta.action}-${after?.['status'] ?? 'x'}-${Date.now()}`,
       });
     } catch (err) {
-      console.error(
-        `[ciqAudit] Falha ao registrar ${delta.action} insumo=${insumoId}:`,
-        err,
-      );
+      console.error(`[ciqAudit] Falha ao registrar ${delta.action} insumo=${insumoId}:`, err);
     }
   },
 );

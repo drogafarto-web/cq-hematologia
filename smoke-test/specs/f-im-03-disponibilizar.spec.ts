@@ -33,9 +33,7 @@ test.describe('F-IM-03 — Disponibilizar lote p/ corrida (Bancada Imuno)', () =
   // Se o lab não tiver, F-IM-01 deve rodar antes pra cadastrar um SMOKE.
   const TEST_TYPE = 'Dengue NS1';
 
-  test('Reagente imuno é vinculado à Bancada como Em Validação', async ({
-    loggedInPage: page,
-  }) => {
+  test('Reagente imuno é vinculado à Bancada como Em Validação', async ({ loggedInPage: page }) => {
     test.setTimeout(180_000);
 
     // ─── 1. Setup: cadastrar 1 reagente SMOKE ─────────────────────────────
@@ -139,19 +137,16 @@ test.describe('F-IM-03 — Disponibilizar lote p/ corrida (Bancada Imuno)', () =
     // ─── 6. Confirma ──────────────────────────────────────────────────────
     console.log('\n--- Confirmando "Disponibilizar como Em Validação" ---');
 
-    const confirmBtn = dispModal.locator(
-      'button:has-text("Disponibilizar como Em Validação")',
-    );
+    const confirmBtn = dispModal.locator('button:has-text("Disponibilizar como Em Validação")');
     await expect(confirmBtn).toBeEnabled();
     await confirmBtn.click();
 
     // ─── 7. Auto-navega pra Bancada de Imunoensaios ───────────────────────
     console.log('\n--- Aguardando auto-navegação pra Bancada ---');
 
-    await page.waitForFunction(
-      () => document.body.innerText.includes('Bancada de Imunoensaios'),
-      { timeout: 10_000 },
-    );
+    await page.waitForFunction(() => document.body.innerText.includes('Bancada de Imunoensaios'), {
+      timeout: 10_000,
+    });
 
     // Card do setup aparece com testType + lote
     const setupCard = page
@@ -178,9 +173,7 @@ test.describe('F-IM-03 — Disponibilizar lote p/ corrida (Bancada Imuno)', () =
     await expect(rowDepois.getByText('Em validação · bancada')).toBeVisible();
 
     // ─── 9. Botão "Disponibilizar p/ corrida" sumiu (estado terminal) ─────
-    const dispBtnDepois = rowDepois.locator(
-      'button:has-text("Disponibilizar p/ corrida")',
-    );
+    const dispBtnDepois = rowDepois.locator('button:has-text("Disponibilizar p/ corrida")');
     await expect(dispBtnDepois).toHaveCount(0);
 
     console.log('\n✓ F-IM-03 PASS: lote disponibilizado + badge presente + botão removido');

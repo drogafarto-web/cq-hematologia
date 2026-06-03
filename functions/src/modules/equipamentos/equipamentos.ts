@@ -26,7 +26,10 @@ export const criarEquipamento = onCall(
     } = request.data;
 
     if (!labId || !nome || !marca || !modelo || !numeroSerie || !fornecedorCalibracaoId) {
-      throw new HttpsError('invalid-argument', 'Campos obrigatórios: labId, nome, marca, modelo, numeroSerie, fornecedorCalibracaoId');
+      throw new HttpsError(
+        'invalid-argument',
+        'Campos obrigatórios: labId, nome, marca, modelo, numeroSerie, fornecedorCalibracaoId',
+      );
     }
 
     try {
@@ -35,7 +38,7 @@ export const criarEquipamento = onCall(
       if (ncCheck.blocked) {
         throw new HttpsError(
           'failed-precondition',
-          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo'
+          ncCheck.message || 'NC crítica aberta bloqueia operações neste módulo',
         );
       }
 
@@ -51,10 +54,10 @@ export const criarEquipamento = onCall(
         dataQualificacaoInicial: now,
         qualificadoPor: request.auth.uid,
         proximaCalibracaoPrevista: admin.firestore.Timestamp.fromDate(
-          new Date(dataProximaCalibracaoPrevista || Date.now() + 365 * 24 * 60 * 60 * 1000)
+          new Date(dataProximaCalibracaoPrevista || Date.now() + 365 * 24 * 60 * 60 * 1000),
         ),
         proximaManutenccaoPrevista: admin.firestore.Timestamp.fromDate(
-          new Date(dataProximaManutenccaoPrevista || Date.now() + 180 * 24 * 60 * 60 * 1000)
+          new Date(dataProximaManutenccaoPrevista || Date.now() + 180 * 24 * 60 * 60 * 1000),
         ),
         status: 'ativo',
         fornecedorCalibracaoId,
@@ -71,7 +74,7 @@ export const criarEquipamento = onCall(
           request.auth.uid,
           `eq.criado.${numeroSerie}`,
           eq,
-          secret
+          secret,
         );
         (eq as any).hmac = hmac.hmac;
       }
@@ -87,7 +90,7 @@ export const criarEquipamento = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao criar equipamento');
     }
-  }
+  },
 );
 
 export const registrarCalibracacao = onCall(
@@ -97,13 +100,20 @@ export const registrarCalibracacao = onCall(
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
     }
 
-    const { labId, equipamentoId, fornecedorId, status, proximaDataCalibracao, certificadoUrl, observacoes } =
-      request.data;
+    const {
+      labId,
+      equipamentoId,
+      fornecedorId,
+      status,
+      proximaDataCalibracao,
+      certificadoUrl,
+      observacoes,
+    } = request.data;
 
     if (!labId || !equipamentoId || !fornecedorId || !status || !proximaDataCalibracao) {
       throw new HttpsError(
         'invalid-argument',
-        'Campos obrigatórios: labId, equipamentoId, fornecedorId, status, proximaDataCalibracao'
+        'Campos obrigatórios: labId, equipamentoId, fornecedorId, status, proximaDataCalibracao',
       );
     }
 
@@ -131,7 +141,7 @@ export const registrarCalibracacao = onCall(
           request.auth.uid,
           `calibracao.${equipamentoId}`,
           calibracao,
-          secret
+          secret,
         );
         (calibracao as any).hmac = hmac.hmac;
       }
@@ -139,14 +149,18 @@ export const registrarCalibracacao = onCall(
       // Update equipamento
       const eqRef = db.collection(`labs/${labId}/equipamentos`).doc(equipamentoId);
       await eqRef.update({
-        proximaCalibracaoPrevista: admin.firestore.Timestamp.fromDate(new Date(proximaDataCalibracao)),
+        proximaCalibracaoPrevista: admin.firestore.Timestamp.fromDate(
+          new Date(proximaDataCalibracao),
+        ),
         ultimaCalibracaoData: now,
         ultimaCalibracaoFornecedorId: fornecedorId,
         updatedAt: now,
       });
 
       // Store calibracao
-      const calibRef = await db.collection(`labs/${labId}/equipamentos/${equipamentoId}/calibracoes`).add(calibracao);
+      const calibRef = await db
+        .collection(`labs/${labId}/equipamentos/${equipamentoId}/calibracoes`)
+        .add(calibracao);
 
       return {
         success: true,
@@ -157,7 +171,7 @@ export const registrarCalibracacao = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao registrar calibração');
     }
-  }
+  },
 );
 
 export const registrarManutencao = onCall(
@@ -167,13 +181,28 @@ export const registrarManutencao = onCall(
       throw new HttpsError('unauthenticated', 'Usuário deve estar autenticado');
     }
 
-    const { labId, equipamentoId, fornecedorId, tipo, descricao, proximaDataManutencao, custo_total, pecasSubstituidas } =
-      request.data;
+    const {
+      labId,
+      equipamentoId,
+      fornecedorId,
+      tipo,
+      descricao,
+      proximaDataManutencao,
+      custo_total,
+      pecasSubstituidas,
+    } = request.data;
 
-    if (!labId || !equipamentoId || !fornecedorId || !tipo || !descricao || !proximaDataManutencao) {
+    if (
+      !labId ||
+      !equipamentoId ||
+      !fornecedorId ||
+      !tipo ||
+      !descricao ||
+      !proximaDataManutencao
+    ) {
       throw new HttpsError(
         'invalid-argument',
-        'Campos obrigatórios: labId, equipamentoId, fornecedorId, tipo, descricao, proximaDataManutencao'
+        'Campos obrigatórios: labId, equipamentoId, fornecedorId, tipo, descricao, proximaDataManutencao',
       );
     }
 
@@ -202,7 +231,7 @@ export const registrarManutencao = onCall(
           request.auth.uid,
           `manutencao.${equipamentoId}`,
           manutencao,
-          secret
+          secret,
         );
         (manutencao as any).hmac = hmac.hmac;
       }
@@ -210,14 +239,18 @@ export const registrarManutencao = onCall(
       // Update equipamento
       const eqRef = db.collection(`labs/${labId}/equipamentos`).doc(equipamentoId);
       await eqRef.update({
-        proximaManutenccaoPrevista: admin.firestore.Timestamp.fromDate(new Date(proximaDataManutencao)),
+        proximaManutenccaoPrevista: admin.firestore.Timestamp.fromDate(
+          new Date(proximaDataManutencao),
+        ),
         ultimaManutenccaoData: now,
         ultimaManutenccaoFornecedorId: fornecedorId,
         updatedAt: now,
       });
 
       // Store manutencao
-      const mantRef = await db.collection(`labs/${labId}/equipamentos/${equipamentoId}/manutencoes`).add(manutencao);
+      const mantRef = await db
+        .collection(`labs/${labId}/equipamentos/${equipamentoId}/manutencoes`)
+        .add(manutencao);
 
       return {
         success: true,
@@ -228,5 +261,5 @@ export const registrarManutencao = onCall(
     } catch (error: any) {
       throw new HttpsError('internal', error.message || 'Erro ao registrar manutenção');
     }
-  }
+  },
 );

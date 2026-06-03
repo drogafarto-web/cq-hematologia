@@ -33,7 +33,10 @@ vi.mock('firebase-functions/v2/https', () => ({
     onCall: (fn) => fn,
   }),
   HttpsError: class HttpsError extends Error {
-    constructor(public code: string, message: string) {
+    constructor(
+      public code: string,
+      message: string,
+    ) {
       super(message);
     }
   },

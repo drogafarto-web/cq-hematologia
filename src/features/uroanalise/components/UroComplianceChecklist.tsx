@@ -107,12 +107,7 @@ function StatusIcon({ status }: { status: UroComplianceStatus }) {
       )}
       {status === 'warn' && (
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path
-            d="M6 2.5V7"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-          />
+          <path d="M6 2.5V7" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
           <circle cx="6" cy="9" r="0.9" fill="currentColor" />
         </svg>
       )}
@@ -123,12 +118,7 @@ function StatusIcon({ status }: { status: UroComplianceStatus }) {
       )}
       {status === 'na' && (
         <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
-          <path
-            d="M3 6H9"
-            stroke="currentColor"
-            strokeWidth="1.75"
-            strokeLinecap="round"
-          />
+          <path d="M3 6H9" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" />
         </svg>
       )}
     </span>
@@ -187,9 +177,7 @@ export function UroComplianceChecklist({
             {title}
           </h3>
           {subtitle && (
-            <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5">
-              {subtitle}
-            </p>
+            <p className="text-xs text-slate-500 dark:text-white/45 mt-0.5">{subtitle}</p>
           )}
         </div>
         {!loading && total > 0 && (

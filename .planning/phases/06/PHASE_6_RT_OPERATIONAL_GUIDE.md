@@ -3,7 +3,7 @@
 **Version:** 1.0  
 **For:** Responsável Técnico (RT), Supervisores de Turno  
 **Date:** 2026-05-07  
-**Language:** Português (with English terms for system UI)  
+**Language:** Português (with English terms for system UI)
 
 ---
 
@@ -71,11 +71,11 @@ https://hmatologia2.web.app/criticos
 
 ### Cores de Status
 
-| Cor | Significado | Tempo Decorrido | Ação |
-|-----|-------------|-----------------|------|
-| 🟢 **Verde** | Em prazo | < 50% SLA | Monitorar |
-| 🟡 **Amarelo** | Atenção | 50-100% SLA | Revisar agora |
-| 🔴 **Vermelho** | Vencido | > 100% SLA | URGENTE |
+| Cor             | Significado | Tempo Decorrido | Ação          |
+| --------------- | ----------- | --------------- | ------------- |
+| 🟢 **Verde**    | Em prazo    | < 50% SLA       | Monitorar     |
+| 🟡 **Amarelo**  | Atenção     | 50-100% SLA     | Revisar agora |
+| 🔴 **Vermelho** | Vencido     | > 100% SLA      | URGENTE       |
 
 ### Exemplo: SLA 30 minutos
 
@@ -96,7 +96,7 @@ https://hmatologia2.web.app/criticos
 ```
 1. Sistema detecta crítico no laudo
    ↓
-2. SMS enviado ao médico: "HC Qualidade CRÍTICO | Paciente: João | 
+2. SMS enviado ao médico: "HC Qualidade CRÍTICO | Paciente: João |
    Analito: Glicose | Valor: 487 mg/dL | Responda RECONHECER"
    ↓
 3. RT recebe email: "[CRÍTICO] João Glicose — Ação Requerida"
@@ -106,7 +106,7 @@ https://hmatologia2.web.app/criticos
 5. Médico responde SMS com "RECONHECER" (ou clica link no portal)
    ↓
 6. Escalação atualiza para status "Reconhecido ✓"
-   
+
    FIM — SLA atendido ✓
 ```
 
@@ -130,7 +130,7 @@ https://hmatologia2.web.app/criticos
 7. Email enviado ao médico com mesmo conteúdo + link para portal
    ↓
 8. Dashboard mostra: "Escalação 1 (SMS) FALHA | Escalação 2 (Email) ENVIADO"
-   
+
    Próxima ação: Monitore reconhecimento
 ```
 
@@ -151,7 +151,7 @@ https://hmatologia2.web.app/criticos
       Escalação está 🔴 RED, SLA vencido
       Botão disponível: "Reenviar via [SMS|EMAIL]"
    ↓
-6. RT clica "Reenviar via EMAIL", adiciona nota: 
+6. RT clica "Reenviar via EMAIL", adiciona nota:
    "Contato telefônico não obtido, enviando via email"
    ↓
 7. Novo email enviado (escalação tentativa 2)
@@ -244,16 +244,16 @@ https://hmatologia2.web.app/criticos
 
 ### Campos
 
-| Campo | Tipo | Obrigatório | Exemplo | Notas |
-|-------|------|-------------|---------|-------|
-| Analito | Dropdown | Sim | Glicose | Puxado da biblioteca de bulas |
-| Min | Número | Não | 40 | Deixar em branco = sem limite inferior |
-| Max | Número | Não | 400 | Deixar em branco = sem limite superior |
-| Severidade | Radio | Sim | Alta | Alta = life-threatening, Baixa = action required |
-| Idade Min | Número | Não | 18 | Filter: só aplica a pacientes ≥ 18 anos |
-| Idade Max | Número | Não | 65 | Filter: só aplica a pacientes ≤ 65 anos |
-| Sexo | Dropdown | Não | M | Filter: só aplica a este sexo |
-| Ativo | Toggle | Sim | ✓ On | Turn off = não dispara críticos |
+| Campo      | Tipo     | Obrigatório | Exemplo | Notas                                            |
+| ---------- | -------- | ----------- | ------- | ------------------------------------------------ |
+| Analito    | Dropdown | Sim         | Glicose | Puxado da biblioteca de bulas                    |
+| Min        | Número   | Não         | 40      | Deixar em branco = sem limite inferior           |
+| Max        | Número   | Não         | 400     | Deixar em branco = sem limite superior           |
+| Severidade | Radio    | Sim         | Alta    | Alta = life-threatening, Baixa = action required |
+| Idade Min  | Número   | Não         | 18      | Filter: só aplica a pacientes ≥ 18 anos          |
+| Idade Max  | Número   | Não         | 65      | Filter: só aplica a pacientes ≤ 65 anos          |
+| Sexo       | Dropdown | Não         | M       | Filter: só aplica a este sexo                    |
+| Ativo      | Toggle   | Sim         | ✓ On    | Turn off = não dispara críticos                  |
 
 ### Exemplo: Glicose Pós-Prandial
 
@@ -323,12 +323,12 @@ RDC 978/2025 exige notificação à ANVISA de certas condições críticas (desv
 
 ### Você recebe quando...
 
-| Tipo de Email | Trigger | Ação Sugerida |
-|---|---|---|
-| **Crítico Detectado** | Nova escalação criada | Verify SMS sent; monitor SLA |
-| **SLA Vencido** | T > SLA target | REENVIAR via email AGORA |
-| **SMS Falha** | Após 10 min, SMS não entregue | Revisar número, reenviar email |
-| **NOTIVISA Rascunho** | Condição reportável detectada | Revisar e enviar em 24h |
+| Tipo de Email         | Trigger                       | Ação Sugerida                  |
+| --------------------- | ----------------------------- | ------------------------------ |
+| **Crítico Detectado** | Nova escalação criada         | Verify SMS sent; monitor SLA   |
+| **SLA Vencido**       | T > SLA target                | REENVIAR via email AGORA       |
+| **SMS Falha**         | Após 10 min, SMS não entregue | Revisar número, reenviar email |
+| **NOTIVISA Rascunho** | Condição reportável detectada | Revisar e enviar em 24h        |
 
 ### Não Ignorar
 
@@ -342,14 +342,17 @@ RDC 978/2025 exige notificação à ANVISA de certas condições críticas (desv
 ### Problema: SMS não foi enviado
 
 **Sintomas:**
+
 - Escalação mostra "Enviado" mas médico diz não recebeu SMS
 
 **Causas possíveis:**
+
 1. Número de telefone inválido (não É.164: +55XXXXXXXXXX)
 2. Twilio bloqueou (operadora problemas, número banido)
 3. Médico bloqueou SMS originário da Twilio
 
 **Solução:**
+
 1. Abra detalhes escalação
 2. Verifique campo "Médico Telefone": deve ser `+55 98XXXXXXXX`
 3. Se incorreto: clique [Reenviar], escolha [EMAIL]
@@ -361,9 +364,11 @@ RDC 978/2025 exige notificação à ANVISA de certas condições críticas (desv
 ### Problema: Muitos falsos positivos
 
 **Sintomas:**
+
 - 5+ críticos por dia, todos "saudáveis" (ex: glicose 201 em diabético)
 
 **Solução:**
+
 1. Aba Limiares Críticos
 2. Ajuste max para cima (ex: 200 → 250)
 3. Considere adicionar filtro condicional (ex: se diabético anotado, max=300)
@@ -374,9 +379,11 @@ RDC 978/2025 exige notificação à ANVISA de certas condições críticas (desv
 ### Problema: Médico perdeu SMS
 
 **Sintomas:**
+
 - Escalação mostra "Enviado", medico diz não viu
 
 **Ações:**
+
 1. Dashboard → [Reenviar via EMAIL]
 2. Nota: "SMS original enviado, reenviando via email"
 3. Contactar médico por tel/whatsapp (backup manual)
@@ -386,9 +393,11 @@ RDC 978/2025 exige notificação à ANVISA de certas condições críticas (desv
 ### Problema: SLA muito rígido/frouxo
 
 **Sintomas:**
+
 - SLA 30 min é muito curto / muito longo para seu fluxo
 
 **Solução:**
+
 1. Você (RT) não configura SLA — é config lab-wide
 2. Contactar CTO/Supervisor: pedir mudança em labSettings
 3. Comum: 30 min (emergência alta), 60 min (ação requerida)
@@ -413,6 +422,7 @@ Cada escalação crítica é rastreada para auditoria:
 ### LGPD — Sua Responsabilidade
 
 Dados de paciente em críticos são:
+
 - ✓ Necessários (contato com médico é obrigação clinica)
 - ✓ Auditados (trilha completa de quem acessou)
 - ✓ Retidos por 5 anos (retenção legal)
@@ -447,13 +457,13 @@ Dados de paciente em críticos são:
 
 ## 12. Contatos de Suporte
 
-| Situação | Contacte | Como |
-|---|---|---|
-| **Dúvida sobre função** | Tech Support | Slack #hc-quality |
-| **Número Twilio não funciona** | CTO | Email drogafarto@gmail.com |
-| **Quero ajustar SLA** | Supervisor Técnico | In-person |
-| **Quero novo analito crítico** | CTO + Bioquímico | Meeting + design approval |
-| **Suspeita de bug** | QA Team | GitHub issue + screenshot |
+| Situação                       | Contacte           | Como                       |
+| ------------------------------ | ------------------ | -------------------------- |
+| **Dúvida sobre função**        | Tech Support       | Slack #hc-quality          |
+| **Número Twilio não funciona** | CTO                | Email drogafarto@gmail.com |
+| **Quero ajustar SLA**          | Supervisor Técnico | In-person                  |
+| **Quero novo analito crítico** | CTO + Bioquímico   | Meeting + design approval  |
+| **Suspeita de bug**            | QA Team            | GitHub issue + screenshot  |
 
 ---
 

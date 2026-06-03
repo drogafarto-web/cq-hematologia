@@ -15,12 +15,12 @@
 
 **SLA per role:**
 
-| Role | Ack SLA | Mitigation SLA |
-|------|---------|----------------|
-| On-call eng (WARNING) | 15 min | 1 hour |
-| On-call eng (ERROR) | 5 min | 30 min |
-| RT / DPO (ERROR/CRITICAL) | 10 min | 30 min (clinical) / 60 min (privacy) |
-| CTO (CRITICAL) | 5 min | 15 min |
+| Role                      | Ack SLA | Mitigation SLA                       |
+| ------------------------- | ------- | ------------------------------------ |
+| On-call eng (WARNING)     | 15 min  | 1 hour                               |
+| On-call eng (ERROR)       | 5 min   | 30 min                               |
+| RT / DPO (ERROR/CRITICAL) | 10 min  | 30 min (clinical) / 60 min (privacy) |
+| CTO (CRITICAL)            | 5 min   | 15 min                               |
 
 ---
 
@@ -244,6 +244,7 @@ gcloud logging read \
 ### Diagnose
 
 Twilio error codes:
+
 - `30003` — unreachable destination (phone off / no signal). Usually transient.
 - `30005` — unknown destination (number invalid). Lab profile data quality issue.
 - `30006` — landline / unreachable carrier. Need voice fallback.
@@ -373,22 +374,28 @@ CRITICAL (A4, A6)
 **When A1/A3/A4 alert isn't firing but you expect it to:**
 
 1. **Confirm policy is enabled:**
+
    ```bash
    gcloud alpha monitoring policies describe <policy-name> \
      --project=hmatologia2 | grep "enabled"
    ```
+
    If `enabled: false`, activate:
+
    ```bash
    gcloud alpha monitoring policies update <policy-name> \
      --enabled=true --project=hmatologia2
    ```
 
 2. **Confirm notification channel is configured:**
+
    ```bash
    gcloud alpha monitoring policies describe <policy-name> \
      --project=hmatologia2 | grep -A5 "notificationChannels"
    ```
+
    If empty or shows placeholders, the policy was partially activated. Update with correct channel IDs:
+
    ```bash
    gcloud alpha monitoring channels list --format=json --project=hmatologia2 | \
      jq '.[] | {id: .name, displayName}'
@@ -399,6 +406,7 @@ CRITICAL (A4, A6)
    Paste the policy's filter (see below). If no results appear within last 1h, logs aren't being emitted.
 
    **A1 filter (copy-paste into Log Explorer):**
+
    ```
    resource.type="cloud_function"
    resource.labels.region="southamerica-east1"
@@ -407,6 +415,7 @@ CRITICAL (A4, A6)
    ```
 
    **A3 filter:**
+
    ```
    resource.type="cloud_function"
    resource.labels.function_name="classifyStripGemini"
@@ -415,6 +424,7 @@ CRITICAL (A4, A6)
    ```
 
    **A4 filter:**
+
    ```
    resource.type="cloud_function"
    severity="ERROR"
@@ -428,13 +438,14 @@ CRITICAL (A4, A6)
 4. **Check alert notification rate limits:**
    Alerts have `notificationRateLimit` periods. If an alert fired 10 min ago, it may be silenced until period expires.
 
-   | Policy | Rate Limit | Duration |
-   |--------|-----------|----------|
-   | A1 | 3600s (1h) | Once per hour after first fire |
-   | A3 | 1800s (30m) | Once per 30 min after first fire |
-   | A4 | 60s | Once per minute (CRITICAL, aggressive) |
+   | Policy | Rate Limit  | Duration                               |
+   | ------ | ----------- | -------------------------------------- |
+   | A1     | 3600s (1h)  | Once per hour after first fire         |
+   | A3     | 1800s (30m) | Once per 30 min after first fire       |
+   | A4     | 60s         | Once per minute (CRITICAL, aggressive) |
 
    To force a re-test, modify the policy to reduce the limit temporarily:
+
    ```bash
    # Edit the JSON policy file, change notificationRateLimit.period to "0s"
    gcloud alpha monitoring policies update <policy-name> \
@@ -444,6 +455,7 @@ CRITICAL (A4, A6)
 
 5. **Check notification channel delivery:**
    Verify the Slack/Email/PagerDuty integration is working:
+
    ```bash
    # List channels and their status
    gcloud alpha monitoring channels list --format=json --project=hmatologia2 | \
@@ -463,13 +475,13 @@ CRITICAL (A4, A6)
 
 ### Common root causes
 
-| Symptom | Cause | Fix |
-|---------|-------|-----|
-| "Policy doesn't exist" | Never created or deleted | Re-run `bash scripts/activate-cloud-logs-alerts.sh` |
-| Policy exists but `enabled: false` | Partial activation / Wave 3 wait | `gcloud ... --enabled=true ...` |
-| "No logs match filter" | Function not invoked / log format wrong | Manually trigger function, check log format |
-| "Channel verification failed" | Slack token expired / PagerDuty key wrong | Recreate channel with valid credentials |
-| "Alert fired but no notification" | Channel delivery failed / rate-limited | Check channel status, adjust rate limit if needed |
+| Symptom                            | Cause                                     | Fix                                                 |
+| ---------------------------------- | ----------------------------------------- | --------------------------------------------------- |
+| "Policy doesn't exist"             | Never created or deleted                  | Re-run `bash scripts/activate-cloud-logs-alerts.sh` |
+| Policy exists but `enabled: false` | Partial activation / Wave 3 wait          | `gcloud ... --enabled=true ...`                     |
+| "No logs match filter"             | Function not invoked / log format wrong   | Manually trigger function, check log format         |
+| "Channel verification failed"      | Slack token expired / PagerDuty key wrong | Recreate channel with valid credentials             |
+| "Alert fired but no notification"  | Channel delivery failed / rate-limited    | Check channel status, adjust rate limit if needed   |
 
 ---
 
@@ -487,10 +499,10 @@ Conditions: None of the policies are in an alert state.
 
 Conditions: A WARNING alert has fired.
 
-| Role | SLA | Action |
-|------|-----|--------|
+| Role        | SLA                       | Action                                              |
+| ----------- | ------------------------- | --------------------------------------------------- |
 | On-call eng | Acknowledge within 15 min | Open runbook, diagnose root cause, begin mitigation |
-| Escalation | If unresolved after 2h | Page CTO + RT for high-severity warnings |
+| Escalation  | If unresolved after 2h    | Page CTO + RT for high-severity warnings            |
 
 **Notification:** Slack `#alerts-prod` or `#hmatologia2-incidents`
 
@@ -498,11 +510,11 @@ Conditions: A WARNING alert has fired.
 
 Conditions: An ERROR alert has fired.
 
-| Role | SLA | Action |
-|------|-----|--------|
-| On-call eng | Acknowledge within 5 min | Page primary owner (RT for A2/A3-clinical, DPO for A3-privacy) |
-| RT / DPO | Acknowledge within 10 min | Begin active mitigation (see policy runbook section) |
-| CTO | Escalated if unresolved after 1h | Incident bridge + decision authority |
+| Role        | SLA                              | Action                                                         |
+| ----------- | -------------------------------- | -------------------------------------------------------------- |
+| On-call eng | Acknowledge within 5 min         | Page primary owner (RT for A2/A3-clinical, DPO for A3-privacy) |
+| RT / DPO    | Acknowledge within 10 min        | Begin active mitigation (see policy runbook section)           |
+| CTO         | Escalated if unresolved after 1h | Incident bridge + decision authority                           |
 
 **Notification:** PagerDuty (primary owner) + Slack (team awareness)
 
@@ -510,11 +522,11 @@ Conditions: An ERROR alert has fired.
 
 Conditions: A CRITICAL alert has fired (only A4 and A6).
 
-| Role | SLA | Action |
-|------|-----|--------|
-| CTO | Acknowledge within **5 min** — by phone | **STOP. DO NOT PROCEED WITH OTHER WORK.** Activate incident bridge immediately. |
-| RT / DPO | Acknowledge within 5 min | Join CTO bridge. Begin forensics per runbook. |
-| Incident commander | Immediately | Assume decision authority. Legal/compliance notification clock starts (72h for RDC/LGPD). |
+| Role               | SLA                                     | Action                                                                                    |
+| ------------------ | --------------------------------------- | ----------------------------------------------------------------------------------------- |
+| CTO                | Acknowledge within **5 min** — by phone | **STOP. DO NOT PROCEED WITH OTHER WORK.** Activate incident bridge immediately.           |
+| RT / DPO           | Acknowledge within 5 min                | Join CTO bridge. Begin forensics per runbook.                                             |
+| Incident commander | Immediately                             | Assume decision authority. Legal/compliance notification clock starts (72h for RDC/LGPD). |
 
 **Notification:** PagerDuty (CTO on-call) + Phone call (if no ack) + `#incident-critical` Slack
 
@@ -524,13 +536,13 @@ Conditions: A CRITICAL alert has fired (only A4 and A6).
 
 **To populate before 2026-05-20 launch:**
 
-| Role | Contact | Phone | Slack | Fallback |
-|------|---------|-------|-------|----------|
-| On-call eng (week 1) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
-| On-call eng (week 2) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
-| RT clinical (primary) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
-| DPO (privacy lead) | [NAME] | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
-| CTO (founder) | [NAME] | [PHONE] | [HANDLE] | N/A (primary) |
+| Role                  | Contact | Phone   | Slack    | Fallback         |
+| --------------------- | ------- | ------- | -------- | ---------------- |
+| On-call eng (week 1)  | [NAME]  | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| On-call eng (week 2)  | [NAME]  | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| RT clinical (primary) | [NAME]  | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| DPO (privacy lead)    | [NAME]  | [PHONE] | [HANDLE] | [BACKUP CONTACT] |
+| CTO (founder)         | [NAME]  | [PHONE] | [HANDLE] | N/A (primary)    |
 
 **4-week rotation template:**
 
@@ -585,14 +597,14 @@ File as: `docs/incidents/YYYY-MM-DD-<ALERT-ID>-<SHORT-NAME>.md`
 
 ## Incident Metadata
 
-| Field | Value |
-|-------|-------|
-| Alert | A<N> — [Name] |
-| Severity | CRITICAL / ERROR / WARNING |
-| Detection time | [ISO timestamp] |
-| Resolution time | [ISO timestamp] |
-| Duration | [minutes] |
-| Regulatory impact | Yes / No |
+| Field             | Value                      |
+| ----------------- | -------------------------- |
+| Alert             | A<N> — [Name]              |
+| Severity          | CRITICAL / ERROR / WARNING |
+| Detection time    | [ISO timestamp]            |
+| Resolution time   | [ISO timestamp]            |
+| Duration          | [minutes]                  |
+| Regulatory impact | Yes / No                   |
 
 ## Timeline
 

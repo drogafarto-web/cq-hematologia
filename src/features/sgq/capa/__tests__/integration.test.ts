@@ -15,12 +15,7 @@
 
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Timestamp } from 'firebase/firestore';
-import type {
-  CAPA,
-  CAParecao,
-  Verificacao,
-  CreateCAPAInput,
-} from '../types';
+import type { CAPA, CAParecao, Verificacao, CreateCAPAInput } from '../types';
 
 // Mock data factories for integration testing
 const createMockCAPAData = (testLabId: string, overrides?: Partial<CAPA>): CAPA => ({
@@ -56,7 +51,10 @@ const createMockAcaoData = (testLabId: string, overrides?: Partial<CAParecao>): 
   ...overrides,
 });
 
-const createMockVerificacaoData = (testLabId: string, overrides?: Partial<Verificacao>): Verificacao => ({
+const createMockVerificacaoData = (
+  testLabId: string,
+  overrides?: Partial<Verificacao>,
+): Verificacao => ({
   id: 'ver-001',
   capaId: 'capa-e2e-001',
   labId: testLabId,
@@ -286,9 +284,7 @@ describe('CAPA Workflow E2E Integration', () => {
 
     // Test: em-tratamento → aberta (invalid, backwards)
     const invalidTransition = 'aberta';
-    const isValidTransition = validTransitions['em-tratamento'].includes(
-      invalidTransition
-    );
+    const isValidTransition = validTransitions['em-tratamento'].includes(invalidTransition);
     expect(isValidTransition).toBe(false);
 
     // Verify status unchanged (stays em-tratamento)
@@ -347,9 +343,7 @@ describe('CAPA Workflow E2E Integration', () => {
     // Test 3: Valid inputs
     const validTitle = 'Valid Title Here';
     const validDesc = 'A valid description with more than 10 characters';
-    const validDataPrazo = Timestamp.fromDate(
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    );
+    const validDataPrazo = Timestamp.fromDate(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000));
 
     expect(validTitle.length).toBeGreaterThanOrEqual(titleMinLength);
     expect(validDesc.length).toBeGreaterThanOrEqual(descMinLength);

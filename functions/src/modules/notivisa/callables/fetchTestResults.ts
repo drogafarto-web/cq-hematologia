@@ -25,7 +25,10 @@ const FilterSchema = z.object({
       endTs: z.number().int().positive(),
     })
     .optional(),
-  pacienteCpf: z.string().regex(/^\d{11}$/).optional(),
+  pacienteCpf: z
+    .string()
+    .regex(/^\d{11}$/)
+    .optional(),
   submissionId: z.string().optional(),
 });
 
@@ -53,7 +56,7 @@ const TestResultItemSchema = z.object({
       valor: z.union([z.string(), z.number()]),
       unidade: z.string(),
       referencia: z.string().optional(),
-    })
+    }),
   ),
   lastStatusChange: z.number().int(),
 });
@@ -96,15 +99,13 @@ const LAST_POLL_CACHE_KEY = 'notivisa_last_full_poll';
 
 // ─── Main Callable ──────────────────────────────────────────────────────────
 
-export const fetchTestResults = functions.region('southamerica-east1').onCall(
-  async (request): Promise<FetchTestResultsOutput | FetchTestResultsError> => {
+export const fetchTestResults = functions
+  .region('southamerica-east1')
+  .onCall(async (request): Promise<FetchTestResultsOutput | FetchTestResultsError> => {
     try {
       // ========== 1. Validate request ==========
       if (!request.auth) {
-        throw new functions.https.HttpsError(
-          'unauthenticated',
-          'User must be authenticated'
-        );
+        throw new functions.https.HttpsError('unauthenticated', 'User must be authenticated');
       }
 
       const input = FetchTestResultsInputSchema.parse(request.data);
@@ -188,17 +189,11 @@ export const fetchTestResults = functions.region('southamerica-east1').onCall(
       const snaps = await Promise.race([
         query.get(),
         new Promise<never>((_, reject) =>
-          setTimeout(
-            () => reject(new Error('Query timeout')),
-            POLL_TIMEOUT_MS
-          )
+          setTimeout(() => reject(new Error('Query timeout')), POLL_TIMEOUT_MS),
         ),
       ]).catch((err) => {
         if (err.message === 'Query timeout') {
-          throw new functions.https.HttpsError(
-            'deadline-exceeded',
-            'Query took too long'
-          );
+          throw new functions.https.HttpsError('deadline-exceeded', 'Query took too long');
         }
         throw err;
       });
@@ -220,10 +215,7 @@ export const fetchTestResults = functions.region('southamerica-east1').onCall(
 
           if (filters?.dateRange) {
             const lastChange = data['lastStatusChange'] || data['createdAt'];
-            if (
-              lastChange < filters.dateRange.startTs ||
-              lastChange > filters.dateRange.endTs
-            ) {
+            if (lastChange < filters.dateRange.startTs || lastChange > filters.dateRange.endTs) {
               return null;
             }
           }
@@ -334,5 +326,4 @@ export const fetchTestResults = functions.region('southamerica-east1').onCall(
         message: error.message || 'Error fetching test results',
       };
     }
-  }
-);
+  });

@@ -24,9 +24,7 @@ export function PreviewBatchStep({
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-base font-medium text-white mb-2">
-          Previsualizando documentos
-        </h3>
+        <h3 className="text-base font-medium text-white mb-2">Previsualizando documentos</h3>
         <p className="text-sm text-neutral-400">
           Carregando preview e classificação automática de cada documento...
         </p>

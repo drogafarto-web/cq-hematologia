@@ -45,7 +45,10 @@ export function RTPanel() {
     setActionTarget(null);
   }
 
-  async function handleNotivisa(data: { notivisaTipo: 'queixa_tecnica' | 'evento_adverso'; motivo: string }) {
+  async function handleNotivisa(data: {
+    notivisaTipo: 'queixa_tecnica' | 'evento_adverso';
+    motivo: string;
+  }) {
     if (!notivisaTarget) return;
     await create({
       tipo: 'notificar_notivisa',
@@ -61,15 +64,21 @@ export function RTPanel() {
     <div className="space-y-6">
       <div className="flex gap-4">
         <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-text-strong)]">{kpis.total}</p>
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-text-strong)]">
+            {kpis.total}
+          </p>
           <p className="text-xs text-[var(--cl-text-muted)]">tentativas</p>
         </div>
         <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-success)]">{pctConforme}%</p>
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-success)]">
+            {pctConforme}%
+          </p>
           <p className="text-xs text-[var(--cl-text-muted)]">conformes</p>
         </div>
         <div className="flex-1 rounded-lg border border-[var(--cl-border)] bg-[var(--cl-card)] p-4 text-center">
-          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-danger)]">{kpis.rejeitadas}</p>
+          <p className="text-2xl font-semibold tabular-nums text-[var(--cl-danger)]">
+            {kpis.rejeitadas}
+          </p>
           <p className="text-xs text-[var(--cl-text-muted)]">rejeitadas</p>
         </div>
       </div>

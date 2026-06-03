@@ -23,6 +23,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `SMOKE_TESTS_TEST_DATA_VERIFICATION.md`
 
 **Confirm:**
+
 - [ ] Riopomba lab exists and is active
 - [ ] 17 bioquímica analitos seeded
 - [ ] At least 1 equipment created
@@ -41,6 +42,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `POST_DEPLOY_CHECKLIST_v1.3.md`
 
 **Confirm:**
+
 - [ ] Firestore Rules published (status green, timestamp recent)
 - [ ] Firestore Indexes deployed (status Ready or Building, no Errors)
 - [ ] All Cloud Functions deployed (78 total, all green status)
@@ -54,6 +56,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 ### Prerequisite 3: Browser Environment Ready
 
 **Confirm:**
+
 - [ ] Production URL accessible: `https://hmatologia2.web.app`
 - [ ] Logged in as test RT user (Riopomba member)
 - [ ] DevTools open (Console tab visible)
@@ -72,6 +75,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `SMOKE_TESTS_v1.3.md` — Smoke Test 1
 
 **Steps:**
+
 1. Navigate to `/bioquimica`
 2. Verify 16 analitos load
 3. Upload bula PDF (Gemini parsing)
@@ -81,6 +85,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 7. Verify chainHash in Firestore (optional)
 
 **Pass Criteria:**
+
 - [ ] Page loads <3s, no JS errors
 - [ ] 16+ analitos visible
 - [ ] Bula parse completes <35s
@@ -100,6 +105,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `SMOKE_TESTS_v1.3.md` — Smoke Test 2
 
 **Steps:**
+
 1. Navigate to `/sgd` or `/sgq/importar-drive`
 2. Initiate OAuth flow (Google consent screen)
 3. Complete OAuth callback
@@ -110,6 +116,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 8. Search/filter documents
 
 **Pass Criteria:**
+
 - [ ] OAuth flow completes <5s
 - [ ] Exactly 5 documents listed
 - [ ] All 5 documents preview cleanly
@@ -128,6 +135,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `SMOKE_TESTS_v1.3.md` — Smoke Test 3
 
 **Steps:**
+
 1. Submit public reclamação form (unauthenticated)
 2. Login as RT, see reclamação in list
 3. Verify Gemini auto-classification
@@ -135,6 +143,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 5. Verify NPS triggered in Firestore
 
 **Pass Criteria:**
+
 - [ ] Public form works, protocol returned
 - [ ] RT sees reclamação in dashboard
 - [ ] Auto-classification populated
@@ -152,12 +161,14 @@ scope: Step 4 of v1.3 Deployment Roadmap
 **Source:** `SMOKE_TESTS_v1.3.md` — Smoke Test 4
 
 **Steps:**
+
 1. Use approved bioquímica run from Smoke 1
 2. Trigger laudo creation
 3. Sign as RT (signature gate)
 4. Verify state transitions: Pendente → Em Revisão → Liberado
 
 **Pass Criteria:**
+
 - [ ] Laudo created (status `Pendente`)
 - [ ] RT can sign (signature recorded)
 - [ ] State transitions valid
@@ -182,6 +193,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 - [ ] `/educacao-continuada` → colaboradores load
 
 **Pass Criteria:**
+
 - [ ] All 5 routes load <3s
 - [ ] No 404 or 500 errors
 - [ ] Console shows 0 JS errors
@@ -197,11 +209,13 @@ scope: Step 4 of v1.3 Deployment Roadmap
 ### Cloud Logs Review
 
 **Action:**
+
 1. Open Cloud Logging: `https://console.cloud.google.com/logs/query?project=hmatologia2`
 2. Filter: `severity>="ERROR"` AND `timestamp>"2026-05-07T00:00:00Z"`
 3. Review last 100 logs
 
 **Confirm:**
+
 - [ ] No new ERROR or CRITICAL errors (post-deploy)
 - [ ] No function timeouts or 5xx responses
 - [ ] All executed functions show successful completion
@@ -213,6 +227,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 ### Data Integrity Spot-Check
 
 **Action:**
+
 1. Firestore Console → `/labs/riopomba/bioquimica/root/runs/`
 2. Check 1 run from Smoke 1:
    - [ ] All fields present (`labId`, `lote`, `nível`, `resultados`, `status`)
@@ -231,6 +246,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 ### Performance Baseline Check
 
 **Action:**
+
 1. Check Web Vitals in DevTools:
    - [ ] LCP <2.5s (Lighthouse target)
    - [ ] INP <200ms
@@ -248,15 +264,15 @@ scope: Step 4 of v1.3 Deployment Roadmap
 
 ### Execution Summary
 
-| Test | Status | Notes |
-|------|--------|-------|
-| Bioquímica E2E | ☐ PASS ☐ FAIL | |
-| SGD Drive Importer | ☐ PASS ☐ FAIL | |
-| Reclamação (opt) | ☐ PASS ☐ FAIL ☐ SKIP | |
-| Liberação (opt) | ☐ PASS ☐ FAIL ☐ SKIP | |
-| Regression | ☐ PASS ☐ FAIL | |
-| Cloud Logs Review | ☐ CLEAN ☐ WARNINGS ☐ ERRORS | |
-| Data Integrity | ☐ OK ☐ ISSUES | |
+| Test               | Status                      | Notes |
+| ------------------ | --------------------------- | ----- |
+| Bioquímica E2E     | ☐ PASS ☐ FAIL               |       |
+| SGD Drive Importer | ☐ PASS ☐ FAIL               |       |
+| Reclamação (opt)   | ☐ PASS ☐ FAIL ☐ SKIP        |       |
+| Liberação (opt)    | ☐ PASS ☐ FAIL ☐ SKIP        |       |
+| Regression         | ☐ PASS ☐ FAIL               |       |
+| Cloud Logs Review  | ☐ CLEAN ☐ WARNINGS ☐ ERRORS |       |
+| Data Integrity     | ☐ OK ☐ ISSUES               |       |
 
 ---
 
@@ -273,7 +289,8 @@ scope: Step 4 of v1.3 Deployment Roadmap
 - ✅ Data Integrity = OK (no missing fields, chainHash valid)
 - ✅ No blocking issues found
 
-**Action:** 
+**Action:**
+
 1. Document results in this form
 2. Notify stakeholders: "v1.3 smoke tests passed, ready for 24h ops"
 3. Proceed to Phase 9 (operational monitoring)
@@ -291,6 +308,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 - ❌ Critical blocking issue (data loss, lockout, 5xx rate >5%)
 
 **Action:**
+
 1. Document issue details (screenshot, stack trace, steps to reproduce)
 2. Post to deployment channel with severity level
 3. If **Critical**: initiate **Rollback Procedure** (see DEPLOY_ROADMAP_v1.3.md Section 7)
@@ -307,6 +325,7 @@ scope: Step 4 of v1.3 Deployment Roadmap
 - Transient errors <1% invocation rate in Cloud Logs
 
 **Action:**
+
 1. Assess severity: non-blocking or blocking?
 2. If non-blocking: log as post-deploy bug, continue with GO
 3. If blocking: escalate to High/Medium (see NO-GO path above)
@@ -325,20 +344,26 @@ scope: Step 4 of v1.3 Deployment Roadmap
 
 #### ☐ GO — Ready for Phase 9 Operational Monitoring
 
-**Rationale:** (brief summary of results)  
-___________________________________________________________________  
-___________________________________________________________________
+**Rationale:** (brief summary of results)
+
+---
+
+---
 
 #### ☐ NO-GO — Rollback Required
 
-**Critical Issue:** (describe issue, include stack trace if applicable)  
-___________________________________________________________________  
-___________________________________________________________________
+**Critical Issue:** (describe issue, include stack trace if applicable)
+
+---
+
+---
 
 #### ☐ CONDITIONAL — Investigate Further
 
-**Issue:** (describe conditional issue)  
-___________________________________________________________________  
+**Issue:** (describe conditional issue)
+
+---
+
 **Decision:** ☐ Can proceed as GO ☐ Requires NO-GO path
 
 ---

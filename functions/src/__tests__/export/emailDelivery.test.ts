@@ -44,7 +44,8 @@ const basePayload: ExportEmailPayload = {
   recipientEmail: 'analyst@lab.example.com',
   labName: 'Labclin Rio Pomba',
   exportType: 'XLSX — Corridas CIQ',
-  signedUrl: 'https://storage.googleapis.com/hmatologia2.appspot.com/exports/lab-123/job-456/ciq.xlsx?X-Goog-Signature=abc',
+  signedUrl:
+    'https://storage.googleapis.com/hmatologia2.appspot.com/exports/lab-123/job-456/ciq.xlsx?X-Goog-Signature=abc',
   expiresAt: new Date(Date.now() + SEVEN_DAYS_MS),
   operatorId: 'uid-operator-789',
 };

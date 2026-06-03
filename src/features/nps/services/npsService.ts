@@ -21,27 +21,14 @@ import {
   type Timestamp,
 } from 'firebase/firestore';
 import { db } from '../../../shared/services/firebase';
-import {
-  classifyNPSScore,
-  type NPSCycleSummary,
-  type NPSResponse,
-} from '../types';
+import { classifyNPSScore, type NPSCycleSummary, type NPSResponse } from '../types';
 
 export function subscribeNPSCycle(
   labId: string,
   cycleId: string,
   onChange: (s: NPSCycleSummary) => void,
 ): () => void {
-  const ref = doc(
-    db,
-    'labs',
-    labId,
-    'nps',
-    'cycles',
-    cycleId,
-    'summary',
-    'current',
-  );
+  const ref = doc(db, 'labs', labId, 'nps', 'cycles', cycleId, 'summary', 'current');
   return onSnapshot(ref, (snap) => {
     if (!snap.exists()) {
       onChange(emptySummary(cycleId));
@@ -61,10 +48,7 @@ export function subscribeNPSCycle(
   });
 }
 
-export async function getNPSResponses(
-  labId: string,
-  cycleId: string,
-): Promise<NPSResponse[]> {
+export async function getNPSResponses(labId: string, cycleId: string): Promise<NPSResponse[]> {
   const q = query(
     collection(db, 'labs', labId, 'nps', 'cycles', cycleId, 'responses'),
     where('deletedAt', '==', null),
@@ -79,8 +63,7 @@ export async function getNPSResponses(
       labId: String(data.labId ?? labId),
       score: Number(data.score ?? 0),
       category:
-        (data.category as NPSResponse['category']) ??
-        classifyNPSScore(Number(data.score ?? 0)),
+        (data.category as NPSResponse['category']) ?? classifyNPSScore(Number(data.score ?? 0)),
       followUp: data.followUp ?? undefined,
       consentToken: data.consentToken ?? undefined,
       patientToken: data.patientToken ?? undefined,

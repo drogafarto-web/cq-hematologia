@@ -17,11 +17,11 @@ import type { EquipamentoSnapshot } from '../../equipamentos/types/Equipamento';
 
 /**
  * Attempt — tentativa operacional de executar uma medição de CIQ.
- * 
+ *
  * Conceito: o que o operador "faz" quando salva resultados.
  * Exposição operacional: ~6 campos (controle, equipamento, 3 resultados, ação corretiva).
  * Resto: snapshots imutáveis + avaliação estatística invisível ao operador.
- * 
+ *
  * Firestore path: labs/{labId}/attempts/{id}
  * Compliance: RDC 978/2025 Art. 128 · RDC 786/2023 Art. 42 · CLSI C24-A3
  */
@@ -29,17 +29,17 @@ export interface Attempt {
   // ── Identificação ──────────────────────────────────────────
   id: string;
   labId: string;
-  controlOperacionalId: string;                // referência (lote implícito via controle)
+  controlOperacionalId: string; // referência (lote implícito via controle)
 
   // ── Dados operacionais (visíveis para operador) ────────────
   equipamentoId: string;
-  resultados: Record<CoagAnalyteId, number>;   // AP, RNI, TTPA
-  dataRealizacao: string;                      // YYYY-MM-DD (auto)
+  resultados: Record<CoagAnalyteId, number>; // AP, RNI, TTPA
+  dataRealizacao: string; // YYYY-MM-DD (auto)
 
   // ── Avaliação estatística (INVISÍVEL para operador, visível RT) ──
-  conformidade: 'A' | 'R';                     // calculado, não setado
-  violacoes: WestgardViolation[];              // vazio se A
-  analitosComViolacao: CoagAnalyteId[];        // vazio se A
+  conformidade: 'A' | 'R'; // calculado, não setado
+  violacoes: WestgardViolation[]; // vazio se A
+  analitosComViolacao: CoagAnalyteId[]; // vazio se A
 
   // ── Ação corretiva (opcional — aparece só se R) ───────────
   acaoCorretiva: string | null;
@@ -48,7 +48,7 @@ export interface Attempt {
   snapshot: {
     controle: InsumoSnapshot;
     reagente: InsumoSnapshot;
-    reagenteTtpa: InsumoSnapshot | null;       // null se equipamento não usa TTPA
+    reagenteTtpa: InsumoSnapshot | null; // null se equipamento não usa TTPA
     equipamento: EquipamentoSnapshot;
   };
 
@@ -56,12 +56,12 @@ export interface Attempt {
   overrides: {
     insumoVencido: boolean;
     qcNaoValidado: boolean;
-    motivo: string | null;                     // obrigatório se algum override=true
+    motivo: string | null; // obrigatório se algum override=true
   };
 
   // ── Assinatura imutável ────────────────────────────────────
-  logicalSignature: string;                    // SHA-256 hex (64 chars)
-  signedBy: string;                            // UID do operador
+  logicalSignature: string; // SHA-256 hex (64 chars)
+  signedBy: string; // UID do operador
   signedAt: Timestamp;
 
   // ── Timeline ───────────────────────────────────────────────
@@ -101,10 +101,7 @@ export async function saveAttempt(
 ): Promise<Attempt>;
 
 /** Busca uma tentativa por ID. */
-export async function getAttempt(
-  labId: string,
-  id: string,
-): Promise<Attempt | null>;
+export async function getAttempt(labId: string, id: string): Promise<Attempt | null>;
 
 /** Lista as últimas tentativas do lab (limit 50 por default). */
 export async function listAttempts(
@@ -118,6 +115,7 @@ export async function listAttempts(
 ```
 
 **⛔ NÃO:**
+
 - Não criar `updateAttempt()` — tentativas são imutáveis após save
 - Não criar `deleteAttempt()` — auditoria preservada para sempre
 - Não criar `listAttemptsByStatus()` — não há status
@@ -187,9 +185,7 @@ export function buildAttemptSignaturePayload(
   dataRealizacao: string,
 ): string {
   const canonicalResults = JSON.stringify(
-    Object.fromEntries(
-      Object.entries(resultados).sort(([a], [b]) => a.localeCompare(b))
-    )
+    Object.fromEntries(Object.entries(resultados).sort(([a], [b]) => a.localeCompare(b))),
   );
   return `${operatorDoc}|${controlOperacionalId}|${canonicalResults}|${dataRealizacao}`;
 }

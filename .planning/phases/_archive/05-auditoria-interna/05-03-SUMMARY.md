@@ -42,18 +42,21 @@ Implemented 6 production-ready Cloud Function callables for internal audit execu
 ## Key Technical Achievements
 
 ### Callable Pattern
+
 - All callables validated with Zod input schemas
 - Lab membership checks enforced (isActiveMemberOfLab)
 - Proper error responses: `unauthenticated`, `permission-denied`, `invalid-argument`, `failed-precondition`, `internal`
 - Region: `southamerica-east1`
 
 ### LogicalSignature Implementation
+
 - SHA-256 hash of canonical JSON payload (deterministic field order)
 - operatorId from request.auth.uid
 - Timestamp from server-side Timestamp.now()
 - Applied to all achados for immutable audit trail (RDC 978 requirement)
 
 ### Achado → NC Auto-Linking (AUDI-03)
+
 - When achado severity = `crítica` or `grave`, `registerAchado` automatically creates NC
 - Bidirectional link: `achado.ncId` + `nc.achadoId`
 - Severity mapping: crítica/grave → NC open with same severity
@@ -61,6 +64,7 @@ Implemented 6 production-ready Cloud Function callables for internal audit execu
 - NC created with `origem: 'auditoria-interna'` for traceability
 
 ### Checklist Template Loading (AUDI-02)
+
 - `installChecklistTemplate` callable loads DICQ 4.3 template seed
 - ~115 items seeded in `functions/src/seeds/checklistTemplates.json`
 - Batch creation in chunks of 400 items (safe under Firestore 500-write limit)
@@ -68,6 +72,7 @@ Implemented 6 production-ready Cloud Function callables for internal audit execu
 - Items pre-populated with numeroDICQ, descricao, categoria, bloco
 
 ### Offline Sync
+
 - `updateChecklistResponses` batch-updates response items + sessão stats
 - Counts conforme/não-conforme/NA and updates totals
 - Sets session status to 'finalizada' when responses complete
@@ -76,6 +81,7 @@ Implemented 6 production-ready Cloud Function callables for internal audit execu
 ## Schema Alignment
 
 Functions types now match client types exactly:
+
 - `Auditoria`: year-based container (ano, frequencia, responsavelTecnico, proximaAuditoriaPlanejada)
 - `Sessao`: individual audit session (auditor, dataInicio, dataFim, checklist stats)
 - `ChecklistItem`: immutable DICQ template item (numeroDICQ, descricao, resposta, severidade)
@@ -114,6 +120,7 @@ $ cd functions && npm run build
 ## Callables Registered
 
 All 6 callables exported in `functions/src/index.ts`:
+
 - createAuditoria
 - registerAchado
 - createPlanoAcao
@@ -123,13 +130,13 @@ All 6 callables exported in `functions/src/index.ts`:
 
 ## Threat Surface
 
-| ID | Category | Mitigation |
-|----|----------|-----------|
-| T-05-10 | Spoofing | request.auth.uid required; lab membership validated |
-| T-05-11 | Tampering | Zod fast-fail on invalid input |
-| T-05-12 | Tampering | SHA-256 LogicalSignature immutable; server-side signing |
-| T-05-13 | Tampering | Atomic batch: achado + NC both succeed or fail |
-| T-05-14 | DoS | Firebase rate limiting + Zod fast-fail |
+| ID      | Category               | Mitigation                                                     |
+| ------- | ---------------------- | -------------------------------------------------------------- |
+| T-05-10 | Spoofing               | request.auth.uid required; lab membership validated            |
+| T-05-11 | Tampering              | Zod fast-fail on invalid input                                 |
+| T-05-12 | Tampering              | SHA-256 LogicalSignature immutable; server-side signing        |
+| T-05-13 | Tampering              | Atomic batch: achado + NC both succeed or fail                 |
+| T-05-14 | DoS                    | Firebase rate limiting + Zod fast-fail                         |
 | T-05-15 | Information Disclosure | Function logs only contain labId + high-level results (no PII) |
 
 ## Testing Checkpoint (BLOCKED)
@@ -163,6 +170,7 @@ Plan requires emulator testing before Phase 05-04 (PDF generation). Verification
 - ✅ Functions build succeeds: 0 errors
 
 **Pending (Phase 05-04+):**
+
 - PDF report generation
 - E2E tests
 - Firestore rules deployment verification

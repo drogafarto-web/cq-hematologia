@@ -26,7 +26,7 @@ try {
 
   // Manter o mais recente, deletar os antigos
   const lots = snap.docs
-    .map(d => ({
+    .map((d) => ({
       id: d.id,
       ...d.data(),
       createdAt: d.data().createdAt?.toDate?.() || new Date(0),
@@ -34,22 +34,22 @@ try {
     .sort((a, b) => b.createdAt - a.createdAt);
 
   console.log('Mantendo:', lots[0].id, '(mais recente)');
-  console.log('Deletando:', lots.slice(1).map(l => l.id).join(', '));
+  console.log(
+    'Deletando:',
+    lots
+      .slice(1)
+      .map((l) => l.id)
+      .join(', '),
+  );
   console.log();
 
   // Deletar antigos
   for (let i = 1; i < lots.length; i++) {
-    await db
-      .collection('labs')
-      .doc(labId)
-      .collection('ciq-coagulacao')
-      .doc(lots[i].id)
-      .delete();
+    await db.collection('labs').doc(labId).collection('ciq-coagulacao').doc(lots[i].id).delete();
     console.log(`   ✅ ${lots[i].id} deletado`);
   }
 
   console.log('\n✅ Limpeza concluída!\n');
-
 } catch (err) {
   console.error('❌ Erro:', err.message);
   process.exit(1);

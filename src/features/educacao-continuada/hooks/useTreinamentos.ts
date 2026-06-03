@@ -9,10 +9,7 @@ import {
   updateTreinamento,
   type SubscribeTreinamentosOptions,
 } from '../services/ecFirebaseService';
-import type {
-  Treinamento,
-  TreinamentoInput,
-} from '../types/EducacaoContinuada';
+import type { Treinamento, TreinamentoInput } from '../types/EducacaoContinuada';
 
 export interface UseTreinamentosResult {
   treinamentos: Treinamento[];
@@ -29,9 +26,7 @@ export interface UseTreinamentosResult {
  * Hook para a coleção de treinamentos (FR-027) do tenant ativo. Segue o
  * mesmo contrato e comportamento de `useColaboradores` — ver docstring lá.
  */
-export function useTreinamentos(
-  options: SubscribeTreinamentosOptions = {},
-): UseTreinamentosResult {
+export function useTreinamentos(options: SubscribeTreinamentosOptions = {}): UseTreinamentosResult {
   const labId = useActiveLabId();
   const { includeDeleted = false, somenteAtivos = false } = options;
 

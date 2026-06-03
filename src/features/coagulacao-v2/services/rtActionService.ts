@@ -13,8 +13,7 @@ import { db } from '../../../shared/services/firebase';
 import type { RTAction, RTActionInput } from '../types/RTAction';
 import { updateControlOperacional } from './controlOperacionalService';
 
-const COLLECTION = (labId: string) =>
-  collection(db, 'labs', labId, 'rt-actions');
+const COLLECTION = (labId: string) => collection(db, 'labs', labId, 'rt-actions');
 
 export async function createRTAction(
   labId: string,
@@ -64,17 +63,15 @@ export async function listRTActionsByTarget(
     limit(50),
   ];
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as RTAction));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as RTAction);
 }
 
-export async function listNotivisaPendentes(
-  labId: string,
-): Promise<RTAction[]> {
+export async function listNotivisaPendentes(labId: string): Promise<RTAction[]> {
   const constraints: any[] = [
     where('tipo', '==', 'notificar_notivisa'),
     orderBy('criadoEm', 'desc'),
     limit(50),
   ];
   const snap = await getDocs(query(COLLECTION(labId), ...constraints));
-  return snap.docs.map((d) => ({ id: d.id, ...d.data() } as RTAction));
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }) as RTAction);
 }

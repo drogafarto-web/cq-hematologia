@@ -39,9 +39,7 @@ export function LabApoioForm({ onSubmit, onCancel }: LabApoioFormProps) {
           cnpj: '00000000000191', // Valid test CNPJ
           habilitacaoAnvisa: 'AVS-12345678',
           vigenciaInicio: new Date().toISOString().split('T')[0],
-          vigenciaFim: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000)
-            .toISOString()
-            .split('T')[0],
+          vigenciaFim: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
           criticidade: 'media',
           ativo: true,
           exames: [{ codigo: '01001', descricao: 'Glicose', tat: 24 }],
@@ -70,8 +68,8 @@ export function LabApoioForm({ onSubmit, onCancel }: LabApoioFormProps) {
       {step === 1 && (
         <div className="mb-6 rounded-lg border border-amber-500/30 bg-amber-500/10 p-4">
           <p className="text-sm text-amber-200">
-            <strong>Aviso Legal:</strong> Template de contrato baseado em RDC 978 Arts. 36–39.
-            Não substitui revisão jurídica. Revisão prevista para Phase 1 semana 2.
+            <strong>Aviso Legal:</strong> Template de contrato baseado em RDC 978 Arts. 36–39. Não
+            substitui revisão jurídica. Revisão prevista para Phase 1 semana 2.
           </p>
         </div>
       )}

@@ -163,7 +163,7 @@ export function UroFormIdentificationSectionV2({
       return;
     }
     const matched = controleLots.find(
-      (l) => l.loteControle === values.loteControle && l.nivel === values.nivel
+      (l) => l.loteControle === values.loteControle && l.nivel === values.nivel,
     );
     if (matched) {
       if (controleSel?.lot.id !== matched.id) {
@@ -175,7 +175,14 @@ export function UroFormIdentificationSectionV2({
         });
       }
     }
-  }, [values.loteControle, values.nivel, controleLots, onChange, controleSel?.lot.id, values.aberturaControleId]);
+  }, [
+    values.loteControle,
+    values.nivel,
+    controleLots,
+    onChange,
+    controleSel?.lot.id,
+    values.aberturaControleId,
+  ]);
 
   // Sync tiraSel with form values
   useEffect(() => {

@@ -3,6 +3,7 @@
 **Context:** Commit `37639e7` ("feat(functions): wire 11 missing callables to index.ts") deployed 11 Cloud Functions callables in `southamerica-east1`. A grep across `src/` confirms **zero web client invocations** of any of the 11 names. This report classifies each and recommends a triage path.
 
 **Methodology:**
+
 - Read every callable source under `functions/src/modules/`.
 - Searched `src/features/**` for any `httpsCallable('<name>')` invocation, any service-level wrapper, any string literal of the callable name, and any sibling client-side path that does the same write directly to Firestore (which would indicate the callable is the intended replacement).
 - Cross-referenced module CLAUDE.md files (`src/features/sgq/CLAUDE.md`, `src/features/capa-tracking/CLAUDE.md`) for explicit roadmap statements about callable migration.
@@ -22,19 +23,19 @@
 
 ## Triage table
 
-| # | Callable | Module | Regulatory clause | Client status | Recommendation | Rough scope |
-|---|---|---|---|---|---|---|
-| 1 | `logAction` | qualidade/auditTrail | RDC 978 Art. 5.3 + DICQ 4.4 | No client caller; sgq/capa services do their own audit writes | **Re-classify as internal helper** — server-only, called by other callables | 0.5 d (rename + lock down) |
-| 2 | `getAuditTrail` | qualidade/auditTrail | RDC 978 Art. 5.3 (read-side) | No UI for audit-trail browsing | NO-UI-YET — schedule v1.5 (auditor console) | 3-4 d (table view + filters + signed-CSV export) |
-| 3 | `validateChain` | qualidade/auditTrail | RDC 786 Art. 21 (tamper evidence on demand) | `validateChainIntegrityScheduled` runs on cron; no operator-triggered button | NO-UI-YET — schedule v1.5 (RT "verify chain now" button) | 1 d (button + result modal) |
-| 4 | `generateComplianceReport` | qualidade/auditTrail | RDC 978 Art. 122 (management review) | `management-review/services/reviewTemplateService.ts` aggregates locally; no callable use | WIRE-FIRST — replace local aggregation with callable | 2 d |
-| 5 | `investigarNC` | qualidade/capaWorkflow | RDC 978 Art. 86 + DICQ 4.14 | `sgq/naoConformidade/ncService.ts` writes `capaStatus` direct via `updateDoc` (no HMAC, no audit) | **WIRE-FIRST (high priority)** — remove direct write, route through callable | 1.5 d |
-| 6 | `executarAcaoCorretiva` | qualidade/capaWorkflow | RDC 978 Art. 86 + DICQ 4.14 | Same — direct `updateDoc` in `ncService.ts`; `capa-tracking/CAPAStatusTransitionModal.tsx` is wired but uses `capaService.updateDoc` | **WIRE-FIRST (high priority)** — capa-tracking CLAUDE.md explicitly lists this as pending (`updateCAPAStatus`) | 1.5 d |
-| 7 | `verificarEficacia` | qualidade/capaWorkflow | RDC 978 Art. 86 + DICQ 4.14 (8D step "verify effectiveness") | Same — no eficácia transition exists in client today | **WIRE-FIRST** — extends capa-tracking modal with one extra step | 1 d |
-| 8 | `criarQualificacao` | pessoas/qualificacao | DICQ 4.1 + RDC 786 Art. 22 (pessoal qualificado) | `src/features/personnel/` has no qualificacao screen at all | NO-UI-YET — schedule v1.5 (RT-only "grant qualification" form on operator profile) | 3 d (modal + RT-claim guard + read view) |
-| 9 | `criarNotaFiscal` | compras/notaFiscal | RDC 786 Art. 42 (fiscal traceability) + ADR-0002 (lote↔NF obrigatório) | `fornecedores/services/notaFiscalService.ts` does direct `setDoc` — bypasses fornecedor qualification check baked into the callable | **WIRE-FIRST (high priority)** — closes ADR-0002 enforcement gap | 1 d |
-| 10 | `confirmarRecebimento` | compras/notaFiscal | RDC 786 Art. 42 + ADR-0002 (lote auto-creation from NF items) | No "conferência" UI; client creates lotes manually via separate insumos screen — duplicates rastreabilidade | **WIRE-FIRST** — adds "Conferir nota" action button to `FornecedoresView` NF list; auto-creates lotes via callable batch | 2 d |
-| 11 | `registrarManutencao` | equipamentos/equipamentos | RDC 978 Art. 87 + DICQ 4.12 (equipamentos) | `equipamentoService.ts` has `enterManutencao`/`leaveManutencao` (status flag only); no structured Manutencao record with fornecedor + custo + peças | NO-UI-YET — schedule v1.5 (full manutenção form on equipment detail) | 2-3 d |
+| #   | Callable                   | Module                    | Regulatory clause                                                      | Client status                                                                                                                                       | Recommendation                                                                                                           | Rough scope                                      |
+| --- | -------------------------- | ------------------------- | ---------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ |
+| 1   | `logAction`                | qualidade/auditTrail      | RDC 978 Art. 5.3 + DICQ 4.4                                            | No client caller; sgq/capa services do their own audit writes                                                                                       | **Re-classify as internal helper** — server-only, called by other callables                                              | 0.5 d (rename + lock down)                       |
+| 2   | `getAuditTrail`            | qualidade/auditTrail      | RDC 978 Art. 5.3 (read-side)                                           | No UI for audit-trail browsing                                                                                                                      | NO-UI-YET — schedule v1.5 (auditor console)                                                                              | 3-4 d (table view + filters + signed-CSV export) |
+| 3   | `validateChain`            | qualidade/auditTrail      | RDC 786 Art. 21 (tamper evidence on demand)                            | `validateChainIntegrityScheduled` runs on cron; no operator-triggered button                                                                        | NO-UI-YET — schedule v1.5 (RT "verify chain now" button)                                                                 | 1 d (button + result modal)                      |
+| 4   | `generateComplianceReport` | qualidade/auditTrail      | RDC 978 Art. 122 (management review)                                   | `management-review/services/reviewTemplateService.ts` aggregates locally; no callable use                                                           | WIRE-FIRST — replace local aggregation with callable                                                                     | 2 d                                              |
+| 5   | `investigarNC`             | qualidade/capaWorkflow    | RDC 978 Art. 86 + DICQ 4.14                                            | `sgq/naoConformidade/ncService.ts` writes `capaStatus` direct via `updateDoc` (no HMAC, no audit)                                                   | **WIRE-FIRST (high priority)** — remove direct write, route through callable                                             | 1.5 d                                            |
+| 6   | `executarAcaoCorretiva`    | qualidade/capaWorkflow    | RDC 978 Art. 86 + DICQ 4.14                                            | Same — direct `updateDoc` in `ncService.ts`; `capa-tracking/CAPAStatusTransitionModal.tsx` is wired but uses `capaService.updateDoc`                | **WIRE-FIRST (high priority)** — capa-tracking CLAUDE.md explicitly lists this as pending (`updateCAPAStatus`)           | 1.5 d                                            |
+| 7   | `verificarEficacia`        | qualidade/capaWorkflow    | RDC 978 Art. 86 + DICQ 4.14 (8D step "verify effectiveness")           | Same — no eficácia transition exists in client today                                                                                                | **WIRE-FIRST** — extends capa-tracking modal with one extra step                                                         | 1 d                                              |
+| 8   | `criarQualificacao`        | pessoas/qualificacao      | DICQ 4.1 + RDC 786 Art. 22 (pessoal qualificado)                       | `src/features/personnel/` has no qualificacao screen at all                                                                                         | NO-UI-YET — schedule v1.5 (RT-only "grant qualification" form on operator profile)                                       | 3 d (modal + RT-claim guard + read view)         |
+| 9   | `criarNotaFiscal`          | compras/notaFiscal        | RDC 786 Art. 42 (fiscal traceability) + ADR-0002 (lote↔NF obrigatório) | `fornecedores/services/notaFiscalService.ts` does direct `setDoc` — bypasses fornecedor qualification check baked into the callable                 | **WIRE-FIRST (high priority)** — closes ADR-0002 enforcement gap                                                         | 1 d                                              |
+| 10  | `confirmarRecebimento`     | compras/notaFiscal        | RDC 786 Art. 42 + ADR-0002 (lote auto-creation from NF items)          | No "conferência" UI; client creates lotes manually via separate insumos screen — duplicates rastreabilidade                                         | **WIRE-FIRST** — adds "Conferir nota" action button to `FornecedoresView` NF list; auto-creates lotes via callable batch | 2 d                                              |
+| 11  | `registrarManutencao`      | equipamentos/equipamentos | RDC 978 Art. 87 + DICQ 4.12 (equipamentos)                             | `equipamentoService.ts` has `enterManutencao`/`leaveManutencao` (status flag only); no structured Manutencao record with fornecedor + custo + peças | NO-UI-YET — schedule v1.5 (full manutenção form on equipment detail)                                                     | 2-3 d                                            |
 
 ---
 
@@ -164,17 +165,14 @@
 ## Recommended execution order (post-triage)
 
 **Wave A — WIRE-FIRST compliance closures (target: v1.4.1 hotfix, ~1 sprint):**
+
 1. **#5 `investigarNC` + #6 `executarAcaoCorretiva` + #7 `verificarEficacia`** — single wave, same modal, closes RT-claim + HMAC + effectiveness gaps. Total ~4 d.
 2. **#9 `criarNotaFiscal` + #10 `confirmarRecebimento`** — single wave, fornecedores domain, closes ADR-0002 enforcement + auto-lote creation. Total ~3 d.
 3. **#4 `generateComplianceReport`** — single-file replacement in `reviewTemplateService.ts`. ~2 d.
 
-**Wave B — Internal cleanup (no scope change, alongside Wave A):**
-4. **#1 `logAction`** — re-classify as internal helper, remove from public surface. ~0.5 d.
+**Wave B — Internal cleanup (no scope change, alongside Wave A):** 4. **#1 `logAction`** — re-classify as internal helper, remove from public surface. ~0.5 d.
 
-**Wave C — NO-UI-YET (gate on v1.5 roadmap; do not build until UI scope is approved):**
-5. **#2 `getAuditTrail` + #3 `validateChain`** — auditor console (combined ~5 d).
-6. **#8 `criarQualificacao`** — pessoas qualificação UI (~3 d).
-7. **#11 `registrarManutencao`** — equipamento manutenção structured form (~2–3 d).
+**Wave C — NO-UI-YET (gate on v1.5 roadmap; do not build until UI scope is approved):** 5. **#2 `getAuditTrail` + #3 `validateChain`** — auditor console (combined ~5 d). 6. **#8 `criarQualificacao`** — pessoas qualificação UI (~3 d). 7. **#11 `registrarManutencao`** — equipamento manutenção structured form (~2–3 d).
 
 **No deletes recommended.** All 11 callables serve a documented regulatory clause; the cost of keeping them deployed (one Cloud Run revision each, ~$0.50/month idle) is dominated by the cost of re-deriving them later.
 

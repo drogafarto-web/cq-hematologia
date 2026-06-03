@@ -42,12 +42,7 @@ function db(): admin.firestore.Firestore {
 }
 
 function cycleRoot(labId: string, cycleId: string) {
-  return db()
-    .collection('labs')
-    .doc(labId)
-    .collection('nps')
-    .doc('cycles')
-    .collection(cycleId);
+  return db().collection('labs').doc(labId).collection('nps').doc('cycles').collection(cycleId);
 }
 
 function responsesCollection(labId: string, cycleId: string) {
@@ -80,14 +75,9 @@ export const submitNPS = onCall(CALLABLE_OPTS, async (request) => {
   }
 
   const followUp =
-    typeof data.followUp === 'string' && data.followUp.length > 0
-      ? data.followUp
-      : null;
+    typeof data.followUp === 'string' && data.followUp.length > 0 ? data.followUp : null;
   if (score <= 6 && (!followUp || followUp.length < 10)) {
-    throw new HttpsError(
-      'invalid-argument',
-      'followUp required (≥ 10 chars) when score ≤ 6',
-    );
+    throw new HttpsError('invalid-argument', 'followUp required (≥ 10 chars) when score ≤ 6');
   }
   if (followUp && followUp.length > 5000) {
     throw new HttpsError('invalid-argument', 'followUp too long');
@@ -166,9 +156,7 @@ export const aggregateNPSCycle = onCall(CALLABLE_OPTS, async (request) => {
     throw new HttpsError('invalid-argument', 'labId + cycleId required');
   }
 
-  const snap = await responsesCollection(labId, cycleId)
-    .where('deletedAt', '==', null)
-    .get();
+  const snap = await responsesCollection(labId, cycleId).where('deletedAt', '==', null).get();
 
   let total = 0;
   let detractors = 0;
@@ -191,10 +179,8 @@ export const aggregateNPSCycle = onCall(CALLABLE_OPTS, async (request) => {
   const npsValue =
     total === 0
       ? 0
-      : Math.round(((promoters / total) * 100 - (detractors / total) * 100) * 10) /
-        10;
-  const averageScore =
-    total === 0 ? 0 : Math.round((scoreSum / total) * 100) / 100;
+      : Math.round(((promoters / total) * 100 - (detractors / total) * 100) * 10) / 10;
+  const averageScore = total === 0 ? 0 : Math.round((scoreSum / total) * 100) / 100;
 
   const summary = {
     cycleId,
@@ -207,10 +193,7 @@ export const aggregateNPSCycle = onCall(CALLABLE_OPTS, async (request) => {
     lastUpdatedAt: Date.now(),
   };
 
-  await summaryDoc(labId, cycleId)
-    .collection('summary')
-    .doc('current')
-    .set(summary);
+  await summaryDoc(labId, cycleId).collection('summary').doc('current').set(summary);
 
   logEvent('nps_cycle_aggregated', {
     labId,

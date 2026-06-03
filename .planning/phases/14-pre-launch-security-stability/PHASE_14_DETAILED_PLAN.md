@@ -28,6 +28,7 @@ Phase 14 is the **final gate before v1.4 production launch (scheduled 2026-08-31
 7. **Rollback procedure** — Tested + documented, recovery time <30min
 
 **Success Criteria:**
+
 - ✅ Zero critical security vulnerabilities
 - ✅ Zero high-severity dependency issues (or mitigated with risk register)
 - ✅ 100% of smoke tests PASS on staging
@@ -229,11 +230,13 @@ npm audit --audit-level=high
 ```
 
 **Expected output format:**
+
 ```
 found X vulnerabilities (Y critical, Z high)
 ```
 
 **Acceptance criteria:**
+
 - Zero critical vulnerabilities
 - High-severity vulnerabilities either:
   - Fixed by `npm update` (preferred)
@@ -242,16 +245,16 @@ found X vulnerabilities (Y critical, Z high)
 
 **Key dependencies to check explicitly:**
 
-| Package | Current | Check For | Action If Vulnerable |
-|---------|---------|-----------|---------------------|
-| `firebase` | ^10.14.1 | Auth/DB exploits | Update to latest ^10.x or ^11.x |
-| `@sentry/react` | 10.50.0 | Data leakage in error capture | Update to latest 10.x |
-| `zod` | ^3.25.76 | Regex DoS in validation | Update to ^3.latest |
-| `vite` | ^6.4.2 | Build-time exploits | Update to ^6.latest or ^7.x |
-| `react` | ^19.2.5 | XSS in DOM render | Update to ^19.latest |
-| `puppeteer` | 24.43.0 | Browser automation sandbox escape | Update to latest 24.x; assess 25.x upgrade |
-| `firebase-admin` | ^13.8.0 | Auth bypass, RCE | Update to ^13.latest or ^14.x |
-| `typescript` | ^5.9.3 | Type-based security holes | Update to ^5.latest or ^6.x if available |
+| Package          | Current  | Check For                         | Action If Vulnerable                       |
+| ---------------- | -------- | --------------------------------- | ------------------------------------------ |
+| `firebase`       | ^10.14.1 | Auth/DB exploits                  | Update to latest ^10.x or ^11.x            |
+| `@sentry/react`  | 10.50.0  | Data leakage in error capture     | Update to latest 10.x                      |
+| `zod`            | ^3.25.76 | Regex DoS in validation           | Update to ^3.latest                        |
+| `vite`           | ^6.4.2   | Build-time exploits               | Update to ^6.latest or ^7.x                |
+| `react`          | ^19.2.5  | XSS in DOM render                 | Update to ^19.latest                       |
+| `puppeteer`      | 24.43.0  | Browser automation sandbox escape | Update to latest 24.x; assess 25.x upgrade |
+| `firebase-admin` | ^13.8.0  | Auth bypass, RCE                  | Update to ^13.latest or ^14.x              |
+| `typescript`     | ^5.9.3   | Type-based security holes         | Update to ^5.latest or ^6.x if available   |
 
 **Output:** `docs/dependency-audit/NPM_AUDIT_REPORT.md`
 
@@ -296,12 +299,12 @@ npm audit | grep -i "deprecated\|eol"
 
 **High-risk EOL packages (historical):**
 
-| Package | Status | Risk | Migration Path |
-|---------|--------|------|-----------------|
-| `papaparse` | Unmaintained (2021) | Low — CSV parsing, no network | Migrate to `csv-parse` (streaming) or keep |
-| `react-to-print` | Last update 2024 | Low — iframe-based printing | Keep; simple utility |
-| `qrcode.react` | Active | None | Continue |
-| `pdfjs-dist` | Active | None | Continue |
+| Package          | Status              | Risk                          | Migration Path                             |
+| ---------------- | ------------------- | ----------------------------- | ------------------------------------------ |
+| `papaparse`      | Unmaintained (2021) | Low — CSV parsing, no network | Migrate to `csv-parse` (streaming) or keep |
+| `react-to-print` | Last update 2024    | Low — iframe-based printing   | Keep; simple utility                       |
+| `qrcode.react`   | Active              | None                          | Continue                                   |
+| `pdfjs-dist`     | Active              | None                          | Continue                                   |
 
 **Decision matrix:**
 
@@ -408,6 +411,7 @@ npm run test:smoke:ci
 ```
 
 **Output:**
+
 - `test-results.xml` (JUnit format for CI)
 - `docs/smoke-tests/SMOKE_TEST_REPORT.md` (human-readable summary + timings)
 - `docs/smoke-tests/SMOKE_TEST_MATRIX.md` (25 modules × 5 critical paths = 125 cells, all ✓)
@@ -421,6 +425,7 @@ npm run test:smoke:ci
 **Goal:** Create a staging Firebase project (`hcquality-staging`) that mirrors production, deploy v1.4 code, validate everything works, test rollback.
 
 **Staging project credentials:**
+
 - Project ID: `hcquality-staging`
 - Region: `southamerica-east1` (same as production)
 - Firestore: `staging-db` (separate from production `(default)`)
@@ -430,6 +435,7 @@ npm run test:smoke:ci
 **Deployment steps:**
 
 1. **Pre-flight checks**
+
    ```bash
    bash scripts/preflight-secrets-check.sh
    npm run typecheck
@@ -437,33 +443,42 @@ npm run test:smoke:ci
    npm run lint
    npm run test:unit
    ```
+
    Expected: All pass, zero warnings.
 
 2. **Deploy Rules + Indexes**
+
    ```bash
    firebase deploy --only firestore:rules,firestore:indexes \
      --project hcquality-staging
    ```
+
    Expected: Rules active in 30–60s.
 
 3. **Deploy Functions**
+
    ```bash
    cd functions && npm run build
    cd ..
    firebase deploy --only functions --project hcquality-staging
    ```
+
    Expected: All 75–85 callables deployed, no errors in Cloud Logs.
 
 4. **Deploy Hosting**
+
    ```bash
    firebase deploy --only hosting --project hcquality-staging
    ```
+
    Expected: Bundle <500KB gzip, live at `https://hcquality-staging.web.app` in <2s.
 
 5. **Seed staging data**
+
    ```bash
    FIREBASE_PROJECT=hcquality-staging npm run staging:seed
    ```
+
    Expected: 5 test labs created, 50 users provisioned, 20 CIQ runs seeded.
 
 6. **Smoke test on staging**
@@ -483,12 +498,14 @@ npm run test:smoke:ci
 **Rollback strategy:**
 
 1. **Immediate (1–2 min):** Revert hosting to v1.3 bundle
+
    ```bash
    firebase deploy --only hosting --project hmatologia2 \
      --etag <v1.3-etag-from-deploy-history>
    ```
 
 2. **Short-term (5 min):** Revert Cloud Functions if breaking changes
+
    ```bash
    firebase deploy --only functions --project hmatologia2
    # Functions auto-rollback if `functions/` git tree matches v1.3 tag
@@ -506,6 +523,7 @@ npm run test:smoke:ci
    ```
 
 **Test scenario:**
+
 - Deploy v1.4 to staging
 - Intentionally break a critical callable (e.g., `submitToNotivisa`)
 - Execute rollback steps 1–4 above in sequence
@@ -527,16 +545,16 @@ npm run test:smoke:ci
 
 **Load profile:**
 
-| Metric | Target | Hard Limit |
-|--------|--------|-----------|
-| Concurrent users | 100 | 200 (fail-safe) |
-| Ramp-up time | 5 minutes | — |
-| Test duration | 15 minutes sustained | — |
-| P50 latency | <500ms | — |
-| P95 latency | <1.5s | — |
-| P99 latency | <2.5s | 3.0s (error) |
-| Error rate | <1% | 5% (error) |
-| HTTP 503 (quota exceeded) | 0 | <1% |
+| Metric                    | Target               | Hard Limit      |
+| ------------------------- | -------------------- | --------------- |
+| Concurrent users          | 100                  | 200 (fail-safe) |
+| Ramp-up time              | 5 minutes            | —               |
+| Test duration             | 15 minutes sustained | —               |
+| P50 latency               | <500ms               | —               |
+| P95 latency               | <1.5s                | —               |
+| P99 latency               | <2.5s                | 3.0s (error)    |
+| Error rate                | <1%                  | 5% (error)      |
+| HTTP 503 (quota exceeded) | 0                    | <1%             |
 
 **Test scenarios (weighted):**
 
@@ -583,6 +601,7 @@ node scripts/analyze-load-test.mjs
 ```
 
 **Pass criteria:**
+
 - ✅ 0 hard failures (system didn't crash)
 - ✅ P99 latency <2.5s
 - ✅ Error rate <1%
@@ -602,7 +621,7 @@ node scripts/analyze-load-test.mjs
 
 **Format:**
 
-```markdown
+````markdown
 # Production Deployment Checklist — v1.4 GA
 
 ## Pre-Deployment (3 hours before window)
@@ -664,6 +683,7 @@ node scripts/analyze-load-test.mjs
 firebase deploy --only firestore:rules,firestore:indexes \
   --project hmatologia2
 ```
+````
 
 - Expected output: ✓ rules deployed, ✓ indexes active
 - Monitoring: Watch Cloud Logs for `PermissionDenied` errors (should be 0)
@@ -749,6 +769,7 @@ Impact window: Users will see v1.3 UI, may have stale PWA cache (hard reload req
 - [ ] Root cause analysis (24h)
 - [ ] Fix + re-test on staging
 - [ ] Schedule retry within 48h
+
 ```
 
 **Additional playbooks:**
@@ -796,67 +817,69 @@ Impact window: Users will see v1.3 UI, may have stale PWA cache (hard reload req
 **File:** `docs/incident-response/INCIDENT_RESPONSE_TREE.md`
 
 ```
+
 INCIDENT DETECTED
-    ↓
+↓
 [Who?] → On-call engineer
 [What?] → Type of error (rules, functions, hosting, third-party)
 [Where?] → Component affected (analyzer, laudo, portal, etc.)
 
 ─── IF Firestore Rules Error ───
-    ├─ PermissionDenied? → User not in lab members
-    │  └─ Verify: `isActiveMemberOfLab(labId)` check passes in rules
-    │  └─ Action: Re-provision claims via `provisionModulesClaims`
-    ├─ ValidationFailed? → Payload invalid
-    │  └─ Check: Rules schema vs. client payload
-    │  └─ Action: Ask client team to verify input
-    └─ Other? → Rollback rules to v1.3
-       └─ Command: `git checkout v1.3 -- firestore.rules && firebase deploy --only firestore:rules`
+├─ PermissionDenied? → User not in lab members
+│ └─ Verify: `isActiveMemberOfLab(labId)` check passes in rules
+│ └─ Action: Re-provision claims via `provisionModulesClaims`
+├─ ValidationFailed? → Payload invalid
+│ └─ Check: Rules schema vs. client payload
+│ └─ Action: Ask client team to verify input
+└─ Other? → Rollback rules to v1.3
+└─ Command: `git checkout v1.3 -- firestore.rules && firebase deploy --only firestore:rules`
 
 ─── IF Cloud Functions Error (5xx) ───
-    ├─ Timeout? → Function exceeds 540s limit
-    │  └─ Check Cloud Logs for long-running operation
-    │  └─ Action: Optimize query or offload to background job
-    ├─ Out of Memory? → Function exceeds 4GB RAM
-    │  └─ Check: `puppeteer` image processing or large data load
-    │  └─ Action: Reduce batch size or upgrade memory allocation (limited)
-    ├─ Secret Not Found? → Callable tries to read undefined secret
-    │  └─ Run: `firebase functions:secrets:list`
-    │  └─ Action: Provision missing secret, redeploy
-    └─ Other? → Rollback functions to v1.3
-       └─ Check git: `git log --oneline | head -5`
-       └─ Deploy v1.3 functions: `git checkout v1.3 -- functions/ && npm run build && firebase deploy --only functions`
+├─ Timeout? → Function exceeds 540s limit
+│ └─ Check Cloud Logs for long-running operation
+│ └─ Action: Optimize query or offload to background job
+├─ Out of Memory? → Function exceeds 4GB RAM
+│ └─ Check: `puppeteer` image processing or large data load
+│ └─ Action: Reduce batch size or upgrade memory allocation (limited)
+├─ Secret Not Found? → Callable tries to read undefined secret
+│ └─ Run: `firebase functions:secrets:list`
+│ └─ Action: Provision missing secret, redeploy
+└─ Other? → Rollback functions to v1.3
+└─ Check git: `git log --oneline | head -5`
+└─ Deploy v1.3 functions: `git checkout v1.3 -- functions/ && npm run build && firebase deploy --only functions`
 
 ─── IF Hosting Bundle Issue ───
-    ├─ 404 on route? → Route not in vite.config.ts
-    │  └─ Check: App routing config
-    │  └─ Action: Hard reload browser (Ctrl+Shift+R)
-    ├─ Stale PWA? → Service worker serving old code
-    │  └─ Action: Ask user to hard reload (Ctrl+Shift+R)
-    │  └─ Tech: Run `gcloud compute url-maps invalidate-cdn-cache`
-    └─ Large bundle? → LCP >2.5s
-       └─ Check: `npm run analyze` output
-       └─ Action: Remove unused dependencies or lazy-load routes
+├─ 404 on route? → Route not in vite.config.ts
+│ └─ Check: App routing config
+│ └─ Action: Hard reload browser (Ctrl+Shift+R)
+├─ Stale PWA? → Service worker serving old code
+│ └─ Action: Ask user to hard reload (Ctrl+Shift+R)
+│ └─ Tech: Run `gcloud compute url-maps invalidate-cdn-cache`
+└─ Large bundle? → LCP >2.5s
+└─ Check: `npm run analyze` output
+└─ Action: Remove unused dependencies or lazy-load routes
 
 ─── IF Third-Party Service Error ───
-    ├─ Gemini Vision API error → `analyzeCIQImage` fails
-    │  └─ Check: Quota remaining, API key valid
-    │  └─ Action: Verify secret provisioned, test with stub response
-    ├─ NOTIVISA Submission fails → Queue processing hangs
-    │  └─ Check: NOTIVISA_SECRET valid, network reachable
-    │  └─ Action: Pause queue, manually retry after fix
-    ├─ Twilio SMS fails → Critical value alert not sent
-    │  └─ Check: Account balance, phone number valid
-    │  └─ Action: Use fallback email, alert RT manually
-    └─ Resend email fails → Laudo notification doesn't arrive
-       └─ Check: API key, email templates valid
-       └─ Action: Retry queue, fallback to in-app notification
+├─ Gemini Vision API error → `analyzeCIQImage` fails
+│ └─ Check: Quota remaining, API key valid
+│ └─ Action: Verify secret provisioned, test with stub response
+├─ NOTIVISA Submission fails → Queue processing hangs
+│ └─ Check: NOTIVISA_SECRET valid, network reachable
+│ └─ Action: Pause queue, manually retry after fix
+├─ Twilio SMS fails → Critical value alert not sent
+│ └─ Check: Account balance, phone number valid
+│ └─ Action: Use fallback email, alert RT manually
+└─ Resend email fails → Laudo notification doesn't arrive
+└─ Check: API key, email templates valid
+└─ Action: Retry queue, fallback to in-app notification
 
 ─── Recovery & Escalation ───
-    ├─ Can fix in <15 min? → Implement hotfix, test on staging, deploy
-    ├─ Takes >15 min? → Rollback to v1.3, schedule fix for next window
-    ├─ Data loss risk? → PAUSE all writes, restore from backup
-    └─ Unknown issue? → Page CTO, declare major incident
-```
+├─ Can fix in <15 min? → Implement hotfix, test on staging, deploy
+├─ Takes >15 min? → Rollback to v1.3, schedule fix for next window
+├─ Data loss risk? → PAUSE all writes, restore from backup
+└─ Unknown issue? → Page CTO, declare major incident
+
+````
 
 **Step-by-step example: "Laudo generation failing 50% of the time"**
 
@@ -876,7 +899,8 @@ INCIDENT DETECTED
    cd functions && npm run build
    firebase deploy --only functions:generateLaudo
    # Monitor: error rate should drop to <1% within 5 min
-   ```
+````
+
 7. **If still failing after 15 min:**
    ```bash
    # Rollback to v1.3
@@ -937,16 +961,16 @@ Attendees: CTO, tech lead, QA lead, ops engineer, external auditor (pre-alignmen
 
 ## Timeline & Resource Allocation
 
-| Phase | Duration | Owner | Start | End |
-|-------|----------|-------|-------|-----|
-| 1. Security audit | 2 days | Security engineer | 2026-08-15 | 2026-08-17 |
-| 2. Dependency audit | 1 day | Tech lead | 2026-08-15 | 2026-08-16 |
-| 3. Smoke tests | 1 day | QA lead | 2026-08-18 | 2026-08-19 |
-| 4. Staging deployment | 1 day | Ops engineer | 2026-08-18 | 2026-08-19 |
-| 5. Load test | 1 day | Tech lead | 2026-08-20 | 2026-08-20 |
-| 6. Playbook finalization | 1 day | Ops engineer | 2026-08-21 | 2026-08-21 |
-| 7. Sign-off meeting | 2 hours | CTO | 2026-08-22 | 2026-08-22 |
-| **Production deployment** | 1 hour | Ops engineer | 2026-08-23 | 2026-08-23 |
+| Phase                     | Duration | Owner             | Start      | End        |
+| ------------------------- | -------- | ----------------- | ---------- | ---------- |
+| 1. Security audit         | 2 days   | Security engineer | 2026-08-15 | 2026-08-17 |
+| 2. Dependency audit       | 1 day    | Tech lead         | 2026-08-15 | 2026-08-16 |
+| 3. Smoke tests            | 1 day    | QA lead           | 2026-08-18 | 2026-08-19 |
+| 4. Staging deployment     | 1 day    | Ops engineer      | 2026-08-18 | 2026-08-19 |
+| 5. Load test              | 1 day    | Tech lead         | 2026-08-20 | 2026-08-20 |
+| 6. Playbook finalization  | 1 day    | Ops engineer      | 2026-08-21 | 2026-08-21 |
+| 7. Sign-off meeting       | 2 hours  | CTO               | 2026-08-22 | 2026-08-22 |
+| **Production deployment** | 1 hour   | Ops engineer      | 2026-08-23 | 2026-08-23 |
 
 **Critical path:** Security audit (2d) → Smoke tests (1d) → Sign-off (0.5d) = 3.5 days minimum
 

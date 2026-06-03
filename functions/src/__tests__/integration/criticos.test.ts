@@ -4,13 +4,18 @@
  */
 
 import { describe, it, expect, beforeEach } from '@jest/globals';
-import { smsTemplate, emailSubjectCritico, emailBodyCritico, validateSmsLength } from '../../shared/sms';
+import {
+  smsTemplate,
+  emailSubjectCritico,
+  emailBodyCritico,
+  validateSmsLength,
+} from '../../shared/sms';
 import {
   mockCriticoConfigPotassium,
   mockCriticoConfigGlucose,
   mockCriticoAlert,
   mockCriticoAlertHigh,
-  mockCriticoAlertLow
+  mockCriticoAlertLow,
 } from '../fixtures/critico-thresholds';
 
 describe('Críticos Module', () => {
@@ -19,7 +24,7 @@ describe('Críticos Module', () => {
       const sms = smsTemplate(
         { analito: 'Potassium', valor: '6.2', referencia: '3.5-5.5' },
         { nomeAbreviado: 'Lab ABC', telefone: '+55 11 98765-4321' },
-        { nome: 'João Silva' }
+        { nome: 'João Silva' },
       );
 
       expect(sms).toBeTruthy();
@@ -34,7 +39,7 @@ describe('Críticos Module', () => {
       const sms = smsTemplate(
         { analito: 'Glucose', valor: '450', referencia: '70-100' },
         { nomeAbreviado: 'Lab' },
-        { nome: longName }
+        { nome: longName },
       );
 
       expect(sms.length).toBeLessThanOrEqual(160);
@@ -44,9 +49,13 @@ describe('Críticos Module', () => {
 
     it('should respect 160-char SMS limit', () => {
       const sms = smsTemplate(
-        { analito: 'VeryLongAnaliteNameThatShouldBeTruncated', valor: '999.99', referencia: '0-10' },
+        {
+          analito: 'VeryLongAnaliteNameThatShouldBeTruncated',
+          valor: '999.99',
+          referencia: '0-10',
+        },
         { nomeAbreviado: 'Very Long Lab Name That Is Quite Lengthy' },
-        { nome: 'Patient Name Here' }
+        { nome: 'Patient Name Here' },
       );
 
       expect(validateSmsLength(sms, 160)).toBe(true);
@@ -56,7 +65,7 @@ describe('Críticos Module', () => {
       const sms = smsTemplate(
         { analito: 'Calcium', valor: '5.5', referencia: '6.5-10.5' },
         { nomeAbreviado: 'Lab XYZ' }, // No phone
-        { nome: 'Patient' }
+        { nome: 'Patient' },
       );
 
       expect(sms).toBeTruthy();
@@ -78,7 +87,7 @@ describe('Críticos Module', () => {
       const body = emailBodyCritico(
         { analito: 'Glucose', valor: '450', referencia: '70-100' },
         { nomeAbreviado: 'Lab ABC', telefone: '+55 11 98765-4321' },
-        { nome: 'John Doe' }
+        { nome: 'John Doe' },
       );
 
       expect(body).toContain('Crítico');
@@ -93,7 +102,7 @@ describe('Críticos Module', () => {
         { analito: 'Sodium', valor: '150', referencia: '135-145' },
         { nomeAbreviado: 'Lab' },
         { nome: 'Patient' },
-        now
+        now,
       );
 
       expect(body).toBeTruthy();

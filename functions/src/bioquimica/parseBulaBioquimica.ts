@@ -66,7 +66,7 @@ async function checkRateLimit(labId: string): Promise<boolean> {
   const doc = await counterRef.get();
   const data = doc.data() || {};
   const lastMinute = data.lastMinute || -1;
-  const count = lastMinute === minuteKey ? (data.count || 0) : 0;
+  const count = lastMinute === minuteKey ? data.count || 0 : 0;
 
   if (count >= 60) {
     return false;

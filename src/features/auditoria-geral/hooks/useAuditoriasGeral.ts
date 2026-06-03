@@ -18,8 +18,14 @@ export function useAuditoriasGeral() {
     setIsLoading(true);
     const unsub = subscribeAuditorias(
       labId,
-      (list) => { setAuditorias(list); setIsLoading(false); },
-      (err) => { setError(err); setIsLoading(false); },
+      (list) => {
+        setAuditorias(list);
+        setIsLoading(false);
+      },
+      (err) => {
+        setError(err);
+        setIsLoading(false);
+      },
     );
     return unsub;
   }, [labId]);

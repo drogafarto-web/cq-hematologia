@@ -67,7 +67,10 @@ describe('ControlOperacional Service', () => {
 
   it('lista controles com filtro de status', async () => {
     vi.mocked(firestore.getDocs).mockResolvedValueOnce({
-      docs: [{ id: 'c1', data: () => mockInput }, { id: 'c2', data: () => mockInput }],
+      docs: [
+        { id: 'c1', data: () => mockInput },
+        { id: 'c2', data: () => mockInput },
+      ],
     } as any);
 
     const result = await listControlOperacionals(labId, { status: 'ativo' });

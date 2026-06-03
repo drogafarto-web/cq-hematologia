@@ -25,9 +25,7 @@ const indexesFile = JSON.parse(readFileSync(indexesPath, 'utf-8'));
 const indexes: FirestoreIndex[] = indexesFile.indexes;
 
 function hasMatchingIndex(query: RequiredQuery): boolean {
-  const candidates = indexes.filter(
-    (idx) => idx.collectionGroup === query.collection,
-  );
+  const candidates = indexes.filter((idx) => idx.collectionGroup === query.collection);
 
   const requiredFields: IndexField[] = [
     ...query.filters.map((f) => ({ fieldPath: f.field, order: f.order })),
@@ -37,9 +35,7 @@ function hasMatchingIndex(query: RequiredQuery): boolean {
   return candidates.some((idx) => {
     if (idx.fields.length !== requiredFields.length) return false;
     return requiredFields.every(
-      (req, i) =>
-        idx.fields[i].fieldPath === req.fieldPath &&
-        idx.fields[i].order === req.order,
+      (req, i) => idx.fields[i].fieldPath === req.fieldPath && idx.fields[i].order === req.order,
     );
   });
 }
@@ -84,16 +80,13 @@ describe('Coagulação v2 — Firestore composite indexes', () => {
     },
   ];
 
-  it.each(requiredQueries)(
-    'index exists for $collection ($source)',
-    (query) => {
-      const found = hasMatchingIndex(query);
-      expect(
-        found,
-        `Missing composite index in firestore.indexes.json for collection "${query.collection}": ` +
-          `fields [${[...query.filters.map((f) => f.field), query.orderBy.field].join(', ')}]. ` +
-          `Source: ${query.source}`,
-      ).toBe(true);
-    },
-  );
+  it.each(requiredQueries)('index exists for $collection ($source)', (query) => {
+    const found = hasMatchingIndex(query);
+    expect(
+      found,
+      `Missing composite index in firestore.indexes.json for collection "${query.collection}": ` +
+        `fields [${[...query.filters.map((f) => f.field), query.orderBy.field].join(', ')}]. ` +
+        `Source: ${query.source}`,
+    ).toBe(true);
+  });
 });

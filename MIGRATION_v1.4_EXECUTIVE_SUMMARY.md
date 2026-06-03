@@ -2,7 +2,7 @@
 
 **Status:** ✓ PRODUCTION READY  
 **Date:** 2026-05-07  
-**Scope:** 5 new collections per lab, RDC 978 compliant  
+**Scope:** 5 new collections per lab, RDC 978 compliant
 
 ---
 
@@ -12,17 +12,17 @@ Complete, production-ready migration package for HC Quality Firestore v1.3 → v
 
 ### Deliverables
 
-| Item | Location | Type | Status |
-|---|---|---|---|
-| Migration (Bash) | `scripts/migrate-v1.4.sh` | Script | ✓ Ready |
-| Migration (PowerShell) | `scripts/migrate-v1.4.ps1` | Script | ✓ Ready |
-| Rollback (Bash) | `scripts/migrate-v1.4-rollback.sh` | Script | ✓ Ready |
-| Rollback (PowerShell) | `scripts/migrate-v1.4-rollback.ps1` | Script | ✓ Ready |
-| Lab lister utility | `scripts/list-labs.js` | Node.js | ✓ Ready |
-| Validation script | `scripts/validate-migration-v1.4.sh` | Bash | ✓ Ready |
-| Scripts documentation | `scripts/MIGRATION_SCRIPTS_README.md` | Markdown | ✓ Ready |
-| Complete user guide | `docs/MIGRATION_v1.4_GUIDE.md` | Markdown | ✓ Ready |
-| Navigation index | `docs/MIGRATION_v1.4_INDEX.md` | Markdown | ✓ Ready |
+| Item                   | Location                              | Type     | Status  |
+| ---------------------- | ------------------------------------- | -------- | ------- |
+| Migration (Bash)       | `scripts/migrate-v1.4.sh`             | Script   | ✓ Ready |
+| Migration (PowerShell) | `scripts/migrate-v1.4.ps1`            | Script   | ✓ Ready |
+| Rollback (Bash)        | `scripts/migrate-v1.4-rollback.sh`    | Script   | ✓ Ready |
+| Rollback (PowerShell)  | `scripts/migrate-v1.4-rollback.ps1`   | Script   | ✓ Ready |
+| Lab lister utility     | `scripts/list-labs.js`                | Node.js  | ✓ Ready |
+| Validation script      | `scripts/validate-migration-v1.4.sh`  | Bash     | ✓ Ready |
+| Scripts documentation  | `scripts/MIGRATION_SCRIPTS_README.md` | Markdown | ✓ Ready |
+| Complete user guide    | `docs/MIGRATION_v1.4_GUIDE.md`        | Markdown | ✓ Ready |
+| Navigation index       | `docs/MIGRATION_v1.4_INDEX.md`        | Markdown | ✓ Ready |
 
 **Total:** 9 files, ~80 KB
 
@@ -46,22 +46,28 @@ All defaults RDC 978 + LGPD compliant.
 ## How to Use (3 Steps)
 
 ### 1. Dry-run (Safe)
+
 ```bash
 export LABS_LIST=$(node scripts/list-labs.js --project hmatologia2)
 bash scripts/migrate-v1.4.sh --dry-run
 ```
+
 Result: `[DRY-RUN] Would create...` (no changes)
 
 ### 2. Review logs
+
 ```bash
 cat migrate-v1.4.log
 ```
+
 Expected: All labs listed, all collections marked OK
 
 ### 3. Execute
+
 ```bash
 bash scripts/migrate-v1.4.sh --execute
 ```
+
 Result: `✓ All collections migrated successfully`
 
 ---
@@ -72,21 +78,21 @@ Result: `✓ All collections migrated successfully`
 ✓ **Atomic per-lab** — one failure doesn't block others  
 ✓ **Full logging** — every action traced with timestamp  
 ✓ **Soft-delete rollback** — undo via `migrate-v1.4-rollback.sh`  
-✓ **Validation included** — verify success automatically  
+✓ **Validation included** — verify success automatically
 
 ---
 
 ## Key Characteristics
 
-| Aspect | Detail |
-|---|---|
-| **Mode** | Dry-run by default, `--execute` for real |
-| **Input** | Environment var `LABS_LIST` (comma-separated lab UUIDs) |
-| **Output** | `migrate-v1.4.log` (timestamped per-collection status) |
-| **Speed** | ~5-10 sec per lab (~10 min for 100 labs) |
-| **Cost** | ~1,500 Firestore writes per 100 labs |
-| **Compliance** | RDC 978 + DICQ 4.3 + LGPD |
-| **Rollback** | Soft-delete (marks `deletadoEm`, not hard-delete) |
+| Aspect         | Detail                                                  |
+| -------------- | ------------------------------------------------------- |
+| **Mode**       | Dry-run by default, `--execute` for real                |
+| **Input**      | Environment var `LABS_LIST` (comma-separated lab UUIDs) |
+| **Output**     | `migrate-v1.4.log` (timestamped per-collection status)  |
+| **Speed**      | ~5-10 sec per lab (~10 min for 100 labs)                |
+| **Cost**       | ~1,500 Firestore writes per 100 labs                    |
+| **Compliance** | RDC 978 + DICQ 4.3 + LGPD                               |
+| **Rollback**   | Soft-delete (marks `deletadoEm`, not hard-delete)       |
 
 ---
 
@@ -136,9 +142,9 @@ END
 
 ## Operating Systems
 
-| OS | Script |
-|---|---|
-| macOS / Linux / WSL | `migrate-v1.4.sh` |
+| OS                       | Script             |
+| ------------------------ | ------------------ |
+| macOS / Linux / WSL      | `migrate-v1.4.sh`  |
 | Windows (PowerShell 5.1) | `migrate-v1.4.ps1` |
 
 Both scripts do exactly the same thing. Choose based on your OS.
@@ -147,12 +153,12 @@ Both scripts do exactly the same thing. Choose based on your OS.
 
 ## Estimated Timeline
 
-| Phase | Duration | Notes |
-|---|---|---|
-| Preparation (steps 1-2) | 10 minutes | Dry-run, review logs |
-| Execution (step 3) | 10 minutes for 100 labs | Depends on lab count |
-| Validation (step 4) | 5 minutes | Automated check |
-| **Total** | **~25 minutes** | For 100 labs |
+| Phase                   | Duration                | Notes                |
+| ----------------------- | ----------------------- | -------------------- |
+| Preparation (steps 1-2) | 10 minutes              | Dry-run, review logs |
+| Execution (step 3)      | 10 minutes for 100 labs | Depends on lab count |
+| Validation (step 4)     | 5 minutes               | Automated check      |
+| **Total**               | **~25 minutes**         | For 100 labs         |
 
 ---
 
@@ -183,18 +189,19 @@ bash scripts/migrate-v1.4-rollback.sh --execute
 ## Monitoring & Support
 
 ### Logs to watch
+
 - `migrate-v1.4.log` — main execution log
 - `migrate-v1.4-rollback.log` — rollback log (if executed)
 - `validate-migration-v1.4.log` — validation results
 
 ### Common issues & fixes
 
-| Issue | Fix |
-|---|---|
-| "Firebase CLI not found" | `npm install -g firebase-tools` |
+| Issue                       | Fix                                                 |
+| --------------------------- | --------------------------------------------------- |
+| "Firebase CLI not found"    | `npm install -g firebase-tools`                     |
 | "LABS_LIST env var not set" | `export LABS_LIST=$(node scripts/list-labs.js ...)` |
-| "Cannot access project" | `firebase login` |
-| "Firestore error" | User must be `owner` of labs, check Firestore rules |
+| "Cannot access project"     | `firebase login`                                    |
+| "Firestore error"           | User must be `owner` of labs, check Firestore rules |
 
 Full troubleshooting in `docs/MIGRATION_v1.4_GUIDE.md`.
 
@@ -212,10 +219,12 @@ Full troubleshooting in `docs/MIGRATION_v1.4_GUIDE.md`.
 ## Why This Migration
 
 **Phase 4 (NOTIVISA)** requires:
+
 - `notivisa-outbox` — event queue for NOTIVISA notifications
 - `laudos-draft` — draft management (pessimistic locking)
 
 **Product expansion** requires:
+
 - `portal-configuracao` — lab-specific branding + terms
 - `criticos-escalacoes` — alert escalation rules
 - `imuno-ias-dev` — AI feature experiments
@@ -229,7 +238,7 @@ All 5 collections initialized in single, safe, auditable migration.
 ✓ **RDC 978/2025** — Brazilian lab quality standard (ANVISA)  
 ✓ **DICQ 4.3** — Quality documentation blocks (A-J)  
 ✓ **LGPD** — Privacy law compliance (privacidade defaults included)  
-✓ **Audit trail** — All operations logged with timestamp  
+✓ **Audit trail** — All operations logged with timestamp
 
 ---
 
@@ -272,6 +281,7 @@ See `docs/MIGRATION_v1.4_GUIDE.md` CI/CD section for full integration examples.
 ## Support
 
 **If anything goes wrong:**
+
 1. Check logs: `cat migrate-v1.4.log`
 2. Review troubleshooting in `docs/MIGRATION_v1.4_GUIDE.md`
 3. Run rollback if needed: `bash scripts/migrate-v1.4-rollback.sh --execute`

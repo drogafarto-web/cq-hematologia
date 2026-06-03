@@ -1,11 +1,7 @@
 import { onCall, HttpsError } from 'firebase-functions/v2/https';
 import * as admin from 'firebase-admin';
 
-import {
-  assertTurnosAccess,
-  escalasCollection,
-  CreateEscalaInputSchema,
-} from './validators';
+import { assertTurnosAccess, escalasCollection, CreateEscalaInputSchema } from './validators';
 
 interface CreateEscalaResult {
   ok: true;

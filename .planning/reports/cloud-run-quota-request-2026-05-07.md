@@ -16,7 +16,7 @@
 
 ### Justification (concrete observed event)
 
-On **2026-05-07 between 04:00 and 04:10 UTC**, the operator deployed the post-`ADR-0017` HMAC-rebinding batch (~25 functions in a single `firebase deploy --only functions:fn1,fn2,...`). Cloud Run admin API rate-limited the burst: deploys serialized into ~3 minutes of stalled `Service.replaceService` calls and one transient 429 surfaced in the `gcloud` deploy log. The deploy ultimately succeeded (Firebase CLI auto-retries on Cloud Run admin throttling), but the burst was logged and is documented in `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (operational checklist, item: *"redeploy affected functions in batches of ≤20 (avoid Cloud Run write-quota burst observed at 04:00 UTC same day)"*).
+On **2026-05-07 between 04:00 and 04:10 UTC**, the operator deployed the post-`ADR-0017` HMAC-rebinding batch (~25 functions in a single `firebase deploy --only functions:fn1,fn2,...`). Cloud Run admin API rate-limited the burst: deploys serialized into ~3 minutes of stalled `Service.replaceService` calls and one transient 429 surfaced in the `gcloud` deploy log. The deploy ultimately succeeded (Firebase CLI auto-retries on Cloud Run admin throttling), but the burst was logged and is documented in `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (operational checklist, item: _"redeploy affected functions in batches of ≤20 (avoid Cloud Run write-quota burst observed at 04:00 UTC same day)"_).
 
 The 60 writes/min default ceiling is a soft floor for any Gen-2-Functions-on-Cloud-Run project past ~30 functions. Each `firebase deploy --only functions` performs 1 `Service.replaceService` write per function plus auxiliary IAM and traffic-split writes — practically 1.3–1.5 writes per function. At our current 80-function footprint, a full functions deploy issues ~110 writes; even staggered over ~2 minutes by Firebase CLI internals, this is right at the ceiling and degrades the longer the deploy runs (every retry costs additional quota credit because the prior failed attempt is also counted).
 
@@ -30,18 +30,18 @@ Deploys remain functional but require manual batching (≤20 functions per deplo
 
 ## Form fields (Cloud Console → IAM & Admin → Quotas & System Limits → Cloud Run Admin API)
 
-| Field | Value |
-|---|---|
-| **Service** | `run.googleapis.com` |
-| **Quota name** | "Write requests per minute per region" (filter by `Write requests per region`) |
-| **Metric** | `run.googleapis.com/admin_write_requests` |
-| **Region (dimension)** | `southamerica-east1` |
-| **Current limit** | `60` |
-| **Requested new limit** | `600` |
-| **Project ID** | `hmatologia2` |
-| **Project number** | (operator: read from Console → IAM → Settings → Project number) |
-| **Contact email** | drogafarto@gmail.com |
-| **Contact name** | (operator full name as on Google Cloud billing) |
+| Field                   | Value                                                                          |
+| ----------------------- | ------------------------------------------------------------------------------ |
+| **Service**             | `run.googleapis.com`                                                           |
+| **Quota name**          | "Write requests per minute per region" (filter by `Write requests per region`) |
+| **Metric**              | `run.googleapis.com/admin_write_requests`                                      |
+| **Region (dimension)**  | `southamerica-east1`                                                           |
+| **Current limit**       | `60`                                                                           |
+| **Requested new limit** | `600`                                                                          |
+| **Project ID**          | `hmatologia2`                                                                  |
+| **Project number**      | (operator: read from Console → IAM → Settings → Project number)                |
+| **Contact email**       | drogafarto@gmail.com                                                           |
+| **Contact name**        | (operator full name as on Google Cloud billing)                                |
 
 ### Justification (paste verbatim into the form's "Justification" textarea)
 
@@ -55,7 +55,7 @@ Deploys remain functional but require manual batching (≤20 functions per deplo
 
 ## Pre-paste checklist (operator)
 
-- [ ] Confirm the 04:00–04:10 UTC 2026-05-07 deploy event in `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (operational checklist line: *"avoid Cloud Run write-quota burst observed at 04:00 UTC same day"*) — this is the cited evidence.
+- [ ] Confirm the 04:00–04:10 UTC 2026-05-07 deploy event in `docs/adr/ADR-0017-hmac-baseline-reset-2026-05-07.md` (operational checklist line: _"avoid Cloud Run write-quota burst observed at 04:00 UTC same day"_) — this is the cited evidence.
 - [ ] Confirm logged-in to Cloud Console as `drogafarto@gmail.com` (project Owner role required to file quota requests).
 - [ ] Confirm correct project selector: `hmatologia2` (project number visible in Console → Home → Dashboard).
 - [ ] Confirm region filter is set to `southamerica-east1` before submitting (the form may default to `us-central1`).

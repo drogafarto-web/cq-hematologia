@@ -37,9 +37,9 @@ export interface AnomalyScore {
  * Identifies patterns, assesses risk, provides summary for audit trail
  */
 export interface AiInsight {
-  patterns: string[];           // List of identified patterns
+  patterns: string[]; // List of identified patterns
   riskLevel: 'low' | 'medium' | 'high';
-  summary: string;              // 1-line human-readable summary for audit trail
+  summary: string; // 1-line human-readable summary for audit trail
 }
 
 /**
@@ -52,7 +52,7 @@ export interface AiInsight {
  */
 export async function analyzePattern(
   anomalyScore: AnomalyScore,
-  historicalContext: BaselineStats
+  historicalContext: BaselineStats,
 ): Promise<AiInsight> {
   try {
     const apiKey = process.env.GEMINI_API_KEY;
@@ -95,7 +95,7 @@ export async function analyzePattern(
  */
 function buildPromptContext(
   anomalyScore: AnomalyScore,
-  baseline: BaselineStats
+  baseline: BaselineStats,
 ): PatternAnalysisContext {
   const topOps = Object.entries(baseline.operationCounts)
     .sort(([, a], [, b]) => b - a)
@@ -133,9 +133,7 @@ function buildPromptContext(
  */
 function getPeakHours(hourlyPattern: number[]): number[] {
   const mean = 1 / 24;
-  return hourlyPattern
-    .map((p, hour) => (p > mean ? hour : -1))
-    .filter((h) => h !== -1);
+  return hourlyPattern.map((p, hour) => (p > mean ? hour : -1)).filter((h) => h !== -1);
 }
 
 /**
@@ -147,11 +145,7 @@ function getPeakHours(hourlyPattern: number[]): number[] {
  */
 function buildFallbackInsight(anomalyScore: AnomalyScore): AiInsight {
   const riskLevel: 'low' | 'medium' | 'high' =
-    anomalyScore.overallScore > 75
-      ? 'high'
-      : anomalyScore.overallScore > 50
-        ? 'medium'
-        : 'low';
+    anomalyScore.overallScore > 75 ? 'high' : anomalyScore.overallScore > 50 ? 'medium' : 'low';
 
   return {
     patterns: anomalyScore.dimensions.map((d) => d.dimension),

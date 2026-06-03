@@ -40,7 +40,9 @@ export function ComplianceTab({ labId }: ComplianceTabProps) {
   const [error, setError] = useState<string | null>(null);
   const [overallScore, setOverallScore] = useState(0);
   const [blockScores, setBlockScores] = useState<BlockScore[]>([]);
-  const [stats, setStats] = useState<{ sucessos: number; falhas: number; avisos: number } | null>(null);
+  const [stats, setStats] = useState<{ sucessos: number; falhas: number; avisos: number } | null>(
+    null,
+  );
 
   useEffect(() => {
     if (!labId) return;
@@ -123,13 +125,15 @@ export function ComplianceTab({ labId }: ComplianceTabProps) {
       <div className="bg-white dark:bg-[#141417] rounded-xl border border-slate-200 dark:border-white/[0.08] p-6">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Score de Conformidade</h2>
-            <p className="text-sm text-slate-500 dark:text-white/40 mt-1">Últimos 30 dias — baseado em DICQ 8ª Ed.</p>
+            <h2 className="text-lg font-semibold text-slate-900 dark:text-white">
+              Score de Conformidade
+            </h2>
+            <p className="text-sm text-slate-500 dark:text-white/40 mt-1">
+              Últimos 30 dias — baseado em DICQ 8ª Ed.
+            </p>
           </div>
           <div className="text-right">
-            <p className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>
-              {overallScore}%
-            </p>
+            <p className={`text-4xl font-bold ${getScoreColor(overallScore)}`}>{overallScore}%</p>
             <p className="text-xs text-slate-500 dark:text-white/40 mt-1">
               {overallScore >= 80 ? 'Conforme' : overallScore >= 60 ? 'Atenção' : 'Não conforme'}
             </p>

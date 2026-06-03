@@ -26,7 +26,13 @@ export function PortalRTView() {
       <div className="flex items-center justify-center min-h-screen bg-[#141417]">
         <div className="text-center">
           <div className="w-12 h-12 mx-auto mb-4 rounded-lg bg-violet-500/20 flex items-center justify-center animate-pulse">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" className="text-violet-400">
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              className="text-violet-400"
+            >
               <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z" />
             </svg>
           </div>
@@ -40,13 +46,23 @@ export function PortalRTView() {
     return (
       <div className="flex items-center justify-center min-h-screen bg-[#141417]">
         <div className="text-center">
-          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="mx-auto mb-4 text-rose-400">
+          <svg
+            width="48"
+            height="48"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.5"
+            className="mx-auto mb-4 text-rose-400"
+          >
             <circle cx="12" cy="12" r="10" />
             <line x1="12" y1="8" x2="12" y2="12" />
             <line x1="12" y1="16" x2="12.01" y2="16" />
           </svg>
           <p className="text-white font-medium mb-2">Acesso não autorizado</p>
-          <p className="text-white/50 text-sm mb-4">Você não tem permissão para acessar este módulo.</p>
+          <p className="text-white/50 text-sm mb-4">
+            Você não tem permissão para acessar este módulo.
+          </p>
         </div>
       </div>
     );
