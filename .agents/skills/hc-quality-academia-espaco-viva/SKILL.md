@@ -69,3 +69,65 @@ Ao configurar qualquer **Plano** comercial voltado para a Academia/Musculação:
 Todas as notas de configuração detalhadas e modelos de acompanhamento estão disponíveis no cofre do Obsidian:
 📂 **`C:\musculação\`** (com o dashboard principal em `Painel Geral.md`).
 * Módulo Institucional: `00 - Sobre o Espaço Viva` (Apresentação, Especialidades e Sinergia Operacional).
+
+---
+
+## 🛠️ Integração Pré-Avaliação → Actuar CRM
+
+O fluxo de captura de leads e cadastro clínico/biométrico do Espaço Viva opera da seguinte forma:
+
+```
+[Usuário] → pre-avaliacao.html (Form Wizard)
+                 ↓ POST
+         /.netlify/functions/submit-pre-avaliacao (Netlify Function com logs e JWT auto-login)
+                 ↓
+      Netlify Blob Store ("pre-avaliacao-submissions-v2")
+                 ↓
+      dashboard.html / admin-api.js (Fila de aprovação de novos cadastros)
+                 ↓
+      batch_cadastro_api.py (Script Python local rodado via cron/agente)
+                 ↓
+      Actuar API (POST /Person → PATCH /Person)
+```
+
+### 🚨 Regras Técnicas Inegociáveis & Descobertas da API Actuar:
+
+1. **Separação de Nomes (`FirstName` e `LastName`)**:
+   * **Problema**: O Actuar ignora o campo `Surname` no payload de atualização.
+   * **Ação**: O primeiro nome deve ir para `FirstName` no `POST /Person`. O restante do nome deve ir para `LastName` no `PATCH /Person`.
+   * **Resolução**: Nunca use `Surname` no body de requests do Actuar; use `LastName`.
+
+2. **Módulo de Avaliação Física (AFIG) - Integração Direct-API**:
+   * **Endpoint Descoberto (Option A)**: `POST https://physicalassessmentservice-api.prd.g.actuar.cloud/BodyComposition` (IP: `34.8.55.176`).
+   * **Comportamento**: Salva avaliações físicas diretamente na aba nativa de AFIG (Composição Corporal) no Actuar.
+   * **Estrutura do Payload**:
+     ```json
+     {
+       "PersonId": "uuid-do-lead-ou-cliente",
+       "WeightKg": 82.5,
+       "HeightCm": 178,
+       "CalculateMuscleMass": true,
+       "BodyCompositionProtocolId": 0,
+       "SkinfoldAssessments": [],
+       "PerimeterAssessments": []
+     }
+     ```
+   * **Retorno**: Responde com status `200 OK` e um JSON contendo `AssessmentId` e o IMC computado (`BodyMassIndex`).
+   * **Restrição de Busca UI**: O modal de busca/autocomplete de AFIG na interface web do Actuar filtra apenas por alunos ativos (`PersonType: 1`). Leads/Prospects (`PersonType: 2`) não aparecem na busca manual, mas a API permite criar avaliações físicas programaticamente para eles sem restrição.
+
+3. **OData, Requests Sockets e TLS**:
+   * **GUIDs**: Em filtros OData de GUIDs, nunca use aspas simples (ex: `$filter=PersonId eq 019eb...`).
+   * **URL Encoding**: Parâmetros OData com espaços ou acentos devem ser totalmente percent-encodados (ex: via `urllib.parse.urlencode`) para evitar erros 400.
+   * **Bypass de SSL/TLS**: Como a API de AFIG roda em subdomínio privado próprio (`physicalassessmentservice-api.prd.g.actuar.cloud`), as requisições diretas de sockets ou HTTPS devem bypassar a verificação de certificados.
+     * *Node.js*: Usar `rejectUnauthorized: false` e passar o `servername` correspondente.
+     * *Python*: Usar `ctx.check_hostname = False` e `ctx.verify_mode = ssl.CERT_NONE`.
+   * **Chunked Transfer**: A API do Actuar responde em `Transfer-Encoding: chunked`. Em conexões sockets manuais, a decodificação dos chunks deve ser feita no nível de **bytes** antes da decodificação UTF-8 para evitar corrupção de caracteres multibyte.
+
+4. **Credenciais e Arquivos Locais**:
+   * Token JWT ativo: `C:\musculação\scripts\token_state.json`
+   * Executar renovação: `python C:\musculação\scripts\renew_token.py` (requer `ACTUAR_EMAIL` e `ACTUAR_SENHA` no env)
+   * Script de Backfill: `C:\musculação\scripts\_fix_names_backfill.py`
+   * Script E2E (com teste AFIG): `C:\musculação\scripts\test_e2e.py`
+   * Teste Unitário AFIG: `C:\musculação\scripts\test_afig_api.py`
+
+
