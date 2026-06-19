@@ -25,7 +25,7 @@ import { COLLECTIONS, SUBCOLLECTIONS } from '../../../constants';
 import type { CriticosThreshold, CriticosThresholdInput } from '../types/threshold';
 import { CriticosThresholdInputSchema } from '../types/threshold';
 import { db } from '../../../shared/services/firebase';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 export type LabId = string;
 
@@ -49,7 +49,7 @@ export function validateThresholdInput(input: unknown): CriticosThresholdInput {
     return CriticosThresholdInputSchema.parse(input);
   } catch (error) {
     if (error instanceof ZodError) {
-      const messages = error.errors.map((e) => `${e.path.join('.')}: ${e.message}`).join('; ');
+      const messages = error.issues.map((e: z.ZodIssue) => `${e.path.join('.')}: ${e.message}`).join('; ');
       throw new Error(`Validation error: ${messages}`);
     }
     throw error;
