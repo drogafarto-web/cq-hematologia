@@ -24,7 +24,7 @@ import {
   softDeleteThreshold,
 } from '../services/thresholdService';
 import { useActiveLabId, useUser } from '../../../store/useAuthStore';
-import { ZodError } from 'zod';
+import { z, ZodError } from 'zod';
 
 interface ThresholdConfigPanelProps {
   labId?: string;
@@ -132,7 +132,7 @@ export function ThresholdConfigPanel({ labId: propLabId, onError }: ThresholdCon
     } catch (error) {
       if (error instanceof ZodError) {
         const errors: Record<string, string> = {};
-        error.errors.forEach((e) => {
+        error.issues.forEach((e: z.ZodIssue) => {
           const path = e.path.join('.');
           errors[path] = e.message;
         });
