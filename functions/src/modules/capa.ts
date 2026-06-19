@@ -1,4 +1,4 @@
-/**
+﻿/**
  * CAPA Cloud Functions
  *
  * Callables for Corrective/Preventive Action (CAPA) lifecycle.
@@ -13,18 +13,18 @@ import { signAuditEntry } from './audit/cryptoAudit';
 
 const db = admin.firestore();
 
-// ─── Validators ────────────────────────────────────────────────────────────
+// â”€â”€â”€ Validators â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const CreateCAPAInput = z.object({
-  labId: z.string().min(1, 'labId é obrigatório'),
+  labId: z.string().min(1, 'labId Ã© obrigatÃ³rio'),
   titulo: z
     .string()
-    .min(5, 'Título deve ter pelo menos 5 caracteres')
-    .max(200, 'Título não pode exceder 200 caracteres'),
+    .min(5, 'TÃ­tulo deve ter pelo menos 5 caracteres')
+    .max(200, 'TÃ­tulo nÃ£o pode exceder 200 caracteres'),
   descricao: z
     .string()
-    .min(10, 'Descrição deve ter pelo menos 10 caracteres')
-    .max(2000, 'Descrição não pode exceder 2000 caracteres'),
+    .min(10, 'DescriÃ§Ã£o deve ter pelo menos 10 caracteres')
+    .max(2000, 'DescriÃ§Ã£o nÃ£o pode exceder 2000 caracteres'),
   encontroId: z.string().nullable().optional(),
   encontroTipo: z
     .enum(['auditoria', 'laudo', 'reclamacao', 'risco', 'nao-conformidade'])
@@ -50,9 +50,9 @@ const AssignCAPAInput = z.object({
   tipo: z.enum(['corretiva', 'preventiva']),
   descricao: z
     .string()
-    .min(10, 'Descrição deve ter pelo menos 10 caracteres')
-    .max(1000, 'Descrição não pode exceder 1000 caracteres'),
-  responsavel: z.string().min(1, 'Responsável é obrigatório'),
+    .min(10, 'DescriÃ§Ã£o deve ter pelo menos 10 caracteres')
+    .max(1000, 'DescriÃ§Ã£o nÃ£o pode exceder 1000 caracteres'),
+  responsavel: z.string().min(1, 'ResponsÃ¡vel Ã© obrigatÃ³rio'),
   dataVencimento: z.any(), // Timestamp
   evidenciasLinks: z.array(z.string()).default([]),
   notas: z.string().optional(),
@@ -67,7 +67,7 @@ const VerifyCAPAInput = z.object({
   notas: z
     .string()
     .min(10, 'Notas devem ter pelo menos 10 caracteres')
-    .max(2000, 'Notas não podem exceder 2000 caracteres'),
+    .max(2000, 'Notas nÃ£o podem exceder 2000 caracteres'),
   horasInvestidas: z.number().min(0).default(0),
 });
 
@@ -77,7 +77,7 @@ const SoftDeleteCAPAInput = z.object({
   deletadoPor: z.string().min(1),
 });
 
-// ─── Status Transitions ────────────────────────────────────────────────────
+// â”€â”€â”€ Status Transitions â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 const VALID_TRANSITIONS: Record<string, string[]> = {
   aberta: ['em-tratamento', 'cancelada'],
@@ -91,7 +91,7 @@ function isValidTransition(currentStatus: string, newStatus: string): boolean {
   return VALID_TRANSITIONS[currentStatus]?.includes(newStatus) ?? false;
 }
 
-// ─── Helper: Check lab membership ──────────────────────────────────────────
+// â”€â”€â”€ Helper: Check lab membership â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 async function isActiveMemberOfLab(labId: string, uid: string): Promise<boolean> {
   try {
@@ -115,7 +115,7 @@ async function isAdminOrRT(labId: string, uid: string): Promise<boolean> {
   }
 }
 
-// ─── createCAPA Callable ───────────────────────────────────────────────────
+// â”€â”€â”€ createCAPA Callable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const createCAPA = onCall(
   { region: 'southamerica-east1', secrets: ['AUDIT_SECRET'] },
@@ -155,7 +155,7 @@ export const createCAPA = onCall(
       await capaRef.set(capaDoc);
 
       // Register audit entry
-      const auditSecret = process.env.AUDIT_SECRET || 'dev-secret';
+      const auditSecret = process.env.AUDIT_SECRET; if (!auditSecret) throw new Error('AUDIT_SECRET nao configurada');
       const auditEntry = await signAuditEntry(
         `labs/${input.labId}/audit-trail`,
         request.auth.uid,
@@ -180,7 +180,7 @@ export const createCAPA = onCall(
   },
 );
 
-// ─── updateCAPA Callable ───────────────────────────────────────────────────
+// â”€â”€â”€ updateCAPA Callable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const updateCAPA = onCall(
   { region: 'southamerica-east1', secrets: ['AUDIT_SECRET'] },
@@ -204,19 +204,19 @@ export const updateCAPA = onCall(
 
       const snap = await capaRef.get();
       if (!snap.exists) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       const capaData = snap.data();
       if (!capaData) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       const currentStatus = capaData.status;
       if (!isValidTransition(currentStatus, input.newStatus)) {
         throw new HttpsError(
           'failed-precondition',
-          `Transição inválida: ${currentStatus} → ${input.newStatus}`,
+          `TransiÃ§Ã£o invÃ¡lida: ${currentStatus} â†’ ${input.newStatus}`,
         );
       }
 
@@ -227,7 +227,7 @@ export const updateCAPA = onCall(
       });
 
       // Register audit entry
-      const auditSecret = process.env.AUDIT_SECRET || 'dev-secret';
+      const auditSecret = process.env.AUDIT_SECRET; if (!auditSecret) throw new Error('AUDIT_SECRET nao configurada');
       await signAuditEntry(
         `labs/${input.labId}/audit-trail`,
         request.auth.uid,
@@ -250,7 +250,7 @@ export const updateCAPA = onCall(
   },
 );
 
-// ─── assignCAPA Callable ───────────────────────────────────────────────────
+// â”€â”€â”€ assignCAPA Callable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const assignCAPA = onCall(
   { region: 'southamerica-east1', secrets: ['AUDIT_SECRET'] },
@@ -263,7 +263,7 @@ export const assignCAPA = onCall(
     const isAuthorized = await isAdminOrRT(input.labId, request.auth.uid);
 
     if (!isAuthorized) {
-      throw new HttpsError('permission-denied', 'Apenas RT ou admin podem atribuir ações');
+      throw new HttpsError('permission-denied', 'Apenas RT ou admin podem atribuir aÃ§Ãµes');
     }
 
     try {
@@ -271,18 +271,18 @@ export const assignCAPA = onCall(
 
       const snap = await capaRef.get();
       if (!snap.exists) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       const capa = snap.data();
       if (!capa) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       if (capa.status === 'fechada' || capa.status === 'cancelada') {
         throw new HttpsError(
           'failed-precondition',
-          'Não é possível atribuir ações a CAPA fechada ou cancelada',
+          'NÃ£o Ã© possÃ­vel atribuir aÃ§Ãµes a CAPA fechada ou cancelada',
         );
       }
 
@@ -314,7 +314,7 @@ export const assignCAPA = onCall(
       }
 
       // Register audit entry
-      const auditSecret = process.env.AUDIT_SECRET || 'dev-secret';
+      const auditSecret = process.env.AUDIT_SECRET; if (!auditSecret) throw new Error('AUDIT_SECRET nao configurada');
       await signAuditEntry(
         `labs/${input.labId}/audit-trail`,
         request.auth.uid,
@@ -332,12 +332,12 @@ export const assignCAPA = onCall(
     } catch (error: any) {
       console.error('assignCAPA error:', error);
       if (error instanceof HttpsError) throw error;
-      throw new HttpsError('internal', 'Erro ao atribuir ação. Por favor, tente novamente.');
+      throw new HttpsError('internal', 'Erro ao atribuir aÃ§Ã£o. Por favor, tente novamente.');
     }
   },
 );
 
-// ─── verifyCAPA Callable ───────────────────────────────────────────────────
+// â”€â”€â”€ verifyCAPA Callable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const verifyCAPA = onCall(
   { region: 'southamerica-east1', secrets: ['AUDIT_SECRET'] },
@@ -358,18 +358,18 @@ export const verifyCAPA = onCall(
 
       const snap = await capaRef.get();
       if (!snap.exists) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       const capa = snap.data();
       if (!capa) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       if (capa.status !== 'em-tratamento') {
         throw new HttpsError(
           'failed-precondition',
-          'Verificação só é possível em CAPAs em-tratamento',
+          'VerificaÃ§Ã£o sÃ³ Ã© possÃ­vel em CAPAs em-tratamento',
         );
       }
 
@@ -405,7 +405,7 @@ export const verifyCAPA = onCall(
       }
 
       // Register audit entry
-      const auditSecret = process.env.AUDIT_SECRET || 'dev-secret';
+      const auditSecret = process.env.AUDIT_SECRET; if (!auditSecret) throw new Error('AUDIT_SECRET nao configurada');
       await signAuditEntry(
         `labs/${input.labId}/audit-trail`,
         request.auth.uid,
@@ -424,13 +424,13 @@ export const verifyCAPA = onCall(
       if (error instanceof HttpsError) throw error;
       throw new HttpsError(
         'internal',
-        'Erro ao registrar verificação. Por favor, tente novamente.',
+        'Erro ao registrar verificaÃ§Ã£o. Por favor, tente novamente.',
       );
     }
   },
 );
 
-// ─── softDeleteCAPA Callable ───────────────────────────────────────────────
+// â”€â”€â”€ softDeleteCAPA Callable â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 export const softDeleteCAPA = onCall(
   { region: 'southamerica-east1', secrets: ['AUDIT_SECRET'] },
@@ -451,7 +451,7 @@ export const softDeleteCAPA = onCall(
 
       const snap = await capaRef.get();
       if (!snap.exists) {
-        throw new HttpsError('not-found', 'CAPA não encontrada');
+        throw new HttpsError('not-found', 'CAPA nÃ£o encontrada');
       }
 
       // Soft delete: set deletadoEm and deletadoPor, never deleteDoc
@@ -461,7 +461,7 @@ export const softDeleteCAPA = onCall(
       });
 
       // Register audit entry
-      const auditSecret = process.env.AUDIT_SECRET || 'dev-secret';
+      const auditSecret = process.env.AUDIT_SECRET; if (!auditSecret) throw new Error('AUDIT_SECRET nao configurada');
       await signAuditEntry(
         `labs/${input.labId}/audit-trail`,
         request.auth.uid,

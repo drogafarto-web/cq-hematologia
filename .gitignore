@@ -225,3 +225,5 @@ vendor/
 coverage/
 .cache/
 tmp/
+
+.cursor/mcp.json
