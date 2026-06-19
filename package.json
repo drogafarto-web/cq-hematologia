@@ -53,7 +53,7 @@
     "lucide-react": "1.21.0",
     "papaparse": "^5.5.4",
     "pdfjs-dist": "6.0.227",
-    "protobufjs": "7.5.6",
+    "protobufjs": "8.6.4",
     "qrcode.react": "^4.2.0",
     "react": "19.2.7",
     "react-dom": "19.2.7",
