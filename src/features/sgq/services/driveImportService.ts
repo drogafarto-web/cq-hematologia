@@ -25,8 +25,15 @@ export interface ImportDocPreview {
  * Initiate OAuth flow for Drive authorization
  */
 export function initiateOAuthFlow(labId: string): string {
+  const clientId = import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID;
+  if (!clientId) {
+    throw new Error(
+      '[driveImportService] Missing VITE_GOOGLE_OAUTH_CLIENT_ID. ' +
+        'Add it to your .env to enable Google Drive integration.',
+    );
+  }
   const authUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth');
-  authUrl.searchParams.append('client_id', import.meta.env.VITE_GOOGLE_OAUTH_CLIENT_ID);
+  authUrl.searchParams.append('client_id', clientId);
   authUrl.searchParams.append('redirect_uri', `${window.location.origin}/api/sgq/oauth-callback`);
   authUrl.searchParams.append('response_type', 'code');
   authUrl.searchParams.append(
